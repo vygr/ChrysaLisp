@@ -52,7 +52,7 @@ weakness when queried for *missing* keys.
 * Consequently, if you check for that same missing symbol again, it will trigger
   *another* full linear scan.
 
-During the translator's `emit-prepass` (which scans thousands of instructions
+During the translator's `prepass` (which scans thousands of instructions
 for fusion opportunities like `LDP`/`STP` on ARM64) or the main `emit-translate`
 loop, checking an instruction against a map of valid targets could result in
 thousands of linear scans if the instruction doesn't belong in that map.
@@ -66,10 +66,10 @@ architecture.**
 * Instead of only storing the instructions that actually apply to a specific
   map, the translator inserts *every single instruction* into the map.
 
-* For instructions that are relevant (e.g., `emit-jmp` inside the `+emit_jmps`
+* For instructions that are relevant (e.g., `jmp` inside the `+emit_jmps`
   map), it stores the actual data or a `:t` flag.
 
-* For instructions that are irrelevant (e.g., `emit-add-rr` inside the
+* For instructions that are irrelevant (e.g., `add-rr` inside the
   `+emit_jmps` map), it explicitly stores a `:nil` value.
 
 * Because every instruction is now physically present in the map, querying
@@ -83,9 +83,9 @@ instruction symbol might be checked against multiple different maps
 sequentially.
 
 For example, `emit-translate` checks `+emit_jmps` and then `+emit_funcs`. Later,
-`emit-prepass` in ARM64 checks `+arm64_fuse_map`.
+`prepass` in ARM64 checks `+arm64_fuse_map`.
 
-If the symbol `emit-add-rr` lived at index `42` in `+emit_jmps` but index `15`
+If the symbol `add-rr` lived at index `42` in `+emit_jmps` but index `15`
 in `+emit_funcs`, querying them sequentially would cause the `str_hashslot`
 cache to thrash. It would constantly overwrite the cached index, causing linear
 scans on every check.
@@ -130,7 +130,7 @@ instructions are inserted, but their `find` evaluates to `:nil`:
 
 ```vdu
 (defq +emit_jmps (reduce (lambda (e (k v)) (def e k (find k
-		'(emit-jmp emit-beq-cr ...)))) e)
+		'(jmp beq-cr ...)))) e)
 	(tolist +emit_funcs) (env 1))
 ```
 
@@ -141,10 +141,10 @@ instructions, and uses `reduce!` to populate its fusion map in the exact same
 order:
 
 ```vdu
-(defq emit_list (merge (filter (# (starts-with "emit-" %0)) ...) '(emit-arm64-ldp ...))
+(defq emit_list (merge (filter (# (starts-with "emit-" %0)) ...) '(arm64-ldp ...))
 	+arm64_fuse_map
 		(reduce (#
-			(def %0 %1 (when (defq i (find %1 '(emit-load-rcr ...)))
+			(def %0 %1 (when (defq i (find %1 '(load-rcr ...)))
 				... fusion data ...)) %0)
 			emit_list (env 1)))
 ```
@@ -152,9 +152,9 @@ order:
 ## The Result
 
 Through this careful orchestration, the sequence of execution for a symbol like
-`emit-add-rr` is flawlessly optimized:
+`add-rr` is flawlessly optimized:
 
-* `emit-add-rr` is `def`'d into `+emit_funcs` at index `42`. Its global
+* `add-rr` is `def`'d into `+emit_funcs` at index `42`. Its global
   `str_hashslot` is instantly set to `42`.
 
 * It is `def`'d into `+emit_jmps` (as `:nil`) at index `42`. Its `str_hashslot`
@@ -163,7 +163,7 @@ Through this careful orchestration, the sequence of execution for a symbol like
 * It is `def`'d into `+arm64_fuse_map` (as `:nil`) at index `42`. Its
   `str_hashslot` is overwritten with `42`.
 
-* During compilation, when `(def? 'emit-add-rr +arm64_fuse_map)` is evaluated,
+* During compilation, when `(def? 'add-rr +arm64_fuse_map)` is evaluated,
   the `:hmap` looks at the symbol's cache, sees `42`, checks index `42` in the
   array, finds the match, and returns `:nil`.
 

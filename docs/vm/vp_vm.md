@@ -523,24 +523,23 @@ A bundle is a run of forms, one a function, as `(read)` reads them:
 
 ```vdu
 ("apps/system/netspeed/vops"
-(progn
-(emit-label '_0)
-(emit-long -1)
-(emit-short _27 _2 _15 _21 6144)
+((label '_0)
+(long -1)
+(short _27 _2 _15 _21 6144)
 ...)
 (locals ...)
 (kept ...))
 ```
 
-The first item is the function's path, the second the `progn` of its
-instructions. Each instruction is a call of the `emit-` of a VP instruction,
-`(emit-add-cr 1 :r0)` for `(vp-add-cr 1 :r0)`. A single's op names its
-registers as the doubles they are of, `(emit-add-ff :d1 :d0)` for
+The first item is the function's path, the second the list of its
+instructions. Each instruction is its op and its operands, `(add-cr 1 :r0)`
+for `(vp-add-cr 1 :r0)`. A single's op names its
+registers as the doubles they are of, `(add-ff :d1 :d0)` for
 `(vp-add-ff :f1 :f0)`: the width is in the op, and a register is one of 32
 to every tool after the assembler. Labels are symbols, `_0` and
-on, set by `(emit-label)` and used before or after it. The header and the
-tail are in it too, as data: `emit-byte`, `emit-short`, `emit-int`,
-`emit-long`, `emit-string` and `emit-align`, so that a translator makes the
+on, set by `(label)` and used before or after it. The header and the
+tail are in it too, as data: `byte`, `short`, `int`,
+`long`, `string` and `align`, so that a translator makes the
 layout above by doing nothing more than its instructions say.
 
 An operand is one of these, and nothing else:
@@ -549,7 +548,7 @@ An operand is one of these, and nothing else:
 
 * a number, a `num`, a whole number of 64 bits.
 
-* a label, `_4`, or quoted where `(emit-label)` sets it, `'_4`.
+* a label, `_4`, or quoted where `(label)` sets it, `'_4`.
 
 * the distance between two places, `(- _4 *pc*)`, `(- *pc* _4)` or
 `(- _4 _2)`.
@@ -566,7 +565,7 @@ came to by the time it is emitted. A form in a quoted list of operands is not
 worked out, and a macro in one is only expanded, so `'((& :r4 (inc
 +str_data)))` emits `(#add 24 1)`; write `` `((& :r4 ,(inc +str_data))) ``.
 The parser of VP text, `lib/trans/vp_parse.vp`, refuses any other operand,
-and a label no `(emit-label)` sets, and the build stops with the function's
+and a label no `(label)` sets, and the build stops with the function's
 name.
 
 After the instructions there may be `(locals ...)`, the frames of named locals

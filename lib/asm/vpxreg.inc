@@ -37,14 +37,14 @@
 ;module
 (env-push)
 
-(defq +keep_loads ''(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i
-		emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-load-rcd emit-load-rcf)
-	+keep_stores ''(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-frc)
+(defq +keep_loads ''(load-rcr load-rcr-b load-rcr-s load-rcr-i
+		load-rcr-ub load-rcr-us load-rcr-ui load-rcd load-rcf)
+	+keep_stores ''(store-rrc store-rrc-b store-rrc-s store-rrc-i store-drc store-frc)
 	;what goes somewhere and does not come back here, and what calls
-	+keep_leaves ''(emit-ret emit-jmp-p emit-jmp-r emit-jmp-rc)
-	+keep_calls ''(emit-call emit-call-p emit-call-r emit-call-rc emit-call-abi)
+	+keep_leaves ''(ret jmp-p jmp-r jmp-rc)
+	+keep_calls ''(call call-p call-r call-rc call-abi)
 	;what it does not follow
-	+keep_never ''(emit-call emit-call-r emit-jmp-r emit-stack-init)
+	+keep_never ''(call call-r jmp-r stack-init)
 	+keep_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 (defun keep-next (insts labels)
@@ -56,10 +56,10 @@
 		(defq op (first inst) at (!) on (if (< (inc at) count) (list (inc at)) (list)))
 		(cond
 			((find op +keep_leaves) (list))
-			((or (eql op 'emit-jmp) (starts-with "emit-b" op))
+			((or (eql op 'jmp) (and (starts-with "b" op) (nql op 'byte)))
 				(cond
-					((eql op 'emit-byte) on)
-					((defq to (. labels :find (last inst))) (if (eql op 'emit-jmp) (list to) (push on to)))
+					((eql op 'byte) on)
+					((defq to (. labels :find (last inst))) (if (eql op 'jmp) (list to) (push on to)))
 					(:t (setq lost :t) on)))
 			(on)))
 		insts))
@@ -75,15 +75,15 @@
 		stacks (map (lambda (inst) :nil) insts) todo (list 0) odd :nil)
 	(each (lambda (inst)
 		(cond
-			((eql (first inst) 'emit-alloc) (push which_of (++ allocs)) (push sizes (second inst)))
+			((eql (first inst) 'alloc) (push which_of (++ allocs)) (push sizes (second inst)))
 			((push which_of 0))))
 		insts)
 	(when (> count 0) (elem-set stacks 0 (list)))
 	(while (defq at (pop todo))
 		(defq inst (elem-get insts at) op (first inst) stack (elem-get stacks at))
 		(cond
-			((eql op 'emit-alloc) (setq stack (cat stack (list (elem-get which_of at)))))
-			((eql op 'emit-free)
+			((eql op 'alloc) (setq stack (cat stack (list (elem-get which_of at)))))
+			((eql op 'free)
 				(defq bytes (second inst) stack (cat stack))
 				(while (and (> bytes 0) (nempty? stack))
 					(setq bytes (- bytes (elem-get sizes (pop stack)))))
@@ -207,20 +207,20 @@
 	(each (lambda (inst)
 		(defq op (first inst))
 		(cond
-			((eql op 'emit-label) (. labels :insert (last (second inst)) (!)))
+			((eql op 'label) (. labels :insert (last (second inst)) (!)))
 			((find op +keep_never) (setq never :t)))
 		(each (# (and (sym? %0) (find %0 +keep_regs) (not (find %0 used)) (push used %0))) inst))
 		insts)
 	;an address taken of a label of the function: where it goes is not seen
 	(each (lambda (inst)
-		(and (find (first inst) '(emit-lea-pr emit-load-pr)) (. labels :find (second inst)) (setq never :t)))
+		(and (find (first inst) '(lea-pr load-pr)) (. labels :find (second inst)) (setq never :t)))
 		insts)
 	(when (and (not never) (> count 0) (nempty? frames) (defq next (keep-next insts labels)))
 		(defq prev (map (lambda (n) (list)) next))
 		(each (lambda (on) (defq from (!)) (each (# (push (elem-get prev %0) from)) on)) next)
 		;a label nothing is seen to go to is gone to by a way not seen
 		(each (lambda (inst from)
-			(and (eql (first inst) 'emit-label) (> (!) 0) (empty? from) (setq never :t)))
+			(and (eql (first inst) 'label) (> (!) 0) (empty? from) (setq never :t)))
 			insts prev)
 		(when (and (not never) (defq framed (keep-stacks insts next)))
 			(bind '(stacks sizes) framed)
@@ -231,19 +231,19 @@
 				(defq op (first inst) stack (ifn stack (list)) event :nil place :nil whole :t called :nil)
 				(cond
 					((and (find op +keep_loads) (eql (second inst) :rsp))
-						(if (setq place (keep-place stack sizes (third inst))) (setq event :load whole (eql op 'emit-load-rcr))))
+						(if (setq place (keep-place stack sizes (third inst))) (setq event :load whole (eql op 'load-rcr))))
 					((and (find op +keep_stores) (eql (third inst) :rsp))
-						(if (setq place (keep-place stack sizes (elem-get inst 3))) (setq event :store whole (eql op 'emit-store-rrc))))
-					((and (eql op 'emit-lea-rcr) (eql (second inst) :rsp))
+						(if (setq place (keep-place stack sizes (elem-get inst 3))) (setq event :store whole (eql op 'store-rrc))))
+					((and (eql op 'lea-rcr) (eql (second inst) :rsp))
 						(if (setq place (keep-place stack sizes (third inst))) (setq event :addr whole :nil)))
-					((find op '(emit-alloc emit-free)))
+					((find op '(alloc free)))
 					;a push or a pop moves the stack pointer: with a frame
 					;there, what is at a place from it is not followed
-					((find op '(emit-push emit-pop)) (if (nempty? stack) (setq never :t)))
+					((find op '(push pop)) (if (nempty? stack) (setq never :t)))
 					((find :rsp inst) (setq never :t))
-					((or (find op +keep_calls) (find op '(emit-jmp-p emit-jmp-rc)))
+					((or (find op +keep_calls) (find op '(jmp-p jmp-rc)))
 						(cond
-							((eql op 'emit-call-abi) (setq called (list :nil (list))))
+							((eql op 'call-abi) (setq called (list :nil (list))))
 							((setq called (callee inst)))
 							((setq never :t)))
 						(when called
@@ -326,13 +326,13 @@
 										to_home (/= 0 (logand mask (elem-get wanted at))))
 									(unless to_stack (elem-set writes bit (inc (elem-get writes bit))))
 									(push mine_edits (list at (cat (if to_stack (list inst) (list))
-										(if to_home (list (list 'emit-cpy-rr src home)) (list))))))
+										(if to_home (list (list 'cpy-rr src home)) (list))))))
 								((/= 0 (logand mask (elem-get had at)))
 									(elem-set reads bit (inc (elem-get reads bit)))
-									(push mine_edits (list at (list (list 'emit-cpy-rr home (last inst))))))
+									(push mine_edits (list at (list (list 'cpy-rr home (last inst))))))
 								((/= 0 (logand mask (elem-get wanted at)))
-									(push mine_edits (list at (list (list 'emit-load-rcr :rsp (third inst) home)
-										(list 'emit-cpy-rr home (last inst)))))))))
+									(push mine_edits (list at (list (list 'load-rcr :rsp (third inst) home)
+										(list 'cpy-rr home (last inst)))))))))
 						events)
 					(cond
 						((defq idle (some (lambda (slot r w) (if (= 0 (+ r w)) (!))) using reads writes))

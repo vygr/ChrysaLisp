@@ -91,61 +91,61 @@
 
 (defq +inst_specs (scatter (Fmap 31)
 	; integer rr
-	'emit-cpy-rr '(:r :r) 'emit-add-rr '(:r :r) 'emit-sub-rr '(:r :r) 'emit-mul-rr '(:r :r)
-	'emit-and-rr '(:r :r) 'emit-or-rr '(:r :r) 'emit-xor-rr '(:r :r) 'emit-shl-rr '(:r :r)
-	'emit-shr-rr '(:r :r) 'emit-asr-rr '(:r :r) 'emit-lnot-rr '(:r) 'emit-land-rr '(:r :r)
-	'emit-swp-rr '(:r :r) 'emit-ext-rr '(:r :r) 'emit-seq-rr '(:r :r) 'emit-sne-rr '(:r :r)
-	'emit-slt-rr '(:r :r) 'emit-sgt-rr '(:r :r) 'emit-sle-rr '(:r :r) 'emit-sge-rr '(:r :r)
+	'cpy-rr '(:r :r) 'add-rr '(:r :r) 'sub-rr '(:r :r) 'mul-rr '(:r :r)
+	'and-rr '(:r :r) 'or-rr '(:r :r) 'xor-rr '(:r :r) 'shl-rr '(:r :r)
+	'shr-rr '(:r :r) 'asr-rr '(:r :r) 'lnot-rr '(:r) 'land-rr '(:r :r)
+	'swp-rr '(:r :r) 'ext-rr '(:r :r) 'seq-rr '(:r :r) 'sne-rr '(:r :r)
+	'slt-rr '(:r :r) 'sgt-rr '(:r :r) 'sle-rr '(:r :r) 'sge-rr '(:r :r)
 	; integer cr
-	'emit-cpy-cr '(:c :r) 'emit-add-cr '(:c :r) 'emit-sub-cr '(:c :r) 'emit-mul-cr '(:c :r)
-	'emit-and-cr '(:c :r) 'emit-or-cr '(:c :r) 'emit-xor-cr '(:c :r) 'emit-shl-cr '(:c :r)
-	'emit-shr-cr '(:c :r) 'emit-asr-cr '(:c :r) 'emit-seq-cr '(:c :r) 'emit-sne-cr '(:c :r)
-	'emit-slt-cr '(:c :r) 'emit-sgt-cr '(:c :r) 'emit-sle-cr '(:c :r) 'emit-sge-cr '(:c :r)
+	'cpy-cr '(:c :r) 'add-cr '(:c :r) 'sub-cr '(:c :r) 'mul-cr '(:c :r)
+	'and-cr '(:c :r) 'or-cr '(:c :r) 'xor-cr '(:c :r) 'shl-cr '(:c :r)
+	'shr-cr '(:c :r) 'asr-cr '(:c :r) 'seq-cr '(:c :r) 'sne-cr '(:c :r)
+	'slt-cr '(:c :r) 'sgt-cr '(:c :r) 'sle-cr '(:c :r) 'sge-cr '(:c :r)
 	; integer min/max/abs
-	'emit-min-rr '(:r :r) 'emit-max-rr '(:r :r) 'emit-abs-rr '(:r :r)
-	'emit-min-cr '(:c :r) 'emit-max-cr '(:c :r)
+	'min-rr '(:r :r) 'max-rr '(:r :r) 'abs-rr '(:r :r)
+	'min-cr '(:c :r) 'max-cr '(:c :r)
 	; integer division and remainder
-	'emit-div-rr '(:r :r) 'emit-div-rr-u '(:r :r) 'emit-rem-rr '(:r :r) 'emit-rem-rr-u '(:r :r)
+	'div-rr '(:r :r) 'div-rr-u '(:r :r) 'rem-rr '(:r :r) 'rem-rr-u '(:r :r)
 	; integer branches
-	'emit-beq-cr '(:c :r :label) 'emit-bne-cr '(:c :r :label) 'emit-blt-cr '(:c :r :label) 'emit-bgt-cr '(:c :r :label)
-	'emit-ble-cr '(:c :r :label) 'emit-bge-cr '(:c :r :label) 'emit-beq-rr '(:r :r :label) 'emit-bne-rr '(:r :r :label)
-	'emit-blt-rr '(:r :r :label) 'emit-bgt-rr '(:r :r :label) 'emit-ble-rr '(:r :r :label) 'emit-bge-rr '(:r :r :label)
+	'beq-cr '(:c :r :label) 'bne-cr '(:c :r :label) 'blt-cr '(:c :r :label) 'bgt-cr '(:c :r :label)
+	'ble-cr '(:c :r :label) 'bge-cr '(:c :r :label) 'beq-rr '(:r :r :label) 'bne-rr '(:r :r :label)
+	'blt-rr '(:r :r :label) 'bgt-rr '(:r :r :label) 'ble-rr '(:r :r :label) 'bge-rr '(:r :r :label)
 	; integer memory
-	'emit-load-rcr '(:r :c :r) 'emit-load-rcr-b '(:r :c :r) 'emit-load-rcr-s '(:r :c :r) 'emit-load-rcr-i '(:r :c :r)
-	'emit-load-rcr-ub '(:r :c :r) 'emit-load-rcr-us '(:r :c :r) 'emit-load-rcr-ui '(:r :c :r) 'emit-lea-rcr '(:r :c :r)
-	'emit-store-rrc '(:r :r :c) 'emit-store-rrc-b '(:r :r :c) 'emit-store-rrc-s '(:r :r :c) 'emit-store-rrc-i '(:r :r :c)
-	'emit-load-rrr '(:r :r :r) 'emit-load-rrr-b '(:r :r :r) 'emit-load-rrr-s '(:r :r :r) 'emit-load-rrr-i '(:r :r :r)
-	'emit-load-rrr-ub '(:r :r :r) 'emit-load-rrr-us '(:r :r :r) 'emit-load-rrr-ui '(:r :r :r) 'emit-lea-rrr '(:r :r :r)
-	'emit-store-rrr '(:r :r :r) 'emit-store-rrr-b '(:r :r :r) 'emit-store-rrr-s '(:r :r :r) 'emit-store-rrr-i '(:r :r :r)
+	'load-rcr '(:r :c :r) 'load-rcr-b '(:r :c :r) 'load-rcr-s '(:r :c :r) 'load-rcr-i '(:r :c :r)
+	'load-rcr-ub '(:r :c :r) 'load-rcr-us '(:r :c :r) 'load-rcr-ui '(:r :c :r) 'lea-rcr '(:r :c :r)
+	'store-rrc '(:r :r :c) 'store-rrc-b '(:r :r :c) 'store-rrc-s '(:r :r :c) 'store-rrc-i '(:r :r :c)
+	'load-rrr '(:r :r :r) 'load-rrr-b '(:r :r :r) 'load-rrr-s '(:r :r :r) 'load-rrr-i '(:r :r :r)
+	'load-rrr-ub '(:r :r :r) 'load-rrr-us '(:r :r :r) 'load-rrr-ui '(:r :r :r) 'lea-rrr '(:r :r :r)
+	'store-rrr '(:r :r :r) 'store-rrr-b '(:r :r :r) 'store-rrr-s '(:r :r :r) 'store-rrr-i '(:r :r :r)
 	; float alu
-	'emit-cpy-dd '(:f :f) 'emit-add-dd '(:f :f) 'emit-sub-dd '(:f :f) 'emit-mul-dd '(:f :f)
-	'emit-div-dd '(:f :f) 'emit-min-dd '(:f :f) 'emit-max-dd '(:f :f) 'emit-sqrt-dd '(:f :f)
-	'emit-abs-dd '(:f :f) 'emit-neg-dd '(:f :f)
-	'emit-add-ff '(:f :f) 'emit-sub-ff '(:f :f) 'emit-mul-ff '(:f :f) 'emit-div-ff '(:f :f)
-	'emit-min-ff '(:f :f) 'emit-max-ff '(:f :f) 'emit-sqrt-ff '(:f :f) 'emit-abs-ff '(:f :f)
-	'emit-neg-ff '(:f :f)
+	'cpy-dd '(:f :f) 'add-dd '(:f :f) 'sub-dd '(:f :f) 'mul-dd '(:f :f)
+	'div-dd '(:f :f) 'min-dd '(:f :f) 'max-dd '(:f :f) 'sqrt-dd '(:f :f)
+	'abs-dd '(:f :f) 'neg-dd '(:f :f)
+	'add-ff '(:f :f) 'sub-ff '(:f :f) 'mul-ff '(:f :f) 'div-ff '(:f :f)
+	'min-ff '(:f :f) 'max-ff '(:f :f) 'sqrt-ff '(:f :f) 'abs-ff '(:f :f)
+	'neg-ff '(:f :f)
 	; float branches
-	'emit-beq-dd '(:f :f :label) 'emit-bne-dd '(:f :f :label) 'emit-blt-dd '(:f :f :label)
-	'emit-bgt-dd '(:f :f :label) 'emit-ble-dd '(:f :f :label) 'emit-bge-dd '(:f :f :label)
-	'emit-beq-ff '(:f :f :label) 'emit-bne-ff '(:f :f :label) 'emit-blt-ff '(:f :f :label)
-	'emit-bgt-ff '(:f :f :label) 'emit-ble-ff '(:f :f :label) 'emit-bge-ff '(:f :f :label)
+	'beq-dd '(:f :f :label) 'bne-dd '(:f :f :label) 'blt-dd '(:f :f :label)
+	'bgt-dd '(:f :f :label) 'ble-dd '(:f :f :label) 'bge-dd '(:f :f :label)
+	'beq-ff '(:f :f :label) 'bne-ff '(:f :f :label) 'blt-ff '(:f :f :label)
+	'bgt-ff '(:f :f :label) 'ble-ff '(:f :f :label) 'bge-ff '(:f :f :label)
 	; conversions & mixed
-	'emit-cpy-rd '(:r :f) 'emit-cpy-dr '(:f :r) 'emit-cvt-rd '(:r :f) 'emit-cvt-dr '(:f :r)
-	'emit-cpy-rf '(:r :f) 'emit-cpy-fr '(:f :r) 'emit-cvt-rf '(:r :f) 'emit-cvt-fr '(:f :r)
-	'emit-cvt-fd '(:f :f) 'emit-cvt-df '(:f :f)
+	'cpy-rd '(:r :f) 'cpy-dr '(:f :r) 'cvt-rd '(:r :f) 'cvt-dr '(:f :r)
+	'cpy-rf '(:r :f) 'cpy-fr '(:f :r) 'cvt-rf '(:r :f) 'cvt-fr '(:f :r)
+	'cvt-fd '(:f :f) 'cvt-df '(:f :f)
 	; float memory
-	'emit-load-rcd '(:r :c :f) 'emit-store-drc '(:f :r :c) 'emit-load-rrd '(:r :r :f) 'emit-store-drr '(:f :r :r)
-	'emit-load-rcf '(:r :c :f) 'emit-store-frc '(:f :r :c) 'emit-load-rrf '(:r :r :f) 'emit-store-frr '(:f :r :r)
+	'load-rcd '(:r :c :f) 'store-drc '(:f :r :c) 'load-rrd '(:r :r :f) 'store-drr '(:f :r :r)
+	'load-rcf '(:r :c :f) 'store-frc '(:f :r :c) 'load-rrf '(:r :r :f) 'store-frr '(:f :r :r)
 	; control / call / jump
-	'emit-call '(:label) 'emit-call-p '(:label) 'emit-jmp '(:label) 'emit-jmp-p '(:label)
-	'emit-call-r '(:r &rest :any) 'emit-jmp-r '(:r &rest :any) 'emit-call-rc '(:r :c &rest :any) 'emit-jmp-rc '(:r :c &rest :any)
-	'emit-call-abi '(:r :r :c :c &rest :any) 'emit-load-pr '(:label :r) 'emit-lea-pr '(:label :r)
+	'call '(:label) 'call-p '(:label) 'jmp '(:label) 'jmp-p '(:label)
+	'call-r '(:r &rest :any) 'jmp-r '(:r &rest :any) 'call-rc '(:r :c &rest :any) 'jmp-rc '(:r :c &rest :any)
+	'call-abi '(:r :r :c :c &rest :any) 'load-pr '(:label :r) 'lea-pr '(:label :r)
 	; stack / helpers
-	'emit-push '(&rest :reg) 'emit-pop '(&rest :reg) 'emit-trash '(&rest :reg) 'emit-alloc '(:c)
-	'emit-free '(:c) 'emit-ret '() 'emit-sync '(&optional :c)
-	'emit-stack-init '(:r :r :r) 'emit-save-state '() 'emit-load-state '() 'emit-entry-abi '(:c) 'emit-label '(:label) 'emit-tlabel '(:label) 'emit-align '(:c &optional :c)
-	'emit-string '(:str) 'emit-byte '(&rest :c) 'emit-short '(&rest :c) 'emit-int '(&rest :c)
-	'emit-long '(&rest :c) 'emit-nop '() 'emit-vp-nop '()
+	'push '(&rest :reg) 'pop '(&rest :reg) 'trash '(&rest :reg) 'alloc '(:c)
+	'free '(:c) 'ret '() 'sync '(&optional :c)
+	'stack-init '(:r :r :r) 'save-state '() 'load-state '() 'entry-abi '(:c) 'label '(:label) 'tlabel '(:label) 'align '(:c &optional :c)
+	'string '(:str) 'byte '(&rest :c) 'short '(&rest :c) 'int '(&rest :c)
+	'long '(&rest :c) 'nop '() 'vp-nop '()
 ))
 
 (defun check-op-type (expected actual)
@@ -203,10 +203,10 @@
 			loaded_insts) 101))
 	(when insts
 		;inject local labels into callers env !
-		(each (# (if (find (first %0) '(emit-label emit-tlabel))
+		(each (# (if (find (first %0) '(label tlabel))
 			(def e (last (second %0)) (!)))) insts)
 		;inject start and end pc's into callers env !
-		(bind '(& & _s _e &ignore) (elem-get insts 3))
+		(bind '(& & _s _e &ignore) (elem-get insts 2))
 		(def e '_s (get _s) '_e (get _e)))
 	insts)
 
@@ -217,11 +217,11 @@
 			(defq insts (get-function-insts function))
 		(each! (lambda (inst)
 				(cond
-					((find (defq c :nil m :nil op (first inst)) '(emit-call-p emit-jmp-p))
+					((find (defq c :nil m :nil op (first inst)) '(call-p jmp-p))
 						(merge deps (list (resolve-static-method insts (second inst)))))
-					((find op '(emit-call-rc emit-jmp-rc))
+					((find op '(call-rc jmp-rc))
 						(bind '(& & & &optional c m) inst))
-					((find op '(emit-call-r emit-jmp-r))
+					((find op '(call-r jmp-r))
 						(bind '(& & &optional c m) inst)))
 				(and c m (merge deps (resolve-virtual-methods c m))))
 			;scan from entry to link table start
@@ -289,7 +289,7 @@
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
 				(pcase (first inst) +vp_emit_ops
-					((emit-label emit-tlabel)
+					((label tlabel)
 						;update merged state at labels
 						(defq pc (get (last (second inst)))
 							key (str pc ":" (ifn (last call_stack) 0))
@@ -299,10 +299,10 @@
 								(if lm (vpmap-merge trace_map lm))
 								(pinsert label_map key (cat trace_map)))
 							((setq *pc* +max_long))))
-					((emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
-					emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
-					emit-beq-dd emit-bne-dd emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd
-					emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)
+					((beq-cr bne-cr bge-cr ble-cr blt-cr bgt-cr
+					beq-rr bne-rr bge-rr ble-rr blt-rr bgt-rr
+					beq-dd bne-dd blt-dd bgt-dd ble-dd bge-dd
+					beq-ff bne-ff blt-ff bgt-ff ble-ff bge-ff)
 						;if branch would carry new state then create new trace
 						(defq pc (get (last inst))
 							key (str pc ":" (ifn (last call_stack) 0))
@@ -310,29 +310,29 @@
 						(when (or (not lm) (vpmap-changed? trace_map lm))
 							(push traces (list pc *rsp*
 								(cat trace_map) (cat stack_map) (cat call_stack) depth))))
-					((emit-cpy-rr emit-cpy-dd emit-cpy-rd emit-cpy-dr)
+					((cpy-rr cpy-dd cpy-rd cpy-dr)
 						;copy value and mark as trashed or restored
 						(pinsert trace_map (last inst) (pfind trace_map (second inst))))
-					(emit-swp-rr
+					(swp-rr
 						;swap values and mark as trashed or restored
 						(each (# (pinsert trace_map %0 %1))
 							(rest inst) (map! (# (pfind trace_map %0)) (list inst) -1 1)))
-					(emit-alloc
+					(alloc
 						(stack-words function (second inst))
 						(setq depth (+ depth (second inst)) *rsp* (-- *rsp* (second inst))))
-					(emit-free
+					(free
 						(stack-words function (second inst))
 						(setq depth (stack-take function depth (second inst)) *rsp* (++ *rsp* (second inst)))
 						(each (lambda ((%0 &ignore))
 								(if (< %0 *rsp*) (perase stack_map %0)))
 							(partition stack_map 2)))
-					(emit-push
+					(push
 						(setq depth (+ depth (* (dec (length inst)) +long_size)))
 						;push the values of all registers pushed
 						(each! (# (pinsert stack_map (-- *rsp* +long_size)
 								(pfind trace_map %0)))
 							(list inst) 1))
-					(emit-pop
+					(pop
 						(setq depth (stack-take function depth (* (dec (length inst)) +long_size)))
 						;pop the values of all registers popped
 						;and flag if register is now restored
@@ -340,12 +340,12 @@
 								(perase stack_map *rsp*)
 								(++ *rsp* +long_size))
 							(list inst) -1 1))
-					((emit-store-rrc emit-store-drc)
+					((store-rrc store-drc)
 						;stack spill 64 bit
 						(when (eql (third inst) :rsp)
 							(bind '(& src & offset) inst)
 							(pinsert stack_map (+ *rsp* offset) (pfind trace_map src))))
-					((emit-load-rcr emit-load-rcd)
+					((load-rcr load-rcd)
 						;stack load 64 bit, or the load of the task's lisp
 						;object, statics -> a tcb -> its lisp object, which
 						;is what a method of the lisp has in :r0 on entry,
@@ -355,29 +355,29 @@
 							((eql src :rsp) (pfind stack_map (+ *rsp* offset)))
 							((eql (defq val (pfind trace_map src)) :statics) :statics_ptr)
 							((and (eql val :statics_ptr) (= offset +tk_node_lisp)) :r0))))
-					(emit-load-pr
+					(load-pr
 						;the address of the statics, or of anything else
 						(pinsert trace_map (last inst)
 							(if (eql (catch (resolve-static-method insts (second inst)) :t)
 								"sys/statics/statics") :statics)))
-					((emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-frc)
+					((store-rrc-b store-rrc-s store-rrc-i store-frc)
 						;quantize offset down to the nearest 8-byte
 						;boundary and erase the slot
 						(when (eql (third inst) :rsp)
 							(perase stack_map (+ *rsp* (logand (const (neg +long_size)) (last inst))))))
-					(emit-ret
+					(ret
 						;we are inside an inlined local subroutine, return to the caller
 						(unless (setq *pc* (pop call_stack))
 							;return from main, merge clobbers and terminate path
 							(stack-left function depth)
 							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
-					(emit-call
+					(call
 						;local subroutine call, inline it using the path's call stack
 						(when (defq target_pc (get (second inst)))
 							(push call_stack *pc*)
 							(setq *pc* target_pc)))
-					(emit-jmp
+					(jmp
 						;if jump would carry new state then jump, else kill trace
 						(defq pc (get (last inst))
 							key (str pc ":" (ifn (last call_stack) 0))
@@ -385,7 +385,7 @@
 						(if (or (not lm) (vpmap-changed? trace_map lm))
 							(setq *pc* pc)
 							(setq *pc* +max_long)))
-					(emit-call-p
+					(call-p
 						;use the callee trashes set
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
 						;known trashed registers from db during symbolic execution
@@ -395,7 +395,7 @@
 							(vpmap-clobber trace_map (second callee_entry)))
 						(lisp-restored callee)
 						(if (find callee +no_return_funcs) (setq *pc* +max_long)))
-					(emit-jmp-p
+					(jmp-p
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
 						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
@@ -411,7 +411,7 @@
 							(:t (stack-left function depth)
 								(vpmap-merge func_map trace_map)
 								(setq *pc* +max_long))))
-					(emit-call-r
+					(call-r
 						(if (bind '(& & &optional c m) inst)
 							(defq clobbers (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
@@ -419,7 +419,7 @@
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
 						(merge call_list calls)
 						(vpmap-clobber trace_map clobbers))
-					(emit-call-rc
+					(call-rc
 						(if (bind '(& & & &optional c m) inst)
 							(defq clobbers (virtual-trashes-union c m)
 								calls (resolve-virtual-methods c m))
@@ -427,7 +427,7 @@
 						(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
 						(merge call_list calls)
 						(vpmap-clobber trace_map clobbers))
-					(emit-jmp-r
+					(jmp-r
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
 						(if (bind '(& & &optional c m) inst)
@@ -443,7 +443,7 @@
 							(if (third inst) (stack-left function depth))
 							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
-					(emit-jmp-rc
+					(jmp-rc
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
 						(if (bind '(& & & &optional c m) inst)
@@ -457,21 +457,21 @@
 							(stack-left function depth)
 							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
-					(emit-call-abi
+					(call-abi
 						;simulate the union of all platform clobbers
 						(merge call_list '(:abicall))
 						(each (# (pinsert trace_map %0 :nil))
 							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
-					(emit-trash
+					(trash
 						;simulate the trashing of listed regs
 						(each! (# (pinsert trace_map %0 :nil)) (list inst) 1))
-					((emit-store-rrr emit-store-rrr-b emit-store-rrr-s emit-store-rrr-i emit-store-drr emit-store-frr)
+					((store-rrr store-rrr-b store-rrr-s store-rrr-i store-drr store-frr)
 						;ignore as no reg writes
 						:ignore)
-					((emit-land-rr)
+					((land-rr)
 						;two reg writes
 						(each! (# (pinsert trace_map %0 :nil)) (list inst) -3 -1))
-					((emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr)
+					((min-cr min-rr max-cr max-rr vp-abs-rr)
 						;has label offset as last arg !
 						(pinsert trace_map (third inst) :nil))
 					(:t ;all remaining, check last for reg

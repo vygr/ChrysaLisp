@@ -276,12 +276,12 @@
 ;and then reads :r1, which it was given, :r2, which it was not, and :r3,
 ;which is not trashed
 (defq tt_probe "obj/vp/tests/scratch_relies_probe")
-(save (cat "(\qtests/scratch_relies_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _6 _8 4096)" tt_lf
-	"(emit-label '_1)" tt_lf "(emit-cpy-cr 8 :r0)" tt_lf "(emit-cpy-cr 5 :r2)" tt_lf "(emit-cpy-cr 6 :r3)" tt_lf
-	"(emit-call-p _7)" tt_lf "(emit-add-rr :r1 :r0)" tt_lf "(emit-add-rr :r2 :r0)" tt_lf "(emit-add-rr :r3 :r0)" tt_lf
-	"(emit-xor-rr :r4 :r4)" tt_lf "(emit-ret)" tt_lf
-	"(emit-label '_6)" tt_lf "(emit-label '_7)" tt_lf "(emit-long (- _8 *pc*))" tt_lf
-	"(emit-label '_8)" tt_lf "(emit-string \qsys/mem/alloc\q)" tt_lf "(emit-byte 0)" tt_lf "(emit-label '_9))" tt_lf ")" tt_lf) tt_probe)
+(save (cat "(\qtests/scratch_relies_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _6 _8 4096)" tt_lf
+	"(label '_1)" tt_lf "(cpy-cr 8 :r0)" tt_lf "(cpy-cr 5 :r2)" tt_lf "(cpy-cr 6 :r3)" tt_lf
+	"(call-p _7)" tt_lf "(add-rr :r1 :r0)" tt_lf "(add-rr :r2 :r0)" tt_lf "(add-rr :r3 :r0)" tt_lf
+	"(xor-rr :r4 :r4)" tt_lf "(ret)" tt_lf
+	"(label '_6)" tt_lf "(label '_7)" tt_lf "(long (- _8 *pc*))" tt_lf
+	"(label '_8)" tt_lf "(string \qsys/mem/alloc\q)" tt_lf "(byte 0)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
 (defq tt_said (list))
 (pipe-run "relies -v tests/scratch_relies_probe" (# (push tt_said %0)))
 ;if it is not said, what was said is what the failure shows: it failed
@@ -298,10 +298,10 @@
 ;was put on, nor left on as it returns. A function made up that pushes two,
 ;takes them back with one free, allocs 16 and frees 8, and returns
 (defq tt_probe "obj/vp/tests/scratch_stack_probe")
-(save (cat "(\qtests/scratch_stack_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _6 _8 4096)" tt_lf
-	"(emit-label '_1)" tt_lf "(emit-push :r1 :r3)" tt_lf "(emit-free 16)" tt_lf
-	"(emit-alloc 16)" tt_lf "(emit-free 8)" tt_lf "(emit-ret)" tt_lf
-	"(emit-label '_6)" tt_lf "(emit-label '_7)" tt_lf "(emit-label '_8)" tt_lf "(emit-label '_9))" tt_lf ")" tt_lf) tt_probe)
+(save (cat "(\qtests/scratch_stack_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _6 _8 4096)" tt_lf
+	"(label '_1)" tt_lf "(push :r1 :r3)" tt_lf "(free 16)" tt_lf
+	"(alloc 16)" tt_lf "(free 8)" tt_lf "(ret)" tt_lf
+	"(label '_6)" tt_lf "(label '_7)" tt_lf "(label '_8)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
 (setq tt_said (list))
 (pipe-run "trace -l tests/scratch_stack_probe" (# (push tt_said %0)))
 (assert-eq "trace: two pushes taken back by one free are not said, what is left on as it returns is"
@@ -315,11 +315,11 @@
 ;:alloc, which trashes :r0 to :r2 and gives :r0 and :r1: :r3 is put by
 ;for nothing, :r1 is not
 (defq tt_probe "obj/vp/tests/scratch_saves_probe")
-(save (cat "(\qtests/scratch_saves_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _6 _8 4096)" tt_lf
-	"(emit-label '_1)" tt_lf "(emit-cpy-cr 8 :r0)" tt_lf "(emit-push :r1 :r3)" tt_lf
-	"(emit-call-p _7)" tt_lf "(emit-pop :r1 :r3)" tt_lf "(emit-add-rr :r3 :r0)" tt_lf "(emit-ret)" tt_lf
-	"(emit-label '_6)" tt_lf "(emit-label '_7)" tt_lf "(emit-long (- _8 *pc*))" tt_lf
-	"(emit-label '_8)" tt_lf "(emit-string \qsys/mem/alloc\q)" tt_lf "(emit-byte 0)" tt_lf "(emit-label '_9))" tt_lf ")" tt_lf) tt_probe)
+(save (cat "(\qtests/scratch_saves_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _6 _8 4096)" tt_lf
+	"(label '_1)" tt_lf "(cpy-cr 8 :r0)" tt_lf "(push :r1 :r3)" tt_lf
+	"(call-p _7)" tt_lf "(pop :r1 :r3)" tt_lf "(add-rr :r3 :r0)" tt_lf "(ret)" tt_lf
+	"(label '_6)" tt_lf "(label '_7)" tt_lf "(long (- _8 *pc*))" tt_lf
+	"(label '_8)" tt_lf "(string \qsys/mem/alloc\q)" tt_lf "(byte 0)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
 (defq tt_said (list))
 (pipe-run "relies -s -q tests/scratch_saves_probe" (# (push tt_said %0)))
 (assert-eq "relies -s: a register pushed round a call that leaves it is said, and not one the call gives"
@@ -359,12 +359,12 @@
 ;registers no call keeps: the read of a is of what was just written, and
 ;only b has to be written before the call
 (defq tt_probe "obj/vp/tests/scratch_locals_probe")
-(save (cat "(\qtests/scratch_locals_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _8 _9 4096)" tt_lf
-	"(emit-label '_1)" tt_lf "(emit-alloc 32)" tt_lf "(emit-store-rrc :r0 :rsp 0)" tt_lf "(emit-store-rrc :r1 :rsp 8)" tt_lf
-	"(emit-load-rcr :rsp 0 :r0)" tt_lf "(emit-call-p _7)" tt_lf "(emit-load-rcr :rsp 8 :r1)" tt_lf
-	"(emit-lea-rcr :rsp 16 :r2)" tt_lf "(emit-store-rrc :r1 :rsp 24)" tt_lf "(emit-beq-cr 0 :r1 _2)" tt_lf
-	"(emit-store-rrc :r1 :rsp 0)" tt_lf "(emit-label '_2)" tt_lf "(emit-free 32)" tt_lf "(emit-ret)" tt_lf
-	"(emit-label '_8)" tt_lf "(emit-label '_9))" tt_lf
+(save (cat "(\qtests/scratch_locals_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _8 _9 4096)" tt_lf
+	"(label '_1)" tt_lf "(alloc 32)" tt_lf "(store-rrc :r0 :rsp 0)" tt_lf "(store-rrc :r1 :rsp 8)" tt_lf
+	"(load-rcr :rsp 0 :r0)" tt_lf "(call-p _7)" tt_lf "(load-rcr :rsp 8 :r1)" tt_lf
+	"(lea-rcr :rsp 16 :r2)" tt_lf "(store-rrc :r1 :rsp 24)" tt_lf "(beq-cr 0 :r1 _2)" tt_lf
+	"(store-rrc :r1 :rsp 0)" tt_lf "(label '_2)" tt_lf "(free 32)" tt_lf "(ret)" tt_lf
+	"(label '_8)" tt_lf "(label '_9))" tt_lf
 	"(locals (1 32 ((a 0 \qp\q) (b 8 \qp\q) (s 16 \q\q))))" tt_lf ")" tt_lf) tt_probe)
 (defq tt_said (list))
 (pipe-run "locals -v -t 0 tests/scratch_locals_probe" (# (push tt_said %0)))

@@ -367,7 +367,7 @@ translator works on those records.
     * **`reg_map`:** the target CPU's number of each VP register, `:r0` to
       `:rsp` then `:d0` to `:d15`, a byte each.
 
-    * **A routine for each VP op:** registered with `(handler 'emit-add-rr
+    * **A routine for each VP op:** registered with `(handler 'add-rr
       'e_add_rr)` and so on. It gets its operands in `:r0` to `:r3`, the
       registers already in the CPU's numbers, and writes the native bytes
       with `emit8`, `emit16`, `emit32` or `emit64`.
@@ -456,9 +456,9 @@ translator works on those records.
 
     * `e_entry_abi` is the reverse, for the loader the host calls.
 
-5. **Stack Frame Setup (`emit-stack-init`):**
+5. **Stack Frame Setup (`stack-init`):**
 
-    * The `emit-stack-init` routine sets up the initial stack for a new
+    * The `stack-init` routine sets up the initial stack for a new
       task. It typically receives the stack pointer (`s`), the function
       entry point (`f`), and an argument (`x` usually 0). It needs to
       arrange the stack so that when `vp-ret` is eventually executed from
@@ -468,9 +468,9 @@ translator works on those records.
 
 6. **Save and Load State:**
 
-    * Register routines for `emit-save-state` and `emit-load-state`, which
+    * Register routines for `save-state` and `load-state`, which
       push and pop the registers a task keeps besides the VP ones, the link
-      register say, and `emit-stack-init` leaves room for them. The task
+      register say, and `stack-init` leaves room for them. The task
       switch, `sys/task`, says only `vp-save-state` and `vp-load-state`, the
       same VP on every platform; with no such registers they are `h_nop`,
       as on x86_64 and VP64.

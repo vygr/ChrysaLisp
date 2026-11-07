@@ -50,15 +50,15 @@
 
 ; Spawn an active flock of bouncers covering diverse opcode families proportionally
 (defq bouncers (list
-	(create-bouncer 'emit-call    (* f_width 0.25) (* f_height 0.25)  2.1  1.7 1.05)   ; Violet (Control)
-	(create-bouncer 'emit-add-rr  (* f_width 0.72) (* f_height 0.28) -2.3  1.8 0.95)   ; Lime (Arithmetic)
-	(create-bouncer 'emit-cpy-rr  (* f_width 0.50) (* f_height 0.50)  1.7 -2.0 1.10)   ; Amber (Data)
-	(create-bouncer 'emit-sqrt-dd (* f_width 0.28) (* f_height 0.70) -1.9  2.2 1.00)   ; Cyan (Float)
-	(create-bouncer 'emit-shl-rr  (* f_width 0.75) (* f_height 0.75) -2.0 -1.6 0.90)   ; Yellow (Bitwise)
-	(create-bouncer 'emit-push    (* f_width 0.55) (* f_height 0.22)  2.3 -1.5 1.00)   ; Orange (Stack)
-	(create-bouncer 'emit-slt-rr  (* f_width 0.35) (* f_height 0.45) -1.6 -2.1 0.95)   ; Hot Pink (Compare)
-	(create-bouncer 'emit-alloc   (* f_width 0.70) (* f_height 0.55)  1.9  1.9 0.90)   ; Orange (Memory)
-	(create-bouncer 'emit-div-rr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
+	(create-bouncer 'call    (* f_width 0.25) (* f_height 0.25)  2.1  1.7 1.05)   ; Violet (Control)
+	(create-bouncer 'add-rr  (* f_width 0.72) (* f_height 0.28) -2.3  1.8 0.95)   ; Lime (Arithmetic)
+	(create-bouncer 'cpy-rr  (* f_width 0.50) (* f_height 0.50)  1.7 -2.0 1.10)   ; Amber (Data)
+	(create-bouncer 'sqrt-dd (* f_width 0.28) (* f_height 0.70) -1.9  2.2 1.00)   ; Cyan (Float)
+	(create-bouncer 'shl-rr  (* f_width 0.75) (* f_height 0.75) -2.0 -1.6 0.90)   ; Yellow (Bitwise)
+	(create-bouncer 'push    (* f_width 0.55) (* f_height 0.22)  2.3 -1.5 1.00)   ; Orange (Stack)
+	(create-bouncer 'slt-rr  (* f_width 0.35) (* f_height 0.45) -1.6 -2.1 0.95)   ; Hot Pink (Compare)
+	(create-bouncer 'alloc   (* f_width 0.70) (* f_height 0.55)  1.9  1.9 0.90)   ; Orange (Memory)
+	(create-bouncer 'div-rr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Opcodes" (+sym_close) +event_close)

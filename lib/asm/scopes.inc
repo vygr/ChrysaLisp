@@ -26,7 +26,7 @@
 	;instructions do not say where one local ends and the next begins,
 	;nor that a place is part of a struct whose address is given away
 	(push *locals* (list
-		(reduce (# (if (eql (first %1) 'emit-alloc) (inc %0) %0)) *emit_list* 0)
+		(reduce (# (if (eql (first %1) 'alloc) (inc %0) %0)) *emit_list* 0)
 		(first scope)
 		(map (lambda ((name (level kind offset type &ignore))) (list name offset (if (str? type) type "")))
 			(filter (lambda ((name attrib)) (eql (second attrib) 'var)) (partition (last scope) 2))))))

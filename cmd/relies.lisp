@@ -60,30 +60,30 @@
 
 (defq
 	;an instruction of two registers that reads both and writes the second
-	+both_ops ''(emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr emit-shl-rr emit-shr-rr
-		emit-asr-rr emit-min-rr emit-max-rr emit-seq-rr emit-sne-rr emit-slt-rr emit-sgt-rr emit-sle-rr emit-sge-rr
-		emit-div-rr emit-div-rr-u emit-rem-rr emit-rem-rr-u)
+	+both_ops ''(add-rr sub-rr mul-rr and-rr or-rr xor-rr shl-rr shr-rr
+		asr-rr min-rr max-rr seq-rr sne-rr slt-rr sgt-rr sle-rr sge-rr
+		div-rr div-rr-u rem-rr rem-rr-u)
 	;that reads both and writes both
-	+swap_ops ''(emit-swp-rr emit-land-rr)
+	+swap_ops ''(swp-rr land-rr)
 	;that reads the first and writes the second
-	+move_ops ''(emit-cpy-rr emit-ext-rr emit-abs-rr)
+	+move_ops ''(cpy-rr ext-rr abs-rr)
 	;of a constant and a register, read and written
-	+const_ops ''(emit-add-cr emit-sub-cr emit-mul-cr emit-and-cr emit-or-cr emit-xor-cr emit-shl-cr emit-shr-cr
-		emit-asr-cr emit-min-cr emit-max-cr emit-seq-cr emit-sne-cr emit-slt-cr emit-sgt-cr emit-sle-cr emit-sge-cr)
-	+branch_cr_ops ''(emit-beq-cr emit-bne-cr emit-blt-cr emit-bgt-cr emit-ble-cr emit-bge-cr)
-	+branch_rr_ops ''(emit-beq-rr emit-bne-rr emit-blt-rr emit-bgt-rr emit-ble-rr emit-bge-rr)
-	+get_ops ''(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr)
-	+put_ops ''(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i)
-	+get2_ops ''(emit-load-rrr emit-load-rrr-b emit-load-rrr-s emit-load-rrr-i emit-load-rrr-ub emit-load-rrr-us emit-load-rrr-ui emit-lea-rrr)
-	+put2_ops ''(emit-store-rrr emit-store-rrr-b emit-store-rrr-s emit-store-rrr-i)
+	+const_ops ''(add-cr sub-cr mul-cr and-cr or-cr xor-cr shl-cr shr-cr
+		asr-cr min-cr max-cr seq-cr sne-cr slt-cr sgt-cr sle-cr sge-cr)
+	+branch_cr_ops ''(beq-cr bne-cr blt-cr bgt-cr ble-cr bge-cr)
+	+branch_rr_ops ''(beq-rr bne-rr blt-rr bgt-rr ble-rr bge-rr)
+	+get_ops ''(load-rcr load-rcr-b load-rcr-s load-rcr-i load-rcr-ub load-rcr-us load-rcr-ui lea-rcr)
+	+put_ops ''(store-rrc store-rrc-b store-rrc-s store-rrc-i)
+	+get2_ops ''(load-rrr load-rrr-b load-rrr-s load-rrr-i load-rrr-ub load-rrr-us load-rrr-ui lea-rrr)
+	+put2_ops ''(store-rrr store-rrr-b store-rrr-s store-rrr-i)
 	;nothing of a general register in them
-	+none_ops ''(emit-label emit-tlabel emit-align emit-string emit-byte emit-short emit-int emit-long
-		emit-alloc emit-free emit-ret emit-sync emit-nop emit-vp-nop emit-jmp
-		emit-cpy-dd emit-add-dd emit-sub-dd emit-mul-dd emit-div-dd emit-min-dd emit-max-dd emit-sqrt-dd
-		emit-abs-dd emit-neg-dd emit-beq-dd emit-bne-dd emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd
-		emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
-		emit-abs-ff emit-neg-ff emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff
-		emit-cvt-fd emit-cvt-df))
+	+none_ops ''(label tlabel align string byte short int long
+		alloc free ret sync nop vp-nop jmp
+		cpy-dd add-dd sub-dd mul-dd div-dd min-dd max-dd sqrt-dd
+		abs-dd neg-dd beq-dd bne-dd blt-dd bgt-dd ble-dd bge-dd
+		add-ff sub-ff mul-ff div-ff min-ff max-ff sqrt-ff
+		abs-ff neg-ff beq-ff bne-ff blt-ff bgt-ff ble-ff bge-ff
+		cvt-fd cvt-df))
 
 (defun regs-in (mask)
 	; (regs-in mask) -> (reg ...)
@@ -100,29 +100,29 @@
 	(cond
 		((find op +none_ops) (list 0 0))
 		;a register taken from itself, or xor with itself, is made 0: nothing is read
-		((and (find op '(emit-xor-rr emit-sub-rr)) (= a b)) (list 0 b))
+		((and (find op '(xor-rr sub-rr)) (= a b)) (list 0 b))
 		((find op +both_ops) (list (logior a b) b))
 		((find op +swap_ops) (list (logior a b) (logior a b)))
 		((find op +move_ops) (list a b))
 		((find op +const_ops) (list b b))
 		;one register, read and written
-		((eql op 'emit-lnot-rr) (list a a))
-		((eql op 'emit-cpy-cr) (list 0 b))
+		((eql op 'lnot-rr) (list a a))
+		((eql op 'cpy-cr) (list 0 b))
 		((find op +branch_cr_ops) (list b 0))
 		((find op +branch_rr_ops) (list (logior a b) 0))
 		((find op +get_ops) (list a c))
 		((find op +put_ops) (list (logior a b) 0))
 		((find op +get2_ops) (list (logior a b) c))
 		((find op +put2_ops) (list (logior a b c) 0))
-		((find op '(emit-load-pr emit-lea-pr)) (list 0 b))
+		((find op '(load-pr lea-pr)) (list 0 b))
 		;to and from the float registers, and floats in memory
-		((find op '(emit-cpy-rd emit-cvt-rd emit-cpy-rf emit-cvt-rf emit-load-rcd emit-load-rcf)) (list a 0))
-		((find op '(emit-cpy-dr emit-cvt-dr emit-cpy-fr emit-cvt-fr)) (list 0 b))
-		((find op '(emit-store-drc emit-store-frc)) (list b 0))
-		((find op '(emit-load-rrd emit-load-rrf)) (list (logior a b) 0))
-		((find op '(emit-store-drr emit-store-frr)) (list (logior b c) 0))
-		((eql op 'emit-push) (list (bits-of (rest inst)) 0))
-		((find op '(emit-pop emit-trash)) (list 0 (bits-of (rest inst))))
+		((find op '(cpy-rd cvt-rd cpy-rf cvt-rf load-rcd load-rcf)) (list a 0))
+		((find op '(cpy-dr cvt-dr cpy-fr cvt-fr)) (list 0 b))
+		((find op '(store-drc store-frc)) (list b 0))
+		((find op '(load-rrd load-rrf)) (list (logior a b) 0))
+		((find op '(store-drr store-frr)) (list (logior b c) 0))
+		((eql op 'push) (list (bits-of (rest inst)) 0))
+		((find op '(pop trash)) (list 0 (bits-of (rest inst))))
 		((list (bits-of (rest inst)) 0))))
 
 (defun relies-of (function methods)
@@ -139,23 +139,23 @@
 			flows (map (lambda (inst)
 				(defq op (first inst))
 				(cond
-					((find op '(emit-call-p emit-call-rc emit-jmp-p emit-jmp-rc))
+					((find op '(call-p call-rc jmp-p jmp-rc))
 						(defq called (called-of inst all labels methods)
-							base (if (find op '(emit-call-rc emit-jmp-rc)) (bit-of (second inst)) 0))
+							base (if (find op '(call-rc jmp-rc)) (bit-of (second inst)) 0))
 						(if called
 							(list (logior base (third called)) (logior (second called) (elem-get called 3)) called)
 							(list (logior base (bits-of (rest inst))) 0 :nil)))
 					;a call of the host: the first register is one it uses to
 					;get there, and is written. The rest it reads
 					;and as many of :r0 on as it has arguments. What it gives is in :r0
-					((eql op 'emit-call-abi)
+					((eql op 'call-abi)
 						(list (logior (bit-of (third inst)) (dec (<< 1 (min 15 (ifn (elem-get inst 4) 0)))))
 							(logior (bit-of (second inst)) 1) :nil))
 					;a call of a part of itself: what that takes and gives is not
 					;declared, so it is taken to give every register. Nothing is
 					;said to lean on what it does not
-					((eql op 'emit-call) (list 0 0x7fff :nil))
-					((find op '(emit-call-r emit-jmp-r emit-stack-init))
+					((eql op 'call) (list 0 0x7fff :nil))
+					((find op '(call-r jmp-r stack-init))
 						(list (bits-of (rest inst)) 0 :nil))
 					((cat (flow-of inst) (list :nil)))))
 				insts)
@@ -165,8 +165,8 @@
 			;where the function does, and what it gives is not declared.
 			;All that can be got to from where such a call goes
 			inner (map (lambda (n) :nil) insts)
-			todo (reduce (# (if (and (find (first %1) '(emit-call emit-lea-pr))
-					(defq to (. labels :find (if (eql (first %1) 'emit-call) (last %1) (second %1))))
+			todo (reduce (# (if (and (find (first %1) '(call lea-pr))
+					(defq to (. labels :find (if (eql (first %1) 'call) (last %1) (second %1))))
 					(<= 0 (setq to (- to start))) (< to count)) (push %0 to) %0))
 				insts (list)))
 		(while (defq at (pop todo))
@@ -177,7 +177,7 @@
 		;after it that it does not write. After the end, what the
 		;function gives. Backwards, till nothing changes
 		(defq after-of (lambda (at)
-			(if (find (first (elem-get insts at)) '(emit-ret emit-jmp-p emit-jmp-rc emit-jmp-r))
+			(if (find (first (elem-get insts at)) '(ret jmp-p jmp-rc jmp-r))
 				(if (elem-get inner at) 0 gives) (reduce (# (logior %0 (elem-get live %1))) (elem-get next at) 0))))
 		(while changed
 			(setq changed :nil)
@@ -227,10 +227,10 @@
 		(bind '(insts labels start frames all) got)
 		(defq found (list) count (length insts)
 			plain (lambda (inst) (not (or (find (first inst) +call_ops) (find (first inst) +leave_ops)
-				(find (first inst) '(emit-label emit-tlabel emit-jmp emit-alloc emit-free))
-				(starts-with "emit-b" (first inst))))))
+				(find (first inst) '(label tlabel jmp alloc free))
+				(and (starts-with "b" (first inst)) (nql (first inst) 'byte))))))
 		(each (lambda (inst)
-			(when (and (find (first inst) '(emit-call-p emit-call-rc))
+			(when (and (find (first inst) '(call-p call-rc))
 					(defq called (called-of inst all labels methods)))
 				(bind '(name trashes takes gives) called)
 				(defq at (!) changed (logior trashes gives) before (list) after (list) i at going :t)
@@ -239,9 +239,9 @@
 					(defq was (elem-get insts i))
 					(cond
 						((not (plain was)) (setq going :nil))
-						((eql (first was) 'emit-pop) (setq going :nil))
-						((eql (first was) 'emit-push) (push before (list :push i (bits-of (rest was)) 0)) (setq going :nil))
-						((and (eql (first was) 'emit-store-rrc) (eql (third was) :rsp))
+						((eql (first was) 'pop) (setq going :nil))
+						((eql (first was) 'push) (push before (list :push i (bits-of (rest was)) 0)) (setq going :nil))
+						((and (eql (first was) 'store-rrc) (eql (third was) :rsp))
 							(push before (list :slot i (bit-of (second was)) (elem-get was 3))))
 						((setq changed (logior changed (second (flow-of was)))))))
 				(setq i at going :t)
@@ -250,9 +250,9 @@
 					(defq was (elem-get insts i))
 					(cond
 						((not (plain was)) (setq going :nil))
-						((eql (first was) 'emit-push) (setq going :nil))
-						((eql (first was) 'emit-pop) (push after (list :push i (bits-of (rest was)) 0)) (setq going :nil))
-						((and (eql (first was) 'emit-load-rcr) (eql (second was) :rsp))
+						((eql (first was) 'push) (setq going :nil))
+						((eql (first was) 'pop) (push after (list :push i (bits-of (rest was)) 0)) (setq going :nil))
+						((and (eql (first was) 'load-rcr) (eql (second was) :rsp))
 							(push after (list :slot i (bit-of (elem-get was 3)) (third was) changed_after))
 							(setq changed_after (logior changed_after (bit-of (elem-get was 3)))))
 						((setq changed_after (logior changed_after (second (flow-of was)))))))

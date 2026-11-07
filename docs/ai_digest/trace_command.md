@@ -29,14 +29,14 @@ The tracer tracks register and stack lifecycles through several mechanisms:
 * **State Mapping:** A register map (`vpmap`) tracks the symbolic origin of each
   register. When a register is initialized, it is mapped to itself.
 
-* **Copies:** Register-to-register copies (`emit-cpy-rr`, `emit-cpy-dd`)
+* **Copies:** Register-to-register copies (`cpy-rr`, `cpy-dd`)
   transfer the symbolic state from the source register to the destination
   register.
 
-* **Stack Spills and Reloads:** The tool models stack allocation (`emit-alloc`,
-  `emit-free`) and push/pop operations (`emit-push`, `emit-pop`). When a
-  register is spilled to the stack (`emit-store-rrc`) and later reloaded into the
-  same register (`emit-load-rcr`), the tracer detects that its original value is
+* **Stack Spills and Reloads:** The tool models stack allocation (`alloc`,
+  `free`) and push/pop operations (`push`, `pop`). When a
+  register is spilled to the stack (`store-rrc`) and later reloaded into the
+  same register (`load-rcr`), the tracer detects that its original value is
   restored and removes it from the active clobber set.
 
 * **Register Modification:** Any instruction that modifies a register (without a
@@ -62,11 +62,11 @@ model:
   the execution path, spawning a new trace state at the target label.
 
 * **Label Merging:** When multiple execution paths converge at a label
-  (`emit-label`), the tracer merges their respective clobber sets (union) using
+  (`label`), the tracer merges their respective clobber sets (union) using
   `vpmap-merge`.
 
 * **Trace Termination:** Tracing along a path terminates when it reaches a
-  return (`emit-ret`) or an unconditional jump (`emit-jmp-p`), at which point
+  return (`ret`) or an unconditional jump (`jmp-p`), at which point
   its final clobber state is merged into the function's overall clobber set.
 
 * **Loop Stability and Back-Edges:** To prevent infinite tracing of loop
@@ -82,19 +82,19 @@ model:
 
 ## In-Context Subroutine Evaluation (Local Calls)
 
-By design, the Virtual Processor (VP) assembler restricts the `emit-call`
+By design, the Virtual Processor (VP) assembler restricts the `call`
 instruction to local targets within the same compiled function block. It is
-physically impossible to branch outside the local function using `emit-call`.
+physically impossible to branch outside the local function using `call`.
 
 Because of this structural boundary, the symbolic tracer resolves local
 subroutines inline in-context. This is achieved by maintaining an abstract
 `call_stack` list of return addresses within each path's trace state:
 
-* **On `emit-call`:** The tracer retrieves the target label's PC, pushes the
+* **On `call`:** The tracer retrieves the target label's PC, pushes the
   current `*pc*` onto the path's `call_stack`, and jumps directly to the
   subroutine.
 
-* **On `emit-ret`:** If the path's `call_stack` is not empty, the tracer pops
+* **On `ret`:** If the path's `call_stack` is not empty, the tracer pops
   the return address and continues execution after the caller. If the
   `call_stack` is empty, it is a real return from the main function, so the
   tracer merges the clobber state and terminates the path.
@@ -116,13 +116,13 @@ and propagation logic.
 
 ### 1. Static Call Resolution
 
-Static calls (`emit-call-p`, `emit-jmp-p`) are resolved directly to their target
+Static calls (`call-p`, `jmp-p`) are resolved directly to their target
 function names (such as `"sys/mem/copy"`) using the local label map.
 
 ### 2. Bounded Virtual Call Resolution
 
-For virtual method calls (`emit-call-rc`, `emit-jmp-rc`, `emit-call-r`,
-`emit-jmp-r`), the compiler cannot determine the single target at compile time.
+For virtual method calls (`call-rc`, `jmp-rc`, `call-r`,
+`jmp-r`), the compiler cannot determine the single target at compile time.
 Instead, the dependency tracker uses the class database (`*class_db*`) to
 perform bounded resolution:
 
@@ -180,7 +180,7 @@ cmd/trace.lisp ";converge remaining by re-running" "(defq t_set changed"
 ### 4. Optimization: Full-Clobber Short-Circuit
 
 If a function's clobber set reaches the maximum available registers (32
-registers, which can occur if `:rsp` is also clobbered, such as via `emit-cpy-rr
+registers, which can occur if `:rsp` is also clobbered, such as via `cpy-rr
 :r0 :rsp`), its state cannot grow any larger. The convergence loop detects this
 by checking the length of the trashed register list (`old_size`) and bypasses
 further re-analysis, providing an efficient short-circuit path:
@@ -214,7 +214,7 @@ empty list:
 	(. db :insert function (list :external +all_extern_trashed)))
 ```
 
-This ensures that any static call (`emit-call-p`) or static jump (`emit-jmp-p`)
+This ensures that any static call (`call-p`) or static jump (`jmp-p`)
 to an external or unanalyzed system function correctly and conservatively
 propagates the trashed register state up the dependency chain.
 

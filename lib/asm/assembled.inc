@@ -17,14 +17,14 @@
 	+regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	;what reads a place of the frame, what writes one, and what takes
 	;the address of one: each has the stack pointer as its base
-	+load_ops ''(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i
-		emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-load-rcd emit-load-rcf)
-	+store_ops ''(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-frc)
+	+load_ops ''(load-rcr load-rcr-b load-rcr-s load-rcr-i
+		load-rcr-ub load-rcr-us load-rcr-ui load-rcd load-rcf)
+	+store_ops ''(store-rrc store-rrc-b store-rrc-s store-rrc-i store-drc store-frc)
 	;what goes somewhere and does not come back here, and what calls
-	+leave_ops ''(emit-ret emit-jmp-p emit-jmp-r emit-jmp-rc)
-	+call_ops ''(emit-call emit-call-p emit-call-r emit-call-rc emit-call-abi)
+	+leave_ops ''(ret jmp-p jmp-r jmp-rc)
+	+call_ops ''(call call-p call-r call-rc call-abi)
 	;what is not an instruction of the function at all
-	+data_ops ''(emit-label emit-tlabel emit-align emit-string emit-byte emit-short emit-int emit-long))
+	+data_ops ''(label tlabel align string byte short int long))
 
 (defun vp-root (functions)
 	; (vp-root functions) -> path
@@ -79,10 +79,10 @@
 	;locals were, the form after the instructions, if it has any: each
 	;(which_alloc size ((name offset type) ...))
 	(when (and (defq listing (vp-listing function))
-			(defq all (first listing)) (> (length all) 4))
-		(defq head (elem-get all 3) labels (Fmap 31) more (second listing))
-		(each (# (if (find (first %0) '(emit-label emit-tlabel)) (. labels :insert (last (second %0)) (!)))) all)
-		(and (eql (first head) 'emit-short) (>= (length head) 4)
+			(defq all (first listing)) (> (length all) 3))
+		(defq head (elem-get all 2) labels (Fmap 31) more (second listing))
+		(each (# (if (find (first %0) '(label tlabel)) (. labels :insert (last (second %0)) (!)))) all)
+		(and (eql (first head) 'short) (>= (length head) 4)
 			(defq start (. labels :find (third head))) (defq end (. labels :find (elem-get head 3)))
 			(list (slice all start end) labels start
 				(if (and (list? more) (nempty? more) (eql (first more) 'locals)) (rest more) (list)) all))))
@@ -111,8 +111,8 @@
 		(defq op (first inst) at (!) on (if (< (inc at) count) (list (inc at)) (list)))
 		(cond
 			((find op +leave_ops) (list))
-			((eql op 'emit-jmp) (if (defq to (target-of inst labels start count)) (list to) (list)))
-			((starts-with "emit-b" op)
+			((eql op 'jmp) (if (defq to (target-of inst labels start count)) (list to) (list)))
+			((and (starts-with "b" op) (nql op 'byte))
 				(if (defq to (target-of inst labels start count)) (push on to) on))
 			(on)))
 		insts))
@@ -182,14 +182,14 @@
 	;name with it, and what any class called so may. :nil if not known
 	(bind '(by_function class_db &ignore) methods)
 	(case (first inst)
-		((emit-call-p emit-jmp-p)
+		((call-p jmp-p)
 			(and (defq at (. labels :find (second inst))) (< (inc at) (length all))
 				(list? (defq to (second (elem-get all (inc at))))) (> (length to) 1)
 				(defq at (. labels :find (second to))) (< (inc at) (length all))
 				(str? (defq path (second (elem-get all (inc at)))))
 				(defq m (. by_function :find path)) (first m)
 				(cat (list path) m)))
-		((emit-call-rc emit-jmp-rc)
+		((call-rc jmp-rc)
 			(when (> (length inst) 4)
 				(defq class (elem-get inst 3) method (elem-get inst 4) found :nil of class
 					name (cat (str class) " " (str method) ", by its vtable"))

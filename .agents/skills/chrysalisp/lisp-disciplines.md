@@ -633,7 +633,7 @@ user to interact with, see the `chrysalisp-gui-apps` skill.
 *	*Anti-Pattern:*
 
 	(cond
-		((eql op0 'emit-cpy-rr)
+		((eql op0 'cpy-rr)
 			(when (and (defq cpy_info (pfind +map (first %1)))
 					(defq d (third %0))
 					(eql (third %1) d)
@@ -642,12 +642,12 @@ user to interact with, see the `chrysalisp-gui-apps` skill.
 				(case (first cpy_info)
 					(:cr
 						(elem-set emit_list (!) (list (second cpy_info) (second %1) s d))
-						(elem-set emit_list (inc (!)) '(emit-nop)))))))
+						(elem-set emit_list (inc (!)) '(nop)))))))
 
 *	*Correct Pattern:*
 
 	(cond
-		((and (eql op0 'emit-cpy-rr)
+		((and (eql op0 'cpy-rr)
 				(defq cpy_info (pfind +map (first %1)))
 				(eql (third %1) (defq d (third %0)))
 				(nql d :rsp)
@@ -656,4 +656,4 @@ user to interact with, see the `chrysalisp-gui-apps` skill.
 			(case (first cpy_info)
 				(:cr
 					(elem-set emit_list (!) (list (second cpy_info) (second %1) s d))
-					(elem-set emit_list (inc (!)) '(emit-nop))))))
+					(elem-set emit_list (inc (!)) '(nop))))))

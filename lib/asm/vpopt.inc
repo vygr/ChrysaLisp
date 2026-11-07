@@ -7,24 +7,24 @@
 
 (defq
 	+opt_nop
-		''(emit-vp-nop)
+		''(vp-nop)
 	+opt_call_ops
-		''(emit-call-p emit-call-rc emit-call emit-call-r)
+		''(call-p call-rc call call-r)
 	+opt_jump_ops
-		''(emit-jmp-p emit-jmp-rc emit-jmp emit-jmp-r)
+		''(jmp-p jmp-rc jmp jmp-r)
 	+opt_read_ops
-		''(emit-load-rcr emit-load-rcr-ui emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-b emit-load-rcr-s)
+		''(load-rcr load-rcr-ui load-rcr-i load-rcr-ub load-rcr-us load-rcr-b load-rcr-s)
 	+opt_write_ops
-		''(emit-store-rrc emit-store-rrc-i emit-store-rrc-i emit-store-rrc-b emit-store-rrc-s emit-store-rrc-b emit-store-rrc-s)
+		''(store-rrc store-rrc-i store-rrc-i store-rrc-b store-rrc-s store-rrc-b store-rrc-s)
 	+opt_write_ops_signed
-		''(emit-store-rrc emit-store-rrc-i emit-store-rrc-b emit-store-rrc-s)
+		''(store-rrc store-rrc-i store-rrc-b store-rrc-s)
 	;those of a float, with an offset where an int op has it
 	+opt_read_ops_float
-		''(emit-load-rcd emit-load-rcf)
+		''(load-rcd load-rcf)
 	+opt_write_ops_float
-		''(emit-store-drc emit-store-frc)
+		''(store-drc store-frc)
 	+opt_branch_ops
-		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr))
+		''(beq-cr bne-cr bge-cr ble-cr blt-cr bgt-cr))
 
 (defq
 	+opt_read_ops_map
@@ -40,40 +40,40 @@
 	;an offset from it before is not what is there after
 	+opt_read_kill_ops
 		(reduce (# (pinsert %0 %1
-			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
-					emit-call-rc emit-call-abi emit-call emit-call-r)) -1)))
+			(if (find %1 '(label call-p free alloc push pop save-state load-state entry-abi
+					call-rc call-abi call call-r)) -1)))
 			+vp_emit_ops (pmap))
 	+opt_write_kill_ops
 		(reduce (# (pinsert %0 %1
-			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
-					emit-call-rc emit-call-abi emit-call emit-call-r
-					emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
-					emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr
-					emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-rc emit-beq-dd emit-bne-dd
-					emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd
-					emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)) -1)))
+			(if (find %1 '(label call-p free alloc push pop save-state load-state entry-abi
+					call-rc call-abi call call-r
+					jmp beq-cr bne-cr bne-rr beq-rr bge-rr
+					ble-rr jmp-p bge-cr ble-cr blt-cr blt-rr
+					bgt-rr bgt-cr jmp-r jmp-rc beq-dd bne-dd
+					blt-dd bgt-dd ble-dd bge-dd
+					beq-ff bne-ff blt-ff bgt-ff ble-ff bge-ff)) -1)))
 			+vp_emit_ops (pmap))
 	+opt_out_idx_map
 		(reduce (# (pinsert %0 %1
 			(cond
-				((find %1 '(emit-pop emit-swp-rr emit-land-rr)) :multi)
-				((find %1 '(emit-cpy-cr emit-add-cr emit-sub-cr emit-mul-cr emit-and-cr emit-or-cr emit-xor-cr
-						emit-cpy-rr emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr
-						emit-div-rr emit-div-rr-u emit-rem-rr emit-rem-rr-u
-						emit-shl-cr emit-shr-cr emit-asr-cr emit-shl-rr emit-shr-rr emit-asr-rr emit-ext-rr
-						emit-seq-cr emit-sne-cr emit-slt-cr emit-sle-cr emit-sgt-cr emit-sge-cr
-						emit-seq-rr emit-sne-rr emit-slt-rr emit-sle-rr emit-sgt-rr emit-sge-rr
-						emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr
-						emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr
-						emit-load-rrr emit-load-rrr-b emit-load-rrr-s emit-load-rrr-i emit-load-rrr-ub emit-load-rrr-us emit-load-rrr-ui emit-lea-rrr
-						emit-load-pr emit-lea-pr
-						emit-add-dd emit-sub-dd emit-mul-dd emit-div-dd emit-min-dd emit-max-dd
-						emit-sqrt-dd emit-abs-dd emit-neg-dd emit-cpy-dd
-						emit-cvt-rd emit-cvt-dr emit-cpy-rd emit-cpy-dr
-						emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff
-						emit-sqrt-ff emit-abs-ff emit-neg-ff emit-cvt-fd emit-cvt-df
-						emit-cvt-rf emit-cvt-fr emit-cpy-rf emit-cpy-fr
-						emit-load-rcd emit-load-rrd emit-load-rcf emit-load-rrf emit-lnot-rr)) -2))))
+				((find %1 '(pop swp-rr land-rr)) :multi)
+				((find %1 '(cpy-cr add-cr sub-cr mul-cr and-cr or-cr xor-cr
+						cpy-rr add-rr sub-rr mul-rr and-rr or-rr xor-rr
+						div-rr div-rr-u rem-rr rem-rr-u
+						shl-cr shr-cr asr-cr shl-rr shr-rr asr-rr ext-rr
+						seq-cr sne-cr slt-cr sle-cr sgt-cr sge-cr
+						seq-rr sne-rr slt-rr sle-rr sgt-rr sge-rr
+						min-cr max-cr min-rr max-rr abs-rr
+						load-rcr load-rcr-b load-rcr-s load-rcr-i load-rcr-ub load-rcr-us load-rcr-ui lea-rcr
+						load-rrr load-rrr-b load-rrr-s load-rrr-i load-rrr-ub load-rrr-us load-rrr-ui lea-rrr
+						load-pr lea-pr
+						add-dd sub-dd mul-dd div-dd min-dd max-dd
+						sqrt-dd abs-dd neg-dd cpy-dd
+						cvt-rd cvt-dr cpy-rd cpy-dr
+						add-ff sub-ff mul-ff div-ff min-ff max-ff
+						sqrt-ff abs-ff neg-ff cvt-fd cvt-df
+						cvt-rf cvt-fr cpy-rf cpy-fr
+						load-rcd load-rrd load-rcf load-rrf lnot-rr)) -2))))
 			+vp_emit_ops (pmap)))
 
 ;one lookup an instruction. For the sweep, the pass an op is for, and its
@@ -88,8 +88,8 @@
 				((defq c (pfind +opt_read_ops_map %1)) (list :read c))
 				((defq c (pfind +opt_write_ops_signed_map %1)) (list :write c))
 				((defq c (pfind +opt_branch_ops_map %1)) (list :branch c))
-				((eql %1 'emit-cpy-rr) (list :cpy 0))
-				((eql %1 'emit-ret) (list :ret 0)))))
+				((eql %1 'cpy-rr) (list :cpy 0))
+				((eql %1 'ret) (list :ret 0)))))
 			+vp_emit_ops (pmap))
 	+opt_info_map
 		(reduce (# (pinsert %0 %1 (list (pfind +opt_out_idx_map %1)
@@ -121,7 +121,7 @@
 	(find-past
 		((and (or (find (first inst) +opt_write_ops) (find (first inst) +opt_write_ops_float))
 				(eql b (third inst)) (= i (last inst)))
-			(if (and (eql wop (first inst)) (eql wop 'emit-store-rrc)) (progn (setq c 1) (!)) -1))
+			(if (and (eql wop (first inst)) (eql wop 'store-rrc)) (progn (setq c 1) (!)) -1))
 		((and (eql rop (first inst)) (eql b (second inst)) (nql b (last inst)) (= i (third inst)))
 			(setq c 3) (!))
 		((trashes? b inst (defq info (pfind +opt_info_map (first inst)))) -1)
@@ -138,20 +138,20 @@
 
 (defun find-past-rr (_ rs rd)
 	(find-past
-		((lmatch? inst `(emit-cpy-rr ,rs ,rd)) (!))
+		((lmatch? inst `(cpy-rr ,rs ,rd)) (!))
 		((trashes? rs inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((trashes? rd inst info) -1)
 		((second info))))
 
 (defun find-past-r (_ rd)
 	(find-past
-		((lmatch? inst `(emit-cpy-rr _ ,rd)) (!))
+		((lmatch? inst `(cpy-rr _ ,rd)) (!))
 		((uses? rd inst) -1)
 		((pfind +opt_read_kill_ops (first inst)))))
 
 (defun find-past-cr (_ rd)
 	(find-past
-		((lmatch? inst `(emit-cpy-cr _ ,rd)) (!))
+		((lmatch? inst `(cpy-cr _ ,rd)) (!))
 		((trashes? rd inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((second info))))
 
@@ -166,7 +166,7 @@
 			(elem-set emit_list (!)
 				(if (eql rs (last inst))
 					(setq inst +opt_nop)
-					(setq inst (list 'emit-cpy-rr rs (last inst))))))))
+					(setq inst (list 'cpy-rr rs (last inst))))))))
 
 (defun opt-read-after-cpy ()
 	(when (and (eql (second inst) (last inst))

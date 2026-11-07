@@ -80,7 +80,7 @@
 
 ; Build pre-centered glyph and stroke models for a VP opcode symbol
 (defun make-opcode-model (op_sym)
-	(defq name (slice (str op_sym) 5 -1))
+	(defq name (str op_sym))
 	(bind '(col_outline col_core col_glow) (opcode-colors name))
 	(defq raw_paths (font-glyph-paths font name))
 	(bind '((min_x min_y) (max_x max_y)) (vector-bounds-2d raw_paths))

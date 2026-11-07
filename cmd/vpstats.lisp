@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "lib/asm/ops.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -18,7 +19,7 @@
 	(lines! (lambda (line)
 		(defq split_line (split line (const (char-class " ()'\t\r\q")))
 			type (sym (first split_line)))
-		(when (starts-with "emit-" type)
+		(when (find type +vp_emit_ops)
 			(if (defq i (some (# (if (eql (first %0) type) (!))) inst_list))
 				(elem-set (setq i (elem-get inst_list i)) 1 (inc (second i)))
 				(push inst_list (list type 1))))

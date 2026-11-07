@@ -307,12 +307,12 @@ vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (pmap))))
 
 * **State Tracking**:
 
-	As instructions are simulated (such as `emit-cpy-rr`), `pfind` resolves the
+	As instructions are simulated (such as `cpy-rr`), `pfind` resolves the
 	symbolic source, and `pinsert` updates the destination register's mapping in
 	the pmap:
 
 ```vdu
-((emit-cpy-rr emit-cpy-dd)
+((cpy-rr cpy-dd)
 	(def-reg (last inst) (pfind vpmap (second inst))))
 ```
 

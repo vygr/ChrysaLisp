@@ -35,10 +35,10 @@
 (enums +vpbk 0
 	(enum reg num label label_pc label_diff string name pc_label))
 
-(defq +op_label (find 'emit-label +vpb_all_ops)
-	+op_nop (find 'emit-nop +vpb_all_ops)
-	+op_cpy_rr (find 'emit-cpy-rr +vpb_all_ops)
-	+op_lea_i (find 'emit-lea-rcr +vpb_all_ops)
+(defq +op_label (find 'label +vpb_all_ops)
+	+op_nop (find 'nop +vpb_all_ops)
+	+op_cpy_rr (find 'cpy-rr +vpb_all_ops)
+	+op_lea_i (find 'lea-rcr +vpb_all_ops)
 	+rsp 15
 	*vpb_handlers* (list))
 
@@ -374,8 +374,8 @@
 
 	(vp-label 'h_nop)
 		(vp-ret)
-	(handler 'emit-nop 'h_nop)
-	(handler 'emit-trash 'h_nop)
+	(handler 'nop 'h_nop)
+	(handler 'trash 'h_nop)
 
 	;;;;;;;;;;;;;;;;;;
 	; data and padding
@@ -394,8 +394,8 @@
 			(endif)
 			(vp-ret)
 			(handler op label))
-		'((emit-byte h_byte emit8) (emit-short h_short emit16)
-		(emit-int h_int emit32) (emit-long h_long emit64)))
+		'((byte h_byte emit8) (short h_short emit16)
+		(int h_int emit32) (long h_long emit64)))
 
 	(vp-label 'h_string)
 		;:r6 = the operand, its bytes and how many
@@ -409,7 +409,7 @@
 		(loop-until '(:r5 = 0))
 		(endif)
 		(vp-ret)
-	(handler 'emit-string 'h_string)
+	(handler 'string 'h_string)
 
 	(vp-label 'h_align)
 		;:r0 = size, :r1 = fill if given, the pc made a whole number of size
@@ -428,7 +428,7 @@
 			(vp-add-cr 1 :r2)
 		(loop-end)
 		(vp-ret)
-	(handler 'emit-align 'h_align)
+	(handler 'align 'h_align)
 
 )
 
@@ -750,8 +750,8 @@
 (defun vpb-call-fusion-tables (cpu)
 	;of each op, 4 bytes: 1 a barrier, 2 a call and the ops it becomes, the
 	;first call of a pair and the last; then the :rsp access of each op
-	(defq calls '(emit-call emit-call-r emit-call-rc emit-call-p)
-		named (lambda (v) (map (lambda (c) (sym (cat "emit-" cpu (slice c 4 -1) v))) calls))
+	(defq calls '(call call-r call-rc call-p)
+		named (lambda (v) (map (lambda (c) (sym (cat cpu "-" c v))) calls))
 		hs (named "-h") ms (named "-m") ts (named "-t")
 		opi (lambda (o) (find o +vpb_all_ops)))
 	(vp-align +long_size)
@@ -761,22 +761,22 @@
 			(apply (const vp-byte) (cond
 				((setq i (find op calls)) (list 2 (opi (elem-get hs i)) (opi (elem-get ts i)) 0))
 				((setq i (find op ts)) (list 2 (opi (elem-get ms i)) 0xff 0))
-				((find op '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state
-						emit-load-state emit-entry-abi emit-call-abi emit-jmp emit-jmp-r emit-jmp-rc
-						emit-jmp-p emit-ret emit-sync emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr
-						emit-blt-cr emit-bgt-cr emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr
-						emit-blt-rr emit-bgt-rr emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd
-						emit-ble-dd emit-bgt-dd emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff
-						emit-ble-ff emit-bgt-ff))
+				((find op '(label alloc free push pop save-state
+						load-state entry-abi call-abi jmp jmp-r jmp-rc
+						jmp-p ret sync beq-cr bne-cr bge-cr ble-cr
+						blt-cr bgt-cr beq-rr bne-rr bge-rr ble-rr
+						blt-rr bgt-rr beq-dd bne-dd bge-dd blt-dd
+						ble-dd bgt-dd beq-ff bne-ff bge-ff blt-ff
+						ble-ff bgt-ff))
 					'(1 0 0 0))
 				('(0 0 0 0)))))
 		+vpb_all_ops)
 (vp-label 'cf_sp)
 	(each (# (apply (const vp-byte) (cond
-			((find %0 '(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub
-				emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr emit-load-rcd emit-load-rcf)) '(0 1))
-			((find %0 '(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-frc)) '(1 2))
-			((eql %0 'emit-cpy-rr) '(0xfe 0xfe))
+			((find %0 '(load-rcr load-rcr-b load-rcr-s load-rcr-i load-rcr-ub
+				load-rcr-us load-rcr-ui lea-rcr load-rcd load-rcf)) '(0 1))
+			((find %0 '(store-rrc store-rrc-b store-rrc-s store-rrc-i store-drc store-frc)) '(1 2))
+			((eql %0 'cpy-rr) '(0xfe 0xfe))
 			('(0xff 0xff)))))
 		+vpb_all_ops))
 

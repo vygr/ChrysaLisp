@@ -109,7 +109,7 @@
 	;method that is known: one bound to its function is, through its
 	;link, and a virtual one has its class and name with it
 	(case (first inst)
-		((emit-call-p emit-jmp-p)
+		((call-p jmp-p)
 			(and (starts-with "_l_rl_" (defq label (str (second inst))))
 				(defq link (str-as-num (slice label 6 -1))) (< -1 link (length *links*))
 				;bound to the function, it trashes what the function does. Only
@@ -119,7 +119,7 @@
 				;it's the wider trashes"
 				(defq m (elem-get *callees* link))
 				(list (second m) (first m))))
-		((emit-call-rc emit-jmp-rc)
+		((call-rc jmp-rc)
 			(and (> (length inst) 4) (defq class (elem-get inst 3)) (defq name (elem-get inst 4))
 				(nql class :nil) (nql name :nil)
 				(defq m (method-lookup class name))

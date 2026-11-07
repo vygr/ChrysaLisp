@@ -97,12 +97,12 @@ involves several stages:
    optimized by `vpxopt.inc` (e.g., constant folding, offset folding).
 
 4. **VP Emitter List Preparation:** The `(vp-xxx ...)` instructions are
-   transformed into `(emit-xxx ...)` forms, still with VP register names,
-   e.g. `(emit-add-rr :r1 :r0)`.
+   transformed into `(op ...)` forms, still with VP register names,
+   e.g. `(add-rr :r1 :r0)`.
 
 5. **VP Emitter Optimization:** The `opt-emit-list` function (from
    `lib/asm/vpopt.inc`) performs peephole optimizations on this list of
-   `(emit-xxx ...)` instructions (e.g., redundant load/store elimination).
+   `(op ...)` instructions (e.g., redundant load/store elimination).
 
 6. **VP Text:** The list is written as text, the function's entry in the
    bundle of its file, `obj/vp/<file>`, `vp-entry-text` in
@@ -123,8 +123,7 @@ bundle is one function, as `(read)` reads it back:
 
 ```vdu
 ("name"
-(progn
-(emit-op operand ...)
+((op operand ...)
 ...)
 (locals ...)
 ...)
@@ -157,7 +156,7 @@ anything stores or sends.
   `pc_label`.
 
 * A label is `_N`, `_0 _1 ...`, quoted where it is set,
-  `(emit-label '_0)`.
+  `(label '_0)`.
 
 * What is after the instructions, the locals and the like, is no
   translator's.
@@ -227,7 +226,7 @@ For example, the riscv64 routines of the register to register ALU ops:
 		(rv-r 0x33 :r1 :r1 :r0 f3 f7)
 		(vp-ret)
 		(handler op label))
-	'(... (emit-add-rr e_add_rr 0 0 :nil) ...))
+	'(... (add-rr e_add_rr 0 0 :nil) ...))
 ```
 
 `rv-r` adds up the fixed fields of the instruction when the translator is
@@ -238,13 +237,13 @@ a1 and a0, and makes `add a0, a0, a1`.
 ### Prepasses
 
 Before the passes a translator may rewrite its records, `prepass`, making
-an instruction into a fused op of `vpb_ops.inc` or into `emit-nop`:
+an instruction into a fused op of `vpb_ops.inc` or into `nop`:
 
 * arm64: call fusion, load and store pair fusion to `ldp` and `stp`, and
   copy fusion, a copy and the ALU op after it to one three register op.
 
 * x86_64: a load and the ALU op of what it loaded, that register dead
-  after, to the ALU op from memory, `emit-x64-alu-ir`; a copy and an add,
+  after, to the ALU op from memory, `x64-alu-ir`; a copy and an add,
   or a shift by 1, of what it copied to, to a `lea`.
 
 * riscv64 and la64: the generic call fusion of `vpb_trans.inc`.
@@ -256,7 +255,7 @@ an instruction into a fused op of `vpb_ops.inc` or into `emit-nop`:
 A branch to a label later in the code does not know where it is on the
 first pass. So the driver emits the whole function, pass after pass, each
 operand's value worked out from the labels as the pass before left them.
-`emit-label` sets where a label is as the pass reaches it.
+`label` sets where a label is as the pass reaches it.
 
 A branch that may take a short or a long form keeps in its record, `+vpbr_m`,
 the most it has had to reach on any pass, and is sized by that, so it only
@@ -286,7 +285,7 @@ Some things are the same on all five:
 * A float compare with a NaN in it is false for every branch but
   `bne-dd`, which is taken.
 
-* `emit-stack-init`, `(s f x)`, makes the stack of a new task at `s`, so
+* `stack-init`, `(s f x)`, makes the stack of a new task at `s`, so
   that the first switch to it runs `f` with `x` as where `f` returns to.
 
 ### arm64
@@ -318,7 +317,7 @@ indexed forms are the register offset form. A float load or store takes
 
 `push` and `pop` are `stp` and `ldp` pairs on x28, the first `stp` with
 pre-index writeback of the whole size, the last `ldp` with post-index, an
-odd one a `str` or `ldr`. `emit-save-state` and `emit-load-state` push and
+odd one a `str` or `ldr`. `save-state` and `load-state` push and
 pop x30. `alloc` and `free` are a `sub` or `add` of x28.
 
 A conditional branch is a `cmp`, `cmn` or `fcmp` and a `b.cond`, reach
@@ -400,8 +399,8 @@ and `-s` loads are `movsx`, `-i` `movsxd`, `-ub` and `-us` `movzx`,
 `movsd`. `lea-rcr` and `lea-rrr` are `lea`, `lea-pr` and `load-pr` the rip
 relative `lea` and `mov`, ±2GB.
 
-`push` and `pop` are one `push` or `pop` each. `emit-save-state` and
-`emit-load-state` are nothing, the return address being on the stack.
+`push` and `pop` are one `push` or `pop` each. `save-state` and
+`load-state` are nothing, the return address being on the stack.
 
 A conditional branch is `cmp` or `test` and a `jcc`: rel8 if the most it
 has reached fits, else rel32. `jmp` is `eb` rel8 or `e9` rel32. Out of
@@ -455,7 +454,7 @@ The prepass goes from instruction 8 to the last:
   Nothing between may be a barrier, write its last operand, or use `s`
   or `d`. `s` must be dead after: written, not read, in the 15 that
   follow, before any barrier. The load becomes nothing, the op
-  `emit-x64-alu-ir`, `op d, [base + offset]`.
+  `x64-alu-ir`, `op d, [base + offset]`.
 
 * A `cpy-rr` to `d` up to 6 back, then an `add-rr`, an `add-cr` or
   `sub-cr` in 32 bits, or a `shl-cr` by 1, of `d`. The copy becomes `lea
@@ -493,7 +492,7 @@ The indexed forms are an `add` to x29, or x31, and the access at 0.
 `lea-rcr` is `addi`, else `add` of x29.
 
 `push` is one `addi sp, sp, -8n` and an `sd` of each, the first deepest,
-`pop` the `ld`s and the `addi`. `emit-save-state` and `emit-load-state`
+`pop` the `ld`s and the `addi`. `save-state` and `load-state`
 push and pop ra.
 
 A conditional branch is `beq`, `bne`, `blt` or `bge` on two registers,
@@ -529,7 +528,7 @@ stub after a `jal` over it popping x31 and ra and jumping to x31.
 
 The prepass is the generic call fusion of `vpb_trans.inc`, instructions 8
 to the last, the same rules as the arm64 call fusion, making
-`emit-riscv64-call-h`, `-m` and `-t` and their `-r`, `-i` and `-p` forms.
+`riscv64-call-h`, `-m` and `-t` and their `-r`, `-i` and `-p` forms.
 
 ### la64
 
@@ -561,7 +560,7 @@ bigger offset is made in r14 and added to the base, or for a float the
 `fldx.d` or `fstx.d` of r12. The indexed forms are one `ldx`, `stx`,
 `fldx.d` or `fstx.d`. `lea-rcr` is `addi.d`, else `add.d` of r14.
 
-`push`, `pop`, `emit-save-state` and `emit-load-state` are as on riscv64.
+`push`, `pop`, `save-state` and `load-state` are as on riscv64.
 
 A conditional branch is `beq`, `bne`, `blt` or `bge`, `bgt` and `ble`
 with the registers swapped, a constant of 0 the zero register, any other
@@ -595,7 +594,7 @@ memory is `fld.s`, `fst.s`, `fldx.s` or `fstx.s`; `cpy-fr` is
 the address loaded into r12, the call `jirl ra, r12, 0`. `e_stack_init`
 is as on riscv64, with r12.
 
-The prepass is the generic call fusion, making `emit-la64-call-h` and
+The prepass is the generic call fusion, making `la64-call-h` and
 the rest.
 
 ### vp64
@@ -641,7 +640,7 @@ conditional branch is sized by the most it has reached; `call`, `jmp`,
 `call-p` and `jmp-p` by the reach on this pass.
 
 `push` is a `sub-cr` of `:rsp` and a `store-rrc` of each, `pop` the reverse.
-`emit-entry-abi`, `emit-save-state` and `emit-load-state` are nothing,
+`entry-abi`, `save-state` and `load-state` are nothing,
 `call` pushing the return pc as x86_64 does. `e_stack_init` puts `f` and
 `x` at `s` less 16, as x86_64.
 
@@ -653,7 +652,7 @@ from the boot image if it has it, `image-has?` in `lib/boot/image.inc`. A
 dev tree that has neither gets `No translator to this CPU here, make
 install makes them !`. It has:
 
-* `(emit-translate emit_code)`: a list of `(emit-xxx ...)` with no name to
+* `(emit-translate emit_code)`: a list of `(op ...)` with no name to
   native code, by the text it prints as.
 
 * `(vp-translate-text text)`: a function's VP text, its entry of a bundle,

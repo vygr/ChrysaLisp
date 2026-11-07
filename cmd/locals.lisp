@@ -100,7 +100,7 @@
 			which_of (list) sizes (list 0) allocs 0)
 		(each (lambda (inst)
 			(cond
-				((eql (first inst) 'emit-alloc) (push which_of (++ allocs)) (push sizes (second inst)))
+				((eql (first inst) 'alloc) (push which_of (++ allocs)) (push sizes (second inst)))
 				((push which_of 0))))
 			insts)
 		;the frames there are as each instruction is come to, the last made
@@ -112,8 +112,8 @@
 		(while (defq at (pop todo))
 			(defq inst (elem-get insts at) op (first inst) stack (elem-get stacks at))
 			(cond
-				((eql op 'emit-alloc) (setq stack (cat stack (list (elem-get which_of at)))))
-				((eql op 'emit-free)
+				((eql op 'alloc) (setq stack (cat stack (list (elem-get which_of at)))))
+				((eql op 'free)
 					;so many bytes of them, whole frames from the last made
 					(defq bytes (second inst) stack (cat stack))
 					(while (and (> bytes 0) (nempty? stack))
@@ -137,11 +137,11 @@
 						(if (setq place (place-of stack sizes (third inst))) (setq event :load)))
 					((and (find op +store_ops) (eql (third inst) :rsp))
 						(if (setq place (place-of stack sizes (elem-get inst 3))) (setq event :store)))
-					((and (eql op 'emit-lea-rcr) (eql (second inst) :rsp))
+					((and (eql op 'lea-rcr) (eql (second inst) :rsp))
 						(if (setq place (place-of stack sizes (third inst))) (setq event :addr)))
 					;the stack pointer used as a number: where the frame is
 					;is known to something this can not follow
-					((and (not (find op '(emit-alloc emit-free emit-push emit-pop))) (find :rsp inst))
+					((and (not (find op '(alloc free push pop))) (find :rsp inst))
 						(setq escapes :t)))
 				(cond
 					(event

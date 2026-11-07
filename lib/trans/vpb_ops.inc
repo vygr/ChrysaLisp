@@ -2,27 +2,27 @@
 ;those the prepasses of the translators make, numbered here so the
 ;records can hold them. Those the arm64 prepass makes
 (defq +vpb_arm64_ops ''(
-	emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui emit-arm64-ldp-f
-	emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-f
-	emit-arm64-add-rrr emit-arm64-sub-rrr emit-arm64-and-rrr emit-arm64-or-rrr emit-arm64-xor-rrr
-	emit-arm64-shl-crr emit-arm64-shr-crr emit-arm64-asr-crr
-	emit-arm64-add-crr emit-arm64-and-crr emit-arm64-or-crr emit-arm64-xor-crr
-	emit-arm64-call-h emit-arm64-call-m emit-arm64-call-t
-	emit-arm64-call-r-h emit-arm64-call-r-m emit-arm64-call-r-t
-	emit-arm64-call-rc-h emit-arm64-call-rc-m emit-arm64-call-rc-t
-	emit-arm64-call-p-h emit-arm64-call-p-m emit-arm64-call-p-t))
+	arm64-ldp arm64-ldp-i arm64-ldp-ui arm64-ldp-f
+	arm64-stp arm64-stp-i arm64-stp-f
+	arm64-add-rrr arm64-sub-rrr arm64-and-rrr arm64-or-rrr arm64-xor-rrr
+	arm64-shl-crr arm64-shr-crr arm64-asr-crr
+	arm64-add-crr arm64-and-crr arm64-or-crr arm64-xor-crr
+	arm64-call-h arm64-call-m arm64-call-t
+	arm64-call-r-h arm64-call-r-m arm64-call-r-t
+	arm64-call-rc-h arm64-call-rc-m arm64-call-rc-t
+	arm64-call-p-h arm64-call-p-m arm64-call-p-t))
 ;and those the x86_64 prepass makes
-(defq +vpb_x86_64_ops ''(emit-x64-alu-ir))
+(defq +vpb_x86_64_ops ''(x64-alu-ir))
 ;and those the riscv64 and la64 call fusions make, (vpb-call-fusion)
 (defq +vpb_riscv64_ops ''(
-	emit-riscv64-call-h emit-riscv64-call-m emit-riscv64-call-t
-	emit-riscv64-call-r-h emit-riscv64-call-r-m emit-riscv64-call-r-t
-	emit-riscv64-call-rc-h emit-riscv64-call-rc-m emit-riscv64-call-rc-t
-	emit-riscv64-call-p-h emit-riscv64-call-p-m emit-riscv64-call-p-t)
+	riscv64-call-h riscv64-call-m riscv64-call-t
+	riscv64-call-r-h riscv64-call-r-m riscv64-call-r-t
+	riscv64-call-rc-h riscv64-call-rc-m riscv64-call-rc-t
+	riscv64-call-p-h riscv64-call-p-m riscv64-call-p-t)
 	+vpb_la64_ops ''(
-	emit-la64-call-h emit-la64-call-m emit-la64-call-t
-	emit-la64-call-r-h emit-la64-call-r-m emit-la64-call-r-t
-	emit-la64-call-rc-h emit-la64-call-rc-m emit-la64-call-rc-t
-	emit-la64-call-p-h emit-la64-call-p-m emit-la64-call-p-t))
+	la64-call-h la64-call-m la64-call-t
+	la64-call-r-h la64-call-r-m la64-call-r-t
+	la64-call-rc-h la64-call-rc-m la64-call-rc-t
+	la64-call-p-h la64-call-p-m la64-call-p-t))
 (defq +vpb_all_ops `'(~(last +vp_emit_ops) ~(last +vpb_arm64_ops) ~(last +vpb_x86_64_ops)
 	~(last +vpb_riscv64_ops) ~(last +vpb_la64_ops)))

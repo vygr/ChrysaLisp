@@ -241,7 +241,7 @@ platform compiled everything from source. What differed, and what was done:
 * **Host calls**, 77 of them: their args were put in the host ABI's
   registers and the ABI's trashed registers pushed, as the VP was made. Now
   a host call has its args in `:r0 :r1 ...` and keeps every register but
-  `:r0`, and each translator's `emit-call-abi` moves them to its ABI and
+  `:r0`, and each translator's `call-abi` moves them to its ABI and
   keeps what its ABI trashes. `sys/pii/abi.inc` is gone.
 * **The task switch**, 4: it pushed the translator's `stack_state`. Now
   `vp-save-state` and `vp-load-state`, which each translator expands.

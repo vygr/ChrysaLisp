@@ -12,7 +12,7 @@
 ;is not of the VP text, docs/vm/vp_vm.md, A bundle of VP, it says so for.
 ;
 ;("name"
-;((emit-op operand ...)
+;((op operand ...)
 ;...)
 ;...)
 ;
@@ -31,8 +31,8 @@
 
 ;the ops by a hash of their names, each slot the op, the length of its name
 ;and where the name is in the names after them, a slot of length 0 empty.
-;An op is found by its name with emit- before it, as text was written, or
-;without, as it is to be
+;An op is found by its name, or with emit- before it, as text was written
+;before
 (defq +ph_size 1024)
 
 (defun ph-hash (s)
@@ -47,7 +47,7 @@
 					(defq i (logand (ph-hash name) (dec +ph_size)))
 					(while (elem-get slots i) (setq i (logand (inc i) (dec +ph_size))))
 					(elem-set slots i (list n name)))
-				(list (str op) (slice (str op) 5 -1))))
+				(list (str op) (cat "emit-" (str op)))))
 		+vp_emit_ops)
 	slots)
 
@@ -308,7 +308,7 @@
 	(vp-cpy-rr :r0 :r13)
 	(vp-add-rr :r1 :r13)
 
-	;at most an instruction in 10 bytes, (emit-ret), and an operand in 2, and
+	;at most an instruction in 10 bytes, (ret), and an operand in 2, and
 	;the most a prepass makes, 4 operands an instruction. None of it is made
 	;0 or looked at here, what is read of it is written, the record past the
 	;last is 0

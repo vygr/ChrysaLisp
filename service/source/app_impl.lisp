@@ -21,9 +21,9 @@
 	;the functions a function calls, from its VP, with nothing translated:
 	;the strings after the label its header gives for where its paths begin
 	(defq code (second entry)
-		paths (elem-get (some (# (and (list? %0) (eql (first %0) 'emit-short) %0)) code) 4)
-		at (some (# (and (list? %0) (eql (first %0) 'emit-label) (eql (second (second %0)) paths) (!))) code))
-	(map (const second) (filter! (# (and (list? %0) (eql (first %0) 'emit-string))) code (inc at) -1)))
+		paths (elem-get (some (# (and (list? %0) (eql (first %0) 'short) %0)) code) 4)
+		at (some (# (and (list? %0) (eql (first %0) 'label) (eql (second (second %0)) paths) (!))) code))
+	(map (const second) (filter! (# (and (list? %0) (eql (first %0) 'string))) code (inc at) -1)))
 
 (defun source-known (mode name)
 	; (source-known mode name) -> :nil | (hash links)

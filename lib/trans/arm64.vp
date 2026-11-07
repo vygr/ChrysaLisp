@@ -5,7 +5,7 @@
 (include "./vpb_trans.inc")
 
 ;The arm64 translator: VP text, lib/trans/vp_parse.vp, to native code. Each
-;VP op has a routine here, e_ and the name of its (emit-), its operands in
+;VP op has a routine here, e_ and the name of its op, its operands in
 ;:r0 :r1 :r2 :r3. A routine may trash :r0 to :r13, never :r14, the state.
 ;The prepass is here too, (prepass), on the instructions as they are
 ;decoded, before the passes.
@@ -290,7 +290,7 @@
 (vp-label 'e_xor_rr)
 	(w32 0xca000000 '(:r0 16) '(:r1 5) '(:r1 0))
 	(vp-ret)
-(handler 'emit-xor-rr 'e_xor_rr)
+(handler 'xor-rr 'e_xor_rr)
 
 (vp-label 'e_cpy_rr)
 	(vpif '(:r0 /= :r1))
@@ -303,7 +303,7 @@
 		(endif)
 	(endif)
 	(vp-ret)
-(handler 'emit-cpy-rr 'e_cpy_rr)
+(handler 'cpy-rr 'e_cpy_rr)
 
 (each (lambda ((op label o test))
 		(vp-label label)
@@ -312,17 +312,17 @@
 		(if test (endif))
 		(vp-ret)
 		(handler op label))
-	'((emit-and-rr e_and_rr 0x8a000000 :t) (emit-or-rr e_or_rr 0xaa000000 :t)
-	(emit-add-rr e_add_rr 0x8b206000 :nil) (emit-sub-rr e_sub_rr 0xcb206000 :nil)
-	(emit-shl-rr e_shl_rr 0x9ac02000 :nil) (emit-shr-rr e_shr_rr 0x9ac02400 :nil)
-	(emit-asr-rr e_asr_rr 0x9ac02800 :nil)
-	(emit-add-dd e_add_ff 0x1e602800 :nil) (emit-sub-dd e_sub_ff 0x1e603800 :nil)
-	(emit-mul-dd e_mul_ff 0x1e600800 :nil) (emit-div-dd e_div_ff 0x1e601800 :nil)
-	(emit-min-dd e_min_ff 0x1e605800 :nil) (emit-max-dd e_max_ff 0x1e604800 :nil)
+	'((and-rr e_and_rr 0x8a000000 :t) (or-rr e_or_rr 0xaa000000 :t)
+	(add-rr e_add_rr 0x8b206000 :nil) (sub-rr e_sub_rr 0xcb206000 :nil)
+	(shl-rr e_shl_rr 0x9ac02000 :nil) (shr-rr e_shr_rr 0x9ac02400 :nil)
+	(asr-rr e_asr_rr 0x9ac02800 :nil)
+	(add-dd e_add_ff 0x1e602800 :nil) (sub-dd e_sub_ff 0x1e603800 :nil)
+	(mul-dd e_mul_ff 0x1e600800 :nil) (div-dd e_div_ff 0x1e601800 :nil)
+	(min-dd e_min_ff 0x1e605800 :nil) (max-dd e_max_ff 0x1e604800 :nil)
 	;a single's are a double's with the type 0, the s view of the register
-	(emit-add-ff e_add_ss 0x1e202800 :nil) (emit-sub-ff e_sub_ss 0x1e203800 :nil)
-	(emit-mul-ff e_mul_ss 0x1e200800 :nil) (emit-div-ff e_div_ss 0x1e201800 :nil)
-	(emit-min-ff e_min_ss 0x1e205800 :nil) (emit-max-ff e_max_ss 0x1e204800 :nil)))
+	(add-ff e_add_ss 0x1e202800 :nil) (sub-ff e_sub_ss 0x1e203800 :nil)
+	(mul-ff e_mul_ss 0x1e200800 :nil) (div-ff e_div_ss 0x1e201800 :nil)
+	(min-ff e_min_ss 0x1e205800 :nil) (max-ff e_max_ss 0x1e204800 :nil)))
 
 (vp-label 'cmp_rr)
 	;arm64-cmp-rr
@@ -334,20 +334,20 @@
 		(w32 o '(:r0 5) '(:r1 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-cpy-dd e_cpy_ff 0x1e604000) (emit-cpy-rd e_cpy_rf 0x9e670000)
-	(emit-cpy-dr e_cpy_fr 0x9e660000) (emit-cvt-rd e_cvt_rf 0x9e620000)
-	(emit-cvt-dr e_cvt_fr 0x9e780000) (emit-sqrt-dd e_sqrt_ff 0x1e61c000)
-	(emit-abs-dd e_abs_ff 0x1e60c000) (emit-neg-dd e_neg_ff 0x1e614000)
-	(emit-sqrt-ff e_sqrt_ss 0x1e21c000) (emit-abs-ff e_abs_ss 0x1e20c000)
-	(emit-neg-ff e_neg_ss 0x1e214000) (emit-cvt-rf e_cvt_rs 0x9e220000)
-	(emit-cvt-fr e_cvt_sr 0x9e380000) (emit-cvt-fd e_cvt_sf 0x1e22c000)
-	(emit-cvt-df e_cvt_fs 0x1e624000) (emit-cpy-rf e_cpy_rs 0x1e270000)
-	(emit-cpy-fr e_cpy_sr 0x1e260000)))
+	'((cpy-dd e_cpy_ff 0x1e604000) (cpy-rd e_cpy_rf 0x9e670000)
+	(cpy-dr e_cpy_fr 0x9e660000) (cvt-rd e_cvt_rf 0x9e620000)
+	(cvt-dr e_cvt_fr 0x9e780000) (sqrt-dd e_sqrt_ff 0x1e61c000)
+	(abs-dd e_abs_ff 0x1e60c000) (neg-dd e_neg_ff 0x1e614000)
+	(sqrt-ff e_sqrt_ss 0x1e21c000) (abs-ff e_abs_ss 0x1e20c000)
+	(neg-ff e_neg_ss 0x1e214000) (cvt-rf e_cvt_rs 0x9e220000)
+	(cvt-fr e_cvt_sr 0x9e380000) (cvt-fd e_cvt_sf 0x1e22c000)
+	(cvt-df e_cvt_fs 0x1e624000) (cpy-rf e_cpy_rs 0x1e270000)
+	(cpy-fr e_cpy_sr 0x1e260000)))
 
 (vp-label 'e_mul_rr)
 	(w32 (+ 0x9b000000 (<< 31 10)) '(:r1 16) '(:r0 5) '(:r1 0))
 	(vp-ret)
-(handler 'emit-mul-rr 'e_mul_rr)
+(handler 'mul-rr 'e_mul_rr)
 
 (vp-label 'e_swp_rr)
 	(vpif '(:r0 /= :r1))
@@ -362,7 +362,7 @@
 		(vp-call 'e_cpy_rr)
 	(endif)
 	(vp-ret)
-(handler 'emit-swp-rr 'e_swp_rr)
+(handler 'swp-rr 'e_swp_rr)
 
 (vp-label 'e_ext_rr)
 	(vp-push :r1)
@@ -370,7 +370,7 @@
 	(vp-pop :r1)
 	(vp-cpy-cr 63 :r0)
 	(vp-jmp 'e_asr_cr)
-(handler 'emit-ext-rr 'e_ext_rr)
+(handler 'ext-rr 'e_ext_rr)
 
 (vp-label 'e_lnot_rr)
 	(vp-push :r0)
@@ -380,7 +380,7 @@
 	(vp-pop :r0)
 	(w32 0x9a9f17e0 '(:r0 0))
 	(vp-ret)
-(handler 'emit-lnot-rr 'e_lnot_rr)
+(handler 'lnot-rr 'e_lnot_rr)
 
 (vp-label 'e_land_rr)
 	(vp-push :r0 :r1)
@@ -390,13 +390,13 @@
 	(w32 0xfa401804 '(:r0 5))
 	(w32 0x9a9f07e0 '(:r1 0))
 	(vp-ret)
-(handler 'emit-land-rr 'e_land_rr)
+(handler 'land-rr 'e_land_rr)
 
 (vp-label 'e_abs_rr)
 	(w32 0xf100001f '(:r0 5))
 	(w32 0xda80a400 '(:r0 16) '(:r0 5) '(:r1 0))
 	(vp-ret)
-(handler 'emit-abs-rr 'e_abs_rr)
+(handler 'abs-rr 'e_abs_rr)
 
 (each (lambda ((op label o))
 		;(s d), d by s to d: by 0 the CPU gives 0
@@ -404,7 +404,7 @@
 		(w32 o '(:r0 16) '(:r1 5) '(:r1 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-div-rr e_div_rr 0x9ac00c00) (emit-div-rr-u e_div_rr_u 0x9ac00800)))
+	'((div-rr e_div_rr 0x9ac00c00) (div-rr-u e_div_rr_u 0x9ac00800)))
 
 (each (lambda ((op label o))
 		;(s d), what is left of d by s to d: d less s times d by s, so d
@@ -414,12 +414,12 @@
 		(w32 (+ 0x9b008000 (<< +a64_rt 16)) '(:r1 10) '(:r0 5) '(:r1 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-rem-rr e_rem_rr 0x9ac00c00) (emit-rem-rr-u e_rem_rr_u 0x9ac00800)))
+	'((rem-rr e_rem_rr 0x9ac00c00) (rem-rr-u e_rem_rr_u 0x9ac00800)))
 
 (vp-label 'e_lea_d)
 	(w32 0x8b000000 '(:r0 16) '(:r1 5) '(:r2 0))
 	(vp-ret)
-(handler 'emit-lea-rrr 'e_lea_d)
+(handler 'lea-rrr 'e_lea_d)
 
 ;;;;;;;;;;;;;;;;
 ; with constants
@@ -435,7 +435,7 @@
 	(endif)
 	(vp-cpy-rr :r2 :r0)
 	(vp-jmp 'e_mov_cr)
-(handler 'emit-cpy-cr 'e_cpy_cr)
+(handler 'cpy-cr 'e_cpy_cr)
 
 (vp-label 'cmp_cr)
 	;arm64-cmp-cr, :r0 = c, :r1 = r
@@ -495,8 +495,8 @@
 		(endif)
 		(add-big rr)
 		(handler op label))
-	'((emit-add-cr e_add_cr 0xd1000000 0xd1400000 0x91000000 0x91400000 e_add_rr)
-	(emit-sub-cr e_sub_cr 0x91000000 0x91400000 0xd1000000 0xd1400000 e_sub_rr)))
+	'((add-cr e_add_cr 0xd1000000 0xd1400000 0x91000000 0x91400000 e_add_rr)
+	(sub-cr e_sub_cr 0x91000000 0x91400000 0xd1000000 0xd1400000 e_sub_rr)))
 
 (vp-label 'e_or_cr)
 	(vpif '(:r0 = 0))
@@ -519,7 +519,7 @@
 	(vp-pop :r1)
 	(vp-cpy-cr +a64_rt :r0)
 	(vp-jmp 'e_or_rr)
-(handler 'emit-or-cr 'e_or_cr)
+(handler 'or-cr 'e_or_cr)
 
 (vp-label 'e_and_cr)
 	(vpif '(:r0 = -1))
@@ -543,7 +543,7 @@
 	(vp-pop :r1)
 	(vp-cpy-cr +a64_rt :r0)
 	(vp-jmp 'e_and_rr)
-(handler 'emit-and-cr 'e_and_cr)
+(handler 'and-cr 'e_and_cr)
 
 (vp-label 'e_xor_cr)
 	(vpif '(:r0 = 0))
@@ -563,7 +563,7 @@
 	(vp-pop :r1)
 	(vp-cpy-cr +a64_rt :r0)
 	(vp-jmp 'e_xor_rr)
-(handler 'emit-xor-cr 'e_xor_cr)
+(handler 'xor-cr 'e_xor_cr)
 
 (each (lambda ((op label o x))
 		;arm64-shift-cr, :r0 = c, :r1 = r
@@ -589,8 +589,8 @@
 		(w32 o '(:r2 16) '(:r3 10) '(:r1 5) '(:r1 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-shl-cr e_shl_cr 0xd3400000 shl) (emit-shr-cr e_shr_cr 0xd3400000 shr)
-	(emit-asr-cr e_asr_cr 0x93400000 asr)))
+	'((shl-cr e_shl_cr 0xd3400000 shl) (shr-cr e_shr_cr 0xd3400000 shr)
+	(asr-cr e_asr_cr 0x93400000 asr)))
 
 (vp-label 'e_mul_cr)
 	(vpif '(:r0 = 1))
@@ -618,7 +618,7 @@
 		(endif)
 	(endif)
 	(add-big 'e_mul_rr)
-(handler 'emit-mul-cr 'e_mul_cr)
+(handler 'mul-cr 'e_mul_cr)
 
 (each (lambda ((op label cc))
 		(vp-label label)
@@ -632,7 +632,7 @@
 		(w32 (+ 0x9a800000 (<< cc 12) (<< +a64_rt 5)) '(:r1 16) '(:r1 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-min-cr e_min_cr 0xc) (emit-max-cr e_max_cr 0xb)))
+	'((min-cr e_min_cr 0xc) (max-cr e_max_cr 0xb)))
 
 (each (lambda ((op label cc))
 		(vp-label label)
@@ -642,7 +642,7 @@
 		(endif)
 		(vp-ret)
 		(handler op label))
-	'((emit-min-rr e_min_rr 0xc) (emit-max-rr e_max_rr 0xb)))
+	'((min-rr e_min_rr 0xc) (max-rr e_max_rr 0xb)))
 
 (vp-label 'e_lea_i)
 	;:r0 = s, :r1 = c, :r2 = d
@@ -669,7 +669,7 @@
 	(vp-pop :r0 :r2)
 	(w32 (+ 0x8b000000 (<< +a64_rt 5)) '(:r0 16) '(:r2 0))
 	(vp-ret)
-(handler 'emit-lea-rcr 'e_lea_i)
+(handler 'lea-rcr 'e_lea_i)
 
 ;;;;;;;;;;;;;;;;;;;;
 ; loads and stores
@@ -738,14 +738,14 @@
 		(vp-cpy-cr w :r4)
 		(vp-jmp 'mem_ri)
 		(handler op label))
-	'((emit-load-rcr e_cpy_ir 3 0xf8400000 :nil) (emit-store-rrc e_cpy_ri 3 0xf8000000 :t)
-	(emit-load-rcr-b e_cpy_ir_b 0 0x38800000 :nil) (emit-load-rcr-s e_cpy_ir_s 1 0x78800000 :nil)
-	(emit-load-rcr-i e_cpy_ir_i 2 0xb8800000 :nil) (emit-store-rrc-b e_cpy_ri_b 0 0x38000000 :t)
-	(emit-store-rrc-s e_cpy_ri_s 1 0x78000000 :t) (emit-store-rrc-i e_cpy_ri_i 2 0xb8000000 :t)
+	'((load-rcr e_cpy_ir 3 0xf8400000 :nil) (store-rrc e_cpy_ri 3 0xf8000000 :t)
+	(load-rcr-b e_cpy_ir_b 0 0x38800000 :nil) (load-rcr-s e_cpy_ir_s 1 0x78800000 :nil)
+	(load-rcr-i e_cpy_ir_i 2 0xb8800000 :nil) (store-rrc-b e_cpy_ri_b 0 0x38000000 :t)
+	(store-rrc-s e_cpy_ri_s 1 0x78000000 :t) (store-rrc-i e_cpy_ri_i 2 0xb8000000 :t)
 	;the unsigned loads are ldr w, ldrb and ldrh, which zero the rest of
 	;the register: nothing before or after them
-	(emit-load-rcr-ui e_cpy_ir_ui 2 0xb8400000 :nil) (emit-load-rcr-ub e_cpy_ir_ub 0 0x38400000 :nil)
-	(emit-load-rcr-us e_cpy_ir_us 1 0x78400000 :nil)))
+	(load-rcr-ui e_cpy_ir_ui 2 0xb8400000 :nil) (load-rcr-ub e_cpy_ir_ub 0 0x38400000 :nil)
+	(load-rcr-us e_cpy_ir_us 1 0x78400000 :nil)))
 
 ;the register offset forms, each as (o fields), the fields of :r0 :r1 :r2
 (each (lambda ((op label o f0 f1 f2))
@@ -753,14 +753,14 @@
 		(w32 o (list :r0 f0) (list :r1 f1) (list :r2 f2))
 		(vp-ret)
 		(handler op label))
-	'((emit-store-rrr e_cpy_rd 0xf8206800 0 16 5) (emit-store-rrr-b e_cpy_rd_b 0x38206800 0 5 16)
-	(emit-store-rrr-s e_cpy_rd_s 0x78206800 0 5 16) (emit-store-rrr-i e_cpy_rd_i 0xb8206800 0 5 16)
-	(emit-load-rrr e_cpy_dr 0xf8606800 16 5 0) (emit-load-rrr-b e_cpy_dr_b 0x38a06800 16 5 0)
-	(emit-load-rrr-s e_cpy_dr_s 0x78a06800 16 5 0) (emit-load-rrr-i e_cpy_dr_i 0xb8a06800 16 5 0)
-	(emit-load-rrd e_cpy_df 0xfc606800 5 16 0) (emit-store-drr e_cpy_fd 0xfc206800 0 5 16)
+	'((store-rrr e_cpy_rd 0xf8206800 0 16 5) (store-rrr-b e_cpy_rd_b 0x38206800 0 5 16)
+	(store-rrr-s e_cpy_rd_s 0x78206800 0 5 16) (store-rrr-i e_cpy_rd_i 0xb8206800 0 5 16)
+	(load-rrr e_cpy_dr 0xf8606800 16 5 0) (load-rrr-b e_cpy_dr_b 0x38a06800 16 5 0)
+	(load-rrr-s e_cpy_dr_s 0x78a06800 16 5 0) (load-rrr-i e_cpy_dr_i 0xb8a06800 16 5 0)
+	(load-rrd e_cpy_df 0xfc606800 5 16 0) (store-drr e_cpy_fd 0xfc206800 0 5 16)
 	;the unsigned loads zero the rest of the register, as above
-	(emit-load-rrr-ub e_cpy_dr_ub 0x38606800 16 5 0) (emit-load-rrr-us e_cpy_dr_us 0x78606800 16 5 0)
-	(emit-load-rrr-ui e_cpy_dr_ui 0xb8606800 16 5 0)))
+	(load-rrr-ub e_cpy_dr_ub 0x38606800 16 5 0) (load-rrr-us e_cpy_dr_us 0x78606800 16 5 0)
+	(load-rrr-ui e_cpy_dr_ui 0xb8606800 16 5 0)))
 
 (each (lambda ((op label o1 o2 store size))
 		;(s c d) loads, (s d c) stores, of a float of size bytes, 8 for a
@@ -798,19 +798,19 @@
 		(w32 (+ o1 (<< +a64_rt 5)) '(:r0 0 31))
 		(done)
 		(handler op label))
-	'((emit-load-rcd e_cpy_if_l 0xfc400000 0xfd400000 :nil 8) (emit-store-drc e_cpy_fi_l 0xfc000000 0xfd000000 :t 8)
-	(emit-load-rcf e_cpy_is_l 0xbc400000 0xbd400000 :nil 4) (emit-store-frc e_cpy_si_l 0xbc000000 0xbd000000 :t 4)))
+	'((load-rcd e_cpy_if_l 0xfc400000 0xfd400000 :nil 8) (store-drc e_cpy_fi_l 0xfc000000 0xfd000000 :t 8)
+	(load-rcf e_cpy_is_l 0xbc400000 0xbd400000 :nil 4) (store-frc e_cpy_si_l 0xbc000000 0xbd000000 :t 4)))
 
 ;the register offset forms of a single, as the double's above
 (vp-label 'e_cpy_ds)
 	(w32 0xbc606800 '(:r0 5 31) '(:r1 16 31) '(:r2 0 31))
 	(vp-ret)
-(handler 'emit-load-rrf 'e_cpy_ds)
+(handler 'load-rrf 'e_cpy_ds)
 
 (vp-label 'e_cpy_sd)
 	(w32 0xbc206800 '(:r0 0 31) '(:r1 5 31) '(:r2 16 31))
 	(vp-ret)
-(handler 'emit-store-frr 'e_cpy_sd)
+(handler 'store-frr 'e_cpy_sd)
 
 ;;;;;;;;;;;;;;
 ; push and pop
@@ -859,7 +859,7 @@
 		(vp-add-cr 1 :r6)
 	(loop-end)
 	(vp-ret)
-(handler 'emit-push 'h_push)
+(handler 'push 'h_push)
 
 (vp-label 'h_pop)
 	;:r4 = the regs, :r5 = how many, the pairs from the last back
@@ -906,7 +906,7 @@
 		(vp-sub-cr 1 :r6)
 	(loop-end)
 	(vp-ret)
-(handler 'emit-pop 'h_pop)
+(handler 'pop 'h_pop)
 
 (defun push-regs (label n)
 	;push or pop the regs of a table of them
@@ -919,8 +919,8 @@
 (vp-label 'pop_lnk)
 	(push-regs 'regs_lnk 1)
 	(vp-jmp 'h_pop)
-(handler 'emit-save-state 'push_lnk)
-(handler 'emit-load-state 'pop_lnk)
+(handler 'save-state 'push_lnk)
+(handler 'load-state 'pop_lnk)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; branches and calls
@@ -955,9 +955,9 @@
 		(vp-cpy-cr cc :r0)
 		(vp-jmp 'branch)
 		(handler op label))
-	'((emit-beq-cr e_beq_cr 0x0 0xb4000000) (emit-bne-cr e_bne_cr 0x1 0xb5000000)
-	(emit-bge-cr e_bge_cr 0xa :nil) (emit-blt-cr e_blt_cr 0xb :nil)
-	(emit-bgt-cr e_bgt_cr 0xc :nil) (emit-ble-cr e_ble_cr 0xd :nil)))
+	'((beq-cr e_beq_cr 0x0 0xb4000000) (bne-cr e_bne_cr 0x1 0xb5000000)
+	(bge-cr e_bge_cr 0xa :nil) (blt-cr e_blt_cr 0xb :nil)
+	(bgt-cr e_bgt_cr 0xc :nil) (ble-cr e_ble_cr 0xd :nil)))
 
 (each (lambda ((op label cc cmp))
 		(vp-label label)
@@ -967,15 +967,15 @@
 		(vp-cpy-cr cc :r0)
 		(vp-jmp 'branch)
 		(handler op label))
-	'((emit-beq-rr e_beq_rr 0x0 cmp_rr) (emit-bne-rr e_bne_rr 0x1 cmp_rr)
-	(emit-bge-rr e_bge_rr 0xa cmp_rr) (emit-blt-rr e_blt_rr 0xb cmp_rr)
-	(emit-bgt-rr e_bgt_rr 0xc cmp_rr) (emit-ble-rr e_ble_rr 0xd cmp_rr)
-	(emit-beq-dd e_beq_ff 0x0 cmp_ff) (emit-bne-dd e_bne_ff 0x1 cmp_ff)
-	(emit-bge-dd e_bge_ff 0xa cmp_ff) (emit-bgt-dd e_bgt_ff 0xc cmp_ff)
-	(emit-ble-dd e_ble_ff 0x9 cmp_ff) (emit-blt-dd e_blt_ff 0x4 cmp_ff)
-	(emit-beq-ff e_beq_ss 0x0 cmp_ss) (emit-bne-ff e_bne_ss 0x1 cmp_ss)
-	(emit-bge-ff e_bge_ss 0xa cmp_ss) (emit-bgt-ff e_bgt_ss 0xc cmp_ss)
-	(emit-ble-ff e_ble_ss 0x9 cmp_ss) (emit-blt-ff e_blt_ss 0x4 cmp_ss)))
+	'((beq-rr e_beq_rr 0x0 cmp_rr) (bne-rr e_bne_rr 0x1 cmp_rr)
+	(bge-rr e_bge_rr 0xa cmp_rr) (blt-rr e_blt_rr 0xb cmp_rr)
+	(bgt-rr e_bgt_rr 0xc cmp_rr) (ble-rr e_ble_rr 0xd cmp_rr)
+	(beq-dd e_beq_ff 0x0 cmp_ff) (bne-dd e_bne_ff 0x1 cmp_ff)
+	(bge-dd e_bge_ff 0xa cmp_ff) (bgt-dd e_bgt_ff 0xc cmp_ff)
+	(ble-dd e_ble_ff 0x9 cmp_ff) (blt-dd e_blt_ff 0x4 cmp_ff)
+	(beq-ff e_beq_ss 0x0 cmp_ss) (bne-ff e_bne_ss 0x1 cmp_ss)
+	(bge-ff e_bge_ss 0xa cmp_ss) (bgt-ff e_bgt_ss 0xc cmp_ss)
+	(ble-ff e_ble_ss 0x9 cmp_ss) (blt-ff e_blt_ss 0x4 cmp_ss)))
 
 (vp-label 'cmp_ff)
 	(w32 0x1e602000 '(:r0 16) '(:r1 5))
@@ -994,12 +994,12 @@
 		(w32 (+ 0x9a9f07e0 (<< (logxor cc 1) 12)) '(:r1 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-seq-cr e_seq_cr 0x0 cmp_cr) (emit-sne-cr e_sne_cr 0x1 cmp_cr)
-	(emit-slt-cr e_slt_cr 0xb cmp_cr) (emit-sle-cr e_sle_cr 0xd cmp_cr)
-	(emit-sgt-cr e_sgt_cr 0xc cmp_cr) (emit-sge-cr e_sge_cr 0xa cmp_cr)
-	(emit-seq-rr e_seq_rr 0x0 cmp_rr) (emit-sne-rr e_sne_rr 0x1 cmp_rr)
-	(emit-slt-rr e_slt_rr 0xb cmp_rr) (emit-sle-rr e_sle_rr 0xd cmp_rr)
-	(emit-sgt-rr e_sgt_rr 0xc cmp_rr) (emit-sge-rr e_sge_rr 0xa cmp_rr)))
+	'((seq-cr e_seq_cr 0x0 cmp_cr) (sne-cr e_sne_cr 0x1 cmp_cr)
+	(slt-cr e_slt_cr 0xb cmp_cr) (sle-cr e_sle_cr 0xd cmp_cr)
+	(sgt-cr e_sgt_cr 0xc cmp_cr) (sge-cr e_sge_cr 0xa cmp_cr)
+	(seq-rr e_seq_rr 0x0 cmp_rr) (sne-rr e_sne_rr 0x1 cmp_rr)
+	(slt-rr e_slt_rr 0xb cmp_rr) (sle-rr e_sle_rr 0xd cmp_rr)
+	(sgt-rr e_sgt_rr 0xc cmp_rr) (sge-rr e_sge_rr 0xa cmp_rr)))
 
 (vp-label 'bl)
 	;arm64-bl, :r0 = l
@@ -1015,7 +1015,7 @@
 	(range? :r0 -0x8000000 0x7fffffc 'h_none)
 	(w32 0x14000000 '(:r0 -2 0xfffffff))
 	(vp-ret)
-(handler 'emit-jmp 'e_jmp)
+(handler 'jmp 'e_jmp)
 
 (vp-label 'e_call)
 	(vp-push :r0)
@@ -1023,7 +1023,7 @@
 	(vp-pop :r0)
 	(vp-call 'bl)
 	(vp-jmp 'pop_lnk)
-(handler 'emit-call 'e_call)
+(handler 'call 'e_call)
 
 (vp-label 'e_cpy_pr)
 	;(l d)
@@ -1032,7 +1032,7 @@
 	(range? :r0 -0x100000 0xffffc 'h_none)
 	(w32 0x58000000 '(:r0 3 0x1fffff) '(:r1 0))
 	(vp-ret)
-(handler 'emit-load-pr 'e_cpy_pr)
+(handler 'load-pr 'e_cpy_pr)
 
 (vp-label 'e_lea_p)
 	(assign '((:r14 +vpbt_pc)) '(:r2))
@@ -1040,7 +1040,7 @@
 	(range? :r0 -0x100000 0xfffff 'h_none)
 	(w32 0x10000000 '(:r0 29 3) '(:r0 3 0x1ffffc) '(:r1 0))
 	(vp-ret)
-(handler 'emit-lea-pr 'e_lea_p)
+(handler 'lea-pr 'e_lea_p)
 
 (vp-label 'blr)
 	(w32 0xd63f0000 '(:r0 5))
@@ -1052,12 +1052,12 @@
 	(vp-pop :r0)
 	(vp-call 'blr)
 	(vp-jmp 'pop_lnk)
-(handler 'emit-call-r 'e_call_r)
+(handler 'call-r 'e_call_r)
 
 (vp-label 'e_jmp_r)
 	(w32 0xd61f0000 '(:r0 5))
 	(vp-ret)
-(handler 'emit-jmp-r 'e_jmp_r)
+(handler 'jmp-r 'e_jmp_r)
 
 (defun via-tmp-i (then)
 	;(d c), the address loaded to the temp
@@ -1077,36 +1077,36 @@
 (vp-label 'e_call_p) (via-tmp-p 'e_call_r)
 (vp-label 'e_jmp_i) (via-tmp-i 'e_jmp_r)
 (vp-label 'e_jmp_p) (via-tmp-p 'e_jmp_r)
-(handler 'emit-call-rc 'e_call_i)
-(handler 'emit-call-p 'e_call_p)
-(handler 'emit-jmp-rc 'e_jmp_i)
-(handler 'emit-jmp-p 'e_jmp_p)
+(handler 'call-rc 'e_call_i)
+(handler 'call-p 'e_call_p)
+(handler 'jmp-rc 'e_jmp_i)
+(handler 'jmp-p 'e_jmp_p)
 
 (vp-label 'e_ret)
 	(w32 0xd65f03c0)
 	(vp-ret)
-(handler 'emit-ret 'e_ret)
+(handler 'ret 'e_ret)
 
 (vp-label 'e_sync)
 	(w32 0xd5033fbf)
 	(vp-ret)
-(handler 'emit-sync 'e_sync)
+(handler 'sync 'e_sync)
 
 (vp-label 'e_alloc)
 	(vp-cpy-cr +a64_vrsp :r1)
 	(vp-jmp 'e_sub_cr)
-(handler 'emit-alloc 'e_alloc)
+(handler 'alloc 'e_alloc)
 
 (vp-label 'e_free)
 	(vp-cpy-cr +a64_vrsp :r1)
 	(vp-jmp 'e_add_cr)
-(handler 'emit-free 'e_free)
+(handler 'free 'e_free)
 
 (vp-label 'e_entry_abi)
 	(vp-cpy-cr +a64_sp :r0)
 	(vp-cpy-cr +a64_vrsp :r1)
 	(vp-jmp 'e_cpy_rr)
-(handler 'emit-entry-abi 'e_entry_abi)
+(handler 'entry-abi 'e_entry_abi)
 
 (vp-label 'e_stack_init)
 	;(s f x)
@@ -1138,7 +1138,7 @@
 	(vp-call 'h_pop)
 	(vp-cpy-cr +a64_rt :r0)
 	(vp-jmp 'e_jmp_r)
-(handler 'emit-stack-init 'e_stack_init)
+(handler 'stack-init 'e_stack_init)
 
 (vp-label 'e_call_abi)
 	;(r b c n), the args all in registers
@@ -1169,7 +1169,7 @@
 	(vp-call 'e_cpy_rr)
 	(push-regs 'regs_abi 8)
 	(vp-jmp 'h_pop)
-(handler 'emit-call-abi 'e_call_abi)
+(handler 'call-abi 'e_call_abi)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; what the arm64 prepass makes
@@ -1186,10 +1186,10 @@
 				(w32 o '(:r3 15 0x7f) '(:r1 10) '(:r2 5) '(:r0 0))))
 		(vp-ret)
 		(handler op label))
-	'((emit-arm64-ldp e_ldp 0xa9400000 3 :t) (emit-arm64-ldp-i e_ldp_i 0x69400000 2 :t)
-	(emit-arm64-ldp-ui e_ldp_ui 0x29400000 2 :t) (emit-arm64-ldp-f e_ldp_f 0x6d400000 3 :t)
-	(emit-arm64-stp e_stp 0xa9000000 3 :nil) (emit-arm64-stp-i e_stp_i 0x29000000 2 :nil)
-	(emit-arm64-stp-f e_stp_f 0x6d000000 3 :nil)))
+	'((arm64-ldp e_ldp 0xa9400000 3 :t) (arm64-ldp-i e_ldp_i 0x69400000 2 :t)
+	(arm64-ldp-ui e_ldp_ui 0x29400000 2 :t) (arm64-ldp-f e_ldp_f 0x6d400000 3 :t)
+	(arm64-stp e_stp 0xa9000000 3 :nil) (arm64-stp-i e_stp_i 0x29000000 2 :nil)
+	(arm64-stp-f e_stp_f 0x6d000000 3 :nil)))
 
 (each (lambda ((op label o))
 		;(s1 s2 d)
@@ -1197,9 +1197,9 @@
 		(w32 o '(:r1 16) '(:r0 5) '(:r2 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-arm64-add-rrr e_add_rrr 0x8b000000) (emit-arm64-sub-rrr e_sub_rrr 0xcb000000)
-	(emit-arm64-and-rrr e_and_rrr 0x8a000000) (emit-arm64-or-rrr e_or_rrr 0xaa000000)
-	(emit-arm64-xor-rrr e_xor_rrr 0xca000000)))
+	'((arm64-add-rrr e_add_rrr 0x8b000000) (arm64-sub-rrr e_sub_rrr 0xcb000000)
+	(arm64-and-rrr e_and_rrr 0x8a000000) (arm64-or-rrr e_or_rrr 0xaa000000)
+	(arm64-xor-rrr e_xor_rrr 0xca000000)))
 
 (defun crr-copy ()
 	;:r0 = c, :r1 = s, :r2 = d, c of 0 a copy
@@ -1225,8 +1225,8 @@
 		(w32 o '(:r3 16) '(:r4 10) '(:r1 5) '(:r2 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-arm64-shl-crr e_shl_crr 0xd3400000 shl) (emit-arm64-shr-crr e_shr_crr 0xd3400000 shr)
-	(emit-arm64-asr-crr e_asr_crr 0x93400000 asr)))
+	'((arm64-shl-crr e_shl_crr 0xd3400000 shl) (arm64-shr-crr e_shr_crr 0xd3400000 shr)
+	(arm64-asr-crr e_asr_crr 0x93400000 asr)))
 
 (vp-label 'e_add_crr)
 	(crr-copy)
@@ -1246,7 +1246,7 @@
 	(vp-pop :r1 :r2)
 	(w32 (+ 0x8b000000 (<< +a64_rt 16)) '(:r1 5) '(:r2 0))
 	(vp-ret)
-(handler 'emit-arm64-add-crr 'e_add_crr)
+(handler 'arm64-add-crr 'e_add_crr)
 
 (each (lambda ((op label o rr x))
 		;(c s d)
@@ -1285,9 +1285,9 @@
 		(w32 (+ rr (<< +a64_rt 16)) '(:r1 5) '(:r2 0))
 		(vp-ret)
 		(handler op label))
-	'((emit-arm64-and-crr e_and_crr 0x92000000 0x8a000000 and)
-	(emit-arm64-or-crr e_or_crr 0xb2000000 0xaa000000 or)
-	(emit-arm64-xor-crr e_xor_crr 0xd2000000 0xca000000 xor)))
+	'((arm64-and-crr e_and_crr 0x92000000 0x8a000000 and)
+	(arm64-or-crr e_or_crr 0xb2000000 0xaa000000 or)
+	(arm64-xor-crr e_xor_crr 0xd2000000 0xca000000 xor)))
 
 (vp-label 'e_call_h)
 	(vp-push :r0)
@@ -1311,18 +1311,18 @@
 (vp-label 'e_call_p_h) (via-tmp-p 'e_call_r_h)
 (vp-label 'e_call_p_m) (via-tmp-p 'blr)
 (vp-label 'e_call_p_t) (via-tmp-p 'e_call_r_t)
-(handler 'emit-arm64-call-h 'e_call_h)
-(handler 'emit-arm64-call-m 'bl)
-(handler 'emit-arm64-call-t 'e_call_t)
-(handler 'emit-arm64-call-r-h 'e_call_r_h)
-(handler 'emit-arm64-call-r-m 'blr)
-(handler 'emit-arm64-call-r-t 'e_call_r_t)
-(handler 'emit-arm64-call-rc-h 'e_call_i_h)
-(handler 'emit-arm64-call-rc-m 'e_call_i_m)
-(handler 'emit-arm64-call-rc-t 'e_call_i_t)
-(handler 'emit-arm64-call-p-h 'e_call_p_h)
-(handler 'emit-arm64-call-p-m 'e_call_p_m)
-(handler 'emit-arm64-call-p-t 'e_call_p_t)
+(handler 'arm64-call-h 'e_call_h)
+(handler 'arm64-call-m 'bl)
+(handler 'arm64-call-t 'e_call_t)
+(handler 'arm64-call-r-h 'e_call_r_h)
+(handler 'arm64-call-r-m 'blr)
+(handler 'arm64-call-r-t 'e_call_r_t)
+(handler 'arm64-call-rc-h 'e_call_i_h)
+(handler 'arm64-call-rc-m 'e_call_i_m)
+(handler 'arm64-call-rc-t 'e_call_i_t)
+(handler 'arm64-call-p-h 'e_call_p_h)
+(handler 'arm64-call-p-m 'e_call_p_m)
+(handler 'arm64-call-p-t 'e_call_p_t)
 
 
 ;;;;;;;;;
@@ -1331,19 +1331,19 @@
 
 ;one sweep, the prepass: call fusion, load and store
 ;pair fusion, copy fusion. Instructions 8 to the one before the last. An
-;instruction is made one of nothing by its op becoming emit-nop. A
+;instruction is made one of nothing by its op becoming nop. A
 ;register is its VP number here: a float and a register that arm64
 ;numbers the same are not the same
 
 (defq +pp_barrier 1 +pp_call 2 +pp_pair 3 +pp_rr 4 +pp_cr 5 +pp_add_cr 6 +pp_mul_cr 7 +pp_limm 8
-	pp_branches '(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
-		emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
-		emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd emit-ble-dd emit-bgt-dd
-		emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff)
-	pp_calls '(emit-call emit-call-r emit-call-rc emit-call-p)
-	pp_hs '(emit-arm64-call-h emit-arm64-call-r-h emit-arm64-call-rc-h emit-arm64-call-p-h)
-	pp_ms '(emit-arm64-call-m emit-arm64-call-r-m emit-arm64-call-rc-m emit-arm64-call-p-m)
-	pp_ts '(emit-arm64-call-t emit-arm64-call-r-t emit-arm64-call-rc-t emit-arm64-call-p-t))
+	pp_branches '(beq-cr bne-cr bge-cr ble-cr blt-cr bgt-cr
+		beq-rr bne-rr bge-rr ble-rr blt-rr bgt-rr
+		beq-dd bne-dd bge-dd blt-dd ble-dd bgt-dd
+		beq-ff bne-ff bge-ff blt-ff ble-ff bgt-ff)
+	pp_calls '(call call-r call-rc call-p)
+	pp_hs '(arm64-call-h arm64-call-r-h arm64-call-rc-h arm64-call-p-h)
+	pp_ms '(arm64-call-m arm64-call-r-m arm64-call-rc-m arm64-call-p-m)
+	pp_ts '(arm64-call-t arm64-call-r-t arm64-call-rc-t arm64-call-p-t))
 
 (defun pp-load ()
 	;:r8 = the record at pi, :r7 = its op, :r6 = its pp_tab entry, :r5 = its tag
@@ -1758,7 +1758,7 @@
 	(vp-load-rcr-ub :r6 1 :r0)
 	(vp-cpy-cr 4 :r1)
 	(assign '(:r0 :r1 :r9) '((:r8 +vpbr_op) (:r8 +vpbr_cnt) (:r8 +vpbr_ops)))
-	;the next one of nothing, as (emit-nop) is
+	;the next one of nothing, as (nop) is
 	(assign '((:r14 +vpbt_next)) '(:r1))
 	(vp-cpy-cr +op_nop :r0)
 	(vp-xor-rr :r2 :r2)
@@ -1900,45 +1900,45 @@
 			(list +pp_call (opi (elem-get pp_hs i)) (opi (elem-get pp_ts i)) 0 0 0 0 0))
 		((setq i (find op pp_ts))
 			(list +pp_call (opi (elem-get pp_ms i)) 0xff 0 0 0 0 0))
-		((find op (cat '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state
-				emit-load-state emit-entry-abi emit-call-abi emit-jmp emit-jmp-r emit-jmp-rc
-				emit-jmp-p emit-ret emit-sync) pp_branches))
+		((find op (cat '(label alloc free push pop save-state
+				load-state entry-abi call-abi jmp jmp-r jmp-rc
+				jmp-p ret sync) pp_branches))
 			(list +pp_barrier 0 0 0 0 0 0 0))
-		((setq i (find op '(emit-load-rcr emit-load-rcr-i emit-load-rcr-ui emit-store-rrc emit-store-rrc-i emit-load-rcd emit-store-drc)))
-			(defq load (find op '(emit-load-rcr emit-load-rcr-ui emit-load-rcr-i emit-load-rcd))
-				size (if (find op '(emit-load-rcr-i emit-store-rrc-i emit-load-rcr-ui)) 4 8))
-			(list +pp_pair (opi (elem-get '(emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui
-					emit-arm64-stp emit-arm64-stp-i emit-arm64-ldp-f emit-arm64-stp-f) i))
+		((setq i (find op '(load-rcr load-rcr-i load-rcr-ui store-rrc store-rrc-i load-rcd store-drc)))
+			(defq load (find op '(load-rcr load-rcr-ui load-rcr-i load-rcd))
+				size (if (find op '(load-rcr-i store-rrc-i load-rcr-ui)) 4 8))
+			(list +pp_pair (opi (elem-get '(arm64-ldp arm64-ldp-i arm64-ldp-ui
+					arm64-stp arm64-stp-i arm64-ldp-f arm64-stp-f) i))
 				0 size (if load 2 0) (if load 1 2) (if load 0 1) (if load 1 0)))
-		((setq i (find op '(emit-add-rr emit-sub-rr emit-and-rr emit-or-rr emit-xor-rr)))
-			(list +pp_rr (opi (elem-get '(emit-arm64-add-rrr emit-arm64-sub-rrr emit-arm64-and-rrr
-				emit-arm64-or-rrr emit-arm64-xor-rrr) i)) 0 0 0 0 0 0))
-		((setq i (find op '(emit-shl-cr emit-shr-cr emit-asr-cr)))
-			(list +pp_cr (opi (elem-get '(emit-arm64-shl-crr emit-arm64-shr-crr emit-arm64-asr-crr) i)) 0 0 0 0 0 0))
-		((eql op 'emit-add-cr) (list +pp_add_cr (opi 'emit-arm64-add-crr) 1 0 0 0 0 0))
-		((eql op 'emit-sub-cr) (list +pp_add_cr (opi 'emit-arm64-add-crr) 0xff 0 0 0 0 0))
-		((eql op 'emit-mul-cr) (list +pp_mul_cr (opi 'emit-arm64-sub-rrr) 0 0 0 0 0 0))
-		((setq i (find op '(emit-and-cr emit-or-cr emit-xor-cr)))
-			(list +pp_limm (opi (elem-get '(emit-arm64-and-crr emit-arm64-or-crr emit-arm64-xor-crr) i)) 0 0 0 0 0 0))
+		((setq i (find op '(add-rr sub-rr and-rr or-rr xor-rr)))
+			(list +pp_rr (opi (elem-get '(arm64-add-rrr arm64-sub-rrr arm64-and-rrr
+				arm64-or-rrr arm64-xor-rrr) i)) 0 0 0 0 0 0))
+		((setq i (find op '(shl-cr shr-cr asr-cr)))
+			(list +pp_cr (opi (elem-get '(arm64-shl-crr arm64-shr-crr arm64-asr-crr) i)) 0 0 0 0 0 0))
+		((eql op 'add-cr) (list +pp_add_cr (opi 'arm64-add-crr) 1 0 0 0 0 0))
+		((eql op 'sub-cr) (list +pp_add_cr (opi 'arm64-add-crr) 0xff 0 0 0 0 0))
+		((eql op 'mul-cr) (list +pp_mul_cr (opi 'arm64-sub-rrr) 0 0 0 0 0 0))
+		((setq i (find op '(and-cr or-cr xor-cr)))
+			(list +pp_limm (opi (elem-get '(arm64-and-crr arm64-or-crr arm64-xor-crr) i)) 0 0 0 0 0 0))
 		((list 0 0 0 0 0 0 0 0))))
 (vp-label 'pp_tab)
 	(each (# (apply (const vp-byte) (pp-entry %0))) +vpb_all_ops)
 (vp-label 'sp_tab)
 	;of an :rsp relative access, the base and offset operands, 0xfe a copy
 	(each (# (apply (const vp-byte) (cond
-			((find %0 '(emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui emit-arm64-ldp-f)) '(0 1))
-			((find %0 '(emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-f)) '(2 3))
-			((find %0 '(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub
-				emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr emit-load-rcd emit-load-rcf)) '(0 1))
-			((find %0 '(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-frc)) '(1 2))
-			((eql %0 'emit-cpy-rr) '(0xfe 0xfe))
+			((find %0 '(arm64-ldp arm64-ldp-i arm64-ldp-ui arm64-ldp-f)) '(0 1))
+			((find %0 '(arm64-stp arm64-stp-i arm64-stp-f)) '(2 3))
+			((find %0 '(load-rcr load-rcr-b load-rcr-s load-rcr-i load-rcr-ub
+				load-rcr-us load-rcr-ui lea-rcr load-rcd load-rcf)) '(0 1))
+			((find %0 '(store-rrc store-rrc-b store-rrc-s store-rrc-i store-drc store-frc)) '(1 2))
+			((eql %0 'cpy-rr) '(0xfe 0xfe))
 			('(0xff 0xff)))))
 		+vpb_all_ops)
 (vp-label 'bar_tab)
 	;what a copy is not looked for past
-	(each (# (vp-byte (if (find %0 (cat '(emit-label emit-alloc emit-free emit-push emit-pop
-				emit-save-state emit-load-state emit-entry-abi emit-call-abi
-				emit-jmp emit-jmp-r emit-jmp-rc emit-jmp-p emit-ret emit-sync)
+	(each (# (vp-byte (if (find %0 (cat '(label alloc free push pop
+				save-state load-state entry-abi call-abi
+				jmp jmp-r jmp-rc jmp-p ret sync)
 				pp_calls pp_hs pp_ms pp_ts pp_branches)) 1 0)))
 		+vpb_all_ops)
 (vp-label 'reg_map)
