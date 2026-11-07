@@ -30,8 +30,7 @@
 	(assign '(:r0) '((:r1 statics_sym_intern)))
 
 	;add static symbols
-	(vp-lea-pr 'props :r0)
-	(vp-add-cr statics_static_syms :r1)
+	(assign '(($ props) (& :r1 statics_static_syms)) '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp slot_next) (:rsp slot_sym_ptr)))
 	(loop-start)
 		(call :sym :intern_cstr '((:rsp slot_next)) '(:r0))
@@ -42,8 +41,7 @@
 		(call :sys_str :length '((:rsp slot_next)) '(:r0 :r1))
 		(vp-add-rr :r1 :r0)
 		(vp-add-cr +byte_size :r0)
-		(assign '(:r0) '((:rsp slot_next)))
-		(vp-lea-pr 'props_end :r1)
+		(assign '(:r0 ($ props_end)) '((:rsp slot_next) :r1))
 	(loop-until '(:r0 = :r1))
 
 	(exit :sym :statics_init '())

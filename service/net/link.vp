@@ -75,48 +75,50 @@
 		(ptr buf)
 		(long handle remaining recvd))
 
-	(def-vars
+	(structure slot 0
 		(struct cb cb_recv_size)
 		(ptr lk_node)
 		(long sleep_time))
 
 	(vp-rdef (cb func) (method-input :sys_task :callback))
 
-	(push-scope)
-	(entry :host_net :recv_all (vpx (. cb cb_recv_handle) (. cb cb_recv_buf) (. cb cb_recv_remaining) lk_node))
-	(assign (vpx 100) (vpx sleep_time))
+	(vp-alloc slot_size)
+	(entry :host_net :recv_all `((:rsp ,(+ slot_cb cb_recv_handle)) (:rsp ,(+ slot_cb cb_recv_buf))
+		(:rsp ,(+ slot_cb cb_recv_remaining)) (:rsp slot_lk_node)))
+	(assign '(100) '(:r0))
+	(assign '(:r0) '((:rsp slot_sleep_time)))
 
 (vp-label 'recv_loop)
-	(assign (vpx (. cb cb_recv_remaining)) '(:r2))
+	(assign `((:rsp ,(+ slot_cb cb_recv_remaining))) '(:r2))
 	(gotoif '(:r2 <= 0) 'recv_done)
 
-	(assign (vpx (& cb)) `(,cb))
+	(assign '((& :rsp slot_cb)) `(,cb))
 	(call :sys_task :callback `(,cb ($ recv_callback)))
 
-	(assign (vpx (. cb cb_recv_recvd)) '(:r0))
+	(assign `((:rsp ,(+ slot_cb cb_recv_recvd))) '(:r0))
 	(gotoif '(:r0 < 0) 'recv_error)
 
 	(vpif '(:r0 = 0))
 		;check if link was closed while sleeping
-		(assign (vpx lk_node) '(:r1))
+		(assign '((:rsp slot_lk_node)) '(:r1))
 		(assign '((:r1 lk_node_task_count i)) '(:r2))
 		(gotoif '(:r2 = -1) 'recv_error)
 
 		;no data waiting, sleep with exponential backoff up to 2ms
-		(call :sys_task :sleep (vpx sleep_time))
-		(assign (vpx sleep_time) '(:r0))
+		(call :sys_task :sleep '((:rsp slot_sleep_time)))
+		(assign '((:rsp slot_sleep_time)) '(:r0))
 		(vp-shl-cr 1 :r0)
 		(vp-min-cr 2000 :r0)
-		(assign '(:r0) (vpx sleep_time))
+		(assign '(:r0) '((:rsp slot_sleep_time)))
 		(goto 'recv_loop)
 	(endif)
 
 	;got data: reset sleep time to 100
 	(assign '(100) '(:r1))
-	(assign '(:r1) (vpx sleep_time))
+	(assign '(:r1) '((:rsp slot_sleep_time)))
 
 	;update buf and remaining with bytes received (:r0 = recvd)
-	(assign (vpx (& cb)) '(:r3))
+	(assign '((& :rsp slot_cb)) '(:r3))
 	(assign '((:r3 cb_recv_buf) (:r3 cb_recv_remaining)) '(:r1 :r2))
 	(vp-add-rr :r0 :r1)
 	(vp-sub-rr :r0 :r2)
@@ -132,8 +134,8 @@
 
 (vp-label 'recv_exit)
 	(exit :host_net :recv_all '(:r0))
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'recv_callback)
 	(entry :sys_task :task_callback '(:r0))
