@@ -1566,7 +1566,7 @@
 	(errorif-lisp-args-sig 'error :r1 4)
 
 	(vp-alloc slot_size)
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
+	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :num :num))
 	(assign '((:r3 +str_length)) '(:r0))
 	(gotoif `(:r0 < ,+zx_machine_size) 'done)
@@ -1584,7 +1584,7 @@
 	(gotoif '(:r0 < :r1) 'done)
 
 	(vp-load-rcr-ui :r2 +pixmap_stride :r0)
-	(assign '(:r0 :r4) '((:rsp slot_stride) (:rsp slot_flash)))
+	(save-fields :rsp '(slot_stride slot_flash) '(:r0 :r4))
 	(vp-load-rcr :r2 +pixmap_data :r0)
 	(assign '(:r0) '((:rsp slot_row)))
 	(vp-lea-pr 'palette :r13)
@@ -1675,7 +1675,7 @@
 			(vp-call 'fill)
 		(endif)
 		;the line again for the rest of its zoom
-		(assign '((:rsp slot_row) (:rsp slot_stride)) '(:r0 :r1))
+		(load-fields :rsp '(slot_row slot_stride) '(:r0 :r1))
 		(vp-cpy-rr :r5 :r2)
 		(loop-start)
 			(vp-sub-cr 1 :r2)

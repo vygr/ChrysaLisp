@@ -22,7 +22,7 @@
 	;kernel callback for host call
 	(vp-alloc slot_size)
 	(list-bind-args :r1 '(:r1) '(:str))
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_cstr)))
+	(save-fields :rsp '(slot_this slot_cstr) '(:r0 :r1))
 	(call :sys_task :callback '(:rsp ($ put_callback)))
 	(assign '((:rsp slot_this)) '(:r0))
 	(assign '((:r0 +lisp_sym_t)) '(:r1))
@@ -64,7 +64,7 @@
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
 	(call :sys_task :callback '(:rsp ($ get_callback)))
-	(assign '((:rsp slot_this) (:rsp slot_text)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_text) '(:r0 :r1))
 	(vp-free slot_size)
 
 	(exit :host_clipboard :lisp_get '(:r0 :r1))

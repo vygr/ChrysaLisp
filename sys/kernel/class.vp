@@ -922,7 +922,7 @@
 
 	(vp-alloc slot_size)
 	(entry :hmap :each_callback `(,data ,iter ,bucket))
-	(assign `(,iter ,bucket) '((:rsp slot_iter) (:rsp slot_bucket)))
+	(save-fields :rsp '(slot_iter slot_bucket) `(,iter ,bucket))
 
 	(assign `((,iter 0) (,iter ,+ptr_size)) `(,key ,tuple))
 	(load-node-id key +str_data kid1 kid2)

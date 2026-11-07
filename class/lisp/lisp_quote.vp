@@ -68,11 +68,11 @@
 	(vp-alloc slot_size)
 	(assign '((:r1 0) :r0 :r1 :r2 :r3) '(:r4 (:rsp slot_this) (:rsp slot_iter) (:rsp slot_qcnt) (:rsp slot_ucnt)))
 	(class/array/get_both :r4 :r1 :r2)
-	(assign '(:r1 :r2) '((:rsp slot_iter_begin) (:rsp slot_iter_end)))
+	(save-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
 	(call :list :create :nil '(:r0))
 	(call :list :set_cap '(:r0 (:r4 +array_length)) '((:rsp slot_list)))
 	(loop-start 'next_elem)
-		(assign '((:rsp slot_iter_begin) (:rsp slot_iter_end)) '(:r2 :r3))
+		(load-fields :rsp '(slot_iter_begin slot_iter_end) '(:r2 :r3))
 		(breakif '(:r2 = :r3))
 		(vp-load-rcr :r2 0 :r1)
 		(vp-add-cr +ptr_size :r2)
@@ -129,7 +129,7 @@
 	(loop-end)
 
 	;swap new list with old
-	(assign '((:rsp slot_iter) (:rsp slot_list)) '(:r1 :r2))
+	(load-fields :rsp '(slot_iter slot_list) '(:r1 :r2))
 	(assign '((:r1 0) :r2) '(:r0 (:r1 0)))
 	(call :obj :deref '(:r0))
 	(vp-free slot_size)

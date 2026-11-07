@@ -23,7 +23,7 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc slot_size)
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
+	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 
 	(call :str :create_from_buffer `(0 ,(* 8 16)) '(:r0))
 	(assign '(:r0 (& :r0 +str_data) (:rsp slot_args)) `((:rsp slot_yield) ,yield_data :r0))

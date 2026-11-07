@@ -23,9 +23,9 @@
 	(assign '((:r2 +obj_vtable)) '(:r4))
 	(vpif '(:r4 = :r3))
 		(vp-alloc slot_size)
-		(assign '(:r0 :r1 :r1 :r2) '((:rsp slot_this) (:rsp slot_iter) (:rsp slot_root) (:rsp slot_form)))
+		(save-fields :rsp '(slot_this slot_iter slot_root slot_form) '(:r0 :r1 :r1 :r2))
 		(call :array :create :nil '((:rsp slot_stack)))
-		(assign '((:rsp slot_iter) (:rsp slot_form)) '(:r1 :r2))
+		(load-fields :rsp '(slot_iter slot_form) '(:r1 :r2))
 		(loop-start 'try_expand)
 			(assign '((:rsp slot_this)) '(:r0))
 			(switch 'next_iter)
@@ -42,7 +42,7 @@
 				(breakif '(:r3 = :r4) '(:r3 = :r5) '(:r3 = :r6) '(:r3 = :r7) 'next_iter)
 
 				;is a symbol ?
-				(assign '(:r1 :r2) '((:rsp slot_iter) (:rsp slot_form)))
+				(save-fields :rsp '(slot_iter slot_form) '(:r1 :r2))
 				(f-bind :sym :vtable :r4)
 				(assign '((:r3 +obj_vtable)) '(:r5))
 				(breakif '(:r4 /= :r5))
@@ -77,7 +77,7 @@
 					(call :obj :deref '((:rsp slot_args)))
 				;a macro that threw: the error is the whole form, so the repl
 				;stops on it now, not when a body it was in is called
-				(assign '((:rsp slot_iter) (:rsp slot_this)) '(:r1 :r0))
+				(load-fields :rsp '(slot_iter slot_this) '(:r1 :r0))
 				(assign '((:r1 0)) '(:r1))
 				(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
 				(vpif '(:r2 = :r3))
@@ -85,11 +85,11 @@
 					(assign '(:r1) '((:rsp slot_form)))
 					(assign '((:rsp slot_root)) '(:r0))
 					(call :obj :deref '((:r0 0)))
-					(assign '((:rsp slot_root) (:rsp slot_form)) '(:r0 :r1))
+					(load-fields :rsp '(slot_root slot_form) '(:r0 :r1))
 					(assign '(:r1) '((:r0 0)))
 					(break 'try_expand)
 				(endif)
-					(assign '((:rsp slot_iter) (:rsp slot_this)) '(:r1 :r0))
+					(load-fields :rsp '(slot_iter slot_this) '(:r1 :r0))
 					(vp-load-rcr :r1 0 :r2)
 					(f-bind :list :vtable :r3)
 					(assign '((:r2 +obj_vtable)) '(:r4))
@@ -99,7 +99,7 @@
 
 				;down this lists branches, the stack grows as it must: it holds
 				;the lists still to look at, so a wide form fills it as a deep one
-				(assign '((:rsp slot_stack) (:rsp slot_form)) '(:r0 :r6))
+				(load-fields :rsp '(slot_stack slot_form) '(:r0 :r6))
 				;push in reverse so as we pop we traverse left to right !
 				(class/array/get_both :r6 :r6 :r1)
 				(f-bind :list :vtable :r7)

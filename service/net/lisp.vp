@@ -107,7 +107,7 @@
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0 :r1) '(:str :num))
-	(assign '(:r0 :r1) '((:rsp slot_host) (:rsp slot_port)))
+	(save-fields :rsp '(slot_host slot_port) '(:r0 :r1))
 
 	;getaddrinfo + connect on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
@@ -270,7 +270,7 @@
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
-	(assign '(:r0 :r1) '((:rsp slot_handle) (:rsp slot_max_len)))
+	(save-fields :rsp '(slot_handle slot_max_len) '(:r0 :r1))
 
 	(call :str :create_from_buffer '(0 (:rsp slot_max_len)) '(:r0))
 	(assign '(:r0) '((:rsp slot_buf)))
@@ -434,8 +434,7 @@
 	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :str :num :obj))
 	(assign '((:r3 +str_length) (& :r3 +str_data)) '(:r4 :r3))
-	(assign '(:r0 :r1 :r2 :r3 :r4)
-		'((:rsp slot_handle) (:rsp slot_host) (:rsp slot_port) (:rsp slot_buf) (:rsp slot_len)))
+	(save-fields :rsp '(slot_handle slot_host slot_port slot_buf slot_len) '(:r0 :r1 :r2 :r3 :r4))
 
 	;sendto on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
@@ -482,7 +481,7 @@
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
-	(assign '(:r0 :r1) '((:rsp slot_handle) (:rsp slot_max_len)))
+	(save-fields :rsp '(slot_handle slot_max_len) '(:r0 :r1))
 
 	(call :str :create_from_buffer '(0 (:rsp slot_max_len)) '(:r0))
 	(assign '(:r0) '((:rsp slot_buf)))

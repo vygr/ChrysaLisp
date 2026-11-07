@@ -50,12 +50,12 @@
 	(entry :lisp :read `(,this ,stream ,c))
 
 	(vp-alloc slot_size)
-	(assign `(,this ,stream ,c) '((:rsp slot_this) (:rsp slot_stream) (:rsp slot_c)))
+	(save-fields :rsp '(slot_this slot_stream slot_c) `(,this ,stream ,c))
 	(call :list :create :nil '((:rsp slot_list)))
 	(call :array :create :nil '((:rsp slot_stack)))
 	(loop-start)
 		;skip white space and comments
-		(assign '((:rsp slot_this) (:rsp slot_stream) (:rsp slot_c)) `(,this ,stream ,c))
+		(load-fields :rsp '(slot_this slot_stream slot_c) `(,this ,stream ,c))
 		(loop-start)
 			(loop-while `(,c <= +char_space) `(,c /= -1))
 				(call :lisp :read_char `(,this ,stream ,c) `(,this ,c))
@@ -138,7 +138,7 @@
 (vp-label 'funcexit1)
 	(call :list :deref '((:rsp slot_list)))
 	(call :array :deref '((:rsp slot_stack)))
-	(assign '((:rsp slot_this) (:rsp slot_stream) (:rsp slot_c)) `(,this ,item ,c))
+	(load-fields :rsp '(slot_this slot_stream slot_c) `(,this ,item ,c))
 
 	(exit :lisp :read `(,this ,item ,c))
 	(vp-free slot_size)

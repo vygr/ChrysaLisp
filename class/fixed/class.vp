@@ -37,7 +37,7 @@
 
 	(vp-alloc slot_size)
 	(entry :fixed :print '(:r0 :r1))
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_stream)))
+	(save-fields :rsp '(slot_this slot_stream) '(:r0 :r1))
 
 	(assign '((:r0 +num_value)) '(:r0))
 	(assign '(:r0) '((:rsp slot_value)))

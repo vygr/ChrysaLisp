@@ -97,7 +97,7 @@
 	(vp-alloc slot_size)
 	(entry :num :print '(:r0 :r1))
 
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_stream)))
+	(save-fields :rsp '(slot_this slot_stream) '(:r0 :r1))
 	(call :str :create_from_long '((:r0 +num_value) 10) '(:r0))
 	(assign '(:r0) '((:rsp slot_tmp)))
 	(call :stream :write '((:rsp slot_stream) (& :r0 +str_data) (:r0 +str_length)))

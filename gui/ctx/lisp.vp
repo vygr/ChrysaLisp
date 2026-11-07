@@ -134,9 +134,9 @@
 		(vp-sub-rr x w)
 		(vp-sub-rr y h)
 		(call :ctx :filled_box `(,view ,x ,y ,w ,h))
-		(assign '((:rsp slot_view) (:rsp slot_rect)) `(,view ,rect))
+		(load-fields :rsp '(slot_view slot_rect) `(,view ,rect))
 	(loop-end)
-	(assign '((:rsp slot_this) (:rsp slot_view)) `(,this ,args))
+	(load-fields :rsp '(slot_this slot_view) `(,this ,args))
 	(class/obj/ref args x)
 
 	(exit :ctx :lisp_filled_region `(,this ,args))

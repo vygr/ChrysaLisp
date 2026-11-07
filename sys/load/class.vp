@@ -36,12 +36,12 @@
 	(entry :sys_load :init '((:rsp slot_argv) :r3))
 	(assign '((:r3 32)) '(:r4))
 	(assign '((:r3 0) (:r3 8) (:r3 16) (:r3 24)) '(:r0 :r1 :r2 :r3))
-	(assign '(:r0 :r1 :r2 :r3 :r4) '((:rsp slot_os) (:rsp slot_gui) (:rsp slot_audio) (:rsp slot_net) (:rsp slot_gpu)))
+	(save-fields :rsp '(slot_os slot_gui slot_audio slot_net slot_gpu) '(:r0 :r1 :r2 :r3 :r4))
 
 	;get boot block info
 	(assign '(($ fn_start) ($ fn_end)) '(:r0 :r1))
 	(assign '((:r0 0) (:r1 +fn_header_length)) '(:r2 :r3))
-	(assign '(:r1 :r3) '((:rsp slot_boot_static_func) (:rsp slot_boot_static_len)))
+	(save-fields :rsp '(slot_boot_static_func slot_boot_static_len) '(:r1 :r3))
 	(assign '(:r1) '((:rsp slot_boot_tail_func)))
 	(vp-sub-rr :r0 :r1)
 	(vp-sub-rr :r1 :r2)
@@ -75,8 +75,7 @@
 	(assign '(:r0) `((,statics statics_sys_load_stat_buffer)))
 
 	;save host abi tables
-	(assign '((:rsp slot_os) (:rsp slot_gui) (:rsp slot_audio) (:rsp slot_net))
-		'(:r0 :r1 :r2 :r3))
+	(load-fields :rsp '(slot_os slot_gui slot_audio slot_net) '(:r0 :r1 :r2 :r3))
 	(assign '(:r0) `((,statics statics_sys_load_host_os_funcs)))
 	(assign '(:r1) `((,statics statics_sys_load_host_gui_funcs)))
 	(assign '(:r2) `((,statics statics_sys_load_host_audio_funcs)))
@@ -130,7 +129,7 @@
 	;obj/<cpu>/<abi>/. Put at the front of the name buffer, as much of it as
 	;fits, and its length kept. Not a string of this build, the same VP
 	;for every platform
-	(assign '((:rsp slot_argv) (:rsp slot_statics)) `(:r0 ,statics))
+	(load-fields :rsp '(slot_argv slot_statics) `(:r0 ,statics))
 	(assign `((:r0 +ptr_size) (,statics statics_sys_load_name_buffer)) '(:r0 :r1))
 	(vp-cpy-rr :r1 :r5)
 	(vp-add-cr (dec ld_name_size) :r5)
@@ -157,7 +156,7 @@
 	(vp-call-r :r1)
 
 	;free new statics and tail regions etc
-	(assign '((:rsp slot_statics) (:rsp slot_os)) `(,statics ,os))
+	(load-fields :rsp '(slot_statics slot_os) `(,statics ,os))
 	(abi-call-table :host_os :munmap os `((,statics statics_sys_load_reloc_buffer) ld_reloc_buf_size +mmap_data))
 	(assign '((:rsp slot_os)) `(,os))
 	(abi-call-table :host_os :munmap os '((:rsp slot_new_static_func) (:rsp slot_boot_static_len) +mmap_exec))

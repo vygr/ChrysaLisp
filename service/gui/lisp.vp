@@ -203,7 +203,7 @@
 	;kernel callback for event
 	(assign '(:r0) '((:rsp slot_this)))
 	(call :sys_task :callback '(:rsp ($ event_callback)))
-	(assign '((:rsp slot_this) (:rsp slot_event)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_event) '(:r0 :r1))
 
 	(exit :host_gui :lisp_event '(:r0 :r1))
 	(vp-free slot_size)
@@ -398,7 +398,7 @@
 	(errorif-lisp-args-sig 'error :r1 4)
 
 	(vp-alloc slot_size)
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
+	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :num :obj :num))
 ;a frame is put in a pixmap, the rest are given a str
 (vp-push :r0 :r1 :r2 :r3)
@@ -409,14 +409,14 @@
 (endif)
 (vp-pop :r0 :r1 :r2 :r3)
 (gotoif '(:r4 = 0) 'error1)
-	(assign '(:r0 :r1 :r3) '((:rsp slot_op) (:rsp slot_handle) (:rsp slot_n)))
+	(save-fields :rsp '(slot_op slot_handle slot_n) '(:r0 :r1 :r3))
 	(vpif '(:r0 = 2))
 		(assign '((:r2 +pixmap_data) (:r2 +pixmap_width ui) (:r2 +pixmap_height ui) (:r2 +pixmap_stride ui))
 			'(:r0 :r1 :r3 :r4))
-		(assign '(:r0 :r1 :r3 :r4) '((:rsp slot_data) (:rsp slot_w) (:rsp slot_h) (:rsp slot_stride)))
+		(save-fields :rsp '(slot_data slot_w slot_h slot_stride) '(:r0 :r1 :r3 :r4))
 	(else)
 		(assign '((:r2 +str_length ui) (& :r2 +str_data)) '(:r1 :r0))
-		(assign '(:r0 :r1) '((:rsp slot_data) (:rsp slot_len)))
+		(save-fields :rsp '(slot_data slot_len) '(:r0 :r1))
 	(endif)
 	(vp-cpy-cr -1 :r0)
 	(assign '(:r0) '((:rsp slot_out)))
@@ -425,7 +425,7 @@
 	(vpif '(:r1 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(assign '((:rsp slot_out) (:rsp slot_op)) '(:r0 :r1))
+	(load-fields :rsp '(slot_out slot_op) '(:r0 :r1))
 	(vpif '(:r1 = 0))
 		;no decoder is 0
 		(vpif '(:r0 < 0))
@@ -463,7 +463,7 @@
 	(vp-ret)
 
 (vp-label 'error1)
-	(assign '((:rsp slot_this) (:rsp slot_args)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(vp-free slot_size)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gui-video op handle data n)" +error_msg_wrong_types))

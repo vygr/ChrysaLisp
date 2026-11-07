@@ -28,14 +28,12 @@
 	(errorif-lisp-args-len 'error :r1 /= 8)
 
 	(vp-alloc slot_size)
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
+	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r3 :r4 :r5 :r6 :r7 :r8 :r9) '(:num :obj :obj :obj :obj :obj :obj :obj))
 	;an op of the table, :format 0 to :dispatch 9
 	(gotoif '(:r0 < 0) 'error1)
 	(gotoif '(:r0 > 9) 'error1)
-	(assign '(:r0 :r3 :r4 :r5 :r6 :r7 :r8 :r9)
-		'((:rsp slot_op) (:rsp slot_a) (:rsp slot_b) (:rsp slot_c) (:rsp slot_d)
-		(:rsp slot_e) (:rsp slot_f) (:rsp slot_g)))
+	(save-fields :rsp '(slot_op slot_a slot_b slot_c slot_d slot_e slot_f slot_g) '(:r0 :r3 :r4 :r5 :r6 :r7 :r8 :r9))
 	;each arg, a num as it is, a str as where its bytes are
 	(each (lambda (slot)
 			(assign `((:rsp ,slot)) '(:r0))
@@ -100,7 +98,7 @@
 	(vp-ret)
 
 (vp-label 'error1)
-	(assign '((:rsp slot_this) (:rsp slot_args)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(vp-free slot_size)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gpu-call op a b c d e f g)" +error_msg_wrong_types))

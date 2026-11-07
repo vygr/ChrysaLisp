@@ -210,7 +210,7 @@
 	;cast input numeric args
 	(list-bind-args :r1 '(:r1 :r2) '(:num :num))
 	;save them so kernel callback can see them
-	(assign '(:r1 :r2) '((:rsp slot_c_handle) (:rsp slot_c_state)))
+	(save-fields :rsp '(slot_c_handle slot_c_state) '(:r1 :r2))
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
@@ -322,7 +322,7 @@
 	;cast input numeric args
 	(list-bind-args :r1 '(:r1 :r2) '(:num :num))
 	;save them so kernel callback can see them
-	(assign '(:r1 :r2) '((:rsp slot_c_handle) (:rsp slot_c_pan)))
+	(save-fields :rsp '(slot_c_handle slot_c_pan) '(:r1 :r2))
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
@@ -422,7 +422,7 @@
 	(list-bind-args :r1 '(:r0) '(:obj))
 	(assign '((:r0 +str_length) (& :r0 +str_data)) '(:r1 :r0))
 	(vp-shr-cr 1 :r1)
-	(assign '(:r0 :r1) '((:rsp slot_c_data) (:rsp slot_c_max)))
+	(save-fields :rsp '(slot_c_data slot_c_max) '(:r0 :r1))
 	(call :sys_task :callback '(:rsp ($ callback)))
 	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
@@ -515,7 +515,7 @@
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r1 :r2) '(:num :num))
-	(assign '(:r1 :r2) '((:rsp slot_c_rate) (:rsp slot_c_channels)))
+	(save-fields :rsp '(slot_c_rate slot_c_channels) '(:r1 :r2))
 	(call :sys_task :callback '(:rsp ($ callback)))
 	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
@@ -569,7 +569,7 @@
 	(assign '(:r1) '((:rsp slot_c_handle)))
 	(assign '((:r0 +str_length) (& :r0 +str_data)) '(:r1 :r0))
 	(vp-shr-cr 1 :r1)
-	(assign '(:r0 :r1) '((:rsp slot_c_data) (:rsp slot_c_frames)))
+	(save-fields :rsp '(slot_c_data slot_c_frames) '(:r0 :r1))
 	(call :sys_task :callback '(:rsp ($ callback)))
 	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 

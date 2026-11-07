@@ -28,13 +28,13 @@
 	(default)
 		;it's a none empty list
 		(vp-alloc slot_size)
-		(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_form)))
+		(save-fields :rsp '(slot_this slot_form) '(:r0 :r1))
 		(call :array :create :nil '((:rsp slot_stack)))
 		(assign '((:rsp slot_form)) '(:r1))
 		(loop-start)
 			(assign '((:rsp slot_this)) '(:r0))
 			(class/array/get_both :r1 :r1 :r2)
-			(assign '(:r1 :r2) '((:rsp slot_iter_begin) (:rsp slot_iter_end)))
+			(save-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
 			(vp-load-rcr :r1 0 :r1)
 
 			;first element checks
@@ -169,7 +169,7 @@
 					(call :array :push_back '(:r0 :r1))
 				(endif)
 
-				(assign '((:rsp slot_iter_begin) (:rsp slot_iter_end)) '(:r1 :r2))
+				(load-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
 				(vp-add-cr +ptr_size :r1)
 			(loop-end)
 

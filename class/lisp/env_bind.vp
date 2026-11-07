@@ -131,7 +131,7 @@
 	(vp-rdef (this vars state sym index_vars index_vals len tmp tmp2 optn rst ign mst blk))
 
 	(vp-alloc slot_size)
-	(assign `(,vars ,state) '((:rsp slot_vars) (:rsp slot_vals)))
+	(save-fields :rsp '(slot_vars slot_vals) `(,vars ,state))
 
 (assign `((,vars +obj_vtable) (@ ,(f-path :list :vtable))) `(,tmp ,tmp2))
 (gotoif `(,tmp /= ,tmp2) 'error1)
@@ -142,19 +142,18 @@
 	(assign `((,this +lisp_sym_nil)) `(,tmp))
 	(class/obj/ref tmp tmp2)
 	(vp-xor-rr tmp2 tmp2)
-	(assign `(,tmp ,tmp2 ,tmp2 ,tmp2)
-		'((:rsp slot_value) (:rsp slot_index_vars) (:rsp slot_index_vals) (:rsp slot_state)))
+	(save-fields :rsp '(slot_value slot_index_vars slot_index_vals slot_state) `(,tmp ,tmp2 ,tmp2 ,tmp2))
 	(call :seq :get_length '((:rsp slot_vals)) `(_ ,tmp))
 	(assign '((:rsp slot_vars)) `(,vars))
 	(assign `((,vars +array_length)) `(,len))
-	(assign `(,tmp ,len) '((:rsp slot_len_vals) (:rsp slot_len_vars)))
+	(save-fields :rsp '(slot_len_vals slot_len_vars) `(,tmp ,len))
 	(lisp-this this)
 
 	(loop-start 'next_bind)
-		(assign '((:rsp slot_index_vars) (:rsp slot_len_vars)) `(,index_vars ,len))
+		(load-fields :rsp '(slot_index_vars slot_len_vars) `(,index_vars ,len))
 		(breakif `(,index_vars = ,len))
 		;next symbol and state
-		(assign '((:rsp slot_vars) (:rsp slot_state)) `(,vars ,state))
+		(load-fields :rsp '(slot_vars slot_state) `(,vars ,state))
 		(load-fields this
 			'(+lisp_sym_optional +lisp_sym_rest +lisp_sym_ignore +lisp_sym_most +lisp_sym_ampersand)
 			`(,optn ,rst ,ign ,mst ,blk))
@@ -169,7 +168,7 @@
 			(assign '((:rsp slot_index_vals)) `(,index_vals))
 			(vp-add-cr 1 index_vars)
 			(vp-add-cr 1 index_vals)
-			(assign `(,index_vars ,index_vals) '((:rsp slot_index_vars) (:rsp slot_index_vals)))
+			(save-fields :rsp '(slot_index_vars slot_index_vals) `(,index_vars ,index_vals))
 			(continue 'next_bind)
 		(vpcase `(,sym = ,optn))
 			(assign `(,+state_optional) `(,state))
@@ -188,8 +187,7 @@
 			(vp-load-rrr vars sym sym)
 		(endswitch)
 		(vp-add-cr 1 index_vars)
-		(assign `(,index_vars ,state ,sym)
-			'((:rsp slot_index_vars) (:rsp slot_state) (:rsp slot_sym)))
+		(save-fields :rsp '(slot_index_vars slot_state slot_sym) `(,index_vars ,state ,sym))
 
 		;drop the last value bound, the environment has it, so in line
 		(assign '((:rsp slot_value)) `(,tmp))
@@ -197,8 +195,7 @@
 	(vp-label 'derefed)
 
 		(vp-rdef (this vals state sym tmp index_vals len tmp2 tmp3))
-		(assign '((:rsp slot_vals) (:rsp slot_index_vals) (:rsp slot_len_vals))
-			`(,vals ,index_vals ,len))
+		(load-fields :rsp '(slot_vals slot_index_vals slot_len_vals) `(,vals ,index_vals ,len))
 		(assign `((,sym +obj_vtable) (@ ,(f-path :sym :vtable))) `(,tmp ,tmp2))
 		(vpif `(,tmp = ,tmp2))
 			;standard symbol
@@ -269,7 +266,7 @@
 		(endif)
 	(loop-end)
 
-(assign '((:rsp slot_index_vals) (:rsp slot_len_vals)) '(:r1 :r2))
+(load-fields :rsp '(slot_index_vals slot_len_vals) '(:r1 :r2))
 (gotoif '(:r1 /= :r2) 'error4)
 
 (vp-label 'funcexit)
@@ -282,7 +279,7 @@
 	;the last ref of the last value, so a call, and all is trashed
 	(call :obj :deref '(:r7))
 	(lisp-this :r0)
-	(assign '((:rsp slot_sym) (:rsp slot_state)) '(:r3 :r2))
+	(load-fields :rsp '(slot_sym slot_state) '(:r3 :r2))
 	(goto 'derefed)
 
 (vp-label 'error1)
@@ -297,7 +294,7 @@
 	(call :obj :deref '((:rsp slot_value)))
 (vp-label 'error)
 	(call :list :create :nil '(:r0))
-	(assign '((:rsp slot_vars) (:rsp slot_vals)) '(:r1 :r2))
+	(load-fields :rsp '(slot_vars slot_vals) '(:r1 :r2))
 	(class/obj/ref :r1 :r3)
 	(class/obj/ref :r2 :r3)
 	(call :list :push_back2 '(:r0 :r1 :r2) '(:r0 _ _ _ _))

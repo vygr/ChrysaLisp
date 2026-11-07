@@ -77,8 +77,7 @@
 	(vp-alloc slot_size)
 	(assign `(,xlow) '((:rsp slot_this)))
 	(list-bind-args t `(,ebase ,aiter ,y0 ,y1 ,witer ,d) '(:nums :nums :num :num :num :nums))
-	(assign `(,ebase ,aiter ,d ,y0 ,y1 ,witer)
-		'((:rsp slot_edges) (:rsp slot_active) (:rsp slot_out) (:rsp slot_y0) (:rsp slot_y1) (:rsp slot_mode)))
+	(save-fields :rsp '(slot_edges slot_active slot_out slot_y0 slot_y1 slot_mode) `(,ebase ,aiter ,d ,y0 ,y1 ,witer))
 
 	;room in out for the most pieces there can be, one to each two edges
 	(assign `((,aiter +array_length)) `(,t))
@@ -190,7 +189,7 @@
 	(assign `((,t +array_begin)) `(,t))
 	(vp-xor-rr wa wa)
 	(vp-xor-rr wb wb)
-	(assign `(,t ,wa) '((:rsp slot_optr) (:rsp slot_inside)))
+	(save-fields :rsp '(slot_optr slot_inside) `(,t ,wa))
 	(vp-cpy-cr +min_long px0)
 	(vp-cpy-cr -1 gid)
 	(vp-cpy-rr px0 px1)
@@ -236,10 +235,10 @@
 				(assign `(,x0) '((:rsp slot_inside)))
 				(vpif `(,x0 /= 0))
 					;it begins
-					(assign `(,gx0 ,gx1 ,gid) '((:rsp slot_lx0) (:rsp slot_lx1) (:rsp slot_lid)))
+					(save-fields :rsp '(slot_lx0 slot_lx1 slot_lid) `(,gx0 ,gx1 ,gid))
 				(else)
 					;it ends, a piece
-					(assign '((:rsp slot_optr) (:rsp slot_lx0)) `(,t ,x0))
+					(load-fields :rsp '(slot_optr slot_lx0) `(,t ,x0))
 					(assign '((:rsp slot_lx1)) `(,x1))
 					(assign `(,x0 ,x1 ,gx0 ,gx1) `((,t 0) (,t ,+long_size) (,t ,(* 2 +long_size)) (,t ,(* 3 +long_size))))
 					(assign '((:rsp slot_lid)) `(,x0))
@@ -266,9 +265,9 @@
 	(loop-end)
 
 	;after the last edge nothing is wound round, so a piece that is open ends at it
-	(assign '((:rsp slot_optr) (:rsp slot_inside)) `(,t ,x0))
+	(load-fields :rsp '(slot_optr slot_inside) `(,t ,x0))
 	(vpif `(,gid >= 0) `(,x0 /= 0))
-		(assign '((:rsp slot_lx0) (:rsp slot_lx1)) `(,x0 ,x1))
+		(load-fields :rsp '(slot_lx0 slot_lx1) `(,x0 ,x1))
 		(assign `(,x0 ,x1 ,gx0 ,gx1) `((,t 0) (,t ,+long_size) (,t ,(* 2 +long_size)) (,t ,(* 3 +long_size))))
 		(assign '((:rsp slot_lid)) `(,x0))
 		(assign `(,x0 ,gid) `((,t ,(* 4 +long_size)) (,t ,(* 5 +long_size))))
@@ -277,7 +276,7 @@
 
 	;how many numbers that is, and out is what comes back
 	(vp-rdef (this out t len))
-	(assign '((:rsp slot_out) (:rsp slot_this)) `(,out ,this))
+	(load-fields :rsp '(slot_out slot_this) `(,out ,this))
 	(assign `((,out +array_begin)) `(,len))
 	(vp-sub-rr len t)
 	(vp-shr-cr (log2 +long_size) t)
@@ -366,7 +365,7 @@
 		(vp-add-cr +long_size iiter)
 	(loop-end)
 
-	(assign '((:rsp slot_this) (:rsp slot_cuts)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_cuts) '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 	(vp-free slot_size)
 	(exit '(:r0 :r1))
@@ -405,9 +404,7 @@
 	(vp-alloc slot_size)
 	(assign `(,a) '((:rsp slot_this)))
 	(list-bind-args b `(,oiter ,y0 ,y1 ,i ,bw ,sbase ,ol ,or) '(:nums :num :num :nums :nums :nums :nums :nums))
-	(assign `(,oiter ,y0 ,y1 ,i ,bw ,sbase ,ol ,or)
-		'((:rsp slot_out) (:rsp slot_y0) (:rsp slot_y1) (:rsp slot_above) (:rsp slot_below)
-		(:rsp slot_segs) (:rsp slot_openl) (:rsp slot_openr)))
+	(save-fields :rsp '(slot_out slot_y0 slot_y1 slot_above slot_below slot_segs slot_openl slot_openr) `(,oiter ,y0 ,y1 ,i ,bw ,sbase ,ol ,or))
 
 	;room in below for the bottom of each piece
 	(assign `((,oiter +array_length)) `(,b))
@@ -415,7 +412,7 @@
 	(call :array :set_cap `(,bw ,b))
 	;and in segs for the two sides of each, and a line across for each
 	;end of a piece of this band and of the band above
-	(assign '((:rsp slot_out) (:rsp slot_above) (:rsp slot_segs)) `(,oiter ,i ,a))
+	(load-fields :rsp '(slot_out slot_above slot_segs) `(,oiter ,i ,a))
 	(assign `((,oiter +array_length) (,i +array_length) (,a +array_length)) `(,b ,i ,t))
 	(vp-mul-cr 4 b)
 	(vp-mul-cr 5 i)
@@ -424,8 +421,7 @@
 	(vp-add-cr 10 b)
 	(call :array :set_cap `(,a ,b))
 
-	(assign '((:rsp slot_out) (:rsp slot_y0) (:rsp slot_y1) (:rsp slot_below) (:rsp slot_segs)
-		(:rsp slot_openl) (:rsp slot_openr)) `(,oiter ,y0 ,y1 ,bw ,sbase ,ol ,or))
+	(load-fields :rsp '(slot_out slot_y0 slot_y1 slot_below slot_segs slot_openl slot_openr) `(,oiter ,y0 ,y1 ,bw ,sbase ,ol ,or))
 	(assign `((,oiter +array_length) (,sbase +array_length)) `(,oend ,sw))
 	(assign `((,oiter +array_begin) (,sbase +array_begin) (,bw +array_begin) (,ol +array_begin) (,or +array_begin))
 		`(,oiter ,sbase ,bw ,ol ,or))
@@ -497,7 +493,7 @@
 	;across: the ends of what is above and of the tops of these, each in
 	;order, taken the least first
 	(vp-rdef (xa xb x px t sbase sw oiter oend y0 step aiter aend ia ib))
-	(assign '((:rsp slot_out) (:rsp slot_above)) `(,oiter ,aiter))
+	(load-fields :rsp '(slot_out slot_above) `(,oiter ,aiter))
 	(assign `((,aiter +array_length)) `(,aend))
 	(assign `((,oiter +array_begin) (,aiter +array_begin)) `(,oiter ,aiter))
 	(vp-shl-cr (log2 +long_size) aend)
@@ -549,7 +545,7 @@
 	(vp-sub-rr sbase sw)
 	(vp-shr-cr (log2 +long_size) sw)
 	(assign `(,sw) `((,t +array_length)))
-	(assign '((:rsp slot_this) (:rsp slot_below)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_below) '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 	(vp-free slot_size)
 	(exit '(:r0 :r1))
@@ -565,7 +561,7 @@
 	;where the lines begin, and the four parts of the room that was got:
 	;the first line of each bucket, the next line of each line, is a line
 	;used, and the points of the ring being walked
-	(assign '((:rsp slot_segs) (:rsp slot_mem) (:rsp slot_mask) (:rsp slot_n)) `(,sbase ,head ,t ,u))
+	(load-fields :rsp '(slot_segs slot_mem slot_mask slot_n) `(,sbase ,head ,t ,u))
 	(assign `((,sbase +array_begin)) `(,sbase))
 	(vp-add-cr 1 t)
 	(vp-shl-cr (log2 +long_size) t)
@@ -672,7 +668,7 @@
 	(vp-xor-rr i i)
 	(assign `(,i) '((:rsp slot_s)))
 	(loop-start 'rings)
-		(assign '((:rsp slot_s) (:rsp slot_n)) `(,i ,t))
+		(load-fields :rsp '(slot_s slot_n) `(,i ,t))
 		(gotoif `(,i = ,t) 'done)
 		(vp-cpy-rr i t)
 		(vp-add-cr 1 t)
@@ -786,7 +782,7 @@
 			;three corners or more and it is a ring, a path of them
 			(vp-sub-rr head b)
 			(vpif `(,b >= ,(* 6 +long_size)))
-				(assign `(,b ,head) '((:rsp slot_bytes) (:rsp slot_scratch)))
+				(save-fields :rsp '(slot_bytes slot_scratch) `(,b ,head))
 				(call :path :create :nil '(:r0))
 				(assign '((:rsp slot_bytes)) '(:r1))
 				(vp-shr-cr (log2 +long_size) :r1)
@@ -805,7 +801,7 @@
 (vp-label 'done)
 
 	(call :sys_mem :free '((:rsp slot_mem)))
-	(assign '((:rsp slot_this) (:rsp slot_out)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_out) '(:r0 :r1))
 	(vp-free slot_size)
 	(exit '(:r0 :r1))
 	(vp-ret)
@@ -922,8 +918,7 @@
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7) '(:list :list :nums :nums :nums :nums))
-	(assign '(:r2 :r3 :r4 :r5 :r6 :r7)
-		'((:rsp slot_a) (:rsp slot_b) (:rsp slot_edges) (:rsp slot_ys) (:rsp slot_openl) (:rsp slot_openr)))
+	(save-fields :rsp '(slot_a slot_b slot_edges slot_ys slot_openl slot_openr) '(:r2 :r3 :r4 :r5 :r6 :r7))
 
 	;how many points there are, there are no more edges than that
 	(vp-xor-rr x0 x0)
@@ -962,7 +957,7 @@
 	(call :array :set_cap '((:rsp slot_openr) (:rsp slot_points)))
 
 	;the edges and the heights, as they are met
-	(assign '((:rsp slot_edges) (:rsp slot_ys)) `(,eptr ,yptr))
+	(load-fields :rsp '(slot_edges slot_ys) `(,eptr ,yptr))
 	(assign `((,eptr +array_begin) (,yptr +array_begin)) `(,eptr ,yptr))
 	(vp-xor-rr set set)
 	(loop-start)
@@ -1012,7 +1007,7 @@
 	(loop-until `(,set = 2))
 
 	;how much of each, and each put in order
-	(assign '((:rsp slot_edges) (:rsp slot_ys)) `(,x0 ,x1))
+	(load-fields :rsp '(slot_edges slot_ys) `(,x0 ,x1))
 	(assign `((,x0 +array_begin) (,x1 +array_begin)) `(,y0 ,y1))
 	(vp-sub-rr y0 eptr)
 	(vp-sub-rr y1 yptr)
@@ -1031,7 +1026,7 @@
 	(vp-call 'sort)
 
 	;each edge its number, and a -1 each for it
-	(assign '((:rsp slot_edges) (:rsp slot_openl) (:rsp slot_openr)) `(,x0 ,x1 ,y1))
+	(load-fields :rsp '(slot_edges slot_openl slot_openr) `(,x0 ,x1 ,y1))
 	(assign `((,x0 +array_length) (,x0 +array_begin)) `(,end ,iter))
 	(vp-shl-cr (log2 +long_size) end)
 	(vp-add-rr iter end)
@@ -1073,7 +1068,7 @@
 	(endif)
 
 	(call :sys_mem :free '((:rsp slot_mem)))
-	(assign '((:rsp slot_this) (:rsp slot_edges)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_edges) '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 	(vp-free slot_size)
 	(exit '(:r0 :r1))
@@ -1126,12 +1121,12 @@
 
 (defun pc-heights (a b)
 	;the two heights of a band, into the numbers the arguments have
-	(assign '((:rsp slot_ya) (:rsp slot_yb)) '(:r13 :r14))
+	(load-fields :rsp '(slot_ya slot_yb) '(:r13 :r14))
 	(assign `(,a ,b) '((:r13 +num_value) (:r14 +num_value))))
 
 (defun pc-mode (more)
 	;and has the band before this ended where this begins
-	(assign '((:rsp slot_mode) (:rsp slot_nmode)) '(:r13 :r14))
+	(load-fields :rsp '(slot_mode slot_nmode) '(:r13 :r14))
 	(if (/= more 0) (vp-add-cr more :r13))
 	(assign '((:rsp slot_on)) '(:r12))
 	(vp-add-rr :r12 :r13)
@@ -1168,11 +1163,10 @@
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7) '(:nums :nums :nums :nums :num :nums))
-	(assign '(:r2 :r3 :r4 :r5 :r6 :r7)
-		'((:rsp slot_edges) (:rsp slot_ys) (:rsp slot_openl) (:rsp slot_openr) (:rsp slot_mode) (:rsp slot_segs)))
+	(save-fields :rsp '(slot_edges slot_ys slot_openl slot_openr slot_mode slot_segs) '(:r2 :r3 :r4 :r5 :r6 :r7))
 	(assign '((:r4 +array_length)) '(:r4))
 	(vp-xor-rr :r5 :r5)
-	(assign '(:r4 :r5 :r5 :r5) '((:rsp slot_n) (:rsp slot_next) (:rsp slot_yi) (:rsp slot_on)))
+	(save-fields :rsp '(slot_n slot_next slot_yi slot_on) '(:r4 :r5 :r5 :r5))
 
 	;what the three functions are given, made once
 	(each (lambda (obj)
@@ -1200,7 +1194,7 @@
 
 	(loop-start 'bands)
 		;the band from this height to the next, if there is a next
-		(assign '((:rsp slot_ys) (:rsp slot_yi)) `(,a ,b))
+		(load-fields :rsp '(slot_ys slot_yi) `(,a ,b))
 		(assign `((,a +array_length) (,a +array_begin)) `(,c ,a))
 		(vp-add-cr 1 b)
 		(gotoif `(,b >= ,c) 'bottom)
@@ -1211,7 +1205,7 @@
 		(pc-heights c d)
 		(pc-mode 0)
 		;those that begin here come, those that end here (poly-band) takes out
-		(assign '((:rsp slot_edges) (:rsp slot_active) (:rsp slot_next) (:rsp slot_n)) `(,a ,b ,d ,e))
+		(load-fields :rsp '(slot_edges slot_active slot_next slot_n) `(,a ,b ,d ,e))
 		(assign `((,a +array_begin) (,b +array_length) (,b +array_begin)) `(,a ,f ,g))
 		(vp-cpy-rr d h)
 		(vp-mul-cr +pe_size h)
@@ -1239,7 +1233,7 @@
 			;at the bottom of it was made, not at its top
 			(vp-xor-rr a a)
 			(assign `(,a) '((:rsp slot_on)))
-			(assign '((:rsp slot_cuts) (:rsp slot_ya) (:rsp slot_yb)) `(,a ,b ,c))
+			(load-fields :rsp '(slot_cuts slot_ya slot_yb) `(,a ,b ,c))
 			(assign `((,b +num_value) (,c +num_value) (,a +array_begin)) `(,b ,c ,d))
 			(assign `(,b ,c) `((,d 0) (,d ,+long_size)))
 			(vp-cpy-cr 2 b)
@@ -1284,7 +1278,7 @@
 			(vp-xor-rr a a)
 			(assign `(,a) '((:rsp slot_ci)))
 			(loop-start)
-				(assign '((:rsp slot_cuts) (:rsp slot_ci)) `(,a ,b))
+				(load-fields :rsp '(slot_cuts slot_ci) `(,a ,b))
 				(assign `((,a +array_length) (,a +array_begin)) `(,c ,a))
 				(vp-add-cr 1 b)
 				(breakif `(,b >= ,c))
@@ -1315,7 +1309,7 @@
 	(call :obj :deref '((:rsp slot_bargs)))
 	(call :obj :deref '((:rsp slot_largs)))
 	(call :obj :deref '((:rsp slot_cargs)))
-	(assign '((:rsp slot_this) (:rsp slot_segs)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_segs) '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 	(vp-free slot_size)
 	(exit '(:r0 :r1))
@@ -1408,55 +1402,55 @@
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:list :list :num :num))
-	(assign '(:r2 :r3 :r4 :r5) '((:rsp slot_la) (:rsp slot_lb) (:rsp slot_ma) (:rsp slot_mb)))
+	(save-fields :rsp '(slot_la slot_lb slot_ma slot_mb) '(:r2 :r3 :r4 :r5))
 
 	;the box that is in the boxes of both, if there is one
 	(ph-box 'slot_la)
 	(gotoif '(:r9 = 0) 'miss)
-	(assign '(:r5 :r6 :r7 :r8) '((:rsp slot_wx0) (:rsp slot_wy0) (:rsp slot_wx1) (:rsp slot_wy1)))
+	(save-fields :rsp '(slot_wx0 slot_wy0 slot_wx1 slot_wy1) '(:r5 :r6 :r7 :r8))
 	(ph-box 'slot_lb)
 	(gotoif '(:r9 = 0) 'miss)
-	(assign '((:rsp slot_wx0) (:rsp slot_wy0) (:rsp slot_wx1) (:rsp slot_wy1)) '(:r0 :r1 :r2 :r3))
+	(load-fields :rsp '(slot_wx0 slot_wy0 slot_wx1 slot_wy1) '(:r0 :r1 :r2 :r3))
 	(vp-max-rr :r0 :r5)
 	(vp-max-rr :r1 :r6)
 	(vp-min-rr :r2 :r7)
 	(vp-min-rr :r3 :r8)
 	(gotoif '(:r5 > :r7) 'miss)
 	(gotoif '(:r6 > :r8) 'miss)
-	(assign '(:r5 :r6 :r7 :r8) '((:rsp slot_wx0) (:rsp slot_wy0) (:rsp slot_wx1) (:rsp slot_wy1)))
+	(save-fields :rsp '(slot_wx0 slot_wy0 slot_wx1 slot_wy1) '(:r5 :r6 :r7 :r8))
 
 	;does an edge of the one meet an edge of the other. An edge of a
 	;that has no part in that box meets none
 	(vp-rdef (api ape biter bend bpi bpe rx ry sx sy t1 t2 t3 t4 t5))
 	(assign '((:rsp slot_la)) `(,t1))
 	(ph-paths t1 t2 t3)
-	(assign `(,t2 ,t3) '((:rsp slot_oi) (:rsp slot_oe)))
+	(save-fields :rsp '(slot_oi slot_oe) `(,t2 ,t3))
 	(loop-start 'apaths)
-		(assign '((:rsp slot_oi) (:rsp slot_oe)) `(,t1 ,t2))
+		(load-fields :rsp '(slot_oi slot_oe) `(,t1 ,t2))
 		(gotoif `(,t1 = ,t2) 'contain)
 		(ph-points t1 api ape)
 		(assign `(,t1) '((:rsp slot_oi)))
 		(vpif `(,ape /= 0))
 			(assign `((,ape ,(neg (* 2 +long_size))) (,ape ,(neg +long_size))) `(,t1 ,t2))
-			(assign `(,t1 ,t2) '((:rsp slot_px) (:rsp slot_py)))
+			(save-fields :rsp '(slot_px slot_py) `(,t1 ,t2))
 			(loop-start)
 				;p to q, the box round it, and how far it goes
-				(assign '((:rsp slot_px) (:rsp slot_py)) `(,rx ,ry))
+				(load-fields :rsp '(slot_px slot_py) `(,rx ,ry))
 				(assign `((,api 0) (,api ,+long_size)) `(,sx ,sy))
-				(assign `(,sx ,sy) '((:rsp slot_qx) (:rsp slot_qy)))
+				(save-fields :rsp '(slot_qx slot_qy) `(,sx ,sy))
 				(vp-cpy-rr sx t1)
 				(vp-sub-rr rx t1)
 				(vp-cpy-rr sy t2)
 				(vp-sub-rr ry t2)
-				(assign `(,t1 ,t2) '((:rsp slot_dx) (:rsp slot_dy)))
+				(save-fields :rsp '(slot_dx slot_dy) `(,t1 ,t2))
 				(vp-cpy-rr rx t1)
 				(vp-min-rr sx t1)
 				(vp-max-rr rx sx)
 				(vp-cpy-rr ry t2)
 				(vp-min-rr sy t2)
 				(vp-max-rr ry sy)
-				(assign `(,t1 ,t2 ,sx ,sy) '((:rsp slot_lx) (:rsp slot_ly) (:rsp slot_hx) (:rsp slot_hy)))
-				(assign '((:rsp slot_wx0) (:rsp slot_wy0) (:rsp slot_wx1) (:rsp slot_wy1)) `(,rx ,ry ,t3 ,t4))
+				(save-fields :rsp '(slot_lx slot_ly slot_hx slot_hy) `(,t1 ,t2 ,sx ,sy))
+				(load-fields :rsp '(slot_wx0 slot_wy0 slot_wx1 slot_wy1) `(,rx ,ry ,t3 ,t4))
 				(gotoif `(,sx < ,rx) 'nexta)
 				(gotoif `(,sy < ,ry) 'nexta)
 				(gotoif `(,t1 > ,t3) 'nexta)
@@ -1471,14 +1465,14 @@
 						(loop-start)
 							(assign `((,bpi 0) (,bpi ,+long_size)) `(,sx ,sy))
 							;their boxes are apart
-							(assign '((:rsp slot_lx) (:rsp slot_hx)) `(,t3 ,t4))
+							(load-fields :rsp '(slot_lx slot_hx) `(,t3 ,t4))
 							(vp-cpy-rr rx t1)
 							(vp-max-rr sx t1)
 							(gotoif `(,t1 < ,t3) 'nextb)
 							(vp-cpy-rr rx t1)
 							(vp-min-rr sx t1)
 							(gotoif `(,t1 > ,t4) 'nextb)
-							(assign '((:rsp slot_ly) (:rsp slot_hy)) `(,t3 ,t4))
+							(load-fields :rsp '(slot_ly slot_hy) `(,t3 ,t4))
 							(vp-cpy-rr ry t1)
 							(vp-max-rr sy t1)
 							(gotoif `(,t1 < ,t3) 'nextb)
@@ -1486,7 +1480,7 @@
 							(vp-min-rr sy t1)
 							(gotoif `(,t1 > ,t4) 'nextb)
 							;which side of the line p q are r and s
-							(assign '((:rsp slot_px) (:rsp slot_py)) `(,t1 ,t2))
+							(load-fields :rsp '(slot_px slot_py) `(,t1 ,t2))
 							(vp-cpy-rr ry t3)
 							(vp-sub-rr t2 t3)
 							(assign '((:rsp slot_dx)) `(,t4))
@@ -1511,13 +1505,13 @@
 							(vp-sub-rr rx t1)
 							(vp-cpy-rr sy t2)
 							(vp-sub-rr ry t2)
-							(assign '((:rsp slot_py) (:rsp slot_px)) `(,t3 ,t4))
+							(load-fields :rsp '(slot_py slot_px) `(,t3 ,t4))
 							(vp-sub-rr ry t3)
 							(vp-mul-rr t1 t3)
 							(vp-sub-rr rx t4)
 							(vp-mul-rr t2 t4)
 							(vp-sub-rr t4 t3)
-							(assign '((:rsp slot_qy) (:rsp slot_qx)) `(,t4 ,t5))
+							(load-fields :rsp '(slot_qy slot_qx) `(,t4 ,t5))
 							(vp-sub-rr ry t4)
 							(vp-mul-rr t1 t4)
 							(vp-sub-rr rx t5)
@@ -1533,8 +1527,8 @@
 					(endif)
 				(loop-end)
 			(vp-label 'nexta)
-				(assign '((:rsp slot_qx) (:rsp slot_qy)) `(,t1 ,t2))
-				(assign `(,t1 ,t2) '((:rsp slot_px) (:rsp slot_py)))
+				(load-fields :rsp '(slot_qx slot_qy) `(,t1 ,t2))
+				(save-fields :rsp '(slot_px slot_py) `(,t1 ,t2))
 				(vp-add-cr (* 2 +long_size) api)
 			(loop-until `(,api = ,ape))
 		(endif)
@@ -1544,16 +1538,16 @@
 	;none do. So each path is all in the other set or all out of it, and
 	;its first point says which: the paths of a in b, then those of b in a
 	(vp-rdef (x y wind siter send spi spe x0 y0 x1 y1 t1 t2 t3))
-	(assign '((:rsp slot_la) (:rsp slot_lb) (:rsp slot_mb)) `(,t1 ,t2 ,t3))
-	(assign `(,t1 ,t2 ,t3) '((:rsp slot_lp) (:rsp slot_ls) (:rsp slot_ms)))
+	(load-fields :rsp '(slot_la slot_lb slot_mb) `(,t1 ,t2 ,t3))
+	(save-fields :rsp '(slot_lp slot_ls slot_ms) `(,t1 ,t2 ,t3))
 	(vp-xor-rr t1 t1)
 	(assign `(,t1) '((:rsp slot_pass)))
 	(loop-start 'passes)
 		(assign '((:rsp slot_lp)) `(,t1))
 		(ph-paths t1 t2 t3)
-		(assign `(,t2 ,t3) '((:rsp slot_oi) (:rsp slot_oe)))
+		(save-fields :rsp '(slot_oi slot_oe) `(,t2 ,t3))
 		(loop-start)
-			(assign '((:rsp slot_oi) (:rsp slot_oe)) `(,t1 ,t2))
+			(load-fields :rsp '(slot_oi slot_oe) `(,t1 ,t2))
 			(breakif `(,t1 = ,t2))
 			(ph-points t1 spi spe)
 			(assign `(,t1) '((:rsp slot_oi)))
@@ -1611,8 +1605,8 @@
 		(gotoif `(,t1 /= 0) 'miss)
 		(vp-cpy-cr 1 t1)
 		(assign `(,t1) '((:rsp slot_pass)))
-		(assign '((:rsp slot_lb) (:rsp slot_la) (:rsp slot_ma)) `(,t1 ,t2 ,t3))
-		(assign `(,t1 ,t2 ,t3) '((:rsp slot_lp) (:rsp slot_ls) (:rsp slot_ms)))
+		(load-fields :rsp '(slot_lb slot_la slot_ma) `(,t1 ,t2 ,t3))
+		(save-fields :rsp '(slot_lp slot_ls slot_ms) `(,t1 ,t2 ,t3))
 	(loop-end)
 
 (vp-label 'hit)

@@ -24,7 +24,7 @@
 	(vp-alloc slot_size)
 	(entry :host_net :send_all '(:r0 :r1 :r2 :r3))
 	(gotoif '(:r2 <= 0) 'send_done)
-	(assign '(:r0 :r1 :r2 :r3) '((:rsp slot_handle) (:rsp slot_buf) (:rsp slot_remaining) (:rsp slot_lk_node)))
+	(save-fields :rsp '(slot_handle slot_buf slot_remaining slot_lk_node) '(:r0 :r1 :r2 :r3))
 
 (vp-label 'send_loop)
 	(host-net-call :host_net :send '((:rsp slot_handle) (:rsp slot_buf) (:rsp slot_remaining)) '(:r0))
@@ -44,10 +44,10 @@
 	(endif)
 
 	(vp-rdef (sent buf remaining))
-	(assign '((:rsp slot_buf) (:rsp slot_remaining)) `(,buf ,remaining))
+	(load-fields :rsp '(slot_buf slot_remaining) `(,buf ,remaining))
 	(vp-add-rr sent buf)
 	(vp-sub-rr sent remaining)
-	(assign `(,buf ,remaining) '((:rsp slot_buf) (:rsp slot_remaining)))
+	(save-fields :rsp '(slot_buf slot_remaining) `(,buf ,remaining))
 	(gotoif `(,remaining > 0) 'send_loop)
 
 (vp-label 'send_done)

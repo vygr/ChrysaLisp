@@ -696,7 +696,7 @@
 	;iterate through views front to back
 	(call :view :forward_tree '(:r0 :rsp ($ hit_down_callback) ($ hit_up_callback)))
 
-	(assign '((:rsp slot_this) (:rsp slot_hit)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_hit) '(:r0 :r1))
 	(vp-free slot_size)
 	(vp-ret)
 

@@ -29,7 +29,7 @@
 
 	(vp-alloc slot_size)
 	(entry :canvas :set_edges '(:r0 :r1 :r2 :r3 :r4))
-	(assign '(:r0 :r2 :r3 :r4) '((:rsp slot_this) (:rsp slot_x) (:rsp slot_y) (:rsp slot_yscale)))
+	(save-fields :rsp '(slot_this slot_x slot_y slot_yscale) '(:r0 :r2 :r3 :r4))
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign '((:r0 +canvas_cy) (:r0 +canvas_cy1)) (list cy cy1))
@@ -45,7 +45,7 @@
 	(vp-add-rr :r5 :r3)
 	(vp-simd vp-cpy-cr `(,+max_int ,+min_int) `(,xs ,xe))
 	(vp-simd vp-mul-rr '(:r4) `(,cy ,cy1))
-	(assign '(:r0 :r2 :r3) '((:rsp slot_length) (:rsp slot_x) (:rsp slot_y)))
+	(save-fields :rsp '(slot_length slot_x slot_y) '(:r0 :r2 :r3))
 	(assign (list xs xe) (list ys ye))
 
 	(class/array/get_both :r1 :r1 :r2)
@@ -53,9 +53,9 @@
 	(loop-while '(:r1 /= :r2))
 		(assign '(:r1 (:r1 0)) '((:rsp slot_iter_begin_polygons) :r1))
 		(class/array/get_both :r1 :r1 :r2)
-		(assign '(:r1 :r2) '((:rsp slot_iter_begin_polygon) (:rsp slot_iter_end_polygon)))
+		(save-fields :rsp '(slot_iter_begin_polygon slot_iter_end_polygon) '(:r1 :r2))
 		(vp-sub-rr :r1 :r2)
-		(assign '((:rsp slot_this) (:rsp slot_length)) '(:r0 :r1))
+		(load-fields :rsp '(slot_this slot_length) '(:r0 :r1))
 		(vp-shr-cr 4 :r2)
 		(vp-mul-cr (>> +edge_size 3) :r2)
 		(vp-add-rr :r2 :r1)
@@ -127,15 +127,15 @@
 				(vp-asr-cr +fp_shift y1)
 				(assign '(:r1) '((:rsp slot_iter_begin_polygon)))
 			(loop-until '(:r1 = :r2))
-			(assign '((:rsp slot_iter_edge1) (:rsp slot_iter_edge2)) '(:r1 :r2))
+			(load-fields :rsp '(slot_iter_edge1 slot_iter_edge2) '(:r1 :r2))
 			(vp-sub-rr :r1 :r2)
 			(vp-shr-cr 3 :r2)
 			(assign '(:r2) '((:rsp slot_length)))
 		(endif)
-		(assign '((:rsp slot_iter_begin_polygons) (:rsp slot_iter_end_polygons)) '(:r1 :r2))
+		(load-fields :rsp '(slot_iter_begin_polygons slot_iter_end_polygons) '(:r1 :r2))
 		(vp-add-cr +ptr_size :r1)
 	(loop-end)
-	(assign '((:rsp slot_this) (:rsp slot_length)) '(:r0 :r1))
+	(load-fields :rsp '(slot_this slot_length) '(:r0 :r1))
 	(assign '((:r0 +canvas_edges)) '(:r2))
 	(assign '(:r1) '((:r2 +array_length)))
 

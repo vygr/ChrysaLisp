@@ -31,7 +31,7 @@
 
 	;add static symbols
 	(assign '(($ props) (& :r1 statics_static_syms)) '(:r0 :r1))
-	(assign '(:r0 :r1) '((:rsp slot_next) (:rsp slot_sym_ptr)))
+	(save-fields :rsp '(slot_next slot_sym_ptr) '(:r0 :r1))
 	(loop-start)
 		(call :sym :intern_cstr '((:rsp slot_next)) '(:r0))
 		(assign '((:rsp slot_sym_ptr)) '(:r1))
@@ -131,7 +131,7 @@
 	(vp-rem-rr-u :r2 :r1)
 	(call :hset :get_elem '(:r0 :r1) `(_ ,bucket))
 
-	(assign '((:rsp slot_str_end) (:rsp slot_str_begin)) `(,str_end ,str_begin))
+	(load-fields :rsp '(slot_str_end slot_str_begin) `(,str_end ,str_begin))
 	(class/array/get_both bucket iter_begin iter_end)
 	(vp-cpy-rr str_end str_size)
 	(vp-sub-rr str_begin str_size)

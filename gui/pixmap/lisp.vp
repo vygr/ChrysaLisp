@@ -116,9 +116,9 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc slot_size)
-	(assign `(,this ,args) '((:rsp slot_this) (:rsp slot_args)))
+	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
-	(assign `(,pixmap ,stream ,type) '((:rsp slot_pixmap) (:rsp slot_stream) (:rsp slot_type)))
+	(save-fields :rsp '(slot_pixmap slot_stream slot_type) `(,pixmap ,stream ,type))
 
 	;num bits
 	(vp-cpy-rr type num_bits)
@@ -132,7 +132,7 @@
 
 	;set state
 	(vp-xor-rr args args)
-	(assign `(,args ,args ,args) '((:rsp slot_bit_pool) (:rsp slot_bit_pool_size) (:rsp slot_last_conv)))
+	(save-fields :rsp '(slot_bit_pool slot_bit_pool_size slot_last_conv) `(,args ,args ,args))
 	(vp-sub-cr 1 args)
 	(assign `(,args) '((:rsp slot_last_col)))
 
@@ -167,24 +167,23 @@
 		;write pixel
 		(vp-rdef (stream val num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
 		(assign `(,col) `(,val))
-		(assign '((:rsp slot_stream) (:rsp slot_num_bits) (:rsp slot_bit_pool) (:rsp slot_bit_pool_size))
-			`(,stream ,num_bits ,bit_pool ,bit_pool_size))
+		(load-fields :rsp '(slot_stream slot_num_bits slot_bit_pool slot_bit_pool_size) `(,stream ,num_bits ,bit_pool ,bit_pool_size))
 		(call :stream :write_bits `(,stream ,val ,num_bits ,bit_pool ,bit_pool_size)
 			'(_ (:rsp slot_bit_pool) (:rsp slot_bit_pool_size)))
 
-		(assign '((:rsp slot_data) (:rsp slot_data_end)) `(,data ,data_end))
+		(load-fields :rsp '(slot_data slot_data_end) `(,data ,data_end))
 	(loop-end)
 
 	; flush bits
 	(vp-rdef (stream val num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
-	(assign '((:rsp slot_stream) (:rsp slot_bit_pool) (:rsp slot_bit_pool_size)) `(,stream ,bit_pool ,bit_pool_size))
+	(load-fields :rsp '(slot_stream slot_bit_pool slot_bit_pool_size) `(,stream ,bit_pool ,bit_pool_size))
 	(vpif `(,bit_pool_size > 0))
 		(vp-cpy-cr 8 num_bits)
 		(vp-sub-rr bit_pool_size num_bits)
 		(call :stream :write_bits `(,stream 0 ,num_bits ,bit_pool ,bit_pool_size))
 	(endif)
 
-	(assign '((:rsp slot_this) (:rsp slot_pixmap)) `(,this ,args))
+	(load-fields :rsp '(slot_this slot_pixmap) `(,this ,args))
 	(class/obj/ref args w)
 	(exit :pixmap :lisp_write `(,this ,args))
 	(vp-free slot_size)
@@ -219,9 +218,9 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc slot_size)
-	(assign `(,this ,args) '((:rsp slot_this) (:rsp slot_args)))
+	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
-	(assign `(,pixmap ,stream ,type) '((:rsp slot_pixmap) (:rsp slot_stream) (:rsp slot_type)))
+	(save-fields :rsp '(slot_pixmap slot_stream slot_type) `(,pixmap ,stream ,type))
 
 	;num bits
 	(vp-cpy-rr type num_bits)
@@ -235,7 +234,7 @@
 
 	;set state
 	(vp-xor-rr args args)
-	(assign `(,args ,args ,args) '((:rsp slot_bit_pool) (:rsp slot_bit_pool_size) (:rsp slot_last_conv)))
+	(save-fields :rsp '(slot_bit_pool slot_bit_pool_size slot_last_conv) `(,args ,args ,args))
 	(vp-sub-cr 1 args)
 	(assign `(,args) '((:rsp slot_last_col)))
 
@@ -254,12 +253,11 @@
 
 		;read pixel
 		(vp-rdef (stream val bit_pool bit_pool_size) (method-input :stream :read_bits))
-		(assign '((:rsp slot_stream) (:rsp slot_num_bits) (:rsp slot_bit_pool) (:rsp slot_bit_pool_size))
-			`(,stream ,val ,bit_pool ,bit_pool_size))
+		(load-fields :rsp '(slot_stream slot_num_bits slot_bit_pool slot_bit_pool_size) `(,stream ,val ,bit_pool ,bit_pool_size))
 		(call :stream :read_bits `(,stream ,val ,bit_pool ,bit_pool_size)
 			`(,stream ,val ,bit_pool ,bit_pool_size))
 		(gotoif `(,val = -1) 'eof)
-		(assign `(,bit_pool ,bit_pool_size) '((:rsp slot_bit_pool) (:rsp slot_bit_pool_size)))
+		(save-fields :rsp '(slot_bit_pool slot_bit_pool_size) `(,bit_pool ,bit_pool_size))
 
 		;convert pixel, with cache
 		(vp-rdef (col type last_col last_conv) (method-input :pixmap :to_argb32))
@@ -276,12 +274,12 @@
 		(endif)
 
 		;write pixel
-		(assign '((:rsp slot_data) (:rsp slot_data_end)) `(,data ,data_end))
+		(load-fields :rsp '(slot_data slot_data_end) `(,data ,data_end))
 		(vp-store-rrc-i col data 0)
 		(vp-add-cr +int_size data)
 	(loop-end)
 
-	(assign '((:rsp slot_this) (:rsp slot_pixmap)) `(,this ,args))
+	(load-fields :rsp '(slot_this slot_pixmap) `(,this ,args))
 	(goto 'exit)
 
 (vp-label 'eof)

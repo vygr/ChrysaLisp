@@ -42,7 +42,7 @@
 	;we have refs to the name (from the args), so we DON'T need to manage our use here !
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 ,+ptr_size) (:r0 +lisp_stream_name) (:r0 +lisp_stream_line)) '(:r2 :r3 :r4))
-	(assign '(:r3 :r4) '((:rsp slot_old_name) (:rsp slot_old_line)))
+	(save-fields :rsp '(slot_old_name slot_old_line) '(:r3 :r4))
 	(vp-cpy-cr 1 :r4)
 	(assign '(:r2 :r4) '((:r0 +lisp_stream_name) (:r0 +lisp_stream_line)))
 	(assign '((:r0 +lisp_sym_nil)) '(:r2))
@@ -57,10 +57,10 @@
 		(lisp-this :r0)
 		(call :stream :flush '((:r0 +lisp_stderr)))
 		(lisp-this :r0)
-		(assign '((:rsp slot_args) (:rsp slot_char)) '(:r1 :r2))
+		(load-fields :rsp '(slot_args slot_char) '(:r1 :r2))
 		(assign '((:r1 +array_begin)) '(:r1))
 		(call :lisp :read '(:r0 (:r1 0) :r2) '(:r0 :r1 :r2))
-		(assign '(:r1 :r2) '((:rsp slot_ast) (:rsp slot_char)))
+		(save-fields :rsp '(slot_ast slot_char) '(:r1 :r2))
 		(call :lisp :repl_expand '(:r0 (& :rsp slot_ast)) '(:r0))
 		(call :lisp :repl_bind '(:r0 (:rsp slot_ast)) '(:r0))
 		(call :obj :deref '((:rsp slot_value)))
@@ -85,7 +85,7 @@
 
 	;pop old repl info
 	(lisp-this :r0)
-	(assign '((:rsp slot_old_name) (:rsp slot_old_line) (:rsp slot_value)) '(:r2 :r3 :r1))
+	(load-fields :rsp '(slot_old_name slot_old_line slot_value) '(:r2 :r3 :r1))
 	(assign '(:r2 :r3) '((:r0 +lisp_stream_name) (:r0 +lisp_stream_line)))
 
 	(exit :lisp :lisp_repl '(:r0 :r1))

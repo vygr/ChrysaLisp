@@ -465,7 +465,7 @@
 
 	(vp-alloc slot_size)
 	(entry :list :print '(:r0 :r1))
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_stream)))
+	(save-fields :rsp '(slot_this slot_stream) '(:r0 :r1))
 
 	(call :list :print_enter '(:r0 (& :rsp slot_note)) '(_ :r1))
 	(vpif '(:r1 /= 0))
@@ -474,10 +474,10 @@
 		(call :stream :write_char '((:rsp slot_stream) +char_lrb))
 		(call :list :get_both '((:rsp slot_this)) '(_ :r1 :r2))
 		(vpif '(:r1 /= :r2))
-			(assign '(:r1 :r2) '((:rsp slot_iter_begin) (:rsp slot_iter_end)))
+			(save-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
 			(loop-start)
 				(call :obj :print '((:r1 0) (:rsp slot_stream)))
-				(assign '((:rsp slot_iter_begin) (:rsp slot_iter_end)) '(:r1 :r2))
+				(load-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
 				(vp-add-cr +long_size :r1)
 				(breakif '(:r1 = :r2))
 				(assign '(:r1) '((:rsp slot_iter_begin)))

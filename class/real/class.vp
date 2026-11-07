@@ -36,7 +36,7 @@
 	(vp-alloc slot_size)
 	(entry :real :print '(:r0 :r1))
 
-	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_stream)))
+	(save-fields :rsp '(slot_this slot_stream) '(:r0 :r1))
 	(call :stream :write_cstr '(:r1 "0x"))
 	(assign '((:rsp slot_this)) '(:r0))
 	(call :str :create_from_long '((:r0 +num_value) -16) '(:r0))
