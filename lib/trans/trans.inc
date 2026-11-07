@@ -26,9 +26,10 @@
 ;label's, and an operand's v its value: a register as this CPU's, by the
 ;rmap of the state, else its a, as the parser makes it, but a label's,
 ;which each pass works out again. The operands the parser makes end at
-;oend, those after are a prepass's, whose labels each pass works out too
+;oend, those after are a prepass's, whose labels each pass works out too.
+;An instruction's pc and len are where it was and how long, the pass before
 (structure +tri 0
-	(long op cnt ops m lab))
+	(long op cnt ops m lab pc len))
 (structure +tro 0
 	(long kind a b v))
 
@@ -171,7 +172,17 @@
 						(vpif '(:r6 >= :r1))
 							(vp-cpy-cr 1 :r0)
 						(endif)
-						(vpif '(:r0 /= 0) '(:r5 /= 0))
+						(vpif '(:r0 = 0))
+							;none, so if it starts where it did the pass before, its
+							;bytes are as they were and still there
+							(assign '((:r14 +trs_pass) (:r14 +trs_pc) (:r8 +tri_pc)) '(:r1 :r2 :r3))
+							(vpif '(:r1 /= 0) '(:r2 = :r3))
+								(assign '((:r8 +tri_len)) '(:r3))
+								(vp-add-rr :r3 :r2)
+								(assign '(:r2) '((:r14 +trs_pc)))
+								(vp-jmp 'pass_next)
+							(endif)
+						(elseif '(:r5 /= 0))
 							(assign '((:r14 +trs_labels) (:r14 +trs_pc)) '(:r9 :r10))
 							(vp-cpy-rr :r6 :r0)
 							(vp-cpy-rr :r5 :r2)
@@ -205,6 +216,8 @@
 								(vp-sub-cr 1 :r2)
 							(loop-until '(:r2 = 0))
 						(endif)
+						(assign '((:r14 +trs_pc)) '(:r9))
+						(assign '(:r9) '((:r8 +tri_pc)))
 						;its routine, of the op
 						(vp-lea-pr 'op_table :r10)
 						(vp-shl-cr 3 :r7)
@@ -217,7 +230,13 @@
 						(vp-call-r :r10)
 						(assign '((:r14 +trs_err)) '(:r0))
 						(gotoif '(:r0 /= 0) 'fail_pop)
+						;how long, for a pass after
+						(assign `((:rsp ,+ptr_size) (:r14 +trs_pc)) '(:r8 :r0))
+						(assign '((:r8 +tri_pc)) '(:r1))
+						(vp-sub-rr :r1 :r0)
+						(assign '(:r0) '((:r8 +tri_len)))
 					(endif)
+					(vp-label 'pass_next)
 					(vp-pop :r8 :r10)
 					(vp-add-cr +tri_size :r8)
 					(vp-sub-cr 1 :r10)
