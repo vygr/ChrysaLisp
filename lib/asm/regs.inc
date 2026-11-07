@@ -16,6 +16,12 @@
 ;the double a single is of, :nil if not a single
 (defmacro vp-sreg? (%0) (static-qq (pfind +vp_sregs_map ,%0)))
 (defmacro vp-reg? (%0) (static-qq (pfind +vp_regs_map ,%0)))
+;a double's name, :dN
+(defmacro vp-dreg? (%0) (static-qq (find ,%0 +vp_fregs)))
+
+;the one name of the register a name is of: a single's :fN is the double
+;:dN, what a tool that sees a register whole goes by
+(defun vp-reg-whole (r) (ifn (vp-sreg? r) r))
 
 ; (pmap) +vp_regs vpmap, used in trace command, all slots lined up
 (defmacro vpmap-copy (%0) (static-qq (cat ,%0)))

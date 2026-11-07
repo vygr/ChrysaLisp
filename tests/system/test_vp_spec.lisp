@@ -283,14 +283,6 @@
 (assert-eq "2^24 + 1 and 2^24 are the one single" (vs-long-want 0 0) (vs_sf 16777217 16777216))
 (assert-eq "of a single NaN, only bne is taken" 2 (vs_sf 999 1))
 
-;a register not of the width an op is of is an error of the assembler
-(assert-error "a double's op of a single"
-	(vs-native "tests/vp_spec_sx" (cat (vs-head "tests/vp_spec_sx") "(vp-add-dd :f1 :d0)" vs_lf (vs-tail))))
-(assert-error "a single's op of a double"
-	(vs-native "tests/vp_spec_sx" (cat (vs-head "tests/vp_spec_sx") "(vp-mul-ff :f1 :d0)" vs_lf (vs-tail))))
-(assert-error "a convert of a single to a double, of a double"
-	(vs-native "tests/vp_spec_sx" (cat (vs-head "tests/vp_spec_sx") "(vp-cvt-fd :d1 :d0)" vs_lf (vs-tail))))
-(pii-remove (cat (load-path) "tests/vp_spec_sx.vp"))
 
 (undef (env) 'vs_ops 'vs_lf 'vs_sets 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse
 	'vs_if 'vs_fi 'vs-double-of 'vs-bits-of 'vs_s_ops 'vs_s 'vs_sb 'vs_sf)

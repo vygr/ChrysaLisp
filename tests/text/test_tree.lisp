@@ -310,6 +310,23 @@
 			(found? (join tt_said "") "The classes could not be read"))
 		"said" (cat "not said: " (join tt_said " | "))))
 (pii-remove tt_probe)
+;(trace -i), the registers of each op: a single's op names singles, :fN,
+;a double's doubles, :dN, and a convert of one to the other one of each,
+;as the assembler gave them. A function made up of three of them not so
+;and one so
+(defq tt_probe "obj/vp/tests/scratch_width_probe")
+(save (cat "(\qtests/scratch_width_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _6 _8 4096)" tt_lf
+	"(label '_1)" tt_lf "(add-dd :f1 :d0)" tt_lf "(mul-ff :f1 :d0)" tt_lf "(cvt-fd :d1 :d0)" tt_lf
+	"(cvt-fd :f1 :d0)" tt_lf "(ret)" tt_lf
+	"(label '_6)" tt_lf "(label '_7)" tt_lf "(label '_8)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
+(setq tt_said (list))
+(pipe-run "trace -i tests/scratch_width_probe" (# (push tt_said %0)))
+(assert-list-eq "trace -i: a single's register to a double's op, a double's to a single's, and a convert's of the wrong width are said, not the right one"
+	'(3 :nil)
+	(progn (defq tt_lines (split (join tt_said "") "\n"))
+		(list (reduce (# (if (found? %1 "INTEGRITY ERROR") (inc %0) %0)) tt_lines 0)
+			(some (# (found? %0 "(cvt-fd :f1 :d0)")) tt_lines))))
+(pii-remove tt_probe)
 ;(relies -s), the other way round: a register put by round a call that
 ;leaves it. A function made up that pushes :r1 and :r3 round :sys_mem
 ;:alloc, which trashes :r0 to :r2 and gives :r0 and :r1: :r3 is put by

@@ -117,24 +117,24 @@
 	'load-rrr '(:r :r :r) 'load-rrr-b '(:r :r :r) 'load-rrr-s '(:r :r :r) 'load-rrr-i '(:r :r :r)
 	'load-rrr-ub '(:r :r :r) 'load-rrr-us '(:r :r :r) 'load-rrr-ui '(:r :r :r) 'lea-rrr '(:r :r :r)
 	'store-rrr '(:r :r :r) 'store-rrr-b '(:r :r :r) 'store-rrr-s '(:r :r :r) 'store-rrr-i '(:r :r :r)
-	; float alu
-	'cpy-dd '(:f :f) 'add-dd '(:f :f) 'sub-dd '(:f :f) 'mul-dd '(:f :f)
-	'div-dd '(:f :f) 'min-dd '(:f :f) 'max-dd '(:f :f) 'sqrt-dd '(:f :f)
-	'abs-dd '(:f :f) 'neg-dd '(:f :f)
+	; float alu, :d a double's register, :f a single's
+	'cpy-dd '(:d :d) 'add-dd '(:d :d) 'sub-dd '(:d :d) 'mul-dd '(:d :d)
+	'div-dd '(:d :d) 'min-dd '(:d :d) 'max-dd '(:d :d) 'sqrt-dd '(:d :d)
+	'abs-dd '(:d :d) 'neg-dd '(:d :d)
 	'add-ff '(:f :f) 'sub-ff '(:f :f) 'mul-ff '(:f :f) 'div-ff '(:f :f)
 	'min-ff '(:f :f) 'max-ff '(:f :f) 'sqrt-ff '(:f :f) 'abs-ff '(:f :f)
 	'neg-ff '(:f :f)
 	; float branches
-	'beq-dd '(:f :f :label) 'bne-dd '(:f :f :label) 'blt-dd '(:f :f :label)
-	'bgt-dd '(:f :f :label) 'ble-dd '(:f :f :label) 'bge-dd '(:f :f :label)
+	'beq-dd '(:d :d :label) 'bne-dd '(:d :d :label) 'blt-dd '(:d :d :label)
+	'bgt-dd '(:d :d :label) 'ble-dd '(:d :d :label) 'bge-dd '(:d :d :label)
 	'beq-ff '(:f :f :label) 'bne-ff '(:f :f :label) 'blt-ff '(:f :f :label)
 	'bgt-ff '(:f :f :label) 'ble-ff '(:f :f :label) 'bge-ff '(:f :f :label)
 	; conversions & mixed
-	'cpy-rd '(:r :f) 'cpy-dr '(:f :r) 'cvt-rd '(:r :f) 'cvt-dr '(:f :r)
+	'cpy-rd '(:r :d) 'cpy-dr '(:d :r) 'cvt-rd '(:r :d) 'cvt-dr '(:d :r)
 	'cpy-rf '(:r :f) 'cpy-fr '(:f :r) 'cvt-rf '(:r :f) 'cvt-fr '(:f :r)
-	'cvt-fd '(:f :f) 'cvt-df '(:f :f)
+	'cvt-fd '(:f :d) 'cvt-df '(:d :f)
 	; float memory
-	'load-rcd '(:r :c :f) 'store-drc '(:f :r :c) 'load-rrd '(:r :r :f) 'store-drr '(:f :r :r)
+	'load-rcd '(:r :c :d) 'store-drc '(:d :r :c) 'load-rrd '(:r :r :d) 'store-drr '(:d :r :r)
 	'load-rcf '(:r :c :f) 'store-frc '(:f :r :c) 'load-rrf '(:r :r :f) 'store-frr '(:f :r :r)
 	; control / call / jump
 	'call '(:label) 'call-p '(:label) 'jmp '(:label) 'jmp-p '(:label)
@@ -151,7 +151,8 @@
 (defun check-op-type (expected actual)
 	(case expected
 		(:r (vp-rreg? actual))
-		(:f (vp-freg? actual))
+		(:d (vp-dreg? actual))
+		(:f (vp-sreg? actual))
 		(:reg (vp-reg? actual))
 		((:c :label) (not (vp-reg? actual)))
 		(:str (str? actual))
@@ -311,8 +312,9 @@
 							(push traces (list pc *rsp*
 								(cat trace_map) (cat stack_map) (cat call_stack) depth))))
 					((cpy-rr cpy-dd cpy-rd cpy-dr)
-						;copy value and mark as trashed or restored
-						(pinsert trace_map (last inst) (pfind trace_map (second inst))))
+						;copy value and mark as trashed or restored, a single's
+						;register by the one name of it
+						(pinsert trace_map (vp-reg-whole (last inst)) (pfind trace_map (vp-reg-whole (second inst)))))
 					(swp-rr
 						;swap values and mark as trashed or restored
 						(each (# (pinsert trace_map %0 %1))
@@ -330,13 +332,13 @@
 						(setq depth (+ depth (* (dec (length inst)) +long_size)))
 						;push the values of all registers pushed
 						(each! (# (pinsert stack_map (-- *rsp* +long_size)
-								(pfind trace_map %0)))
+								(pfind trace_map (vp-reg-whole %0))))
 							(list inst) 1))
 					(pop
 						(setq depth (stack-take function depth (* (dec (length inst)) +long_size)))
 						;pop the values of all registers popped
 						;and flag if register is now restored
-						(each! (# (pinsert trace_map %0 (pfind stack_map *rsp*))
+						(each! (# (pinsert trace_map (vp-reg-whole %0) (pfind stack_map *rsp*))
 								(perase stack_map *rsp*)
 								(++ *rsp* +long_size))
 							(list inst) -1 1))
@@ -344,14 +346,14 @@
 						;stack spill 64 bit
 						(when (eql (third inst) :rsp)
 							(bind '(& src & offset) inst)
-							(pinsert stack_map (+ *rsp* offset) (pfind trace_map src))))
+							(pinsert stack_map (+ *rsp* offset) (pfind trace_map (vp-reg-whole src)))))
 					((load-rcr load-rcd)
 						;stack load 64 bit, or the load of the task's lisp
 						;object, statics -> a tcb -> its lisp object, which
 						;is what a method of the lisp has in :r0 on entry,
 						;so that restores it, see (lisp-this)
 						(bind '(& src offset dst) inst)
-						(pinsert trace_map dst (cond
+						(pinsert trace_map (vp-reg-whole dst) (cond
 							((eql src :rsp) (pfind stack_map (+ *rsp* offset)))
 							((eql (defq val (pfind trace_map src)) :statics) :statics_ptr)
 							((and (eql val :statics_ptr) (= offset +tk_node_lisp)) :r0))))
@@ -464,7 +466,7 @@
 							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
 					(trash
 						;simulate the trashing of listed regs
-						(each! (# (pinsert trace_map %0 :nil)) (list inst) 1))
+						(each! (# (pinsert trace_map (vp-reg-whole %0) :nil)) (list inst) 1))
 					((store-rrr store-rrr-b store-rrr-s store-rrr-i store-drr store-frr)
 						;ignore as no reg writes
 						:ignore)
@@ -474,8 +476,9 @@
 					((min-cr min-rr max-cr max-rr vp-abs-rr)
 						;has label offset as last arg !
 						(pinsert trace_map (third inst) :nil))
-					(:t ;all remaining, check last for reg
-						(if (vp-reg? (last inst)) (pinsert trace_map (last inst) :nil))))
+					(:t ;all remaining, check last for reg, a single's as the
+						;register it is of
+						(if (vp-reg? (last inst)) (pinsert trace_map (vp-reg-whole (last inst)) :nil))))
 				(verbose 3 "\t\t\t" (format-trashes trace_map))
 				(verbose 4 "\t\t\t" (format-values trace_map) "\n\t\t\t" (partition stack_map 2)))
 			(verbose 4 "\t\tmerged " (format-trashes func_map)))

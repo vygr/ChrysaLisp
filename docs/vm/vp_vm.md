@@ -533,10 +533,12 @@ A bundle is a run of forms, one a function, as `(read)` reads them:
 
 The first item is the function's path, the second the list of its
 instructions. Each instruction is its op and its operands, `(add-cr 1 :r0)`
-for `(vp-add-cr 1 :r0)`. A single's op names its
-registers as the doubles they are of, `(add-ff :d1 :d0)` for
-`(vp-add-ff :f1 :f0)`: the width is in the op, and a register is one of 32
-to every tool after the assembler. Labels are symbols, `_0` and
+for `(vp-add-cr 1 :r0)`. Registers are as the source gave them, a single's
+`:fN` and a double's `:dN`, `(add-ff :f1 :f0)` and `(cvt-fd :f1 :d1)`: the
+width is in the op, and `trace -i` says if a register is not of its op. A
+single is the register of its double, `:f1` of `:d1`, and every tool that
+sees a register whole, a trash list, `trace`, the translators, takes it so;
+a copy of a single, `(vp-cpy-ff)`, is of the whole register, `(cpy-dd)`. Labels are symbols, `_0` and
 on, set by `(label)` and used before or after it. The header and the
 tail are in it too, as data: `byte`, `short`, `int`,
 `long`, `string` and `align`, so that a translator makes the
