@@ -57,24 +57,27 @@
 
 (defun p-ws ()
 	;past any white space, trashes :r0
-	(loop-while '(:r12 < :r13))
-		(vp-load-rcr-ub :r12 0 :r0)
-		(breakif `(:r0 > ,(ascii-code " ")))
-		(vp-add-cr 1 :r12)
-	(loop-end))
+	(vpif '(:r12 < :r13))
+		(loop-start)
+			(vp-load-rcr-ub :r12 0 :r0)
+			(breakif `(:r0 > ,(ascii-code " ")))
+			(vp-add-cr 1 :r12)
+		(loop-until '(:r12 >= :r13))
+	(endif))
 
 (defun p-digits ()
 	;a number of one or more digits to :r1, trashes :r0 :r2
 	(vp-xor-rr :r1 :r1)
 	(vp-cpy-rr :r12 :r2)
-	(loop-while '(:r12 < :r13))
+	(gotoif '(:r12 >= :r13) 'fail)
+	(loop-start)
 		(vp-load-rcr-ub :r12 0 :r0)
 		(vp-sub-cr (ascii-code "0") :r0)
 		(breakif '(:r0 < 0) '(:r0 > 9))
 		(vp-mul-cr 10 :r1)
 		(vp-add-rr :r0 :r1)
 		(vp-add-cr 1 :r12)
-	(loop-end)
+	(loop-until '(:r12 >= :r13))
 	(gotoif '(:r12 = :r2) 'fail))
 
 (defun p-label ()
@@ -100,13 +103,22 @@
 		(vp-cpy-cr 1 :r2)
 	(endif))
 
-(defun p-set (kind &optional a b)
-	;the operand's record
+(defun p-set (kind a &optional b)
+	;the operand's record, its value a register's by the CPU's map, else a,
+	;but a label's, which the passes work out, and its instruction marked
+	;as having one, trashes :r0 :r2 :r3
 	(vp-cpy-cr kind :r0)
-	(assign '(:r0) '((:r10 +tro_kind)))
-	(if a (assign `(,a) '((:r10 +tro_a))))
-	(unless b (vp-xor-rr :r0 :r0) (setq b :r0))
-	(assign `(,b) '((:r10 +tro_b))))
+	(unless b (vp-xor-rr :r3 :r3) (setq b :r3))
+	(cond
+		((eql kind +trk_reg)
+			(assign '((:r14 +trs_rmap)) '(:r2))
+			(vp-load-rrr-ub :r2 a :r2)
+			(save-fields :r10 '(+tro_kind +tro_a +tro_b +tro_v) `(:r0 ,a ,b :r2)))
+		((find kind (list +trk_label +trk_label_pc +trk_label_diff +trk_pc_label))
+			(save-fields :r10 '(+tro_kind +tro_a +tro_b) `(:r0 ,a ,b))
+			(vp-cpy-cr 1 :r0)
+			(assign '(:r0) '((:r11 +tri_lab))))
+		(:t (save-fields :r10 '(+tro_kind +tro_a +tro_b +tro_v) `(:r0 ,a ,b ,a)))))
 
 (defun p-op ()
 	;an op's name, to its number in :r1, trashes :r0 :r2-:r6 :r9
@@ -137,12 +149,12 @@
 			(vp-load-rcr-ui :r6 4 :r1)
 			(vp-add-rr :r5 :r1)
 			(vp-xor-rr :r0 :r0)
-			(loop-while '(:r0 < :r4))
+			(loop-start)
 				(vp-load-rrr-ub :r1 :r0 :r6)
 				(vp-load-rrr-ub :r2 :r0 :r9)
 				(breakif '(:r6 /= :r9))
 				(vp-add-cr 1 :r0)
-			(loop-end)
+			(loop-until '(:r0 = :r4))
 			(breakif '(:r0 = :r4) 'probe)
 		(endif)
 		(vp-add-cr 1 :r3)
@@ -305,9 +317,9 @@
 	(vp-add-rr :r1 :r13)
 
 	;at most an instruction in 10 bytes, (ret), and an operand in 2, and
-	;the most a prepass makes, 4 operands an instruction. None of it is made
-	;0 or looked at here, what is read of it is written, the record past the
-	;last is 0
+	;the most a prepass makes, 4 operands an instruction, and 3 past the last,
+	;as a routine is given the values of 4. None of it is made 0 or looked at
+	;here, what is read of it is written, the record past the last is 0
 	(vp-cpy-rr :r1 :r2)
 	(vp-cpy-cr 10 :r0)
 	(vp-div-rr-u :r0 :r2)
@@ -322,7 +334,7 @@
 	(assign '((:rsp 8) (:rsp 0)) '(:r2 :r3))
 	(vp-shl-cr 2 :r2)
 	(vp-add-rr :r2 :r3)
-	(vp-add-cr 1 :r3)
+	(vp-add-cr 4 :r3)
 	(vp-cpy-rr :r3 :r0)
 	(vp-mul-cr +tro_size :r0)
 	(call :sys_mem :alloc '(:r0) '(:r0 _))
@@ -360,7 +372,7 @@
 		(gotoif `(:r0 /= ,(ascii-code "(")) 'fail)
 		(p-op)
 		(vp-xor-rr :r9 :r9)
-		(save-fields :r11 '(+tri_op +tri_ops +tri_m) '(:r1 :r10 :r9))
+		(save-fields :r11 '(+tri_op +tri_ops +tri_m +tri_lab) '(:r1 :r10 :r9 :r9))
 		(loop-start)
 			(p-getc)
 			(breakif `(:r0 = ,(ascii-code ")")))
@@ -375,12 +387,12 @@
 
 	;how many, and the labels
 	(vp-xor-rr :r0 :r0)
-	(save-fields :r11 '(+tri_op +tri_cnt +tri_ops +tri_m) '(:r0 :r0 :r0 :r0))
+	(save-fields :r11 '(+tri_op +tri_cnt +tri_ops +tri_m +tri_lab) '(:r0 :r0 :r0 :r0 :r0))
 	(assign '((:r14 +trs_recs)) '(:r0))
 	(vp-sub-rr :r0 :r11)
 	(vp-cpy-cr +tri_size :r0)
 	(vp-div-rr-u :r0 :r11)
-	(save-fields :r14 '(+trs_ninsts +trs_free +trs_nlabels) '(:r11 :r10 :r8))
+	(save-fields :r14 '(+trs_ninsts +trs_free +trs_nlabels +trs_oend) '(:r11 :r10 :r8 :r10))
 	(vp-cpy-rr :r8 :r0)
 	(vp-shl-cr 3 :r0)
 	(vp-add-cr +long_size :r0)

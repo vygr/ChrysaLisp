@@ -30,13 +30,17 @@
 (ffi "sys/load/lisp_place" task-place)
 
 (defun fresh-translator (cpu abi)
-	;the translator as its file is now, placed in a function server of
-	;this worker named by its hash, so the bind of it is that and not one
-	;its node bound before, from a file a build has since made again. A
+	;the translator and the parser it calls as their files are now, placed
+	;in a function server of this worker named by their hash, so the bind
+	;of them is that and not what its node bound before, from files a build
+	;has since made again: the two are of one layout of records. A
 	;translator only in the boot image is bound as it is, it never changes
 	(when (defq native (load (cat (load-path) (trans-name cpu abi))))
-		(task-server (cat "trans_" (slice (hex-encode (sha256 native)) 0 16)))
-		(task-place (list native))))
+		;the parser first, so the translator's link to it is to this one
+		(defq natives (list native) parse (load (cat (load-path) "lib/trans/vp_parse")))
+		(if parse (setq natives (list parse native)))
+		(task-server (cat "trans_" (slice (hex-encode (sha256 (apply (const cat) natives))) 0 16)))
+		(task-place natives)))
 
 (defun main ()
 	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil *placed* :nil)

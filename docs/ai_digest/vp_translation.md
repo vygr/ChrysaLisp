@@ -153,7 +153,11 @@ anything stores or sends.
   label and `*pc*`, or a name, a keyword that is not a register, the class
   and method a `call-rc` names. Its record has its kind, `+trk`: `reg`,
   `num`, `label`, `label_pc`, `label_diff`, `string`, `name` or
-  `pc_label`.
+  `pc_label`, and its value, `v`: a register's in the CPU's own number, by
+  the translator's `reg_map`, a label's worked out by each pass, else its
+  number, string or name. An instruction with an operand of a label is
+  marked so as it is parsed, `+tri_lab`, and only those, and the operands a
+  prepass makes, are worked out again each pass.
 
 * A label is `_N`, `_0 _1 ...`, quoted where it is set,
   `(label '_0)`.
@@ -209,10 +213,12 @@ parse, the prepass, the passes and the output are all in VP.
   fusion prepass for CPUs with a link register, used by riscv64 and la64.
 
 A routine of an op is called with `:r0` to `:r3` its first operands' values,
-`:r4` all of them, `:r5` how many, `:r6` the operands as parsed and `:r7`
-its record. A register operand comes to it already in the CPU's own number,
-from the translator's `reg_map`, 16 bytes for `:r0` to `:rsp` then 16 for
-`:d0` to `:d15`. A routine may trash `:r0` to `:r13`, never `:r14`, the
+`:r4` the first's value with each next `+tro_size` on, in the operands
+themselves, `:r5` how many, `:r6` the operands as parsed and `:r7` its
+record. A routine that gives another values of its own lays them out the
+same, `(vals-table)` or a list on the stack. A register operand comes to it
+already in the CPU's own number, from the translator's `reg_map`, 16 bytes
+for `:r0` to `:rsp` then 16 for `:d0` to `:d15`. A routine may trash `:r0` to `:r13`, never `:r14`, the
 state, which has `+trs_pc` where the output is and `+trs_pass` the pass.
 It writes its bytes with `emit8`, `emit16`, `emit32` or `emit64`.
 
