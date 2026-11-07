@@ -52,9 +52,9 @@ one that is not is not defined, and `run_tui.sh -V`, the VP64 emulator in
 validation mode, says each place that is not, the function and where in it.
 The float registers hold IEEE doubles. In memory a float is a double, 8
 bytes, or with `-i` a single, 4 bytes, as a GPU has its floats:
-`vp-cpy-if-i` loads one and makes it a double, `vp-cpy-fi-i` stores the
+`vp-load-rcd-i` loads one and makes it a double, `vp-store-drc-i` stores the
 nearest single to a register, which is not changed. The `-i` is of the
-memory, as `vp-cpy-ir-i` is; the register is a double either way.
+memory, as `vp-load-rcr-i` is; the register is a double either way.
 
 A constant, and the offset of a load or a store, may be any 64 bit value: a
 translator makes one that does not fit an instruction of its CPU some other
@@ -158,34 +158,34 @@ registers may be used.
 #### Register to Memory
 
 ```vdu
-(vp-cpy-ri rs rb i)
-(vp-cpy-rd rs rb ri)
-(vp-cpy-ri-b rs rb i)
-(vp-cpy-rd-b rs rb ri)
-(vp-cpy-ri-s rs rb i)
-(vp-cpy-rd-s rs rb ri)
-(vp-cpy-ri-i rs rb i)
-(vp-cpy-rd-i rs rb ri)
+(vp-store-rrc rs rb i)
+(vp-store-rrr rs rb ri)
+(vp-store-rrc-b rs rb i)
+(vp-store-rrr-b rs rb ri)
+(vp-store-rrc-s rs rb i)
+(vp-store-rrr-s rs rb ri)
+(vp-store-rrc-i rs rb i)
+(vp-store-rrr-i rs rb ri)
 ```
 
 #### Memory to Register
 
 ```vdu
-(vp-cpy-pr label rd)
-(vp-cpy-ir rb i rd)
-(vp-cpy-dr rb ri rd)
-(vp-cpy-ir-b rb i rd)
-(vp-cpy-dr-b rb ri rd)
-(vp-cpy-ir-ub rb i rd)
-(vp-cpy-dr-ub rb ri rd)
-(vp-cpy-ir-s rb i rd)
-(vp-cpy-dr-s rb ri rd)
-(vp-cpy-ir-us rb i rd)
-(vp-cpy-dr-us rb ri rd)
-(vp-cpy-ir-i rb i rd)
-(vp-cpy-dr-i rb ri rd)
-(vp-cpy-ir-ui rb i rd)
-(vp-cpy-dr-ui rb ri rd)
+(vp-load-pr label rd)
+(vp-load-rcr rb i rd)
+(vp-load-rrr rb ri rd)
+(vp-load-rcr-b rb i rd)
+(vp-load-rrr-b rb ri rd)
+(vp-load-rcr-ub rb i rd)
+(vp-load-rrr-ub rb ri rd)
+(vp-load-rcr-s rb i rd)
+(vp-load-rrr-s rb ri rd)
+(vp-load-rcr-us rb i rd)
+(vp-load-rrr-us rb ri rd)
+(vp-load-rcr-i rb i rd)
+(vp-load-rrr-i rb ri rd)
+(vp-load-rcr-ui rb i rd)
+(vp-load-rrr-ui rb ri rd)
 ```
 
 #### Branch
@@ -228,9 +228,9 @@ tested.
 #### Effective address
 
 ```vdu
-(vp-lea-i rb i rd)
-(vp-lea-d rb ri rd)
-(vp-lea-p label rd)
+(vp-lea-rcr rb i rd)
+(vp-lea-rrr rb ri rd)
+(vp-lea-pr label rd)
 ```
 
 #### Call, Jump, Ret
@@ -238,13 +238,13 @@ tested.
 ```vdu
 (vp-call label)
 (vp-call-r rd)
-(vp-call-i rb i)
+(vp-call-rc rb i)
 (vp-call-p label)
 (vp-call-abi rt rb i arg_list)
 
 (vp-jmp label)
 (vp-jmp-r rd)
-(vp-jmp-i rb i)
+(vp-jmp-rc rb i)
 (vp-jmp-p label)
 
 (vp-ret)
@@ -307,15 +307,15 @@ more than was put there, and a function leaves the stack as it found it.
 (vp-max-ff fs fd)
 (vp-sqrt-ff fs fd)
 
-(vp-cpy-if rb i fd)
-(vp-cpy-fi fs rb i)
-(vp-cpy-df rb ri fd)
-(vp-cpy-fd fs rb ri)
+(vp-load-rcd rb i fd)
+(vp-store-drc fs rb i)
+(vp-load-rrd rb ri fd)
+(vp-store-drr fs rb ri)
 
-(vp-cpy-if-i rb i fd)
-(vp-cpy-fi-i fs rb i)
-(vp-cpy-df-i rb ri fd)
-(vp-cpy-fd-i fs rb ri)
+(vp-load-rcd-i rb i fd)
+(vp-store-drc-i fs rb i)
+(vp-load-rrd-i rb ri fd)
+(vp-store-drr-i fs rb ri)
 
 (vp-beq-ff fs fd label)
 (vp-bne-ff fs fd label)
@@ -342,25 +342,28 @@ more than was put there, and a function leaves the stack as it found it.
 (vp-simd op rsv rdv)
 ```
 
-Register op keys:
+Op keys. Each letter after an op's name is the type of one operand, in
+the order the operands are given, the source before the destination, so
+the op alone says what is done and with what:
 
-* c, constant
+* c, a constant
 
-* r, register
+* r, a register, `:r0` to `:r14`, `:rsp`
 
-* f, float register
+* d, a float register as a double, `:d0` to `:d15`, of a memory op
 
-* i, constant index
+* f, a float register, of the float ops
 
-* cr, constant to register
+* p, a label, of a place by the program counter
 
-* rr, register to register
+`vp-load-rcr` loads a register from a base register and a constant,
+`vp-load-rrr` from a base and an index register, `vp-store-rrc` stores a
+register to a base and a constant, `vp-store-rrr` to a base and an index,
+and `vp-lea-rcr`, `vp-lea-rrr` and `vp-lea-pr` give the address. A
+memory op of 8 bytes has nothing after its letters; a smaller one has its
+width after them.
 
-* rf, register to float register
-
-* fr, float register to register
-
-* rrr, register pair by register to register pair
+Operand names:
 
 * rd, destination register
 
@@ -370,33 +373,17 @@ Register op keys:
 
 * fs, float source register
 
-* rdh, destination register, high
-
-* rdl, destination register, low
-
 * rb, base register
 
 * ri, index register
+
+* i, constant offset
 
 * rt, temp register
 
 * rsv, source register vector
 
 * rdv, destination register vector
-
-Memory op suffix keys:
-
-* ri, register to base indexed, index is a constant byte offset, 8 byte data
-item if no qualifier
-
-* rd, register to base indexed, index is a register byte offset, 8 byte
-data item if no qualifier
-
-* ir, base indexed to register, index is a constant byte offset, 8 byte
-data item if no qualifier
-
-* dr, base indexed to register, index is a register byte offset, 8 byte
-data item if no qualifier
 
 Memory op data type qualifier keys:
 

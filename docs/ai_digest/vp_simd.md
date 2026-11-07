@@ -114,7 +114,7 @@ length of the vectors by relicating the last element as required.
 Would increment all registers.
 
 ```vdu
-(vp-simd vp-cpy-ir '(:r0 :r1 :r2) '(0) '(:r0 :r1 :r2))
+(vp-simd vp-load-rcr '(:r0 :r1 :r2) '(0) '(:r0 :r1 :r2))
 ```
 
 Would read from `(:rX 0)` for all indices.

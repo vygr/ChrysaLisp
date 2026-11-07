@@ -111,7 +111,7 @@
 		(call :sys_mem :realloc '(:r7 :r8 :r9) '(:r7 :r8))
 		(call :host_os :pii_dirlist '(:r6 :r7 :r8) '(:r0))
 		(breakif '(:r0 <= :r8))
-		(vp-lea-d :r8 :r8 :r9)
+		(vp-lea-rrr :r8 :r8 :r9)
 	(loop-end)
 	(call :str :create_from_buffer '(:r7 :r0) '(:r9))
 	(call :sys_mem :free '(:r7))

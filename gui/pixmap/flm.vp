@@ -68,7 +68,7 @@
 				(call :pixmap :to_premul `(,col) `(,col))
 				(assign (vpx len data data_end) `(,len ,data ,data_end))
 				(gotoif `(,data >= ,data_end) 'short)
-				(vp-cpy-ri-i col data 0)
+				(vp-store-rrc-i col data 0)
 				(vp-sub-cr 1 len)
 				(vp-add-cr +int_size data)
 				(assign `(,data) (vpx data))

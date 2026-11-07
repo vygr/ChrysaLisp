@@ -12,9 +12,9 @@
 	;init timer/task lists
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-xor-rr :r1 :r1)
-	(vp-cpy-ri :r1 :r0 statics_sys_task_then)
+	(vp-store-rrc :r1 :r0 statics_sys_task_then)
 	(vp-add-cr statics_sys_task_suspend_list :r0)
-	(vp-lea-i :r0 (* (+ tk_num_task_lists 2) +lh_list_size) :r1)
+	(vp-lea-rcr :r0 (* (+ tk_num_task_lists 2) +lh_list_size) :r1)
 	(loop-start)
 		(lh-init :r0 :r2)
 		(vp-add-cr +lh_list_size :r0)
@@ -160,7 +160,7 @@
 
 	;save stack pointer
 	(assign '((:r1 statics_sys_task_current_tcb)) '(:r2))
-	(vp-cpy-ri :rsp :r2 +tk_node_stack)
+	(vp-store-rrc :rsp :r2 +tk_node_stack)
 	(assign '(:r0 (:r0 +tk_node_stack)) '((:r1 statics_sys_task_current_tcb) :rsp))
 
 	;pop task state
@@ -182,7 +182,7 @@
 	;save stack pointer
 	(fn-bind 'sys/statics/statics :r3)
 	(assign '((:r3 statics_sys_task_current_tcb)) '(:r0))
-	(vp-cpy-ri :rsp :r0 +tk_node_stack)
+	(vp-store-rrc :rsp :r0 +tk_node_stack)
 
 	;move task to suspend list, and flag as suspended
 	(vp-cpy-cr -1 :r1)
@@ -280,7 +280,7 @@
 	;save stack pointer
 	(fn-bind 'sys/statics/statics :r4)
 	(assign '((:r4 statics_sys_task_current_tcb)) '(:r1))
-	(vp-cpy-ri :rsp :r1 +tk_node_stack)
+	(vp-store-rrc :rsp :r1 +tk_node_stack)
 
 	;remove task control block
 	(vp-cpy-rr :r1 :r2)
@@ -537,7 +537,7 @@
 			(assign `((,node +tk_node_stack)) `(,stack))
 		(assign `((& ,node +tk_node_size)) `(,stack))
 		(loop-start)
-			(vp-cpy-ir stack +ptr_size statics)
+			(vp-load-rcr stack +ptr_size statics)
 			(breakif `(,statics /= ,canary))
 			(vp-add-cr +ptr_size stack)
 		(loop-end)

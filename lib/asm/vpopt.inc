@@ -9,20 +9,20 @@
 	+opt_nop
 		''(emit-vp-nop)
 	+opt_call_ops
-		''(emit-call-p emit-call-i emit-call emit-call-r)
+		''(emit-call-p emit-call-rc emit-call emit-call-r)
 	+opt_jump_ops
-		''(emit-jmp-p emit-jmp-i emit-jmp emit-jmp-r)
+		''(emit-jmp-p emit-jmp-rc emit-jmp emit-jmp-r)
 	+opt_read_ops
-		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-b emit-cpy-ir-s)
+		''(emit-load-rcr emit-load-rcr-ui emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-b emit-load-rcr-s)
 	+opt_write_ops
-		''(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-i emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-s)
+		''(emit-store-rrc emit-store-rrc-i emit-store-rrc-i emit-store-rrc-b emit-store-rrc-s emit-store-rrc-b emit-store-rrc-s)
 	+opt_write_ops_signed
-		''(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b emit-cpy-ri-s)
+		''(emit-store-rrc emit-store-rrc-i emit-store-rrc-b emit-store-rrc-s)
 	;those of a float, with an offset where an int op has it
 	+opt_read_ops_float
-		''(emit-cpy-if emit-cpy-if-i)
+		''(emit-load-rcd emit-load-rcd-i)
 	+opt_write_ops_float
-		''(emit-cpy-fi emit-cpy-fi-i)
+		''(emit-store-drc emit-store-drc-i)
 	+opt_branch_ops
 		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr))
 
@@ -41,15 +41,15 @@
 	+opt_read_kill_ops
 		(reduce (# (pinsert %0 %1
 			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
-					emit-call-i emit-call-abi emit-call emit-call-r)) -1)))
+					emit-call-rc emit-call-abi emit-call emit-call-r)) -1)))
 			+vp_emit_ops (pmap))
 	+opt_write_kill_ops
 		(reduce (# (pinsert %0 %1
 			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
-					emit-call-i emit-call-abi emit-call emit-call-r
+					emit-call-rc emit-call-abi emit-call emit-call-r
 					emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
 					emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr
-					emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-i emit-beq-ff emit-bne-ff
+					emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-rc emit-beq-ff emit-bne-ff
 					emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)) -1)))
 			+vp_emit_ops (pmap))
 	+opt_out_idx_map
@@ -63,13 +63,13 @@
 						emit-seq-cr emit-sne-cr emit-slt-cr emit-sle-cr emit-sgt-cr emit-sge-cr
 						emit-seq-rr emit-sne-rr emit-slt-rr emit-sle-rr emit-sgt-rr emit-sge-rr
 						emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr
-						emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i
-						emit-cpy-dr emit-cpy-dr-b emit-cpy-dr-s emit-cpy-dr-i emit-cpy-dr-ub emit-cpy-dr-us emit-cpy-dr-ui emit-lea-d
-						emit-cpy-pr emit-lea-p
+						emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr
+						emit-load-rrr emit-load-rrr-b emit-load-rrr-s emit-load-rrr-i emit-load-rrr-ub emit-load-rrr-us emit-load-rrr-ui emit-lea-rrr
+						emit-load-pr emit-lea-pr
 						emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff
 						emit-sqrt-ff emit-abs-ff emit-neg-ff emit-cpy-ff
 						emit-cvt-rf emit-cvt-fr emit-cpy-rf emit-cpy-fr
-						emit-cpy-if emit-cpy-df emit-cpy-if-i emit-cpy-df-i emit-lnot-rr)) -2))))
+						emit-load-rcd emit-load-rrd emit-load-rcd-i emit-load-rrd-i emit-lnot-rr)) -2))))
 			+vp_emit_ops (pmap)))
 
 ;one lookup an instruction. For the sweep, the pass an op is for, and its
@@ -117,7 +117,7 @@
 	(find-past
 		((and (or (find (first inst) +opt_write_ops) (find (first inst) +opt_write_ops_float))
 				(eql b (third inst)) (= i (last inst)))
-			(if (and (eql wop (first inst)) (eql wop 'emit-cpy-ri)) (progn (setq c 1) (!)) -1))
+			(if (and (eql wop (first inst)) (eql wop 'emit-store-rrc)) (progn (setq c 1) (!)) -1))
 		((and (eql rop (first inst)) (eql b (second inst)) (nql b (last inst)) (= i (third inst)))
 			(setq c 3) (!))
 		((trashes? b inst (defq info (pfind +opt_info_map (first inst)))) -1)

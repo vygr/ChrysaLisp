@@ -66,11 +66,11 @@
 
 	(assign `((,dims +array_begin) (,indices +array_begin)) `(,dims_iter_begin ,indices_iter_begin))
 	(vp-shl-cr (log2 +ptr_size) indices_len)
-	(vp-lea-d dims_iter_begin indices_len dims_iter_end)
+	(vp-lea-rrr dims_iter_begin indices_len dims_iter_end)
 
 	(assign '(0 1) `(,index ,acc))
 	(loop-start)
-		(vp-simd vp-cpy-ir `(,dims_iter_begin ,indices_iter_begin) '(0) `(,d ,i))
+		(vp-simd vp-load-rcr `(,dims_iter_begin ,indices_iter_begin) '(0) `(,d ,i))
 		(vp-simd vp-add-cr `(,+ptr_size) `(,dims_iter_begin ,indices_iter_begin))
 		(vp-mul-rr acc i)
 		(vp-mul-rr d acc)
@@ -123,11 +123,11 @@
 
 	(assign `((,dims +array_begin) (,indices +array_begin)) `(,dims_iter_begin ,indices_iter_begin))
 	(vp-shl-cr (log2 +ptr_size) indices_len)
-	(vp-lea-d dims_iter_begin indices_len dims_iter_end)
+	(vp-lea-rrr dims_iter_begin indices_len dims_iter_end)
 
 	(assign '(0 1) `(,index ,acc))
 	(loop-start)
-		(vp-simd vp-cpy-ir `(,dims_iter_begin ,indices_iter_begin) '(0) `(,d ,i))
+		(vp-simd vp-load-rcr `(,dims_iter_begin ,indices_iter_begin) '(0) `(,d ,i))
 		(vp-simd vp-add-cr `(,+ptr_size) `(,dims_iter_begin ,indices_iter_begin))
 		(vp-mul-rr acc i)
 		(vp-mul-rr d acc)

@@ -371,12 +371,12 @@ token to a compile function:
   type entry.
 
 - `:symbol` calls `(compile-ref)`, looks the symbol up in the `(def-vars)`
-  scope or the global environment; emits `vp-lea-i` for stack variables, or
+  scope or the global environment; emits `vp-lea-rcr` for stack variables, or
   `vp-cpy-cr` for equates/constants; pushes the variable's type string.
 
 - `:path` calls `(compile-bind)`, emits `fn-bind`.
 
-- `:label` calls `(compile-label)`, emits `vp-lea-p`.
+- `:label` calls `(compile-label)`, emits `vp-lea-pr`.
 
 - `:string` calls `(compile-string)`, emits `fn-string`.
 
@@ -418,25 +418,25 @@ Key stack operations:
 Every stack entry carries a type string that encodes the chain of indirections
 still pending. The characters map to VP load instructions as follows:
 
-- `b` - signed byte, uses `vp-cpy-ir-b`
+- `b` - signed byte, uses `vp-load-rcr-b`
 
-- `B` - unsigned byte, uses `vp-cpy-ir-ub`
+- `B` - unsigned byte, uses `vp-load-rcr-ub`
 
-- `s` - signed short, uses `vp-cpy-ir-s`
+- `s` - signed short, uses `vp-load-rcr-s`
 
-- `S` - unsigned short, uses `vp-cpy-ir-us`
+- `S` - unsigned short, uses `vp-load-rcr-us`
 
-- `i` - signed int, uses `vp-cpy-ir-i`
+- `i` - signed int, uses `vp-load-rcr-i`
 
-- `I` - unsigned int, uses `vp-cpy-ir-ui`
+- `I` - unsigned int, uses `vp-load-rcr-ui`
 
-- `l` - long, uses `vp-cpy-ir`
+- `l` - long, uses `vp-load-rcr`
 
-- `p` - ptr, uses `vp-cpy-ir`
+- `p` - ptr, uses `vp-load-rcr`
 
-- `f` - real (IEEE double), uses `vp-cpy-if`
+- `f` - real (IEEE double), uses `vp-load-rcd`
 
-- `x` - fixed point (48.16), uses `vp-cpy-ir`
+- `x` - fixed point (48.16), uses `vp-load-rcr`
 
 `(compile-deref)` reads the first character of the type string, emits the
 corresponding load, and trims the first character off. When the type string
@@ -460,20 +460,20 @@ evaluator.
 
 #### 4a - Variable Load / Offset Folding
 
-For any memory read instruction (`+opt_read_ops`: `vp-cpy-ir`, `vp-cpy-ir-b`,
-`vp-cpy-ir-s`, `vp-cpy-ir-i`, etc.):
+For any memory read instruction (`+opt_read_ops`: `vp-load-rcr`, `vp-load-rcr-b`,
+`vp-load-rcr-s`, `vp-load-rcr-i`, etc.):
 
-- Scan backwards for a `(vp-lea-i :rsp _ Rn)` or `(vp-add-cr _ Rn)` that
+- Scan backwards for a `(vp-lea-rcr :rsp _ Rn)` or `(vp-add-cr _ Rn)` that
   defines the base register `Rn` without an intervening use.
 
-- If the `vp-lea-i` form is found, rewrite the read to address `:rsp` directly
-  with a composite offset `(+ lea_offset read_offset)` and NOP the `vp-lea-i`.
+- If the `vp-lea-rcr` form is found, rewrite the read to address `:rsp` directly
+  with a composite offset `(+ lea_offset read_offset)` and NOP the `vp-lea-rcr`.
 
 - If the `vp-add-cr` form is found, fold its constant into the read offset and
   NOP the add, then re-visit the current instruction.
 
 The same pattern is applied symmetrically for memory write instructions
-(`+opt_write_ops`: `vp-cpy-ri`, `vp-cpy-ri-b`, `vp-cpy-ri-s`, `vp-cpy-ri-i`),
+(`+opt_write_ops`: `vp-store-rrc`, `vp-store-rrc-b`, `vp-store-rrc-s`, `vp-store-rrc-i`),
 folding the base register computation into the write's base/offset fields.
 
 #### 4b - Strength Reduction
@@ -627,7 +627,7 @@ Precedence 12, left-associative:
 Precedence 13, left-associative:
 
 - `=>` calls `compile-arrow` - store operator: pops the destination address,
-  pops the source value, selects the correct `vp-cpy-ri-*` variant from the
+  pops the source value, selects the correct `vp-store-rrc-*` variant from the
   destination type string, and emits the store.
 
 Precedence 14 - grouping only, consumed entirely by the RPN stage:
@@ -667,7 +667,7 @@ vpx compilation takes place. The function:
 
 - Iterates each `(src, dst)` pair, classifying each via `(assign-src-type)`
   and `(assign-dst-type)` and emitting the exact single VP instruction required
-  (e.g. `vp-cpy-rr`, `vp-cpy-ir`, `vp-cpy-ri-b`, `vp-lea-i`, `fn-bind`,
+  (e.g. `vp-cpy-rr`, `vp-load-rcr`, `vp-store-rrc-b`, `vp-lea-rcr`, `fn-bind`,
   etc.).
 
 Source type codes returned by `(assign-src-type)`:

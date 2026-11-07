@@ -97,7 +97,7 @@
 	(vp-xor-rr :r4 :r4)
 	(vpif '(:r2 /= :r0))
 		(loop-start)
-			(vp-cpy-ir-ub :r2 0 :r3)
+			(vp-load-rcr-ub :r2 0 :r3)
 			(vp-add-cr 1 :r2)
 			(vpif `(:r3 = ,(ascii-code " ")))
 				;the next word, and the number is of that
@@ -565,7 +565,7 @@
 	(entry :hset :each_callback '(:r0 :r1 :r2))
 
 	(assign '((:r1 0)) '(:r3))
-	(vp-cpy-ir-ub :r3 +str_data :r3)
+	(vp-load-rcr-ub :r3 +str_data :r3)
 	(vpif '(:r3 = :r0))
 		(jump :list :erase '(:r2 :r1))
 	(endif)
@@ -580,7 +580,7 @@
 	(entry :hset :each_callback '(:r0 :r1 :r2))
 
 	(assign '((:r1 0) (:r0 0)) '(:r1 :r3))
-	(vp-cpy-ir-ub :r1 +str_data :r2)
+	(vp-load-rcr-ub :r1 +str_data :r2)
 	(vpif '(:r2 = :r3))
 		(vp-push :r0)
 		(call :str :hash '(:r1) '(_ :r1))

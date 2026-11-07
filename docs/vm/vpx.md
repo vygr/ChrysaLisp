@@ -274,7 +274,7 @@ The compilation of `{a}` will stack a type of "i" and output a VP instruction
 of:
 
 ```vdu
-(vp-lea-i :rsp 0 _v0)
+(vp-lea-rcr :rsp 0 _v0)
 ```
 
 Later on when we need to perform the "+" operator we see the dereference. The
@@ -290,20 +290,20 @@ full example showing the output.
 
 (vp-alloc 16)
 pre opt:
-	(vp-lea-i :rsp 0 _v0)
-	(vp-lea-i :rsp 4 _v1)
-	(vp-cpy-ir-i _v1 0 _v1)
-	(vp-cpy-ir-i _v0 0 _v0)
+	(vp-lea-rcr :rsp 0 _v0)
+	(vp-lea-rcr :rsp 4 _v1)
+	(vp-load-rcr-i _v1 0 _v1)
+	(vp-load-rcr-i _v0 0 _v0)
 	(vp-add-rr _v1 _v0)
 
-	(vp-lea-i :rsp 8 _v1)
-	(vp-cpy-ri-i _v0 _v1 0)
+	(vp-lea-rcr :rsp 8 _v1)
+	(vp-store-rrc-i _v0 _v1 0)
 post opt:
-	(vp-cpy-ir-i :rsp (+ 4 0) _v1)
-	(vp-cpy-ir-i :rsp (+ 0 0) _v0)
+	(vp-load-rcr-i :rsp (+ 4 0) _v1)
+	(vp-load-rcr-i :rsp (+ 0 0) _v0)
 	(vp-add-rr _v1 _v0)
 
-	(vp-cpy-ri-i _v0 :rsp (+ 8 0))
+	(vp-store-rrc-i _v0 :rsp (+ 8 0))
 (vp-free 16)
 (vp-ret)
 ```
@@ -329,33 +329,33 @@ Take another example:
 
 (vp-alloc 24)
 pre opt:
-	(vp-lea-i :rsp 0 _v0)
-	(vp-lea-i :rsp 4 _v1)
-	(vp-cpy-ir-i _v1 0 _v1)
-	(vp-cpy-ir-i _v0 0 _v0)
+	(vp-lea-rcr :rsp 0 _v0)
+	(vp-lea-rcr :rsp 4 _v1)
+	(vp-load-rcr-i _v1 0 _v1)
+	(vp-load-rcr-i _v0 0 _v0)
 	(vp-add-rr _v1 _v0)
 
-	(vp-lea-i :rsp 16 _v1)
-	(vp-lea-i :rsp 18 _v2)
-	(vp-cpy-ir-us _v2 0 _v2)
-	(vp-cpy-ir-us _v1 0 _v1)
+	(vp-lea-rcr :rsp 16 _v1)
+	(vp-lea-rcr :rsp 18 _v2)
+	(vp-load-rcr-us _v2 0 _v2)
+	(vp-load-rcr-us _v1 0 _v1)
 	(vp-sub-rr _v2 _v1)
 
-	(vp-lea-i :rsp 12 _v2)
-	(vp-cpy-ri-i _v1 _v2 0)
-	(vp-lea-i :rsp 8 _v1)
-	(vp-cpy-ri-i _v0 _v1 0)
+	(vp-lea-rcr :rsp 12 _v2)
+	(vp-store-rrc-i _v1 _v2 0)
+	(vp-lea-rcr :rsp 8 _v1)
+	(vp-store-rrc-i _v0 _v1 0)
 post opt:
-	(vp-cpy-ir-i :rsp (+ 4 0) _v1)
-	(vp-cpy-ir-i :rsp (+ 0 0) _v0)
+	(vp-load-rcr-i :rsp (+ 4 0) _v1)
+	(vp-load-rcr-i :rsp (+ 0 0) _v0)
 	(vp-add-rr _v1 _v0)
 
-	(vp-cpy-ir-us :rsp (+ 18 0) _v2)
-	(vp-cpy-ir-us :rsp (+ 16 0) _v1)
+	(vp-load-rcr-us :rsp (+ 18 0) _v2)
+	(vp-load-rcr-us :rsp (+ 16 0) _v1)
 	(vp-sub-rr _v2 _v1)
 
-	(vp-cpy-ri-i _v1 :rsp (+ 12 0))
-	(vp-cpy-ri-i _v0 :rsp (+ 8 0))
+	(vp-store-rrc-i _v1 :rsp (+ 12 0))
+	(vp-store-rrc-i _v0 :rsp (+ 8 0))
 (vp-free 24)
 (vp-ret)
 ```

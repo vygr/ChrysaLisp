@@ -28,7 +28,7 @@
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,bm ,at ,to ,n) '(:obj :num :num :num))
-	(vp-lea-i bm +str_data bm)
+	(vp-lea-rcr bm +str_data bm)
 	(vp-xor-rr run run)
 	(vpif `(,at < ,to))
 	(loop-start 'bits)
@@ -36,7 +36,7 @@
 		(vp-cpy-rr at x)
 		(vp-shr-cr 3 x)
 		(vp-add-rr bm x)
-		(vp-cpy-ir-ub x 0 v)
+		(vp-load-rcr-ub x 0 v)
 		(vp-cpy-rr at x)
 		(vp-and-cr 7 x)
 		(vp-cpy-rr at y)

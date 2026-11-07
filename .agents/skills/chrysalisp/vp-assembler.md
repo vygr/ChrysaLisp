@@ -219,7 +219,7 @@ pure VP assembler:
 	`(assign (vpx buf mask ptr_i) `(,r_buf ,r_mask ,r_i))`.
 
 3.	Hand-code the loop using `loop-start`, `loop-until`, `breakif`, and
-	raw instructions (`vp-cpy-dr-ub`, `vp-add-cr`, etc.).
+	raw instructions (`vp-load-rrr-ub`, `vp-add-cr`, etc.).
 
 4.	Restore results to vpx variables: `(assign `(,r_i) (vpx ptr_i))`.
 
@@ -236,7 +236,7 @@ pure VP assembler:
 
 *	**Three Symbol Contexts:**
 
-	*	*Raw Symbols* (`(vp-cpy-ir adr 80 cnt)`): Resolve directly to VP
+	*	*Raw Symbols* (`(vp-load-rcr adr 80 cnt)`): Resolve directly to VP
 		registers (`:r0` - `:r14`).
 
 	*	*vpx Forms* (`(vpx adr cnt)`): Resolve to stack frame offsets

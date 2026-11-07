@@ -26,7 +26,7 @@
 			(vp-shl-cr (log2 +ptr_size) vt2)
 			(assign `((& ,iter_begin ,vt2)) `(,iter_end))
 			(loop-start)
-				(vp-cpy-ir-s sig 0 vt2)
+				(vp-load-rcr-s sig 0 vt2)
 				(assign `((,iter_begin 0)) `(,vt1))
 				(vpif `(,vt2 >= 0))
 					;any subclass

@@ -98,7 +98,7 @@
 	;band, and what it is ordered by
 	(loop-while `(,aiter /= ,aend))
 		(pe-edge aiter e ebase)
-		(vp-simd vp-cpy-ir `(,e) `(,+pe_yt ,+pe_yb ,+pe_xt ,+pe_xb) `(,yt ,yb ,xt ,xb))
+		(vp-simd vp-load-rcr `(,e) `(,+pe_yt ,+pe_yb ,+pe_xt ,+pe_xb) `(,yt ,yb ,xt ,xb))
 		(vpif `(,yb > ,y0))
 			;with +pm_goes_on the band before this ended where this
 			;begins, and where an edge that was in it is here is known
@@ -139,7 +139,7 @@
 	(vp-rdef (kv xv ku ebase abegin aend i j v eu xu))
 	(assign '((:rsp local_active)) `(,abegin))
 	(assign `((,abegin +array_begin)) `(,abegin))
-	(vp-lea-i abegin +long_size i)
+	(vp-lea-rcr abegin +long_size i)
 	(loop-while `(,i < ,aend))
 		(assign `((,i 0)) `(,v))
 		(vp-cpy-rr v eu)
@@ -338,7 +338,7 @@
 	(loop-while `(,iiter /= ,aend))
 		(pe-edge iiter e ebase)
 		(assign `((,e +pe_x0) (,e +pe_x1)) `(,x0 ,x1))
-		(vp-lea-i iiter +long_size jiter)
+		(vp-lea-rcr iiter +long_size jiter)
 		(loop-while `(,jiter /= ,aend))
 			(pe-edge jiter e ebase)
 			(assign `((,e +pe_x1)) `(,x3))

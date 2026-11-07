@@ -41,11 +41,11 @@
 	(map (const fn-const) c))
 
 (defun fn-string (s r)
-	(vp-lea-p (string-sym (fn-add-string s)) r))
+	(vp-lea-pr (string-sym (fn-add-string s)) r))
 
 (defun fn-bind (p r)
 	(if (get p) (throw "can't bind to inline function !" p)
-		(vp-cpy-pr (link-sym (fn-find-link p)) r)))
+		(vp-load-pr (link-sym (fn-find-link p)) r)))
 
 (defun fn-call (p)
 	(if (get p) ((eval p))
@@ -119,7 +119,7 @@
 				;it's the wider trashes"
 				(defq m (elem-get *callees* link))
 				(list (second m) (first m))))
-		((emit-call-i emit-jmp-i)
+		((emit-call-rc emit-jmp-rc)
 			(and (> (length inst) 4) (defq class (elem-get inst 3)) (defq name (elem-get inst 4))
 				(nql class :nil) (nql name :nil)
 				(defq m (method-lookup class name))

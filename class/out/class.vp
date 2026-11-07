@@ -231,7 +231,7 @@
 	(d-call :out :flush  `(,this))
 	(call :sys_mail :alloc '(lk_data_size) `(,buffer ,bufp))
 	(vp-pop this)
-	(vp-lea-i bufp lk_data_size bufe)
+	(vp-lea-rcr bufp lk_data_size bufe)
 	(vp-add-cr +stream_msg_data bufp)
 	(save-fields this '(+stream_buffer +stream_bufp +stream_bufe) `(,buffer ,bufp ,bufe))
 

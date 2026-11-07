@@ -472,8 +472,8 @@
 			;do we have enough headroom, as only msg data can wrap ?
 			(vp-rdef (head tx status tx_end head_end))
 			(assign (vpx head tx) `(,head ,tx))
-			(vp-lea-i tx lk_chan_size tx_end)
-			(vp-lea-i head (+ lk_buf_size lk_frag_size) head_end)
+			(vp-lea-rcr tx lk_chan_size tx_end)
+			(vp-lea-rcr head (+ lk_buf_size lk_frag_size) head_end)
 			(vpif `(,head_end > ,tx_end))
 				;write buf skip, wrap head and trigger :in
 				(vp-sub-rr head tx_end)

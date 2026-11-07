@@ -36,8 +36,8 @@
 	(cond
 		; Floating point: Electric Cyan / Ice Blue
 		((or (ends-with "-ff" name) (ends-with "-rf" name) (ends-with "-fr" name)
-			 (ends-with "-if" name) (ends-with "-fi" name) (ends-with "-df" name)
-			 (ends-with "-fd" name) (starts-with "sqrt" name) (starts-with "cvt" name))
+			 (ends-with "-rcd" name) (ends-with "-drc" name) (ends-with "-rrd" name)
+			 (ends-with "-drr" name) (starts-with "sqrt" name) (starts-with "cvt" name))
 			(list 0xff00e5ff 0xffe0ffff 0x4000e5ff))
 
 		; Control Flow: Electric Violet / Magenta

@@ -142,14 +142,14 @@
 	(vp-mul-rr h w)
 	(assign `((,data +pixmap_data)) `(,data))
 	(vp-shl-cr (log2 +int_size) w)
-	(vp-lea-d data w data_end)
+	(vp-lea-rrr data w data_end)
 	(assign `(,data_end) (vpx data_end))
 
 	;loop for pixels
 	(loop-while `(,data /= ,data_end))
 		;read pixel
 		(vp-rdef (col type last_col last_conv) (method-input :pixmap :from_argb32))
-		(vp-cpy-ir-ui data 0 col)
+		(vp-load-rcr-ui data 0 col)
 		(vp-add-cr +int_size data)
 		(assign `(,data) (vpx data))
 
@@ -245,7 +245,7 @@
 	(vp-mul-rr h w)
 	(assign `((,data +pixmap_data)) `(,data))
 	(vp-shl-cr (log2 +int_size) w)
-	(vp-lea-d data w data_end)
+	(vp-lea-rrr data w data_end)
 	(assign `(,data_end) (vpx data_end))
 
 	;loop for pixels
@@ -277,7 +277,7 @@
 
 		;write pixel
 		(assign (vpx data data_end) `(,data ,data_end))
-		(vp-cpy-ri-i col data 0)
+		(vp-store-rrc-i col data 0)
 		(vp-add-cr +int_size data)
 	(loop-end)
 
@@ -388,7 +388,7 @@
 	(vpif `(,handle /= -1))
 		;mapped, it is the address, or it is 0 or -1
 		(call :host_os :pii_mmap `(,len ,handle +mmap_shared) `(,data))
-		(vp-lea-i data 1 :r1)
+		(vp-lea-rcr data 1 :r1)
 		(vpif '(:r1 > 1))
 			(call :sys_mem :alloc '(+pixmap_size) '(:r0 _))
 			(call :obj :init `(:r0 (@ ,(f-path :pixmap :vtable))) `(,pixmap _))

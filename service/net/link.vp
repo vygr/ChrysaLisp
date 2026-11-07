@@ -176,11 +176,11 @@
 	(vp-simd vp-cpy-cr '(3333 0) `(,parse_port ,parse_server))
 
 	;check first char
-	(vp-cpy-ir-ub params_data 0 parse_ch)
+	(vp-load-rcr-ub params_data 0 parse_ch)
 	(vpif `(,parse_ch = 58)) ; ':' -> listen mode
 		(vp-cpy-cr 1 parse_server) ; is_server = 1
 		(vp-add-cr 1 params_data) ; p++
-		(vp-cpy-ir-ub params_data 0 parse_ch)
+		(vp-load-rcr-ub params_data 0 parse_ch)
 		(vpif `(,parse_ch >= 48) `(,parse_ch <= 57))
 			(vp-cpy-cr 0 parse_port) ; port = 0
 		(vp-label 'parse_server_port)
@@ -188,7 +188,7 @@
 			(vp-mul-cr 10 parse_port)
 			(vp-add-rr parse_ch parse_port)
 			(vp-add-cr 1 params_data)
-			(vp-cpy-ir-ub params_data 0 parse_ch)
+			(vp-load-rcr-ub params_data 0 parse_ch)
 			(gotoif `(,parse_ch < 48) 'parse_done)
 			(gotoif `(,parse_ch <= 57) 'parse_server_port)
 		(endif)
@@ -198,13 +198,13 @@
 	;connect mode: scan for ':'
 	(vp-cpy-rr params_data parse_scan) ; scan pointer
 (vp-label 'scan_loop)
-	(vp-cpy-ir-ub parse_scan 0 parse_ch)
+	(vp-load-rcr-ub parse_scan 0 parse_ch)
 	(gotoif `(,parse_ch = 0) 'parse_done)
 	(vpif `(,parse_ch = 58)) ; ':'
 		(vp-cpy-cr 0 parse_ch)
-		(vp-cpy-ri-b parse_ch parse_scan 0) ; null-terminate host string at ':'
+		(vp-store-rrc-b parse_ch parse_scan 0) ; null-terminate host string at ':'
 		(vp-add-cr 1 parse_scan)
-		(vp-cpy-ir-ub parse_scan 0 parse_ch)
+		(vp-load-rcr-ub parse_scan 0 parse_ch)
 		(vpif `(,parse_ch >= 48) `(,parse_ch <= 57))
 			(vp-cpy-cr 0 parse_port) ; port = 0
 		(vp-label 'parse_client_port)
@@ -212,7 +212,7 @@
 			(vp-mul-cr 10 parse_port)
 			(vp-add-rr parse_ch parse_port)
 			(vp-add-cr 1 parse_scan)
-			(vp-cpy-ir-ub parse_scan 0 parse_ch)
+			(vp-load-rcr-ub parse_scan 0 parse_ch)
 			(gotoif `(,parse_ch < 48) 'parse_done)
 			(gotoif `(,parse_ch <= 57) 'parse_client_port)
 		(endif)
@@ -524,7 +524,7 @@
 		(vp-cpy-rr :r2 :r3)
 		(call :sys_crypto :aead_seal '(:r0 :r1 :r2 :r3 :r4))
 		(assign (vpx sbuf slen) '(:r0 :r1))
-		(vp-cpy-ri :r1 :r0 0)
+		(vp-store-rrc :r1 :r0 0)
 		(call :host_net :send_all (vpx conn_handle sbuf (+ slen +long_size +aead_tag_size) lk_node) `(,send_status))
 		(gotoif `(,send_status < 0) fail))
 

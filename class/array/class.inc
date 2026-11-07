@@ -99,7 +99,7 @@
 	(vp-xor-rr :r2 :r2)
 	(assign `(:r2 ,(>> (- +array_size +array_elems) (log2 +long_size))) '((:r0 +array_length) :r2))
 	(assign '(:r2) '((:r0 +array_capacity)))
-	(vp-lea-i :r0 +array_elems :r2)
+	(vp-lea-rcr :r0 +array_elems :r2)
 	(assign '(:r2) '((:r0 +array_begin)))
 	(s-call :array :init '(:r0 :r1) '(:r0 :r1)))
 
@@ -246,7 +246,7 @@
 		(throw "Invalid object, index, element or base !" (list o ei e b)))
 	(assign `((,o +array_begin)) `(,b))
 	(vp-shl-cr (log2 +long_size) ei)
-	(vp-cpy-dr b ei e))
+	(vp-load-rrr b ei e))
 
 (defun class/array/set_elem ()
 	;inputs
@@ -259,7 +259,7 @@
 	;:r2-:r3
 	(assign '((:r0 +array_begin)) '(:r3))
 	(vp-shl-cr (log2 +long_size) :r2)
-	(vp-cpy-rd :r1 :r3 :r2))
+	(vp-store-rrr :r1 :r3 :r2))
 
 (defun class/array/pop_back ()
 	;inputs
@@ -273,7 +273,7 @@
 	(vp-sub-cr 1 :r1)
 	(assign '(:r1) '((:r0 +array_length)))
 	(vp-shl-cr (log2 +long_size) :r1)
-	(vp-cpy-dr :r2 :r1 :r1))
+	(vp-load-rrr :r2 :r1 :r1))
 
 (defun class/array/pop_back2 ()
 	;inputs

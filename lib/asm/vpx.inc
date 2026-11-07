@@ -62,9 +62,9 @@
 		(throw "No type info !" x))
 	(set-type z)
 	(setq w (elem-get
-		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
-		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir
-		vp-cpy-if vp-cpy-ir)
+		'(vp-load-rcr-b vp-load-rcr-ub vp-load-rcr-s vp-load-rcr-us
+		vp-load-rcr-i vp-load-rcr-ui vp-load-rcr vp-load-rcr
+		vp-load-rcd vp-load-rcr)
 		(find w "bBsSiIlpfx")))
 	(add-inst (list w x 0 x)))
 
@@ -93,9 +93,9 @@
 	(bind '((y w) x) (list (pop-reg) (pop-value)))
 	(if %0 (push-reg :nil))
 	(setq w (elem-get
-		'(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
-		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri
-		vp-cpy-fi vp-cpy-ri)
+		'(vp-store-rrc-b vp-store-rrc-b vp-store-rrc-s vp-store-rrc-s
+		vp-store-rrc-i vp-store-rrc-i vp-store-rrc vp-store-rrc
+		vp-store-drc vp-store-rrc)
 		 ;the type's first char, of what is stored to
 		 (find (first w) "bBsSiIlpfx")))
 	(add-inst (list w x y 0)))
@@ -118,7 +118,7 @@
 				(:t (throw "Symbol not defined !" %0))))
 		((eql 'var (second s))
 			;variable
-			(add-inst (list 'vp-lea-i :rsp
+			(add-inst (list 'vp-lea-rcr :rsp
 				(+ (scope-offset (first s)) (third s))
 				(push-reg (elem-get s 3)))))
 		(:t (throw "Symbol not a variable !" %0))))
@@ -247,7 +247,7 @@
 	(add-inst (list 'fn-bind (list quote %0) (push-reg :nil))))
 
 (defun compile-label (%0)
-	(add-inst (list 'vp-lea-p (list quote %0) (push-reg :nil))))
+	(add-inst (list 'vp-lea-pr (list quote %0) (push-reg :nil))))
 
 (defun vpx-compile (rpn_output)
 	(each! (lambda (token type)

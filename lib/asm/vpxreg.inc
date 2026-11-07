@@ -37,12 +37,12 @@
 ;module
 (env-push)
 
-(defq +keep_loads ''(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i
-		emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-cpy-if emit-cpy-if-i)
-	+keep_stores ''(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi emit-cpy-fi-i)
+(defq +keep_loads ''(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i
+		emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-load-rcd emit-load-rcd-i)
+	+keep_stores ''(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-drc-i)
 	;what goes somewhere and does not come back here, and what calls
-	+keep_leaves ''(emit-ret emit-jmp-p emit-jmp-r emit-jmp-i)
-	+keep_calls ''(emit-call emit-call-p emit-call-r emit-call-i emit-call-abi)
+	+keep_leaves ''(emit-ret emit-jmp-p emit-jmp-r emit-jmp-rc)
+	+keep_calls ''(emit-call emit-call-p emit-call-r emit-call-rc emit-call-abi)
 	;what it does not follow
 	+keep_never ''(emit-call emit-call-r emit-jmp-r emit-stack-init)
 	+keep_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -213,7 +213,7 @@
 		insts)
 	;an address taken of a label of the function: where it goes is not seen
 	(each (lambda (inst)
-		(and (find (first inst) '(emit-lea-p emit-cpy-pr)) (. labels :find (second inst)) (setq never :t)))
+		(and (find (first inst) '(emit-lea-pr emit-load-pr)) (. labels :find (second inst)) (setq never :t)))
 		insts)
 	(when (and (not never) (> count 0) (nempty? frames) (defq next (keep-next insts labels)))
 		(defq prev (map (lambda (n) (list)) next))
@@ -231,17 +231,17 @@
 				(defq op (first inst) stack (ifn stack (list)) event :nil place :nil whole :t called :nil)
 				(cond
 					((and (find op +keep_loads) (eql (second inst) :rsp))
-						(if (setq place (keep-place stack sizes (third inst))) (setq event :load whole (eql op 'emit-cpy-ir))))
+						(if (setq place (keep-place stack sizes (third inst))) (setq event :load whole (eql op 'emit-load-rcr))))
 					((and (find op +keep_stores) (eql (third inst) :rsp))
-						(if (setq place (keep-place stack sizes (elem-get inst 3))) (setq event :store whole (eql op 'emit-cpy-ri))))
-					((and (eql op 'emit-lea-i) (eql (second inst) :rsp))
+						(if (setq place (keep-place stack sizes (elem-get inst 3))) (setq event :store whole (eql op 'emit-store-rrc))))
+					((and (eql op 'emit-lea-rcr) (eql (second inst) :rsp))
 						(if (setq place (keep-place stack sizes (third inst))) (setq event :addr whole :nil)))
 					((find op '(emit-alloc emit-free)))
 					;a push or a pop moves the stack pointer: with a frame
 					;there, what is at a place from it is not followed
 					((find op '(emit-push emit-pop)) (if (nempty? stack) (setq never :t)))
 					((find :rsp inst) (setq never :t))
-					((or (find op +keep_calls) (find op '(emit-jmp-p emit-jmp-i)))
+					((or (find op +keep_calls) (find op '(emit-jmp-p emit-jmp-rc)))
 						(cond
 							((eql op 'emit-call-abi) (setq called (list :nil (list))))
 							((setq called (callee inst)))
@@ -331,7 +331,7 @@
 									(elem-set reads bit (inc (elem-get reads bit)))
 									(push mine_edits (list at (list (list 'emit-cpy-rr home (last inst))))))
 								((/= 0 (logand mask (elem-get wanted at)))
-									(push mine_edits (list at (list (list 'emit-cpy-ir :rsp (third inst) home)
+									(push mine_edits (list at (list (list 'emit-load-rcr :rsp (third inst) home)
 										(list 'emit-cpy-rr home (last inst)))))))))
 						events)
 					(cond

@@ -137,7 +137,7 @@
 						(if (setq place (place-of stack sizes (third inst))) (setq event :load)))
 					((and (find op +store_ops) (eql (third inst) :rsp))
 						(if (setq place (place-of stack sizes (elem-get inst 3))) (setq event :store)))
-					((and (eql op 'emit-lea-i) (eql (second inst) :rsp))
+					((and (eql op 'emit-lea-rcr) (eql (second inst) :rsp))
 						(if (setq place (place-of stack sizes (third inst))) (setq event :addr)))
 					;the stack pointer used as a number: where the frame is
 					;is known to something this can not follow

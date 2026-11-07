@@ -62,7 +62,7 @@
 	(assign '(:r0) '((:r1 +lisp_nextsym)))
 	(assign '((:r5 statics_sys_load_reloc_buffer)) '(:r5))
 	(vp-cpy-cr (ascii-code "G") :r2)
-	(vp-cpy-ri-b :r2 :r5 0)
+	(vp-store-rrc-b :r2 :r5 0)
 	(call :sys_str :from_long '(:r0 (& :r5 1) 10) '(bufe))
 	(call :sym :intern_pstr `(:r5 ,bufe) '(:r1))
 	(vp-pop :r0)

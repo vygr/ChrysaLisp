@@ -356,7 +356,7 @@
 		(vp-simd vp-shl-cr `(,(log2 +int_size)) '(:r7 :r9))
 		(vp-add-rr :r8 :r3)
 		(loop-start)
-			(vp-cpy-rd-i :r1 :r3 :r7)
+			(vp-store-rrr-i :r1 :r3 :r7)
 			(vp-add-cr +int_size :r7)
 		(loop-until '(:r7 = :r9))
 
@@ -373,7 +373,7 @@
 		(vp-add-rr :r8 :r3)
 		(vp-simd vp-add-rr '(:r3) '(:r7 :r9))
 		(loop-start)
-			(vp-cpy-ir-ui :r7 0 :r2)
+			(vp-load-rcr-ui :r7 0 :r2)
 			(vp-cpy-rr :r2 :r3)
 
 			(vp-simd vp-and-rr '(:r4 :r5) '(:r2 :r3))
@@ -382,7 +382,7 @@
 			(vp-simd vp-and-rr '(:r4 :r5) '(:r2 :r3))
 			(vp-add-rr :r3 :r2) (vp-add-rr :r1 :r2)
 
-			(vp-cpy-ri-i :r2 :r7 0)
+			(vp-store-rrc-i :r2 :r7 0)
 			(vp-add-cr +int_size :r7)
 		(loop-until '(:r7 = :r9))
 	(endswitch)
@@ -442,7 +442,7 @@
 		(vp-mul-rr :r1 :r8)
 		(vp-shl-cr (log2 +int_size) :r7)
 		(vp-add-rr :r8 :r2)
-		(vp-cpy-dr-i :r2 :r7 :r1)
+		(vp-load-rrr-i :r2 :r7 :r1)
 		(jump :pixmap :to_argb '(:r1))
 	(endif)
 	(vp-xor-rr :r1 :r1)
@@ -467,7 +467,7 @@
 	(entry :canvas :plot `(,this ,x ,y))
 
 	;clip check
-	(vp-simd vp-cpy-ir-ui `(,this)
+	(vp-simd vp-load-rcr-ui `(,this)
 		`(,+canvas_cx ,+canvas_cy ,+canvas_cx1 ,+canvas_cy1)
 		`(,cx ,cy ,cx1 ,cy1))
 	(switch)
@@ -483,7 +483,7 @@
 		(vp-mul-rr dcol y)
 		(vp-shl-cr (log2 +int_size) x)
 		(vp-add-rr y cx)
-		(vp-cpy-rd-i col cx x)
+		(vp-store-rrr-i col cx x)
 
 		(exit :canvas :plot `(,this))
 		(vp-ret)
@@ -497,7 +497,7 @@
 		(vp-shl-cr (log2 +int_size) x)
 		(vp-simd vp-add-rr `(,y ,cx) `(,cx ,x))
 
-		(vp-cpy-ir-ui x 0 dcol)
+		(vp-load-rcr-ui x 0 dcol)
 		(vp-cpy-rr dcol cx)
 
 		(vp-simd vp-and-rr `(,cy ,cx1) `(,dcol ,cx))
@@ -506,7 +506,7 @@
 		(vp-simd vp-and-rr `(,cy ,cx1) `(,dcol ,cx))
 		(vp-add-rr cx dcol) (vp-add-rr col dcol)
 
-		(vp-cpy-ri-i dcol x 0)
+		(vp-store-rrc-i dcol x 0)
 	(endswitch)
 
 	(exit :canvas :plot `(,this))

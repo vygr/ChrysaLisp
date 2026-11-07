@@ -53,7 +53,7 @@
 
 (defun vec-map (sobs dobs elms sitrs ditrs eitr func &optional fpre fpost)
 	(assign `((,(first sobs) +array_length)) `(,eitr))
-	(vp-simd vp-cpy-ir (cat sobs dobs) (list +array_begin) (cat sitrs ditrs))
+	(vp-simd vp-load-rcr (cat sobs dobs) (list +array_begin) (cat sitrs ditrs))
 	(vp-shl-cr (log2 +ptr_size) eitr)
 	(vp-add-rr (first sitrs) eitr)
 	(if fpre (fpre))
@@ -62,7 +62,7 @@
 
 (defun vec-reduce (sobs elms sitrs eitr func &optional fpre fpost)
 	(assign `((,(first sobs) +array_length)) `(,eitr))
-	(vp-simd vp-cpy-ir sobs (list +array_begin) sitrs)
+	(vp-simd vp-load-rcr sobs (list +array_begin) sitrs)
 	(vp-shl-cr (log2 +ptr_size) eitr)
 	(vp-add-rr (first sitrs) eitr)
 	(if fpre (fpre))
@@ -79,7 +79,7 @@
 
 (defun vec-map-idx (sobs dobs elms sitrs ditrs idxs func &optional fpre fpost)
 	(assign `((,(first sobs) +array_length)) `(,(last idxs)))
-	(vp-simd vp-cpy-ir (cat sobs dobs) (list +array_begin) (cat sitrs ditrs))
+	(vp-simd vp-load-rcr (cat sobs dobs) (list +array_begin) (cat sitrs ditrs))
 	(vp-xor-rr (first idxs) (first idxs))
 	(vp-shl-cr (log2 +ptr_size) (last idxs))
 	(if fpre (fpre))
@@ -88,7 +88,7 @@
 
 (defun vec-reduce-idx (sobs elms sitrs idxs func &optional fpre fpost)
 	(assign `((,(first sobs) +array_length)) `(,(last idxs)))
-	(vp-simd vp-cpy-ir sobs (list +array_begin) sitrs)
+	(vp-simd vp-load-rcr sobs (list +array_begin) sitrs)
 	(vp-xor-rr (first idxs) (first idxs))
 	(vp-shl-cr (log2 +ptr_size) (last idxs))
 	(if fpre (fpre))

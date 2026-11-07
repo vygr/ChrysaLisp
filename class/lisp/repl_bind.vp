@@ -35,7 +35,7 @@
 			(assign '((:rsp local_this)) '(:r0))
 			(class/array/get_both :r1 :r1 :r2)
 			(assign '(:r1 :r2) '((:rsp local_iter_begin) (:rsp local_iter_end)))
-			(vp-cpy-ir :r1 0 :r1)
+			(vp-load-rcr :r1 0 :r1)
 
 			;first element checks
 			;is it quote or qquote function ?
@@ -136,7 +136,7 @@
 			(assign '((:rsp local_iter_end)) '(:r2))
 			(loop-while '(:r1 /= :r2))
 				(assign '(:r1) '((:rsp local_iter_begin)))
-				(vp-cpy-ir :r1 0 :r1)
+				(vp-load-rcr :r1 0 :r1)
 
 				(f-bind :sym :vtable :r2)
 				(assign '((:r1 +obj_vtable)) '(:r3))

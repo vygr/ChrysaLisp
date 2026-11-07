@@ -175,8 +175,8 @@
 (fm-check "a line is never broken just before a definition"
 	(fm-src "(when alpha-beta-gamma-delta-epsilon (defun foo ()" "\t\t(print 1)))")
 	(fm-src "(when alpha-beta-gamma-delta-epsilon (defun foo () (print 1)))") 40)
-(fm-check "a VP instruction gets half as much again" (fm-src "(vp-simd vp-cpy-ri-i `(,a ,b) `(,c) `(,d ,e) `(,f))")
-	(fm-src "(vp-simd vp-cpy-ri-i `(,a ,b) `(,c) `(,d ,e) `(,f))") 40)
+(fm-check "a VP instruction gets half as much again" (fm-src "(vp-simd vp-store-rrc-i `(,a ,b) `(,c) `(,d ,e) `(,f))")
+	(fm-src "(vp-simd vp-store-rrc-i `(,a ,b) `(,c) `(,d ,e) `(,f))") 40)
 (fm-check "properties break before a name"
 	(fm-src "(ui-label x (:text \q0\q" "\t\t:paper +argb_white" "\t\t:font a_font_name))")
 	(fm-src "(ui-label x (:text \q0\q :paper +argb_white :font a_font_name))") 40)

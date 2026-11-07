@@ -17,12 +17,12 @@
 	+regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	;what reads a place of the frame, what writes one, and what takes
 	;the address of one: each has the stack pointer as its base
-	+load_ops ''(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i
-		emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-cpy-if emit-cpy-if-i)
-	+store_ops ''(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi emit-cpy-fi-i)
+	+load_ops ''(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i
+		emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-load-rcd emit-load-rcd-i)
+	+store_ops ''(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-drc-i)
 	;what goes somewhere and does not come back here, and what calls
-	+leave_ops ''(emit-ret emit-jmp-p emit-jmp-r emit-jmp-i)
-	+call_ops ''(emit-call emit-call-p emit-call-r emit-call-i emit-call-abi)
+	+leave_ops ''(emit-ret emit-jmp-p emit-jmp-r emit-jmp-rc)
+	+call_ops ''(emit-call emit-call-p emit-call-r emit-call-rc emit-call-abi)
 	;what is not an instruction of the function at all
 	+data_ops ''(emit-label emit-tlabel emit-align emit-string emit-byte emit-short emit-int emit-long))
 
@@ -189,7 +189,7 @@
 				(str? (defq path (second (elem-get all (inc at)))))
 				(defq m (. by_function :find path)) (first m)
 				(cat (list path) m)))
-		((emit-call-i emit-jmp-i)
+		((emit-call-rc emit-jmp-rc)
 			(when (> (length inst) 4)
 				(defq class (elem-get inst 3) method (elem-get inst 4) found :nil of class
 					name (cat (str class) " " (str method) ", by its vtable"))

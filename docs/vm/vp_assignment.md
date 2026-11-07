@@ -83,9 +83,9 @@ You can use all of the VP addressing modes as well as registers.
 This will emit:
 
 ```vdu
-	(vp-cpy-dr-us :r3 :r2 :r5)
-	(vp-cpy-ri :r0 :r2 8)
-	(vp-cpy-ir-i :r1 64 :r1)
+	(vp-load-rrr-us :r3 :r2 :r5)
+	(vp-store-rrc :r0 :r2 8)
+	(vp-load-rcr-i :r1 64 :r1)
 ```
 
 Often you will be using the `(vp-rdef)` macro to use register equated names, or
@@ -119,9 +119,9 @@ address or resource binding instructions for.
 Will emit:
 
 ```vdu
-	(vp-lea-i :r0 6 :r1)
-	(vp-lea-d :r0 :r1 :r2)
-	(vp-lea-p label :r0)
+	(vp-lea-rcr :r0 6 :r1)
+	(vp-lea-rrr :r0 :r1 :r2)
+	(vp-lea-pr label :r0)
 	(fn-string "Hello world" :r0)
 	(fn-bind "sys/mem/alloc" :r0)
 	(fn-bind "class/num/vtable" :r0)
@@ -274,20 +274,20 @@ This is the output from wrapping the `:hmap :pinsert` line in the example above:
 ```vdu
 -> obj/Darwin/x86_64/sys/mail/declare
 pre opt:
-	(vp-lea-i :rsp 0 _v0)
+	(vp-lea-rcr :rsp 0 _v0)
 	(vp-cpy-cr statics_sys_mail_service_map _v1)
-	(vp-cpy-ir _v0 0 _v0)
+	(vp-load-rcr _v0 0 _v0)
 	(vp-add-rr _v1 _v0)
-	(vp-cpy-ir _v0 0 _v0)
-	(vp-lea-i :rsp 8 _v1)
-	(vp-cpy-ir _v1 0 _v1)
-	(vp-lea-i :rsp 16 _v2)
-	(vp-cpy-ir _v2 0 _v2)
+	(vp-load-rcr _v0 0 _v0)
+	(vp-lea-rcr :rsp 8 _v1)
+	(vp-load-rcr _v1 0 _v1)
+	(vp-lea-rcr :rsp 16 _v2)
+	(vp-load-rcr _v2 0 _v2)
 post opt:
-	(vp-cpy-ir :rsp (+ 0 0) _v0)
-	(vp-cpy-ir _v0 (+ statics_sys_mail_service_map 0) _v0)
-	(vp-cpy-ir :rsp (+ 8 0) _v1)
-	(vp-cpy-ir :rsp (+ 16 0) _v2)
+	(vp-load-rcr :rsp (+ 0 0) _v0)
+	(vp-load-rcr _v0 (+ statics_sys_mail_service_map 0) _v0)
+	(vp-load-rcr :rsp (+ 8 0) _v1)
+	(vp-load-rcr :rsp (+ 16 0) _v2)
 ```
 
 You can wrap the `(def-func-end)` of a VP function or method with the following
@@ -315,24 +315,24 @@ For example the `:array :append` method.
 (emit-cpy-rr :r1 :r6)
 (emit-cpy-rr :r2 :r7)
 (emit-cpy-rr :r3 :r8)
-(emit-cpy-ir-ui :r0 24 :r9)
+(emit-load-rcr-ui :r0 24 :r9)
 (emit-sub-rr :r2 :r3)
-(emit-lea-d :r3 :r9 :r1)
-(emit-cpy-ri-i :r1 :r0 24)
+(emit-lea-rrr :r3 :r9 :r1)
+(emit-store-rrc-i :r1 :r0 24)
 (emit-call-p _5)
-(emit-cpy-ir :r6 16 :r1)
+(emit-load-rcr :r6 16 :r1)
 (emit-shl-cr 3 :r7)
 (emit-shl-cr 3 :r8)
 (emit-add-rr :r1 :r7)
 (emit-add-rr :r1 :r8)
-(emit-cpy-ir :r0 16 :r1)
+(emit-load-rcr :r0 16 :r1)
 (emit-shl-cr 3 :r9)
 (emit-add-rr :r1 :r9)
 (emit-label '_3)
-(emit-cpy-ir :r7 0 :r1)
+(emit-load-rcr :r7 0 :r1)
 (emit-add-cr 8 :r9)
 (emit-add-cr 8 :r7)
-(emit-cpy-ri :r1 :r9 -8)
+(emit-store-rrc :r1 :r9 -8)
 (emit-bne-rr :r8 :r7 _3)
 (emit-label '_4)
 (emit-ret)
@@ -409,7 +409,7 @@ This will know from the type of 'str_length', a uint, that it should output the
 following.
 
 ```vdu
-	(vp-cpy-ir-ui :r0 str_length :r0)
+	(vp-load-rcr-ui :r0 str_length :r0)
 ```
 
 ## Output register assignment

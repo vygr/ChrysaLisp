@@ -15,7 +15,7 @@
 	(vp-add-cr statics_sys_mem_heaps :r0)
 	(vp-cpy-cr +mem_cell_min_size :r4)	  ;start object size
 	(vp-cpy-cr +max_cell_count :r3)		  ;start cell count
-	(vp-lea-i :r0 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r5)
+	(vp-lea-rcr :r0 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r5)
 	(loop-start)
 		(vp-add-cr +sys_mem_header_size :r4)
 		(call :sys_heap :init '(:r0 :r4 :r3) '(:r0))
@@ -37,7 +37,7 @@
 	;free memory heaps
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-add-cr statics_sys_mem_heaps :r0)
-	(vp-lea-i :r0 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r7)
+	(vp-lea-rcr :r0 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r7)
 	(loop-start)
 		(call :sys_heap :deinit '(:r0) '(:r0))
 		(vp-add-cr +hp_heap_size :r0)
@@ -55,7 +55,7 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-cpy-cr +mem_cell_min_size :r9)
 	(vp-add-cr statics_sys_mem_heaps :r0)
-	(vp-lea-i :r0 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r9)
+	(vp-lea-rcr :r0 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r9)
 	(loop-start)
 		(call :sys_heap :collect '(:r0) '(:r0))
 		(vp-add-cr +hp_heap_size :r0)
@@ -74,7 +74,7 @@
 	(vp-xor-rr :r0 :r0)
 	(vp-cpy-cr +mem_cell_min_size :r1)
 	(vp-add-cr statics_sys_mem_heaps :r2)
-	(vp-lea-i :r2 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r4)
+	(vp-lea-rcr :r2 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r4)
 	(loop-start)
 		(loop-flist :r2 +hp_heap_free_flist :r3 :r3)
 			(vp-add-rr :r1 :r0)
@@ -101,7 +101,7 @@
 	(vp-xor-rr :r0 :r0)
 	(vp-cpy-cr +mem_cell_min_size :r1)
 	(vp-add-cr statics_sys_mem_heaps :r2)
-	(vp-lea-i :r2 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r4)
+	(vp-lea-rcr :r2 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r4)
 	(loop-start)
 		;the cells of its blocks
 		(vp-xor-rr :r5 :r5)
@@ -135,7 +135,7 @@
 	(gotoif `(:r0 > ,(- (last (last +mem_heap_cell_sizes)) +sys_mem_header_size)) 'error)
 
 	;extra bytes for allocation header
-	(vp-lea-i :r0 +sys_mem_header_size :r1)
+	(vp-lea-rcr :r0 +sys_mem_header_size :r1)
 
 	;find object heap
 	(fn-bind 'sys/statics/statics :r0)
@@ -148,7 +148,7 @@
 
 	;allocate object from this heap
 	(call :sys_heap :alloc '(:r0) '(:r0 :r1))
-	(vp-cpy-ri :r0 :r1 +sys_mem_header_heap)
+	(vp-store-rrc :r0 :r1 +sys_mem_header_heap)
 	(vp-swp-rr :r0 :r1)
 	(assign '((:r1 +hp_heap_cellsize)) '(:r1))
 	(vp-add-cr +sys_mem_header_size :r0)
@@ -197,7 +197,7 @@
 	(entry :sys_mem :free '(:r0))
 
 	(vpif '(:r0 /= 0))
-		(vp-cpy-ir :r0 (- +sys_mem_header_heap +sys_mem_header_size) :r1)
+		(vp-load-rcr :r0 (- +sys_mem_header_heap +sys_mem_header_size) :r1)
 	(validatecase
 		;the heap in the header must be one of ours, else this is not
 		;the address of a block we gave out
@@ -347,9 +347,9 @@
 						;all aligned on 8 byte boundary
 						(vp-add-rr :r0 :r2)
 						(loop-start)
-							(vp-cpy-ir :r0 0 :r3)
+							(vp-load-rcr :r0 0 :r3)
 							(vp-simd vp-add-cr `(,+ptr_size) '(:r1 :r0))
-							(vp-cpy-ri :r3 :r1 (neg +ptr_size))
+							(vp-store-rrc :r3 :r1 (neg +ptr_size))
 						(loop-until '(:r0 = :r2))
 
 						(exit :sys_mem :copy '(:r0 :r1))
@@ -361,9 +361,9 @@
 		(endif)
 		(vp-add-rr :r0 :r2)
 		(loop-start)
-			(vp-cpy-ir-ub :r0 0 :r3)
+			(vp-load-rcr-ub :r0 0 :r3)
 			(vp-simd vp-add-cr `(,+byte_size) '(:r1 :r0))
-			(vp-cpy-ri-b :r3 :r1 (neg +byte_size))
+			(vp-store-rrc-b :r3 :r1 (neg +byte_size))
 		(loop-until '(:r0 = :r2))
 	(endif)
 
@@ -395,7 +395,7 @@
 				;all aligned on 8 byte boundary
 				(vp-add-rr :r0 :r1)
 				(loop-start)
-					(vp-cpy-ri :r2 :r0 0)
+					(vp-store-rrc :r2 :r0 0)
 					(vp-add-cr +ptr_size :r0)
 				(loop-until '(:r0 = :r1))
 
@@ -406,7 +406,7 @@
 		;something not aligned
 		(vp-add-rr :r0 :r1)
 		(loop-start)
-			(vp-cpy-ri-b :r2 :r0 0)
+			(vp-store-rrc-b :r2 :r0 0)
 			(vp-add-cr +byte_size :r0)
 		(loop-until '(:r0 = :r1))
 	(endif)
@@ -434,7 +434,7 @@
 	(entry :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4))
 
 	(vp-add-rr :r4 :r3)
-	(vp-lea-d :r1 :r2 :r5)
+	(vp-lea-rrr :r1 :r2 :r5)
 	(vpif '(:r5 > :r3))
 		(vp-sub-rr :r3 :r5)
 		(vp-sub-rr :r5 :r2)
@@ -463,7 +463,7 @@
 	(entry :sys_mem :copy_from_ring '(:r0 :r1 :r2 :r3 :r4))
 
 	(vp-add-rr :r4 :r3)
-	(vp-lea-d :r0 :r2 :r5)
+	(vp-lea-rrr :r0 :r2 :r5)
 	(vpif '(:r5 > :r3))
 		(vp-sub-rr :r3 :r5)
 		(vp-sub-rr :r5 :r2)
@@ -492,8 +492,8 @@
 
 	(entry :sys_mem :copy_in_ring '(:r0 :r1 :r2 :r3 :r4))
 
-	(vp-lea-d :r4 :r3 :r6)
-	(vp-lea-d :r0 :r2 :r5)
+	(vp-lea-rrr :r4 :r3 :r6)
+	(vp-lea-rrr :r0 :r2 :r5)
 	(vpif '(:r5 > :r6))
 		;source wraps
 		(vp-sub-rr :r6 :r5)

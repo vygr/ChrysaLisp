@@ -12,18 +12,18 @@
 	emit-bgt-cr emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr
 	emit-bgt-rr emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff
 	emit-bgt-ff emit-call emit-jmp emit-call-p emit-jmp-p emit-call-r emit-jmp-r
-	emit-call-i emit-jmp-i emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i
-	emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i emit-cpy-ri
-	emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-dr emit-cpy-dr-b
-	emit-cpy-dr-s emit-cpy-dr-i emit-cpy-dr-ub emit-cpy-dr-us emit-cpy-dr-ui
-	emit-lea-d emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i emit-cpy-pr
-	emit-lea-p emit-call-abi emit-ret emit-sync emit-alloc emit-free
+	emit-call-rc emit-jmp-rc emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i
+	emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr emit-store-rrc
+	emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-load-rrr emit-load-rrr-b
+	emit-load-rrr-s emit-load-rrr-i emit-load-rrr-ub emit-load-rrr-us emit-load-rrr-ui
+	emit-lea-rrr emit-store-rrr emit-store-rrr-b emit-store-rrr-s emit-store-rrr-i emit-load-pr
+	emit-lea-pr emit-call-abi emit-ret emit-sync emit-alloc emit-free
 	emit-push emit-pop emit-stack-init emit-save-state emit-load-state emit-entry-abi emit-align emit-nop emit-trash emit-label
 	emit-string emit-byte emit-short emit-int emit-long emit-add-ff
 	emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
 	emit-abs-ff emit-neg-ff emit-cpy-ff emit-cvt-rf emit-cvt-fr emit-cpy-rf
-	emit-cpy-fr emit-cpy-if emit-cpy-fi emit-cpy-df emit-cpy-fd
-	emit-cpy-if-i emit-cpy-fi-i emit-cpy-df-i emit-cpy-fd-i emit-rem-rr emit-rem-rr-u
+	emit-cpy-fr emit-load-rcd emit-store-drc emit-load-rrd emit-store-drr
+	emit-load-rcd-i emit-store-drc-i emit-load-rrd-i emit-store-drr-i emit-rem-rr emit-rem-rr-u
 	;the nop the VP optimiser puts in place of an instruction it removes. It
 	;is never emitted, but it is looked up, so it has its slot in every map
 	;of the ops, or each lookup of it would search the whole map, and miss.

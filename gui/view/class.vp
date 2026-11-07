@@ -156,7 +156,7 @@
 
 	;add to parent
 	(assign '(:r3) '((:r0 +hmap_parent)))
-	(vp-lea-i :r0 +view_node :r2)
+	(vp-lea-rcr :r0 +view_node :r2)
 	(vp-cpy-rr :r3 :r0)
 	(vp-add-cr +view_list :r3)
 	(lh-add-at-head :r3 :r2 :r1)
@@ -179,7 +179,7 @@
 
 	;add to parent
 	(assign '(:r3) '((:r0 +hmap_parent)))
-	(vp-lea-i :r0 +view_node :r2)
+	(vp-lea-rcr :r0 +view_node :r2)
 	(vp-cpy-rr :r3 :r0)
 	(vp-add-cr +view_list :r3)
 	(lh-add-at-tail :r3 :r2 :r1)
@@ -205,8 +205,8 @@
 	(vpif '(:r2 /= 0))
 		;set child's parent to target's parent
 		(assign '(:r2) '((:r0 +hmap_parent)))
-		(vp-lea-i :r0 +view_node :r1)
-		(vp-lea-i :r3 +view_node :r0)
+		(vp-lea-rcr :r0 +view_node :r1)
+		(vp-lea-rcr :r3 +view_node :r0)
 		(ln-add-node-before :r0 :r1 :r2)
 	(endif)
 	(vp-cpy-rr :r3 :r0)
@@ -232,8 +232,8 @@
 	(vpif '(:r2 /= 0))
 		;set child's parent to target's parent
 		(assign '(:r2) '((:r0 +hmap_parent)))
-		(vp-lea-i :r0 +view_node :r1)
-		(vp-lea-i :r3 +view_node :r0)
+		(vp-lea-rcr :r0 +view_node :r1)
+		(vp-lea-rcr :r3 +view_node :r0)
 		(ln-add-node-after :r0 :r1 :r2)
 	(endif)
 	(vp-cpy-rr :r3 :r0)
@@ -257,7 +257,7 @@
 		(assign '(:r2) '((:r0 +hmap_parent)))
 
 		;remove from parent list
-		(vp-lea-i :r0 +view_node :r2)
+		(vp-lea-rcr :r0 +view_node :r2)
 		(ln-remove-node :r2 :r1)
 	(endif)
 	(vp-ret)
@@ -318,8 +318,8 @@
 
 		;remove from parent list and splice in temp
 		(vp-pop :r0)
-		(vp-lea-i :r0 +view_node :r2)
-		(vp-lea-i :r1 +view_node :r3)
+		(vp-lea-rcr :r0 +view_node :r2)
+		(vp-lea-rcr :r1 +view_node :r3)
 		(ln-replace-node :r2 :r3 :r4)
 
 		;splice over dirty region etc
@@ -353,18 +353,18 @@
 			(vp-cpy-rr :r3 :r1)
 			(ln-get-pred :r3 0 :r3)
 			(breakif '(:r3 = 0))
-			(vp-lea-i :r1 (neg +view_node) :r4)
+			(vp-lea-rcr :r1 (neg +view_node) :r4)
 			(assign '((:r4 +view_flags)) '(:r4))
 			(vp-and-cr +view_flag_at_front :r4)
 		(loop-until '(:r4 /= 0))
 		(vpif '(:r1 /= :r2))
 			;no, so move to back of front item
 			(vp-push :r1 :r5)
-			(vp-lea-i :r0 +view_node :r1)
+			(vp-lea-rcr :r0 +view_node :r1)
 			(ln-remove-node :r1 :r2)
 			(call :view :set_flags '(:r0 +view_flag_dirty_all +view_flag_dirty_all) '(:r0 _))
 			(vp-pop :r1 :r5)
-			(vp-lea-i :r0 +view_node :r2)
+			(vp-lea-rcr :r0 +view_node :r2)
 			(ln-add-node-after :r1 :r2 :r3)
 			(assign '(:r5) '((:r0 +hmap_parent)))
 		(endif)
@@ -390,7 +390,7 @@
 			(vp-cpy-rr :r3 :r1)
 			(ln-get-succ :r3 0 :r3)
 			(breakif '(:r3 = 0))
-			(vp-lea-i :r1 (neg +view_node) :r4)
+			(vp-lea-rcr :r1 (neg +view_node) :r4)
 			(assign '((:r4 +view_flags)) '(:r4))
 			(vp-and-cr +view_flag_at_back :r4)
 		(loop-until '(:r4 /= 0))
@@ -399,7 +399,7 @@
 			(vp-push :r1 :r5)
 			(call :view :hide '(:r0) '(:r0))
 			(vp-pop :r1 :r5)
-			(vp-lea-i :r0 +view_node :r2)
+			(vp-lea-rcr :r0 +view_node :r2)
 			(ln-add-node-before :r1 :r2 :r3)
 			(assign '(:r5) '((:r0 +hmap_parent)))
 		(endif)
@@ -439,7 +439,7 @@
 
 		;down callback
 		(assign '((:rsp local_data)) '(:r1))
-		(vp-call-i :rsp local_down)
+		(vp-call-rc :rsp local_down)
 		(breakif '(:r1 = 0))
 
 		;down to child
@@ -451,7 +451,7 @@
 	(loop-start)
 		;up callback
 		(assign '((:rsp local_data)) '(:r1))
-		(vp-call-i :rsp local_up)
+		(vp-call-rc :rsp local_up)
 
 		;back at root ?
 		(assign '((:rsp local_this)) '(:r2))
@@ -505,7 +505,7 @@
 
 		;down callback
 		(assign '((:rsp local_data)) '(:r1))
-		(vp-call-i :rsp local_down)
+		(vp-call-rc :rsp local_down)
 		(breakif '(:r1 = 0))
 
 		;down to child
@@ -517,7 +517,7 @@
 	(loop-start)
 		;up callback
 		(assign '((:rsp local_data)) '(:r1))
-		(vp-call-i :rsp local_up)
+		(vp-call-rc :rsp local_up)
 
 		;back at root ?
 		(assign '((:rsp local_this)) '(:r2))
@@ -569,7 +569,7 @@
 			(vpif '(:r0 = :r2))
 				;VP :draw method
 				(assign '((:rsp local_this)) '(:r0))
-				(vp-call-i :r1 +num_value)
+				(vp-call-rc :r1 +num_value)
 			(else)
 				;Lisp :draw method
 				(assign '(:r1) '(:r13))

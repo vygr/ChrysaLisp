@@ -144,7 +144,7 @@ order:
 (defq emit_list (merge (filter (# (starts-with "emit-" %0)) ...) '(emit-arm64-ldp ...))
 	+arm64_fuse_map
 		(reduce (#
-			(def %0 %1 (when (defq i (find %1 '(emit-cpy-ir ...)))
+			(def %0 %1 (when (defq i (find %1 '(emit-load-rcr ...)))
 				... fusion data ...)) %0)
 			emit_list (env 1)))
 ```

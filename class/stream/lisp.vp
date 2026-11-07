@@ -354,7 +354,7 @@
 			(goto 'exit)
 		(endif)
 		(assign (vpx chars chars_end) '(:r0 :r2))
-		(vp-cpy-ri-b :r1 :r0 0)
+		(vp-store-rrc-b :r1 :r0 0)
 		(vp-add-cr 1 :r0)
 	(loop-until '(:r0 = :r2))
 
@@ -367,7 +367,7 @@
 	(vp-add-cr (+ +num_value +long_size) :r2)
 	(gotoif '(:r0 = :r2) 'exit)
 	(loop-start)
-		(vp-cpy-ri-b :r1 :r0 0)
+		(vp-store-rrc-b :r1 :r0 0)
 		(vp-add-cr 1 :r0)
 	(loop-until '(:r0 = :r2))
 
@@ -751,7 +751,7 @@
 	;load write pool state
 	(vp-rdef (stream data num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
 	(assign `((,parray +array_begin)) `(,pool_state))
-	(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,bit_pool ,bit_pool_size))
+	(vp-simd vp-load-rcr `(,pool_state) `(0 ,+long_size) `(,bit_pool ,bit_pool_size))
 
 	;loop for fill
 	(assign (vpx stream) `(,stream))
@@ -769,7 +769,7 @@
 
 	;save write pool state
 	(assign (vpx (.> parray +array_begin)) `(,pool_state))
-	(vp-simd vp-cpy-ri `(,bit_pool ,bit_pool_size) `(,pool_state) `(0 ,+long_size))
+	(vp-simd vp-store-rrc `(,bit_pool ,bit_pool_size) `(,pool_state) `(0 ,+long_size))
 
 	(assign (vpx this stream) `(,this ,args))
 	(class/obj/ref args cnt)
@@ -815,7 +815,7 @@
 (assign `((,rparray +array_length)) `(,len))
 (gotoif `(,len < 2) 'error)
 
-	(vp-simd vp-cpy-ir `(,wparray ,rparray) `(,+array_begin) `(,wparray ,rparray))
+	(vp-simd vp-load-rcr `(,wparray ,rparray) `(,+array_begin) `(,wparray ,rparray))
 	(assign `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
 		(vpx wstream rstream wparray rparray num_bits cnt))
 
@@ -827,19 +827,19 @@
 
 		;read data
 		(assign (vpx rparray rstream num_bits) `(,pool_state ,rstream ,rnum_bits))
-		(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,rbit_pool ,rbit_pool_size))
+		(vp-simd vp-load-rcr `(,pool_state) `(0 ,+long_size) `(,rbit_pool ,rbit_pool_size))
 		(call :stream :read_bits `(,rstream ,rnum_bits ,rbit_pool ,rbit_pool_size)
 			`(_ rval rbit_pool rbit_pool_size))
 		(assign (vpx rparray) `(,pool_state))
-		(vp-simd vp-cpy-ri `(,rbit_pool ,rbit_pool_size) `(,pool_state) `(0 ,+long_size))
+		(vp-simd vp-store-rrc `(,rbit_pool ,rbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
 		;write data
 		(assign (vpx wparray wstream num_bits) `(,pool_state ,wstream ,wnum_bits))
-		(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,wbit_pool ,wbit_pool_size))
+		(vp-simd vp-load-rcr `(,pool_state) `(0 ,+long_size) `(,wbit_pool ,wbit_pool_size))
 		(call :stream :write_bits `(,wstream ,rval ,wnum_bits ,wbit_pool ,wbit_pool_size)
 			`(_ wbit_pool wbit_pool_size))
 		(assign (vpx wparray) `(,pool_state))
-		(vp-simd vp-cpy-ri `(,wbit_pool ,wbit_pool_size) `(,pool_state) `(0 ,+long_size))
+		(vp-simd vp-store-rrc `(,wbit_pool ,wbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
 		(assign (vpx cnt) `(,cnt))
 		(vp-sub-cr 1 cnt)

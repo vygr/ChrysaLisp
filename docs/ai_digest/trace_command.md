@@ -35,8 +35,8 @@ The tracer tracks register and stack lifecycles through several mechanisms:
 
 * **Stack Spills and Reloads:** The tool models stack allocation (`emit-alloc`,
   `emit-free`) and push/pop operations (`emit-push`, `emit-pop`). When a
-  register is spilled to the stack (`emit-cpy-ri`) and later reloaded into the
-  same register (`emit-cpy-ir`), the tracer detects that its original value is
+  register is spilled to the stack (`emit-store-rrc`) and later reloaded into the
+  same register (`emit-load-rcr`), the tracer detects that its original value is
   restored and removes it from the active clobber set.
 
 * **Register Modification:** Any instruction that modifies a register (without a
@@ -121,7 +121,7 @@ function names (such as `"sys/mem/copy"`) using the local label map.
 
 ### 2. Bounded Virtual Call Resolution
 
-For virtual method calls (`emit-call-i`, `emit-jmp-i`, `emit-call-r`,
+For virtual method calls (`emit-call-rc`, `emit-jmp-rc`, `emit-call-r`,
 `emit-jmp-r`), the compiler cannot determine the single target at compile time.
 Instead, the dependency tracker uses the class database (`*class_db*`) to
 perform bounded resolution:

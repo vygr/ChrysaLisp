@@ -51,11 +51,11 @@
 (redefun addop (%0)
 	(entry :real %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
-	(vp-cpy-ir :r1 0 :r0)
+	(vp-load-rcr :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
 	(assign '((:r0 +num_value)) '(:d0))
 	(loop-start)
-		(vp-cpy-ir :r1 0 :r4)
+		(vp-load-rcr :r1 0 :r4)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r4 +num_value)) '(:d1))
 		((eval (sym (cat "vp-" (rest %0) "-ff"))) :d1 :d0)
@@ -106,11 +106,11 @@
 	(vp-fdef (val new_val))
 	(entry :real %0 `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
-	(vp-cpy-ir iter_begin 0 args)
+	(vp-load-rcr iter_begin 0 args)
 	(vp-add-cr +ptr_size iter_begin)
 	(assign `((,args +num_value)) `(,val))
 	(loop-start)
-		(vp-cpy-ir iter_begin 0 obj)
+		(vp-load-rcr iter_begin 0 obj)
 		(vp-add-cr +ptr_size iter_begin)
 		(assign `((,obj +num_value)) `(,new_val))
 		(exec p)
@@ -158,12 +158,12 @@
 (redefun divop (%0 p)
 	(entry :real %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r4)
-	(vp-cpy-ir :r1 0 :r0)
+	(vp-load-rcr :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
 	(assign '((:r0 +num_value) 0) '(:d0 :r3))
 	(vp-cpy-rf :r3 :d3)
 	(loop-start)
-		(vp-cpy-ir :r1 0 :r5)
+		(vp-load-rcr :r1 0 :r5)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r5 +num_value)) '(:d1))
 	(gotoif '(:d1 = :d3) 'error)
@@ -211,11 +211,11 @@
 (redefun compareop (%0 p)
 	(entry :real %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
-	(vp-cpy-ir :r1 0 :r3)
+	(vp-load-rcr :r1 0 :r3)
 	(vp-add-cr +ptr_size :r1)
 	(assign '((:r3 +num_value)) '(:d0))
 	(loop-start)
-		(vp-cpy-ir :r1 0 :r3)
+		(vp-load-rcr :r1 0 :r3)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r3 +num_value)) '(:d1))
 		(exec p)
@@ -334,7 +334,7 @@
 	(mathop :cos
 		'(progn
 			;pi/2
-			(vp-lea-p 'fn_consts :r0)
+			(vp-lea-pr 'fn_consts :r0)
 			(assign '((:r0 (fn-const 0x3ff921fb54442d18))) '(:d0))
 			(vp-add-ff :d0 :d1)
 			(call :sys_math :r_sin '(:d1) '(:d0))))
@@ -351,7 +351,7 @@
 
 	(mathop :frac
 		'(progn
-			(vp-lea-p 'fn_consts :r1)
+			(vp-lea-pr 'fn_consts :r1)
 			(vp-cpy-ff :d1 :d0)
 			(vp-cvt-fr :d0 :r0)
 			(vp-cvt-rf :r0 :d1)
@@ -377,7 +377,7 @@
 			(vp-cvt-fr :d1 :r0)
 			(vp-cvt-rf :r0 :d0)
 			(vpif '(:d0 > :d1))
-				(vp-lea-p 'fn_consts :r1)
+				(vp-lea-pr 'fn_consts :r1)
 				(assign '((:r1 (fn-const (n2r 1)))) '(:d1))
 				(vp-sub-ff :d1 :d0)
 			(endif)))
@@ -397,7 +397,7 @@
 			(vp-cvt-fr :d1 :r0)
 			(vp-cvt-rf :r0 :d0)
 			(vpif '(:d0 < :d1))
-				(vp-lea-p 'fn_consts :r1)
+				(vp-lea-pr 'fn_consts :r1)
 				(assign '((:r1 (fn-const (n2r 1)))) '(:d1))
 				(vp-add-ff :d1 :d0)
 			(endif)))
@@ -414,7 +414,7 @@
 
 	(mathop :recip
 		'(progn
-			(vp-lea-p 'fn_consts :r1)
+			(vp-lea-pr 'fn_consts :r1)
 			(assign '((:r1 (fn-const (n2r 1)))) '(:d0))
 			(vp-div-ff :d1 :d0)))
 
@@ -456,7 +456,7 @@
 
 	(mathop :sign
 		'(progn
-			(vp-lea-p 'fn_consts :r1)
+			(vp-lea-pr 'fn_consts :r1)
 			(assign '((:r1 (fn-const (n2r 0)))) '(:d0))
 			(vpif '(:d1 > :d0))
 				(assign '((:r1 (fn-const (n2r 1)))) '(:d0))
@@ -476,7 +476,7 @@
 
 	(mathop :random
 		'(progn
-			(vp-lea-p 'fn_consts :r4)
+			(vp-lea-pr 'fn_consts :r4)
 			(assign '((:r4 (fn-const (n2r 1)))) '(:d0))
 			(vp-mul-ff :d0 :d1)
 			(vp-cvt-fr :d1 :r0)
@@ -506,7 +506,7 @@
 	; v = val / tol
 	(vp-div-ff tmp v)
 	; v = v + 0.5
-	(vp-lea-p 'fn_consts tol)
+	(vp-lea-pr 'fn_consts tol)
 	(assign `((,tol (fn-const (n2r 0.5)))) `(,half))
 	(vp-add-ff half v)
 	; v = floor(v)

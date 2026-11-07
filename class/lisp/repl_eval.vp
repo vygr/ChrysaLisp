@@ -53,7 +53,7 @@
 			(vp-cpy-rr :r4 :r6)
 			(vp-shl-cr (log2 +ptr_size) :r6)
 			(vp-add-cr 1 :r4)
-			(vp-cpy-rd :r1 :r5 :r6)
+			(vp-store-rrr :r1 :r5 :r6)
 			(assign '(:r4) '((:r7 +array_length)))
 			(vp-add-cr 1 :r4)
 			(breakif '(:r4 = :r3))
@@ -353,7 +353,7 @@
 			(assign '((:rsp local_iter_end)) '(:r2))
 			(vp-add-cr +ptr_size :r3)
 		(loop-until '(:r3 = :r2))
-		(vp-cpy-ir :r3 (neg +ptr_size) :r1)
+		(vp-load-rcr :r3 (neg +ptr_size) :r1)
 		(vp-free local_size)
 	(endif)
 	;the last value, or :nil if there were none

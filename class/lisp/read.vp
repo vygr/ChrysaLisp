@@ -170,7 +170,7 @@
 			(gotoif '(:r4 = -1) 'funcexit)
 			(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r3))
 		(loop-end)
-		(vp-cpy-ir-ub :r2 0 :r4)
+		(vp-load-rcr-ub :r2 0 :r4)
 		(breakif '(:r4 = :r1))
 		(vp-add-cr +byte_size :r2)
 	(loop-end)

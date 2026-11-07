@@ -12,7 +12,7 @@
 	;%5 = temp reg
 	(setd %4 :r14 %5 :r13)
 	(fn-bind 'sys/statics/statics %4)
-	(vp-cpy-ir %4 statics_sys_load_host_audio_funcs %4)
+	(vp-load-rcr %4 statics_sys_load_host_audio_funcs %4)
 	(abi-call-table %0 %1 %4 %2 %3 %5))
 
 (def-method :host_audio :lisp_init)
@@ -60,7 +60,7 @@
 	;a host with no audio driver has no table to call, the TUI host,
 	;and a GUI host built for the frame buffer
 	(fn-bind 'sys/statics/statics :r14)
-	(vp-cpy-ir :r14 statics_sys_load_host_audio_funcs :r14)
+	(vp-load-rcr :r14 statics_sys_load_host_audio_funcs :r14)
 	(vpif '(:r14 /= 0))
 		(host-audio-call :host_audio :init '() '(:r0))
 	(else)

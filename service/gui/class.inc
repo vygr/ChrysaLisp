@@ -60,7 +60,7 @@
 	;%5 = temp reg
 	(setd %4 :r14 %5 :r13)
 	(fn-bind 'sys/statics/statics %4)
-	(vp-cpy-ir %4 statics_sys_load_host_gui_funcs %4)
+	(vp-load-rcr %4 statics_sys_load_host_gui_funcs %4)
 	(abi-call-table %0 %1 %4 %2 %3 %5))
 
 

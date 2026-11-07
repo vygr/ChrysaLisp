@@ -19,7 +19,7 @@
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:obj))
-	(vp-cpy-ir :r0 +str_data :r0)
+	(vp-load-rcr :r0 +str_data :r0)
 	(call :sys_mail :validate '(:r0) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
 	(vpif '(:r0 /= 0))
@@ -57,7 +57,7 @@
 
 	(vp-push this)
 	(list-bind-args args `(,mbox) '(:obj))
-	(vp-cpy-ir mbox +str_data mbox)
+	(vp-load-rcr mbox +str_data mbox)
 	(call :sys_mail :validate `(,mbox) `(,mbox))
 	(vpif `(,mbox /= 0))
 		(call :sys_mail :read `(,mbox) `(,msg _))

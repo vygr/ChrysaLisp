@@ -135,7 +135,7 @@ and the stack.
   to specific physical registers.
 
 * **Direct Instructions:** You use opcodes like `vp-add-rr` (Register-
-  Register), `vp-cpy-ir` (Indirect-Register), `vp-lea-i` (Load Effective
+  Register), `vp-load-rcr` (Indirect-Register), `vp-lea-rcr` (Load Effective
   Address).
 
 * **Stack Management:** You must manually `vp-push` and `vp-pop` to preserve

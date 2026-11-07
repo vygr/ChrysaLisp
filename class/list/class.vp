@@ -264,7 +264,7 @@
 	(assign '(:r0 :r1) `(,this ,elm))
 	(assign `((,this +array_begin)) `(,iter_end))
 	(vp-shl-cr (log2 +long_size) :r2)
-	(vp-lea-d iter_end :r2 iter_begin)
+	(vp-lea-rrr iter_end :r2 iter_begin)
 	(loop-start)
 		(call :obj :eql `(,elm (,iter_begin ,(neg +ptr_size))) `(,elm tmp) :r2)
 		(breakif `(,tmp = 0))
@@ -343,10 +343,10 @@
 	(f-bind :list :vtable vtable)
 	(loop-start)
 		;replace list with copy, deref can't cause destroy !
-		(vp-cpy-ir iter_begin 0 this)
+		(vp-load-rcr iter_begin 0 this)
 		(d-call :list :slice `(,this 0 (,this +array_length)) `(,this))
-		(vp-cpy-ir iter_begin 0 that)
-		(vp-cpy-ri this iter_begin 0)
+		(vp-load-rcr iter_begin 0 that)
+		(vp-store-rrc this iter_begin 0)
 		(class/obj/ref that cnt -1)
 
 		;push this list branches
@@ -576,7 +576,7 @@
 	(class/array/get_both this iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
-			(vp-cpy-ir iter_begin 0 elm)
+			(vp-load-rcr iter_begin 0 elm)
 			(vp-add-cr +ptr_size iter_begin)
 			(class/obj/ref elm tmp)
 		(loop-until `(,iter_begin = ,iter_end))

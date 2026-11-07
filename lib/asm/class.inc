@@ -236,8 +236,8 @@
 				(:t (if (find (setd %4 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 						(throw "Dispatch register conflicts with arg !" (list %4 _)))
 					(assign %2 _)
-					(vp-cpy-ir (first _) +obj_vtable %4)
-					(vp-call-i %4 (last m) %0 %1)))
+					(vp-load-rcr (first _) +obj_vtable %4)
+					(vp-call-rc %4 (last m) %0 %1)))
 			(if %3 (assign (elem-get m 3) %3)))
 		(:t ;l-call
 			(cond
@@ -264,9 +264,9 @@
 		(:t (if (find (setd %3 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 				(throw "Dispatch register conflicts with arg !" (list %3 _)))
 			(assign %2 _)
-			(vp-cpy-ir (first _) +obj_vtable %3)
+			(vp-load-rcr (first _) +obj_vtable %3)
 			(scope-unwind)
-			(vp-jmp-i %3 (last m) %0 %1))))
+			(vp-jmp-rc %3 (last m) %0 %1))))
 
 (defmacro entry (&rest %0)
 	;either
@@ -370,8 +370,8 @@
 	(if (find (setd %4 :r0 %5 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list %5 _)))
 	(assign %2 _)
-	(vp-cpy-ir %4 +obj_vtable %5)
-	(vp-call-i %5 (last m) %0 %1)
+	(vp-load-rcr %4 +obj_vtable %5)
+	(vp-call-rc %5 (last m) %0 %1)
 	(if %3 (assign (elem-get m 3) %3)))
 
 (defun v-jump (%0 %1 &optional %2 %3 %4)
@@ -385,9 +385,9 @@
 	(if (find (setd %3 :r0 %4 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list %4 _)))
 	(assign %2 _)
-	(vp-cpy-ir %3 +obj_vtable %4)
+	(vp-load-rcr %3 +obj_vtable %4)
 	(scope-unwind)
-	(vp-jmp-i %4 (last m) %0 %1))
+	(vp-jmp-rc %4 (last m) %0 %1))
 
 (defun v-bind (%0 %1 &optional %2 %3)
 	;%0 = class name
@@ -397,8 +397,8 @@
 	(setd %2 :r0 %3 :r14)
 	(if (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is static ! Use f-bind ?" (list %0 %1)))
-	(vp-cpy-ir %2 +obj_vtable %3)
-	(vp-cpy-ir %3 (last m) %3))
+	(vp-load-rcr %2 +obj_vtable %3)
+	(vp-load-rcr %3 (last m) %3))
 
 (defun d-call (%0 %1 &optional %2 %3)
 	;%0 = class name

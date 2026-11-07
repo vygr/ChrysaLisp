@@ -136,7 +136,7 @@
 	(vp-xor-rr ei swp_xor)
 	(loop-start)
 		;indices
-		(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
+		(vp-simd vp-load-rcr `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
 		(vp-add-cr (* +long_size 2) idx_begin)
 		;the length this time
 		(seq-elem-index si len)
@@ -605,14 +605,14 @@
 	(call :list :create :nil `(,lst))
 	(call :seq :get_length `(,seq) `(_ ,len))
 
-	(vp-lea-d cnt len :r0)
+	(vp-lea-rrr cnt len :r0)
 	(vp-sub-cr 1 :r0)
 	(vp-div-rr-u cnt :r0)
 	(call :list :set_cap `(,lst :r0))
 
 	(vp-cpy-cr 0 idx)
 	(loop-while `(,idx < ,len))
-		(vp-lea-d idx cnt idx1)
+		(vp-lea-rrr idx cnt idx1)
 		(vp-min-rr len idx1)
 		(call :seq :slice `(,seq ,idx ,idx1) '(slc))
 		(call :list :push_back `(,lst ,slc))

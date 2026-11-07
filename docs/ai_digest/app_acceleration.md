@@ -113,12 +113,12 @@ floating-point numbers for you.
 
 #### Step 2: Load the Address
 
-Use `vp-lea-p` (Load Effective Address - Program) to get the pointer to the
+Use `vp-lea-pr` (Load Effective Address - Program) to get the pointer to the
 constants block.
 
 ```vdu
 ; 'consts' is a register defined in vp-rdef used here as a base pointer
-(vp-lea-p 'fn_consts consts) 
+(vp-lea-pr 'fn_consts consts) 
 ```
 
 #### Step 3: Load Fields into Registers
@@ -315,7 +315,7 @@ colour are done as one line each:
    efficiently unpack Lisp data structures into registers.
 
 3. **Constant Tables**: Group all floating-point constants at the end of the
-   function, take their address once at the start using `vp-lea-p`, and load
+   function, take their address once at the start using `vp-lea-pr`, and load
    them with `load-fields`, at the start, or where each is needed if there
    are more of them than registers.
 

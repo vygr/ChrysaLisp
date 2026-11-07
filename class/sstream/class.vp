@@ -167,7 +167,7 @@
 	(entry :sstream :seek `(,this ,offset ,whence))
 
 	(assign `((,this +stream_object) (,this +stream_bufe)) `(,obj ,max_pos))
-	(vp-lea-i obj +str_data start)
+	(vp-lea-rcr obj +str_data start)
 	(vp-sub-rr start max_pos)
 
 	(switch)
@@ -185,7 +185,7 @@
 	(vp-max-cr 0 offset)
 	(vp-min-rr max_pos offset)
 
-	(vp-lea-d start offset bufp)
+	(vp-lea-rrr start offset bufp)
 	(assign `(,bufp) `((,this +stream_bufp)))
 
 	(exit :sstream :seek `(,this ,offset))

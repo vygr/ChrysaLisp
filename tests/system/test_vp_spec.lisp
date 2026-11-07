@@ -110,8 +110,8 @@
 	"(vp-cpy-rr :r3 :r5)" vs_lf "(vp-sgt-cr 0x7000000000 :r5)" vs_lf "(vp-shl-cr 1 :r5)" vs_lf "(vp-xor-rr :r5 :r4)" vs_lf
 	;a word on the stack, by a base 2^33 below it
 	"(vp-alloc 8)" vs_lf "(vp-cpy-rr :rsp :r6)" vs_lf "(vp-sub-cr 0x200000000 :r6)" vs_lf
-	"(vp-cpy-ri :r4 :r6 0x200000000)" vs_lf "(vp-cpy-ir :r6 0x200000000 :r7)" vs_lf
-	"(vp-add-cr 5 :r7)" vs_lf "(vp-cpy-ri-i :r7 :r6 0x200000000)" vs_lf "(vp-cpy-ir-i :r6 0x200000000 :r4)" vs_lf
+	"(vp-store-rrc :r4 :r6 0x200000000)" vs_lf "(vp-load-rcr :r6 0x200000000 :r7)" vs_lf
+	"(vp-add-cr 5 :r7)" vs_lf "(vp-store-rrc-i :r7 :r6 0x200000000)" vs_lf "(vp-load-rcr-i :r6 0x200000000 :r4)" vs_lf
 	"(vp-free 8)" vs_lf
 	(vs-tail))))
 
@@ -139,7 +139,7 @@
 ;one it could, and gave the base
 (defq vs_lea_c '(-4097 -4096 -4095 -257 -256 -1 1 255 256 4095 4096 4097))
 (defq vs_lea (vs-native "tests/vp_spec_lea" (cat (vs-head "tests/vp_spec_lea")
-	(apply (const cat) (map (# (cat "(vp-lea-i :r2 " (str %0) " :r5)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-lea-rcr :r2 " (str %0) " :r5)" vs_lf
 		"(vp-mul-cr 3 :r4)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf)) vs_lea_c))
 	(vs-tail))))
 
@@ -153,11 +153,11 @@
 ;loaded. The x86_64 fuses a load into the op of what it loaded, and must
 ;not over either
 (defq vs_fuse (vs-native "tests/vp_spec_fuse" (cat (vs-head "tests/vp_spec_fuse")
-	"(vp-alloc 16)" vs_lf "(vp-cpy-ri :r2 :rsp 0)" vs_lf "(vp-cpy-ri :r3 :rsp 8)" vs_lf
+	"(vp-alloc 16)" vs_lf "(vp-store-rrc :r2 :rsp 0)" vs_lf "(vp-store-rrc :r3 :rsp 8)" vs_lf
 	"(vp-cpy-rr :rsp :r6)" vs_lf
-	"(vp-cpy-ir :r6 0 :r5)" vs_lf "(vp-add-cr 8 :r6)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf
+	"(vp-load-rcr :r6 0 :r5)" vs_lf "(vp-add-cr 8 :r6)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf
 	"(vp-xor-rr :r5 :r5)" vs_lf "(vp-mul-cr 3 :r4)" vs_lf
-	"(vp-cpy-ir :r6 0 :r5)" vs_lf "(vp-cvt-rf :r4 :d0)" vs_lf "(vp-cpy-fi :d0 :r6 0)" vs_lf
+	"(vp-load-rcr :r6 0 :r5)" vs_lf "(vp-cvt-rf :r4 :d0)" vs_lf "(vp-store-drc :d0 :r6 0)" vs_lf
 	"(vp-add-rr :r5 :r4)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf
 	"(vp-free 16)" vs_lf
 	(vs-tail))))
@@ -174,12 +174,12 @@
 (import "lib/gpu/shader.inc")
 (defq vs_if (vs-native "tests/vp_spec_if" (cat (vs-head "tests/vp_spec_if")
 	"(vp-alloc 32)" vs_lf
-	(apply (const cat) (map (# (cat "(vp-cpy-ri-i :r2 :rsp " (str %0) ")" vs_lf)) '(0 4 8 12 16)))
-	"(vp-cpy-if-i :rsp 0 :d0)" vs_lf
-	"(vp-lea-i :rsp -1000 :r6)" vs_lf "(vp-cpy-if-i :r6 1004 :d1)" vs_lf
-	"(vp-lea-i :rsp -100000 :r6)" vs_lf "(vp-cpy-if-i :r6 100008 :d2)" vs_lf
-	"(vp-lea-i :rsp 20 :r6)" vs_lf "(vp-cpy-if-i :r6 -8 :d3)" vs_lf
-	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-cpy-df-i :rsp :r7 :d4)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-store-rrc-i :r2 :rsp " (str %0) ")" vs_lf)) '(0 4 8 12 16)))
+	"(vp-load-rcd-i :rsp 0 :d0)" vs_lf
+	"(vp-lea-rcr :rsp -1000 :r6)" vs_lf "(vp-load-rcd-i :r6 1004 :d1)" vs_lf
+	"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-load-rcd-i :r6 100008 :d2)" vs_lf
+	"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-load-rcd-i :r6 -8 :d3)" vs_lf
+	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-load-rrd-i :rsp :r7 :d4)" vs_lf
 	"(vp-cpy-fr :d0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
 	(apply (const cat) (map (# (cat "(vp-cpy-fr " %0 " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
 		"(vp-add-rr :r5 :r8)" vs_lf)) '(":d1" ":d2" ":d3" ":d4")))
@@ -205,13 +205,13 @@
 ;first, and 1 if the register changed, above them
 (defq vs_fi (vs-native "tests/vp_spec_fi" (cat (vs-head "tests/vp_spec_fi")
 	"(vp-alloc 32)" vs_lf "(vp-cpy-rf :r3 :d0)" vs_lf
-	"(vp-cpy-fi-i :d0 :rsp 0)" vs_lf
-	"(vp-lea-i :rsp -1000 :r6)" vs_lf "(vp-cpy-fi-i :d0 :r6 1004)" vs_lf
-	"(vp-lea-i :rsp -100000 :r6)" vs_lf "(vp-cpy-fi-i :d0 :r6 100008)" vs_lf
-	"(vp-lea-i :rsp 20 :r6)" vs_lf "(vp-cpy-fi-i :d0 :r6 -8)" vs_lf
-	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-cpy-fd-i :d0 :rsp :r7)" vs_lf
-	"(vp-cpy-ir-ui :rsp 0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
-	(apply (const cat) (map (# (cat "(vp-cpy-ir-ui :rsp " (str %0) " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
+	"(vp-store-drc-i :d0 :rsp 0)" vs_lf
+	"(vp-lea-rcr :rsp -1000 :r6)" vs_lf "(vp-store-drc-i :d0 :r6 1004)" vs_lf
+	"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-store-drc-i :d0 :r6 100008)" vs_lf
+	"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-store-drc-i :d0 :r6 -8)" vs_lf
+	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-store-drr-i :d0 :rsp :r7)" vs_lf
+	"(vp-load-rcr-ui :rsp 0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-load-rcr-ui :rsp " (str %0) " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
 		"(vp-add-rr :r5 :r8)" vs_lf)) '(4 8 12 16)))
 	"(vp-cpy-fr :d0 :r5)" vs_lf "(vp-sne-rr :r3 :r5)" vs_lf "(vp-shl-cr 4 :r5)" vs_lf "(vp-add-rr :r5 :r8)" vs_lf
 	"(vp-shl-cr 32 :r8)" vs_lf "(vp-add-rr :r8 :r4)" vs_lf

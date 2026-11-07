@@ -129,7 +129,7 @@ statements:
 
 In mixed VP/vpx code, the most common use for vpx
 expressions is to handle spill and load code. Rather than manually using
-"(vp-cpy-ri :r0 :rsp offset)", you can simply use "(assign `(,r_val) {val})" and let
+"(vp-store-rrc :r0 :rsp offset)", you can simply use "(assign `(,r_val) {val})" and let
 vpx determine the correct copy instruction.
 
 ## Best Practices and Risks
@@ -199,7 +199,7 @@ Or:
 (entry (vpx this args))
 ...
 (assign (vpx this) `(,this))
-(vp-cpy-ir this 0 args)
+(vp-load-rcr this 0 args)
 (assign `(,args) (vpx args))
 ...
 (exit (vpx this args))
@@ -217,7 +217,7 @@ register number !
 
 ```vdu
 `(,this ,args)
-(vp-cpy-ir this 64 args)
+(vp-load-rcr this 64 args)
 (assign `((,this 64)) `(,args))
 ```
 
@@ -248,19 +248,19 @@ with what the call will require.
 (assign (list max_x y om) (vpx max_x y om))
 (loop-start)
     (assign (vpx ($ mask_to_coverage)) (list mask_to_coverage))
-    (vp-cpy-ir this +canvas_coverage mask)
+    (vp-load-rcr this +canvas_coverage mask)
     (vp-cpy-rr x x1)
     (vp-cpy-rr om m)
     (loop-start)
-        (vp-cpy-dr-ub mask x1 c)
+        (vp-load-rrr-ub mask x1 c)
         (vp-add-cr 1 x1)
         (vp-xor-rr c m)
         (breakif `(,x1 >= ,max_x))
     (loop-until `(,m /= ,om))
-    (vp-lea-i x1 -1 v)
+    (vp-lea-rcr x1 -1 v)
     (vp-xor-rr c c)
-    (vp-cpy-rd-b c mask v)
-    (vp-cpy-dr-ub mask_to_coverage om c)
+    (vp-store-rrr-b c mask v)
+    (vp-load-rrr-ub mask_to_coverage om c)
     (assign (list m x1) (vpx om x))
     (call :canvas :span_noclip (list this c x y x1) (list this))
     (assign (vpx x max_x y om) (list x max_x y om))

@@ -137,7 +137,7 @@
 			(vpif `(,tmp < ,index))
 				(assign `((,env +array_begin)) `(,tmp2))
 				(vp-shl-cr (log2 (* +ptr_size 2)) tmp)
-				(vp-cpy-dr tmp2 tmp tmp)
+				(vp-load-rrr tmp2 tmp tmp)
 				(gotoif `(,tmp = ,sym) bail)
 			(endif)
 			(assign `((,vals 0) ,index) `(,val (,sym +str_hashslot)))

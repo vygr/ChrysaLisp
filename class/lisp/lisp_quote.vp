@@ -74,7 +74,7 @@
 	(loop-start 'next_elem)
 		(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) '(:r2 :r3))
 		(breakif '(:r2 = :r3))
-		(vp-cpy-ir :r2 0 :r1)
+		(vp-load-rcr :r2 0 :r1)
 		(vp-add-cr +ptr_size :r2)
 		(assign '(:r2) '((:rsp local_iter_begin)))
 

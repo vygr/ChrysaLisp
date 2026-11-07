@@ -360,10 +360,10 @@
 ;only b has to be written before the call
 (defq tt_probe "obj/vp/tests/scratch_locals_probe")
 (save (cat "(\qtests/scratch_locals_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _8 _9 4096)" tt_lf
-	"(emit-label '_1)" tt_lf "(emit-alloc 32)" tt_lf "(emit-cpy-ri :r0 :rsp 0)" tt_lf "(emit-cpy-ri :r1 :rsp 8)" tt_lf
-	"(emit-cpy-ir :rsp 0 :r0)" tt_lf "(emit-call-p _7)" tt_lf "(emit-cpy-ir :rsp 8 :r1)" tt_lf
-	"(emit-lea-i :rsp 16 :r2)" tt_lf "(emit-cpy-ri :r1 :rsp 24)" tt_lf "(emit-beq-cr 0 :r1 _2)" tt_lf
-	"(emit-cpy-ri :r1 :rsp 0)" tt_lf "(emit-label '_2)" tt_lf "(emit-free 32)" tt_lf "(emit-ret)" tt_lf
+	"(emit-label '_1)" tt_lf "(emit-alloc 32)" tt_lf "(emit-store-rrc :r0 :rsp 0)" tt_lf "(emit-store-rrc :r1 :rsp 8)" tt_lf
+	"(emit-load-rcr :rsp 0 :r0)" tt_lf "(emit-call-p _7)" tt_lf "(emit-load-rcr :rsp 8 :r1)" tt_lf
+	"(emit-lea-rcr :rsp 16 :r2)" tt_lf "(emit-store-rrc :r1 :rsp 24)" tt_lf "(emit-beq-cr 0 :r1 _2)" tt_lf
+	"(emit-store-rrc :r1 :rsp 0)" tt_lf "(emit-label '_2)" tt_lf "(emit-free 32)" tt_lf "(emit-ret)" tt_lf
 	"(emit-label '_8)" tt_lf "(emit-label '_9))" tt_lf
 	"(locals (1 32 ((a 0 \qp\q) (b 8 \qp\q) (s 16 \q\q))))" tt_lf ")" tt_lf) tt_probe)
 (defq tt_said (list))

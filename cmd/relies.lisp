@@ -72,10 +72,10 @@
 		emit-asr-cr emit-min-cr emit-max-cr emit-seq-cr emit-sne-cr emit-slt-cr emit-sgt-cr emit-sle-cr emit-sge-cr)
 	+branch_cr_ops ''(emit-beq-cr emit-bne-cr emit-blt-cr emit-bgt-cr emit-ble-cr emit-bge-cr)
 	+branch_rr_ops ''(emit-beq-rr emit-bne-rr emit-blt-rr emit-bgt-rr emit-ble-rr emit-bge-rr)
-	+get_ops ''(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i)
-	+put_ops ''(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)
-	+get2_ops ''(emit-cpy-dr emit-cpy-dr-b emit-cpy-dr-s emit-cpy-dr-i emit-cpy-dr-ub emit-cpy-dr-us emit-cpy-dr-ui emit-lea-d)
-	+put2_ops ''(emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i)
+	+get_ops ''(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr)
+	+put_ops ''(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i)
+	+get2_ops ''(emit-load-rrr emit-load-rrr-b emit-load-rrr-s emit-load-rrr-i emit-load-rrr-ub emit-load-rrr-us emit-load-rrr-ui emit-lea-rrr)
+	+put2_ops ''(emit-store-rrr emit-store-rrr-b emit-store-rrr-s emit-store-rrr-i)
 	;nothing of a general register in them
 	+none_ops ''(emit-label emit-tlabel emit-align emit-string emit-byte emit-short emit-int emit-long
 		emit-alloc emit-free emit-ret emit-sync emit-nop emit-vp-nop emit-jmp
@@ -111,13 +111,13 @@
 		((find op +put_ops) (list (logior a b) 0))
 		((find op +get2_ops) (list (logior a b) c))
 		((find op +put2_ops) (list (logior a b c) 0))
-		((find op '(emit-cpy-pr emit-lea-p)) (list 0 b))
+		((find op '(emit-load-pr emit-lea-pr)) (list 0 b))
 		;to and from the float registers, and floats in memory
-		((find op '(emit-cpy-rf emit-cvt-rf emit-cpy-if emit-cpy-if-i)) (list a 0))
+		((find op '(emit-cpy-rf emit-cvt-rf emit-load-rcd emit-load-rcd-i)) (list a 0))
 		((find op '(emit-cpy-fr emit-cvt-fr)) (list 0 b))
-		((find op '(emit-cpy-fi emit-cpy-fi-i)) (list b 0))
-		((find op '(emit-cpy-df emit-cpy-df-i)) (list (logior a b) 0))
-		((find op '(emit-cpy-fd emit-cpy-fd-i)) (list (logior b c) 0))
+		((find op '(emit-store-drc emit-store-drc-i)) (list b 0))
+		((find op '(emit-load-rrd emit-load-rrd-i)) (list (logior a b) 0))
+		((find op '(emit-store-drr emit-store-drr-i)) (list (logior b c) 0))
 		((eql op 'emit-push) (list (bits-of (rest inst)) 0))
 		((find op '(emit-pop emit-trash)) (list 0 (bits-of (rest inst))))
 		((list (bits-of (rest inst)) 0))))
@@ -136,9 +136,9 @@
 			flows (map (lambda (inst)
 				(defq op (first inst))
 				(cond
-					((find op '(emit-call-p emit-call-i emit-jmp-p emit-jmp-i))
+					((find op '(emit-call-p emit-call-rc emit-jmp-p emit-jmp-rc))
 						(defq called (called-of inst all labels methods)
-							base (if (find op '(emit-call-i emit-jmp-i)) (bit-of (second inst)) 0))
+							base (if (find op '(emit-call-rc emit-jmp-rc)) (bit-of (second inst)) 0))
 						(if called
 							(list (logior base (third called)) (logior (second called) (elem-get called 3)) called)
 							(list (logior base (bits-of (rest inst))) 0 :nil)))
@@ -162,7 +162,7 @@
 			;where the function does, and what it gives is not declared.
 			;All that can be got to from where such a call goes
 			inner (map (lambda (n) :nil) insts)
-			todo (reduce (# (if (and (find (first %1) '(emit-call emit-lea-p))
+			todo (reduce (# (if (and (find (first %1) '(emit-call emit-lea-pr))
 					(defq to (. labels :find (if (eql (first %1) 'emit-call) (last %1) (second %1))))
 					(<= 0 (setq to (- to start))) (< to count)) (push %0 to) %0))
 				insts (list)))
@@ -174,7 +174,7 @@
 		;after it that it does not write. After the end, what the
 		;function gives. Backwards, till nothing changes
 		(defq after-of (lambda (at)
-			(if (find (first (elem-get insts at)) '(emit-ret emit-jmp-p emit-jmp-i emit-jmp-r))
+			(if (find (first (elem-get insts at)) '(emit-ret emit-jmp-p emit-jmp-rc emit-jmp-r))
 				(if (elem-get inner at) 0 gives) (reduce (# (logior %0 (elem-get live %1))) (elem-get next at) 0))))
 		(while changed
 			(setq changed :nil)
@@ -227,7 +227,7 @@
 				(find (first inst) '(emit-label emit-tlabel emit-jmp emit-alloc emit-free))
 				(starts-with "emit-b" (first inst))))))
 		(each (lambda (inst)
-			(when (and (find (first inst) '(emit-call-p emit-call-i))
+			(when (and (find (first inst) '(emit-call-p emit-call-rc))
 					(defq called (called-of inst all labels methods)))
 				(bind '(name trashes takes gives) called)
 				(defq at (!) changed (logior trashes gives) before (list) after (list) i at going :t)
@@ -238,7 +238,7 @@
 						((not (plain was)) (setq going :nil))
 						((eql (first was) 'emit-pop) (setq going :nil))
 						((eql (first was) 'emit-push) (push before (list :push i (bits-of (rest was)) 0)) (setq going :nil))
-						((and (eql (first was) 'emit-cpy-ri) (eql (third was) :rsp))
+						((and (eql (first was) 'emit-store-rrc) (eql (third was) :rsp))
 							(push before (list :slot i (bit-of (second was)) (elem-get was 3))))
 						((setq changed (logior changed (second (flow-of was)))))))
 				(setq i at going :t)
@@ -249,7 +249,7 @@
 						((not (plain was)) (setq going :nil))
 						((eql (first was) 'emit-push) (setq going :nil))
 						((eql (first was) 'emit-pop) (push after (list :push i (bits-of (rest was)) 0)) (setq going :nil))
-						((and (eql (first was) 'emit-cpy-ir) (eql (second was) :rsp))
+						((and (eql (first was) 'emit-load-rcr) (eql (second was) :rsp))
 							(push after (list :slot i (bit-of (elem-get was 3)) (third was) changed_after))
 							(setq changed_after (logior changed_after (bit-of (elem-get was 3)))))
 						((setq changed_after (logior changed_after (second (flow-of was)))))))

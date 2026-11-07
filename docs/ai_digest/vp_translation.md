@@ -51,20 +51,20 @@ docs/diagrams/vp_translate.cwb
 
     * **Register to Register:** e.g., `(vp-add-rr rs rd)`, `(vp-xor-rr rs rd)`
 
-    * **Memory to Register (Load):** e.g., `(vp-cpy-ir rb offset rd)` (load
-      from `[rb + offset]`), `(vp-cpy-dr rb ri rd)` (load from `[rb + ri]`).
+    * **Memory to Register (Load):** e.g., `(vp-load-rcr rb offset rd)` (load
+      from `[rb + offset]`), `(vp-load-rrr rb ri rd)` (load from `[rb + ri]`).
       Suffixes like `-b`, `-s`, `-i`, `-ub`, `-us`, `-ui` specify byte, short
       (16-bit), int (32-bit) and their unsigned variants, with sign/zero
       extension.
 
-    * **Register to Memory (Store):** e.g., `(vp-cpy-ri rs rb offset)`,
-      `(vp-cpy-rd rs rb ri)`. Suffixes specify data size.
+    * **Register to Memory (Store):** e.g., `(vp-store-rrc rs rb offset)`,
+      `(vp-store-rrr rs rb ri)`. Suffixes specify data size.
 
     * **Branch:** e.g., `(vp-beq-rr rs rd label)` (branch if equal),
       `(vp-blt-cr const rd label)` (branch if less than).
 
-    * **Effective Address (LEA):** e.g., `(vp-lea-i rb offset rd)` (rd = rb +
-      offset), `(vp-lea-p label rd)` (rd = address of label).
+    * **Effective Address (LEA):** e.g., `(vp-lea-rcr rb offset rd)` (rd = rb +
+      offset), `(vp-lea-pr label rd)` (rd = address of label).
 
     * **Call/Jump/Return:** e.g., `(vp-call label)`, `(vp-jmp-r rd)`,
       `(vp-ret)`.
@@ -146,7 +146,7 @@ another follows. A signed one is written as its zigzag, 0 -1 1 -2 2 ... as
 * `string`: its length and its bytes.
 
 * `name`: a keyword that is not a register, the class and method a
-  `call-i` names, its length and its bytes.
+  `call-rc` names, its length and its bytes.
 
 * `pc_label`: where this instruction is less the label.
 
@@ -329,10 +329,10 @@ branches use the conditions `eq`, `ne`, `ge`, `gt`, `ls` and `mi`.
 `seq` to `sge` are the compare and a `cset`.
 
 `call` is `str x30, [x28, #-8]!`, `bl` (±128MB), then
-`ldr x30, [x28], #8`. `call-r` is the same round a `blr`. `call-i` loads the address into
+`ldr x30, [x28], #8`. `call-r` is the same round a `blr`. `call-rc` loads the address into
 x29 from `[b, #c]` and `call-p` by `ldr` literal (±1MB), then they are a
-`call-r` of x29. `ret` is `ret`, `sync` is `dmb sy`. `lea-p` is `adr`,
-`cpy-pr` the `ldr` literal, both ±1MB.
+`call-r` of x29. `ret` is `ret`, `sync` is `dmb sy`. `lea-pr` is `adr`,
+`load-pr` the `ldr` literal, both ±1MB.
 
 `mul-rr` is `madd` with xzr. A divide is `sdiv` or `udiv`, 0 by 0 as
 the CPU gives; a remainder is that into x29 then an `msub` of it, the
@@ -353,7 +353,7 @@ The prepass goes from instruction 8 to the one before the last:
 * Call fusion: calls in a straight line keep the link on the stack
   between them, the first a push and `bl`, the middle ones only `bl`, the
   last `bl` and a pop. Each `:rsp` access between them is moved a slot
-  deeper, a copy of `:rsp` becoming a `lea-i` of 8. A label, branch,
+  deeper, a copy of `:rsp` becoming a `lea-rcr` of 8. A label, branch,
   jump, `ret`, `push`, `pop`, `alloc`, `free`, `sync`, save or load state
   or ABI op ends it, so does an `:rsp` access that cannot be moved, or a
   call that uses `:rsp`.
@@ -396,7 +396,7 @@ byte rsp and r12 need and the 0 disp rbp and r13 need. An offset beyond
 or the base, pushed and popped round it, and the indexed form used. `-b`
 and `-s` loads are `movsx`, `-i` `movsxd`, `-ub` and `-us` `movzx`,
 `-ui` `mov r32`. A short store has the 0x66 prefix. The float ones are
-`movsd`. `lea-i` and `lea-d` are `lea`, `lea-p` and `cpy-pr` the rip
+`movsd`. `lea-rcr` and `lea-rrr` are `lea`, `lea-pr` and `load-pr` the rip
 relative `lea` and `mov`, ±2GB.
 
 `push` and `pop` are one `push` or `pop` each. `emit-save-state` and
@@ -409,7 +409,7 @@ has reached fits, else rel32. `jmp` is `eb` rel8 or `e9` rel32. Out of
 `blt-ff` and `ble-ff` the same with the operands swapped. `seq` to `sge`
 are the compare, `setcc` and `movzx`.
 
-`call` is `e8` rel32. `call-r` is `call r`, `call-i` `call [b + c]`,
+`call` is `e8` rel32. `call-r` is `call r`, `call-rc` `call [b + c]`,
 `call-p` `call [rip + disp32]`, the path's slot. The jumps are the same
 with `jmp`. `ret` is `ret`, `sync` `mfence`.
 
@@ -445,7 +445,7 @@ The two bodies differ only in the ABI. `vp_args`, `:r0` to `:r5`, go to
 
 The prepass goes from instruction 8 to the last:
 
-* A `cpy-ir` of 8 bytes, a number offset in 32 bits, its base not `d`,
+* A `load-rcr` of 8 bytes, a number offset in 32 bits, its base not `d`,
   up to 6 instructions back, then an `add`, `sub`, `and`, `or`, `xor` or
   `mul` of two registers from what it loaded, `(s d)`, neither `:rsp`.
   Nothing between may be a barrier, write its last operand, or use `s`
@@ -486,7 +486,7 @@ Loads are `lb lh lw ld lbu lhu lwu`, stores `sb sh sw sd`, `fld` and
 `fsd` the floats, with a 12 bit signed offset. A bigger offset is made in
 x29, x31 for a float, added to the base, and the access is at 0 from it.
 The indexed forms are an `add` to x29, or x31, and the access at 0.
-`lea-i` is `addi`, else `add` of x29.
+`lea-rcr` is `addi`, else `add` of x29.
 
 `push` is one `addi sp, sp, -8n` and an `sd` of each, the first deepest,
 `pop` the `ld`s and the `addi`. `emit-save-state` and `emit-load-state`
@@ -500,10 +500,10 @@ branching over a `jal zero` of ±1MB. A float branch is `feq.d`, `flt.d`
 or `fle.d` to x31, then `bne x31, zero`, or `beq` for `bne-ff`.
 
 `call` is a push of ra, `jal ra` (±1MB), and a pop of ra. `call-r` is the
-same round `jalr ra, 0(r)`. `call-i` loads the address into x31 from
+same round `jalr ra, 0(r)`. `call-rc` loads the address into x31 from
 `c(b)`, `call-p` by `auipc` and `ld`, then a `call-r` of x31. `jmp` is
-`jal zero`, ±1MB, `ret` `jalr zero, 0(ra)`. `lea-p` is `auipc` and
-`addi`, `cpy-pr` `auipc` and `ld`, ±2GB. `sync` is `fence`.
+`jal zero`, ±1MB, `ret` `jalr zero, 0(ra)`. `lea-pr` is `auipc` and
+`addi`, `load-pr` `auipc` and `ld`, ±2GB. `sync` is `fence`.
 
 The divide is `div` or `divu` to x31, then `sltu` and `sub` make a mask of
 `s` not 0, the `and` of it makes the quotient 0 on a divisor of 0. The
@@ -553,7 +553,7 @@ Loads are `ld.b ld.h ld.w ld.d ld.bu ld.hu ld.wu`, stores `st.b st.h st.w
 st.d`, `fld.d` and `fst.d` the floats, with a 12 bit signed offset. A
 bigger offset is made in r14 and added to the base, or for a float the
 `fldx.d` or `fstx.d` of r12. The indexed forms are one `ldx`, `stx`,
-`fldx.d` or `fstx.d`. `lea-i` is `addi.d`, else `add.d` of r14.
+`fldx.d` or `fstx.d`. `lea-rcr` is `addi.d`, else `add.d` of r14.
 
 `push`, `pop`, `emit-save-state` and `emit-load-state` are as on riscv64.
 
@@ -565,9 +565,9 @@ other way round branching over a `b` of ±128MB. A float branch is
 `bceqz` for `bne-ff`, reach ±4MB, with no long form.
 
 `call` is a push of ra, `bl` (±128MB), and a pop of ra. `call-r` is the
-same round `jirl ra, r, 0`. `call-i` loads the address into r12, `call-p`
+same round `jirl ra, r, 0`. `call-rc` loads the address into r12, `call-p`
 by `pcaddu12i` and `ld.d`, then a `call-r` of r12. `jmp` is `b`, ±128MB,
-`ret` `jirl zero, ra, 0`. `lea-p` is `pcaddu12i` and `addi.d`, `cpy-pr`
+`ret` `jirl zero, ra, 0`. `lea-pr` is `pcaddu12i` and `addi.d`, `load-pr`
 `pcaddu12i` and `ld.d`, ±2GB. `sync` is `dbar 0`.
 
 The divide is `div.d` or `div.du` to r12 and `maskeqz` to make it 0 on a
@@ -613,10 +613,10 @@ a register at bits 8 to 11 and another, or 4 bits of a constant, at bits
 * A load or store with an offset is a word and a 16 bit signed offset, or
   the next op number and the offset in four words.
 
-* An indexed load or store and `lea-d` have the third register in a word
+* An indexed load or store and `lea-rrr` have the third register in a word
   of their own.
 
-* `call-i` and `jmp-i` take a 20 bit signed offset, `cpy-pr` and `lea-p`
+* `call-rc` and `jmp-rc` take a 20 bit signed offset, `load-pr` and `lea-pr`
   a 20 bit one from past the instruction; past that they fail.
 
 * `call-abi` is `b` and `n` and a word of `c`, 0 to 0xfff8; `r` is not
@@ -630,7 +630,7 @@ the word and the rest in the next, from past both. Past 24 bits fails. A
 conditional branch is sized by the most it has reached; `call`, `jmp`,
 `call-p` and `jmp-p` by the reach on this pass.
 
-`push` is a `sub-cr` of `:rsp` and a `cpy-ri` of each, `pop` the reverse.
+`push` is a `sub-cr` of `:rsp` and a `store-rrc` of each, `pop` the reverse.
 `emit-entry-abi`, `emit-save-state` and `emit-load-state` are nothing,
 `call` pushing the return pc as x86_64 does. `e_stack_init` puts `f` and
 `x` at `s` less 16, as x86_64.

@@ -14,12 +14,12 @@
 	(vpif '(:r0 /= 0))
 		(fn-bind 'sys/statics/statics :r3)
 		(vp-cpy-rr :r0 :r1)
-		(vp-cpy-ir :r3 statics_sys_math_seed :r0)
+		(vp-load-rcr :r3 statics_sys_math_seed :r0)
 		(vpif '(:r0 = 0))
 			;total random at start up
 			(vp-cpy-rr :r1 :r2)
 			(call :host_os :pii_rand '((& :r3 statics_sys_math_seed) +long_size))
-			(vp-cpy-ir :r3 statics_sys_math_seed :r0)
+			(vp-load-rcr :r3 statics_sys_math_seed :r0)
 			(vp-cpy-rr :r2 :r1)
 		(endif)
 		(vp-cpy-rr :r0 :r2)
@@ -31,7 +31,7 @@
 		(vp-cpy-rr :r0 :r2)
 		(vp-shl-cr 4 :r2)
 		(vp-xor-rr :r2 :r0)
-		(vp-cpy-ri :r0 :r3 statics_sys_math_seed)
+		(vp-store-rrc :r0 :r3 statics_sys_math_seed)
 		(vp-rem-rr-u :r1 :r0)
 	(endif)
 
@@ -50,7 +50,7 @@
 
 	(entry :sys_math :f_sqrt '(:r0))
 
-	(vp-lea-p 'fn_consts :r1)
+	(vp-lea-pr 'fn_consts :r1)
 	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
 	(vp-cvt-rf :r0 :d1)
 	(vp-mul-ff :d0 :d1)
@@ -74,7 +74,7 @@
 
 	(entry :sys_math :f_sin '(:r0))
 
-	(vp-lea-p 'fn_consts :r2)
+	(vp-lea-pr 'fn_consts :r2)
 	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
 	(vp-cvt-rf :r0 :d1)
 	(vp-mul-ff :d1 :d0)
@@ -98,7 +98,7 @@
 
 	(entry :sys_math :f_cos '(:r0))
 
-	(vp-lea-p 'fn_consts :r2)
+	(vp-lea-pr 'fn_consts :r2)
 	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
 	(vp-cvt-rf :r0 :d1)
 	(vp-mul-ff :d1 :d0)
@@ -124,20 +124,20 @@
 
 	(entry :sys_math :r_sin '(:d0))
 
-	(vp-lea-p 'constants :r0)
+	(vp-lea-pr 'constants :r0)
 
 	; --- Range Reduction: fmod(x, 2pi) ---
-	(vp-cpy-if :r0 0 :d2)		; Load 1/2pi
+	(vp-load-rcd :r0 0 :d2)		; Load 1/2pi
 	(vp-cpy-ff :d0 :d1)			; f0 = x
 	(vp-mul-ff :d2 :d0)			; f0 = x / 2pi
 	(vp-cvt-fr :d0 :r1)			; r1 = (int)(x / 2pi)
 	(vp-cvt-rf :r1 :d2)			; f2 = (double)k
-	(vp-cpy-if :r0 8 :d3)		; Load 2pi
+	(vp-load-rcd :r0 8 :d3)		; Load 2pi
 	(vp-mul-ff :d3 :d2)			; f2 = k * 2pi
 	(vp-sub-ff :d2 :d1)			; f1 = x - k*2pi
 
 	; --- Symmetry to [-pi, pi] ---
-	(vp-cpy-if :r0 16 :d2)		; Load pi
+	(vp-load-rcd :r0 16 :d2)		; Load pi
 	(vp-cpy-ff :d2 :d3)			; f3 = pi
 	(vp-neg-ff :d2 :d2)			; f2 = -pi
 
@@ -146,17 +146,17 @@
 	(vp-jmp 'check_hpi)
 
 (vp-label 'sub_2pi)
-	(vp-cpy-if :r0 8 :d2)		; Load 2pi
+	(vp-load-rcd :r0 8 :d2)		; Load 2pi
 	(vp-sub-ff :d2 :d1)			; x -= 2pi
 	(vp-jmp 'check_hpi)
 
 (vp-label 'add_2pi)
-	(vp-cpy-if :r0 8 :d2)		; Load 2pi
+	(vp-load-rcd :r0 8 :d2)		; Load 2pi
 	(vp-add-ff :d2 :d1)			; x += 2pi
 
 	; --- Symmetry to [-pi/2, pi/2] ---
 (vp-label 'check_hpi)
-	(vp-cpy-if :r0 24 :d2)		; Load pi/2
+	(vp-load-rcd :r0 24 :d2)		; Load pi/2
 	(vp-cpy-ff :d2 :d3)			; f3 = pi/2
 	(vp-neg-ff :d2 :d2)			; f2 = -pi/2
 
@@ -165,13 +165,13 @@
 	(vp-jmp 'poly)
 
 (vp-label 'fold_pos)
-	(vp-cpy-if :r0 16 :d2)		; Load pi
+	(vp-load-rcd :r0 16 :d2)		; Load pi
 	(vp-sub-ff :d1 :d2)			; f2 = pi - x
 	(vp-cpy-ff :d2 :d1)
 	(vp-jmp 'poly)
 
 (vp-label 'fold_neg)
-	(vp-cpy-if :r0 16 :d2)		; Load pi
+	(vp-load-rcd :r0 16 :d2)		; Load pi
 	(vp-neg-ff :d2 :d2)			; f2 = -pi
 	(vp-sub-ff :d1 :d2)			; f2 = -pi - x
 	(vp-cpy-ff :d2 :d1)
@@ -182,27 +182,27 @@
 	(vp-mul-ff :d1 :d3)			; f3 = x^2
 
 	; Horner's Method
-	(vp-cpy-if :r0 80 :d0)		; Load c7
+	(vp-load-rcd :r0 80 :d0)		; Load c7
 	(vp-mul-ff :d3 :d0)
-	(vp-cpy-if :r0 72 :d2)		; Load c6
+	(vp-load-rcd :r0 72 :d2)		; Load c6
 	(vp-add-ff :d2 :d0)
 	(vp-mul-ff :d3 :d0)
-	(vp-cpy-if :r0 64 :d2)		; Load c5
+	(vp-load-rcd :r0 64 :d2)		; Load c5
 	(vp-add-ff :d2 :d0)
 	(vp-mul-ff :d3 :d0)
-	(vp-cpy-if :r0 56 :d2)		; Load c4
+	(vp-load-rcd :r0 56 :d2)		; Load c4
 	(vp-add-ff :d2 :d0)
 	(vp-mul-ff :d3 :d0)
-	(vp-cpy-if :r0 48 :d2)		; Load c3
+	(vp-load-rcd :r0 48 :d2)		; Load c3
 	(vp-add-ff :d2 :d0)
 	(vp-mul-ff :d3 :d0)
-	(vp-cpy-if :r0 40 :d2)		; Load c2
+	(vp-load-rcd :r0 40 :d2)		; Load c2
 	(vp-add-ff :d2 :d0)
 	(vp-mul-ff :d3 :d0)
-	(vp-cpy-if :r0 32 :d2)		; Load c1
+	(vp-load-rcd :r0 32 :d2)		; Load c1
 	(vp-add-ff :d2 :d0)
 	(vp-mul-ff :d3 :d0)
-	(vp-cpy-if :r0 88 :d2)		; Load 1.0
+	(vp-load-rcd :r0 88 :d2)		; Load 1.0
 	(vp-add-ff :d2 :d0)
 	(vp-mul-ff :d1 :d0)
 
@@ -363,9 +363,9 @@
 
 	(entry :sys_math :r_pow '(:d0 :d1))
 
-	(vp-lea-p 'fn_consts :r2)
-	(vp-cpy-if :r2 (fn-const (n2r 0)) :d2)
-	(vp-cpy-if :r2 (fn-const (n2r 1)) :d6)
+	(vp-lea-pr 'fn_consts :r2)
+	(vp-load-rcd :r2 (fn-const (n2r 0)) :d2)
+	(vp-load-rcd :r2 (fn-const (n2r 1)) :d6)
 	(vp-bgt-ff :d2 :d0 'positive)
 	(vp-cpy-ff :d2 :d0)
 	(vp-jmp 'exit)

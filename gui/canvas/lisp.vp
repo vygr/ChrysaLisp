@@ -751,7 +751,7 @@
 	(loop-start)
 		(vp-cpy-rr xp x)
 		(loop-start)
-			(vp-cpy-ir-ui data 0 col)
+			(vp-load-rcr-ui data 0 col)
 			(vp-add-cr +int_size data)
 			(assign `(,col) `((,this +canvas_color)))
 			(call :canvas :plot `(,this ,x ,y) `(,this))
