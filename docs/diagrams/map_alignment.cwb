@@ -152,14 +152,14 @@
 									:stroke
 									0
 									:text
-									"[the symbol emit-add-rr]"
+									"[the symbol add-rr]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										33.48687
+										47.73303
 										18.00000
 									)
 								)
@@ -270,12 +270,12 @@
 									:stroke
 									0
 									:text
-									"[... 41   [42 emit-add-rr: :nil, not a jump]   43 ...]"
+									"[... 41   [42 add-rr: :nil, not a jump]   43 ...]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										89.98150
+										102.39947
 										51.00000
 									)
 								)
@@ -366,12 +366,12 @@
 									:stroke
 									0
 									:text
-									"[... 41   [42 emit-add-rr: its function]   43 ...]"
+									"[... 41   [42 add-rr: its function]   43 ...]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										96.33148
+										108.74945
 										51.00000
 									)
 								)
@@ -462,12 +462,12 @@
 									:stroke
 									0
 									:text
-									"[... 41   [42 emit-add-rr: :nil, not fused]   43 ...]"
+									"[... 41   [42 add-rr: :nil, not fused]   43 ...]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										91.73919
+										104.15716
 										51.00000
 									)
 								)

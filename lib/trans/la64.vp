@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
 (include "class/lisp/class.inc")
 (include "././asm/ops.inc")
-(include "./vpb_ops.inc")
-(include "./vpb_trans.inc")
+(include "./trans_ops.inc")
+(include "./trans.inc")
 
 ;The la64 translator: VP text, lib/trans/vp_parse.vp, to native code. Each
 ;VP op has a routine here, e_ and the name of its op
@@ -12,7 +12,7 @@
 (defq +la_zero 0 +la_ra 1 +la_sp 3 +la_t1 12 +la_t2 13 +la_t3 14 +la_t4 30 +la_t5 31)
 
 (defun laf (x shift &optional mask)
-	;a field of an instruction: a number put now, or a reg as vpb-emit has it
+	;a field of an instruction: a number put now, or a reg as trans-emit has it
 	(if (num? x)
 		(progn
 			(if mask (setq x (logand x mask)))
@@ -50,7 +50,7 @@
 	(vp-call label))
 
 
-(def-func (path-to-absolute "./vpb_la64"))
+(def-func (path-to-absolute "./la64"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -60,10 +60,10 @@
 	;trashes
 	;:r0-:r13, :d0-:d15
 	;info
-	;(vpb-la64 bin) -> :nil | str, a function's VP binary as la64 native
+	;(trans-la64 text) -> :nil | str, a function's VP text as la64 native
 	;code, :nil if it can not be
 
-	(vpb-driver)
+	(trans-driver)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; registers and constants
@@ -261,14 +261,14 @@
 (vp-label 'la_branch)
 	;la64-branch, :r0 = o, :r1 = rj, :r2 = rd, :r3 = l, :r7 = the record.
 	;Short if it can be, once long it is long
-	(assign '((:r14 +vpbt_pc) (:r7 +vpbr_m) (:r14 +vpbt_pass)) '(:r4 :r5 :r6))
+	(assign '((:r14 +trs_pc) (:r7 +tri_m) (:r14 +trs_pass)) '(:r4 :r5 :r6))
 	(vp-sub-rr :r4 :r3)
 	(vpif '(:r6 > 0))
 		(vp-abs-rr :r3 :r8)
 		(vp-abs-rr :r5 :r9)
 		(vpif '(:r8 > :r9))
 			(vp-cpy-rr :r3 :r5)
-			(assign '(:r5) '((:r7 +vpbr_m)))
+			(assign '(:r5) '((:r7 +tri_m)))
 		(endif)
 	(endif)
 	(range? :r5 -0x20000 0x1ffff 'la_branch_long)
@@ -319,7 +319,7 @@
 		(if swap
 			(ew (+ f (<< cc 15)) '(:r1 10) '(:r0 5))
 			(ew (+ f (<< cc 15)) '(:r0 10) '(:r1 5)))
-		(assign '((:r14 +vpbt_pc)) '(:r3))
+		(assign '((:r14 +trs_pc)) '(:r3))
 		(vp-sub-rr :r3 :r2)
 		(ew o '(:r2 8 0x3fffc) '(:r2 -18 0x7c0000))
 		(vp-ret)
@@ -596,7 +596,7 @@
 
 (vp-label 'bl)
 	;la64-bl, :r0 = l
-	(assign '((:r14 +vpbt_pc)) '(:r1))
+	(assign '((:r14 +trs_pc)) '(:r1))
 	(vp-sub-rr :r1 :r0)
 	(range? :r0 -0x8000000 0x7ffffff 'h_none)
 	(la-b26 0x54000000 :r0)
@@ -616,7 +616,7 @@
 (handler 'call 'e_call)
 
 (vp-label 'e_jmp)
-	(assign '((:r14 +vpbt_pc)) '(:r1))
+	(assign '((:r14 +trs_pc)) '(:r1))
 	(vp-sub-rr :r1 :r0)
 	(range? :r0 -0x8000000 0x7ffffff 'h_none)
 	(la-b26 0x50000000 :r0)
@@ -652,7 +652,7 @@
 
 (vp-label 'e_lea_p)
 	;(l d), pcaddu12i and the addi.d always
-	(assign '((:r14 +vpbt_pc)) '(:r2))
+	(assign '((:r14 +trs_pc)) '(:r2))
 	(vp-sub-rr :r2 :r0)
 	(la-pc-split)
 	(la-1ri20 0x1c000000 :r1 :r0)
@@ -662,7 +662,7 @@
 
 (vp-label 'e_cpy_pr)
 	;(l d), pcaddu12i and a load with the low 12 bits
-	(assign '((:r14 +vpbt_pc)) '(:r2))
+	(assign '((:r14 +trs_pc)) '(:r2))
 	(vp-sub-rr :r2 :r0)
 	(la-pc-split)
 	(vp-push :r1 :r2)
@@ -891,7 +891,7 @@
 	(vp-load-rcr :rsp 16 :r1)
 	(vp-cpy-cr (* +ptr_size 2) :r2)
 	(vp-call 'e_cpy_ri)
-	(assign '((:r14 +vpbt_pc)) '(:r0))
+	(assign '((:r14 +trs_pc)) '(:r0))
 	(vp-add-cr 16 :r0)
 	(vp-cpy-cr +la_t1 :r1)
 	(vp-call 'e_lea_p)
@@ -900,7 +900,7 @@
 	(vp-xor-rr :r2 :r2)
 	(vp-call 'e_cpy_ri)
 	(vp-free (* 3 +ptr_size))
-	(assign '((:r14 +vpbt_pc)) '(:r0))
+	(assign '((:r14 +trs_pc)) '(:r0))
 	(vp-add-cr 20 :r0)
 	(vp-call 'e_jmp)
 	(la-regs 'h_pop +la_ra +la_t1)
@@ -969,10 +969,10 @@
 (handler 'la64-call-p-m 'e_call_p_m)
 (handler 'la64-call-p-t 'e_call_p_t)
 
-	(vpb-helpers)
-	(vpb-call-fusion)
-	(vpb-tables "(vpb-la64 bin)")
-	(vpb-call-fusion-tables "la64")
+	(trans-helpers)
+	(trans-call-fusion)
+	(trans-tables "(trans-la64 bin)")
+	(trans-call-fusion-tables "la64")
 	(vp-align +long_size)
 (vp-label 'reg_map)
 	;:r0 to :rsp, then :d0 to :d15, as la64 numbers them

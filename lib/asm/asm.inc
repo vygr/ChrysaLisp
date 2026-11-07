@@ -261,7 +261,8 @@
 		run_src (cat "lib/trans/" run_cpu ".vp")
 		stale (filter (# (>= (get (sym %0) newest) (age (cat "obj/" run_cpu "/" run_abi "/" %0)))) trans_files)
 		built trans_files)
-	(when (> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0)
+	(when (or (> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0)
+			(> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-was-name run_cpu run_abi))) 0))
 		(setq built stale)
 		(when (nempty? stale)
 			(bind '(& more) (vp-stage stale run_abi run_cpu))
@@ -282,7 +283,7 @@
 	;platform's code. Newer, not as new, for the VP: the two stages of one
 	;build may write both in the same second, and the age is of a second
 	(defq trans_age (reduce (# (max %0 (age %1)))
-		(list "lib/trans/vp.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc"
+		(list "lib/trans/vp.inc" "lib/trans/trans_ops.inc" "lib/trans/trans.inc"
 			"lib/trans/vp_parse.vp" (cat "lib/trans/" *cpu* ".vp")) 0))
 	(defq to_translate (filter (lambda (file)
 		(and (not (find file vp_files))

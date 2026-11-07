@@ -13,10 +13,14 @@
 (import "././boot/image.inc")
 ;the translator, of its file or of the boot image. A constant, put in where
 ;it is used: a variable of :nil is not prebound, and a task that calls
-;(emit-translate) from its own environment would not find it
-(defq +vpb_native (progn
-	(defq vpb_name (trans-name *cpu* *abi*))
-	(if (or (> (age (cat (load-path) vpb_name)) 0) (image-has? vpb_name)) (ffi vpb_name))))
+;(emit-translate) from its own environment would not find it. Till a build
+;has made the translator by its name, the one built of before, vpb_ and its
+;name, which the build then makes again by the name it has now
+(defq +trans_native (progn
+	(defq trans_name (trans-name *cpu* *abi*) was_name (trans-was-name *cpu* *abi*))
+	(cond
+		((or (> (age (cat (load-path) trans_name)) 0) (image-has? trans_name)) (ffi trans_name))
+		((> (age (cat (load-path) was_name)) 0) (ffi was_name)))))
 
 (defun vp-portable (form)
 	; (vp-portable form) -> form
@@ -65,8 +69,8 @@
 	; (vp-translate-text text) -> func_binary
 	;a function's VP text, its entry of a bundle, to this platform's native
 	;code
-	(unless +vpb_native (throw "No translator to this CPU here, make install makes them !" *cpu*))
-	(ifn (+vpb_native text)
+	(unless +trans_native (throw "No translator to this CPU here, make install makes them !" *cpu*))
+	(ifn (+trans_native text)
 		(throw (cat "The " *cpu* " translator failed on this function !")
 			(first (first (read (string-stream text)))))))
 

@@ -137,21 +137,21 @@ the whole of it.
 
 `lib/trans/vp_parse.vp` reads it. It is a VP function that needs no Lisp,
 shared by every translator and carried in the VP64 boot image. It parses an
-entry's text straight into the translator's records, `+vpbr` of an
-instruction and `+vpbo` of an operand, `lib/trans/vpb_trans.inc`. They are
+entry's text straight into the translator's records, `+tri` of an
+instruction and `+tro` of an operand, `lib/trans/trans.inc`. They are
 made for speed and thrown away after each function: they are not a format
 anything stores or sends.
 
 * An op is found by a hash of its name, made from `+vp_emit_ops` of
-  `lib/asm/ops.inc`. Its number is its place in `+vpb_all_ops`,
-  `lib/trans/vpb_ops.inc`: the VP's own ops, then the fused ops the
+  `lib/asm/ops.inc`. Its number is its place in `+trans_ops`,
+  `lib/trans/trans_ops.inc`: the VP's own ops, then the fused ops the
   prepasses of the translators make, so a translator's records can hold
   them too. The numbers are internal to one translator build.
 
 * An operand is a register, `:r0` to `:rsp` as 0 to 15, `:d0` to `:d15` as
   16 to 31, a number, a string, a label, `(- a b)` of two labels or of a
   label and `*pc*`, or a name, a keyword that is not a register, the class
-  and method a `call-rc` names. Its record has its kind, `+vpbk`: `reg`,
+  and method a `call-rc` names. Its record has its kind, `+trk`: `reg`,
   `num`, `label`, `label_pc`, `label_diff`, `string`, `name` or
   `pc_label`.
 
@@ -190,9 +190,9 @@ parse, the prepass, the passes and the output are all in VP.
 
 ### The Shared Driver
 
-`lib/trans/vpb_trans.inc` is included by every translator:
+`lib/trans/trans.inc` is included by every translator:
 
-* `(vpb-driver)`: the entry, the parse of the text to a record of each
+* `(trans-driver)`: the entry, the parse of the text to a record of each
   instruction and its operands, `lib/trans/vp_parse.vp`, the call of the translator's `prepass`,
   then the passes, and the output as a string.
 
@@ -200,12 +200,12 @@ parse, the prepass, the passes and the output are all in VP.
   `op`. An op with no routine goes to `h_none`, which marks the function as
   one the translator cannot do.
 
-* `(vpb-helpers)`: routines the prepasses use to look at operands.
+* `(trans-helpers)`: routines the prepasses use to look at operands.
 
-* `(vpb-tables name)`: the entry's error, and the table of each op's
-  routine, in the order of `+vpb_all_ops`.
+* `(trans-tables name)`: the entry's error, and the table of each op's
+  routine, in the order of `+trans_ops`.
 
-* `(vpb-call-fusion)` and `(vpb-call-fusion-tables cpu)`: a generic call
+* `(trans-call-fusion)` and `(trans-call-fusion-tables cpu)`: a generic call
   fusion prepass for CPUs with a link register, used by riscv64 and la64.
 
 A routine of an op is called with `:r0` to `:r3` its first operands' values,
@@ -213,7 +213,7 @@ A routine of an op is called with `:r0` to `:r3` its first operands' values,
 its record. A register operand comes to it already in the CPU's own number,
 from the translator's `reg_map`, 16 bytes for `:r0` to `:rsp` then 16 for
 `:d0` to `:d15`. A routine may trash `:r0` to `:r13`, never `:r14`, the
-state, which has `+vpbt_pc` where the output is and `+vpbt_pass` the pass.
+state, which has `+trs_pc` where the output is and `+trs_pass` the pass.
 It writes its bytes with `emit8`, `emit16`, `emit32` or `emit64`.
 
 For example, the riscv64 routines of the register to register ALU ops:
@@ -237,7 +237,7 @@ a1 and a0, and makes `add a0, a0, a1`.
 ### Prepasses
 
 Before the passes a translator may rewrite its records, `prepass`, making
-an instruction into a fused op of `vpb_ops.inc` or into `nop`:
+an instruction into a fused op of `trans_ops.inc` or into `nop`:
 
 * arm64: call fusion, load and store pair fusion to `ldp` and `stp`, and
   copy fusion, a copy and the ALU op after it to one three register op.
@@ -246,7 +246,7 @@ an instruction into a fused op of `vpb_ops.inc` or into `nop`:
   after, to the ALU op from memory, `x64-alu-ir`; a copy and an add,
   or a shift by 1, of what it copied to, to a `lea`.
 
-* riscv64 and la64: the generic call fusion of `vpb_trans.inc`.
+* riscv64 and la64: the generic call fusion of `trans.inc`.
 
 * vp64: none.
 
@@ -257,7 +257,7 @@ first pass. So the driver emits the whole function, pass after pass, each
 operand's value worked out from the labels as the pass before left them.
 `label` sets where a label is as the pass reaches it.
 
-A branch that may take a short or a long form keeps in its record, `+vpbr_m`,
+A branch that may take a short or a long form keeps in its record, `+tri_m`,
 the most it has had to reach on any pass, and is sized by that, so it only
 ever grows, and the passes settle. They stop when no label has moved from
 the pass before, after 2 passes at the least. After 1000 passes the
@@ -526,7 +526,7 @@ ra in x26, `andi sp, sp, -16`, loads x31 from `c(b)`, `jalr ra, x31`,
 then puts sp and ra back and pops. `e_stack_init` is as on arm64, the
 stub after a `jal` over it popping x31 and ra and jumping to x31.
 
-The prepass is the generic call fusion of `vpb_trans.inc`, instructions 8
+The prepass is the generic call fusion of `trans.inc`, instructions 8
 to the last, the same rules as the arm64 call fusion, making
 `riscv64-call-h`, `-m` and `-t` and their `-r`, `-i` and `-p` forms.
 
@@ -699,8 +699,8 @@ first, so the translators to every target are new before any target is
 translated.
 
 A target's functions are translated again when its translator's sources,
-`lib/trans/<cpu>.vp` and `vp.inc`, `vp_parse.vp`, `vpb_ops.inc` and
-`vpb_trans.inc`, are newer than them. A change to the RISC-V translator
+`lib/trans/<cpu>.vp` and `vp.inc`, `vp_parse.vp`, `trans_ops.inc` and
+`trans.inc`, are newer than them. A change to the RISC-V translator
 makes the RISC-V code again, and of the other targets only their own copy of
 the RISC-V translator. A change to one of the classes it includes does not,
 as it does not change what the translator gives.
@@ -722,7 +722,7 @@ started again, as with any VP function made again.
 ### The Loader's Own
 
 The loader, `(:sys_load :load)`, links the translator of its CPU, as
-`lib/trans/vpb`, so every boot image holds it. A native that is not there,
+`lib/trans/translate`, so every boot image holds it. A native that is not there,
 or not as long as it says, as when another node is writing it, is
 translated from its VP text. `(:sys_load :vp_find)` finds the function's
 entry by the line it begins, `("name"`, in a `.vp` bundle of its folder in
@@ -751,7 +751,7 @@ A new CPU port means:
    `riscv64.vp` say: its `reg_map`, a routine for each op, its
    `e_call_abi` and `e_entry_abi` for the host's ABI, and its `prepass`.
 
-2. Adding its fused ops, if it has any, to `lib/trans/vpb_ops.inc`.
+2. Adding its fused ops, if it has any, to `lib/trans/trans_ops.inc`.
 
 3. Adding it to `+boot_extras` in `lib/boot/image.inc`, so installs can
    translate to it.

@@ -491,11 +491,11 @@
 	(vp-add-rr :r1 :r0)
 	(call :sys_load :vp_find '(:r0) '(:r0 :r1 :r2))
 	(vpif '(:r0 /= 0))
-		;translated, the str of it or 0. lib/trans/vpb is the translator of
+		;translated, the str of it or 0. lib/trans/translate is the translator of
 		;the CPU the image is made for, the image's maker links it: this VP
 		;is made once for every CPU
 		(vp-push :r0)
-		(fn-bind 'lib/trans/vpb :r3)
+		(fn-bind 'lib/trans/translate :r3)
 		(vp-xor-rr :r0 :r0)
 		(vp-call-r :r3)
 		(vp-pop :r1)

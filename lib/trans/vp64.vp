@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
 (include "class/lisp/class.inc")
 (include "././asm/ops.inc")
-(include "./vpb_ops.inc")
-(include "./vpb_trans.inc")
+(include "./trans_ops.inc")
+(include "./trans.inc")
 
 ;The VP64 translator: VP text, lib/trans/vp_parse.vp, to VP64 code. An op of
 ;VP64 is numbered in the order src/host/vp64.cpp has them: here each is by
@@ -39,13 +39,13 @@
 (reduce (lambda (n (op k)) (. vp64_at :insert op n) (+ n k)) vp64_ops 0)
 (defun opn (op) (. vp64_at :find op))
 
-(defun es (&rest parts) (apply (const vpb-emit) (cat (list 'emit16) parts)))
+(defun es (&rest parts) (apply (const trans-emit) (cat (list 'emit16) parts)))
 
 (defun within? (r bits l)
 	(defq limit (<< 1 (dec bits)))
 	(range? r (neg limit) (dec limit) l))
 
-(def-func (path-to-absolute "./vpb_vp64"))
+(def-func (path-to-absolute "./vp64"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -55,10 +55,10 @@
 	;trashes
 	;:r0-:r13, :d0-:d15
 	;info
-	;(vpb-vp64 bin) -> :nil | str, a function's VP binary as VP64 code, :nil
+	;(trans-vp64 text) -> :nil | str, a function's VP text as VP64 code, :nil
 	;if it can not be
 
-	(vpb-driver)
+	(trans-driver)
 
 (vp-label 'cr)
 	;vp64-cr and vp64-scr, :r0 = c, :r1 = r, :r2 = the first op
@@ -212,14 +212,14 @@
 
 (vp-label 'branch)
 	;vp64-branch, :r0 = op, :r1 = l, :r7 = the record
-	(assign '((:r14 +vpbt_pc) (:r7 +vpbr_m) (:r14 +vpbt_pass)) '(:r2 :r3 :r4))
+	(assign '((:r14 +trs_pc) (:r7 +tri_m) (:r14 +trs_pass)) '(:r2 :r3 :r4))
 	(vp-sub-rr :r2 :r1)
 	(vpif '(:r4 > 0))
 		(vp-abs-rr :r1 :r5)
 		(vp-abs-rr :r3 :r6)
 		(vpif '(:r5 > :r6))
 			(vp-cpy-rr :r1 :r3)
-			(assign '(:r3) '((:r7 +vpbr_m)))
+			(assign '(:r3) '((:r7 +tri_m)))
 		(endif)
 	(endif)
 	(vp-cpy-rr :r3 :r5)
@@ -257,7 +257,7 @@
 
 (vp-label 'call_jmp_p)
 	;vp64-call-jmp-p, :r0 = op, :r1 = l
-	(assign '((:r14 +vpbt_pc)) '(:r2))
+	(assign '((:r14 +trs_pc)) '(:r2))
 	(vp-sub-rr :r2 :r1)
 	(vp-cpy-rr :r1 :r3)
 	(vp-sub-cr 2 :r3)
@@ -303,7 +303,7 @@
 		;(l r), from past this, 20 bits
 		(defq label (sym (cat "e_" name)))
 		(vp-label label)
-		(assign '((:r14 +vpbt_pc)) '(:r2))
+		(assign '((:r14 +trs_pc)) '(:r2))
 		(vp-sub-rr :r2 :r0)
 		(vp-sub-cr 4 :r0)
 		(within? :r0 20 'h_none)
@@ -417,8 +417,8 @@
 (vp-label 'prepass)
 	(vp-ret)
 
-	(vpb-helpers)
-	(vpb-tables "(vpb-vp64 bin)")
+	(trans-helpers)
+	(trans-tables "(trans-vp64 bin)")
 	(vp-align +long_size)
 (vp-label 'reg_map)
 	;:r0 to :rsp, then :d0 to :d15, as VP64 numbers them

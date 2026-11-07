@@ -9,7 +9,7 @@
 (defq bt_lf "\n" bt_id (str (pii-time))
 	bt_a (cat "tests/bt_" bt_id "_a") bt_b (cat "tests/bt_" bt_id "_b")
 	bt_obj (cat "obj/" bt_cpu "/" bt_abi "/") bt_src (cat bt_obj "tests/bt_" bt_id ".vp")
-	bt_vpb (map (# (cat %0 "tests/bt_" bt_id ".vp")) '("obj/vp/" "obj/vp_validate/"))
+	bt_bundles (map (# (cat %0 "tests/bt_" bt_id ".vp")) '("obj/vp/" "obj/vp_validate/"))
 	bt_bins (list))
 
 ;b adds 3 to :r0, a is called from Lisp with a num and gives a num, of b of it
@@ -28,7 +28,7 @@
 				(push bt_bins (list (first entry) (vp-translate-text text) text)))
 			(vp-compile bt_src))
 		(defq bundle (apply (const cat) (cat (list "") (map (const third) bt_bins))))
-		(each (# (save bundle %0)) bt_vpb))))
+		(each (# (save bundle %0)) bt_bundles))))
 (bt-make)
 (pii-remove bt_src)
 
@@ -40,10 +40,10 @@
 	bt_bins)
 
 (each (# (pii-remove (cat bt_obj %0))) (list bt_a bt_b))
-(each (const pii-remove) bt_vpb)
+(each (const pii-remove) bt_bundles)
 
 ;the loader's VP is made once for every CPU, so it names no CPU's
-;translator: it links lib/trans/vpb, which the maker of an image gives the
+;translator: it links lib/trans/translate, which the maker of an image gives the
 ;translator of the CPU it makes the image for. The image this runs on holds
 ;its own CPU's
 (import "lib/boot/image.inc")
@@ -60,11 +60,11 @@
 			(vp-compile "sys/load/class.vp"))))
 	out)
 (defq bt_loader (bt-loader))
-(assert-true "the loader's VP links lib/trans/vpb" (found? bt_loader "lib/trans/vpb"))
+(assert-true "the loader's VP links lib/trans/translate" (found? bt_loader "lib/trans/translate"))
 (assert-eq "and names no CPU's translator" :nil (some (# (if (found? bt_loader %0) %0)) bt_names))
 (assert-true "the image this runs on holds its own CPU's translator"
 	(found? (load (cat (load-path) "sys/boot_image")) (trans-name bt_cpu bt_abi)))
 
-(undef (env) 'bt_cpu 'bt_abi 'bt_lf 'bt_id 'bt_a 'bt_b 'bt_obj 'bt_src 'bt_vpb 'bt_bins 'bt_f 'bt-make
+(undef (env) 'bt_cpu 'bt_abi 'bt_lf 'bt_id 'bt_a 'bt_b 'bt_obj 'bt_src 'bt_bundles 'bt_bins 'bt_f 'bt-make
 	'bt_names 'bt_loader 'bt-loader)
 

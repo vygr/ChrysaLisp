@@ -5136,7 +5136,7 @@ cache loading of function blobs etc
 ```code
 (func-refs fobj) -> ([sym] ...)
 
-the functions it links to. lib/trans/vpb is the translator of the CPU
+the functions it links to. lib/trans/translate is the translator of the CPU
 of this image, the loader's: its VP is the same for every CPU, so it
 can not name one
 ```
@@ -14883,6 +14883,16 @@ each button of a toolbar lit, or not, by its state in a list
 (trans-name cpu abi) -> str
 
 the function that translates VP to the code of that CPU and ABI
+```
+
+### trans-was-name
+
+```code
+(trans-was-name cpu abi) -> str
+
+the name that translator had before, lib/trans/vpb_ and the CPU, which
+a build made before it has one by its name translates with, and makes
+it by its name
 ```
 
 ### transfer

@@ -28,8 +28,8 @@
 		lib/crypto/gf25519_mul lib/crypto/random_bytes lib/crypto/sha256_blocks lib/crypto/sha512_blocks
 		service/net/lisp_accept service/net/lisp_close service/net/lisp_connect service/net/lisp_listen
 		service/net/lisp_poll service/net/lisp_recv service/net/lisp_send
-		lib/trans/vpb_arm64 lib/trans/vpb_la64 lib/trans/vpb_riscv64
-		lib/trans/vpb_vp64 lib/trans/vpb_x86_64_amd64 lib/trans/vpb_x86_64_win64
+		lib/trans/arm64 lib/trans/la64 lib/trans/riscv64
+		lib/trans/vp64 lib/trans/x86_64_amd64 lib/trans/x86_64_win64
 		lib/trans/vp_parse))
 
 (defun boot-funcs (funcs &optional all)
@@ -57,7 +57,14 @@
 (defun trans-name (cpu abi)
 	; (trans-name cpu abi) -> str
 	;the function that translates VP to the code of that CPU and ABI
-	(cat "lib/trans/vpb_" (if (eql cpu 'x86_64) (cat "x86_64_" (to-lower (str abi))) (str cpu))))
+	(cat "lib/trans/" (if (eql cpu 'x86_64) (cat "x86_64_" (to-lower (str abi))) (str cpu))))
+
+(defun trans-was-name (cpu abi)
+	; (trans-was-name cpu abi) -> str
+	;the name that translator had before, lib/trans/vpb_ and the CPU, which
+	;a build made before it has one by its name translates with, and makes
+	;it by its name
+	(cat "lib/trans/vpb_" (slice (trans-name cpu abi) (length "lib/trans/") -1)))
 
 (defun image-has? (fn_path &optional target)
 	; (image-has? fn_path [target]) -> :nil | :t
@@ -70,7 +77,7 @@
 
 (defun func-refs (fobj)
 	; (func-refs fobj) -> ([sym] ...)
-	;the functions it links to. lib/trans/vpb is the translator of the CPU
+	;the functions it links to. lib/trans/translate is the translator of the CPU
 	;of this image, the loader's: its VP is the same for every CPU, so it
 	;can not name one
 	(defq paths (list)
@@ -78,7 +85,7 @@
 		po (get-short fobj +fn_header_paths))
 	(while (/= lo po)
 		(defq name (sym (get-cstr fobj (+ (get-long fobj lo) lo))))
-		(push paths (if (eql name 'lib/trans/vpb) (sym (trans-name *cpu* *abi*)) name))
+		(push paths (if (eql name 'lib/trans/translate) (sym (trans-name *cpu* *abi*)) name))
 		(setq lo (+ lo +ptr_size)))
 	paths)
 
@@ -143,5 +150,5 @@
 	:nil)
 
 ;module
-(export-symbols '(boot-image boot-funcs image-funcs image-has? trans-name func-obj-path))
+(export-symbols '(boot-image boot-funcs image-funcs image-has? trans-name trans-was-name func-obj-path))
 (env-pop)

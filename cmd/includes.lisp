@@ -22,7 +22,7 @@
     and macros of a class.inc that are used. What such an inline
     needs in turn, its class.inc must include for itself.
 
-    Another .inc a file includes, lib/trans/vpb_trans.inc say,
+    Another .inc a file includes, lib/trans/trans.inc say,
     is text put in the file: it is needed if the file uses a
     name it defines, and what it uses is then needed too.
 
@@ -84,7 +84,7 @@
 		(files-scan file) (list)))
 
 ;the kept includes in an order each comes after those whose names it
-;uses, as it is read where it is put: vpb_trans.inc after vpb_ops.inc
+;uses, as it is read where it is put: trans.inc after trans_ops.inc
 (defun include-order (kept uses defines)
 	(defq out (list) left (range 0 (length kept)))
 	(until (empty? left)

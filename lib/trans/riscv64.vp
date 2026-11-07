@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
 (include "class/lisp/class.inc")
 (include "././asm/ops.inc")
-(include "./vpb_ops.inc")
-(include "./vpb_trans.inc")
+(include "./trans_ops.inc")
+(include "./trans.inc")
 
 ;The riscv64 translator: VP text, lib/trans/vp_parse.vp, to native code. Each
 ;VP op has a routine here, e_ and the name of its op
@@ -12,7 +12,7 @@
 (defq +rv_zero 0 +rv_ra 1 +rv_sp 2 +rv_t1 31 +rv_t2 30 +rv_t3 29 +rv_t4 27 +rv_t5 26)
 
 (defun rvf (x shift &optional mask)
-	;a field of an instruction: a number put now, or a reg as vpb-emit has it
+	;a field of an instruction: a number put now, or a reg as trans-emit has it
 	(if (num? x)
 		(progn
 			(if mask (setq x (logand x mask)))
@@ -51,7 +51,7 @@
 	(vp-call label))
 
 
-(def-func (path-to-absolute "./vpb_riscv64"))
+(def-func (path-to-absolute "./riscv64"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -61,10 +61,10 @@
 	;trashes
 	;:r0-:r13, :d0-:d15
 	;info
-	;(vpb-riscv64 bin) -> :nil | str, a function's VP binary as riscv64
+	;(trans-riscv64 text) -> :nil | str, a function's VP text as riscv64
 	;native code, :nil if it can not be
 
-	(vpb-driver)
+	(trans-driver)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; registers and constants
@@ -268,14 +268,14 @@
 (vp-label 'rv_branch)
 	;riscv64-branch, :r0 = f3, :r1 = rs1, :r2 = rs2, :r3 = l, :r7 = the
 	;record. Short if it can be, once long it is long
-	(assign '((:r14 +vpbt_pc) (:r7 +vpbr_m) (:r14 +vpbt_pass)) '(:r4 :r5 :r6))
+	(assign '((:r14 +trs_pc) (:r7 +tri_m) (:r14 +trs_pass)) '(:r4 :r5 :r6))
 	(vp-sub-rr :r4 :r3)
 	(vpif '(:r6 > 0))
 		(vp-abs-rr :r3 :r8)
 		(vp-abs-rr :r5 :r9)
 		(vpif '(:r8 > :r9))
 			(vp-cpy-rr :r3 :r5)
-			(assign '(:r5) '((:r7 +vpbr_m)))
+			(assign '(:r5) '((:r7 +tri_m)))
 		(endif)
 	(endif)
 	(range? :r5 -0x1000 0xfff 'rv_branch_long)
@@ -599,7 +599,7 @@
 
 (vp-label 'jal)
 	;riscv64-jal, :r0 = l
-	(assign '((:r14 +vpbt_pc)) '(:r1))
+	(assign '((:r14 +trs_pc)) '(:r1))
 	(vp-sub-rr :r1 :r0)
 	(range? :r0 -0x100000 0xfffff 'h_none)
 	(rv-j 0x6f +rv_ra :r0)
@@ -619,7 +619,7 @@
 (handler 'call 'e_call)
 
 (vp-label 'e_jmp)
-	(assign '((:r14 +vpbt_pc)) '(:r1))
+	(assign '((:r14 +trs_pc)) '(:r1))
 	(vp-sub-rr :r1 :r0)
 	(range? :r0 -0x100000 0xfffff 'h_none)
 	(rv-j 0x6f +rv_zero :r0)
@@ -646,7 +646,7 @@
 
 (vp-label 'e_lea_p)
 	;(l d), auipc and the addi always
-	(assign '((:r14 +vpbt_pc)) '(:r2))
+	(assign '((:r14 +trs_pc)) '(:r2))
 	(vp-sub-rr :r2 :r0)
 	(within32? :r0 'h_none)
 	(vp-cpy-rr :r0 :r2)
@@ -660,7 +660,7 @@
 
 (vp-label 'e_cpy_pr)
 	;(l d), auipc and a load with the low 12 bits
-	(assign '((:r14 +vpbt_pc)) '(:r2))
+	(assign '((:r14 +trs_pc)) '(:r2))
 	(vp-sub-rr :r2 :r0)
 	(within32? :r0 'h_none)
 	(vp-cpy-rr :r0 :r2)
@@ -920,7 +920,7 @@
 	(vp-load-rcr :rsp 16 :r1)
 	(vp-cpy-cr (* +ptr_size 2) :r2)
 	(vp-call 'e_cpy_ri)
-	(assign '((:r14 +vpbt_pc)) '(:r0))
+	(assign '((:r14 +trs_pc)) '(:r0))
 	(vp-add-cr 16 :r0)
 	(vp-cpy-cr +rv_t1 :r1)
 	(vp-call 'e_lea_p)
@@ -929,7 +929,7 @@
 	(vp-xor-rr :r2 :r2)
 	(vp-call 'e_cpy_ri)
 	(vp-free (* 3 +ptr_size))
-	(assign '((:r14 +vpbt_pc)) '(:r0))
+	(assign '((:r14 +trs_pc)) '(:r0))
 	(vp-add-cr 20 :r0)
 	(vp-call 'e_jmp)
 	(rv-regs 'h_pop +rv_ra +rv_t1)
@@ -998,10 +998,10 @@
 (handler 'riscv64-call-p-m 'e_call_p_m)
 (handler 'riscv64-call-p-t 'e_call_p_t)
 
-	(vpb-helpers)
-	(vpb-call-fusion)
-	(vpb-tables "(vpb-riscv64 bin)")
-	(vpb-call-fusion-tables "riscv64")
+	(trans-helpers)
+	(trans-call-fusion)
+	(trans-tables "(trans-riscv64 bin)")
+	(trans-call-fusion-tables "riscv64")
 	(vp-align +long_size)
 (vp-label 'reg_map)
 	;:r0 to :rsp, then :d0 to :d15, as riscv64 numbers them

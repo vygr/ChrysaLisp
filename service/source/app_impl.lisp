@@ -70,7 +70,7 @@
 	(unless (get 'emit-translate *source_env*)
 		(bind '(& cpu abi) (map (const sym) (split (load-path) "/")))
 		(defq files (list "lib/asm/regs.inc" "lib/asm/ops.inc" "lib/trans/vp.inc"
-			"lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc" "lib/trans/vp_parse.vp"
+			"lib/trans/trans_ops.inc" "lib/trans/trans.inc" "lib/trans/vp_parse.vp"
 			(cat "lib/trans/" cpu ".vp")))
 		(def *source_env* '*cpu* cpu '*abi* abi '*build_mode* 1
 			'validatecase (macro (&rest e) (if (>= *build_mode* 2) `(progn ~e)))

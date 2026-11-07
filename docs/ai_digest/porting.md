@@ -360,7 +360,7 @@ translator works on those records.
 
 * **Core Components of a Translator File:**
 
-    * **`(vpb-driver)`:** from `lib/trans/vpb_trans.inc`, shared by all of
+    * **`(trans-driver)`:** from `lib/trans/trans.inc`, shared by all of
       them: the entry, the parse of the VP text to records by
       `lib/trans/vp_parse.vp`, the passes and the output.
 
@@ -377,11 +377,11 @@ translator works on those records.
   native C ABI (e.g., Windows on Arm64 AAPCS64). This is different from
   `vp-call` which uses ChrysaLisp's internal VP calling convention.
 
-* **Multi-Pass Translation:** `(vpb-driver)` handles this. It's needed to
+* **Multi-Pass Translation:** `(trans-driver)` handles this. It's needed to
   resolve forward branches and jumps. The passes repeat, re-emitting code
   and updating label addresses, until no label moves. A branch routine with
   a short and a long form sizes itself by the most it has had to reach, kept
-  in its record, `+vpbr_m`, so it only grows.
+  in its record, `+tri_m`, so it only grows.
 
 ### 3.2. Creating `lib/trans/mycpu.vp`
 
@@ -408,7 +408,7 @@ translator works on those records.
     * A routine may trash `:r0` to `:r13`, never `:r14`, the state.
 
     * Write Lisp helpers that build the instruction encodings, as
-      `rv-r` and the rest in `riscv64.vp` do with `vpb-emit`: the fixed
+      `rv-r` and the rest in `riscv64.vp` do with `trans-emit`: the fixed
       fields are added up when the translator is built, the register and
       constant fields when it runs.
 
@@ -479,9 +479,9 @@ translator works on those records.
 
     * Every translator has a `prepass` routine, run on the parsed records
       before the passes. It may be just a `vp-ret`, as `vp64.vp`'s is.
-      riscv64 and la64 use the generic call fusion, `(vpb-call-fusion)`;
+      riscv64 and la64 use the generic call fusion, `(trans-call-fusion)`;
       arm64 and x86_64 have their own. Any fused op it makes goes in
-      `lib/trans/vpb_ops.inc`, so it has a number the records can hold.
+      `lib/trans/trans_ops.inc`, so it has a number the records can hold.
 
 ### 3.3. Boot Image Generation and Testing
 
