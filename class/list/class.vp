@@ -392,36 +392,31 @@
 	;not gone into again. A list held twice, not in itself, is printed each
 	;time. Before there are tasks there is no tcb, and nothing is looked for
 
-	(def-vars
-		(ptr this note tcb next)
-		(uint seen))
+	(entry :list :print_enter '(:r0 :r1))
 
-	(push-scope)
-	(entry :list :print_enter (vpx this note))
-
-	(assign (vpx (@ sys/statics/statics)) (vpx tcb))
-	(assign (vpx (.> tcb statics_sys_task_current_tcb)) (vpx tcb))
-	(assign (vpx 0) (vpx seen))
-	(vpif (vpx tcb))
-		(assign (vpx (.> tcb +tk_node_print)) (vpx next))
-		(vpif (vpx next))
+	(fn-bind 'sys/statics/statics :r2)
+	(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
+	(vpif '(:r2 /= 0))
+		(assign '((:r2 +tk_node_print)) '(:r3))
+		(vpif '(:r3 /= 0))
 			(loop-start)
-				(vpif (vpx (= (.> next +print_note_list) this)))
-					(assign (vpx 1) (vpx seen))
-				(endif)
-				(assign (vpx (.> next +print_note_next)) (vpx next))
-			(loop-until (vpx (|| seen (= next 0))))
+				(assign '((:r3 +print_note_list)) '(:r4))
+				(gotoif '(:r4 = :r0) 'seen)
+				(assign '((:r3 +print_note_next)) '(:r3))
+			(loop-until '(:r3 = 0))
 		(endif)
 		;on it, the head is the note, the note the head that was
-		(vpif (vpx (= seen 0)))
-			(assign (vpx (.> tcb +tk_node_print) this) (vpx (.> note +print_note_next) (.> note +print_note_list)))
-			(assign (vpx note) (vpx (.> tcb +tk_node_print)))
-		(endif)
+		(assign '((:r2 +tk_node_print)) '(:r3))
+		(assign '(:r3 :r0) '((:r1 +print_note_next) (:r1 +print_note_list)))
+		(assign '(:r1) '((:r2 +tk_node_print)))
 	(endif)
 
-	(exit :list :print_enter (vpx this seen))
-	(pop-scope)
-	(return)
+	(exit :list :print_enter '(:r0 0))
+	(vp-ret)
+
+(vp-label 'seen)
+	(exit :list :print_enter '(:r0 1))
+	(vp-ret)
 
 (def-func-end)
 
