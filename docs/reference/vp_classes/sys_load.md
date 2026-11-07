@@ -135,15 +135,15 @@ inputs
 :r0 = c string function name (pubyte)
 outputs
 :r0 = 0, else the bundle it is in, to free (ptr)
-:r1 = its VP binary (pubyte)
-:r2 = its VP binary length (uint)
+:r1 = its VP text (pubyte)
+:r2 = its VP text length, to the end of the bundle (uint)
 trashes
 :r0-:r14, :d0-:d15
 info
-the VP binary of a function, from the binary bundles of its folder in
-obj/vp/, of the mode the image is made in, as @Source finds
-it. A build makes the VP once, for every CPU. Each bundle is its
-functions' VP binary, each after its length, and each begins with the
-length of its name and the name
+the VP text of a function, from the bundles of its folder in obj/vp/,
+of the mode the image is made in, as @Source finds it. A build makes
+the VP once, for every CPU. Each entry of a bundle begins a line,
+("name" and on, and the translator reads no further than its
+instructions
 ```
 

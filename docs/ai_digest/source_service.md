@@ -153,9 +153,11 @@ this system's own `@Source`, started if it has none:
    that differs by mode has another hash, and what is the same in two modes,
    most below the Lisp bindings, is translated once.
 3. The VP of those not here is asked for at once, `$<mode> <path> ...`, only
-   those functions. It comes as VP binary, one bundle of them,
-   [vp_translation.md](vp_translation.md): compact, and translated here with
-   no parse, each kept in the cache by the hash the manifest gave it.
+   those functions. It comes as the text of their entries, each as its
+   bundle has it with a newline after, [vp_translation.md](vp_translation.md),
+   and is translated here from that text, each kept in the cache by the hash
+   the manifest gave it. A system older than that, one that sends VP binary,
+   is not understood.
 4. The natives not the node's own go back to the task, one after another,
    and it places them in its server, `(task-place)`, and binds.
 

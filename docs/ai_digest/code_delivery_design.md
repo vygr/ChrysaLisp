@@ -140,6 +140,10 @@ so the bind gathers the whole chain that is missing, translates each, and
 places them together, `(:sys_load :place)`, which binds a set that calls
 itself, in a ring too.
 
+Since 2026-11-07 VP text has replaced VP binary as the one form: the loader
+reads a function's entry from its bundle in `obj/vp/`, and the translator
+parses the text, `lib/trans/vp_parse.vp`, [vp_translation.md](vp_translation.md).
+
 What can never miss. The loader, the kernel, the translator of the node's
 CPU, and each with everything it calls: a miss in those could never be
 filled, as what would fill it is what is missing. That is what the native
@@ -277,18 +281,23 @@ emulator on every host, the Pi's had only stale files. The rest:
   [source_service.md](source_service.md).
 * The translators in VP, VP binary in and native out: done,
   [vp_translation.md](vp_translation.md). The VP64 image carries all of
-  them, so install translates with no Lisp.
+  them, so install translates with no Lisp. Since 2026-11-07 they take VP
+  text, parsed by `lib/trans/vp_parse.vp`, which the VP64 image carries too.
 * The bind that translates, for server zero: done. A build keeps each
   function's VP binary beside its native, `obj/<cpu>/<abi>/<name>.vpb`;
   the translator has a call with no Lisp, `:r0` 0, the binary and its
   length; `(:sys_load :load)` links its CPU's translator, so each image
   holds it, and a native not there, or not whole, is translated from its
   `.vpb` into the block and kept, its links each the same way,
-  `tests/system/test_bind_translate.lisp`.
+  `tests/system/test_bind_translate.lisp`. Since 2026-11-07 there is no
+  `.vpb`: the loader finds the function's entry in a bundle of its folder in
+  `obj/vp/`, `(:sys_load :vp_find)`, and the translator is given its text.
 * Install, and a build, translating no more than the native image holds,
   the rest left to the binds.
 * VP sent between systems as VP binary, not as text: done, `@Source`'s
-  `$` answer, translated where it lands with no parse.
+  `$` answer, translated where it lands with no parse. Replaced 2026-11-07:
+  VP text is the one form, the `$` answer is the text of the entries, and
+  the translator parses it where it lands.
 * The bind that waits: not needed, `(ffi)`'s `(source-native)` does it, [A
   Bind That Waits](#a-bind-that-waits).
 * The jobs for compile, with their destinations, `@Source` only keeping the

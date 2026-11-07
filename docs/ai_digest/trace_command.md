@@ -4,7 +4,7 @@ The `trace` command is a static analysis tool designed to calculate the
 transitive register clobber state (the registers that are overwritten or
 "trashed") for any given Virtual Processor (VP) function. Rather than relying
 solely on source-code annotations, the tool performs symbolic register-trace
-analysis directly on the compiled VP binary objects (located in `obj/vp/`).
+analysis directly on the VP text bundles the build writes (located in `obj/vp/`).
 
 By tracking register data flow, stack frames, and method dispatch paths, `trace`
 determines the precise footprint of register usage throughout the call graph,
@@ -161,7 +161,7 @@ a memoized function `get-function-insts`:
 cmd/trace.lisp "(defun get-function-insts" ""
 ```
 
-This guarantees that each compiled VP object is opened and parsed only once
+This guarantees that each function's VP text is read from its bundle only once
 during the lifetime of the command execution, accelerating the analysis.
 
 ### 3. Optimization: Selective Re-Analysis and Double-Buffering
@@ -262,7 +262,7 @@ outdated or incorrect documentation directly within the source code:
 ### Example Output (Linting Mode)
 
 ```vdu
-Guest> trace obj/vp/class/nums/lisp_add -l
+Guest> trace class/nums/lisp_add -l
 WARNING: Mismatch in class/nums/lisp_add
   Documented: :r1-:r5, :r7-:r14, :d0-:d15
   Calculated: :r0-:r14, :d0-:d15

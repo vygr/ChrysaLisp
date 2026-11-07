@@ -4,7 +4,7 @@
 (include "./vpb_ops.inc")
 (include "./vpb_trans.inc")
 
-;The x86_64 translator: VP binary, lib/trans/vpb.inc, to native code. One
+;The x86_64 translator: VP text, lib/trans/vp_parse.vp, to native code. One
 ;body, made for each ABI, AMD64 and WIN64: they differ only in where a host
 ;call has its args. Each VP op has a routine here, e_ and the name of its
 ;(emit-)

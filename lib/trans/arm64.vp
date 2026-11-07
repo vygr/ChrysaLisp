@@ -4,7 +4,7 @@
 (include "./vpb_ops.inc")
 (include "./vpb_trans.inc")
 
-;The arm64 translator: VP binary, lib/trans/vpb.inc, to native code. Each
+;The arm64 translator: VP text, lib/trans/vp_parse.vp, to native code. Each
 ;VP op has a routine here, e_ and the name of its (emit-), its operands in
 ;:r0 :r1 :r2 :r3. A routine may trash :r0 to :r13, never :r14, the state.
 ;The prepass is here too, (prepass), on the instructions as they are

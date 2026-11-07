@@ -78,7 +78,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r8
+:r1, :r3-:r8
 ```
 
 ### :dot -> class/nums/dot
@@ -145,7 +145,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r8
+:r1, :r3-:r8
 ```
 
 ### :mul -> class/nums/mul

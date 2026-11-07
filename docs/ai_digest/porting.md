@@ -343,14 +343,16 @@ If your target platform's CPU architecture is not one for which ChrysaLisp
 already has a native code translator (e.g., x86-64, Arm64, RISC-V 64 as
 implied by [`vp_translation.md`](vp_translation.md)), you will need to create one.
 
-This involves writing a translator, in VP, from VP binary to the native
-machine code of your target CPU.
+This involves writing a translator, in VP, from VP text to the native
+machine code of your target CPU. The text is parsed into the translator's
+records by `lib/trans/vp_parse.vp`, shared by every translator, and a
+translator works on those records.
 
 ### 3.1. Understanding VP-to-Native Translation
 
 * **[`vp_translation.md`](vp_translation.md):** This document is key. It describes the VP
-  architecture (registers, instruction set), the VP binary and the
-  translators.
+  architecture (registers, instruction set), the VP text, its parse and
+  the translators.
 
 * **Translator Location:** Translators reside in `lib/trans/` as `.vp`
   files, each a single VP function (e.g., `lib/trans/x86_64.vp`,
@@ -359,8 +361,8 @@ machine code of your target CPU.
 * **Core Components of a Translator File:**
 
     * **`(vpb-driver)`:** from `lib/trans/vpb_trans.inc`, shared by all of
-      them: the entry, the decode of the VP binary, the passes and the
-      output.
+      them: the entry, the parse of the VP text to records by
+      `lib/trans/vp_parse.vp`, the passes and the output.
 
     * **`reg_map`:** the target CPU's number of each VP register, `:r0` to
       `:rsp` then `:d0` to `:d15`, a byte each.
@@ -475,11 +477,11 @@ machine code of your target CPU.
 
 7. **Prepass:**
 
-    * Every translator has a `prepass` routine, run on the decoded records
+    * Every translator has a `prepass` routine, run on the parsed records
       before the passes. It may be just a `vp-ret`, as `vp64.vp`'s is.
       riscv64 and la64 use the generic call fusion, `(vpb-call-fusion)`;
       arm64 and x86_64 have their own. Any fused op it makes goes in
-      `lib/trans/vpb_ops.inc`, so it has a number in the VP binary.
+      `lib/trans/vpb_ops.inc`, so it has a number the records can hold.
 
 ### 3.3. Boot Image Generation and Testing
 
@@ -573,8 +575,9 @@ platform:
 
 * **ChrysaLisp Debug Tools:**
 
-    * `(vpb-decode bin)` shows a VP binary as the instructions it holds,
-      to compare with what the translator made of it.
+    * The bundle of a file in `obj/vp/`, `obj/vp/<file>`, is the VP text
+      of its functions, the instructions the translator was given, to
+      compare with what it made of them.
 
     * The `*build_emit*` and `*build_inst*` flags (see [`vp_assignment.md`](../vm/vp_assignment.md))
       can show the VP instructions before and after optimization, and the

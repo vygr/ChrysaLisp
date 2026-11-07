@@ -4,7 +4,7 @@
 (include "./vpb_ops.inc")
 (include "./vpb_trans.inc")
 
-;The riscv64 translator: VP binary, lib/trans/vpb.inc, to native code. Each
+;The riscv64 translator: VP text, lib/trans/vp_parse.vp, to native code. Each
 ;VP op has a routine here, e_ and the name of its (emit-)
 
 

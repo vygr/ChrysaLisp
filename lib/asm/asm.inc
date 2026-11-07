@@ -282,7 +282,7 @@
 	;platform's code. Newer, not as new, for the VP: the two stages of one
 	;build may write both in the same second, and the age is of a second
 	(defq trans_age (reduce (# (max %0 (age %1)))
-		(list "lib/trans/vp.inc" "lib/trans/vpb.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc"
+		(list "lib/trans/vp.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc"
 			"lib/trans/vp_parse.vp" (cat "lib/trans/" *cpu* ".vp")) 0))
 	(defq to_translate (filter (lambda (file)
 		(and (not (find file vp_files))

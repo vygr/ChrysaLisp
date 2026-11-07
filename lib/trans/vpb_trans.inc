@@ -1,14 +1,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; VP binary translators, what each CPU's has the same
+; VP translators, what each CPU's has the same
 ;
-; A translator is a .vp of lib/trans/ of one function: VP binary in,
-; lib/trans/vpb.inc, native out. It calls (vpb-driver) first, then has a
+; A translator is a .vp of lib/trans/ of one function: VP text in, to its
+; records by lib/trans/vp_parse.vp, native out. It calls (vpb-driver) first, then has a
 ; routine for each op it knows, given to (handler), then (vpb-helpers),
 ; (vpb-tables) and its own data, a reg_map of the VP's registers in its
 ; own numbers among them, and its prepass, the routine 'prepass.
 ;
 ; A routine of an op is called with :r0 :r1 :r2 :r3 its first operands'
-; values, :r4 all of them, :r5 how many, :r6 the operands as decoded and
+; values, :r4 all of them, :r5 how many, :r6 the operands as parsed and
 ; :r7 its record, whose +vpbr_m is the most a branch has had to reach.
 ; It may trash :r0 to :r13, never :r14,
 ; the state, with +vpbt_pc where the output is and +vpbt_pass the pass.
@@ -78,7 +78,7 @@
 	;the entry, the decode, the passes and the output, and the data
 	(setq *vpb_handlers* (list))
 		(entry '(:r0 :r1))
-		;the loader's call, no Lisp: :r0 = 0, :r1 = the VP binary, :r2 = its
+		;the loader's call, no Lisp: :r0 = 0, :r1 = the VP text, :r2 = its
 		;length -> :r0 = 0 else the str of the native
 		(vpif '(:r0 = 0))
 			(vp-cpy-rr :r1 :r0)
@@ -107,21 +107,6 @@
 	; decode and the passes
 	;;;;;;;;;;;;;;;;;;;;;;
 
-	(vp-label 'rd_uint)
-		;:r0 = at, -> :r0 = past, :r1 = the number, trashes :r2-:r4
-		(vp-xor-rr :r1 :r1)
-		(vp-xor-rr :r3 :r3)
-		(loop-start)
-			(vp-load-rcr-ub :r0 0 :r2)
-			(vp-add-cr 1 :r0)
-			(vp-cpy-rr :r2 :r4)
-			(vp-and-cr 0x7f :r4)
-			(vp-shl-rr :r3 :r4)
-			(vp-or-rr :r4 :r1)
-			(vp-add-cr 7 :r3)
-		(loop-until '(:r2 < 0x80))
-		(vp-ret)
-
 	(vp-label 'alloc0)
 		;:r0 = size, -> :r0 = a block of it all 0, trashes :r1-:r3
 		(vp-push :r0)
@@ -149,123 +134,12 @@
 		(vp-add-cr 65536 :r0)
 		(vp-call 'alloc1)
 		(assign '(:r0) '((:r14 +vpbt_buf)))
-		;VP text, ("name" and on, lib/trans/vp_parse.vp, else VP binary,
-		;whose name is never a " first
+		;the VP text, ("name" and on, to the records, lib/trans/vp_parse.vp
 		(assign '((:rsp 0) (:rsp +ptr_size)) '(:r1 :r0))
-		(vpif '(:r1 >= 2))
-			(vp-load-rcr-us :r0 0 :r2)
-			(vpif `(:r2 = ,(+ (ascii-code "(") (<< (ascii-code "\q") 8))))
-				(fn-call 'lib/trans/vp_parse)
-				(vpif '(:r0 /= 0))
-					(vp-jmp 'fail)
-				(endif)
-				(vp-jmp 'parsed)
-			(endif)
+		(fn-call 'lib/trans/vp_parse)
+		(vpif '(:r0 /= 0))
+			(vp-jmp 'fail)
 		(endif)
-		;the name, passed over
-		(vp-load-rcr :rsp +ptr_size :r0)
-		(vp-call 'rd_uint)
-		(vp-add-rr :r1 :r0)
-		(vp-call 'rd_uint)
-		(assign '(:r1) '((:r14 +vpbt_nlabels)))
-		(vp-call 'rd_uint)
-		(assign '(:r1) '((:r14 +vpbt_ninsts)))
-		(vp-store-rrc :r0 :rsp +ptr_size)
-		(assign '((:r14 +vpbt_nlabels)) '(:r0))
-		(vp-shl-cr 3 :r0)
-		(vp-add-cr +long_size :r0)
-		(vp-call 'alloc0)
-		(assign '(:r0) '((:r14 +vpbt_labels)))
-		(assign '((:r14 +vpbt_nlabels)) '(:r0))
-		(vp-shl-cr 3 :r0)
-		(vp-add-cr +long_size :r0)
-		(vp-call 'alloc1)
-		(assign '(:r0) '((:r14 +vpbt_prev)))
-		(assign '((:r14 +vpbt_ninsts)) '(:r0))
-		(vp-mul-cr +vpbr_size :r0)
-		(vp-add-cr +vpbr_size :r0)
-		(vp-call 'alloc1)
-		(assign '(:r0) '((:r14 +vpbt_recs)))
-		;an operand is two bytes at the least, and the prepass makes 4 at most
-		;an instruction
-		(vp-load-rcr :rsp 0 :r0)
-		(vp-mul-cr (/ +vpbo_size 2) :r0)
-		(assign '((:r14 +vpbt_ninsts)) '(:r1))
-		(vp-mul-cr (* 4 +vpbo_size) :r1)
-		(vp-add-rr :r1 :r0)
-		(vp-add-cr +vpbo_size :r0)
-		(vp-call 'alloc1)
-		(assign '(:r0) '((:r14 +vpbt_ops)))
-		(assign '((:r14 +vpbt_ninsts)) '(:r0))
-		(vp-shl-cr 3 :r0)
-		(vp-add-cr +long_size :r0)
-		(vp-call 'alloc1)
-		(assign '(:r0) '((:r14 +vpbt_adj)))
-
-		;each instruction to a record, each operand to one
-		(vp-load-rcr :rsp +ptr_size :r0)
-		(assign '((:r14 +vpbt_recs) (:r14 +vpbt_ops)) '(:r8 :r9))
-		(assign '((:r14 +vpbt_ninsts)) '(:r10))
-		(vpif '(:r10 /= 0))
-		(loop-start)
-			(vp-load-rcr-ub :r0 0 :r1)
-			(vp-add-cr 1 :r0)
-			(vp-xor-rr :r2 :r2)
-			(save-fields :r8 '(+vpbr_op +vpbr_m) '(:r1 :r2))
-			(vp-call 'rd_uint)
-			(assign '(:r1 :r9) '((:r8 +vpbr_cnt) (:r8 +vpbr_ops)))
-			(vp-cpy-rr :r1 :r7)
-			(vpif '(:r7 /= 0))
-			(loop-start)
-				(vp-load-rcr-ub :r0 0 :r5)
-				(vp-add-cr 1 :r0)
-				(vp-xor-rr :r1 :r1)
-				(save-fields :r9 '(+vpbo_kind +vpbo_b) '(:r5 :r1))
-				(vpif '(:r5 = +vpbk_reg))
-					(vp-load-rcr-ub :r0 0 :r1)
-					(vp-add-cr 1 :r0)
-				(elseif '(:r5 = +vpbk_num))
-					(vp-call 'rd_uint)
-					(vp-cpy-rr :r1 :r2)
-					(vp-shr-cr 1 :r1)
-					(vp-and-cr 1 :r2)
-					(vp-mul-cr -1 :r2)
-					(vp-xor-rr :r2 :r1)
-				(elseif '(:r5 = +vpbk_label_diff))
-					(vp-call 'rd_uint)
-					(vp-push :r1)
-					(vp-call 'rd_uint)
-					(assign '(:r1) '((:r9 +vpbo_b)))
-					(vp-pop :r1)
-				(elseif '(:r5 = +vpbk_string))
-					(vp-call 'rd_uint)
-					(assign '(:r1) '((:r9 +vpbo_b)))
-					(vp-cpy-rr :r0 :r2)
-					(vp-add-rr :r1 :r0)
-					(vp-cpy-rr :r2 :r1)
-				(elseif '(:r5 = +vpbk_name))
-					(vp-call 'rd_uint)
-					(assign '(:r1) '((:r9 +vpbo_b)))
-					(vp-cpy-rr :r0 :r2)
-					(vp-add-rr :r1 :r0)
-					(vp-cpy-rr :r2 :r1)
-				(else)
-					(vp-call 'rd_uint)
-				(endif)
-				(assign '(:r1) '((:r9 +vpbo_a)))
-				(vp-add-cr +vpbo_size :r9)
-				(vp-sub-cr 1 :r7)
-			(loop-until '(:r7 = 0))
-			(endif)
-			(vp-add-cr +vpbr_size :r8)
-			(vp-sub-cr 1 :r10)
-		(loop-until '(:r10 = 0))
-		(endif)
-		(vp-xor-rr :r0 :r0)
-		(save-fields :r8 '(+vpbr_op +vpbr_cnt +vpbr_ops +vpbr_m) '(:r0 :r0 :r0 :r0))
-		(assign '(:r9) '((:r14 +vpbt_free)))
-
-	(vp-label 'parsed)
 		(vp-call 'prepass)
 		(assign '((:r14 +vpbt_err)) '(:r0))
 		(vpif '(:r0 /= 0))

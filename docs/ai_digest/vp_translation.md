@@ -21,7 +21,7 @@ The main purposes of the VP are:
    calls or string operations) to be eventually broken down into a consistent
    set of low-level operations.
 
-The **Translation System** is responsible for converting this VP bytecode
+The **Translation System** is responsible for converting this VP code
 into executable machine code for a specific target CPU and ABI (Application
 Binary Interface).
 
@@ -42,7 +42,7 @@ docs/diagrams/vp_translate.cwb
 
     * `:f0` through `:f15`: the same registers as singles. A single's op,
       `-ff`, names its registers in the emit list as the doubles they are
-      of, so a translator decodes 32 registers as before and the op alone
+      of, so a translator reads 32 registers as before and the op alone
       says the width.
 
     These are symbolic names used in VP assembly; the translation system maps
@@ -104,72 +104,67 @@ involves several stages:
    `lib/asm/vpopt.inc`) performs peephole optimizations on this list of
    `(emit-xxx ...)` instructions (e.g., redundant load/store elimination).
 
-6. **VP Binary:** The list is encoded as VP binary, `vpb-encode` in
-   `lib/trans/vpb.inc`, below.
+6. **VP Text:** The list is written as text, the function's entry in the
+   bundle of its file, `obj/vp/<file>`, `vp-entry-text` in
+   `lib/trans/vp.inc`, below.
 
 7. **Translation:** The translator of the target CPU, itself a VP
-   function, is given the VP binary and gives back the native code as a
-   string. `vp-translate-bin` in `lib/trans/vp.inc` calls it.
+   function, is given the entry's text and gives back the native code as a
+   string. `vp-translate-text` in `lib/trans/vp.inc` calls it.
 
 8. **Output:** The native code is saved to an object file by the
    function's name (e.g., `obj/x86_64/AMD64/sys/mem/alloc`),
    `vp-translate-out`.
 
-## The VP Binary
+## The VP Text
 
-`lib/trans/vpb.inc` holds the format and its Lisp encoder and decoder. A
-function is:
+VP text is the one form of a function before any target. An entry of a
+bundle is one function, as `(read)` reads it back:
 
-* its name, as a length and its bytes,
+```vdu
+("name"
+(progn
+(emit-op operand ...)
+...)
+(locals ...)
+...)
+```
 
-* how many labels it has,
+`vp-entry-text` and `vp-code-text` in `lib/trans/vp.inc` write it.
+`vp-portable` works out a constant the compile left as a form, `(+ 24 1)`,
+to its number, so the text reads back the same; one with anything but
+numbers in it is thrown. [`vp_vm.md`](../vm/vp_vm.md), A bundle of VP, has
+the whole of it.
 
-* how many instructions it has,
+`lib/trans/vp_parse.vp` reads it. It is a VP function that needs no Lisp,
+shared by every translator and carried in the VP64 boot image. It parses an
+entry's text straight into the translator's records, `+vpbr` of an
+instruction and `+vpbo` of an operand, `lib/trans/vpb_trans.inc`. They are
+made for speed and thrown away after each function: they are not a format
+anything stores or sends.
 
-* and each instruction: an op byte, how many operands it has, then each
-  operand as a tag and what follows it.
+* An op is found by a hash of its name, made from `+vp_emit_ops` of
+  `lib/asm/ops.inc`. Its number is its place in `+vpb_all_ops`,
+  `lib/trans/vpb_ops.inc`: the VP's own ops, then the fused ops the
+  prepasses of the translators make, so a translator's records can hold
+  them too. The numbers are internal to one translator build.
 
-The op byte is the instruction's place in `+vpb_all_ops`,
-`lib/trans/vpb_ops.inc`: the VP's own ops, `+vp_emit_ops` of
-`lib/asm/ops.inc`, then the fused ops the prepasses of the translators make,
-so a translator's records can hold them too.
+* An operand is a register, `:r0` to `:rsp` as 0 to 15, `:d0` to `:d15` as
+  16 to 31, a number, a string, a label, `(- a b)` of two labels or of a
+  label and `*pc*`, or a name, a keyword that is not a register, the class
+  and method a `call-rc` names. Its record has its kind, `+vpbk`: `reg`,
+  `num`, `label`, `label_pc`, `label_diff`, `string`, `name` or
+  `pc_label`.
 
-A number is unsigned, 7 bits a byte, low first, the top bit of a byte saying
-another follows. A signed one is written as its zigzag, 0 -1 1 -2 2 ... as
-0 1 2 3 4 .... The operand tags are:
+* A label is `_N`, `_0 _1 ...`, quoted where it is set,
+  `(emit-label '_0)`.
 
-* `reg`: a byte, `:r0` to `:rsp` as 0 to 15, `:d0` to `:d15` as 16 to 31.
+* What is after the instructions, the locals and the like, is no
+  translator's.
 
-* `num`: a signed number.
-
-* `label`: the label's number, where it is.
-
-* `label_pc`: the label less where this instruction is.
-
-* `label_diff`: two labels, the first less the second.
-
-* `string`: its length and its bytes.
-
-* `name`: a keyword that is not a register, the class and method a
-  `call-rc` names, its length and its bytes.
-
-* `pc_label`: where this instruction is less the label.
-
-Labels are numbered from 0 in the order they are first seen. A constant the
-compile left as a form, `(+ 24 1)`, is worked out and written as its number.
-
-The functions are:
-
-* `(vpb-encode entry)`: a bundle's entry, `(name (progn inst ...) ...)`, to
-  VP binary.
-
-* `(vpb-decode bin)`: back to the entry, the labels named again, for the
-  tools and for looking at a binary.
-
-* `(vpb-bundle bins)` and `(vpb-unbundle data)`: the binaries of a file's
-  functions as one string, each after its length, and back.
-
-* `(vpb-name bin)`: the function's name, without decoding the rest.
+The parser refuses text that is not VP: an op it does not know, a number,
+an escape or a label of the wrong form, a label it never sets, or text cut
+short. Text may come from another node, so nothing is read past its end.
 
 ## The Translators
 
@@ -190,17 +185,16 @@ single VP function, built like any other into
 
 * `vpb_vp64`, to VP64 code for the emulator.
 
-`lib/trans/vp.inc` binds it with `ffi` and calls it with the binary, as
-`(vpb-<cpu> bin)`, `(vpb-x86-64-amd64 bin)` and `(vpb-x86-64-win64 bin)`
-for x86_64. It gives back the native code as a string, or `:nil` if it
-cannot. The decode, the prepass, the passes and the output are all in VP.
+`lib/trans/vp.inc` binds it with `ffi` and calls it with an entry's text.
+It gives back the native code as a string, or `:nil` if it cannot. The
+parse, the prepass, the passes and the output are all in VP.
 
 ### The Shared Driver
 
 `lib/trans/vpb_trans.inc` is included by every translator:
 
-* `(vpb-driver)`: the entry, the decode of the binary to a record of each
-  instruction and its operands, the call of the translator's `prepass`,
+* `(vpb-driver)`: the entry, the parse of the text to a record of each
+  instruction and its operands, `lib/trans/vp_parse.vp`, the call of the translator's `prepass`,
   then the passes, and the output as a string.
 
 * `(handler op label)`: registers the routine at `label` as the one of
@@ -216,7 +210,7 @@ cannot. The decode, the prepass, the passes and the output are all in VP.
   fusion prepass for CPUs with a link register, used by riscv64 and la64.
 
 A routine of an op is called with `:r0` to `:r3` its first operands' values,
-`:r4` all of them, `:r5` how many, `:r6` the operands as decoded and `:r7`
+`:r4` all of them, `:r5` how many, `:r6` the operands as parsed and `:r7`
 its record. A register operand comes to it already in the CPU's own number,
 from the translator's `reg_map`, 16 bytes for `:r0` to `:rsp` then 16 for
 `:d0` to `:d15`. A routine may trash `:r0` to `:r13`, never `:r14`, the
@@ -272,7 +266,7 @@ translator gives up and gives back `:nil`.
 
 A routine that is given something it cannot make, an op it has no routine
 for, a shift by a constant outside 0 to 63, a branch out of reach, marks the
-function and the translator gives back `:nil`. `vp-translate-bin` then
+function and the translator gives back `:nil`. `vp-translate-text` then
 throws `The <cpu> translator failed on this function !` with its name. Any
 constant is handled, a translator makes one that does not fit an
 instruction some other way, so it is a fault in the translator, not the VP.
@@ -659,14 +653,20 @@ from the boot image if it has it, `image-has?` in `lib/boot/image.inc`. A
 dev tree that has neither gets `No translator to this CPU here, make
 install makes them !`. It has:
 
-* `(emit-translate emit_code)`: a list of `(emit-xxx ...)` to native code.
+* `(emit-translate emit_code)`: a list of `(emit-xxx ...)` with no name to
+  native code, by the text it prints as.
 
-* `(vp-translate-bin bin)`: a function's VP binary to native code.
+* `(vp-translate-text text)`: a function's VP text, its entry of a bundle,
+  to native code.
 
-* `(vp-translate-save entry)`: a build's, a bundle entry to native code,
-  saved by its name, its VP binary given back.
+* `(vp-translate-save entry [text])`: a build's, a bundle entry to native
+  code, saved by its name; the text is `(vp-entry-text entry)` if not given.
 
-* `(vp-translate-file file dir)`: a build's translate stage of one file.
+* `(vp-translate-file file dir)`: a build's translate stage of one file,
+  each entry of its bundle.
+
+* `(vp-portable form)`, `(vp-code-text entry)` and `(vp-entry-text entry)`:
+  an entry as text, above.
 
 * `(vp-translate-out name out)`: the native code saved in
   `obj/<cpu>/<abi>/`.
@@ -674,9 +674,9 @@ install makes them !`. It has:
 ## Build and Install
 
 The VP stage of a build writes the bundle of each file as text,
-`obj/vp/<file>`, and as binary beside it, `<file>b`. The translate
-stage of each target reads the binary bundle, falling back to the text if it
-is older. The whole tree translates in about 7 ms, against 162 ms for the
+`obj/vp/<file>`, `obj/vp_validate/<file>` for a validate build. The
+translate stage of each target reads the bundle and gives the text of each
+entry to its translator. The whole tree translates in about 7 ms, against 162 ms for the
 old Lisp translators.
 
 ### Translators Made First
@@ -700,7 +700,7 @@ first, so the translators to every target are new before any target is
 translated.
 
 A target's functions are translated again when its translator's sources,
-`lib/trans/<cpu>.vp` and `vp.inc`, `vpb.inc`, `vpb_ops.inc` and
+`lib/trans/<cpu>.vp` and `vp.inc`, `vp_parse.vp`, `vpb_ops.inc` and
 `vpb_trans.inc`, are newer than them. A change to the RISC-V translator
 makes the RISC-V code again, and of the other targets only their own copy of
 the RISC-V translator. A change to one of the classes it includes does not,
@@ -722,19 +722,23 @@ started again, as with any VP function made again.
 
 ### The Loader's Own
 
-A build keeps each function's VP binary beside its native,
-`obj/<cpu>/<abi>/<name>.vpb`. The loader, `(:sys_load :load)`, links the
-translator of its CPU, so every boot image holds it, and calls it with no
-Lisp: `:r0` 0, `:r1` the VP binary and `:r2` its length, giving back the
-str of the native or 0. A native that is not there, or not as long as it
-says, as when another node is writing it, is translated from its `.vpb`,
-copied into the block as a file would be read, and kept for the next. See
+The loader, `(:sys_load :load)`, links the translator of its CPU, as
+`lib/trans/vpb`, so every boot image holds it. A native that is not there,
+or not as long as it says, as when another node is writing it, is
+translated from its VP text. `(:sys_load :vp_find)` finds the function's
+entry by the line it begins, `("name"`, in a `.vp` bundle of its folder in
+`obj/vp/`, `obj/vp_validate/` for a validate image. The translator is
+called with no Lisp: `:r0` 0, `:r1` the text from there to the end of the
+bundle and `:r2` its length, giving back the str of the native or 0; it
+reads no further than the entry's instructions. The native is copied into
+the block as a file would be read, and kept for the next. See
 [code_delivery_design.md](code_delivery_design.md).
 
 ### Install
 
 The VP64 boot image in `snapshot.zip` carries all six translators already
-translated to VP64 code, `+boot_extras` in `lib/boot/image.inc`. So `make
+translated to VP64 code, and `lib/trans/vp_parse` they share,
+`+boot_extras` in `lib/boot/image.inc`. So `make
 install`, running on the emulator, translates to the native CPU with them,
 and never needs a translator in Lisp. The VP64 has no translator files of
 its own then, so the translators are not made first; the native build makes

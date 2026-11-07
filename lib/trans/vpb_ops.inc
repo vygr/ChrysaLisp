@@ -1,5 +1,5 @@
-;the ops of the VP binary after the VP's own, +vp_emit_ops: those the
-;prepasses of the translators make, numbered here so a translator's
+;the ops of a translator's records after the VP's own, +vp_emit_ops:
+;those the prepasses of the translators make, numbered here so the
 ;records can hold them. Those the arm64 prepass makes
 (defq +vpb_arm64_ops ''(
 	emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui emit-arm64-ldp-f

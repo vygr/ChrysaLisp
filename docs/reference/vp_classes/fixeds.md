@@ -48,7 +48,7 @@ outputs
 :r0 = fixeds object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r8
+:r1, :r3-:r8
 ```
 
 ### :dot -> class/fixeds/dot
@@ -99,7 +99,7 @@ outputs
 :r0 = fixeds object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r9
+:r1, :r3-:r9
 ```
 
 ### :mul -> class/fixeds/mul

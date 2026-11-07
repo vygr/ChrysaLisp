@@ -556,7 +556,7 @@ An operand is one of these, and nothing else:
 
 * a string, its bytes.
 
-* a name, a keyword that is not a register, the class and method a call-i
+* a name, a keyword that is not a register, the class and method a call-rc
 names.
 
 Not a `fixed` nor a `real`: a table of fixed point numbers is written as their
@@ -565,8 +565,9 @@ form left to be worked out: a constant the source works out is the number it
 came to by the time it is emitted. A form in a quoted list of operands is not
 worked out, and a macro in one is only expanded, so `'((& :r4 (inc
 +str_data)))` emits `(#add 24 1)`; write `` `((& :r4 ,(inc +str_data))) ``.
-The encoder of VP binary, `lib/trans/vpb_encode.vp`, refuses any other
-operand, and the build stops with the function's name.
+The parser of VP text, `lib/trans/vp_parse.vp`, refuses any other operand,
+and a label no `(emit-label)` sets, and the build stops with the function's
+name.
 
 After the instructions there may be `(locals ...)`, the frames of named locals
 the function had, and `(kept ...)`, those of them kept in registers. They are

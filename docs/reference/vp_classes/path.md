@@ -96,7 +96,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r5, :d0-:d15
+:r1-:r4, :d0-:d15
 ```
 
 ### :gen_cubic -> gui/path/gen_cubic
@@ -194,7 +194,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14, :d0-:d15
+:r1-:r13, :d0-:d15
 ```
 
 ### :stroke_polygon -> gui/path/stroke_polygon
@@ -225,7 +225,7 @@ outputs
 :r0 = path object (ptr)
 :r1 = output path object (ptr)
 trashes
-:r1-:r14, :d0-:d15
+:r1-:r13, :d0-:d15
 ```
 
 ### :type -> gui/path/type

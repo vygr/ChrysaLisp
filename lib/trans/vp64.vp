@@ -4,7 +4,7 @@
 (include "./vpb_ops.inc")
 (include "./vpb_trans.inc")
 
-;The VP64 translator: VP binary, lib/trans/vpb.inc, to VP64 code. An op of
+;The VP64 translator: VP text, lib/trans/vp_parse.vp, to VP64 code. An op of
 ;VP64 is numbered in the order src/host/vp64.cpp has them: here each is by
 ;name, those of 2 or 4 a first of as many
 

@@ -49,7 +49,7 @@ outputs
 :r0 = ix (fixed)
 :r1 = iy (fixed)
 trashes
-:r0-:r2, :r8-:r14
+:r0-:r2, :r8-:r13
 ```
 
 ### :f_sin -> sys/math/f_sin

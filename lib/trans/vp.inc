@@ -10,7 +10,6 @@
 ;the VP64 boot image has those to each native CPU, so an install
 ;translates with them. It translates any VP: one it gives back nothing
 ;for is a fault in it
-(import "./vpb.inc")
 (import "././boot/image.inc")
 ;the translator, of its file or of the boot image. A constant, put in where
 ;it is used: a variable of :nil is not prebound, and a task that calls
@@ -105,6 +104,5 @@
 
 ;module
 (export-symbols '(emit-translate vp-translate-save vp-translate-text vp-translate-file trans-name
-	vp-portable vp-code-text vp-entry-text
-	vpb-encode vpb-decode vpb-bundle vpb-unbundle vpb-name))
+	vp-portable vp-code-text vp-entry-text))
 (env-pop)
