@@ -759,8 +759,9 @@
 	;trashes
 	;:r0-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(struct ping_payload lk_node_size)
+		(align)
 		(nodeid node_id)
 		(struct wire_hdr +net_wire_hdr_size)
 		(struct rkey 32)
@@ -769,25 +770,26 @@
 		(long conn_handle sealed count rlen)
 		(uint frag_len))
 
-	(defmacro in-take (dst len)
-		;of a sealed link, len bytes of the record opened, to dst
-		`(progn
-			(assign (vpx cursor ,dst ,len) '(:r0 :r1 :r2))
-			(call :sys_mem :copy '(:r0 :r1 :r2) '(:r0 _))
-			(assign '(:r0) (vpx cursor))))
+	(defun in-take (dst len)
+		;of a sealed link, len bytes of the record opened, to dst, each as
+		;assign takes it
+		(assign (list '(:rsp slot_cursor) dst len) '(:r0 :r1 :r2))
+		(call :sys_mem :copy '(:r0 :r1 :r2) '(:r0 _))
+		(assign '(:r0) '((:rsp slot_cursor))))
 
+	(vp-rdef (recv_handle recv_buf recv_rem recv_node) (method-input :host_net :recv_all))
 	(vp-rdef (recv_status) (method-output :host_net :recv_all))
 	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
-	(push-scope)
+	(vp-alloc slot_size)
 
 	;read params msg, and of a sealed link its key, and a buffer to open in
 	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
 	(assign `((,params_data 0) (,params_data +ptr_size)) '(:r2 :r3))
-	(assign '(:r2 :r3) (vpx lk_node conn_handle))
+	(save-fields :rsp '(slot_lk_node slot_conn_handle) '(:r2 :r3))
 	(assign `((,params_data 16)) '(:r2))
-	(assign '(:r2) (vpx sealed))
-	(assign (vpx (& rkey)) '(:r3))
+	(assign '(:r2) '((:rsp slot_sealed)))
+	(assign '((& :rsp slot_rkey)) '(:r3))
 	(assign `((,params_data 24)) '(:r2))
 	(assign '(:r2) '((:r3 0)))
 	(assign `((,params_data 32)) '(:r2))
@@ -797,55 +799,62 @@
 	(assign `((,params_data 48)) '(:r2))
 	(assign '(:r2) '((:r3 24)))
 	(assign `((,params_data 56)) '(:r2))
-	(assign '(:r2) (vpx live))
+	(assign '(:r2) '((:rsp slot_live)))
 	(call :sys_mail :free `(,params_msg))
 	(assign '(0) '(:r0))
-	(assign '(:r0 :r0) (vpx count rbuf))
-	(assign (vpx (& nonce)) '(:r1))
+	(save-fields :rsp '(slot_count slot_rbuf) '(:r0 :r0))
+	(assign '((& :rsp slot_nonce)) '(:r1))
 	(assign '(:r0 :r0) '((:r1 0) (:r1 8)))
-	(vpif (vpx (/= sealed 0)))
-		(call :sys_mem :alloc (vpx (+ +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 _))
-		(assign '(:r0) (vpx rbuf))
+	(assign '((:rsp slot_sealed)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(call :sys_mem :alloc `(,(+ +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 _))
+		(assign '(:r0) '((:rsp slot_rbuf)))
 	(endif)
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_in_link_priority))
 
 	;get local node id
-	(call :sys_kernel :id :nil (vpx (. node_id +node_id_node1) (. node_id +node_id_node2)))
+	(call :sys_kernel :id :nil '(:r0 :r1))
+	(save-node-id :rsp slot_node_id :r0 :r1)
 
 	;allocate private fragment buffer
-	(call :sys_mem :alloc (vpx (+ lk_frag_size lk_data_size)) (vpx frag_buf _))
+	(call :sys_mem :alloc `(,(+ lk_frag_size lk_data_size)) '((:rsp slot_frag_buf) _))
 
 	;inbound packet loop
 (vp-label 'in_loop)
-	(vpif (vpx (/= sealed 0)))
+	(assign '((:rsp slot_sealed)) '(:r0))
+	(vpif '(:r0 /= 0))
 		;sealed: a record, its length, then the packet and its tag. Opened
 		;with the next count as its nonce, or the link is dropped: one
 		;changed, or sent again, or out of its order, is not taken
-		(call :host_net :recv_all (vpx conn_handle (& rlen) +long_size lk_node) `(,recv_status))
+		(call :host_net :recv_all `((:rsp slot_conn_handle) (& :rsp slot_rlen) ,+long_size (:rsp slot_lk_node)) `(,recv_status))
 		(gotoif `(,recv_status < 0) 'in_exit)
-		(gotoif (vpx (< rlen +net_wire_hdr_size)) 'in_exit)
-		(gotoif (vpx (> rlen (+ +net_frag_pkt_size lk_data_size))) 'in_exit)
-		(call :host_net :recv_all (vpx conn_handle rbuf (+ rlen +aead_tag_size) lk_node) `(,recv_status))
+		(assign '((:rsp slot_rlen)) '(:r0))
+		(gotoif `(:r0 < ,+net_wire_hdr_size) 'in_exit)
+		(gotoif `(:r0 > ,(+ +net_frag_pkt_size lk_data_size)) 'in_exit)
+		(load-fields :rsp '(slot_conn_handle slot_rbuf slot_rlen slot_lk_node) `(,recv_handle ,recv_buf ,recv_rem ,recv_node))
+		(vp-add-cr +aead_tag_size recv_rem)
+		(call :host_net :recv_all `(,recv_handle ,recv_buf ,recv_rem ,recv_node) `(,recv_status))
 		(gotoif `(,recv_status < 0) 'in_exit)
-		(assign (vpx count) '(:r0))
-		(assign (vpx (& nonce)) '(:r1))
+		(assign '((:rsp slot_count)) '(:r0))
+		(assign '((& :rsp slot_nonce)) '(:r1))
 		(assign '(:r0) '((:r1 0)))
-		(assign (vpx (+ count 1)) (vpx count))
-		(assign (vpx (& rkey) (& nonce) rbuf rbuf rlen) '(:r0 :r1 :r2 :r3 :r4))
+		(vp-add-cr 1 :r0)
+		(assign '(:r0) '((:rsp slot_count)))
+		(assign '((& :rsp slot_rkey) (& :rsp slot_nonce) (:rsp slot_rbuf) (:rsp slot_rbuf) (:rsp slot_rlen)) '(:r0 :r1 :r2 :r3 :r4))
 		(call :sys_crypto :aead_open '(:r0 :r1 :r2 :r3 :r4) '(:r0))
 		(gotoif '(:r0 = 0) 'in_exit)
-		(assign (vpx rbuf) '(:r0))
-		(assign '(:r0) (vpx cursor))
-		(in-take (& wire_hdr) +net_wire_hdr_size)
+		(assign '((:rsp slot_rbuf)) '(:r0))
+		(assign '(:r0) '((:rsp slot_cursor)))
+		(in-take '(& :rsp slot_wire_hdr) +net_wire_hdr_size)
 	(else)
 		;read 8-byte wire header
-		(call :host_net :recv_all (vpx conn_handle (& wire_hdr) +net_wire_hdr_size lk_node) `(,recv_status))
+		(call :host_net :recv_all `((:rsp slot_conn_handle) (& :rsp slot_wire_hdr) ,+net_wire_hdr_size (:rsp slot_lk_node)) `(,recv_status))
 		(gotoif `(,recv_status < 0) 'in_exit)
 	(endif)
 
-	(assign (vpx (& wire_hdr)) '(:r4))
+	(assign '((& :rsp slot_wire_hdr)) '(:r4))
 	(assign '((:r4 +net_wire_hdr_type)) '(:r0))
 	(gotoif '(:r0 = +net_wire_type_ping) 'in_ping)
 	(gotoif '(:r0 = +net_wire_type_frag) 'in_frag)
@@ -854,16 +863,17 @@
 
 (vp-label 'in_ping)
 	;read the ping payload, 40 bytes, the start of a link's record
-	(vpif (vpx (/= sealed 0)))
-		(in-take (& ping_payload) +net_ping_payload_size)
+	(assign '((:rsp slot_sealed)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(in-take '(& :rsp slot_ping_payload) +net_ping_payload_size)
 	(else)
-		(call :host_net :recv_all (vpx conn_handle (& ping_payload) +net_ping_payload_size lk_node) `(,recv_status))
+		(call :host_net :recv_all `((:rsp slot_conn_handle) (& :rsp slot_ping_payload) ,+net_ping_payload_size (:rsp slot_lk_node)) `(,recv_status))
 		(gotoif `(,recv_status < 0) 'in_exit)
 	(endif)
 
 	;update peer node id, peer system id, and task count on lk_node
 	(vp-rdef (src dst t0 t1 t2 t3 t4))
-	(assign (vpx (& ping_payload) lk_node) `(,src ,dst))
+	(assign '((& :rsp slot_ping_payload) (:rsp slot_lk_node)) `(,src ,dst))
 	(assign-fields
 		src
 			`(lk_node_task_count
@@ -885,37 +895,51 @@
 
 (vp-label 'in_frag)
 	;read 64-byte frag payload header into frag_buf
-	(vpif (vpx (/= sealed 0)))
-		(in-take frag_buf lk_frag_size)
+	(assign '((:rsp slot_sealed)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(in-take '(:rsp slot_frag_buf) lk_frag_size)
 	(else)
-		(call :host_net :recv_all (vpx conn_handle frag_buf lk_frag_size lk_node) `(,recv_status))
+		(call :host_net :recv_all `((:rsp slot_conn_handle) (:rsp slot_frag_buf) ,lk_frag_size (:rsp slot_lk_node)) `(,recv_status))
 		(gotoif `(,recv_status < 0) 'in_exit)
 	(endif)
 
 	;read payload data directly after header in frag_buf
-	(assign (vpx (.> frag_buf lk_frag_length)) (vpx frag_len))
-	(gotoif (vpx (> frag_len lk_data_size)) 'in_exit)
-	(vpif (vpx (> frag_len 0)))
-		(vpif (vpx (/= sealed 0)))
+	(assign '((:rsp slot_frag_buf)) '(:r0))
+	(assign '((:r0 lk_frag_length)) '(:r1))
+	(assign '(:r1) '((:rsp slot_frag_len)))
+	(gotoif `(:r1 > ,lk_data_size) 'in_exit)
+	(vpif '(:r1 > 0))
+		(assign '((:rsp slot_sealed)) '(:r0))
+		(vpif '(:r0 /= 0))
 			;all of it inside the record that was opened
-			(gotoif (vpx (> (+ frag_len lk_frag_size +net_wire_hdr_size) rlen)) 'in_exit)
-			(in-take (& (.> frag_buf lk_frag_size)) frag_len)
+			(load-fields :rsp '(slot_rlen slot_frag_len) '(:r2 :r1))
+			(vp-add-cr (+ lk_frag_size +net_wire_hdr_size) :r1)
+			(gotoif '(:r1 > :r2) 'in_exit)
+			(assign '((:rsp slot_frag_buf)) '(:r1))
+			(vp-add-cr lk_frag_size :r1)
+			(in-take :r1 '(:rsp slot_frag_len))
 		(else)
-			(call :host_net :recv_all (vpx conn_handle (& (.> frag_buf lk_frag_size)) frag_len lk_node) `(,recv_status))
+			(load-fields :rsp '(slot_conn_handle slot_frag_buf slot_frag_len slot_lk_node) `(,recv_handle ,recv_buf ,recv_rem ,recv_node))
+			(vp-add-cr lk_frag_size recv_buf)
+			(call :host_net :recv_all `(,recv_handle ,recv_buf ,recv_rem ,recv_node) `(,recv_status))
 			(gotoif `(,recv_status < 0) 'in_exit)
 		(endif)
 	(endif)
 
 	;is this msg part of a parcel for this node
-	(vpif (vpx (&& (.> frag_buf lk_frag_total) (= (. (.> frag_buf lk_frag_dest) +net_id_node_id +node_id_node1) (. node_id +node_id_node1)) (= (. (.> frag_buf lk_frag_dest) +net_id_node_id +node_id_node2) (. node_id +node_id_node2)))))
+	(assign '((:rsp slot_frag_buf)) '(:r0))
+	(assign '((:r0 lk_frag_total)) '(:r1))
+	(load-node-id :r0 (+ lk_frag_dest +net_id_node_id) :r2 :r3)
+	(load-node-id :rsp slot_node_id :r4 :r5)
+	(vpif '(:r1 /= 0) '(:r2 = :r4) '(:r3 = :r5))
 		;pass to sys_mail :in with status_buf = 0 (no status word, no sync)
-		(call :sys_mail :in (vpx frag_buf 0 frag_buf (+ lk_frag_size lk_data_size)))
+		(call :sys_mail :in `(:r0 0 :r0 ,(+ lk_frag_size lk_data_size)))
 	(else)
 		;single packet or routed onward
-		(call :sys_mail :alloc (vpx frag_len) (vpx msg data))
+		(call :sys_mail :alloc '((:rsp slot_frag_len)) '((:rsp slot_msg) (:rsp slot_data)))
 		;copy frag data
 		(vp-rdef (msg rx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
-		(assign (vpx msg frag_buf) `(,msg ,rx_frag))
+		(load-fields :rsp '(slot_msg slot_frag_buf) `(,msg ,rx_frag))
 		(assign-fields
 			rx_frag
 				`(lk_frag_length lk_frag_offset lk_frag_total
@@ -934,29 +958,31 @@
 				,(+ +msg_src +net_id_node_id +node_id_node1)
 				,(+ +msg_src +net_id_node_id +node_id_node2))
 			`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
-		(call :sys_mem :copy (vpx (& (.> frag_buf lk_frag_size)) data frag_len))
-		(call :sys_mail :send (vpx msg))
+		(load-fields :rsp '(slot_data slot_frag_buf slot_frag_len) '(:r1 :r0 :r2))
+		(vp-add-cr lk_frag_size :r0)
+		(call :sys_mem :copy '(:r0 :r1 :r2))
+		(call :sys_mail :send '((:rsp slot_msg)))
 	(endif)
 	(goto 'in_check_exit)
 
 (vp-label 'in_check_exit)
 	;check if link closed
-	(assign (vpx lk_node) '(:r1))
+	(assign '((:rsp slot_lk_node)) '(:r1))
 	(assign '((:r1 lk_node_task_count i)) '(:r0))
 	(gotoif '(:r0 = -1) 'in_exit)
 	(goto 'in_loop)
 
 (vp-label 'in_exit)
 	;free private fragment buffer, and the buffer records are opened in
-	(call :sys_mem :free (vpx frag_buf))
-	(assign (vpx rbuf) '(:r0))
+	(call :sys_mem :free '((:rsp slot_frag_buf)))
+	(assign '((:rsp slot_rbuf)) '(:r0))
 	(vpif '(:r0 /= 0))
 		(call :sys_mem :free '(:r0))
 	(endif)
 
 	;mark link closed
 	(vp-rdef (node cnt zero))
-	(assign (vpx lk_node (- 1) 0) `(,node ,cnt ,zero))
+	(assign '((:rsp slot_lk_node) -1 0) `(,node ,cnt ,zero))
 	(save-fields node
 			`(lk_node_task_count
 			,(+ lk_node_peer_node_id +node_id_node1)
@@ -968,11 +994,11 @@
 	(call :sys_task :wake_links)
 
 	;gone, the last thing done with lk_node's frame
-	(assign (vpx live) '(:r0))
+	(assign '((:rsp slot_live)) '(:r0))
 	(assign '((:r0 0)) '(:r1))
 	(vp-sub-cr 1 :r1)
 	(assign '(:r1) '((:r0 0)))
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
