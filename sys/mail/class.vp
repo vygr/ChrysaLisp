@@ -504,38 +504,40 @@
 	;trashes
 	;:r0-:r7, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr name id info cat tmp1 tmp2 sys_str sys_hex))
 
-	(push-scope)
-	(entry :sys_mail :service (vpx name id info))
+	(vp-alloc slot_size)
+	(entry :sys_mail :service '((:rsp slot_name) (:rsp slot_id) (:rsp slot_info)))
 
 	;create service entry: name,id,sys_id,info
-	(call :obj :ref (vpx name))
-	(call :obj :ref (vpx info))
-	(call :list :create :nil (vpx cat))
-	(call :list :push_back (vpx cat name))
-	(call :str :create_from_buffer '("," 1) (vpx tmp1))
-	(call :list :push_back (vpx cat tmp1))
+	(call :obj :ref '((:rsp slot_name)))
+	(call :obj :ref '((:rsp slot_info)))
+	(call :list :create :nil '((:rsp slot_cat)))
+	(call :list :push_back '((:rsp slot_cat) (:rsp slot_name)))
+	(call :str :create_from_buffer '("," 1) '((:rsp slot_tmp1)))
+	(call :list :push_back '((:rsp slot_cat) (:rsp slot_tmp1)))
 	;1: hex-encoded net_id
-	(call :str :encode (vpx id) (vpx tmp2))
-	(call :list :push_back (vpx cat tmp2))
-	(call :str :ref (vpx tmp1))
-	(call :list :push_back (vpx cat tmp1))
+	(call :str :encode '((:rsp slot_id)) '((:rsp slot_tmp2)))
+	(call :list :push_back '((:rsp slot_cat) (:rsp slot_tmp2)))
+	(call :str :ref '((:rsp slot_tmp1)))
+	(call :list :push_back '((:rsp slot_cat) (:rsp slot_tmp1)))
 	;2: hex-encoded system_id
-	(call :nodeid :create (vpx (. (@ sys/statics/statics) statics_sys_task_kernel_system_id)) (vpx sys_str))
-	(call :str :encode (vpx sys_str) (vpx sys_hex))
-	(call :nodeid :destroy (vpx sys_str))
-	(call :list :push_back (vpx cat sys_hex))
+	(fn-bind 'sys/statics/statics :r0)
+	(vp-add-cr statics_sys_task_kernel_system_id :r0)
+	(call :nodeid :create '(:r0) '((:rsp slot_sys_str)))
+	(call :str :encode '((:rsp slot_sys_str)) '((:rsp slot_sys_hex)))
+	(call :nodeid :destroy '((:rsp slot_sys_str)))
+	(call :list :push_back '((:rsp slot_cat) (:rsp slot_sys_hex)))
 	;3: info
-	(call :str :ref (vpx tmp1))
-	(call :list :push_back2 (vpx cat tmp1 info))
-	(call :str :cat (vpx name cat) (vpx name))
-	(call :list :destroy (vpx cat))
+	(call :str :ref '((:rsp slot_tmp1)))
+	(call :list :push_back2 '((:rsp slot_cat) (:rsp slot_tmp1) (:rsp slot_info)))
+	(call :str :cat '((:rsp slot_name) (:rsp slot_cat)) '((:rsp slot_name)))
+	(call :list :destroy '((:rsp slot_cat)))
 
-	(exit :sys_mail :service (vpx name))
-	(pop-scope)
-	(return)
+	(exit :sys_mail :service '((:rsp slot_name)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
@@ -549,43 +551,48 @@
 	;trashes
 	;:r0-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr name id info key bucket set)
 		(pptr tuple)
 		(long time))
 
-	(push-scope)
-	(entry :sys_mail :declare (vpx id name info))
+	(vp-alloc slot_size)
+	(entry :sys_mail :declare '(:r0 :r1 :r2))
+	(save-fields :rsp '(slot_id slot_name slot_info) '(:r0 :r1 :r2))
 
-	;insert into service map
-	(call :nodeid :create (vpx (& (. (.> id +str_data) +net_id_node_id))) (vpx key))
-	(call :hmap :cfind (vpx (. (@ sys/statics/statics) statics_sys_mail_node_map) key (@ class/nodeid/eql)) (vpx _ tuple bucket))
-	(vpifnot (vpx tuple))
-		(call :array :create :nil (vpx tuple))
-		(call :hset :create `(1) (vpx set))
-		(call :array :push_back2 (vpx tuple set 0))
-		(call :array :push_back2 (vpx tuple (- 1) (- 1)))
-		(call :array :push_back2 (vpx tuple 0 0))
-		(call :array :push_back (vpx tuple (- 1)))
-		(call :list :push_back2 (vpx bucket key tuple))
+	;insert into service map, the node id of the mailbox id
+	(vp-add-cr (+ +str_data +net_id_node_id) :r0)
+	(call :nodeid :create '(:r0) '((:rsp slot_key)))
+	(fn-bind 'sys/statics/statics :r0)
+	(call :hmap :cfind '((:r0 statics_sys_mail_node_map) (:rsp slot_key) (@ class/nodeid/eql)) '(_ :r1 :r2))
+	(save-fields :rsp '(slot_tuple slot_bucket) '(:r1 :r2))
+	(vpif '(:r1 = 0))
+		(call :array :create :nil '((:rsp slot_tuple)))
+		(call :hset :create `(1) '((:rsp slot_set)))
+		(call :array :push_back2 '((:rsp slot_tuple) (:rsp slot_set) 0))
+		(call :array :push_back2 '((:rsp slot_tuple) -1 -1))
+		(call :array :push_back2 '((:rsp slot_tuple) 0 0))
+		(call :array :push_back '((:rsp slot_tuple) -1))
+		(call :list :push_back2 '((:rsp slot_bucket) (:rsp slot_key) (:rsp slot_tuple)))
 	(else)
-		(assign (vpx (elem tuple +ptr_size)) (vpx tuple))
-		(call :nodeid :destroy (vpx key))
+		(assign '((:r1 +ptr_size)) '(:r1))
+		(assign '(:r1) '((:rsp slot_tuple)))
+		(call :nodeid :destroy '((:rsp slot_key)))
 	(endif)
-	(call :host_os :pii_time :nil (vpx time))
-	(call :array :set_elem (vpx tuple time +node_time))
-	(call :array :get_first (vpx tuple) (vpx _ set))
-	(call :sys_mail :service (vpx name id info) (vpx name))
-	(call :hset :cinsert (vpx set name (@ class/sym/eql_str)))
+	(call :host_os :pii_time :nil '((:rsp slot_time)))
+	(call :array :set_elem `((:rsp slot_tuple) (:rsp slot_time) ,+node_time))
+	(call :array :get_first '((:rsp slot_tuple)) '(_ (:rsp slot_set)))
+	(call :sys_mail :service '((:rsp slot_name) (:rsp slot_id) (:rsp slot_info)) '((:rsp slot_name)))
+	(call :hset :cinsert '((:rsp slot_set) (:rsp slot_name) (@ class/sym/eql_str)))
 	;a full ping is now due
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-cpy-cr 1 :r1)
 	(vp-xor-rr :r2 :r2)
 	(assign '(:r1 :r2) '((:r0 statics_sys_mail_ping_full) (:r0 statics_sys_mail_ping_next)))
 
-	(exit :sys_mail :declare (vpx name))
-	(pop-scope)
-	(return)
+	(exit :sys_mail :declare '((:rsp slot_name)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
