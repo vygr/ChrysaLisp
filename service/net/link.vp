@@ -344,7 +344,7 @@
 	;trashes
 	;:r0-:r7, :r13-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(struct lk_node lk_node_size)
 		(struct keys 64)
 		(ptr msg data)
@@ -354,7 +354,7 @@
 	(vp-rdef (lst iter_begin iter_end) (method-output :array :get_both))
 	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
-	(push-scope)
+	(vp-alloc slot_size)
 
 	;decrement task count
 	;don't count links in load balancing
@@ -362,7 +362,7 @@
 
 	;init and add link node to link array
 	(vp-rdef (node zero one))
-	(assign (vpx (& lk_node) 0 1) `(,node ,zero ,one))
+	(assign '((& :rsp slot_lk_node) 0 1) `(,node ,zero ,one))
 	(save-fields node
 			`(lk_node_task_count lk_node_peer_pid lk_node_sent lk_node_remote
 			,(+ lk_node_peer_node_id +node_id_node1)
@@ -372,17 +372,17 @@
 		`(,zero ,zero ,zero ,one ,zero ,zero ,zero ,zero))
 	(assign '((@ sys/statics/statics)) '(:r7))
 	(assign '((:r7 statics_sys_mail_links_array)) '(:r0))
-	(assign (vpx (& lk_node)) '(:r1))
+	(assign '((& :rsp slot_lk_node)) '(:r1))
 	(call :array :push_back '(:r0 :r1))
 
 	;read params msg: the handle, whether it is sealed, and its two keys,
 	;the one the out link seals with and the one the in link opens with
 	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
 	(assign `((,params_data 0)) '(:r2))
-	(assign '(:r2) (vpx conn_handle))
+	(assign '(:r2) '((:rsp slot_conn_handle)))
 	(assign `((,params_data +long_size)) '(:r2))
-	(assign '(:r2) (vpx sealed))
-	(assign (vpx (& keys)) '(:r3))
+	(assign '(:r2) '((:rsp slot_sealed)))
+	(assign '((& :rsp slot_keys)) '(:r3))
 	(assign `((,params_data 16)) '(:r2))
 	(assign '(:r2) '((:r3 0)))
 	(assign `((,params_data 24)) '(:r2))
@@ -402,23 +402,23 @@
 	(call :sys_mail :free `(,params_msg))
 
 	;the handle again: the free is declared to trash where it was
-	(assign (vpx conn_handle) '(:r2))
+	(assign '((:rsp slot_conn_handle)) '(:r2))
 	(gotoif '(:r2 <= 0) 'conn_exit)
 
 	;the in and out links have lk_node, here, and the socket till each says
 	;it has gone, live, the last thing it does
 	(assign '(2) '(:r0))
-	(assign '(:r0) (vpx live))
+	(assign '(:r0) '((:rsp slot_live)))
 
 	;start out link and send params, with the key it seals with
-	(call :sys_mail :alloc '(64) (vpx msg data))
-	(call :sys_task :start (vpx (@ ,(f-path :host_net :out))) '(_ _ :r2 :r3 :r4))
-	(assign (vpx msg data (& lk_node) conn_handle) '(:r0 :r1 :r5 :r6))
+	(call :sys_mail :alloc '(64) '((:rsp slot_msg) (:rsp slot_data)))
+	(call :sys_task :start `((@ ,(f-path :host_net :out))) '(_ _ :r2 :r3 :r4))
+	(assign '((:rsp slot_msg) (:rsp slot_data) (& :rsp slot_lk_node) (:rsp slot_conn_handle)) '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
-	(assign (vpx sealed) '(:r5))
+	(assign '((:rsp slot_sealed)) '(:r5))
 	(assign '(:r5) '((:r1 16)))
-	(assign (vpx (& keys)) '(:r6))
+	(assign '((& :rsp slot_keys)) '(:r6))
 	(assign '((:r6 0)) '(:r5))
 	(assign '(:r5) '((:r1 24)))
 	(assign '((:r6 8)) '(:r5))
@@ -427,19 +427,19 @@
 	(assign '(:r5) '((:r1 40)))
 	(assign '((:r6 24)) '(:r5))
 	(assign '(:r5) '((:r1 48)))
-	(assign (vpx (& live)) '(:r5))
+	(assign '((& :rsp slot_live)) '(:r5))
 	(assign '(:r5) '((:r1 56)))
 	(call :sys_mail :send '(:r0))
 
 	;start in link and send params, with the key it opens with
-	(call :sys_mail :alloc '(64) (vpx msg data))
-	(call :sys_task :start (vpx (@ ,(f-path :host_net :in))) '(_ _ :r2 :r3 :r4))
-	(assign (vpx msg data (& lk_node) conn_handle) '(:r0 :r1 :r5 :r6))
+	(call :sys_mail :alloc '(64) '((:rsp slot_msg) (:rsp slot_data)))
+	(call :sys_task :start `((@ ,(f-path :host_net :in))) '(_ _ :r2 :r3 :r4))
+	(assign '((:rsp slot_msg) (:rsp slot_data) (& :rsp slot_lk_node) (:rsp slot_conn_handle)) '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
-	(assign (vpx sealed) '(:r5))
+	(assign '((:rsp slot_sealed)) '(:r5))
 	(assign '(:r5) '((:r1 16)))
-	(assign (vpx (& keys)) '(:r6))
+	(assign '((& :rsp slot_keys)) '(:r6))
 	(assign '((:r6 32)) '(:r5))
 	(assign '(:r5) '((:r1 24)))
 	(assign '((:r6 40)) '(:r5))
@@ -448,14 +448,14 @@
 	(assign '(:r5) '((:r1 40)))
 	(assign '((:r6 56)) '(:r5))
 	(assign '(:r5) '((:r1 48)))
-	(assign (vpx (& live)) '(:r5))
+	(assign '((& :rsp slot_live)) '(:r5))
 	(assign '(:r5) '((:r1 56)))
 	(call :sys_mail :send '(:r0))
 
 	;wait till link dies
 (vp-label 'conn_wait_loop)
 	(call :sys_task :sleep '(100000))
-	(assign (vpx (& lk_node)) '(:r0))
+	(assign '((& :rsp slot_lk_node)) '(:r0))
 	(assign '((:r0 lk_node_task_count i)) `(,tmp))
 	(gotoif `(,tmp /= -1) 'conn_wait_loop)
 
@@ -464,23 +464,23 @@
 	;it reads what has gone. The out link is woken if asleep, and the link
 	;is said to be closed again each time, a ping read can undo it
 (vp-label 'conn_gone_loop)
-	(assign (vpx (& lk_node)) '(:r0))
+	(assign '((& :rsp slot_lk_node)) '(:r0))
 	(assign '(-1) '(:r1))
 	(assign '(:r1) '((:r0 lk_node_task_count i)))
 	(call :sys_task :wake_links)
 	(call :sys_task :sleep '(1000))
-	(assign (vpx live) '(:r0))
+	(assign '((:rsp slot_live)) '(:r0))
 	(gotoif '(:r0 /= 0) 'conn_gone_loop)
 
 	;close socket
-	(host-net-call :host_net :close (vpx conn_handle))
+	(host-net-call :host_net :close '((:rsp slot_conn_handle)))
 
 (vp-label 'conn_exit)
 	;remove link node from link array
 	(assign '((@ sys/statics/statics)) '(:r7))
 	(assign '((:r7 statics_sys_mail_links_array)) '(:r0))
 	(call :array :get_both '(:r0) `(,lst ,iter_begin ,iter_end))
-	(assign (vpx (& lk_node)) '(:r3))
+	(assign '((& :rsp slot_lk_node)) '(:r3))
 (vp-label 'find_link_loop)
 	(gotoif `(,iter_begin = ,iter_end) 'conn_done)
 	(assign `((,iter_begin 0)) '(:r4))
@@ -496,8 +496,8 @@
 (vp-label 'conn_done)
 	;restore task count
 	(call :sys_task :count '(3))
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
