@@ -138,8 +138,11 @@
 					(:t (throw "Invalid dst parameter !" (list %0 %1)))))
 				(:i (pcase (assign-dst-type %1) +pkeys2
 					(:r (vp-load-rcr (first %0) (second %0) %1))
-					(:f (vp-load-rcd (first %0) (second %0) %1))))
-				(:c (vp-cpy-cr %0 %1))
+					(:f (vp-load-rcd (first %0) (second %0) %1))
+					(:t (throw "Invalid dst parameter !" (list %0 %1)))))
+				(:c (if (eql (assign-dst-type %1) :r)
+					(vp-cpy-cr %0 %1)
+					(throw "Invalid dst parameter !" (list %0 %1))))
 				(:iui (vp-load-rcr-ui (first %0) (second %0) %1))
 				(:s (fn-string %0 %1))
 				(:$ (vp-lea-pr (second %0) %1))
@@ -147,7 +150,8 @@
 				(:@ (fn-bind (second %0) %1))
 				(:d (pcase (assign-dst-type %1) +pkeys2
 					(:r (vp-load-rrr (first %0) (second %0) %1))
-					(:f (vp-load-rrd (first %0) (second %0) %1))))
+					(:f (vp-load-rrd (first %0) (second %0) %1))
+					(:t (throw "Invalid dst parameter !" (list %0 %1)))))
 				;of 32 bits to a float register, a single, made a double for a double
 				(:ii (pcase (assign-dst-type %1) +pkeys2
 					(:f (assign-single-in (const vp-load-rcf) (first %0) (second %0) %1))
