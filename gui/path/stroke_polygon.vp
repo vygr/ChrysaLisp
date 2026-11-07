@@ -13,29 +13,39 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this path1 path2)
 		(plong iter_begin_polyline iter_end_polyline)
 		(int radius)
 		(byte join_style))
 
-	(push-scope)
-	(entry :path :stroke_polygon (vpx this radius join_style))
+	(vp-alloc slot_size)
+	(entry :path :stroke_polygon '((:rsp slot_this) (:rsp slot_radius) (:rsp slot_join_style)))
 
-	(call :path :filter_polygon (vpx this this 0.5))
-	(call :path :get_both (vpx this) (vpx _ iter_begin_polyline iter_end_polyline))
-	(call :path :create :nil (vpx path1))
-	(call :path :stroke_joints (vpx path1 iter_begin_polyline iter_end_polyline
-		(elem iter_end_polyline (* (- +long_size) 4)) (elem iter_end_polyline (* (- +long_size) 3))
-		(elem iter_end_polyline (* (- +long_size) 2)) (elem iter_end_polyline (- +long_size)) radius join_style))
-	(call :path :create :nil (vpx path2))
-	(call :path :stroke_joints (vpx path2 (- iter_end_polyline (* 2 +long_size))
-		(- iter_begin_polyline (* 2 +long_size))
-		(elem iter_begin_polyline (* +long_size 2)) (elem iter_begin_polyline (* +long_size 3))
-		(elem iter_begin_polyline 0) (elem iter_begin_polyline +long_size) radius join_style))
+	(call :path :filter_polygon `((:rsp slot_this) (:rsp slot_this) ,(<< 1 (- +fp_shift 1))))
+	(call :path :get_both '((:rsp slot_this)) '(_ (:rsp slot_iter_begin_polyline) (:rsp slot_iter_end_polyline)))
+	;the joints of the polygon one way round, the last point and the one
+	;before it as the two before the first
+	(call :path :create :nil '(:r0))
+	(assign '(:r0) '((:rsp slot_path1)))
+	(load-fields :rsp '(slot_iter_begin_polyline slot_iter_end_polyline slot_radius slot_join_style)
+		'(:r1 :r2 :r7 :r8))
+	(load-fields :r2 (list (* (neg +long_size) 4) (* (neg +long_size) 3) (* (neg +long_size) 2) (neg +long_size))
+		'(:r3 :r4 :r5 :r6))
+	(call :path :stroke_joints '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
 
-	(exit :path :stroke_polygon (vpx this path1 path2))
-	(pop-scope)
-	(return)
+	;and the other way round, the first two points as the two before the last
+	(call :path :create :nil '(:r0))
+	(assign '(:r0) '((:rsp slot_path2)))
+	(load-fields :rsp '(slot_iter_begin_polyline slot_iter_end_polyline slot_radius slot_join_style)
+		'(:r2 :r1 :r7 :r8))
+	(load-fields :r2 (list 0 +long_size (* +long_size 2) (* +long_size 3)) '(:r5 :r6 :r3 :r4))
+	(vp-sub-cr (* 2 +long_size) :r1)
+	(vp-sub-cr (* 2 +long_size) :r2)
+	(call :path :stroke_joints '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
+
+	(exit :path :stroke_polygon '((:rsp slot_this) (:rsp slot_path1) (:rsp slot_path2)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
