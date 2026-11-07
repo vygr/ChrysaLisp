@@ -161,42 +161,54 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this args value)
 		(long flush len))
 
-	(push-scope)
-	(entry :lstream :put (vpx this flush))
+	(vp-alloc slot_size)
+	(entry :lstream :put '(:r0 :r1))
+	(save-fields :rsp '(slot_this slot_flush) '(:r0 :r1))
 
-	(vpif (vpx (.> this +lstream_write)))
+	(assign '((:r0 +lstream_write)) '(:r2))
+	(vpif '(:r2 /= 0))
 		;what has been written, a stream not written to yet has no bufp
-		(assign (vpx 0) (vpx len))
-		(vpif (vpx (.> this +stream_bufp)))
-			(assign (vpx (- (.> this +stream_bufp) (.> this +stream_buffer))) (vpx len))
+		(load-fields :r0 '(+stream_buffer +stream_bufp) '(:r3 :r2))
+		(vpif '(:r2 /= 0))
+			(vp-sub-rr :r3 :r2)
 		(endif)
+		(assign '(:r2) '((:rsp slot_len)))
 
 		;the function is given it, and if this is a flush
-		(call :list :create :nil (vpx args))
-		(call :str :create_from_buffer (vpx (.> this +stream_buffer) len) (vpx value))
-		(call :list :push_back (vpx args value))
-		(assign (vpx (.> this +lstream_lisp +lisp_sym_nil)) (vpx value))
-		(vpif (vpx flush))
-			(assign (vpx (.> this +lstream_lisp +lisp_sym_t)) (vpx value))
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) '((:rsp slot_args)))
+		(load-fields :rsp '(slot_this slot_len) '(:r0 :r1))
+		(call :str :create_from_buffer '((:r0 +stream_buffer) :r1) '(:r1))
+		(call :list :push_back '((:rsp slot_args) :r1))
+		(load-fields :rsp '(slot_this slot_flush) '(:r0 :r2))
+		(assign '((:r0 +lstream_lisp)) '(:r0))
+		(vpif '(:r2 = 0))
+			(assign '((:r0 +lisp_sym_nil)) '(:r1))
+		(else)
+			(assign '((:r0 +lisp_sym_t)) '(:r1))
 		(endif)
-		(call :obj :ref (vpx value))
-		(call :list :push_back (vpx args value))
-		(call :lisp :repl_apply (vpx (.> this +lstream_lisp) args (.> this +lstream_write)) (vpx _ value))
-		(call :obj :deref (vpx args))
-		(call :obj :deref_if (vpx value))
+		(call :obj :ref '(:r1) '(:r1))
+		(call :list :push_back '((:rsp slot_args) :r1))
+		(load-fields :rsp '(slot_this slot_args) '(:r0 :r1))
+		(call :lisp :repl_apply '((:r0 +lstream_lisp) :r1 (:r0 +lstream_write)) '(_ :r1))
+		(assign '(:r1) '((:rsp slot_value)))
+		(call :obj :deref '((:rsp slot_args)))
+		(call :obj :deref_if '((:rsp slot_value)))
 
 		;and all the buffer is to be written to again
-		(assign (vpx (.> this +stream_buffer) (+ (.> this +stream_buffer) (.> this +lstream_buf_len)))
-			(vpx (.> this +stream_bufp) (.> this +stream_bufe)))
+		(assign '((:rsp slot_this)) '(:r0))
+		(load-fields :r0 '(+stream_buffer +lstream_buf_len) '(:r1 :r2))
+		(vp-add-rr :r1 :r2)
+		(save-fields :r0 '(+stream_bufp +stream_bufe) '(:r1 :r2))
 	(endif)
 
-	(exit :lstream :put (vpx this))
-	(pop-scope)
-	(return)
+	(exit :lstream :put '((:rsp slot_this)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
