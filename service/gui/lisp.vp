@@ -303,70 +303,71 @@
 	;if the host can not read it. As :canvas :read, it is read on the
 	;stack of the host
 
-	(structure slot 0
+	(structure rs 0
 		(ptr data)
 		(long x y w h ok))
 
-	(def-vars
-		(struct frame slot_size)
+	(structure slot 0
 		(ptr this args out)
-		(long init))
+		(align)
+		(struct frame rs_size))
 
-	(push-scope)
 	(entry :host_gui :lisp_read_screen '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 4)
 
-	(assign '(:r0 :r1) (vpx this args))
+	(vp-alloc slot_size)
+	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :num :num :num))
-	(assign '(:r0 :r1 :r2 :r3) (vpx (. frame slot_x) (. frame slot_y) (. frame slot_w) (. frame slot_h)))
-	(assign (vpx 0) (vpx out))
+	(save-fields :rsp (list (+ slot_frame rs_x) (+ slot_frame rs_y) (+ slot_frame rs_w) (+ slot_frame rs_h))
+		'(:r0 :r1 :r2 :r3))
+	(vp-xor-rr :r0 :r0)
+	(assign '(:r0) '((:rsp slot_out)))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_gui_init)) '(:r1))
-	(assign '(:r1) (vpx init))
-	(vpif (vpx (&& (/= init 0) (> (. frame slot_w) 0) (> (. frame slot_h) 0))))
-		(call :str :create_from_buffer (vpx 0 (* (. frame slot_w) (. frame slot_h) 4)) (vpx out))
-		(assign (vpx (& (.> out +str_data)) 0) (vpx (. frame slot_data) (. frame slot_ok)))
-		(call :sys_task :callback (vpx (& frame) ($ callback)))
-		(vpif (vpx (= (. frame slot_ok) 0)))
-			(call :str :deref (vpx out))
-			(assign (vpx 0) (vpx out))
+	(vpif '(:r1 /= 0) '(:r2 > 0) '(:r3 > 0))
+		(vp-mul-rr :r3 :r2)
+		(vp-shl-cr 2 :r2)
+		(call :str :create_from_buffer '(0 :r2) '(:r0))
+		(assign '(:r0) '((:rsp slot_out)))
+		(vp-add-cr +str_data :r0)
+		(vp-xor-rr :r1 :r1)
+		(save-fields :rsp (list (+ slot_frame rs_data) (+ slot_frame rs_ok)) '(:r0 :r1))
+		(call :sys_task :callback '((& :rsp slot_frame) ($ callback)))
+		(assign '((:rsp (+ slot_frame rs_ok))) '(:r0))
+		(vpif '(:r0 = 0))
+			(call :str :deref '((:rsp slot_out)))
+			(vp-xor-rr :r0 :r0)
+			(assign '(:r0) '((:rsp slot_out)))
 		(endif)
 	(endif)
-	(vpif (vpx (= out 0)))
-		(assign (vpx this) '(:r0))
+	(load-fields :rsp '(slot_this slot_out) '(:r0 :r1))
+	(vpif '(:r1 = 0))
 		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
-		(assign '(:r1) (vpx out))
 	(endif)
 
-	(exit :host_gui :lisp_read_screen (vpx this out))
-	(return)
+	(exit :host_gui :lisp_read_screen '(:r0 :r1))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gui-read-screen x y w h)" +error_msg_wrong_types))
 	(signature '(:NUM :NUM :NUM :NUM))
 
-	(pop-scope-syms)
-
 (vp-label 'callback)
 	;inputs
 	;:r0 = user data
 
-	(def-vars
-		(ptr user)
-		(long ok))
-
-	(push-scope)
-	(entry (vpx user))
-
-	(host-gui-call :host_gui :read_screen (vpx (.> user slot_data) (.> user slot_x) (.> user slot_y)
-			(.> user slot_w) (.> user slot_h) (* (.> user slot_w) 4))
-		(vpx ok))
-	(assign (vpx ok) (vpx (.> user slot_ok)))
-
-	(pop-scope)
-	(return)
+	(entry '(:r0))
+	(vp-push :r0)
+	(assign '((:r0 rs_w)) '(:r6))
+	(vp-shl-cr 2 :r6)
+	(host-gui-call :host_gui :read_screen '((:r0 rs_data) (:r0 rs_x) (:r0 rs_y) (:r0 rs_w) (:r0 rs_h) :r6)
+		'(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 rs_ok)))
+	(vp-ret)
 
 (def-func-end)
 
