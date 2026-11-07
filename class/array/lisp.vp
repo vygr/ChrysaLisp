@@ -31,7 +31,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(to-array :array)
 
@@ -48,7 +48,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(to-array :nums)
 
@@ -65,7 +65,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(to-array :fixeds)
 
@@ -82,7 +82,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(to-array :reals)
 
@@ -99,7 +99,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(to-array :path)
 
@@ -116,7 +116,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -154,7 +154,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :array :lisp_pop '(:r0 :r1))
 
@@ -189,7 +189,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r4, :r6-:r13, :f0-:f15
+	;:r1-:r4, :r6-:r13, :d0-:d15
 
 	;this is where the append of a list, which is declared to trash :r1
 	;to :r9, leaves it: it was in :r6, and that the append did not in
@@ -295,7 +295,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r9-:r13, :f0-:f15
+	;:r1-:r3, :r9-:r13, :d0-:d15
 
 	(vp-rdef (this args argc iter_begin iter_end obj res) '(:r9 :r10 :r11 :r12 :r13))
 
@@ -335,7 +335,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(vp-rdef (a v i len this args) '(:r3 :r4 :r5 :r6))
 
@@ -385,7 +385,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 	;info
 	;(fill array length value) -> array, made length long, each element
 	;value: of a list the object, a reference to it for each, of the rest

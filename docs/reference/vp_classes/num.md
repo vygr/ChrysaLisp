@@ -76,7 +76,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r2, :r12, :r14, :f0-:f15
+:r0-:r2, :r12, :r14, :d0-:d15
 ```
 
 ### :add -> class/num/add
@@ -88,7 +88,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r4, :r14, :f0-:f15
+:r0-:r4, :r14, :d0-:d15
 ```
 
 ### :create -> class/num/create
@@ -99,7 +99,7 @@ inputs
 outputs
 :r0 = 0 if error, else num object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :div -> class/num/div
@@ -111,7 +111,7 @@ inputs
 outputs
 :r0 = 0 if error, else result num object (ptr)
 trashes
-:r0-:r5, :r14, :f0-:f15
+:r0-:r5, :r14, :d0-:d15
 ```
 
 ### :eq -> class/num/eq
@@ -209,7 +209,7 @@ inputs
 outputs
 :r0 = interned num object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :le -> class/num/le
@@ -269,7 +269,7 @@ inputs
 outputs
 :r0 = 0 if error, else result num object (ptr)
 trashes
-:r0-:r5, :r14, :f0-:f15
+:r0-:r5, :r14, :d0-:d15
 ```
 
 ### :mul -> class/num/mul
@@ -281,7 +281,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r4, :r14, :f0-:f15
+:r0-:r4, :r14, :d0-:d15
 ```
 
 ### :ne -> class/num/ne
@@ -304,7 +304,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r2, :r12, :r14, :f0-:f15
+:r0-:r2, :r12, :r14, :d0-:d15
 ```
 
 ### :pow -> class/num/pow
@@ -316,7 +316,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r3, :r12, :r14, :f0-:f15
+:r0-:r3, :r12, :r14, :d0-:d15
 info
 by squaring, 1 for a power not greater than 0
 ```
@@ -330,7 +330,7 @@ inputs
 outputs
 :r0 = num object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :random -> class/num/random
@@ -341,7 +341,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r3, :r12, :r14, :f0-:f15
+:r0-:r3, :r12, :r14, :d0-:d15
 ```
 
 ### :set_value -> class/num/set_value
@@ -365,7 +365,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r2, :r12, :r14, :f0-:f15
+:r0-:r2, :r12, :r14, :d0-:d15
 ```
 
 ### :sqrt -> class/num/sqrt
@@ -376,7 +376,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r2, :r12, :r14, :f0-:f15
+:r0-:r2, :r12, :r14, :d0-:d15
 ```
 
 ### :sub -> class/num/sub
@@ -388,7 +388,7 @@ inputs
 outputs
 :r0 = result num object (ptr)
 trashes
-:r0-:r4, :r14, :f0-:f15
+:r0-:r4, :r14, :d0-:d15
 ```
 
 ### :type -> class/num/type
@@ -400,7 +400,7 @@ outputs
 :r0 = num object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> class/num/create
@@ -411,7 +411,7 @@ inputs
 outputs
 :r0 = 0 if error, else num object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :vtable -> class/num/vtable

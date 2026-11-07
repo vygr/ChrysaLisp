@@ -38,7 +38,7 @@ docs/diagrams/vp_translate.cwb
 
     * `:rsp`: Stack Pointer.
 
-    * `:f0` through `:f15`: IEEE float registers.
+    * `:d0` through `:d15`: IEEE float registers.
 
     These are symbolic names used in VP assembly; the translation system maps
     them to native registers.
@@ -133,7 +133,7 @@ A number is unsigned, 7 bits a byte, low first, the top bit of a byte saying
 another follows. A signed one is written as its zigzag, 0 -1 1 -2 2 ... as
 0 1 2 3 4 .... The operand tags are:
 
-* `reg`: a byte, `:r0` to `:rsp` as 0 to 15, `:f0` to `:f15` as 16 to 31.
+* `reg`: a byte, `:r0` to `:rsp` as 0 to 15, `:d0` to `:d15` as 16 to 31.
 
 * `num`: a signed number.
 
@@ -214,7 +214,7 @@ A routine of an op is called with `:r0` to `:r3` its first operands' values,
 `:r4` all of them, `:r5` how many, `:r6` the operands as decoded and `:r7`
 its record. A register operand comes to it already in the CPU's own number,
 from the translator's `reg_map`, 16 bytes for `:r0` to `:rsp` then 16 for
-`:f0` to `:f15`. A routine may trash `:r0` to `:r13`, never `:r14`, the
+`:d0` to `:d15`. A routine may trash `:r0` to `:r13`, never `:r14`, the
 state, which has `+vpbt_pc` where the output is and `+vpbt_pass` the pass.
 It writes its bytes with `emit8`, `emit16`, `emit32` or `emit64`.
 
@@ -292,7 +292,7 @@ Some things are the same on all five:
 
 ### arm64
 
-`:r0` to `:r7` are x0 to x7, `:r8` to `:r14` x19 to x25, `:f0` to `:f15`
+`:r0` to `:r7` are x0 to x7, `:r8` to `:r14` x19 to x25, `:d0` to `:d15`
 d8 to d23. `:rsp` is x28, not the hardware sp, so the VP stack is free of
 the 16 byte rule; sp is made from x28 only for a host call. It keeps x29
 as its temp and x30 as the link register.
@@ -377,7 +377,7 @@ The prepass goes from instruction 8 to the one before the last:
 ### x86_64
 
 `:r0` to `:r3` are rax, rcx, rdx and rbx, `:r4` to `:r6` rbp, rsi and
-rdi, `:r7` to `:r14` r8 to r15, `:rsp` rsp, `:f0` to `:f15` xmm0 to xmm15.
+rdi, `:r7` to `:r14` r8 to r15, `:rsp` rsp, `:d0` to `:d15` xmm0 to xmm15.
 It keeps no register: a temp it needs is pushed and popped round the use,
 or a constant is put in the code.
 
@@ -461,7 +461,7 @@ The prepass goes from instruction 8 to the last:
 ### riscv64
 
 `:r0` to `:r7` are a0 to a7 (x10 to x17), `:r8` to `:r14` s2 to s8 (x18
-to x24), `:rsp` sp (x2). `:f0` to `:f15` are fs0 to fs11 (f8, f9, f18 to
+to x24), `:rsp` sp (x2). `:d0` to `:d15` are fs0 to fs11 (f8, f9, f18 to
 f27) and ft0 to ft3 (f0 to f3). It keeps x31 (t6) as its first temp, x30
 (t5) and x29 (t4) as others, x27 and x26 (s11, s10) for sp and ra over a
 host call, and x1 as ra.
@@ -528,7 +528,7 @@ to the last, the same rules as the arm64 call fusion, making
 ### la64
 
 `:r0` to `:r7` are a0 to a7 (r4 to r11), `:r8` to `:r14` s0 to s6 (r23
-to r29), `:rsp` sp (r3), `:f0` to `:f15` f0 to f15. It keeps r12 (t0) as
+to r29), `:rsp` sp (r3), `:d0` to `:d15` f0 to f15. It keeps r12 (t0) as
 its first temp, r13 and r14 (t1, t2) as others, r30 and r31 (s7, s8) for
 sp and ra over a host call, and r1 as ra.
 

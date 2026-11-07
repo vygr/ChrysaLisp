@@ -32,7 +32,7 @@
 	(if %2 (elem-get %0 %2) %0))
 
 (defun trash-regs (%0)
-	;%0 = what a method is declared to trash, (:r1-:r14 :f0)
+	;%0 = what a method is declared to trash, (:r1-:r14 :d0)
 	;the registers that is, each by itself: a range is from the first of
 	;it to the last, of the one kind
 	(reduce (lambda (out reg)
@@ -157,7 +157,7 @@
 (defmacro def-class (class super &rest lines)
 	; (def-class class super (dec-method name function [type regs_in regs_out trashes own]) ...)
 	;trashes is the registers a call of the method may leave not as they
-	;were, ranges and all, (:r1-:r14 :f0), () for none. Not said, it is
+	;were, ranges and all, (:r1-:r14 :d0), () for none. Not said, it is
 	;what the class above says of the method, and if none does, not known.
 	;Of a virtual method it is what any class called so may trash, and
 	;own, after it, is what the one function that is the method here

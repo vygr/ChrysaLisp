@@ -34,7 +34,7 @@ trashes
 outputs
 :r0 = 0 if error, else fixeds object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :div -> class/fixeds/div
@@ -138,7 +138,7 @@ outputs
 :r0 = fixeds object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> class/fixeds/create
@@ -147,7 +147,7 @@ trashes
 outputs
 :r0 = 0 if error, else fixeds object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :velement -> class/fixed/create
@@ -158,7 +158,7 @@ inputs
 outputs
 :r0 = 0 if error, else fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :vtable -> class/fixeds/vtable

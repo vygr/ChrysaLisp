@@ -41,7 +41,7 @@ a ref or deref of an object that is not alive, report and dump
 inputs
 :r0 = object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :deref_if -> class/obj/deref_if
@@ -50,7 +50,7 @@ trashes
 inputs
 :r0 = 0, else object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :destroy -> class/obj/destroy
@@ -59,7 +59,7 @@ trashes
 inputs
 :r0 = object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 info
 an object is destroyed from inside the destroying of what held it: a
 list in a list in a list, and each is a call further down the task's
@@ -146,7 +146,7 @@ inputs
 outputs
 :r0 = object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :ref -> class/obj/ref
@@ -180,7 +180,7 @@ outputs
 :r0 = obj object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/obj/vtable

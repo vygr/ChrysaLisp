@@ -1178,8 +1178,8 @@ How the code is laid out.
 * A function is a label, and a call is a `vp-call`. The args are stored to the
   parameter slots of the callee, and the result is read back from its result
   slot.
-* A value being worked on is held in registers, a float in each of `:f0` to
-  `:f15`, an int or bool in `:r2` to `:r10`. A `vec3` is three registers. Any
+* A value being worked on is held in registers, a float in each of `:d0` to
+  `:d15`, an int or bool in `:r2` to `:r10`. A `vec3` is three registers. Any
   that are live over a call are saved on the stack around it.
 * `:r13` holds the frame and `:r12` the constants. A float literal is a
   constant in the function's table.

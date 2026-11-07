@@ -7,7 +7,7 @@
 	;outputs
 	;:r0 = 0 if error, else hset object (ptr)
 	;trashes
-	;:r0-:r5, :r14, :f0-:f15
+	;:r0-:r5, :r14, :d0-:d15
 (gen-vtable :hset)
 (gen-type :hset)
 	;inputs
@@ -16,7 +16,7 @@
 	;:r0 = hset object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :hset :init)
 	;inputs
@@ -27,7 +27,7 @@
 	;:r0 = hset object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(vp-rdef (this vtable num_buckets iter_begin iter_end saved_this))
 
@@ -108,7 +108,7 @@
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 
 	(vp-rdef (this key cmp_func) (method-input :hset :cinsert))
 	(vp-rdef (& iter bucket) (method-output :hset :cinsert))
@@ -140,14 +140,14 @@
 	;outputs
 	;:r0 = hset object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 		;callback predicate
 		;inputs
 		;:r0 = predicate data (ptr)
 		;:r1 = element iterator (pptr)
 		;:r2 = bucket list pointer (ptr)
 		;trashes
-		;:r1-:r14, :f0-:f15
+		;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this predicate predicate_data bucket)
@@ -244,7 +244,7 @@
 	;outputs
 	;:r0 = hset object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(vp-rdef (this))
 

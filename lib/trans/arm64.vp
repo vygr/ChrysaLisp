@@ -12,7 +12,7 @@
 
 
 (defq +a64_rt 29 +a64_rl 30 +a64_vrsp 28 +a64_sp 31
-	;the VP's :f0 to :f15 are v16 to v31. v7, a register the ABI does not
+	;the VP's :d0 to :d15 are v16 to v31. v7, a register the ABI does not
 	;keep and the VP has not, is where a single is made to be stored
 	+a64_ft 7)
 
@@ -39,7 +39,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r0-:r13, :f0-:f15
+	;:r0-:r13, :d0-:d15
 	;info
 	;(vpb-arm64 bin) -> :nil | str, a function's VP binary as arm64 native
 	;code, :nil if it can not be
@@ -1939,7 +1939,7 @@
 				pp_calls pp_hs pp_ms pp_ts pp_branches)) 1 0)))
 		+vpb_all_ops)
 (vp-label 'reg_map)
-	;:r0 to :rsp, then :f0 to :f15, as arm64 numbers them
+	;:r0 to :rsp, then :d0 to :d15, as arm64 numbers them
 	(vp-byte 0 1 2 3 4 5 6 7 19 20 21 22 23 24 25 28)
 	(vp-byte 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23)
 

@@ -82,7 +82,7 @@ inputs
 outputs
 :r0 = 1 if running, else 0 (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 is this process running ?
 ```
@@ -96,7 +96,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 set the mode of a file, who may read, write and run it
 ```
@@ -110,7 +110,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_close -> sys/pii/close
@@ -121,7 +121,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_close_shared -> sys/pii/close_shared
@@ -133,7 +133,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_cpus -> sys/pii/cpus
@@ -142,7 +142,7 @@ trashes
 outputs
 :r0 = number of processors (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 the number of processors this machine has online
 ```
@@ -157,7 +157,7 @@ inputs
 outputs
 :r0 = buffer length (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_exit -> sys/pii/exit
@@ -166,7 +166,7 @@ trashes
 inputs
 :r0 = code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_host -> sys/pii/host
@@ -178,7 +178,7 @@ inputs
 outputs
 :r0 = length of what was written (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 what this host program is, "cpu abi os", the names the build and the
 object folders have for them
@@ -192,7 +192,7 @@ inputs
 outputs
 :r0 = 0 if told to end or not there, else -1 (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 end a process that can not be asked to go. Only a host that says
 it is new enough has this, see (pii-kill) in sys/lisp.inc
@@ -204,7 +204,7 @@ it is new enough has this, see (pii-kill) in sys/lisp.inc
 outputs
 :r0 = physical memory in bytes (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 the physical memory this machine has
 ```
@@ -219,7 +219,7 @@ inputs
 outputs
 :r0 = buffer (ptr)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_mprotect -> sys/pii/mprotect
@@ -232,7 +232,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_munmap -> sys/pii/munmap
@@ -245,7 +245,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_open -> sys/pii/open
@@ -257,7 +257,7 @@ inputs
 outputs
 :r0 = fd (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_open_shared -> sys/pii/open_shared
@@ -269,7 +269,7 @@ inputs
 outputs
 :r0 = handle (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_pid -> sys/pii/pid
@@ -278,7 +278,7 @@ trashes
 outputs
 :r0 = process id (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 the process id of this node
 ```
@@ -292,7 +292,7 @@ inputs
 outputs
 :r0 = data buffer pointer (pubyte)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_read -> sys/pii/read
@@ -305,7 +305,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_read_char -> sys/pii/read_char
@@ -316,7 +316,7 @@ inputs
 outputs
 :r0 = char (long), 0 if no char, -1 if EOF
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_remove -> sys/pii/remove
@@ -327,7 +327,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_save -> sys/pii/save
@@ -340,7 +340,7 @@ inputs
 outputs
 :r0 = 0 if all of it was written, else -1 (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 the file is what is in the buffer and nothing else, made if it is
 not there. One that was there is written over, not cut to nothing
@@ -357,7 +357,7 @@ inputs
 outputs
 :r0 = -1 if error, else file position (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_shm_close -> sys/pii/shm_close
@@ -370,7 +370,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_shm_open -> sys/pii/shm_open
@@ -383,7 +383,7 @@ inputs
 outputs
 :r0 = handle (long), -1 if error
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 shared memory that is only ever memory, for :pii_mmap +mmap_shared.
 It never waits, one that is not there to be found is an error, and
@@ -398,7 +398,7 @@ inputs
 outputs
 :r0 = process id, -1 if error (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 start another node, this host and this boot image, with these args
 ```
@@ -412,7 +412,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_sysid -> sys/pii/sysid
@@ -424,7 +424,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_tick -> sys/pii/tick
@@ -433,7 +433,7 @@ trashes
 outputs
 :r0 = a count of usec that never goes back (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 a clock that is cheap to ask, to say if a slice of time is up. It may
 step by a part of a ms, and is not the time of day. Only a host
@@ -447,7 +447,7 @@ starts: statics_sys_task_tick
 outputs
 :r0 = time in usec (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_unlink -> sys/pii/unlink
@@ -458,7 +458,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_write -> sys/pii/write
@@ -471,7 +471,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_write_char -> sys/pii/write_char
@@ -483,7 +483,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_write_num -> sys/pii/write_num
@@ -496,7 +496,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :pii_write_str -> sys/pii/write_str
@@ -508,7 +508,7 @@ inputs
 outputs
 :r0 = error code (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 ```
 
 ### :rand -> :nil

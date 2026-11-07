@@ -8,7 +8,7 @@
 	;outputs
 	;:r0 = 0 if error, else array object (ptr)
 	;trashes
-	;:r0-:r2, :f0-:f15
+	;:r0-:r2, :d0-:d15
 (gen-vtable :array)
 (gen-type :array)
 	;inputs
@@ -17,7 +17,7 @@
 	;:r0 = array object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :array :deinit)
 	;inputs
@@ -166,7 +166,7 @@
 	;:r2 = begin element iter (plong)
 	;:r3 = end element iter (plong)
 	;trashes
-	;:r2-:r3, :f0-:f15
+	;:r2-:r3, :d0-:d15
 
 	(vp-rdef (this elm begin end))
 
@@ -206,7 +206,7 @@
 	;:r3 = begin element iter (plong)
 	;:r4 = end element iter (plong)
 	;trashes
-	;:r3-:r4, :f0-:f15
+	;:r3-:r4, :d0-:d15
 
 	(vp-rdef (this elm1 elm2 begin end))
 
@@ -241,7 +241,7 @@
 	;:r0 = array object (ptr)
 	;:r1 = num object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(vp-rdef (this len begin saved_this))
 
@@ -267,7 +267,7 @@
 	;:r0 = array object (ptr)
 	;:r1 = num object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(vp-rdef (saved_this this idx) '(:r3))
 
@@ -289,7 +289,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(vp-rdef (begin end this new_cap cur_cap) '(:r4 :r5))
 
@@ -359,7 +359,7 @@
 	;:r0 = array object (ptr)
 	;:r1 = partition iter (plong)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 		;sort callback
 		;inputs
 		;:r0 = sort context (ptr)
@@ -368,7 +368,7 @@
 		;outputs
 		;:r0 = +, 0, -
 		;trashes
-		;:r1-:r14, :f0-:f15
+		;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this func ctx pivt iter lowr uppr))
@@ -427,7 +427,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 		;sort callback
 		;inputs
 		;:r0 = context (ptr)
@@ -436,7 +436,7 @@
 		;outputs
 		;:r0 = +, 0, -
 		;trashes
-		;:r1-:r14, :f0-:f15
+		;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this func ctx stack)
@@ -484,7 +484,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r3, :r6-:r9, :f0-:f15
+	;:r1-:r3, :r6-:r9, :d0-:d15
 
 	(vp-rdef (saved_that saved_si saved_ei di this that si ei)
 		'(:r6 :r7 :r8 :r9))
@@ -524,7 +524,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r5, :r14, :f0-:f15
+	;:r1-:r5, :r14, :d0-:d15
 
 	(structure local 0
 		(ptr this stream)
@@ -666,7 +666,7 @@
 	;outputs
 	;:r0 = new array object (ptr)
 	;trashes
-	;:r0-:r9, :f0-:f15
+	;:r0-:r9, :d0-:d15
 
 	(vp-rdef (this seqs_begin di src si ei
 		len total seqs seqs_end))
@@ -716,7 +716,7 @@
 	;outputs
 	;:r0 = slice array object (ptr)
 	;trashes
-	;:r0-:r3, :r6-:r8, :f0-:f15
+	;:r0-:r3, :r6-:r8, :d0-:d15
 
 	(vp-rdef (src si ei this di total) '(:r6 :r7 :r8))
 
@@ -761,7 +761,7 @@
 	;outputs
 	;:r0 = new array object (ptr)
 	;trashes
-	;:r0-:r11, :f0-:f15
+	;:r0-:r11, :d0-:d15
 
 	(vp-rdef (this idx_begin di si ei swp_xor len total
 		src1 src2 idxs idx_end))
@@ -838,7 +838,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f15
+	;:r1-:r4, :d0-:d15
 	;info
 	;the array made length long, every element the one given
 

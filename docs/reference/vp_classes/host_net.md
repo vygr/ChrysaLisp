@@ -45,7 +45,7 @@ docs/reference/vp_classes/host_net.cwb
 ```code
 started for each network connection
 trashes
-:r0-:r7, :r13-:r14, :f0-:f15
+:r0-:r7, :r13-:r14, :d0-:d15
 ```
 
 ### :connect -> :nil
@@ -56,7 +56,7 @@ trashes
 
 ```code
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :init -> :nil
@@ -66,7 +66,7 @@ trashes
 ```code
 started by kernel for each network link
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :listen -> :nil
@@ -75,7 +75,7 @@ trashes
 
 ```code
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :poll -> :nil
@@ -93,7 +93,7 @@ inputs
 outputs
 :r0 = 0 if ok, -1 if error
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :send -> :nil
@@ -109,7 +109,7 @@ inputs
 outputs
 :r0 = 0 if ok, -1 if error
 trashes
-:r0-:r2, :r13-:r14, :f0-:f15
+:r0-:r2, :r13-:r14, :d0-:d15
 ```
 
 ### :udp_bind -> :nil

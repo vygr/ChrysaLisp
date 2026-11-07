@@ -57,7 +57,7 @@
 		(if (pmap? func_map) (vpmap-tolist func_map) func_map))
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
-		(format-group ":f" f_indices)))
+		(format-group ":d" f_indices)))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
 (defun format-values (func_map)

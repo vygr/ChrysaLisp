@@ -202,7 +202,7 @@ thing after its trashes, what the one function that is the method in that
 class trashes:
 
 ```vdu
-(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1) (:r1-:r8 :r14 :f0-:f15) (:r1))
+(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1) (:r1-:r8 :r14 :d0-:d15) (:r1))
 ```
 
 A call through the vtable may be of any class and trashes the first. A

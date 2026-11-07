@@ -23,7 +23,7 @@ inputs
 outputs
 :r0 = 0 if error, else lstream object (ptr)
 trashes
-:r0-:r5, :r14, :f0-:f15
+:r0-:r5, :r14, :d0-:d15
 ```
 
 ### :deinit -> class/lstream/deinit
@@ -34,7 +34,7 @@ inputs
 outputs
 :r0 = lstream object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 
 ### :fault -> class/lstream/fault
@@ -58,7 +58,7 @@ outputs
 :r0 = lstream object (ptr)
 :r1 = -1 for EOF, else more data
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :flush -> class/lstream/flush
@@ -69,7 +69,7 @@ inputs
 outputs
 :r0 = lstream object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 
 ### :init -> class/lstream/init
@@ -86,7 +86,7 @@ outputs
 :r0 = lstream object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :put -> class/lstream/put
@@ -98,7 +98,7 @@ inputs
 outputs
 :r0 = lstream object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :read_next -> class/lstream/read_next
@@ -110,7 +110,7 @@ outputs
 :r0 = lstream object (ptr)
 :r1 = -1 for EOF, else more data
 trashes
-:r1-:r8, :r14, :f0-:f15
+:r1-:r8, :r14, :d0-:d15
 ```
 
 ### :seek -> class/lstream/seek
@@ -124,7 +124,7 @@ outputs
 :r0 = lstream object (ptr)
 :r1 = -1 for error, else file position
 trashes
-:r1-:r11, :r14, :f0-:f15
+:r1-:r11, :r14, :d0-:d15
 ```
 
 ### :seek_to -> class/lstream/seek_to
@@ -138,7 +138,7 @@ outputs
 :r0 = lstream object (ptr)
 :r1 = -1 for error, else file position
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :type -> class/lstream/type
@@ -150,7 +150,7 @@ outputs
 :r0 = lstream object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/lstream/vtable
@@ -163,6 +163,6 @@ inputs
 outputs
 :r0 = lstream object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 

@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 	;info
 	;(crc32 data crc) -> crc, the CRC-32 of PNG, zip and gzip, the low bit
 	;first, of the polynomial 0xEDB88320, crc what it was before data, 0 to
@@ -67,7 +67,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 	;info
 	;(adler32 data adler) -> adler, the Adler-32 of zlib, adler what it was
 	;before data, 1 to begin with. The sums are taken mod 65521 each 5552

@@ -11,7 +11,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(entry :seq :lisp_length '(:r0 :r1))
 
@@ -40,7 +40,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r11-:r14, :f0-:f15
+	;:r1-:r6, :r11-:r14, :d0-:d15
 
 	(entry :seq :lisp_elem '(:r0 :r1))
 
@@ -74,7 +74,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :r12-:r13, :f0-:f15
+	;:r1-:r8, :r12-:r13, :d0-:d15
 
 	(vp-rdef (this slc args len si ei) '(:r13))
 
@@ -113,7 +113,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r12, :f0-:f15
+	;:r1-:r12, :d0-:d15
 
 	(vp-rdef (this args src1 src2 idxs swp_xor si ei len idx_begin idx_end)
 		'(:r12 :r1 :r9 :r10 :r11))
@@ -170,7 +170,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r13, :f0-:f15
+	;:r1-:r9, :r13, :d0-:d15
 
 	(entry :seq :lisp_cat '(:r0 :r1))
 
@@ -200,7 +200,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(vp-rdef (element sequence idx vtable ovtable args)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
@@ -277,7 +277,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(vp-rdef (element sequence idx vtable ovtable args)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
@@ -354,7 +354,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(entry :seq :lisp_first '(:r0 :r1))
 
@@ -392,7 +392,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(entry :seq :lisp_second '(:r0 :r1))
 
@@ -430,7 +430,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(entry :seq :lisp_third '(:r0 :r1))
 
@@ -468,7 +468,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(entry :seq :lisp_last '(:r0 :r1))
 
@@ -506,7 +506,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :r13, :f0-:f15
+	;:r1-:r8, :r13, :d0-:d15
 
 	(entry :seq :lisp_rest '(:r0 :r1))
 
@@ -544,7 +544,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :r13, :f0-:f15
+	;:r1-:r8, :r13, :d0-:d15
 
 	(entry :seq :lisp_most '(:r0 :r1))
 
@@ -583,7 +583,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 
 	(vp-rdef (seq cnt idx len lst this args idx1)
 		'(:r13 :r12 :r11 :r10 :r9 :r0 :r1 :r2))

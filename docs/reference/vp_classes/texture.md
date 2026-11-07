@@ -18,7 +18,7 @@ inputs
 outputs
 :r0 = 0 if error, else texture object (ptr)
 trashes
-:r0-:r4, :r14, :f0-:f15
+:r0-:r4, :r14, :d0-:d15
 ```
 
 ### :deinit -> gui/texture/deinit
@@ -29,7 +29,7 @@ inputs
 outputs
 :r0 = texture object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :get_metrics -> gui/texture/get_metrics

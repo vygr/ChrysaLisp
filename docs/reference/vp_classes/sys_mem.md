@@ -15,7 +15,7 @@ outputs
 :r0 = 0 if failed, else address (ptr)
 :r1 = 0 if failed, else size given (bytes)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :avail -> sys/mem/avail
@@ -45,14 +45,14 @@ outputs
 :r0 = 0 if failed, else address (ptr)
 :r1 = 0 if failed, else size given (bytes)
 trashes
-:r0-:r3, :f0-:f15
+:r0-:r3, :d0-:d15
 ```
 
 ### :collect -> sys/mem/collect
 
 ```code
 trashes
-:r0-:r9, :f0-:f15
+:r0-:r9, :d0-:d15
 info
 free all unused blocks
 ```
@@ -173,7 +173,7 @@ outputs
 :r0 = new block address (ptr)
 :r1 = new block size (bytes)
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 ```
 
 ### :recalloc -> sys/mem/recalloc
@@ -187,7 +187,7 @@ outputs
 :r0 = new block address (ptr)
 :r1 = new block size (bytes)
 trashes
-:r0-:r7, :f0-:f15
+:r0-:r7, :d0-:d15
 ```
 
 ### :statics_deinit -> sys/mem/statics_deinit
@@ -196,7 +196,7 @@ trashes
 info
 deinit mem statics
 trashes
-:r0-:r7, :f0-:f15
+:r0-:r7, :d0-:d15
 ```
 
 ### :statics_init -> sys/mem/statics_init

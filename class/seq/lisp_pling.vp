@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(entry :seq :lisp_pling '(:r3 :r1))
 
@@ -29,7 +29,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this seqs func args)
@@ -164,7 +164,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this seqs mode func args)
@@ -310,7 +310,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this seqs func args out)
@@ -469,7 +469,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this seqs func args)
@@ -605,7 +605,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this seq func args out)

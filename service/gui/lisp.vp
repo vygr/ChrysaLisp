@@ -13,7 +13,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(entry :host_gui :lisp_init '(:r0 :r1))
 
@@ -63,7 +63,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this))
@@ -158,7 +158,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :host_gui :lisp_update '(:r0 :r1))
 
@@ -188,7 +188,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this event))
@@ -247,7 +247,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r4, :r7-:r11, :r14, :f0-:f15
+	;:r1-:r4, :r7-:r11, :r14, :d0-:d15
 
 	(entry :host_gui :lisp_info '(:r0 :r1))
 
@@ -295,7 +295,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(gui-read-screen x y w h) -> :nil | str, a rectangle of what the GUI
 	;of this node last drew, its pixels of 32 bits, blue green red alpha,
@@ -378,7 +378,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(gui-video op handle data n) -> num, the decoder of films of the host,
 	;src/host/video.cpp, called on the stack of the host

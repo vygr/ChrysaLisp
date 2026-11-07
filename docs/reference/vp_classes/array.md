@@ -43,7 +43,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r3, :r6-:r9, :f0-:f15
+:r1-:r3, :r6-:r9, :d0-:d15
 ```
 
 ### :cat -> class/array/cat
@@ -55,7 +55,7 @@ inputs
 outputs
 :r0 = new array object (ptr)
 trashes
-:r0-:r9, :f0-:f15
+:r0-:r9, :d0-:d15
 ```
 
 ### :clear -> class/array/clear
@@ -75,7 +75,7 @@ trashes
 outputs
 :r0 = 0 if error, else array object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :deinit -> class/array/deinit
@@ -138,7 +138,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r4, :f0-:f15
+:r1-:r4, :d0-:d15
 info
 the array made length long, every element the one given
 ```
@@ -337,7 +337,7 @@ outputs
 :r0 = array object (ptr)
 :r1 = partition iter (plong)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 sort callback
 inputs
 :r0 = sort context (ptr)
@@ -346,7 +346,7 @@ inputs
 outputs
 :r0 = +, 0, -
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :pop_back -> class/array/pop_back
@@ -383,7 +383,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r5, :r14, :f0-:f15
+:r1-:r5, :r14, :d0-:d15
 ```
 
 ### :push_back -> class/array/push_back
@@ -398,7 +398,7 @@ outputs
 :r2 = begin element iter (plong)
 :r3 = end element iter (plong)
 trashes
-:r2-:r3, :f0-:f15
+:r2-:r3, :d0-:d15
 ```
 
 ### :push_back2 -> class/array/push_back2
@@ -415,7 +415,7 @@ outputs
 :r3 = begin element iter (plong)
 :r4 = end element iter (plong)
 trashes
-:r3-:r4, :f0-:f15
+:r3-:r4, :d0-:d15
 ```
 
 ### :ref_back -> class/array/ref_back
@@ -427,7 +427,7 @@ outputs
 :r0 = array object (ptr)
 :r1 = num object (ptr)
 trashes
-:r1-:r3, :r14, :f0-:f15
+:r1-:r3, :r14, :d0-:d15
 ```
 
 ### :ref_elem -> class/array/ref_elem
@@ -440,7 +440,7 @@ outputs
 :r0 = array object (ptr)
 :r1 = num object (ptr)
 trashes
-:r1-:r3, :r14, :f0-:f15
+:r1-:r3, :r14, :d0-:d15
 ```
 
 ### :rfind -> class/array/rfind
@@ -467,7 +467,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r2, :f0-:f15
+:r1-:r2, :d0-:d15
 ```
 
 ### :set_elem -> class/array/set_elem
@@ -506,7 +506,7 @@ inputs
 outputs
 :r0 = slice array object (ptr)
 trashes
-:r0-:r3, :r6-:r8, :f0-:f15
+:r0-:r3, :r6-:r8, :d0-:d15
 ```
 
 ### :sort -> class/array/sort
@@ -522,7 +522,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 sort callback
 inputs
 :r0 = context (ptr)
@@ -531,7 +531,7 @@ inputs
 outputs
 :r0 = +, 0, -
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :sort_callback -> class/obj/null
@@ -546,7 +546,7 @@ inputs
 outputs
 :r0 = new array object (ptr)
 trashes
-:r0-:r11, :f0-:f15
+:r0-:r11, :d0-:d15
 ```
 
 ### :type -> class/array/type
@@ -558,7 +558,7 @@ outputs
 :r0 = array object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> class/array/create
@@ -567,7 +567,7 @@ trashes
 outputs
 :r0 = 0 if error, else array object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :velement -> class/num/create
@@ -578,7 +578,7 @@ inputs
 outputs
 :r0 = 0 if error, else num object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :vtable -> class/array/vtable

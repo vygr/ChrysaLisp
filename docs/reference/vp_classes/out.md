@@ -22,7 +22,7 @@ inputs
 outputs
 :r0 = 0 if error, else out object (ptr)
 trashes
-:r0-:r6, :r14, :f0-:f15
+:r0-:r6, :r14, :d0-:d15
 ```
 
 ### :deinit -> class/out/deinit
@@ -33,7 +33,7 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 
 ### :flush -> class/out/flush
@@ -44,7 +44,7 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 
 ### :init -> class/out/init
@@ -58,7 +58,7 @@ outputs
 :r0 = out object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6, :f0-:f15
+:r1-:r6, :d0-:d15
 ```
 
 ### :set_state -> class/out/set_state
@@ -70,7 +70,7 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 
 ### :type -> class/out/type
@@ -82,7 +82,7 @@ outputs
 :r0 = out object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/out/vtable
@@ -96,7 +96,7 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r2-:r3, :f0-:f15
+:r2-:r3, :d0-:d15
 ```
 
 ### :write_next -> class/out/write_next
@@ -107,6 +107,6 @@ inputs
 outputs
 :r0 = out object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 

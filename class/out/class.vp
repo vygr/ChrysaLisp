@@ -12,7 +12,7 @@
 	;outputs
 	;:r0 = 0 if error, else out object (ptr)
 	;trashes
-	;:r0-:r6, :r14, :f0-:f15
+	;:r0-:r6, :r14, :d0-:d15
 (gen-vtable :out)
 (gen-type :out)
 	;inputs
@@ -21,7 +21,7 @@
 	;:r0 = out object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :out :init)
 	;inputs
@@ -32,7 +32,7 @@
 	;:r0 = out object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(vp-rdef (this vtable id0 id1 id2 zero state))
 
@@ -63,7 +63,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(vp-rdef (this buffer tmp))
 
@@ -97,7 +97,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(vp-rdef (this state ostate))
 
@@ -125,7 +125,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r2-:r3, :f0-:f15
+	;:r2-:r3, :d0-:d15
 
 	(vp-rdef (this ack_num seq_num state))
 
@@ -163,7 +163,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(vp-rdef (this seqnum state ackid id0 id1 id2 msg data len))
 
@@ -221,7 +221,7 @@
 	;outputs
 	;:r0 = out object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(vp-rdef (this bufp bufe buffer))
 

@@ -98,14 +98,14 @@
 	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-rr :r0 :r2))
 	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-ir :r1 8 :r2)))
 (assert-list-eq "but not past a float stored there"
-	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-fi :f0 :r1 8) (emit-cpy-ir :r1 8 :r2))
-	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-fi :f0 :r1 8) '(emit-cpy-ir :r1 8 :r2)))
+	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-fi :d0 :r1 8) (emit-cpy-ir :r1 8 :r2))
+	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-fi :d0 :r1 8) '(emit-cpy-ir :r1 8 :r2)))
 (assert-list-eq "a store nothing reads goes"
 	'((emit-cpy-ri :r2 :r1 8))
 	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-ri :r2 :r1 8)))
 (assert-list-eq "but not one a float loads"
-	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-if :r1 8 :f0) (emit-cpy-ri :r2 :r1 8))
-	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-if :r1 8 :f0) '(emit-cpy-ri :r2 :r1 8)))
+	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-if :r1 8 :d0) (emit-cpy-ri :r2 :r1 8))
+	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-if :r1 8 :d0) '(emit-cpy-ri :r2 :r1 8)))
 (assert-list-eq "or a load of another width does"
 	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-ir-ub :r1 8 :r3) (emit-cpy-ri :r2 :r1 8))
 	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-ir-ub :r1 8 :r3) '(emit-cpy-ri :r2 :r1 8)))

@@ -20,7 +20,7 @@ docs/reference/vp_classes/pset.cwb
 outputs
 :r0 = 0 if error, else pset object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :eql -> class/obj/eql
@@ -61,7 +61,7 @@ outputs
 :r0 = pset object (ptr)
 :r1 = iterator (pptr)
 trashes
-:r1-:r12, :f0-:f15
+:r1-:r12, :d0-:d15
 ```
 
 ### :type -> class/pset/type
@@ -73,7 +73,7 @@ outputs
 :r0 = pset object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> class/pset/create
@@ -82,7 +82,7 @@ trashes
 outputs
 :r0 = 0 if error, else pset object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :vtable -> class/pset/vtable

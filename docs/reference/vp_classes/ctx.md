@@ -32,7 +32,7 @@ inputs
 :r11 = sx (pixels)
 :r12 = sy (pixels)
 trashes
-:r1-:r5, :r7-:r8, :f0-:f15
+:r1-:r5, :r7-:r8, :d0-:d15
 ```
 
 ### :box -> gui/ctx/box
@@ -45,7 +45,7 @@ inputs
 :r9 = width (pixels)
 :r10 = height (pixels)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :filled_box -> gui/ctx/filled_box
@@ -58,7 +58,7 @@ inputs
 :r9 = width (pixels)
 :r10 = height (pixels)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :reserve -> gui/ctx/reserve
@@ -71,7 +71,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = the first of them (plong)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 info
 the view's list of draws that many longer, made if it has none
 ```
@@ -83,6 +83,6 @@ inputs
 :r0 = view object (ptr)
 :r1 = color (argb)
 trashes
-:r1-:r4, :f0-:f15
+:r1-:r4, :d0-:d15
 ```
 

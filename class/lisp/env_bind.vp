@@ -9,7 +9,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = hmap object (ptr)
 	;trashes
-	;:r1-:r5, :r14, :f0-:f15
+	;:r1-:r5, :r14, :d0-:d15
 	;info
 	;the new environment is taken from the chain of empty ones the lisp
 	;object keeps, :env_pop puts them there, so most calls of a lambda
@@ -42,7 +42,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = hmap object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 	;info
 	;if no other has a ref to the environment, and it is as it was made,
 	;a single bucket that has not grown, its keys and values are dropped,
@@ -108,7 +108,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr vars vals value sym)

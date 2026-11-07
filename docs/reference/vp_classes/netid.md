@@ -16,7 +16,7 @@ none
 outputs
 :r0 = 0 if error, else netid object (ptr)
 trashes
-:r0-:r6, :f0-:f15
+:r0-:r6, :d0-:d15
 ```
 
 ### :deinit -> class/netid/deinit
@@ -40,7 +40,7 @@ outputs
 :r0 = netid object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6, :f0-:f15
+:r1-:r6, :d0-:d15
 ```
 
 ### :type -> class/netid/type
@@ -52,7 +52,7 @@ outputs
 :r0 = netid object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/netid/vtable

@@ -90,7 +90,7 @@
 (defun regs-of (text)
 	; (regs-of text) -> (num ...)
 	;the general registers in what a method is declared to trash, as
-	;(format-regs) writes them, ":r1-:r8, :r14, :f0-:f15": their numbers
+	;(format-regs) writes them, ":r1-:r8, :r14, :d0-:d15": their numbers
 	(reduce (lambda (out part)
 		(when (starts-with ":r" part)
 			(defq ends (split part "-") from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))

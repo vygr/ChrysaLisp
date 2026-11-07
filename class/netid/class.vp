@@ -9,7 +9,7 @@
 	;outputs
 	;:r0 = 0 if error, else netid object (ptr)
 	;trashes
-	;:r0-:r6, :f0-:f15
+	;:r0-:r6, :d0-:d15
 (gen-vtable :netid)
 (gen-type :netid)
 	;inputs
@@ -18,7 +18,7 @@
 	;:r0 = netid object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :netid :init)
 	;inputs
@@ -28,7 +28,7 @@
 	;:r0 = netid object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(vp-rdef (saved_this this vtable) '(:r6))
 

@@ -22,7 +22,7 @@ docs/reference/vp_classes/vdu.cwb
 outputs
 :r0 = 0 if error, else vdu object (ptr)
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 ```
 
 ### :deinit -> gui/vdu/deinit
@@ -33,7 +33,7 @@ inputs
 outputs
 :r0 = vdu object (ptr)
 trashes
-:r1-:r4, :f0-:f15
+:r1-:r4, :d0-:d15
 ```
 
 ### :draw -> gui/vdu/draw
@@ -44,7 +44,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :init -> gui/vdu/init
@@ -57,7 +57,7 @@ outputs
 :r0 = vdu object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :vtable -> gui/vdu/vtable

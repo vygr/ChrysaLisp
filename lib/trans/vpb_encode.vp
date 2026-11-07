@@ -47,7 +47,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r11, :r14, :f0-:f15
+	;:r1-:r11, :r14, :d0-:d15
 	;info
 	;(vpb-encode-vp entry stream ops regs labels quote - *pc*) -> :nil | num
 	;the instructions of a bundle's entry, (name (progn inst ...) ...), as

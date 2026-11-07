@@ -264,6 +264,6 @@ outdated or incorrect documentation directly within the source code:
 ```vdu
 Guest> trace obj/vp/class/nums/lisp_add -l
 WARNING: Mismatch in class/nums/lisp_add
-  Documented: :r1-:r5, :r7-:r14, :f0-:f15
-  Calculated: :r0-:r14, :f0-:f15
+  Documented: :r1-:r5, :r7-:r14, :d0-:d15
+  Calculated: :r0-:r14, :d0-:d15
 ```

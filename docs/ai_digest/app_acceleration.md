@@ -76,7 +76,7 @@ automatically.
   (`:r0` - `:r14`).
 
 * **`vp-fdef` (Floating Point):** Maps symbols to floating-point registers
-  (`:f0` - `:f15`).
+  (`:d0` - `:d15`).
 
 **Example from Mandelbrot:**
 
@@ -309,7 +309,7 @@ colour are done as one line each:
 ### Summary of Best Practices
 
 1. **Use `vp-rdef`/`vp-fdef`**: Never hardcode register names (e.g., `:r5`,
-   `:f2`) inside the logic. Use named variables.
+   `:d2`) inside the logic. Use named variables.
 
 2. **Argument Binding**: Use `list-bind-args` or `array-bind-args` to
    efficiently unpack Lisp data structures into registers.

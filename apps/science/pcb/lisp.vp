@@ -143,7 +143,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 	;info
 	;does the line, (x1 y1 x2 y2 radius gap) fixeds, come within the
 	;radius and gap of a record in the buckets, not looked at yet for this
@@ -398,7 +398,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(flood-near ctx node flood_vecs via_vecs radius gap via out_n out_v) -> out_n
 	;the nodes round a node of the flood that are on the board, not marked,
@@ -562,7 +562,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(flood-cost ctx node flood_vecs via_vecs radius gap via out_n out_v out_nd out_vd) -> out_n
 	;as (flood-near), for the negotiating router: a move is refused only if
@@ -745,7 +745,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(flood-back ctx node path_vecs via_vecs radius gap via vias_cost mode out_n) -> num
 	;a step of router.inc's (. net :backtrack_path): the nodes round a node
@@ -1083,7 +1083,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(flood-wave ctx starts ends flood_vecs via_vecs radius gap via vias_cost mode) -> :t
 	;the flood of router.inc's (. pcb :mark_distances), all of it: the
@@ -1287,7 +1287,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry '(:r0 :r1))
 
@@ -1340,7 +1340,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :f0-:f15
+	;:r1-:r7, :d0-:d15
 
 	(def-vars
 		(ptr this buckets line records rec_line)

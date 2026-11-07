@@ -9,7 +9,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;only the args are kept, in one slot, over the eval of the test. What
 	;follows the test is a jump, with nothing left on the stack.
@@ -61,7 +61,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;only the args are kept, in one slot, over the eval of the test. What
 	;follows the test is a jump, with nothing left on the stack.
@@ -99,7 +99,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;only the args are kept, in one slot. The lisp object stays in :r0,
 	;each eval gives it back.
@@ -151,7 +151,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;only the args are kept, in one slot. The lisp object stays in :r0,
 	;each eval gives it back.
@@ -203,7 +203,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;the frame is the two iterators over the clauses, and in a build with
 	;error checks the args, to report. The lisp object stays in :r0, each
@@ -272,7 +272,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;the frame is the two iterators over the clauses, and in a build with
 	;error checks the args, to report. The lisp object stays in :r0, each
@@ -351,7 +351,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(vp-rdef (this args iter_begin iter_end tmp))
 
@@ -374,7 +374,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;the last form is a jump to its eval, with nothing left on the stack.
 	;The frame is only for the forms before it, and has no slot for the

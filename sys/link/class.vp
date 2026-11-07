@@ -7,7 +7,7 @@
 (def-method :sys_link :link)
 	;started by kernel for each link
 	;trashes
-	;:r0-:r7, :f0-:f15
+	;:r0-:r7, :d0-:d15
 
 	(def-vars
 		(struct lk_node lk_node_size)
@@ -140,7 +140,7 @@
 
 (def-method :sys_link :in)
 	;trashes
-	;:r0-:r10, :f0-:f15
+	;:r0-:r10, :d0-:d15
 
 	(def-vars
 		(ptr lk_node msg data rx head live)
@@ -295,7 +295,7 @@
 
 (def-method :sys_link :out)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r14, :d0-:d15
 
 	(def-vars
 		(ptr statics lk_node key msg data tx head tail live)

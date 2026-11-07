@@ -5,7 +5,7 @@
 	;inputs
 	;:r0 = code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_open :open)
 	;inputs
@@ -14,7 +14,7 @@
 	;outputs
 	;:r0 = fd (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_close :close)
 	;inputs
@@ -22,7 +22,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_seek :seek)
 	;inputs
@@ -32,7 +32,7 @@
 	;outputs
 	;:r0 = -1 if error, else file position (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_remove :remove)
 	;inputs
@@ -40,7 +40,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_open_shared :open_shared)
 	;inputs
@@ -49,7 +49,7 @@
 	;outputs
 	;:r0 = handle (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_close_shared :close_shared)
 	;inputs
@@ -58,7 +58,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_dirlist :dirlist)
 	;inputs
@@ -68,7 +68,7 @@
 	;outputs
 	;:r0 = buffer length (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (def-method :host_os :pii_write_num)
 	;inputs
@@ -78,7 +78,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 	(def-vars
 		(struct buffer 64)
@@ -123,7 +123,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 	(entry :host_os :pii_write_char '(:r0 :r1))
 	(vp-push :r1 :r2 :r13 :r14)
@@ -144,7 +144,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (def-method :host_os :pii_write_str)
 	;inputs
@@ -153,7 +153,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 	(entry :host_os :pii_write_str '(:r0 :r1))
 	(vp-push :r1 :r2 :r3 :r13 :r14)
@@ -170,13 +170,13 @@
 	;outputs
 	;:r0 = time in usec (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_tick :tick)
 	;outputs
 	;:r0 = a count of usec that never goes back (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;a clock that is cheap to ask, to say if a slice of time is up. It may
 	;step by a part of a ms, and is not the time of day. Only a host
@@ -191,7 +191,7 @@
 	;outputs
 	;:r0 = 0 if all of it was written, else -1 (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;the file is what is in the buffer and nothing else, made if it is
 	;not there. One that was there is written over, not cut to nothing
@@ -204,7 +204,7 @@
 	;outputs
 	;:r0 = data buffer pointer (pubyte)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_mmap :mmap)
 	;inputs
@@ -214,7 +214,7 @@
 	;outputs
 	;:r0 = buffer (ptr)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_munmap :munmap)
 	;inputs
@@ -224,7 +224,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_mprotect :mprotect)
 	;inputs
@@ -234,7 +234,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_clear_icache :clear_icache)
 	;inputs
@@ -243,7 +243,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_read :read)
 	;inputs
@@ -253,7 +253,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (def-method :host_os :pii_read_char)
 	;inputs
@@ -261,7 +261,7 @@
 	;outputs
 	;:r0 = char (long), 0 if no char, -1 if EOF
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 	(entry :host_os :pii_read_char '(:r0))
 	(vp-push :r1 :r2 :r13 :r14)
@@ -290,7 +290,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_stat :stat)
 	;inputs
@@ -299,7 +299,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_sysid :sysid)
 	;inputs
@@ -308,7 +308,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_spawn :spawn)
 	;inputs
@@ -316,7 +316,7 @@
 	;outputs
 	;:r0 = process id, -1 if error (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;start another node, this host and this boot image, with these args
 
@@ -324,7 +324,7 @@
 	;outputs
 	;:r0 = process id (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;the process id of this node
 
@@ -334,7 +334,7 @@
 	;outputs
 	;:r0 = 1 if running, else 0 (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;is this process running ?
 
@@ -342,7 +342,7 @@
 	;outputs
 	;:r0 = number of processors (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;the number of processors this machine has online
 
@@ -350,7 +350,7 @@
 	;outputs
 	;:r0 = physical memory in bytes (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;the physical memory this machine has
 
@@ -362,7 +362,7 @@
 	;outputs
 	;:r0 = handle (long), -1 if error
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;shared memory that is only ever memory, for :pii_mmap +mmap_shared.
 	;It never waits, one that is not there to be found is an error, and
@@ -376,7 +376,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 
 (gen-host-call :host_os :pii_host :host)
 	;inputs
@@ -385,7 +385,7 @@
 	;outputs
 	;:r0 = length of what was written (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;what this host program is, "cpu abi os", the names the build and the
 	;object folders have for them
@@ -397,7 +397,7 @@
 	;outputs
 	;:r0 = error code (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;set the mode of a file, who may read, write and run it
 
@@ -407,7 +407,7 @@
 	;outputs
 	;:r0 = 0 if told to end or not there, else -1 (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;end a process that can not be asked to go. Only a host that says
 	;it is new enough has this, see (pii-kill) in sys/lisp.inc

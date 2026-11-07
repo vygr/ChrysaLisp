@@ -13,7 +13,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r14, :f0-:f15
+	;:r1-:r7, :r14, :d0-:d15
 
 	(entry :canvas :lisp_create '(:r0 :r1))
 
@@ -42,7 +42,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :canvas :lisp_create_pixmap '(:r0 :r1))
 
@@ -141,7 +141,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :canvas :lisp_swap '(:r0 :r1))
 
@@ -201,7 +201,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;the GPU draws the shader into the texture of the canvas, the
 	;pixmap is not used, and is not changed. The part of the texture
@@ -315,7 +315,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -358,7 +358,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this vertex fragment)
@@ -407,7 +407,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this args)
@@ -453,7 +453,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;a vertex shader and a pixel shader that draw triangles. The layout
 	;is how many attrs a vertex has, the cull, and the floats of each
@@ -507,7 +507,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;the vertices of a mesh, kept on the GPU. They are given as the bytes
 	;of a reals. 0 if the driver can not.
@@ -558,7 +558,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this args)
@@ -664,7 +664,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :canvas :lisp_fpoly '(:r0 :r1))
 
@@ -694,7 +694,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 
 	(entry :canvas :lisp_resize '(:r0 :r1))
 
@@ -729,7 +729,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this)

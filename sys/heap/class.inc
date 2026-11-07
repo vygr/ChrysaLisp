@@ -8,10 +8,10 @@
 
 (def-class :sys_heap :nil
 	(dec-method :init sys/heap/init :static (:r0 :r1 :r2) (:r0) (:r1-:r2))
-	(dec-method :deinit sys/heap/deinit :static (:r0) (:r0) (:r1-:r6 :f0-:f15))
-	(dec-method :alloc sys/heap/alloc :static (:r0) (:r0 :r1) (:r1-:r2 :f0-:f15))
+	(dec-method :deinit sys/heap/deinit :static (:r0) (:r0) (:r1-:r6 :d0-:d15))
+	(dec-method :alloc sys/heap/alloc :static (:r0) (:r0 :r1) (:r1-:r2 :d0-:d15))
 	(dec-method :free sys/heap/free :static (:r0 :r1) (:r0 :r1))
-	(dec-method :collect sys/heap/collect :static (:r0) (:r0) (:r1-:r8 :f0-:f15))
+	(dec-method :collect sys/heap/collect :static (:r0) (:r0) (:r1-:r8 :d0-:d15))
 	(dec-method :overrun sys/heap/overrun :static :nil :nil ())
 	(dec-method :double_free sys/heap/double_free :static :nil :nil ()))
 

@@ -36,7 +36,7 @@ docs/reference/vp_classes/path.cwb
 outputs
 :r0 = 0 if error, else path object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :filter_polygon -> gui/path/filter_polygon
@@ -49,7 +49,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 
 ### :filter_polyline -> gui/path/filter_polyline
@@ -62,7 +62,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r9, :d0-:d15
 ```
 
 ### :gen_arc -> gui/path/gen_arc
@@ -78,7 +78,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r7, :f0-:f15
+:r1-:r7, :d0-:d15
 ```
 
 ### :gen_clerp -> gui/path/gen_clerp
@@ -96,7 +96,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :gen_cubic -> gui/path/gen_cubic
@@ -115,7 +115,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r11, :f0-:f15
+:r1-:r11, :d0-:d15
 ```
 
 ### :gen_quadratic -> gui/path/gen_quadratic
@@ -132,7 +132,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r7, :f0-:f15
+:r1-:r7, :d0-:d15
 ```
 
 ### :mat3x2_mul -> gui/path/mat3x2_mul
@@ -175,7 +175,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r10, :f0-:f15
+:r1-:r10, :d0-:d15
 ```
 
 ### :stroke_joints -> gui/path/stroke_joints
@@ -194,7 +194,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :stroke_polygon -> gui/path/stroke_polygon
@@ -209,7 +209,7 @@ outputs
 :r1 = output path1 object (ptr)
 :r2 = output path2 object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :stroke_polyline -> gui/path/stroke_polyline
@@ -225,7 +225,7 @@ outputs
 :r0 = path object (ptr)
 :r1 = output path object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :type -> gui/path/type
@@ -237,7 +237,7 @@ outputs
 :r0 = path object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> gui/path/create
@@ -246,7 +246,7 @@ trashes
 outputs
 :r0 = 0 if error, else path object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :vtable -> gui/path/vtable

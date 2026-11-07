@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 
 	(vp-rdef (dst iter_begin ma mb this args argc len)
 		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12))
@@ -92,7 +92,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :f0-:f15
+	;:r1-:r10, :d0-:d15
 
 	(entry :path :lisp_simplify '(:r0 :r1))
 
@@ -122,7 +122,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(entry :path :lisp_filter '(:r0 :r1))
 
@@ -152,7 +152,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :f0-:f15
+	;:r1-:r7, :d0-:d15
 
 	(entry :path :lisp_gen_quadratic '(:r0 :r1))
 
@@ -183,7 +183,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r11, :f0-:f15
+	;:r1-:r11, :d0-:d15
 
 	(entry :path :lisp_gen_cubic '(:r0 :r1))
 
@@ -214,7 +214,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :f0-:f15
+	;:r1-:r7, :d0-:d15
 
 	(entry :path :lisp_gen_arc '(:r0 :r1))
 
@@ -245,7 +245,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 
 	(entry :path :lisp_stroke_polyline '(:r0 :r1))
 
@@ -274,7 +274,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :path :lisp_stroke_polygon '(:r0 :r1))
 
@@ -305,7 +305,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r11-:r14, :f0-:f15
+	;:r1-:r6, :r11-:r14, :d0-:d15
 
 	(def-vars
 		(ptr commands command_chars num_start_chars num_mid_chars)

@@ -11,7 +11,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 
 	(vp-rdef (dst iter_begin reals1 tol this args argc len1 len2)
 		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -54,7 +54,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r11-:r12, :f0-:f15
+	;:r1-:r9, :r11-:r12, :d0-:d15
 
 	(vp-rdef (dst iter_begin reals1 reals2 this args argc len)
 		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12))
@@ -100,7 +100,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r11-:r12, :f0-:f15
+	;:r1-:r9, :r11-:r12, :d0-:d15
 
 	(vp-rdef (dst iter_begin reals1 reals2 this args argc len)
 		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12))
@@ -147,7 +147,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :r11-:r12, :f0-:f15
+	;:r1-:r9, :r11-:r12, :d0-:d15
 
 	(vp-rdef (dst iter_begin reals1 reals2 this args argc len)
 		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12))

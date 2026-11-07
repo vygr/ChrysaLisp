@@ -29,7 +29,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r12, :f0-:f15
+	;:r1-:r12, :d0-:d15
 
 	(vp-rdef (iter_begin iter_end dlist) '(:r10 :r11))
 	(vp-rdef (this args) '(:r12 :r1))
@@ -70,7 +70,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	;error is the value local, used to hold the first error the compare
 	;function throws
@@ -224,7 +224,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r4, :r6-:r13, :f0-:f15
+	;:r1-:r4, :r6-:r13, :d0-:d15
 
 	(entry :list :lisp_copy '(:r0 :r1))
 

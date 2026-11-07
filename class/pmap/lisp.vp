@@ -84,7 +84,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this args lst)
@@ -160,7 +160,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :f0-:f15
+	;:r1-:r10, :d0-:d15
 
 	(structure local 0
 		(ptr this args lst)

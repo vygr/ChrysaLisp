@@ -32,7 +32,7 @@ execution model.
 
 *	1 Dedicated Stack Pointer: `:rsp`.
 
-*	16 Floating-Point registers: `:f0` through `:f15`.
+*	16 Floating-Point registers: `:d0` through `:d15`.
 
 *	**ABSOLUTE VOLATILITY (No Callee-Saved Registers):** ChrysaLisp has NO
 	callee-saved registers. Any call may trash registers. The `;trashes`
@@ -75,7 +75,7 @@ same way as a method, by a header comment directly under the call:
 	;:r0 = list object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 The doc scanner (`lib/files/info.inc`), `make docs` and `trace` all read
 it, and `trace -i -l -w` keeps the `;trashes` line correct. When adding a

@@ -1774,7 +1774,7 @@
 	(apply (const vp-byte) abi_kept)
 	(vp-align +long_size)
 (vp-label 'reg_map)
-	;:r0 to :rsp, then :f0 to :f15, as x86_64 numbers them
+	;:r0 to :rsp, then :d0 to :d15, as x86_64 numbers them
 	(vp-byte 0 1 2 3 5 6 7 8 9 10 11 12 13 14 15 4)
 	(vp-byte 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
 	(vp-align +long_size)
@@ -1789,7 +1789,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r0-:r13, :f0-:f15
+	;:r0-:r13, :d0-:d15
 	;info
 	;(vpb-x86-64-amd64 bin) -> :nil | str, a function's VP binary as
 	;x86_64 native code of AMD64, :nil if it can not be
@@ -1805,7 +1805,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r0-:r13, :f0-:f15
+	;:r0-:r13, :d0-:d15
 	;info
 	;(vpb-x86-64-win64 bin) -> :nil | str, a function's VP binary as
 	;x86_64 native code of WIN64, :nil if it can not be

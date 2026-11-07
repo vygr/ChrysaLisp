@@ -56,7 +56,7 @@ inputs
 outputs
 :r0 = 0 if error, else canvas object (ptr)
 trashes
-:r0-:r7, :r14, :f0-:f15
+:r0-:r7, :r14, :d0-:d15
 ```
 
 ### :create_pixmap -> gui/canvas/create_pixmap
@@ -67,7 +67,7 @@ inputs
 outputs
 :r0 = 0 if error, else canvas object (ptr)
 trashes
-:r0-:r5, :r14, :f0-:f15
+:r0-:r5, :r14, :d0-:d15
 ```
 
 ### :deinit -> gui/canvas/deinit
@@ -78,7 +78,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r4, :f0-:f15
+:r1-:r4, :d0-:d15
 ```
 
 ### :fbox -> gui/canvas/fbox
@@ -108,7 +108,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :init -> gui/canvas/init
@@ -124,7 +124,7 @@ outputs
 :r0 = canvas object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r7, :f0-:f15
+:r1-:r7, :d0-:d15
 ```
 
 ### :init_pixmap -> gui/canvas/init_pixmap
@@ -138,7 +138,7 @@ outputs
 :r0 = canvas object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :pick -> gui/canvas/pick
@@ -176,7 +176,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 info
 the texture of the canvas is read back into its pixmap. The
 canvas is given a new pixmap, premultiplied, so one that was
@@ -214,7 +214,7 @@ outputs
 :r13 = max_x (fixed)
 :r14 = max_y (fixed)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :span -> gui/canvas/span
@@ -260,7 +260,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :vtable -> gui/canvas/vtable

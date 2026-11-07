@@ -46,7 +46,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r11, :f0-:f15
+	;:r1-:r11, :d0-:d15
 
 	(defset :lisp_def
 		'(progn
@@ -75,7 +75,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :r10-:r12, :f0-:f15
+	;:r1-:r8, :r10-:r12, :d0-:d15
 
 	(defset :lisp_set
 		'(progn
@@ -151,7 +151,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(defsetq :lisp_defq
 		'(progn
@@ -177,7 +177,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(defsetq :lisp_setq
 		'(progn
@@ -292,7 +292,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = environment hmap object (ptr)
 	;trashes
-	;:r1-:r5, :r14, :f0-:f15
+	;:r1-:r5, :r14, :d0-:d15
 
 	(entry :hmap :lisp_env '(:r0 :r1))
 
@@ -329,7 +329,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = environment hmap object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :hmap :lisp_list '(:r0 :r1))
 
@@ -357,7 +357,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :f0-:f15
+	;:r1-:r7, :d0-:d15
 
 	(structure local 0
 		(ptr this args env)
@@ -452,7 +452,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = environment hmap object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :hmap :lisp_resize '(this args))
 
@@ -491,7 +491,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = environment hmap object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :hmap :lisp_copy '(this args))
 

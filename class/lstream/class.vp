@@ -25,7 +25,7 @@
 	;outputs
 	;:r0 = 0 if error, else lstream object (ptr)
 	;trashes
-	;:r0-:r5, :r14, :f0-:f15
+	;:r0-:r5, :r14, :d0-:d15
 (gen-vtable :lstream)
 (gen-type :lstream)
 	;inputs
@@ -34,7 +34,7 @@
 	;:r0 = lstream object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :lstream :init)
 	;inputs
@@ -48,7 +48,7 @@
 	;:r0 = lstream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(entry :lstream :init '(:r0 :r1 :r2 :r3 :r4 :r5))
 
@@ -77,7 +77,7 @@
 	;outputs
 	;:r0 = lstream object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(entry :lstream :deinit '(:r0))
 
@@ -112,7 +112,7 @@
 	;outputs
 	;:r0 = lstream object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(entry :lstream :write_next '(:r0))
 
@@ -132,7 +132,7 @@
 	;outputs
 	;:r0 = lstream object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(entry :lstream :flush '(:r0))
 
@@ -159,7 +159,7 @@
 	;outputs
 	;:r0 = lstream object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this args value)
@@ -207,7 +207,7 @@
 	;:r0 = lstream object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r8, :r14, :f0-:f15
+	;:r1-:r8, :r14, :d0-:d15
 
 	(entry :lstream :read_next '(:r0))
 
@@ -245,7 +245,7 @@
 	;:r0 = lstream object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this args value)
@@ -295,7 +295,7 @@
 	;:r0 = lstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r11, :r14, :f0-:f15
+	;:r1-:r11, :r14, :d0-:d15
 
 	(entry :lstream :seek '(:r0 :r1 :r2))
 
@@ -320,7 +320,7 @@
 	;:r0 = lstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this args value)

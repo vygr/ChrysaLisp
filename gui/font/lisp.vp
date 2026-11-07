@@ -11,7 +11,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r11, :r14, :f0-:f15
+	;:r1-:r11, :r14, :d0-:d15
 
 	(entry :font :lisp_create '(:r0 :r1))
 
@@ -45,7 +45,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 
 	(structure local 0
 		(ptr this info paths))
@@ -82,7 +82,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r11-:r14, :f0-:f15
+	;:r1-:r6, :r11-:r14, :d0-:d15
 
 	(entry :font :lisp_info '(:r0 :r1))
 
@@ -114,7 +114,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this info)
@@ -156,7 +156,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :f0-:f15
+	;:r1-:r7, :d0-:d15
 
 	(entry :font :lisp_glyph_ranges '(:r0 :r1))
 
@@ -185,7 +185,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :font :lisp_texture '(:r0 :r1))
 

@@ -319,7 +319,7 @@ vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (pmap))))
 ### Caching and Simulation Performance
 
 Because the keys of `vpmap` are globally interned register symbols (e.g., `:r0`,
-`:r1`, `:f0`), this symbolic simulator achieves high execution speeds.
+`:r1`, `:d0`), this symbolic simulator achieves high execution speeds.
 
 During the iterations of the data-flow analysis, almost every lookup in `vpmap`
 hits the `str_hashslot` cache. This minimizes the overhead of the tracer,

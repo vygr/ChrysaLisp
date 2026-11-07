@@ -75,7 +75,7 @@ inputs
 outputs
 :r0 = 0 if error, else lisp object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :deinit -> class/lisp/deinit
@@ -86,7 +86,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :env_args_match -> class/lisp/env_args_match
@@ -143,7 +143,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :env_pop -> class/lisp/env_pop
@@ -155,7 +155,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = hmap object (ptr)
 trashes
-:r1-:r6, :f0-:f15
+:r1-:r6, :d0-:d15
 info
 if no other has a ref to the environment, and it is as it was made,
 a single bucket that has not grown, its keys and values are dropped,
@@ -172,7 +172,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = hmap object (ptr)
 trashes
-:r1-:r5, :r14, :f0-:f15
+:r1-:r5, :r14, :d0-:d15
 info
 the new environment is taken from the chain of empty ones the lisp
 object keeps, :env_pop puts them there, so most calls of a lambda
@@ -193,7 +193,7 @@ outputs
 :r0 = lisp object object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :read -> class/lisp/read
@@ -208,7 +208,7 @@ outputs
 :r1 = form object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :read_char -> class/lisp/read_char
@@ -222,7 +222,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = next char (uint)
 trashes
-:r1-:r2, :f0-:f15
+:r1-:r2, :d0-:d15
 ```
 
 ### :read_num -> class/lisp/read_num
@@ -237,7 +237,7 @@ outputs
 :r1 = num object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :read_quasi -> class/lisp/read_quasi
@@ -253,7 +253,7 @@ outputs
 :r1 = list object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :read_str -> class/lisp/read_str
@@ -268,7 +268,7 @@ outputs
 :r1 = str object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r8, :r14, :f0-:f15
+:r1-:r8, :r14, :d0-:d15
 ```
 
 ### :read_sym -> class/lisp/read_sym
@@ -283,7 +283,7 @@ outputs
 :r1 = return value object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r11, :r14, :f0-:f15
+:r1-:r11, :r14, :d0-:d15
 ```
 
 ### :repl_apply -> class/lisp/repl_apply
@@ -297,7 +297,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :repl_bind -> class/lisp/repl_bind
@@ -309,7 +309,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r8, :f0-:f15
+:r1-:r8, :d0-:d15
 ```
 
 ### :repl_error -> class/lisp/repl_error
@@ -323,7 +323,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = error object (ptr)
 trashes
-:r1-:r8, :r14, :f0-:f15
+:r1-:r8, :r14, :d0-:d15
 info
 the lisp object is the one the task holds, in its tcb. This is cold
 code, and so a caller need not keep its lisp object to hand, on the
@@ -340,7 +340,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 info
 this is the heart of the recursion, so what it holds on the stack,
 over each call it makes, is kept to the least. A symbol, or a form
@@ -366,7 +366,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :repl_expand -> class/lisp/repl_expand
@@ -378,7 +378,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :repl_print -> class/lisp/repl_print
@@ -392,7 +392,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r9, :r14, :f0-:f15
+:r1-:r9, :r14, :d0-:d15
 ```
 
 ### :repl_progn -> class/lisp/repl_progn
@@ -407,7 +407,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 info
 the last form is a jump to its eval, with nothing left on the stack.
 The frame is only for the forms before it, and has no slot for the
@@ -421,7 +421,7 @@ lisp run loop task
 inputs
 msg of lisp filename
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :type -> class/lisp/type
@@ -433,7 +433,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/lisp/vtable

@@ -13,7 +13,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :sys_kernel :lisp_stats '(:r0 :r1))
 
@@ -58,7 +58,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = nodeid object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(entry :sys_kernel :lisp_sysid '(:r0 :r1))
 

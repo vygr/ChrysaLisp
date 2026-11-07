@@ -48,7 +48,7 @@
 	;:r0 = user data address (ptr)
 	;:r1 = callback address (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r14, :d0-:d15
 
 	(vp-rdef (tcb ktcb usr addr msg data)
 		'(:r7 :r8 :r9 :r10 :r11 :r12))
@@ -108,7 +108,7 @@
 	;outputs
 	;none
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r14, :d0-:d15
 	;info
 	;restore next ready task
 
@@ -134,7 +134,7 @@
 	;inputs
 	;:r0 = task control node to defer to (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r14, :d0-:d15
 	;info
 	;restore task
 	;the task deferred to runs before this comes back, so whoever calls
@@ -172,7 +172,7 @@
 
 (def-method :sys_task :suspend)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r14, :d0-:d15
 	;info
 	;suspend current task, switch to next task
 
@@ -234,7 +234,7 @@
 ;way by the time it has had, on a fast machine or a slow one
 (def-method :sys_task :slice)
 	;trashes
-	;:r0-:r2, :f0-:f15
+	;:r0-:r2, :d0-:d15
 
 	(fn-bind 'sys/statics/statics :r2)
 	(assign '((:r2 statics_sys_task_tick)) '(:r1))
@@ -257,7 +257,7 @@
 	;inputs
 	;:r0 = time delay in usec (long)
 	;trashes
-	;:r0, :f0-:f15
+	;:r0, :d0-:d15
 	;info
 	;0 for yield
 
@@ -342,7 +342,7 @@
 	;:r1 = new task mailbox address (ptr)
 	;:r2-:r4 = new task ID (net_id)
 	;trashes
-	;:r0-:r6, :f0-:f15
+	;:r0-:r6, :d0-:d15
 
 	(def-vars
 		(ptr func statics tcb)
@@ -391,7 +391,7 @@
 
 (def-method :sys_task :stop)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r14, :d0-:d15
 	;info
 	;stop current task, switch to next task
 
@@ -459,7 +459,7 @@
 	;outputs
 	;:r0 = current time (long)
 	;trashes
-	;:r0-:r7, :f0-:f15
+	;:r0-:r7, :d0-:d15
 	;info
 	;resume tasks ready to run.
 	;mail mailboxes on timeouts.
@@ -559,7 +559,7 @@
 	;outputs
 	;none
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r14, :d0-:d15
 
 	(vp-rdef (stack_top sptr node node_offset) '(:r3 :r4))
 

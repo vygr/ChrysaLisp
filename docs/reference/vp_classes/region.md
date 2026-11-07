@@ -50,7 +50,7 @@ inputs
 outputs
 :r0 = region heap (ptr)
 trashes
-:r1-:r4, :r11-:r14, :f0-:f15
+:r1-:r4, :r11-:r14, :d0-:d15
 ```
 
 ### :copy_region -> gui/region/copy_region
@@ -66,7 +66,7 @@ inputs
 outputs
 :r0 = region heap (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :cut_rect -> gui/region/cut_rect
@@ -83,7 +83,7 @@ inputs
 outputs
 :r0 = region heap (ptr)
 trashes
-:r1-:r6, :r11-:r14, :f0-:f15
+:r1-:r6, :r11-:r14, :d0-:d15
 ```
 
 ### :free -> gui/region/free
@@ -112,7 +112,7 @@ inputs
 outputs
 :r0 = region heap (ptr)
 trashes
-:r1-:r2, :r4-:r14, :f0-:f15
+:r1-:r2, :r4-:r14, :d0-:d15
 ```
 
 ### :paste_region -> gui/region/paste_region
@@ -127,7 +127,7 @@ inputs
 outputs
 :r0 = region heap (ptr)
 trashes
-:r1-:r2, :r4-:r14, :f0-:f15
+:r1-:r2, :r4-:r14, :d0-:d15
 ```
 
 ### :remove_rect -> gui/region/remove_rect
@@ -143,7 +143,7 @@ inputs
 outputs
 :r0 = region heap (ptr)
 trashes
-:r1-:r5, :r11-:r14, :f0-:f15
+:r1-:r5, :r11-:r14, :d0-:d15
 ```
 
 ### :remove_region -> gui/region/remove_region
@@ -158,7 +158,7 @@ inputs
 outputs
 :r0 = region heap (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :translate -> gui/region/translate

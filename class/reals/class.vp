@@ -6,7 +6,7 @@
 	;outputs
 	;:r0 = 0 if error, else reals object (ptr)
 	;trashes
-	;:r0-:r2, :f0-:f15
+	;:r0-:r2, :d0-:d15
 (gen-vtable :reals)
 (gen-type :reals)
 	;inputs
@@ -15,7 +15,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :reals :add)
 	;inputs
@@ -26,7 +26,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
@@ -51,7 +51,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
@@ -76,7 +76,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
@@ -101,7 +101,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
@@ -126,7 +126,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
@@ -151,7 +151,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f2
+	;:r1-:r5, :d0-:d2
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1 zero))
@@ -181,7 +181,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6, :f0-:f3
+	;:r1-:r6, :d0-:d3
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 trunc))
 	(vp-fdef (e0 e1 ftrunc zero))
@@ -215,7 +215,7 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f3
+	;:r1-:r5, :d0-:d3
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-fdef (e0 ftrunc one zero))
@@ -247,7 +247,7 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f2
+	;:r1-:r5, :d0-:d2
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-fdef (e0 ftrunc one))
@@ -277,7 +277,7 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f2
+	;:r1-:r5, :d0-:d2
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-fdef (e0 ftrunc one))
@@ -307,7 +307,7 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0
+	;:r1-:r4, :d0
 
 	(vp-rdef (dst src1 dst1 idx1 idx2))
 	(vp-fdef (e0))
@@ -331,7 +331,7 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r4, :d0-:d1
 
 	(vp-rdef (dst src1 dst1 idx1 idx2))
 	(vp-fdef (e0 scale))
@@ -354,7 +354,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = sum (real)
 	;trashes
-	;:r1-:r3, :f0-:f1
+	;:r1-:r3, :d0-:d1
 
 	(vp-rdef (this src1 src_end tmp))
 	(vp-fdef (sum e0))
@@ -379,7 +379,7 @@
 	;:r0 = reals object (ptr)
 	;:r1 = dot product (real)
 	;trashes
-	;:r1-:r4, :f0-:f2
+	;:r1-:r4, :d0-:d2
 
 	(vp-rdef (this src2 src1 idx1 idx2))
 	(vp-fdef (dot e0 e1))
@@ -403,7 +403,7 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f4
+	;:r1-:r4, :d0-:d4
 
 	(vp-rdef (dst src1 dst1 src_end trunc))
 	(vp-fdef (e0 tol half one ftrunc))
@@ -445,7 +445,7 @@
 	;outputs
 	;:r0 = output reals object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f12
+	;:r1-:r3, :d0-:d12
 
 	(vp-rdef (this ptr_a ptr_b ptr_o))
 	(vp-fdef (o0 o1 o2 o3 o4 o5 o6 o7 t0 t1 t2 t3 s0))
@@ -573,7 +573,7 @@
 	;outputs
 	;:r0 = output reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f15
+	;:r1-:r4, :d0-:d15
 
 	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ve))
 	(vp-fdef (m0 m1 m2 m3 m4 m5 m6 m7 v0 v1 v2 v3 t0 t1 t2 t3))
@@ -646,7 +646,7 @@
 	;outputs
 	;:r0 = output reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f14
+	;:r1-:r4, :d0-:d14
 
 	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ve))
 	(vp-fdef (m0 m1 m2 m3 m4 m5 m6 m7 m8 v0 v1 v2 t0 t1 t2))

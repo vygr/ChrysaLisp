@@ -27,7 +27,7 @@ inputs
 outputs
 :r0 = reals object (ptr)
 trashes
-:r1-:r4, :f0
+:r1-:r4, :d0
 ```
 
 ### :add -> class/reals/add
@@ -41,7 +41,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f1
+:r1-:r5, :d0-:d1
 ```
 
 ### :ceil -> class/reals/ceil
@@ -53,7 +53,7 @@ inputs
 outputs
 :r0 = reals object (ptr)
 trashes
-:r1-:r5, :f0-:f2
+:r1-:r5, :d0-:d2
 ```
 
 ### :create -> class/reals/create
@@ -62,7 +62,7 @@ trashes
 outputs
 :r0 = 0 if error, else reals object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :div -> class/reals/div
@@ -76,7 +76,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f2
+:r1-:r5, :d0-:d2
 ```
 
 ### :dot -> class/reals/dot
@@ -89,7 +89,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = dot product (real)
 trashes
-:r1-:r4, :f0-:f2
+:r1-:r4, :d0-:d2
 ```
 
 ### :floor -> class/reals/floor
@@ -101,7 +101,7 @@ inputs
 outputs
 :r0 = reals object (ptr)
 trashes
-:r1-:r5, :f0-:f2
+:r1-:r5, :d0-:d2
 ```
 
 ### :frac -> class/reals/frac
@@ -113,7 +113,7 @@ inputs
 outputs
 :r0 = reals object (ptr)
 trashes
-:r1-:r5, :f0-:f3
+:r1-:r5, :d0-:d3
 ```
 
 ### :mat4x4_mul -> class/reals/mat4x4_mul
@@ -126,7 +126,7 @@ inputs
 outputs
 :r0 = output reals object (ptr)
 trashes
-:r1-:r3, :f0-:f12
+:r1-:r3, :d0-:d12
 ```
 
 ### :mat4x4_v3_mul -> class/reals/mat4x4_v3_mul
@@ -139,7 +139,7 @@ inputs
 outputs
 :r0 = output reals object (ptr)
 trashes
-:r1-:r4, :f0-:f14
+:r1-:r4, :d0-:d14
 ```
 
 ### :mat4x4_v4_mul -> class/reals/mat4x4_v4_mul
@@ -152,7 +152,7 @@ inputs
 outputs
 :r0 = output reals object (ptr)
 trashes
-:r1-:r4, :f0-:f15
+:r1-:r4, :d0-:d15
 ```
 
 ### :max -> class/reals/max
@@ -166,7 +166,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f1
+:r1-:r5, :d0-:d1
 ```
 
 ### :min -> class/reals/min
@@ -180,7 +180,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f1
+:r1-:r5, :d0-:d1
 ```
 
 ### :mod -> class/reals/mod
@@ -194,7 +194,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6, :f0-:f3
+:r1-:r6, :d0-:d3
 ```
 
 ### :mul -> class/reals/mul
@@ -208,7 +208,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f1
+:r1-:r5, :d0-:d1
 ```
 
 ### :quant -> class/reals/quant
@@ -221,7 +221,7 @@ inputs
 outputs
 :r0 = reals object (ptr)
 trashes
-:r1-:r4, :f0-:f4
+:r1-:r4, :d0-:d4
 ```
 
 ### :scale -> class/reals/scale
@@ -234,7 +234,7 @@ inputs
 outputs
 :r0 = reals object (ptr)
 trashes
-:r1-:r4, :f0-:f1
+:r1-:r4, :d0-:d1
 ```
 
 ### :sub -> class/reals/sub
@@ -248,7 +248,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f1
+:r1-:r5, :d0-:d1
 ```
 
 ### :sum -> class/reals/sum
@@ -260,7 +260,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = sum (real)
 trashes
-:r1-:r3, :f0-:f1
+:r1-:r3, :d0-:d1
 ```
 
 ### :type -> class/reals/type
@@ -272,7 +272,7 @@ outputs
 :r0 = reals object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> class/reals/create
@@ -281,7 +281,7 @@ trashes
 outputs
 :r0 = 0 if error, else reals object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :velement -> class/real/create
@@ -292,7 +292,7 @@ inputs
 outputs
 :r0 = 0 if error, else real object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :vtable -> class/reals/vtable

@@ -8,7 +8,7 @@
 	;outputs
 	;:r0 = 0 if error, else mstream object (ptr)
 	;trashes
-	;:r0-:r5, :f0-:f15
+	;:r0-:r5, :d0-:d15
 (gen-vtable :mstream)
 (gen-type :mstream)
 	;inputs
@@ -17,7 +17,7 @@
 	;:r0 = mstream object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :mstream :init)
 	;inputs
@@ -27,7 +27,7 @@
 	;:r0 = mstream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(vp-rdef (this vtable tmp))
 
@@ -55,7 +55,7 @@
 	;outputs
 	;:r0 = mstream object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(vp-rdef (this tmp))
 
@@ -108,7 +108,7 @@
 	;outputs
 	;:r0 = sstream object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(vp-rdef (this index chunks len chunk bufp bufe) '(:r6 :r7 :r8))
 

@@ -64,7 +64,7 @@ trashes
 outputs
 :r0 = 0 if error, else nums object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :div -> class/nums/div
@@ -210,7 +210,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> class/nums/create
@@ -219,7 +219,7 @@ trashes
 outputs
 :r0 = 0 if error, else nums object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :vtable -> class/nums/vtable

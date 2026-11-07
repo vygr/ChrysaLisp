@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :sys_task :lisp_count '(:r0 :r1))
 
@@ -40,7 +40,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(entry :sys_task :lisp_sleep '(:r0 :r1))
 
@@ -86,7 +86,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 	(entry :sys_task :lisp_timeslice '(:r0 :r1))
 
@@ -121,7 +121,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(entry :sys_task :lisp_mailbox '(:r0 :r1))
 
@@ -151,7 +151,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(entry :sys_task :lisp_flags '(:r0 :r1))
 

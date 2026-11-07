@@ -8,7 +8,7 @@
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 
 	(def-vars
 		(ptr this source)

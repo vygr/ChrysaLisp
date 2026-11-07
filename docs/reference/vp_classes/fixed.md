@@ -30,7 +30,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :cos -> class/fixed/cos
@@ -41,7 +41,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :create -> class/fixed/create
@@ -52,7 +52,7 @@ inputs
 outputs
 :r0 = 0 if error, else fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :div -> class/fixed/div
@@ -64,7 +64,7 @@ inputs
 outputs
 :r0 = 0 if error, else result fixed object (ptr)
 trashes
-:r0-:r5, :r14, :f0-:f15
+:r0-:r5, :r14, :d0-:d15
 ```
 
 ### :floor -> class/fixed/floor
@@ -75,7 +75,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :frac -> class/fixed/frac
@@ -86,7 +86,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :mod -> class/fixed/mod
@@ -98,7 +98,7 @@ inputs
 outputs
 :r0 = 0 if error, else result fixed object (ptr)
 trashes
-:r0-:r2, :r4-:r6, :r14, :f0-:f15
+:r0-:r2, :r4-:r6, :r14, :d0-:d15
 ```
 
 ### :mul -> class/fixed/mul
@@ -110,7 +110,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r4, :r14, :f0-:f15
+:r0-:r4, :r14, :d0-:d15
 ```
 
 ### :pow -> class/fixed/pow
@@ -122,7 +122,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 info
 0 if the number is not greater than 0, :sys_math :r_pow
 ```
@@ -136,7 +136,7 @@ inputs
 outputs
 :r0 = fixed object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :recip -> class/fixed/recip
@@ -147,7 +147,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :sign -> class/fixed/sign
@@ -158,7 +158,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :sin -> class/fixed/sin
@@ -169,7 +169,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :sqrt -> class/fixed/sqrt
@@ -180,7 +180,7 @@ inputs
 outputs
 :r0 = result fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :type -> class/fixed/type
@@ -192,7 +192,7 @@ outputs
 :r0 = fixed object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> class/fixed/create
@@ -203,7 +203,7 @@ inputs
 outputs
 :r0 = 0 if error, else fixed object (ptr)
 trashes
-:r0-:r2, :r14, :f0-:f15
+:r0-:r2, :r14, :d0-:d15
 ```
 
 ### :vtable -> class/fixed/vtable

@@ -14,7 +14,7 @@ inputs
 outputs
 :r0 = cos (fixed)
 trashes
-:r0-:r2, :f0-:f3
+:r0-:r2, :d0-:d3
 ```
 
 ### :f_dist_sqd -> sys/math/f_dist_sqd
@@ -60,7 +60,7 @@ inputs
 outputs
 :r0 = sin (fixed)
 trashes
-:r0-:r2, :f0-:f3
+:r0-:r2, :d0-:d3
 ```
 
 ### :f_sqrt -> sys/math/f_sqrt
@@ -71,7 +71,7 @@ inputs
 outputs
 :r0 = sqrt (fixed)
 trashes
-:r0-:r1, :f0-:f1
+:r0-:r1, :d0-:d1
 ```
 
 ### :i_rand -> sys/math/i_rand
@@ -82,19 +82,19 @@ inputs
 outputs
 :r0 = random number in range (long)
 trashes
-:r0-:r3, :f0-:f15
+:r0-:r3, :d0-:d15
 ```
 
 ### :r_pow -> sys/math/r_pow
 
 ```code
 inputs
-:f0 = real (real)
-:f1 = power (real)
+:d0 = real (real)
+:d1 = power (real)
 outputs
-:f0 = real to the power (real)
+:d0 = real to the power (real)
 trashes
-:r0-:r2, :f0-:f7
+:r0-:r2, :d0-:d7
 info
 0 if the real is not greater than 0. The whole part of the power is
 by squaring, the rest by repeated roots, to 31 bits of it. It is the
@@ -105,10 +105,10 @@ method of the shader language, every back end of which must agree
 
 ```code
 inputs
-:f0 = real (real)
+:d0 = real (real)
 outputs
-:f0 = real (real)
+:d0 = real (real)
 trashes
-:r0-:r1, :f0-:f3
+:r0-:r1, :d0-:d3
 ```
 

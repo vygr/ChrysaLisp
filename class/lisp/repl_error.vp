@@ -11,7 +11,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = error object (ptr)
 	;trashes
-	;:r1-:r8, :r14, :f0-:f15
+	;:r1-:r8, :r14, :d0-:d15
 	;info
 	;the lisp object is the one the task holds, in its tcb. This is cold
 	;code, and so a caller need not keep its lisp object to hand, on the

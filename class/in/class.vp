@@ -9,7 +9,7 @@
 	;outputs
 	;:r0 = 0 if error, else in object (ptr)
 	;trashes
-	;:r0-:r5, :r14, :f0-:f15
+	;:r0-:r5, :r14, :d0-:d15
 (gen-vtable :in)
 (gen-type :in)
 	;inputs
@@ -18,7 +18,7 @@
 	;:r0 = in object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :in :init)
 	;inputs
@@ -29,7 +29,7 @@
 	;:r0 = in object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(vp-rdef (this vtable zero state oid))
 
@@ -68,7 +68,7 @@
 	;outputs
 	;:r0 = in object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(vp-rdef (this msg state))
 	(vp-rdef (mid oid zero) (list msg this state))
@@ -112,7 +112,7 @@
 	;outputs
 	;:r0 = in object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(vp-rdef (msg acknum seqnum bufp bufe state mbox buffer this))
 	(vp-rdef (id0 id1 id2 tmp) (list bufp bufe state acknum))
@@ -232,7 +232,7 @@
 	;:r0 = in object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(vp-rdef (this eof bufp bufe state))
 

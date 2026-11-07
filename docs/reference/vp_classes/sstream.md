@@ -17,7 +17,7 @@ outputs
 :r0 = sstream object (ptr)
 :r1 = str object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :create -> class/sstream/create
@@ -28,7 +28,7 @@ inputs
 outputs
 :r0 = 0 if error, else sstream object (ptr)
 trashes
-:r0-:r5, :r14, :f0-:f15
+:r0-:r5, :r14, :d0-:d15
 ```
 
 ### :flush -> class/sstream/flush
@@ -39,7 +39,7 @@ inputs
 outputs
 :r0 = sstream object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :init -> class/sstream/init
@@ -91,7 +91,7 @@ outputs
 :r0 = sstream object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/sstream/vtable
@@ -104,6 +104,6 @@ inputs
 outputs
 :r0 = sstream object (ptr)
 trashes
-:r1-:r8, :f0-:f15
+:r1-:r8, :d0-:d15
 ```
 

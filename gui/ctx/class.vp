@@ -15,7 +15,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = the first of them (plong)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 	;info
 	;the view's list of draws that many longer, made if it has none
 
@@ -49,7 +49,7 @@
 	;:r0 = view object (ptr)
 	;:r1 = color (argb)
 	;trashes
-	;:r1-:r4, :f0-:f15
+	;:r1-:r4, :d0-:d15
 
 	(entry :ctx :set_color '(:r0 :r1))
 
@@ -75,7 +75,7 @@
 	;:r9 = width (pixels)
 	;:r10 = height (pixels)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 	(entry :ctx :box '(:r0 :r7 :r8 :r9 :r10))
 
@@ -95,7 +95,7 @@
 	;:r9 = width (pixels)
 	;:r10 = height (pixels)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 	(entry :ctx :filled_box '(:r0 :r7 :r8 :r9 :r10))
 
@@ -119,7 +119,7 @@
 	;:r11 = sx (pixels)
 	;:r12 = sy (pixels)
 	;trashes
-	;:r1-:r5, :r7-:r8, :f0-:f15
+	;:r1-:r5, :r7-:r8, :d0-:d15
 
 	(entry :ctx :blit '(:r0 :r1 :r2 :r7 :r8 :r9 :r10 :r11 :r12))
 

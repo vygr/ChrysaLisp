@@ -16,7 +16,7 @@ none
 outputs
 :r0 = 0 if error, else mstream object (ptr)
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 ```
 
 ### :deinit -> class/mstream/deinit
@@ -27,7 +27,7 @@ inputs
 outputs
 :r0 = mstream object (ptr)
 trashes
-:r1-:r2, :f0-:f15
+:r1-:r2, :d0-:d15
 ```
 
 ### :flush -> class/mstream/flush
@@ -51,7 +51,7 @@ outputs
 :r0 = mstream object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :itop -> class/mstream/itop
@@ -121,7 +121,7 @@ outputs
 :r0 = mstream object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/mstream/vtable
@@ -134,6 +134,6 @@ inputs
 outputs
 :r0 = sstream object (ptr)
 trashes
-:r1-:r8, :f0-:f15
+:r1-:r8, :d0-:d15
 ```
 

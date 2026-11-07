@@ -122,7 +122,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 	;info
 	;(png-pixels row colour depth width palette clear) -> str, a row of
 	;a PNG of 8 or 16 bits a sample, its filter undone, as pixels of 32
@@ -288,7 +288,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 	;info
 	;(jpg-line planes bases hs hmax width) -> str, a row of pixels of a
 	;JPEG, blue green red alpha, from one plane, grey, or three, Y Cb Cr:
@@ -422,7 +422,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 	;info
 	;(jpg-block-decode in state codes quant zigzag prior c) -> dc, a block
 	;of a baseline scan, its numbers by their table into c in rows, and the
@@ -528,7 +528,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :r14, :f0-:f15
+	;:r1-:r10, :r14, :d0-:d15
 	;info
 	;(jpg-prog-block kind in state code coefs base start end low val zigzag)
 	;-> val, a block of a scan of a progressive JPEG into coefs from base,

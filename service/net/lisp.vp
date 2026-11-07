@@ -12,7 +12,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -53,7 +53,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -94,7 +94,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -139,7 +139,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -183,7 +183,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -227,7 +227,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	;send() is a thin syscall; keep it on the task stack so the
 	;service hot path does not bounce through the kernel mailbox.
@@ -258,7 +258,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this buf ret)
@@ -318,7 +318,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(entry :host_net :lisp_close '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
@@ -346,7 +346,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	;poll() is timeout-0 and runs on the service timer. Do not
 	;route it through :callback or every tick pays a kernel RPC.
@@ -376,7 +376,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -420,7 +420,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this)
@@ -469,7 +469,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this buf ip_str port_num ret)
@@ -543,7 +543,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	;what this node knows of each link it has, a str each, the fields of
 	;lib/net/links.inc: the node id of its peer, the system id of its
@@ -592,7 +592,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r4, :r14, :f0-:f15
+	;:r1-:r4, :r14, :d0-:d15
 
 	;every link of this node that is over the network, and not shared
 	;memory to a node of this machine, is told it is closed. Its tasks see

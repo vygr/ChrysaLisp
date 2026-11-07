@@ -363,7 +363,7 @@ machine code of your target CPU.
       output.
 
     * **`reg_map`:** the target CPU's number of each VP register, `:r0` to
-      `:rsp` then `:f0` to `:f15`, a byte each.
+      `:rsp` then `:d0` to `:d15`, a byte each.
 
     * **A routine for each VP op:** registered with `(handler 'emit-add-rr
       'e_add_rr)` and so on. It gets its operands in `:r0` to `:r3`, the
@@ -390,7 +390,7 @@ machine code of your target CPU.
 
 2. **Define `reg_map`:**
 
-    * Map VP registers (`:r0` - `:r14`, `:rsp`, `:f0` - `:f15`) to the
+    * Map VP registers (`:r0` - `:r14`, `:rsp`, `:d0` - `:d15`) to the
       register numbers used by your target CPU, minding its ABI's register
       usage (e.g., argument registers, callee-saved, caller-saved, stack
       pointer, link register), and leave the temp registers the routines

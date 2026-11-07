@@ -17,7 +17,7 @@
 	;outputs
 	;:r0 = 0 if error, else error object (ptr)
 	;trashes
-	;:r0-:r8, :r14, :f0-:f15
+	;:r0-:r8, :r14, :d0-:d15
 (gen-vtable :error)
 (gen-type :error)
 	;inputs
@@ -26,7 +26,7 @@
 	;:r0 = error object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :error :init)
 	;inputs
@@ -43,7 +43,7 @@
 	;:r0 = error object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(structure local 0
 		(ptr this))
@@ -80,7 +80,7 @@
 	;outputs
 	;:r0 = error object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(def-vars
 		(ptr this))
@@ -139,7 +139,7 @@
 	;outputs
 	;:r0 = error object (ptr)
 	;trashes
-	;:r1-:r9, :r14, :f0-:f15
+	;:r1-:r9, :r14, :d0-:d15
 
 	(def-vars
 		(ptr this stream string sstream)

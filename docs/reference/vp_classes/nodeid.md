@@ -16,7 +16,7 @@ inputs
 outputs
 :r0 = 0 if error, else nodeid object (ptr)
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 ```
 
 ### :eql -> class/nodeid/eql
@@ -53,7 +53,7 @@ outputs
 :r0 = nodeid object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/nodeid/vtable

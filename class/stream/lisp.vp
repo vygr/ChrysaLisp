@@ -55,7 +55,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :stream :lisp_fstream '(:r0 :r1))
 
@@ -94,7 +94,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :stream :lisp_sstream '(:r0 :r1))
 
@@ -124,7 +124,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(entry :stream :lisp_mstream '(:r0 :r1))
 
@@ -150,7 +150,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :stream :lisp_avail '(:r0 :r1))
 
@@ -215,7 +215,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(entry :stream :lisp_readavail '(:r0 :r1))
 
@@ -246,7 +246,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(entry :stream :lisp_flush '(:r0 :r1))
 
@@ -276,7 +276,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r11, :r14, :f0-:f15
+	;:r1-:r11, :r14, :d0-:d15
 
 	(entry :stream :lisp_seek '(:r0 :r1))
 
@@ -306,7 +306,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(def-vars
 		(ptr this args value)
@@ -400,7 +400,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r8-:r14, :f0-:f15
+	;:r1-:r6, :r8-:r14, :d0-:d15
 
 	(vp-rdef (iter_end iter_begin stream value width this args)
 		'(:r8 :r9 :r10 :r11 :r12))
@@ -478,7 +478,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(def-vars
 		(ptr this buf))
@@ -523,7 +523,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(def-vars
 		(ptr this buf))
@@ -559,7 +559,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :stream :lisp_readline '(:r0 :r1))
 
@@ -592,7 +592,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(def-vars
 		(ptr this buf))
@@ -631,7 +631,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(def-vars
 		(ptr this args stream iter_begin))
@@ -679,7 +679,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(def-vars
 		(ptr this args stream iter_begin))
@@ -727,7 +727,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(def-vars
 		(ptr this args stream parray)
@@ -792,7 +792,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(def-vars
 		(ptr this args wstream rstream)
@@ -866,7 +866,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(def-vars
 		(ptr this args stream func value call_args)

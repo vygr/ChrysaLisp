@@ -5,18 +5,18 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class :sys_load :nil
-	(dec-method :init sys/load/init :static (:r0 :r1) (:r0) (:r0-:r14 :f0-:f15))
-	(dec-method :bind sys/load/bind :static (:r0) (:r0) (:r0-:r7 :f0-:f15))
-	(dec-method :load sys/load/load :static (:r0) (:r0) (:r0-:r7 :f0-:f15))
+	(dec-method :init sys/load/init :static (:r0 :r1) (:r0) (:r0-:r14 :d0-:d15))
+	(dec-method :bind sys/load/bind :static (:r0) (:r0) (:r0-:r7 :d0-:d15))
+	(dec-method :load sys/load/load :static (:r0) (:r0) (:r0-:r7 :d0-:d15))
 	(dec-method :find sys/load/find :static (:r0) (:r0 :r1) (:r0-:r2))
 	(dec-method :search sys/load/search :static (:r6) (:r0) (:r0-:r5 :r7))
-	(dec-method :vp_find sys/load/vp_find :static (:r0) (:r0 :r1 :r2) (:r0-:r14 :f0-:f15))
-	(dec-method :place sys/load/place :static (:r0) (:r0) (:r0-:r7 :f0-:f15))
-	(dec-method :server sys/load/server :static (:r0) (:r0) (:r0-:r3 :r5-:r7 :f0-:f15))
-	(dec-method :sweep sys/load/sweep :static :nil :nil (:r0-:r2 :r5-:r13 :f0-:f15))
-	(dec-method :lisp_path sys/load/lisp_path :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15))
-	(dec-method :lisp_server sys/load/lisp_server :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :f0-:f15))
-	(dec-method :lisp_place sys/load/lisp_place :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :f0-:f15)))
+	(dec-method :vp_find sys/load/vp_find :static (:r0) (:r0 :r1 :r2) (:r0-:r14 :d0-:d15))
+	(dec-method :place sys/load/place :static (:r0) (:r0) (:r0-:r7 :d0-:d15))
+	(dec-method :server sys/load/server :static (:r0) (:r0) (:r0-:r3 :r5-:r7 :d0-:d15))
+	(dec-method :sweep sys/load/sweep :static :nil :nil (:r0-:r2 :r5-:r13 :d0-:d15))
+	(dec-method :lisp_path sys/load/lisp_path :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :d0-:d15))
+	(dec-method :lisp_server sys/load/lisp_server :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :d0-:d15))
+	(dec-method :lisp_place sys/load/lisp_place :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :d0-:d15)))
 
 ;;;;;;;;;;;;;;;;;
 ; load structures

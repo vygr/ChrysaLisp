@@ -39,7 +39,7 @@ outputs
 :r0 = mail message (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 ```
 
 ### :alloc_mbox -> sys/mail/alloc_mbox
@@ -49,7 +49,7 @@ outputs
 :r0 = mailbox id (uint)
 :r1 = mailbox address (ptr)
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 ```
 
 ### :alloc_obj -> sys/mail/alloc_obj
@@ -62,7 +62,7 @@ inputs
 outputs
 :r0 = mail message (ptr)
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 ```
 
 ### :declare -> sys/mail/declare
@@ -75,7 +75,7 @@ inputs
 outputs
 :r0 = service key str object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :devices -> sys/mail/devices
@@ -84,7 +84,7 @@ trashes
 outputs
 :r0 = known network nodes list object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 each is a string, the node id and then the id of the machine it is on
 ```
@@ -97,7 +97,7 @@ inputs
 outputs
 :r0 = matching service entries list object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :forget -> sys/mail/forget
@@ -106,7 +106,7 @@ trashes
 inputs
 :r0 = service key str object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :free -> sys/mail/free
@@ -115,7 +115,7 @@ trashes
 inputs
 :r0 = mail message (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 only ever derefs a :str !
 trashes
@@ -153,7 +153,7 @@ inputs
 :r2 = link input ring buffer (ptr)
 :r3 = link input ring buffer extent (uint)
 trashes
-:r0-:r10, :f0-:f15
+:r0-:r10, :d0-:d15
 ```
 
 ### :junk_mail -> sys/mail/junk_mail
@@ -169,7 +169,7 @@ trashes
 
 ```code
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 the network has changed. Ping soon, at a random time within the
 spread, so that not all nodes do at once, start the back off again,
@@ -185,7 +185,7 @@ outputs
 :r0 = mail address (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :out -> sys/mail/out
@@ -205,7 +205,7 @@ never breaks out
 inputs
 :r0 = 0 for a routing ping, else a full ping with the services (uint)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 ping out to network (cluster * and system @). A routing ping holds a
 hash of the services, a node that does not have them will ask.
@@ -233,7 +233,7 @@ outputs
 :r0 = mail address (ptr)
 :r1 = string data (pubyte)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 info
 in *build_mode* > 0
 a signal to a Lisp task can return 0 here !
@@ -261,7 +261,7 @@ inputs
 outputs
 :r0 = mailbox index (uint)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :send -> sys/mail/send
@@ -270,11 +270,11 @@ trashes
 inputs
 :r0 = mail message (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 only ever derefs a :str !
 trashes
-:r0-:r4, :f0-:f15
+:r0-:r4, :d0-:d15
 ```
 
 ### :service -> sys/mail/service
@@ -287,7 +287,7 @@ inputs
 outputs
 :r0 = service entry str object (ptr)
 trashes
-:r0-:r7, :f0-:f15
+:r0-:r7, :d0-:d15
 ```
 
 ### :statics_init -> sys/mail/statics_init
@@ -305,7 +305,7 @@ trashes
 info
 init the mail system
 trashes
-:r0-:r7, :r14, :f0-:f15
+:r0-:r7, :r14, :d0-:d15
 ```
 
 ### :validate -> sys/mail/validate

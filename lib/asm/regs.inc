@@ -1,6 +1,6 @@
 ;vp register lists, maps and utilities
 (defq +vp_rregs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
-	+vp_fregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
+	+vp_fregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15))
 (defq +vp_regs `'(~(last +vp_rregs) ~(last +vp_fregs))
 	+vp_rregs_0_14 `'(~(most (last +vp_rregs)))
 	+vp_rregs_map (reduce (# (pinsert %0 %1 (num (!)))) +vp_rregs (pmap))

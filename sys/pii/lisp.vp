@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :r14, :f0-:f15
+	;:r1-:r5, :r14, :d0-:d15
 
 	(entry :host_os :lisp_readchar '(:r0 :r1))
 
@@ -39,7 +39,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(entry :host_os :lisp_writechar '(:r0 :r1))
 
@@ -71,7 +71,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(entry :host_os :lisp_time '(:r0 :r1))
 
@@ -98,7 +98,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(entry :host_os :lisp_dirlist '(:r0 :r1))
 
@@ -134,7 +134,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13, :f0-:f15
+	;:r1-:r6, :r13, :d0-:d15
 
 	(entry :host_os :lisp_fstat '(:r0 :r1))
 
@@ -173,7 +173,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :host_os :lisp_remove '(:r0 :r1))
 
@@ -203,7 +203,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r2, :r14, :f0-:f15
+	;:r1-:r2, :r14, :d0-:d15
 
 	(entry :host_os :lisp_exit '(:r0 :r1))
 
@@ -225,7 +225,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;to start a process is a heavy call for a host, on Windows it needs far
 	;more stack than a task has. So it is made by the kernel task, on the
@@ -277,7 +277,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(entry :host_os :lisp_pid '(:r0 :r1))
 
@@ -304,7 +304,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(entry :host_os :lisp_alive '(:r0 :r1))
 
@@ -340,7 +340,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(entry :host_os :lisp_cpus '(:r0 :r1))
 
@@ -367,7 +367,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :r14, :d0-:d15
 
 	(entry :host_os :lisp_memory '(:r0 :r1))
 
@@ -394,7 +394,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	;what the host program is, "cpu abi os", a str. The host's own, which
 	;on the emulator is not what the boot image is, (load-path) has that
@@ -426,7 +426,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :host_os :lisp_chmod '(:r0 :r1))
 
@@ -455,7 +455,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(entry :host_os :lisp_kill '(:r0 :r1))
 

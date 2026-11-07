@@ -107,7 +107,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 callback api
 in
 :r0 = view object (ptr)
@@ -125,7 +125,7 @@ trashes
 outputs
 :r0 = 0 if error, else view object (ptr)
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 ```
 
 ### :deinit -> gui/view/deinit
@@ -136,7 +136,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r4, :f0-:f15
+:r1-:r4, :d0-:d15
 ```
 
 ### :draw -> gui/view/draw
@@ -147,7 +147,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :find_id -> gui/view/find_id
@@ -160,7 +160,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 if not found, else view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :forget_draws -> gui/view/forget_draws
@@ -171,7 +171,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r4, :f0-:f15
+:r1-:r4, :d0-:d15
 info
 the view's list of draws let go of, and the textures its blits kept,
 so its :draw is run again the next time it is drawn
@@ -188,7 +188,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 callback api
 in
 :r0 = view object (ptr)
@@ -236,7 +236,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :hit -> gui/view/hit
@@ -266,7 +266,7 @@ outputs
 :r7 = x relative to hit (pixels)
 :r8 = y relative to hit (pixels)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :init -> gui/view/init
@@ -279,7 +279,7 @@ outputs
 :r0 = view object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :ref_prop -> gui/view/ref_prop
@@ -328,7 +328,7 @@ inputs
 outputs
 :r0 = view object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :to_front -> gui/view/to_front

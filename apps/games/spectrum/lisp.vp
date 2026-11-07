@@ -1514,7 +1514,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	;the ROM below 0x4000 is not written, and the tape loader is LD-BYTES,
 	;from its start or from after it sets the border, as some loaders call it
@@ -1531,7 +1531,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	;all the memory is written, and the stop is CP/M's BDOS call at 5,
 	;for the test of the Z80

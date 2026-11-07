@@ -12,7 +12,7 @@
 	;:r0 = stream object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :stream :init)
 	;inputs
@@ -46,7 +46,7 @@
 	;outputs
 	;:r0 = stream object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(entry :stream :deinit '(:r0))
 
@@ -155,7 +155,7 @@
 	;:r0 = stream object (ptr)
 	;:r1 = -1 for EOF, else char read (int)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(entry :stream :read_char '(:r0))
 
@@ -192,7 +192,7 @@
 	;outputs
 	;:r0 = stream object (ptr)
 	;trashes
-	;:r2-:r3, :f0-:f15
+	;:r2-:r3, :d0-:d15
 
 	(entry :stream :write_char '(:r0 :r1))
 
@@ -228,7 +228,7 @@
 	;:r2 = bit pool (long)
 	;:r3 = bit pool size (uint)
 	;trashes
-	;:r1-:r4, :f0-:f15
+	;:r1-:r4, :d0-:d15
 
 	(vp-rdef (this num_bits bit_pool bit_pool_size data))
 
@@ -275,7 +275,7 @@
 	;:r1 = bit pool (long)
 	;:r2 = bit pool size (uint)
 	;trashes
-	;:r1-:r4, :f0-:f15
+	;:r1-:r4, :d0-:d15
 
 	(vp-rdef (this data num_bits bit_pool bit_pool_size))
 
@@ -310,7 +310,7 @@
 	;:r0 = stream object (ptr)
 	;:r1 = -1 for EOF, else bytes read (int)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(entry :stream :read '(:r0 :r1 :r2))
 
@@ -387,7 +387,7 @@
 	;outputs
 	;:r0 = stream object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(entry :stream :write '(:r0 :r1 :r2))
 
@@ -439,7 +439,7 @@
 	;:r0 = stream object (ptr)
 	;:r1 = 0 for EOF, else str object (ptr)
 	;trashes
-	;:r1-:r5, :r14, :f0-:f15
+	;:r1-:r5, :r14, :d0-:d15
 
 	(def-vars
 		(ptr this str_stream value)
@@ -491,7 +491,7 @@
 	;outputs
 	;:r0 = stream object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(entry :stream :write_cstr '(:r3 :r1))
 

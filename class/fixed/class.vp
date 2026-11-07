@@ -11,7 +11,7 @@
 	;outputs
 	;:r0 = 0 if error, else fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 (gen-vtable :fixed)
 (gen-type :fixed)
 	;inputs
@@ -20,7 +20,7 @@
 	;:r0 = fixed object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :fixed :print)
 	;inputs
@@ -29,7 +29,7 @@
 	;outputs
 	;:r0 = fixed object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(structure local 0
 		(ptr this stream tmp)
@@ -96,7 +96,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r4, :r14, :f0-:f15
+	;:r0-:r4, :r14, :d0-:d15
 
 	(addop :mul)
 
@@ -109,7 +109,7 @@
 	;outputs
 	;:r0 = 0 if error, else result fixed object (ptr)
 	;trashes
-	;:r0-:r5, :r14, :f0-:f15
+	;:r0-:r5, :r14, :d0-:d15
 
 	(entry :fixed :div '(:r0 :r1))
 
@@ -140,7 +140,7 @@
 	;outputs
 	;:r0 = 0 if error, else result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r4-:r6, :r14, :f0-:f15
+	;:r0-:r2, :r4-:r6, :r14, :d0-:d15
 
 	(entry :fixed :mod '(:r0 :r1))
 
@@ -177,7 +177,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :sqrt
 		'(call :sys_math :f_sqrt '(:r0) '(:r0)))
@@ -191,7 +191,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 	;info
 	;0 if the number is not greater than 0, :sys_math :r_pow
 
@@ -199,16 +199,16 @@
 
 	(assign '((:r0 +num_value) (:r1 +num_value)) '(:r0 :r1))
 	(vp-lea-p 'fn_consts :r2)
-	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f2))
-	(vp-cvt-rf :r0 :f0)
-	(vp-mul-ff :f2 :f0)
-	(vp-cvt-rf :r1 :f1)
-	(vp-mul-ff :f2 :f1)
-	(call :sys_math :r_pow '(:f0 :f1) '(:f0))
+	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d2))
+	(vp-cvt-rf :r0 :d0)
+	(vp-mul-ff :d2 :d0)
+	(vp-cvt-rf :r1 :d1)
+	(vp-mul-ff :d2 :d1)
+	(call :sys_math :r_pow '(:d0 :d1) '(:d0))
 	(vp-lea-p 'fn_consts :r2)
-	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:f1))
-	(vp-mul-ff :f1 :f0)
-	(vp-cvt-fr :f0 :r0)
+	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+	(vp-mul-ff :d1 :d0)
+	(vp-cvt-fr :d0 :r0)
 	(jump :fixed :create '(:r0))
 
 (def-func-end)
@@ -219,7 +219,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :sign
 		'(progn
@@ -237,7 +237,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :sin
 		'(call :sys_math :f_sin '(:r0) '(:r0)))
@@ -250,7 +250,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :cos
 		'(call :sys_math :f_cos '(:r0) '(:r0)))
@@ -263,7 +263,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :frac
 		'(progn
@@ -278,7 +278,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :floor
 		'(progn
@@ -293,7 +293,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :ceil
 		'(progn
@@ -308,7 +308,7 @@
 	;outputs
 	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r0-:r2, :r14, :f0-:f15
+	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :recip
 		'(progn

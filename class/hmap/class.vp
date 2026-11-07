@@ -7,7 +7,7 @@
 	;outputs
 	;:r0 = 0 if error, else hmap object (ptr)
 	;trashes
-	;:r0-:r5, :r14, :f0-:f15
+	;:r0-:r5, :r14, :d0-:d15
 (gen-vtable :hmap)
 (gen-type :hmap)
 	;inputs
@@ -16,7 +16,7 @@
 	;:r0 = hmap object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :hmap :init)
 	;inputs
@@ -27,7 +27,7 @@
 	;:r0 = hmap object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(vp-rdef (this vtable num_buckets iter_begin iter_end saved_this))
 
@@ -70,7 +70,7 @@
 	;outputs
 	;:r0 = hmap object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 	(entry :hmap :deinit '(this))
 
@@ -88,7 +88,7 @@
 	;outputs
 	;:r0 = hmap object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(vp-rdef (this parent old_parent))
 
@@ -113,7 +113,7 @@
 	;:r0 = hmap object (ptr)
 	;:r1 = hmap copy object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		;obj must be first
@@ -162,7 +162,7 @@
 	;:r0 = hmap object (ptr)
 	;:r1 = list object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr obj this))
@@ -263,7 +263,7 @@
 	;:r1 = iterator (pptr)
 	;:r2 = bucket list (ptr)
 	;trashes
-	;:r1-:r11, :f0-:f15
+	;:r1-:r11, :d0-:d15
 
 	(vp-rdef (this key) (method-input :hmap :pinsert))
 	(vp-rdef (& iter bucket) (method-output :hmap :pinsert))
@@ -386,7 +386,7 @@
 	;:r0 = hmap object (ptr)
 	;:r1 = 0 if not found, else value object (ptr)
 	;trashes
-	;:r1-:r8, :r10-:r12, :f0-:f15
+	;:r1-:r8, :r10-:r12, :d0-:d15
 
 	(vp-rdef (this key) (method-input :hmap :set))
 	(vp-rdef (& iter) (method-output :hmap :set))
@@ -452,13 +452,13 @@
 	;outputs
 	;:r0 = hmap object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 		;callback predicate
 		;inputs
 		;:r0 = predicate data (ptr)
 		;:r1 = element iterator (pptr)
 		;trashes
-		;:r1-:r14, :f0-:f15
+		;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this predicate predicate_data bucket)
@@ -523,7 +523,7 @@
 	;outputs
 	;:r0 = hmap object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(structure local 0
 		(ptr this that))

@@ -24,7 +24,7 @@ docs/reference/vp_classes/pmap.cwb
 outputs
 :r0 = 0 if error, else pmap object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :pfind -> class/pmap/find
@@ -53,7 +53,7 @@ outputs
 :r0 = pmap object (ptr)
 :r1 = iterator (pptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :type -> class/pmap/type
@@ -65,7 +65,7 @@ outputs
 :r0 = pmap object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vcreate -> class/pmap/create
@@ -74,7 +74,7 @@ trashes
 outputs
 :r0 = 0 if error, else pmap object (ptr)
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :vtable -> class/pmap/vtable

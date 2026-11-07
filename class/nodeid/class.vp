@@ -10,7 +10,7 @@
 	;:r0 = nodeid object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :nodeid :create)
 	;inputs
@@ -18,7 +18,7 @@
 	;outputs
 	;:r0 = 0 if error, else nodeid object (ptr)
 	;trashes
-	;:r0-:r5, :f0-:f15
+	;:r0-:r5, :d0-:d15
 
 	(vp-rdef (saved_buf this ok) '(:r5))
 

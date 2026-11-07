@@ -9,7 +9,7 @@
 	;inputs
 	;msg of lisp filename
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r14, :d0-:d15
 
 	;get param string
 	(call :sys_mail :mymail :nil '(:r0 _))

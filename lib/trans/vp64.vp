@@ -50,7 +50,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r0-:r13, :f0-:f15
+	;:r0-:r13, :d0-:d15
 	;info
 	;(vpb-vp64 bin) -> :nil | str, a function's VP binary as VP64 code, :nil
 	;if it can not be
@@ -406,7 +406,7 @@
 	(vpb-tables "(vpb-vp64 bin)")
 	(vp-align +long_size)
 (vp-label 'reg_map)
-	;:r0 to :rsp, then :f0 to :f15, as VP64 numbers them
+	;:r0 to :rsp, then :d0 to :d15, as VP64 numbers them
 	(vp-byte 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
 	(vp-byte 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
 

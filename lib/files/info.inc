@@ -25,7 +25,7 @@
 
 (defun format-regs (regs)
 	(defq r_indices (list) f_indices (list) s_indices (list) expanded_regs (list))
-	;expand any ranges like :r0-:r14 or :f0-:f15
+	;expand any ranges like :r0-:r14 or :d0-:d15
 	(each (lambda (r)
 		(defq parts (split r "-"))
 		(if (and (= (length parts) 2)
@@ -51,7 +51,7 @@
 		regs)
 	(defq formatted_parts (cat
 		(format-group ":r" r_indices)
-		(format-group ":f" f_indices)
+		(format-group ":d" f_indices)
 		s_indices))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 

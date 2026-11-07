@@ -455,7 +455,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(aead-seal-native key nonce data) -> str
 	;the data encrypted and its tag after it, ChaCha20-Poly1305 of RFC
@@ -506,7 +506,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(aead-open-native key nonce sealed) -> :nil | str
 	;the data, if the tag at the end is right, by :sys_crypto :aead_open
@@ -668,7 +668,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 	;info
 	;(random-bytes size) -> str
 	;that many bytes from the host's own source of random bytes, which is

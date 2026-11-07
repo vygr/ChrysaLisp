@@ -29,7 +29,7 @@ inputs
 info
 loader is already initialized when we get here !
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :ping -> sys/kernel/ping

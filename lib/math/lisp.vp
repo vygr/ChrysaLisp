@@ -58,7 +58,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(poly-band edges active y0 y1 mode out) -> :nil | out
 	;the pieces of the answer in a band of a set op of polygons, see
@@ -310,7 +310,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(poly-cuts edges active ya yb cuts) -> cuts
 	;the ys within a band at which two of its edges cross, put on the end
@@ -386,7 +386,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(poly-lines out y0 y1 above below segs openl openr) -> below
 	;the lines of the pieces of a band, see (poly-lines-ref) in
@@ -601,7 +601,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(poly-rings segs) -> paths
 	;the lines of all the bands joined end to start into rings, see
@@ -899,7 +899,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r13, :f0-:f15
+	;:r1-:r13, :d0-:d15
 	;info
 	;(poly-setup a b edges ys openl openr) -> edges
 	;what (poly-segs) in lib/math/polygon.inc starts from. a and b are
@@ -1145,7 +1145,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(poly-scan edges ys openl openr mode segs) -> segs
 	;every band of (poly-segs) in lib/math/polygon.inc, from the top to

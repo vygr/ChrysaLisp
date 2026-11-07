@@ -45,7 +45,7 @@ outputs
 :r9 = width (pixels)
 :r10 = height (pixels)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 the dirty region bounds is returned for use by the :flush call !
 ```
@@ -66,7 +66,7 @@ the dirty region bounds is returned for use by the :flush call !
 
 ```code
 trashes
-:r0-:r5, :f0-:f15
+:r0-:r5, :d0-:d15
 info
 the dirty regions of the frame freed, its views let go of, and its
 list, here, not on the host, as a view let go of may be the last of it
@@ -94,7 +94,7 @@ list, here, not on the host, as a view let go of may be the last of it
 inputs
 :r0 = the frame's dirty bounds (ptr)
 trashes
-:r0-:r4, :r7-:r14, :f0-:f15
+:r0-:r4, :r7-:r14, :d0-:d15
 info
 on the host's stack: each view of the frame, for each rect of its
 dirty region, clipped to it, its list of draws played where it is
@@ -128,7 +128,7 @@ inputs
 :r1 = mouse y
 :r2 = update flags
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 the whole frame is one callback, on the host's stack, so no task can
 change a view while it is worked out: made or sized on the host, the

@@ -68,7 +68,7 @@
 	;outputs
 	;:r0 = lisp object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;emit the end of an args list. If no other has a ref to it, and it has
 	;not grown, its values are dropped, in line where they live on, and it
@@ -121,7 +121,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;this is the heart of the recursion, so what it holds on the stack,
 	;over each call it makes, is kept to the least. A symbol, or a form
@@ -324,7 +324,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	;info
 	;each element is replaced by its value, in place. The frame is the two

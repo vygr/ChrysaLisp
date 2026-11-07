@@ -12,7 +12,7 @@
 	;:r0 = str object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :str :create_from_buffer)
 	;inputs
@@ -21,7 +21,7 @@
 	;outputs
 	;:r0 = 0 if error, else str object (ptr)
 	;trashes
-	;:r0-:r5, :f0-:f15
+	;:r0-:r5, :d0-:d15
 
 	(vp-rdef (saved_buf saved_len this ok) '(:r4 :r5))
 
@@ -50,7 +50,7 @@
 	;outputs
 	;:r0 = 0 if error, else str object (ptr)
 	;trashes
-	;:r0-:r5, :f0-:f15
+	;:r0-:r5, :d0-:d15
 
 	(entry :str :create_from_cstr '(:r0))
 
@@ -66,7 +66,7 @@
 	;outputs
 	;:r0 = 0 if error, else str object (ptr)
 	;trashes
-	;:r0-:r6, :f0-:f15
+	;:r0-:r6, :d0-:d15
 
 	;save c string pointer
 	(entry :str :create_from_file '(:r5))
@@ -114,7 +114,7 @@
 	;outputs
 	;:r0 = 0 if error, else str object (ptr)
 	;trashes
-	;:r0-:r5, :f0-:f15
+	;:r0-:r5, :d0-:d15
 
 	(entry :str :create_from_long '(:r0 :r1))
 
@@ -185,7 +185,7 @@
 	;:r0 = str object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r2, :r4-:r5, :f0-:f15
+	;:r1-:r2, :r4-:r5, :d0-:d15
 
 	(entry :str :init2 '(:r0 :r1 :r2 :r3))
 
@@ -441,7 +441,7 @@
 	;:r0 = str object (ptr)
 	;:r1 = char str object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(vp-rdef (saved_this this idx) '(:r6))
 
@@ -527,7 +527,7 @@
 	;outputs
 	;:r0 = str object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(def-vars
 		(ptr this escaped))
@@ -635,7 +635,7 @@
 	;:r0 = str object (ptr)
 	;:r1 = list of str objects (ptr)
 	;trashes
-	;:r1-:r11, :f0-:f15
+	;:r1-:r11, :d0-:d15
 
 	(vp-rdef (this splitc out iter_begin iter_end iter_start)
 		'(:r6 :r7 :r8 :r9 :r10 :r11))
@@ -777,7 +777,7 @@
 	;outputs
 	;:r0 = encoded str object (ptr)
 	;trashes
-	;:r0-:r7, :f0-:f15
+	;:r0-:r7, :d0-:d15
 
 	(vp-rdef (src len dst data c1 c2) '(:r6 :r7))
 
@@ -824,7 +824,7 @@
 	;outputs
 	;:r0 = decoded str object (ptr)
 	;trashes
-	;:r0-:r7, :f0-:f15
+	;:r0-:r7, :d0-:d15
 
 	(vp-rdef (src len dst data c1 c2) '(:r6 :r7))
 
@@ -872,7 +872,7 @@
 	;outputs
 	;:r0 = new str object (ptr)
 	;trashes
-	;:r0-:r7, :f0-:f15
+	;:r0-:r7, :d0-:d15
 
 	(vp-rdef (seqs seqs_end this di len total src seqs_begin) '(:r6 :r7))
 
@@ -916,7 +916,7 @@
 	;outputs
 	;:r0 = slice array object (ptr)
 	;trashes
-	;:r0-:r5, :f0-:f15
+	;:r0-:r5, :d0-:d15
 
 	(vp-rdef (this si ei len total di))
 
@@ -973,7 +973,7 @@
 	;outputs
 	;:r0 = new str object (ptr)
 	;trashes
-	;:r0-:r11, :f0-:f15
+	;:r0-:r11, :d0-:d15
 
 	(vp-rdef (this idx_begin di si ei swp_xor len total
 		src1 src2 idxs idx_end))

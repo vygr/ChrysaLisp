@@ -3,16 +3,16 @@
 
 (def-class :sym :str
 	(dec-method :vtable class/sym/vtable)
-	(dec-method :type class/sym/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
+	(dec-method :type class/sym/type :override :nil :nil (:r1-:r3 :d0-:d15) (:r1-:r3 :d0-:d15))
 	(dec-method :eql class/obj/eql :final :nil :nil (:r1) (:r1))
-	(dec-method :print class/sym/print :final :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
-	(dec-method :statics_init class/sym/statics_init :static :nil :nil (:r0-:r11 :r14 :f0-:f15))
-	(dec-method :intern_str class/sym/intern_str :static (:r0) (:r0) (:r0-:r12 :f0-:f15))
-	(dec-method :intern_cstr class/sym/intern_cstr :static (:r0) (:r0) (:r0-:r11 :f0-:f15))
-	(dec-method :intern_pstr class/sym/intern_pstr :static (:r0 :r1) (:r0) (:r0-:r11 :f0-:f15))
+	(dec-method :print class/sym/print :final :nil :nil (:r1-:r5 :d0-:d15) (:r1-:r5 :d0-:d15))
+	(dec-method :statics_init class/sym/statics_init :static :nil :nil (:r0-:r11 :r14 :d0-:d15))
+	(dec-method :intern_str class/sym/intern_str :static (:r0) (:r0) (:r0-:r12 :d0-:d15))
+	(dec-method :intern_cstr class/sym/intern_cstr :static (:r0) (:r0) (:r0-:r11 :d0-:d15))
+	(dec-method :intern_pstr class/sym/intern_pstr :static (:r0 :r1) (:r0) (:r0-:r11 :d0-:d15))
 	(dec-method :eql_str class/sym/eql_str :static (:r0 :r1) (:r0 :r1) (:r1-:r6))
-	(dec-method :lisp_sym class/sym/lisp_sym :static (:r0 :r1) (:r0 :r1) (:r1-:r12 :f0-:f15))
-	(dec-method :lisp_gensym class/sym/lisp_gensym :static (:r0 :r1) (:r0 :r1) (:r1-:r11 :f0-:f15)))
+	(dec-method :lisp_sym class/sym/lisp_sym :static (:r0 :r1) (:r0 :r1) (:r1-:r12 :d0-:d15))
+	(dec-method :lisp_gensym class/sym/lisp_gensym :static (:r0 :r1) (:r0 :r1) (:r1-:r11 :d0-:d15)))
 
 (defcvar 'num_sym_buckets 499)
 

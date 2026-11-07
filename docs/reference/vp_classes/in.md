@@ -22,7 +22,7 @@ inputs
 outputs
 :r0 = 0 if error, else in object (ptr)
 trashes
-:r0-:r5, :r14, :f0-:f15
+:r0-:r5, :r14, :d0-:d15
 ```
 
 ### :deinit -> class/in/deinit
@@ -33,7 +33,7 @@ inputs
 outputs
 :r0 = in object (ptr)
 trashes
-:r1-:r8, :f0-:f15
+:r1-:r8, :d0-:d15
 ```
 
 ### :init -> class/in/init
@@ -47,7 +47,7 @@ outputs
 :r0 = in object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :next_msg -> class/in/next_msg
@@ -58,7 +58,7 @@ inputs
 outputs
 :r0 = in object (ptr)
 trashes
-:r1-:r8, :f0-:f15
+:r1-:r8, :d0-:d15
 ```
 
 ### :read_next -> class/in/read_next
@@ -70,7 +70,7 @@ outputs
 :r0 = in object (ptr)
 :r1 = -1 for EOF, else more data
 trashes
-:r1-:r8, :f0-:f15
+:r1-:r8, :d0-:d15
 ```
 
 ### :type -> class/in/type
@@ -82,7 +82,7 @@ outputs
 :r0 = in object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/in/vtable

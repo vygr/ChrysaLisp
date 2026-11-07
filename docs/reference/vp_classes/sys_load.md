@@ -22,7 +22,7 @@ input
 output
 :r0 = 0 else, function entry pointer (ptr)
 trashes
-:r0-:r7, :f0-:f15
+:r0-:r7, :d0-:d15
 info
 of the task's function server first, if it has one, then the node's
 own, loaded from the node's files if it has not been. Nothing is
@@ -52,7 +52,7 @@ inputs
 outputs
 :r0 return code
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 called by the host, so its args are where the host's ABI puts them,
 (vp-entry-abi) has them to :r0 :r1 as a host call would.
@@ -70,7 +70,7 @@ input
 output
 :r0 = 0 else, function entry pointer (ptr)
 trashes
-:r0-:r7, :f0-:f15
+:r0-:r7, :d0-:d15
 ```
 
 ### :place -> sys/load/place
@@ -81,7 +81,7 @@ inputs
 outputs
 :r0 = 0 if one could not be placed or bound, else not 0
 trashes
-:r0-:r7, :f0-:f15
+:r0-:r7, :d0-:d15
 info
 native functions put in the task's function server, none read from a
 file: all of them copied in and on its list first, then each one's
@@ -112,7 +112,7 @@ inputs
 outputs
 :r0 = function server (ptr)
 trashes
-:r0-:r3, :r5-:r7, :f0-:f15
+:r0-:r3, :r5-:r7, :d0-:d15
 info
 the node's server of that folder, made if it has none
 ```
@@ -121,7 +121,7 @@ the node's server of that folder, made if it has none
 
 ```code
 trashes
-:r0-:r2, :r5-:r13, :f0-:f15
+:r0-:r2, :r5-:r13, :d0-:d15
 info
 a server no task of the node has goes, its blocks and itself. Marked
 by the tasks there are, not counted, so a task that went any way at
@@ -138,7 +138,7 @@ outputs
 :r1 = its VP binary (pubyte)
 :r2 = its VP binary length (uint)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 the VP binary of a function, from the binary bundles of its folder in
 obj/vp/, of the mode the image is made in, as @Source finds

@@ -8,7 +8,7 @@
 	;:r2 = link input ring buffer (ptr)
 	;:r3 = link input ring buffer extent (uint)
 	;trashes
-	;:r0-:r10, :f0-:f15
+	;:r0-:r10, :d0-:d15
 
 	(def-vars
 		(ptr rx_frag rx_buf rx_ring msg)

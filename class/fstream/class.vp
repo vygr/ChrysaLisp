@@ -9,7 +9,7 @@
 	;outputs
 	;:r0 = 0 if error, else fstream object (ptr)
 	;trashes
-	;:r0-:r5, :r14, :f0-:f15
+	;:r0-:r5, :r14, :d0-:d15
 (gen-vtable :fstream)
 (gen-type :fstream)
 	;inputs
@@ -18,7 +18,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 (def-method :fstream :init)
 	;inputs
@@ -30,7 +30,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r5, :d0-:d15
 
 	(structure local 0
 		(ptr this vtable path buf))
@@ -75,7 +75,7 @@
 	;outputs
 	;:r0 = fstream object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(entry :fstream :deinit '(:r0))
 
@@ -97,7 +97,7 @@
 	;outputs
 	;:r0 = fstream object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(entry :fstream :flush '(:r0))
 
@@ -131,7 +131,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 	(entry :fstream :read_next '(:r0))
 
@@ -167,7 +167,7 @@
 	;outputs
 	;:r0 = fstream object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r2, :d0-:d15
 
 	(entry :fstream :write_next '(:r0))
 
@@ -200,7 +200,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = 0 if not done, else -1 for EOF or bytes read (int)
 	;trashes
-	;:r1, :r3, :f0-:f15
+	;:r1, :r3, :d0-:d15
 
 	(entry :fstream :read_direct '(:r0 :r1 :r2))
 
@@ -237,7 +237,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = 0 if not done, else done
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 	(entry :fstream :write_direct '(:r0 :r1 :r2))
 
@@ -276,7 +276,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r3, :f0-:f15
+	;:r1-:r3, :d0-:d15
 
 	(structure local 0
 		(ptr this)

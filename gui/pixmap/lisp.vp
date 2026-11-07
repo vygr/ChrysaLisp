@@ -41,7 +41,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :r14, :f0-:f15
+	;:r1-:r8, :r14, :d0-:d15
 
 	(entry :pixmap :lisp_to_argb32 '(:r0 :r1))
 
@@ -71,7 +71,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :pixmap :lisp_from_argb32 '(:r0 :r1))
 
@@ -101,7 +101,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(def-vars
 		(ptr this args pixmap stream)
@@ -204,7 +204,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(def-vars
 		(ptr this args pixmap stream)
@@ -307,7 +307,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r8, :f0-:f15
+	;:r1-:r8, :d0-:d15
 
 	(entry :pixmap :lisp_flm_delta '(:r0 :r1))
 
@@ -344,7 +344,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;a premultiplied 32 bit pixmap with its pixels in shared memory. With
 	;no key it makes them, zero, under a key of its own, +pixmap_key, and

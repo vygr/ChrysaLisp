@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :num :lisp_num '(:r0 :r1))
 
@@ -48,7 +48,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :d0-:d15
 
 	(addop :add)
 
@@ -65,7 +65,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :d0-:d15
 
 	(addop :sub)
 
@@ -82,7 +82,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :d0-:d15
 
 	(addop :mul)
 
@@ -99,7 +99,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13, :f0-:f1
+	;:r1-:r6, :r13, :d0-:d1
 
 	(addop :min)
 
@@ -116,7 +116,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13, :f0-:f1
+	;:r1-:r6, :r13, :d0-:d1
 
 	(addop :max)
 
@@ -144,7 +144,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :r12-:r14, :f0-:f15
+	;:r1-:r5, :r12-:r14, :d0-:d15
 
 	(divop :div)
 
@@ -164,7 +164,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :d0-:d15
 
 	(divop :mod)
 
@@ -202,7 +202,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :d0-:d15
 
 	(andop :and -1)
 
@@ -219,7 +219,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :d0-:d15
 
 	(andop :or 0)
 
@@ -236,7 +236,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :r13-:r14, :f0-:f15
+	;:r1-:r5, :r13-:r14, :d0-:d15
 
 	(andop :xor 0)
 
@@ -263,7 +263,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(shiftop :asr)
 
@@ -281,7 +281,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(shiftop :shl)
 
@@ -299,7 +299,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(shiftop :shr)
 
@@ -349,7 +349,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(compareop :ge)
 
@@ -366,7 +366,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(compareop :gt)
 
@@ -383,7 +383,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(compareop :le)
 
@@ -400,7 +400,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f1
+	;:r1-:r5, :d0-:d1
 
 	(compareop :lt)
 
@@ -444,7 +444,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :d0-:d15
 
 	(mathop :random)
 
@@ -462,7 +462,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :d0-:d15
 
 	(mathop :neg)
 
@@ -480,7 +480,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :d0-:d15
 
 	(mathop :sign)
 
@@ -498,7 +498,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :d0-:d15
 
 	(mathop :abs)
 
@@ -516,7 +516,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :d0-:d15
 
 	(entry :num :lisp_sqrt '(:r0 :r1))
 
@@ -547,7 +547,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r12-:r14, :f0-:f15
+	;:r1-:r6, :r12-:r14, :d0-:d15
 	;info
 	;a number to a power of its own type, integer, fixed or real
 
@@ -580,7 +580,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(vp-rdef (this args vt1 vt2 saved_this))
 	(defq in (method-input :num :create))
@@ -594,8 +594,8 @@
 	(assign `((,args +obj_vtable) (@ ,(f-path :real :vtable))) `(,vt1 ,vt2))
 	(switch)
 	(vpcase `(,vt1 = ,vt2))
-		(assign `((,args +num_value)) '(:f0))
-		(vp-cvt-fr :f0 (first in))
+		(assign `((,args +num_value)) '(:d0))
+		(vp-cvt-fr :d0 (first in))
 		(goto 'new_num)
 	(default)
 		(assign `((,vt2 +obj_vtable)) `(,vt2))
@@ -625,7 +625,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(vp-rdef (this args vt1 vt2 saved_this))
 	(defq in (method-input :fixed :create))
@@ -639,11 +639,11 @@
 	(assign `((,args +obj_vtable) (@ ,(f-path :real :vtable))) `(,vt1 ,vt2))
 	(switch)
 	(vpcase `(,vt1 = ,vt2))
-		(assign `((,args +num_value)) '(:f0))
+		(assign `((,args +num_value)) '(:d0))
 		(vp-lea-p 'fn_consts args)
-		(assign `((,args (fn-const (n2r (<< 1 +fp_shift))))) '(:f1))
-		(vp-mul-ff :f1 :f0)
-		(vp-cvt-fr :f0 (first in))
+		(assign `((,args (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+		(vp-mul-ff :d1 :d0)
+		(vp-cvt-fr :d0 (first in))
 		(goto 'new_fixed)
 	(default)
 		(assign `((,vt2 +obj_vtable)) `(,vt2))
@@ -673,7 +673,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(vp-rdef (this args vt1 vt2 saved_this))
 
@@ -692,15 +692,15 @@
 		(nextcaseif `(,vt1 /= ,vt2))
 		(assign `((,args +num_value)) `(,vt1))
 		(vp-lea-p 'fn_consts args)
-		(assign `((,args (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f1))
-		(vp-cvt-rf vt1 :f0)
-		(vp-mul-ff :f1 :f0)
+		(assign `((,args (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d1))
+		(vp-cvt-rf vt1 :d0)
+		(vp-mul-ff :d1 :d0)
 		(goto 'new_real)
 	(default)
 		(assign `((,args +num_value)) `(,args))
-		(vp-cvt-rf args :f0)
+		(vp-cvt-rf args :d0)
 	(vp-label 'new_real)
-		(call :real :create '(:f0) `(,args))
+		(call :real :create '(:d0) `(,args))
 	(endswitch)
 
 	(exit :num :lisp_n2r `(,saved_this ,args))

@@ -8,7 +8,7 @@
 ; top bit of a byte saying another follows; a signed one is that of its
 ; zigzag, 0 -1 1 -2 2 ... as 0 1 2 3 4 ...
 ;
-;	reg			a byte, :r0 to :rsp 0 to 15, :f0 to :f15 16 to 31
+;	reg			a byte, :r0 to :rsp 0 to 15, :d0 to :d15 16 to 31
 ;	num			signed, a num of 64 bits
 ;	label		its number: where it is
 ;	label_pc	its number: where it is less where this instruction is

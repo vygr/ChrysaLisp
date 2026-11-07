@@ -29,7 +29,7 @@ inputs
 :r0 = user data address (ptr)
 :r1 = callback address (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :count -> sys/task/count
@@ -49,7 +49,7 @@ trashes
 inputs
 :r0 = task control node to defer to (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 restore task
 the task deferred to runs before this comes back, so whoever calls
@@ -64,7 +64,7 @@ none
 outputs
 none
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 ```
 
 ### :mailbox -> sys/task/mailbox
@@ -84,7 +84,7 @@ none
 outputs
 none
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 restore next ready task
 ```
@@ -115,7 +115,7 @@ trashes
 inputs
 :r0 = time delay in usec (long)
 trashes
-:r0, :f0-:f15
+:r0, :d0-:d15
 info
 0 for yield
 ```
@@ -124,7 +124,7 @@ info
 
 ```code
 trashes
-:r0-:r2, :f0-:f15
+:r0-:r2, :d0-:d15
 ```
 
 ### :stack -> sys/task/stack
@@ -157,7 +157,7 @@ outputs
 :r1 = new task mailbox address (ptr)
 :r2-:r4 = new task ID (net_id)
 trashes
-:r0-:r6, :f0-:f15
+:r0-:r6, :d0-:d15
 ```
 
 ### :statics_init -> sys/task/statics_init
@@ -173,7 +173,7 @@ trashes
 
 ```code
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 stop current task, switch to next task
 ```
@@ -182,7 +182,7 @@ stop current task, switch to next task
 
 ```code
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r14, :d0-:d15
 info
 suspend current task, switch to next task
 ```
@@ -195,7 +195,7 @@ suspend current task, switch to next task
 outputs
 :r0 = current time (long)
 trashes
-:r0-:r7, :f0-:f15
+:r0-:r7, :d0-:d15
 info
 resume tasks ready to run.
 mail mailboxes on timeouts.

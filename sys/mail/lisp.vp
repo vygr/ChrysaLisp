@@ -47,7 +47,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(vp-rdef (this args msg mbox))
 
@@ -88,7 +88,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :f0-:f15
+	;:r1-:r6, :r14, :d0-:d15
 
 	(entry :sys_mail :lisp_poll '(:r0 :r1))
 
@@ -126,7 +126,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :sys_mail :lisp_select '(:r0 :r1))
 
@@ -158,7 +158,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r9, :d0-:d15
 
 	(vp-rdef (this mbox data msg args) '(:r7 :r8 :r9))
 
@@ -189,7 +189,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :sys_mail :lisp_declare '(:r0 :r1))
 
@@ -218,7 +218,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :sys_mail :lisp_enquire '(:r0 :r1))
 
@@ -247,7 +247,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :sys_mail :lisp_forget '(:r0 :r1))
 
@@ -279,7 +279,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 
 	(entry :sys_mail :lisp_devices '(:r0 :r1))
 
@@ -305,7 +305,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7, :r9-:r14, :f0-:f15
+	;:r1-:r7, :r9-:r14, :d0-:d15
 	;info
 	;a time of 0 takes away every timeout there is for the mailbox
 
@@ -373,7 +373,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :d0-:d15
 
 	(entry :sys_mail :lisp_netid '(:r0 :r1))
 

@@ -21,7 +21,7 @@ simple load/store addressing modes.
 
 ```vdu
 :r0,:r1,:r2,:r3,:r4,:r5,:r6,:r7,:r8,:r9,:r10,:r11,:r12,:r13,:r14,:rsp
-:f0,:f1,:f2,:f3,:f4,:f5,:f6,:f7,:f8,:f9,:f10,:f11,:f12,:f13,:f14,:f15
+:d0,:d1,:d2,:d3,:d4,:d5,:d6,:d7,:d8,:d9,:d10,:d11,:d12,:d13,:d14,:d15
 ```
 
 These are mapped to real physical registers by the target processor's
@@ -435,7 +435,7 @@ registers. If the list of inputs or outputs is `:nil` this means to inherit the
 list from the parent class declaration.
 
 After them it takes the registers a call of the method may leave not as they
-were, its trashes, ranges and all: `(:r1-:r8 :r14 :f0-:f15)`, `()` for none.
+were, its trashes, ranges and all: `(:r1-:r8 :r14 :d0-:d15)`, `()` for none.
 Of a virtual method it is what any class that may be called so trashes. It is
 not written by hand: `trace -w`, which works out what each function really
 trashes, writes it, and `lint` says where a declaration is not what the code
@@ -511,7 +511,7 @@ layout above by doing nothing more than its instructions say.
 
 An operand is one of these, and nothing else:
 
-* a register, `:r0` to `:r14`, `:rsp`, `:f0` to `:f15`.
+* a register, `:r0` to `:r14`, `:rsp`, `:d0` to `:d15`.
 
 * a number, a `num`, a whole number of 64 bits.
 

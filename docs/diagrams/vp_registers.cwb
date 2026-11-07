@@ -978,7 +978,7 @@
 									:stroke
 									0
 									:text
-									"[:f0]"
+									"[:d0]"
 									:font_size
 									11
 									:pos
@@ -1032,7 +1032,7 @@
 									:stroke
 									0
 									:text
-									"[:f1]"
+									"[:d1]"
 									:font_size
 									11
 									:pos
@@ -1086,7 +1086,7 @@
 									:stroke
 									0
 									:text
-									"[:f2]"
+									"[:d2]"
 									:font_size
 									11
 									:pos
@@ -1140,7 +1140,7 @@
 									:stroke
 									0
 									:text
-									"[:f3]"
+									"[:d3]"
 									:font_size
 									11
 									:pos
@@ -1194,7 +1194,7 @@
 									:stroke
 									0
 									:text
-									"[:f4]"
+									"[:d4]"
 									:font_size
 									11
 									:pos
@@ -1248,7 +1248,7 @@
 									:stroke
 									0
 									:text
-									"[:f5]"
+									"[:d5]"
 									:font_size
 									11
 									:pos
@@ -1302,7 +1302,7 @@
 									:stroke
 									0
 									:text
-									"[:f6]"
+									"[:d6]"
 									:font_size
 									11
 									:pos
@@ -1356,7 +1356,7 @@
 									:stroke
 									0
 									:text
-									"[:f7]"
+									"[:d7]"
 									:font_size
 									11
 									:pos
@@ -1410,7 +1410,7 @@
 									:stroke
 									0
 									:text
-									"[:f8]"
+									"[:d8]"
 									:font_size
 									11
 									:pos
@@ -1464,7 +1464,7 @@
 									:stroke
 									0
 									:text
-									"[:f9]"
+									"[:d9]"
 									:font_size
 									11
 									:pos
@@ -1518,7 +1518,7 @@
 									:stroke
 									0
 									:text
-									"[:f10]"
+									"[:d10]"
 									:font_size
 									11
 									:pos
@@ -1572,7 +1572,7 @@
 									:stroke
 									0
 									:text
-									"[:f11]"
+									"[:d11]"
 									:font_size
 									11
 									:pos
@@ -1626,7 +1626,7 @@
 									:stroke
 									0
 									:text
-									"[:f12]"
+									"[:d12]"
 									:font_size
 									11
 									:pos
@@ -1680,7 +1680,7 @@
 									:stroke
 									0
 									:text
-									"[:f13]"
+									"[:d13]"
 									:font_size
 									11
 									:pos
@@ -1734,7 +1734,7 @@
 									:stroke
 									0
 									:text
-									"[:f14]"
+									"[:d14]"
 									:font_size
 									11
 									:pos
@@ -1788,7 +1788,7 @@
 									:stroke
 									0
 									:text
-									"[:f15]"
+									"[:d15]"
 									:font_size
 									11
 									:pos

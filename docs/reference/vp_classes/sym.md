@@ -48,7 +48,7 @@ inputs
 outputs
 :r0 = interned sym object (ptr)
 trashes
-:r0-:r11, :f0-:f15
+:r0-:r11, :d0-:d15
 ```
 
 ### :intern_pstr -> class/sym/intern_pstr
@@ -60,7 +60,7 @@ inputs
 outputs
 :r0 = interned sym object (ptr)
 trashes
-:r0-:r11, :f0-:f15
+:r0-:r11, :d0-:d15
 ```
 
 ### :intern_str -> class/sym/intern_str
@@ -71,7 +71,7 @@ inputs
 outputs
 :r0 = interned sym object (ptr)
 trashes
-:r0-:r12, :f0-:f15
+:r0-:r12, :d0-:d15
 info
 input str IS NOT derefed
 ```
@@ -85,14 +85,14 @@ inputs
 outputs
 :r0 = sym object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :statics_init -> class/sym/statics_init
 
 ```code
 trashes
-:r0-:r11, :r14, :f0-:f15
+:r0-:r11, :r14, :d0-:d15
 ```
 
 ### :type -> class/sym/type
@@ -104,7 +104,7 @@ outputs
 :r0 = sym object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/sym/vtable

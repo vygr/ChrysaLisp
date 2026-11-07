@@ -15,14 +15,14 @@
 ;str the caller gives, with the inputs written at the start of it, so
 ;none of this is on the task's stack. :r13 holds the frame, :r12 the
 ;constants. A value being worked on is in registers, a float in each
-;of :f0 to :f15, an int or bool in :r2 to :r10, and any that are live
+;of :d0 to :d15, an int or bool in :r2 to :r10, and any that are live
 ;over a call are saved on the stack around it. A matrix is never in
 ;registers, it is 16 slots of the frame, a row at a time, and is known by
 ;where it is.
 
-(defq +sv_fregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
+(defq +sv_fregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15)
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
-	+sv_sin_trash ''(:f0 :f1 :f2 :f3)
+	+sv_sin_trash ''(:d0 :d1 :d2 :d3)
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
 	;a byte of a pixel as a number of 0 to 1, by a multiply, as the Lisp back end has it
 	+sv_255th (/ (n2r 1) (n2r 255))
@@ -240,24 +240,24 @@
 	;sin or cos of a register, which is given up, to a new register
 	(sv-put r)
 	(defq saved (sv-spill +sv_sin_trash))
-	(unless (eql r :f0) (sv-emit 'vp-cpy-ff r :f0))
+	(unless (eql r :d0) (sv-emit 'vp-cpy-ff r :d0))
 	(when is_cos
-		(sv-emit 'vp-cpy-if :r12 (list 'fn-const (logior +sv_hpi)) :f1)
-		(sv-emit 'vp-add-ff :f1 :f0))
-	(sv-emit 'call :sys_math :r_sin (sv-q '(:f0)) (sv-q '(:f0)))
+		(sv-emit 'vp-cpy-if :r12 (list 'fn-const (logior +sv_hpi)) :d1)
+		(sv-emit 'vp-add-ff :d1 :d0))
+	(sv-emit 'call :sys_math :r_sin (sv-q '(:d0)) (sv-q '(:d0)))
 	(defq r (sv-getf))
-	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
+	(unless (eql r :d0) (sv-emit 'vp-cpy-ff :d0 r))
 	(sv-unspill saved)
 	r)
 
 (defun sv-pow (x y)
 	;x to the power y, both kept, to a new register
 	(defq saved (sv-spill :t))
-	(sv-emit 'vp-cpy-if :rsp (* (find x saved) 8) :f0)
-	(sv-emit 'vp-cpy-if :rsp (* (find y saved) 8) :f1)
-	(sv-emit 'call :sys_math :r_pow (sv-q '(:f0 :f1)) (sv-q '(:f0)))
+	(sv-emit 'vp-cpy-if :rsp (* (find x saved) 8) :d0)
+	(sv-emit 'vp-cpy-if :rsp (* (find y saved) 8) :d1)
+	(sv-emit 'call :sys_math :r_pow (sv-q '(:d0 :d1)) (sv-q '(:d0)))
 	(defq r (sv-getf))
-	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
+	(unless (eql r :d0) (sv-emit 'vp-cpy-ff :d0 r))
 	(sv-unspill saved)
 	r)
 
@@ -854,7 +854,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(place frame verts out count is_str) -> :nil
 
@@ -948,11 +948,11 @@
 	(defun lerp (ka kb da db kd)
 		;vertex kd is where the edge from vertex ka, in front of the near
 		;plane, to vertex kb, behind it, crosses the plane
-		(E 'vp-cpy-ff da :f5) (E 'vp-cpy-ff da :f4) (E 'vp-sub-ff db :f4) (E 'vp-div-ff :f4 :f5)
+		(E 'vp-cpy-ff da :d5) (E 'vp-cpy-ff da :d4) (E 'vp-sub-ff db :d4) (E 'vp-div-ff :d4 :d5)
 		(each (lambda (j)
-			(L (T ka j) :f6) (L (T kb j) :f7)
-			(E 'vp-sub-ff :f6 :f7) (E 'vp-mul-ff :f5 :f7) (E 'vp-add-ff :f6 :f7)
-			(S :f7 (T kd j))) (range 0 tv_n)))
+			(L (T ka j) :d6) (L (T kb j) :d7)
+			(E 'vp-sub-ff :d6 :d7) (E 'vp-mul-ff :d5 :d7) (E 'vp-add-ff :d6 :d7)
+			(S :d7 (T kd j))) (range 0 tv_n)))
 	(E 'vp-call (Q 'sh_init))
 	(E 'vp-xor-rr :r2 :r2)
 	(SI :r2 s_pend)
@@ -964,8 +964,8 @@
 	(E 'vp-xor-rr :r2 :r2)
 	(SI :r2 s_pend)
 	(each (lambda (j)
-		(L (T 2 j) :f6) (S :f6 (T 1 j))
-		(L (T 3 j) :f6) (S :f6 (T 2 j))) (range 0 tv_n))
+		(L (T 2 j) :d6) (S :d6 (T 1 j))
+		(L (T 3 j) :d6) (S :d6 (T 2 j))) (range 0 tv_n))
 	(E 'vp-jmp (Q 'sr_setup))
 	(E 'vp-label (Q 'sr_fetch))
 	;the next triangle, its three vertices. A triangle is some work done,
@@ -987,14 +987,14 @@
 		'(:r3 :r4 :r5))
 	;the near plane. A vertex is in front of it if its z + w is not less
 	;than 0. With none in front the triangle is left out
-	(K 0 :f3)
+	(K 0 :d3)
 	(E 'vp-xor-rr :r8 :r8)
 	(each (lambda (r d bit label)
-		(E 'vp-cpy-if r 16 d) (E 'vp-cpy-if r 24 :f6) (E 'vp-add-ff :f6 d)
-		(E 'vp-blt-ff :f3 d (Q label))
+		(E 'vp-cpy-if r 16 d) (E 'vp-cpy-if r 24 :d6) (E 'vp-add-ff :d6 d)
+		(E 'vp-blt-ff :d3 d (Q label))
 		(E 'vp-add-cr bit :r8)
 		(E 'vp-label (Q label)))
-		'(:r3 :r4 :r5) '(:f0 :f1 :f2) '(1 2 4) '(sr_out0 sr_out1 sr_out2))
+		'(:r3 :r4 :r5) '(:d0 :d1 :d2) '(1 2 4) '(sr_out0 sr_out1 sr_out2))
 	(E 'vp-beq-cr 0 :r8 (Q 'sr_tri))
 	;with one or two behind it, the vertices are taken round, the same
 	;way round, till the one in front is the first, or the one behind
@@ -1006,21 +1006,21 @@
 	(E 'vp-jmp (Q 'sr_rotted))
 	(E 'vp-label (Q 'sr_rot1))
 	(E 'vp-cpy-rr :r3 :r6) (E 'vp-cpy-rr :r4 :r3) (E 'vp-cpy-rr :r5 :r4) (E 'vp-cpy-rr :r6 :r5)
-	(E 'vp-cpy-ff :f0 :f4) (E 'vp-cpy-ff :f1 :f0) (E 'vp-cpy-ff :f2 :f1) (E 'vp-cpy-ff :f4 :f2)
+	(E 'vp-cpy-ff :d0 :d4) (E 'vp-cpy-ff :d1 :d0) (E 'vp-cpy-ff :d2 :d1) (E 'vp-cpy-ff :d4 :d2)
 	(E 'vp-jmp (Q 'sr_rotted))
 	(E 'vp-label (Q 'sr_rot2))
 	(E 'vp-cpy-rr :r5 :r6) (E 'vp-cpy-rr :r4 :r5) (E 'vp-cpy-rr :r3 :r4) (E 'vp-cpy-rr :r6 :r3)
-	(E 'vp-cpy-ff :f2 :f4) (E 'vp-cpy-ff :f1 :f2) (E 'vp-cpy-ff :f0 :f1) (E 'vp-cpy-ff :f4 :f0)
+	(E 'vp-cpy-ff :d2 :d4) (E 'vp-cpy-ff :d1 :d2) (E 'vp-cpy-ff :d0 :d1) (E 'vp-cpy-ff :d4 :d0)
 	(E 'vp-label (Q 'sr_rotted))
 	;the three are copied to the frame, where each is and the varyings
 	;the pixel shader reads, so a pixel has them without a sum to find
 	;them, and a triangle that is cut has somewhere to be
 	(each (lambda (r k)
-		(each (lambda (j) (E 'vp-cpy-if r (* j 8) :f6) (S :f6 (T k j))) (range 0 4))
+		(each (lambda (j) (E 'vp-cpy-if r (* j 8) :d6) (S :d6 (T k j))) (range 0 4))
 		(each (lambda (i)
 			(LI (+ s_vary (* i 8)) :r6)
-			(E 'vp-cpy-rr r :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :f6)
-			(S :f6 (T k (+ 4 i)))) (range 0 vary_slots)))
+			(E 'vp-cpy-rr r :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-cpy-if :r7 0 :d6)
+			(S :d6 (T k (+ 4 i)))) (range 0 vary_slots)))
 		'(:r3 :r4 :r5) '(0 1 2))
 	(E 'vp-beq-cr 7 :r8 (Q 'sr_setup))
 	(E 'vp-beq-cr 1 :r8 (Q 'sr_clip1))
@@ -1029,64 +1029,64 @@
 	;the last is behind. What is left has four corners, the first two,
 	;where the edge from the second crosses, and where the edge from the
 	;first does. It is two triangles, and the second waits
-	(lerp 0 2 :f0 :f2 3)
-	(lerp 1 2 :f1 :f2 2)
+	(lerp 0 2 :d0 :d2 3)
+	(lerp 1 2 :d1 :d2 2)
 	(E 'vp-cpy-cr 1 :r2)
 	(SI :r2 s_pend)
 	(E 'vp-jmp (Q 'sr_setup))
 	;only the first is in front. What is left is it, and where its two
 	;edges cross
 	(E 'vp-label (Q 'sr_clip1))
-	(lerp 0 1 :f0 :f1 1)
-	(lerp 0 2 :f0 :f2 2)
+	(lerp 0 1 :d0 :d1 1)
+	(lerp 0 2 :d0 :d2 2)
 	(E 'vp-label (Q 'sr_setup))
 	;where each is on the screen, row 0 at the top, its depth, and 1 / w
-	(LI s_vw :r8) (E 'vp-cvt-rf :r8 :f12)
-	(LI s_vh :r8) (E 'vp-cvt-rf :r8 :f13)
-	(K 1 :f14) (K 0.5 :f15)
-	(E 'vp-cpy-if :r12 (list 'fn-const (logior (str-to-real "0.000001"))) :f11)
+	(LI s_vw :r8) (E 'vp-cvt-rf :r8 :d12)
+	(LI s_vh :r8) (E 'vp-cvt-rf :r8 :d13)
+	(K 1 :d14) (K 0.5 :d15)
+	(E 'vp-cpy-if :r12 (list 'fn-const (logior (str-to-real "0.000001"))) :d11)
 	(each (lambda (k sx sy iw z)
-		(L (T k 3) :f6)
-		(E 'vp-ble-ff :f11 :f6 (Q 'sr_tri))
-		(E 'vp-cpy-ff :f14 :f7) (E 'vp-div-ff :f6 :f7) (S :f7 iw)
-		(L (T k 0) sx) (E 'vp-mul-ff :f7 sx) (E 'vp-add-ff :f14 sx)
-		(E 'vp-mul-ff :f15 sx) (E 'vp-mul-ff :f12 sx)
-		(L (T k 1) :f8) (E 'vp-mul-ff :f7 :f8)
-		(E 'vp-cpy-ff :f14 sy) (E 'vp-sub-ff :f8 sy)
-		(E 'vp-mul-ff :f15 sy) (E 'vp-mul-ff :f13 sy)
-		(L (T k 2) :f8) (E 'vp-mul-ff :f7 :f8) (S :f8 z))
-		'(0 1 2) '(:f0 :f2 :f4) '(:f1 :f3 :f5)
+		(L (T k 3) :d6)
+		(E 'vp-ble-ff :d11 :d6 (Q 'sr_tri))
+		(E 'vp-cpy-ff :d14 :d7) (E 'vp-div-ff :d6 :d7) (S :d7 iw)
+		(L (T k 0) sx) (E 'vp-mul-ff :d7 sx) (E 'vp-add-ff :d14 sx)
+		(E 'vp-mul-ff :d15 sx) (E 'vp-mul-ff :d12 sx)
+		(L (T k 1) :d8) (E 'vp-mul-ff :d7 :d8)
+		(E 'vp-cpy-ff :d14 sy) (E 'vp-sub-ff :d8 sy)
+		(E 'vp-mul-ff :d15 sy) (E 'vp-mul-ff :d13 sy)
+		(L (T k 2) :d8) (E 'vp-mul-ff :d7 :d8) (S :d8 z))
+		'(0 1 2) '(:d0 :d2 :d4) '(:d1 :d3 :d5)
 		(list f_iw0 f_iw1 f_iw2) (list f_z0 f_z1 f_z2))
 	;twice its area, with a sign that says which way it faces. One of no
 	;area is left out, and one that faces away if they are to be
-	(E 'vp-cpy-ff :f2 :f6) (E 'vp-sub-ff :f0 :f6)
-	(E 'vp-cpy-ff :f5 :f7) (E 'vp-sub-ff :f1 :f7) (E 'vp-mul-ff :f7 :f6)
-	(E 'vp-cpy-ff :f3 :f7) (E 'vp-sub-ff :f1 :f7)
-	(E 'vp-cpy-ff :f4 :f8) (E 'vp-sub-ff :f0 :f8) (E 'vp-mul-ff :f8 :f7)
-	(E 'vp-sub-ff :f7 :f6)
-	(K 0 :f9)
-	(E 'vp-beq-ff :f9 :f6 (Q 'sr_tri))
+	(E 'vp-cpy-ff :d2 :d6) (E 'vp-sub-ff :d0 :d6)
+	(E 'vp-cpy-ff :d5 :d7) (E 'vp-sub-ff :d1 :d7) (E 'vp-mul-ff :d7 :d6)
+	(E 'vp-cpy-ff :d3 :d7) (E 'vp-sub-ff :d1 :d7)
+	(E 'vp-cpy-ff :d4 :d8) (E 'vp-sub-ff :d0 :d8) (E 'vp-mul-ff :d8 :d7)
+	(E 'vp-sub-ff :d7 :d6)
+	(K 0 :d9)
+	(E 'vp-beq-ff :d9 :d6 (Q 'sr_tri))
 	(LI s_cull :r8)
 	(E 'vp-beq-cr 0 :r8 (Q 'sr_faces))
 	(E 'vp-beq-cr 2 :r8 (Q 'sr_front))
-	(E 'vp-bgt-ff :f9 :f6 (Q 'sr_tri))
+	(E 'vp-bgt-ff :d9 :d6 (Q 'sr_tri))
 	(E 'vp-jmp (Q 'sr_faces))
 	(E 'vp-label (Q 'sr_front))
-	(E 'vp-blt-ff :f9 :f6 (Q 'sr_tri))
+	(E 'vp-blt-ff :d9 :d6 (Q 'sr_tri))
 	(E 'vp-label (Q 'sr_faces))
-	(E 'vp-cpy-ff :f14 :f10) (E 'vp-div-ff :f6 :f10)
+	(E 'vp-cpy-ff :d14 :d10) (E 'vp-div-ff :d6 :d10)
 	;the pixels it may cover, kept to the part of the screen asked for
-	(E 'vp-cpy-ff :f0 :f6) (E 'vp-min-ff :f2 :f6) (E 'vp-min-ff :f4 :f6)
-	(E 'vp-cpy-ff :f0 :f7) (E 'vp-max-ff :f2 :f7) (E 'vp-max-ff :f4 :f7)
-	(E 'vp-cpy-ff :f1 :f8) (E 'vp-min-ff :f3 :f8) (E 'vp-min-ff :f5 :f8)
-	(E 'vp-cpy-ff :f1 :f9) (E 'vp-max-ff :f3 :f9) (E 'vp-max-ff :f5 :f9)
+	(E 'vp-cpy-ff :d0 :d6) (E 'vp-min-ff :d2 :d6) (E 'vp-min-ff :d4 :d6)
+	(E 'vp-cpy-ff :d0 :d7) (E 'vp-max-ff :d2 :d7) (E 'vp-max-ff :d4 :d7)
+	(E 'vp-cpy-ff :d1 :d8) (E 'vp-min-ff :d3 :d8) (E 'vp-min-ff :d5 :d8)
+	(E 'vp-cpy-ff :d1 :d9) (E 'vp-max-ff :d3 :d9) (E 'vp-max-ff :d5 :d9)
 	(each (lambda (lo hi c0 c1 smin smax)
-		(LI c0 :r8) (E 'vp-cvt-rf :r8 :f11) (E 'vp-max-ff :f11 lo)
-		(LI c1 :r10) (E 'vp-cvt-rf :r10 :f11) (E 'vp-min-ff :f11 hi)
+		(LI c0 :r8) (E 'vp-cvt-rf :r8 :d11) (E 'vp-max-ff :d11 lo)
+		(LI c1 :r10) (E 'vp-cvt-rf :r10 :d11) (E 'vp-min-ff :d11 hi)
 		(E 'vp-blt-ff lo hi (Q 'sr_tri))
 		(E 'vp-cvt-fr lo :r8) (SI :r8 smin)
 		(E 'vp-cvt-fr hi :r9) (E 'vp-add-cr 1 :r9) (E 'vp-min-rr :r10 :r9) (SI :r9 smax))
-		'(:f6 :f8) '(:f7 :f9) (list s_cx0 s_cy0) (list s_cx1 s_cy1)
+		'(:d6 :d8) '(:d7 :d9) (list s_cx0 s_cy0) (list s_cx1 s_cy1)
 		(list s_minx s_y) (list s_maxx s_maxy))
 	;for each edge, the share of the triangle a point has from the vertex
 	;across from it. It is a number for the corner of the screen, and what
@@ -1097,14 +1097,14 @@
 	;whichever part of the screen is being drawn, and a frame drawn in
 	;strips is the frame drawn whole, to the bit
 	(each (lambda (ax ay bx by at kx ky)
-		(E 'vp-cpy-ff bx :f11) (E 'vp-sub-ff ax :f11)
-		(E 'vp-cpy-ff by :f7) (E 'vp-sub-ff ay :f7)
-		(E 'vp-cpy-ff :f7 :f12) (E 'vp-mul-ff ax :f12)
-		(E 'vp-cpy-ff :f11 :f13) (E 'vp-mul-ff ay :f13)
-		(E 'vp-sub-ff :f13 :f12) (E 'vp-mul-ff :f10 :f12) (S :f12 at)
-		(E 'vp-mul-ff :f10 :f7) (E 'vp-neg-ff :f7 :f7) (S :f7 kx)
-		(E 'vp-mul-ff :f10 :f11) (S :f11 ky))
-		'(:f2 :f4 :f0) '(:f3 :f5 :f1) '(:f4 :f0 :f2) '(:f5 :f1 :f3)
+		(E 'vp-cpy-ff bx :d11) (E 'vp-sub-ff ax :d11)
+		(E 'vp-cpy-ff by :d7) (E 'vp-sub-ff ay :d7)
+		(E 'vp-cpy-ff :d7 :d12) (E 'vp-mul-ff ax :d12)
+		(E 'vp-cpy-ff :d11 :d13) (E 'vp-mul-ff ay :d13)
+		(E 'vp-sub-ff :d13 :d12) (E 'vp-mul-ff :d10 :d12) (S :d12 at)
+		(E 'vp-mul-ff :d10 :d7) (E 'vp-neg-ff :d7 :d7) (S :d7 kx)
+		(E 'vp-mul-ff :d10 :d11) (S :d11 ky))
+		'(:d2 :d4 :d0) '(:d3 :d5 :d1) '(:d4 :d0 :d2) '(:d5 :d1 :d3)
 		(list f_e0 f_e1 f_e2) (list f_kx0 f_kx1 f_kx2) (list f_ky0 f_ky1 f_ky2))
 	;a row, the shares at the left edge of the screen in this row
 	(E 'vp-label (Q 'sr_row))
@@ -1114,31 +1114,31 @@
 	(LI s_maxx :r2) (LI s_minx :r3) (E 'vp-sub-rr :r3 :r2)
 	(E 'vp-call (Q 'sr_work))
 	(LI s_y :r2)
-	(K 0.5 :f3) (E 'vp-cvt-rf :r2 :f2) (E 'vp-add-ff :f3 :f2)
-	(each (lambda (at ky row) (L ky :f0) (E 'vp-mul-ff :f2 :f0) (L at :f1) (E 'vp-add-ff :f1 :f0) (S :f0 row))
+	(K 0.5 :d3) (E 'vp-cvt-rf :r2 :d2) (E 'vp-add-ff :d3 :d2)
+	(each (lambda (at ky row) (L ky :d0) (E 'vp-mul-ff :d2 :d0) (L at :d1) (E 'vp-add-ff :d1 :d0) (S :d0 row))
 		(list f_e0 f_e1 f_e2) (list f_ky0 f_ky1 f_ky2) (list f_row0 f_row1 f_row2))
 	(LI s_minx :r2) (SI :r2 s_x)
 	;a pixel
 	(E 'vp-label (Q 'sr_px))
 	(LI s_x :r2) (LI s_maxx :r3)
 	(E 'vp-bge-rr :r3 :r2 (Q 'sr_rowend))
-	(K 0.5 :f3) (E 'vp-cvt-rf :r2 :f4) (E 'vp-add-ff :f3 :f4)
-	(each (lambda (row kx e) (L kx e) (E 'vp-mul-ff :f4 e) (L row :f3) (E 'vp-add-ff :f3 e))
-		(list f_row0 f_row1 f_row2) (list f_kx0 f_kx1 f_kx2) '(:f0 :f1 :f2))
-	(K 0 :f3)
-	(E 'vp-blt-ff :f3 :f0 (Q 'sr_next))
-	(E 'vp-blt-ff :f3 :f1 (Q 'sr_next))
-	(E 'vp-blt-ff :f3 :f2 (Q 'sr_next))
+	(K 0.5 :d3) (E 'vp-cvt-rf :r2 :d4) (E 'vp-add-ff :d3 :d4)
+	(each (lambda (row kx e) (L kx e) (E 'vp-mul-ff :d4 e) (L row :d3) (E 'vp-add-ff :d3 e))
+		(list f_row0 f_row1 f_row2) (list f_kx0 f_kx1 f_kx2) '(:d0 :d1 :d2))
+	(K 0 :d3)
+	(E 'vp-blt-ff :d3 :d0 (Q 'sr_next))
+	(E 'vp-blt-ff :d3 :d1 (Q 'sr_next))
+	(E 'vp-blt-ff :d3 :d2 (Q 'sr_next))
 	;its depth, -1 to 1 is in view, as a number of 32 bits. It is drawn
 	;if that is less than what the depth buffer has
-	(L f_z0 :f4) (E 'vp-mul-ff :f0 :f4)
-	(L f_z1 :f5) (E 'vp-mul-ff :f1 :f5) (E 'vp-add-ff :f5 :f4)
-	(L f_z2 :f5) (E 'vp-mul-ff :f2 :f5) (E 'vp-add-ff :f5 :f4)
-	(K -1 :f5) (E 'vp-blt-ff :f5 :f4 (Q 'sr_next))
-	(K 1 :f5) (E 'vp-bgt-ff :f5 :f4 (Q 'sr_next))
-	(E 'vp-add-ff :f5 :f4)
-	(K 2147483647 :f6) (E 'vp-mul-ff :f6 :f4)
-	(E 'vp-cvt-fr :f4 :r4)
+	(L f_z0 :d4) (E 'vp-mul-ff :d0 :d4)
+	(L f_z1 :d5) (E 'vp-mul-ff :d1 :d5) (E 'vp-add-ff :d5 :d4)
+	(L f_z2 :d5) (E 'vp-mul-ff :d2 :d5) (E 'vp-add-ff :d5 :d4)
+	(K -1 :d5) (E 'vp-blt-ff :d5 :d4 (Q 'sr_next))
+	(K 1 :d5) (E 'vp-bgt-ff :d5 :d4 (Q 'sr_next))
+	(E 'vp-add-ff :d5 :d4)
+	(K 2147483647 :d6) (E 'vp-mul-ff :d6 :d4)
+	(E 'vp-cvt-fr :d4 :r4)
 	(LI s_y :r5) (LI s_dy :r6) (E 'vp-sub-rr :r6 :r5) (LI s_vw :r6)
 	(E 'vp-mul-rr :r6 :r5) (E 'vp-add-rr :r2 :r5) (E 'vp-shl-cr 2 :r5)
 	(LI s_depth :r6) (E 'vp-add-rr :r6 :r5)
@@ -1148,39 +1148,39 @@
 	;the shares, each over the w of its vertex, and made to add up to 1
 	;again, are how much of each vertex a varying has here, with the
 	;perspective right
-	(L f_iw0 :f4) (E 'vp-mul-ff :f4 :f0)
-	(L f_iw1 :f4) (E 'vp-mul-ff :f4 :f1)
-	(L f_iw2 :f4) (E 'vp-mul-ff :f4 :f2)
-	(E 'vp-cpy-ff :f0 :f4) (E 'vp-add-ff :f1 :f4) (E 'vp-add-ff :f2 :f4)
-	(K 1 :f5) (E 'vp-div-ff :f4 :f5)
-	(E 'vp-mul-ff :f5 :f0) (E 'vp-mul-ff :f5 :f1) (E 'vp-mul-ff :f5 :f2)
+	(L f_iw0 :d4) (E 'vp-mul-ff :d4 :d0)
+	(L f_iw1 :d4) (E 'vp-mul-ff :d4 :d1)
+	(L f_iw2 :d4) (E 'vp-mul-ff :d4 :d2)
+	(E 'vp-cpy-ff :d0 :d4) (E 'vp-add-ff :d1 :d4) (E 'vp-add-ff :d2 :d4)
+	(K 1 :d5) (E 'vp-div-ff :d4 :d5)
+	(E 'vp-mul-ff :d5 :d0) (E 'vp-mul-ff :d5 :d1) (E 'vp-mul-ff :d5 :d2)
 	(each (lambda (i)
-		(L (T 0 (+ 4 i)) :f4) (E 'vp-mul-ff :f0 :f4)
-		(L (T 1 (+ 4 i)) :f5) (E 'vp-mul-ff :f1 :f5)
-		(E 'vp-add-ff :f5 :f4)
-		(L (T 2 (+ 4 i)) :f5) (E 'vp-mul-ff :f2 :f5)
-		(E 'vp-add-ff :f5 :f4)
-		(S :f4 (+ vary_at (* i 8)))) (range 0 vary_slots))
+		(L (T 0 (+ 4 i)) :d4) (E 'vp-mul-ff :d0 :d4)
+		(L (T 1 (+ 4 i)) :d5) (E 'vp-mul-ff :d1 :d5)
+		(E 'vp-add-ff :d5 :d4)
+		(L (T 2 (+ 4 i)) :d5) (E 'vp-mul-ff :d2 :d5)
+		(E 'vp-add-ff :d5 :d4)
+		(S :d4 (+ vary_at (* i 8)))) (range 0 vary_slots))
 	;the frag coord, the centre of the pixel, y up
-	(K 0.5 :f5)
-	(E 'vp-cvt-rf :r2 :f4) (E 'vp-add-ff :f5 :f4) (S :f4 frag)
+	(K 0.5 :d5)
+	(E 'vp-cvt-rf :r2 :d4) (E 'vp-add-ff :d5 :d4) (S :d4 frag)
 	(LI s_y :r6) (LI s_vh :r7)
 	(E 'vp-sub-rr :r6 :r7) (E 'vp-sub-cr 1 :r7)
-	(E 'vp-cvt-rf :r7 :f4) (E 'vp-add-ff :f5 :f4) (S :f4 (+ frag 8))
+	(E 'vp-cvt-rf :r7 :d4) (E 'vp-add-ff :d5 :d4) (S :d4 (+ frag 8))
 	(E 'vp-call (Q 'sf_main))
 	;the alpha of the pixel, 0 to 255. One of 0 is not there at all, and
 	;is the quick way out
-	(K 0 :f1) (K 1 :f2) (K 255 :f3)
-	(L (+ ret 24) :f0)
-	(E 'vp-max-ff :f1 :f0) (E 'vp-min-ff :f2 :f0) (E 'vp-mul-ff :f3 :f0)
-	(E 'vp-cvt-fr :f0 :r4)
+	(K 0 :d1) (K 1 :d2) (K 255 :d3)
+	(L (+ ret 24) :d0)
+	(E 'vp-max-ff :d1 :d0) (E 'vp-min-ff :d2 :d0) (E 'vp-mul-ff :d3 :d0)
+	(E 'vp-cvt-fr :d0 :r4)
 	(E 'vp-beq-cr 0 :r4 (Q 'sr_next))
 	;the pixel, a 32 bit argb
 	(E 'vp-cpy-rr :r4 :r7)
 	(each (lambda (offset)
-		(L offset :f0)
-		(E 'vp-max-ff :f1 :f0) (E 'vp-min-ff :f2 :f0) (E 'vp-mul-ff :f3 :f0)
-		(E 'vp-cvt-fr :f0 :r5)
+		(L offset :d0)
+		(E 'vp-max-ff :d1 :d0) (E 'vp-min-ff :d2 :d0) (E 'vp-mul-ff :d3 :d0)
+		(E 'vp-cvt-fr :d0 :r5)
 		(E 'vp-shl-cr 8 :r7) (E 'vp-add-rr :r5 :r7)) (list ret (+ ret 8) (+ ret 16)))
 	(LI s_y :r5) (LI s_pstride :r6) (E 'vp-mul-rr :r6 :r5)
 	(LI s_x :r2) (E 'vp-cpy-rr :r2 :r6) (E 'vp-shl-cr 2 :r6) (E 'vp-add-rr :r6 :r5)
@@ -1284,7 +1284,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(fill frame placed tris pixmap depth) -> :nil
 
@@ -1355,7 +1355,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(shade x y x1 y1 frame out mode height) -> :nil
 
@@ -1427,10 +1427,10 @@
 	(vp-cpy-ir :r13 } (str s_x1) { :r3)
 	(vp-bge-rr :r3 :r2 'sh_xend)
 	;the frag coord, the centre of the pixel, y up if a height is given
-	(vp-cpy-if :r12 (fn-const (n2r 0.5)) :f2)
-	(vp-cvt-rf :r2 :f0)
-	(vp-add-ff :f2 :f0)
-	(vp-cpy-fi :f0 :r13 } (str frag) {)
+	(vp-cpy-if :r12 (fn-const (n2r 0.5)) :d2)
+	(vp-cvt-rf :r2 :d0)
+	(vp-add-ff :d2 :d0)
+	(vp-cpy-fi :d0 :r13 } (str frag) {)
 	(vp-cpy-ir :r13 } (str s_y) { :r3)
 	(vp-cpy-ir :r13 } (str s_height) { :r4)
 	(vp-beq-cr 0 :r4 'sh_noflip)
@@ -1438,44 +1438,44 @@
 	(vp-sub-cr 1 :r4)
 	(vp-cpy-rr :r4 :r3)
 (vp-label 'sh_noflip)
-	(vp-cvt-rf :r3 :f0)
-	(vp-add-ff :f2 :f0)
-	(vp-cpy-fi :f0 :r13 } (str (+ frag 8)) {)
+	(vp-cvt-rf :r3 :d0)
+	(vp-add-ff :d2 :d0)
+	(vp-cpy-fi :d0 :r13 } (str (+ frag 8)) {)
 	(vp-call 'sf_main)
 	(vp-cpy-ir :r13 } (str s_out) { :r2)
 	(vp-cpy-ir :r13 } (str s_mode) { :r3)
 	(vp-bne-cr 0 :r3 'sh_argb)
 	;mode 0, the 4 floats as they are
-	(vp-cpy-if :r13 } (str ret) { :f0)
-	(vp-cpy-if :r13 } (str (+ ret 8)) { :f1)
-	(vp-cpy-if :r13 } (str (+ ret 16)) { :f2)
-	(vp-cpy-if :r13 } (str (+ ret 24)) { :f3)
-	(vp-cpy-fi :f0 :r2 0)
-	(vp-cpy-fi :f1 :r2 8)
-	(vp-cpy-fi :f2 :r2 16)
-	(vp-cpy-fi :f3 :r2 24)
+	(vp-cpy-if :r13 } (str ret) { :d0)
+	(vp-cpy-if :r13 } (str (+ ret 8)) { :d1)
+	(vp-cpy-if :r13 } (str (+ ret 16)) { :d2)
+	(vp-cpy-if :r13 } (str (+ ret 24)) { :d3)
+	(vp-cpy-fi :d0 :r2 0)
+	(vp-cpy-fi :d1 :r2 8)
+	(vp-cpy-fi :d2 :r2 16)
+	(vp-cpy-fi :d3 :r2 24)
 	(vp-add-cr 32 :r2)
 	(vp-jmp 'sh_next)
 (vp-label 'sh_argb)
 	;modes 1 and 2, a 32 bit argb pixel, alpha full on. In mode 3 the
 	;alpha is the one main gave
-	(vp-cpy-if :r12 (fn-const (n2r 0)) :f1)
-	(vp-cpy-if :r12 (fn-const (n2r 1)) :f2)
-	(vp-cpy-if :r12 (fn-const (n2r 255)) :f3)
+	(vp-cpy-if :r12 (fn-const (n2r 0)) :d1)
+	(vp-cpy-if :r12 (fn-const (n2r 1)) :d2)
+	(vp-cpy-if :r12 (fn-const (n2r 255)) :d3)
 	(vp-cpy-cr 0xff :r4)
 	(vp-bne-cr 3 :r3 'sh_rgb)
-	(vp-cpy-if :r13 } (str (+ ret 24)) { :f0)
-	(vp-max-ff :f1 :f0)
-	(vp-min-ff :f2 :f0)
-	(vp-mul-ff :f3 :f0)
-	(vp-cvt-fr :f0 :r4)
+	(vp-cpy-if :r13 } (str (+ ret 24)) { :d0)
+	(vp-max-ff :d1 :d0)
+	(vp-min-ff :d2 :d0)
+	(vp-mul-ff :d3 :d0)
+	(vp-cvt-fr :d0 :r4)
 (vp-label 'sh_rgb)
 	(each (lambda (offset)
-		(vp-cpy-if :r13 offset :f0)
-		(vp-max-ff :f1 :f0)
-		(vp-min-ff :f2 :f0)
-		(vp-mul-ff :f3 :f0)
-		(vp-cvt-fr :f0 :r5)
+		(vp-cpy-if :r13 offset :d0)
+		(vp-max-ff :d1 :d0)
+		(vp-min-ff :d2 :d0)
+		(vp-mul-ff :d3 :d0)
+		(vp-cvt-fr :d0 :r5)
 		(vp-shl-cr 8 :r4)
 		(vp-add-rr :r5 :r4)) '(} (str ret) " " (str (+ ret 8)) " " (str (+ ret 16)) {))
 	(vp-cpy-ri-i :r4 :r2 0)
@@ -1650,7 +1650,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(} (str fname) arg_names {) -> } (str ret_type) {
 
@@ -1721,7 +1721,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r14, :d0-:d15
 	;info
 	;(kernel from to frame bufs) -> :nil
 

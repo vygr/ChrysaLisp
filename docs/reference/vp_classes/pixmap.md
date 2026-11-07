@@ -76,7 +76,7 @@ inputs
 outputs
 :r0 = 0 if error, else pixmap object (ptr)
 trashes
-:r0-:r7, :f0-:f15
+:r0-:r7, :d0-:d15
 ```
 
 ### :deinit -> gui/pixmap/deinit
@@ -87,7 +87,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r2, :f0-:f15
+:r1-:r2, :d0-:d15
 ```
 
 ### :fill -> gui/pixmap/fill
@@ -127,7 +127,7 @@ outputs
 :r0 = pixmap object (ptr)
 :r1 = 1 if the frame was whole, 0 if the stream ended first (uint)
 trashes
-:r1-:r8, :f0-:f15
+:r1-:r8, :d0-:d15
 info
 a frame of a film made from the frame before: runs, each a byte, of
 pixels to keep, 256 less the count, or of pixels to draw, the count
@@ -172,7 +172,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r13, :f0-:f15
+:r1-:r13, :d0-:d15
 ```
 
 ### :resize_2 -> gui/pixmap/resize_2
@@ -242,7 +242,7 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :vtable -> gui/pixmap/vtable

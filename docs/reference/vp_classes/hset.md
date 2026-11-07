@@ -48,7 +48,7 @@ outputs
 :r1 = element iterator (pptr)
 :r2 = bucket list object (ptr)
 trashes
-:r1-:r13, :f0-:f15
+:r1-:r13, :d0-:d15
 ```
 
 ### :create -> class/hset/create
@@ -59,7 +59,7 @@ inputs
 outputs
 :r0 = 0 if error, else hset object (ptr)
 trashes
-:r0-:r5, :r14, :f0-:f15
+:r0-:r5, :r14, :d0-:d15
 ```
 
 ### :each -> class/hset/each
@@ -72,14 +72,14 @@ inputs
 outputs
 :r0 = hset object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 callback predicate
 inputs
 :r0 = predicate data (ptr)
 :r1 = element iterator (pptr)
 :r2 = bucket list pointer (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :each_callback -> class/obj/null
@@ -105,7 +105,7 @@ inputs
 outputs
 :r0 = hset object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r14, :d0-:d15
 ```
 
 ### :init -> class/hset/init
@@ -119,7 +119,7 @@ outputs
 :r0 = hset object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r5, :d0-:d15
 ```
 
 ### :type -> class/hset/type
@@ -131,7 +131,7 @@ outputs
 :r0 = hset object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r3, :f0-:f15
+:r1-:r3, :d0-:d15
 ```
 
 ### :vtable -> class/hset/vtable
