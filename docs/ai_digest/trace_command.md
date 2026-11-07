@@ -29,7 +29,7 @@ The tracer tracks register and stack lifecycles through several mechanisms:
 * **State Mapping:** A register map (`vpmap`) tracks the symbolic origin of each
   register. When a register is initialized, it is mapped to itself.
 
-* **Copies:** Register-to-register copies (`emit-cpy-rr`, `emit-cpy-ff`)
+* **Copies:** Register-to-register copies (`emit-cpy-rr`, `emit-cpy-dd`)
   transfer the symbolic state from the source register to the destination
   register.
 

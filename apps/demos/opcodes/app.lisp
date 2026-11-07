@@ -53,7 +53,7 @@
 	(create-bouncer 'emit-call    (* f_width 0.25) (* f_height 0.25)  2.1  1.7 1.05)   ; Violet (Control)
 	(create-bouncer 'emit-add-rr  (* f_width 0.72) (* f_height 0.28) -2.3  1.8 0.95)   ; Lime (Arithmetic)
 	(create-bouncer 'emit-cpy-rr  (* f_width 0.50) (* f_height 0.50)  1.7 -2.0 1.10)   ; Amber (Data)
-	(create-bouncer 'emit-sqrt-ff (* f_width 0.28) (* f_height 0.70) -1.9  2.2 1.00)   ; Cyan (Float)
+	(create-bouncer 'emit-sqrt-dd (* f_width 0.28) (* f_height 0.70) -1.9  2.2 1.00)   ; Cyan (Float)
 	(create-bouncer 'emit-shl-rr  (* f_width 0.75) (* f_height 0.75) -2.0 -1.6 0.90)   ; Yellow (Bitwise)
 	(create-bouncer 'emit-push    (* f_width 0.55) (* f_height 0.22)  2.3 -1.5 1.00)   ; Orange (Stack)
 	(create-bouncer 'emit-slt-rr  (* f_width 0.35) (* f_height 0.45) -1.6 -2.1 0.95)   ; Hot Pink (Compare)

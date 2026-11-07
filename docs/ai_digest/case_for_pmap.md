@@ -312,7 +312,7 @@ vpmap (copy (const (reduce (# (pinsert %0 %1 %1)) +all_regs (pmap))))
 	the pmap:
 
 ```vdu
-((emit-cpy-rr emit-cpy-ff)
+((emit-cpy-rr emit-cpy-dd)
 	(def-reg (last inst) (pfind vpmap (second inst))))
 ```
 

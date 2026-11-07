@@ -49,8 +49,8 @@
 					emit-call-rc emit-call-abi emit-call emit-call-r
 					emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
 					emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr
-					emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-rc emit-beq-ff emit-bne-ff
-					emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)) -1)))
+					emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-rc emit-beq-dd emit-bne-dd
+					emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd)) -1)))
 			+vp_emit_ops (pmap))
 	+opt_out_idx_map
 		(reduce (# (pinsert %0 %1
@@ -66,9 +66,9 @@
 						emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr
 						emit-load-rrr emit-load-rrr-b emit-load-rrr-s emit-load-rrr-i emit-load-rrr-ub emit-load-rrr-us emit-load-rrr-ui emit-lea-rrr
 						emit-load-pr emit-lea-pr
-						emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff
-						emit-sqrt-ff emit-abs-ff emit-neg-ff emit-cpy-ff
-						emit-cvt-rf emit-cvt-fr emit-cpy-rf emit-cpy-fr
+						emit-add-dd emit-sub-dd emit-mul-dd emit-div-dd emit-min-dd emit-max-dd
+						emit-sqrt-dd emit-abs-dd emit-neg-dd emit-cpy-dd
+						emit-cvt-rd emit-cvt-dr emit-cpy-rd emit-cpy-dr
 						emit-load-rcd emit-load-rrd emit-load-rcd-i emit-load-rrd-i emit-lnot-rr)) -2))))
 			+vp_emit_ops (pmap)))
 

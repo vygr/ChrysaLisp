@@ -326,9 +326,9 @@
 		(ew o '(:r2 8 0x3fffc) '(:r2 -18 0x7c0000))
 		(vp-ret)
 		(handler op label))
-	'((emit-beq-ff e_beq_ff 4 :nil 0x48000100) (emit-bne-ff e_bne_ff 4 :nil 0x48000000)
-	(emit-blt-ff e_blt_ff 2 :nil 0x48000100) (emit-bgt-ff e_bgt_ff 2 :t 0x48000100)
-	(emit-ble-ff e_ble_ff 6 :nil 0x48000100) (emit-bge-ff e_bge_ff 6 :t 0x48000100)))
+	'((emit-beq-dd e_beq_ff 4 :nil 0x48000100) (emit-bne-dd e_bne_ff 4 :nil 0x48000000)
+	(emit-blt-dd e_blt_ff 2 :nil 0x48000100) (emit-bgt-dd e_bgt_ff 2 :t 0x48000100)
+	(emit-ble-dd e_ble_ff 6 :nil 0x48000100) (emit-bge-dd e_bge_ff 6 :t 0x48000100)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; sets and logicals
@@ -735,7 +735,7 @@
 		(la-3r 0x01149800 :r1 :r0 0)
 	(endif)
 	(vp-ret)
-(handler 'emit-cpy-ff 'e_cpy_ff)
+(handler 'emit-cpy-dd 'e_cpy_ff)
 
 (each (lambda ((op label o))
 		;(s d), d = op s
@@ -743,9 +743,9 @@
 		(la-3r o :r1 :r0 0)
 		(vp-ret)
 		(handler op label))
-	'((emit-cpy-rf e_cpy_rf 0x0114a800) (emit-cpy-fr e_cpy_fr 0x0114b800)
-	(emit-sqrt-ff e_sqrt_ff 0x01144800) (emit-abs-ff e_abs_ff 0x01140800)
-	(emit-neg-ff e_neg_ff 0x01141800)))
+	'((emit-cpy-rd e_cpy_rf 0x0114a800) (emit-cpy-dr e_cpy_fr 0x0114b800)
+	(emit-sqrt-dd e_sqrt_ff 0x01144800) (emit-abs-dd e_abs_ff 0x01140800)
+	(emit-neg-dd e_neg_ff 0x01141800)))
 
 (each (lambda ((op label o))
 		;(s d), d = d op s
@@ -753,9 +753,9 @@
 		(la-3r o :r1 :r1 :r0)
 		(vp-ret)
 		(handler op label))
-	'((emit-add-ff e_add_ff 0x01010000) (emit-sub-ff e_sub_ff 0x01030000)
-	(emit-mul-ff e_mul_ff 0x01050000) (emit-div-ff e_div_ff 0x01070000)
-	(emit-max-ff e_max_ff 0x01090000) (emit-min-ff e_min_ff 0x010b0000)))
+	'((emit-add-dd e_add_ff 0x01010000) (emit-sub-dd e_sub_ff 0x01030000)
+	(emit-mul-dd e_mul_ff 0x01050000) (emit-div-dd e_div_ff 0x01070000)
+	(emit-max-dd e_max_ff 0x01090000) (emit-min-dd e_min_ff 0x010b0000)))
 
 (vp-label 'e_cvt_rf)
 	(vp-push :r1)
@@ -763,7 +763,7 @@
 	(vp-pop :r1)
 	(la-3r 0x011d2800 :r1 :r1 0)
 	(vp-ret)
-(handler 'emit-cvt-rf 'e_cvt_rf)
+(handler 'emit-cvt-rd 'e_cvt_rf)
 
 (vp-label 'e_cvt_fr)
 	;s converted in place and put back after
@@ -777,7 +777,7 @@
 	(vp-pop :r1 :r2)
 	(to 'e_cpy_rf +la_t1 :r1)
 	(vp-ret)
-(handler 'emit-cvt-fr 'e_cvt_fr)
+(handler 'emit-cvt-dr 'e_cvt_fr)
 
 (vp-label 'e_cpy_if)
 	;(s c d)

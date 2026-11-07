@@ -145,19 +145,19 @@ usually `_ff`.
 
 **Common Instructions (Mandelbrot Example):**
 
-* **Move:** `(vp-cpy-ff x2 xc)` (Copy float `x2` to `xc`)
+* **Move:** `(vp-cpy-dd x2 xc)` (Copy float `x2` to `xc`)
 
-* **Add:** `(vp-add-ff y2 f0)` (`f0 += y2`)
+* **Add:** `(vp-add-dd y2 f0)` (`f0 += y2`)
 
-* **Subtract:** `(vp-sub-ff y2 xc)` (`xc -= y2`)
+* **Subtract:** `(vp-sub-dd y2 xc)` (`xc -= y2`)
 
-* **Multiply:** `(vp-mul-ff two yc)` (`yc *= two`)
+* **Multiply:** `(vp-mul-dd two yc)` (`yc *= two`)
 
 *   **Comparison:**
 
     ```vdu
-    (vp-cpy-ff x2 f0)
-    (vp-add-ff y2 f0)
+    (vp-cpy-dd x2 f0)
+    (vp-add-dd y2 f0)
     (gotoif `(,f0 >= ,bail) 'outside) ; Leave the loop if f0 >= 65536.0
     ```
 
@@ -173,14 +173,14 @@ than the longest is made up to that length with its last register.
 ```vdu
 ; Zero cnt, then convert it into each of xc, yc, x2, y2, dx, dy (all 0.0)
 (vp-xor-rr cnt cnt)
-(vp-simd vp-cvt-rf `(,cnt) `(,xc ,yc ,x2 ,y2 ,dx ,dy))
+(vp-simd vp-cvt-rd `(,cnt) `(,xc ,yc ,x2 ,y2 ,dx ,dy))
 
 ; Add x0 to xc and y0 to yc
-(vp-simd vp-add-ff `(,x0 ,y0) `(,xc ,yc))
+(vp-simd vp-add-dd `(,x0 ,y0) `(,xc ,yc))
 
 ; Copy xc, yc to x2, y2, then square them
-(vp-simd vp-cpy-ff `(,xc ,yc) `(,x2 ,y2))
-(vp-simd vp-mul-ff `(,x2 ,y2) `(,x2 ,y2))
+(vp-simd vp-cpy-dd `(,xc ,yc) `(,x2 ,y2))
+(vp-simd vp-mul-dd `(,x2 ,y2) `(,x2 ,y2))
 ```
 
 ### 6. Integration: Linking to Lisp
@@ -262,34 +262,34 @@ one pixel, so the Lisp that calls it only has to store the answer.
 ```vdu
 (loop-start)
     ; Check Exit Condition (x2 + y2 >= 65536)
-    (vp-cpy-ff x2 f0)
-    (vp-add-ff y2 f0)
+    (vp-cpy-dd x2 f0)
+    (vp-add-dd y2 f0)
     (gotoif `(,f0 >= ,bail) 'outside)
 
     ; d = 2 * z * d + 1
-    (vp-simd vp-cpy-ff `(,xc ,xc) `(,f1 ,f2))
-    (vp-simd vp-mul-ff `(,dx ,dy) `(,f1 ,f2))
-    (vp-simd vp-mul-ff `(,yc ,yc) `(,dy ,dx))
-    (vp-sub-ff dy f1)
-    (vp-add-ff dx f2)
-    (vp-simd vp-cpy-ff `(,f1 ,f2) `(,dx ,dy))
-    (vp-simd vp-add-ff `(,f1 ,f2) `(,dx ,dy))
-    (vp-add-ff one dx)
+    (vp-simd vp-cpy-dd `(,xc ,xc) `(,f1 ,f2))
+    (vp-simd vp-mul-dd `(,dx ,dy) `(,f1 ,f2))
+    (vp-simd vp-mul-dd `(,yc ,yc) `(,dy ,dx))
+    (vp-sub-dd dy f1)
+    (vp-add-dd dx f2)
+    (vp-simd vp-cpy-dd `(,f1 ,f2) `(,dx ,dy))
+    (vp-simd vp-add-dd `(,f1 ,f2) `(,dx ,dy))
+    (vp-add-dd one dx)
 
     ; y = 2 * x * y + y0
-    (vp-mul-ff two yc)
-    (vp-mul-ff xc yc)
+    (vp-mul-dd two yc)
+    (vp-mul-dd xc yc)
 
     ; x = x2 - y2 + x0
-    (vp-cpy-ff x2 xc)
-    (vp-sub-ff y2 xc)
+    (vp-cpy-dd x2 xc)
+    (vp-sub-dd y2 xc)
 
     ; the two adds, x0 to xc and y0 to yc
-    (vp-simd vp-add-ff `(,x0 ,y0) `(,xc ,yc))
+    (vp-simd vp-add-dd `(,x0 ,y0) `(,xc ,yc))
 
     ; Update squares
-    (vp-simd vp-cpy-ff `(,xc ,yc) `(,x2 ,y2))
-    (vp-simd vp-mul-ff `(,x2 ,y2) `(,x2 ,y2))
+    (vp-simd vp-cpy-dd `(,xc ,yc) `(,x2 ,y2))
+    (vp-simd vp-mul-dd `(,x2 ,y2) `(,x2 ,y2))
 
     (vp-add-cr 1 cnt)
     ; ... every 64 turns, bring the derivative down if it is very big ...

@@ -118,14 +118,14 @@
 	'emit-load-rrr-ub '(:r :r :r) 'emit-load-rrr-us '(:r :r :r) 'emit-load-rrr-ui '(:r :r :r) 'emit-lea-rrr '(:r :r :r)
 	'emit-store-rrr '(:r :r :r) 'emit-store-rrr-b '(:r :r :r) 'emit-store-rrr-s '(:r :r :r) 'emit-store-rrr-i '(:r :r :r)
 	; float alu
-	'emit-cpy-ff '(:f :f) 'emit-add-ff '(:f :f) 'emit-sub-ff '(:f :f) 'emit-mul-ff '(:f :f)
-	'emit-div-ff '(:f :f) 'emit-min-ff '(:f :f) 'emit-max-ff '(:f :f) 'emit-sqrt-ff '(:f :f)
-	'emit-abs-ff '(:f :f) 'emit-neg-ff '(:f :f)
+	'emit-cpy-dd '(:f :f) 'emit-add-dd '(:f :f) 'emit-sub-dd '(:f :f) 'emit-mul-dd '(:f :f)
+	'emit-div-dd '(:f :f) 'emit-min-dd '(:f :f) 'emit-max-dd '(:f :f) 'emit-sqrt-dd '(:f :f)
+	'emit-abs-dd '(:f :f) 'emit-neg-dd '(:f :f)
 	; float branches
-	'emit-beq-ff '(:f :f :label) 'emit-bne-ff '(:f :f :label) 'emit-blt-ff '(:f :f :label)
-	'emit-bgt-ff '(:f :f :label) 'emit-ble-ff '(:f :f :label) 'emit-bge-ff '(:f :f :label)
+	'emit-beq-dd '(:f :f :label) 'emit-bne-dd '(:f :f :label) 'emit-blt-dd '(:f :f :label)
+	'emit-bgt-dd '(:f :f :label) 'emit-ble-dd '(:f :f :label) 'emit-bge-dd '(:f :f :label)
 	; conversions & mixed
-	'emit-cpy-rf '(:r :f) 'emit-cpy-fr '(:f :r) 'emit-cvt-rf '(:r :f) 'emit-cvt-fr '(:f :r)
+	'emit-cpy-rd '(:r :f) 'emit-cpy-dr '(:f :r) 'emit-cvt-rd '(:r :f) 'emit-cvt-dr '(:f :r)
 	; float memory
 	'emit-load-rcd '(:r :c :f) 'emit-store-drc '(:f :r :c) 'emit-load-rrd '(:r :r :f) 'emit-store-drr '(:f :r :r)
 	'emit-load-rcd-i '(:r :c :f) 'emit-store-drc-i '(:f :r :c) 'emit-load-rrd-i '(:r :r :f) 'emit-store-drr-i '(:f :r :r)
@@ -294,7 +294,7 @@
 							((setq *pc* +max_long))))
 					((emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 					emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
-					emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)
+					emit-beq-dd emit-bne-dd emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd)
 						;if branch would carry new state then create new trace
 						(defq pc (get (last inst))
 							key (str pc ":" (ifn (last call_stack) 0))
@@ -302,7 +302,7 @@
 						(when (or (not lm) (vpmap-changed? trace_map lm))
 							(push traces (list pc *rsp*
 								(cat trace_map) (cat stack_map) (cat call_stack) depth))))
-					((emit-cpy-rr emit-cpy-ff emit-cpy-rf emit-cpy-fr)
+					((emit-cpy-rr emit-cpy-dd emit-cpy-rd emit-cpy-dr)
 						;copy value and mark as trashed or restored
 						(pinsert trace_map (last inst) (pfind trace_map (second inst))))
 					(emit-swp-rr

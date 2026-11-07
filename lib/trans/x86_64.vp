@@ -49,7 +49,7 @@
 		emit-call-abi emit-jmp emit-jmp-r emit-jmp-rc emit-jmp-p emit-ret emit-sync
 		emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 		emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
-		emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff)
+		emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd emit-ble-dd emit-bgt-dd)
 	+x_dead_ops ''(emit-cpy-cr emit-load-rcr emit-load-rcr-b emit-load-rcr-s
 		emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui
 		emit-lea-rcr emit-lea-pr emit-load-pr emit-xor-rr)
@@ -1519,19 +1519,19 @@
 		(vp-ret)
 	(endif)
 	(to-xmm 'xmm_rr 0xf2 0x10 :nil)
-(handler 'emit-cpy-ff 'e_cpy_ff)
+(handler 'emit-cpy-dd 'e_cpy_ff)
 
 (each (lambda ((op label o))
 		(vp-label label)
 		(to-xmm 'xmm_rr 0xf2 o :nil)
 		(handler op label))
-	'((emit-add-ff e_add_ff 0x58) (emit-sub-ff e_sub_ff 0x5c) (emit-mul-ff e_mul_ff 0x59)
-	(emit-div-ff e_div_ff 0x5e) (emit-min-ff e_min_ff 0x5d) (emit-max-ff e_max_ff 0x5f)
-	(emit-sqrt-ff e_sqrt_ff 0x51)))
+	'((emit-add-dd e_add_ff 0x58) (emit-sub-dd e_sub_ff 0x5c) (emit-mul-dd e_mul_ff 0x59)
+	(emit-div-dd e_div_ff 0x5e) (emit-min-dd e_min_ff 0x5d) (emit-max-dd e_max_ff 0x5f)
+	(emit-sqrt-dd e_sqrt_ff 0x51)))
 
 (vp-label 'e_cpy_rf)
 	(to-xmm 'gpr_xmm 0x66 0x6e :nil)
-(handler 'emit-cpy-rf 'e_cpy_rf)
+(handler 'emit-cpy-rd 'e_cpy_rf)
 
 (vp-label 'e_cpy_fr)
 	;(s d), the operands the other way round
@@ -1541,15 +1541,15 @@
 	(vp-cpy-cr 0x66 :r3)
 	(vp-cpy-cr 0x7e :r0)
 	(vp-jmp 'gpr_xmm)
-(handler 'emit-cpy-fr 'e_cpy_fr)
+(handler 'emit-cpy-dr 'e_cpy_fr)
 
 (vp-label 'e_cvt_rf)
 	(to-xmm 'gpr_xmm 0xf2 0x2a :nil)
-(handler 'emit-cvt-rf 'e_cvt_rf)
+(handler 'emit-cvt-rd 'e_cvt_rf)
 
 (vp-label 'e_cvt_fr)
 	(to-xmm 'gpr_xmm 0xf2 0x2c :nil)
-(handler 'emit-cvt-fr 'e_cvt_fr)
+(handler 'emit-cvt-dr 'e_cvt_fr)
 
 (vp-label 'e_abs_ff)
 	(vp-push :r1)
@@ -1562,7 +1562,7 @@
 	(vp-cpy-cr 2 :r1)
 	(vp-cpy-cr 1 :r2)
 	(vp-jmp 'shift_xmm)
-(handler 'emit-abs-ff 'e_abs_ff)
+(handler 'emit-abs-dd 'e_abs_ff)
 
 (vp-label 'e_neg_ff)
 	(vp-push :r0 :r1)
@@ -1577,7 +1577,7 @@
 	(vp-pop :r0 :r1)
 	(x-regs 'h_pop +x64_rax)
 	(vp-ret)
-(handler 'emit-neg-ff 'e_neg_ff)
+(handler 'emit-neg-dd 'e_neg_ff)
 
 (vp-label 'cmp_ff)
 	;x64-cmp-ff, (s d)
@@ -1616,7 +1616,7 @@
 	(vp-pop :r1 :r7)
 	(vp-cpy-cr 0x74 :r0)
 	(vp-jmp 'branch)
-(handler 'emit-beq-ff 'e_beq_ff)
+(handler 'emit-beq-dd 'e_beq_ff)
 
 (vp-label 'e_bne_ff)
 	;parity, then not equal
@@ -1629,7 +1629,7 @@
 	(vp-pop :r1 :r7)
 	(vp-cpy-cr 0x75 :r0)
 	(vp-jmp 'branch)
-(handler 'emit-bne-ff 'e_bne_ff)
+(handler 'emit-bne-dd 'e_bne_ff)
 
 (each (lambda ((op label o swap))
 		(vp-label label)
@@ -1640,8 +1640,8 @@
 		(vp-cpy-cr o :r0)
 		(vp-jmp 'branch)
 		(handler op label))
-	'((emit-blt-ff e_blt_ff 0x77 :t) (emit-bgt-ff e_bgt_ff 0x77 :nil)
-	(emit-ble-ff e_ble_ff 0x73 :t) (emit-bge-ff e_bge_ff 0x73 :nil)))
+	'((emit-blt-dd e_blt_ff 0x77 :t) (emit-bgt-dd e_bgt_ff 0x77 :nil)
+	(emit-ble-dd e_ble_ff 0x73 :t) (emit-bge-dd e_bge_ff 0x73 :nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; stack and ABI links

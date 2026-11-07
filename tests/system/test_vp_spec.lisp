@@ -81,11 +81,11 @@
 ;each float branch of a and b as floats, a 999 made a NaN, 0.0 / 0.0: of a
 ;NaN, as IEEE has it, every compare is false but bne
 (defq vs_ff (vs-native "tests/vp_spec_ff" (cat (vs-head "tests/vp_spec_ff")
-	"(vp-cvt-rf :r2 :d0)" vs_lf "(vp-cvt-rf :r3 :d1)" vs_lf
-	"(vp-bne-cr 999 :r2 'real)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rf :r5 :d0)" vs_lf
-	"(vp-div-ff :d0 :d0)" vs_lf "(vp-label 'real)" vs_lf
+	"(vp-cvt-rd :r2 :d0)" vs_lf "(vp-cvt-rd :r3 :d1)" vs_lf
+	"(vp-bne-cr 999 :r2 'real)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rd :r5 :d0)" vs_lf
+	"(vp-div-dd :d0 :d0)" vs_lf "(vp-label 'real)" vs_lf
 	(apply (const cat) (map (lambda (op i)
-		(cat "(vp-b" (slice op 1 -1) "-ff :d1 :d0 'took" (str i) ")" vs_lf "(vp-jmp 'next" (str i) ")" vs_lf
+		(cat "(vp-b" (slice op 1 -1) "-dd :d1 :d0 'took" (str i) ")" vs_lf "(vp-jmp 'next" (str i) ")" vs_lf
 			"(vp-label 'took" (str i) ")" vs_lf "(vp-or-cr " (str (<< 1 i)) " :r4)" vs_lf "(vp-label 'next" (str i) ")" vs_lf))
 		vs_ops (range 0 6)))
 	(vs-tail))))
@@ -157,7 +157,7 @@
 	"(vp-cpy-rr :rsp :r6)" vs_lf
 	"(vp-load-rcr :r6 0 :r5)" vs_lf "(vp-add-cr 8 :r6)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf
 	"(vp-xor-rr :r5 :r5)" vs_lf "(vp-mul-cr 3 :r4)" vs_lf
-	"(vp-load-rcr :r6 0 :r5)" vs_lf "(vp-cvt-rf :r4 :d0)" vs_lf "(vp-store-drc :d0 :r6 0)" vs_lf
+	"(vp-load-rcr :r6 0 :r5)" vs_lf "(vp-cvt-rd :r4 :d0)" vs_lf "(vp-store-drc :d0 :r6 0)" vs_lf
 	"(vp-add-rr :r5 :r4)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf
 	"(vp-free 16)" vs_lf
 	(vs-tail))))
@@ -180,8 +180,8 @@
 	"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-load-rcd-i :r6 100008 :d2)" vs_lf
 	"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-load-rcd-i :r6 -8 :d3)" vs_lf
 	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-load-rrd-i :rsp :r7 :d4)" vs_lf
-	"(vp-cpy-fr :d0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
-	(apply (const cat) (map (# (cat "(vp-cpy-fr " %0 " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
+	"(vp-cpy-dr :d0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-cpy-dr " %0 " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
 		"(vp-add-rr :r5 :r8)" vs_lf)) '(":d1" ":d2" ":d3" ":d4")))
 	"(vp-shl-cr 60 :r8)" vs_lf "(vp-xor-rr :r8 :r4)" vs_lf
 	"(vp-free 32)" vs_lf
@@ -204,7 +204,7 @@
 ;it was: the single's bits, with the count of stores that differ from the
 ;first, and 1 if the register changed, above them
 (defq vs_fi (vs-native "tests/vp_spec_fi" (cat (vs-head "tests/vp_spec_fi")
-	"(vp-alloc 32)" vs_lf "(vp-cpy-rf :r3 :d0)" vs_lf
+	"(vp-alloc 32)" vs_lf "(vp-cpy-rd :r3 :d0)" vs_lf
 	"(vp-store-drc-i :d0 :rsp 0)" vs_lf
 	"(vp-lea-rcr :rsp -1000 :r6)" vs_lf "(vp-store-drc-i :d0 :r6 1004)" vs_lf
 	"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-store-drc-i :d0 :r6 100008)" vs_lf
@@ -213,7 +213,7 @@
 	"(vp-load-rcr-ui :rsp 0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
 	(apply (const cat) (map (# (cat "(vp-load-rcr-ui :rsp " (str %0) " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
 		"(vp-add-rr :r5 :r8)" vs_lf)) '(4 8 12 16)))
-	"(vp-cpy-fr :d0 :r5)" vs_lf "(vp-sne-rr :r3 :r5)" vs_lf "(vp-shl-cr 4 :r5)" vs_lf "(vp-add-rr :r5 :r8)" vs_lf
+	"(vp-cpy-dr :d0 :r5)" vs_lf "(vp-sne-rr :r3 :r5)" vs_lf "(vp-shl-cr 4 :r5)" vs_lf "(vp-add-rr :r5 :r8)" vs_lf
 	"(vp-shl-cr 32 :r8)" vs_lf "(vp-add-rr :r8 :r4)" vs_lf
 	"(vp-free 32)" vs_lf
 	(vs-tail))))

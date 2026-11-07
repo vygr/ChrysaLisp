@@ -333,9 +333,9 @@
 		(vp-cpy-cr +rv_zero :r2)
 		(vp-jmp 'rv_branch)
 		(handler op label))
-	'((emit-beq-ff e_beq_ff 0xa2002053 :nil 1) (emit-bne-ff e_bne_ff 0xa2002053 :nil 0)
-	(emit-blt-ff e_blt_ff 0xa2001053 :nil 1) (emit-bgt-ff e_bgt_ff 0xa2001053 :t 1)
-	(emit-ble-ff e_ble_ff 0xa2000053 :nil 1) (emit-bge-ff e_bge_ff 0xa2000053 :t 1)))
+	'((emit-beq-dd e_beq_ff 0xa2002053 :nil 1) (emit-bne-dd e_bne_ff 0xa2002053 :nil 0)
+	(emit-blt-dd e_blt_ff 0xa2001053 :nil 1) (emit-bgt-dd e_bgt_ff 0xa2001053 :t 1)
+	(emit-ble-dd e_ble_ff 0xa2000053 :nil 1) (emit-bge-dd e_bge_ff 0xa2000053 :t 1)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; sets and logicals
@@ -737,7 +737,7 @@
 		(ew 0x22000053 '(:r0 15) '(:r0 20) '(:r1 7))
 	(endif)
 	(vp-ret)
-(handler 'emit-cpy-ff 'e_cpy_ff)
+(handler 'emit-cpy-dd 'e_cpy_ff)
 
 (each (lambda ((op label o))
 		;riscv64-fp-r2, d = op s
@@ -745,9 +745,9 @@
 		(ew o '(:r0 15) '(:r1 7))
 		(vp-ret)
 		(handler op label))
-	'((emit-cpy-rf e_cpy_rf 0xf2000053) (emit-cpy-fr e_cpy_fr 0xe2000053)
-	(emit-cvt-rf e_cvt_rf 0xd2207053) (emit-cvt-fr e_cvt_fr 0xc2201053)
-	(emit-sqrt-ff e_sqrt_ff 0x5a007053)))
+	'((emit-cpy-rd e_cpy_rf 0xf2000053) (emit-cpy-dr e_cpy_fr 0xe2000053)
+	(emit-cvt-rd e_cvt_rf 0xd2207053) (emit-cvt-dr e_cvt_fr 0xc2201053)
+	(emit-sqrt-dd e_sqrt_ff 0x5a007053)))
 
 (each (lambda ((op label o))
 		;riscv64-fp-r, d = d op s
@@ -755,9 +755,9 @@
 		(ew o '(:r0 20) '(:r1 15) '(:r1 7))
 		(vp-ret)
 		(handler op label))
-	'((emit-add-ff e_add_ff 0x02007053) (emit-sub-ff e_sub_ff 0x0a007053)
-	(emit-mul-ff e_mul_ff 0x12007053) (emit-div-ff e_div_ff 0x1a007053)
-	(emit-min-ff e_min_ff 0x2a000053) (emit-max-ff e_max_ff 0x2a001053)))
+	'((emit-add-dd e_add_ff 0x02007053) (emit-sub-dd e_sub_ff 0x0a007053)
+	(emit-mul-dd e_mul_ff 0x12007053) (emit-div-dd e_div_ff 0x1a007053)
+	(emit-min-dd e_min_ff 0x2a000053) (emit-max-dd e_max_ff 0x2a001053)))
 
 (each (lambda ((op label o))
 		;fsgnjx or fsgnjn of s with itself
@@ -765,7 +765,7 @@
 		(ew o '(:r0 15) '(:r0 20) '(:r1 7))
 		(vp-ret)
 		(handler op label))
-	'((emit-abs-ff e_abs_ff 0x22002053) (emit-neg-ff e_neg_ff 0x22001053)))
+	'((emit-abs-dd e_abs_ff 0x22002053) (emit-neg-dd e_neg_ff 0x22001053)))
 
 (vp-label 'e_cpy_if)
 	;(s c d)

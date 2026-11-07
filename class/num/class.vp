@@ -278,9 +278,9 @@
 
 	(mathop :sqrt
 		'(progn
-			(vp-cvt-rf :r0 :d0)
-			(vp-sqrt-ff :d0 :d0)
-			(vp-cvt-fr :d0 :r0)))
+			(vp-cvt-rd :r0 :d0)
+			(vp-sqrt-dd :d0 :d0)
+			(vp-cvt-dr :d0 :r0)))
 
 (def-func-end)
 

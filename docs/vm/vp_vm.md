@@ -77,11 +77,11 @@ remainder of a copy first, then the quotient.
 
 `(vp-ext-rr rs rd)` makes `rd` 0 or -1, the sign of `rs`, the high word of `rs`
 made two. `(vp-swp-rr rs rd)` swaps them. `vp-min` and `vp-max` of words are
-signed. `(vp-cvt-fr fs rd)` takes the whole part, towards 0, of a float in the
+signed. `(vp-cvt-dr fs rd)` takes the whole part, towards 0, of a float in the
 range of a word; of one outside it, or of a NaN, what it gives is not defined.
-`(vp-cvt-rf rs fd)` is the nearest float. `vp-cpy-rf` and `vp-cpy-fr` copy the
-bits as they are. `vp-min-ff` and `vp-max-ff` of a NaN are not defined. Of the float
-branches, as IEEE has it, every compare with a NaN is false but `vp-bne-ff`.
+`(vp-cvt-rd rs fd)` is the nearest float. `vp-cpy-rd` and `vp-cpy-dr` copy the
+bits as they are. `vp-min-dd` and `vp-max-dd` of a NaN are not defined. Of the float
+branches, as IEEE has it, every compare with a NaN is false but `vp-bne-dd`.
 `(vp-sync c)` is a full barrier of memory, whatever `c`.
 
 A call leaves one word on the stack under the callee, and what is in it is not
@@ -290,22 +290,22 @@ more than was put there, and a function leaves the stack as it found it.
 #### Float ops
 
 ```
-(vp-cpy-ff fs fd)
-(vp-cpy-rf rs fd)
-(vp-cpy-fr fs rd)
-(vp-cvt-rf rs fd)
-(vp-cvt-fr fs rd)
+(vp-cpy-dd fs fd)
+(vp-cpy-rd rs fd)
+(vp-cpy-dr fs rd)
+(vp-cvt-rd rs fd)
+(vp-cvt-dr fs rd)
 
-(vp-add-ff fs fd)
-(vp-sub-ff fs fd)
-(vp-mul-ff fs fd)
-(vp-div-ff fs fd)
+(vp-add-dd fs fd)
+(vp-sub-dd fs fd)
+(vp-mul-dd fs fd)
+(vp-div-dd fs fd)
 
-(vp-abs-ff fs fd)
-(vp-neg-ff fs fd)
-(vp-min-ff fs fd)
-(vp-max-ff fs fd)
-(vp-sqrt-ff fs fd)
+(vp-abs-dd fs fd)
+(vp-neg-dd fs fd)
+(vp-min-dd fs fd)
+(vp-max-dd fs fd)
+(vp-sqrt-dd fs fd)
 
 (vp-load-rcd rb i fd)
 (vp-store-drc fs rb i)
@@ -317,12 +317,12 @@ more than was put there, and a function leaves the stack as it found it.
 (vp-load-rrd-i rb ri fd)
 (vp-store-drr-i fs rb ri)
 
-(vp-beq-ff fs fd label)
-(vp-bne-ff fs fd label)
-(vp-blt-ff fs fd label)
-(vp-ble-ff fs fd label)
-(vp-bgt-ff fs fd label)
-(vp-bge-ff fs fd label)
+(vp-beq-dd fs fd label)
+(vp-bne-dd fs fd label)
+(vp-blt-dd fs fd label)
+(vp-ble-dd fs fd label)
+(vp-bgt-dd fs fd label)
+(vp-bge-dd fs fd label)
 ```
 
 #### Pseudo ops
@@ -350,9 +350,7 @@ the op alone says what is done and with what:
 
 * r, a register, `:r0` to `:r14`, `:rsp`
 
-* d, a float register as a double, `:d0` to `:d15`, of a memory op
-
-* f, a float register, of the float ops
+* d, a float register as a double, `:d0` to `:d15`
 
 * p, a label, of a place by the program counter
 

@@ -10,8 +10,8 @@
 	emit-sge-cr emit-seq-rr emit-sne-rr emit-slt-rr emit-sle-rr emit-sgt-rr
 	emit-sge-rr emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr
 	emit-bgt-cr emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr
-	emit-bgt-rr emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff
-	emit-bgt-ff emit-call emit-jmp emit-call-p emit-jmp-p emit-call-r emit-jmp-r
+	emit-bgt-rr emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd emit-ble-dd
+	emit-bgt-dd emit-call emit-jmp emit-call-p emit-jmp-p emit-call-r emit-jmp-r
 	emit-call-rc emit-jmp-rc emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i
 	emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr emit-store-rrc
 	emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-load-rrr emit-load-rrr-b
@@ -19,10 +19,10 @@
 	emit-lea-rrr emit-store-rrr emit-store-rrr-b emit-store-rrr-s emit-store-rrr-i emit-load-pr
 	emit-lea-pr emit-call-abi emit-ret emit-sync emit-alloc emit-free
 	emit-push emit-pop emit-stack-init emit-save-state emit-load-state emit-entry-abi emit-align emit-nop emit-trash emit-label
-	emit-string emit-byte emit-short emit-int emit-long emit-add-ff
-	emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
-	emit-abs-ff emit-neg-ff emit-cpy-ff emit-cvt-rf emit-cvt-fr emit-cpy-rf
-	emit-cpy-fr emit-load-rcd emit-store-drc emit-load-rrd emit-store-drr
+	emit-string emit-byte emit-short emit-int emit-long emit-add-dd
+	emit-sub-dd emit-mul-dd emit-div-dd emit-min-dd emit-max-dd emit-sqrt-dd
+	emit-abs-dd emit-neg-dd emit-cpy-dd emit-cvt-rd emit-cvt-dr emit-cpy-rd
+	emit-cpy-dr emit-load-rcd emit-store-drc emit-load-rrd emit-store-drr
 	emit-load-rcd-i emit-store-drc-i emit-load-rrd-i emit-store-drr-i emit-rem-rr emit-rem-rr-u
 	;the nop the VP optimiser puts in place of an instruction it removes. It
 	;is never emitted, but it is looked up, so it has its slot in every map

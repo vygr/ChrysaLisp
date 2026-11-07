@@ -52,12 +52,12 @@
 
 	(vp-lea-pr 'fn_consts :r1)
 	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
-	(vp-cvt-rf :r0 :d1)
-	(vp-mul-ff :d0 :d1)
-	(vp-sqrt-ff :d1 :d1)
+	(vp-cvt-rd :r0 :d1)
+	(vp-mul-dd :d0 :d1)
+	(vp-sqrt-dd :d1 :d1)
 	(assign '((:r1 (fn-const (n2r (<< 1 +fp_shift))))) '(:d0))
-	(vp-mul-ff :d1 :d0)
-	(vp-cvt-fr :d0 :r0)
+	(vp-mul-dd :d1 :d0)
+	(vp-cvt-dr :d0 :r0)
 
 	(exit :sys_math :f_sqrt '(:r0))
 	(vp-ret)
@@ -76,12 +76,12 @@
 
 	(vp-lea-pr 'fn_consts :r2)
 	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
-	(vp-cvt-rf :r0 :d1)
-	(vp-mul-ff :d1 :d0)
+	(vp-cvt-rd :r0 :d1)
+	(vp-mul-dd :d1 :d0)
 	(call :sys_math :r_sin '(:d0) '(:d0))
 	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
-	(vp-mul-ff :d1 :d0)
-	(vp-cvt-fr :d0 :r0)
+	(vp-mul-dd :d1 :d0)
+	(vp-cvt-dr :d0 :r0)
 
 	(exit :sys_math :f_sin '(:r0))
 	(vp-ret)
@@ -100,14 +100,14 @@
 
 	(vp-lea-pr 'fn_consts :r2)
 	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
-	(vp-cvt-rf :r0 :d1)
-	(vp-mul-ff :d1 :d0)
+	(vp-cvt-rd :r0 :d1)
+	(vp-mul-dd :d1 :d0)
 	(assign '((:r2 (fn-const 0x3ff921fb54442d18))) '(:d1))
-	(vp-add-ff :d1 :d0)
+	(vp-add-dd :d1 :d0)
 	(call :sys_math :r_sin '(:d0) '(:d0))
 	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
-	(vp-mul-ff :d1 :d0)
-	(vp-cvt-fr :d0 :r0)
+	(vp-mul-dd :d1 :d0)
+	(vp-cvt-dr :d0 :r0)
 
 	(exit :sys_math :f_cos '(:r0))
 	(vp-ret)
@@ -128,83 +128,83 @@
 
 	; --- Range Reduction: fmod(x, 2pi) ---
 	(vp-load-rcd :r0 0 :d2)		; Load 1/2pi
-	(vp-cpy-ff :d0 :d1)			; f0 = x
-	(vp-mul-ff :d2 :d0)			; f0 = x / 2pi
-	(vp-cvt-fr :d0 :r1)			; r1 = (int)(x / 2pi)
-	(vp-cvt-rf :r1 :d2)			; f2 = (double)k
+	(vp-cpy-dd :d0 :d1)			; f0 = x
+	(vp-mul-dd :d2 :d0)			; f0 = x / 2pi
+	(vp-cvt-dr :d0 :r1)			; r1 = (int)(x / 2pi)
+	(vp-cvt-rd :r1 :d2)			; f2 = (double)k
 	(vp-load-rcd :r0 8 :d3)		; Load 2pi
-	(vp-mul-ff :d3 :d2)			; f2 = k * 2pi
-	(vp-sub-ff :d2 :d1)			; f1 = x - k*2pi
+	(vp-mul-dd :d3 :d2)			; f2 = k * 2pi
+	(vp-sub-dd :d2 :d1)			; f1 = x - k*2pi
 
 	; --- Symmetry to [-pi, pi] ---
 	(vp-load-rcd :r0 16 :d2)		; Load pi
-	(vp-cpy-ff :d2 :d3)			; f3 = pi
-	(vp-neg-ff :d2 :d2)			; f2 = -pi
+	(vp-cpy-dd :d2 :d3)			; f3 = pi
+	(vp-neg-dd :d2 :d2)			; f2 = -pi
 
-	(vp-bgt-ff :d3 :d1 'sub_2pi)
-	(vp-blt-ff :d2 :d1 'add_2pi)
+	(vp-bgt-dd :d3 :d1 'sub_2pi)
+	(vp-blt-dd :d2 :d1 'add_2pi)
 	(vp-jmp 'check_hpi)
 
 (vp-label 'sub_2pi)
 	(vp-load-rcd :r0 8 :d2)		; Load 2pi
-	(vp-sub-ff :d2 :d1)			; x -= 2pi
+	(vp-sub-dd :d2 :d1)			; x -= 2pi
 	(vp-jmp 'check_hpi)
 
 (vp-label 'add_2pi)
 	(vp-load-rcd :r0 8 :d2)		; Load 2pi
-	(vp-add-ff :d2 :d1)			; x += 2pi
+	(vp-add-dd :d2 :d1)			; x += 2pi
 
 	; --- Symmetry to [-pi/2, pi/2] ---
 (vp-label 'check_hpi)
 	(vp-load-rcd :r0 24 :d2)		; Load pi/2
-	(vp-cpy-ff :d2 :d3)			; f3 = pi/2
-	(vp-neg-ff :d2 :d2)			; f2 = -pi/2
+	(vp-cpy-dd :d2 :d3)			; f3 = pi/2
+	(vp-neg-dd :d2 :d2)			; f2 = -pi/2
 
-	(vp-bgt-ff :d3 :d1 'fold_pos)
-	(vp-blt-ff :d2 :d1 'fold_neg)
+	(vp-bgt-dd :d3 :d1 'fold_pos)
+	(vp-blt-dd :d2 :d1 'fold_neg)
 	(vp-jmp 'poly)
 
 (vp-label 'fold_pos)
 	(vp-load-rcd :r0 16 :d2)		; Load pi
-	(vp-sub-ff :d1 :d2)			; f2 = pi - x
-	(vp-cpy-ff :d2 :d1)
+	(vp-sub-dd :d1 :d2)			; f2 = pi - x
+	(vp-cpy-dd :d2 :d1)
 	(vp-jmp 'poly)
 
 (vp-label 'fold_neg)
 	(vp-load-rcd :r0 16 :d2)		; Load pi
-	(vp-neg-ff :d2 :d2)			; f2 = -pi
-	(vp-sub-ff :d1 :d2)			; f2 = -pi - x
-	(vp-cpy-ff :d2 :d1)
+	(vp-neg-dd :d2 :d2)			; f2 = -pi
+	(vp-sub-dd :d1 :d2)			; f2 = -pi - x
+	(vp-cpy-dd :d2 :d1)
 
 	; --- Polynomial Approximation (Taylor) ---
 (vp-label 'poly)
-	(vp-cpy-ff :d1 :d3)
-	(vp-mul-ff :d1 :d3)			; f3 = x^2
+	(vp-cpy-dd :d1 :d3)
+	(vp-mul-dd :d1 :d3)			; f3 = x^2
 
 	; Horner's Method
 	(vp-load-rcd :r0 80 :d0)		; Load c7
-	(vp-mul-ff :d3 :d0)
+	(vp-mul-dd :d3 :d0)
 	(vp-load-rcd :r0 72 :d2)		; Load c6
-	(vp-add-ff :d2 :d0)
-	(vp-mul-ff :d3 :d0)
+	(vp-add-dd :d2 :d0)
+	(vp-mul-dd :d3 :d0)
 	(vp-load-rcd :r0 64 :d2)		; Load c5
-	(vp-add-ff :d2 :d0)
-	(vp-mul-ff :d3 :d0)
+	(vp-add-dd :d2 :d0)
+	(vp-mul-dd :d3 :d0)
 	(vp-load-rcd :r0 56 :d2)		; Load c4
-	(vp-add-ff :d2 :d0)
-	(vp-mul-ff :d3 :d0)
+	(vp-add-dd :d2 :d0)
+	(vp-mul-dd :d3 :d0)
 	(vp-load-rcd :r0 48 :d2)		; Load c3
-	(vp-add-ff :d2 :d0)
-	(vp-mul-ff :d3 :d0)
+	(vp-add-dd :d2 :d0)
+	(vp-mul-dd :d3 :d0)
 	(vp-load-rcd :r0 40 :d2)		; Load c2
-	(vp-add-ff :d2 :d0)
-	(vp-mul-ff :d3 :d0)
+	(vp-add-dd :d2 :d0)
+	(vp-mul-dd :d3 :d0)
 	(vp-load-rcd :r0 32 :d2)		; Load c1
-	(vp-add-ff :d2 :d0)
-	(vp-mul-ff :d3 :d0)
+	(vp-add-dd :d2 :d0)
+	(vp-mul-dd :d3 :d0)
 	(vp-load-rcd :r0 88 :d2)		; Load 1.0
-	(vp-add-ff :d2 :d0)
-	(vp-mul-ff :d1 :d0)
+	(vp-add-dd :d2 :d0)
+	(vp-mul-dd :d1 :d0)
 
 	(exit :sys_math :r_sin '(:d0))
 	(vp-ret)
@@ -366,21 +366,21 @@
 	(vp-lea-pr 'fn_consts :r2)
 	(vp-load-rcd :r2 (fn-const (n2r 0)) :d2)
 	(vp-load-rcd :r2 (fn-const (n2r 1)) :d6)
-	(vp-bgt-ff :d2 :d0 'positive)
-	(vp-cpy-ff :d2 :d0)
+	(vp-bgt-dd :d2 :d0 'positive)
+	(vp-cpy-dd :d2 :d0)
 	(vp-jmp 'exit)
 (vp-label 'positive)
 	;the whole part of the power, and what is left of it
-	(vp-cpy-ff :d0 :d7)
-	(vp-cvt-fr :d1 :r0)
-	(vp-cvt-rf :r0 :d3)
-	(vp-ble-ff :d1 :d3 'floored)
-	(vp-sub-ff :d6 :d3)
+	(vp-cpy-dd :d0 :d7)
+	(vp-cvt-dr :d1 :r0)
+	(vp-cvt-rd :r0 :d3)
+	(vp-ble-dd :d1 :d3 'floored)
+	(vp-sub-dd :d6 :d3)
 	(vp-sub-cr 1 :r0)
 (vp-label 'floored)
-	(vp-sub-ff :d3 :d1)
-	(vp-cpy-ff :d6 :d4)
-	(vp-cpy-ff :d0 :d5)
+	(vp-sub-dd :d3 :d1)
+	(vp-cpy-dd :d6 :d4)
+	(vp-cpy-dd :d0 :d5)
 	(vp-abs-rr :r0 :r1)
 (vp-label 'whole)
 	;the whole part, by squaring
@@ -388,33 +388,33 @@
 	(vp-cpy-rr :r1 :r0)
 	(vp-and-cr 1 :r0)
 	(vp-beq-cr 0 :r0 'even)
-	(vp-mul-ff :d5 :d4)
+	(vp-mul-dd :d5 :d4)
 (vp-label 'even)
-	(vp-mul-ff :d5 :d5)
+	(vp-mul-dd :d5 :d5)
 	(vp-shr-cr 1 :r1)
 	(vp-jmp 'whole)
 (vp-label 'recip)
 	;a power less than 0 is 1 over it
-	(vp-bge-ff :d2 :d3 'rest)
-	(vp-cpy-ff :d6 :d5)
-	(vp-div-ff :d4 :d5)
-	(vp-cpy-ff :d5 :d4)
+	(vp-bge-dd :d2 :d3 'rest)
+	(vp-cpy-dd :d6 :d5)
+	(vp-div-dd :d4 :d5)
+	(vp-cpy-dd :d5 :d4)
 (vp-label 'rest)
-	(vp-cpy-ff :d7 :d5)
+	(vp-cpy-dd :d7 :d5)
 	(vp-cpy-cr 31 :r1)
 (vp-label 'root)
 	;the rest, a bit of it at a time, by a root for each bit
-	(vp-ble-ff :d2 :d1 'done)
+	(vp-ble-dd :d2 :d1 'done)
 	(vp-beq-cr 0 :r1 'done)
 	(vp-sub-cr 1 :r1)
-	(vp-sqrt-ff :d5 :d5)
-	(vp-add-ff :d1 :d1)
-	(vp-blt-ff :d6 :d1 'root)
-	(vp-mul-ff :d5 :d4)
-	(vp-sub-ff :d6 :d1)
+	(vp-sqrt-dd :d5 :d5)
+	(vp-add-dd :d1 :d1)
+	(vp-blt-dd :d6 :d1 'root)
+	(vp-mul-dd :d5 :d4)
+	(vp-sub-dd :d6 :d1)
 	(vp-jmp 'root)
 (vp-label 'done)
-	(vp-cpy-ff :d4 :d0)
+	(vp-cpy-dd :d4 :d0)
 (vp-label 'exit)
 
 	(exit :sys_math :r_pow '(:d0))

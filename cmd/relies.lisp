@@ -79,8 +79,8 @@
 	;nothing of a general register in them
 	+none_ops ''(emit-label emit-tlabel emit-align emit-string emit-byte emit-short emit-int emit-long
 		emit-alloc emit-free emit-ret emit-sync emit-nop emit-vp-nop emit-jmp
-		emit-cpy-ff emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
-		emit-abs-ff emit-neg-ff emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff))
+		emit-cpy-dd emit-add-dd emit-sub-dd emit-mul-dd emit-div-dd emit-min-dd emit-max-dd emit-sqrt-dd
+		emit-abs-dd emit-neg-dd emit-beq-dd emit-bne-dd emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd))
 
 (defun regs-in (mask)
 	; (regs-in mask) -> (reg ...)
@@ -113,8 +113,8 @@
 		((find op +put2_ops) (list (logior a b c) 0))
 		((find op '(emit-load-pr emit-lea-pr)) (list 0 b))
 		;to and from the float registers, and floats in memory
-		((find op '(emit-cpy-rf emit-cvt-rf emit-load-rcd emit-load-rcd-i)) (list a 0))
-		((find op '(emit-cpy-fr emit-cvt-fr)) (list 0 b))
+		((find op '(emit-cpy-rd emit-cvt-rd emit-load-rcd emit-load-rcd-i)) (list a 0))
+		((find op '(emit-cpy-dr emit-cvt-dr)) (list 0 b))
 		((find op '(emit-store-drc emit-store-drc-i)) (list b 0))
 		((find op '(emit-load-rrd emit-load-rrd-i)) (list (logior a b) 0))
 		((find op '(emit-store-drr emit-store-drr-i)) (list (logior b c) 0))

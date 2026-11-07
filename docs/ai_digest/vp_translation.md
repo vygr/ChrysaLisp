@@ -282,10 +282,10 @@ Some things are the same on all five:
   negative number by -1 gives itself and a remainder of 0. Below they are
   `(s d)`, `d` the dividend and the result.
 
-* `vp-cvt-fr` truncates towards 0.
+* `vp-cvt-dr` truncates towards 0.
 
 * A float compare with a NaN in it is false for every branch but
-  `bne-ff`, which is taken.
+  `bne-dd`, which is taken.
 
 * `emit-stack-init`, `(s f x)`, makes the stack of a new task at `s`, so
   that the first switch to it runs `f` with `x` as where `f` returns to.
@@ -339,7 +339,7 @@ the CPU gives; a remainder is that into x29 then an `msub` of it, the
 dividend itself by 0. A shift by a
 constant is `ubfm` or `sbfm`, 0 nothing, below 0 or above 63 fails.
 `min` and `max` are `cmp` and `csel`. The float ops are the `d` forms;
-`cvt-rf` is `scvtf`, `cvt-fr` `fcvtzs`.
+`cvt-rd` is `scvtf`, `cvt-dr` `fcvtzs`.
 
 `e_entry_abi` copies sp to x28. `e_call_abi`, `(r b c n)`, takes up to 8
 args, already in x0 to x7. It pushes x1 to x7 and x19, sets sp to x28
@@ -404,9 +404,9 @@ relative `lea` and `mov`, ±2GB.
 
 A conditional branch is `cmp` or `test` and a `jcc`: rel8 if the most it
 has reached fits, else rel32. `jmp` is `eb` rel8 or `e9` rel32. Out of
-32 bits fails. A float branch is `ucomisd` then: `beq-ff` a `jp` over a
-`je`, `bne-ff` a `jp` and a `jne`, `bgt-ff` and `bge-ff` `ja` and `jae`,
-`blt-ff` and `ble-ff` the same with the operands swapped. `seq` to `sge`
+32 bits fails. A float branch is `ucomisd` then: `beq-dd` a `jp` over a
+`je`, `bne-dd` a `jp` and a `jne`, `bgt-dd` and `bge-dd` `ja` and `jae`,
+`blt-dd` and `ble-dd` the same with the operands swapped. `seq` to `sge`
 are the compare, `setcc` and `movzx`.
 
 `call` is `e8` rel32. `call-r` is `call r`, `call-rc` `call [b + c]`,
@@ -424,9 +424,9 @@ a register is by cl, with an `xchg` either side if the destination is
 rcx, else the operands, rax and rcx pushed and the shift done in rax.
 `min-rr` and `max-rr` are `cmp` and `cmovg` or `cmovl`, the constant
 forms a `jcc` over a `mov`. `abs-rr` is `test`, `jns`, `neg`. `ext-rr`
-from rax to rdx is `cqo`. The float ops are the `sd` forms, `cvt-rf`
-`cvtsi2sd`, `cvt-fr` `cvttsd2si`. `abs-ff` shifts the xmm left 1 and
-right 1, `neg-ff` flips bit 63 with `btc` through rax.
+from rax to rdx is `cqo`. The float ops are the `sd` forms, `cvt-rd`
+`cvtsi2sd`, `cvt-dr` `cvttsd2si`. `abs-dd` shifts the xmm left 1 and
+right 1, `neg-dd` flips bit 63 with `btc` through rax.
 
 The two bodies differ only in the ABI. `vp_args`, `:r0` to `:r5`, go to
 `rdi rsi rdx rcx r8 r9` on AMD64, `rcx rdx r8 r9` on WIN64:
@@ -497,7 +497,7 @@ A conditional branch is `beq`, `bne`, `blt` or `bge` on two registers,
 any other is made in x31 first. The short form reaches ±4KB; past that,
 by the most it has reached, it is the condition the other way round
 branching over a `jal zero` of ±1MB. A float branch is `feq.d`, `flt.d`
-or `fle.d` to x31, then `bne x31, zero`, or `beq` for `bne-ff`.
+or `fle.d` to x31, then `bne x31, zero`, or `beq` for `bne-dd`.
 
 `call` is a push of ra, `jal ra` (±1MB), and a pop of ra. `call-r` is the
 same round `jalr ra, 0(r)`. `call-rc` loads the address into x31 from
@@ -512,8 +512,8 @@ remainder is `rem` or `remu`, which gives the dividend itself by 0. A shift by a
 `seqz` or `snez`, `slt` and `sgt` `slt`, `sle` and `sge` an `slt`, a
 `seqz` and an `or`. `lnot` is `seqz`, `land` two `snez` and an `and`.
 `min`, `max` and `abs` branch over a copy or a negate. The float ops are
-the `.d` forms; `cvt-fr` is `fcvt.l.d` rounding towards 0, `abs-ff` and
-`neg-ff` `fsgnjx.d` and `fsgnjn.d`.
+the `.d` forms; `cvt-dr` is `fcvt.l.d` rounding towards 0, `abs-dd` and
+`neg-dd` `fsgnjx.d` and `fsgnjn.d`.
 
 `e_entry_abi` is nothing, the args already in a0 on. `e_call_abi`, `(r b
 c n)`, takes up to 8 args. It pushes `:r1` to `:r8`, keeps sp in x27 and
@@ -562,7 +562,7 @@ with the registers swapped, a constant of 0 the zero register, any other
 in r12. The short form reaches ±128KB; past that it is the condition the
 other way round branching over a `b` of ±128MB. A float branch is
 `fcmp.ceq.d`, `fcmp.clt.d` or `fcmp.cle.d` to `$fcc0`, then `bcnez`, or
-`bceqz` for `bne-ff`, reach ±4MB, with no long form.
+`bceqz` for `bne-dd`, reach ±4MB, with no long form.
 
 `call` is a push of ra, `bl` (±128MB), and a pop of ra. `call-r` is the
 same round `jirl ra, r, 0`. `call-rc` loads the address into r12, `call-p`
@@ -577,7 +577,7 @@ constant is `slli.d`, `srli.d` or `srai.d`, 0 to 63, any other fails. The
 sets are as on riscv64, with `sltui` for `seqz`, `sltu` from zero for
 `snez`, and `sle` and `sge` an `slt` and an `xori` of 1. `min`, `max`
 and `abs` branch over a copy or a negate. The float ops are the `.d`
-forms. `cvt-rf` is `movgr2fr.d` and `ffint.d.l`; `cvt-fr` keeps `s` in
+forms. `cvt-rd` is `movgr2fr.d` and `ffint.d.l`; `cvt-dr` keeps `s` in
 r12, does `ftintrz.l.d` in place, moves the result out and puts `s` back.
 
 `e_entry_abi` is nothing. `e_call_abi` is as on riscv64, pushing `:r1` to
