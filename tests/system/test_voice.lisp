@@ -43,11 +43,22 @@
 (defun vc-quiet (got) (map (lambda ((seq from bytes peak)) (list seq from bytes)) got))
 (assert-list-eq "quiet, below the gate, nothing is sent, and the tap has each piece"
 	(list (list) (map (# (list %0 :t +sound_piece)) (range 0 10))) (map (const vc-quiet) (vc-run '(:t) :nil (mail-mbox) 500)))
-;half duplex: another heard of late is not spoken over
+;half duplex: another heard of late is not spoken over. Heard is a hold of
+;+voice_hang from when the h is read, so the sender is run here, on pieces
+;already made: it has the h before the first of them, and they go through
+;it one after another, none of the time of the hold spent making a tone
+(defun vc-held (said)
+	; (vc-held said) -> (((seq from bytes peak) ...)) of the one to hear it
+	(defq ctl (mail-mbox) from (mail-mbox) box (mail-mbox)
+		loud (sound-map (str-alloc +sound_piece) (lambda (_) 6000)))
+	(mail-send ctl (cat "t" (hex-encode box)))
+	(each (# (mail-send ctl %0)) said)
+	(voice-send (string-stream (apply (const cat) (map (lambda (_) loud) (range 0 10)))) :nil ctl from :nil)
+	(list (vc-got box from)))
 (assert-list-eq "another just heard, what is said here is not sent over them" '(())
-	(vc-run '(:t) :nil :nil :nil '("h")))
+	(vc-held '("h")))
 (assert-list-eq "half duplex off, as with headphones, it is" (list (vc-all :t))
-	(vc-run '(:t) :nil :nil :nil '("d0" "h")))
+	(vc-held '("d0" "h")))
 
 ;pieces added, sample by sample
 (defq vc_a (sound-map (slice (str-alloc 8) 0 8) (lambda (_) 20000)) vc_b (sound-map (slice (str-alloc 4) 0 4) (lambda (_) -5000)))
