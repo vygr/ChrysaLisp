@@ -25,18 +25,43 @@
 			(list _) n 0)
 		`(progn ~_))
 
-	(def-vars
-		(ptr this args mem1 mem2)
-		(long regs_vops memory_vops reals_vops start end cnt))
+	(defmacro time-start ()
+		;the time this test starts, and no ops yet
+		'(progn
+			(call :host_os :pii_time :nil '(:r0))
+			(vp-xor-rr :r1 :r1)
+			(save-fields :rsp '(slot_start slot_cnt) '(:r0 :r1))))
 
-	(push-scope)
-	(entry (vpx this args))
+	(defmacro time-step (n)
+		;n more ops, the time so far in :r0
+		`(progn
+			(call :host_os :pii_time :nil '(:r0))
+			(load-fields :rsp '(slot_start slot_cnt) '(:r1 :r2))
+			(vp-sub-rr :r1 :r0)
+			(vp-add-cr ,n :r2)
+			(assign '(:r2) '((:rsp slot_cnt)))))
+
+	(defmacro time-end (slot)
+		;the ops a second, of the count and the time in :r0
+		`(progn
+			(assign '((:rsp slot_cnt)) '(:r1))
+			(vp-mul-cr 1000000 :r1)
+			(vp-div-rr :r0 :r1)
+			(call :num :create '(:r1) '((:rsp ,slot)))))
+
+	(structure slot 0
+		(ptr this args mem1 mem2)
+		(long regs_vops memory_vops reals_vops start cnt))
+
+	(entry '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 0)
 
+	(vp-alloc slot_size)
+	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
+
 	;reg ops test
-	(call :host_os :pii_time :nil (vpx start))
-	(assign (vpx 0) (vpx cnt))
+	(time-start)
 	(loop-start)
 
 		;this mix allows up to oct issue opportunities !
@@ -82,18 +107,16 @@
 		(loop-until `(,loop = 1000))
 		(call :sys_task :sleep '(0))
 
-		(call :host_os :pii_time :nil (vpx end))
-		(assign (vpx (- end start) (+ (* 1000 1000) cnt)) (vpx end cnt))
-	(loop-until (vpx (>= end 100000)))
-	(call :num :create (vpx (/ (* 1000000 cnt) end)) (vpx regs_vops))
+		(time-step (* 1000 1000))
+	(loop-until '(:r0 >= 100000))
+	(time-end slot_regs_vops)
 
 	;memory ops test
-	(call :host_os :pii_time :nil (vpx start))
-	(assign (vpx 0) (vpx cnt))
+	(time-start)
 	(loop-start)
 
 		(vp-rdef (loop r1 r2 r3 r4))
-		(assign (vpx (& mem1) (& mem2)) `(,r1 ,r2))
+		(assign '((& :rsp slot_mem1) (& :rsp slot_mem2)) `(,r1 ,r2))
 		(vp-cpy-cr 0 loop)
 		(loop-start)
 			(test-block 1000
@@ -117,14 +140,12 @@
 		(loop-until `(,loop = 1000))
 		(call :sys_task :sleep '(0))
 
-		(call :host_os :pii_time :nil (vpx end))
-		(assign (vpx (- end start) (+ (* 1000 1000) cnt)) (vpx end cnt))
-	(loop-until (vpx (>= end 100000)))
-	(call :num :create (vpx (/ (* 1000000 cnt) end)) (vpx memory_vops))
+		(time-step (* 1000 1000))
+	(loop-until '(:r0 >= 100000))
+	(time-end slot_memory_vops)
 
 	;reals ops test
-	(call :host_os :pii_time :nil (vpx start))
-	(assign (vpx 0) (vpx cnt))
+	(time-start)
 	(loop-start)
 
 		(vp-rdef (loop r1 r2 r3 r4))
@@ -146,22 +167,20 @@
 		(loop-until `(,loop = 100))
 		(call :sys_task :sleep '(0))
 
-		(call :host_os :pii_time :nil (vpx end))
-		(assign (vpx (- end start) (+ (* 24 100) cnt)) (vpx end cnt))
-	(loop-until (vpx (>= end 100000)))
-	(call :num :create (vpx (/ (* 1000000 cnt) end)) (vpx reals_vops))
+		(time-step (* 24 100))
+	(loop-until '(:r0 >= 100000))
+	(time-end slot_reals_vops)
 
-	(call :list :create :nil (vpx args))
-	(call :list :push_back2 (vpx args regs_vops memory_vops))
-	(call :list :push_back (vpx args reals_vops))
+	(call :list :create :nil '(:r0))
+	(call :list :push_back2 '(:r0 (:rsp slot_regs_vops) (:rsp slot_memory_vops)) '(:r0 _ _ _ _))
+	(call :list :push_back '(:r0 (:rsp slot_reals_vops)) '(:r1 _ _ _))
 
-	(exit (vpx this args))
-	(return)
+	(exit '((:rsp slot_this) :r1))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error (vpx args "(vops)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(vops)" +error_msg_wrong_types))
 	(signature '())
-
-	(pop-scope-syms)
 
 (def-func-end)
