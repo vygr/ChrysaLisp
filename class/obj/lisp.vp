@@ -112,7 +112,7 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
-	(def-vars
+	(structure local 0
 		(ptr this obj))
 
 	(vp-rdef (this args obj offset type val num osize fsize sizes))
@@ -146,8 +146,8 @@
 (endif)
 
 	;the frame after the checks, an error goes with the stack as it came
-	(push-scope)
-	(assign `(,this ,obj) (vpx this obj))
+	(vp-alloc local_size)
+	(assign `(,this ,obj) '((:rsp local_this) (:rsp local_obj)))
 	(assign `((,val +num_value)) `(,num))
 	(switch 'exit)
 	(vpcase `(,type >= 0))
@@ -155,7 +155,7 @@
 			;object reference
 			;:obj :deref_if leaves val and offset
 			(call :obj :deref_if `((,obj ,offset)))
-			(assign (vpx this obj) `(,this ,obj))
+			(assign '((:rsp local_this) (:rsp local_obj)) `(,this ,obj))
 			(assign `((,this +lisp_sym_nil)) `(,this))
 			(vpif `(,val = ,this))
 				(vp-xor-rr val val)
@@ -189,9 +189,9 @@
 	(default)
 		(assign `(,num) `((,obj ,offset)))
 	(endswitch)
-	(assign (vpx this obj) `(,this ,obj))
+	(assign '((:rsp local_this) (:rsp local_obj)) `(,this ,obj))
 	(class/obj/ref obj type)
-	(pop-scope)
+	(vp-free local_size)
 
 	(exit :obj :lisp_set `(,this ,obj))
 	(vp-ret)

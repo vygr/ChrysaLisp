@@ -15,6 +15,7 @@
 			(throw "Field redefined !" field_name)))
 	(push syms field_name field_type)
 	(push values (num base) type)
+	(push fields (list field base type))
 	(++ base alloc))
 
 (defun _structure_line (base line)
@@ -87,7 +88,9 @@
 
 (defmacro structure (name base &rest lines)
 	; (structure name base [(byte field ...)] ...)
-	(defq syms (list) values (list) base (eval base))
+	;the frame of a function's locals, local, says its fields as well,
+	;local_fields, ((field offset type) ...), for (vp-alloc) to note
+	(defq syms (list) values (list) fields (list) base (eval base))
 	(each (lambda (line)
 		(setq base (_structure base line))) lines)
 	(defq field_name (sym (cat name "_size")) field_value (get field_name (penv)))
@@ -96,6 +99,9 @@
 			(throw "Field redefined !" field_name)))
 	(push syms field_name)
 	(push values (num base))
+	(when (eql name 'local)
+		(push syms 'local_fields)
+		(push values fields))
 	(static-qq (bind ',syms ',values)))
 
 (defun obj-args (field &optional offset)
