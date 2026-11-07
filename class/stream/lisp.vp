@@ -883,16 +883,16 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this args stream func value call_args)
 		(long start end)
 		(uint old_idx))
 
 	(vp-rdef (this args func stream idx old_idx start end value vt1))
 
-	(push-scope)
+	(vp-alloc slot_size)
 	(entry :stream :lisp_each `(,this ,args))
-	(assign `(,this ,args) (vpx this args))
+	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
 	(errorif-lisp-args-sig 'error1 :r1 2 4)
 
@@ -905,60 +905,66 @@
 	(else)
 		(list-bind-args args `(,func ,stream ,start ,end) '(:obj :stream :num :num))
 	(endif)
-	(assign `(,func ,stream ,start ,end) (vpx func stream start end))
+	(save-fields :rsp '(slot_func slot_stream slot_start slot_end) `(,func ,stream ,start ,end))
 
 (gotoif `(,start < 0) 'error2)
 (gotoif `(,end < ,start) 'error2)
 
 	(assign '(0) `(,idx))
 	(assign `((,this +lisp_seq_idx)) `(,old_idx))
-	(assign `(,old_idx) (vpx old_idx))
+	(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 	(loop-start)
-		(assign (vpx end) `(,end))
+		(assign '((:rsp slot_end)) `(,end))
 		(breakif `(,idx >= ,end))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
 
-		(call :stream :read_line (vpx stream) (vpx _ value))
-		(breakifnot (vpx value))
+		(call :stream :read_line '((:rsp slot_stream)) `(_ ,value))
+		(assign `(,value) '((:rsp slot_value)))
+		(breakif `(,value = 0))
 
-		(assign (vpx this start) `(,this ,start))
+		(load-fields :rsp '(slot_this slot_start) `(,this ,start))
 		(assign `((,this +lisp_seq_idx)) `(,idx))
 		(vpif `(,idx < ,start))
-			(call :obj :deref (vpx value))
+			(call :obj :deref '((:rsp slot_value)))
 		(else)
-			(call :list :create :nil (vpx call_args))
-			(call :list :push_back (vpx call_args value))
-			(call :lisp :repl_apply (vpx this call_args func) (vpx _ value))
-			(call :obj :deref (vpx call_args))
+			(call :list :create :nil '((:rsp slot_call_args)))
+			(call :list :push_back '((:rsp slot_call_args) (:rsp slot_value)))
+			(call :lisp :repl_apply '((:rsp slot_this) (:rsp slot_call_args) (:rsp slot_func)) '(_ (:rsp slot_value)))
+			(call :obj :deref '((:rsp slot_call_args)))
 
-			(assign (vpx this value) `(,this ,value))
+			(load-fields :rsp '(slot_this slot_value) `(,this ,value))
 			(assign `((,this +lisp_sym_nil)) `(,vt1))
 			(gotoif `(,vt1 /= ,value) 'exit)
 
-			(call :obj :deref (vpx value))
+			(call :obj :deref '((:rsp slot_value)))
 		(endif)
 
-		(assign (vpx this) `(,this))
+		(assign '((:rsp slot_this)) `(,this))
 		(assign `((,this +lisp_seq_idx)) `(,idx))
 		(vp-add-cr 1 idx)
 	(loop-end)
-	(call :obj :ref (vpx (.> this +lisp_sym_nil)) (vpx value))
+	(assign '((:rsp slot_this)) `(,this))
+	(call :obj :ref `((,this +lisp_sym_nil)) '((:rsp slot_value)))
 
 (vp-label 'exit)
-	(assign (vpx this value) `(,this ,args))
-	(assign (vpx old_idx) `(,old_idx))
+	(load-fields :rsp '(slot_this slot_value) `(,this ,args))
+	(assign '((:rsp slot_old_idx)) `(,old_idx))
 	(assign `(,old_idx) `((,this +lisp_seq_idx)))
 
 	(exit :stream :lisp_each `(,this ,args))
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'error1)
-	(jump :lisp :repl_error (vpx args "(lines! lambda stream [start end])" +error_msg_wrong_types))
+	(assign '((:rsp slot_args)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(lines! lambda stream [start end])" +error_msg_wrong_types))
 (vp-label 'error2)
-	(jump :lisp :repl_error (vpx args "(lines! lambda stream [start end])" +error_msg_not_valid_index))
+	(assign '((:rsp slot_args)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(lines! lambda stream [start end])" +error_msg_not_valid_index))
 	(signature '(:obj :stream :NUM :NUM))
 
-	(pop-scope-syms)
 
 (def-func-end)
