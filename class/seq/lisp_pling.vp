@@ -31,7 +31,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this seqs func args)
 		(int dir end)
 		(uint old_idx))
@@ -42,15 +42,15 @@
 	(vp-rdef (dir idx end func seqs this value old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r7 :r12 :r13 :r6))
 
-	(push-scope)
-	(entry :seq :lisp_each (vpx this seqs))
+	(vp-alloc slot_size)
+	(entry :seq :lisp_each '((:rsp slot_this) (:rsp slot_seqs)))
 
 (errorif-lisp-args-sig 'error1 :r1 2 4)
 (assign '((:r1 +array_begin)) '(:r1))
 (assign `((:r1 +ptr_size)) '(:r1))
 (errorif-lisp-args-type 'error1 :r1 :seq 0)
 
-	(assign (vpx seqs) '(:r1))
+	(assign '((:rsp slot_seqs)) '(:r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seqs))
@@ -62,7 +62,8 @@
 		(array-get-args :r0 `(_ _ _ ,end))
 		(list-cast-args `(,end) '(:num))
 	(endif)
-	(call :obj :ref (vpx (.> this +lisp_sym_nil)) `(,value))
+	(assign '((:rsp slot_this)) '(:r0))
+	(call :obj :ref '((:r0 +lisp_sym_nil)) `(,value))
 
 	(call :list :min_length `(,seqs) '(_ len))
 	(seq-elem-index idx len)
@@ -80,28 +81,28 @@
 			(vp-cpy-cr -1 dir)
 		(endif)
 
-		(assign (vpx this) `(,this))
-		(assign `(,dir ,end ,func ,seqs) (vpx dir end func seqs))
+		(assign '((:rsp slot_this)) `(,this))
+		(save-fields :rsp '(slot_dir slot_end slot_func slot_seqs) `(,dir ,end ,func ,seqs))
 		(assign `((,this +lisp_seq_idx)) `(,old_idx))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
-		(assign `(,old_idx) (vpx old_idx))
+		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 		;the one list of args for every time round, while nothing but this
 		;holds it
 		(call :list :create :nil '(:r0))
-		(assign '(:r0) (vpx args))
+		(assign '(:r0) '((:rsp slot_args)))
 
 		(loop-start)
 			;discard old value, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref `(,value))
-			(assign (vpx args) '(:r0))
+			(assign '((:rsp slot_args)) '(:r0))
 			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			;if what was called kept the args, it is the value of (list),
 			;they are its now and the next time round has a list of its
 			;own. If not they are emptied and used again
-			(assign (vpx args) '(:r0))
+			(assign '((:rsp slot_args)) '(:r0))
 			(assign '((:r0 +obj_count)) '(:r1))
 			(vpif '(:r1 = 1))
 				;emptied here, an element that lives on let go of with no
@@ -120,9 +121,9 @@
 			(else)
 				(call :obj :deref '(:r0))
 				(call :list :create :nil '(:r0))
-				(assign '(:r0) (vpx args))
+				(assign '(:r0) '((:rsp slot_args)))
 			(endif)
-			(assign (vpx this dir end func seqs) `(,this ,dir ,end ,func ,seqs))
+			(load-fields :rsp '(slot_this slot_dir slot_end slot_func slot_seqs) `(,this ,dir ,end ,func ,seqs))
 
 		(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 		(breakif `(,vt1 = ,vt2))
@@ -132,13 +133,14 @@
 			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
-		(call :obj :deref (vpx args))
+		(assign '((:rsp slot_old_idx)) `(,old_idx))
+		(assign `(,old_idx) `((,this +lisp_seq_idx)))
+		(call :obj :deref '((:rsp slot_args)))
 	(endif)
 
-	(assign (vpx this) '(:r0))
-	(exit :seq :lisp_each `(:r0 ,value))
-	(return)
+	(exit :seq :lisp_each `((:rsp slot_this) ,value))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'args_last)
 	;the last ref of one of the args, it is destroyed
@@ -146,13 +148,16 @@
 	(vp-jmp 'args_next)
 
 (vp-label 'error1)
-	(jump :lisp :repl_error (vpx seqs "(each! lambda seqs [start end])" +error_msg_wrong_types))
+	(assign '((:rsp slot_seqs)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(each! lambda seqs [start end])" +error_msg_wrong_types))
 (vp-label 'error2)
 	(call :obj :deref `(,value))
-	(jump :lisp :repl_error (vpx seqs "(each! lambda seqs [start end])" +error_msg_not_valid_index))
+	(assign '((:rsp slot_seqs)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(each! lambda seqs [start end])" +error_msg_not_valid_index))
 	(signature '(:obj :LIST :NUM :NUM))
 
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -166,7 +171,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this seqs mode func args)
 		(int dir end)
 		(uint old_idx))
@@ -177,15 +182,16 @@
 	(vp-rdef (dir idx end mode func seqs this value old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r11 :r7 :r12 :r13 :r6))
 
-	(push-scope)
-	(entry :seq :lisp_some (vpx this seqs))
+	(vp-alloc slot_size)
+	(entry :seq :lisp_some '((:rsp slot_this) (:rsp slot_seqs)))
 
 (errorif-lisp-args-sig 'error1 :r1 2 5)
 (assign '((:r1 +array_begin)) '(:r1))
 (assign `((:r1 +ptr_size)) '(:r1))
 (errorif-lisp-args-type 'error1 :r1 :seq 0)
 
-	(assign (vpx (.> this +lisp_sym_nil) seqs) `(,mode :r1))
+	(assign '((:rsp slot_this)) '(:r0))
+	(assign '((:r0 +lisp_sym_nil) (:rsp slot_seqs)) `(,mode :r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seqs))
@@ -218,28 +224,28 @@
 			(vp-cpy-cr -1 dir)
 		(endif)
 
-		(assign (vpx this) `(,this))
-		(assign `(,dir ,end ,mode ,func ,seqs) (vpx dir end mode func seqs))
+		(assign '((:rsp slot_this)) `(,this))
+		(save-fields :rsp '(slot_dir slot_end slot_mode slot_func slot_seqs) `(,dir ,end ,mode ,func ,seqs))
 		(assign `((,this +lisp_seq_idx)) `(,old_idx))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
-		(assign `(,old_idx) (vpx old_idx))
+		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 		;the one list of args for every time round, while nothing but this
 		;holds it
 		(call :list :create :nil '(:r0))
-		(assign '(:r0) (vpx args))
+		(assign '(:r0) '((:rsp slot_args)))
 
 		(loop-start 'exit)
 			;discard old value, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref `(,value))
-			(assign (vpx args) '(:r0))
+			(assign '((:rsp slot_args)) '(:r0))
 			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			;if what was called kept the args, it is the value of (list),
 			;they are its now and the next time round has a list of its
 			;own. If not they are emptied and used again
-			(assign (vpx args) '(:r0))
+			(assign '((:rsp slot_args)) '(:r0))
 			(assign '((:r0 +obj_count)) '(:r1))
 			(vpif '(:r1 = 1))
 				;emptied here, an element that lives on let go of with no
@@ -258,9 +264,9 @@
 			(else)
 				(call :obj :deref '(:r0))
 				(call :list :create :nil '(:r0))
-				(assign '(:r0) (vpx args))
+				(assign '(:r0) '((:rsp slot_args)))
 			(endif)
-			(assign (vpx this mode dir end func seqs) `(,this ,mode ,dir ,end ,func ,seqs))
+			(load-fields :rsp '(slot_this slot_mode slot_dir slot_end slot_func slot_seqs) `(,this ,mode ,dir ,end ,func ,seqs))
 
 		(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 		(breakif `(,vt1 = ,vt2))
@@ -278,13 +284,14 @@
 			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
-		(call :obj :deref (vpx args))
+		(assign '((:rsp slot_old_idx)) `(,old_idx))
+		(assign `(,old_idx) `((,this +lisp_seq_idx)))
+		(call :obj :deref '((:rsp slot_args)))
 	(endif)
 
-	(assign (vpx this) '(:r0))
-	(exit :seq :lisp_some `(:r0 ,value))
-	(return)
+	(exit :seq :lisp_some `((:rsp slot_this) ,value))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'args_last)
 	;the last ref of one of the args, it is destroyed
@@ -292,13 +299,16 @@
 	(vp-jmp 'args_next)
 
 (vp-label 'error1)
-	(jump :lisp :repl_error (vpx seqs "(some! lambda seqs [mode start end])" +error_msg_wrong_types))
+	(assign '((:rsp slot_seqs)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(some! lambda seqs [mode start end])" +error_msg_wrong_types))
 (vp-label 'error2)
 	(call :obj :deref `(,value))
-	(jump :lisp :repl_error (vpx seqs "(some! lambda seqs [mode start end])" +error_msg_not_valid_index))
+	(assign '((:rsp slot_seqs)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(some! lambda seqs [mode start end])" +error_msg_not_valid_index))
 	(signature '(:obj :LIST :obj :NUM :NUM))
 
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -312,7 +322,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this seqs func args out)
 		(int dir end)
 		(uint old_idx))
@@ -323,15 +333,15 @@
 	(vp-rdef (dir idx end func seqs this value old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r7 :r12 :r13 :r4))
 
-	(push-scope)
-	(entry :seq :lisp_map (vpx this seqs))
+	(vp-alloc slot_size)
+	(entry :seq :lisp_map '((:rsp slot_this) (:rsp slot_seqs)))
 
 (errorif-lisp-args-sig 'error1 :r1 2 5)
 (assign '((:r1 +array_begin)) '(:r1))
 (assign `((:r1 +ptr_size)) '(:r1))
 (errorif-lisp-args-type 'error1 :r1 :seq 0)
 
-	(assign (vpx seqs) '(:r1))
+	(assign '((:rsp slot_seqs)) '(:r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seqs))
@@ -349,7 +359,7 @@
 	(else)
 		(call :list :create :nil '(:r0))
 	(endif)
-	(assign '(:r0) (vpx out))
+	(assign '(:r0) '((:rsp slot_out)))
 
 	(call :list :min_length `(,seqs) '(_ len))
 	(seq-elem-index idx len)
@@ -367,13 +377,13 @@
 			(vp-cpy-cr -1 dir)
 		(endif)
 
-		(assign (vpx this) `(,this))
-		(assign `(,dir ,end ,func ,seqs) (vpx dir end func seqs))
+		(assign '((:rsp slot_this)) `(,this))
+		(save-fields :rsp '(slot_dir slot_end slot_func slot_seqs) `(,dir ,end ,func ,seqs))
 		(assign `((,this +lisp_seq_idx)) `(,old_idx))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
-		(assign `(,old_idx) (vpx old_idx))
+		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
-		(assign (vpx out) '(:r0))
+		(assign '((:rsp slot_out)) '(:r0))
 		(assign '((:r0 +array_length)) '(:r1))
 		(vp-cpy-rr end :r2)
 		(vp-sub-rr idx :r2)
@@ -384,18 +394,18 @@
 		;the one list of args for every time round, while nothing but this
 		;holds it
 		(call :list :create :nil '(:r0))
-		(assign '(:r0) (vpx args))
+		(assign '(:r0) '((:rsp slot_args)))
 
 		(loop-start)
 			;get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
-			(assign (vpx args) '(:r0))
+			(assign '((:rsp slot_args)) '(:r0))
 			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			;if what was called kept the args, it is the value of (list),
 			;they are its now and the next time round has a list of its
 			;own. If not they are emptied and used again
-			(assign (vpx args) '(:r0))
+			(assign '((:rsp slot_args)) '(:r0))
 			(assign '((:r0 +obj_count)) '(:r1))
 			(vpif '(:r1 = 1))
 				;emptied here, an element that lives on let go of with no
@@ -414,29 +424,31 @@
 			(else)
 				(call :obj :deref '(:r0))
 				(call :list :create :nil '(:r0))
-				(assign '(:r0) (vpx args))
+				(assign '(:r0) '((:rsp slot_args)))
 			(endif)
-			(assign (vpx this) `(,this))
+			(assign '((:rsp slot_this)) `(,this))
 
 		(assign `((,value +obj_vtable) (,this +lisp_error)) `(,vt1 ,vt2))
 		(gotoif `(,vt1 = ,vt2) 'error3)
 
 			;collect value of function call
-			(assign (vpx out) '(:r0))
+			(assign '((:rsp slot_out)) '(:r0))
 			(call :list :push_back `(:r0 ,value))
 
-			(assign (vpx dir end func seqs) `(,dir ,end ,func ,seqs))
+			(load-fields :rsp '(slot_dir slot_end slot_func slot_seqs) `(,dir ,end ,func ,seqs))
 			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
 			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
-		(call :obj :deref (vpx args))
+		(assign '((:rsp slot_old_idx)) `(,old_idx))
+		(assign `(,old_idx) `((,this +lisp_seq_idx)))
+		(call :obj :deref '((:rsp slot_args)))
 	(endif)
 
-	(exit :seq :lisp_map (vpx this out))
-	(return)
+	(exit :seq :lisp_map '((:rsp slot_this) (:rsp slot_out)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'args_last)
 	;the last ref of one of the args, it is destroyed
@@ -444,20 +456,25 @@
 	(vp-jmp 'args_next)
 
 (vp-label 'error1)
-	(jump :lisp :repl_error (vpx seqs "(map! lambda seqs [start end out])" +error_msg_wrong_types))
+	(assign '((:rsp slot_seqs)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(map! lambda seqs [start end out])" +error_msg_wrong_types))
 (vp-label 'error2)
-	(call :obj :deref (vpx out))
-	(jump :lisp :repl_error (vpx seqs "(map! lambda seqs [start end out])" +error_msg_not_valid_index))
+	(call :obj :deref '((:rsp slot_out)))
+	(assign '((:rsp slot_seqs)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(map! lambda seqs [start end out])" +error_msg_not_valid_index))
 (vp-label 'error3)
 	;the function threw, put the outer loop index back as a normal exit does
-	(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
-	(call :obj :deref (vpx args))
-	(call :obj :deref (vpx out))
+	(assign '((:rsp slot_old_idx)) `(,old_idx))
+	(assign `(,old_idx) `((,this +lisp_seq_idx)))
+	(call :obj :deref '((:rsp slot_args)))
+	(call :obj :deref '((:rsp slot_out)))
 	(exit :seq :lisp_map `(,this ,value))
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 	(signature '(:obj :LIST :NUM :NUM :list))
 
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -471,7 +488,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this seqs func args)
 		(int dir end)
 		(uint old_idx))
@@ -482,15 +499,15 @@
 	(vp-rdef (dir idx end func seqs this value old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r7 :r12 :r13 :r6))
 
-	(push-scope)
-	(entry :seq :lisp_reduce (vpx this seqs))
+	(vp-alloc slot_size)
+	(entry :seq :lisp_reduce '((:rsp slot_this) (:rsp slot_seqs)))
 
 (errorif-lisp-args-sig 'error1 :r1 3 5)
 (assign '((:r1 +array_begin)) '(:r1))
 (assign `((:r1 +ptr_size)) '(:r1))
 (errorif-lisp-args-type 'error1 :r1 :seq 0)
 
-	(assign (vpx seqs) '(:r0))
+	(assign '((:rsp slot_seqs)) '(:r0))
 	(load-fields :r0 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seqs ,value))
@@ -520,29 +537,29 @@
 			(vp-cpy-cr -1 dir)
 		(endif)
 
-		(assign (vpx this) `(,this))
-		(assign `(,dir ,end ,func ,seqs) (vpx dir end func seqs))
+		(assign '((:rsp slot_this)) `(,this))
+		(save-fields :rsp '(slot_dir slot_end slot_func slot_seqs) `(,dir ,end ,func ,seqs))
 		(assign `((,this +lisp_seq_idx)) `(,old_idx))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
-		(assign `(,old_idx) (vpx old_idx))
+		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 		;the one list of args for every time round, while nothing but this
 		;holds it
 		(call :list :create :nil '(:r0))
-		(assign '(:r0) (vpx args))
+		(assign '(:r0) '((:rsp slot_args)))
 
 		(loop-start)
 			;recycle value as arg 0, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(bind '(%3 %4 %5) (method-input :list :collect))
-			(assign (vpx args) `(,%3))
+			(assign '((:rsp slot_args)) `(,%3))
 			(call :list :push_back `(,%3 ,value) `(,%3 _ _ _))
 			(call :list :collect `(,%3 ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			;if what was called kept the args, it is the value of (list),
 			;they are its now and the next time round has a list of its
 			;own. If not they are emptied and used again
-			(assign (vpx args) '(:r0))
+			(assign '((:rsp slot_args)) '(:r0))
 			(assign '((:r0 +obj_count)) '(:r1))
 			(vpif '(:r1 = 1))
 				;emptied here, an element that lives on let go of with no
@@ -561,9 +578,9 @@
 			(else)
 				(call :obj :deref '(:r0))
 				(call :list :create :nil '(:r0))
-				(assign '(:r0) (vpx args))
+				(assign '(:r0) '((:rsp slot_args)))
 			(endif)
-			(assign (vpx this dir end func seqs) `(,this ,dir ,end ,func ,seqs))
+			(load-fields :rsp '(slot_this slot_dir slot_end slot_func slot_seqs) `(,this ,dir ,end ,func ,seqs))
 
 		(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 		(breakif `(,vt1 = ,vt2))
@@ -573,13 +590,15 @@
 			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
-		(call :obj :deref (vpx args))
+		(assign '((:rsp slot_old_idx)) `(,old_idx))
+		(assign `(,old_idx) `((,this +lisp_seq_idx)))
+		(call :obj :deref '((:rsp slot_args)))
 	(endif)
 
-	(assign (vpx this) '(:r0))
+	(assign '((:rsp slot_this)) '(:r0))
 	(exit :seq :lisp_reduce `(:r0 ,value))
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'args_last)
 	;the last ref of one of the args, it is destroyed
@@ -587,13 +606,16 @@
 	(vp-jmp 'args_next)
 
 (vp-label 'error1)
-	(jump :lisp :repl_error (vpx seqs "(reduce! lambda seqs init [start end])" +error_msg_wrong_types))
+	(assign '((:rsp slot_seqs)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(reduce! lambda seqs init [start end])" +error_msg_wrong_types))
 (vp-label 'error2)
 	(call :obj :deref `(,value))
-	(jump :lisp :repl_error (vpx seqs "(reduce! lambda seqs init [start end])" +error_msg_not_valid_index))
+	(assign '((:rsp slot_seqs)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(reduce! lambda seqs init [start end])" +error_msg_not_valid_index))
 	(signature '(:obj :LIST :obj :NUM :NUM))
 
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -607,7 +629,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this seq func args out)
 		(int dir end)
 		(uint old_idx))
@@ -618,12 +640,12 @@
 	(vp-rdef (dir idx end func seq value this old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r11 :r12 :r13 :r7))
 
-	(push-scope)
-	(entry :seq :lisp_filter (vpx this seq))
+	(vp-alloc slot_size)
+	(entry :seq :lisp_filter '((:rsp slot_this) (:rsp slot_seq)))
 
 	(errorif-lisp-args-sig 'error1 :r1 2 5)
 
-	(assign (vpx seq) '(:r1))
+	(assign '((:rsp slot_seq)) '(:r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seq))
@@ -641,7 +663,7 @@
 	(else)
 		(call :list :create :nil '(:r0))
 	(endif)
-	(assign '(:r0) (vpx out))
+	(assign '(:r0) '((:rsp slot_out)))
 
 	(call :seq :get_length `(,seq) '(_ len))
 	(seq-elem-index idx len)
@@ -659,13 +681,13 @@
 			(vp-cpy-cr -1 dir)
 		(endif)
 
-		(assign (vpx this) `(,this))
-		(assign `(,dir ,end ,func ,seq) (vpx dir end func seq))
+		(assign '((:rsp slot_this)) `(,this))
+		(save-fields :rsp '(slot_dir slot_end slot_func slot_seq) `(,dir ,end ,func ,seq))
 		(assign `((,this +lisp_seq_idx)) `(,old_idx))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
-		(assign `(,old_idx) (vpx old_idx))
+		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
-		(assign (vpx out) '(:r0))
+		(assign '((:rsp slot_out)) '(:r0))
 		(assign '((:r0 +array_length)) '(:r1))
 		(vp-cpy-rr end :r2)
 		(vp-sub-rr idx :r2)
@@ -676,7 +698,7 @@
 		;the one list of args for every time round, while nothing but this
 		;holds it
 		(call :list :create :nil '(:r0))
-		(assign '(:r0) (vpx args))
+		(assign '(:r0) '((:rsp slot_args)))
 
 		(loop-start)
 			;get new value of function call
@@ -684,10 +706,10 @@
 			(bind '(%3 %4) (method-input :list :push_back))
 			;the element first, it is kept where the create leaves it
 			(call :seq :ref_elem `(,seq (,this +lisp_seq_idx)) '(_ :r3))
-			(assign (vpx args) `(,%3))
+			(assign '((:rsp slot_args)) `(,%3))
 			(call :list :push_back `(,%3 :r3) `(,%1 _ _ _))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
-			(assign (vpx this) `(,this))
+			(assign '((:rsp slot_this)) `(,this))
 
 		(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 		(gotoif `(,vt1 = ,vt2) 'error3)
@@ -695,15 +717,15 @@
 			;collect or ignore item
 			(assign `((,this +lisp_sym_nil)) `(,vt1))
 			(vpif `(,value /= ,vt1))
-				(call :list :pop_back (vpx args) `(_ ,%4))
-				(assign (vpx out) `(,%3))
+				(call :list :pop_back '((:rsp slot_args)) `(_ ,%4))
+				(assign '((:rsp slot_out)) `(,%3))
 				(call :list :push_back `(,%3 ,%4))
 			(endif)
 			(call :obj :deref `(,value))
 			;if what was called kept the args, it is the value of (list),
 			;they are its now and the next time round has a list of its
 			;own. If not they are emptied and used again
-			(assign (vpx args) '(:r0))
+			(assign '((:rsp slot_args)) '(:r0))
 			(assign '((:r0 +obj_count)) '(:r1))
 			(vpif '(:r1 = 1))
 				;emptied here, an element that lives on let go of with no
@@ -722,21 +744,23 @@
 			(else)
 				(call :obj :deref '(:r0))
 				(call :list :create :nil '(:r0))
-				(assign '(:r0) (vpx args))
+				(assign '(:r0) '((:rsp slot_args)))
 			(endif)
 
-			(assign (vpx dir end func seq) `(,dir ,end ,func ,seq))
+			(load-fields :rsp '(slot_dir slot_end slot_func slot_seq) `(,dir ,end ,func ,seq))
 			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
 			(assign `(,idx) `((,this +lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
-		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
-		(call :obj :deref (vpx args))
+		(assign '((:rsp slot_old_idx)) `(,old_idx))
+		(assign `(,old_idx) `((,this +lisp_seq_idx)))
+		(call :obj :deref '((:rsp slot_args)))
 	(endif)
 
-	(exit :seq :lisp_filter (vpx this out))
-	(return)
+	(exit :seq :lisp_filter '((:rsp slot_this) (:rsp slot_out)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'args_last)
 	;the last ref of one of the args, it is destroyed
@@ -744,20 +768,24 @@
 	(vp-jmp 'args_next)
 
 (vp-label 'error1)
-	(jump :lisp :repl_error (vpx seq "(filter! lambda seq [start end out])" +error_msg_wrong_types))
+	(assign '((:rsp slot_seq)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(filter! lambda seq [start end out])" +error_msg_wrong_types))
 (vp-label 'error2)
-	(call :obj :deref (vpx out))
-	(jump :lisp :repl_error (vpx seq "(filter! lambda seq [start end out])" +error_msg_not_valid_index))
+	(call :obj :deref '((:rsp slot_out)))
+	(assign '((:rsp slot_seq)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(filter! lambda seq [start end out])" +error_msg_not_valid_index))
 (vp-label 'error3)
 	;the function threw, put the outer loop index back as a normal exit does
-	(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
-	(call :obj :deref (vpx args))
-	(call :obj :deref (vpx out))
-	(assign (vpx this) '(:r0))
-	(exit :seq :lisp_filter `(:r0 ,value))
-	(return)
+	(assign '((:rsp slot_old_idx)) `(,old_idx))
+	(assign `(,old_idx) `((,this +lisp_seq_idx)))
+	(call :obj :deref '((:rsp slot_args)))
+	(call :obj :deref '((:rsp slot_out)))
+	(exit :seq :lisp_filter `((:rsp slot_this) ,value))
+	(vp-free slot_size)
+	(vp-ret)
 	(signature '(:obj :seq :NUM :NUM :list))
 
-	(pop-scope-syms)
 
 (def-func-end)

@@ -101,28 +101,50 @@
 	;outputs
 	;:r0 = sstream object (ptr)
 	;trashes
-	;:r1-:r8, :d0-:d15
+	;:r1-:r7, :d0-:d15
 
-	(def-vars
-		(ptr this new_str cell)
+	(structure slot 0
+		(ptr this new_str)
 		(uint len))
 
-	;the named locals are kept in registers where they can be
-	(push-scope)
-	(entry :sstream :write_next (vpx this))
+	(vp-alloc slot_size)
+	(entry :sstream :write_next '((:rsp slot_this)))
 
-	(assign (vpx (- (.> this +stream_bufp) (& (.> this +stream_object +str_data)))) (vpx len))
-	(call :str :create_from_buffer (vpx 0 (* len 2)) (vpx new_str))
-	(call :sys_mem :copy (vpx (& (.> this +stream_object +str_data)) (& (.> new_str +str_data)) len) (vpx _ (.> this +stream_bufp)))
-	(assign (vpx (- new_str +sys_mem_header_size)) (vpx cell))
-	(assign (vpx (- (+ cell (.> cell +sys_mem_header_heap +hp_heap_cellsize)) 1)) (vpx (.> this +stream_bufe)))
-	(assign (vpx (- (.> this +stream_bufe) (& (.> new_str +str_data)))) (vpx (.> new_str +str_length)))
-	(call :str :deref (vpx (.> this +stream_object)))
-	(assign (vpx new_str) (vpx (.> this +stream_object)))
+	;a str twice as long, what is written so far copied to it
+	(load-fields :r0 '(+stream_bufp +stream_object) '(:r1 :r2))
+	(vp-add-cr +str_data :r2)
+	(vp-sub-rr :r2 :r1)
+	(assign '(:r1) '((:rsp slot_len)))
+	(vp-shl-cr 1 :r1)
+	(call :str :create_from_buffer '(0 :r1) '(:r0))
+	(assign '(:r0) '((:rsp slot_new_str)))
+	(load-fields :rsp '(slot_this slot_len) '(:r3 :r2))
+	(vp-lea-rcr :r0 +str_data :r1)
+	(assign '((:r3 +stream_object)) '(:r0))
+	(vp-add-cr +str_data :r0)
+	(call :sys_mem :copy '(:r0 :r1 :r2) '(_ :r1))
 
-	(exit :sstream :write_next (vpx this))
-	(pop-scope)
-	(return)
+	;the buffer is all of its cell, the str as long
+	(load-fields :rsp '(slot_this slot_new_str) '(:r0 :r2))
+	(assign '(:r1) '((:r0 +stream_bufp)))
+	(vp-lea-rcr :r2 (neg +sys_mem_header_size) :r3)
+	(assign '((:r3 +sys_mem_header_heap)) '(:r4))
+	(assign '((:r4 +hp_heap_cellsize)) '(:r4))
+	(vp-add-rr :r4 :r3)
+	(vp-sub-cr 1 :r3)
+	(assign '(:r3) '((:r0 +stream_bufe)))
+	(vp-lea-rcr :r2 +str_data :r4)
+	(vp-sub-rr :r4 :r3)
+	(assign '(:r3) '((:r2 +str_length)))
+
+	;the new str in place of the old
+	(assign '((:r0 +stream_object)) '(:r1))
+	(assign '(:r2) '((:r0 +stream_object)))
+	(call :str :deref '(:r1))
+
+	(exit :sstream :write_next '((:rsp slot_this)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 

@@ -10,17 +10,20 @@
 	;trashes
 	;:r0-:r10, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr rx_frag rx_buf rx_ring msg)
-		(uint rx_extent len))
+		(uint rx_extent))
 
 	(vp-rdef (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_frag total))
 
-	(push-scope)
-	(entry :sys_mail :in (vpx rx_frag rx_buf rx_ring rx_extent))
+	(vp-alloc slot_size)
+	(entry :sys_mail :in '(:r0 :r1 :r2 :r3))
+	(save-fields :rsp '(slot_rx_frag slot_rx_buf slot_rx_ring slot_rx_extent) '(:r0 :r1 :r2 :r3))
 
 	;look up parcel in mailbox
-	(assign (vpx (. (@ sys/statics/statics) statics_sys_mail_parcel_list) rx_frag) `(,parcels ,rx_frag))
+	(vp-cpy-rr :r0 rx_frag)
+	(fn-bind 'sys/statics/statics parcels)
+	(vp-add-cr statics_sys_mail_parcel_list parcels)
 	(load-net-id rx_frag lk_frag_src src1 src2 src3)
 	(loop-list-forward parcels 0 node next)
 		(load-net-id node +msg_src psrc1 psrc2 psrc3)
@@ -34,34 +37,44 @@
 		(assign-net-id rx_frag lk_frag_src node +msg_src src1 src2 src3)
 		(lh-add-at-tail parcels node next)
 	(endif)
-	(assign `(,node) (vpx msg))
+	(assign `(,node) '((:rsp slot_msg)))
 
 	;timestamp last change
-	(call :host_os :pii_time :nil (vpx (.> msg +msg_timestamp)))
+	(call :host_os :pii_time :nil '(:r0))
 
 	;copy fragment data
-	(assign (vpx (.> rx_frag lk_frag_length)) (vpx len))
-	(assign (vpx (+ (.> msg +msg_offset) len)) (vpx (.> msg +msg_offset)))
-	(assign (vpx (- (.> msg +msg_total) len)) (vpx (.> msg +msg_total)))
-	(call :sys_mem :copy_from_ring (vpx (& (.> rx_frag lk_frag_size))
-		(+ (.> msg +msg_data) (.> rx_frag lk_frag_offset)) len rx_extent rx_ring))
+	(load-fields :rsp '(slot_rx_frag slot_msg) '(:r2 :r1))
+	(assign '((:r2 lk_frag_length)) '(:r3))
+	(load-fields :r1 '(+msg_offset +msg_total) '(:r4 :r5))
+	(vp-add-rr :r3 :r4)
+	(vp-sub-rr :r3 :r5)
+	(save-fields :r1 '(+msg_timestamp +msg_offset +msg_total) '(:r0 :r4 :r5))
+	(assign '((:r1 +msg_data) (:r2 lk_frag_offset)) '(:r1 :r5))
+	(vp-add-rr :r5 :r1)
+	(vp-lea-rcr :r2 lk_frag_size :r0)
+	(vp-cpy-rr :r3 :r2)
+	(load-fields :rsp '(slot_rx_ring slot_rx_extent) '(:r4 :r3))
+	(call :sys_mem :copy_from_ring '(:r0 :r1 :r2 :r3 :r4))
 
 	;clear status
 	;overlap the :send with new receive !
-	(vpif (vpx rx_buf))
+	(assign '((:rsp slot_rx_buf)) '(:r0))
+	(vpif '(:r0 /= 0))
 		(vp-sync)
-		(assign (vpx lk_chan_status_ready) (vpx (.> rx_buf lk_buf_status)))
+		(assign `(,lk_chan_status_ready) '(:r1))
+		(assign '(:r1) '((:r0 lk_buf_status)))
 	(endif)
 
 	;got all needed ?
-	(vpifnot (vpx (.> msg +msg_total)))
+	(assign '((:rsp slot_msg)) `(,node))
+	(assign `((,node +msg_total)) '(:r2))
+	(vpif '(:r2 = 0))
 		;yes, remove parcel and post it
-		(assign (vpx msg) `(,node))
 		(ln-remove-node node next)
-		(call :sys_mail :send (vpx msg))
+		(call :sys_mail :send '((:rsp slot_msg)))
 	(endif)
 
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
