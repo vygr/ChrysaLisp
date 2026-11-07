@@ -16,7 +16,7 @@
 	;trashes
 	;:r1-:r7, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this stack)
 		(plong iter_end)
 		(union
@@ -25,71 +25,74 @@
 				p12x p12y p23x p23y p123x p123y))
 		(uint length))
 
-	(push-scope)
-	(entry :path :gen_quadratic (vpx this p1x p1y p2x p2y p3x p3y))
+	(vp-alloc slot_size)
+	(entry :path :gen_quadratic '((:rsp slot_this) (:rsp slot_p1x) (:rsp slot_p1y) (:rsp slot_p2x) (:rsp slot_p2y) (:rsp slot_p3x) (:rsp slot_p3y)))
 
 	;output first point
 	(vec-set 0)
-	(call :path :push_back2 (vpx this p1x p1y))
+	(call :path :push_back2 '((:rsp slot_this) (:rsp slot_p1x) (:rsp slot_p1y)))
 
-	(call :array :create :nil (vpx stack))
+	(call :array :create :nil '((:rsp slot_stack)))
 	(loop-start)
 		;calculate the mid-path
-		(vec-load 4 (vpx p1x p1y p2x p2y))
+		(vec-load 4 '((:rsp slot_p1x) (:rsp slot_p1y) (:rsp slot_p2x) (:rsp slot_p2y)))
 		(vec-dup 2)
-		(vec-load 2 (vpx p3x p3y))
+		(vec-load 2 '((:rsp slot_p3x) (:rsp slot_p3y)))
 		(vec-add 4)
 		(vec-asr 4 1)
-		(vec-tee 4 (vpx p12x p12y p23x p23y))
+		(vec-tee 4 '((:rsp slot_p12x) (:rsp slot_p12y) (:rsp slot_p23x) (:rsp slot_p23y)))
 		(vec-add 2)
 		(vec-asr 2 1)
-		(vec-store 2 (vpx p123x p123y))
+		(vec-store 2 '((:rsp slot_p123x) (:rsp slot_p123y)))
 
 		;flatness test
-		(vec-load 1 (vpx p1x) (vpx p3x))
+		(vec-load 1 '((:rsp slot_p1x)) '((:rsp slot_p3x)))
 		(vec-add 1)
-		(vec-load 1 (vpx p2x))
+		(vec-load 1 '((:rsp slot_p2x)))
 		(vec-dup 1)
 		(vec-dif 3)
-		(vec-load 1 (vpx p1y) (vpx p3y))
+		(vec-load 1 '((:rsp slot_p1y)) '((:rsp slot_p3y)))
 		(vec-add 1)
-		(vec-load 1 (vpx p2y))
+		(vec-load 1 '((:rsp slot_p2y)))
 		(vec-dup 1)
 		(vec-dif 3)
 		(vec-abs 2)
 		(vec-sum 2)
 
-		(vec-load 1 (vpx 0.5))
+		(vec-load 1 `(,(logior 0 0.5)))
 		(bind '(d e) (vec-pop 2))
 		(vpif `(,d <= ,e))
 			;output point
-			(call :path :push_back2 (vpx this p123x p123y))
+			(call :path :push_back2 '((:rsp slot_this) (:rsp slot_p123x) (:rsp slot_p123y)))
 		(else)
 			;continue subdivision
-			(d-call :array :get_length (vpx stack) (vpx _ length))
-			(call :array :set_cap (vpx stack (+ length 6)))
-			(call :array :get_end (vpx stack) (vpx _ iter_end))
-			(call :array :set_length (vpx stack (+ length 6)))
-			(vec-load 7 (vpx p123 p23 p3 p1 p12 p123 iter_end))
+			(d-call :array :get_length '((:rsp slot_stack)) '(_ :r1))
+			(vp-add-cr 6 :r1)
+			(assign '(:r1) '((:rsp slot_length)))
+			(call :array :set_cap '((:rsp slot_stack) :r1))
+			(call :array :get_end '((:rsp slot_stack)) '(_ (:rsp slot_iter_end)))
+			(call :array :set_length '((:rsp slot_stack) (:rsp slot_length)))
+			(vec-load 7 '((:rsp slot_p123) (:rsp slot_p23) (:rsp slot_p3) (:rsp slot_p1) (:rsp slot_p12) (:rsp slot_p123) (:rsp slot_iter_end)))
 			(vec-store-long 6 (first (vec-pop 1)))
 		(endif)
 
-		(d-call :array :get_length (vpx stack) (vpx _ length))
-		(breakifnot (vpx length))
-		(call :array :set_length (vpx stack (- length 3)))
-		(call :array :get_end (vpx stack) (vpx _ iter_end))
-		(vec-load 1 (vpx iter_end))
+		(d-call :array :get_length '((:rsp slot_stack)) '(_ :r1))
+		(breakif '(:r1 = 0))
+		(vp-sub-cr 3 :r1)
+		(call :array :set_length '((:rsp slot_stack) :r1))
+		(call :array :get_end '((:rsp slot_stack)) '(_ (:rsp slot_iter_end)))
+		(vec-load 1 '((:rsp slot_iter_end)))
 		(vec-load-long 3 (first (vec-top 1)))
-		(vec-store 3 (vpx p1 p2 p3))
+		(vec-store 3 '((:rsp slot_p1) (:rsp slot_p2) (:rsp slot_p3)))
 		(vec-pop 1)
 	(loop-end)
-	(call :array :deref (vpx stack))
+	(call :array :deref '((:rsp slot_stack)))
 
 	;output last point
-	(call :path :push_back2 (vpx this p3x p3y))
+	(call :path :push_back2 '((:rsp slot_this) (:rsp slot_p3x) (:rsp slot_p3y)))
 
-	(exit :path :gen_quadratic (vpx this))
-	(pop-scope)
-	(return)
+	(exit :path :gen_quadratic '((:rsp slot_this)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
