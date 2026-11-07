@@ -158,47 +158,53 @@
 	;trashes
 	;:r0-:r10, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr lk_node msg data rx head live)
 		(nodeid node_id)
 		(long is_owner)
-		(uint length status sleep_time quiet))
+		(uint length sleep_time quiet))
 
-	(push-scope)
+	(vp-alloc slot_size)
 
 	;read params msg
-	(call :sys_mail :mymail :nil (vpx msg data))
-	(assign (vpx (ptr (+ data 0))) (vpx lk_node))
-	(assign (vpx (ptr (+ data +ptr_size))) (vpx rx))
-	(assign (vpx (ptr (+ data (* 2 +ptr_size)))) (vpx is_owner))
-	(assign (vpx (ptr (+ data (* 3 +ptr_size)))) (vpx live))
-	(call :sys_mail :free (vpx msg))
+	(call :sys_mail :mymail :nil '(:r0 :r1))
+	(assign '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size)) (:r1 (* 3 +ptr_size))) '(:r2 :r3 :r4 :r5))
+	(save-fields :rsp '(slot_lk_node slot_rx slot_is_owner slot_live) '(:r2 :r3 :r4 :r5))
+	(call :sys_mail :free '(:r0))
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_in_link_priority))
 
 	;assign rx channel deterministically based on leadership
-	(call :sys_kernel :id :nil (vpx (. node_id +node_id_node1) (. node_id +node_id_node2)))
-	(vpif (vpx is_owner))
-		(assign (vpx (+ rx lk_shmem_chan_2)) (vpx rx))
+	(call :sys_kernel :id :nil '(:r0 :r1))
+	(save-node-id :rsp slot_node_id :r0 :r1)
+	(load-fields :rsp '(slot_rx slot_is_owner) '(:r0 :r2))
+	(vpif '(:r2 /= 0))
+		(vp-add-cr lk_shmem_chan_2 :r0)
 	(else)
-		(assign (vpx (+ rx lk_shmem_chan_1)) (vpx rx))
+		(vp-add-cr lk_shmem_chan_1 :r0)
 	(endif)
-	(assign (vpx rx lk_sleep_min 0) (vpx head sleep_time quiet))
+	(vp-cpy-cr lk_sleep_min :r1)
+	(vp-xor-rr :r2 :r2)
+	(save-fields :rsp '(slot_rx slot_head slot_sleep_time slot_quiet) '(:r0 :r0 :r1 :r2))
 
 	;read messages from the shared buffer
 	(loop-start)
-		;check for received message
-		(loop-while (vpx (/= (=> (.> head lk_buf_status) status) lk_chan_status_ready)))
+		;check for received message, head :r0, status :r1
+		(loop-start)
+			(assign '((:rsp slot_head)) '(:r0))
+			(assign '((:r0 lk_buf_status)) '(:r1))
+			(breakif `(:r1 = ,lk_chan_status_ready))
 			;just a skip ?
 			(vp-sync)
-			(assign (vpx (.> head lk_buf_length)) (vpx length))
-			(gotoif (vpx (= status lk_chan_status_skip)) 'skip)
+			(assign '((:r0 lk_buf_length)) '(:r2))
+			(assign '(:r2) '((:rsp slot_length)))
+			(gotoif `(:r1 = ,lk_chan_status_skip) 'skip)
 
-			(vpif (vpx (= status lk_chan_status_ping)))
+			(vpif `(:r1 = ,lk_chan_status_ping))
 				;read neighbor task count, process id, peer node id, and peer system id
 				(vp-rdef (src dst t0 t1 t2 t3 t4 t5))
-				(assign (vpx (& (.> head lk_buf_size)) lk_node) `(,src ,dst))
+				(assign '((& :r0 lk_buf_size) (:rsp slot_lk_node)) `(,src ,dst))
 				(assign-fields
 					src
 						`(,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
@@ -211,20 +217,34 @@
 					`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
 				;clear status
 			(vp-label 'skip)
-				(assign (vpx lk_chan_status_ready) (vpx (.> head lk_buf_status)))
-			(elseif (vpx (= status lk_chan_status_frag)))
+				(assign '((:rsp slot_head)) '(:r0))
+				(vp-cpy-cr lk_chan_status_ready :r1)
+				(assign '(:r1) '((:r0 lk_buf_status)))
+			(elseif `(:r1 = ,lk_chan_status_frag))
 				;reset to min poling
-				(assign (vpx lk_sleep_min 0) (vpx sleep_time quiet))
+				(vp-cpy-cr lk_sleep_min :r1)
+				(vp-xor-rr :r2 :r2)
+				(save-fields :rsp '(slot_sleep_time slot_quiet) '(:r1 :r2))
 
 				;is this msg part of a parcel for this node
-				(vpif (vpx (&& (. (.> head lk_buf_size) lk_frag_total) (= (. (.> head lk_buf_size) lk_frag_dest +net_id_node_id +node_id_node1) (. node_id +node_id_node1)) (= (. (.> head lk_buf_size) lk_frag_dest +net_id_node_id +node_id_node2) (. node_id +node_id_node2)))))
+				(assign `((:r0 ,(+ lk_buf_size lk_frag_total) ui)
+						(:r0 ,(+ lk_buf_size lk_frag_dest +net_id_node_id +node_id_node1))
+						(:r0 ,(+ lk_buf_size lk_frag_dest +net_id_node_id +node_id_node2)))
+					'(:r1 :r2 :r3))
+				(load-node-id :rsp slot_node_id :r4 :r5)
+				(vpif '(:r1 /= 0) '(:r2 = :r4) '(:r3 = :r5))
 					;copy direct from link buffer to parcel !
-					(call :sys_mail :in (vpx (& (.> head lk_buf_size)) head rx lk_chan_size))
+					(assign '((:rsp slot_rx)) '(:r2))
+					(vp-cpy-rr :r0 :r1)
+					(vp-add-cr lk_buf_size :r0)
+					(call :sys_mail :in `(:r0 :r1 :r2 ,lk_chan_size))
 				(else)
 					;allocate msg, copy frag data
-					(call :sys_mail :alloc (vpx (. (.> head lk_buf_size) lk_frag_length)) (vpx msg data))
+					(call :sys_mail :alloc `((:r0 ,(+ lk_buf_size lk_frag_length) ui)) '(:r0 :r1))
+					(save-fields :rsp '(slot_msg slot_data) '(:r0 :r1))
 					(vp-rdef (msg rx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
-					(assign (vpx msg (& (.> head lk_buf_size))) `(,msg ,rx_frag))
+					(assign '((:rsp slot_head)) `(,rx_frag))
+					(vp-add-cr lk_buf_size rx_frag)
 					(assign-fields
 						rx_frag
 							`(lk_frag_length lk_frag_offset lk_frag_total
@@ -243,28 +263,31 @@
 							,(+ +msg_src +net_id_node_id +node_id_node1)
 							,(+ +msg_src +net_id_node_id +node_id_node2))
 						`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
-					(call :sys_mem :copy_from_ring (vpx (& (. (.> head lk_buf_size) lk_frag_size))
-						data (. (.> head lk_buf_size) lk_frag_length) lk_chan_size rx))
+					(load-fields :rsp '(slot_data slot_rx slot_head) '(:r1 :r4 :r0))
+					(assign `((:r0 ,(+ lk_buf_size lk_frag_length) ui)) '(:r2))
+					(vp-add-cr (+ lk_buf_size lk_frag_size) :r0)
+					(call :sys_mem :copy_from_ring `(:r0 :r1 :r2 ,lk_chan_size :r4))
 
 					;clear status
 					;overlap the :send with new receive !
 					(vp-sync)
-					(assign (vpx lk_chan_status_ready) (vpx (.> head lk_buf_status)))
+					(assign '((:rsp slot_head)) '(:r0))
+					(vp-cpy-cr lk_chan_status_ready :r1)
+					(assign '(:r1) '((:r0 lk_buf_status)))
 
 					;send onwards
-					(call :sys_mail :send (vpx msg))
+					(call :sys_mail :send '((:rsp slot_msg)))
 				(endif)
 			(endif)
 
 			;move on to next transfer
-			(vp-rdef (head rx len))
-			(assign (vpx head rx length) `(,head ,rx ,len))
-			(vp-add-cr lk_chan_size rx)
-			(vp-add-rr len head)
-			(vpif `(,head >= ,rx))
-				(vp-sub-cr lk_chan_size head)
+			(load-fields :rsp '(slot_rx slot_head slot_length) '(:r1 :r0 :r2))
+			(vp-add-cr lk_chan_size :r1)
+			(vp-add-rr :r2 :r0)
+			(vpif '(:r0 >= :r1))
+				(vp-sub-cr lk_chan_size :r0)
 			(endif)
-			(assign `(,head) (vpx head))
+			(assign '(:r0) '((:rsp slot_head)))
 
 			;let other links run
 			(call :sys_task :sleep '(0))
@@ -274,28 +297,33 @@
 		;the sleep doubles, to lk_sleep_max, so mail goes through quickly
 		;while there is some. A link that has had none for lk_quiet sleeps
 		;goes on to lk_sleep_idle, an idle network should not be busy.
-		(call :sys_task :sleep (vpx sleep_time))
-		(assign (vpx (<< sleep_time 1) (+ quiet 1)) (vpx sleep_time quiet))
-		(vpif (vpx (> quiet lk_quiet)))
-			(assign (vpx (+ lk_quiet 1)) (vpx quiet))
-			(vpif (vpx (> sleep_time lk_sleep_idle)))
-				(assign (vpx lk_sleep_idle) (vpx sleep_time))
+		(call :sys_task :sleep '((:rsp slot_sleep_time)))
+		(load-fields :rsp '(slot_sleep_time slot_quiet) '(:r0 :r1))
+		(vp-shl-cr 1 :r0)
+		(vp-add-cr 1 :r1)
+		(vpif `(:r1 > ,lk_quiet))
+			(vp-cpy-cr (+ lk_quiet 1) :r1)
+			(vpif `(:r0 > ,lk_sleep_idle))
+				(vp-cpy-cr lk_sleep_idle :r0)
 			(endif)
-		(elseif (vpx (> sleep_time lk_sleep_max)))
-			(assign (vpx lk_sleep_max) (vpx sleep_time))
+		(elseif `(:r0 > ,lk_sleep_max))
+			(vp-cpy-cr lk_sleep_max :r0)
 		(endif)
+		(save-fields :rsp '(slot_sleep_time slot_quiet) '(:r0 :r1))
 
 		;exit if link closed
-		(breakif (vpx (= (.> lk_node lk_node_task_count) (- 1))))
+		(assign '((:rsp slot_lk_node)) '(:r0))
+		(assign '((:r0 lk_node_task_count)) '(:r0))
+		(breakif '(:r0 = -1))
 	(loop-end)
 
 	;gone, the last thing done with lk_node's frame
-	(assign (vpx live) '(:r0))
+	(assign '((:rsp slot_live)) '(:r0))
 	(assign '((:r0 0)) '(:r1))
 	(vp-sub-cr 1 :r1)
 	(assign '(:r1) '((:r0 0)))
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
