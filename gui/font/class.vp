@@ -534,54 +534,62 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this sym txt sym_canvas paths info)
 		(uint w h)
-		(union
-			(ptr statics)
-			(pptr iter bucket)))
+		(pptr iter bucket))
 
-	(push-scope)
-	(entry :font :sym_texture (vpx this sym))
+	(vp-alloc slot_size)
+	(entry :font :sym_texture '(:r0 :r1))
+	(save-fields :rsp '(slot_this slot_sym) '(:r0 :r1))
 
 	;look up string in sym map
-	(call :hmap :pfind (vpx (.> this +font_sym_map) sym) (vpx _ iter bucket))
-	(vpifnot (vpx iter))
+	(call :hmap :pfind '((:r0 +font_sym_map) :r1) '(_ :r1 :r2))
+	(save-fields :rsp '(slot_iter slot_bucket) '(:r1 :r2))
+	(vpif '(:r1 = 0))
 		;create sym canvas
-		(call :font :glyph_info (vpx this sym) (vpx _ info))
-		(call :font :glyph_paths (vpx this info) (vpx _ paths w h))
-		(call :canvas :create (vpx w h 2) (vpx sym_canvas))
-		(assign (vpx +argb_white 1) (vpx (.> sym_canvas +canvas_color) (.> sym_canvas +canvas_flags)))
-		(call :font :get_metrics (vpx this) (vpx _ h _ _))
+		(call :font :glyph_info '((:rsp slot_this) (:rsp slot_sym)) '(_ (:rsp slot_info)))
+		(call :font :glyph_paths '((:rsp slot_this) (:rsp slot_info)) '(_ (:rsp slot_paths) (:rsp slot_w) (:rsp slot_h)))
+		(call :canvas :create '((:rsp slot_w) (:rsp slot_h) 2) '(:r0))
+		(assign `(:r0 ,+argb_white 1) '((:rsp slot_sym_canvas) :r1 :r2))
+		(save-fields :r0 '(+canvas_color +canvas_flags) '(:r1 :r2))
+		(call :font :get_metrics '((:rsp slot_this)) '(_ :r2 _ _))
 		;by the non zero rule, as a TrueType outline is meant to be. Where
 		;two parts of a glyph overlap they are filled, they do not cut a
 		;hole, which is what lets a symbol be the outlines of its strokes
-		(call :canvas :fpoly (vpx sym_canvas 0 (<< h (+ +fp_shift 1)) +winding_none_zero paths))
+		(vp-shl-cr (+ +fp_shift 1) :r2)
+		(call :canvas :fpoly `((:rsp slot_sym_canvas) 0 :r2 ,+winding_none_zero (:rsp slot_paths)))
 
 		;take texture from canvas
-		(call :canvas :swap (vpx sym_canvas +pixmap_mode_glyph))
-		(assign (vpx (.> sym_canvas +canvas_texture)) (vpx txt))
-		(assign (vpx 0) (vpx (.> sym_canvas +canvas_texture)))
+		(call :canvas :swap `((:rsp slot_sym_canvas) ,+pixmap_mode_glyph))
+		(assign '((:rsp slot_sym_canvas)) '(:r0))
+		(assign '((:r0 +canvas_texture)) '(:r1))
+		(assign '(:r1) '((:rsp slot_txt)))
+		(vp-xor-rr :r1 :r1)
+		(assign '(:r1) '((:r0 +canvas_texture)))
 
 		;free all the gubins
-		(call :canvas :deref (vpx sym_canvas))
-		(call :array :deref (vpx info))
-		(call :list :deref (vpx paths))
-		(breakifnot (vpx txt))
+		(call :canvas :deref '((:rsp slot_sym_canvas)))
+		(call :array :deref '((:rsp slot_info)))
+		(call :list :deref '((:rsp slot_paths)))
+		(assign '((:rsp slot_txt)) '(:r0))
+		(breakif '(:r0 = 0))
 
 		;create new entry
-		(call :sym :ref (vpx sym))
-		(call :texture :ref (vpx txt))
-		(call :list :push_back2 (vpx bucket sym txt))
-		(assign (vpx (@ sys/statics/statics)) (vpx statics))
-		(assign (vpx (+ (.> statics statics_font_count) 1)) (vpx (.> statics statics_font_count)))
+		(call :sym :ref '((:rsp slot_sym)))
+		(call :texture :ref '((:rsp slot_txt)))
+		(call :list :push_back2 '((:rsp slot_bucket) (:rsp slot_sym) (:rsp slot_txt)))
+		(fn-bind 'sys/statics/statics :r0)
+		(assign '((:r0 statics_font_count)) '(:r1))
+		(vp-add-cr 1 :r1)
+		(assign '(:r1) '((:r0 statics_font_count)))
 	(else)
-		(call :obj :ref (vpx (elem iter +ptr_size)) (vpx txt))
+		(call :obj :ref '((:r1 +ptr_size)) '((:rsp slot_txt)))
 	(endif)
 
-	(exit :font :sym_texture (vpx this txt))
-	(pop-scope)
-	(return)
+	(exit :font :sym_texture '((:rsp slot_this) (:rsp slot_txt)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
