@@ -157,7 +157,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this)
 		(union
 			(ptr polygons)
@@ -166,36 +166,63 @@
 		(int ys ye xs xe x y om min_x max_x)
 		(uint mode yscale cy cy1))
 
-	(push-scope)
-	(entry :canvas :fpoly (vpx this x y mode polygons))
+	(vp-alloc slot_size)
+	(entry :canvas :fpoly '(:r0 :r1 :r2 :r3 :r4))
 
-	;fill edges, find min and max xy, clip edges not visible or redundant
-	(assign (vpx 1) (vpx yscale))
-	(vpif (vpx (.> this +canvas_flags)))
-		(assign (vpx 8) (vpx yscale))
+	;fill edges, find min and max xy, clip edges not visible or redundant,
+	;the y of an antialiased canvas by 8
+	(assign '((:r0 +canvas_flags)) '(:r5))
+	(vp-cpy-cr 1 :r6)
+	(vpif '(:r5 /= 0))
+		(vp-cpy-cr 8 :r6)
 	(endif)
-	(call :canvas :set_edges (vpx this polygons x y yscale) (vpx _ xs ys xe ye))
+	(save-fields :rsp '(slot_this slot_polygons slot_x slot_y slot_mode slot_yscale) '(:r0 :r4 :r1 :r2 :r3 :r6))
+	(call :canvas :set_edges '((:rsp slot_this) (:rsp slot_polygons) (:rsp slot_x) (:rsp slot_y) (:rsp slot_yscale))
+		'(_ :r11 :r12 :r13 :r14))
+	(save-fields :rsp '(slot_xs slot_ys slot_xe slot_ye) '(:r11 :r12 :r13 :r14))
 
 	;clip check
-	(assign (vpx (* yscale (.> this +canvas_cy)) (* yscale (.> this +canvas_cy1))) (vpx cy cy1))
-	(vpif (vpx (&& (< xs (.> this +canvas_cx1)) (> xe (.> this +canvas_cx)) (< ys cy1) (> ye cy))))
+	(load-fields :rsp '(slot_this slot_yscale) '(:r0 :r1))
+	(assign '((:r0 +canvas_cy) (:r0 +canvas_cy1) (:r0 +canvas_cx) (:r0 +canvas_cx1)) '(:r2 :r3 :r8 :r9))
+	(vp-mul-rr :r1 :r2)
+	(vp-mul-rr :r1 :r3)
+	(save-fields :rsp '(slot_cy slot_cy1) '(:r2 :r3))
+	(vpif '(:r11 < :r9) '(:r13 > :r8) '(:r12 < :r3) '(:r14 > :r2))
 		;setup active edge list, edge starts and coverage
-		(assign (vpx 0) (vpx tracker_list))
-		(vpifnot (vpx (.> this +canvas_edges_start)))
-			(call :sys_mem :calloc (vpx (* (.> this +canvas_pixmap +pixmap_height) 8 +ptr_size)) (vpx (.> this +canvas_edges_start) _))
+		(vp-xor-rr :r1 :r1)
+		(assign '(:r1) '((:rsp slot_tracker_list)))
+		(assign '((:r0 +canvas_edges_start)) '(:r1))
+		(vpif '(:r1 = 0))
+			(assign '((:r0 +canvas_pixmap)) '(:r1))
+			(assign '((:r1 +pixmap_height)) '(:r0))
+			(vp-mul-cr (* 8 +ptr_size) :r0)
+			(call :sys_mem :calloc '(:r0) '(:r0 _))
+			(assign '((:rsp slot_this)) '(:r1))
+			(assign '(:r0) '((:r1 +canvas_edges_start)))
 		(endif)
-		(vpif (vpx (.> this +canvas_flags)))
-			(assign (vpx +max_int +min_int) (vpx min_x max_x))
-			(vpifnot (vpx (.> this +canvas_coverage)))
-				(call :sys_mem :calloc (vpx (+ (.> this +canvas_pixmap +pixmap_width) 1)) (vpx (.> this +canvas_coverage) _))
+		(assign '((:rsp slot_this)) '(:r0))
+		(assign '((:r0 +canvas_flags)) '(:r1))
+		(vpif '(:r1 /= 0))
+			(assign `(,+max_int ,+min_int) '(:r1 :r2))
+			(save-fields :rsp '(slot_min_x slot_max_x) '(:r1 :r2))
+			(assign '((:r0 +canvas_coverage)) '(:r1))
+			(vpif '(:r1 = 0))
+				(assign '((:r0 +canvas_pixmap)) '(:r1))
+				(assign '((:r1 +pixmap_width)) '(:r0))
+				(vp-add-cr 1 :r0)
+				(call :sys_mem :calloc '(:r0) '(:r0 _))
+				(assign '((:rsp slot_this)) '(:r1))
+				(assign '(:r0) '((:r1 +canvas_coverage)))
 			(endif)
 		(endif)
 
 		;edge pointers into edge starts
-		(call :array :get_both (vpx (.> this +canvas_edges)) (vpx _ tracker_node tracker_last))
+		(assign '((:rsp slot_this)) '(:r0))
+		(call :array :get_both '((:r0 +canvas_edges)) '(_ (:rsp slot_tracker_node) (:rsp slot_tracker_last)))
 		(vp-rdef (edges_start edge_node edge_last edge_tmp edge_list_head))
-		(assign (vpx (.> this +canvas_edges_start) tracker_node tracker_last)
-			(list edges_start edge_node edge_last))
+		(assign '((:rsp slot_this)) `(,edges_start))
+		(assign `((,edges_start +canvas_edges_start)) `(,edges_start))
+		(load-fields :rsp '(slot_tracker_node slot_tracker_last) `(,edge_node ,edge_last))
 		(loop-start)
 			(vp-load-rcr-i edge_node +edge_ys edge_list_head)
 			(vp-mul-cr +ptr_size edge_list_head)
@@ -205,16 +232,37 @@
 		(loop-until `(,edge_node = ,edge_last))
 
 		;for each scanline
-		(loop-while (vpx (< ys ye)))
-			(vpif (vpx (|| (! (.> this +canvas_flags)) mode)))
+		(loop-start)
+			(load-fields :rsp '(slot_ys slot_ye) '(:r0 :r1))
+			(breakif '(:r0 >= :r1))
+			;not antialiased, or by the non zero rule, the edges in order of x,
+			;else only the new ones in
+			(load-fields :rsp '(slot_this slot_mode) '(:r0 :r1))
+			(assign '((:r0 +canvas_flags)) '(:r0))
+			(vpif '(:r0 /= 0) '(:r1 = 0))
+				;include new edges that begin on this scanline
+				(vp-rdef (tracker_list_head starts_node starts_last starts_new starts_tmp))
+				(load-fields :rsp '(slot_this slot_ys) `(,starts_node ,tracker_list_head))
+				(assign `((,starts_node +canvas_edges_start)) `(,starts_node))
+				(vp-shl-cr (log2 +ptr_size) tracker_list_head)
+				(vp-add-rr tracker_list_head starts_node)
+				(vp-lea-rcr :rsp slot_tracker_list tracker_list_head)
+				(loop-start)
+					(ln-next-fnode starts_node starts_last)
+					(vp-cpy-rr starts_node starts_new)
+					(ln-remove-fnode starts_node starts_last)
+					(ln-add-fnode tracker_list_head 0 starts_new starts_tmp)
+				(loop-end)
+			(else)
 				;the active edges are wanted in order of x. They are in order
 				;already from the scanline before, but for any that crossed,
 				;so they are put into a list that goes down, where each finds
 				;its place at the front, and that list is then turned round
-				(assign (vpx 0) (vpx sorted_list))
+				(vp-xor-rr :r0 :r0)
+				(assign '(:r0) '((:rsp slot_sorted_list)))
 				(vp-rdef (sorted_list_head tracker_node tracker_last tracker_new
 					sorted_node sorted_last x1 x2))
-				(assign (vpx (& sorted_list) (& tracker_list)) (list sorted_list_head tracker_node))
+				(assign '((& :rsp slot_sorted_list) (& :rsp slot_tracker_list)) (list sorted_list_head tracker_node))
 				(loop-start)
 					(ln-next-fnode tracker_node tracker_last)
 					(vp-cpy-rr tracker_node tracker_new)
@@ -235,17 +283,21 @@
 						(vp-cpy-rr sorted_last sorted_node)
 					(loop-until `(,sorted_node = 0))
 				(endif)
-				(assign (list tracker_new) (vpx tracker_list))
+				(assign (list tracker_new) '((:rsp slot_tracker_list)))
 
 				;the edges that begin on this scanline, put in order among
 				;themselves. Each is looked for from where the one before it
 				;went in, if it is no less than that, so edges that come
 				;nearly in order, going up or going down, cost little
-				(assign (vpx 0) (vpx sorted_list))
+				(vp-xor-rr :r0 :r0)
+				(assign '(:r0) '((:rsp slot_sorted_list)))
 				(vp-rdef (starts_head starts_new sorted_list_head sorted_hint
 					sorted_node sorted_last x1 x2 tmp))
-				(assign (vpx (& (elem (.> this +canvas_edges_start) (* ys +ptr_size))) (& sorted_list))
-					(list starts_head sorted_list_head))
+				(load-fields :rsp '(slot_this slot_ys) `(,starts_head ,sorted_list_head))
+				(assign `((,starts_head +canvas_edges_start)) `(,starts_head))
+				(vp-shl-cr (log2 +ptr_size) sorted_list_head)
+				(vp-add-rr sorted_list_head starts_head)
+				(vp-lea-rcr :rsp slot_sorted_list sorted_list_head)
 				(vp-cpy-rr sorted_list_head sorted_hint)
 				(loop-start)
 					(vp-load-rcr starts_head +ln_fnode_next starts_new)
@@ -274,7 +326,7 @@
 
 				;and those are merged into the active edges
 				(vp-rdef (tracker_last sorted_node tracker_node x1 x2 tmp))
-				(assign (vpx (& tracker_list) sorted_list) (list tracker_last sorted_node))
+				(assign '((& :rsp slot_tracker_list) (:rsp slot_sorted_list)) (list tracker_last sorted_node))
 				(vpif `(,sorted_node /= 0))
 					(loop-start)
 						(vp-load-rcr-i sorted_node +edge_x x1)
@@ -292,26 +344,26 @@
 						(vp-cpy-rr tmp sorted_node)
 					(loop-until `(,sorted_node = 0))
 				(endif)
-			(else)
-				;include new edges that begin on this scanline
-				(vp-rdef (tracker_list_head starts_node starts_last starts_new starts_tmp))
-				(assign (vpx (& (elem (.> this +canvas_edges_start) (* ys +ptr_size))) (& tracker_list))
-					(list starts_node tracker_list_head))
-				(loop-start)
-					(ln-next-fnode starts_node starts_last)
-					(vp-cpy-rr starts_node starts_new)
-					(ln-remove-fnode starts_node starts_last)
-					(ln-add-fnode tracker_list_head 0 starts_new starts_tmp)
-				(loop-end)
 			(endif)
 
 			;antialiased ?
-			(vpif (vpx (.> this +canvas_flags)))
+			(assign '((:rsp slot_this)) '(:r0))
+			(assign '((:r0 +canvas_flags)) '(:r0))
+			(vpif '(:r0 /= 0))
 				;draw edges into coverage mask
 				(vp-rdef (tracker_node mask xo cx cx1 x xp xb xm min_x max_x w v))
-				(assign (vpx (& tracker_list) (.> this +canvas_coverage) (int (+ ($ sample_offsets) (<< (& ys 7) 2)))
-					(<< 1 (& ys 7)) (<< (.> this +canvas_cx) +fp_shift) (<< (.> this +canvas_cx1) +fp_shift) min_x max_x mode)
-					(list tracker_node mask xo xm cx cx1 min_x max_x v))
+				;the sample of this sub scanline across a pixel, xo, and its bit, xm
+				(load-fields :rsp '(slot_this slot_ys slot_min_x slot_max_x slot_mode) `(,cx1 ,x ,min_x ,max_x ,v))
+				(assign `((,cx1 +canvas_coverage) (,cx1 +canvas_cx) (,cx1 +canvas_cx1)) `(,mask ,cx ,cx1))
+				(vp-shl-cr +fp_shift cx)
+				(vp-shl-cr +fp_shift cx1)
+				(vp-and-cr 7 x)
+				(vp-cpy-cr 1 xm)
+				(vp-shl-rr x xm)
+				(vp-shl-cr 2 x)
+				(vp-lea-pr 'sample_offsets xo)
+				(vp-load-rrr-i xo x xo)
+				(vp-lea-rcr :rsp slot_tracker_list tracker_node)
 				(vpif `(,v = 0))
 					;odd even
 					(loop-start)
@@ -365,21 +417,27 @@
 						(vp-store-rrr-b xb mask x)
 					(loop-end)
 				(endif)
-				(assign (list min_x max_x) (vpx min_x max_x))
+				(assign (list min_x max_x) '((:rsp slot_min_x) (:rsp slot_max_x)))
 
 				;flush coverage mask to scan line
-				(gotoif (vpx (|| (= (& ys 7) 7) (= (+ ys 1) ye))) 'flush_mask)
-				(breakif (vpx (< (+ ys 1) cy1)))
+				(load-fields :rsp '(slot_ys slot_ye slot_cy1) '(:r0 :r1 :r2))
+				(vp-cpy-rr :r0 :r3)
+				(vp-and-cr 7 :r3)
+				(gotoif '(:r3 = 7) 'flush_mask)
+				(vp-add-cr 1 :r0)
+				(gotoif '(:r0 = :r1) 'flush_mask)
+				(breakif '(:r0 < :r2))
 			(vp-label 'flush_mask)
 				(vp-rdef (this c x y x1 mask m om max_x mask_to_coverage v)
 					(method-input :canvas :span))
-				(assign (vpx this min_x max_x (>> ys 3)) (list this x max_x y))
+				(load-fields :rsp '(slot_this slot_ys slot_min_x slot_max_x) (list this y x max_x))
+				(vp-shr-cr 3 y)
 				(breakif `(,x > ,max_x))
 				(vp-add-cr 1 max_x)
 				(vp-xor-rr om om)
-				(assign (list max_x y om) (vpx max_x y om))
+				(assign (list max_x y om) '((:rsp slot_max_x) (:rsp slot_y) (:rsp slot_om)))
 				(loop-start)
-					(assign (vpx ($ mask_to_coverage)) (list mask_to_coverage))
+					(assign '(($ mask_to_coverage)) (list mask_to_coverage))
 					(vp-load-rcr this +canvas_coverage mask)
 					;the pixel an edge is on is the first of the run that
 					;begins there, so the cover from it on has that edge in
@@ -407,38 +465,39 @@
 						(loop-until `(,x1 >= ,max_x))
 					(endif)
 					(vp-load-rrr-ub mask_to_coverage om c)
-					(assign (list om x1) (vpx om x))
+					(assign (list om x1) '((:rsp slot_om) (:rsp slot_x)))
 					;an edge at or past the right of the clip is on the pixel
 					;after its last, where nothing is drawn
 					(assign (list (list this '+canvas_cx1)) (list v))
 					(vpif `(,c /= 0) `(,x < ,v))
 						(call :canvas :span_noclip (list this c x y x1) (list this))
 					(endif)
-					(assign (vpx this x max_x y om) (list this x max_x y om))
+					(assign '((:rsp slot_this) (:rsp slot_x) (:rsp slot_max_x) (:rsp slot_y) (:rsp slot_om)) (list this x max_x y om))
 				(loop-until `(,x >= ,max_x))
-				(assign (vpx +max_int +min_int) (vpx min_x max_x))
+				(assign `(,+max_int ,+min_int) '(:r0 :r1))
+				(save-fields :rsp '(slot_min_x slot_max_x) '(:r0 :r1))
 			(else)
 				;draw spans for mode
 				(vp-rdef (this c x1 ys x2 w v tracker_node) (method-input :canvas :span))
-				(assign (vpx mode this (& tracker_list)) (list v this tracker_node))
+				(assign '((:rsp slot_mode) (:rsp slot_this) (& :rsp slot_tracker_list)) (list v this tracker_node))
 				(vpif `(,v = ,+winding_odd_even))
 					;odd even
 					(loop-start)
 						(ln-next-fnode tracker_node tracker_node)
-						(assign (vpx ys) (list ys))
+						(assign '((:rsp slot_ys)) (list ys))
 						(vp-load-rcr-i tracker_node +edge_x x1)
 						(vp-load-rcr tracker_node +ln_fnode_next tracker_node)
 						(vp-load-rcr-i tracker_node +edge_x x2)
 						(vp-simd vp-asr-cr `(,+fp_shift) `(,x1 ,x2))
-						(assign (list tracker_node) (vpx tracker_node))
+						(assign (list tracker_node) '((:rsp slot_tracker_node)))
 						(call :canvas :span (list this 0x80 x1 ys x2) (list this))
-						(assign (vpx tracker_node) (list tracker_node))
+						(assign '((:rsp slot_tracker_node)) (list tracker_node))
 					(loop-end)
 				(else)
 					;non zero
 					(loop-start)
 						(ln-next-fnode tracker_node tracker_node)
-						(assign (vpx ys) (list ys))
+						(assign '((:rsp slot_ys)) (list ys))
 						(vp-simd vp-load-rcr-i `(,tracker_node) `(,+edge_x ,+edge_w) `(,x1 ,w))
 						(loop-start)
 							(vp-load-rcr tracker_node +ln_fnode_next tracker_node)
@@ -447,19 +506,22 @@
 						(loop-until `(,w = 0))
 						(vp-load-rcr-i tracker_node +edge_x x2)
 						(vp-simd vp-asr-cr `(,+fp_shift) `(,x1 ,x2))
-						(assign (list tracker_node) (vpx tracker_node))
+						(assign (list tracker_node) '((:rsp slot_tracker_node)))
 						(call :canvas :span (list this 0x80 x1 ys x2) (list this))
-						(assign (vpx tracker_node) (list tracker_node))
+						(assign '((:rsp slot_tracker_node)) (list tracker_node))
 					(loop-end)
 				(endif)
 			(endif)
 
 			;next sub scanline
-			(breakif (vpx (>= (=> (+ ys 1) ys) cy1)))
+			(load-fields :rsp '(slot_ys slot_cy1) '(:r0 :r1))
+			(vp-add-cr 1 :r0)
+			(assign '(:r0) '((:rsp slot_ys)))
+			(breakif '(:r0 >= :r1))
 
 			;step the edges and remove any dead ones
 			(vp-rdef (tracker_node tracker_last ys x dda))
-			(assign (vpx (& tracker_list) ys) (list tracker_node ys))
+			(assign '((& :rsp slot_tracker_list) (:rsp slot_ys)) (list tracker_node ys))
 			(loop-start)
 			(vp-label 'start)
 				(ln-next-fnode tracker_node tracker_last)
@@ -475,9 +537,9 @@
 		(loop-end)
 	(endif)
 
-	(exit :canvas :fpoly (vpx this))
-	(pop-scope)
-	(return)
+	(exit :canvas :fpoly '((:rsp slot_this)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'sample_offsets)
 	;where across a pixel each of its 8 scan lines is sampled, less the
