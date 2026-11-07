@@ -78,38 +78,53 @@
 	;trashes
 	;:r1-:r11, :r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this name data)
 		(union
 			(ptr vtable)
 			(long ok))
 		(uint pixels))
 
-	(push-scope)
-	(entry :font :init (vpx this vtable name data pixels))
+	(vp-alloc slot_size)
+	(entry :font :init '(:r0 :r1 :r2 :r3 :r4))
+	(save-fields :rsp '(slot_this slot_vtable slot_name slot_data slot_pixels) '(:r0 :r1 :r2 :r3 :r4))
 
 	;init parent
-	(s-call :font :init (vpx this vtable) (vpx _ ok))
-	(vpif (vpx ok))
+	(s-call :font :init '(:r0 :r1) '(_ :r1))
+	(assign '(:r1) '((:rsp slot_ok)))
+	(vpif '(:r1 /= 0))
 		;init state
-		(assign (vpx 0 pixels) (vpx (.> this +font_chars) (.> this +font_pixels)))
-		(call :sym :intern_cstr (vpx name) (vpx (.> this +font_name)))
-		(call :hmap :create (vpx 101) (vpx (.> this +font_sym_map)))
-		(vpif (vpx data))
-			(call :str :ref (vpx data) (vpx (.> this +font_data)))
+		(load-fields :rsp '(slot_this slot_pixels) '(:r0 :r1))
+		(vp-xor-rr :r2 :r2)
+		(save-fields :r0 '(+font_chars +font_pixels) '(:r2 :r1))
+		(call :sym :intern_cstr '((:rsp slot_name)) '(:r1))
+		(assign '((:rsp slot_this)) '(:r0))
+		(assign '(:r1) '((:r0 +font_name)))
+		(call :hmap :create '(101) '(:r1))
+		(assign '((:rsp slot_this)) '(:r0))
+		(assign '(:r1) '((:r0 +font_sym_map)))
+		(assign '((:rsp slot_data)) '(:r0))
+		(vpif '(:r0 /= 0))
+			(call :str :ref '(:r0) '(:r1))
+			(assign '((:rsp slot_this)) '(:r0))
+			(assign '(:r1) '((:r0 +font_data)))
 		(else)
-			(call :str :create_from_file (vpx name) (vpx (.> this +font_data)))
-			(vpifnot (vpx (.> this +font_data)))
-				(call :str :deref (vpx (.> this +font_name)))
-				(call :hmap :deref (vpx (.> this +font_sym_map)))
-				(assign (vpx 0) (vpx ok))
+			(call :str :create_from_file '((:rsp slot_name)) '(:r1))
+			(assign '((:rsp slot_this)) '(:r0))
+			(assign '(:r1) '((:r0 +font_data)))
+			(vpif '(:r1 = 0))
+				(call :str :deref '((:r0 +font_name)))
+				(assign '((:rsp slot_this)) '(:r0))
+				(call :hmap :deref '((:r0 +font_sym_map)))
+				(vp-xor-rr :r0 :r0)
+				(assign '(:r0) '((:rsp slot_ok)))
 			(endif)
 		(endif)
 	(endif)
 
-	(exit :font :init (vpx this ok))
-	(pop-scope)
-	(return)
+	(exit :font :init '((:rsp slot_this) (:rsp slot_ok)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
