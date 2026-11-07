@@ -104,8 +104,8 @@
 	; integer min/max/abs
 	'emit-min-rr '(:r :r) 'emit-max-rr '(:r :r) 'emit-abs-rr '(:r :r)
 	'emit-min-cr '(:c :r) 'emit-max-cr '(:c :r)
-	; integer division (rrr)
-	'emit-div-rrr '(:r :r :r) 'emit-div-rrr-u '(:r :r :r)
+	; integer division and remainder
+	'emit-div-rr '(:r :r) 'emit-div-rr-u '(:r :r) 'emit-rem-rr '(:r :r) 'emit-rem-rr-u '(:r :r)
 	; integer branches
 	'emit-beq-cr '(:c :r :label) 'emit-bne-cr '(:c :r :label) 'emit-blt-cr '(:c :r :label) 'emit-bgt-cr '(:c :r :label)
 	'emit-ble-cr '(:c :r :label) 'emit-bge-cr '(:c :r :label) 'emit-beq-rr '(:r :r :label) 'emit-bne-rr '(:r :r :label)
@@ -460,7 +460,7 @@
 					((emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i emit-cpy-fd emit-cpy-fd-i)
 						;ignore as no reg writes
 						:ignore)
-					((emit-land-rr emit-div-rrr emit-div-rrr-u)
+					((emit-land-rr)
 						;two reg writes
 						(each! (# (pinsert trace_map %0 :nil)) (list inst) -3 -1))
 					((emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr)

@@ -32,9 +32,7 @@
 		(vp-shl-cr 4 :r2)
 		(vp-xor-rr :r2 :r0)
 		(vp-cpy-ri :r0 :r3 statics_sys_math_seed)
-		(vp-xor-rr :r2 :r2)
-		(vp-div-rrr-u :r1 :r2 :r0)
-		(vp-cpy-rr :r2 :r0)
+		(vp-rem-rr-u :r1 :r0)
 	(endif)
 
 	(exit :sys_math :i_rand '(:r0))
@@ -242,7 +240,7 @@
 	;:r0 = ix (fixed)
 	;:r1 = iy (fixed)
 	;trashes
-	;:r0-:r2, :r8-:r14
+	;:r0-:r2, :r8-:r13
 
 	(vec-set 8)
 	(entry :sys_math :f_intersect (vec-top 8))

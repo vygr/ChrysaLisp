@@ -393,14 +393,22 @@
 (handler 'emit-abs-rr 'e_abs_rr)
 
 (each (lambda ((op label o))
+		;(s d), d by s to d: by 0 the CPU gives 0
 		(vp-label label)
-		(w32 (+ o +a64_rt) '(:r0 16) '(:r2 5))
-		(w32 (+ 0x9b008000 (<< +a64_rt 16)) '(:r2 10) '(:r0 5) '(:r1 0))
-		(vp-cpy-rr :r2 :r1)
-		(vp-cpy-cr +a64_rt :r0)
-		(vp-jmp 'e_cpy_rr)
+		(w32 o '(:r0 16) '(:r1 5) '(:r1 0))
+		(vp-ret)
 		(handler op label))
-	'((emit-div-rrr e_div_rrr 0x9ac00c00) (emit-div-rrr-u e_div_rrr_u 0x9ac00800)))
+	'((emit-div-rr e_div_rr 0x9ac00c00) (emit-div-rr-u e_div_rr_u 0x9ac00800)))
+
+(each (lambda ((op label o))
+		;(s d), what is left of d by s to d: d less s times d by s, so d
+		;itself by 0
+		(vp-label label)
+		(w32 (+ o +a64_rt) '(:r0 16) '(:r1 5))
+		(w32 (+ 0x9b008000 (<< +a64_rt 16)) '(:r1 10) '(:r0 5) '(:r1 0))
+		(vp-ret)
+		(handler op label))
+	'((emit-rem-rr e_rem_rr 0x9ac00c00) (emit-rem-rr-u e_rem_rr_u 0x9ac00800)))
 
 (vp-label 'e_lea_d)
 	(w32 0x8b000000 '(:r0 16) '(:r1 5) '(:r2 0))

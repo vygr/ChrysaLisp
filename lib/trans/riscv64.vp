@@ -102,19 +102,23 @@
 (handler 'emit-cpy-rr 'e_cpy_rr)
 
 (each (lambda ((op label f3))
-		;(s d1 d2), the answer of d2 by s to d2, what is left to d1
+		;(s d), d by s to d, made 0 by 0 as every target gives
 		(vp-label label)
-		(rv-r 0x33 +rv_t1 :r2 :r0 f3 1)
+		(rv-r 0x33 +rv_t1 :r1 :r0 f3 1)
 		(rv-r 0x33 +rv_t2 +rv_zero :r0 3 0)
 		(rv-r 0x33 +rv_t2 +rv_zero +rv_t2 0 0x20)
-		(rv-r 0x33 +rv_t1 +rv_t1 +rv_t2 7 0)
-		(rv-r 0x33 +rv_t2 +rv_t1 :r0 0 1)
-		(rv-r 0x33 :r1 :r2 +rv_t2 0 0x20)
-		(vp-cpy-rr :r2 :r1)
-		(vp-cpy-cr +rv_t1 :r0)
-		(vp-jmp 'e_cpy_rr)
+		(rv-r 0x33 :r1 +rv_t1 +rv_t2 7 0)
+		(vp-ret)
 		(handler op label))
-	'((emit-div-rrr e_div_rrr 4) (emit-div-rrr-u e_div_rrr_u 5)))
+	'((emit-div-rr e_div_rr 4) (emit-div-rr-u e_div_rr_u 5)))
+
+(each (lambda ((op label f3))
+		;(s d), what is left of d by s to d: by 0 the CPU gives d itself
+		(vp-label label)
+		(rv-r 0x33 :r1 :r1 :r0 f3 1)
+		(vp-ret)
+		(handler op label))
+	'((emit-rem-rr e_rem_rr 6) (emit-rem-rr-u e_rem_rr_u 7)))
 
 (vp-label 'rv_cr)
 	;riscv64-cr, :r0 = c, :r1 = r

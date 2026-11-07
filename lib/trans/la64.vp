@@ -102,17 +102,25 @@
 (handler 'emit-cpy-rr 'e_cpy_rr)
 
 (each (lambda ((op label o))
-		;(s d1 d2)
+		;(s d), d by s to d, masked to 0 by 0, where the CPU gives no answer
 		(vp-label label)
-		(la-3r o +la_t1 :r2 :r0)
-		(la-3r 0x00130000 +la_t1 +la_t1 :r0)
-		(la-3r 0x001d8000 +la_t2 +la_t1 :r0)
-		(la-3r 0x00118000 :r1 :r2 +la_t2)
-		(vp-cpy-rr :r2 :r1)
-		(vp-cpy-cr +la_t1 :r0)
-		(vp-jmp 'e_cpy_rr)
+		(la-3r o +la_t1 :r1 :r0)
+		(la-3r 0x00130000 :r1 +la_t1 :r0)
+		(vp-ret)
 		(handler op label))
-	'((emit-div-rrr e_div_rrr 0x00220000) (emit-div-rrr-u e_div_rrr_u 0x00230000)))
+	'((emit-div-rr e_div_rr 0x00220000) (emit-div-rr-u e_div_rr_u 0x00230000)))
+
+(each (lambda ((op label o))
+		;(s d), what is left of d by s to d: d less s times the masked
+		;answer, so d itself by 0, where the CPU's mod gives no answer
+		(vp-label label)
+		(la-3r o +la_t1 :r1 :r0)
+		(la-3r 0x00130000 +la_t1 +la_t1 :r0)
+		(la-3r 0x001d8000 +la_t1 +la_t1 :r0)
+		(la-3r 0x00118000 :r1 :r1 +la_t1)
+		(vp-ret)
+		(handler op label))
+	'((emit-rem-rr e_rem_rr 0x00220000) (emit-rem-rr-u e_rem_rr_u 0x00230000)))
 
 (vp-label 'e_cpy_cr)
 	;la64-cr, (c r)

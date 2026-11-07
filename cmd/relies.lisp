@@ -61,7 +61,8 @@
 (defq
 	;an instruction of two registers that reads both and writes the second
 	+both_ops ''(emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr emit-shl-rr emit-shr-rr
-		emit-asr-rr emit-min-rr emit-max-rr emit-seq-rr emit-sne-rr emit-slt-rr emit-sgt-rr emit-sle-rr emit-sge-rr)
+		emit-asr-rr emit-min-rr emit-max-rr emit-seq-rr emit-sne-rr emit-slt-rr emit-sgt-rr emit-sle-rr emit-sge-rr
+		emit-div-rr emit-div-rr-u emit-rem-rr emit-rem-rr-u)
 	;that reads both and writes both
 	+swap_ops ''(emit-swp-rr emit-land-rr)
 	;that reads the first and writes the second
@@ -104,7 +105,6 @@
 		;one register, read and written
 		((eql op 'emit-lnot-rr) (list a a))
 		((eql op 'emit-cpy-cr) (list 0 b))
-		((find op '(emit-div-rrr emit-div-rrr-u)) (list (logior a b c) (logior b c)))
 		((find op +branch_cr_ops) (list b 0))
 		((find op +branch_rr_ops) (list (logior a b) 0))
 		((find op +get_ops) (list a c))

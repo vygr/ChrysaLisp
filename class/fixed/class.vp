@@ -123,8 +123,7 @@
 		(assign '((:r5 +num_value)) '(:r3))
 	(gotoif '(:r3 = 0) 'error)
 		(vp-shl-cr +fp_shift :r0)
-		(vp-ext-rr :r0 :r2)
-		(vp-div-rrr :r3 :r2 :r0)
+		(vp-div-rr :r3 :r0)
 	(loop-until '(:r1 = :r4))
 	(v-jump :num :vcreate '(:r0) :r5 :r1)
 

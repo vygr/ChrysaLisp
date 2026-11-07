@@ -276,11 +276,11 @@ instruction some other way, so it is a fault in the translator, not the VP.
 
 Some things are the same on all five:
 
-* `(vp-div-rrr rs rdh rdl)` and `vp-div-rrr-u` are as
-  [`vp_vm.md`](../vm/vp_vm.md) has them: `rdh` is not read, a divide by 0
-  gives a quotient of 0 and the dividend as the remainder, and the most
-  negative number by -1 gives itself. Below they are `(s d1 d2)`, `d1` the
-  remainder and `d2` the dividend and quotient.
+* `(vp-div-rr rs rd)`, `(vp-rem-rr rs rd)` and their `-u` forms are as
+  [`vp_vm.md`](../vm/vp_vm.md) has them: each writes `rd` alone, a divide by
+  0 gives a quotient of 0 and the dividend as the remainder, and the most
+  negative number by -1 gives itself and a remainder of 0. Below they are
+  `(s d)`, `d` the dividend and the result.
 
 * `vp-cvt-fr` truncates towards 0.
 
@@ -334,8 +334,9 @@ x29 from `[b, #c]` and `call-p` by `ldr` literal (±1MB), then they are a
 `call-r` of x29. `ret` is `ret`, `sync` is `dmb sy`. `lea-p` is `adr`,
 `cpy-pr` the `ldr` literal, both ±1MB.
 
-`mul-rr` is `madd` with xzr. A divide is `sdiv` or `udiv` into x29, an
-`msub` for the remainder, and a copy of x29 to `d2`. A shift by a
+`mul-rr` is `madd` with xzr. A divide is `sdiv` or `udiv`, 0 by 0 as
+the CPU gives; a remainder is that into x29 then an `msub` of it, the
+dividend itself by 0. A shift by a
 constant is `ubfm` or `sbfm`, 0 nothing, below 0 or above 63 fails.
 `min` and `max` are `cmp` and `csel`. The float ops are the `d` forms;
 `cvt-rf` is `scvtf`, `cvt-fr` `fcvtzs`.
@@ -412,10 +413,9 @@ are the compare, `setcc` and `movzx`.
 `call-p` `call [rip + disp32]`, the path's slot. The jumps are the same
 with `jmp`. `ret` is `ret`, `sync` `mfence`.
 
-`mul-rr` is `imul`. A divide with `d1` rdx and `d2` rax is done in place,
-with them the other way round an `xchg` either side; else the operands,
-rdx, rcx and rax are pushed, the divide done in rax by rcx, and the
-results stored in the operands' slots before the pops. The signed one
+`mul-rr` is `imul`. A divide or a remainder pushes the operands, rdx, rcx
+and rax, does the divide in rax by rcx, and stores rax or rdx in the
+destination's slot before the pops. The signed one
 tests for a divisor of 0, quotient 0 and remainder the dividend, and of
 -1, a `neg`, before `cqo` and `idiv`; the unsigned one tests for 0 before
 an `xor edx, edx` and `div`. A shift by a constant is nothing for 0, the
@@ -506,8 +506,8 @@ same round `jalr ra, 0(r)`. `call-i` loads the address into x31 from
 `addi`, `cpy-pr` `auipc` and `ld`, ±2GB. `sync` is `fence`.
 
 The divide is `div` or `divu` to x31, then `sltu` and `sub` make a mask of
-`s` not 0, the `and` of it makes the quotient 0 on a divisor of 0, `mul`
-and `sub` give the remainder. A shift by a constant is `slli`, `srli` or
+`s` not 0, the `and` of it makes the quotient 0 on a divisor of 0. The
+remainder is `rem` or `remu`, which gives the dividend itself by 0. A shift by a constant is `slli`, `srli` or
 `srai`, 0 to 63, any other fails. `seq` and `sne` are a `sub` and
 `seqz` or `snez`, `slt` and `sgt` `slt`, `sle` and `sge` an `slt`, a
 `seqz` and an `or`. `lnot` is `seqz`, `land` two `snez` and an `and`.
@@ -570,8 +570,9 @@ by `pcaddu12i` and `ld.d`, then a `call-r` of r12. `jmp` is `b`, ±128MB,
 `ret` `jirl zero, ra, 0`. `lea-p` is `pcaddu12i` and `addi.d`, `cpy-pr`
 `pcaddu12i` and `ld.d`, ±2GB. `sync` is `dbar 0`.
 
-The divide is `div.d` or `div.du` to r12, `maskeqz` to make it 0 on a
-divisor of 0, then `mul.d` and `sub.d` for the remainder. A shift by a
+The divide is `div.d` or `div.du` to r12 and `maskeqz` to make it 0 on a
+divisor of 0; the remainder is that, then `mul.d` and `sub.d`, the
+dividend itself by 0, where `mod.d` gives nothing defined. A shift by a
 constant is `slli.d`, `srli.d` or `srai.d`, 0 to 63, any other fails. The
 sets are as on riscv64, with `sltui` for `seqz`, `sltu` from zero for
 `snez`, and `sle` and `sge` an `slt` and an `xori` of 1. `min`, `max`
@@ -612,8 +613,8 @@ a register at bits 8 to 11 and another, or 4 bits of a constant, at bits
 * A load or store with an offset is a word and a 16 bit signed offset, or
   the next op number and the offset in four words.
 
-* An indexed load or store, `lea-d` and the divides have the third
-  register in a word of their own.
+* An indexed load or store and `lea-d` have the third register in a word
+  of their own.
 
 * `call-i` and `jmp-i` take a 20 bit signed offset, `cpy-pr` and `lea-p`
   a 20 bit one from past the instruction; past that they fail.

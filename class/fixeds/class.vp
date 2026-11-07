@@ -50,7 +50,7 @@
 	;:r0 = fixeds object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r8
+	;:r1, :r3-:r8
 
 	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
@@ -60,8 +60,7 @@
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(#	(gotoif `(,%%1 = 0) 'error)
 			(vp-shl-cr +fp_shift %0)
-			(vp-ext-rr %0 high)
-			(vp-div-rrr %1 high %0)
+			(vp-div-rr %1 %0)
 			%0))
 
 	(exit :fixeds :div `(,dst -1))
@@ -81,7 +80,7 @@
 	;:r0 = fixeds object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r9
+	;:r1, :r3-:r9
 
 	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst t0))
 
@@ -92,8 +91,7 @@
 		(#	(gotoif `(,%%1 = 0) 'error)
 			(vp-cpy-rr %0 t0)
 			(vp-shl-cr +fp_shift %0)
-			(vp-ext-rr %0 high)
-			(vp-div-rrr %1 high %0)
+			(vp-div-rr %1 %0)
 			(vp-asr-cr +fp_shift %0)
 			(vp-mul-rr %0 %1)
 			(vp-sub-rr %1 t0)

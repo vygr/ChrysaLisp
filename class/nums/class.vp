@@ -146,7 +146,7 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r8
+	;:r1, :r3-:r8
 
 	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
@@ -155,8 +155,7 @@
 	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(#	(gotoif `(,%%1 = 0) 'error)
-			(vp-ext-rr %0 high)
-			(vp-div-rrr %1 high %0)
+			(vp-div-rr %1 %0)
 			%0))
 
 	(exit :nums :div `(,dst -1))
@@ -176,7 +175,7 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r8
+	;:r1, :r3-:r8
 
 	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
@@ -185,9 +184,8 @@
 	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (gotoif `(,%%1 = 0) 'error)
-			(vp-ext-rr %0 high)
-			(vp-div-rrr %1 high %0)
-			high))
+			(vp-rem-rr %1 %0)
+			%0))
 
 	(exit :nums :mod `(,dst -1))
 	(vp-ret)

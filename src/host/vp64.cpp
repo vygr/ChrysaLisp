@@ -30,7 +30,7 @@ enum Opcodes {
 	vp64_lnot_rr, vp64_land_rr, vp64_swp_rr, vp64_ext_rr,
 
 	// Group 4: Division
-	vp64_div_rrr, vp64_div_rrr_u,
+	vp64_div_rr, vp64_div_rr_u,
 
 	// Group 5: Min/Max/Abs
 	vp64_min_cr_0, vp64_min_cr_1, vp64_min_cr_2, vp64_min_cr_3,
@@ -92,6 +92,9 @@ enum Opcodes {
 
 	// Group 17: Float Memory, a 32 bit float, the register a double
 	vp64_cpy_if_i, vp64_cpy_if_i_w, vp64_cpy_fi_i, vp64_cpy_fi_i_w, vp64_cpy_df_i, vp64_cpy_fd_i,
+
+	// Group 18: Remainder
+	vp64_rem_rr, vp64_rem_rr_u,
 };
 
 
@@ -155,13 +158,14 @@ static inline int64_t vp_f2i(double f)
 	return (int64_t)f;
 }
 
-// a divide means the one thing on every CPU, whatever the CPU would do itself.
-// It is a number of 64 bits that is divided, most CPUs have no divide of 128,
-// and what the register for what is left over holds beforehand is not looked
-// at. By 0 the answer is 0 and what is left over is the number. The most
-// negative number by -1 is itself, with nothing left over.
-#define vp_div_rrr(sr, dr, drr) { int64_t n = regs[dr]; int64_t d = regs[drr]; if (!d) { regs[sr] = n; regs[dr] = 0; } else if (d == -1) { regs[dr] = (int64_t)(0 - (uint64_t)n); regs[sr] = 0; } else { regs[dr] = n / d; regs[sr] = n % d; } }
-#define vp_div_rrr_u(sr, dr, drr) { uint64_t n = (uint64_t)regs[dr]; uint64_t d = (uint64_t)regs[drr]; if (!d) { regs[sr] = (int64_t)n; regs[dr] = 0; } else { regs[dr] = (int64_t)(n / d); regs[sr] = (int64_t)(n % d); } }
+// a divide and a remainder mean the one thing on every CPU, whatever the CPU
+// would do itself. Each takes a number of 64 bits and writes the one
+// register. By 0 the answer is 0 and what is left over is the number. The
+// most negative number by -1 is itself, with nothing left over.
+#define vp_div_rr(sr, dr) { int64_t n = regs[dr]; int64_t d = regs[sr]; if (!d) regs[dr] = 0; else if (d == -1) regs[dr] = (int64_t)(0 - (uint64_t)n); else regs[dr] = n / d; }
+#define vp_div_rr_u(sr, dr) { uint64_t n = (uint64_t)regs[dr]; uint64_t d = (uint64_t)regs[sr]; regs[dr] = d ? (int64_t)(n / d) : 0; }
+#define vp_rem_rr(sr, dr) { int64_t n = regs[dr]; int64_t d = regs[sr]; if (d == -1) regs[dr] = 0; else if (d) regs[dr] = n % d; }
+#define vp_rem_rr_u(sr, dr) { uint64_t n = (uint64_t)regs[dr]; uint64_t d = (uint64_t)regs[sr]; if (d) regs[dr] = (int64_t)(n % d); }
 
 #define vp_seq_rr(sr, dr) vp_op_rr(==, sr, dr)
 #define vp_sne_rr(sr, dr) vp_op_rr(!=, sr, dr)
@@ -410,8 +414,10 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 	VP_OP_RR(ext, rr)
 
 #define VP_DIV_ALL \
-	case vp64_div_rrr: vp_div_rrr(vd_sr(), vd_dr(), vd_sc()); break; \
-	case vp64_div_rrr_u: vp_div_rrr_u(vd_sr(), vd_dr(), vd_sc()); break;
+	VP_OP_RR(div, rr) \
+	VP_OP_RR(div, rr_u) \
+	VP_OP_RR(rem, rr) \
+	VP_OP_RR(rem, rr_u)
 
 #define VP_M_ALL \
 	case vp64_min_cr_0: vp_min_cr(vd_c0(), vd_dr()); break; \

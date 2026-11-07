@@ -269,9 +269,7 @@
 		((eql ta :int)
 			(cond
 				((= i 3)
-					(sv-emit 'vp-ext-rr (first a) (defq tmp (sv-getr)))
-					(sv-emit 'vp-div-rrr (first b) tmp (first a))
-					(sv-put tmp))
+					(sv-emit 'vp-div-rr (first b) (first a)))
 				((sv-emit (elem-get '(vp-add-rr vp-sub-rr vp-mul-rr) i) (first b) (first a))))
 			(sv-puts b) a)
 		((or va (not vb))

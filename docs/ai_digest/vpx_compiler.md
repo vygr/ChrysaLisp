@@ -566,7 +566,7 @@ Precedence 3, left-associative - multiplicative operators:
 
 - `*` calls `compile-mul` - integer multiply via `vp-mul-rr`.
 
-- `/` calls `compile-divu` - unsigned divide via `vp-div-rrr-u`.
+- `/` calls `compile-divu` - unsigned divide via `vp-div-rr-u`.
 
 - `%` calls `compile-remu` - unsigned remainder.
 
@@ -834,8 +834,7 @@ stored as a 64-bit integer with 16 fractional bits):
 
 ```vdu
 (vp-shl-cr 16 dividend)
-(vp-ext-rr dividend hi)
-(vp-div-rrr divisor hi dividend)
+(vp-div-rr divisor dividend)
 ```
 
 The `fixed` type string character is `x`. The `real` (IEEE double) type string

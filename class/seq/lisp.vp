@@ -607,8 +607,7 @@
 
 	(vp-lea-d cnt len :r0)
 	(vp-sub-cr 1 :r0)
-	(vp-ext-rr :r0 :r2)
-	(vp-div-rrr-u cnt :r2 :r0)
+	(vp-div-rr-u cnt :r0)
 	(call :list :set_cap `(,lst :r0))
 
 	(vp-cpy-cr 0 idx)

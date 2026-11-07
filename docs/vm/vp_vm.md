@@ -67,12 +67,13 @@ register uses the low 6 bits of the count; a shift by a constant takes a
 constant of 0 to 63, and a translator fails on one outside that: it gives
 back nothing for the function, and `vp-translate-bin` throws `The <cpu>
 translator failed on this function !` with its name.
-`(vp-div-rrr rs rdh rdl)` divides `rdl` by `rs`, the quotient to `rdl` and the
-remainder to `rdh`, whatever `rdh` held; the quotient goes towards 0 and the
-remainder has the sign of what was divided. A divide by 0 gives a quotient of 0
-and the remainder what was divided; the most negative number divided by -1
-gives itself and a remainder of 0. `vp-div-rrr-u` is the same of unsigned
-words.
+`(vp-div-rr rs rd)` divides `rd` by `rs`, the quotient to `rd`, and `(vp-rem-rr
+rs rd)` the remainder to `rd`; each writes that one register. The quotient goes
+towards 0 and the remainder has the sign of what was divided. A divide by 0
+gives a quotient of 0 and a remainder of what was divided; the most negative
+number divided by -1 gives itself and a remainder of 0. `vp-div-rr-u` and
+`vp-rem-rr-u` are the same of unsigned words. For both of one division, the
+remainder of a copy first, then the quotient.
 
 `(vp-ext-rr rs rd)` makes `rd` 0 or -1, the sign of `rs`, the high word of `rs`
 made two. `(vp-swp-rr rs rd)` swaps them. `vp-min` and `vp-max` of words are
@@ -133,8 +134,10 @@ them.
 (vp-shr-rr rs rd)
 (vp-asr-rr rs rd)
 
-(vp-div-rrr rs rdh rdl)
-(vp-div-rrr-u rs rdh rdl)
+(vp-div-rr rs rd)
+(vp-div-rr-u rs rd)
+(vp-rem-rr rs rd)
+(vp-rem-rr-u rs rd)
 
 (vp-abs-rr rs rd)
 (vp-min-rr rs rd)

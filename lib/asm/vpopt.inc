@@ -55,9 +55,10 @@
 	+opt_out_idx_map
 		(reduce (# (pinsert %0 %1
 			(cond
-				((find %1 '(emit-pop emit-swp-rr emit-land-rr emit-div-rrr emit-div-rrr-u)) :multi)
+				((find %1 '(emit-pop emit-swp-rr emit-land-rr)) :multi)
 				((find %1 '(emit-cpy-cr emit-add-cr emit-sub-cr emit-mul-cr emit-and-cr emit-or-cr emit-xor-cr
 						emit-cpy-rr emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr
+						emit-div-rr emit-div-rr-u emit-rem-rr emit-rem-rr-u
 						emit-shl-cr emit-shr-cr emit-asr-cr emit-shl-rr emit-shr-rr emit-asr-rr emit-ext-rr
 						emit-seq-cr emit-sne-cr emit-slt-cr emit-sle-cr emit-sgt-cr emit-sge-cr
 						emit-seq-rr emit-sne-rr emit-slt-rr emit-sle-rr emit-sgt-rr emit-sge-rr

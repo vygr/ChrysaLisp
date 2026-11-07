@@ -58,8 +58,9 @@
 	(vp-cpy-rr :r2 :r3) ;base
 	(vp-cpy-rr :r1 :r4) ;buffer start
 	(loop-start)
-		(vp-xor-rr :r2 :r2)
-		(vp-div-rrr-u :r3 :r2 :r0)
+		(vp-cpy-rr :r0 :r2)
+		(vp-rem-rr-u :r3 :r2)
+		(vp-div-rr-u :r3 :r0)
 		(vp-add-cr (ascii-code "0") :r2)
 		(vpif '(:r2 > (ascii-code "9")))
 			(vp-add-cr (- (ascii-code "A") (ascii-code ":")) :r2)
@@ -148,8 +149,7 @@
 		;too big for a fixed, with that bit set, then gave an answer too
 		;big for the divide, which stops an x86_64 dead
 		(vp-shl-cr 16 num)
-		(vp-xor-rr c c)
-		(vp-div-rrr-u dot c num)
+		(vp-div-rr-u dot num)
 	(endif)
 
 	(exit :sys_str :to_long `(,num ,dot))

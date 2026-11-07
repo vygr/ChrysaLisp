@@ -170,37 +170,22 @@
 		(list 'vp-asr-cr 16 r)))
 
 (defun compile-divu (&)
-	(defq r (tmp-reg) z (pop-value) x (top-value))
-	(add-inst
-		(list 'vp-ext-rr x r)
-		(list 'vp-div-rrr-u z r x)))
+	(add-inst (list 'vp-div-rr-u (pop-value) (top-value))))
 
 (defun compile-remu (&)
-	(defq r (tmp-reg) z (pop-value) x (top-value))
-	(add-inst
-		(list 'vp-ext-rr x r)
-		(list 'vp-div-rrr-u z r x)
-		(list 'vp-cpy-rr r x)))
+	(add-inst (list 'vp-rem-rr-u (pop-value) (top-value))))
 
 (defun compile-div (&)
-	(defq r (tmp-reg) z (pop-value) x (top-value))
-	(add-inst
-		(list 'vp-ext-rr x r)
-		(list 'vp-div-rrr z r x)))
+	(add-inst (list 'vp-div-rr (pop-value) (top-value))))
 
 (defun compile-fdiv (&)
-	(defq r (tmp-reg) z (pop-value) x (top-value))
+	(defq z (pop-value) x (top-value))
 	(add-inst
 		(list 'vp-shl-cr 16 x)
-		(list 'vp-ext-rr x r)
-		(list 'vp-div-rrr z r x)))
+		(list 'vp-div-rr z x)))
 
 (defun compile-rem (&)
-	(defq r (tmp-reg) z (pop-value) x (top-value))
-	(add-inst
-		(list 'vp-ext-rr x r)
-		(list 'vp-div-rrr z r x)
-		(list 'vp-cpy-rr r x)))
+	(add-inst (list 'vp-rem-rr (pop-value) (top-value))))
 
 (defun compile-plus (&)
 	(add-inst (list 'vp-add-rr (pop-value) (top-value))))

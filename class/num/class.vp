@@ -243,9 +243,7 @@
 	;:r0-:r5, :r14, :f0-:f15
 
 	(divop :div
-		'(progn
-			(vp-ext-rr :r0 :r2)
-			(vp-div-rrr :r3 :r2 :r0)))
+		'(vp-div-rr :r3 :r0))
 
 (def-func-end)
 
@@ -259,10 +257,7 @@
 	;:r0-:r5, :r14, :f0-:f15
 
 	(divop :mod
-		'(progn
-			(vp-ext-rr :r0 :r2)
-			(vp-div-rrr :r3 :r2 :r0)
-			(vp-cpy-rr :r2 :r0)))
+		'(vp-rem-rr :r3 :r0))
 
 (def-func-end)
 

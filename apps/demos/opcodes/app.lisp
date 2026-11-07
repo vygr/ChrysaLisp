@@ -58,7 +58,7 @@
 	(create-bouncer 'emit-push    (* f_width 0.55) (* f_height 0.22)  2.3 -1.5 1.00)   ; Orange (Stack)
 	(create-bouncer 'emit-slt-rr  (* f_width 0.35) (* f_height 0.45) -1.6 -2.1 0.95)   ; Hot Pink (Compare)
 	(create-bouncer 'emit-alloc   (* f_width 0.70) (* f_height 0.55)  1.9  1.9 0.90)   ; Orange (Memory)
-	(create-bouncer 'emit-div-rrr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
+	(create-bouncer 'emit-div-rr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Opcodes" (+sym_close) +event_close)

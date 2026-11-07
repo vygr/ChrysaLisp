@@ -92,8 +92,12 @@
 (defun vp-lea-p (l r) (emit `(emit-lea-p ,(label-sym l) ,r)))
 (defun vp-cpy-pr (l d) (emit `(emit-cpy-pr ,(label-sym l) ,d)))
 
-(defun vp-div-rrr (d r q) (emit `(emit-div-rrr ,d ,r ,q)))
-(defun vp-div-rrr-u (d r q) (emit `(emit-div-rrr-u ,d ,r ,q)))
+;d by s to d, and what is left of d by s to d: by 0 the answer is 0 and
+;what is left is d, on every CPU
+(defun vp-div-rr (s d) (emit `(emit-div-rr ,s ,d)))
+(defun vp-div-rr-u (s d) (emit `(emit-div-rr-u ,s ,d)))
+(defun vp-rem-rr (s d) (emit `(emit-rem-rr ,s ,d)))
+(defun vp-rem-rr-u (s d) (emit `(emit-rem-rr-u ,s ,d)))
 
 (defun vp-beq-cr (c d l) (emit (static-qqp (emit-beq-cr ,(eval c (penv)) ,d ,(label-sym l)))))
 (defun vp-bne-cr (c d l) (emit (static-qqp (emit-bne-cr ,(eval c (penv)) ,d ,(label-sym l)))))

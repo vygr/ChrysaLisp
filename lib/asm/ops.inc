@@ -5,7 +5,7 @@
 	emit-xor-cr emit-cpy-rr emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr
 	emit-or-rr emit-xor-rr emit-shl-cr emit-shr-cr emit-asr-cr emit-shl-rr
 	emit-shr-rr emit-asr-rr emit-lnot-rr emit-land-rr emit-swp-rr emit-ext-rr
-	emit-div-rrr emit-div-rrr-u emit-min-cr emit-max-cr emit-min-rr emit-max-rr
+	emit-div-rr emit-div-rr-u emit-min-cr emit-max-cr emit-min-rr emit-max-rr
 	emit-abs-rr emit-seq-cr emit-sne-cr emit-slt-cr emit-sle-cr emit-sgt-cr
 	emit-sge-cr emit-seq-rr emit-sne-rr emit-slt-rr emit-sle-rr emit-sgt-rr
 	emit-sge-rr emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr
@@ -23,7 +23,7 @@
 	emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
 	emit-abs-ff emit-neg-ff emit-cpy-ff emit-cvt-rf emit-cvt-fr emit-cpy-rf
 	emit-cpy-fr emit-cpy-if emit-cpy-fi emit-cpy-df emit-cpy-fd
-	emit-cpy-if-i emit-cpy-fi-i emit-cpy-df-i emit-cpy-fd-i
+	emit-cpy-if-i emit-cpy-fi-i emit-cpy-df-i emit-cpy-fd-i emit-rem-rr emit-rem-rr-u
 	;the nop the VP optimiser puts in place of an instruction it removes. It
 	;is never emitted, but it is looked up, so it has its slot in every map
 	;of the ops, or each lookup of it would search the whole map, and miss.
