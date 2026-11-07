@@ -30,7 +30,7 @@
 		service/net/lisp_poll service/net/lisp_recv service/net/lisp_send
 		lib/trans/vpb_arm64 lib/trans/vpb_la64 lib/trans/vpb_riscv64
 		lib/trans/vpb_vp64 lib/trans/vpb_x86_64_amd64 lib/trans/vpb_x86_64_win64
-		lib/trans/vpb_encode))
+		lib/trans/vpb_encode lib/trans/vp_parse))
 
 (defun boot-funcs (funcs &optional all)
 	; (boot-funcs funcs [all]) -> funcs

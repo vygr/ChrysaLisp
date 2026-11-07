@@ -18,7 +18,8 @@
 	(ptr buf labels prev recs ops args adj free)
 	(long pc err nlabels ninsts pass pi pend pend_op nadj lim)
 	(ptr next b1 d1 d2 fs)
-	(long fj plim s0 s1 s2 s3))
+	(long fj plim s0 s1 s2 s3)
+	(ptr strs))
 
 ;an instruction, and an operand of one
 (structure +vpbr 0
@@ -147,6 +148,19 @@
 		(vp-cpy-cr (* +max_args +long_size) :r0)
 		(vp-call 'alloc1)
 		(assign '(:r0) '((:r14 +vpbt_args)))
+		;VP text, ("name" and on, lib/trans/vp_parse.vp, else VP binary,
+		;whose name is never a " first
+		(assign '((:rsp 0) (:rsp +ptr_size)) '(:r1 :r0))
+		(vpif '(:r1 >= 2))
+			(vp-load-rcr-us :r0 0 :r2)
+			(vpif `(:r2 = ,(+ (ascii-code "(") (<< (ascii-code "\q") 8))))
+				(fn-call 'lib/trans/vp_parse)
+				(vpif '(:r0 /= 0))
+					(vp-jmp 'fail)
+				(endif)
+				(vp-jmp 'parsed)
+			(endif)
+		(endif)
 		;the name, passed over
 		(vp-load-rcr :rsp +ptr_size :r0)
 		(vp-call 'rd_uint)
@@ -246,6 +260,7 @@
 		(endif)
 		(assign '(:r9) '((:r14 +vpbt_free)))
 
+	(vp-label 'parsed)
 		(vp-call 'prepass)
 		(assign '((:r14 +vpbt_err)) '(:r0))
 		(vpif '(:r0 /= 0))
@@ -381,6 +396,8 @@
 		(assign '((:r14 +vpbt_ops)) '(:r0))
 		(call :sys_mem :free '(:r0))
 		(assign '((:r14 +vpbt_adj)) '(:r0))
+		(call :sys_mem :free '(:r0))
+		(assign '((:r14 +vpbt_strs)) '(:r0))
 		(call :sys_mem :free '(:r0))
 		(call :sys_mem :free '(:r14))
 		(vp-pop :r0)
