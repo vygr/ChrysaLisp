@@ -1110,10 +1110,12 @@ Virtual Processor compilation pipeline, code generation, and make engine.
 
 	*	`(vpx expr ...)`
 
-*	**`vp-rdef` / `vp-fdef`**: Defines local VP integer and floating-point
-	register aliases.
+*	**`vp-rdef` / `vp-ddef` / `vp-fdef`**: Defines local VP integer, double and
+	single register aliases.
 
 	*	`(vp-rdef (alias ...) [regs])`
+
+	*	`(vp-ddef (alias ...) [regs])`
 
 	*	`(vp-fdef (alias ...) [regs])`
 

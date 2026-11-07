@@ -974,12 +974,12 @@
 									:stroke
 									0
 									:text
-									"[in registers, vp-rdef, vp-fdef]"
+									"[in registers, vp-rdef, vp-ddef]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										23.08758
+										21.55413
 										36.00000
 									)
 								)

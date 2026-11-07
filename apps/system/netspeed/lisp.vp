@@ -128,7 +128,7 @@
 	(loop-start)
 
 		(vp-rdef (loop r1 r2 r3 r4))
-		(vp-fdef (f1 f2 f3 f4 f5 f6 f7 f8))
+		(vp-ddef (f1 f2 f3 f4 f5 f6 f7 f8))
 		(vp-cpy-cr 0 loop)
 		(vp-cpy-cr 1000 r1)
 		(vp-cpy-cr -1000 r2)

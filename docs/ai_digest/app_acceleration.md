@@ -40,7 +40,7 @@ The entry point expects arguments in specific registers (Standard ABI: `:r0`
     ; Integer/Pointer registers
     (vp-rdef (this args cnt top pal consts t0 t1 t2 col))
     ; Floating-point registers
-    (vp-fdef (x0 y0 xc yc x2 y2 dx dy one two bail f0 f1 f2 f3))
+    (vp-ddef (x0 y0 xc yc x2 y2 dx dy one two bail f0 f1 f2 f3))
 
     ; 2. Entry and Setup
     (entry `(,this ,args))
@@ -67,7 +67,7 @@ The entry point expects arguments in specific registers (Standard ABI: `:r0`
 (def-func-end)
 ```
 
-### 2. Register Management (`vp-rdef` & `vp-fdef`)
+### 2. Register Management (`vp-rdef`, `vp-ddef` & `vp-fdef`)
 
 ChrysaLisp provides macros to map symbolic names to physical registers
 automatically.
@@ -75,8 +75,11 @@ automatically.
 * **`vp-rdef` (General Purpose):** Maps symbols to integer/pointer registers
   (`:r0` - `:r14`).
 
-* **`vp-fdef` (Floating Point):** Maps symbols to floating-point registers
+* **`vp-ddef` (Doubles):** Maps symbols to the float registers as doubles
   (`:d0` - `:d15`).
+
+* **`vp-fdef` (Singles):** Maps symbols to the same registers as singles
+  (`:f0` - `:f15`). A single and its double are one register.
 
 **Example from Mandelbrot:**
 
@@ -85,7 +88,7 @@ automatically.
 (vp-rdef (this args cnt top pal consts t0 t1 t2 col))
 
 ; Define float registers (math operands)
-(vp-fdef (x0 y0 xc yc x2 y2 dx dy one two bail f0 f1 f2 f3))
+(vp-ddef (x0 y0 xc yc x2 y2 dx dy one two bail f0 f1 f2 f3))
 ```
 
 *Note: The compiler allocates registers from the pool. You do not need to
@@ -124,7 +127,7 @@ constants block.
 #### Step 3: Load Fields into Registers
 
 Use the `load-fields` macro to offset from the base pointer and load specific
-values into `vp-fdef` registers.
+values into `vp-ddef` registers.
 
 ```vdu
 ; Load 2.0 into register 'two' and 65536.0 into register 'bail'
@@ -308,7 +311,7 @@ colour are done as one line each:
 
 ### Summary of Best Practices
 
-1. **Use `vp-rdef`/`vp-fdef`**: Never hardcode register names (e.g., `:r5`,
+1. **Use `vp-rdef`/`vp-ddef`/`vp-fdef`**: Never hardcode register names (e.g., `:r5`,
    `:d2`) inside the logic. Use named variables.
 
 2. **Argument Binding**: Use `list-bind-args` or `array-bind-args` to

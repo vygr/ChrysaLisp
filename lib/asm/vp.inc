@@ -9,8 +9,15 @@
 	(setq %1 (if %1 (merge (cat (eval %1)) +vp_rregs_0_14) +vp_rregs_0_14))
 	(static-qq (bind ',(push %0 '&ignore) ',%1)))
 
-(defmacro vp-fdef (%0 &optional %1)
+(defmacro vp-ddef (%0 &optional %1)
+	;names of the float registers as doubles, :d0 on, those given first
 	(setq %1 (if %1 (merge (cat (eval %1)) +vp_fregs) +vp_fregs))
+	(static-qq (bind ',(push %0 '&ignore) ',%1)))
+
+(defmacro vp-fdef (%0 &optional %1)
+	;names of the float registers as singles, :f0 on, those given first. A
+	;single and its double are one register
+	(setq %1 (if %1 (merge (cat (eval %1)) +vp_sregs) +vp_sregs))
 	(static-qq (bind ',(push %0 '&ignore) ',%1)))
 
 ;;;;;;;;;;;;;

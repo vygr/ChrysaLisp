@@ -29,7 +29,7 @@
 	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
-	(vp-fdef (e0 e1))
+	(vp-ddef (e0 e1))
 
 	(entry :reals :add `(,dst ,src1 ,src2))
 
@@ -54,7 +54,7 @@
 	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
-	(vp-fdef (e0 e1))
+	(vp-ddef (e0 e1))
 
 	(entry :reals :sub `(,dst ,src1 ,src2))
 
@@ -79,7 +79,7 @@
 	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
-	(vp-fdef (e0 e1))
+	(vp-ddef (e0 e1))
 
 	(entry :reals :min `(,dst ,src1 ,src2))
 
@@ -104,7 +104,7 @@
 	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
-	(vp-fdef (e0 e1))
+	(vp-ddef (e0 e1))
 
 	(entry :reals :max `(,dst ,src1 ,src2))
 
@@ -129,7 +129,7 @@
 	;:r1-:r5, :d0-:d1
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
-	(vp-fdef (e0 e1))
+	(vp-ddef (e0 e1))
 
 	(entry :reals :mul `(,dst ,src1 ,src2))
 
@@ -154,7 +154,7 @@
 	;:r1-:r5, :d0-:d2
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
-	(vp-fdef (e0 e1 zero))
+	(vp-ddef (e0 e1 zero))
 
 	(entry :reals :div `(,dst ,src1 ,src2))
 
@@ -184,7 +184,7 @@
 	;:r1-:r6, :d0-:d3
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 trunc))
-	(vp-fdef (e0 e1 ftrunc zero))
+	(vp-ddef (e0 e1 ftrunc zero))
 
 	(entry :reals :mod `(,dst ,src1 ,src2))
 
@@ -218,7 +218,7 @@
 	;:r1-:r5, :d0-:d3
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
-	(vp-fdef (e0 ftrunc one zero))
+	(vp-ddef (e0 ftrunc one zero))
 
 	(entry :reals :frac `(,dst ,src1))
 
@@ -250,7 +250,7 @@
 	;:r1-:r5, :d0-:d2
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
-	(vp-fdef (e0 ftrunc one))
+	(vp-ddef (e0 ftrunc one))
 
 	(entry :reals :floor `(,dst ,src1))
 
@@ -280,7 +280,7 @@
 	;:r1-:r5, :d0-:d2
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
-	(vp-fdef (e0 ftrunc one))
+	(vp-ddef (e0 ftrunc one))
 
 	(entry :reals :ceil `(,dst ,src1))
 
@@ -310,7 +310,7 @@
 	;:r1-:r4, :d0
 
 	(vp-rdef (dst src1 dst1 idx1 idx2))
-	(vp-fdef (e0))
+	(vp-ddef (e0))
 
 	(entry :reals :abs `(,dst ,src1))
 
@@ -334,7 +334,7 @@
 	;:r1-:r4, :d0-:d1
 
 	(vp-rdef (dst src1 dst1 idx1 idx2))
-	(vp-fdef (e0 scale))
+	(vp-ddef (e0 scale))
 
 	(entry :reals :scale `(,dst ,src1 ,scale))
 
@@ -357,7 +357,7 @@
 	;:r1-:r3, :d0-:d1
 
 	(vp-rdef (this src1 src_end tmp))
-	(vp-fdef (sum e0))
+	(vp-ddef (sum e0))
 
 	(entry :reals :sum `(,this))
 
@@ -382,7 +382,7 @@
 	;:r1-:r4, :d0-:d2
 
 	(vp-rdef (this src2 src1 idx1 idx2))
-	(vp-fdef (dot e0 e1))
+	(vp-ddef (dot e0 e1))
 
 	(entry :reals :dot `(,this ,src2))
 
@@ -406,7 +406,7 @@
 	;:r1-:r4, :d0-:d4
 
 	(vp-rdef (dst src1 dst1 src_end trunc))
-	(vp-fdef (e0 tol half one ftrunc))
+	(vp-ddef (e0 tol half one ftrunc))
 
 	(entry :reals :quant `(,dst ,src1 ,tol))
 
@@ -448,7 +448,7 @@
 	;:r1-:r3, :d0-:d12
 
 	(vp-rdef (this ptr_a ptr_b ptr_o))
-	(vp-fdef (o0 o1 o2 o3 o4 o5 o6 o7 t0 t1 t2 t3 s0))
+	(vp-ddef (o0 o1 o2 o3 o4 o5 o6 o7 t0 t1 t2 t3 s0))
 
 	(entry :reals :mat4x4_mul `(,this ,ptr_a ,ptr_b))
 
@@ -576,7 +576,7 @@
 	;:r1-:r4, :d0-:d15
 
 	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ve))
-	(vp-fdef (m0 m1 m2 m3 m4 m5 m6 m7 v0 v1 v2 v3 t0 t1 t2 t3))
+	(vp-ddef (m0 m1 m2 m3 m4 m5 m6 m7 v0 v1 v2 v3 t0 t1 t2 t3))
 
 	(entry :reals :mat4x4_v4_mul `(,this ,ptr_a ,ptr_v))
 
@@ -649,7 +649,7 @@
 	;:r1-:r4, :d0-:d14
 
 	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ve))
-	(vp-fdef (m0 m1 m2 m3 m4 m5 m6 m7 m8 v0 v1 v2 t0 t1 t2))
+	(vp-ddef (m0 m1 m2 m3 m4 m5 m6 m7 m8 v0 v1 v2 t0 t1 t2))
 
 	(entry :reals :mat4x4_v3_mul `(,this ,ptr_a ,ptr_v))
 

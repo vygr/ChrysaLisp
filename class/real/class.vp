@@ -103,7 +103,7 @@
 
 (redefun minop (%0 p)
 	(vp-rdef (this args obj iter_begin iter_end))
-	(vp-fdef (val new_val))
+	(vp-ddef (val new_val))
 	(entry :real %0 `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vp-load-rcr iter_begin 0 args)
@@ -497,7 +497,7 @@
 	;:r0-:r2, :r14, :d0-:d15
 
 	(vp-rdef (this tol trunc))
-	(vp-fdef (v tmp half one ftrunc))
+	(vp-ddef (v tmp half one ftrunc))
 
 	(entry :real :quant `(,this ,tol))
 
