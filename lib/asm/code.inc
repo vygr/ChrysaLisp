@@ -197,7 +197,7 @@
 
 ;module
 (export-symbols
-	'(errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
+	'(errorif-lisp-args-len errorif-lisp-args-sig
 	errorif-lisp-args-match errorif-lisp-args-type
 	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
 	vpif vpifnot else elseif elseifnot endif validatecase
