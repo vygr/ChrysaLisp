@@ -1548,9 +1548,13 @@
 
 (defun sv-name (letter program)
 	;the name of the native function of a program, from the hash of its
-	;source, and which make of this back end it is
-	(shader-sweep "fstvk" (list (shader-make +sv_made_by)))
-	(cat "lib/gpu/jit/" letter (shader-make +sv_made_by) "_" (elem-get program 5)))
+	;source, and which make of this back end it is, and of the translator
+	;of this CPU and the ops it knows: a VP64 function of the ops as they
+	;were numbered before is not the function now
+	(defq by (cat +sv_made_by (list "lib/asm/ops.inc" "lib/trans/trans.inc"
+		(cat "lib/trans/" (second (split (load-path) "/")) ".vp"))))
+	(shader-sweep "fstvk" (list (shader-make by)))
+	(cat "lib/gpu/jit/" letter (shader-make by) "_" (elem-get program 5)))
 
 (defun sv-kept (name)
 	; (sv-kept name) -> :nil | (func info)

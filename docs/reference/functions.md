@@ -13964,7 +13964,9 @@ vec3 is by the 3 by 3 of the matrix
 ```code
 the name of the native function of a program, from the hash of its
 
-source, and which make of this back end it is
+source, and which make of this back end it is, and of the translator
+of this CPU and the ops it knows: a VP64 function of the ops as they
+were numbered before is not the function now
 ```
 
 ### sv-native
