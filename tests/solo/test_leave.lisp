@@ -32,8 +32,9 @@
 		(assert-eq "it starts three nodes of its own" 3 (length (filter (# (> %0 0)) lv_pids)))
 		(assert-true "and they are running" (every (const pii-alive) lv_pids))
 
-		;its GUI quits, its node goes, and theirs with it
-		(open-task "(progn (import {service/gui/lisp.inc}) (gui-quit-rpc))" lv_node +kn_call_pin 0 (mail-mbox))
+		;its GUI quits, its node goes, and theirs with it. The library is
+		;imported a form apart, as the one after is made with its macros
+		(open-task "(import {service/gui/lisp.inc})\n(gui-quit-rpc)" lv_node +kn_call_pin 0 (mail-mbox))
 		(while (pii-alive lv_pid) (task-sleep 10000))
 		(assert-eq "the desktop's process ends" :nil (pii-alive lv_pid))
 		(while (some (const pii-alive) lv_pids) (task-sleep 10000))
@@ -43,11 +44,12 @@
 		(assert-true "and the network has lost its node" (not (find lv_node (lisp-nodes :t))))
 
 		;told to quit as soon as its GUI is up: the apps it starts are still on their
-		;way, and each is closed as its window comes, or it would never go
+		;way, and each is closed as its window comes, or it would never go. The
+		;quit is a form of its own, after the import: one made with the rest
+		;was made before the macro was there, on a slow node, and sent nothing
 		(setq lv_before (lisp-nodes :t) lv_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp")) lv_node :nil)
 		(until (setq lv_node (lv-find)) (task-sleep 10000))
-		(open-task (str `(progn (mail-await (# (mail-here "@Gui")))
-				(import "service/gui/lisp.inc") (gui-quit-rpc)))
+		(open-task "(mail-await (# (mail-here {@Gui})))\n(import {service/gui/lisp.inc})\n(gui-quit-rpc)"
 			lv_node +kn_call_pin 0 (mail-mbox))
 		(while (pii-alive lv_pid) (task-sleep 10000))
 		(assert-eq "a desktop told to quit as it starts ends" :nil (pii-alive lv_pid))
