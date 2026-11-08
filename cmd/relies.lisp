@@ -61,15 +61,15 @@
 (defq
 	;an instruction of two registers that reads both and writes the second
 	+both_ops ''(add-rr sub-rr mul-rr and-rr or-rr xor-rr shl-rr shr-rr
-		asr-rr min-rr max-rr seq-rr sne-rr slt-rr sgt-rr sle-rr sge-rr
+		asr-rr min-rr max-rr
 		div-rr div-rr-u rem-rr rem-rr-u)
 	;that reads both and writes both
-	+swap_ops ''(swp-rr land-rr)
+	+swap_ops ''(swp-rr)
 	;that reads the first and writes the second
-	+move_ops ''(cpy-rr ext-rr abs-rr)
+	+move_ops ''(cpy-rr abs-rr)
 	;of a constant and a register, read and written
 	+const_ops ''(add-cr sub-cr mul-cr and-cr or-cr xor-cr shl-cr shr-cr
-		asr-cr min-cr max-cr seq-cr sne-cr slt-cr sgt-cr sle-cr sge-cr)
+		asr-cr min-cr max-cr)
 	+branch_cr_ops ''(beq-cr bne-cr blt-cr bgt-cr ble-cr bge-cr)
 	+branch_rr_ops ''(beq-rr bne-rr blt-rr bgt-rr ble-rr bge-rr)
 	+get_ops ''(load-rcr load-rcr-b load-rcr-s load-rcr-i load-rcr-ub load-rcr-us load-rcr-ui lea-rcr)
@@ -105,8 +105,6 @@
 		((find op +swap_ops) (list (logior a b) (logior a b)))
 		((find op +move_ops) (list a b))
 		((find op +const_ops) (list b b))
-		;one register, read and written
-		((eql op 'lnot-rr) (list a a))
 		((eql op 'cpy-cr) (list 0 b))
 		((find op +branch_cr_ops) (list b 0))
 		((find op +branch_rr_ops) (list (logior a b) 0))

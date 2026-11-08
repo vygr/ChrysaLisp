@@ -56,13 +56,11 @@
 	+opt_out_idx_map
 		(reduce (# (pinsert %0 %1
 			(cond
-				((find %1 '(pop swp-rr land-rr)) :multi)
+				((find %1 '(pop swp-rr)) :multi)
 				((find %1 '(cpy-cr add-cr sub-cr mul-cr and-cr or-cr xor-cr
 						cpy-rr add-rr sub-rr mul-rr and-rr or-rr xor-rr
 						div-rr div-rr-u rem-rr rem-rr-u
-						shl-cr shr-cr asr-cr shl-rr shr-rr asr-rr ext-rr
-						seq-cr sne-cr slt-cr sle-cr sgt-cr sge-cr
-						seq-rr sne-rr slt-rr sle-rr sgt-rr sge-rr
+						shl-cr shr-cr asr-cr shl-rr shr-rr asr-rr
 						min-cr max-cr min-rr max-rr abs-rr
 						load-rcr load-rcr-b load-rcr-s load-rcr-i load-rcr-ub load-rcr-us load-rcr-ui lea-rcr
 						load-rrr load-rrr-b load-rrr-s load-rrr-i load-rrr-ub load-rrr-us load-rrr-ui lea-rrr
@@ -73,7 +71,7 @@
 						add-ff sub-ff mul-ff div-ff min-ff max-ff
 						sqrt-ff abs-ff neg-ff cvt-fd cvt-df
 						cvt-rf cvt-fr cpy-rf cpy-fr
-						load-rcd load-rrd load-rcf load-rrf lnot-rr)) -2))))
+						load-rcd load-rrd load-rcf load-rrf)) -2))))
 			+vp_emit_ops (pmap)))
 
 ;one lookup an instruction. For the sweep, the pass an op is for, and its

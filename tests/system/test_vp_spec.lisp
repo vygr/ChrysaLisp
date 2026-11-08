@@ -29,31 +29,7 @@
 (defun vs-tail ()
 	(cat "(call :num :create '(:r4) '(:r1))" vs_lf "(vp-pop :r0)" vs_lf "(vp-ret)" vs_lf "(def-func-end)" vs_lf))
 
-;each set of a and b, and of a and 5, a bit of the answer: 1 is its bit, 0
-;none, -1 or any other is wrong. Then a && b, !a, and b after the &&
-(defq vs_sets (vs-native "tests/vp_spec_sets" (cat (vs-head "tests/vp_spec_sets")
-	(apply (const cat) (map (lambda (op i)
-		(cat "(vp-cpy-rr :r2 :r5)" vs_lf "(vp-" op "-rr :r3 :r5)" vs_lf
-			"(vp-shl-cr " (str i) " :r5)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf
-			"(vp-cpy-rr :r2 :r5)" vs_lf "(vp-" op "-cr 5 :r5)" vs_lf
-			"(vp-shl-cr " (str (+ i 6)) " :r5)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf))
-		vs_ops (range 0 6)))
-	"(vp-cpy-rr :r2 :r5)" vs_lf "(vp-land-rr :r3 :r5)" vs_lf "(vp-shl-cr 12 :r5)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf
-	"(vp-cpy-rr :r2 :r5)" vs_lf "(vp-lnot-rr :r5)" vs_lf "(vp-shl-cr 13 :r5)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf
-	"(vp-shl-cr 16 :r3)" vs_lf "(vp-add-rr :r3 :r4)" vs_lf
-	(vs-tail))))
-
-(defun vs-sets-want (a b)
-	(defq bit (lambda (t i) (if t (<< 1 i) 0)))
-	(+ (bit (= a b) 0) (bit (/= a b) 1) (bit (< a b) 2) (bit (<= a b) 3) (bit (> a b) 4) (bit (>= a b) 5)
-		(bit (= a 5) 6) (bit (/= a 5) 7) (bit (< a 5) 8) (bit (<= a 5) 9) (bit (> a 5) 10) (bit (>= a 5) 11)
-		(bit (and (/= a 0) (/= b 0)) 12) (bit (= a 0) 13) (<< b 16)))
-
 (defq vs_pairs '((3 3) (2 7) (7 2) (5 5) (0 4) (4 0) (0 0) (-3 2) (2 -3) (9 9)))
-(each (lambda ((a b))
-		(assert-eq (cat "the sets, && and ! of " (str a) " and " (str b) ", each 0 or 1, and b as it was")
-			(vs-sets-want a b) (vs_sets a b)))
-	vs_pairs)
 
 ;each branch to a label over 8KB on, so that a CPU whose branches reach
 ;less, RISC-V's 4KB, takes its long form, and back: of two the same and
@@ -105,9 +81,9 @@
 (defq vs_big (vs-native "tests/vp_spec_big" (cat (vs-head "tests/vp_spec_big")
 	"(vp-cpy-rr :r2 :r4)" vs_lf
 	(apply (const cat) (map (lambda ((op c)) (cat "(vp-" op "-cr " (str c) " :r4)" vs_lf)) vs_big_c))
-	;a compare and branch, and a set, of a constant past 32 bits
+	;two compares and branches of a constant past 32 bits
 	"(vp-blt-cr 0x7000000000 :r3 'small)" vs_lf "(vp-or-cr 1 :r4)" vs_lf "(vp-label 'small)" vs_lf
-	"(vp-cpy-rr :r3 :r5)" vs_lf "(vp-sgt-cr 0x7000000000 :r5)" vs_lf "(vp-shl-cr 1 :r5)" vs_lf "(vp-xor-rr :r5 :r4)" vs_lf
+	"(vp-ble-cr 0x7000000000 :r3 'not_big)" vs_lf "(vp-xor-cr 2 :r4)" vs_lf "(vp-label 'not_big)" vs_lf
 	;a word on the stack, by a base 2^33 below it
 	"(vp-alloc 8)" vs_lf "(vp-cpy-rr :rsp :r6)" vs_lf "(vp-sub-cr 0x200000000 :r6)" vs_lf
 	"(vp-store-rrc :r4 :r6 0x200000000)" vs_lf "(vp-load-rcr :r6 0x200000000 :r7)" vs_lf
@@ -182,8 +158,8 @@
 	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-load-rrf :rsp :r7 :f4)" vs_lf
 	(apply (const cat) (map (# (cat "(vp-cvt-fd :f" (str %0) " :d" (str %0) ")" vs_lf)) (range 0 5)))
 	"(vp-cpy-dr :d0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
-	(apply (const cat) (map (# (cat "(vp-cpy-dr " %0 " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
-		"(vp-add-rr :r5 :r8)" vs_lf)) '(":d1" ":d2" ":d3" ":d4")))
+	(apply (const cat) (map (# (cat "(vp-cpy-dr :d" (str %0) " :r5)" vs_lf "(vp-beq-rr :r4 :r5 'same" (str %0) ")" vs_lf
+		"(vp-add-cr 1 :r8)" vs_lf "(vp-label 'same" (str %0) ")" vs_lf)) (range 1 5)))
 	"(vp-shl-cr 60 :r8)" vs_lf "(vp-xor-rr :r8 :r4)" vs_lf
 	"(vp-free 32)" vs_lf
 	(vs-tail))))
@@ -212,9 +188,9 @@
 	"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-store-frc :f1 :r6 -8)" vs_lf
 	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-store-frr :f1 :rsp :r7)" vs_lf
 	"(vp-load-rcr-ui :rsp 0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
-	(apply (const cat) (map (# (cat "(vp-load-rcr-ui :rsp " (str %0) " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
-		"(vp-add-rr :r5 :r8)" vs_lf)) '(4 8 12 16)))
-	"(vp-cpy-dr :d0 :r5)" vs_lf "(vp-sne-rr :r3 :r5)" vs_lf "(vp-shl-cr 4 :r5)" vs_lf "(vp-add-rr :r5 :r8)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-load-rcr-ui :rsp " (str %0) " :r5)" vs_lf "(vp-beq-rr :r4 :r5 'same" (str %0) ")" vs_lf
+		"(vp-add-cr 1 :r8)" vs_lf "(vp-label 'same" (str %0) ")" vs_lf)) '(4 8 12 16)))
+	"(vp-cpy-dr :d0 :r5)" vs_lf "(vp-beq-rr :r3 :r5 'kept)" vs_lf "(vp-add-cr 16 :r8)" vs_lf "(vp-label 'kept)" vs_lf
 	"(vp-shl-cr 32 :r8)" vs_lf "(vp-add-rr :r8 :r4)" vs_lf
 	"(vp-free 32)" vs_lf
 	(vs-tail))))
@@ -293,5 +269,5 @@
 (assert-list-eq "a trash of a single is of its double, one register"
 	'(:r1 :d0 :d1 :d2 :d5 :d7) vs_trash)
 
-(undef (env) 'vs_ops 'vs_lf 'vs_sets 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse
+(undef (env) 'vs_ops 'vs_lf 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse
 	'vs_if 'vs_fi 'vs-double-of 'vs-bits-of 'vs_s_ops 'vs_s 'vs_sb 'vs_sf 'vs_trash)

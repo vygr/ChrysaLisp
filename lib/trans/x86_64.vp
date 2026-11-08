@@ -538,22 +538,6 @@
 	(eb 0xc0 '(:r2 3 7) '(:r1 0 7))
 	(vp-ret)
 
-(vp-label 's_cond)
-	;x64-s-cond, :r0 = cc, :r1 = d
-	(vpif '(:r1 >= 4))
-		(eb 0x40 '(:r1 -3 8))
-	(endif)
-	(eb 0x0f)
-	(eb 0x20 '(:r0 0))
-	(eb 0xc0 '(:r1 0 7))
-	(vpif '(:r1 >= 4))
-		(eb 0x40 '(:r1 -1 8) '(:r1 -3 8))
-	(endif)
-	(eb 0x0f)
-	(eb 0xb6)
-	(eb 0xc0 '(:r1 3 7) '(:r1 0 7))
-	(vp-ret)
-
 (vp-label 'rex_need)
 	;:r0 = w, :r2 = reg, :r3 = base, :r4 = index -> :r9 = 1 if a rex
 	;is wanted that is not of w 8, trashes :r8
@@ -1103,50 +1087,9 @@
 	'((shl-cr e_shl_cr 4 :cr) (shr-cr e_shr_cr 5 :cr) (asr-cr e_asr_cr 7 :cr)
 	(shl-rr e_shl_rr 4 :rr) (shr-rr e_shr_rr 5 :rr) (asr-rr e_asr_rr 7 :rr)))
 
-(vp-label 'e_lnot_rr)
-	;(d)
-	(vp-push :r0)
-	(vp-cpy-rr :r0 :r1)
-	(vp-xor-rr :r0 :r0)
-	(vp-call 'cmp_cr)
-	(vp-pop :r1)
-	(vp-cpy-cr 0x74 :r0)
-	(vp-jmp 's_cond)
-(handler 'lnot-rr 'e_lnot_rr)
-
-(vp-label 'e_land_rr)
-	;(s d)
-	(vp-push :r0 :r1)
-	(vp-xor-rr :r0 :r0)
-	(vp-call 'cmp_cr)
-	(vp-load-rcr :rsp 0 :r1)
-	(vp-cpy-cr 0x75 :r0)
-	(vp-call 's_cond)
-	(vp-load-rcr :rsp 8 :r1)
-	(vp-xor-rr :r0 :r0)
-	(vp-call 'cmp_cr)
-	(vp-pop :r1 :r2)
-	(vp-cpy-cr 0x44 :r0)
-	(vp-jmp 'f_r_r)
-(handler 'land-rr 'e_land_rr)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; multiply, divide and ext
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(vp-label 'e_ext_rr)
-	(vpif `(:r0 = ,+x64_rax))
-		(vpif `(:r1 = ,+x64_rdx))
-			(ebs 0x48 0x99)
-			(vp-ret)
-		(endif)
-	(endif)
-	(vp-push :r1)
-	(vp-call 'e_cpy_rr)
-	(vp-pop :r1)
-	(vp-cpy-cr 63 :r0)
-	(vp-jmp 'e_asr_cr)
-(handler 'ext-rr 'e_ext_rr)
+;;;;;;;;;;;;;;;;;;;;;
+; multiply and divide
+;;;;;;;;;;;;;;;;;;;;;
 
 (vp-label 'e_mul_rr)
 	(vp-cpy-rr :r1 :r2)
@@ -1317,22 +1260,6 @@
 	(beq-rr e_beq_rr 0x74 cmp_rr) (bne-rr e_bne_rr 0x75 cmp_rr)
 	(bge-rr e_bge_rr 0x7d cmp_rr) (blt-rr e_blt_rr 0x7c cmp_rr)
 	(ble-rr e_ble_rr 0x7e cmp_rr) (bgt-rr e_bgt_rr 0x7f cmp_rr)))
-
-(each (lambda ((op label cc cmp))
-		;(c d) or (s d)
-		(vp-label label)
-		(vp-push :r1)
-		(vp-call cmp)
-		(vp-pop :r1)
-		(vp-cpy-cr cc :r0)
-		(vp-jmp 's_cond)
-		(handler op label))
-	'((seq-cr e_seq_cr 0x74 cmp_cr) (sne-cr e_sne_cr 0x75 cmp_cr)
-	(slt-cr e_slt_cr 0x7c cmp_cr) (sle-cr e_sle_cr 0x7e cmp_cr)
-	(sgt-cr e_sgt_cr 0x7f cmp_cr) (sge-cr e_sge_cr 0x7d cmp_cr)
-	(seq-rr e_seq_rr 0x74 cmp_rr) (sne-rr e_sne_rr 0x75 cmp_rr)
-	(slt-rr e_slt_rr 0x7c cmp_rr) (sle-rr e_sle_rr 0x7e cmp_rr)
-	(sgt-rr e_sgt_rr 0x7f cmp_rr) (sge-rr e_sge_rr 0x7d cmp_rr)))
 
 (each (lambda ((op label jcc))
 		;(c d), the cmp, a jump over the copy if it is not wanted, the copy

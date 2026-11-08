@@ -255,14 +255,6 @@
 	(vp-ret)
 (handler 'swp-rr 'e_swp_rr)
 
-(vp-label 'e_ext_rr)
-	(vp-push :r1)
-	(vp-call 'e_cpy_rr)
-	(vp-pop :r1)
-	(vp-cpy-cr 63 :r0)
-	(vp-jmp 'e_asr_cr)
-(handler 'ext-rr 'e_ext_rr)
-
 ;;;;;;;;;;;
 ; branches
 ;;;;;;;;;;;
@@ -336,100 +328,6 @@
 	(beq-ff e_beq_ss 0xa0002053 :nil 1) (bne-ff e_bne_ss 0xa0002053 :nil 0)
 	(blt-ff e_blt_ss 0xa0001053 :nil 1) (bgt-ff e_bgt_ss 0xa0001053 :t 1)
 	(ble-ff e_ble_ss 0xa0000053 :nil 1) (bge-ff e_bge_ss 0xa0000053 :t 1)))
-
-;;;;;;;;;;;;;;;;;;;;;
-; sets and logicals
-;;;;;;;;;;;;;;;;;;;;;
-
-(vp-label 'e_lnot_rr)
-	(rv-i 0x13 :r0 :r0 3 1)
-	(vp-ret)
-(handler 'lnot-rr 'e_lnot_rr)
-
-(vp-label 'e_land_rr)
-	(rv-r 0x33 +rv_t1 +rv_zero :r0 3 0)
-	(rv-r 0x33 :r1 +rv_zero :r1 3 0)
-	(rv-r 0x33 :r1 :r1 +rv_t1 7 0)
-	(vp-ret)
-(handler 'land-rr 'e_land_rr)
-
-(vp-label 'e_seq_rr)
-	(vp-push :r1)
-	(vp-call 'e_sub_rr)
-	(vp-pop :r0)
-	(vp-jmp 'e_lnot_rr)
-(handler 'seq-rr 'e_seq_rr)
-
-(vp-label 'e_sne_rr)
-	(vp-push :r1)
-	(vp-call 'e_sub_rr)
-	(vp-pop :r1)
-	(rv-r 0x33 :r1 +rv_zero :r1 3 0)
-	(vp-ret)
-(handler 'sne-rr 'e_sne_rr)
-
-(vp-label 'e_slt_rr)
-	(rv-r 0x33 :r1 :r1 :r0 2 0)
-	(vp-ret)
-(handler 'slt-rr 'e_slt_rr)
-
-(vp-label 'e_sgt_rr)
-	(rv-r 0x33 :r1 :r0 :r1 2 0)
-	(vp-ret)
-(handler 'sgt-rr 'e_sgt_rr)
-
-(each (lambda ((op label swap))
-		;(s d), slt of the one way to t1, seq, the or of them
-		(vp-label label)
-		(if swap
-			(rv-r 0x33 +rv_t1 :r0 :r1 2 0)
-			(rv-r 0x33 +rv_t1 :r1 :r0 2 0))
-		(vp-push :r1)
-		(vp-call 'e_seq_rr)
-		(vp-pop :r1)
-		(vp-cpy-cr +rv_t1 :r0)
-		(vp-jmp 'e_or_rr)
-		(handler op label))
-	'((sle-rr e_sle_rr :nil) (sge-rr e_sge_rr :t)))
-
-(each (lambda ((op label rr zero))
-		;(c d), of 0 its own form, else c in t3 and the rr
-		(vp-label label)
-		(vpif '(:r0 = 0))
-			(cond
-				((eql zero 'lnot)
-					(vp-cpy-rr :r1 :r0)
-					(vp-jmp 'e_lnot_rr))
-				((eql zero 'snez)
-					(rv-r 0x33 :r1 +rv_zero :r1 3 0)
-					(vp-ret))
-				((eql zero 'rr)
-					(vp-jmp rr))
-				((eql zero 'sle)
-					(rv-r 0x33 +rv_t1 :r1 +rv_zero 2 0)
-					(vp-jmp (sym (cat label "_or"))))
-				((eql zero 'sge)
-					(rv-r 0x33 +rv_t1 +rv_zero :r1 2 0)
-					(vp-jmp (sym (cat label "_or")))))
-		(endif)
-		(vp-push :r1)
-		(vp-cpy-cr +rv_t3 :r1)
-		(vp-call 'e_cpy_cr)
-		(vp-pop :r1)
-		(vp-cpy-cr +rv_t3 :r0)
-		(vp-jmp rr)
-		(when (find zero '(sle sge))
-		(vp-label (sym (cat label "_or")))
-			(vp-push :r1)
-			(vp-cpy-rr :r1 :r0)
-			(vp-call 'e_lnot_rr)
-			(vp-pop :r1)
-			(vp-cpy-cr +rv_t1 :r0)
-			(vp-jmp 'e_or_rr))
-		(handler op label))
-	'((seq-cr e_seq_cr e_seq_rr lnot) (sne-cr e_sne_cr e_sne_rr snez)
-	(slt-cr e_slt_cr e_slt_rr rr) (sgt-cr e_sgt_cr e_sgt_rr rr)
-	(sle-cr e_sle_cr e_sle_rr sle) (sge-cr e_sge_cr e_sge_rr sge)))
 
 ;;;;;;;;;;;;;;;;;;
 ; loads and stores

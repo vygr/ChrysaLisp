@@ -93,14 +93,11 @@
 	; integer rr
 	'cpy-rr '(:r :r) 'add-rr '(:r :r) 'sub-rr '(:r :r) 'mul-rr '(:r :r)
 	'and-rr '(:r :r) 'or-rr '(:r :r) 'xor-rr '(:r :r) 'shl-rr '(:r :r)
-	'shr-rr '(:r :r) 'asr-rr '(:r :r) 'lnot-rr '(:r) 'land-rr '(:r :r)
-	'swp-rr '(:r :r) 'ext-rr '(:r :r) 'seq-rr '(:r :r) 'sne-rr '(:r :r)
-	'slt-rr '(:r :r) 'sgt-rr '(:r :r) 'sle-rr '(:r :r) 'sge-rr '(:r :r)
+	'shr-rr '(:r :r) 'asr-rr '(:r :r) 'swp-rr '(:r :r)
 	; integer cr
 	'cpy-cr '(:c :r) 'add-cr '(:c :r) 'sub-cr '(:c :r) 'mul-cr '(:c :r)
 	'and-cr '(:c :r) 'or-cr '(:c :r) 'xor-cr '(:c :r) 'shl-cr '(:c :r)
-	'shr-cr '(:c :r) 'asr-cr '(:c :r) 'seq-cr '(:c :r) 'sne-cr '(:c :r)
-	'slt-cr '(:c :r) 'sgt-cr '(:c :r) 'sle-cr '(:c :r) 'sge-cr '(:c :r)
+	'shr-cr '(:c :r) 'asr-cr '(:c :r)
 	; integer min/max/abs
 	'min-rr '(:r :r) 'max-rr '(:r :r) 'abs-rr '(:r :r)
 	'min-cr '(:c :r) 'max-cr '(:c :r)
@@ -470,9 +467,6 @@
 					((store-rrr store-rrr-b store-rrr-s store-rrr-i store-drr store-frr)
 						;ignore as no reg writes
 						:ignore)
-					((land-rr)
-						;two reg writes
-						(each! (# (pinsert trace_map %0 :nil)) (list inst) -3 -1))
 					((min-cr min-rr max-cr max-rr vp-abs-rr)
 						;has label offset as last arg !
 						(pinsert trace_map (third inst) :nil))

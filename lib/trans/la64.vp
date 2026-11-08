@@ -248,14 +248,6 @@
 	(vp-ret)
 (handler 'swp-rr 'e_swp_rr)
 
-(vp-label 'e_ext_rr)
-	(vp-push :r1)
-	(vp-call 'e_cpy_rr)
-	(vp-pop :r1)
-	(vp-cpy-cr 63 :r0)
-	(vp-jmp 'e_asr_cr)
-(handler 'ext-rr 'e_ext_rr)
-
 ;;;;;;;;;;;
 ; branches
 ;;;;;;;;;;;
@@ -330,100 +322,6 @@
 	(beq-ff e_beq_ss 4 :nil 0x48000100 0x0c100000) (bne-ff e_bne_ss 4 :nil 0x48000000 0x0c100000)
 	(blt-ff e_blt_ss 2 :nil 0x48000100 0x0c100000) (bgt-ff e_bgt_ss 2 :t 0x48000100 0x0c100000)
 	(ble-ff e_ble_ss 6 :nil 0x48000100 0x0c100000) (bge-ff e_bge_ss 6 :t 0x48000100 0x0c100000)))
-
-;;;;;;;;;;;;;;;;;;;;;
-; sets and logicals
-;;;;;;;;;;;;;;;;;;;;;
-
-(vp-label 'e_lnot_rr)
-	(la-2ri12 0x02400000 :r0 :r0 1)
-	(vp-ret)
-(handler 'lnot-rr 'e_lnot_rr)
-
-(vp-label 'e_land_rr)
-	(la-3r 0x00128000 +la_t1 +la_zero :r0)
-	(la-3r 0x00128000 :r1 +la_zero :r1)
-	(la-3r 0x00148000 :r1 :r1 +la_t1)
-	(vp-ret)
-(handler 'land-rr 'e_land_rr)
-
-(vp-label 'e_seq_rr)
-	(vp-push :r1)
-	(vp-call 'e_sub_rr)
-	(vp-pop :r1)
-	(la-2ri12 0x02400000 :r1 :r1 1)
-	(vp-ret)
-(handler 'seq-rr 'e_seq_rr)
-
-(vp-label 'e_sne_rr)
-	(vp-push :r1)
-	(vp-call 'e_sub_rr)
-	(vp-pop :r1)
-	(la-3r 0x00128000 :r1 +la_zero :r1)
-	(vp-ret)
-(handler 'sne-rr 'e_sne_rr)
-
-(vp-label 'e_slt_rr)
-	(la-3r 0x00120000 :r1 :r1 :r0)
-	(vp-ret)
-(handler 'slt-rr 'e_slt_rr)
-
-(vp-label 'e_sgt_rr)
-	(la-3r 0x00120000 :r1 :r0 :r1)
-	(vp-ret)
-(handler 'sgt-rr 'e_sgt_rr)
-
-(vp-label 'e_sle_rr)
-	(la-3r 0x00120000 +la_t1 :r0 :r1)
-	(la-2ri12 0x03c00000 :r1 +la_t1 1)
-	(vp-ret)
-(handler 'sle-rr 'e_sle_rr)
-
-(vp-label 'e_sge_rr)
-	(la-3r 0x00120000 +la_t1 :r1 :r0)
-	(la-2ri12 0x03c00000 :r1 +la_t1 1)
-	(vp-ret)
-(handler 'sge-rr 'e_sge_rr)
-
-(defun via-t3 (rr)
-	;(c d), c to t3, then the rr of it and d
-	(vp-push :r1)
-	(vp-cpy-cr +la_t3 :r1)
-	(vp-call 'e_cpy_cr)
-	(vp-pop :r1)
-	(vp-cpy-cr +la_t3 :r0)
-	(vp-jmp rr))
-
-(vp-label 'e_seq_cr)
-	(vpif '(:r0 = 0))
-		(la-2ri12 0x02400000 :r1 :r1 1)
-		(vp-ret)
-	(endif)
-	(via-t3 'e_seq_rr)
-(handler 'seq-cr 'e_seq_cr)
-
-(vp-label 'e_sne_cr)
-	(vpif '(:r0 = 0))
-		(la-3r 0x00128000 :r1 +la_zero :r1)
-		(vp-ret)
-	(endif)
-	(via-t3 'e_sne_rr)
-(handler 'sne-cr 'e_sne_cr)
-
-(vp-label 'e_slt_cr)
-	(within12? :r0 'e_slt_cr_big)
-	(la-2ri12 0x02000000 :r1 :r1 :r0)
-	(vp-ret)
-(vp-label 'e_slt_cr_big)
-	(via-t3 'e_slt_rr)
-(handler 'slt-cr 'e_slt_cr)
-
-(vp-label 'e_sgt_cr) (via-t3 'e_sgt_rr)
-(vp-label 'e_sle_cr) (via-t3 'e_sle_rr)
-(vp-label 'e_sge_cr) (via-t3 'e_sge_rr)
-(handler 'sgt-cr 'e_sgt_cr)
-(handler 'sle-cr 'e_sle_cr)
-(handler 'sge-cr 'e_sge_cr)
 
 ;;;;;;;;;;;;;;;;;;
 ; loads and stores

@@ -134,20 +134,6 @@
 (defun vp-ble-rr (s d l) (emit (static-qqp (ble-rr ,s ,d ,(label-sym l)))))
 (defun vp-bge-rr (s d l) (emit (static-qqp (bge-rr ,s ,d ,(label-sym l)))))
 
-(defun vp-seq-cr (c d) (emit (static-qqp (seq-cr ,(logior 0 (eval c (penv))) ,d))))
-(defun vp-sne-cr (c d) (emit (static-qqp (sne-cr ,(logior 0 (eval c (penv))) ,d))))
-(defun vp-slt-cr (c d) (emit (static-qqp (slt-cr ,(logior 0 (eval c (penv))) ,d))))
-(defun vp-sgt-cr (c d) (emit (static-qqp (sgt-cr ,(logior 0 (eval c (penv))) ,d))))
-(defun vp-sle-cr (c d) (emit (static-qqp (sle-cr ,(logior 0 (eval c (penv))) ,d))))
-(defun vp-sge-cr (c d) (emit (static-qqp (sge-cr ,(logior 0 (eval c (penv))) ,d))))
-
-(defun vp-seq-rr (s d) (emit `(seq-rr ,s ,d)))
-(defun vp-sne-rr (s d) (emit `(sne-rr ,s ,d)))
-(defun vp-slt-rr (s d) (emit `(slt-rr ,s ,d)))
-(defun vp-sgt-rr (s d) (emit `(sgt-rr ,s ,d)))
-(defun vp-sle-rr (s d) (emit `(sle-rr ,s ,d)))
-(defun vp-sge-rr (s d) (emit `(sge-rr ,s ,d)))
-
 (defun vp-cpy-cr (c d) (emit (static-qqp (cpy-cr ,(logior 0 (eval c (penv))) ,d))))
 (defun vp-add-cr (c d) (emit (static-qqp (add-cr ,(logior 0 (eval c (penv))) ,d))))
 (defun vp-sub-cr (c d) (emit (static-qqp (sub-cr ,(logior 0 (eval c (penv))) ,d))))
@@ -169,10 +155,7 @@
 (defun vp-shl-rr (s d) (emit `(shl-rr ,s ,d)))
 (defun vp-shr-rr (s d) (emit `(shr-rr ,s ,d)))
 (defun vp-asr-rr (s d) (emit `(asr-rr ,s ,d)))
-(defun vp-lnot-rr (d) (emit `(lnot-rr ,d)))
-(defun vp-land-rr (s d) (emit `(land-rr ,s ,d)))
 (defun vp-swp-rr (s d) (emit `(swp-rr ,s ,d)))
-(defun vp-ext-rr (s d) (emit `(ext-rr ,s ,d)))
 
 (defun vp-load-rrr-b (b i d) (emit `(load-rrr-b ,b ,i ,d)))
 (defun vp-load-rrr-s (b i d) (emit `(load-rrr-s ,b ,i ,d)))
