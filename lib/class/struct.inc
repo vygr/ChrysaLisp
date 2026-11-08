@@ -9,6 +9,10 @@
 	(defq field_name (sym (cat name "_" field)) field_type (sym (cat field_name "_t"))
 		field_value (get field_name (penv)) field_type_value (get field_type (penv)))
 	(setq base (align base (ifn alignment alloc)))
+	;name_size is the size of the structure, and slot_fields its fields, a
+	;field of that name is lost to it, even in a frame
+	(if (or (eql (str field) "size") (and (eql name 'slot) (eql (str field) "fields")))
+		(throw "Field name is the structure's own !" field_name))
 	(unless (starts-with "slot_" field_name)
 		(if (or (and field_value (nql field_value base))
 				(and field_type_value (nql field_type_value type)))
