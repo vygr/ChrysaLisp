@@ -391,7 +391,7 @@
 	;return tcb and mailbox info
 	(fn-bind 'sys/statics/statics :r5)
 	(assign '((:rsp slot_tcb)) '(:r0))
-	(assign '((:r0 +tk_node_mbox_addr) (:r0 +tk_node_mbox_id)) '(:r1 :r2))
+	(load-fields :r0 '(+tk_node_mbox_addr +tk_node_mbox_id) '(:r1 :r2))
 	(load-node-id :r5 statics_sys_task_kernel_node_id :r3 :r4)
 	(exit :sys_task :start '(:r0 :r1 :r2 :r3 :r4))
 	(vp-free slot_size)

@@ -36,7 +36,7 @@
 	;:r1-:r7, :d0-:d15
 
 	(entry :canvas :init '(:r0 :r1 :r2 :r3 :r4))
-	(assign '(:r2 :r3 :r4) '((:r0 +canvas_cx1) (:r0 +canvas_cy1) (:r0 +canvas_scale)))
+	(save-fields :r0 '(+canvas_cx1 +canvas_cy1 +canvas_scale) '(:r2 :r3 :r4))
 
 	;init parent
 	(s-call :canvas :init '(:r0 :r1) '(:r0 :r1))
@@ -47,9 +47,9 @@
 			'((:r0 +canvas_cx) (:r0 +canvas_cy) (:r0 +canvas_flags)
 			(:r0 +canvas_edges_start) (:r0 +canvas_coverage) (:r0 +canvas_texture) (:r0 +canvas_color)))
 		(assign '(:r0 (:r0 +canvas_cx1) (:r0 +canvas_cy1) (:r0 +canvas_scale)) '(:r3 :r0 :r1 :r2))
-		(assign '(:r0 :r1) '((:r3 +view_w) (:r3 +view_h)))
+		(save-fields :r3 '(+view_w +view_h) '(:r0 :r1))
 		(vp-simd vp-mul-rr '(:r2) '(:r0 :r1))
-		(assign '(:r0 :r1) '((:r3 +canvas_cx1) (:r3 +canvas_cy1)))
+		(save-fields :r3 '(+canvas_cx1 +canvas_cy1) '(:r0 :r1))
 
 		;alloc pixmap, type premul 32bit !
 		(call :pixmap :create '(:r0 :r1 -32) '(:r0))
@@ -334,7 +334,7 @@
 			(vp-xor-rr :r8 :r8)
 		(endif)
 		(vp-simd vp-min-rr '(:r1 :r2) '(:r9 :r10))
-		(assign '(:r7 :r8 :r9 :r10) '((:r0 +canvas_cx) (:r0 +canvas_cy) (:r0 +canvas_cx1) (:r0 +canvas_cy1)))
+		(save-fields :r0 '(+canvas_cx +canvas_cy +canvas_cx1 +canvas_cy1) '(:r7 :r8 :r9 :r10))
 	(endif)
 	(endif)
 
@@ -433,7 +433,7 @@
 	(entry :canvas :span '(:r0 :r1 :r7 :r8 :r9))
 
 	;clip check
-	(assign '((:r0 +canvas_cx) (:r0 +canvas_cy) (:r0 +canvas_cx1) (:r0 +canvas_cy1)) '(:r2 :r3 :r4 :r5))
+	(load-fields :r0 '(+canvas_cx +canvas_cy +canvas_cx1 +canvas_cy1) '(:r2 :r3 :r4 :r5))
 	(vpif '(:r9 > :r7) '(:r9 > :r2) '(:r8 >= :r3) '(:r7 < :r4) '(:r8 < :r5))
 		(vp-max-rr :r2 :r7)
 		(vp-min-rr :r4 :r9)
@@ -459,7 +459,7 @@
 	(entry :canvas :pick '(:r0 :r7 :r8))
 
 	;clip check
-	(assign '((:r0 +canvas_cx) (:r0 +canvas_cy) (:r0 +canvas_cx1) (:r0 +canvas_cy1)) '(:r3 :r4 :r5 :r6))
+	(load-fields :r0 '(+canvas_cx +canvas_cy +canvas_cx1 +canvas_cy1) '(:r3 :r4 :r5 :r6))
 	(vpif '(:r7 >= :r3) '(:r8 >= :r4) '(:r7 < :r5) '(:r8 < :r6))
 		(assign '((:r0 +canvas_pixmap)) '(:r2))
 		(assign '((:r2 +pixmap_stride) (:r2 +pixmap_data)) '(:r1 :r2))

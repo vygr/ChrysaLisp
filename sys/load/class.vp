@@ -41,8 +41,7 @@
 	;get boot block info
 	(assign '(($ fn_start) ($ fn_end)) '(:r0 :r1))
 	(assign '((:r0 0) (:r1 +fn_header_length)) '(:r2 :r3))
-	(save-fields :rsp '(slot_boot_static_func slot_boot_static_len) '(:r1 :r3))
-	(assign '(:r1) '((:rsp slot_boot_tail_func)))
+	(save-fields :rsp '(slot_boot_static_func slot_boot_static_len slot_boot_tail_func) '(:r1 :r3 :r1))
 	(vp-sub-rr :r0 :r1)
 	(vp-sub-rr :r1 :r2)
 	(assign '(:r2) '((:rsp slot_boot_tail_len)))
@@ -133,8 +132,7 @@
 	(assign `((:r0 +ptr_size) (,statics statics_sys_load_name_buffer)) '(:r0 :r1))
 	(vp-cpy-rr :r1 :r5)
 	(vp-add-cr (dec ld_name_size) :r5)
-	(vp-cpy-rr :r1 :r2)
-	(vp-cpy-rr :r1 :r3)
+	(assign '(:r1 :r1) '(:r2 :r3))
 	(loop-start)
 		(vp-load-rcr-ub :r0 0 :r4)
 		(breakif '(:r4 = 0) '(:r1 = :r5))
@@ -142,8 +140,7 @@
 		(vp-add-cr 1 :r0)
 		(vp-add-cr 1 :r1)
 		(vpif `(:r4 = ,(ascii-code "/")))
-			(vp-cpy-rr :r2 :r3)
-			(vp-cpy-rr :r1 :r2)
+			(assign '(:r2 :r1) '(:r3 :r2))
 		(endif)
 	(loop-end)
 	(assign `((,statics statics_sys_load_name_buffer)) '(:r1))
@@ -353,7 +350,7 @@
 	(endif)
 
 	;create filename, after the folder of the image the buffer starts with
-	(assign '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_name_prefix)) '(:r1 :r0))
+	(load-fields :r7 '(statics_sys_load_name_buffer statics_sys_load_name_prefix) '(:r1 :r0))
 	(vp-add-rr :r0 :r1)
 	(call :sys_str :copy '(:r6 :r1))
 	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
@@ -383,7 +380,7 @@
 	;check loaded length equals file size, a file another node is writing
 	;is not, and it is made from its VP here too
 	(fn-bind 'sys/statics/statics :r7)
-	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_stat_buffer)) '(:r3 :r2))
+	(load-fields :r7 '(statics_sys_load_block_start statics_sys_load_stat_buffer) '(:r3 :r2))
 	(assign '((:r3 +fn_header_length) (:r2 +stat_fsize)) '(:r0 :r1))
 	(gotoif '(:r0 /= :r1) 'from_vp)
 	(call :host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
@@ -399,7 +396,7 @@
 	(vp-cpy-rr :r1 :r5)
 
 	;copy paths to reloc buffer
-	(assign '((:r3 +fn_header_paths) (:r3 +fn_header_length)) '(:r0 :r2))
+	(load-fields :r3 '(+fn_header_paths +fn_header_length) '(:r0 :r2))
 	(vp-add-rr :r3 :r0)
 	(vp-add-rr :r3 :r2)
 	(loop-while '(:r0 /= :r2))
@@ -422,7 +419,7 @@
 	(endif)
 
 	;bind links to paths in reloc buffer
-	(assign '((:r3 +fn_header_links) (:r3 +fn_header_paths)) '(:r0 :r1))
+	(load-fields :r3 '(+fn_header_links +fn_header_paths) '(:r0 :r1))
 	(vp-add-rr :r3 :r0)
 	(vp-add-rr :r3 :r1)
 	(vp-sub-rr :r1 :r5)
@@ -486,7 +483,7 @@
 	;trash more than a load may
 	(vp-push :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	(fn-bind 'sys/statics/statics :r7)
-	(assign '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_name_prefix)) '(:r0 :r1))
+	(load-fields :r7 '(statics_sys_load_name_buffer statics_sys_load_name_prefix) '(:r0 :r1))
 	(vp-add-rr :r1 :r0)
 	(call :sys_load :vp_find '(:r0) '(:r0 :r1 :r2))
 	(vpif '(:r0 /= 0))
@@ -787,7 +784,7 @@
 	;each copied in and put on the list, iter :r6 to iter_end :r5, the
 	;function :r3 and its length :r4
 	(assign '((:rsp slot_list)) '(:r0))
-	(assign '((:r0 +array_begin) (:r0 +array_length)) '(:r6 :r5))
+	(load-fields :r0 '(+array_begin +array_length) '(:r6 :r5))
 	(vp-shl-cr (log2 +ptr_size) :r5)
 	(vp-add-rr :r6 :r5)
 	(loop-while '(:r6 /= :r5))
@@ -797,7 +794,7 @@
 		(assign '((:r3 +fn_header_length)) '(:r0))
 		(gotoif '(:r0 /= :r4) 'fail)
 		;room for it, in a new block if not
-		(assign '((:r7 +ld_server_end) (:r7 +ld_server_start)) '(:r0 :r1))
+		(load-fields :r7 '(+ld_server_end +ld_server_start) '(:r0 :r1))
 		(vp-sub-rr :r1 :r0)
 		(vpif '(:r0 < :r4))
 			(call :host_os :pii_mmap `(,ld_block_size -1 ,+mmap_data) '(:r0))
@@ -806,13 +803,13 @@
 			(assign '(:r0) '((:r7 +ld_server_blocks)))
 			(vp-lea-rcr :r0 +ptr_size :r1)
 			(vp-add-cr ld_block_size :r0)
-			(assign '(:r1 :r0) '((:r7 +ld_server_start) (:r7 +ld_server_end)))
+			(save-fields :r7 '(+ld_server_start +ld_server_end) '(:r1 :r0))
 		(endif)
 		(assign '((:r7 +ld_server_start)) '(:r1))
 		(call :sys_mem :copy '(:r3 :r1 :r4))
 		(assign '((:r7 +ld_server_start)) '(:r0))
 		(call :host_os :pii_clear_icache '(:r0 :r4))
-		(assign '((:r7 +ld_server_start) (:r7 +ld_server_flist)) '(:r0 :r1))
+		(load-fields :r7 '(+ld_server_start +ld_server_flist) '(:r0 :r1))
 		(assign '(:r1) '((:r0 +ln_fnode_next)))
 		(assign '(:r0) '((:r7 +ld_server_flist)))
 		(vp-add-rr :r4 :r0)
@@ -828,7 +825,7 @@
 	(loop-start)
 		(load-fields :rsp '(slot_head slot_func) '(:r1 :r0))
 		(breakif '(:r0 = :r1))
-		(assign '((:r0 +fn_header_links) (:r0 +fn_header_paths)) '(:r1 :r2))
+		(load-fields :r0 '(+fn_header_links +fn_header_paths) '(:r1 :r2))
 		(vp-add-rr :r0 :r1)
 		(vp-add-rr :r0 :r2)
 		(save-fields :rsp '(slot_paths slot_links) '(:r2 :r1))

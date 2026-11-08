@@ -79,8 +79,7 @@
 		(vp-div-rr-u :r3 :r1)
 		(vp-div-rr-u :r3 :r4)
 		(vp-sub-cr 1 :r4)
-		(vp-cpy-rr :r1 :r5)
-		(vp-cpy-rr :r4 :r6)
+		(assign '(:r1 :r4) '(:r5 :r6))
 		(vp-simd vp-shr-cr '(8) '(:r5 :r6))
 		(vp-xor-rr :r0 :r0)
 		(save-fields :rsp '(slot_x2 slot_y1a slot_y1b slot_y1c slot_y1d) '(:r0 :r1 :r4 :r5 :r6))
@@ -96,8 +95,7 @@
 			(vp-load-rcr-ui :r2 0 :r4)
 			(vp-load-rcr-ui :r2 +int_size :r5)
 			(vp-sub-cr 1 :r5)
-			(vp-cpy-rr :r4 :r6)
-			(vp-cpy-rr :r5 :r7)
+			(assign '(:r4 :r5) '(:r6 :r7))
 			(vp-simd vp-shr-cr '(8) '(:r6 :r7))
 			(save-fields :rsp '(slot_x1a slot_x1b slot_x1c slot_x1d) '(:r4 :r5 :r6 :r7))
 
@@ -139,7 +137,7 @@
 
 					;sdata :r5, x :r6, x1d :r7
 					(load-fields :rsp '(slot_source slot_x1c slot_x1d) '(:r10 :r11 :r7))
-					(assign '((:r10 +pixmap_width) (:r10 +pixmap_data)) '(:r12 :r5))
+					(load-fields :r10 '(+pixmap_width +pixmap_data) '(:r12 :r5))
 					(vp-mul-rr :r6 :r12)
 					(vp-add-rr :r11 :r12)
 					(vp-shl-cr (log2 +int_size) :r12)

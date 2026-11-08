@@ -209,8 +209,7 @@
 		;close file
 		(call :host_os :pii_close '(:r5))
 
-		(vp-cpy-rr :r4 :r0)
-		(vp-cpy-rr :r4 :r1)
+		(assign '(:r4 :r4) '(:r0 :r1))
 	(endif)
 
 	(exit :str :init2 '(:r0 :r1))

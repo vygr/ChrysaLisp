@@ -53,7 +53,7 @@
 	(entry :lstream :init '(:r0 :r1 :r2 :r3 :r4 :r5))
 
 	;the functions are the stream's from now, the lisp is whose it is
-	(assign '(:r2 :r3 :r4 :r5) '((:r0 +lstream_fill) (:r0 +lstream_seek) (:r0 +lstream_lisp) (:r0 +lstream_write)))
+	(save-fields :r0 '(+lstream_fill +lstream_seek +lstream_lisp +lstream_write) '(:r2 :r3 :r4 :r5))
 	;and no fault yet
 	(assign '(0) '(:r2))
 	(assign '(:r2) '((:r0 +lstream_fault)))

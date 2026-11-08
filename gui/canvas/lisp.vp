@@ -263,7 +263,7 @@
 	(vp-and-cr +canvas_flag_shader :r2)
 	(vpif '(:r2 = 0))
 		;no texture a shader can draw into, so make one, the size the canvas is shown at
-		(assign '((:r1 +canvas_pixmap) (:r1 +canvas_texture)) '(:r2 :r3))
+		(load-fields :r1 '(+canvas_pixmap +canvas_texture) '(:r2 :r3))
 		(vp-xor-rr :r4 :r4)
 		(vp-xor-rr :r5 :r5)
 		(vpif '(:r2 /= 0))
@@ -271,7 +271,7 @@
 			(vp-div-rr-u :r6 :r4)
 			(vp-div-rr-u :r6 :r5)
 		(elseif '(:r3 /= 0))
-			(assign '((:r3 +texture_width) (:r3 +texture_height)) '(:r4 :r5))
+			(load-fields :r3 '(+texture_width +texture_height) '(:r4 :r5))
 		(endif)
 		(vp-xor-rr :r0 :r0)
 		(save-fields :rsp '(cb_texture cb_tex_id cb_w cb_h) '(:r3 :r0 :r4 :r5))
@@ -408,7 +408,7 @@
 	(vp-ret)
 
 	(shader-callback-begin)
-	(assign '((:r0 slot_vertex) (:r0 slot_fragment)) '(:r5 :r6))
+	(load-fields :r0 '(slot_vertex slot_fragment) '(:r5 :r6))
 	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r7 :r8))
 	(host-gui-call :host_gui :shader_create
 		'((& :r5 +str_data) :r7 (& :r6 +str_data) :r8) '(:r0))
@@ -507,7 +507,7 @@
 	(vp-ret)
 
 	(shader-callback-begin)
-	(assign '((:r0 slot_vertex) (:r0 slot_fragment) (:r0 slot_layout)) '(:r5 :r6 :r9))
+	(load-fields :r0 '(slot_vertex slot_fragment slot_layout) '(:r5 :r6 :r9))
 	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r7 :r8))
 	(host-gui-call :host_gui :pair_create
 		'((& :r5 +str_data) :r7 (& :r6 +str_data) :r8 (& :r9 +str_data)) '(:r0))

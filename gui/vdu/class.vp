@@ -86,7 +86,7 @@
 	(assign '(:r1) '((:rsp slot_font)))
 
 	;draw vdu chars
-	(assign '((:r0 +vdu_chars) (:r0 +vdu_textures)) '(:r2 :r3))
+	(load-fields :r0 '(+vdu_chars +vdu_textures) '(:r2 :r3))
 	(vpif '(:r1 /= 0) '(:r2 /= 0) '(:r3 /= 0))
 		;the dirty region in chars, to the last of each way
 		(call :region :bounds '((& :r0 +view_dirty_region)) '(:r7 :r8 :r9 :r10))
@@ -101,7 +101,7 @@
 		(vp-div-rr-u :r3 :r9)
 		(vp-div-rr-u :r4 :r8)
 		(vp-div-rr-u :r4 :r10)
-		(assign '((:r0 +vdu_width) (:r0 +vdu_height)) '(:r1 :r2))
+		(load-fields :r0 '(+vdu_width +vdu_height) '(:r1 :r2))
 		(vp-sub-cr 1 :r1)
 		(vp-sub-cr 1 :r2)
 		(vp-min-rr :r1 :r9)
@@ -114,7 +114,7 @@
 				(vpif '(:r1 <= :r2))
 					(loop-start)
 						(load-fields :rsp '(slot_this slot_x slot_by) '(:r0 :r1 :r2))
-						(assign '((:r0 +vdu_chars) (:r0 +vdu_width)) '(:r3 :r4))
+						(load-fields :r0 '(+vdu_chars +vdu_width) '(:r3 :r4))
 						(vp-mul-rr :r4 :r2)
 						(vp-add-rr :r1 :r2)
 						(vp-shl-cr (log2 +long_size) :r2)
@@ -149,7 +149,7 @@
 							;do we have any paper to draw ?
 							(call :ctx :set_color '((:rsp slot_this) :r2))
 							(load-fields :rsp '(slot_this slot_x slot_by) '(:r0 :r7 :r8))
-							(assign '((:r0 +vdu_char_width) (:r0 +vdu_char_height)) '(:r9 :r10))
+							(load-fields :r0 '(+vdu_char_width +vdu_char_height) '(:r9 :r10))
 							(vp-mul-rr :r9 :r7)
 							(vp-mul-rr :r10 :r8)
 							(call :ctx :filled_box '(:r0 :r7 :r8 :r9 :r10))
@@ -173,7 +173,7 @@
 							(vpif '(:r1 /= 0))
 								;blit the char texture, in the middle of its cell
 								(load-fields :rsp '(slot_this slot_x slot_by slot_ink) '(:r4 :r7 :r8 :r5))
-								(assign '((:r4 +vdu_char_width) (:r4 +vdu_char_height)) '(:r9 :r10))
+								(load-fields :r4 '(+vdu_char_width +vdu_char_height) '(:r9 :r10))
 								(vp-mul-rr :r9 :r7)
 								(vp-mul-rr :r10 :r8)
 								(vp-sub-rr :r2 :r9)

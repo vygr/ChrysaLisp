@@ -160,7 +160,7 @@
 	(goto 'funcexit1)
 
 (vp-label 'skip_not)
-	(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r3))
+	(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r3))
 	(loop-start)
 		(loop-while '(:r2 = :r3))
 			(vp-push :r1)
@@ -168,7 +168,7 @@
 			(call :stream :read_next '(:r0) '(:r0 :r4))
 			(vp-pop :r1)
 			(gotoif '(:r4 = -1) 'funcexit)
-			(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r3))
+			(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r3))
 		(loop-end)
 		(vp-load-rcr-ub :r2 0 :r4)
 		(breakif '(:r4 = :r1))

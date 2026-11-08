@@ -44,7 +44,7 @@
 	(assign `((:r1 ,+ptr_size) (:r0 +lisp_stream_name) (:r0 +lisp_stream_line)) '(:r2 :r3 :r4))
 	(save-fields :rsp '(slot_old_name slot_old_line) '(:r3 :r4))
 	(vp-cpy-cr 1 :r4)
-	(assign '(:r2 :r4) '((:r0 +lisp_stream_name) (:r0 +lisp_stream_line)))
+	(save-fields :r0 '(+lisp_stream_name +lisp_stream_line) '(:r2 :r4))
 	(assign '((:r0 +lisp_sym_nil)) '(:r2))
 	(class/obj/ref :r2 :r3)
 	(assign '(:r2) '((:rsp slot_value)))
@@ -86,7 +86,7 @@
 	;pop old repl info
 	(lisp-this :r0)
 	(load-fields :rsp '(slot_old_name slot_old_line slot_value) '(:r2 :r3 :r1))
-	(assign '(:r2 :r3) '((:r0 +lisp_stream_name) (:r0 +lisp_stream_line)))
+	(save-fields :r0 '(+lisp_stream_name +lisp_stream_line) '(:r2 :r3))
 
 	(exit :lisp :lisp_repl '(:r0 :r1))
 	(vp-free slot_size)

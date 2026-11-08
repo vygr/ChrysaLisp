@@ -32,7 +32,7 @@
 
 	;init parent
 	(vp-add-rr :r4 :r5)
-	(assign '(:r2 :r3 :r4 :r5) '((:r0 +stream_object) (:r0 +stream_buffer) (:r0 +stream_bufp) (:r0 +stream_bufe)))
+	(save-fields :r0 '(+stream_object +stream_buffer +stream_bufp +stream_bufe) '(:r2 :r3 :r4 :r5))
 	(s-call :stream :init '(:r0 :r1) '(:r0 :r1))
 
 	(exit :stream :init '(:r0 :r1))
@@ -159,7 +159,7 @@
 
 	(entry :stream :read_char '(:r0))
 
-	(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r1))
+	(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r1))
 	(vpif '(:r1 = :r2))
 		;the buffer is done, the rare path: what the next buffer may trash
 		;is kept, so to read a char trashes the same, more to read or no
@@ -167,7 +167,7 @@
 		(loop-start)
 			(call :stream :read_next '(:r0) '(:r0 :r1) :r2)
 			(gotoif '(:r1 = -1) 'eof)
-			(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r1))
+			(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r1))
 		(loop-until '(:r1 /= :r2))
 		(vp-pop :r3 :r4 :r5 :r6 :r7 :r8 :r14)
 	(endif)
@@ -196,14 +196,14 @@
 
 	(entry :stream :write_char '(:r0 :r1))
 
-	(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r3))
+	(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r3))
 	(vpif '(:r2 = :r3))
 		;the buffer is full, the rare path: what the next buffer may trash
 		;is kept, so to write a char trashes the same, room or no
 		(vp-push :r1 :r4 :r5 :r6 :r7 :r8 :r9)
 		(call :stream :write_next '(:r0) '(:r0) :r2)
 		(vp-pop :r1 :r4 :r5 :r6 :r7 :r8 :r9)
-		(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r2 :r3))
+		(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r3))
 		(gotoif '(:r2 = :r3) 'eof)
 	(endif)
 	(vp-store-rrc-b :r1 :r2 0)
@@ -335,7 +335,7 @@
 	(endif)
 
 	(assign '(:r0 :r2 0) '(:r5 :r4 :r6))
-	(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r0 :r2))
+	(load-fields :r5 '(+stream_bufp +stream_bufe) '(:r0 :r2))
 	(loop-while '(:r4 /= 0) 'exit)
 		(vpif '(:r2 /= :r0))
 			(vp-sub-rr :r0 :r2)
@@ -355,7 +355,7 @@
 				(vp-add-rr :r0 :r1)
 				(vp-sub-rr :r0 :r4)
 				(vp-add-rr :r0 :r6)
-				(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r0 :r2))
+				(load-fields :r5 '(+stream_bufp +stream_bufe) '(:r0 :r2))
 			(else)
 				(vpif '(:r0 = 0))
 					;and what the next buffer may trash that is not used here
@@ -368,7 +368,7 @@
 					(vp-cpy-rr :r0 :r6)
 					(break 'exit)
 				(endif)
-				(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r0 :r2))
+				(load-fields :r5 '(+stream_bufp +stream_bufe) '(:r0 :r2))
 				(breakif '(:r2 = :r0) 'exit)
 			(endif)
 		(endif)
@@ -397,7 +397,7 @@
 	(endif)
 
 	(assign '(:r0 :r1 :r2) '(:r5 :r0 :r4))
-	(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r1 :r2))
+	(load-fields :r5 '(+stream_bufp +stream_bufe) '(:r1 :r2))
 
 	(switch)
 	(breakif '(:r4 = 0))
@@ -422,7 +422,7 @@
 		;and what the next buffer may trash that is not used here
 		(vp-push :r0 :r4 :r6 :r7 :r8 :r9)
 		(call :stream :write_next '(:r5) '(:r5) :r2)
-		(assign '((:r5 +stream_bufp) (:r5 +stream_bufe)) '(:r1 :r2))
+		(load-fields :r5 '(+stream_bufp +stream_bufe) '(:r1 :r2))
 		(vp-pop :r0 :r4 :r6 :r7 :r8 :r9)
 		(gotoif '(:r2 /= :r1) 'next_chunk)
 	(endswitch)

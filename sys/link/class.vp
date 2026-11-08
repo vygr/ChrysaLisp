@@ -675,7 +675,7 @@
 			(loop-start)
 				(load-fields :rsp '(slot_walk slot_head) '(:r0 :r1))
 				(breakif '(:r0 = :r1))
-				(assign '((:r0 lk_buf_status) (:r0 lk_buf_length)) '(:r1 :r2))
+				(load-fields :r0 '(lk_buf_status lk_buf_length) '(:r1 :r2))
 				(assign '(:r2) '((:rsp slot_length)))
 				(vpif `(:r1 = ,lk_chan_status_frag))
 					(call :sys_mail :alloc `((:r0 ,(+ lk_buf_size lk_frag_length) ui)) '(:r0 :r1))

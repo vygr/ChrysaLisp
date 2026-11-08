@@ -33,8 +33,7 @@
 	(save-fields :rsp '(slot_this slot_args slot_r7 slot_r8 slot_r9 slot_r10 slot_r11 slot_r12 slot_r13 slot_r14)
 		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:obj :obj :num :num))
-	(vp-cpy-rr :r3 :r4)
-	(vp-cpy-rr :r2 :r6)
+	(assign '(:r3 :r2) '(:r4 :r6))
 	(assign '((:r0 +str_length)) '(:r3))
 	(vp-lea-rcr :r1 +str_data :r2)
 	(vp-lea-rcr :r0 +str_data :r1)
@@ -327,8 +326,7 @@
 	(assign '(:r3 :r5) '(:r13 :r14))
 
 	;t x v, for x the row of k :r10, for v the row of c :r5, into :r4
-	(vp-cpy-rr :r1 :r4)
-	(vp-cpy-rr :r2 :r10)
+	(assign '(:r1 :r2) '(:r4 :r10))
 	(vp-lea-rcr :r2 512 :r11)
 	(vp-lea-rcr :r0 512 :r12)
 	(loop-start)
@@ -355,8 +353,7 @@
 	(vp-lea-rcr :r2 512 :r11)
 	(vp-lea-rcr :r1 512 :r12)
 	(loop-start)
-		(vp-cpy-rr :r1 :r5)
-		(vp-cpy-rr :r13 :r3)
+		(assign '(:r1 :r13) '(:r5 :r3))
 		(loop-start)
 				(vp-xor-rr :r7 :r7)
 				(vp-xor-rr :r6 :r6)
@@ -645,7 +642,7 @@
 
 	;the two codes, each a list of four nums
 	(assign '((:r2 +array_begin)) '(:r2))
-	(assign '((:r2 0) (:r2 +ptr_size)) '(:r3 :r4))
+	(load-fields :r2 '(0 +ptr_size) '(:r3 :r4))
 	(assign '((:r3 +array_begin) (:r4 +array_begin)) '(:r3 :r4))
 	(load-fields :r3 (list 0 +ptr_size (* 2 +ptr_size) (* 3 +ptr_size)) '(:r5 :r6 :r7 :r8))
 	(assign '((:r5 +array_begin) (:r6 +array_begin) (:r7 +array_begin) (:r8 +array_begin)) '(:r5 :r6 :r7 :r8))

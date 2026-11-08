@@ -588,7 +588,7 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-cpy-cr 1 :r1)
 	(vp-xor-rr :r2 :r2)
-	(assign '(:r1 :r2) '((:r0 statics_sys_mail_ping_full) (:r0 statics_sys_mail_ping_next)))
+	(save-fields :r0 '(statics_sys_mail_ping_full statics_sys_mail_ping_next) '(:r1 :r2))
 
 	(exit :sys_mail :declare '((:rsp slot_name)))
 	(vp-free slot_size)
@@ -671,7 +671,7 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-cpy-cr 1 :r1)
 	(vp-xor-rr :r2 :r2)
-	(assign '(:r1 :r2) '((:r0 statics_sys_mail_ping_full) (:r0 statics_sys_mail_ping_next)))
+	(save-fields :r0 '(statics_sys_mail_ping_full statics_sys_mail_ping_next) '(:r1 :r2))
 	(vp-ret)
 
 (vp-label 'callback)
@@ -974,7 +974,7 @@
 	(endif)
 
 	(vp-push :r0)
-	(assign '((:r1 0) (:r1 +ptr_size)) '(:r2 :r3))
+	(load-fields :r1 '(0 +ptr_size) '(:r2 :r3))
 	(assign '((:r3 +array_begin)) '(:r3))
 	(vp-alloc (* +node_id_size 2))
 	(load-node-id :r2 +str_data :r4 :r5)

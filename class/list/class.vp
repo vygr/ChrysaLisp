@@ -407,7 +407,7 @@
 		(endif)
 		;on it, the head is the note, the note the head that was
 		(assign '((:r2 +tk_node_print)) '(:r3))
-		(assign '(:r3 :r0) '((:r1 +print_note_next) (:r1 +print_note_list)))
+		(save-fields :r1 '(+print_note_next +print_note_list) '(:r3 :r0))
 		(assign '(:r1) '((:r2 +tk_node_print)))
 	(endif)
 

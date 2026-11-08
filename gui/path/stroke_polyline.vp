@@ -41,9 +41,9 @@
 		(loop-start)
 			;p1 and p2, the two points from iter the way of the walk
 			(load-fields :rsp '(slot_iter slot_step) '(:r0 :r1))
-			(assign '((:r0 0) (:r0 +long_size)) '(:r2 :r3))
+			(load-fields :r0 '(0 +long_size) '(:r2 :r3))
 			(vp-add-rr :r1 :r0)
-			(assign '((:r0 0) (:r0 +long_size)) '(:r4 :r5))
+			(load-fields :r0 '(0 +long_size) '(:r4 :r5))
 			(vp-add-rr :r1 :r0)
 			(save-fields :rsp '(slot_p1x slot_p1y slot_p2x slot_p2y slot_iter) '(:r2 :r3 :r4 :r5 :r0))
 			(vec-load 2 '((:rsp slot_p2x) (:rsp slot_p2y)) '((:rsp slot_p1x) (:rsp slot_p1y)))

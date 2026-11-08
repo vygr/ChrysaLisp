@@ -107,7 +107,7 @@
 		;a stream that was flushed and not written to since has no
 		;bufp, it is 0, and what it holds is not the buffer less than
 		;nothing, it is nothing
-		(assign '((:r0 +stream_buffer) (:r0 +stream_bufp)) '(:r1 :r2))
+		(load-fields :r0 '(+stream_buffer +stream_bufp) '(:r1 :r2))
 		(vp-sub-rr :r1 :r2)
 		(vpif '(:r2 > 0))
 			(vp-push :r0)
@@ -153,7 +153,7 @@
 	(else)
 		(assign '((:r0 +stream_buffer)) '(:r2))
 		(assign '((& :r2 :r1)) '(:r3))
-		(assign '(:r2 :r3) '((:r0 +stream_bufp) (:r0 +stream_bufe)))
+		(save-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r3))
 	(endif)
 
 	(exit :fstream :read_next '(:r0 :r1))
@@ -179,9 +179,9 @@
 	(assign '(:r1) '((:r0 +fstream_mode)))
 
 	;set bufp and bufe for writing
-	(assign '((:r0 +stream_buffer) (:r0 +fstream_buf_len)) '(:r1 :r2))
+	(load-fields :r0 '(+stream_buffer +fstream_buf_len) '(:r1 :r2))
 	(vp-add-rr :r1 :r2)
-	(assign '(:r1 :r2) '((:r0 +stream_bufp) (:r0 +stream_bufe)))
+	(save-fields :r0 '(+stream_bufp +stream_bufe) '(:r1 :r2))
 
 	(exit :fstream :write_next '(:r0))
 	(vp-ret)
@@ -293,7 +293,7 @@
 	(vpif '(:r2 = 1))
 		(assign '((:r0 +fstream_mode)) '(:r3))
 		(vpif '(:r3 = +file_open_read))
-			(assign '((:r0 +stream_bufp) (:r0 +stream_bufe)) '(:r3 :r2))
+			(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r3 :r2))
 			(vpif '(:r2 /= 0))
 				(vp-sub-rr :r3 :r2)
 				(vp-sub-rr :r2 :r1)

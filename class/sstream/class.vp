@@ -87,7 +87,7 @@
 	(assign '((:rsp slot_this)) '(:r1))
 	(assign '((& :r0 +str_data) (:r0 +str_length)) '(:r2 :r3))
 	(vp-add-rr :r2 :r3)
-	(assign '(:r0 :r2 :r3) '((:r1 +stream_object) (:r1 +stream_bufp) (:r1 +stream_bufe)))
+	(save-fields :r1 '(+stream_object +stream_bufp +stream_bufe) '(:r0 :r2 :r3))
 
 	(exit :sstream :claim_string '(:r1 (:rsp slot_string)))
 	(vp-free slot_size)

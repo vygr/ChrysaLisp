@@ -260,8 +260,8 @@
 				(assign-net-id :r4 +kn_msg_reply_id :r0 +msg_dest :r2 :r3 :r5)
 				(save-net-id :r1 +kn_msg_reply_id :r6 :r7 :r8)
 				;the func and the user field are as they came
-				(assign '((:r4 +kn_msg_func) (:r4 +kn_msg_key)) '(:r2 :r3))
-				(assign '(:r2 :r3) '((:r1 +kn_msg_func) (:r1 +kn_msg_key)))
+				(load-fields :r4 '(+kn_msg_func +kn_msg_key) '(:r2 :r3))
+				(save-fields :r1 '(+kn_msg_func +kn_msg_key) '(:r2 :r3))
 				(vp-simd vp-cpy-rr '(:r0 :r1) '(:r6 :r7))
 				(call :sys_kernel :id :nil '(:r0 :r1))
 				(assign '(:r0 :r1) `((:r7 ,(+ +kn_msg_reply_node +node_id_node1)) (:r7 ,(+ +kn_msg_reply_node +node_id_node2))))
@@ -273,7 +273,7 @@
 				;one with the least load, see sys/statics/class.inc
 				(call :array :clear '((:rsp slot_best_nodes)))
 				(assign '((:rsp slot_statics)) '(:r0))
-				(assign '((:r0 statics_sys_task_task_count) (:r0 statics_sys_task_lag)) '(:r1 :r2))
+				(load-fields :r0 '(statics_sys_task_task_count statics_sys_task_lag) '(:r1 :r2))
 				(vp-add-rr :r2 :r1)
 				(assign '(:r1) '((:rsp slot_best_cnt)))
 				(call :array :get_both '((:r0 statics_sys_mail_links_array)) '(_ :r1 :r2))
@@ -979,7 +979,7 @@
 		(assign '((:r0 statics_sys_mail_links_sig)) '(:r1))
 		(vpif '(:r3 /= :r1))
 			(vp-cpy-cr 1 :r1)
-			(assign '(:r3 :r1) '((:r0 statics_sys_mail_links_sig) (:r0 statics_sys_mail_ping_kick)))
+			(save-fields :r0 '(statics_sys_mail_links_sig statics_sys_mail_ping_kick) '(:r3 :r1))
 			(call :sys_mail :kick)
 			;a link that went down as its peer's process is gone has set
 			;that node's time up, so purge now, not within the second

@@ -181,9 +181,9 @@
 
 	(entry :font :get_metrics '(:r0))
 
-	(assign '((:r0 +font_data) (:r0 +font_pixels)) '(:r3 :r4))
+	(load-fields :r0 '(+font_data +font_pixels) '(:r3 :r4))
 	(vp-add-cr +str_data :r3)
-	(assign '((:r3 +font_data_ascent) (:r3 +font_data_descent)) '(:r1 :r2))
+	(load-fields :r3 '(+font_data_ascent +font_data_descent) '(:r1 :r2))
 	(vp-mul-rr :r4 :r1)
 	(vp-mul-rr :r4 :r2)
 	(assign '((& :r1 :r2)) '(:r3))
@@ -421,7 +421,7 @@
 	;the height, ascent and descent, and the gap between glyphs
 	(assign '((:r0 +font_data)) '(:r2))
 	(vp-add-cr +str_data :r2)
-	(assign '((:r2 +font_data_ascent) (:r2 +font_data_descent) (:r2 +font_data_xkern)) '(:r3 :r4 :r5))
+	(load-fields :r2 '(+font_data_ascent +font_data_descent +font_data_xkern) '(:r3 :r4 :r5))
 	(vp-add-rr :r4 :r3)
 	(save-fields :rsp '(slot_height slot_gap) '(:r3 :r5))
 	(call :list :create :nil '(:r0))
@@ -558,9 +558,9 @@
 
 	;the size, the width of all and the height, by the pixels
 	(assign '((:rsp slot_this)) '(:r0))
-	(assign '((:r0 +font_data) (:r0 +font_pixels)) '(:r4 :r5))
+	(load-fields :r0 '(+font_data +font_pixels) '(:r4 :r5))
 	(vp-add-cr +str_data :r4)
-	(assign '((:r4 +font_data_ascent) (:r4 +font_data_descent)) '(:r3 :r6))
+	(load-fields :r4 '(+font_data_ascent +font_data_descent) '(:r3 :r6))
 	(vp-add-rr :r6 :r3)
 	(vp-mul-rr :r5 :r3)
 	(vp-shr-cr 13 :r3)

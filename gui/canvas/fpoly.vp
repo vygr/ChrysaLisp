@@ -183,7 +183,7 @@
 
 	;clip check
 	(load-fields :rsp '(slot_this slot_yscale) '(:r0 :r1))
-	(assign '((:r0 +canvas_cy) (:r0 +canvas_cy1) (:r0 +canvas_cx) (:r0 +canvas_cx1)) '(:r2 :r3 :r8 :r9))
+	(load-fields :r0 '(+canvas_cy +canvas_cy1 +canvas_cx +canvas_cx1) '(:r2 :r3 :r8 :r9))
 	(vp-mul-rr :r1 :r2)
 	(vp-mul-rr :r1 :r3)
 	(save-fields :rsp '(slot_cy slot_cy1) '(:r2 :r3))

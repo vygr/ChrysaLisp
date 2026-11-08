@@ -48,7 +48,7 @@
 		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
 		(gotoif '(:r2 = :r3) err)
 			(load-fields :rsp '(slot_args slot_form) '(:r7 :r2))
-			(assign '((:r7 +array_length) (:r7 +array_begin)) '(:r4 :r5))
+			(load-fields :r7 '(+array_length +array_begin) '(:r4 :r5))
 			(assign '((:r2 +array_length) (:r2 +array_begin)) '(:r3 :r2))
 			(vp-cpy-rr :r4 :r6)
 			(vp-shl-cr (log2 +ptr_size) :r6)

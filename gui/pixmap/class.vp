@@ -53,7 +53,7 @@
 	;:r1-:r3
 
 	(entry :pixmap :init '(:r0 :r1 :r2 :r3 :r4))
-	(assign '(:r2 :r3 :r4) '((:r0 +pixmap_width) (:r0 +pixmap_height) (:r0 +pixmap_type)))
+	(save-fields :r0 '(+pixmap_width +pixmap_height +pixmap_type) '(:r2 :r3 :r4))
 	(vp-mul-cr +int_size :r2)
 	(assign '(:r2) '((:r0 +pixmap_stride)))
 
@@ -68,7 +68,7 @@
 		;the pixels follow the object, clear them
 		(assign '((& :r0 +pixmap_pixels)) '(:r1))
 		(assign '(:r1) '((:r0 +pixmap_data)))
-		(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride)) '(:r1 :r2))
+		(load-fields :r0 '(+pixmap_height +pixmap_stride) '(:r1 :r2))
 		(vp-mul-rr :r2 :r1)
 		(call :sys_mem :fill '((:r0 +pixmap_data) :r1 0))
 		(vp-pop :r0)
@@ -99,7 +99,7 @@
 	(assign '((:rsp 0)) '(:r0))
 	(assign '((:r0 +pixmap_key)) '(:r1))
 	(vpif '(:r1 /= 0))
-		(assign '((:r0 +pixmap_height) (:r0 +pixmap_stride)) '(:r1 :r2))
+		(load-fields :r0 '(+pixmap_height +pixmap_stride) '(:r1 :r2))
 		(vp-mul-rr :r2 :r1)
 		(call :host_os :pii_munmap '((:r0 +pixmap_data) :r1 +mmap_shared))
 		(assign '((:rsp 0)) '(:r0))
@@ -282,7 +282,7 @@
 
 	(entry :pixmap :fill '(:r0 :r1))
 
-	(assign '((:r0 +pixmap_width) (:r0 +pixmap_height)) '(:r9 :r10))
+	(load-fields :r0 '(+pixmap_width +pixmap_height) '(:r9 :r10))
 	(vp-xor-rr :r7 :r7)
 	(vp-xor-rr :r8 :r8)
 	(jump :pixmap :clear '(:r0 :r1 :r7 :r8 :r9 :r10))
@@ -312,7 +312,7 @@
 	;the far corner, and the box cut to the pixmap
 	(vp-add-rr :r7 :r9)
 	(vp-add-rr :r8 :r10)
-	(assign '((:r0 +pixmap_width) (:r0 +pixmap_height)) '(:r2 :r3))
+	(load-fields :r0 '(+pixmap_width +pixmap_height) '(:r2 :r3))
 	(vpif '(:r7 < 0))
 		(vp-xor-rr :r7 :r7)
 	(endif)

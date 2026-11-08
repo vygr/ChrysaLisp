@@ -25,7 +25,7 @@
 
 	;kernel callback for update
 	(fn-bind 'sys/statics/statics :r3)
-	(assign '(:r0 :r1 :r2) '((:r3 statics_gui_mouse_x) (:r3 statics_gui_mouse_y) (:r3 statics_gui_flags)))
+	(save-fields :r3 '(statics_gui_mouse_x statics_gui_mouse_y statics_gui_flags) '(:r0 :r1 :r2))
 	(jump :sys_task :callback '(0 ($ update_callback)))
 
 (vp-label 'update_callback)
@@ -139,7 +139,7 @@
 			;clip to the next rect
 			(assign '((:rsp replay_rect)) '(:r0))
 			(breakif '(:r0 = 0))
-			(assign '((:r0 0) (:r0 rect_x) (:r0 rect_y) (:r0 rect_x1) (:r0 rect_y1)) '(:r1 :r7 :r8 :r9 :r10))
+			(load-fields :r0 '(0 rect_x rect_y rect_x1 rect_y1) '(:r1 :r7 :r8 :r9 :r10))
 			(assign '(:r1) '((:rsp replay_rect)))
 			(vp-simd vp-sub-rr '(:r7 :r8) '(:r9 :r10))
 			(assign '(:r7 :r8 :r9 :r10)
@@ -303,8 +303,8 @@
 			(vp-push root)
 			(call :view :forget_draws `(,root))
 			(assign '((:rsp 0)) '(:r0))
-			(assign '((:r0 +view_w) (:r0 +view_h)) '(:r1 :r2))
-			(assign '(:r1 :r2) '((:r0 +view_draws_w) (:r0 +view_draws_h)))
+			(load-fields :r0 '(+view_w +view_h) '(:r1 :r2))
+			(save-fields :r0 '(+view_draws_w +view_draws_h) '(:r1 :r2))
 			(assign '((:r0 +view_flags)) '(:r1))
 			(vp-or-cr +view_flag_drawn :r1)
 			(assign '(:r1) '((:r0 +view_flags)))

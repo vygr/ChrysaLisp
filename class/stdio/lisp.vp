@@ -28,7 +28,7 @@
 	(else)
 		;redirect lisp io
 		(assign '((:rsp slot_this) :r0 :r0) '(:r5 :r6 (:rsp slot_val)))
-		(assign '((:r5 +lisp_stdin) (:r5 +lisp_stdout) (:r5 +lisp_stderr)) '(:r0 :r1 :r2))
+		(load-fields :r5 '(+lisp_stdin +lisp_stdout +lisp_stderr) '(:r0 :r1 :r2))
 		(save-fields :rsp '(slot_stdin slot_stdout slot_stderr) '(:r0 :r1 :r2))
 		(call :obj :ref '((:r6 +stdio_stdin)) '((:r5 +lisp_stdin)))
 		(call :obj :ref '((:r6 +stdio_stdout)) '((:r5 +lisp_stdout)))
