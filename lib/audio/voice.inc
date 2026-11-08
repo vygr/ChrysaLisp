@@ -60,6 +60,13 @@
 	; (voice-piece from seq data) -> str
 	(cat (setf-> (str-alloc +voice_piece_size) (+voice_piece_from from) (+voice_piece_seq seq)) data))
 
+(defun voice-sending? (sending now speech_until heard_until muted duplex)
+	; (voice-sending? sending now speech_until heard_until muted duplex) -> :nil | :t
+	;speech, not muted, and not over another unless this one was first, by
+	;the times as voice-send has them
+	(and (< now speech_until) (not muted)
+		(or sending (not duplex) (>= now heard_until))))
+
 (defun voice-send (in out ctl from talk)
 	; (voice-send in out ctl from talk)
 	;a sink: each piece mailed, numbered, to each that is to hear it. ctl
@@ -104,10 +111,8 @@
 			(if (nempty? got) (setq data (cat got (slice silence (length got) (length data))))))
 		(defq now (pii-time))
 		(if (> (sound-peak data) +voice_gate) (setq speech_until (+ now +voice_hang)))
-		;speech, not muted, and not over another unless this one was first.
-		;What goes to others is numbered without gaps, a gap is a loss to them
-		(setq sending (and (< now speech_until) (not muted)
-			(or sending (not duplex) (>= now heard_until))))
+		;what goes to others is numbered without gaps, a gap is a loss to them
+		(setq sending (voice-sending? sending now speech_until heard_until muted duplex))
 		(when sending
 			(when (and talk (> (- now told) +voice_talk_every))
 				(setq told now)
