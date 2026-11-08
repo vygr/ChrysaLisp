@@ -567,7 +567,12 @@
 	(vpif `(,node /= :r0))
 		(assign '((:r0 +view_flags)) '(:r1))
 		(vp-and-cr (+ +view_flag_subtree +view_flag_hidden) :r1)
-		(vp-lnot-rr :r1)
+		;1 if neither, so down into it, else 0
+		(vpif '(:r1 = 0))
+			(vp-cpy-cr 1 :r1)
+		(else)
+			(vp-xor-rr :r1 :r1)
+		(endif)
 	(endif)
 	(exit :view :forward_tree_callback '(:r0 :r1))
 	(vp-ret)
