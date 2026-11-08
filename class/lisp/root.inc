@@ -1683,7 +1683,7 @@
 ;VP of its functions is kept in, obj/vp/ or obj/vp_validate/, see
 ;lib/asm/asm.inc, and
 ;build_entries the functions' VP as (vp-compile) gathers it
-(defq *build_mode* 1 *build_emit* :nil *build_inst* :nil *build_verb* 0 *build_vp* :nil *build_entries* :nil)
+(defq *build_mode* 1 *build_emit* :nil *build_verb* 0 *build_vp* :nil *build_entries* :nil)
 
 ;what this machine is, the names the build and the object folders have,
 ;obj/<cpu>/<abi>/<os>. The host program says, it was built for them. They

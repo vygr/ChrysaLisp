@@ -50,7 +50,7 @@
 		;must not be taken for a dead one.
 		(jobs-farm "lib/asm/asm.lisp"
 			(map (# (cat (const (str-alloc +job_size))
-				(str (list kind %0 *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*
+				(str (list kind %0 *abi* *cpu* *build_mode* *build_emit* *build_verb*
 					(vp-dir *build_mode*))))) units)
 			(list (length units) 1 1) (task-timeout 60)
 			(lambda (msg jobs)

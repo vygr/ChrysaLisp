@@ -59,7 +59,7 @@
 					;read job
 					(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply))
 					(each (# (def *compile_env* %0 %1))
-						'(*kind* *files* *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb* *build_vp*)
+						'(*kind* *files* *abi* *cpu* *build_mode* *build_emit* *build_verb* *build_vp*)
 						(first (read (string-stream (slice *msg* +_job_params -1)))))
 					(unless *placed* (setq *placed* :t) (fresh-translator *cpu* *abi*))
 					;a VP job is source files, the bundle of each of the VP of its

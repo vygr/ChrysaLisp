@@ -579,9 +579,8 @@ platform:
       of its functions, the instructions the translator was given, to
       compare with what it made of them.
 
-    * The `*build_emit*` and `*build_inst*` flags (see [`vp_assignment.md`](../vm/vp_assignment.md))
-      can show the VP instructions before and after optimization, and the
-      final forms passed to `emit-translate`.
+    * The `*build_emit*` flag (see [`vp_assignment.md`](../vm/vp_assignment.md))
+      prints the VP text of each function as it is made.
 
 * **VP64 Emulator as a Reference:** If a native translation behaves
   unexpectedly, compare its register states and memory effects with the
