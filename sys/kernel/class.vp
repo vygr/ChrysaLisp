@@ -18,23 +18,107 @@
 	;the hash in the ping. As the sender does, the sum of the hashes of the
 	;entries, with 0 for none. Each entry keeps its own hash, so nothing is
 	;stored for this.
-	(assign (vpx ,(sym prefix) 0 0) (vpx (. held held_prefix) (. held held_sum) (. held held_cnt)))
-	(call :array :get_first (vpx tuple) (vpx _ set))
-	(call :hset :each (vpx set ($ hash_prefix) (& held)))
-	(assign (vpx (. held held_sum)) (vpx held_hash))
-	(vpif (vpx (&& (. held held_cnt) (= held_hash 0))))
-		(assign (vpx 1) (vpx held_hash))
+	(assign `(,prefix) '(:r0))
+	(vp-xor-rr :r1 :r1)
+	(save-fields :rsp `(,(+ slot_held held_prefix) ,(+ slot_held held_sum) ,(+ slot_held held_cnt))
+		'(:r0 :r1 :r1))
+	(call :array :get_first '((:rsp slot_tuple)) '(_ :r0))
+	(assign '(:r0) '((:rsp slot_set)))
+	(call :hset :each '(:r0 ($ hash_prefix) (& :rsp slot_held)))
+	(assign `((:rsp ,(+ slot_held held_sum))) '(:r0))
+	(assign '(:r0) '((:rsp slot_held_hash)))
+	(assign `((:rsp slot_held_hash) (:rsp ,(+ slot_held held_cnt))) '(:r0 :r1))
+	(vpif '(:r1 /= 0) '(:r0 = 0))
+		(vp-cpy-cr 1 :r0)
+		(assign '(:r0) '((:rsp slot_held_hash)))
 	(endif))
 
 (defun kn-send-want ()
 	;emit the code to ask the origin of a ping for its services, it will
 	;answer with a full ping to all
-	(call :sys_mail :alloc (vpx +kn_msg_size) (vpx wmsg wdata))
-	(assign (vpx +kn_call_want) (vpx (.> wdata +kn_msg_func)))
-	(assign (vpx 0) (vpx (. (.> wmsg +msg_dest) +net_id_mbox_id)))
-	(assign (vpx (. (.> data +kn_msg_ping_origin) +node_id_node1) (. (.> data +kn_msg_ping_origin) +node_id_node2))
-		(vpx (. (.> wmsg +msg_dest) +net_id_node_id +node_id_node1) (. (.> wmsg +msg_dest) +net_id_node_id +node_id_node2)))
-	(call :sys_mail :send (vpx wmsg)))
+	(call :sys_mail :alloc `(,+kn_msg_size) '(:r0 :r1))
+	(assign `(,+kn_call_want) '(:r2))
+	(assign '(:r2) '((:r1 +kn_msg_func)))
+	(vp-xor-rr :r2 :r2)
+	(assign '(:r2) `((:r0 ,(+ +msg_dest +net_id_mbox_id))))
+	(assign '((:rsp slot_data)) '(:r1))
+	(assign-node-id :r1 +kn_msg_ping_origin :r0 (+ +msg_dest +net_id_node_id) :r2 :r3)
+	(call :sys_mail :send '(:r0)))
+
+(defun kn-services (prefix)
+	;emit the code to update the services we hold for the origin of a ping,
+	;those that start with the prefix char: the ones a full ping has, else
+	;none if it says it has none, else ask for them if they are not those
+	;we hold
+	(load-fields :rsp '(slot_msg slot_data) '(:r1 :r0))
+	(assign '((:r0 +kn_msg_ping_full)) '(:r2))
+	(vpif '(:r2 /= 0))
+		;the services are here
+		(assign '((:r1 +msg_length)) '(:r1))
+		(vp-sub-cr +kn_msg_ping_services :r1)
+		(vp-add-cr +kn_msg_ping_services :r0)
+		(call :str :create_from_buffer '(:r0 :r1) '(:r0))
+		(assign '(:r0) '((:rsp slot_services)))
+		(call :str :split `(:r0 ,+char_lf) '(_ :r1))
+		(assign '(:r1) '((:rsp slot_entries)))
+		(call :str :destroy '((:rsp slot_services)))
+		(call :list :get_both '((:rsp slot_entries)) '(_ :r1 :r2))
+		(save-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
+		(call :array :get_first '((:rsp slot_tuple)) '(_ :r0))
+		(assign '(:r0) '((:rsp slot_set)))
+		(call :hset :each `(:r0 ($ erase_prefix) ,prefix))
+		(loop-start)
+			(load-fields :rsp '(slot_set slot_iter_begin slot_iter_end) '(:r0 :r1 :r2))
+			(breakif '(:r1 = :r2))
+			(vp-lea-rcr :r1 +ptr_size :r2)
+			(assign '(:r2) '((:rsp slot_iter_begin)))
+			(call :hset :cinsert '(:r0 (:r1 0) (@ class/sym/eql_str)))
+		(loop-end)
+		(call :list :destroy '((:rsp slot_entries)))
+	(else)
+		(kn-held-hash prefix)
+		(assign '((:rsp slot_data) (:rsp slot_held_hash)) '(:r0 :r1))
+		(assign '((:r0 +kn_msg_ping_hash)) '(:r0))
+		(vpif '(:r0 /= :r1))
+			(vpif '(:r0 = 0))
+				;it has none now, so nor do we, and no need to ask
+				(call :hset :each `((:rsp slot_set) ($ erase_prefix) ,prefix))
+			(else)
+				;not the services we hold for this node, so ask for them
+				(kn-send-want)
+			(endif)
+		(endif)
+	(endif))
+
+(defun kn-not-me ()
+	;emit the code to set :r0 to 0 if the origin of the ping is this node
+	(assign '((:rsp slot_data)) '(:r2))
+	(load-node-id :rsp slot_node_id :r0 :r1)
+	(load-node-id :r2 +kn_msg_ping_origin :r2 :r3)
+	(vp-sub-rr :r2 :r0)
+	(vp-sub-rr :r3 :r1)
+	(vp-or-rr :r1 :r0))
+
+(defun kn-flood ()
+	;emit the code to flood the ping onwards
+	(load-fields :rsp `(slot_statics slot_msg slot_data ,(+ slot_node_id +node_id_node1) ,(+ slot_node_id +node_id_node2))
+		'(:r0 :r1 :r2 :r3 :r4))
+	(call 'flood_fill '(:r0 :r1 :r2 :r3 :r4)))
+
+(defun kn-time ()
+	;emit the code to set the time the origin of the ping is known till
+	(load-fields :rsp '(slot_data slot_time) '(:r0 :r1))
+	(assign '((:r0 +kn_msg_ping_interval)) '(:r0))
+	(vp-shl-cr 1 :r0)
+	(vp-add-rr :r0 :r1)
+	(vp-add-cr ping_slack :r1)
+	(call :array :set_elem `((:rsp slot_tuple) :r1 ,+node_time)))
+
+(defun kn-via ()
+	;emit the code to add the via of the ping to the ways to its origin
+	(assign '((:rsp slot_data)) '(:r2))
+	(load-node-id :r2 +kn_msg_ping_via :r1 :r2)
+	(call :array :push_back2 '((:rsp slot_tuple) :r1 :r2)))
 
 (def-method :sys_kernel :kernel)
 	;inputs
@@ -44,18 +128,26 @@
 	;trashes
 	;:r0-:r14, :d0-:d15
 
-	(def-vars
-		(union
-			(ptr argv)
-			(ptr link))
-		(ptr statics mbox_addr msg data tuple key best_nodes)
+	(structure held 0
+		(long prefix sum cnt))
+
+	(structure slot 0
+		(ptr argv link statics mbox_addr msg data tuple key best_nodes)
 		(pptr iter_begin iter_end)
 		(nodeid node_id)
 		(long time)
-		(uint link_cnt best_cnt best_rand))
+		(uint best_cnt best_rand)
+		;of a ping
+		(ptr set bucket new_key services entries)
+		(long session_cluster session_sys hops)
+		(struct held held_size)
+		(uint ping_func held_hash)
+		;what the host says it is
+		(struct host 64))
 
-	(push-scope)
-	(entry (vpx argv))
+	(vp-alloc slot_size)
+	(entry '(:r0))
+	(assign '(:r0) '((:rsp slot_argv)))
 
 	;init allocator
 	(call :sys_mem :statics_init)
@@ -70,28 +162,35 @@
 	(call :sys_mail :statics_init)
 
 	;start kernel task (get's mailbox id of 0 !)
-	(assign (vpx (@ sys/statics/statics)) (vpx statics))
-	(call :sys_task :start (vpx ($ fn_entry)) (vpx (.> statics statics_sys_task_kernel_tcb) mbox_addr _ _ _))
-	(assign (vpx (.> statics statics_sys_task_kernel_tcb)) (vpx (.> statics statics_sys_task_current_tcb)))
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '(:r0) '((:rsp slot_statics)))
+	(call :sys_task :start '(($ fn_entry)) '(:r0 :r1 _ _ _))
+	(assign '((:rsp slot_statics)) '(:r2))
+	(assign '(:r0 :r0 :r1)
+		'((:r2 statics_sys_task_kernel_tcb) (:r2 statics_sys_task_current_tcb) (:rsp slot_mbox_addr)))
 
 	;init mailer
 	(call :sys_mail :statics_init1)
 
 	;allocate best choice nodes array
-	(call :array :create :nil (vpx best_nodes))
+	(call :array :create :nil '((:rsp slot_best_nodes)))
 
 	;set random node ID
-	(call :host_os :pii_rand (vpx (& (.> statics statics_sys_task_kernel_node_id)) +node_id_size))
-	(call :sys_kernel :id :nil (vpx (. node_id +node_id_node1) (. node_id +node_id_node2)))
+	(assign '((:rsp slot_statics)) '(:r0))
+	(vp-add-cr statics_sys_task_kernel_node_id :r0)
+	(call :host_os :pii_rand `(:r0 ,+node_id_size))
+	(call :sys_kernel :id :nil '(:r0 :r1))
+	(save-node-id :rsp slot_node_id :r0 :r1)
 	;obtain persistent system ID from host OS
-	(call :host_os :pii_sysid (vpx (& (.> statics statics_sys_task_kernel_system_id)) +node_id_size))
+	(assign '((:rsp slot_statics)) '(:r0))
+	(vp-add-cr statics_sys_task_kernel_system_id :r0)
+	(call :host_os :pii_sysid `(:r0 ,+node_id_size))
 
 	;has the host the clock that is cheap to ask ? It says what it is in
 	;four words, and the fourth is how new: 3 has :pii_tick. One of
 	;fewer words is from before there was a fourth
-	(vp-alloc 64)
-	(call :host_os :pii_host '(:rsp 64) '(:r0))
-	(vp-cpy-rr :rsp :r2)
+	(call :host_os :pii_host '((& :rsp slot_host) 64) '(:r0))
+	(vp-lea-rcr :rsp slot_host :r2)
 	(vp-add-rr :r2 :r0)
 	(vp-xor-rr :r1 :r1)
 	(vp-xor-rr :r4 :r4)
@@ -110,20 +209,20 @@
 			(endif)
 		(loop-until '(:r2 = :r0))
 	(endif)
-	(vp-free 64)
 	(vp-xor-rr :r0 :r0)
 	(vpif '(:r4 = 3))
 		(vpif '(:r1 >= 3))
 			(vp-cpy-cr 1 :r0)
 		(endif)
 	(endif)
-	(assign '(:r0) (vpx (.> statics statics_sys_task_tick)))
+	(assign '((:rsp slot_statics)) '(:r2))
+	(assign '(:r0) '((:r2 statics_sys_task_tick)))
 
 	;process command options
-	(call 'opts (vpx argv))
+	(call 'opts '((:rsp slot_argv)))
 
 	;start routing pings
-	(call :nodeid :create (vpx 0) (vpx key))
+	(call :nodeid :create '(0) '((:rsp slot_key)))
 	(call :sys_load :bind `(,(str (f-path :sys_kernel :ping))) '(:r0))
 	(vpif '(:r0 /= 0))
 		(call :sys_task :start '(:r0))
@@ -139,22 +238,25 @@
 		;service all kernel mail
 		(loop-start 'kernel_loop)
 			;check if any mail
-			(assign (vpx mbox_addr) '(:r0))
+			(assign '((:rsp slot_mbox_addr)) '(:r0))
 			(lh-is-empty :r0 +mbox_list :r1)
 			(breakif '(:r1 = 0))
-			(call :sys_mail :read '(:r0) (vpx msg data))
+			(call :sys_mail :read '(:r0) '(:r0 :r1))
+			(save-fields :rsp '(slot_msg slot_data) '(:r0 :r1))
 			;which kernel call number
-			(assign (vpx (.> data +kn_msg_func)) '(:r0))
+			(assign '((:r1 +kn_msg_func)) '(:r0))
 			(switch)
 			(vpcase '(:r0 = +kn_call_pin))
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
-				(call 'opt_run (vpx (& (.> data +kn_msg_open_pathname))) '(:r0 :r1 :r2))
+				(assign '((:rsp slot_data)) '(:r0))
+				(vp-add-cr +kn_msg_open_pathname :r0)
+				(call 'opt_run '(:r0) '(:r0 :r1 :r2))
 				;the answer is a message of its own: it says who answers
 				;too, and what asked may be shorter than that
 				(vp-simd vp-cpy-rr '(:r0 :r1 :r2) '(:r6 :r7 :r8))
 				(call :sys_mail :alloc '(+kn_msg_reply_size) '(:r0 :r1))
-				(assign (vpx data) '(:r4))
+				(assign '((:rsp slot_data)) '(:r4))
 				(assign-net-id :r4 +kn_msg_reply_id :r0 +msg_dest :r2 :r3 :r5)
 				(save-net-id :r1 +kn_msg_reply_id :r6 :r7 :r8)
 				;the func and the user field are as they came
@@ -164,231 +266,222 @@
 				(call :sys_kernel :id :nil '(:r0 :r1))
 				(assign '(:r0 :r1) `((:r7 ,(+ +kn_msg_reply_node +node_id_node1)) (:r7 ,(+ +kn_msg_reply_node +node_id_node2))))
 				(call :sys_mail :send '(:r6))
-				(call :sys_mail :free (vpx msg))
+				(call :sys_mail :free '((:rsp slot_msg)))
 				(break)
 			(vpcase '(:r0 = +kn_call_run))
 				;find best cpu to run task on the same physical system, the
 				;one with the least load, see sys/statics/class.inc
-				(call :array :clear (vpx best_nodes))
-				(assign (vpx (+ (.> statics statics_sys_task_task_count) (.> statics statics_sys_task_lag))) (vpx best_cnt))
-				(call :array :get_both (vpx (.> statics statics_sys_mail_links_array))
-					(vpx _ iter_begin iter_end))
-				(loop-while (vpx (/= iter_begin iter_end)))
-					(assign (vpx (* iter_begin)) (vpx link))
-					(assign (vpx (+ iter_begin +ptr_size)) (vpx iter_begin))
+				(call :array :clear '((:rsp slot_best_nodes)))
+				(assign '((:rsp slot_statics)) '(:r0))
+				(assign '((:r0 statics_sys_task_task_count) (:r0 statics_sys_task_lag)) '(:r1 :r2))
+				(vp-add-rr :r2 :r1)
+				(assign '(:r1) '((:rsp slot_best_cnt)))
+				(call :array :get_both '((:r0 statics_sys_mail_links_array)) '(_ :r1 :r2))
+				(save-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
+				(loop-start)
+					(load-fields :rsp '(slot_iter_begin slot_iter_end) '(:r0 :r1))
+					(breakif '(:r0 = :r1))
+					(assign '((:r0 0)) '(:r1))
+					(vp-add-cr +ptr_size :r0)
+					(save-fields :rsp '(slot_link slot_iter_begin) '(:r1 :r0))
 
 					;skip links that belong to a different physical machine
-					(continueif (vpx (| (^ (. (.> link lk_node_peer_system_id) +node_id_node1) (. (.> statics statics_sys_task_kernel_system_id) +node_id_node1)) (^ (. (.> link lk_node_peer_system_id) +node_id_node2) (. (.> statics statics_sys_task_kernel_system_id) +node_id_node2)))))
+					(assign '((:rsp slot_statics)) '(:r0))
+					(load-node-id :r1 lk_node_peer_system_id :r2 :r3)
+					(load-node-id :r0 statics_sys_task_kernel_system_id :r4 :r5)
+					(vp-xor-rr :r4 :r2)
+					(vp-xor-rr :r5 :r3)
+					(vp-or-rr :r3 :r2)
+					(continueif '(:r2 /= 0))
 
-					(assign (vpx (.> link lk_node_task_count)) (vpx link_cnt))
-					(continueifnot (vpx link_cnt))
-					(continueif (vpx (> link_cnt best_cnt)))
-					(vpif (vpx (< link_cnt best_cnt)))
-						(assign (vpx link_cnt) (vpx best_cnt))
-						(call :array :clear (vpx best_nodes))
+					;the load of the link, :r2, none or more than the best is not
+					;one, less is a new best
+					(assign '((:r1 lk_node_task_count) (:rsp slot_best_cnt)) '(:r2 :r3))
+					(continueif '(:r2 = 0) '(:r2 > :r3))
+					(vpif '(:r2 < :r3))
+						(assign '(:r2) '((:rsp slot_best_cnt)))
+						(call :array :clear '((:rsp slot_best_nodes)))
 					(endif)
-					(call :array :push_back (vpx best_nodes link))
+					(call :array :push_back '((:rsp slot_best_nodes) (:rsp slot_link)))
 				(loop-end)
-				(gotoif (vpx (<= (+ (.> statics statics_sys_task_task_count) (.> statics statics_sys_task_lag)) best_cnt)) 'run_here)
+				(assign '((:rsp slot_statics)) '(:r0))
+				(assign '((:r0 statics_sys_task_task_count) (:r0 statics_sys_task_lag) (:rsp slot_best_cnt))
+					'(:r1 :r2 :r3))
+				(vp-add-rr :r2 :r1)
+				(gotoif '(:r1 <= :r3) 'run_here)
 				;send to random better kernel
-				(call :array :get_length (vpx best_nodes) (vpx _ best_cnt))
-				(assign (vpx (% (=> (+ best_rand 1) best_rand) best_cnt)) (vpx best_cnt))
-				(call :array :get_elem (vpx best_nodes best_cnt) (vpx _ link))
+				(call :array :get_length '((:rsp slot_best_nodes)) '(_ :r1))
+				(assign '((:rsp slot_best_rand)) '(:r0))
+				(vp-add-cr 1 :r0)
+				(assign '(:r0) '((:rsp slot_best_rand)))
+				(vp-rem-rr-u :r1 :r0)
+				(call :array :get_elem '((:rsp slot_best_nodes) :r0) '(_ :r1))
+				(assign '(:r1) '((:rsp slot_link)))
 				;is the node that was chosen still there ? Its link knows of
 				;a process that has gone only at its next beat, a second,
 				;and a task sent to it till then is lost, with whoever
 				;waits to hear of it. The host knows now, so it is asked,
 				;for a link whose peer is a process of this machine, and
 				;the task is run here if it has gone
-				(vpif (vpx (.> link lk_node_peer_pid)))
-					(call :host_os :pii_alive (vpx (.> link lk_node_peer_pid)) (vpx link_cnt))
-					(gotoifnot (vpx link_cnt) 'run_here)
+				(assign '((:r1 lk_node_peer_pid)) '(:r0))
+				(vpif '(:r0 /= 0))
+					(call :host_os :pii_alive '(:r0) '(:r0))
+					(gotoif '(:r0 = 0) 'run_here)
 				(endif)
-				(assign (vpx (. (.> link lk_node_peer_node_id) +node_id_node1) (. (.> link lk_node_peer_node_id) +node_id_node2))
-					(vpx (. (.> msg +msg_dest) +net_id_node_id +node_id_node1) (. (.> msg +msg_dest) +net_id_node_id +node_id_node2)))
-				(call :sys_mail :send (vpx msg))
+				(load-fields :rsp '(slot_link slot_msg) '(:r1 :r0))
+				(assign-node-id :r1 lk_node_peer_node_id :r0 (+ +msg_dest +net_id_node_id) :r2 :r3)
+				(call :sys_mail :send '(:r0))
 				(break)
 			(vpcase '(:r0 = +kn_call_want))
 				;a node wants our services, so a full ping is due. Many may
 				;ask at once, so no more than one a second.
-				(call :host_os :pii_time :nil (vpx time))
-				(assign (vpx 1 (+ (.> statics statics_sys_mail_full_time) 1000000))
-					(vpx (.> statics statics_sys_mail_ping_full) time))
-				(vpif (vpx (< time (.> statics statics_sys_mail_ping_next))))
-					(assign (vpx time) (vpx (.> statics statics_sys_mail_ping_next)))
+				(call :host_os :pii_time :nil '(:r0))
+				(assign '((:rsp slot_statics)) '(:r1))
+				(assign '((:r1 statics_sys_mail_full_time)) '(:r0))
+				(vp-add-cr 1000000 :r0)
+				(vp-cpy-cr 1 :r2)
+				(assign '(:r2) '((:r1 statics_sys_mail_ping_full)))
+				(assign '((:r1 statics_sys_mail_ping_next)) '(:r2))
+				(vpif '(:r0 < :r2))
+					(assign '(:r0) '((:r1 statics_sys_mail_ping_next)))
 				(endif)
-				(call :sys_mail :free (vpx msg))
+				(call :sys_mail :free '((:rsp slot_msg)))
 				(break)
 			(vpcase '(:r0 >= +kn_call_ping))
 				;new services/routing ping
-				(structure held 0
-					(long prefix sum cnt))
-				(def-vars
-					(ptr session_cluster session_sys set wmsg wdata)
-					(long hops)
-					(struct held held_size)
-					(uint ping_func held_hash)
-					(union
-						(ptr bucket new_key)
-						(ptr services entries)))
-				(push-scope)
-
-				(assign (vpx (.> data +kn_msg_func)) (vpx ping_func))
+				(assign '((:rsp slot_data)) '(:r0))
+				(assign '((:r0 +kn_msg_func)) '(:r0))
+				(assign '(:r0) '((:rsp slot_ping_func)))
 
 				;timestamp
-				(call :host_os :pii_time :nil (vpx time))
+				(call :host_os :pii_time :nil '((:rsp slot_time)))
 
 				;find/create the routing tuple for the origin
-				(assign (vpx data key) '(:r0 :r1))
+				(load-fields :rsp '(slot_data slot_key) '(:r0 :r1))
 				(assign-node-id :r0 +kn_msg_ping_origin :r1 +str_data)
-				(call :hmap :cfind (vpx (.> statics statics_sys_mail_node_map) key (@ class/nodeid/eql)) (vpx _ tuple bucket))
-				(vpifnot (vpx tuple))
-					(call :nodeid :create (vpx (& (.> data +kn_msg_ping_origin))) (vpx new_key))
-					(call :array :create :nil (vpx tuple))
+				(assign '((:rsp slot_statics)) '(:r0))
+				(call :hmap :cfind '((:r0 statics_sys_mail_node_map) (:rsp slot_key) (@ class/nodeid/eql)) '(_ :r1 :r2))
+				(save-fields :rsp '(slot_tuple slot_bucket) '(:r1 :r2))
+				(vpif '(:r1 = 0))
+					(assign '((:rsp slot_data)) '(:r0))
+					(vp-add-cr +kn_msg_ping_origin :r0)
+					(call :nodeid :create '(:r0) '((:rsp slot_new_key)))
+					(call :array :create :nil '((:rsp slot_tuple)))
 					;the slots of the tuple are named in sys/mail/class.inc
-					(call :hset :create (vpx 1) (vpx set))
-					(call :array :push_back2 (vpx tuple set 0))
-					(call :array :push_back2 (vpx tuple (- 1) (- 1)))
-					(call :array :push_back2 (vpx tuple 0 0))
-					(call :array :push_back (vpx tuple (- 1)))
-					(call :list :push_back2 (vpx bucket new_key tuple))
+					(call :hset :create '(1) '((:rsp slot_set)))
+					(call :array :push_back2 '((:rsp slot_tuple) (:rsp slot_set) 0))
+					(call :array :push_back2 '((:rsp slot_tuple) -1 -1))
+					(call :array :push_back2 '((:rsp slot_tuple) 0 0))
+					(call :array :push_back '((:rsp slot_tuple) -1))
+					(call :list :push_back2 '((:rsp slot_bucket) (:rsp slot_new_key) (:rsp slot_tuple)))
 				(else)
-					(assign (vpx (elem (pptr tuple) +ptr_size)) (vpx tuple))
+					(assign '((:r1 +ptr_size)) '(:r1))
+					(assign '(:r1) '((:rsp slot_tuple)))
 				(endif)
 
 				;load current sessions and hops
-				(call :array :get_begin (vpx tuple) '(_ :r1))
+				(call :array :get_begin '((:rsp slot_tuple)) '(_ :r1))
 				(assign `((:r1 ,(* +long_size +node_session_cluster)) (:r1 ,(* +long_size +node_session_sys))
 					(:r1 ,(* +long_size +node_hops))) '(:r1 :r2 :r3))
-				(assign '(:r1 :r2 :r3) (vpx session_cluster session_sys hops))
+				(save-fields :rsp '(slot_session_cluster slot_session_sys slot_hops) '(:r1 :r2 :r3))
 
-				(vpif (vpx (= ping_func +kn_call_ping_sys)))
+				(assign '((:rsp slot_ping_func)) '(:r0))
+				(vpif `(:r0 = ,+kn_call_ping_sys))
 					;--- System Ping: Update @ services, flood only to same-system peers ---
 					(switch 'exit_ping_sys)
-					(breakif (vpx (<= (.> data +kn_msg_ping_session) session_sys)) 'exit_ping_sys)
+					(load-fields :rsp '(slot_data slot_session_sys) '(:r0 :r1))
+					(assign '((:r0 +kn_msg_ping_session)) '(:r0))
+					(breakif '(:r0 <= :r1) 'exit_ping_sys)
 
 					;update session_sys (index 3) and time (index 1)
-					(call :array :set_elem (vpx tuple (.> data +kn_msg_ping_session) +node_session_sys))
-					(call :array :set_elem (vpx tuple (+ time (* (.> data +kn_msg_ping_interval) 2) ping_slack) +node_time))
+					(call :array :set_elem `((:rsp slot_tuple) :r0 ,+node_session_sys))
+					(kn-time)
 
 					;flood onwards within the physical system
-					(call 'flood_fill (vpx statics msg data (. node_id +node_id_node1) (. node_id +node_id_node2)))
+					(kn-flood)
 
 					;skip service updates if I am the origin
-					(breakifnot (vpx (| (- (. node_id +node_id_node1) (. (.> data +kn_msg_ping_origin) +node_id_node1)) (- (. node_id +node_id_node2) (. (.> data +kn_msg_ping_origin) +node_id_node2)))) 'exit_ping_sys)
+					(kn-not-me)
+					(breakif '(:r0 = 0) 'exit_ping_sys)
 
 					;update @ services: purge existing @ entries, then insert new
-					(vpif (vpx (.> data +kn_msg_ping_full)))
-						;the services are here
-						(call :str :create_from_buffer (vpx (& (.> data +kn_msg_ping_services)) (- (.> msg +msg_length) +kn_msg_ping_services)) (vpx services))
-						(call :str :split (vpx services +char_lf) (vpx _ entries))
-						(call :str :destroy (vpx services))
-						(call :list :get_both (vpx entries) (vpx _ iter_begin iter_end))
-						(call :array :get_first (vpx tuple) (vpx _ set))
-						(call :hset :each (vpx set ($ erase_prefix) +char_at))
-						(loop-while (vpx (/= iter_begin iter_end)))
-							(call :hset :cinsert (vpx set (* iter_begin) (@ class/sym/eql_str)))
-							(assign (vpx (+ iter_begin +ptr_size)) (vpx iter_begin))
-						(loop-end)
-						(call :list :destroy (vpx entries))
-					(else)
-						(kn-held-hash "+char_at")
-						(vpif (vpx (/= (.> data +kn_msg_ping_hash) held_hash)))
-							(vpif (vpx (= (.> data +kn_msg_ping_hash) 0)))
-								;it has none now, so nor do we, and no need to ask
-								(call :hset :each (vpx set ($ erase_prefix) +char_at))
-							(else)
-								;not the services we hold for this node, so ask for them
-								(kn-send-want)
-							(endif)
-						(endif)
-					(endif)
+					(kn-services +char_at)
 					(endswitch)
 				(else)
 					;--- Cluster Ping: Manage cluster routing and * services ---
+					;the session :r0 and hops :r2 of the ping, the session
+					;:r1 and hops :r3 as they were
 					(switch 'exit_ping_cluster)
-					(breakif (vpx (< (.> data +kn_msg_ping_session) session_cluster)) 'exit_ping_cluster)
-					(vpcase (vpx (> (.> data +kn_msg_ping_session) session_cluster)))
+					(load-fields :rsp '(slot_data slot_session_cluster slot_hops) '(:r0 :r1 :r3))
+					(assign '((:r0 +kn_msg_ping_session) (:r0 +kn_msg_ping_hops)) '(:r0 :r2))
+					(breakif '(:r0 < :r1) 'exit_ping_cluster)
+					(vpcase '(:r0 > :r1))
 						;new cluster session: truncate back to 4 elements (preserves set, time, session_cluster, session_sys)
-						(call :array :set_length (vpx tuple +node_hops))
-						(call :array :set_elem (vpx tuple (+ time (* (.> data +kn_msg_ping_interval) 2) ping_slack) +node_time))
-						(call :array :set_elem (vpx tuple (.> data +kn_msg_ping_session) +node_session_cluster))
-						(call :array :set_elem (vpx tuple (. (.> data +kn_msg_ping_system) +node_id_node1) +node_system1))
-						(call :array :set_elem (vpx tuple (. (.> data +kn_msg_ping_system) +node_id_node2) +node_system2))
-						(call :array :push_back (vpx tuple (.> data +kn_msg_ping_hops)))
+						(call :array :set_length `((:rsp slot_tuple) ,+node_hops))
+						(kn-time)
+						(assign '((:rsp slot_data)) '(:r1))
+						(call :array :set_elem `((:rsp slot_tuple) (:r1 +kn_msg_ping_session) ,+node_session_cluster))
+						(assign '((:rsp slot_data)) '(:r1))
+						(call :array :set_elem `((:rsp slot_tuple) (:r1 ,(+ +kn_msg_ping_system +node_id_node1)) ,+node_system1))
+						(assign '((:rsp slot_data)) '(:r1))
+						(call :array :set_elem `((:rsp slot_tuple) (:r1 ,(+ +kn_msg_ping_system +node_id_node2)) ,+node_system2))
+						(assign '((:rsp slot_data)) '(:r1))
+						(call :array :push_back '((:rsp slot_tuple) (:r1 +kn_msg_ping_hops)))
 						;a kick from another node ?
-						(vpif (vpx (.> data +kn_msg_ping_kick)))
-							(vpif (vpx (| (- (. node_id +node_id_node1) (. (.> data +kn_msg_ping_origin) +node_id_node1)) (- (. node_id +node_id_node2) (. (.> data +kn_msg_ping_origin) +node_id_node2)))))
+						(assign '((:rsp slot_data)) '(:r0))
+						(assign '((:r0 +kn_msg_ping_kick)) '(:r0))
+						(vpif '(:r0 /= 0))
+							(kn-not-me)
+							(vpif '(:r0 /= 0))
 								(call :sys_mail :kick)
 							(endif)
 						(endif)
 						(goto 'flood_via)
-					(vpcase (vpx (< (.> data +kn_msg_ping_hops) hops)))
+					(vpcase '(:r2 < :r3))
 						;better route: truncate back to the hops, push new hops
-						(call :array :set_length (vpx tuple +node_hops))
-						(call :array :push_back (vpx tuple (.> data +kn_msg_ping_hops)))
+						(call :array :set_length `((:rsp slot_tuple) ,+node_hops))
+						(assign '((:rsp slot_data)) '(:r1))
+						(call :array :push_back '((:rsp slot_tuple) (:r1 +kn_msg_ping_hops)))
 					(vp-label 'flood_via)
-						(call :array :push_back2 (vpx tuple
-							(. (.> data +kn_msg_ping_via) +node_id_node1)
-							(. (.> data +kn_msg_ping_via) +node_id_node2)))
-						(call 'flood_fill (vpx statics msg data (. node_id +node_id_node1) (. node_id +node_id_node2)))
+						(kn-via)
+						(kn-flood)
 						(break)
-					(vpcase (vpx (= (.> data +kn_msg_ping_hops) hops)))
+					(vpcase '(:r2 = :r3))
 						;equal route: append via
-						(call :array :push_back2 (vpx tuple
-							(. (.> data +kn_msg_ping_via) +node_id_node1)
-							(. (.> data +kn_msg_ping_via) +node_id_node2)))
+						(kn-via)
 					(endswitch)
 
 					;update * services: purge existing * entries, then insert new
 					(switch)
-					(breakif (vpx (<= (.> data +kn_msg_ping_session) session_cluster)))
-					(breakifnot (vpx (| (- (. node_id +node_id_node1) (. (.> data +kn_msg_ping_origin) +node_id_node1)) (- (. node_id +node_id_node2) (. (.> data +kn_msg_ping_origin) +node_id_node2)))))
+					(load-fields :rsp '(slot_data slot_session_cluster) '(:r0 :r1))
+					(assign '((:r0 +kn_msg_ping_session)) '(:r0))
+					(breakif '(:r0 <= :r1))
+					(kn-not-me)
+					(breakif '(:r0 = 0))
 					(default)
-						(vpif (vpx (.> data +kn_msg_ping_full)))
-							;the services are here
-							(call :str :create_from_buffer (vpx (& (.> data +kn_msg_ping_services)) (- (.> msg +msg_length) +kn_msg_ping_services)) (vpx services))
-							(call :str :split (vpx services +char_lf) (vpx _ entries))
-							(call :str :destroy (vpx services))
-							(call :list :get_both (vpx entries) (vpx _ iter_begin iter_end))
-							(call :array :get_first (vpx tuple) (vpx _ set))
-							(call :hset :each (vpx set ($ erase_prefix) +char_multiply))
-							(loop-while (vpx (/= iter_begin iter_end)))
-								(call :hset :cinsert (vpx set (* iter_begin) (@ class/sym/eql_str)))
-								(assign (vpx (+ iter_begin +ptr_size)) (vpx iter_begin))
-							(loop-end)
-							(call :list :destroy (vpx entries))
-						(else)
-							(kn-held-hash "+char_multiply")
-							(vpif (vpx (/= (.> data +kn_msg_ping_hash) held_hash)))
-								(vpif (vpx (= (.> data +kn_msg_ping_hash) 0)))
-									;it has none now, so nor do we, and no need to ask
-									(call :hset :each (vpx set ($ erase_prefix) +char_multiply))
-								(else)
-									;not the services we hold for this node, so ask for them
-									(kn-send-want)
-								(endif)
-							(endif)
-						(endif)
+						(kn-services +char_multiply)
 					(endswitch)
 				(endif)
 
-				(pop-scope)
-				(call :sys_mail :free (vpx msg))
+				(call :sys_mail :free '((:rsp slot_msg)))
 				(break)
 			(vpcase '(:r0 = +kn_call_callback))
 				;call callback with this thread/stack
-				(assign (vpx (.> data +kn_msg_key) (.> data +kn_msg_callback_addr)) '(:r0 :r1))
+				(assign '((:rsp slot_data)) '(:r1))
+				(assign '((:r1 +kn_msg_key) (:r1 +kn_msg_callback_addr)) '(:r0 :r1))
 				(vp-call-r :r1)
 				;wake originator
-				(call :sys_task :resume (vpx (. (.> data +kn_msg_reply_id) +net_id_mbox_id)))
-				(call :sys_mail :free (vpx msg))
+				(assign '((:rsp slot_data)) '(:r0))
+				(call :sys_task :resume `((:r0 ,(+ +kn_msg_reply_id +net_id_mbox_id))))
+				(call :sys_mail :free '((:rsp slot_msg)))
 				(break)
 			(vpcase '(:r0 = +kn_call_signal))
 				;signal a task
-				(call :sys_mail :validate (vpx (.> data +kn_msg_signal_mbox)) '(:r0))
+				(assign '((:rsp slot_data)) '(:r0))
+				(call :sys_mail :validate '((:r0 +kn_msg_signal_mbox)) '(:r0))
 				(vpif '(:r0 /= 0))
-					(assign (vpx (.> data +kn_msg_signal_flags)) '(:r1))
+					(assign '((:rsp slot_data)) '(:r1))
+					(assign '((:r1 +kn_msg_signal_flags)) '(:r1))
 					(assign '((:r0 +mbox_owner_tcb)) '(:r0))
 					(assign '((:r0 +tk_node_flags)) '(:r2))
 					(vp-or-rr :r1 :r2)
@@ -404,7 +497,7 @@
 				(endif)
 				(call :sys_task :resume '(:r0))
 				(endif)
-				(call :sys_mail :free (vpx msg))
+				(call :sys_mail :free '((:rsp slot_msg)))
 			(endswitch)
 		(loop-end)
 
@@ -412,7 +505,7 @@
 		(call :sys_task :timer :nil '(:r0))
 
 		;find next task we could defer to
-		(assign (vpx statics) '(:r3))
+		(assign '((:rsp slot_statics)) '(:r3))
 		(assign '((& :r3 (+ statics_sys_task_task_lists +lh_list_size))) '(:r1))
 		(assign '((& :r3 (+ statics_sys_task_task_lists (* tk_num_task_lists +lh_list_size)))) '(:r2))
 		(loop-start)
@@ -450,12 +543,12 @@
 		(endif)
 		(vp-min-rr :r7 :r6)
 		(vp-sub-rr :r0 :r6)
-		(assign '(:r0) (vpx time))
+		(assign '(:r0) '((:rsp slot_time)))
 		(host-os-call :host_os :sleep '(:r6))
 
 		;how long that was is time the node was idle, (kernel-stats)
 		(call :host_os :pii_time :nil '(:r0))
-		(assign (vpx time statics) '(:r1 :r2))
+		(assign '((:rsp slot_time) (:rsp slot_statics)) '(:r1 :r2))
 		(vp-sub-rr :r1 :r0)
 		(assign '((:r2 statics_sys_task_idle)) '(:r1))
 		(vp-add-rr :r1 :r0)
@@ -463,14 +556,14 @@
 	(loop-end)
 
 	;deinit best choice array
-	(call :array :deref (vpx best_nodes))
+	(call :array :deref '((:rsp slot_best_nodes)))
 
 	;deinit allocator
 	(call :sys_mem :statics_deinit)
 
 	;exit back to load init
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'flood_fill)
 	;inputs
@@ -481,19 +574,18 @@
 	;trashes
 	;:r0-:r14
 
-	(def-vars
+	(structure slot 0
 		(nodeid system_id))
 
 	(vp-rdef (msg data knode1 knode2 vnode1 vnode2 iter_begin iter_end iter link_node statics)
 		'(:r14 :r13 :r12 :r11 :r10 :r9 :r8 :r7 :r6 :r5 :r4))
 
-	(push-scope)
+	(vp-alloc slot_size)
 	(entry `(,statics ,msg ,data ,knode1 ,knode2))
 
 	;load system ID
 	(load-node-id statics statics_sys_task_kernel_system_id :r0 :r1)
-	(assign (vpx (& system_id)) '(:r2))
-	(save-node-id :r2 0 :r0 :r1)
+	(save-node-id :rsp slot_system_id :r0 :r1)
 
 	;inc hops, a uint
 	(assign `((,data ,+kn_msg_ping_hops ui)) '(:r0))
@@ -514,8 +606,7 @@
 		;if system ping, skip links leading to a different physical machine
 		(assign `((,data +kn_msg_ping_func)) '(:r0))
 		(vpif '(:r0 = +kn_call_ping_sys))
-			(assign (vpx (& system_id)) '(:r2))
-			(load-node-id :r2 0 :r0 :r1)
+			(load-node-id :rsp slot_system_id :r0 :r1)
 			(load-node-id link_node lk_node_peer_system_id :r2 :r3)
 			(vp-sub-rr :r2 :r0)
 			(vp-sub-rr :r3 :r1)
@@ -553,8 +644,8 @@
 		(save-net-id :r0 +msg_dest :r1 knode1 knode2)
 		(call :sys_mail :send '(:r0))
 	(loop-end)
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'erase_prefix)
 	;inputs
@@ -600,40 +691,50 @@
 	;info
 	;process command options
 
-	(def-vars
+	(structure slot 0
 		(pptr argv)
 		(ptr arg)
 		(plong table)
-		(long offset)
-		(int len))
+		(long offset))
 
-	(push-scope)
-	(entry (vpx argv))
+	(vp-alloc slot_size)
+	(entry '(:r0))
+	(assign '(:r0) '((:rsp slot_argv)))
 
 	(loop-start)
-		(assign (vpx (* argv)) (vpx arg))
-		(breakifnot (vpx arg))
-		(assign (vpx (+ argv +ptr_size)) (vpx argv))
-		(assign (vpx ($ options_table)) (vpx table))
+		(assign '((:rsp slot_argv)) '(:r0))
+		(assign '((:r0 0)) '(:r1))
+		(breakif '(:r1 = 0))
+		(vp-add-cr +ptr_size :r0)
+		(assign '(($ options_table)) '(:r2))
+		(save-fields :rsp '(slot_argv slot_arg slot_table) '(:r0 :r1 :r2))
 		(loop-start 'next_arg)
-			(assign (vpx (* table)) (vpx offset))
-			(breakifnot (vpx offset))
-			(assign (vpx (+ table +ptr_size)) (vpx table))
-			(call :sys_str :compare (vpx table arg) '(tmp))
-			(vpif `(,tmp = 0))
-				(assign (vpx (* argv)) (vpx arg))
-				(breakifnot (vpx arg) 'next_arg)
-				(assign (vpx arg (+ ($ options_table) offset)) '(:r0 :r1))
+			(assign '((:rsp slot_table)) '(:r0))
+			(assign '((:r0 0)) '(:r1))
+			(breakif '(:r1 = 0))
+			(vp-add-cr +ptr_size :r0)
+			(save-fields :rsp '(slot_table slot_offset) '(:r0 :r1))
+			(call :sys_str :compare '(:r0 (:rsp slot_arg)) '(:r0))
+			(vpif '(:r0 = 0))
+				(assign '((:rsp slot_argv)) '(:r0))
+				(assign '((:r0 0)) '(:r0))
+				(breakif '(:r0 = 0) 'next_arg)
+				(assign '((:rsp slot_offset) ($ options_table)) '(:r1 :r2))
+				(vp-add-rr :r2 :r1)
 				(vp-call-r :r1)
 				(break 'next_arg)
 			(endif)
-			(call :sys_str :length (vpx table) (vpx _ len))
-			(assign (vpx (& (+ table len +ptr_size) (- +ptr_size))) (vpx table))
+			(call :sys_str :length '((:rsp slot_table)) '(_ :r1))
+			(assign '((:rsp slot_table)) '(:r0))
+			(vp-add-rr :r1 :r0)
+			(vp-add-cr +ptr_size :r0)
+			(vp-and-cr (- 0 +ptr_size) :r0)
+			(assign '(:r0) '((:rsp slot_table)))
 		(loop-end)
 	(loop-end)
 
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'opt_run)
 	;inputs
@@ -643,63 +744,75 @@
 	;trashes
 	;:r0-:r14
 
-	(def-vars
+	(structure slot 0
 		(pubyte arg)
-		(ptr func msg)
 		(netid id)
-		(uint length is_lisp))
+		(uint is_lisp))
 
-	(push-scope)
-	(entry (vpx arg))
+	(vp-alloc slot_size)
+	(entry '(:r0))
+	(assign '(:r0) '((:rsp slot_arg)))
 
 	;is this a lisp task or raw task
-	(assign (vpx (=> (=> 0 (. id +net_id_mbox_id)) (. id +net_id_node_id +node_id_node1))) (vpx (. id +net_id_node_id +node_id_node2)))
-	(assign (vpx 0) (vpx is_lisp))
-	(vpif (vpx (= (elem arg 0) +char_lrb)))
-		(assign (vpx 1) (vpx is_lisp))
+	(vp-xor-rr :r2 :r2)
+	(vp-xor-rr :r3 :r3)
+	(vp-xor-rr :r4 :r4)
+	(save-net-id :rsp slot_id)
+	(assign '(:r2) '((:rsp slot_is_lisp)))
+	(vp-load-rcr-ub :r0 0 :r1)
+	(vpif `(:r1 = ,+char_lrb))
+		(vp-cpy-cr 1 :r1)
+		(assign '(:r1) '((:rsp slot_is_lisp)))
 	(else)
-		(call :sys_str :length (vpx arg) (vpx _ length))
-		(vpif (vpx (>= length 5)))
-			(call :sys_str :compare (vpx (- (+ arg length) 5) ".lisp") (vpx length))
-			(vpifnot (vpx length))
+		(call :sys_str :length '(:r0) '(_ :r1))
+		(vpif '(:r1 >= 5))
+			(assign '((:rsp slot_arg)) '(:r0))
+			(vp-add-rr :r1 :r0)
+			(vp-sub-cr 5 :r0)
+			(call :sys_str :compare '(:r0 ".lisp") '(:r0))
+			(vpif '(:r0 = 0))
 				;a .lisp file, and it has to be there. One that is not is
 				;no task, the id is 0, and whoever asked is told so. A pipe
 				;with a command that does not exist waited on it for ever
-				(call :host_os :pii_stat (vpx arg (. (@ sys/statics/statics) statics_sys_load_stat_buffer)) (vpx func))
-				(gotoif (vpx func) 'opt_run_exit)
-				(assign (vpx 1) (vpx is_lisp))
+				(fn-bind 'sys/statics/statics :r1)
+				(call :host_os :pii_stat '((:rsp slot_arg) (:r1 statics_sys_load_stat_buffer)) '(:r0))
+				(gotoif '(:r0 /= 0) 'opt_run_exit)
+				(vp-cpy-cr 1 :r1)
+				(assign '(:r1) '((:rsp slot_is_lisp)))
 			(endif)
 		(endif)
 	(endif)
 
-	(vpif (vpx is_lisp))
+	(assign '((:rsp slot_is_lisp)) '(:r0))
+	(vpif '(:r0 /= 0))
 		;start lisp run task and send args
 		(call :sys_load :bind `(,(str (f-path :lisp :run))) '(:r0))
 		(vpif '(:r0 /= 0))
-			(call :sys_task :start '(:r0)
-				(vpx _ _ (. id +net_id_mbox_id) (. id +net_id_node_id +node_id_node1) (. id +net_id_node_id +node_id_node2)))
-			(call :str :create_from_cstr (vpx arg) (vpx arg))
-			(call :sys_mail :alloc_obj (vpx arg (& (.> arg +str_data)) (.> arg +str_length)) (vpx msg))
-			(assign (vpx msg (. id +net_id_mbox_id) (. id +net_id_node_id +node_id_node1) (. id +net_id_node_id +node_id_node2))
-				'(:r0 :r2 :r3 :r4))
+			(call :sys_task :start '(:r0) '(_ _ :r2 :r3 :r4))
+			(save-net-id :rsp slot_id)
+			(call :str :create_from_cstr '((:rsp slot_arg)) '(:r0))
+			(assign '(:r0) '((:rsp slot_arg)))
+			(call :sys_mail :alloc_obj '(:r0 (& :r0 +str_data) (:r0 +str_length)) '(:r0))
+			(load-net-id :rsp slot_id)
 			(save-net-id :r0 +msg_dest)
 			(call :sys_mail :send '(:r0))
-			(call :str :deref (vpx arg))
+			(call :str :deref '((:rsp slot_arg)))
 		(endif)
 	(else)
 		;open as raw task and return mailbox ID
-		(call :sys_load :bind (vpx arg) (vpx func))
-		(vpif (vpx func))
+		(call :sys_load :bind '((:rsp slot_arg)) '(:r0))
+		(vpif '(:r0 /= 0))
 			;start this function as task
-			(call :sys_task :start (vpx func)
-				(vpx _ _ (. id +net_id_mbox_id) (. id +net_id_node_id +node_id_node1) (. id +net_id_node_id +node_id_node2)))
+			(call :sys_task :start '(:r0) '(_ _ :r2 :r3 :r4))
+			(save-net-id :rsp slot_id)
 		(endif)
 	(endif)
 
 (vp-label 'opt_run_exit)
-	(exit (vpx (. id +net_id_mbox_id) (. id +net_id_node_id +node_id_node1) (. id +net_id_node_id +node_id_node2)))
-	(pop-scope)
-	(return)
+	(load-net-id :rsp slot_id :r0 :r1 :r2)
+	(exit '(:r0 :r1 :r2))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'opt_link)
 	;inputs
