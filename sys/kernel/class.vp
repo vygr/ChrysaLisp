@@ -335,7 +335,6 @@
 			(vpcase '(:r0 = +kn_call_want))
 				;a node wants our services, so a full ping is due. Many may
 				;ask at once, so no more than one a second.
-				(call :host_os :pii_time :nil '(:r0))
 				(assign '((:rsp slot_statics)) '(:r1))
 				(assign '((:r1 statics_sys_mail_full_time)) '(:r0))
 				(vp-add-cr 1000000 :r0)
