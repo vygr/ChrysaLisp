@@ -364,8 +364,8 @@
 		(vp-add-cr 1 :r0)
 	(loop-until '(:r0 = :r2))
 
-	;sign extend ?
-	(vp-shl-cr 63 :r1)
+	;sign extend ? by the top bit of the last byte
+	(vp-shl-cr 56 :r1)
 	(vp-asr-cr 63 :r1)
 	(gotoif '(:r1 >= 0) 'exit)
 	(load-fields :rsp '(slot_value slot_type) '(:r2 :r3))

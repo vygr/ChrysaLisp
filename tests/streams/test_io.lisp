@@ -23,6 +23,16 @@
 (assert-eq "read-byte signed"  -1 (read-byte ms))
 (assert-eq "read-short signed" -1 (read-short ms))
 
+;signed by the top bit of the last byte, never another
+(stream-seek ms 0 0)
+(write-short ms 0x80ff)
+(write-short ms 0x0100)
+(write-int ms 0x7fffff01)
+(stream-seek ms 0 0)
+(assert-eq "read-short of a top bit is negative" -32513 (read-short ms))
+(assert-eq "read-short of a low bit is not" 256 (read-short ms))
+(assert-eq "read-int of a low bit is not" 0x7fffff01 (read-int ms))
+
 ; Additional Stream tests
 (defq ms2 (memory-stream))
 (write-char ms2 (ascii-code "A"))
