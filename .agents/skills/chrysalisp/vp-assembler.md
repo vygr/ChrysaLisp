@@ -1,4 +1,4 @@
-# ChrysaLisp VP Assembler & vpx Guide
+# ChrysaLisp VP Assembler Guide
 
 Part of the `chrysalisp` skill. Read this in full before writing or changing a
 `.vp` file.
@@ -11,13 +11,13 @@ Part of the `chrysalisp` skill. Read this in full before writing or changing a
 
 *	[Generated Function Headers (`gen-create`, `gen-type`)](#generated-function-headers-gen-create-gen-type)
 
-*	[The `assign` Macro & vpx Memory Rules](#the-assign-macro--vpx-memory-rules)
+*	[The `assign` Macro & Frames](#the-assign-macro--frames)
 
 *	[Field Helpers & Sorted Memory Transfers (`load-fields`, `save-fields`, `assign-fields`)](#field-helpers--sorted-memory-transfers-load-fields-save-fields-assign-fields)
 
-*	[Raw VP Loop Optimization (Bypassing vpx in Hot Paths)](#raw-vp-loop-optimization-bypassing-vpx-in-hot-paths)
+*	[Hot Loops](#hot-loops)
 
-*	[Mixed VP Assembler & vpx Syntax Duality](#mixed-vp-assembler--vpx-syntax-duality)
+*	[Symbols, Registers and Slots](#symbols-registers-and-slots)
 
 *	[Calling Conventions & Register Introspection](#calling-conventions--register-introspection)
 
@@ -84,52 +84,67 @@ class, add these headers too, with `;none` as the trashes, and let
 header when the class's `:vcreate` is declared with different inputs to its
 `:create`, as both map to the one function and the scanner checks each.
 
-## The `assign` Macro & vpx Memory Rules
+## The `assign` Macro & Frames
 
-`(assign ...)` evaluates expressions, moves data, and loads/stores memory
-simultaneously (e.g. `(assign '((:r0 +str_length)) '(:r1))`):
+`(assign ...)` moves registers, memory and constants to registers, and a
+register to memory, many at once, in an order that is safe
+(`(assign '((:r0 +str_length) (:r0 +str_data)) '(:r1 :r0))`). The width and
+sign of a field come from its type, `<field>_t`, so a `uint` field is a
+32 bit load that zero extends. An offset that is worked out needs its
+width said, `(:rsp (+ slot_rect host_gui_rect_x) i)`. An address is
+`(& :rsp slot_x)`, a label's `($ label)`, a function's `(@ path)`.
 
-*	**Typed Declarations:** Define stack variables with `(def-vars ...)`.
-	Supported types include `ptr`, `pubyte`, `long`, `uint`, etc.
-	Dereferencing `(vpx (* src_ptr))` generates appropriate byte or word transfers
-	based on variable type.
+*	**No Memory-to-Memory or Constant-to-Memory:** `assign` throws for
+	either. Go by a register: load it, then store it. A swap of two
+	registers in one `assign` is a copy cycle, and throws too.
 
-*	**vpx Scope Discipline (CRITICAL):**
+*	**A frame is a structure.** vpx, `def-vars`, `push-scope`,
+	`pop-scope` and `return` are gone (2026-11-08). A function's frame is
+	`(structure slot 0 ...)`, its fields `slot_x`, made by
+	`(vp-alloc slot_size)` and freed by `(vp-free slot_size)`. `vp-alloc`
+	and `vp-free` round up to whole longs; never put an `(align)` at the end
+	of a structure for it, that upsets the packing of objects. A field may
+	not be named `size`, nor `fields` in a frame: `slot_size` and
+	`slot_fields` are the structure's own, and it throws.
 
-	*	Open scope with `(push-scope)` at function start.
+		(structure slot 0
+			(ptr this list)
+			(uint count))
 
-	*	Place `(pop-scope-syms)` at the end of the `def-func` block (after
-		the error labels and the `signature`) to cleanly purge compiler
-		tracking.
+		(vp-alloc slot_size)
+		(entry :class :method '((:rsp slot_this) (:rsp slot_list)))
+		...
+		(exit :class :method '((:rsp slot_this) :r1))
+		(vp-free slot_size)
+		(vp-ret)
 
-*	**vpx Stack Packing & Unions:**
+*	**One frame.** Registers to keep over a call are slots of the frame,
+	saved by `save-fields`, never pushed and then a frame made below them.
+	A subroutine or callback of its own may have its own frame, a
+	structure of another name or `slot` again, or push and pop.
 
-	*	Order variables in `def-vars` from largest (`long`, `ptr`, `netid`)
-		to smallest (`uint`, `ubyte`) to prevent alignment padding waste.
+*	**A jump out frees the frame first.** `jump`, `f-jmp`, `s-jump` and the
+	like do not free it: load what they take from the frame, `vp-free`,
+	then jump. An error path that has no frame yet, before the
+	`vp-alloc`, needs none.
 
-	*	Use `(union ...)` to share stack space between variables with
-		mutually exclusive lifetimes. Do not create redundant variables
-		merely to avoid type casts.
+*	**Several at once.** Several registers to registers are one `assign`.
+	Several slots to or from registers are `load-fields` or `save-fields`
+	of `:rsp` (sorted, so arm64 pairs them), and so are several fields of
+	any one base, unless that base is also a destination. `entry` and
+	`exit` take slots, `'((:rsp slot_this) :r1)`.
 
-*	**Assignment Fusion & Hazards:**
+*	**Conditions.** A run of `breakif`s is one `breakif` of several
+	conditions, any of them breaks. `vpif` and `loop-until` of several are
+	all of them. An or for a `vpif` is the branches the other way round,
+	or `gotoif`s to the part they lead to. A `vpif` or `elseif` test may use
+	registers that are live at the test. `break` and `breakif` leave the
+	innermost `switch`, and a `vpif` is one: inside a `vpif` in a loop name
+	the loop, or `goto` a label.
 
-	*	Fuse assignments to minimize temporaries: `(assign {a, b} {x, y})`.
-
-	*	**Evaluation Order:** Sources compile left-to-right (pushed to
-		value stack); destinations compile right-to-left (popped from value
-		stack).
-
-	*	**Mutation Hazard:** Never mutate a variable in a fused assignment
-		if that variable calculates the address of a destination further to
-		the left (e.g. `(assign {val, p + 1} {p[0], p})` is invalid). Split
-		such updates into sequential `assign` statements.
-
-	*	**No Memory-to-Memory or Constant-to-Memory:** In VP assembler,
-		`(assign ...)` does not support memory-to-memory transfers
-		(e.g. `(assign `((,r0 off1)) `((,r1 off2)))`) or constant-to-memory
-		transfers (e.g. `(assign '(10) `((,r1 off)))`). All memory reads and
-		writes must route through an intermediate register (e.g. load memory
-		to register, then store register to memory).
+*	**Constants.** A fixed point or float constant is its bits,
+	`,(logior 0 +fp_2pi)` or `(logior 0 0.5)`. One of more than 31 bits goes
+	in a register first, x64 has no larger immediate.
 
 ## Field Helpers & Sorted Memory Transfers (`load-fields`, `save-fields`, `assign-fields`)
 
@@ -208,58 +223,46 @@ structured fields between memory objects and VP registers:
 compile time to prevent accidental destination register clobbering by
 intermediate temporaries.
 
-## Raw VP Loop Optimization (Bypassing vpx in Hot Paths)
+## Hot Loops
 
-When vpx's value stack overhead is unacceptable in inner loops, drop to
-pure VP assembler:
+A loop with no call in it runs in registers:
 
-1.	Declare raw registers: `(vp-rdef (r_buf r_mask r_i))`.
+1.	Name the registers: `(vp-rdef (buf mask i))`, or say them, `:r5`.
 
-2.	Extract vpx variables into registers with mixed `assign`:
-	`(assign (vpx buf mask ptr_i) `(,r_buf ,r_mask ,r_i))`.
+2.	Load what the loop needs from the frame at once:
+	`(load-fields :rsp '(slot_buf slot_mask slot_i) `(,buf ,mask ,i))`.
 
 3.	Hand-code the loop using `loop-start`, `loop-until`, `breakif`, and
 	raw instructions (`vp-load-rrr-ub`, `vp-add-cr`, etc.).
 
-4.	Restore results to vpx variables: `(assign `(,r_i) (vpx ptr_i))`.
+4.	Save what it changed: `(assign `(,i) '((:rsp slot_i)))`.
 
-5.	If a call inside a loop trashes registers needed for loop control,
+5.	A function that may trash few registers saves `:r7` to `:r14` in slots
+	at entry and gives them back at exit, and its loops have them all.
+
+6.	If a call inside a loop trashes registers needed for loop control,
 	keep loop counters in registers outside the call's `;trashes` set, or
-	advance loop counters *before* the call, or spill persistent registers
-	(`this`, `args`) to stack slots.
+	advance loop counters *before* the call, or keep them in slots.
 
-## Mixed VP Assembler & vpx Syntax Duality
+## Symbols, Registers and Slots
 
-*	**Forms, not strings:** A vpx expression is a form inside `(vpx ...)`,
-	`(vpx (+ a b))`, and `(vpx a b)` is a list of them. Before 2026-10-12
-	it was a string in curly braces, `{a + b}`. That is gone.
+*	*Raw Symbols* (`(vp-load-rcr adr 80 cnt)`): names given to registers by
+	`vp-rdef`, `:r0` - `:r14`.
 
-*	**Three Symbol Contexts:**
+*	*Slots* (`(:rsp slot_x)`): a field of the frame, as any field of any
+	base is.
 
-	*	*Raw Symbols* (`(vp-load-rcr adr 80 cnt)`): Resolve directly to VP
-		registers (`:r0` - `:r14`).
+*	*Quasi-Quoted Lists* (`` `(,adr ,cnt) ``): commas evaluate register
+	symbols and constants inside an `assign`.
 
-	*	*vpx Forms* (`(vpx adr cnt)`): Resolve to stack frame offsets
-		(`[rsp + offset]`).
+		(structure slot 0
+			(pubyte buf)
+			(long pos))
 
-	*	*Quasi-Quoted Lists* (`` `(,adr ,cnt) ``): Commas explicitly evaluate
-		register symbols inside macros.
-
-*	**Bridging Pattern:**
-
-	; 1. Define vpx stack variables
-	(def-vars
-		(pubyte buf)
-		(long pos))
-
-	; 2. Define VP registers with matching names
-	(vp-rdef (buf pos))
-
-	; 3. Extract inputs into VP registers
-	(list-bind-args args `(,buf ,pos) '(:obj :num))
-
-	; 4. Map VP registers to vpx variables
-	(assign `(,buf ,pos) (vpx buf pos))
+		(vp-rdef (buf pos))
+		(vp-alloc slot_size)
+		(list-bind-args args `(,buf ,pos) '(:obj :num))
+		(save-fields :rsp '(slot_buf slot_pos) `(,buf ,pos))
 
 ## Calling Conventions & Register Introspection
 
@@ -276,8 +279,8 @@ pure VP assembler:
 
 	Assign loop state into these argument aliases immediately before the call.
 
-*	Preserve live state across calls via explicit `(vp-push reg)` /
-	`(vp-pop reg)` or by saving to vpx stack slots.
+*	Preserve live state across calls in slots of the frame, or by
+	`(vp-push reg)` / `(vp-pop reg)` where there is no frame.
 
 ## Systematic VP Lowering Workflow
 
@@ -299,8 +302,9 @@ Follow this 7-step discipline when designing VP routines:
 6.	**Formulate Compact `vp-rdef` Mappings:** Assign persistent state to
 	safe registers and reuse volatile low registers across intervals.
 
-7.	**vpx vs. Pure VP Selection:** Use pure VP when state fits
-	entirely in registers; use vpx when named stack slots are required.
+7.	**Registers or Slots:** Keep state in registers when it fits
+	there; give the function a frame of slots when it must live over
+	calls.
 
 ## Declared Trashes, And What May Lean On Them (2026-10-13)
 
@@ -364,14 +368,12 @@ method)` gives the registers.
 	shorts and what follows can be two bytes off: fine on x64, a fault on
 	arm64. A side path goes before the error labels.
 
-*	**The scope stays till after the error labels.** A side path moved in
-	front of them does not take the function's `(pop-scope-syms)`
-	with it: the error code that follows still wants the scope. Never pop
-	the scope early to make room for a side path, and never give a side
-	path a `(push-scope)` of its own inside the function's. A callback run
-	on the host's stack, `:sys_task :callback`, is written in plain VP with
-	the `local` structure of its caller, as the natives of
-	`service/audio/lisp.vp` and `:lisp_shade` in `gui/canvas/lisp.vp` are:
+*	**A side path frees what it made.** A side path moved in front of the
+	error labels frees the frame itself if it returns, and the error code
+	that follows frees it before its jump. A callback run on the host's
+	stack, `:sys_task :callback`, is written in plain VP with the `slot`
+	structure of its caller, as the natives of `service/audio/lisp.vp` and
+	`:lisp_shade` in `gui/canvas/lisp.vp` are:
 
 		(vp-label 'callback)
 			;inputs
@@ -379,7 +381,7 @@ method)` gives the registers.
 
 			(entry :sys_task :task_callback '(:r0))
 			(vp-push :r0)
-			(host-gui-call :host_gui :video_close '((:r0 local_handle)))
+			(host-gui-call :host_gui :video_close '((:r0 slot_handle)))
 			(vp-pop :r1)
 			(vp-ret)
 
@@ -389,14 +391,21 @@ method)` gives the registers.
 
 		(def-func-end)
 
-## Named Locals
+## Slots Kept In Registers
 
-Every function with named locals, `(def-vars)` and `(push-scope)`, has them
-kept in registers where they can be, when it has all been assembled:
-`lib/asm/vpxreg.inc`. `(vpx-stack)` before the `(push-scope)` keeps them on
-the stack as written, none does. A local whose address is taken, or that is
-a struct, stays in memory. The allocator is for what was C-Script, not to be
+Every function with a frame, `(vp-alloc slot_size)` of a `(structure slot
+...)`, has its slots kept in registers where they can be, when it has all
+been assembled: `lib/asm/slots.inc`, that was `vpxreg.inc`. A slot whose
+address is taken, or that is a struct, or is read or written as less than
+a long, stays in memory. The allocator is for what was C-Script, not to be
 taken further unasked.
+
+## Boot Image Functions Run From The Image
+
+The loader, the statics, the kernel and all they call are in the boot
+image, `lib/boot/image.inc`, and a node runs those from it, not from their
+files. A change to one is not tested till `make` and `make all boot` have
+made the image again: a test of it before that tests the old code.
 
 ## Two Traps In The Lisp Of The Assembler
 

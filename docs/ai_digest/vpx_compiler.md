@@ -1,5 +1,10 @@
 # vpx Compiler and the `assign` Statement
 
+*vpx was removed on 2026-11-08: no function uses it, and `lib/asm/vpx.inc`,
+`vpxopt.inc`, `scopes.inc` and `def-vars` are gone. A function's frame is a
+`(structure slot 0 ...)`, see [VP Assignment](../vm/vp_assignment.md), Frames, and the VP
+assembler skill. This page is kept as the history of what vpx was.*
+
 The vpx compiler is a lightweight expression compiler embedded in the
 ChrysaLisp macro assembler. It allows C-style arithmetic and memory-access
 expressions to be written as strings inside VP assembler source and compiled

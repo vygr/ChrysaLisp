@@ -630,5 +630,5 @@ The other lines that are not basic VP code instructions are `(loop-start)`,
 `(loop-end)` and `(breakif)` functions. These are structured coding functions
 defined within the `lib/asm/code.inc` file. There are many such helper
 functions that allow all the basic structured code concepts to be used, even
-within VP code as well as vpx level code. These will be covered in detail
+within VP code. These will be covered in detail
 in [other documents](vp_structure.md), but here the use is fairly obvious.

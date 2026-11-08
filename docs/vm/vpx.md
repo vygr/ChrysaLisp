@@ -1,5 +1,10 @@
 # vpx expression compiler
 
+*vpx was removed on 2026-11-08: no function uses it, and `lib/asm/vpx.inc`,
+`vpxopt.inc`, `scopes.inc` and `def-vars` are gone. A function's frame is a
+`(structure slot 0 ...)`, see [VP Assignment](vp_assignment.md), Frames, and the VP
+assembler skill. This page is kept as the history of what vpx was.*
+
 *From 2026-10-12 an expression is a form inside `(vpx ...)`, not a string in
 braces: `{this->+field + 1}` is `(vpx (+ (.> this +field) 1))`, and `{a, b}`
 is `(vpx a b)`. The examples on this page are written that way. Where the

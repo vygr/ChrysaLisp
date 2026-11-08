@@ -809,7 +809,7 @@
 					:stroke
 					0
 					:text
-					"[A list on either side is VP registers and addressing modes. A (vpx) form is expressions, compiled.]"
+					"[Either side is a list of VP registers and addressing modes. Memory to memory, or a constant to memory, throws.]"
 					:font_size
 					12
 					:pos

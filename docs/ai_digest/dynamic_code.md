@@ -239,7 +239,7 @@ domain-specific **micro-compilers**.
   the optimal load/store instruction based on its analysis of the source and
   destination operands.
 
-* `vpx.inc` provides a micro-compiler for a C-like infix expression
-  language.
+* `vpx.inc` was a micro-compiler for a C-like expression language, till
+  2026-11-08.
 
 * `:pixmap :to_argb32` is a micro-compiler for pixel format conversion.

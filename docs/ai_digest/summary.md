@@ -300,11 +300,8 @@ capabilities:
 * The build system handles dependencies between files and can create boot
   images (`lib/boot/image.inc`).
 
-* Optimizers for VP assembly (`vpopt.inc`) and vpx (`vpxopt.inc`) are
-  present.
-
-* `lib/asm/scopes.inc` helps manage scopes during the compilation of `.vp`
-  files.
+* The optimizer for VP assembly is `vpopt.inc`, and `slots.inc` keeps the
+  slots of a function's frame in registers where it can.
 
 ## 7. Environment Configuration (`apps/system/login/`)
 

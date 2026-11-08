@@ -35,10 +35,10 @@ parsed to a fixed object. You can specify the base with a prefix of `0b`, `0x`
 or `0o` for binary, hex or octal. Fixed's parsed during `(read)` are interned
 in a similar manner to symbols.
 
-The vpx compiler can operate on this format directly using the `*>` and
-`</` operators. These operators represent a multiply followed by an arithmetic
-shift right by `+fp_shift` bits and a shift left by `+fp_shift` bits followed
-by a divide.
+In VP code a multiply of two is a `vp-mul-rr` followed by a `vp-asr-cr` of
+`+fp_shift` bits, and a divide a `vp-shl-cr` of `+fp_shift` bits followed by
+a `vp-div-rr`. vpx, gone 2026-11-08, had the `*>` and `</` operators for
+them.
 
 There is an extensive VP level DSL macro/function set for fixed format vectors
 in the `sys/math/class.inc` file. For examples of there use take a look at the

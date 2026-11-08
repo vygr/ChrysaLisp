@@ -3,7 +3,9 @@
 While the entire ChrysaLisp operating system is written using S-expressions
 (parenthesized syntax), it is a mistake to view it as a single monolithic
 language. There are three distinct coding domains (or layers): **Lisp**,
-**vpx**, and **VP Assembler**.
+**VP with a frame**, and **VP Assembler**. Until 2026-11-08 the middle one
+was **vpx**, an expression compiler over named stack locals; it is gone,
+and a frame is a structure now.
 
 Understanding which domain you are in is critical, as valid syntax in one
 domain is often undefined or functionally broken in another.
@@ -29,7 +31,7 @@ and high-level logic reside. It is a vector-based, functional Lisp dialect.
   `:list`, `:hmap`), not pointers.
 
 * **Forbidden Includes:** You cannot import files from `lib/asm/` or
-  `lib/trans/`. Macros like `vp-rdef`, `assign`, or `def-vars` do not exist
+  `lib/trans/`. Macros like `vp-rdef`, `assign`, or `vp-alloc` do not exist
   here.
 
 * **Interface:** You interact with the system via **FFI** (Foreign Function
@@ -53,19 +55,21 @@ and high-level logic reside. It is a vector-based, functional Lisp dialect.
 		result)
 	```
 
-## 2. The vpx Layer (System Class Domain)
+## 2. VP With A Frame (System Class Domain)
 
 **File Extensions:** `.vp`
 **Execution:** Compiled to Native Code (Intermediate-Level)
 
-vpx is a high-level macro assembler used primarily to write the Class
-Library (`class/`, `gui/`, `sys/`). It abstracts away register allocation and
-stack management, looking somewhat like C logic wrapped in S-expressions.
+Most of the Class Library (`class/`, `gui/`, `sys/`) is VP whose values that
+live over calls are the slots of a frame on the stack, and whose work is in
+registers between the calls.
 
 ### Characteristics
 
-* **Variable Management:** Uses **`def-vars`** to define stack variables. You
-  do not manually push/pop the stack for these variables.
+* **The Frame:** a `(structure slot 0 ...)` of typed fields, made by
+  `(vp-alloc slot_size)` and freed by `(vp-free slot_size)`. A slot is
+  `(:rsp slot_x)`, a field like any other, its width and sign from its type.
+  The slots are kept in registers where they can be, `lib/asm/slots.inc`.
 
 * **Method Calls:** Uses `(call :class :method ...)` syntax.
 
@@ -74,47 +78,42 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 	  `class/list/push_back`) directly unless you are manually managing the
 	  specific registers those macros trash.
 
-* **Assignment:** Relies heavily on the **`assign`** macro. This is a
-  pattern-matching assembler that generates moves, loads, and stores based on
-  operand types.
-
-	* Syntax: `(assign (vpx src1 src2) (vpx dest1 dest2))`
+* **Assignment:** Relies heavily on the **`assign`** macro, which moves
+  registers, memory and constants to registers, and a register to memory,
+  in an order that is safe. Several slots at once are `load-fields` and
+  `save-fields` of `:rsp`.
 
 * **Control Flow:** Structured assembly macros: `vpif`, `else`, `loop-while`,
   `loop-start`, `break`.
 
 ### Coding Style
 
-* **No Registers:** Avoid using `:r0` explicitly. Use named variables defined
-  in `def-vars`.
-
 * **Example:**
 
 	```vdu
 	(def-method :my_class :my_method)
 
-		(def-vars
-			(ptr this list)
-			(int count))
+		(structure slot 0
+			(ptr this list))
 
 		; Alloc stack space
-		(push-scope)
-		; Binds inputs to vars
-		(entry :my_class :my_method (vpx this list))
+		(vp-alloc slot_size)
+		; Binds inputs to slots
+		(entry :my_class :my_method '((:rsp slot_this) (:rsp slot_list)))
 
 		; Virtual call
-		(call :array :get_length (vpx list) (vpx _ count))
+		(call :array :get_length '((:rsp slot_list)) '(_ :r1))
 
-		(vpif (vpx (> count 0)))
-			; 'assign' handles the math/move
-			(assign (vpx (+ count 1)) (vpx count))
+		(vpif '(:r1 > 0))
+			; the work is in registers
+			(vp-add-cr 1 :r1)
 		(endif)
 
 		; Cleanup and return
-		(exit :my_class :my_method (vpx this))
+		(exit :my_class :my_method '((:rsp slot_this) :r1))
 		; Dealloc stack space
-		(pop-scope)
-		(return)
+		(vp-free slot_size)
+		(vp-ret)
 
 	(def-func-end)
 	```
@@ -145,16 +144,12 @@ and the stack.
   explicit register lists: `(assign '(:r0 :r1) '(:r2 :r3))` or via templating
   style if using `(vp-rdef)` register names.
 
-### Mixed Domain (Advanced)
+### Mixed Domain
 
-It is possible to mix vpx and VP Assembler, but it requires deep
-knowledge of the compiler's register usage. See `gui/canvas/fpoly.vp`.
-
-* vpx generally assumes it owns the register set between statements.
-
-* If you inject raw VP instructions inside a vpx block, you must ensure
-  you do not clobber registers that vpx is relying on for variable
-  storage at that moment.
+The two are one language, VP, so a function moves between them freely: a
+hot loop loads what it needs from its frame into registers with
+`load-fields`, runs in registers, and saves what it changed. See
+`gui/canvas/fpoly.vp` or `gui/pixmap/resize.vp`.
 
 ### Coding Style
 
@@ -210,7 +205,7 @@ from GUI applications or System Services.
 1. **Lisp Level:** Never attempt to import `lib/asm/` files. If you need
    system functionality, check `class/lisp/root.inc` for the FFI binding.
 
-2. **vpx Level:** Do not use `class/array/get_elem`. Use `(call :array
+2. **VP With A Frame:** Do not use `class/array/get_elem`. Use `(call :array
    :get_elem ...)` to ensure vtable lookups occur correctly, unless you are
    implementing the array class itself.
 

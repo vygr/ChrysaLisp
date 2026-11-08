@@ -1,5 +1,10 @@
 # vpx and VP LLM Skills
 
+*vpx was removed on 2026-11-08: no function uses it, and `lib/asm/vpx.inc`,
+`vpxopt.inc`, `scopes.inc` and `def-vars` are gone. A function's frame is a
+`(structure slot 0 ...)`, see [VP Assignment](../vm/vp_assignment.md), Frames, and the VP
+assembler skill. This page is kept as the history of what vpx was.*
+
 *From 2026-10-12 an expression is a form, `(vpx (+ (.> this +field) 1))`, not
 text in braces: see "Forms, not strings" in
 [`vpx_compiler.md`](vpx_compiler.md) for the table. The examples

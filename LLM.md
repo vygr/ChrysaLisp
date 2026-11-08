@@ -123,10 +123,12 @@ Deeper understanding of how Lisp works in ChrysaLisp:
     mechanism.
 
 27. **[vpx Compiler](docs/ai_digest/vpx_compiler.md)** - The vpx
-    compiler architecture and the assign statement.
+    compiler architecture and the assign statement. History: vpx was
+    removed on 2026-11-08, a frame is a structure now.
 
 28. **[vpx Skills](docs/ai_digest/vpx_skills.md)** - Mixing vpx and
-    VP assembly: register mapping, stack management, and load/drain patterns.
+    VP assembly: register mapping, stack management, and load/drain
+    patterns. History, as 27.
 
 ## Data Types and Processing
 

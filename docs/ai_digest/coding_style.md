@@ -631,56 +631,63 @@ proceed further.
 This version is easy to write, understand, and debug. For most applications,
 its performance would be excellent.
 
-### Stage 2: The vpx VP Function - Robust Performance
+### Stage 2: VP With A Frame - Robust Performance
 
 If benchmarking (e.g., using the `cmd/test` app) reveals that the Lisp
-function is a bottleneck, the next step is to translate it into a vpx
-VP function.
+function is a bottleneck, the next step is to translate it into a VP
+function whose values that live over calls are the slots of a frame.
 
 *   **Primary Goal:** To gain significant performance by eliminating Lisp
-	interpreter overhead, while still maintaining a high level of abstraction
-	and safety.
+	interpreter overhead, while still keeping the state of the function in
+	named, typed places.
 
-*   **Environment:** vpx uses a more C-like syntax within a `(def-func)`
-	block. You declare local variables with `def-vars`, and the assembler
-	handles mapping them to stack locations or registers. You are protected
-	from many of the complexities of manual register allocation.
+*   **Environment:** The frame is a `(structure slot 0 ...)` within a
+	`(def-func)` block, made by `(vp-alloc slot_size)` and freed by
+	`(vp-free slot_size)`. A slot is `(:rsp slot_x)`, a field like any
+	other, and the assembler keeps slots in registers where it can. The work
+	between calls is in registers. Until 2026-11-08 this stage was vpx, an
+	expression compiler over named locals; it is gone.
 
-*   **Performance:** vpx compiles down to highly efficient VP code. It
-	is significantly faster than the interpreted Lisp version and is the
-	right choice for the vast majority of performance-critical application
-	code.
+*   **Performance:** It is significantly faster than the interpreted Lisp
+	version and is the right choice for the vast majority of
+	performance-critical application code.
 
 **Guideline:** Move to this stage to prove your algorithm's performance at a
-lower level. This is the ideal environment to refine the logic with the
-assurance that you are not introducing the subtle bugs that can arise from
-manual register management.
+lower level, with the state of the function in named slots, not all in
+registers you must keep track of.
 
-**Example: `sum-of-squares` as a vpx Function**
+**Example: `sum-of-squares` as VP with a frame**
 
 ```vdu
 (def-func 'my-sum-of-squares)
 
-	(def-vars
+	(structure slot 0
 		(ptr list_obj)
 		(pptr iter iter_end)
-		(long sum val))
+		(long sum))
 
-	(push-scope)
-	(entry (vpx list_obj))
+	(vp-alloc slot_size)
+	(entry '((:rsp slot_list_obj)))
 
-	(assign (vpx 0) (vpx sum))
-	(call :array :get_both (vpx list_obj) (vpx _ iter iter_end))
-	(loop-while (vpx (/= iter iter_end)))
-		(call :num :get_value (vpx (* iter)) (vpx _ val))
-		(assign (vpx (+ (* val val) sum)) (vpx sum))
-		(assign (vpx (+ iter +ptr_size)) (vpx iter))
+	(call :array :get_both '((:rsp slot_list_obj)) '(_ :r1 :r2))
+	(vp-xor-rr :r0 :r0)
+	(save-fields :rsp '(slot_iter slot_iter_end slot_sum) '(:r1 :r2 :r0))
+	(loop-start)
+		(load-fields :rsp '(slot_iter slot_iter_end) '(:r0 :r1))
+		(breakif '(:r0 = :r1))
+		(vp-lea-rcr :r0 +ptr_size :r1)
+		(assign '(:r1) '((:rsp slot_iter)))
+		(call :num :get_value '((:r0 0)) '(_ :r1))
+		(vp-mul-rr :r1 :r1)
+		(assign '((:rsp slot_sum)) '(:r0))
+		(vp-add-rr :r1 :r0)
+		(assign '(:r0) '((:rsp slot_sum)))
 	(loop-end)
-	(call :num :create (vpx sum) (vpx list_obj))
+	(call :num :create '((:rsp slot_sum)) '(:r0))
 
-	(exit (vpx list_obj))
-	(pop-scope)
-	(return)
+	(exit '(:r0))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 ```
@@ -706,7 +713,7 @@ optimization stage is to write a pure VP assembly method.
 	hyper-optimized engine upon which the rest of the system is built.
 
 **Guideline:** Only proceed to this stage when you have an absolutely correct
-and benchmarked vpx version, and you have determined that even greater
+and benchmarked version with a frame, and you have determined that even greater
 performance is required. This level of optimization requires careful thought
 but yields the best results. The core kernel and class libraries are the
 ultimate expression of this stage. The `:canvas :fpoly` method is a prime

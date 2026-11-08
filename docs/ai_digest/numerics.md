@@ -67,9 +67,10 @@ field (inherited from the `:num` class), scaled appropriately.
 * **Usage:** Extensively used by the `Canvas` class drawing operations for
 coordinates, and its internal operations are conducted in this format.
 
-* **vpx Integration:** The vpx compiler supports direct operations on
-`:fixed` values using the `*>` (fixed-point multiply) and `</` (fixed-point
-divide) operators.
+* **VP Integration:** A fixed-point multiply in VP is a `vp-mul-rr` and a
+`vp-asr-cr` of `+fp_shift`, a divide a `vp-shl-cr` of `+fp_shift` and a
+`vp-div-rr`. vpx, gone 2026-11-08, had the `*>` and `</` operators for
+them.
 
     * `*>`: Represents a multiplication followed by an arithmetic shift right
     by `+fp_shift` (16) bits.
@@ -211,7 +212,7 @@ useful for intermediate calculations without repeated allocations.
 **Vectorized Operations (VP Level)**
 
 The real power of these typed arrays comes from their associated VP class
-methods, which are implemented in highly optimized VP assembly or vpx.
+methods, which are implemented in highly optimized VP assembly.
 These methods operate directly on the raw numeric data within the vectors.
 
 * **VP Classes:** `class/nums/class.inc`, `class/fixeds/class.inc`,

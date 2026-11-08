@@ -140,36 +140,41 @@ tasks main mailbox.
 (def-func 'apps/system/netmon/child)
 	;monitor task
 
-	(def-vars
+	(structure slot 0
 		(ptr msg data reply rdata))
 
-	(push-scope)
+	(vp-alloc slot_size)
 	(loop-start)
 		;read mail command
-		(call :sys_mail :mymail :nil (vpx msg data))
-		(breakifnot (vpx (.> msg msg_frag_length)))
+		(call :sys_mail :mymail :nil '(:r0 :r1))
+		(save-fields :rsp '(slot_msg slot_data) '(:r0 :r1))
+		(assign '((:r0 +msg_length)) '(:r2))
+		(breakif '(:r2 = 0))
 
-		;sample reply
-		(call :sys_mail :alloc (vpx reply_size) (vpx reply rdata))
-		(assign (vpx (.> data net_id_mbox_id)) (vpx (. (.> reply msg_dest) net_id_mbox_id)))
-		(assign (vpx (. (.> data net_id_node_id) node_id_node1))
-			(vpx (. (.> reply msg_dest) net_id_node_id node_id_node1)))
-		(assign (vpx (. (.> data net_id_node_id) node_id_node2))
-			(vpx (. (.> reply msg_dest) net_id_node_id node_id_node2)))
-		(call :sys_kernel :id :nil
-			(vpx (. (.> rdata reply_node_id) node_id_node1) (. (.> rdata reply_node_id) node_id_node2)))
-		(call :sys_task :count :nil (vpx (.> rdata reply_task_count)))
-		(call :sys_mem :used :nil (vpx (.> rdata reply_mem_used)))
-		(call :sys_mail :send (vpx reply))
-		(call :sys_mail :free (vpx msg))
+		;sample reply, to the mailbox the command says
+		(call :sys_mail :alloc '(reply_size) '(:r0 :r1))
+		(save-fields :rsp '(slot_reply slot_rdata) '(:r0 :r1))
+		(assign '((:rsp slot_data)) '(:r1))
+		(assign-net-id :r1 0 :r0 +msg_dest)
+		(call :sys_kernel :id :nil '(:r0 :r1))
+		(assign '((:rsp slot_rdata)) '(:r2))
+		(save-node-id :r2 reply_node_id :r0 :r1)
+		(call :sys_task :count :nil '(:r0))
+		(assign '((:rsp slot_rdata)) '(:r1))
+		(assign '(:r0) '((:r1 reply_task_count)))
+		(call :sys_mem :used :nil '(:r0))
+		(assign '((:rsp slot_rdata)) '(:r1))
+		(assign '(:r0) '((:r1 reply_mem_used)))
+		(call :sys_mail :send '((:rsp slot_reply)))
+		(call :sys_mail :free '((:rsp slot_msg)))
 
 		;be friendly
 		(call :sys_task :sleep '(0))
 	(loop-end)
 
-	(call :sys_mail :free (vpx msg))
-	(pop-scope)
-	(return)
+	(call :sys_mail :free '((:rsp slot_msg)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 ```

@@ -1,31 +1,23 @@
 # VP Assignment
 
-*From 2026-10-12 an expression is a form inside `(vpx ...)`, not a string in
-braces: `{this->+field + 1}` is `(vpx (+ (.> this +field) 1))`, and `{a, b}`
-is `(vpx a b)`. The examples on this page are written that way. Where the
-words say "string", read "`(vpx)` form". The table of what each operator
-became is in [`vpx_compiler.md`](../ai_digest/vpx_compiler.md),
-"Forms, not strings".*
-
 This document covers how the `(assign)` function is used to copy parameter
-lists, provide easy access to resource binding operators and invoke the
-vpx expression compiler to extend basic VP level coding of functions.
+lists, provide easy access to resource binding operators, and reach the
+fields of memory, a function's frame among them.
 
-The `(assign src dst)` function takes source and destination parameters. These
-can be lists or strings, thus giving us four possible combinations. When a
-string is used this invokes the vpx expression compiler, on that string,
-and this emits VP operations that evaluate that expression. The vpx syntax
-is a subset of C/C++ syntax that most C/C++ programmers will be familiar with.
+The `(assign src dst)` function takes source and destination lists: of
+registers, memory, constants and resource operators to registers, or of
+registers to memory. Memory to memory, and a constant to memory, throw: go
+by a register.
 
 Assignment can be used directly by use of the `(assign)` function in your
 source, but it is always used, under the hood, by functions like `(entry)`,
 `(exit)`, `(call)` etc. The input and output parameters you declare in such
 calls are processed by an `(assign)` function within those functions.
 
-Remember that whenever you pass an input or take an output using a string
-parameter you will invoke the vpx compiler to generate code for
-you. When passing a list you will be using VP level or VP level helper
-operators to emit `(vp-cpy-xxx)` instructions for you.
+Until 2026-11-08 a parameter could also be a `(vpx ...)` form, compiled by
+vpx, the expression compiler, to named locals on the stack. vpx is gone, and
+`def-vars` and the scopes with it: a frame is a structure now, see Frames
+below.
 
 ## VP Assignment
 
@@ -135,160 +127,56 @@ Will emit:
 
 * @ function address reference
 
-## vpx Assignment
+## Frames
 
-Passing a string parameter will invoke the vpx compiler ! This
-is where things start to get quite high level for an assembler ! This basic C
-style expression compiler is just an assembler macro set, you can look at the
-implementation in detail in the `lib/asm/vpx.inc` file. It's quite a
-simple, tokenize -> reverse-polish -> compile -> optimise -> emit.
-
-While it's possible to use the compilation to do basic things like math, it
-really starts to get interesting when combined with some other functions that
-allow management of local stack variables. Any symbols appearing in the parsed
-output will be searched for in these variable scopes. These variables are not
-the same as Lisp level symbols, they are managed by a few scope creation and
-variable declaration functions.
+A function that keeps values over its calls gives them a frame on the
+stack, a structure whose fields are its slots. The structure is named
+`slot`, so its fields are `slot_x`, its size `slot_size`, and `(vp-alloc
+slot_size)` notes it, so its slots can be kept in registers where nothing
+it calls is in the way, `lib/asm/slots.inc`. `(vp-alloc)` and `(vp-free)`
+round a size up to whole longs.
 
 ```vdu
-	(def-vars
-		(byte x y ...)
-		(ubyte x y ...)
-		(short x y ...)
-		(ushort x y ...)
-		(int x y ...)
-		(uint x y ...)
-		(long x y ...)
-		(real x y ...)
-		(ptr this that ...)
-		(pptr p_this p_that ...)
-		(pbyte p_x p_y ...)
-		(pubyte p_x p_y ...)
-		(pshort p_x p_y ...)
-		(pushort p_x p_y ...)
-		(pint p_x p_y ...)
-		(puint p_x p_y ...)
-		(plong p_x p_y ...)
-		(preal p_x p_y ...)
-		(union (...) (...) ...)
-		...)
-```
-
-After declaring the variables and their types, you follow this with a
-`(push-scope)`, and when done with them a `(pop-scope)` or `(pop-scope-syms)`.
-These scope functions just emit the required `(vp-alloc)` and `(vp-free)` calls
-that allocate and free space on the stack for the current set of declared
-variables. Scopes can be nested if desired.
-
-A special helper function `(return)` is provided that will emit any required
-`(vp-free)` along with a `(vp-ret)` instruction anywhere inside a nested set of
-`(push-scope)`, `(pop-scope)`.
-
-## vpx Resource operators
-
-You can add resource operator prefixes to your vpx parameters too.
-These are in addition to the C/C++ style operators.
-
-```vdu
-	(assign (vpx (& var1) (& var2)) (vpx p_var1 p_var2))
-	(assign (vpx ($ label)) (vpx p_label))
-	(assign (vpx "Hello" "World") (vpx p_str1 p_str2))
-	(assign (vpx "Hello" "World") '(:r2 :r3))
-	(assign (vpx (@ sys/mem/alloc)) (vpx p_alloc))
-	(assign (vpx (@ ,(f-path :num :vtable))) (vpx p_vtable))
-```
-
-## vpx function example
-
-This is the system level mailbox declaration function. `:sys_mail :declare`
-
-Register inputs and outputs are declared in the `sys/mail/class.inc` file just
-as with a VP function.
-
-```vdu
-(def-class :sys_mail :nil
-	(dec-method :declare sys/mail/declare :static (:r0 :r1)))
-```
-
-Implementation of the function is defined in the `sys/mail/class.vp` file.
-
-```vdu
-(def-method :sys_mail :declare)
+(def-method :thing :pair)
 	;inputs
-	;:r0 = mailbox name c string (pubyte)
-	;:r1 = mailbox id (long)
+	;:r0 = thing object (ptr)
+	;:r1 = name str object (ptr)
+	;outputs
+	;:r0 = thing object (ptr)
+	;:r1 = pair list object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r1-:r14
 
-	(def-vars
-		(ptr statics name)
-		(long id))
+	(structure slot 0
+		(ptr this name list))
 
-	(push-scope)
-	(entry :sys_mail :declare (vpx name id))
+	(vp-alloc slot_size)
+	(entry :thing :pair '((:rsp slot_this) (:rsp slot_name)))
 
-	(assign (vpx (@ sys/statics/statics)) (vpx statics))
-	(call :sym :intern_cstr (vpx name) (vpx name))
-	(call :num :create (vpx id) (vpx id))
-	(call :hmap :pinsert (vpx (.> statics statics_sys_mail_service_map) name id))
-	(call :sym :deref (vpx name))
-	(call :num :deref (vpx id))
+	(call :list :create :nil '((:rsp slot_list)))
+	(call :list :push_back2 '((:rsp slot_list) (:rsp slot_this) (:rsp slot_name)))
 
-	(pop-scope)
-	(return)
+	(exit :thing :pair '((:rsp slot_this) (:rsp slot_list)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 ```
 
-Here we have to declare the function as trashing all registers as use of the
-vpx compiler could end up allocating and therefore invalidating any
-register. We are also aliasing the name and id variables to do double duty to
-save some stack space and avoid a union ! Naughty maybe, but heck this is how
-we get the performance and why we write in assembler :)
-
-The {} are just another way of declaring a string, like with "", just that {}
-allows embedded "" and via-versa. It's just a string in the end that gets
-passed to `(assign)`.
-
-The vpx compiler emits all the code required to read and write the
-variables, with their correct data type.
+A slot is a field like any other, so its width and sign come from its type,
+an address of it is `(& :rsp slot_x)`, and several are moved at once by
+`(load-fields :rsp '(slot_a slot_b) '(:r0 :r1))` and `(save-fields)`, sorted
+so that arm64 pairs them. A jump out of a function, `(jump)`, `(f-jmp)` and
+the like, does not free the frame: load what it takes, `(vp-free
+slot_size)`, then jump.
 
 ## Build modes and emitted code
 
-If you are curious to see the code emitted by the compiler you can switch on
-printing of the emitted code by use of the `*build_emit*` and `*build_inst*`
-flags. A `(setq *build_inst* :t)` will enable printing of each expression
-compilation, `(setq *build_emit* :t)` will enable printing of the entire
-functions final instructions. Be sure to `(setq *build_inst* :nil)` and `(setq
-*build_emit* :nil)` after the section of code or function to turn emit printing
-off.
-
-This is the output from wrapping the `:hmap :pinsert` line in the example above:
-
-```vdu
-(let ((*build_inst* :t))
-	(call :hmap :pinsert (vpx (.> statics statics_sys_mail_service_map) name id))
-)
-```
-
-```vdu
--> obj/Darwin/x86_64/sys/mail/declare
-pre opt:
-	(vp-lea-rcr :rsp 0 _v0)
-	(vp-cpy-cr statics_sys_mail_service_map _v1)
-	(vp-load-rcr _v0 0 _v0)
-	(vp-add-rr _v1 _v0)
-	(vp-load-rcr _v0 0 _v0)
-	(vp-lea-rcr :rsp 8 _v1)
-	(vp-load-rcr _v1 0 _v1)
-	(vp-lea-rcr :rsp 16 _v2)
-	(vp-load-rcr _v2 0 _v2)
-post opt:
-	(vp-load-rcr :rsp (+ 0 0) _v0)
-	(vp-load-rcr _v0 (+ statics_sys_mail_service_map 0) _v0)
-	(vp-load-rcr :rsp (+ 8 0) _v1)
-	(vp-load-rcr :rsp (+ 16 0) _v2)
-```
+If you are curious to see the code emitted you can switch on printing of
+it by use of the `*build_emit*` flag. A `(setq *build_emit* :t)` will enable
+printing of the entire function's final instructions. Be sure to `(setq
+*build_emit* :nil)` after the section of code or function to turn emit
+printing off.
 
 You can wrap the `(def-func-end)` of a VP function or method with the following
 to see the final VP code output.

@@ -426,12 +426,12 @@
 									:stroke
 									0
 									:text
-									"[(assign) compiles (vpx) forms]"
+									"[(assign) orders the moves]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										31.63671
+										38.85681
 										51.00000
 									)
 								)

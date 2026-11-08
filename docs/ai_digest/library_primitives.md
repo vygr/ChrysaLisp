@@ -1097,18 +1097,19 @@ Virtual Processor compilation pipeline, code generation, and make engine.
 *	**`method-input` / `method-output` / `method-lookup`**: Compile-time
 	signature introspection.
 
-*	**`push-scope` / `pop-scope` / `pop-scope-syms` / `scope-unwind` / `return`**:
-	vpx stack frame and scope management.
+*	**`structure` / `vp-alloc` / `vp-free`**: A function's frame, a
+	`(structure slot 0 ...)` of typed slots, made and freed on the stack.
+	The slots are kept in registers where they can be, `lib/asm/slots.inc`.
+	vpx, `def-vars` and the scopes went on 2026-11-08.
 
-*	**`def-vars`**: Declares typed local variables in vpx scopes.
+	*	`(structure slot 0 [(type field ...)] ...)`
 
-	*	`(def-vars [(type var ...)] ...)`
+	*	`(vp-alloc slot_size)` / `(vp-free slot_size)`
 
-*	**`assign` / `vpx`**: Assigns registers and compiles vpx expressions.
+*	**`assign`**: Registers, memory and constants to registers, and a
+	register to memory, in an order that is safe.
 
-	*	`(assign [src] [dst] [compiler_regs])`
-
-	*	`(vpx expr ...)`
+	*	`(assign [src] [dst])`
 
 *	**`vp-rdef` / `vp-ddef` / `vp-fdef`**: Defines local VP integer, double and
 	single register aliases.
