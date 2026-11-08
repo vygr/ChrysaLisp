@@ -645,8 +645,7 @@ function whose values that live over calls are the slots of a frame.
 	`(def-func)` block, made by `(vp-alloc slot_size)` and freed by
 	`(vp-free slot_size)`. A slot is `(:rsp slot_x)`, a field like any
 	other, and the assembler keeps slots in registers where it can. The work
-	between calls is in registers. Until 2026-11-08 this stage was vpx, an
-	expression compiler over named locals; it is gone.
+	between calls is in registers.
 
 *   **Performance:** It is significantly faster than the interpreted Lisp
 	version and is the right choice for the vast majority of

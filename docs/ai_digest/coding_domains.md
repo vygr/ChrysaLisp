@@ -3,9 +3,7 @@
 While the entire ChrysaLisp operating system is written using S-expressions
 (parenthesized syntax), it is a mistake to view it as a single monolithic
 language. There are three distinct coding domains (or layers): **Lisp**,
-**VP with a frame**, and **VP Assembler**. Until 2026-11-08 the middle one
-was **vpx**, an expression compiler over named stack locals; it is gone,
-and a frame is a structure now.
+**VP with a frame**, and **VP Assembler**.
 
 Understanding which domain you are in is critical, as valid syntax in one
 domain is often undefined or functionally broken in another.

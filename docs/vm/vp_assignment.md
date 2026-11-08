@@ -14,10 +14,8 @@ source, but it is always used, under the hood, by functions like `(entry)`,
 `(exit)`, `(call)` etc. The input and output parameters you declare in such
 calls are processed by an `(assign)` function within those functions.
 
-Until 2026-11-08 a parameter could also be a `(vpx ...)` form, compiled by
-vpx, the expression compiler, to named locals on the stack. vpx is gone, and
-`def-vars` and the scopes with it: a frame is a structure now, see Frames
-below.
+A function's values that live over calls are the slots of its frame, a
+structure, see Frames below.
 
 ## VP Assignment
 

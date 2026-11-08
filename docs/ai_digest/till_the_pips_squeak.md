@@ -344,8 +344,8 @@ method as the ones that did. Each of these was built, measured, and removed.
 	in a full build and changed nothing.
 
 *	**Rewriting the general bind.** The general path of `:lisp :env_bind`
-	was rewritten from script variables to registers on the guess that the
-	script variables were its cost. It is cleaner and a little shorter. It is
+	was rewritten from stack variables to registers on the guess that the
+	stack variables were its cost. It is cleaner and a little shorter. It is
 	0.2% faster. The guess was wrong.
 
 The last three have one thing in common, they were guesses at where a cost

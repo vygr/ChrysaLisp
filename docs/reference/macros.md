@@ -675,6 +675,9 @@ static quasi-quoted, prebind only !
 
 ```code
 (structure name base [(byte field ...)] ...)
+
+a function's frame, slot, says its fields as well,
+slot_fields, ((field offset type) ...), for (vp-alloc) to note
 ```
 
 ### time-add

@@ -69,8 +69,7 @@ coordinates, and its internal operations are conducted in this format.
 
 * **VP Integration:** A fixed-point multiply in VP is a `vp-mul-rr` and a
 `vp-asr-cr` of `+fp_shift`, a divide a `vp-shl-cr` of `+fp_shift` and a
-`vp-div-rr`. vpx, gone 2026-11-08, had the `*>` and `</` operators for
-them.
+`vp-div-rr`.
 
     * `*>`: Represents a multiplication followed by an arithmetic shift right
     by `+fp_shift` (16) bits.

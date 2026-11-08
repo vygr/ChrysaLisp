@@ -7,7 +7,7 @@ how code gets executed, called and so forth.
 ## Virtual Processor
 
 The lowest level of ChrysaLisp is the Virtual Processor (VP), this is an
-imaginary RISC like processor that the assembler and script compiler target.
+imaginary RISC like processor that the assembler targets.
 
 It is, currently, a very simple 64 bit 32 register (16 int, 16 IEEE float),
 load/store machine. It may be extended in the future with features like vector
@@ -92,8 +92,7 @@ number divided by -1 gives itself and a remainder of 0. `vp-div-rr-u` and
 `vp-rem-rr-u` are the same of unsigned words. For both of one division, the
 remainder of a copy first, then the quotient.
 
-`(vp-ext-rr rs rd)` makes `rd` 0 or -1, the sign of `rs`, the high word of `rs`
-made two. `(vp-swp-rr rs rd)` swaps them. `vp-min` and `vp-max` of words are
+`(vp-swp-rr rs rd)` swaps them. `vp-min` and `vp-max` of words are
 signed. `(vp-cvt-dr fs rd)` takes the whole part, towards 0, of a float in the
 range of a word; of one outside it, or of a NaN, what it gives is not defined.
 `(vp-cvt-rd rs fd)` is the nearest float, and `vp-cvt-fr` and `vp-cvt-rf` the
@@ -163,17 +162,6 @@ them.
 (vp-max-rr rs rd)
 ```
 
-#### Logical And, Not
-
-```vdu
-(vp-lnot-rr rd)
-(vp-land-rr rs rd)
-```
-
-`(vp-lnot-rr rd)` makes `rd` 1 if it was 0, else 0. `(vp-land-rr rs rd)`
-makes `rd` 1 if both were not 0, else 0, and leaves `rs` as it was. Any
-registers may be used.
-
 #### Register to Memory
 
 ```vdu
@@ -223,26 +211,10 @@ registers may be used.
 (vp-ble-rr rs rd label)
 (vp-bgt-rr rs rd label)
 (vp-bge-rr rs rd label)
-
-(vp-seq-cr c rd)
-(vp-sne-cr c rd)
-(vp-slt-cr c rd)
-(vp-sle-cr c rd)
-(vp-sgt-cr c rd)
-(vp-sge-cr c rd)
-
-(vp-seq-rr rs rd)
-(vp-sne-rr rs rd)
-(vp-slt-rr rs rd)
-(vp-sle-rr rs rd)
-(vp-sgt-rr rs rd)
-(vp-sge-rr rs rd)
 ```
 
 A compare is signed, there is no unsigned one. A branch goes to its label if
-the compare holds. A set, `vp-seq` to `vp-sge`, makes `rd` 1 if it holds and 0
-if not, on every target, so the value may be counted or added, not only
-tested.
+the compare holds.
 
 #### Effective address
 
@@ -289,15 +261,14 @@ What these put on the stack lies end to end, nothing before, after or
 between: a push of n registers is n words, an alloc of c is c bytes. So any
 word below `:rsp` that a function put there may be read or written by its
 offset, and what was put there may be taken back in any grouping: two pushes
-by one pop of both, a push by a free, an alloc by a pop, or the allocs of
-nested scopes by one free, as `(return)` does. What is taken back is never
+by one pop of both, a push by a free, an alloc by a pop, or two allocs by
+one free. What is taken back is never
 more than was put there, and a function leaves the stack as it found it.
 
-#### Swap, Extend
+#### Swap
 
 ```vdu
 (vp-swp-rr rs rd)
-(vp-ext-rr rs rd)
 ```
 
 #### Memory Sync
@@ -493,13 +464,6 @@ Core functions in the kernel and class libs are very careful to track and
 document their register trashing. Higher level functions often use the next
 registers available while calling lower functions in order to avoid stack
 push/pop or other memory read/write instructions.
-
-Any use of the script expression compiler means all bets are off as regards
-register trashing, so you will see that all such functions are documented as
-'trashes all'. However the expression compiler can be constrained to use only a
-specific set of registers to do it's work, but that's an advanced topic for
-specialist code generation, the vector math DSL takes full advantage of this
-feature.
 
 ## Functions and bundles
 

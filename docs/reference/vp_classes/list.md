@@ -206,7 +206,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r3
+:r1-:r2
 ```
 
 ### :ref_all -> class/list/ref_all

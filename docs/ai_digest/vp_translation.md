@@ -94,8 +94,7 @@ involves several stages:
 
 3. **Slots Kept In Registers:** The slots of a function's frames are kept
    in registers where they can be, by `lib/asm/slots.inc`, the function
-   seen whole. Until 2026-11-08 vpx's instructions were optimized here by
-   `vpxopt.inc`.
+   seen whole.
 
 4. **VP Emitter List Preparation:** The `(vp-xxx ...)` instructions are
    transformed into `(op ...)` forms, still with VP register names,
@@ -332,7 +331,6 @@ A conditional branch is a `cmp`, `cmn` or `fcmp` and a `b.cond`, reach
 ±1MB. `beq-cr` and `bne-cr` of 0 are `cbz` and `cbnz`. There is no long
 form: a branch out of reach fails. `jmp` is `b`, ±128MB. The float
 branches use the conditions `eq`, `ne`, `ge`, `gt`, `ls` and `mi`.
-`seq` to `sge` are the compare and a `cset`.
 
 `call` is `str x30, [x28, #-8]!`, `bl` (±128MB), then
 `ldr x30, [x28], #8`. `call-r` is the same round a `blr`. `call-rc` loads the address into
@@ -414,8 +412,7 @@ A conditional branch is `cmp` or `test` and a `jcc`: rel8 if the most it
 has reached fits, else rel32. `jmp` is `eb` rel8 or `e9` rel32. Out of
 32 bits fails. A float branch is `ucomisd`, of singles `ucomiss`, then: `beq-dd` a `jp` over a
 `je`, `bne-dd` a `jp` and a `jne`, `bgt-dd` and `bge-dd` `ja` and `jae`,
-`blt-dd` and `ble-dd` the same with the operands swapped. `seq` to `sge`
-are the compare, `setcc` and `movzx`.
+`blt-dd` and `ble-dd` the same with the operands swapped.
 
 `call` is `e8` rel32. `call-r` is `call r`, `call-rc` `call [b + c]`,
 `call-p` `call [rip + disp32]`, the path's slot. The jumps are the same
@@ -431,8 +428,7 @@ short form for 1, `imm8` for 2 to 63, and fails for any other. A shift by
 a register is by cl, with an `xchg` either side if the destination is
 rcx, else the operands, rax and rcx pushed and the shift done in rax.
 `min-rr` and `max-rr` are `cmp` and `cmovg` or `cmovl`, the constant
-forms a `jcc` over a `mov`. `abs-rr` is `test`, `jns`, `neg`. `ext-rr`
-from rax to rdx is `cqo`. The float ops are the `sd` forms, a single's
+forms a `jcc` over a `mov`. `abs-rr` is `test`, `jns`, `neg`. The float ops are the `sd` forms, a single's
 the `ss`, `cvt-rd` `cvtsi2sd`, `cvt-dr` `cvttsd2si`, `cvt-fd` `cvtss2sd`
 and `cvt-df` `cvtsd2ss`. `abs-dd` shifts the xmm left 1 and right 1 by 64
 bits, `abs-ff` by 32, `neg-dd` flips bit 63 with `btc` through rax and
@@ -519,10 +515,7 @@ same round `jalr ra, 0(r)`. `call-rc` loads the address into x31 from
 The divide is `div` or `divu` to x31, then `sltu` and `sub` make a mask of
 `s` not 0, the `and` of it makes the quotient 0 on a divisor of 0. The
 remainder is `rem` or `remu`, which gives the dividend itself by 0. A shift by a constant is `slli`, `srli` or
-`srai`, 0 to 63, any other fails. `seq` and `sne` are a `sub` and
-`seqz` or `snez`, `slt` and `sgt` `slt`, `sle` and `sge` an `slt`, a
-`seqz` and an `or`. `lnot` is `seqz`, `land` two `snez` and an `and`.
-`min`, `max` and `abs` branch over a copy or a negate. The float ops are
+`srai`, 0 to 63, any other fails. `min`, `max` and `abs` branch over a copy or a negate. The float ops are
 the `.d` forms, a single's the `.s`, which NaN box what they write; `cvt-dr`
 is `fcvt.l.d` rounding towards 0, `abs-dd` and `neg-dd` `fsgnjx.d` and
 `fsgnjn.d`. A single in memory is `flw` or `fsw`; `cpy-fr` is `fmv.x.w`,
@@ -557,10 +550,9 @@ sign extension of `lu32i.d` has made them already: up to 4 instructions.
   `xori`, the immediates being unsigned.
 
 * `mul-cr` by 0, 1, -1 or a power of 2 is `xor`, nothing, `sub.d` from
-  zero or `slli.d`. `slt-cr` of 12 bits is `slti`.
+  zero or `slli.d`.
 
-* Any other constant goes to r12, or r14 for the sets, and the register
-  form is used.
+* Any other constant goes to r12, and the register form is used.
 
 Loads are `ld.b ld.h ld.w ld.d ld.bu ld.hu ld.wu`, stores `st.b st.h st.w
 st.d`, `fld.d` and `fst.d` the floats, with a 12 bit signed offset. A
@@ -586,9 +578,7 @@ by `pcaddu12i` and `ld.d`, then a `call-r` of r12. `jmp` is `b`, ±128MB,
 The divide is `div.d` or `div.du` to r12 and `maskeqz` to make it 0 on a
 divisor of 0; the remainder is that, then `mul.d` and `sub.d`, the
 dividend itself by 0, where `mod.d` gives nothing defined. A shift by a
-constant is `slli.d`, `srli.d` or `srai.d`, 0 to 63, any other fails. The
-sets are as on riscv64, with `sltui` for `seqz`, `sltu` from zero for
-`snez`, and `sle` and `sge` an `slt` and an `xori` of 1. `min`, `max`
+constant is `slli.d`, `srli.d` or `srai.d`, 0 to 63, any other fails. `min`, `max`
 and `abs` branch over a copy or a negate. The float ops are the `.d`
 forms, a single's the `.s`, `fcmp.cond.s` for its branches. `cvt-rd` is
 `movgr2fr.d` and `ffint.d.l`; `cvt-dr` keeps `s` in r12, does

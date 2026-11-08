@@ -98,8 +98,7 @@ width said, `(:rsp (+ slot_rect host_gui_rect_x) i)`. An address is
 	either. Go by a register: load it, then store it. A swap of two
 	registers in one `assign` is a copy cycle, and throws too.
 
-*	**A frame is a structure.** vpx, `def-vars`, `push-scope`,
-	`pop-scope` and `return` are gone (2026-11-08). A function's frame is
+*	**A frame is a structure.** A function's frame is
 	`(structure slot 0 ...)`, its fields `slot_x`, made by
 	`(vp-alloc slot_size)` and freed by `(vp-free slot_size)`. `vp-alloc`
 	and `vp-free` round up to whole longs; never put an `(align)` at the end
@@ -395,10 +394,9 @@ method)` gives the registers.
 
 Every function with a frame, `(vp-alloc slot_size)` of a `(structure slot
 ...)`, has its slots kept in registers where they can be, when it has all
-been assembled: `lib/asm/slots.inc`, that was `vpxreg.inc`. A slot whose
-address is taken, or that is a struct, or is read or written as less than
-a long, stays in memory. The allocator is for what was C-Script, not to be
-taken further unasked.
+been assembled: `lib/asm/slots.inc`. A slot whose address is taken, or
+that is a struct, or is read or written as less than a long, stays in
+memory.
 
 ## Boot Image Functions Run From The Image
 

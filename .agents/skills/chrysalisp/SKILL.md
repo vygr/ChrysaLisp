@@ -99,7 +99,7 @@ Sections of this file:
 
 For comprehensive architectural guides, design rationale, and system
 deep-dives, consult `LLM.md` in the workspace root. `LLM.md` is the master
-index and reading guide for all 70 technical documents in `docs/ai_digest/`,
+index and reading guide for all 68 technical documents in `docs/ai_digest/`,
 organized by category:
 
 *	**Core Architecture:** Genesis, philosophies, memory model, and object
@@ -112,16 +112,16 @@ organized by category:
 	transformations, flow-through, and built-ins (`14–20`).
 
 *	**Advanced Lisp:** Dual vtables, closure-less design, O(1) calling,
-	modules, REPL/JIT, and the history of the vpx compiler (`21–28`).
+	modules, REPL/JIT and exceptions (`21–26`).
 
 *	**Data Types & Streams:** Numerics, text parsing, regexps, streams, pipes,
-	and slicing (`29–36`).
+	and slicing (`27–34`).
 
 *	**GUI Framework:** Views, widgets, compositor, vector graphics, and text
-	stack (`37–44`).
+	stack (`35–42`).
 
 *	**Distributed OS & Networking:** Fault tolerance, dynamic code, IPC, task
-	farming, and streaming pipelines (`45–50`, `68–69`).
+	farming, and streaming pipelines (`43–48`, `66–67`).
 
 ## Core Architectural Philosophies
 
