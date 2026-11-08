@@ -27,6 +27,8 @@
 (assert-true "a Vdu of 16 by 4 says how big it wants to be" (and (> nd_w 16) (> nd_h 4)))
 (assert-list-eq "which is its characters by the size of one" (list nd_w nd_h)
 	(progn (bind '(cw ch) (. nd_vdu :char_size)) (list (* 16 cw) (* 4 ch))))
+(assert-list-eq "configured, its chars are the size it is asked for, or none are drawn"
+	'(16 4) (getf-> nd_vdu (+vdu_width 0) (+vdu_height 0)))
 (. nd_vdu :change 0 0 nd_w nd_h)
 (assert-true "given that size, it is loaded with lines and marked as changed"
 	(Vdu? (. nd_vdu :load '("This is line 1." "This is line 2." "This is line 3." "This is line 4.") 0 0 0 0)))

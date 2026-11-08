@@ -216,10 +216,11 @@
 	(vpif '(:r1 = :r3) '(:r2 = :r4))
 		;the size as it was
 	(else)
-		;free leaves the size in :r3 and :r4
+		;the new size is the vdu's, and its chars that many
+		(save-fields :r0 '(+vdu_width +vdu_height) '(:r1 :r2))
 		(call :sys_mem :free '((:r0 +vdu_chars)))
-		(vp-cpy-rr :r3 :r0)
-		(vp-mul-rr :r4 :r0)
+		(load-fields :rsp '(slot_w slot_h) '(:r0 :r1))
+		(vp-mul-rr :r1 :r0)
 		(vp-shl-cr (log2 +long_size) :r0)
 		(call :sys_mem :alloc '(:r0) '(:r0 :r1))
 		(assign '((:rsp slot_vdu)) '(:r2))
