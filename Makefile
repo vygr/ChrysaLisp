@@ -97,6 +97,16 @@ OBJ_FILES := $(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI)
 
 CFLAGS ?= -O3 -nostdlib -fno-exceptions -MMD
 CPPFLAGS ?= -std=c++14
+#each op of the VP64 emulator ends in a jump of its own, src/host/vp64.cpp,
+#which on Apple Silicon is slower than one switch, there by 19%, and on the
+#x64 Mac and the Pi faster, by 9% and 30%. clang copies the jump into an op
+#only for a block of up to 16 ways in and out, so of 182 ops it made one
+#jump, a switch again, unless told more
+ifeq ($(OS)_$(CPU),Darwin_arm64)
+	VP64_FLAGS := -DVP64_SWITCH
+else ifneq ($(findstring clang,$(shell $(CXX) --version 2>/dev/null)),)
+	VP64_FLAGS := -mllvm -tail-dup-pred-size=256 -mllvm -tail-dup-succ-size=256
+endif
 LDFLAGS ?=
 ifneq ($(OS),Windows)
 	LDFLAGS += -pthread
@@ -238,6 +248,8 @@ $(HOST):	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI) $(GUI_DRIVER)
 	$(CXX) -o $@ $(filter %.o,$^) $(SDL_LIBS) $(LDFLAGS)
 
 $(GUI_DRIVER):	hostenv
+
+$(OBJ_DIR_GUI)/host/vp64.o: CFLAGS += $(VP64_FLAGS)
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) -c -o $@ $< $(CFLAGS) $(CPPFLAGS) $(GUI_FLAGS) $(AUDIO_FLAGS) \

@@ -11,30 +11,33 @@
 
 (defq +v64_vrsp 15
 	vp64_ops (list
-		'(cpy-cr 4) '(add-cr 4) '(sub-cr 4) '(cmp-cr 4) '(mul-cr 4) '(and-cr 4) '(or-cr 4) '(xor-cr 4)
-		'(cpy-rr 1) '(add-rr 1) '(sub-rr 1) '(cmp-rr 1) '(mul-rr 1) '(and-rr 1) '(or-rr 1) '(xor-rr 1)
-		'(shl-cr 1) '(shr-cr 1) '(asr-cr 1) '(shl-rr 1) '(shr-rr 1) '(asr-rr 1)
-		'(lnot-rr 1) '(land-rr 1) '(swp-rr 1) '(ext-rr 1) '(div-rr 1) '(div-rr-u 1)
-		'(min-cr 4) '(max-cr 4) '(min-rr 1) '(max-rr 1) '(abs-rr 1)
-		'(seq-cr 4) '(sne-cr 4) '(slt-cr 4) '(sle-cr 4) '(sgt-cr 4) '(sge-cr 4)
-		'(seq-rr 1) '(sne-rr 1) '(slt-rr 1) '(sle-rr 1) '(sgt-rr 1) '(sge-rr 1)
-		'(load-rcr 2) '(load-rcr-b 2) '(load-rcr-s 2) '(load-rcr-i 2) '(load-rcr-ub 2) '(load-rcr-us 2)
-		'(load-rcr-ui 2) '(lea-rcr 2) '(store-rrc 2) '(store-rrc-b 2) '(store-rrc-s 2) '(store-rrc-i 2)
-		'(store-rrr 1) '(store-rrr-b 1) '(store-rrr-s 1) '(store-rrr-i 1)
-		'(load-rrr 1) '(load-rrr-b 1) '(load-rrr-s 1) '(load-rrr-i 1) '(load-rrr-ub 1) '(load-rrr-us 1)
-		'(load-rrr-ui 1) '(lea-rrr 1)
-		'(load-rcd 2) '(store-drc 2) '(load-rrd 1) '(store-drr 1) '(cmp-dd 1)
-		'(beq 2) '(bne 2) '(bge 2) '(blt 2) '(ble 2) '(bgt 2)
-		'(fbeq 2) '(fbne 2) '(fbge 2) '(fblt 2) '(fble 2) '(fbgt 2)
-		'(call 2) '(jmp 2) '(call-p 2) '(jmp-p 2) '(call-r 1) '(jmp-r 1) '(call-rc 1) '(jmp-rc 1)
-		'(load-pr 1) '(lea-pr 1) '(call-abi 1) '(ret 1) '(sync 1)
+		;integer, of a constant
+		'(cpy-cr 4) '(add-cr 4) '(sub-cr 4) '(mul-cr 4) '(and-cr 4) '(or-cr 4) '(xor-cr 4)
+		'(min-cr 4) '(max-cr 4) '(shl-cr 1) '(shr-cr 1) '(asr-cr 1)
+		;integer, of a register
+		'(cpy-rr 1) '(add-rr 1) '(sub-rr 1) '(mul-rr 1) '(and-rr 1) '(or-rr 1) '(xor-rr 1)
+		'(shl-rr 1) '(shr-rr 1) '(asr-rr 1) '(min-rr 1) '(max-rr 1) '(abs-rr 1) '(swp-rr 1)
+		'(div-rr 1) '(div-rr-u 1) '(rem-rr 1) '(rem-rr-u 1)
+		;integer compare and branch
+		'(cmp-cr 4) '(cmp-rr 1) '(beq 2) '(bne 2) '(bge 2) '(blt 2) '(ble 2)
+		'(bgt 2)
+		;integer memory
+		'(load-rcr 2) '(load-rcr-b 2) '(load-rcr-s 2) '(load-rcr-i 2) '(load-rcr-ub 2) '(load-rcr-us 2) '(load-rcr-ui 2)
+		'(lea-rcr 2) '(store-rrc 2) '(store-rrc-b 2) '(store-rrc-s 2) '(store-rrc-i 2) '(load-rrr 1) '(load-rrr-b 1)
+		'(load-rrr-s 1) '(load-rrr-i 1) '(load-rrr-ub 1) '(load-rrr-us 1) '(load-rrr-ui 1) '(lea-rrr 1) '(store-rrr 1)
+		'(store-rrr-b 1) '(store-rrr-s 1) '(store-rrr-i 1)
+		;calls, jumps and the system
+		'(call 2) '(jmp 2) '(call-p 2) '(jmp-p 2) '(call-r 1) '(jmp-r 1) '(call-rc 1)
+		'(jmp-rc 1) '(ret 1) '(call-abi 1) '(load-pr 1) '(lea-pr 1) '(sync 1)
+		;doubles
 		'(add-dd 1) '(sub-dd 1) '(mul-dd 1) '(div-dd 1) '(min-dd 1) '(max-dd 1) '(sqrt-dd 1)
 		'(abs-dd 1) '(neg-dd 1) '(cpy-dd 1) '(cvt-rd 1) '(cvt-dr 1) '(cpy-rd 1) '(cpy-dr 1)
-		'(load-rcf 2) '(store-frc 2) '(load-rrf 1) '(store-frr 1)
-		'(rem-rr 1) '(rem-rr-u 1)
+		'(cmp-dd 1) '(fbeq 2) '(fbne 2) '(fbge 2) '(fblt 2) '(fble 2) '(fbgt 2)
+		'(load-rcd 2) '(store-drc 2) '(load-rrd 1) '(store-drr 1)
+		;singles, a register the double it is of
 		'(add-ff 1) '(sub-ff 1) '(mul-ff 1) '(div-ff 1) '(min-ff 1) '(max-ff 1) '(sqrt-ff 1)
-		'(abs-ff 1) '(neg-ff 1) '(cmp-ff 1) '(cvt-rf 1) '(cvt-fr 1) '(cvt-fd 1) '(cvt-df 1)
-		'(cpy-rf 1) '(cpy-fr 1))
+		'(abs-ff 1) '(neg-ff 1) '(cvt-rf 1) '(cvt-fr 1) '(cvt-fd 1) '(cvt-df 1) '(cpy-rf 1)
+		'(cpy-fr 1) '(cmp-ff 1) '(load-rcf 2) '(store-frc 2) '(load-rrf 1) '(store-frr 1))
 	vp64_at (Fmap 101))
 (reduce (lambda (n (op k)) (. vp64_at :insert op n) (+ n k)) vp64_ops 0)
 (defun opn (op) (. vp64_at :find op))
@@ -94,9 +97,7 @@
 		(handler op label))
 	'((cpy-cr cpy-cr :nil) (add-cr add-cr 0) (sub-cr sub-cr 0) (mul-cr mul-cr 1)
 	(and-cr and-cr -1) (or-cr or-cr 0) (xor-cr xor-cr 0)
-	(min-cr min-cr :nil) (max-cr max-cr :nil)
-	(seq-cr seq-cr :nil) (sne-cr sne-cr :nil) (slt-cr slt-cr :nil)
-	(sle-cr sle-cr :nil) (sgt-cr sgt-cr :nil) (sge-cr sge-cr :nil)))
+	(min-cr min-cr :nil) (max-cr max-cr :nil)))
 
 (each (lambda ((op name test))
 		;(s d), unless the same if test
@@ -109,10 +110,8 @@
 	'((cpy-rr cpy-rr :t) (add-rr add-rr :nil) (sub-rr sub-rr :nil)
 	(mul-rr mul-rr :nil) (and-rr and-rr :t) (or-rr or-rr :t) (xor-rr xor-rr :nil)
 	(shl-rr shl-rr :nil) (shr-rr shr-rr :nil) (asr-rr asr-rr :nil)
-	(land-rr land-rr :nil) (swp-rr swp-rr :t) (ext-rr ext-rr :nil)
+	(swp-rr swp-rr :t)
 	(min-rr min-rr :t) (max-rr max-rr :t) (abs-rr abs-rr :nil)
-	(seq-rr seq-rr :nil) (sne-rr sne-rr :nil) (slt-rr slt-rr :nil)
-	(sle-rr sle-rr :nil) (sgt-rr sgt-rr :nil) (sge-rr sge-rr :nil)
 	(add-dd add-dd :nil) (sub-dd sub-dd :nil) (mul-dd mul-dd :nil)
 	(div-dd div-dd :nil) (min-dd min-dd :nil) (max-dd max-dd :nil)
 	(sqrt-dd sqrt-dd :nil) (abs-dd abs-dd :nil) (neg-dd neg-dd :nil)
@@ -156,11 +155,6 @@
 		(vp-ret)
 		(handler op label))
 	'((shl-cr shl-cr) (shr-cr shr-cr) (asr-cr asr-cr)))
-
-(vp-label 'e_lnot_rr)
-	(es (opn 'lnot-rr) '(:r0 8))
-	(vp-ret)
-(handler 'lnot-rr 'e_lnot_rr)
 
 (vp-label 'ir)
 	;vp64-ir and vp64-ri, :r2 = the op, :r0 the reg at 12, :r1 the reg at 8,

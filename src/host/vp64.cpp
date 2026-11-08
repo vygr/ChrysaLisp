@@ -9,98 +9,51 @@
 #endif
 #include "pii.h"
 
-enum Opcodes {
-	// Group 1: ALU (CR)
-	vp64_cpy_cr_0, vp64_cpy_cr_1, vp64_cpy_cr_2, vp64_cpy_cr_3,
-	vp64_add_cr_0, vp64_add_cr_1, vp64_add_cr_2, vp64_add_cr_3,
-	vp64_sub_cr_0, vp64_sub_cr_1, vp64_sub_cr_2, vp64_sub_cr_3,
-	vp64_cmp_cr_0, vp64_cmp_cr_1, vp64_cmp_cr_2, vp64_cmp_cr_3,
-	vp64_mul_cr_0, vp64_mul_cr_1, vp64_mul_cr_2, vp64_mul_cr_3,
-	vp64_and_cr_0, vp64_and_cr_1, vp64_and_cr_2, vp64_and_cr_3,
-	vp64_or_cr_0, vp64_or_cr_1, vp64_or_cr_2, vp64_or_cr_3,
-	vp64_xor_cr_0, vp64_xor_cr_1, vp64_xor_cr_2, vp64_xor_cr_3,
+// the ops in groups, each of its forms after its first, and lib/trans/vp64.vp
+// has them in this order. X(name) is of each, vp64_name its number
+#define VP64_OPS(X) \
+	/* integer, of a constant */ \
+	X(cpy_cr_0) X(cpy_cr_1) X(cpy_cr_2) X(cpy_cr_3) X(add_cr_0) X(add_cr_1) \
+	X(add_cr_2) X(add_cr_3) X(sub_cr_0) X(sub_cr_1) X(sub_cr_2) X(sub_cr_3) \
+	X(mul_cr_0) X(mul_cr_1) X(mul_cr_2) X(mul_cr_3) X(and_cr_0) X(and_cr_1) \
+	X(and_cr_2) X(and_cr_3) X(or_cr_0) X(or_cr_1) X(or_cr_2) X(or_cr_3) \
+	X(xor_cr_0) X(xor_cr_1) X(xor_cr_2) X(xor_cr_3) X(min_cr_0) X(min_cr_1) \
+	X(min_cr_2) X(min_cr_3) X(max_cr_0) X(max_cr_1) X(max_cr_2) X(max_cr_3) \
+	X(shl_cr) X(shr_cr) X(asr_cr) \
+	/* integer, of a register */ \
+	X(cpy_rr) X(add_rr) X(sub_rr) X(mul_rr) X(and_rr) X(or_rr) \
+	X(xor_rr) X(shl_rr) X(shr_rr) X(asr_rr) X(min_rr) X(max_rr) \
+	X(abs_rr) X(swp_rr) X(div_rr) X(div_rr_u) X(rem_rr) X(rem_rr_u) \
+	/* integer compare and branch */ \
+	X(cmp_cr_0) X(cmp_cr_1) X(cmp_cr_2) X(cmp_cr_3) X(cmp_rr) X(beq_0) \
+	X(beq_1) X(bne_0) X(bne_1) X(bge_0) X(bge_1) X(blt_0) \
+	X(blt_1) X(ble_0) X(ble_1) X(bgt_0) X(bgt_1) \
+	/* integer memory */ \
+	X(load_rcr) X(load_rcr_w) X(load_rcr_b) X(load_rcr_b_w) X(load_rcr_s) X(load_rcr_s_w) \
+	X(load_rcr_i) X(load_rcr_i_w) X(load_rcr_ub) X(load_rcr_ub_w) X(load_rcr_us) X(load_rcr_us_w) \
+	X(load_rcr_ui) X(load_rcr_ui_w) X(lea_rcr) X(lea_rcr_w) X(store_rrc) X(store_rrc_w) \
+	X(store_rrc_b) X(store_rrc_b_w) X(store_rrc_s) X(store_rrc_s_w) X(store_rrc_i) X(store_rrc_i_w) \
+	X(load_rrr) X(load_rrr_b) X(load_rrr_s) X(load_rrr_i) X(load_rrr_ub) X(load_rrr_us) \
+	X(load_rrr_ui) X(lea_rrr) X(store_rrr) X(store_rrr_b) X(store_rrr_s) X(store_rrr_i) \
+	/* calls, jumps and the system */ \
+	X(call_0) X(call_1) X(jmp_0) X(jmp_1) X(call_p_0) X(call_p_1) \
+	X(jmp_p_0) X(jmp_p_1) X(call_r) X(jmp_r) X(call_rc) X(jmp_rc) \
+	X(ret) X(call_abi) X(load_pr) X(lea_pr) X(sync) \
+	/* doubles */ \
+	X(add_dd) X(sub_dd) X(mul_dd) X(div_dd) X(min_dd) X(max_dd) \
+	X(sqrt_dd) X(abs_dd) X(neg_dd) X(cpy_dd) X(cvt_rd) X(cvt_dr) \
+	X(cpy_rd) X(cpy_dr) X(cmp_dd) X(fbeq_0) X(fbeq_1) X(fbne_0) \
+	X(fbne_1) X(fbge_0) X(fbge_1) X(fblt_0) X(fblt_1) X(fble_0) \
+	X(fble_1) X(fbgt_0) X(fbgt_1) X(load_rcd) X(load_rcd_w) X(store_drc) \
+	X(store_drc_w) X(load_rrd) X(store_drr) \
+	/* singles, a register the double it is of */ \
+	X(add_ff) X(sub_ff) X(mul_ff) X(div_ff) X(min_ff) X(max_ff) \
+	X(sqrt_ff) X(abs_ff) X(neg_ff) X(cvt_rf) X(cvt_fr) X(cvt_fd) \
+	X(cvt_df) X(cpy_rf) X(cpy_fr) X(cmp_ff) X(load_rcf) X(load_rcf_w) \
+	X(store_frc) X(store_frc_w) X(load_rrf) X(store_frr)
 
-	// Group 2: ALU (RR)
-	vp64_cpy_rr, vp64_add_rr, vp64_sub_rr, vp64_cmp_rr,
-	vp64_mul_rr, vp64_and_rr, vp64_or_rr, vp64_xor_rr,
-
-	// Group 3: Shift/Logic
-	vp64_shl_cr, vp64_shr_cr, vp64_asr_cr,
-	vp64_shl_rr, vp64_shr_rr, vp64_asr_rr,
-	vp64_lnot_rr, vp64_land_rr, vp64_swp_rr, vp64_ext_rr,
-
-	// Group 4: Division
-	vp64_div_rr, vp64_div_rr_u,
-
-	// Group 5: Min/Max/Abs
-	vp64_min_cr_0, vp64_min_cr_1, vp64_min_cr_2, vp64_min_cr_3,
-	vp64_max_cr_0, vp64_max_cr_1, vp64_max_cr_2, vp64_max_cr_3,
-	vp64_min_rr, vp64_max_rr, vp64_abs_rr,
-
-	// Group 6: Set-on-Comparison (CR)
-	vp64_seq_cr_0, vp64_seq_cr_1, vp64_seq_cr_2, vp64_seq_cr_3,
-	vp64_sne_cr_0, vp64_sne_cr_1, vp64_sne_cr_2, vp64_sne_cr_3,
-	vp64_slt_cr_0, vp64_slt_cr_1, vp64_slt_cr_2, vp64_slt_cr_3,
-	vp64_sle_cr_0, vp64_sle_cr_1, vp64_sle_cr_2, vp64_sle_cr_3,
-	vp64_sgt_cr_0, vp64_sgt_cr_1, vp64_sgt_cr_2, vp64_sgt_cr_3,
-	vp64_sge_cr_0, vp64_sge_cr_1, vp64_sge_cr_2, vp64_sge_cr_3,
-
-	// Group 7: Set-on-Comparison (RR)
-	vp64_seq_rr, vp64_sne_rr, vp64_slt_rr,
-	vp64_sle_rr, vp64_sgt_rr, vp64_sge_rr,
-
-	// Group 11: Load/Store (Indexed I), each with an offset of 16 bits, then of 64, _w
-	vp64_load_rcr, vp64_load_rcr_w, vp64_load_rcr_b, vp64_load_rcr_b_w, vp64_load_rcr_s, vp64_load_rcr_s_w,
-	vp64_load_rcr_i, vp64_load_rcr_i_w, vp64_load_rcr_ub, vp64_load_rcr_ub_w, vp64_load_rcr_us, vp64_load_rcr_us_w,
-	vp64_load_rcr_ui, vp64_load_rcr_ui_w, vp64_lea_rcr, vp64_lea_rcr_w,
-	vp64_store_rrc, vp64_store_rrc_w, vp64_store_rrc_b, vp64_store_rrc_b_w, vp64_store_rrc_s, vp64_store_rrc_s_w,
-	vp64_store_rrc_i, vp64_store_rrc_i_w,
-
-	// Group 12: Load/Store (Indexed D)
-	vp64_store_rrr, vp64_store_rrr_b, vp64_store_rrr_s, vp64_store_rrr_i,
-	vp64_load_rrr, vp64_load_rrr_b, vp64_load_rrr_s, vp64_load_rrr_i,
-	vp64_load_rrr_ub, vp64_load_rrr_us, vp64_load_rrr_ui, vp64_lea_rrr,
-
-	// Group 16: Float Memory/Cmp
-	vp64_load_rcd, vp64_load_rcd_w, vp64_store_drc, vp64_store_drc_w, vp64_load_rrd, vp64_store_drr, vp64_cmp_dd,
-
-	// Group 8: Branch (Conditional)
-	vp64_beq_0, vp64_beq_1, vp64_bne_0, vp64_bne_1,
-	vp64_bge_0, vp64_bge_1, vp64_blt_0, vp64_blt_1,
-	vp64_ble_0, vp64_ble_1, vp64_bgt_0, vp64_bgt_1,
-
-	// Group 9: Branch (Float)
-	vp64_fbeq_0, vp64_fbeq_1, vp64_fbne_0, vp64_fbne_1,
-	vp64_fbge_0, vp64_fbge_1, vp64_fblt_0, vp64_fblt_1,
-	vp64_fble_0, vp64_fble_1, vp64_fbgt_0, vp64_fbgt_1,
-
-	// Group 10: Jump/Call
-	vp64_call_0, vp64_call_1, vp64_jmp_0, vp64_jmp_1,
-	vp64_call_p_0, vp64_call_p_1, vp64_jmp_p_0, vp64_jmp_p_1,
-	vp64_call_r, vp64_jmp_r,
-	vp64_call_rc, vp64_jmp_rc,
-
-	// Group 13: PC Relative / System
-	vp64_load_pr, vp64_lea_pr, vp64_call_abi, vp64_ret, vp64_sync,
-
-	// Group 14: Float ALU
-	vp64_add_dd, vp64_sub_dd, vp64_mul_dd, vp64_div_dd, vp64_min_dd,
-	vp64_max_dd, vp64_sqrt_dd, vp64_abs_dd, vp64_neg_dd, vp64_cpy_dd,
-
-	// Group 15: Float Convert/Copy
-	vp64_cvt_rd, vp64_cvt_dr, vp64_cpy_rd, vp64_cpy_dr,
-
-	// Group 17: Float Memory, a single
-	vp64_load_rcf, vp64_load_rcf_w, vp64_store_frc, vp64_store_frc_w, vp64_load_rrf, vp64_store_frr,
-
-	// Group 18: Remainder
-	vp64_rem_rr, vp64_rem_rr_u,
-
-	// Group 19: Single Float
-	vp64_add_ff, vp64_sub_ff, vp64_mul_ff, vp64_div_ff, vp64_min_ff,
-	vp64_max_ff, vp64_sqrt_ff, vp64_abs_ff, vp64_neg_ff, vp64_cmp_ff,
-	vp64_cvt_rf, vp64_cvt_fr, vp64_cvt_fd, vp64_cvt_df, vp64_cpy_rf, vp64_cpy_fr,
-};
+#define VP64_ENUM(o) vp64_##o,
+enum Opcodes { VP64_OPS(VP64_ENUM) vp64_count };
 
 
 // generic operations
@@ -125,12 +78,6 @@ enum Opcodes {
 #define vp_shl_cr(c, dr) regs[dr] = (int64_t)((uint64_t)regs[dr] << ((c) & 63))
 #define vp_shr_cr(c, dr) regs[dr] = (int64_t)((uint64_t)regs[dr] >> ((c) & 63))
 #define vp_asr_cr(c, dr) regs[dr] = regs[dr] >> ((c) & 63)
-#define vp_seq_cr(c, dr) vp_op_cr(==, c, dr)
-#define vp_sne_cr(c, dr) vp_op_cr(!=, c, dr)
-#define vp_slt_cr(c, dr) vp_op_cr(<, c, dr)
-#define vp_sle_cr(c, dr) vp_op_cr(<=, c, dr)
-#define vp_sgt_cr(c, dr) vp_op_cr(>, c, dr)
-#define vp_sge_cr(c, dr) vp_op_cr(>=, c, dr)
 #define vp_min_cr(c, dr) { int64_t _c = (c); if (_c < regs[dr]) regs[dr] = _c; }
 #define vp_max_cr(c, dr) { int64_t _c = (c); if (_c > regs[dr]) regs[dr] = _c; }
 
@@ -145,10 +92,7 @@ enum Opcodes {
 #define vp_shl_rr(sr, dr) regs[dr] = (int64_t)((uint64_t)regs[dr] << (regs[sr] & 63))
 #define vp_shr_rr(sr, dr) regs[dr] = (int64_t)((uint64_t)regs[dr] >> (regs[sr] & 63))
 #define vp_asr_rr(sr, dr) regs[dr] = regs[dr] >> (regs[sr] & 63)
-#define vp_lnot_rr(sr, dr) regs[dr] = !regs[dr]
-#define vp_land_rr(sr, dr) vp_op_rr(&&, sr, dr)
 #define vp_swp_rr(sr, dr) { int64_t t = regs[dr]; regs[dr] = regs[sr]; regs[sr] = t; }
-#define vp_ext_rr(sr, dr) regs[dr] = (regs[sr] >> 63)
 
 // a real made an integer means the one thing too, and here the CPUs do not
 // agree: one too big to be an integer is the most negative number on x86-64
@@ -172,12 +116,6 @@ static inline int64_t vp_f2i(double f)
 #define vp_rem_rr(sr, dr) { int64_t n = regs[dr]; int64_t d = regs[sr]; if (d == -1) regs[dr] = 0; else if (d) regs[dr] = n % d; }
 #define vp_rem_rr_u(sr, dr) { uint64_t n = (uint64_t)regs[dr]; uint64_t d = (uint64_t)regs[sr]; if (d) regs[dr] = (int64_t)(n % d); }
 
-#define vp_seq_rr(sr, dr) vp_op_rr(==, sr, dr)
-#define vp_sne_rr(sr, dr) vp_op_rr(!=, sr, dr)
-#define vp_slt_rr(sr, dr) vp_op_rr(<, sr, dr)
-#define vp_sle_rr(sr, dr) vp_op_rr(<=, sr, dr)
-#define vp_sgt_rr(sr, dr) vp_op_rr(>, sr, dr)
-#define vp_sge_rr(sr, dr) vp_op_rr(>=, sr, dr)
 #define vp_min_rr(sr, dr) if (regs[sr] < regs[dr]) regs[dr] = regs[sr]
 #define vp_max_rr(sr, dr) if (regs[sr] > regs[dr]) regs[dr] = regs[sr]
 #define vp_abs_rr(sr, dr) { int64_t t = regs[sr]; regs[dr] = (t < 0) ? -t : t; }
@@ -377,217 +315,32 @@ static inline void vp_sset(double *f, float s)
 #define vd_o0() ((int8_t)(ir >> 8))
 #define vd_o1() (((ir >> 8) & 0xff) + ((int64_t)*pc++ << 8))
 
-#define VP_CR_OP(op) \
-	case vp64_##op##_cr_0: vp_##op##_cr(vd_c0(), vd_dr()); break; \
-	case vp64_##op##_cr_1: vp_##op##_cr(vd_c1(), vd_dr()); break; \
-	case vp64_##op##_cr_2: vp_##op##_cr(vd_c2(), vd_dr()); break; \
-	case vp64_##op##_cr_3: vp_##op##_cr(vd_c3(), vd_dr()); break;
-#define VP_OP_RR(op, type) \
-	case vp64_##op##_##type: vp_##op##_##type(vd_sr(), vd_dr()); break;
-#define VP_B_OP(op) \
-	case vp64_##op##_0: vp_##op(vd_o0()); break; \
-	case vp64_##op##_1: vp_##op(vd_o1()); break;
-#define VP_IR_OP(op) \
-	case vp64_load_rcr: vp_load_rcr(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcr_w: vp_load_rcr(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_load_rcr_b: vp_load_rcr_b(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcr_b_w: vp_load_rcr_b(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_load_rcr_s: vp_load_rcr_s(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcr_s_w: vp_load_rcr_s(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_load_rcr_i: vp_load_rcr_i(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcr_i_w: vp_load_rcr_i(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_load_rcr_ub: vp_load_rcr_ub(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcr_ub_w: vp_load_rcr_ub(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_load_rcr_us: vp_load_rcr_us(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcr_us_w: vp_load_rcr_us(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_load_rcr_ui: vp_load_rcr_ui(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcr_ui_w: vp_load_rcr_ui(vd_sr(), vd_c3(), vd_dr()); break;
-#define VP_RI_OP(op) \
-	case vp64_store_rrc: vp_store_rrc(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_store_rrc_w: vp_store_rrc(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_store_rrc_b: vp_store_rrc_b(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_store_rrc_b_w: vp_store_rrc_b(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_store_rrc_s: vp_store_rrc_s(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_store_rrc_s_w: vp_store_rrc_s(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_store_rrc_i: vp_store_rrc_i(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_store_rrc_i_w: vp_store_rrc_i(vd_sr(), vd_dr(), vd_c3()); break;
-#define VP_RD_OP(op) \
-	case vp64_store_rrr: vp_store_rrr(vd_sc(), vd_dr(), vd_sr()); break; \
-	case vp64_store_rrr_b: vp_store_rrr_b(vd_sc(), vd_dr(), vd_sr()); break; \
-	case vp64_store_rrr_s: vp_store_rrr_s(vd_sc(), vd_dr(), vd_sr()); break; \
-	case vp64_store_rrr_i: vp_store_rrr_i(vd_sc(), vd_dr(), vd_sr()); break;
-#define VP_DR_OP(op) \
-	case vp64_load_rrr: vp_load_rrr(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_load_rrr_b: vp_load_rrr_b(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_load_rrr_s: vp_load_rrr_s(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_load_rrr_i: vp_load_rrr_i(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_load_rrr_ub: vp_load_rrr_ub(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_load_rrr_us: vp_load_rrr_us(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_load_rrr_ui: vp_load_rrr_ui(vd_sr(), vd_sc(), vd_dr()); break;
-
-#define VP_CR_ALL \
-	VP_CR_OP(cpy) \
-	VP_CR_OP(add) \
-	VP_CR_OP(sub) \
-	VP_CR_OP(cmp) \
-	VP_CR_OP(mul) \
-	VP_CR_OP(and) \
-	VP_CR_OP(or) \
-	VP_CR_OP(xor)
-
-#define VP_RR_ALL \
-	VP_OP_RR(cpy, rr) \
-	VP_OP_RR(add, rr) \
-	VP_OP_RR(sub, rr) \
-	VP_OP_RR(cmp, rr) \
-	VP_OP_RR(mul, rr) \
-	VP_OP_RR(and, rr) \
-	VP_OP_RR(or, rr) \
-	VP_OP_RR(xor, rr)
-
-#define VP_SHIFT_ALL \
-	case vp64_shl_cr: vp_shl_cr(vd_sc(), vd_dr()); break; \
-	case vp64_shr_cr: vp_shr_cr(vd_sc(), vd_dr()); break; \
-	case vp64_asr_cr: vp_asr_cr(vd_sc(), vd_dr()); break; \
-	VP_OP_RR(shl, rr) \
-	VP_OP_RR(shr, rr) \
-	VP_OP_RR(asr, rr) \
-	VP_OP_RR(lnot, rr) \
-	VP_OP_RR(land, rr) \
-	VP_OP_RR(swp, rr) \
-	VP_OP_RR(ext, rr)
-
-#define VP_DIV_ALL \
-	VP_OP_RR(div, rr) \
-	VP_OP_RR(div, rr_u) \
-	VP_OP_RR(rem, rr) \
-	VP_OP_RR(rem, rr_u)
-
-#define VP_M_ALL \
-	case vp64_min_cr_0: vp_min_cr(vd_c0(), vd_dr()); break; \
-	case vp64_min_cr_1: vp_min_cr(vd_c1(), vd_dr()); break; \
-	case vp64_min_cr_2: vp_min_cr(vd_c2(), vd_dr()); break; \
-	case vp64_min_cr_3: vp_min_cr(vd_c3(), vd_dr()); break; \
-	case vp64_max_cr_0: vp_max_cr(vd_c0(), vd_dr()); break; \
-	case vp64_max_cr_1: vp_max_cr(vd_c1(), vd_dr()); break; \
-	case vp64_max_cr_2: vp_max_cr(vd_c2(), vd_dr()); break; \
-	case vp64_max_cr_3: vp_max_cr(vd_c3(), vd_dr()); break; \
-	VP_OP_RR(min, rr) \
-	VP_OP_RR(max, rr) \
-	VP_OP_RR(abs, rr)
-
-#define VP_CMP_ALL \
-	VP_CR_OP(seq) \
-	VP_CR_OP(sne) \
-	VP_CR_OP(slt) \
-	VP_CR_OP(sle) \
-	VP_CR_OP(sgt) \
-	VP_CR_OP(sge) \
-	VP_OP_RR(seq, rr) \
-	VP_OP_RR(sne, rr) \
-	VP_OP_RR(slt, rr) \
-	VP_OP_RR(sle, rr) \
-	VP_OP_RR(sgt, rr) \
-	VP_OP_RR(sge, rr)
-
-#define VP_IR_ALL \
-	VP_IR_OP(cpy) \
-	case vp64_lea_rcr: vp_lea_rcr(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_lea_rcr_w: vp_lea_rcr(vd_sr(), vd_c3(), vd_dr()); break;
-
-#define VP_RI_ALL \
-	VP_RI_OP(cpy)
-
-#define VP_RD_ALL \
-	VP_RD_OP(cpy)
-
-#define VP_DR_ALL \
-	VP_DR_OP(cpy) \
-	case vp64_lea_rrr: vp_lea_rrr(vd_sr(), vd_sc(), vd_dr()); break;
-
-#define VP_F_MEM_ALL \
-	case vp64_load_rcd: vp_load_rcd(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcd_w: vp_load_rcd(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_store_drc: vp_store_drc(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_store_drc_w: vp_store_drc(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_load_rrd: vp_load_rrd(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_store_drr: vp_store_drr(vd_dr(), vd_sr(), vd_sc()); break; \
-	case vp64_cmp_dd: vp_cmp_dd(vd_sr(), vd_dr()); break; \
-	case vp64_load_rcf: vp_load_rcf(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_load_rcf_w: vp_load_rcf(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_store_frc: vp_store_frc(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_store_frc_w: vp_store_frc(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_load_rrf: vp_load_rrf(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_store_frr: vp_store_frr(vd_dr(), vd_sr(), vd_sc()); break;
-
-#define VP_B_ALL \
-	VP_B_OP(beq) \
-	VP_B_OP(bne) \
-	VP_B_OP(bge) \
-	VP_B_OP(blt) \
-	VP_B_OP(ble) \
-	VP_B_OP(bgt)
-
-#define VP_F_BRANCH_ALL \
-	VP_B_OP(fbeq) \
-	VP_B_OP(fbne) \
-	VP_B_OP(fbge) \
-	VP_B_OP(fblt) \
-	VP_B_OP(fble) \
-	VP_B_OP(fbgt)
-
-#define VP_JC_ALL \
-	VP_B_OP(call) \
-	VP_B_OP(jmp) \
-	VP_B_OP(call_p) \
-	VP_B_OP(jmp_p) \
-	case vp64_call_r: vp_call_r(vd_dr()); break; \
-	case vp64_jmp_r: vp_jmp_r(vd_dr()); break; \
-	case vp64_call_rc: vp_call_rc(vd_dr(), vd_c1()); break; \
-	case vp64_jmp_rc: vp_jmp_rc(vd_dr(), vd_c1()); break;
-
-#define VP_SYS_ALL \
-	case vp64_load_pr: vp_load_pr(vd_c1(), vd_dr()); break; \
-	case vp64_lea_pr: vp_lea_pr(vd_c1(), vd_dr()); break; \
-	case vp64_call_abi: vp_call_abi(vd_sr(), vd_dr(), vd_sc()); break; \
-	case vp64_ret: vp_ret(); break; \
-	case vp64_sync: vp_sync(ir >> 8); break;
-
-#define VP_F_ALU_ALL \
-	VP_OP_RR(add, dd) \
-	VP_OP_RR(sub, dd) \
-	VP_OP_RR(mul, dd) \
-	VP_OP_RR(div, dd) \
-	VP_OP_RR(min, dd) \
-	VP_OP_RR(max, dd) \
-	VP_OP_RR(sqrt, dd) \
-	VP_OP_RR(abs, dd) \
-	VP_OP_RR(neg, dd) \
-	VP_OP_RR(cpy, dd)
-
-#define VP_F_CVT_ALL \
-	VP_OP_RR(cvt, rd) \
-	VP_OP_RR(cvt, dr) \
-	VP_OP_RR(cpy, rd) \
-	VP_OP_RR(cpy, dr)
-
-#define VP_S_ALL \
-	VP_OP_RR(add, ff) \
-	VP_OP_RR(sub, ff) \
-	VP_OP_RR(mul, ff) \
-	VP_OP_RR(div, ff) \
-	VP_OP_RR(min, ff) \
-	VP_OP_RR(max, ff) \
-	VP_OP_RR(sqrt, ff) \
-	VP_OP_RR(abs, ff) \
-	VP_OP_RR(neg, ff) \
-	VP_OP_RR(cmp, ff) \
-	VP_OP_RR(cvt, rf) \
-	VP_OP_RR(cvt, fr) \
-	VP_OP_RR(cvt, fd) \
-	VP_OP_RR(cvt, df) \
-	VP_OP_RR(cpy, rf) \
-	VP_OP_RR(cpy, fr)
+// each op is a label, op_name, its code, then the jump to the next op's
+// label by its number, so each op has its own jump for the CPU to learn
+#ifdef VP64_SWITCH
+#define NEXT break;
+#define OP(o) case vp64_##o:
+#else
+#define NEXT { ir = *pc++; goto *ops[ir & 0xff]; }
+#define OP(o) op_##o:
+#endif
+#define CR4(o) \
+	OP(o##_cr_0) vp_##o##_cr(vd_c0(), vd_dr()); NEXT \
+	OP(o##_cr_1) vp_##o##_cr(vd_c1(), vd_dr()); NEXT \
+	OP(o##_cr_2) vp_##o##_cr(vd_c2(), vd_dr()); NEXT \
+	OP(o##_cr_3) vp_##o##_cr(vd_c3(), vd_dr()); NEXT
+#define RR(o, t) OP(o##_##t) vp_##o##_##t(vd_sr(), vd_dr()); NEXT
+#define B2(o) \
+	OP(o##_0) vp_##o(vd_o0()); NEXT \
+	OP(o##_1) vp_##o(vd_o1()); NEXT
+#define IR2(o) \
+	OP(o) vp_##o(vd_sr(), vd_i(), vd_dr()); NEXT \
+	OP(o##_w) vp_##o(vd_sr(), vd_c3(), vd_dr()); NEXT
+#define RI2(o) \
+	OP(o) vp_##o(vd_sr(), vd_dr(), vd_i()); NEXT \
+	OP(o##_w) vp_##o(vd_sr(), vd_dr(), vd_c3()); NEXT
+#define DR(o) OP(o) vp_##o(vd_sr(), vd_sc(), vd_dr()); NEXT
+#define RD(o) OP(o) vp_##o(vd_sc(), vd_dr(), vd_sr()); NEXT
 
 template <bool V>
 static int vp64_run(uint8_t *data, int64_t *stack, int64_t *argv, void **host_calls)
@@ -602,6 +355,14 @@ static int vp64_run(uint8_t *data, int64_t *stack, int64_t *argv, void **host_ca
 	double compare_f2 = 0.0;
 	std::atomic<int> sync;
 
+	//the label of each op by its number, any other number is not an op
+#ifndef VP64_SWITCH
+	void *ops[256];
+	for (int i = 0; i < 256; i++) ops[i] = &&op_bad;
+	#define VP64_LABEL(o) ops[vp64_##o] = &&op_##o;
+	VP64_OPS(VP64_LABEL)
+#endif
+
 	fn_header* pHeader = (fn_header*)data;
 	pc = (int16_t*)((uint8_t*)data + pHeader->entry);
 
@@ -609,17 +370,147 @@ static int vp64_run(uint8_t *data, int64_t *stack, int64_t *argv, void **host_ca
 	regs[1] = (int64_t)host_calls;
 	regs[15] = (int64_t)stack;
 
-	for(;;)
-	{
-		ir = *pc++;
-		switch (ir & 0xff)
-		{
-			VP_CR_ALL VP_RR_ALL VP_SHIFT_ALL VP_DIV_ALL VP_M_ALL VP_CMP_ALL
-			VP_IR_ALL VP_RI_ALL VP_RD_ALL VP_DR_ALL VP_F_MEM_ALL VP_B_ALL
-			VP_F_BRANCH_ALL VP_JC_ALL VP_SYS_ALL VP_F_ALU_ALL VP_F_CVT_ALL VP_S_ALL
-			default: printf("Unrecognised opcode %d\n", (int)(ir & 0xff)); break;
-		}
-	}
+#ifdef VP64_SWITCH
+	for (;;) { ir = *pc++; switch (ir & 0xff) {
+#else
+	NEXT
+#endif
+	// integer, of a constant
+	CR4(cpy)
+	CR4(add)
+	CR4(sub)
+	CR4(mul)
+	CR4(and)
+	CR4(or)
+	CR4(xor)
+	CR4(min)
+	CR4(max)
+	OP(shl_cr) vp_shl_cr(vd_sc(), vd_dr()); NEXT
+	OP(shr_cr) vp_shr_cr(vd_sc(), vd_dr()); NEXT
+	OP(asr_cr) vp_asr_cr(vd_sc(), vd_dr()); NEXT
+	// integer, of a register
+	RR(cpy, rr)
+	RR(add, rr)
+	RR(sub, rr)
+	RR(mul, rr)
+	RR(and, rr)
+	RR(or, rr)
+	RR(xor, rr)
+	RR(shl, rr)
+	RR(shr, rr)
+	RR(asr, rr)
+	RR(min, rr)
+	RR(max, rr)
+	RR(abs, rr)
+	RR(swp, rr)
+	RR(div, rr)
+	RR(div, rr_u)
+	RR(rem, rr)
+	RR(rem, rr_u)
+	// integer compare and branch
+	CR4(cmp)
+	RR(cmp, rr)
+	B2(beq)
+	B2(bne)
+	B2(bge)
+	B2(blt)
+	B2(ble)
+	B2(bgt)
+	// integer memory
+	IR2(load_rcr)
+	IR2(load_rcr_b)
+	IR2(load_rcr_s)
+	IR2(load_rcr_i)
+	IR2(load_rcr_ub)
+	IR2(load_rcr_us)
+	IR2(load_rcr_ui)
+	IR2(lea_rcr)
+	RI2(store_rrc)
+	RI2(store_rrc_b)
+	RI2(store_rrc_s)
+	RI2(store_rrc_i)
+	DR(load_rrr)
+	DR(load_rrr_b)
+	DR(load_rrr_s)
+	DR(load_rrr_i)
+	DR(load_rrr_ub)
+	DR(load_rrr_us)
+	DR(load_rrr_ui)
+	DR(lea_rrr)
+	RD(store_rrr)
+	RD(store_rrr_b)
+	RD(store_rrr_s)
+	RD(store_rrr_i)
+	// calls, jumps and the system
+	B2(call)
+	B2(jmp)
+	B2(call_p)
+	B2(jmp_p)
+	OP(call_r) vp_call_r(vd_dr()); NEXT
+	OP(jmp_r) vp_jmp_r(vd_dr()); NEXT
+	OP(call_rc) vp_call_rc(vd_dr(), vd_c1()); NEXT
+	OP(jmp_rc) vp_jmp_rc(vd_dr(), vd_c1()); NEXT
+	OP(ret) vp_ret(); NEXT
+	OP(call_abi) vp_call_abi(vd_sr(), vd_dr(), vd_sc()); NEXT
+	OP(load_pr) vp_load_pr(vd_c1(), vd_dr()); NEXT
+	OP(lea_pr) vp_lea_pr(vd_c1(), vd_dr()); NEXT
+	OP(sync) vp_sync(ir >> 8); NEXT
+	// doubles
+	RR(add, dd)
+	RR(sub, dd)
+	RR(mul, dd)
+	RR(div, dd)
+	RR(min, dd)
+	RR(max, dd)
+	RR(sqrt, dd)
+	RR(abs, dd)
+	RR(neg, dd)
+	RR(cpy, dd)
+	RR(cvt, rd)
+	RR(cvt, dr)
+	RR(cpy, rd)
+	RR(cpy, dr)
+	RR(cmp, dd)
+	B2(fbeq)
+	B2(fbne)
+	B2(fbge)
+	B2(fblt)
+	B2(fble)
+	B2(fbgt)
+	IR2(load_rcd)
+	RI2(store_drc)
+	DR(load_rrd)
+	OP(store_drr) vp_store_drr(vd_dr(), vd_sr(), vd_sc()); NEXT
+	// singles, a register the double it is of
+	RR(add, ff)
+	RR(sub, ff)
+	RR(mul, ff)
+	RR(div, ff)
+	RR(min, ff)
+	RR(max, ff)
+	RR(sqrt, ff)
+	RR(abs, ff)
+	RR(neg, ff)
+	RR(cvt, rf)
+	RR(cvt, fr)
+	RR(cvt, fd)
+	RR(cvt, df)
+	RR(cpy, rf)
+	RR(cpy, fr)
+	RR(cmp, ff)
+	IR2(load_rcf)
+	RI2(store_frc)
+	DR(load_rrf)
+	OP(store_frr) vp_store_frr(vd_dr(), vd_sr(), vd_sc()); NEXT
+#ifdef VP64_SWITCH
+	default:
+#else
+	op_bad:
+#endif
+	printf("Unrecognised opcode %d\n", (int)(ir & 0xff)); NEXT
+#ifdef VP64_SWITCH
+	}}
+#endif
 	return 0;
 }
 

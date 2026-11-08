@@ -23,7 +23,7 @@ The VM state within the emulator consists of:
     * `regs[15]`: The Stack Pointer (`rsp`).
 
 * **16 Floating-Point Registers (`fregs[16]`)**: 64-bit IEEE double-precision
-  registers.
+  registers, a single the low 32 bits of one.
 
 * **Program Counter (`pc`)**: A pointer to the current instruction in memory.
 
@@ -38,8 +38,8 @@ memory.
 
 ## Instruction Fetch and Decode
 
-The emulator uses a tight fetch-decode-execute loop. Each instruction (`ir`) is
-a 16-bit value.
+Each instruction (`ir`) is a 16-bit value, with more 16-bit words after it
+for the forms that take them.
 
 ```image
 docs/diagrams/emu_loop.cwb
@@ -50,8 +50,25 @@ docs/diagrams/emu_loop.cwb
 2. **Decode**: The lower 8 bits of the instruction (`ir & 0xff`) represent the
    primary opcode.
 
-3. **Execute**: A large `switch` statement dispatches to the appropriate
-   instruction handler.
+3. **Execute**: Each opcode is a label, `op_<name>`, and a table of their
+   addresses, `ops[256]`, goes from an opcode to its label. Every op ends by
+   fetching the next instruction and jumping through the table, `NEXT`, so
+   each op has a jump of its own for the CPU to predict, and what the
+   compiler makes of one op does not move the others. An opcode that is not
+   one goes to `op_bad`, which says so.
+
+### Opcode Numbers
+
+`VP64_OPS` in `vp64.cpp` lists the ops in groups: integer of a constant,
+integer of a register, integer compare and branch, integer memory, calls
+and jumps, doubles, singles. An op's number is its place in that list, and
+`vp64_ops` in `lib/trans/vp64.vp` has them in the same order, each with
+how many forms it has: a constant op has four, `_0` to `_3`, by the size
+of its constant; a memory op of an offset two, the second `_w` of a wide
+one; a branch, call or jump two, `_0` and `_1`, by its reach. The forms of
+an op follow it, and the translator adds to its first for the one it
+wants. Change the one list and the other together; a VP64 image is of
+the numbers it was made with.
 
 ### Operand Decoding
 
@@ -80,12 +97,12 @@ standard math functions.
 
 The emulator handles various addressing modes:
 
-* **Indexed Immediate (`cpy_ir`, `cpy_ri`)**: Base register + immediate offset.
+* **Base and Offset (`load_rcr`, `store_rrc`)**: Base register + an offset.
 
-* **Indexed Displacement (`cpy_rd`, `cpy_dr`)**: Base register + index register.
+* **Base and Index (`load_rrr`, `store_rrr`)**: Base register + index register.
 
-* **PC-Relative (`cpy_pr`, `lea_p`)**: Accessing data relative to the current
-  code position.
+* **PC-Relative (`load_pr`, `lea_pr`)**: Accessing data relative to the
+  current code position.
 
 The emulator supports byte, short, int, and long (64-bit) access, including
 unsigned variants.

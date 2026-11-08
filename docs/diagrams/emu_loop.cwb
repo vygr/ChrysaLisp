@@ -381,12 +381,12 @@
 									:stroke
 									0
 									:text
-									"[one switch, a case an opcode;]"
+									"[the op's label, by a table;]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										49.50305
+										62.68707
 										35.00000
 									)
 								)
@@ -401,12 +401,12 @@
 									:stroke
 									0
 									:text
-									"[more words are taken from pc if needed]"
+									"[it ends with the next fetch]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										23.74261
+										57.23876
 										51.00000
 									)
 								)
@@ -698,7 +698,7 @@
 					:stroke
 					0
 					:text
-					"[and round again, till the program ends]"
+					"[each op jumps on to the next, till the program ends]"
 					:font_size
 					11
 					:pos
