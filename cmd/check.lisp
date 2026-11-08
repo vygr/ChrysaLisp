@@ -427,7 +427,7 @@
 (defun check-shift (file forms head)
 	;(>> (- a b) n): >> is a logical shift, a difference that is less than
 	;0 is made a large number. >>> shifts it as a signed one. Not in a .vp,
-	;where (vpx (>> ...)) is the VP's shift of what it is, pointers apart
+	;where a shift is the VP's, of what it is, pointers apart
 	(and (eql head ">>") (not (ends-with ".vp" file)) (> (length forms) 1) (defq inner (tree-form? (second forms)))
 		(nempty? (defq in (forms-of inner))) (eql (first (first in)) :symbol) (eql (third (first in)) "-")
 		(found file (second forms) "shift" "(>>) of a difference, a logical shift: one less than 0 is made large, (>>>) shifts it signed")))

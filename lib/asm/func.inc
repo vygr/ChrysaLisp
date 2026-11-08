@@ -1,10 +1,7 @@
 (include "./code.inc")
-(include "./scopes.inc")
 (include "./vp.inc")
 (include "./vpopt.inc")
-(include "./vpx.inc")
-(include "./vpxopt.inc")
-(include "./vpxreg.inc")
+(include "./slots.inc")
 (include "./assign.inc")
 (include "./lisp.inc")
 (include "././trans/vp.inc")
@@ -57,7 +54,7 @@
 
 (defun def-func (*func_name* &optional *func_stack*)
 	(defq *strings* (clear '()) *paths* (clear '()) *consts* (clear '())
-		*links* (clear '()) *emit_list* (clear '()) *locals* (list) *func_regs* :t *kept* :nil *func_method* :nil *link_methods* (list)
+		*links* (clear '()) *emit_list* (clear '()) *locals* (list) *kept* :nil *func_method* :nil *link_methods* (list)
 		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
 (vp-label 'fn_start)
 	(vp-long -1)
@@ -72,7 +69,6 @@
 	(vp-byte (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
 	(vp-align +ptr_size (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
 (vp-label 'fn_entry)
-	(push-scope)
 	(defq *emit_start* (length *emit_list*))
 	(def *compile_env* '*func_env* (env))
 	(env-push)
@@ -127,14 +123,13 @@
 					(reduce (# (if (list? %1) (cat %0 (filter (const sym?) %1)) %0)) (list (third m) (elem-get m 3)) (list)))))))
 
 (defun fn-keep-locals ()
-	;unless the function said not to, (vpx-stack), its named locals are kept in
-	;registers where they can be. Only if it is a method that says what
+	;the slots of its frames are kept in registers where they can be. Only if it is a method that says what
 	;its function trashes: a local's register is one of those, so that
 	;what calls it sees none changed that was not. What a virtual method
 	;is declared to trash is what any class called so may, more than the
 	;one function does, and a caller bound to the function goes by the
 	;function: so it is what is declared of the function, own, that is used
-	(when (and *func_regs* (nempty? *locals*) *func_method*
+	(when (and (nempty? *locals*) *func_method*
 			(defq me (fn-method-info (first *func_method*) (second *func_method*))) (second me)
 			;what each link is bound to, by the methods said as they were
 			;called. A link is of the method that was said when it was
@@ -159,7 +154,6 @@
 	(undef *compile_env* '*func_env*)
 	(fn-keep-locals)
 	(defq *emit_end* (length *emit_list*))
-	(pop-scope-checked)
 	(each (# (vp-label (string-sym (!))) (vp-cstr %0)) *strings*)
 	(cond
 		((nempty? *consts*)

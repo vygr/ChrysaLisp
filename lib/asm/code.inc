@@ -16,9 +16,7 @@
 	(vp-jmp l))
 
 (defun gotoif (e l)
-	(bind '(d o s) (cond
-		((script? e) (assign e '(:r0)) '(:r0 /= 0))
-		(e)))
+	(bind '(d o s) e)
 	(defq e (find o '(= /= <= >= > <)))
 	(case (assign-src-type s)
 		(:c (if e ((eval (elem-get '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr) e)) s d l)
@@ -30,9 +28,7 @@
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
 (defun gotoifnot (e l)
-	(bind '(d o s) (cond
-		((script? e) (assign e '(:r0)) '(:r0 /= 0))
-		(e)))
+	(bind '(d o s) e)
 	(defq e (find o '(/= = > < <= >=)))
 	(case (assign-src-type s)
 		(:c (if e ((eval (elem-get '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr) e)) s d l)

@@ -70,11 +70,6 @@
 	(each (# (unless (find %1 (list %0 '_)) (push s %0) (push d %1))) src dst)
 	(setq src s dst d))
 
-(defun assign-ignored-to-script ()
-	(defq s (list) d (list))
-	(each (# (unless (script-ignored? %1) (push s %0) (push d %1))) src dst)
-	(setq src s dst d))
-
 (defun assign-topology-sort ()
 	(defq s src d dst i 0 c 1000 l (dec (length d)))
 	(while (and (< i l) (/= c 0))
@@ -180,76 +175,10 @@
 				(:ib (vp-load-rcr-b (first %0) (second %0) %1))
 				(:t (throw "Invalid src parameter !" (list %0 %1))))) src dst)))
 
-(defun print-inst (%0)
-	(and (list?? %0) (not (lambda? (first %0))) (print "\t" %0)))
-
-(defun assign-asm-to-script (src dst %2)
-	(unless (= (length src) (length (setq dst (script-items dst))))
-		(throw "Mismatching number of src/dst parameters !" (list src dst)))
-	(assign-ignored-to-script)
-	(when (/= 0 (length dst))
-		(reset-reg-stack (length src))
-		(each (# (script-compile %0) (compile-arrow)) dst)
-		(when *build_inst*
-			(print "pre opt:")
-			(each (const print-inst) *inst*))
-		(opt-inst-list *inst*)
-		(when *build_inst*
-			(print "post opt:")
-			(each (const print-inst) *inst*))
-		(def-reg-map (reverse src) %2)
-		(eval *inst* *func_env*)))
-
-(defun assign-script-to-asm (src dst %2)
-	(unless (= (length (setq src (script-items src))) (length dst))
-		(throw "Mismatching number of src/dst parameters !" (list src dst)))
-	(when (/= 0 (length dst))
-		(reset-reg-stack 0)
-		(each (# (script-compile %0) (compile-deref?)) src)
-		(when *build_inst*
-			(print "pre opt:")
-			(each (const print-inst) *inst*))
-		(opt-inst-list *inst*)
-		(when *build_inst*
-			(print "post opt:")
-			(each (const print-inst) *inst*))
-		(def-reg-map (cat dst) %2)
-		(eval *inst* *func_env*)))
-
-(defun assign-script-to-script (src dst %2)
-	(setq src (script-items src) dst (script-items dst))
-	(unless (= (length src) (length dst))
-		(throw "Mismatching number of src/dst parameters !" (list src dst)))
-	(assign-ignored-to-script)
-	(when (/= 0 (length dst))
-		(reset-reg-stack 0)
-		;a variable source is left as its address, read when its destination
-		;is assigned, after the destinations right of it. One that is one of
-		;those is read now, (assign (vpx a (+ a b)) (vpx p a)) gave p the new a
-		(each (lambda (s)
-				(if (find (str s) (map! (const str) (list dst) (inc (!))))
-					(script-value s) (script-compile s)))
-			src)
-		(reach (# (script-compile %0) (compile-arrow)) dst)
-		(when *build_inst*
-			(print "pre opt:")
-			(each (const print-inst) *inst*))
-		(opt-inst-list *inst*)
-		(when *build_inst*
-			(print "post opt:")
-			(each (const print-inst) *inst*))
-		(def-reg-map :nil %2)
-		(eval *inst* *func_env*)))
-
-(defun assign (&optional src dst %2)
-	;optional src, dst, compiler regs
-	(if (script? (setq src (ifn src '())))
-		(if (script? (setq dst (ifn dst '())))
-			(assign-script-to-script src dst %2)
-			(assign-script-to-asm src dst %2))
-		(if (script? (setq dst (ifn dst '())))
-			(assign-asm-to-script src dst %2)
-			(assign-asm-to-asm src dst))))
+(defun assign (&optional src dst)
+	; (assign [src dst])
+	;registers, memory and constants to registers, a register to memory
+	(assign-asm-to-asm (ifn src '()) (ifn dst '())))
 
 ;module
 (export-symbols '(assign assign-src-type))

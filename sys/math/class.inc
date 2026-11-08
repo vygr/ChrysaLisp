@@ -25,9 +25,6 @@
 	(vec-set 0)
 	(goto l))
 
-(defmacro vec-assign (%0 %1)
-	(list 'assign %0 %1 '(slice +vp_rregs_0_14 *vsp* -1)))
-
 (defun vec-push (n)
 	(slice +vp_rregs_0_14 *vsp* (setq *vsp* (+ *vsp* n))))
 
@@ -41,13 +38,13 @@
 	(slice +vp_rregs_0_14 *vsp* (+ *vsp* n)))
 
 (defun vec-load (n &rest %1)
-	(each (# (vec-assign %0 (vec-push n))) %1))
+	(each (# (assign %0 (vec-push n))) %1))
 
 (defun vec-store (n &rest %1)
-	(each (# (vec-assign (vec-pop n) %0)) %1))
+	(each (# (assign (vec-pop n) %0)) %1))
 
 (defun vec-tee (n &rest %1)
-	(each (# (vec-assign (vec-top n) %0)) %1))
+	(each (# (assign (vec-top n) %0)) %1))
 
 (defun vec-load-int (n r &optional i)
 	(setd i 0)

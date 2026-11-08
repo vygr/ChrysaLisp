@@ -1,6 +1,6 @@
-(report-header "System: vpx, named locals kept in registers, lib/asm/vpxreg.inc")
+(report-header "System: the slots of a frame kept in registers, lib/asm/slots.inc")
 
-(import "lib/asm/vpxreg.inc")
+(import "lib/asm/slots.inc")
 
 ;a function as it is assembled, from where it is entered: a frame of two
 ;locals, a and b, and a struct s. What it may trash is :r1 to :r14, it

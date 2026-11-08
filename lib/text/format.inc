@@ -71,7 +71,7 @@
 (rule "redefun defun redefmacro defmacro defabstractmethod defmethod" '(- - 1) :one)
 (rule "structure enums bits def-class" '(- - 0))
 (rule "ui-root ui-stack defclass" '(- - - 0))
-(rule "def-vars union validatecase" '(0))
+(rule "union validatecase" '(0))
 ;conditionals
 (rule "cond condn" '(0) :clauses)
 (rule "case" '(- 0) :clauses)

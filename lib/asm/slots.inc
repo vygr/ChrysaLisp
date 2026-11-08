@@ -1,9 +1,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; named locals kept in registers
+; the slots of a frame kept in registers
 ;
-; A function, unless it says not to, (vpx-stack), is seen whole when it has all been
-; assembled, as instructions and before they are translated, and its named
-; locals that can be are kept in registers of their own: a read of the
+; A function is seen whole when it has all been assembled, as instructions
+; and before they are translated, and the slots of its frames, each a
+; (structure slot ...) given to (vp-alloc), that can be are kept in
+; registers of their own: a read of the
 ; stack becomes a copy from a register, and a write to the stack that
 ; nothing then reads is gone.
 ;
