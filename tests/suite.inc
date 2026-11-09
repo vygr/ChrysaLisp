@@ -105,10 +105,28 @@
 	(test-told name where)
 	(if *test_verbose* (print "[PASS] " name)))
 
+(defun test-text? (v)
+	; (test-text? v) -> :t | :nil
+	;is a string text, no control byte in it but a tab or an end of line
+	(notany (# (and (< (defq c (code %0)) 32) (not (find c '(9 10 13))))) v))
+
+(defun test-shown (v other)
+	; (test-shown v other) -> v | str
+	;a value as a failure prints it. A string that is not text, bytes, a
+	;buffer of floats say, is its length, where it first differs from the
+	;other, and 16 bytes from there in hex: as it is, it is NULs and worse
+	(cond
+		((or (not (str? v)) (test-text? v)) v)
+		(:t (defq i 0 n (if (str? other) (min (length v) (length other)) 0))
+			(while (and (< i n) (eql (elem-get v i) (elem-get other i))) (++ i))
+			(cat "<" (str (length v)) " bytes, from " (str i) ": "
+				(hex-encode (slice v i (min (length v) (+ i 16)))) ">"))))
+
 (defun test-fail (name expected got &optional where)
 	(++ *test_failures*)
 	(test-told name where)
-	(print "[FAIL] " *test_module* ": " name " | Expected: " expected " | Got: " got))
+	(print "[FAIL] " *test_module* ": " name " | Expected: " (test-shown expected got)
+		" | Got: " (test-shown got expected)))
 
 (defun test-skip (name why &optional where)
 	; (test-skip name why [where])

@@ -173,11 +173,12 @@
 				(setq al_probe (al-probe-start))))
 		(test-skip "apps on a desktop" "no probe could be started on the desktop's node"))
 	(:t
-		;the desktop's own windows first
-		(defq was -1 desk (al-windows))
-		(while (/= was desk)
-			(task-sleep 500000)
-			(setq was desk desk (al-windows)))
+		;the desktop's own windows first: the launcher's, and one of each app
+		;the desktop opens by itself, which come a second or so later. The
+		;desktop is this session's user's, whose apps they are
+		(defq desk (inc (length (get :launcher_auto_apps *env*))))
+		(while (< (al-windows) desk) (task-sleep 50000))
+		(setq desk (al-windows))
 		(defq al_grew (list))
 		(each (lambda (app)
 				(al-run app desk :t)

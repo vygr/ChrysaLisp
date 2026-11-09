@@ -134,9 +134,8 @@
 (assert-eq "and is not answered" :nil (mail-read-timeout (elem-get jt_select +jt_reply) 500000))
 ;told, the farm puts the job back and starts the child again
 (assert-eq "what it said is no answer" :nil (. jobs :answered jt_going))
-(assert-list-eq "and the job it was given is done by the one started after it" '(14)
-	(jt-run (list) :nil (task-timeout 10)))
-(assert-eq "it was not counted as tried" 0 (. jobs :tries))
+(assert-list-eq "and the job it was given is done by the one started after it" '(14) (jt-run (list)))
+(assert-eq "the job given to the child that went was not counted as tried" 0 (. jobs :tries))
 (. jobs :close)
 
 ;a child that says it can not do the work where it is: the node is left out,
@@ -151,7 +150,6 @@
 (. jobs :cannot (setf-> (str-alloc +job_reply_size) (+job_reply_key jt_key)))
 (assert-true "its node is not asked again" (find jt_node (. (get :farm jobs) :refused)))
 (assert-eq "its job is still out" 1 (. jobs :out))
-(assert-list-eq "and is done by the one started after it" '(16)
-	(jt-run (list) :nil (task-timeout 10)))
-(assert-eq "it was not counted as tried" 0 (. jobs :tries))
+(assert-list-eq "and is done by the one started after it" '(16) (jt-run (list)))
+(assert-eq "the job of the child that could not was not counted as tried" 0 (. jobs :tries))
 (. jobs :close)
