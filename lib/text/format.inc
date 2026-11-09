@@ -45,6 +45,8 @@
 ;	:pairs, the last two weights take turns, for a value then a name.
 ;	:one, with two or more of the last arguments, the form is always broken.
 ;	:clauses, an argument that always breaks is a clause, with that rule.
+;	:flat, what is in it is filled, as a list is, and only when a line is
+;		too long, whatever the forms in it are.
 ;
 ;The source scanners read a line at a time, and take a line that starts with
 ;defun, or the like, to be one. So no line here must start with such a word.
@@ -54,7 +56,7 @@
 (defq +rules (Fmap 101) +blocks (Fmap 31))
 
 (enums +r 0
-	(enum weights low one fill pairs clauses even))
+	(enum weights low one fill pairs clauses even flat))
 
 (defun rule (ops ws &rest flags)
 	;a rule is kept as (weights low one fill pairs clauses), all worked out
@@ -63,7 +65,7 @@
 		made (list ws (if (nempty? nums) (reduce (# (min %0 %1)) nums))
 			(if (find :one flags) :t) (if (find :fill flags) :t)
 			(if (find :pairs flags) :t) (if (find :clauses flags) :t)
-			(if (find :even flags) :t)))
+			(if (find :even flags) :t) (if (find :flat flags) :t)))
 	(each (# (. +rules :insert %0 made)) (words ops)))
 
 ;definitions, the name and arguments stay on the opening line. A short one,
@@ -99,6 +101,9 @@
 (rule "def-func-end gen-vtable gen-create gen-type host-os-call gen-host-call" '(-))
 (rule "host-gui-call host-audio-call deffimethod defgetmethod" '(-))
 (rule "defsetmethod defproxymethod" '(-))
+;pairs of a form and what it gives, a pair to a line, the forms as written
+(rule "test-cases" '(0 8 0) :pairs :flat)
+(rule "flat" '(4) :fill :flat)
 ;any other call, and a list of data
 (rule "call" '(9 7) :fill :even)
 (rule "list" '(4) :fill)
@@ -241,6 +246,7 @@
 	;the rule for the form that opens at token i, given the rule of the
 	;form around it, and the index of that form's last element
 	(cond
+		((and par_rule (elem-get par_rule +r_flat)) (. +rules :find "flat"))
 		((and par_rule
 				(elem-get par_rule +r_clauses)
 				(eql (gap-weight par_rule (inc par_argc)) 0))
@@ -596,6 +602,14 @@
 					;that. Then a last resort, weight 9, if what is left then
 					;fits. Then any gap but a last resort.
 					(defq far (> width hard)
+						;a gap of a form further out, past the gaps of the forms
+						;in it, but a last resort, that leaves both lines within
+						;the limit: the form in it is then whole on the line
+						t0
+							(filter (# (and (<= (elem-get %0 4) 8)
+										(<= (third %0) limit)
+										(<= (elem-get %0 5) limit)))
+								cands)
 						t1
 							(filter (# (and (<= (elem-get %0 4) 5)
 										(<= (third %0) limit)))
@@ -609,14 +623,25 @@
 										(<= (third %0) limit)
 										(<= (elem-get %0 5) limit)))
 								cands)
+						t0
+							(if (nempty? t1)
+								(filter (# (and (< (first %0) (reduce (# (min %0 (first %1))) t1 +max_int))
+											(> (second %0) (reduce (# (max %0 (second %1))) t1 0))))
+									t0)
+								(list))
 						pool
 							(cond
+								((nempty? t0) t0)
 								((nempty? t1) t1)
 								((not far) t1)
 								((nempty? t2) t2)
 								((nempty? t3) t3)
 								(:t (filter (# (<= (elem-get %0 4) 8)) cands)))
-						fit (or (nempty? t1) (nempty? t2) (nempty? t3)) best :nil)
+						fit
+							(or (nempty? t0)
+								(nempty? t1)
+								(nempty? t2)
+								(nempty? t3)) best :nil)
 					(when (nempty? pool)
 						;the outermost form, then its lowest weight
 						(defq depth
@@ -664,6 +689,17 @@
 				(and (not res) stopped cut (setq cut :nil stopped :nil from i)))))
 	(if redo :again res))
 
+(defun join-break (toks at)
+	; (join-break toks at) -> :nil | token index
+	;the first token past the first that a line of the source started with,
+	;not a close bracket
+	(defq i 0 n (length toks) res :nil)
+	(while (and (not res) (< (++ i) n))
+		(and (not (eql (first (defq tok (elem-get toks i))) :rp))
+			(find (second tok) at)
+			(setq res i)))
+	res)
+
 (defun find-break (tokens body ind limit)
 	; (find-break tokens body ind limit) -> :nil | token index
 	(if (eql (defq res (find-gap tokens body ind limit :nil)) :again)
@@ -698,19 +734,28 @@
 	;of a command, or starts with a form the source scanners look for.
 	;A frozen line is one that must not then be broken. The doc builder
 	;reads the comments under a definition, and the lines of a key map.
-	(defq out (list) frozen (list) cur :nil cur_end :nil depth 0 instr :nil
-		raw :nil keys :nil joined :nil stream (string-stream data))
+	;A line with a comment that begins ;check off, and the line after it,
+	;are kept as they are, check says nothing of them. Where each line was
+	;joined on, the place it starts, is kept, for the breaks of the source.
+	(defq out (list) frozen (list) joins (list) cur :nil cur_end :nil depth 0
+		instr :nil raw :nil keys :nil joined :nil off :nil cur_joins (list)
+		stream (string-stream data))
 	(defun flush (frz)
 		(when cur
 			(push out cur)
 			(push frozen frz)
-			(setq cur :nil)))
+			(push joins cur_joins)
+			(setq cur :nil cur_joins (list))))
 	(while (defq line (read-line stream))
 		(defq start_instr instr
 			body (if instr line (trim-start line +cls_space))
 			lead (slice line 0 (- (length line) (length body))))
 		(bind '(tokens instr) (scan-line body instr))
-		(defq kind (if (nempty? tokens) (first (first tokens)))
+		(defq kind (if (nempty? tokens) (first (first tokens))) was_off off
+			off
+				(some (# (and (eql (first %0) :cmt)
+							(starts-with ";check off" (slice body (second %0) (third %0)))))
+					tokens)
 			usage
 				(and (= depth 0) (not start_instr) (starts-with "(defq usage" body))
 			delta
@@ -725,26 +770,28 @@
 				(flush :nil)
 				(push out (if instr line (trim-end line +cls_space)))
 				(push frozen :t)
+				(push joins (list))
 				(if usage (setq raw :t))
 				(if (empty? tokens) (setq keys :nil)))
 			(:t
 				(defq body (squeeze (if instr body (trim-end body +cls_space)) tokens))
 				(cond
-					(keys
-						;a line of a key map
-						(flush :t)
-						(setq joined :nil cur (cat lead body)))
+					((or keys off was_off)
+						;a line of a key map, or one check is not to look at
+						(flush keys)
+						(setq joined :nil cur (cat lead body))
+						(if (or off was_off) (flush :t)))
 					((and cur
 							(> depth 0)
 							(not cur_end)
 							(not (eql kind :cmt))
 							(not (keep-word? body 0)))
-						(setq joined :t
-							cur
-								(cat cur
-									(if (or (eql kind :rp)
-											(find (last cur) "('`,~")) ""
-										" ") body)))
+						(defq sep
+								(if (or (eql kind :rp)
+										(find (last cur) "('`,~")) ""
+									" "))
+						(push cur_joins (+ (length cur) (length sep)))
+						(setq joined :t cur (cat cur sep body)))
 					(:t ;comments right under a line the scanners look for are
 						;its docs, and must stay right under it
 						(flush (and cur
@@ -758,7 +805,7 @@
 		(if (= depth 0) (setq raw :nil))
 		(if instr (flush :t)))
 	(flush keys)
-	(list out frozen))
+	(list out frozen joins))
 
 (defun format-lisp (data &optional limit wide)
 	; (format-lisp data [limit wide]) -> str
@@ -767,8 +814,8 @@
 	;A limit of 0 keeps the line breaks of the source, and only indents and
 	;tidies.
 	(setd limit 80)
-	(defq relay (> limit 0) lines (list) frozen (list))
-	(if relay (bind '(lines frozen) (unbreak data))
+	(defq relay (> limit 0) lines (list) frozen (list) joins (list))
+	(if relay (bind '(lines frozen joins) (unbreak data))
 		(lines! (# (push lines %0) (push frozen :nil) :nil) (string-stream data)))
 	(defq out (list) stack (list) top_blocks 0 top_kinds (list) instr :nil
 		raw :nil note :nil joinable :nil line_idx -1)
@@ -830,20 +877,31 @@
 				(defq parts (list tokens))
 				;a part is a run of the tokens of the line, they are only scanned
 				;for the once
+				;where the source had a break, in the line as it is now
+				(defq at_joins
+						(if (and relay (not moved))
+							(map (# (- %0 (length lead))) (elem-get joins line_idx))
+							(list)))
 				(while (defq toks (pop parts))
 					(defq start (second (first toks))
 						ind (line-indent toks body lead) op (line-op toks body)
+						lim
+							(if (or wide
+									(> top_blocks 0)
+									(and op
+										(or (starts-with "vp-" op)
+											(find op +vp_forms)))) (/ (* limit 3) 2)
+								limit)
 						brk
 							(and relay
 								(not instr)
 								(not (elem-get frozen line_idx))
-								(find-break toks body ind
-									(if (or wide
-											(> top_blocks 0)
-											(and op
-												(or (starts-with "vp-" op)
-													(find op +vp_forms)))) (/ (* limit 3) 2)
-										limit))))
+								(or (find-break toks body ind lim)
+									;a line the rules leave too long, made so by
+									;joining, has the break of the source back
+									(and (> (+ (* ind +tab_width) (- (third (last toks)) start))
+											(+ lim (/ lim 10)))
+										(join-break toks at_joins)))))
 					(cond
 						(brk (push parts (slice toks brk -1) (slice toks 0 brk)))
 						(:t

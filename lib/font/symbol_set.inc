@@ -13,6 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./symbols.inc")
+(import "././text/format.inc")
 
 ;the parts that more than one symbol is made of
 (defq s_cross (cat (s-line 6 6 18 18) (s-line 18 6 6 18))
@@ -306,5 +307,6 @@
 		*symbols*)
 	(push out (cat "\n" "\t" (trim-end line) "\n"))
 	;the header above is a string of this file, and a checkout on Windows
-	;may have a return before each of its ends of line
-	(join (split (apply (const cat) out) "\r") ""))
+	;may have a return before each of its ends of line. It is laid out as
+	;fmt would have it, so fmt leaves the file as it is made
+	(format-lisp (join (split (apply (const cat) out) "\r") "")))

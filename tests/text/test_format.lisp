@@ -94,6 +94,29 @@
 		"(def-func-end)") (fm-src "(def-func 'a)" "  ;note" ";;;;;;" "; b" "  ;;;;;;" "(vp-ret)"
 			"(def-func-end)"))
 
+; --- what check, the tests and the source have to have ---
+(fm-check "a line with ;check off is kept as it is, check says nothing of it"
+	(fm-src "(when a" "\t(cond (:nil 1)) ;check off" "\tb)")
+	(fm-src "(when a" "(cond (:nil 1)) ;check off" "b)"))
+(fm-check "and so is the line after one"
+	(fm-src "(when a" "\t;check off" "\t(cond (:t)) b)")
+	(fm-src "(when a" ";check off" "(cond (:t)) b)"))
+(fm-check "with none, the cond is broken" (fm-src "(when a" "\t(cond" "\t\t(:nil 1))" "\tb)")
+	(fm-src "(when a" "(cond (:nil 1))" "b)"))
+(fm-check "test cases, a pair to a line, the forms as written"
+	(fm-src "(test-cases" "\t(if :nil 1 2 3) 3" "\t(when :t 1 2) 2)")
+	(fm-src "(test-cases (if :nil 1 2 3) 3 (when :t 1 2) 2)"))
+(fm-check "a line the rules leave too long, made so by joining, has the break of the source back"
+	(fm-src "(def-func 'a)" "\t(vp-rdef (x y cx cy dx dy len yield_data brd iter_begin iter_end vectors)"
+		"\t\t'(:r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))" "(def-func-end)")
+	(fm-src "(def-func 'a)" "(vp-rdef (x y cx cy dx dy len yield_data brd iter_begin iter_end vectors)"
+		"'(:r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))" "(def-func-end)"))
+(fm-check "a gap further out, past an inner form, that leaves both lines in the limit, keeps the form whole"
+	(fm-src "(defun f ()" "\t(print (if (empty? said) \qlint: clean\q \qlint: see above\q)"
+		"\t\t\q, \q (/ (- (pii-time) t0) 1000) \qms\q))")
+	(fm-src "(defun f ()"
+		"(print (if (empty? said) \qlint: clean\q \qlint: see above\q) \q, \q (/ (- (pii-time) t0) 1000) \qms\q))"))
+
 ; --- only the indent of VP function bodies, fmt -i ---
 (defun fm-indent (name want text)
 	;the text must indent to want, and want must then be left alone

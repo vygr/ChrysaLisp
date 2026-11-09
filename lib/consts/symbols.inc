@@ -10,13 +10,12 @@
 ; the fonts. Do not edit it by hand.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq
-	+sym_close 0xe000 +sym_min 0xe001 +sym_max 0xe002 +sym_undo 0xe003
+(defq +sym_close 0xe000 +sym_min 0xe001 +sym_max 0xe002 +sym_undo 0xe003
 	+sym_redo 0xe004 +sym_rewind 0xe005 +sym_cut 0xe006 +sym_copy 0xe007
-	+sym_paste 0xe008 +sym_delete 0xe009 +sym_clear 0xe00a
-	+sym_clear_all 0xe00b +sym_split 0xe00c +sym_reflow 0xe00d
-	+sym_comment 0xe00e +sym_upper_case 0xe00f +sym_lower_case 0xe010
-	+sym_sort 0xe011 +sym_unique 0xe012 +sym_reverse 0xe013 +sym_indent 0xe014
+	+sym_paste 0xe008 +sym_delete 0xe009 +sym_clear 0xe00a +sym_clear_all 0xe00b
+	+sym_split 0xe00c +sym_reflow 0xe00d +sym_comment 0xe00e
+	+sym_upper_case 0xe00f +sym_lower_case 0xe010 +sym_sort 0xe011
+	+sym_unique 0xe012 +sym_reverse 0xe013 +sym_indent 0xe014
 	+sym_outdent 0xe015 +sym_select_paragraph 0xe016 +sym_select_region 0xe017
 	+sym_select_form 0xe018 +sym_start_form 0xe019 +sym_end_form 0xe01a
 	+sym_new 0xe01b +sym_open 0xe01c +sym_save 0xe01d +sym_save_all 0xe01e
@@ -35,24 +34,23 @@
 	+sym_align_top 0xe043 +sym_align_bottom 0xe044 +sym_align_hcenter 0xe045
 	+sym_align_vcenter 0xe046 +sym_group 0xe047 +sym_ungroup 0xe048
 	+sym_select 0xe049 +sym_move 0xe04a +sym_pen 0xe04b +sym_brush 0xe04c
-	+sym_line 0xe04d +sym_arrow 0xe04e +sym_double_arrow 0xe04f
-	+sym_rect 0xe050 +sym_circle 0xe051 +sym_filled_rect 0xe052
-	+sym_filled_circle 0xe053 +sym_small 0xe054 +sym_medium 0xe055
-	+sym_large 0xe056 +sym_zoom_in 0xe057 +sym_zoom_out 0xe058
-	+sym_plain 0xe059 +sym_grid 0xe05a +sym_lines 0xe05b +sym_axis 0xe05c
-	+sym_mode 0xe05d +sym_auto 0xe05e +sym_image 0xe05f +sym_layers 0xe060
-	+sym_prev 0xe061 +sym_next 0xe062 +sym_up 0xe063 +sym_down 0xe064
-	+sym_reset 0xe065 +sym_scramble 0xe066 +sym_solve 0xe067 +sym_peek 0xe068
-	+sym_done 0xe069 +sym_dial 0xe06a +sym_hangup 0xe06b +sym_warning 0xe06c
-	+sym_route 0xe06d +sym_pcb 0xe06e +sym_gerber 0xe06f +sym_go_back 0xe070
-	+sym_go_forward 0xe071 +sym_eraser 0xe072 +sym_ruler 0xe073
-	+sym_protractor 0xe074 +sym_set_square 0xe075 +sym_snap 0xe076
-	+sym_snap_angle 0xe077 +sym_to_front 0xe078 +sym_to_back 0xe079
-	+sym_duplicate 0xe07a +sym_arc 0xe07b +sym_pie 0xe07c +sym_text 0xe07d
-	+sym_lock 0xe07e +sym_full_protractor 0xe07f +sym_set_square45 0xe080
-	+sym_media_play 0xe081 +sym_media_pause 0xe082 +sym_media_stop 0xe083
-	+sym_media_back 0xe084 +sym_media_on 0xe085 +sym_media_start 0xe086
-	+sym_media_end 0xe087 +sym_media_record 0xe088 +sym_media_live 0xe089
-	+sym_media_join 0xe08a +sym_laptop 0xe08b +sym_palette 0xe08c
-	+sym_menu 0xe08d +sym_mic 0xe08e +sym_mute 0xe08f +sym_headphones 0xe090
-	+sym_insert 0xe091 +sym_pin 0xe092 +sym_unpin 0xe093)
+	+sym_line 0xe04d +sym_arrow 0xe04e +sym_double_arrow 0xe04f +sym_rect 0xe050
+	+sym_circle 0xe051 +sym_filled_rect 0xe052 +sym_filled_circle 0xe053
+	+sym_small 0xe054 +sym_medium 0xe055 +sym_large 0xe056 +sym_zoom_in 0xe057
+	+sym_zoom_out 0xe058 +sym_plain 0xe059 +sym_grid 0xe05a +sym_lines 0xe05b
+	+sym_axis 0xe05c +sym_mode 0xe05d +sym_auto 0xe05e +sym_image 0xe05f
+	+sym_layers 0xe060 +sym_prev 0xe061 +sym_next 0xe062 +sym_up 0xe063
+	+sym_down 0xe064 +sym_reset 0xe065 +sym_scramble 0xe066 +sym_solve 0xe067
+	+sym_peek 0xe068 +sym_done 0xe069 +sym_dial 0xe06a +sym_hangup 0xe06b
+	+sym_warning 0xe06c +sym_route 0xe06d +sym_pcb 0xe06e +sym_gerber 0xe06f
+	+sym_go_back 0xe070 +sym_go_forward 0xe071 +sym_eraser 0xe072
+	+sym_ruler 0xe073 +sym_protractor 0xe074 +sym_set_square 0xe075
+	+sym_snap 0xe076 +sym_snap_angle 0xe077 +sym_to_front 0xe078
+	+sym_to_back 0xe079 +sym_duplicate 0xe07a +sym_arc 0xe07b +sym_pie 0xe07c
+	+sym_text 0xe07d +sym_lock 0xe07e +sym_full_protractor 0xe07f
+	+sym_set_square45 0xe080 +sym_media_play 0xe081 +sym_media_pause 0xe082
+	+sym_media_stop 0xe083 +sym_media_back 0xe084 +sym_media_on 0xe085
+	+sym_media_start 0xe086 +sym_media_end 0xe087 +sym_media_record 0xe088
+	+sym_media_live 0xe089 +sym_media_join 0xe08a +sym_laptop 0xe08b
+	+sym_palette 0xe08c +sym_menu 0xe08d +sym_mic 0xe08e +sym_mute 0xe08f
+	+sym_headphones 0xe090 +sym_insert 0xe091 +sym_pin 0xe092 +sym_unpin 0xe093)

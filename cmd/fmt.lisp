@@ -174,6 +174,6 @@
 			(:t ;farm out the formatting, and print the results
 				(each (lambda ((job result)) (prin result))
 					(pipe-farm (map (# (str (first args) " -j " opt_j
-									" -l " opt_l
-									(if opt_i " -i " " ") (slice (str %0) 1 -2)))
+									" -l " opt_l (if opt_i " -i " " ")
+									(slice (str %0) 1 -2)))
 							(partition files opt_j))))))))
