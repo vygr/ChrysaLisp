@@ -271,7 +271,10 @@ function main
 	while [ "$#" -gt 0 ]; do
 	case $1 in
 		-i)
+			#an install keeps to itself: it is not to be the machine's
+			#member, and so start its store, while it builds
 			script="apps/tui/install.lisp";
+			alone=1
 			shift
 			;;
 		-s)

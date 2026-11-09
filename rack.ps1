@@ -114,7 +114,7 @@ function install {
     $global:session_start = (Get-Date).AddSeconds(-2)
     $process = Start-Process -FilePath $EXE -WorkingDirectory $NHROOT -WindowStyle Hidden -PassThru `
         -RedirectStandardOutput "$T\chrysalisp_rack_install.log" -RedirectStandardError "$T\chrysalisp_rack_install.err" `
-        -ArgumentList "obj/vp64/VP64/sys/boot_image -e -run `"(progn (node-net :full 0) (import {apps/tui/install.lisp}))`""
+        -ArgumentList "obj/vp64/VP64/sys/boot_image -e -run `"(progn (def *root_env* '*env_node_solo* :t) (node-net :full 0) (import {apps/tui/install.lisp}))`""
     $null = $process.Handle
     $global:session_pids = @($process.Id)
     $process.WaitForExit()

@@ -94,6 +94,9 @@ function boot_first {
 # starts.
 function first_run {
     param ($run, $guis = 0)
+    # an install keeps to itself, as funcs.sh's: it is not to be the
+    # machine's member, and so start its store, while it builds
+    if ($run -eq "apps/tui/install.lisp") { return "`"(progn (def *root_env* '*env_node_solo* :t) (node-net :$global:shape $global:ncpu) (import {$run}))`"" }
     if ($guis -gt 0) { return "`"(progn (node-net :$global:shape $global:ncpu $guis :gui {service/gui/app.lisp}) (import {$run}))`"" }
     return "`"(progn (node-net :$global:shape $global:ncpu) (import {$run}))`""
 }
