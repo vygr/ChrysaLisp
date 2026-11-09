@@ -14,12 +14,14 @@
 	(call %0 :set_cap '(:r7 :r1))
 	(assign '((:r7 +array_begin)) '(:r5))
 	(class/array/get_both :r8 :r3 :r4)
-	(loop-while '(:r3 /= :r4))
-		(assign '((:r3 0)) '(:r0))
-		(vp-simd vp-add-cr `(,+ptr_size) '(:r3 :r5))
-		(assign '((:r0 +num_value)) '(:r0))
-		(assign '(:r0) `((:r5 ,(neg +ptr_size))))
-	(loop-end)
+	(vpif '(:r3 /= :r4))
+		(loop-start)
+			(assign '((:r3 0)) '(:r0))
+			(vp-simd vp-add-cr `(,+ptr_size) '(:r3 :r5))
+			(assign '((:r0 +num_value)) '(:r0))
+			(assign '(:r0) `((:r5 ,(neg +ptr_size))))
+		(loop-until '(:r3 = :r4))
+	(endif)
 	(exit :array (sym (cat :lisp_ (rest %0))) '(:r6 :r7))
 	(vp-ret))
 
@@ -204,8 +206,8 @@
 	(assign `((,args +array_begin)) `(,src))
 	(assign `((,src 0)) `(,obj))
 
-(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
-(gotoif `(,v = 0) 'error)
+	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
+	(gotoif `(,v = 0) 'error)
 
 	;:list and its subclasses (:pset, :pmap, :hset, :hmap) store object references
 	(call :obj :inst_of `(,obj (@ ,(f-path :list :vtable))) '(_ v))
