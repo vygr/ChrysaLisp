@@ -453,12 +453,12 @@
 	;:r0 = hmap object (ptr)
 	;trashes
 	;:r1-:r14, :d0-:d15
-		;callback predicate
-		;inputs
-		;:r0 = predicate data (ptr)
-		;:r1 = element iterator (pptr)
-		;trashes
-		;:r1-:r14, :d0-:d15
+	;callback predicate
+	;inputs
+	;:r0 = predicate data (ptr)
+	;:r1 = element iterator (pptr)
+	;trashes
+	;:r1-:r14, :d0-:d15
 
 	(structure slot 0
 		(ptr this predicate predicate_data bucket)

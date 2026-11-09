@@ -29,52 +29,52 @@
 		(loop-start 'try_expand)
 			(assign '((:rsp slot_this)) '(:r0))
 			(switch 'next_iter)
-				;check if a macro
-				(switch)
-				;not 0 length !
-				(assign '((:r2 +array_length)) '(:r3))
-				(breakif '(:r3 = 0) 'next_iter)
-				;not quoted lists !
-				(array-bind-args :r2 '(:r3))
-				(load-fields :r0
-					`(,+lisp_sym_quote ,+lisp_sym_qquote ,+lisp_func_quote ,+lisp_func_qquote)
-					'(:r4 :r5 :r6 :r7))
-				(breakif '(:r3 = :r4) '(:r3 = :r5) '(:r3 = :r6) '(:r3 = :r7) 'next_iter)
+			;check if a macro
+			(switch)
+			;not 0 length !
+			(assign '((:r2 +array_length)) '(:r3))
+			(breakif '(:r3 = 0) 'next_iter)
+			;not quoted lists !
+			(array-bind-args :r2 '(:r3))
+			(load-fields :r0
+				`(,+lisp_sym_quote ,+lisp_sym_qquote ,+lisp_func_quote ,+lisp_func_qquote)
+				'(:r4 :r5 :r6 :r7))
+			(breakif '(:r3 = :r4) '(:r3 = :r5) '(:r3 = :r6) '(:r3 = :r7) 'next_iter)
 
-				;is a symbol ?
-				(save-fields :rsp '(slot_iter slot_form) '(:r1 :r2))
-				(f-bind :sym :vtable :r4)
-				(assign '((:r3 +obj_vtable)) '(:r5))
-				(breakif '(:r4 /= :r5))
-				;is defined ?
-				(call :hmap :search '((:r0 +lisp_environment) :r3) '(_ :r1 _))
-				(breakif '(:r1 = 0))
-				;is a list ?
-				(assign '((:r1 +ptr_size)) '(:r1))
-				(f-bind :list :vtable :r2)
-				(assign '((:r1 +obj_vtable)) '(:r3))
-				(breakif '(:r2 /= :r3))
-				;not 0 length !
-				(assign '((:r1 +array_length)) '(:r2))
-				(breakif '(:r2 = 0))
-				;is a macro ?
-				(assign '((:rsp slot_this)) '(:r0))
-				(array-bind-args :r1 '(:r2))
-				(assign '((:r0 +lisp_sym_macro)) '(:r3))
-				(gotoif '(:r2 = :r3) 'macro_expand)
-				(assign '((:r0 +lisp_func_macro)) '(:r3))
-				(breakif '(:r2 /= :r3))
-				(default)
-				(vp-label 'macro_expand)
-					;replace form with macro expansion
-					(assign '((:rsp slot_form)) '(:r0))
-					(assign '(:r1) '((:rsp slot_macro)))
-					(d-call :list :slice '(:r0 1 (:r0 +array_length)) '((:rsp slot_args)))
-					(call :obj :deref '((:rsp slot_form)))
-					(call :lisp :repl_apply '((:rsp slot_this) (:rsp slot_args) (:rsp slot_macro)) '(_ :r1))
-					(assign '((:rsp slot_iter)) '(:r2))
-					(assign '(:r1) '((:r2 0)))
-					(call :obj :deref '((:rsp slot_args)))
+			;is a symbol ?
+			(save-fields :rsp '(slot_iter slot_form) '(:r1 :r2))
+			(f-bind :sym :vtable :r4)
+			(assign '((:r3 +obj_vtable)) '(:r5))
+			(breakif '(:r4 /= :r5))
+			;is defined ?
+			(call :hmap :search '((:r0 +lisp_environment) :r3) '(_ :r1 _))
+			(breakif '(:r1 = 0))
+			;is a list ?
+			(assign '((:r1 +ptr_size)) '(:r1))
+			(f-bind :list :vtable :r2)
+			(assign '((:r1 +obj_vtable)) '(:r3))
+			(breakif '(:r2 /= :r3))
+			;not 0 length !
+			(assign '((:r1 +array_length)) '(:r2))
+			(breakif '(:r2 = 0))
+			;is a macro ?
+			(assign '((:rsp slot_this)) '(:r0))
+			(array-bind-args :r1 '(:r2))
+			(assign '((:r0 +lisp_sym_macro)) '(:r3))
+			(gotoif '(:r2 = :r3) 'macro_expand)
+			(assign '((:r0 +lisp_func_macro)) '(:r3))
+			(breakif '(:r2 /= :r3))
+			(default)
+			(vp-label 'macro_expand)
+				;replace form with macro expansion
+				(assign '((:rsp slot_form)) '(:r0))
+				(assign '(:r1) '((:rsp slot_macro)))
+				(d-call :list :slice '(:r0 1 (:r0 +array_length)) '((:rsp slot_args)))
+				(call :obj :deref '((:rsp slot_form)))
+				(call :lisp :repl_apply '((:rsp slot_this) (:rsp slot_args) (:rsp slot_macro)) '(_ :r1))
+				(assign '((:rsp slot_iter)) '(:r2))
+				(assign '(:r1) '((:r2 0)))
+				(call :obj :deref '((:rsp slot_args)))
 				;a macro that threw: the error is the whole form, so the repl
 				;stops on it now, not when a body it was in is called
 				(load-fields :rsp '(slot_iter slot_this) '(:r1 :r0))
@@ -89,28 +89,28 @@
 					(assign '(:r1) '((:r0 0)))
 					(break 'try_expand)
 				(endif)
-					(load-fields :rsp '(slot_iter slot_this) '(:r1 :r0))
-					(vp-load-rcr :r1 0 :r2)
-					(f-bind :list :vtable :r3)
-					(assign '((:r2 +obj_vtable)) '(:r4))
-					(continueif '(:r4 = :r3) 'try_expand)
-					(break 'next_iter)
-				(endswitch)
+				(load-fields :rsp '(slot_iter slot_this) '(:r1 :r0))
+				(vp-load-rcr :r1 0 :r2)
+				(f-bind :list :vtable :r3)
+				(assign '((:r2 +obj_vtable)) '(:r4))
+				(continueif '(:r4 = :r3) 'try_expand)
+				(break 'next_iter)
+			(endswitch)
 
-				;down this lists branches, the stack grows as it must: it holds
-				;the lists still to look at, so a wide form fills it as a deep one
-				(load-fields :rsp '(slot_stack slot_form) '(:r0 :r6))
-				;push in reverse so as we pop we traverse left to right !
-				(class/array/get_both :r6 :r6 :r1)
-				(f-bind :list :vtable :r7)
-				(loop-start)
-					(vp-load-rcr :r1 (neg +ptr_size) :r2)
-					(vp-sub-cr +ptr_size :r1)
-					(assign '((:r2 +obj_vtable)) '(:r2))
-					(vpif '(:r2 = :r7))
-						(call :array :push_back '(:r0 :r1) '(:r0 :r1 _ _))
-					(endif)
-				(loop-until '(:r1 = :r6))
+			;down this lists branches, the stack grows as it must: it holds
+			;the lists still to look at, so a wide form fills it as a deep one
+			(load-fields :rsp '(slot_stack slot_form) '(:r0 :r6))
+			;push in reverse so as we pop we traverse left to right !
+			(class/array/get_both :r6 :r6 :r1)
+			(f-bind :list :vtable :r7)
+			(loop-start)
+				(vp-load-rcr :r1 (neg +ptr_size) :r2)
+				(vp-sub-cr +ptr_size :r1)
+				(assign '((:r2 +obj_vtable)) '(:r2))
+				(vpif '(:r2 = :r7))
+					(call :array :push_back '(:r0 :r1) '(:r0 :r1 _ _))
+				(endif)
+			(loop-until '(:r1 = :r6))
 			(endswitch)
 
 			;pop back stack

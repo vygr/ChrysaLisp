@@ -209,7 +209,7 @@
 	(exit :sys_math :r_sin '(:d0))
 	(vp-ret)
 
-(vp-align 8)
+	(vp-align 8)
 (vp-label 'constants)
 	(vp-long 0x3fc45f306dc9c883) ;	0: 1 / 2pi
 	(vp-long 0x401921fb54442d18) ;	8: 2pi

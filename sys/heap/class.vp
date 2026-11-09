@@ -121,8 +121,8 @@
 	(vp-xor-rr next next)
 	(vp-xor-rr cnt cnt)
 	(vp-sub-rr cellsize blockend)
-	(validatecase
-		(vp-sub-cr +hp_cell_guard_size blockend))
+(validatecase
+	(vp-sub-cr +hp_cell_guard_size blockend))
 	(vp-add-cr (+ +hp_cell_next +hp_cell_guard_size) cellsize)
 	(assign `(,next) `((,block +hp_block_free_flist)))
 	(assign `(,next) `((,block +hp_block_free_flist_tail)))

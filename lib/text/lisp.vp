@@ -19,8 +19,8 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args `(,nums) '(:nums))
-(assign `((,nums +array_length)) `(,len))
-(gotoif `(,len < 4) 'error)
+	(assign `((,nums +array_length)) `(,len))
+	(gotoif `(,len < 4) 'error)
 
 	(call :array :slice `(,nums 0 4) `(,nums))
 	(assign `((,nums +array_begin)) `(,iter))
@@ -60,10 +60,10 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 	(list-bind-args args `(,nums1 ,nums2) '(:nums :nums))
-(assign `((,nums1 +array_length)) `(,len))
-(gotoif `(,len < 4) 'error)
-(assign `((,nums2 +array_length)) `(,len))
-(gotoif `(,len < 4) 'error)
+	(assign `((,nums1 +array_length)) `(,len))
+	(gotoif `(,len < 4) 'error)
+	(assign `((,nums2 +array_length)) `(,len))
+	(gotoif `(,len < 4) 'error)
 
 	(assign `((,nums1 +array_begin)) `(,nums1))
 	(assign `((,nums2 +array_begin)) `(,nums2))

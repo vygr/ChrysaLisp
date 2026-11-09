@@ -50,19 +50,19 @@
 ;not go on. A pipe that aborts a command signals it, and one that only
 ;ever sleeps would never see that any other way. It is stopped by an
 ;error
-(fn-bind 'sys/statics/statics :r2)
-(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
-(assign '((:r2 +tk_node_flags)) '(:r2))
-(gotoif '(:r2 /= 0) 'aborted)
+	(fn-bind 'sys/statics/statics :r2)
+	(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
+	(assign '((:r2 +tk_node_flags)) '(:r2))
+	(gotoif '(:r2 /= 0) 'aborted)
 	(vp-push :r0)
 	(defq in (method-input :sys_task :sleep))
 	(list-bind-args :r1 in '(:num))
 	(call :sys_task :sleep in)
 	(vp-pop :r0)
-(fn-bind 'sys/statics/statics :r1)
-(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
-(assign '((:r1 +tk_node_flags)) '(:r1))
-(gotoif '(:r1 /= 0) 'aborted)
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
+	(assign '((:r1 +tk_node_flags)) '(:r1))
+	(gotoif '(:r1 /= 0) 'aborted)
 	(assign '((:r0 +lisp_sym_t)) '(:r1))
 	(class/obj/ref :r1 :r2)
 

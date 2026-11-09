@@ -524,8 +524,8 @@
 
 	(vp-cpy-rr :r0 :r13)
 	(array-bind-args :r1 '(:r0))
-(assign '((:r0 +num_value)) '(:r2))
-(gotoif '(:r2 < 0) 'error1)
+	(assign '((:r0 +num_value)) '(:r2))
+	(gotoif '(:r2 < 0) 'error1)
 	(call :num :sqrt '(:r0) '(:r1))
 
 	(exit :num :lisp_sqrt '(:r13 :r1))
@@ -557,8 +557,8 @@
 
 	(vp-cpy-rr :r0 :r13)
 	(list-bind-args :r1 '(:r2 :r3) '(:obj :obj))
-(assign '((:r2 +obj_vtable) (:r3 +obj_vtable)) '(:r4 :r5))
-(gotoif '(:r4 /= :r5) 'error1)
+	(assign '((:r2 +obj_vtable) (:r3 +obj_vtable)) '(:r4 :r5))
+	(gotoif '(:r4 /= :r5) 'error1)
 	(call :num :pow '(:r2 :r3) '(:r1))
 
 	(exit :num :lisp_pow '(:r13 :r1))

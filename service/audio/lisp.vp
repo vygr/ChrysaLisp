@@ -71,7 +71,7 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-init)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(audio-init)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -123,7 +123,7 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-deinit)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(audio-deinit)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -179,8 +179,8 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-add path)" +error_msg_wrong_types))
-(signature '(:str))
+	(jump :lisp :repl_error '(:r1 "(audio-add path)" +error_msg_wrong_types))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -235,8 +235,8 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-change handle state)" +error_msg_wrong_types))
-(signature '(:NUM :NUM))
+	(jump :lisp :repl_error '(:r1 "(audio-change handle state)" +error_msg_wrong_types))
+	(signature '(:NUM :NUM))
 
 (def-func-end)
 
@@ -291,8 +291,8 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-remove handle)" +error_msg_wrong_types))
-(signature '(:NUM))
+	(jump :lisp :repl_error '(:r1 "(audio-remove handle)" +error_msg_wrong_types))
+	(signature '(:NUM))
 
 (def-func-end)
 
@@ -347,8 +347,8 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-play handle pan)" +error_msg_wrong_types))
-(signature '(:NUM :NUM))
+	(jump :lisp :repl_error '(:r1 "(audio-play handle pan)" +error_msg_wrong_types))
+	(signature '(:NUM :NUM))
 
 (def-func-end)
 
@@ -391,7 +391,7 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-mic-open)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(audio-mic-open)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -442,8 +442,8 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-mic-read buf)" +error_msg_wrong_types))
-(signature '(:str))
+	(jump :lisp :repl_error '(:r1 "(audio-mic-read buf)" +error_msg_wrong_types))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -486,7 +486,7 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-mic-close)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(audio-mic-close)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -535,8 +535,8 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-stream-open rate channels)" +error_msg_wrong_types))
-(signature '(:NUM :NUM))
+	(jump :lisp :repl_error '(:r1 "(audio-stream-open rate channels)" +error_msg_wrong_types))
+	(signature '(:NUM :NUM))
 
 (def-func-end)
 
@@ -590,8 +590,8 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-stream-write handle buf)" +error_msg_wrong_types))
-(signature '(:NUM :str))
+	(jump :lisp :repl_error '(:r1 "(audio-stream-write handle buf)" +error_msg_wrong_types))
+	(signature '(:NUM :str))
 
 (def-func-end)
 
@@ -636,8 +636,8 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-stream-close handle)" +error_msg_wrong_types))
-(signature '(:NUM))
+	(jump :lisp :repl_error '(:r1 "(audio-stream-close handle)" +error_msg_wrong_types))
+	(signature '(:NUM))
 
 (def-func-end)
 
@@ -685,7 +685,7 @@
 	(vp-ret)
 
 (vp-label 'error)
-(jump :lisp :repl_error '(:r1 "(audio-stream-left handle)" +error_msg_wrong_types))
-(signature '(:NUM))
+	(jump :lisp :repl_error '(:r1 "(audio-stream-left handle)" +error_msg_wrong_types))
+	(signature '(:NUM))
 
 (def-func-end)

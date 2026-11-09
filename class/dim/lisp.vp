@@ -22,8 +22,8 @@
 	(bind '(dims elems) (method-input :dim :create))
 	(list-bind-args :r1 `(,dims ,elems) '(:nums :array))
 
-(assign `((,dims +array_length)) '(:r14))
-(gotoif '(:r14 = 0) 'error1)
+	(assign `((,dims +array_length)) '(:r14))
+	(gotoif '(:r14 = 0) 'error1)
 
 	(call :dim :create `(,dims ,elems) '(:r1))
 	(vp-pop :r0 :r2)
@@ -77,9 +77,9 @@
 		(vp-add-rr i index)
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
-(assign `((,elems +array_length)) `(,indices_len))
-(gotoif `(,index < 0) 'error1)
-(gotoif `(,index >= ,indices_len) 'error1)
+	(assign `((,elems +array_length)) `(,indices_len))
+	(gotoif `(,index < 0) 'error1)
+	(gotoif `(,index >= ,indices_len) 'error1)
 
 	(call :nums :ref_elem `(,elems ,index) '(_ :r1))
 	(vp-pop :r0 :r2)
@@ -134,9 +134,9 @@
 		(vp-add-rr i index)
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
-(assign `((,elems +array_length)) `(,indices_len))
-(gotoif `(,index < 0) 'error1)
-(gotoif `(,index >= ,indices_len) 'error1)
+	(assign `((,elems +array_length)) `(,indices_len))
+	(gotoif `(,index < 0) 'error1)
+	(gotoif `(,index >= ,indices_len) 'error1)
 
 	(call :nums :set_elem `(,elems (,obj +num_value) ,index) '(:r1))
 	(class/obj/ref :r1 :r2)

@@ -42,9 +42,9 @@
 		(vp-add-cr 1 index)
 	(endif)
 
-(gotoif `(,index < 0) 'error1)
-(vp-sub-rr width len)
-(gotoif `(,index > ,len) 'error1)
+	(gotoif `(,index < 0) 'error1)
+	(vp-sub-rr width len)
+	(gotoif `(,index > ,len) 'error1)
 
 	(vp-add-cr +str_data value)
 	(vp-xor-rr len len)
@@ -79,9 +79,9 @@
 
 	(assign `((,args +array_length)) `(,len))
 
-(gotoif `(,len > 2) 'error1)
-(call :lisp :env_args_type `(,args (@ ,(f-path :num :vtable)) 1) '(_ tmp))
-(gotoif `(,tmp = 0) 'error1)
+	(gotoif `(,len > 2) 'error1)
+	(call :lisp :env_args_type `(,args (@ ,(f-path :num :vtable)) 1) '(_ tmp))
+	(gotoif `(,tmp = 0) 'error1)
 
 	(assign `((,args +array_begin) 1) `(,iter_begin ,width))
 	(vp-load-rcr iter_begin 0 value)
@@ -290,8 +290,8 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(list-bind-args :r1 `(,in ,tab_width ,idx) '(:obj :num :num))
-(gotoif `(,tab_width <= 0) 'error)
-(gotoif `(,idx < 0) 'error)
+	(gotoif `(,tab_width <= 0) 'error)
+	(gotoif `(,idx < 0) 'error)
 
 	(vp-push :r0)
 	(assign `((,in +str_length)) `(,len))
@@ -372,8 +372,8 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(list-bind-args args `(,src ,tab_width ,idx) '(:obj :num :num))
-(gotoif `(,tab_width <= 0) 'error)
-(gotoif `(,idx < 0) 'error)
+	(gotoif `(,tab_width <= 0) 'error)
+	(gotoif `(,idx < 0) 'error)
 
 	(vp-push this)
 	(assign `((,src +str_length)) `(,idx1))
@@ -778,9 +778,9 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args '(:r0) '(:obj))
-(assign '((:r0 +str_length)) '(:r2))
-(vp-and-cr 1 :r2)
-(gotoif '(:r2 /= 0) 'error)
+	(assign '((:r0 +str_length)) '(:r2))
+	(vp-and-cr 1 :r2)
+	(gotoif '(:r2 /= 0) 'error)
 	(call :str :decode '(:r0) `(,args))
 
 	(exit :str :lisp_decode `(,this ,args))

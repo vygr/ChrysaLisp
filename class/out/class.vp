@@ -139,8 +139,8 @@
 		(assign `(,seq_num) `((,this +out_ack_seqnum)))
 		;wait for an ack
 		(vp-push this ack_num)
-	(assign `((,this +out_state)) `(,state))
-	(gotoif `(,state = +stream_mail_state_aborted) 'abort)
+		(assign `((,this +out_state)) `(,state))
+		(gotoif `(,state = +stream_mail_state_aborted) 'abort)
 		(call :sys_mail :read `((,this +out_ack_mbox_addr)) `(,this _))
 		(gotoif `(,this = 0) 'abort)
 		(call :sys_mail :free `(,this))

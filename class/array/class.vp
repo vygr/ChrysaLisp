@@ -360,15 +360,15 @@
 	;:r1 = partition iter (plong)
 	;trashes
 	;:r1-:r14, :d0-:d15
-		;sort callback
-		;inputs
-		;:r0 = sort context (ptr)
-		;:r1 = iter1 (plong)
-		;:r2 = iter2 (plong)
-		;outputs
-		;:r0 = +, 0, -
-		;trashes
-		;:r1-:r14, :d0-:d15
+	;sort callback
+	;inputs
+	;:r0 = sort context (ptr)
+	;:r1 = iter1 (plong)
+	;:r2 = iter2 (plong)
+	;outputs
+	;:r0 = +, 0, -
+	;trashes
+	;:r1-:r14, :d0-:d15
 
 	(structure slot 0
 		(ptr this func ctx pivt iter lowr uppr))
@@ -428,15 +428,15 @@
 	;:r0 = array object (ptr)
 	;trashes
 	;:r1-:r14, :d0-:d15
-		;sort callback
-		;inputs
-		;:r0 = context (ptr)
-		;:r1 = iter1 (plong)
-		;:r2 = iter2 (plong)
-		;outputs
-		;:r0 = +, 0, -
-		;trashes
-		;:r1-:r14, :d0-:d15
+	;sort callback
+	;inputs
+	;:r0 = context (ptr)
+	;:r1 = iter1 (plong)
+	;:r2 = iter2 (plong)
+	;outputs
+	;:r0 = +, 0, -
+	;trashes
+	;:r1-:r14, :d0-:d15
 
 	(structure slot 0
 		(ptr this func ctx stack)

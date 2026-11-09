@@ -42,8 +42,8 @@
 
 	(entry :lisp :lisp_catch '(:r0 :r1))
 
-(assign '((:r1 +array_length)) '(:r2))
-(gotoif '(:r2 /= 3) 'error1)
+	(assign '((:r1 +array_length)) '(:r2))
+	(gotoif '(:r2 /= 3) 'error1)
 
 	(vp-push :r1)
 	(assign '((:r1 +array_begin)) '(:r1))
