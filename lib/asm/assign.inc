@@ -104,7 +104,10 @@
 		(fd (vp-cvt-df s d))
 		((vp-cpy-dd s d))))
 
-(defun assign-asm-to-asm (src dst)
+(defun assign (&optional src dst)
+	; (assign [src dst])
+	;registers, memory and constants to registers, a register to memory
+	(setd src '() dst '())
 	(when (/= (length src) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(assign-ignored-to-asm)
@@ -174,11 +177,6 @@
 				(:is (vp-load-rcr-s (first %0) (second %0) %1))
 				(:ib (vp-load-rcr-b (first %0) (second %0) %1))
 				(:t (throw "Invalid src parameter !" (list %0 %1))))) src dst)))
-
-(defun assign (&optional src dst)
-	; (assign [src dst])
-	;registers, memory and constants to registers, a register to memory
-	(assign-asm-to-asm (ifn src '()) (ifn dst '())))
 
 ;module
 (export-symbols '(assign assign-src-type))

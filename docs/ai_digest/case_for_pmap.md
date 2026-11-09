@@ -109,7 +109,7 @@ The `pcase` macro signature is defined as:
 ```
 
 The `pkeys` argument accepts a pre-arranged list of symbols (such as the
-`+pkeys2` list used in the register assigner `assign-asm-to-asm`).
+`+pkeys2` list used in the register assigner `assign`).
 
 This pre-population mechanism provides several engineering advantages:
 
@@ -132,7 +132,7 @@ This pre-population mechanism provides several engineering advantages:
 	lookup cache hot and preserves O(1) execution speeds.
 
 ```file
-lib/asm/assign.inc "assign-asm-to-asm" ""
+lib/asm/assign.inc "(defun assign (" ""
 ```
 
 ## 3. The Collections Hierarchy Built on `:pset` and `:pmap`
