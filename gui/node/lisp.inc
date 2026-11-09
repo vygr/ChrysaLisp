@@ -33,5 +33,4 @@
 		(when (/= s (logand +text_state_pressed state))
 			(lower (:state (logior s (logand (lognot +text_state_pressed) state))))
 			(.-> this :layout :dirty_all))
-		this)
-	)
+		this))

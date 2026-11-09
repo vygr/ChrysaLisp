@@ -29,51 +29,51 @@
 
 (defun msl-expr (node)
 	(sh-fold node (lambda (node args)
-		(bind '(type tag a &optional b) node)
-		(case tag
-			(:lit (cond
-				((eql type :bool) (if a "true" "false"))
-				((msl-num a))))
-			(:var (msl-name a))
-			(:tex (msl-name a))
-			(:buf (msl-name a))
-			(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
-			(:user (cat (msl-name a) "(" (join args ", ") ")"))
-			(:t (cond
-				((and (eql a '*) (eql type :vec3) (eql (first (first b)) :mat4))
-					;matrices, then a vec3, which is turned by the 3 by 3
-					(cat "sh_mul3(" (join (slice args 0 -2) " * ") ", " (last args) ")"))
-				((defq i (find a '(+ - * / < <= > >= = /= and or)))
-					(if (= (length args) 1)
-						(cat "(-" (first args) ")")
-						(cat "(" (join args (elem-get
-							'(" + " " - " " * " " / " " < " " <= " " > " " >= " " == " " != " " && " " || ") i)) ")")))
-				((eql a 'not) (cat "(!" (first args) ")"))
-				((eql a 'elem-get) (cat (first args) "[" (second args) "]"))
-				((defq i (find a '(logand logior logxor << >>)))
-					(cat "(" (join args (elem-get '(" & " " | " " ^ " " << " " >> ") i)) ")"))
-				;a picture is two members, the texture and how it is read
-				((eql a 'texture) (cat (first args) ".sample(" (first args) "s, " (second args) ")"))
-				((find a '(vec2 vec3 vec4)) (cat (msl-type type) "(" (join args ", ") ")"))
-				((find a '(min max mod clamp mix))
-					;a float that goes with a vector is made a vector
-					(cat (if (eql a 'mod) "sh_mod" (str a)) "(" (join (map (# (if (and (shader-dim type)
-						(eql (first %1) :float)) (cat (msl-type type) "(" %0 ")") %0)) args b) ", ") ")"))
-				((cat (str a) "(" (join args ", ") ")"))))))))
+			(bind '(type tag a &optional b) node)
+			(case tag
+				(:lit (cond
+						((eql type :bool) (if a "true" "false"))
+						((msl-num a))))
+				(:var (msl-name a))
+				(:tex (msl-name a))
+				(:buf (msl-name a))
+				(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
+				(:user (cat (msl-name a) "(" (join args ", ") ")"))
+				(:t (cond
+						((and (eql a '*) (eql type :vec3) (eql (first (first b)) :mat4))
+							;matrices, then a vec3, which is turned by the 3 by 3
+							(cat "sh_mul3(" (join (slice args 0 -2) " * ") ", " (last args) ")"))
+						((defq i (find a '(+ - * / < <= > >= = /= and or)))
+							(if (= (length args) 1)
+								(cat "(-" (first args) ")")
+								(cat "(" (join args (elem-get
+											'(" + " " - " " * " " / " " < " " <= " " > " " >= " " == " " != " " && " " || ") i)) ")")))
+						((eql a 'not) (cat "(!" (first args) ")"))
+						((eql a 'elem-get) (cat (first args) "[" (second args) "]"))
+						((defq i (find a '(logand logior logxor << >>)))
+							(cat "(" (join args (elem-get '(" & " " | " " ^ " " << " " >> ") i)) ")"))
+						;a picture is two members, the texture and how it is read
+						((eql a 'texture) (cat (first args) ".sample(" (first args) "s, " (second args) ")"))
+						((find a '(vec2 vec3 vec4)) (cat (msl-type type) "(" (join args ", ") ")"))
+						((find a '(min max mod clamp mix))
+							;a float that goes with a vector is made a vector
+							(cat (if (eql a 'mod) "sh_mod" (str a)) "(" (join (map (# (if (and (shader-dim type)
+													(eql (first %1) :float)) (cat (msl-type type) "(" %0 ")") %0)) args b) ", ") ")"))
+						((cat (str a) "(" (join args ", ") ")"))))))))
 
 (defun msl-inputs (program lines)
 	;the inputs block, packed types and pad words give the std140 offsets.
 	;A matrix is on a 16 byte boundary as it is, and is its columns
 	(defq offset 0 pads 0)
 	(push lines "struct Inputs" "{")
-;the layout but for its first, the size of the block
+	;the layout but for its first, the size of the block
 	(each! (lambda ((name type at))
-		(while (< offset at)
-			(push lines (cat "\tfloat pad_" (str (++ pads)) ";"))
-			(setq offset (+ offset 4)))
-		(push lines (cat "\t" (if (shader-dim type) (cat "packed_" (msl-type type)) (msl-type type))
-			" " (msl-name name) ";"))
-		(setq offset (+ offset (* (shader-size type) 4)))) (list (shader-layout program)) 1)
+			(while (< offset at)
+				(push lines (cat "\tfloat pad_" (str (++ pads)) ";"))
+				(setq offset (+ offset 4)))
+			(push lines (cat "\t" (if (shader-dim type) (cat "packed_" (msl-type type)) (msl-type type))
+					" " (msl-name name) ";"))
+			(setq offset (+ offset (* (shader-size type) 4)))) (list (shader-layout program)) 1)
 	;a kernel's range is two ints after the inputs, on a 4 byte boundary
 	(when (eql (shader-stage program) :kernel)
 		(while (< offset (sh-range-at program))
@@ -91,53 +91,53 @@
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(push lines "struct Shader" "{")
 	(each (lambda ((name type &rest _))
-		(push lines (cat "\t" (msl-type type) " " (msl-name name) ";")))
+			(push lines (cat "\t" (msl-type type) " " (msl-name name) ";")))
 		(cat inputs globals (shader-attrs program) (shader-varyings program)))
 	(each (lambda ((name))
-		(push lines (cat "\ttexture2d<float> " (msl-name name) ";") (cat "\tsampler " (msl-name name) "s;")))
+			(push lines (cat "\ttexture2d<float> " (msl-name name) ";") (cat "\tsampler " (msl-name name) "s;")))
 		(shader-textures program))
 	(each (lambda ((name type access))
-		(push lines (cat "\tdevice " (if (eql access :read) "const " "") (msl-type type) " *" (msl-name name) ";")))
+			(push lines (cat "\tdevice " (if (eql access :read) "const " "") (msl-type type) " *" (msl-name name) ";")))
 		(shader-buffers program))
 	(each (lambda ((name type e))
-		(push lines (cat "\t" (msl-type type) " " (msl-name name) " = " (msl-expr e) ";"))) consts)
+			(push lines (cat "\t" (msl-type type) " " (msl-name name) " = " (msl-expr e) ";"))) consts)
 	(each (lambda ((name type params block))
-		(push lines "" (cat "\t" (msl-type type) " " (msl-name name) "("
-			(join (map (# (cat (msl-type (second %0)) " " (msl-name (first %0)))) params) ", ") ")") "\t{")
-		(sh-text-block block 2 msl-type msl-name msl-expr)
-		(push lines "\t}")) funcs)
+			(push lines "" (cat "\t" (msl-type type) " " (msl-name name) "("
+					(join (map (# (cat (msl-type (second %0)) " " (msl-name (first %0)))) params) ", ") ")") "\t{")
+			(sh-text-block block 2 msl-type msl-name msl-expr)
+			(push lines "\t}")) funcs)
 	;the globals are set from the inputs, then main is called
 	(push lines "" "\tvoid shader_init()" "\t{")
 	(each (lambda ((name type e))
-		(push lines (cat "\t\t" (msl-name name) " = " (msl-expr e) ";"))) globals)
+			(push lines (cat "\t\t" (msl-name name) " = " (msl-expr e) ";"))) globals)
 	(push lines "\t}" "};" ""))
 
 (defun msl-set-inputs (program lines)
 	;the members that are inputs, from the block
 	(each (lambda ((name type &rest _))
-		(push lines (cat "\ts." (msl-name name) " = " (if (shader-dim type)
-			(cat (msl-type type) "(inputs." (msl-name name) ")")
-			(cat "inputs." (msl-name name))) ";"))) (first program)))
+			(push lines (cat "\ts." (msl-name name) " = " (if (shader-dim type)
+						(cat (msl-type type) "(inputs." (msl-name name) ")")
+						(cat "inputs." (msl-name name))) ";"))) (first program)))
 
 (defun msl-texture-params (program)
 	;the textures of a pixel shader as they come to its fragment function,
 	;each a texture and a sampler at the same number, -> text to go after
 	;the other parameters
 	(apply (const cat) (cat (list "") (map (lambda ((name))
-		(cat ", texture2d<float> tex_" (str (!)) " [[texture(" (str (!)) ")]], sampler smp_" (str (!))
-			" [[sampler(" (str (!)) ")]]")) (shader-textures program)))))
+					(cat ", texture2d<float> tex_" (str (!)) " [[texture(" (str (!)) ")]], sampler smp_" (str (!))
+						" [[sampler(" (str (!)) ")]]")) (shader-textures program)))))
 
 (defun msl-set-textures (program lines)
 	;the members that are textures, from the parameters
 	(each (lambda ((name))
-		(push lines (cat "\ts." (msl-name name) " = tex_" (str (!)) ";")
-			(cat "\ts." (msl-name name) "s = smp_" (str (!)) ";"))) (shader-textures program)))
+			(push lines (cat "\ts." (msl-name name) " = tex_" (str (!)) ";")
+				(cat "\ts." (msl-name name) "s = smp_" (str (!)) ";"))) (shader-textures program)))
 
 (defq *msl_head* '("#include <metal_stdlib>" "using namespace metal;" ""
-	"template<typename T, typename U> static inline T sh_mod(T x, U y) { return x - y * floor(x / y); }" "")
+		"template<typename T, typename U> static inline T sh_mod(T x, U y) { return x - y * floor(x / y); }" "")
 	;a pair has matrices, a matrix times a vec3 is by its 3 by 3
 	*msl_pair_head* (cat *msl_head* '(
-	"static inline float3 sh_mul3(float4x4 m, float3 v) { return float3x3(m[0].xyz, m[1].xyz, m[2].xyz) * v; }" "")))
+			"static inline float3 sh_mul3(float4x4 m, float3 v) { return float3x3(m[0].xyz, m[1].xyz, m[2].xyz) * v; }" "")))
 
 (defun shader-msl (program)
 	; (shader-msl program) -> str
@@ -165,10 +165,10 @@
 	(msl-inputs program lines)
 	(msl-struct program lines)
 	(push lines (cat "kernel void kernel_main(constant Inputs &inputs [[buffer(0)]]"
-		(apply (const cat) (map (lambda ((name type access))
-			(cat ", device " (if (eql access :read) "const " "") (msl-type type) " *buf_" (str (!))
-				" [[buffer(" (str (inc (!))) ")]]")) (sh-kernel-order program)))
-		", uint gid [[thread_position_in_grid]])")
+			(apply (const cat) (map (lambda ((name type access))
+						(cat ", device " (if (eql access :read) "const " "") (msl-type type) " *buf_" (str (!))
+							" [[buffer(" (str (inc (!))) ")]]")) (sh-kernel-order program)))
+			", uint gid [[thread_position_in_grid]])")
 		"{" "\tint i = inputs.range_from + int(gid);" "\tif (i >= inputs.range_to) return;" "\tShader s;")
 	(msl-set-inputs program lines)
 	(each (lambda ((name &rest _)) (push lines (cat "\ts." (msl-name name) " = buf_" (str (!)) ";")))
@@ -199,32 +199,32 @@
 	(msl-struct vertex lines)
 	(push lines "struct VertexIn" "{")
 	(each (lambda ((name type))
-		(push lines (cat "\t" (msl-type type) " " (msl-name name) " [[attribute(" (str (!)) ")]];")))
+			(push lines (cat "\t" (msl-type type) " " (msl-name name) " [[attribute(" (str (!)) ")]];")))
 		(shader-attrs vertex))
 	(push lines "};" "" "struct VertexOut" "{" "\tfloat4 position [[position]];")
 	(each (lambda ((name type))
-		(push lines (cat "\t" (msl-type type) " " (msl-name name) " [[user(locn" (str (!)) ")]];")))
+			(push lines (cat "\t" (msl-type type) " " (msl-name name) " [[user(locn" (str (!)) ")]];")))
 		varyings)
 	(push lines "};" ""
 		"vertex VertexOut vertex_main(VertexIn in [[stage_in]], constant Inputs &inputs [[buffer(0)]])"
 		"{" "\tShader s;")
 	(msl-set-inputs vertex lines)
 	(each (lambda ((name type))
-		(push lines (cat "\ts." (msl-name name) " = in." (msl-name name) ";"))) (shader-attrs vertex))
+			(push lines (cat "\ts." (msl-name name) " = in." (msl-name name) ";"))) (shader-attrs vertex))
 	(each (lambda ((name type))
-		(push lines (cat "\ts." (msl-name name) " = " (msl-type type) "(0.0);"))) varyings)
+			(push lines (cat "\ts." (msl-name name) " = " (msl-type type) "(0.0);"))) varyings)
 	(push lines "\ts.shader_init();" "\tfloat4 p = s.shader_main();" "\tVertexOut out;"
 		"\tout.position = float4(p.x, p.y, (p.z + p.w) * 0.5, p.w);")
 	(each (lambda ((name type))
-		(push lines (cat "\tout." (msl-name name) " = s." (msl-name name) ";"))) varyings)
+			(push lines (cat "\tout." (msl-name name) " = s." (msl-name name) ";"))) varyings)
 	(push lines "\treturn out;" "}" "")
 	(defq vertex_text (join lines "\n") lines (cat *msl_pair_head*))
 	(msl-inputs pixel lines)
 	(msl-struct pixel lines)
 	(push lines "struct FragmentIn" "{" "\tfloat4 position [[position]];")
 	(each (lambda ((name type))
-		(push lines (cat "\t" (msl-type type) " " (msl-name name) " [[user(locn"
-			(str (some (# (if (eql (first %0) name) (!))) varyings)) ")]];")))
+			(push lines (cat "\t" (msl-type type) " " (msl-name name) " [[user(locn"
+					(str (some (# (if (eql (first %0) name) (!))) varyings)) ")]];")))
 		(shader-varyings pixel))
 	(push lines "};" "" "struct Target" "{" "\tpacked_float2 size;" "};" ""
 		(cat "fragment float4 fragment_main(FragmentIn in [[stage_in]], constant Inputs &inputs [[buffer(0)]],"
@@ -233,7 +233,7 @@
 	(msl-set-inputs pixel lines)
 	(msl-set-textures pixel lines)
 	(each (lambda ((name type))
-		(push lines (cat "\ts." (msl-name name) " = in." (msl-name name) ";"))) (shader-varyings pixel))
+			(push lines (cat "\ts." (msl-name name) " = in." (msl-name name) ";"))) (shader-varyings pixel))
 	(push lines "\ts.shader_init();"
 		"\tfloat4 c = clamp(s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y)), 0.0, 1.0);"
 		"\tif (c.w < 0.003921568627) discard_fragment();"
@@ -246,13 +246,13 @@
 	;that covers the target. Its uniform is the size of the target, and it
 	;gives each pixel its frag coord, with y up. The entry point is vertex_main.
 	(join '("#include <metal_stdlib>" "using namespace metal;" ""
-		"struct VertexOut" "{" "\tfloat4 position [[position]];" "\tfloat2 frag;" "};" ""
-		"struct Target" "{" "\tpacked_float2 size;" "};" ""
-		"vertex VertexOut vertex_main(uint vid [[vertex_id]], constant Target &target [[buffer(0)]])"
-		"{"
-		"\tfloat2 p = float2(float((vid << 1) & 2), float(vid & 2));"
-		"\tVertexOut out;"
-		"\tout.position = float4(p * 2.0 - 1.0, 0.0, 1.0);"
-		"\tout.frag = p * float2(target.size);"
-		"\treturn out;"
-		"}" "") "\n"))
+			"struct VertexOut" "{" "\tfloat4 position [[position]];" "\tfloat2 frag;" "};" ""
+			"struct Target" "{" "\tpacked_float2 size;" "};" ""
+			"vertex VertexOut vertex_main(uint vid [[vertex_id]], constant Target &target [[buffer(0)]])"
+			"{"
+			"\tfloat2 p = float2(float((vid << 1) & 2), float(vid & 2));"
+			"\tVertexOut out;"
+			"\tout.position = float4(p * 2.0 - 1.0, 0.0, 1.0);"
+			"\tout.frag = p * float2(target.size);"
+			"\treturn out;"
+			"}" "") "\n"))

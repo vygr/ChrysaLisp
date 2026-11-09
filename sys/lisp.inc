@@ -22,7 +22,7 @@
 	;sees both picks the same this way, the one that stays, (mail-single)
 	(if (nempty? (defq found (mail-enquire (cat name ","))))
 		(hex-decode (reduce (# (if (< (cmp %1 %0) 0) %1 %0))
-			(map (# (second (split %0 ","))) found)))))
+				(map (# (second (split %0 ","))) found)))))
 
 (defun mail-single (name mbox)
 	; (mail-single name mbox) -> :nil | net_id
@@ -167,28 +167,28 @@
 		;mesh unasked, *env_node_solo*
 		solo (get '*env_node_solo*)
 		tell (if (or user sid solo) (cat "(def" tab "*root_env*"
-			(if user (cat tab "'*env_node_user*" tab "{" user "}") "")
-			(if sid (cat tab "'*env_node_sid*" tab "{" sid "}") "")
-			(if solo (cat tab "'*env_node_solo*" tab ":t") "") ")"))
+				(if user (cat tab "'*env_node_user*" tab "{" user "}") "")
+				(if sid (cat tab "'*env_node_sid*" tab "{" sid "}") "")
+				(if solo (cat tab "'*env_node_solo*" tab ":t") "") ")"))
 		told (if tell (cat " -run " tell) "")
 		run (cond
 			((and script tell) (cat " -run (progn" tab tell tab
-				(if (starts-with "(" script) script (cat "(import" tab "{" script "})")) ")"))
+					(if (starts-with "(" script) script (cat "(import" tab "{" script "})")) ")"))
 			(script (cat " -run " script))
 			(:t told)))
 	(each (lambda ((i j))
 			;a link name is ???-???, the form the stop scripts clear away
 			(defq name (apply (const cat) (map (lambda (_)
-				(if (= _ 3) "-" (elem-get chars (random 36)))) (range 0 7))))
+							(if (= _ 3) "-" (elem-get chars (random 36)))) (range 0 7))))
 			(push names name)
 			(push (elem-get links i) name)
 			(push (elem-get links j) name))
 		pairs)
 	(defq pids (map! (lambda (node_links)
-			(defq args (cat (if sid (cat "-sid " sid " ") "")
-				(join (map (lambda (name) (cat "-l " name)) node_links) " ")))
-			(pii-spawn (if (<= (!) fronts) (cat host args run) (cat args told))))
-		(list links) 1))
+				(defq args (cat (if sid (cat "-sid " sid " ") "")
+						(join (map (lambda (name) (cat "-l " name)) node_links) " ")))
+				(pii-spawn (if (<= (!) fronts) (cat host args run) (cat args told))))
+			(list links) 1))
 	(each (const node-link) (first links))
 	;leave the pids and the link names for the launch script that started
 	;this node's session, it stops what its nodes started, see funcs.sh
@@ -201,8 +201,8 @@
 			text (cat (if (and noted (/= (age file) 0)) (load file) "")
 				(if net (cat "net " net "\n") "")
 				(join (map (lambda (pid)
-					(if (> pid 0) (cat (if (and script (< (!) fronts)) "front " "pid ")
-						(str pid) "\n") "")) pids) "")
+							(if (> pid 0) (cat (if (and script (< (!) fronts)) "front " "pid ")
+									(str pid) "\n") "")) pids) "")
 				(join (map (# (cat "link " %0 "\n")) names) "")))
 		(def *root_env* '*node_noted* :t)
 		;a node that started nothing leaves no note, there is nothing to
@@ -247,18 +247,18 @@
 		(:star (each (# (pair 0 %0)) (range 1 total)))
 		(:tree (each (# (pair %0 (/ (dec %0) 2))) (range 1 total)))
 		(:mesh (each (lambda (y) (each (lambda (x)
-				(defq node (+ (* y cnt) x))
-				(pair node (+ (* y cnt) (% (inc x) cnt)))
-				(pair node (+ (* (% (inc y) cnt) cnt) x)))
-			(range 0 cnt))) (range 0 cnt)))
+							(defq node (+ (* y cnt) x))
+							(pair node (+ (* y cnt) (% (inc x) cnt)))
+							(pair node (+ (* (% (inc y) cnt) cnt) x)))
+						(range 0 cnt))) (range 0 cnt)))
 		(:cube (each (lambda (z) (each (lambda (y) (each (lambda (x)
-				(defq node (+ (* z cnt cnt) (* y cnt) x))
-				(pair node (+ (* z cnt cnt) (* y cnt) (% (inc x) cnt)))
-				(pair node (+ (* z cnt cnt) (* (% (inc y) cnt) cnt) x))
-				(pair node (+ (* (% (inc z) cnt) cnt cnt) (* y cnt) x)))
-			(range 0 cnt))) (range 0 cnt))) (range 0 cnt)))
+									(defq node (+ (* z cnt cnt) (* y cnt) x))
+									(pair node (+ (* z cnt cnt) (* y cnt) (% (inc x) cnt)))
+									(pair node (+ (* z cnt cnt) (* (% (inc y) cnt) cnt) x))
+									(pair node (+ (* (% (inc z) cnt) cnt cnt) (* y cnt) x)))
+								(range 0 cnt))) (range 0 cnt))) (range 0 cnt)))
 		(:t (each (lambda (i) (each (lambda (j) (pair i j))
-			(range (inc i) total))) (range 0 total))))
+						(range (inc i) total))) (range 0 total))))
 	(list total pairs))
 
 (defun node-spawn (&optional num kind script)
@@ -290,7 +290,7 @@
 	(defq before (length (lisp-nodes))
 		pids (node-start total pairs (ifn fronts 0) kind script
 			(if id (cat id " " (rest (str shape)) " " (str (if sid (dec total) total))
-				(if sid (cat " " sid) ""))) sid))
+					(if sid (cat " " sid) ""))) sid))
 	(node-wait (+ before (length (filter (lambda (pid) (> pid 0)) pids))))
 	pids)
 
@@ -324,21 +324,21 @@
 	;machine's. Whichever node of the machine started them
 	(defq out (list))
 	(each! (lambda (entry kind)
-		(when (and (eql kind "f") (starts-with "chrysalisp_" entry) (ends-with ".session" entry))
-			(defq file (cat "/tmp/" entry) net :nil)
-			(each (lambda (line)
-				(defq parts (split line " "))
-				(cond
-					((empty? parts))
-					((eql (first parts) "net")
-						(setq net (if (>= (length parts) 4)
-							(list (second parts) (third parts) (str-as-num (elem-get parts 3)) (list) (list) file
-								(if (> (length parts) 4) (elem-get parts 4)))))
-						(if net (push out net)))
-					((not net))
-					((eql (first parts) "link") (push (elem-get net 4) (second parts)))
-					(:t (push (elem-get net 3) (str-as-num (second parts))))))
-				(split (ifn (load file) "") "\n"))))
+			(when (and (eql kind "f") (starts-with "chrysalisp_" entry) (ends-with ".session" entry))
+				(defq file (cat "/tmp/" entry) net :nil)
+				(each (lambda (line)
+						(defq parts (split line " "))
+						(cond
+							((empty? parts))
+							((eql (first parts) "net")
+								(setq net (if (>= (length parts) 4)
+										(list (second parts) (third parts) (str-as-num (elem-get parts 3)) (list) (list) file
+											(if (> (length parts) 4) (elem-get parts 4)))))
+								(if net (push out net)))
+							((not net))
+							((eql (first parts) "link") (push (elem-get net 4) (second parts)))
+							(:t (push (elem-get net 3) (str-as-num (second parts))))))
+					(split (ifn (load file) "") "\n"))))
 		(dir-list "/tmp"))
 	out)
 
@@ -373,19 +373,19 @@
 				(when (defq text (load file))
 					(push files file)
 					(each (lambda (line)
-						(defq parts (split line " "))
-						(cond
-							((< (length parts) 2))
-							((eql (first parts) "link") (push links (second parts)))
-							((find (first parts) '("pid" "front"))
-								(defq one (str-as-num (second parts)))
-								(and (eql (first parts) "front") (pii-alive one) (setq front :t))
-								(push pids one)
-								(push todo one))))
+							(defq parts (split line " "))
+							(cond
+								((< (length parts) 2))
+								((eql (first parts) "link") (push links (second parts)))
+								((find (first parts) '("pid" "front"))
+									(defq one (str-as-num (second parts)))
+									(and (eql (first parts) "front") (pii-alive one) (setq front :t))
+									(push pids one)
+									(push todo one))))
 						(split text "\n")))))
 		(unless (or front (empty? pids))
 			(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (pii-exit)))
-				%0 +kn_call_pin 0 (mail-mbox))) (lisp-nodes :t))
+						%0 +kn_call_pin 0 (mail-mbox))) (lisp-nodes :t))
 			(task-sleep (/ (task-timeout 1) 2))
 			(each (# (if (pii-alive %0) (pii-kill %0))) pids)
 			(each (# (pii-remove (cat "/tmp/" %0))) links)
@@ -459,45 +459,45 @@
 					(defq net (some (# (if (eql (first %0) name) %0)) nets)))
 				(push found name)
 				(each (lambda ((other & & & & its_file &))
-					(if (find (str-as-num (slice its_file (const (length "/tmp/chrysalisp_"))
-							(- -1 (const (length ".session"))))) (elem-get net 3))
-						(push todo other)))
+						(if (find (str-as-num (slice its_file (const (length "/tmp/chrysalisp_"))
+										(- -1 (const (length ".session"))))) (elem-get net 3))
+							(push todo other)))
 					nets)))
 		;the last found are the furthest out, and go first
 		(each! (lambda (name)
-			(when (defq net (some (# (if (eql (first %0) name) %0)) (node-nets)))
-				(bind '(& & & pids links file sid) net)
-				(defq id name)
-				;every node of this machine, and of the network's system if it is
-				;one of its own, is sent the processes that are to go, and one that
-				;finds it is one of them goes, in a moment, by itself. They are told
-				;now, while every one of them is up to pass it on: a node that goes
-				;cuts off those the mail went through it to reach, the far side of
-				;a ring was left running. None is asked which it is and waited on,
-				;a node that has just gone is still known of, and never answers
-				(defq wait (/ (task-timeout 1) 2))
-				(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (progn (task-sleep ,wait) (pii-exit))))
-					%0 +kn_call_pin 0 (mail-mbox))) (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list))))
-				;one that could not be told, it is cut off or it is stuck, is
-				;still there when the rest have gone. A task here ends it, in a
-				;while, by the host, the caller does not wait for that
-				(open-task (str `(progn (task-sleep ,(* wait 5))
-						(each (# (if (pii-alive %0) (pii-kill %0))) (quote ,pids))))
-					(task-nodeid) +kn_call_pin 0 (mail-mbox))
-				(each (# (pii-remove (cat "/tmp/" %0))) links)
-				;the note, less this network's lines
-				;each line that stays ends as it did, what is noted next goes on
-				;the end of the file and would run on from a last line that did not
-				;and with nothing left in it the note goes too, an empty one
-				;was left for each network stopped by name
-				(defq keep :t left (apply (const cat) (cat (list "") (map (# (cat %0 "\n")) (filter (lambda (line)
-						(cond
-							((empty? line) :nil)
-							((starts-with "net " line) (setq keep (nql (second (split line " ")) id)))
-							(keep)))
-					(split (ifn (load file) "") "\n"))))))
-				(if (nempty? left) (save left file) (pii-remove file))
-				(setq told (+ told (length pids)))))
+				(when (defq net (some (# (if (eql (first %0) name) %0)) (node-nets)))
+					(bind '(& & & pids links file sid) net)
+					(defq id name)
+					;every node of this machine, and of the network's system if it is
+					;one of its own, is sent the processes that are to go, and one that
+					;finds it is one of them goes, in a moment, by itself. They are told
+					;now, while every one of them is up to pass it on: a node that goes
+					;cuts off those the mail went through it to reach, the far side of
+					;a ring was left running. None is asked which it is and waited on,
+					;a node that has just gone is still known of, and never answers
+					(defq wait (/ (task-timeout 1) 2))
+					(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (progn (task-sleep ,wait) (pii-exit))))
+								%0 +kn_call_pin 0 (mail-mbox))) (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list))))
+					;one that could not be told, it is cut off or it is stuck, is
+					;still there when the rest have gone. A task here ends it, in a
+					;while, by the host, the caller does not wait for that
+					(open-task (str `(progn (task-sleep ,(* wait 5))
+								(each (# (if (pii-alive %0) (pii-kill %0))) (quote ,pids))))
+						(task-nodeid) +kn_call_pin 0 (mail-mbox))
+					(each (# (pii-remove (cat "/tmp/" %0))) links)
+					;the note, less this network's lines
+					;each line that stays ends as it did, what is noted next goes on
+					;the end of the file and would run on from a last line that did not
+					;and with nothing left in it the note goes too, an empty one
+					;was left for each network stopped by name
+					(defq keep :t left (apply (const cat) (cat (list "") (map (# (cat %0 "\n")) (filter (lambda (line)
+											(cond
+												((empty? line) :nil)
+												((starts-with "net " line) (setq keep (nql (second (split line " ")) id)))
+												(keep)))
+										(split (ifn (load file) "") "\n"))))))
+					(if (nempty? left) (save left file) (pii-remove file))
+					(setq told (+ told (length pids)))))
 			(list found) -1 0)
 		told))
 
@@ -515,4 +515,3 @@
 			(setq stable (inc stable))
 			(setq stable 0 last_cnt cnt)))
 	(lisp-nodes))
-

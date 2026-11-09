@@ -15,8 +15,6 @@
 (assert-eq "json-parse string with unicode cjk" (num-to-utf8 0x4e16) (json-parse "\q\\u4e16\q"))
 (assert-eq "json-parse string with surrogate pair emoji" (num-to-utf8 0x1f600) (json-parse "\q\\uD83D\\uDE00\q"))
 
-
-
 ; --- 2. Parsing Arrays ---
 (defq arr_res (json-parse "[1, 2, 3]"))
 (assert-true "json-parse array is list" (list? arr_res))

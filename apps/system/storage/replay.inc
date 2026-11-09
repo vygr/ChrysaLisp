@@ -19,9 +19,9 @@
 
 ;how many words come before the path, of each kind that has one
 (defq +replay_path_at (scatter (Fmap 31)
-	"set" 2 "delete" 2 "copies" 2 "set-stale" 0 "set-full" 0 "set-missing" 0
-	"delete-stale" 0 "delete-none" 0 "copies-none" 0 "learnt" 2 "learnt-delete" 2
-	"gopher" 1 "gopher-on" 1 "gopher-step" 3 "gopher-pass" 2 "gopher-done" 1 "gopher-none" 1 "gopher-threw" 1 "gopher-late" 1 "gopher-back" 1 "gopher-lane" 1))
+		"set" 2 "delete" 2 "copies" 2 "set-stale" 0 "set-full" 0 "set-missing" 0
+		"delete-stale" 0 "delete-none" 0 "copies-none" 0 "learnt" 2 "learnt-delete" 2
+		"gopher" 1 "gopher-on" 1 "gopher-step" 3 "gopher-pass" 2 "gopher-done" 1 "gopher-none" 1 "gopher-threw" 1 "gopher-late" 1 "gopher-back" 1 "gopher-lane" 1))
 
 (defun replay-event (line)
 	; (replay-event line) -> :nil | event
@@ -37,7 +37,7 @@
 	; (replay-line event) -> line
 	;the line an event was read from, as a recorder says it
 	(join (cat (list (str (elem-get e +ev_time)) (elem-get e +ev_member) (elem-get e +ev_kind))
-		(elem-get e +ev_words) (if (elem-get e +ev_path) (list (elem-get e +ev_path)) (list))) " "))
+			(elem-get e +ev_words) (if (elem-get e +ev_path) (list (elem-get e +ev_path)) (list))) " "))
 
 ;a set or map of the replay has no more than so many to a bucket, made
 ;twice as big, and again, when it has more. A store of a million blocks
@@ -80,45 +80,45 @@
 	(defq member (elem-get e +ev_member) words (elem-get e +ev_words) path (elem-get e +ev_path)
 		held (. (. r :find :held) :find member) paths (. (. r :find :paths) :find member))
 	(elem-set e +ev_undo (case (elem-get e +ev_kind)
-		("block+" (cond ((. held :find (first words)) :had) (:t (. held :insert (first words)) :new)))
-		("block-" (cond ((not (. held :find (first words))) :new) (:t (. held :erase (first words)) :had)))
-		(("set" "learnt") (defq was (. paths :find path)) (. paths :insert path (first words)) (list was))
-		(("delete" "learnt-delete") (defq was (. paths :find path)) (. paths :insert path "-") (list was))
-		("object" (. (. r :find :objects) :insert (first words) (rest words)) :nil)
-		;a member started again says again who it sees
-		("peer+" (defq peers (. (. r :find :peers) :find member))
-			(. (. r :find :peers) :insert member
-				(if (find (first words) peers) peers (cat peers (list (first words))))) peers)
-		("peer-" (defq peers (. (. r :find :peers) :find member))
-			(. (. r :find :peers) :insert member (filter (# (nql %0 (first words))) peers)) peers)
-		("cut" (defq was (. (. r :find :cut) :find member))
-			(. (. r :find :cut) :insert member (join words " ")) was)
-		(("gopher" "gopher-on" "gopher-lane")
-			(defq tag (first words) had (. (. r :find :gophers) :find tag) last (. r :find :last_gopher)
-				of (. (. r :find :path_gopher) :find path))
-			(unless had (. (. r :find :gophers) :insert tag (list path (list))))
-			(when (eql (elem-get e +ev_kind) "gopher")
-				(. r :insert :last_gopher tag)
-				(. (. r :find :path_gopher) :insert path tag))
-			(list (not had) last of))
-		("gopher-step"
-			(when (defq walk (. (. r :find :gophers) :find (third words)))
-				(. (. r :find :gophers) :insert (third words) (list (first walk)
-					(cat (second walk) (list (list member (str-as-num (first words)) (elem-get e +ev_time))))))
-				:t))
-		;one that is done has its whole way, and is the one its object shows
-		;before one that set out after it: when the lines of a recording
-		;come is not when what they say was done
-		("gopher-done"
-			(defq of (. (. r :find :path_done) :find path))
-			(. (. r :find :path_done) :insert path (first words))
-			(list of))
-		;a step not done in its first try is tried again, it is not one more
-		("gopher-back"
-			(when (and (defq walk (. (. r :find :gophers) :find (first words))) (nempty? (second walk)))
-				(. (. r :find :gophers) :insert (first words) (list (first walk) (slice (second walk) 0 -2)))
-				(last (second walk))))
-		(:t :nil))))
+			("block+" (cond ((. held :find (first words)) :had) (:t (. held :insert (first words)) :new)))
+			("block-" (cond ((not (. held :find (first words))) :new) (:t (. held :erase (first words)) :had)))
+			(("set" "learnt") (defq was (. paths :find path)) (. paths :insert path (first words)) (list was))
+			(("delete" "learnt-delete") (defq was (. paths :find path)) (. paths :insert path "-") (list was))
+			("object" (. (. r :find :objects) :insert (first words) (rest words)) :nil)
+			;a member started again says again who it sees
+			("peer+" (defq peers (. (. r :find :peers) :find member))
+				(. (. r :find :peers) :insert member
+					(if (find (first words) peers) peers (cat peers (list (first words))))) peers)
+			("peer-" (defq peers (. (. r :find :peers) :find member))
+				(. (. r :find :peers) :insert member (filter (# (nql %0 (first words))) peers)) peers)
+			("cut" (defq was (. (. r :find :cut) :find member))
+				(. (. r :find :cut) :insert member (join words " ")) was)
+			(("gopher" "gopher-on" "gopher-lane")
+				(defq tag (first words) had (. (. r :find :gophers) :find tag) last (. r :find :last_gopher)
+					of (. (. r :find :path_gopher) :find path))
+				(unless had (. (. r :find :gophers) :insert tag (list path (list))))
+				(when (eql (elem-get e +ev_kind) "gopher")
+					(. r :insert :last_gopher tag)
+					(. (. r :find :path_gopher) :insert path tag))
+				(list (not had) last of))
+			("gopher-step"
+				(when (defq walk (. (. r :find :gophers) :find (third words)))
+					(. (. r :find :gophers) :insert (third words) (list (first walk)
+							(cat (second walk) (list (list member (str-as-num (first words)) (elem-get e +ev_time))))))
+					:t))
+			;one that is done has its whole way, and is the one its object shows
+			;before one that set out after it: when the lines of a recording
+			;come is not when what they say was done
+			("gopher-done"
+				(defq of (. (. r :find :path_done) :find path))
+				(. (. r :find :path_done) :insert path (first words))
+				(list of))
+			;a step not done in its first try is tried again, it is not one more
+			("gopher-back"
+				(when (and (defq walk (. (. r :find :gophers) :find (first words))) (nempty? (second walk)))
+					(. (. r :find :gophers) :insert (first words) (list (first walk) (slice (second walk) 0 -2)))
+					(last (second walk))))
+			(:t :nil))))
 
 (defun replay-undo (r e)
 	;an event as if it had not been

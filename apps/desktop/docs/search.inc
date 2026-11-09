@@ -10,9 +10,9 @@
 			(if whole_words "-w " "") (if regexp "-x " "") (if ignore_case "-i " "")
 			(hex-encode pattern) " ")
 		results (sort (map (# (trim-end %0 "\n"))
-			(filter nempty? (map (const second)
-				(pipe-farm (map (# (cat cmd %0))
-					(files-all +doc_root +doc_types)) 20000000)))))))
+				(filter nempty? (map (const second)
+						(pipe-farm (map (# (cat cmd %0))
+								(files-all +doc_root +doc_types)) 20000000)))))))
 
 (defun show-matches (files)
 	;show file matches
@@ -24,20 +24,20 @@
 
 (defun refresh-matches ()
 	(defq search_key (search-key
-		(defq pattern (. *find_text* :get_text)) *whole_words* *regexp* *ignore_case*))
+			(defq pattern (. *find_text* :get_text)) *whole_words* *regexp* *ignore_case*))
 	(unless (eql search_key *last_key*)
 		(clear-matches *last_files*)
 		(setq *last_files* '() *last_key* search_key)
 		(unless (eql pattern "")
 			(show-matches (setq *last_files*
-				(find-global pattern *whole_words* *regexp* *ignore_case*))))))
+						(find-global pattern *whole_words* *regexp* *ignore_case*))))))
 
 (defun find-update (&optional step)
 	(setd step 0)
 	(refresh-matches)
 	(bind '(search meta pattern) (query (. *find_text* :get_text) *whole_words* *regexp* *ignore_case*))
 	(defq found (and meta (nql pattern "")
-		(filter (# (. search :match? (if *ignore_case* (to-lower (get :text %0)) (get :text %0)) meta)) *search_widgets*))
+			(filter (# (. search :match? (if *ignore_case* (to-lower (get :text %0)) (get :text %0)) meta)) *search_widgets*))
 		cur_match (and *last_widget*
 			(some (# (if (= (. %0 :get_id) (. *last_widget* :get_id)) (!))) found)))
 	(if *last_widget*
@@ -45,11 +45,11 @@
 	(if (nempty? found)
 		(progn
 			(setq *last_widget* (cond
-				((and cur_match (= step 0))
-					(elem-get found cur_match))
-				(cur_match
-					(elem-get found (% (+ cur_match step (length found)) (length found))))
-				((if (< step 0) (last found) (first found)))))
+					((and cur_match (= step 0))
+						(elem-get found cur_match))
+					(cur_match
+						(elem-get found (% (+ cur_match step (length found)) (length found))))
+					((if (< step 0) (last found) (first found)))))
 			(def (. *last_widget* :dirty) :paper (get :paper_highlight *env*))
 			(. *page_scroll* :visible *last_widget*))
 		(setq *last_widget* :nil)))
@@ -77,7 +77,7 @@
 	(when (nempty? *last_files*)
 		(if (defq idx (find *current_file* *last_files*))
 			(setq *current_file* (elem-get
-				*last_files* (% (inc idx) (length *last_files*))))
+					*last_files* (% (inc idx) (length *last_files*))))
 			(setq *current_file* (first *last_files*)))
 		(show-file *current_file*)
 		(action-find-down)))
@@ -87,7 +87,7 @@
 	(when (nempty? *last_files*)
 		(if (defq idx (find *current_file* *last_files*))
 			(setq *current_file* (elem-get
-				*last_files* (% (+ idx (length *last_files*) -1) (length *last_files*))))
+					*last_files* (% (+ idx (length *last_files*) -1) (length *last_files*))))
 			(setq *current_file* (first *last_files*)))
 		(show-file *current_file*)
 		(action-find-down)))

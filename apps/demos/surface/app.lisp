@@ -50,7 +50,7 @@
 	;the pixels of the canvas are in shared memory, the nodes of this
 	;machine draw their tiles straight onto them
 	(ui-element *canvas* (if shared_pixmap (Canvas-pixmap shared_pixmap)
-		(Canvas +width +height +scale))))
+			(Canvas +width +height +scale))))
 
 (defun control-value ((name type lo hi slider label val init))
 	;the value of the input, from where its slider is, and the
@@ -60,7 +60,7 @@
 		((eql type :int) (+ lo v))
 		((= v init) (shader-real val))
 		((+ (shader-real lo) (/ (* (- (shader-real hi) (shader-real lo)) (n2r v))
-			(const (n2r +steps)))))))
+					(const (n2r +steps)))))))
 
 (defun control-text (type val)
 	(if (eql type :int) (str val) (real-to-str val 4)))
@@ -75,19 +75,19 @@
 	;a slider for each input of the shader that has a range, the app
 	;gives the others, the time and the size of the frame
 	(each (lambda ((name type val lo hi))
-		(when (and lo hi)
-			(defq slider (Slider) label (make-label "")
-				steps (if (eql type :int) (- hi lo) +steps))
-			(def slider :maximum steps :portion (max 1 (/ steps 10))
-				:min_width 256
-				:value (defq init (if (eql type :int) (- val lo)
-					(n2i (/ (* (- (shader-real val) (shader-real lo)) (n2r steps))
-						(- (shader-real hi) (shader-real lo)))))))
-			(view-variant slider :paper :paper_slider)
-			(. *names* :add_child (make-label (str name)))
-			(. *values* :add_child label)
-			(. *sliders* :add_child slider)
-			(push controls (list name type lo hi slider label val init))))
+			(when (and lo hi)
+				(defq slider (Slider) label (make-label "")
+					steps (if (eql type :int) (- hi lo) +steps))
+				(def slider :maximum steps :portion (max 1 (/ steps 10))
+					:min_width 256
+					:value (defq init (if (eql type :int) (- val lo)
+							(n2i (/ (* (- (shader-real val) (shader-real lo)) (n2r steps))
+									(- (shader-real hi) (shader-real lo)))))))
+				(view-variant slider :paper :paper_slider)
+				(. *names* :add_child (make-label (str name)))
+				(. *values* :add_child label)
+				(. *sliders* :add_child slider)
+				(push controls (list name type lo hi slider label val init))))
 		(first program)))
 
 (defun frame-inputs (now)
@@ -96,10 +96,10 @@
 			(list 'time (/ (n2r (- now start_time)) (const (n2r 1000000))))
 			(list 'resolution (list +width +height))))
 	(each (lambda (control)
-		(bind '(name type lo hi slider label &rest _) control)
-		(defq val (control-value control))
-		(push vals (list name val))
-		(. label :set_text (control-text type val))) controls)
+			(bind '(name type lo hi slider label &rest _) control)
+			(defq val (control-value control))
+			(push vals (list name val))
+			(. label :set_text (control-text type val))) controls)
 	(shader-pack program vals))
 
 (defun start-frame ()
@@ -108,8 +108,8 @@
 	(defq inputs (frame-inputs (setq frame_time (pii-time))))
 	(setq cpu_running :t)
 	(. jobs :add (map (# (shader-tile +shader_file inputs
-		0 %0 +width (min +height (+ %0 +line_batch)) +width +height shared_key))
-		(range 0 +height +line_batch))))
+					0 %0 +width (min +height (+ %0 +line_batch)) +width +height shared_key))
+			(range 0 +height +line_batch))))
 
 (defun to-cpu ()
 	;the frames are drawn by the CPU from here on
@@ -127,7 +127,7 @@
 	(unless gpu_inputs (setq gpu_inputs (frame-inputs (pii-time)) gpu_y 0))
 	(cond
 		((eql (defq drawn (. gpu_back :shade gpu_shader gpu_inputs 0 gpu_y +width
-				(defq y1 (min +height (+ gpu_y gpu_strip))))) :error)
+						(defq y1 (min +height (+ gpu_y gpu_strip))))) :error)
 			;the driver could not build the shader, so it is the CPU
 			(canvas-shader-destroy gpu_shader)
 			(setq gpu_shader :nil gpu_want :nil)
@@ -149,10 +149,10 @@
 			;a strip should take the GPU more than one tick and less than two,
 			;so the GPU is not left idle, and the GUI does not wait long
 			(setq gpu_strip (max 4 (min +height (case gpu_wait
-				(0 (inc (/ (* gpu_strip 5) 4)))
-				(1 gpu_strip)
-				(2 (/ (* gpu_strip 4) 5))
-				(:t (/ (* gpu_strip 2) (inc gpu_wait)))))))
+							(0 (inc (/ (* gpu_strip 5) 4)))
+							(1 gpu_strip)
+							(2 (/ (* gpu_strip 4) 5))
+							(:t (/ (* gpu_strip 2) (inc gpu_wait)))))))
 			(setq gpu_wait 0 gpu_y y1)
 			(when (>= gpu_y +height)
 				(. *canvas* :exchange gpu_back)
@@ -217,9 +217,9 @@
 						(. *canvas* :swap +swap_write)
 						(if (> (pii-time) notice_until)
 							(. *status* :set_text (cat "Frame "
-								(str (/ (- (pii-time) frame_time) 1000)) "ms, "
-								(str (length (lisp-nodes))) " nodes, native code on the CPU"
-								(if gpu_want ", while the driver builds the shader for the GPU" ""))))
+									(str (/ (- (pii-time) frame_time) 1000)) "ms, "
+									(str (length (lisp-nodes))) " nodes, native code on the CPU"
+									(if gpu_want ", while the driver builds the shader for the GPU" ""))))
 						(start-frame))))
 			(:t ;timer event, a strip of the GPU frame every tick, or all of it
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
@@ -229,8 +229,8 @@
 						(gpu_mode
 							(defq now (pii-time) rate (/ (* gpu_frames 10000000) (- now gpu_time)))
 							(. *status* :set_text (cat "GPU, "
-								(str (/ rate 10)) "." (str (% rate 10)) " frames a second"
-								(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") "")))
+									(str (/ rate 10)) "." (str (% rate 10)) " frames a second"
+									(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") "")))
 							(setq gpu_frames 0 gpu_time now))
 						;the shader is taking the driver a while, so the CPU starts
 						((not cpu_running) (start-frame))

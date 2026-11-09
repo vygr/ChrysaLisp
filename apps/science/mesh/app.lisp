@@ -40,7 +40,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_mode +sym_auto) +event_mode))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
-			(:paper :paper_toolbar2)) :connect +event_style)
+				(:paper :paper_toolbar2)) :connect +event_style)
 		;what draws the faces, the nodes, a strip each, or the GPU of the GUI
 		(. (ui-radio-bar *gpu_toolbar* ("CPU" "GPU") (:font :font_body)) :connect +event_gpu)
 		(ui-backdrop _ (:paper :paper_toolbar)))
@@ -69,7 +69,7 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-		(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
+			(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
 
 (defun get-rot (slider)
 	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
@@ -80,13 +80,12 @@
 	(each (lambda ((name command))
 			(push job_que (cat (str-alloc +mesh_name) (pad name 16) command)))
 		`(
-		("sphere.1" "(Mesh-iso (Iso-sphere 40 40 40) (n2r 0.25))")
-		("cube.1" "(Mesh-iso (Iso-cube 10 10 10) (n2r 0.45))")
-		("capsule" "(Mesh-iso (Iso-capsule 40 40 40) (n2r 0.25))")
-		("torus.1" "(Mesh-torus +real_1 +real_1/3 40)")
-		("sphere.2" "(Mesh-sphere +real_1/2 20)")
-		("teapot.1" ,(cat "(Mesh-obj (file-stream {" *app_root* "data/teapot.obj}))"))
-		))
+			("sphere.1" "(Mesh-iso (Iso-sphere 40 40 40) (n2r 0.25))")
+			("cube.1" "(Mesh-iso (Iso-cube 10 10 10) (n2r 0.45))")
+			("capsule" "(Mesh-iso (Iso-capsule 40 40 40) (n2r 0.25))")
+			("torus.1" "(Mesh-torus +real_1 +real_1/3 40)")
+			("sphere.2" "(Mesh-sphere +real_1/2 20)")
+			("teapot.1" ,(cat "(Mesh-obj (file-stream {" *app_root* "data/teapot.obj}))"))))
 	;create scene graph
 	(defq scene (Scene "root")
 		sphere_obj (Scene-object :nil (fixeds 1.0 1.0 1.0 1.0) "sphere.1")
@@ -95,8 +94,7 @@
 		cube_obj (Scene-object :nil (fixeds 0.8 1.0 1.0 0.0) "cube.1")
 		torus_obj (Scene-object :nil (fixeds 1.0 0.0 1.0 0.0) "torus.1")
 		sphere2_obj (Scene-object :nil (fixeds 0.8 1.0 0.0 1.0) "sphere.2")
-		teapot_obj (Scene-object :nil (fixeds 1.0 1.0 1.0 1.0) "teapot.1")
-		)
+		teapot_obj (Scene-object :nil (fixeds 1.0 1.0 1.0 1.0) "teapot.1"))
 	(. sphere_obj :set_translation (const (+ +real_-1/3 +real_-1/3)) (const (+ +real_-1/3 +real_-1/3)) (const (- +real_0 +focal_dist +real_1)))
 	(. torus_obj :set_translation (const (- +real_1/2 +real_1/3)) (const (+ +real_1/2 +real_1/3)) (const (- +real_0 +focal_dist +real_2)))
 	(. sphere2_obj :set_translation +real_0 +real_1/2 +real_0)
@@ -127,9 +125,9 @@
 	(defq count (. farm :size) size (* canvas_size canvas_scale))
 	(setq farm_key (canvas-key *main_widget*))
 	(. farm :add (map (# (shader-strip (first +scene_shiny_files) (second +scene_shiny_files)
-			(elem-get select +select_farm_ask) farm_key size size
-			(if rows (/ (* %0 size) count) 0) (if rows (/ (* (inc %0) size) count) 0) :t draws))
-		(range 0 count))))
+					(elem-get select +select_farm_ask) farm_key size size
+					(if rows (/ (* %0 size) count) 0) (if rows (/ (* (inc %0) size) count) 0) :t draws))
+			(range 0 count))))
 
 (defun warm-farm (draws)
 	;a child on each node, started, or started again, one with nothing to
@@ -139,8 +137,8 @@
 	;strip is one long call and would hold up the app and the GUI
 	(if farm (. farm :restart)
 		(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
-			(elem-get select +select_farm_reply)
-			(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)))
+				(elem-get select +select_farm_reply)
+				(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)))
 	(setq warming :t farming :nil last_farm 1)
 	(strips draws :nil))
 
@@ -154,7 +152,7 @@
 		;the pair of shaders, the first time, the driver builds it in its
 		;own time
 		(unless (setq gpu_pair (shader-gui-pair (shader-load (first +scene_shiny_files))
-				(shader-load (second +scene_shiny_files)) :t))
+					(shader-load (second +scene_shiny_files)) :t))
 			(setq gpu_failed :t)))
 	;a host that can not, and the button goes back
 	(when (and *use_gpu* gpu_failed)
@@ -162,13 +160,13 @@
 		(. *gpu_toolbar* :set_selected 0))
 	(when (and *use_gpu* gpu_pair)
 		(defq drawn (shader-gui-frame *main_widget*
-			(map (lambda ((id vblock pblock &rest _))
-				;a mesh goes to the GPU the first time it is drawn, and
-				;is kept there
-				(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
-				(unless (elem-get gpu_meshes id)
-					(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
-				(list gpu_pair (ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws)))
+				(map (lambda ((id vblock pblock &rest _))
+						;a mesh goes to the GPU the first time it is drawn, and
+						;is kept there
+						(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
+						(unless (elem-get gpu_meshes id)
+							(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
+						(list gpu_pair (ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws)))
 		(cond
 			((eql drawn :error)
 				;a pair the driver could not build is still let go of
@@ -196,7 +194,7 @@
 			(. *main_widget* :fill 0)
 			(strips draws :t))
 		(:t (and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
-					(> (length (lisp-nodes :t)) 1)
+				(> (length (lisp-nodes :t)) 1)
 				(warm-farm draws))
 			(.-> scene (:draw *main_widget* draws))
 			(. *main_widget* :swap +swap_write))))
@@ -254,10 +252,10 @@
 				(when (defq out (. jobs :answered *msg*))
 					(defq mesh_name (trim (getf *msg* +mesh_reply_name))
 						mesh (Mesh-data
-								(getf *msg* +mesh_reply_num_verts)
-								(getf *msg* +mesh_reply_num_norms)
-								(getf *msg* +mesh_reply_num_tris)
-								(slice *msg* +mesh_reply_data -1)))
+							(getf *msg* +mesh_reply_num_verts)
+							(getf *msg* +mesh_reply_num_norms)
+							(getf *msg* +mesh_reply_num_tris)
+							(slice *msg* +mesh_reply_data -1)))
 					(each (# (. %0 :set_mesh mesh)) (. scene :find_nodes mesh_name))
 					(setq *dirty* :t)
 					(when (= out 0)

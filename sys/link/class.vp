@@ -42,7 +42,7 @@
 	(vp-rdef (node zero))
 	(assign '((& :rsp slot_lk_node) 0) `(,node ,zero))
 	(save-fields node
-			`(lk_node_task_count lk_node_peer_pid lk_node_sent lk_node_remote
+		`(lk_node_task_count lk_node_peer_pid lk_node_sent lk_node_remote
 			,(+ lk_node_peer_node_id +node_id_node1)
 			,(+ lk_node_peer_node_id +node_id_node2)
 			,(+ lk_node_peer_system_id +node_id_node1)
@@ -207,11 +207,11 @@
 				(assign '((& :r0 lk_buf_size) (:rsp slot_lk_node)) `(,src ,dst))
 				(assign-fields
 					src
-						`(,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
+					`(,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
 						,(+ lk_node_peer_system_id +node_id_node1) ,(+ lk_node_peer_system_id +node_id_node2)
 						lk_node_task_count lk_node_peer_pid)
 					dst
-						`(,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
+					`(,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
 						,(+ lk_node_peer_system_id +node_id_node1) ,(+ lk_node_peer_system_id +node_id_node2)
 						lk_node_task_count lk_node_peer_pid)
 					`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
@@ -247,7 +247,7 @@
 					(vp-add-cr lk_buf_size rx_frag)
 					(assign-fields
 						rx_frag
-							`(lk_frag_length lk_frag_offset lk_frag_total
+						`(lk_frag_length lk_frag_offset lk_frag_total
 							,(+ lk_frag_dest +net_id_mbox_id)
 							,(+ lk_frag_dest +net_id_node_id +node_id_node1)
 							,(+ lk_frag_dest +net_id_node_id +node_id_node2)
@@ -255,7 +255,7 @@
 							,(+ lk_frag_src +net_id_node_id +node_id_node1)
 							,(+ lk_frag_src +net_id_node_id +node_id_node2))
 						msg
-							`(+msg_length +msg_offset +msg_total
+						`(+msg_length +msg_offset +msg_total
 							,(+ +msg_dest +net_id_mbox_id)
 							,(+ +msg_dest +net_id_node_id +node_id_node1)
 							,(+ +msg_dest +net_id_node_id +node_id_node2)
@@ -484,7 +484,7 @@
 			(load-node-id :rsp slot_node_id :r2 :r3)
 			(load-node-id :rsp slot_system_id :r4 :r5)
 			(save-fields :r0
-					`(lk_node_task_count
+				`(lk_node_task_count
 					,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
 					,(+ lk_node_peer_system_id +node_id_node1) ,(+ lk_node_peer_system_id +node_id_node2)
 					lk_node_peer_pid)
@@ -528,7 +528,7 @@
 			(vp-add-cr lk_buf_size tx_frag)
 			(assign-fields
 				msg
-					`(+msg_length +msg_offset +msg_total
+				`(+msg_length +msg_offset +msg_total
 					,(+ +msg_dest +net_id_mbox_id)
 					,(+ +msg_dest +net_id_node_id +node_id_node1)
 					,(+ +msg_dest +net_id_node_id +node_id_node2)
@@ -536,7 +536,7 @@
 					,(+ +msg_src +net_id_node_id +node_id_node1)
 					,(+ +msg_src +net_id_node_id +node_id_node2))
 				tx_frag
-					`(lk_frag_length lk_frag_offset lk_frag_total
+				`(lk_frag_length lk_frag_offset lk_frag_total
 					,(+ lk_frag_dest +net_id_mbox_id)
 					,(+ lk_frag_dest +net_id_node_id +node_id_node1)
 					,(+ lk_frag_dest +net_id_node_id +node_id_node2)
@@ -685,7 +685,7 @@
 					(vp-add-cr lk_buf_size rx_frag)
 					(assign-fields
 						rx_frag
-							`(lk_frag_length lk_frag_offset lk_frag_total
+						`(lk_frag_length lk_frag_offset lk_frag_total
 							,(+ lk_frag_dest +net_id_mbox_id)
 							,(+ lk_frag_dest +net_id_node_id +node_id_node1)
 							,(+ lk_frag_dest +net_id_node_id +node_id_node2)
@@ -693,7 +693,7 @@
 							,(+ lk_frag_src +net_id_node_id +node_id_node1)
 							,(+ lk_frag_src +net_id_node_id +node_id_node2))
 						msg
-							`(+msg_length +msg_offset +msg_total
+						`(+msg_length +msg_offset +msg_total
 							,(+ +msg_dest +net_id_mbox_id)
 							,(+ +msg_dest +net_id_node_id +node_id_node1)
 							,(+ +msg_dest +net_id_node_id +node_id_node2)
@@ -725,7 +725,7 @@
 		(vp-rdef (node zero))
 		(assign '((:rsp slot_lk_node) 0) `(,node ,zero))
 		(save-fields node
-				`(lk_node_peer_pid
+			`(lk_node_peer_pid
 				,(+ lk_node_peer_node_id +node_id_node1)
 				,(+ lk_node_peer_node_id +node_id_node2)
 				,(+ lk_node_peer_system_id +node_id_node1)
@@ -824,7 +824,7 @@
 			(vpif `(,vid1 = 0))
 				(vp-cpy-cr +node_session_gone vid1)
 				(assign `(,vid1 ,vid1) `((,vias ,(* +node_session_cluster +long_size))
-					(,vias ,(* +node_session_sys +long_size))))
+						(,vias ,(* +node_session_sys +long_size))))
 			(endif)
 		(endif)
 	(endif)

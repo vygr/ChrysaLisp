@@ -18,8 +18,8 @@
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
-			(defq stdio (create-stdio))
-			(defq opt_c 10 args (options stdio usage))
+		(defq stdio (create-stdio))
+		(defq opt_c 10 args (options stdio usage))
 		(if (<= (length args) 1)
 			(lines! print (io-stream 'stdin) 0 opt_c)
 			(with-read-lock (second args)

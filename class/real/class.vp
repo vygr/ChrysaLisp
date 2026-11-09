@@ -168,7 +168,7 @@
 		(vp-load-rcr :r1 0 :r5)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r5 +num_value)) '(:d1))
-	(gotoif '(:d1 = :d3) 'error)
+		(gotoif '(:d1 = :d3) 'error)
 		(exec p)
 	(loop-until '(:r1 = :r4))
 	(v-jump :num :vcreate '(:d0) :r5 :r1)

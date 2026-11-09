@@ -46,7 +46,7 @@
 		; (. fmap :each lambda) -> fmap
 		(defq e (penv))
 		(each (lambda (bucket)
-			(each (lambda ((k v)) (callback fnc e k v)) (partition bucket 2)))
+				(each (lambda ((k v)) (callback fnc e k v)) (partition bucket 2)))
 			(get :buckets this))
 		this)
 
@@ -54,7 +54,7 @@
 		; (. fmap :tolist) -> list
 		(defq out (list))
 		(each (lambda (bucket)
-			(each (lambda (pair) (push out pair)) (partition bucket 2)))
+				(each (lambda (pair) (push out pair)) (partition bucket 2)))
 			(get :buckets this))
 		out)
 
@@ -69,7 +69,7 @@
 		(defq that ((get 'Fmap) (get :num_buckets this))
 			that_buckets (get :buckets that))
 		(each (lambda (this_bucket that_bucket)
-			(each (lambda ((k v)) (pinsert that_bucket (copy k) (copy v))) (partition this_bucket 2)))
+				(each (lambda ((k v)) (pinsert that_bucket (copy k) (copy v))) (partition this_bucket 2)))
 			(get :buckets this) that_buckets)
 		that)
 
@@ -92,7 +92,7 @@
 		(lower :num_buckets (:buckets new_buckets))
 		(raise :num_buckets)
 		(each (lambda (old_bucket)
-			(each (lambda ((k v)) (pinsert (elem-get new_buckets (% (hash k) num_buckets)) k v)) (partition old_bucket 2)))
+				(each (lambda ((k v)) (pinsert (elem-get new_buckets (% (hash k) num_buckets)) k v)) (partition old_bucket 2)))
 			buckets)
 		this)
 
@@ -102,8 +102,7 @@
 
 	(defmethod :size ()
 		; (. fmap :size) -> size
-		(/ (reduce (# (+ %0 (length %1))) (get :buckets this) 0) 2))
-	)
+		(/ (reduce (# (+ %0 (length %1))) (get :buckets this) 0) 2)))
 
 ;module
 (export-classes '(Fmap))

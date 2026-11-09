@@ -43,8 +43,8 @@
 (wt-go '(1 :pen 0 550 255) '(2 :pen 0 450 338))
 (assert-list-eq "two pens at once draw two lines" '(1 2 3) (wt-ids))
 (assert-true "one along each side" (and
-	(wt-near? (wt-numbers (cwb-get (second (cwb-items (. wt_board :get_doc))) :d)) '(250 260 550 260))
-	(wt-near? (wt-numbers (cwb-get (third (cwb-items (. wt_board :get_doc))) :d)) '(250 340 450 340))))
+		(wt-near? (wt-numbers (cwb-get (second (cwb-items (. wt_board :get_doc))) :d)) '(250 260 550 260))
+		(wt-near? (wt-numbers (cwb-get (third (cwb-items (. wt_board :get_doc))) :d)) '(250 340 450 340))))
 (assert-eq "and then it has none" 0 (. wt_ruler :held))
 
 ;a finger in its middle moves it
@@ -201,8 +201,8 @@
 	(def wt_pro :mode mode)
 	(defq at :nil)
 	(each (lambda (deg) (defq a (neg (* (n2f deg) (/ +fp_pi 180.0))))
-		(setq at (list (+ 400.0 (* 184.0 (cos a))) (+ 300.0 (* 184.0 (sin a)))))
-		(wt-go (cat '(1 :pen 1) at))) degs)
+			(setq at (list (+ 400.0 (* 184.0 (cos a))) (+ 300.0 (* 184.0 (sin a)))))
+			(wt-go (cat '(1 :pen 1) at))) degs)
 	;it comes up where it is
 	(wt-go (cat '(1 :pen 0) at))
 	(wt-last-d))
@@ -226,10 +226,10 @@
 	;eighty short arcs, of a few thousandths of a turn, round a circle about 400 300: the furthest any point is off it
 	(defq worst 0.0)
 	(each (lambda (i)
-		(defq a0 (* (n2f i) 0.0731) a1 (+ a0 (* (n2f (inc (% i 7))) 0.004))
-			x0 (+ 400.0 (* r (cos a0))) y0 (+ 300.0 (* r (sin a0))))
-		(each (lambda ((x y)) (setq worst (max worst (abs (- (sqrt (+ (* (- x 400.0) (- x 400.0)) (* (- y 300.0) (- y 300.0)))) r)))))
-			(partition (path-gen-earc x0 y0 r r 0.0 0.0 1.0 (+ 400.0 (* r (cos a1))) (+ 300.0 (* r (sin a1))) (path x0 y0)) 2)))
+			(defq a0 (* (n2f i) 0.0731) a1 (+ a0 (* (n2f (inc (% i 7))) 0.004))
+				x0 (+ 400.0 (* r (cos a0))) y0 (+ 300.0 (* r (sin a0))))
+			(each (lambda ((x y)) (setq worst (max worst (abs (- (sqrt (+ (* (- x 400.0) (- x 400.0)) (* (- y 300.0) (- y 300.0)))) r)))))
+				(partition (path-gen-earc x0 y0 r r 0.0 0.0 1.0 (+ 400.0 (* r (cos a1))) (+ 300.0 (* r (sin a1))) (path x0 y0)) 2)))
 		(range 0 80))
 	worst)
 (assert-true "a short arc of a circle of 180 is on the circle, to a twentieth of a pixel" (< (wt-arc-off 180.0) 0.05))
@@ -255,9 +255,9 @@
 (assert-true "dragged out by its outer scale, half as far again from its middle, it is half as big again"
 	(and (wt-near? (get :length wt_pro) 540.0 0.5) (wt-near? (get :origin wt_pro) '(400 300) 0.01)))
 (assert-list-eq "seen no bigger, it is made bigger: its round side is of that radius, and the marks of its straight side are as far apart, to further out"
-;a millimetre is a tenth of a square of the paper, 3.2 of a grid of 32
+	;a millimetre is a tenth of a square of the paper, 3.2 of a grid of 32
 	'(1 270 3 265) (progn (defq wt_base (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
-			(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))))
+					(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))))
 		(list (n2i (get :size wt_pro)) (n2i (elem-get (first (get :edges wt_pro)) 3))
 			(n2i (elem-get wt_base 4)) (n2i (reduce (# (max %0 (first %1))) (partition wt_base 4) 0.0)))))
 (. wt_pro :set_extent 540.0)
@@ -284,7 +284,7 @@
 (defun wt-round (x) (n2i (floor (+ x 0.5))))
 (each (lambda ((x y x1 y1)) (if (find (wt-round x) '(0 32 -32)) (push wt_found (list (wt-round x) (n2i (abs (- y y1)))))))
 	(partition (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
-		(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))) 4))
+				(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))) 4))
 (assert-list-eq "the marks of its straight side have a long one at its middle and at each centimetre from it"
 	'((-32 8) (0 8) (0 8) (32 8)) (sort wt_found (# (- (first %0) (first %1)))))
 ;the angle it is at is written on it
@@ -304,7 +304,6 @@
 	(list (n2i (first (first (get :readouts wt_ruler)))) (n2i (first (second (get :readouts wt_ruler))))
 		(= (length (first (get :readouts wt_ruler))) 2)))
 (. wt_stage :sub wt_ruler)
-
 
 ;;;;;;;;;;;;;;;;
 ; the set square
@@ -477,8 +476,8 @@
 (defun hv-shown ()
 	;each that is shown: which instrument, and which of its edges
 	(map (lambda ((tool edge))
-		(list (cond ((eql tool hv_ruler) :ruler) ((eql tool hv_pro) :protractor) ((eql tool hv_round) :circle) (:t :other))
-			(some (# (if (eql %0 edge) (!))) (get :edges tool))))
+			(list (cond ((eql tool hv_ruler) :ruler) ((eql tool hv_pro) :protractor) ((eql tool hv_round) :circle) (:t :other))
+				(some (# (if (eql %0 edge) (!))) (get :edges tool))))
 		(partition (get :hover_shown hv_board) 2)))
 (assert-eq "it is on, as a board is made" :t (get :hover_edges hv_board))
 (hv-go '(7 :pen 0 630 70))
@@ -525,12 +524,12 @@
 (defun hv-true (tool)
 	(defq band (/ +tool_band (* (get :zoom hv_board) (get :size tool))) worst 0.0)
 	(each (lambda (edge)
-		(each (lambda (points)
-			(each (lambda ((x y))
-				(bind '(px py) (. tool :on_edge edge x y))
-				(setq worst (max worst (abs (- (sqrt (+ (* (- x px) (- x px)) (* (- y py) (- y py)))) band)))))
-				(partition points 2)))
-			(tool-catch edge band)))
+			(each (lambda (points)
+					(each (lambda ((x y))
+							(bind '(px py) (. tool :on_edge edge x y))
+							(setq worst (max worst (abs (- (sqrt (+ (* (- x px) (- x px)) (* (- y py) (- y py)))) band)))))
+						(partition points 2)))
+				(tool-catch edge band)))
 		(get :edges tool))
 	(< worst 0.05))
 (assert-true "round the two sides of a ruler" (hv-true hv_ruler))
@@ -711,4 +710,4 @@
 (eb-stroke +pev_right -30.0 30.0)
 (assert-eq "the left draws a line along the edge, the right, set to rub out, takes a bite out of it there"
 	"(1 :t :nil)" (str (list (length (cwb-items (. eb_board :get_doc))) (if (str? eb_drawn) :t)
-		(eql (cwb-get (first (cwb-items (. eb_board :get_doc))) :d) eb_drawn))))
+			(eql (cwb-get (first (cwb-items (. eb_board :get_doc))) :d) eb_drawn))))

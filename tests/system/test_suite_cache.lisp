@@ -8,16 +8,16 @@
 ;.git/, nor a test module a string names, nor a command a check's name
 ;starts with: prose
 (defq sc_names (test-file-scan "tests/system/test_suite_cache.lisp" (join (list
-	"(import \q./test_pipe.lisp\q)"
-	"(import \qlib/files/files.inc\q)"
-	"(import \qlib/no/such/file.inc\q)"
-	"(defq a (load \qapps/demos/surface/surface.shader\q) b {cmd/tests.lisp})"
-	"(pipe-run \qsort -r | head -n 2\q print)"
-	"(defq me \qtests/system/test_suite_cache.lisp\q)"
-	"(defq no_string (+ 1 2) path lib/task/pipe.inc)"
-	"(defq folders (list \qlib/\q \q/\q \qobj/\q) index \q.git/index\q)"
-	"(defq other \qtests/core/test_flow_edges.lisp\q)"
-	"(assert-eq \qmake it, the latest with key one\q 1 1)") "\n")))
+				"(import \q./test_pipe.lisp\q)"
+				"(import \qlib/files/files.inc\q)"
+				"(import \qlib/no/such/file.inc\q)"
+				"(defq a (load \qapps/demos/surface/surface.shader\q) b {cmd/tests.lisp})"
+				"(pipe-run \qsort -r | head -n 2\q print)"
+				"(defq me \qtests/system/test_suite_cache.lisp\q)"
+				"(defq no_string (+ 1 2) path lib/task/pipe.inc)"
+				"(defq folders (list \qlib/\q \q/\q \qobj/\q) index \q.git/index\q)"
+				"(defq other \qtests/core/test_flow_edges.lisp\q)"
+				"(assert-eq \qmake it, the latest with key one\q 1 1)") "\n")))
 (assert-list-eq "what a file names"
 	'("apps/demos/surface/surface.shader" "cmd/head.lisp" "cmd/sort.lisp" "cmd/tests.lisp"
 		"lib/files/files.inc" "tests/system/test_pipe.lisp")

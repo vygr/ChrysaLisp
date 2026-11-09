@@ -62,7 +62,7 @@
 (defun size-of (text)
 	;800x600 as (800 600), :nil if it is not that
 	(defq nums (filter (# (and %0 (> %0 0))) (map (const str-to-num)
-		(split text (const (char-class " xX,*"))))))
+				(split text (const (char-class " xX,*"))))))
 	(if (= (length nums) 2) (list (n2i (first nums)) (n2i (second nums)))))
 
 (defun tenth (n)
@@ -74,11 +74,11 @@
 	;the events of a line of a pointers file, :nil if it has none
 	(defq text (first (split (cat line " #") "#")) events (list))
 	(each (lambda (part)
-		(defq words (split part (const (char-class " \t\r"))))
-		(when (= (length words) 5)
-			(bind '(id kind buttons x y) words)
-			(push events (ptr-event (str-to-num id) (sym (cat ":" kind)) (str-to-num buttons)
-				(str-to-num x) (str-to-num y)))))
+			(defq words (split part (const (char-class " \t\r"))))
+			(when (= (length words) 5)
+				(bind '(id kind buttons x y) words)
+				(push events (ptr-event (str-to-num id) (sym (cat ":" kind)) (str-to-num buttons)
+						(str-to-num x) (str-to-num y)))))
 		(split text ";"))
 	(if (nempty? events) events))
 
@@ -87,25 +87,25 @@
 	(print "size " (. doc :find :width) "x" (. doc :find :height)
 		" background " (. doc :find :background) " grid " (. doc :find :grid))
 	(each (lambda ((name flags items))
-		(print "layer " (!) " \q" name "\q"
-			(if (bits? flags 1) " hidden" "") (if (bits? flags 2) " locked" "")
-			" items " (length items))
-		;a group, then what is in it, a list of what is left to say
-		(defq todo (rmap (# (list %0 1)) items))
-		(while (defq next (pop todo))
-			(bind '(item depth) next)
-			(defq box (cwb-bounds (list item)))
-			(print (pad "" (* depth 2)) (elem-get item +cwb_id) " "
-				(if (cwb-group? item) "group" (rest (str (elem-get item +cwb_kind))))
-				(if (nempty? (elem-get item +cwb_name)) (cat " \q" (elem-get item +cwb_name) "\q") "")
-				(if box (cat " box " (join (map (const tenth) box) " ")) "")
-				(cond
-					((cwb-group? item) (cat " items " (str (length (elem-get item +cwb_items)))))
-					((eql (elem-get item +cwb_kind) :text) (cat " \q" (elem-get item +cwb_text) "\q"))
-					(:t (cat " d " (if (> (length (elem-get item +cwb_d)) 60)
-						(cat (slice (elem-get item +cwb_d) 0 60) "...") (elem-get item +cwb_d))))))
-			(if (cwb-group? item)
-				(reach (# (push todo (list %0 (inc depth)))) (elem-get item +cwb_items)))))
+			(print "layer " (!) " \q" name "\q"
+				(if (bits? flags 1) " hidden" "") (if (bits? flags 2) " locked" "")
+				" items " (length items))
+			;a group, then what is in it, a list of what is left to say
+			(defq todo (rmap (# (list %0 1)) items))
+			(while (defq next (pop todo))
+				(bind '(item depth) next)
+				(defq box (cwb-bounds (list item)))
+				(print (pad "" (* depth 2)) (elem-get item +cwb_id) " "
+					(if (cwb-group? item) "group" (rest (str (elem-get item +cwb_kind))))
+					(if (nempty? (elem-get item +cwb_name)) (cat " \q" (elem-get item +cwb_name) "\q") "")
+					(if box (cat " box " (join (map (const tenth) box) " ")) "")
+					(cond
+						((cwb-group? item) (cat " items " (str (length (elem-get item +cwb_items)))))
+						((eql (elem-get item +cwb_kind) :text) (cat " \q" (elem-get item +cwb_text) "\q"))
+						(:t (cat " d " (if (> (length (elem-get item +cwb_d)) 60)
+									(cat (slice (elem-get item +cwb_d) 0 60) "...") (elem-get item +cwb_d))))))
+				(if (cwb-group? item)
+					(reach (# (push todo (list %0 (inc depth)))) (elem-get item +cwb_items)))))
 		(cwb-layers doc)))
 
 (defun main ()
@@ -126,21 +126,21 @@
 				(defq board (palette-enable (Board doc)) clock 0)
 				;what is done to it, in an environment that has board and doc
 				(each (lambda (text)
-					(when text
-						(setq changed :t)
-						(catch (repl (string-stream text) "cwb")
-							(progn (print "Error: " (str _)) :t))))
+						(when text
+							(setq changed :t)
+							(catch (repl (string-stream text) "cwb")
+								(progn (print "Error: " (str _)) :t))))
 					(list opt_e (if opt_s (load opt_s))))
 				(when opt_p
 					(setq changed :t)
 					;the time is told to the board as the lines go, microseconds
 					(lines! (lambda (line)
-						(defq words (split line (const (char-class " \t\r"))))
-						(and (= (length words) 2) (eql (first words) "wait") (defq ms (str-to-num (second words)))
-							(setq clock (+ clock (* (n2i ms) 1000))))
-						(if (defq events (pointer-events line)) (. board :pointers events))
-						(. board :tick (setq clock (+ (max clock (get :time board)) 16667)))
-						:nil) (file-stream opt_p)))
+							(defq words (split line (const (char-class " \t\r"))))
+							(and (= (length words) 2) (eql (first words) "wait") (defq ms (str-to-num (second words)))
+								(setq clock (+ clock (* (n2i ms) 1000))))
+							(if (defq events (pointer-events line)) (. board :pointers events))
+							(. board :tick (setq clock (+ (max clock (get :time board)) 16667)))
+							:nil) (file-stream opt_p)))
 				(setq doc (. board :get_doc))
 				(if opt_i (info doc))
 				(when opt_o

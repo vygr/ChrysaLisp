@@ -432,7 +432,7 @@
 
 ; --- Start of File & End of File (sof / eof) ---
 (defq b (Buffer))
-(. b :insert "012\n456\n89") 
+(. b :insert "012\n456\n89")
 ; Buffer state contains:
 ; Line 0: "012\n" (4 chars)
 ; Line 1: "456\n" (4 chars)

@@ -80,15 +80,15 @@
 					(:comment
 						(if (nempty? (substr (third node) ";check off")) (push off (second node))))))
 			(each (lambda ((name at inside head))
-				(and (defq n (. defs_map :find name)) (not (find at off)) (not (find (dec at) off))
-					(cond
-						;used above where it is defined, as the head of a form.
-						;Anywhere else it may be a name of something else, an
-						;enum called main in a file that has a main
-						((and head (< at n)) (print file " (" at ") " name))
-						;a function used in its own definition, it calls itself
-						((and inside (eql (first inside) name) (eql (second inside) "defun"))
-							(print file " (" at ") " name " calls itself")))))
+					(and (defq n (. defs_map :find name)) (not (find at off)) (not (find (dec at) off))
+						(cond
+							;used above where it is defined, as the head of a form.
+							;Anywhere else it may be a name of something else, an
+							;enum called main in a file that has a main
+							((and head (< at n)) (print file " (" at ") " name))
+							;a function used in its own definition, it calls itself
+							((and inside (eql (first inside) name) (eql (second inside) "defun"))
+								(print file " (" at ") " name " calls itself")))))
 				uses))))
 
 (defun main ()
@@ -108,6 +108,6 @@
 			;do them all out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (str (first args)
-						" -j " opt_j
-						" " (slice (str %0) 1 -2)))
-					(partition jobs opt_j)))))))
+								" -j " opt_j
+								" " (slice (str %0) 1 -2)))
+						(partition jobs opt_j)))))))

@@ -103,7 +103,7 @@
 		(unless (defq flat (get :fig_flat this))
 			(raise :fig_outline :fig_width :fig_trim :fig_join :fig_cap1 :fig_cap2 :fig_fill :fig_stroke)
 			(def this :fig_flat (setq flat (outline-flat fig_outline fig_fill fig_stroke (* 0.5 fig_width)
-				fig_join fig_cap1 fig_cap2 fig_trim))))
+						fig_join fig_cap1 fig_cap2 fig_trim))))
 		flat)
 
 	(defmethod :local ()
@@ -131,5 +131,4 @@
 				comps)
 			(when over
 				(each (lambda (comp) (comp-over comp this)) over)))
-		this)
-	)
+		this))

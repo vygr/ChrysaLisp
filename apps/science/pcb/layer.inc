@@ -34,9 +34,9 @@
 
 (defun hit-line? (record layer_line)
 	(defq d (+ (elem-get layer_line +layer_line_radius)
-				(elem-get (elem-get record +record_layer_line) +layer_line_radius)
-				(max (elem-get layer_line +layer_line_gap)
-					(elem-get (elem-get record +record_layer_line) +layer_line_gap)))
+			(elem-get (elem-get record +record_layer_line) +layer_line_radius)
+			(max (elem-get layer_line +layer_line_gap)
+				(elem-get (elem-get record +record_layer_line) +layer_line_gap)))
 		p1 (slice layer_line +layer_line_x1 +layer_line_x2)
 		p2 (slice layer_line +layer_line_x2 +layer_line_radius)
 		dp1 (- (vector-dot (elem-get record +record_norm) p1) (elem-get record +record_dist))
@@ -49,15 +49,15 @@
 (defun hit-line (buckets minx miny maxx maxy width id line)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
 	(while (and (<= (++ miny width) maxy)
-				(not (defq hit (some!
-					(lambda (bucket)
-						(some (lambda (record)
-							(when (/= (elem-get record +record_id) id)
-								(elem-set record +record_id id)
-								(hit-line? record line)))
-							bucket))
-					(list buckets) :nil (+ miny minx) (+ miny maxx 1)))))
-	hit))
+			(not (defq hit (some!
+						(lambda (bucket)
+							(some (lambda (record)
+									(when (/= (elem-get record +record_id) id)
+										(elem-set record +record_id id)
+										(hit-line? record line)))
+								bucket))
+						(list buckets) :nil (+ miny minx) (+ miny maxx 1)))))
+		hit))
 
 (defun add-line (buckets minx miny maxx maxy width record)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
@@ -69,12 +69,12 @@
 	(defq miny (* (dec miny) width) maxy (* maxy width))
 	(while (<= (++ miny width) maxy)
 		(each! (lambda (bucket)
-			(when (defq idx (some
-					(lambda (record)
-						(if (eql (elem-get record +record_layer_line) layer_line) _))
-					bucket))
-				(elem-set bucket idx (last bucket))
-				(pop bucket)))
+				(when (defq idx (some
+							(lambda (record)
+								(if (eql (elem-get record +record_layer_line) layer_line) _))
+							bucket))
+					(elem-set bucket idx (last bucket))
+					(pop bucket)))
 			(list buckets) (+ miny minx) (+ miny maxx 1))))
 
 ;native versions, hit-line with the test of hit-line? in it, the same
@@ -95,8 +95,8 @@
 		; (. layer :aabb layer_line) -> aabb
 		(bind '(x1 y1 x2 y2 radius gap) layer_line)
 		(raise :scale (radius (+ radius gap)
-			width (dec (get :width this))
-			height (dec (get :height this))))
+				width (dec (get :width this))
+				height (dec (get :height this))))
 		(if (< x1 x2)
 			(if (< y1 y2)
 				(list (min width (max 0 (n2i (* (- x1 radius) scale))))
@@ -145,12 +145,11 @@
 		(while (<= (++ miny width) maxy)
 			(each! (lambda (bucket)
 					(each (lambda (record)
-						(when (/= (elem-get record +record_id) id)
-							(elem-set record +record_id id)
-							(if (hit-line? record layer_line) (++ n)))) bucket))
+							(when (/= (elem-get record +record_id) id)
+								(elem-set record +record_id id)
+								(if (hit-line? record layer_line) (++ n)))) bucket))
 				(list buckets) (+ miny minx) (+ miny maxx 1)))
-		n)
-	)
+		n))
 
 (defclass Layers (width height depth scale) :nil
 	; (Layers width height depth scale) -> layers
@@ -189,7 +188,7 @@
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
 		(raise :layers)
 		(while (and (<= z1 z2)
-					(not (defq hit (. (elem-get layers (n2i z1)) :hit_line layer_line))))
+				(not (defq hit (. (elem-get layers (n2i z1)) :hit_line layer_line))))
 			(setq z1 (+ z1 1.0)))
 		hit)
 
@@ -234,10 +233,9 @@
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
 		(raise :layers)
 		(while (and (<= z1 z2)
-					(not (defq hit (. (elem-get layers (n2i z1)) :hit_line layer_line))))
+				(not (defq hit (. (elem-get layers (n2i z1)) :hit_line layer_line))))
 			(setq z1 (+ z1 1.0)))
-		hit)
-	)
+		hit))
 
 ;module
 (export-symbols '(Layer-line Layers-line Record hit-line? hit-line))

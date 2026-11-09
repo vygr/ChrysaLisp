@@ -152,7 +152,7 @@
 		;middle of a mouse is both; a finger is all its device
 		(each (lambda (buttons)
 				(defq rule (some (lambda (r) (and (eql (first r) kind) (eql (second r) id) (eql (third r) buttons) r))
-					(get :rules this)))
+						(get :rules this)))
 				(unless rule
 					(. this :bind kind id buttons (cat (ifn (. this :find (list (ifn id 0) kind (ifn buttons 0))) (list))))
 					(setq rule (first (get :rules this))))
@@ -175,26 +175,25 @@
 		; (. bindings :unbind kind id buttons) -> bindings
 		;the rules that match just that are taken out
 		(def this :rules (filter (lambda ((rkind rid rbuttons &ignore))
-			(not (and (eql rkind kind) (eql rid id) (eql rbuttons buttons))))
-			(get :rules this)))
+					(not (and (eql rkind kind) (eql rid id) (eql rbuttons buttons))))
+				(get :rules this)))
 		this)
 
 	(defmethod :find (event)
 		; (. bindings :find event) -> :nil | what
 		(bind '(id kind buttons &ignore) event)
 		(some (lambda ((rkind rid rbuttons what))
-			(and (or (not rkind) (eql rkind kind))
+				(and (or (not rkind) (eql rkind kind))
 					(or (not rid) (= rid (ptr-device id)))
 					(or (not rbuttons) (= (logand buttons rbuttons) rbuttons))
-				what))
+					what))
 			(get :rules this)))
 
 	(defmethod :value (event key &optional default)
 		; (. bindings :value event key [default]) -> value
 		;one thing of what a pointer is to be
 		(defq what (. this :find event) at (if what (ptr-at what key)))
-		(if at (elem-get what at) default))
-	)
+		(if at (elem-get what at) default)))
 
 (defun bindings-default ()
 	; (bindings-default) -> bindings
@@ -260,7 +259,7 @@
 		(defq key (. this :zones_key) claim (get :claim this))
 		(unless (and claim (eql (first claim) key))
 			(defq zones (map (lambda ((name polys))
-					(list name (map (# (if (list? %0) (apply (const path) %0) %0)) polys)))
+						(list name (map (# (if (list? %0) (apply (const path) %0) %0)) polys)))
 					(. this :zones))
 				all (if (nempty? zones) (apply (const cat) (map (const second) zones)) (list))
 				outline (if (nempty? all) (poly-union all (list) 1) (list))
@@ -268,7 +267,7 @@
 			(each (lambda (poly)
 					(each (lambda ((x y))
 							(setq box (if box (list (min x (first box)) (min y (second box)) (max x (third box)) (max y (elem-get box 3)))
-								(list x y x y))))
+									(list x y x y))))
 						(partition poly 2)))
 				outline)
 			(def this :claim (setq claim (list key zones outline box))))
@@ -344,8 +343,7 @@
 		; (. actor :drawing?) -> :t | :nil
 		;is any pointer that is down on it drawing something, a line that
 		;is not yet done. One that has anything to draw with says
-		:nil)
-	)
+		:nil))
 
 ;;;;;;;
 ; stage
@@ -418,28 +416,28 @@
 		(defq owners (get :owners this) over (get :over this)
 			groups (list) up (list))
 		(each (lambda (event)
-			(bind '(id kind buttons x y &ignore) event)
-			(defq owner (. owners :find id) held owner)
-			;one that is not down on an actor is the frontmost's it is over,
-			;and that takes it
-			(unless owner (setq owner (. this :hit x y event)))
-			;it goes down on that actor, and is its till it comes up
-			(and owner (not held) (/= buttons 0) (. owners :insert id owner))
-			(and held (= buttons 0) (push up id))
-			;what it was over and is not now is told
-			(defq was (. over :find id))
-			(and was (not (eql was owner)) (. was :leave this id))
-			(cond
-				;a finger that is up is gone, it is over nothing
-				((and (eql kind :touch) (= buttons 0))
-					(. over :erase id)
-					(and owner (not held) (setq owner :nil)))
-				(owner (. over :insert id owner))
-				(:t (. over :erase id)))
-			(when owner
-				(if (defq group (some (# (if (eql (first %0) owner) %0)) groups))
-					(push (second group) event)
-					(push groups (list owner (list event))))))
+				(bind '(id kind buttons x y &ignore) event)
+				(defq owner (. owners :find id) held owner)
+				;one that is not down on an actor is the frontmost's it is over,
+				;and that takes it
+				(unless owner (setq owner (. this :hit x y event)))
+				;it goes down on that actor, and is its till it comes up
+				(and owner (not held) (/= buttons 0) (. owners :insert id owner))
+				(and held (= buttons 0) (push up id))
+				;what it was over and is not now is told
+				(defq was (. over :find id))
+				(and was (not (eql was owner)) (. was :leave this id))
+				(cond
+					;a finger that is up is gone, it is over nothing
+					((and (eql kind :touch) (= buttons 0))
+						(. over :erase id)
+						(and owner (not held) (setq owner :nil)))
+					(owner (. over :insert id owner))
+					(:t (. over :erase id)))
+				(when owner
+					(if (defq group (some (# (if (eql (first %0) owner) %0)) groups))
+						(push (second group) event)
+						(push groups (list owner (list event))))))
 			events)
 		;each is given its own, all at once, the front one first, so what
 		;they do goes from the front of the scene to the back, Chris: "I
@@ -449,5 +447,4 @@
 		(sort groups (# (- (ifn (find (first %1) actors) -1) (ifn (find (first %0) actors) -1))))
 		(each (lambda ((owner owner_events)) (. owner :pointers this owner_events)) groups)
 		(each (# (. owners :erase %0)) up)
-		(map (const first) groups))
-	)
+		(map (const first) groups)))

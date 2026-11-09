@@ -35,7 +35,7 @@
 		(getf this +view_id 0))
 
 	(deffimethod :find_id "gui/view/lisp_find_id")
-		; (. view :find_id target_id) -> :nil | target_view
+	; (. view :find_id target_id) -> :nil | target_view
 
 	;;;;;;;;;;;
 	; ownership
@@ -58,7 +58,7 @@
 	;;;;;;;
 
 	(deffimethod :set_flags "gui/view/lisp_set_flags")
-		; (. view :set_flags value mask) -> view
+	; (. view :set_flags value mask) -> view
 
 	(defmethod :get_flags ()
 		; (. view :get_flags) -> flags
@@ -103,17 +103,17 @@
 			(+view_w 0) (+view_h 0)))
 
 	(deffimethod :hit_tree "gui/view/lisp_hit_tree")
-		; (. view :hit_tree x y) -> (hit_view | :nil rx ry)
+	; (. view :hit_tree x y) -> (hit_view | :nil rx ry)
 
 	;;;;;;;;;;;;;;
 	; dirty region
 	;;;;;;;;;;;;;;
 
 	(deffimethod :add_dirty "gui/view/lisp_add_dirty")
-		; (. view :add_dirty x y width height) -> view
+	; (. view :add_dirty x y width height) -> view
 
 	(deffimethod :trans_dirty "gui/view/lisp_trans_dirty")
-		; (. view :trans_dirty rx ry) -> view
+	; (. view :trans_dirty rx ry) -> view
 
 	(defmethod :dirty ()
 		; (. view :dirty) -> view
@@ -129,74 +129,74 @@
 	;;;;;;;;;;;;;;;
 
 	(deffimethod :add_opaque "gui/view/lisp_add_opaque")
-		; (. view :add_opaque x y width height) -> view
+	; (. view :add_opaque x y width height) -> view
 
 	(deffimethod :sub_opaque "gui/view/lisp_sub_opaque")
-		; (. view :sub_opaque x y width height) -> view
+	; (. view :sub_opaque x y width height) -> view
 
 	(deffimethod :clr_opaque "gui/view/lisp_clr_opaque")
-		; (. view :clr_opaque) -> view
+	; (. view :clr_opaque) -> view
 
 	;;;;;;;;;;;;;;;
 	; tree building
 	;;;;;;;;;;;;;;;
 
 	(deffimethod :sub "gui/view/lisp_sub")
-		; (. view :lisp_sub) -> view
+	; (. view :lisp_sub) -> view
 
 	(deffimethod :add_back "gui/view/lisp_add_back")
-		; (. view :add_back child) -> view
+	; (. view :add_back child) -> view
 
 	(deffimethod :add_front "gui/view/lisp_add")
-		; (. view :add_front child) -> view
+	; (. view :add_front child) -> view
 
 	(deffimethod :add_before "gui/view/lisp_add_before")
-		; (. sibling :add_before view) -> sibling
+	; (. sibling :add_before view) -> sibling
 
 	(deffimethod :add_after "gui/view/lisp_add_after")
-		; (. sibling :add_after view) -> sibling
+	; (. sibling :add_after view) -> sibling
 
 	(defmethod :add_child (child)
 		; (. view :add_child child) -> view
 		(. this :add_back child))
 
 	(deffimethod :to_front "gui/view/lisp_to_front")
-		; (. view :to_front) -> view
+	; (. view :to_front) -> view
 
 	(deffimethod :to_back "gui/view/lisp_to_back")
-		; (. view :to_back) -> view
+	; (. view :to_back) -> view
 
 	(deffimethod :hide "gui/view/lisp_hide")
-		; (. view :hide) -> view
+	; (. view :hide) -> view
 
 	;;;;;;;;;;;;;
 	; enumeration
 	;;;;;;;;;;;;;
 
 	(deffimethod :children "gui/view/lisp_children")
-		; (. view :children) -> (child0 child1 ...)
+	; (. view :children) -> (child0 child1 ...)
 
 	(deffimethod :flatten "gui/view/lisp_flatten")
-		; (. view :flatten) -> (child0 child1 ...)
+	; (. view :flatten) -> (child0 child1 ...)
 
 	;;;;;;;;;;;;;;;;;
 	; drawing context
 	;;;;;;;;;;;;;;;;;
 
 	(deffimethod :ctx_set_color "gui/ctx/lisp_set_color")
-		; (. view :ctx_set_color col) -> view
+	; (. view :ctx_set_color col) -> view
 
 	(deffimethod :ctx_box "gui/ctx/lisp_box")
-		; (. view :ctx_box x y width height) -> view
+	; (. view :ctx_box x y width height) -> view
 
 	(deffimethod :ctx_filled_box "gui/ctx/lisp_filled_box")
-		; (. view :ctx_filled_box x y width height) -> view
+	; (. view :ctx_filled_box x y width height) -> view
 
 	(deffimethod :ctx_filled_region "gui/ctx/lisp_filled_region")
-		; (. view :ctx_filled_region region) -> view
+	; (. view :ctx_filled_region region) -> view
 
 	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
-		; (. view :ctx_blit texture col x y width height [sx sy]) -> view
+	; (. view :ctx_blit texture col x y width height [sx sy]) -> view
 
 	(defmethod :ctx_trough (col x y width height)
 		; (. view :ctx_trough col x y width height) -> view
@@ -218,7 +218,7 @@
 			(.-> this
 				(:ctx_set_color col)
 				(:ctx_filled_box (+ x abs_depth) (+ y abs_depth)
-					(- width abs_depth abs_depth) (- height abs_depth abs_depth))))
+						(- width abs_depth abs_depth) (- height abs_depth abs_depth))))
 		(cond
 			((< depth 0)
 				;suncken
@@ -301,8 +301,8 @@
 				(defq sizes (map (# (. %0 :get_size)) nodes))
 				(. this :layout)
 				(reach (lambda (node (ow oh))
-					(bind '(w h) (. node :get_size))
-					(if (or (/= w ow) (/= h oh)) (. node :layout))) nodes sizes)))
+						(bind '(w h) (. node :get_size))
+						(if (or (/= w ow) (/= h oh)) (. node :layout))) nodes sizes)))
 		this)
 
 	(defmethod :layout ()
@@ -353,9 +353,8 @@
 				(defq mbox (. this :find_owner)))
 			(defq source_id (. this :get_id))
 			(each (lambda (id)
-				(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
-					(+ev_msg_type +ev_type_action)
-					(+ev_msg_target_id id)
-					(+ev_msg_action_source_id source_id)))) targets))
-		this)
-	)
+					(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
+							(+ev_msg_type +ev_type_action)
+							(+ev_msg_target_id id)
+							(+ev_msg_action_source_id source_id)))) targets))
+		this))

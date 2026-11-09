@@ -39,15 +39,15 @@
 			(print "Probing kernel statistics & machine architecture on all " expected " nodes..."))
 		;asynchronously launch probe on each node using +kn_call_pin (non-blocking)
 		(each (# (defq n %0)
-			(defq task_code (str `(progn
-				(bind '(task_count mem_used mem_avail max_stack &ignore) (kernel-stats))
-				(defq sys_id (system-id) svcs (mail-enquire "")
-					host_cpu (cpu) host_os (os) host_abi (abi))
-				(mail-send (hex-decode ,(hex-encode reply_mbox))
-					(str (list (hex-encode (task-nodeid)) (hex-encode sys_id)
-						task_count mem_used mem_avail max_stack
-						host_cpu host_os host_abi svcs))))))
-			(open-task task_code n +kn_call_pin 0 launch_mbox))
+				(defq task_code (str `(progn
+							(bind '(task_count mem_used mem_avail max_stack &ignore) (kernel-stats))
+							(defq sys_id (system-id) svcs (mail-enquire "")
+								host_cpu (cpu) host_os (os) host_abi (abi))
+							(mail-send (hex-decode ,(hex-encode reply_mbox))
+								(str (list (hex-encode (task-nodeid)) (hex-encode sys_id)
+										task_count mem_used mem_avail max_stack
+										host_cpu host_os host_abi svcs))))))
+				(open-task task_code n +kn_call_pin 0 launch_mbox))
 			all_nodes)
 		;collect results with rolling timeout
 		(while (< received expected)
@@ -75,24 +75,24 @@
 					;track services from this node
 					(when (nempty? parsed_svcs)
 						(each (# (defq entry %0)
-							(when (nempty? entry)
-								(defq e_parts (if (list?? entry) entry (split entry ",")))
-								(when (>= (length e_parts) 3)
-									(defq s_name (elem-get e_parts 0)
-										s_netid (elem-get e_parts 1)
-										s_sys (elem-get e_parts 2)
-										s_info (if (> (length e_parts) 3) (join (slice e_parts 3 -1) ",") "")
-										scope (cond
-											((starts-with "*" s_name) "Global")
-											((starts-with "@" s_name) "System")
-											(:t "Local"))
-										s_key (cat s_name "," s_netid))
-									(unless (. services_map :find s_key)
-										(. services_map :insert s_key
-											(list scope s_name
-												(slice s_netid 16 (min (length s_netid) 32))
-												(slice s_sys 0 (min (length s_sys) 8))
-												s_info))))))
+								(when (nempty? entry)
+									(defq e_parts (if (list?? entry) entry (split entry ",")))
+									(when (>= (length e_parts) 3)
+										(defq s_name (elem-get e_parts 0)
+											s_netid (elem-get e_parts 1)
+											s_sys (elem-get e_parts 2)
+											s_info (if (> (length e_parts) 3) (join (slice e_parts 3 -1) ",") "")
+											scope (cond
+												((starts-with "*" s_name) "Global")
+												((starts-with "@" s_name) "System")
+												(:t "Local"))
+											s_key (cat s_name "," s_netid))
+										(unless (. services_map :find s_key)
+											(. services_map :insert s_key
+												(list scope s_name
+													(slice s_netid 16 (min (length s_netid) 32))
+													(slice s_sys 0 (min (length s_sys) 8))
+													s_info))))))
 							parsed_svcs))
 					(when opt_v
 						(print "  [" (pad (inc received) 2) "/" (pad expected 2) "] "
@@ -126,9 +126,9 @@
 
 		(print "\nMachines in Cluster:")
 		(. systems :each (lambda (sys_id info)
-			(print "  System " sys_id " [" (rpad (elem-get info 1) 6) "]: "
-				(rpad (elem-get info 0) 22) ": "
-				(pad (elem-get info 2) 2) " node(s)")))
+				(print "  System " sys_id " [" (rpad (elem-get info 1) 6) "]: "
+					(rpad (elem-get info 0) 22) ": "
+					(pad (elem-get info 2) 2) " node(s)")))
 
 		;cluster services directory
 		(defq svcs_list (. services_map :tolist))
@@ -136,21 +136,21 @@
 		(print "  Scope   Service              Node ID         Sys ID   Info")
 		(print "  ------  -------------------  --------------  -------  --------------------")
 		(defq sorted_svcs (sort (map (const second) svcs_list) (lambda (a b)
-			(defq oa (scope-rank (first a)) ob (scope-rank (first b)))
-			(if (/= oa ob)
-				(- oa ob)
-				(cmp (second a) (second b))))))
+					(defq oa (scope-rank (first a)) ob (scope-rank (first b)))
+					(if (/= oa ob)
+						(- oa ob)
+						(cmp (second a) (second b))))))
 		(each (lambda ((scope s_name s_node s_sys s_info))
-			(print "  " (rpad scope 6) "  "
-				(rpad (slice s_name 0 (min (length s_name) 19)) 19) "  "
-				(rpad s_node 14) "  "
-				(rpad (slice s_sys 0 (min (length s_sys) 8)) 7) "  "
-				s_info))
+				(print "  " (rpad scope 6) "  "
+					(rpad (slice s_name 0 (min (length s_name) 19)) 19) "  "
+					(rpad s_node 14) "  "
+					(rpad (slice s_sys 0 (min (length s_sys) 8)) 7) "  "
+					s_info))
 			sorted_svcs)
 
 		(each (# (defq b %0)
-			(print "  WARNING: Node " (first b) " on Sys " (slice (second b) 0 8)
-				" reported bad task count: " (third b)))
+				(print "  WARNING: Node " (first b) " on Sys " (slice (second b) 0 8)
+					" reported bad task count: " (third b)))
 			bad_nodes)
 
 		(if (and (= received expected) (= (length bad_nodes) 0))

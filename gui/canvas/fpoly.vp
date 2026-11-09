@@ -112,7 +112,7 @@
 						(vp-max-rr y2 ye)
 						(assign (list iter_edge2) '((:rsp slot_iter_edge2)))
 						(assign '((:rsp slot_iter_begin_polygon) (:rsp slot_iter_end_polygon)
-							(:rsp slot_y) (:rsp slot_yscale)) (list :r1 :r2 y :r0))
+								(:rsp slot_y) (:rsp slot_yscale)) (list :r1 :r2 y :r0))
 					(endswitch)
 					(assign '((:rsp slot_x)) (list x))
 				(else)
@@ -261,7 +261,7 @@
 				(vp-xor-rr :r0 :r0)
 				(assign '(:r0) '((:rsp slot_sorted_list)))
 				(vp-rdef (sorted_list_head tracker_node tracker_last tracker_new
-					sorted_node sorted_last x1 x2))
+						sorted_node sorted_last x1 x2))
 				(assign '((& :rsp slot_sorted_list) (& :rsp slot_tracker_list)) (list sorted_list_head tracker_node))
 				(loop-start)
 					(ln-next-fnode tracker_node tracker_last)
@@ -292,7 +292,7 @@
 				(vp-xor-rr :r0 :r0)
 				(assign '(:r0) '((:rsp slot_sorted_list)))
 				(vp-rdef (starts_head starts_new sorted_list_head sorted_hint
-					sorted_node sorted_last x1 x2 tmp))
+						sorted_node sorted_last x1 x2 tmp))
 				(load-fields :rsp '(slot_this slot_ys) `(,starts_head ,sorted_list_head))
 				(assign `((,starts_head +canvas_edges_start)) `(,starts_head))
 				(vp-shl-cr (log2 +ptr_size) sorted_list_head)
@@ -551,7 +551,7 @@
 
 (vp-label 'mask_to_coverage)
 	(apply (const vp-byte) (map (lambda (m)
-		(/ (* 0x80 (apply (const +) (map (lambda (s)
-			(logand 1 (>> m s))) (const (push (list quote) (range 0 8)))))) 8)) (range 0 256)))
+				(/ (* 0x80 (apply (const +) (map (lambda (s)
+									(logand 1 (>> m s))) (const (push (list quote) (range 0 8)))))) 8)) (range 0 256)))
 
 (def-func-end)

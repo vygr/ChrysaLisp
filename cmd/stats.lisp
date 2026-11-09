@@ -34,11 +34,11 @@
 		(setq node_set :nil)
 		;gather stats
 		(each (lambda (obj) (cond
-				((pmap? obj) (. pmap_map :update (length obj) (const count-up)))
-				((pset? obj) (. pset_map :update (length obj) (const count-up)))
-				((list?? obj) (. list_map :update (length obj) (const count-up)))
-				((str? obj) (. str_map :update (length obj) (const count-up)))
-				((num? obj) (. num_map :update obj (const count-up)))))
+					((pmap? obj) (. pmap_map :update (length obj) (const count-up)))
+					((pset? obj) (. pset_map :update (length obj) (const count-up)))
+					((list?? obj) (. list_map :update (length obj) (const count-up)))
+					((str? obj) (. str_map :update (length obj) (const count-up)))
+					((num? obj) (. num_map :update obj (const count-up)))))
 			node_ref)
 		(setq node_ref :nil)
 		;display :list results
@@ -46,9 +46,9 @@
 		(print "Root environment :list stats")
 		(print)
 		(each (lambda ((%0 %1 %2)) (print
-				"len: " (pad %0 4)
-				" cnt: " (pad %1 5)
-				" ref: " (pad %2 5)))
+					"len: " (pad %0 4)
+					" cnt: " (pad %1 5)
+					" ref: " (pad %2 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		(print)
 		;display :pmap results
@@ -57,9 +57,9 @@
 		(print "Root environment :pmap stats")
 		(print)
 		(each (lambda ((%0 %1 %2)) (print
-				"len: " (pad %0 4)
-				" cnt: " (pad %1 5)
-				" ref: " (pad %2 5)))
+					"len: " (pad %0 4)
+					" cnt: " (pad %1 5)
+					" ref: " (pad %2 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		(print)
 		;display :pset results
@@ -68,9 +68,9 @@
 		(print "Root environment :pset stats")
 		(print)
 		(each (lambda ((%0 %1 %2)) (print
-				"len: " (pad %0 4)
-				" cnt: " (pad %1 5)
-				" ref: " (pad %2 5)))
+					"len: " (pad %0 4)
+					" cnt: " (pad %1 5)
+					" ref: " (pad %2 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		(print)
 		;display :str results
@@ -79,9 +79,9 @@
 		(print "Root environment :str stats")
 		(print)
 		(each (lambda ((%0 %1 %2)) (print
-				"len: " (pad %0 4)
-				" cnt: " (pad %1 5)
-				" ref: " (pad %2 5)))
+					"len: " (pad %0 4)
+					" cnt: " (pad %1 5)
+					" ref: " (pad %2 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		(print)
 		;display :num results
@@ -90,8 +90,7 @@
 		(print "Root environment :num stats")
 		(print)
 		(each (lambda ((%0 %1 %2)) (print
-				"val: " (pad %0 20)
-				" cnt: " (pad %1 5)
-				" ref: " (pad %2 5)))
-			(sort stack (# (- (first %0) (first %1)))))
-		))
+					"val: " (pad %0 20)
+					" cnt: " (pad %1 5)
+					" ref: " (pad %2 5)))
+			(sort stack (# (- (first %0) (first %1)))))))

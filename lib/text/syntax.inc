@@ -16,17 +16,17 @@
 ;was, and a scan of many files makes one for each
 (defq +syntax_keywords (pmap))
 (each (lambda ((k v))
-	(pinsert +syntax_keywords k
-		(cond
-			((lambda-func? v) :ink_keyword2)
-			((macro-func? v) :ink_keyword3)
-			((func? v) :ink_keyword1))))
+		(pinsert +syntax_keywords k
+			(cond
+				((lambda-func? v) :ink_keyword2)
+				((macro-func? v) :ink_keyword3)
+				((func? v) :ink_keyword1))))
 	(tolist *root_env*))
 (each (# (pinsert +syntax_keywords %0 :ink_keyword4))
 	'(:t :nil &rest &optional &most &ignore
-	byte ubyte short ushort int uint long real ptr union struct
-	pbyte pubyte pshort pushort pint puint plong preal pptr
-	nodeid netid offset enum bit))
+		byte ubyte short ushort int uint long real ptr union struct
+		pbyte pubyte pshort pushort pint puint plong preal pptr
+		nodeid netid offset enum bit))
 
 (defclass Syntax () :nil
 	; (Syntax) -> syntax
@@ -66,33 +66,33 @@
 		(bind '(token_list state_list) (. this :tokenize line))
 		(defq state (cap (length token_list) (list)))
 		(each (lambda (type token)
-			(case type
-				(:symbol
-					(cond
-						((defq ink (pfind +syntax_keywords (sym token)))
-							;present in keyword map, the ink of that name
-							(push state (get ink this)))
-						((eql (first token) "+")
-							;is a constant symbol
-							(push state (get :ink_constants this)))
-						((eql (first token) "*")
-							;is a global symbol
-							(push state (get :ink_globals this)))
-						((eql (first token) "-")
-							;is a negative number
-							(push state (get :ink_numbers this)))
-						(:t ;default text color)
-							(push state (get :ink_text this)))))
-				((:string1 :string2)
-					(push state (get :ink_strings this)))
-				(:number
-					(push state (get :ink_numbers this)))
-				(:keysym
-					(push state (get :ink_keysyms this)))
-				(:comment
-					(push state (get :ink_comments this)))
-				(:text
-					(push state (get :ink_text this)))))
+				(case type
+					(:symbol
+						(cond
+							((defq ink (pfind +syntax_keywords (sym token)))
+								;present in keyword map, the ink of that name
+								(push state (get ink this)))
+							((eql (first token) "+")
+								;is a constant symbol
+								(push state (get :ink_constants this)))
+							((eql (first token) "*")
+								;is a global symbol
+								(push state (get :ink_globals this)))
+							((eql (first token) "-")
+								;is a negative number
+								(push state (get :ink_numbers this)))
+							(:t ;default text color)
+								(push state (get :ink_text this)))))
+					((:string1 :string2)
+						(push state (get :ink_strings this)))
+					(:number
+						(push state (get :ink_numbers this)))
+					(:keysym
+						(push state (get :ink_keysyms this)))
+					(:comment
+						(push state (get :ink_comments this)))
+					(:text
+						(push state (get :ink_text this)))))
 			state_list token_list)
 		;build line array
 		(cond
@@ -109,27 +109,26 @@
 		(cond
 			((empty? line) line)
 			((defq idx 0)
-			(apply (const cat) (map! (lambda (token state)
-					(defq res (if (find state '(:string1 :string2))
-						token
-						(expand token tab_width idx)))
-					(++ idx (length res))
-					res)
-				(. this :tokenize line))))))
+				(apply (const cat) (map! (lambda (token state)
+							(defq res (if (find state '(:string1 :string2))
+									token
+									(expand token tab_width idx)))
+							(++ idx (length res))
+							res)
+						(. this :tokenize line))))))
 
 	(defmethod :line_compress (line tab_width)
 		; (. syntax :line_compress line tab_width) -> line
 		(cond
 			((empty? line) line)
 			((defq idx 0)
-			(apply (const cat) (map! (lambda (token state)
-					(defq res (if (find state '(:string1 :string2))
-						token
-						(compress token tab_width idx)))
-					(++ idx (length token))
-					res)
-				(. this :tokenize line))))))
-	)
+				(apply (const cat) (map! (lambda (token state)
+							(defq res (if (find state '(:string1 :string2))
+									token
+									(compress token tab_width idx)))
+							(++ idx (length token))
+							res)
+						(. this :tokenize line)))))))
 
 ;module
 (export-classes '(Syntax))

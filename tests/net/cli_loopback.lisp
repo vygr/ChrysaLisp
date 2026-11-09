@@ -52,17 +52,17 @@
 		work_results (list))
 
 	(each (# (defq remote_node %0)
-		(print "  -> " (hex-encode remote_node))
-		(defq task_code (str `(progn
-			(bind '(task_count mem_used mem_avail max_stack &ignore) (kernel-stats))
-			(mail-send (hex-decode ,(hex-encode reply_mbox))
-				(cat (hex-encode (task-nodeid)) "\n"
-					(str task_count) "\n"
-					(str mem_used) "\n"
-					(str mem_avail) "\n"
-					(str max_stack))))))
-		(open-remote task_code remote_node +kn_call_run)
-		(setq dispatched (+ dispatched 1)))
+			(print "  -> " (hex-encode remote_node))
+			(defq task_code (str `(progn
+						(bind '(task_count mem_used mem_avail max_stack &ignore) (kernel-stats))
+						(mail-send (hex-decode ,(hex-encode reply_mbox))
+							(cat (hex-encode (task-nodeid)) "\n"
+								(str task_count) "\n"
+								(str mem_used) "\n"
+								(str mem_avail) "\n"
+								(str max_stack))))))
+			(open-remote task_code remote_node +kn_call_run)
+			(setq dispatched (+ dispatched 1)))
 		remote_nodes)
 
 	; 6. Collect all results with timeout
@@ -110,11 +110,11 @@
 	(print "Timed out          : " timed_out)
 
 	(defq pass (and
-		(>= (length all_nodes) expected_total)
-		(>= (length remote_nodes) expected_remote)
-		(= (length work_results) dispatched)
-		all_remote
-		(not timed_out)))
+			(>= (length all_nodes) expected_total)
+			(>= (length remote_nodes) expected_remote)
+			(= (length work_results) dispatched)
+			all_remote
+			(not timed_out)))
 
 	(if pass
 		(print "\n=== LOOPBACK TEST RESULT: SUCCESS ===")

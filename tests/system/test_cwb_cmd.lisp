@@ -18,8 +18,8 @@
 
 ;a new document, and Lisp that puts a box and words in it
 (defq cc_out (cc-run (cat "cwb -n 640x400 " cc_file
-	" -e \q(cwb-add doc (cwb-shape (cwb-d-rect 20 120 200 220 12) :fill 0xffffd070 :stroke 0xff000000 :width 3))"
-	" (cwb-add doc (cwb-text {Start} 60 185 :font_size 24))\q -i")))
+			" -e \q(cwb-add doc (cwb-shape (cwb-d-rect 20 120 200 220 12) :fill 0xffffd070 :stroke 0xff000000 :width 3))"
+			" (cwb-add doc (cwb-text {Start} 60 185 :font_size 24))\q -i")))
 (assert-eq "a new document is the size asked for" "size 640x400 background 0 grid 32" (first cc_out))
 (assert-eq "the Lisp given put two things in it" "layer 0 \qLayer 1\q items 2" (second cc_out))
 (assert-true "a box, listed with its id, what it is, the box round it and its path"
@@ -30,15 +30,15 @@
 
 ;pointers played to it: a finger holds a ruler while a pen is run along it, and the mouse draws by hand
 (save (cat "# a note" "\n"
-	"7 touch 1 300 330" "\n"
-	"1 pen 1 150 286 ; 7 touch 1 300 330" "\n"
-	"1 pen 1 300 281 ; 7 touch 1 300 330" "\n"
-	"1 pen 1 480 288 ; 7 touch 1 300 330   # two at once" "\n"
-	"1 pen 0 480 288 ; 7 touch 0 300 330" "\n"
-	"0 mouse 1 60 60" "\n" "0 mouse 1 120 100" "\n"
-	"0 mouse 1 200 50" "\n" "0 mouse 0 200 50" "\n") cc_ptr)
+		"7 touch 1 300 330" "\n"
+		"1 pen 1 150 286 ; 7 touch 1 300 330" "\n"
+		"1 pen 1 300 281 ; 7 touch 1 300 330" "\n"
+		"1 pen 1 480 288 ; 7 touch 1 300 330   # two at once" "\n"
+		"1 pen 0 480 288 ; 7 touch 0 300 330" "\n"
+		"0 mouse 1 60 60" "\n" "0 mouse 1 120 100" "\n"
+		"0 mouse 1 200 50" "\n" "0 mouse 0 200 50" "\n") cc_ptr)
 (defq cc_out (cc-run (cat "cwb " cc_file " -e \q(. (. board :get_stage) :add (Ruler board 320 330))\q -p " cc_ptr
-	" -i -o " cc_pic " -b 0xffffffff")))
+			" -i -o " cc_pic " -b 0xffffffff")))
 (assert-eq "two more things were drawn" "layer 0 \qLayer 1\q items 4" (second cc_out))
 (assert-true "the pen run along the ruler drew a straight line along its side"
 	(and (starts-with "  3 line box 148.5 288.5 481.5 291.5 d M 149.99" (elem-get cc_out 4)) (found? (elem-get cc_out 4) " 290 L 479.99")))
@@ -78,7 +78,7 @@
 	cc_box (map (const n2i) (. cc_pal :where :tool :rect))
 	cc_sel (map (# (+ (n2i %0) %1)) (. cc_pal :where :tool :select) '(-10 10)))
 (save (cat "0 mouse 4 320 200" "\n" "0 mouse 0 320 200" "\n"
-	"wait 400" "\n") cc_ptr)
+		"wait 400" "\n") cc_ptr)
 (defq cc_out (cc-run (cat "cwb " cc_file " -p " cc_ptr " -o " cc_pic " -b 0xffffffff -k")))
 (defq cc_canvas (canvas-load cc_pic +load_flag_noswap))
 (when cc_canvas
@@ -86,11 +86,11 @@
 		(every (# (< (logand (>> (cc-pixel cc_canvas (first cc_sel) (second cc_sel)) %0) 0xff) 0x60)) '(0 8 16)))
 	(assert-eq "and not off it" 0xffffffff (cc-pixel cc_canvas 600 380)))
 (save (cat "0 mouse 4 320 200" "\n" "0 mouse 0 320 200" "\n"
-	"wait 400" "\n"
-	"0 mouse 1 " (str (first cc_box)) " " (str (second cc_box)) "\n"
-	"0 mouse 0 " (str (first cc_box)) " " (str (second cc_box)) "\n"
-	"wait 300" "\n"
-	"0 mouse 1 420 40" "\n" "0 mouse 1 600 100" "\n" "0 mouse 0 600 100" "\n") cc_ptr)
+		"wait 400" "\n"
+		"0 mouse 1 " (str (first cc_box)) " " (str (second cc_box)) "\n"
+		"0 mouse 0 " (str (first cc_box)) " " (str (second cc_box)) "\n"
+		"wait 300" "\n"
+		"0 mouse 1 420 40" "\n" "0 mouse 1 600 100" "\n" "0 mouse 0 600 100" "\n") cc_ptr)
 (defq cc_out (cc-run (cat "cwb " cc_file " -p " cc_ptr " -i -o " cc_pic " -b 0xffffffff -k")))
 (assert-eq "a tap on its box cell, and the mouse draws a box" "  5 rect box 418.5 38.5 601.5 101.5 d M 420 40 L 600 40 600 100 420 100 Z"
 	(elem-get cc_out 6))

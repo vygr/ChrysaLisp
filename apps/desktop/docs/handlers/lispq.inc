@@ -9,12 +9,12 @@
 			(defq ss (string-stream (join lines "\n"))
 				result (eval
 					(static-qq (progn
-						(env-push)
-						(catch (defq *result* (repl ,ss "Lisp handler"))
-							(progn (prin _) (print) (defq result :nil) :t))
-						(export-symbols '(*result*))
-						(env-pop)
-						*result*))
+							(env-push)
+							(catch (defq *result* (repl ,ss "Lisp handler"))
+								(progn (prin _) (print) (defq result :nil) :t))
+							(export-symbols '(*result*))
+							(env-pop)
+							*result*))
 					*handler_env*))
 			(cond
 				((View? result)
@@ -23,7 +23,7 @@
 					(def (defq text (Text)) :text "")
 					(.-> page
 						(:add_child (. flow :add_child
-							(. result :set_owner (elem-get select +select_embedded))))
+								(. result :set_owner (elem-get select +select_embedded))))
 						(:add_child text)))
 				(:t ((handler-func :vdu) :vdu page (str result))
 					((handler-func :vdu) :vdu page "```")))

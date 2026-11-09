@@ -14,12 +14,12 @@
 	(bind '(verb) '(1))
 	(defq pcb (Pcb width height depth grid_res verb vias_cost flood_range even_range odd_range))
 	(each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
-		(unless (mail-poll select)
-			(task-slice)
-			(setq wires '() pads (map (lambda ((radius gap pos shape))
-				(Pad radius gap pos shape)) pads))
-			(defq track (Track id track_radius via_radius track_gap pads wires))
-			(. pcb :add_track track))) (list pcb_list) 1)
+			(unless (mail-poll select)
+				(task-slice)
+				(setq wires '() pads (map (lambda ((radius gap pos shape))
+							(Pad radius gap pos shape)) pads))
+				(defq track (Track id track_radius via_radius track_gap pads wires))
+				(. pcb :add_track track))) (list pcb_list) 1)
 	(. pcb :route select reply_mbox prog_mbox))
 
 (defun main ()
@@ -35,8 +35,8 @@
 				;main mailbox, cancel timeout and reply with result
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(apply (const route) (cat
-					(list select)
-					(getf-> msg +pcb_job_reply +pcb_job_prog
-						+pcb_job_grid_res +pcb_job_vias_cost
-						+pcb_job_flood_range +pcb_job_even_range +pcb_job_odd_range)
-					(list (slice msg +pcb_job_data -1))))))))
+						(list select)
+						(getf-> msg +pcb_job_reply +pcb_job_prog
+							+pcb_job_grid_res +pcb_job_vias_cost
+							+pcb_job_flood_range +pcb_job_even_range +pcb_job_odd_range)
+						(list (slice msg +pcb_job_data -1))))))))

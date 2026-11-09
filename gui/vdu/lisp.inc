@@ -37,5 +37,4 @@
 
 	(defmethod :layout ()
 		; (. vdu :layout) -> vdu
-		((const (ffi "gui/vdu/lisp_configure")) this))
-	)
+		((const (ffi "gui/vdu/lisp_configure")) this)))

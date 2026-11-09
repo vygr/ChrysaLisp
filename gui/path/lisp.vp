@@ -394,7 +394,6 @@
 	(vp-free slot_size)
 	(vp-ret)
 
-
 (vp-label 'error1)
 	(call :str :destroy '((:rsp slot_commands)))
 	(call :str :destroy '((:rsp slot_command_chars)))

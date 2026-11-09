@@ -33,7 +33,7 @@
 							(setq state :normal)))))
 			(:normal
 				(push out (slice args i (setq state :space i
-					(bskipn +split_class_combo args i)))))
+								(bskipn +split_class_combo args i)))))
 			(:quote
 				(push out (slice args i (setq i (bskipn "\q" args i))))
 				(setq i (inc i) state :space)))) out)
@@ -47,8 +47,8 @@
 		(bind '(arg &rest args) args)
 		(if (starts-with "-" arg)
 			(if (defq opt_entry (or
-					(options-find optlist arg)
-					(options-find optlist "-h")))
+						(options-find optlist arg)
+						(options-find optlist "-h")))
 				;found an entry, else help
 				(cond
 					((str? (second opt_entry))
@@ -65,38 +65,38 @@
 (defun opt-flag (opt_var)
 	; (opt-flag 'opt_var) -> args
 	(static-qq (lambda (args arg)
-		(setq ,opt_var :t) args)))
+			(setq ,opt_var :t) args)))
 
 (defun opt-toggle (opt_var)
 	; (opt-toggle 'opt_var) -> args
 	(static-qq (lambda (args arg)
-		(setq ,opt_var (not ,opt_var)) args)))
+			(setq ,opt_var (not ,opt_var)) args)))
 
 (defun opt-num (opt_var)
 	; (opt-num 'opt_var) -> args
 	(static-qq (lambda (args arg)
-		(setq ,opt_var (str-as-num (first args))) (rest args))))
+			(setq ,opt_var (str-as-num (first args))) (rest args))))
 
 (defun opt-str (opt_var)
 	; (opt-str 'opt_var) -> args
 	(static-qq (lambda (args arg)
-		(setq ,opt_var (first args)) (rest args))))
+			(setq ,opt_var (first args)) (rest args))))
 
 (defun opt-pair (opt_var sep)
 	; (opt-pair 'opt_var sep) -> args
 	;the arg split at the first sep, (key value), so the value may hold
 	;one, text== is ("text" "="). With no sep in it, (key)
 	(static-qq (lambda (args arg)
-		(defq pair (first args))
-		(setq ,opt_var (if (defq at (find ,sep pair))
-			(list (slice pair 0 at) (slice pair (inc at) -1)) (list pair)))
-		(rest args))))
+			(defq pair (first args))
+			(setq ,opt_var (if (defq at (find ,sep pair))
+					(list (slice pair 0 at) (slice pair (inc at) -1)) (list pair)))
+			(rest args))))
 
 (defun opt-nums (cnt opt_var)
 	; (opt-nums cnt 'opt_var) -> args
 	(static-qq (lambda (args arg)
-		(push ,opt_var (map! (const str-as-num) (list args) 0 ,cnt))
-		(slice args ,cnt -1))))
+			(push ,opt_var (map! (const str-as-num) (list args) 0 ,cnt))
+			(slice args ,cnt -1))))
 
 (defun options-input (options_args options_fn)
 	; (options-input args fn) -> :nil | (fn stream)

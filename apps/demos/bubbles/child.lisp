@@ -15,16 +15,16 @@
 		(setq scene_seed seed scene_count count scene (scene-make seed count)))
 	(defq canvas (canvas-attach held +width +height 1 canvas_key +canvas_flag_antialias))
 	(mail-send mbox (setf-> (str-alloc +slice_reply_size)
-		(+job_reply_key key)
-		(+slice_reply_y y)
-		(+slice_reply_drawn (cond
-			((not canvas) -1)
-			((>= y y1) 0)
-			((scene-draw canvas scene time
-				(/ (n2f light_x) 65536.0) (/ (n2f light_y) 65536.0) y y1)))))))
+			(+job_reply_key key)
+			(+slice_reply_y y)
+			(+slice_reply_drawn (cond
+					((not canvas) -1)
+					((>= y y1) 0)
+					((scene-draw canvas scene time
+							(/ (n2f light_x) 65536.0) (/ (n2f light_y) 65536.0) y y1)))))))
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox)
-		(apply draw-slice (getf-> msg +job_key +job_reply +slice_shared
-			+slice_seed +slice_count +slice_time +slice_light_x +slice_light_y
-			+slice_y +slice_y1)))))
+			(apply draw-slice (getf-> msg +job_key +job_reply +slice_shared
+					+slice_seed +slice_count +slice_time +slice_light_x +slice_light_y
+					+slice_y +slice_y1)))))

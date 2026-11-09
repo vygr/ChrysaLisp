@@ -333,8 +333,8 @@
 	(assign `((,this +font_data)) `(,iter_begin))
 	(vp-add-cr +str_data iter_begin)
 	(assign `((,iter_begin +font_data_ascent)
-		(,iter_begin +font_data_descent)
-		(,iter_begin +font_data_xkern)) `(,h ,gap ,w))
+			(,iter_begin +font_data_descent)
+			(,iter_begin +font_data_xkern)) `(,h ,gap ,w))
 	(vp-add-rr gap h) ; h = ascent + descent
 	(vp-cpy-rr w gap) ; gap = xkern
 
@@ -507,7 +507,7 @@
 						(assign '((:rsp slot_this)) `(,pixels))
 						(assign `((,pixels +font_pixels)) `(,pixels))
 						(assign `((,data +font_quad_element_x1) (,data +font_quad_element_y1)
-							(,data +font_curve_element_x2) (,data +font_curve_element_y2)) `(,x1 ,y1 ,x2 ,y2))
+								(,data +font_curve_element_x2) (,data +font_curve_element_y2)) `(,x1 ,y1 ,x2 ,y2))
 						(trans_xy x1 y1)
 						(trans_xy x2 y2)
 						(call :path :gen_cubic `(,pth ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2))

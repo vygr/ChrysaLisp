@@ -11,32 +11,32 @@
 
 ; Configuration and State
 (defq +config_file (cat (get :home *env*) "pairs.tre")
-	  *grid_w* 10
-	  *grid_h* 5
-	  *tile_count* (* *grid_w* *grid_h*)
-	  ; The pool of characters to form pairs from
-	  *char_pool* "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
-	  ; Settings
-	  *match_score* 10
-	  *mismatch_penalty* 1
-	  ; Game State
-	  *values* (list)		; The hidden characters (as integer codes)
-	  *states* (list)		; 0=Hidden, 1= revealed (temp), 2=Matched
-	  *score* 0
-	  *first_pick* :nil		; Index of first card flipped
-	  *locked* :nil			; UI lock during mismatch timer
-	  *font* (create-font "fonts/OpenSans-Bold.ctf" 32)
-	  *running* :t)
+	*grid_w* 10
+	*grid_h* 5
+	*tile_count* (* *grid_w* *grid_h*)
+	; The pool of characters to form pairs from
+	*char_pool* "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+	; Settings
+	*match_score* 10
+	*mismatch_penalty* 1
+	; Game State
+	*values* (list)		; The hidden characters (as integer codes)
+	*states* (list)		; 0=Hidden, 1= revealed (temp), 2=Matched
+	*score* 0
+	*first_pick* :nil		; Index of first card flipped
+	*locked* :nil			; UI lock during mismatch timer
+	*font* (create-font "fonts/OpenSans-Bold.ctf" 32)
+	*running* :t)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar *title* "Find Pairs" (+sym_close) +event_close)
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (+sym_scramble +sym_peek) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
-					 :paper :paper_window :font *font*)
+			:paper :paper_window :font *font*)
 		(each (lambda (i)
-			(. (ui-button _ (:min_width 60 :min_height 60))
-			   :connect (+ +event_click i)))
+				(. (ui-button _ (:min_width 60 :min_height 60))
+					:connect (+ +event_click i)))
 			(range 0 *tile_count*)))
 	(ui-label *status* (:text "Score: 0" :flow_flags +flow_flag_align_hcenter)))
 
@@ -52,12 +52,12 @@
 
 (defun update-view ()
 	(defq children (. *grid* :children)
-		  i 0
-		  all_matched :t)
+		i 0
+		all_matched :t)
 	(while (< i *tile_count*)
 		(defq btn (elem-get children i)
-			  val (elem-get *values* i)
-			  state (elem-get *states* i))
+			val (elem-get *values* i)
+			state (elem-get *states* i))
 		(cond
 			((= state 0) ; Hidden
 				(def btn :text "" :paper +argb_grey4 :ink +argb_white)
@@ -77,28 +77,28 @@
 (defun scramble ()
 	; Convert string to list of char codes, shuffle, select subset, duplicate, shuffle again
 	(defq all_chars (shuffle (map code *char_pool*))
-		  pool (slice all_chars 0 (/ *tile_count* 2)))
+		pool (slice all_chars 0 (/ *tile_count* 2)))
 	(setq *values* (shuffle (cat pool pool))
-		  *states* (map (lambda (&) 0) (range 0 *tile_count*))
-		  *score* 0
-		  *first_pick* :nil
-		  *locked* :nil)
+		*states* (map (lambda (&) 0) (range 0 *tile_count*))
+		*score* 0
+		*first_pick* :nil
+		*locked* :nil)
 	(update-view))
 
 (defun config-load ()
 	(defq loaded :nil)
 	(with-read-lock +config_file
 		(when (and (defq data (tree-load (file-stream +config_file)))
-				   (= (length (. data :find :values)) *tile_count*))
+				(= (length (. data :find :values)) *tile_count*))
 			(setq *values* (. data :find :values)
-				  *states* (. data :find :states)
-				  *score* (. data :find :score)
-				  *first_pick* :nil
-				  *locked* :nil)
+				*states* (. data :find :states)
+				*score* (. data :find :score)
+				*first_pick* :nil
+				*locked* :nil)
 
 			; Handle legacy string data if present
 			(and (nempty? *values*) (str? (first *values*))
-				 (setq *values* (map code *values*)))
+				(setq *values* (map code *values*)))
 
 			; Find currently selected tiles (state 1)
 			(defq picks (list))
@@ -118,13 +118,13 @@
 (defun config-save ()
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) (scatter (Emap)
-			:values *values*
-			:states *states*
-			:score *score*))))
+				:values *values*
+				:states *states*
+				:score *score*))))
 
 (defun try-click (index)
 	(and (not *locked*)
-			   (= (elem-get *states* index) 0) ; Can only click hidden tiles
+		(= (elem-get *states* index) 0) ; Can only click hidden tiles
 		(if *first_pick*
 			; Second selection
 			(progn
@@ -132,7 +132,7 @@
 				(update-view)
 
 				(defq val1 (elem-get *values* *first_pick*)
-					  val2 (elem-get *values* index))
+					val2 (elem-get *values* index))
 
 				(if (eql val1 val2)
 					(progn
@@ -140,11 +140,11 @@
 						(elem-set *states* *first_pick* 2)
 						(elem-set *states* index 2)
 						(setq *score* (+ *score* *match_score*)
-							  *first_pick* :nil)
+							*first_pick* :nil)
 						(update-view))
 					; Mismatch
 					(setq *score* (- *score* *mismatch_penalty*)
-						  *locked* :t)
+						*locked* :t)
 					; Set timer to hide cards after delay
 					(mail-timeout (elem-get select +select_timer) 1000000 0)
 					(update-view)))
@@ -185,8 +185,8 @@
 				; Mismatch timer fired - hide temporary cards
 				(when *locked*
 					(setq *states* (map (lambda (s) (if (= s 1) 0 s)) *states*)
-						  *first_pick* :nil
-						  *locked* :nil)
+						*first_pick* :nil
+						*locked* :nil)
 					(update-view)))
 			((= (getf msg +ev_msg_type) +ev_type_action)
 				(dispatch-action (getf msg +ev_msg_target_id)))

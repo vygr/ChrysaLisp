@@ -102,13 +102,13 @@
 	(unless (list?? *funcs*) (setq *funcs* (list *funcs*)))
 	;all functions required and requested
 	(defq boot_funcs (merge (list
-		;must be first function !
-		'sys/load/init
-		;must be second function !
-		'sys/statics/statics
-		;must be included !
-		'sys/kernel/kernel)
-		(map (const sym) *funcs*)))
+				;must be first function !
+				'sys/load/init
+				;must be second function !
+				'sys/statics/statics
+				;must be included !
+				'sys/kernel/kernel)
+			(map (const sym) *funcs*)))
 	;load refs recursively
 	(each-mergeable
 		(# (merge boot_funcs (elem-get (func-load %0) +blob_refs)))
@@ -120,20 +120,20 @@
 	(defq blobs (map (# (get %0 *blob_map*)) boot_funcs)
 		header_offsets (list) links_offsets (list))
 	(reduce (lambda (offset (body links refs))
-		(push header_offsets offset)
-		(push links_offsets (setq offset (+ offset (length body))))
-		(+ offset (length links))) blobs 0)
+			(push header_offsets offset)
+			(push links_offsets (setq offset (+ offset (length body))))
+			(+ offset (length links))) blobs 0)
 	;create new link sections with offsets to header path
 	(each (lambda (blob u)
-		(elem-set blob +blob_links (apply (const cat) (push (map
-			(# (char (-
-				(+ (elem-get header_offsets (find %0 boot_funcs)) +fn_header_pathname)
-				(+ u (* (!) +ptr_size))) +ptr_size)) (elem-get blob +blob_refs)) "")))) blobs links_offsets)
+			(elem-set blob +blob_links (apply (const cat) (push (map
+							(# (char (-
+										(+ (elem-get header_offsets (find %0 boot_funcs)) +fn_header_pathname)
+										(+ u (* (!) +ptr_size))) +ptr_size)) (elem-get blob +blob_refs)) "")))) blobs links_offsets)
 	;build list of all sections of boot image
 	(defq stream (file-stream (func-obj-path 'sys/boot_image) +file_open_write)
 		blobs (push (reduce (# (push %0
-			(elem-get %1 +blob_body)
-			(elem-get %1 +blob_links))) blobs (list)) zero)
+						(elem-get %1 +blob_body)
+						(elem-get %1 +blob_links))) blobs (list)) zero)
 		boot_len (reduce (# (+ %0 (length %1))) blobs 0))
 	;save size in boot image
 	(elem-set blobs 0 (cat (char boot_len +long_size) (slice (first blobs) +long_size -1)))

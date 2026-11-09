@@ -15,8 +15,8 @@
 (defun pd-net (id pads paths)
 	(cat "(" (str id) " 0.127 0.3 0.127 (" (apply (const cat) (cat (list "") pads)) ") () ("
 		(apply (const cat) (cat (list "") (map (lambda (pth)
-			(cat "(" (apply (const cat) (cat (list "") (map (lambda ((x y z)) (cat "(" (pd-n x) " " (pd-n y) " " (pd-n z) ")")) pth))) ")"))
-			paths))) "))"))
+						(cat "(" (apply (const cat) (cat (list "") (map (lambda ((x y z)) (cat "(" (pd-n x) " " (pd-n y) " " (pd-n z) ")")) pth))) ")"))
+					paths))) "))"))
 (defun pd-check (&rest nets)
 	(pcb-drc (pcb-read (cat "((20 20 2)" (apply (const cat) (cat (list "") nets)) ")"))))
 (defun pd-track (id y1 y2 z1 z2)
@@ -36,11 +36,11 @@
 
 ;a via goes through every layer
 (bind '(s u &ignore) (pd-check
-	(pd-net 1 (list (pd-pad 2 10 0) (pd-pad 18 10 1)) (list (list '(2 10 0) '(10 10 0) '(10 10 1) '(18 10 1))))
-	(pd-track 2 10.3 10.3 1 1)))
+		(pd-net 1 (list (pd-pad 2 10 0) (pd-pad 18 10 1)) (list (list '(2 10 0) '(10 10 0) '(10 10 1) '(18 10 1))))
+		(pd-track 2 10.3 10.3 1 1)))
 (assert-true "a via by a track of the other layer, a short" (> (length s) 0))
 (bind '(s u &ignore) (pd-check
-	(pd-net 1 (list (pd-pad 2 10 0) (pd-pad 18 10 1)) (list (list '(2 10 0) '(10 10 0) '(10 10 1) '(18 10 1))))))
+		(pd-net 1 (list (pd-pad 2 10 0) (pd-pad 18 10 1)) (list (list '(2 10 0) '(10 10 0) '(10 10 1) '(18 10 1))))))
 (assert-list-eq "and a net that changes layer by it is joined" '() u)
 
 ;an SMT pad is its shape filled

@@ -24,24 +24,24 @@
 	(while (defq s (pop ranges) e (pop ranges))
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
 		(each (lambda (row_idx)
-			(defq c (+ s (* row_idx grid_width)))
-			(unless (find c drawn_rows)
-				(push drawn_rows c)
-				(setq grid_height (inc grid_height))
-				(def (defq l (Label))
-					:border 0
-					:flow_flags (const (logior +flow_flag_right +flow_flag_align_vcenter))
-					:text (num-to-hex-str c))
-				(view-variant l :font :font_small_terminal)
-				(. symbol_grid :add_child l)
-				(each (lambda (char_code)
-						(def (. (defq l (Button)) :connect +event_copy)
-							:border 1
-							:flow_flags +flow_flag_align_hcenter
-							:text (num-to-utf8 char_code)
-							:tip_text (num-to-hex-str char_code))
-						(. symbol_grid :add_child l))
-					(range c (+ c grid_width))))) (range 0 n)))
+				(defq c (+ s (* row_idx grid_width)))
+				(unless (find c drawn_rows)
+					(push drawn_rows c)
+					(setq grid_height (inc grid_height))
+					(def (defq l (Label))
+						:border 0
+						:flow_flags (const (logior +flow_flag_right +flow_flag_align_vcenter))
+						:text (num-to-hex-str c))
+					(view-variant l :font :font_small_terminal)
+					(. symbol_grid :add_child l)
+					(each (lambda (char_code)
+							(def (. (defq l (Button)) :connect +event_copy)
+								:border 1
+								:flow_flags +flow_flag_align_hcenter
+								:text (num-to-utf8 char_code)
+								:tip_text (num-to-hex-str char_code))
+							(. symbol_grid :add_child l))
+						(range c (+ c grid_width))))) (range 0 n)))
 	(def symbol_grid
 		:grid_width (inc grid_width)
 		:grid_height grid_height
@@ -91,7 +91,7 @@
 				(setq *picker* (file-pick (elem-get select +select_picker) "Open font..." *file* ".ctf" :nil "fonts" :nil '("fonts"))))
 			((= +event_copy id)
 				(clip-put-rpc (to-lower (get :tip_text
-					(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
+							(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
 			((. *window* :event *msg*))))
 	;a picker still open goes with it
 	(if *picker* (mail-send *picker* ""))

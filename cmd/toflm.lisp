@@ -5,7 +5,6 @@
 (import "lib/media/flm.inc")
 (import "service/lock/app.inc")
 
-
 (defq usage `(
 (("-h" "--help")
 "Usage: toflm [options] [path] ...
@@ -40,16 +39,16 @@
 		(when opt_c
 			;each film read whole, so it can be written over
 			(each (lambda (file)
-				(with-write-lock file
-					(defq out (memory-stream) frames (and (defq text (load file))
-						(flm-convert (string-stream text) out opt_r)))
-					(cond
-						(frames (stream-seek out 0 0)
-							(defq parts (list) part :nil)
-							(while (nempty? (setq part (ifn (read-blk out 1048576) ""))) (push parts part))
-							(save (apply (const cat) (cat (list "") parts)) file)
-							(print file ": " frames " frames, version 3"))
-						((print file ": not an older film, left as it is")))))
+					(with-write-lock file
+						(defq out (memory-stream) frames (and (defq text (load file))
+								(flm-convert (string-stream text) out opt_r)))
+						(cond
+							(frames (stream-seek out 0 0)
+								(defq parts (list) part :nil)
+								(while (nempty? (setq part (ifn (read-blk out 1048576) ""))) (push parts part))
+								(save (apply (const cat) (cat (list "") parts)) file)
+								(print file ": " frames " frames, version 3"))
+							((print file ": not an older film, left as it is")))))
 				jobs)
 			(setq jobs (list)))
 		(unless (ends-with ".flm" opt_n)
@@ -59,11 +58,11 @@
 				(when (defq out_stream (file-stream opt_n +file_open_write))
 					(defq film (flm-open out_stream opt_f opt_r))
 					(each (lambda (file)
-						(task-slice)
-						(with-read-lock file
-							(when (defq canvas (canvas-load file +load_flag_noswap))
-								(flm-add film canvas)
-								(prin file " -> " opt_n)
-								(print)))) jobs)
+							(task-slice)
+							(with-read-lock file
+								(when (defq canvas (canvas-load file +load_flag_noswap))
+									(flm-add film canvas)
+									(prin file " -> " opt_n)
+									(print)))) jobs)
 					(flm-close film)
 					(setq out_stream :nil))))))

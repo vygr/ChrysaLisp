@@ -72,8 +72,8 @@
 (assert-true "it runs, and replies" (> (so-child so_task) 0))
 (assert-true "and from another system, its imports asked of the service"
 	(> (so-child (cat "(import {service/source/app.inc})" "\n"
-		"(source-import {0} {" (hex-encode (source-service)) "})" "\n"
-		"(import {apps/system/netmon/child.lisp})")) 0))
+				"(source-import {0} {" (hex-encode (source-service)) "})" "\n"
+				"(import {apps/system/netmon/child.lisp})")) 0))
 
 ;and from another system at the same waypoint as this one, its @Source a
 ;mailbox nobody reads: it runs, as nothing is asked of it. Only where make
@@ -81,8 +81,8 @@
 (if so_wp
 	(assert-true "from a system at the same waypoint, nothing asked"
 		(> (so-child (cat "(import {service/source/app.inc})" "\n"
-			"(source-import {0} {" (hex-encode (mail-mbox)) "} {" so_wp "})" "\n"
-			"(import {apps/system/netmon/child.lisp})")) 0))
+					"(source-import {0} {" (hex-encode (mail-mbox)) "} {" so_wp "})" "\n"
+					"(import {apps/system/netmon/child.lisp})")) 0))
 	(test-skip "from a system at the same waypoint" "this system's build is not of a waypoint, make install at one"))
 
 ;natives of another system: the hash of each asked of the service, and
@@ -96,15 +96,15 @@
 (defq so_entry (first (read (file-stream "obj/vp/apps/system/netspeed/lisp.vp")))
 	so_old (first so_entry))
 (save (str (cat (list so_name (map (lambda (inst)
-		(if (list? inst) (map (# (if (eql %0 so_old) so_name %0)) inst) inst)) (second so_entry)))
-	(slice so_entry 2 -1))) (cat so_dir "lisp.vp"))
+						(if (list? inst) (map (# (if (eql %0 so_old) so_name %0)) inst) inst)) (second so_entry)))
+			(slice so_entry 2 -1))) (cat so_dir "lisp.vp"))
 (defun so-native (fn)
 	;what a task of the other system has of its servers, and of the native
 	(defq mbox (mail-mbox))
 	(open-child (cat "(import {service/source/app.inc})" "\n"
-		"(source-import {" so_sid "} {" (hex-encode (source-service)) "})" "\n"
-		"(mail-send (hex-decode {" (hex-encode mbox) "}) (str (list (task-server)"
-		" (catch (progn (ffi {" fn "} f) (length (f))) :failed))))") +kn_call_pin)
+			"(source-import {" so_sid "} {" (hex-encode (source-service)) "})" "\n"
+			"(mail-send (hex-decode {" (hex-encode mbox) "}) (str (list (task-server)"
+			" (catch (progn (ffi {" fn "} f) (length (f))) :failed))))") +kn_call_pin)
 	(mail-read mbox))
 (when (source-caching?)
 	(assert-eq "a native of VP the node has, not built, translated into the node's place, and run"
@@ -143,27 +143,27 @@
 (defun sl-f ()
 	;VP of a Lisp function that returns what g gives
 	(first (read (string-stream (str `(,sl_f (
-		(label '_0) (long -1) (short _9 _2 _5 _6 256)
-		(label '_1) (string ,sl_f) (byte 0)
-		(byte (- _2 _1)) (align 8 (- _2 _1))
-		(label '_2)
-		(alloc 16) (store-rrc :r0 :rsp 0) (call-p _5)
-		(cpy-rr :r0 :r1) (load-rcr :rsp 0 :r0) (free 16) (ret)
-		(align 8) (label '_5) (long (- _6 *pc*))
-		(label '_6) (string ,sl_g) (byte 0)
-		(align 8) (label '_9))))))))
+							(label '_0) (long -1) (short _9 _2 _5 _6 256)
+							(label '_1) (string ,sl_f) (byte 0)
+							(byte (- _2 _1)) (align 8 (- _2 _1))
+							(label '_2)
+							(alloc 16) (store-rrc :r0 :rsp 0) (call-p _5)
+							(cpy-rr :r0 :r1) (load-rcr :rsp 0 :r0) (free 16) (ret)
+							(align 8) (label '_5) (long (- _6 *pc*))
+							(label '_6) (string ,sl_g) (byte 0)
+							(align 8) (label '_9))))))))
 
 (defun sl-g (n)
 	;VP of a function that gives the number n
 	(first (read (string-stream (str `(,sl_g (
-		(label '_0) (long -1) (short _9 _2 _5 _6 256)
-		(label '_1) (string ,sl_g) (byte 0)
-		(byte (- _2 _1)) (align 8 (- _2 _1))
-		(label '_2)
-		(cpy-cr ,n :r0) (jmp-p _5)
-		(align 8) (label '_5) (long (- _6 *pc*))
-		(label '_6) (string "class/num/create") (byte 0)
-		(align 8) (label '_9))))))))
+							(label '_0) (long -1) (short _9 _2 _5 _6 256)
+							(label '_1) (string ,sl_g) (byte 0)
+							(byte (- _2 _1)) (align 8 (- _2 _1))
+							(label '_2)
+							(cpy-cr ,n :r0) (jmp-p _5)
+							(align 8) (label '_5) (long (- _6 *pc*))
+							(label '_6) (string "class/num/create") (byte 0)
+							(align 8) (label '_9))))))))
 
 (defun sl-hash (entry) (hex-encode (sha256 (str entry))))
 
@@ -171,9 +171,9 @@
 	;what a task of the system sid, its @Source svc, gets from (fn)
 	(defq mbox (mail-mbox))
 	(open-child (cat "(import {service/source/app.inc})" "\n"
-		"(source-import {" sid "} {" (hex-encode svc) "})" "\n"
-		"(mail-send (hex-decode {" (hex-encode mbox) "}) (str"
-		" (catch (progn (ffi {" fn "} f) (f)) :failed)))") +kn_call_pin)
+			"(source-import {" sid "} {" (hex-encode svc) "})" "\n"
+			"(mail-send (hex-decode {" (hex-encode mbox) "}) (str"
+			" (catch (progn (ffi {" fn "} f) (f)) :failed)))") +kn_call_pin)
 	(mail-read mbox))
 
 ;the node's own: f calls g, g gives 1, built into the node's place by a
@@ -188,13 +188,13 @@
 	(save (cat (str (sl-f)) "\n" (str (sl-g 2))) sl_sender)
 	(defq mbox (mail-mbox))
 	(open-child (cat "(import {service/source/app.inc})" "\n"
-		"(defq m {" sl_f " " (sl-hash (sl-f)) "\n" sl_g " " (sl-hash (sl-g 2)) "}"
-		" e (load {" sl_sender "}) n 2)" "\n"
-		"(mail-send (hex-decode {" (hex-encode mbox) "}) (hex-encode (task-mbox)))" "\n"
-		"(while (>= (setq n (dec n)) 0)"
-		" (defq msg (mail-read (task-mbox)) p (slice msg +source_rpc_size -1))"
-		" (mail-send (getf msg +source_rpc_reply_id)"
-		" (cond ((starts-with {#} p) (cat {y} m)) ((starts-with {$} p) (cat {y} e)) ({n}))))")
+			"(defq m {" sl_f " " (sl-hash (sl-f)) "\n" sl_g " " (sl-hash (sl-g 2)) "}"
+			" e (load {" sl_sender "}) n 2)" "\n"
+			"(mail-send (hex-decode {" (hex-encode mbox) "}) (hex-encode (task-mbox)))" "\n"
+			"(while (>= (setq n (dec n)) 0)"
+			" (defq msg (mail-read (task-mbox)) p (slice msg +source_rpc_size -1))"
+			" (mail-send (getf msg +source_rpc_reply_id)"
+			" (cond ((starts-with {#} p) (cat {y} m)) ((starts-with {$} p) (cat {y} e)) ({n}))))")
 		+kn_call_run)
 	(defq sl_other (hex-decode (mail-read mbox)))
 	(assert-eq "its task's f, the node's, links to its own g" "2" (sl-run "Ulk" sl_other sl_f))
@@ -207,8 +207,8 @@
 ;that system, which has its files, not as of the one it runs on
 (defq mbox (mail-mbox))
 (open-child (cat "(import {service/source/app.inc})" "\n"
-	"(source-import {Ulk} {" (hex-encode (source-service)) "})" "\n"
-	"(mail-send (hex-decode {" (hex-encode mbox) "}) (source-task {apps/system/netmon/child.lisp}))")
+		"(source-import {Ulk} {" (hex-encode (source-service)) "})" "\n"
+		"(mail-send (hex-decode {" (hex-encode mbox) "}) (source-task {apps/system/netmon/child.lisp}))")
 	+kn_call_pin)
 (assert-true "a task it sends names its originator" (found? (mail-read mbox) "{Ulk}"))
 
@@ -236,18 +236,18 @@
 	;app.inc and so all that imports, and the @Source here it asked
 	(defq mbox (mail-mbox))
 	(open-child (cat "(import {service/source/app.inc})" "\n"
-		"(source-import {0} {" (hex-encode svc) "})" "\n"
-		"(import {apps/science/mandelbrot/app.inc})" "\n"
-		"(mail-send (hex-decode {" (hex-encode mbox) "}) (str (list (length (tolist *source_got*)) (hex-encode (source-here)))))")
+			"(source-import {0} {" (hex-encode svc) "})" "\n"
+			"(import {apps/science/mandelbrot/app.inc})" "\n"
+			"(mail-send (hex-decode {" (hex-encode mbox) "}) (str (list (length (tolist *source_got*)) (hex-encode (source-here)))))")
 		+kn_call_pin)
 	(bind '(got asked) (first (read (string-stream (mail-read mbox)))))
 	(list got (hex-decode asked)))
 ;two tasks of it, the counts between them too
 (bind '(so_was (so_got so_mid so_got2) so_now) (so-counted (lambda (svc)
-	(bind '(got1 asked1) (so-tree-task svc))
-	(defq mid (so-stats svc))
-	(bind '(got2 asked2) (so-tree-task svc))
-	(list (list got1 mid got2) (and (eql asked1 svc) (eql asked2 svc) svc)))))
+			(bind '(got1 asked1) (so-tree-task svc))
+			(defq mid (so-stats svc))
+			(bind '(got2 asked2) (so-tree-task svc))
+			(list (list got1 mid got2) (and (eql asked1 svc) (eql asked2 svc) svc)))))
 (assert-true "a task of another system is given the module and what it imports" (> so_got 1))
 (assert-eq "in one ask of the @Source here" 1 (- (first so_mid) (first so_was)))
 (assert-eq "which asks that system once" 1 (- (third so_mid) (third so_was)))
@@ -260,8 +260,8 @@
 ;system which it has now, and asks that one. A mailbox nobody reads is the
 ;one that has gone
 (bind '(so_was so_gone so_now) (so-counted (lambda (svc)
-	(list (source-ask svc (cat "%" (hex-encode (system-id)) " " (hex-encode (mail-mbox)) " " so_inc) (* 3 +source_wait))
-		(if (eql (source-service) svc) svc)))))
+			(list (source-ask svc (cat "%" (hex-encode (system-id)) " " (hex-encode (mail-mbox)) " " so_inc) (* 3 +source_wait))
+				(if (eql (source-service) svc) svc)))))
 (assert-eq "a file asked of a @Source that has gone comes from the one there is now"
 	so_inc (first (first (source-unpack (ifn so_gone "")))))
 (assert-eq "found by asking a kernel of that system" 1 (- (elem-get so_now 3) (elem-get so_was 3)))
@@ -271,7 +271,7 @@
 ;the lowest, which every task picks, (mail-single). Each is asked by the
 ;mailbox it was started with: one can give way before it is seen listed
 (defq so_all (list (open-child "service/source/app_impl.lisp" +kn_call_run)
-	(open-child "service/source/app_impl.lisp" +kn_call_run)))
+		(open-child "service/source/app_impl.lisp" +kn_call_run)))
 (assert-true "each copy answers, the one that gives way too"
 	(every (# (eql (load so_inc) (source-ask %0 so_inc :t))) so_all))
 (until (= (length (mail-enquire "@Source,")) 1) (task-sleep 10000))

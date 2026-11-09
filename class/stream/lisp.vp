@@ -396,7 +396,6 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error `(,(first in) "(read-char stream [width])" ,(last in)))
 
-
 (def-func-end)
 
 (def-method :stream :lisp_writechar)
@@ -678,7 +677,6 @@
 	(jump :lisp :repl_error '(:r1 "(read-bits stream parray num_bits" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM))
 
-
 (def-func-end)
 
 (def-method :stream :lisp_write_bits)
@@ -726,7 +724,6 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(write-bits stream parray data num_bits)" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM :NUM))
-
 
 (def-func-end)
 
@@ -794,7 +791,6 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(fill-bits stream parray data num_bits cnt)" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM :NUM :NUM))
-
 
 (def-func-end)
 
@@ -869,7 +865,6 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(copy-bits wstream rstream parray parray num_bits cnt)" +error_msg_wrong_types))
 	(signature '(:stream :stream :ARRAY :ARRAY :NUM :NUM))
-
 
 (def-func-end)
 
@@ -965,6 +960,5 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(lines! lambda stream [start end])" +error_msg_not_valid_index))
 	(signature '(:obj :stream :NUM :NUM))
-
 
 (def-func-end)

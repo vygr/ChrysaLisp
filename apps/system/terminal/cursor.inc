@@ -20,7 +20,7 @@
 
 (defun action-left ()
 	(input-cursor (if (> x *margin_x*)
-		(. buffer :left) (. buffer :set_cursor x y)))
+			(. buffer :left) (. buffer :set_cursor x y)))
 	(refresh))
 
 (defun action-left-select ()
@@ -29,12 +29,12 @@
 
 (defun action-right ()
 	(input-cursor (if (/= x (dec (length (. buffer :get_text_line y))))
-		(. buffer :right) (. buffer :set_cursor x y)))
+			(. buffer :right) (. buffer :set_cursor x y)))
 	(refresh))
 
 (defun action-right-select ()
 	(input-cursor (if (/= x (dec (length (. buffer :get_text_line y))))
-		(. buffer :right_select)))
+			(. buffer :right_select)))
 	(refresh))
 
 (defun action-up ()

@@ -50,36 +50,36 @@
 (defun status ()
 	(defq key (if (pii-fstat "mesh_key") :t) is_joined (joined?) systems (lisp-systems))
 	(print (if key (cat "Key:     " (ifn (keys-in-use) "mesh_key") ", " (keys-print (door-key)) ", only machines with the same key can join.")
-		"Key:     none. This machine is off the network till it has one. Take in the key of the others, key -i and key -u, or mesh -k makes one."))
+			"Key:     none. This machine is off the network till it has one. Take in the key of the others, key -i and key -u, or mesh -k makes one."))
 	(print (cond
-		(is_joined "Joined:  yes.")
-		(key "Joined:  no. Another session of this machine may be its member, the first to start is. Or it is a moment too soon.")
-		(:t "Joined:  no.")))
+			(is_joined "Joined:  yes.")
+			(key "Joined:  no. Another session of this machine may be its member, the first to start is. Or it is a moment too soon.")
+			(:t "Joined:  no.")))
 	(print "Machines:")
 	(each (lambda (system)
-		(print "    " (slice (hex-encode system) 0 8) "  "
-			(pad (str (length (lisp-nodes system))) 3) " nodes  " (net-what-is system)
-			(if (eql system (cat (system-id))) "  (this machine)" "")))
+			(print "    " (slice (hex-encode system) 0 8) "  "
+				(pad (str (length (lisp-nodes system))) 3) " nodes  " (net-what-is system)
+				(if (eql system (cat (system-id))) "  (this machine)" "")))
 		systems)
 	;what the Net service has heard of, by their beacons. One that is
 	;heard and is not a machine above has not joined, and one on another
 	;build, or that speaks another version of the link, is why
 	(defq heard (ifn (net-peers-rpc) (list)) known (map (const hex-encode) systems)
 		odd (filter (lambda ((sys ip port linked build link))
-			(or (eql build "differs") (notany (# (eql link %0)) '("same" "unknown"))
-				(not (find (to-upper sys) known)))) heard))
+				(or (eql build "differs") (notany (# (eql link %0)) '("same" "unknown"))
+					(not (find (to-upper sys) known)))) heard))
 	(when (nempty? odd)
 		(print "Heard, and not right:")
 		(each (lambda ((sys ip port linked build link))
-			(defq other (notany (# (eql link %0)) '("same" "unknown")))
-			(print "    " (slice (to-upper sys) 0 8) "  " ip
-				(if (find (to-upper sys) known) "" ", has not joined")
-				(cond
-					((not other) "")
-					((eql link "0") ", is of before the link had versions")
-					((cat ", speaks version " link " of the link")))
-				(if (eql build "differs") ", is on a different build" "")
-				(if (or other (eql build "differs")) ". Update, and make install, on both." "")))
+				(defq other (notany (# (eql link %0)) '("same" "unknown")))
+				(print "    " (slice (to-upper sys) 0 8) "  " ip
+					(if (find (to-upper sys) known) "" ", has not joined")
+					(cond
+						((not other) "")
+						((eql link "0") ", is of before the link had versions")
+						((cat ", speaks version " link " of the link")))
+					(if (eql build "differs") ", is on a different build" "")
+					(if (or other (eql build "differs")) ". Update, and make install, on both." "")))
 			odd))
 	;the machines a door closed on lately, for their link: one dialled over
 	;the internet is heard by no beacon, and this is how its link is known

@@ -57,7 +57,7 @@
 					(push stack node :exit)
 					;push all unvisited dependencies onto the stack
 					(each (# (unless (or (. visited :find %0) (. visiting :find %0))
-							(push stack %0 :enter)))
+								(push stack %0 :enter)))
 						(callback dep_fnc e node))))
 			((eql state :exit)
 				(. visiting :erase node)

@@ -47,27 +47,27 @@
 		(bind '(toggle_width &ignore) (font-glyph-bounds (get :font_tiny_symbol *env*) +files_open))
 		(defq route (split route "/") root file_tree)
 		(each! (lambda (branch)
-			(cond
-				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
-					;existing route
-					(setq root (last (. (last (. node :children)) :children))))
-				(:t ;new route, so new node
-					(def (defq node (Flow)) :flow_flags +flow_down :text branch)
-					(def (defq tab_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq tab (Backdrop)) :min_width toggle_width)
-					(def (defq tab_child (Flow)) :flow_flags +flow_down)
-					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq toggle (Node)) :text +files_open :min_width toggle_width)
-					(view-variant toggle :font :font_tiny_symbol)
-					(. toggle :connect (. this :get_id))
-					(.-> tab_flow (:add_child tab) (:add_child tab_child))
-					(.-> title_flow (:add_child toggle) (:add_child
-						(. (Node) :connect action_event)))
-					(.-> node (:add_child title_flow) (:add_child tab_flow))
-					(. root :add_child node)
-					(setq root tab_child)))) (list route) 0 -2)
+				(cond
+					((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
+						;existing route
+						(setq root (last (. (last (. node :children)) :children))))
+					(:t ;new route, so new node
+						(def (defq node (Flow)) :flow_flags +flow_down :text branch)
+						(def (defq tab_flow (Flow)) :flow_flags +flow_right_fill)
+						(def (defq tab (Backdrop)) :min_width toggle_width)
+						(def (defq tab_child (Flow)) :flow_flags +flow_down)
+						(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
+						(def (defq toggle (Node)) :text +files_open :min_width toggle_width)
+						(view-variant toggle :font :font_tiny_symbol)
+						(. toggle :connect (. this :get_id))
+						(.-> tab_flow (:add_child tab) (:add_child tab_child))
+						(.-> title_flow (:add_child toggle) (:add_child
+									(. (Node) :connect action_event)))
+						(.-> node (:add_child title_flow) (:add_child tab_flow))
+						(. root :add_child node)
+						(setq root tab_child)))) (list route) 0 -2)
 		(unless (or (eql (defq file (last route)) ".")
-					(some (# (if (eql (def? :text %0) file) %0)) (. root :children)))
+				(some (# (if (eql (def? :text %0) file) %0)) (. root :children)))
 			(def (defq node (Node)) :text file)
 			(. node :connect (inc action_event))
 			(. root :add_child node))
@@ -80,14 +80,14 @@
 		(raise :file_tree)
 		(defq route (split route "/") root file_tree)
 		(every (lambda (branch)
-			(cond
-				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
-					;existing route
-					(setq root (. node :children))
-					(if (nempty? root) (setq root (last (. (last root) :children))))
-					node)
-				(:t ;new route, so failed
-					:nil))) route))
+				(cond
+					((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
+						;existing route
+						(setq root (. node :children))
+						(if (nempty? root) (setq root (last (. (last root) :children))))
+						node)
+					(:t ;new route, so failed
+						:nil))) route))
 
 	(defmethod :get_route (node)
 		; (. files :get_route node) -> route
@@ -105,11 +105,11 @@
 		(defq stack (list file_tree))
 		(while (defq node (pop stack))
 			(each (# (cond
-				((and (Node? %0) (or (eql (defq toggle_text (get :text %0)) +files_open) (eql toggle_text +files_shut)))
-					(defq flow (last (. (penv (penv %0)) :children)))
-					(. flow :set_flags 0 +view_flag_hidden)
-					(def %0 :text +files_open))
-				((push stack %0)))) (. node :children)))
+						((and (Node? %0) (or (eql (defq toggle_text (get :text %0)) +files_open) (eql toggle_text +files_shut)))
+							(defq flow (last (. (penv (penv %0)) :children)))
+							(. flow :set_flags 0 +view_flag_hidden)
+							(def %0 :text +files_open))
+						((push stack %0)))) (. node :children)))
 		(. this :layout_tree)
 		this)
 
@@ -119,11 +119,11 @@
 		(defq stack (list file_tree))
 		(while (defq node (pop stack))
 			(each (# (cond
-				((and (Node? %0) (or (eql (defq toggle_text (get :text %0)) +files_open) (eql toggle_text +files_shut)))
-					(defq flow (last (. (penv (penv %0)) :children)))
-					(. flow :set_flags +view_flag_hidden +view_flag_hidden)
-					(def %0 :text +files_shut))
-				((push stack %0)))) (. node :children)))
+						((and (Node? %0) (or (eql (defq toggle_text (get :text %0)) +files_open) (eql toggle_text +files_shut)))
+							(defq flow (last (. (penv (penv %0)) :children)))
+							(. flow :set_flags +view_flag_hidden +view_flag_hidden)
+							(def %0 :text +files_shut))
+						((push stack %0)))) (. node :children)))
 		(. this :layout_tree)
 		this)
 
@@ -156,11 +156,11 @@
 		(when selected_node
 			(defq state (get :state selected_node))
 			(def (. selected_node :dirty) :state
-				(logand (lognot +text_state_selected) state)))
+					(logand (lognot +text_state_selected) state)))
 		(when (and route (setq selected_node (. this :find_node route)))
 			(defq state (get :state selected_node))
 			(def (. selected_node :dirty) :state
-				(logior +text_state_selected state))
+					(logior +text_state_selected state))
 			(. file_tree_scroll :visible selected_node +scroll_flag_vertical))
 		(lower :selected_node)
 		this)
@@ -182,5 +182,4 @@
 				(if (eql view (first (. (penv view) :children)))
 					(. this :expand)
 					(. this :collapse))))
-		this)
-	)
+		this))

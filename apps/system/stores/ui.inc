@@ -34,7 +34,7 @@
 				(unless (find id ids)
 					(push ids id)
 					(push out (list (cat "Store " id ", of " (slice member 0 (min 8 (length member))))
-						:store (hex-decode (second parts)))))))
+							:store (hex-decode (second parts)))))))
 		(mail-enquire (cat +storage_group ",")))
 	out)
 
@@ -87,19 +87,19 @@
 						(:t (defq copies (elem-get entry +store_entry_copies)
 								seen (length (filter (# (find %0 members)) (elem-get entry +store_entry_seen))))
 							(push files (list rest :nil bytes
-								(cat (bytes-said bytes) "  x" (str (if (> copies 0) copies dial)) (if (> copies 0) "" "*")
-									"  " (str seen) "/" (str (length members))
-									(if (some (# (starts-with %0 (first entry))) pins) "  pinned" "")))))))
+									(cat (bytes-said bytes) "  x" (str (if (> copies 0) copies dial)) (if (> copies 0) "" "*")
+										"  " (str seen) "/" (str (length members))
+										(if (some (# (starts-with %0 (first entry))) pins) "  pinned" "")))))))
 				(ifn (storage-list start svc) (list)))
 			(setq folders (map (lambda (name)
-					(bind '(count bytes) (. sums :find name))
-					(defq path (cat start name "/"))
-					(list name :t bytes (cat (str count) (if (= count 1) " object, " " objects, ") (bytes-said bytes)
-						(cond
-							((some (# (starts-with %0 path)) pins) ", pinned")
-							((some (# (starts-with path %0)) pins) ", some pinned")
-							("")))))
-				folders))))
+						(bind '(count bytes) (. sums :find name))
+						(defq path (cat start name "/"))
+						(list name :t bytes (cat (str count) (if (= count 1) " object, " " objects, ") (bytes-said bytes)
+								(cond
+									((some (# (starts-with %0 path)) pins) ", pinned")
+									((some (# (starts-with path %0)) pins) ", some pinned")
+									("")))))
+					folders))))
 	(defq by_name (# (cmp (first %0) (first %1))))
 	(cat (sort folders by_name) (sort files by_name)))
 
@@ -115,9 +115,9 @@
 	(defq side (elem-get *sides* s) rows (. side :find :rows) taken (. side :find :taken)
 		note (. side :find :note))
 	(. note :set_text (cat (str (length rows)) " here"
-		(if (> (length rows) +rows_max) (cat ", the first " (str +rows_max) " shown") "")
-		(if (nempty? taken) (cat ", " (str (length taken)) " taken") "")
-		(if (side-host? side) "" ".  Objects: size, copies kept (* the store's), members that have it, pinned if this member holds all of it"))))
+			(if (> (length rows) +rows_max) (cat ", the first " (str +rows_max) " shown") "")
+			(if (nempty? taken) (cat ", " (str (length taken)) " taken") "")
+			(if (side-host? side) "" ".  Objects: size, copies kept (* the store's), members that have it, pinned if this member holds all of it"))))
 
 (defun side-paint (s)
 	;the rows taken lit, the others not
@@ -200,10 +200,10 @@
 	(cond
 		((= part 1)
 			(go-to s (if (side-host? side) (host-path (. side :find :folder) (first row))
-				(if (empty? (. side :find :folder)) (first row) (cat (. side :find :folder) "/" (first row))))))
+					(if (empty? (. side :find :folder)) (first row) (cat (. side :find :folder) "/" (first row))))))
 		(:t (. side :insert :taken (if (find (first row) taken)
-				(filter (# (nql %0 (first row))) taken)
-				(push (cat taken) (first row))))
+					(filter (# (nql %0 (first row))) taken)
+					(push (cat taken) (first row))))
 			(side-paint s))))
 
 (defun action-source (s)
@@ -219,8 +219,8 @@
 	(defq side (elem-get *sides* s) folder (. side :find :folder))
 	(setq *active* s *delete* :nil)
 	(go-to s (if (side-host? side)
-		(if (empty? (defq above (path-dir folder))) "/" above)
-		(path-dir folder))))
+			(if (empty? (defq above (path-dir folder))) "/" above)
+			(path-dir folder))))
 
 (defun action-path (s)
 	;the folder written: one of the host if it is there, of a store any
@@ -273,7 +273,7 @@
 			(def *progress* :value (if (> total 0) (/ (* (min bytes total) 1000) total) 0))
 			(.-> *progress* :dirty)
 			(. *status* :set_text (cat (str (inc count)) " of " (str all)
-				(if (eql *doing* :copy) (cat ", " (bytes-said bytes) " of " (bytes-said total)) "") ": " name)))
+					(if (eql *doing* :copy) (cat ", " (bytes-said bytes) " of " (bytes-said total)) "") ": " name)))
 		(:not (++ *faults*)
 			(bind '(name why) (rest said))
 			(print "Stores: not done " name ", " why))
@@ -283,9 +283,9 @@
 			(.-> *progress* :dirty)
 			(look-again)
 			(. *status* :set_text (cat (if stopped "Stopped. " "Done. ") (str done) " done"
-				(if (> skipped 0) (cat ", " (str skipped) " there already, left") "")
-				(if (> failed 0) (cat ", " (str failed) " not done (the terminal says which)") "")
-				(if (eql *doing* :copy) (cat ", " (bytes-said bytes)) "") " in " (str (/ ms 1000)) " s.")))))
+					(if (> skipped 0) (cat ", " (str skipped) " there already, left") "")
+					(if (> failed 0) (cat ", " (str failed) " not done (the terminal says which)") "")
+					(if (eql *doing* :copy) (cat ", " (bytes-said bytes)) "") " in " (str (/ ms 1000)) " s.")))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; the toolbar actions
@@ -316,7 +316,7 @@
 			(work-start :delete side side))
 		(:t (setq *delete* (list *active* taken))
 			(. *status* :set_text (cat "Delete " (str (length taken)) " taken, and all under a folder, from "
-				(first (side-source side)) "? Delete again to do it.")))))
+					(first (side-source side)) "? Delete again to do it.")))))
 
 (defun action-copies ()
 	;how many members are to keep what is taken, on the side last clicked
@@ -348,7 +348,7 @@
 				taken)
 			(look-again)
 			(. *status* :set_text (if pins (cat "This member has " (str (length pins)) (if (= (length pins) 1) " pin." " pins."))
-				"The store did not answer.")))))
+					"The store did not answer.")))))
 
 (defun action-pin () (action-pin-set :nil))
 (defun action-unpin () (action-pin-set :t))

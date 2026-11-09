@@ -8,73 +8,73 @@
 (import "./ui.inc")
 
 (defq
-*event_map* (scatter (Fmap)
-	+event_close action-close
-	+event_min action-minimise
-	+event_max action-maximise
-	+event_share action-share
-	+event_copies action-copies
-	+event_teachers action-teachers
-	+event_voice action-voice
-	+event_mute action-mute
-	+event_zoom_in action-zoom-in
-	+event_zoom_out action-zoom-out
-	+event_undo action-undo
-	+event_redo action-redo
-	+event_new action-new
-	+event_load action-load
-	+event_insert action-insert
-	+event_save action-save
-	+event_clear action-clear
-	+event_crop action-crop
-	+event_style action-style
-	+event_snap action-snap
-	+event_snap_angle action-snap-angle
-	+event_keep_shape action-keep-shape
-	+event_radius action-radius
-	+event_ink action-ink
-	+event_mode action-mode
-	+event_ruler action-ruler
-	+event_protractor action-protractor
-	+event_full_protractor action-full-protractor
-	+event_set_square action-set-square
-	+event_set_square45 action-set-square45
-	+event_menu action-menu
-	+event_swatches action-swatches
-	+event_group action-group
-	+event_ungroup action-ungroup
-	+event_delete action-delete
-	+event_duplicate action-duplicate
-	+event_to_front action-to-front
-	+event_to_back action-to-back
-	+event_align_left action-align-left
-	+event_align_hcenter action-align-hcenter
-	+event_align_right action-align-right
-	+event_align_top action-align-top
-	+event_align_vcenter action-align-vcenter
-	+event_align_bottom action-align-bottom
-	+event_paper_size action-size
-	+event_text action-text)
+	*event_map* (scatter (Fmap)
+		+event_close action-close
+		+event_min action-minimise
+		+event_max action-maximise
+		+event_share action-share
+		+event_copies action-copies
+		+event_teachers action-teachers
+		+event_voice action-voice
+		+event_mute action-mute
+		+event_zoom_in action-zoom-in
+		+event_zoom_out action-zoom-out
+		+event_undo action-undo
+		+event_redo action-redo
+		+event_new action-new
+		+event_load action-load
+		+event_insert action-insert
+		+event_save action-save
+		+event_clear action-clear
+		+event_crop action-crop
+		+event_style action-style
+		+event_snap action-snap
+		+event_snap_angle action-snap-angle
+		+event_keep_shape action-keep-shape
+		+event_radius action-radius
+		+event_ink action-ink
+		+event_mode action-mode
+		+event_ruler action-ruler
+		+event_protractor action-protractor
+		+event_full_protractor action-full-protractor
+		+event_set_square action-set-square
+		+event_set_square45 action-set-square45
+		+event_menu action-menu
+		+event_swatches action-swatches
+		+event_group action-group
+		+event_ungroup action-ungroup
+		+event_delete action-delete
+		+event_duplicate action-duplicate
+		+event_to_front action-to-front
+		+event_to_back action-to-back
+		+event_align_left action-align-left
+		+event_align_hcenter action-align-hcenter
+		+event_align_right action-align-right
+		+event_align_top action-align-top
+		+event_align_vcenter action-align-vcenter
+		+event_align_bottom action-align-bottom
+		+event_paper_size action-size
+		+event_text action-text)
 
-*key_map* (scatter (Fmap)
-	+char_backspace action-delete
-	+char_delete action-delete
-	+char_esc action-escape)
+	*key_map* (scatter (Fmap)
+		+char_backspace action-delete
+		+char_delete action-delete
+		+char_esc action-escape)
 
-*key_map_shift* (scatter (Fmap))
+	*key_map_shift* (scatter (Fmap))
 
-*key_map_control* (scatter (Fmap)
-	(ascii-code "z") action-undo
-	(ascii-code "Z") action-redo
-	(ascii-code "a") action-select-all
-	(ascii-code "d") action-duplicate
-	(ascii-code "g") action-group
-	(ascii-code "G") action-ungroup
-	(ascii-code "s") action-save
-	(ascii-code "o") action-load
-	(ascii-code "r") action-turn
-	(ascii-code "=") action-maximise
-	(ascii-code "-") action-minimise))
+	*key_map_control* (scatter (Fmap)
+		(ascii-code "z") action-undo
+		(ascii-code "Z") action-redo
+		(ascii-code "a") action-select-all
+		(ascii-code "d") action-duplicate
+		(ascii-code "g") action-group
+		(ascii-code "G") action-ungroup
+		(ascii-code "s") action-save
+		(ascii-code "o") action-load
+		(ascii-code "r") action-turn
+		(ascii-code "=") action-maximise
+		(ascii-code "-") action-minimise))
 
 ;module
 (export-symbols

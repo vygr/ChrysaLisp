@@ -13,8 +13,8 @@
 (defun us-area (board color)
 	(defq sum 0.0)
 	(cwb-walk (cwb-items (. board :get_doc)) +mat3x2_unity (lambda (shape m)
-		(if (= (elem-get shape +cwb_fill) color)
-			(setq sum (+ sum (poly-area (poly-union (cwb-mat-paths m (first (cwb-flat shape))) (list) 0)))))))
+			(if (= (elem-get shape +cwb_fill) color)
+				(setq sum (+ sum (poly-area (poly-union (cwb-mat-paths m (first (cwb-flat shape))) (list) 0)))))))
 	sum)
 
 ;who a device is
@@ -181,7 +181,7 @@
 (cwb-save us_doc us_out)
 (assert-eq "written, it is version 1, of items, with no layers"
 	(str (list :t :t :nil)) (str (list (nempty? (substr (str us_out) ":version 1")) (nempty? (substr (str us_out) ":items"))
-		(nempty? (substr (str us_out) ":layers")))))
+			(nempty? (substr (str us_out) ":layers")))))
 (defq us_v5 (string-stream (cat "")))
 (tree-save us_v5 (. (cwb-out us_doc) :insert :version 5))
 (assert-eq "a file of another version is not read" :nil (cwb-load (string-stream (str us_v5))))

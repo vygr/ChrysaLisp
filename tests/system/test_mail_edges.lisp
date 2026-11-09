@@ -99,7 +99,7 @@
 ;a top-level form run as a child replies by mail
 (defq me_reply (mail-mbox))
 (defq me_code (cat
-	"(mail-send (hex-decode \q" (hex-encode me_reply) "\q) \qworld\q)"))
+		"(mail-send (hex-decode \q" (hex-encode me_reply) "\q) \qworld\q)"))
 (defq me_child (open-child me_code +kn_call_run))
 (assert-true "open-child inline top-level started" (/= 0 (get-long me_child 0)))
 (assert-eq "open-child inline top-level message reply" "world" (mail-read me_reply))

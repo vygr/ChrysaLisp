@@ -11,4 +11,4 @@
 (defun action-paste ()
 	(unless (eql (defq data (clip-get-rpc)) "")
 		;do stuff with data
-		))
+	))

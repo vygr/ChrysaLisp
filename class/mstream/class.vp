@@ -228,7 +228,7 @@
 	;:r2-:r9
 
 	(vp-rdef (this bufp total pos chunk iter_begin iter_end
-		chunk_len chunk_s chunk_e))
+			chunk_len chunk_s chunk_e))
 
 	(entry :mstream :ptoi `(,this ,bufp))
 
@@ -270,7 +270,7 @@
 	;:r2-:r9
 
 	(vp-rdef (this pos bufp bufe chunk index total
-		iter_begin iter_end chunk_len))
+			iter_begin iter_end chunk_len))
 
 	(entry :mstream :itop `(,this ,pos))
 

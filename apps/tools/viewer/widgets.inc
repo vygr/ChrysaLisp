@@ -15,7 +15,7 @@
 		(ui-tool-bar *find_toolbar* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_select_region +sym_whole_words +sym_regexp +sym_ignore_case +sym_find_down +sym_find_up) +event_region))
 		(. (ui-textfield *find_text* (:paper +argb_white
-				:hint_text "find" :clear_text "")) :connect +event_find_down))
+					:hint_text "find" :clear_text "")) :connect +event_find_down))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-files *file_selector* "Project" +event_file_folder_action :nil)
 		(ui-flow _ (:flow_flags +flow_up_fill)

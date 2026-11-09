@@ -20,18 +20,18 @@
 ;the Logout app has a row of four, and they went on from close, 0 1 2 3,
 ;when the three after it were its own. Its window as the app makes it
 (defq ev_said (test-output (cat
-	;the file ends with its main, which the task this is run in has one
-	;of, the window is made by then
-	"(catch (import {apps/system/logout/app.lisp}) :t)"
-	" (print (map (# (first (get :targets %0))) (filter (# (Button? %0)) (. *window* :flatten)))"
-	" { } (list +event_close +event_logout +event_quit +event_shutdown))")))
+			;the file ends with its main, which the task this is run in has one
+			;of, the window is made by then
+			"(catch (import {apps/system/logout/app.lisp}) :t)"
+			" (print (map (# (first (get :targets %0))) (filter (# (Button? %0)) (. *window* :flatten)))"
+			" { } (list +event_close +event_logout +event_quit +event_shutdown))")))
 (assert-eq "Logout's buttons are cancel, which is close, and its own three" "(0 16 17 18) (0 16 17 18)\n" ev_said)
 
 ;a new theme comes as an action, with the name after it, and a window that
 ;is passed it does its part
 (defq ev_event (cat (setf-> (str-alloc +ev_msg_theme_size)
-	(+ev_msg_type +ev_type_action) (+ev_msg_target_id +event_theme)
-	(+ev_msg_action_source_id (. ev_window :get_id))) "Sharp"))
+			(+ev_msg_type +ev_type_action) (+ev_msg_target_id +event_theme)
+			(+ev_msg_action_source_id (. ev_window :get_id))) "Sharp"))
 (assert-eq "the name of the theme is after the action" "Sharp" (slice ev_event +ev_msg_theme_name -1))
 (. ev_window :theme "Regular")
 (. ev_window :event ev_event)
@@ -43,13 +43,12 @@
 ;were the same, every flow was the first, and erase in the last column was
 ;delete in the first
 (defq ev_said (test-output (cat
-	"(catch (import {apps/desktop/todo/app_impl.lisp}) :t)"
-	" (print (map (lambda (flow) (create-item flow {x})"
-	" (map (# (first (get :targets %0))) (filter (# (Button? %0)) (. (first (. flow :children)) :flatten))))"
-	" (list *todo_flow* *done_flow* *deleted_flow*))"
-	" { } (list +event_todo_done +event_todo_del +event_done_redo +event_done_del +event_del_redo +event_del_del))")))
+			"(catch (import {apps/desktop/todo/app_impl.lisp}) :t)"
+			" (print (map (lambda (flow) (create-item flow {x})"
+			" (map (# (first (get :targets %0))) (filter (# (Button? %0)) (. (first (. flow :children)) :flatten))))"
+			" (list *todo_flow* *done_flow* *deleted_flow*))"
+			" { } (list +event_todo_done +event_todo_del +event_done_redo +event_done_del +event_del_redo +event_del_del))")))
 (assert-eq "Todo's three columns each have their own two buttons" "((16 17) (18 19) (20 21)) (16 17 18 19 20 21)\n" ev_said)
 (defq ev_a (Flow) ev_b (Flow))
 (assert-eq "two views that hold the same are two" :nil (eql ev_a ev_b))
 (assert-eq "and one is found in a list of them" 1 (find ev_b (list ev_a ev_b)))
-

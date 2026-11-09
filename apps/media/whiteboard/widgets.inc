@@ -39,7 +39,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_undo +sym_redo +sym_new +sym_open +sym_insert +sym_save +sym_clear +sym_cut +sym_media_join +sym_copy +sym_eraser +sym_mic +sym_mute) +event_undo))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_lines +sym_axis)
-			(:paper :paper_toolbar2)) :connect +event_style)
+				(:paper :paper_toolbar2)) :connect +event_style)
 		(ui-tool-bar *snap_toolbar* ()
 			(ui-buttons (+sym_snap +sym_snap_angle +sym_lock) +event_snap))
 		(ui-tool-bar *zoom_toolbar* (:paper :paper_toolbar2)
@@ -47,28 +47,28 @@
 		;each text field the last of its row, as wide as is left, Chris: "the
 		;text fields be the last item, stretch to fit the gap left"
 		(. (ui-textfield *size_field* (:paper +argb_white :hint_text "width x height" :clear_text "1024x768"
-			:min_width 120)) :connect +event_paper_size))
+					:min_width 120)) :connect +event_paper_size))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *mode_toolbar* (+sym_select +sym_pen +sym_line +sym_arrow +sym_double_arrow
-				+sym_rect +sym_circle +sym_filled_rect +sym_filled_circle +sym_text +sym_eraser)
-			(:paper :paper_toolbar2)) :connect +event_mode)
+					+sym_rect +sym_circle +sym_filled_rect +sym_filled_circle +sym_text +sym_eraser)
+				(:paper :paper_toolbar2)) :connect +event_mode)
 		(. (ui-radio-bar *radius_toolbar* (+sym_small +sym_medium +sym_large)) :connect +event_radius)
 		(ui-tool-bar *tool_toolbar* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_ruler +sym_protractor +sym_full_protractor +sym_set_square +sym_set_square45 +sym_menu +sym_palette) +event_ruler))
 		(. (ui-textfield *text_field* (:paper +argb_white :hint_text "words to put down" :clear_text ""
-			:min_width 160)) :connect +event_text))
+					:min_width 160)) :connect +event_text))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *selection_toolbar* ()
 			(ui-buttons (+sym_group +sym_ungroup +sym_delete +sym_duplicate +sym_to_front +sym_to_back
-				+sym_align_left +sym_align_hcenter +sym_align_right
-				+sym_align_top +sym_align_vcenter +sym_align_bottom) +event_group))
+					+sym_align_left +sym_align_hcenter +sym_align_right
+					+sym_align_top +sym_align_vcenter +sym_align_bottom) +event_group))
 		;the inks on the same row, Chris: "the toolbar getting a bit big"
 		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
-				+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen)
+					+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen)
 				(:font :font_medium_symbol :paper :paper_toolbar2)) :connect +event_ink)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-element *image_scroll* (Board-frame)
-			(:min_width +min_width :min_height +min_height :paper :paper_slider)
+		(:min_width +min_width :min_height +min_height :paper :paper_slider)
 		(ui-flow *board_stack* (:flow_flags +flow_stack_fill)
 			(ui-element *board_view* (Board-view *board*))
 			;what is round the document, the desk it lies on
@@ -88,7 +88,7 @@
 
 (ui-tool-tips *mode_toolbar*
 	'("select" "pen" "line" "arrow" "double arrow" "rect" "ellipse"
-	"filled rect" "filled ellipse" "text" "eraser"))
+		"filled rect" "filled ellipse" "text" "eraser"))
 
 (ui-tool-tips *radius_toolbar*
 	'("thin" "medium" "thick"))
@@ -96,10 +96,9 @@
 (ui-tool-tips *tool_toolbar*
 	'("ruler" "protractor" "full protractor" "set square 30" "set square 45" "menu" "palette"))
 
-
 (ui-tool-tips *selection_toolbar*
 	'("group" "ungroup" "delete" "duplicate" "to front" "to back"
-	"align left" "align centre" "align right" "align top" "align middle" "align bottom"))
+		"align left" "align centre" "align right" "align top" "align middle" "align bottom"))
 
 (defun pen-show (button color)
 	;a pen shows its ink, and a pen of none, wholly see through, a cross

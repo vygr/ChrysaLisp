@@ -61,11 +61,11 @@
 			(ui-buttons (+sym_reset) +event_home))
 		(. (ui-radio-bar *mode_toolbar* ("CPU" "GPU") (:font :font_body)) :connect +event_mode)
 		(. (ui-radio-bar *pal_toolbar* (+sym_filled_circle +sym_filled_circle +sym_filled_circle
-				+sym_filled_circle +sym_filled_circle +sym_filled_circle +sym_filled_circle)
+					+sym_filled_circle +sym_filled_circle +sym_filled_circle +sym_filled_circle)
 				(:font :font_medium_symbol)) :connect +event_pal)
 		;its text as wide as it gets, the window is laid out to that
 		(ui-label *status* (:text " x20000 deepest  10000.0 ms " :font :font_body
-			:flow_flags +flow_flag_align_vcenter))
+				:flow_flags +flow_flag_align_vcenter))
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))
 
@@ -94,7 +94,7 @@
 	;how far in, and if it is as far as it goes
 	(defq k (n2i (/ +home_z z)))
 	(. *status* :set_text (cat " x" (str k) (if (<= z +z_min) " deepest" "")
-		"  " (str (/ took 1000)) "." (str (/ (% took 1000) 100)) " ms ")))
+			"  " (str (/ took 1000)) "." (str (/ (% took 1000) 100)) " ms ")))
 
 ;;;;;;;;;;;;;;;;
 ; the GPU's frame
@@ -125,10 +125,10 @@
 	(bind '(gx gy step) (on-grid))
 	(when (shader-gpu-run program kernel
 			(shader-pack program (list (list 'cx gx) (list 'cy gy) (list 'step step)
-				(list 'w +width) (list 'h +height) (list 'ow +width) (list 'top (top-of))
-				(list 'base +mandel_pal_base) (list 'rate +mandel_pal_rate)
-				(list 'lbase +mandel_light_base) (list 'lgain +mandel_light_gain)
-				(list 'ss +mandel_samples)))
+					(list 'w +width) (list 'h +height) (list 'ow +width) (list 'top (top-of))
+					(list 'base +mandel_pal_base) (list 'rate +mandel_pal_rate)
+					(list 'lbase +mandel_light_base) (list 'lgain +mandel_light_gain)
+					(list 'ss +mandel_samples)))
 			0 (* +width +height) (list pal_buf out_buf))
 		(. *canvas* :tile (gpu-read out_buf 0 (* +width +height +int_size)) 0 0 +width +height)
 		(setq dirty :nil took (- (pii-time) t0))
@@ -143,9 +143,9 @@
 	;from this system, by its @Source, its Lisp and the kernel, made native
 	;code where it runs
 	(setq jobs (Jobs (source-task (cat *app_root* "child.lisp"))
-		(elem-get select +select_task) (elem-get select +select_reply)
-		;two on each node of this machine, none on another
-		(list +max_int 2 2))
+			(elem-get select +select_task) (elem-get select +select_reply)
+			;two on each node of this machine, none on another
+			(list +max_int 2 2))
 		busy :nil))
 
 (defun farm-forget ()
@@ -164,21 +164,21 @@
 	(bind '(gx gy &ignore) (on-grid))
 	(defq work (list) top (top-of))
 	(each (lambda (y)
-		(each (lambda (x)
-			(push work (setf-> (str-alloc +rect_size)
-				(+rect_x x)
-				(+rect_y y)
-				(+rect_x1 (min +width (+ x +job_rect_size)))
-				(+rect_y1 (min +height (+ y +job_rect_size)))
-				(+rect_w +width)
-				(+rect_h +height)
-				(+rect_shared shared_key)
-				(+rect_top top)
-				(+rect_pal pal)
-				(+rect_cx gx)
-				(+rect_cy gy)
-				(+rect_z z))))
-			(range 0 +width +job_rect_size)))
+			(each (lambda (x)
+					(push work (setf-> (str-alloc +rect_size)
+							(+rect_x x)
+							(+rect_y y)
+							(+rect_x1 (min +width (+ x +job_rect_size)))
+							(+rect_y1 (min +height (+ y +job_rect_size)))
+							(+rect_w +width)
+							(+rect_h +height)
+							(+rect_shared shared_key)
+							(+rect_top top)
+							(+rect_pal pal)
+							(+rect_cx gx)
+							(+rect_cy gy)
+							(+rect_z z))))
+				(range 0 +width +job_rect_size)))
 		(range 0 +height +job_rect_size))
 	(. jobs :add work)
 	(setq busy :t farm_t (pii-time)))
@@ -248,9 +248,9 @@
 	(fly dt)
 	(cond
 		(gpu (when changed
-			(setq changed :nil)
-			(gpu-frame)
-			(status)))
+				(setq changed :nil)
+				(gpu-frame)
+				(status)))
 		(:t (unless jobs (farm-start))
 			(unless busy
 				(when changed
@@ -318,9 +318,9 @@
 						(setq dirty :t)
 						(when (= (getf msg +rect_reply_drawn) 0)
 							(apply draw-rect (cat (list *canvas* (slice msg +rect_reply_size -1))
-								(getf-> msg +rect_reply_x +rect_reply_y +rect_reply_x1 +rect_reply_y1
-									+rect_reply_ix +rect_reply_iy +rect_reply_ix1 +rect_reply_iy1
-									+rect_reply_inside))))
+									(getf-> msg +rect_reply_x +rect_reply_y +rect_reply_x1 +rect_reply_y1
+										+rect_reply_ix +rect_reply_iy +rect_reply_ix1 +rect_reply_iy1
+										+rect_reply_inside))))
 						(when (= out 0)
 							;the picture is whole, shown, how long it took, and the
 							;next may start

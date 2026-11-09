@@ -26,18 +26,18 @@
 	;draws nothing is in no band
 	(defq count (inc (n2i (/ (n2f (. doc :find :height)) +band))))
 	(map (lambda ((name flags layer_items))
-		(defq rows (map (lambda (&) (list)) (range 0 count)))
-		(each (lambda (item)
-			;every shape is flattened here, the first time, which is a
-			;while. The other tasks of the node are given a turn
-			(if (= (logand (!) 31) 31) (task-slice))
-			(when (defq box (cwb-bounds (list item)))
-				(defq entry (list (!) item))
-				;a row more each way, as the stripe has
-				(each (# (push (elem-get rows %0) entry))
-					(range (band-of (- (second box) 1.0) count) (inc (band-of (+ (elem-get box 3) 1.0) count))))))
-			layer_items)
-		(list flags rows (map (lambda (&) :nil) layer_items)))
+			(defq rows (map (lambda (&) (list)) (range 0 count)))
+			(each (lambda (item)
+					;every shape is flattened here, the first time, which is a
+					;while. The other tasks of the node are given a turn
+					(if (= (logand (!) 31) 31) (task-slice))
+					(when (defq box (cwb-bounds (list item)))
+						(defq entry (list (!) item))
+						;a row more each way, as the stripe has
+						(each (# (push (elem-get rows %0) entry))
+							(range (band-of (- (second box) 1.0) count) (inc (band-of (+ (elem-get box 3) 1.0) count))))))
+				layer_items)
+			(list flags rows (map (lambda (&) :nil) layer_items)))
 		(cwb-layers doc)))
 
 (defun band-items (rows none y y1)
@@ -59,7 +59,7 @@
 	(or (>= have version)
 		(progn
 			(mail-send sync (setf-> (str-alloc +stripe_sync_size)
-				(+stripe_sync_reply sync_mbox) (+stripe_sync_have have)))
+					(+stripe_sync_reply sync_mbox) (+stripe_sync_have have)))
 			(and (defq text (mail-read-timeout sync_mbox (task-timeout 10)))
 				(defq now (stripes-apply doc items text))
 				(setq bands :nil have now)
@@ -95,12 +95,12 @@
 						(if (bits? flags 1) count
 							(defq found (band-items rows none (second seen) (elem-get seen 3)))
 							(+ count (cwb-draw-items canvas
-								(if (and (not (Fset? skip)) (empty? skip)) found (cwb-pick found skip :t))
-								m clip))))
+									(if (and (not (Fset? skip)) (empty? skip)) found (cwb-pick found skip :t))
+									m clip))))
 					bands 0))))
 	(mail-send reply (setf-> (str-alloc +stripe_reply_size)
-		(+job_reply_key key) (+stripe_reply_y y) (+stripe_reply_drawn drawn))))
+			(+job_reply_key key) (+stripe_reply_y y) (+stripe_reply_drawn drawn))))
 
 (defun main ()
 	(job-child 20000000 (lambda (msg mbox)
-		(draw-stripe (getf msg +job_key) (getf msg +job_reply) msg))))
+			(draw-stripe (getf msg +job_key) (getf msg +job_reply) msg))))

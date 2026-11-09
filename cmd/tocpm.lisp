@@ -36,7 +36,6 @@
 					(prin file " -> " out_file)
 					(print))))))
 
-
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and

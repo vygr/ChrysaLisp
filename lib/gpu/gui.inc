@@ -25,12 +25,12 @@
 	(shader-gui-sweep)
 	(case (canvas-shader-format)
 		(1 (defq shader (canvas-shader-create (shader-msl-vertex)
-				(shader-kept-text (cat "g" (shader-make +gui_msl_by) "_" (elem-get program 5) ".msl")
-					(# (shader-msl program)))))
+					(shader-kept-text (cat "g" (shader-make +gui_msl_by) "_" (elem-get program 5) ".msl")
+						(# (shader-msl program)))))
 			(if (/= shader 0) shader))
 		(2 (defq shader (canvas-shader-create (shader-spirv-vertex)
-				(shader-kept-text (cat "g" (shader-make +gui_spirv_by) "_" (elem-get program 5) ".spv")
-					(# (shader-spirv program)))))
+					(shader-kept-text (cat "g" (shader-make +gui_spirv_by) "_" (elem-get program 5) ".spv")
+						(# (shader-spirv program)))))
 			(if (/= shader 0) shader))
 		(:t :nil)))
 
@@ -67,12 +67,12 @@
 			(char (length (shader-textures pixel)) 1))
 		pair (case (canvas-shader-format)
 			(1 (bind '(vertex_text fragment_text) (shader-gui-pair-text vertex pixel +gui_msl_by ".msl"
-					;check off, the two it is called with are the two this was
-					(# (shader-msl-pair vertex pixel))))
+						;check off, the two it is called with are the two this was
+						(# (shader-msl-pair vertex pixel))))
 				(canvas-pair-create vertex_text fragment_text layout))
 			(2 (bind '(vertex_module fragment_module) (shader-gui-pair-text vertex pixel +gui_spirv_by ".spv"
-					;check off, as above
-					(# (shader-spirv-pair vertex pixel))))
+						;check off, as above
+						(# (shader-spirv-pair vertex pixel))))
 				(canvas-pair-create vertex_module fragment_module layout))
 			(:t 0)))
 	(if (/= pair 0) pair))
@@ -108,9 +108,9 @@
 	(defun pad8 (block)
 		(cat block (slice (const (char 0 8)) 0 (- (logand (+ (length block) 7) -8) (length block)))))
 	(. canvas :shade_tris (apply (const cat) (cat (list (char (length draws) 8))
-		(map (lambda ((pair mesh vblock pblock &optional textures))
-			;a shader with no inputs still has a block, of nothing
-			(if (empty? vblock) (setq vblock (const (char 0 8))))
-			(if (empty? pblock) (setq pblock (const (char 0 8))))
-			(apply (const cat) (cat (list (char pair 8) (char mesh 8) (char (length vblock) 8) (char (length pblock) 8)
-				(pad8 vblock) (pad8 pblock)) (map (# (char %0 8)) (ifn textures '()))))) draws)))))
+				(map (lambda ((pair mesh vblock pblock &optional textures))
+						;a shader with no inputs still has a block, of nothing
+						(if (empty? vblock) (setq vblock (const (char 0 8))))
+						(if (empty? pblock) (setq pblock (const (char 0 8))))
+						(apply (const cat) (cat (list (char pair 8) (char mesh 8) (char (length vblock) 8) (char (length pblock) 8)
+									(pad8 vblock) (pad8 pblock)) (map (# (char %0 8)) (ifn textures '()))))) draws)))))

@@ -29,36 +29,36 @@
 	;%1 = cell (ptr)
 	;%2 = old first cell (ptr)
 
-	(validatecase
-		;the guard word after the cell must be whole, else something wrote
-		;past the end of the cell.
-		;fill the cell, past its free list link, with the freed pattern, so
-		;any use of it after the free shows up. If it holds that pattern
-		;already then it is being freed twice.
-		(defq regs (filter (lambda (r) (not (find r (list %0 %1 %2))))
-				'(:r3 :r4 :r5 :r6 :r7 :r8))
-			end (first regs) fill (second regs) tmp (third regs))
-		(vp-push end fill tmp)
-		(assign `((,%0 +hp_heap_cellsize)) `(,end))
-		(vp-lea-rrr %1 end end)
-		(vp-cpy-cr +hp_cell_guard fill)
-		(assign `((,end 0)) `(,tmp))
-		(vpif `(,tmp /= ,fill))
-			(jump :sys_heap :overrun)
+(validatecase
+	;the guard word after the cell must be whole, else something wrote
+	;past the end of the cell.
+	;fill the cell, past its free list link, with the freed pattern, so
+	;any use of it after the free shows up. If it holds that pattern
+	;already then it is being freed twice.
+	(defq regs (filter (lambda (r) (not (find r (list %0 %1 %2))))
+			'(:r3 :r4 :r5 :r6 :r7 :r8))
+		end (first regs) fill (second regs) tmp (third regs))
+	(vp-push end fill tmp)
+	(assign `((,%0 +hp_heap_cellsize)) `(,end))
+	(vp-lea-rrr %1 end end)
+	(vp-cpy-cr +hp_cell_guard fill)
+	(assign `((,end 0)) `(,tmp))
+	(vpif `(,tmp /= ,fill))
+		(jump :sys_heap :overrun)
+	(endif)
+	(vp-lea-rcr %1 +ptr_size %2)
+	(vp-cpy-cr +hp_cell_free_fill fill)
+	(vpif `(,%2 /= ,end))
+		(assign `((,%2 0)) `(,tmp))
+		(vpif `(,tmp = ,fill))
+			(jump :sys_heap :double_free)
 		(endif)
-		(vp-lea-rcr %1 +ptr_size %2)
-		(vp-cpy-cr +hp_cell_free_fill fill)
-		(vpif `(,%2 /= ,end))
-			(assign `((,%2 0)) `(,tmp))
-			(vpif `(,tmp = ,fill))
-				(jump :sys_heap :double_free)
-			(endif)
-			(loop-start)
-				(vp-store-rrc fill %2 0)
-				(vp-add-cr +long_size %2)
-			(loop-until `(,%2 = ,end))
-		(endif)
-		(vp-pop end fill tmp))
+		(loop-start)
+			(vp-store-rrc fill %2 0)
+			(vp-add-cr +long_size %2)
+		(loop-until `(,%2 = ,end))
+	(endif)
+	(vp-pop end fill tmp))
 	(ln-add-fnode %0 +hp_heap_free_flist %1 %2))
 
 ;;;;;;;;;;;;;;;;

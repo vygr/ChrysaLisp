@@ -12,7 +12,7 @@
 (defun md-texts (view)
 	;the text of every Text of a view, in order, those of no text left out
 	(filter (const nempty?) (map (# (if (def? :text %0) (str (get :text %0)) ""))
-		(filter (# (Text? %0)) (. view :flatten)))))
+			(filter (# (Text? %0)) (. view :flatten)))))
 
 ;the table of docs/history/press/README.md is where this was seen, a
 ;file with a long name made the Docs app page many times its width
@@ -48,7 +48,7 @@
 ;so many columns that they can not all be on the page: a scroll
 (defq md_cols (map (# (cat "col" (str %0))) (range 0 16)))
 (bind '(md_md md_w) (md-make (list (cat "| " (join md_cols " | ") " |")
-	(cat "|" (join (map (lambda (&) "---") md_cols) "|") "|") (cat "| " (join md_cols " | ") " |"))))
+			(cat "|" (join (map (lambda (&) "---") md_cols) "|") "|") (cat "| " (join md_cols " | ") " |"))))
 (assert-true "a table of 16 columns is put in a scroll" (some (# (Scroll? %0)) (. md_md :flatten)))
 (assert-true "and the page is no wider for it" (<= md_w 660))
 (bind '(md_md md_w) (md-make md_lines))
@@ -132,7 +132,7 @@
 (. md_files :empty)
 (. md_files :populate "docs" '(".md"))
 (defq md_go (filter (# (and (not (find ":" %0)) (ends-with ".md" (defq f (md-link-file "docs/test.md" %0)))
-	(. md_files :find_node f))) md_targets))
+				(. md_files :find_node f))) md_targets))
 (assert-eq "it has 16 files its links go to" 16 (length md_targets))
 (assert-eq "11 of them are documents of the tree, and are followed" 11 (length md_go))
 (assert-list-eq "the rest are the web, a pdf, a picture, out of the root, and one not there"

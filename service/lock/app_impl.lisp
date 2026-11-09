@@ -63,37 +63,37 @@
 (defun merge-locks (writes reads pending nodes known now history granted)
 	(defq blocked (list) new_pending (list))
 	(each (lambda (req)
-		(defq node (pfind req :node))
-		; drop request if caller node died, or it is long past its timeout.
-		; A caller that gives up cancels its request, so this is only for
-		; one that could not, and waits twice as long so the cancel comes first.
-		(unless (or (node-died? node nodes known)
-				(> (- now (pfind req :time)) (* 2 (pfind req :timeout))))
-			(defq key (pfind req :key) key_path (pfind req :path) mode (pfind req :mode))
-			(cond
-				((= mode +lock_mode_write)
-					(ifn (or (conflict? key_path writes)
-							(conflict? key_path reads)
-							(conflict? key_path blocked))
-						(progn
-							(pinsert req :time now)
-							(push writes req)
-							(push granted (list (pfind req :reply) now))
-							(log-lock-history history "lock" key "write")
-							(mail-send (pfind req :reply) ""))
-						(push blocked req)
-						(push new_pending req)))
-				(:t ; +lock_mode_read
-					(ifn (or (conflict? key_path writes) (conflict? key_path blocked))
-						(progn
-							(if (defq rec (some (# (if (eql (pfind %0 :key) key) %0)) reads))
-								(pinsert rec :mode (inc (pfind rec :mode)) :time now)
-								(push reads (pmap :key key :path key_path :mode 1 :time now)))
-							(push granted (list (pfind req :reply) now))
-							(log-lock-history history "lock" key "read")
-							(mail-send (pfind req :reply) ""))
-						(push blocked req)
-						(push new_pending req)))))) pending)
+			(defq node (pfind req :node))
+			; drop request if caller node died, or it is long past its timeout.
+			; A caller that gives up cancels its request, so this is only for
+			; one that could not, and waits twice as long so the cancel comes first.
+			(unless (or (node-died? node nodes known)
+					(> (- now (pfind req :time)) (* 2 (pfind req :timeout))))
+				(defq key (pfind req :key) key_path (pfind req :path) mode (pfind req :mode))
+				(cond
+					((= mode +lock_mode_write)
+						(ifn (or (conflict? key_path writes)
+								(conflict? key_path reads)
+								(conflict? key_path blocked))
+							(progn
+								(pinsert req :time now)
+								(push writes req)
+								(push granted (list (pfind req :reply) now))
+								(log-lock-history history "lock" key "write")
+								(mail-send (pfind req :reply) ""))
+							(push blocked req)
+							(push new_pending req)))
+					(:t ; +lock_mode_read
+						(ifn (or (conflict? key_path writes) (conflict? key_path blocked))
+							(progn
+								(if (defq rec (some (# (if (eql (pfind %0 :key) key) %0)) reads))
+									(pinsert rec :mode (inc (pfind rec :mode)) :time now)
+									(push reads (pmap :key key :path key_path :mode 1 :time now)))
+								(push granted (list (pfind req :reply) now))
+								(log-lock-history history "lock" key "read")
+								(mail-send (pfind req :reply) ""))
+							(push blocked req)
+							(push new_pending req)))))) pending)
 	new_pending)
 
 (defun main ()
@@ -123,9 +123,9 @@
 									(setq lock_cancelled (erase lock_cancelled idx (inc idx))))
 								(:t (defq caller_node (task-nodeid reply_id))
 									(push lock_pending (pmap :key key :path key_path :mode mode :reply reply_id
-										:node caller_node :time (pii-time) :timeout timeout))
+											:node caller_node :time (pii-time) :timeout timeout))
 									(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
-										(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))))
+											(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))))
 						(+lock_type_release
 							; 1. check writes
 							(ifn (defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_writes))
@@ -142,7 +142,7 @@
 								(log-lock-history lock_history "unlock" key "write"))
 							(mail-send reply_id "")
 							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
-								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))
+									(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))
 						(+lock_type_cancel
 							;the caller gave up waiting for a claim
 							(cond
@@ -154,25 +154,25 @@
 									(push lock_cancelled (list reply_id (pii-time))))
 								;granted as the caller gave up, undo that
 								(:t (setq lock_granted (erase lock_granted idx (inc idx)))
-								(cond
-									((= mode +lock_mode_write)
-										(when (defq idx (some (# (if (eql (pfind %0 :reply) reply_id) (!))) lock_writes))
-											(elem-set lock_writes idx (last lock_writes))
-											(pop lock_writes)
-											(log-lock-history lock_history "unlock" key "write")))
-									((defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_reads))
-										(defq rec (elem-get lock_reads idx) cnt (dec (pfind rec :mode)))
-										(ifn (<= cnt 0)
-											(pinsert rec :mode cnt)
-											(elem-set lock_reads idx (last lock_reads))
-											(pop lock_reads))
-										(log-lock-history lock_history "unlock" key "read")))))
+									(cond
+										((= mode +lock_mode_write)
+											(when (defq idx (some (# (if (eql (pfind %0 :reply) reply_id) (!))) lock_writes))
+												(elem-set lock_writes idx (last lock_writes))
+												(pop lock_writes)
+												(log-lock-history lock_history "unlock" key "write")))
+										((defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_reads))
+											(defq rec (elem-get lock_reads idx) cnt (dec (pfind rec :mode)))
+											(ifn (<= cnt 0)
+												(pinsert rec :mode cnt)
+												(elem-set lock_reads idx (last lock_reads))
+												(pop lock_reads))
+											(log-lock-history lock_history "unlock" key "read")))))
 							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
-								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))
+									(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))
 						(+lock_type_history
 							;the last +lock_max_history entries
 							(mail-send reply_id (join (slice lock_history
-								(max 0 (- (length lock_history) +lock_max_history)) -1) "\n")))))
+										(max 0 (- (length lock_history) +lock_max_history)) -1) "\n")))))
 				(+select_timer
 					(mail-timeout (elem-get select +select_timer) +check_rate 0)
 					(defq nodes (lisp-nodes) now (pii-time)

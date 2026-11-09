@@ -3,11 +3,11 @@
 ;;;;;;;;;;;;;;;
 
 (defq +macro_map (apply scatter (reduce
-	(# (push %0 %1 (list))) +range_0_10 (list (Lmap)))))
+			(# (push %0 %1 (list))) +range_0_10 (list (Lmap)))))
 
 (defun macro-playback (actions)
 	(every (# (if (find (first %0) (const `'(,action-find-up ,action-find-down)))
-			(setq running (eval %0)) (eval %0) :t))
+				(setq running (eval %0)) (eval %0) :t))
 		actions))
 
 (defun macro-record (action)
@@ -49,14 +49,14 @@
 		(action-macro-to-eof slot)))
 
 (each (# (def (penv)
-		(sym (str "action-macro-playback-" %0))
-			`(,lambda () (,action-macro-playback ,%%0))))
+			(sym (str "action-macro-playback-" %0))
+				`(,lambda () (,action-macro-playback ,%%0))))
 	+range_0_10)
 
 (defq +playback_funcs `'(,action-macro-playback-0 ,action-macro-playback-1
-	,action-macro-playback-2 ,action-macro-playback-3 ,action-macro-playback-4
-	,action-macro-playback-5 ,action-macro-playback-6 ,action-macro-playback-7
-	,action-macro-playback-8 ,action-macro-playback-9))
+		,action-macro-playback-2 ,action-macro-playback-3 ,action-macro-playback-4
+		,action-macro-playback-5 ,action-macro-playback-6 ,action-macro-playback-7
+		,action-macro-playback-8 ,action-macro-playback-9))
 
 (defun is-playback-func? (f)
 	(some (# (if (eql (first f) %0) (!))) +playback_funcs))
@@ -67,14 +67,14 @@
 	(defq stack (list slot) cnt 10000)
 	(while (and (> (-- cnt) 0) (defq s (pop stack)))
 		(setq stack (cat stack (filter (const num?)
-			(map (const is-playback-func?) (. +macro_map :find s))))))
+					(map (const is-playback-func?) (. +macro_map :find s))))))
 	(when (= cnt 0)
 		(.-> +macro_map (:insert 0 (list)) (:insert slot (list)))
 		(throw "Edit macro recursive error !" slot)))
 
 (each (# (def (penv)
-		(sym (str "action-macro-save-" %0))
-			`(,lambda () (,action-macro-save ,%%0))))
+			(sym (str "action-macro-save-" %0))
+				`(,lambda () (,action-macro-save ,%%0))))
 	+range_0_10)
 
 (defun action-macro-record ()
@@ -91,4 +91,4 @@
 (defun macro-decode (n e)
 	(. +macro_map :insert n
 		(map (lambda ((f &rest p))
-			(cat (list (elem-get *recorded_actions* f)) p)) e)))
+				(cat (list (elem-get *recorded_actions* f)) p)) e)))

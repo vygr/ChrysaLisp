@@ -132,7 +132,7 @@
 	(vp-cpy-rr :r1 :r13)
 	(assign '((:r1 +array_begin)) '(:r2))
 	(call :num %0 '((:r2 0) :r1) '(:r1))
-(gotoif '(:r1 = 0) 'error)
+	(gotoif '(:r1 = 0) 'error)
 	(exit :num (sym (cat :lisp_ (rest %0))) '(:r12 :r1))
 	(vp-ret))
 

@@ -9,35 +9,35 @@
 (import "./search.inc")
 
 (defq
-*event_map* (scatter (Fmap)
-	+event_close action-close
-	+event_min action-minimise
-	+event_max action-maximise
-	+event_whole_words action-whole-words
-	+event_regexp action-regexp
-	+event_ignore_case action-ignore-case
-	+event_next action-next-doc
-	+event_prev action-prev-doc
-	+event_find_down action-find-down
-	+event_find_up action-find-up
-	+event_file_leaf_action action-file-leaf-action
-	+event_link action-link
-	+event_back action-back
-	+event_forward action-forward
-	+event_zoom_in action-scale-up
-	+event_zoom_out action-scale-down)
+	*event_map* (scatter (Fmap)
+		+event_close action-close
+		+event_min action-minimise
+		+event_max action-maximise
+		+event_whole_words action-whole-words
+		+event_regexp action-regexp
+		+event_ignore_case action-ignore-case
+		+event_next action-next-doc
+		+event_prev action-prev-doc
+		+event_find_down action-find-down
+		+event_find_up action-find-up
+		+event_file_leaf_action action-file-leaf-action
+		+event_link action-link
+		+event_back action-back
+		+event_forward action-forward
+		+event_zoom_in action-scale-up
+		+event_zoom_out action-scale-down)
 
-*key_map* (scatter (Fmap))
+	*key_map* (scatter (Fmap))
 
-*key_map_shift* (scatter (Fmap))
+	*key_map_shift* (scatter (Fmap))
 
-*key_map_control* (scatter (Fmap)
-	(ascii-code "n") action-next-doc
-	(ascii-code "N") action-prev-doc
-	(ascii-code "{") action-scale-down
-	(ascii-code "}") action-scale-up
-	(ascii-code "=") action-maximise
-	(ascii-code "-") action-minimise))
+	*key_map_control* (scatter (Fmap)
+		(ascii-code "n") action-next-doc
+		(ascii-code "N") action-prev-doc
+		(ascii-code "{") action-scale-down
+		(ascii-code "}") action-scale-up
+		(ascii-code "=") action-maximise
+		(ascii-code "-") action-minimise))
 
 ;module
 (export-symbols

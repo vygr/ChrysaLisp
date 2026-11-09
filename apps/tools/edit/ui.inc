@@ -30,19 +30,19 @@
 (defun action-open-leaf-action ()
 	;switch to the file selected
 	(switch-file (. *open_files_selector* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
+			(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 
 (defun action-file-folder-action ()
 	;load all files in this folder
 	(defq folder (. *file_selector* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
+			(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
 	(open-files (defq files (sort (files-all folder +file_types))))
 	(switch-file (first files)))
 
 (defun action-file-leaf-action ()
 	;load the file selected
 	(open-file (defq file (. *file_selector* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
+				(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 	(. *name_text* :set_text file))
 
 (defun action-scale-up ()
@@ -101,8 +101,7 @@
 		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 		(bind '(sx sy) (. this :get_scroll))
 		(scatter meta :sx sx :sy sy)
-		(refresh-sliders) (refresh-display) this)
-	)
+		(refresh-sliders) (refresh-display) this))
 
 ;Edit's, which has a list of matches up to take down
 (defclass Editor-edit () (Viewer-edit)
@@ -114,5 +113,4 @@
 	(defmethod :mouse_wheel (event)
 		; (. vdu :mouse_wheel event) -> vdu
 		(clear-matches)
-		(.super this :mouse_wheel event))
-	)
+		(.super this :mouse_wheel event)))

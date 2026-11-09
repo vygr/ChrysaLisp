@@ -111,7 +111,7 @@
 ; Selection 1: A1\nA2\n (lines 0,1)
 (. *edit* :set_cursor 0 0 0 2)
 ; Selection 2: B1\nB2\n (lines 3,4)
-(. *edit* :add_cursor 0 3 0 5) 
+(. *edit* :add_cursor 0 3 0 5)
 (assert-eq "Multi-line: Two cursors" 2 (length (. *edit* :get_cursors)))
 
 ; Verify copy: Expect "A1\nA2\n\fB1\nB2\n"
@@ -399,8 +399,8 @@
 (edit-replace "WORD")
 (edit-select-all)
 ; edit-get-text joined with \n and strips empty lines
-(assert-eq "Complex focus scenario result" 
-	"Para 1: text text\nPara 2: WORD WORD\nPara 3: text text" 
+(assert-eq "Complex focus scenario result"
+	"Para 1: text text\nPara 2: WORD WORD\nPara 3: text text"
 	(edit-get-text))
 
 ; Clear focus
@@ -418,5 +418,5 @@
 ; --- edit-print, the selected text, or its arguments ---
 (test-cases
 	(test-output (cat "(import {lib/text/edit.inc}) (defq *file* {t} *edit* (Document))"
-		" (edit-insert {ab}) (edit-select-all) (edit-print) (edit-print {x} 1)"))
+			" (edit-insert {ab}) (edit-select-all) (edit-print) (edit-print {x} 1)"))
 		"ab\nx1\n")

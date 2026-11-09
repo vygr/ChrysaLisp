@@ -333,7 +333,6 @@
 
 (def-func-end)
 
-
 (def-method :pixmap :lisp_shared)
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -396,10 +395,10 @@
 			(vp-mul-cr +int_size :r3)
 			(assign `(,width ,height :r2 :r3 :r1 ,data ,key ,handle ,owner)
 				`((,pixmap +pixmap_width) (,pixmap +pixmap_height)
-				(,pixmap +pixmap_type) (,pixmap +pixmap_stride)
-				(,pixmap +pixmap_texture)
-				(,pixmap +pixmap_data) (,pixmap +pixmap_key)
-				(,pixmap +pixmap_handle) (,pixmap +pixmap_owner)))
+					(,pixmap +pixmap_type) (,pixmap +pixmap_stride)
+					(,pixmap +pixmap_texture)
+					(,pixmap +pixmap_data) (,pixmap +pixmap_key)
+					(,pixmap +pixmap_handle) (,pixmap +pixmap_owner)))
 		(else)
 			(call :host_os :pii_shm_close `(,key ,handle ,owner))
 		(endif)

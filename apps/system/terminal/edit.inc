@@ -80,8 +80,8 @@
 								(setq *history_idx* (length history)))
 							;error with pipe
 							(. buffer :insert (cat "Pipe Error !"
-								+char_class_lf +char_class_lf
-								(get :terminal_prompt *env*)))))
+									+char_class_lf +char_class_lf
+									(get :terminal_prompt *env*)))))
 					(:t (. buffer :insert (get :terminal_prompt *env*)))))))
 	(refresh))
 

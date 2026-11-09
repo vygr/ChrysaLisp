@@ -26,7 +26,7 @@
 	(when stream
 		(defq header (read-blk stream +cpm_size))
 		(and (= (length header) +cpm_size)
-				(find (char (getf header +cpm_ident) +int_size) '("MPC." "MLF."))
+			(find (char (getf header +cpm_ident) +int_size) '("MPC." "MLF."))
 			(setq out (getf-> header +cpm_width +cpm_height +cpm_type))))
 	out)
 
@@ -64,13 +64,13 @@
 	(if (or (= type 12) (= type 15)) (setq num_bits 16))
 	;header
 	(write-blk stream (setf-> (str-alloc +cpm_size)
-		(+cpm_ident (code ident 4))
-		(+cpm_flags flags)
-		(+cpm_version 2)
-		(+cpm_type type)
-		(+cpm_width (getf pixmap +pixmap_width 0))
-		(+cpm_height (getf pixmap +pixmap_height 0))
-		(+cpm_reserved_1 0)))
+			(+cpm_ident (code ident 4))
+			(+cpm_flags flags)
+			(+cpm_version 2)
+			(+cpm_type type)
+			(+cpm_width (getf pixmap +pixmap_width 0))
+			(+cpm_height (getf pixmap +pixmap_height 0))
+			(+cpm_reserved_1 0)))
 	;the stages in the order the data goes, pixmap to stream
 	(defq stages (list))
 	(if rle (push stages (stage "lib/streams/rle.inc" 'rle-compress num_bits 8)))

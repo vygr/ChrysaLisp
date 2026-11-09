@@ -71,7 +71,7 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-		(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
+			(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
 
 (defun get-rot (slider)
 	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
@@ -143,55 +143,55 @@
 	;put each ball and each bar where the bedspring has it
 	(defq objs (list))
 	(. global_tasks :each (lambda (key node)
-		(defq ball (get :ball node) pos (get :pos node)
-			;as big on the screen however far out it is all drawn from
-			load (/ (n2r (min 40 (get :tasks node))) (const (n2r 40)))
-			busy (get :busy node)
-			size (/ (* +ball_size (+ +real_1 load)) zoom))
-		(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
-		;the color of its machine, and whiter the harder it works
-		(def ball :color (apply (const fixeds) (cat (list 1.0)
-			(map (# (n2f (+ %0 (* (- +real_1 %0) busy))))
-				(if (defq at (find (get :system node) machines))
-					(hue-color (elem-get machine_hues at))
-					(machine-color (get :system node)))))))
-		(push objs ball)))
+			(defq ball (get :ball node) pos (get :pos node)
+				;as big on the screen however far out it is all drawn from
+				load (/ (n2r (min 40 (get :tasks node))) (const (n2r 40)))
+				busy (get :busy node)
+				size (/ (* +ball_size (+ +real_1 load)) zoom))
+			(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
+			;the color of its machine, and whiter the harder it works
+			(def ball :color (apply (const fixeds) (cat (list 1.0)
+						(map (# (n2f (+ %0 (* (- +real_1 %0) busy))))
+							(if (defq at (find (get :system node) machines))
+								(hue-color (elem-get machine_hues at))
+								(machine-color (get :system node)))))))
+			(push objs ball)))
 	(. links :each (lambda (name link)
-		;a link from a node to itself has no length, there is no bar to draw
-		(when (and (defq a (. global_tasks :find (get :a link)))
-				(defq b (. global_tasks :find (get :b link)))
-				(not (eql a b)))
-			;a bar is a cylinder that stands on y, one long. Its matrix is
-			;made here, y laid along the link, and two more across it
-			(defq pa (get :pos a) pb (get :pos b) d (nums-sub pb pa)
-				mid (nums-scale (nums-add pa pb) +real_1/2)
-				across (if (< (abs (first d)) (abs (second d))) (reals +real_1 +real_0 +real_0)
-					(reals +real_0 +real_1 +real_0))
-				u (apply (const reals) (vector-cross-3d d across))
-				thick (/ +bar_size zoom)
-				u (nums-scale u (/ thick (sqrt (+ (nums-dot u u) +tiny))))
-				;u, the link and v go round the way x, y and z do. The other
-				;way and the bar is turned inside out, it is its far side
-				;that is seen, lit as that side is
-				v (apply (const reals) (vector-cross-3d u d))
-				v (nums-scale v (/ thick (sqrt (+ (nums-dot v v) +tiny))))
-				;cold is a dim blue, half way is red, and hot is white
-				heat (get :heat link) bar (get :bar link)
-				red (min +real_1 (* heat +real_2)) cool (- +real_1 red)
-				white (max +real_0 (- (* heat +real_2) +real_1)))
-			;a machine to machine link is twice as thick
-			(unless (eql (get :system a) (get :system b))
-				(nums-scale u +real_2 u) (nums-scale v +real_2 v))
-			(def bar :dirty :nil :matrix (reals
-				(first u) (first d) (first v) (first mid)
-				(second u) (second d) (second v) (second mid)
-				(third u) (third d) (third v) (third mid)
-				+real_0 +real_0 +real_0 +real_1)
-				:color (fixeds 1.0
-					(n2f (+ (* cool (const (n2r 0.25))) red))
-					(n2f (+ (* cool (const (n2r 0.35))) (* red (const (n2r 0.2))) (* white (const (n2r 0.8)))))
-					(n2f (+ (* cool (const (n2r 0.6))) (* red (const (n2r 0.1))) (* white (const (n2r 0.9)))))))
-			(push objs bar))))
+			;a link from a node to itself has no length, there is no bar to draw
+			(when (and (defq a (. global_tasks :find (get :a link)))
+					(defq b (. global_tasks :find (get :b link)))
+					(not (eql a b)))
+				;a bar is a cylinder that stands on y, one long. Its matrix is
+				;made here, y laid along the link, and two more across it
+				(defq pa (get :pos a) pb (get :pos b) d (nums-sub pb pa)
+					mid (nums-scale (nums-add pa pb) +real_1/2)
+					across (if (< (abs (first d)) (abs (second d))) (reals +real_1 +real_0 +real_0)
+						(reals +real_0 +real_1 +real_0))
+					u (apply (const reals) (vector-cross-3d d across))
+					thick (/ +bar_size zoom)
+					u (nums-scale u (/ thick (sqrt (+ (nums-dot u u) +tiny))))
+					;u, the link and v go round the way x, y and z do. The other
+					;way and the bar is turned inside out, it is its far side
+					;that is seen, lit as that side is
+					v (apply (const reals) (vector-cross-3d u d))
+					v (nums-scale v (/ thick (sqrt (+ (nums-dot v v) +tiny))))
+					;cold is a dim blue, half way is red, and hot is white
+					heat (get :heat link) bar (get :bar link)
+					red (min +real_1 (* heat +real_2)) cool (- +real_1 red)
+					white (max +real_0 (- (* heat +real_2) +real_1)))
+				;a machine to machine link is twice as thick
+				(unless (eql (get :system a) (get :system b))
+					(nums-scale u +real_2 u) (nums-scale v +real_2 v))
+				(def bar :dirty :nil :matrix (reals
+						(first u) (first d) (first v) (first mid)
+						(second u) (second d) (second v) (second mid)
+						(third u) (third d) (third v) (third mid)
+						+real_0 +real_0 +real_0 +real_1)
+					:color (fixeds 1.0
+						(n2f (+ (* cool (const (n2r 0.25))) red))
+						(n2f (+ (* cool (const (n2r 0.35))) (* red (const (n2r 0.2))) (* white (const (n2r 0.8)))))
+						(n2f (+ (* cool (const (n2r 0.6))) (* red (const (n2r 0.1))) (* white (const (n2r 0.9)))))))
+				(push objs bar))))
 	(. world :set_children objs)
 	(.-> world (:set_scale zoom zoom zoom) (:set_rotation rotx roty rotz)))
 
@@ -202,21 +202,21 @@
 	;pair the balls are, and the pair the bars are, on the GPU, the first time
 	(and (not gpu_pair) (not gpu_failed)
 		(unless (and (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
-					(shader-load +scene_pixel_file) :t))
+						(shader-load +scene_pixel_file) :t))
 				(setq gpu_shiny (shader-gui-pair (shader-load (first +scene_shiny_files))
-					(shader-load (second +scene_shiny_files)) :t))
+						(shader-load (second +scene_shiny_files)) :t))
 				(setq gpu_matte (shader-gui-pair (shader-load (first +scene_matte_files))
-					(shader-load (second +scene_matte_files)) :t)))
+						(shader-load (second +scene_matte_files)) :t)))
 			;one not made, and those that were are let go of
 			(each (# (if %0 (canvas-shader-destroy %0))) (list gpu_pair gpu_shiny gpu_matte))
 			(setq gpu_pair :nil gpu_shiny :nil gpu_matte :nil gpu_failed :t)))
 	(defq drawn (if gpu_pair (shader-gui-frame *canvas*
-		(map (lambda ((id vblock pblock &optional y y1 files))
-			(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
-			(unless (elem-get gpu_meshes id)
-				(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
-			(list (cond ((not files) gpu_pair) ((eql (second files) (second +scene_matte_files)) gpu_matte) (:t gpu_shiny))
-				(ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws))))
+				(map (lambda ((id vblock pblock &optional y y1 files))
+						(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
+						(unless (elem-get gpu_meshes id)
+							(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
+						(list (cond ((not files) gpu_pair) ((eql (second files) (second +scene_matte_files)) gpu_matte) (:t gpu_shiny))
+							(ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws))))
 	(cond
 		((eql drawn :error)
 			;a pair the driver could not build is still let go of
@@ -230,7 +230,7 @@
 
 (defun show-status ()
 	(defq text (cat (str (. global_tasks :size)) " nodes, " (str (. links :size)) " links, "
-		(str (length machines)) (if (= (length machines) 1) " machine" " machines")))
+			(str (length machines)) (if (= (length machines) 1) " machine" " machines")))
 	(. *status* :set_text text))
 
 (defun main ()

@@ -32,11 +32,11 @@
 	;very basic attenuation and diffuse
 	(defq alpha (first col) col (rest col))
 	(bind '(r g b) (vector-min (vector-add
-		;attenuation
-		(vector-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
-		;diffuse
-		(vector-scale col 64.0 +fixeds_tmp3))
-		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
+				;attenuation
+				(vector-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
+				;diffuse
+				(vector-scale col 64.0 +fixeds_tmp3))
+			(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun lighting-at3 (col at sp)
@@ -44,14 +44,14 @@
 	;very basic attenuation, diffuse and specular
 	(defq alpha (first col) col (rest col))
 	(bind '(r g b) (vector-min (vector-add (vector-add
-		;attenuation
-		(vector-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
-		;diffuse
-		(vector-scale col 64.0 (const (cat +fixeds_tmp3))) (const (cat +fixeds_tmp3)))
-		;specular
-		(vector-scale (const (fixeds 255.0 255.0 255.0)) (n2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
-		;clamp
-		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
+					;attenuation
+					(vector-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
+					;diffuse
+					(vector-scale col 64.0 (const (cat +fixeds_tmp3))) (const (cat +fixeds_tmp3)))
+				;specular
+				(vector-scale (const (fixeds 255.0 255.0 255.0)) (n2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
+			;clamp
+			(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun render-object-verts (size mat4x4_proj object)
@@ -87,9 +87,9 @@
 	;as they go in a message to a child that draws.
 	(defq verts (. mesh :get_verts) norms (. mesh :get_norms) out (list (reals)))
 	(each (lambda ((i0 i1 i2 in))
-		(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
-		(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) n))
-			(list i0 i1 i2))) (partition (. mesh :get_tris) +tri_size))
+			(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
+			(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) n))
+				(list i0 i1 i2))) (partition (. mesh :get_tris) +tri_size))
 	(shader-verts-str (apply (const cat) out)))
 
 (defun mesh-corners-smooth (mesh)
@@ -102,14 +102,14 @@
 		sums (map (lambda (&) (reals +real_0 +real_0 +real_0))
 			(range 0 (/ (length verts) +vec4_size))))
 	(each (lambda ((i0 i1 i2 in))
-		(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
-		(each (# (nums-add (elem-get sums %0) n (elem-get sums %0))) (list i0 i1 i2))) tris)
+			(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
+			(each (# (nums-add (elem-get sums %0) n (elem-get sums %0))) (list i0 i1 i2))) tris)
 	(each (lambda (n)
-		(defq d (nums-dot n n))
-		(if (> d +real_0) (nums-scale n (recip (sqrt d)) n))) sums)
+			(defq d (nums-dot n n))
+			(if (> d +real_0) (nums-scale n (recip (sqrt d)) n))) sums)
 	(each (lambda ((i0 i1 i2 in))
-		(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) (elem-get sums %0)))
-			(list i0 i1 i2))) tris)
+			(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) (elem-get sums %0)))
+				(list i0 i1 i2))) tris)
 	(shader-verts-str (apply (const cat) out)))
 
 (defun mesh-ball (mesh)
@@ -129,9 +129,9 @@
 	;the most the matrix of its object stretches anything
 	(defq eye (mat4x4-vec4-mul mat4x4_obj centre)
 		stretch (sqrt (max
-			(nums-dot (defq c0 (reals (elem-get mat4x4_obj 0) (elem-get mat4x4_obj 4) (elem-get mat4x4_obj 8))) c0)
-			(nums-dot (defq c1 (reals (elem-get mat4x4_obj 1) (elem-get mat4x4_obj 5) (elem-get mat4x4_obj 9))) c1)
-			(nums-dot (defq c2 (reals (elem-get mat4x4_obj 2) (elem-get mat4x4_obj 6) (elem-get mat4x4_obj 10))) c2)))
+				(nums-dot (defq c0 (reals (elem-get mat4x4_obj 0) (elem-get mat4x4_obj 4) (elem-get mat4x4_obj 8))) c0)
+				(nums-dot (defq c1 (reals (elem-get mat4x4_obj 1) (elem-get mat4x4_obj 5) (elem-get mat4x4_obj 9))) c1)
+				(nums-dot (defq c2 (reals (elem-get mat4x4_obj 2) (elem-get mat4x4_obj 6) (elem-get mat4x4_obj 10))) c2)))
 		r (* radius stretch) clip (mat4x4-vec4-mul mat4x4_frust eye) w (- (elem-get clip 3) r))
 	(cond
 		((<= w +real_0) (list 0 height))
@@ -174,13 +174,12 @@
 				:trans_x :trans_y :trans_z
 				:scale_x :scale_y :scale_z)
 			(set this :dirty :nil :matrix
-				(mat4x4-mul (mat4x4-translate trans_x trans_y trans_z)
-				(mat4x4-mul (mat4x4-rotz rot_z)
-				(mat4x4-mul (mat4x4-roty rot_y)
-				(mat4x4-mul (mat4x4-rotx rot_x)
-				(mat4x4-scale scale_x scale_y scale_z)))))))
-		(get :matrix this))
-	)
+					(mat4x4-mul (mat4x4-translate trans_x trans_y trans_z)
+						(mat4x4-mul (mat4x4-rotz rot_z)
+							(mat4x4-mul (mat4x4-roty rot_y)
+								(mat4x4-mul (mat4x4-rotx rot_x)
+									(mat4x4-scale scale_x scale_y scale_z)))))))
+		(get :matrix this)))
 
 (defclass Scene-object (mesh color &optional name) (Scene-node name)
 	; (Scene-object mesh color [name]) -> scene_node
@@ -208,8 +207,7 @@
 
 	(defmethod :get_color ()
 		; (. scene_node :get_color) -> color
-		(get :color this))
-	)
+		(get :color this)))
 
 (defclass Scene (&optional name) (Scene-node name)
 	; (Scene [name]) -> scene_node
@@ -258,10 +256,10 @@
 						files (if (def? :shaders object) (get :shaders object))
 						with (if files (scene-pipeline files) pipeline)
 						draw (cat (list (get :corners_id object)
-							(shader-pack (first with)
-								(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust)))
-							(shader-pack (second with)
-								(list (list 'color (cat (rest col) (slice col 0 1))))))
+								(shader-pack (first with)
+									(list (list 'model mat4x4_obj) (list 'lens mat4x4_frust)))
+								(shader-pack (second with)
+									(list (list 'color (cat (rest col) (slice col 0 1))))))
 							(ball-rows centre radius mat4x4_obj mat4x4_frust height)
 							(if files (list files) '())))
 					;what is see through is drawn after all that is not, the
@@ -291,10 +289,10 @@
 		(raise :meshes)
 		(. canvas :fill 0)
 		(each (lambda ((id vblock pblock &optional y y1 files))
-			(defq verts (elem-get meshes id) with (if files (scene-pipeline files) pipeline))
-			(shader-vp-draw-tris with verts (scene-order (/ (length verts) 56)) pixmap depth
-				(shader-unpack (first with) vblock) (shader-unpack (second with) pblock) :t)
-			(task-slice)) draws)
+				(defq verts (elem-get meshes id) with (if files (scene-pipeline files) pipeline))
+				(shader-vp-draw-tris with verts (scene-order (/ (length verts) 56)) pixmap depth
+					(shader-unpack (first with) vblock) (shader-unpack (second with) pblock) :t)
+				(task-slice)) draws)
 		this)
 
 	(defmethod :render (canvas size left right top bottom near far mode)
@@ -326,8 +324,7 @@
 						(task-slice))
 					poly_buckets)))
 		(. canvas :swap +swap_write)
-		this)
-	)
+		this))
 
 ;module
 (export-classes '(Scene-node Scene-object Scene))

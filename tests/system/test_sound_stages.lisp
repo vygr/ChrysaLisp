@@ -44,7 +44,7 @@
 ;a level stage tells a mailbox how loud each piece is, and passes it on
 (defq ss_who (mail-mbox) ss_levels (list))
 (ss-run (list (sound-stage 'sound-tone 440 200 6000) (sound-stage 'sound-level (stage-mbox ss_who))
-	(sound-stage 'sound-to-file ss_c)))
+		(sound-stage 'sound-to-file ss_c)))
 (times 10 (push ss_levels (str-as-num (mail-read ss_who))))
 (assert-eq "a level for each piece of 20ms, and no more" :nil (mail-read-timeout ss_who 100000))
 (assert-true "each the tone's" (every (# (<= 5800 %0 6000)) ss_levels))

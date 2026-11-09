@@ -63,7 +63,6 @@
 	(vp-load-rcr %4 statics_sys_load_host_gui_funcs %4)
 	(abi-call-table %0 %1 %4 %2 %3 %5))
 
-
 ;;;;;;;;;;;;;;;;
 ; gui structures
 ;;;;;;;;;;;;;;;;

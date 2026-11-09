@@ -44,10 +44,10 @@
 	;outputs
 	;cast register list
 	(assign (map (# (case %1
-		((:num :fixed :real) (list %0 +num_value))
-		(:str (list '& %0 +str_data))
-		(:char (list %0 +str_data 'ub))
-		(:t %0))) src types) (ifn dst src)))
+					((:num :fixed :real) (list %0 +num_value))
+					(:str (list '& %0 +str_data))
+					(:char (list %0 +str_data 'ub))
+					(:t %0))) src types) (ifn dst src)))
 
 (defun list-bind-args (lst src types &optional dst)
 	;inputs
@@ -62,9 +62,9 @@
 	(setd dst src)
 	(bind '(types index)
 		(reduce! (# (unless (eql %1 '&)
-			(push (first %0) %1)
-			(push (second %0) (* (!) +ptr_size)))
-			%0) (list types) (lists 2)))
+					(push (first %0) %1)
+					(push (second %0) (* (!) +ptr_size)))
+				%0) (list types) (lists 2)))
 	;test for mismatch
 	(unless (apply (const =) (map (const length) (list src dst types)))
 		(throw "Mismatched bind specs !" (list src dst types)))
@@ -72,12 +72,12 @@
 	(defq index_offset 0)
 	(bind '(types src dst index)
 		(reduce! (# (if (eql %1 '&&)
-			(++ index_offset +ptr_size)
-			(push (first %0) %1)
-			(push (second %0) %2)
-			(push (third %0) %3)
-			(push (last %0) (- %4 index_offset)))
-			%0) (list types src dst index) (lists 4)))
+					(++ index_offset +ptr_size)
+					(push (first %0) %1)
+					(push (second %0) %2)
+					(push (third %0) %3)
+					(push (last %0) (- %4 index_offset)))
+				%0) (list types src dst index) (lists 4)))
 	;load from args list
 	(defq i (last src))
 	(assign `((,lst +array_begin)) `(,i))

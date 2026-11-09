@@ -31,22 +31,22 @@
 			imps (filter (# (eql (first %0) "import")) (files-scan file)) at 0)
 		(when (and (nempty? imps) (defq in_stream (file-stream file)))
 			(lines! (lambda (line)
-				(when (and (< at (length imps)) (= (inc (!)) (second (defq imp (elem-get imps at)))))
-					;a second on the line is left as it is
-					(while (and (< (++ at) (length imps)) (= (second (elem-get imps at)) (second imp))))
-					(defq old_path (third imp)
-						new_path (path-to-relative (path-to-absolute old_path file) file)
-						q1 (inc (bskipn (const (char-class "\q{")) line 0)) q2 (+ q1 (length old_path)))
-					(when (and (nql old_path new_path) (eql old_path (slice line q1 q2)))
-						(unless changed
-							(print "File: " file)
-							(setq changed :t))
-						(defq new_line (cat (slice line 0 q1) new_path (slice line q2 -1)))
-						(print "- " line)
-						(print "+ " new_line)
-						(setq line new_line)))
-				(if opt_w (write-line out_stream line))
-				:nil)
+					(when (and (< at (length imps)) (= (inc (!)) (second (defq imp (elem-get imps at)))))
+						;a second on the line is left as it is
+						(while (and (< (++ at) (length imps)) (= (second (elem-get imps at)) (second imp))))
+						(defq old_path (third imp)
+							new_path (path-to-relative (path-to-absolute old_path file) file)
+							q1 (inc (bskipn (const (char-class "\q{")) line 0)) q2 (+ q1 (length old_path)))
+						(when (and (nql old_path new_path) (eql old_path (slice line q1 q2)))
+							(unless changed
+								(print "File: " file)
+								(setq changed :t))
+							(defq new_line (cat (slice line 0 q1) new_path (slice line q2 -1)))
+							(print "- " line)
+							(print "+ " new_line)
+							(setq line new_line)))
+					(if opt_w (write-line out_stream line))
+					:nil)
 				in_stream)
 			(setq in_stream :nil)))
 	;overwrite the file if we actually performed any optimizations
@@ -58,7 +58,6 @@
 					(write-blk dest c))
 				(stream-flush dest)
 				(setq dest :nil)))))
-
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
@@ -77,7 +76,7 @@
 			;do the jobs out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (str (first args)
-						" -j " opt_j
-						(if opt_w " -w " " ")
-						(slice (str %0) 1 -2)))
-					(partition jobs opt_j)))))))
+								" -j " opt_j
+								(if opt_w " -w " " ")
+								(slice (str %0) 1 -2)))
+						(partition jobs opt_j)))))))

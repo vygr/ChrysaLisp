@@ -70,8 +70,8 @@
 	(unless (get 'emit-translate *source_env*)
 		(bind '(& cpu abi) (map (const sym) (split (load-path) "/")))
 		(defq files (list "lib/asm/regs.inc" "lib/asm/ops.inc" "lib/trans/vp.inc"
-			"lib/trans/trans_ops.inc" "lib/trans/trans.inc" "lib/trans/vp_parse.vp"
-			(cat "lib/trans/" cpu ".vp")))
+				"lib/trans/trans_ops.inc" "lib/trans/trans.inc" "lib/trans/vp_parse.vp"
+				(cat "lib/trans/" cpu ".vp")))
 		(def *source_env* '*cpu* cpu '*abi* abi '*build_mode* 1
 			'validatecase (macro (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
 			'*source_trans_id* (hex-encode (sha256 (apply (const cat) (cat (list "") (map (# (ifn (load %0) "")) files))))))
@@ -117,8 +117,8 @@
 	;the VP of those functions of this system that it has, the text of
 	;their entries one after another, as a bundle has them
 	(apply (const cat) (cat (list "")
-		(reduce (# (if (defq found (source-entry mode %1)) (push %0 (str (first found)) "\n") %0))
-			names (list)))))
+			(reduce (# (if (defq found (source-entry mode %1)) (push %0 (str (first found)) "\n") %0))
+				names (list)))))
 
 (defun source-ask-again (sid svc request)
 	; (source-ask-again sid svc request) -> (svc answer)
@@ -182,11 +182,11 @@
 						(setq more :t)
 						(unless (find name given)
 							(push natives (ifn (load (cat (load-path) name))
-								(source-make (first (source-entry mode name))))))))
+									(source-make (first (source-entry mode name))))))))
 				same))
 		(when (nempty? missing)
 			(defq data (ifn (if self (source-entries mode missing)
-					(source-ask svc (cat "$" mode " " (join missing " ")))) "")
+						(source-ask svc (cat "$" mode " " (join missing " ")))) "")
 				got 0)
 			;the text of the entries. What is not that, or cut short, is none,
 			;not the end of the service
@@ -238,7 +238,7 @@
 	;a request to the @Source of another system, its answer to come back
 	(source-count :told)
 	(mail-send (hex-decode svc) (cat (setf-> (str-alloc +source_rpc_size)
-		(+source_rpc_reply_id *source_back*)) request)))
+				(+source_rpc_reply_id *source_back*)) request)))
 
 (defun source-done (key)
 	;the file of the key and all it imports are kept, the tasks that wait
@@ -352,7 +352,7 @@
 	(defq paths (split args "\n") key (first paths))
 	(cat "*" key "\n"
 		(source-pack (map! (# (if (source-given? %0) (list %0 "T" (ifn (load %0) "")) (list %0 "n" "")))
-			(list paths) 1 -1))))
+				(list paths) 1 -1))))
 
 (defun source-answer (request)
 	; (source-answer request) -> :nil | answer

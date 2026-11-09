@@ -29,20 +29,20 @@
 		(cond
 			((= gc_format 1)
 				(defq gc_double (gpu-kernel (cat
-						"#include <metal_stdlib>\n"
-						"using namespace metal;\n"
-						"kernel void kernel_main(device const float *src [[buffer(0)]],\n"
-						"	device float *dst [[buffer(1)]], uint i [[thread_position_in_grid]])\n"
-						"{ dst[i] = src[i] * 2.0; }\n")
+							"#include <metal_stdlib>\n"
+							"using namespace metal;\n"
+							"kernel void kernel_main(device const float *src [[buffer(0)]],\n"
+							"	device float *dst [[buffer(1)]], uint i [[thread_position_in_grid]])\n"
+							"{ dst[i] = src[i] * 2.0; }\n")
 						'(1 1 0 64 1 1))
 					gc_scale (gpu-kernel (cat
-						"#include <metal_stdlib>\n"
-						"using namespace metal;\n"
-						"struct block { float scale; float add; };\n"
-						"kernel void kernel_main(constant block &u [[buffer(0)]],\n"
-						"	device const float *src [[buffer(1)]], device float *dst [[buffer(2)]],\n"
-						"	uint i [[thread_position_in_grid]])\n"
-						"{ dst[i] = src[i] * u.scale + u.add; }\n")
+							"#include <metal_stdlib>\n"
+							"using namespace metal;\n"
+							"struct block { float scale; float add; };\n"
+							"kernel void kernel_main(constant block &u [[buffer(0)]],\n"
+							"	device const float *src [[buffer(1)]], device float *dst [[buffer(2)]],\n"
+							"	uint i [[thread_position_in_grid]])\n"
+							"{ dst[i] = src[i] * u.scale + u.add; }\n")
 						'(1 1 1 64 1 1))))
 			((= gc_format 2)
 				;the same two as SPIR-V, compute_double.comp and compute_scale.comp

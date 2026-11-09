@@ -25,7 +25,6 @@
 (ffi (path-to-absolute "./lz4_write") inflate-write)
 (ffi (path-to-absolute "./deflate_fixed") deflate-block)
 
-
 (defq +inflate_window 32768
 	;the base and extra bits of each length code from 257, and of each
 	;distance code
@@ -42,8 +41,8 @@
 ;extra bits
 (defq +deflate_fixed_lengths (cat (fill (nums) 144 8) (fill (nums) 112 9) (fill (nums) 24 7) (fill (nums) 8 8)))
 (defq *deflate_fixed* (list (apply (const nums) (huffman-codes +deflate_fixed_lengths)) +deflate_fixed_lengths
-	(apply (const nums) (huffman-codes (fill (nums) 30 5))) (fill (nums) 30 5)
-	+inflate_len_base +inflate_len_extra +inflate_dist_base +inflate_dist_extra))
+		(apply (const nums) (huffman-codes (fill (nums) 30 5))) (fill (nums) 30 5)
+		+inflate_len_base +inflate_len_extra +inflate_dist_base +inflate_dist_extra))
 
 (defun inflate-fixed ()
 	; (inflate-fixed) -> (literals distances)
@@ -103,8 +102,8 @@
 					((not codes) (setq ok :nil))
 					(:t (bind '((lcounts lsyms) (dcounts dsyms)) codes)
 						(if (< (setq at (inflate-codes in_stream bits
-								(list lcounts lsyms dcounts dsyms +inflate_len_base +inflate_len_extra +inflate_dist_base +inflate_dist_extra)
-								ring at out_stream)) 0)
+										(list lcounts lsyms dcounts dsyms +inflate_len_base +inflate_len_extra +inflate_dist_base +inflate_dist_extra)
+										ring at out_stream)) 0)
 							(setq ok :nil)))))
 			(:t (setq ok :nil))))
 	ok)

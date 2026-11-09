@@ -10,7 +10,7 @@
 		(ui-label _ (:text "Username:"))
 		(ui-grid _ (:grid_width 1 :paper +argb_white)
 			(. (ui-textfield username (:hint_text "username" :min_width 192
-				:clear_text (if (defq old (load "usr/current")) old "Guest")))
+						:clear_text (if (defq old (load "usr/current")) old "Guest")))
 				:connect +event_login)))
 	(ui-grid _ (:grid_height 1)
 		(ui-buttons ("Login" "Create") +event_login)))
@@ -38,34 +38,34 @@
 	(. *window* :open :here)
 	(position-window)
 	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_layout)
-			;resized GUI
-			(position-window))
-		((= id +event_close)
-			;app close
-			:nil)
-		((= id +event_login)
-			;login button
-			(cond
-				((/= (age (cat "usr/" (defq user (get-username)) "/env.inc")) 0)
-					;login user
-					(save user "usr/current")
-					(start-services)
-					:nil)
-				(:t :t)))
-		((= id +event_create)
-			;create button
-			(cond
-				((and (/= (age "usr/Guest/env.inc") 0)
-					(= (age (cat (defq home (cat "usr/" (defq user (get-username)) "/")) "env.inc")) 0))
-					;copy initial user files from Guest
-					(save (load "usr/Guest/env.inc") (cat home "env.inc"))
-					;login new user
-					(save user "usr/current")
-					(start-services)
-					:nil)
-				(:t :t)))
-		((. *window* :event msg))))
+			((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_layout)
+				;resized GUI
+				(position-window))
+			((= id +event_close)
+				;app close
+				:nil)
+			((= id +event_login)
+				;login button
+				(cond
+					((/= (age (cat "usr/" (defq user (get-username)) "/env.inc")) 0)
+						;login user
+						(save user "usr/current")
+						(start-services)
+						:nil)
+					(:t :t)))
+			((= id +event_create)
+				;create button
+				(cond
+					((and (/= (age "usr/Guest/env.inc") 0)
+							(= (age (cat (defq home (cat "usr/" (defq user (get-username)) "/")) "env.inc")) 0))
+						;copy initial user files from Guest
+						(save (load "usr/Guest/env.inc") (cat home "env.inc"))
+						;login new user
+						(save user "usr/current")
+						(start-services)
+						:nil)
+					(:t :t)))
+			((. *window* :event msg))))
 	(. *window* :close))
 
 (defun main ()

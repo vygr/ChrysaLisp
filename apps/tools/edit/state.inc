@@ -26,7 +26,7 @@
 	(setq *meta_map* default *open_files* (list))
 	(with-read-lock key
 		(catch (when (defq data (tree-load (file-stream key)))
-			(setq *meta_map* data))
+				(setq *meta_map* data))
 			(setq *meta_map* default))
 		(bind '(x y width height version file
 				find_txt replace_txt files macros wwords regx icase zoom)
@@ -45,15 +45,15 @@
 			(files
 				(defq dead_files (list))
 				(. files :each (lambda (file meta)
-					(cond
-						((= (age file) 0)
-							;no such file
-							(push dead_files file))
-						(:t (bind '(cx cy ax ay sx sy)
-								(gather meta :cx :cy :ax :ay :sx :sy))
-							(push *open_files* file)
-							(. meta :insert :buffer :nil)
-							(populate-buffer file cx cy ax ay sx sy)))))
+						(cond
+							((= (age file) 0)
+								;no such file
+								(push dead_files file))
+							(:t (bind '(cx cy ax ay sx sy)
+									(gather meta :cx :cy :ax :ay :sx :sy))
+								(push *open_files* file)
+								(. meta :insert :buffer :nil)
+								(populate-buffer file cx cy ax ay sx sy)))))
 				(each (# (. files :erase %0)) dead_files))
 			((setq *meta_map* default)))
 		(update-find-toolbar)

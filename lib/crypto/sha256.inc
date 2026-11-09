@@ -27,7 +27,7 @@
 	;fractions of the square roots of the first 8 primes, the bytes that
 	;do not yet make a block, and how many bytes there have been.
 	(list (apply (const cat) (map (# (char %0 4)) (static-q (0x6a09e667 0xbb67ae85 0x3c6ef372 0xa54ff53a
-		0x510e527f 0x9b05688c 0x1f83d9ab 0x5be0cd19)))) "" 0))
+						0x510e527f 0x9b05688c 0x1f83d9ab 0x5be0cd19)))) "" 0))
 
 (defun sha256-add (ctx data)
 	; (sha256-add ctx data) -> ctx
@@ -53,12 +53,12 @@
 	(defq bits (* total 8) tail (cat pending "\x80"))
 	(sha256-blocks state
 		(setq tail (cat tail (slice +sha256_zeros 0 (% (- 120 (length tail)) 64))
-			(char-be bits 8)))
+				(char-be bits 8)))
 		0 (/ (length tail) 64))
 	;the state, each number the top byte first
 	(apply (const cat) (map (lambda (i) (defq word (get-uint state (* i 4)))
-		(char-be word 4))
-		(range 0 8))))
+				(char-be word 4))
+			(range 0 8))))
 
 (defun sha256 (data)
 	; (sha256 data) -> str
@@ -73,5 +73,5 @@
 	(if (> (length key) 64) (setq key (sha256 key)))
 	(setq key (cat key (slice +sha256_zeros 0 (- 64 (length key)))))
 	(sha256 (cat (apply (const cat) (map (# (char (logxor (code %0) 0x5c))) key))
-		(sha256-end (sha256-add (sha256-add (sha256-start)
-			(apply (const cat) (map (# (char (logxor (code %0) 0x36))) key))) data)))))
+			(sha256-end (sha256-add (sha256-add (sha256-start)
+						(apply (const cat) (map (# (char (logxor (code %0) 0x36))) key))) data)))))

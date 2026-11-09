@@ -17,9 +17,9 @@
 ;this, and (stream-patch) had not worked for some time
 (defq df_base (map (# (cat "line " (str %0))) (range 0 60)))
 (each (lambda ((name a b))
-	(setq a (df-text a) b (df-text b))
-	(assert-true (cat name ", there and back") (eql b (df-patch a (df-diff a b))))
-	(assert-true (cat name ", and the other way") (eql a (df-patch b (df-diff b a)))))
+		(setq a (df-text a) b (df-text b))
+		(assert-true (cat name ", there and back") (eql b (df-patch a (df-diff a b))))
+		(assert-true (cat name ", and the other way") (eql a (df-patch b (df-diff b a)))))
 	(list
 		(list "a line changed" '("a" "b" "c" "d" "e") '("a" "x" "c" "d" "e"))
 		(list "a line gone, a line more" '("a" "b" "c" "d" "e") '("a" "x" "c" "e" "f"))

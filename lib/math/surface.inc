@@ -311,7 +311,7 @@
 		((< (abs (- isolevel valp2)) (const (n2r 0.0001))) p2)
 		((< (abs (- valp1 valp2)) (const (n2r 0.0001))) p1)
 		(:t (vector-add p1 (vector-scale (vector-sub p2 p1 +reals_tmp3)
-				(/ (- isolevel valp1) (- valp2 valp1)) +reals_tmp3)))))
+					(/ (- isolevel valp1) (- valp2 valp1)) +reals_tmp3)))))
 
 ;given a grid cell and an isolevel, calculate the triangular
 ;facets required to represent the isosurface through the cell.
@@ -324,32 +324,32 @@
 	;determine the index into the edge table which
 	;tells us which vertices are inside the surface
 	(defq cubeindex (+
-		(if (<= (elem-get grid +gridcell_v0) isolevel) 1 0)
-		(if (<= (elem-get grid +gridcell_v1) isolevel) 2 0)
-		(if (<= (elem-get grid +gridcell_v2) isolevel) 4 0)
-		(if (<= (elem-get grid +gridcell_v3) isolevel) 8 0)
-		(if (<= (elem-get grid +gridcell_v4) isolevel) 16 0)
-		(if (<= (elem-get grid +gridcell_v5) isolevel) 32 0)
-		(if (<= (elem-get grid +gridcell_v6) isolevel) 64 0)
-		(if (<= (elem-get grid +gridcell_v7) isolevel) 128 0)))
+			(if (<= (elem-get grid +gridcell_v0) isolevel) 1 0)
+			(if (<= (elem-get grid +gridcell_v1) isolevel) 2 0)
+			(if (<= (elem-get grid +gridcell_v2) isolevel) 4 0)
+			(if (<= (elem-get grid +gridcell_v3) isolevel) 8 0)
+			(if (<= (elem-get grid +gridcell_v4) isolevel) 16 0)
+			(if (<= (elem-get grid +gridcell_v5) isolevel) 32 0)
+			(if (<= (elem-get grid +gridcell_v6) isolevel) 64 0)
+			(if (<= (elem-get grid +gridcell_v7) isolevel) 128 0)))
 	(cond
 		((= (defq cube (elem-get +edge_table cubeindex)) 0)
 			;cube is entirely in/out of the surface
 			'())
 		(:t ;find the vertices where the surface intersects the cube
 			(defq vertlist (list
-				(if (bits? cube 1) (vertex-interp isolevel (elem-get grid +gridcell_p0) (elem-get grid +gridcell_p1) (elem-get grid +gridcell_v0) (elem-get grid +gridcell_v1)) :nil)
-				(if (bits? cube 2) (vertex-interp isolevel (elem-get grid +gridcell_p1) (elem-get grid +gridcell_p2) (elem-get grid +gridcell_v1) (elem-get grid +gridcell_v2)) :nil)
-				(if (bits? cube 4) (vertex-interp isolevel (elem-get grid +gridcell_p2) (elem-get grid +gridcell_p3) (elem-get grid +gridcell_v2) (elem-get grid +gridcell_v3)) :nil)
-				(if (bits? cube 8) (vertex-interp isolevel (elem-get grid +gridcell_p3) (elem-get grid +gridcell_p0) (elem-get grid +gridcell_v3) (elem-get grid +gridcell_v0)) :nil)
-				(if (bits? cube 16) (vertex-interp isolevel (elem-get grid +gridcell_p4) (elem-get grid +gridcell_p5) (elem-get grid +gridcell_v4) (elem-get grid +gridcell_v5)) :nil)
-				(if (bits? cube 32) (vertex-interp isolevel (elem-get grid +gridcell_p5) (elem-get grid +gridcell_p6) (elem-get grid +gridcell_v5) (elem-get grid +gridcell_v6)) :nil)
-				(if (bits? cube 64) (vertex-interp isolevel (elem-get grid +gridcell_p6) (elem-get grid +gridcell_p7) (elem-get grid +gridcell_v6) (elem-get grid +gridcell_v7)) :nil)
-				(if (bits? cube 128) (vertex-interp isolevel (elem-get grid +gridcell_p7) (elem-get grid +gridcell_p4) (elem-get grid +gridcell_v7) (elem-get grid +gridcell_v4)) :nil)
-				(if (bits? cube 256) (vertex-interp isolevel (elem-get grid +gridcell_p0) (elem-get grid +gridcell_p4) (elem-get grid +gridcell_v0) (elem-get grid +gridcell_v4)) :nil)
-				(if (bits? cube 512) (vertex-interp isolevel (elem-get grid +gridcell_p1) (elem-get grid +gridcell_p5) (elem-get grid +gridcell_v1) (elem-get grid +gridcell_v5)) :nil)
-				(if (bits? cube 1024) (vertex-interp isolevel (elem-get grid +gridcell_p2) (elem-get grid +gridcell_p6) (elem-get grid +gridcell_v2) (elem-get grid +gridcell_v6)) :nil)
-				(if (bits? cube 2048) (vertex-interp isolevel (elem-get grid +gridcell_p3) (elem-get grid +gridcell_p7) (elem-get grid +gridcell_v3) (elem-get grid +gridcell_v7)) :nil)))
+					(if (bits? cube 1) (vertex-interp isolevel (elem-get grid +gridcell_p0) (elem-get grid +gridcell_p1) (elem-get grid +gridcell_v0) (elem-get grid +gridcell_v1)) :nil)
+					(if (bits? cube 2) (vertex-interp isolevel (elem-get grid +gridcell_p1) (elem-get grid +gridcell_p2) (elem-get grid +gridcell_v1) (elem-get grid +gridcell_v2)) :nil)
+					(if (bits? cube 4) (vertex-interp isolevel (elem-get grid +gridcell_p2) (elem-get grid +gridcell_p3) (elem-get grid +gridcell_v2) (elem-get grid +gridcell_v3)) :nil)
+					(if (bits? cube 8) (vertex-interp isolevel (elem-get grid +gridcell_p3) (elem-get grid +gridcell_p0) (elem-get grid +gridcell_v3) (elem-get grid +gridcell_v0)) :nil)
+					(if (bits? cube 16) (vertex-interp isolevel (elem-get grid +gridcell_p4) (elem-get grid +gridcell_p5) (elem-get grid +gridcell_v4) (elem-get grid +gridcell_v5)) :nil)
+					(if (bits? cube 32) (vertex-interp isolevel (elem-get grid +gridcell_p5) (elem-get grid +gridcell_p6) (elem-get grid +gridcell_v5) (elem-get grid +gridcell_v6)) :nil)
+					(if (bits? cube 64) (vertex-interp isolevel (elem-get grid +gridcell_p6) (elem-get grid +gridcell_p7) (elem-get grid +gridcell_v6) (elem-get grid +gridcell_v7)) :nil)
+					(if (bits? cube 128) (vertex-interp isolevel (elem-get grid +gridcell_p7) (elem-get grid +gridcell_p4) (elem-get grid +gridcell_v7) (elem-get grid +gridcell_v4)) :nil)
+					(if (bits? cube 256) (vertex-interp isolevel (elem-get grid +gridcell_p0) (elem-get grid +gridcell_p4) (elem-get grid +gridcell_v0) (elem-get grid +gridcell_v4)) :nil)
+					(if (bits? cube 512) (vertex-interp isolevel (elem-get grid +gridcell_p1) (elem-get grid +gridcell_p5) (elem-get grid +gridcell_v1) (elem-get grid +gridcell_v5)) :nil)
+					(if (bits? cube 1024) (vertex-interp isolevel (elem-get grid +gridcell_p2) (elem-get grid +gridcell_p6) (elem-get grid +gridcell_v2) (elem-get grid +gridcell_v6)) :nil)
+					(if (bits? cube 2048) (vertex-interp isolevel (elem-get grid +gridcell_p3) (elem-get grid +gridcell_p7) (elem-get grid +gridcell_v3) (elem-get grid +gridcell_v7)) :nil)))
 			;return the triangles
 			(map! (# (list (elem-get vertlist (first %0)) (elem-get vertlist (second %0)) (elem-get vertlist (third %0))))
 				(list (elem-get +tri_table cubeindex))))))
@@ -361,12 +361,11 @@
 		:scale (vector-div (Vec3-r +real_2 +real_2 +real_2) (Vec3-r (n2r width) (n2r height) (n2r depth))))
 
 	(defabstractmethod :get_scalar (this x y z))
-		; (. iso :get_scalar x y z) -> scalar
+	; (. iso :get_scalar x y z) -> scalar
 
 	(defmethod :get_metrics ()
 		; (. iso :get_metrics) -> (width height depth)
-		(list (get :width this) (get :height this) (get :depth this)))
-	)
+		(list (get :width this) (get :height this) (get :depth this))))
 
 (defclass Iso-sphere (width height depth) (Iso width height depth)
 	; (Iso-sphere width height depth) -> iso
@@ -375,8 +374,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vector-length (vector-mul (vector-sub
-			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3)))
-	)
+					(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3))))
 
 (defclass Iso-cube (width height depth) (Iso width height depth)
 	; (Iso-cube width height depth) -> iso
@@ -385,8 +383,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(reduce max (vector-abs (vector-mul (vector-sub
-			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
-	)
+						(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3))))
 
 (defclass Iso-tetra (width height depth) (Iso width height depth)
 	; (Iso-tetra width height depth) -> iso
@@ -395,8 +392,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vector-sum (vector-abs (vector-mul (vector-sub
-			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
-	)
+						(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3))))
 
 (defclass Iso-capsule (width height depth) (Iso width height depth)
 	; (Iso-capsule width height depth) -> iso
@@ -405,10 +401,9 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vector-dist-to-line (vector-mul (vector-sub
-			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3)
+					(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3)
 			(const (Vec3-r (n2r -0.5) (n2r 0.0) (n2r 0.0)))
-			(const (Vec3-r (n2r 0.5) (n2r 0.0) (n2r 0.0)))))
-	)
+			(const (Vec3-r (n2r 0.5) (n2r 0.0) (n2r 0.0))))))
 
 ;module
 (export-symbols '(iso-surface))

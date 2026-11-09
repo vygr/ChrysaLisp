@@ -28,7 +28,7 @@
 		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font :font_body)) :connect +event_mode)
 		(ui-label _ (:text "Shapes" :font :font_body))
 		(. (ui-slider *shapes* (:maximum (- +max_shapes +min_shapes) :portion 100
-			:value 180 :min_width 256)) :connect +event_shapes))
+					:value 180 :min_width 256)) :connect +event_shapes))
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +scene_width +scene_height 1))))
 
@@ -45,8 +45,8 @@
 	(setq frames (inc frames) frames_us (+ frames_us (- (pii-time) frame_time)))
 	(when (>= frames_us 500000)
 		(. *status* :set_text (cat (str (/ frames_us frames 1000)) "."
-			(str (% (/ frames_us frames 100) 10)) "ms a frame, "
-			(str (shape-count)) " shapes, " how))
+				(str (% (/ frames_us frames 100) 10)) "ms a frame, "
+				(str (shape-count)) " shapes, " how))
 		(setq frames 0 frames_us 0)))
 
 (defun slice-job (angle shapes y y1)
@@ -62,7 +62,7 @@
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
 	(. jobs :add (map (lambda (&) (slice-job 0.0 0 +scene_height +scene_height))
-		(range 0 (. jobs :size)))))
+			(range 0 (. jobs :size)))))
 
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them. More slices than
@@ -72,7 +72,7 @@
 		angle (scene-angle) shapes (shape-count))
 	(setq farming :t frame_time (pii-time) frame_shapes 0)
 	(. jobs :add (map (# (slice-job angle shapes (/ (* %0 +scene_height) count)
-		(/ (* (inc %0) +scene_height) count))) (range 0 count))))
+					(/ (* (inc %0) +scene_height) count))) (range 0 count))))
 
 (defun one-task-frame (how)
 	;a frame drawn here, all of it
@@ -88,7 +88,7 @@
 	;on the pixels of the canvas, in shared memory, and a node of another
 	;machine, there is one when the machines are a mesh, can not reach them
 	(setq jobs (Jobs (cat *app_root* "child.lisp")
-		(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
+			(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
 	;it comes up on all the nodes, if their pixels can be shared
 	(. *mode* :set_selected (if shared_canvas 1 0))
 	(if shared_canvas (warm-farm :t))
@@ -122,7 +122,7 @@
 							(when (= out 0)
 								(setq farming :nil)
 								(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
-									(str frame_shapes) " shapes drawn over the slices")))))))
+										(str frame_shapes) " shapes drawn over the slices")))))))
 			(:t ;timer event, the next frame if the last is done
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(unless farming

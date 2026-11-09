@@ -43,7 +43,7 @@
 	;the keyring, a line a key, and the key in use if it is not of it
 	(defq names (keys-names) using (keys-in-use) key (door-key))
 	(each (# (print (if (eql %0 using) "  * " "    ") %0 (pad "" (max 1 (- 16 (length %0))))
-			(keys-print (door-key (keys-file %0))) (if (eql %0 using) "  in use" "")))
+				(keys-print (door-key (keys-file %0))) (if (eql %0 using) "  in use" "")))
 		names)
 	(cond
 		((and key (not using))
@@ -76,7 +76,7 @@
 				(if (keys-take name file)
 					(print "Key " name " taken in, " (keys-print (door-key (keys-file name))) ".")
 					(print "Not taken: " (if (pii-fstat (keys-file name)) (cat "there is a key " name " already.")
-						(cat "no key in " file ".")))))
+							(cat "no key in " file ".")))))
 			((not (pii-fstat (keys-file name)))
 				(print "No key " name ", key lists them."))
 			(opt_u

@@ -588,7 +588,7 @@
 	; Cache Rows 0 and 1 (8 floats)
 	(vp-simd vp-load-rcd `(,ptr_a)
 		`(,(* 0 +long_size) ,(* 1 +long_size) ,(* 2 +long_size) ,(* 3 +long_size)
-		  ,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size) ,(* 7 +long_size))
+			,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size) ,(* 7 +long_size))
 		`(,m0 ,m1 ,m2 ,m3 ,m4 ,m5 ,m6 ,m7))
 
 	;loop through entire vector array
@@ -661,8 +661,8 @@
 	; Cache 3x3 Matrix (9 floats)
 	(vp-simd vp-load-rcd `(,ptr_a)
 		`(,(* 0 +long_size) ,(* 1 +long_size) ,(* 2 +long_size)
-		  ,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size)
-		  ,(* 8 +long_size) ,(* 9 +long_size) ,(* 10 +long_size))
+			,(* 4 +long_size) ,(* 5 +long_size) ,(* 6 +long_size)
+			,(* 8 +long_size) ,(* 9 +long_size) ,(* 10 +long_size))
 		`(,m0 ,m1 ,m2 ,m3 ,m4 ,m5 ,m6 ,m7 ,m8))
 
 	;loop through entire vector array

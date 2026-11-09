@@ -31,7 +31,7 @@
 	; (pal-line d [key val] ...) -> shape
 	;a line of an icon, round at its ends and its corners unless it is said
 	(apply (const cwb-shape) (cat (list d :stroke +pal_ink :width 2.0 :join :round
-		:cap1 :round :cap2 :round) more)))
+				:cap1 :round :cap2 :round) more)))
 
 (defun cell-rows (rows cols cell)
 	; (cell-rows rows cols cell) -> (cells w h)
@@ -67,7 +67,7 @@
 				x0 (neg (* 0.5 w)) y0 (neg (* 0.5 h))
 				dx (+ x0 +panel_pad) dy (+ y0 +panel_bar (* 2.0 +panel_pad))
 				cells (map (lambda ((what val cx0 cy0 cx1 cy1))
-					(list what val (+ cx0 dx) (+ cy0 dy) (+ cx1 dx) (+ cy1 dy))) inner))
+						(list what val (+ cx0 dx) (+ cy0 dy) (+ cx1 dx) (+ cy1 dy))) inner))
 			(push cells (list :close :nil (- (* 0.5 w) 2.0 +panel_bar) (+ y0 2.0) (- (* 0.5 w) 2.0) (+ y0 2.0 +panel_bar)))
 			(def this :cells cells :size (list w h))
 			(. this :zones_changed))
@@ -98,9 +98,9 @@
 		;the bar
 		(cond
 			((some (lambda (cell)
-					(bind '(& & x0 y0 x1 y1) cell)
-					(and (>= px x0) (< px x1) (>= py y0) (< py y1) cell))
-				(. this :get_cells)))
+						(bind '(& & x0 y0 x1 y1) cell)
+						(and (>= px x0) (< px x1) (>= py y0) (< py y1) cell))
+					(. this :get_cells)))
 			((eql (. this :zone_at px py) :bar) :bar)))
 
 	(defmethod :where (what &optional val)
@@ -109,13 +109,13 @@
 		;would tap it, (:where :close) for the cross; with no value the first
 		;of that kind
 		(when (defq cell (some (# (and (eql (elem-get %0 +cell_what) what)
-					(or (nil? val) (eql (elem-get %0 +cell_val) val)) %0))
-				(. this :get_cells)))
+							(or (nil? val) (eql (elem-get %0 +cell_val) val)) %0))
+					(. this :get_cells)))
 			(bind '(ox oy) (get :origin this))
 			(bind '(& & x0 y0 x1 y1) cell)
 			(defq zoom (get :zoom (obj-ref (get :board this))) turn (get :view_turn (obj-ref (get :board this))))
 			(bind '(px py) (mat3x2-point (if (and turn (/= turn 0.0)) (mat3x2-rot (neg turn)) +mat3x2_unity)
-				(* 0.5 (+ x0 x1)) (* 0.5 (+ y0 y1))))
+					(* 0.5 (+ x0 x1)) (* 0.5 (+ y0 y1))))
 			(list (+ ox (/ px zoom)) (+ oy (/ py zoom)))))
 
 	(defmethod :close ()
@@ -142,27 +142,27 @@
 		;that went down on the bar, or between the cells, and is dragged
 		;moves the panel
 		(each (lambda (event)
-			(bind '(pid pkind buttons x y &ignore) event)
-			(bind '(px py) (. this :to_own x y))
-			(defq cell (. this :cell_at px py) state (. this :state pid))
-			(cond
-				((and (/= buttons 0) (not state))
-					(. this :set_state pid (list cell x y (get :origin this) buttons))
-					(. this :hot cell))
-				((/= buttons 0)
-					(bind '(was sx sy (ox oy) &ignore) state)
-					(cond
-						((list? was) (. this :hot cell))
-						(:t (def this :origin (list (+ ox (- x sx)) (+ oy (- y sy))))
-							(. (obj-ref (get :board this)) :touch +board_dirty_overlay))))
-				(state
-					(. this :set_state pid :nil)
-					(. this :hot :nil)
-					(and (list? cell) (eql cell (first state))
-						(if (eql (elem-get cell +cell_what) :close)
-							(. this :close)
-							(. this :tap cell (ptr-event pid pkind (elem-get state 4) x y)))))
-				(:t (. this :hot cell))))
+				(bind '(pid pkind buttons x y &ignore) event)
+				(bind '(px py) (. this :to_own x y))
+				(defq cell (. this :cell_at px py) state (. this :state pid))
+				(cond
+					((and (/= buttons 0) (not state))
+						(. this :set_state pid (list cell x y (get :origin this) buttons))
+						(. this :hot cell))
+					((/= buttons 0)
+						(bind '(was sx sy (ox oy) &ignore) state)
+						(cond
+							((list? was) (. this :hot cell))
+							(:t (def this :origin (list (+ ox (- x sx)) (+ oy (- y sy))))
+								(. (obj-ref (get :board this)) :touch +board_dirty_overlay))))
+					(state
+						(. this :set_state pid :nil)
+						(. this :hot :nil)
+						(and (list? cell) (eql cell (first state))
+							(if (eql (elem-get cell +cell_what) :close)
+								(. this :close)
+								(. this :tap cell (ptr-event pid pkind (elem-get state 4) x y)))))
+					(:t (. this :hot cell))))
 			events)
 		this)
 
@@ -199,9 +199,9 @@
 		(bind '(ox oy) (get :origin this))
 		(bind '(w h) (get :size this))
 		(defq base (mat3x2-mul m (mat3x2-mul (mat3x2-translate ox oy)
-				(mat3x2-mul (if (and turn (/= turn 0.0)) (mat3x2-rot (neg turn)) +mat3x2_unity) (mat3x2-scale (/ 1.0 (get :zoom board))))))
+					(mat3x2-mul (if (and turn (/= turn 0.0)) (mat3x2-rot (neg turn)) +mat3x2_unity) (mat3x2-scale (/ 1.0 (get :zoom board))))))
 			items (list (cwb-shape (cwb-d-rect (* -0.5 w) (* -0.5 h) (* 0.5 w) (* 0.5 h) 6.0)
-				:fill +pal_back :stroke +pal_ink :width 1.0)))
+					:fill +pal_back :stroke +pal_ink :width 1.0)))
 		;the bar to drag it by, lighter, with a grip of three lines
 		(defq bx (* -0.5 w) by (* -0.5 h) cy (+ by 2.0 (* 0.5 +panel_bar)))
 		(push items (cwb-shape (cwb-d-rect (+ bx 2.0) (+ by 2.0) (- (* 0.5 w) 2.0) (+ by +panel_bar 2.0) 4.0)
@@ -230,5 +230,4 @@
 						:fill +pal_back :stroke +pal_ink :width 1.0)
 					(cwb-text tip tx ty :fill +pal_ink :font_size 16.0))))
 		(cwb-draw-items canvas items base)
-		this)
-	)
+		this))

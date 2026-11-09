@@ -33,16 +33,16 @@
 		(unless (or (starts-with "http://" u) (starts-with "https://" u))
 			(setq u (cat "http://" u)))
 		(defq method (cond
-			(opt_head "HEAD")
-			(opt_X (to-upper opt_X))
-			(opt_d "POST")
-			(:t "GET")))
+				(opt_head "HEAD")
+				(opt_X (to-upper opt_X))
+				(opt_d "POST")
+				(:t "GET")))
 		(defq headers (pmap))
 		(each (lambda (hdr)
-			(when (defq idx (find ":" hdr))
-				(defq k (trim (slice hdr 0 idx))
-					v (trim (slice hdr (inc idx) -1)))
-				(pinsert headers (sym (cat ":" (to-lower k))) v)))
+				(when (defq idx (find ":" hdr))
+					(defq k (trim (slice hdr 0 idx))
+						v (trim (slice hdr (inc idx) -1)))
+					(pinsert headers (sym (cat ":" (to-lower k))) v)))
 			opt_headers)
 		(defq resp (http-request method u headers opt_d))
 		(if resp
@@ -53,9 +53,9 @@
 						proto (pfind resp :proto))
 					(write-line (io-stream 'stdout) (cat proto " " (str status) " " reason))
 					(each (lambda ((k v))
-						(defq ks (str k)
-							kname (if (starts-with ":" ks) (rest ks) ks))
-						(write-line (io-stream 'stdout) (cat kname ": " v)))
+							(defq ks (str k)
+								kname (if (starts-with ":" ks) (rest ks) ks))
+							(write-line (io-stream 'stdout) (cat kname ": " v)))
 						(partition (pfind resp :headers) 2))
 					(write-line (io-stream 'stdout) ""))
 				(unless opt_head
@@ -65,15 +65,15 @@
 				(stream-flush (io-stream 'stdout)))
 			(unless opt_s
 				(write-line (io-stream 'stdout) (cat "curl: failed to fetch " u
-					(if (and (starts-with "https://" u) (tls-why)) (cat ", " (tls-why)) "")))
+						(if (and (starts-with "https://" u) (tls-why)) (cat ", " (tls-why)) "")))
 				(stream-flush (io-stream 'stdout))))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
-			(defq stdio (create-stdio))
-			(defq opt_i :nil opt_head :nil opt_s :nil opt_X :nil opt_headers (list) opt_d :nil opt_k :nil
-				args (options stdio usage))
+		(defq stdio (create-stdio))
+		(defq opt_i :nil opt_head :nil opt_s :nil opt_X :nil opt_headers (list) opt_d :nil opt_k :nil
+			args (options stdio usage))
 		(progn (setq *tls_unchecked* opt_k) :t)
 		(if (<= (length args) 1)
 			;read urls from stdin

@@ -90,11 +90,11 @@
 	;added, and what is over 128 bits is let go
 	(defq carry 0)
 	(apply (const cat) (map (lambda (word i)
-			(setq carry (+ (logand word 0xffffffff) (get-uint pad (* i 4)) (>> carry 32)))
-			(char (logand carry 0xffffffff) 4))
-		(list (logior h0 (<< h1 26)) (logior (>> h1 6) (<< h2 20))
-			(logior (>> h2 12) (<< h3 14)) (logior (>> h3 18) (<< h4 8)))
-		'(0 1 2 3))))
+				(setq carry (+ (logand word 0xffffffff) (get-uint pad (* i 4)) (>> carry 32)))
+				(char (logand carry 0xffffffff) 4))
+			(list (logior h0 (<< h1 26)) (logior (>> h1 6) (<< h2 20))
+				(logior (>> h2 12) (<< h3 14)) (logior (>> h3 18) (<< h4 8)))
+			'(0 1 2 3))))
 
 (defun poly1305 (key data)
 	; (poly1305 key data) -> str

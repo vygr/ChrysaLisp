@@ -30,5 +30,3 @@
 		(if opt_s (stream-flush stdout))
 		(setq files :nil)
 		(each lock-release-rpc locks)))
-
-

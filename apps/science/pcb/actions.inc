@@ -8,31 +8,31 @@
 (import "./ui.inc")
 
 (defq
-*event_map* (scatter (Fmap)
-	+event_close action-close
-	+event_reset action-reset
-	+event_open action-open
-	+event_zoom_in action-scale-up
-	+event_zoom_out action-scale-down
-	+event_layer action-layer
-	+event_mode action-mode)
+	*event_map* (scatter (Fmap)
+		+event_close action-close
+		+event_reset action-reset
+		+event_open action-open
+		+event_zoom_in action-scale-up
+		+event_zoom_out action-scale-down
+		+event_layer action-layer
+		+event_mode action-mode)
 
-*key_map* (scatter (Fmap)
-	(ascii-code "a") action-mode-normal
-	(ascii-code "g") action-mode-gerber
-	(ascii-code "0") action-show-all
-	(ascii-code "1") action-show-1
-	(ascii-code "2") action-show-2
-	(ascii-code "3") action-show-3
-	(ascii-code "4") action-show-4
-	(ascii-code "r") action-reset
-	(ascii-code "o") action-open)
+	*key_map* (scatter (Fmap)
+		(ascii-code "a") action-mode-normal
+		(ascii-code "g") action-mode-gerber
+		(ascii-code "0") action-show-all
+		(ascii-code "1") action-show-1
+		(ascii-code "2") action-show-2
+		(ascii-code "3") action-show-3
+		(ascii-code "4") action-show-4
+		(ascii-code "r") action-reset
+		(ascii-code "o") action-open)
 
-*key_map_shift* (scatter (Fmap))
+	*key_map_shift* (scatter (Fmap))
 
-*key_map_control* (scatter (Fmap)
-	(ascii-code "{") action-scale-down
-	(ascii-code "}") action-scale-up))
+	*key_map_control* (scatter (Fmap)
+		(ascii-code "{") action-scale-down
+		(ascii-code "}") action-scale-up))
 
 ;module
 (export-symbols

@@ -14,8 +14,8 @@
 	;each face, with the normal of the face
 	(defq verts (. mesh :get_verts) norms (. mesh :get_norms) out (list (reals)))
 	(each (lambda ((i0 i1 i2 in))
-		(defq n (slice norms (* in 3) (* (inc in) 3)))
-		(each (# (push out (slice verts (* %0 4) (* (inc %0) 4)) n)) (list i0 i1 i2)))
+			(defq n (slice norms (* in 3) (* (inc in) 3)))
+			(each (# (push out (slice verts (* %0 4) (* (inc %0) 4)) n)) (list i0 i1 i2)))
 		(partition (. mesh :get_tris) 4))
 	(apply (const cat) out))
 
@@ -54,16 +54,16 @@
 			(defq out 1 drawn :t start (pii-time))
 			(. tf_canvas :fill 0)
 			(. tf_jobs :add (map (# (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
-				(canvas-key tf_canvas) tf_size tf_size (/ (* %0 tf_size) strips) (/ (* (inc %0) tf_size) strips)
-				:t tf_draws)) (range 0 strips)))
+							(canvas-key tf_canvas) tf_size tf_size (/ (* %0 tf_size) strips) (/ (* (inc %0) tf_size) strips)
+							:t tf_draws)) (range 0 strips)))
 			(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0)
 			(while (> out 0)
 				(defq msg (mail-read (elem-get tf_select (defq idx (mail-select tf_select)))))
 				(case idx
 					(+tf_task (setq tf_launched (inc tf_launched)) (. tf_jobs :launched msg))
 					(+tf_reply (when (defq o (. tf_jobs :answered msg))
-						(if (= (getf msg +strip_reply_drawn) 0) (setq drawn :nil))
-						(setq out o)))
+							(if (= (getf msg +strip_reply_drawn) 0) (setq drawn :nil))
+							(setq out o)))
 					(+tf_ask (setq tf_asked (inc tf_asked))
 						(shader-mesh-send msg (elem-get tf_packed (getf msg +strip_ask_mesh))))
 					(:t (. tf_jobs :refresh (task-timeout 60))
@@ -71,7 +71,7 @@
 			(mail-timeout (elem-get tf_select +tf_timer) 0 0)
 			;what is said of a frame if a check of it fails
 			(push tf_said (str strips " strips " (/ (- (pii-time) start) 1000) "ms, meshes asked "
-				tf_asked ", most tries " (. tf_jobs :tries) ", children " (. tf_jobs :size)))
+					tf_asked ", most tries " (. tf_jobs :tries) ", children " (. tf_jobs :size)))
 			drawn)
 		(defq tf_failed *test_failures*)
 		(assert-eq "three children" 3 (. tf_jobs :size))
@@ -89,8 +89,8 @@
 		;the inputs of a strip travel as the blocks a GPU takes, 32 bit
 		;floats, so the one task is given them from the blocks as well
 		(each (lambda (mesh (id vblock pblock))
-			(shader-vp-draw-tris tf_pipeline mesh (apply (const nums) (range 0 (/ (length mesh) 7)))
-				tf_alone_pixmap tf_depth (shader-unpack tf_vertex vblock) (shader-unpack tf_pixel pblock) :t))
+				(shader-vp-draw-tris tf_pipeline mesh (apply (const nums) (range 0 (/ (length mesh) 7)))
+					tf_alone_pixmap tf_depth (shader-unpack tf_vertex vblock) (shader-unpack tf_pixel pblock) :t))
 			tf_meshes tf_draws)
 		(assert-eq "the farm's frame is the frame one task draws" (tf-pixels tf_alone_pixmap tf_size) tf_farmed)
 		(assert-true "and it is a picture"

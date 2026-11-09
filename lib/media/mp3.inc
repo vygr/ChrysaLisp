@@ -112,10 +112,10 @@
 			sin12 (lambda (i) (sin (/ (* pi (+ (n2r i) (n2r 0.5))) (n2r 12))))
 			zero (n2r 0) one (n2r 1))
 		(. +mp3 :insert :windows (defq windows (list
-			(reduce (# (push %0 (sin36 %1))) (range 0 36) (reals))
-			(reduce (# (push %0 (cond ((< %1 18) (sin36 %1)) ((< %1 24) one) ((< %1 30) (sin12 (- %1 18))) (zero)))) (range 0 36) (reals))
-			(reduce (# (push %0 (sin12 %1))) (range 0 12) (reals))
-			(reduce (# (push %0 (cond ((< %1 6) zero) ((< %1 12) (sin12 (- %1 6))) ((< %1 18) one) ((sin36 %1))))) (range 0 36) (reals)))))
+					(reduce (# (push %0 (sin36 %1))) (range 0 36) (reals))
+					(reduce (# (push %0 (cond ((< %1 18) (sin36 %1)) ((< %1 24) one) ((< %1 30) (sin12 (- %1 18))) (zero)))) (range 0 36) (reals))
+					(reduce (# (push %0 (sin12 %1))) (range 0 12) (reals))
+					(reduce (# (push %0 (cond ((< %1 6) zero) ((< %1 12) (sin12 (- %1 6))) ((< %1 18) one) ((sin36 %1))))) (range 0 36) (reals)))))
 		;those of an odd subband, its odd samples of the other sign, theirs
 		;and the half left for the next both
 		(. +mp3 :insert :odd_windows (map (lambda (w) (reduce (# (push %0 (if (odd? (!)) (neg %1) %1))) w (cap (length w) (reals)))) windows))
@@ -129,8 +129,8 @@
 		(. +mp3 :insert :d d)
 		;the books made native tables, read only, so every decoder has these
 		(scatter +mp3 :books (map (lambda ((w codes)) (list w (huff-table codes)
-				(reduce (# (push %0 (+ (<< (/ %1 w) 4) (% %1 w)))) (range 0 (* w w)) (cap (* w w) (nums)))))
-			(. +mp3 :find :book_codes))
+						(reduce (# (push %0 (+ (<< (/ %1 w) 4) (% %1 w)))) (range 0 (* w w)) (cap (* w w) (nums)))))
+				(. +mp3 :find :book_codes))
 			:quads (map (const huff-table) (. +mp3 :find :quad_codes))))
 	+mp3)
 
@@ -215,8 +215,8 @@
 	(if (= (. g :find :bt) 2)
 		(cat (sfs (if (= 1 (. g :find :mixed)) 17 18) s1) (sfs 18 s2) (list 0 0 0))
 		(push (apply (const cat) (map (lambda (n bits k start)
-				(if (and (= gr 1) (/= 0 (logand scfsi (>> 8 k)))) (slice prev start (+ start n)) (sfs n bits)))
-			'(6 5 5 5) (list s1 s1 s2 s2) '(0 1 2 3) '(0 6 11 16))) 0)))
+						(if (and (= gr 1) (/= 0 (logand scfsi (>> 8 k)))) (slice prev start (+ start n)) (sfs n bits)))
+					'(6 5 5 5) (list s1 s1 s2 s2) '(0 1 2 3) '(0 6 11 16))) 0)))
 
 (defun mp3-split (sf n1 n2 n3)
 	; (mp3-split sf n1 n2 n3) -> (slen ...)
@@ -249,7 +249,7 @@
 		((< sfc 500) (setq slen (mp3-split (- sfc 400) 5 4 0) part 1))
 		(:t (setq slen (mp3-split (- sfc 500) 3 0 0) part 2) (. g :insert :preflag 1)))
 	(defq out (reduce! (lambda (out n bits) (reduce (lambda (out _) (push out (if (> bits 0) (bits-get in bits) 0))) (range 0 n) out))
-		(list (elem-get (elem-get (. +mp3 :find :nsf) part) block) slen) (cap 40 (list))))
+			(list (elem-get (elem-get (. +mp3 :find :nsf) part) block) slen) (cap 40 (list))))
 	(while (< (length out) 40) (push out 0))
 	out)
 
@@ -287,9 +287,9 @@
 		nonzero (lambda (from len) (some! (# (/= %0 (n2r 0))) (list r) :nil from (+ from len)))
 		ms-band (lambda (from len)
 			(if ms (each! (lambda (a b)
-					(elem-set l (!) (* (+ a b) k1))
-					(elem-set r (!) (* (- a b) k1)))
-				(list l r) from (+ from len))))
+						(elem-set l (!) (* (+ a b) k1))
+						(elem-set r (!) (* (- a b) k1)))
+					(list l r) from (+ from len))))
 		is-band (lambda (from len pos)
 			(bind '(kl kr) (elem-get tab pos))
 			(each! (lambda (a)
@@ -434,7 +434,7 @@
 			;the subbands' samples of time t, native, lib/media/lisp.vp media_gather
 			(column s subbands t)
 			(setq head ((. +mp3 :find :window) v ((. +mp3 :find :matvec) rows 64 32 s 0 m) head
-				d pcm (+ at (* 32 t)) k 32 8 64 128 32 96)))
+					d pcm (+ at (* 32 t)) k 32 8 64 128 32 96)))
 		(range 0 18))
 	head)
 
@@ -504,8 +504,8 @@
 	(defq h :nil end (- (length s) 4))
 	(while (and (< at end)
 			(not (and (setq h (mp3-header s at))
-				(or (> (+ at (. h :find :size)) end)
-					(and (defq next (mp3-header s (+ at (. h :find :size)))) (= (. next :find :sri) (. h :find :sri)))))))
+					(or (> (+ at (. h :find :size)) end)
+						(and (defq next (mp3-header s (+ at (. h :find :size)))) (= (. next :find :sri) (. h :find :sri)))))))
 		(setq at (inc at)))
 	(if (< at end) (list at h)))
 
@@ -518,7 +518,7 @@
 	;some coders leave it all 0, and not that of Info, of a constant bit
 	;rate, the rate is nearer
 	(defq o (+ at 4 (if (. h :find :crc) 2 0) (if (. h :find :lsf)
-		(if (= (. h :find :channels) 1) 9 17) (if (= (. h :find :channels) 1) 17 32)))
+				(if (= (. h :find :channels) 1) 9 17) (if (= (. h :find :channels) 1) 17 32)))
 		tag (slice s (min o (length s)) (min (+ o 4) (length s))))
 	(when (and (<= (+ o 120) (length s)) (or (eql tag "Xing") (eql tag "Info")))
 		(defq flags (code-be s 4 (+ o 4)) p (+ o 8) frames :nil bytes :nil toc :nil)

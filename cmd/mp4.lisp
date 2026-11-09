@@ -29,7 +29,7 @@
 		(:t (print file ":")
 			(each (lambda (track)
 					(defq kind (. track :find :kind) seconds (if (> (. track :find :timescale) 0)
-						(/ (n2f (. track :find :duration)) (n2f (. track :find :timescale))) 0.0))
+							(/ (n2f (. track :find :duration)) (n2f (. track :find :timescale))) 0.0))
 					(print "  " kind " " (. track :find :codec) " "
 						(cond
 							((eql kind "vide") (cat (str (. track :find :width)) "x" (str (. track :find :height))))
@@ -38,7 +38,7 @@
 						", " (. track :find :samples) " samples, " (n2i seconds) "s"
 						(if (or (/= 0 (. track :find :start)) (/= 0 (. track :find :delay)))
 							(cat ", from " (str (. track :find :start)) (if (/= 0 (. track :find :delay))
-								(cat " after " (str (. track :find :delay))) ""))
+									(cat " after " (str (. track :find :delay))) ""))
 							"")))
 				(. reel :find :tracks))
 			(when (. reel :find :frames)

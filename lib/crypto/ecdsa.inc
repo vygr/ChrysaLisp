@@ -97,7 +97,7 @@
 	(defq fm (first curve) b (third curve))
 	(and (< (bn-cmp x (first fm)) 0) (< (bn-cmp y (first fm)) 0)
 		(= (bn-cmp (bn-mulmod y y fm)
-			(bn-addmod (bn-submod (bn-mulmod (bn-mulmod x x fm) x fm) (ec-small x 3 fm) fm) b fm)) 0)))
+				(bn-addmod (bn-submod (bn-mulmod (bn-mulmod x x fm) x fm) (ec-small x 3 fm) fm) b fm)) 0)))
 
 (defun ecdsa-verify (curve public digest r s)
 	; (ecdsa-verify curve public digest r s) -> :t | :nil

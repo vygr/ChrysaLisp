@@ -49,8 +49,8 @@
 	;in radians is too small a number to be held well
 	(defq deg (/ (* angle 180.0) +fp_pi))
 	(if (defq to (some (lambda ((step pull))
-			(defq near (board-snap deg step))
-			(if (<= (abs (- deg near)) pull) near)) +tool_magnets))
+					(defq near (board-snap deg step))
+					(if (<= (abs (- deg near)) pull) near)) +tool_magnets))
 		(/ (* to +fp_pi) 180.0)
 		angle))
 
@@ -63,18 +63,18 @@
 	(defq ink 0xff000000)
 	(case what
 		(:mode (list (cwb-shape (cwb-d-ellipse 0 0 11) :stroke ink :width 1.0 :fill 0x40ffffff)
-			(case mode
-				(:pie (cwb-shape "M -1 1 L 5.5 1 A 6.5 6.5 0 1 0 -1 7.5 Z" :stroke ink :width 1.5 :join :round))
-				(:fpie (cwb-shape "M -1 1 L 5.5 1 A 6.5 6.5 0 1 0 -1 7.5 Z" :stroke ink :width 1.5 :fill ink :join :round))
-				(:circle (cwb-shape (cwb-d-ellipse 0 0 6) :stroke ink :width 1.5))
-				(:fcircle (cwb-shape (cwb-d-ellipse 0 0 6) :stroke ink :width 1.5 :fill ink))
-				(:t (cwb-shape "M -6.5 3 A 6.5 6.5 0 0 1 6.5 3" :stroke ink :width 1.8)))))
+				(case mode
+					(:pie (cwb-shape "M -1 1 L 5.5 1 A 6.5 6.5 0 1 0 -1 7.5 Z" :stroke ink :width 1.5 :join :round))
+					(:fpie (cwb-shape "M -1 1 L 5.5 1 A 6.5 6.5 0 1 0 -1 7.5 Z" :stroke ink :width 1.5 :fill ink :join :round))
+					(:circle (cwb-shape (cwb-d-ellipse 0 0 6) :stroke ink :width 1.5))
+					(:fcircle (cwb-shape (cwb-d-ellipse 0 0 6) :stroke ink :width 1.5 :fill ink))
+					(:t (cwb-shape "M -6.5 3 A 6.5 6.5 0 0 1 6.5 3" :stroke ink :width 1.8)))))
 		(:turn (list (cwb-shape "M -7 4 A 8 8 0 1 1 7 4 M 7 4 L 3 3.5 M 7 4 L 8.5 0 M -7 4 L -3 3.5 M -7 4 L -8.5 0"
-			:stroke ink :width 1.6 :join :round)))
+					:stroke ink :width 1.6 :join :round)))
 		(:size (list (cwb-shape "M -9 0 L 9 0 M -9 0 L -5 -4 M -9 0 L -5 4 M 9 0 L 5 -4 M 9 0 L 5 4"
-			:stroke ink :width 1.6 :join :round)))
+					:stroke ink :width 1.6 :join :round)))
 		(:close (list (cwb-shape (cat (cwb-d-ellipse 0 0 9) " M -4.5 -4.5 L 4.5 4.5 M 4.5 -4.5 L -4.5 4.5")
-			:stroke ink :width 1.4)))
+					:stroke ink :width 1.4)))
 		(:t (list))))
 
 (defun tool-ticks (x0 y0 x1 y1 nx ny step &optional small mid big)
@@ -242,8 +242,8 @@
 				(map (lambda ((what d &ignore)) (cwb-shape d :fill 0x30000000 :stroke 0x80000000 :width 0.75 :join :miter))
 					(filter (# (not (or (find (first %0) '(:move :close :mode)) (eql (last %0) :quiet)))) (get :parts this)))
 				(map (lambda (glyph)
-					(cwb-group (tool-glyph (first glyph) (get :mode this)) :m (mat3x2-mul (mat3x2-translate (second glyph) (third glyph))
-						(mat3x2-rot (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
+						(cwb-group (tool-glyph (first glyph) (get :mode this)) :m (mat3x2-mul (mat3x2-translate (second glyph) (third glyph))
+								(mat3x2-rot (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
 					(get :glyphs this))))
 		(def this :dotted :nil)
 		(. this :zones_changed)
@@ -274,11 +274,11 @@
 		(defq by (* (get :zoom (obj-ref (get :board this))) (get :size this)) kept (get :dotted this))
 		(unless (and kept (= (first kept) by))
 			(def this :dotted (setq kept (list by (map (lambda (edge)
-				(defq out (list))
-				(each (# (each (# (push out %0)) (path-dash (apply (const path) %0) (/ +tool_dot by) (/ +tool_gap by) :t)))
-					(tool-catch edge (/ +tool_band by)))
-				(cwb-shape (cwb-d-paths out) :stroke +tool_dot_ink :width (/ +tool_dot_width by) :fill 0))
-				(get :edges this))))))
+								(defq out (list))
+								(each (# (each (# (push out %0)) (path-dash (apply (const path) %0) (/ +tool_dot by) (/ +tool_gap by) :t)))
+									(tool-catch edge (/ +tool_band by)))
+								(cwb-shape (cwb-d-paths out) :stroke +tool_dot_ink :width (/ +tool_dot_width by) :fill 0))
+							(get :edges this))))))
 		(if (defq at (some (# (if (eql %0 edge) (!))) (get :edges this))) (elem-get (second kept) at)))
 
 	(defmethod :drawing? ()
@@ -286,7 +286,7 @@
 		;is any pen drawing along an edge of it, or rubbing out along one
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
-			(if (eql (elem-get state +tool_state_what) :edge) (setq found :t))))
+				(if (eql (elem-get state +tool_state_what) :edge) (setq found :t))))
 		found)
 
 	(defmethod :matrix ()
@@ -329,9 +329,9 @@
 		;given in says which has a corner where two meet
 		(defq band (/ +tool_band (* (get :zoom (obj-ref (get :board this))) (get :size this))) best :nil best_d (+ band 0.001))
 		(each (lambda (edge)
-			(defq near (. this :on_edge edge x y) dx (- x (first near)) dy (- y (second near))
-				d (sqrt (+ (* dx dx) (* dy dy))))
-			(when (< d best_d) (setq best_d d best (list edge (first near) (second near)))))
+				(defq near (. this :on_edge edge x y) dx (- x (first near)) dy (- y (second near))
+					d (sqrt (+ (* dx dx) (* dy dy))))
+				(when (< d best_d) (setq best_d d best (list edge (first near) (second near)))))
 			(get :edges this))
 		best)
 
@@ -353,7 +353,6 @@
 		; (. instrument :part_at x y) -> :nil | (what shape pivot)
 		;the part a point, in its own space, is in
 		(some (lambda (region) (if (cwb-shape-hit? (second region) +mat3x2_unity x y) region)) (get :regions this)))
-
 
 	(defmethod :edge_d (state x y)
 		; (. instrument :edge_d state x y) -> d
@@ -434,7 +433,7 @@
 				;this contact does nothing till it lifts. A pen on a ruler
 				;fingers hold does not take it, "students can't fight over
 				;them"
-				)
+			)
 			(region (elem-set state +tool_state_what (first region))
 				;taken hold of, not drawn along, it comes to the front of the
 				;instruments. By the right button alone it goes to the back
@@ -449,7 +448,7 @@
 		;holds the ruler moves it while the pen draws
 		(defq n 0)
 		(. (get :states this) :each (lambda (id state)
-			(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (++ n))))
+				(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (++ n))))
 		n)
 
 	(defmethod :body_taken (id kind)
@@ -460,7 +459,7 @@
 		;one lifts. Is it had already by a device this contact is not of
 		(defq mine (list))
 		(. (get :states this) :each (lambda (oid state)
-			(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (push mine oid))))
+				(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (push mine oid))))
 		(cond
 			((empty? mine) :nil)
 			((not (eql kind :touch)) :t)
@@ -500,7 +499,7 @@
 				(when (and (= (. this :body_held) 1) (not (get :grab this)))
 					;about a point of it, which stays where it is on the board
 					(defq pivot (third region) m0 (mat3x2-mul (mat3x2-translate (first origin) (second origin))
-						(mat3x2-mul (mat3x2-rot angle) (mat3x2-scale (get :size this)))))
+							(mat3x2-mul (mat3x2-rot angle) (mat3x2-scale (get :size this)))))
 					(bind '(bx by) (if (nempty? pivot) (mat3x2-point m0 (first pivot) (second pivot)) origin))
 					(defq turn (vector-angle-wrap (- (path-angle (- x bx) (- y by)) (path-angle (- sx bx) (- sy by))))
 						snap (. board :angle_step id))
@@ -604,22 +603,22 @@
 	(defmethod :pointers (stage events)
 		(unless (get :body this) (. this :built))
 		(each (lambda (event)
-			(bind '(id kind buttons &ignore) event)
-			(defq state (. this :state id))
-			(cond
-				((and (not state) (/= buttons 0))
-					(. this :set_state id (. this :begin stage event))
-					(. this :step stage event (. this :state id)))
-				((and state (/= buttons 0)) (. this :step stage event state))
-				(state
-					(. this :step stage event state)
-					(. this :end stage event state)
-					(. this :set_state id :nil))))
+				(bind '(id kind buttons &ignore) event)
+				(defq state (. this :state id))
+				(cond
+					((and (not state) (/= buttons 0))
+						(. this :set_state id (. this :begin stage event))
+						(. this :step stage event (. this :state id)))
+					((and state (/= buttons 0)) (. this :step stage event state))
+					(state
+						(. this :step stage event state)
+						(. this :end stage event state)
+						(. this :set_state id :nil))))
 			events)
 		(. this :two_hands)
 		;what is drawn along an edge goes with the instrument as it moves
 		(. (get :states this) :each (lambda (id state)
-			(if (eql (elem-get state +tool_state_what) :edge) (. this :edge_follow state))))
+				(if (eql (elem-get state +tool_state_what) :edge) (. this :edge_follow state))))
 		this)
 
 	(defmethod :two_hands ()
@@ -634,7 +633,7 @@
 		;next two of them together
 		(defq hands (list) grab (get :grab this) pair :nil)
 		(. (get :states this) :each (lambda (id state)
-			(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (push hands (list id state)))))
+				(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (push hands (list id state)))))
 		;in the order they came, a contact that lands later has the bigger
 		;number. What is kept of them comes in no order, and the two must be
 		;the same way round each time: the other way round they are a half
@@ -646,11 +645,11 @@
 				(def this :grab (setq grab :nil pair :nil))
 				;each that is left carries on from where things are
 				(each (lambda ((id state))
-					(elem-set state +tool_state_x (elem-get state +tool_state_last_x))
-					(elem-set state +tool_state_y (elem-get state +tool_state_last_y))
-					(elem-set state +tool_state_origin (cat (get :origin this)))
-					(elem-set state +tool_state_angle (get :angle this))
-					(elem-set state +tool_state_length (. this :extent))) hands)))
+						(elem-set state +tool_state_x (elem-get state +tool_state_last_x))
+						(elem-set state +tool_state_y (elem-get state +tool_state_last_y))
+						(elem-set state +tool_state_origin (cat (get :origin this)))
+						(elem-set state +tool_state_angle (get :angle this))
+						(elem-set state +tool_state_length (. this :extent))) hands)))
 		;the two that came first
 		(and (not pair) (>= (length hands) 2) (setq pair (slice hands 0 2)))
 		(cond
@@ -660,16 +659,16 @@
 					pb (list (elem-get b +tool_state_last_x) (elem-get b +tool_state_last_y)))
 				(unless grab
 					(def this :grab (setq grab (list pa pb (cat (get :origin this)) (get :angle this) (. this :extent)
-						(list (first (first pair)) (first (second pair)))))))
+								(list (first (first pair)) (first (second pair)))))))
 				(bind '(pa0 pb0 origin angle length &ignore) grab)
 				;it is as much bigger as they are further apart, within what it can be
 				(defq d0 (max 1.0 (sqrt (+ (* (- (first pb0) (first pa0)) (- (first pb0) (first pa0)))
-						(* (- (second pb0) (second pa0)) (- (second pb0) (second pa0))))))
+								(* (- (second pb0) (second pa0)) (- (second pb0) (second pa0))))))
 					d1 (sqrt (+ (* (- (first pb) (first pa)) (- (first pb) (first pa)))
-						(* (- (second pb) (second pa)) (- (second pb) (second pa)))))
+							(* (- (second pb) (second pa)) (- (second pb) (second pa)))))
 					by (/ (. (. this :set_extent (* length (/ d1 d0))) :extent) length))
 				(defq turn (vector-angle-wrap (- (path-angle (- (first pb) (first pa)) (- (second pb) (second pa)))
-						(path-angle (- (first pb0) (first pa0)) (- (second pb0) (second pa0)))))
+							(path-angle (- (first pb0) (first pa0)) (- (second pb0) (second pa0)))))
 					;pulled to the angles that matter, as it is by one pointer
 					turn (- (tool-magnet (+ angle turn)) angle)
 					m0x (* 0.5 (+ (first pa0) (first pb0))) m0y (* 0.5 (+ (second pa0) (second pb0)))
@@ -708,12 +707,11 @@
 			said (get :said this))
 		(unless (and said (= (length (first said)) (length says)) (every (const eql) (first said) says))
 			(def this :said (setq said (list says (map (lambda (at text)
-				(defq shape (cwb-text-mid text 0 0 :font_size 13))
-				(cwb-place! shape (place-move (place-turn (elem-get shape +cwb_place) (if (> (length at) 2) (third at) 0.0) 0.0 0.0)
-					(first at) (second at)))
-				shape) (get :readouts this) says)))))
-		(second said))
-	)
+								(defq shape (cwb-text-mid text 0 0 :font_size 13))
+								(cwb-place! shape (place-move (place-turn (elem-get shape +cwb_place) (if (> (length at) 2) (third at) 0.0) 0.0 0.0)
+										(first at) (second at)))
+								shape) (get :readouts this) says)))))
+		(second said)))
 
 ;;;;;;;;;;;
 ; the ruler
@@ -789,8 +787,7 @@
 		;The one that is the right way up is on the left, where reading starts
 		(def this :readouts (list (list -44.0 0.0) (list 44.0 0.0 +fp_pi)))
 		(def this :marks marks :zero (list (neg inset) top))
-		this)
-	)
+		this))
 
 ;;;;;;;;;;;;;;;;
 ; the protractor
@@ -844,23 +841,23 @@
 				(list :turn (* -0.54 r 0.7071) (* -0.54 r 0.7071) (* -0.25 +fp_pi))))
 		;a mark every degree round from the right, longer every five and every ten
 		(each (lambda (deg)
-			(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
-				tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
-			(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
-			;numbered every ten both ways, as a protractor is: from the right
-			;round the outside, and under those, smaller, from the left
-			(and (= (% deg 10) 0) (> deg 0) (< deg 180)
-				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))
-					(cwb-text-mid (str (- 180 deg)) (* (- r (* by 44.0)) c) (* (- r (* by 44.0)) s) :font_size (n2i (* by 9.0))))))
+				(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
+					tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
+				(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
+				;numbered every ten both ways, as a protractor is: from the right
+				;round the outside, and under those, smaller, from the left
+				(and (= (% deg 10) 0) (> deg 0) (< deg 180)
+					(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))
+						(cwb-text-mid (str (- 180 deg)) (* (- r (* by 44.0)) c) (* (- r (* by 44.0)) s) :font_size (n2i (* by 9.0))))))
 			(range 0 181))
 		;the band that turns it is the inner scale, as a protractor has, that
 		;reads the other way round, marked every five and numbered every thirty
 		(each (lambda (deg)
-			(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
-				tick (* by (if (= (% deg 10) 0) 8.0 4.0)))
-			(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
-			(and (= (% deg 30) 0) (> deg 0) (< deg 180)
-				(push marks (cwb-text-mid (str (- 180 deg)) (* (- in1 (* by 17.0)) c) (* (- in1 (* by 17.0)) s) :font_size (n2i (* by 10.0))))))
+				(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
+					tick (* by (if (= (% deg 10) 0) 8.0 4.0)))
+				(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
+				(and (= (% deg 30) 0) (> deg 0) (< deg 180)
+					(push marks (cwb-text-mid (str (- 180 deg)) (* (- in1 (* by 17.0)) c) (* (- in1 (* by 17.0)) s) :font_size (n2i (* by 10.0))))))
 			(range 0 181 5))
 		;its middle, on the straight side, and the line straight up from it
 		;and the line through it from 0 to 180, with the strip below marked
@@ -870,12 +867,11 @@
 		;stays on it as the protractor is made bigger or smaller
 		(defq mm (. this :mm))
 		(push marks (cwb-shape (cat (tool-ticks 0.0 base across base 0.0 -1.0 mm 3.0 5.0 8.0)
-				" " (tool-ticks 0.0 base (neg across) base 0.0 -1.0 mm 3.0 5.0 8.0))
-			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
+					" " (tool-ticks 0.0 base (neg across) base 0.0 -1.0 mm 3.0 5.0 8.0))
+				:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(def this :marks marks :readouts (list (list 0.0 (* -0.4 r))) :zero (list 0.0 0.0))
-		this)
-	)
+		this))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; the whole protractor
@@ -894,7 +890,7 @@
 			sq0 (* 0.16 r) sq1 (* 0.38 r) sqy (* 0.08 r)
 			;a ring is its outer round one way and its inner the other
 			ring (lambda (r0 r1) (cwb-d "M" r1 0 "A" r1 r1 0 1 1 (neg r1) 0 "A" r1 r1 0 1 1 r1 0 "Z"
-				"M" r0 0 "A" r0 r0 0 1 0 (neg r0) 0 "A" r0 r0 0 1 0 r0 0 "Z")))
+					"M" r0 0 "A" r0 r0 0 1 0 (neg r0) 0 "A" r0 r0 0 1 0 r0 0 "Z")))
 		(def this :modes '(:line :pie :fpie :circle :fcircle) :outline (cwb-d-ellipse 0 0 r)
 			:edges (list (list :arc 0.0 0.0 r (neg +fp_pi) +fp_pi))
 			:parts (list
@@ -910,18 +906,18 @@
 				(list :turn (* 0.54 r 0.7071) (* -0.54 r 0.7071) (* 0.25 +fp_pi))
 				(list :turn (* -0.54 r 0.7071) (* 0.54 r 0.7071) (* 1.25 +fp_pi))))
 		(each (lambda (deg)
-			(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
-				tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
-			(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
-			(if (= (% deg 10) 0)
-				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))
-					(cwb-text-mid (str (% (- 360 deg) 360)) (* (- r (* by 44.0)) c) (* (- r (* by 44.0)) s) :font_size (n2i (* by 9.0)))))
-			(when (= (% deg 5) 0)
-				(defq tick (* by (if (= (% deg 10) 0) 8.0 4.0)))
-				(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
-				(if (= (% deg 30) 0)
-					(push marks (cwb-text-mid (str (% (- 360 deg) 360)) (* (- in1 (* by 17.0)) c) (* (- in1 (* by 17.0)) s)
-						:font_size (n2i (* by 10.0)))))))
+				(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
+					tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
+				(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
+				(if (= (% deg 10) 0)
+					(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))
+						(cwb-text-mid (str (% (- 360 deg) 360)) (* (- r (* by 44.0)) c) (* (- r (* by 44.0)) s) :font_size (n2i (* by 9.0)))))
+				(when (= (% deg 5) 0)
+					(defq tick (* by (if (= (% deg 10) 0) 8.0 4.0)))
+					(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
+					(if (= (% deg 30) 0)
+						(push marks (cwb-text-mid (str (% (- 360 deg) 360)) (* (- in1 (* by 17.0)) c) (* (- in1 (* by 17.0)) s)
+								:font_size (n2i (* by 10.0)))))))
 			(range 0 360))
 		;its middle, and the four lines out from the inner scale
 		(push ticks "M" -12 0 "L" 12 0 "M" 0 -12 "L" 0 12)
@@ -929,8 +925,7 @@
 			'((1.0 0.0) (0.0 1.0) (-1.0 0.0) (0.0 -1.0)))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(def this :marks marks :readouts (list (list 0.0 (* 0.16 r))) :zero (list 0.0 0.0))
-		this)
-	)
+		this))
 
 ;;;;;;;;;;;;;;;;
 ; the set square
@@ -990,7 +985,7 @@
 				;The middle is the same shape, 26 in from each side, about
 				;the point that is as far from all three
 				(list :move (cwb-d "M" (+ ix (* ik (- ax ix))) (+ iy (* ik (- ay iy)))
-					"L" (+ ix (* ik (- bx ix))) (+ iy (* ik (- by iy))) (+ ix (* ik (- cx ix))) (+ iy (* ik (- cy iy))) "Z"))
+						"L" (+ ix (* ik (- bx ix))) (+ iy (* ik (- by iy))) (+ ix (* ik (- cx ix))) (+ iy (* ik (- cy iy))) "Z"))
 				(list :size (cwb-d "M" ax ay "L" bx by cx cy "Z") :quiet))
 			:glyphs (list (list :close 0.0 0.0)
 				(list :size (+ ax 45.0) (- ay 45.0) (* -0.25 +fp_pi))
@@ -1003,17 +998,17 @@
 		;out through the other side
 		(defq mm (. this :mm))
 		(push marks (cwb-shape (cat (tool-ticks ax ay (- bx 30.0) by 0.0 -1.0 mm)
-				" " (tool-ticks ax ay cx (+ cy 30.0) 1.0 0.0 mm)
-				" " (tool-ticks (+ cx (* 40.0 ux)) (+ cy (* 40.0 uy)) (- bx (* 40.0 ux)) (- by (* 40.0 uy)) (neg uy) ux mm))
-			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
+					" " (tool-ticks ax ay cx (+ cy 30.0) 1.0 0.0 mm)
+					" " (tool-ticks (+ cx (* 40.0 ux)) (+ cy (* 40.0 uy)) (- bx (* 40.0 ux)) (- by (* 40.0 uy)) (neg uy) ux mm))
+				:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		;what a set square has: the hole in its middle, the same shape, the
 		;arc of each sharp corner with its angle, and the mark of a square corner
 		(defq arc_b (* 0.25 w) arc_c (* 0.25 h))
 		(push marks (cwb-shape (cat
-				(cwb-d "M" (* 0.38 ax) (* 0.38 ay) "L" (* 0.38 bx) (* 0.38 by) (* 0.38 cx) (* 0.38 cy) "Z")
-				" " (cwb-d-arc bx by (* 0.6 arc_b) +fp_pi (+ +fp_pi angle_b))
-				" " (cwb-d-arc cx cy (* 0.6 arc_c) angle_b +fp_hpi))
-			:stroke 0xff000000 :width 0.8 :join :miter))
+					(cwb-d "M" (* 0.38 ax) (* 0.38 ay) "L" (* 0.38 bx) (* 0.38 by) (* 0.38 cx) (* 0.38 cy) "Z")
+					" " (cwb-d-arc bx by (* 0.6 arc_b) +fp_pi (+ +fp_pi angle_b))
+					" " (cwb-d-arc cx cy (* 0.6 arc_c) angle_b +fp_hpi))
+				:stroke 0xff000000 :width 0.8 :join :miter))
 		;the angle of each, half way round its arc and out past it, clear of the sign that turns
 		(defq mid_b (+ +fp_pi (* 0.5 angle_b)) mid_c (+ angle_b (* 0.5 angle_c)))
 		(push marks (cwb-text-mid (str deg_b) (+ bx (* 1.0 arc_b (cos mid_b))) (+ by (* 1.0 arc_b (sin mid_b))) :font_size 12))
@@ -1027,8 +1022,7 @@
 				(push marks (cwb-text-mid (str n) (+ cx (* ux (+ at 40.0)) (* -22.0 uy)) (+ cy (* uy (+ at 40.0)) (* 22.0 ux)) :font_size 12)))
 			(setq n (inc n) at (+ at (* 10.0 mm))))
 		(def this :marks marks :readouts (list (list -14.0 17.0)) :zero (list ax ay))
-		this)
-	)
+		this))
 
 (defclass Setsquare45 (board x y) (Setsquare board x y)
 	; (Setsquare45 board x y) -> setsquare45

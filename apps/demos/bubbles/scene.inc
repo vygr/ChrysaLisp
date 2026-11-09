@@ -45,7 +45,7 @@
 	;array with an element for every bubble
 	;(px py pz vx vy vz rad cr cg cb box box2 box4 eye hsw hsh one)
 	(defq state seed palette '((0.0 1.0 1.0) (1.0 1.0 0.0) (1.0 0.0 1.0)
-		(1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0)))
+			(1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0)))
 	(defun rnd (range)
 		;the next number of a sequence that the seed fixes, 0 up to range
 		(setq state (logand (+ (* state 6364136223846793005) 1442695040888963407) -1))
@@ -68,7 +68,7 @@
 		(list (scene-fill count +bubble_radius))
 		(map (# (apply (const fixeds) %0)) (list cr cg cb))
 		(map (# (scene-fill count %0)) (list +box_size (const (* +box_size 2.0)) (const (* +box_size 4.0))
-			+eye_dist (const (n2f (>> +width 1))) (const (n2f (>> +height 1))) 1.0))))
+				+eye_dist (const (n2f (>> +width 1))) (const (n2f (>> +height 1))) 1.0))))
 
 (defun scene-bounce (p0 v time box box2 box4)
 	;where every bubble is on one axis at a time. It goes on at its speed
@@ -126,20 +126,20 @@
 	;the broad phase, the one loop over every bubble there is. A highlight
 	;sits on the edge of its bubble and so reaches a little past it
 	(each (lambda (by r)
-		(setq r (* r 1.25))
-		(and (> (+ by r) fy) (< (- by r) fy1) (push near (!)))) sy sr)
+			(setq r (* r 1.25))
+			(and (> (+ by r) fy) (< (- by r) fy1) (push near (!)))) sy sr)
 	;far to near. Two as far away as each other go by their number, so
 	;that every slice draws them in the one order
 	(sort near (lambda (a b)
-		(defq za (elem-get z a) zb (elem-get z b))
-		(cond ((< za zb) 1) ((> za zb) -1) ((- a b)))))
+			(defq za (elem-get z a) zb (elem-get z b))
+			(cond ((< za zb) 1) ((> za zb) -1) ((- a b)))))
 	(. canvas :set_clip 0 y +width y1)
 	(each (lambda (i)
-		(defq r (elem-get sr i) at (/ +box_size (elem-get z i)))
-		(.-> canvas
-			(:set_color (scene-color (elem-get cr i) (elem-get cg i) (elem-get cb i) at))
-			(:fpoly (elem-get sx i) (elem-get sy i) +winding_odd_even (list (circle r)))
-			(:set_color (scene-color 1.0 1.0 1.0 at))
-			(:fpoly (elem-get hx i) (elem-get hy i) +winding_odd_even (list (circle (* r 0.2))))))
+			(defq r (elem-get sr i) at (/ +box_size (elem-get z i)))
+			(.-> canvas
+				(:set_color (scene-color (elem-get cr i) (elem-get cg i) (elem-get cb i) at))
+				(:fpoly (elem-get sx i) (elem-get sy i) +winding_odd_even (list (circle r)))
+				(:set_color (scene-color 1.0 1.0 1.0 at))
+				(:fpoly (elem-get hx i) (elem-get hy i) +winding_odd_even (list (circle (* r 0.2))))))
 		near)
 	(length near))

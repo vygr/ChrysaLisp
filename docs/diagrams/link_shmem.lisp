@@ -14,7 +14,7 @@
 ;from the line it sends by
 (each (lambda ((x y x1 y1 lx ly))
 		(push (first s) (cwb-shape (cwb-d "M" x y "L" x1 y "L" x1 y1) :stroke +dia_line :width 1.4
-			:join :miter :cap1 :butt :cap2 :butt))
+				:join :miter :cap1 :butt :cap2 :butt))
 		(push (first s) (dia-head x1 (if (> y1 y) (- y1 20) (+ y1 20)) x1 y1))
 		(dia-say s "reads" lx ly 11))
 	'((190 208 75 90 84 202) (450 50 565 168 496 44)))

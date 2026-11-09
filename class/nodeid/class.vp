@@ -78,7 +78,7 @@
 	(entry :nodeid :eql `(,this ,that))
 
 	(assign `((,this ,(+ +nodeid_id +node_id_node1)) (,this ,(+ +nodeid_id +node_id_node2))
-		(,that ,(+ +nodeid_id +node_id_node1)) (,that ,(+ +nodeid_id +node_id_node2)))
+			(,that ,(+ +nodeid_id +node_id_node1)) (,that ,(+ +nodeid_id +node_id_node2)))
 		`(,n1_a ,that ,n2_a ,n2_b))
 	(vp-sub-rr n2_a n1_a)
 	(vp-sub-rr n2_b that)

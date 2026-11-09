@@ -190,7 +190,7 @@
 			(tls-be 0xff01 2) (tls-vec 2 (tls-vec 1 ""))
 			;the signatures it would take, when it checks them
 			(tls-be 13 2) (tls-vec 2 (tls-vec 2 (apply (const cat) (map (# (tls-be %0 2))
-				'(0x0403 0x0503 0x0804 0x0805 0x0806 0x0807 0x0401 0x0501 0x0601)))))
+							'(0x0403 0x0503 0x0804 0x0805 0x0806 0x0807 0x0401 0x0501 0x0601)))))
 			;TLS 1.3, then 1.2
 			(tls-be 43 2) (tls-vec 2 (tls-vec 1 (cat (tls-be 0x0304 2) (tls-be 0x0303 2))))
 			;its key share
@@ -455,7 +455,7 @@
 
 ;module
 (export-symbols '(tls-handshake tls-fill tls-write tls-seal tls-label tls-keys tls-nonce tls-be tls-vec
-	tls-scheme tls-certificates tls-verify tls-prf tls-client-hello tls-server-hello tls-server-kx tls-open12))
+		tls-scheme tls-certificates tls-verify tls-prf tls-client-hello tls-server-hello tls-server-kx tls-open12))
 (env-pop)
 
 ;made after the module. In a function of a module a name put into a

@@ -33,7 +33,7 @@
 (defun sn-copies (names &optional svcs)
 	;how many of the members keep each block
 	(defq has (map (# (ifn (storage-ask %0 +storage_type_has (apply (const cat) (cat (list "") names))) ""))
-		(filter (const identity) (ifn svcs sn_svcs))))
+			(filter (const identity) (ifn svcs sn_svcs))))
 	(map (lambda (at) (length (filter (# (and (< at (length %0)) (eql (elem-get %0 at) "1"))) has)))
 		(range 0 (length names))))
 
@@ -118,7 +118,7 @@
 	(gopher-pass (list (sn-of "m-a")) sn_two "ver" 0 0 sn_len (list) (list) 5)
 	(gopher-pass (list (sn-of "m-a")) sn_two "big" 0 0 sn_visit (list) (list) 5)
 	(defq sn_said (map (lambda (i) (if (defq said (mail-read sn_two)) (first (first (read (string-stream said))))))
-		(range 0 3)))
+			(range 0 3)))
 	(assert-list-eq "three gophers at a member at once all come back, one of what the object was, one of what it is"
 		(sort (list (length (sn-bytes 2 "was")) (length (sn-bytes 3 "is")) sn_sum) (const -)) (sort (map (# (ifn %0 0)) sn_said) (const -)))
 
@@ -144,7 +144,7 @@
 	(assert-true "and went only to members" (every (# (find %0 sn_ids)) sn_went))
 	(assert-true "each time it was sent on it was for a block no earlier, and the member it went to has that block"
 		(every (lambda ((who at) (was before)) (and (>= at before)
-				(eql (storage-ask (sn-of who) +storage_type_has (elem-get sn_names at)) "1")))
+					(eql (storage-ask (sn-of who) +storage_type_has (elem-get sn_names at)) "1")))
 			(rest (second sn_back)) (second sn_back)))
 
 	;;;;;;;;;;;;;;;;;;;;
@@ -308,4 +308,3 @@
 		(while (storage-service sn_name) (task-sleep 10000))
 		(assert-eq "stopped, its name is not known here any longer" :nil (storage-service sn_name)))
 	(pii-remove (sn-image "far")))
-

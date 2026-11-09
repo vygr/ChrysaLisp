@@ -23,7 +23,7 @@
 (defun parent? (nodes line)
 	(some! (# (if (bfind %0 +char_class_upper) (sym %0)))
 		(list (split (join (map (const tree-text) (filter (# (= (second %0) line)) nodes)) " ")
-			(const (char-class " ()'\t\r\q")))) :nil 2))
+				(const (char-class " ()'\t\r\q")))) :nil 2))
 
 ;what is said of a definition, (tree-said), each line of it without its ;
 ;and the space after
@@ -35,13 +35,13 @@
 (defun map-keys (node)
 	(defq out (list) line -1)
 	(each (lambda (kid)
-		(unless (find (first kid) '(:comment :blank))
-			(cond
-				;what is on the line the map begins on is not a key
-				((= (second kid) (second node)))
-				((= (second kid) line) (push out (cat (pop out) " " (tree-text kid))))
-				((push out (tree-text kid))))
-			(setq line (second kid))))
+			(unless (find (first kid) '(:comment :blank))
+				(cond
+					;what is on the line the map begins on is not a key
+					((= (second kid) (second node)))
+					((= (second kid) line) (push out (cat (pop out) " " (tree-text kid))))
+					((push out (tree-text kid))))
+				(setq line (second kid))))
 		(third node))
 	out)
 
@@ -90,7 +90,7 @@
 						((not name))
 						((eql type 'defclass)
 							(push class_list (list name (parent? kids (second node))
-								(setq methods (list)) (said node nodes at))))
+									(setq methods (list)) (said node nodes at))))
 						((find type '(defmethod deffimethod defabstractmethod defproxymethod))
 							(if methods (push methods (list name (said node nodes at)))))
 						((eql type 'defgetmethod)
@@ -126,10 +126,10 @@
 			;do the jobs out there, by calling myself !
 			(each (const merge-work)
 				(pipe-farm (map (# (str (first args)
-						" -j " opt_j
-						" " (slice (str %0) 1 -2)))
-					(partition jobs opt_j)))))
+								" -j " opt_j
+								" " (slice (str %0) 1 -2)))
+						(partition jobs opt_j)))))
 		;output results
 		(tree-save (io-stream 'stdout) (scatter (Lmap)
-			:macros macro_list :classes class_list :ffis ffi_list
-			:functions function_list :keys key_list))))
+				:macros macro_list :classes class_list :ffis ffi_list
+				:functions function_list :keys key_list))))

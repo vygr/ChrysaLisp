@@ -89,10 +89,10 @@
 	(defq out (list) left (range 0 (length kept)))
 	(until (empty? left)
 		(defq i (or (some (lambda (i)
-					(when (notany (lambda (j)
-							(and (/= i j) (some (# (. (elem-get uses i) :find %0)) (elem-get defines j))))
-							left) i))
-				left) (first left)))
+						(when (notany (lambda (j)
+									(and (/= i j) (some (# (. (elem-get uses i) :find %0)) (elem-get defines j))))
+								left) i))
+					left) (first left)))
 		(push out (elem-get kept i))
 		(setq left (filter (# (/= %0 i)) left)))
 	out)
@@ -146,45 +146,45 @@
 	(with-read-lock file
 		(defq tok_state :text)
 		(lines! (lambda (line)
-			(task-slice)
-			(bind '(toks states tok_next) (tokenize-line (trim-end line "\r") tok_state))
-			(setq tok_state tok_next)
-			(defq input (list))
-			(each (lambda (tok state)
-				(unless (eql state :comment)
-					(each (# (push input %0)) (split tok +split_class)))) toks states)
-			(case (first input)
-				(("include")
-					(merge includes (list (second input))))
-				(("gen-type")
-					(merge classes (list ":list" ":sym")))
-				(("call" "entry" "exit" "def-method" "gen-vtable" "gen-create"
-					"to-array" "jump" "f-bind")
-					(merge classes (list (second input))))
-				(("save-fields" "load-fields" "assign-fields"
-						"save-net-id" "load-net-id" "assign-net-id")
-					(merge requires (list "class/obj/class.inc")))
-				(("host-os-call" "gen-host-call" "host-gui-call" "host-audio-call")
-					(merge requires (list "sys/statics/class.inc"))
-					(merge classes (list (second input))))
-				(("signature")
-					(merge classes (map! (const to-lower) (list input) 1))))
-			(each (lambda (token)
-				(. words :insert token)
-				(cond
-					((eql "f-path" token) (merge classes (list (elem-get input (inc (!))))))
-					((eql "vec-set" token) (merge classes '(":sys_math")))
-					((some (lambda (item)
-						(when (some! (# (starts-with %0 token)) (list item) :nil 1)
-							(merge classes (list (first item))) :t)) +class_prefixes))
-					((some (lambda (item)
-						(when (some! (# (starts-with %0 token)) (list item) :nil 1)
-							(merge requires (list (first item))) :t)) +require_prefixes))
-					;an inline function or macro that a class.inc defines, the
-					;file that defines it is needed, (hmap-search) say
-					((and (not (starts-with ":" token)) (defq inline_file (. defs_map :find token)))
-						(merge requires (list inline_file)))))
-				input) :nil) (file-stream file))))
+				(task-slice)
+				(bind '(toks states tok_next) (tokenize-line (trim-end line "\r") tok_state))
+				(setq tok_state tok_next)
+				(defq input (list))
+				(each (lambda (tok state)
+						(unless (eql state :comment)
+							(each (# (push input %0)) (split tok +split_class)))) toks states)
+				(case (first input)
+					(("include")
+						(merge includes (list (second input))))
+					(("gen-type")
+						(merge classes (list ":list" ":sym")))
+					(("call" "entry" "exit" "def-method" "gen-vtable" "gen-create"
+							"to-array" "jump" "f-bind")
+						(merge classes (list (second input))))
+					(("save-fields" "load-fields" "assign-fields"
+							"save-net-id" "load-net-id" "assign-net-id")
+						(merge requires (list "class/obj/class.inc")))
+					(("host-os-call" "gen-host-call" "host-gui-call" "host-audio-call")
+						(merge requires (list "sys/statics/class.inc"))
+						(merge classes (list (second input))))
+					(("signature")
+						(merge classes (map! (const to-lower) (list input) 1))))
+				(each (lambda (token)
+						(. words :insert token)
+						(cond
+							((eql "f-path" token) (merge classes (list (elem-get input (inc (!))))))
+							((eql "vec-set" token) (merge classes '(":sys_math")))
+							((some (lambda (item)
+										(when (some! (# (starts-with %0 token)) (list item) :nil 1)
+											(merge classes (list (first item))) :t)) +class_prefixes))
+							((some (lambda (item)
+										(when (some! (# (starts-with %0 token)) (list item) :nil 1)
+											(merge requires (list (first item))) :t)) +require_prefixes))
+							;an inline function or macro that a class.inc defines, the
+							;file that defines it is needed, (hmap-search) say
+							((and (not (starts-with ":" token)) (defq inline_file (. defs_map :find token)))
+								(merge requires (list inline_file)))))
+					input) :nil) (file-stream file))))
 
 ;do the work on a file
 (defun work (file)
@@ -217,9 +217,9 @@
 	;remove any redundant files !
 	(defq depends_set (Fset 101))
 	(each (lambda (file)
-		(each (# (. depends_set :insert %0))
-			(. depends_cache :update file (# (ifn %0
-				(filter (# (nql %0 file)) (depends-of file))))))) requires)
+			(each (# (. depends_set :insert %0))
+				(. depends_cache :update file (# (ifn %0
+							(filter (# (nql %0 file)) (depends-of file))))))) requires)
 	(setq requires (filter (# (not (. depends_set :find %0))) requires))
 	;sort and see if we need to report a difference and maybe rewrite
 	(sort includes) (sort requires)
@@ -235,7 +235,7 @@
 			;the classes and constants, then the kept includes in their order
 			(defq requires (cat (list +implicit_file)
 					(reverse (sort (map (# (path-to-relative %0 file))
-						(filter (# (not (or (eql %0 +implicit_file) (find %0 kept)))) requires))))
+								(filter (# (not (or (eql %0 +implicit_file) (find %0 kept)))) requires))))
 					(map (# (path-to-relative %0 file))
 						(filter (# (find %0 requires)) (include-order kept uses defines))))
 				no_includes (memory-stream))
@@ -254,7 +254,6 @@
 					(lines! (# (write-line stream %0) :nil) no_includes)
 					(stream-flush stream)
 					(setq stream :nil))))))
-
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
@@ -293,8 +292,8 @@
 			;do the jobs out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (str (first args)
-						" -j " opt_j
-						(if opt_d (cat " -d \q" opt_d "\q") "")
-						(if opt_w " -w " "")
-						" " (slice (str %0) 1 -2)))
-					(partition jobs opt_j)))))))
+								" -j " opt_j
+								(if opt_d (cat " -d \q" opt_d "\q") "")
+								(if opt_w " -w " "")
+								" " (slice (str %0) 1 -2)))
+						(partition jobs opt_j)))))))

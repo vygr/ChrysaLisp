@@ -39,17 +39,17 @@
 						(each! (lambda (library)
 								(when (defq mtl (take (cat folder library)))
 									(. (mtl-read (string-stream mtl)) :each (lambda (k v)
-										(when (defq file (. v :find :map))
-											;a picture's name may have a folder of another
-											;machine in it
-											(take (cat folder (last (split file (const (char-class "/\\")))))))))))
+											(when (defq file (. v :find :map))
+												;a picture's name may have a folder of another
+												;machine in it
+												(take (cat folder (last (split file (const (char-class "/\\")))))))))))
 							(list words) 1 -1))
 					:nil)
 				(string-stream text)))
 		(if (nempty? picture) (take picture)))
 	(mail-send reply (if (empty? got) (cat "!" *why*)
-		(apply (const cat) (map (lambda ((url data))
-			(cat url "\n" (str (length data)) "\n" data)) got)))))
+			(apply (const cat) (map (lambda ((url data))
+						(cat url "\n" (str (length data)) "\n" data)) got)))))
 
 (defun main ()
 	;who started it may be gone before it says what is wanted

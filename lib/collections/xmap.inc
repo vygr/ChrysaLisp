@@ -9,10 +9,10 @@
 
 (defmacro slot ()
 	(static-qq (defq _vl (get :buckets this)
-		_si (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
-		_kl (elem-get _vl _si)
-		_vl (elem-get _vl (inc _si))
-		_si (some (# (if ((get :cmp_fnc this) %0 key) (!))) _kl))))
+			_si (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
+			_kl (elem-get _vl _si)
+			_vl (elem-get _vl (inc _si))
+			_si (some (# (if ((get :cmp_fnc this) %0 key) (!))) _kl))))
 
 (defclass Xmap (&optional num_buckets cmp_fnc hash_fnc) (Map)
 	; (Xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
@@ -119,8 +119,7 @@
 
 	(defmethod :size ()
 		; (. xmap :size) -> size
-		(/ (reduce (# (+ %0 (length %1))) (get :buckets this) 0) 2))
-	)
+		(/ (reduce (# (+ %0 (length %1))) (get :buckets this) 0) 2)))
 
 ;module
 (export-classes '(Xmap))

@@ -12,7 +12,7 @@
 	(defq out (str-alloc 4))
 	(shader-vp-run mb_program mb_native
 		(shader-vp-frame mb_program mb_native (list (list 'cx (n2r x)) (list 'cy (n2r y))
-			'(step 0.0) '(w 1) '(h 1) '(ow 1) (list 'top (ifn top 256)) '(ss 1)))
+				'(step 0.0) '(w 1) '(h 1) '(ow 1) (list 'top (ifn top 256)) '(ss 1)))
 		0 1 (list mb_pal out))
 	(get-uint out 0))
 
@@ -46,8 +46,8 @@
 ;from near the edge to far off
 (assert-true "the colour has no steps in it"
 	(every (lambda (i)
-		(defq x (+ 0.4 (* (n2f i) 0.002)))
-		(< (mb-far (mb-at x 0.5) (mb-at (+ x 0.002) 0.5)) 8)) (range 0 400)))
+			(defq x (+ 0.4 (* (n2f i) 0.002)))
+			(< (mb-far (mb-at x 0.5) (mb-at (+ x 0.002) 0.5)) 8)) (range 0 400)))
 
 ;more turns find more of the outside
 (defq mb_deep '(-0.74543 0.11301))

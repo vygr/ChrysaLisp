@@ -29,7 +29,7 @@
 		(. (ui-radio-bar *scene_toolbar* ("Story" "Balls") (:font :font_body)) :connect +event_scene)
 		(. (ui-radio-bar *depth_toolbar* ("Flat" "Depth") (:font :font_body)) :connect +event_depth)
 		(ui-label *status* (:text " 400 figures  100.0 tick  100.0 draw " :font :font_body
-			:flow_flags +flow_flag_align_vcenter))
+				:flow_flags +flow_flag_align_vcenter))
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-backdrop *picture* (:style :plain :paper +argb_black :ink +argb_black
 			:min_width (/ +width 2) :min_height (/ +height 2) :want_width +width :want_height +height)
@@ -89,8 +89,8 @@
 	(when (>= (- now last_show) 500000)
 		(defq n (length (. stage :children)))
 		(. *status* :set_text (cat " " (str n) " figures  "
-			(str (/ tick_us frames 1000)) "." (str (/ (% (/ tick_us frames) 1000) 100)) " tick  "
-			(str (/ draw_us frames 1000)) "." (str (/ (% (/ draw_us frames) 1000) 100)) " draw "))
+				(str (/ tick_us frames 1000)) "." (str (/ (% (/ tick_us frames) 1000) 100)) " tick  "
+				(str (/ draw_us frames 1000)) "." (str (/ (% (/ draw_us frames) 1000) 100)) " draw "))
 		(setq tick_us 0 draw_us 0 frames 0 last_show now)))
 
 (defun main ()

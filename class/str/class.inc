@@ -59,7 +59,7 @@
 	(dec-method :lisp_lower class/str/lisp_lower :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :d0-:d15)))
 
 (defcvar 'str_gap (some! (lambda (%0)
-	(if (< +str_data %0) (- %0 +str_data 1))) (list +mem_heap_cell_sizes)))
+			(if (< +str_data %0) (- %0 +str_data 1))) (list +mem_heap_cell_sizes)))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

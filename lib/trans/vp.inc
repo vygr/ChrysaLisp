@@ -15,8 +15,8 @@
 ;it is used: a variable of :nil is not prebound, and a task that calls
 ;(emit-translate) from its own environment would not find it
 (defq +trans_native (progn
-	(defq trans_name (trans-name *cpu* *abi*))
-	(if (or (> (age (cat (load-path) trans_name)) 0) (image-has? trans_name)) (ffi trans_name))))
+		(defq trans_name (trans-name *cpu* *abi*))
+		(if (or (> (age (cat (load-path) trans_name)) 0) (image-has? trans_name)) (ffi trans_name))))
 
 (defun vp-portable (form)
 	; (vp-portable form) -> form
@@ -53,11 +53,11 @@
 	;a function prints with a #, so an instruction is printed once, and
 	;again from its portable form only if it has one
 	(cat "(" (join (map (lambda (inst)
-				(defq text (str inst))
-				(if (and (list? inst) (find "#" text))
-					(str (cat (list (first inst)) (map! (const vp-portable) (list inst) 1 -1)))
-					text))
-			(second entry)) "\n") ")"
+					(defq text (str inst))
+					(if (and (list? inst) (find "#" text))
+						(str (cat (list (first inst)) (map! (const vp-portable) (list inst) 1 -1)))
+						text))
+				(second entry)) "\n") ")"
 		(apply (const cat) (cat (list "") (map! (# (cat "\n" (str %0))) (list entry) 2 -1)))))
 
 (defun vp-entry-text (entry)
@@ -109,5 +109,5 @@
 
 ;module
 (export-symbols '(emit-translate vp-translate-save vp-translate-text vp-translate-file trans-name
-	vp-portable vp-code-text vp-entry-text))
+		vp-portable vp-code-text vp-entry-text))
 (env-pop)

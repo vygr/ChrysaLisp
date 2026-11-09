@@ -5,7 +5,6 @@
 (import "service/source/app.inc")
 (import "./app.inc")
 
-
 (enums +select 0
 	(enum main task reply nodes))
 
@@ -61,8 +60,8 @@
 
 (defun update-result (node &rest vals)
 	(setq vals (map (#
-			(bind '(res val) (smooth-result (get %0 node) %1))
-			(def node %0 res) val) +results vals))
+				(bind '(res val) (smooth-result (get %0 node) %1))
+				(def node %0 res) val) +results vals))
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (. (get %1 node) :dirty) :value %2))
 		charts +bars vals +max_aligns))
@@ -71,8 +70,8 @@
 	(defq results (list) bars (map (# (.-> %0 :get_bar_grid :children)) charts)
 		totals (map (# (reduce (# (+ %0 (get :value %1))) %0 0)) bars)
 		totals (map (#
-			(bind '(res val) (smooth-result %0 %1))
-			(push results res) val) net_results totals))
+				(bind '(res val) (smooth-result %0 %1))
+				(push results res) val) net_results totals))
 	(setq net_results results)
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (. %1 :dirty) :value %2))

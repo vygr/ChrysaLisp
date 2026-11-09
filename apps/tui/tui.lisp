@@ -18,40 +18,40 @@
 (redefun print (&rest args)
 	(if (empty? args) (setq args (list +CR +LF)))
 	(each (lambda (a)
-		(each (lambda (c)
-			(setq c (code c))
-			(cond
-				((= *esc_state_out* 1)
-					; In ESC sequence
-					(pii-write-char 1 c)
-					(if (= c 91) ; '[' starts a CSI sequence
-						(setq *esc_state_out* 2)
-						(setq *esc_state_out* 0)))
-				((= *esc_state_out* 2)
-					; In CSI sequence
-					(pii-write-char 1 c)
-					(and (>= c 64) (<= c 126) ; 0x40-0x7E terminates CSI sequence
-						(setq *esc_state_out* 0)))
-				((= c 27) ; ESC
-					(setq *esc_state_out* 1)
-					(pii-write-char 1 c))
-				((= c 9)
-					;print tab to nearest 4-space column
-					(defq spaces (- +tab_spaces (% *column* +tab_spaces)))
-					(setq *column* (+ *column* spaces))
-					(times spaces (pii-write-char 1 32)))
-				((or (= c 10) (= c 13))
-					; newline/return resets column
-					(setq *column* 0)
-					(pii-write-char 1 c))
-				((= c 8)
-					; backspace decrements column
-					(setq *column* (max 0 (dec *column*)))
-					(pii-write-char 1 c))
-				(:t ;print normal char
-					(++ *column*)
-					(pii-write-char 1 c))))
-			(str a)))
+			(each (lambda (c)
+					(setq c (code c))
+					(cond
+						((= *esc_state_out* 1)
+							; In ESC sequence
+							(pii-write-char 1 c)
+							(if (= c 91) ; '[' starts a CSI sequence
+								(setq *esc_state_out* 2)
+								(setq *esc_state_out* 0)))
+						((= *esc_state_out* 2)
+							; In CSI sequence
+							(pii-write-char 1 c)
+							(and (>= c 64) (<= c 126) ; 0x40-0x7E terminates CSI sequence
+								(setq *esc_state_out* 0)))
+						((= c 27) ; ESC
+							(setq *esc_state_out* 1)
+							(pii-write-char 1 c))
+						((= c 9)
+							;print tab to nearest 4-space column
+							(defq spaces (- +tab_spaces (% *column* +tab_spaces)))
+							(setq *column* (+ *column* spaces))
+							(times spaces (pii-write-char 1 32)))
+						((or (= c 10) (= c 13))
+							; newline/return resets column
+							(setq *column* 0)
+							(pii-write-char 1 c))
+						((= c 8)
+							; backspace decrements column
+							(setq *column* (max 0 (dec *column*)))
+							(pii-write-char 1 c))
+						(:t ;print normal char
+							(++ *column*)
+							(pii-write-char 1 c))))
+				(str a)))
 		args))
 
 (defun redraw-line ()
@@ -69,119 +69,119 @@
 		(setq c 0) ; Ignore LF after CR
 		(setq last_input c))
 	(if (> c 0)
-	(case esc_state
-		(0 ; Normal state
-			(cond
-				((= c 27) ; ESC
-					(setq esc_state 1))
-				((or (= c 10) (= c 13)) ; Enter
-					(redraw-line)
-					(print +CR +LF) ; Newline
-					(cond
-						(cmd ; Feed active pipe
-							(. cmd :write (cat buffer +LF)))
-						(:t ; New command
-							(when (> (length buffer) 0)
-								; Start pipe
-								(catch (setq cmd (Pipe buffer (list (task-mbox))))
-									(progn (setq cmd :nil) :t))
-								(unless cmd (print "Pipe Error !" +LF))
-								;push new line history entry if not same as last entry.
-								;Not what a script sends, the launch script says
-								;when its input is not from a keyboard
-								(when (and cmd (not (get '*tui_scripted*)))
-									(bind '(history) (gather *meta_map* :history))
-									(if (defq i (find buffer history))
-										(setq history (erase history i (inc i))))
-									(push history (trim buffer))
-									(scatter *meta_map* :history history)
-									(setq *history_idx* (length history) *history* history)
-									(config-save)))))
-					(unless cmd (print (get :terminal_prompt *env*)))
-					(setq buffer "" cursor 0 prompted (not cmd)))
-				((or (= c 127) (= c 8)) ; Ctrl-H, Backspace (often 127 on TUI)
-					(when (> cursor 0)
-						(setq buffer (erase buffer (dec cursor) cursor))
-						(-- cursor)
-						(unless (mail-poll *select*) (redraw-line))))
-				((= c 4) ; Ctrl-D (EOF/Delete)
-					(if (= (length buffer) 0)
-						(if cmd
-							(progn ; End of the command's input, exit when it is done
-								(setq *eof* :t)
-								(. cmd :eof))
-							; Exit shell
-							(print +CR +LF "Exiting..." +CR +LF)
-							(pii-exit))
-						; Delete char at cursor
-						(when (< cursor (length buffer))
-							(setq buffer (erase buffer cursor (inc cursor)))
-							(unless (mail-poll *select*) (redraw-line)))))
-				((= c 18) ; Ctrl-R, the latest of the history with what is typed in it
-					(when (and (not cmd) (defq found (history-find buffer)))
-						(setq buffer found cursor (length buffer))
-						(unless (mail-poll *select*) (redraw-line))))
-				((= c 9) ;Tab
-					(defq auto (url-ext buffer cursor))
-					(setq buffer (insert buffer cursor auto) cursor (+ cursor (length auto)))
-					(unless (mail-poll *select*) (redraw-line)))
-				((<= 32 c 126) ; Printable
-					(setq buffer (insert buffer cursor (char c)))
-					(++ cursor)
-					(unless (mail-poll *select*) (redraw-line)))))
-		(1 ; Expecting [
-			(if (= c 91)
-				(setq esc_state 2)
-				(setq esc_state 0))) ; Malformed, reset
-		(2 ; Command char
-			(cond
-				((= c 65) ; Up Arrow
-					(when (> *history_idx* 0)
-						(-- *history_idx*)
-						(setq buffer (elem-get *history* *history_idx*)
-							  cursor (length buffer))
+		(case esc_state
+			(0 ; Normal state
+				(cond
+					((= c 27) ; ESC
+						(setq esc_state 1))
+					((or (= c 10) (= c 13)) ; Enter
+						(redraw-line)
+						(print +CR +LF) ; Newline
+						(cond
+							(cmd ; Feed active pipe
+								(. cmd :write (cat buffer +LF)))
+							(:t ; New command
+								(when (> (length buffer) 0)
+									; Start pipe
+									(catch (setq cmd (Pipe buffer (list (task-mbox))))
+										(progn (setq cmd :nil) :t))
+									(unless cmd (print "Pipe Error !" +LF))
+									;push new line history entry if not same as last entry.
+									;Not what a script sends, the launch script says
+									;when its input is not from a keyboard
+									(when (and cmd (not (get '*tui_scripted*)))
+										(bind '(history) (gather *meta_map* :history))
+										(if (defq i (find buffer history))
+											(setq history (erase history i (inc i))))
+										(push history (trim buffer))
+										(scatter *meta_map* :history history)
+										(setq *history_idx* (length history) *history* history)
+										(config-save)))))
+						(unless cmd (print (get :terminal_prompt *env*)))
+						(setq buffer "" cursor 0 prompted (not cmd)))
+					((or (= c 127) (= c 8)) ; Ctrl-H, Backspace (often 127 on TUI)
+						(when (> cursor 0)
+							(setq buffer (erase buffer (dec cursor) cursor))
+							(-- cursor)
+							(unless (mail-poll *select*) (redraw-line))))
+					((= c 4) ; Ctrl-D (EOF/Delete)
+						(if (= (length buffer) 0)
+							(if cmd
+								(progn ; End of the command's input, exit when it is done
+									(setq *eof* :t)
+									(. cmd :eof))
+								; Exit shell
+								(print +CR +LF "Exiting..." +CR +LF)
+								(pii-exit))
+							; Delete char at cursor
+							(when (< cursor (length buffer))
+								(setq buffer (erase buffer cursor (inc cursor)))
+								(unless (mail-poll *select*) (redraw-line)))))
+					((= c 18) ; Ctrl-R, the latest of the history with what is typed in it
+						(when (and (not cmd) (defq found (history-find buffer)))
+							(setq buffer found cursor (length buffer))
+							(unless (mail-poll *select*) (redraw-line))))
+					((= c 9) ;Tab
+						(defq auto (url-ext buffer cursor))
+						(setq buffer (insert buffer cursor auto) cursor (+ cursor (length auto)))
 						(unless (mail-poll *select*) (redraw-line)))
-					(setq esc_state 0))
-				((= c 66) ; Down Arrow
-					(cond
-						((< *history_idx* (dec (length *history*)))
-							(++ *history_idx*)
-							(setq buffer (elem-get *history* *history_idx*)))
-						(:t (setq buffer "" *history_idx* (length *history*))))
-					(setq cursor (length buffer))
-					(unless (mail-poll *select*) (redraw-line))
-					(setq esc_state 0))
-				((= c 67) ; Right Arrow
-					(if (< cursor (length buffer)) (++ cursor))
-					(unless (mail-poll *select*) (redraw-line))
-					(setq esc_state 0))
-				((= c 68) ; Left Arrow
-					(if (> cursor 0) (-- cursor))
-					(unless (mail-poll *select*) (redraw-line))
-					(setq esc_state 0))
-				((= c 72) ; Home (Standard)
-					(setq cursor 0) (unless (mail-poll *select*) (redraw-line)) (setq esc_state 0))
-				((= c 70) ; End (Standard)
-					(setq cursor (length buffer)) (unless (mail-poll *select*) (redraw-line)) (setq esc_state 0))
-				((= c 49) ; Home/End/Del? (1~)
-					(setq esc_state 3)) ; Wait for ~
-				((= c 51) ; Del (3~)
-					(setq esc_state 4)) ; Wait for ~
-				((= c 52) ; End (4~)
-					(setq esc_state 5)) ; Wait for ~
-				(:t (setq esc_state 0))))
-		(3 ; Home (1~)
-			(when (= c 126) (setq cursor 0) (unless (mail-poll *select*) (redraw-line)))
-			(setq esc_state 0))
-		(4 ; Del (3~)
-			(when (= c 126)
-				(when (< cursor (length buffer))
-					(setq buffer (erase buffer cursor (inc cursor)))
-					(unless (mail-poll *select*) (redraw-line))))
-			(setq esc_state 0))
-		(5 ; End (4~)
-			(when (= c 126) (setq cursor (length buffer)) (unless (mail-poll *select*) (redraw-line)))
-			(setq esc_state 0)))))
+					((<= 32 c 126) ; Printable
+						(setq buffer (insert buffer cursor (char c)))
+						(++ cursor)
+						(unless (mail-poll *select*) (redraw-line)))))
+			(1 ; Expecting [
+				(if (= c 91)
+					(setq esc_state 2)
+					(setq esc_state 0))) ; Malformed, reset
+			(2 ; Command char
+				(cond
+					((= c 65) ; Up Arrow
+						(when (> *history_idx* 0)
+							(-- *history_idx*)
+							(setq buffer (elem-get *history* *history_idx*)
+								cursor (length buffer))
+							(unless (mail-poll *select*) (redraw-line)))
+						(setq esc_state 0))
+					((= c 66) ; Down Arrow
+						(cond
+							((< *history_idx* (dec (length *history*)))
+								(++ *history_idx*)
+								(setq buffer (elem-get *history* *history_idx*)))
+							(:t (setq buffer "" *history_idx* (length *history*))))
+						(setq cursor (length buffer))
+						(unless (mail-poll *select*) (redraw-line))
+						(setq esc_state 0))
+					((= c 67) ; Right Arrow
+						(if (< cursor (length buffer)) (++ cursor))
+						(unless (mail-poll *select*) (redraw-line))
+						(setq esc_state 0))
+					((= c 68) ; Left Arrow
+						(if (> cursor 0) (-- cursor))
+						(unless (mail-poll *select*) (redraw-line))
+						(setq esc_state 0))
+					((= c 72) ; Home (Standard)
+						(setq cursor 0) (unless (mail-poll *select*) (redraw-line)) (setq esc_state 0))
+					((= c 70) ; End (Standard)
+						(setq cursor (length buffer)) (unless (mail-poll *select*) (redraw-line)) (setq esc_state 0))
+					((= c 49) ; Home/End/Del? (1~)
+						(setq esc_state 3)) ; Wait for ~
+					((= c 51) ; Del (3~)
+						(setq esc_state 4)) ; Wait for ~
+					((= c 52) ; End (4~)
+						(setq esc_state 5)) ; Wait for ~
+					(:t (setq esc_state 0))))
+			(3 ; Home (1~)
+				(when (= c 126) (setq cursor 0) (unless (mail-poll *select*) (redraw-line)))
+				(setq esc_state 0))
+			(4 ; Del (3~)
+				(when (= c 126)
+					(when (< cursor (length buffer))
+						(setq buffer (erase buffer cursor (inc cursor)))
+						(unless (mail-poll *select*) (redraw-line))))
+				(setq esc_state 0))
+			(5 ; End (4~)
+				(when (= c 126) (setq cursor (length buffer)) (unless (mail-poll *select*) (redraw-line)))
+				(setq esc_state 0)))))
 
 (defun main ()
 	;sign on msg

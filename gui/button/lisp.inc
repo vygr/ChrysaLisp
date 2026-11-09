@@ -50,8 +50,8 @@
 	(defmethod :mouse_enter (event)
 		; (. button :mouse_enter event) -> button
 		(and (not (def? :tip_window this))
-				(def? :tip_text this)
-				(defq tip_mbox (get :tip_mbox this))
+			(def? :tip_text this)
+			(defq tip_mbox (get :tip_mbox this))
 			(mail-timeout tip_mbox 1000000 (. this :get_id)))
 		this)
 
@@ -76,5 +76,4 @@
 			(bind '(x y w h) (apply view-locate (push (. tip_window :pref_size) :bottom)))
 			(gui-add-front-rpc (. tip_window :change x y w h))
 			(def this :tip_window tip_window))
-		this)
-	)
+		this))

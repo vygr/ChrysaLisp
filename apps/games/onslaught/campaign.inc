@@ -16,42 +16,42 @@
 	+part_names3 "GARRAGVARGERMONGORBALFAGGAFBANVERLATTOGROGTATMANRUD"
 	+part_names2 "GOATITISETINMI"
 	+status_names
-	''("SCUM" "WARRIOR" "FANATIC" "CHAMPION" "HERO"
-		"BARRON" "LORD" "LEGEND" "REAPER" "DEMIGOD")
+		''("SCUM" "WARRIOR" "FANATIC" "CHAMPION" "HERO"
+			"BARRON" "LORD" "LEGEND" "REAPER" "DEMIGOD")
 	+cult_names
-	''("EAGLE" "LIGHTNING" "ARDUCK" "SHESH" "BOAR" "STAG" "EYE" "MOON"
-		"HOLY" "HAND" "ZORACK" "BROBEK" "MOUNTAIN" "FOREST" "RIMOG" "DEATH")
+		''("EAGLE" "LIGHTNING" "ARDUCK" "SHESH" "BOAR" "STAG" "EYE" "MOON"
+			"HOLY" "HAND" "ZORACK" "BROBEK" "MOUNTAIN" "FOREST" "RIMOG" "DEATH")
 	+lord_names ''("COMMANDER" "CHIEFTAIN" "LORD" "DEMON")
 	+popularity
-	''(0 500 200 1000 300 1600 700 800 1800 400 900 1200 600 1400 100 2000)
+		''(0 500 200 1000 300 1600 700 800 1800 400 900 1200 600 1400 100 2000)
 	; location info indexed by campain tile type (colour line ...)
 	+location_names
-	`'((,+argb_white "THE" "ORACLE OF" "GARGORE")
-		(,+argb_white "THIS IS A" "WATER" "TEMPLE")
-		(,+argb_white "THIS IS A" "SWAMP" "TEMPLE")
-		(,+argb_white "THIS IS A" "FOREST" "TEMPLE")
-		(,+argb_white "THIS IS A" "MOUNTAIN" "TEMPLE")
-		(,+argb_cyan "THIS IS A" "WATER" "LOCATION")
-		(,+argb_yellow "THIS IS A" "SWAMP" "LOCATION")
-		(,+argb_green "THIS IS A" "FOREST" "LOCATION")
-		(,+argb_white "THIS IS A" "MOUNTAIN" "LOCATION")
-		(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION")
-		(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION")
-		(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION")
-		(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION")
-		(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION"))
+		`'((,+argb_white "THE" "ORACLE OF" "GARGORE")
+			(,+argb_white "THIS IS A" "WATER" "TEMPLE")
+			(,+argb_white "THIS IS A" "SWAMP" "TEMPLE")
+			(,+argb_white "THIS IS A" "FOREST" "TEMPLE")
+			(,+argb_white "THIS IS A" "MOUNTAIN" "TEMPLE")
+			(,+argb_cyan "THIS IS A" "WATER" "LOCATION")
+			(,+argb_yellow "THIS IS A" "SWAMP" "LOCATION")
+			(,+argb_green "THIS IS A" "FOREST" "LOCATION")
+			(,+argb_white "THIS IS A" "MOUNTAIN" "LOCATION")
+			(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION")
+			(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION")
+			(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION")
+			(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION")
+			(,+argb_yellow "THIS IS A" "PLAYER" "LOCATION"))
 	; oracle hints indexed by experience (x1 line1 x2 line2)
 	+oracle_hints
-	''((32 "TRY TO KEEP YOUR WEAPON TURNOVER" 80 "AS HIGH AS POSSIBLE !")
-		(40 "TRY GOING OVERGROUND IF FACED" 64 "WITH A VERY STRONG ARMY !")
-		(32 "ALWAYS HAVE AS MANY BLUE DEMONS" 56 "FLYING AROUND AS POSSIBLE !")
-		(50 "THE SMALL CROSSBOW IS THE BEST" 40 "WEAPON WHEN FACED WITH MONKS !")
-		(32 "WHITE SPELLS ARE VERY USEFULL IF" 48 "SAVED FOR USE ON THE TOWER !")
-		(32 "YELLOW SPELLS ARE MORE EFFECTIVE" 80 "WHEN YOU ARE DUCKING !")
-		(32 "MAXIMIZE YELLOW SPELL FIREBALLS" 72 "BY RUNNING AFTER THEM !")
-		(48 "MINES CAN BE USED AS WEAPONS" 48 "IF YOU HAVE ENOUGH STRENGTH !")
-		(40 "USE LEDGE TO LEFT OF TOWER TO" 40 "REDUCE FLAG LEVEL ON WAY UP !")
-		(48 "GOT A HELL OF A NERVE ASKING" 64 "FOR HINTS AT THIS LEVEL !"))
+		''((32 "TRY TO KEEP YOUR WEAPON TURNOVER" 80 "AS HIGH AS POSSIBLE !")
+			(40 "TRY GOING OVERGROUND IF FACED" 64 "WITH A VERY STRONG ARMY !")
+			(32 "ALWAYS HAVE AS MANY BLUE DEMONS" 56 "FLYING AROUND AS POSSIBLE !")
+			(50 "THE SMALL CROSSBOW IS THE BEST" 40 "WEAPON WHEN FACED WITH MONKS !")
+			(32 "WHITE SPELLS ARE VERY USEFULL IF" 48 "SAVED FOR USE ON THE TOWER !")
+			(32 "YELLOW SPELLS ARE MORE EFFECTIVE" 80 "WHEN YOU ARE DUCKING !")
+			(32 "MAXIMIZE YELLOW SPELL FIREBALLS" 72 "BY RUNNING AFTER THEM !")
+			(48 "MINES CAN BE USED AS WEAPONS" 48 "IF YOU HAVE ENOUGH STRENGTH !")
+			(40 "USE LEDGE TO LEFT OF TOWER TO" 40 "REDUCE FLAG LEVEL ON WAY UP !")
+			(48 "GOT A HELL OF A NERVE ASKING" 64 "FOR HINTS AT THIS LEVEL !"))
 	+oracle_no_hint ''(64 "YOU GET NO HINTS IN EASY" 88 "MODE OR TUTOR MODE"))
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -151,16 +151,16 @@
 (defun campaign-snapshot ()
 	; remember the campaign in progress, if any, for config-save
 	(setq *campaign_state* (if *campaign_active*
-		(scatter (Emap)
-			:tiles (cat *campaign_map*)
-			:location (list *location_x* *location_y* *location_last_x* *location_last_y*
-				*location_ox* *location_oy*)
-			:events (list *event_count* *plague_create* *crusade_create* *rebellion_create*
-				*plague_destroy* *crusade_destroy* *rebellion_destroy*)
-			:name *man_name* :homeland *man_homeland* :cult *man_cult*
-			:score *man_score* :power *man_power* :strength *man_strength*
-			:inventory (cat *item_inventory*) :usage (cat *item_usage*)
-			:selected *item_selected*))))
+			(scatter (Emap)
+				:tiles (cat *campaign_map*)
+				:location (list *location_x* *location_y* *location_last_x* *location_last_y*
+					*location_ox* *location_oy*)
+				:events (list *event_count* *plague_create* *crusade_create* *rebellion_create*
+					*plague_destroy* *crusade_destroy* *rebellion_destroy*)
+				:name *man_name* :homeland *man_homeland* :cult *man_cult*
+				:score *man_score* :power *man_power* :strength *man_strength*
+				:inventory (cat *item_inventory*) :usage (cat *item_usage*)
+				:selected *item_selected*))))
 
 (defun campaign-restore ()
 	; carry on with the saved campaign
@@ -208,16 +208,16 @@
 	; rebellions spread into player neighbours
 	(defq growbuf (cat *campaign_map*))
 	(each (lambda (tile)
-		(when (<= +frm_campain_plague tile +frm_campain_rebellion)
-			(defq x (logand (!) 0xf) y (>> (!) 4))
-			(each (lambda ((dx dy))
-				(defq nx (+ x dx) ny (+ y dy) location (+ nx (* ny +campaign_width)))
-				(and (<= 0 nx 15) (<= 0 ny 15) (/= location last_location)
-					(if (= tile +frm_campain_rebellion)
-						(= (elem-get growbuf location) +frm_campain_player)
-						(> (elem-get growbuf location) tile))
-					(elem-set *campaign_map* location tile)))
-				'((-1 0) (1 0) (0 -1) (0 1)))))
+			(when (<= +frm_campain_plague tile +frm_campain_rebellion)
+				(defq x (logand (!) 0xf) y (>> (!) 4))
+				(each (lambda ((dx dy))
+						(defq nx (+ x dx) ny (+ y dy) location (+ nx (* ny +campaign_width)))
+						(and (<= 0 nx 15) (<= 0 ny 15) (/= location last_location)
+							(if (= tile +frm_campain_rebellion)
+								(= (elem-get growbuf location) +frm_campain_player)
+								(> (elem-get growbuf location) tile))
+							(elem-set *campaign_map* location tile)))
+					'((-1 0) (1 0) (0 -1) (0 1)))))
 		growbuf))
 
 (defun campaign-events ()
@@ -330,10 +330,10 @@
 			(bind '(mtid tw th) (texture-sized texture))
 			(defq ts (* zoom 8) mx (* zoom +campaign_x) my (* zoom +campaign_y))
 			(each (lambda (tile)
-				(defq raw_y (* tile ts))
-				(. this :ctx_blit mtid +argb_white
-					(+ mx (* (logand (!) 0xf) ts)) (+ my (* (>> (!) 4) ts)) ts ts
-					(* (/ raw_y th) ts) (% raw_y th)))
+					(defq raw_y (* tile ts))
+					(. this :ctx_blit mtid +argb_white
+						(+ mx (* (logand (!) 0xf) ts)) (+ my (* (>> (!) 4) ts)) ts ts
+						(* (/ raw_y th) ts) (% raw_y th)))
 				tiles)
 			;map borders
 			(each (# (defq y (+ +campaign_y (* %0 8)))
@@ -341,9 +341,8 @@
 					(draw-ascii-string this "_" (const (+ +campaign_x 128)) y +argb_magenta zoom tid))
 				(range 0 16)))
 		(each (lambda ((txt x y col))
-			(draw-ascii-string this txt x y col zoom tid)) (get :texts this))
-		this)
-	)
+				(draw-ascii-string this txt x y col zoom tid)) (get :texts this))
+		this))
 
 (defun campaign-resize (zoom)
 	(when (and *campaign_view* *img_ascii* (defq c (getf *img_ascii* +canvas_texture 0)))
@@ -365,8 +364,8 @@
 (defun campaign-column (texts x col dcol rows)
 	; (campaign-column texts x col dcol rows) -> texts
 	(each (lambda ((heading value))
-		(defq y (+ +campaign_y 32 (* (!) 16)))
-		(push texts (list heading x y col) (list value x (+ y 8) dcol))) rows)
+			(defq y (+ +campaign_y 32 (* (!) 16)))
+			(push texts (list heading x y col) (list value x (+ y 8) dcol))) rows)
 	texts)
 
 (defun campaign-sync ()
@@ -374,10 +373,10 @@
 	(game-generate-enemy-info)
 	(defq tile (elem-get *campaign_map* (campaign-location))
 		texts (campaign-column (list) 8 +argb_yellow +argb_dyellow (list
-			(list "NAME" *man_name*) (list "HOMELAND" *man_homeland*)
-			(list "CULT" (elem-get +cult_names *man_cult*))
-			(list "STATUS" (elem-get +status_names *man_experience*))
-			(list "TERRITORY" (str *man_territory*)) (list "GLORY" (str *man_score*)))))
+				(list "NAME" *man_name*) (list "HOMELAND" *man_homeland*)
+				(list "CULT" (elem-get +cult_names *man_cult*))
+				(list "STATUS" (elem-get +status_names *man_experience*))
+				(list "TERRITORY" (str *man_territory*)) (list "GLORY" (str *man_score*)))))
 	(. *campaign_sight* :sp_set_pos (+ (* *location_x* 8) (const (- +campaign_x 4)))
 		(+ (* *location_y* 8) (const (- +campaign_y 4))))
 	(if (and (/= tile +frm_campain_player) (>= tile +frm_campain_plague))
@@ -385,12 +384,12 @@
 			;enemy stats
 			(campaign-column texts 232 *enemy_info_col*
 				(logior +argb_black (logand (>> *enemy_info_col* 1) 0x7f7f7f)) (list
-				(list "KINGDOM" *enemy_kingdom*)
-				(list "WIZARDLORD" (elem-get +lord_names *enemy_lord*))
-				(list "CULT" (elem-get +cult_names *enemy_cult*))
-				(list "WARBAND" (elem-get +army_names *enemy_army*))
-				(list "POPULARITY" (str *enemy_popularity*))
-				(list "POPULATION" (str *enemy_population*))))
+					(list "KINGDOM" *enemy_kingdom*)
+					(list "WIZARDLORD" (elem-get +lord_names *enemy_lord*))
+					(list "CULT" (elem-get +cult_names *enemy_cult*))
+					(list "WARBAND" (elem-get +army_names *enemy_army*))
+					(list "POPULARITY" (str *enemy_popularity*))
+					(list "POPULATION" (str *enemy_population*))))
 			(.-> *campaign_ban* (:sp_set_frame *enemy_banner*)
 				(:sp_set_pos 240 (const (+ +campaign_y 8))))
 			(.-> *campaign_lord* (:sp_set_frame (+ +frm_32c32_face (* *enemy_lord* 2)))
@@ -472,7 +471,7 @@
 		((< tile +frm_campain_plague)
 			;lost all talismans if temple mind combat
 			(each (# (if (<= +frm_16x16_diamond %0 +frm_16x16_diamond9)
-				(elem-set *item_inventory* (!) 0))) *item_inventory*))
+						(elem-set *item_inventory* (!) 0))) *item_inventory*))
 		((= *game_level* +game_level_defend)
 			;lost terrain location to the attacking type
 			(elem-set *campaign_map*
@@ -520,8 +519,8 @@
 			(elem-get +oracle_hints *man_experience*)
 			+oracle_no_hint))
 	(def *campaign_view* :map :nil :texts (list
-		(list line1 x1 (const (+ +campaign_y 56)) +argb_white)
-		(list line2 x2 (const (+ +campaign_y 64)) +argb_white)))
+			(list line1 x1 (const (+ +campaign_y 56)) +argb_white)
+			(list line2 x2 (const (+ +campaign_y 64)) +argb_white)))
 	(setq *game_flags* (logior *game_flags* +fflag_select)))
 
 (defun oracle-state-update ()

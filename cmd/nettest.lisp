@@ -30,7 +30,7 @@
 				(print "Proto:   " (pfind resp :proto))
 				(print "Headers:")
 				(each (lambda ((k v))
-					(print "  " k ": " v))
+						(print "  " k ": " v))
 					(partition (pfind resp :headers) 2))
 				(defq body (pfind resp :body))
 				(print "\nBody (" (stream-avail body) " bytes):")

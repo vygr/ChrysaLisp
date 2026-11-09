@@ -43,7 +43,7 @@
 		; (. fset :each lambda) -> fset
 		(defq e (penv))
 		(each (lambda (bucket)
-			(each (lambda (k) (callback fnc e k)) bucket))
+				(each (lambda (k) (callback fnc e k)) bucket))
 			(get :buckets this))
 		this)
 
@@ -51,7 +51,7 @@
 		; (. fset :tolist) -> list
 		(defq out (list))
 		(each (lambda (bucket)
-			(each (lambda (k) (push out k)) bucket))
+				(each (lambda (k) (push out k)) bucket))
 			(get :buckets this))
 		out)
 
@@ -66,7 +66,7 @@
 		(defq that ((get 'Fset) (get :num_buckets this))
 			that_buckets (get :buckets that))
 		(each (lambda (this_bucket that_bucket)
-			(each (lambda (k) (pinsert that_bucket (copy k))) this_bucket))
+				(each (lambda (k) (pinsert that_bucket (copy k))) this_bucket))
 			(get :buckets this) that_buckets)
 		that)
 
@@ -75,7 +75,7 @@
 		(unless (eql this that)
 			(defq new_buckets (map! (const pset) '() 0 (get :num_buckets this)))
 			(each (lambda (bucket new_bucket)
-				(each (lambda (k) (if (. that :find k) (pinsert new_bucket k))) bucket))
+					(each (lambda (k) (if (. that :find k) (pinsert new_bucket k))) bucket))
 				(get :buckets this) new_buckets)
 			(set this :buckets new_buckets))
 		this)
@@ -99,7 +99,7 @@
 		(lower :num_buckets (:buckets new_buckets))
 		(raise :num_buckets)
 		(each (lambda (old_bucket)
-			(each (lambda (k) (pinsert (elem-get new_buckets (% (hash k) num_buckets)) k)) old_bucket))
+				(each (lambda (k) (pinsert (elem-get new_buckets (% (hash k) num_buckets)) k)) old_bucket))
 			buckets)
 		this)
 
@@ -109,8 +109,7 @@
 
 	(defmethod :size ()
 		; (. fset :size) -> size
-		(reduce (# (+ %0 (length %1))) (get :buckets this) 0))
-	)
+		(reduce (# (+ %0 (length %1))) (get :buckets this) 0)))
 
 ;module
 (export-classes '(Fset))

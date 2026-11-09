@@ -33,33 +33,33 @@
 			;check off: of which is (), where a (map!) from 1 is an error
 			vals (map (# (n2f (str-to-num %0))) (rest args))
 			mb (case key
-			("matrix"
-				(bind '(m00 m01 m10 m11 tx ty) vals)
-				(mat3x2 m00 m01 tx m10 m11 ty))
-			("translate"
-				(bind '(tx &optional ty) vals)
-				(mat3x2-translate tx (ifn ty 0.0)))
-			("scale"
-				(bind '(sx &optional sy) vals)
-				(mat3x2-scale sx sy))
-			("rotate"
-				;about a point, default the origin
-				(bind '(a &optional cx cy) vals)
-				(mat3x2-rot (deg-to-rad a) cx cy))
-			("skewX"
-				(bind '(a) vals)
-				(mat3x2-skew (deg-to-rad a)))
-			("skewY"
-				(bind '(a) vals)
-				(mat3x2-skew 0.0 (deg-to-rad a)))
-			(:t (throw "Unknown transform !" key))))
+				("matrix"
+					(bind '(m00 m01 m10 m11 tx ty) vals)
+					(mat3x2 m00 m01 tx m10 m11 ty))
+				("translate"
+					(bind '(tx &optional ty) vals)
+					(mat3x2-translate tx (ifn ty 0.0)))
+				("scale"
+					(bind '(sx &optional sy) vals)
+					(mat3x2-scale sx sy))
+				("rotate"
+					;about a point, default the origin
+					(bind '(a &optional cx cy) vals)
+					(mat3x2-rot (deg-to-rad a) cx cy))
+				("skewX"
+					(bind '(a) vals)
+					(mat3x2-skew (deg-to-rad a)))
+				("skewY"
+					(bind '(a) vals)
+					(mat3x2-skew 0.0 (deg-to-rad a)))
+				(:t (throw "Unknown transform !" key))))
 		(setq ma (mat3x2-mul ma mb)))
 	ma)
 
 (defun read-attribute (entry key val)
 	(case key
 		(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r"
-			"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
+				"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
 			(n2f (str-to-num val)))
 		("viewBox"
 			(map (# (n2f (str-to-num %0))) (split val (const (char-class ", ")))))
@@ -80,9 +80,9 @@
 				("magenta" +argb_magenta)
 				("cyan" +argb_cyan)
 				(:t (cond
-					((starts-with "#" val) (read-col val))
-					((starts-with "rgb(" val) (read-rgb val))
-					((throw "Unknown stroke/fill style !" val))))))
+						((starts-with "#" val) (read-col val))
+						((starts-with "rgb(" val) (read-rgb val))
+						((throw "Unknown stroke/fill style !" val))))))
 		("stroke-linecap"
 			(case val
 				("butt" +cap_butt)
@@ -132,13 +132,13 @@
 (defun push-attributes (stack keys vals)
 	(push stack (defq entry (. (last stack) :copy)))
 	(each (lambda (key val)
-		(cond
-			((eql key "style")
-				(each (lambda ((k v))
-						(. entry :insert k (read-attribute entry k v)))
-					(map (# (split %0 ":")) (split val ";"))))
-			(:t (setq val (read-attribute entry key val))))
-		(. entry :insert key val)) keys vals)
+			(cond
+				((eql key "style")
+					(each (lambda ((k v))
+							(. entry :insert k (read-attribute entry k v)))
+						(map (# (split %0 ":")) (split val ";"))))
+				(:t (setq val (read-attribute entry key val))))
+			(. entry :insert key val)) keys vals)
 	entry)
 
 (defun path-fill-and-stroke (canvas entry paths)
@@ -157,44 +157,43 @@
 			(:fpoly 0.0 0.0 fill_rule
 				(map (lambda (p) (mat3x2-vec2-mul transform p p))
 					(reduce (lambda (l (f p))
-						(cond
-							(f	;closed
-								(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width)
-									stroke_linejoin))
-								(push l p1 p2))
-							(:t ;open
-								(push l (path-stroke-polyline p (* 0.5 stroke_width)
-									stroke_linejoin stroke_linecap stroke_linecap)))))
-							paths (list)))))))
+							(cond
+								(f	;closed
+									(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width)
+											stroke_linejoin))
+									(push l p1 p2))
+								(:t ;open
+									(push l (path-stroke-polyline p (* 0.5 stroke_width)
+											stroke_linejoin stroke_linecap stroke_linecap)))))
+						paths (list)))))))
 
 (defun SVG-load (stream &optional scale)
 	; (SVG-load stream [scale]) -> :nil | canvas
 	(setq scale (n2f (ifn scale 1)))
 	(defq canvas :nil stack
-		(list (scatter (Lmap)
-			;this block of defaults are in order !
-			"stroke" 0
-			"fill" +argb_black
-			"stroke-width" 1.0
-			"stroke-linecap" +cap_butt
-			"stroke-linejoin" +join_miter
-			"fill-rule" +winding_none_zero
-			"fill-opacity" 1.0
-			"stroke-opacity" 1.0
-			"transform" (mat3x2-scale scale)
-			;this block can be any order
-			"d" (path) "points" (path)
-			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
-			"cx" 0.0 "cy" 0.0 "r" 0.0
-			"text-anchor" "start" "dominant-baseline" "auto"
-			"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular"
-			)))
+			(list (scatter (Lmap)
+					;this block of defaults are in order !
+					"stroke" 0
+					"fill" +argb_black
+					"stroke-width" 1.0
+					"stroke-linecap" +cap_butt
+					"stroke-linejoin" +join_miter
+					"fill-rule" +winding_none_zero
+					"fill-opacity" 1.0
+					"stroke-opacity" 1.0
+					"transform" (mat3x2-scale scale)
+					;this block can be any order
+					"d" (path) "points" (path)
+					"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
+					"cx" 0.0 "cy" 0.0 "r" 0.0
+					"text-anchor" "start" "dominant-baseline" "auto"
+					"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular")))
 	(XML-parse stream
 		(lambda (command keys vals)
 			(case command
 				("svg"
 					(bind '(w h vb) (gather (defq entry (push-attributes stack keys vals))
-						"width" "height" "viewBox"))
+							"width" "height" "viewBox"))
 					(defq x 0.0 y 0.0) (setd w 256.0 h 256.0)
 					(if vb (bind '(x y w h) vb))
 					(. (setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))
@@ -202,23 +201,23 @@
 					(. entry :insert "transform" (mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
 				("circle"
 					(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
-						"cx" "cy" "r"))
+							"cx" "cy" "r"))
 					(defq d (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
 					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("ellipse"
 					(bind '(cx cy rx ry) (gather (defq entry (push-attributes stack keys vals))
-						"cx" "cy" "rx" "ry"))
+							"cx" "cy" "rx" "ry"))
 					(setd rx ry ry rx)
 					(defq d (path-gen-ellipse cx cy rx ry (path)))
 					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("line"
 					(bind '(x1 y1 x2 y2) (gather (defq entry (push-attributes stack keys vals))
-						"x1" "y1" "x2" "y2"))
+							"x1" "y1" "x2" "y2"))
 					(defq d (path x1 y1 x2 y2))
 					(path-fill-and-stroke canvas entry (list (list :nil d))))
 				("rect"
 					(bind '(x y rx ry x1 y1) (gather (defq entry (push-attributes stack keys vals))
-						"x" "y" "rx" "ry" "width" "height"))
+							"x" "y" "rx" "ry" "width" "height"))
 					(setq x1 (+ x x1) y1 (+ y y1))
 					(setd rx ry ry rx)
 					(defq d (path-gen-rect x y x1 y1 rx ry (path)))
@@ -236,13 +235,11 @@
 						d (. entry :find "d"))
 					(path-fill-and-stroke canvas entry d))
 				(("text" "g")
-					(push-attributes stack keys vals))
-				))
+					(push-attributes stack keys vals))))
 		(lambda (command)
 			(case command
 				(("svg" "g" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect" "text")
-					(pop stack))
-				))
+					(pop stack))))
 		(lambda (text)
 			;render text (skip in TUI mode where fonts unavailable)
 			(when (get 'create-font)
@@ -263,7 +260,7 @@
 						("hanging" (n2f h))
 						(:t 0.0))
 					d (map (# (list :t (mat3x2-vec2-mul
-							(mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
+									(mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
 						(font-glyph-paths font text)))
 				(path-fill-and-stroke canvas entry d))))
 	;resize to final output
@@ -277,7 +274,7 @@
 		(lambda (command keys vals)
 			(when (eql command "svg")
 				(bind '(w h vb) (gather (defq entry (push-attributes stack keys vals))
-					"width" "height" "viewBox"))
+						"width" "height" "viewBox"))
 				(setd w 256.0 h 256.0)
 				(if vb (bind '(& & w h) vb))
 				(setq width w height h)))

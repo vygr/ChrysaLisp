@@ -8,8 +8,7 @@
 	(int i1)
 	(long l1)
 	(fixed f1)
-	(real r1)
-)
+	(real r1))
 
 (defq sobj (str-alloc +st_test_size))
 
@@ -30,20 +29,17 @@
 (setf-> sobj
 	(+st_test_b_sig 10)
 	(+st_test_s1 2000)
-	(+st_test_i1 3000000)
-)
+	(+st_test_i1 3000000))
 (defq res (getf-> sobj +st_test_b_sig +st_test_s1 +st_test_i1))
 (assert-list-eq "getf-> results" '(10 2000 3000000) res)
 
 ; --- Sub-structures ---
 (structure +st_inner 0
-	(int x y)
-)
+	(int x y))
 (structure +st_outer 0
 	(byte head)
 	(struct sub +st_inner_size)
-	(byte tail)
-)
+	(byte tail))
 
 (defq out_obj (str-alloc +st_outer_size))
 ; Access sub-struct field via nested getf (sub-structs present as strings)
@@ -62,8 +58,7 @@
 ; Collective macros on sub-struct
 (setf-> sub_obj
 	(+st_inner_x 700)
-	(+st_inner_y 800)
-)
+	(+st_inner_y 800))
 (setf out_obj +st_outer_sub sub_obj)
 
 (defq res (getf-> (getf out_obj +st_outer_sub) +st_inner_x +st_inner_y))
@@ -73,9 +68,8 @@
 ; cat a header and a payload, then setf the header fields
 (defq payload "DATA")
 (defq msg (setf-> (cat (str-alloc +st_test_size) payload)
-			(+st_test_b_sig 1)
-			(+st_test_s1 42)
-))
+		(+st_test_b_sig 1)
+		(+st_test_s1 42)))
 (assert-eq "msg header field" 1 (getf msg +st_test_b_sig))
 (assert-eq "msg header field 2" 42 (getf msg +st_test_s1))
 (assert-eq "msg payload" "DATA" (slice msg +st_test_size -1))
@@ -109,4 +103,3 @@
 (assert-eq "and is as long as its longest" 8 +ts_uu_in_c)
 (assert-eq "the outer is as long as the inner" 16 +ts_uu_tail)
 (assert-eq "and the size" 17 +ts_uu_size)
-

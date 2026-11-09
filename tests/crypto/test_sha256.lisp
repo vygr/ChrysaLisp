@@ -42,11 +42,11 @@
 
 ;added a part at a time, in parts of any size, it is the same hash
 (each (lambda (part)
-	(defq ctx (sha256-start) at 0)
-	(while (< at 200)
-		(sha256-add ctx (slice sha_text at (min 200 (+ at part))))
-		(setq at (+ at part)))
-	(assert-eq (cat "200 bytes, " (str part) " at a time") "2c7e18c942ef065b526a2d4e5546283749cd3ddfb51d8fc71f42717363685f46" (sha-hex (sha256-end ctx))))
+		(defq ctx (sha256-start) at 0)
+		(while (< at 200)
+			(sha256-add ctx (slice sha_text at (min 200 (+ at part))))
+			(setq at (+ at part)))
+		(assert-eq (cat "200 bytes, " (str part) " at a time") "2c7e18c942ef065b526a2d4e5546283749cd3ddfb51d8fc71f42717363685f46" (sha-hex (sha256-end ctx))))
 	'(1 3 63 64 65 127 199 200 500))
 
 ;what is hashed is not changed, and a hash can be taken twice

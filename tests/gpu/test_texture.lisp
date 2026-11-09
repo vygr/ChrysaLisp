@@ -29,18 +29,18 @@
 ;the language
 (assert-list-eq "a pixel shader says what textures it has, in order" '((pic) (more))
 	(shader-textures (tx-src "(deftexture pic)" "(deftexture more)"
-		"(defun main :vec4 ((frag :vec2)) (+ (texture pic frag) (texture more frag)))")))
+			"(defun main :vec4 ((frag :vec2)) (+ (texture pic frag) (texture more frag)))")))
 (assert-list-eq "and one with none has none" '()
 	(shader-textures (tx-src "(defun main :vec4 ((frag :vec2)) (vec4 1.0))")))
 (assert-list-eq "they are known from the head of a file alone" '((pic))
 	(shader-textures (shader-compile (shader-read (string-stream
-		"(deftexture pic) (defun main :vec4 ((frag :vec2)) (texture pic frag))")) :t)))
+					"(deftexture pic) (defun main :vec4 ((frag :vec2)) (texture pic frag))")) :t)))
 (assert-error "a texture is read at a vec2" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (texture pic 1.0))"))
 (assert-error "what is read is a texture" (tx-src "(defun main :vec4 ((frag :vec2)) (texture frag frag))"))
 (assert-error "a texture is no value for a local" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (defq a pic) (vec4 1.0))"))
 (assert-error "nor for sums" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (vec4 (+ pic 1.0)))"))
 (assert-error "nor to hand to a function" (tx-src "(deftexture pic)" "(defun f :float ((a :float)) a)"
-	"(defun main :vec4 ((frag :vec2)) (vec4 (f pic)))"))
+		"(defun main :vec4 ((frag :vec2)) (vec4 (f pic)))"))
 (assert-error "its name is its own" (tx-src "(deftexture pic)" "(definput pic :float)" "(defun main :vec4 ((frag :vec2)) (vec4 1.0))"))
 (assert-error "texture is a word of the language" (tx-src "(defun main :vec4 ((frag :vec2)) (defq texture 1.0) (vec4 1.0))"))
 (assert-error "a vertex shader has none" (tx-src "(deftexture pic)" "(defun main :vec4 () (vec4 1.0))"))
@@ -53,9 +53,9 @@
 (assert-eq "a tile of 16 by 8 is shaded" 128 (length tx_ref))
 (assert-true "every pixel of it is one the picture has"
 	(every (lambda (p) (some (lambda (i)
-			(defq c (tx-color i))
-			(eql (str p) (str (reals (/ (n2r (logand (>> c 16) 0xff)) (n2r 255)) (/ (n2r (logand (>> c 8) 0xff)) (n2r 255))
-				(/ (n2r (logand c 0xff)) (n2r 255)) (n2r 1))))) (range 0 32)))
+					(defq c (tx-color i))
+					(eql (str p) (str (reals (/ (n2r (logand (>> c 16) 0xff)) (n2r 255)) (/ (n2r (logand (>> c 8) 0xff)) (n2r 255))
+								(/ (n2r (logand c 0xff)) (n2r 255)) (n2r 1))))) (range 0 32)))
 		(list (first tx_ref) (elem-get tx_ref 37) (last tx_ref))))
 (assert-true "it goes round again outside 0 to 1, more than 8 of the 32 pixels are met, and more than once"
 	(< 8 (length (unique (map (const str) tx_ref))) 128))
@@ -63,10 +63,10 @@
 	(str tx_ref) (str tx_got))
 (assert-eq "a texture that is not given is no picture, and is nothing, in the reference"
 	"(0x0 0x0 0x0 0x0)" (str (first (apply (eval (shader-cpu tx_prog))
-		(cat (list 0 0 1 1) (shader-cpu-args tx_prog (list (list 'resolution '(16.0 8.0)))))))))
+				(cat (list 0 0 1 1) (shader-cpu-args tx_prog (list (list 'resolution '(16.0 8.0)))))))))
 (assert-eq "and in native code"
 	"(0x0 0x0 0x0 0x0)" (str (first (shader-vp-pixels tx_native
-		(shader-vp-frame tx_prog tx_native (list (list 'resolution '(16.0 8.0)))) 0 0 1 1))))
+				(shader-vp-frame tx_prog tx_native (list (list 'resolution '(16.0 8.0)))) 0 0 1 1))))
 
 ;triangles: a quad with the picture on it, by the pair as native code
 ;and by the reference
@@ -75,8 +75,8 @@
 	tx_pix (tx-src "(deftexture pic)" "(defvarying uv :vec2)"
 		"(defun main :vec4 ((frag :vec2)) (texture pic uv))")
 	tx_verts (apply (const reals) (map (const n2r) '(
-		-0.75 -0.75 0.0 0.0 1.0   0.75 -0.75 0.0 1.0 1.0   0.75 0.75 0.0 1.0 0.0
-		-0.75 -0.75 0.0 0.0 1.0   0.75 0.75 0.0 1.0 0.0   -0.75 0.75 0.0 0.0 0.0)))
+				-0.75 -0.75 0.0 0.0 1.0   0.75 -0.75 0.0 1.0 1.0   0.75 0.75 0.0 1.0 0.0
+				-0.75 -0.75 0.0 0.0 1.0   0.75 0.75 0.0 1.0 0.0   -0.75 0.75 0.0 0.0 0.0)))
 	tx_tris (nums 0 1 2 3 4 5) tx_soft (Canvas 32 32 1))
 (shader-vp-draw-tris (shader-vp-pipeline tx_vert tx_pix) tx_verts tx_tris (getf tx_soft +canvas_pixmap 0)
 	(shader-vp-depth 32 32) :nil (list (list 'pic tx_pixmap)) :t)

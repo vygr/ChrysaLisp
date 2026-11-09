@@ -216,4 +216,3 @@
 	(jump :lisp :repl_error `(,args "(perase props key [key] ...)" ,msg))
 
 (def-func-end)
-

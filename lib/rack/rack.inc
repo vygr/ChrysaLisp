@@ -39,11 +39,11 @@
 			(defq file (cat "/tmp/chrysalisp_" (str pid) ".session"))
 			(when (defq text (load file))
 				(each (lambda (line)
-					(defq parts (split line " "))
-					(cond
-						((< (length parts) 2))
-						((eql (first parts) "link") (pii-remove (cat "/tmp/" (second parts))))
-						((find (first parts) '("pid" "front")) (push todo (str-as-num (second parts))))))
+						(defq parts (split line " "))
+						(cond
+							((< (length parts) 2))
+							((eql (first parts) "link") (pii-remove (cat "/tmp/" (second parts))))
+							((find (first parts) '("pid" "front")) (push todo (str-as-num (second parts))))))
 					(split text "\n"))
 				(pii-remove file)))))
 
@@ -61,65 +61,65 @@
 	;the form has no space or tab in it, a node's args are split at those
 	(defq acc (list) tab "\v" machine (cat (cpu) "/" (os)))
 	(each (lambda (cmds)
-		;the name of this run, the session is told it as it is told its user
-		(defq run (cat "_" (str (pii-pid)) "_" (str (pii-time)))
-			cmds_file (cat +rack_cmds run) out_file (cat +rack_out run) alive_file (cat +rack_alive run))
-		(save (join cmds "\n") cmds_file)
-		(save (str (pii-time)) alive_file)
-		;a desktop of a run is hidden, it draws and is grabbed but is never
-		;seen and never takes the input of whoever is at the machine, Chris:
-		;"It can come up and down as much as it wants and it never steals my
-		;input etc ? We get to work on the same desktop with no issues."
-		(defq pid (pii-spawn (cat (if gui "-hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
-			(if gui (cat tab "(def" tab "*root_env*" tab "'*rack_gui*" tab ":t)") "")
-			(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
-			;a run keeps to itself, the member is what is in the mesh
-			tab "(def" tab "*root_env*" tab "'*env_node_solo*" tab ":t)"
-			tab "(import" tab "{lib/rack/session.lisp}))")))
-		;the session's last line is how long it took, "[12s]". The file is
-		;there before it is all written, so it is that line that is waited
-		;for, not the file: taken as soon as it was there, it could be empty.
-		;The whole suite on the Pi was 105s to 145s; with every app opened
-		;three times on a desktop of its own, tests -a, it is 310s to 370s,
-		;past the 340s this was. Under the 1770s the asker waits for the reply,
-		;only a run that has died: one that hangs shows where, line by line
-		(defq t0 (pii-time) res :nil done "s]\n" told 0 beat 0 quiet 30
-			asker_node (if asker (slice asker +mailbox_id_size -1)) seen (pii-time)
-			said (lambda (text) (if asker (mail-send asker (cat "LINE " machine " RACK " text "\n")))))
-		;said at once either way: a run of tests may say nothing of its own
-		;for a minute, the first after a build on a small machine
-		(said (if (< pid 0) "session could not be started" "session started"))
-		(while (and (not (and (setq res (load out_file)) (ends-with done res)))
-				(< (- (pii-time) t0) 1740000000)
-				;the session is still there, one that died says so below
-				(> pid 0) (pii-alive pid)
-				;the one that asked is still there, or it is let go: gone for 30
-				;seconds, not a moment, as a test that makes and drops links on
-				;its machine can hide it from the routes for one
-				(or (not asker_node) (and (find asker_node (lisp-nodes)) (setq seen (pii-time)))
-					(< (- (pii-time) seen) 30000000)))
-			;a session that has said nothing at all is said to be quiet, at 30
-			;seconds and each time it is as long again: a machine whose run
-			;never starts is seen to be so, not waited for
-			(when (and (not res) (> (- (pii-time) t0) (* quiet 1000000)))
-				(said (cat "session not started after " (str quiet) "s"))
-				(setq quiet (* quiet 2)))
-			;what is new of what it said, to the one that asked, whole lines
-			;each with the machine it is of, as several come at once
-			(when (and asker res (> (length res) told)
-					;just past the last whole line, (rfind) is past what it finds
-					(defq cut (rfind "\n" res)) (> cut told))
-				(mail-send asker (cat "LINE " (apply (const cat) (map (# (cat machine " " %0 "\n"))
-					(split (slice res told (dec cut)) "\n")))))
-				(setq told cut))
-			(when (> (- (pii-time) beat) 1000000)
-				(save (str (setq beat (pii-time))) alive_file))
-			(task-sleep 100000))
-		(unless (and res (ends-with done res))
-			(and (> pid 0) (not (pii-alive pid)) (said "session ended with no result"))
-			(setq res :nil))
-		(each (# (if (pii-fstat %0) (pii-remove %0))) (list cmds_file out_file alive_file))
-		(push acc (ifn res "NO RESULT\n")))
+			;the name of this run, the session is told it as it is told its user
+			(defq run (cat "_" (str (pii-pid)) "_" (str (pii-time)))
+				cmds_file (cat +rack_cmds run) out_file (cat +rack_out run) alive_file (cat +rack_alive run))
+			(save (join cmds "\n") cmds_file)
+			(save (str (pii-time)) alive_file)
+			;a desktop of a run is hidden, it draws and is grabbed but is never
+			;seen and never takes the input of whoever is at the machine, Chris:
+			;"It can come up and down as much as it wants and it never steals my
+			;input etc ? We get to work on the same desktop with no issues."
+			(defq pid (pii-spawn (cat (if gui "-hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
+						(if gui (cat tab "(def" tab "*root_env*" tab "'*rack_gui*" tab ":t)") "")
+						(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
+						;a run keeps to itself, the member is what is in the mesh
+						tab "(def" tab "*root_env*" tab "'*env_node_solo*" tab ":t)"
+						tab "(import" tab "{lib/rack/session.lisp}))")))
+			;the session's last line is how long it took, "[12s]". The file is
+			;there before it is all written, so it is that line that is waited
+			;for, not the file: taken as soon as it was there, it could be empty.
+			;The whole suite on the Pi was 105s to 145s; with every app opened
+			;three times on a desktop of its own, tests -a, it is 310s to 370s,
+			;past the 340s this was. Under the 1770s the asker waits for the reply,
+			;only a run that has died: one that hangs shows where, line by line
+			(defq t0 (pii-time) res :nil done "s]\n" told 0 beat 0 quiet 30
+				asker_node (if asker (slice asker +mailbox_id_size -1)) seen (pii-time)
+				said (lambda (text) (if asker (mail-send asker (cat "LINE " machine " RACK " text "\n")))))
+			;said at once either way: a run of tests may say nothing of its own
+			;for a minute, the first after a build on a small machine
+			(said (if (< pid 0) "session could not be started" "session started"))
+			(while (and (not (and (setq res (load out_file)) (ends-with done res)))
+					(< (- (pii-time) t0) 1740000000)
+					;the session is still there, one that died says so below
+					(> pid 0) (pii-alive pid)
+					;the one that asked is still there, or it is let go: gone for 30
+					;seconds, not a moment, as a test that makes and drops links on
+					;its machine can hide it from the routes for one
+					(or (not asker_node) (and (find asker_node (lisp-nodes)) (setq seen (pii-time)))
+						(< (- (pii-time) seen) 30000000)))
+				;a session that has said nothing at all is said to be quiet, at 30
+				;seconds and each time it is as long again: a machine whose run
+				;never starts is seen to be so, not waited for
+				(when (and (not res) (> (- (pii-time) t0) (* quiet 1000000)))
+					(said (cat "session not started after " (str quiet) "s"))
+					(setq quiet (* quiet 2)))
+				;what is new of what it said, to the one that asked, whole lines
+				;each with the machine it is of, as several come at once
+				(when (and asker res (> (length res) told)
+						;just past the last whole line, (rfind) is past what it finds
+						(defq cut (rfind "\n" res)) (> cut told))
+					(mail-send asker (cat "LINE " (apply (const cat) (map (# (cat machine " " %0 "\n"))
+									(split (slice res told (dec cut)) "\n")))))
+					(setq told cut))
+				(when (> (- (pii-time) beat) 1000000)
+					(save (str (setq beat (pii-time))) alive_file))
+				(task-sleep 100000))
+			(unless (and res (ends-with done res))
+				(and (> pid 0) (not (pii-alive pid)) (said "session ended with no result"))
+				(setq res :nil))
+			(each (# (if (pii-fstat %0) (pii-remove %0))) (list cmds_file out_file alive_file))
+			(push acc (ifn res "NO RESULT\n")))
 		phases)
 	(apply (const cat) (cat (list "") acc)))
 
@@ -149,44 +149,44 @@
 		phases (if make_first (list (list "make" "make all boot" "make apps") cmdlines) (list cmdlines)))
 	(setd leave_out (list) gone (list) skip (list))
 	(defq skipped? (lambda (id machine)
-		(or (find machine skip)
-			(and only (notany (# (starts-with (to-upper %0) id)) only)))))
+			(or (find machine skip)
+				(and only (notany (# (starts-with (to-upper %0) id)) only)))))
 	(each (lambda ((svc id machine root))
 			(if (skipped? id machine) (push out (cat "SKIP " machine " " (slice id 0 8) " not made the same, not run"))))
 		(filter (# (nql (second %0) me)) (sync-services)))
 	(each (lambda ((svc id machine root))
-		;the hashes of the system's tree are kept from run to run, in obj/
-		(defq t1 (pii-time) result (sync-push svc tree rules_text :nil :nil
-			(sync-kept tree) (sync-no-modes? machine)))
-		(push out (cond
-			((not result) (cat "SYNC " machine " no answer"))
-			((eql result :old) (setq result :nil) (cat "SYNC " machine " no answer, it has an older sync"))
-			((eql result :refused) (setq result :nil) (cat "SYNC " machine " refused, it takes nothing from this machine, its sync_from"))
-			(:t (cat "SYNC " machine " " (str (first result)) " sent " (str (second result)) " bytes "
-				(str (elem-get result 3)) " failed " (str (/ (- (pii-time) t1) 1000)) "ms"))))
-		;what was deleted here is removed there, those files and no others
-		(when (and result (nempty? gone))
-			(defq removed 0)
-			(each (lambda (path)
-				(sync-tell svc reply_mbox +sync_type_del path)
-				(and (defq reply (sync-hear reply_mbox 5000000)) (= (first reply) 0)
-					(setq removed (inc removed))))
-				gone)
-			(push out (cat "GONE " machine " " (str removed) " of " (str (length gone)) " removed")))
-		(and result (= (elem-get result 3) 0) (push ran (list id machine))))
+			;the hashes of the system's tree are kept from run to run, in obj/
+			(defq t1 (pii-time) result (sync-push svc tree rules_text :nil :nil
+					(sync-kept tree) (sync-no-modes? machine)))
+			(push out (cond
+					((not result) (cat "SYNC " machine " no answer"))
+					((eql result :old) (setq result :nil) (cat "SYNC " machine " no answer, it has an older sync"))
+					((eql result :refused) (setq result :nil) (cat "SYNC " machine " refused, it takes nothing from this machine, its sync_from"))
+					(:t (cat "SYNC " machine " " (str (first result)) " sent " (str (second result)) " bytes "
+							(str (elem-get result 3)) " failed " (str (/ (- (pii-time) t1) 1000)) "ms"))))
+			;what was deleted here is removed there, those files and no others
+			(when (and result (nempty? gone))
+				(defq removed 0)
+				(each (lambda (path)
+						(sync-tell svc reply_mbox +sync_type_del path)
+						(and (defq reply (sync-hear reply_mbox 5000000)) (= (first reply) 0)
+							(setq removed (inc removed))))
+					gone)
+				(push out (cat "GONE " machine " " (str removed) " of " (str (length gone)) " removed")))
+			(and result (= (elem-get result 3) 0) (push ran (list id machine))))
 		(filter (# (and (nql (second %0) me) (not (skipped? (second %0) (third %0))))) (sync-services)))
 	(each (lambda ((id machine))
-		(defq nodes (if (eql id me) (list (task-nodeid)) (lisp-nodes (hex-decode id))))
-		(cond
-			((find machine leave_out) (push out (cat "RAN " machine " left out, not run")))
-			((empty? nodes) (push out (cat "RAN " machine " no node of it is known")))
-			(:t (open-task (str `(progn
-					(import "lib/rack/rack.inc")
-					(mail-send (hex-decode ,(hex-encode reply_mbox))
-						(cat ,machine "\n" (rack-fresh (quote ,phases) ,user ,gui
-							(hex-decode ,(hex-encode reply_mbox)))))))
-					(first nodes) +kn_call_pin 0 (mail-mbox))
-				(setq asked (inc asked)))))
+			(defq nodes (if (eql id me) (list (task-nodeid)) (lisp-nodes (hex-decode id))))
+			(cond
+				((find machine leave_out) (push out (cat "RAN " machine " left out, not run")))
+				((empty? nodes) (push out (cat "RAN " machine " no node of it is known")))
+				(:t (open-task (str `(progn
+								(import "lib/rack/rack.inc")
+								(mail-send (hex-decode ,(hex-encode reply_mbox))
+									(cat ,machine "\n" (rack-fresh (quote ,phases) ,user ,gui
+											(hex-decode ,(hex-encode reply_mbox)))))))
+						(first nodes) +kn_call_pin 0 (mail-mbox))
+					(setq asked (inc asked)))))
 		ran)
 	(defq replies (list) t2 (pii-time))
 	;what sessions say as they go, to said, and what each came back with
@@ -197,14 +197,14 @@
 			((push replies reply))))
 	(times (- asked (length replies)) (push out "RAN no reply"))
 	(each (lambda (reply)
-		(push out (cond
-			(all (cat "RAN " reply))
-			;the lines that say how it went, the rest is the session's chatter,
-			;and a run of tests' progress, its =p= lines, a line a module
-			((cat "RAN " (join (filter (# (and (not (starts-with "=p=" %0))
-					(or (found? %0 "Modules") (found? %0 "Passed") (found? %0 "Failed")
-					(found? %0 "FAIL") (found? %0 "rror") (found? %0 "boot_image") (found? %0 "/")
-					(found? %0 "RESULT") (starts-with "[" %0))))
-				(split reply "\n")) " "))))))
+			(push out (cond
+					(all (cat "RAN " reply))
+					;the lines that say how it went, the rest is the session's chatter,
+					;and a run of tests' progress, its =p= lines, a line a module
+					((cat "RAN " (join (filter (# (and (not (starts-with "=p=" %0))
+											(or (found? %0 "Modules") (found? %0 "Passed") (found? %0 "Failed")
+												(found? %0 "FAIL") (found? %0 "rror") (found? %0 "boot_image") (found? %0 "/")
+												(found? %0 "RESULT") (starts-with "[" %0))))
+									(split reply "\n")) " "))))))
 		replies)
 	(push out (cat "DONE " (str (/ (- (pii-time) t0) 1000)) "ms")))

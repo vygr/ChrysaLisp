@@ -5,7 +5,6 @@
 (import "service/source/app.inc")
 (import "./app.inc")
 
-
 (enums +select 0
 	(enum main task reply nodes))
 

@@ -64,7 +64,7 @@
 
 ;the outline of a stroke is as far from the line as it is asked to be
 (defq fp_out (path-stroke-polygons (list) 0.5 +join_miter
-	(list (path 40.0 40.0 100.0 40.0 100.0 100.0 40.0 100.0))))
+		(list (path 40.0 40.0 100.0 40.0 100.0 100.0 40.0 100.0))))
 (assert-eq "a stroke 1.0 wide round a box has an outer edge half a pixel out"
 	"(39.50000 100.50000)"
 	(str (list (reduce (const min) (first fp_out)) (reduce (const max) (first fp_out)))))
@@ -77,8 +77,8 @@
 	(defq canvas (Canvas 140 140 1) stream (memory-stream))
 	(. canvas :set_canvas_flags flags)
 	(.-> canvas (:set_color +argb_white) (:fpoly 0.0 0.0 +winding_none_zero
-		(path-stroke-polygons (list) (* width 0.5) +join_miter
-			(list (path 40.0 40.0 100.0 40.0 100.0 100.0 40.0 100.0)))))
+			(path-stroke-polygons (list) (* width 0.5) +join_miter
+				(list (path 40.0 40.0 100.0 40.0 100.0 100.0 40.0 100.0)))))
 	(pixmap-write (getf canvas +canvas_pixmap 0) stream 32)
 	(stream-seek stream 0 0)
 	(defq d (read-blk stream 1000000) off (- (length d) (* 140 140 4)))
@@ -131,22 +131,22 @@
 			(range 0 120))))
 
 (each (lambda (flags)
-	(each (lambda (mode)
-		(defq what (cat (if (= flags 0) "hard" "soft") " edges, " (if (eql mode +winding_odd_even) "odd even" "non zero") ": ")
-			h (second fp_bounds) y (n2f h)
-			want (fp-hash (first fp_bounds) h flags mode y fp_glyphs))
-		(assert-eq (cat what "a line of text is the same with its glyphs right to left")
-			want (fp-hash (first fp_bounds) h flags mode y (reverse fp_glyphs)))
-		(assert-eq (cat what "and in any order")
-			want (fp-hash (first fp_bounds) h flags mode y (fp-mix fp_glyphs)))
-		(setq want (fp-hash 400 200 flags mode 0.0 fp_boxes))
-		(assert-eq (cat what "300 boxes that overlap are the same the other way round")
-			want (fp-hash 400 200 flags mode 0.0 (reverse fp_boxes)))
-		(assert-eq (cat what "and in any order")
-			want (fp-hash 400 200 flags mode 0.0 (fp-mix fp_boxes)))
-		(assert-eq (cat what "120 lines that cross are the same in any order")
-			(fp-hash 400 200 flags mode 0.0 fp_lines) (fp-hash 400 200 flags mode 0.0 (fp-mix fp_lines))))
-		(list +winding_odd_even +winding_none_zero)))
+		(each (lambda (mode)
+				(defq what (cat (if (= flags 0) "hard" "soft") " edges, " (if (eql mode +winding_odd_even) "odd even" "non zero") ": ")
+					h (second fp_bounds) y (n2f h)
+					want (fp-hash (first fp_bounds) h flags mode y fp_glyphs))
+				(assert-eq (cat what "a line of text is the same with its glyphs right to left")
+					want (fp-hash (first fp_bounds) h flags mode y (reverse fp_glyphs)))
+				(assert-eq (cat what "and in any order")
+					want (fp-hash (first fp_bounds) h flags mode y (fp-mix fp_glyphs)))
+				(setq want (fp-hash 400 200 flags mode 0.0 fp_boxes))
+				(assert-eq (cat what "300 boxes that overlap are the same the other way round")
+					want (fp-hash 400 200 flags mode 0.0 (reverse fp_boxes)))
+				(assert-eq (cat what "and in any order")
+					want (fp-hash 400 200 flags mode 0.0 (fp-mix fp_boxes)))
+				(assert-eq (cat what "120 lines that cross are the same in any order")
+					(fp-hash 400 200 flags mode 0.0 fp_lines) (fp-hash 400 200 flags mode 0.0 (fp-mix fp_lines))))
+			(list +winding_odd_even +winding_none_zero)))
 	'(0 1))
 
 ;a line of 2,000 characters, 3,000 paths and 120,000 points, was 8 seconds on

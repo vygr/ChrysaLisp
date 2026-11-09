@@ -20,9 +20,9 @@
 
 ;a mouse down as a driver gives it
 (defq msg (setf-> (str-alloc 32)
-	(+gui_event_type +gui_ev_mouse_down)
-	(+gui_event_x -5) (+gui_event_y 20)
-	(+gui_event_buttons 3) (+gui_event_count 2)))
+		(+gui_event_type +gui_ev_mouse_down)
+		(+gui_event_x -5) (+gui_event_y 20)
+		(+gui_event_buttons 3) (+gui_event_count 2)))
 (assert-list-eq "event read back" (list +gui_ev_mouse_down -5 20 3 2)
 	(getf-> msg +gui_event_type +gui_event_x +gui_event_y +gui_event_buttons +gui_event_count))
 
@@ -38,7 +38,7 @@
 	(def this :got (list))
 	(defmethod :pointer (event)
 		(push (get :got this) (list (getf event +ev_msg_pointer_id) (getf event +ev_msg_pointer_kind)
-			(getf event +ev_msg_pointer_buttons) (getf event +ev_msg_pointer_rx) (getf event +ev_msg_pointer_ry)))
+				(getf event +ev_msg_pointer_buttons) (getf event +ev_msg_pointer_rx) (getf event +ev_msg_pointer_ry)))
 		this))
 (defclass Ge-mouse () (View)
 	(def this :got (list))
@@ -51,10 +51,10 @@
 (defun ge-send (view id kind buttons rx ry)
 	;a pointer event as the GUI service sends one, to the window that has the view
 	(. ge_window :event (setf-> (str-alloc +ev_msg_pointer_size)
-		(+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. view :get_id))
-		(+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons)
-		(+ev_msg_pointer_pressure 65535) (+ev_msg_pointer_contact (if (= buttons 0) 0 1)) (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry)
-		(+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))
+			(+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. view :get_id))
+			(+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons)
+			(+ev_msg_pointer_pressure 65535) (+ev_msg_pointer_contact (if (= buttons 0) 0 1)) (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry)
+			(+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))
 
 (ge-send ge_pointer 0x10001 +gui_kind_touch 1 10 20)
 (ge-send ge_pointer 0x20001 +gui_kind_pen 1 30 40)
@@ -78,7 +78,6 @@
 (ge-send ge_mouse 0x20001 +gui_kind_pen 0 50 50)
 (assert-list-eq "a pen with the button of its barrel held is the right button" '((:down 4 50) (:up 0 50)) (get :got ge_mouse))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a pen or a finger, as the GUI service takes it from the host's driver
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -101,7 +100,7 @@
 	;has no buttons, and what was sent to the owner of the view: whether it
 	;touches is from its down and up
 	(defq msg (setf-> (str-alloc +gui_event_size) (+gui_event_type type) (+gui_event_x x) (+gui_event_y y)
-		(+gui_event_id id) (+gui_event_kind +gui_kind_touch) (+gui_event_buttons 0) (+gui_event_pressure 65535)))
+			(+gui_event_id id) (+gui_event_kind +gui_kind_touch) (+gui_event_buttons 0) (+gui_event_pressure 65535)))
 	(defq threw (catch (progn ((. *event_map* :find type)) :nil) (str _)))
 	(cond
 		(threw)
@@ -139,8 +138,8 @@
 	(defq msg (setf-> (str-alloc +gui_event_size) (+gui_event_type +gui_ev_mouse_wheel) (+gui_event_x 0) (+gui_event_y (ifn dy 1))) out (list))
 	((. *event_map* :find +gui_ev_mouse_wheel))
 	(each (lambda (mbox name)
-		(while (mail-poll (list mbox))
-			(if (= (getf (mail-read mbox) +ev_msg_type) +ev_type_wheel) (push out name))))
+			(while (mail-poll (list mbox))
+				(if (= (getf (mail-read mbox) +ev_msg_type) +ev_type_wheel) (push out name))))
 		(list ga_mbox ga_mbox2) '(:first :second))
 	out)
 ;"at once" is to be at once: a machine that held this task longer than the

@@ -13,13 +13,13 @@
 ;the apps too, their VP made here and not as each is first run
 (defq errors 0)
 (each (# (pipe-run %0
-		(lambda (line) (prin line) (stream-flush (io-stream "stdout"))
-			(if (found? line "Error") (++ errors)))))
+			(lambda (line) (prin line) (stream-flush (io-stream "stdout"))
+				(if (found? line "Error") (++ errors)))))
 	'("make -v 1 all boot | time -s" "make apps | time -s"))
 (print)
 (defq files (load (boot-files-file (cpu) (abi)))
 	built (and files (eql (trim (ifn (load (boot-id-file (cpu) (abi))) ""))
-		(boot-id-of (filter (const nempty?) (split files "\n"))))))
+			(boot-id-of (filter (const nempty?) (split files "\n"))))))
 (when (or (> errors 0) (not built))
 	(save (if built "errors" "no image") "obj/install_failed")
 	(print "Install failed: " (if (> errors 0) (cat (str errors) " errors in the build") "no native boot image of this source"))

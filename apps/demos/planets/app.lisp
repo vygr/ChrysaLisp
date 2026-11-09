@@ -71,21 +71,21 @@
 	;east goes round to the right as seen from outside, as a map has it.
 	;A triangle goes round counter clockwise as seen from outside
 	(defq out (list) rows (map (lambda (r)
-		(defq theta (/ (* +real_pi (n2r r)) (n2r rings)) st (sin theta) ct (cos theta))
-		(map (lambda (s)
-			(defq phi (/ (* +real_2pi (n2r s)) (n2r segs)))
-			(list (* st (sin phi)) ct (* st (cos phi))
-				(/ (n2r s) (n2r segs)) (/ (n2r r) (n2r rings))))
-			(range 0 (inc segs))))
-		(range 0 (inc rings))))
+				(defq theta (/ (* +real_pi (n2r r)) (n2r rings)) st (sin theta) ct (cos theta))
+				(map (lambda (s)
+						(defq phi (/ (* +real_2pi (n2r s)) (n2r segs)))
+						(list (* st (sin phi)) ct (* st (cos phi))
+							(/ (n2r s) (n2r segs)) (/ (n2r r) (n2r rings))))
+					(range 0 (inc segs))))
+			(range 0 (inc rings))))
 	(each (lambda (r)
-		(each (lambda (s)
-			(defq a (elem-get (elem-get rows r) s) b (elem-get (elem-get rows (inc r)) s)
-				c (elem-get (elem-get rows (inc r)) (inc s)) d (elem-get (elem-get rows r) (inc s)))
-			;at a pole a quad is a triangle, the other has no area
-			(if (< r (dec rings)) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a b c)))
-			(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d))))
-			(range 0 segs)))
+			(each (lambda (s)
+					(defq a (elem-get (elem-get rows r) s) b (elem-get (elem-get rows (inc r)) s)
+						c (elem-get (elem-get rows (inc r)) (inc s)) d (elem-get (elem-get rows r) (inc s)))
+					;at a pole a quad is a triangle, the other has no area
+					(if (< r (dec rings)) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a b c)))
+					(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d))))
+				(range 0 segs)))
 		(range 0 rings))
 	(apply (const reals) out))
 
@@ -125,7 +125,7 @@
 	(when (and gpu_want gpu_pair (defq tid (shader-gui-texture (globe-map which))))
 		(unless gpu_mesh (setq gpu_mesh (shader-gui-mesh (shader-verts-str verts))))
 		(defq drawn (shader-gui-frame *canvas* (list (list gpu_pair (ifn gpu_mesh 0)
-			(shader-pack vertex vvals) (shader-pack pixel (list (list 'sun sun))) (list tid)))))
+						(shader-pack vertex vvals) (shader-pack pixel (list (list 'sun sun))) (list tid)))))
 		(cond
 			((eql drawn :error)
 				;a pair the driver could not build is still let go of
@@ -145,12 +145,12 @@
 	;ready
 	(defq count (. farm :size)
 		draws (list (list 0 (shader-pack vertex vvals) (shader-pack pixel (list (list 'sun sun)))
-			0 +size (list (ifn (shader-strip-texture (globe-map which)) "")))))
+				0 +size (list (ifn (shader-strip-texture (globe-map which)) "")))))
 	(. farm :add (map (lambda (i)
-			(shader-strip (cat *app_root* "globe_vertex.shader") (cat *app_root* "globe_lit.shader")
-				(elem-get select +select_farm_ask) (canvas-key *canvas*) +size +size
-				(if rows (/ (* i +size) count) 0) (if rows (/ (* (inc i) +size) count) 0) :t draws))
-		(range 0 count))))
+				(shader-strip (cat *app_root* "globe_vertex.shader") (cat *app_root* "globe_lit.shader")
+					(elem-get select +select_farm_ask) (canvas-key *canvas*) +size +size
+					(if rows (/ (* i +size) count) 0) (if rows (/ (* (inc i) +size) count) 0) :t draws))
+			(range 0 count))))
 
 (defun draw-farm (vvals)
 	; (draw-farm vvals) -> :t | :nil
@@ -164,8 +164,8 @@
 				;a child for each node but this one, and none of them on
 				;this one, a strip is one long call and would hold up the app
 				(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
-					(elem-get select +select_farm_reply)
-					(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)
+						(elem-get select +select_farm_reply)
+						(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)
 					farm_asked :t)
 				(strips vvals :nil))
 			((or (not (or farm_ready farm_asked))
@@ -271,12 +271,12 @@
 					;drawn here it says how long one took
 					(defq tenths (if (> cpu_frames 0) (/ cpu_time cpu_frames 100) 0))
 					(. *status* :set_text (cat (first (elem-get +planets which)) ", "
-						(str (/ (* frames 1000000) (- now since))) " frames a second, "
-						(if (> cpu_frames 0)
-							(cat "native code, " (if (and farm farm_ready (not no_farm))
-									(cat "a strip each by " (str (. farm :size)) " nodes, ") "on this node, ")
-								(str (/ tenths 10)) "." (str (% tenths 10)) "ms a frame")
-							"the GPU")))
+							(str (/ (* frames 1000000) (- now since))) " frames a second, "
+							(if (> cpu_frames 0)
+								(cat "native code, " (if (and farm farm_ready (not no_farm))
+										(cat "a strip each by " (str (. farm :size)) " nodes, ") "on this node, ")
+									(str (/ tenths 10)) "." (str (% tenths 10)) "ms a frame")
+								"the GPU")))
 					(setq frames 0 since now cpu_time 0 cpu_frames 0)))))
 	(if farm (. farm :close))
 	(if gpu_mesh (canvas-mesh-destroy gpu_mesh))

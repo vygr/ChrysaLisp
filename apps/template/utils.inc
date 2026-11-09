@@ -7,5 +7,5 @@
 
 (defun random-color ()
 	(defq colors (list +argb_red +argb_green +argb_blue
-		+argb_magenta +argb_cyan +argb_yellow))
+			+argb_magenta +argb_cyan +argb_yellow))
 	(elem-get colors (random (length colors))))

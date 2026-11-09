@@ -53,7 +53,7 @@
 		(defq em (second opened) info (cat prefix digest) pad (- (length em) (length info) 3))
 		(and (>= pad 8)
 			(eql em (cat (char 0) (char 1) (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 pad)))
-				(char 0) info)))))
+					(char 0) info)))))
 
 (defun rsa-xor (a b)
 	; (rsa-xor a b) -> str

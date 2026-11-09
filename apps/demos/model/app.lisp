@@ -62,7 +62,7 @@
 		(ui-tool-bar *tools* ()
 			(ui-buttons (+sym_open) +event_open))
 		(. (ui-textfield *url* (:paper +argb_white :clear_text "" :min_width 240
-			:hint_text "or an https:// address, of a .zip or an .obj")) :connect +event_url)
+					:hint_text "or an https:// address, of a .zip or an .obj")) :connect +event_url)
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -128,7 +128,7 @@
 					(filter (# (canvas-loader-of (to-lower %0))) (map (const first) entries)))))
 		(:t (defq folder (slice path 0 (ifn (rfind "/" path) 0)))
 			(list data (if remote `(lambda (name) (,model-fetch (cat ,folder name)))
-				`(lambda (name) (load (cat ,folder name)))) (list)))))
+					`(lambda (name) (load (cat ,folder name)))) (list)))))
 
 (defun model-picture (name bytes)
 	; (model-picture name bytes) -> :nil | canvas
@@ -152,8 +152,8 @@
 		(bind '(text named pictures) source)
 		;each file it names had the once, two materials may name one picture
 		(defq got (Fmap 11) fetch (lambda (file)
-			(unless (. got :find file) (. got :insert file (list (named file))))
-			(first (. got :find file))))
+				(unless (. got :find file) (. got :insert file (list (named file))))
+				(first (. got :find file))))
 		(defq obj (obj-read (string-stream text)) materials (Fmap 11) fit (obj-fit obj) out (list) count 0)
 		(each (lambda (library)
 				(if (defq mtl (fetch library))
@@ -167,7 +167,7 @@
 					(fetch lone_name)))
 			;one given, for a model that names none
 			lone (or lone (and picture (notany (# (and (defq m (. materials :find (first %0))) (. m :find :map))) (. obj :find :groups))
-				(model-picture picture (model-fetch picture)))))
+					(model-picture picture (model-fetch picture)))))
 		(each (lambda ((material corners))
 				(defq said (. materials :find material) picture lone
 					;a picture is its colour, at full
@@ -180,7 +180,7 @@
 				(defq verts (obj-flat obj corners fit) n (/ (length verts) 8))
 				(setq count (+ count (/ n 3)))
 				(push out (list verts (apply (const nums) (range 0 n)) (ifn picture (model-plain))
-					(apply (const reals) tint) :nil)))
+						(apply (const reals) tint) :nil)))
 			(. obj :find :groups))
 		(when (nempty? out)
 			;what the GPU kept of the last is let go of
@@ -230,9 +230,9 @@
 	(when (and gpu_want gpu_pair (every (# (shader-gui-texture (elem-get %0 2))) parts))
 		(each (# (unless (elem-get %0 4) (elem-set %0 4 (shader-gui-mesh (shader-verts-str (first %0)))))) parts)
 		(defq drawn (shader-gui-frame *canvas* (map (lambda ((verts tris canvas tint mesh))
-				(list gpu_pair (ifn mesh 0) (shader-pack vertex vvals)
-					(shader-pack pixel (list (list 'tint tint) (list 'sun sun))) (list (shader-gui-texture canvas))))
-			parts)))
+						(list gpu_pair (ifn mesh 0) (shader-pack vertex vvals)
+							(shader-pack pixel (list (list 'tint tint) (list 'sun sun))) (list (shader-gui-texture canvas))))
+					parts)))
 		(cond
 			((eql drawn :error)
 				;a pair the driver could not build is still let go of

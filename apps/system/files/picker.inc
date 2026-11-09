@@ -26,8 +26,8 @@
 	(defq picker (open-child "apps/system/files/child.lisp" +kn_call_pin))
 	;each field something, (split) leaves out an empty one: * all kinds, - no app
 	(mail-send picker (cat reply title "|" (ifn root ".") "|" (if (nempty? (ifn kinds "")) kinds "*")
-		"|" (if save "save" "open") "|" (if (nempty? (ifn app "")) app "-") "|" (if names "names" "-")
-		"|" (if (nempty? (ifn places '())) (join places "\t") "-")))
+			"|" (if save "save" "open") "|" (if (nempty? (ifn app "")) app "-") "|" (if names "names" "-")
+			"|" (if (nempty? (ifn places '())) (join places "\t") "-")))
 	picker)
 
 (defun file-places-file ()
@@ -38,7 +38,7 @@
 	; (places-load) -> :nil | tree
 	;the user's places of every app, :nil if none kept
 	(defq file (file-places-file) tree (if (/= (age file) 0)
-		(with-read-lock file (tree-load (file-stream file)))))
+			(with-read-lock file (tree-load (file-stream file)))))
 	(and tree (eql (. tree :find :version) +places_version) tree))
 
 (defun places-of (app)

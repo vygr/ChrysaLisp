@@ -50,10 +50,10 @@
 		buf (str-alloc (* bw bh +int_size)) names (map (const first) (first program))
 		at_ox (* (find 'ox names) 8) at_oy (* (find 'oy names) 8) at_ow (* (find 'ow names) 8)
 		frame (shader-vp-frame program native (list
-			(list 'cx cx) (list 'cy cy) (list 'step (/ (* z +real_2) (n2r h)))
-			(list 'w w) (list 'h h) (list 'top top) (list 'base +mandel_pal_base)
-			(list 'rate +mandel_pal_rate) (list 'lbase +mandel_light_base)
-			(list 'lgain +mandel_light_gain) (list 'ss +mandel_samples)))
+				(list 'cx cx) (list 'cy cy) (list 'step (/ (* z +real_2) (n2r h)))
+				(list 'w w) (list 'h h) (list 'top top) (list 'base +mandel_pal_base)
+				(list 'rate +mandel_pal_rate) (list 'lbase +mandel_light_base)
+				(list 'lgain +mandel_light_gain) (list 'ss +mandel_samples)))
 		r 0 running :t inside 0 ix x iy y ix1 x1 iy1 y1)
 	(defq sq (list frame at_ox at_oy at_ow pal buf x y bw))
 	(while (and running (< (* r 2) bw) (< (* r 2) bh))
@@ -90,13 +90,13 @@
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox)
-		(if (kernel)
-			(apply mandel (getf-> msg +job_key +job_reply
-				+rect_x +rect_y +rect_x1 +rect_y1 +rect_w +rect_h +rect_shared +rect_top
-				+rect_pal +rect_cx +rect_cy +rect_z))
-			;a courtesy, so the farm need not wait: if this is lost its patience,
-			;(:refresh), has the child started again and the square back on the
-			;queue all the same
-			(mail-send (getf msg +job_reply) (setf-> (str-alloc +rect_reply_size)
-				(+job_reply_key (getf msg +job_key))
-				(+rect_reply_failed 1)))))))
+			(if (kernel)
+				(apply mandel (getf-> msg +job_key +job_reply
+						+rect_x +rect_y +rect_x1 +rect_y1 +rect_w +rect_h +rect_shared +rect_top
+						+rect_pal +rect_cx +rect_cy +rect_z))
+				;a courtesy, so the farm need not wait: if this is lost its patience,
+				;(:refresh), has the child started again and the square back on the
+				;queue all the same
+				(mail-send (getf msg +job_reply) (setf-> (str-alloc +rect_reply_size)
+						(+job_reply_key (getf msg +job_key))
+						(+rect_reply_failed 1)))))))

@@ -38,6 +38,6 @@
 			;do the jobs out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (str (first args)
-						" -j " opt_j
-						" " (slice (str %0) 1 -2)))
-					(partition jobs opt_j)))))))
+								" -j " opt_j
+								" " (slice (str %0) 1 -2)))
+						(partition jobs opt_j)))))))

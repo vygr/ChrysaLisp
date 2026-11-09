@@ -5,9 +5,9 @@
 	(defq mesh (exec (first (read (string-stream command))))
 		verts (. mesh :get_verts) norms (. mesh :get_norms) tris (. mesh :get_tris)
 		reply_msg (setf-> (str-alloc (+ +mesh_reply_size
-				(* (length verts) +long_size)
-				(* (length norms) +long_size)
-				(* (length tris) +long_size)))
+					(* (length verts) +long_size)
+					(* (length norms) +long_size)
+					(* (length tris) +long_size)))
 			(+job_reply_key key)
 			(+mesh_reply_num_verts (/ (length verts) +vec4_size))
 			(+mesh_reply_num_norms (/ (length norms) +vec3_size))
@@ -21,5 +21,5 @@
 
 (defun main ()
 	(job-child 1000000 (lambda (msg mbox)
-		(create-mesh (getf msg +job_key) (getf msg +job_reply)
-			(getf msg +mesh_name) (slice msg +mesh_command -1)))))
+			(create-mesh (getf msg +job_key) (getf msg +job_reply)
+				(getf msg +mesh_name) (slice msg +mesh_command -1)))))

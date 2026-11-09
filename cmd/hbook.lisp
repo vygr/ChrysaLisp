@@ -55,10 +55,10 @@
 			;do the jobs out there, by calling myself !
 			(each (const merge-work)
 				(pipe-farm (map (# (str (first args)
-						" -j " opt_j
-						" -t " opt_t
-						" " (slice (str %0) 1 -2)))
-					(partition jobs opt_j)))))
+								" -j " opt_j
+								" -t " opt_t
+								" " (slice (str %0) 1 -2)))
+						(partition jobs opt_j)))))
 		;write codebook if requested
 		(when opt_c
 			(with-write-lock opt_c
@@ -70,4 +70,3 @@
 					(setq cstream :nil))))
 		;output results
 		(tree-save (io-stream 'stdout) freq_map)))
-

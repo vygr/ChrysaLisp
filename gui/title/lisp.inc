@@ -27,5 +27,4 @@
 		(until (def? :is_window window)
 			(setq window (penv window)))
 		(. window :move_dirty (+ ax (get :drag_offx this)) (+ ay (get :drag_offy this)))
-		this)
-	)
+		this))

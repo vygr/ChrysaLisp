@@ -46,7 +46,7 @@
 (redefun action-file-leaf-action ()
 	;load up the file selected
 	(show-file (. *file_selector* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
+			(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 
 (redefun action-close ()
 	(setq *running* :nil))

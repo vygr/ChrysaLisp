@@ -28,15 +28,15 @@
 (defun mouse-type (view rx ry)
 	(if view
 		(defq mouse_type (case (pop (. view :type_of))
-			(:Title 13)
-			((:Vdu :Textfield) 2)
-			(:Slider 12)
-			(:Window
-				(case (if (= *mouse_buttons* 0)
-						(first (. view :drag_mode rx ry))
-						(get :drag_mode view))
-					(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (:t 0)))
-			(:t 0)))
+				(:Title 13)
+				((:Vdu :Textfield) 2)
+				(:Slider 12)
+				(:Window
+					(case (if (= *mouse_buttons* 0)
+							(first (. view :drag_mode rx ry))
+							(get :drag_mode view))
+						(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (:t 0)))
+				(:t 0)))
 		(defq mouse_type 0))
 	(when (or (/= *mouse_x* *old_mouse_x*)
 			(/= *mouse_y* *old_mouse_y*)
@@ -56,9 +56,9 @@
 	(when (and (nql child *mouse*) (defq mbox (. child :find_owner)))
 		(defq source_id (. child :get_id))
 		(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
-			(+ev_msg_type +ev_type_action)
-			(+ev_msg_target_id +event_close)
-			(+ev_msg_action_source_id source_id)))))
+				(+ev_msg_type +ev_type_action)
+				(+ev_msg_target_id +event_close)
+				(+ev_msg_action_source_id source_id)))))
 
 (defun close-apps (quit)
 	;send quit action to all GUI apps
@@ -147,12 +147,12 @@
 	;The back buffer has the last frame
 	(bind '(& & sw sh) (. *screen* :get_bounds))
 	(defq area (cond
-		((empty? want) (list 0 0 sw sh))
-		((starts-with "mouse " want)
-			(bind '(w h) (map! (const str-as-num) (list (split want " ")) 1 -1))
-			(setq w (min w sw) h (min h sh))
-			(list (max 0 (min (- sw w) (- *mouse_x* (/ w 2)))) (max 0 (min (- sh h) (- *mouse_y* (/ h 2)))) w h))
-		((starts-with "(" want) (first (read (string-stream want))))))
+			((empty? want) (list 0 0 sw sh))
+			((starts-with "mouse " want)
+				(bind '(w h) (map! (const str-as-num) (list (split want " ")) 1 -1))
+				(setq w (min w sw) h (min h sh))
+				(list (max 0 (min (- sw w) (- *mouse_x* (/ w 2)))) (max 0 (min (- sh h) (- *mouse_y* (/ h 2)))) w h))
+			((starts-with "(" want) (first (read (string-stream want))))))
 	(each (lambda (child)
 			(and (not area) (defq title (window-title child)) (found? title want)
 				(setq area (. child :get_bounds))))
@@ -198,13 +198,13 @@
 			(case idx
 				(+select_main	;main mailbox
 					(bind '(cmd view owner reply) (getf-> msg
-						+gui_rpc_type +gui_rpc_weak_view
-						+gui_rpc_owner_id +gui_rpc_reply_id))
+							+gui_rpc_type +gui_rpc_weak_view
+							+gui_rpc_owner_id +gui_rpc_reply_id))
 					;a view is an object of this node, by its address, only the
 					;requests of a view have one. Another's weak ref is of the
 					;sender's node, and a grab or a tree may be from another node
 					(setq view (if (find cmd (list +gui_rpc_type_sub +gui_rpc_type_add_front +gui_rpc_type_add_back))
-						(obj-ref view)))
+							(obj-ref view)))
 					(case cmd
 						(+gui_rpc_type_quit
 							;quit all
@@ -231,11 +231,11 @@
 							(env-theme name)
 							(each (# (def *screen* %0 (get %0 *env*))) +theme_fonts)
 							(each (lambda (child)
-								(if (defq to (. child :find_owner))
-									(mail-send to (cat (setf-> (str-alloc +ev_msg_theme_size)
-										(+ev_msg_type +ev_type_action)
-										(+ev_msg_target_id +event_theme)
-										(+ev_msg_action_source_id (. child :get_id))) name))))
+									(if (defq to (. child :find_owner))
+										(mail-send to (cat (setf-> (str-alloc +ev_msg_theme_size)
+													(+ev_msg_type +ev_type_action)
+													(+ev_msg_target_id +event_theme)
+													(+ev_msg_action_source_id (. child :get_id))) name))))
 								(screen-children))
 							(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 						(+gui_rpc_type_add_back
@@ -253,7 +253,7 @@
 						(+gui_rpc_type_owners
 							;the task that has each window, the reply
 							(setq msg (str (map (# (if (defq owner (. %0 :find_owner)) (hex-encode owner) ""))
-								(filter (# (nql %0 *mouse*)) (screen-children))))))
+										(filter (# (nql %0 *mouse*)) (screen-children))))))
 						(+gui_rpc_type_at
 							;the title of the window at a place, the reply
 							(setq msg (window-at (slice msg +gui_rpc_size -1))))
@@ -286,7 +286,7 @@
 						(dispatch last_motion +gui_ev_mouse_motion))
 					;remove orphans
 					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
-							(.-> %0 :hide :sub))) (defq children (screen-children)))
+								(.-> %0 :hide :sub))) (defq children (screen-children)))
 					;quit if no apps
 					(and *quitting* (<= (length children) 1) (setq *running* :nil))
 					;the next frame is due a frame time after this one began. But

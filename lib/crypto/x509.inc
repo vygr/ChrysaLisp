@@ -47,8 +47,8 @@
 		(when (>= len 0x80)
 			(defq n (logand len 0x7f))
 			(setq len (if (and (<= 1 n 4) (<= (+ start n) (length data)))
-				(reduce (# (+ (<< %0 8) (code data 1 (+ start %1)))) (range 0 n) 0)
-				-1) start (+ start n)))
+					(reduce (# (+ (<< %0 8) (code data 1 (+ start %1)))) (range 0 n) 0)
+					-1) start (+ start n)))
 		(and (>= len 0) (<= (+ start len) (length data)) (list tag start (+ start len) at))))
 
 (defun der-kids (data from to)
@@ -146,12 +146,12 @@
 					((or (< (length kids) 2) (not inner)))
 					((eql oid "2.5.29.17")
 						(. cert :insert :names (map (# (der-bytes value %0))
-							(filter (# (= (first %0) 0x82)) (der-in value inner)))))
+								(filter (# (= (first %0) 0x82)) (der-in value inner)))))
 					((eql oid "2.5.29.19")
 						(defq flags (der-in value inner))
 						(. cert :insert :ca (and (nempty? flags) (= (first (first flags)) 0x01)
-							(< (second (first flags)) (third (first flags)))
-							(/= (code value 1 (second (first flags))) 0))))))
+								(< (second (first flags)) (third (first flags)))
+								(/= (code value 1 (second (first flags))) 0))))))
 			(der-in data seq)))
 	cert)
 
@@ -282,5 +282,5 @@
 
 ;module
 (export-symbols '(x509-parse x509-pem x509-roots x509-sig-check x509-signed? x509-host?
-	x509-chain-check der-at der-in der-bytes der-oid *x509_roots*))
+		x509-chain-check der-at der-in der-bytes der-oid *x509_roots*))
 (env-pop)

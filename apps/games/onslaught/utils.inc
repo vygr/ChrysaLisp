@@ -25,8 +25,8 @@
 	*item_select_pressed* :nil *item_drop_cnt* 0 *fire_held_first* :nil
 	*panel_item_sprites* (list) *panel_sight_sprite* :nil
 	+select_table
-	; item priority table matching cpp selecttable (indexed by item - +frm_16x16_gold)
-	''(19 9 11 9 12 16 14 17 15 10 18 13 20 20 8 8 8 8 8 8 8 8 8 8))
+		; item priority table matching cpp selecttable (indexed by item - +frm_16x16_gold)
+		''(19 9 11 9 12 16 14 17 15 10 18 13 20 20 8 8 8 8 8 8 8 8 8 8))
 
 (defun item-auto-select ()
 	; select best item from inventory based on priority table
@@ -100,13 +100,13 @@
 (defun rescale-active-sprites ()
 	; rescale positions, dimensions and canvases of all live sprites
 	(each (lambda (layer)
-		(each (lambda (sp)
-			(when (Sprite? sp)
-				(def sp :zoom *zoom*)
-				(bind '(x y w h) (. sp :sp_get_bounds))
-				(. sp :sp_set_bounds x y w h)
-				(update-sprite-canvas sp)))
-			(. layer :children)))
+			(each (lambda (sp)
+					(when (Sprite? sp)
+						(def sp :zoom *zoom*)
+						(bind '(x y w h) (. sp :sp_get_bounds))
+						(. sp :sp_set_bounds x y w h)
+						(update-sprite-canvas sp)))
+				(. layer :children)))
 		(cat +sprite_layers +panel_layers)))
 
 (defun update-sprite-layers ()
@@ -142,10 +142,10 @@
 	; (play-sfx sfx [sprite])
 	;play a sound effect, panned to where the sprite is on the screen
 	(audio-play-rpc sfx (if sp
-		(max (const (neg +pan_spread)) (min +pan_spread
-			(/ (* (- (+ (get :sp_x sp) (/ (get :sp_w sp) 2)) *cam_x*
-				(const (/ +window_width 2))) +pan_spread) (const (/ +window_width 2)))))
-		0)))
+			(max (const (neg +pan_spread)) (min +pan_spread
+					(/ (* (- (+ (get :sp_x sp) (/ (get :sp_w sp) 2)) *cam_x*
+								(const (/ +window_width 2))) +pan_spread) (const (/ +window_width 2)))))
+			0)))
 
 (defun update-camera (sprite)
 	(bind '(x y w h) (. sprite :sp_get_bounds))

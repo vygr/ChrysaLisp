@@ -1,6 +1,5 @@
 (report-header "Error Checks: bad arguments must throw")
 
-
 ; --- index out of range ---
 (assert-error "elem-get past end str" (elem-get "abc" 3))
 (assert-error "elem-get before start str" (elem-get "abc" -5))

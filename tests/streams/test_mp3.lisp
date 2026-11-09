@@ -49,10 +49,10 @@
 	(> (m3-ratio left (# (+ (* (n2r 0.3) (sin (* m3_two_pi (n2r 440) %0))) (* (n2r 0.1) (sin (* m3_two_pi (n2r 1320) %0))))) 4000 10000) (n2r 100)))
 (assert-true "clicks: the left's click at a quarter second is the click it was"
 	(> (m3-ratio left (# (+ (* (n2r 0.3) (sin (* m3_two_pi (n2r 440) %0))) (* (n2r 0.1) (sin (* m3_two_pi (n2r 1320) %0)))
-		(* (n2r 0.8) (m3-click %0)))) 10825 11425) (n2r 100)))
+					(* (n2r 0.8) (m3-click %0)))) 10825 11425) (n2r 100)))
 (assert-true "clicks: the right, of its own 2000 too, is as it was"
 	(> (m3-ratio right (# (+ (* (n2r 0.28) (sin (* m3_two_pi (n2r 440) %0))) (* (n2r 0.1) (sin (* m3_two_pi (n2r 1320) %0)))
-		(* (n2r 0.03) (sin (* m3_two_pi (n2r 2000) %0))))) 4000 10000) (n2r 100)))
+					(* (n2r 0.03) (sin (* m3_two_pi (n2r 2000) %0))))) 4000 10000) (n2r 100)))
 
 (setq m3_late 1105 m3_rate 22050)
 (bind '(frames bad left right) (m3-decode "tests/streams/data/tone22_mp3.mp3"))

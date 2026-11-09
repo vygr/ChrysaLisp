@@ -26,7 +26,7 @@
 		;once its GUI is up, three nodes started by the desktop's node, noted as
 		;its own. The @Gui of the desktop's node is looked for there
 		(open-task (str `(progn (mail-await (# (mail-here "@Gui")))
-				(mail-send (hex-decode ,(hex-encode lv_reply)) (str (node-spawn 3)))))
+					(mail-send (hex-decode ,(hex-encode lv_reply)) (str (node-spawn 3)))))
 			lv_node +kn_call_pin 0 (mail-mbox))
 		(setq lv_pids (first (read (string-stream (mail-read lv_reply)))))
 		(assert-eq "it starts three nodes of its own" 3 (length (filter (# (> %0 0)) lv_pids)))

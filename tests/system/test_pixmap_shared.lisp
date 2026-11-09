@@ -23,8 +23,8 @@
 ;that has its pixels to itself
 (defq a (Canvas-pixmap made) b (Canvas-pixmap found) plain (Canvas 64 32 1) empty (px-bytes made))
 (each (lambda (canvas)
-	(.-> canvas (:fill 0xff102030) (:set_color 0xffff8040) (:fbox 5 6 20 10)
-		(:set_color 0xff00ff00) (:plot 60 30))) (list b plain))
+		(.-> canvas (:fill 0xff102030) (:set_color 0xffff8040) (:fbox 5 6 20 10)
+			(:set_color 0xff00ff00) (:plot 60 30))) (list b plain))
 (assert-true "drawing changed it" (nql (px-bytes made) empty))
 (assert-eq "what one draws the other has" (px-bytes found) (px-bytes made))
 (assert-eq "the same as a plain canvas" (px-bytes (getf plain +canvas_pixmap 0)) (px-bytes made))
@@ -44,12 +44,12 @@
 ;string and put there a pixel at a time
 (import "lib/gpu/vp.inc")
 (defq program (shader-compile (shader-read (string-stream
-		"(defun main :vec4 ((frag :vec2)) (vec4 (/ (:x frag) 64.0) (/ (:y frag) 32.0) 0.25 1.0))")))
+				"(defun main :vec4 ((frag :vec2)) (vec4 (/ (:x frag) 64.0) (/ (:y frag) 32.0) 0.25 1.0))")))
 	native (shader-vp program) frame (shader-vp-frame program native (list))
 	direct (pixmap-shared 64 32 0) other (Canvas 64 32 1))
 (each (lambda ((x y x1 y1))
-	(shader-vp-draw native frame direct x y x1 y1 32)
-	(. other :tile (shader-vp-argb native frame x y x1 y1 32) x y x1 y1))
+		(shader-vp-draw native frame direct x y x1 y1 32)
+		(. other :tile (shader-vp-argb native frame x y x1 y1 32) x y x1 y1))
 	'((0 0 64 8) (0 8 64 20) (0 20 30 32) (30 20 64 32)))
 ;the pixels are the shader's own, to the bit
 (assert-eq "a shader drawn straight into a pixmap" (shader-vp-argb native frame 0 0 64 8 32)
@@ -63,7 +63,7 @@
 ;the alpha is full on whatever main gave, unless it is asked for, and then
 ;the pixel is main's own, for a shader that is to be seen through
 (defq program (shader-compile (shader-read (string-stream
-		"(defun main :vec4 ((frag :vec2)) (vec4 0.5 0.25 0.0 0.5))")))
+				"(defun main :vec4 ((frag :vec2)) (vec4 0.5 0.25 0.0 0.5))")))
 	native (shader-vp program) frame (shader-vp-frame program native (list))
 	seen (Canvas 4 4 1))
 (shader-vp-draw native frame (getf seen +canvas_pixmap 0) 0 0 4 4 4)
@@ -79,7 +79,6 @@
 (.-> part (:set_clip 0 8 64 16) (:set_color 0xff405060) (:fbox 0 0 64 32))
 (.-> whole (:set_color 0xff405060) (:fbox 0 8 64 8))
 (assert-eq "a draw is kept to the clip" (px-bytes (getf whole +canvas_pixmap 0)) (px-bytes (getf part +canvas_pixmap 0)))
-
 
 ;a child keeps what it found of the app's pixels, found again only when
 ;the key or the size it is asked for is not the one it was found by

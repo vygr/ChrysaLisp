@@ -12,7 +12,7 @@
 
 (defun main ()
 	(job-child 2000000 (lambda (msg mbox)
-		(mail-send (getf msg +job_reply)
-			(setf-> (str-alloc +work_reply_size)
-				(+job_reply_key (getf msg +job_key))
-				(+work_reply_num (* 2 (getf msg +work_num))))))))
+			(mail-send (getf msg +job_reply)
+				(setf-> (str-alloc +work_reply_size)
+					(+job_reply_key (getf msg +job_key))
+					(+work_reply_num (* 2 (getf msg +work_num))))))))

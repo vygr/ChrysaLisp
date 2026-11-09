@@ -1,7 +1,7 @@
 ;all negative numbers are buttons. Adding 10 results in the value.
 ;-1 is a flagged button. 9 is a mine.
 (defq ord_vals (list (list -1 -1) (list -1 0) (list -1 1)
-	(list 0 -1) (list 0 0) (list 0 1) (list 1 -1) (list 1 0) (list 1 1))
+		(list 0 -1) (list 0 0) (list 0 1) (list 1 -1) (list 1 0) (list 1 1))
 	beginner_settings '(8 8 10) intermediate_settings '(16 16 40) expert_settings '(30 16 99))
 (defmacro sum-xy (c1 c2)
 	`(list (+ (first ,c1) (first ,c2)) (+ (second ,c1) (second ,c2))))
@@ -20,9 +20,9 @@
 (defun adjacent-elem (c w h)
 	(defq coords (list))
 	(each (lambda (it)
-		(defq ord_pos (sum-xy c it))
-		(when (in-bounds ord_pos w h)
-			(push coords (coord-elem ord_pos w h)))) ord_vals)
+			(defq ord_pos (sum-xy c it))
+			(when (in-bounds ord_pos w h)
+				(push coords (coord-elem ord_pos w h)))) ord_vals)
 	coords)
 
 (defun mine-list (l n s w h)

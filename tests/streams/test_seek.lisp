@@ -84,7 +84,6 @@
 (assert-eq "and one flushed with nothing ever written is empty" 0 (length (ifn (load fl_file) "")))
 (pii-remove fl_file)
 
-
 ;a read or write of more than a file stream's buffer goes to the host past
 ;the buffer, class/fstream/class.vp :read_direct and :write_direct. What
 ;the buffer holds goes first, and small reads and writes after are as they were

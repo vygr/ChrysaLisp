@@ -10,8 +10,8 @@
 (defun stack-instrument (n form)
 	(bind '(name line) (repl-info))
 	`((push *stack_frame* ,(str n " -> " name "(" line ")"))
-	(defq __r__ (progn ~form))
-	(pop *stack_frame*) __r__))
+		(defq __r__ (progn ~form))
+		(pop *stack_frame*) __r__))
 
 (redefmacro defun (n a &rest _)
 	(if (get n (penv))
@@ -20,7 +20,7 @@
 
 (redefmacro defmethod (n a &rest _)
 	(static-qq (def *vtable* ,n (,'lambda (this & ~a)
-		~(stack-instrument (cat *class* " " n) _)))))
+				~(stack-instrument (cat *class* " " n) _)))))
 
 ;module
 (export-symbols '(defun defmethod))

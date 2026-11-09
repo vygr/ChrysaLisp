@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/task/pipe.inc")
+(import "lib/files/files.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -25,8 +26,10 @@
     function reads a register after a call that is declared
     to trash it, which the trace does not look for.
 
-    Then 'fmt -i -c' of the VP source: a line of a function
-    body not indented as its blocks say.
+    Then 'fmt -l 0 -c' of the source: a file not indented by
+    its structure, or not tidied, as fmt has it. All of the
+    source but usr/, what the system writes as it runs, and
+    tests/scratch/.
 
     Prints what the lint and the builds have to say, which
     is nothing when all is well, then a line to say so.")
@@ -62,9 +65,11 @@
 		;and where a register is read after a call that is declared to
 		;trash it: what trace does not see, it is of what calls
 		(each (# (push said %0)) (run-step "relies -q"))
-		;and a function body indented as its blocks say
-		(each (lambda (dir) (each (# (push said %0)) (run-step (cat "files " dir " .vp | fmt -i -c -j 8"))))
-			'("apps/" "class/" "gui/" "lib/" "service/" "sys/" "tests/"))
+		;and the source indented by its structure, as fmt has it
+		(each (lambda (paths) (each (# (push said %0)) (run-step (cat "fmt -l 0 -c -j 8 " (join paths " ")))))
+			(partition (filter (# (not (starts-with "tests/scratch/" %0)))
+					(apply (const cat) (map (# (files-all %0 '(".lisp" ".inc" ".vp")))
+							'("apps" "class" "cmd" "docs" "gui" "lib" "service" "sys" "tests")))) 100))
 		(each (const print) said)
 		(print (if (empty? said) "lint: clean" "lint: see above")
 			", " (/ (- (pii-time) t0) 1000) "ms")))

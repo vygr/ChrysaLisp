@@ -48,26 +48,26 @@
 
 ;the names of the SPIR-V instructions the back end makes
 (defq *spv_names* (scatter (Fmap 31)
-	11 "OpExtInstImport" 12 "OpExtInst" 14 "OpMemoryModel" 15 "OpEntryPoint"
-	16 "OpExecutionMode" 17 "OpCapability" 19 "OpTypeVoid" 20 "OpTypeBool"
-	21 "OpTypeInt" 22 "OpTypeFloat" 23 "OpTypeVector" 30 "OpTypeStruct"
-	32 "OpTypePointer" 33 "OpTypeFunction" 41 "OpConstantTrue"
-	42 "OpConstantFalse" 43 "OpConstant" 46 "OpConstantNull" 54 "OpFunction"
-	55 "OpFunctionParameter" 56 "OpFunctionEnd" 57 "OpFunctionCall"
-	59 "OpVariable" 61 "OpLoad" 62 "OpStore" 65 "OpAccessChain" 71 "OpDecorate"
-	72 "OpMemberDecorate" 79 "OpVectorShuffle" 80 "OpCompositeConstruct"
-	81 "OpCompositeExtract" 82 "OpCompositeInsert" 110 "OpConvertFToS"
-	111 "OpConvertSToF" 126 "OpSNegate" 127 "OpFNegate" 128 "OpIAdd"
-	129 "OpFAdd" 130 "OpISub" 131 "OpFSub" 132 "OpIMul" 133 "OpFMul"
-	135 "OpSDiv" 136 "OpFDiv" 141 "OpFMod" 148 "OpDot" 164 "OpLogicalEqual"
-	165 "OpLogicalNotEqual" 166 "OpLogicalOr" 167 "OpLogicalAnd"
-	168 "OpLogicalNot" 170 "OpIEqual" 171 "OpINotEqual" 173 "OpSGreaterThan"
-	175 "OpSGreaterThanEqual" 177 "OpSLessThan" 179 "OpSLessThanEqual"
-	180 "OpFOrdEqual" 183 "OpFUnordNotEqual" 184 "OpFOrdLessThan"
-	186 "OpFOrdGreaterThan" 188 "OpFOrdLessThanEqual"
-	190 "OpFOrdGreaterThanEqual" 196 "OpShiftLeftLogical" 199 "OpBitwiseAnd"
-	246 "OpLoopMerge" 247 "OpSelectionMerge" 248 "OpLabel" 249 "OpBranch"
-	250 "OpBranchConditional" 253 "OpReturn" 254 "OpReturnValue"))
+		11 "OpExtInstImport" 12 "OpExtInst" 14 "OpMemoryModel" 15 "OpEntryPoint"
+		16 "OpExecutionMode" 17 "OpCapability" 19 "OpTypeVoid" 20 "OpTypeBool"
+		21 "OpTypeInt" 22 "OpTypeFloat" 23 "OpTypeVector" 30 "OpTypeStruct"
+		32 "OpTypePointer" 33 "OpTypeFunction" 41 "OpConstantTrue"
+		42 "OpConstantFalse" 43 "OpConstant" 46 "OpConstantNull" 54 "OpFunction"
+		55 "OpFunctionParameter" 56 "OpFunctionEnd" 57 "OpFunctionCall"
+		59 "OpVariable" 61 "OpLoad" 62 "OpStore" 65 "OpAccessChain" 71 "OpDecorate"
+		72 "OpMemberDecorate" 79 "OpVectorShuffle" 80 "OpCompositeConstruct"
+		81 "OpCompositeExtract" 82 "OpCompositeInsert" 110 "OpConvertFToS"
+		111 "OpConvertSToF" 126 "OpSNegate" 127 "OpFNegate" 128 "OpIAdd"
+		129 "OpFAdd" 130 "OpISub" 131 "OpFSub" 132 "OpIMul" 133 "OpFMul"
+		135 "OpSDiv" 136 "OpFDiv" 141 "OpFMod" 148 "OpDot" 164 "OpLogicalEqual"
+		165 "OpLogicalNotEqual" 166 "OpLogicalOr" 167 "OpLogicalAnd"
+		168 "OpLogicalNot" 170 "OpIEqual" 171 "OpINotEqual" 173 "OpSGreaterThan"
+		175 "OpSGreaterThanEqual" 177 "OpSLessThan" 179 "OpSLessThanEqual"
+		180 "OpFOrdEqual" 183 "OpFUnordNotEqual" 184 "OpFOrdLessThan"
+		186 "OpFOrdGreaterThan" 188 "OpFOrdLessThanEqual"
+		190 "OpFOrdGreaterThanEqual" 196 "OpShiftLeftLogical" 199 "OpBitwiseAnd"
+		246 "OpLoopMerge" 247 "OpSelectionMerge" 248 "OpLabel" 249 "OpBranch"
+		250 "OpBranchConditional" 253 "OpReturn" 254 "OpReturnValue"))
 
 (defun spirv-operands (op args)
 	;the words of an instruction as text. The two instructions the back
@@ -90,11 +90,11 @@
 	(defq words (map (# (logand (code module 4 (* %0 4)) 0xffffffff))
 			(range 0 (/ (length module) 4)))
 		lines (list (cat "; SPIR-V, " (str (length module)) " bytes, "
-			(str (dec (elem-get words 3))) " ids")) i 5 n (length words))
+				(str (dec (elem-get words 3))) " ids")) i 5 n (length words))
 	(while (< i n)
 		(defq len (max 1 (>> (elem-get words i) 16)) op (logand (elem-get words i) 0xffff))
 		(push lines (join (cat (list (ifn (. *spv_names* :find op) (cat "Op" (str op))))
-			(spirv-operands op (slice words (inc i) (+ i len)))) " "))
+					(spirv-operands op (slice words (inc i) (+ i len)))) " "))
 		(setq i (+ i len)))
 	(join lines "\n"))
 
@@ -106,8 +106,8 @@
 	(map! (# (cat "const " (str %0))) (list consts) 0 -1 lines)
 	(map! (# (cat "global " (str %0))) (list globals) 0 -1 lines)
 	(each (lambda ((name type params block))
-		(push lines "" (cat "func " (str name) " " (str type) " " (str params)))
-		(map! (# (cat "\t" (str %0))) (list block) 0 -1 lines)) funcs)
+			(push lines "" (cat "func " (str name) " " (str type) " " (str params)))
+			(map! (# (cat "\t" (str %0))) (list block) 0 -1 lines)) funcs)
 	(join lines "\n"))
 
 (defun vp-listing (program)
@@ -120,8 +120,8 @@
 		((eql stage :vertex) (first (sv-vertex-source program name)))
 		((eql stage :func)
 			(join (map (lambda ((fname &rest _))
-				(sv-func-source program fname (cat name "_" (str fname))))
-				(shader-funcs program)) "\n"))
+						(sv-func-source program fname (cat name "_" (str fname))))
+					(shader-funcs program)) "\n"))
 		((nempty? (shader-varyings program)) (first (sv-fill-source program name)))
 		((first (sv-source program name)))))
 
@@ -132,15 +132,15 @@
 		((eql stage :vertex) (str (shader-cpu-vertex program)))
 		((eql stage :func)
 			(join (map (lambda ((fname &rest _))
-				(cat ";" (str fname) "\n" (str (shader-cpu-func program fname))))
-				(shader-funcs program)) "\n"))
+						(cat ";" (str fname) "\n" (str (shader-cpu-func program fname))))
+					(shader-funcs program)) "\n"))
 		((str (shader-cpu program)))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
-			(defq stdio (create-stdio))
-			(defq opt_t "glsl" opt_v :nil opt_p :nil opt_o :nil args (options stdio usage))
+		(defq stdio (create-stdio))
+		(defq opt_t "glsl" opt_v :nil opt_p :nil opt_o :nil args (options stdio usage))
 		(cond
 			((and opt_p (= (length args) 2))
 				;a pair, the two files in either order

@@ -5,13 +5,13 @@
 (defun tt-read (text) (tree-read (string-stream text)))
 
 (bind '(tt_nodes tt_open &ignore) (tt-read (cat
-	";a file" "\n"
-	"\n"
-	"(defun add (a b)" "\n"
-	"	; (add a b) -> num" "\n"
-	"	;both of them" "\n"
-	"	(+ a b)) ;after" "\n"
-	"(defq s \q(not ; a form)\q k :key n 12)" "\n")))
+			";a file" "\n"
+			"\n"
+			"(defun add (a b)" "\n"
+			"	; (add a b) -> num" "\n"
+			"	;both of them" "\n"
+			"	(+ a b)) ;after" "\n"
+			"(defq s \q(not ; a form)\q k :key n 12)" "\n")))
 (assert-eq "nothing left open" 0 tt_open)
 (assert-eq "a comment, an empty line, a form, a comment after it, a form" "(:comment :blank :form :comment :form)" (str (map (const first) tt_nodes)))
 (assert-eq "the lines a form is on" "(3 6)" (str (list (second (third tt_nodes)) (elem-get (third tt_nodes) 3))))
@@ -37,15 +37,15 @@
 ;given heads, the forms at the top of them alone, each at the start of its
 ;line, and the lines between read only for a string they leave open
 (bind '(tt_nodes tt_open &ignore) (tree-read (string-stream (cat
-	"(import \qa.inc\q)" "\n"
-	";a comment" "\n"
-	"(defun f ()" "\n"
-	"	(import \qb.inc\q))" "\n"
-	"(include {c.inc}) (defq y 1)" "\n"
-	"(defq s {" "\n"
-	"(import \qin a string\q)" "\n"
-	"})" "\n"
-	"(import \qd.inc\q)")) :nil '("import" "include")))
+				"(import \qa.inc\q)" "\n"
+				";a comment" "\n"
+				"(defun f ()" "\n"
+				"	(import \qb.inc\q))" "\n"
+				"(include {c.inc}) (defq y 1)" "\n"
+				"(defq s {" "\n"
+				"(import \qin a string\q)" "\n"
+				"})" "\n"
+				"(import \qd.inc\q)")) :nil '("import" "include")))
 (assert-eq "only the forms of the heads at the top, not in a string" "(1 5 9)" (str (map (const second) tt_nodes)))
 (assert-eq "each whole" "(import \qa.inc\q)" (tree-text (first tt_nodes)))
 (assert-eq "and nothing left open" 0 tt_open)
@@ -53,7 +53,7 @@
 (import "lib/files/files.inc")
 ;what a file imports, includes and makes, by those heads
 (assert-true "a method a file makes" (some (# (and (eql (first %0) "def-method") (eql (third %0) ":list") (eql (elem-get %0 3) ":deinit")))
-	(files-scan "class/list/class.vp")))
+		(files-scan "class/list/class.vp")))
 (assert-eq "a name made by (path-to-absolute)" "lib/crypto/sha256_blocks"
 	(elem-get (first (filter (# (eql (first %0) "def-func")) (files-scan "lib/crypto/lisp.vp"))) 2))
 (assert-eq "a name of a quoted symbol" "class/lisp/run"
@@ -65,9 +65,9 @@
 	(join (map (# (elem-get (first (files-scan "class/lisp/class.inc" :nil '("def-class"))) %0)) '(0 2)) " "))
 (defq tt_bad (list))
 (each (lambda (file)
-	(when (defq s (file-stream file))
-		(if (/= 0 (second (tree-read s))) (push tt_bad file)))
-	(task-slice))
+		(when (defq s (file-stream file))
+			(if (/= 0 (second (tree-read s))) (push tt_bad file)))
+		(task-slice))
 	(files-all "./lib" '(".inc" ".vp" ".lisp")))
 (assert-eq "no file of lib has a bracket left open" "()" (str tt_bad))
 
@@ -83,7 +83,7 @@
 	;nor the files this test makes further down, wrong on purpose, which a
 	;run that was stopped part way leaves behind
 	(filter (# (and (nempty? %0) (not (starts-with "tests/scratch/" %0)) (not (starts-with "./tests/scratch/" %0))
-			(not (starts-with "obj/tmp_check_test." %0))))
+				(not (starts-with "obj/tmp_check_test." %0))))
 		(split (join tt_said "") "\n")))
 
 ;the check command, cmd/check.lisp, reads the tree: what can be seen to be wrong from the source
@@ -281,11 +281,11 @@
 ;which is not trashed
 (defq tt_probe "obj/vp/tests/scratch_relies_probe")
 (save (cat "(\qtests/scratch_relies_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _6 _8 4096)" tt_lf
-	"(label '_1)" tt_lf "(cpy-cr 8 :r0)" tt_lf "(cpy-cr 5 :r2)" tt_lf "(cpy-cr 6 :r3)" tt_lf
-	"(call-p _7)" tt_lf "(add-rr :r1 :r0)" tt_lf "(add-rr :r2 :r0)" tt_lf "(add-rr :r3 :r0)" tt_lf
-	"(xor-rr :r4 :r4)" tt_lf "(ret)" tt_lf
-	"(label '_6)" tt_lf "(label '_7)" tt_lf "(long (- _8 *pc*))" tt_lf
-	"(label '_8)" tt_lf "(string \qsys/mem/alloc\q)" tt_lf "(byte 0)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
+		"(label '_1)" tt_lf "(cpy-cr 8 :r0)" tt_lf "(cpy-cr 5 :r2)" tt_lf "(cpy-cr 6 :r3)" tt_lf
+		"(call-p _7)" tt_lf "(add-rr :r1 :r0)" tt_lf "(add-rr :r2 :r0)" tt_lf "(add-rr :r3 :r0)" tt_lf
+		"(xor-rr :r4 :r4)" tt_lf "(ret)" tt_lf
+		"(label '_6)" tt_lf "(label '_7)" tt_lf "(long (- _8 *pc*))" tt_lf
+		"(label '_8)" tt_lf "(string \qsys/mem/alloc\q)" tt_lf "(byte 0)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
 (defq tt_said (list))
 (pipe-run "relies -v tests/scratch_relies_probe" (# (push tt_said %0)))
 ;if it is not said, what was said is what the failure shows: it failed
@@ -303,9 +303,9 @@
 ;takes them back with one free, allocs 16 and frees 8, and returns
 (defq tt_probe "obj/vp/tests/scratch_stack_probe")
 (save (cat "(\qtests/scratch_stack_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _6 _8 4096)" tt_lf
-	"(label '_1)" tt_lf "(push :r1 :r3)" tt_lf "(free 16)" tt_lf
-	"(alloc 16)" tt_lf "(free 8)" tt_lf "(ret)" tt_lf
-	"(label '_6)" tt_lf "(label '_7)" tt_lf "(label '_8)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
+		"(label '_1)" tt_lf "(push :r1 :r3)" tt_lf "(free 16)" tt_lf
+		"(alloc 16)" tt_lf "(free 8)" tt_lf "(ret)" tt_lf
+		"(label '_6)" tt_lf "(label '_7)" tt_lf "(label '_8)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
 (setq tt_said (list))
 (pipe-run "trace -l tests/scratch_stack_probe" (# (push tt_said %0)))
 (assert-eq "trace: two pushes taken back by one free are not said, what is left on as it returns is"
@@ -320,9 +320,9 @@
 ;and one so
 (defq tt_probe "obj/vp/tests/scratch_width_probe")
 (save (cat "(\qtests/scratch_width_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _6 _8 4096)" tt_lf
-	"(label '_1)" tt_lf "(add-dd :f1 :d0)" tt_lf "(mul-ff :f1 :d0)" tt_lf "(cvt-fd :d1 :d0)" tt_lf
-	"(cvt-fd :f1 :d0)" tt_lf "(ret)" tt_lf
-	"(label '_6)" tt_lf "(label '_7)" tt_lf "(label '_8)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
+		"(label '_1)" tt_lf "(add-dd :f1 :d0)" tt_lf "(mul-ff :f1 :d0)" tt_lf "(cvt-fd :d1 :d0)" tt_lf
+		"(cvt-fd :f1 :d0)" tt_lf "(ret)" tt_lf
+		"(label '_6)" tt_lf "(label '_7)" tt_lf "(label '_8)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
 (setq tt_said (list))
 (pipe-run "trace -i tests/scratch_width_probe" (# (push tt_said %0)))
 (assert-list-eq "trace -i: a single's register to a double's op, a double's to a single's, and a convert's of the wrong width are said, not the right one"
@@ -337,10 +337,10 @@
 ;for nothing, :r1 is not
 (defq tt_probe "obj/vp/tests/scratch_saves_probe")
 (save (cat "(\qtests/scratch_saves_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _6 _8 4096)" tt_lf
-	"(label '_1)" tt_lf "(cpy-cr 8 :r0)" tt_lf "(push :r1 :r3)" tt_lf
-	"(call-p _7)" tt_lf "(pop :r1 :r3)" tt_lf "(add-rr :r3 :r0)" tt_lf "(ret)" tt_lf
-	"(label '_6)" tt_lf "(label '_7)" tt_lf "(long (- _8 *pc*))" tt_lf
-	"(label '_8)" tt_lf "(string \qsys/mem/alloc\q)" tt_lf "(byte 0)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
+		"(label '_1)" tt_lf "(cpy-cr 8 :r0)" tt_lf "(push :r1 :r3)" tt_lf
+		"(call-p _7)" tt_lf "(pop :r1 :r3)" tt_lf "(add-rr :r3 :r0)" tt_lf "(ret)" tt_lf
+		"(label '_6)" tt_lf "(label '_7)" tt_lf "(long (- _8 *pc*))" tt_lf
+		"(label '_8)" tt_lf "(string \qsys/mem/alloc\q)" tt_lf "(byte 0)" tt_lf "(label '_9))" tt_lf ")" tt_lf) tt_probe)
 (defq tt_said (list))
 (pipe-run "relies -s -q tests/scratch_saves_probe" (# (push tt_said %0)))
 (assert-eq "relies -s: a register pushed round a call that leaves it is said, and not one the call gives"
@@ -381,12 +381,12 @@
 ;only b has to be written before the call
 (defq tt_probe "obj/vp/tests/scratch_locals_probe")
 (save (cat "(\qtests/scratch_locals_probe\q" tt_lf "((label '_0)" tt_lf "(long -1)" tt_lf "(short _9 _1 _8 _9 4096)" tt_lf
-	"(label '_1)" tt_lf "(alloc 32)" tt_lf "(store-rrc :r0 :rsp 0)" tt_lf "(store-rrc :r1 :rsp 8)" tt_lf
-	"(load-rcr :rsp 0 :r0)" tt_lf "(call-p _7)" tt_lf "(load-rcr :rsp 8 :r1)" tt_lf
-	"(lea-rcr :rsp 16 :r2)" tt_lf "(store-rrc :r1 :rsp 24)" tt_lf "(beq-cr 0 :r1 _2)" tt_lf
-	"(store-rrc :r1 :rsp 0)" tt_lf "(label '_2)" tt_lf "(free 32)" tt_lf "(ret)" tt_lf
-	"(label '_8)" tt_lf "(label '_9))" tt_lf
-	"(locals (1 32 ((a 0 \qp\q) (b 8 \qp\q) (s 16 \q\q))))" tt_lf ")" tt_lf) tt_probe)
+		"(label '_1)" tt_lf "(alloc 32)" tt_lf "(store-rrc :r0 :rsp 0)" tt_lf "(store-rrc :r1 :rsp 8)" tt_lf
+		"(load-rcr :rsp 0 :r0)" tt_lf "(call-p _7)" tt_lf "(load-rcr :rsp 8 :r1)" tt_lf
+		"(lea-rcr :rsp 16 :r2)" tt_lf "(store-rrc :r1 :rsp 24)" tt_lf "(beq-cr 0 :r1 _2)" tt_lf
+		"(store-rrc :r1 :rsp 0)" tt_lf "(label '_2)" tt_lf "(free 32)" tt_lf "(ret)" tt_lf
+		"(label '_8)" tt_lf "(label '_9))" tt_lf
+		"(locals (1 32 ((a 0 \qp\q) (b 8 \qp\q) (s 16 \q\q))))" tt_lf ")" tt_lf) tt_probe)
 (defq tt_said (list))
 (pipe-run "locals -v -t 0 tests/scratch_locals_probe" (# (push tt_said %0)))
 (assert-eq "locals: the frame, its named locals, what is read and written, what could be registers, what is wanted after a call, and what is in memory"

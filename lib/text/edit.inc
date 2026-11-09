@@ -66,7 +66,7 @@
 		(defq csr_text (. *edit* :copy_parts) pattern (replace-compile pattern))
 		(when (bind '(engine meta &ignore) (query regexp wmode xmode imode))
 			(. *edit* :paste_parts (map (# (replace-matches %0
-				(. engine :search (if imode (to-lower %0) %0) meta) pattern)) csr_text)))))
+							(. engine :search (if imode (to-lower %0) %0) meta) pattern)) csr_text)))))
 
 ;module
 ;export all symbols beginning with "edit-"

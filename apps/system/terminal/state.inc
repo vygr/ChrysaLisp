@@ -9,14 +9,14 @@
 		default (scatter (Emap) :history (list)) meta_map default)
 	(with-write-lock key
 		(catch (when (defq data (tree-load (file-stream key)))
-			(setq meta_map data))
+				(setq meta_map data))
 			(setq meta_map default))
 		(bind '(old) (gather meta_map :history))
 		(bind '(current) (gather *meta_map* :history))
 		(each (# (if (defq i (find %0 old))
-			;old entry so pull to front
-			(setq old (erase old i (inc i))))
-			(push old %0)) current)
+					;old entry so pull to front
+					(setq old (erase old i (inc i))))
+				(push old %0)) current)
 		(scatter meta_map :history old
 			:zoom (if (get '*window*) (get :zoom *window*) 1.0))
 		(tree-save (file-stream key +file_open_write) meta_map)))
@@ -28,7 +28,7 @@
 	(setq *meta_map* default)
 	(with-read-lock key
 		(catch (when (defq data (tree-load (file-stream key)))
-			(setq *meta_map* data))
+				(setq *meta_map* data))
 			(setq *meta_map* default)))
 	(bind '(history zoom) (gather *meta_map* :history :zoom))
 	(and zoom (get '*window*)

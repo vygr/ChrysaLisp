@@ -24,9 +24,9 @@
 	(bind '(pieces at drop asked) st)
 	(defq starts (reduce (# (push %0 (+ (last %0) (length %1)))) pieces (list 0))
 		pos (max 0 (min (last starts) (cond
-			((= whence 0) offset)
-			((= whence 1) (+ offset (elem-get starts at) drop))
-			((+ (last starts) offset)))))
+					((= whence 0) offset)
+					((= whence 1) (+ offset (elem-get starts at) drop))
+					((+ (last starts) offset)))))
 		to (some (# (if (< pos (elem-get starts (inc %0))) %0)) (range 0 (length pieces))))
 	(elem-set st 1 (ifn to (length pieces)))
 	(elem-set st 2 (if to (- pos (elem-get starts to)) 0))
@@ -35,7 +35,7 @@
 (defun ls-open (pieces &optional no_seek)
 	(defq st (ls-pieces pieces))
 	(list st (if no_seek (lisp-stream `(lambda () (,ls-fill ',st)))
-		(lisp-stream `(lambda () (,ls-fill ',st)) `(lambda (offset whence) (,ls-seek ',st offset whence))))))
+			(lisp-stream `(lambda () (,ls-fill ',st)) `(lambda (offset whence) (,ls-seek ',st offset whence))))))
 
 ;read
 (bind '(ls_st ls_s) (ls-open ls_parts))

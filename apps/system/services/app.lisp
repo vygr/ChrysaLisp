@@ -4,23 +4,22 @@
 (enums +select 0
 	(enum main timer))
 
-
 (ui-window *window* ()
 	(ui-title-bar _ "Services" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-scroll info_scroll +scroll_flag_vertical (:font :font_terminal :min_height 128 :fit_width 100)
 		(ui-flow right_flow (:flow_flags +flow_right_fill)
 			(ui-flow service_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Service" :paper +argb_white
-					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
+						:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow mbox_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "NetID" :paper +argb_white
-					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
+						:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow system_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "SysID" :paper +argb_white
-					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
+						:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow info_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Info" :paper +argb_white
-					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))))))
+						:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))))))
 
 (defun resize (mh)
 	(def info_scroll :want_height (min (second (. right_flow :get_size)) mh))
@@ -47,15 +46,15 @@
 		(clear *service_labels* *mbox_labels* *system_labels* *info_labels*)
 		(setq *services* new_services)
 		(each (#
-			(bind '(i0 i1 i2 i3) (split %0 ","))
-			(def (defq _ (Label)) :border -1 :text i0)
-			(. service_flow :add_child _) (push *service_labels* _)
-			(def (defq _ (Label)) :border -1 :text i1)
-			(. mbox_flow :add_child _) (push *mbox_labels* _)
-			(def (defq _ (Label)) :border -1 :text i2)
-			(. system_flow :add_child _) (push *system_labels* _)
-			(def (defq _ (Label)) :border -1 :text i3)
-			(. info_flow :add_child _) (push *info_labels* _)) new_services)
+				(bind '(i0 i1 i2 i3) (split %0 ","))
+				(def (defq _ (Label)) :border -1 :text i0)
+				(. service_flow :add_child _) (push *service_labels* _)
+				(def (defq _ (Label)) :border -1 :text i1)
+				(. mbox_flow :add_child _) (push *mbox_labels* _)
+				(def (defq _ (Label)) :border -1 :text i2)
+				(. system_flow :add_child _) (push *system_labels* _)
+				(def (defq _ (Label)) :border -1 :text i3)
+				(. info_flow :add_child _) (push *info_labels* _)) new_services)
 		(.-> info_scroll :layout :dirty_all)
 		:t))
 

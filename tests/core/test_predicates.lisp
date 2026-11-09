@@ -36,7 +36,6 @@
 (assert-true "func? FFI" (func? +))
 (assert-true "not func? lambda" (not (func? (lambda (x) x))))
 
-
 ; quote / quasi-quote
 (assert-true "quote? symbol" (quote? 'quote))
 (assert-true "quote? const"  (quote? (const quote)))
@@ -160,4 +159,3 @@
 (assert-eq "two that hold things that are only alike are not" :nil (eql (list "a") (list "a")))
 (assert-eq "and two arrays" :t (eql (array 1 2 3) (array 1 2 3)))
 (assert-eq "a list and an array of the same are not" :nil (eql (list 1 2 3) (array 1 2 3)))
-

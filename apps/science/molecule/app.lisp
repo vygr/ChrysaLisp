@@ -45,13 +45,13 @@
 	place_native (shader-vp-vertex place_program)
 	*atoms* (reals) +placed_size 9
 	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
-			(/ (n2f (logand (>> %0 16) 0xff)) 255.0)
-			(/ (n2f (logand (>> %0 8) 0xff)) 255.0)
-			(/ (n2f (logand %0 0xff)) 255.0)))
-		;the first was black, and a black ball shows only its highlight, a
-		;dark grey shows it is a ball
-		(list 0xff505050 +argb_white +argb_red +argb_green
-			+argb_cyan +argb_blue +argb_yellow +argb_magenta))))
+					(/ (n2f (logand (>> %0 16) 0xff)) 255.0)
+					(/ (n2f (logand (>> %0 8) 0xff)) 255.0)
+					(/ (n2f (logand %0 0xff)) 255.0)))
+			;the first was black, and a black ball shows only its highlight, a
+			;dark grey shows it is a ball
+			(list 0xff505050 +argb_white +argb_red +argb_green
+				+argb_cyan +argb_blue +argb_yellow +argb_magenta))))
 
 (defclass Molecule-backdrop () (Backdrop)
 	(def this :atom_draw_list (list))
@@ -59,9 +59,8 @@
 		(.super this :draw)
 		(raise :atom_draw_list)
 		(each (lambda ((tid col x y tw th))
-			(. this :ctx_blit tid col x y tw th)) atom_draw_list)
-		this)
-	)
+				(. this :ctx_blit tid col x y tw th)) atom_draw_list)
+		this))
 
 (ui-window *window* ()
 	(ui-title-bar *title* "" (+sym_close +sym_max +sym_min) +event_close)
@@ -69,7 +68,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_prev +sym_next +sym_auto) +event_prev))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
-			(:paper :paper_toolbar2)) :connect +event_style)
+				(:paper :paper_toolbar2)) :connect +event_style)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :font :font_body)
@@ -96,7 +95,7 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-		(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
+			(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
 
 (defun get-rot (slider)
 	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
@@ -129,10 +128,10 @@
 		(:t (defq canvas (Canvas size size 1))
 			(shader-vp-draw atom_native
 				(shader-vp-frame atom_program atom_native (list
-					(list 'resolution (list size size))
-					(list 'color (map (const n2r) (elem-get +palette kind)))
-					;from two thirds of the light at the back to all of it at the front
-					(list 'light_level (/ (n2r (+ level 10)) (const (n2r 15))))))
+						(list 'resolution (list size size))
+						(list 'color (map (const n2r) (elem-get +palette kind)))
+						;from two thirds of the light at the back to all of it at the front
+						(list 'light_level (/ (n2r (+ level 10)) (const (n2r 15))))))
 				(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 size size size :t)
 			(. *pixmap_cache* :insert name pixmap)
 			(. canvas :swap +swap_write)))
@@ -146,11 +145,11 @@
 	(defq canvas :nil d 0)
 	(while (and (not canvas) (<= (++ d) 8))
 		(setq canvas (or (. atom_cache :find (atom-key (- size d) kind level))
-			(. atom_cache :find (atom-key (+ size d) kind level)))))
+				(. atom_cache :find (atom-key (+ size d) kind level)))))
 	(setq d -1)
 	(while (and (not canvas) (<= (++ d) 64))
 		(some! (# (setq canvas (or (. atom_cache :find (atom-key (- size d) kind %0))
-				(. atom_cache :find (atom-key (+ size d) kind %0)))))
+						(. atom_cache :find (atom-key (+ size d) kind %0)))))
 			(list (range 0 6))))
 	canvas)
 
@@ -189,12 +188,12 @@
 	(bind '(w h) (. *main_widget* :get_size))
 	(defq out (shader-vp-place place_native
 			(shader-vp-frame place_program place_native (list
-				(list 'spin (mat4x4-mul (mat4x4-mul (mat4x4-rotx *rotx*) (mat4x4-roty *roty*))
-					(mat4x4-rotz *rotz*)))
-				(list 'move (const (mat4x4-translate +real_0 +real_0 (- +real_0 +focal_dist +real_2))))
-				(list 'lens (const (mat4x4-frustum +left +right +top +bottom +near +far)))
-				(list 'centre (list (>> w 1) (>> h 1)))
-				(list 'half (* +real_1/2 (n2r (dec canvas_size))))))
+					(list 'spin (mat4x4-mul (mat4x4-mul (mat4x4-rotx *rotx*) (mat4x4-roty *roty*))
+							(mat4x4-rotz *rotz*)))
+					(list 'move (const (mat4x4-translate +real_0 +real_0 (- +real_0 +focal_dist +real_2))))
+					(list 'lens (const (mat4x4-frustum +left +right +top +bottom +near +far)))
+					(list 'centre (list (>> w 1) (>> h 1)))
+					(list 'half (* +real_1/2 (n2r (dec canvas_size))))))
 			*atoms*)
 		new_draw_list (list) bucket_at (length depth_buckets))
 	;each atom in view to the bucket of its depth, one pass and no compares,
@@ -208,15 +207,15 @@
 	(while (> bucket_at 0)
 		(defq bucket (elem-get depth_buckets (setq bucket_at (dec bucket_at))))
 		(each (lambda (i)
-			(bind '(sx sy r z at) (slice out (+ (* i +placed_size) 4) (* (inc i) +placed_size)))
-			(when (<= +real_-1 z +real_1)
-				(bind '(tid tw th) (get-atom-texture r (elem-get *colors* i) (lighting z)))
-				(when tid
-					(defq col +argb_white
-						blit_x (n2i (- sx (n2r (/ tw 2))))
-						blit_y (n2i (- sy (n2r (/ th 2)))))
-					(push new_draw_list (list tid col blit_x blit_y tw th)))
-				(task-slice))) bucket)
+				(bind '(sx sy r z at) (slice out (+ (* i +placed_size) 4) (* (inc i) +placed_size)))
+				(when (<= +real_-1 z +real_1)
+					(bind '(tid tw th) (get-atom-texture r (elem-get *colors* i) (lighting z)))
+					(when tid
+						(defq col +argb_white
+							blit_x (n2i (- sx (n2r (/ tw 2))))
+							blit_y (n2i (- sy (n2r (/ th 2)))))
+						(push new_draw_list (list tid col blit_x blit_y tw th)))
+					(task-slice))) bucket)
 		(clear bucket))
 	(set *main_widget* :atom_draw_list new_draw_list)
 	(. *main_widget* :dirty))
@@ -247,13 +246,13 @@
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius)
 			new_verts (reals))
 		(each (lambda (v)
-			(push new_verts (vector-scale (vector-sub v center v) scale_p v) +real_1))
+				(push new_verts (vector-scale (vector-sub v center v) scale_p v) +real_1))
 			(partition *verts* 3))
 		(setq *verts* new_verts)
 		(vector-scale *radii* scale_r *radii*)
 		;what the vertex shader is given, each atom and then its radius
 		(setq *atoms* (apply (const cat) (cat (list (reals))
-			(map (# (cat %0 (reals %1))) (partition *verts* 4) *radii*))))))
+					(map (# (cat %0 (reals %1))) (partition *verts* 4) *radii*))))))
 
 (defun reset ()
 	(setq *dirty* :t

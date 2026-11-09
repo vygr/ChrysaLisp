@@ -193,7 +193,7 @@
 	(defq info (storage-info svc) me (. info :find :member) there (store-there svc))
 	(print "To " (. info :find :id) ", kept by its members: "
 		(join (map (# (cat (slice %0 0 8) (cond ((eql %0 me) " this machine") ((find %0 there) " there") (" not there"))))
-			(ifn (storage-members :nil svc) (list))) ", ")))
+				(ifn (storage-members :nil svc) (list))) ", ")))
 
 (defun got-all (object)
 	;after the read of an object, an error if it ended of a fault, a block
@@ -273,19 +273,19 @@
 				(cond
 					((not result) (print "No scene " name ", or it did not finish."))
 					(:t (print (first result) " held, " (second result) " did not."
-						(if (and out (nql opt_r "-")) (cat " " (str lines) " lines recorded to " opt_r) "")))))
+							(if (and out (nql opt_r "-")) (cat " " (str lines) " lines recorded to " opt_r) "")))))
 			(opt_r
 				;of the members of the group, whether or not this system has one
 				(defq out (if (eql opt_r "-") (io-stream 'stdout) (file-stream opt_r +file_open_write)))
 				(cond
 					((not out) (print "No file " opt_r " to write."))
 					(:t (defq lines (storage-record-run (lambda (line) (if line (write-line out line)))
-							(+ (pii-time) (* opt_S 1000000)) opt_G))
+								(+ (pii-time) (* opt_S 1000000)) opt_G))
 						(stream-flush out)
 						(unless (eql opt_r "-") (print lines " lines to " opt_r)))))			((not svc)
-				(cond
-					(opt_o (print "No store on a machine " opt_o " in the mesh, mesh lists them."))
-					((not opt_s) (print "The Storage service is not running, storage -s image."))))
+							(cond
+								(opt_o (print "No store on a machine " opt_o " in the mesh, mesh lists them."))
+								((not opt_s) (print "The Storage service is not running, storage -s image."))))
 			((> opt_z 0)
 				(print "Copying the store to a volume of " opt_z " MB ...")
 				(if (defq moved_to (storage-resize opt_z svc))
@@ -334,21 +334,21 @@
 			((or opt_T opt_V)
 				;not the files of a folder of deps, nor one whose name begins with a dot
 				(defq files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "." (last (split %0 "/"))))))
-					(files-all (ifn opt_T opt_V) '("")))
+						(files-all (ifn opt_T opt_V) '("")))
 					put 0 same 0 bytes 0 t0 (pii-time))
 				(defun at (file) (cat name (if (starts-with "./" file) (slice file 2 -1) file)))
 				(when opt_T
 					(store-to svc)
 					(each (lambda (file)
-						(defq what (first (storage-put-file (at file) file :nil svc)))
-						(if (eql what :ok) (++ put) (print "Not put: " what " " file)))
+							(defq what (first (storage-put-file (at file) file :nil svc)))
+							(if (eql what :ok) (++ put) (print "Not put: " what " " file)))
 						files)
 					(print put " of " (length files) " files put, in " (/ (- (pii-time) t0) 1000) "ms"))
 				(defq t1 (pii-time))
 				(each (lambda (file)
-					(if (defq size (storage-same-file? (at file) file svc))
-						(setq same (inc same) bytes (+ bytes size))
-						(print "Not the same: " file)))
+						(if (defq size (storage-same-file? (at file) file svc))
+							(setq same (inc same) bytes (+ bytes size))
+							(print "Not the same: " file)))
 					files)
 				(print same " of " (length files) " read back the same, " bytes " bytes, in " (/ (- (pii-time) t1) 1000) "ms"))
 			(opt_d (print (first (storage-delete name :nil svc))))
@@ -391,16 +391,16 @@
 						(defq mended (some (# (starts-with "mended:" %0)) faults)
 							faults (filter (# (not (starts-with "mended:" %0))) faults)
 							left (filter (# (not (or (ends-with " clusters in use marked free" %0)
-								(ends-with " clusters marked in use are had by nothing" %0)
-								(ends-with " is not as the device has it" %0)))) faults))
+											(ends-with " clusters marked in use are had by nothing" %0)
+											(ends-with " is not as the device has it" %0)))) faults))
 						(print (cond
-							((empty? faults) "Nothing is wrong with the volume.")
-							((and mended (empty? left))
-								(cat (str (length faults)) " things were wrong with the volume, all mended."))
-							(mended (cat (str (length faults)) " things were wrong with the volume, "
-								(str (- (length faults) (length left))) " mended, "
-								(str (length left)) " that -C can not mend."))
-							((cat (str (length faults)) " things are wrong with the volume.")))))
+								((empty? faults) "Nothing is wrong with the volume.")
+								((and mended (empty? left))
+									(cat (str (length faults)) " things were wrong with the volume, all mended."))
+								(mended (cat (str (length faults)) " things were wrong with the volume, "
+										(str (- (length faults) (length left))) " mended, "
+										(str (length left)) " that -C can not mend."))
+								((cat (str (length faults)) " things are wrong with the volume.")))))
 					((print "The store did not answer, its service has gone."))))
 			((or opt_c opt_C)
 				(cond
@@ -415,9 +415,9 @@
 					((not entries) (busy))
 					((empty? entries) (print "No object at " name))
 					((each (lambda (entry)
-						(bind '(what now) (storage-copies (first entry) opt_k svc))
-						(if (eql what :ok) (show now) (print "Not set: " (first entry))))
-						entries))))
+								(bind '(what now) (storage-copies (first entry) opt_k svc))
+								(if (eql what :ok) (show now) (print "Not set: " (first entry))))
+							entries))))
 			((or opt_P opt_U)
 				(each (const print) (storage-pin name opt_U svc))
 				(print (length (storage-pins-missing svc)) " blocks of what is pinned are not here yet."))

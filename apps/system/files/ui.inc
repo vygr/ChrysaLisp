@@ -34,7 +34,7 @@
 	(defq name (trim (. *name* :get_text)))
 	;to save, of one kind, the name of that kind, as what saves it will make it
 	(and *save* (= (length *exts*) 1) (nempty? name) (not (ends-with (first *exts*) name))
-			(not (folder? (path-in *folder* name)))
+		(not (folder? (path-in *folder* name)))
 		(setq name (cat name (first *exts*))))
 	(defq path (if (or (starts-with "/" name) (and *names* (name-in-store name))) name (path-in *folder* name)))
 	(cond

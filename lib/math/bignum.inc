@@ -154,7 +154,7 @@
 		(:t (defq out (nums) at 0 len (length a) low (dec (<< 1 s)) up (- +bn_bits s))
 			(while (< at len)
 				(push out (logior (>> (elem-get a at) s)
-					(if (< (inc at) len) (<< (logand (elem-get a (inc at)) low) up) 0)))
+						(if (< (inc at) len) (<< (logand (elem-get a (inc at)) low) up) 0)))
 				(++ at))
 			(bn-trim out))))
 
@@ -179,7 +179,7 @@
 			q (/ (+ (<< (elem-get x j) +bn_bits) (elem-get x (dec j))) top1)
 			at (- j k))
 		(setq x (bn-trim (bn-norm
-			(nums-sub x (cat (bn-zeros at) (nums-scale up q) (bn-zeros (- (length x) at k)))) at))))
+					(nums-sub x (cat (bn-zeros at) (nums-scale up q) (bn-zeros (- (length x) at k)))) at))))
 	(while (>= (bn-cmp x up) 0) (setq x (bn-sub x up)))
 	x)
 
@@ -223,6 +223,6 @@
 
 ;module
 (export-symbols '(bn-zeros bn-trim bn-norm bn-from-num bn-from-bytes bn-bytes bn-bits bn-bit
-	bn-zero? bn-cmp bn-pad bn-add bn-sub bn-mul bn-shl bn-shr bn-modulus bn-reduce bn-mod
-	bn-mulmod bn-addmod bn-submod bn-powmod bn-invmod))
+		bn-zero? bn-cmp bn-pad bn-add bn-sub bn-mul bn-shl bn-shr bn-modulus bn-reduce bn-mod
+		bn-mulmod bn-addmod bn-submod bn-powmod bn-invmod))
 (env-pop)

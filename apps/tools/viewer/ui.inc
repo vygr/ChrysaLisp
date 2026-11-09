@@ -7,7 +7,7 @@
 (redefun action-file-leaf-action ()
 	;load the file selected
 	(switch-file (defq file (. *file_selector* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
+				(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
 
 (redefun action-pop ()
 	(when (defq pos (pop *cursor_stack*))

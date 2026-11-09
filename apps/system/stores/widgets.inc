@@ -14,17 +14,17 @@
 	;thing, folders first, and what of it is taken at the foot
 	(defq side (str n) at (# (sym (cat "*" %0 "_" side "*"))) event (# (sym (cat "+event_" %0 "_" side))))
 	(static-qq (ui-flow _ (:flow_flags +flow_down_fill)
-		(ui-flow _ (:flow_flags +flow_right_fill :font :font_button)
-			(ui-tool-bar ,(at "tools") ()
-				(ui-buttons (+sym_up +sym_select_region) ,(event "up")))
-			(. (ui-button ,(at "source") (:text "")) :connect ,(event "source")))
-		(. (ui-textfield ,(at "path") (:clear_text "" :hint_text "folder" :paper +argb_white))
-			:connect ,(event "path"))
-		(ui-flow _ (:flow_flags +flow_up_fill)
-			(ui-label ,(at "note") (:text "" :font :font_small))
-			(ui-element ,(at "scroll") (Sheet) (:paper :paper_slider :min_width 440 :min_height 420)
-				(ui-backdrop ,(at "ruled") (:style :lines :paper +argb_white :ink +argb_grey14)
-					(ui-flow ,(at "list") (:flow_flags +flow_down_fill))))))))
+			(ui-flow _ (:flow_flags +flow_right_fill :font :font_button)
+				(ui-tool-bar ,(at "tools") ()
+					(ui-buttons (+sym_up +sym_select_region) ,(event "up")))
+				(. (ui-button ,(at "source") (:text "")) :connect ,(event "source")))
+			(. (ui-textfield ,(at "path") (:clear_text "" :hint_text "folder" :paper +argb_white))
+				:connect ,(event "path"))
+			(ui-flow _ (:flow_flags +flow_up_fill)
+				(ui-label ,(at "note") (:text "" :font :font_small))
+				(ui-element ,(at "scroll") (Sheet) (:paper :paper_slider :min_width 440 :min_height 420)
+					(ui-backdrop ,(at "ruled") (:style :lines :paper +argb_white :ink +argb_grey14)
+						(ui-flow ,(at "list") (:flow_flags +flow_down_fill))))))))
 
 ;two sides, each the files of the host or a store, and between them what
 ;is taken copied from one to the other, by the rule for what is there

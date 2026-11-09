@@ -59,9 +59,9 @@
 	(elem-get (apply (# (. pl_pal :cell_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1)) pl_at)) +cell_val))
 (assert-eq "every cell is where it says it is" 38
 	(length (filter (lambda (cell)
-		(eql cell (apply (# (. pl_pal :cell_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1))
-			(. pl_pal :where (elem-get cell +cell_what) (elem-get cell +cell_val))))))
-		(. pl_pal :get_cells))))
+				(eql cell (apply (# (. pl_pal :cell_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1))
+							(. pl_pal :where (elem-get cell +cell_what) (elem-get cell +cell_val))))))
+			(. pl_pal :get_cells))))
 (assert-eq "a point on it is on it" :t (. pl_pal :hit 400 400))
 (assert-eq "and one off it is not" :nil (. pl_pal :hit 400 420))
 
@@ -292,18 +292,18 @@
 (assert-eq "two devices bound, a square each, each the colour of its place, touch the second, a first pen a student's the fourth"
 	(str (list 0xff000000 0xffff0000)) (str (map (# (first (first (filter (lambda (d) (= (third d) %0)) (. pf :devices))))) '(1 3))))
 (defq pf_what (lambda (slot key) (bind '(& what &ignore) (first (filter (# (= (third %0) slot)) (. pf :devices))))
-	(elem-get what (ptr-at what key))))
+		(elem-get what (ptr-at what key))))
 (assert-eq "a device bound shows what it bound itself: touch's mode, the pen's colour"
 	(str (list :rect 0xffe03131)) (str (list (pf_what 1 :mode) (pf_what 3 :color))))
 (assert-eq "the mouse's place is the first, the teacher's pen the third, a second student's pen the fifth"
 	(str '(0 2 4)) (str (list (. pf_board :device_slot :mouse 0) (progn (. pf_board :appoint (ptr-event 0x3000000 :pen 0 0 0))
-		(. pf_board :device_slot :pen 0x3000000)) (. pf_board :device_slot :pen 0x4000000))))
+				(. pf_board :device_slot :pen 0x3000000)) (. pf_board :device_slot :pen 0x4000000))))
 (assert-eq "a second button is the row below, the mouse's right, a pen's barrel and its other end; the middle not shown, touch one row"
 	"(6 8 8 :nil 1)" (str (list (. pf_board :device_slot :mouse 0 +pev_right) (. pf_board :device_slot :pen 0x3000000 +pev_right)
-		(. pf_board :device_slot :eraser 0x3000000) (. pf_board :device_slot :mouse 0 +pev_middle) (. pf_board :device_slot :touch 0x1000000))))
+			(. pf_board :device_slot :eraser 0x3000000) (. pf_board :device_slot :mouse 0 +pev_middle) (. pf_board :device_slot :touch 0x1000000))))
 (assert-eq "a switch is a device's own if bound, else the board's: lock on, snap off, a device's snap on"
 	"(:t :nil :t :nil)" (str (list (. pf_board :switch_of '(:tool :pen) :keep_shape) (. pf_board :switch_of '(:tool :pen) :snap)
-		(. pf_board :switch_of '(:snap :t) :snap) (. pf_board :switch_of '(:keep_shape :nil) :keep_shape))))
+			(. pf_board :switch_of '(:snap :t) :snap) (. pf_board :switch_of '(:keep_shape :nil) :keep_shape))))
 ;a tap of the mouse on a floating menu binds the button it went down with,
 ;not the none it came up with: a rule of buttons 0 matched every press of
 ;the mouse, and in select mode the mouse drew, Chris: "in select mode, I am
@@ -362,7 +362,7 @@
 (. pp_board :paint (list (elem-get pp_rect +cwb_id)) (ptr-part (ptr-event 0 :mouse +pev_middle 0 0)) 0)
 (assert-eq "left outlines, right fills, as given; then touch the outline, or the fill of a fill only; the middle both, none"
 	(str (list (list (list 0xff000000 0xffffffff) (list 0xff000000 0xffffffff) (list 0xff000000 0xffffffff))
-		(list (list 0 0) (list 0xff123456 0xffffffff) (list 0xff123456 0xffffffff))))
+			(list (list 0 0) (list 0xff123456 0xffffffff) (list 0xff123456 0xffffffff))))
 	(str (list pp_after (map (# (list (cwb-get %0 :stroke) (cwb-get %0 :fill))) (list pp_rect pp_frect (pp-last))))))
 ;the middle of the mouse binds both its buttons, and is no rule of its own:
 ;what shows the board pans with it, the board never has it
@@ -370,8 +370,8 @@
 (. (. pm_board :get_bindings) :set :mouse 0 +pev_middle :mode :rect)
 (assert-eq "a middle press binds the left and the right, and makes no rule of the middle"
 	"(:rect :rect :nil)" (str (list (. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode)
-		(. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_right 0 0) :mode)
-		(some (lambda ((& & b &ignore)) (eql b +pev_middle)) (get :rules (. pm_board :get_bindings))))))
+			(. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_right 0 0) :mode)
+			(some (lambda ((& & b &ignore)) (eql b +pev_middle)) (get :rules (. pm_board :get_bindings))))))
 ;an eraser that lifts takes no more bite: its last step is of the buttons it
 ;went down with, not of none, which is bound to the board's width, Chris:
 ;"When I release the button on an erase action, I see a blip of change"
@@ -482,7 +482,7 @@
 (assert-eq "a clear outline pen fills the inside, not grown; a clear fill pen is the outline alone"
 	(str (list 0 0x8000ff00 (list 20 20 120 120) 0xffff0000 0))
 	(str (list (cwb-get pn_inner :stroke) (cwb-get pn_inner :fill) (map (const n2i) (cwb-bounds (list pn_inner)))
-		(cwb-get (pn-last) :stroke) (cwb-get (pn-last) :fill))))
+			(cwb-get (pn-last) :stroke) (cwb-get (pn-last) :fill))))
 (assert-list-eq "none is any ink with no alpha" '(:t :t :nil) (map (const board-none?) '(0 0x00ff0000 0x01000000)))
 ;each user's own: a hand on nothing puts down only its user's, a hand on a
 ;thing picks it up for its user and leaves what others hold, who holds what
@@ -511,7 +511,7 @@
 (assert-list-eq "a pen bound to rub out, an eraser, rub out; the mouse's hand and a finger draw along an edge"
 	'(:t :t :nil :nil)
 	(map (# (board-rubs? pw_b %0 :pen)) (list (ptr-event 0x2000000 :pen +pev_left 0 0) (ptr-event 0x4000000 :eraser 1 0 0)
-		(ptr-event 0 :mouse +pev_right 0 0) (ptr-event 0x1000001 :touch 1 0 0))))
+			(ptr-event 0 :mouse +pev_right 0 0) (ptr-event 0x1000001 :touch 1 0 0))))
 ;what a press's buttons are, worked out in one place
 (assert-eq "a finger is all its device, none held is the main, the middle of a mouse both, a pen's barrel its second"
 	(str (list (list :nil) (list +pev_left) (list +pev_left +pev_right) (list +pev_right) (list +pev_middle)))
@@ -521,7 +521,7 @@
 		(list (ptr-event 0 :mouse +pev_middle 0 0) (ptr-event 0 :mouse 0 0 0) (ptr-event 0x1000001 :touch 1 0 0))))
 (assert-list-eq "what a press colours: the main the outline, the second the fill, both, a finger what shows"
 	'(:stroke :fill :both :ink) (map (const ptr-part) (list (ptr-event 0 :mouse +pev_left 0 0) (ptr-event 0x2000000 :pen +pev_right 0 0)
-		(ptr-event 0 :mouse +pev_middle 0 0) (ptr-event 0x1000001 :touch 1 0 0))))
+			(ptr-event 0 :mouse +pev_middle 0 0) (ptr-event 0x1000001 :touch 1 0 0))))
 ;a slot holds a pen by its number, the board has the pens' inks: a pen
 ;filled with another ink is the ink of every slot that holds it, Chris: "the
 ;ability to fill those pens with any ink"
@@ -565,7 +565,7 @@
 (. pt_board :pick pt_left :switch :snap) (. pt_board :pick :nil :switch :keep_shape)
 (assert-eq "nothing held: the left holds pen 1, width 9, boxes and snap; no device turns over the board's lock"
 	"(1 9 :rect :t :nil)" (str (list (. pt_b :value pt_left :pen) (n2i (. pt_b :value pt_left :width)) (. pt_b :value pt_left :mode)
-		(. pt_b :value pt_left :snap) (get :keep_shape pt_board))))
+			(. pt_b :value pt_left :snap) (get :keep_shape pt_board))))
 (defq pt_it (. pt_board :add (cwb-shape (cwb-d-rect 10 10 50 50) :fill 0xff000000 :stroke 0xff000000 :width 3.0)))
 (. pt_board :pick_up pt_it +board_teacher)
 (. pt_board :pick pt_right :pen 1) (. pt_board :pick pt_left :width 12.0) (. pt_board :pick pt_left :alpha 0x40)
@@ -573,7 +573,7 @@
 (assert-eq "held: the right's pen is its fill, the width its, a quarter see through its outline, and the slots are as they were, the right holding pen 1 as it began"
 	(str (list +argb_green 12 0x40000000 9 1 (first pt_pens)))
 	(str (list (cwb-get pt_shape :fill) (n2i (cwb-get pt_shape :width)) (cwb-get pt_shape :stroke)
-		(n2i (. pt_b :value pt_left :width)) (. pt_b :value pt_right :pen) (first pt_pens))))
+			(n2i (. pt_b :value pt_left :width)) (. pt_b :value pt_right :pen) (first pt_pens))))
 (. pt_board :select (list))
 (. pt_board :pick pt_left :ink 0xff0000ff)
 (assert-eq "put down, an ink fills the pen the left holds, pen 1" 0xff0000ff (second pt_pens))
@@ -620,7 +620,7 @@
 (. pg_board :duplicate :nil :nil (. pg_board :selected_by 3))
 (assert-eq "the student's copies are picked up in place of theirs, the teacher's group stays"
 	"(5 3 :t)" (str (list (length (cwb-items (. pg_board :get_doc))) (length (get :selected pg_board))
-		(if (find pg_g (get :selected pg_board)) :t))))
+			(if (find pg_g (get :selected pg_board)) :t))))
 (. pg_board :delete (. pg_board :selected_by 0))
 (assert-eq "the teacher's delete takes the group only" 4 (length (cwb-items (. pg_board :get_doc))))
 (. pg_board :delete (list))
@@ -643,4 +643,3 @@
 	(progn (bind '(x y x1 y1) (ps-box ps_pal)) (and (>= x 0.0) (>= y 0.0) (<= x1 400.0) (<= y1 300.0))))
 (assert-true "and an instrument at the edge, as far as it fits"
 	(progn (bind '(x y x1 y1) (ps-box ps_ruler)) (and (>= x 0.0) (>= y 0.0))))
-

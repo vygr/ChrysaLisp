@@ -35,8 +35,8 @@
 ;nothing, so it is what shows what the CPU itself is made to do
 (import "lib/gpu/vp.inc")
 (defq de_prog (shader-compile (shader-read (string-stream (cat
-		"(defun quot :int ((a :int) (b :int)) (/ a b))"
-		"(defun both :int ((a :int) (b :int)) (+ (* (/ a b) 1000) (- a (* (/ a b) b))))"))))
+					"(defun quot :int ((a :int) (b :int)) (/ a b))"
+					"(defun both :int ((a :int) (b :int)) (+ (* (/ a b) 1000) (- a (* (/ a b) b))))"))))
 	de_quot (shader-vp-func de_prog 'quot) de_both (shader-vp-func de_prog 'both))
 (assert-eq "native, 7 by 0 is 0" 0 (de_quot 7 0))
 (assert-eq "native, -7 by 0 is 0" 0 (de_quot -7 0))

@@ -132,10 +132,10 @@
 	(vp-xor-rr :r0 :r0)
 	(assign '(:r0 :r0 :r0 :r0 :r0)
 		'((:r1 statics_gui_dirty_flag)
-		  (:r1 statics_gui_old_region_index)
-		  (:r1 statics_gui_flags)
-		  (:r1 statics_gui_mouse_x)
-		  (:r1 statics_gui_mouse_y)))
+			(:r1 statics_gui_old_region_index)
+			(:r1 statics_gui_flags)
+			(:r1 statics_gui_mouse_x)
+			(:r1 statics_gui_mouse_y)))
 
 	;clear lisp tls on kernel tcb
 	(assign '((:r1 statics_sys_task_kernel_tcb)) '(:r1))

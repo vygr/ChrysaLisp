@@ -39,12 +39,12 @@
 (defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer ?
 	(defq flags (+ +buffer_flag_undo (if (notany (# (ends-with %0 file)) +text_types)
-			+buffer_flag_syntax 0))
+				+buffer_flag_syntax 0))
 		files (. *meta_map* :find :files) key (str file)
 		meta (. files :find key))
 	(unless meta
 		(. files :insert key (setq meta
-			(scatter (Emap) :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
+					(scatter (Emap) :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Document flags *syntax*)))
 		(when file
@@ -98,8 +98,8 @@
 	(when (>= (- x1 x) +min_word_size)
 		; supply a 20-line radius of context words for intelligent sorting
 		(defq match_words (. dictionary :find_various
-			(slice (. buffer :get_text_line cy) x x1)
-			(context-words 20)))
+				(slice (. buffer :get_text_line cy) x x1)
+				(context-words 20)))
 		(when (> (length match_words) 0)
 			(if (> (length match_words) +max_matches)
 				(setq match_words (slice match_words 0 +max_matches)))
@@ -196,7 +196,7 @@
 	(each (lambda ((key &ignore)) (. dictionary :insert_word (str key)))
 		(partition (. *syntax* :get_keywords) 2))
 	(each (# (with-read-lock %0
-			(lines! populate-dictionary (file-stream %0))))
+				(lines! populate-dictionary (file-stream %0))))
 		(cat +dictionaries '("class/lisp/root.inc")))
 	(. *file_selector* :populate "." +file_types 2)
 	(populate-file-trees)
@@ -224,7 +224,7 @@
 						(action-jump file (str-to-num line)))))
 			((= (getf *msg* +ev_msg_type) +ev_type_key_up)
 				;key up event
-				)
+			)
 			((and match_window (= (getf *msg* +ev_msg_type) +ev_type_key_down)
 					(defq key (getf *msg* +ev_msg_key_key))
 					(or (= key 0x40000052) (= key 0x40000051)

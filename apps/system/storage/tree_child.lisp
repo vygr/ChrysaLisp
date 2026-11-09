@@ -14,14 +14,14 @@
 (defun main ()
 	;one with nothing to do for a while goes
 	(job-child 5000000 (lambda (msg mbox)
-		(bind '(what svc path file) (split (slice msg +job_size -1) "\n"))
-		(defq svc (hex-decode svc)
-			answer (catch (cond
-					((eql what "p")
-						(if (eql (defq how (first (storage-put-file path file :nil svc))) :ok) "1"
-							(cat "0 the store said " (rest (str how)))))
-					((defq size (storage-same-file? path file svc)) (cat "1 " (str size)))
-					("0 it is not the same"))
-				(cat "0 " (slice (str _) 0 (min 120 (length (str _)))))))
-		(mail-send (getf msg +job_reply)
-			(cat (setf-> (str-alloc +job_reply_size) (+job_reply_key (getf msg +job_key))) answer)))))
+			(bind '(what svc path file) (split (slice msg +job_size -1) "\n"))
+			(defq svc (hex-decode svc)
+				answer (catch (cond
+						((eql what "p")
+							(if (eql (defq how (first (storage-put-file path file :nil svc))) :ok) "1"
+								(cat "0 the store said " (rest (str how)))))
+						((defq size (storage-same-file? path file svc)) (cat "1 " (str size)))
+						("0 it is not the same"))
+					(cat "0 " (slice (str _) 0 (min 120 (length (str _)))))))
+			(mail-send (getf msg +job_reply)
+				(cat (setf-> (str-alloc +job_reply_size) (+job_reply_key (getf msg +job_key))) answer)))))

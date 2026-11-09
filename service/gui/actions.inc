@@ -56,13 +56,13 @@
 		(and (defq old_view (. *screen* :find_id *mouse_id*))
 			(defq owner (. old_view :find_owner))
 			(mail-send owner (setf-> (str-alloc +ev_msg_exit_size)
-				(+ev_msg_type +ev_type_exit)
-				(+ev_msg_target_id *mouse_id*))))
+					(+ev_msg_type +ev_type_exit)
+					(+ev_msg_target_id *mouse_id*))))
 		(setq *mouse_id* mouse_id)
 		(and (defq owner (. view :find_owner))
 			(mail-send owner (setf-> (str-alloc +ev_msg_enter_size)
-				(+ev_msg_type +ev_type_enter)
-				(+ev_msg_target_id *mouse_id*))))) view)
+					(+ev_msg_type +ev_type_enter)
+					(+ev_msg_target_id *mouse_id*))))) view)
 
 (defun held-mouse-id ()
 	;the view the mouse is on. While a button is held that is the view it
@@ -78,8 +78,8 @@
 				(nql old_view *focus*)
 				(defq owner (. old_view :find_owner))
 				(mail-send owner (setf-> (str-alloc +ev_msg_exit_size)
-					(+ev_msg_type +ev_type_exit)
-					(+ev_msg_target_id *mouse_id*))))
+						(+ev_msg_type +ev_type_exit)
+						(+ev_msg_target_id *mouse_id*))))
 			(setq *mouse_id* (. *focus* :get_id))
 			*focus*)
 		((held-mouse-id))))
@@ -97,11 +97,11 @@
 		(- *mouse_y* (getf view +view_ctx_y 0)))
 	(when owner
 		(mail-send owner (setf-> (str-alloc +ev_msg_key_size)
-			(+ev_msg_type +ev_type_key_down)
-			(+ev_msg_target_id *mouse_id*)
-			(+ev_msg_key_scode scode)
-			(+ev_msg_key_key (cook-key scode))
-			(+ev_msg_key_mod *mods*)))))
+				(+ev_msg_type +ev_type_key_down)
+				(+ev_msg_target_id *mouse_id*)
+				(+ev_msg_key_scode scode)
+				(+ev_msg_key_key (cook-key scode))
+				(+ev_msg_key_mod *mods*)))))
 
 (defun action-key-up ()
 	(defq view (set-focus-id)
@@ -111,11 +111,11 @@
 		(. *key_dispatch* :erase scode)
 		(bind '(old_id owner) entry)
 		(mail-send owner (setf-> (str-alloc +ev_msg_key_size)
-			(+ev_msg_type +ev_type_key_up)
-			(+ev_msg_target_id old_id)
-			(+ev_msg_key_scode scode)
-			(+ev_msg_key_key (cook-key scode))
-			(+ev_msg_key_mod *mods*)))))
+				(+ev_msg_type +ev_type_key_up)
+				(+ev_msg_target_id old_id)
+				(+ev_msg_key_scode scode)
+				(+ev_msg_key_key (cook-key scode))
+				(+ev_msg_key_mod *mods*)))))
 
 ;A turn of the wheel is for the view under the mouse as it turns, or the one
 ;a button went down on while held. Chris: "you should never be able to have
@@ -159,12 +159,12 @@
 		(setq *wheel_id* to)
 		(if (defq owner (. view :find_owner))
 			(mail-send owner (setf-> (str-alloc +ev_msg_wheel_size)
-				(+ev_msg_type +ev_type_wheel)
-				(+ev_msg_target_id id)
-				;the way round the user has it, usr/Guest/env.inc
-				(+ev_msg_wheel_x (* (get :wheel_x *env*) (getf msg +gui_event_x)))
-				(+ev_msg_wheel_y (* (get :wheel_y *env*) (getf msg +gui_event_y)))
-				(+ev_msg_wheel_direction (getf msg +gui_event_direction)))))))
+					(+ev_msg_type +ev_type_wheel)
+					(+ev_msg_target_id id)
+					;the way round the user has it, usr/Guest/env.inc
+					(+ev_msg_wheel_x (* (get :wheel_x *env*) (getf msg +gui_event_x)))
+					(+ev_msg_wheel_y (* (get :wheel_y *env*) (getf msg +gui_event_y)))
+					(+ev_msg_wheel_direction (getf msg +gui_event_direction)))))))
 
 (defun action-mouse-motion ()
 	(setq *mouse_x* (getf msg +gui_event_x)
@@ -174,14 +174,14 @@
 	(and (defq view (. *screen* :find_id *mouse_id*))
 		(defq owner (. view :find_owner))
 		(mail-send owner (setf-> (str-alloc +ev_msg_mouse_size)
-			(+ev_msg_type +ev_type_mouse)
-			(+ev_msg_target_id *mouse_id*)
-			(+ev_msg_mouse_x *mouse_x*)
-			(+ev_msg_mouse_y *mouse_y*)
-			(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
-			(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
-			(+ev_msg_mouse_buttons *mouse_buttons*)
-			(+ev_msg_mouse_count 0))))
+				(+ev_msg_type +ev_type_mouse)
+				(+ev_msg_target_id *mouse_id*)
+				(+ev_msg_mouse_x *mouse_x*)
+				(+ev_msg_mouse_y *mouse_y*)
+				(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
+				(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
+				(+ev_msg_mouse_buttons *mouse_buttons*)
+				(+ev_msg_mouse_count 0))))
 	(mouse-type view
 		(- *mouse_x* (if view (getf view +view_ctx_x 0) 0))
 		(- *mouse_y* (if view (getf view +view_ctx_y 0) 0))))
@@ -193,14 +193,14 @@
 	(when (and (defq view (set-mouse-id))
 			(defq owner (. view :find_owner)))
 		(mail-send owner (setf-> (str-alloc +ev_msg_mouse_size)
-			(+ev_msg_type +ev_type_mouse)
-			(+ev_msg_target_id *mouse_id*)
-			(+ev_msg_mouse_x *mouse_x*)
-			(+ev_msg_mouse_y *mouse_y*)
-			(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
-			(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
-			(+ev_msg_mouse_buttons *mouse_buttons*)
-			(+ev_msg_mouse_count (getf msg +gui_event_count))))
+				(+ev_msg_type +ev_type_mouse)
+				(+ev_msg_target_id *mouse_id*)
+				(+ev_msg_mouse_x *mouse_x*)
+				(+ev_msg_mouse_y *mouse_y*)
+				(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
+				(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
+				(+ev_msg_mouse_buttons *mouse_buttons*)
+				(+ev_msg_mouse_count (getf msg +gui_event_count))))
 		(setq *focus* (if (Textfield? view) view))))
 
 (defun action-mouse-button-up ()
@@ -210,14 +210,14 @@
 	(and (defq view (. *screen* :find_id *mouse_id*))
 		(defq owner (. view :find_owner))
 		(mail-send owner (setf-> (str-alloc +ev_msg_mouse_size)
-			(+ev_msg_type +ev_type_mouse)
-			(+ev_msg_target_id *mouse_id*)
-			(+ev_msg_mouse_x *mouse_x*)
-			(+ev_msg_mouse_y *mouse_y*)
-			(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
-			(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
-			(+ev_msg_mouse_buttons 0)
-			(+ev_msg_mouse_count (getf msg +gui_event_count)))))
+				(+ev_msg_type +ev_type_mouse)
+				(+ev_msg_target_id *mouse_id*)
+				(+ev_msg_mouse_x *mouse_x*)
+				(+ev_msg_mouse_y *mouse_y*)
+				(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
+				(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
+				(+ev_msg_mouse_buttons 0)
+				(+ev_msg_mouse_count (getf msg +gui_event_count)))))
 	(mouse-type (defq view (set-mouse-id))
 		(- *mouse_x* (getf view +view_ctx_x 0))
 		(- *mouse_y* (getf view +view_ctx_y 0))))
@@ -246,17 +246,17 @@
 	(defq contact (if (. *pointer_views* :find id) 1 0))
 	(when (defq owner (. view :find_owner))
 		(mail-send owner (setf-> (str-alloc +ev_msg_pointer_size)
-			(+ev_msg_type +ev_type_pointer)
-			(+ev_msg_target_id (. view :get_id))
-			(+ev_msg_pointer_id id)
-			(+ev_msg_pointer_kind (getf msg +gui_event_kind))
-			(+ev_msg_pointer_buttons (getf msg +gui_event_buttons))
-			(+ev_msg_pointer_pressure (getf msg +gui_event_pressure))
-			(+ev_msg_pointer_contact contact)
-			(+ev_msg_pointer_x x)
-			(+ev_msg_pointer_y y)
-			(+ev_msg_pointer_rx (- x (getf view +view_ctx_x 0)))
-			(+ev_msg_pointer_ry (- y (getf view +view_ctx_y 0)))))))
+				(+ev_msg_type +ev_type_pointer)
+				(+ev_msg_target_id (. view :get_id))
+				(+ev_msg_pointer_id id)
+				(+ev_msg_pointer_kind (getf msg +gui_event_kind))
+				(+ev_msg_pointer_buttons (getf msg +gui_event_buttons))
+				(+ev_msg_pointer_pressure (getf msg +gui_event_pressure))
+				(+ev_msg_pointer_contact contact)
+				(+ev_msg_pointer_x x)
+				(+ev_msg_pointer_y y)
+				(+ev_msg_pointer_rx (- x (getf view +view_ctx_x 0)))
+				(+ev_msg_pointer_ry (- y (getf view +view_ctx_y 0)))))))
 
 (defun action-resized ()
 	;the host window is a new size
@@ -264,11 +264,11 @@
 		(:set_bounds 0 0 (getf msg +gui_event_x) (getf msg +gui_event_y))
 		(:set_flags +view_flag_dirty_all +view_flag_dirty_all))
 	(each (lambda (child)
-		(mail-send (. child :find_owner)
-			(setf-> (str-alloc +ev_msg_action_size)
-				(+ev_msg_type +ev_type_action)
-				(+ev_msg_target_id +event_layout)
-				(+ev_msg_action_source_id (. child :get_id))))) (screen-children))
+			(mail-send (. child :find_owner)
+				(setf-> (str-alloc +ev_msg_action_size)
+					(+ev_msg_type +ev_type_action)
+					(+ev_msg_target_id +event_layout)
+					(+ev_msg_action_source_id (. child :get_id))))) (screen-children))
 	(gui-update *mouse_x* *mouse_y* 1))
 
 (defun action-shown ()
@@ -284,18 +284,18 @@
 		(open-child "apps/system/logout/app.lisp" +kn_call_pin)))
 
 (defq *event_map* (scatter (Fmap)
-	+gui_ev_mouse_wheel action-mouse-wheel
-	+gui_ev_mouse_motion action-mouse-motion
-	+gui_ev_mouse_down action-mouse-button-down
-	+gui_ev_mouse_up action-mouse-button-up
-	+gui_ev_pointer_down action-pointer
-	+gui_ev_pointer_motion action-pointer
-	+gui_ev_pointer_up action-pointer
-	+gui_ev_key_down action-key-down
-	+gui_ev_key_up action-key-up
-	+gui_ev_resized action-resized
-	+gui_ev_shown action-shown
-	+gui_ev_quit action-quit))
+		+gui_ev_mouse_wheel action-mouse-wheel
+		+gui_ev_mouse_motion action-mouse-motion
+		+gui_ev_mouse_down action-mouse-button-down
+		+gui_ev_mouse_up action-mouse-button-up
+		+gui_ev_pointer_down action-pointer
+		+gui_ev_pointer_motion action-pointer
+		+gui_ev_pointer_up action-pointer
+		+gui_ev_key_down action-key-down
+		+gui_ev_key_up action-key-up
+		+gui_ev_resized action-resized
+		+gui_ev_shown action-shown
+		+gui_ev_quit action-quit))
 
 ;module
 ;*pointer_views* with it: what an action is, is done later, by the GUI's

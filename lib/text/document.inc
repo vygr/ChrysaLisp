@@ -16,13 +16,13 @@
 		; (. document :select_word) -> document
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda (csr) (task-slice)
-					(bind '(cx cy &ignore) csr)
-					(defq line (elem-get buffer_lines cy)
-						x (bskipn +char_class_not_whole_word line cx)
-						cx (rbskipn +char_class_not_whole_word line cx))
-					(if (= cx x) csr (nums x cy cx cy -1)))
-				(get :cursors this)))))
+					(map (lambda (csr) (task-slice)
+							(bind '(cx cy &ignore) csr)
+							(defq line (elem-get buffer_lines cy)
+								x (bskipn +char_class_not_whole_word line cx)
+								cx (rbskipn +char_class_not_whole_word line cx))
+							(if (= cx x) csr (nums x cy cx cy -1)))
+						(get :cursors this)))))
 		this)
 
 	(defmethod :select_line ()
@@ -34,47 +34,47 @@
 		; (. document :select_paragraph) -> document
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((& cy &ignore)) (task-slice)
-					(defq y (some! (# (if (blank-line? %0) (inc (!))))
-							(list buffer_lines) :nil cy 0)
-						cy (some! (# (if (blank-line? %0) (!)))
-							(list buffer_lines) :nil cy (bind '(& h) (. this :get_size))))
-					(setd y 0 cy h)
-					(nums 0 cy 0 y -1))
-				(get :cursors this)))))
+					(map (lambda ((& cy &ignore)) (task-slice)
+							(defq y (some! (# (if (blank-line? %0) (inc (!))))
+									(list buffer_lines) :nil cy 0)
+								cy (some! (# (if (blank-line? %0) (!)))
+									(list buffer_lines) :nil cy (bind '(& h) (. this :get_size))))
+							(setd y 0 cy h)
+							(nums 0 cy 0 y -1))
+						(get :cursors this)))))
 		this)
 
 	(defmethod :select_block ()
 		; (. document :select_block) -> document
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda (csr) (task-slice)
-					(bind '(cx cy &ignore) csr)
-					(if (bind '(x y) (. this :find_left_bracket cx cy))
-						(if (bind '(cx cy) (. this :find_right_bracket cx cy))
-							(nums (inc cx) cy x y -1)
-							csr)
-						csr))
-				(get :cursors this)))))
+					(map (lambda (csr) (task-slice)
+							(bind '(cx cy &ignore) csr)
+							(if (bind '(x y) (. this :find_left_bracket cx cy))
+								(if (bind '(cx cy) (. this :find_right_bracket cx cy))
+									(nums (inc cx) cy x y -1)
+									csr)
+								csr))
+						(get :cursors this)))))
 		this)
 
 	(defmethod :select_form ()
 		; (. document :select_form) -> document
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda (csr) (task-slice)
-					(bind '(cx cy &ignore) csr)
-					(defq line (elem-get buffer_lines cy))
-					(cond
-						((find (elem-get line cx) "()")
-							(if (bind '(x y) (. this :find_left_bracket cx cy))
-								(if (bind '(cx cy) (. this :find_right_bracket cx cy))
-									(nums (inc cx) cy x y -1)
-									csr)
-								csr))
-						((defq x (bskipn +char_class_not_whole_word line cx)
-								cx (rbskipn +char_class_not_whole_word line cx))
-							(if (= cx x) csr (nums x cy cx cy -1)))))
-				(get :cursors this)))))
+					(map (lambda (csr) (task-slice)
+							(bind '(cx cy &ignore) csr)
+							(defq line (elem-get buffer_lines cy))
+							(cond
+								((find (elem-get line cx) "()")
+									(if (bind '(x y) (. this :find_left_bracket cx cy))
+										(if (bind '(cx cy) (. this :find_right_bracket cx cy))
+											(nums (inc cx) cy x y -1)
+											csr)
+										csr))
+								((defq x (bskipn +char_class_not_whole_word line cx)
+										cx (rbskipn +char_class_not_whole_word line cx))
+									(if (= cx x) csr (nums x cy cx cy -1)))))
+						(get :cursors this)))))
 		this)
 
 	(defmethod :select_all ()
@@ -90,11 +90,11 @@
 					(when (or (/= cx ax) (/= cy ay))
 						(. this :idelete cx cy ax ay))
 					(defq line (. this :get_text_line cy)
-						  ;the new line takes the whole indent, even when
-						  ;the break is made inside it
-						  indent_str (slice line 0 (bskip +char_class_space line 0))
-						  trim_left (rbskip +char_class_space line cx)
-						  trim_right (bskip +char_class_space line cx))
+						;the new line takes the whole indent, even when
+						;the break is made inside it
+						indent_str (slice line 0 (bskip +char_class_space line 0))
+						trim_left (rbskip +char_class_space line cx)
+						trim_right (bskip +char_class_space line cx))
 					(. this :idelete trim_left cy trim_right cy)
 					(. this :iinsert trim_left cy (cat +char_class_lf indent_str)))
 				(. this :merge_cursors (. this :get_cursors))))
@@ -123,7 +123,7 @@
 						(. this :idelete 0 cy
 							(min tab_width (bskip " " (. this :get_text_line cy) 0)) cy)
 						(++ cy)))
-					(. this :get_cursors)))
+				(. this :get_cursors)))
 		this)
 
 	(defmethod :right_tab ()
@@ -175,14 +175,14 @@
 		(undoable this
 			(. this :select_paragraph)
 			(reach (lambda ((& cy & ay &ignore))
-				(when (/= ay cy)
-					(defq first_line (. this :get_text_line ay)
-						indent_str (slice first_line 0 (bskip +char_class_white_space first_line 0))
-						lines (reflow (split (. this :icopy 0 ay 0 cy) +char_class_white_space)
-							(. this :get_wrap_width) indent_str (. this :get_tab_width)))
-					(.-> this
-						(:idelete 0 ay 0 cy)
-						(:iinsert 0 ay (join lines +char_class_lf 2)))))
+					(when (/= ay cy)
+						(defq first_line (. this :get_text_line ay)
+							indent_str (slice first_line 0 (bskip +char_class_white_space first_line 0))
+							lines (reflow (split (. this :icopy 0 ay 0 cy) +char_class_white_space)
+								(. this :get_wrap_width) indent_str (. this :get_tab_width)))
+						(.-> this
+							(:idelete 0 ay 0 cy)
+							(:iinsert 0 ay (join lines +char_class_lf 2)))))
 				(. this :get_cursors)))
 		this)
 
@@ -191,11 +191,11 @@
 		(undoable this
 			(. this :select_paragraph)
 			(reach (lambda ((& cy & ay &ignore))
-				(when (/= ay cy)
-					(defq lines (split (. this :icopy 0 ay 0 cy) +char_class_white_space))
-					(.-> this
-						(:idelete 0 ay 0 cy)
-						(:iinsert 0 ay (join lines +char_class_lf 2)))))
+					(when (/= ay cy)
+						(defq lines (split (. this :icopy 0 ay 0 cy) +char_class_white_space))
+						(.-> this
+							(:idelete 0 ay 0 cy)
+							(:iinsert 0 ay (join lines +char_class_lf 2)))))
 				(. this :get_cursors)))
 		this)
 
@@ -277,12 +277,12 @@
 			(undoable this
 				;trim front
 				(defq y (some! (# (if (blank-line? %0) :nil (!)))
-					(list (. this :get_buffer_lines)) :nil 0 h))
+						(list (. this :get_buffer_lines)) :nil 0 h))
 				(setd y h)
 				(. this :idelete 0 0 0 y)
 				;trim end
 				(defq y (some! (# (if (blank-line? %0) :nil (inc (!))))
-					(list (. this :get_buffer_lines)) :nil (bind '(w h) (. this :get_size)) 0))
+						(list (. this :get_buffer_lines)) :nil (bind '(w h) (. this :get_size)) 0))
 				(setd y 0)
 				(. this :idelete 0 y 0 h)
 				;trim lines
@@ -292,8 +292,7 @@
 							(defq ei (- l si))
 							(. this :idelete si (!) (+ si ei) (!))))
 					(list (. this :get_buffer_lines)) 0 (bind '(w h) (. this :get_size)))))
-		this)
-	)
+		this))
 
 ;module
 (export-classes '(Document))

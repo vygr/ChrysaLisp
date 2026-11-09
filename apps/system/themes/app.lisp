@@ -12,8 +12,8 @@
 ;some symbols to show a theme by, and a size that no toolbar uses, so a
 ;row keeps its own theme's font when the rest of the desktop changes
 (defq +show (apply (const cat) (map (const num-to-utf8) (list
-		+sym_undo +sym_redo +sym_cut +sym_copy +sym_paste +sym_save +sym_open
-		+sym_find +sym_play +sym_grid +sym_zoom_in +sym_delete)))
+				+sym_undo +sym_redo +sym_cut +sym_copy +sym_paste +sym_save +sym_open
+				+sym_find +sym_play +sym_grid +sym_zoom_in +sym_delete)))
 	+show_size 30)
 
 (ui-window *window* (:resizable :nil)
@@ -28,15 +28,15 @@
 (defun main ()
 	;a row is a button with the name, and the symbols beside it
 	(each (lambda ((name symbols_file &ignore))
-		(defq row (Flow) button (Button) strip (Label))
-		(def row :flow_flags +flow_right_fill)
-		(def button :text name :min_width 96)
-		(view-variant button :font :font_button)
-		(view-variant button :border :border_button)
-		(def strip :text +show :font (create-font symbols_file +show_size) :border 0)
-		(. button :connect (+ +event_pick (!)))
-		(.-> row (:add_child button) (:add_child strip))
-		(. *rows* :add_child row))
+			(defq row (Flow) button (Button) strip (Label))
+			(def row :flow_flags +flow_right_fill)
+			(def button :text name :min_width 96)
+			(view-variant button :font :font_button)
+			(view-variant button :border :border_button)
+			(def strip :text +show :font (create-font symbols_file +show_size) :border 0)
+			(. button :connect (+ +event_pick (!)))
+			(.-> row (:add_child button) (:add_child strip))
+			(. *rows* :add_child row))
 		*themes*)
 	(show-current)
 	(. *window* :open)

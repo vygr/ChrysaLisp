@@ -10,11 +10,11 @@
 	*session_best_score* 0 *session_best_demo* :nil
 	*hiscore_names* :nil *hiscore_values* :nil *campaign_state* :nil
 	+default_hiscore_names
-	''("NEGROG (CAH)" "RUDMAN (CAH)" "GORVAR (CAH)" "TREGAR (CAH)"
-		"TATGO  (CAH)" "GONIG  (CAH)" "INDIGO (CAH)" "MOLAT  (CAH)"
-		"DENGAR (CAH)" "LOGRAA (CAH)")
+		''("NEGROG (CAH)" "RUDMAN (CAH)" "GORVAR (CAH)" "TREGAR (CAH)"
+			"TATGO  (CAH)" "GONIG  (CAH)" "INDIGO (CAH)" "MOLAT  (CAH)"
+			"DENGAR (CAH)" "LOGRAA (CAH)")
 	+default_hiscore_values
-	''(10000 9000 8000 7000 6000 5000 4000 3000 2000 1000))
+		''(10000 9000 8000 7000 6000 5000 4000 3000 2000 1000))
 
 (defun config-default ()
 	(scatter (Emap)
@@ -29,7 +29,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (nil? *config*) (nql (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(setq *menu_difficulty* (. *config* :find :difficulty)

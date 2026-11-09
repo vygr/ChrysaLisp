@@ -59,11 +59,11 @@
 (defun info-text (store)
 	(bind '(objects blocks free) (store-info store))
 	(join (cat (list (cat "id " (get :id store)) (cat "member " (get :member store))
-		(cat "members " (join (store-members store) " "))
-		(cat "block_size " (str (get :block_size store))) (cat "copies " (str (get :copies store)))
-		(cat "objects " (str objects)) (cat "blocks " (str blocks)) (cat "free " (str free)))
-		;a line a prefix this member has pinned, as one may have spaces in it
-		(map (# (cat "pin " %0)) (get :pins store)))
+				(cat "members " (join (store-members store) " "))
+				(cat "block_size " (str (get :block_size store))) (cat "copies " (str (get :copies store)))
+				(cat "objects " (str objects)) (cat "blocks " (str blocks)) (cat "free " (str free)))
+			;a line a prefix this member has pinned, as one may have spaces in it
+			(map (# (cat "pin " %0)) (get :pins store)))
 		+storage_lf))
 
 ;how long what was learnt from another member may wait to be written
@@ -78,27 +78,27 @@
 	;who the members are, and its path map, or what of it is not as it was
 	;at the count it is given, one it gave before
 	(join (cat (list (cat "at " (store-at store))
-			(cat "members " (join (get :members store) " ")) (cat "retired " (join (get :retired store) " ")))
-		;what each member has pinned, all of it each time, it is little
-		(map (# (cat "pinned " %0)) (store-pinned-lines store))
-		(map (const store-entry-line) (store-since store at))) +storage_lf))
+				(cat "members " (join (get :members store) " ")) (cat "retired " (join (get :retired store) " ")))
+			;what each member has pinned, all of it each time, it is little
+			(map (# (cat "pinned " %0)) (store-pinned-lines store))
+			(map (const store-entry-line) (store-since store at))) +storage_lf))
 
 (defun notes-take (store text)
 	;what another member told, taken in. How many paths are not as they were
 	(defq lines (split text +storage_lf) entries (list) pinned (list))
 	(each (lambda (line)
-		(cond
-			((starts-with "at " line))
-			((starts-with "pinned " line) (push pinned (slice line 7 -1)))
-			((starts-with "members" line) (store-join store (rest (split line " ")) :nil :t))
-			((starts-with "retired" line) (store-join store (list) (rest (split line " ")) :t))
-			((defq entry (store-entry-read line)) (push entries entry))))
+			(cond
+				((starts-with "at " line))
+				((starts-with "pinned " line) (push pinned (slice line 7 -1)))
+				((starts-with "members" line) (store-join store (rest (split line " ")) :nil :t))
+				((starts-with "retired" line) (store-join store (list) (rest (split line " ")) :t))
+				((defq entry (store-entry-read line)) (push entries entry))))
 		lines)
 	;not written to the volume now: it is when there is a moment, below
 	(defq pins (if (store-pinned-take store pinned :t) 1 0) changed (store-meet store entries :t))
 	(each (lambda (entry)
-		(storage-record recorder member (if (elem-get entry +store_entry_deleted) "learnt-delete" "learnt")
-			(cat (storage-record-name (elem-get entry +store_entry_hash)) " " (elem-get entry +store_entry_writer) " " (first entry))))
+			(storage-record recorder member (if (elem-get entry +store_entry_deleted) "learnt-delete" "learnt")
+				(cat (storage-record-name (elem-get entry +store_entry_hash)) " " (elem-get entry +store_entry_writer) " " (first entry))))
 		changed)
 	(+ pins (length changed)))
 
@@ -106,7 +106,7 @@
 	;what it is to keep
 	(defq opts (Emap))
 	(each (lambda (line)
-		(if (defq at (find " " line)) (. opts :insert (sym (cat ":" (slice line 0 at))) (slice line (inc at) -1))))
+			(if (defq at (find " " line)) (. opts :insert (sym (cat ":" (slice line 0 at))) (slice line (inc at) -1))))
 		(split said +storage_lf))
 	(bind '(ready image name size id block force group member tick grace copies)
 		(gather opts :ready :image :name :size :id :block :force :group :member :tick :grace :copies))
@@ -139,7 +139,7 @@
 			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
 			(if (/= 0 (get-long tender 0))
 				(mail-send tender (join (list (hex-encode (task-mbox)) group (ifn tick (str +storage_tick))
-					(ifn grace (str +storage_grace))) +storage_lf)))
+							(ifn grace (str +storage_grace))) +storage_lf)))
 			(mail-send ready "ok")
 			(while running
 				;a run of block puts is one writing of the volume, so what they
@@ -165,181 +165,181 @@
 					(batch (setq batch (progn (exfat-end batch) :nil))))
 				;a thing asked that throws is said to have, and the service goes on
 				(defq answer (catch (case type
-						(+storage_type_info (info-text store))
-						(+storage_type_stat
-							;with a ? before the path, what it is though it be deleted
-							(defq entry (if (starts-with "?" body) (store-find store (rest body)) (store-stat store body)))
-							(if entry (store-entry-line entry) ""))
-						(+storage_type_list
-							(join (map (const store-entry-line) (store-list store body)) +storage_lf))
-						(+storage_type_has
-							(apply (const cat) (cat (list "")
-								(map (# (if (store-block-has? store %0) "1" "0")) (names-of body)))))
-						(+storage_type_block_put
-							;new here if there are more kept after: the block is hashed the once
-							(defq had (get :blocks store) got (store-block-put store body))
-							(and got (> (get :blocks store) had)
-								(storage-record recorder member "block+" (storage-record-name got)))
-							(ifn got ""))
-						(+storage_type_block_get
-							(defq got (store-block-get store body))
-							(if got (storage-record recorder member "block>" (storage-record-name body)))
-							(ifn got ""))
-						(+storage_type_block_drop
-							(cond
-								((store-block-drop store body)
-									(storage-record recorder member "block-" (storage-record-name body))
-									"1")
-								("0")))
-						(+storage_type_commit
-							;the name of the top of its manifest, whose blocks are
-							;all here, as the object's are, (store-commit-root)
-							(bind '(from bytes path top) (split body +storage_lf))
-							(defq got (store-commit-root store path (hex-decode (ifn top "")) (from-of from)))
-							;what an object is made of, so a recording can draw it
-							(and (eql (first got) :ok) (second got) (storage-recording? recorder)
-								(storage-record recorder member "object" (cat (storage-record-name (elem-get (second got) +store_entry_hash)) " "
-									(join (map (const storage-record-name) (second (store-manifest store (elem-get (second got) +store_entry_hash)))) " "))))
-							(defq result (wrote "set" got path))
-							;its tender is to tell the others, now and not at its next look
-							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
-							result)
-						(+storage_type_delete
-							(defq at (find +storage_lf body)
-								result (wrote "delete" (store-delete store (slice body (inc at) -1) (from-of (slice body 0 at))) (slice body (inc at) -1)))
-							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
-							result)
-						(+storage_type_rename
-							(bind '(was from to) (split body +storage_lf))
-							(defq got (store-rename store from to (from-of was)) result (wrote "set" got to))
-							(if (eql (first got) :ok) (storage-record recorder member "delete" from))
-							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
-							result)
-						(+storage_type_copies
-							(defq at (find +storage_lf body)
-								result (wrote "copies" (store-copies store (slice body (inc at) -1) (str-as-num (slice body 0 at))) (slice body (inc at) -1)))
-							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
-							result)
-						(+storage_type_pin
-							(storage-record recorder member "pin" body)
-							(store-pin store (rest body) (eql (first body) "-"))
-							(join (get :pins store) +storage_lf))
-						(+storage_type_pins_missing (join (store-pins-missing store) +storage_lf))
-						(+storage_type_pinned (join (store-pinned-by store body) " "))
-						(+storage_type_sweep
-							(defq swept (store-sweep store))
-							(storage-record recorder member "sweep" (str swept))
-							(str swept))
-						(+storage_type_check
-							;the volume the store is on, mended if asked, or its blocks
-							(join (if (starts-with "volume" body) (exfat-check (get :vol store) (eql body "volume mend"))
-								(map (const hex-encode) (store-check store (eql body "mend")))) +storage_lf))
-						(+storage_type_walk
-							;a gopher. The task that runs them here is given it, with
-							;who is to be answered: who asked, or the member that
-							;sent it on, who is told it got here
-							(storage-record recorder member "gopher-in")
-							(if (/= 0 (get-long runner 0))
-								(mail-send runner (cat (hex-encode reply) +storage_lf body)))
-							:nil)
-						(+storage_type_state
-							(join (list (cat "member " member) (cat "store " (get :id store))
-								(cat "digest " (hex-encode (store-digest store)))
-								(cat "members " (join (store-members store) " "))
-								(cat "retired " (join (get :retired store) " "))
-								(cat "cut " (join cut " "))
-								(cat "tender " (if (/= 0 (get-long tender 0)) (hex-encode tender) "")))
-								+storage_lf))
-						(+storage_type_entries (notes-text store body))
-						(+storage_type_merge (str (notes-take store body)))
-						(+storage_type_share
-							;its share among the members that are there: what it wants,
-							;a line of -, and what it has that is others' to keep, each
-							;with who they are. No more than so many at a time
-							(bind '(wants extras) (store-share store (split body " ")))
-							(join (cat (map! (const hex-encode) (list wants) 0 (min +share_most (length wants)))
-								(list "-")
-								(map! (lambda ((hash holders)) (join (cat (list (hex-encode hash)) holders) " ")) (list extras) 0 (min +share_most (length extras))))
-								+storage_lf))
-						(+storage_type_where
-							;the other members a block may be had from, in the block's
-							;own order: those that are to keep it are the first of
-							;them, however many its object says that is
-							(defq among (cat (list member) (map (const first) peers))
-								order (store-holders store body among (length among)))
-							(join (map (const second) (sort (cat peers)
-								(# (- (ifn (find (first %0) order) 99) (ifn (find (first %1) order) 99))))) +storage_lf))
-						(+storage_type_peers
-							;its tender says who is there: member and where, a line each
-							(if (nempty? body)
-								(setq peers (map (# (split %0 " ")) (filter (const nempty?) (split body +storage_lf)))))
-							(if (eql body "-") (setq peers (list)))
-							(join (map (# (join %0 " ")) peers) +storage_lf))
-						(+storage_type_members
-							(if (nempty? body) (storage-record recorder member "members" body))
-							(cond
-								((starts-with "+" body) (store-join store (list (rest body))))
-								((starts-with "-" body) (store-join store (list) (list (rest body)))))
-							(join (store-members store) " "))
-						(+storage_type_cut
-							(storage-record recorder member "cut" body)
-							(setq cut (split body " ")) "ok")
-						(+storage_type_snapshot
-							(defq at (find +storage_lf body) name (slice body 0 at)
-								count (store-snapshot store name (slice body (inc at) -1)))
-							(when count
-								(storage-record recorder member "snapshot" (cat (str count) " " name))
-								(if (/= 0 (get-long tender 0)) (mail-send tender "kick")))
-							(if count (str count) ""))
-						(+storage_type_restore
-							(defq at (find +storage_lf body) name (slice body 0 at)
-								got (store-restore store name (slice body (inc at) -1)))
-							(when got
-								(storage-record recorder member "restore" (cat (str (first got)) " " name))
-								(if (/= 0 (get-long tender 0)) (mail-send tender "kick")))
-							(if got (join (map (const str) got) " ") ""))
-						(+storage_type_snapshot_drop
-							(defq count (store-snapshot-drop store body))
-							(storage-record recorder member "snapshot-drop" (cat (str count) " " body))
-							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
-							(str count))
-						(+storage_type_resize
-							;a copy of the store on a volume of that size, beside this one,
-							;and then that is the store: the old file is gone, and the
-							;machine whose member this is starts it from the new
-							(defq megabytes (str-as-num body) moved_to (storage-resized-name image megabytes))
-							;a copy of all of it is long work, not an answer: done in the
-							;apps' band, with the apps of the node, not before them, a
-							;bot gives them a moment only every 20ms
-							(task-band :app)
-							(defq resized (cond
-								((or (<= megabytes 0) (eql moved_to image)) "")
-								((defq moved (store-resize store moved_to (* megabytes 1048576)))
-									(when (defq said (storage-member))
-										(when (eql (. said :find :image) image)
-											(storage-member-save moved_to megabytes (. said :find :id) (. said :find :copies)
-												:nil (. said :find :travels))))
-									(storage-unclaim image)
-									(pii-remove image)
-									(setq store moved image moved_to)
-									(storage-claim image)
-									(storage-record recorder member "resize" (cat (str megabytes) " " image))
-									image)
-								(:t (pii-remove moved_to) "")))
-							(task-band :bot)
-							resized)
-						(+storage_type_record
-							;told to the tender and the gophers too, each says what it does
-							(storage-record-to recorder body)
-							(if (/= 0 (get-long tender 0)) (mail-send tender (cat "record " body)))
-							(if (/= 0 (get-long runner 0)) (mail-send runner (cat "record " body)))
-							"ok")
-						(+storage_type_stop
-							;answered once the volume is closed, so a caller may
-							;remove it then: Windows removes no file that is open
-							(setq running :nil stopped reply) :nil)
-						(:t "error"))
-					(progn (prin "Storage: " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) "error")))
+							(+storage_type_info (info-text store))
+							(+storage_type_stat
+								;with a ? before the path, what it is though it be deleted
+								(defq entry (if (starts-with "?" body) (store-find store (rest body)) (store-stat store body)))
+								(if entry (store-entry-line entry) ""))
+							(+storage_type_list
+								(join (map (const store-entry-line) (store-list store body)) +storage_lf))
+							(+storage_type_has
+								(apply (const cat) (cat (list "")
+										(map (# (if (store-block-has? store %0) "1" "0")) (names-of body)))))
+							(+storage_type_block_put
+								;new here if there are more kept after: the block is hashed the once
+								(defq had (get :blocks store) got (store-block-put store body))
+								(and got (> (get :blocks store) had)
+									(storage-record recorder member "block+" (storage-record-name got)))
+								(ifn got ""))
+							(+storage_type_block_get
+								(defq got (store-block-get store body))
+								(if got (storage-record recorder member "block>" (storage-record-name body)))
+								(ifn got ""))
+							(+storage_type_block_drop
+								(cond
+									((store-block-drop store body)
+										(storage-record recorder member "block-" (storage-record-name body))
+										"1")
+									("0")))
+							(+storage_type_commit
+								;the name of the top of its manifest, whose blocks are
+								;all here, as the object's are, (store-commit-root)
+								(bind '(from bytes path top) (split body +storage_lf))
+								(defq got (store-commit-root store path (hex-decode (ifn top "")) (from-of from)))
+								;what an object is made of, so a recording can draw it
+								(and (eql (first got) :ok) (second got) (storage-recording? recorder)
+									(storage-record recorder member "object" (cat (storage-record-name (elem-get (second got) +store_entry_hash)) " "
+											(join (map (const storage-record-name) (second (store-manifest store (elem-get (second got) +store_entry_hash)))) " "))))
+								(defq result (wrote "set" got path))
+								;its tender is to tell the others, now and not at its next look
+								(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+								result)
+							(+storage_type_delete
+								(defq at (find +storage_lf body)
+									result (wrote "delete" (store-delete store (slice body (inc at) -1) (from-of (slice body 0 at))) (slice body (inc at) -1)))
+								(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+								result)
+							(+storage_type_rename
+								(bind '(was from to) (split body +storage_lf))
+								(defq got (store-rename store from to (from-of was)) result (wrote "set" got to))
+								(if (eql (first got) :ok) (storage-record recorder member "delete" from))
+								(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+								result)
+							(+storage_type_copies
+								(defq at (find +storage_lf body)
+									result (wrote "copies" (store-copies store (slice body (inc at) -1) (str-as-num (slice body 0 at))) (slice body (inc at) -1)))
+								(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+								result)
+							(+storage_type_pin
+								(storage-record recorder member "pin" body)
+								(store-pin store (rest body) (eql (first body) "-"))
+								(join (get :pins store) +storage_lf))
+							(+storage_type_pins_missing (join (store-pins-missing store) +storage_lf))
+							(+storage_type_pinned (join (store-pinned-by store body) " "))
+							(+storage_type_sweep
+								(defq swept (store-sweep store))
+								(storage-record recorder member "sweep" (str swept))
+								(str swept))
+							(+storage_type_check
+								;the volume the store is on, mended if asked, or its blocks
+								(join (if (starts-with "volume" body) (exfat-check (get :vol store) (eql body "volume mend"))
+										(map (const hex-encode) (store-check store (eql body "mend")))) +storage_lf))
+							(+storage_type_walk
+								;a gopher. The task that runs them here is given it, with
+								;who is to be answered: who asked, or the member that
+								;sent it on, who is told it got here
+								(storage-record recorder member "gopher-in")
+								(if (/= 0 (get-long runner 0))
+									(mail-send runner (cat (hex-encode reply) +storage_lf body)))
+								:nil)
+							(+storage_type_state
+								(join (list (cat "member " member) (cat "store " (get :id store))
+										(cat "digest " (hex-encode (store-digest store)))
+										(cat "members " (join (store-members store) " "))
+										(cat "retired " (join (get :retired store) " "))
+										(cat "cut " (join cut " "))
+										(cat "tender " (if (/= 0 (get-long tender 0)) (hex-encode tender) "")))
+									+storage_lf))
+							(+storage_type_entries (notes-text store body))
+							(+storage_type_merge (str (notes-take store body)))
+							(+storage_type_share
+								;its share among the members that are there: what it wants,
+								;a line of -, and what it has that is others' to keep, each
+								;with who they are. No more than so many at a time
+								(bind '(wants extras) (store-share store (split body " ")))
+								(join (cat (map! (const hex-encode) (list wants) 0 (min +share_most (length wants)))
+										(list "-")
+										(map! (lambda ((hash holders)) (join (cat (list (hex-encode hash)) holders) " ")) (list extras) 0 (min +share_most (length extras))))
+									+storage_lf))
+							(+storage_type_where
+								;the other members a block may be had from, in the block's
+								;own order: those that are to keep it are the first of
+								;them, however many its object says that is
+								(defq among (cat (list member) (map (const first) peers))
+									order (store-holders store body among (length among)))
+								(join (map (const second) (sort (cat peers)
+											(# (- (ifn (find (first %0) order) 99) (ifn (find (first %1) order) 99))))) +storage_lf))
+							(+storage_type_peers
+								;its tender says who is there: member and where, a line each
+								(if (nempty? body)
+									(setq peers (map (# (split %0 " ")) (filter (const nempty?) (split body +storage_lf)))))
+								(if (eql body "-") (setq peers (list)))
+								(join (map (# (join %0 " ")) peers) +storage_lf))
+							(+storage_type_members
+								(if (nempty? body) (storage-record recorder member "members" body))
+								(cond
+									((starts-with "+" body) (store-join store (list (rest body))))
+									((starts-with "-" body) (store-join store (list) (list (rest body)))))
+								(join (store-members store) " "))
+							(+storage_type_cut
+								(storage-record recorder member "cut" body)
+								(setq cut (split body " ")) "ok")
+							(+storage_type_snapshot
+								(defq at (find +storage_lf body) name (slice body 0 at)
+									count (store-snapshot store name (slice body (inc at) -1)))
+								(when count
+									(storage-record recorder member "snapshot" (cat (str count) " " name))
+									(if (/= 0 (get-long tender 0)) (mail-send tender "kick")))
+								(if count (str count) ""))
+							(+storage_type_restore
+								(defq at (find +storage_lf body) name (slice body 0 at)
+									got (store-restore store name (slice body (inc at) -1)))
+								(when got
+									(storage-record recorder member "restore" (cat (str (first got)) " " name))
+									(if (/= 0 (get-long tender 0)) (mail-send tender "kick")))
+								(if got (join (map (const str) got) " ") ""))
+							(+storage_type_snapshot_drop
+								(defq count (store-snapshot-drop store body))
+								(storage-record recorder member "snapshot-drop" (cat (str count) " " body))
+								(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+								(str count))
+							(+storage_type_resize
+								;a copy of the store on a volume of that size, beside this one,
+								;and then that is the store: the old file is gone, and the
+								;machine whose member this is starts it from the new
+								(defq megabytes (str-as-num body) moved_to (storage-resized-name image megabytes))
+								;a copy of all of it is long work, not an answer: done in the
+								;apps' band, with the apps of the node, not before them, a
+								;bot gives them a moment only every 20ms
+								(task-band :app)
+								(defq resized (cond
+										((or (<= megabytes 0) (eql moved_to image)) "")
+										((defq moved (store-resize store moved_to (* megabytes 1048576)))
+											(when (defq said (storage-member))
+												(when (eql (. said :find :image) image)
+													(storage-member-save moved_to megabytes (. said :find :id) (. said :find :copies)
+														:nil (. said :find :travels))))
+											(storage-unclaim image)
+											(pii-remove image)
+											(setq store moved image moved_to)
+											(storage-claim image)
+											(storage-record recorder member "resize" (cat (str megabytes) " " image))
+											image)
+										(:t (pii-remove moved_to) "")))
+								(task-band :bot)
+								resized)
+							(+storage_type_record
+								;told to the tender and the gophers too, each says what it does
+								(storage-record-to recorder body)
+								(if (/= 0 (get-long tender 0)) (mail-send tender (cat "record " body)))
+								(if (/= 0 (get-long runner 0)) (mail-send runner (cat "record " body)))
+								"ok")
+							(+storage_type_stop
+								;answered once the volume is closed, so a caller may
+								;remove it then: Windows removes no file that is open
+								(setq running :nil stopped reply) :nil)
+							(:t "error"))
+						(progn (prin "Storage: " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) "error")))
 				(if answer (mail-send reply answer))
 				(storage-record-send recorder)
 				;and the apps of the node have a turn, if it has been at it a while

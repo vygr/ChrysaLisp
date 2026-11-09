@@ -159,8 +159,7 @@
 		; resize
 		(. s3 :insert "Y")
 		(. s3 :resize 23)
-		(assert-eq (cat ,name " resize find") "Y" (. s3 :find "Y"))
-	))
+		(assert-eq (cat ,name " resize find") "Y" (. s3 :find "Y"))))
 
 (import "lib/collections/fset.inc")
 (import "lib/collections/lset.inc")

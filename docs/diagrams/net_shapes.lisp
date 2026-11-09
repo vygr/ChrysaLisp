@@ -9,7 +9,7 @@
 			(bind '(x y) (elem-get nodes a))
 			(bind '(x1 y1) (elem-get nodes b))
 			(push (first s) (cwb-shape (cwb-d "M" (+ ox x) (+ 20 y) "L" (+ ox x1) (+ 20 y1))
-				:stroke 0xff3c4650 :width 1.2)))
+					:stroke 0xff3c4650 :width 1.2)))
 		links)
 	(each (lambda ((x y))
 			(push (second s) (cwb-shape (cwb-d-ellipse (+ ox x) (+ 20 y) 6.5) :fill blue :stroke 0xff3c4650 :width 1.2)))

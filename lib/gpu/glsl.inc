@@ -20,48 +20,48 @@
 
 (defun glsl-expr (node)
 	(sh-fold node (lambda (node args)
-		(bind '(type tag a &optional b) node)
-		(case tag
-			(:lit (cond
-				((eql type :bool) (if a "true" "false"))
-				((glsl-num a))))
-			(:var (glsl-name a))
-			(:tex (glsl-name a))
-			(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
-			(:user (cat (glsl-name a) "(" (join args ", ") ")"))
-			(:t (cond
-				((and (eql a '*) (eql type :vec3) (eql (first (first b)) :mat4))
-					;matrices, then a vec3, which is turned by the 3 by 3
-					(cat "sh_mul3(" (join (slice args 0 -2) " * ") ", " (last args) ")"))
-				((defq i (find a '(+ - * / < <= > >= = /= and or)))
-					(if (= (length args) 1)
-						(cat "(-" (first args) ")")
-						(cat "(" (join args (elem-get
-							'(" + " " - " " * " " / " " < " " <= " " > " " >= " " == " " != " " && " " || ") i)) ")")))
-				((eql a 'not) (cat "(!" (first args) ")"))
-				;a picture is a sampler of its name
-				((eql a 'texture) (cat "texture2D(" (first args) ", " (second args) ")"))
-				((cat (str a) "(" (join args ", ") ")"))))))))
+			(bind '(type tag a &optional b) node)
+			(case tag
+				(:lit (cond
+						((eql type :bool) (if a "true" "false"))
+						((glsl-num a))))
+				(:var (glsl-name a))
+				(:tex (glsl-name a))
+				(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
+				(:user (cat (glsl-name a) "(" (join args ", ") ")"))
+				(:t (cond
+						((and (eql a '*) (eql type :vec3) (eql (first (first b)) :mat4))
+							;matrices, then a vec3, which is turned by the 3 by 3
+							(cat "sh_mul3(" (join (slice args 0 -2) " * ") ", " (last args) ")"))
+						((defq i (find a '(+ - * / < <= > >= = /= and or)))
+							(if (= (length args) 1)
+								(cat "(-" (first args) ")")
+								(cat "(" (join args (elem-get
+											'(" + " " - " " * " " / " " < " " <= " " > " " >= " " == " " != " " && " " || ") i)) ")")))
+						((eql a 'not) (cat "(!" (first args) ")"))
+						;a picture is a sampler of its name
+						((eql a 'texture) (cat "texture2D(" (first args) ", " (second args) ")"))
+						((cat (str a) "(" (join args ", ") ")"))))))))
 
 (defun glsl-decls (program)
 	;the inputs as uniforms, the constants, the globals and the functions
 	;of a program, onto the lines of whoever calls
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(each (lambda ((name type &rest _))
-		(push lines (cat "uniform " (glsl-type type) " " (glsl-name name) ";"))) inputs)
+			(push lines (cat "uniform " (glsl-type type) " " (glsl-name name) ";"))) inputs)
 	(each (lambda ((name))
-		(push lines (cat "uniform sampler2D " (glsl-name name) ";"))) (shader-textures program))
+			(push lines (cat "uniform sampler2D " (glsl-name name) ";"))) (shader-textures program))
 	(push lines "")
 	(each (lambda ((name type e))
-		(push lines (cat "const " (glsl-type type) " " (glsl-name name) " = " (glsl-expr e) ";"))) consts)
+			(push lines (cat "const " (glsl-type type) " " (glsl-name name) " = " (glsl-expr e) ";"))) consts)
 	(push lines "")
 	(each (lambda ((name type e))
-		(push lines (cat (glsl-type type) " " (glsl-name name) ";"))) globals)
+			(push lines (cat (glsl-type type) " " (glsl-name name) ";"))) globals)
 	(each (lambda ((name type params block))
-		(push lines "" (cat (glsl-type type) " " (glsl-name name) "("
-			(join (map (# (cat (glsl-type (second %0)) " " (glsl-name (first %0)))) params) ", ") ")") "{")
-		(sh-text-block block 1 glsl-type glsl-name glsl-expr)
-		(push lines "}")) funcs)
+			(push lines "" (cat (glsl-type type) " " (glsl-name name) "("
+					(join (map (# (cat (glsl-type (second %0)) " " (glsl-name (first %0)))) params) ", ") ")") "{")
+			(sh-text-block block 1 glsl-type glsl-name glsl-expr)
+			(push lines "}")) funcs)
 	globals)
 
 (defun shader-glsl (program)
@@ -72,12 +72,12 @@
 	;the globals are set from the inputs, then main is called
 	(push lines "" "void main()" "{")
 	(each (lambda ((name type e))
-		(push lines (cat "\t" (glsl-name name) " = " (glsl-expr e) ";"))) globals)
+			(push lines (cat "\t" (glsl-name name) " = " (glsl-expr e) ";"))) globals)
 	(push lines "\tgl_FragColor = shader_main(gl_FragCoord.xy);" "}" "")
 	(join lines "\n"))
 
 (defq *glsl_pair_head* '("#ifdef GL_ES" "precision highp float;" "#endif" ""
-	"vec3 sh_mul3(mat4 m, vec3 v) { return mat3(m[0].xyz, m[1].xyz, m[2].xyz) * v; }" ""))
+		"vec3 sh_mul3(mat4 m, vec3 v) { return mat3(m[0].xyz, m[1].xyz, m[2].xyz) * v; }" ""))
 
 (defun shader-glsl-pair (vertex pixel)
 	; (shader-glsl-pair vertex pixel) -> (vertex_text fragment_text)
@@ -99,25 +99,25 @@
 	(shader-pair vertex pixel)
 	(defq lines (cat *glsl_pair_head*) varyings (shader-varyings vertex))
 	(each (lambda ((name type))
-		(push lines (cat "attribute " (glsl-type type) " " (glsl-name name) ";"))) (shader-attrs vertex))
+			(push lines (cat "attribute " (glsl-type type) " " (glsl-name name) ";"))) (shader-attrs vertex))
 	(each (lambda ((name type))
-		(push lines (cat "varying " (glsl-type type) " " (glsl-name name) ";"))) varyings)
+			(push lines (cat "varying " (glsl-type type) " " (glsl-name name) ";"))) varyings)
 	(push lines "")
 	(defq globals (glsl-decls vertex))
 	(push lines "" "void main()" "{")
 	(each (lambda ((name type))
-		(push lines (cat "\t" (glsl-name name) " = " (glsl-type type) "(0.0);"))) varyings)
+			(push lines (cat "\t" (glsl-name name) " = " (glsl-type type) "(0.0);"))) varyings)
 	(each (lambda ((name type e))
-		(push lines (cat "\t" (glsl-name name) " = " (glsl-expr e) ";"))) globals)
+			(push lines (cat "\t" (glsl-name name) " = " (glsl-expr e) ";"))) globals)
 	(push lines "\tgl_Position = shader_main();" "}" "")
 	(defq vertex_text (join lines "\n") lines (cat *glsl_pair_head*))
 	(each (lambda ((name type))
-		(push lines (cat "varying " (glsl-type type) " " (glsl-name name) ";"))) (shader-varyings pixel))
+			(push lines (cat "varying " (glsl-type type) " " (glsl-name name) ";"))) (shader-varyings pixel))
 	(push lines "")
 	(setq globals (glsl-decls pixel))
 	(push lines "" "void main()" "{")
 	(each (lambda ((name type e))
-		(push lines (cat "\t" (glsl-name name) " = " (glsl-expr e) ";"))) globals)
+			(push lines (cat "\t" (glsl-name name) " = " (glsl-expr e) ";"))) globals)
 	(push lines "\tvec4 c = clamp(shader_main(gl_FragCoord.xy), 0.0, 1.0);"
 		"\tif (c.a < 0.003921568627) discard;"
 		"\tgl_FragColor = vec4(c.rgb * c.a, c.a);" "}" "")

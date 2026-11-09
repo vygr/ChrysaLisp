@@ -40,10 +40,10 @@
 	(str (mat3x2-point (mat3x2-mul (mat3x2-scale 2) mx_t) 3 4)))
 (defq mx_m (mat3x2-mul (mat3x2-rot 0.7 3 4) (mat3x2-scale 2.5 0.5 1 1)))
 (assert-true "invert undoes it" (mx-near? (apply (const mat3x2-point)
-	(cat (list (mat3x2-invert mx_m)) (mat3x2-point mx_m 7 9))) (list 7.0 9.0)))
+			(cat (list (mat3x2-invert mx_m)) (mat3x2-point mx_m 7 9))) (list 7.0 9.0)))
 (assert-eq "one that flattens has none, no change is given" (str (mat3x2)) (str (mat3x2-invert (mat3x2 1.0 1.0 0.0 1.0 1.0 0.0))))
 (assert-true "the box round a box turned an eighth" (mx-near?
-	(mat3x2-box (list -1.0 -1.0 1.0 1.0) (mat3x2-rot (/ +fp_pi 4.0))) (list -1.4142 -1.4142 1.4142 1.4142)))
+		(mat3x2-box (list -1.0 -1.0 1.0 1.0) (mat3x2-rot (/ +fp_pi 4.0))) (list -1.4142 -1.4142 1.4142 1.4142)))
 
 ;boxes
 (assert-eq "join" "(0.00000 1.00000 9.00000 8.00000)" (str (vector-box-join-2d (list 0.0 2.0 5.0 8.0) (list 3.0 1.0 9.0 4.0))))

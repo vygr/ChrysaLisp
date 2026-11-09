@@ -53,12 +53,12 @@
 	(defq bits (* total 8) tail (cat pending "\x80"))
 	(sha512-blocks state
 		(setq tail (cat tail (slice +sha512_zeros 0 (% (- 240 (length tail)) 128)) (char 0 8)
-			(char-be bits 8)))
+				(char-be bits 8)))
 		0 (/ (length tail) 128))
 	;the state, each number the top byte first
 	(apply (const cat) (map (lambda (i) (defq word (get-long state (* i 8)))
-		(char-be word 8))
-		(range 0 8))))
+				(char-be word 8))
+			(range 0 8))))
 
 (defun sha512 (data)
 	; (sha512 data) -> str

@@ -38,10 +38,9 @@
 			(defq opt_w 8 opt_o :t opt_c :t
 				args (options stdio usage)))
 		(defq flags (+ (if opt_o +hex_stream_flag_offset 0)
-			(if opt_c +hex_stream_flag_chars 0)))
+				(if opt_c +hex_stream_flag_chars 0)))
 		(if (<= (length args) 1)
 			;dump from stdin
 			(dump-file (io-stream 'stdin) opt_w flags)
 			;dump from args as files
 			(each! (# (dump-path %0 opt_w flags)) (list args) 1 -1))))
-

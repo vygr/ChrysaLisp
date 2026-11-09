@@ -105,9 +105,9 @@
 	;order of the members' ids, so two that say the same are the same
 	(defq out (list) done :nil)
 	(each (lambda ((who count))
-		(cond
-			((eql who member) (push out (list who (inc count))) (setq done :t))
-			((push out (list who count)))))
+			(cond
+				((eql who member) (push out (list who (inc count))) (setq done :t))
+				((push out (list who count)))))
 		vv)
 	(unless done (push out (list member 1)))
 	(sort out (# (cmp (first %0) (first %1)))))
@@ -122,11 +122,11 @@
 	;writes, before it, or apart, each has some the other has not
 	(defq more :nil less :nil)
 	(each (lambda ((who count))
-		(defq other (store-vv-count b who))
-		(cond ((> count other) (setq more :t)) ((< count other) (setq less :t))))
+			(defq other (store-vv-count b who))
+			(cond ((> count other) (setq more :t)) ((< count other) (setq less :t))))
 		a)
 	(each (lambda ((who count))
-		(if (< (store-vv-count a who) count) (setq less :t)))
+			(if (< (store-vv-count a who) count) (setq less :t)))
 		b)
 	(cond
 		((and more less) :apart)
@@ -139,7 +139,7 @@
 	;the most of each member's writes that either has
 	(defq out (map (lambda ((who count)) (list who (max count (store-vv-count b who)))) a))
 	(each (lambda ((who count))
-		(unless (some (lambda ((had &ignore)) (eql had who)) a) (push out (list who count))))
+			(unless (some (lambda ((had &ignore)) (eql had who)) a) (push out (list who count))))
 		b)
 	(sort out (# (cmp (first %0) (first %1)))))
 
@@ -154,7 +154,7 @@
 (defun store-vv-read (text)
 	(if (eql text "-") (list)
 		(map (lambda (part) (defq at (find ":" part))
-			(list (slice part 0 at) (str-as-num (slice part (inc at) -1))))
+				(list (slice part 0 at) (str-as-num (slice part (inc at) -1))))
 			(split text ","))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -171,10 +171,10 @@
 
 (defun store-head-save (store)
 	(exfat-save (get :vol store) "store" (store-text (list +store_magic
-		(cat "store " (get :id store))
-		(cat "member " (get :member store))
-		(cat "block " (str (get :block_size store)))
-		(cat "copies " (str (get :copies store)))))))
+				(cat "store " (get :id store))
+				(cat "member " (get :member store))
+				(cat "block " (str (get :block_size store)))
+				(cat "copies " (str (get :copies store)))))))
 
 (defun store-entry-line (entry)
 	;the path is last, it may have spaces in it
@@ -182,7 +182,7 @@
 	;written before there was such a thing reads as not said
 	(bind '(name hash size vv writer seen deleted copies) entry)
 	(join (list (if (eql hash "") "-" (hex-encode hash)) (str size) (store-vv-text vv) writer
-		(if (empty? seen) "-" (join seen ",")) (cat (if deleted "1" "0") (if (> copies 0) (cat "/" (str copies)) "")) name) " "))
+			(if (empty? seen) "-" (join seen ",")) (cat (if deleted "1" "0") (if (> copies 0) (cat "/" (str copies)) "")) name) " "))
 
 (defun store-entry-read (line)
 	(defq parts (split line " "))
@@ -206,9 +206,9 @@
 	;none pinned now is a line with no prefix, so that is known too
 	(defq lines (list))
 	(. (get :pinned store) :each (lambda (member row)
-		(defq head (cat member " " (str (first row))))
-		(if (= (length row) 1) (push lines head)
-			(each! (# (push lines (cat head " " %0))) (list row) 1 -1))))
+			(defq head (cat member " " (str (first row))))
+			(if (= (length row) 1) (push lines head)
+				(each! (# (push lines (cat head " " %0))) (list row) 1 -1))))
 	(sort lines))
 
 (defun store-pinned-read (store lines)
@@ -219,20 +219,20 @@
 	;image put back from an older copy. Was anything new
 	(defq rows (Fmap 11) new :nil me (get :member store))
 	(each (lambda (line)
-		(defq parts (split line " "))
-		(when (>= (length parts) 2)
-			(defq member (first parts) count (str-as-num (second parts))
-				row (ifn (. rows :find member) (list count)))
-			(if (> count (first row)) (setq row (list count)))
-			(and (= count (first row)) (> (length parts) 2) (push row (join (slice parts 2 -1) " ")))
-			(. rows :insert member row)))
+			(defq parts (split line " "))
+			(when (>= (length parts) 2)
+				(defq member (first parts) count (str-as-num (second parts))
+					row (ifn (. rows :find member) (list count)))
+				(if (> count (first row)) (setq row (list count)))
+				(and (= count (first row)) (> (length parts) 2) (push row (join (slice parts 2 -1) " ")))
+				(. rows :insert member row)))
 		lines)
 	(. rows :each (lambda (member row)
-		(defq was (. (get :pinned store) :find member))
-		(when (or (not was) (> (first row) (first was)))
-			(. (get :pinned store) :insert member (cat (list (first row)) (sort (rest row))))
-			(when (eql member me) (def store :pins (sort (rest row))) (def store :plan :nil))
-			(setq new :t))))
+			(defq was (. (get :pinned store) :find member))
+			(when (or (not was) (> (first row) (first was)))
+				(. (get :pinned store) :insert member (cat (list (first row)) (sort (rest row))))
+				(when (eql member me) (def store :pins (sort (rest row))) (def store :plan :nil))
+				(setq new :t))))
 	new)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -261,8 +261,8 @@
 	;blocks is to be big enough for
 	(defq span_blocks 0 span_size (get :block_size store))
 	(. (get :map store) :each (lambda (path entry)
-		(unless (elem-get entry +store_entry_deleted)
-			(setq span_blocks (+ span_blocks 1 (/ (elem-get entry +store_entry_bytes) span_size))))))
+			(unless (elem-get entry +store_entry_deleted)
+				(setq span_blocks (+ span_blocks 1 (/ (elem-get entry +store_entry_bytes) span_size))))))
 	(max span_blocks (get :blocks store)))
 
 (defun store-map-insert (store name entry)
@@ -271,8 +271,8 @@
 	;put, and to count them was a walk of the map each time
 	(defq was (. (get :map store) :find name))
 	(def store :objects (+ (get :objects store)
-		(if (elem-get entry +store_entry_deleted) 0 1)
-		(if (and was (not (elem-get was +store_entry_deleted))) -1 0)))
+			(if (elem-get entry +store_entry_deleted) 0 1)
+			(if (and was (not (elem-get was +store_entry_deleted))) -1 0)))
 	;what this member's share is, is to be worked out again
 	(def store :plan :nil)
 	(unless was (def store :paths (inc (get :paths store))))
@@ -323,8 +323,8 @@
 	(setd prefix "")
 	(defq out (list))
 	(. (get :map store) :each (lambda (name entry)
-		(and (starts-with prefix name) (or deleted (not (elem-get entry +store_entry_deleted)))
-			(push out entry))))
+			(and (starts-with prefix name) (or deleted (not (elem-get entry +store_entry_deleted)))
+				(push out entry))))
 	(sort out (# (cmp (first %0) (first %1)))))
 
 (defun store-entries (store)
@@ -453,7 +453,7 @@
 		((and (= (length parts) 2) (eql (first parts) (get :epoch store)))
 			(defq rev (str-as-num (second parts)))
 			(. (get :map store) :each (lambda (name entry)
-				(if (> (ifn (. revs :find name) 0) rev) (push out entry))))
+					(if (> (ifn (. revs :find name) 0) rev) (push out entry))))
 			(sort out (# (cmp (first %0) (first %1)))))
 		((store-entries store))))
 
@@ -520,12 +520,12 @@
 	;the end how many in all, so that a file not all written is not taken
 	(defq groups (Fmap 101) parts (list +store_held_magic +store_lf) total 0)
 	(. (get :held store) :each (lambda (name folder)
-		(unless (defq names (. groups :find folder)) (. groups :insert folder (setq names (list))))
-		(push names name)))
+			(unless (defq names (. groups :find folder)) (. groups :insert folder (setq names (list))))
+			(push names name)))
 	(. groups :each (lambda (folder names)
-		(push parts folder " " (str (length names)) +store_lf)
-		(each (# (push parts %0)) names)
-		(setq total (+ total (length names)))))
+			(push parts folder " " (str (length names)) +store_lf)
+			(each (# (push parts %0)) names)
+			(setq total (+ total (length names)))))
 	(push parts "end " (str total) +store_lf)
 	(exfat-save (get :vol store) "held" (apply (const cat) parts))
 	(def store :held_saved :t)
@@ -580,12 +580,12 @@
 			:folders (Fset 101) :folder_next 0 :folder_count 0)
 		(defq had "")
 		(each! (lambda (line)
-			(defq at (find " " line) key (slice line 0 at) val (slice line (inc at) -1))
-			(cond
-				((eql key "store") (def store :id val))
-				((eql key "member") (setq had val))
-				((eql key "block") (def store :block_size (str-as-num val)))
-				((eql key "copies") (def store :copies (str-as-num val))))) (list head) 1 -1)
+				(defq at (find " " line) key (slice line 0 at) val (slice line (inc at) -1))
+				(cond
+					((eql key "store") (def store :id val))
+					((eql key "member") (setq had val))
+					((eql key "block") (def store :block_size (str-as-num val)))
+					((eql key "copies") (def store :copies (str-as-num val))))) (list head) 1 -1)
 		(def store :members (store-lines (exfat-load vol "members"))
 			:retired (store-lines (exfat-load vol "retired"))
 			:pins (store-lines (exfat-load vol "pins")))
@@ -594,8 +594,8 @@
 		(and (nempty? (get :pins store)) (not (. (get :pinned store) :find (get :member store)))
 			(. (get :pinned store) :insert (get :member store) (cat (list 1) (get :pins store))))
 		(each (lambda (line)
-			(if (defq entry (store-entry-read line))
-				(store-map-insert store (first entry) entry)))
+				(if (defq entry (store-entry-read line))
+					(store-map-insert store (first entry) entry)))
 			(store-lines (exfat-load vol "paths")))
 		(store-journal-open store)
 		(store-count store)
@@ -676,12 +676,12 @@
 		(setq resize_ok :t)
 		(exfat-begin resize_to)
 		(exfat-walk resize_from "" (lambda (resize_path resize_entry)
-			(task-breathe)
-			(defq resize_at (if (starts-with "/" resize_path) (slice resize_path 1 -1) resize_path))
-			(and resize_ok (nql resize_at "journal")
-				(setq resize_ok (if (second resize_entry)
-					(or (exfat-find resize_to resize_at) (exfat-mkdir resize_to resize_at))
-					(exfat-save resize_to resize_at (exfat-load resize_from resize_at)))))))
+				(task-breathe)
+				(defq resize_at (if (starts-with "/" resize_path) (slice resize_path 1 -1) resize_path))
+				(and resize_ok (nql resize_at "journal")
+					(setq resize_ok (if (second resize_entry)
+							(or (exfat-find resize_to resize_at) (exfat-mkdir resize_to resize_at))
+							(exfat-save resize_to resize_at (exfat-load resize_from resize_at)))))))
 		(exfat-end resize_to))
 	(when resize_ok
 		(def store :vol resize_to)
@@ -823,7 +823,7 @@
 	;those that keep it and moves it from none, and to ask for fewer
 	;takes the last of them away
 	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) among)
-		(# (cmp (first %1) (first %0)))))
+			(# (cmp (first %1) (first %0)))))
 	(map! (const second) (list scored) 0 (min copies (length scored))))
 
 (defun store-holders (store name &optional among copies)
@@ -867,11 +867,11 @@
 		(object
 			(defq pinned (store-pinned? store path) copies (elem-get entry +store_entry_copies))
 			(each (lambda (name)
-				(defq holders (store-holders store name among copies))
-				(cond
-					((or pinned (find me holders)) (. wanted :insert name))
-					;as another object has it, it may have more keepers
-					((> (length holders) (length (ifn (. others :find name) '()))) (. others :insert name holders))))
+					(defq holders (store-holders store name among copies))
+					(cond
+						((or pinned (find me holders)) (. wanted :insert name))
+						;as another object has it, it may have more keepers
+						((> (length holders) (length (ifn (. others :find name) '()))) (. others :insert name holders))))
 				(second object)))
 		(:t ;what it is made of is known when the blocks of its manifest
 			;that are not here come
@@ -887,16 +887,16 @@
 	(unless (and plan (eql (elem-get plan +plan_key) key))
 		(defq span (store-span store))
 		(def store :plan (setq plan (list key (Fset (store-buckets span 101)) (Fmap (store-buckets span 101)) (Fmap 11)
-			(Fset (store-buckets span 101)) (Fset (store-buckets span 101)) among)))
+					(Fset (store-buckets span 101)) (Fset (store-buckets span 101)) among)))
 		(. (get :map store) :each (lambda (path entry)
-			(unless (elem-get entry +store_entry_deleted)
-				(task-breathe)
-				(store-plan-object store plan path entry))))
+				(unless (elem-get entry +store_entry_deleted)
+					(task-breathe)
+					(store-plan-object store plan path entry))))
 		(defq wanted (elem-get plan +plan_wanted) missing (elem-get plan +plan_missing) extras (elem-get plan +plan_extras))
 		(. wanted :each (lambda (name) (unless (store-block-has? store name) (. missing :insert name))))
 		;a block that is another's to keep for one object may be mine for another
 		(. (elem-get plan +plan_others) :each (lambda (name holders)
-			(and (not (. wanted :find name)) (store-block-has? store name) (. extras :insert name)))))
+				(and (not (. wanted :find name)) (store-block-has? store name) (. extras :insert name)))))
 	plan)
 
 (defun store-plan-held (store name)
@@ -913,16 +913,16 @@
 			(. (elem-get plan +plan_unknown) :erase name)
 			(defq wanted (elem-get plan +plan_wanted) others (elem-get plan +plan_others))
 			(each (lambda (path)
-				(when (defq entry (. (get :map store) :find path))
-					(store-plan-object store plan path entry)
-					(each (lambda (block)
-						(cond
-							((. wanted :find block)
-								(. (elem-get plan +plan_extras) :erase block)
-								(unless (store-block-has? store block) (. (elem-get plan +plan_missing) :insert block)))
-							((and (. others :find block) (store-block-has? store block))
-								(. (elem-get plan +plan_extras) :insert block))))
-						(ifn (second (store-manifest store (elem-get entry +store_entry_hash))) '()))))
+					(when (defq entry (. (get :map store) :find path))
+						(store-plan-object store plan path entry)
+						(each (lambda (block)
+								(cond
+									((. wanted :find block)
+										(. (elem-get plan +plan_extras) :erase block)
+										(unless (store-block-has? store block) (. (elem-get plan +plan_missing) :insert block)))
+									((and (. others :find block) (store-block-has? store block))
+										(. (elem-get plan +plan_extras) :insert block))))
+							(ifn (second (store-manifest store (elem-get entry +store_entry_hash))) '()))))
 				paths))))
 
 (defun store-plan-dropped (store name)
@@ -1004,8 +1004,8 @@
 	(cond
 		((and from (nql from (store-now store name))) (list :stale (store-stat store name)))
 		(:t (defq entry (list name hash size
-				(store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member) member (list member) deleted
-				(ifn copies (if was (elem-get was +store_entry_copies) 0))))
+					(store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member) member (list member) deleted
+					(ifn copies (if was (elem-get was +store_entry_copies) 0))))
 			(store-map-insert store name entry)
 			(store-touch store name)
 			;to the journal, or with no journal, or one that is full, the
@@ -1075,7 +1075,7 @@
 		((not entry) (list :none :nil))
 		((and was (nql was (store-now store to))) (list :stale (store-stat store to)))
 		(:t (defq got (store-set store to (elem-get entry +store_entry_hash) (elem-get entry +store_entry_bytes)
-				was :nil (elem-get entry +store_entry_copies)))
+					was :nil (elem-get entry +store_entry_copies)))
 			(store-set store from "" 0 :nil :t)
 			got)))
 
@@ -1123,10 +1123,10 @@
 	(when (store-snapshot-name? name)
 		(defq at (cat +store_snapshots name "/") count 0)
 		(each (lambda (entry)
-			(bind '(path hash bytes vv writer seen deleted copies) entry)
-			(unless (starts-with +store_snapshots path)
-				(store-set store (cat at path) hash bytes :nil :nil copies)
-				(++ count)))
+				(bind '(path hash bytes vv writer seen deleted copies) entry)
+				(unless (starts-with +store_snapshots path)
+					(store-set store (cat at path) hash bytes :nil :nil copies)
+					(++ count)))
 			(store-list store (ifn prefix "")))
 		count))
 
@@ -1135,10 +1135,10 @@
 	;the snapshots there are, and how many objects each is of
 	(defq out (Fmap 11) names (list))
 	(each (lambda (entry)
-		(defq after (slice (first entry) (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
-		(when (nempty? name)
-			(unless (. out :find name) (push names name))
-			(. out :insert name (inc (ifn (. out :find name) 0)))))
+			(defq after (slice (first entry) (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
+			(when (nempty? name)
+				(unless (. out :find name) (push names name))
+				(. out :insert name (inc (ifn (. out :find name) 0)))))
 		(store-list store +store_snapshots))
 	(map (# (list %0 (. out :find %0))) (sort names)))
 
@@ -1154,15 +1154,15 @@
 		had (Fset (store-buckets (length snap) 101)))
 	(when (nempty? snap)
 		(each (lambda (entry)
-			(bind '(path hash bytes vv writer seen deleted copies) entry)
-			(defq path (slice path (length at) -1))
-			(. had :insert path)
-			(unless (eql (store-now store path) hash)
-				(store-set store path hash bytes :nil :nil copies)
-				(++ restored)))
+				(bind '(path hash bytes vv writer seen deleted copies) entry)
+				(defq path (slice path (length at) -1))
+				(. had :insert path)
+				(unless (eql (store-now store path) hash)
+					(store-set store path hash bytes :nil :nil copies)
+					(++ restored)))
 			snap)
 		(list restored (length (filter (# (and (not (starts-with +store_snapshots (first %0))) (not (. had :find (first %0)))))
-			(store-list store prefix))))))
+					(store-list store prefix))))))
 
 (defun store-snapshot-drop (store name)
 	; (store-snapshot-drop store name) -> count
@@ -1300,41 +1300,41 @@
 	;written to the volume now, (store-later)
 	(defq map (get :map store) me (get :member store) changed (list))
 	(each (lambda (theirs)
-		(task-breathe)
-		(bind '(name hash bytes vv writer seen deleted copies) theirs)
-		(defq mine (. map :find name) now :nil)
-		(cond
-			((not mine)
-				(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))
-			(:t (defq how (store-vv-cmp vv (elem-get mine +store_entry_vv)) my_hash (elem-get mine +store_entry_hash))
-				(cond
-					((eql how :after)
-						(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))
-					((eql how :before))
-					((and (eql how :same) (eql hash my_hash) (= copies (elem-get mine +store_entry_copies)))
-						;the one entry, and who has it is more than either knew
-						(defq both (store-seen seen (elem-get mine +store_entry_seen)))
-						(unless (= (length both) (length (elem-get mine +store_entry_seen)))
-							(setq now (cat (slice mine 0 +store_entry_seen) (list both) (slice mine (inc +store_entry_seen) -1)))))
-					(:t ;written apart, or come to the same counts by two ways
-						(defq keeps (store-keeps store theirs mine) other (if (eql keeps theirs) mine theirs)
-							both_vv (store-vv-merge vv (elem-get mine +store_entry_vv)))
-						(setq now (list name (elem-get keeps +store_entry_hash) (elem-get keeps +store_entry_bytes) both_vv
-							(elem-get keeps +store_entry_writer) (list me) (elem-get keeps +store_entry_deleted)
-							;of two that were set apart, the more copies: to have too many is the lesser harm
-							(max copies (elem-get mine +store_entry_copies))))
-						(unless (or (elem-get other +store_entry_deleted)
-								(eql (elem-get other +store_entry_hash) (elem-get keeps +store_entry_hash)))
-							(defq aside (store-other-name other))
-							(unless (. map :find aside)
-								(store-map-insert store aside (defq kept (cat (list aside) (slice other 1 +store_entry_seen) (list (list me))
-									(slice other (inc +store_entry_seen) -1))))
-								(store-touch store aside)
-								(push changed kept)))))))
-		(when now
-			(store-map-insert store name now)
-			(store-touch store name)
-			(push changed now)))
+			(task-breathe)
+			(bind '(name hash bytes vv writer seen deleted copies) theirs)
+			(defq mine (. map :find name) now :nil)
+			(cond
+				((not mine)
+					(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))
+				(:t (defq how (store-vv-cmp vv (elem-get mine +store_entry_vv)) my_hash (elem-get mine +store_entry_hash))
+					(cond
+						((eql how :after)
+							(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))
+						((eql how :before))
+						((and (eql how :same) (eql hash my_hash) (= copies (elem-get mine +store_entry_copies)))
+							;the one entry, and who has it is more than either knew
+							(defq both (store-seen seen (elem-get mine +store_entry_seen)))
+							(unless (= (length both) (length (elem-get mine +store_entry_seen)))
+								(setq now (cat (slice mine 0 +store_entry_seen) (list both) (slice mine (inc +store_entry_seen) -1)))))
+						(:t ;written apart, or come to the same counts by two ways
+							(defq keeps (store-keeps store theirs mine) other (if (eql keeps theirs) mine theirs)
+								both_vv (store-vv-merge vv (elem-get mine +store_entry_vv)))
+							(setq now (list name (elem-get keeps +store_entry_hash) (elem-get keeps +store_entry_bytes) both_vv
+									(elem-get keeps +store_entry_writer) (list me) (elem-get keeps +store_entry_deleted)
+									;of two that were set apart, the more copies: to have too many is the lesser harm
+									(max copies (elem-get mine +store_entry_copies))))
+							(unless (or (elem-get other +store_entry_deleted)
+									(eql (elem-get other +store_entry_hash) (elem-get keeps +store_entry_hash)))
+								(defq aside (store-other-name other))
+								(unless (. map :find aside)
+									(store-map-insert store aside (defq kept (cat (list aside) (slice other 1 +store_entry_seen) (list (list me))
+												(slice other (inc +store_entry_seen) -1))))
+									(store-touch store aside)
+									(push changed kept)))))))
+			(when now
+				(store-map-insert store name now)
+				(store-touch store name)
+				(push changed now)))
 		entries)
 	;to the journal, as a path set here is. One of the same counts as the
 	;map has, more members known to have it and no more, is not taken
@@ -1354,8 +1354,8 @@
 			(defq lines (list))
 			(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
 			(def store :digest (sha256 (store-text (cat (sort lines) (list "members") (store-members store)
-				(list "retired") (sort (cat (get :retired store)))
-				(list "pinned") (store-pinned-lines store))))))))
+							(list "retired") (sort (cat (get :retired store)))
+							(list "pinned") (store-pinned-lines store))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; what it holds, and keeping it so
@@ -1370,11 +1370,11 @@
 	;not known
 	(defq held (Fset (store-buckets (store-span store) 101)) missing (Fset 11))
 	(each (lambda (entry)
-		(defq parts (list (list) (list)))
-		(when (defq object (store-manifest store (elem-get entry +store_entry_hash) parts))
-			(each (# (. (if (store-block-has? store %0) held missing) :insert (hex-encode %0))) (second object)))
-		(each (# (. held :insert (hex-encode %0))) (first parts))
-		(each (# (. missing :insert (hex-encode %0))) (second parts)))
+			(defq parts (list (list) (list)))
+			(when (defq object (store-manifest store (elem-get entry +store_entry_hash) parts))
+				(each (# (. (if (store-block-has? store %0) held missing) :insert (hex-encode %0))) (second object)))
+			(each (# (. held :insert (hex-encode %0))) (first parts))
+			(each (# (. missing :insert (hex-encode %0))) (second parts)))
 		(store-list store prefix))
 	(list held missing))
 
@@ -1410,8 +1410,8 @@
 	(defq vol (get :vol store) live (first (store-wanted store)) gone 0)
 	(exfat-begin vol)
 	(each (lambda (name)
-		(unless (. live :find (hex-encode name))
-			(if (store-block-drop store name) (++ gone))))
+			(unless (. live :find (hex-encode name))
+				(if (store-block-drop store name) (++ gone))))
 		(store-blocks store))
 	(exfat-end vol)
 	gone)
@@ -1434,7 +1434,7 @@
 	;else it is kept, and does not let go of it. With off it no longer
 	;does
 	(def store :plan :nil :pins (if off (filter (# (nql %0 prefix)) (get :pins store))
-		(sort (if (find prefix (get :pins store)) (get :pins store) (cat (get :pins store) (list prefix))))))
+			(sort (if (find prefix (get :pins store)) (get :pins store) (cat (get :pins store) (list prefix))))))
 	;and it is told to the others, with the path map: a count that this
 	;member alone adds to, so what it said last is known to be the last
 	(defq me (get :member store) was (. (get :pinned store) :find me))
@@ -1454,7 +1454,7 @@
 	;known here: it is under what they have pinned. Not one that is retired
 	(defq out (list) retired (get :retired store))
 	(. (get :pinned store) :each (lambda (member row)
-		(and (not (find member retired)) (some! (# (starts-with %0 name)) (list row) :nil 1 -1) (push out member))))
+			(and (not (find member retired)) (some! (# (starts-with %0 name)) (list row) :nil 1 -1) (push out member))))
 	(sort out))
 
 (defun store-pins-missing (store)
@@ -1463,7 +1463,7 @@
 	;None, and what is pinned is all here: the machine can be taken away
 	(defq out (list))
 	(each (lambda (prefix)
-		(. (second (store-wanted store prefix)) :each (# (unless (find %0 out) (push out %0)))))
+			(. (second (store-wanted store prefix)) :each (# (unless (find %0 out) (push out %0)))))
 		(get :pins store))
 	(sort out))
 
@@ -1475,16 +1475,16 @@
 
 ;module
 (export-symbols '(store-make store-cluster-shift store-open store-close store-resize store-save
-	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
-	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
-	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file +store_folder_blocks
-	store-cut store-manifest store-manifest-text store-tree-text store-manifest-read store-manifest-make store-manifest-walk
-	store-find store-stat store-now
-	store-commit store-commit-root store-put store-delete store-rename store-copies store-get store-read store-fold store-walk store-list
-	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
-	store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
-	store-entry-line store-entry-read store-journal-write
-	store-snapshot store-snapshots store-restore store-snapshot-drop store-snapshot-name? +store_snapshots
-	+store_block_size +store_copies +store_manifest_names +store_entry_path +store_entry_hash +store_entry_bytes
-	+store_entry_vv +store_entry_writer +store_entry_seen +store_entry_deleted +store_entry_copies))
+		store-members store-join store-most? store-other-name store-keeps store-meet store-digest
+		store-entries store-holders store-rank store-seen store-share store-since store-at store-later
+		store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file +store_folder_blocks
+		store-cut store-manifest store-manifest-text store-tree-text store-manifest-read store-manifest-make store-manifest-walk
+		store-find store-stat store-now
+		store-commit store-commit-root store-put store-delete store-rename store-copies store-get store-read store-fold store-walk store-list
+		store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
+		store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
+		store-entry-line store-entry-read store-journal-write
+		store-snapshot store-snapshots store-restore store-snapshot-drop store-snapshot-name? +store_snapshots
+		+store_block_size +store_copies +store_manifest_names +store_entry_path +store_entry_hash +store_entry_bytes
+		+store_entry_vv +store_entry_writer +store_entry_seen +store_entry_deleted +store_entry_copies))
 (env-pop)

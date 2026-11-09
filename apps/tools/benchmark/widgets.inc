@@ -1,4 +1,3 @@
-
 (defq +scale_size 3)
 
 (ui-window *window* ()

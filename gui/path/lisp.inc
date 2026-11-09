@@ -30,13 +30,13 @@
 				last_point (first src) last_mid_point last_point
 				mid_point last_mid_point)
 			(each (# (setq last_mid_point mid_point
-				mid_point (nums-add last_point (nums-scale (nums-sub %0 last_point) 0.5)))
-				(path-gen-quadratic
-					(first last_mid_point) (second last_mid_point)
-					(first last_point) (second last_point)
-					(first mid_point) (second mid_point)
-					out)
-				(setq last_point %0)) src)
+						mid_point (nums-add last_point (nums-scale (nums-sub %0 last_point) 0.5)))
+					(path-gen-quadratic
+						(first last_mid_point) (second last_mid_point)
+						(first last_point) (second last_point)
+						(first mid_point) (second mid_point)
+						out)
+					(setq last_point %0)) src)
 			(push out (first last_point) (second last_point)))
 		(src)))
 
@@ -161,8 +161,8 @@
 			(defq n (max 2 (n2i (+ 1.0 (/ (abs dt) (sqrt (/ 1.0 (max 1.0 (max rx ry))))))))
 				step (/ dt (n2f n)))
 			(each (lambda (i)
-				(defq ang (+ t1 (* step (n2f i))) ex (* rx (cos ang)) ey (* ry (sin ang)))
-				(push dst (+ cx (- (* cp ex) (* sp ey))) (+ cy (+ (* sp ex) (* cp ey)))))
+					(defq ang (+ t1 (* step (n2f i))) ex (* rx (cos ang)) ey (* ry (sin ang)))
+					(push dst (+ cx (- (* cp ex) (* sp ey))) (+ cy (+ (* sp ex) (* cp ey)))))
 				(range 1 n))
 			(push dst x2 y2)))
 	dst)
@@ -299,12 +299,12 @@
 (defun path-stroke-polylines (dst radius joint cap1 cap2 src)
 	; (path-stroke-polylines dst radius join cap1 cap2 src) -> dst
 	(each (lambda (p)
-		(push dst (path-stroke-polyline p radius joint cap1 cap2))) src)
+			(push dst (path-stroke-polyline p radius joint cap1 cap2))) src)
 	dst)
 
 (defun path-stroke-polygons (dst radius joint src)
 	; (path-stroke-polygons dst radius join src) -> dst
 	(each (lambda (p)
-		(bind '(p p1) (path-stroke-polygon p radius joint))
-		(push dst p p1)) src)
+			(bind '(p p1) (path-stroke-polygon p radius joint))
+			(push dst p p1)) src)
 	dst)

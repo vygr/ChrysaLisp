@@ -50,15 +50,15 @@
 
 ; Spawn an active flock of bouncers covering diverse opcode families proportionally
 (defq bouncers (list
-	(create-bouncer 'call    (* f_width 0.25) (* f_height 0.25)  2.1  1.7 1.05)   ; Violet (Control)
-	(create-bouncer 'add-rr  (* f_width 0.72) (* f_height 0.28) -2.3  1.8 0.95)   ; Lime (Arithmetic)
-	(create-bouncer 'cpy-rr  (* f_width 0.50) (* f_height 0.50)  1.7 -2.0 1.10)   ; Amber (Data)
-	(create-bouncer 'sqrt-dd (* f_width 0.28) (* f_height 0.70) -1.9  2.2 1.00)   ; Cyan (Float)
-	(create-bouncer 'shl-rr  (* f_width 0.75) (* f_height 0.75) -2.0 -1.6 0.90)   ; Yellow (Bitwise)
-	(create-bouncer 'push    (* f_width 0.55) (* f_height 0.22)  2.3 -1.5 1.00)   ; Orange (Stack)
-	(create-bouncer 'blt-rr  (* f_width 0.35) (* f_height 0.45) -1.6 -2.1 0.95)   ; Hot Pink (Compare)
-	(create-bouncer 'alloc   (* f_width 0.70) (* f_height 0.55)  1.9  1.9 0.90)   ; Orange (Memory)
-	(create-bouncer 'div-rr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
+		(create-bouncer 'call    (* f_width 0.25) (* f_height 0.25)  2.1  1.7 1.05)   ; Violet (Control)
+		(create-bouncer 'add-rr  (* f_width 0.72) (* f_height 0.28) -2.3  1.8 0.95)   ; Lime (Arithmetic)
+		(create-bouncer 'cpy-rr  (* f_width 0.50) (* f_height 0.50)  1.7 -2.0 1.10)   ; Amber (Data)
+		(create-bouncer 'sqrt-dd (* f_width 0.28) (* f_height 0.70) -1.9  2.2 1.00)   ; Cyan (Float)
+		(create-bouncer 'shl-rr  (* f_width 0.75) (* f_height 0.75) -2.0 -1.6 0.90)   ; Yellow (Bitwise)
+		(create-bouncer 'push    (* f_width 0.55) (* f_height 0.22)  2.3 -1.5 1.00)   ; Orange (Stack)
+		(create-bouncer 'blt-rr  (* f_width 0.35) (* f_height 0.45) -1.6 -2.1 0.95)   ; Hot Pink (Compare)
+		(create-bouncer 'alloc   (* f_width 0.70) (* f_height 0.55)  1.9  1.9 0.90)   ; Orange (Memory)
+		(create-bouncer 'div-rr (* f_width 0.22) (* f_height 0.82)  2.2 -1.7 1.05))) ; Lime (Arithmetic)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Opcodes" (+sym_close) +event_close)
@@ -66,7 +66,7 @@
 		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font :font_body)) :connect +event_mode)
 		(ui-label _ (:text "Opcodes" :font :font_body))
 		(. (ui-slider *count* (:maximum (- +max_opcodes +min_opcodes) :portion 30
-			:value 15 :min_width 256)) :connect +event_count))
+					:value 15 :min_width 256)) :connect +event_count))
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +scene_width +scene_height 1))))
 
@@ -79,68 +79,68 @@
 (defun update-physics ()
 	(++ global_tick 0.02)
 	(each (lambda (b)
-		(bind '(model pos vel angle omega scale phase sq_x sq_y) b)
-		(bind '(name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh) (opcode-model model))
+			(bind '(model pos vel angle omega scale phase sq_x sq_y) b)
+			(bind '(name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh) (opcode-model model))
 
-		; Update position, rotation, and phase
-		(vector-add pos vel pos)
-		(setq angle (+ angle omega))
-		(setq phase (+ phase 0.045))
+			; Update position, rotation, and phase
+			(vector-add pos vel pos)
+			(setq angle (+ angle omega))
+			(setq phase (+ phase 0.045))
 
-		; Relax squash and stretch smoothly back to 1.0
-		(setq sq_x (+ sq_x (* (- 1.0 sq_x) 0.12)))
-		(setq sq_y (+ sq_y (* (- 1.0 sq_y) 0.12)))
+			; Relax squash and stretch smoothly back to 1.0
+			(setq sq_x (+ sq_x (* (- 1.0 sq_x) 0.12)))
+			(setq sq_y (+ sq_y (* (- 1.0 sq_y) 0.12)))
 
-		; Dynamic oriented bounding box extents in world space
-		(defq ca (abs (cos angle)) sa (abs (sin angle))
-			ext_x (* scale (+ (* hw ca) (* hh sa)))
-			ext_y (* scale (+ (* hw sa) (* hh ca))))
+			; Dynamic oriented bounding box extents in world space
+			(defq ca (abs (cos angle)) sa (abs (sin angle))
+				ext_x (* scale (+ (* hw ca) (* hh sa)))
+				ext_y (* scale (+ (* hw sa) (* hh ca))))
 
-		(bind '(x y) pos)
-		(bind '(vx vy) vel)
+			(bind '(x y) pos)
+			(bind '(vx vy) vel)
 
-		; Smooth wall reflection with occasional opcode morph on bounce
-		; Left wall
-		(when (and (< x ext_x) (< vx 0.0))
-			(setq vx (abs vx)
-				x ext_x
-				sq_x 0.75 sq_y 1.25)
-			(when (= 0 (random 2))
-				(elem-set b 0 (random +opcode_count))))
+			; Smooth wall reflection with occasional opcode morph on bounce
+			; Left wall
+			(when (and (< x ext_x) (< vx 0.0))
+				(setq vx (abs vx)
+					x ext_x
+					sq_x 0.75 sq_y 1.25)
+				(when (= 0 (random 2))
+					(elem-set b 0 (random +opcode_count))))
 
-		; Right wall
-		(when (and (> x (- f_width ext_x)) (> vx 0.0))
-			(setq vx (neg (abs vx))
-				x (- f_width ext_x)
-				sq_x 0.75 sq_y 1.25)
-			(when (= 0 (random 2))
-				(elem-set b 0 (random +opcode_count))))
+			; Right wall
+			(when (and (> x (- f_width ext_x)) (> vx 0.0))
+				(setq vx (neg (abs vx))
+					x (- f_width ext_x)
+					sq_x 0.75 sq_y 1.25)
+				(when (= 0 (random 2))
+					(elem-set b 0 (random +opcode_count))))
 
-		; Top wall
-		(when (and (< y ext_y) (< vy 0.0))
-			(setq vy (abs vy)
-				y ext_y
-				sq_x 1.25 sq_y 0.75)
-			(when (= 0 (random 2))
-				(elem-set b 0 (random +opcode_count))))
+			; Top wall
+			(when (and (< y ext_y) (< vy 0.0))
+				(setq vy (abs vy)
+					y ext_y
+					sq_x 1.25 sq_y 0.75)
+				(when (= 0 (random 2))
+					(elem-set b 0 (random +opcode_count))))
 
-		; Bottom wall
-		(when (and (> y (- f_height ext_y)) (> vy 0.0))
-			(setq vy (neg (abs vy))
-				y (- f_height ext_y)
-				sq_x 1.25 sq_y 0.75)
-			(when (= 0 (random 2))
-				(elem-set b 0 (random +opcode_count))))
+			; Bottom wall
+			(when (and (> y (- f_height ext_y)) (> vy 0.0))
+				(setq vy (neg (abs vy))
+					y (- f_height ext_y)
+					sq_x 1.25 sq_y 0.75)
+				(when (= 0 (random 2))
+					(elem-set b 0 (random +opcode_count))))
 
-		; Write back updated values
-		(elem-set pos +vec2_x x)
-		(elem-set pos +vec2_y y)
-		(elem-set vel +vec2_x vx)
-		(elem-set vel +vec2_y vy)
-		(elem-set b 3 angle)
-		(elem-set b 6 phase)
-		(elem-set b 7 sq_x)
-		(elem-set b 8 sq_y)) bouncers))
+			; Write back updated values
+			(elem-set pos +vec2_x x)
+			(elem-set pos +vec2_y y)
+			(elem-set vel +vec2_x vx)
+			(elem-set vel +vec2_y vy)
+			(elem-set b 3 angle)
+			(elem-set b 6 phase)
+			(elem-set b 7 sq_x)
+			(elem-set b 8 sq_y)) bouncers))
 
 (defun frame-done (how)
 	;the frame is whole, show it and say how long it took
@@ -148,14 +148,14 @@
 	(setq frames (inc frames) frames_us (+ frames_us (- (pii-time) frame_time)))
 	(when (>= frames_us 500000)
 		(. *status* :set_text (cat (str (/ frames_us frames 1000)) "."
-			(str (% (/ frames_us frames 100) 10)) "ms a frame, "
-			(str (length bouncers)) " opcodes, " how))
+				(str (% (/ frames_us frames 100) 10)) "ms a frame, "
+				(str (length bouncers)) " opcodes, " how))
 		(setq frames 0 frames_us 0)))
 
 (defun slice-job (y y1 packed)
 	;the message for some rows, with where every opcode is
 	(cat (setf-> (str-alloc +slice_size)
-		(+slice_shared shared_key) (+slice_y y) (+slice_y1 y1)) packed))
+			(+slice_shared shared_key) (+slice_y y) (+slice_y1 y1)) packed))
 
 (defun warm-farm (&optional fresh)
 	;every child is started again, one with no work for a while has gone,
@@ -165,7 +165,7 @@
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
 	(. jobs :add (map (lambda (&) (slice-job +scene_height +scene_height ""))
-		(range 0 (. jobs :size)))))
+			(range 0 (. jobs :size)))))
 
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them, and where every
@@ -173,7 +173,7 @@
 	(defq count (max 1 (length (lisp-nodes :t))) packed (scene-pack bouncers))
 	(setq farming :t frame_time (pii-time) frame_drawn 0)
 	(. jobs :add (map (# (slice-job (/ (* %0 +scene_height) count)
-		(/ (* (inc %0) +scene_height) count) packed)) (range 0 count))))
+					(/ (* (inc %0) +scene_height) count) packed)) (range 0 count))))
 
 (defun one-task-frame (how)
 	;a frame drawn here, all of it
@@ -194,7 +194,7 @@
 	;on the pixels of the canvas, in shared memory, and a node of another
 	;machine, there is one when the machines are a mesh, can not reach them
 	(setq jobs (Jobs (cat *app_root* "child.lisp")
-		(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
+			(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
 	;it comes up on all the nodes, if their pixels can be shared
 	(. *mode* :set_selected (if shared_canvas 1 0))
 	(if shared_canvas (warm-farm :t))
@@ -228,7 +228,7 @@
 							(when (= out 0)
 								(setq farming :nil)
 								(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
-									(str frame_drawn) " opcodes drawn over the slices")))))))
+										(str frame_drawn) " opcodes drawn over the slices")))))))
 			(:t ;timer event, the next frame if the last is done
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(unless farming

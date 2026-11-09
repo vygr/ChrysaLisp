@@ -27,8 +27,8 @@
 (defun url-ext-index (urls)
 	(defq i 0)
 	(while (every (lambda (url)
-			(and (< i (length url))
-				(eql (elem-get url i) (elem-get (first urls) i)))) urls)
+				(and (< i (length url))
+					(eql (elem-get url i) (elem-get (first urls) i)))) urls)
 		(++ i)) i)
 
 (defun url-ext (url cx &optional ctx)
@@ -38,8 +38,8 @@
 	(if (found? url "/") (setq ctx (max ctx 1)))
 	(bind '(url file) (url-split url ctx))
 	(defq urls (map (# (if (= ctx 0) (cat (slice %0 (length file) -7) " ") (slice %0 (length file) -1)))
-		(filter (# (and (starts-with file %0) (if (= ctx 0) (ends-with ".lisp " %0) :t)))
-			(url-list url))))
+			(filter (# (and (starts-with file %0) (if (= ctx 0) (ends-with ".lisp " %0) :t)))
+				(url-list url))))
 	(if (= 0 (length urls)) "" (slice (first urls) 0 (url-ext-index urls))))
 
 ;module

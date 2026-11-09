@@ -9,8 +9,8 @@
 
 (defmacro slot ()
 	(static-qq (defq _kl (get :buckets this)
-		_kl (elem-get _kl (% ((get :hash_fnc this) key) (get :num_buckets this)))
-		_si (some (# (if ((get :cmp_fnc this) %0 key) (!))) _kl))))
+			_kl (elem-get _kl (% ((get :hash_fnc this) key) (get :num_buckets this)))
+			_si (some (# (if ((get :cmp_fnc this) %0 key) (!))) _kl))))
 
 (defclass Xset (&optional num_buckets cmp_fnc hash_fnc) (Set)
 	; (Xset [num_buckets cmp_fnc hash_fnc]) -> xset
@@ -94,8 +94,8 @@
 		(lower :num_buckets (:buckets new_buckets))
 		(raise :num_buckets)
 		(each (lambda (old_bucket)
-			(while (defq key (pop old_bucket))
-				(push (elem-get new_buckets (% (hash_fnc key) num_buckets)) key))) buckets)
+				(while (defq key (pop old_bucket))
+					(push (elem-get new_buckets (% (hash_fnc key) num_buckets)) key))) buckets)
 		this)
 
 	(defmethod :empty? ()
@@ -104,8 +104,7 @@
 
 	(defmethod :size ()
 		; (. xset :size) -> size
-		(reduce (# (+ %0 (length %1))) (get :buckets this) 0))
-	)
+		(reduce (# (+ %0 (length %1))) (get :buckets this) 0)))
 
 ;module
 (export-classes '(Xset))

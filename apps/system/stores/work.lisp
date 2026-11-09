@@ -77,7 +77,7 @@
 				(folder
 					(each (lambda (entry)
 							(push out (list (first entry) (cat name (slice (first entry) (length path) -1))
-								(elem-get entry +store_entry_bytes))))
+									(elem-get entry +store_entry_bytes))))
 						(ifn (storage-list (cat path "/") svc) (list))))
 				((defq entry (storage-stat path svc))
 					(push out (list path name (elem-get entry +store_entry_bytes))))))
@@ -127,9 +127,9 @@
 			;another's in the meantime is not lost
 			(defq from_was (cond ((not to_svc) :nil) (was (elem-get was +store_entry_hash)) (""))
 				got (first (cond
-					((not from_svc) (storage-put-file to_path path from_was to_svc work-tick))
-					((not to_svc) (storage-get-file path to_path from_svc work-tick))
-					((storage-copy-object path to_path from_svc to_svc from_was work-tick)))))
+						((not from_svc) (storage-put-file to_path path from_was to_svc work-tick))
+						((not to_svc) (storage-get-file path to_path from_svc work-tick))
+						((storage-copy-object path to_path from_svc to_svc from_was work-tick)))))
 			(case got
 				(:ok (++ *done*))
 				(:stopped)

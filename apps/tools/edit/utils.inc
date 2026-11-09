@@ -23,8 +23,8 @@
 
 (defun open-files (files)
 	(each (# (unless (find %0 *open_files*)
-		(push *open_files* %0)
-		(populate-buffer %0 0 0 0 0 0 0))) files)
+				(push *open_files* %0)
+				(populate-buffer %0 0 0 0 0 0 0))) files)
 	(populate-file-trees)
 	(select-node *current_file*))
 

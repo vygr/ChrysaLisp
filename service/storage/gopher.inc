@@ -54,10 +54,10 @@
 		kept (map! (# (store-rank %0 among copies)) (list names) at (min (length names) (+ at +gopher_ahead)))
 		runs (list) pinned (ifn pinned (list)))
 	(each (lambda ((who where))
-		(unless (find (hex-encode where) skip)
-			(if (> (defq run (if (find who pinned) (inc (length kept))
-					(ifn (some (# (unless (find who %0) (!))) kept) (length kept)))) 0)
-				(push runs (list run where)))))
+			(unless (find (hex-encode where) skip)
+				(if (> (defq run (if (find who pinned) (inc (length kept))
+								(ifn (some (# (unless (find who %0) (!))) kept) (length kept)))) 0)
+					(push runs (list run where)))))
 		peers)
 	(map (const second) (sort runs (# (- (first %1) (first %0))))))
 
@@ -72,11 +72,11 @@
 	(defq ahead (apply (const cat) (cat (list "") (slice names at (min (length names) (+ at +gopher_ahead)))))
 		runs (list))
 	(each (lambda (where)
-		(unless (find (defq id (hex-encode where)) skip)
-			(cond
-				((defq has (storage-ask where +storage_type_has ahead +gopher_has_wait))
-					(if (> (defq run (ifn (find "0" has) (length has))) 0) (push runs (list run where))))
-				((push skip id)))))
+			(unless (find (defq id (hex-encode where)) skip)
+				(cond
+					((defq has (storage-ask where +storage_type_has ahead +gopher_has_wait))
+						(if (> (defq run (ifn (find "0" has) (length has))) 0) (push runs (list run where))))
+					((push skip id)))))
 		members)
 	(map (const second) (sort runs (# (- (first %1) (first %0))))))
 
@@ -90,9 +90,9 @@
 	;blocks. wait, seconds, is for a test
 	(list (mail-mbox) holders 0 0
 		(cat (hex-encode asker) +storage_lf (str (list name at state source trail skip version copies
-			;the members as the one word, that reads back as it was whatever
-			;is in an id
-			(cat "p" (hex-encode (join (ifn pinned (list)) " "))))))
+					;the members as the one word, that reads back as it was whatever
+					;is in an id
+					(cat "p" (hex-encode (join (ifn pinned (list)) " "))))))
 		(task-timeout (ifn wait +gopher_ack_wait))))
 
 (defun gopher-pass-turn (pass skip)
@@ -116,7 +116,7 @@
 		((< (pii-time) due) :wait)
 		((< next (length holders))
 			(mail-send (elem-get holders next) (cat (setf-> (str-alloc +storage_rpc_size)
-				(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_walk)) text))
+						(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_walk)) text))
 			(elem-set pass +gopher_pass_next (inc next))
 			(elem-set pass +gopher_pass_due (+ (pii-time) wait))
 			:wait)

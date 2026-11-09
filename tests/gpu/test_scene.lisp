@@ -15,10 +15,10 @@
 	;how many pixels are not black, and how many are near white
 	(defq lit 0 white 0)
 	(each (lambda (i)
-		(defq p (get-uint pixels i))
-		(if (/= (logand p 0xffffff) 0) (setq lit (inc lit)))
-		(and (> (logand p 0xff) 230) (> (logand (>> p 8) 0xff) 230) (> (logand (>> p 16) 0xff) 230)
-			(setq white (inc white))))
+			(defq p (get-uint pixels i))
+			(if (/= (logand p 0xffffff) 0) (setq lit (inc lit)))
+			(and (> (logand p 0xff) 230) (> (logand (>> p 8) 0xff) 230) (> (logand (>> p 16) 0xff) 230)
+				(setq white (inc white))))
 		(range 0 (length pixels) 4))
 	(list lit white))
 
@@ -60,7 +60,7 @@
 (defun sc-red? (pixels)
 	;no pixel has more green or blue than a fifth of its red
 	(every (lambda (i) (defq p (get-uint pixels i) r (logand (>> p 16) 0xff))
-		(and (<= (* 5 (logand (>> p 8) 0xff)) (+ r 5)) (<= (* 5 (logand p 0xff)) (+ r 5))))
+			(and (<= (* 5 (logand (>> p 8) 0xff)) (+ r 5)) (<= (* 5 (logand p 0xff)) (+ r 5))))
 		(range 0 (length pixels) 4)))
 (assert-true "a red ball that does not shine is red all over" (sc-red? sc_matte))
 (assert-true "with the scene's own shaders it is not, where it is turned to the light it is washed out" (not (sc-red? sc_smooth)))

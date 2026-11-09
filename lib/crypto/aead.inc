@@ -33,8 +33,8 @@
 	;how long they were comes last
 	(defq ctx (poly1305-start (slice (chacha20 key nonce 0 +aead_zeros) 0 32)))
 	(each (# (when (nempty? %0)
-			(poly1305-add ctx %0)
-			(poly1305-add ctx (slice +aead_zeros 0 (% (- 16 (% (length %0) 16)) 16)))))
+				(poly1305-add ctx %0)
+				(poly1305-add ctx (slice +aead_zeros 0 (% (- 16 (% (length %0) 16)) 16)))))
 		(list aad cipher))
 	(poly1305-end (poly1305-add ctx (cat (char (length aad) 8) (char (length cipher) 8)))))
 

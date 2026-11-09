@@ -81,17 +81,17 @@
 		(. this :each (# (push old_keys %0) (push old_vals %1)))
 		;test for vanished and timeout nodes
 		(each (lambda (key val)
-			(cond
-				((or (not (defq child (get :child val)))
-					(find (task-nodeid child) all_nodes))
-					;waiting on child launching, or found child in network_nodes
-					;so check timestamp
-					(and timeout
-						(defq then (get :timestamp val))
-						(> (- now then) timeout)
-						(restart)))
-				(:t ;not found child
-					(restart)))) old_keys old_vals)
+				(cond
+					((or (not (defq child (get :child val)))
+							(find (task-nodeid child) all_nodes))
+						;waiting on child launching, or found child in network_nodes
+						;so check timestamp
+						(and timeout
+							(defq then (get :timestamp val))
+							(> (- now then) timeout)
+							(restart)))
+					(:t ;not found child
+						(restart)))) old_keys old_vals)
 		(. this :grown)
 		mutated)
 
@@ -135,8 +135,7 @@
 		; (. farm :close) -> farm
 		;close tasks
 		(defq e (penv) destroy (get :destroy this))
-		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty))
-	)
+		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty)))
 
 ;module
 (export-classes '(Farm))

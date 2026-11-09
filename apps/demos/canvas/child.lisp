@@ -10,14 +10,14 @@
 	;is up, with the scene loaded and the canvas found
 	(defq canvas (canvas-attach held +scene_width +scene_height 1 canvas_key +canvas_flag_antialias))
 	(mail-send mbox (setf-> (str-alloc +slice_reply_size)
-		(+job_reply_key key)
-		(+slice_reply_y y)
-		(+slice_reply_drawn (cond
-			((not canvas) -1)
-			((>= y y1) 0)
-			((scene-draw canvas angle count y y1)))))))
+			(+job_reply_key key)
+			(+slice_reply_y y)
+			(+slice_reply_drawn (cond
+					((not canvas) -1)
+					((>= y y1) 0)
+					((scene-draw canvas angle count y y1)))))))
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox)
-		(apply draw-slice (getf-> msg +job_key +job_reply +slice_shared
-			+slice_angle +slice_count +slice_y +slice_y1)))))
+			(apply draw-slice (getf-> msg +job_key +job_reply +slice_shared
+					+slice_angle +slice_count +slice_y +slice_y1)))))

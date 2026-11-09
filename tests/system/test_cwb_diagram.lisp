@@ -29,15 +29,15 @@
 (defun dg-at (name)
 	;where the pill of a name is, the top left of its group, by its words
 	(some (lambda (item)
-		(and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
-				(elem-get %0 +cwb_items)))) (elem-get item +cwb_items))
-			(map! (const n2i) (list (elem-get item +cwb_m)) 2 3)))
+			(and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
+								(elem-get %0 +cwb_items)))) (elem-get item +cwb_items))
+				(map! (const n2i) (list (elem-get item +cwb_m)) 2 3)))
 		(elem-get dg_tree +cwb_items)))
 (defun dg-xy (name)
 	(some (lambda (item)
-		(and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
-				(elem-get %0 +cwb_items)))) (elem-get item +cwb_items))
-			(list (elem-get (elem-get item +cwb_m) 2) (elem-get (elem-get item +cwb_m) 5))))
+			(and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
+								(elem-get %0 +cwb_items)))) (elem-get item +cwb_items))
+				(list (elem-get (elem-get item +cwb_m) 2) (elem-get (elem-get item +cwb_m) 5))))
 		(elem-get dg_tree +cwb_items)))
 (assert-true "what comes of a thing is to the right of it, and its own further right still"
 	(< (first (dg-xy "root")) (first (dg-xy "a")) (first (dg-xy "a1"))))
@@ -55,7 +55,7 @@
 
 ;the diagram of a class, and of them all, are documents the size of what is in them, that save and load
 (defq dg_doc (dia-class ":canvas" "gui/canvas/class.inc" '(":obj" ":view") '(":kid")
-	(list (list "fields" '("ptr pixmap")) (list "static methods" '(":create" ":fill")))))
+		(list (list "fields" '("ptr pixmap")) (list "static methods" '(":create" ":fill")))))
 (assert-true "the diagram of a class is a document with its parts in it, and a size"
 	(and (> (. dg_doc :find :width) 100) (> (. dg_doc :find :height) 100) (>= (length (dg-parts dg_doc)) 5)))
 (defq dg_stream (string-stream (cat "")))

@@ -37,11 +37,11 @@
 	;it to the last, of the one kind. A single and its double are one
 	;register, a trash of either is of both: :f3 is the register :d3
 	(reduce (lambda (out reg)
-		(defq ends (split (str reg) "-") kind (slice (first ends) 0 2)
-			kind (if (eql kind ":f") ":d" kind)
-			from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
-		(each (# (push out (sym (cat kind (str %0))))) (range from (inc to)))
-		out) %0 (list)))
+			(defq ends (split (str reg) "-") kind (slice (first ends) 0 2)
+				kind (if (eql kind ":f") ":d" kind)
+				from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
+			(each (# (push out (sym (cat kind (str %0))))) (range from (inc to)))
+			out) %0 (list)))
 
 (defun method-trashes (%0 %1)
 	;%0 = class name
@@ -68,9 +68,9 @@
 	;as it was written, a part at a time, and only as far as the first
 	;that will do: this is asked at every such call there is
 	(or (some (lambda (part)
-			(if (starts-with ":r" part)
-				(some (lambda (reg) (unless (find reg %2) reg)) (trash-regs (list part)))))
-		(pfind (pfind *trashes* %0) %1)) :r14))
+				(if (starts-with ":r" part)
+					(some (lambda (reg) (unless (find reg %2) reg)) (trash-regs (list part)))))
+			(pfind (pfind *trashes* %0) %1)) :r14))
 
 (defun path-method (%0)
 	;%0 = function path
@@ -84,18 +84,18 @@
 	;:nil if no method is that function
 	(defq io (list) said :nil is :nil static :t own :nil)
 	(each (lambda ((class vtable))
-		(each (lambda ((name m))
-			(when (and (list? m) (eql (first m) %0))
-				(setq is :t)
-				(if (nql (second m) :static) (setq static :nil))
-				(each (# (if (list? %0) (each (lambda (reg) (and (sym? reg) (not (find reg io)) (push io reg))) %0)))
-					(list (third m) (elem-get m 3)))
-				(when (defq trashes (pfind (pfind *trashes* class) name))
-					(setq said (ifn said (list)))
-					(each (# (unless (find %0 said) (push said %0))) (trash-regs trashes)))
-				(if (defq trashes (pfind (pfind *trashes_own* class) name))
-					(setq own (trash-regs trashes)))))
-			(partition vtable 2)))
+			(each (lambda ((name m))
+					(when (and (list? m) (eql (first m) %0))
+						(setq is :t)
+						(if (nql (second m) :static) (setq static :nil))
+						(each (# (if (list? %0) (each (lambda (reg) (and (sym? reg) (not (find reg io)) (push io reg))) %0)))
+							(list (third m) (elem-get m 3)))
+						(when (defq trashes (pfind (pfind *trashes* class) name))
+							(setq said (ifn said (list)))
+							(each (# (unless (find %0 said) (push said %0))) (trash-regs trashes)))
+						(if (defq trashes (pfind (pfind *trashes_own* class) name))
+							(setq own (trash-regs trashes)))))
+				(partition vtable 2)))
 		(partition *vtables* 2))
 	(if is (list io said (if static said own))))
 
@@ -166,45 +166,45 @@
 	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap)))
 		owned (copy (ifn (pfind *trashes_own* super) (pmap))))
 	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes own))
-		(setd mtype :static)
-		(if (list? trashes) (pinsert trashed mname trashes))
-		;what the class above said its function trashes is not of this one
-		(pinsert owned mname (if (list? own) own))
-		(if (defq m (pfind vtable mname))
-			;existing method
-			(case mtype
-				(:static
-					(if (eql (second m) :static)
-						(override)
-						(throw "Virtual method already exists !" mname)))
-				(:final
-					(case (second m)
-						(:virtual
+			(setd mtype :static)
+			(if (list? trashes) (pinsert trashed mname trashes))
+			;what the class above said its function trashes is not of this one
+			(pinsert owned mname (if (list? own) own))
+			(if (defq m (pfind vtable mname))
+				;existing method
+				(case mtype
+					(:static
+						(if (eql (second m) :static)
 							(override)
-							(elem-set m 1 mtype))
-						(:final
-							(throw "Virtual method is final !" mname))
-						(:t (throw "Static method already exists !" mname))))
-				(:override
-					(case (second m)
-						(:virtual
-							(override))
-						(:final
-							(throw "Virtual method is final !" mname))
-						(:t (throw "Static method already exists !" mname))))
-				(:virtual
-					(throw "Method already exists !, use override ?" mname))
-				(:t (throw "Must use static, virtual, final or override ! " mtype)))
-			;new method
-			(case mtype
-				(:static
-					(pinsert vtable mname (list mfunc mtype regs_in regs_out)))
-				((:virtual :final)
-					(pinsert vtable :vslot (defq _ (num (+ (pfind vtable :vslot) +ptr_size))))
-					(pinsert vtable mname (list mfunc mtype regs_in regs_out _)))
-				(:override
-					(throw "Method does not exist !" mname))
-				(:t (throw "Must use static, virtual, final or override ! " mtype)))))
+							(throw "Virtual method already exists !" mname)))
+					(:final
+						(case (second m)
+							(:virtual
+								(override)
+								(elem-set m 1 mtype))
+							(:final
+								(throw "Virtual method is final !" mname))
+							(:t (throw "Static method already exists !" mname))))
+					(:override
+						(case (second m)
+							(:virtual
+								(override))
+							(:final
+								(throw "Virtual method is final !" mname))
+							(:t (throw "Static method already exists !" mname))))
+					(:virtual
+						(throw "Method already exists !, use override ?" mname))
+					(:t (throw "Must use static, virtual, final or override ! " mtype)))
+				;new method
+				(case mtype
+					(:static
+						(pinsert vtable mname (list mfunc mtype regs_in regs_out)))
+					((:virtual :final)
+						(pinsert vtable :vslot (defq _ (num (+ (pfind vtable :vslot) +ptr_size))))
+						(pinsert vtable mname (list mfunc mtype regs_in regs_out _)))
+					(:override
+						(throw "Method does not exist !" mname))
+					(:t (throw "Must use static, virtual, final or override ! " mtype)))))
 		lines)
 	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)
 		(pinsert *trashes* ',class ',trashed) (pinsert *trashes_own* ',class ',owned)))
@@ -212,7 +212,7 @@
 (defmacro def-method (class member)
 	;the function knows which method it is, (fn-keep-locals) asks
 	`(progn (def-func (f-path ,class ,member))
-		(setq *func_method* (list ,class ,member))))
+			(setq *func_method* (list ,class ,member))))
 
 ;;;;;;;;;;;;;;;;;;
 ; function helpers
@@ -467,9 +467,9 @@
 	(vp-align +short_size)
 (vp-label 'sig)
 	(each (lambda (s)
-		(defq cls (sym (to-lower s))
-			target (label-sym (link-sym (fn-find-link (f-path cls :vtable)))))
-		(vp-short (if (nql s cls) `(- *pc* ,target) `(- ,target *pc*)))) %0))
+			(defq cls (sym (to-lower s))
+				target (label-sym (link-sym (fn-find-link (f-path cls :vtable)))))
+			(vp-short (if (nql s cls) `(- *pc* ,target) `(- ,target *pc*)))) %0))
 
 (defun gen-vtable (%0)
 	;%0 = class name
@@ -527,8 +527,8 @@
 ;module
 (export-symbols
 	'(gen-type gen-create gen-create1 gen-vtable def-class def-method
-	entry exit call jump s-call d-call s-jump
-	v-call v-jump d-jump r-call r-jump v-bind
-	f-entry f-exit l-entry l-exit f-path f-bind
-	method-input method-output method-lookup method-trashes trash-regs path-method signature))
+		entry exit call jump s-call d-call s-jump
+		v-call v-jump d-jump r-call r-jump v-bind
+		f-entry f-exit l-entry l-exit f-path f-bind
+		method-input method-output method-lookup method-trashes trash-regs path-method signature))
 (env-pop)

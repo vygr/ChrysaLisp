@@ -201,10 +201,10 @@
 		;set found mask
 		(. mask_found :clr_opaque)
 		(each! (# (when %0
-				(defq y (* (- (!) scroll_y) ch))
-				(each (lambda (((x x1) &ignore))
-					(defq x1 (max cc (* (- x1 x) cw)) x (* (- x scroll_x) cw))
-					(. mask_found :add_opaque x y x1 ch)) %0)))
+					(defq y (* (- (!) scroll_y) ch))
+					(each (lambda (((x x1) &ignore))
+							(defq x1 (max cc (* (- x1 x) cw)) x (* (- x scroll_x) cw))
+							(. mask_found :add_opaque x y x1 ch)) %0)))
 			(list (. buffer :get_buffer_found)) scroll_y scroll_y1)
 		;set ink mask
 		(-- scroll_y1)
@@ -227,45 +227,45 @@
 		;set selected mask
 		(. mask_selected :clr_opaque)
 		(each (lambda (csr)
-			(task-slice)
-			(bind '(cx cy &ignore) csr)
-			(when (<= scroll_y cy scroll_y1)
-				(. mask_ink :add_opaque
-					(* (- cx scroll_x) cw)
-					(* (- cy scroll_y) ch)
-					cc ch))
-			(bind '(cx cy ax ay) (csr-sort csr))
-			(unless (or (< ay scroll_y) (> cy scroll_y1))
-				(cond
-					((= cy ay)
-						;selection on same line
-						(when (<= scroll_y cy scroll_y1)
-							(. mask_selected :add_opaque
-								(* (- cx scroll_x) cw)
-								(* (- cy scroll_y) ch)
-								(* (- ax cx) cw)
-								ch)))
-					(:t ;multi line selection
-						(when (<= scroll_y cy scroll_y1)
-							(. mask_selected :add_opaque
-								(* (- cx scroll_x) cw)
-								(* (- cy scroll_y) ch)
-								(* (- (length (. buffer :get_text_line cy)) cx) cw)
-								ch))
-						(while (< (++ cy) ay)
-							(task-slice)
+				(task-slice)
+				(bind '(cx cy &ignore) csr)
+				(when (<= scroll_y cy scroll_y1)
+					(. mask_ink :add_opaque
+						(* (- cx scroll_x) cw)
+						(* (- cy scroll_y) ch)
+						cc ch))
+				(bind '(cx cy ax ay) (csr-sort csr))
+				(unless (or (< ay scroll_y) (> cy scroll_y1))
+					(cond
+						((= cy ay)
+							;selection on same line
 							(when (<= scroll_y cy scroll_y1)
 								(. mask_selected :add_opaque
-									(* (neg scroll_x) cw)
+									(* (- cx scroll_x) cw)
 									(* (- cy scroll_y) ch)
-									(* (length (. buffer :get_text_line cy)) cw)
+									(* (- ax cx) cw)
 									ch)))
-						(when (<= scroll_y ay scroll_y1)
-							(. mask_selected :add_opaque
-								(* (neg scroll_x) cw)
-								(* (- ay scroll_y) ch)
-								(* ax cw)
-								ch))))))
+						(:t ;multi line selection
+							(when (<= scroll_y cy scroll_y1)
+								(. mask_selected :add_opaque
+									(* (- cx scroll_x) cw)
+									(* (- cy scroll_y) ch)
+									(* (- (length (. buffer :get_text_line cy)) cx) cw)
+									ch))
+							(while (< (++ cy) ay)
+								(task-slice)
+								(when (<= scroll_y cy scroll_y1)
+									(. mask_selected :add_opaque
+										(* (neg scroll_x) cw)
+										(* (- cy scroll_y) ch)
+										(* (length (. buffer :get_text_line cy)) cw)
+										ch)))
+							(when (<= scroll_y ay scroll_y1)
+								(. mask_selected :add_opaque
+									(* (neg scroll_x) cw)
+									(* (- ay scroll_y) ch)
+									(* ax cw)
+									ch))))))
 			(if (eql +invalid_cursor (. this :get_tcursor))
 				(. buffer :get_cursors)
 				(cat (. buffer :get_cursors) (list (. this :get_tcursor)))))
@@ -307,8 +307,7 @@
 		(setq scroll_x (+ scroll_x (getf event +ev_msg_wheel_x))
 			scroll_y (- scroll_y (getf event +ev_msg_wheel_y)))
 		(lower :scroll_x :scroll_y)
-		this)
-	)
+		this))
 
 ;module
 (export-classes '(Edit))

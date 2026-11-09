@@ -17,7 +17,7 @@
 				(1 (ui-buttons (+sym_reset +sym_delete) +event_done_redo))
 				(2 (ui-buttons (+sym_reset +sym_delete) +event_del_redo))))
 		(ui-textfield _ (:clear_text (setd text "")
-			:hint_text "todo item" :paper +argb_white)))
+				:hint_text "todo item" :paper +argb_white)))
 	(. flow :add_child entry)
 	(ui-tool-tips toolbar
 		(case column
@@ -42,7 +42,7 @@
 	(each (lambda (item_flow item_list)
 			(each (# (. %0 :sub)) (. item_flow :children))
 			(each (lambda (text)
-				(create-item item_flow text)) item_list))
+					(create-item item_flow text)) item_list))
 		item_flows item_lists))
 
 ;import actions and bindings

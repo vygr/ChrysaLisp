@@ -31,14 +31,14 @@
 	;me, nor I from them: each with what it says of itself
 	(defq out (list) cut (. me :find :cut))
 	(each (lambda (entry)
-		;a name known over every machine is told with the system it is on:
-		;the name, where, the system, and what was said of it, which is last
-		(defq parts (split entry ",") about (split (last parts) " ") where (hex-decode (second parts)))
-		(and (= (length about) 2) (eql (first about) (. me :find :store))
-			(nql (second about) (. me :find :member)) (not (find (second about) cut))
-			(defq state (storage-state where))
-			(not (find (. me :find :member) (. state :find :cut)))
-			(push out (list (second about) where state))))
+			;a name known over every machine is told with the system it is on:
+			;the name, where, the system, and what was said of it, which is last
+			(defq parts (split entry ",") about (split (last parts) " ") where (hex-decode (second parts)))
+			(and (= (length about) 2) (eql (first about) (. me :find :store))
+				(nql (second about) (. me :find :member)) (not (find (second about) cut))
+				(defq state (storage-state where))
+				(not (find (. me :find :member) (. state :find :cut)))
+				(push out (list (second about) where state))))
 		(mail-enquire (cat group ",")))
 	out)
 
@@ -63,18 +63,18 @@
 		(each (# (unless (find %0 here) (storage-record recorder member "peer-" %0))) seen)
 		(setq seen here)
 		(each (lambda ((who where state))
-			(. heard :insert who now)
-			(unless (eql (. state :find :digest) (. (ifn (storage-state svc) me) :find :digest))
-				;only what is new: each says where its count of changes is,
-				;and is asked next time for what has changed since. took is
-				;what was had from each, gave what each was given
-				(when (defq theirs (storage-ask where +storage_type_entries (ifn (. took :find who) "")))
-					(storage-record recorder member "meet" who)
-					(if (storage-ask svc +storage_type_merge theirs) (. took :insert who (notes-at theirs)))
-					(and (defq mine (storage-ask svc +storage_type_entries (ifn (. gave :find who) "")))
-						(storage-ask where +storage_type_merge mine)
-						(. gave :insert who (notes-at mine)))
-					(++ met))))
+				(. heard :insert who now)
+				(unless (eql (. state :find :digest) (. (ifn (storage-state svc) me) :find :digest))
+					;only what is new: each says where its count of changes is,
+					;and is asked next time for what has changed since. took is
+					;what was had from each, gave what each was given
+					(when (defq theirs (storage-ask where +storage_type_entries (ifn (. took :find who) "")))
+						(storage-record recorder member "meet" who)
+						(if (storage-ask svc +storage_type_merge theirs) (. took :insert who (notes-at theirs)))
+						(and (defq mine (storage-ask svc +storage_type_entries (ifn (. gave :find who) "")))
+							(storage-ask where +storage_type_merge mine)
+							(. gave :insert who (notes-at mine)))
+						(++ met))))
 			peers)
 		;the members that are there: me, and each heard from of late. One
 		;that has gone is still there for a while, a machine that is turned
@@ -98,32 +98,32 @@
 			;third of what the link could carry
 			(defq wants (map! (const hex-decode) (list lines) 0 at))
 			(each (lambda (start)
-				;each peer is asked at once, and each answer then read
-				(defq batch (slice wants start (min (length wants) (+ start +tender_window)))
-					names (apply (const cat) (cat (list "") batch))
-					has (map (# (ifn (mail-read-timeout %0 (task-timeout 5)) ""))
-						(map (lambda ((who where state)) (storage-send where +storage_type_has names)) peers))
-					froms (map (lambda (want)
-						(defq at_want (!)
-							having (filter (# (and (< at_want (length (elem-get has %0))) (eql (elem-get (elem-get has %0) at_want) "1")))
-								(range 0 (length peers))))
-						(if (nempty? having) (elem-get peers (elem-get having (% at_want (length having))))))
-						batch)
-					boxes (map (lambda (want peer) (if peer (storage-send (second peer) +storage_type_block_get want))) batch froms)
-					froms (map (# (if %0 (first %0) "?")) froms))
-				;each block as it comes is given to my service and not waited
-				;for, and what it said of each is read after
-				(defq puts (map (lambda (want mbox)
-						(task-breathe)
-						(and mbox (defq data (mail-read-timeout mbox (task-timeout 10))) (eql (sha256 data) want)
-							(storage-send svc +storage_type_block_put data)))
-					batch boxes))
-				(each (lambda (want put from)
-					(when (and put (eql (mail-read-timeout put (task-timeout 10)) want))
-						(storage-record recorder member "fetched" (cat (storage-record-name want) " " from))
-						(++ fetched)
-						(setq more :t)))
-					batch puts froms))
+					;each peer is asked at once, and each answer then read
+					(defq batch (slice wants start (min (length wants) (+ start +tender_window)))
+						names (apply (const cat) (cat (list "") batch))
+						has (map (# (ifn (mail-read-timeout %0 (task-timeout 5)) ""))
+							(map (lambda ((who where state)) (storage-send where +storage_type_has names)) peers))
+						froms (map (lambda (want)
+								(defq at_want (!)
+									having (filter (# (and (< at_want (length (elem-get has %0))) (eql (elem-get (elem-get has %0) at_want) "1")))
+										(range 0 (length peers))))
+								(if (nempty? having) (elem-get peers (elem-get having (% at_want (length having))))))
+							batch)
+						boxes (map (lambda (want peer) (if peer (storage-send (second peer) +storage_type_block_get want))) batch froms)
+						froms (map (# (if %0 (first %0) "?")) froms))
+					;each block as it comes is given to my service and not waited
+					;for, and what it said of each is read after
+					(defq puts (map (lambda (want mbox)
+								(task-breathe)
+								(and mbox (defq data (mail-read-timeout mbox (task-timeout 10))) (eql (sha256 data) want)
+									(storage-send svc +storage_type_block_put data)))
+							batch boxes))
+					(each (lambda (want put from)
+							(when (and put (eql (mail-read-timeout put (task-timeout 10)) want))
+								(storage-record recorder member "fetched" (cat (storage-record-name want) " " from))
+								(++ fetched)
+								(setq more :t)))
+						batch puts froms))
 				(range 0 (length wants) +tender_window))
 			;what is others' to keep is let go of when each of them has it
 			;each peer is asked the once which of them it has, all at once, and
@@ -136,10 +136,10 @@
 					drops (map (lambda ((extra &rest holders))
 							(defq at_extra (!))
 							(and (every (lambda (holder)
-									;a peer that did not answer, or said less, has it not
-									(and (defq at_peer (some (# (if (eql (first %0) holder) (!))) peers))
-										(< at_extra (length (defq said (elem-get has at_peer))))
-										(eql (elem-get said at_extra) "1")))
+										;a peer that did not answer, or said less, has it not
+										(and (defq at_peer (some (# (if (eql (first %0) holder) (!))) peers))
+											(< at_extra (length (defq said (elem-get has at_peer))))
+											(eql (elem-get said at_extra) "1")))
 									holders)
 								(storage-send svc +storage_type_block_drop (hex-decode extra))))
 						extras))

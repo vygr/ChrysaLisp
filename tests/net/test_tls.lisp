@@ -35,7 +35,7 @@
 ;a Certificate message of the test chain, as a server sends it
 (defun tt-der (name) (first (x509-pem (file-stream (cat "tests/crypto/data/x509_" name ".pem")))))
 (defq tt_certs (tls-certificates (cat (char 11) (tls-be 0 3) (char 0)
-	(tls-vec 3 (apply (const cat) (map (# (cat (tls-vec 3 (tt-der %0)) (tls-be 0 2))) '("leaf" "issuer")))))))
+			(tls-vec 3 (apply (const cat) (map (# (cat (tls-vec 3 (tt-der %0)) (tls-be 0 2))) '("leaf" "issuer")))))))
 (assert-eq "the certificates of a Certificate" 2 (length tt_certs))
 (assert-eq "each read" "(\qtest.example\q \q*.wild.example\q)" (str (. (first tt_certs) :find :names)))
 (assert-eq "and they go up to the root" :nil
@@ -67,7 +67,7 @@
 ;PKCS #1 v1.5 and P-256
 (defun tt-ske (scheme sig)
 	(defq body (cat (char 3) (tls-be 0x001d 2) (char 32) (apply (const cat) (map (const char) (range 100 132)))
-		(tls-be scheme 2) (tls-vec 2 sig)))
+			(tls-be scheme 2) (tls-vec 2 sig)))
 	(cat (char 12) (tls-be (length body) 3) body))
 (defq tt_cr (apply (const cat) (map (lambda (&) (char 1)) (range 0 32)))
 	tt_sr (apply (const cat) (map (lambda (&) (char 2)) (range 0 32)))

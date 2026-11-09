@@ -571,12 +571,11 @@
 (defmacro callback (f e &rest args)
 	; (callback lambda env arg ...) -> (#eval `(#apply ,lambda '(,arg ...)) env)
 	(list eval (list quasi-quote (list apply (list 'unquote f) (cat (list quote)
-		(list (map! (lambda (a) (list 'unquote a)) (list args)))))) e))
+					(list (map! (lambda (a) (list 'unquote a)) (list args)))))) e))
 
 ;;;;;;;;;;;;;
 ; Debug stubs
 ;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;
 ; Default opts
@@ -808,13 +807,13 @@
 	(defq args (list) stack (list body))
 	(while (defq lst (pop stack))
 		(each! (lambda (%0)
-			(if (list?? %0)
-				(unless (find (first %0) '(# quote quasi-quote static-q static-qq static-qqp))
-					(push stack %0))
-				(when (and (sym? %0) (setq %0 (find %0 '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))))
-					(setq %0 (elem-get '(%%0 %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9) %0))
-					(elem-set lst (!) %0)
-					(merge args (list %0)))))
+				(if (list?? %0)
+					(unless (find (first %0) '(# quote quasi-quote static-q static-qq static-qqp))
+						(push stack %0))
+					(when (and (sym? %0) (setq %0 (find %0 '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))))
+						(setq %0 (elem-get '(%%0 %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9) %0))
+						(elem-set lst (!) %0)
+						(merge args (list %0)))))
 			(list lst)))
 	(setq args (sort args))
 	`(lambda ,args ~body))
@@ -842,8 +841,8 @@
 	; (slices list) -> ((s0 e0) (s1 e1) ...)
 	(if (empty? %0) (list)
 		(reduce! (# (cond
-				((> %1 (last (last %0))) (push %0 (list %1 (inc %1))))
-				((elem-set (last %0) 1 (inc %1)) %0)))
+					((> %1 (last (last %0))) (push %0 (list %1 (inc %1))))
+					((elem-set (last %0) 1 (inc %1)) %0)))
 			(list (sort %0 (const -)))
 			(list (list (first %0) (inc (first %0)))) 1)))
 
@@ -957,7 +956,7 @@
 		(static-qq (splice ,s ,s (nums 0 ,i ,j ,k ,i ,j ,k -1)))
 		(defq _s (gensym) _i  (gensym) _j (gensym) _k (gensym))
 		(static-qq (splice (defq ,_s ,s) ,_s
-			(nums 0 (defq ,_i ,i) (defq ,_j ,j) (defq ,_k ,k) ,_i ,_j ,_k -1)))))
+				(nums 0 (defq ,_i ,i) (defq ,_j ,j) (defq ,_k ,k) ,_i ,_j ,_k -1)))))
 
 (defmacro lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
@@ -967,7 +966,7 @@
 	; (join seqs seq [mode]) -> seq
 	(setd mode 0)
 	(defq out (reduce (# (push %0 %1 seq)) seqs
-		(cap (inc (* 2 (length seqs))) (if (= (logand mode 1) 0) (list) (list seq)))))
+			(cap (inc (* 2 (length seqs))) (if (= (logand mode 1) 0) (list) (list seq)))))
 	(if (= (logand mode 2) 0) (pop out))
 	(if (empty? out) (slice seq 0 0) (apply (const cat) out)))
 
@@ -999,8 +998,8 @@
 	(defq out (list) stack (list lst 0))
 	(while (defq idx (pop stack) lst (pop stack))
 		(some! (# (cond
-			((list?? %0) (push stack lst (inc (!)) %0 0) :nil)
-			((push out %0)))) (list lst) :t idx)) out)
+					((list?? %0) (push stack lst (inc (!)) %0 0) :nil)
+					((push out %0)))) (list lst) :t idx)) out)
 
 ;;;;;;
 ; Case
@@ -1011,15 +1010,15 @@
 	(defq val :nil)
 	(bind '(keys vals)
 		(reduce (lambda (assoc (keys &rest body))
-			(unless (list?? keys) (setq keys (list keys)))
-			(setq body (pop (macrobind
-				(if (= (length body) 1) body
-					(list (cat '(progn) body))))))
-			(each (# (and (sym? %0) (eql (first %0) "+") (setq %0 (eval %0)))
-				(cond
-					((eql %0 :t) (setq val body))
-					((push (first assoc) %0) (push (second assoc) body))))
-				keys) assoc)
+				(unless (list?? keys) (setq keys (list keys)))
+				(setq body (pop (macrobind
+							(if (= (length body) 1) body
+								(list (cat '(progn) body))))))
+				(each (# (and (sym? %0) (eql (first %0) "+") (setq %0 (eval %0)))
+						(cond
+							((eql %0 :t) (setq val body))
+							((push (first assoc) %0) (push (second assoc) body))))
+					keys) assoc)
 			body (list (list) (list))))
 	(if (some (# (find %0 keys (inc (!)))) keys)
 		(throw "Multiple matching case keys !" keys))
@@ -1120,13 +1119,13 @@
 	(defq indent_len (length (expand indent tab_width 0))
 		cnt indent_len line (list) lines (list))
 	(each (lambda (word)
-		(cond
-			((and (> (setq cnt (+ cnt (length word) 1)) line_width) (> (length line) 0))
-				(task-slice)
-				(push lines (cat indent (join line " ")))
-				(push (clear line) word)
-				(setq cnt (+ indent_len (length word) 1)))
-			(:t (push line word)))) words)
+			(cond
+				((and (> (setq cnt (+ cnt (length word) 1)) line_width) (> (length line) 0))
+					(task-slice)
+					(push lines (cat indent (join line " ")))
+					(push (clear line) word)
+					(setq cnt (+ indent_len (length word) 1)))
+				(:t (push line word)))) words)
 	(if (> (length line) 0)
 		(push lines (cat indent (join line " "))) lines))
 
@@ -1145,7 +1144,7 @@
 (defun export-classes (classes)
 	; (export-classes classes)
 	(export (penv (penv)) (reduce
-		(# (push %0 %1 (sym (cat "*class_" %1 "*")) (sym (cat %1 "?")))) classes (list))))
+			(# (push %0 %1 (sym (cat "*class_" %1 "*")) (sym (cat %1 "?")))) classes (list))))
 
 (defmacro ascii-code (%0)
 	; (ascii-code char) -> num
@@ -1202,23 +1201,23 @@
 	(defq result (const (n2r 0)) frac_val (const (n2r 0)) frac_scale (const (n2r 1))
 		exp_val 0 exp_neg :nil in_exp :nil in_frac :nil)
 	(each (# (cond
-		((eql %0 "-") (if in_exp (setq exp_neg :t)))
-		((eql %0 "+") :nil)
-		((eql %0 ".") (ifn in_exp (setq in_frac :t)))
-		((find %0 "eE") (setq in_exp :t))
-		((defq d (find %0 "0123456789"))
-			(if in_exp
-				(setq exp_val (min 325 (+ (* exp_val 10) d)))
-				(if in_frac
-					(setq frac_val (+ (* frac_val (const (n2r 10))) (n2r d))
-						frac_scale (* frac_scale (const (n2r 10))))
-					(setq result (+ (* result (const (n2r 10))) (n2r d)))))))) %0)
+				((eql %0 "-") (if in_exp (setq exp_neg :t)))
+				((eql %0 "+") :nil)
+				((eql %0 ".") (ifn in_exp (setq in_frac :t)))
+				((find %0 "eE") (setq in_exp :t))
+				((defq d (find %0 "0123456789"))
+					(if in_exp
+						(setq exp_val (min 325 (+ (* exp_val 10) d)))
+						(if in_frac
+							(setq frac_val (+ (* frac_val (const (n2r 10))) (n2r d))
+								frac_scale (* frac_scale (const (n2r 10))))
+							(setq result (+ (* result (const (n2r 10))) (n2r d)))))))) %0)
 	(when (> frac_scale (const (n2r 1)))
 		(setq result (+ result (/ frac_val frac_scale))))
 	(when (> exp_val 0)
 		(times exp_val (setq result (if exp_neg
-			(/ result (const (n2r 10)))
-			(* result (const (n2r 10)))))))
+					(/ result (const (n2r 10)))
+					(* result (const (n2r 10)))))))
 	(if (eql (first %0) "-") (neg result) result))
 
 (defun real-to-str (r &optional precision)
@@ -1235,7 +1234,7 @@
 			(setq precision (min 14 (max 1 precision)))
 			(defq exp 0 is_exp :nil)
 			(when (or (>= r (const (n2r 1000000000000)))
-					  (< r (const (/ (n2r 1) (n2r 10000)))))
+					(< r (const (/ (n2r 1) (n2r 10000)))))
 				(setq is_exp :t)
 				(cond
 					((>= r (const (n2r 10)))
@@ -1276,10 +1275,10 @@
 	(cond
 		((>= %0 0x10000)
 			(char (+ 0x808080f0 (>> %0 18) (logand (>> %0 4) 0x3f00)
-				(logand (<< %0 10) 0x3f0000) (logand (<< %0 24) 0x3f000000)) 4))
+					(logand (<< %0 10) 0x3f0000) (logand (<< %0 24) 0x3f000000)) 4))
 		((>= %0 0x800)
 			(char (+ 0x8080e0 (>> %0 12) (logand (<< %0 2) 0x3f00)
-				(logand (<< %0 16) 0x3f0000)) 3))
+					(logand (<< %0 16) 0x3f0000)) 3))
 		((>= %0 0x80)
 			(char (+ 0x80c0 (>> %0 6) (logand (<< %0 8) 0x3f00)) 2))
 		(:t (char %0))))
@@ -1293,7 +1292,7 @@
 		(2 (logior (<< (logand n 0xff) 8) (logand (>> n 8) 0xff)))
 		(4 (logior (<< (logand n 0xff) 24) (<< (logand n 0xff00) 8) (logand (>> n 8) 0xff00) (logand (>> n 24) 0xff)))
 		(8 (logior (<< (logand n 0xff) 56) (<< (logand n 0xff00) 40) (<< (logand n 0xff0000) 24) (<< (logand n 0xff000000) 8)
-			(logand (>> n 8) 0xff000000) (logand (>> n 24) 0xff0000) (logand (>> n 40) 0xff00) (logand (>> n 56) 0xff)))
+				(logand (>> n 8) 0xff000000) (logand (>> n 24) 0xff0000) (logand (>> n 40) 0xff00) (logand (>> n 56) 0xff)))
 		(:t (defq v 0)
 			(times width (setq v (logior (<< v 8) (logand n 0xff)) n (>> n 8)))
 			v)))
@@ -1497,7 +1496,7 @@
 	(if (msafe? val)
 		(static-qq (obj-set ,obj (+ +str_data ,idx) (length ,val) ,val))
 		(static-qq (obj-set ,obj (+ +str_data ,idx)
-			(length (defq ,(defq _val (gensym)) ,val)) ,_val))))
+				(length (defq ,(defq _val (gensym)) ,val)) ,_val))))
 
 ;;;;;;;;;
 ; Streams
@@ -1524,9 +1523,9 @@
 		i (or (some (# (if (nql %0 %1) (!))) t_parts c_parts)
 			(min (length t_parts) (length c_parts)))
 		current (join (cat
-			(slice (static-q (const (reduce (lambda (%0 &) (push %0 ".")) (range 0 32) '())))
-				0 (- (length c_parts) i))
-			(slice t_parts i -1)) "/"))
+				(slice (static-q (const (reduce (lambda (%0 &) (push %0 ".")) (range 0 32) '())))
+					0 (- (length c_parts) i))
+				(slice t_parts i -1)) "/"))
 	(if (> (length current) (length target)) target current))
 
 (defun path-to-absolute (target &optional current)
@@ -1612,10 +1611,10 @@
 	;that. A pipe on another node had now and then closed by then, on both
 	;stopping, and the error was lost: once in a hundred or two
 	(static-qq (catch (import ,file)
-		(progn (when (defq *cmd_stdio* (create-stdio))
-				(write-line (io-stream 'stderr) _)
-				(stream-flush (io-stream 'stderr)))
-			:t))))
+			(progn (when (defq *cmd_stdio* (create-stdio))
+					(write-line (io-stream 'stderr) _)
+					(stream-flush (io-stream 'stderr)))
+				:t))))
 
 (defun import-from (module &optional symbols classes)
 	; (import-from [symbols classes])

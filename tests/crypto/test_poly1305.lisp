@@ -48,11 +48,11 @@
 
 ;added a part at a time, in parts of any size, it is the same tag
 (each (lambda (part)
-	(defq ctx (poly1305-start pl_key) at 0)
-	(while (< at 200)
-		(poly1305-add ctx (slice pl_text at (min 200 (+ at part))))
-		(setq at (+ at part)))
-	(assert-eq (cat "200 bytes, " (str part) " at a time") "167f828683dec0b2422e4fe6359e2736" (cr-hex (poly1305-end ctx))))
+		(defq ctx (poly1305-start pl_key) at 0)
+		(while (< at 200)
+			(poly1305-add ctx (slice pl_text at (min 200 (+ at part))))
+			(setq at (+ at part)))
+		(assert-eq (cat "200 bytes, " (str part) " at a time") "167f828683dec0b2422e4fe6359e2736" (cr-hex (poly1305-end ctx))))
 	'(1 3 15 16 17 33 199 200 500))
 
 (assert-eq "16 bytes" 16 (length (poly1305 pl_key "")))

@@ -44,7 +44,6 @@
 (import "gui/slider/lisp.inc")
 (import "lib/cwb/board.inc")
 
-
 (defclass Board-frame () (Backdrop)
 	; (Board-frame) -> board_frame
 	;what the paper and the desk round it lie in, in the window, with a
@@ -93,8 +92,7 @@
 		(when (defq child (get :child this))
 			(bind '(cw ch) (. child :get_size))
 			(. child :set_bounds (/ (- (- w sw) cw) 2) (/ (- (- h sh) ch) 2) cw ch))
-		this)
-	)
+		this))
 
 (defclass Board-view (board) (View)
 	; (Board-view board) -> board_view
@@ -139,8 +137,8 @@
 		;dragged out still ends at the hand
 		(defq events (list))
 		(. (get :down this) :each (lambda (id (kind buttons rx ry pressure))
-			(bind '(x y) (. this :to_doc rx ry))
-			(push events (if pressure (ptr-event id kind buttons x y pressure) (ptr-event id kind buttons x y)))))
+				(bind '(x y) (. this :to_doc rx ry))
+				(push events (if pressure (ptr-event id kind buttons x y pressure) (ptr-event id kind buttons x y)))))
 		(if (nempty? events) (. (get :board this) :pointers events))
 		this)
 
@@ -257,8 +255,8 @@
 				;are, the zoom there is, and that it has not been zoomed
 				;and the angle the one is at from the other
 				(def this :grip (setq grip (list ida idb (/ (+ ax bx) 2) (/ (+ ay by) 2)
-					(max 1.0 (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))))
-					(get :zoom this) :nil (path-angle (n2f (- bx ax)) (n2f (- by ay))))))))
+							(max 1.0 (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))))
+							(get :zoom this) :nil (path-angle (n2f (- bx ax)) (n2f (- by ay))))))))
 		(when grip
 			(bind '(ida idb mx my apart zoom zoomed angle) grip)
 			(bind '(ax ay) (. fingers :find ida))
@@ -305,5 +303,4 @@
 	(defmethod :mouse_hover (event)
 		; (. board_view :mouse_hover event) -> board_view
 		;over the board with no button held
-		(. this :mouse_pointer event 0))
-	)
+		(. this :mouse_pointer event 0)))

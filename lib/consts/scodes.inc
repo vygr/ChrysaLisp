@@ -261,5 +261,4 @@
 	+sc_kbdillumdown 279
 	+sc_kbdillumup 280
 	+sc_eject 281
-	+sc_sleep 282
-)
+	+sc_sleep 282)

@@ -64,7 +64,7 @@
 		(first (storage-copy-object "x/small" "y/big" sc_a sc_b "")))
 	(assert-eq "which is as it was" sc_big (storage-get "y/big" sc_b))
 	(assert-eq "to it, said what it is" :ok (first (storage-copy-object "x/small" "y/big" sc_a sc_b
-		(elem-get (storage-stat "y/big" sc_b) +store_entry_hash))))
+				(elem-get (storage-stat "y/big" sc_b) +store_entry_hash))))
 	(assert-eq "which is the copy" sc_small (storage-get "y/big" sc_b))
 
 	;stopped

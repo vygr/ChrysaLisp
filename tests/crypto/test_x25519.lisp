@@ -9,7 +9,7 @@
 ;RFC 7748 5.2, one multiply
 (assert-eq "a scalar times a point" (to-upper "c3da55379de9c6908e94ea4df28d084f32eccf03491c71f754b4075577a28552")
 	(tx-x (x25519 (tx-h "a546e36bf0527c9d3b16154b82465edd62144c0ac1fc5a18506a2244ba449ac4")
-		(tx-h "e6db6867583030db3594c1a424b15f7c726624ec26b3353b10a903a6d0ab1c4c"))))
+			(tx-h "e6db6867583030db3594c1a424b15f7c726624ec26b3353b10a903a6d0ab1c4c"))))
 
 ;RFC 7748 6.1, Alice and Bob
 (defq tx_alice (tx-h "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a")

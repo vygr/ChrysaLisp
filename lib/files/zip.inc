@@ -44,8 +44,8 @@
 		(while (and (> count 0) (<= (+ at 46) (length data)) (= (code data 4 at) 0x02014b50))
 			(defq name_len (code data 2 (+ at 28)) extra_len (code data 2 (+ at 30)) note_len (code data 2 (+ at 32)))
 			(push out (list (slice data (+ at 46) (+ at 46 name_len))
-				(code data 2 (+ at 10)) (code data 4 (+ at 20)) (code data 4 (+ at 24)) (code data 4 (+ at 42))
-				(code data 4 (+ at 16))))
+					(code data 2 (+ at 10)) (code data 4 (+ at 20)) (code data 4 (+ at 24)) (code data 4 (+ at 42))
+					(code data 4 (+ at 16))))
 			(setq at (+ at 46 name_len extra_len note_len) count (dec count)))
 		out))
 
@@ -91,7 +91,7 @@
 				(write-blk out (cat (char 0x04034b50 4) head name))
 				(write-blk out packed)
 				(push dir (cat (char 0x02014b50 4) (char 20 2) head (char 0 2) (char 0 2) (char 0 2)
-					(char (if (ends-with "/" name) 0x10 0) 4) (char at 4) name))
+						(char (if (ends-with "/" name) 0x10 0) 4) (char at 4) name))
 				(setq at (+ at 30 (length name) (length packed)))
 				(if (>= at 0xffffffff) (setq ok :nil))))
 		files)
@@ -99,10 +99,10 @@
 		(defq size (reduce (# (+ %0 (length %1))) dir 0))
 		(each (# (write-blk out %0)) dir)
 		(write-blk out (cat (char 0x06054b50 4) (char 0 2) (char 0 2) (char (length dir) 2) (char (length dir) 2)
-			(char size 4) (char at 4) (char 0 2)))
+				(char size 4) (char at 4) (char 0 2)))
 		(length dir)))
 
 ;module
 (export-symbols '(zip-list zip-find zip-read zip-write
-	+zip_entry_name +zip_entry_method +zip_entry_packed +zip_entry_full +zip_entry_at +zip_entry_crc))
+		+zip_entry_name +zip_entry_method +zip_entry_packed +zip_entry_full +zip_entry_at +zip_entry_crc))
 (env-pop)

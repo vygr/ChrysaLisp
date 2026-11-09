@@ -18,10 +18,10 @@
 		stream (memory-stream))
 	(shader-vp-draw ey_native
 		(shader-vp-frame ey_program ey_native (list
-			(list 'resolution (list ey_w ey_h))
-			(list 'look_left left) (list 'look_right right)
-			(list 'iris_color (map (const n2r) '(0.0 1.0 0.0)))
-			(list 'iris_size 0.49) (list 'pupil_size 0.4)))
+				(list 'resolution (list ey_w ey_h))
+				(list 'look_left left) (list 'look_right right)
+				(list 'iris_color (map (const n2r) '(0.0 1.0 0.0)))
+				(list 'iris_size 0.49) (list 'pupil_size 0.4)))
 		pixmap 0 0 ey_w ey_h ey_h :t)
 	(pixmap-write pixmap stream 32)
 	(stream-seek stream 0 0)

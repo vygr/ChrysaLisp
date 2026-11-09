@@ -104,8 +104,7 @@
 		;it and those under it whose names begin so, in the order of a walk
 		(defq nodes (list))
 		(. this :each_node (lambda (n) (if (starts-with name (get :node_name n)) (push nodes n))))
-		nodes)
-	)
+		nodes))
 
 ;module
 (export-classes '(Tree-node))

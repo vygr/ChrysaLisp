@@ -5,7 +5,7 @@
 (defq *man_power* +max_power *man_strength* +max_strength *man_score* 0)
 
 (defq +score_table
-	''(50 5 10 15 20 10 10 10 25 25 80 5 50 10 50 20 1 0 0)
+		''(50 5 10 15 20 10 10 10 25 25 80 5 50 10 50 20 1 0 0)
 	; targets that spark rather than bleed
 	+ftp_non_flesh (logior +ftp_enemy_fire +ftp_cannon +ftp_oil +ftp_balista
 		+ftp_tower +ftp_carpet +ftp_skeleton_monk +ftp_skeleton_horse +ftp_skeleton))
@@ -23,8 +23,8 @@
 	(defq frame (get :sp_frame this)
 		mv (elem-get (get :sp_components hit) +en_comp_mv))
 	(when (or (<= +frm_fanatic_l_climb frame +frm_fanatic_l_climb3)
-			  (<= (abs (- (+ (get :sp_y this) (get :sp_h this))
-						  (+ (get :sp_y hit) (get :sp_h hit)))) 4))
+			(<= (abs (- (+ (get :sp_y this) (get :sp_h this))
+						(+ (get :sp_y hit) (get :sp_h hit)))) 4))
 		(when (= (get 'ay mv) 0)
 			(def hit :sp_flags (logior (get :sp_flags hit) +fsp_collide))
 			(set mv 'vx 0))))
@@ -35,8 +35,8 @@
 		hit_pnt (get :sp_hitpnt hit)
 		drag_xv 0)
 	(each (lambda (comp)
-		(and (env? comp) (def? 'vx comp)
-			(setq drag_xv (get 'vx comp))))
+			(and (env? comp) (def? 'vx comp)
+				(setq drag_xv (get 'vx comp))))
 		(get :sp_components hit))
 	(if (bits? hit_type +ftp_tower +ftp_carpet +ftp_skeleton_horse)
 		(setq *man_power* (max 0 (- *man_power* (+ (>> hit_pnt 2) 1))))
@@ -87,7 +87,7 @@
 (defun cl-man-hits-enemy-banner (this hit)
 	; capturing enemy banner
 	(when (<= (abs (- (+ (get :sp_y this) (get :sp_h this))
-					  (+ (get :sp_y hit) (get :sp_h hit)))) 4)
+					(+ (get :sp_y hit) (get :sp_h hit)))) 4)
 		(play-sfx *sfx_spell* this)
 		(setq *enemy_banner_captured* :t)
 		(. hit :sp_kill)
@@ -173,34 +173,34 @@
 (defun cl-man-hits-item (this hit)
 	; player collecting an item on touch in auto mode, or ducking/down key in assist / human mode
 	(when (or (= *game_mode* +mode_auto)
-			  (= (get :sp_h this) 16)
-			  (bits? *game_controls* +fkey_down))
+			(= (get :sp_h this) 16)
+			(bits? *game_controls* +fkey_down))
 		(collect-item hit)))
 
 ; collision dispatch tables indexed by (log2 type)
 
 (defq *man_collision_table*
-	(list
-		(const cl-man-hits-dragging-enemy)	; 0: horse
-		:nil								; 1: spearman
-		:nil								; 2: wizard
-		(const cl-man-hits-enemy)			; 3: footman
-		(const cl-man-hits-enemy)			; 4: knight
-		(const cl-man-hits)					; 5: balista
-		(const cl-man-hits)					; 6: cannon
-		(const cl-man-hits)					; 7: oil
-		(const cl-man-hits-dragging-enemy)	; 8: boarrider
-		(const cl-man-hits-dragging-enemy)	; 9: carpet
-		(const cl-man-hits-dragging-enemy)	; 10: tower
-		(const cl-man-hits-monk)			; 11: monk
-		(const cl-man-hits)					; 12: beserk
-		(const cl-man-hits-monk)			; 13: skeleton_monk
-		(const cl-man-hits-dragging-enemy)	; 14: skeleton_horse
-		(const cl-man-hits-enemy)			; 15: skeleton
-		(const cl-man-hits)					; 16: enemy_fire
-		(const cl-man-hits-item)			; 17: item
-		(const cl-enemy-addon-hits-man)		; 18: man
-		(const cl-man-hits-banner)			; 19: man_banner
-		(const cl-man-hits-enemy-banner))	; 20: enemy_banner
+		(list
+			(const cl-man-hits-dragging-enemy)	; 0: horse
+			:nil								; 1: spearman
+			:nil								; 2: wizard
+			(const cl-man-hits-enemy)			; 3: footman
+			(const cl-man-hits-enemy)			; 4: knight
+			(const cl-man-hits)					; 5: balista
+			(const cl-man-hits)					; 6: cannon
+			(const cl-man-hits)					; 7: oil
+			(const cl-man-hits-dragging-enemy)	; 8: boarrider
+			(const cl-man-hits-dragging-enemy)	; 9: carpet
+			(const cl-man-hits-dragging-enemy)	; 10: tower
+			(const cl-man-hits-monk)			; 11: monk
+			(const cl-man-hits)					; 12: beserk
+			(const cl-man-hits-monk)			; 13: skeleton_monk
+			(const cl-man-hits-dragging-enemy)	; 14: skeleton_horse
+			(const cl-man-hits-enemy)			; 15: skeleton
+			(const cl-man-hits)					; 16: enemy_fire
+			(const cl-man-hits-item)			; 17: item
+			(const cl-enemy-addon-hits-man)		; 18: man
+			(const cl-man-hits-banner)			; 19: man_banner
+			(const cl-man-hits-enemy-banner))	; 20: enemy_banner
 	*man_missile_collision_table* (const cl-man-missile-hits)
 	*man_addon_collision_table* (const cl-man-addon-hits))

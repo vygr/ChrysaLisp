@@ -102,8 +102,8 @@
 	(setq time (+ time dt))
 	(defq going (or (not secs) (< time secs)))
 	(motion-set figure key (if going
-		(+ base (* size (sin (+ phase (* +fp_2pi (/ time period))))))
-		base))
+			(+ base (* size (sin (+ phase (* +fp_2pi (/ time period))))))
+			base))
 	going)
 
 (defun Wave (key size period &optional phase secs then)

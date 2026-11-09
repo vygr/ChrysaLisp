@@ -92,26 +92,26 @@
 	(defq stack (list) parens (list)
 		out_tokens (list) out_types (list) label -2)
 	(each! (lambda (token type)
-		(case type
-			(:lrb
-				(push stack token)
-				(push parens (++ label 2))
-				(output :lrb label))
-			(:rrb
-				(unless (setq type (pop parens)) (throw "Regexp bad parens !" parens))
-				(output :rrb (inc type))
-				(until (eql "(" (setq token (pop stack)))
-					(output :op token)))
-			(:op ;precedence
-				(defq p (find (first token) +op_presidence) x :t)
-				(while (and x (/= 0 (length stack)))
-					(defq ps (find (first (last stack)) +op_presidence))
-					(cond
-						((>= p ps) (output :op (pop stack)))
-						(:t (setq x :nil))))
-				(push stack token))
-			(:t ;:lit :wild :class :assert
-				(output type token)))) tokenize_output)
+			(case type
+				(:lrb
+					(push stack token)
+					(push parens (++ label 2))
+					(output :lrb label))
+				(:rrb
+					(unless (setq type (pop parens)) (throw "Regexp bad parens !" parens))
+					(output :rrb (inc type))
+					(until (eql "(" (setq token (pop stack)))
+						(output :op token)))
+				(:op ;precedence
+					(defq p (find (first token) +op_presidence) x :t)
+					(while (and x (/= 0 (length stack)))
+						(defq ps (find (first (last stack)) +op_presidence))
+						(cond
+							((>= p ps) (output :op (pop stack)))
+							(:t (setq x :nil))))
+					(push stack token))
+				(:t ;:lit :wild :class :assert
+					(output type token)))) tokenize_output)
 	(while (defq token (pop stack)) (output :op token))
 	(if (nempty? parens) (throw "Regexp bad parens !" parens))
 	(list out_tokens out_types))
@@ -119,48 +119,48 @@
 (defun compile (postfix_output)
 	(defq stack (list))
 	(each! (lambda (token type)
-		(push stack (case type
-			(:lit (cache (static-qq (((bfind s ,token) 1)))))
-			(:wild (static-q ((:t 1))))
-			(:class
-				(if (eql (first token) "^")
-					(defq n :t token (rest token))
-					(defq n :nil))
-				(setq token (char-class token))
-				(cache (if n
-					(static-qq (((if (bfind s ,token) :nil :t) 1)))
-					(static-qq (((bfind s ,token) 1))))))
-			(:assert (case token
-				("^" (static-q ((:nil (if (<= si 0) 1)))))
-				("$" (static-q ((:nil (if (or (>= si tl) (eql (elem-get text si) "\n")) 1)))))
-				("!" (static-q ((:nil (if (or (<= si 0) (>= si tl)
-					(bfind s +char_class_not_whole_word)
-					(bfind (elem-get text si) +char_class_not_whole_word)) 1)))))))
-			(:lrb (cache (static-qq ((:nil
-				(progn (defq i (pop trace))
-					(while (<= (length trace) ,token) (push trace 0 0))
-					(elem-set (push trace i) ,token si) 1))))))
-			(:rrb (cache (static-qq ((:nil
-				(progn (elem-set trace ,token si) 1))))))
-			(:op (defq a (pop stack))
-				(and (find (first token) +op_chars) (notany (const first) a)
-					(throw "Regexp bad operator !" token))
-				(case token
-					((+op_cat +op_tac) (cat (pop stack) a))
-					("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
-						(cat (cache `((:nil ,ob 1))) b (cache `((:nil ,oa))) a))
-					("?" (defq oa (inc (length a)))
-						(cat (cache `((:nil ,oa 1))) a))
-					("??" (defq oa (inc (length a)))
-						(cat (cache `((:nil 1 ,oa))) a))
-					("*" (defq la (length a) oa (+ la 2) ob (neg (inc la)))
-						(cat (cache `((:nil ,oa 1))) a (cache `((:nil ,ob)))))
-					("*?" (defq la (length a) oa (+ la 2) ob (neg (inc la)))
-						(cat (cache `((:nil 1 ,oa))) a (cache `((:nil ,ob)))))
-					("+" (defq ob (neg (length a)))
-						(cat a (cache `((:nil 1 ,ob)))))
-					("+?" (defq ob (neg (length a)))
-						(cat a (cache `((:nil ,ob 1)))))))))) postfix_output) (pop stack))
+			(push stack (case type
+					(:lit (cache (static-qq (((bfind s ,token) 1)))))
+					(:wild (static-q ((:t 1))))
+					(:class
+						(if (eql (first token) "^")
+							(defq n :t token (rest token))
+							(defq n :nil))
+						(setq token (char-class token))
+						(cache (if n
+								(static-qq (((if (bfind s ,token) :nil :t) 1)))
+								(static-qq (((bfind s ,token) 1))))))
+					(:assert (case token
+							("^" (static-q ((:nil (if (<= si 0) 1)))))
+							("$" (static-q ((:nil (if (or (>= si tl) (eql (elem-get text si) "\n")) 1)))))
+							("!" (static-q ((:nil (if (or (<= si 0) (>= si tl)
+													(bfind s +char_class_not_whole_word)
+													(bfind (elem-get text si) +char_class_not_whole_word)) 1)))))))
+					(:lrb (cache (static-qq ((:nil
+										(progn (defq i (pop trace))
+											(while (<= (length trace) ,token) (push trace 0 0))
+											(elem-set (push trace i) ,token si) 1))))))
+					(:rrb (cache (static-qq ((:nil
+										(progn (elem-set trace ,token si) 1))))))
+					(:op (defq a (pop stack))
+						(and (find (first token) +op_chars) (notany (const first) a)
+							(throw "Regexp bad operator !" token))
+						(case token
+							((+op_cat +op_tac) (cat (pop stack) a))
+							("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
+								(cat (cache `((:nil ,ob 1))) b (cache `((:nil ,oa))) a))
+							("?" (defq oa (inc (length a)))
+								(cat (cache `((:nil ,oa 1))) a))
+							("??" (defq oa (inc (length a)))
+								(cat (cache `((:nil 1 ,oa))) a))
+							("*" (defq la (length a) oa (+ la 2) ob (neg (inc la)))
+								(cat (cache `((:nil ,oa 1))) a (cache `((:nil ,ob)))))
+							("*?" (defq la (length a) oa (+ la 2) ob (neg (inc la)))
+								(cat (cache `((:nil 1 ,oa))) a (cache `((:nil ,ob)))))
+							("+" (defq ob (neg (length a)))
+								(cat a (cache `((:nil 1 ,ob)))))
+							("+?" (defq ob (neg (length a)))
+								(cat a (cache `((:nil ,ob 1)))))))))) postfix_output) (pop stack))
 
 (defun insertelem (meta next seen trace elem)
 	(defq stack (rest elem) index (last trace) matched :nil)
@@ -222,11 +222,11 @@
 			;for each current trace
 			(defq matched :nil)
 			(each (lambda (tr)
-				(unless matched
-					(if (eval (first (defq elem (elem-get meta (last tr)))))
-						;matched text char, so insert next traces
-						(if (insertelem meta next seen tr elem)
-							(setq matched :t))))) current)
+					(unless matched
+						(if (eval (first (defq elem (elem-get meta (last tr)))))
+							;matched text char, so insert next traces
+							(if (insertelem meta next seen tr elem)
+								(setq matched :t))))) current)
 			;swap to new traces
 			(defq tmp current)
 			(setq current next next tmp)
@@ -246,11 +246,11 @@
 			;for each current index
 			(defq matched :nil)
 			(each (lambda (idx)
-				(unless matched
-					(if (eval (first (defq elem (elem-get meta idx))))
-						;matched text char, so insert next index
-						(if (insertelem-no-trace meta next idx elem)
-							(setq matched :t))))) current)
+					(unless matched
+						(if (eval (first (defq elem (elem-get meta idx))))
+							;matched text char, so insert next index
+							(if (insertelem-no-trace meta next idx elem)
+								(setq matched :t))))) current)
 			;swap to new indices
 			(defq tmp current)
 			(setq current next next (clear tmp))
@@ -351,8 +351,7 @@
 					(when (or (empty? out) (/= (second (first (last out))) tl))
 						(bind '(l j) (search text meta tl))
 						(if (>= j tl) (push out l))))))
-		out)
-	)
+		out))
 
 ;module
 (export-classes '(Regexp))

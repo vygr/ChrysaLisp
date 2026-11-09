@@ -73,7 +73,7 @@
 	(cond
 		((defq path (name-in-store name))
 			(or (empty? path) (and (storage-service)
-				(some (# (not (elem-get %0 6))) (ifn (storage-list (cat path "/")) (list))) :t)))
+					(some (# (not (elem-get %0 6))) (ifn (storage-list (cat path "/")) (list))) :t)))
 		((and (defq info (pii-fstat name)) (folder-mode? (third info))))))
 
 (defun name-there? (name)

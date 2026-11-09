@@ -35,9 +35,9 @@
 	; a kill only marks the sprite, so a mine or monk caught in the blast
 	; explodes on its own turn in the update loop, not inside this call
 	(each (lambda ((layer mask))
-		(while (defq hit (sprite-collide layer x y w h mask))
-			(play-death-score hit)
-			(. hit :sp_kill)))
+			(while (defq hit (sprite-collide layer x y w h mask))
+				(play-death-score hit)
+				(. hit :sp_kill)))
 		(list (list *layer_enemies* -1) (list *layer_missiles* -1)
 			(list *layer_bans* +ftp_enemy_fire))))
 
@@ -82,8 +82,8 @@
 	(defq cx (+ mx (/ mw 2))
 		cy (+ my (/ mh 2)))
 	(each (lambda ((ox oy))
-		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
-		(. *layer_fx* :add_front exp))
+			(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
+			(. *layer_fx* :add_front exp))
 		+blat_offsets)
 	(play-sfx *sfx_explode* this))
 
@@ -96,8 +96,8 @@
 	(defq cx (+ mx (/ mw 2))
 		cy (+ my (/ mh 2)))
 	(each (lambda ((ox oy))
-		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
-		(. *layer_fx* :add_front exp))
+			(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
+			(. *layer_fx* :add_front exp))
 		+blat_offsets)
 	(play-sfx *sfx_explode* this)
 	(blast-area (- mx 32) (- my 36) 80 80))

@@ -125,7 +125,7 @@
 				(bind '(ww wh) (. this :get_size))
 				(bind '(vw vh) (. view :get_size))
 				(bind '(x y x1 y1) (window-aspect x y x1 y1 drag_mode
-					(- ww vw) (- wh vh) aw ah w h)))
+						(- ww vw) (- wh vh) aw ah w h)))
 			(.-> this (:change_dirty x y (- x1 x) (- y1 y)) :emit)))
 
 	(defmethod :theme (name)
@@ -144,9 +144,9 @@
 		(view-resolve this)
 		(when (nempty? swaps)
 			(each (lambda (view)
-				(when (def? :font view)
-					(defq font (get :font view))
-					(some (lambda ((old new)) (if (eql font old) (def view :font new))) swaps)))
+					(when (def? :font view)
+						(defq font (get :font view))
+						(some (lambda ((old new)) (if (eql font old) (def view :font new))) swaps)))
 				(. this :flatten)))
 		(bind '(x y) (. this :get_pos))
 		(bind '(w h) (. this :get_size))
@@ -189,7 +189,7 @@
 									;bits, for an app whose devices drive it
 									(set this :last_buttons buttons)
 									(def target :pressed_by (list 0 :mouse
-										(case buttons (2 2) (3 4) (:t 1))))
+											(case buttons (2 2) (3 4) (:t 1))))
 									(if (defq fnc (.? target :mouse_down))
 										(fnc target :mouse_down event)))
 								(:t ;is not down now, so hover
@@ -224,8 +224,8 @@
 								((and (not acting) touching)
 									(def this :pointer_id id)
 									(def target :pressed_by (list id
-										(elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
-										buttons))
+											(elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
+											buttons))
 									(if (defq fnc (.? target :mouse_down)) (fnc target :mouse_down mouse)))
 								((and acting (= acting id) touching)
 									(if (defq fnc (.? target :mouse_move)) (fnc target :mouse_move mouse)))
@@ -316,5 +316,4 @@
 						:t)
 					((<= (ascii-code " ") key (ascii-code "~"))
 						(if insert_fnc (dispatch_fnc insert_fnc (char key)))
-						:t)))))
-	)
+						:t))))))

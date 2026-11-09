@@ -1,6 +1,6 @@
 ;debug options
 (case :nil
-(0 (import "lib/debug/frames.inc")))
+	(0 (import "lib/debug/frames.inc")))
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
@@ -31,7 +31,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(setq *city* (. *config* :find :city)
@@ -50,11 +50,11 @@
 			(list (path-gen-arc cx cy 0.0 +fp_2pi r (path))))
 		(:fpoly 0.0 0.0 +winding_none_zero
 			(map (#
-				(defq a (/ (* (n2f %0) +fp_2pi) 8.0)
-					r1 (+ r 5.0) r2 (+ r 13.0)
-					x1 (+ cx (* r1 (cos a))) y1 (+ cy (* r1 (sin a)))
-					x2 (+ cx (* r2 (cos a))) y2 (+ cy (* r2 (sin a))))
-				(path-stroke-polyline (path x1 y1 x2 y2) 1.5 +join_miter +cap_round +cap_round))
+					(defq a (/ (* (n2f %0) +fp_2pi) 8.0)
+						r1 (+ r 5.0) r2 (+ r 13.0)
+						x1 (+ cx (* r1 (cos a))) y1 (+ cy (* r1 (sin a)))
+						x2 (+ cx (* r2 (cos a))) y2 (+ cy (* r2 (sin a))))
+					(path-stroke-polyline (path x1 y1 x2 y2) 1.5 +join_miter +cap_round +cap_round))
 				(range 0 8)))))
 
 (defun draw-cloud (canvas cx cy scale col)
@@ -71,8 +71,8 @@
 		(:set_color 0xff50b0ff)
 		(:fpoly 0.0 0.0 +winding_none_zero
 			(reduce (lambda (p (dx dy))
-				(push p (path-stroke-polyline (path (+ cx dx) (+ cy dy) (- (+ cx dx) 3.0) (+ (+ cy dy) 11.0))
-					1.5 +join_miter +cap_round +cap_round)))
+					(push p (path-stroke-polyline (path (+ cx dx) (+ cy dy) (- (+ cx dx) 3.0) (+ (+ cy dy) 11.0))
+							1.5 +join_miter +cap_round +cap_round)))
 				'((-16.0 16.0) (-6.0 18.0) (4.0 16.0) (14.0 18.0)) (list)))))
 
 (defun draw-snow (canvas cx cy)
@@ -81,10 +81,10 @@
 		(:set_color +argb_white)
 		(:fpoly 0.0 0.0 +winding_none_zero
 			(reduce (lambda (p (dx dy))
-				(defq fx (+ cx dx) fy (+ cy dy))
-				(push p
-					(path-stroke-polyline (path (- fx 3.0) fy (+ fx 3.0) fy) 1.2 +join_miter +cap_round +cap_round)
-					(path-stroke-polyline (path fx (- fy 3.0) fx (+ fy 3.0)) 1.2 +join_miter +cap_round +cap_round)))
+					(defq fx (+ cx dx) fy (+ cy dy))
+					(push p
+						(path-stroke-polyline (path (- fx 3.0) fy (+ fx 3.0) fy) 1.2 +join_miter +cap_round +cap_round)
+						(path-stroke-polyline (path fx (- fy 3.0) fx (+ fy 3.0)) 1.2 +join_miter +cap_round +cap_round)))
 				'((-14.0 18.0) (-2.0 20.0) (10.0 18.0)) (list)))))
 
 (defun draw-thunder (canvas cx cy)
@@ -93,9 +93,9 @@
 		(:set_color 0xffffdd00)
 		(:fpoly 0.0 0.0 +winding_none_zero
 			(list (path
-				cx (+ cy 6.0) (- cx 8.0) (+ cy 20.0)
-				(+ cx 2.0) (+ cy 20.0) (- cx 4.0) (+ cy 36.0)
-				(+ cx 8.0) (+ cy 18.0) cx (+ cy 18.0))))))
+					cx (+ cy 6.0) (- cx 8.0) (+ cy 20.0)
+					(+ cx 2.0) (+ cy 20.0) (- cx 4.0) (+ cy 36.0)
+					(+ cx 8.0) (+ cy 18.0) cx (+ cy 18.0))))))
 
 (defun render-weather-icon (canvas code)
 	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
@@ -117,8 +117,8 @@
 			(draw-thunder canvas cx cy))
 		; Snow / Sleet / Ice
 		((or (= code 179) (= code 182) (= code 227) (= code 230)
-			(= code 323) (= code 326) (= code 329) (= code 332)
-			(= code 335) (= code 338) (= code 350) (= code 368) (= code 371))
+				(= code 323) (= code 326) (= code 329) (= code 332)
+				(= code 335) (= code 338) (= code 350) (= code 368) (= code 371))
 			(draw-snow canvas cx cy))
 		; Default: Rain / Drizzle / Showers
 		(:t (draw-rain canvas cx cy)))
@@ -143,13 +143,13 @@
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-canvas *icon_canvas* *canvas_size* *canvas_size* 1)
 		(ui-label *temp_label* (:text "00 C" :font :font_display
-			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
+				:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
 		(ui-label *condition_label* (:text "Patchy rain nearby" :font :font_sub_title
-			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
+				:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
 		(ui-label *feels_label* (:text "Feels like 00 C" :font :font_small
-			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
+				:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
 		(ui-label *location_label* (:text "Brompton, United Kingdom" :font :font_small
-			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter))))
+				:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter))))
 	; Row 4: Metrics 2x2 Grid
 	(ui-grid _ (:grid_width 2 :font :font_small)
 		(ui-label *humidity_label* (:text "Humidity: 100%"))
@@ -177,9 +177,9 @@
 (defun update-ui-labels ()
 	(when *weather_data*
 		(bind '(area country desc code
-			temp_c temp_f feels_c feels_f
-			humidity wind_kmph wind_dir pressure vis_km
-			forecast) *weather_data*)
+				temp_c temp_f feels_c feels_f
+				humidity wind_kmph wind_dir pressure vis_km
+				forecast) *weather_data*)
 		(defq temp_str (if *unit_c* (cat temp_c " C") (cat temp_f " F"))
 			feels_str (if *unit_c* (cat feels_c " C") (cat feels_f " F")))
 		(. *temp_label* :set_text temp_str)
@@ -211,50 +211,50 @@
 (defun trigger-fetch (worker_mbox trash_mbox city)
 	(. *status_label* :set_text (cat "Fetching weather for " city "..."))
 	(defq task_code (str `(progn
-		(import "service/net/app.inc")
-		(import "lib/net/http.inc")
-		(import "lib/net/json.inc")
-		(import "lib/net/url.inc")
-		(ensure-net-service)
-		(defq result :nil)
-		(catch
-			(progn
-				(defq api_url (cat "http://wttr.in/" (url-encode ,city :t) "?format=j1"))
-				(when (defq resp (http-get api_url))
-					(defq body (http-body-str resp))
-					(when (and body (starts-with "{" (trim body)))
-						(when (defq json (json-parse body))
-							(defq cur (first (pfind json :current_condition))
-								area (first (pfind json :nearest_area))
-								area_name (trim (or (pfind (first (pfind area :areaName)) :value) ,city))
-								country (trim (or (pfind (first (pfind area :country)) :value) ""))
-								desc (trim (or (pfind (first (pfind cur :weatherDesc)) :value) "Unknown"))
-								code (str-to-num (or (pfind cur :weatherCode) "113"))
-								temp_c (or (pfind cur :temp_C) "0")
-								temp_f (or (pfind cur :temp_F) "32")
-								feels_c (or (pfind cur :FeelsLikeC) temp_c)
-								feels_f (or (pfind cur :FeelsLikeF) temp_f)
-								humidity (or (pfind cur :humidity) "0")
-								wind_kmph (or (pfind cur :windspeedKmph) "0")
-								wind_dir (trim (or (pfind cur :winddir16Point) ""))
-								pressure (or (pfind cur :pressure) "1013")
-								vis_km (or (pfind cur :visibility) "10")
-								forecast_list (map (lambda (day)
-									(defq mid_hour (elem-get (pfind day :hourly) 4))
-									(list (or (pfind day :date) "")
-										(or (pfind day :maxtempC) "0")
-										(or (pfind day :mintempC) "0")
-										(or (pfind day :maxtempF) "32")
-										(or (pfind day :mintempF) "32")
-										(trim (if mid_hour (or (pfind (first (pfind mid_hour :weatherDesc)) :value) "") ""))
-										(if mid_hour (str-to-num (or (pfind mid_hour :weatherCode) "113")) 113)))
-									(pfind json :weather)))
-							(setq result (list area_name country desc code
-								temp_c temp_f feels_c feels_f
-								humidity wind_kmph wind_dir pressure vis_km
-								forecast_list))))))
-			(progn (setq result :nil) :t))
-		(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
+				(import "service/net/app.inc")
+				(import "lib/net/http.inc")
+				(import "lib/net/json.inc")
+				(import "lib/net/url.inc")
+				(ensure-net-service)
+				(defq result :nil)
+				(catch
+					(progn
+						(defq api_url (cat "http://wttr.in/" (url-encode ,city :t) "?format=j1"))
+						(when (defq resp (http-get api_url))
+							(defq body (http-body-str resp))
+							(when (and body (starts-with "{" (trim body)))
+								(when (defq json (json-parse body))
+									(defq cur (first (pfind json :current_condition))
+										area (first (pfind json :nearest_area))
+										area_name (trim (or (pfind (first (pfind area :areaName)) :value) ,city))
+										country (trim (or (pfind (first (pfind area :country)) :value) ""))
+										desc (trim (or (pfind (first (pfind cur :weatherDesc)) :value) "Unknown"))
+										code (str-to-num (or (pfind cur :weatherCode) "113"))
+										temp_c (or (pfind cur :temp_C) "0")
+										temp_f (or (pfind cur :temp_F) "32")
+										feels_c (or (pfind cur :FeelsLikeC) temp_c)
+										feels_f (or (pfind cur :FeelsLikeF) temp_f)
+										humidity (or (pfind cur :humidity) "0")
+										wind_kmph (or (pfind cur :windspeedKmph) "0")
+										wind_dir (trim (or (pfind cur :winddir16Point) ""))
+										pressure (or (pfind cur :pressure) "1013")
+										vis_km (or (pfind cur :visibility) "10")
+										forecast_list (map (lambda (day)
+												(defq mid_hour (elem-get (pfind day :hourly) 4))
+												(list (or (pfind day :date) "")
+													(or (pfind day :maxtempC) "0")
+													(or (pfind day :mintempC) "0")
+													(or (pfind day :maxtempF) "32")
+													(or (pfind day :mintempF) "32")
+													(trim (if mid_hour (or (pfind (first (pfind mid_hour :weatherDesc)) :value) "") ""))
+													(if mid_hour (str-to-num (or (pfind mid_hour :weatherCode) "113")) 113)))
+											(pfind json :weather)))
+									(setq result (list area_name country desc code
+											temp_c temp_f feels_c feels_f
+											humidity wind_kmph wind_dir pressure vis_km
+											forecast_list))))))
+					(progn (setq result :nil) :t))
+				(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
 	(open-task task_code (task-nodeid) +kn_call_run 0 trash_mbox))
 
 (defun main ()
@@ -266,10 +266,10 @@
 	(. *search_input* :set_text *city*)
 	(def *btn_unit* :text (if *unit_c* "F" "C"))
 	(defq city_btns (list
-		*btn_city_0* *btn_city_1* *btn_city_2*
-		*btn_city_3* *btn_city_4* *btn_city_5*))
+			*btn_city_0* *btn_city_1* *btn_city_2*
+			*btn_city_3* *btn_city_4* *btn_city_5*))
 	(each (lambda (i)
-		(def (elem-get city_btns i) :text (elem-get *quick_cities* i)))
+			(def (elem-get city_btns i) :text (elem-get *quick_cities* i)))
 		(range 0 6))
 	(. *window* :open)
 	(render-weather-icon *icon_canvas* 116)
@@ -316,4 +316,3 @@
 					((. *window* :event *msg*))))))
 	(config-save)
 	(. *window* :close))
-

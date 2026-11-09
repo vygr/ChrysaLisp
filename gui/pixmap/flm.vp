@@ -90,5 +90,4 @@
 	(vp-free slot_size)
 	(vp-ret)
 
-
 (def-func-end)

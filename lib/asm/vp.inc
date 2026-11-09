@@ -34,22 +34,22 @@
 		last_op :nil pc -1 pc_sym :nil)
 	;scan the emit list and filter while gathering the label renames
 	(each (lambda (inst)
-		(cond
-			((eql (defq op (first inst)) 'label)
-				(unless (eql last_op 'label)
-					(setq pc_sym (sym (str "_" (++ pc))))
-					(push out inst))
-				(def labels (last (last inst)) pc_sym))
-			((eql op 'vp-nop))
-			((push out inst)))
-		(setq last_op op)) emit_list)
+			(cond
+				((eql (defq op (first inst)) 'label)
+					(unless (eql last_op 'label)
+						(setq pc_sym (sym (str "_" (++ pc))))
+						(push out inst))
+					(def labels (last (last inst)) pc_sym))
+				((eql op 'vp-nop))
+				((push out inst)))
+			(setq last_op op)) emit_list)
 	;scan the tree ! and rename any label symbol elements
 	(defq stack (cat out))
 	(while (defq lst (pop stack))
 		(each! (#
-			(if (list?? %0)
-				(push stack %0)
-				(and (sym? %0) (defq %0 (def? %0 labels)) (elem-set lst (!) %0))))
+				(if (list?? %0)
+					(push stack %0)
+					(and (sym? %0) (defq %0 (def? %0 labels)) (elem-set lst (!) %0))))
 			(list lst) 1))
 	out)
 
@@ -80,9 +80,9 @@
 	(emit (static-qqp (alloc ,(setq c (align (eval c (penv)) +long_size)))))
 	(and (defq fields (get 'slot_fields)) (= c (align slot_size +long_size))
 		(push *locals* (list
-			(reduce (# (if (eql (first %1) 'alloc) (inc %0) %0)) *emit_list* 0) c
-			(map (lambda ((field offset type))
-				(list field offset (if (find (first type) "0123456789") "" type))) fields)))))
+				(reduce (# (if (eql (first %1) 'alloc) (inc %0) %0)) *emit_list* 0) c
+				(map (lambda ((field offset type))
+						(list field offset (if (find (first type) "0123456789") "" type))) fields)))))
 (defun vp-free (c) (emit (static-qqp (free ,(align (eval c (penv)) +long_size)))))
 (defun vp-ret () (emit `(ret)))
 (defun vp-sync (&optional n) (emit (static-qqp (sync ,(ifn n 0)))))

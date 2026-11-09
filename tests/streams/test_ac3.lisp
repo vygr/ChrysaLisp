@@ -60,8 +60,8 @@
 	;what the signal was at sample i of channel ch, out of 16 bits
 	(defq at (+ i 19200 (if (= ch 0) 0 4800)) w (/ (* (n2r 2) (n2r 3.14159265)) (n2r 48000)))
 	(* (n2r 32767) (if (< (% at 12000) 96)
-		(* (n2r 0.9) (sin (* w (n2r (if (= ch 0) 3000 2000)) (n2r (+ i 19200)))))
-		(* (n2r 0.01) (sin (* w (n2r (if (= ch 0) 440 550)) (n2r (+ i 19200))))))))
+			(* (n2r 0.9) (sin (* w (n2r (if (= ch 0) 3000 2000)) (n2r (+ i 19200)))))
+			(* (n2r 0.01) (sin (* w (n2r (if (= ch 0) 440 550)) (n2r (+ i 19200))))))))
 
 (defun a3-click-ratio (got ch lo hi)
 	;the signal to the error, samples lo to hi, a block of the decoder late

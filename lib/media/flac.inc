@@ -84,7 +84,7 @@
 	(defq at 0 head (read-blk stream 10))
 	(and head (>= (length head) 10) (eql (slice head 0 3) "ID3")
 		(setq at (+ 10 (if (/= 0 (logand (code head 1 5) 0x10)) 10 0)
-			(reduce (# (+ (<< %0 7) (logand (code head 1 (+ 6 %1)) 127))) (range 0 4) 0))))
+				(reduce (# (+ (<< %0 7) (logand (code head 1 (+ 6 %1)) 127))) (range 0 4) 0))))
 	(stream-seek stream at 0)
 	(when (eql (read-blk stream 4) "fLaC")
 		(defq info (Emap) final 0 ok :t seek (list))
@@ -299,7 +299,7 @@
 			;of no count of samples, by the bytes of a frame between the least
 			;and the most, else of half the bytes of its samples as they are
 			frame_bytes (max 1 (if (> (. info :find :max_frame) 0) (/ (+ (. info :find :min_frame) (. info :find :max_frame)) 2)
-				(/ (* block (. info :find :channels) (. info :find :bps)) 16)))
+					(/ (* block (. info :find :channels) (. info :find :bps)) 16)))
 			frames (if (> total 0) (/ (+ total block -1) block) (max 1 (/ (- end start) frame_bytes)))
 			reel (scatter (Emap) :stream stream :info info :start start :end end :block block :known (list)
 				:frames frames :rate (/ (n2f (. info :find :rate)) (n2f block))

@@ -69,8 +69,7 @@
 		(draw-ascii-centered this (elem-get +menu_mode_names mode) 92 (if (= selected 3) +argb_white +argb_red) zoom tid)
 		(draw-ascii-centered this "GAME CREDITS" 108 (if (= selected 4) +argb_white +argb_red) zoom tid)
 		(draw-ascii-centered this "SELECT WITH UP DOWN FIRE" 128 +argb_cyan zoom tid)
-		this)
-	)
+		this))
 
 (defclass CreditsView () (View)
 	; (CreditsView) -> full-screen credits overlay view
@@ -90,8 +89,7 @@
 		(draw-ascii-centered this "SOUND AND MUSIC" 130 +argb_green zoom tid)
 		(draw-ascii-centered this "CHRIS HINSLEY" 140 +argb_yellow zoom tid)
 		(draw-ascii-centered this "PRESS FIRE TO RETURN" 154 +argb_cyan zoom tid)
-		this)
-	)
+		this))
 
 (defclass ScoresView () (View)
 	; (ScoresView) -> full-screen hall of glory scores view
@@ -104,13 +102,12 @@
 			y 44)
 		(draw-ascii-centered this "HALL OF GLORY" 28 +argb_red zoom tid)
 		(each (#
-			(draw-ascii-string this %0 72 y +argb_green zoom tid)
-			(draw-ascii-string this (pad (str %1) 8 " ") 184 y +argb_yellow zoom tid)
-			(setq y (+ y 8)))
+				(draw-ascii-string this %0 72 y +argb_green zoom tid)
+				(draw-ascii-string this (pad (str %1) 8 " ") 184 y +argb_yellow zoom tid)
+				(setq y (+ y 8)))
 			names values)
 		(draw-ascii-centered this "PRESS FIRE TO RETURN" 136 +argb_cyan zoom tid)
-		this)
-	)
+		this))
 
 (defclass HiscoreView () (View)
 	; (HiscoreView) -> full-screen glory attained message and name entry view
@@ -125,7 +122,7 @@
 				(draw-ascii-string this "(   )" 136 68 +argb_green zoom tid)
 				(draw-ascii-string this (get :initials this) 144 68 +argb_cyan zoom tid)
 				(each (# (draw-ascii-string this %0 (+ 72 (* (% (!) 11) 16))
-						(+ 84 (* (/ (!) 11) 16)) +argb_white zoom tid))
+							(+ 84 (* (/ (!) 11) 16)) +argb_white zoom tid))
 					letters))
 			(:t (draw-ascii-centered this (if (= (get :mode this) +mode_auto)
 						"AUTO MODE WILL NEVER ENABLE YOU" "YOU HAVE NOT ATTAINED ENOUGH GLORY")
@@ -133,8 +130,7 @@
 				(draw-ascii-centered this "TO ENTER THE HISTORY BOOKS" 76 +argb_white zoom tid)
 				(draw-ascii-centered this (cat "YOUR GLORY WAS " (str (get :score this)))
 					92 +argb_yellow zoom tid)))
-		this)
-	)
+		this))
 
 (defun menu-sync-view ()
 	(when *menu_view*
@@ -334,12 +330,12 @@
 (defun hiscore-insert ()
 	; add the generated name and entered initials to the hall of glory
 	(defq idx 0 name (cat *man_name* (slice "       " (length *man_name*) -1)
-		"(" *hiscore_initials* (slice "   " (length *hiscore_initials*) -1) ")"))
+			"(" *hiscore_initials* (slice "   " (length *hiscore_initials*) -1) ")"))
 	(while (<= *man_score* (elem-get *hiscore_values* idx)) (++ idx))
 	(setq *hiscore_names* (slice (cat (slice *hiscore_names* 0 idx) (list name)
-			(slice *hiscore_names* idx -1)) 0 10)
+				(slice *hiscore_names* idx -1)) 0 10)
 		*hiscore_values* (slice (cat (slice *hiscore_values* 0 idx) (list *man_score*)
-			(slice *hiscore_values* idx -1)) 0 10))
+				(slice *hiscore_values* idx -1)) 0 10))
 	(config-save))
 
 (defun hiscore-state-init ()
@@ -383,11 +379,11 @@
 				((bits? controls +fkey_keya)
 					(dt-exp-fx *hiscore_sight*)
 					(defq letter (elem-get +hiscore_letters
-						(% (+ *hiscore_text* +hiscore_pick) num)))
+							(% (+ *hiscore_text* +hiscore_pick) num)))
 					(cond
 						((eql letter "[")
 							(setq *hiscore_initials* (slice *hiscore_initials* 0
-								(max 0 (dec (length *hiscore_initials*))))))
+									(max 0 (dec (length *hiscore_initials*))))))
 						((eql letter "]")
 							(hiscore-insert)
 							(. *hiscore_view* :sub)

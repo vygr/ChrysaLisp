@@ -81,7 +81,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(def *chat_name* :clear_text (. *config* :find :name))
@@ -89,10 +89,10 @@
 
 (defun config-save ()
 	(. *chats* :each (lambda (sys_id_hex name_map)
-		(. name_map :each (lambda (cname msgs)
-			(when (> (length msgs) +max_history)
-				(. name_map :insert cname
-					(slice msgs (- (length msgs) +max_history) -1)))))))
+			(. name_map :each (lambda (cname msgs)
+					(when (> (length msgs) +max_history)
+						(. name_map :insert cname
+							(slice msgs (- (length msgs) +max_history) -1)))))))
 	(scatter *config* :name (get :clear_text *chat_name*) :chats *chats*)
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
@@ -120,11 +120,11 @@
 ; Snapshot of all known *Chat peers: list of (name mbox_hex sys_id_hex) triples
 (defun enquire-snapshot ()
 	(reduce (lambda (acc entry)
-		(defq parts (split entry ","))
-		(when (= (length parts) 4)
-			(bind '(& mbox_hex sys_id_hex cname) parts)
-			(push acc (list cname mbox_hex sys_id_hex)))
-		acc)
+			(defq parts (split entry ","))
+			(when (= (length parts) 4)
+				(bind '(& mbox_hex sys_id_hex cname) parts)
+				(push acc (list cname mbox_hex sys_id_hex)))
+			acc)
 		(mail-enquire "*Chat") (list)))
 
 (defun presence-key (sys_id_hex cname)
@@ -176,14 +176,14 @@
 	(cond
 		((and (eql ext ".md") (defq lines (file-lines path)))
 			(. md :populate_lines (cat (list (cat "**" sender "** *sent* `" name "`") "")
-				lines (list "" "---"))))
+					lines (list "" "---"))))
 		((defq shown (file-preview path (max 64 (- page_w 24))))
 			(. md :populate_lines (list (cat "**" sender "** *sent* `" name "`") ""))
 			(def (defq frame (Flow)) :flow_flags +flow_right :paper +argb_grey15)
 			(. frame :add_child shown)
 			(. view :add_child frame))
 		(:t (. md :populate_lines (list (cat "**" sender "** *sent* `" name "`") ""
-			(cat "Kept as `" path "`") "" "---"))))
+					(cat "Kept as `" path "`") "" "---"))))
 	view)
 
 (defun create-chat-md (sender body page_w)
@@ -202,9 +202,9 @@
 (defun relayout-chat ()
 	(defq page_w (chat-scroll-page-w))
 	(each (lambda (child)
-		(when (Md? child)
-			(def child :page_width page_w)
-			(. child :render))) (. *chat_flow* :children))
+			(when (Md? child)
+				(def child :page_width page_w)
+				(. child :render))) (. *chat_flow* :children))
 	(.-> *chat_scroll* :layout :dirty_all)
 	(when (nempty? (. *chat_flow* :children))
 		(. *chat_scroll* :visible (last (. *chat_flow* :children)))))
@@ -235,8 +235,8 @@
 			entries (if (> (length msgs) +max_display)
 				(slice msgs (- (length msgs) +max_display) -1) msgs))
 		(each (lambda (raw)
-			(bind '(sender body) (parse-chat-msg raw))
-			(. *chat_flow* :add_child (create-chat-md sender body page_w))) entries))
+				(bind '(sender body) (parse-chat-msg raw))
+				(. *chat_flow* :add_child (create-chat-md sender body page_w))) entries))
 	(.-> *chat_scroll* :layout :dirty_all)
 	(when (nempty? (. *chat_flow* :children))
 		(. *chat_scroll* :visible (last (. *chat_flow* :children)))))
@@ -247,10 +247,10 @@
 	; "global" synthetic row always first, then all known (sys_id, name) pairs
 	(setq *channel_index* (list (list :nil "global")))
 	(. *chats* :each (lambda (sys_id_hex name_map)
-		(and sys_id_hex (nql sys_id_hex "global")
-			(. name_map :each (lambda (cname &ignore)
-				(unless (eql cname "global")
-					(push *channel_index* (list sys_id_hex cname)))))))))
+			(and sys_id_hex (nql sys_id_hex "global")
+				(. name_map :each (lambda (cname &ignore)
+						(unless (eql cname "global")
+							(push *channel_index* (list sys_id_hex cname)))))))))
 
 (defun render-channel-list ()
 	(build-channel-index)
@@ -336,8 +336,8 @@
 	(bind '(sender body) (parse-chat-msg actual_msg))
 	(defq sys_id_hex :nil)
 	(each (lambda (triple)
-		(bind '(cname & s_id) triple)
-		(when (eql cname sender) (setq sys_id_hex s_id)))
+			(bind '(cname & s_id) triple)
+			(when (eql cname sender) (setq sys_id_hex s_id)))
 		(enquire-snapshot))
 	(ifn sys_id_hex (setq sys_id_hex "unknown"))
 	(bump-presence sys_id_hex sender)
@@ -384,9 +384,9 @@
 	(defq hb (cat "HEARTBEAT:" *my_sys_id_hex* "," my_name)
 		my_mbox_hex (if *connected* (hex-encode (elem-get select +select_chat)) ""))
 	(each (lambda (triple)
-		(bind '(& mbox_hex &ignore) triple)
-		(unless (eql mbox_hex my_mbox_hex)
-			(mail-send (hex-decode mbox_hex) hb)))
+			(bind '(& mbox_hex &ignore) triple)
+			(unless (eql mbox_hex my_mbox_hex)
+				(mail-send (hex-decode mbox_hex) hb)))
 		(enquire-snapshot)))
 
 (defun process-heartbeat (msg)
@@ -407,16 +407,16 @@
 	(if is_dm
 		; direct message: send only to the matched peer, never self
 		(each (lambda (triple)
-			(bind '(cname mbox_hex sys_id_hex) triple)
-			(and (eql cname target_cname)
+				(bind '(cname mbox_hex sys_id_hex) triple)
+				(and (eql cname target_cname)
 					(eql sys_id_hex target_sys_id)
 					(nql mbox_hex my_mbox_hex)
-				(mail-send (hex-decode mbox_hex) text))) snap)
+					(mail-send (hex-decode mbox_hex) text))) snap)
 		; global broadcast: send to all nodes except self
 		(each (lambda (triple)
-			(bind '(& mbox_hex &ignore) triple)
-			(unless (eql mbox_hex my_mbox_hex)
-				(mail-send (hex-decode mbox_hex) text))) snap)))
+				(bind '(& mbox_hex &ignore) triple)
+				(unless (eql mbox_hex my_mbox_hex)
+					(mail-send (hex-decode mbox_hex) text))) snap)))
 
 ;;;; ── connect / disconnect ────────────────────────────────────────────────────
 
@@ -434,7 +434,7 @@
 	(bump-presence *my_sys_id_hex* my_name)
 	(ensure-chat-bucket *my_sys_id_hex* my_name)
 	(each (lambda ((cname & s_id))
-		(ensure-chat-bucket s_id cname))
+			(ensure-chat-bucket s_id cname))
 		(enquire-snapshot))
 	(send-heartbeat)
 	; record and render join announcement locally in global
@@ -495,8 +495,8 @@
 	;to the channel that is shown, as a message is sent
 	;a file, or an object of the store, lib/files/names.inc
 	(and (> (length path) 0) (defq data (if (name-in-store path)
-			(and (defq stream (name-whole-stream path)) (read-blk stream (ifn (name-size path) 0)))
-			(load path)))
+				(and (defq stream (name-whole-stream path)) (read-blk stream (ifn (name-size path) 0)))
+				(load path)))
 		(cond
 			((> (length data) +max_file)
 				(add-chat-message (cat "<System> " path " is more than " (str (/ +max_file 1048576)) "MB, not sent")))
@@ -545,7 +545,7 @@
 		(bind '(target sender name data) parts)
 		(defq path (file-keep (path-name name) data))
 		(add-chat-message (cat (if (nempty? target) (cat "DM:" target ":") "")
-			"<" sender "> @file " path))))
+				"<" sender "> @file " path))))
 
 ;;;; ── tooltips ────────────────────────────────────────────────────────────────
 

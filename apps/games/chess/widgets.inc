@@ -13,7 +13,7 @@
 	(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42)
 			:border 1 :text " ")
 		(each (lambda (i)
-			(. (ui-button _ (:paper 0 :ink 0)) :connect (+ +event_button i))) (range 0 64)))
+				(. (ui-button _ (:paper 0 :ink 0)) :connect (+ +event_button i))) (range 0 64)))
 	(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink +argb_cyan)))
 
 (ui-tool-tips *toolbar* '("reset game" "undo move" "redo move"))

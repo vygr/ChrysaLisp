@@ -54,16 +54,16 @@
 	;or a jump goes to a label that is not in the function
 	(defq count (length insts) lost :nil)
 	(defq next (map (lambda (inst)
-		(defq op (first inst) at (!) on (if (< (inc at) count) (list (inc at)) (list)))
-		(cond
-			((find op +keep_leaves) (list))
-			((or (eql op 'jmp) (and (starts-with "b" op) (nql op 'byte)))
+				(defq op (first inst) at (!) on (if (< (inc at) count) (list (inc at)) (list)))
 				(cond
-					((eql op 'byte) on)
-					((defq to (. labels :find (last inst))) (if (eql op 'jmp) (list to) (push on to)))
-					(:t (setq lost :t) on)))
-			(on)))
-		insts))
+					((find op +keep_leaves) (list))
+					((or (eql op 'jmp) (and (starts-with "b" op) (nql op 'byte)))
+						(cond
+							((eql op 'byte) on)
+							((defq to (. labels :find (last inst))) (if (eql op 'jmp) (list to) (push on to)))
+							(:t (setq lost :t) on)))
+					(on)))
+			insts))
 	(unless lost next))
 
 (defun keep-stacks (insts next)
@@ -75,9 +75,9 @@
 	(defq count (length insts) which_of (list) sizes (list 0) allocs 0
 		stacks (map (lambda (inst) :nil) insts) todo (list 0) odd :nil)
 	(each (lambda (inst)
-		(cond
-			((eql (first inst) 'alloc) (push which_of (++ allocs)) (push sizes (second inst)))
-			((push which_of 0))))
+			(cond
+				((eql (first inst) 'alloc) (push which_of (++ allocs)) (push sizes (second inst)))
+				((push which_of 0))))
 		insts)
 	(when (> count 0) (elem-set stacks 0 (list)))
 	(while (defq at (pop todo))
@@ -90,9 +90,9 @@
 					(setq bytes (- bytes (elem-get sizes (pop stack)))))
 				(if (/= bytes 0) (setq odd :t))))
 		(each (lambda (to)
-			(cond
-				((not (elem-get stacks to)) (elem-set stacks to stack) (push todo to))
-				((nql (str (elem-get stacks to)) (str stack)) (setq odd :t))))
+				(cond
+					((not (elem-get stacks to)) (elem-set stacks to stack) (push todo to))
+					((nql (str (elem-get stacks to)) (str stack)) (setq odd :t))))
 			(elem-get next at)))
 	(unless odd (list stacks sizes)))
 
@@ -114,7 +114,7 @@
 	(defq frame (some (# (if (= (first %0) which) %0)) frames) found :nil)
 	(when frame
 		(each (lambda ((name at type))
-			(and (<= at offset) (or (not found) (> at (second found))) (setq found (list name at type))))
+				(and (<= at offset) (or (not found) (> at (second found))) (setq found (list name at type))))
 			(third frame)))
 	(if found
 		(list (cat (str which) ":" (first found)) (and (= (second found) offset) (nql (third found) "")))
@@ -206,22 +206,22 @@
 	;or :nil if what is called is not known at all
 	(defq count (length insts) labels (Fmap 31) never :nil used (list))
 	(each (lambda (inst)
-		(defq op (first inst))
-		(cond
-			((eql op 'label) (. labels :insert (last (second inst)) (!)))
-			((find op +keep_never) (setq never :t)))
-		(each (# (and (sym? %0) (find %0 +keep_regs) (not (find %0 used)) (push used %0))) inst))
+			(defq op (first inst))
+			(cond
+				((eql op 'label) (. labels :insert (last (second inst)) (!)))
+				((find op +keep_never) (setq never :t)))
+			(each (# (and (sym? %0) (find %0 +keep_regs) (not (find %0 used)) (push used %0))) inst))
 		insts)
 	;an address taken of a label of the function: where it goes is not seen
 	(each (lambda (inst)
-		(and (find (first inst) '(lea-pr load-pr)) (. labels :find (second inst)) (setq never :t)))
+			(and (find (first inst) '(lea-pr load-pr)) (. labels :find (second inst)) (setq never :t)))
 		insts)
 	(when (and (not never) (> count 0) (nempty? frames) (defq next (keep-next insts labels)))
 		(defq prev (map (lambda (n) (list)) next))
 		(each (lambda (on) (defq from (!)) (each (# (push (elem-get prev %0) from)) on)) next)
 		;a label nothing is seen to go to is gone to by a way not seen
 		(each (lambda (inst from)
-			(and (eql (first inst) 'label) (> (!) 0) (empty? from) (setq never :t)))
+				(and (eql (first inst) 'label) (> (!) 0) (empty? from) (setq never :t)))
 			insts prev)
 		(when (and (not never) (defq framed (keep-stacks insts next)))
 			(bind '(stacks sizes) framed)
@@ -229,43 +229,43 @@
 			;call trashes. A local that can not be kept is put in pinned
 			(defq slots (list) places (list) taken_at (list) pinned (list) events (list) home_calls (list) taken (cat fixed))
 			(each (lambda (inst stack)
-				(defq op (first inst) stack (ifn stack (list)) event :nil place :nil whole :t called :nil)
-				(cond
-					((and (find op +keep_loads) (eql (second inst) :rsp))
-						(if (setq place (keep-place stack sizes (third inst))) (setq event :load whole (eql op 'load-rcr))))
-					((and (find op +keep_stores) (eql (third inst) :rsp))
-						(if (setq place (keep-place stack sizes (elem-get inst 3))) (setq event :store whole (eql op 'store-rrc))))
-					((and (eql op 'lea-rcr) (eql (second inst) :rsp))
-						(if (setq place (keep-place stack sizes (third inst))) (setq event :addr whole :nil)))
-					((find op '(alloc free)))
-					;a push or a pop moves the stack pointer: with a frame
-					;there, what is at a place from it is not followed
-					((find op '(push pop)) (if (nempty? stack) (setq never :t)))
-					((find :rsp inst) (setq never :t))
-					((or (find op +keep_calls) (find op '(jmp-p jmp-rc)))
-						(cond
-							((eql op 'call-abi) (setq called (list :nil (list))))
-							((setq called (callee inst)))
-							((setq never :t)))
-						(when called
-							(each (# (unless (find %0 taken) (push taken %0))) (second called))
-							;a jump out does not come back: nothing is wanted after it
-							(unless (find op +keep_calls) (setq called :nil)))))
-				(push home_calls (if called (list (first called))))
-				(cond
-					(event
-						(bind '(name named) (keep-local frames (first place) (second place)))
-						(unless (find name slots) (push slots name) (push places place))
-						(if (eql event :addr) (push taken_at place))
-						(and (not (and named whole)) (not (find name pinned)) (push pinned name))
-						(push events (list event name)))
-					((push events :nil))))
+					(defq op (first inst) stack (ifn stack (list)) event :nil place :nil whole :t called :nil)
+					(cond
+						((and (find op +keep_loads) (eql (second inst) :rsp))
+							(if (setq place (keep-place stack sizes (third inst))) (setq event :load whole (eql op 'load-rcr))))
+						((and (find op +keep_stores) (eql (third inst) :rsp))
+							(if (setq place (keep-place stack sizes (elem-get inst 3))) (setq event :store whole (eql op 'store-rrc))))
+						((and (eql op 'lea-rcr) (eql (second inst) :rsp))
+							(if (setq place (keep-place stack sizes (third inst))) (setq event :addr whole :nil)))
+						((find op '(alloc free)))
+						;a push or a pop moves the stack pointer: with a frame
+						;there, what is at a place from it is not followed
+						((find op '(push pop)) (if (nempty? stack) (setq never :t)))
+						((find :rsp inst) (setq never :t))
+						((or (find op +keep_calls) (find op '(jmp-p jmp-rc)))
+							(cond
+								((eql op 'call-abi) (setq called (list :nil (list))))
+								((setq called (callee inst)))
+								((setq never :t)))
+							(when called
+								(each (# (unless (find %0 taken) (push taken %0))) (second called))
+								;a jump out does not come back: nothing is wanted after it
+								(unless (find op +keep_calls) (setq called :nil)))))
+					(push home_calls (if called (list (first called))))
+					(cond
+						(event
+							(bind '(name named) (keep-local frames (first place) (second place)))
+							(unless (find name slots) (push slots name) (push places place))
+							(if (eql event :addr) (push taken_at place))
+							(and (not (and named whole)) (not (find name pinned)) (push pinned name))
+							(push events (list event name)))
+						((push events :nil))))
 				insts stacks)
 			;an address taken is of all that is above it in the frame, for all
 			;that is known here: a call given it may fill more than the one
 			(each (lambda (slot place)
-				(and (some (# (and (= (first %0) (first place)) (<= (second %0) (second place)))) taken_at)
-					(not (find slot pinned)) (push pinned slot)))
+					(and (some (# (and (= (first %0) (first place)) (<= (second %0) (second place)))) taken_at)
+						(not (find slot pinned)) (push pinned slot)))
 				slots places)
 			(unless never
 				;the registers a local may have: the most wanted local first,
@@ -277,24 +277,24 @@
 				(defq homes (filter (# (not (or (find %0 used) (find %0 taken)))) mine)
 					used_by (map (lambda (n) 0) slots) trashed (map (lambda (n) 0) homes))
 				(each (lambda (event)
-					(when event
-						(defq i (find (second event) slots))
-						(elem-set used_by i (inc (elem-get used_by i)))))
+						(when event
+							(defq i (find (second event) slots))
+							(elem-set used_by i (inc (elem-get used_by i)))))
 					events)
 				(each (lambda (called)
-					(when called
-						(defq trashes (first called))
-						(each (lambda (home uses)
-							(if (or (not trashes) (find home trashes))
-								(elem-set trashed (!) (inc uses))))
-							homes trashed)))
+						(when called
+							(defq trashes (first called))
+							(each (lambda (home uses)
+									(if (or (not trashes) (find home trashes))
+										(elem-set trashed (!) (inc uses))))
+								homes trashed)))
 					home_calls)
 				(defq keeping (sort (filter (# (not (find %0 pinned))) slots)
 						(# (- (elem-get used_by (find %1 slots)) (elem-get used_by (find %0 slots)))))
 					by_home (map (lambda (home count) (list home count)) homes trashed)
 					;of two that as many trash, the lower: it is the same every time
 					homes (map (const first) (sort by_home (lambda ((h0 a) (h1 b))
-						(if (= a b) (- (find h0 +keep_regs) (find h1 +keep_regs)) (- a b)))))
+								(if (= a b) (- (find h0 +keep_regs) (find h1 +keep_regs)) (- a b)))))
 					edits (map (lambda (n) :nil) next) kept (list) settled :nil)
 				;the locals are given homes in that order, as far as the
 				;homes go, and all asked of at once. One that is not worth a
@@ -304,51 +304,51 @@
 					(defq using (slice keeping 0 (min (length keeping) (length homes) 60))
 						loads (list) stores (list) kills (list))
 					(each (lambda (event called)
-						(defq bit (and event (find (second event) using)) mask (if bit (<< 1 bit) 0) kill 0)
-						(push loads (if (and bit (eql (first event) :load)) mask 0))
-						(push stores (if (and bit (eql (first event) :store)) mask 0))
-						(when called
-							(defq trashes (first called))
-							(each (lambda (slot home) (if (or (not trashes) (find home trashes))
-								(setq kill (logior kill (<< 1 (!)))))) using homes))
-						(push kills kill))
+							(defq bit (and event (find (second event) using)) mask (if bit (<< 1 bit) 0) kill 0)
+							(push loads (if (and bit (eql (first event) :load)) mask 0))
+							(push stores (if (and bit (eql (first event) :store)) mask 0))
+							(when called
+								(defq trashes (first called))
+								(each (lambda (slot home) (if (or (not trashes) (find home trashes))
+											(setq kill (logior kill (<< 1 (!)))))) using homes))
+							(push kills kill))
 						events home_calls)
 					(bind '(wanted had memory) (keep-flow next prev loads stores kills))
 					;what each read and write becomes, and what that saves
 					(defq all_edits (map (lambda (n) (list)) using)
 						reads (map (lambda (n) 0) using) writes (map (lambda (n) 0) using))
 					(each (lambda (event)
-						(when (and event (defq bit (find (second event) using)))
-							(defq at (!) inst (elem-get insts at) mask (<< 1 bit) home (elem-get homes bit)
-								mine_edits (elem-get all_edits bit))
-							(cond
-								((eql (first event) :store)
-									(defq src (second inst) to_stack (/= 0 (logand mask (elem-get memory at)))
-										to_home (/= 0 (logand mask (elem-get wanted at))))
-									(unless to_stack (elem-set writes bit (inc (elem-get writes bit))))
-									(push mine_edits (list at (cat (if to_stack (list inst) (list))
-										(if to_home (list (list 'cpy-rr src home)) (list))))))
-								((/= 0 (logand mask (elem-get had at)))
-									(elem-set reads bit (inc (elem-get reads bit)))
-									(push mine_edits (list at (list (list 'cpy-rr home (last inst))))))
-								((/= 0 (logand mask (elem-get wanted at)))
-									(push mine_edits (list at (list (list 'load-rcr :rsp (third inst) home)
-										(list 'cpy-rr home (last inst)))))))))
+							(when (and event (defq bit (find (second event) using)))
+								(defq at (!) inst (elem-get insts at) mask (<< 1 bit) home (elem-get homes bit)
+									mine_edits (elem-get all_edits bit))
+								(cond
+									((eql (first event) :store)
+										(defq src (second inst) to_stack (/= 0 (logand mask (elem-get memory at)))
+											to_home (/= 0 (logand mask (elem-get wanted at))))
+										(unless to_stack (elem-set writes bit (inc (elem-get writes bit))))
+										(push mine_edits (list at (cat (if to_stack (list inst) (list))
+													(if to_home (list (list 'cpy-rr src home)) (list))))))
+									((/= 0 (logand mask (elem-get had at)))
+										(elem-set reads bit (inc (elem-get reads bit)))
+										(push mine_edits (list at (list (list 'cpy-rr home (last inst))))))
+									((/= 0 (logand mask (elem-get wanted at)))
+										(push mine_edits (list at (list (list 'load-rcr :rsp (third inst) home)
+													(list 'cpy-rr home (last inst)))))))))
 						events)
 					(cond
 						((defq idle (some (lambda (slot r w) (if (= 0 (+ r w)) (!))) using reads writes))
 							(setq keeping (cat (slice keeping 0 idle) (slice keeping (inc idle) -1))))
 						(:t (setq settled :t)
 							(each (lambda (slot home r w mine)
-								(each (lambda ((at with)) (elem-set edits at with)) mine)
-								(push kept (list slot home r w)))
+									(each (lambda ((at with)) (elem-set edits at with)) mine)
+									(push kept (list slot home r w)))
 								using homes reads writes all_edits))))
 				(when (nempty? kept)
 					(defq out (list))
 					(each (lambda (inst with)
-						(if with
-							(each (# (push out %0)) with)
-							(push out inst)))
+							(if with
+								(each (# (push out %0)) with)
+								(push out inst)))
 						insts edits)
 					(list out kept))))))
 

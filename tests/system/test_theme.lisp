@@ -48,8 +48,8 @@
 (assert-true "and another, straight from that" (eql (get :font th_bar) (create-font "fonts/Symbols-Sharp.ctf" 28)))
 ;as an event, as the GUI sends it to a window
 (. th_window :event (cat (setf-> (str-alloc +ev_msg_theme_size)
-	(+ev_msg_type +ev_type_action) (+ev_msg_target_id +event_theme)
-	(+ev_msg_action_source_id (. th_window :get_id))) "Light"))
+			(+ev_msg_type +ev_type_action) (+ev_msg_target_id +event_theme)
+			(+ev_msg_action_source_id (. th_window :get_id))) "Light"))
 (assert-true "the event does it" (eql (get :font th_bar) (create-font "fonts/Symbols-Light.ctf" 28)))
 (assert-true "the smallest symbols are the bold font, whatever the theme"
 	(eql (get :font_tiny_symbol *env*) (create-font "fonts/Symbols-Bold.ctf" 10)))
@@ -139,7 +139,7 @@
 		:border :border_window :shadow :shadow_window)
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-element th_zv (Vdu) (:vdu_width 8 :vdu_height 2 :ink +argb_white
-			:font (get :font_editor *env*)))))
+				:font (get :font_editor *env*)))))
 (window-attach th_zw)
 (def th_zv :font (defq th_zf (create-font th_ef (+ th_es 4))))
 (. th_zw :theme "Bold")

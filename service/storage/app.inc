@@ -76,7 +76,7 @@
 	(when svc
 		(defq mbox (mail-mbox) answer :nil)
 		(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
-			(+storage_rpc_reply_id mbox) (+storage_rpc_type type)) (ifn body "")))
+					(+storage_rpc_reply_id mbox) (+storage_rpc_type type)) (ifn body "")))
 		(if (eql wait :t)
 			(until (or (setq answer (mail-read-timeout mbox (task-timeout 1))) (not (storage-there? svc))))
 			(setq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait)))))
@@ -89,7 +89,7 @@
 	;of several services, and be on their way together
 	(defq mbox (mail-mbox))
 	(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
-		(+storage_rpc_reply_id mbox) (+storage_rpc_type type)) (ifn body "")))
+				(+storage_rpc_reply_id mbox) (+storage_rpc_type type)) (ifn body "")))
 	mbox)
 
 (defun storage-result (answer)
@@ -116,14 +116,14 @@
 	(when answer
 		(defq info (Emap) pins (list))
 		(each (lambda (line)
-			(when (defq at (find " " line))
-				(defq key (sym (cat ":" (slice line 0 at))) val (slice line (inc at) -1))
-				(cond
-					((eql key :pin) (push pins val))
-					((. info :insert key (cond
-						((eql key :members) (split val " "))
-						((find key '(:id :member)) val)
-						((str-as-num val))))))))
+				(when (defq at (find " " line))
+					(defq key (sym (cat ":" (slice line 0 at))) val (slice line (inc at) -1))
+					(cond
+						((eql key :pin) (push pins val))
+						((. info :insert key (cond
+									((eql key :members) (split val " "))
+									((find key '(:id :member)) val)
+									((str-as-num val))))))))
 			(split answer +storage_lf))
 		(. info :insert :pins pins)))
 
@@ -157,7 +157,7 @@
 	;the other members a block of that name may be had from, those that
 	;are to keep it first. The service says who, it does not ask them
 	(map (const hex-decode) (filter (const nempty?)
-		(split (ifn (storage-ask (ifn svc (storage-service)) +storage_type_where hash) "") +storage_lf))))
+			(split (ifn (storage-ask (ifn svc (storage-service)) +storage_type_where hash) "") +storage_lf))))
 
 (defun storage-block (hash &optional svc)
 	; (storage-block name [svc]) -> :nil | data
@@ -190,13 +190,13 @@
 	;block that was not answered is :lost, one there was no room for :full
 	(defq full :nil
 		top (store-manifest-make bytes names (lambda (data)
-			(defq hash (sha256 data) said (storage-ask svc +storage_type_block_put data))
-			(cond ((eql said hash) hash) (said (setq full :t) :nil)))))
+				(defq hash (sha256 data) said (storage-ask svc +storage_type_block_put data))
+				(cond ((eql said hash) hash) (said (setq full :t) :nil)))))
 	(cond
 		(full (list :full :nil))
 		((not top) (list :lost :nil))
 		((storage-result (storage-ask svc +storage_type_commit
-			(join (list (storage-from from) (str bytes) name (hex-encode top)) +storage_lf))))))
+					(join (list (storage-from from) (str bytes) name (hex-encode top)) +storage_lf))))))
 
 (defun storage-heard (mbox quiet)
 	;what a mailbox has been told: waited for, or if the service has been
@@ -490,9 +490,9 @@
 	;object"
 	(bind '(svc pages size bytes at drop flight ahead retry kept &ignore) st)
 	(defq pos (max 0 (min bytes (cond
-		((= whence 0) offset)
-		((= whence 1) (+ offset (min bytes (+ (* at size) drop))))
-		((+ bytes offset)))))
+					((= whence 0) offset)
+					((= whence 1) (+ offset (min bytes (+ (* at size) drop))))
+					((+ bytes offset)))))
 		block (/ pos size))
 	(elem-set st +storage_stream_again :nil)
 	(cond
@@ -567,7 +567,7 @@
 	(when (and flush (eql dirty :t))
 		(defq all (cat names) bytes (+ (* (length names) size) (length part)))
 		(when (or (empty? part) (and (eql (storage-ask svc +storage_type_block_put part) (defq hash (sha256 part)))
-				(push all hash)))
+					(push all hash)))
 			(elem-set st +storage_out_dirty :nil)
 			(storage-commit svc name :nil bytes all))))
 
@@ -626,7 +626,7 @@
 	; (storage-delete path [from svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)
 	;there is no object of that name from now, provided it is from
 	(storage-result (storage-ask (ifn svc (storage-service)) +storage_type_delete
-		(cat (storage-from from) +storage_lf name))))
+			(cat (storage-from from) +storage_lf name))))
 
 (defun storage-rename (from to &optional was svc)
 	; (storage-rename from to [was svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)
@@ -638,7 +638,7 @@
 	;its own, see that all went as it should, and rename it to where it is
 	;to be, and who reads that has the old object or the new, whole
 	(storage-result (storage-ask (ifn svc (storage-service)) +storage_type_rename
-		(cat (storage-from was) +storage_lf from +storage_lf to))))
+			(cat (storage-from was) +storage_lf from +storage_lf to))))
 
 (defun storage-copies (name &optional copies svc)
 	; (storage-copies path [copies svc]) -> :nil | num | (:ok entry) | (:none :nil) | (:lost :nil)
@@ -722,7 +722,7 @@
 			(cond
 				((not (defq stream (storage-stream from +file_open_read src))) (list :none :nil))
 				((eql (first (defq result (storage-put-stream to stream was dst
-						`(lambda (bytes) (,storage-copy-tick ',stream ',tick bytes))))) :stopped)
+									`(lambda (bytes) (,storage-copy-tick ',stream ',tick bytes))))) :stopped)
 					(list (if (stream-fault stream) :lost :stopped) :nil))
 				((storage-copy-dial result entry dst))))
 		((not (defq object (store-manifest-walk (elem-get entry +store_entry_hash) (# (storage-block %0 src)))))
@@ -758,8 +758,8 @@
 	(when svc
 		;who it is from, - for not another member, and all there is of it
 		(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
-				(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_walk))
-			"-" +storage_lf (str (list name (ifn at 0) state visit (list) (list)))))
+					(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_walk))
+				"-" +storage_lf (str (list name (ifn at 0) state visit (list) (list)))))
 		mbox))
 
 (defun storage-walk-answer (mbox &optional wait)
@@ -850,14 +850,14 @@
 	(when (defq text (load (ifn file +storage_member_file)))
 		(defq said (Emap))
 		(each (lambda (line)
-			(when (defq at (find " " line))
-				(defq key (slice line 0 at) val (slice line (inc at) -1))
-				(cond
-					((eql key "image") (. said :insert :image val))
-					((eql key "size") (. said :insert :size (str-as-num val)))
-					((eql key "id") (. said :insert :id val))
-					((eql key "copies") (. said :insert :copies (str-as-num val)))
-					((eql key "travels") (. said :insert :travels (eql val "yes"))))))
+				(when (defq at (find " " line))
+					(defq key (slice line 0 at) val (slice line (inc at) -1))
+					(cond
+						((eql key "image") (. said :insert :image val))
+						((eql key "size") (. said :insert :size (str-as-num val)))
+						((eql key "id") (. said :insert :id val))
+						((eql key "copies") (. said :insert :copies (str-as-num val)))
+						((eql key "travels") (. said :insert :travels (eql val "yes"))))))
 			(split text +storage_lf))
 		(if (. said :find :image) said)))
 
@@ -865,10 +865,10 @@
 	; (storage-member-save image size [id copies file travels])
 	;this machine is a member, of the store in that file, from now on
 	(save (join (cat (list (cat "image " image) (cat "size " (str size)))
-			(if id (list (cat "id " id)) (list))
-			(if (and copies (> copies 0)) (list (cat "copies " (str copies))) (list))
-			(if travels (list "travels yes") (list))
-			(list "")) +storage_lf)
+				(if id (list (cat "id " id)) (list))
+				(if (and copies (> copies 0)) (list (cat "copies " (str copies))) (list))
+				(if travels (list "travels yes") (list))
+				(list "")) +storage_lf)
 		(ifn file +storage_member_file)))
 
 (defun storage-member-travels (travels &optional file)
@@ -933,10 +933,10 @@
 	(and (storage-claim image)
 		;it is defined after this, so by its name as this is called, not as it is read
 		(or (apply storage-start (cat (list image :size (* size 1048576) :id (ifn id (ifn (storage-key-id) "store")))
-				(if (and copies (> copies 0)) (list :copies copies) (list))
-				(if force (list :force :t) (list))
-				(if wait (list :wait wait) (list))
-				(if stop (list :stop stop) (list))))
+					(if (and copies (> copies 0)) (list :copies copies) (list))
+					(if force (list :force :t) (list))
+					(if wait (list :wait wait) (list))
+					(if stop (list :stop stop) (list))))
 			(progn (storage-unclaim image) :nil))))
 
 (defun storage-pinned-by (name &optional svc)
@@ -1017,7 +1017,7 @@
 			(when (/= 0 (get-long task 0))
 				(defq lines (list (cat "ready " (hex-encode said)) (cat "image " image) (cat "name " name)))
 				(each (lambda (key)
-					(if (defq val (. opts :find key)) (push lines (cat (rest key) " " (if (eql val :t) "1" (str val))))))
+						(if (defq val (. opts :find key)) (push lines (cat (rest key) " " (if (eql val :t) "1" (str val))))))
 					'(:size :id :block :force :group :member :tick :grace :copies))
 				(mail-send task (join lines +storage_lf))
 				(defq wait (ifn (. opts :find :wait) 30) answer :nil stop (. opts :find :stop))
@@ -1026,8 +1026,8 @@
 								(mail-send task "stop")
 								(setq stop :nil))
 							(setq answer (mail-read-timeout said (task-timeout (if (eql wait :t) 1 wait)))))
-					(nql wait :t)
-					(not (storage-there? task))))
+						(nql wait :t)
+						(not (storage-there? task))))
 				;the task's mailbox is the service's. Its name, from another
 				;node, is known here a moment after, a second or more: it is
 				;waited for, a start that asks again by the name finds this
@@ -1067,9 +1067,9 @@
 	(when answer
 		(defq state (Emap))
 		(each (lambda (line)
-			(defq at (ifn (find " " line) (length line)) key (sym (cat ":" (slice line 0 at)))
-				val (if (< at (length line)) (slice line (inc at) -1) ""))
-			(. state :insert key (if (find key '(:members :retired :cut)) (split val " ") val)))
+				(defq at (ifn (find " " line) (length line)) key (sym (cat ":" (slice line 0 at)))
+					val (if (< at (length line)) (slice line (inc at) -1) ""))
+				(. state :insert key (if (find key '(:members :retired :cut)) (split val " ") val)))
 			(split answer +storage_lf))
 		state))
 
@@ -1193,7 +1193,7 @@
 			(setq them (filter (# (nql (first %0) mbox)) them)))
 		(:t (defq mbox (hex-decode text))
 			(setq them (cat (filter (# (nql (first %0) mbox)) them)
-				(list (list mbox (+ (pii-time) (task-timeout +storage_record_lease))))))))
+					(list (list mbox (+ (pii-time) (task-timeout +storage_record_lease))))))))
 	(elem-set rec 0 them))
 
 (defun storage-recording? (rec)
@@ -1231,7 +1231,7 @@
 	;a member is to tell that mailbox what it does, for so long, or with
 	;stop, not to. With :nil for the mailbox, it is to tell nobody
 	(if (storage-ask svc +storage_type_record
-		(cond ((not mbox) "-") (stop (cat "-" (hex-encode mbox))) ((hex-encode mbox)))) :t))
+			(cond ((not mbox) "-") (stop (cat "-" (hex-encode mbox))) ((hex-encode mbox)))) :t))
 
 (defun storage-record-run (write until &optional group stop)
 	; (storage-record-run write until [group stop]) -> lines
@@ -1266,36 +1266,36 @@
 	(defq seed_now (str (pii-time)) seed_objects (Fmap 101) seed_lines 0 seed_members (list))
 	(defun seed-line (text) (++ seed_lines) (write (cat seed_now " " text)))
 	(each (lambda (seed_svc)
-		(when (defq seed_info (storage-info seed_svc))
-			(defq seed_me (. seed_info :find :member))
-			(push seed_members (list seed_me seed_svc))
-			(each (lambda (line) (if (nempty? line) (seed-line (cat seed_me " peer+ " (first (split line " "))))))
-				(split (ifn (storage-ask seed_svc +storage_type_peers) "") +storage_lf))
-			(each (lambda (entry)
-				(defq seed_m (elem-get entry +store_entry_hash))
-				(unless (. seed_objects :find seed_m)
-					(when (defq seed_got (storage-manifest (first entry) seed_svc))
-						(. seed_objects :insert seed_m (second seed_got))
-						(seed-line (cat seed_me " object " (storage-record-name seed_m) " "
-							(join (map (const storage-record-name) (second seed_got)) " ")))))
-				(seed-line (cat seed_me " learnt " (storage-record-name seed_m) " " (elem-get entry +store_entry_writer)
-					" " (first entry))))
-				(ifn (storage-list "" seed_svc) (list)))))
+			(when (defq seed_info (storage-info seed_svc))
+				(defq seed_me (. seed_info :find :member))
+				(push seed_members (list seed_me seed_svc))
+				(each (lambda (line) (if (nempty? line) (seed-line (cat seed_me " peer+ " (first (split line " "))))))
+					(split (ifn (storage-ask seed_svc +storage_type_peers) "") +storage_lf))
+				(each (lambda (entry)
+						(defq seed_m (elem-get entry +store_entry_hash))
+						(unless (. seed_objects :find seed_m)
+							(when (defq seed_got (storage-manifest (first entry) seed_svc))
+								(. seed_objects :insert seed_m (second seed_got))
+								(seed-line (cat seed_me " object " (storage-record-name seed_m) " "
+										(join (map (const storage-record-name) (second seed_got)) " ")))))
+						(seed-line (cat seed_me " learnt " (storage-record-name seed_m) " " (elem-get entry +store_entry_writer)
+								" " (first entry))))
+					(ifn (storage-list "" seed_svc) (list)))))
 		(storage-record-members group))
 	;the blocks each keeps, of all those known, asked a few hundred at a time
 	(defq seed_names (list))
 	(. seed_objects :each (lambda (m names)
-		(push seed_names m)
-		(each (# (push seed_names %0)) names)))
+			(push seed_names m)
+			(each (# (push seed_names %0)) names)))
 	(each (lambda ((seed_me seed_svc))
-		(each (lambda (at)
-			(defq seed_some (slice seed_names at (min (length seed_names) (+ at 256)))
-				seed_has (ifn (storage-ask seed_svc +storage_type_has (apply (const cat) (cat (list "") seed_some))) ""))
-			(each (lambda (name)
-				(and (< (!) (length seed_has)) (eql (elem-get seed_has (!)) "1")
-					(seed-line (cat seed_me " block+ " (storage-record-name name)))))
-				seed_some))
-			(range 0 (length seed_names) 256)))
+			(each (lambda (at)
+					(defq seed_some (slice seed_names at (min (length seed_names) (+ at 256)))
+						seed_has (ifn (storage-ask seed_svc +storage_type_has (apply (const cat) (cat (list "") seed_some))) ""))
+					(each (lambda (name)
+							(and (< (!) (length seed_has)) (eql (elem-get seed_has (!)) "1")
+								(seed-line (cat seed_me " block+ " (storage-record-name name)))))
+						seed_some))
+				(range 0 (length seed_names) 256)))
 		seed_members)
 	seed_lines)
 
@@ -1310,7 +1310,7 @@
 	;lib/storage/store.inc. :nil if the name is not one a snapshot may have,
 	;not empty, no / or space
 	(and (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_snapshot
-			(cat name +storage_lf (ifn prefix ""))))
+				(cat name +storage_lf (ifn prefix ""))))
 		(nql answer "") (str-as-num answer)))
 
 (defun storage-snapshots (&optional svc)
@@ -1319,10 +1319,10 @@
 	(when (defq entries (storage-list +store_snapshots svc))
 		(defq out (list) counts (Fmap 11))
 		(each (lambda (entry)
-			(defq after (slice (first entry) (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
-			(when (nempty? name)
-				(unless (. counts :find name) (push out name))
-				(. counts :insert name (inc (ifn (. counts :find name) 0)))))
+				(defq after (slice (first entry) (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
+				(when (nempty? name)
+					(unless (. counts :find name) (push out name))
+					(. counts :insert name (inc (ifn (. counts :find name) 0)))))
 			entries)
 		(map (# (list %0 (. counts :find %0))) (sort out))))
 
@@ -1333,7 +1333,7 @@
 	;there are now under the prefix that the snapshot has not, which are
 	;left. :nil if there is no such snapshot
 	(and (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_restore
-			(cat name +storage_lf (ifn prefix ""))))
+				(cat name +storage_lf (ifn prefix ""))))
 		(nql answer "") (map (const str-as-num) (split answer " "))))
 
 (defun storage-resized-name (image megabytes)
@@ -1355,7 +1355,7 @@
 	;from now on. :nil if it is that size already, or can not be made so,
 	;and it is as it was. The member answers nothing while it copies
 	(if (nempty? (defq answer (ifn (storage-ask (ifn svc (storage-service)) +storage_type_resize
-			(str megabytes) 3600) ""))) answer))
+						(str megabytes) 3600) ""))) answer))
 
 (defun storage-snapshot-drop (name &optional svc)
 	; (storage-snapshot-drop name [svc]) -> :nil | count
@@ -1363,4 +1363,3 @@
 	;a sweep, if nothing else is made of them
 	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_snapshot_drop name))
 		(str-as-num answer)))
-

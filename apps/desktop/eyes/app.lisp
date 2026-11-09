@@ -27,7 +27,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default))))
 
@@ -43,7 +43,6 @@
 ;;;;;;;;;;;;;;
 ; UI and State
 ;;;;;;;;;;;;;;
-
 
 (enums +select 0
 	(enum main timer))
@@ -75,7 +74,7 @@
 		dist (/ (vector-length off) +look_most)
 		off (vector-scale off (/ 1.0 (sqrt (+ 1.0 (* dist dist))))))
 	(map (const n2r) (list (first off) (second off)
-		(neg (sqrt (- 1.0 (vector-dot off off)))))))
+			(neg (sqrt (- 1.0 (vector-dot off off)))))))
 
 (defun redraw (mx my)
 	(bind '(w h) (. *canvas* :pref_size))
@@ -85,14 +84,14 @@
 		eye_r (* fh 0.48) eye_cy (* fh 0.5))
 	(shader-vp-draw eyes_native
 		(shader-vp-frame eyes_program eyes_native (list
-			(list 'resolution (list w h))
-			(list 'look_left (look (* fw 0.25) eye_cy eye_r rel_mx rel_my))
-			(list 'look_right (look (* fw 0.75) eye_cy eye_r rel_mx rel_my))
-			(list 'iris_color (map (# (/ (n2f (logand (>> iris_color %0) 0xff)) 255.0)) '(16 8 0)))
-			;the iris is so much of the eye as it is seen flat, on the
-			;ball it is that far round
-			(list 'iris_size (* iris_scale 0.7))
-			(list 'pupil_size pupil_scale)))
+				(list 'resolution (list w h))
+				(list 'look_left (look (* fw 0.25) eye_cy eye_r rel_mx rel_my))
+				(list 'look_right (look (* fw 0.75) eye_cy eye_r rel_mx rel_my))
+				(list 'iris_color (map (# (/ (n2f (logand (>> iris_color %0) 0xff)) 255.0)) '(16 8 0)))
+				;the iris is so much of the eye as it is seen flat, on the
+				;ball it is that far round
+				(list 'iris_size (* iris_scale 0.7))
+				(list 'pupil_size pupil_scale)))
 		(getf *canvas* +canvas_pixmap 0) 0 0 w h h :t)
 	(. *canvas* :swap +swap_write))
 

@@ -40,13 +40,13 @@
 	(defq b (get-uint buf (* i 4)) e (logand (>> b 23) 0xff) m (logand b 0x7fffff)
 		sign (<< (logand (>> b 31) 1) 63))
 	(get-real (set-long (str-alloc 8) 0 (cond
-		((= e 255) (logior sign 0x7ff0000000000000 (<< m 29)))
-		((> e 0) (logior sign (<< (+ e 896) 52) (<< m 29)))
-		((= m 0) sign)
-		;one smaller than the least normal, made normal for the double
-		(:t (setq e 1)
-			(until (/= 0 (logand m 0x800000)) (setq m (<< m 1) e (dec e)))
-			(logior sign (<< (+ e 896) 52) (<< (logand m 0x7fffff) 29))))) 0))
+				((= e 255) (logior sign 0x7ff0000000000000 (<< m 29)))
+				((> e 0) (logior sign (<< (+ e 896) 52) (<< m 29)))
+				((= m 0) sign)
+				;one smaller than the least normal, made normal for the double
+				(:t (setq e 1)
+					(until (/= 0 (logand m 0x800000)) (setq m (<< m 1) e (dec e)))
+					(logior sign (<< (+ e 896) 52) (<< (logand m 0x7fffff) 29))))) 0))
 
 (defun cpu-fset (buf i r)
 	;the nearest 32 bit float to a real at i of a buffer
@@ -125,9 +125,9 @@
 	;a matrix times a matrix, each row of the one dotted with each
 	;column of the other
 	(defq cols (map (# (reals (elem-get b %0) (elem-get b (+ %0 4))
-		(elem-get b (+ %0 8)) (elem-get b (+ %0 12)))) (range 0 4)))
+					(elem-get b (+ %0 8)) (elem-get b (+ %0 12)))) (range 0 4)))
 	(apply (const reals) (map (# (nums-dot (slice a (* (/ %0 4) 4) (+ (* (/ %0 4) 4) 4))
-		(elem-get cols (% %0 4)))) (range 0 16))))
+					(elem-get cols (% %0 4)))) (range 0 16))))
 
 (defun cpu-zero (type)
 	;what a value of the type is before it is set
@@ -165,20 +165,20 @@
 	;one step of + - * /, by the types of the two sides
 	(defq va (shader-dim ta) vb (shader-dim tb))
 	(cpu-fold (cond
-		((eql ta :mat4)
-			(list (cond ((eql tb :mat4) (const cpu-mat-mul)) ((eql tb :vec3) (const cpu-mat-vec3))
-				((const cpu-mat-vec))) a b))
-		((and va vb)
-			(list (elem-get (static-q (nums-add nums-sub nums-mul nums-div)) i) a b))
-		(va (case i
-			(2 (list (const nums-scale) a b))
-			(3 (list (const nums-scale) a (cpu-fold (list (const recip) b))))
-			(:t (list (elem-get (static-q (nums-add nums-sub)) i) a (cpu-splat-form b va)))))
-		(vb (case i
-			(2 (list (const nums-scale) b a))
-			(:t (list (elem-get (static-q (nums-add nums-sub nums-mul nums-div)) i)
-				(cpu-splat-form a vb) b))))
-		((list (elem-get (static-q (+ - * /)) i) a b)))))
+			((eql ta :mat4)
+				(list (cond ((eql tb :mat4) (const cpu-mat-mul)) ((eql tb :vec3) (const cpu-mat-vec3))
+						((const cpu-mat-vec))) a b))
+			((and va vb)
+				(list (elem-get (static-q (nums-add nums-sub nums-mul nums-div)) i) a b))
+			(va (case i
+					(2 (list (const nums-scale) a b))
+					(3 (list (const nums-scale) a (cpu-fold (list (const recip) b))))
+					(:t (list (elem-get (static-q (nums-add nums-sub)) i) a (cpu-splat-form b va)))))
+			(vb (case i
+					(2 (list (const nums-scale) b a))
+					(:t (list (elem-get (static-q (nums-add nums-sub nums-mul nums-div)) i)
+							(cpu-splat-form a vb) b))))
+			((list (elem-get (static-q (+ - * /)) i) a b)))))
 
 (defun cpu-op (op type args types)
 	;a built in op
@@ -189,7 +189,7 @@
 			(cond
 				((> (length args) 1)
 					(each! (# (setq a (cpu-arith i a ta %0 %1)
-						ta (if (shader-dim ta) ta %1))) (list args types) 1)
+								ta (if (shader-dim ta) ta %1))) (list args types) 1)
 					a)
 				(va (list (const nums-scale) a +cpu_-1))
 				((list (const neg) a))))
@@ -214,7 +214,7 @@
 				((notany (const shader-dim) types)
 					(cat (list (const reals)) args))
 				((cat (list (const cat)) (map (# (if (shader-dim %1) %0
-					(cpu-fold (list (const reals) %0)))) args types)))))
+									(cpu-fold (list (const reals) %0)))) args types)))))
 		((defq i (find op '(sin cos sqrt floor fract abs)))
 			(if va
 				(case i
@@ -227,18 +227,18 @@
 			(cond
 				((not va) (list (elem-get (static-q (min max cpu-mod)) i) a b))
 				((list (elem-get (static-q (nums-min nums-max cpu-vmod)) i) a
-					(if (shader-dim tb) b (cpu-splat-form b va))))))
+						(if (shader-dim tb) b (cpu-splat-form b va))))))
 		((eql op 'pow)
 			(list (if va (const cpu-vpow) (const cpu-pow)) a b))
 		((eql op 'clamp)
 			(cond
 				((not va) (list (const min) (list (const max) a b) c))
 				((list (const nums-min) (list (const nums-max) a
-						(if (shader-dim tb) b (cpu-splat-form b va)))
-					(if (shader-dim tc) c (cpu-splat-form c va))))))
+							(if (shader-dim tb) b (cpu-splat-form b va)))
+						(if (shader-dim tc) c (cpu-splat-form c va))))))
 		((eql op 'mix)
 			(list (cond ((not va) (const cpu-mix)) ((shader-dim tc) (const cpu-vmixv))
-				((const cpu-vmix))) a b c))
+					((const cpu-vmix))) a b c))
 		((eql op 'dot) (list (const nums-dot) a b))
 		((eql op 'cross) (list (const cpu-cross) a b))
 		((eql op 'length) (list (if va (const cpu-length) (const abs)) a))
@@ -254,22 +254,22 @@
 
 (defun cpu-expr (node)
 	(sh-fold node (lambda (node args)
-		(bind '(type tag a &optional b) node)
-		(case tag
-			(:lit (if (eql type :float) (str-to-real a) a))
-			(:var (if (eql b :const) (second (some (# (if (eql (first %0) a) %0)) cvals)) a))
-			;a texture, and a buffer, is a parameter of the lambda, by its name
-			(:tex a)
-			(:buf a)
-			(:swz (defq v (first args))
-				(cond
-					((= (length a) 1)
-						(cpu-fold (list (const elem-get) v (first a))))
-					((every (const =) a (range (first a) (+ (first a) (length a))))
-						(cpu-fold (list (const slice) v (first a) (inc (last a)))))
-					((cpu-fold (list (const cpu-swz) v (list (const quote) a))))))
-			(:user (cat (list (second (some (# (if (eql (first %0) a) %0)) fvals))) args))
-			(:t (cpu-fold (cpu-op a type args (map (const first) b))))))))
+			(bind '(type tag a &optional b) node)
+			(case tag
+				(:lit (if (eql type :float) (str-to-real a) a))
+				(:var (if (eql b :const) (second (some (# (if (eql (first %0) a) %0)) cvals)) a))
+				;a texture, and a buffer, is a parameter of the lambda, by its name
+				(:tex a)
+				(:buf a)
+				(:swz (defq v (first args))
+					(cond
+						((= (length a) 1)
+							(cpu-fold (list (const elem-get) v (first a))))
+						((every (const =) a (range (first a) (+ (first a) (length a))))
+							(cpu-fold (list (const slice) v (first a) (inc (last a)))))
+						((cpu-fold (list (const cpu-swz) v (list (const quote) a))))))
+				(:user (cat (list (second (some (# (if (eql (first %0) a) %0)) fvals))) args))
+				(:t (cpu-fold (cpu-op a type args (map (const first) b))))))))
 
 (defun cpu-exits? (block in_loop)
 	;does this block hold a return, or a break of the loop it is in ? The
@@ -278,11 +278,11 @@
 	(while (and (not found) (defq item (pop stack)))
 		(bind '(block in_loop) item)
 		(each (lambda ((tag &optional a b c d))
-			(case tag
-				(:return (setq found :t))
-				(:break (unless in_loop (setq found :t)))
-				(:if (push stack (list b in_loop) (list c in_loop)))
-				(:for (push stack (list d :t))))) block))
+				(case tag
+					(:return (setq found :t))
+					(:break (unless in_loop (setq found :t)))
+					(:if (push stack (list b in_loop) (list c in_loop)))
+					(:for (push stack (list d :t))))) block))
 	found)
 
 (defun cpu-loop-return? (block)
@@ -290,9 +290,9 @@
 	(defq stack (list block) found :nil)
 	(while (and (not found) (defq block (pop stack)))
 		(each (lambda ((tag &optional a b c d))
-			(case tag
-				(:if (push stack b c))
-				(:for (if (cpu-exits? d :t) (setq found :t))))) block))
+				(case tag
+					(:if (push stack b c))
+					(:for (if (cpu-exits? d :t) (setq found :t))))) block))
 	found)
 
 (defun cpu-block (block flag)
@@ -314,16 +314,16 @@
 				(:defq (push into (list (const defq) a (cpu-expr b))))
 				(:setq (push into (list (const setq) a (cpu-expr b))))
 				(:setsw (push into (list (const setq) a
-					(list (const cpu-swz-set) a (list (const quote) b) (cpu-expr c)))))
+							(list (const cpu-swz-set) a (list (const quote) b) (cpu-expr c)))))
 				(:return (setq going :nil)
 					;the main of a kernel returns nothing
 					(defq v (if a (cpu-expr a)))
 					(push into (if flag
-						(list (const setq) '_rv v flag :ret)
-						v)))
+							(list (const setq) '_rv v flag :ret)
+							v)))
 				(:elemset
 					(push into (list (if (eql (first c) :float) (const cpu-fset) (const cpu-iset))
-						a (cpu-expr b) (cpu-expr c))))
+							a (cpu-expr b) (cpu-expr c))))
 				(:break (setq going :nil)
 					(push into (list (const setq) flag :t)))
 				(:if (setq going :nil)
@@ -346,14 +346,14 @@
 						more (slice block (inc at) -1)
 						start (list (const defq) a (cpu-fold (list (const -) (cpu-expr b) 1)) loop_flag :nil)
 						body (list (const while) (list (const if) loop_flag :nil
-							(list (const <) (list (const setq) a (list (const +) a 1)) (cpu-expr c)))))
+								(list (const <) (list (const setq) a (list (const +) a 1)) (cpu-expr c)))))
 					(push into start body)
 					(cond
 						((cpu-exits? d :t)
 							;a return in the loop, so leave this block as well
 							(push into (list (const if) (list (const eql) loop_flag :ret)
-								(if flag (list (const setq) flag :ret) '_rv)
-								(defq after (list (const progn)))))
+									(if flag (list (const setq) flag :ret) '_rv)
+									(defq after (list (const progn)))))
 							(push stack (list more flag after)))
 						((push stack (list more flag into))))
 					(push stack (list d loop_flag body))))))
@@ -365,11 +365,11 @@
 	(setd entry 'main)
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(each (lambda ((name type e))
-		(push cvals (list name (if (cpu-const? (defq v (cpu-expr e))) v (eval v))))) consts)
+			(push cvals (list name (if (cpu-const? (defq v (cpu-expr e))) v (eval v))))) consts)
 	(each (lambda ((name type params block))
-		(push fvals (list name (cat (list (const lambda) (map (const first) params))
-			(if (cpu-loop-return? block) (list (list (const defq) '_rv :nil)) (list))
-			(cpu-block block :nil))))) funcs)
+			(push fvals (list name (cat (list (const lambda) (map (const first) params))
+						(if (cpu-loop-return? block) (list (list (const defq) '_rv :nil)) (list))
+						(cpu-block block :nil))))) funcs)
 	(second (some (# (if (eql (first %0) entry) %0)) fvals)))
 
 (defun shader-cpu-func (program name)
@@ -405,7 +405,7 @@
 						(static-qq (elem-get _verts _i))))
 				(map (lambda ((name type)) (list (const defq) name (cpu-zero type))) varyings)
 				(list (list (const push) '_out
-					(cat (list (const list) (list main)) (map (const first) varyings)))))
+						(cat (list (const list) (list main)) (map (const first) varyings)))))
 			'_out)))
 
 (defun shader-cpu (program)
@@ -420,8 +420,8 @@
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(defq cvals (list) fvals (list) flag_num 0 main (cpu-funcs program))
 	(cat (list (const lambda) (cat '(_x _y _x1 _y1) (map (const first) inputs)
-			(map (const first) (shader-varyings program))
-			(map (const first) (shader-textures program))))
+				(map (const first) (shader-varyings program))
+				(map (const first) (shader-textures program))))
 		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
 		(list
 			(static-qq (defq _out (list) _yy (- _y 1)))
@@ -429,7 +429,7 @@
 				(static-qq (defq _xx (- _x 1)))
 				(list (const while) (static-qq (< (setq _xx (+ _xx 1)) _x1))
 					(list (const push) '_out (list main
-						(static-qq (reals (+ (n2r _xx) ,+cpu_1/2) (+ (n2r _yy) ,+cpu_1/2))))))
+							(static-qq (reals (+ (n2r _xx) ,+cpu_1/2) (+ (n2r _yy) ,+cpu_1/2))))))
 				(static-qq (task-slice)))
 			'_out)))
 
@@ -443,7 +443,7 @@
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(defq cvals (list) fvals (list) flag_num 0 main (cpu-funcs program))
 	(cat (list (const lambda) (cat '(_from _to) (map (const first) (shader-buffers program))
-			(map (const first) inputs)))
+				(map (const first) inputs)))
 		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
 		(list
 			(static-qq (defq _i (- _from 1)))
@@ -453,16 +453,16 @@
 
 (defun cpu-number-args (program vals)
 	(map (lambda ((name type &optional val lo hi))
-		(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
-			(setq val (second v)))
-		;a varying has no default, it is 0
-		(unless val (setq val 0))
-		(cond
-			((eql type :int) (n2i val))
-			((eql type :float) (shader-real val))
-			((reals? val) val)
-			((apply (const reals) (map (const shader-real)
-				(if (seq? val) val (map (lambda (&) 0) (range 0 (shader-size type)))))))))
+			(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
+				(setq val (second v)))
+			;a varying has no default, it is 0
+			(unless val (setq val 0))
+			(cond
+				((eql type :int) (n2i val))
+				((eql type :float) (shader-real val))
+				((reals? val) val)
+				((apply (const reals) (map (const shader-real)
+							(if (seq? val) val (map (lambda (&) 0) (range 0 (shader-size type)))))))))
 		(cat (first program)
 			(if (eql (shader-stage program) :pixel) (shader-varyings program) (list)))))
 
@@ -475,8 +475,8 @@
 	;no picture at all for one not given
 	(cat (cpu-number-args program vals)
 		(map (lambda ((name))
-			(defq v (and (defq v (some (# (if (eql (first %0) name) %0)) vals)) (second v)))
-			(cond ((not v) (list 0 0 "")) ((list? v) v) ((shader-texture v))))
+				(defq v (and (defq v (some (# (if (eql (first %0) name) %0)) vals)) (second v)))
+				(cond ((not v) (list 0 0 "")) ((list? v) v) ((shader-texture v))))
 			(if (eql (shader-stage program) :pixel) (shader-textures program) (list)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -488,8 +488,8 @@
 	;behind it, crosses the plane, every number of the vertex
 	(defq at (/ da (- da db)))
 	(map (# (if (real? %0)
-		(+ %0 (* (- %1 %0) at))
-		(nums-add %0 (nums-scale (nums-sub %1 %0) at)))) a b))
+				(+ %0 (* (- %1 %0) at))
+				(nums-add %0 (nums-scale (nums-sub %1 %0) at)))) a b))
 
 (defun cpu-near-cut (vs)
 	; (cpu-near-cut (v0 v1 v2)) -> ((v0 v1 v2) ...)
@@ -502,8 +502,8 @@
 		((= count 3) (list vs))
 		(:t ;taken round till the one in front is first, or the one behind last
 			(defq turn (if (= count 1)
-				(some (# (if %0 (!))) ins)
-				(% (inc (some (# (unless %0 (!))) ins)) 3)))
+					(some (# (if %0 (!))) ins)
+					(% (inc (some (# (unless %0 (!))) ins)) 3)))
 			(bind '(a b c) (map (# (elem-get vs (% (+ %0 turn) 3))) '(0 1 2)))
 			(bind '(da db dc) (map (# (elem-get ds (% (+ %0 turn) 3))) '(0 1 2)))
 			(if (= count 1)
@@ -529,9 +529,9 @@
 		stride (reduce (const +) sizes 0) at 0
 		;each vertex as a list of its attrs
 		vlist (map (lambda (v)
-			(setq at (* v stride))
-			(map (lambda (n) (defq a (slice verts at (+ at n)))
-				(setq at (+ at n)) (if (= n 1) (first a) a)) sizes))
+				(setq at (* v stride))
+				(map (lambda (n) (defq a (slice verts at (+ at n)))
+						(setq at (+ at n)) (if (= n 1) (first a) a)) sizes))
 			(range 0 (/ (length verts) (max stride 1))))
 		placed (apply (eval (shader-cpu-vertex vertex)) (cat (list vlist) (shader-cpu-args vertex vvals)))
 		shade (eval (shader-cpu pixel)) pargs (shader-cpu-args pixel pvals)
@@ -539,67 +539,67 @@
 		texs (slice pargs (- (length pargs) (length (shader-textures pixel))) -1)
 		;where in what a vertex was placed as each varying of the pixel shader is
 		picks (map (lambda ((name type))
-			(inc (some (# (if (eql (first %0) name) (!))) (shader-varyings vertex))))
+				(inc (some (# (if (eql (first %0) name) (!))) (shader-varyings vertex))))
 			(shader-varyings pixel))
 		out (str-alloc (* width height 4)) depth (map (lambda (&) +cpu_2) (range 0 (* width height)))
 		fw (n2r width) fh (n2r height))
 	(each (# (set-long out %0 0)) (range 0 (length out) 8))
 	(each (lambda ((i0 i1 i2 &rest _))
-		(each (lambda (vs)
-		(defq ws (map (# (elem-get (first %0) 3)) vs))
-		(when (every (# (> %0 (const (str-to-real "0.000001")))) ws)
-			(defq iw (map (const recip) ws)
-				sx (map (# (* (+ (* (first (first %0)) %1) +cpu_1) +cpu_1/2 fw)) vs iw)
-				sy (map (# (* (- +cpu_1 (* (second (first %0)) %1)) +cpu_1/2 fh)) vs iw)
-				zs (map (# (* (third (first %0)) %1)) vs iw))
-			(bind '(x0 x1s x2) sx) (bind '(y0 y1s y2) sy)
-			(defq area (- (* (- x1s x0) (- y2 y0)) (* (- y1s y0) (- x2 x0))))
-			(unless (or (= area +cpu_0)
-					(and cull (if (eql cull :front) (< area +cpu_0) (> area +cpu_0))))
-				;the share of each vertex at a point, as the native code has
-				;it, a number for the corner of the screen and a step for a
-				;pixel along and a pixel down, in the same order of working
-				(defq ia (recip area)
-					edges (map (lambda (ax ay bx by)
-						(defq dx (- bx ax) dy (- by ay))
-						(list (* (- (* dy ax) (* dx ay)) ia) (neg (* dy ia)) (* dx ia)))
-						(list x1s x2 x0) (list y1s y2 y0) (list x2 x0 x1s) (list y2 y0 y1s)))
-				(each (lambda (py)
-					(defq fy (+ (n2r py) +cpu_1/2)
-						rows (map (lambda ((at kx ky)) (+ (* ky fy) at)) edges))
-					(each (lambda (px)
-						(defq fx (+ (n2r px) +cpu_1/2))
-						(bind '(b0 b1 b2) (map (lambda ((at kx ky) row) (+ (* kx fx) row)) edges rows))
-						(when (and (>= b0 +cpu_0) (>= b1 +cpu_0) (>= b2 +cpu_0))
-							(defq z (+ (* b0 (first zs)) (* b1 (second zs)) (* b2 (third zs)))
-								di (+ (* py width) px))
-							(when (and (>= z +cpu_-1) (<= z +cpu_1) (< z (elem-get depth di)))
-								(defq q0 (* b0 (first iw)) q1 (* b1 (second iw)) q2 (* b2 (third iw))
-									r (recip (+ q0 q1 q2)) q0 (* q0 r) q1 (* q1 r) q2 (* q2 r)
-									vary (map (lambda (pick)
-										(defq a (elem-get (first vs) pick) b (elem-get (second vs) pick)
-											c (elem-get (third vs) pick))
-										(if (real? a)
-											(+ (* a q0) (* b q1) (* c q2))
-											(nums-add (nums-add (nums-scale a q0) (nums-scale b q1))
-												(nums-scale c q2)))) picks)
-									col (first (apply shade (cat (list px (- height 1 py) (inc px) (- height py))
-										inputs vary texs))))
-								;alpha of 0 is not drawn, full on is written,
-								;and between goes over what is there as
-								;:canvas :plot has it, in whole numbers
-								(defq alpha (n2i (* (min (max (elem-get col 3) +cpu_0) +cpu_1) (const (n2r 255))))
-									pixel (reduce! (# (+ (<< %0 8)
-										(n2i (* (min (max %1 +cpu_0) +cpu_1) (const (n2r 255)))))) (list col) 0xff 0 3))
-								(when (/= alpha 0)
-									(when (/= alpha 255)
-										(setq pixel (+ (<< alpha 24)
-											(cpu-share (logand pixel 0xffffff) (+ alpha (>> alpha 7)))
-											(cpu-share (get-uint out (* di 4)) (- 255 alpha)))))
-									(elem-set depth di z)
-									(set-int out (* di 4) pixel)))))
-						(range (max x 0) (min x1 width))))
-					(range (max y 0) (min y1 height))))))
-			(cpu-near-cut (list (elem-get placed i0) (elem-get placed i1) (elem-get placed i2)))))
+			(each (lambda (vs)
+					(defq ws (map (# (elem-get (first %0) 3)) vs))
+					(when (every (# (> %0 (const (str-to-real "0.000001")))) ws)
+						(defq iw (map (const recip) ws)
+							sx (map (# (* (+ (* (first (first %0)) %1) +cpu_1) +cpu_1/2 fw)) vs iw)
+							sy (map (# (* (- +cpu_1 (* (second (first %0)) %1)) +cpu_1/2 fh)) vs iw)
+							zs (map (# (* (third (first %0)) %1)) vs iw))
+						(bind '(x0 x1s x2) sx) (bind '(y0 y1s y2) sy)
+						(defq area (- (* (- x1s x0) (- y2 y0)) (* (- y1s y0) (- x2 x0))))
+						(unless (or (= area +cpu_0)
+								(and cull (if (eql cull :front) (< area +cpu_0) (> area +cpu_0))))
+							;the share of each vertex at a point, as the native code has
+							;it, a number for the corner of the screen and a step for a
+							;pixel along and a pixel down, in the same order of working
+							(defq ia (recip area)
+								edges (map (lambda (ax ay bx by)
+										(defq dx (- bx ax) dy (- by ay))
+										(list (* (- (* dy ax) (* dx ay)) ia) (neg (* dy ia)) (* dx ia)))
+									(list x1s x2 x0) (list y1s y2 y0) (list x2 x0 x1s) (list y2 y0 y1s)))
+							(each (lambda (py)
+									(defq fy (+ (n2r py) +cpu_1/2)
+										rows (map (lambda ((at kx ky)) (+ (* ky fy) at)) edges))
+									(each (lambda (px)
+											(defq fx (+ (n2r px) +cpu_1/2))
+											(bind '(b0 b1 b2) (map (lambda ((at kx ky) row) (+ (* kx fx) row)) edges rows))
+											(when (and (>= b0 +cpu_0) (>= b1 +cpu_0) (>= b2 +cpu_0))
+												(defq z (+ (* b0 (first zs)) (* b1 (second zs)) (* b2 (third zs)))
+													di (+ (* py width) px))
+												(when (and (>= z +cpu_-1) (<= z +cpu_1) (< z (elem-get depth di)))
+													(defq q0 (* b0 (first iw)) q1 (* b1 (second iw)) q2 (* b2 (third iw))
+														r (recip (+ q0 q1 q2)) q0 (* q0 r) q1 (* q1 r) q2 (* q2 r)
+														vary (map (lambda (pick)
+																(defq a (elem-get (first vs) pick) b (elem-get (second vs) pick)
+																	c (elem-get (third vs) pick))
+																(if (real? a)
+																	(+ (* a q0) (* b q1) (* c q2))
+																	(nums-add (nums-add (nums-scale a q0) (nums-scale b q1))
+																		(nums-scale c q2)))) picks)
+														col (first (apply shade (cat (list px (- height 1 py) (inc px) (- height py))
+																	inputs vary texs))))
+													;alpha of 0 is not drawn, full on is written,
+													;and between goes over what is there as
+													;:canvas :plot has it, in whole numbers
+													(defq alpha (n2i (* (min (max (elem-get col 3) +cpu_0) +cpu_1) (const (n2r 255))))
+														pixel (reduce! (# (+ (<< %0 8)
+																	(n2i (* (min (max %1 +cpu_0) +cpu_1) (const (n2r 255)))))) (list col) 0xff 0 3))
+													(when (/= alpha 0)
+														(when (/= alpha 255)
+															(setq pixel (+ (<< alpha 24)
+																	(cpu-share (logand pixel 0xffffff) (+ alpha (>> alpha 7)))
+																	(cpu-share (get-uint out (* di 4)) (- 255 alpha)))))
+														(elem-set depth di z)
+														(set-int out (* di 4) pixel)))))
+										(range (max x 0) (min x1 width))))
+								(range (max y 0) (min y1 height))))))
+				(cpu-near-cut (list (elem-get placed i0) (elem-get placed i1) (elem-get placed i2)))))
 		(partition tris tri_size))
 	out)

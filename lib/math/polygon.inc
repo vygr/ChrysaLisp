@@ -73,16 +73,16 @@
 	;the edges of a set, each (ytop ybot xtop xbot wind set), those that
 	;lie flat left out, and every y a point is at
 	(each (lambda (p)
-		(defq n (length p))
-		(when (>= n 6)
-			(defq x0 (elem-get p (- n 2)) y0 (elem-get p (- n 1)) i 0)
-			(while (< i n)
-				(defq x1 (elem-get p i) y1 (elem-get p (inc i)))
-				(push ys y1)
-				(cond
-					((< y0 y1) (push edges (list y0 y1 x0 x1 1 set)))
-					((> y0 y1) (push edges (list y1 y0 x1 x0 -1 set))))
-				(setq x0 x1 y0 y1 i (+ i 2)))))
+			(defq n (length p))
+			(when (>= n 6)
+				(defq x0 (elem-get p (- n 2)) y0 (elem-get p (- n 1)) i 0)
+				(while (< i n)
+					(defq x1 (elem-get p i) y1 (elem-get p (inc i)))
+					(push ys y1)
+					(cond
+						((< y0 y1) (push edges (list y0 y1 x0 x1 1 set)))
+						((> y0 y1) (push edges (list y1 y0 x1 x0 -1 set))))
+					(setq x0 x1 y0 y1 i (+ i 2)))))
 		raw)
 	edges)
 
@@ -110,13 +110,13 @@
 	(defq n (length active) i 0)
 	;where each is at the top and the bottom of the band, its ends as they are
 	(each (lambda (e)
-		(defq o (* e +poly_edge) yt (elem-get edges o) yb (elem-get edges (+ o +poly_yb))
-			xt (elem-get edges (+ o +poly_xt)) xb (elem-get edges (+ o +poly_xb))
-			x0 (cond ((= y0 yt) xt) ((= y0 yb) xb) (:t (+ xt (/ (* (- xb xt) (- y0 yt)) (- yb yt)))))
-			x1 (cond ((= y1 yt) xt) ((= y1 yb) xb) (:t (+ xt (/ (* (- xb xt) (- y1 yt)) (- yb yt))))))
-		(elem-set edges (+ o +poly_x0) x0)
-		(elem-set edges (+ o +poly_x1) x1)
-		(elem-set edges (+ o +poly_key) (if by_middle (+ x0 x1) x0)))
+			(defq o (* e +poly_edge) yt (elem-get edges o) yb (elem-get edges (+ o +poly_yb))
+				xt (elem-get edges (+ o +poly_xt)) xb (elem-get edges (+ o +poly_xb))
+				x0 (cond ((= y0 yt) xt) ((= y0 yb) xb) (:t (+ xt (/ (* (- xb xt) (- y0 yt)) (- yb yt)))))
+				x1 (cond ((= y1 yt) xt) ((= y1 yb) xb) (:t (+ xt (/ (* (- xb xt) (- y1 yt)) (- yb yt))))))
+			(elem-set edges (+ o +poly_x0) x0)
+			(elem-set edges (+ o +poly_x1) x1)
+			(elem-set edges (+ o +poly_key) (if by_middle (+ x0 x1) x0)))
 		active)
 	;in order, each put back past those that are after it. They were in
 	;order in the band above, so few move, and not far
@@ -137,8 +137,8 @@
 	(unless by_middle
 		(defq top +min_long)
 		(each (lambda (e)
-			(defq x (elem-get edges (+ (* e +poly_edge) +poly_x1)))
-			(if (< x top) (setq cross :t) (setq top x)))
+				(defq x (elem-get edges (+ (* e +poly_edge) +poly_x1)))
+				(if (< x top) (setq cross :t) (setq top x)))
 			active))
 	(cond
 		(cross :nil)
@@ -146,31 +146,31 @@
 			(defq wa 0 wb 0 inside 0 px0 +min_long px1 +min_long
 				gx0 0 gx1 0 gid -1 lx0 0 lx1 0 lid 0 op (logand mode 3))
 			(each (lambda (e)
-				;none is to the left of the one before it, at either end
-				(defq o (* e +poly_edge) x0 (max (elem-get edges (+ o +poly_x0)) px0)
-					x1 (max (elem-get edges (+ o +poly_x1)) px1))
-				(setq px0 x0 px1 x1)
-				(cond
-					((and (>= gid 0) (<= (- x0 gx0) +poly_near) (<= (- x1 gx1) +poly_near))
-						;one edge with the last
-						(setq gid (min gid (elem-get edges (+ o +poly_id)))))
-					(:t (when (>= gid 0)
-							;is what is wound round here in the answer
-							(defq ia (if (= 0 (logand mode +poly_mode_a)) (logand wa 1) (if (= wa 0) 0 1))
-								ib (if (= 0 (logand mode +poly_mode_b)) (logand wb 1) (if (= wb 0) 0 1))
-								now (case op
-									(0 (logior ia ib))
-									(1 (logand ia ib))
-									(2 (logand ia (logxor ib 1)))
-									(:t (logxor ia ib))))
-							(cond
-								((= now inside))
-								((= now 1) (setq lx0 gx0 lx1 gx1 lid gid inside 1))
-								(:t (push out lx0 lx1 gx0 gx1 lid gid) (setq inside 0))))
-						(setq gx0 x0 gx1 x1 gid (elem-get edges (+ o +poly_id)))))
-				(if (= (elem-get edges (+ o +poly_set)) 0)
-					(setq wa (+ wa (elem-get edges (+ o +poly_wind))))
-					(setq wb (+ wb (elem-get edges (+ o +poly_wind))))))
+					;none is to the left of the one before it, at either end
+					(defq o (* e +poly_edge) x0 (max (elem-get edges (+ o +poly_x0)) px0)
+						x1 (max (elem-get edges (+ o +poly_x1)) px1))
+					(setq px0 x0 px1 x1)
+					(cond
+						((and (>= gid 0) (<= (- x0 gx0) +poly_near) (<= (- x1 gx1) +poly_near))
+							;one edge with the last
+							(setq gid (min gid (elem-get edges (+ o +poly_id)))))
+						(:t (when (>= gid 0)
+								;is what is wound round here in the answer
+								(defq ia (if (= 0 (logand mode +poly_mode_a)) (logand wa 1) (if (= wa 0) 0 1))
+									ib (if (= 0 (logand mode +poly_mode_b)) (logand wb 1) (if (= wb 0) 0 1))
+									now (case op
+										(0 (logior ia ib))
+										(1 (logand ia ib))
+										(2 (logand ia (logxor ib 1)))
+										(:t (logxor ia ib))))
+								(cond
+									((= now inside))
+									((= now 1) (setq lx0 gx0 lx1 gx1 lid gid inside 1))
+									(:t (push out lx0 lx1 gx0 gx1 lid gid) (setq inside 0))))
+							(setq gx0 x0 gx1 x1 gid (elem-get edges (+ o +poly_id)))))
+					(if (= (elem-get edges (+ o +poly_set)) 0)
+						(setq wa (+ wa (elem-get edges (+ o +poly_wind))))
+						(setq wb (+ wb (elem-get edges (+ o +poly_wind))))))
 				active)
 			;after the last edge nothing is wound round, so a piece that is open ends at it
 			(and (>= gid 0) (= inside 1) (push out lx0 lx1 gx0 gx1 lid gid))
@@ -383,14 +383,14 @@
 	;in two parts, so nothing is lost and nothing runs out of room
 	(defq high 0 low 0)
 	(each (lambda (p)
-		(defq n (length p))
-		(when (>= n 6)
-			(defq ox (first p) oy (second p) x0 (- (elem-get p (- n 2)) ox) y0 (- (elem-get p (- n 1)) oy) i 0)
-			(while (< i n)
-				(defq x1 (- (elem-get p i) ox) y1 (- (elem-get p (inc i)) oy)
-					cross (- (* x0 y1) (* x1 y0)))
-				(setq high (+ high (>>> cross 16)) low (+ low (logand cross 0xffff))
-					x0 x1 y0 y1 i (+ i 2)))))
+			(defq n (length p))
+			(when (>= n 6)
+				(defq ox (first p) oy (second p) x0 (- (elem-get p (- n 2)) ox) y0 (- (elem-get p (- n 1)) oy) i 0)
+				(while (< i n)
+					(defq x1 (- (elem-get p i) ox) y1 (- (elem-get p (inc i)) oy)
+						cross (- (* x0 y1) (* x1 y0)))
+					(setq high (+ high (>>> cross 16)) low (+ low (logand cross 0xffff))
+						x0 x1 y0 y1 i (+ i 2)))))
 		(poly-raw paths))
 	(poly-num (abs (>>> (+ high (>>> low 16)) 1))))
 
@@ -401,11 +401,11 @@
 	;do. Points that are all in one line give the two ends of it
 	(defq keys (list))
 	(each (lambda (p)
-		(defq i 0 n (length p))
-		(while (< i n)
-			;a point as one number, to sort by x and then y
-			(push keys (+ (<< (elem-get p i) 32) (+ (elem-get p (inc i)) 0x80000000)))
-			(setq i (+ i 2))))
+			(defq i 0 n (length p))
+			(while (< i n)
+				;a point as one number, to sort by x and then y
+				(push keys (+ (<< (elem-get p i) 32) (+ (elem-get p (inc i)) 0x80000000)))
+				(setq i (+ i 2))))
 		(poly-raw paths))
 	(setq keys (usort keys (const -)))
 	(defq xs (map (# (>>> %0 32)) keys) ys (map (# (- (logand %0 0xffffffff) 0x80000000)) keys)
@@ -437,12 +437,12 @@
 	;numbers each, where one starts and where it ends
 	(defq out (nums))
 	(each (lambda (p)
-		(defq n (length p) ax (elem-get p (- n 2)) ay (elem-get p (- n 1)) i 0)
-		(while (< i n)
-			(defq bx (elem-get p i) by (elem-get p (inc i)))
-			(unless (or (< (max ax bx) x0) (> (min ax bx) x1) (< (max ay by) y0) (> (min ay by) y1))
-				(push out ax ay bx by))
-			(setq ax bx ay by i (+ i 2))))
+			(defq n (length p) ax (elem-get p (- n 2)) ay (elem-get p (- n 1)) i 0)
+			(while (< i n)
+				(defq bx (elem-get p i) by (elem-get p (inc i)))
+				(unless (or (< (max ax bx) x0) (> (min ax bx) x1) (< (max ay by) y0) (> (min ay by) y1))
+					(push out ax ay bx by))
+				(setq ax bx ay by i (+ i 2))))
 		raw)
 	out)
 
@@ -469,10 +469,10 @@
 			box (lambda (raw)
 				(defq x0 (first (first raw)) y0 (second (first raw)) x1 x0 y1 y0)
 				(each (lambda (p)
-					(defq i 0 n (length p))
-					(while (< i n)
-						(defq x (elem-get p i) y (elem-get p (inc i)))
-						(setq x0 (min x0 x) x1 (max x1 x) y0 (min y0 y) y1 (max y1 y) i (+ i 2))))
+						(defq i 0 n (length p))
+						(while (< i n)
+							(defq x (elem-get p i) y (elem-get p (inc i)))
+							(setq x0 (min x0 x) x1 (max x1 x) y0 (min y0 y) y1 (max y1 y) i (+ i 2))))
 					raw)
 				(list x0 y0 x1 y1)))
 		(bind '(ax0 ay0 ax1 ay1) (box ra))
@@ -502,8 +502,8 @@
 			;no edge meets an edge. Is a path of the one in the other
 			(unless hit
 				(setq hit (or
-					(some (# (vector-point-in-polygon (slice %0 0 2) b mode_b)) a)
-					(some (# (vector-point-in-polygon (slice %0 0 2) a mode_a)) b)))
+						(some (# (vector-point-in-polygon (slice %0 0 2) b mode_b)) a)
+						(some (# (vector-point-in-polygon (slice %0 0 2) a mode_a)) b)))
 				(if hit (setq hit :t)))))
 	hit)
 

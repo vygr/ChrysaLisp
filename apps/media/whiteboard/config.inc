@@ -54,14 +54,14 @@
 		;of its button, and in select mode the mouse drew. Nor one of the
 		;middle of the mouse, which is pan, a press of it binds both buttons
 		(if (list? bound) (reach (lambda ((kind id buttons what))
-				(unless (or (eql buttons 0) (and (eql kind :mouse) (eql buttons +pev_middle)))
-					;in place of one the board has of the same, not beside it.
-					;Kept before the pens were by number, an ink is the pen
-					;that has it, if one does
-					(defq what (cat what))
-					(and (defq at (ptr-at what :color)) (defq pen (find (elem-get what at) *pens_default*))
-						(setq what (cat (slice what 0 (dec at)) (list :pen pen) (slice what (inc at) -1))))
-					(.-> (. *board* :get_bindings) (:unbind kind id buttons) (:bind kind id buttons what)))) bound))
+					(unless (or (eql buttons 0) (and (eql kind :mouse) (eql buttons +pev_middle)))
+						;in place of one the board has of the same, not beside it.
+						;Kept before the pens were by number, an ink is the pen
+						;that has it, if one does
+						(defq what (cat what))
+						(and (defq at (ptr-at what :color)) (defq pen (find (elem-get what at) *pens_default*))
+							(setq what (cat (slice what 0 (dec at)) (list :pen pen) (slice what (inc at) -1))))
+						(.-> (. *board* :get_bindings) (:unbind kind id buttons) (:bind kind id buttons what)))) bound))
 		(and data (defq doc (cwb-in data))
 			(. *board* :set_doc doc))
 		;how it was seen is kept with the document
@@ -94,7 +94,7 @@
 (defun config-load ()
 	; (config-load) -> :nil | (x y width height scroll_x scroll_y)
 	(config-apply (with-read-lock +config_file
-		(catch (tree-load (file-stream +config_file)) :t))))
+			(catch (tree-load (file-stream +config_file)) :t))))
 
 (defun config-save ()
 	(defq config (config-state))

@@ -39,7 +39,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default))))
 
@@ -55,26 +55,26 @@
 	;one kept in the layout that is no longer on the disk, an app taken out
 	;of the system, goes from it
 	(. categories :each (lambda (name cat_data)
-		(. cat_data :update :apps (lambda (apps) (filter (# (find %0 disk_names)) apps)))))
+			(. cat_data :update :apps (lambda (apps) (filter (# (find %0 disk_names)) apps)))))
 	(each (lambda (app_path)
-		(defq app_name (path-name app_path) found :nil)
-		(. name_to_path_map :insert app_name app_path)
-		(. categories :each (lambda (name cat_data)
-			(if (find app_name (. cat_data :find :apps)) (setq found :t))))
-		;one new since the layout was kept goes where the default has it, if
-		;that is there, else with the others no category has
-		(unless found
-			(defq home (some (lambda ((name cat_data))
-					(and (find app_name (. cat_data :find :apps)) (. categories :find name) name))
-				(. (. (config-default) :find :categories) :tolist)))
-			(when home
-				(. (. categories :find home) :update :apps (# (push %0 app_name)))
-				(setq found :t)))
-		(unless found
-			(. categories :update 'Generic (lambda (generic_cat)
-				(if generic_cat
-					(progn (. generic_cat :update :apps (# (sort (push %0 app_name)))) generic_cat)
-					(scatter (Emap) :collapsed :nil :apps (list app_name)))))))
+			(defq app_name (path-name app_path) found :nil)
+			(. name_to_path_map :insert app_name app_path)
+			(. categories :each (lambda (name cat_data)
+					(if (find app_name (. cat_data :find :apps)) (setq found :t))))
+			;one new since the layout was kept goes where the default has it, if
+			;that is there, else with the others no category has
+			(unless found
+				(defq home (some (lambda ((name cat_data))
+							(and (find app_name (. cat_data :find :apps)) (. categories :find name) name))
+						(. (. (config-default) :find :categories) :tolist)))
+				(when home
+					(. (. categories :find home) :update :apps (# (push %0 app_name)))
+					(setq found :t)))
+			(unless found
+				(. categories :update 'Generic (lambda (generic_cat)
+						(if generic_cat
+							(progn (. generic_cat :update :apps (# (sort (push %0 app_name)))) generic_cat)
+							(scatter (Emap) :collapsed :nil :apps (list app_name)))))))
 		disk_apps))
 
 (defun app-path (app_path)
@@ -87,12 +87,12 @@
 		(ui-root cat_flow (Flow) (:flow_flags +flow_down_fill :cat_name app_name)
 			(ui-flow header (:flow_flags +flow_right_fill)
 				(. (ui-button toggle (:text (num-to-utf8 (if collapsed +sym_next +sym_up))
-						:paper :paper_title :font :font_title_buttons))
+							:paper :paper_title :font :font_title_buttons))
 					:connect +event_toggle)
 				(ui-title title (:text app_name :paper :paper_title)))
 			(ui-grid app_grid (:grid_width columns)
 				(each (lambda (app)
-					(. (ui-button _ (:text app)) :connect +event_launch))
+						(. (ui-button _ (:text app)) :connect +event_launch))
 					apps)))
 		(. app_grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
 		(. *main_flow* :add_child cat_flow)))
@@ -115,7 +115,7 @@
 	(defq categories (. *config* :find :categories)
 		columns (. *config* :find :columns))
 	(. categories :each (lambda (cat_name cat_data)
-		(make-category cat_data cat_name columns))))
+			(make-category cat_data cat_name columns))))
 
 ; Main Window Layout
 (ui-window *window* (:resizable :nil)

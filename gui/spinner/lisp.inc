@@ -41,5 +41,4 @@
 		(lower :value)
 		(set value_label :text (str value))
 		(.-> value_label (:constrain :r) :dirty)
-		(. this :emit))
-	)
+		(. this :emit)))

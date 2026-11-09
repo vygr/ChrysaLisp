@@ -84,7 +84,7 @@
 
 	(vp-alloc slot_size)
 	(entry :host_net :recv_all `((:rsp ,(+ slot_cb cb_recv_handle)) (:rsp ,(+ slot_cb cb_recv_buf))
-		(:rsp ,(+ slot_cb cb_recv_remaining)) (:rsp slot_lk_node)))
+			(:rsp ,(+ slot_cb cb_recv_remaining)) (:rsp slot_lk_node)))
 	(assign '(100) '(:r0))
 	(assign '(:r0) '((:rsp slot_sleep_time)))
 
@@ -368,7 +368,7 @@
 	(vp-rdef (node zero one))
 	(assign '((& :rsp slot_lk_node) 0 1) `(,node ,zero ,one))
 	(save-fields node
-			`(lk_node_task_count lk_node_peer_pid lk_node_sent lk_node_remote
+		`(lk_node_task_count lk_node_peer_pid lk_node_sent lk_node_remote
 			,(+ lk_node_peer_node_id +node_id_node1)
 			,(+ lk_node_peer_node_id +node_id_node2)
 			,(+ lk_node_peer_system_id +node_id_node1)
@@ -644,7 +644,7 @@
 		(assign '((:rsp slot_msg) (& :rsp slot_frag_pkt)) `(,msg ,frag_pkt))
 		(assign-fields
 			msg
-				`(+msg_length +msg_offset +msg_total
+			`(+msg_length +msg_offset +msg_total
 				,(+ +msg_dest +net_id_mbox_id)
 				,(+ +msg_dest +net_id_node_id +node_id_node1)
 				,(+ +msg_dest +net_id_node_id +node_id_node2)
@@ -652,7 +652,7 @@
 				,(+ +msg_src +net_id_node_id +node_id_node1)
 				,(+ +msg_src +net_id_node_id +node_id_node2))
 			frag_pkt
-				`(+net_frag_pkt_length +net_frag_pkt_offset +net_frag_pkt_total
+			`(+net_frag_pkt_length +net_frag_pkt_offset +net_frag_pkt_total
 				,(+ +net_frag_pkt_dest +net_id_mbox_id)
 				,(+ +net_frag_pkt_dest +net_id_node_id +node_id_node1)
 				,(+ +net_frag_pkt_dest +net_id_node_id +node_id_node2)
@@ -732,7 +732,7 @@
 	(vp-rdef (node cnt zero))
 	(assign '((:rsp slot_lk_node) -1 0) `(,node ,cnt ,zero))
 	(save-fields node
-			`(lk_node_task_count
+		`(lk_node_task_count
 			,(+ lk_node_peer_node_id +node_id_node1)
 			,(+ lk_node_peer_node_id +node_id_node2)
 			,(+ lk_node_peer_system_id +node_id_node1)
@@ -876,13 +876,13 @@
 	(assign '((& :rsp slot_ping_payload) (:rsp slot_lk_node)) `(,src ,dst))
 	(assign-fields
 		src
-			`(lk_node_task_count
+		`(lk_node_task_count
 			,(+ lk_node_peer_node_id +node_id_node1)
 			,(+ lk_node_peer_node_id +node_id_node2)
 			,(+ lk_node_peer_system_id +node_id_node1)
 			,(+ lk_node_peer_system_id +node_id_node2))
 		dst
-			`(lk_node_task_count
+		`(lk_node_task_count
 			,(+ lk_node_peer_node_id +node_id_node1)
 			,(+ lk_node_peer_node_id +node_id_node2)
 			,(+ lk_node_peer_system_id +node_id_node1)
@@ -942,7 +942,7 @@
 		(load-fields :rsp '(slot_msg slot_frag_buf) `(,msg ,rx_frag))
 		(assign-fields
 			rx_frag
-				`(lk_frag_length lk_frag_offset lk_frag_total
+			`(lk_frag_length lk_frag_offset lk_frag_total
 				,(+ lk_frag_dest +net_id_mbox_id)
 				,(+ lk_frag_dest +net_id_node_id +node_id_node1)
 				,(+ lk_frag_dest +net_id_node_id +node_id_node2)
@@ -950,7 +950,7 @@
 				,(+ lk_frag_src +net_id_node_id +node_id_node1)
 				,(+ lk_frag_src +net_id_node_id +node_id_node2))
 			msg
-				`(+msg_length +msg_offset +msg_total
+			`(+msg_length +msg_offset +msg_total
 				,(+ +msg_dest +net_id_mbox_id)
 				,(+ +msg_dest +net_id_node_id +node_id_node1)
 				,(+ +msg_dest +net_id_node_id +node_id_node2)
@@ -984,7 +984,7 @@
 	(vp-rdef (node cnt zero))
 	(assign '((:rsp slot_lk_node) -1 0) `(,node ,cnt ,zero))
 	(save-fields node
-			`(lk_node_task_count
+		`(lk_node_task_count
 			,(+ lk_node_peer_node_id +node_id_node1)
 			,(+ lk_node_peer_node_id +node_id_node2)
 			,(+ lk_node_peer_system_id +node_id_node1)

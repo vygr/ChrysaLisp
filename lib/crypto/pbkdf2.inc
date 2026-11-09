@@ -25,8 +25,8 @@
 	;top byte first
 	(defq out (str-alloc 32))
 	(each (# (defq word (get-uint state %0))
-		(set-int out %0 (logior (<< (logand word 0xff) 24) (<< (logand word 0xff00) 8)
-			(logand (>> word 8) 0xff00) (>> word 24))))
+			(set-int out %0 (logior (<< (logand word 0xff) 24) (<< (logand word 0xff00) 8)
+					(logand (>> word 8) 0xff00) (>> word 24))))
 		(static-q (0 4 8 12 16 20 24 28)))
 	out)
 
@@ -49,16 +49,16 @@
 		;the first time round is of the salt and the number of the block,
 		;which is of any length, so it goes the long way
 		(defq u (pbkdf2-bytes (sha256-blocks (cat outer)
-				(cat (sha256-end (sha256-add (list (cat inner) "" 64)
-					(cat salt (char-be block_num 4))))
-					+pbkdf2_tail) 0 1))
+					(cat (sha256-end (sha256-add (list (cat inner) "" 64)
+								(cat salt (char-be block_num 4))))
+						+pbkdf2_tail) 0 1))
 			total (cat u))
 		;each time after is of the 32 bytes of the time before, and all of
 		;them are xored together
 		(times (dec count)
 			(setq u (pbkdf2-bytes (sha256-blocks (cat outer)
-				(cat (pbkdf2-bytes (sha256-blocks (cat inner) (cat u +pbkdf2_tail) 0 1))
-					+pbkdf2_tail) 0 1)))
+						(cat (pbkdf2-bytes (sha256-blocks (cat inner) (cat u +pbkdf2_tail) 0 1))
+							+pbkdf2_tail) 0 1)))
 			(each (# (set-long total %0 (logxor (get-long total %0) (get-long u %0))))
 				(static-q (0 8 16 24)))
 			;a long count gives the other tasks of the node a turn

@@ -452,12 +452,12 @@
 			((> (/ dw sw) 2)
 				;fractional multiply
 				(defq pipe `((vp-cpy-rr ,col ,dr)
-					(vp-and-cr ,sm ,dr) (vp-mul-cr ,(/ dm sm) ,dr)))
+						(vp-and-cr ,sm ,dr) (vp-mul-cr ,(/ dm sm) ,dr)))
 				(if (/= sw 1) (push pipe `(vp-cpy-cr ,dm ,sr) `(vp-and-rr ,sr ,dr))))
 			(:t ;left bit replicate
 				(defq ls (- (nlz sm) (nlz dm)) pipe
-					`((vp-cpy-rr ,col ,sr) (vp-and-cr ,sm ,sr)
-					(vp-shl-cr ,ls ,sr) (vp-cpy-rr ,sr ,dr))
+						`((vp-cpy-rr ,col ,sr) (vp-and-cr ,sm ,sr)
+							(vp-shl-cr ,ls ,sr) (vp-cpy-rr ,sr ,dr))
 					dw (- dw sw) sm (>> (<< sm ls) sw))
 				(while (> dw 0)
 					(push pipe `(vp-shr-cr ,sw ,sr) `(vp-add-rr ,sr ,dr))

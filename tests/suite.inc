@@ -86,7 +86,7 @@
 	;one, with where it is, file:line, if it is known
 	(++ *test_seq*)
 	(if *test_report* (mail-send *test_report*
-		(cat *test_file* " " (str *test_seq*) " " (ifn where "-") " " name))))
+			(cat *test_file* " " (str *test_seq*) " " (ifn where "-") " " name))))
 
 (defun test-note (text)
 	; (test-note text)
@@ -201,7 +201,7 @@
 	;content. Each case is named by the text of its form.
 	(defq where (test-where))
 	(cat '(progn) (map (lambda ((form expected))
-		(list 'test-check (str form) expected form where)) (partition cases 2))))
+				(list 'test-check (str form) expected form where)) (partition cases 2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; the cache of results
@@ -301,29 +301,29 @@
 		(setq *test_cmds* (map (# (slice %0 4 -6)) (files-all "cmd" '(".lisp")))))
 	(defq names (list))
 	(each (lambda (line)
-		(if (find "ffi" (split line " ()"))
-			(each (# (unless (find %0 names) (push names %0))) (test-natives file line)))
-		(when (or (find "\q" line) (find "{" line))
-			(defq pieces (split line "\q{}") cmd_line (test-cmd-line? line))
-			(each (lambda (piece)
-				(cond
-					((and (> (!) 0)
-							(or (ends-with "(import " (defq before (elem-get pieces (dec (!)))))
-								(ends-with "(include " before)))
-						(defq name (catch (path-to-absolute piece file) :nil))
-						(and name (/= (age name) 0) (not (find name names)) (push names name)))
-					(:t (each (lambda (part)
-							(when (nempty? (defq words (split part " ")))
-								(and cmd_line (find (first words) *test_cmds*)
-									(not (find (defq name (cat "cmd/" (first words) ".lisp")) names))
-									(push names name))
-								(each (lambda (word)
-									(and (find "/" word) (not (find word names)) (nql word file)
-											(not (starts-with ".git/" word)) (not (test-module? word))
-											(defq stat (pii-fstat word)) (not (folder-mode? (third stat)))
-										(push names word))) words)))
-						(split piece "|")))))
-				pieces)))
+			(if (find "ffi" (split line " ()"))
+				(each (# (unless (find %0 names) (push names %0))) (test-natives file line)))
+			(when (or (find "\q" line) (find "{" line))
+				(defq pieces (split line "\q{}") cmd_line (test-cmd-line? line))
+				(each (lambda (piece)
+						(cond
+							((and (> (!) 0)
+									(or (ends-with "(import " (defq before (elem-get pieces (dec (!)))))
+										(ends-with "(include " before)))
+								(defq name (catch (path-to-absolute piece file) :nil))
+								(and name (/= (age name) 0) (not (find name names)) (push names name)))
+							(:t (each (lambda (part)
+										(when (nempty? (defq words (split part " ")))
+											(and cmd_line (find (first words) *test_cmds*)
+												(not (find (defq name (cat "cmd/" (first words) ".lisp")) names))
+												(push names name))
+											(each (lambda (word)
+													(and (find "/" word) (not (find word names)) (nql word file)
+														(not (starts-with ".git/" word)) (not (test-module? word))
+														(defq stat (pii-fstat word)) (not (folder-mode? (third stat)))
+														(push names word))) words)))
+									(split piece "|")))))
+					pieces)))
 		(split text "\n"))
 	names)
 
@@ -350,8 +350,8 @@
 				((> size +test_file_most) (cat (str now) " " (str size)))
 				((ifn (load file) ""))))
 		(. *test_files* :insert file (setq info (list now (test-hex (sha256 text))
-			(if (or (ends-with ".lisp" file) (ends-with ".inc" file))
-				(test-file-scan file text) (list))))))
+					(if (or (ends-with ".lisp" file) (ends-with ".inc" file))
+						(test-file-scan file text) (list))))))
 	info)
 
 (defun test-stands-on (files)
@@ -378,10 +378,10 @@
 	;only what they include, as the native code is built: a service names
 	;the Lisp of a library, and that is its Lisp's to stand on, not the core
 	(defq files (cat
-		(filter (# (some (lambda (top) (starts-with top %0)) '("sys/" "class/" "gui/" "service/")))
-			(map (# (if (starts-with "./" %0) (slice %0 2 -1) %0)) (files-all "." '(".vp"))))
-		(map (# (if (starts-with "./" %0) (slice %0 2 -1) %0))
-			(cat (files-all "lib/asm" '(".inc" ".lisp")) (files-all "lib/trans" '(".inc" ".lisp")) (files-all "lib/boot" '(".inc" ".lisp")))))
+			(filter (# (some (lambda (top) (starts-with top %0)) '("sys/" "class/" "gui/" "service/")))
+				(map (# (if (starts-with "./" %0) (slice %0 2 -1) %0)) (files-all "." '(".vp"))))
+			(map (# (if (starts-with "./" %0) (slice %0 2 -1) %0))
+				(cat (files-all "lib/asm" '(".inc" ".lisp")) (files-all "lib/trans" '(".inc" ".lisp")) (files-all "lib/boot" '(".inc" ".lisp")))))
 		at 0)
 	(while (< at (length files))
 		(defq file (elem-get files at))
@@ -405,9 +405,9 @@
 	;as a whole: a library's native code is in it too, and a change to that
 	;is a change to what calls it, not to everything
 	(test-hash-of (cat
-		(test-core)
-		(sort (files-all (slice (load-path) 0 -2) '("chrysalisp" "chrysalisp.exe")))
-		(test-stands-on (list "class/lisp/root.inc" "class/lisp/task.inc" "tests/suite.inc" "cmd/tests.lisp")))))
+			(test-core)
+			(sort (files-all (slice (load-path) 0 -2) '("chrysalisp" "chrysalisp.exe")))
+			(test-stands-on (list "class/lisp/root.inc" "class/lisp/task.inc" "tests/suite.inc" "cmd/tests.lisp")))))
 
 (defun test-tree-files ()
 	; (test-tree-files) -> paths
@@ -432,15 +432,15 @@
 		lines (split (ifn (load (test-cache-path)) "") "\n")
 		scans (some (# (if (starts-with (cat "V" tab) %0) (eql (slice %0 2 -1) +test_scan_version))) lines))
 	(each (lambda (line)
-		(defq fields (split line tab))
-		(cond
-			((and scans (eql (first fields) "F") (>= (length fields) 4))
-				(. *test_files* :insert (second fields) (list (str-as-num (third fields))
-					(elem-get fields 3) (if (> (length fields) 4) (split (elem-get fields 4) " ") (list)))))
-			((and (eql (first fields) "M") (<= 6 (length fields) 7))
-				;the key, then the three counts and the time, into the one list
-				(. kept :insert (second fields)
-					(map! (const str-as-num) (list fields) 3 -1 (list (third fields)))))))
+			(defq fields (split line tab))
+			(cond
+				((and scans (eql (first fields) "F") (>= (length fields) 4))
+					(. *test_files* :insert (second fields) (list (str-as-num (third fields))
+							(elem-get fields 3) (if (> (length fields) 4) (split (elem-get fields 4) " ") (list)))))
+				((and (eql (first fields) "M") (<= 6 (length fields) 7))
+					;the key, then the three counts and the time, into the one list
+					(. kept :insert (second fields)
+						(map! (const str-as-num) (list fields) 3 -1 (list (third fields)))))))
 		lines)
 	kept)
 
@@ -449,11 +449,11 @@
 	(defq lines (list (cat "V" "\t" +test_scan_version)) tab "\t")
 	;a file or a module that is gone is not kept
 	(. *test_files* :each (lambda (file (mtime hash names))
-		(if (/= mtime 0)
-			(push lines (cat "F" tab file tab (str mtime) tab hash tab (join names " "))))))
+			(if (/= mtime 0)
+				(push lines (cat "F" tab file tab (str mtime) tab hash tab (join names " "))))))
 	(. kept :each (lambda (module entry)
-		(if (/= (age module) 0)
-			(push lines (cat "M" tab module tab (join (map (const str) entry) tab))))))
+			(if (/= (age module) 0)
+				(push lines (cat "M" tab module tab (join (map (const str) entry) tab))))))
 	(save (join (sort lines) "\n") (test-cache-path)))
 
 ;;;;;;;;
@@ -464,11 +464,11 @@
 	; (test-modules [pattern]) -> paths
 	;all the suite modules, sorted, those with pattern in the path if given
 	(sort (filter (# (and
-			(starts-with "test_" (slice %0 (rfind "/" %0) -1))
-			(not (starts-with "tests/scratch/" %0))
-			(not (find %0 +test_excludes))
-			(or (not pattern) (found? %0 pattern))))
-		(files-all "tests" '(".lisp")))))
+					(starts-with "test_" (slice %0 (rfind "/" %0) -1))
+					(not (starts-with "tests/scratch/" %0))
+					(not (find %0 +test_excludes))
+					(or (not pattern) (found? %0 pattern))))
+			(files-all "tests" '(".lisp")))))
 
 ;with leaks, a module that leaves more than this held on its node, once
 ;what a task's end lets go of is let go of, fails, (test-leak-run)
@@ -494,12 +494,12 @@
 	(cond
 		((starts-with +test_counts counts)
 			(each! (# (cond
-				((starts-with +test_module_counts %0)
-					(defq fields (split (slice %0 (length +test_module_counts) -1) " "))
-					(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1)))
-				((print %0)))) (list lines) 0 -2)
+						((starts-with +test_module_counts %0)
+							(defq fields (split (slice %0 (length +test_module_counts) -1) " "))
+							(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1)))
+						((print %0)))) (list lines) 0 -2)
 			(bind '(passes failures skips) (map (const str-as-num)
-				(split (slice counts (length +test_counts) -1) " ")))
+					(split (slice counts (length +test_counts) -1) " ")))
 			(setq *test_passes* (+ *test_passes* passes)
 				*test_failures* (+ *test_failures* failures)
 				*test_skips* (+ *test_skips* skips)))
@@ -602,13 +602,13 @@
 	;It is not failed: a module waits for what it tests, and a slow
 	;machine is let be slow
 	(. *test_out* :each (lambda (cmd out)
-		(bind '(t0 usual next) out)
-		(when (>= (defq ms (/ (- (pii-time) t0) 1000)) next)
-			(elem-set out 2 (* 2 ms))
-			(defq modules (ifn (. *test_batches* :find cmd) (list cmd)))
-			(test-say "late" (join modules " ")
-				(cat (str ms) "ms") (if usual (cat "usual " (str usual) "ms") "usual unknown")
-				(test-at modules))))))
+			(bind '(t0 usual next) out)
+			(when (>= (defq ms (/ (- (pii-time) t0) 1000)) next)
+				(elem-set out 2 (* 2 ms))
+				(defq modules (ifn (. *test_batches* :find cmd) (list cmd)))
+				(test-say "late" (join modules " ")
+					(cat (str ms) "ms") (if usual (cat "usual " (str usual) "ms") "usual unknown")
+					(test-at modules))))))
 
 (defun test-farm-told (what &optional cmd out)
 	;what the farm says of a batch as it goes: it is given to a worker,
@@ -622,20 +622,20 @@
 			;the batches heard from, so the farm gives one again only when
 			;it has said nothing for its time, not when it is slow
 			(if moved (. *test_batches* :each (lambda (batch modules)
-				(if (some (# (find %0 modules)) moved) (push heard batch)))))
+						(if (some (# (find %0 modules)) moved) (push heard batch)))))
 			heard)
 		(:start
 			(defq modules (ifn (. *test_batches* :find cmd) (list)) usual (test-usual modules))
 			(. *test_out* :insert cmd (list (pii-time) usual
-				(if usual (+ (* +test_late_times usual) +test_late_ms) +test_late_unknown)))
+					(if usual (+ (* +test_late_times usual) +test_late_ms) +test_late_unknown)))
 			(each (const test-start-say) modules))
 		(:done (. *test_out* :erase cmd)
 			(each (lambda (line)
-				(when (starts-with +test_module_counts line)
-					(defq fields (split (slice line (length +test_module_counts) -1) " "))
-					(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1))
-					(test-done-say (first fields))))
-			(split (ifn out "") "\n")))))
+					(when (starts-with +test_module_counts line)
+						(defq fields (split (slice line (length +test_module_counts) -1) " "))
+						(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1))
+						(test-done-say (first fields))))
+				(split (ifn out "") "\n")))))
 
 (defun test-run-counted (file)
 	;run a module, and note what it alone counted, and how long it took in
@@ -664,17 +664,17 @@
 	;now and then, on a small machine, with nothing wrong in it
 	(defq back (mail-mbox) said (mail-mbox))
 	(list (map (lambda (node)
-			(open-task (str `(progn (defq back (hex-decode ,(hex-encode back)) worst 0 going :t)
-					(while going
-						(defq t1 (pii-time))
-						(task-sleep 10000)
-						(defq late (- (pii-time) t1 10000))
-						(if (> late worst) (setq worst late))
-						(if (mail-poll (list (task-mbox))) (setq going :nil)))
-					(mail-send back (str worst))))
-				node +kn_call_pin 0 said)
-			(getf (mail-read said) +kn_msg_reply_id))
-		nodes) back))
+				(open-task (str `(progn (defq back (hex-decode ,(hex-encode back)) worst 0 going :t)
+							(while going
+								(defq t1 (pii-time))
+								(task-sleep 10000)
+								(defq late (- (pii-time) t1 10000))
+								(if (> late worst) (setq worst late))
+								(if (mail-poll (list (task-mbox))) (setq going :nil)))
+							(mail-send back (str worst))))
+					node +kn_call_pin 0 said)
+				(getf (mail-read said) +kn_msg_reply_id))
+			nodes) back))
 
 (defun test-watched (watch)
 	; (test-watched watch) -> (ms ...)
@@ -709,22 +709,22 @@
 		(setq kept (test-cache-load))
 		(defq base (test-base))
 		(setq run (filter (lambda (module)
-			(defq key (test-key module base) was (. kept :find module))
-			(. keys :insert module key)
-			(cond
-				;one in tests/release/ is for a release, -a, and no other run
-				((and (not all) (starts-with "tests/release/" module))
-					(. why :insert module "release") :nil)
-				((and was (not all) (eql (first was) key))
-					(setq *test_passes* (+ *test_passes* (elem-get was 1))
-						*test_failures* (+ *test_failures* (elem-get was 2))
-						*test_skips* (+ *test_skips* (elem-get was 3)))
-					(. why :insert module "cached")
-					:nil)
-				;run, with all, or what it stands on has changed, or no
-				;result of it is kept, it was never run, or it failed the last time
-				((. why :insert module (cond (all "all") ((not was) "unkept")
-					((eql (first was) "-") "failed") ("changed")))))) modules)))
+					(defq key (test-key module base) was (. kept :find module))
+					(. keys :insert module key)
+					(cond
+						;one in tests/release/ is for a release, -a, and no other run
+						((and (not all) (starts-with "tests/release/" module))
+							(. why :insert module "release") :nil)
+						((and was (not all) (eql (first was) key))
+							(setq *test_passes* (+ *test_passes* (elem-get was 1))
+								*test_failures* (+ *test_failures* (elem-get was 2))
+								*test_skips* (+ *test_skips* (elem-get was 3)))
+							(. why :insert module "cached")
+							:nil)
+						;run, with all, or what it stands on has changed, or no
+						;result of it is kept, it was never run, or it failed the last time
+						((. why :insert module (cond (all "all") ((not was) "unkept")
+									((eql (first was) "-") "failed") ("changed")))))) modules)))
 	;what is to run, and why, and what is as it was, and how long each
 	;took the last time
 	(when *test_progress*
@@ -777,17 +777,17 @@
 	;beside itself
 	(if child (each (const test-run-said) solo)
 		(each (# (farm (list (list %0))
-				(max +test_retry (* 20000 (ifn (test-usual (list %0)) 0)))))
+					(max +test_retry (* 20000 (ifn (test-usual (list %0)) 0)))))
 			solo))
 	;what ran to its end is kept, and how long it took. What failed is kept
 	;with no key, so it is run again the next time, whatever has changed:
 	;what is kept of it is the time. One that did not run to its end is not
 	(unless (or child stale)
 		(each (lambda (module)
-			(defq counts (. *test_done* :find module))
-			(cond
-				((not counts) (. kept :erase module))
-				((. kept :insert module (cat (list (if (= (second counts) 0) (. keys :find module) "-")) counts)))))
+				(defq counts (. *test_done* :find module))
+				(cond
+					((not counts) (. kept :erase module))
+					((. kept :insert module (cat (list (if (= (second counts) 0) (. keys :find module) "-")) counts)))))
 			run)
 		(test-cache-save kept))
 	(if frames (setq *stack_frame* :nil))

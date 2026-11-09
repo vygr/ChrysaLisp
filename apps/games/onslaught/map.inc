@@ -16,9 +16,9 @@
 		; (. map :reset_field_map) -> map
 		(raise :map_level)
 		(lower (:map_blocks (case map_level
-				(+game_level_seige *img_blocks2*)
-				(+game_level_defend *img_blocks2*)
-				(:t *img_blocks1*))))
+					(+game_level_seige *img_blocks2*)
+					(+game_level_defend *img_blocks2*)
+					(:t *img_blocks1*))))
 		this)
 
 	(defmethod :load_field_map (&optional map_idx)

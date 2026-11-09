@@ -184,7 +184,6 @@
 ; items
 ;;;;;;;
 
-
 (defun place-by-mat (place m)
 	; (place-by-mat place m) -> place
 	;moved by a matrix: by as much, if it only moves, or else to where the
@@ -210,12 +209,12 @@
 	;has any, left out: nothing is slanted
 	(defq stale :nil)
 	(each (lambda ((key val))
-		(case key
-			(:place (cwb-place! item val))
-			(:m (cwb-place! item (first (cwb-mat-place val))))
-			(:inv)
-			(:t (elem-set item (cwb-slot key) val)))
-		(unless (find key '(:m :place :inv :name :props :id :user)) (setq stale :t)))
+			(case key
+				(:place (cwb-place! item val))
+				(:m (cwb-place! item (first (cwb-mat-place val))))
+				(:inv)
+				(:t (elem-set item (cwb-slot key) val)))
+			(unless (find key '(:m :place :inv :name :props :id :user)) (setq stale :t)))
 		(partition key_vals 2))
 	(if stale (elem-set item +cwb_cache :nil))
 	item)
@@ -286,8 +285,8 @@
 	;the first if closed
 	(defq out (list "M"))
 	(each (lambda ((x y))
-		(if (= (!) 1) (push out "L"))
-		(push out x y)) (partition points 2))
+			(if (= (!) 1) (push out "L"))
+			(push out x y)) (partition points 2))
 	(if closed (push out "Z"))
 	(apply (const cwb-d) out))
 
@@ -336,8 +335,8 @@
 				out (if pie (list "M" cx cy "L") (list "M")))
 			(push out (+ cx (* r (cos a0))) (+ cy (* r (sin a0))))
 			(each (lambda (i)
-				(defq a (+ a0 (/ (* sweep (n2f i)) (n2f pieces))))
-				(push out "A" r r 0 0 1 (+ cx (* r (cos a))) (+ cy (* r (sin a)))))
+					(defq a (+ a0 (/ (* sweep (n2f i)) (n2f pieces))))
+					(push out "A" r r 0 0 1 (+ cx (* r (cos a))) (+ cy (* r (sin a)))))
 				(range 1 (inc pieces)))
 			(if pie (push out "Z"))
 			(apply (const cwb-d) out))))
@@ -374,9 +373,9 @@
 	;nothing. Worked out once and kept
 	(unless (defq cache (elem-get shape +cwb_cache))
 		(elem-set shape +cwb_cache (setq cache (outline-flat (cwb-outline shape)
-			(elem-get shape +cwb_fill) (elem-get shape +cwb_stroke) (* 0.5 (n2f (elem-get shape +cwb_width)))
-			(cwb-join-of (elem-get shape +cwb_join))
-			(cwb-cap-of (elem-get shape +cwb_cap1)) (cwb-cap-of (elem-get shape +cwb_cap2))))))
+					(elem-get shape +cwb_fill) (elem-get shape +cwb_stroke) (* 0.5 (n2f (elem-get shape +cwb_width)))
+					(cwb-join-of (elem-get shape +cwb_join))
+					(cwb-cap-of (elem-get shape +cwb_cap1)) (cwb-cap-of (elem-get shape +cwb_cap2))))))
 	cache)
 
 (defun cwb-text-mid (text x y &rest key_vals)
@@ -457,8 +456,8 @@
 	(setd m +mat3x2_unity)
 	(defq box :nil)
 	(cwb-walk items m (lambda (shape m)
-		(if (defq flat_box (third (cwb-flat shape)))
-			(setq box (vector-box-join-2d box (mat3x2-box flat_box m))))))
+			(if (defq flat_box (third (cwb-flat shape)))
+				(setq box (vector-box-join-2d box (mat3x2-box flat_box m))))))
 	box)
 
 ;;;;;;;;;;;
@@ -523,12 +522,12 @@
 	;call (fnc item layer_index holder) for every item of the document,
 	;those in groups too, the holder is the list it is in
 	(each (lambda ((name flags items))
-		(defq layer_index (!) todo (list (list items)))
-		(while (defq next (pop todo))
-			(each (lambda (item)
-				(fnc item layer_index (first next))
-				(if (cwb-group? item) (push todo (list (elem-get item +cwb_items)))))
-				(first next))))
+			(defq layer_index (!) todo (list (list items)))
+			(while (defq next (pop todo))
+				(each (lambda (item)
+						(fnc item layer_index (first next))
+						(if (cwb-group? item) (push todo (list (elem-get item +cwb_items)))))
+					(first next))))
 		(cwb-layers doc)))
 
 (defun cwb-find (doc id)
@@ -536,8 +535,8 @@
 	;an item by its id, with the layer it is in and the list that holds it
 	(defq found :nil)
 	(cwb-each doc (lambda (item layer_index holder)
-		(and (not found) (= (elem-get item +cwb_id) id)
-			(setq found (list item layer_index holder)))))
+			(and (not found) (= (elem-get item +cwb_id) id)
+				(setq found (list item layer_index holder)))))
 	found)
 
 (defun cwb-remove (doc id)
@@ -588,11 +587,11 @@
 	;inside a group, are then taken out one by one
 	(defq wanted (cwb-id-set ids) gone 0)
 	(each (lambda ((name flags holder))
-		(defq kept (cwb-pick holder wanted :t))
-		(when (< (length kept) (length holder))
-			(setq gone (+ gone (- (length holder) (length kept))))
-			(clear holder)
-			(each (# (push holder %0)) kept)))
+			(defq kept (cwb-pick holder wanted :t))
+			(when (< (length kept) (length holder))
+				(setq gone (+ gone (- (length holder) (length kept))))
+				(clear holder)
+				(each (# (push holder %0)) kept)))
 		(cwb-layers doc))
 	(if (< gone (length ids)) (each (# (cwb-remove doc %0)) ids))
 	doc)
@@ -611,25 +610,25 @@
 		(bind '(item out) next)
 		(push out (elem-get item +cwb_type))
 		(each (lambda (key default val)
-			(cond
-				((find key '(:type :cache :m :inv)))
-				((eql key :items)
-					(when (cwb-group? item)
-						(defq outs (map (lambda (&) (list)) val))
-						(push out :items outs)
-						(each (# (push todo (list %0 %1))) val outs)))
-				;what a file had that is not known here, as it was
-				((eql key :others)
-					(each (lambda ((k v)) (push out k v)) (partition (ifn val (list)) 2)))
-				;where it is, what of it is not as it would be anyway
-				((eql key :place)
-					(when val
-						(bind '(x y a sx sy) val)
-						(if (or (/= x 0.0) (/= y 0.0)) (push out :pos (list x y)))
-						(if (/= a 0.0) (push out :angle a))
-						(if (or (/= sx 1.0) (/= sy 1.0)) (push out :scale (list sx sy)))))
-				((eql val default))
-				((push out key val))))
+				(cond
+					((find key '(:type :cache :m :inv)))
+					((eql key :items)
+						(when (cwb-group? item)
+							(defq outs (map (lambda (&) (list)) val))
+							(push out :items outs)
+							(each (# (push todo (list %0 %1))) val outs)))
+					;what a file had that is not known here, as it was
+					((eql key :others)
+						(each (lambda ((k v)) (push out k v)) (partition (ifn val (list)) 2)))
+					;where it is, what of it is not as it would be anyway
+					((eql key :place)
+						(when val
+							(bind '(x y a sx sy) val)
+							(if (or (/= x 0.0) (/= y 0.0)) (push out :pos (list x y)))
+							(if (/= a 0.0) (push out :angle a))
+							(if (or (/= sx 1.0) (/= sy 1.0)) (push out :scale (list sx sy)))))
+					((eql val default))
+					((push out key val))))
 			+cwb_keys +cwb_defaults item))
 	root)
 
@@ -645,36 +644,35 @@
 		(defq item (cwb-item (if (eql (first tree) :group) :group :shape) (list)))
 		(elem-set holder place item)
 		(each (lambda ((key val))
-			(cond
-				((eql key :items)
-					(defq kids (map (lambda (&) :nil) val))
-					(elem-set item +cwb_items kids)
-					(each (# (push todo (list %0 kids (!)))) val))
-				;where it is, its place
-				((eql key :pos) (bind '(x y) val) (cwb-place! item (scatter-place (cwb-place item) 0 x 1 y)))
-				((eql key :angle) (cwb-place! item (scatter-place (cwb-place item) 2 val)))
-				((eql key :scale) (bind '(x y) val) (cwb-place! item (scatter-place (cwb-place item) 3 x 4 y)))
-				((find key '(:m :place :inv :cache)))
-				((and (nql key :others) (defq index (find key +cwb_keys))) (elem-set item index val))
-				((elem-set item +cwb_others (cat (ifn (elem-get item +cwb_others) (list)) (list key val))))))
+				(cond
+					((eql key :items)
+						(defq kids (map (lambda (&) :nil) val))
+						(elem-set item +cwb_items kids)
+						(each (# (push todo (list %0 kids (!)))) val))
+					;where it is, its place
+					((eql key :pos) (bind '(x y) val) (cwb-place! item (scatter-place (cwb-place item) 0 x 1 y)))
+					((eql key :angle) (cwb-place! item (scatter-place (cwb-place item) 2 val)))
+					((eql key :scale) (bind '(x y) val) (cwb-place! item (scatter-place (cwb-place item) 3 x 4 y)))
+					((find key '(:m :place :inv :cache)))
+					((and (nql key :others) (defq index (find key +cwb_keys))) (elem-set item index val))
+					((elem-set item +cwb_others (cat (ifn (elem-get item +cwb_others) (list)) (list key val))))))
 			(partition (rest tree) 2)))
 	(first root))
-
 
 (defun cwb-out (doc)
 	; (cwb-out doc) -> emap
 	;a document as the tree a .cwb file is, to be saved by itself or as a
 	;part of something else that is
 	(defq out (scatter (Emap)
-		:version +cwb_version
-		:width (. doc :find :width) :height (. doc :find :height)
-		:background (. doc :find :background)
-		:style (. doc :find :style) :grid (. doc :find :grid)
-		:next_id (. doc :find :next_id)
-		:items (map (const cwb-item-out) (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers doc)))))
-		:props (. doc :find :props)
-		;how it was seen
-		:view (. doc :find :view)))
+			:version +cwb_version
+			:width (. doc :find :width) :height (. doc :find :height)
+			:background (. doc :find :background)
+			:style (. doc :find :style) :grid (. doc :find :grid)
+			:next_id (. doc :find :next_id)
+			:items (map (const cwb-item-out) (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers doc)))))
+			:props (. doc :find :props)
+			;how it was seen
+			:view (. doc :find :view)))
 	;what lay on it that is not of it, the instruments and the menus, and
 	;the inks of its pens, what shows it says what they are.
 	;Only if it has them: a document made by a script, a diagram, has none
@@ -726,16 +724,16 @@
 	(setd m +mat3x2_unity)
 	(defq count 0)
 	(cwb-walk items m (lambda (shape m)
-		(bind '(fills strokes box &ignore) (cwb-flat shape))
-		(when (and box (or (not clip) (vector-collide-boxes-2d clip (mat3x2-box box m))))
-			(++ count)
-			(if (nempty? fills)
-				(.-> canvas (:set_color (elem-get shape +cwb_fill))
-					(:fpoly 0.0 0.0 (if (eql (elem-get shape +cwb_rule) :evenodd) +winding_odd_even +winding_none_zero)
-						(cwb-mat-paths m fills))))
-			(if (nempty? strokes)
-				(.-> canvas (:set_color (elem-get shape +cwb_stroke))
-					(:fpoly 0.0 0.0 +winding_none_zero (cwb-mat-paths m strokes)))))))
+			(bind '(fills strokes box &ignore) (cwb-flat shape))
+			(when (and box (or (not clip) (vector-collide-boxes-2d clip (mat3x2-box box m))))
+				(++ count)
+				(if (nempty? fills)
+					(.-> canvas (:set_color (elem-get shape +cwb_fill))
+						(:fpoly 0.0 0.0 (if (eql (elem-get shape +cwb_rule) :evenodd) +winding_odd_even +winding_none_zero)
+							(cwb-mat-paths m fills))))
+				(if (nempty? strokes)
+					(.-> canvas (:set_color (elem-get shape +cwb_stroke))
+						(:fpoly 0.0 0.0 +winding_none_zero (cwb-mat-paths m strokes)))))))
 	count)
 
 (defun cwb-draw (canvas doc &optional m clip skip)
@@ -746,10 +744,10 @@
 	(setd m +mat3x2_unity)
 	(defq count 0 skip (and skip (nempty? skip) (cwb-id-set skip)))
 	(each (lambda ((name flags items))
-		(unless (bits? flags 1)
-			(setq count (+ count (cwb-draw-items canvas
-				(if skip (cwb-pick items skip :t) items)
-				m clip)))))
+			(unless (bits? flags 1)
+				(setq count (+ count (cwb-draw-items canvas
+							(if skip (cwb-pick items skip :t) items)
+							m clip)))))
 		(cwb-layers doc))
 	count)
 
@@ -773,7 +771,7 @@
 		(defq dx (- pad (floor x)) dy (- pad (floor y)))
 		(unless (and (= dx 0.0) (= dy 0.0))
 			(each (lambda ((name flags items))
-				(each (# (cwb-place! %0 (place-move (elem-get %0 +cwb_place) dx dy))) items))
+					(each (# (cwb-place! %0 (place-move (elem-get %0 +cwb_place) dx dy))) items))
 				(cwb-layers doc)))
 		(. doc :insert :width (max 1 (n2i (+ (- (+ x1 dx) 0.0) pad 0.9999))))
 		(. doc :insert :height (max 1 (n2i (+ (- (+ y1 dy) 0.0) pad 0.9999))))
@@ -792,33 +790,33 @@
 	(defq runs (list) run (list) cut :nil r2 (* r r) pts (partition p 2)
 		near (# (/ (floor (+ (* %0 16.0) 0.5)) 16.0)))
 	(each! (lambda ((ax ay))
-		(bind '(bx by) (elem-get pts (inc (!))))
-		(defq dx (- bx ax) dy (- by ay) fx (- ax cx) fy (- ay cy)
-			a (+ (* dx dx) (* dy dy)) b (* 2.0 (+ (* fx dx) (* fy dy)))
-			c (- (+ (* fx fx) (* fy fy)) r2)
-			disc (- (* b b) (* 4.0 a c)) t1 2.0 t2 -1.0)
-		(cond
-			((= a 0.0)
-				;no length, it is in or it is out
-				(if (< c 0.0) (setq t1 0.0 t2 1.0)))
-			((> disc 0.0)
-				(defq root (sqrt disc))
-				(setq t1 (/ (- (neg b) root) (* 2.0 a)) t2 (/ (+ (neg b) root) (* 2.0 a)))))
-		(cond
-			((or (>= t1 1.0) (<= t2 0.0) (> t1 t2))
-				;none of it is in the circle
-				(if (empty? run) (push run ax ay))
-				(push run bx by))
-			(:t (setq cut :t)
-				(when (> t1 0.0)
-					;up to where it goes in
+			(bind '(bx by) (elem-get pts (inc (!))))
+			(defq dx (- bx ax) dy (- by ay) fx (- ax cx) fy (- ay cy)
+				a (+ (* dx dx) (* dy dy)) b (* 2.0 (+ (* fx dx) (* fy dy)))
+				c (- (+ (* fx fx) (* fy fy)) r2)
+				disc (- (* b b) (* 4.0 a c)) t1 2.0 t2 -1.0)
+			(cond
+				((= a 0.0)
+					;no length, it is in or it is out
+					(if (< c 0.0) (setq t1 0.0 t2 1.0)))
+				((> disc 0.0)
+					(defq root (sqrt disc))
+					(setq t1 (/ (- (neg b) root) (* 2.0 a)) t2 (/ (+ (neg b) root) (* 2.0 a)))))
+			(cond
+				((or (>= t1 1.0) (<= t2 0.0) (> t1 t2))
+					;none of it is in the circle
 					(if (empty? run) (push run ax ay))
-					(push run (near (+ ax (* dx t1))) (near (+ ay (* dy t1)))))
-				(if (>= (length run) 4) (push runs run))
-				(setq run (list))
-				(when (< t2 1.0)
-					;from where it comes out
-					(push run (near (+ ax (* dx t2))) (near (+ ay (* dy t2))) bx by)))))
+					(push run bx by))
+				(:t (setq cut :t)
+					(when (> t1 0.0)
+						;up to where it goes in
+						(if (empty? run) (push run ax ay))
+						(push run (near (+ ax (* dx t1))) (near (+ ay (* dy t1)))))
+					(if (>= (length run) 4) (push runs run))
+					(setq run (list))
+					(when (< t2 1.0)
+						;from where it comes out
+						(push run (near (+ ax (* dx t2))) (near (+ ay (* dy t2))) bx by)))))
 		(list pts) 0 (dec (length pts)))
 	(if (>= (length run) 4) (push runs run))
 	(if cut runs))
@@ -850,25 +848,25 @@
 	(defq lr (+ (/ (n2f r) size) (* 0.5 (n2f (elem-get item +cwb_width))))
 		pieces (list) cut :nil)
 	(each (lambda ((closed p))
-		(defq runs (cwb-rub-points p lx ly lr))
-		(cond
-			(runs (setq cut :t)
-				(each (lambda (run)
+			(defq runs (cwb-rub-points p lx ly lr))
+			(cond
+				(runs (setq cut :t)
+					(each (lambda (run)
+							(defq piece (cat item))
+							(elem-set piece +cwb_id 0)
+							(elem-set piece +cwb_cache :nil)
+							(cwb-set piece :d (cwb-d-points run) :kind :pen
+								:cap1 (if (and (= (first run) (first p)) (= (second run) (second p)))
+									(elem-get item +cwb_cap1) :round)
+								:cap2 (if (and (= (elem-get run -3) (elem-get p -3)) (= (elem-get run -2) (elem-get p -2)))
+									(elem-get item +cwb_cap2) :round))
+							(push pieces piece)) runs))
+				(:t ;a line of it that was not touched is one of what is left
 					(defq piece (cat item))
 					(elem-set piece +cwb_id 0)
 					(elem-set piece +cwb_cache :nil)
-					(cwb-set piece :d (cwb-d-points run) :kind :pen
-						:cap1 (if (and (= (first run) (first p)) (= (second run) (second p)))
-							(elem-get item +cwb_cap1) :round)
-						:cap2 (if (and (= (elem-get run -3) (elem-get p -3)) (= (elem-get run -2) (elem-get p -2)))
-							(elem-get item +cwb_cap2) :round))
-					(push pieces piece)) runs))
-			(:t ;a line of it that was not touched is one of what is left
-				(defq piece (cat item))
-				(elem-set piece +cwb_id 0)
-				(elem-set piece +cwb_cache :nil)
-				(cwb-set piece :d (cwb-d-points (map (const identity) p)) :kind :pen)
-				(push pieces piece))))
+					(cwb-set piece :d (cwb-d-points (map (const identity) p)) :kind :pen)
+					(push pieces piece))))
 		(cwb-outline item))
 	(if cut pieces))
 
@@ -884,8 +882,8 @@
 	(setq x (n2f x) y (n2f y))
 	(defq tol (n2f (ifn tol 0)))
 	(when (and box (progn
-			(bind '(bx by bx1 by1) (mat3x2-box box m))
-			(and (>= x (- bx tol)) (<= x (+ bx1 tol)) (>= y (- by tol)) (<= y (+ by1 tol)))))
+				(bind '(bx by bx1 by1) (mat3x2-box box m))
+				(and (>= x (- bx tol)) (<= x (+ bx1 tol)) (>= y (- by tol)) (<= y (+ by1 tol)))))
 		;the point is taken into the shape's own space, what it is drawn
 		;with is not moved. By the inverse it keeps, when m is its own
 		(defq inv (if (eql m (elem-get shape +cwb_m)) (cwb-inv shape) (mat3x2-invert m))
@@ -895,9 +893,9 @@
 				(list (mat3x2-point inv x y)))
 			rule (if (eql (elem-get shape +cwb_rule) :evenodd) +winding_odd_even +winding_none_zero))
 		(some (lambda ((px py))
-			(defq p (path px py))
-			(or (and (nempty? fills) (vector-point-in-polygon p fills rule))
-				(and (nempty? strokes) (vector-point-in-polygon p strokes +winding_none_zero))))
+				(defq p (path px py))
+				(or (and (nempty? fills) (vector-point-in-polygon p fills rule))
+					(and (nempty? strokes) (vector-point-in-polygon p strokes +winding_none_zero))))
 			pts)))
 
 (defun cwb-hit (doc x y &optional tol m)
@@ -909,15 +907,15 @@
 	(setd m +mat3x2_unity)
 	(defq found :nil)
 	(each! (lambda ((name flags items))
-		(unless (or found (bits? flags 1) (bits? flags 2))
-			(defq layer_index (!))
-			(each! (lambda (item)
-				(unless found
-					(defq hit :nil)
-					(cwb-walk (list item) m (lambda (shape sm)
-						(and (not hit) (cwb-shape-hit? shape sm x y tol) (setq hit shape))))
-					(if hit (setq found (list item layer_index hit)))))
-				(list items) -1 0)))
+			(unless (or found (bits? flags 1) (bits? flags 2))
+				(defq layer_index (!))
+				(each! (lambda (item)
+						(unless found
+							(defq hit :nil)
+							(cwb-walk (list item) m (lambda (shape sm)
+									(and (not hit) (cwb-shape-hit? shape sm x y tol) (setq hit shape))))
+							(if hit (setq found (list item layer_index hit)))))
+					(list items) -1 0)))
 		(list (cwb-layers doc)) -1 0)
 	found)
 
@@ -941,17 +939,17 @@
 				(or
 					;an edge of what is drawn crosses the box, or ends in it
 					(some (lambda (p)
-						(defq n (length p) hit :nil i 0)
-						(when (>= n 4)
-							(defq px (elem-get p (- n 2)) py (elem-get p (dec n)))
-							(while (and (not hit) (< i n))
-								(defq x (elem-get p i) y (elem-get p (inc i)))
-								(if (vector-collide-line-box-2d px py x y bx by bx1 by1) (setq hit :t))
-								(setq px x py y i (+ i 2))))
-						hit) (cat fills strokes))
+							(defq n (length p) hit :nil i 0)
+							(when (>= n 4)
+								(defq px (elem-get p (- n 2)) py (elem-get p (dec n)))
+								(while (and (not hit) (< i n))
+									(defq x (elem-get p i) y (elem-get p (inc i)))
+									(if (vector-collide-line-box-2d px py x y bx by bx1 by1) (setq hit :t))
+									(setq px x py y i (+ i 2))))
+							hit) (cat fills strokes))
 					;or the box is inside it, no edge near
 					(and (nempty? fills) (vector-point-in-polygon mid fills
-						(if (eql (elem-get shape +cwb_rule) :evenodd) +winding_odd_even +winding_none_zero)))
+							(if (eql (elem-get shape +cwb_rule) :evenodd) +winding_odd_even +winding_none_zero)))
 					(and (nempty? strokes) (vector-point-in-polygon mid strokes +winding_none_zero)))))))
 
 (defun cwb-touch-box (doc box &optional m)
@@ -962,14 +960,14 @@
 	(setd m +mat3x2_unity)
 	(defq out (list))
 	(each (lambda ((name flags items))
-		(unless (or (bits? flags 1) (bits? flags 2))
-			(defq layer_index (!))
-			(each (lambda (item)
-				(defq hit :nil)
-				(cwb-walk (list item) m (lambda (shape sm)
-					(and (not hit) (cwb-shape-touch? shape sm box) (setq hit :t))))
-				(if hit (push out (list item layer_index))))
-				items)))
+			(unless (or (bits? flags 1) (bits? flags 2))
+				(defq layer_index (!))
+				(each (lambda (item)
+						(defq hit :nil)
+						(cwb-walk (list item) m (lambda (shape sm)
+								(and (not hit) (cwb-shape-touch? shape sm box) (setq hit :t))))
+						(if hit (push out (list item layer_index))))
+					items)))
 		(cwb-layers doc))
 	out)
 
@@ -980,13 +978,13 @@
 	(setd m +mat3x2_unity)
 	(defq out (list))
 	(each (lambda ((name flags items))
-		(unless (or (bits? flags 1) (bits? flags 2))
-			(defq layer_index (!))
-			(each (lambda (item)
-				(when (defq ib (cwb-bounds (list item) m))
-					(and (>= (first ib) (first box)) (>= (second ib) (second box))
-							(<= (third ib) (third box)) (<= (elem-get ib 3) (elem-get box 3))
-						(push out (list item layer_index)))))
-				items)))
+			(unless (or (bits? flags 1) (bits? flags 2))
+				(defq layer_index (!))
+				(each (lambda (item)
+						(when (defq ib (cwb-bounds (list item) m))
+							(and (>= (first ib) (first box)) (>= (second ib) (second box))
+								(<= (third ib) (third box)) (<= (elem-get ib 3) (elem-get box 3))
+								(push out (list item layer_index)))))
+					items)))
 		(cwb-layers doc))
 	out)

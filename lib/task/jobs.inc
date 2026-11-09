@@ -98,8 +98,8 @@
 (defun idle ()
 	;every child that is up and has no job is given one
 	(. (get :farm this) :each (lambda (key val)
-		(and (get :child val) (not (get :job val))
-			(. this :give key val)))))
+			(and (get :child val) (not (get :job val))
+				(. this :give key val)))))
 
 (defclass Jobs (path task_mbox reply_mbox &optional size away) :nil
 	; (Jobs path task_mbox reply_mbox [size away]) -> jobs
@@ -117,8 +117,8 @@
 	(def this :path path :task_mbox task_mbox :reply_mbox reply_mbox
 		:queue (list) :out 0 :tried (Fmap) :tries 0 :away away)
 	(def this :farm (if (list? size)
-		(apply (const Local) (cat (list (const create) (const destroy)) size))
-		(Farm (const create) (const destroy) (ifn size (max 1 (length (lisp-nodes)))))))
+			(apply (const Local) (cat (list (const create) (const destroy)) size))
+			(Farm (const create) (const destroy) (ifn size (max 1 (length (lisp-nodes)))))))
 
 	(defmethod :give (key val)
 		; (. jobs :give key val) -> jobs
@@ -247,8 +247,8 @@
 		;starts again, so it is started again only when it has said
 		;nothing for the timeout, not when it is slow
 		(. (get :farm this) :each (lambda (key val)
-			(and (defq out (get :job val)) (eql (slice out +job_size -1) job)
-				(def val :timestamp (pii-time)))))
+				(and (defq out (get :job val)) (eql (slice out +job_size -1) job)
+					(def val :timestamp (pii-time)))))
 		this)
 
 	(defmethod :tries ()
@@ -270,8 +270,7 @@
 		;every child is told to go
 		(. (get :farm this) :close)
 		(def this :queue (list) :out 0 :tried (Fmap) :tries 0)
-		this)
-	)
+		this))
 
 (defclass Monitored (path task_mbox reply_mbox told &optional size away) (Jobs path task_mbox reply_mbox size away)
 	; (Monitored path task_mbox reply_mbox told [size away]) -> jobs
@@ -292,8 +291,7 @@
 		; (. jobs :answered msg) -> :nil | num
 		(if (defq job (. this :job msg))
 			((get :told this) :done (slice job +job_size -1) (slice msg +job_reply_size -1)))
-		(.super this :answered msg))
-	)
+		(.super this :answered msg)))
 
 (defun jobs-farm (path units size retry_timeout on_reply &optional on_tries told)
 	; (jobs-farm path units size retry_timeout on_reply [on_tries told]) -> tries

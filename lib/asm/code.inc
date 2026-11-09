@@ -20,11 +20,11 @@
 	(defq e (find o '(= /= <= >= > <)))
 	(case (assign-src-type s)
 		(:c (if e ((eval (elem-get '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr) e)) s d l)
-			(throw "No such comparator" o)))
+				(throw "No such comparator" o)))
 		(:r (if e ((eval (elem-get '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr) e)) s d l)
-			(throw "No such comparator" o)))
+				(throw "No such comparator" o)))
 		(:f (if e ((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l)
-			(throw "No such comparator" o)))
+				(throw "No such comparator" o)))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
 (defun gotoifnot (e l)
@@ -32,11 +32,11 @@
 	(defq e (find o '(/= = > < <= >=)))
 	(case (assign-src-type s)
 		(:c (if e ((eval (elem-get '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr) e)) s d l)
-			(throw "No such comparator" o)))
+				(throw "No such comparator" o)))
 		(:r (if e ((eval (elem-get '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr) e)) s d l)
-			(throw "No such comparator" o)))
+				(throw "No such comparator" o)))
 		(:f (if e ((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l)
-			(throw "No such comparator" o)))
+				(throw "No such comparator" o)))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
 (defun switch (&optional %0)
@@ -46,12 +46,12 @@
 	(deffvar (cnt-sym) 0))
 
 (defun default ()
-	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
+(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
 	(set (penv) s (inc c)))
 
 (defun endswitch ()
-	(vp-label (end-sym))
-	(default)
+(vp-label (end-sym))
+(default)
 	(setq *switch* (pop *switch_stk*)))
 
 (defun nextcaseif (e)
@@ -99,46 +99,46 @@
 	(each! (const repeatifnot) (list e) 0 i))
 
 (defun vpcase (&rest e)
-	(default)
+(default)
 	(each! (const nextcaseifnot) (list e)))
 
 (defun vpcasenot (&rest e)
-	(default)
+(default)
 	(each! (const nextcaseif) (list e)))
 
 (defun loop-start (&optional l)
 	(switch l)
-	(vp-label (beg-sym)))
+(vp-label (beg-sym)))
 
 (defun loop-while (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
 	(switch l)
-	(vp-label (beg-sym))
+(vp-label (beg-sym))
 	(each! (const exitifnot) (list e) 0 i))
 
 (defun loop-whilenot (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
 	(switch l)
-	(vp-label (beg-sym))
+(vp-label (beg-sym))
 	(each! (const exitif) (list e) 0 i))
 
 (defun loop-end ()
 	(continue)
-	(endswitch))
+(endswitch))
 
 (defun loop-until (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
 	(each! (const repeatifnot) (list e) 0 i)
-	(endswitch))
+(endswitch))
 
 (defun loop-untilnot (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
 	(each! (const repeatif) (list e) 0 i)
-	(endswitch))
+(endswitch))
 
 (defun vpif (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
@@ -154,18 +154,18 @@
 
 (defun else ()
 	(break)
-	(default))
+(default))
 
 (defun elseif (&rest e)
-	(else)
+(else)
 	(each! (const nextcaseifnot) (list e)))
 
 (defun elseifnot (&rest e)
-	(else)
+(else)
 	(each! (const nextcaseif) (list e)))
 
 (defun endif ()
-	(endswitch))
+(endswitch))
 
 ;;;;;;;;;;;;;;
 ; validatecase
@@ -198,10 +198,10 @@
 ;module
 (export-symbols
 	'(errorif-lisp-args-len errorif-lisp-args-sig
-	errorif-lisp-args-match errorif-lisp-args-type
-	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
-	vpif vpifnot else elseif elseifnot endif validatecase
-	break breakif breakifnot goto gotoif gotoifnot exitif exitifnot
-	loop-start loop-end loop-while loop-whilenot loop-until loop-untilnot
-	continue continueif continueifnot repeatif repeatifnot))
+		errorif-lisp-args-match errorif-lisp-args-type
+		switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
+		vpif vpifnot else elseif elseifnot endif validatecase
+		break breakif breakifnot goto gotoif gotoifnot exitif exitifnot
+		loop-start loop-end loop-while loop-whilenot loop-until loop-untilnot
+		continue continueif continueifnot repeatif repeatifnot))
 (env-pop)

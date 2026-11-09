@@ -22,8 +22,8 @@
 				(if (> n 1) (<< (code data 1 (inc at)) 8) 0)
 				(if (> n 2) (code data 1 (+ at 2)) 0)))
 		(write-blk out (cat (elem-get +base64_chars (>> v 18)) (elem-get +base64_chars (logand (>> v 12) 63))
-			(if (> n 1) (elem-get +base64_chars (logand (>> v 6) 63)) "=")
-			(if (> n 2) (elem-get +base64_chars (logand v 63)) "=")))
+				(if (> n 1) (elem-get +base64_chars (logand (>> v 6) 63)) "=")
+				(if (> n 2) (elem-get +base64_chars (logand v 63)) "=")))
 		(setq at (+ at 3)))
 	(str out))
 

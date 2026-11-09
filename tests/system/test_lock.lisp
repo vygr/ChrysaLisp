@@ -141,12 +141,12 @@
 
 ; --- Test with-lock macros ---
 (defq res_write (with-write-lock "obj/tmp_macro_write.txt"
-	(save "macro_data" "obj/tmp_macro_write.txt")
-	42))
+		(save "macro_data" "obj/tmp_macro_write.txt")
+		42))
 (assert-eq "with-write-lock returns body result" 42 res_write)
 
 (defq res_read (with-read-lock "obj/tmp_macro_write.txt"
-	(load "obj/tmp_macro_write.txt")))
+		(load "obj/tmp_macro_write.txt")))
 (assert-eq "with-read-lock returns body result" "macro_data" res_read)
 
 (pipe-run "rm obj/tmp_macro_write.txt" (lambda (&) :nil))
@@ -181,10 +181,10 @@
 	; send a claim and do not wait for it, gives the mailbox the grant comes to
 	(defq mbox (mail-mbox))
 	(mail-send (ensure-lock-service) (setf-> (cat (str-alloc +lock_claim_size) key)
-		(+lock_rpc_reply_id mbox)
-		(+lock_rpc_type +lock_type_claim)
-		(+lock_rpc_mode (ifn mode +lock_mode_write))
-		(+lock_rpc_timeout le_long)))
+			(+lock_rpc_reply_id mbox)
+			(+lock_rpc_type +lock_type_claim)
+			(+lock_rpc_mode (ifn mode +lock_mode_write))
+			(+lock_rpc_timeout le_long)))
 	mbox)
 
 (defun le-granted? (mbox &optional wait)
@@ -258,14 +258,14 @@
 (le-claim "le/race")
 (defq le_late (mail-mbox))
 (mail-send (ensure-lock-service) (setf-> (cat (str-alloc +lock_cancel_size) "le/race")
-	(+lock_rpc_reply_id le_late)
-	(+lock_rpc_type +lock_type_cancel)
-	(+lock_rpc_mode +lock_mode_write)))
+		(+lock_rpc_reply_id le_late)
+		(+lock_rpc_type +lock_type_cancel)
+		(+lock_rpc_mode +lock_mode_write)))
 (mail-send (ensure-lock-service) (setf-> (cat (str-alloc +lock_claim_size) "le/race")
-	(+lock_rpc_reply_id le_late)
-	(+lock_rpc_type +lock_type_claim)
-	(+lock_rpc_mode +lock_mode_write)
-	(+lock_rpc_timeout le_long)))
+		(+lock_rpc_reply_id le_late)
+		(+lock_rpc_type +lock_type_claim)
+		(+lock_rpc_mode +lock_mode_write)
+		(+lock_rpc_timeout le_long)))
 (lock-release-rpc "le/race")
 (assert-eq "a claim that comes after its cancel is not granted" :t (le-claim "le/race"))
 (assert-eq "nor told it was" :nil (mail-read-timeout le_late 100000))

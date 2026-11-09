@@ -76,7 +76,7 @@
 		;job as it goes, DONE last
 		(defq out (file-stream "/tmp/chrysalisp_rack_result" +file_open_write))
 		(catch (each (lambda (cmdline)
-				(if (nempty? cmdline) (pipe-run cmdline (# (write-blk out %0) (stream-flush out)))))
+					(if (nempty? cmdline) (pipe-run cmdline (# (write-blk out %0) (stream-flush out)))))
 				(split text "\n"))
 			(progn (write-blk out (cat "JOB ERROR " (str _) "\n")) :t))
 		(write-blk out "\nDONE\n")

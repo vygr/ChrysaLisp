@@ -50,18 +50,18 @@
 		;must not be taken for a dead one.
 		(jobs-farm "lib/asm/asm.lisp"
 			(map (# (cat (const (str-alloc +job_size))
-				(str (list kind %0 *abi* *cpu* *build_mode* *build_emit* *build_verb*
-					(vp-dir *build_mode*))))) units)
+						(str (list kind %0 *abi* *cpu* *build_mode* *build_emit* *build_verb*
+								(vp-dir *build_mode*))))) units)
 			(list (length units) 1 1) (task-timeout 60)
 			(lambda (msg jobs)
 				;the key it was given, then what it said. A job with an
 				;error is not tried again.
 				(defq error_flag :nil)
 				(each (# (cond
-					((starts-with "Error:" %0)
-						(push errors %0)
-						(setq error_flag :t))
-					((nempty? %0) (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
+							((starts-with "Error:" %0)
+								(push errors %0)
+								(setq error_flag :t))
+							((nempty? %0) (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
 				(stream-flush (io-stream 'stdout))
 				(if error_flag (. jobs :failed msg) (. jobs :answered msg)))
 			;a job that has gone out and not come back, again and again,
@@ -92,7 +92,7 @@
 	;file, the biggest first
 	(defq dir (vp-dir *build_mode*))
 	(farm-jobs :trans (map (const list)
-		(biggest-first files (map (# (second (pii-fstat (cat dir %0)))) files))) *abi* *cpu*))
+			(biggest-first files (map (# (second (pii-fstat (cat dir %0)))) files))) *abi* *cpu*))
 
 (defun compile (files &optional *abi* *cpu*)
 	; (compile files [abi cpu])
@@ -126,8 +126,8 @@
 	;order it has there. A walk was 4 to 5 ms on the M4
 	(defq vps (list) classes (list))
 	(each (# (cond
-			((ends-with "class.inc" %0) (push classes %0))
-			((not (starts-with "apps/" %0)) (push vps %0))))
+				((ends-with "class.inc" %0) (push classes %0))
+				((not (starts-with "apps/" %0)) (push vps %0))))
 		(files-all "." '(".vp" "class.inc") 2))
 	(list vps classes))
 
@@ -160,13 +160,13 @@
 (defun make-products (p)
 	;the paths of the functions the lines of (make-scan) name
 	(map (lambda (line)
-		(defq kind (first line) a (second line) b (if (> (length line) 2) (third line)))
-		(case kind
-			(("def-method" "gen-host-call") (f-path (sym a) (sym b)))
-			("gen-vtable" (f-path (sym a) :vtable))
-			("gen-type" (f-path (sym a) :type))
-			("gen-create" (f-path (sym a) (if b (sym (cat :create_ b)) :create)))
-			("def-func" (sym a)))) p))
+			(defq kind (first line) a (second line) b (if (> (length line) 2) (third line)))
+			(case kind
+				(("def-method" "gen-host-call") (f-path (sym a) (sym b)))
+				("gen-vtable" (f-path (sym a) :vtable))
+				("gen-type" (f-path (sym a) :type))
+				("gen-create" (f-path (sym a) (if b (sym (cat :create_ b)) :create)))
+				("def-func" (sym a)))) p))
 
 ;what make read of each file is kept, by its age, and read again only of
 ;a file that has changed. One that changed in the second the keep is
@@ -186,18 +186,18 @@
 	;the scans kept, an env of file to (age scan)
 	(defq scans (env 101))
 	(catch (progn
-		(when (and (defq data (load +make_scans)) (nempty? data))
-			(bind '(key entries) (first (read (string-stream data))))
-			(when (eql (str key) (str (scans-key)))
-				(each (lambda ((f a d p)) (def scans (sym f) (list a (list d p)))) entries)))
-		:t) :t)
+			(when (and (defq data (load +make_scans)) (nempty? data))
+				(bind '(key entries) (first (read (string-stream data))))
+				(when (eql (str key) (str (scans-key)))
+					(each (lambda ((f a d p)) (def scans (sym f) (list a (list d p)))) entries)))
+			:t) :t)
 	scans)
 
 (defun scans-save (scans)
 	;those of before this second kept, for the next make
 	(defq now (/ (pii-time) 1000000) entries (list))
 	(each (lambda ((k v))
-		(if (< (first v) now) (push entries (list (str k) (first v) (first (second v)) (second (second v))))))
+			(if (< (first v) now) (push entries (list (str k) (first v) (first (second v)) (second (second v))))))
 		(tolist scans))
 	(save (str (list (scans-key) entries)) +make_scans))
 
@@ -218,7 +218,7 @@
 (defun scans-stale (files)
 	;those of the files with no scan kept, or one of an older file
 	(filter (lambda (f)
-		(not (and (defq c (get (sym f) scans)) (= (first c) (file-age f))))) files))
+			(not (and (defq c (get (sym f) scans)) (= (first c) (file-age f))))) files))
 
 (defun scans-farm (files)
 	;if many of the files have no scan kept, or one of an older file, as a
@@ -253,9 +253,9 @@
 	(while changed
 		(setq changed :nil)
 		(each (lambda (f)
-			(defq k (sym f) v (get k newest)
-				m (reduce (lambda (a d) (max a (get (sym d) newest))) (first (get k info)) v))
-			(when (> m v) (def newest k m) (setq changed :t))) files)))
+				(defq k (sym f) v (get k newest)
+					m (reduce (lambda (a d) (max a (get (sym d) newest))) (first (get k info)) v))
+				(when (> m v) (def newest k m) (setq changed :t))) files)))
 
 (defun make-newest (files classes)
 	; (make-newest files classes) -> files
@@ -264,11 +264,11 @@
 	;the caller's ages, info, newest, scans and scanned
 	(scans-farm files)
 	(within-compile-env (lambda ()
-		(class-env classes)
-		(each-mergeable (#
-			(bind '(d p) (make-info %0))
-			(merge files d)
-			(def info (sym %0) (list d p))) files)))
+			(class-env classes)
+			(each-mergeable (#
+					(bind '(d p) (make-info %0))
+					(merge files d)
+					(def info (sym %0) (list d p))) files)))
 	(if scanned (scans-save scans))
 	(newest-ages files)
 	(filter (# (ends-with ".vp" %0)) files))
@@ -322,13 +322,13 @@
 	;platform's code. Newer, not as new, for the VP: the two stages of one
 	;build may write both in the same second, and the age is of a second
 	(defq trans_age (reduce (# (max %0 (age %1)))
-		(list "lib/trans/vp.inc" "lib/trans/trans_ops.inc" "lib/trans/trans.inc"
-			"lib/trans/vp_parse.vp" (cat "lib/trans/" *cpu* ".vp")) 0))
+			(list "lib/trans/vp.inc" "lib/trans/trans_ops.inc" "lib/trans/trans.inc"
+				"lib/trans/vp_parse.vp" (cat "lib/trans/" *cpu* ".vp")) 0))
 	(defq to_translate (filter (lambda (file)
-		(and (not (find file vp_files))
-			(or force
-				(>= (get (sym file) newest) (defq done (age (cat "obj/" *cpu* "/" *abi* "/" file))))
-				(> trans_age done) (> (age (cat dir file)) done)))) files))
+				(and (not (find file vp_files))
+					(or force
+						(>= (get (sym file) newest) (defq done (age (cat "obj/" *cpu* "/" *abi* "/" file))))
+						(> trans_age done) (> (age (cat dir file)) done)))) files))
 	(bind '(& more) (translate-stage to_translate *abi* *cpu*))
 	;what is built here is not what make install built at its waypoint any
 	;more, service/source/app.inc (source-waypoint)
@@ -347,7 +347,7 @@
 	(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil
 		dir (vp-dir *build_mode*) files (make-newest (cat vps (all-app-files)) classes))
 	(bind '(& errors) (vp-stage (filter (# (>= (get (sym %0) newest) (age (cat dir %0)))) files)
-		(abi) (cpu) :bundle))
+			(abi) (cpu) :bundle))
 	(each (const print) errors)
 	(print "Done") :nil)
 
@@ -355,19 +355,19 @@
 	(setd *abi* (abi) *cpu* (cpu))
 	(boot-image
 		(within-compile-env (lambda ()
-			;its own list of the files, they are merged into
-			(bind '(l classes) (ifn walk (all-build-files)))
-			(setq l (copy l))
-			(class-env classes)
-			(defq *prods* (list) ages (env 31) scans (scans-load) scanned :nil)
-			;lists of all file imports and products
-			(each-mergeable (# (merge *prods* (bind '(d %0) (make-info %0))) (merge l d)) l)
-			(if scanned (scans-save scans))
-			;what the image is built from, as one number, beside it
-			(save (boot-id-of l) (boot-id-file *cpu* *abi*))
-			(save (join (sort (cat l)) "\n") (boot-files-file *cpu* *abi*))
-			;not all of them, lib/boot/image.inc says which
-			(image-funcs *prods* *cpu*))) *abi* *cpu*))
+				;its own list of the files, they are merged into
+				(bind '(l classes) (ifn walk (all-build-files)))
+				(setq l (copy l))
+				(class-env classes)
+				(defq *prods* (list) ages (env 31) scans (scans-load) scanned :nil)
+				;lists of all file imports and products
+				(each-mergeable (# (merge *prods* (bind '(d %0) (make-info %0))) (merge l d)) l)
+				(if scanned (scans-save scans))
+				;what the image is built from, as one number, beside it
+				(save (boot-id-of l) (boot-id-file *cpu* *abi*))
+				(save (join (sort (cat l)) "\n") (boot-files-file *cpu* *abi*))
+				;not all of them, lib/boot/image.inc says which
+				(image-funcs *prods* *cpu*))) *abi* *cpu*))
 
 (defun make-all (&optional files *abi* *cpu* walk)
 	; (make-all [files abi cpu walk])
@@ -448,8 +448,8 @@
 ;module
 (export-symbols
 	'(all-vp-files all-class-files
-	make make-all make-platforms make-all-platforms
-	remake remake-all make-app-platforms
-	remake-platforms remake-all-platforms remake-all-vp
-	make-bundles make-time make-test))
+		make make-all make-platforms make-all-platforms
+		remake remake-all make-app-platforms
+		remake-platforms remake-all-platforms remake-all-vp
+		make-bundles make-time make-test))
 (env-pop)

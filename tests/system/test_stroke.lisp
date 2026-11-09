@@ -20,12 +20,12 @@
 
 (assert-true "font" font)
 (each (lambda (text)
-	(assert-true (cat "round joins, " text) (<= (stroke-reach text +join_round) (* radius 1.2)))
-	(assert-true (cat "bevel joins, " text) (<= (stroke-reach text +join_bevel) (* radius 1.2))))
+		(assert-true (cat "round joins, " text) (<= (stroke-reach text +join_round) (* radius 1.2)))
+		(assert-true (cat "bevel joins, " text) (<= (stroke-reach text +join_bevel) (* radius 1.2))))
 	'("r" "sqrt-ff" "cpy-dr" "mkv"))
 
 ;a mitre on the outside of a turn is still a mitre, a square comes out square
 (defq box (list (path 0.0 0.0 100.0 0.0 100.0 100.0 0.0 100.0)))
 (bind '((bx by) (bx1 by1)) (vector-bounds-2d (path-stroke-polygons (list) 10.0 +join_miter box)))
 (assert-true "a mitred square" (every (# (< (abs (- %0 %1)) 0.05))
-	'(-10.0 -10.0 110.0 110.0) (list bx by bx1 by1)))
+		'(-10.0 -10.0 110.0 110.0) (list bx by bx1 by1)))

@@ -40,5 +40,4 @@
 	(defmethod :action (event)
 		; (. stack :action event) -> stack
 		(raise :radio_bar)
-		(. this :show_tab (. radio_bar :get_selected)))
-	)
+		(. this :show_tab (. radio_bar :get_selected))))

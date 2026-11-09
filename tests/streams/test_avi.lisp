@@ -39,9 +39,9 @@
 		(defq whole (av-reel name) cut (avi-reel (av-cut name)))
 		(assert-true (cat name " with no idx1 has the same chunks, read one after another")
 			(and cut (every (lambda (a b)
-					(and (eql (str (. a :find :offsets)) (str (. b :find :offsets)))
-						(eql (str (. a :find :sizes)) (str (. b :find :sizes)))))
-				(. whole :find :tracks) (. cut :find :tracks))))
+						(and (eql (str (. a :find :offsets)) (str (. b :find :offsets)))
+							(eql (str (. a :find :sizes)) (str (. b :find :sizes)))))
+					(. whole :find :tracks) (. cut :find :tracks))))
 		(assert-eq (cat name " and the same keys, from its pictures' own bytes")
 			(str (. whole :find :keys)) (str (. cut :find :keys))))
 	'("mjpeg_pcm" "xvid_mp3" "h264_mp3"))
@@ -95,7 +95,7 @@
 	(assert-list-eq "its frame the film's size" '(160 120) (. av_canvas :pref_size))
 	(defq av_a (av-pixels av_canvas))
 	(assert-true "a picture, not all of one colour" (> (length (reduce (lambda (out i) (. out :insert (slice av_a i (+ i 4))) out)
-		(range 0 (min (length av_a) 40000) 400) (Fset 11))) 0))
+					(range 0 (min (length av_a) 40000) 400) (Fset 11))) 0))
 	(avi-frame av_codec 12)
 	(assert-true "and another frame is another picture" (nql av_a (av-pixels av_canvas))))
 
@@ -112,7 +112,7 @@
 (assert-eq "the order shown, as ffprobe gives it"
 	"10004 12526 12870 13388 13904 14200 14732 15262 15586 16092 16626 16940 18062 17452 18284 18770 19292 20182 19586 20604 20892 21412 21908 22206 22700"
 	(join (map (# (str (elem-get (. av_h264 :find :offsets) (logand %0 0xfffff))))
-		(sort (map (# (+ (<< %0 20) (!))) (. av_h264 :find :shown)) (const -))) " "))
+			(sort (map (# (+ (<< %0 20) (!))) (. av_h264 :find :shown)) (const -))) " "))
 (defq av_packet (mp4-packet av_h264 1))
 (assert-true "a frame given the host, NALs each after its length"
 	(and av_packet (= (+ 4 (code-be av_packet 4 0)) (min (length av_packet) (+ 4 (code-be av_packet 4 0))))))

@@ -37,7 +37,7 @@
 	(defq parts (split path "/"))
 	(and (or (ends-with ".lisp" path) (ends-with ".inc" path) (ends-with ".shader" path))
 		(not (or (starts-with "/" path) (find ".." parts)
-			(and (eql (first parts) "usr") (> (length parts) 2))))))
+				(and (eql (first parts) "usr") (> (length parts) 2))))))
 
 (defun source-waypoint ()
 	; (source-waypoint) -> :nil | commit
@@ -73,7 +73,7 @@
 	;asked once. A new mailbox each ask: an answer that comes late is to a
 	;mailbox nobody reads
 	(defq select (list (mail-mbox) (mail-mbox)) ask (cat (setf-> (str-alloc +source_rpc_size)
-			(+source_rpc_reply_id (first select))) path)
+				(+source_rpc_reply_id (first select))) path)
 		left (if (eql wait :t) :t (task-timeout (ifn wait +source_wait))) answer :nil)
 	(mail-send svc ask)
 	(while (and (not answer) (or (eql left :t) (> left 0)))
@@ -95,8 +95,8 @@
 	;files, (path tag text) each, one after another: its path, its tag and
 	;the length of its text on lines of their own, then the text
 	(apply (const cat) (cat (list "") (map (lambda ((path tag text))
-			(cat path "\n" tag "\n" (str (length text)) "\n" text))
-		entries))))
+					(cat path "\n" tag "\n" (str (length text)) "\n" text))
+				entries))))
 
 (defun source-unpack (data)
 	; (source-unpack str) -> ((path tag text) ...)
@@ -209,8 +209,8 @@
 	;placed for it, nor for a system at the same waypoint as this one
 	(unless (or (eql *source_system* (hex-encode (system-id))) *source_same*)
 		(and (defq natives (source-ask (source-here)
-				(cat "+" *source_system* " " (hex-encode *source_service*) " " (source-mode) " " path)
-				(* 3 +source_wait)))
+					(cat "+" *source_system* " " (hex-encode *source_service*) " " (source-mode) " " path)
+					(* 3 +source_wait)))
 			(nempty? natives)
 			(task-place (source-split natives)))))
 
@@ -230,18 +230,18 @@
 	;that system is at, "" if none: at the same as this one, its files and
 	;natives are this one's, and nothing is asked
 	(static-qq (progn
-		(defq *source_system* ,sid *source_service* (hex-decode ,svc) *source_got* (Fmap 31)
-			*source_waypoint* ,(if (and wp (nempty? wp)) wp)
-			*source_same* ,(and wp (nempty? wp) (eql wp (source-waypoint)))
-			*source_ffi* ffi
-			import (lambda (module &optional dst_env)
-				(setq module (path-to-absolute module))
-				(defq dst_env (ifn dst_env (penv))
-					import_sym (sym (cat "*module_" module "*")))
-				(unless (get import_sym dst_env)
-					(unless (defq stream (source-stream *source_system* *source_service* module))
-						(throw "No such file !" module))
-					(def dst_env import_sym :t)
-					(callback (const repl) dst_env stream module))))
-		(unless (eql *source_system* (hex-encode (system-id))) (task-server *source_system*))
-		(redefmacro ffi (path &rest more) (source-ffi-form path more)))))
+			(defq *source_system* ,sid *source_service* (hex-decode ,svc) *source_got* (Fmap 31)
+				*source_waypoint* ,(if (and wp (nempty? wp)) wp)
+				*source_same* ,(and wp (nempty? wp) (eql wp (source-waypoint)))
+				*source_ffi* ffi
+				import (lambda (module &optional dst_env)
+					(setq module (path-to-absolute module))
+					(defq dst_env (ifn dst_env (penv))
+						import_sym (sym (cat "*module_" module "*")))
+					(unless (get import_sym dst_env)
+						(unless (defq stream (source-stream *source_system* *source_service* module))
+							(throw "No such file !" module))
+						(def dst_env import_sym :t)
+						(callback (const repl) dst_env stream module))))
+			(unless (eql *source_system* (hex-encode (system-id))) (task-server *source_system*))
+			(redefmacro ffi (path &rest more) (source-ffi-form path more)))))

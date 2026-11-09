@@ -69,4 +69,3 @@
 ; insert (seq pos ins_seq)
 (defq ins_arr (array 1 3))
 (assert-true "insert array" (equal? (array 1 2 3) (insert ins_arr 1 (array 2))))
-

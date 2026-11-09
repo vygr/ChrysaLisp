@@ -70,7 +70,7 @@
 	(assert-eq "the sum of every byte, worked out where the blocks are"
 		(reduce (# (+ %0 (code sg_big 1 %1))) (range 0 (length sg_big)) 0)
 		(first (storage-walk "a/big" 0 '(lambda (sum data at count)
-			(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
+					(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
 	(assert-list-eq "what it has can be a str with spaces and quotes in it, and comes back as it was"
 		(list "a \qb\q c 3")
 		(sg-walk "a/big" "a \qb\q c"
@@ -185,27 +185,27 @@
 	(assert-true "not before its second" (> (- (pii-time) sg_start) 900000))
 	(assert-eq "and one that goes round in what it gives each" :nil
 		(storage-walk "a/big" 0 '(lambda (state data at count)
-			(each (# (until (not %0))) (list 1 2 3)) (list state :nil)) :nil 10 sg_svc))
+				(each (# (until (not %0))) (list 1 2 3)) (list state :nil)) :nil 10 sg_svc))
 	(assert-eq "and one that catches what is thrown at it, and comes back late" :nil
 		(storage-walk "a/big" 0 '(lambda (state data at count)
-			(catch (while :t) :t) (list state :nil)) :nil 10 sg_svc))
+				(catch (while :t) :t) (list state :nil)) :nil 10 sg_svc))
 	(assert-list-eq "what is quoted in a function is not code, it comes back as it was" '((while 1 2))
 		(sg-walk "a/big" 0 '(lambda (state data at count) (list '(while 1 2) :nil)) :nil :nil sg_svc))
 	(assert-eq "the gophers after them are run as ever"
 		(reduce (# (+ %0 (code sg_big 1 %1))) (range 0 (length sg_big)) 0)
 		(first (storage-walk "a/big" 0 '(lambda (sum data at count)
-			(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
+					(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
 	;a search by halves of 4096 numbers in order, 512 a block
 	(storage-put "a/sorted" (apply (const cat) (map (# (cat (pad (str %0) 7 "0") "\n")) (range 0 4096))) :nil sg_svc)
 	(defun sg-search (want)
 		(first (storage-walk "a/sorted" (list want :nil 0 0 7)
-			'(lambda ((want found reads lo hi) data at count)
-				(defq low (str-as-num (slice data 0 7)) high (str-as-num (slice data -9 -2)))
-				(cond
-					((< want low) (list (list want :nil (inc reads) lo (dec at)) (if (> at lo) (/ (+ lo (dec at)) 2))))
-					((> want high) (list (list want :nil (inc reads) (inc at) hi) (if (< at hi) (/ (+ (inc at) hi) 2))))
-					((list (list want at (inc reads) lo hi) :nil))))
-			3 :nil sg_svc)))
+				'(lambda ((want found reads lo hi) data at count)
+					(defq low (str-as-num (slice data 0 7)) high (str-as-num (slice data -9 -2)))
+					(cond
+						((< want low) (list (list want :nil (inc reads) lo (dec at)) (if (> at lo) (/ (+ lo (dec at)) 2))))
+						((> want high) (list (list want :nil (inc reads) (inc at) hi) (if (< at hi) (/ (+ (inc at) hi) 2))))
+						((list (list want at (inc reads) lo hi) :nil))))
+				3 :nil sg_svc)))
 	(assert-list-eq "a gopher that searches by halves finds the block a number is in, in 4 reads of 8 at most"
 		'(0 :t 7 :t 3 1)
 		(progn (defq sg_a (sg-search 100) sg_b (sg-search 4000) sg_c (sg-search 1600))
@@ -294,7 +294,7 @@
 		(map (# (storage-pages-name sg_t_p %0)) '(0 999 1000 1001)))
 	(assert-eq "a block of the manifest that is not had, the name of it" (sha256 "not put")
 		(progn (setq sg_t_p (storage-pages (storage-ask sg_t_svc +storage_type_block_put
-				(store-tree-text (length sg_t_big) 1 (list (sha256 "not put")))) 64 sg_t_svc))
+						(store-tree-text (length sg_t_big) 1 (list (sha256 "not put")))) 64 sg_t_svc))
 			(storage-pages-name sg_t_p 0) (elem-get sg_t_p +storage_pages_lost)))
 	(defq sg_t_out (storage-stream "t/big" +file_open_append sg_t_svc))
 	(write-blk sg_t_out "more")
@@ -348,7 +348,6 @@
 (storage-member-forget sg_said)
 (assert-eq "no member, it can not travel" :nil (storage-member-travels :t sg_said))
 (assert-eq "nor pin" :nil (storage-user-pin :nil sg_said))
-
 
 ;who serves a store: one process, the first that says so and is still there
 (assert-eq "a store nobody has is this process's to serve" :t (storage-claim sg_claim))

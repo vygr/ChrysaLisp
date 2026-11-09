@@ -65,7 +65,7 @@
 	;a host rect of :r7-:r10 at %0 from :r1
 	(assign '(:r7 :r8 :r9 :r10)
 		`((:r1 ,(+ %0 host_gui_rect_x) i) (:r1 ,(+ %0 host_gui_rect_y) i)
-		(:r1 ,(+ %0 host_gui_rect_w) i) (:r1 ,(+ %0 host_gui_rect_h) i))))
+			(:r1 ,(+ %0 host_gui_rect_w) i) (:r1 ,(+ %0 host_gui_rect_h) i))))
 
 (def-method :ctx :box)
 	;inputs

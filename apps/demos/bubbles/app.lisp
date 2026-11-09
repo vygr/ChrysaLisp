@@ -35,14 +35,14 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_reset) +event_reset))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
-			(:paper :paper_toolbar2)) :connect +event_style)
+				(:paper :paper_toolbar2)) :connect +event_style)
 		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font :font_body)) :connect +event_mode)
 		(ui-label _ (:text "Bubbles" :font :font_body))
 		(. (ui-slider *count* (:maximum (- +max_bubbles +min_bubbles) :portion 300
-			:value 450 :min_width 128)) :connect +event_count))
+					:value 450 :min_width 128)) :connect +event_count))
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-scroll *image_scroll* +scroll_flag_both
-			(:min_width +min_width :min_height +min_height :want_width +width :want_height +height)
+		(:min_width +min_width :min_height +min_height :want_width +width :want_height +height)
 		(ui-backdrop *backdrop* (:paper +argb_black :ink +argb_grey8)
 			(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))))
 
@@ -59,8 +59,8 @@
 	(setq frames (inc frames) frames_us (+ frames_us (- (pii-time) frame_time)))
 	(when (>= frames_us 500000)
 		(. *status* :set_text (cat (str (/ frames_us frames 1000)) "."
-			(str (% (/ frames_us frames 100) 10)) "ms a frame, "
-			(str (bubble-count)) " bubbles, " how))
+				(str (% (/ frames_us frames 100) 10)) "ms a frame, "
+				(str (bubble-count)) " bubbles, " how))
 		(setq frames 0 frames_us 0)))
 
 (defun slice-job (count time y y1)
@@ -79,7 +79,7 @@
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
 	(. jobs :add (map (lambda (&) (slice-job (bubble-count) 0 +height +height))
-		(range 0 (. jobs :size)))))
+			(range 0 (. jobs :size)))))
 
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them. The canvas is
@@ -88,7 +88,7 @@
 	(setq farming :t frame_time (pii-time) frame_drawn 0)
 	(. *canvas* :fill 0)
 	(. jobs :add (map (# (slice-job count time (/ (* %0 +height) nodes)
-		(/ (* (inc %0) +height) nodes))) (range 0 nodes))))
+					(/ (* (inc %0) +height) nodes))) (range 0 nodes))))
 
 (defun one-task-frame (how)
 	;a frame drawn here, all of it
@@ -119,7 +119,7 @@
 	;on the pixels of the canvas, in shared memory, and a node of another
 	;machine, there is one when the machines are a mesh, can not reach them
 	(setq jobs (Jobs (cat *app_root* "child.lisp")
-		(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
+			(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
 	;it comes up on all the nodes, if their pixels can be shared
 	(. *mode* :set_selected (if shared_canvas 1 0))
 	(if shared_canvas (warm-farm :t))
@@ -155,7 +155,7 @@
 							(when (= out 0)
 								(setq farming :nil)
 								(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
-									(str frame_drawn) " drawn over the slices")))))))
+										(str frame_drawn) " drawn over the slices")))))))
 			((= idx +select_tip)
 				;tip time mail
 				(. *window* :tip *msg*))
@@ -183,17 +183,17 @@
 			((= id +event_style)
 				;styles
 				(def (. *backdrop* :dirty) :style
-					(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))
+						(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))
 			((and (= id (. *canvas* :get_id))
-				(= (getf *msg* +ev_msg_type) +ev_type_mouse)
-				(/= (getf *msg* +ev_msg_mouse_buttons) 0))
-					;the mouse held down on the canvas moves the light
-					(bind '(w h) (. *canvas* :get_size))
-					(defq lx (n2f (* (- (getf *msg* +ev_msg_mouse_rx) (/ w 2)) 4))
-						ly (n2f (* (- (getf *msg* +ev_msg_mouse_ry) (/ h 2)) 4))
-						lz (const (* +box_size -4.0))
-						len (sqrt (+ (* lx lx) (* ly ly) (* lz lz))))
-					(setq light_x (/ lx len) light_y (/ ly len)))
+					(= (getf *msg* +ev_msg_type) +ev_type_mouse)
+					(/= (getf *msg* +ev_msg_mouse_buttons) 0))
+				;the mouse held down on the canvas moves the light
+				(bind '(w h) (. *canvas* :get_size))
+				(defq lx (n2f (* (- (getf *msg* +ev_msg_mouse_rx) (/ w 2)) 4))
+					ly (n2f (* (- (getf *msg* +ev_msg_mouse_ry) (/ h 2)) 4))
+					lz (const (* +box_size -4.0))
+					len (sqrt (+ (* lx lx) (* ly ly) (* lz lz))))
+				(setq light_x (/ lx len) light_y (/ ly len)))
 			((. *window* :event *msg*))))
 	;close window and children
 	(. jobs :close)

@@ -184,7 +184,7 @@
 	(reduce (# (+ %0 (code data 1 %1))) (range 0 (length data) 64) 0))
 
 (defq +scene_gopher '(lambda (sum data at count)
-	(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data) 64) sum) (inc at))))
+		(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data) 64) sum) (inc at))))
 
 (defun scene-end (scene)
 	; (scene-end scene)
@@ -253,7 +253,7 @@
 			;and not for ever: a scene that has gone, it threw, says nothing more,
 			;and is given up on when it and its members have been quiet a minute
 			(while (and scene_going (or (not scene_until)
-					(and (< (pii-time) scene_until) (< (- (pii-time) scene_heard_at) (task-timeout 60)))))
+						(and (< (pii-time) scene_until) (< (- (pii-time) scene_heard_at) (task-timeout 60)))))
 				;a recorder asks each member again, and asks those started since
 				(when (and record (>= (pii-time) scene_next))
 					(each (# (storage-send %0 +storage_type_record (hex-encode scene_heard))) (storage-record-members scene_group))
@@ -274,9 +274,9 @@
 		;one given up on says why, as its last line
 		(unless scene_result
 			(say (cat "given up on, " (cond
-				((and scene_until (>= (pii-time) scene_until)) (cat "not done in " (str (ifn wait 600)) "s"))
-				((and scene_until (>= (- (pii-time) scene_heard_at) (task-timeout 60))) "nothing said for 60s")
-				("it went")))))
+						((and scene_until (>= (pii-time) scene_until)) (cat "not done in " (str (ifn wait 600)) "s"))
+						((and scene_until (>= (- (pii-time) scene_heard_at) (task-timeout 60))) "nothing said for 60s")
+						("it went")))))
 		;what the members still have to say, till they have said nothing for
 		;half a second. What comes after that is to a mailbox nobody reads
 		(and record scene_result

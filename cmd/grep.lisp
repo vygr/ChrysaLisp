@@ -2,7 +2,6 @@
 (import "lib/task/cmd.inc")
 (import "service/lock/app.inc")
 
-
 (defq usage `(
 (("-h" "--help")
 "Usage: grep [options] [pattern] [path] ...
@@ -72,18 +71,18 @@
 	(when stream
 		(defq state :nil)
 		(lines! (lambda (line)
-			(task-slice)
-			(defq tline (if opt_i (to-lower line) line))
-			(if opt_m
-				(if state
-					(if (starts-with "```" line)
-						(setq state :nil))
-					(if (starts-with "```" line)
-						(setq state :t)
-						(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
-							(print (if opt_n (str (inc (!)) ":") "") line))))
-				(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
-					(print (if opt_n (str (inc (!)) ":") "") line))))
+				(task-slice)
+				(defq tline (if opt_i (to-lower line) line))
+				(if opt_m
+					(if state
+						(if (starts-with "```" line)
+							(setq state :nil))
+						(if (starts-with "```" line)
+							(setq state :t)
+							(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
+								(print (if opt_n (str (inc (!)) ":") "") line))))
+					(if (if opt_v (not (. search :match? tline meta)) (. search :match? tline meta))
+						(print (if opt_n (str (inc (!)) ":") "") line))))
 			stream)))
 
 ;grep a file to stdout
@@ -135,12 +134,12 @@
 						;do them all out there, by calling myself !
 						(each (lambda ((job result)) (prin result))
 							(pipe-farm (map (# (str (first args) " -c -f -e " (hex-encode pattern)
-									(if opt_w " -w" "") (if opt_x " -x" "")
-									(if opt_m " -m" "") (if opt_v " -v" "")
-									(if opt_i " -i" "") (if opt_n " -n" "")
-									" -j " opt_j
-									" " (slice (str %0) 1 -2)))
-								(partition jobs opt_j))))))
+											(if opt_w " -w" "") (if opt_x " -x" "")
+											(if opt_m " -m" "") (if opt_v " -v" "")
+											(if opt_i " -i" "") (if opt_n " -n" "")
+											" -j " opt_j
+											" " (slice (str %0) 1 -2)))
+									(partition jobs opt_j))))))
 				(:t (if (empty? (defq jobs (rest args)))
 						;grep stream from stdin
 						(grep-stream (io-stream 'stdin))

@@ -38,12 +38,12 @@
 	;of each function, the bundle its VP is in, of *vp_root*, found once.
 	;An entry of a bundle starts with a line of the name, ("name"
 	(memoize :index (progn
-		(defq index (Fmap 101))
-		(each (lambda (path)
-			(lines! (# (if (starts-with "(\q" %0)
-				(. index :insert (slice %0 2 -2) path)) :nil) (file-stream path)))
-			(files-all (slice *vp_root* 0 -2) '("")))
-		index) 1))
+			(defq index (Fmap 101))
+			(each (lambda (path)
+					(lines! (# (if (starts-with "(\q" %0)
+								(. index :insert (slice %0 2 -2) path)) :nil) (file-stream path)))
+				(files-all (slice *vp_root* 0 -2) '("")))
+			index) 1))
 
 (defun vp-listing (function)
 	; (vp-listing function) -> :nil | (insts form ...)
@@ -64,12 +64,12 @@
 			(. (vp-index) :each (lambda (k v) (push all k)))
 			(sort all))
 		((reduce (lambda (out arg)
-			(cond
-				((and (starts-with *vp_root* arg) (/= (age arg) 0))
-					(lines! (# (if (starts-with "(\q" %0)
-						(push out (slice %0 2 -2))) :nil) (file-stream arg))
-					out)
-				((push out arg)))) args (list)))))
+					(cond
+						((and (starts-with *vp_root* arg) (/= (age arg) 0))
+							(lines! (# (if (starts-with "(\q" %0)
+										(push out (slice %0 2 -2))) :nil) (file-stream arg))
+							out)
+						((push out arg)))) args (list)))))
 
 (defun insts-of (function)
 	; (insts-of function) -> :nil | (insts labels start frames)
@@ -92,10 +92,10 @@
 	;the general registers in what a method is declared to trash, as
 	;(format-regs) writes them, ":r1-:r8, :r14, :d0-:d15": their numbers
 	(reduce (lambda (out part)
-		(when (starts-with ":r" part)
-			(defq ends (split part "-") from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
-			(each (# (push out %0)) (range from (inc to))))
-		out) (split text (const (char-class ", "))) (list)))
+			(when (starts-with ":r" part)
+				(defq ends (split part "-") from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
+				(each (# (push out %0)) (range from (inc to))))
+			out) (split text (const (char-class ", "))) (list)))
 
 (defun target-of (inst labels start count)
 	; (target-of inst labels start count) -> :nil | index
@@ -108,13 +108,13 @@
 	;for each instruction, where control may go from it
 	(defq count (length insts))
 	(map (lambda (inst)
-		(defq op (first inst) at (!) on (if (< (inc at) count) (list (inc at)) (list)))
-		(cond
-			((find op +leave_ops) (list))
-			((eql op 'jmp) (if (defq to (target-of inst labels start count)) (list to) (list)))
-			((and (starts-with "b" op) (nql op 'byte))
-				(if (defq to (target-of inst labels start count)) (push on to) on))
-			(on)))
+			(defq op (first inst) at (!) on (if (< (inc at) count) (list (inc at)) (list)))
+			(cond
+				((find op +leave_ops) (list))
+				((eql op 'jmp) (if (defq to (target-of inst labels start count)) (list to) (list)))
+				((and (starts-with "b" op) (nql op 'byte))
+					(if (defq to (target-of inst labels start count)) (push on to) on))
+				(on)))
 		insts))
 
 (defun bit-of (reg)
@@ -156,22 +156,22 @@
 	;that is said, a virtual method's, and :nil if nothing is said
 	(defq by_function (Fmap 1021))
 	(. class_db :each (lambda (class entry)
-		(.-> entry (:find :methods) (:each (lambda (method m)
-			(when (. m :find :dec_line)
-				(defq said (ifn (. m :find :declared_own) (. m :find :declared)) path (str (. m :find :function))
-					now (list (if said (bits-of (regs-of said)))
-						(declared-of class_db class method :dec_inputs)
-						(declared-of class_db class method :dec_outputs))
-					was (. by_function :find path))
-				;a function may be more than one method, a create that is a
-				;vcreate too, and a call bound to it does not say which. What
-				;it trashes is what any of them says, what it gives what any
-				;does, and what it takes only what they all do: so less is
-				;said to be gone by here than may be, never more
-				(. by_function :insert path (if was
-					(list (if (or (first was) (first now)) (logior (ifn (first was) 0) (ifn (first now) 0)))
-						(logand (second was) (second now)) (logior (third was) (third now)))
-					now))))))))
+			(.-> entry (:find :methods) (:each (lambda (method m)
+						(when (. m :find :dec_line)
+							(defq said (ifn (. m :find :declared_own) (. m :find :declared)) path (str (. m :find :function))
+								now (list (if said (bits-of (regs-of said)))
+									(declared-of class_db class method :dec_inputs)
+									(declared-of class_db class method :dec_outputs))
+								was (. by_function :find path))
+							;a function may be more than one method, a create that is a
+							;vcreate too, and a call bound to it does not say which. What
+							;it trashes is what any of them says, what it gives what any
+							;does, and what it takes only what they all do: so less is
+							;said to be gone by here than may be, never more
+							(. by_function :insert path (if was
+									(list (if (or (first was) (first now)) (logior (ifn (first was) 0) (ifn (first now) 0)))
+										(logand (second was) (second now)) (logior (third was) (third now)))
+									now))))))))
 	(list by_function class_db))
 
 (defun called-of (inst all labels methods)
@@ -198,13 +198,12 @@
 					(and (defq m (.-> entry (:find :methods) (:find method))) (. m :find :declared) (setq found m))
 					(setq class (. entry :find :parent)))
 				(if found (list name (bits-of (regs-of (. found :find :declared)))
-					(declared-of class_db of method :dec_inputs)
-					(declared-of class_db of method :dec_outputs)))))))
-
+						(declared-of class_db of method :dec_inputs)
+						(declared-of class_db of method :dec_outputs)))))))
 
 ;module
 (defq *vp_root* +obj_dir)
 (export-symbols '(*vp_root* insts-of vp-root vp-index vp-listing vp-functions-of regs-of target-of next-of
-	bit-of bits-of declared-of methods-of called-of +regs
-	+obj_dir +jit_dir +load_ops +store_ops +leave_ops +call_ops +data_ops))
+		bit-of bits-of declared-of methods-of called-of +regs
+		+obj_dir +jit_dir +load_ops +store_ops +leave_ops +call_ops +data_ops))
 (env-pop)

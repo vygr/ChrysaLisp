@@ -34,7 +34,7 @@
 		(when (> handle 0)
 			(defq heard (list))
 			(if (defq shook (catch (door-shake handle key (nql kind "A")
-						(or (eql kind "S") (and (eql kind "D") (door-outside? host))) :nil heard) :nil))
+							(or (eql kind "S") (and (eql kind "D") (door-outside? host))) :nil heard) :nil))
 				(door-carry handle shook)
 				(net-close handle))
 			;one of another link, of before there were versions or of another,

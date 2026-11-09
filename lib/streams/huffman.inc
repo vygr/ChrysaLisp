@@ -274,6 +274,6 @@
 
 ;module
 (export-symbols '(huffman-lengths huffman-codes huffman-table huffman-symbol
-	huffman-compress huffman-decompress huffman-freqs huffman-book huffman-write-book huffman-read-book
-	huffman-compress-static huffman-decompress-static))
+		huffman-compress huffman-decompress huffman-freqs huffman-book huffman-write-book huffman-read-book
+		huffman-compress-static huffman-decompress-static))
 (env-pop)

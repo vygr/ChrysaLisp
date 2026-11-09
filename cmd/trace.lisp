@@ -7,7 +7,6 @@
 (import "service/lock/app.inc")
 (import "lib/asm/assembled.inc")
 
-
 (defq usage `(
 	(("-h" "--help")
 	"Usage: trace [options] [function_name] ...
@@ -52,30 +51,30 @@
 (defun format-trashes (func_map)
 	(defq r_indices (list) f_indices (list))
 	(each (# (if (nql %0 :rsp) (if (starts-with ":r" %0)
-			(push r_indices (vp-reg? %0))
-			(push f_indices (vp-reg? %0)))))
+					(push r_indices (vp-reg? %0))
+					(push f_indices (vp-reg? %0)))))
 		(if (pmap? func_map) (vpmap-tolist func_map) func_map))
 	(defq formatted_parts (cat
-		(format-group ":r" r_indices)
-		(format-group ":d" f_indices)))
+			(format-group ":r" r_indices)
+			(format-group ":d" f_indices)))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
 (defun format-values (func_map)
 	(if (empty? (defq out
-			(map (lambda ((%0 %1)) (str %0 " -> " (format-trashes %1)))
-				(partition (reduce (lambda (%0 (%1 %2))
-					(cond
-						((eql %1 %2) %0)
-						((defq i (pfindi %0 %2)) (push (elem-get %0 (inc i)) %1) %0)
-						((pinsert %0 %2 (list %1)))))
-					(partition func_map 2) (pmap)) 2))))
+					(map (lambda ((%0 %1)) (str %0 " -> " (format-trashes %1)))
+						(partition (reduce (lambda (%0 (%1 %2))
+									(cond
+										((eql %1 %2) %0)
+										((defq i (pfindi %0 %2)) (push (elem-get %0 (inc i)) %1) %0)
+										((pinsert %0 %2 (list %1)))))
+								(partition func_map 2) (pmap)) 2))))
 		"none" (join out " | ")))
 
 (defun resolve-static-method (insts lbl)
 	;find function that implements this static method
 	(second (elem-get insts
-		(inc (get (second (second (elem-get insts
-			(inc (get lbl))))))))))
+			(inc (get (second (second (elem-get insts
+								(inc (get lbl))))))))))
 
 (defun resolve-virtual-method (c m)
 	;find function that implements this virtual method
@@ -86,64 +85,63 @@
 	;and all subclass overrides !
 	(map! (# (resolve-virtual-method %0 m))
 		(list (. (defq m_entry (.-> (. *class_db* :find c)
-			(:find :methods) (:find m))) :find :overrides))
+						(:find :methods) (:find m))) :find :overrides))
 		0 -1 (list (. m_entry :find :function))))
 
 (defq +inst_specs (scatter (Fmap 31)
-	; integer rr
-	'cpy-rr '(:r :r) 'add-rr '(:r :r) 'sub-rr '(:r :r) 'mul-rr '(:r :r)
-	'and-rr '(:r :r) 'or-rr '(:r :r) 'xor-rr '(:r :r) 'shl-rr '(:r :r)
-	'shr-rr '(:r :r) 'asr-rr '(:r :r) 'swp-rr '(:r :r)
-	; integer cr
-	'cpy-cr '(:c :r) 'add-cr '(:c :r) 'sub-cr '(:c :r) 'mul-cr '(:c :r)
-	'and-cr '(:c :r) 'or-cr '(:c :r) 'xor-cr '(:c :r) 'shl-cr '(:c :r)
-	'shr-cr '(:c :r) 'asr-cr '(:c :r)
-	; integer min/max/abs
-	'min-rr '(:r :r) 'max-rr '(:r :r) 'abs-rr '(:r :r)
-	'min-cr '(:c :r) 'max-cr '(:c :r)
-	; integer division and remainder
-	'div-rr '(:r :r) 'div-rr-u '(:r :r) 'rem-rr '(:r :r) 'rem-rr-u '(:r :r)
-	; integer branches
-	'beq-cr '(:c :r :label) 'bne-cr '(:c :r :label) 'blt-cr '(:c :r :label) 'bgt-cr '(:c :r :label)
-	'ble-cr '(:c :r :label) 'bge-cr '(:c :r :label) 'beq-rr '(:r :r :label) 'bne-rr '(:r :r :label)
-	'blt-rr '(:r :r :label) 'bgt-rr '(:r :r :label) 'ble-rr '(:r :r :label) 'bge-rr '(:r :r :label)
-	; integer memory
-	'load-rcr '(:r :c :r) 'load-rcr-b '(:r :c :r) 'load-rcr-s '(:r :c :r) 'load-rcr-i '(:r :c :r)
-	'load-rcr-ub '(:r :c :r) 'load-rcr-us '(:r :c :r) 'load-rcr-ui '(:r :c :r) 'lea-rcr '(:r :c :r)
-	'store-rrc '(:r :r :c) 'store-rrc-b '(:r :r :c) 'store-rrc-s '(:r :r :c) 'store-rrc-i '(:r :r :c)
-	'load-rrr '(:r :r :r) 'load-rrr-b '(:r :r :r) 'load-rrr-s '(:r :r :r) 'load-rrr-i '(:r :r :r)
-	'load-rrr-ub '(:r :r :r) 'load-rrr-us '(:r :r :r) 'load-rrr-ui '(:r :r :r) 'lea-rrr '(:r :r :r)
-	'store-rrr '(:r :r :r) 'store-rrr-b '(:r :r :r) 'store-rrr-s '(:r :r :r) 'store-rrr-i '(:r :r :r)
-	; float alu, :d a double's register, :f a single's
-	'cpy-dd '(:d :d) 'add-dd '(:d :d) 'sub-dd '(:d :d) 'mul-dd '(:d :d)
-	'div-dd '(:d :d) 'min-dd '(:d :d) 'max-dd '(:d :d) 'sqrt-dd '(:d :d)
-	'abs-dd '(:d :d) 'neg-dd '(:d :d)
-	'add-ff '(:f :f) 'sub-ff '(:f :f) 'mul-ff '(:f :f) 'div-ff '(:f :f)
-	'min-ff '(:f :f) 'max-ff '(:f :f) 'sqrt-ff '(:f :f) 'abs-ff '(:f :f)
-	'neg-ff '(:f :f)
-	; float branches
-	'beq-dd '(:d :d :label) 'bne-dd '(:d :d :label) 'blt-dd '(:d :d :label)
-	'bgt-dd '(:d :d :label) 'ble-dd '(:d :d :label) 'bge-dd '(:d :d :label)
-	'beq-ff '(:f :f :label) 'bne-ff '(:f :f :label) 'blt-ff '(:f :f :label)
-	'bgt-ff '(:f :f :label) 'ble-ff '(:f :f :label) 'bge-ff '(:f :f :label)
-	; conversions & mixed
-	'cpy-rd '(:r :d) 'cpy-dr '(:d :r) 'cvt-rd '(:r :d) 'cvt-dr '(:d :r)
-	'cpy-rf '(:r :f) 'cpy-fr '(:f :r) 'cvt-rf '(:r :f) 'cvt-fr '(:f :r)
-	'cvt-fd '(:f :d) 'cvt-df '(:d :f)
-	; float memory
-	'load-rcd '(:r :c :d) 'store-drc '(:d :r :c) 'load-rrd '(:r :r :d) 'store-drr '(:d :r :r)
-	'load-rcf '(:r :c :f) 'store-frc '(:f :r :c) 'load-rrf '(:r :r :f) 'store-frr '(:f :r :r)
-	; control / call / jump
-	'call '(:label) 'call-p '(:label) 'jmp '(:label) 'jmp-p '(:label)
-	'call-r '(:r &rest :any) 'jmp-r '(:r &rest :any) 'call-rc '(:r :c &rest :any) 'jmp-rc '(:r :c &rest :any)
-	'call-abi '(:r :r :c :c &rest :any) 'load-pr '(:label :r) 'lea-pr '(:label :r)
-	; stack / helpers
-	'push '(&rest :reg) 'pop '(&rest :reg) 'trash '(&rest :reg) 'alloc '(:c)
-	'free '(:c) 'ret '() 'sync '(&optional :c)
-	'stack-init '(:r :r :r) 'save-state '() 'load-state '() 'entry-abi '(:c) 'label '(:label) 'tlabel '(:label) 'align '(:c &optional :c)
-	'string '(:str) 'byte '(&rest :c) 'short '(&rest :c) 'int '(&rest :c)
-	'long '(&rest :c) 'nop '() 'vp-nop '()
-))
+		; integer rr
+		'cpy-rr '(:r :r) 'add-rr '(:r :r) 'sub-rr '(:r :r) 'mul-rr '(:r :r)
+		'and-rr '(:r :r) 'or-rr '(:r :r) 'xor-rr '(:r :r) 'shl-rr '(:r :r)
+		'shr-rr '(:r :r) 'asr-rr '(:r :r) 'swp-rr '(:r :r)
+		; integer cr
+		'cpy-cr '(:c :r) 'add-cr '(:c :r) 'sub-cr '(:c :r) 'mul-cr '(:c :r)
+		'and-cr '(:c :r) 'or-cr '(:c :r) 'xor-cr '(:c :r) 'shl-cr '(:c :r)
+		'shr-cr '(:c :r) 'asr-cr '(:c :r)
+		; integer min/max/abs
+		'min-rr '(:r :r) 'max-rr '(:r :r) 'abs-rr '(:r :r)
+		'min-cr '(:c :r) 'max-cr '(:c :r)
+		; integer division and remainder
+		'div-rr '(:r :r) 'div-rr-u '(:r :r) 'rem-rr '(:r :r) 'rem-rr-u '(:r :r)
+		; integer branches
+		'beq-cr '(:c :r :label) 'bne-cr '(:c :r :label) 'blt-cr '(:c :r :label) 'bgt-cr '(:c :r :label)
+		'ble-cr '(:c :r :label) 'bge-cr '(:c :r :label) 'beq-rr '(:r :r :label) 'bne-rr '(:r :r :label)
+		'blt-rr '(:r :r :label) 'bgt-rr '(:r :r :label) 'ble-rr '(:r :r :label) 'bge-rr '(:r :r :label)
+		; integer memory
+		'load-rcr '(:r :c :r) 'load-rcr-b '(:r :c :r) 'load-rcr-s '(:r :c :r) 'load-rcr-i '(:r :c :r)
+		'load-rcr-ub '(:r :c :r) 'load-rcr-us '(:r :c :r) 'load-rcr-ui '(:r :c :r) 'lea-rcr '(:r :c :r)
+		'store-rrc '(:r :r :c) 'store-rrc-b '(:r :r :c) 'store-rrc-s '(:r :r :c) 'store-rrc-i '(:r :r :c)
+		'load-rrr '(:r :r :r) 'load-rrr-b '(:r :r :r) 'load-rrr-s '(:r :r :r) 'load-rrr-i '(:r :r :r)
+		'load-rrr-ub '(:r :r :r) 'load-rrr-us '(:r :r :r) 'load-rrr-ui '(:r :r :r) 'lea-rrr '(:r :r :r)
+		'store-rrr '(:r :r :r) 'store-rrr-b '(:r :r :r) 'store-rrr-s '(:r :r :r) 'store-rrr-i '(:r :r :r)
+		; float alu, :d a double's register, :f a single's
+		'cpy-dd '(:d :d) 'add-dd '(:d :d) 'sub-dd '(:d :d) 'mul-dd '(:d :d)
+		'div-dd '(:d :d) 'min-dd '(:d :d) 'max-dd '(:d :d) 'sqrt-dd '(:d :d)
+		'abs-dd '(:d :d) 'neg-dd '(:d :d)
+		'add-ff '(:f :f) 'sub-ff '(:f :f) 'mul-ff '(:f :f) 'div-ff '(:f :f)
+		'min-ff '(:f :f) 'max-ff '(:f :f) 'sqrt-ff '(:f :f) 'abs-ff '(:f :f)
+		'neg-ff '(:f :f)
+		; float branches
+		'beq-dd '(:d :d :label) 'bne-dd '(:d :d :label) 'blt-dd '(:d :d :label)
+		'bgt-dd '(:d :d :label) 'ble-dd '(:d :d :label) 'bge-dd '(:d :d :label)
+		'beq-ff '(:f :f :label) 'bne-ff '(:f :f :label) 'blt-ff '(:f :f :label)
+		'bgt-ff '(:f :f :label) 'ble-ff '(:f :f :label) 'bge-ff '(:f :f :label)
+		; conversions & mixed
+		'cpy-rd '(:r :d) 'cpy-dr '(:d :r) 'cvt-rd '(:r :d) 'cvt-dr '(:d :r)
+		'cpy-rf '(:r :f) 'cpy-fr '(:f :r) 'cvt-rf '(:r :f) 'cvt-fr '(:f :r)
+		'cvt-fd '(:f :d) 'cvt-df '(:d :f)
+		; float memory
+		'load-rcd '(:r :c :d) 'store-drc '(:d :r :c) 'load-rrd '(:r :r :d) 'store-drr '(:d :r :r)
+		'load-rcf '(:r :c :f) 'store-frc '(:f :r :c) 'load-rrf '(:r :r :f) 'store-frr '(:f :r :r)
+		; control / call / jump
+		'call '(:label) 'call-p '(:label) 'jmp '(:label) 'jmp-p '(:label)
+		'call-r '(:r &rest :any) 'jmp-r '(:r &rest :any) 'call-rc '(:r :c &rest :any) 'jmp-rc '(:r :c &rest :any)
+		'call-abi '(:r :r :c :c &rest :any) 'load-pr '(:label :r) 'lea-pr '(:label :r)
+		; stack / helpers
+		'push '(&rest :reg) 'pop '(&rest :reg) 'trash '(&rest :reg) 'alloc '(:c)
+		'free '(:c) 'ret '() 'sync '(&optional :c)
+		'stack-init '(:r :r :r) 'save-state '() 'load-state '() 'entry-abi '(:c) 'label '(:label) 'tlabel '(:label) 'align '(:c &optional :c)
+		'string '(:str) 'byte '(&rest :c) 'short '(&rest :c) 'int '(&rest :c)
+		'long '(&rest :c) 'nop '() 'vp-nop '()))
 
 (defun check-op-type (expected actual)
 	(case expected
@@ -181,8 +179,8 @@
 						(++ a_idx))))
 			(unless err
 				(while (and (< s_idx (length spec))
-							(nql (elem-get spec s_idx) '&optional)
-							(nql (elem-get spec s_idx) '&rest))
+						(nql (elem-get spec s_idx) '&optional)
+						(nql (elem-get spec s_idx) '&rest))
 					(setq err (str "missing required argument of type " (elem-get spec s_idx)))
 					(++ s_idx)))
 			(when err
@@ -195,14 +193,14 @@
 (defun get-function-insts (function)
 	; (get-function-insts function) -> :nil | insts
 	(defq e (penv) insts (memoize function
-		(when (defq loaded_insts (first (vp-listing function)))
-			(and opt_i loaded_insts
-				(check-insts-integrity function loaded_insts))
-			loaded_insts) 101))
+			(when (defq loaded_insts (first (vp-listing function)))
+				(and opt_i loaded_insts
+					(check-insts-integrity function loaded_insts))
+				loaded_insts) 101))
 	(when insts
 		;inject local labels into callers env !
 		(each (# (if (find (first %0) '(label tlabel))
-			(def e (last (second %0)) (!)))) insts)
+					(def e (last (second %0)) (!)))) insts)
 		;inject start and end pc's into callers env !
 		(bind '(& & _s _e &ignore) (elem-get insts 2))
 		(def e '_s (get _s) '_e (get _e)))
@@ -212,7 +210,7 @@
 	;scan the compiled VP object
 	(defq deps (list))
 	(and (nql function :indirect) (nql function :abicall)
-			(defq insts (get-function-insts function))
+		(defq insts (get-function-insts function))
 		(each! (lambda (inst)
 				(cond
 					((find (defq c :nil m :nil op (first inst)) '(call-p jmp-p))
@@ -229,13 +227,13 @@
 	;calculate the union of all this class method trashes
 	;and its subclasses overrides, based on the current state of the active db
 	(reduce (# (if (and (not (find %1 +zero_clobber_funcs)) (defq entry (. db :find %1)))
-			(merge %0 (second entry)) %0))
+				(merge %0 (second entry)) %0))
 		(resolve-virtual-methods c m) (list)))
 
 (defmacro verbose (v &rest info)
 	(static-qq (when (<= ,v opt_v)
-		(print ~info)
-		(stream-flush (io-stream 'stdout)))))
+			(print ~info)
+			(stream-flush (io-stream 'stdout)))))
 
 (defmacro lisp-restored (callee)
 	;:lisp :repl_error takes the lisp object from the tcb, and gives it back
@@ -276,224 +274,224 @@
 		((not (defq insts (get-function-insts function)))
 			(list :external))
 		(;register tracing simulation ! (as near as we can anyways)
-		;start main trace from pc _s
-		(defq label_map (pmap) call_list (list) func_map (vpmap) trace -1
-			traces (list (list _s 0 (vpmap) (pmap) (list) 0)))
-		(verbose 3 "\ttracing " function)
-		(while (defq trace (inc trace) trace_map (pop traces))
-			(task-slice)
-			(bind '(*pc* *rsp* trace_map stack_map call_stack depth) trace_map)
-			(while (< *pc* _e)
-				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
-				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
-				(pcase (first inst) +vp_emit_ops
-					((label tlabel)
-						;update merged state at labels
-						(defq pc (get (last (second inst)))
-							key (str pc ":" (ifn (last call_stack) 0))
-							lm (pfind label_map key))
-						(cond
-							((or (not lm) (vpmap-changed? trace_map lm))
-								(if lm (vpmap-merge trace_map lm))
-								(pinsert label_map key (cat trace_map)))
-							((setq *pc* +max_long))))
-					((beq-cr bne-cr bge-cr ble-cr blt-cr bgt-cr
-					beq-rr bne-rr bge-rr ble-rr blt-rr bgt-rr
-					beq-dd bne-dd blt-dd bgt-dd ble-dd bge-dd
-					beq-ff bne-ff blt-ff bgt-ff ble-ff bge-ff)
-						;if branch would carry new state then create new trace
-						(defq pc (get (last inst))
-							key (str pc ":" (ifn (last call_stack) 0))
-							lm (pfind label_map key))
-						(when (or (not lm) (vpmap-changed? trace_map lm))
-							(push traces (list pc *rsp*
-								(cat trace_map) (cat stack_map) (cat call_stack) depth))))
-					((cpy-rr cpy-dd cpy-rd cpy-dr)
-						;copy value and mark as trashed or restored, a single's
-						;register by the one name of it
-						(pinsert trace_map (vp-reg-whole (last inst)) (pfind trace_map (vp-reg-whole (second inst)))))
-					(swp-rr
-						;swap values and mark as trashed or restored
-						(each (# (pinsert trace_map %0 %1))
-							(rest inst) (map! (# (pfind trace_map %0)) (list inst) -1 1)))
-					(alloc
-						(stack-words function (second inst))
-						(setq depth (+ depth (second inst)) *rsp* (-- *rsp* (second inst))))
-					(free
-						(stack-words function (second inst))
-						(setq depth (stack-take function depth (second inst)) *rsp* (++ *rsp* (second inst)))
-						(each (lambda ((%0 &ignore))
-								(if (< %0 *rsp*) (perase stack_map %0)))
-							(partition stack_map 2)))
-					(push
-						(setq depth (+ depth (* (dec (length inst)) +long_size)))
-						;push the values of all registers pushed
-						(each! (# (pinsert stack_map (-- *rsp* +long_size)
-								(pfind trace_map (vp-reg-whole %0))))
-							(list inst) 1))
-					(pop
-						(setq depth (stack-take function depth (* (dec (length inst)) +long_size)))
-						;pop the values of all registers popped
-						;and flag if register is now restored
-						(each! (# (pinsert trace_map (vp-reg-whole %0) (pfind stack_map *rsp*))
-								(perase stack_map *rsp*)
-								(++ *rsp* +long_size))
-							(list inst) -1 1))
-					((store-rrc store-drc)
-						;stack spill 64 bit
-						(when (eql (third inst) :rsp)
-							(bind '(& src & offset) inst)
-							(pinsert stack_map (+ *rsp* offset) (pfind trace_map (vp-reg-whole src)))))
-					((load-rcr load-rcd)
-						;stack load 64 bit, or the load of the task's lisp
-						;object, statics -> a tcb -> its lisp object, which
-						;is what a method of the lisp has in :r0 on entry,
-						;so that restores it, see (lisp-this)
-						(bind '(& src offset dst) inst)
-						(pinsert trace_map (vp-reg-whole dst) (cond
-							((eql src :rsp) (pfind stack_map (+ *rsp* offset)))
-							((eql (defq val (pfind trace_map src)) :statics) :statics_ptr)
-							((and (eql val :statics_ptr) (= offset +tk_node_lisp)) :r0))))
-					(load-pr
-						;the address of the statics, or of anything else
-						(pinsert trace_map (last inst)
-							(if (eql (catch (resolve-static-method insts (second inst)) :t)
-								"sys/statics/statics") :statics)))
-					((store-rrc-b store-rrc-s store-rrc-i store-frc)
-						;quantize offset down to the nearest 8-byte
-						;boundary and erase the slot
-						(when (eql (third inst) :rsp)
-							(perase stack_map (+ *rsp* (logand (const (neg +long_size)) (last inst))))))
-					(ret
-						;we are inside an inlined local subroutine, return to the caller
-						(unless (setq *pc* (pop call_stack))
-							;return from main, merge clobbers and terminate path
-							(stack-left function depth)
-							(vpmap-merge func_map trace_map)
-							(setq *pc* +max_long)))
-					(call
-						;local subroutine call, inline it using the path's call stack
-						(when (defq target_pc (get (second inst)))
-							(push call_stack *pc*)
-							(setq *pc* target_pc)))
-					(jmp
-						;if jump would carry new state then jump, else kill trace
-						(defq pc (get (last inst))
-							key (str pc ":" (ifn (last call_stack) 0))
-							lm (pfind label_map key))
-						(if (or (not lm) (vpmap-changed? trace_map lm))
-							(setq *pc* pc)
-							(setq *pc* +max_long)))
-					(call-p
-						;use the callee trashes set
-						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
-						;known trashed registers from db during symbolic execution
-						(when (and (not (find callee +zero_clobber_funcs))
-								(defq callee_entry (. db :find callee)))
-							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
-							(vpmap-clobber trace_map (second callee_entry)))
-						(lisp-restored callee)
-						(if (find callee +no_return_funcs) (setq *pc* +max_long)))
-					(jmp-p
-						;exit function, merge and kill trace or
-						;return to local caller if in subroutine
-						(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
-						;known trashed registers from db during symbolic execution
-						(when (and (not (find callee +zero_clobber_funcs))
-								(defq callee_entry (. db :find callee)))
-							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
-							(vpmap-clobber trace_map (second callee_entry)))
-						(lisp-restored callee)
-						(cond
-							((find callee +no_return_funcs) (setq *pc* +max_long))
-							((setq *pc* (pop call_stack)))
-							(:t (stack-left function depth)
+			;start main trace from pc _s
+			(defq label_map (pmap) call_list (list) func_map (vpmap) trace -1
+				traces (list (list _s 0 (vpmap) (pmap) (list) 0)))
+			(verbose 3 "\ttracing " function)
+			(while (defq trace (inc trace) trace_map (pop traces))
+				(task-slice)
+				(bind '(*pc* *rsp* trace_map stack_map call_stack depth) trace_map)
+				(while (< *pc* _e)
+					(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
+					(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
+					(pcase (first inst) +vp_emit_ops
+						((label tlabel)
+							;update merged state at labels
+							(defq pc (get (last (second inst)))
+								key (str pc ":" (ifn (last call_stack) 0))
+								lm (pfind label_map key))
+							(cond
+								((or (not lm) (vpmap-changed? trace_map lm))
+									(if lm (vpmap-merge trace_map lm))
+									(pinsert label_map key (cat trace_map)))
+								((setq *pc* +max_long))))
+						((beq-cr bne-cr bge-cr ble-cr blt-cr bgt-cr
+								beq-rr bne-rr bge-rr ble-rr blt-rr bgt-rr
+								beq-dd bne-dd blt-dd bgt-dd ble-dd bge-dd
+								beq-ff bne-ff blt-ff bgt-ff ble-ff bge-ff)
+							;if branch would carry new state then create new trace
+							(defq pc (get (last inst))
+								key (str pc ":" (ifn (last call_stack) 0))
+								lm (pfind label_map key))
+							(when (or (not lm) (vpmap-changed? trace_map lm))
+								(push traces (list pc *rsp*
+										(cat trace_map) (cat stack_map) (cat call_stack) depth))))
+						((cpy-rr cpy-dd cpy-rd cpy-dr)
+							;copy value and mark as trashed or restored, a single's
+							;register by the one name of it
+							(pinsert trace_map (vp-reg-whole (last inst)) (pfind trace_map (vp-reg-whole (second inst)))))
+						(swp-rr
+							;swap values and mark as trashed or restored
+							(each (# (pinsert trace_map %0 %1))
+								(rest inst) (map! (# (pfind trace_map %0)) (list inst) -1 1)))
+						(alloc
+							(stack-words function (second inst))
+							(setq depth (+ depth (second inst)) *rsp* (-- *rsp* (second inst))))
+						(free
+							(stack-words function (second inst))
+							(setq depth (stack-take function depth (second inst)) *rsp* (++ *rsp* (second inst)))
+							(each (lambda ((%0 &ignore))
+									(if (< %0 *rsp*) (perase stack_map %0)))
+								(partition stack_map 2)))
+						(push
+							(setq depth (+ depth (* (dec (length inst)) +long_size)))
+							;push the values of all registers pushed
+							(each! (# (pinsert stack_map (-- *rsp* +long_size)
+										(pfind trace_map (vp-reg-whole %0))))
+								(list inst) 1))
+						(pop
+							(setq depth (stack-take function depth (* (dec (length inst)) +long_size)))
+							;pop the values of all registers popped
+							;and flag if register is now restored
+							(each! (# (pinsert trace_map (vp-reg-whole %0) (pfind stack_map *rsp*))
+									(perase stack_map *rsp*)
+									(++ *rsp* +long_size))
+								(list inst) -1 1))
+						((store-rrc store-drc)
+							;stack spill 64 bit
+							(when (eql (third inst) :rsp)
+								(bind '(& src & offset) inst)
+								(pinsert stack_map (+ *rsp* offset) (pfind trace_map (vp-reg-whole src)))))
+						((load-rcr load-rcd)
+							;stack load 64 bit, or the load of the task's lisp
+							;object, statics -> a tcb -> its lisp object, which
+							;is what a method of the lisp has in :r0 on entry,
+							;so that restores it, see (lisp-this)
+							(bind '(& src offset dst) inst)
+							(pinsert trace_map (vp-reg-whole dst) (cond
+									((eql src :rsp) (pfind stack_map (+ *rsp* offset)))
+									((eql (defq val (pfind trace_map src)) :statics) :statics_ptr)
+									((and (eql val :statics_ptr) (= offset +tk_node_lisp)) :r0))))
+						(load-pr
+							;the address of the statics, or of anything else
+							(pinsert trace_map (last inst)
+								(if (eql (catch (resolve-static-method insts (second inst)) :t)
+										"sys/statics/statics") :statics)))
+						((store-rrc-b store-rrc-s store-rrc-i store-frc)
+							;quantize offset down to the nearest 8-byte
+							;boundary and erase the slot
+							(when (eql (third inst) :rsp)
+								(perase stack_map (+ *rsp* (logand (const (neg +long_size)) (last inst))))))
+						(ret
+							;we are inside an inlined local subroutine, return to the caller
+							(unless (setq *pc* (pop call_stack))
+								;return from main, merge clobbers and terminate path
+								(stack-left function depth)
 								(vpmap-merge func_map trace_map)
-								(setq *pc* +max_long))))
-					(call-r
-						(if (bind '(& & &optional c m) inst)
-							(defq clobbers (virtual-trashes-union c m)
-								calls (resolve-virtual-methods c m))
-							(defq clobbers +all_extern_trashed calls '(:indirect)))
-						(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
-						(merge call_list calls)
-						(vpmap-clobber trace_map clobbers))
-					(call-rc
-						(if (bind '(& & & &optional c m) inst)
-							(defq clobbers (virtual-trashes-union c m)
-								calls (resolve-virtual-methods c m))
-							(defq clobbers +all_extern_trashed calls '(:indirect)))
-						(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
-						(merge call_list calls)
-						(vpmap-clobber trace_map clobbers))
-					(jmp-r
-						;exit function, merge and kill trace or
-						;return to local caller if in subroutine
-						(if (bind '(& & &optional c m) inst)
-							(defq clobbers (virtual-trashes-union c m)
-								calls (resolve-virtual-methods c m))
-							(defq clobbers +all_extern_trashed calls '(:indirect)))
-						(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
-						(merge call_list calls)
-						(vpmap-clobber trace_map clobbers)
-						(unless (setq *pc* (pop call_stack))
-							;one that names no method is the return of a subroutine
-							;of the function's own, (subroutine), not a jump out
-							(if (third inst) (stack-left function depth))
-							(vpmap-merge func_map trace_map)
-							(setq *pc* +max_long)))
-					(jmp-rc
-						;exit function, merge and kill trace or
-						;return to local caller if in subroutine
-						(if (bind '(& & & &optional c m) inst)
-							(defq clobbers (virtual-trashes-union c m)
-								calls (resolve-virtual-methods c m))
-							(defq clobbers +all_extern_trashed calls '(:indirect)))
-						(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
-						(merge call_list calls)
-						(vpmap-clobber trace_map clobbers)
-						(unless (setq *pc* (pop call_stack))
-							(stack-left function depth)
-							(vpmap-merge func_map trace_map)
-							(setq *pc* +max_long)))
-					(call-abi
-						;simulate the union of all platform clobbers
-						(merge call_list '(:abicall))
-						(each (# (pinsert trace_map %0 :nil))
-							(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
-					(trash
-						;simulate the trashing of listed regs
-						(each! (# (pinsert trace_map (vp-reg-whole %0) :nil)) (list inst) 1))
-					((store-rrr store-rrr-b store-rrr-s store-rrr-i store-drr store-frr)
-						;ignore as no reg writes
-						:ignore)
-					((min-cr min-rr max-cr max-rr vp-abs-rr)
-						;has label offset as last arg !
-						(pinsert trace_map (third inst) :nil))
-					(:t ;all remaining, check last for reg, a single's as the
-						;register it is of
-						(if (vp-reg? (last inst)) (pinsert trace_map (vp-reg-whole (last inst)) :nil))))
-				(verbose 3 "\t\t\t" (format-trashes trace_map))
-				(verbose 4 "\t\t\t" (format-values trace_map) "\n\t\t\t" (partition stack_map 2)))
-			(verbose 4 "\t\tmerged " (format-trashes func_map)))
-		(list :function (vpmap-tolist func_map) call_list))))
+								(setq *pc* +max_long)))
+						(call
+							;local subroutine call, inline it using the path's call stack
+							(when (defq target_pc (get (second inst)))
+								(push call_stack *pc*)
+								(setq *pc* target_pc)))
+						(jmp
+							;if jump would carry new state then jump, else kill trace
+							(defq pc (get (last inst))
+								key (str pc ":" (ifn (last call_stack) 0))
+								lm (pfind label_map key))
+							(if (or (not lm) (vpmap-changed? trace_map lm))
+								(setq *pc* pc)
+								(setq *pc* +max_long)))
+						(call-p
+							;use the callee trashes set
+							(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
+							;known trashed registers from db during symbolic execution
+							(when (and (not (find callee +zero_clobber_funcs))
+									(defq callee_entry (. db :find callee)))
+								(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
+								(vpmap-clobber trace_map (second callee_entry)))
+							(lisp-restored callee)
+							(if (find callee +no_return_funcs) (setq *pc* +max_long)))
+						(jmp-p
+							;exit function, merge and kill trace or
+							;return to local caller if in subroutine
+							(merge call_list (list (defq callee (resolve-static-method insts (second inst)))))
+							;known trashed registers from db during symbolic execution
+							(when (and (not (find callee +zero_clobber_funcs))
+									(defq callee_entry (. db :find callee)))
+								(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
+								(vpmap-clobber trace_map (second callee_entry)))
+							(lisp-restored callee)
+							(cond
+								((find callee +no_return_funcs) (setq *pc* +max_long))
+								((setq *pc* (pop call_stack)))
+								(:t (stack-left function depth)
+									(vpmap-merge func_map trace_map)
+									(setq *pc* +max_long))))
+						(call-r
+							(if (bind '(& & &optional c m) inst)
+								(defq clobbers (virtual-trashes-union c m)
+									calls (resolve-virtual-methods c m))
+								(defq clobbers +all_extern_trashed calls '(:indirect)))
+							(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
+							(merge call_list calls)
+							(vpmap-clobber trace_map clobbers))
+						(call-rc
+							(if (bind '(& & & &optional c m) inst)
+								(defq clobbers (virtual-trashes-union c m)
+									calls (resolve-virtual-methods c m))
+								(defq clobbers +all_extern_trashed calls '(:indirect)))
+							(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
+							(merge call_list calls)
+							(vpmap-clobber trace_map clobbers))
+						(jmp-r
+							;exit function, merge and kill trace or
+							;return to local caller if in subroutine
+							(if (bind '(& & &optional c m) inst)
+								(defq clobbers (virtual-trashes-union c m)
+									calls (resolve-virtual-methods c m))
+								(defq clobbers +all_extern_trashed calls '(:indirect)))
+							(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
+							(merge call_list calls)
+							(vpmap-clobber trace_map clobbers)
+							(unless (setq *pc* (pop call_stack))
+								;one that names no method is the return of a subroutine
+								;of the function's own, (subroutine), not a jump out
+								(if (third inst) (stack-left function depth))
+								(vpmap-merge func_map trace_map)
+								(setq *pc* +max_long)))
+						(jmp-rc
+							;exit function, merge and kill trace or
+							;return to local caller if in subroutine
+							(if (bind '(& & & &optional c m) inst)
+								(defq clobbers (virtual-trashes-union c m)
+									calls (resolve-virtual-methods c m))
+								(defq clobbers +all_extern_trashed calls '(:indirect)))
+							(verbose 5 "\t\t\t\ttrashes " (format-trashes clobbers))
+							(merge call_list calls)
+							(vpmap-clobber trace_map clobbers)
+							(unless (setq *pc* (pop call_stack))
+								(stack-left function depth)
+								(vpmap-merge func_map trace_map)
+								(setq *pc* +max_long)))
+						(call-abi
+							;simulate the union of all platform clobbers
+							(merge call_list '(:abicall))
+							(each (# (pinsert trace_map %0 :nil))
+								(cat (list :r0 (second inst) (third inst)) +all_abi_trashed_regs)))
+						(trash
+							;simulate the trashing of listed regs
+							(each! (# (pinsert trace_map (vp-reg-whole %0) :nil)) (list inst) 1))
+						((store-rrr store-rrr-b store-rrr-s store-rrr-i store-drr store-frr)
+							;ignore as no reg writes
+							:ignore)
+						((min-cr min-rr max-cr max-rr vp-abs-rr)
+							;has label offset as last arg !
+							(pinsert trace_map (third inst) :nil))
+						(:t ;all remaining, check last for reg, a single's as the
+							;register it is of
+							(if (vp-reg? (last inst)) (pinsert trace_map (vp-reg-whole (last inst)) :nil))))
+					(verbose 3 "\t\t\t" (format-trashes trace_map))
+					(verbose 4 "\t\t\t" (format-values trace_map) "\n\t\t\t" (partition stack_map 2)))
+				(verbose 4 "\t\tmerged " (format-trashes func_map)))
+			(list :function (vpmap-tolist func_map) call_list))))
 
 (defun propagate-trashes (functions)
 	(defq db (Fmap 101) order (tsort functions (const get-dependencies)))
 	;each caller now accurately steps through callee clobber states
 	(each (lambda (function)
-		(unless (. db :find function)
-			(verbose 1 "analyzing " function)
-			(bind '(type &optional func_map call_list) (analyze-function function db))
-			(cond
-				((eql type :external)
-					(. db :insert function (list :external +all_extern_trashed)))
-				((and (eql type :function) (find function +all_clobber_funcs))
-					(. db :insert function (list :function (cat +all_extern_trashed) call_list)))
-				((eql type :function)
-					(verbose 2 "\tfunction " function "\n\t\tcalls " call_list
-						"\n\t\ttrashes " (format-trashes func_map))
-					(. db :insert function (list :function func_map call_list))))))
+			(unless (. db :find function)
+				(verbose 1 "analyzing " function)
+				(bind '(type &optional func_map call_list) (analyze-function function db))
+				(cond
+					((eql type :external)
+						(. db :insert function (list :external +all_extern_trashed)))
+					((and (eql type :function) (find function +all_clobber_funcs))
+						(. db :insert function (list :function (cat +all_extern_trashed) call_list)))
+					((eql type :function)
+						(verbose 2 "\tfunction " function "\n\t\tcalls " call_list
+							"\n\t\ttrashes " (format-trashes func_map))
+						(. db :insert function (list :function func_map call_list))))))
 		order)
 	;converge remaining by re-running analysis until register clobbers stabilize
 	(defq changed :t changed_set (scatter (Fset 101) order) next_changed (Fset 101))
@@ -501,21 +499,21 @@
 		(defq changed :nil)
 		(. next_changed :empty)
 		(each (lambda (function)
-			(when (defq entry (. db :find function))
-				(when (eql (first entry) :function)
-					(bind '(& func_map call_list) entry)
-					(when (or (. changed_set :find function)
-							(some (# (. changed_set :find %0)) call_list))
-						(defq old_size (length func_map))
-						;bypasses symbolic tracing if the function already trashes all registers
-						(when (and (< old_size (const (length +vp_regs)))
-								(not (find function +all_clobber_funcs)))
-							(bind '(type &optional new_map new_calls) (analyze-function function db))
-							(defq new_trashed new_map)
-							(when (/= old_size (length new_trashed))
-								(. db :insert function (list :function new_trashed new_calls))
-								(. next_changed :insert function)
-								(setq changed :t)))))))
+				(when (defq entry (. db :find function))
+					(when (eql (first entry) :function)
+						(bind '(& func_map call_list) entry)
+						(when (or (. changed_set :find function)
+								(some (# (. changed_set :find %0)) call_list))
+							(defq old_size (length func_map))
+							;bypasses symbolic tracing if the function already trashes all registers
+							(when (and (< old_size (const (length +vp_regs)))
+									(not (find function +all_clobber_funcs)))
+								(bind '(type &optional new_map new_calls) (analyze-function function db))
+								(defq new_trashed new_map)
+								(when (/= old_size (length new_trashed))
+									(. db :insert function (list :function new_trashed new_calls))
+									(. next_changed :insert function)
+									(setq changed :t)))))))
 			order)
 		(defq t_set changed_set changed_set next_changed next_changed t_set))
 	db)
@@ -563,27 +561,27 @@
 					(progn
 						(defq file_edits (Lmap))
 						(each (lambda (function)
-							(when (defq entry (. db :find function))
-								(when (nql (first entry) :external)
-									(if (defq said (. *stack_said* :find function))
-										(print "WARNING: Stack in " function ": " said))
-									(if (defq doc_set :nil file :nil line_num :nil
-											doc_entry (. *doc_db* :find function))
-										(bind '(doc_set file line_num)
-											(gather doc_entry :trashes :file :trashes_line)))
-									(cond
-										((not doc_set)
-											(print "WARNING: No documentation found for " function))
-										(:t (defq calc_set (format-trashes (second entry)))
-											(unless (eql doc_set calc_set)
-												(print "WARNING: Mismatch in " function)
-												(print "\tDocumented: " doc_set)
-												(print "\tCalculated: " calc_set)
-												(print "\tFile: \q" file "\q Line: " line_num)
-												(and opt_w file (str? file) (nql file "none") (nql line_num 0)
-													(. file_edits :update file
-														(# (if %0 (push %0 (list line_num calc_set))
-															(list (list line_num calc_set))))))))))))
+								(when (defq entry (. db :find function))
+									(when (nql (first entry) :external)
+										(if (defq said (. *stack_said* :find function))
+											(print "WARNING: Stack in " function ": " said))
+										(if (defq doc_set :nil file :nil line_num :nil
+												doc_entry (. *doc_db* :find function))
+											(bind '(doc_set file line_num)
+												(gather doc_entry :trashes :file :trashes_line)))
+										(cond
+											((not doc_set)
+												(print "WARNING: No documentation found for " function))
+											(:t (defq calc_set (format-trashes (second entry)))
+												(unless (eql doc_set calc_set)
+													(print "WARNING: Mismatch in " function)
+													(print "\tDocumented: " doc_set)
+													(print "\tCalculated: " calc_set)
+													(print "\tFile: \q" file "\q Line: " line_num)
+													(and opt_w file (str? file) (nql file "none") (nql line_num 0)
+														(. file_edits :update file
+															(# (if %0 (push %0 (list line_num calc_set))
+																	(list (list line_num calc_set))))))))))))
 							functions)
 						;what each method is declared to trash, where it is
 						;declared: of a static one what its function does, of
@@ -592,69 +590,68 @@
 						;written in line, is not looked at
 						(defq dec_edits (Lmap))
 						(. *class_db* :each (lambda (c class_entry)
-							(.-> class_entry (:find :methods) (:each (lambda (m method_entry)
-								;a vtable is a method only in name, it is never called
-								(when (and (nql m :vtable) (defq line_num (. method_entry :find :dec_line)))
-									(defq declared (. method_entry :find :declared) file (. method_entry :find :dec_file)
-										impls (if (eql (. method_entry :find :type) :static)
-											(list (. method_entry :find :function)) (resolve-virtual-methods c m))
-										calc (and (every (# (and (defq entry (. db :find %0)) (nql (first entry) :external))) impls)
-											(format-trashes (reduce (# (if (find %1 +zero_clobber_funcs) %0
-												(merge %0 (second (. db :find %1))))) impls (list)))))
-									;of a virtual method, what the one function that is it
-									;here trashes as well: a caller bound to the function
-									;goes by that, and so does what keeps locals in registers
-									(defq declared_own (. method_entry :find :declared_own)
-										own (and calc (nql (. method_entry :find :type) :static)
-											(not (find (first impls) +zero_clobber_funcs))
-											(format-trashes (second (. db :find (first impls))))))
-									(when (and calc (or (nql calc declared) (nql own declared_own)))
-										(print "WARNING: Mismatch in " c " " m)
-										(print "\tDeclared: " (ifn declared "not said") (if own (cat ", of the function " (ifn declared_own "not said")) ""))
-										(print "\tCalculated: " calc (if own (cat ", of the function " own) ""))
-										(print "\tFile: \q" file "\q Line: " line_num)
-										(if opt_w (. dec_edits :update file
-											(# (if %0 (push %0 (list line_num calc own)) (list (list line_num calc own)))))))))))))
+								(.-> class_entry (:find :methods) (:each (lambda (m method_entry)
+											;a vtable is a method only in name, it is never called
+											(when (and (nql m :vtable) (defq line_num (. method_entry :find :dec_line)))
+												(defq declared (. method_entry :find :declared) file (. method_entry :find :dec_file)
+													impls (if (eql (. method_entry :find :type) :static)
+														(list (. method_entry :find :function)) (resolve-virtual-methods c m))
+													calc (and (every (# (and (defq entry (. db :find %0)) (nql (first entry) :external))) impls)
+														(format-trashes (reduce (# (if (find %1 +zero_clobber_funcs) %0
+																		(merge %0 (second (. db :find %1))))) impls (list)))))
+												;of a virtual method, what the one function that is it
+												;here trashes as well: a caller bound to the function
+												;goes by that, and so does what keeps locals in registers
+												(defq declared_own (. method_entry :find :declared_own)
+													own (and calc (nql (. method_entry :find :type) :static)
+														(not (find (first impls) +zero_clobber_funcs))
+														(format-trashes (second (. db :find (first impls))))))
+												(when (and calc (or (nql calc declared) (nql own declared_own)))
+													(print "WARNING: Mismatch in " c " " m)
+													(print "\tDeclared: " (ifn declared "not said") (if own (cat ", of the function " (ifn declared_own "not said")) ""))
+													(print "\tCalculated: " calc (if own (cat ", of the function " own) ""))
+													(print "\tFile: \q" file "\q Line: " line_num)
+													(if opt_w (. dec_edits :update file
+															(# (if %0 (push %0 (list line_num calc own)) (list (list line_num calc own)))))))))))))
 						(and opt_w (not (. dec_edits :empty?))
 							(. dec_edits :each (lambda (file edits)
-								(with-write-lock file
-									(when (defq in_s (file-stream file))
-										(defq doc (Document))
-										(. doc :stream_load in_s)
-										(setq in_s :nil)
-										(each (lambda ((line_num calc own))
-											(defq orig_line (. doc :get_text_line line_num))
-											(cond
-												((defq new_line (declared-line orig_line calc own))
-													(. doc :idelete 0 line_num (dec (length orig_line)) line_num)
-													(. doc :iinsert 0 line_num new_line))
-												((print "WARNING: not written, " file " line " line_num))))
-											edits)
-										(when (defq out_s (file-stream file +file_open_write))
-											(. doc :stream_save out_s)
-											(stream-flush out_s)
-											(setq out_s :nil)))))))
+									(with-write-lock file
+										(when (defq in_s (file-stream file))
+											(defq doc (Document))
+											(. doc :stream_load in_s)
+											(setq in_s :nil)
+											(each (lambda ((line_num calc own))
+													(defq orig_line (. doc :get_text_line line_num))
+													(cond
+														((defq new_line (declared-line orig_line calc own))
+															(. doc :idelete 0 line_num (dec (length orig_line)) line_num)
+															(. doc :iinsert 0 line_num new_line))
+														((print "WARNING: not written, " file " line " line_num))))
+												edits)
+											(when (defq out_s (file-stream file +file_open_write))
+												(. doc :stream_save out_s)
+												(stream-flush out_s)
+												(setq out_s :nil)))))))
 						(and opt_w (not (. file_edits :empty?))
 							(. file_edits :each (lambda (file edits)
-								(with-write-lock file
-									(when (defq in_s (file-stream file))
-										(verbose 1 "Writing back changes to " file)
-										(defq doc (Document))
-										(. doc :stream_load in_s)
-										(setq in_s :nil)
-										(sort edits (# (- (first %1) (first %0))))
-										(each (lambda ((line_num calc_set))
-											(defq orig_line (. doc :get_text_line line_num)
-												indent (slice orig_line 0 (bskip +char_class_space orig_line 0)))
-											(. doc :idelete 0 line_num (dec (length orig_line)) line_num)
-											(. doc :iinsert 0 line_num (cat indent ";" calc_set)))
-											edits)
-										(when (defq out_s (file-stream file +file_open_write))
-											(. doc :stream_save out_s)
-											(stream-flush out_s)
-											(setq out_s :nil))))))))
+									(with-write-lock file
+										(when (defq in_s (file-stream file))
+											(verbose 1 "Writing back changes to " file)
+											(defq doc (Document))
+											(. doc :stream_load in_s)
+											(setq in_s :nil)
+											(sort edits (# (- (first %1) (first %0))))
+											(each (lambda ((line_num calc_set))
+													(defq orig_line (. doc :get_text_line line_num)
+														indent (slice orig_line 0 (bskip +char_class_space orig_line 0)))
+													(. doc :idelete 0 line_num (dec (length orig_line)) line_num)
+													(. doc :iinsert 0 line_num (cat indent ";" calc_set)))
+												edits)
+											(when (defq out_s (file-stream file +file_open_write))
+												(. doc :stream_save out_s)
+												(stream-flush out_s)
+												(setq out_s :nil))))))))
 					(each (lambda (function)
-						(when (defq entry (. db :find function))
-							(print function " -> " (format-trashes (second entry)))))
+							(when (defq entry (. db :find function))
+								(print function " -> " (format-trashes (second entry)))))
 						functions))))))
-

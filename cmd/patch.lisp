@@ -37,4 +37,3 @@
 						(stream-patch b a (io-stream 'stdout))
 						(stream-patch a b (io-stream 'stdout))))
 				(setq a :nil)))))
-

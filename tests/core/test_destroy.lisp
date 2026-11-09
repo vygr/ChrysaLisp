@@ -11,9 +11,9 @@
 	l)
 
 (each (lambda (depth)
-	(defq l (ds-nest depth))
-	(setq l :nil)
-	(assert-true (cat "a list " (str depth) " deep is let go of, and the task goes on") :t))
+		(defq l (ds-nest depth))
+		(setq l :nil)
+		(assert-true (cat "a list " (str depth) " deep is let go of, and the task goes on") :t))
 	'(10 240 300 5000 100000))
 
 ;and it is all let go of: what the system has free is as it was, near enough

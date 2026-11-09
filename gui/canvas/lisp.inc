@@ -181,7 +181,7 @@
 	(defmethod :get_clip ()
 		; (. canvas :get_clip) -> (cx cy cx1 cy1)
 		(getf-> this (+canvas_cx 0) (+canvas_cy 0)
-			 (+canvas_cx1 0) (+canvas_cy1 0)))
+			(+canvas_cx1 0) (+canvas_cy1 0)))
 
 	(defmethod :set_clip (x y x1 y1)
 		; (. canvas :set_clip x y x1 y1) -> canvas
@@ -196,8 +196,7 @@
 				(setf this +canvas_cy y 0)
 				(setf this +canvas_cx1 x1 0)
 				(setf this +canvas_cy1 y1 0)))
-		this)
-	)
+		this))
 
 (defclass Canvas (width height scale) (Canvas-base)
 	; (Canvas width height scale) -> canvas
@@ -241,7 +240,7 @@
 	(unless (eql (first held) (defq want (list key width height scale)))
 		(clear held)
 		(push held want (and (/= key 0) (defq canvas (canvas-shared width height scale key))
-			(if flags (. canvas :set_canvas_flags flags) canvas))))
+				(if flags (. canvas :set_canvas_flags flags) canvas))))
 	(second held))
 
 (defun canvas-info (file)
@@ -253,7 +252,7 @@
 (defun canvas-save (canvas file type &rest optionals)
 	; (canvas-save canvas file type [optionals...]) -> :nil | canvas
 	(and (defq kind (canvas-loader-of file)) (defq save (elem-get kind 3))
-			(defq stream (file-stream file +file_open_write))
+		(defq stream (file-stream file +file_open_write))
 		(apply save (cat (list canvas stream type) optionals))))
 
 (defun canvas-load (file flags &optional swap_mode stream)
@@ -275,7 +274,7 @@
 				(. *pixmap_cache* :insert file pixmap))
 			(ifn (bits? flags +load_flag_noswap)
 				(. this :swap (if (bits? flags +load_flag_free)
-					(+ swap_mode +swap_flag_free) swap_mode)))))
+						(+ swap_mode +swap_flag_free) swap_mode)))))
 	this)
 
 (defun canvas-shader-format ()
@@ -318,8 +317,8 @@
 	;4 refs are held by the cache Lmap and this loop !
 	(defq new_cache (Lmap))
 	(. *pixmap_cache* :each (lambda (key val)
-		(if (> (getf val +obj_count 0) 4)
-			(. new_cache :insert key val))))
+			(if (> (getf val +obj_count 0) 4)
+				(. new_cache :insert key val))))
 	(def *root_env* '*pixmap_cache* new_cache))
 
 ;the loaders, see *canvas_loaders* above. Last, all of this file is there

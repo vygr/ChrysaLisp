@@ -127,13 +127,13 @@
 			(cond
 				((and (defq which (find head round)) (> (length form) 1))
 					(setq form (case (% which 3)
-						;the test, which says no once the time is up
-						(0 (cat (list head (list 'if (list 'gopher-tick) (second form) :nil)) (slice form 2 -1)))
-						(1 (cat (list head (list 'if (list 'gopher-tick) (second form) :t)) (slice form 2 -1)))
-						;the body, done only while there is time, the args of a
-						;lambda are names, not code
-						(:t (setq from 2)
-							(list head (second form) (list 'if (list 'gopher-tick) (cat (list 'progn) (slice form 2 -1))))))))
+							;the test, which says no once the time is up
+							(0 (cat (list head (list 'if (list 'gopher-tick) (second form) :nil)) (slice form 2 -1)))
+							(1 (cat (list head (list 'if (list 'gopher-tick) (second form) :t)) (slice form 2 -1)))
+							;the body, done only while there is time, the args of a
+							;lambda are names, not code
+							(:t (setq from 2)
+								(list head (second form) (list 'if (list 'gopher-tick) (cat (list 'progn) (slice form 2 -1))))))))
 				((setq form (cat form))))
 			(elem-set parent idx form)
 			(each! (lambda (_) (push todo (list form (!)))) (list form) from)))
@@ -256,7 +256,7 @@
 			;been, is sent to a member that has the block, to carry on there
 			(defq peers (map (# (list (first %0) (hex-decode (second %0))))
 					(filter (# (= (length %0) 2)) (map (# (split %0 " "))
-						(split (ifn (storage-ask svc +storage_type_peers) "") +storage_lf))))
+							(split (ifn (storage-ask svc +storage_type_peers) "") +storage_lf))))
 				holders (if (= how 0) (gopher-route names at member peers copies skip pinned)
 					(gopher-order names at (map (const second) peers) skip)))
 			(elem-set g +gopher_pass (defq pass (gopher-pass-begin holders asker name at state source trail skip :nil version copies pinned)))
@@ -315,8 +315,8 @@
 		;there. It is here still, so where it has been is as it was
 		(bind '(asker name at state source visit names version copies trail skip how pass pinned &ignore) g)
 		(mail-send lane (cat (hex-encode asker) +storage_lf "-" +storage_lf
-			(str (list name at state source (slice trail 0 -2) skip version copies
-				(cat "p" (hex-encode (join pinned " "))))))))
+				(str (list name at state source (slice trail 0 -2) skip version copies
+						(cat "p" (hex-encode (join pinned " "))))))))
 	(defun turn (g)
 		;a step of a gopher. One whose function throws is done with, and says so
 		(catch (gopher-turn svc member g)
@@ -340,9 +340,9 @@
 		;a step of each, and one that was late goes to the slow lane, or, if
 		;there is none, is tried here again, with all it may have
 		(setq gophers (filter (lambda (g)
-			(case (turn g)
-				(:keep :t)
-				(:back (cond (lane (to-lane g) :nil) (:t))))) gophers))
+					(case (turn g)
+						(:keep :t)
+						(:back (cond (lane (to-lane g) :nil) (:t))))) gophers))
 		;the lane is told when this comes to have blocks to do, and when it
 		;has none
 		(when lane_hold

@@ -7,7 +7,6 @@
 ;The riscv64 translator: VP text, lib/trans/vp_parse.vp, to native code. Each
 ;VP op has a routine here, e_ and the name of its op
 
-
 ;registers by riscv64's numbers
 (defq +rv_zero 0 +rv_ra 1 +rv_sp 2 +rv_t1 31 +rv_t2 30 +rv_t3 29 +rv_t4 27 +rv_t5 26)
 
@@ -24,7 +23,7 @@
 (defun rv-s (o rs1 rs2 f3 imm) (ew o (rvf rs1 15) (rvf rs2 20) (rvf f3 12) (rvf imm 7 0x1f) (rvf imm 20 0xfe0)))
 (defun rv-u (o rd imm) (ew o (rvf rd 7) (rvf imm 0 0xfffff000)))
 (defun rv-b (o rs1 rs2 f3 imm) (ew o (rvf rs1 15) (rvf rs2 20) (rvf f3 12)
-	(rvf imm -4 0x800) (rvf imm 7 0x1e) (rvf imm 20 0x7e0) (rvf imm 19 0x1000)))
+		(rvf imm -4 0x800) (rvf imm 7 0x1e) (rvf imm 20 0x7e0) (rvf imm 19 0x1000)))
 (defun rv-j (o rd imm) (ew o (rvf rd 7) (rvf imm 0 0xff000) (rvf imm 9 0x800) (rvf imm 20 0x7fe) (rvf imm 11 0x100000)))
 
 (defun rv-regs (op &rest rs)
@@ -50,7 +49,6 @@
 		(range 0 (length args)))
 	(vp-call label))
 
-
 (def-func (path-to-absolute "./riscv64"))
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -72,18 +70,18 @@
 
 	(each (lambda ((op label f3 f7 test))
 			;(s d), d = d op s
-			(vp-label label)
+		(vp-label label)
 			(when test (vpif '(:r0 = :r1)) (vp-ret) (endif))
 			(rv-r 0x33 :r1 :r1 :r0 f3 f7)
 			(vp-ret)
 			(handler op label))
 		'((shl-rr e_shl_rr 1 0 :nil) (shr-rr e_shr_rr 5 0 :nil) (asr-rr e_asr_rr 5 0x20 :nil)
-		(add-rr e_add_rr 0 0 :nil) (sub-rr e_sub_rr 0 0x20 :nil) (xor-rr e_xor_rr 4 0 :nil)
-		(or-rr e_or_rr 6 0 :t) (and-rr e_and_rr 7 0 :t) (mul-rr e_mul_rr 0 1 :nil)))
+			(add-rr e_add_rr 0 0 :nil) (sub-rr e_sub_rr 0 0x20 :nil) (xor-rr e_xor_rr 4 0 :nil)
+			(or-rr e_or_rr 6 0 :t) (and-rr e_and_rr 7 0 :t) (mul-rr e_mul_rr 0 1 :nil)))
 
 	(each (lambda ((op label f3 add))
 			;(c r), a shift by a constant of 0 to 63
-			(vp-label label)
+		(vp-label label)
 			(range? :r0 0 63 'h_none)
 			(if (/= add 0) (vp-add-cr add :r0))
 			(rv-i 0x13 :r1 :r1 f3 :r0)
@@ -100,7 +98,7 @@
 
 	(each (lambda ((op label f3))
 			;(s d), d by s to d, made 0 by 0 as every target gives
-			(vp-label label)
+		(vp-label label)
 			(rv-r 0x33 +rv_t1 :r1 :r0 f3 1)
 			(rv-r 0x33 +rv_t2 +rv_zero :r0 3 0)
 			(rv-r 0x33 +rv_t2 +rv_zero +rv_t2 0 0x20)
@@ -111,7 +109,7 @@
 
 	(each (lambda ((op label f3))
 			;(s d), what is left of d by s to d: by 0 the CPU gives d itself
-			(vp-label label)
+		(vp-label label)
 			(rv-r 0x33 :r1 :r1 :r0 f3 1)
 			(vp-ret)
 			(handler op label))
@@ -179,7 +177,7 @@
 
 	(each (lambda ((op label f3 rr))
 			;(c r), as an immediate if it is 12 bits
-			(vp-label label)
+		(vp-label label)
 			(vpif '(:r0 = 0))
 				(vp-ret)
 			(endif)
@@ -285,7 +283,7 @@
 
 	(each (lambda ((op label f3 swap))
 			;(s d l), rs1 d and rs2 s, or the other way round
-			(vp-label label)
+		(vp-label label)
 			(vp-cpy-rr :r2 :r3)
 			(if swap
 				(progn (vp-cpy-rr :r1 :r2) (vp-cpy-rr :r0 :r1))
@@ -294,11 +292,11 @@
 			(vp-jmp 'rv_branch)
 			(handler op label))
 		'((beq-rr e_beq_rr 0 :nil) (bne-rr e_bne_rr 1 :nil) (blt-rr e_blt_rr 4 :nil)
-		(bgt-rr e_bgt_rr 4 :t) (ble-rr e_ble_rr 5 :t) (bge-rr e_bge_rr 5 :nil)))
+			(bgt-rr e_bgt_rr 4 :t) (ble-rr e_ble_rr 5 :t) (bge-rr e_bge_rr 5 :nil)))
 
 	(each (lambda ((op label rr))
 			;(c d l), c 0 the zero register, else c in t1
-			(vp-label label)
+		(vp-label label)
 			(gotoif '(:r0 = 0) rr)
 			(vp-push :r1 :r2)
 			(vp-cpy-cr +rv_t1 :r1)
@@ -308,11 +306,11 @@
 			(vp-jmp rr)
 			(handler op label))
 		'((beq-cr e_beq_cr e_beq_rr) (bne-cr e_bne_cr e_bne_rr) (blt-cr e_blt_cr e_blt_rr)
-		(bgt-cr e_bgt_cr e_bgt_rr) (ble-cr e_ble_cr e_ble_rr) (bge-cr e_bge_cr e_bge_rr)))
+			(bgt-cr e_bgt_cr e_bgt_rr) (ble-cr e_ble_cr e_ble_rr) (bge-cr e_bge_cr e_bge_rr)))
 
 	(each (lambda ((op label o swap f3))
 			;(s d l), a compare of the floats to t1, a branch on it
-			(vp-label label)
+		(vp-label label)
 			(if swap
 				(ew o '(:r1 20) '(:r0 15) (<< +rv_t1 7))
 				(ew o '(:r0 20) '(:r1 15) (<< +rv_t1 7)))
@@ -323,11 +321,11 @@
 			(vp-jmp 'rv_branch)
 			(handler op label))
 		'((beq-dd e_beq_ff 0xa2002053 :nil 1) (bne-dd e_bne_ff 0xa2002053 :nil 0)
-		(blt-dd e_blt_ff 0xa2001053 :nil 1) (bgt-dd e_bgt_ff 0xa2001053 :t 1)
-		(ble-dd e_ble_ff 0xa2000053 :nil 1) (bge-dd e_bge_ff 0xa2000053 :t 1)
-		(beq-ff e_beq_ss 0xa0002053 :nil 1) (bne-ff e_bne_ss 0xa0002053 :nil 0)
-		(blt-ff e_blt_ss 0xa0001053 :nil 1) (bgt-ff e_bgt_ss 0xa0001053 :t 1)
-		(ble-ff e_ble_ss 0xa0000053 :nil 1) (bge-ff e_bge_ss 0xa0000053 :t 1)))
+			(blt-dd e_blt_ff 0xa2001053 :nil 1) (bgt-dd e_bgt_ff 0xa2001053 :t 1)
+			(ble-dd e_ble_ff 0xa2000053 :nil 1) (bge-dd e_bge_ff 0xa2000053 :t 1)
+			(beq-ff e_beq_ss 0xa0002053 :nil 1) (bne-ff e_bne_ss 0xa0002053 :nil 0)
+			(blt-ff e_blt_ss 0xa0001053 :nil 1) (bgt-ff e_bgt_ss 0xa0001053 :t 1)
+			(ble-ff e_ble_ss 0xa0000053 :nil 1) (bge-ff e_bge_ss 0xa0000053 :t 1)))
 
 ;;;;;;;;;;;;;;;;;;
 ; loads and stores
@@ -347,7 +345,7 @@
 
 	(each (lambda ((op label f3))
 			;(s i d), riscv64-ir
-			(vp-label label)
+		(vp-label label)
 			(within12? :r1 (sym (cat label "_big")))
 			(rv-i 0x3 :r2 :r0 f3 :r1)
 			(vp-ret)
@@ -362,12 +360,12 @@
 			(vp-jmp 'rv_dr)
 			(handler op label))
 		'((load-rcr-b e_cpy_ir_b 0) (load-rcr-s e_cpy_ir_s 1) (load-rcr-i e_cpy_ir_i 2)
-		(load-rcr e_cpy_ir 3) (load-rcr-ub e_cpy_ir_ub 4) (load-rcr-us e_cpy_ir_us 5)
-		(load-rcr-ui e_cpy_ir_ui 6)))
+			(load-rcr e_cpy_ir 3) (load-rcr-ub e_cpy_ir_ub 4) (load-rcr-us e_cpy_ir_us 5)
+			(load-rcr-ui e_cpy_ir_ui 6)))
 
 	(each (lambda ((op label f3))
 			;(s d i), riscv64-ri
-			(vp-label label)
+		(vp-label label)
 			(within12? :r2 (sym (cat label "_big")))
 			(rv-s 0x23 :r1 :r0 f3 :r2)
 			(vp-ret)
@@ -382,11 +380,11 @@
 			(vp-jmp 'rv_rd)
 			(handler op label))
 		'((store-rrc-b e_cpy_ri_b 0) (store-rrc-s e_cpy_ri_s 1) (store-rrc-i e_cpy_ri_i 2)
-		(store-rrc e_cpy_ri 3)))
+			(store-rrc e_cpy_ri 3)))
 
 	(each (lambda ((op label f3 store))
 			;(s i d) by riscv64-dr, (s d i) by riscv64-rd
-			(vp-label label)
+		(vp-label label)
 			(vp-cpy-rr :r2 :r3)
 			(vp-cpy-rr :r1 :r2)
 			(vp-cpy-rr :r0 :r1)
@@ -394,10 +392,10 @@
 			(vp-jmp (if store 'rv_rd 'rv_dr))
 			(handler op label))
 		'((load-rrr-b e_cpy_dr_b 0 :nil) (load-rrr-s e_cpy_dr_s 1 :nil) (load-rrr-i e_cpy_dr_i 2 :nil)
-		(load-rrr e_cpy_dr 3 :nil) (load-rrr-ub e_cpy_dr_ub 4 :nil) (load-rrr-us e_cpy_dr_us 5 :nil)
-		(load-rrr-ui e_cpy_dr_ui 6 :nil)
-		(store-rrr-b e_cpy_rd_b 0 :t) (store-rrr-s e_cpy_rd_s 1 :t) (store-rrr-i e_cpy_rd_i 2 :t)
-		(store-rrr e_cpy_rd 3 :t)))
+			(load-rrr e_cpy_dr 3 :nil) (load-rrr-ub e_cpy_dr_ub 4 :nil) (load-rrr-us e_cpy_dr_us 5 :nil)
+			(load-rrr-ui e_cpy_dr_ui 6 :nil)
+			(store-rrr-b e_cpy_rd_b 0 :t) (store-rrr-s e_cpy_rd_s 1 :t) (store-rrr-i e_cpy_rd_i 2 :t)
+			(store-rrr e_cpy_rd 3 :t)))
 
 (vp-label 'e_lea_i)
 	;(s i d)
@@ -600,7 +598,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 	(each (lambda ((op label swap))
-			(vp-label label)
+		(vp-label label)
 			(vpif '(:r0 = :r1))
 				(vp-ret)
 			(endif)
@@ -621,7 +619,7 @@
 	(handler 'abs-rr 'e_abs_rr)
 
 	(each (lambda ((op label rr))
-			(vp-label label)
+		(vp-label label)
 			(rv-via-t1 rr)
 			(handler op label))
 		'((min-cr e_min_cr e_min_rr) (max-cr e_max_cr e_max_rr)))
@@ -639,17 +637,17 @@
 
 	(each (lambda ((op label o))
 			;riscv64-fp-r2, d = op s
-			(vp-label label)
+		(vp-label label)
 			(ew o '(:r0 15) '(:r1 7))
 			(vp-ret)
 			(handler op label))
 		'((cpy-rd e_cpy_rf 0xf2000053) (cpy-dr e_cpy_fr 0xe2000053)
-		(cvt-rd e_cvt_rf 0xd2207053) (cvt-dr e_cvt_fr 0xc2201053)
-		(sqrt-dd e_sqrt_ff 0x5a007053)
-		;a single's as a double's with the format 0, NaN boxed as each writes it
-		(cpy-rf e_cpy_rs 0xf0000053) (cvt-rf e_cvt_rs 0xd0207053)
-		(cvt-fr e_cvt_sr 0xc0201053) (sqrt-ff e_sqrt_ss 0x58007053)
-		(cvt-fd e_cvt_sf 0x42000053) (cvt-df e_cvt_fs 0x40107053)))
+			(cvt-rd e_cvt_rf 0xd2207053) (cvt-dr e_cvt_fr 0xc2201053)
+			(sqrt-dd e_sqrt_ff 0x5a007053)
+			;a single's as a double's with the format 0, NaN boxed as each writes it
+			(cpy-rf e_cpy_rs 0xf0000053) (cvt-rf e_cvt_rs 0xd0207053)
+			(cvt-fr e_cvt_sr 0xc0201053) (sqrt-ff e_sqrt_ss 0x58007053)
+			(cvt-fd e_cvt_sf 0x42000053) (cvt-df e_cvt_fs 0x40107053)))
 
 (vp-label 'e_cpy_sr)
 	;fmv.x.w, then the top 32 bits made 0 as on every CPU
@@ -661,25 +659,25 @@
 
 	(each (lambda ((op label o))
 			;riscv64-fp-r, d = d op s
-			(vp-label label)
+		(vp-label label)
 			(ew o '(:r0 20) '(:r1 15) '(:r1 7))
 			(vp-ret)
 			(handler op label))
 		'((add-dd e_add_ff 0x02007053) (sub-dd e_sub_ff 0x0a007053)
-		(mul-dd e_mul_ff 0x12007053) (div-dd e_div_ff 0x1a007053)
-		(min-dd e_min_ff 0x2a000053) (max-dd e_max_ff 0x2a001053)
-		(add-ff e_add_ss 0x00007053) (sub-ff e_sub_ss 0x08007053)
-		(mul-ff e_mul_ss 0x10007053) (div-ff e_div_ss 0x18007053)
-		(min-ff e_min_ss 0x28000053) (max-ff e_max_ss 0x28001053)))
+			(mul-dd e_mul_ff 0x12007053) (div-dd e_div_ff 0x1a007053)
+			(min-dd e_min_ff 0x2a000053) (max-dd e_max_ff 0x2a001053)
+			(add-ff e_add_ss 0x00007053) (sub-ff e_sub_ss 0x08007053)
+			(mul-ff e_mul_ss 0x10007053) (div-ff e_div_ss 0x18007053)
+			(min-ff e_min_ss 0x28000053) (max-ff e_max_ss 0x28001053)))
 
 	(each (lambda ((op label o))
 			;fsgnjx or fsgnjn of s with itself
-			(vp-label label)
+		(vp-label label)
 			(ew o '(:r0 15) '(:r0 20) '(:r1 7))
 			(vp-ret)
 			(handler op label))
 		'((abs-dd e_abs_ff 0x22002053) (neg-dd e_neg_ff 0x22001053)
-		(abs-ff e_abs_ss 0x20002053) (neg-ff e_neg_ss 0x20001053)))
+			(abs-ff e_abs_ss 0x20002053) (neg-ff e_neg_ss 0x20001053)))
 
 (vp-label 'e_cpy_if)
 	;(s c d)

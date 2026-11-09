@@ -230,11 +230,11 @@
 	+char_class_opens (char-class "\q;{")
 	;the heads (tree-read) is given, by (files-scan), includes and make docs
 	+tree_heads (list quote (cat +scan_kinds '("defq" "defcvar" "defun" "defmacro" "enums" "bits"
-		"def-class" "structure" "def-struct"))))
+				"def-class" "structure" "def-struct"))))
 
 ;where a class of characters is, of what a function is given, from 1
 (defq *class_at* (scatter (Fmap 11) "bskip" 1 "bskipn" 1 "rbskip" 1 "rbskipn" 1
-	"bfind" 2 "split" 2 "trim" 2 "trim-start" 2 "trim-end" 2))
+		"bfind" 2 "split" 2 "trim" 2 "trim-start" 2 "trim-end" 2))
 
 (defun found (file node name &rest text)
 	;kept till the file has been gone through, what is not to be said of
@@ -249,12 +249,12 @@
 	;that is run
 	(defq forms (list) quoted :nil)
 	(each (lambda (kid)
-		(cond
-			((find (first kid) '(:comment :blank)))
-			((and (eql (first kid) :symbol) (= (bskip +char_class_quote (third kid) 0) (length (third kid))))
-				(setq quoted :t))
-			(quoted (push forms (list :quoted (second kid) kid)) (setq quoted :nil))
-			((push forms kid))))
+			(cond
+				((find (first kid) '(:comment :blank)))
+				((and (eql (first kid) :symbol) (= (bskip +char_class_quote (third kid) 0) (length (third kid))))
+					(setq quoted :t))
+				(quoted (push forms (list :quoted (second kid) kid)) (setq quoted :nil))
+				((push forms kid))))
 		kids)
 	forms)
 
@@ -280,11 +280,11 @@
 (defun check-zero (file node)
 	;a number with a sign before it is read as a symbol by the tree
 	(and (find (first node) '(:number :symbol)) (nempty? (defq text (third node)))
-			(defq digits (if (find (first text) "+-") (rest text) text))
-			(nempty? digits) (find (first digits) "0123456789.")
-			(find "." digits) (not (find "x" digits)) (not (find "e" digits))
-			(/= (bskipn +char_class_nonzero digits 0) (length digits))
-			(num? (defq val (catch (str-to-num digits) :t))) (= val 0)
+		(defq digits (if (find (first text) "+-") (rest text) text))
+		(nempty? digits) (find (first digits) "0123456789.")
+		(find "." digits) (not (find "x" digits)) (not (find "e" digits))
+		(/= (bskipn +char_class_nonzero digits 0) (length digits))
+		(num? (defq val (catch (str-to-num digits) :t))) (= val 0)
 		(found file node "zero" text " is too small for a fixed, it is 0")))
 
 (defun check-shadow (file forms head)
@@ -293,8 +293,8 @@
 	;function is taken as a call of it, the name is bound to the function
 	;as the code is read, and the variable is never looked at
 	(each (lambda (node)
-		(and (eql (first node) :symbol) (. *root_names* :find (third node))
-			(found file node "shadow" (third node) " as a test of (" head ") is taken as the function of the system, not the variable")))
+			(and (eql (first node) :symbol) (. *root_names* :find (third node))
+				(found file node "shadow" (third node) " as a test of (" head ") is taken as the function of the system, not the variable")))
 		(cond
 			((find head '("and" "or")) (rest forms))
 			((find head '("cond" "condn"))
@@ -305,13 +305,13 @@
 	;in a (defq), a + name, a ' and nothing but, and a list
 	(defq kids (filter (# (not (find (first %0) '(:comment :blank)))) kids))
 	(each (lambda (name quote lst)
-		(and (eql (first name) :symbol) (starts-with "+" (third name))
+			(and (eql (first name) :symbol) (starts-with "+" (third name))
 				(eql (first quote) :symbol) (eql (third quote) "'") (eql (first lst) :form)
 				;one that begins with a string or a number is no form to run,
 				;one that begins with a name may be meant as one
 				(nempty? (defq in (forms-of (third lst))))
 				(find (first (first in)) '(:string1 :string2 :number))
-			(found file name "const" (third name) " is a list quoted once, ''(...)")))
+				(found file name "const" (third name) " is a list quoted once, ''(...)")))
 		kids (rest kids) (rest (rest kids))))
 
 (defun check-early (file kids)
@@ -321,23 +321,23 @@
 	;and what is found is (quote (...))
 	(defq kids (filter (# (not (find (first %0) '(:comment :blank)))) kids))
 	(each (lambda (name)
-		(defq at (inc (!)))
-		(when (and (eql (first name) :symbol) (starts-with "+" (third name)) (< at (length kids))
-				(eql (first (defq quote (elem-get kids at))) :symbol)
-				(= (bskip +char_class_quote (third quote) 0) (length (third quote))))
-			;past the quotes, to the list
-			(while (and (< at (length kids)) (eql (first (defq lst (elem-get kids at))) :symbol)
-					(= (bskip +char_class_quote (third lst) 0) (length (third lst))))
-				(++ at))
-			(when (and (< at (length kids)) (eql (first (elem-get kids at)) :form))
-				(defq todo (list (slice kids (inc at) -1)))
-				(while (defq nodes (pop todo))
-					(each (lambda (node)
-						(cond
-							((eql (first node) :form) (push todo (third node)))
-							((and (eql (first node) :symbol) (eql (third node) (third name)))
-								(found file node "early" (third name) " is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"))))
-						nodes)))))
+			(defq at (inc (!)))
+			(when (and (eql (first name) :symbol) (starts-with "+" (third name)) (< at (length kids))
+					(eql (first (defq quote (elem-get kids at))) :symbol)
+					(= (bskip +char_class_quote (third quote) 0) (length (third quote))))
+				;past the quotes, to the list
+				(while (and (< at (length kids)) (eql (first (defq lst (elem-get kids at))) :symbol)
+						(= (bskip +char_class_quote (third lst) 0) (length (third lst))))
+					(++ at))
+				(when (and (< at (length kids)) (eql (first (elem-get kids at)) :form))
+					(defq todo (list (slice kids (inc at) -1)))
+					(while (defq nodes (pop todo))
+						(each (lambda (node)
+								(cond
+									((eql (first node) :form) (push todo (third node)))
+									((and (eql (first node) :symbol) (eql (third node) (third name)))
+										(found file node "early" (third name) " is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"))))
+							nodes)))))
 		kids))
 
 (defun check-eqlist (file forms head)
@@ -355,10 +355,10 @@
 	;(bind '(a &ignore b) x), (lambda (a &ignore b)): &ignore ends the list,
 	;b is never bound. & is the place that takes a thing and binds nothing
 	(defq names (cond
-		((and (eql head "bind") (> (length forms) 1) (eql (first (second forms)) :quoted))
-			(tree-form? (third (second forms))))
-		((and (find head '("defun" "defmacro")) (> (length forms) 2)) (tree-form? (third forms)))
-		((and (eql head "lambda") (> (length forms) 1)) (tree-form? (second forms)))))
+			((and (eql head "bind") (> (length forms) 1) (eql (first (second forms)) :quoted))
+				(tree-form? (third (second forms))))
+			((and (find head '("defun" "defmacro")) (> (length forms) 2)) (tree-form? (third forms)))
+			((and (eql head "lambda") (> (length forms) 1)) (tree-form? (second forms)))))
 	;and each list in it, (lambda (k (a &ignore b)) ...)
 	(defq todo (if names (list names) (list)))
 	(while (defq names (pop todo))
@@ -383,8 +383,8 @@
 	;(defun f (bits) ...): a list of parameters is expanded as any list is,
 	;and one whose first name is a macro of the system is a call of it
 	(defq names (cond
-		((and (find head '("defun" "defmacro")) (> (length forms) 2)) (third forms))
-		((and (eql head "lambda") (> (length forms) 1)) (second forms))))
+			((and (find head '("defun" "defmacro")) (> (length forms) 2)) (third forms))
+			((and (eql head "lambda") (> (length forms) 1)) (second forms))))
 	(defq todo (if (and names (tree-form? names)) (list (tree-form? names)) (list)))
 	(while (defq kids (pop todo))
 		(defq inner (forms-of kids))
@@ -445,9 +445,9 @@
 	; (char-literal code) -> str
 	;a char as the reader takes it in a string
 	(cat "\q" (cond
-		((defq at (find code '(13 12 11 10 9 34 8 92))) (cat "\\" (elem-get "rfvntqb\\" at)))
-		((< 31 code 127) (char code))
-		((cat "\\x" (slice (hex-encode (char code)) 0 2)))) "\q"))
+			((defq at (find code '(13 12 11 10 9 34 8 92))) (cat "\\" (elem-get "rfvntqb\\" at)))
+			((< 31 code 127) (char code))
+			((cat "\\x" (slice (hex-encode (char code)) 0 2)))) "\q"))
 
 (defun check-char (file forms head)
 	;(ascii-char 10), (ascii-char +char_lf): a char known as the file is read,
@@ -455,8 +455,8 @@
 	(and (eql head "ascii-char") (= (length forms) 2) (find (first (second forms)) '(:number :symbol))
 		(defq text (third (second forms)))
 		(num? (defq code (cond
-			((eql (first (second forms)) :number) (catch (str-to-num text) :nil))
-			((starts-with "+char_" text) (. *char_codes* :find text)))))
+					((eql (first (second forms)) :number) (catch (str-to-num text) :nil))
+					((starts-with "+char_" text) (. *char_codes* :find text)))))
 		(found file (second forms) "char" "(ascii-char " text ") is a char, write it " (char-literal code))))
 
 (defun check-glyph (file forms head)
@@ -464,13 +464,13 @@
 	;drawn as nothing if the font has none, the +sym_ name is what is there
 	(when (find head '("ui-title-bar" "ui-buttons"))
 		(each! (lambda (form)
-			(if (defq kids (tree-form? form))
-				(each (lambda (kid)
-					(and (eql (first kid) :number)
-						(num? (defq code (catch (str-to-num (third kid)) :nil)))
-						(<= 0xe000 code 0xf8ff)
-						(found file kid "glyph" (third kid) " is a glyph by its number, give its +sym_ name")))
-					(forms-of kids))))
+				(if (defq kids (tree-form? form))
+					(each (lambda (kid)
+							(and (eql (first kid) :number)
+								(num? (defq code (catch (str-to-num (third kid)) :nil)))
+								(<= 0xe000 code 0xf8ff)
+								(found file kid "glyph" (third kid) " is a glyph by its number, give its +sym_ name")))
+						(forms-of kids))))
 			(list forms) 1 -1)))
 
 (defun check-empty (file forms head)
@@ -479,7 +479,7 @@
 	;function of the system: a macro, or a form, may take one as it is
 	(and (. *root_names* :find head) (not (. *root_macros* :find head))
 		(not (find head '("lambda" "#" "defun" "defmacro" "defmethod" "macro" "bind" "let" "let*"
-			"cond" "condn" "case" "catch" "defq" "setq" "quote" "quasi-quote" "while" "if" "when" "unless")))
+					"cond" "condn" "case" "catch" "defq" "setq" "quote" "quasi-quote" "while" "if" "when" "unless")))
 		(each! (lambda (arg)
 				(and (defq inner (tree-form? arg)) (empty? (forms-of inner))
 					(found file arg "empty" "() given to (" head ") is run, and calls nothing: (list) or '()")))
@@ -489,13 +489,13 @@
 	;in a (defq), a + name and then a form that makes a list
 	(defq kids (filter (# (not (find (first %0) '(:comment :blank)))) kids))
 	(each (lambda (name val)
-		(and (eql (first name) :symbol) (starts-with "+" (third name))
-			(defq inner (tree-form? val))
-			(nempty? (defq inner (forms-of inner))) (eql (first (first inner)) :symbol)
-			(find (third (first inner)) '("map" "filter" "list" "split" "range" "partition"))
-			;(list quote x) is the quote of a list, which is the way to have one
-			(not (and (> (length inner) 1) (eql (first (second inner)) :symbol) (eql (third (second inner)) "quote")))
-			(found file name "made" (third name) " is a list made by (" (third (first inner)) "), put in as a form where it is used, make it a *name*")))
+			(and (eql (first name) :symbol) (starts-with "+" (third name))
+				(defq inner (tree-form? val))
+				(nempty? (defq inner (forms-of inner))) (eql (first (first inner)) :symbol)
+				(find (third (first inner)) '("map" "filter" "list" "split" "range" "partition"))
+				;(list quote x) is the quote of a list, which is the way to have one
+				(not (and (> (length inner) 1) (eql (first (second inner)) :symbol) (eql (third (second inner)) "quote")))
+				(found file name "made" (third name) " is a list made by (" (third (first inner)) "), put in as a form where it is used, make it a *name*")))
 		kids (rest kids)))
 
 (defun check-inner (file forms head)
@@ -523,15 +523,15 @@
 	(defq out (list) todo (list forms))
 	(while (defq nodes (pop todo))
 		(each (lambda (node)
-			(when (defq kids (tree-form? node))
-				(defq inner (forms-of kids)
-					head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
-				(cond
-					((find head '("lambda" "#" "defun" "defmacro" "macro")))
-					((eql head "defq")
-						(each! (# (and (= (logand (!) 1) 1) (eql (first %0) :symbol) (push out (third %0)))) (list inner) 1 -1)
-						(push todo (rest inner)))
-					((push todo inner)))))
+				(when (defq kids (tree-form? node))
+					(defq inner (forms-of kids)
+						head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
+					(cond
+						((find head '("lambda" "#" "defun" "defmacro" "macro")))
+						((eql head "defq")
+							(each! (# (and (= (logand (!) 1) 1) (eql (first %0) :symbol) (push out (third %0)))) (list inner) 1 -1)
+							(push todo (rest inner)))
+						((push todo inner)))))
 			nodes))
 	out)
 
@@ -552,13 +552,13 @@
 			((and (eql head "bind") (> (length forms) 1) (eql (first (second forms)) :quoted))
 				(each (# (push made %0)) (params-of (third (second forms))))))
 		(each (lambda (form)
-			(cond
-				((eql (first form) :form) (push todo (third form)))
-				;the first thing of a form is a call. A name of the system
-				;there is bound to its function as the code is read, any
-				;other is looked for when it is called, as a variable is
-				((and (eql (first form) :symbol) (or (> (!) 0) (not head) (not (. *root_names* :find (third form)))))
-					(push used (third form)))))
+				(cond
+					((eql (first form) :form) (push todo (third form)))
+					;the first thing of a form is a call. A name of the system
+					;there is bound to its function as the code is read, any
+					;other is looked for when it is called, as a variable is
+					((and (eql (first form) :symbol) (or (> (!) 0) (not head) (not (. *root_names* :find (third form)))))
+						(push used (third form)))))
 			forms))
 	(list used made))
 
@@ -568,15 +568,15 @@
 	(when (and (eql head "defun") (> (length forms) 3))
 		(defq body (slice forms 3 -1))
 		(each (lambda (node)
-			(when (and (defq kids (tree-form? node "defun")) (> (length (defq inner (forms-of kids))) 3))
-				(bind '(used made) (uses-of (slice inner 3 -1)))
-				(defq own (cat made (params-of (third inner)))
-					before (defqs-of (slice body 0 (!))) after (defqs-of (slice body (inc (!)) -1)) said (list))
-				(each (# (and (find %0 before) (find %0 after) (not (find %0 own)) (not (find %0 said))
-						(push said %0)
-						(found file node "again" "(" (third (second inner)) ") uses " %0
-							", which a (defq) after it makes again, it is that one it has from then on")))
-					used)))
+				(when (and (defq kids (tree-form? node "defun")) (> (length (defq inner (forms-of kids))) 3))
+					(bind '(used made) (uses-of (slice inner 3 -1)))
+					(defq own (cat made (params-of (third inner)))
+						before (defqs-of (slice body 0 (!))) after (defqs-of (slice body (inc (!)) -1)) said (list))
+					(each (# (and (find %0 before) (find %0 after) (not (find %0 own)) (not (find %0 said))
+								(push said %0)
+								(found file node "again" "(" (third (second inner)) ") uses " %0
+									", which a (defq) after it makes again, it is that one it has from then on")))
+						used)))
 			body)))
 
 (defun check-global (file region exported)
@@ -614,51 +614,51 @@
 	;before (const one), anywhere in it
 	(defq forms (forms-of top) in :nil region (list) exported (Fset 31) quoted_all :t)
 	(each (lambda (node)
-		(when (defq kids (tree-form? node))
-			(defq inner (forms-of kids)
-				head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
-			(cond
-				((eql head "env-push") (setq in :t region (list) exported (Fset 31) quoted_all :t))
-				((and in (eql head "env-pop"))
-					(and quoted_all (pfind checks "global") (check-global file region exported))
-					(when quoted_all
-						(defq own (Fset 31))
-						(each (lambda (k)
-								(defq f (forms-of k))
-								(and (> (length f) 1) (eql (first (first f)) :symbol) (eql (third (first f)) "defun")
-									(eql (first (second f)) :symbol) (not (. exported :find (third (second f))))
-									(. own :insert (third (second f)))))
-							region)
-						(each (lambda (k)
-								(defq todo (list k))
-								(while (defq nodes (pop todo))
-									(each (lambda (n)
-											(defq next (if (< (inc (!)) (length nodes)) (elem-get nodes (inc (!)))))
-											;,f is one symbol, , (const f) a , and a form, and so are
-											;,(f x) and ~(f x), a call of it as the form is made
-											(defq name (cond
-												((not (eql (first n) :symbol)) :nil)
-												((and (> (length (third n)) 1) (starts-with "," (third n))) (slice (third n) 1 -1))
-												((not (and next (find (third n) '("," "~")))) :nil)
-												((and (eql (third n) ",") (defq nk (tree-form? next "const")))
-													(defq nf (forms-of nk))
-													(and (> (length nf) 1) (eql (first (second nf)) :symbol) (third (second nf))))
-												((defq nk (tree-form? next))
-													(defq nf (forms-of nk))
-													(and (nempty? nf) (eql (first (first nf)) :symbol) (third (first nf))))))
-											(and name (. own :find name) (pfind checks "unquote")
-												(found file n "unquote" "," name " in a backquote of the module, not exported, is looked for when the form is made, and is gone by then"))
-											;a (static-qq) is made as it is read, while the module is there
-											(and (defq sub (tree-form? n)) (not (tree-form? n "static-qq")) (not (tree-form? n "static-qqp"))
-												(push todo sub)))
-										nodes)))
-							region))
-					(setq in :nil))
-				((and in (find head '("export-symbols" "export-classes")))
-					(if (and (> (length inner) 1) (eql (first (second inner)) :quoted) (defq list_kids (tree-form? (third (second inner)))))
-						(each (# (if (eql (first %0) :symbol) (. exported :insert (third %0)))) (forms-of list_kids))
-						(setq quoted_all :nil)))
-				(in (push region kids)))))
+			(when (defq kids (tree-form? node))
+				(defq inner (forms-of kids)
+					head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
+				(cond
+					((eql head "env-push") (setq in :t region (list) exported (Fset 31) quoted_all :t))
+					((and in (eql head "env-pop"))
+						(and quoted_all (pfind checks "global") (check-global file region exported))
+						(when quoted_all
+							(defq own (Fset 31))
+							(each (lambda (k)
+									(defq f (forms-of k))
+									(and (> (length f) 1) (eql (first (first f)) :symbol) (eql (third (first f)) "defun")
+										(eql (first (second f)) :symbol) (not (. exported :find (third (second f))))
+										(. own :insert (third (second f)))))
+								region)
+							(each (lambda (k)
+									(defq todo (list k))
+									(while (defq nodes (pop todo))
+										(each (lambda (n)
+												(defq next (if (< (inc (!)) (length nodes)) (elem-get nodes (inc (!)))))
+												;,f is one symbol, , (const f) a , and a form, and so are
+												;,(f x) and ~(f x), a call of it as the form is made
+												(defq name (cond
+														((not (eql (first n) :symbol)) :nil)
+														((and (> (length (third n)) 1) (starts-with "," (third n))) (slice (third n) 1 -1))
+														((not (and next (find (third n) '("," "~")))) :nil)
+														((and (eql (third n) ",") (defq nk (tree-form? next "const")))
+															(defq nf (forms-of nk))
+															(and (> (length nf) 1) (eql (first (second nf)) :symbol) (third (second nf))))
+														((defq nk (tree-form? next))
+															(defq nf (forms-of nk))
+															(and (nempty? nf) (eql (first (first nf)) :symbol) (third (first nf))))))
+												(and name (. own :find name) (pfind checks "unquote")
+													(found file n "unquote" "," name " in a backquote of the module, not exported, is looked for when the form is made, and is gone by then"))
+												;a (static-qq) is made as it is read, while the module is there
+												(and (defq sub (tree-form? n)) (not (tree-form? n "static-qq")) (not (tree-form? n "static-qqp"))
+													(push todo sub)))
+											nodes)))
+								region))
+						(setq in :nil))
+					((and in (find head '("export-symbols" "export-classes")))
+						(if (and (> (length inner) 1) (eql (first (second inner)) :quoted) (defq list_kids (tree-form? (third (second inner)))))
+							(each (# (if (eql (first %0) :symbol) (. exported :insert (third %0)))) (forms-of list_kids))
+							(setq quoted_all :nil)))
+					(in (push region kids)))))
 		forms))
 
 (defun check-cut (file forms head)
@@ -674,13 +674,13 @@
 ;the ! form of an iterator: before it, its name, and after the sequences,
 ;what comes before the start and end
 (defq *bang_of* (scatter (Fmap 11) "each" '("" "each!" "") "map" '("" "map!" "")
-	"some" '("" "some!" " :nil") "every" '("" "some!" " :t")
-	"notany" '("not (" "some!" " :nil") "notevery" '("not (" "some!" " :t")
-	"filter" '("" "filter!" "") "reduce" '("" "reduce!" "")))
+		"some" '("" "some!" " :nil") "every" '("" "some!" " :t")
+		"notany" '("not (" "some!" " :nil") "notevery" '("not (" "some!" " :t")
+		"filter" '("" "filter!" "") "reduce" '("" "reduce!" "")))
 
 ;an iterator of its own, from the end
 (defq *back_of* (scatter (Fmap 11) "each" "reach" "map" "rmap" "some" "rsome"
-	"reduce" "rreduce" "filter" "rfilter"))
+		"reduce" "rreduce" "filter" "rfilter"))
 
 (defun copy-part (node)
 	; (copy-part node) -> :nil | (seq "start end" empty_ok)
@@ -720,10 +720,10 @@
 	;an iterator given only copies of the one part of its sequences
 	(when (and (defq bang (. *bang_of* :find head))
 			(defq seqs (cond
-				((eql head "filter") (if (= (length forms) 3) (list (third forms))))
-				((eql head "reduce") (if (= (length forms) 4) (list (third forms))))
-				;a list of parameters (map) is no call of it
-				((> (length forms) 2) (slice forms 2 -1))))
+					((eql head "filter") (if (= (length forms) 3) (list (third forms))))
+					((eql head "reduce") (if (= (length forms) 4) (list (third forms))))
+					;a list of parameters (map) is no call of it
+					((> (length forms) 2) (slice forms 2 -1))))
 			(nempty? seqs)
 			(defq parts (map (const copy-part) seqs))
 			(every (const identity) parts)
@@ -741,7 +741,7 @@
 
 ;the iterators that take a function first, and its sequences after
 (defq +iterators ''("each" "map" "some" "every" "notany" "notevery" "reach" "rmap" "rsome"
-	"filter" "reduce" "rreduce" "each!" "map!" "some!" "filter!" "reduce!"))
+		"filter" "reduce" "rreduce" "each!" "map!" "some!" "filter!" "reduce!"))
 
 (defun iter-body (node)
 	; (iter-body node) -> :nil | nodes
@@ -866,21 +866,21 @@
 	;so is a choice of two, a | b
 	(defq words (list) word (list) depth 0)
 	(each (lambda (c)
-		(cond
-			((eql c "(") (if (> (++ depth) 1) (push word c)))
-			((eql c ")") (if (> (-- depth) 0) (push word c)))
-			((and (eql c " ") (<= depth 1))
-				(when (nempty? word) (push words (apply (const cat) word)) (setq word (list))))
-			((push word c))))
+			(cond
+				((eql c "(") (if (> (++ depth) 1) (push word c)))
+				((eql c ")") (if (> (-- depth) 0) (push word c)))
+				((and (eql c " ") (<= depth 1))
+					(when (nempty? word) (push words (apply (const cat) word)) (setq word (list))))
+				((push word c))))
 		text)
 	(if (nempty? word) (push words (apply (const cat) word)))
 	;a | and what is after it are of the thing before
 	(defq out (list) skip :nil)
 	(each (lambda (w)
-		(cond
-			((eql w "|") (setq skip :t))
-			(skip (setq skip :nil))
-			((push out w))))
+			(cond
+				((eql w "|") (setq skip :t))
+				(skip (setq skip :nil))
+				((push out w))))
 		words)
 	out)
 
@@ -912,11 +912,11 @@
 (defun check-enum (file node forms)
 	;(enums +name base (enum a b size)): +name_size is how many there are
 	(each! (lambda (line)
-		(when (defq fields (tree-form? line "enum"))
-			(each! (lambda (field)
-				(and (eql (first field) :symbol) (eql (third field) "size")
-					(found file field "enum" "a field named size is the (enums)'s own count of its fields")))
-				(list (forms-of fields)) 1 -1)))
+			(when (defq fields (tree-form? line "enum"))
+				(each! (lambda (field)
+						(and (eql (first field) :symbol) (eql (third field) "size")
+							(found file field "enum" "a field named size is the (enums)'s own count of its fields")))
+					(list (forms-of fields)) 1 -1)))
 		(list forms) 1 -1))
 
 (defun has-symbol? (nodes name)
@@ -925,9 +925,9 @@
 	(defq todo (list nodes) yes :nil)
 	(while (and (not yes) (defq nodes (pop todo)))
 		(each (lambda (node)
-			(cond
-				((and (eql (first node) :symbol) (eql (third node) name)) (setq yes :t))
-				((defq kids (tree-form? node)) (push todo kids))))
+				(cond
+					((and (eql (first node) :symbol) (eql (third node) name)) (setq yes :t))
+					((defq kids (tree-form? node)) (push todo kids))))
 			nodes))
 	yes)
 
@@ -940,16 +940,16 @@
 	(defq scan (list top))
 	(while (defq nodes (pop scan))
 		(each (lambda (node)
-			(when (defq kids (tree-form? node))
-				(push scan kids)
-				(defq forms (forms-of kids))
-				(and (> (length forms) 2) (eql (first (first forms)) :symbol) (eql (third (first forms)) "defun")
-					(eql (first (second forms)) :symbol) (eql (first (third forms)) :form)
-					;one that calls what it is given by (callback f env ...) runs it
-					;in that env, the caller's, and its own names are not had
-					(not (has-symbol? kids "callback"))
-					(. *defuns* :insert (third (second forms))
-						(cat (params-of (third forms)) (defqs-of (slice forms 3 -1)))))))
+				(when (defq kids (tree-form? node))
+					(push scan kids)
+					(defq forms (forms-of kids))
+					(and (> (length forms) 2) (eql (first (first forms)) :symbol) (eql (third (first forms)) "defun")
+						(eql (first (second forms)) :symbol) (eql (first (third forms)) :form)
+						;one that calls what it is given by (callback f env ...) runs it
+						;in that env, the caller's, and its own names are not had
+						(not (has-symbol? kids "callback"))
+						(. *defuns* :insert (third (second forms))
+							(cat (params-of (third forms)) (defqs-of (slice forms 3 -1)))))))
 			nodes)))
 
 (defun import-defuns (path)
@@ -969,12 +969,12 @@
 	;the files a file imports, at its top, those that are there
 	(defq out (list))
 	(each (lambda (node)
-		(when (defq kids (tree-form? node "import"))
-			(defq forms (forms-of kids))
-			(and (> (length forms) 1) (eql (first (second forms)) :string1)
-				(str? (defq path (catch (first (read (string-stream (third (second forms))))) :nil)))
-				(str? (setq path (catch (path-to-absolute path file) :nil)))
-				(/= 0 (age path)) (push out path))))
+			(when (defq kids (tree-form? node "import"))
+				(defq forms (forms-of kids))
+				(and (> (length forms) 1) (eql (first (second forms)) :string1)
+					(str? (defq path (catch (first (read (string-stream (third (second forms))))) :nil)))
+					(str? (setq path (catch (path-to-absolute path file) :nil)))
+					(/= 0 (age path)) (push out path))))
 		(forms-of top))
 	out)
 
@@ -983,12 +983,12 @@
 	;imports, has a parameter x: the x the lambda has when fn calls it is fn's
 	(when (defq theirs (. *defuns* :find head))
 		(each! (lambda (arg)
-			(when (and (defq kids (tree-form? arg)) (nempty? (defq inner (forms-of kids)))
-					(eql (first (first inner)) :symbol) (find (third (first inner)) '("lambda" "#")))
-				(bind '(used made) (uses-of kids))
-				(defq taken (list))
-				(each (# (and (find %0 theirs) (not (find %0 made)) (not (find %0 taken)) (push taken %0))) used)
-				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a name of (" head "), it is that one it has")) taken)))
+				(when (and (defq kids (tree-form? arg)) (nempty? (defq inner (forms-of kids)))
+						(eql (first (first inner)) :symbol) (find (third (first inner)) '("lambda" "#")))
+					(bind '(used made) (uses-of kids))
+					(defq taken (list))
+					(each (# (and (find %0 theirs) (not (find %0 made)) (not (find %0 taken)) (push taken %0))) used)
+					(each (# (found file arg "capture" %0 " in the function given to (" head ") is a name of (" head "), it is that one it has")) taken)))
 			(list forms) 1 -1)))
 
 (defun hash-used (node)
@@ -1003,17 +1003,17 @@
 		(defq todo (list kids) used (list) known :t)
 		(while (and known (defq nodes (pop todo)))
 			(each (lambda (form)
-				(cond
-					((eql (first form) :symbol)
-						(defq name (third form))
-						(cond
-							((find (first name) ",~") (setq known :nil))
-							((and (starts-with "%" name) (> (length name) 1) (<= 0 (defq n (str-to-num (slice name 1 -1))) 9)
-									(find (second name) "0123456789"))
-								(unless (find n used) (push used n)))))
-					((and (eql (first form) :form)
-							(not (and (nempty? (defq in (forms-of (third form)))) (eql (first (first in)) :symbol) (eql (third (first in)) "#"))))
-						(push todo (third form)))))
+					(cond
+						((eql (first form) :symbol)
+							(defq name (third form))
+							(cond
+								((find (first name) ",~") (setq known :nil))
+								((and (starts-with "%" name) (> (length name) 1) (<= 0 (defq n (str-to-num (slice name 1 -1))) 9)
+										(find (second name) "0123456789"))
+									(unless (find n used) (push used n)))))
+						((and (eql (first form) :form)
+								(not (and (nempty? (defq in (forms-of (third form)))) (eql (first (first in)) :symbol) (eql (third (first in)) "#"))))
+							(push todo (third form)))))
 				nodes))
 		(if known used)))
 
@@ -1037,20 +1037,20 @@
 	;what will call it ?": "if there are cases we can spot and we see they
 	;are wrong, then by all means let's spot them"
 	(defq calls :nil at (cond
-		((find head '("each" "map" "filter" "some" "every" "notany" "notevery" "reach" "rmap"))
-			(when (> (length forms) 2) (setq calls (- (length forms) 2)) 1))
-		((find head '("reduce" "rreduce")) (when (> (length forms) 2) (setq calls 2) 1))
-		((eql head "lines!") (if (> (length forms) 2) 1))
-		;one with a ! is given its sequences in a list, which may have none in it
-		((find head '("each!" "map!" "some!" "filter!"))
-			(and (> (length forms) 2) (defq kids (tree-form? (third forms)))
-				(> (length (defq seqs (forms-of kids))) 1) (eql (first (first seqs)) :symbol) (eql (third (first seqs)) "list")
-				(progn (unless (eql head "filter!") (setq calls (dec (length seqs)))) 1)))
-		((eql head "sort") (when (> (length forms) 2) (setq calls 2) 2))
-		;the :each of a map or a set, every one of them calls it with what it
-		;holds, a map's two and a set's one, which is not here to be seen
-		((and (eql head ".") (> (length forms) 3) (eql (first (third forms)) :keysym) (eql (third (third forms)) ":each"))
-			(setq head ". :each") 3)))
+			((find head '("each" "map" "filter" "some" "every" "notany" "notevery" "reach" "rmap"))
+				(when (> (length forms) 2) (setq calls (- (length forms) 2)) 1))
+			((find head '("reduce" "rreduce")) (when (> (length forms) 2) (setq calls 2) 1))
+			((eql head "lines!") (if (> (length forms) 2) 1))
+			;one with a ! is given its sequences in a list, which may have none in it
+			((find head '("each!" "map!" "some!" "filter!"))
+				(and (> (length forms) 2) (defq kids (tree-form? (third forms)))
+					(> (length (defq seqs (forms-of kids))) 1) (eql (first (first seqs)) :symbol) (eql (third (first seqs)) "list")
+					(progn (unless (eql head "filter!") (setq calls (dec (length seqs)))) 1)))
+			((eql head "sort") (when (> (length forms) 2) (setq calls 2) 2))
+			;the :each of a map or a set, every one of them calls it with what it
+			;holds, a map's two and a set's one, which is not here to be seen
+			((and (eql head ".") (> (length forms) 3) (eql (first (third forms)) :keysym) (eql (third (third forms)) ":each"))
+				(setq head ". :each") 3)))
 	(and at (defq arity (hash-arity (elem-get forms at)))
 		(cond
 			((= arity 0)
@@ -1064,8 +1064,8 @@
 	;(when (create-stdio) ...): the stdio is the value of the test and no more
 	(unless (find head '("defq" "setq" "bind"))
 		(each (lambda (form)
-			(and (defq inner (tree-form? form "create-stdio")) (= (length (forms-of inner)) 1)
-				(found file form "held" "a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")))
+				(and (defq inner (tree-form? form "create-stdio")) (= (length (forms-of inner)) 1)
+					(found file form "held" "a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")))
 			forms)))
 
 ;the classes, their parents and the kinds of their methods, as
@@ -1095,32 +1095,32 @@
 (defun check-self (file top)
 	(unless *class_db*
 		(setq *class_db* (ifn (with-read-lock +check_class_db
-			(if (defq check_db_stream (file-stream +check_class_db)) (tree-load check_db_stream))) (Emap))))
+					(if (defq check_db_stream (file-stream +check_class_db)) (tree-load check_db_stream))) (Emap))))
 	(defq cls :nil meth :nil)
 	(each (lambda (node)
-		(when (defq kids (tree-form? node))
-			(defq forms (forms-of kids)
-				head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
-			(cond
-				((and (eql head "def-method") (> (length forms) 2))
-					(setq cls (sym (third (second forms))) meth (sym (third (third forms)))))
-				((eql head "def-func-end") (setq cls :nil))
-				(cls ;every form in it, those inside others too
-					(defq todo (list kids))
-					(while (defq nodes (pop todo))
-						(defq fs (forms-of nodes)
-							h (and (nempty? fs) (eql (first (first fs)) :symbol) (third (first fs))))
-						(and (eql h "call") (> (length fs) 3)
-							(eql (first (second fs)) :keysym) (eql (first (third fs)) :keysym)
-							(eql (sym (third (third fs))) meth)
-							(eql (first (elem-get fs 3)) :quoted)
-							(defq args (tree-form? (third (elem-get fs 3))))
-							(nempty? (defq afs (forms-of args))) (eql (third (first afs)) ":r0")
-							(class-above? (defq above (sym (third (second fs)))) cls)
-							(defq kind (method-kind above meth)) (nql kind :static)
-							(found file (elem-get nodes 0) "self" "(call " (str above) " " (str meth)
-								") in " (str cls) " " (str meth) " goes by the vtable of :r0, to this method again: s-call or d-call"))
-						(each (# (if (defq k (tree-form? %0)) (push todo k))) nodes))))))
+			(when (defq kids (tree-form? node))
+				(defq forms (forms-of kids)
+					head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+				(cond
+					((and (eql head "def-method") (> (length forms) 2))
+						(setq cls (sym (third (second forms))) meth (sym (third (third forms)))))
+					((eql head "def-func-end") (setq cls :nil))
+					(cls ;every form in it, those inside others too
+						(defq todo (list kids))
+						(while (defq nodes (pop todo))
+							(defq fs (forms-of nodes)
+								h (and (nempty? fs) (eql (first (first fs)) :symbol) (third (first fs))))
+							(and (eql h "call") (> (length fs) 3)
+								(eql (first (second fs)) :keysym) (eql (first (third fs)) :keysym)
+								(eql (sym (third (third fs))) meth)
+								(eql (first (elem-get fs 3)) :quoted)
+								(defq args (tree-form? (third (elem-get fs 3))))
+								(nempty? (defq afs (forms-of args))) (eql (third (first afs)) ":r0")
+								(class-above? (defq above (sym (third (second fs)))) cls)
+								(defq kind (method-kind above meth)) (nql kind :static)
+								(found file (elem-get nodes 0) "self" "(call " (str above) " " (str meth)
+									") in " (str cls) " " (str meth) " goes by the vtable of :r0, to this method again: s-call or d-call"))
+							(each (# (if (defq k (tree-form? %0)) (push todo k))) nodes))))))
 		top))
 
 ;what each file gives as a name, (structure), (enums) and (defq) of a
@@ -1138,7 +1138,7 @@
 					(defq forms (forms-of kids))
 					(and (nempty? forms) (eql (first (first forms)) :symbol) (eql (third (first forms)) "defq")
 						(each! (# (and (odd? (!)) (eql (first %0) :symbol) (starts-with "+" (third %0))
-								(push out (list (third %0) %0))))
+									(push out (list (third %0) %0))))
 							(list forms) 1 -1))))
 			nodes))
 	out)
@@ -1177,17 +1177,17 @@
 		(if (defq in (file-stream path)) (setq top (first (tree-read in))))
 		(when top
 			(each (lambda (node)
-				(when (defq kids (tree-form? node))
-					(defq forms (forms-of kids)
-						head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
-					(cond
-						((and (find head '("structure" "enums")) (> (length forms) 1)
-								(eql (first (second forms)) :symbol) (starts-with "+" (third (second forms))))
-							(push prefixes (third (second forms))))
-						((eql head "defq")
-							;the names of a (defq) are 1, 3, 5 and on
-							(each! (# (and (odd? (!)) (eql (first %0) :symbol) (starts-with "+" (third %0)) (push names (third %0))))
-								(list forms) 1)))))
+					(when (defq kids (tree-form? node))
+						(defq forms (forms-of kids)
+							head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+						(cond
+							((and (find head '("structure" "enums")) (> (length forms) 1)
+									(eql (first (second forms)) :symbol) (starts-with "+" (third (second forms))))
+								(push prefixes (third (second forms))))
+							((eql head "defq")
+								;the names of a (defq) are 1, 3, 5 and on
+								(each! (# (and (odd? (!)) (eql (first %0) :symbol) (starts-with "+" (third %0)) (push names (third %0))))
+									(list forms) 1)))))
 				(forms-of top)))
 		(. *provides* :insert path (setq got (list prefixes names (if top (imports-of path top) (list))))))
 	got)
@@ -1244,44 +1244,44 @@
 		(defq names (list) more (list) top (if (defq in (file-stream path)) (first (tree-read in))) todo (if top (list top) (list)))
 		(while (defq nodes (pop todo))
 			(each (lambda (node)
-				(when (defq kids (tree-form? node))
-					(push todo kids)
-					(defq inner (forms-of kids) head (head-of inner) n (length inner))
-					(cond
-						((not head))
-						;a name made by a macro, (sym (cat "edit-" n)): what it begins
-						;with, any name that does may be one
-						((and (eql head "sym") (> n 1) (defq made (tree-form? (second inner)))
-								(defq made (forms-of made)) (> (length made) 1)
-								(find (head-of made) '("cat" "str")) (eql (first (second made)) :string1))
-							(defq prefix (catch (first (read (string-stream (third (second made))))) :nil))
-							(and (str? prefix) (nempty? prefix) (push names (cat "prefix " prefix))))
-						((and (find head +unbound_defs) (> n 2))
-							(if (eql (first (second inner)) :symbol) (push names (third (second inner))))
-							(each (# (push names %0)) (params-of (third inner))))
-						((and (eql head "defclass") (> n 2))
-							(when (eql (first (second inner)) :symbol)
-								(push names (third (second inner)))
-								(push names (cat (third (second inner)) "?")))
-							(each (# (push names %0)) (params-of (third inner))))
-						((and (find head +unbound_methods) (> n 2)) (each (# (push names %0)) (params-of (third inner))))
-						((and (eql head "lambda") (> n 1)) (each (# (push names %0)) (params-of (second inner))))
-						((and (eql head "ffi") (> n 2) (eql (first (third inner)) :symbol)) (push names (third (third inner))))
-						((find head '("defq" "setq" "setd"))
-							(each! (# (and (odd? (!)) (eql (first %0) :symbol) (push names (third %0)))) (list inner) 1))
-						((and (eql head "bind") (> n 1) (eql (first (second inner)) :quoted))
-							(each (# (push names %0)) (params-of (third (second inner)))))
-						((and (find head '("let" "let*")) (> n 1) (defq binds (tree-form? (second inner))))
-							(each (# (if (defq b (tree-form? %0)) (each (# (push names %0)) (params-of (first (forms-of b))))))
-								(forms-of binds)))
-						;an import anywhere, in a function or a catch, what it names may
-						;be called after it
-						((and (find head '("import" "include")) (> n 1) (eql (first (second inner)) :string1)
-								(str? (defq to (catch (first (read (string-stream (third (second inner))))) :nil)))
-								(str? (setq to (catch (path-to-absolute to path) :nil))) (/= 0 (age to)))
-							(push more to))
-						((and (eql head "raise") (> n 2) (defq binds (tree-form? (third inner))))
-							(each! (# (and (even? (!)) (eql (first %0) :symbol) (push names (third %0)))) (list (forms-of binds)))))))
+					(when (defq kids (tree-form? node))
+						(push todo kids)
+						(defq inner (forms-of kids) head (head-of inner) n (length inner))
+						(cond
+							((not head))
+							;a name made by a macro, (sym (cat "edit-" n)): what it begins
+							;with, any name that does may be one
+							((and (eql head "sym") (> n 1) (defq made (tree-form? (second inner)))
+									(defq made (forms-of made)) (> (length made) 1)
+									(find (head-of made) '("cat" "str")) (eql (first (second made)) :string1))
+								(defq prefix (catch (first (read (string-stream (third (second made))))) :nil))
+								(and (str? prefix) (nempty? prefix) (push names (cat "prefix " prefix))))
+							((and (find head +unbound_defs) (> n 2))
+								(if (eql (first (second inner)) :symbol) (push names (third (second inner))))
+								(each (# (push names %0)) (params-of (third inner))))
+							((and (eql head "defclass") (> n 2))
+								(when (eql (first (second inner)) :symbol)
+									(push names (third (second inner)))
+									(push names (cat (third (second inner)) "?")))
+								(each (# (push names %0)) (params-of (third inner))))
+							((and (find head +unbound_methods) (> n 2)) (each (# (push names %0)) (params-of (third inner))))
+							((and (eql head "lambda") (> n 1)) (each (# (push names %0)) (params-of (second inner))))
+							((and (eql head "ffi") (> n 2) (eql (first (third inner)) :symbol)) (push names (third (third inner))))
+							((find head '("defq" "setq" "setd"))
+								(each! (# (and (odd? (!)) (eql (first %0) :symbol) (push names (third %0)))) (list inner) 1))
+							((and (eql head "bind") (> n 1) (eql (first (second inner)) :quoted))
+								(each (# (push names %0)) (params-of (third (second inner)))))
+							((and (find head '("let" "let*")) (> n 1) (defq binds (tree-form? (second inner))))
+								(each (# (if (defq b (tree-form? %0)) (each (# (push names %0)) (params-of (first (forms-of b))))))
+									(forms-of binds)))
+							;an import anywhere, in a function or a catch, what it names may
+							;be called after it
+							((and (find head '("import" "include")) (> n 1) (eql (first (second inner)) :string1)
+									(str? (defq to (catch (first (read (string-stream (third (second inner))))) :nil)))
+									(str? (setq to (catch (path-to-absolute to path) :nil))) (/= 0 (age to)))
+								(push more to))
+							((and (eql head "raise") (> n 2) (defq binds (tree-form? (third inner))))
+								(each! (# (and (even? (!)) (eql (first %0) :symbol) (push names (third %0)))) (list (forms-of binds)))))))
 				nodes))
 		(. *names_of* :insert path (setq got (list names more))))
 	got)
@@ -1308,29 +1308,29 @@
 	(. known :each (# (if (starts-with "prefix " %0) (push prefixes (slice %0 7 -1)))))
 	(while (defq nodes (pop todo))
 		(each (lambda (node)
-			(when (defq kids (tree-form? node))
-				(defq inner (forms-of kids) head (head-of inner) n (length inner))
-				(and head (not (. *root_all* :find head)) (not (. known :find head))
-					(not (find (first head) ":+%&.,~'`0123456789"))
-					(notany (# (starts-with %0 head)) prefixes)
-					(found file (first inner) "unbound" head " is called, and is no function or macro of the system, of this file, or of what it imports"))
-				(cond
-					((not head) (push todo inner))
-					((find head +unbound_data))
-					((find head +unbound_defs) (push todo (slice inner (min n 3) -1)))
-					((find head +unbound_methods) (push todo (slice inner (min n 3) -1)))
-					((eql head "defclass") (push todo (slice inner (min n 4) -1)))
-					((eql head "lambda") (push todo (slice inner (min n 2) -1)))
-					((find head '("let" "let*"))
-						(and (> n 1) (defq binds (tree-form? (second inner)))
-							(each (# (if (defq b (tree-form? %0)) (push todo (rest (forms-of b))))) (forms-of binds)))
-						(push todo (slice inner (min n 2) -1)))
-					((find head '("cond" "condn"))
-						(each! (# (if (defq c (tree-form? %0)) (push todo (forms-of c)))) (list inner) 1))
-					((find head '("case" "pcase"))
-						(if (> n 1) (push todo (list (second inner))))
-						(each! (# (if (defq c (tree-form? %0)) (push todo (rest (forms-of c))))) (list inner) (min n 2)))
-					((push todo (rest inner))))))
+				(when (defq kids (tree-form? node))
+					(defq inner (forms-of kids) head (head-of inner) n (length inner))
+					(and head (not (. *root_all* :find head)) (not (. known :find head))
+						(not (find (first head) ":+%&.,~'`0123456789"))
+						(notany (# (starts-with %0 head)) prefixes)
+						(found file (first inner) "unbound" head " is called, and is no function or macro of the system, of this file, or of what it imports"))
+					(cond
+						((not head) (push todo inner))
+						((find head +unbound_data))
+						((find head +unbound_defs) (push todo (slice inner (min n 3) -1)))
+						((find head +unbound_methods) (push todo (slice inner (min n 3) -1)))
+						((eql head "defclass") (push todo (slice inner (min n 4) -1)))
+						((eql head "lambda") (push todo (slice inner (min n 2) -1)))
+						((find head '("let" "let*"))
+							(and (> n 1) (defq binds (tree-form? (second inner)))
+								(each (# (if (defq b (tree-form? %0)) (push todo (rest (forms-of b))))) (forms-of binds)))
+							(push todo (slice inner (min n 2) -1)))
+						((find head '("cond" "condn"))
+							(each! (# (if (defq c (tree-form? %0)) (push todo (forms-of c)))) (list inner) 1))
+						((find head '("case" "pcase"))
+							(if (> n 1) (push todo (list (second inner))))
+							(each! (# (if (defq c (tree-form? %0)) (push todo (rest (forms-of c))))) (list inner) (min n 2)))
+						((push todo (rest inner))))))
 			nodes)))
 
 (defun check-root-struct (file forms)
@@ -1352,8 +1352,8 @@
 	;(getf msg +x_field) (setf msg +x_field v) (setf-> msg (+x_field v) ...)
 	;where nothing this file can see gives +x_field
 	(defq fields (cond
-		((find head '("getf" "setf")) (if (> (length forms) 2) (list (third forms))))
-		((eql head "setf->") (map! (# (if (defq k (tree-form? %0)) (first (forms-of k)))) (list forms) 2 -1))))
+			((find head '("getf" "setf")) (if (> (length forms) 2) (list (third forms))))
+			((eql head "setf->") (map! (# (if (defq k (tree-form? %0)) (first (forms-of k)))) (list forms) 2 -1))))
 	(each (lambda (field)
 			(and field (eql (first field) :symbol) (starts-with "+" (defq name (third field)))
 				(find "_" name) (not (provided? name prov))
@@ -1428,12 +1428,12 @@
 			;the functions made inside another, (defun) not at the top of the file
 			(while (defq nodes (pop inner_scan))
 				(each (lambda (node)
-					(when (defq kids (tree-form? node))
-						(push inner_scan kids)
-						(defq forms (forms-of kids))
-						(and (not (eql nodes top)) (> (length forms) 1) (eql (first (first forms)) :symbol)
-							(eql (third (first forms)) "defun") (eql (first (second forms)) :symbol)
-							(. *inner_defuns* :insert (third (second forms))))))
+						(when (defq kids (tree-form? node))
+							(push inner_scan kids)
+							(defq forms (forms-of kids))
+							(and (not (eql nodes top)) (> (length forms) 1) (eql (first (first forms)) :symbol)
+								(eql (third (first forms)) "defun") (eql (first (second forms)) :symbol)
+								(. *inner_defuns* :insert (third (second forms))))))
 					nodes))
 			(if (or (pfind checks "unquote") (pfind checks "global")) (check-unquote file top))
 			;a file that stands by itself: a program, or a module
@@ -1454,11 +1454,11 @@
 			;what the file can see of structures and constants, its own, what it
 			;imports at any depth, and what every task has from root.inc
 			(defq prov (when (and (pfind checks "struct") (not (ends-with ".vp" file))
-					;a module stands by itself, a part of a file, as an app's
-					;actions.inc, has what the file it is put in has
-					(some (# (tree-form? %0 "env-push")) (forms-of top)))
-				(bind '(p n &ignore) (provides-from (list file)))
-				(list (cat p (first (root-provides))) (cat n (second (root-provides))))))
+						;a module stands by itself, a part of a file, as an app's
+						;actions.inc, has what the file it is put in has
+						(some (# (tree-form? %0 "env-push")) (forms-of top)))
+					(bind '(p n &ignore) (provides-from (list file)))
+					(list (cat p (first (root-provides))) (cat n (second (root-provides))))))
 			(when (pfind checks "capture")
 				;the functions of the files it imports, and its own after, which
 				;are the ones a name is had of if both have it
@@ -1469,63 +1469,63 @@
 				(task-slice)
 				(defq quoted :nil)
 				(each (lambda (node)
-					(defq at (!) was quoted)
-					;a thing with a quote before it is a list, or code that is
-					;being made: it is not looked at, nor what is in it
-					(setq quoted (and (eql (first node) :symbol)
-						(= (bskip +char_class_quote (third node) 0) (length (third node)))))
-					(if was (setq node (list :quoted (second node))))
-					;a comment that begins ;check off, nothing is said of its
-					;line or of the next: a test of the very thing, say
-					(when (and (eql (first node) :comment) (starts-with ";check off" (third node)))
-						(. off :insert (second node))
-						(. off :insert (inc (second node))))
-					;a name by itself, not in any form, at the top of a file: a
-					;bracket closed a form before its end, and what was to be
-					;the rest of it is now run by itself
-					(and (pfind checks "stray") (eql nodes top) (eql (first node) :symbol) (not quoted) (not was)
-						(= 0 (bskip +char_class_quote (third node) 0))
-						(found file node "stray" "a name by itself at the top of the file, " (third node)
-							", was a form closed before its end ?"))
-					(if (pfind checks "zero") (check-zero file node))
-					(when (defq kids (tree-form? node))
-						(push todo kids)
-						(defq forms (forms-of kids)
-							head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
-						(when head
-							(if (pfind checks "progn") (check-progn file forms head))
-							(if (pfind checks "class") (check-class file forms head))
-							(if (pfind checks "shadow") (check-shadow file forms head))
-							(and (pfind checks "const") (eql head "defq") (check-const file kids))
-							(and (pfind checks "early") (eql head "defq") (check-early file kids))
-							(and (pfind checks "made") (eql head "defq") (check-made file kids))
-							(if (pfind checks "inner") (check-inner file forms head))
-							(if (pfind checks "eqlist") (check-eqlist file forms head))
-							(if (pfind checks "ignore") (check-ignore file forms head))
-							(if (pfind checks "param") (check-param file forms head))
-							(if (pfind checks "called") (check-called file forms head))
-							(if (pfind checks "empty") (check-empty file forms head))
-							(if (pfind checks "past") (check-past file forms head))
-							(if (pfind checks "shift") (check-shift file forms head))
-							(if (pfind checks "def") (check-def file forms head))
-							(if (pfind checks "char") (check-char file forms head))
-							(if (pfind checks "glyph") (check-glyph file forms head))
-							(if (pfind checks "again") (check-again file forms head))
-							(if (pfind checks "cut") (check-cut file forms head))
-							(if (pfind checks "copy") (check-copy file forms head))
-							(if (pfind checks "index") (check-index file forms head))
-							(if (pfind checks "collect") (check-collect file forms))
-							(if (pfind checks "reverse") (check-reverse file forms head))
-							(if (pfind checks "width") (check-width file forms head))
-							(if (pfind checks "style") (check-style file node forms head))
-							(if (pfind checks "doc") (check-doc file node forms head nodes at))
-							(and (pfind checks "enum") (eql head "enums") (check-enum file node forms))
-							(if (pfind checks "capture") (check-capture file forms head))
-							(if (pfind checks "held") (check-held file forms head))
-							(if (pfind checks "args") (check-args file forms head))
-							(and (pfind checks "args") (eql head "#") (check-gap file node))
-							(and prov (find head '("getf" "setf" "setf->")) (check-struct file forms head prov))
-							(and (pfind checks "struct") (eql head "structure") (check-root-struct file forms)))))
+						(defq at (!) was quoted)
+						;a thing with a quote before it is a list, or code that is
+						;being made: it is not looked at, nor what is in it
+						(setq quoted (and (eql (first node) :symbol)
+								(= (bskip +char_class_quote (third node) 0) (length (third node)))))
+						(if was (setq node (list :quoted (second node))))
+						;a comment that begins ;check off, nothing is said of its
+						;line or of the next: a test of the very thing, say
+						(when (and (eql (first node) :comment) (starts-with ";check off" (third node)))
+							(. off :insert (second node))
+							(. off :insert (inc (second node))))
+						;a name by itself, not in any form, at the top of a file: a
+						;bracket closed a form before its end, and what was to be
+						;the rest of it is now run by itself
+						(and (pfind checks "stray") (eql nodes top) (eql (first node) :symbol) (not quoted) (not was)
+							(= 0 (bskip +char_class_quote (third node) 0))
+							(found file node "stray" "a name by itself at the top of the file, " (third node)
+								", was a form closed before its end ?"))
+						(if (pfind checks "zero") (check-zero file node))
+						(when (defq kids (tree-form? node))
+							(push todo kids)
+							(defq forms (forms-of kids)
+								head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+							(when head
+								(if (pfind checks "progn") (check-progn file forms head))
+								(if (pfind checks "class") (check-class file forms head))
+								(if (pfind checks "shadow") (check-shadow file forms head))
+								(and (pfind checks "const") (eql head "defq") (check-const file kids))
+								(and (pfind checks "early") (eql head "defq") (check-early file kids))
+								(and (pfind checks "made") (eql head "defq") (check-made file kids))
+								(if (pfind checks "inner") (check-inner file forms head))
+								(if (pfind checks "eqlist") (check-eqlist file forms head))
+								(if (pfind checks "ignore") (check-ignore file forms head))
+								(if (pfind checks "param") (check-param file forms head))
+								(if (pfind checks "called") (check-called file forms head))
+								(if (pfind checks "empty") (check-empty file forms head))
+								(if (pfind checks "past") (check-past file forms head))
+								(if (pfind checks "shift") (check-shift file forms head))
+								(if (pfind checks "def") (check-def file forms head))
+								(if (pfind checks "char") (check-char file forms head))
+								(if (pfind checks "glyph") (check-glyph file forms head))
+								(if (pfind checks "again") (check-again file forms head))
+								(if (pfind checks "cut") (check-cut file forms head))
+								(if (pfind checks "copy") (check-copy file forms head))
+								(if (pfind checks "index") (check-index file forms head))
+								(if (pfind checks "collect") (check-collect file forms))
+								(if (pfind checks "reverse") (check-reverse file forms head))
+								(if (pfind checks "width") (check-width file forms head))
+								(if (pfind checks "style") (check-style file node forms head))
+								(if (pfind checks "doc") (check-doc file node forms head nodes at))
+								(and (pfind checks "enum") (eql head "enums") (check-enum file node forms))
+								(if (pfind checks "capture") (check-capture file forms head))
+								(if (pfind checks "held") (check-held file forms head))
+								(if (pfind checks "args") (check-args file forms head))
+								(and (pfind checks "args") (eql head "#") (check-gap file node))
+								(and prov (find head '("getf" "setf" "setf->")) (check-struct file forms head prov))
+								(and (pfind checks "struct") (eql head "structure") (check-root-struct file forms)))))
 					nodes))
 			;in the order of the lines they are on
 			(each (lambda ((line text)) (unless (. off :find line) (print text)))
@@ -1548,12 +1548,12 @@
 			;the functions of each file imported, as read, (import-defuns)
 			*import_defuns* (Fmap 31))
 		(each (lambda ((name val))
-			;as the Syntax class sorts them: a function of VP, of Lisp, a macro
-			(defq is_macro (macro-func? val))
-			(. *root_all* :insert (str name))
-			(if (or (func? val) (lambda-func? val) is_macro) (. *root_names* :insert (str name)))
-			(if is_macro (. *root_macros* :insert (str name)))
-			(and (num? val) (starts-with "+char_" (str name)) (. *char_codes* :insert (str name) val)))
+				;as the Syntax class sorts them: a function of VP, of Lisp, a macro
+				(defq is_macro (macro-func? val))
+				(. *root_all* :insert (str name))
+				(if (or (func? val) (lambda-func? val) is_macro) (. *root_names* :insert (str name)))
+				(if is_macro (. *root_macros* :insert (str name)))
+				(and (num? val) (starts-with "+char_" (str name)) (. *char_codes* :insert (str name) val)))
 			(tolist *root_env*))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
@@ -1561,17 +1561,17 @@
 			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		;only source files, a folder the source files in it at any depth
 		(setq jobs (reduce (lambda (out f)
-				(if (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))
-					(push out f)
-					(reduce (# (push %0 %1)) (files-all f '(".vp" ".inc" ".lisp")) out)))
-			jobs (list)))
+					(if (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))
+						(push out f)
+						(reduce (# (push %0 %1)) (files-all f '(".vp" ".inc" ".lisp")) out)))
+				jobs (list)))
 		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !
 			(each (const work) jobs)
 			;do them all out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (str (first args)
-						" -j " opt_j
-						(if opt_c (cat " -c " opt_c) "")
-						" " (slice (str %0) 1 -2)))
-					(partition jobs opt_j)))))))
+								" -j " opt_j
+								(if opt_c (cat " -c " opt_c) "")
+								" " (slice (str %0) 1 -2)))
+						(partition jobs opt_j)))))))

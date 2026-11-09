@@ -5,31 +5,31 @@
 (defclass Map () :nil
 	; (Map) -> map
 	(defabstractmethod :find (key))
-		; (. map :find key) -> :nil | val
+	; (. map :find key) -> :nil | val
 	(defabstractmethod :insert (key val))
-		; (. map :insert key val) -> map
+	; (. map :insert key val) -> map
 	(defabstractmethod :erase (key))
-		; (. map :erase key) -> map
+	; (. map :erase key) -> map
 	(defabstractmethod :each (fnc))
-		; (. map :each lambda) -> map
+	; (. map :each lambda) -> map
 	(defabstractmethod :tolist ())
-		; (. map :tolist) -> list
+	; (. map :tolist) -> list
 	(defabstractmethod :copy ())
-		; (. map :copy) -> map
+	; (. map :copy) -> map
 	(defabstractmethod :deep_copy ())
-		; (. map :deep_copy) -> map
+	; (. map :deep_copy) -> map
 	(defabstractmethod :empty ())
-		; (. map :empty) -> map
+	; (. map :empty) -> map
 	(defabstractmethod :move ())
-		; (. map :move) -> map
+	; (. map :move) -> map
 	(defabstractmethod :resize (num_buckets))
-		; (. map :resize num_buckets) -> map
+	; (. map :resize num_buckets) -> map
 	(defabstractmethod :empty? ())
-		; (. map :empty?) -> :t | :nil
+	; (. map :empty?) -> :t | :nil
 	(defabstractmethod :size ())
-		; (. map :size) -> size
+	; (. map :size) -> size
 	(defabstractmethod :update (key func))
-		; (. map :update key lambda) -> val
+	; (. map :update key lambda) -> val
 	(defabstractmethod :memoize (key func))
-		; (. map :memoize key lambda) -> val
-	)
+	; (. map :memoize key lambda) -> val
+)

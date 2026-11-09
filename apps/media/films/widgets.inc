@@ -37,4 +37,3 @@
 
 (ui-tool-tips *player* '("open" "play" "pause" "step" "start" "smaller" "bigger" "sound sooner" "sound later" "options"))
 (ui-tool-tips *endings* '("stop at end" "play again" "next film" "random film"))
-

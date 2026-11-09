@@ -80,7 +80,6 @@
 (assert-eq "pfind pmap empty" :nil (pfind pl_empty 'a))
 (assert-eq "perase pmap empty" pl_empty (perase pl_empty 'a))
 
-
 ; --- Function: pfindi ---
 (defq pl_idx (pmap 'a 1 'b 2 'c 3))
 (assert-eq "pfindi pmap first key" 0 (pfindi pl_idx 'a))

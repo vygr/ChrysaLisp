@@ -3,9 +3,9 @@
 
 (defun opt-listen (opt_var)
 	(static-qq (lambda (args arg)
-		(if (and (nempty? args) (some (# (find %0 "0123456789")) (first args)) (not (starts-with "-" (first args))))
-			(progn (setq ,opt_var (str-as-num (first args))) (rest args))
-			(setq ,opt_var 3333) args))))
+			(if (and (nempty? args) (some (# (find %0 "0123456789")) (first args)) (not (starts-with "-" (first args))))
+				(progn (setq ,opt_var (str-as-num (first args))) (rest args))
+				(setq ,opt_var 3333) args))))
 
 (defq usage `(
 (("-h" "--help")
@@ -100,5 +100,3 @@
 			(:t
 				;from args
 				(each! (# (start-link %0 opt_v opt_s)) (list args) 1 -1)))))
-
-

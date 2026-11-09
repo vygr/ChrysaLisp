@@ -9,18 +9,18 @@
 (import "lib/files/files.inc")
 
 (defq us_users (filter (# (and (nql %0 "Guest") (not (starts-with "." %0)) (/= (age (cat "usr/" %0 "/env.inc")) 0)))
-	(reduce (lambda (out (name kind)) (if (eql kind "d") (push out name) out))
-		(partition (split (pii-dirlist "usr") ",") 2) (list))))
+		(reduce (lambda (out (name kind)) (if (eql kind "d") (push out name) out))
+			(partition (split (pii-dirlist "usr") ",") 2) (list))))
 (assert-true "there is a user other than Guest to try" (nempty? us_users))
 (each (lambda (user)
-	(defq us_said (test-output (cat
-		"(import {usr/env.inc}) (env-load {" user "})"
-		" (import {gui/lisp.inc})"
-		" (catch (progn (ui-window us_win () (ui-title-bar _ {t} (+sym_close) 0)"
-		" (ui-tool-bar us_bar () (ui-buttons (+sym_undo) 1)))"
-		" (. us_win :theme {Bold})"
-		" (print (get :home *env*) { } (first (font-info (get :font us_bar)))))"
-		" (progn (print _) :t))")))
-	(assert-eq (cat "the environment of " user " loads, and a window of theirs takes a theme")
-		(cat "usr/" user "/ fonts/Symbols-Bold.ctf\n") us_said))
+		(defq us_said (test-output (cat
+					"(import {usr/env.inc}) (env-load {" user "})"
+					" (import {gui/lisp.inc})"
+					" (catch (progn (ui-window us_win () (ui-title-bar _ {t} (+sym_close) 0)"
+					" (ui-tool-bar us_bar () (ui-buttons (+sym_undo) 1)))"
+					" (. us_win :theme {Bold})"
+					" (print (get :home *env*) { } (first (font-info (get :font us_bar)))))"
+					" (progn (print _) :t))")))
+		(assert-eq (cat "the environment of " user " loads, and a window of theirs takes a theme")
+			(cat "usr/" user "/ fonts/Symbols-Bold.ctf\n") us_said))
 	us_users)

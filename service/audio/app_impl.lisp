@@ -6,12 +6,12 @@
 
 (defmacro audio-reply (result)
 	`(mail-send reply_id (setf-> (str-alloc +audio_ret_size)
-		(+audio_ret_retval ,result))))
+			(+audio_ret_retval ,result))))
 
 (defmacro audio-call (func &rest args)
 	(setq func (cat "service/audio/lisp_" (str func)))
 	`(mail-send reply_id (setf-> (str-alloc +audio_ret_size)
-		(+audio_ret_retval ((const (ffi ,func)) ~args)))))
+			(+audio_ret_retval ((const (ffi ,func)) ~args)))))
 
 (defun main ()
 	;the service is only there if the host of this node has an audio
@@ -34,8 +34,8 @@
 				(when (> (defq n (audio-raw mic_read heard_buf)) 0)
 					(defq piece (slice heard_buf 0 (* n 2)))
 					(. listeners :each (lambda (who &ignore)
-						(mail-send (hex-decode who) (cat (setf-> (str-alloc +audio_heard_size)
-							(+audio_heard_seq heard_seq)) piece))))
+							(mail-send (hex-decode who) (cat (setf-> (str-alloc +audio_heard_size)
+										(+audio_heard_seq heard_seq)) piece))))
 					(++ heard_seq)))
 			;those whose lease is out are let go, and with the last listener
 			;the microphone is closed
@@ -66,31 +66,31 @@
 					(+audio_type_play
 						; Play sound effect
 						(audio-call play (getf msg +audio_play_handle)
-										(getf msg +audio_play_pan)))
+							(getf msg +audio_play_pan)))
 					(+audio_type_change
 						; Change playing state
 						(audio-call change (getf msg +audio_change_handle)
-										(getf msg +audio_change_state)))
+							(getf msg +audio_change_state)))
 					(+audio_type_remove
 						; Remove sound effect
 						(defq handle (getf msg +audio_remove_handle))
 						(audio-reply (cond
-							((<= (. refs_map :update handle (# (dec %0))) 0)
-								;last ref has gone, and with it all that is kept of it
-								(. file_map :erase (. handle_map :find handle))
-								(. handle_map :erase handle)
-								(. refs_map :erase handle)
-								(audio-raw remove handle))
-							(0))))
+								((<= (. refs_map :update handle (# (dec %0))) 0)
+									;last ref has gone, and with it all that is kept of it
+									(. file_map :erase (. handle_map :find handle))
+									(. handle_map :erase handle)
+									(. refs_map :erase handle)
+									(audio-raw remove handle))
+								(0))))
 					(+audio_type_listen
 						;the microphone opened by the first
 						(defq who (hex-encode (getf msg +audio_listen_who)))
 						(audio-reply (cond
-							((. listeners :find who)
-								(. listeners :insert who (+ (pii-time) +audio_lease)) 0)
-							((or (not (. listeners :empty?)) (= (audio-raw mic_open) 0))
-								(. listeners :insert who (+ (pii-time) +audio_lease)) 0)
-							(-1))))
+								((. listeners :find who)
+									(. listeners :insert who (+ (pii-time) +audio_lease)) 0)
+								((or (not (. listeners :empty?)) (= (audio-raw mic_open) 0))
+									(. listeners :insert who (+ (pii-time) +audio_lease)) 0)
+								(-1))))
 					(+audio_type_hush
 						(when (. listeners :find (defq who (hex-encode (getf msg +audio_listen_who))))
 							(. listeners :erase who)
@@ -99,8 +99,8 @@
 					(+audio_type_stream_open
 						;one from before streams had a rate is 16000 mono
 						(defq handle (if (>= (length msg) +audio_stream_open_size)
-							(audio-raw stream_open (getf msg +audio_stream_open_rate) (getf msg +audio_stream_open_channels))
-							(audio-raw stream_open 16000 1)))
+								(audio-raw stream_open (getf msg +audio_stream_open_rate) (getf msg +audio_stream_open_channels))
+								(audio-raw stream_open 16000 1)))
 						(if (/= handle 0) (. streams :insert handle (pii-time)))
 						(audio-reply handle))
 					(+audio_type_stream_write
@@ -110,14 +110,14 @@
 							(audio-raw stream_write handle (slice msg +audio_stream_data -1))))
 					(+audio_type_stream_left
 						(audio-reply (if (. streams :find (defq handle (getf msg +audio_remove_handle)))
-							(audio-raw stream_left handle) -1)))
+								(audio-raw stream_left handle) -1)))
 					(+audio_type_stream_close
 						(defq handle (getf msg +audio_remove_handle))
 						(audio-reply (cond
-							((. streams :find handle)
-								(. streams :erase handle)
-								(audio-raw stream_close handle))
-							(-1)))))))
+								((. streams :find handle)
+									(. streams :erase handle)
+									(audio-raw stream_close handle))
+								(-1)))))))
 		(audio-raw mic_close)
 		((ffi "service/audio/lisp_deinit"))
 		; Forget the audio service

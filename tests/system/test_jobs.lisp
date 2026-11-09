@@ -78,7 +78,7 @@
 ;and the job given to it is not done. Once in 14 runs on the Pi
 (defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
 (defq jobs (Jobs "tests/system/data/jobs_child.lisp"
-	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 2)))
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 2)))
 (assert-eq "a herd" (min 3 (inc (length (lisp-nodes :t)))) (. jobs :size))
 (assert-list-eq "a herd does the work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3))))
 (. jobs :close)
@@ -88,7 +88,7 @@
 ;one of these
 (defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
 (defq jobs (Jobs "tests/system/data/jobs_child.lisp"
-	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 3 0) :t)
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 3 0) :t)
 	jt_nodes (list))
 (while (< (length jt_nodes) 3)
 	(defq jt_msg (mail-read (elem-get jt_select +jt_task)))
@@ -121,7 +121,7 @@
 ;given as the child went that is to be not counted
 (defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
 (defq jobs (Jobs "tests/system/data/jobs_going_child.lisp"
-	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
 (assert-list-eq "a child that will go does the work" '(2) (jt-run (list (jt-work 1)) :nil (task-timeout 10)))
 (. jobs :clear)
 ;it has nothing now, and goes, and says so
@@ -143,7 +143,7 @@
 ;and the job is done by the one started after it, not counted as tried
 (defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
 (defq jobs (Jobs "tests/system/data/jobs_child.lisp"
-	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
 (defq jt_up (mail-read (elem-get jt_select +jt_task)) jt_key (getf jt_up +kn_msg_key)
 	jt_node (task-nodeid (getf jt_up +kn_msg_reply_id)))
 (. jobs :launched jt_up)

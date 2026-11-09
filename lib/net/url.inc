@@ -10,7 +10,7 @@
 
 ;precomputed 769-byte table: "+" at 0, followed by all 256 "%XX" tokens
 (defq +url_rep_table (cat "+" (apply (const cat)
-	(map (# (cat "%" (hex-encode (char %0)))) (range 0 256)))))
+			(map (# (cat "%" (hex-encode (char %0)))) (range 0 256)))))
 
 ;precomputed 256-byte table containing all single byte values (0 to 255)
 (defq +all_chars (apply (const cat) (map (const char) (range 0 256))))
@@ -79,31 +79,31 @@
 	(when (and q_str (nql q_str ""))
 		(if (starts-with "?" q_str) (setq q_str (slice q_str 1 -1)))
 		(each (lambda (pair)
-			(when (nql pair "")
-				(defq eq_idx (find "=" pair)
-					k_str (url-decode (if eq_idx (slice pair 0 eq_idx) pair) :t)
-					val (if eq_idx (url-decode (slice pair (inc eq_idx) -1) :t) "")
-					k_sym (sym (if (starts-with ":" k_str) k_str (cat ":" k_str))))
-				(pinsert res k_sym val)))
+				(when (nql pair "")
+					(defq eq_idx (find "=" pair)
+						k_str (url-decode (if eq_idx (slice pair 0 eq_idx) pair) :t)
+						val (if eq_idx (url-decode (slice pair (inc eq_idx) -1) :t) "")
+						k_sym (sym (if (starts-with ":" k_str) k_str (cat ":" k_str))))
+					(pinsert res k_sym val)))
 			(split q_str "&")))
 	res)
 
 (defun url-query-format (q)
 	; (url-query-format q) -> str
 	(defq items (cond
-		((empty? q) (list))
-		((pmap? q) (partition q 2))
-		((and (env? q) (def? :vtable q) (.? q :tolist)) (. q :tolist))
-		((env? q) (tolist q))
-		((list?? (first q)) q)
-		((list?? q) (partition q 2))
-		((list))))
+			((empty? q) (list))
+			((pmap? q) (partition q 2))
+			((and (env? q) (def? :vtable q) (.? q :tolist)) (. q :tolist))
+			((env? q) (tolist q))
+			((list?? (first q)) q)
+			((list?? q) (partition q 2))
+			((list))))
 	(if (empty? items) ""
 		(defq pairs (list))
 		(each (lambda ((k v))
-			(defq k_str (str k)
-				k_clean (if (starts-with ":" k_str) (rest k_str) k_str))
-			(push pairs (cat (url-encode k_clean :t) "=" (url-encode (str v) :t))))
+				(defq k_str (str k)
+					k_clean (if (starts-with ":" k_str) (rest k_str) k_str))
+				(push pairs (cat (url-encode k_clean :t) "=" (url-encode (str v) :t))))
 			items)
 		(join pairs "&")))
 
@@ -191,5 +191,5 @@
 
 ;module
 (export-symbols '(url-scheme-port url-encode url-decode url-query-parse
-	url-query-format url-parse url-path-query url-format))
+		url-query-format url-parse url-path-query url-format))
 (env-pop)

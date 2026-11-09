@@ -71,8 +71,7 @@
 		; resize
 		(. m4 :insert 'y 600)
 		(. m4 :resize 23)
-		(assert-eq (cat ,name " resize find") 600 (. m4 :find 'y))
-	))
+		(assert-eq (cat ,name " resize find") 600 (. m4 :find 'y))))
 
 (test-map-variety "Fmap" (# (Fmap 11)))
 (test-map-variety "Emap" (# (Emap 11)))

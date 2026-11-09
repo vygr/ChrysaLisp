@@ -42,7 +42,7 @@
 		(call :sys_mail :alloc_mbox :nil `((,saved_this ,(+ +netid_id +net_id_mbox_id)) _))
 		(call :sys_kernel :id :nil
 			`((,saved_this ,(+ +netid_id +net_id_node_id +node_id_node1))
-			(,saved_this ,(+ +netid_id +net_id_node_id +node_id_node2))))
+				(,saved_this ,(+ +netid_id +net_id_node_id +node_id_node2))))
 		(vp-cpy-rr saved_this this)
 	(endif)
 

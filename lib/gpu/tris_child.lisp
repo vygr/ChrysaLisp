@@ -35,7 +35,7 @@
 	(unless (defq verts (. meshes :find id))
 		(defq mbox (mail-mbox))
 		(mail-send ask (setf-> (str-alloc +strip_ask_size)
-			(+strip_ask_reply mbox) (+strip_ask_mesh id)))
+				(+strip_ask_reply mbox) (+strip_ask_mesh id)))
 		(. meshes :insert id (setq verts (mail-read mbox))))
 	verts)
 
@@ -70,8 +70,8 @@
 	(times draws
 		(setq gone (or gone (mail-poll (list main))))
 		(bind '(id vlen plen dy dy1 tlen) (getf-> (slice msg at (+ at +strip_draw_size))
-			+strip_draw_mesh +strip_draw_vblock_length +strip_draw_pblock_length
-			+strip_draw_y +strip_draw_y1 +strip_draw_tfiles_length))
+				+strip_draw_mesh +strip_draw_vblock_length +strip_draw_pblock_length
+				+strip_draw_y +strip_draw_y1 +strip_draw_tfiles_length))
 		;a mesh that is on none of the rows of this strip is not drawn,
 		;and not asked for till it is. A strip of no rows asks for them all
 		(defq blocks (+ at +strip_draw_blocks)
@@ -90,7 +90,7 @@
 		(setq at (+ blocks vlen plen tlen)))
 	(unless gone
 		(mail-send reply (setf-> (str-alloc +strip_reply_size)
-			(+job_reply_key key) (+strip_reply_y y) (+strip_reply_drawn (if pixmap 1 0))))))
+				(+job_reply_key key) (+strip_reply_y y) (+strip_reply_drawn (if pixmap 1 0))))))
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox) (strip msg mbox))))

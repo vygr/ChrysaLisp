@@ -8,4 +8,4 @@
 	;use all remaining cells for short array storage
 	;scale up to next block size so we get more [key value] pairs
 	(struct elems (some! (lambda (%0)
-		(if (< base %0) (- (* %0 4) base))) (list (last +mem_heap_cell_sizes)))))
+				(if (< base %0) (- (* %0 4) base))) (list (last +mem_heap_cell_sizes)))))

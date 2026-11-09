@@ -67,7 +67,7 @@
 
 (defun tk-validate-trash ()
 	;validate mode trashes all registers, before a task's state, (vp-load-state)
-	(validatecase
-		(vp-cpy-cr 0x7FF8000000000000 :r0)
-		(vp-simd vp-cpy-rd '(:r0) +vp_fregs)
-		(vp-simd vp-cpy-rr '(:r0) +vp_rregs_0_14)))
+(validatecase
+	(vp-cpy-cr 0x7FF8000000000000 :r0)
+	(vp-simd vp-cpy-rd '(:r0) +vp_fregs)
+	(vp-simd vp-cpy-rr '(:r0) +vp_rregs_0_14)))

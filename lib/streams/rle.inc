@@ -57,14 +57,14 @@
 		length_mask (dec sign_bit_mask))
 	; Read breaking gracefully on -1 (EOF) or hitting token limit
 	(while (and (> max_tokens 0)
-				(/= -1 (defq len (read-bits in_stream read_pool_state run_bits))))
+			(/= -1 (defq len (read-bits in_stream read_pool_state run_bits))))
 		(task-slice)
 		(cond
 			((bits? len sign_bit_mask)
 				; Repeated Run (MSB is set)
 				(setq max_tokens (- max_tokens
-					(defq token (read-bits in_stream read_pool_state token_bits)
-						len (logand len length_mask)) 1))
+						(defq token (read-bits in_stream read_pool_state token_bits)
+							len (logand len length_mask)) 1))
 				(fill-bits out_stream write_pool_state token token_bits (inc len)))
 			(:t ; Literal Run (MSB is clear)
 				(setq max_tokens (- max_tokens len 1))

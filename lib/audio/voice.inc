@@ -87,43 +87,43 @@
 		silence (sound-map (str-alloc +sound_piece) (lambda (_) 0))
 		speech_until 0 heard_until 0 sending :nil told 0 from_hex (hex-encode from))
 	(sound-pieces in (lambda (data)
-		(while (mail-poll (list ctl))
-			(defq msg (mail-read ctl) kind (first msg) rest (slice msg 1 -1))
-			(cond
-				((eql kind "t") (setq to (map (const hex-decode) (filter (const nempty?) (split rest ",")))))
-				((eql kind "m") (setq muted (eql rest "1")))
-				((eql kind "p") (setq tap (if (nempty? rest) (hex-decode rest))))
-				((eql kind "d") (setq duplex (eql rest "1")))
-				((eql kind "h") (setq heard_until (+ (pii-time) +voice_hang)))
-				((eql kind "f")
-					;a file of this rate, mono 16 bit, as the microphone is
-					(setq file :nil file_left 0)
-					(when (and (nempty? rest) (defq loader (sound-loader-of rest)) (defq stream (file-stream rest)))
-						(bind '(rate channels bits bytes) ((second loader) stream))
-						(and (= rate +sound_rate) (= channels 1) (= bits 16)
-							(setq file stream file_left bytes))))))
-		;a file sent in place of the microphone, the last piece made up with
-		;silence, and then the microphone again
-		(when file
-			(defq got (read-blk file (min file_left (length data))))
-			(setq file_left (- file_left (length got)))
-			(if (or (empty? got) (<= file_left 0)) (setq file :nil))
-			(if (nempty? got) (setq data (cat got (slice silence (length got) (length data))))))
-		(defq now (pii-time))
-		(if (> (sound-peak data) +voice_gate) (setq speech_until (+ now +voice_hang)))
-		;what goes to others is numbered without gaps, a gap is a loss to them
-		(setq sending (voice-sending? sending now speech_until heard_until muted duplex))
-		(when sending
-			(when (and talk (> (- now told) +voice_talk_every))
-				(setq told now)
-				(mail-send talk (cat "T" from_hex)))
-			(defq piece (voice-piece from sent_seq data))
-			(each (# (mail-send %0 piece)) to)
-			(setq sent_seq (inc sent_seq)))
-		;a mix goes by what is said here, so a piece goes to the tap muted or
-		;not, as quiet when it is
-		(if tap (mail-send tap (voice-piece from seq (if muted (sound-map data (lambda (_) 0)) data))))
-		(setq seq (inc seq)))))
+			(while (mail-poll (list ctl))
+				(defq msg (mail-read ctl) kind (first msg) rest (slice msg 1 -1))
+				(cond
+					((eql kind "t") (setq to (map (const hex-decode) (filter (const nempty?) (split rest ",")))))
+					((eql kind "m") (setq muted (eql rest "1")))
+					((eql kind "p") (setq tap (if (nempty? rest) (hex-decode rest))))
+					((eql kind "d") (setq duplex (eql rest "1")))
+					((eql kind "h") (setq heard_until (+ (pii-time) +voice_hang)))
+					((eql kind "f")
+						;a file of this rate, mono 16 bit, as the microphone is
+						(setq file :nil file_left 0)
+						(when (and (nempty? rest) (defq loader (sound-loader-of rest)) (defq stream (file-stream rest)))
+							(bind '(rate channels bits bytes) ((second loader) stream))
+							(and (= rate +sound_rate) (= channels 1) (= bits 16)
+								(setq file stream file_left bytes))))))
+			;a file sent in place of the microphone, the last piece made up with
+			;silence, and then the microphone again
+			(when file
+				(defq got (read-blk file (min file_left (length data))))
+				(setq file_left (- file_left (length got)))
+				(if (or (empty? got) (<= file_left 0)) (setq file :nil))
+				(if (nempty? got) (setq data (cat got (slice silence (length got) (length data))))))
+			(defq now (pii-time))
+			(if (> (sound-peak data) +voice_gate) (setq speech_until (+ now +voice_hang)))
+			;what goes to others is numbered without gaps, a gap is a loss to them
+			(setq sending (voice-sending? sending now speech_until heard_until muted duplex))
+			(when sending
+				(when (and talk (> (- now told) +voice_talk_every))
+					(setq told now)
+					(mail-send talk (cat "T" from_hex)))
+				(defq piece (voice-piece from sent_seq data))
+				(each (# (mail-send %0 piece)) to)
+				(setq sent_seq (inc sent_seq)))
+			;a mix goes by what is said here, so a piece goes to the tap muted or
+			;not, as quiet when it is
+			(if tap (mail-send tap (voice-piece from seq (if muted (sound-map data (lambda (_) 0)) data))))
+			(setq seq (inc seq)))))
 
 (defun voice-hear (in out inbox ctl said talk)
 	; (voice-hear in out inbox ctl said talk)
@@ -166,9 +166,9 @@
 				;and those quiet a while, closed
 				(defq gone (list))
 				(. talkers :each (lambda (who (handle order heard tapped spoke))
-					(when (> (- now heard) +voice_quiet)
-						(if handle (audio-stream-close-rpc handle))
-						(push gone who))))
+						(when (> (- now heard) +voice_quiet)
+							(if handle (audio-stream-close-rpc handle))
+							(push gone who))))
 				(each (# (. talkers :erase %0)) gone))))
 	(. talkers :each (lambda (who (handle &ignore)) (if handle (audio-stream-close-rpc handle)))))
 
@@ -188,9 +188,9 @@
 					((eql from own)
 						(defq datas (list data) taken (list))
 						(. queues :each (lambda (who queue)
-							(when (nempty? queue)
-								(push datas (first queue))
-								(push taken who))))
+								(when (nempty? queue)
+									(push datas (first queue))
+									(push taken who))))
 						(each (# (. queues :insert %0 (rest (. queues :find %0)))) taken)
 						(sound-write out (sound-add datas)))
 					(:t (defq queue (ifn (. queues :find from) (list)))
@@ -208,7 +208,7 @@
 		talk_form (if talk (stage-mbox talk)))
 	(stages-run (list (voice-stage 'voice-hear (stage-mbox inbox) (stage-mbox hear_ctl) (stage-mbox send_ctl) talk_form)))
 	(stages-run (list (sound-stage 'sound-mic (stage-mbox mic_ctl))
-		(voice-stage 'voice-send (stage-mbox send_ctl) (stage-mbox inbox) talk_form)))
+			(voice-stage 'voice-send (stage-mbox send_ctl) (stage-mbox inbox) talk_form)))
 	(list inbox hear_ctl mic_ctl send_ctl))
 
 (defun voice-inbox (voice)

@@ -104,8 +104,8 @@
 (assert-true "the middle of it all stays in the middle" (< (nums-dot nm_mid nm_mid) (const (n2r 0.0001))))
 (assert-true "it is drawn to fit, the furthest node is where it should be"
 	(< (abs (- (* zoom (sqrt (max (nums-dot (get :pos (. global_tasks :find (nm-id 3))) (get :pos (. global_tasks :find (nm-id 3))))
-		(nums-dot (get :pos (. global_tasks :find (nm-id 1))) (get :pos (. global_tasks :find (nm-id 1))))
-		(nums-dot (get :pos (. global_tasks :find (nm-id 2))) (get :pos (. global_tasks :find (nm-id 2))))))) +fit))
+							(nums-dot (get :pos (. global_tasks :find (nm-id 1))) (get :pos (. global_tasks :find (nm-id 1))))
+							(nums-dot (get :pos (. global_tasks :find (nm-id 2))) (get :pos (. global_tasks :find (nm-id 2))))))) +fit))
 		(const (n2r 0.05))))
 (defq nm_before (nm-dist 1 2))
 (times 400 (spring-step))

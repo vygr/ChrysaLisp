@@ -25,50 +25,50 @@
 	(map (# (flm-pixels (flm-decode codec (flm-packet reel %0) %0))) (range 0 (. reel :find :frames))))
 
 (each (lambda (format)
-	;six frames pumped in, the film comes out of the stream
-	(defq out (memory-stream) film (flm-open out format 25)
-		want (map (# (flm-pixels (flm-made %0))) (range 0 6)))
-	(each (# (flm-add film (flm-made %0))) (range 0 6))
-	(assert-eq (cat "frames written, " (str format) " bit") 6 (flm-close film))
-	;a reel of it, a packet a frame and the rate it was made at
-	(defq reel (flm-reel out))
-	(assert-true (cat "a reel of it, " (str format) " bit") (and reel (= (. reel :find :version) 3)))
-	(assert-eq (cat "a packet a frame, " (str format) " bit") 6 (. reel :find :frames))
-	(assert-eq "the rate it was made at" 25 (n2i (. reel :find :rate)))
-	;every frame comes back to the bit, the first whole, those after it
-	;each from the one before
-	(assert-eq (cat "every frame played back to the bit, " (str format) " bit") 6
-		(length (filter (const identity) (map (const eql) (flm-play reel) want))))
-	;round again from the first, as a player that loops does
-	(defq codec (flm-codec reel))
-	(each (# (flm-decode codec (flm-packet reel %0) %0)) (range 0 4))
-	(assert-eq "back to the first, it is the first again" (first want)
-		(flm-pixels (flm-decode codec (flm-packet reel 0) 0)))
-	(assert-true "frames that differ are told apart" (not (eql (first want) (second want))))
-	;shown at half size, the frames the same, the canvas half as big; a
-	;scale its size is not of is not taken
-	(defq half (flm-codec reel 2))
-	(assert-list-eq "a codec at half size, its canvas half as big" '(2 24 16)
-		(cat (list (. half :find :scale)) (. (. half :find :canvas) :pref_size)))
-	(assert-eq "its frames the same, before they are made smaller" (elem-get want 3)
-		(progn (flm-frame half 3) (defq hp (memory-stream))
-			(pixmap-write (getf (. half :find :canvas) +canvas_pixmap 0) hp 32) (stream-seek hp 0 0) (read-blk hp 100000)))
-	(assert-eq "a scale its size is not of, 5, is not taken" 1 (. (flm-codec reel 5) :find :scale))
-	;as a player has it, a frame by its number, on and back and on
-	(defq codec (flm-codec reel))
-	(assert-list-eq "frames by number, as a player asks" (map (# (elem-get want %0)) '(0 1 4 2 2 5 0))
-		(map (# (flm-pixels (flm-frame codec %0))) '(0 1 4 2 2 5 0)))
-	;the same film as an older version was: no packets, version 2. It is
-	;made this version again, and plays the same
-	(stream-seek out 0 0)
-	(defq whole (read-blk out 10000000) old (cat (slice whole 0 8) (char 2 4) (slice whole 12 28)) at 28)
-	(while (< at (length whole))
-		(defq len (code whole 4 at))
-		(setq old (cat old (slice whole (+ at 4) (+ at 4 len))) at (+ at 4 len)))
-	(defq again (memory-stream))
-	(assert-eq (cat "an older film is made this version, " (str format) " bit") 6
-		(flm-convert (string-stream old) again 25))
-	(assert-list-eq "and plays the same" want (flm-play (flm-reel again))))
+		;six frames pumped in, the film comes out of the stream
+		(defq out (memory-stream) film (flm-open out format 25)
+			want (map (# (flm-pixels (flm-made %0))) (range 0 6)))
+		(each (# (flm-add film (flm-made %0))) (range 0 6))
+		(assert-eq (cat "frames written, " (str format) " bit") 6 (flm-close film))
+		;a reel of it, a packet a frame and the rate it was made at
+		(defq reel (flm-reel out))
+		(assert-true (cat "a reel of it, " (str format) " bit") (and reel (= (. reel :find :version) 3)))
+		(assert-eq (cat "a packet a frame, " (str format) " bit") 6 (. reel :find :frames))
+		(assert-eq "the rate it was made at" 25 (n2i (. reel :find :rate)))
+		;every frame comes back to the bit, the first whole, those after it
+		;each from the one before
+		(assert-eq (cat "every frame played back to the bit, " (str format) " bit") 6
+			(length (filter (const identity) (map (const eql) (flm-play reel) want))))
+		;round again from the first, as a player that loops does
+		(defq codec (flm-codec reel))
+		(each (# (flm-decode codec (flm-packet reel %0) %0)) (range 0 4))
+		(assert-eq "back to the first, it is the first again" (first want)
+			(flm-pixels (flm-decode codec (flm-packet reel 0) 0)))
+		(assert-true "frames that differ are told apart" (not (eql (first want) (second want))))
+		;shown at half size, the frames the same, the canvas half as big; a
+		;scale its size is not of is not taken
+		(defq half (flm-codec reel 2))
+		(assert-list-eq "a codec at half size, its canvas half as big" '(2 24 16)
+			(cat (list (. half :find :scale)) (. (. half :find :canvas) :pref_size)))
+		(assert-eq "its frames the same, before they are made smaller" (elem-get want 3)
+			(progn (flm-frame half 3) (defq hp (memory-stream))
+				(pixmap-write (getf (. half :find :canvas) +canvas_pixmap 0) hp 32) (stream-seek hp 0 0) (read-blk hp 100000)))
+		(assert-eq "a scale its size is not of, 5, is not taken" 1 (. (flm-codec reel 5) :find :scale))
+		;as a player has it, a frame by its number, on and back and on
+		(defq codec (flm-codec reel))
+		(assert-list-eq "frames by number, as a player asks" (map (# (elem-get want %0)) '(0 1 4 2 2 5 0))
+			(map (# (flm-pixels (flm-frame codec %0))) '(0 1 4 2 2 5 0)))
+		;the same film as an older version was: no packets, version 2. It is
+		;made this version again, and plays the same
+		(stream-seek out 0 0)
+		(defq whole (read-blk out 10000000) old (cat (slice whole 0 8) (char 2 4) (slice whole 12 28)) at 28)
+		(while (< at (length whole))
+			(defq len (code whole 4 at))
+			(setq old (cat old (slice whole (+ at 4) (+ at 4 len))) at (+ at 4 len)))
+		(defq again (memory-stream))
+		(assert-eq (cat "an older film is made this version, " (str format) " bit") 6
+			(flm-convert (string-stream old) again 25))
+		(assert-list-eq "and plays the same" want (flm-play (flm-reel again))))
 	'(32 24))
 
 ;the reel layer finds the kind by the name

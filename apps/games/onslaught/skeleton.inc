@@ -79,7 +79,7 @@
 	(defq bx (+ x 8)
 		by (+ y 12))
 	(each (lambda ((vx vy))
-		(. *layer_fx* :add_front (Bone bx by vx vy)))
+			(. *layer_fx* :add_front (Bone bx by vx vy)))
 		+bone_vectors)
 	(audio-play-death this))
 

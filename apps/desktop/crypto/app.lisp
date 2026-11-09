@@ -1,6 +1,6 @@
 ;debug options
 (case :nil
-(0 (import "lib/debug/frames.inc")))
+	(0 (import "lib/debug/frames.inc")))
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
@@ -28,7 +28,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(setq *selected_symbol* (. *config* :find :selected_symbol)))
@@ -68,7 +68,7 @@
 		(if (< (length flt_pts) 2) (. canvas :swap +swap_write)
 			(defq min_val (first flt_pts) max_val (first flt_pts))
 			(each (# (setq min_val (min min_val %0)
-					max_val (max max_val %0)))
+						max_val (max max_val %0)))
 				flt_pts)
 			(defq val_range (- max_val min_val))
 			(if (<= val_range 0.0) (setq val_range 1.0))
@@ -78,11 +78,11 @@
 				step_x (/ chart_w (n2f (- n_pts 1)))
 				raw_path (path))
 			(each (#
-				(defq val (elem-get flt_pts %0)
-					norm_y (/ (- val min_val) val_range)
-					px (+ margin_x (* (n2f %0) step_x))
-					py (- (- h margin_y) (* norm_y chart_h)))
-				(push raw_path px py))
+					(defq val (elem-get flt_pts %0)
+						norm_y (/ (- val min_val) val_range)
+						px (+ margin_x (* (n2f %0) step_x))
+						py (- (- h margin_y) (* norm_y chart_h)))
+					(push raw_path px py))
 				(range 0 n_pts))
 			; Smooth curve through points
 			(defq smooth_line (path-smooth raw_path)
@@ -95,35 +95,35 @@
 				(:set_color 0x22ffffff)
 				(:fpoly 0.0 0.0 +winding_none_zero
 					(map (#
-						(defq gy (+ margin_y (* %0 chart_h)))
-						(path-stroke-polyline (path margin_x gy (- w margin_x) gy) 1.0 +join_miter +cap_square +cap_square))
+							(defq gy (+ margin_y (* %0 chart_h)))
+							(path-stroke-polyline (path margin_x gy (- w margin_x) gy) 1.0 +join_miter +cap_square +cap_square))
 						'(0.0 0.5 1.0))))
-					; Area fill under the smoothed line
-					(defq first_x (elem-get smooth_line 0)
-						last_x (elem-get smooth_line -3)
-						bottom_y (- h margin_y)
-						area_poly (path first_x bottom_y))
-					(each (# (push area_poly %0)) smooth_line)
-					(push area_poly last_x bottom_y)
-					(.-> canvas
-						(:set_color bg_col)
-						(:fpoly 0.0 0.0 +winding_none_zero (list area_poly)))
-					; Curve stroke
-					(.-> canvas
-						(:set_color line_col)
-						(:fpoly 0.0 0.0 +winding_none_zero (list stroke)))
-					; Glowing terminal marker on the latest price (right edge)
-					(defq last_px (elem-get smooth_line -3)
-						last_py (elem-get smooth_line -2)
-						dot (path-gen-arc last_px last_py 0.0 +fp_2pi 3.5 (path))
-						dot_ring (path-stroke-polyline (path-gen-arc last_px last_py 0.0 +fp_2pi 6.0 (path)) 1.2 +join_miter +cap_round +cap_round))
-					(.-> canvas
-						(:set_color line_col)
-						(:fpoly 0.0 0.0 +winding_none_zero (list dot)))
-					(.-> canvas
-						(:set_color 0x99ffffff)
-						(:fpoly 0.0 0.0 +winding_none_zero (list dot_ring)))
-					(. canvas :swap +swap_write))))
+			; Area fill under the smoothed line
+			(defq first_x (elem-get smooth_line 0)
+				last_x (elem-get smooth_line -3)
+				bottom_y (- h margin_y)
+				area_poly (path first_x bottom_y))
+			(each (# (push area_poly %0)) smooth_line)
+			(push area_poly last_x bottom_y)
+			(.-> canvas
+				(:set_color bg_col)
+				(:fpoly 0.0 0.0 +winding_none_zero (list area_poly)))
+			; Curve stroke
+			(.-> canvas
+				(:set_color line_col)
+				(:fpoly 0.0 0.0 +winding_none_zero (list stroke)))
+			; Glowing terminal marker on the latest price (right edge)
+			(defq last_px (elem-get smooth_line -3)
+				last_py (elem-get smooth_line -2)
+				dot (path-gen-arc last_px last_py 0.0 +fp_2pi 3.5 (path))
+				dot_ring (path-stroke-polyline (path-gen-arc last_px last_py 0.0 +fp_2pi 6.0 (path)) 1.2 +join_miter +cap_round +cap_round))
+			(.-> canvas
+				(:set_color line_col)
+				(:fpoly 0.0 0.0 +winding_none_zero (list dot)))
+			(.-> canvas
+				(:set_color 0x99ffffff)
+				(:fpoly 0.0 0.0 +winding_none_zero (list dot_ring)))
+			(. canvas :swap +swap_write))))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Crypto Ticker" (+sym_close) +event_close)
@@ -136,12 +136,12 @@
 		(ui-label *hero_symbol* (:text "#1  BTC" :font :font_sub_title))
 		(ui-label *hero_name* (:text "Bitcoin" :font :font_bold :flow_flags +flow_flag_align_vcenter))
 		(ui-label *hero_change* (:text "+0.00%" :font :font_bold :border 0
-			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
+				:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Hero Card: Big Price & 24h Range
 	(ui-flow *hero_body* (:flow_flags +flow_right_fill)
 		(ui-label *hero_price* (:text "$0.00" :font :font_display))
 		(ui-label *range_label* (:text "24h: $0.00 - $0.00" :font :font_small
-			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
+				:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Vector Sparkline Chart Canvas
 	(ui-canvas *chart_canvas* *canvas_width* *canvas_height* 1)
 	; Quick Asset Selection Grid (2 rows x 3 columns)
@@ -154,7 +154,7 @@
 		(. (ui-button *btn_coin_5* (:text "DOGE $0.00")) :connect +event_coin_5))
 	; Footer Attribution
 	(ui-label *footer_label* (:text "Live data from Coinranking (24h trend)" :font :font_small
-		:flow_flags +flow_flag_align_hcenter)))
+			:flow_flags +flow_flag_align_hcenter)))
 
 (defun update-ui ()
 	(when (> (length *coins_data*) 0)
@@ -176,7 +176,7 @@
 		(if (< (length flts) 2) (. *range_label* :set_text "")
 			(defq mn (first flts) mx (first flts))
 			(each (# (setq mn (min mn %0)
-					mx (max mx %0)))
+						mx (max mx %0)))
 				flts)
 			(. *range_label* :set_text (cat "24h: " (format-price (str mn)) " - " (format-price (str mx)))))
 		;the two rows of the card laid out again for what they now say, the
@@ -184,43 +184,43 @@
 		(each (# (.-> %0 (:constrain :t) :dirty_all)) (list *hero_head* *hero_body*))
 		(render-sparkline *chart_canvas* spark change)
 		(defq btns (list
-			*btn_coin_0* *btn_coin_1* *btn_coin_2*
-			*btn_coin_3* *btn_coin_4* *btn_coin_5*))
+				*btn_coin_0* *btn_coin_1* *btn_coin_2*
+				*btn_coin_3* *btn_coin_4* *btn_coin_5*))
 		(each (#
-			(when (< %0 (length *coins_data*))
-				(defq c (elem-get *coins_data* %0)
-					csym (elem-get c 0)
-					cprice (elem-get c 2))
-				(. (elem-get btns %0) :set_text (cat csym " " (format-price cprice)))))
+				(when (< %0 (length *coins_data*))
+					(defq c (elem-get *coins_data* %0)
+						csym (elem-get c 0)
+						cprice (elem-get c 2))
+					(. (elem-get btns %0) :set_text (cat csym " " (format-price cprice)))))
 			(range 0 (min 6 (length *coins_data*))))
 		(. *status_label* :set_text (cat "Tracking " (str (length *coins_data*)) " assets"))))
 
 (defun trigger-fetch (worker_mbox trash_mbox)
 	(. *status_label* :set_text "Updating prices...")
 	(defq task_code (str `(progn
-		(import "service/net/app.inc")
-		(import "lib/net/http.inc")
-		(import "lib/net/json.inc")
-		(ensure-net-service)
-		(defq result :nil)
-		(catch
-			(progn
-				(defq api_url "http://api.coinranking.com/v2/coins?limit=6")
-				(when (defq resp (http-get api_url))
-					(defq body (http-body-str resp))
-					(when (and body (starts-with "{" (trim body)))
-						(when (defq json (json-parse body))
-							(defq coin_list (map (#
-								(list (or (pfind %0 :symbol) "")
-									(or (pfind %0 :name) "")
-									(or (pfind %0 :price) "0")
-									(or (pfind %0 :change) "0")
-									(or (pfind %0 :rank) 0)
-									(or (pfind %0 :sparkline) (list))))
-								(pfind (pfind json :data) :coins)))
-							(setq result coin_list)))))
-			(progn (setq result :nil) :t))
-		(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
+				(import "service/net/app.inc")
+				(import "lib/net/http.inc")
+				(import "lib/net/json.inc")
+				(ensure-net-service)
+				(defq result :nil)
+				(catch
+					(progn
+						(defq api_url "http://api.coinranking.com/v2/coins?limit=6")
+						(when (defq resp (http-get api_url))
+							(defq body (http-body-str resp))
+							(when (and body (starts-with "{" (trim body)))
+								(when (defq json (json-parse body))
+									(defq coin_list (map (#
+												(list (or (pfind %0 :symbol) "")
+													(or (pfind %0 :name) "")
+													(or (pfind %0 :price) "0")
+													(or (pfind %0 :change) "0")
+													(or (pfind %0 :rank) 0)
+													(or (pfind %0 :sparkline) (list))))
+											(pfind (pfind json :data) :coins)))
+									(setq result coin_list)))))
+					(progn (setq result :nil) :t))
+				(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
 	(open-task task_code (task-nodeid) +kn_call_run 0 trash_mbox))
 
 (defun main ()
@@ -265,4 +265,3 @@
 					((. *window* :event *msg*))))))
 	(config-save)
 	(. *window* :close))
-

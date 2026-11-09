@@ -51,32 +51,32 @@
 						(pop into)))
 				((++ stray)))))
 	(lines! (lambda (line)
-		(cond
-			((and heads (empty? stack)
-					(not (and (eql tok_state :text) (eql (first line) "(")
-						(find (slice line 1 (bskipn +char_class_head_end line 1)) heads))))
-				;a line between those wanted, only a string it opens or closes,
-				;a " or a { before any ;
-				(and (or (nql tok_state :text)
-						(and (< (defq c (bskipn +char_class_opens line 0)) (length line))
-							(nql (elem-get line c) ";")))
-					(setq tok_state (third (tokenize-line line tok_state)))))
-			((empty? (setq line (trim-end line "\r")))
-				(push into (list :blank (inc (!)))))
-			(:t (defq line_no (inc (!)))
-				(bind '(toks states tok_next) (tokenize-line line tok_state))
-				(setq tok_state tok_next)
-				(each (lambda (tok state)
-					(if (eql state :text)
-						(progn
-							;from bracket to bracket, the spaces between passed over
-							(defq k 0 m (length tok))
-							(while (< (setq k (bskipn +char_class_bracket tok k)) m)
-								(bracket (elem-get tok k))
-								(++ k)))
-						(if (or (not heads) (nempty? stack)) (push into (list state line_no tok)))))
-					toks states)))
-		:nil) stream 0 (ifn end +max_long))
+			(cond
+				((and heads (empty? stack)
+						(not (and (eql tok_state :text) (eql (first line) "(")
+								(find (slice line 1 (bskipn +char_class_head_end line 1)) heads))))
+					;a line between those wanted, only a string it opens or closes,
+					;a " or a { before any ;
+					(and (or (nql tok_state :text)
+							(and (< (defq c (bskipn +char_class_opens line 0)) (length line))
+								(nql (elem-get line c) ";")))
+						(setq tok_state (third (tokenize-line line tok_state)))))
+				((empty? (setq line (trim-end line "\r")))
+					(push into (list :blank (inc (!)))))
+				(:t (defq line_no (inc (!)))
+					(bind '(toks states tok_next) (tokenize-line line tok_state))
+					(setq tok_state tok_next)
+					(each (lambda (tok state)
+							(if (eql state :text)
+								(progn
+									;from bracket to bracket, the spaces between passed over
+									(defq k 0 m (length tok))
+									(while (< (setq k (bskipn +char_class_bracket tok k)) m)
+										(bracket (elem-get tok k))
+										(++ k)))
+								(if (or (not heads) (nempty? stack)) (push into (list state line_no tok)))))
+						toks states)))
+			:nil) stream 0 (ifn end +max_long))
 	(list top (length stack) stray))
 
 (defun tree-form? (node &optional head)
@@ -103,7 +103,7 @@
 		((= (second node) line)
 			;past a note on the end of its line
 			(and (< (inc at) (length nodes)) (eql (first (defq next (elem-get nodes (inc at)))) :comment)
-					(= (second next) line)
+				(= (second next) line)
 				(++ at))
 			(while (and (< (++ at) (length nodes))
 					(eql (first (defq next (elem-get nodes at))) :comment)
@@ -133,8 +133,8 @@
 	;a space between two things, not after a ( or before a )
 	(defq text (list) was "(")
 	(each (lambda (word)
-		(unless (or (eql was "(") (eql word ")")) (push text " "))
-		(push text (setq was word))) out)
+			(unless (or (eql was "(") (eql word ")")) (push text " "))
+			(push text (setq was word))) out)
 	(apply (const cat) (push text "")))
 
 ;module

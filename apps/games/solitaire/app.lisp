@@ -10,22 +10,22 @@
 	(enum main tip))
 
 (defq +grid_w 7
-	  +grid_h 7
-	  +tile_count (* +grid_w +grid_h)
-	  ; Board States: -1 = Invalid (Corner), 0 = Empty, 1 = Peg
-	  +state_invalid -1
-	  +state_empty 0
-	  +state_peg 1)
+	+grid_h 7
+	+tile_count (* +grid_w +grid_h)
+	; Board States: -1 = Invalid (Corner), 0 = Empty, 1 = Peg
+	+state_invalid -1
+	+state_empty 0
+	+state_peg 1)
 
 ; Configuration and State
 (defq +config_file (cat (get :home *env*) "solitaire.tre")
-	  *board* (list)
-	  *selected* :nil	  ; Index of selected peg
-	  *undo_stack* (list)
-	  *pegs_left* 0
-	  *game_over* :nil
-	  *font* (create-font "fonts/OpenSans-Bold.ctf" 24)
-	  *running* :t)
+	*board* (list)
+	*selected* :nil	  ; Index of selected peg
+	*undo_stack* (list)
+	*pegs_left* 0
+	*game_over* :nil
+	*font* (create-font "fonts/OpenSans-Bold.ctf" 24)
+	*running* :t)
 
 ; Helper function defined before UI creation for use in the layout loop
 (defun is-valid-pos (i)
@@ -42,14 +42,14 @@
 	; Stack layout: Backdrop is behind, Grid is in front
 	(ui-flow *board_view* (:flow_flags +flow_stack_fill)
 		(ui-grid *grid* (:grid_width +grid_w :grid_height +grid_h
-						 :paper 0 :font *font*)
+				:paper 0 :font *font*)
 			(each (lambda (i)
-				(if (is-valid-pos i)
-					; Valid position: Interactive button
-					(. (ui-button _ (:min_width 40 :min_height 40))
-					   :connect (+ +event_click i))
-					; Invalid position: Solid backdrop (visual only)
-					(ui-backdrop _ (:paper +argb_grey3 :min_width 40 :min_height 40))))
+					(if (is-valid-pos i)
+						; Valid position: Interactive button
+						(. (ui-button _ (:min_width 40 :min_height 40))
+							:connect (+ +event_click i))
+						; Invalid position: Solid backdrop (visual only)
+						(ui-backdrop _ (:paper +argb_grey3 :min_width 40 :min_height 40))))
 				(range 0 +tile_count)))
 		(ui-backdrop _ (:paper +argb_grey3)))
 
@@ -63,9 +63,9 @@
 	; Create standard English board (33 holes)
 	(defq b (list))
 	(each (lambda (i)
-		(if (is-valid-pos i)
-			(push b +state_peg)
-			(push b +state_invalid))) (range 0 +tile_count))
+			(if (is-valid-pos i)
+				(push b +state_peg)
+				(push b +state_invalid))) (range 0 +tile_count))
 	; Clear center
 	(elem-set b (+ 3 (* 3 +grid_w)) +state_empty)
 	(scatter (Emap)
@@ -75,7 +75,7 @@
 
 (defun update-view ()
 	(defq children (. *grid* :children)
-		  i 0)
+		i 0)
 	(while (< i +tile_count)
 		(defq val (elem-get *board* i))
 		; Only update widgets corresponding to valid game positions (Buttons)
@@ -93,21 +93,21 @@
 		(++ i))
 	(if *game_over*
 		(def *status* :text (if (and (= *pegs_left* 1) (= (elem-get *board* 24) +state_peg))
-								"Perfect! (Center)" "Finished!")
-					 :paper +argb_green)
+				"Perfect! (Center)" "Finished!")
+			:paper +argb_green)
 		(def *status* :text (cat "Pegs: " (str *pegs_left*)) :paper (get :paper_window *env*)))
 	(.-> *status* :layout :dirty))
 
 (defun update-gamestate ()
 	(setq *pegs_left* (length (filter (# (= %0 +state_peg)) *board*))
-		  *game_over* (if (= *pegs_left* 1) :t :nil)))
+		*game_over* (if (= *pegs_left* 1) :t :nil)))
 
 (defun init-game ()
 	(defq defaults (config-default))
 	(setq *board* (. defaults :find :board)
-		  *undo_stack* (list)
-		  *selected* :nil
-		  *game_over* :nil)
+		*undo_stack* (list)
+		*selected* :nil
+		*game_over* :nil)
 	(update-gamestate)
 	(update-view))
 
@@ -115,11 +115,11 @@
 	(defq loaded :nil)
 	(with-read-lock +config_file
 		(and (defq data (tree-load (file-stream +config_file)))
-				   (= (length (. data :find :board)) +tile_count)
+			(= (length (. data :find :board)) +tile_count)
 			(setq *board* (. data :find :board)
-				  *undo_stack* (ifn (defq u (. data :find :undo)) (list) u)
-				  *selected* (. data :find :selected)
-				  loaded :t)))
+				*undo_stack* (ifn (defq u (. data :find :undo)) (list) u)
+				*selected* (. data :find :selected)
+				loaded :t)))
 	(unless loaded
 		(init-game))
 	(update-gamestate)
@@ -128,9 +128,9 @@
 (defun config-save ()
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) (scatter (Emap)
-			:board *board*
-			:selected *selected*
-			:undo *undo_stack*))))
+				:board *board*
+				:selected *selected*
+				:undo *undo_stack*))))
 
 (defun try-move (to_idx)
 	(defq from_idx *selected*)
@@ -139,8 +139,8 @@
 		(progn (setq *selected* :nil) (update-view))
 		; Else try logic
 		(defq x1 (% from_idx +grid_w) y1 (/ from_idx +grid_w)
-			  x2 (% to_idx +grid_w) y2 (/ to_idx +grid_w)
-			  dx (- x2 x1) dy (- y2 y1))
+			x2 (% to_idx +grid_w) y2 (/ to_idx +grid_w)
+			dx (- x2 x1) dy (- y2 y1))
 
 		; Valid jump? Distance must be 2 in one axis, 0 in other
 		(if (or (and (= (abs dx) 2) (= dy 0))
@@ -151,7 +151,7 @@
 
 				; Check: To is empty, Mid has peg
 				(if (and (= (elem-get *board* to_idx) +state_empty)
-						 (= (elem-get *board* mid_idx) +state_peg))
+						(= (elem-get *board* mid_idx) +state_peg))
 					(progn
 						; Save state for Undo
 						(push *undo_stack* (list *selected* (copy *board*)))
@@ -187,7 +187,7 @@
 	(when (nempty? *undo_stack*)
 		(defq state (pop *undo_stack*))
 		(setq *selected* (first state)
-			  *board* (second state))
+			*board* (second state))
 		(update-gamestate)
 		(update-view)))
 

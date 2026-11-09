@@ -27,21 +27,21 @@
 ;the buffers are given in an order that is not reads then writes, a GPU
 ;binds them that way round, and it is sorted out
 (defq kt_prog (kt-src
-	"(defbuffer dst :float :write) (defbuffer src :float :read)"
-	"(defbuffer packed :int :write) (defbuffer cols :int :read)"
-	"(definput scale :float 2.0) (definput n :int 8)"
-	"(defun sq :float ((x :float)) (* x x))"
-	"(defun main :void ((i :int))"
-	"	(when (>= i n) (return))"
-	"	(elem-set dst i (+ (* (elem-get src i) scale) (sq (float (logxor i 3)))))"
-	"	(defq c (elem-get cols i))"
-	"	(elem-set packed i (logior (<< (logand (>> c 8) 255) 16) (logand c 255) (- c))))"))
+		"(defbuffer dst :float :write) (defbuffer src :float :read)"
+		"(defbuffer packed :int :write) (defbuffer cols :int :read)"
+		"(definput scale :float 2.0) (definput n :int 8)"
+		"(defun sq :float ((x :float)) (* x x))"
+		"(defun main :void ((i :int))"
+		"	(when (>= i n) (return))"
+		"	(elem-set dst i (+ (* (elem-get src i) scale) (sq (float (logxor i 3)))))"
+		"	(defq c (elem-get cols i))"
+		"	(elem-set packed i (logior (<< (logand (>> c 8) 255) 16) (logand c 255) (- c))))"))
 (assert-eq "it is a kernel" :kernel (shader-stage kt_prog))
 
 (defq kt_n 300 kt_from 5 kt_to 290 kt_vals '((scale 1.5) (n 280))
 	kt_src (str-alloc (* kt_n 4)) kt_cols (str-alloc (* kt_n 4)))
 (each (# (set-int kt_src (* %0 4) (sh-real-to-float (n2r (- %0 3))))
-	(set-int kt_cols (* %0 4) (- (* %0 0x010307) 0x5000))) (range 0 kt_n))
+		(set-int kt_cols (* %0 4) (- (* %0 0x010307) 0x5000))) (range 0 kt_n))
 (defun kt-zeros ()
 	(defq s (str-alloc (* kt_n 4)))
 	(each (# (set-long s %0 0)) (range 0 (* kt_n 4) 8))

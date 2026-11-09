@@ -171,15 +171,15 @@
 	(- local_s (timezone-offset-seconds *local_timezone*)))
 
 (defq *local_timezone*
-	(list "UTC" 0 :nil "(UTC) Coordinated Universal Time" (list "Etc/GMT")))
+		(list "UTC" 0 :nil "(UTC) Coordinated Universal Time" (list "Etc/GMT")))
 (def *root_env* :local_timezone *local_timezone*)
 (def *root_env* '*local_timezone* *local_timezone*)
 
 ;module
 (export-symbols '(+time_size +tz_size leapyear? days-in-year days-in-month
-	week_abbr month_abbr day-of-the-week month-of-the-year
-	timezone-lookup timezone-offset-seconds timezone-init
-	civil-from-days days-from-civil date date-dos float-time
-	check-date encode-date decode-date time-from-date
-	*local_timezone*))
+		week_abbr month_abbr day-of-the-week month-of-the-year
+		timezone-lookup timezone-offset-seconds timezone-init
+		civil-from-days days-from-civil date date-dos float-time
+		check-date encode-date decode-date time-from-date
+		*local_timezone*))
 (env-pop)

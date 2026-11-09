@@ -132,8 +132,8 @@
 	(. fig :set_outline (story-lines lines 17))
 	(def fig :fig_fill +story_ink :fig_x 320.0 :fig_y 448.0 :fig_alpha 0.0)
 	(. fig :add (if secs
-		(Cues (Tween :fig_alpha 1.0 0.4 (const ease-out) :nil 0.3) (Wait secs then))
-		(Tween :fig_alpha 1.0 0.4 (const ease-out) :nil 0.3)))
+			(Cues (Tween :fig_alpha 1.0 0.4 (const ease-out) :nil 0.3) (Wait secs then))
+			(Tween :fig_alpha 1.0 0.4 (const ease-out) :nil 0.3)))
 	(def stage :caption fig)
 	(story-add fig))
 
@@ -166,8 +166,8 @@
 	;each comes in fast and settles slowly, one after another
 	(each (lambda (name)
 			(defq at (!) word (story-word name 19 (+ 760.0 (* 40.0 (n2f at)))
-				(+ 140.0 (* 42.0 (n2f at)))
-				(elem-get (list +story_blue +story_green +story_pink +story_gold +story_violet) at)))
+					(+ 140.0 (* 42.0 (n2f at)))
+					(elem-get (list +story_blue +story_green +story_pink +story_gold +story_violet) at)))
 			(story-show word 0.4 (* 0.5 (n2f at)))
 			(. word :add (Tween :fig_x (if (odd? at) 500.0 140.0) 1.0 (const ease-out3) :nil (* 0.5 (n2f at)))
 				(Wave :fig_y 3.0 (+ 2.0 (* 0.4 (n2f at)))))
@@ -240,7 +240,7 @@
 
 (defun story-arrows (f c)
 	(def stage :arrows (list (story-arrow 262.0 250.0 180.0 176.0 +story_green 0.8)
-		(story-arrow 378.0 250.0 460.0 176.0 +story_green 0.8)))
+			(story-arrow 378.0 250.0 460.0 176.0 +story_green 0.8)))
 	;what came of it, the first thing written that way, for both machines
 	(defq word (story-word "Onslaught" 30 320.0 170.0 +story_gold :nil +font))
 	(def word :fig_sx 0.0 :fig_sy 0.0)
@@ -249,7 +249,7 @@
 	(times 16 (spark-at 320.0 170.0 +story_gold))
 	(def stage :onslaught word)
 	(story-say '("Onslaught, the first thing written in VP, assembled for"
-		"the ST and the Amiga at the press of a button") 5.5 story-transputers))
+			"the ST and the Amiga at the press of a button") 5.5 story-transputers))
 
 (defun story-transputers (f c)
 	(story-go (get :onslaught stage) 0.5)
@@ -263,12 +263,12 @@
 		'(60.0 130.0 200.0 270.0))
 	(def stage :extras extras :transputers (cat extras))
 	(story-say '("Tim Moore's ray tracer, and the wish to speed it up:"
-		"plug in more processors, Inmos transputers") 5.0 story-kernel))
+			"plug in more processors, Inmos transputers") 5.0 story-kernel))
 
 (defun story-any-chip (not_this)
 	;any of the chips that are there, and not that one
 	(defq live (filter (lambda (chip) (not (or (get :fig_dead chip) (eql chip not_this))))
-		(ifn (get :chips stage) (list))))
+			(ifn (get :chips stage) (list))))
 	(if (nempty? live) (elem-get live (random (length live)))))
 
 (defun story-hop (dot from)
@@ -276,8 +276,8 @@
 	(when (defq to (story-any-chip from))
 		(def dot :to to)
 		(. dot :add (Follow (path (get :fig_x dot) (get :fig_y dot) (get :fig_x to) (get :fig_y to))
-			(+ 0.4 (/ (n2f (random 400)) 1000.0)) (const ease-in-out)
-			story-arrive))))
+				(+ 0.4 (/ (n2f (random 400)) 1000.0)) (const ease-in-out)
+				story-arrive))))
 
 (defun story-trace (cx cy)
 	;a tile of the picture, by the way a ray tracer would have it: a ball, a
@@ -349,13 +349,13 @@
 	(each (lambda (chip) (story-kernel-mark chip (* 0.2 (n2f (!))) 22.0)) row)
 	(times 4 (story-dot))
 	(story-say '("A small kernel on each, and work and mail between them:"
-		"what the research institutes had been trying to do") 6.0 story-translate))
+			"what the research institutes had been trying to do") 6.0 story-translate))
 
 (defun story-translate (f c)
 	;a letter of the code goes to them, and a line stays
 	(push (get :extras stage) (story-arrow 285.0 302.0 190.0 350.0 +story_violet 0.8))
 	(story-say '("Then the VP code itself went to disc, translated as it loads:"
-		"Andy Henson's translator for the T800") 5.0 story-pc))
+			"Andy Henson's translator for the T800") 5.0 story-pc))
 
 (defun story-pc-joins (pc from_x)
 	;it has come, it has a kernel, it is joined to the last, and it is one of
@@ -374,7 +374,7 @@
 	(story-to two 530.0 372.0 0.9 (const ease-back) (lambda (f c) (story-pc-joins f 400.0)) 0.7)
 	(push (get :extras stage) one two (story-arrow 355.0 302.0 430.0 350.0 +story_gold 0.8))
 	(story-say '("Andy Thomason's for the 386, and the same VP code"
-		"that ran on the transputers ran on the PC") 6.5 story-taos))
+			"that ran on the transputers ran on the PC") 6.5 story-taos))
 
 ;;;;;;
 ; taos
@@ -472,14 +472,14 @@
 	(defq chip (elem-get (get :chips stage) 3))
 	(story-size chip 1.8 0.3 (const ease-out))
 	(. chip :add (Tween :fig_alpha 0.0 0.3 (const ease-in) (lambda (f c)
-		(defq x (+ 320.0 (get :fig_x f)) y (+ 262.0 (get :fig_y f)))
-		(times 18 (spark-at x y +story_pink))
-		;a while on, another of the same is started in its place
-		(defq timer (Figure "timer"))
-		(def timer :back (list (get :fig_x f) (get :fig_y f)))
-		(. timer :add (Wait 2.5 (lambda (t c) (. t :kill) (story-return (get :back t)))))
-		(story-add timer)
-		(. f :kill))))
+				(defq x (+ 320.0 (get :fig_x f)) y (+ 262.0 (get :fig_y f)))
+				(times 18 (spark-at x y +story_pink))
+				;a while on, another of the same is started in its place
+				(defq timer (Figure "timer"))
+				(def timer :back (list (get :fig_x f) (get :fig_y f)))
+				(. timer :add (Wait 2.5 (lambda (t c) (. t :kill) (story-return (get :back t)))))
+				(story-add timer)
+				(. f :kill))))
 	(def stage :chips (filter (lambda (c) (nql c chip)) (get :chips stage)))
 	(story-say '("And what Taos could not do: any node may vanish," "and the work finds its way round") 5.5 story-gather2))
 

@@ -26,11 +26,11 @@
 
 (defun process (stream engine find_meta rep_meta global opt_i)
 	(lines! (lambda (line) (task-slice)
-		(defq sline (if opt_i (to-lower line) line))
-		(print (cond
-			((empty? (defq match (. engine :search sline find_meta))) line)
-			(:t (unless global (setq match (slice match 0 1)))
-				(replace-matches line match rep_meta)))))
+			(defq sline (if opt_i (to-lower line) line))
+			(print (cond
+					((empty? (defq match (. engine :search sline find_meta))) line)
+					(:t (unless global (setq match (slice match 0 1)))
+						(replace-matches line match rep_meta)))))
 		stream))
 
 (defun process-file (file_path engine find_meta rep_meta global opt_i)
@@ -42,10 +42,10 @@
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
-			(defq stdio (create-stdio))
-			(defq opt_w :nil opt_e :nil opt_r "" opt_g :nil opt_x :nil opt_i :nil
-				args (options stdio usage))
-			opt_e
+		(defq stdio (create-stdio))
+		(defq opt_w :nil opt_e :nil opt_r "" opt_g :nil opt_x :nil opt_i :nil
+			args (options stdio usage))
+		opt_e
 		(when (bind '(engine find_meta &ignore) (query opt_e opt_w opt_x opt_i))
 			(defq rep_meta (replace-compile opt_r))
 			(if (empty? (defq files (rest args)))

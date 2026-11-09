@@ -90,5 +90,5 @@
 
 ;module
 (export-symbols '(gpu-call gpu-format gpu-buffer gpu-buffer-free gpu-write gpu-read gpu-wait
-	gpu-kernel gpu-kernel-free gpu-dispatch gpu-run))
+		gpu-kernel gpu-kernel-free gpu-dispatch gpu-run))
 (env-pop)

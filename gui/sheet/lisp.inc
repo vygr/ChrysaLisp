@@ -20,5 +20,4 @@
 			(defq rows (ifn (get :rows this) child) rh (second (. rows :pref_size)))
 			(. rows :change_dirty 0 0 w rh :t)
 			(unless (eql rows child) (. child :change_dirty 0 0 w (max rh h))))
-		this)
-	)
+		this))

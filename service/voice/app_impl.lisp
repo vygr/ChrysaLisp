@@ -46,8 +46,8 @@
 (defun state-push (&optional only)
 	;the watchers told the state of the call here
 	(defq text (state-text (scatter (Emap) :id call_id :name call_name :muted muted :members roster
-		:inbox (if voice (voice-inbox voice)) :recording recording :headphones headphones
-		:talking talking_said)))
+				:inbox (if voice (voice-inbox voice)) :recording recording :headphones headphones
+				:talking talking_said)))
 	(if only
 		(mail-send (hex-decode only) text)
 		(. watchers :each (lambda (who due) (mail-send (hex-decode who) text)))))

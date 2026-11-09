@@ -5,8 +5,8 @@
 	(bind '(total pairs) (node-shape shape num))
 	(defq deg (map (lambda (&) 0) (range 0 total)))
 	(each (lambda ((i j))
-		(elem-set deg i (inc (elem-get deg i)))
-		(elem-set deg j (inc (elem-get deg j)))) pairs)
+			(elem-set deg i (inc (elem-get deg i)))
+			(elem-set deg j (inc (elem-get deg j)))) pairs)
 	(list total (length pairs) (reduce (const max) deg 0) (reduce (const min) deg (first deg))))
 
 (defun sh-joined? (shape num)
@@ -16,10 +16,10 @@
 	(while grew
 		(setq grew :nil)
 		(each (lambda ((i j))
-			(defq a (find i seen) b (find j seen))
-			(cond
-				((and a (not b)) (push seen j) (setq grew :t))
-				((and b (not a)) (push seen i) (setq grew :t)))) pairs))
+				(defq a (find i seen) b (find j seen))
+				(cond
+					((and a (not b)) (push seen j) (setq grew :t))
+					((and b (not a)) (push seen i) (setq grew :t)))) pairs))
 	(= (length seen) total))
 
 (assert-list-eq "full, every node to every other" '(8 28 7 7) (sh-count :full 8))
@@ -36,11 +36,11 @@
 (assert-list-eq "a mesh no wider than 8" '(64 128 4 4) (sh-count :mesh 20))
 (assert-list-eq "a cube no wider than 4" '(64 192 6 6) (sh-count :cube 20))
 (each (lambda (shape)
-	(assert-true (cat "every node of a " (rest (str shape)) " can be reached") (sh-joined? shape 4))
-	;with no number it is sized to the machine
-	(defq total (first (node-shape shape)))
-	(assert-true (cat "a " (rest (str shape)) " sized to the machine")
-		(<= 1 total (min (pii-cpus) (if (eql shape :full) 32 64)))))
+		(assert-true (cat "every node of a " (rest (str shape)) " can be reached") (sh-joined? shape 4))
+		;with no number it is sized to the machine
+		(defq total (first (node-shape shape)))
+		(assert-true (cat "a " (rest (str shape)) " sized to the machine")
+			(<= 1 total (min (pii-cpus) (if (eql shape :full) 32 64)))))
 	'(:full :ring :star :tree :mesh :cube))
 (assert-true "a link is from the lower node to the higher"
 	(every (lambda ((i j)) (< i j)) (second (node-shape :cube 4))))

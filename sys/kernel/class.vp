@@ -381,7 +381,7 @@
 				;load current sessions and hops
 				(call :array :get_begin '((:rsp slot_tuple)) '(_ :r1))
 				(assign `((:r1 ,(* +long_size +node_session_cluster)) (:r1 ,(* +long_size +node_session_sys))
-					(:r1 ,(* +long_size +node_hops))) '(:r1 :r2 :r3))
+						(:r1 ,(* +long_size +node_hops))) '(:r1 :r2 :r3))
 				(save-fields :rsp '(slot_session_cluster slot_session_sys slot_hops) '(:r1 :r2 :r3))
 
 				(assign '((:rsp slot_ping_func)) '(:r0))
@@ -890,7 +890,7 @@
 	(fn-bind 'sys/statics/statics :r1)
 	(exit :sys_kernel :id
 		`((:r1 ,(+ statics_sys_task_kernel_node_id +node_id_node1))
-		(:r1 ,(+ statics_sys_task_kernel_node_id +node_id_node2))))
+			(:r1 ,(+ statics_sys_task_kernel_node_id +node_id_node2))))
 	(vp-ret)
 
 (def-func-end)
@@ -1121,7 +1121,7 @@
 		;:r0 = mail list (ptr)
 		;:r1 = now (long)
 		;:r2 = nodeid key object (ptr)
-		(vp-label name)
+	(vp-label name)
 		(vp-rdef (time now node next))
 		(vp-alloc purge_mail_size)
 		(entry `(,next ,now :r2))
@@ -1167,7 +1167,7 @@
 	(fn-bind 'sys/statics/statics :r1)
 	(exit :sys_kernel :system_id
 		`((:r1 ,(+ statics_sys_task_kernel_system_id +node_id_node1))
-		(:r1 ,(+ statics_sys_task_kernel_system_id +node_id_node2))))
+			(:r1 ,(+ statics_sys_task_kernel_system_id +node_id_node2))))
 	(vp-ret)
 
 (def-func-end)

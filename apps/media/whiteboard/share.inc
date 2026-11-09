@@ -41,12 +41,12 @@
 (defun share-title ()
 	;the title says if the board is shared, and how
 	(. *title* :set_text (cat "Whiteboard" (case *share*
-		(:host (cat ", shared" (if *share_may_save* ", copies may be saved" "") (if *share_trust* ", all teachers" "")
-			(if *share_voice* ", voice" "")))
-		(:joined (cat ", joined" (if *share_may_save* ", may save a copy" "") (if *share_trust* ", a teacher" "")
-			(if *share_voice* ", voice" "")))
-		(:asking ", joining")
-		(:t (if *share_invite* (cat ", invited by " *share_invite_name*) ""))))))
+				(:host (cat ", shared" (if *share_may_save* ", copies may be saved" "") (if *share_trust* ", all teachers" "")
+						(if *share_voice* ", voice" "")))
+				(:joined (cat ", joined" (if *share_may_save* ", may save a copy" "") (if *share_trust* ", a teacher" "")
+						(if *share_voice* ", voice" "")))
+				(:asking ", joining")
+				(:t (if *share_invite* (cat ", invited by " *share_invite_name*) ""))))))
 
 (defun share-own ()
 	; (share-own) -> hex
@@ -64,7 +64,7 @@
 	;every board says it is there, to be invited, the host that it is shared
 	(share-forget)
 	(setq *share_entry* (mail-declare (elem-get select +select_share) "*Whiteboard"
-		(cat (ifn (get :user *env*) "Guest") (if host "+host" "")))))
+			(cat (ifn (get :user *env*) "Guest") (if host "+host" "")))))
 
 (defun share-boards ()
 	; (share-boards) -> ((mailbox hex info) ...)
@@ -249,7 +249,7 @@
 				(push *share_peers* from)
 				(defq n (++ *share_joined*))
 				(share-send from "w" (cat (str (* n 1000000)) "," (str (* n 100)) "," (if *share_may_save* "1" "0")
-					"," (if *share_trust* "1" "0")))
+						"," (if *share_trust* "1" "0")))
 				;and the call of the session, if there is one
 				(if *share_voice* (share-voice-send from))))
 		((eql kind "w")

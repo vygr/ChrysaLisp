@@ -15,5 +15,4 @@
 
 	(defmethod :layout ()
 		; (. mask :layout) -> mask
-		this)
-	)
+		this))

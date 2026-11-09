@@ -79,7 +79,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(bind '(base memory operands operators current_number)
@@ -106,21 +106,21 @@
 	(ui-label *display* (:text "0" :paper +argb_white :flow_flags +flow_flag_align_hright :font +calculator_font))
 	(ui-grid button_grid (:grid_width 4 :grid_height 0 :paper :paper_toolbar :font +calculator_font)
 		(each (lambda (text)
-			(defq button (ui-button _ (:text text)))
-			(. button :connect +event_button)
-			(cond
-				((find text '("A" "B" "C" "D" "E" "F")) (push *hex_buttons* button))
-				((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push *other_base_buttons* button)))
-			(. button_grid :add_child button))
+				(defq button (ui-button _ (:text text)))
+				(. button :connect +event_button)
+				(cond
+					((find text '("A" "B" "C" "D" "E" "F")) (push *hex_buttons* button))
+					((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push *other_base_buttons* button)))
+				(. button_grid :add_child button))
 			'("MC" "MR"	 "M-" "M+"
-			  "AND" "OR"  "XOR" "NOT"
-			  ">>>" ">>"  "<<"	"NEG"
-			  "D"	"E"	  "F"	"%"
-			  "A"	"B"	  "C"	"/"
-			  "7"	"8"	  "9"	"*"
-			  "4"	"5"	  "6"	"-"
-			  "1"	"2"	  "3"	"+"
-			  "0"	"CE"  "AC"	"=" ))))
+				"AND" "OR"  "XOR" "NOT"
+				">>>" ">>"  "<<"	"NEG"
+				"D"	"E"	  "F"	"%"
+				"A"	"B"	  "C"	"/"
+				"7"	"8"	  "9"	"*"
+				"4"	"5"	  "6"	"-"
+				"1"	"2"	  "3"	"+"
+				"0"	"CE"  "AC"	"=" ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Math and Display Formats
@@ -174,9 +174,9 @@
 
 (defun key-to-op (key mod base)
 	(defq op
-		(if (bits? mod +ev_key_mod_shift)
-			(. shift_key_map :find key)
-			(. key_map :find key)))
+			(if (bits? mod +ev_key_mod_shift)
+				(. shift_key_map :find key)
+				(. key_map :find key)))
 	(if op
 		(if (defq digit (find op +digit_list))
 			(if (< digit base) op)
@@ -195,17 +195,17 @@
 (defun update-button-states ()
 	(defq is_hex (= *base* 16))
 	(each (lambda (button)
-		(def (. button :dirty) :disabled (not is_hex)
-			:paper (if is_hex (get :paper_toolbar *env*) +disabled_color)
-			:ink (if is_hex (get :ink_window *env*) +disabled_ink_color)))
+			(def (. button :dirty) :disabled (not is_hex)
+				:paper (if is_hex (get :paper_toolbar *env*) +disabled_color)
+				:ink (if is_hex (get :ink_window *env*) +disabled_ink_color)))
 		*hex_buttons*)
 
 	(each (lambda (button)
-		(defq button_val (str-as-num (get :text button))
-			  is_enabled (< button_val *base*))
-		(def (. button :dirty) :disabled (not is_enabled)
-			:paper (if is_enabled (get :paper_toolbar *env*) +disabled_color)
-			:ink (if is_enabled (get :ink_window *env*) +disabled_ink_color)))
+			(defq button_val (str-as-num (get :text button))
+				is_enabled (< button_val *base*))
+			(def (. button :dirty) :disabled (not is_enabled)
+				:paper (if is_enabled (get :paper_toolbar *env*) +disabled_color)
+				:ink (if is_enabled (get :ink_window *env*) +disabled_ink_color)))
 		*other_base_buttons*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -245,7 +245,7 @@
 				(setq *memory* 0 *new_entry* :t))
 			((and digit (< digit *base*))
 				(setq *current_number* (if (or *new_entry* (eql *current_number* "0")) op (cat *current_number* op))
-					  *new_entry* :nil))
+					*new_entry* :nil))
 			((or (find op +operators) (eql op "="))
 				(unless *new_entry*
 					(push *operands* (str-to-num-base *current_number* *base*)))
@@ -257,10 +257,10 @@
 							(defq result (if (nempty? *operands*) (first *operands*) 0))
 							(setq *operands* (list result) *operators* (list) *current_number* (format-number result *base*) *new_entry* :t)))
 					(while (and (not *error_state*) (nempty? *operators*)
-								(defq top_prec (. +precedence :find (first *operators*)))
-								(defq new_prec (. +precedence :find op))
-								(and top_prec new_prec (>= top_prec new_prec)))
-						 (if (eql (apply-op) :error) (setq *error_state* :t)))
+							(defq top_prec (. +precedence :find (first *operators*)))
+							(defq new_prec (. +precedence :find op))
+							(and top_prec new_prec (>= top_prec new_prec)))
+						(if (eql (apply-op) :error) (setq *error_state* :t)))
 					(unless *error_state*
 						(push *operators* op)
 						(setq *new_entry* :t)))))
@@ -281,7 +281,7 @@
 	(. *window* :open)
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select))))
-			  id (getf msg +ev_msg_target_id))
+			id (getf msg +ev_msg_target_id))
 		(case idx
 			(+select_tip
 				(. *window* :tip msg))
@@ -300,7 +300,7 @@
 							(defq num_value (str-to-num-base *current_number* *base*))
 							(when (nql num_value :error)
 								(setq *current_number* (format-number num_value new_base)
-									  *base* new_base)
+									*base* new_base)
 								(update-button-states)
 								(update-display))))
 					((and id (>= id +event_button))

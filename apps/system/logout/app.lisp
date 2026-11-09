@@ -7,8 +7,8 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Logout Manager" () ())
 	(ui-label _ (:text (num-to-utf8 +sym_warning) :paper +argb_white
-		:font :font_warning
-		:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))
+			:font :font_warning
+			:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))
 	(ui-label _ (:text "Do you wish to exit?" :paper +argb_white))
 	(ui-grid _ (:grid_width 2)
 		(ui-buttons ("Cancel") +event_close)
@@ -24,26 +24,26 @@
 	(. *window* :open :here)
 	(position-window)
 	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_layout)
-			;resized GUI
-			(position-window))
-		((= id +event_close)
-			;app close
-			:nil)
-		((= id +event_logout)
-			;logout button
-			(gui-logout-rpc))
-		((= id +event_quit)
-			;quit button, this desktop goes, the network lives on
-			;while it has another desktop, or a terminal
-			(gui-quit-rpc))
-		((= id +event_shutdown)
-			;shutdown button, every node of this network that is on
-			;this machine goes, this one last
-			(defq me (task-nodeid))
-			(each (# (open-task "apps/system/logout/shutdown.lisp" %0 +kn_call_pin 0 (task-mbox)))
-				(filter (# (nql %0 me)) (lisp-nodes :t)))
-			(task-sleep 200000)
-			(pii-exit))
-		((. *window* :event msg))))
+			((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_layout)
+				;resized GUI
+				(position-window))
+			((= id +event_close)
+				;app close
+				:nil)
+			((= id +event_logout)
+				;logout button
+				(gui-logout-rpc))
+			((= id +event_quit)
+				;quit button, this desktop goes, the network lives on
+				;while it has another desktop, or a terminal
+				(gui-quit-rpc))
+			((= id +event_shutdown)
+				;shutdown button, every node of this network that is on
+				;this machine goes, this one last
+				(defq me (task-nodeid))
+				(each (# (open-task "apps/system/logout/shutdown.lisp" %0 +kn_call_pin 0 (task-mbox)))
+					(filter (# (nql %0 me)) (lisp-nodes :t)))
+				(task-sleep 200000)
+				(pii-exit))
+			((. *window* :event msg))))
 	(. *window* :close))

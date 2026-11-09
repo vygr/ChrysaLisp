@@ -14,21 +14,21 @@
 
 ;b adds 3 to :r0, a is called from Lisp with a num and gives a num, of b of it
 (save (cat "(include {lib/asm/func.inc})" bt_lf "(include {class/num/class.inc})" bt_lf
-	"(include {class/lisp/class.inc})" bt_lf
-	"(def-func {" bt_b "})" bt_lf "(vp-add-cr 3 :r0)" bt_lf "(vp-ret)" bt_lf "(def-func-end)" bt_lf
-	"(def-func {" bt_a "})" bt_lf "(vp-push :r0)" bt_lf "(list-bind-args :r1 '(:r0) '(:num))" bt_lf
-	"(fn-call '" bt_b ")" bt_lf "(call :num :create '(:r0) '(:r1))" bt_lf
-	"(vp-pop :r0)" bt_lf "(vp-ret)" bt_lf "(def-func-end)" bt_lf) bt_src)
+		"(include {class/lisp/class.inc})" bt_lf
+		"(def-func {" bt_b "})" bt_lf "(vp-add-cr 3 :r0)" bt_lf "(vp-ret)" bt_lf "(def-func-end)" bt_lf
+		"(def-func {" bt_a "})" bt_lf "(vp-push :r0)" bt_lf "(list-bind-args :r1 '(:r0) '(:num))" bt_lf
+		"(fn-call '" bt_b ")" bt_lf "(call :num :create '(:r0) '(:r1))" bt_lf
+		"(vp-pop :r0)" bt_lf "(vp-ret)" bt_lf "(def-func-end)" bt_lf) bt_src)
 (defun bt-make ()
 	;the VP text of each, and what a build makes of it
 	(bind '(& *cpu* *abi*) (map (const sym) (split (load-path) "/")))
 	(within-compile-env (lambda ()
-		(each (lambda (entry)
-				(defq text (vp-entry-text entry))
-				(push bt_bins (list (first entry) (vp-translate-text text) text)))
-			(vp-compile bt_src))
-		(defq bundle (apply (const cat) (cat (list "") (map (const third) bt_bins))))
-		(each (# (save bundle %0)) bt_bundles))))
+			(each (lambda (entry)
+					(defq text (vp-entry-text entry))
+					(push bt_bins (list (first entry) (vp-translate-text text) text)))
+				(vp-compile bt_src))
+			(defq bundle (apply (const cat) (cat (list "") (map (const third) bt_bins))))
+			(each (# (save bundle %0)) bt_bundles))))
 (bt-make)
 (pii-remove bt_src)
 
@@ -48,16 +48,15 @@
 ;its own CPU's
 (import "lib/boot/image.inc")
 (defq bt_names (map (lambda ((c a)) (trans-name c a))
-		'((arm64 ARM64) (x86_64 AMD64) (x86_64 WIN64) (riscv64 RISCV64) (la64 LA64) (vp64 VP64)))
-)
+		'((arm64 ARM64) (x86_64 AMD64) (x86_64 WIN64) (riscv64 RISCV64) (la64 LA64) (vp64 VP64))))
 (defun bt-loader ()
 	;the loader's VP, compiled here, as text
 	(bind '(& *cpu* *abi*) (map (const sym) (split (load-path) "/")))
 	(defq out "")
 	(within-compile-env (lambda ()
-		(each (lambda (entry)
-				(if (eql (first entry) "sys/load/load") (setq out (str entry))))
-			(vp-compile "sys/load/class.vp"))))
+			(each (lambda (entry)
+					(if (eql (first entry) "sys/load/load") (setq out (str entry))))
+				(vp-compile "sys/load/class.vp"))))
 	out)
 (defq bt_loader (bt-loader))
 (assert-true "the loader's VP links lib/trans/translate" (found? bt_loader "lib/trans/translate"))
@@ -67,4 +66,3 @@
 
 (undef (env) 'bt_cpu 'bt_abi 'bt_lf 'bt_id 'bt_a 'bt_b 'bt_obj 'bt_src 'bt_bundles 'bt_bins 'bt_f 'bt-make
 	'bt_names 'bt_loader 'bt-loader)
-

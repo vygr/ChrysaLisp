@@ -391,7 +391,6 @@
 	(jump :lisp :repl_error '(:r1 "(jpg-idct-put c t k plane at pw)" +error_msg_wrong_types))
 	(signature '(:nums :nums :nums :str :NUM :NUM))
 
-
 (def-func-end)
 
 (def-func (path-to-absolute "./jpg_line"))
@@ -517,7 +516,6 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(jpg-line planes bases hs hmax width)" +error_msg_wrong_types))
 	(signature '(:list :nums :nums :NUM :NUM))
-
 
 (def-func-end)
 
@@ -715,7 +713,6 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(jpg-block-decode in state codes quant zigzag prior c)" +error_msg_wrong_types))
 	(signature '(:stream :nums :list :nums :nums :NUM :nums))
-
 
 (def-func-end)
 

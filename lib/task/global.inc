@@ -21,26 +21,26 @@
 		(. this :each (lambda (key val) (push old_keys key) (push old_vals val)))
 		;test for vanished and timeout nodes
 		(each (lambda (key val)
-			(cond
-				((find key network_nodes)
-					;found, so check timestamp
-					(and timeout
-						(defq then (get :timestamp val))
-						(> (- now then) timeout)
-						(progn
-							(setq mutated :t)
-							(callback destroy e key val)
-							(. this :insert key (create key now)))))
-				(:t ;not found
-					(setq mutated :t)
-					(callback destroy e key val)
-					(. this :erase key)))) old_keys old_vals)
+				(cond
+					((find key network_nodes)
+						;found, so check timestamp
+						(and timeout
+							(defq then (get :timestamp val))
+							(> (- now then) timeout)
+							(progn
+								(setq mutated :t)
+								(callback destroy e key val)
+								(. this :insert key (create key now)))))
+					(:t ;not found
+						(setq mutated :t)
+						(callback destroy e key val)
+						(. this :erase key)))) old_keys old_vals)
 		;test for new nodes
 		(each (lambda (key)
-			(unless (find key old_keys)
-				(setq mutated :t)
-				;must (cat key) to convert to pure string key !
-				(. this :insert (cat key) (callback create e key now)))) network_nodes)
+				(unless (find key old_keys)
+					(setq mutated :t)
+					;must (cat key) to convert to pure string key !
+					(. this :insert (cat key) (callback create e key now)))) network_nodes)
 		mutated)
 
 	(defmethod :reply (msg)
@@ -72,5 +72,4 @@
 		; (. global :close) -> global
 		;close tasks
 		(defq e (penv) destroy (get :destroy this))
-		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty))
-	)
+		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty)))

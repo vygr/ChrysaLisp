@@ -11,7 +11,7 @@
 		track (some (# (if (eql (. %0 :find :kind) "soun") %0)) (. reel :find :tracks)))
 	(mp4-tables track)
 	(list track (map (lambda (at size) (stream-seek stream at 0) (read-blk stream size))
-		(. track :find :offsets) (. track :find :sizes))))
+			(. track :find :offsets) (. track :find :sizes))))
 
 (defun bm-tables (file)
 	;the tables of a file's sound track, read afresh

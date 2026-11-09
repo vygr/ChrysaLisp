@@ -28,9 +28,9 @@
 	(defq svc (onslaught-service) mbox (mail-mbox))
 	(and svc
 		(mail-send svc (setf-> (str-alloc +ons_rpc_size)
-			(+ons_rpc_reply_id mbox)
-			(+ons_rpc_type type)
-			(+ons_rpc_keys (ifn keys 0))))
+				(+ons_rpc_reply_id mbox)
+				(+ons_rpc_type type)
+				(+ons_rpc_keys (ifn keys 0))))
 		(mail-read-timeout mbox (task-timeout 2))))
 
 (defun onslaught-keys-rpc (keys)

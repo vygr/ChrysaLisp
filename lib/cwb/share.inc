@@ -87,7 +87,7 @@
 	;the number of the board that has it, as a pointer has, for its color
 	(defq out (list) me (/ (ifn (get :user_base board) 0) 100) whos (get :share_hold_who board))
 	(. (get :share_holds board) :each (lambda (id who)
-		(unless (eql who key) (push out (list id (if (eql who :self) me (ifn (. whos :find id) 0)))))))
+			(unless (eql who key) (push out (list id (if (eql who :self) me (ifn (. whos :find id) 0)))))))
 	out)
 
 (defun share-stop (board)
@@ -122,11 +122,11 @@
 	(when (nempty? log)
 		(def board :share_log (list))
 		(. (get :share_peers board) :each (lambda (key peer)
-			(defq changed (elem-get peer +peer_changed))
-			(cond
-				((find :all changed))
-				((find :all log) (elem-set peer +peer_changed (list :all)))
-				(:t (each (# (unless (find %0 changed) (push changed %0))) log))))))
+				(defq changed (elem-get peer +peer_changed))
+				(cond
+					((find :all changed))
+					((find :all log) (elem-set peer +peer_changed (list :all)))
+					(:t (each (# (unless (find %0 changed) (push changed %0))) log))))))
 	board)
 
 (defun share-temps (board key)
@@ -136,7 +136,7 @@
 	(defq out (list))
 	(. (get :temp board) :each (lambda (id shape) (push out (list (str id) (cwb-item-out shape)))))
 	(. (get :remote_temp board) :each (lambda (name (from shape))
-		(unless (eql from key) (push out (list name (cwb-item-out shape))))))
+			(unless (eql from key) (push out (list name (cwb-item-out shape))))))
 	out)
 
 (defun share-pointers (board key)
@@ -148,9 +148,9 @@
 	;that joined the next, by where its users begin, for its color
 	(defq out (list) now (pii-time) me (/ (ifn (get :user_base board) 0) 100))
 	(. (get :pointer_at board) :each (lambda (id (x y kind down when))
-		(if (< (- now when) +share_pointer_still) (push out (list (str id) x y kind down me)))))
+			(if (< (- now when) +share_pointer_still) (push out (list (str id) x y kind down me)))))
 	(. (get :remote_pointers board) :each (lambda (name (from x y kind down who))
-		(unless (eql from key) (push out (list name x y kind down who)))))
+			(unless (eql from key) (push out (list name x y kind down who)))))
 	out)
 
 (defun share-delta (board key)
@@ -175,12 +175,12 @@
 				(nql (str taken) sent_held) (nql (str pointers) sent_pointers))
 			(defq want (cwb-id-set put) out (string-stream (cat "")))
 			(tree-save out (scatter (Emap)
-				:ids now :gone gone :all (if all 1 0)
-				;is the order not what that one has: one that is says nothing of
-				;it, else an order of its that crossed this would be undone
-				:order (if (or all (not (eql (str now) (str last)))) 1 0)
-				:put (map (const cwb-item-out) (filter (# (cwb-id? want (elem-get %0 +cwb_id))) (cwb-items doc)))
-				:temps temps :held taken :pointers pointers))
+					:ids now :gone gone :all (if all 1 0)
+					;is the order not what that one has: one that is says nothing of
+					;it, else an order of its that crossed this would be undone
+					:order (if (or all (not (eql (str now) (str last)))) 1 0)
+					:put (map (const cwb-item-out) (filter (# (cwb-id? want (elem-get %0 +cwb_id))) (cwb-items doc)))
+					:temps temps :held taken :pointers pointers))
 			(elem-set peer +peer_last now)
 			(elem-set peer +peer_changed (list))
 			(elem-set peer +peer_busy :t)
@@ -276,7 +276,7 @@
 			(elem-set peer +peer_last ids)
 			(defq mine (cwb-id-set (map (# (elem-get %0 +cwb_id)) put)))
 			(elem-set peer +peer_changed (if (/= (. data :find :all) 0) (list)
-				(filter (# (not (cwb-id? mine %0))) (elem-get peer +peer_changed)))))
+					(filter (# (not (cwb-id? mine %0))) (elem-get peer +peer_changed)))))
 		(. board :touch (+ +board_dirty_doc +board_dirty_overlay))
 		:t))
 

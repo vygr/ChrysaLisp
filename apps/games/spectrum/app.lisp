@@ -31,7 +31,7 @@
 (defun say ()
 	;what is shown, in the line at the foot
 	(. *status* :set_text (cat (if *file* (path-stem *file*) "BASIC")
-		(if *paused* ", paused" "") (if *quiet* ", quiet" "") ", x" (str *zoom*))))
+			(if *paused* ", paused" "") (if *quiet* ", quiet" "") ", x" (str *zoom*))))
 
 (defun keys ()
 	;the matrix of the keys held, and those a script holds
@@ -111,8 +111,8 @@
 					(push *script* (list 4 codes) (list 8 '())))
 				(list (list +sc_j) (list +sc_lctrl +sc_p) (list +sc_lctrl +sc_p) (list +sc_return))))
 		((cond
-			((eql ext ".z80") (zx-z80 *machine* data))
-			((eql ext ".sna") (zx-sna *machine* data)))
+				((eql ext ".z80") (zx-z80 *machine* data))
+				((eql ext ".sna") (zx-sna *machine* data)))
 			(setq *file* file *tape* :nil *script* (list)))
 		((setq wrong (cat file ": not a snapshot of a 48K"))))
 	(keys)
@@ -135,7 +135,7 @@
 				((not data))
 				((find ext '(".tap" ".tzx"))
 					(setq *file* file *tape* (list (if (eql ext ".tap") (zx-tap-blocks data) (zx-tzx-blocks data))
-						(ifn (. config :find :tape_at) 0))))
+							(ifn (. config :find :tape_at) 0))))
 				((setq *file* file)))
 			(keys))))
 
@@ -165,9 +165,9 @@
 	(zoom -1))
 
 (defq *event_map* (scatter (Fmap)
-	+event_close action-close
-	+event_max action-maximise
-	+event_min action-minimise))
+		+event_close action-close
+		+event_max action-maximise
+		+event_min action-minimise))
 
 (defun main ()
 	(defq select (task-mboxes +select_size))
@@ -210,8 +210,8 @@
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_open)
 				(if *picker* (mail-send *picker* ""))
 				(setq *picker* (file-pick (elem-get select +select_picker) "Open game..."
-					(ifn *file* (cat *app_root* "data/")) (join +file_types " ") :nil "spectrum" :nil
-					(list (cat *app_root* "data")))))
+						(ifn *file* (cat *app_root* "data/")) (join +file_types " ") :nil "spectrum" :nil
+						(list (cat *app_root* "data")))))
 			((= id +event_reset)
 				;the game again from its start, else BASIC
 				(if *file* (open-file *file*)

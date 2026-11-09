@@ -19,5 +19,4 @@
 
 	(defmethod :constraint ()
 		; (. progress :constraint) -> (width height)
-		(list (ifn (def? :min_width this) 256) (ifn (def? :min_height this) 10)))
-	)
+		(list (ifn (def? :min_width this) 256) (ifn (def? :min_height this) 10))))

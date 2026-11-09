@@ -59,10 +59,10 @@
 	(while (defq next (pop todo))
 		(bind '(view depth) next)
 		(defq line (list (pad "" depth "\t") (slice (str (. view :find :type)) 1 -1)
-			" " (join (map (const str) (. view :find :bounds)) " ")))
+				" " (join (map (const str) (. view :find :bounds)) " ")))
 		(. view :each (lambda (k v)
-			(unless (or (find k '(:type :bounds :children)) (and (not all) (find k +working)))
-				(push line " " (slice (str k) 1 -1) "=" (value-text v)))))
+				(unless (or (find k '(:type :bounds :children)) (and (not all) (find k +working)))
+					(push line " " (slice (str k) 1 -1) "=" (value-text v)))))
 		(print (apply (const cat) line))
 		(reach (# (push todo (list %0 (inc depth)))) (ifn (. view :find :children) (list)))))
 

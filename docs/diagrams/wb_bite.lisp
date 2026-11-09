@@ -7,8 +7,8 @@
 		(cwb-add doc (cwb-shape (cwb-d "M" 20 190 "L" 380 210) :stroke 0xff3060c0 :width 6))
 		(cwb-add doc (cwb-text {Hello board} 60 262 :font_size 30))
 		(defq g (cwb-group (list
-			(cwb-shape (cwb-d-ellipse 320 110 40 30) :fill 0xffff9090 :stroke 0xff202428 :width 3)
-			(cwb-shape (cwb-d "M" 280 110 "L" 360 110) :stroke 0xff202428 :width 3))))
+					(cwb-shape (cwb-d-ellipse 320 110 40 30) :fill 0xffff9090 :stroke 0xff202428 :width 3)
+					(cwb-shape (cwb-d "M" 280 110 "L" 360 110) :stroke 0xff202428 :width 3))))
 		(cwb-set g :m (mat3x2-rot 0.5 320 110))
 		(cwb-add doc g)
 		doc)
@@ -20,11 +20,11 @@
 (. doc :insert :style :plain)
 ;as it was, with where the eraser is to go, and as it is after
 (defq left (cwb-group (cat (cwb-items before)
-		(map (lambda ((way r)) (cwb-shape (join (map (# (cwb-d-points %0 :t))
-			(poly-sweep (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path)) way)) " ") :stroke 0xffc03030 :width 1.0)) ways)))
+			(map (lambda ((way r)) (cwb-shape (join (map (# (cwb-d-points %0 :t))
+								(poly-sweep (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path)) way)) " ") :stroke 0xffc03030 :width 1.0)) ways)))
 	right (cwb-group (cwb-items after) :m (mat3x2-translate 395 0)))
 ;one picture, one group, as every diagram is, lib/cwb/diagram.inc
 (cwb-add doc (cwb-group (list left right
-	(cwb-text {three strokes of an eraser, in red, where they will go} 20 310 :font_size 12)
-	(cwb-text {and after them: (. board :bite points radius)} 415 310 :font_size 12))))
+			(cwb-text {three strokes of an eraser, in red, where they will go} 20 310 :font_size 12)
+			(cwb-text {and after them: (. board :bite points radius)} 415 310 :font_size 12))))
 (diagram "wb_bite" doc)

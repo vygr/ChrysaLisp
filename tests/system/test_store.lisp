@@ -93,7 +93,7 @@
 (assert-eq "the sum of every byte, a block at a time, is the sum of them all"
 	(reduce (# (+ %0 (code so_big 1 %1))) (range 0 (length so_big)) 0)
 	(first (store-fold so "a/big" 0 (lambda (sum data at)
-		(reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum)))))
+				(reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum)))))
 
 ;a walk goes where it says: each block read says which is next, or that it is done
 (assert-list-eq "a walk told to go on is a fold" '((0 1 2))
@@ -102,7 +102,7 @@
 	(store-walk so "a/big" (list) (lambda (state data at count) (list (push state at) :nil))))
 (assert-list-eq "one that goes to the last, then the first, and is told how many there are" '(((2 3) (0 3)))
 	(store-walk so "a/big" (list) (lambda (state data at count)
-		(list (push state (list at count)) (if (= at 2) 0 :nil))) 2))
+			(list (push state (list at count)) (if (= at 2) 0 :nil))) 2))
 (assert-list-eq "one sent to a block there is not is done" '((0))
 	(store-walk so "a/big" (list) (lambda (state data at count) (list (push state at) 99))))
 (assert-list-eq "of an object of nothing, nothing is read" '(:start)
@@ -113,13 +113,13 @@
 (defun so-search (want)
 	;the block of 512 numbers in order that a number is in: (found reads)
 	(first (store-walk so "a/sorted" (list :nil 0 0 7)
-		(lambda ((found reads lo hi) data at count)
-			(defq low (str-as-num (slice data 0 7)) high (str-as-num (slice data -9 -2)))
-			(cond
-				((< want low) (list (list :nil (inc reads) lo (dec at)) (if (> at lo) (/ (+ lo (dec at)) 2))))
-				((> want high) (list (list :nil (inc reads) (inc at) hi) (if (< at hi) (/ (+ (inc at) hi) 2))))
-				((list (list at (inc reads) lo hi) :nil))))
-		3)))
+			(lambda ((found reads lo hi) data at count)
+				(defq low (str-as-num (slice data 0 7)) high (str-as-num (slice data -9 -2)))
+				(cond
+					((< want low) (list (list :nil (inc reads) lo (dec at)) (if (> at lo) (/ (+ lo (dec at)) 2))))
+					((> want high) (list (list :nil (inc reads) (inc at) hi) (if (< at hi) (/ (+ (inc at) hi) 2))))
+					((list (list at (inc reads) lo hi) :nil))))
+			3)))
 (assert-list-eq "the block a number is in, found in no more than 4 reads of 8"
 	'(0 :t) (progn (defq so_f (so-search 100)) (list (first so_f) (<= (second so_f) 4))))
 (assert-list-eq "and of one near the end" '(7 :t) (progn (defq so_f (so-search 4000)) (list (first so_f) (<= (second so_f) 4))))
@@ -392,7 +392,6 @@
 (store-snapshot-drop so_s "all")
 (store-put so_s "docs/a" (so-bytes 100 6))
 (assert-true "with no snapshot, a sweep lets go of what nothing is made of" (> (store-sweep so_s) 0))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; where blocks are on the volume: in the folder they were put in, so many to

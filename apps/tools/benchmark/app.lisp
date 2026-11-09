@@ -29,10 +29,10 @@
 	(defq scale (.-> (get :scale_grid chart) :dirty_all :children)
 		scale_range (- max_val min_val))
 	(each (lambda (mark)
-		; Calculate evenly divided values from min_val to max_val
-		(defq val (+ min_val (/ (* scale_range (inc (!))) (length scale))))
-		(def mark :text (str val "|"))
-		(. mark :constrain :t)) scale))
+			; Calculate evenly divided values from min_val to max_val
+			(defq val (+ min_val (/ (* scale_range (inc (!))) (length scale))))
+			(def mark :text (str val "|"))
+			(. mark :constrain :t)) scale))
 
 (defun update-display (vals)
 	; Determine range of display (safely check for uninitialized bounds)

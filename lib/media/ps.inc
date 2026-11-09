@@ -184,7 +184,7 @@
 		(. ps :insert :is34_old (. ps :find :is34))
 		(if (or (= (. ps :find :enable_iid) 1) (= (. ps :find :enable_icc) 1))
 			(. ps :insert :is34 (if (or (and (= (. ps :find :enable_iid) 1) (= (. ps :find :nr_iid_par) 34))
-					(and (= (. ps :find :enable_icc) 1) (= (. ps :find :nr_icc_par) 34))) 1 0)))
+						(and (= (. ps :find :enable_icc) 1) (= (. ps :find :nr_icc_par) 34))) 1 0)))
 		(when (= (. ps :find :enable_ipdopd) 0)
 			(each (# (fill %0 34 0)) (. ps :find :ipd))
 			(each (# (fill %0 34 0)) (. ps :find :opd)))
@@ -196,7 +196,6 @@
 			(ps-clear ps)
 			(bits-skip in left)
 			left)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the parameters to other bands
@@ -221,9 +220,9 @@
 	(each (lambda ((dst &rest srcs))
 			(defq sum (reduce (# (+ %0 (elem-get from %1))) srcs (if (reals?? from) (n2r 0) 0)) n (length srcs))
 			(elem-set to dst (cond
-				((reals?? from) (/ sum (n2r n)))
-				((< sum 0) (neg (/ (neg sum) n)))
-				((/ sum n)))))
+					((reals?? from) (/ sum (n2r n)))
+					((< sum 0) (neg (/ (neg sum) n)))
+					((/ sum n)))))
 		spec)
 	to)
 
@@ -233,9 +232,9 @@
 	(defq to (fill (nums) 34 0))
 	(cond
 		(is34 (cond
-			((or (= num 20) (= num 11)) (ps-map to par +ps_20_34) (if full (ps-map to par +ps_20_34_full)) to)
-			((or (= num 10) (= num 5)) (ps-map to par +ps_10_34) (if full (ps-map to par +ps_10_34_full)) to)
-			(par)))
+				((or (= num 20) (= num 11)) (ps-map to par +ps_20_34) (if full (ps-map to par +ps_20_34_full)) to)
+				((or (= num 10) (= num 5)) (ps-map to par +ps_10_34) (if full (ps-map to par +ps_10_34_full)) to)
+				(par)))
 		((or (= num 34) (= num 17)) (ps-map to par +ps_34_20) (if full (ps-map to par +ps_34_20_full)) to)
 		((or (= num 10) (= num 5)) (ps-map to par +ps_10_20) (if full (ps-map to par +ps_10_20_full)) to)
 		(par)))

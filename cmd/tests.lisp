@@ -78,8 +78,8 @@
 		(cond
 			(opt_l (each (const print) modules))
 			((catch
-				(run-suite modules opt_v opt_f opt_j opt_c opt_a opt_s opt_w opt_e :t opt_r)
-				(progn
-					(print "CRITICAL ERROR: Test suite crashed or threw exception.")
-					(print "Error object: " _)
-					:t))))))
+					(run-suite modules opt_v opt_f opt_j opt_c opt_a opt_s opt_w opt_e :t opt_r)
+					(progn
+						(print "CRITICAL ERROR: Test suite crashed or threw exception.")
+						(print "Error object: " _)
+						:t))))))

@@ -22,11 +22,11 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_undo +sym_redo +sym_rewind
-				+sym_cut +sym_copy +sym_paste
-				+sym_split +sym_reflow +sym_select_paragraph +sym_outdent +sym_indent
-				+sym_select_form +sym_start_form +sym_end_form
-				+sym_upper_case +sym_lower_case +sym_sort +sym_unique
-				+sym_reverse +sym_comment) +event_undo))
+					+sym_cut +sym_copy +sym_paste
+					+sym_split +sym_reflow +sym_select_paragraph +sym_outdent +sym_indent
+					+sym_select_form +sym_start_form +sym_end_form
+					+sym_upper_case +sym_lower_case +sym_sort +sym_unique
+					+sym_reverse +sym_comment) +event_undo))
 		(ui-tool-bar *macro_toolbar* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_play +sym_play_end +sym_play_global +sym_record) +event_macro_playback))
 		(ui-backdrop _ (:paper :paper_toolbar)))
@@ -35,19 +35,19 @@
 			(ui-tool-bar *buffer_toolbar* (:paper (get :paper *macro_toolbar*))
 				(ui-buttons (+sym_prev +sym_next +sym_scratchpad +sym_close_file +sym_close_all +sym_save +sym_save_all +sym_load +sym_load_all +sym_new) +event_prev))
 			(. (ui-textfield *name_text* (:paper +argb_white
-					:hint_text "new file" :clear_text "")) :connect +event_new)))
+						:hint_text "new file" :clear_text "")) :connect +event_new)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_height 1)
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar *find_toolbar* (:paper (get :paper *macro_toolbar*))
 					(ui-buttons (+sym_find_global +sym_select_region +sym_whole_words +sym_regexp +sym_ignore_case +sym_find_down +sym_find_up) +event_global))
 				(. (ui-textfield *find_text* (:paper +argb_white
-						:hint_text "find" :clear_text "")) :connect +event_find_down))
+							:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar *replace_toolbar* (:paper (get :paper *macro_toolbar*))
 					(ui-buttons (+sym_collect +sym_collect_global +sym_replace +sym_replace_all +sym_replace_global) +event_collect))
 				(. (ui-textfield *replace_text* (:paper +argb_white
-						:hint_text "replace" :clear_text "")) :connect +event_replace))))
+							:hint_text "replace" :clear_text "")) :connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:paper +argb_grey14 :grid_width 1)
 			(ui-files *open_files_selector* "Open" +event_open_folder_action :nil)
@@ -75,23 +75,22 @@
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "rewind"
-	"cut" "copy" "paste" "split" "reflow" "select paragraph"
-	"outdent" "indent" "select form" "start form"
-	"end form" "upper case" "lower case" "sort" "unique"
-	"reverse" "comment"))
+		"cut" "copy" "paste" "split" "reflow" "select paragraph"
+		"outdent" "indent" "select form" "start form"
+		"end form" "upper case" "lower case" "sort" "unique"
+		"reverse" "comment"))
 
 (ui-tool-tips *buffer_toolbar*
 	'("previous" "next" "scratchpad" "close" "close all"
-	"save" "save all" "load selected" "load all depends" "new"))
+		"save" "save all" "load selected" "load all depends" "new"))
 
 (ui-tool-tips *find_toolbar*
 	'("global search" "select region" "whole words"
-	"regexp" "ignore case" "find down" "find up"))
+		"regexp" "ignore case" "find down" "find up"))
 
 (ui-tool-tips *macro_toolbar*
 	'("playback" "playback eof" "playback global" "record"))
 
 (ui-tool-tips *replace_toolbar*
 	'("collect" "collect global" "replace" "replace all"
-	"replace global"))
-
+		"replace global"))

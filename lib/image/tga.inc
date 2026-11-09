@@ -26,9 +26,9 @@
 	(when stream
 		(defq header (read-blk stream +tga_size))
 		(and (= (length header) +tga_size)
-				(= (getf header +tga_type) 2)
-				(or (= (getf header +tga_depth) 24)
-					(= (getf header +tga_depth) 32))
+			(= (getf header +tga_type) 2)
+			(or (= (getf header +tga_depth) 24)
+				(= (getf header +tga_depth) 32))
 			; load the tuple directly
 			(setq out (getf-> header +tga_width +tga_height +tga_depth))))
 	out)
@@ -61,8 +61,8 @@
 	;size, 32 bits, and 0x28 is 8 bits of alpha and the top row first.
 	;(str-alloc) is not empty, what is not set in it is whatever was there
 	(write-blk stream (cat (char 0) (char 0) (char 2) (char 0 8) (char 0)
-		(char (getf pixmap +pixmap_width 0) 2) (char (getf pixmap +pixmap_height 0) 2)
-		(char 32) (char 0x28)))
+			(char (getf pixmap +pixmap_width 0) 2) (char (getf pixmap +pixmap_height 0) 2)
+			(char 32) (char 0x28)))
 	(pixmap-write (pixmap-as-argb pixmap) stream 32)
 	canvas)
 

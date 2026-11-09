@@ -98,7 +98,7 @@
 	;a TrackEntry: its number, kind as an mp4's, its codec named as an mp4
 	;names it, its setup, size or sound
 	(defq track (scatter (Emap) :timescale 1000 :start 0 :delay 0 :offsets (list) :sizes (list)
-		:shown (list) :keys (list) :config (list)))
+			:shown (list) :keys (list) :config (list)))
 	(each (lambda ((id body stop))
 			(cond
 				((= id +mkv_number) (. track :insert :number (mkv-uint s body stop)))
@@ -279,7 +279,7 @@
 			(bind '(_ size body) el)
 			(defq stop (. lazy :find :stop)
 				tracks (map (# (scatter (Emap) :number (. %0 :find :number) :step (. %0 :find :step) :cluster 0
-					:offsets (list) :sizes (list) :shown (list) :keys (list))) (. reel :find :tracks))
+							:offsets (list) :sizes (list) :shown (list) :keys (list))) (. reel :find :tracks))
 				end (mkv-cluster stream body (if (< size 0) stop (min stop (+ body size))) tracks)
 				got (list end tracks))
 			(push kept (list at got))
@@ -375,7 +375,7 @@
 					(stream-seek stream body 0)
 					(defq s (read-blk stream (- el_end body)))
 					(setq tracks (map (lambda ((id b e)) (mkv-track s b e))
-						(filter (# (= (first %0) +mkv_entry)) (mkv-children s 0 (length s)))))
+							(filter (# (= (first %0) +mkv_entry)) (mkv-children s 0 (length s)))))
 					;a frame's length in the clusters' time, of the scale said in the
 					;Info before the Tracks
 					(each (# (. %0 :insert :step (/ (ifn (. %0 :find :frame_ns) 0) (max 1 scale)))) tracks))
@@ -386,8 +386,8 @@
 						(setq tried :t)
 						(and duration (defq picture (some (# (and (eql (. %0 :find :kind) "vide") (. %0 :find :frame_ns) %0)) tracks))
 							(or cues_place (and (defq seek (some (# (if (= (first %0) +mkv_cues) %0)) seeks))
-								(defq cues_el (mkv-head stream (+ seg (second seek)))) (= (first cues_el) +mkv_cues)
-								(setq cues_place (list (third cues_el) (+ (third cues_el) (second cues_el))))))
+									(defq cues_el (mkv-head stream (+ seg (second seek)))) (= (first cues_el) +mkv_cues)
+									(setq cues_place (list (third cues_el) (+ (third cues_el) (second cues_el))))))
 							(progn (stream-seek stream (first cues_place) 0)
 								(defq s (read-blk stream (- (second cues_place) (first cues_place)))))
 							(setq cues (mkv-cues s 0 (length s) (. picture :find :number) seg))
@@ -426,7 +426,7 @@
 				:start (first stamps) :delay 0)
 			;of a reel read as it is played, how many and how fast by its Duration
 			(if cues (scatter reel :frames (. video :find :samples)
-				:rate (/ (n2f 1000) (/ (n2f (/ (. video :find :frame_ns) 1000)) (n2f 1000))))))
+					:rate (/ (n2f 1000) (/ (n2f (/ (. video :find :frame_ns) 1000)) (n2f 1000))))))
 		reel))
 
 ;module

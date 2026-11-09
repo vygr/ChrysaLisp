@@ -158,7 +158,6 @@
 	(jump :lisp :repl_error '(:r1 "(each! lambda seqs [start end])" +error_msg_not_valid_index))
 	(signature '(:obj :LIST :NUM :NUM))
 
-
 (def-func-end)
 
 (def-method :seq :lisp_some)
@@ -308,7 +307,6 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(some! lambda seqs [mode start end])" +error_msg_not_valid_index))
 	(signature '(:obj :LIST :obj :NUM :NUM))
-
 
 (def-func-end)
 
@@ -475,7 +473,6 @@
 	(vp-ret)
 	(signature '(:obj :LIST :NUM :NUM :list))
 
-
 (def-func-end)
 
 (def-method :seq :lisp_reduce)
@@ -615,7 +612,6 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(reduce! lambda seqs init [start end])" +error_msg_not_valid_index))
 	(signature '(:obj :LIST :obj :NUM :NUM))
-
 
 (def-func-end)
 
@@ -786,6 +782,5 @@
 	(vp-free slot_size)
 	(vp-ret)
 	(signature '(:obj :seq :NUM :NUM :list))
-
 
 (def-func-end)

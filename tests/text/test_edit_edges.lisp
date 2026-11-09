@@ -28,7 +28,7 @@
 	(apply edit-find (cat (list pattern) flags))
 	(edit-cursors)
 	(length (filter (lambda ((cx cy ax ay &ignore)) (or (/= cx ax) (/= cy ay)))
-		(. *edit* :get_cursors))))
+			(. *edit* :get_cursors))))
 
 ; --- plain find and replace ---
 (test-cases
@@ -66,7 +66,7 @@
 	(ee-count "Line line LINE" "LINE" :i) 3
 	(ee-count "Line liner LINE" "line" :i :w) 2)
 
-	;ignore case replace, the matches are found in the text as it is
+;ignore case replace, the matches are found in the text as it is
 (test-cases
 	(ee-replace "Line line LINE" "x" "line" :i) "x x x"
 	(ee-replace "Line liner LINE" "x" "line" :i :w) "x liner x")

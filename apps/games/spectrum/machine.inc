@@ -54,14 +54,14 @@
 
 ;the matrix, a half row a list, bit 0 first, and the host's keys on it
 (defq +zx_matrix ''(
-	(+sc_lshift +sc_z +sc_x +sc_c +sc_v)
-	(+sc_a +sc_s +sc_d +sc_f +sc_g)
-	(+sc_q +sc_w +sc_e +sc_r +sc_t)
-	(+sc_1 +sc_2 +sc_3 +sc_4 +sc_5)
-	(+sc_0 +sc_9 +sc_8 +sc_7 +sc_6)
-	(+sc_p +sc_o +sc_i +sc_u +sc_y)
-	(+sc_return +sc_l +sc_k +sc_j +sc_h)
-	(+sc_space +sc_lctrl +sc_m +sc_n +sc_b)))
+		(+sc_lshift +sc_z +sc_x +sc_c +sc_v)
+		(+sc_a +sc_s +sc_d +sc_f +sc_g)
+		(+sc_q +sc_w +sc_e +sc_r +sc_t)
+		(+sc_1 +sc_2 +sc_3 +sc_4 +sc_5)
+		(+sc_0 +sc_9 +sc_8 +sc_7 +sc_6)
+		(+sc_p +sc_o +sc_i +sc_u +sc_y)
+		(+sc_return +sc_l +sc_k +sc_j +sc_h)
+		(+sc_space +sc_lctrl +sc_m +sc_n +sc_b)))
 
 (defun zx-key-map ()
 	; (zx-key-map) -> fmap
@@ -227,8 +227,8 @@
 				;version 1, the 48K after the header
 				(zx-reset m)
 				(zx-poke m 0x4000 (if (/= 0 (logand flags1 0x20))
-					(zx-unrle data 30 (length data) 0xc000)
-					(slice data 30 (min (length data) (+ 30 0xc000))))))
+						(zx-unrle data 30 (length data) 0xc000)
+						(slice data 30 (min (length data) (+ 30 0xc000))))))
 			(:t (defq extra (zx-word data 30) hw (zx-byte data 34) i (+ 32 extra))
 				(setq pc (zx-word data 32))
 				;48K only, 0 and 1 of version 2, 0 1 and 3 of version 3
@@ -241,8 +241,8 @@
 								at (case page (8 0x4000) (4 0x8000) (5 0xc000) (:t :nil))
 								e (if (= len 0xffff) (+ i 0x4000) (+ i len)))
 							(if at (zx-poke m at (if (= len 0xffff)
-								(slice data i (min e (length data)))
-								(zx-unrle data i (min e (length data)) 0x4000))))
+										(slice data i (min e (length data)))
+										(zx-unrle data i (min e (length data)) 0x4000))))
 							(setq i e))))))
 		(when ok
 			(setf-> m (+zx_af (logior (<< (zx-byte data 0) 8) (zx-byte data 1)))

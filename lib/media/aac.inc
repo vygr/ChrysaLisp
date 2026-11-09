@@ -221,7 +221,7 @@
 							(defq direction (bits-1 in) compress (bits-1 in)
 								bits (- (+ res 3) compress))
 							(push filters (list len direction
-								(map (lambda (_) (bits-get in bits)) (range 0 order)) res compress)))
+									(map (lambda (_) (bits-get in bits)) (range 0 order)) res compress)))
 						(:t (push filters (list len 0 (list) res 0))))))
 			filters)
 		(range 0 (. info :find :windows))))
@@ -232,8 +232,8 @@
 
 ;each spectral book: values a code, signed or not, the largest, and the base
 (defq *aac_book_kinds* '(
-	(4 :t 1 3) (4 :t 1 3) (4 :nil 2 3) (4 :nil 2 3) (2 :t 4 9) (2 :t 4 9)
-	(2 :nil 7 8) (2 :nil 7 8) (2 :nil 12 13) (2 :nil 12 13) (2 :nil 16 17)))
+		(4 :t 1 3) (4 :t 1 3) (4 :nil 2 3) (4 :nil 2 3) (2 :t 4 9) (2 :t 4 9)
+		(2 :nil 7 8) (2 :nil 7 8) (2 :nil 12 13) (2 :nil 12 13) (2 :nil 16 17)))
 
 (defun aac-escape (in)
 	; (aac-escape reader) -> num
@@ -266,10 +266,10 @@
 	;signed as the book has them; and what kind of book it is to that reader
 	(list (reduce (lambda (out index)
 				(push out (reduce (# (+ (<< %0 6) 16 (if signed (- %1 top) %1)))
-					(if (= dims 4)
-						(list (/ index (* base base base)) (% (/ index (* base base)) base) (% (/ index base) base) (% index base))
-						(list (/ index base) (% index base)))
-					0)))
+						(if (= dims 4)
+							(list (/ index (* base base base)) (% (/ index (* base base)) base) (% (/ index base) base) (% index base))
+							(list (/ index base) (% index base)))
+						0)))
 			(range 0 (if (= dims 4) (* base base base base) (* base base))) (nums))
 		(+ (if (= dims 4) 2 0) (if signed 4 0) (if (= base 17) 8 0))))
 
@@ -349,8 +349,8 @@
 					(setq info (aac-ics-info in rate_index) ms (bits-get in 2))
 					(if (= ms 1)
 						(setq ms_mask (map (lambda (_)
-								(map (lambda (_) (bits-1 in)) (range 0 (. info :find :max_sfb))))
-							(. info :find :lengths)))))
+									(map (lambda (_) (bits-1 in)) (range 0 (. info :find :max_sfb))))
+								(. info :find :lengths)))))
 				(defq left (aac-channel in info rate_index (= common 1))
 					right (aac-channel in info rate_index (= common 1)))
 				(scatter left :ms ms :ms_mask ms_mask :pair :left :element element :kind 1)
@@ -418,8 +418,8 @@
 		;the native reader of codes, taken now, not as this is read
 		(. +aac :insert :values (ffi "lib/media/media_aac_values"))
 		(. +aac :insert :made (scatter (Emap) :gain gain :pow pow
-			:long (aac-windows 1024) :short (aac-windows 128)
-			:dct_long (mdct-tables 1024) :dct_short (mdct-tables 128))))
+				:long (aac-windows 1024) :short (aac-windows 128)
+				:dct_long (mdct-tables 1024) :dct_short (mdct-tables 128))))
 	(. +aac :find :made))
 
 ;the bands TNS may filter at most, of a long window and a short, by rate
@@ -471,7 +471,7 @@
 							(noise-fill values 0 (- to from) seed (n2r 1))
 							(defq energy (nums-sum (nums-mul values values)))
 							(setq seed (noise-fill out from to seed (if (> energy (n2r 0))
-								(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2r 0))))
+										(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2r 0))))
 							(setq w (inc w)))))
 				(range 0 (. info :find :max_sfb)))
 			(setq window (+ window count)))
@@ -583,20 +583,20 @@
 		short_rise (elem-get (. tables :find :short) before) short_cur (elem-get (. tables :find :short) shape)
 		short_fall (reverse short_cur) zeros (. decoder :find :zeros) ones (. decoder :find :ones))
 	(defq whole (cond
-		((= sequence +aac_eight_short)
-			;eight short windows, each at 448 and 128 on, the first rising by
-			;the shape before, those after by this one
-			(defq buf (cat zeros zeros))
-			(each (lambda (w)
-					(defq x (nums-mul (aac-unfold decoder (slice lines (* w 128) (* (inc w) 128)) 128)
-							(cat (if (= w 0) short_rise short_cur) short_fall))
-						at (+ 448 (* w 128)))
-					(each (# (elem-set buf (+ at (!)) (+ (elem-get buf (+ at (!))) %0))) x))
-				(range 0 8))
-			buf)
-		(:t (nums-mul (aac-unfold decoder lines 1024)
-			(cat (if (= sequence +aac_long_stop) (cat (slice zeros 0 448) short_rise (slice ones 0 448)) long_rise)
-				(if (= sequence +aac_long_start) (cat (slice ones 0 448) short_fall (slice zeros 0 448)) long_fall))))))
+			((= sequence +aac_eight_short)
+				;eight short windows, each at 448 and 128 on, the first rising by
+				;the shape before, those after by this one
+				(defq buf (cat zeros zeros))
+				(each (lambda (w)
+						(defq x (nums-mul (aac-unfold decoder (slice lines (* w 128) (* (inc w) 128)) 128)
+								(cat (if (= w 0) short_rise short_cur) short_fall))
+							at (+ 448 (* w 128)))
+						(each (# (elem-set buf (+ at (!)) (+ (elem-get buf (+ at (!))) %0))) x))
+					(range 0 8))
+				buf)
+			(:t (nums-mul (aac-unfold decoder lines 1024)
+					(cat (if (= sequence +aac_long_stop) (cat (slice zeros 0 448) short_rise (slice ones 0 448)) long_rise)
+						(if (= sequence +aac_long_start) (cat (slice ones 0 448) short_fall (slice zeros 0 448)) long_fall))))))
 	(defq overlap (. decoder :find :overlap) out (nums-add (slice whole 0 1024) (elem-get overlap c)))
 	(elem-set overlap c (slice whole 1024 2048))
 	(elem-set (. decoder :find :shape) c shape)

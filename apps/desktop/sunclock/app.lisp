@@ -1,6 +1,6 @@
 ;debug options
 (case :nil
-(0 (import "lib/debug/frames.inc")))
+	(0 (import "lib/debug/frames.inc")))
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
@@ -22,23 +22,23 @@
 
 ; Cities directory: (name country lat lon utc_offset_hours)
 (defq *cities* (list
-	(list "London" "UK" 51.5 0.0 1.0)
-	(list "New York" "USA" 40.7 -74.0 -4.0)
-	(list "San Francisco" "USA" 37.8 -122.4 -7.0)
-	(list "Tokyo" "Japan" 35.7 139.7 9.0)
-	(list "Sydney" "Australia" -33.9 151.2 10.0)
-	(list "Dubai" "UAE" 25.3 55.3 4.0)
-	(list "Singapore" "Singapore" 1.3 103.8 8.0)
-	(list "Cairo" "Egypt" 30.0 31.2 3.0)
-	(list "Sao Paulo" "Brazil" -23.5 -46.6 -3.0)
-	(list "Honolulu" "USA" 21.3 -157.8 -10.0)))
+		(list "London" "UK" 51.5 0.0 1.0)
+		(list "New York" "USA" 40.7 -74.0 -4.0)
+		(list "San Francisco" "USA" 37.8 -122.4 -7.0)
+		(list "Tokyo" "Japan" 35.7 139.7 9.0)
+		(list "Sydney" "Australia" -33.9 151.2 10.0)
+		(list "Dubai" "UAE" 25.3 55.3 4.0)
+		(list "Singapore" "Singapore" 1.3 103.8 8.0)
+		(list "Cairo" "Egypt" 30.0 31.2 3.0)
+		(list "Sao Paulo" "Brazil" -23.5 -46.6 -3.0)
+		(list "Honolulu" "USA" 21.3 -157.8 -10.0)))
 
 (defun config-default ()
 	(scatter (Emap) :version +config_version :selected_city 0))
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(setq *selected_city_id* (. *config* :find :selected_city)))
@@ -113,32 +113,32 @@
 		curve_pts (list)
 		shadow_poly (path))
 	(each (lambda (i)
-		(defq px (* (n2f i) step_x)
-			lon_rad (- (* (/ px w) +fp_2pi) +fp_pi)
-			lat_rad (terminator-lat lon_rad sun_lon_rad sun_lat_rad)
-			py (* (/ (- +fp_hpi lat_rad) +fp_pi) h))
-		(push curve_pts px py))
+			(defq px (* (n2f i) step_x)
+				lon_rad (- (* (/ px w) +fp_2pi) +fp_pi)
+				lat_rad (terminator-lat lon_rad sun_lon_rad sun_lat_rad)
+				py (* (/ (- +fp_hpi lat_rad) +fp_pi) h))
+			(push curve_pts px py))
 		(range 0 (inc n_steps)))
 	(if (>= sun_lat_deg 0.0)
 		; Northern summer: North is day, South is night
 		(progn
 			(push shadow_poly 0.0 h w h)
 			(each (lambda (i)
-				(defq idx (* i 2))
-				(push shadow_poly (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
+					(defq idx (* i 2))
+					(push shadow_poly (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
 				(range n_steps -1 -1))
 			(push shadow_poly 0.0 h))
 		; Northern winter: North is night, South is day
 		(push shadow_poly 0.0 0.0 w 0.0)
 		(each (lambda (i)
-			(defq idx (* i 2))
-			(push shadow_poly (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
+				(defq idx (* i 2))
+				(push shadow_poly (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
 			(range n_steps -1 -1))
 		(push shadow_poly 0.0 0.0))
 	(defq twilight_path (path))
 	(each (lambda (i)
-		(defq idx (* i 2))
-		(push twilight_path (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
+			(defq idx (* i 2))
+			(push twilight_path (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
 		(range 0 (inc n_steps)))
 	(defq twilight_stroke (path-stroke-polyline twilight_path 1.5
 			+join_round +cap_round +cap_round))
@@ -178,22 +178,22 @@
 
 	; 7. Cities Markers
 	(each (lambda (i)
-		(defq c (elem-get *cities* i)
-			clat (elem-get c 2)
-			clon (elem-get c 3)
-			is_day (daylight? clat clon sun_lat_deg sun_lon_deg))
-		(bind '(cpx cpy) (geo-to-canvas clon clat w h))
-		(defq dot (path-gen-arc cpx cpy 0.0 +fp_2pi (if (= i *selected_city_id*) 3.8 2.6) (path))
-			col (if is_day 0xffffe066 0xff5c8ae6))
-		(.-> canvas
-			(:set_color col)
-			(:fpoly 0.0 0.0 +winding_none_zero (list dot)))
-		(when (= i *selected_city_id*)
-			(defq sel_ring (path-stroke-polyline (path-gen-arc cpx cpy 0.0 +fp_2pi 6.5 (path))
-					1.4 +join_miter +cap_round +cap_round))
+			(defq c (elem-get *cities* i)
+				clat (elem-get c 2)
+				clon (elem-get c 3)
+				is_day (daylight? clat clon sun_lat_deg sun_lon_deg))
+			(bind '(cpx cpy) (geo-to-canvas clon clat w h))
+			(defq dot (path-gen-arc cpx cpy 0.0 +fp_2pi (if (= i *selected_city_id*) 3.8 2.6) (path))
+				col (if is_day 0xffffe066 0xff5c8ae6))
 			(.-> canvas
-				(:set_color 0xeeffffff)
-				(:fpoly 0.0 0.0 +winding_none_zero (list sel_ring)))))
+				(:set_color col)
+				(:fpoly 0.0 0.0 +winding_none_zero (list dot)))
+			(when (= i *selected_city_id*)
+				(defq sel_ring (path-stroke-polyline (path-gen-arc cpx cpy 0.0 +fp_2pi 6.5 (path))
+						1.4 +join_miter +cap_round +cap_round))
+				(.-> canvas
+					(:set_color 0xeeffffff)
+					(:fpoly 0.0 0.0 +winding_none_zero (list sel_ring)))))
 		(range 0 (length *cities*)))
 	(. canvas :swap +swap_write))
 
@@ -213,19 +213,19 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label *hero_city* (:text "London, UK" :font :font_sub_title))
 		(ui-label *hero_status_badge* (:text "Daylight" :font :font_bold :border 0
-			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
+				:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Hero Card: Solar Elevation & Times
 	(ui-flow _ (:flow_flags +flow_right_fill :font :font_small)
 		(ui-label *hero_times* (:text "Rise 00:00  Noon 00:00  Set 00:00"))
 		(ui-label *hero_day_len* (:text "Day: 12h 00m"
-			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
+				:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; World Map Canvas
 	(ui-canvas *map_canvas* *canvas_width* *canvas_height* 1)
 	; Subsolar Telemetry Bar
 	(ui-flow _ (:flow_flags +flow_right_fill :font :font_tiny)
 		(ui-label *subsolar_label* (:text "Subsolar: 0o00'N 0o00'W"))
 		(ui-label *season_label* (:text "Season: Equinox"
-			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
+				:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Quick World City Grid (2 rows x 3 columns)
 	(ui-grid _ (:grid_width 3 :font :font_small :paper :paper_toolbar2)
 		(. (ui-button *btn_city_0* (:text "London")) :connect +event_btn_city_0)
@@ -236,7 +236,7 @@
 		(. (ui-button *btn_city_5* (:text "Dubai")) :connect +event_btn_city_5))
 	; Footer Attribution
 	(ui-label *footer_label* (:text "Equirectangular Projection - Solar Terminator Model"
-		:font :font_small :flow_flags +flow_flag_align_hcenter)))
+			:font :font_small :flow_flags +flow_flag_align_hcenter)))
 
 (defun get-effective-time ()
 	(+ (/ (pii-time) 1000000) *sim_offset_sec*))
@@ -246,7 +246,7 @@
 		utc_date (date now_sec))
 	(bind '(sec min hr mday mo yr wk) utc_date)
 	(defq utc_str (cat "UTC: " (day-of-the-week wk) " " (month-of-the-year mo) " " (pad mday 2 "0") " "
-		(pad hr 2 "0") ":" (pad min 2 "0") ":" (pad sec 2 "0"))
+			(pad hr 2 "0") ":" (pad min 2 "0") ":" (pad sec 2 "0"))
 		sim_note (cond
 			((= *sim_offset_sec* 0) "")
 			((> *sim_offset_sec* 0) (cat " [+" (str (/ *sim_offset_sec* 3600)) "h]"))
@@ -257,7 +257,7 @@
 	; Solar Ephemeris
 	(bind '(sun_lon_deg sun_lat_deg eot_min season) (solar-ephemeris now_sec))
 	(. *subsolar_label* :set_text (cat "Sun Zenith: " (format-geo-coord sun_lat_deg :t) " "
-		(format-geo-coord sun_lon_deg :nil) " (EoT " (str (n2i (floor (+ eot_min 0.5)))) "m)"))
+			(format-geo-coord sun_lon_deg :nil) " (EoT " (str (n2i (floor (+ eot_min 0.5)))) "m)"))
 	(. *season_label* :set_text (cat "Season: " season))
 
 	; Selected City Details
@@ -273,8 +273,8 @@
 	(def (. *hero_status_badge* :dirty) :paper (if is_day 0xff00e676 0xff253a5c)
 		:ink (if is_day +argb_black +argb_white))
 	(. *hero_status_badge* :set_text (if is_day
-		(cat "Daylight (" elev_str "o)")
-		(cat "Night (" elev_str "o)")))
+			(cat "Daylight (" elev_str "o)")
+			(cat "Night (" elev_str "o)")))
 
 	; Solar Times for Selected City
 	(bind '(sunrise_utc noon_utc sunset_utc day_len state)
@@ -291,8 +291,8 @@
 				noon_local (+ noon_utc coff)
 				sunset_local (+ sunset_utc coff))
 			(. *hero_times* :set_text (cat "Rise " (format-hours sunrise_local)
-				"  Noon " (format-hours noon_local)
-				"  Set " (format-hours sunset_local)))
+					"  Noon " (format-hours noon_local)
+					"  Set " (format-hours sunset_local)))
 			(. *hero_day_len* :set_text (cat "Day: " (format-duration day_len)))))
 
 	; Map Canvas
@@ -300,16 +300,16 @@
 
 	; Quick City Grid Buttons
 	(defq btns (list
-		*btn_city_0* *btn_city_1* *btn_city_2*
-		*btn_city_3* *btn_city_4* *btn_city_5*))
+			*btn_city_0* *btn_city_1* *btn_city_2*
+			*btn_city_3* *btn_city_4* *btn_city_5*))
 	(each (lambda (i)
-		(bind '(cn & la lo of) (elem-get *cities* i))
-		(defq c_sec (+ now_sec (n2i (* of 3600.0))))
-		(bind '(& m h &ignore) (date c_sec))
-		(defq day? (daylight? la lo sun_lat_deg sun_lon_deg)
-			badge (if day? "Day " "Night ")
-			btn (elem-get btns i))
-		(. btn :set_text (cat badge cn " " (pad h 2 "0") ":" (pad m 2 "0"))))
+			(bind '(cn & la lo of) (elem-get *cities* i))
+			(defq c_sec (+ now_sec (n2i (* of 3600.0))))
+			(bind '(& m h &ignore) (date c_sec))
+			(defq day? (daylight? la lo sun_lat_deg sun_lon_deg)
+				badge (if day? "Day " "Night ")
+				btn (elem-get btns i))
+			(. btn :set_text (cat badge cn " " (pad h 2 "0") ":" (pad m 2 "0"))))
 		(range 0 6)))
 
 (defun main ()

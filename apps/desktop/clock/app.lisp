@@ -7,7 +7,6 @@
 (and (not (get :clock_analog *env*)) (not (get :clock_digital *env*))
 	(def *env* :clock_analog :t))
 
-
 (enums +select 0
 	(enum main timer))
 
@@ -23,8 +22,8 @@
 		(defq clock :nil))
 	(if (eql (get :clock_digital *env*) :t)
 		(ui-label *display* (:text "Mon 00:00:00 AM"
-			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
-			:font (create-font "fonts/Hack-Regular.ctf" 24)))
+				:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
+				:font (create-font "fonts/Hack-Regular.ctf" 24)))
 		(defq *display* :nil)))
 
 (defun view-digital-time ((sc mn hr & & & wk))
@@ -41,8 +40,8 @@
 (defun transform (%0 a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (ifn x 0.0) y (ifn y 0.0))
 	(mat3x2-vec2-mul (fixeds
-		(* s ca) (* s (* sa -1.0)) (* s (+ x 0.5))
-		(* s sa) (* s ca) (* s (+ y 0.5))) %0 %0))
+			(* s ca) (* s (* sa -1.0)) (* s (+ x 0.5))
+			(* s sa) (* s ca) (* s (+ y 0.5))) %0 %0))
 
 (defun create-clockface (scale)
 	(clear clock_dial clock_face)
@@ -64,22 +63,22 @@
 	(when (get :clock_numerals *env*)
 		(defq font_size (max 10 (n2i (* scale 0.062)))
 			font (or (create-font "fonts/OpenSans-Bold.ctf" font_size)
-					(create-font "fonts/OpenSans-Regular.ctf" font_size)
-					(create-font "fonts/Hack-Regular.ctf" font_size)))
+				(create-font "fonts/OpenSans-Regular.ctf" font_size)
+				(create-font "fonts/Hack-Regular.ctf" font_size)))
 		(when font
 			(defq num_r (* scale 0.30))
 			(each (lambda (n)
-				(defq a (/ (* (n2f n) +fp_2pi) 12.0)
-					text (str n)
-					nx (+ cx (* num_r (sin a)))
-					ny (- cy (* num_r (cos a))))
-				(bind '(w h) (font-glyph-bounds font text))
-				(defq tx (+ nx (* (n2f w) -1.0))
-					ty (+ ny (* (n2f h) 0.5))
-					mat (fixeds 1.0 0.0 tx 0.0 1.0 ty))
-				(each (lambda (p)
-					(push clock_face (mat3x2-vec2-mul mat p p)))
-					(font-glyph-paths font text)))
+					(defq a (/ (* (n2f n) +fp_2pi) 12.0)
+						text (str n)
+						nx (+ cx (* num_r (sin a)))
+						ny (- cy (* num_r (cos a))))
+					(bind '(w h) (font-glyph-bounds font text))
+					(defq tx (+ nx (* (n2f w) -1.0))
+						ty (+ ny (* (n2f h) 0.5))
+						mat (fixeds 1.0 0.0 tx 0.0 1.0 ty))
+					(each (lambda (p)
+							(push clock_face (mat3x2-vec2-mul mat p p)))
+						(font-glyph-paths font text)))
 				(range 1 13)))))
 
 (defun view-analog-time (canvas (s m h) scale)

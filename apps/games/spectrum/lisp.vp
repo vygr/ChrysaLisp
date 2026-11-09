@@ -189,7 +189,7 @@
 (defun zx-gen-main (op)
 	;the handler of an opcode, no prefix
 	(defq x (>> op 6) y (logand (>> op 3) 7) z (logand op 7) p (>> y 1) q (logand y 1))
-	(vp-label (zx-lab "zm" op))
+(vp-label (zx-lab "zm" op))
 	(cond
 		((= op 0x76)
 			;HALT, NOPs to the end of the frame
@@ -216,58 +216,58 @@
 		((= x 0)
 			(case z
 				(0 (case y
-					(0)
-					(1 ;EX AF,AF'
-						(vp-load-rcr-us :r14 (zx-st +zx_af2) :r0)
-						(vp-cpy-rr :r7 :r1)
-						(vp-shl-cr 8 :r1)
-						(vp-or-rr :r6 :r1)
-						(vp-store-rrc-s :r1 :r14 (zx-st +zx_af2))
-						(vp-cpy-rr :r0 :r7)
-						(vp-shr-cr 8 :r7)
-						(vp-and-cr 0xff :r0)
-						(vp-cpy-rr :r0 :r6))
-					(2 ;DJNZ
-						(zx-fetchd :r1)
-						(vp-sub-cr 0x100 :r8)
-						(vp-and-cr 0xffff :r8)
-						(vp-cpy-rr :r8 :r0)
-						(vp-shr-cr 8 :r0)
-						(vpif '(:r0 /= 0))
+						(0)
+						(1 ;EX AF,AF'
+							(vp-load-rcr-us :r14 (zx-st +zx_af2) :r0)
+							(vp-cpy-rr :r7 :r1)
+							(vp-shl-cr 8 :r1)
+							(vp-or-rr :r6 :r1)
+							(vp-store-rrc-s :r1 :r14 (zx-st +zx_af2))
+							(vp-cpy-rr :r0 :r7)
+							(vp-shr-cr 8 :r7)
+							(vp-and-cr 0xff :r0)
+							(vp-cpy-rr :r0 :r6))
+						(2 ;DJNZ
+							(zx-fetchd :r1)
+							(vp-sub-cr 0x100 :r8)
+							(vp-and-cr 0xffff :r8)
+							(vp-cpy-rr :r8 :r0)
+							(vp-shr-cr 8 :r0)
+							(vpif '(:r0 /= 0))
+								(vp-add-rr :r1 :r12)
+								(vp-and-cr 0xffff :r12)
+								(vp-sub-cr 5 :r13)
+							(endif))
+						(3 ;JR
+							(zx-fetchd :r1)
 							(vp-add-rr :r1 :r12)
-							(vp-and-cr 0xffff :r12)
-							(vp-sub-cr 5 :r13)
-						(endif))
-					(3 ;JR
-						(zx-fetchd :r1)
-						(vp-add-rr :r1 :r12)
-						(vp-and-cr 0xffff :r12))
-					(:t ;JR cc
-						(zx-fetchd :r1)
-						(vpif (zx-cc (- y 4)))
-							(vp-add-rr :r1 :r12)
-							(vp-and-cr 0xffff :r12)
-							(vp-sub-cr 5 :r13)
-						(endif))))
+							(vp-and-cr 0xffff :r12))
+						(:t ;JR cc
+							(zx-fetchd :r1)
+							(vpif (zx-cc (- y 4)))
+								(vp-add-rr :r1 :r12)
+								(vp-and-cr 0xffff :r12)
+								(vp-sub-cr 5 :r13)
+							(endif))))
 				(1 (cond
-					((= q 0) (zx-fetch16 (zx-rp p) :r0))
-					(:t (vp-cpy-rr (zx-rp p) :r1)
-						(vp-jmp 'add16))))
+						((= q 0) (zx-fetch16 (zx-rp p) :r0))
+						(:t (vp-cpy-rr (zx-rp p) :r1)
+							(vp-jmp 'add16))))
 				(2 (case op
-					(0x02 (zx-wr8 :r7 :r8))
-					(0x12 (zx-wr8 :r7 :r9))
-					(0x0a (vp-load-rrr-ub :r14 :r8 :r7))
-					(0x1a (vp-load-rrr-ub :r14 :r9 :r7))
-					(0x22 (zx-fetch16 :r3 :r0)
-						(vp-cpy-rr :r10 :r1)
-						(vp-jmp 'wr16))
-					(0x2a (zx-fetch16 :r3 :r0)
-						(vp-call 'rd16)
-						(vp-cpy-rr :r1 :r10))
-					(0x32 (zx-fetch16 :r3 :r0)
-						(zx-wr8 :r7 :r3))
-					(0x3a (zx-fetch16 :r3 :r0)
-						(vp-load-rrr-ub :r14 :r3 :r7))))
+						(0x02 (zx-wr8 :r7 :r8))
+						(0x12 (zx-wr8 :r7 :r9))
+						(0x0a (vp-load-rrr-ub :r14 :r8 :r7))
+						(0x1a (vp-load-rrr-ub :r14 :r9 :r7))
+						(0x22 (zx-fetch16 :r3 :r0)
+							(vp-cpy-rr :r10 :r1)
+							(vp-jmp 'wr16))
+						(0x2a (zx-fetch16 :r3 :r0)
+							(vp-call 'rd16)
+							(vp-cpy-rr :r1 :r10))
+						(0x32 (zx-fetch16 :r3 :r0)
+							(zx-wr8 :r7 :r3))
+						(0x3a (zx-fetch16 :r3 :r0)
+							(vp-load-rrr-ub :r14 :r3 :r7))))
 				(3 (if (= q 0)
 						(vp-add-cr 1 (zx-rp p))
 						(vp-sub-cr 1 (zx-rp p)))
@@ -281,151 +281,151 @@
 				(6 (zx-fetch8 :r1)
 					(zx-put y :r1 :r2))
 				(7 (case y
-					(0 ;RLCA
-						(vp-cpy-rr :r7 :r0)
-						(vp-shr-cr 7 :r0)
-						(vp-shl-cr 1 :r7)
-						(vp-or-rr :r0 :r7)
-						(vp-and-cr 0xff :r7)
-						(zx-a-flags))
-					(1 ;RRCA
-						(vp-cpy-rr :r7 :r0)
-						(vp-and-cr 1 :r0)
-						(vp-shr-cr 1 :r7)
-						(vp-cpy-rr :r0 :r1)
-						(vp-shl-cr 7 :r1)
-						(vp-or-rr :r1 :r7)
-						(zx-a-flags))
-					(2 ;RLA
-						(vp-cpy-rr :r7 :r0)
-						(vp-shr-cr 7 :r0)
-						(vp-shl-cr 1 :r7)
-						(vp-cpy-rr :r6 :r1)
-						(vp-and-cr 1 :r1)
-						(vp-or-rr :r1 :r7)
-						(vp-and-cr 0xff :r7)
-						(zx-a-flags))
-					(3 ;RRA
-						(vp-cpy-rr :r7 :r0)
-						(vp-and-cr 1 :r0)
-						(vp-shr-cr 1 :r7)
-						(vp-cpy-rr :r6 :r1)
-						(vp-and-cr 1 :r1)
-						(vp-shl-cr 7 :r1)
-						(vp-or-rr :r1 :r7)
-						(zx-a-flags))
-					(4 (vp-jmp 'daa))
-					(5 ;CPL
-						(vp-xor-cr 0xff :r7)
-						(vp-and-cr 0xc5 :r6)
-						(vp-or-cr 0x12 :r6)
-						(vp-cpy-rr :r7 :r0)
-						(vp-and-cr 0x28 :r0)
-						(vp-or-rr :r0 :r6))
-					(6 ;SCF
-						(vp-cpy-cr 1 :r0)
-						(zx-a-flags))
-					(7 ;CCF, H the old carry
-						(vp-cpy-rr :r6 :r0)
-						(vp-and-cr 1 :r0)
-						(vp-cpy-rr :r0 :r1)
-						(vp-shl-cr 4 :r1)
-						(vp-xor-cr 1 :r0)
-						(vp-or-rr :r1 :r0)
-						(zx-a-flags))))))
+						(0 ;RLCA
+							(vp-cpy-rr :r7 :r0)
+							(vp-shr-cr 7 :r0)
+							(vp-shl-cr 1 :r7)
+							(vp-or-rr :r0 :r7)
+							(vp-and-cr 0xff :r7)
+							(zx-a-flags))
+						(1 ;RRCA
+							(vp-cpy-rr :r7 :r0)
+							(vp-and-cr 1 :r0)
+							(vp-shr-cr 1 :r7)
+							(vp-cpy-rr :r0 :r1)
+							(vp-shl-cr 7 :r1)
+							(vp-or-rr :r1 :r7)
+							(zx-a-flags))
+						(2 ;RLA
+							(vp-cpy-rr :r7 :r0)
+							(vp-shr-cr 7 :r0)
+							(vp-shl-cr 1 :r7)
+							(vp-cpy-rr :r6 :r1)
+							(vp-and-cr 1 :r1)
+							(vp-or-rr :r1 :r7)
+							(vp-and-cr 0xff :r7)
+							(zx-a-flags))
+						(3 ;RRA
+							(vp-cpy-rr :r7 :r0)
+							(vp-and-cr 1 :r0)
+							(vp-shr-cr 1 :r7)
+							(vp-cpy-rr :r6 :r1)
+							(vp-and-cr 1 :r1)
+							(vp-shl-cr 7 :r1)
+							(vp-or-rr :r1 :r7)
+							(zx-a-flags))
+						(4 (vp-jmp 'daa))
+						(5 ;CPL
+							(vp-xor-cr 0xff :r7)
+							(vp-and-cr 0xc5 :r6)
+							(vp-or-cr 0x12 :r6)
+							(vp-cpy-rr :r7 :r0)
+							(vp-and-cr 0x28 :r0)
+							(vp-or-rr :r0 :r6))
+						(6 ;SCF
+							(vp-cpy-cr 1 :r0)
+							(zx-a-flags))
+						(7 ;CCF, H the old carry
+							(vp-cpy-rr :r6 :r0)
+							(vp-and-cr 1 :r0)
+							(vp-cpy-rr :r0 :r1)
+							(vp-shl-cr 4 :r1)
+							(vp-xor-cr 1 :r0)
+							(vp-or-rr :r1 :r0)
+							(zx-a-flags))))))
 		(:t (case z
-			(0 ;RET cc
-				(vpif (zx-cc y))
-					(vp-call 'pop16)
-					(vp-cpy-rr :r1 :r12)
-					(vp-sub-cr 6 :r13)
-				(endif))
-			(1 (cond
-				((= q 0)
-					(vp-call 'pop16)
-					(cond
-						((= p 3)
-							(vp-cpy-rr :r1 :r7)
-							(vp-shr-cr 8 :r7)
-							(vp-and-cr 0xff :r1)
-							(vp-cpy-rr :r1 :r6))
-						((vp-cpy-rr :r1 (zx-rp p)))))
-				((= p 0) ;RET
-					(vp-call 'pop16)
-					(vp-cpy-rr :r1 :r12))
-				((= p 1) ;EXX
-					(each (lambda ((reg field))
-							(vp-load-rcr-us :r14 (zx-st field) :r0)
-							(vp-store-rrc-s reg :r14 (zx-st field))
-							(vp-cpy-rr :r0 reg))
-						(list (list :r8 +zx_bc2) (list :r9 +zx_de2) (list :r10 +zx_hl2))))
-				((= p 2) (vp-cpy-rr :r10 :r12))
-				(:t (vp-cpy-rr :r10 :r11))))
-			(2 ;JP cc
-				(zx-fetch16 :r1 :r2)
-				(vpif (zx-cc y))
-					(vp-cpy-rr :r1 :r12)
-				(endif))
-			(3 (case y
-				(0 (zx-fetch16 :r1 :r2)
-					(vp-cpy-rr :r1 :r12))
-				(2 ;OUT (n),A
-					(zx-fetch8 :r3)
-					(vp-cpy-rr :r7 :r0)
-					(vp-shl-cr 8 :r0)
-					(vp-or-rr :r0 :r3)
-					(vp-cpy-rr :r7 :r1)
-					(vp-jmp 'port_out))
-				(3 ;IN A,(n)
-					(zx-fetch8 :r3)
-					(vp-cpy-rr :r7 :r0)
-					(vp-shl-cr 8 :r0)
-					(vp-or-rr :r0 :r3)
-					(vp-call 'port_in)
-					(vp-cpy-rr :r1 :r7))
-				(4 ;EX (SP),HL
-					(vp-cpy-rr :r11 :r3)
-					(vp-call 'rd16)
-					(assign '(:r1 :r10 :r11) '(:r4 :r1 :r3))
-					(vp-call 'wr16)
-					(vp-cpy-rr :r4 :r10))
-				(5 ;EX DE,HL
-					(assign '(:r9 :r10) '(:r0 :r9))
-					(vp-cpy-rr :r0 :r10))
-				(6 (vp-xor-rr :r0 :r0)
-					(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff1))
-					(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff2)))
-				(7 (vp-cpy-cr 1 :r0)
-					(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff1))
-					(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff2)))))
-			(4 ;CALL cc
-				(zx-fetch16 :r4 :r2)
-				(vpif (zx-cc y))
-					(vp-cpy-rr :r12 :r1)
-					(vp-call 'push16)
-					(vp-cpy-rr :r4 :r12)
-					(vp-sub-cr 7 :r13)
-				(endif))
-			(5 (cond
-				((= q 0)
-					(cond
-						((= p 3)
+				(0 ;RET cc
+					(vpif (zx-cc y))
+						(vp-call 'pop16)
+						(vp-cpy-rr :r1 :r12)
+						(vp-sub-cr 6 :r13)
+					(endif))
+				(1 (cond
+						((= q 0)
+							(vp-call 'pop16)
+							(cond
+								((= p 3)
+									(vp-cpy-rr :r1 :r7)
+									(vp-shr-cr 8 :r7)
+									(vp-and-cr 0xff :r1)
+									(vp-cpy-rr :r1 :r6))
+								((vp-cpy-rr :r1 (zx-rp p)))))
+						((= p 0) ;RET
+							(vp-call 'pop16)
+							(vp-cpy-rr :r1 :r12))
+						((= p 1) ;EXX
+							(each (lambda ((reg field))
+									(vp-load-rcr-us :r14 (zx-st field) :r0)
+									(vp-store-rrc-s reg :r14 (zx-st field))
+									(vp-cpy-rr :r0 reg))
+								(list (list :r8 +zx_bc2) (list :r9 +zx_de2) (list :r10 +zx_hl2))))
+						((= p 2) (vp-cpy-rr :r10 :r12))
+						(:t (vp-cpy-rr :r10 :r11))))
+				(2 ;JP cc
+					(zx-fetch16 :r1 :r2)
+					(vpif (zx-cc y))
+						(vp-cpy-rr :r1 :r12)
+					(endif))
+				(3 (case y
+						(0 (zx-fetch16 :r1 :r2)
+							(vp-cpy-rr :r1 :r12))
+						(2 ;OUT (n),A
+							(zx-fetch8 :r3)
+							(vp-cpy-rr :r7 :r0)
+							(vp-shl-cr 8 :r0)
+							(vp-or-rr :r0 :r3)
 							(vp-cpy-rr :r7 :r1)
-							(vp-shl-cr 8 :r1)
-							(vp-or-rr :r6 :r1))
-						((vp-cpy-rr (zx-rp p) :r1)))
-					(vp-jmp 'push16))
-				(:t ;CALL
+							(vp-jmp 'port_out))
+						(3 ;IN A,(n)
+							(zx-fetch8 :r3)
+							(vp-cpy-rr :r7 :r0)
+							(vp-shl-cr 8 :r0)
+							(vp-or-rr :r0 :r3)
+							(vp-call 'port_in)
+							(vp-cpy-rr :r1 :r7))
+						(4 ;EX (SP),HL
+							(vp-cpy-rr :r11 :r3)
+							(vp-call 'rd16)
+							(assign '(:r1 :r10 :r11) '(:r4 :r1 :r3))
+							(vp-call 'wr16)
+							(vp-cpy-rr :r4 :r10))
+						(5 ;EX DE,HL
+							(assign '(:r9 :r10) '(:r0 :r9))
+							(vp-cpy-rr :r0 :r10))
+						(6 (vp-xor-rr :r0 :r0)
+							(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff1))
+							(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff2)))
+						(7 (vp-cpy-cr 1 :r0)
+							(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff1))
+							(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff2)))))
+				(4 ;CALL cc
 					(zx-fetch16 :r4 :r2)
+					(vpif (zx-cc y))
+						(vp-cpy-rr :r12 :r1)
+						(vp-call 'push16)
+						(vp-cpy-rr :r4 :r12)
+						(vp-sub-cr 7 :r13)
+					(endif))
+				(5 (cond
+						((= q 0)
+							(cond
+								((= p 3)
+									(vp-cpy-rr :r7 :r1)
+									(vp-shl-cr 8 :r1)
+									(vp-or-rr :r6 :r1))
+								((vp-cpy-rr (zx-rp p) :r1)))
+							(vp-jmp 'push16))
+						(:t ;CALL
+							(zx-fetch16 :r4 :r2)
+							(vp-cpy-rr :r12 :r1)
+							(vp-call 'push16)
+							(vp-cpy-rr :r4 :r12))))
+				(6 (zx-fetch8 :r1)
+					(vp-jmp (elem-get zx_alu y)))
+				(7 ;RST
 					(vp-cpy-rr :r12 :r1)
 					(vp-call 'push16)
-					(vp-cpy-rr :r4 :r12))))
-			(6 (zx-fetch8 :r1)
-				(vp-jmp (elem-get zx_alu y)))
-			(7 ;RST
-				(vp-cpy-rr :r12 :r1)
-				(vp-call 'push16)
-				(vp-cpy-cr (* y 8) :r12)))))
+					(vp-cpy-cr (* y 8) :r12)))))
 	(vp-ret))
 
 (defun zx-idx-ea ()
@@ -439,7 +439,7 @@
 	;the handler of an opcode of (IX+d). H and L beside it are HL's own,
 	;which is in the state
 	(defq x (>> op 6) y (logand (>> op 3) 7) z (logand op 7))
-	(vp-label (zx-lab "zi" op))
+(vp-label (zx-lab "zi" op))
 	(cond
 		((= op 0x34) (zx-idx-ea)
 			(vp-load-rrr-ub :r14 :r3 :r1)
@@ -496,7 +496,7 @@
 (defun zx-gen-ed (op)
 	;the handler of an ED opcode
 	(defq x (>> op 6) y (logand (>> op 3) 7) z (logand op 7) p (>> y 1) q (logand y 1))
-	(vp-label (zx-lab "ze" op))
+(vp-label (zx-lab "ze" op))
 	(cond
 		((= x 2)
 			;a block opcode, a step up or down, again till done or not
@@ -593,77 +593,77 @@
 							(zx-repeat)
 						(endif)))))
 		(:t (case z
-			(0 ;IN r,(C)
-				(vp-cpy-rr :r8 :r3)
-				(vp-call 'port_in)
-				(vp-and-cr 1 :r6)
-				(zx-sz53p :r1 :r0)
-				(vp-or-rr :r0 :r6)
-				(if (/= y 6) (zx-put y :r1 :r0)))
-			(1 ;OUT (C),r
-				(if (= y 6) (vp-xor-rr :r1 :r1) (zx-get y :r1))
-				(vp-cpy-rr :r8 :r3)
-				(vp-jmp 'port_out))
-			(2 (vp-cpy-rr (zx-rp p) :r1)
-				(vp-jmp (if (= q 0) 'sbc16 'adc16)))
-			(3 (zx-fetch16 :r3 :r0)
-				(cond
-					((= q 0)
-						(vp-cpy-rr (zx-rp p) :r1)
-						(vp-jmp 'wr16))
-					(:t (vp-call 'rd16)
-						(vp-cpy-rr :r1 (zx-rp p)))))
-			(4 ;NEG
-				(vp-cpy-rr :r7 :r1)
-				(vp-xor-rr :r7 :r7)
-				(vp-jmp 'alu_sub))
-			(5 ;RETN RETI
-				(vp-load-rcr-ub :r14 (zx-st +zx_iff2) :r0)
-				(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff1))
-				(vp-call 'pop16)
-				(vp-cpy-rr :r1 :r12))
-			(6 ;IM
-				(vp-cpy-cr (elem-get '(0 0 1 2) (logand y 3)) :r0)
-				(vp-store-rrc-b :r0 :r14 (zx-st +zx_im)))
-			(7 (case y
-				(0 (vp-store-rrc-b :r7 :r14 (zx-st +zx_i)))
-				(1 (vp-store-rrc-b :r7 :r14 (zx-st +zx_r))
-					(vp-cpy-rr :r7 :r0)
-					(vp-and-cr 0x80 :r0)
-					(vp-store-rrc-b :r0 :r14 (zx-st +zx_r7)))
-				(2 (vp-load-rcr-ub :r14 (zx-st +zx_i) :r7)
-					(vp-jmp 'flags_a_ir))
-				(3 (vp-load-rcr-ub :r14 (zx-st +zx_r) :r7)
-					(vp-and-cr 0x7f :r7)
-					(vp-load-rcr-ub :r14 (zx-st +zx_r7) :r0)
-					(vp-or-rr :r0 :r7)
-					(vp-jmp 'flags_a_ir))
-				(4 ;RRD
-					(vp-load-rrr-ub :r14 :r10 :r1)
-					(vp-cpy-rr :r7 :r0)
-					(vp-shl-cr 4 :r0)
-					(vp-cpy-rr :r1 :r2)
-					(vp-shr-cr 4 :r2)
-					(vp-or-rr :r2 :r0)
-					(vp-and-cr 0xff :r0)
-					(vp-and-cr 0xf0 :r7)
-					(vp-and-cr 0x0f :r1)
-					(vp-or-rr :r1 :r7)
-					(zx-wr8 :r0 :r10)
-					(vp-jmp 'flags_rxd))
-				(5 ;RLD
-					(vp-load-rrr-ub :r14 :r10 :r1)
-					(vp-cpy-rr :r1 :r0)
-					(vp-shl-cr 4 :r0)
-					(vp-cpy-rr :r7 :r2)
-					(vp-and-cr 0x0f :r2)
-					(vp-or-rr :r2 :r0)
-					(vp-and-cr 0xff :r0)
-					(vp-and-cr 0xf0 :r7)
-					(vp-shr-cr 4 :r1)
-					(vp-or-rr :r1 :r7)
-					(zx-wr8 :r0 :r10)
-					(vp-jmp 'flags_rxd)))))))
+				(0 ;IN r,(C)
+					(vp-cpy-rr :r8 :r3)
+					(vp-call 'port_in)
+					(vp-and-cr 1 :r6)
+					(zx-sz53p :r1 :r0)
+					(vp-or-rr :r0 :r6)
+					(if (/= y 6) (zx-put y :r1 :r0)))
+				(1 ;OUT (C),r
+					(if (= y 6) (vp-xor-rr :r1 :r1) (zx-get y :r1))
+					(vp-cpy-rr :r8 :r3)
+					(vp-jmp 'port_out))
+				(2 (vp-cpy-rr (zx-rp p) :r1)
+					(vp-jmp (if (= q 0) 'sbc16 'adc16)))
+				(3 (zx-fetch16 :r3 :r0)
+					(cond
+						((= q 0)
+							(vp-cpy-rr (zx-rp p) :r1)
+							(vp-jmp 'wr16))
+						(:t (vp-call 'rd16)
+							(vp-cpy-rr :r1 (zx-rp p)))))
+				(4 ;NEG
+					(vp-cpy-rr :r7 :r1)
+					(vp-xor-rr :r7 :r7)
+					(vp-jmp 'alu_sub))
+				(5 ;RETN RETI
+					(vp-load-rcr-ub :r14 (zx-st +zx_iff2) :r0)
+					(vp-store-rrc-b :r0 :r14 (zx-st +zx_iff1))
+					(vp-call 'pop16)
+					(vp-cpy-rr :r1 :r12))
+				(6 ;IM
+					(vp-cpy-cr (elem-get '(0 0 1 2) (logand y 3)) :r0)
+					(vp-store-rrc-b :r0 :r14 (zx-st +zx_im)))
+				(7 (case y
+						(0 (vp-store-rrc-b :r7 :r14 (zx-st +zx_i)))
+						(1 (vp-store-rrc-b :r7 :r14 (zx-st +zx_r))
+							(vp-cpy-rr :r7 :r0)
+							(vp-and-cr 0x80 :r0)
+							(vp-store-rrc-b :r0 :r14 (zx-st +zx_r7)))
+						(2 (vp-load-rcr-ub :r14 (zx-st +zx_i) :r7)
+							(vp-jmp 'flags_a_ir))
+						(3 (vp-load-rcr-ub :r14 (zx-st +zx_r) :r7)
+							(vp-and-cr 0x7f :r7)
+							(vp-load-rcr-ub :r14 (zx-st +zx_r7) :r0)
+							(vp-or-rr :r0 :r7)
+							(vp-jmp 'flags_a_ir))
+						(4 ;RRD
+							(vp-load-rrr-ub :r14 :r10 :r1)
+							(vp-cpy-rr :r7 :r0)
+							(vp-shl-cr 4 :r0)
+							(vp-cpy-rr :r1 :r2)
+							(vp-shr-cr 4 :r2)
+							(vp-or-rr :r2 :r0)
+							(vp-and-cr 0xff :r0)
+							(vp-and-cr 0xf0 :r7)
+							(vp-and-cr 0x0f :r1)
+							(vp-or-rr :r1 :r7)
+							(zx-wr8 :r0 :r10)
+							(vp-jmp 'flags_rxd))
+						(5 ;RLD
+							(vp-load-rrr-ub :r14 :r10 :r1)
+							(vp-cpy-rr :r1 :r0)
+							(vp-shl-cr 4 :r0)
+							(vp-cpy-rr :r7 :r2)
+							(vp-and-cr 0x0f :r2)
+							(vp-or-rr :r2 :r0)
+							(vp-and-cr 0xff :r0)
+							(vp-and-cr 0xf0 :r7)
+							(vp-shr-cr 4 :r1)
+							(vp-or-rr :r1 :r7)
+							(zx-wr8 :r0 :r10)
+							(vp-jmp 'flags_rxd)))))))
 	(vp-ret))
 
 (defun zx-run-body (name)
@@ -764,9 +764,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-;;;;;;;;;;;;;
-; subroutines
-;;;;;;;;;;;;;
+	;;;;;;;;;;;;;
+	; subroutines
+	;;;;;;;;;;;;;
 
 (vp-label 'rd16)
 	;:r3 = address -> :r1 = word, trashes :r2
@@ -866,73 +866,73 @@
 	(endif)
 	(vp-ret)
 
-(when zx_sound
-(vp-label 'beep_to)
-	;:r0 = T of the frame, the time the speaker was high till then added
-	;to its samples, trashes :r0-:r5
-	(vp-load-rcr-ui :r14 (zx-st +zx_beep_at) :r1)
-	(vpif '(:r0 > :r1))
-		(vp-store-rrc-i :r0 :r14 (zx-st +zx_beep_at))
-		(vp-load-rcr-ub :r14 (zx-st +zx_beep) :r2)
-		(vpif '(:r2 /= 0))
-			;:r5 the T left, :r2 into the sample, :r4 the sample
-			(vp-cpy-rr :r0 :r5)
-			(vp-sub-rr :r1 :r5)
-			(vp-cpy-rr :r1 :r4)
-			(vp-cpy-cr +zx_t_sample :r3)
-			(vp-cpy-rr :r4 :r2)
-			(vp-rem-rr-u :r3 :r2)
-			(vp-div-rr-u :r3 :r4)
-			(vp-shl-cr 1 :r4)
-			(vp-add-cr +zx_bins :r4)
-			(loop-start)
-				(vp-cpy-cr +zx_t_sample :r1)
-				(vp-sub-rr :r2 :r1)
-				(vp-min-rr :r5 :r1)
-				(vp-load-rrr-us :r14 :r4 :r0)
-				(vp-add-rr :r1 :r0)
-				(vp-store-rrr-s :r0 :r14 :r4)
+	(when zx_sound
+	(vp-label 'beep_to)
+		;:r0 = T of the frame, the time the speaker was high till then added
+		;to its samples, trashes :r0-:r5
+		(vp-load-rcr-ui :r14 (zx-st +zx_beep_at) :r1)
+		(vpif '(:r0 > :r1))
+			(vp-store-rrc-i :r0 :r14 (zx-st +zx_beep_at))
+			(vp-load-rcr-ub :r14 (zx-st +zx_beep) :r2)
+			(vpif '(:r2 /= 0))
+				;:r5 the T left, :r2 into the sample, :r4 the sample
+				(vp-cpy-rr :r0 :r5)
 				(vp-sub-rr :r1 :r5)
-				(vp-xor-rr :r2 :r2)
-				(vp-add-cr +short_size :r4)
-			(loop-until '(:r5 = 0))
+				(vp-cpy-rr :r1 :r4)
+				(vp-cpy-cr +zx_t_sample :r3)
+				(vp-cpy-rr :r4 :r2)
+				(vp-rem-rr-u :r3 :r2)
+				(vp-div-rr-u :r3 :r4)
+				(vp-shl-cr 1 :r4)
+				(vp-add-cr +zx_bins :r4)
+				(loop-start)
+					(vp-cpy-cr +zx_t_sample :r1)
+					(vp-sub-rr :r2 :r1)
+					(vp-min-rr :r5 :r1)
+					(vp-load-rrr-us :r14 :r4 :r0)
+					(vp-add-rr :r1 :r0)
+					(vp-store-rrr-s :r0 :r14 :r4)
+					(vp-sub-rr :r1 :r5)
+					(vp-xor-rr :r2 :r2)
+					(vp-add-cr +short_size :r4)
+				(loop-until '(:r5 = 0))
+			(endif)
 		(endif)
-	(endif)
-	(vp-ret)
+		(vp-ret)
 
-(vp-label 'beep_frame)
-	;the frame's samples made of the counts, which are cleared, trashes
-	;:r0-:r5
-	(vp-load-rcr-i :r14 (zx-st +zx_dc_x) :r2)
-	(vp-load-rcr-i :r14 (zx-st +zx_dc_y) :r3)
-	(vp-cpy-cr +zx_bins :r4)
-	(vp-xor-rr :r5 :r5)
-	(loop-start)
-		;x the count at full 128 a T, y = x less the last x, and the last
-		;y less 1/256 of it, at least 1 of it, so it comes to 0 each way
-		(vp-load-rrr-us :r14 :r4 :r0)
-		(vp-store-rrr-s :r5 :r14 :r4)
-		(vp-shl-cr 7 :r0)
-		(vp-cpy-rr :r3 :r1)
-		(vpif '(:r1 > 0))
-			(vp-add-cr 255 :r1)
-		(endif)
-		(vp-asr-cr 8 :r1)
-		(vp-sub-rr :r3 :r1)
-		(vp-mul-cr -1 :r1)
-		(vp-add-rr :r0 :r1)
-		(vp-sub-rr :r2 :r1)
-		(assign '(:r0 :r1) '(:r2 :r3))
-		(vp-add-cr (* +zx_samples +short_size) :r4)
-		(vp-store-rrr-s :r3 :r14 :r4)
-		(vp-sub-cr (- (* +zx_samples +short_size) +short_size) :r4)
-	(loop-until `(:r4 = ,+zx_pcm))
-	(vp-store-rrc-i :r2 :r14 (zx-st +zx_dc_x))
-	(vp-store-rrc-i :r3 :r14 (zx-st +zx_dc_y))
-	(vp-store-rrc-i :r5 :r14 (zx-st +zx_beep_at))
-	(vp-ret))
+	(vp-label 'beep_frame)
+		;the frame's samples made of the counts, which are cleared, trashes
+		;:r0-:r5
+		(vp-load-rcr-i :r14 (zx-st +zx_dc_x) :r2)
+		(vp-load-rcr-i :r14 (zx-st +zx_dc_y) :r3)
+		(vp-cpy-cr +zx_bins :r4)
+		(vp-xor-rr :r5 :r5)
+		(loop-start)
+			;x the count at full 128 a T, y = x less the last x, and the last
+			;y less 1/256 of it, at least 1 of it, so it comes to 0 each way
+			(vp-load-rrr-us :r14 :r4 :r0)
+			(vp-store-rrr-s :r5 :r14 :r4)
+			(vp-shl-cr 7 :r0)
+			(vp-cpy-rr :r3 :r1)
+			(vpif '(:r1 > 0))
+				(vp-add-cr 255 :r1)
+			(endif)
+			(vp-asr-cr 8 :r1)
+			(vp-sub-rr :r3 :r1)
+			(vp-mul-cr -1 :r1)
+			(vp-add-rr :r0 :r1)
+			(vp-sub-rr :r2 :r1)
+			(assign '(:r0 :r1) '(:r2 :r3))
+			(vp-add-cr (* +zx_samples +short_size) :r4)
+			(vp-store-rrr-s :r3 :r14 :r4)
+			(vp-sub-cr (- (* +zx_samples +short_size) +short_size) :r4)
+		(loop-until `(:r4 = ,+zx_pcm))
+		(vp-store-rrc-i :r2 :r14 (zx-st +zx_dc_x))
+		(vp-store-rrc-i :r3 :r14 (zx-st +zx_dc_y))
+		(vp-store-rrc-i :r5 :r14 (zx-st +zx_beep_at))
+		(vp-ret))
 
-;the ALU, :r1 the byte with A, trash :r0-:r4
+	;the ALU, :r1 the byte with A, trash :r0-:r4
 (vp-label 'alu_adc)
 	(vp-cpy-rr :r6 :r0)
 	(vp-and-cr 1 :r0)
@@ -1207,9 +1207,9 @@
 (vp-label 'h_nop)
 	(vp-ret)
 
-;;;;;;;;;;
-; prefixes
-;;;;;;;;;;
+	;;;;;;;;;;
+	; prefixes
+	;;;;;;;;;;
 
 (vp-label 'h_dd)
 	(vp-store-rrc-s :r10 :r14 (zx-st +zx_hlx))
@@ -1361,7 +1361,7 @@
 	(vp-cpy-cr 1 :r0)
 	(vp-ret)
 
-;the shifts and rotates, :r1 the byte after, :r2 the carry
+	;the shifts and rotates, :r1 the byte after, :r2 the carry
 (vp-label 'rot_rlc)
 	(vp-cpy-rr :r1 :r2)
 	(vp-shr-cr 7 :r2)
@@ -1426,19 +1426,19 @@
 	(assign '(:r0 1) '(:r6 :r0))
 	(vp-ret)
 
-;a register of CB opcodes, got into :r1, put from :r1, trash :r0
-(each (lambda (r)
+	;a register of CB opcodes, got into :r1, put from :r1, trash :r0
+	(each (lambda (r)
 		(vp-label (zx-lab "zg" r))
-		(zx-get r :r1)
-		(vp-ret)
+			(zx-get r :r1)
+			(vp-ret)
 		(vp-label (zx-lab "zp" r))
-		(zx-put r :r1 :r0)
-		(vp-ret))
-	(range 0 8))
+			(zx-put r :r1 :r0)
+			(vp-ret))
+		(range 0 8))
 
-;;;;;;;;;;;;;;;;;;
-; opcode handlers
-;;;;;;;;;;;;;;;;;;
+	;;;;;;;;;;;;;;;;;;
+	; opcode handlers
+	;;;;;;;;;;;;;;;;;;
 
 	(each (lambda (op)
 			(unless (find op '(0xcb 0xdd 0xed 0xfd))
@@ -1452,9 +1452,9 @@
 				(zx-gen-ed op)))
 		(range 0 256))
 
-;;;;;;;;
-; tables
-;;;;;;;;
+	;;;;;;;;
+	; tables
+	;;;;;;;;
 
 	(vp-align +long_size)
 (vp-label 'op_table)
@@ -1485,15 +1485,15 @@
 	(apply (const vp-byte) (map (const zx-t-main) (range 0 256)))
 (vp-label 't_ed)
 	(apply (const vp-byte) (map (const zx-t-ed) (range 0 256)))
-;S Z and bits 5 and 3 of a byte, and its parity as P/V
+	;S Z and bits 5 and 3 of a byte, and its parity as P/V
 (vp-label 'sz53)
 	(apply (const vp-byte) (map (lambda (i)
-		(logior (logand i 0xa8) (if (= i 0) 0x40 0))) (range 0 256)))
+				(logior (logand i 0xa8) (if (= i 0) 0x40 0))) (range 0 256)))
 (vp-label 'sz53p)
 	(apply (const vp-byte) (map (lambda (i)
-		(defq bits 0)
-		(each (lambda (b) (if (/= 0 (logand i (<< 1 b))) (setq bits (inc bits)))) (range 0 8))
-		(logior (logand i 0xa8) (if (= i 0) 0x40 0) (if (= 0 (logand bits 1)) 4 0))) (range 0 256)))
+				(defq bits 0)
+				(each (lambda (b) (if (/= 0 (logand i (<< 1 b))) (setq bits (inc bits)))) (range 0 8))
+				(logior (logand i 0xa8) (if (= i 0) 0x40 0) (if (= 0 (logand bits 1)) 4 0))) (range 0 256)))
 
 (vp-label 'error)
 	(jump :lisp :repl_error `(:r1 ,name +error_msg_wrong_types))

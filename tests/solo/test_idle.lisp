@@ -15,9 +15,9 @@
 ;a few goes all the same
 (assert-true "idle time goes by while every task is asleep"
 	(some (lambda (&)
-		(defq before (id-idle))
-		(task-sleep 100000)
-		(> (id-idle) before)) (range 0 10)))
+			(defq before (id-idle))
+			(task-sleep 100000)
+			(> (id-idle) before)) (range 0 10)))
 (defq id_before (id-idle) id_start (pii-time))
 (task-sleep 50000)
 (assert-true "and never more of it than there was time"

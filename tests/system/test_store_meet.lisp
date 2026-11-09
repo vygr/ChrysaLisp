@@ -196,7 +196,7 @@
 	(map (# (length (store-holders sm_h (first sm_names) :nil %0))) '(1 4 5 9)))
 (assert-true "more copies adds keepers and moves none: the three are the first three of the four, and the one the first of them"
 	(every (# (and (eql (str (store-holders sm_h %0)) (str (slice (store-holders sm_h %0 :nil 4) 0 3)))
-		(eql (first (store-holders sm_h %0)) (first (store-holders sm_h %0 :nil 1))))) sm_names))
+				(eql (first (store-holders sm_h %0)) (first (store-holders sm_h %0 :nil 1))))) sm_names))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; a member's share of it

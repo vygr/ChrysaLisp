@@ -35,4 +35,3 @@
 						(stream-diff b a (io-stream 'stdout))
 						(stream-diff a b (io-stream 'stdout))))
 				(setq a :nil)))))
-

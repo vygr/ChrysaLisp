@@ -58,7 +58,7 @@
 		(assert-eq "its links, the ring's 4 and the one from here" 5 (length (elem-get nt_net2 4)))
 		(defq nt_mbox (mail-mbox) nt_mine (cat (system-id)) nt_away 0)
 		(times 40 (open-task (str `(mail-send (hex-decode ,(hex-encode nt_mbox)) (cat (system-id))))
-			(task-nodeid) +kn_call_run 0 (mail-mbox)))
+				(task-nodeid) +kn_call_run 0 (mail-mbox)))
 		(times 40 (unless (eql (mail-read nt_mbox) nt_mine) (++ nt_away)))
 		(assert-eq "a task left to find a node does not go to it" 0 nt_away)
 		(open-task (str `(mail-send (hex-decode ,(hex-encode nt_mbox)) (cat (system-id))))

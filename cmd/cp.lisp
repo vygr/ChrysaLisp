@@ -25,4 +25,3 @@
 					(while (defq c (read-blk src 1024)) (write-blk dst c))
 					(stream-flush dst))
 				(setq src :nil dst :nil)))))
-

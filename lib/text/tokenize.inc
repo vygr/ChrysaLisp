@@ -51,17 +51,17 @@
 			(:symbol
 				(push state_list :symbol)
 				(push token_list (slice line i (setq j
-					(bskipn +char_class_not_symbol line (inc j)) i j)))
+								(bskipn +char_class_not_symbol line (inc j)) i j)))
 				(setq state :text))
 			(:keysym
 				(push state_list :keysym)
 				(push token_list (slice line i (setq j
-					(bskipn +char_class_not_symbol line (inc j)) i j)))
+								(bskipn +char_class_not_symbol line (inc j)) i j)))
 				(setq state :text))
 			(:number
 				(push state_list :number)
 				(push token_list (slice line i (setq j
-					(bskip +char_class_digit_base line (inc j)) i j)))
+								(bskip +char_class_digit_base line (inc j)) i j)))
 				(setq state :text))
 			(:comment
 				(push state_list :comment)
@@ -75,8 +75,8 @@
 			(:string2
 				(push state_list :string2)
 				(push token_list (if (setq j (find "}" line (+ i from)))
-					(slice line i (setq state :text j (inc j) i j))
-					(slice line i (setq j l))))
+						(slice line i (setq state :text j (inc j) i j))
+						(slice line i (setq j l))))
 				(setq from 1))))
 	(list token_list state_list state))
 

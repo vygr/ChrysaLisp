@@ -16,7 +16,6 @@
 ; draw it between them, as native code, straight onto the canvas.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 (enums +select 0
 	(enum main task reply timer))
 
@@ -48,9 +47,9 @@
 	;the inputs block for the frame, where the camera and the light are
 	(defq fraction (/ (n2r frame_idx) (const (n2r +num_frames))))
 	(shader-pack program (list
-		(list 'resolution (list +width +height))
-		(list 'cam_z (+ z_start (* z_dist fraction)))
-		(list 'light_x (+ (n2r -0.1) (* (sin (* fraction +real_2pi)) (n2r 0.15)))))))
+			(list 'resolution (list +width +height))
+			(list 'cam_z (+ z_start (* z_dist fraction)))
+			(list 'light_x (+ (n2r -0.1) (* (sin (* fraction +real_2pi)) (n2r 0.15)))))))
 
 ;the film is made in a file of its own, and is the film only once it is
 ;whole: one stopped part way does not leave half a film in the tree,
@@ -90,14 +89,14 @@
 			(film-keep)
 			(setq film :nil first_frame :nil mode :done)
 			(. *status* :set_text (cat "The film is made, " (str +num_frames) " frames in "
-				(str (/ (- (pii-time) film_time) 1000)) "ms, by the "
-				(if gpu_shader "GPU" "nodes") ", " (str (/ save_us 1000)) "ms of it writing the film")))
+					(str (/ (- (pii-time) film_time) 1000)) "ms, by the "
+					(if gpu_shader "GPU" "nodes") ", " (str (/ save_us 1000)) "ms of it writing the film")))
 		((eql mode :cpu)
 			;the nodes shade it, a tile each
 			(defq inputs (frame-inputs) key (canvas-key *canvas*))
 			(. jobs :add (map (# (shader-tile +shader_file inputs
-				0 %0 +width (min +height (+ %0 +line_batch)) +width +height key))
-				(range 0 +height +line_batch))))))
+							0 %0 +width (min +height (+ %0 +line_batch)) +width +height key))
+					(range 0 +height +line_batch))))))
 
 (defun frame-done ()
 	;the frame is whole, and is in the pixmap of the canvas. It goes
@@ -114,8 +113,8 @@
 	(setq save_us (+ save_us (- (pii-time) now))
 		frame_us (- (pii-time) frame_time) frame_idx (inc frame_idx))
 	(. *status* :set_text (cat (if (eql mode :gpu) "GPU" (cat (str (length (lisp-nodes))) " nodes"))
-		", frame " (str frame_idx) " of " (str +num_frames) ", "
-		(str (/ frame_us 1000)) "ms to draw and save it"))
+			", frame " (str frame_idx) " of " (str +num_frames) ", "
+			(str (/ frame_us 1000)) "ms to draw and save it"))
 	(start-frame))
 
 (defun to-cpu (why)
@@ -133,7 +132,7 @@
 	(unless gpu_inputs (setq gpu_inputs (frame-inputs) gpu_y 0))
 	(cond
 		((eql (defq drawn (. *canvas* :shade gpu_shader gpu_inputs 0 gpu_y +width
-				(defq y1 (min +height (+ gpu_y gpu_strip))))) :error)
+						(defq y1 (min +height (+ gpu_y gpu_strip))))) :error)
 			(to-cpu "No GPU, the driver could not build the shader, the nodes draw it"))
 		(drawn
 			(when (eql mode :wait)
@@ -142,10 +141,10 @@
 			;a strip should take the GPU more than one tick and less than two,
 			;so the GPU is not left idle, and the GUI does not wait long
 			(setq gpu_strip (max 4 (min +height (case gpu_wait
-				(0 (inc (/ (* gpu_strip 5) 4)))
-				(1 gpu_strip)
-				(2 (/ (* gpu_strip 4) 5))
-				(:t (/ (* gpu_strip 2) (inc gpu_wait)))))))
+							(0 (inc (/ (* gpu_strip 5) 4)))
+							(1 gpu_strip)
+							(2 (/ (* gpu_strip 4) 5))
+							(:t (/ (* gpu_strip 2) (inc gpu_wait)))))))
 			(setq gpu_wait 0 gpu_y y1)
 			(when (>= gpu_y +height)
 				;the frame is in the texture, read it back to be saved

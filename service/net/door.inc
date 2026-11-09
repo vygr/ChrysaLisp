@@ -82,7 +82,7 @@
 		((and (= (length parts) 4) (every (# (and (nempty? %0) (every (lambda (c) (find c "0123456789")) %0))) parts))
 			(bind '(a b &ignore) (map (const str-as-num) parts))
 			(not (or (= a 10) (= a 127) (and (= a 172) (<= 16 b 31)) (and (= a 192) (= b 168))
-				(and (= a 169) (= b 254)))))
+					(and (= a 169) (= b 254)))))
 		(:t)))
 
 (defun door-key (&optional file)

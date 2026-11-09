@@ -66,7 +66,7 @@
 			(CPM-save canvas out format :t :t "MLF.")
 			(defq whole (str out) header (slice whole 0 +flm_header))
 			(write-blk stream (cat (slice header 0 8) (char +flm_version 4) (slice header 12 24)
-				(char (n2i (* (get :rate film) 100)) 4)))
+					(char (n2i (* (get :rate film) 100)) 4)))
 			(flm-packet-write stream (slice whole +flm_header -1))
 			(def film :pixels (* (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
 			(pixmap-write (pixmap-as-argb pixmap) last format))
@@ -144,9 +144,9 @@
 	;the source of the encoder task, it says where its feed is, makes the
 	;film, and says how many frames there were
 	(str `(progn (import "gui/lisp.inc") (import "lib/media/flm.inc")
-		(mail-send (hex-decode ,(hex-encode handshake)) (in-mbox (defq in (in-stream))))
-		(mail-send (hex-decode ,(hex-encode handshake))
-			(str (flm-encode in (obj-ref ,(weak-ref stream)) ,format ,rate))))))
+			(mail-send (hex-decode ,(hex-encode handshake)) (in-mbox (defq in (in-stream))))
+			(mail-send (hex-decode ,(hex-encode handshake))
+				(str (flm-encode in (obj-ref ,(weak-ref stream)) ,format ,rate))))))
 
 (defun flm-open (stream format &optional rate)
 	; (flm-open stream format [rate]) -> film

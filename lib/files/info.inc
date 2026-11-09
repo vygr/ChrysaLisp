@@ -19,40 +19,40 @@
 	; (format-group prefix indices) -> (str ...)
 	;runs of indices as the prefix and their ends, "r" (1 2 3 5) -> ("r1-r3" "r5")
 	(map (lambda ((s e)) (if (= s (-- e))
-			(str prefix s)
-			(str prefix s "-" prefix e)))
+				(str prefix s)
+				(str prefix s "-" prefix e)))
 		(slices indices)))
 
 (defun format-regs (regs)
 	(defq r_indices (list) f_indices (list) s_indices (list) expanded_regs (list))
 	;expand any ranges like :r0-:r14 or :d0-:d15
 	(each (lambda (r)
-		(defq parts (split r "-"))
-		(if (and (= (length parts) 2)
-				(starts-with ":" (first parts))
-				(starts-with ":" (second parts)))
-			(progn
-				(defq r_start (first parts) r_end (second parts)
-					prefix (slice r_start 0 2)
-					start_val (str-to-num (slice r_start 2 -1))
-					end_val (str-to-num (slice r_end 2 -1)))
-				(each (lambda (val)
-					(push expanded_regs (sym (str prefix val))))
-					(range start_val (inc end_val))))
-			(push expanded_regs r)))
+			(defq parts (split r "-"))
+			(if (and (= (length parts) 2)
+					(starts-with ":" (first parts))
+					(starts-with ":" (second parts)))
+				(progn
+					(defq r_start (first parts) r_end (second parts)
+						prefix (slice r_start 0 2)
+						start_val (str-to-num (slice r_start 2 -1))
+						end_val (str-to-num (slice r_end 2 -1)))
+					(each (lambda (val)
+							(push expanded_regs (sym (str prefix val))))
+						(range start_val (inc end_val))))
+				(push expanded_regs r)))
 		regs)
 	(setq regs expanded_regs)
 	(each (lambda (r)
-		(if (starts-with ":r" r)
-			(if (and (defq idx (vp-reg? r)) (= idx 15))
-				(push s_indices ":rsp")
-				(if idx (push r_indices idx)))
-			(if (defq idx (vp-reg? r)) (push f_indices idx))))
+			(if (starts-with ":r" r)
+				(if (and (defq idx (vp-reg? r)) (= idx 15))
+					(push s_indices ":rsp")
+					(if idx (push r_indices idx)))
+				(if (defq idx (vp-reg? r)) (push f_indices idx))))
 		regs)
 	(defq formatted_parts (cat
-		(format-group ":r" r_indices)
-		(format-group ":d" f_indices)
-		s_indices))
+			(format-group ":r" r_indices)
+			(format-group ":d" f_indices)
+			s_indices))
 	(if (empty? formatted_parts) "none" (join formatted_parts ", ")))
 
 (defun db-f-path (class_db class method)
@@ -76,15 +76,15 @@
 	(defq formatted_inputs (format-regs inputs)
 		formatted_outputs (format-regs outputs))
 	(. class_db :each (lambda (class_name class_entry)
-		(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
-			(when (eql (. method_entry :find :function) func_name)
-				(when seen_inputs
-					(unless (eql formatted_inputs (find-dec-sig class_db class_name method_name :inputs))
-						(throw "Mismatched input comment !" (list class_name method_name))))
-				(when seen_outputs
-					(unless (eql formatted_outputs (find-dec-sig class_db class_name method_name :outputs))
-						(throw "Mismatched output comment !" (list class_name method_name))))))))))
-	(scatter f_entry 
+			(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+						(when (eql (. method_entry :find :function) func_name)
+							(when seen_inputs
+								(unless (eql formatted_inputs (find-dec-sig class_db class_name method_name :inputs))
+									(throw "Mismatched input comment !" (list class_name method_name))))
+							(when seen_outputs
+								(unless (eql formatted_outputs (find-dec-sig class_db class_name method_name :outputs))
+									(throw "Mismatched output comment !" (list class_name method_name))))))))))
+	(scatter f_entry
 		:inputs formatted_inputs
 		:outputs formatted_outputs
 		:trashes trashes
@@ -116,24 +116,24 @@
 	(defq state :header inputs (list) outputs (list) trashes "none" trashes_line 0
 		seen_inputs :nil seen_outputs :nil)
 	(each (lambda ((& line text))
-		(when (nempty? (defq content (trim-start text (const (char-class (cat +char_class_space ";"))))))
-			(cond
-				((starts-with "inputs" (to-lower content))
-					(setq state :inputs seen_inputs :t))
-				((starts-with "outputs" (to-lower content))
-					(setq state :outputs seen_outputs :t))
-				((starts-with "trashes" (to-lower content))
-					(setq state :trashes)))
-			(case state
-				(:inputs
-					(when (starts-with ":" content)
-						(push inputs (sym (first (split content (const (char-class " =("))))))))
-				(:outputs
-					(when (starts-with ":" content)
-						(push outputs (sym (first (split content (const (char-class " =("))))))))
-				(:trashes
-					(when (or (starts-with ":" content) (eql (to-lower content) "none"))
-						(setq trashes content state :header trashes_line (dec line)))))))
+			(when (nempty? (defq content (trim-start text (const (char-class (cat +char_class_space ";"))))))
+				(cond
+					((starts-with "inputs" (to-lower content))
+						(setq state :inputs seen_inputs :t))
+					((starts-with "outputs" (to-lower content))
+						(setq state :outputs seen_outputs :t))
+					((starts-with "trashes" (to-lower content))
+						(setq state :trashes)))
+				(case state
+					(:inputs
+						(when (starts-with ":" content)
+							(push inputs (sym (first (split content (const (char-class " =("))))))))
+					(:outputs
+						(when (starts-with ":" content)
+							(push outputs (sym (first (split content (const (char-class " =("))))))))
+					(:trashes
+						(when (or (starts-with ":" content) (eql (to-lower content) "none"))
+							(setq trashes content state :header trashes_line (dec line)))))))
 		said)
 	;and every line said, as the reference shows it
 	(flush-metadata class_db func_db func_name file inputs outputs trashes trashes_line seen_inputs seen_outputs
@@ -157,187 +157,187 @@
 	;of nodes it is part way through, each (nodes at)
 	(defq active_class :nil last_func :nil)
 	(each (lambda (file)
-		(with-read-lock file
-			(defq todo (list (list (first (tree-read (file-stream file))) -1)))
-			(while (defq frame (pop todo))
-				(task-slice)
-				(bind '(nodes at) frame)
-				(when (< (++ at) (length nodes))
-					(push todo (list nodes at))
-					(defq node (elem-get nodes at) kids (tree-form? node))
-					(when (and kids (eql (first (first kids)) :symbol))
-						(defq op (third (first kids)) n (length kids)
-							names (map! (# (node-name %0 file)) (list kids) 1 (min n 3)))
-						(cond
-							((and (eql op "def-class") (>= n 3) (first names))
-								(defq class_name (sym (first names))
-									parent_name (sym (ifn (second names) ":nil"))
-									class_entry (. class_db :find class_name))
-								(if class_entry
-									(. class_entry :insert :parent parent_name)
-									(setq class_entry (scatter (Emap)
-										:parent parent_name
-										:subclasses (list)
-										:methods (Emap)))
-									(. class_db :insert class_name class_entry))
-								(unless (eql parent_name :nil)
-									(defq parent_entry (. class_db :find parent_name))
-									(unless parent_entry
-										(setq parent_entry (scatter (Emap)
-											:parent :nil
-											:subclasses (list)
-											:methods (Emap)))
-										(. class_db :insert parent_name parent_entry))
-									(defq subclasses (. parent_entry :find :subclasses))
-									(unless (find class_name subclasses)
-										(push subclasses class_name)))
-								(. class_entry :insert :file file)
-								(setq active_class class_name))
-							((and (eql op "dec-method") active_class (>= n 3) (first names) (second names))
-								;its name, the function that is it, what kind it is, :static
-								;if not said, and what it takes and gives, either a list
-								;of registers or :nil
-								(defq method_name (sym (first names))
-									dec_func_name (second names)
-									more (slice kids 3 -1)
-									kinded (and (nempty? more) (eql (first (first more)) :keysym)
-										(nql (third (first more)) ":nil"))
-									mtype (if kinded (sym (third (first more))) :static)
-									more (if kinded (rest more) more)
-									methods_map (.-> class_db (:find active_class) (:find :methods))
-									dec_inputs (if (> (length more) 0) (node-regs (first more)) "none")
-									dec_outputs (if (> (length more) 1) (node-regs (second more)) "none")
-									;what it is declared to trash, as (format-regs) writes
-									;registers, "none" for (), and :nil if it is not said
-									declared (and (> (length more) 2) (tree-form? (third more)) (node-regs (third more)))
-									;and, of a virtual method, what its one function trashes
-									declared_own (and (> (length more) 3) (tree-form? (elem-get more 3)) (node-regs (elem-get more 3))))
-								(. methods_map :insert method_name (scatter (Emap)
-									:type mtype
-									:function dec_func_name
-									:inputs dec_inputs
-									:outputs dec_outputs
-									:trashes "none"
-									:declared declared
-									:declared_own declared_own
-									;what it takes and gives as it is declared here, "none"
-									;if not said: :inputs and :outputs are made what the
-									;function's comment says, and a function may be many methods
-									:dec_inputs dec_inputs
-									:dec_outputs dec_outputs
-									:dec_file file
-									:dec_line (dec (second node))))
-								(if (defq f_entry (. func_db :find dec_func_name))
-									(progn
-										(and (eql (. f_entry :find :inputs) "none") (nql dec_inputs "none")
-											(. f_entry :insert :inputs dec_inputs))
-										(and (eql (. f_entry :find :outputs) "none") (nql dec_outputs "none")
-											(. f_entry :insert :outputs dec_outputs)))
-									(. func_db :insert dec_func_name (setq f_entry (scatter (Emap)
-										:implements (list)
-										:inputs dec_inputs
-										:outputs dec_outputs
-										:trashes "none"
-										:file "none"
-										:trashes_line 0))))
-								(push (. f_entry :find :implements) (list active_class method_name)))
-							((and (find op '("def-method" "gen-host-call" "gen-create" "gen-type")) (first names))
-								;generated functions are documented just as methods are,
-								;by the header comment after the (gen-create) (gen-type) call
-								(defq class_name (sym (first names))
-									method_name (cond
-										((find op '("def-method" "gen-host-call")) (sym (second names)))
-										((eql op "gen-type") :type)
-										((second names) (sym (cat ":create_" (second names))))
-										(:t :create)))
-								(header-pass class_db func_db
-									(setq last_func (or (db-f-path class_db class_name method_name)
-										(sym (cat class_name ":" method_name))))
-									file (tree-said node nodes at)))
-							((and (find op '("def-func" "defun")) (first names)
-									(or (eql op "def-func") (. func_db :find (first names))))
-								(header-pass class_db func_db (setq last_func (first names)) file (tree-said node nodes at)))
-							;the first error a function says of a call from Lisp, what it
-							;is called with, "(lines! lambda stream [start end])"
-							((and (find op '("call" "jump")) last_func
-									(eql (first names) ":lisp") (eql (second names) ":repl_error")
-									(defq f_entry (. func_db :find last_func))
-									(not (. f_entry :find :sig))
-									(defq sig (first-string (slice kids 3 -1))))
-								(. f_entry :insert :sig sig))))
-					(if kids (push todo (list kids -1))))))) files))
+			(with-read-lock file
+				(defq todo (list (list (first (tree-read (file-stream file))) -1)))
+				(while (defq frame (pop todo))
+					(task-slice)
+					(bind '(nodes at) frame)
+					(when (< (++ at) (length nodes))
+						(push todo (list nodes at))
+						(defq node (elem-get nodes at) kids (tree-form? node))
+						(when (and kids (eql (first (first kids)) :symbol))
+							(defq op (third (first kids)) n (length kids)
+								names (map! (# (node-name %0 file)) (list kids) 1 (min n 3)))
+							(cond
+								((and (eql op "def-class") (>= n 3) (first names))
+									(defq class_name (sym (first names))
+										parent_name (sym (ifn (second names) ":nil"))
+										class_entry (. class_db :find class_name))
+									(if class_entry
+										(. class_entry :insert :parent parent_name)
+										(setq class_entry (scatter (Emap)
+												:parent parent_name
+												:subclasses (list)
+												:methods (Emap)))
+										(. class_db :insert class_name class_entry))
+									(unless (eql parent_name :nil)
+										(defq parent_entry (. class_db :find parent_name))
+										(unless parent_entry
+											(setq parent_entry (scatter (Emap)
+													:parent :nil
+													:subclasses (list)
+													:methods (Emap)))
+											(. class_db :insert parent_name parent_entry))
+										(defq subclasses (. parent_entry :find :subclasses))
+										(unless (find class_name subclasses)
+											(push subclasses class_name)))
+									(. class_entry :insert :file file)
+									(setq active_class class_name))
+								((and (eql op "dec-method") active_class (>= n 3) (first names) (second names))
+									;its name, the function that is it, what kind it is, :static
+									;if not said, and what it takes and gives, either a list
+									;of registers or :nil
+									(defq method_name (sym (first names))
+										dec_func_name (second names)
+										more (slice kids 3 -1)
+										kinded (and (nempty? more) (eql (first (first more)) :keysym)
+											(nql (third (first more)) ":nil"))
+										mtype (if kinded (sym (third (first more))) :static)
+										more (if kinded (rest more) more)
+										methods_map (.-> class_db (:find active_class) (:find :methods))
+										dec_inputs (if (> (length more) 0) (node-regs (first more)) "none")
+										dec_outputs (if (> (length more) 1) (node-regs (second more)) "none")
+										;what it is declared to trash, as (format-regs) writes
+										;registers, "none" for (), and :nil if it is not said
+										declared (and (> (length more) 2) (tree-form? (third more)) (node-regs (third more)))
+										;and, of a virtual method, what its one function trashes
+										declared_own (and (> (length more) 3) (tree-form? (elem-get more 3)) (node-regs (elem-get more 3))))
+									(. methods_map :insert method_name (scatter (Emap)
+											:type mtype
+											:function dec_func_name
+											:inputs dec_inputs
+											:outputs dec_outputs
+											:trashes "none"
+											:declared declared
+											:declared_own declared_own
+											;what it takes and gives as it is declared here, "none"
+											;if not said: :inputs and :outputs are made what the
+											;function's comment says, and a function may be many methods
+											:dec_inputs dec_inputs
+											:dec_outputs dec_outputs
+											:dec_file file
+											:dec_line (dec (second node))))
+									(if (defq f_entry (. func_db :find dec_func_name))
+										(progn
+											(and (eql (. f_entry :find :inputs) "none") (nql dec_inputs "none")
+												(. f_entry :insert :inputs dec_inputs))
+											(and (eql (. f_entry :find :outputs) "none") (nql dec_outputs "none")
+												(. f_entry :insert :outputs dec_outputs)))
+										(. func_db :insert dec_func_name (setq f_entry (scatter (Emap)
+													:implements (list)
+													:inputs dec_inputs
+													:outputs dec_outputs
+													:trashes "none"
+													:file "none"
+													:trashes_line 0))))
+									(push (. f_entry :find :implements) (list active_class method_name)))
+								((and (find op '("def-method" "gen-host-call" "gen-create" "gen-type")) (first names))
+									;generated functions are documented just as methods are,
+									;by the header comment after the (gen-create) (gen-type) call
+									(defq class_name (sym (first names))
+										method_name (cond
+											((find op '("def-method" "gen-host-call")) (sym (second names)))
+											((eql op "gen-type") :type)
+											((second names) (sym (cat ":create_" (second names))))
+											(:t :create)))
+									(header-pass class_db func_db
+										(setq last_func (or (db-f-path class_db class_name method_name)
+												(sym (cat class_name ":" method_name))))
+										file (tree-said node nodes at)))
+								((and (find op '("def-func" "defun")) (first names)
+										(or (eql op "def-func") (. func_db :find (first names))))
+									(header-pass class_db func_db (setq last_func (first names)) file (tree-said node nodes at)))
+								;the first error a function says of a call from Lisp, what it
+								;is called with, "(lines! lambda stream [start end])"
+								((and (find op '("call" "jump")) last_func
+										(eql (first names) ":lisp") (eql (second names) ":repl_error")
+										(defq f_entry (. func_db :find last_func))
+										(not (. f_entry :find :sig))
+										(defq sig (first-string (slice kids 3 -1))))
+									(. f_entry :insert :sig sig))))
+						(if kids (push todo (list kids -1))))))) files))
 
 (defun link-databases (class_db func_db)
 	(. class_db :each (lambda (class_name class_entry)
-		(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
-			(defq func_name (. method_entry :find :function)
-				temp_key (sym (cat class_name ":" method_name))
-				f_entry (. func_db :find func_name)
-				t_entry (. func_db :find temp_key))
-			(when (or f_entry t_entry)
-				(if (and f_entry t_entry)
-					(progn
-						(transfer t_entry f_entry '(:file :trashes_line :docs :sig))
-						(. func_db :erase temp_key))
-					(if t_entry
-						(.-> func_db (:insert func_name (setq f_entry t_entry)) (:erase temp_key))))
-				(transfer f_entry method_entry '(:inputs :outputs :trashes :file :trashes_line)))))))))
+			(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+						(defq func_name (. method_entry :find :function)
+							temp_key (sym (cat class_name ":" method_name))
+							f_entry (. func_db :find func_name)
+							t_entry (. func_db :find temp_key))
+						(when (or f_entry t_entry)
+							(if (and f_entry t_entry)
+								(progn
+									(transfer t_entry f_entry '(:file :trashes_line :docs :sig))
+									(. func_db :erase temp_key))
+								(if t_entry
+									(.-> func_db (:insert func_name (setq f_entry t_entry)) (:erase temp_key))))
+							(transfer f_entry method_entry '(:inputs :outputs :trashes :file :trashes_line)))))))))
 
 (defun inherit-signatures (class_db)
 	(. class_db :each (lambda (class_name class_entry)
-		(defq parent_name (. class_entry :find :parent))
-		(unless (eql parent_name :nil)
-			(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
-				(defq cur_sigs (gather method_entry :inputs :outputs :trashes))
-				(when (some (# (eql %0 "none")) cur_sigs)
-					(defq p_name parent_name)
-					(while (and (nql p_name :nil) (some (# (eql %0 "none")) cur_sigs))
-						(when (defq p_class (. class_db :find p_name))
-							(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
-								(scatter method_entry '(:inputs :outputs :trashes)
-									(setq cur_sigs (map (lambda (c p) (if (and (eql c "none") (nql p "none")) p c))
-										cur_sigs (gather p_method :inputs :outputs :trashes)))))
-							(setq p_name (. p_class :find :parent))))))))))))
+			(defq parent_name (. class_entry :find :parent))
+			(unless (eql parent_name :nil)
+				(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+							(defq cur_sigs (gather method_entry :inputs :outputs :trashes))
+							(when (some (# (eql %0 "none")) cur_sigs)
+								(defq p_name parent_name)
+								(while (and (nql p_name :nil) (some (# (eql %0 "none")) cur_sigs))
+									(when (defq p_class (. class_db :find p_name))
+										(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
+											(scatter method_entry '(:inputs :outputs :trashes)
+													(setq cur_sigs (map (lambda (c p) (if (and (eql c "none") (nql p "none")) p c))
+															cur_sigs (gather p_method :inputs :outputs :trashes)))))
+										(setq p_name (. p_class :find :parent))))))))))))
 
 (defun build-method-overrides (class_db)
 	;initialize :overrides as an empty list for ALL existing method entries
 	(. class_db :each (lambda (class_name class_entry)
-		(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
-			(. method_entry :insert :overrides (list)))))))
+			(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+						(. method_entry :insert :overrides (list)))))))
 	;populate the overrides lists by walking up the ancestor chain
 	(. class_db :each (lambda (class_name class_entry)
-		(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
-			(defq mtype (. method_entry :find :type))
-			(when (or (eql mtype :override) (eql mtype :final))
-				(defq p_name (. class_entry :find :parent))
-				(while (nql p_name :nil)
-					(when (defq p_class (. class_db :find p_name))
-						(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
-							(defq overrides (. p_method :find :overrides))
-							(unless (find class_name overrides)
-								(push overrides class_name))))
-					(setq p_name (. p_class :find :parent)))))))))
+			(.-> class_entry (:find :methods) (:each (lambda (method_name method_entry)
+						(defq mtype (. method_entry :find :type))
+						(when (or (eql mtype :override) (eql mtype :final))
+							(defq p_name (. class_entry :find :parent))
+							(while (nql p_name :nil)
+								(when (defq p_class (. class_db :find p_name))
+									(when (defq p_method (.-> p_class (:find :methods) (:find method_name)))
+										(defq overrides (. p_method :find :overrides))
+										(unless (find class_name overrides)
+											(push overrides class_name))))
+								(setq p_name (. p_class :find :parent)))))))))
 	;propagation of virtual methods to subclasses that do not override them
 	(defq propagate (lambda (class_name)
-		(when (defq class_entry (. class_db :find class_name))
-			(defq parent_name (. class_entry :find :parent))
-			(when (nql parent_name :nil)
-				(when (defq parent_entry (. class_db :find parent_name))
-					(.-> parent_entry (:find :methods) (:each (lambda (method_name parent_method_entry)
-						(defq mtype (. parent_method_entry :find :type))
-						(when (find mtype '(:virtual :override :final))
-							(ifn (defq methods_map (. class_entry :find :methods)
-									method_entry (. methods_map :find method_name))
-								(. methods_map :insert method_name
-									(transfer parent_method_entry (scatter (Emap) :type :virtual)
-										'(:function :inputs :outputs :trashes
-										:file :trashes_line :overrides)))
-								(unless (. method_entry :find :overrides)
-									(. method_entry :insert :overrides (list)))))))))))
+			(when (defq class_entry (. class_db :find class_name))
+				(defq parent_name (. class_entry :find :parent))
+				(when (nql parent_name :nil)
+					(when (defq parent_entry (. class_db :find parent_name))
+						(.-> parent_entry (:find :methods) (:each (lambda (method_name parent_method_entry)
+									(defq mtype (. parent_method_entry :find :type))
+									(when (find mtype '(:virtual :override :final))
+										(ifn (defq methods_map (. class_entry :find :methods)
+												method_entry (. methods_map :find method_name))
+											(. methods_map :insert method_name
+												(transfer parent_method_entry (scatter (Emap) :type :virtual)
+													'(:function :inputs :outputs :trashes
+														:file :trashes_line :overrides)))
+											(unless (. method_entry :find :overrides)
+												(. method_entry :insert :overrides (list)))))))))))
 			(each propagate (. class_entry :find :subclasses))))
 	(. class_db :each (lambda (class_name class_entry)
-		(when (eql (. class_entry :find :parent) :nil)
-			(propagate class_name)))))
+			(when (eql (. class_entry :find :parent) :nil)
+				(propagate class_name)))))
 
 (defun build-and-save-databases (vp_files)
 	(defq class_db (Emap) func_db (Fmap 101))
@@ -371,7 +371,7 @@
 				;the methods are declared in the class.inc files, which are not
 				;among the .vp: one changed is as much a reason to read it all again
 				(if (or forced (database-stale? +class_db_file +lib_file
-						(cat vp_files (files-all "." '("class.inc") 2))))
+							(cat vp_files (files-all "." '("class.inc") 2))))
 					(build-and-save-databases vp_files))
 				(tree-load (file-stream +class_db_file)))
 			:nil)))

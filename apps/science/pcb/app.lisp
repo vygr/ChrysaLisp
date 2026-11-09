@@ -34,7 +34,7 @@
 		(. (ui-radio-bar *mode_toolbar* (+sym_pcb +sym_gerber)) :connect +event_mode)
 		(. (ui-radio-bar *layer_toolbar* ("0" "1" "2" "3" "4")
 				(:paper :paper_toolbar2
-				:font (const (create-font "fonts/OpenSans-Regular.ctf" 20))))
+					:font (const (create-font "fonts/OpenSans-Regular.ctf" 20))))
 			:connect +event_layer))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label _ (:text "grid_res:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
@@ -107,7 +107,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(def *window* :zoom (. *config* :find :zoom))
@@ -150,9 +150,9 @@
 				;green if every net is routed and the check found no fault, red if
 				;it ended with nets not routed, or a fault, grey while it routes
 				(def progress :paper (cond
-					((= state +pcb_state_routed) +argb_green)
-					((or (= state +pcb_state_short) (= state +pcb_state_drc)) +argb_red)
-					(+argb_grey8)))
+						((= state +pcb_state_routed) +argb_green)
+						((or (= state +pcb_state_short) (= state +pcb_state_drc)) +argb_red)
+						(+argb_grey8)))
 				(set (. progress :dirty) :value current :maximum total))
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))

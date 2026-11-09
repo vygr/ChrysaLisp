@@ -26,13 +26,13 @@
 						(end_exp
 							;up to the line that has the end of it, which is not written
 							(lines! (lambda (line)
-								(cond
-									((found? line end_exp) (setq end_exp :nil) :t)
-									(:t (write-line *mem_stream* (trim line "\r")) :nil)))
+									(cond
+										((found? line end_exp) (setq end_exp :nil) :t)
+										(:t (write-line *mem_stream* (trim line "\r")) :nil)))
 								stream))
 						(:t (lines! (lambda (line)
-								(write-line *mem_stream* (trim line "\r"))
-							:nil) stream)))
+									(write-line *mem_stream* (trim line "\r"))
+									:nil) stream)))
 					(setq stream :nil)))
 			(stream-seek *mem_stream* 0 0)
 
@@ -48,7 +48,7 @@
 			;strip the common margin in-place
 			(and (/= margin 0) (/= margin +max_int)
 				(each (lambda (line)
-					(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
+						(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
 
 			;measure and configure the Vdu
 			(bind '(w h) (. buffer :get_size))

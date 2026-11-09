@@ -71,17 +71,17 @@
 	;items that changed, or all of them
 	(defq full (stripes-full? log have version)
 		ids (if full :all (reduce (# (each (lambda (id) (unless (find id %0) (push %0 id))) (second %1)) %0)
-			(filter (# (> (first %0) have)) log) (list)))
+				(filter (# (> (first %0) have)) log) (list)))
 		items (list) stream (string-stream (cat "")))
 	(each (lambda ((name flags layer_items))
-		(each (# (if (or full (find (elem-get %0 +cwb_id) ids)) (push items (cwb-item-out %0)))) layer_items))
+			(each (# (if (or full (find (elem-get %0 +cwb_id) ids)) (push items (cwb-item-out %0)))) layer_items))
 		(cwb-layers doc))
 	(tree-save stream (scatter (Emap)
-		:version version :full (if full 1 0)
-		:width (. doc :find :width) :height (. doc :find :height)
-		:layers (map (lambda ((name flags layer_items))
-			(list name flags (map (# (elem-get %0 +cwb_id)) layer_items))) (cwb-layers doc))
-		:items items))
+			:version version :full (if full 1 0)
+			:width (. doc :find :width) :height (. doc :find :height)
+			:layers (map (lambda ((name flags layer_items))
+					(list name flags (map (# (elem-get %0 +cwb_id)) layer_items))) (cwb-layers doc))
+			:items items))
 	(str stream))
 
 (defun stripes-apply (doc items text)
@@ -98,8 +98,8 @@
 		(. doc :insert :width (. data :find :width))
 		(. doc :insert :height (. data :find :height))
 		(. doc :insert :layers (map (lambda ((name flags ids))
-			(list name flags (reduce (# (if (defq item (. items :find %1)) (push %0 item)) %0) ids (list))))
-			(ifn (. data :find :layers) (list))))
+					(list name flags (reduce (# (if (defq item (. items :find %1)) (push %0 item)) %0) ids (list))))
+				(ifn (. data :find :layers) (list))))
 		(. data :find :version)))
 
 (defclass Stripes (board &optional herd) :nil
@@ -138,7 +138,7 @@
 		;in step. Till they all answer (:ready?) is :nil
 		(unless (get :jobs this)
 			(def this :jobs (Jobs "lib/cwb/stripes_child.lisp" (get :task_mbox this) (get :reply_mbox this)
-				(list (get :herd this)) :t) :up :nil :state :idle :synced -1)
+					(list (get :herd this)) :t) :up :nil :state :idle :synced -1)
 			(. this :warm))
 		this)
 
@@ -150,7 +150,7 @@
 		(when (and (defq jobs (get :jobs this)) (eql (get :state this) :idle))
 			(def this :state :warming :sent (get :version this) :bad 0 :stamp (pii-time))
 			(. jobs :add (map (lambda (&) (. this :job :nil 0 0 0 0 1.0 0 :plain 32 (list)))
-				(range 0 (max 1 (. jobs :size)))))
+					(range 0 (max 1 (. jobs :size)))))
 			:t))
 
 	(defmethod :ready? ()
@@ -201,9 +201,9 @@
 			(defq jobs (get :jobs this) count (max 1 (. jobs :size)))
 			(def this :state :frame :sent (get :version this) :drawn 0 :bad 0 :stamp (pii-time))
 			(. jobs :add (map (# (. this :job key w h (/ (* %0 h) count) (/ (* (inc %0) h) count)
-					zoom (. doc :find :background) style
-					(if style (max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) 0) (get :floating board) m))
-				(range 0 count)))
+							zoom (. doc :find :background) style
+							(if style (max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) 0) (get :floating board) m))
+					(range 0 count)))
 			:t))
 
 	(defmethod :handle (index msg)
@@ -231,8 +231,8 @@
 					text (if (defq at (find have (map (const first) deltas)))
 						(second (elem-get deltas at))
 						(second (last (push deltas (list have
-							(stripes-delta (. (get :board this) :get_doc) (get :log this)
-								have (get :version this))))))))
+										(stripes-delta (. (get :board this) :get_doc) (get :log this)
+											have (get :version this))))))))
 				(mail-send (getf msg +stripe_sync_reply) text)))
 		result)
 
@@ -253,5 +253,4 @@
 		(when (get :jobs this)
 			(. (get :jobs this) :close)
 			(def this :jobs :nil :up :nil :state :idle :synced -1))
-		this)
-	)
+		this))

@@ -26,18 +26,18 @@
 	(when (defq stream (file-stream file))
 		(defq word_count 0 line_count 0 paragraph_count 0 in_paragraph_flag :nil)
 		(lines! (lambda (line)
-			;good practice for long files
-			(task-slice)
-			(setq line_count (inc line_count))
-			;word count for the current line
-			(defq words_on_line (split line)
-				word_count (+ word_count (length words_on_line)))
-			;paragraph count logic
-			(if (empty? words_on_line)
-				(setq in_paragraph_flag :nil)
-				(unless in_paragraph_flag
-					(setq paragraph_count (inc paragraph_count) in_paragraph_flag :t)))
-			:nil)
+				;good practice for long files
+				(task-slice)
+				(setq line_count (inc line_count))
+				;word count for the current line
+				(defq words_on_line (split line)
+					word_count (+ word_count (length words_on_line)))
+				;paragraph count logic
+				(if (empty? words_on_line)
+					(setq in_paragraph_flag :nil)
+					(unless in_paragraph_flag
+						(setq paragraph_count (inc paragraph_count) in_paragraph_flag :t)))
+				:nil)
 			stream)
 		;construct output string
 		(defq output_parts (list file))
@@ -65,8 +65,8 @@
 			;do them all out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (cat
-					(first args)
-					(if opt_wc " -wc" "")
-					(if opt_lc " -lc" "")
-					(if opt_pc " -pc" "")
-					" " %0)) jobs))))))
+								(first args)
+								(if opt_wc " -wc" "")
+								(if opt_lc " -lc" "")
+								(if opt_pc " -pc" "")
+								" " %0)) jobs))))))

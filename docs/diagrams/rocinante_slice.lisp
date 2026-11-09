@@ -1,8 +1,8 @@
 ;docs/ai_digest/rocinante.md: map! over three sequences takes a slice of all of them at each index
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
 (each (lambda (row name vals fill)
-	(dia-put s :nil (dia-box name 150 30 grey 11 :t) 0 (* row 40))
-	(each (lambda (v) (dia-put s (sym (cat "r" (str row) "c" (str (!)))) (dia-box v 70 30 fill 11) (+ 170 (* (!) 80)) (* row 40))) vals))
+		(dia-put s :nil (dia-box name 150 30 grey 11 :t) 0 (* row 40))
+		(each (lambda (v) (dia-put s (sym (cat "r" (str row) "c" (str (!)))) (dia-box v 70 30 fill 11) (+ 170 (* (!) 80)) (* row 40))) vals))
 	'(0 1 2) '("{ABC}, a str" "(nums 10 20 30)" "(list :red :green :blue)")
 	'(("A" "B" "C") ("10" "20" "30") (":red" ":green" ":blue")) (list blue blue blue))
 (dia-under s (dia-box "" 86 122 gold) 242 -6)

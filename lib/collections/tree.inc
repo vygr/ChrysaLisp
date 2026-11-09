@@ -6,9 +6,9 @@
 (env-push)
 
 (defq +char_class_ascii (const (cat " !" {""}
-	"#$%&'()*+,-./0123456789:;<=>?@"
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
-	"abcdefghijklmnopqrstuvwxyz{|}~")))
+			"#$%&'()*+,-./0123456789:;<=>?@"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
+			"abcdefghijklmnopqrstuvwxyz{|}~")))
 
 (defun tree-type (collection)
 	; (tree-type collection) -> type
@@ -37,8 +37,8 @@
 			(if (<= (length enc) +tree_chunk_size)
 				(cat "\q" enc "\q")
 				(defq chunks (reduce (lambda (p off)
-						(push p (cat "\q" (slice enc off (min (length enc) (+ off +tree_chunk_size))) "\q")))
-					(range 0 (length enc) +tree_chunk_size) (list)))
+							(push p (cat "\q" (slice enc off (min (length enc) (+ off +tree_chunk_size))) "\q")))
+						(range 0 (length enc) +tree_chunk_size) (list)))
 				(cat "(:cat\n\t\t" (join chunks "\n\t\t") ")")))
 		((throw "Invalid tree encode !" atom))))
 
@@ -91,20 +91,20 @@
 			(case type
 				((:Emap :Lmap :Fmap)
 					(. c :each (lambda (k v)
-						(when (notany (# (eql k %0)) key_filters)
-							(if (tree-collection? (tree-type v))
-								(push stack v (setq v (list))))
-							(push l (list k v))))))
+							(when (notany (# (eql k %0)) key_filters)
+								(if (tree-collection? (tree-type v))
+									(push stack v (setq v (list))))
+								(push l (list k v))))))
 				((:Fset :Lset)
 					(. c :each (lambda (k)
-						(when (notany (# (eql k %0)) key_filters)
+							(when (notany (# (eql k %0)) key_filters)
+								(if (tree-collection? (tree-type k))
+									(push stack k (setq k (list))))
+								(push l k)))))
+				(:t (each (lambda (k)
 							(if (tree-collection? (tree-type k))
 								(push stack k (setq k (list))))
-							(push l k)))))
-				(:t (each (lambda (k)
-						(if (tree-collection? (tree-type k))
-							(push stack k (setq k (list))))
-						(push l k)) c))))
+							(push l k)) c))))
 		;pretty write the typed list tree
 		(push stack out 1)
 		(write-line stream (str "(" (first out)))
@@ -162,21 +162,21 @@
 			(case (tree-type node)
 				((:Emap :Lmap :Fmap)
 					(each (lambda ((k v))
-						(if (and (list?? v) (nql (first v) :cat))
-							(push stack (rest v) (setq v (tree-make (first v))))
-							(setq v (tree-decode v)))
-						(. node :insert (tree-decode k) v)) (partition items 2)))
+							(if (and (list?? v) (nql (first v) :cat))
+								(push stack (rest v) (setq v (tree-make (first v))))
+								(setq v (tree-decode v)))
+							(. node :insert (tree-decode k) v)) (partition items 2)))
 				((:Fset :Lset)
 					(each (lambda (k)
-						(if (and (list?? k) (nql (first k) :cat))
-							(push stack (rest k) (setq k (tree-make (first k))))
-							(setq k (tree-decode k)))
-						(. node :insert k)) items))
+							(if (and (list?? k) (nql (first k) :cat))
+								(push stack (rest k) (setq k (tree-make (first k))))
+								(setq k (tree-decode k)))
+							(. node :insert k)) items))
 				(:t (each (lambda (k)
-						(if (and (list?? k) (nql (first k) :cat))
-							(push stack (rest k) (setq k (tree-make (first k))))
-							(setq k (tree-decode k)))
-						(push node k)) items))))
+							(if (and (list?? k) (nql (first k) :cat))
+								(push stack (rest k) (setq k (tree-make (first k))))
+								(setq k (tree-decode k)))
+							(push node k)) items))))
 		root))
 
 ;module

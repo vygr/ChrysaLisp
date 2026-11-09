@@ -90,8 +90,7 @@
 
 	(defmethod :size ()
 		; (. lset :size) -> size
-		(length (get :bucket this)))
-	)
+		(length (get :bucket this))))
 
 ;module
 (export-classes '(Lset))

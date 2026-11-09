@@ -8,12 +8,12 @@
 	;these are sorted interned char strings
 	;can be searched with (bfind)
 	(memoize k (. (const (Fset 5)) :intern (apply (const cat)
-		(usort (apply (const cat)
-			(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
-					(map (const char)
-						(range (code (first %0)) (inc (code (last %0)))))
-					(map (const identity) %0)))
-				(partition k 3)))))) 7))
+				(usort (apply (const cat)
+						(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
+									(map (const char)
+										(range (code (first %0)) (inc (code (last %0)))))
+									(map (const identity) %0)))
+							(partition k 3)))))) 7))
 
 ;some standard char classes
 
@@ -37,5 +37,5 @@
 	; (escape-regexp str) -> str
 	(if (eql string "") string
 		(apply (const cat) (reduce
-			(# (if (bfind %1 +char_class_regexp)
-				(push %0 {\})) (push %0 %1)) string (list)))))
+				(# (if (bfind %1 +char_class_regexp)
+						(push %0 {\})) (push %0 %1)) string (list)))))

@@ -44,9 +44,9 @@
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
-			(defq stdio (create-stdio))
-			(defq opt_a 0 opt_g 0 opt_t 0 opt_i :nil opt_s :nil opt_n 0 opt_x :nil opt_o :nil
-				args (options stdio usage))
+		(defq stdio (create-stdio))
+		(defq opt_a 0 opt_g 0 opt_t 0 opt_i :nil opt_s :nil opt_n 0 opt_x :nil opt_o :nil
+			args (options stdio usage))
 		(cond
 			(opt_i
 				(print "pid: " (pii-pid))
@@ -57,9 +57,9 @@
 				(defq nets (node-nets) ids (if (eql opt_x "all") (map (const first) nets) (list opt_x)))
 				(if (empty? ids) (print "No network was added by name."))
 				(each (lambda (id)
-					(print (if (defq told (node-stop id))
-						(cat "stopped " id ", " (str told) " nodes")
-						(cat "no network is named " id))))
+						(print (if (defq told (node-stop id))
+								(cat "stopped " id ", " (str told) " nodes")
+								(cat "no network is named " id))))
 					ids))
 			(opt_s
 				(cond
@@ -70,7 +70,7 @@
 							id (apply (const cat) (map (lambda (&) (elem-get chars (random 36))) (range 0 4)))
 							;a system id of its own is its name and twelve more
 							sid (if opt_o (apply (const cat) (cat (list id)
-								(map (lambda (&) (elem-get chars (random 36))) (range 0 12)))))
+										(map (lambda (&) (elem-get chars (random 36))) (range 0 12)))))
 							pids (node-net (sym (cat ":" opt_s)) opt_n 0 :nil :nil id sid)
 							bad (length (filter (# (< %0 0)) pids)))
 						(print "started " id ", a " opt_s " of "
@@ -84,6 +84,6 @@
 						(node-spawn opt_t :tui))))
 			(:t (each (# (print (hex-encode %0))) (lisp-nodes))
 				(each (lambda ((id shape total pids & & sid))
-					(print "network " id ", a " shape " of " total ", " (length pids) " nodes started"
-						(if sid ", a system of its own" "")))
+						(print "network " id ", a " shape " of " total ", " (length pids) " nodes started"
+							(if sid ", a system of its own" "")))
 					(node-nets))))))

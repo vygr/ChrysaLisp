@@ -132,7 +132,7 @@
 	(while (< i n)
 		(defq j (if (>= (+ i 2) n) 0 (+ i 2)))
 		(setq sum (+ sum (- (* (/ (elem-get p i) 16.0) (elem-get p (inc j)))
-				(* (/ (elem-get p j) 16.0) (elem-get p (inc i)))))
+					(* (/ (elem-get p j) 16.0) (elem-get p (inc i)))))
 			i (+ i 2)))
 	(* sum 8.0))
 
@@ -276,7 +276,7 @@
 			(defq pa (if ma (second ma)) pb (if mb (second mb))
 				closed (first (or ma mb))
 				count (min +morph_max (max +morph_min
-					(/ (length (or pa pb)) 2) (/ (length (or pb pa)) 2)))
+						(/ (length (or pa pb)) 2) (/ (length (or pb pa)) 2)))
 				a (if pa (morph-resample pa closed count)
 					(morph-point-path (morph-point mb marks_a) count))
 				b (if pb (morph-resample pb closed count)
@@ -297,4 +297,3 @@
 			(defq p (nums-scale change u (cat a)))
 			(list closed (nums-add a p p)))
 		morph))
-

@@ -29,10 +29,10 @@
 (defun gopher-lines ()
 	; (gopher-lines) -> (state visit)
 	(list 0 '(lambda (n data at count)
-		(defq from 0)
-		(while (and (< from (length data)) (defq i (find "\n" data from)))
-			(setq n (inc n) from (inc i)))
-		(list n (inc at)))))
+			(defq from 0)
+			(while (and (< from (length data)) (defq i (find "\n" data from)))
+				(setq n (inc n) from (inc i)))
+			(list n (inc at)))))
 
 (defun gopher-count (word)
 	; (gopher-count word) -> (state visit)
@@ -40,42 +40,42 @@
 	;the word less one, so one that runs over from one block to the next
 	;is found
 	(list (list 0 "") (list 'lambda '(state data at count)
-		(list 'bind ''(n tail) 'state)
-		(list 'defq 'text '(cat tail data) 'from 0 'past 0 'word word)
-		;a find of a str of more than one character finds its first one, so
-		;that, and then the word is looked at where it was found
-		'(while (and (< from (length text)) (defq i (find (first word) text from)))
-			(if (and (<= (+ i (length word)) (length text)) (eql (slice text i (+ i (length word))) word))
-				(setq n (inc n) from (+ i (length word)) past from)
-				(setq from (inc i))))
-		;what is kept for the next block: the end, as long as the word less
-		;one, but none of a word found already
-		'(list (list n (slice text (max past (- (length text) (dec (length word)))) -1)) (inc at)))))
+			(list 'bind ''(n tail) 'state)
+			(list 'defq 'text '(cat tail data) 'from 0 'past 0 'word word)
+			;a find of a str of more than one character finds its first one, so
+			;that, and then the word is looked at where it was found
+			'(while (and (< from (length text)) (defq i (find (first word) text from)))
+				(if (and (<= (+ i (length word)) (length text)) (eql (slice text i (+ i (length word))) word))
+					(setq n (inc n) from (+ i (length word)) past from)
+					(setq from (inc i))))
+			;what is kept for the next block: the end, as long as the word less
+			;one, but none of a word found already
+			'(list (list n (slice text (max past (- (length text) (dec (length word)))) -1)) (inc at)))))
 
 (defun gopher-checksum ()
 	; (gopher-checksum) -> (state visit)
 	(list 0 '(lambda (sum data at count)
-		(defq i 0 n (length data))
-		(while (< i n)
-			(setq sum (logand (+ sum (code data 1 i)) 0xffffffff) i (inc i)))
-		(list sum (inc at)))))
+			(defq i 0 n (length data))
+			(while (< i n)
+				(setq sum (logand (+ sum (code data 1 i)) 0xffffffff) i (inc i)))
+			(list sum (inc at)))))
 
 (defun gopher-longest ()
 	; (gopher-longest) -> (state visit)
 	;the longest line, and how long the one that has not ended yet is
 	(list (list 0 0) '(lambda ((best now) data at count)
-		(defq from 0)
-		(while (and (< from (length data)) (defq i (find "\n" data from)))
-			(setq best (max best (+ now (- i from))) now 0 from (inc i)))
-		(list (list best (+ now (- (length data) from))) (inc at)))))
+			(defq from 0)
+			(while (and (< from (length data)) (defq i (find "\n" data from)))
+				(setq best (max best (+ now (- i from))) now 0 from (inc i)))
+			(list (list best (+ now (- (length data) from))) (inc at)))))
 
 (defun gopher-head (most)
 	; (gopher-head n) -> (state visit)
 	;the first n bytes, it goes no further than the block they end in
 	(list "" (list 'lambda '(text data at count)
-		(list 'defq 'most most)
-		'(setq text (cat text (slice data 0 (min (length data) (- most (length text))))))
-		'(list text (if (< (length text) most) (inc at))))))
+			(list 'defq 'most most)
+			'(setq text (cat text (slice data 0 (min (length data) (- most (length text))))))
+			'(list text (if (< (length text) most) (inc at))))))
 
 (defun gopher-fold (gopher data size)
 	; (gopher-fold gopher data size) -> state

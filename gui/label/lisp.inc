@@ -46,5 +46,4 @@
 			(:constrain :t))
 		(if (= (>> (get :paper this) 24) 0xff)
 			(. this :set_flags +view_flag_opaque +view_flag_opaque)
-			this))
-	)
+			this)))

@@ -38,27 +38,27 @@
 (assert-list-eq "read before a call that trashes all, and twice after: the first after is of the stack, by way of the home, the second of the home; the write stays"
 	'((store-rrc :r0 :rsp 0) (call-p _l_rl_0) (load-rcr :rsp 0 :r3) (cpy-rr :r3 :r1) (cpy-rr :r3 :r2))
 	(vr-body (vr-keep '((store-rrc :r0 :rsp 0) (call-p _l_rl_0) (load-rcr :rsp 0 :r1) (load-rcr :rsp 0 :r2))
-		(lambda (inst) (list :nil '(:r0))))))
+			(lambda (inst) (list :nil '(:r0))))))
 
 (assert-list-eq "read from the home, then a call that trashes all, then read again: the second is of the stack, so the write to the stack stays"
 	'((store-rrc :r0 :rsp 0) (cpy-rr :r0 :r3) (cpy-rr :r3 :r1) (call-p _l_rl_0) (load-rcr :rsp 0 :r2))
 	(vr-body (vr-keep '((store-rrc :r0 :rsp 0) (load-rcr :rsp 0 :r1) (call-p _l_rl_0) (load-rcr :rsp 0 :r2))
-		(lambda (inst) (list :nil '(:r0))))))
+			(lambda (inst) (list :nil '(:r0))))))
 
 ;two ways to a read
 (assert-eq "had by one way to a read and not by the other, a call that trashes all: the read is of the stack, and nothing is saved, so nothing is done"
 	:nil (vr-keep '((load-rcr :rsp 0 :r1) (beq-cr 0 :r1 _l_skip) (call-p _l_rl_0)
-		(label '_l_skip) (load-rcr :rsp 0 :r2)) (lambda (inst) (list :nil '(:r0)))))
+			(label '_l_skip) (load-rcr :rsp 0 :r2)) (lambda (inst) (list :nil '(:r0)))))
 (assert-list-eq "had by both ways: written on each, read after they meet from the home, and the stack never written"
 	'((beq-cr 0 :r0 _l_else) (cpy-rr :r0 :r2) (jmp _l_end) (label '_l_else) (cpy-rr :r1 :r2)
 		(label '_l_end) (cpy-rr :r2 :r0))
 	(vr-body (vr-keep '((beq-cr 0 :r0 _l_else) (store-rrc :r0 :rsp 0) (jmp _l_end) (label '_l_else)
-		(store-rrc :r1 :rsp 0) (label '_l_end) (load-rcr :rsp 0 :r0)))))
+				(store-rrc :r1 :rsp 0) (label '_l_end) (load-rcr :rsp 0 :r0)))))
 (assert-list-eq "round a loop: written before it, read and written in it, with no call: all in the home"
 	'((cpy-rr :r0 :r2) (label '_l_loop) (cpy-rr :r2 :r1) (add-cr 1 :r1) (cpy-rr :r1 :r2)
 		(bne-cr 9 :r1 _l_loop))
 	(vr-body (vr-keep '((store-rrc :r0 :rsp 0) (label '_l_loop) (load-rcr :rsp 0 :r1) (add-cr 1 :r1)
-		(store-rrc :r1 :rsp 0) (bne-cr 9 :r1 _l_loop)))))
+				(store-rrc :r1 :rsp 0) (bne-cr 9 :r1 _l_loop)))))
 
 ;what is not touched
 (assert-list-eq "a local whose address is taken stays on the stack, one below it in the frame is kept"
@@ -76,7 +76,7 @@
 	(vr-keep '((store-rrc :r0 :rsp 0) (cpy-rr :rsp :r1) (load-rcr :rsp 0 :r1) (load-rcr :rsp 0 :r2))))
 (assert-eq "a label nothing is seen to go to: not followed" :nil
 	(vr-keep '((store-rrc :r0 :rsp 0) (jmp _l_end) (label '_l_lost) (load-rcr :rsp 0 :r1)
-		(label '_l_end) (load-rcr :rsp 0 :r1) (load-rcr :rsp 0 :r2))))
+			(label '_l_end) (load-rcr :rsp 0 :r1) (load-rcr :rsp 0 :r2))))
 (assert-eq "a call by a register: not followed" :nil
 	(vr-keep '((store-rrc :r0 :rsp 0) (call-r :r1) (load-rcr :rsp 0 :r1) (load-rcr :rsp 0 :r2))))
 (assert-eq "no register it may trash that it does not name: nothing is done" :nil
@@ -84,7 +84,7 @@
 (assert-list-eq "one register for two locals: the one read most has it"
 	'(("1:b" :r3 3 1))
 	(second (vr-keep '((store-rrc :r0 :rsp 0) (store-rrc :r0 :rsp 8) (load-rcr :rsp 0 :r1) (load-rcr :rsp 0 :r2)
-		(load-rcr :rsp 8 :r1) (load-rcr :rsp 8 :r2) (load-rcr :rsp 8 :r1)) :nil '(:r1 :r2 :r3))))
+				(load-rcr :rsp 8 :r1) (load-rcr :rsp 8 :r2) (load-rcr :rsp 8 :r1)) :nil '(:r1 :r2 :r3))))
 
 ;the VP optimizer, lib/asm/vpopt.inc, over a list of emits: what it knows of
 ;memory it must not take for what was last stored there

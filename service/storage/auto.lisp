@@ -35,7 +35,7 @@
 				;open is given up, not finished for a store that is to be
 				;another session's, and it is not claimed
 				(when (setq svc (storage-join (. said :find :image) (. said :find :size)
-						(. said :find :id) (. said :find :copies) :nil :t (elem-get select +select_main)))
+							(. said :find :id) (. said :find :copies) :nil :t (elem-get select +select_main)))
 					(setq image (. said :find :image))
 					;a machine that travels holds all of its user's area
 					(storage-user-pin svc))))

@@ -73,15 +73,15 @@
 	;folder is never listed
 	(defq out (list (list :nil :t (list ".git"))))
 	(each (lambda (line)
-		(setq line (trim line (const (char-class " \t\r"))))
-		(unless (or (eql line "") (starts-with "#" line) (starts-with "!" line))
-			(defq dir_only (ends-with "/" line))
-			(if dir_only (setq line (slice line 0 -2)))
-			(defq anchored (starts-with "/" line))
-			(if anchored (setq line (slice line 1 -1)))
-			(defq segs (split line "/"))
-			(if (nempty? segs)
-				(push out (list (or anchored (> (length segs) 1)) dir_only segs)))))
+			(setq line (trim line (const (char-class " \t\r"))))
+			(unless (or (eql line "") (starts-with "#" line) (starts-with "!" line))
+				(defq dir_only (ends-with "/" line))
+				(if dir_only (setq line (slice line 0 -2)))
+				(defq anchored (starts-with "/" line))
+				(if anchored (setq line (slice line 1 -1)))
+				(defq segs (split line "/"))
+				(if (nempty? segs)
+					(push out (list (or anchored (> (length segs) 1)) dir_only segs)))))
 		(split text "\n"))
 	out)
 
@@ -99,12 +99,12 @@
 	;is a path, as its parts, left out ? The folders above it are taken
 	;to have been asked of already, as a walk down the tree does
 	(if (some (lambda ((anchored dir_only pats))
-			(and (or is_dir (not dir_only))
-				(if anchored
-					(and (= (length pats) (length segs))
-						(not (some (# (not (sync-seg? %0 %1))) pats segs)))
-					(sync-seg? (first pats) (last segs)))))
-		rules) :t))
+				(and (or is_dir (not dir_only))
+					(if anchored
+						(and (= (length pats) (length segs))
+							(not (some (# (not (sync-seg? %0 %1))) pats segs)))
+						(sync-seg? (first pats) (last segs)))))
+			rules) :t))
 
 (defun sync-safe? (path)
 	; (sync-safe? path) -> :nil | :t
@@ -138,18 +138,18 @@
 	;real is a set of the folders found to be so, to ask the host the once
 	(defq at root ok :t segs (split path "/") end (dec (length segs)))
 	(some! (lambda (seg)
-		(defq is_last (= (!) end) next (cat at "/" seg))
-		(cond
-			((and (not is_last) real (. real :find next)))
-			(:t (defq kind (sync-kind at seg))
-				(cond
-					;not there, so nothing is below it, and it will be made
-					((not kind) (setq end -1))
-					((eql kind (if is_last "f" "d"))
-						(and real (not is_last) (. real :insert next)))
-					(:t (setq ok :nil)))))
-		(setq at next)
-		(or (not ok) (= end -1)))
+			(defq is_last (= (!) end) next (cat at "/" seg))
+			(cond
+				((and (not is_last) real (. real :find next)))
+				(:t (defq kind (sync-kind at seg))
+					(cond
+						;not there, so nothing is below it, and it will be made
+						((not kind) (setq end -1))
+						((eql kind (if is_last "f" "d"))
+							(and real (not is_last) (. real :insert next)))
+						(:t (setq ok :nil)))))
+			(setq at next)
+			(or (not ok) (= end -1)))
 		(list segs))
 	ok)
 
@@ -175,11 +175,11 @@
 	(defq stack (list "") out (list) folder :nil)
 	(while (setq folder (pop stack))
 		(each! (lambda (entry kind)
-			(defq path (if (eql folder "") entry (cat folder "/" entry)) is_dir (eql kind "d"))
-			(unless (sync-ignored? rules (split path "/") is_dir)
-				(cond
-					(is_dir (push stack path))
-					((eql kind "f") (push out path)))))
+				(defq path (if (eql folder "") entry (cat folder "/" entry)) is_dir (eql kind "d"))
+				(unless (sync-ignored? rules (split path "/") is_dir)
+					(cond
+						(is_dir (push stack path))
+						((eql kind "f") (push out path)))))
 			(dir-list (if (eql folder "") root (cat root "/" folder)))))
 	(sort out))
 
@@ -197,22 +197,22 @@
 	(defq cache (ifn live (Fmap 101)) dirty :nil now (/ (pii-time) 1000000) text :nil)
 	(and kept (= (. cache :size) 0) (setq text (load kept))
 		(each (lambda (line)
-			(when (>= (length (defq parts (split line " "))) 4)
-				(. cache :insert (join (slice parts 3 -1) " ")
-					(list (str-as-num (first parts)) (str-as-num (second parts)) (third parts)))))
+				(when (>= (length (defq parts (split line " "))) 4)
+					(. cache :insert (join (slice parts 3 -1) " ")
+						(list (str-as-num (first parts)) (str-as-num (second parts)) (third parts)))))
 			(split text "\n")))
 	(defq lines (list) out (list))
 	(each (lambda (path)
-		(when (defq info (pii-fstat (cat root "/" path)))
-			(defq mtime (first info) size (second info) hit (. cache :find path))
-			(unless (and hit (= (first hit) mtime) (= (second hit) size))
-				(setq hit (list (if (> (- now mtime) 2) mtime -1) size
-					(hex-encode (sha256 (ifn (load (cat root "/" path)) "")))) dirty :t)
-				(. cache :insert path hit)
-				(task-slice))
-			(push lines (cat (str (first hit)) " " (str size) " " (third hit) " " path))
-			;the mode is who may read, write and run it, the low 9 bits
-			(push out (list path size (third hit) (logand (third info) 511)))))
+			(when (defq info (pii-fstat (cat root "/" path)))
+				(defq mtime (first info) size (second info) hit (. cache :find path))
+				(unless (and hit (= (first hit) mtime) (= (second hit) size))
+					(setq hit (list (if (> (- now mtime) 2) mtime -1) size
+							(hex-encode (sha256 (ifn (load (cat root "/" path)) "")))) dirty :t)
+					(. cache :insert path hit)
+					(task-slice))
+				(push lines (cat (str (first hit)) " " (str size) " " (third hit) " " path))
+				;the mode is who may read, write and run it, the low 9 bits
+				(push out (list path size (third hit) (logand (third info) 511)))))
 		(sync-walk root rules))
 	(and kept dirty (save (join lines "\n") kept))
 	out)
@@ -223,7 +223,7 @@
 	;part of it, unless no_modes, for a host that has no such thing. kept
 	;and live are as (sync-list) has them
 	(hash-tree (map (lambda ((path size hash mode)) (list path hash (if no_modes "-" (str mode))))
-		(sync-list root rules kept live))))
+			(sync-list root rules kept live))))
 
 ;;;;;;;;;;;
 ; waypoints
@@ -265,8 +265,8 @@
 	;and not the tree's: its waypoint, who it takes a sync from, its key
 	;and its keyring
 	(sync-rules (cat (sync-rules-text root)
-		(const (cat "\n" "/waypoint" "\n" "/sync_from" "\n" "/mesh_key"
-			"\n" "/keys/" "\n")))))
+			(const (cat "\n" "/waypoint" "\n" "/sync_from" "\n" "/mesh_key"
+					"\n" "/keys/" "\n")))))
 
 (defun sync-top (root &optional kept)
 	; (sync-top root [kept]) -> hash
@@ -319,11 +319,11 @@
 	; (sync-tell svc reply_mbox kind data [at total mode])
 	;a message to a sync service
 	(mail-send svc (cat (setf-> (str-alloc +sync_rpc_size)
-		(+sync_rpc_reply_id reply_mbox)
-		(+sync_rpc_type kind)
-		(+sync_rpc_mode (ifn mode 0))
-		(+sync_rpc_at (ifn at 0))
-		(+sync_rpc_total (ifn total 0))) data)))
+				(+sync_rpc_reply_id reply_mbox)
+				(+sync_rpc_type kind)
+				(+sync_rpc_mode (ifn mode 0))
+				(+sync_rpc_at (ifn at 0))
+				(+sync_rpc_total (ifn total 0))) data)))
 
 (defun sync-hear (reply_mbox &optional wait)
 	; (sync-hear reply_mbox [wait]) -> :nil | (status data)
@@ -401,34 +401,34 @@
 					(cond
 						((and (setq reply (sync-hear reply_mbox)) (= (first reply) 0))
 							(each (lambda ((name kind &rest _))
-								(push (if (eql kind "d") theirs_only gone) (cat at "/" name)))
+									(push (if (eql kind "d") theirs_only gone) (cat at "/" name)))
 								(hash-tree-read (second reply))))
 						(:t (setq lost :t)))))
 			(sort send) (sort gone)
 			(defq sent 0 bytes 0 removed 0 failed (if lost 1 0) remoded 0)
 			(unless (or check lost)
 				(each (lambda (path)
-					(defq data (ifn (load (cat root "/" path)) "") total (length data) at 0 ok :t
-						mode (if no_modes 0 (logand (third (ifn (pii-fstat (cat root "/" path)) '(0 0 0))) 511)))
-					;a file of nothing still has to be made there, so once round at least
-					(while (and ok (or (< at total) (= at 0)))
-						(defq end (min total (+ at +sync_chunk)))
-						(sync-tell svc reply_mbox +sync_type_put
-							(cat path "\n" (slice data at end)) at total mode)
-						(setq ok (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
-							at (if (= end at) (inc total) end)))
-					(if ok (setq sent (inc sent) bytes (+ bytes total)) (setq failed (inc failed))))
+						(defq data (ifn (load (cat root "/" path)) "") total (length data) at 0 ok :t
+							mode (if no_modes 0 (logand (third (ifn (pii-fstat (cat root "/" path)) '(0 0 0))) 511)))
+						;a file of nothing still has to be made there, so once round at least
+						(while (and ok (or (< at total) (= at 0)))
+							(defq end (min total (+ at +sync_chunk)))
+							(sync-tell svc reply_mbox +sync_type_put
+								(cat path "\n" (slice data at end)) at total mode)
+							(setq ok (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
+								at (if (= end at) (inc total) end)))
+						(if ok (setq sent (inc sent) bytes (+ bytes total)) (setq failed (inc failed))))
 					send)
 				(each (lambda ((path mode))
-					(sync-tell svc reply_mbox +sync_type_mode path 0 0 mode)
-					(if (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
-						(setq remoded (inc remoded)) (setq failed (inc failed))))
+						(sync-tell svc reply_mbox +sync_type_mode path 0 0 mode)
+						(if (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
+							(setq remoded (inc remoded)) (setq failed (inc failed))))
 					remode)
 				(when remove
 					(each (lambda (path)
-						(sync-tell svc reply_mbox +sync_type_del path)
-						(if (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
-							(setq removed (inc removed)) (setq failed (inc failed))))
+							(sync-tell svc reply_mbox +sync_type_del path)
+							(if (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
+								(setq removed (inc removed)) (setq failed (inc failed))))
 						gone))
 				;a tree at a waypoint says so, and one now the same is at it too
 				(when (and claim (= failed 0))
@@ -440,9 +440,9 @@
 	; (sync-services [name]) -> ((mbox system_id machine root) ...)
 	;the machines that will take a sync, as their services say
 	(reduce (lambda (out entry)
-		;an entry is the name, the mailbox, the system id and what the service said
-		(defq parts (split entry ",") info (split (ifn (elem-get parts 3) "") " "))
-		(if (>= (length info) 5)
-			(push out (list (hex-decode (second parts)) (third parts) (elem-get info 3)
-				(join (slice info 4 -1) " "))))
-		out) (mail-enquire (cat (ifn name "*Sync") ",")) (list)))
+			;an entry is the name, the mailbox, the system id and what the service said
+			(defq parts (split entry ",") info (split (ifn (elem-get parts 3) "") " "))
+			(if (>= (length info) 5)
+				(push out (list (hex-decode (second parts)) (third parts) (elem-get info 3)
+						(join (slice info 4 -1) " "))))
+			out) (mail-enquire (cat (ifn name "*Sync") ",")) (list)))

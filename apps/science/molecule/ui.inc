@@ -51,4 +51,4 @@
 
 (defun action-style ()
 	(def (. *main_widget* :dirty) :style
-		(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))
+			(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))

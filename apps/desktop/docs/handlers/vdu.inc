@@ -20,7 +20,7 @@
 				;strip the common margin in-place
 				(and (/= margin 0) (/= margin +max_int)
 					(each (lambda (line)
-						(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
+							(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
 
 				;measure and configure the Vdu
 				(bind '(w h) (. buffer :get_size))

@@ -25,13 +25,13 @@
 		data (if (and pixmap (shader-vp-draw native frame pixmap x y x1 y1 height)) ""
 			(shader-vp-argb native frame x y x1 y1 height)))
 	(mail-send mbox (cat (setf-> (str-alloc +tile_reply_size)
-		(+job_reply_key key)
-		(+tile_reply_x x) (+tile_reply_y y)
-		(+tile_reply_x1 x1) (+tile_reply_y1 y1)) data)))
+				(+job_reply_key key)
+				(+tile_reply_x x) (+tile_reply_y y)
+				(+tile_reply_x1 x1) (+tile_reply_y1 y1)) data)))
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox)
-		(apply rect (push (getf-> msg +job_key +job_reply
-				+tile_x +tile_y +tile_x1 +tile_y1 +tile_height +tile_width
-				+tile_file_length +tile_shared)
-			(slice msg +tile_file -1))))))
+			(apply rect (push (getf-> msg +job_key +job_reply
+						+tile_x +tile_y +tile_x1 +tile_y1 +tile_height +tile_width
+						+tile_file_length +tile_shared)
+					(slice msg +tile_file -1))))))

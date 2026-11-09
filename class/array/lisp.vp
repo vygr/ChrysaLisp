@@ -197,7 +197,7 @@
 	;to :r9, leaves it: it was in :r6, and that the append did not in
 	;fact touch that was all that kept it
 	(vp-rdef (vt1 _ _ argc obj _
-		src_begin args src_end dst this src len old_len))
+			src_begin args src_end dst this src len old_len))
 
 	(entry :array :lisp_push `(,this ,args))
 
@@ -439,6 +439,5 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(fill array length value)" +error_msg_wrong_types))
 	(signature '(:array :NUM :obj))
-
 
 (def-func-end)

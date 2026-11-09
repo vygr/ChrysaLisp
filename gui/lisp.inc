@@ -56,9 +56,9 @@
 	;:paper_window and :ink_window. Each task's own, *env_props*
 	(unless *env_props*
 		(setq *env_props* (filter (lambda ((key &ignore))
-				(defq name (str key))
-				(some (# (starts-with (str %0) name)) +variant_keys))
-			(tolist *env*))))
+					(defq name (str key))
+					(some (# (starts-with (str %0) name)) +variant_keys))
+				(tolist *env*))))
 	*env_props*)
 
 (defun env-root ()
@@ -146,15 +146,15 @@
 	; (ui-merge-props props) -> props
 	(defq ps (clear '()) pv (clear '()) pe (clear '()))
 	(each (lambda ((s v))
-		(cond
-			((eql v :erase)
-				(push pe s)
-				(when (defq i (find s ps))
-					(elem-set ps i (last ps)) (pop ps)
-					(elem-set pv i (last pv)) (pop pv)))
-			((defq i (find s ps))
-				(elem-set ps i s) (elem-set pv i v))
-			((push ps s) (push pv v))))
+			(cond
+				((eql v :erase)
+					(push pe s)
+					(when (defq i (find s ps))
+						(elem-set ps i (last ps)) (pop ps)
+						(elem-set pv i (last pv)) (pop pv)))
+				((defq i (find s ps))
+					(elem-set ps i s) (elem-set pv i v))
+				((push ps s) (push pv v))))
 		(if p (partition p 2) '()))
 	;a variant given for a plain property, (:paper :paper_toolbar), is the
 	;user's, (get :paper_toolbar *env*), as the view is made, and which it
@@ -166,9 +166,9 @@
 	(defq kept (list))
 	(each (lambda (s v)
 			(when (and (sym? v) (some (lambda (plain)
-						(and (or (eql s plain) (starts-with (cat (str plain) "_") (str s)))
-							(starts-with (cat (str plain) "_") (str v))))
-					+variant_keys))
+							(and (or (eql s plain) (starts-with (cat (str plain) "_") (str s)))
+								(starts-with (cat (str plain) "_") (str v))))
+						+variant_keys))
 				(elem-set pv (!) (defq given (list 'get v '*env*)))
 				(push kept s v given)))
 		ps pv)
@@ -191,14 +191,14 @@
 	(bind '(p e) (ui-merge-props p))
 	(defq sets (ui-sets n p e))
 	(static-qq (progn (defq _ui (list (defq ,n ,c)))
-		~sets ~x (setq _ui :nil))))
+			~sets ~x (setq _ui :nil))))
 
 (defmacro ui-element (n c &optional p &rest x)
 	; (ui-element name constructor [props] [body]) -> view
 	(bind '(p e) (ui-merge-props p))
 	(defq sets (ui-sets n p e))
 	(static-qq (progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n)
-		~sets ~x (pop _ui))))
+			~sets ~x (pop _ui))))
 
 (defmacro ui-flow (n &optional p &rest x)
 	; (ui-flow name [props] [body]) -> flow
@@ -224,7 +224,7 @@
 		:shadow :shadow_window
 		:zoom 1.0)
 	(static-qqp (progn (ui-root ,n (Window) ,p
-		(ui-flow _ (:flow_flags +flow_down_fill) ~x)) (window-attach ,n))))
+				(ui-flow _ (:flow_flags +flow_down_fill) ~x)) (window-attach ,n))))
 
 (defmacro ui-files (n t e &optional p)
 	; (ui-files name title event [props]) -> files
@@ -258,9 +258,9 @@
 	;name, +sym_undo, lib/consts/symbols.inc, or by its code, and a str is
 	;itself. A name is in a list that is not run, so it is looked up here
 	(map (# (cond
-		((num? %0) (num-to-utf8 %0))
-		((and (sym? %0) (starts-with "+sym_" %0)) (num-to-utf8 (eval %0)))
-		(%0))) s))
+				((num? %0) (num-to-utf8 %0))
+				((and (sym? %0) (starts-with "+sym_" %0)) (num-to-utf8 (eval %0)))
+				(%0))) s))
 
 (defmacro ui-buttons (s e &optional p)
 	; (ui-buttons symbols event [props])
@@ -279,8 +279,8 @@
 		:border_button :border_title_buttons
 		:font :font_title_buttons)
 	(static-qqp (ui-flow _ ,p
-		(ui-buttons ,b ,e)
-		(ui-title ,n (:text ,s)))))
+			(ui-buttons ,b ,e)
+			(ui-title ,n (:text ,s)))))
 
 (defmacro ui-text (n &optional p)
 	; (ui-text name [props]) -> text
@@ -397,7 +397,7 @@
 (defun ui-save-atom (v)
 	; (ui-save-atom atom) -> atom
 	(if (and (sym? v) (or (not (starts-with ":" v)) (< (length v) 2)
-			(some (# (bfind %0 (const (char-class " \t\r\n\q'(),;[]`{}")))) v)))
+				(some (# (bfind %0 (const (char-class " \t\r\n\q'(),;[]`{}")))) v)))
 		(str v) v))
 
 (defun ui-save (stream view &optional depth keys)
@@ -416,12 +416,12 @@
 		(. props :insert :type (last (. view :type_of)))
 		(. props :insert :bounds (. view :get_bounds))
 		(each (lambda ((k v))
-			(when (or (not keys) (find k keys))
-				(cond
-					((eql k :font) (. props :insert k (font-info v)))
-					((or (sym? v) (num? v) (str? v)) (. props :insert k (ui-save-atom v)))
-					((and (seq? v) (every (# (or (sym? %0) (num? %0) (str? %0))) v))
-						(. props :insert k (if (some (const sym?) v) (map (const ui-save-atom) v) v))))))
+				(when (or (not keys) (find k keys))
+					(cond
+						((eql k :font) (. props :insert k (font-info v)))
+						((or (sym? v) (num? v) (str? v)) (. props :insert k (ui-save-atom v)))
+						((and (seq? v) (every (# (or (sym? %0) (num? %0) (str? %0))) v))
+							(. props :insert k (if (some (const sym?) v) (map (const ui-save-atom) v) v))))))
 			(tolist view))
 		(cond
 			((empty? (defq children (. view :children))))
@@ -429,9 +429,9 @@
 					(and (> level 0) (bits? (. view :get_flags) +view_flag_subtree)))
 				(. props :insert :children_count (length children)))
 			(:t (. props :insert :children (reduce (lambda (p child)
-					(push stack child (defq child_props (Lmap)) (inc level))
-					(push p child_props))
-				children (list))))))
+							(push stack child (defq child_props (Lmap)) (inc level))
+							(push p child_props))
+						children (list))))))
 	(tree-save stream tree))
 
 (defun ui-find (view key value)

@@ -21,11 +21,10 @@
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
-			(defq stdio (create-stdio))
-			(defq args (options stdio usage))
+		(defq stdio (create-stdio))
+		(defq args (options stdio usage))
 		(if (<= (length args) 1)
 			;rm from stdin
 			(lines! rm-file (io-stream 'stdin))
 			;rm from args
 			(each! rm-file (list args) 1 -1))))
-

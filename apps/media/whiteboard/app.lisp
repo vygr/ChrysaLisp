@@ -1,6 +1,6 @@
 ;debug options
 (case :nil
-(0 (import "lib/debug/frames.inc")))
+	(0 (import "lib/debug/frames.inc")))
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
@@ -166,8 +166,7 @@
 					(:ctx_set_color (elem-get +bindings_device_cols (% slot +strip_cells)))
 					(:ctx_filled_box (inc x) (inc y) 3 3)))
 			(get :lit this))
-		this)
-	)
+		this))
 
 (defun button-strip (button)
 	; (button-strip button) -> lights
@@ -198,11 +197,11 @@
 		;it uses, its own or the board's, (. board :device_uses)
 		(defq devices (. *board* :device_uses))
 		(defq slots-of (lambda (key value)
-			(defq out (list))
-			(each (lambda ((what slot uses))
-					(if (eql (. uses :find key) value) (push out slot)))
-				devices)
-			out))
+				(defq out (list))
+				(each (lambda ((what slot uses))
+						(if (eql (. uses :find key) value) (push out slot)))
+					devices)
+				out))
 		(each (# (button-lights %0 (slots-of :mode %1))) (. *mode_toolbar* :children) *modes*)
 		(each (# (button-lights %0 (slots-of :width %1))) (. *radius_toolbar* :children) *widths*)
 		;each pen lit for the device buttons that hold it
@@ -210,7 +209,7 @@
 		;a switch is lit for a device that has it on, its own or the board's
 		(each (lambda (button key)
 				(button-lights button (reduce (lambda (out (what slot &ignore))
-					(if (. *board* :switch_of what key) (push out slot) out)) devices (list))))
+							(if (. *board* :switch_of what key) (push out slot) out)) devices (list))))
 			(. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
 
 ;the board's pens are the ink bar's, the one list, and a slot holds one by
@@ -334,7 +333,7 @@
 	;what the size field says, width x height, or the size the board is
 	(defq doc (. *board* :get_doc)
 		nums (filter (# (> %0 0)) (map (# (ifn (str-to-num %0) 0))
-			(split (. *size_field* :get_text) (const (char-class " xX,*"))))))
+				(split (. *size_field* :get_text) (const (char-class " xX,*"))))))
 	(if (= (length nums) 2)
 		(list (min 16384 (n2i (first nums))) (min 16384 (n2i (second nums))))
 		(list (. doc :find :width) (. doc :find :height))))
@@ -402,7 +401,7 @@
 		;is the same picture at any zoom, it stays the size it is there
 		;and the angle it is at on the screen, its own and the board's
 		key (str (list (+ (get :angle tool) (turn-angle)) (get :length tool) (n2i (* (get :size tool) *zoom* 4096.0)) (get :mode tool)
-			(first (get :said tool))))
+				(first (get :said tool))))
 		canvas (elem-get entry +tv_canvas)
 		same (and canvas (eql key (elem-get entry +tv_key)))
 		moved (not (and (eql ox (elem-get entry +tv_ox)) (eql oy (elem-get entry +tv_oy))))
@@ -424,8 +423,8 @@
 			;own 0 0 falls is kept: turned about that, it stays on the
 			;one pixel
 			(bind '(bx by bx1 by1) (mat3x2-box (third (cwb-flat (get :body tool)))
-				(mat3x2-mul (turn-matrix *turn*) (mat3x2-mul (mat3x2-scale *zoom*)
-					(mat3x2-mul (mat3x2-rot (get :angle tool)) (mat3x2-scale (get :size tool)))))))
+					(mat3x2-mul (turn-matrix *turn*) (mat3x2-mul (mat3x2-scale *zoom*)
+							(mat3x2-mul (mat3x2-rot (get :angle tool)) (mat3x2-scale (get :size tool)))))))
 			(defq x0 (- (n2i (floor (+ bx fx))) 3) y0 (- (n2i (floor (+ by fy))) 3)
 				;in steps of 32, so that one turned a little is as big as it was
 				w (logand (+ (- (n2i (floor (+ bx1 fx))) x0) 4 31) -32)
@@ -437,7 +436,7 @@
 			(def onto :paper 0)
 			(. onto :fill 0)
 			(. tool :draw onto (mat3x2-mul (mat3x2-translate (+ (n2f px) fx) (+ (n2f py) fy))
-				(mat3x2-mul (turn-matrix *turn*) (mat3x2-mul (mat3x2-scale *zoom*) (mat3x2-translate (neg ox) (neg oy))))))
+					(mat3x2-mul (turn-matrix *turn*) (mat3x2-mul (mat3x2-scale *zoom*) (mat3x2-translate (neg ox) (neg oy))))))
 			;its picture is shown while it is not seen. That call lets
 			;other tasks run, the screen may be made then: so the one
 			;that is seen is left where it is, as it is, till every
@@ -460,13 +459,13 @@
 	;lie in. One that has gone has its canvas taken away
 	(defq was *tools* restack :nil)
 	(setq *tools* (map (lambda (tool)
-			(or (some (# (if (eql (elem-get %0 +tv_tool) tool) %0)) was)
-				(list tool :nil :nil :nil 0 0 :nil :nil :nil :nil)))
-		(filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))
+				(or (some (# (if (eql (elem-get %0 +tv_tool) tool) %0)) was)
+					(list tool :nil :nil :nil 0 0 :nil :nil :nil :nil)))
+			(filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))
 	(each (lambda (entry)
-		(unless (find entry *tools*)
-			(setq restack :t)
-			(if (elem-get entry +tv_canvas) (. (elem-get entry +tv_canvas) :sub))))
+			(unless (find entry *tools*)
+				(setq restack :t)
+				(if (elem-get entry +tv_canvas) (. (elem-get entry +tv_canvas) :sub))))
 		was)
 	(unless (and (= (length was) (length *tools*)) (every (const eql) was *tools*)) (setq restack :t))
 	;each that is drawn again is drawn where it is not seen, the one that
@@ -474,14 +473,14 @@
 	;be made, the old ones are taken out and the new put in, in their order
 	(defq swapped (list))
 	(each (lambda (entry)
-		(defq old (elem-get entry +tv_canvas))
-		(when (tool-show entry)
-			(push swapped (list old (elem-get entry +tv_canvas)))
-			(setq restack :t)))
+			(defq old (elem-get entry +tv_canvas))
+			(when (tool-show entry)
+				(push swapped (list old (elem-get entry +tv_canvas)))
+				(setq restack :t)))
 		*tools*)
 	(each (lambda ((old new))
-		(if old (. old :sub))
-		(. *backdrop* :add_child new))
+			(if old (. old :sub))
+			(. *backdrop* :add_child new))
 		swapped)
 	(if restack (tools-stack)))
 
@@ -606,9 +605,9 @@
 	(defq back (mat3x2-invert (view-matrix)))
 	(bind '(cw ch) (canvas-size))
 	(each (lambda ((tool sx sy on angle))
-		(def tool :origin (mat3x2-point back (+ sx (/ (n2f cw) 2.0)) (+ sy (/ (n2f ch) 2.0))))
-		(if on (def tool :size (/ on *zoom*)))
-		(if angle (def tool :angle (- angle (turn-angle)))))
+			(def tool :origin (mat3x2-point back (+ sx (/ (n2f cw) 2.0)) (+ sy (/ (n2f ch) 2.0))))
+			(if on (def tool :size (/ on *zoom*)))
+			(if angle (def tool :angle (- angle (turn-angle)))))
 		held))
 
 (defun view-centre (mx my)
@@ -853,7 +852,7 @@
 	;which is drawn only if it has something on it, or had
 	(draw-tools)
 	(defq used (or (get :show_contacts *board*)
-		(some (# (not (Instrument? %0))) (. (. *board* :get_stage) :get_actors))))
+			(some (# (not (Instrument? %0))) (. (. *board* :get_stage) :get_actors))))
 	(when (or used *top_used*)
 		(. *top* :fill 0)
 		(. *board* :draw_actors *top* (over-matrix) (# (not (Instrument? %0))))
@@ -881,14 +880,14 @@
 	(when seen
 		(bind '(vx vy vx1 vy1) seen)
 		(each (lambda (entry)
-			(defq tool (elem-get entry +tv_tool) canvas (elem-get entry +tv_canvas))
-			(defq held (> (. tool :held) 0) let_go (and (not held) (get :was_held tool)))
-			(def tool :was_held held)
-			(when (and canvas let_go)
-				(bind '(x y w h) (. canvas :get_bounds))
-				(unless (and (< x vx1) (< vx (+ x w)) (< y vy1) (< vy (+ y h)))
-					(. (. *board* :get_stage) :sub tool)
-					(setq gone (inc gone)))))
+				(defq tool (elem-get entry +tv_tool) canvas (elem-get entry +tv_canvas))
+				(defq held (> (. tool :held) 0) let_go (and (not held) (get :was_held tool)))
+				(def tool :was_held held)
+				(when (and canvas let_go)
+					(bind '(x y w h) (. canvas :get_bounds))
+					(unless (and (< x vx1) (< vx (+ x w)) (< y vy1) (< vy (+ y h)))
+						(. (. *board* :get_stage) :sub tool)
+						(setq gone (inc gone)))))
 			(cat *tools*))
 		(if (> gone 0) (. *board* :touch +board_dirty_overlay)))
 	gone)
@@ -915,11 +914,11 @@
 			;and each is the shape it was: an end of a line that is dragged
 			;changes the line, its path, and nothing of where it is
 			(if (every (lambda (item id m d)
-					(defq n (elem-get item +cwb_m) o m)
-					(and (= (elem-get item +cwb_id) id) (eql (elem-get item +cwb_d) d)
-						(= (elem-get n 0) (elem-get o 0)) (= (elem-get n 1) (elem-get o 1))
-						(= (elem-get n 3) (elem-get o 3)) (= (elem-get n 4) (elem-get o 4))
-						(= (- (elem-get n 2) (elem-get o 2)) dx) (= (- (elem-get n 5) (elem-get o 5)) dy)))
+						(defq n (elem-get item +cwb_m) o m)
+						(and (= (elem-get item +cwb_id) id) (eql (elem-get item +cwb_d) d)
+							(= (elem-get n 0) (elem-get o 0)) (= (elem-get n 1) (elem-get o 1))
+							(= (elem-get n 3) (elem-get o 3)) (= (elem-get n 4) (elem-get o 4))
+							(= (- (elem-get n 2) (elem-get o 2)) dx) (= (- (elem-get n 5) (elem-get o 5)) dy)))
 					now ids ms ds)
 				(list (- (n2i (floor (+ (* dx *zoom*) 0.5))) ox) (- (n2i (floor (+ (* dy *zoom*) 0.5))) oy))))))
 
@@ -936,7 +935,7 @@
 		(when (nempty? down)
 			(setq down (cwb-id-set down))
 			(each (lambda ((name flags items))
-				(unless (bits? flags 1) (cwb-draw-items *flight_b* (cwb-pick items down) m)))
+					(unless (bits? flags 1) (cwb-draw-items *flight_b* (cwb-pick items down) m)))
 				(cwb-layers (. *board* :get_doc))))
 		(when (get :float_back *board*)
 			(. *board* :draw_flight *flight_b* m :back)
@@ -961,53 +960,53 @@
 				(. *flight* :change_dirty (first shift) (second shift) w h))
 			:nil)
 		((or flying *flight_used* (nempty? down))
-		;What is in flight may be partly off the paper, or all off it, and
-		;be dragged back on. So that all of it is on the canvas, to be moved
-		;with it, it is drawn moved over by what brings it all on, ox oy,
-		;and the canvas put as far the other way. If it is too big for
-		;that, or other things are drawn with it, it is drawn where it is,
-		;and then it is not moved as a picture, (flight-shift), but drawn
-		;each time
-		(defq now (if flying (flight-front) (list)) ox 0 oy 0 whole :nil
-			quiet (and (nempty? now) (empty? down) (= (. (get :temp *board*) :size) 0)))
-		(when (and quiet (defq box (cwb-bounds now)))
-			(bind '(bx by bx1 by1) (mat3x2-box box (view-matrix)))
-			(defq room 4
-				bx (- (n2i (floor bx)) room) by (- (n2i (floor by)) room)
-				bx1 (+ (n2i (floor bx1)) room 1) by1 (+ (n2i (floor by1)) room 1))
-			(and (<= (- bx1 bx) w) (<= (- by1 by) h)
-				(setq whole :t ox (cond ((< bx 0) (neg bx)) ((> bx1 w) (- w bx1)) (:t 0))
-					oy (cond ((< by 0) (neg by)) ((> by1 h) (- h by1)) (:t 0)))))
-		;on the canvas that is seen, if it is where it is to be, or on the other
-		(defq m (if (and (= ox 0) (= oy 0)) (view-matrix) (mat3x2-mul (mat3x2-translate ox oy) (view-matrix)))
-			moved (not (eql (str (. *flight* :get_bounds)) (str (list (neg ox) (neg oy) w h))))
-			onto (if moved *flight_spare* *flight*))
-		(. onto :fill 0)
-		(when (nempty? down)
-			(setq down (cwb-id-set down))
-			(each (lambda ((name flags items))
-				(unless (bits? flags 1) (cwb-draw-items onto (cwb-pick items down) m)))
-				(cwb-layers (. *board* :get_doc))))
-		(if flying (. *board* :draw_flight onto m :front))
-		;what is on it, where each thing was when it was put there, and how
-		;far over it was drawn
-		(setq *flight_used* (or flying (nempty? down))
-			*flight_at* (if whole
-				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy :nil
-					(map (# (elem-get %0 +cwb_d)) now))))
-		(cond
-			(moved
-				;its picture is shown while it is not seen, and then it is
-				;put where the other was, and the other taken out
-				((const (ffi "gui/canvas/lisp_swap")) onto +swap_write)
-				(. *flight* :sub)
-				(. *flight_clip* :add_child onto)
-				(. onto :set_bounds (neg ox) (neg oy) w h)
-				(. *flight* :set_bounds 0 0 w h)
-				(. *flight_clip* :dirty_all)
-				(setq *flight_spare* *flight* *flight* onto)
-				:nil)
-			(:t :t)))))
+			;What is in flight may be partly off the paper, or all off it, and
+			;be dragged back on. So that all of it is on the canvas, to be moved
+			;with it, it is drawn moved over by what brings it all on, ox oy,
+			;and the canvas put as far the other way. If it is too big for
+			;that, or other things are drawn with it, it is drawn where it is,
+			;and then it is not moved as a picture, (flight-shift), but drawn
+			;each time
+			(defq now (if flying (flight-front) (list)) ox 0 oy 0 whole :nil
+				quiet (and (nempty? now) (empty? down) (= (. (get :temp *board*) :size) 0)))
+			(when (and quiet (defq box (cwb-bounds now)))
+				(bind '(bx by bx1 by1) (mat3x2-box box (view-matrix)))
+				(defq room 4
+					bx (- (n2i (floor bx)) room) by (- (n2i (floor by)) room)
+					bx1 (+ (n2i (floor bx1)) room 1) by1 (+ (n2i (floor by1)) room 1))
+				(and (<= (- bx1 bx) w) (<= (- by1 by) h)
+					(setq whole :t ox (cond ((< bx 0) (neg bx)) ((> bx1 w) (- w bx1)) (:t 0))
+						oy (cond ((< by 0) (neg by)) ((> by1 h) (- h by1)) (:t 0)))))
+			;on the canvas that is seen, if it is where it is to be, or on the other
+			(defq m (if (and (= ox 0) (= oy 0)) (view-matrix) (mat3x2-mul (mat3x2-translate ox oy) (view-matrix)))
+				moved (not (eql (str (. *flight* :get_bounds)) (str (list (neg ox) (neg oy) w h))))
+				onto (if moved *flight_spare* *flight*))
+			(. onto :fill 0)
+			(when (nempty? down)
+				(setq down (cwb-id-set down))
+				(each (lambda ((name flags items))
+						(unless (bits? flags 1) (cwb-draw-items onto (cwb-pick items down) m)))
+					(cwb-layers (. *board* :get_doc))))
+			(if flying (. *board* :draw_flight onto m :front))
+			;what is on it, where each thing was when it was put there, and how
+			;far over it was drawn
+			(setq *flight_used* (or flying (nempty? down))
+				*flight_at* (if whole
+					(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy :nil
+						(map (# (elem-get %0 +cwb_d)) now))))
+			(cond
+				(moved
+					;its picture is shown while it is not seen, and then it is
+					;put where the other was, and the other taken out
+					((const (ffi "gui/canvas/lisp_swap")) onto +swap_write)
+					(. *flight* :sub)
+					(. *flight_clip* :add_child onto)
+					(. onto :set_bounds (neg ox) (neg oy) w h)
+					(. *flight* :set_bounds 0 0 w h)
+					(. *flight_clip* :dirty_all)
+					(setq *flight_spare* *flight* *flight* onto)
+					:nil)
+				(:t :t)))))
 
 (defun draw-damage (boxes m)
 	;only these parts of the document's picture, boxes of the document,
@@ -1018,15 +1017,15 @@
 	(bind '(w h) (canvas-size))
 	(defq doc (. *board* :get_doc) skip (get :floating *board*) parts (list))
 	(each (lambda ((x y x1 y1))
-		;in pixels of the canvas, and a little more for the soft edge of a line
-		(bind '(x y x1 y1) (mat3x2-box (list x y x1 y1) m))
-		(defq cx (max 0 (- (n2i (floor x)) 3)) cy (max 0 (- (n2i (floor y)) 3))
-			cx1 (min w (+ (n2i (floor x1)) 4)) cy1 (min h (+ (n2i (floor y1)) 4)))
-		(when (and (< cx cx1) (< cy cy1))
-			(. *committed* :clear 0 cx cy (- cx1 cx) (- cy1 cy))
-			(. *committed* :set_clip cx cy cx1 cy1)
-			(cwb-draw *committed* doc m (list (n2f cx) (n2f cy) (n2f cx1) (n2f cy1)) skip)
-			(push parts (list cx cy cx1 cy1))))
+			;in pixels of the canvas, and a little more for the soft edge of a line
+			(bind '(x y x1 y1) (mat3x2-box (list x y x1 y1) m))
+			(defq cx (max 0 (- (n2i (floor x)) 3)) cy (max 0 (- (n2i (floor y)) 3))
+				cx1 (min w (+ (n2i (floor x1)) 4)) cy1 (min h (+ (n2i (floor y1)) 4)))
+			(when (and (< cx cx1) (< cy cy1))
+				(. *committed* :clear 0 cx cy (- cx1 cx) (- cy1 cy))
+				(. *committed* :set_clip cx cy cx1 cy1)
+				(cwb-draw *committed* doc m (list (n2f cx) (n2f cy) (n2f cx1) (n2f cy1)) skip)
+				(push parts (list cx cy cx1 cy1))))
 		boxes)
 	(. *committed* :set_clip 0 0 w h)
 	parts)
@@ -1153,9 +1152,9 @@
 	(defq actors (. (. *board* :get_stage) :get_actors))
 	(.-> (. *board* :get_doc)
 		(:insert :tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor)
-				((Setsquare45? %0) :set_square45) (:t :set_square))
-				(get :origin %0) (get :angle %0) (. %0 :extent) (get :mode %0)))
-			(filter (const Instrument?) actors)))
+							((Setsquare45? %0) :set_square45) (:t :set_square))
+						(get :origin %0) (get :angle %0) (. %0 :extent) (get :mode %0)))
+				(filter (const Instrument?) actors)))
 		(:insert :menus (map (# (get :origin %0)) (filter (# (get :floating %0)) (palettes *board*))))
 		(:insert :swatches (map (# (get :origin %0)) (swatches-on *board*)))
 		;the inks of the pens
@@ -1182,17 +1181,17 @@
 	(swatches-close)
 	;or those of a new one, if it has none
 	(pens-refill (if (and (list? (defq inks (. doc :find :inks))) (= (length inks) (length *palette*)) (every (const num?) inks))
-		inks *pens_default*))
+			inks *pens_default*))
 	(each (# (. stage :sub %0)) (filter (# (or (Instrument? %0) (and (Palette? %0) (get :floating %0)))) (. stage :get_actors)))
 	(each (lambda (tool)
-		(when (and (list? tool) (= (length tool) 5))
-			(bind '(kind origin angle extent mode) tool)
-			(when (defq at (find kind '(:ruler :protractor :circle :set_square :set_square45)))
-				(defq tool ((elem-get (list Ruler Protractor Circle Setsquare Setsquare45) at)
-					*board* (first origin) (second origin)))
-				(def tool :angle angle :mode mode)
-				(. tool :set_extent extent)
-				(. stage :add tool))))
+			(when (and (list? tool) (= (length tool) 5))
+				(bind '(kind origin angle extent mode) tool)
+				(when (defq at (find kind '(:ruler :protractor :circle :set_square :set_square45)))
+					(defq tool ((elem-get (list Ruler Protractor Circle Setsquare Setsquare45) at)
+							*board* (first origin) (second origin)))
+					(def tool :angle angle :mode mode)
+					(. tool :set_extent extent)
+					(. stage :add tool))))
 		(ifn tools (list)))
 	;a menu opens from the time the board was last told. Not yet told
 	;it is 0, the first tick is too long after that for the numbers of
@@ -1200,10 +1199,10 @@
 	;that went down on it, an instrument under it could not be moved
 	(. *board* :tick (pii-time))
 	(each (lambda (at) (and (list? at) (= (length at) 2) (every (const num?) at)
-			(palette-float *board* (first at) (second at))))
+				(palette-float *board* (first at) (second at))))
 		(ifn menus (list)))
 	(each (lambda (at) (and (list? at) (= (length at) 2) (every (const num?) at)
-			(swatches-open (first at) (second at))))
+				(swatches-open (first at) (second at))))
 		(ifn (. doc :find :swatches) (list)))
 	(. *board* :touch +board_dirty_overlay))
 

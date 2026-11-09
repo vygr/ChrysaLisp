@@ -11,8 +11,8 @@
 					;a tab as the editor has it, to the next of each 4
 					(defq out "")
 					(each (# (setq out (if (eql %0 "\t")
-						(cat out (pad "" (- 4 (% (length out) 4))))
-						(cat out %0)))) line)
+									(cat out (pad "" (- 4 (% (length out) 4))))
+									(cat out %0)))) line)
 					;cut to what fits, its glyphs are not all of a width
 					(defq n (min (length out) 160))
 					(while (and (> n 0) (> (first (font-glyph-bounds font (slice out 0 n))) most_w))

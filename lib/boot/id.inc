@@ -25,8 +25,8 @@
 	;name of each and the hash of what is in it, all hashed
 	(defq ctx (sha256-start))
 	(each (lambda (file)
-		(sha256-add ctx (cat file "\n"
-			(sha256 (ifn (load file) "")) "\n")))
+			(sha256-add ctx (cat file "\n"
+					(sha256 (ifn (load file) "")) "\n")))
 		(sort (cat files)))
 	(to-lower (hex-encode (sha256-end ctx))))
 

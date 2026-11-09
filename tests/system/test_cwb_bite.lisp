@@ -14,15 +14,15 @@
 	; what is on it: the id, fill and stroke of each, and of a group what
 	; is in it
 	(str (map (# (if (cwb-group? %0)
-			(list :group (map (# (list (elem-get %0 +cwb_id) (elem-get %0 +cwb_fill) (elem-get %0 +cwb_stroke))) (elem-get %0 +cwb_items)))
-			(list (elem-get %0 +cwb_id) (elem-get %0 +cwb_fill) (elem-get %0 +cwb_stroke))))
-		(cwb-items (. board :get_doc)))))
+					(list :group (map (# (list (elem-get %0 +cwb_id) (elem-get %0 +cwb_fill) (elem-get %0 +cwb_stroke))) (elem-get %0 +cwb_items)))
+					(list (elem-get %0 +cwb_id) (elem-get %0 +cwb_fill) (elem-get %0 +cwb_stroke))))
+			(cwb-items (. board :get_doc)))))
 (defun bt-area (board color)
 	; the area that is filled with a colour
 	(defq sum 0.0)
 	(cwb-walk (cwb-items (. board :get_doc)) +mat3x2_unity (lambda (shape m)
-		(if (= (elem-get shape +cwb_fill) color)
-			(setq sum (+ sum (poly-area (poly-union (cwb-mat-paths m (first (cwb-flat shape))) (list) 0)))))))
+			(if (= (elem-get shape +cwb_fill) color)
+				(setq sum (+ sum (poly-area (poly-union (cwb-mat-paths m (first (cwb-flat shape))) (list) 0)))))))
 	sum)
 (defun bt-in? (board x y) (if (cwb-hit (. board :get_doc) x y 0) :t :nil))
 
@@ -91,7 +91,7 @@
 (assert-true "words have an area" (> bt_all 500.0))
 (assert-true "an eraser drawn through them" (. bt :rub_along 40 85 200 85 4.0))
 (assert-true "leaves the most of them, as a shape" (and (< (* 0.4 bt_all) (bt-area bt bt_ink) bt_all)
-	(not (eql (elem-get (first (cwb-items (. bt :get_doc))) +cwb_kind) :text))))
+		(not (eql (elem-get (first (cwb-items (. bt :get_doc))) +cwb_kind) :text))))
 
 ;the picture of it in the docs is made by this, so it is what a board does
 (assert-true "the docs have a picture of it" (nempty? (cwb-items (cwb-load (file-stream "docs/diagrams/wb_bite.cwb")))))

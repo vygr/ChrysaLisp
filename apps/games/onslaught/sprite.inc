@@ -143,15 +143,15 @@
 	; (sprite-collide layer x y w h type [ignore]) -> sprite | :nil
 	(defq xw (+ x w) yh (+ y h))
 	(some (lambda (sp)
-		(when (and (Sprite? sp)
-				(nql sp ignore)
-				(/= (get :sp_frame sp) -1)
-				(not (get :sp_dead sp))
-				(or (= type -1) (/= 0 (logand (get :sp_type sp) type))))
-			(bind '(tx ty tw th) (. sp :sp_get_bounds))
-			(and (< x (+ tx tw)) (< tx xw)
+			(when (and (Sprite? sp)
+					(nql sp ignore)
+					(/= (get :sp_frame sp) -1)
+					(not (get :sp_dead sp))
+					(or (= type -1) (/= 0 (logand (get :sp_type sp) type))))
+				(bind '(tx ty tw th) (. sp :sp_get_bounds))
+				(and (< x (+ tx tw)) (< tx xw)
 					(< y (+ ty th)) (< ty yh)
-				sp)))
+					sp)))
 		(. layer :children)))
 
 (defun cl-update (this that)
@@ -201,7 +201,6 @@
 ;;;;;;;;;;;;;;;;;;;
 ; base sprite class
 ;;;;;;;;;;;;;;;;;;;
-
 
 (defclass Sprite (canvas_l canvas_r width height tag &optional death) (View)
 	; (Sprite canvas_l canvas_r width height [death]) -> sprite
@@ -293,10 +292,10 @@
 		;as the C++ sprite_proc_cb, run the components until killed, by
 		;itself just now or by another sprite earlier, then die
 		(each (lambda (comp)
-			(unless (= (get :sp_frame this) -1)
-				(env-push comp)
-				((get :update comp) this comp)
-				(env-pop)))
+				(unless (= (get :sp_frame this) -1)
+					(env-push comp)
+					((get :update comp) this comp)
+					(env-pop)))
 			(get :sp_components this))
 		(when (= (get :sp_frame this) -1)
 			(. this :sp_kill)
@@ -326,5 +325,4 @@
 							(. this :ctx_blit tid +argb_white 0 scaled_fh scaled_fw scaled_fh 0 0)
 							; pole 2 (bottom 16x16)
 							(. this :ctx_blit tid +argb_white 0 (* scaled_fh 2) scaled_fw scaled_fh 0 0))))))
-		this)
-	)
+		this))

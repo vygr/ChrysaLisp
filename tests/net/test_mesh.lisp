@@ -96,11 +96,11 @@
 ;three machines that all beacon and all dial, every pair has one dialler
 (defq ms_ids (list ms_a ms_b ms_c) ms_dials 0)
 (each (lambda (me)
-	(defq peers (Fmap 7))
-	(each (lambda (them)
-		(unless (eql me them)
-			(if (mesh-dial? (mesh-beacon peers them "10.0.0.1" 3333 :t :t ms_now) me them :nil ms_now)
-				(setq ms_dials (inc ms_dials))))) ms_ids)) ms_ids)
+		(defq peers (Fmap 7))
+		(each (lambda (them)
+				(unless (eql me them)
+					(if (mesh-dial? (mesh-beacon peers them "10.0.0.1" 3333 :t :t ms_now) me them :nil ms_now)
+						(setq ms_dials (inc ms_dials))))) ms_ids)) ms_ids)
 (assert-eq "three that all dial make three links, one a pair" 3 ms_dials)
 
 ;a beacon says the build of its machine, the id of its boot image

@@ -12,22 +12,22 @@
 	+at_hand_fire `'(,+frm_16x16_pshot ,+frm_16x16_pshot1)
 	+at_mind_fire `'(,+frm_16x16_mshot ,+frm_16x16_mshot1)
 	+mt_mind_arm
-	''((12 2) (10 3) (8 4) (6 5) (4 6) (2 7) (2 7) (4 6) (6 5) (8 4) (10 3) (12 2) (12 0)
-		(12 -2) (10 -3) (8 -4) (6 -5) (4 -6) (2 -7) (2 -7) (4 -6) (6 -5) (8 -4) (10 -3) (12 -2) (12 0))
+		''((12 2) (10 3) (8 4) (6 5) (4 6) (2 7) (2 7) (4 6) (6 5) (8 4) (10 3) (12 2) (12 0)
+			(12 -2) (10 -3) (8 -4) (6 -5) (4 -6) (2 -7) (2 -7) (4 -6) (6 -5) (8 -4) (10 -3) (12 -2) (12 0))
 	; the four arms (ox oy xx xy yx yy end_frame), each segment
 	; steps by (dx * xx + dy * xy, dx * yx + dy * yy)
 	+mind_arms
-	`'((24 8 1 0 0 1 ,+frm_16x16_tends1)
-		(-8 8 -1 0 0 1 ,+frm_16x16_tends3)
-		(8 24 0 1 1 0 ,+frm_16x16_tends2)
-		(8 -8 0 1 -1 0 ,+frm_16x16_tends))
+		`'((24 8 1 0 0 1 ,+frm_16x16_tends1)
+			(-8 8 -1 0 0 1 ,+frm_16x16_tends3)
+			(8 24 0 1 1 0 ,+frm_16x16_tends2)
+			(8 -8 0 1 -1 0 ,+frm_16x16_tends))
 	; items a temple mind gives up, after its terrain talisman
 	+mind_items
-	`'(,+frm_16x16_diamond ,+frm_16x16_spells5 ,+frm_16x16_diamond5
-		,+frm_16x16_spells5 ,+frm_16x16_diamond8 ,+frm_16x16_spells5
-		,+frm_16x16_diamond7 ,+frm_16x16_spells5 ,+frm_16x16_diamond6
-		,+frm_16x16_spells5 ,+frm_16x16_diamond9 ,+frm_16x16_spells5
-		,+frm_16x16_diamond4))
+		`'(,+frm_16x16_diamond ,+frm_16x16_spells5 ,+frm_16x16_diamond5
+			,+frm_16x16_spells5 ,+frm_16x16_diamond8 ,+frm_16x16_spells5
+			,+frm_16x16_diamond7 ,+frm_16x16_spells5 ,+frm_16x16_diamond6
+			,+frm_16x16_spells5 ,+frm_16x16_diamond9 ,+frm_16x16_spells5
+			,+frm_16x16_diamond4))
 
 (defun get-xy-inner (w h)
 	; pick a random point on the inside edge of the playable area
@@ -72,8 +72,7 @@
 					(mind-blit this tid th ts zoom 2 x (+ y +tile_height))
 					(++ x (const (* +tile_width 2))))
 				(++ y (const (* +tile_height 2)))))
-		this)
-	)
+		this))
 
 (defclass MindArms () (View)
 	; (MindArms) -> full screen overlay drawing the four arms of the mind
@@ -87,17 +86,16 @@
 				seg (% (- 15 (% (get :frame_count this) (const (length +at_mind_arm))))
 					(const (length +at_mind_arm))))
 			(each (lambda ((ox oy xx xy yx yy end_frame))
-				(defq sx (+ (get :mx this) ox) sy (+ (get :my this) oy))
-				(times segs
-					(bind '(dx dy) (elem-get +mt_mind_arm arm))
-					(mind-blit this tid th ts zoom (elem-get +at_mind_arm seg) sx sy)
-					(setq seg (% (inc seg) (const (length +at_mind_arm)))
-						arm (% (inc arm) (const (length +mt_mind_arm)))
-						sx (+ sx (* dx xx) (* dy xy)) sy (+ sy (* dx yx) (* dy yy))))
-				(mind-blit this tid th ts zoom end_frame sx sy))
+					(defq sx (+ (get :mx this) ox) sy (+ (get :my this) oy))
+					(times segs
+						(bind '(dx dy) (elem-get +mt_mind_arm arm))
+						(mind-blit this tid th ts zoom (elem-get +at_mind_arm seg) sx sy)
+						(setq seg (% (inc seg) (const (length +at_mind_arm)))
+							arm (% (inc arm) (const (length +mt_mind_arm)))
+							sx (+ sx (* dx xx) (* dy xy)) sy (+ sy (* dx yx) (* dy yy))))
+					(mind-blit this tid th ts zoom end_frame sx sy))
 				+mind_arms))
-		this)
-	)
+		this))
 
 (defun mind-resize (zoom)
 	(defq w (* zoom +screen_width) h (* zoom +screen_height))
@@ -151,8 +149,8 @@
 		((= (get :sp_frame hit) +frm_16x16_spells5)
 			;blue spell restores power, less if carrying the mind talisman
 			(setq *man_power* (min +max_power (+ *man_power*
-				(if (find +frm_16x16_diamond4 *item_inventory*)
-					(const (/ +max_power 10)) (const (/ +max_power 5))))))
+						(if (find +frm_16x16_diamond4 *item_inventory*)
+							(const (/ +max_power 10)) (const (/ +max_power 5))))))
 			(play-sfx *sfx_clash2* this)
 			(. hit :sp_kill))
 		(:t (collect-item hit))))
@@ -230,18 +228,18 @@
 			(when (< *mind_firecnt* +mind_fire_max)
 				(++ *mind_firecnt*)
 				(bind '(tx ty) (if (get :sp_dead *mind_sprite*)
-					(list (const (- (/ +window_width 2) 8)) (const (- (/ +window_height 2) 8)))
-					(map (# (+ %0 8)) (. *mind_sprite* :sp_get_pos))))
+						(list (const (- (/ +window_width 2) 8)) (const (- (/ +window_height 2) 8)))
+						(map (# (+ %0 8)) (. *mind_sprite* :sp_get_pos))))
 				(init-ml (defq fire (HandFire)) (elem-get (get :sp_components fire) +comp_move) x y tx ty 8)
 				(. *layer_player* :add_front fire)
 				(play-sfx *sfx_spell* this)))
 		(setq *game_flags* (logand *game_flags* (lognot +fflag_select))))
 	;face inwards
 	(. this :sp_set_frame (cond
-		((= x 0) +frm_16x16_manmind3)
-		((= x mx) +frm_16x16_manmind1)
-		((= y 0) +frm_16x16_manmind)
-		(:t +frm_16x16_manmind2)))
+			((= x 0) +frm_16x16_manmind3)
+			((= x mx) +frm_16x16_manmind1)
+			((= y 0) +frm_16x16_manmind)
+			(:t +frm_16x16_manmind2)))
 	;parallax scroll the map away from the hand, far plane at twice the speed
 	(defq xs (cond
 			((< x (const (- (/ +window_width 3) 8))) -1)
@@ -281,8 +279,8 @@
 	;fire at the hand, or at the screen edge
 	(when (= (% frame_count 10) 0)
 		(bind '(tx ty) (if (or (get :sp_dead *mind_hand*) (> (game-random 4) 0))
-			(get-xy-outer 16 16)
-			(. *mind_hand* :sp_get_pos)))
+				(get-xy-outer 16 16)
+				(. *mind_hand* :sp_get_pos)))
 		(init-ml (defq fire (MindFire)) (elem-get (get :sp_components fire) +comp_move)
 			(+ x 8) (+ y 8) tx ty 5)
 		(. *layer_missiles* :add_front fire))

@@ -22,7 +22,7 @@
 	; classes deriving from a class with abstractions
 	; should provide the concreate handler
 	`(def *vtable* ,n (lambda (this & ~a)
-		(throw "Is abstract method !" ,n))))
+			(throw "Is abstract method !" ,n))))
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)
@@ -31,12 +31,12 @@
 (defmacro defgetmethod (field)
 	; (defgetmethod :field)
 	(static-qq (defmethod ,(sym (cat :get_ (rest field))) ()
-		(def? ,field this))))
+			(def? ,field this))))
 
 (defmacro defsetmethod (field)
 	; (defsetmethod :field)
 	(static-qq (defmethod ,(sym (cat :set_ (rest field))) (val)
-		(def this ,field val) this)))
+			(def this ,field val) this)))
 
 (defmacro defproxymethod (n a field &optional ret_flag)
 	; (defproxymethod name args field [ret_flag])
@@ -53,10 +53,10 @@
 		inits (list) methods (list))
 	(def (penv) '*class* n '*super_class* super)
 	(each (lambda (form)
-		(cond
-			((and (list?? form) (ends-with "method" (first form)))
-				(push methods form))
-			(:t (push inits form)))) _)
+			(cond
+				((and (list?? form) (ends-with "method" (first form)))
+					(push methods form))
+				(:t (push inits form)))) _)
 	(if s
 		`(progn
 			(def (defq *vtable* (defq ,class (env-copy ,super 1))) :vtable ,super)
@@ -80,20 +80,20 @@
 (defmacro .-> (res &rest frm)
 	; (.-> this form ...)
 	(reduce (lambda (res frm)
-		(if (list?? frm)
-			(insert frm 0 (list (const .) res))
-			(list (const .) res frm))) frm res))
+			(if (list?? frm)
+				(insert frm 0 (list (const .) res))
+				(list (const .) res frm))) frm res))
 
 (defmacro raise (&rest fields)
 	; (raise field | (sym val) ...) -> (defq sym (get field this) ...)
 	(reduce (# (if (list?? %1)
-			(cat %0 %1)
-			(push %0 (sym (rest %1)) (static-qq (get ,%%1 this)))))
+				(cat %0 %1)
+				(push %0 (sym (rest %1)) (static-qq (get ,%%1 this)))))
 		fields (list (const defq))))
 
 (defmacro lower (&rest fields)
 	; (lower field | (field sym) ...) -> (set this field sym ...)
 	(reduce (# (if (list?? %1)
-			(cat %0 %1)
-			(push %0 %1 (sym (rest %1)))))
+				(cat %0 %1)
+				(push %0 %1 (sym (rest %1)))))
 		fields (list (const def) 'this)))

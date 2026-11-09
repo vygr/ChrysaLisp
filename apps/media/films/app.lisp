@@ -93,12 +93,12 @@
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
 	(status-say (if *counter* (cat (if (. *reel* :find :audio)
-			(cat (reel-clock (frame-time *at*)) " of " (reel-clock (frame-time (. *reel* :find :frames))))
-			(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
-				", " (str (n2i (. *reel* :find :rate))) " a second"))
-		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
-		(cond ((> *sync* 0) (cat ", sound +" (str *sync*) "ms")) ((< *sync* 0) (cat ", sound " (str *sync*) "ms")) (""))
-		(if *playing* "" ", paused")) "")))
+					(cat (reel-clock (frame-time *at*)) " of " (reel-clock (frame-time (. *reel* :find :frames))))
+					(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
+						", " (str (n2i (. *reel* :find :rate))) " a second"))
+				(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
+				(cond ((> *sync* 0) (cat ", sound +" (str *sync*) "ms")) ((< *sync* 0) (cat ", sound " (str *sync*) "ms")) (""))
+				(if *playing* "" ", paused")) "")))
 
 (defun play (on)
 	;the sound started from the frame shown, or stopped. A film stopped at
@@ -114,8 +114,8 @@
 	;a film there is no codec for yet: what it is, and no picture
 	(setq *reel* :nil)
 	(status-say (cat (path-name file) ": " (. reel :find :codec) " " (str (. reel :find :width)) "x"
-		(str (. reel :find :height)) ", " (str (. reel :find :frames)) " frames, "
-		(str (/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0)) " a second, no codec for it here yet"))
+			(str (. reel :find :height)) ", " (str (. reel :find :frames)) " frames, "
+			(str (/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0)) " a second, no codec for it here yet"))
 	(. *window_title* :set_text (cat "Films -> " (path-name file)))
 	(. *window* :fit))
 
@@ -150,9 +150,9 @@
 	;a new film that played is put first of them, one there already keeps
 	;its place, and one that did not play is let go
 	(defq now (cond
-		((not ok) (filter (# (nql %0 file)) *played_list*))
-		((find file *played_list*) *played_list*)
-		((slice (cat (list file) *played_list*) 0 (min +played_max (inc (length *played_list*)))))))
+			((not ok) (filter (# (nql %0 file)) *played_list*))
+			((find file *played_list*) *played_list*)
+			((slice (cat (list file) *played_list*) 0 (min +played_max (inc (length *played_list*)))))))
 	(unless (eql (str now) (str *played_list*))
 		(setq *played_list* now)
 		(played-save)))
@@ -186,21 +186,21 @@
 			(played file :nil)
 			(say-what reel file))
 		(:t
-		(played file :t)
-		(played-save)
-		;the scroll lets go of the canvas it had as it is given the new one
-		(if *codec* (reel-close *codec*))
-		(sound-stop *sound*)
-		(setq *reel* reel *codec* codec *canvas* (. *codec* :find :canvas) *at* -1
-			*file* file *scale* (. codec :find :scale))
-		(show (min (ifn frame 0) (dec (. reel :find :frames))))
-		;its sound, heard from the frame shown if it is playing
-		(setq *sound* (sound-of reel))
-		(and *sound* *playing* (sound-start *sound* (frame-time *at*)))
-		(def *timeline* :value *at* :maximum (dec (. reel :find :frames)))
-		(. *window_title* :set_text (cat "Films -> " (path-name file)))
-		(. *image_scroll* :add_child *canvas*)
-		(. *window* :fit))))
+			(played file :t)
+			(played-save)
+			;the scroll lets go of the canvas it had as it is given the new one
+			(if *codec* (reel-close *codec*))
+			(sound-stop *sound*)
+			(setq *reel* reel *codec* codec *canvas* (. *codec* :find :canvas) *at* -1
+				*file* file *scale* (. codec :find :scale))
+			(show (min (ifn frame 0) (dec (. reel :find :frames))))
+			;its sound, heard from the frame shown if it is playing
+			(setq *sound* (sound-of reel))
+			(and *sound* *playing* (sound-start *sound* (frame-time *at*)))
+			(def *timeline* :value *at* :maximum (dec (. reel :find :frames)))
+			(. *window_title* :set_text (cat "Films -> " (path-name file)))
+			(. *image_scroll* :add_child *canvas*)
+			(. *window* :fit))))
 
 (defun zoom (scale)
 	;the film at another scale, from the frame it is at. A codec that can
@@ -302,10 +302,10 @@
 			;the film may have stopped, or be another
 			(and *reel* (sound-on?) (< (inc *at*) (. *reel* :find :frames))
 				(setq wait (max 2000 (min period
-					(n2i (* (- (frame-time (inc *at*)) (+ (sound-smooth *sound*) ahead)) 1000000.0)))))))
+							(n2i (* (- (frame-time (inc *at*)) (+ (sound-smooth *sound*) ahead)) 1000000.0)))))))
 		(*playing* (cond
-			((< (inc *at*) (. *reel* :find :frames)) (show (inc *at*)))
-			((film-ended))))
+				((< (inc *at*) (. *reel* :find :frames)) (show (inc *at*)))
+				((film-ended))))
 		((/= *seek* *at*) (show *seek*)))
 	;with no sound a period from when this began
 	(mail-timeout (elem-get select +select_timer) (ifn wait (max 2000 (- period (- (pii-time) start)))) 0))
@@ -343,7 +343,7 @@
 				;the one open told to go first
 				(if *picker* (mail-send *picker* ""))
 				(setq *picker* (file-pick (elem-get select +select_picker) "Open film..." (ifn *file* ".")
-					(join *file_types* " ") :nil "films" :t (list (cat *app_root* "data")))))
+						(join *file_types* " ") :nil "films" :t (list (cat *app_root* "data")))))
 			((= id +event_options)
 				(options-open (not *options*)))
 			((= id +event_choices)

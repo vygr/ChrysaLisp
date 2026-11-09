@@ -370,7 +370,7 @@
 	(assign '((:rsp slot_tcb)) '(:r2))
 	(vp-xor-rr :r3 :r3)
 	(assign '(:r0 :r1 :r2 :r3 :r3 :r3 :r3) '((:r2 +tk_node_mbox_id) (:r2 +tk_node_mbox_addr)
-		(:r1 +mbox_owner_tcb) (:r2 +tk_node_lisp) (:r2 +tk_node_dying) (:r2 +tk_node_print) (:r2 +tk_node_server)))
+			(:r1 +mbox_owner_tcb) (:r2 +tk_node_lisp) (:r2 +tk_node_dying) (:r2 +tk_node_print) (:r2 +tk_node_server)))
 
 	;init task control block stack, pc and stop address's
 	(assign `((:rsp slot_func) (:rsp slot_tcb) (:rsp slot_tcb_size) -1 ,tk_app_priority 0) '(:r1 :r4 :r0 :r2 :r3 :r6))
@@ -467,7 +467,6 @@
 	;free is for the count of the stack the trace keeps
 	(vp-free slot_size)
 	(jump :sys_task :restore)
-
 
 (def-func-end)
 

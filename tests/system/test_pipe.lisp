@@ -5,7 +5,7 @@
 	; (pipe-test-child reply_mbox body) -> pipe
 	;child runs body, then reports to the reply mailbox when it gets past it
 	(Pipe (cat "lisp -r " body
-		" (mail-send (hex-decode {" (hex-encode reply_mbox) "}) {done})")))
+			" (mail-send (hex-decode {" (hex-encode reply_mbox) "}) {done})")))
 
 ; --- Command stdin has its own mailbox, leaving the task mailbox free ---
 (defq pipe_out (list))
@@ -51,7 +51,7 @@
 		(pipe-run cmdline (# (push pipe_out %0)))
 		(assert-true name (found? (apply (const cat) pipe_out) err)))
 	'(("read missing )" "lisp -r (print (+ 1 2)" "missing )")
-	("read unexpected )" "lisp -r (print 1))" "unexpected )")))
+		("read unexpected )" "lisp -r (print 1))" "unexpected )")))
 
 ; --- Abort of a command that never reads or writes. It is signalled, and
 ; --- (task-sleep) and (task-slice) are where it finds that it was, an
@@ -62,8 +62,8 @@
 	;stopped by an error. It is waited for to start, how long that takes
 	;is the machine's affair
 	(defq pipe (Pipe (cat "lisp -r (progn (mail-send (hex-decode {" (hex-encode reply_mbox)
-		"}) {started}) (catch " body " (progn (mail-send (hex-decode {" (hex-encode reply_mbox)
-		"}) (if (found? (str _) {task_aborted}) {aborted} {other})) :nil)))")))
+				"}) {started}) (catch " body " (progn (mail-send (hex-decode {" (hex-encode reply_mbox)
+				"}) (if (found? (str _) {task_aborted}) {aborted} {other})) :nil)))")))
 	(assert-eq "the command starts" "started" (mail-read reply_mbox))
 	pipe)
 ;a task is stopped by an error
@@ -79,7 +79,7 @@
 (. pipe :abort)
 (assert-eq "aborted, it is stopped" "aborted" (mail-read reply_mbox))
 (defq reply_mbox (mail-mbox) pipe (pipe-told reply_mbox
-	(cat "(progn (catch (task-sleep " (str (task-timeout 600)) ") :t) (while :t (task-sleep 1000)))")))
+		(cat "(progn (catch (task-sleep " (str (task-timeout 600)) ") :t) (while :t (task-sleep 1000)))")))
 (task-sleep 200000)
 (. pipe :abort)
 (assert-eq "one that catches the error and sleeps again is stopped again" "aborted" (mail-read reply_mbox))
@@ -97,7 +97,7 @@
 ;the slow one is given out three times, then the farm stops, with the
 ;result of the quick one and none for the slow
 (defq farmed (pipe-farm (list "echo quick"
-	(cat "lisp -r (task-sleep " (str (* 10 (task-timeout 1))) ")")) 1000000))
+			(cat "lisp -r (task-sleep " (str (* 10 (task-timeout 1))) ")")) 1000000))
 (assert-list-eq "pipe farm, a command that is too slow is given up on" '("echo quick")
 	(map (const first) farmed))
 
@@ -111,11 +111,11 @@
 ;Pi with every test running failed each now and then: a time says how busy
 ;the nodes were, not whether the close was right
 (each (lambda (cmdline)
-	(defq pc (Pipe cmdline) pc_out (list))
-	(. pc :eof)
-	(while (defq pc_data (. pc :read)) (if (str? pc_data) (push pc_out pc_data)))
-	(assert-eq (cat "closes after eof, " cmdline) pc (. pc :close))
-	(assert-true (cat "and all it said was read, " cmdline) (nempty? pc_out)))
+		(defq pc (Pipe cmdline) pc_out (list))
+		(. pc :eof)
+		(while (defq pc_data (. pc :read)) (if (str? pc_data) (push pc_out pc_data)))
+		(assert-eq (cat "closes after eof, " cmdline) pc (. pc :close))
+		(assert-true (cat "and all it said was read, " cmdline) (nempty? pc_out)))
 	(list "echo one two" "files cmd/ .lisp" "files lib/asm/ .inc | wc" "files cmd/ | head -n 3"))
 
 ;an outfun that goes wrong is an error the caller has, and not a task that
@@ -137,22 +137,22 @@
 ;files | sort, the one with work to finish: 226, 263, 274 and 885ms. And
 ;so over the second once in some twenty runs, which is what a soak showed
 (each (lambda (cmdline)
-	(defq pd (Pipe cmdline))
-	(if (eql cmdline "cat") (. pd :write "abc"))
-	(if (eql cmdline "echo one two") (. pd :read))
-	(setq pd :nil)
-	(assert-true (cat "a pipe let go of open is gone, " cmdline) (not pd)))
+		(defq pd (Pipe cmdline))
+		(if (eql cmdline "cat") (. pd :write "abc"))
+		(if (eql cmdline "echo one two") (. pd :read))
+		(setq pd :nil)
+		(assert-true (cat "a pipe let go of open is gone, " cmdline) (not pd)))
 	(list "echo one two" "echo one | cat" "cat" "files cmd/ .lisp | sort"))
 (setq pipe_out (list))
 (pipe-run "echo one two" (# (push pipe_out %0)))
 (assert-true "and a pipe run after them is as ever" (nempty? pipe_out))
 ;an abort, before and after the end of stdin
 (each (lambda (ended)
-	(defq pd (Pipe "lisp -r (while :t (task-sleep 100000))"))
-	(if ended (. pd :eof))
-	(. pd :abort)
-	(setq pd :nil)
-	(assert-true (cat "a pipe aborted is gone, stdin ended " (str ended)) (not pd)))
+		(defq pd (Pipe "lisp -r (while :t (task-sleep 100000))"))
+		(if ended (. pd :eof))
+		(. pd :abort)
+		(setq pd :nil)
+		(assert-true (cat "a pipe aborted is gone, stdin ended " (str ended)) (not pd)))
 	(list :nil :t))
 
 ;a command that does not exist is no pipe, and is said to be none at once.

@@ -43,7 +43,7 @@
 		speed (max 40.0 (sqrt (+ (* vx vx) (* vy vy)))))
 	(set-speed this (* speed (/ dx len)) (* speed (/ dy len)))
 	(. this :add (Cues (Tween :fig_fill 0xffffffff 0.08 (const ease-out))
-		(Tween :fig_fill (get :colour this) 0.4 (const ease-in))))
+			(Tween :fig_fill (get :colour this) 0.4 (const ease-in))))
 	(when (< (get :fig_id this) (get :fig_id other))
 		(defq x (* 0.5 (+ (get :fig_x this) (get :fig_x other))) y (* 0.5 (+ (get :fig_y this) (get :fig_y other))))
 		(times 5 (spark-at x y (get :colour this)))))
@@ -69,7 +69,7 @@
 	(. fig :add comp_x comp_y (Wave :fig_z 120.0 (random-fixed 3.0 7.0) (random-fixed 0.0 6.0))
 		(Tween :fig_sx 1.0 0.5 (const ease-back))
 		(Tween :fig_sy 1.0 0.5 (const ease-back) (lambda (f c)
-			(def f :fig_kinds +kind_ball :fig_meets (const (logior +kind_wall +kind_ball +kind_pointer))))))
+				(def f :fig_kinds +kind_ball :fig_meets (const (logior +kind_wall +kind_ball +kind_pointer))))))
 	(. stage :add_node fig))
 
 (defun ball-hit-pointer (this other)
@@ -79,11 +79,11 @@
 		(def this :bursting :t :fig_meets 0 :fig_kinds 0)
 		(. this :add (Tween :fig_sx 1.5 0.15 (const ease-back))
 			(Tween :fig_sy 1.5 0.15 (const ease-back) (lambda (f c)
-				(defq x (get :fig_x f) y (get :fig_y f) r (get :radius f))
-				(times 12 (spark-at x y (get :colour f)))
-				(when (> r 12.0)
-					(times 2 (ball-new x y (* r 0.65))))
-				(. f :kill))))))
+					(defq x (get :fig_x f) y (get :fig_y f) r (get :radius f))
+					(times 12 (spark-at x y (get :colour f)))
+					(when (> r 12.0)
+						(times 2 (ball-new x y (* r 0.65))))
+					(. f :kill))))))
 
 (defun spawner-look (this dt)
 	(when (<= (defq left (- (get :look_in this) dt)) 0.0)
@@ -115,9 +115,9 @@
 	(ring-new (get :fig_fill this))
 	(setq word_at (% (inc word_at) (length words)))
 	(. this :add (Cues (Wait 1.2)
-		(Tween :fig_outline (elem-get words word_at) 1.4 (const ease-in-out))))
+			(Tween :fig_outline (elem-get words word_at) 1.4 (const ease-in-out))))
 	(. this :add (Cues (Wait 1.2)
-		(Tween :fig_fill (elem-get +colours (% word_at (length +colours))) 1.4))))
+			(Tween :fig_fill (elem-get +colours (% word_at (length +colours))) 1.4))))
 
 (defun word-look (this dt)
 	;each 2.6 seconds, the rest and the morph of (word-next), the next word
@@ -160,4 +160,3 @@
 	(. pointer :set_outline *pointer_outline*)
 	(. stage :add_node pointer)
 	(def stage :pointer pointer))
-

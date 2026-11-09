@@ -10,24 +10,24 @@
 	(enum main tip))
 
 (defq +config_file (cat (get :home *env*) "slider.tre")
-	  *grid_w* 5
-	  *grid_h* 5
-	  *tile_count* (* *grid_w* *grid_h*)
-	  *blank_value* (dec *tile_count*)
-	  *board* (range 0 *tile_count*)
-	  *solved_board* (range 0 *tile_count*)
-	  *font* (create-font "fonts/OpenSans-Bold.ctf" 58)
-	  *running* :t)
+	*grid_w* 5
+	*grid_h* 5
+	*tile_count* (* *grid_w* *grid_h*)
+	*blank_value* (dec *tile_count*)
+	*board* (range 0 *tile_count*)
+	*solved_board* (range 0 *tile_count*)
+	*font* (create-font "fonts/OpenSans-Bold.ctf" 58)
+	*running* :t)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar *title* "Slider Puzzle" (+sym_close) +event_close)
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (+sym_scramble +sym_solve) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
-					 :paper :paper_window :font *font*)
+			:paper :paper_window :font *font*)
 		(each (lambda (i)
-			(. (ui-button _ (:min_width 80 :min_height 80))
-			   :connect (+ +event_click i)))
+				(. (ui-button _ (:min_width 80 :min_height 80))
+					:connect (+ +event_click i)))
 			(range 0 *tile_count*)))
 	(ui-label *status* (:text " " :flow_flags +flow_flag_align_hcenter)))
 
@@ -37,7 +37,7 @@
 
 (defun config-load ()
 	(defq loaded_board (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (and loaded_board (= (length loaded_board) *tile_count*))
 		(setq *board* loaded_board)
 		(setq *board* (cat *solved_board*))))
@@ -75,8 +75,8 @@
 (defun try-move (index)
 	(defq blank_idx (find *blank_value* *board*))
 	(defq ix (% index *grid_w*) iy (/ index *grid_w*)
-		  bx (% blank_idx *grid_w*) by (/ blank_idx *grid_w*)
-		  dist (+ (abs (- ix bx)) (abs (- iy by))))
+		bx (% blank_idx *grid_w*) by (/ blank_idx *grid_w*)
+		dist (+ (abs (- ix bx)) (abs (- iy by))))
 	(when (= dist 1)
 		(swap-tiles index blank_idx)))
 
@@ -85,9 +85,9 @@
 	(defq moves 0)
 	(while (< moves 400)
 		(defq blank_idx (find *blank_value* *board*)
-			  bx (% blank_idx *grid_w*)
-			  by (/ blank_idx *grid_w*)
-			  candidates (list))
+			bx (% blank_idx *grid_w*)
+			by (/ blank_idx *grid_w*)
+			candidates (list))
 		(if (> bx 0) (push candidates (dec blank_idx)))
 		(if (< bx (dec *grid_w*)) (push candidates (inc blank_idx)))
 		(if (> by 0) (push candidates (- blank_idx *grid_w*)))

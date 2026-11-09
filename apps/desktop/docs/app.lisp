@@ -32,7 +32,7 @@
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
-		(tree-load (file-stream +config_file))))
+			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(def *window* :zoom (. *config* :find :zoom)))
@@ -47,15 +47,15 @@
 	; (enums name base [(enum field ...)] ...)
 	(defq syms (list) values (list))
 	(each (# (each! (#
-			(push syms (sym (cat name "_" %0)))
-			(push values 0))
-		(list %0) 1)) lines)
+					(push syms (sym (cat name "_" %0)))
+					(push values 0))
+				(list %0) 1)) lines)
 	(push syms (sym (cat name "_size")))
 	(push values 0)
 	(static-qq (bind ',syms ',values)))
 
 ((# (def (penv) '*handler_env* (env))
-	(def *handler_env* 'enums enums)))
+		(def *handler_env* 'enums enums)))
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
@@ -77,13 +77,13 @@
 				:paper (get :paper *window*))
 			(ui-label _ (:min_width +margin_width))
 			(ui-flow page (:flow_flags +flow_down_fill
-				:font_bold (create-font +doc_font_bold (page-scale 18))
-				:font_italic (create-font +doc_font_italic (page-scale 18))
-				:font_bold_italic (create-font +doc_font_bold_italic (page-scale 18))
-				:font_terminal (create-font +terminal_font (page-scale 18))
-				:font_symbol (create-font +symbol_font (page-scale 24))
-				:font_terminal_small (get :font vdu)
-				:min_width (first (. vdu :pref_size))))
+					:font_bold (create-font +doc_font_bold (page-scale 18))
+					:font_italic (create-font +doc_font_italic (page-scale 18))
+					:font_bold_italic (create-font +doc_font_bold_italic (page-scale 18))
+					:font_terminal (create-font +terminal_font (page-scale 18))
+					:font_symbol (create-font +symbol_font (page-scale 24))
+					:font_terminal_small (get :font vdu)
+					:min_width (first (. vdu :pref_size))))
 			(ui-label _ (:min_width +margin_width)))
 		(defq state :text)
 		(with-read-lock file
@@ -97,8 +97,8 @@
 		(catch ((handler-func state) state page "```")
 			(progn (prin _) (print) (setq state :text) :t))
 		(setq *search_widgets*
-			(reduce (# (cat %0 (. %1 :get_search_widgets)))
-				(filter (const Md?) (. page :children)) (list)))
+				(reduce (# (cat %0 (. %1 :get_search_widgets)))
+					(filter (const Md?) (. page :children)) (list)))
 		(def (get :vslider *page_scroll*)
 			:value (if (defq pos (. scroll_pos :find file)) pos 0))
 		(.-> *page_scroll* (:add_child page_flow) :layout)

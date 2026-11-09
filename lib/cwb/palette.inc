@@ -33,59 +33,59 @@
 	;none, as an ink of the bar has none
 	(case what
 		(:tool (elem-get '("select" "pen" "line" "arrow" "double arrow" "rect" "ellipse"
-				"filled rect" "filled ellipse" "text" "eraser") (ifn (find val +pal_tools) 0)))
+					"filled rect" "filled ellipse" "text" "eraser") (ifn (find val +pal_tools) 0)))
 		(:width (cond ((<= val 1.5) "fine") ((<= val 3.0) "thin") ((<= val 6.0) "medium") ("thick")))
 		(:action (case val
-			(:undo "undo") (:redo "redo") (:snap "snap grid") (:duplicate "duplicate") (:delete "delete")
-			(:ruler "ruler") (:protractor "protractor") (:full_protractor "full protractor")
-			(:set_square "set square 30") (:set_square45 "set square 45") (:swatches "palette") (:window "window")))))
+				(:undo "undo") (:redo "redo") (:snap "snap grid") (:duplicate "duplicate") (:delete "delete")
+				(:ruler "ruler") (:protractor "protractor") (:full_protractor "full protractor")
+				(:set_square "set square 30") (:set_square45 "set square 45") (:swatches "palette") (:window "window")))))
 
 (defun pal-icon (what val)
 	; (pal-icon what val) -> shapes
 	;what is drawn on a cell, about 0 0, in a box of 20 or so
 	(case what
 		(:tool (case val
-			(:select (list (cwb-shape "M -5 -9 L -5 6 L -1.5 2.5 L 1.5 9 L 4 8 L 1 1.5 L 6 1.5 Z" :fill +pal_ink :stroke 0)))
-			(:pen (list (pal-line "M -8 4 Q -4 -10 0 0 Q 4 10 8 -4")))
-			(:line (list (pal-line "M -7 6 L 7 -6")))
-			(:arrow (list (pal-line "M -7 6 L 7 -6 M 1 -5.5 L 7 -6 L 6.5 0")))
-			(:arrow2 (list (pal-line "M -7 6 L 7 -6 M 1 -5.5 L 7 -6 L 6.5 0 M -1 5.5 L -7 6 L -6.5 0")))
-			(:rect (list (pal-line (cwb-d-rect -8 -5.5 8 5.5) :join :miter)))
-			(:ellipse (list (pal-line (cwb-d-ellipse 0 0 8.5 6))))
-			(:frect (list (cwb-shape (cwb-d-rect -8 -5.5 8 5.5) :fill +pal_ink :stroke 0)))
-			(:fellipse (list (cwb-shape (cwb-d-ellipse 0 0 8.5 6) :fill +pal_ink :stroke 0)))
-			(:text (list (pal-line "M -6 -7 L 6 -7 M 0 -7 L 0 8" :width 2.6)))
-			(:eraser (list (pal-line "M -8 2 L -2 -7 L 8 -1 L 2 8 Z") (pal-line "M -4.7 -2.9 L 5.3 3.1")))
-			(:t (list))))
+				(:select (list (cwb-shape "M -5 -9 L -5 6 L -1.5 2.5 L 1.5 9 L 4 8 L 1 1.5 L 6 1.5 Z" :fill +pal_ink :stroke 0)))
+				(:pen (list (pal-line "M -8 4 Q -4 -10 0 0 Q 4 10 8 -4")))
+				(:line (list (pal-line "M -7 6 L 7 -6")))
+				(:arrow (list (pal-line "M -7 6 L 7 -6 M 1 -5.5 L 7 -6 L 6.5 0")))
+				(:arrow2 (list (pal-line "M -7 6 L 7 -6 M 1 -5.5 L 7 -6 L 6.5 0 M -1 5.5 L -7 6 L -6.5 0")))
+				(:rect (list (pal-line (cwb-d-rect -8 -5.5 8 5.5) :join :miter)))
+				(:ellipse (list (pal-line (cwb-d-ellipse 0 0 8.5 6))))
+				(:frect (list (cwb-shape (cwb-d-rect -8 -5.5 8 5.5) :fill +pal_ink :stroke 0)))
+				(:fellipse (list (cwb-shape (cwb-d-ellipse 0 0 8.5 6) :fill +pal_ink :stroke 0)))
+				(:text (list (pal-line "M -6 -7 L 6 -7 M 0 -7 L 0 8" :width 2.6)))
+				(:eraser (list (pal-line "M -8 2 L -2 -7 L 8 -1 L 2 8 Z") (pal-line "M -4.7 -2.9 L 5.3 3.1")))
+				(:t (list))))
 		(:width (list (cwb-shape (cwb-d-ellipse 0 0 (max 1.5 (min 9.0 (* 0.5 val)))) :fill +pal_ink :stroke 0)))
 		(:action (case val
-			(:undo (list (pal-line "M -7 -2 L 2 -2 A 4.5 4.5 0 0 1 2 7 L -3 7 M -3 -6 L -7 -2 L -3 2")))
-			(:redo (list (pal-line "M 7 -2 L -2 -2 A 4.5 4.5 0 0 0 -2 7 L 3 7 M 3 -6 L 7 -2 L 3 2")))
-			(:ruler (list (pal-line (cwb-d-rect -9 -3.5 9 3.5) :width 1.6 :join :miter)
-				(pal-line "M -5 -3.5 L -5 0 M -1 -3.5 L -1 0 M 3 -3.5 L 3 0 M 7 -3.5 L 7 0" :width 1.4)))
-			;the instruments as they are: a protractor its marks round its
-			;edge, the whole one its line across, and a set square a right
-			;angle with the hole in it a set square has
-			(:protractor (list (pal-line "M -9 4 A 9 9 0 0 1 9 4 Z" :width 1.6)
-				(pal-line "M 0 -5 L 0 -2.5 M -6.4 -1.6 L -4.6 -0.4 M 6.4 -1.6 L 4.6 -0.4 M 0 4 L 0 1.5" :width 1.2)))
-			(:full_protractor (list (pal-line (cwb-d-ellipse 0 0 8.5) :width 1.6)
-				(pal-line "M -8.5 0 L 8.5 0 M 0 -8.5 L 0 -6 M 0 8.5 L 0 6 M 6 -6 L 4.5 -4.5 M -6 -6 L -4.5 -4.5 M 6 6 L 4.5 4.5 M -6 6 L -4.5 4.5" :width 1.2)))
-			(:set_square (list (pal-line "M -6 8 L 6 8 L -6 -9 Z" :width 1.6)
-				(pal-line "M -3.6 5.6 L 0.8 5.6 L -3.6 -1.6 Z" :width 1.2)))
-			(:set_square45 (list (pal-line "M -8 7 L 8 7 L -8 -9 Z" :width 1.6)
-				(pal-line "M -5.4 4.6 L 0.6 4.6 L -5.4 -1.4 Z" :width 1.2)))
-			(:window (list (pal-line (cwb-d-rect -8 -6 8 6) :width 1.6 :join :miter)
-				(pal-line "M -8 -2 L 8 -2" :width 1.4)))
-			(:snap (list (pal-line "M -7 -2.5 L 7 -2.5 M -7 2.5 L 7 2.5 M -2.5 -7 L -2.5 7 M 2.5 -7 L 2.5 7" :width 1.4)))
-			(:duplicate (list (pal-line (cwb-d-rect -7 -7 3 3) :width 1.6 :join :miter)
-				(cwb-shape (cwb-d-rect -3 -3 7 7) :fill +pal_ink :stroke 0)))
-			(:delete (list (pal-line "M -6 -6 L 6 6 M 6 -6 L -6 6" :width 2.6)))
-			;a painter's palette, as the toolbar's symbol is
-			(:swatches (list (pal-line (cwb-d-ellipse 0 0 8.5) :width 1.6) (pal-line (cwb-d-ellipse 3 3.5 1.8) :width 1.2)
-				(cwb-shape (cwb-d-ellipse -3.8 -2.5 1.6) :fill +pal_ink :stroke 0)
-				(cwb-shape (cwb-d-ellipse 0 -5.2 1.6) :fill +pal_ink :stroke 0)
-				(cwb-shape (cwb-d-ellipse 3.8 -2.5 1.6) :fill +pal_ink :stroke 0)))
-			(:t (list))))
+				(:undo (list (pal-line "M -7 -2 L 2 -2 A 4.5 4.5 0 0 1 2 7 L -3 7 M -3 -6 L -7 -2 L -3 2")))
+				(:redo (list (pal-line "M 7 -2 L -2 -2 A 4.5 4.5 0 0 0 -2 7 L 3 7 M 3 -6 L 7 -2 L 3 2")))
+				(:ruler (list (pal-line (cwb-d-rect -9 -3.5 9 3.5) :width 1.6 :join :miter)
+						(pal-line "M -5 -3.5 L -5 0 M -1 -3.5 L -1 0 M 3 -3.5 L 3 0 M 7 -3.5 L 7 0" :width 1.4)))
+				;the instruments as they are: a protractor its marks round its
+				;edge, the whole one its line across, and a set square a right
+				;angle with the hole in it a set square has
+				(:protractor (list (pal-line "M -9 4 A 9 9 0 0 1 9 4 Z" :width 1.6)
+						(pal-line "M 0 -5 L 0 -2.5 M -6.4 -1.6 L -4.6 -0.4 M 6.4 -1.6 L 4.6 -0.4 M 0 4 L 0 1.5" :width 1.2)))
+				(:full_protractor (list (pal-line (cwb-d-ellipse 0 0 8.5) :width 1.6)
+						(pal-line "M -8.5 0 L 8.5 0 M 0 -8.5 L 0 -6 M 0 8.5 L 0 6 M 6 -6 L 4.5 -4.5 M -6 -6 L -4.5 -4.5 M 6 6 L 4.5 4.5 M -6 6 L -4.5 4.5" :width 1.2)))
+				(:set_square (list (pal-line "M -6 8 L 6 8 L -6 -9 Z" :width 1.6)
+						(pal-line "M -3.6 5.6 L 0.8 5.6 L -3.6 -1.6 Z" :width 1.2)))
+				(:set_square45 (list (pal-line "M -8 7 L 8 7 L -8 -9 Z" :width 1.6)
+						(pal-line "M -5.4 4.6 L 0.6 4.6 L -5.4 -1.4 Z" :width 1.2)))
+				(:window (list (pal-line (cwb-d-rect -8 -6 8 6) :width 1.6 :join :miter)
+						(pal-line "M -8 -2 L 8 -2" :width 1.4)))
+				(:snap (list (pal-line "M -7 -2.5 L 7 -2.5 M -7 2.5 L 7 2.5 M -2.5 -7 L -2.5 7 M 2.5 -7 L 2.5 7" :width 1.4)))
+				(:duplicate (list (pal-line (cwb-d-rect -7 -7 3 3) :width 1.6 :join :miter)
+						(cwb-shape (cwb-d-rect -3 -3 7 7) :fill +pal_ink :stroke 0)))
+				(:delete (list (pal-line "M -6 -6 L 6 6 M 6 -6 L -6 6" :width 2.6)))
+				;a painter's palette, as the toolbar's symbol is
+				(:swatches (list (pal-line (cwb-d-ellipse 0 0 8.5) :width 1.6) (pal-line (cwb-d-ellipse 3 3.5 1.8) :width 1.2)
+						(cwb-shape (cwb-d-ellipse -3.8 -2.5 1.6) :fill +pal_ink :stroke 0)
+						(cwb-shape (cwb-d-ellipse 0 -5.2 1.6) :fill +pal_ink :stroke 0)
+						(cwb-shape (cwb-d-ellipse 3.8 -2.5 1.6) :fill +pal_ink :stroke 0)))
+				(:t (list))))
 		(:t (list))))
 
 ;a cell of a pen or a colour, what is drawn in it
@@ -129,8 +129,8 @@
 					(map (# (list :color %0)) (ifn (get :menu_colors board) +pal_colors)))
 				(map (# (list :width %0)) (ifn (get :menu_widths board) +pal_widths))
 				(map (# (list :action %0)) (cat +pal_actions
-					(if (get :on_swatches board) '(:swatches) '())
-					(if (get :on_window board) '(:window) '()))))
+						(if (get :on_swatches board) '(:swatches) '())
+						(if (get :on_window board) '(:window) '()))))
 			+pal_cols +pal_cell))
 
 	(defmethod :value (key)
@@ -246,7 +246,7 @@
 				(defq key (case what (:tool :mode) (:color :color) (:pen :pen) (:width :width) (:action (if (eql val :snap) :snap))))
 				(each (lambda ((col bound slot))
 						(when (and key (if (eql key :snap) (. board :switch_of bound :snap)
-								(and (defq at (ptr-at bound key)) (eql (elem-get bound at) val))))
+									(and (defq at (ptr-at bound key)) (eql (elem-get bound at) val))))
 							;as the toolbars' squares are: a device's column, the
 							;main button's row over the second's, along the foot
 							;of the cell, black 5 across with the colour inside,
@@ -263,8 +263,7 @@
 					(:width (= val width))
 					(:action (and (eql val :snap) snap)))
 				(push items (cwb-shape (cwb-d-rect (+ x0 1.5) (+ y0 1.5) (- x1 1.5) (- y1 1.5) 3.0) :fill 0 :stroke +pal_mark :width 2.5))))
-		items)
-	)
+		items))
 
 (defun palette-open (board x y &optional kind id)
 	; (palette-open board x y [kind id]) -> palette
@@ -292,7 +291,7 @@
 	;widths given, or its own twelve and four
 	(def board :menu_colors colors :menu_widths widths)
 	(def board :menu (lambda (board x y event)
-		(palette-open board x y (elem-get event +pev_kind) (elem-get event +pev_id))))
+			(palette-open board x y (elem-get event +pev_kind) (elem-get event +pev_id))))
 	board)
 
 (defun palettes (board)

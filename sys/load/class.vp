@@ -898,7 +898,7 @@
 		(vp-xor-rr :r0 :r0)
 		(assign '(:r0 :r0 :r0 :r0 :r0)
 			'((:r5 +ld_server_flist) (:r5 +ld_server_blocks) (:r5 +ld_server_start)
-			(:r5 +ld_server_end) (:r5 +ld_server_mark)))
+				(:r5 +ld_server_end) (:r5 +ld_server_mark)))
 		(call :sys_str :copy '(:r6 (& :r5 +ld_server_name)))
 		(fn-bind 'sys/statics/statics :r7)
 		(ln-add-fnode :r7 statics_sys_load_server_flist :r5 :r0)

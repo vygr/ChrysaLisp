@@ -68,10 +68,10 @@
 			(cond
 				((> len max_block_size) (setq ok :nil))
 				(:t (defq old_pos pos pos (if (bits? size 0x80000000)
-						;uncompressed, read directly into ring buffer
-						(lz4-read ring_buf pos in_stream len)
-						;compressed
-						(lz4-decode ring_buf pos (read-blk in_stream len))))
+							;uncompressed, read directly into ring buffer
+							(lz4-read ring_buf pos in_stream len)
+							;compressed
+							(lz4-decode ring_buf pos (read-blk in_stream len))))
 					;output decoded bytes
 					(lz4-write ring_buf pos out_stream (- pos old_pos))
 					(if block_sums (read-blk in_stream 4))))))

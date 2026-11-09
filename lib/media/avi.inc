@@ -54,8 +54,8 @@
 		(defq id (slice s at (+ at 4)) size (avi-word s (+ at 4)) body (+ at 8)
 			stop (min end (+ body size)))
 		(push out (if (and (find id '("LIST" "RIFF")) (<= (+ body 4) end))
-			(list id (+ body 4) stop (slice s body (+ body 4)))
-			(list id body stop "")))
+				(list id (+ body 4) stop (slice s body (+ body 4)))
+				(list id body stop "")))
 		(setq at (+ body size (logand size 1))))
 	out)
 
@@ -78,7 +78,7 @@
 				(while (<= (+ inner 8) stop)
 					(defq h (avi-read stream inner 12) id (slice h 0 4) n (avi-word h 4))
 					(push out (list id (+ inner (if (eql id "LIST") 12 8)) (min stop (+ inner 8 n))
-						(if (eql id "LIST") (slice h 8 12) "")))
+							(if (eql id "LIST") (slice h 8 12) "")))
 					(setq inner (+ inner 8 n (logand n 1))))
 				(setq at (+ at 8 size (logand size 1))))
 			((setq at end))))
@@ -94,7 +94,7 @@
 	;a strl: its strh, strf and indx, what kind, its codec as an mp4's,
 	;its size or its sound
 	(defq track (scatter (Emap) :offsets (list) :sizes (list) :keys (list) :shown (list)
-		:start 0 :delay 0 :config (list) :avi :t))
+			:start 0 :delay 0 :config (list) :avi :t))
 	(each (lambda ((id b e kind))
 			(cond
 				((eql id "strh")
@@ -292,7 +292,7 @@
 (defun avi-ts-seek (st offset whence)
 	; (avi-ts-seek st offset whence) -> pos
 	(defq bytes (elem-get st +avi_ts_bytes) pos (max 0 (min bytes (cond
-		((= whence 0) offset) ((= whence 1) (+ offset (elem-get st +avi_ts_at))) ((+ bytes offset))))))
+					((= whence 0) offset) ((= whence 1) (+ offset (elem-get st +avi_ts_at))) ((+ bytes offset))))))
 	(elem-set st +avi_ts_at pos)
 	pos)
 
@@ -326,7 +326,7 @@
 					((and (= (code s 1 (+ i 2)) 1) (= (code s 1 i) 0) (= (code s 1 (inc i)) 0))
 						;a start code of 4 bytes, the zero before it is not the NAL's
 						(if start (push out (list (logand (code s 1 start) 0x1f) start
-							(if (and (> i start) (= (code s 1 (dec i)) 0)) (dec i) i))))
+									(if (and (> i start) (= (code s 1 (dec i)) 0)) (dec i) i))))
 						(setq start (+ i 3) i (+ i 3)))
 					((setq i (inc i)))))
 			(and start (< start n) (push out (list (logand (code s 1 start) 0x1f) start n)))))
@@ -425,7 +425,7 @@
 				(defq sps (slice first_frame (second sps_nal) (third sps_nal))
 					pps (slice first_frame (second pps_nal) (third pps_nal)))
 				(. video :insert :config (list (list "avcC" (cat (char 1) (slice sps 1 4) (char 0xff) (char 0xe1)
-					(char-be (length sps) 2) sps (char 1) (char-be (length pps) 2) pps))))))
+								(char-be (length sps) 2) sps (char 1) (char-be (length pps) 2) pps))))))
 		;the order shown, of each frame's slice header
 		(defq rbsp (cond
 				(sps_nal (avi-rbsp first_frame (second sps_nal) (third sps_nal)))
@@ -463,7 +463,7 @@
 	(when (defq s (avi-packet reel n))
 		(if (. (. reel :find :video) :find :prefix) s
 			(apply (const cat) (cat (list "") (map (lambda ((type at end)) (cat (char-be (- end at) 4) (slice s at end)))
-				(filter (# (/= (first %0) 9)) (avi-nals s))))))))
+						(filter (# (/= (first %0) 9)) (avi-nals s))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Motion JPEG, ours
@@ -537,7 +537,7 @@
 		(when (and video (find (. video :find :codec) '("mp4v" "jpeg")))
 			(defq size (cat (char (. video :find :width) 4) (char (. video :find :height) 4)))
 			(. video :insert :config (list (list "setup" (if (eql (. video :find :codec) "mp4v")
-				(cat size (avi-mp4v-headers stream video)) size)))))
+							(cat size (avi-mp4v-headers stream video)) size)))))
 		(when video
 			(defq frames (. video :find :samples))
 			(scatter reel :frames frames :width (. video :find :width) :height (. video :find :height)

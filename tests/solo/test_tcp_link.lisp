@@ -27,7 +27,7 @@
 (if (> tl_probe 0) (net-close tl_probe))
 (pipe-run (cat "link -l " (str tl_port)) (const identity))
 (defq tl_pid (pii-spawn (cat "-run (progn\v(defq\vtp_port\v" (str tl_port)
-	")\v(import\v{tests/solo/tcp_peer.lisp}))")))
+			")\v(import\v{tests/solo/tcp_peer.lisp}))")))
 
 (defun tl-find ()
 	;the node that is the process started, :nil if it is not seen yet
@@ -62,9 +62,9 @@
 	;A mailbox of its own, an answer to the search above may yet come late
 	(defq tl_big (apply (const cat) (map (# (str %0 " ")) (range 0 30000))) tl_echo (mail-mbox))
 	(open-task (str `(progn
-			(defq mbox (mail-mbox))
-			(mail-send (hex-decode ,(hex-encode tl_echo)) mbox)
-			(mail-send (hex-decode ,(hex-encode tl_echo)) (mail-read mbox))))
+				(defq mbox (mail-mbox))
+				(mail-send (hex-decode ,(hex-encode tl_echo)) mbox)
+				(mail-send (hex-decode ,(hex-encode tl_echo)) (mail-read mbox))))
 		tl_new +kn_call_pin 0 (mail-mbox))
 	(defq tl_there (mail-read tl_echo))
 	(assert-true "a task there gives a mailbox" tl_there)
@@ -88,14 +88,14 @@
 		;link the node has, its peer, the peer's task count, and 1 if it is
 		;over the network
 		(open-task (str `(progn (ffi "service/net/lisp_drop" net-drop) (ffi "service/net/lisp_links" net-links)
-				(mail-send (hex-decode ,(hex-encode tl_said))
-					(str (list (net-drop) (map (const hex-encode) (net-links)))))))
+					(mail-send (hex-decode ,(hex-encode tl_said))
+						(str (list (net-drop) (map (const hex-encode) (net-links)))))))
 			tl_net_node +kn_call_pin 0 (mail-mbox))
 		(bind '(n links) (first (read (string-stream (mail-read tl_said)))))
 		(list n (map (lambda (link)
-				(setq link (hex-decode link))
-				(list (hex-encode (slice link 0 8)) (getf link +link_peer_tasks) (getf link +link_remote)))
-			links)))
+					(setq link (hex-decode link))
+					(list (hex-encode (slice link 0 8)) (getf link +link_peer_tasks) (getf link +link_remote)))
+				links)))
 	(assert-true "there is a link over the network to drop" (> (first (tl-drop)) 0))
 	;as long as it takes; each 5 seconds it is not done, what is left is said
 	(defq tl_tries 0)

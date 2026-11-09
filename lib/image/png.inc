@@ -101,17 +101,17 @@
 					((>= depth 8) (write-blk out (png-pixels cur colour depth width palette clear)))
 					(:t (defq pixels (cap (* width 4) (list)))
 						(each (lambda (x)
-							;so many to a byte, the first in the high bits
-							(defq a 255 at (* x depth) v (logand (>> (code cur 1 (>> at 3)) (- 8 depth (logand at 7))) most))
-							(cond
-								((= colour 3)
-									(if (< v (length clear)) (setq a (code clear 1 v)))
-									(setq v (* v 3))
-									(if (< (+ v 2) (length palette))
-										(push pixels (code palette 1 (+ v 2)) (code palette 1 (+ v 1)) (code palette 1 v) a)
-										(push pixels 0 0 0 a)))
-								(:t (setq v (/ (* v 255) most))
-									(push pixels v v v a))))
+								;so many to a byte, the first in the high bits
+								(defq a 255 at (* x depth) v (logand (>> (code cur 1 (>> at 3)) (- 8 depth (logand at 7))) most))
+								(cond
+									((= colour 3)
+										(if (< v (length clear)) (setq a (code clear 1 v)))
+										(setq v (* v 3))
+										(if (< (+ v 2) (length palette))
+											(push pixels (code palette 1 (+ v 2)) (code palette 1 (+ v 1)) (code palette 1 v) a)
+											(push pixels 0 0 0 a)))
+									(:t (setq v (/ (* v 255) most))
+										(push pixels v v v a))))
 							(range 0 width))
 						(write-blk out (apply (const cat) (cat (list "") (map (const char) pixels))))))
 				(setq prev cur row (inc row))))))
@@ -143,10 +143,10 @@
 			;clear are bytes, given as hex, a reader takes no byte as it is in
 			;the text of a form
 			(unless (stages-load stream pixmap 32 (list
-					(stage "lib/image/png.inc" 'png-idat (second chunk))
-					(stage "lib/streams/deflate.inc" 'inflate-decompress :t)
-					(stage "lib/image/png.inc" 'png-unfilter w h depth colour
-						(list 'hex-decode (hex-encode palette)) (list 'hex-decode (hex-encode clear)))))
+						(stage "lib/image/png.inc" 'png-idat (second chunk))
+						(stage "lib/streams/deflate.inc" 'inflate-decompress :t)
+						(stage "lib/image/png.inc" 'png-unfilter w h depth colour
+							(list 'hex-decode (hex-encode palette)) (list 'hex-decode (hex-encode clear)))))
 				(setq canvas :nil))))
 	canvas)
 
@@ -192,9 +192,9 @@
 	(write-blk stream +png_signature)
 	(png-chunk-write stream "IHDR" (cat (png-be4 w) (png-be4 h) (char 8) (char 6) (char 0) (char 0) (char 0)))
 	(stages-save pixmap 32 stream (list
-		(stage "lib/image/png.inc" 'png-rows w h)
-		(stage "lib/streams/deflate.inc" 'deflate-compress :t)
-		(stage "lib/image/png.inc" 'png-chunks)))
+			(stage "lib/image/png.inc" 'png-rows w h)
+			(stage "lib/streams/deflate.inc" 'deflate-compress :t)
+			(stage "lib/image/png.inc" 'png-chunks)))
 	canvas)
 
 ;the canvas is told what this reads and writes

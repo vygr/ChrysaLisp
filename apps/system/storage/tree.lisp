@@ -43,7 +43,7 @@
 		;one of 2036 that was not put, the first time this ran over three
 		;machines
 		files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "./tests/scratch/" %0)
-				(starts-with "." (last (split %0 "/"))))))
+						(starts-with "." (last (split %0 "/"))))))
 			(files-all root '("")))
 		count (length files) going :t putting :t done 0 put 0 same 0 bytes 0 t0 (pii-time) t1 t0
 		want (max 2 (* 2 (length svcs)))
@@ -52,9 +52,9 @@
 	(defun work (what)
 		;a job for each file, each at the next of the members
 		(. jobs :add (map (lambda (file)
-			(cat (str-alloc +job_size) (join (list what (hex-encode (elem-get svcs (% (!) (length svcs))))
-				(cat prefix (if (starts-with "./" file) (slice file 2 -1) file)) file) +lf)))
-			files)))
+					(cat (str-alloc +job_size) (join (list what (hex-encode (elem-get svcs (% (!) (length svcs))))
+								(cat prefix (if (starts-with "./" file) (slice file 2 -1) file)) file) +lf)))
+				files)))
 	(cond
 		((or (empty? svcs) (= count 0))
 			(mail-send reply (join (map (const str) (list "done" 0 0 count 0 0 0)) " ")))
@@ -74,19 +74,19 @@
 								((starts-with "0" said)
 									;which one, and why: it is said, a count does not
 									(if job (mail-send reply (cat (if putting "notput " "notread ")
-										(third (split (slice job +job_size -1) +lf)) +lf (slice said 2 -1)))))
+												(third (split (slice job +job_size -1) +lf)) +lf (slice said 2 -1)))))
 								(putting (++ put))
 								(:t (++ same)
 									(setq bytes (+ bytes (str-as-num (slice said 2 -1))))))
 							(and job (= 0 (% done 8))
 								(mail-send reply (cat (if putting "put " "read ") (str done) " " (str count) " "
-									(third (split (slice job +job_size -1) +lf)))))
+										(third (split (slice job +job_size -1) +lf)))))
 							(when (= out 0)
 								(cond
 									(putting (setq putting :nil done 0 t1 (pii-time))
 										(work "v"))
 									(:t (mail-send reply (join (map (const str)
-											(list "done" put same count bytes (/ (- t1 t0) 1000) (/ (- (pii-time) t1) 1000))) " "))
+													(list "done" put same count bytes (/ (- t1 t0) 1000) (/ (- (pii-time) t1) 1000))) " "))
 										(setq going :nil))))))
 					(:t ;one of the farm that has gone, or been too long, is started again
 						(mail-timeout (elem-get select +select_timer) +look_rate 0)

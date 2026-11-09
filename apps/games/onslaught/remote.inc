@@ -3,15 +3,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq +remote_state_names
-	''(:title :menu :map :scores :hiscore :battle :battle_won :battle_lost
-		:mind :mind_won :mind_lost :credits :oracle :demo))
+		''(:title :menu :map :scores :hiscore :battle :battle_won :battle_lost
+			:mind :mind_won :mind_lost :credits :oracle :demo))
 
 (defun remote-sprites (layer)
 	; (remote-sprites layer) -> ((class frame x y) ...)
 	(reduce (lambda (out sp)
 			(if (Sprite? sp)
 				(push out (list (last (. sp :type_of)) (get :sp_frame sp)
-					(get :sp_x sp) (get :sp_y sp)))
+						(get :sp_x sp) (get :sp_y sp)))
 				out))
 		(. layer :children) (list)))
 
@@ -24,9 +24,9 @@
 (defun remote-land ()
 	; (remote-land) -> str, tile flags of the battle map, row by row
 	(apply (const cat) (map (lambda (i)
-			(char (. *layer_land* :get_tile_flags
-				(* (% i +map_width) +tile_width) (* (/ i +map_width) +tile_height))))
-		(range 0 (const (* +map_width +map_height))))))
+				(char (. *layer_land* :get_tile_flags
+						(* (% i +map_width) +tile_width) (* (/ i +map_width) +tile_height))))
+			(range 0 (const (* +map_width +map_height))))))
 
 (defun remote-state ()
 	; (remote-state) -> (key value ...)
@@ -35,7 +35,7 @@
 		;the letter under the sight when entering initials
 		:letter (and (= *game_state* +game_state_hiscore) *hiscore_entry*
 			(elem-get +hiscore_letters (% (+ *hiscore_text* +hiscore_pick)
-				(length +hiscore_letters))))
+					(length +hiscore_letters))))
 		:score *man_score* :power *man_power* :strength *man_strength*
 		:inventory *item_inventory* :usage *item_usage* :selected *item_selected*
 		:location (list *location_x* *location_y*)

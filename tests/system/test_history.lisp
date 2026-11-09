@@ -25,10 +25,10 @@
 ;out, a function is found without, a variable is not. It was not, and
 ;the first Ctrl-R in the Terminal app was an error
 (defq hs_said (test-output (cat
-	"(import {usr/env.inc}) (import {gui/lisp.inc})"
-	" (defq +state_filename {tmp_test_history.tre})"
-	" (import {apps/system/terminal/widgets.inc}) (import {apps/system/terminal/actions.inc})"
-	" (print (if (and (def? (quote *history_find*)) (def? (quote *history_found*))) {kept} {gone})"
-	" (if (. *key_map_control* :find (ascii-code {r})) { and bound to a key} { and no key}))")))
+			"(import {usr/env.inc}) (import {gui/lisp.inc})"
+			" (defq +state_filename {tmp_test_history.tre})"
+			" (import {apps/system/terminal/widgets.inc}) (import {apps/system/terminal/actions.inc})"
+			" (print (if (and (def? (quote *history_find*)) (def? (quote *history_found*))) {kept} {gone})"
+			" (if (. *key_map_control* :find (ascii-code {r})) { and bound to a key} { and no key}))")))
 (assert-eq "as the Terminal app loads it, what the search keeps is there, and Ctrl-R is a key"
 	"kept and bound to a key\n" hs_said)

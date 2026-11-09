@@ -52,14 +52,14 @@
 	(setd o :r0 c :r1 x 1)
 	(if (eql o c) (throw "Invalid object or count !" (list o c)))
 	(assign `((,o +obj_count)) `(,c))
-	(validatecase
-		;no live object has a count of 0, and a freed one holds the fill
-		(vpif `(,c = 0))
-			(jump :obj :dead)
-		(endif)
-		(vpif `(,c > +obj_count_max))
-			(jump :obj :dead)
-		(endif))
+(validatecase
+	;no live object has a count of 0, and a freed one holds the fill
+	(vpif `(,c = 0))
+		(jump :obj :dead)
+	(endif)
+	(vpif `(,c > +obj_count_max))
+		(jump :obj :dead)
+	(endif))
 	(if (vp-rreg? x)
 		(vp-add-rr x c)
 		(vp-add-cr x c))
@@ -80,14 +80,14 @@
 	(if (eql o c) (throw "Invalid object or count !" (list o c)))
 	(assign `((,o +obj_count)) `(,c))
 	(gotoif `(,c = 1) l)
-	(validatecase
-		;no live object has a count of 0, and a freed one holds the fill
-		(vpif `(,c = 0))
-			(jump :obj :dead)
-		(endif)
-		(vpif `(,c > +obj_count_max))
-			(jump :obj :dead)
-		(endif))
+(validatecase
+	;no live object has a count of 0, and a freed one holds the fill
+	(vpif `(,c = 0))
+		(jump :obj :dead)
+	(endif)
+	(vpif `(,c > +obj_count_max))
+		(jump :obj :dead)
+	(endif))
 	(vp-sub-cr 1 c)
 	(assign `(,c) `((,o +obj_count))))
 

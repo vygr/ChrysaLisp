@@ -73,9 +73,9 @@
 (defun keys-of (scode mods)
 	;a key down and up, inside the downs and ups of its modifiers
 	(apply (const cat) (cat
-		(map (# (event +gui_ev_key_down 0 0 0 0 %0)) mods)
-		(list (event +gui_ev_key_down 0 0 0 0 scode) (event +gui_ev_key_up 0 0 0 0 scode))
-		(rmap (# (event +gui_ev_key_up 0 0 0 0 %0)) mods))))
+			(map (# (event +gui_ev_key_down 0 0 0 0 %0)) mods)
+			(list (event +gui_ev_key_down 0 0 0 0 scode) (event +gui_ev_key_up 0 0 0 0 scode))
+			(rmap (# (event +gui_ev_key_up 0 0 0 0 %0)) mods))))
 
 (defun key-name (name)
 	; (key-name name) -> :nil | events
@@ -90,12 +90,12 @@
 	(defq by_char (Fmap) out (list))
 	(each (lambda ((m shift))
 			(. m :each (# (unless (. by_char :find %1)
-				(. by_char :insert %1 (list %0 shift))))))
+						(. by_char :insert %1 (list %0 shift))))))
 		(list (list *normal_map* :nil) (list *shift_map* :t)))
 	(when (every (lambda (c)
-			(when (defq k (. by_char :find (code c)))
-				(bind '(scode shift) k)
-				(push out (keys-of scode (if shift (list +sc_lshift) (list)))))) text)
+				(when (defq k (. by_char :find (code c)))
+					(bind '(scode shift) k)
+					(push out (keys-of scode (if shift (list +sc_lshift) (list)))))) text)
 		(apply (const cat) out)))
 
 ;the words of the actions, the next one, and the view they are about,
@@ -115,7 +115,7 @@
 	;steps of the wheel, a way and how many, up is away from the user
 	(and (defq way (next-word)) (number-word? (defq n (next-word)))
 		(defq xy (case (sym (cat ":" way))
-			(:up '(0 1)) (:down '(0 -1)) (:left '(-1 0)) (:right '(1 0))))
+				(:up '(0 1)) (:down '(0 -1)) (:left '(-1 0)) (:right '(1 0))))
 		(event +gui_ev_mouse_wheel (* (first xy) (str-to-num n)) (* (second xy) (str-to-num n)))))
 
 (defun place ()
@@ -138,15 +138,15 @@
 	(and (not *covered*) (nempty? *title*) (str?? (defq at (gui-at-rpc (first xy) (second xy))))
 		(not (found? at *title*))
 		(setq *covered* (cat "input: " (str (first xy)) " " (str (second xy)) " is on "
-			(if (nempty? at) at "no window") ", not on " *title*)))
+				(if (nempty? at) at "no window") ", not on " *title*)))
 	xy)
 
 (defun click (button counts)
 	(bind '(x y) (landing))
 	(cat (event +gui_ev_mouse_motion x y)
 		(apply (const cat) (map (# (cat
-			(event +gui_ev_mouse_down x y button %0)
-			(event +gui_ev_mouse_up x y button %0))) counts))))
+						(event +gui_ev_mouse_down x y button %0)
+						(event +gui_ev_mouse_up x y button %0))) counts))))
 
 (defun drag ()
 	(bind '(x y) (landing))
@@ -154,8 +154,8 @@
 	(cat (event +gui_ev_mouse_motion x y)
 		(event +gui_ev_mouse_down x y 1 1)
 		(apply (const cat) (map (# (event +gui_ev_mouse_motion
-			(+ x (/ (* (- x1 x) %0) 8)) (+ y (/ (* (- y1 y) %0) 8)) 1))
-			(range 1 9)))
+						(+ x (/ (* (- x1 x) %0) 8)) (+ y (/ (* (- y1 y) %0) 8)) 1))
+				(range 1 9)))
 		(event +gui_ev_mouse_up x1 y1 1 1)))
 
 ;a pen or a finger, as the host gives one: its id, device << 24 | contact,
@@ -186,7 +186,7 @@
 			(bind '(buttons ox oy) (ifn at (list 1 x y)))
 			(. *contacts* :insert id (list buttons x y))
 			(apply (const cat) (map (# (pointer-event +gui_ev_pointer_motion id kind buttons
-				(+ ox (/ (* (- x ox) %0) 8)) (+ oy (/ (* (- y oy) %0) 8)))) (range 1 9))))
+							(+ ox (/ (* (- x ox) %0) 8)) (+ oy (/ (* (- y oy) %0) 8)))) (range 1 9))))
 		(:up (bind '(& x y) (ifn at (cat '(0) (place))))
 			(. *contacts* :erase id)
 			(pointer-event +gui_ev_pointer_up id kind 0 x y))))

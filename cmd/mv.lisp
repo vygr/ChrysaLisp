@@ -26,4 +26,3 @@
 					(stream-flush dst))
 				(setq src :nil dst :nil)
 				(pii-remove src_path)))))
-

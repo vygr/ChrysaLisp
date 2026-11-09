@@ -40,9 +40,9 @@
 	; (keys-names [root]) -> (name ...)
 	;the keys of the keyring, in order
 	(sort (reduce (lambda (out (name kind))
-			(and (eql kind "f") (keys-name? name) (push out name))
-			out)
-		(partition (split (ifn (pii-dirlist (cat (ifn root ".") "/" +keys_folder)) "") ",") 2) (list))))
+				(and (eql kind "f") (keys-name? name) (push out name))
+				out)
+			(partition (split (ifn (pii-dirlist (cat (ifn root ".") "/" +keys_folder)) "") ",") 2) (list))))
 
 (defun keys-print (key)
 	; (keys-print key) -> str

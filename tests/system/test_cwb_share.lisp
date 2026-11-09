@@ -73,7 +73,7 @@
 (sh-round) (sh-round)
 (assert-eq "let go it is kept, on all, and is no longer being drawn anywhere"
 	(str (list 3 3 3 0 0)) (str (list (length (cwb-items (. sh_t :get_doc))) (length (cwb-items (. sh_a :get_doc)))
-		(length (cwb-items (. sh_b :get_doc))) (. (get :remote_temp sh_t) :size) (. (get :remote_temp sh_b) :size))))
+			(length (cwb-items (. sh_b :get_doc))) (. (get :remote_temp sh_t) :size) (. (get :remote_temp sh_b) :size))))
 
 ;one that joins late has it all
 (defq sh_c (share-start (Board (cwb-doc 400 300))))
@@ -201,7 +201,7 @@
 (assert-eq "and not back to its own" "()" (str (sh-pointers sh_a)))
 ;still for longer than is shown
 (. (get :pointer_at sh_a) :each (lambda (id (x y kind down when))
-	(. (get :pointer_at sh_a) :insert id (list x y kind down (- (pii-time) 10000000)))))
+		(. (get :pointer_at sh_a) :insert id (list x y kind down (- (pii-time) 10000000)))))
 (sh-round) (sh-round)
 (assert-eq "a mouse still for a while is shown no more" "()" (str (sh-pointers sh_t)))
 (assert-eq "anywhere" "()" (str (sh-pointers sh_b)))

@@ -112,7 +112,7 @@
 					;of kinds, or a filter, a folder only if there is something in it
 					;of them, the filter finds
 					((eql type "d") (if (or (and (not meta) (empty? *exts*)) (folder-has? (path-in folder name) engine meta))
-						(push folders (cat name "/"))))
+							(push folders (cat name "/"))))
 					((wanted? name engine meta) (push files name)))))
 		(name-list folder))
 	(setq *items* (cat (sort folders) (sort files)))
@@ -190,7 +190,7 @@
 		given (filter (# (and (folder? %0) (not (find %0 (list "." home))))) *given*)
 		fixed (cat (list "." home) given (if (and *names* (storage-service)) (list +name_store) (list))))
 	(setq *place_list* (cat fixed
-		(filter! (# (and (nempty? %0) (not (find %0 fixed)))) *app_places* 1 -1)))
+			(filter! (# (and (nempty? %0) (not (find %0 fixed)))) *app_places* 1 -1)))
 	(if (> (length *place_list*) +places_max) (setq *place_list* (slice *place_list* 0 +places_max)))
 	;the tree, the user's folder and the store by what they are, the rest by
 	;their names

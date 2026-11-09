@@ -107,67 +107,67 @@
 
 			(rect-overlap
 				(;x, y, x1, y1 inside
-				(vp-simd vp-store-rrc-i `(,ix ,iy ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,ix ,iy ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, x1, y1 inside
-				(vp-simd vp-store-rrc-i `(,x ,iy ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,x ,iy ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, x1, y1 inside
-				(vp-simd vp-store-rrc-i `(,ix ,y ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,ix ,y ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x1, y1 inside
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y, y1 inside
-				(vp-simd vp-store-rrc-i `(,ix ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,ix ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, y1 inside
-				(vp-simd vp-store-rrc-i `(,x ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,x ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y1 inside
-				(vp-simd vp-store-rrc-i `(,ix ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,ix ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y1 inside
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y, x1 inside
-				(vp-simd vp-store-rrc-i `(,ix ,iy ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,ix ,iy ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;region is enclosed
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x inside
-				(vp-simd vp-store-rrc-i `(,ix ,y ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,ix ,y ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y inside
-				(vp-simd vp-store-rrc-i `(,x ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,x ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y inside
-				(vp-simd vp-store-rrc-i `(,ix ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,ix ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x1 inside
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, x1 inside
-				(vp-simd vp-store-rrc-i `(,ix ,y ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					(vp-simd vp-store-rrc-i `(,ix ,y ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, x1 inside
-				(vp-simd vp-store-rrc-i `(,x ,iy ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))))
+					(vp-simd vp-store-rrc-i `(,x ,iy ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))))
 		(loop-end)
 	(endif)
 
@@ -205,244 +205,244 @@
 
 			(rect-overlap
 				(;x, y, x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix ,iy ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,iy ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix ,iy ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,iy ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,iy ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,iy ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix ,y ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix ,y ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,iy ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,iy ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y, x1 inside
-				;left part
-				(vp-simd vp-store-rrc-i `(,iy ,ix) `(,srec) `(,rect_y ,rect_x1))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix ,iy ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;left part
+					(vp-simd vp-store-rrc-i `(,iy ,ix) `(,srec) `(,rect_y ,rect_x1))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix ,iy ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;region is enclosed
-				(vp-cpy-rr srec rec)
-				(ln-remove-fnode srec prec)
-				(ln-add-fnode dregion 0 rec prec)
-				(continue))
+					(vp-cpy-rr srec rec)
+					(ln-remove-fnode srec prec)
+					(ln-add-fnode dregion 0 rec prec)
+					(continue))
 
 				(;x inside
-				;left part
-				(vp-simd vp-store-rrc-i `(,ix) `(,srec) `(,rect_x1))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix ,y ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;left part
+					(vp-simd vp-store-rrc-i `(,ix) `(,srec) `(,rect_x1))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix ,y ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y inside
-				;top part
-				(vp-simd vp-store-rrc-i `(,iy) `(,srec) `(,rect_y1))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;top part
+					(vp-simd vp-store-rrc-i `(,iy) `(,srec) `(,rect_y1))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y inside
-				;left part
-				(vp-simd vp-store-rrc-i `(,iy ,ix) `(,srec) `(,rect_y ,rect_x1))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;left part
+					(vp-simd vp-store-rrc-i `(,iy ,ix) `(,srec) `(,rect_y ,rect_x1))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1) `(,srec) `(,rect_x))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1) `(,srec) `(,rect_x))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1) `(,srec) `(,rect_x))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,ix ,y ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1) `(,srec) `(,rect_x))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,ix ,y ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy) `(,srec) `(,rect_x ,rect_y))
-				;cut part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,iy ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec prec)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy) `(,srec) `(,rect_x ,rect_y))
+					;cut part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,iy ,ix1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec prec)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))))
 		(loop-end)
 	(endif)
 
@@ -492,110 +492,110 @@
 
 			(rect-overlap
 				(;x, y, x1, y1 inside
-				(exit :region :paste_rect `(,heap))
-				(vp-ret))
+					(exit :region :paste_rect `(,heap))
+					(vp-ret))
 
 				(;y, x1, y1 inside
-				(vp-cpy-rr x ix1)
-				(continue))
+					(vp-cpy-rr x ix1)
+					(continue))
 
 				(;x, x1, y1 inside
-				(vp-cpy-rr y iy1)
-				(continue))
+					(vp-cpy-rr y iy1)
+					(continue))
 
 				(;x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,drec) `(,rect_y))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,drec) `(,rect_y))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y, y1 inside
-				(vp-cpy-rr x1 ix)
-				(continue))
+					(vp-cpy-rr x1 ix)
+					(continue))
 
 				(;y, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,drec) `(,rect_y))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,drec) `(,rect_y))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,drec) `(,rect_y))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,drec) `(,rect_y))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,drec) `(,rect_y))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,drec) `(,rect_y))
+					(continue))
 
 				(;x, y, x1 inside
-				(vp-cpy-rr y1 iy)
-				(continue))
+					(vp-cpy-rr y1 iy)
+					(continue))
 
 				(;region is enclosed
-			(vp-label 'enclosed)
-				(vp-cpy-rr drec rec)
-				(ln-remove-fnode drec prec)
-				(hp-freecell heap rec tmp)
-				(continue))
+				(vp-label 'enclosed)
+					(vp-cpy-rr drec rec)
+					(ln-remove-fnode drec prec)
+					(hp-freecell heap rec tmp)
+					(continue))
 
 				(;x inside
-				;left part
-				(vp-simd vp-store-rrc-i `(,ix) `(,drec) `(,rect_x1))
-				(continue))
+					;left part
+					(vp-simd vp-store-rrc-i `(,ix) `(,drec) `(,rect_x1))
+					(continue))
 
 				(;y inside
-				;top part
-				(vp-simd vp-store-rrc-i `(,iy) `(,drec) `(,rect_y1))
-				(continue))
+					;top part
+					(vp-simd vp-store-rrc-i `(,iy) `(,drec) `(,rect_y1))
+					(continue))
 
 				(;x, y inside
-				;left part
-				(vp-simd vp-store-rrc-i `(,iy ,ix) `(,drec) `(,rect_y ,rect_x1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;left part
+					(vp-simd vp-store-rrc-i `(,iy ,ix) `(,drec) `(,rect_y ,rect_x1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1) `(,drec) `(,rect_x))
-				(continue))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1) `(,drec) `(,rect_x))
+					(continue))
 
 				(;x, x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1) `(,drec) `(,rect_x))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1) `(,drec) `(,rect_x))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy) `(,drec) `(,rect_x ,rect_y))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode dregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy) `(,drec) `(,rect_x ,rect_y))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode dregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))))
 		(loop-end)
 
 		;create new region ?
@@ -641,169 +641,169 @@
 
 			(rect-overlap
 				(;x, y, x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,iy ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,iy ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x1, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,ix1 ,y ,x1 ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,iy ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,iy ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x, y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix ,iy1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y1 inside
-				;bottom part
-				(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
-				(continue))
+					;bottom part
+					(vp-simd vp-store-rrc-i `(,iy1) `(,srec) `(,rect_y))
+					(continue))
 
 				(;x, y, x1 inside
-				;left part
-				(vp-simd vp-store-rrc-i `(,iy ,ix) `(,srec) `(,rect_y ,rect_x1))
-				;right part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;left part
+					(vp-simd vp-store-rrc-i `(,iy ,ix) `(,srec) `(,rect_y ,rect_x1))
+					;right part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;region is enclosed
-				(vp-cpy-rr srec rec)
-				(ln-remove-fnode srec prec)
-				(hp-freecell heap rec tmp)
-				(continue))
+					(vp-cpy-rr srec rec)
+					(ln-remove-fnode srec prec)
+					(hp-freecell heap rec tmp)
+					(continue))
 
 				(;x inside
-				;left part
-				(vp-simd vp-store-rrc-i `(,ix) `(,srec) `(,rect_x1))
-				(continue))
+					;left part
+					(vp-simd vp-store-rrc-i `(,ix) `(,srec) `(,rect_x1))
+					(continue))
 
 				(;y inside
-				;top part
-				(vp-simd vp-store-rrc-i `(,iy) `(,srec) `(,rect_y1))
-				(continue))
+					;top part
+					(vp-simd vp-store-rrc-i `(,iy) `(,srec) `(,rect_y1))
+					(continue))
 
 				(;x, y inside
-				;left part
-				(vp-simd vp-store-rrc-i `(,iy ,ix) `(,srec) `(,rect_y ,rect_x1))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;left part
+					(vp-simd vp-store-rrc-i `(,iy ,ix) `(,srec) `(,rect_y ,rect_x1))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1) `(,srec) `(,rect_x))
-				(continue))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1) `(,srec) `(,rect_x))
+					(continue))
 
 				(;x, x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1) `(,srec) `(,rect_x))
-				;left part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,ix ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
-				(continue))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1) `(,srec) `(,rect_x))
+					;left part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,ix ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
+					(continue))
 
 				(;y, x1 inside
-				;right part
-				(vp-simd vp-store-rrc-i `(,ix1 ,iy) `(,srec) `(,rect_x ,rect_y))
-				;top part
-				(call :sys_heap :alloc `(,heap) `(,heap ,rec))
-				; (continueif `(,rec = 0))
-				(ln-add-fnode sregion 0 rec tmp)
-				(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))))
+					;right part
+					(vp-simd vp-store-rrc-i `(,ix1 ,iy) `(,srec) `(,rect_x ,rect_y))
+					;top part
+					(call :sys_heap :alloc `(,heap) `(,heap ,rec))
+					; (continueif `(,rec = 0))
+					(ln-add-fnode sregion 0 rec tmp)
+					(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,iy) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))))
 		(loop-end)
 	(endif)
 

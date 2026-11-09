@@ -22,7 +22,7 @@
 	lk_timeout 3000000
 	lk_timeout_max 60000000 lk_beat 1000000 lk_stall 100000
 	lk_data_size  (some! (lambda (%0) (if (>= %0 lk_page_size)
-		(- %0 +str_size +long_size +sys_mem_header_size))) (list +mem_heap_cell_sizes)))
+				(- %0 +str_size +long_size +sys_mem_header_size))) (list +mem_heap_cell_sizes)))
 
 (enums lk_chan_status 0
 	(enum ready ping frag skip))

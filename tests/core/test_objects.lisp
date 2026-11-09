@@ -36,8 +36,7 @@
 	(defmethod :add (other)
 		(defq nx (+ (get :x this) (. other :get_x)))
 		(defq ny (+ (get :y this) (get :y other)))
-		(TestPoint nx ny))
-)
+		(TestPoint nx ny)))
 
 (defq p1 (TestPoint 10 20))
 (defq p2 (TestPoint 5 5))
@@ -50,8 +49,7 @@
 ; Inherit from TestPoint, initializing it with 0, 0
 (defclass TestPoint3D (z) (TestPoint 0 0)
 	(def this :z z)
-	(defmethod :get_z () (get :z this))
-)
+	(defmethod :get_z () (get :z this)))
 
 (defq p3d (TestPoint3D 99))
 ; Inherited values (x=0, y=0 from super init)

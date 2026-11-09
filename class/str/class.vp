@@ -977,7 +977,7 @@
 	;:r0-:r11, :d0-:d15
 
 	(vp-rdef (this idx_begin di si ei swp_xor len total
-		src1 src2 idxs idx_end))
+			src1 src2 idxs idx_end))
 
 	(entry :str :splice `(,src1 ,src2 ,idxs))
 

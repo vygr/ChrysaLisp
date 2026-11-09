@@ -19,5 +19,5 @@
 	(if (nempty? (net-links)) (setq tp_linked :t))
 	(task-sleep 200000))
 (save (cat "link said: " (join tp_said "") "; linked: " (if tp_linked "yes" "never")
-	"; ended after " (str (/ (- (pii-time) tp_t0) 1000000)) "s") tp_log)
+		"; ended after " (str (/ (- (pii-time) tp_t0) 1000000)) "s") tp_log)
 (pii-exit)

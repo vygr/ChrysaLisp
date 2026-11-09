@@ -78,5 +78,4 @@
 
 	(defmethod :size ()
 		; (. emap :size) -> size
-		(length (tolist (get :buckets this))))
-	)
+		(length (tolist (get :buckets this)))))

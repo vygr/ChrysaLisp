@@ -12,10 +12,10 @@
 ;a theme, its name and the font of its symbols. The first is the one a
 ;user who has not chosen has
 (defq *themes* (list
-	(list "Light" "fonts/Symbols-Light.ctf")
-	(list "Regular" "fonts/Symbols.ctf")
-	(list "Bold" "fonts/Symbols-Bold.ctf")
-	(list "Sharp" "fonts/Symbols-Sharp.ctf")))
+		(list "Light" "fonts/Symbols-Light.ctf")
+		(list "Regular" "fonts/Symbols.ctf")
+		(list "Bold" "fonts/Symbols-Bold.ctf")
+		(list "Sharp" "fonts/Symbols-Sharp.ctf")))
 
 (defun theme-file (name)
 	; (theme-file name) -> symbols_file

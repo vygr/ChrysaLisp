@@ -95,14 +95,14 @@
 		;what is watched, played and stepped through, on the left
 		(ui-tool-bar *debug* ()
 			(ui-buttons (+sym_media_play +sym_media_pause +sym_media_start +sym_media_back +sym_media_on +sym_media_end
-				+sym_media_live +sym_media_record +sym_find +sym_media_join +sym_laptop) +event_play))
+					+sym_media_live +sym_media_record +sym_find +sym_media_join +sym_laptop) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:paper :paper_toolbar2)
 				(ui-buttons (+sym_play_all +sym_open +sym_save) +event_run))
 			;the scenes there are as it starts, (ui-radio-bar) takes its names as written
 			(. (ui-element *scene* (Radiobar *scenes*) (:paper :paper_toolbar2 :font :font_body
-				:border :border_button)) :connect +event_scene)
+						:border :border_button)) :connect +event_scene)
 			(ui-backdrop _ (:paper :paper_toolbar))))
 	;snapshots of the store of this system: one taken, the one picked put
 	;back, or dropped, and the name a new one is given
@@ -126,9 +126,9 @@
 		"make this machine a member of the store of its mesh, now and each time it starts"
 		"this machine is taken away, a laptop: it holds all of its user's area"))
 (ui-tool-tips *tests* '("run the scene chosen" "open a recording, of storage -r or saved here"
-	"save what is recorded, to play again or send"))
+		"save what is recorded, to play again or send"))
 (ui-tool-tips *snapbar* '("a snapshot of the whole store, by the name written, or the time"
-	"put the store back as it was in the snapshot picked" "drop the snapshot picked"))
+		"put the store back as it was in the snapshot picked" "drop the snapshot picked"))
 ;each scene's own first line, what it is for
 (ui-tool-tips *scene* (map (const second) *scene_list*))
 
@@ -147,7 +147,7 @@
 	;the paths a member has now, deleted or not, in order
 	(defq out (list) all (members))
 	(. (. *replay* :find :all_paths) :each (lambda (path)
-		(if (some (# (replay-path *replay* %0 path)) all) (push out path))))
+			(if (some (# (replay-path *replay* %0 path)) all) (push out path))))
 	(sort out))
 
 (defun paths-now ()
@@ -162,11 +162,11 @@
 	;deleted, and how many objects each is of
 	(defq counts (Fmap 11) names (list) all (members))
 	(each (lambda (path)
-		(when (and (starts-with +store_snapshots path)
-				(some (lambda (id) (and (defq m (replay-path *replay* id path)) (nql m "-"))) all))
-			(defq after (slice path (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
-			(unless (. counts :find name) (push names name))
-			(. counts :insert name (inc (ifn (. counts :find name) 0)))))
+			(when (and (starts-with +store_snapshots path)
+					(some (lambda (id) (and (defq m (replay-path *replay* id path)) (nql m "-"))) all))
+				(defq after (slice path (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
+				(unless (. counts :find name) (push names name))
+				(. counts :insert name (inc (ifn (. counts :find name) 0)))))
 		(paths-all))
 	(map (# (list %0 (. counts :find %0))) (sort names)))
 
@@ -196,10 +196,10 @@
 	;blocks, their indexes
 	(defq set (trace-set) out (list))
 	(each (lambda (e)
-		(if (if *gopher* (eql (replay-gopher-tag e) *gopher*)
-				(or (eql (elem-get e +ev_path) *shown*)
-					(and (nempty? (elem-get e +ev_words)) (. set :find (first (elem-get e +ev_words))))))
-			(push out (!))))
+			(if (if *gopher* (eql (replay-gopher-tag e) *gopher*)
+					(or (eql (elem-get e +ev_path) *shown*)
+						(and (nempty? (elem-get e +ev_words)) (. set :find (first (elem-get e +ev_words))))))
+				(push out (!))))
 		(. *replay* :find :events))
 	out)
 
@@ -209,7 +209,7 @@
 	;of the object shown, or the last to set out to it, its steps in the order they were taken, they come
 	;as each member sends what it did
 	(defq tag (ifn *gopher* (and *shown* (ifn (. (. *replay* :find :path_done) :find *shown*)
-		(. (. *replay* :find :path_gopher) :find *shown*)))))
+					(. (. *replay* :find :path_gopher) :find *shown*)))))
 	(and tag (defq walk (replay-walk *replay* tag)) (eql (first walk) *shown*)
 		(list tag (sort (cat (second walk)) (lambda ((& a ta) (& b tb)) (if (= ta tb) (- a b) (- ta tb)))))))
 
@@ -249,8 +249,8 @@
 		(setq *lit* now)
 		(defq lit (canvas-brighter (get :paper *debug*)))
 		(each (lambda (button on)
-			(undef (. button :dirty) :paper)
-			(if on (def button :paper lit)))
+				(undef (. button :dirty) :paper)
+				(if on (def button :paper lit)))
 			(. *debug* :children) now)))
 
 (defun draw ()
@@ -271,44 +271,44 @@
 			(fit (said-now) 60)) 16 22 14)
 	(when *shown*
 		(defq about (if manifest (cat ", " (str (length blocks)) " blocks"
-				(if (> (length blocks) (dec cols)) (cat ", the first " (str (dec cols)) " shown") "")
-				", the first column its manifest") ", not here now"))
+					(if (> (length blocks) (dec cols)) (cat ", the first " (str (dec cols)) " shown") "")
+					", the first column its manifest") ", not here now"))
 		;or the gopher picked, and the way it went
 		(if (and *gopher* (defq walk (gopher-shown)))
 			(text (fit (cat "gopher " (first walk) ", " (str (length (second walk))) " blocks, by way of "
-				(join (reduce (lambda (way (who &ignore)) (if (eql (last way) (short who)) way (push way (short who))))
-					(second walk) (list)) " ")) 86) 16 40 11 +dim)
+						(join (reduce (lambda (way (who &ignore)) (if (eql (last way) (short who)) way (push way (short who))))
+								(second walk) (list)) " ")) 86) 16 40 11 +dim)
 			(text (cat (fit *shown* (- 86 (length about))) about) 16 40 11 +dim)))
 	;the first column, the manifest, is ruled off from the blocks
 	(and manifest (> cols 1)
 		(push items (cwb-shape (cwb-d-rect (+ left cell) (+ top 4) (+ left cell 2) (+ top (* (length all) row_h) -4) 0)
-			:fill +dim :stroke 0)))
+				:fill +dim :stroke 0)))
 	;a row for each member, a square where it keeps a block of the object shown
 	(each (lambda (id)
-		(defq y (+ top (* (!) row_h)) hue (elem-get +hues (% (!) (length +hues)))
-			held (replay-held *replay* id) has (and *shown* (replay-path *replay* id *shown*))
-			cut (. (. *replay* :find :cut) :find id))
-		(push items (cwb-shape (cwb-d-rect 14 (+ y 6) 28 (+ y 20) 3) :fill hue :stroke 0))
-		(text (short id) 34 (+ y 18) 14)
-		;cut from most of the others is cut off, from a few it is they that are
-		(defq cut (filter (const nempty?) (split cut " ")))
-		(text (cat (str (. held :size)) " blocks, sees " (str (length (. (. *replay* :find :peers) :find id)))
-			(cond
-				((empty? cut) "")
-				((> (* 2 (length cut)) (dec (length all))) ", cut off")
-				((cat ", cut from " (join (map (const short) cut) " "))))) 34 (+ y 31) 10 +dim)
-		(each (lambda (col)
-			(defq x (+ left (* col cell) (if (> col 0) 4 0))
-				keeps (if (= col 0) (eql has manifest) (. held :find (elem-get blocks (dec col)))))
-			(push items (cwb-shape (cwb-d-rect x (+ y 6) (+ x (- cell 2)) (+ y 28) 2) :fill (if keeps hue +none) :stroke 0)))
-			(if manifest (range 0 cols) (list))))
+			(defq y (+ top (* (!) row_h)) hue (elem-get +hues (% (!) (length +hues)))
+				held (replay-held *replay* id) has (and *shown* (replay-path *replay* id *shown*))
+				cut (. (. *replay* :find :cut) :find id))
+			(push items (cwb-shape (cwb-d-rect 14 (+ y 6) 28 (+ y 20) 3) :fill hue :stroke 0))
+			(text (short id) 34 (+ y 18) 14)
+			;cut from most of the others is cut off, from a few it is they that are
+			(defq cut (filter (const nempty?) (split cut " ")))
+			(text (cat (str (. held :size)) " blocks, sees " (str (length (. (. *replay* :find :peers) :find id)))
+					(cond
+						((empty? cut) "")
+						((> (* 2 (length cut)) (dec (length all))) ", cut off")
+						((cat ", cut from " (join (map (const short) cut) " "))))) 34 (+ y 31) 10 +dim)
+			(each (lambda (col)
+					(defq x (+ left (* col cell) (if (> col 0) 4 0))
+						keeps (if (= col 0) (eql has manifest) (. held :find (elem-get blocks (dec col)))))
+					(push items (cwb-shape (cwb-d-rect x (+ y 6) (+ x (- cell 2)) (+ y 28) 2) :fill (if keeps hue +none) :stroke 0)))
+				(if manifest (range 0 cols) (list))))
 		all)
 	;where the gopher of the object shown has been, block by block
 	(when (and (defq walk (gopher-shown)) (> cols 1))
 		(defq points (list))
 		(each (lambda ((who block &ignore))
-			(and (defq row (find who all)) (< (inc block) cols)
-				(push points (+ left (* (inc block) cell) 4 (/ (- cell 2) 2)) (+ top (* row row_h) 17))))
+				(and (defq row (find who all)) (< (inc block) cols)
+					(push points (+ left (* (inc block) cell) 4 (/ (- cell 2) 2)) (+ top (* row row_h) 17))))
 			(second walk))
 		(when (>= (length points) 4)
 			(push items (cwb-shape (cwb-d-points points) :stroke +trail :width 2.0 :fill 0 :join :round))
@@ -320,13 +320,13 @@
 		(text "snapshots" 16 y 12 +dim)
 		(defq x 86)
 		(each (lambda ((name count))
-			(defq label (cat name " " (str count)) w (+ 10 (* 6 (length label))))
-			(when (< (+ x w) (- grid_w 10))
-				(push items (cwb-shape (cwb-d-rect (- x 4) (- y 13) (+ x w -4) (+ y 4) 3)
-					:fill (if (eql name *snap*) +mark +none) :stroke 0))
-				(text label x y 12)
-				(push chips (list x (+ x w) name)))
-			(setq x (+ x w 6)))
+				(defq label (cat name " " (str count)) w (+ 10 (* 6 (length label))))
+				(when (< (+ x w) (- grid_w 10))
+					(push items (cwb-shape (cwb-d-rect (- x 4) (- y 13) (+ x w -4) (+ y 4) 3)
+							:fill (if (eql name *snap*) +mark +none) :stroke 0))
+					(text label x y 12)
+					(push chips (list x (+ x w) name)))
+				(setq x (+ x w 6)))
 			snaps)
 		(setq y (+ y 22)))
 	(def *canvas* :chips chips :chips_y (- y 22))
@@ -337,14 +337,14 @@
 	(def *canvas* :rows_y y :rows_from from :rows_most most)
 	(text (cat (str (length paths)) " objects" (if *snap* (cat " of the snapshot " *snap*) "")) 16 y 12 +dim)
 	(each (lambda (path)
-		(defq yy (+ y 20 (* (!) +row_h)))
-		(if (eql path *shown*) (push items (cwb-shape (cwb-d-rect 10 (- yy 13) (- grid_w 10) (+ yy 4) 3) :fill +mark :stroke 0)))
-		(each (lambda (id)
-			(defq x (+ 16 (* (!) 11)) m (replay-path *replay* id path) hue (elem-get +hues (% (!) (length +hues))))
-			(push items (cwb-shape (cwb-d-rect x (- yy 9) (+ x 9) yy 2)
-				:fill (cond ((not m) +none) ((eql m "-") +dim) (hue)) :stroke 0)))
-			all)
-		(text (if *snap* (slice path (+ (length +store_snapshots) (length *snap*) 1) -1) path) (+ 24 (* (length all) 11)) yy 12))
+			(defq yy (+ y 20 (* (!) +row_h)))
+			(if (eql path *shown*) (push items (cwb-shape (cwb-d-rect 10 (- yy 13) (- grid_w 10) (+ yy 4) 3) :fill +mark :stroke 0)))
+			(each (lambda (id)
+					(defq x (+ 16 (* (!) 11)) m (replay-path *replay* id path) hue (elem-get +hues (% (!) (length +hues))))
+					(push items (cwb-shape (cwb-d-rect x (- yy 9) (+ x 9) yy 2)
+							:fill (cond ((not m) +none) ((eql m "-") +dim) (hue)) :stroke 0)))
+				all)
+			(text (if *snap* (slice path (+ (length +store_snapshots) (length *snap*) 1) -1) path) (+ 24 (* (length all) 11)) yy 12))
 		rows)
 	;what was done, the event the timeline is at marked
 	;the event marked is the last done, of those listed
@@ -358,10 +358,10 @@
 	(defq log_shown (slice list_at start (min (length list_at) (+ start most_log))))
 	(def *log* :log_shown log_shown)
 	(each (lambda (index)
-		(defq e (elem-get events index) yy (+ 44 (* (!) +log_h)))
-		(if (eql index marked) (push log_items (cwb-shape (cwb-d-rect (- lx 4) (- yy 12) (- +log_w 6) (+ yy 4) 3) :fill +mark :stroke 0)))
-		(defq line (event-text e))
-		(text (slice line 0 (min 58 (length line))) lx yy 11 (if (< index at) +ink +dim) log_items))
+			(defq e (elem-get events index) yy (+ 44 (* (!) +log_h)))
+			(if (eql index marked) (push log_items (cwb-shape (cwb-d-rect (- lx 4) (- yy 12) (- +log_w 6) (+ yy 4) 3) :fill +mark :stroke 0)))
+			(defq line (event-text e))
+			(text (slice line 0 (min 58 (length line))) lx yy 11 (if (< index at) +ink +dim) log_items))
 		log_shown)
 	(.-> *canvas* (:fill +paper))
 	(cwb-draw-items *canvas* items)
@@ -446,7 +446,7 @@
 	;the Files app's picker, to say where a recording is to go or come from
 	(if *picker* (mail-send *picker* ""))
 	(setq *picker_save* save *picker*
-		(file-pick (elem-get *select* +select_picker) (if save "Save recording..." "Open recording...") "." "" save)))
+			(file-pick (elem-get *select* +select_picker) (if save "Save recording..." "Open recording...") "." "" save)))
 
 (defun recording-save (file)
 	;every event there is, a line each, as a recorder says them, so that
@@ -469,7 +469,7 @@
 			(each (# (replay-add *replay* %0)) (split text "\n"))
 			(go-to 0)
 			(say (if (empty? (. *replay* :find :events)) (cat file " has no events in it.")
-				(cat "Opened " (str (length (. *replay* :find :events))) " events of " file ". Play, or the timeline."))))))
+					(cat "Opened " (str (length (. *replay* :find :events))) " events of " file ". Play, or the timeline."))))))
 
 (defun play ()
 	;from where it is, at the speed it was made
@@ -511,7 +511,7 @@
 	(cond
 		((storage-service)
 			(say (if *record* "The store of this system, as it is and as it works, all of it recorded."
-				(cat "The store of this system, as it is and as it works, the last " (str +live_keep) " events kept. Record keeps all.")))
+					(cat "The store of this system, as it is and as it works, the last " (str +live_keep) " events kept. Record keeps all.")))
 			(watch "-"))
 		((nempty? (storage-record-members))
 			(say "This system is a member of no store. The stores of the other machines, as they are and as they work.")
@@ -569,8 +569,8 @@
 							((setq *travels* (not *travels*))
 								(storage-member-travels :t)
 								(say (if (defq pinned (storage-user-pin))
-									(cat "This machine travels, and holds all of " pinned " from now on.")
-									"This machine travels. Its user's area is pinned as its store starts.")))
+										(cat "This machine travels, and holds all of " pinned " from now on.")
+										"This machine travels. Its user's area is pinned as its store starts.")))
 							(:t (storage-member-travels :nil)
 								(say "This machine does not travel now. What it has pinned stays, storage -U to let go."))))
 					((= id +event_record)
@@ -578,7 +578,7 @@
 						;the store of this system, now if it is what is watched
 						(setq *record* (not *record*))
 						(say (if *record* "All of what the store of this system does is kept."
-							(cat "The last " (str +live_keep) " events of the store of this system are kept."))))
+								(cat "The last " (str +live_keep) " events of the store of this system are kept."))))
 					((= id +event_back) (setq *playing* :nil) (step -1))
 					((= id +event_on) (setq *playing* :nil) (step 1))
 					((= id +event_play) (play))
@@ -667,7 +667,7 @@
 						(defq passed (second (split msg " ")) failed (third (split msg " ")))
 						(setq *run* :nil *live* :nil)
 						(say (if (eql passed "-") "Stopped."
-							(cat "Done: " passed " held, " failed " did not. Live goes back to the store of this system."))))))
+								(cat "Done: " passed " held, " failed " did not. Live goes back to the store of this system."))))))
 			(:t (mail-timeout (elem-get select +select_timer) +tick 0)
 				;a control that has changed, that drew nothing, is lit or not, and
 				;what is kept for the user is kept, if it has changed

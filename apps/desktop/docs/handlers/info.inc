@@ -3,15 +3,15 @@
 
 (defun root-funcs ()
 	(sort (reduce (lambda (%0 (k v))
-		(if (func? v) (push %0 k) %0)) (tolist *root_env*) (list))))
+				(if (func? v) (push %0 k) %0)) (tolist *root_env*) (list))))
 
 (defun root-lambdas ()
 	(sort (reduce (lambda (%0 (k v))
-		(if (lambda-func? v) (push %0 k) %0)) (tolist *root_env*) (list))))
+				(if (lambda-func? v) (push %0 k) %0)) (tolist *root_env*) (list))))
 
 (defun root-macros ()
 	(sort (reduce (lambda (%0 (k v))
-		(if (macro-func? v) (push %0 k) %0)) (tolist *root_env*) (list))))
+				(if (macro-func? v) (push %0 k) %0)) (tolist *root_env*) (list))))
 
 (defun paragraph (words)
 	(each (lambda (line)

@@ -11,10 +11,10 @@
 
 (defun main ()
 	(job-child +timeout (lambda (msg mbox)
-		;the files follow the job's head, lib/task/jobs.inc, and the reply is
-		;the key it was given, then each file with its (files-scan), for
-		;make, lib/asm/asm.inc (scans-farm)
-		(defq reply_key (getf msg +job_key) reply_mbox (getf msg +job_reply)
-			files (first (read (string-stream (slice msg +job_size -1)))))
-		(mail-send reply_mbox (cat (char reply_key +long_size)
-			(str (map (# (list %0 (files-scan %0))) files)))))))
+			;the files follow the job's head, lib/task/jobs.inc, and the reply is
+			;the key it was given, then each file with its (files-scan), for
+			;make, lib/asm/asm.inc (scans-farm)
+			(defq reply_key (getf msg +job_key) reply_mbox (getf msg +job_reply)
+				files (first (read (string-stream (slice msg +job_size -1)))))
+			(mail-send reply_mbox (cat (char reply_key +long_size)
+					(str (map (# (list %0 (files-scan %0))) files)))))))

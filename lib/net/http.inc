@@ -61,8 +61,8 @@
 	; (http-read-headers in) -> pmap
 	(defq headers (pmap))
 	(while (and (defq line (read-line in))
-				(defq clean (trim-end line "\r"))
-				(nql clean ""))
+			(defq clean (trim-end line "\r"))
+			(nql clean ""))
 		(when (defq col_idx (find ":" clean))
 			(defq k_str (to-lower (trim (slice clean 0 col_idx)))
 				v_str (trim (slice clean (inc col_idx) -1))
@@ -91,7 +91,7 @@
 						((= chunk_size 0)
 							; Read trailers until empty line
 							(while (and (defq trailer (read-line in))
-										(nql (trim-end trailer "\r") "")))
+									(nql (trim-end trailer "\r") "")))
 							(setq running :nil))
 						(:t (defq rem chunk_size)
 							(while (> rem 0)
@@ -146,25 +146,25 @@
 		(++ attempts)
 		(and host (> (length host) 0)
 			(when (defq pooled (if https (if (defq secure (tls-open host port)) (list secure :nil))
-					(http-pool-checkout host port)))
+						(http-pool-checkout host port)))
 				(bind '(conn from_pool) pooled)
 				(defq in (first conn) out (second conn))
 				; 1. Assemble Request Headers
 				(defq req_lines (list
-					(cat (to-upper method) " " path_query " HTTP/1.1")
-					(if (and (/= port 80) (/= port 443))
-						(str "Host: " host ":" port)
-						(cat "Host: " host))
-					"User-Agent: ChrysaLisp/1.0"
-					"Accept: */*"))
+						(cat (to-upper method) " " path_query " HTTP/1.1")
+						(if (and (/= port 80) (/= port 443))
+							(str "Host: " host ":" port)
+							(cat "Host: " host))
+						"User-Agent: ChrysaLisp/1.0"
+						"Accept: */*"))
 				; 2. User Connection Header (defaults to keep-alive)
 				(unless (pfind headers :connection)
 					(push req_lines "Connection: keep-alive"))
 				; 3. Append User Headers
 				(each (lambda ((k v))
-					(defq k_str (str k)
-						k_name (if (starts-with ":" k_str) (rest k_str) k_str))
-					(push req_lines (cat k_name ": " v)))
+						(defq k_str (str k)
+							k_name (if (starts-with ":" k_str) (rest k_str) k_str))
+						(push req_lines (cat k_name ": " v)))
 					(partition headers 2))
 				; 4. Append Content-Length if body is present
 				(and body (not (sym? body)) (> (length body) 0)
@@ -191,10 +191,10 @@
 							resp_body (if (or (eql (to-upper method) "HEAD") (< status 200) (= status 204) (= status 304))
 								"" (http-read-body in resp_headers dest_stream)))
 						(setq res (pmap
-							:status status :reason reason :proto proto
-							:headers resp_headers :body resp_body))
+								:status status :reason reason :proto proto
+								:headers resp_headers :body resp_body))
 						(if https (tls-close conn) (http-pool-checkin host port conn
-							(pfind res :headers))))
+								(pfind res :headers))))
 					; If pooled connection dropped on first read, close and retry once
 					(from_pool
 						(net-close-rpc conn))
@@ -216,5 +216,5 @@
 
 ;module
 (export-symbols '(http-request http-get http-post http-head
-	http-read-headers http-read-body http-body-str http-pool-clear))
+		http-read-headers http-read-body http-body-str http-pool-clear))
 (env-pop)

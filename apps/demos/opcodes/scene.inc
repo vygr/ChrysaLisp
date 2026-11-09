@@ -36,42 +36,42 @@
 	(cond
 		; Floating point: Electric Cyan / Ice Blue
 		((or (ends-with "-dd" name) (ends-with "-rd" name) (ends-with "-dr" name)
-			 (ends-with "-rcd" name) (ends-with "-drc" name) (ends-with "-rrd" name)
-			 (ends-with "-drr" name) (starts-with "sqrt" name) (starts-with "cvt" name))
+				(ends-with "-rcd" name) (ends-with "-drc" name) (ends-with "-rrd" name)
+				(ends-with "-drr" name) (starts-with "sqrt" name) (starts-with "cvt" name))
 			(list 0xff00e5ff 0xffe0ffff 0x4000e5ff))
 
 		; Control Flow: Electric Violet / Magenta
 		((or (starts-with "call" name) (starts-with "jmp" name) (starts-with "ret" name)
-			 (starts-with "beq" name) (starts-with "bne" name) (starts-with "bge" name)
-			 (starts-with "ble" name) (starts-with "blt" name) (starts-with "bgt" name)
-			 (starts-with "sync" name) (starts-with "brk" name))
+				(starts-with "beq" name) (starts-with "bne" name) (starts-with "bge" name)
+				(starts-with "ble" name) (starts-with "blt" name) (starts-with "bgt" name)
+				(starts-with "sync" name) (starts-with "brk" name))
 			(list 0xffd500f9 0xfffce4ec 0x40d500f9))
 
 		; Conditionals & Sets: Hot Pink / Ruby
 		((or (starts-with "seq" name) (starts-with "sne" name) (starts-with "slt" name)
-			 (starts-with "sle" name) (starts-with "sgt" name) (starts-with "sge" name))
+				(starts-with "sle" name) (starts-with "sgt" name) (starts-with "sge" name))
 			(list 0xffff007f 0xfffce4ec 0x40ff007f))
 
 		; Data Movement: Radiant Gold / Amber
 		((or (starts-with "cpy" name) (starts-with "lea" name) (starts-with "swp" name)
-			 (starts-with "ext" name))
+				(starts-with "ext" name))
 			(list 0xffffab00 0xfffff8e1 0x40ffab00))
 
 		; Stack & Memory: Sunset Orange
 		((or (starts-with "push" name) (starts-with "pop" name) (starts-with "alloc" name)
-			 (starts-with "free" name) (starts-with "stack" name))
+				(starts-with "free" name) (starts-with "stack" name))
 			(list 0xffff3d00 0xffffebe7 0x40ff3d00))
 
 		; Bitwise Shifts & Logic: Sun Yellow
 		((or (starts-with "shl" name) (starts-with "shr" name) (starts-with "asr" name)
-			 (starts-with "and" name) (starts-with "or" name) (starts-with "xor" name)
-			 (starts-with "lnot" name) (starts-with "land" name))
+				(starts-with "and" name) (starts-with "or" name) (starts-with "xor" name)
+				(starts-with "lnot" name) (starts-with "land" name))
 			(list 0xffffd600 0xfffffde7 0x40ffd600))
 
 		; Arithmetic: Radioactive Lime / Mint
 		((or (starts-with "add" name) (starts-with "sub" name) (starts-with "mul" name)
-			 (starts-with "div" name) (starts-with "min" name) (starts-with "max" name)
-			 (starts-with "abs" name) (starts-with "neg" name))
+				(starts-with "div" name) (starts-with "min" name) (starts-with "max" name)
+				(starts-with "abs" name) (starts-with "neg" name))
 			(list 0xff00e676 0xffe8f5e9 0x4000e676))
 
 		; Directives & Architecture: Sky Blue
@@ -90,10 +90,10 @@
 		hh (+ (* (- max_y min_y) 0.5) (* f_scale 4.0)))
 	; Center all glyph paths symmetrically around (0, 0)
 	(defq core_paths (map (#
-			(mat3x2-vec2-mul (fixeds
-				1.0 0.0 (neg cx)
-				0.0 1.0 (neg cy))
-				%0 (cat %0))) raw_paths))
+				(mat3x2-vec2-mul (fixeds
+						1.0 0.0 (neg cx)
+						0.0 1.0 (neg cy))
+					%0 (cat %0))) raw_paths))
 	; Generate multi-layered stroked outlines
 	(defq outline_paths (path-stroke-polygons (list) (* f_scale 2.2) +join_round core_paths)
 		glow_paths (path-stroke-polygons (list) (* f_scale 5.5) +join_round core_paths))
@@ -119,9 +119,9 @@
 	;where every opcode is, to go out with a slice. A bouncer is
 	;(model pos vel angle omega scale phase sq_x sq_y)
 	(apply (const cat) (cat (list "") (map (lambda ((model pos vel angle omega scale phase sq_x sq_y))
-		(apply (const cat) (map (# (char (n2i (* %0 65536.0)) +long_size))
-			(list (/ (n2f model) 65536.0) (first pos) (second pos) angle scale phase sq_x sq_y))))
-		bouncers))))
+					(apply (const cat) (map (# (char (n2i (* %0 65536.0)) +long_size))
+							(list (/ (n2f model) 65536.0) (first pos) (second pos) angle scale phase sq_x sq_y))))
+				bouncers))))
 
 (defun scene-draw (canvas packed y y1)
 	; (scene-draw canvas packed y y1) -> drawn
@@ -132,34 +132,34 @@
 	(.-> canvas (:set_clip 0 y +scene_width y1)
 		(:set_color +scene_back) (:fbox 0 y +scene_width (- y1 y)))
 	(each (lambda (at)
-		(bind '(model x y angle scale phase sq_x sq_y)
-			(map (# (/ (n2f %0) 65536.0)) (getf-> (slice packed at (+ at +bouncer_size))
-				+bouncer_model +bouncer_x +bouncer_y +bouncer_angle +bouncer_scale
-				+bouncer_phase +bouncer_sq_x +bouncer_sq_y)))
-		(bind '(name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh)
-			(opcode-model (n2i (* model 65536.0))))
-		;the broad phase, it is squashed and stretched by a quarter at most
-		(defq breath (+ 1.0 (* 0.06 (sin phase)))
-			reach (+ (* (+ hw hh) scale breath 1.3) 8.0))
-		(when (and (> (+ y reach) fy) (< (- y reach) fy1))
-			; Compute animated breathing scale and squash/stretch matrix
-			(defq final_sx (* scale breath sq_x)
-				final_sy (* scale breath sq_y)
-				sa (sin angle) ca (cos angle)
-				tx_matrix (fixeds (* final_sx ca) (* final_sx (* sa -1.0)) x
-					(* final_sy sa) (* final_sy ca) y))
-			;a stroked outline laps over itself wherever the glyph is thinner
-			;than the stroke is wide, and where two letters are close. So it
-			;is filled by the none zero rule, odd even would leave holes there
-			; 1. Outer Translucent Neon Glow
-			(.-> canvas (:set_color col_glow) (:fpoly 0.0 0.0 +winding_none_zero
-				(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) glow_paths)))
-			; 2. Crisp Neon Outline Hull
-			(.-> canvas (:set_color col_outline) (:fpoly 0.0 0.0 +winding_none_zero
-				(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) outline_paths)))
-			; 3. High-Contrast Luminescent Core
-			(.-> canvas (:set_color col_core) (:fpoly 0.0 0.0 +winding_odd_even
-				(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) core_paths)))
-			(setq drawn (inc drawn))))
+			(bind '(model x y angle scale phase sq_x sq_y)
+				(map (# (/ (n2f %0) 65536.0)) (getf-> (slice packed at (+ at +bouncer_size))
+						+bouncer_model +bouncer_x +bouncer_y +bouncer_angle +bouncer_scale
+						+bouncer_phase +bouncer_sq_x +bouncer_sq_y)))
+			(bind '(name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh)
+				(opcode-model (n2i (* model 65536.0))))
+			;the broad phase, it is squashed and stretched by a quarter at most
+			(defq breath (+ 1.0 (* 0.06 (sin phase)))
+				reach (+ (* (+ hw hh) scale breath 1.3) 8.0))
+			(when (and (> (+ y reach) fy) (< (- y reach) fy1))
+				; Compute animated breathing scale and squash/stretch matrix
+				(defq final_sx (* scale breath sq_x)
+					final_sy (* scale breath sq_y)
+					sa (sin angle) ca (cos angle)
+					tx_matrix (fixeds (* final_sx ca) (* final_sx (* sa -1.0)) x
+						(* final_sy sa) (* final_sy ca) y))
+				;a stroked outline laps over itself wherever the glyph is thinner
+				;than the stroke is wide, and where two letters are close. So it
+				;is filled by the none zero rule, odd even would leave holes there
+				; 1. Outer Translucent Neon Glow
+				(.-> canvas (:set_color col_glow) (:fpoly 0.0 0.0 +winding_none_zero
+						(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) glow_paths)))
+				; 2. Crisp Neon Outline Hull
+				(.-> canvas (:set_color col_outline) (:fpoly 0.0 0.0 +winding_none_zero
+						(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) outline_paths)))
+				; 3. High-Contrast Luminescent Core
+				(.-> canvas (:set_color col_core) (:fpoly 0.0 0.0 +winding_odd_even
+						(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) core_paths)))
+				(setq drawn (inc drawn))))
 		(range 0 (length packed) +bouncer_size))
 	drawn)

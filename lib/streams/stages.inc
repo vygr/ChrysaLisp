@@ -51,8 +51,8 @@
 	;module's names are gone
 	(bind '(imports fn args) stage)
 	(str (cat (list 'progn) (map (lambda (path) (list 'import path)) imports)
-		(list (cat (list fn in out) args))
-		(if done (list (list 'mail-send (stage-mbox done) :t)) (list)))))
+			(list (cat (list fn in out) args))
+			(if done (list (list 'mail-send (stage-mbox done) :t)) (list)))))
 
 (defun stages-load (stream pixmap type stages)
 	; (stages-load stream pixmap type stages) -> :t | :nil
@@ -60,8 +60,8 @@
 	;the end, the pixmap read from what the last stage writes, and if it
 	;could be
 	(open-child (str `(progn (import "gui/pixmap/lisp.inc")
-			(mail-send ,reply (in-mbox (defq pixmap (obj-ref ,(weak-ref pixmap)) in (in-stream))))
-			(mail-send ,reply (str (weak-ref (pixmap-read pixmap in ,type))))))
+				(mail-send ,reply (in-mbox (defq pixmap (obj-ref ,(weak-ref pixmap)) in (in-stream))))
+				(mail-send ,reply (str (weak-ref (pixmap-read pixmap in ,type))))))
 		+kn_call_pin)
 	;the stages from the last to the first, the first reading the stream
 	(each! (lambda (s)
@@ -85,7 +85,7 @@
 	;the start, the pixmap written
 	(defq to (stage-mbox (mail-read handshake)))
 	(open-child (str `(progn (import "gui/pixmap/lisp.inc")
-			(pixmap-write (pixmap-as-argb (obj-ref ,(weak-ref pixmap))) (out-stream ,to) ,type)))
+				(pixmap-write (pixmap-as-argb (obj-ref ,(weak-ref pixmap))) (out-stream ,to) ,type)))
 		+kn_call_pin)
 	(mail-read handshake)
 	:t)

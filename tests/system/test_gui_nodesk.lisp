@@ -103,7 +103,7 @@
 		(setq nd_laid (inc nd_laid))
 		(.super this :layout)))
 (ui-window nd_said () (ui-element nd_label (Nd-label) (:text "short" :min_width 300
-	:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))))
+			:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))))
 (bind '(w h) (. nd_said :pref_size))
 (. nd_said :change 0 0 w h)
 (bind '(nd_w _) (. (get :label_text nd_label) :get_size))

@@ -66,5 +66,4 @@
 		(when (/= state (get :state this))
 			(def this :state state)
 			(. this :dirty_all))
-		this)
-	)
+		this))

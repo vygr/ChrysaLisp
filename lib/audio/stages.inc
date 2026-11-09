@@ -155,7 +155,7 @@
 	; (sound-gain in out percent)
 	;louder or quieter, 100 as it is
 	(sound-pieces in (lambda (data)
-		(sound-write out (sound-map data (# (/ (* %0 percent) 100)))))))
+			(sound-write out (sound-map data (# (/ (* %0 percent) 100)))))))
 
 (defun sound-lowpass (in out hz)
 	; (sound-lowpass in out hz)
@@ -163,15 +163,15 @@
 	(defq k (n2i (* (n2r 65536) (/ (* (const (n2r +fp_2pi)) (n2r hz)) (+ (n2r +sound_rate) (* (const (n2r +fp_2pi)) (n2r hz))))))
 		y 0)
 	(sound-pieces in (lambda (data)
-		(sound-write out (sound-map data (lambda (x)
-			(setq y (+ y (/ (* k (- x y)) 65536)))))))))
+			(sound-write out (sound-map data (lambda (x)
+						(setq y (+ y (/ (* k (- x y)) 65536)))))))))
 
 (defun sound-level (in out who)
 	; (sound-level in out who)
 	;each piece passed on, and how loud it was sent to who, a number
 	(sound-pieces in (lambda (data)
-		(mail-send who (str (sound-peak data)))
-		(sound-write out data))))
+			(mail-send who (str (sound-peak data)))
+			(sound-write out data))))
 
 ;sinks
 
@@ -184,8 +184,8 @@
 		((third kind) stream +sound_rate)
 		(defq bytes 0)
 		(sound-pieces in (lambda (data)
-			(write-blk stream data)
-			(setq bytes (+ bytes (length data)))))
+				(write-blk stream data)
+				(setq bytes (+ bytes (length data)))))
 		((elem-get kind 3) stream +sound_rate bytes)))
 
 (defun sound-speaker (in out)
@@ -194,10 +194,10 @@
 	(when (defq handle (audio-stream-open-rpc))
 		(defq t0 (pii-time) sent 0)
 		(sound-pieces in (lambda (data)
-			(audio-stream-write-rpc handle data)
-			(setq sent (+ sent (length data)))
-			(defq ahead (- (/ (* sent 500000) +sound_rate) (- (pii-time) t0)))
-			(if (> ahead 100000) (task-sleep (- ahead 100000)))))
+				(audio-stream-write-rpc handle data)
+				(setq sent (+ sent (length data)))
+				(defq ahead (- (/ (* sent 500000) +sound_rate) (- (pii-time) t0)))
+				(if (> ahead 100000) (task-sleep (- ahead 100000)))))
 		;what is left to play, played
 		(defq left (- (/ (* sent 500000) +sound_rate) (- (pii-time) t0)))
 		(if (> left 0) (task-sleep left))

@@ -37,7 +37,7 @@
 ;a disc and a stroke that overlap go round the one way, so there is no hole
 (defq sy_canvas (Canvas 192 192 1))
 (.-> sy_canvas (:set_color +argb_white) (:fpoly 0.0 0.0 +winding_none_zero
-	(sym-paths (second (elem-get *symbols* (find "comment" sy_names))) 1.15 +join_round +cap_round)))
+		(sym-paths (second (elem-get *symbols* (find "comment" sy_names))) 1.15 +join_round +cap_round)))
 (assert-eq "where the tail of comment leaves its dot is filled" 255 (sy-pixel 104 126))
 (assert-eq "and its other dot is" 255 (sy-pixel 96 60))
 
@@ -57,8 +57,8 @@
 
 ;what is in the repo is what the system makes now
 (each (lambda ((file radius joint cap))
-	(assert-true (cat file " is the font the symbols make")
-		(eql (load file) (sym-font *symbols* radius joint cap))))
+		(assert-true (cat file " is the font the symbols make")
+			(eql (load file) (sym-font *symbols* radius joint cap))))
 	*sym_themes*)
 ;a checkout on Windows may have a return before each end of line, the
 ;names are what is held to

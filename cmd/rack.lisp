@@ -49,13 +49,13 @@
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
-			(defq stdio (create-stdio))
-			(defq opt_b :nil opt_l "" opt_x "" opt_o :nil opt_d "" opt_u :nil opt_g :nil opt_v :nil
-				args (options stdio usage))
+		(defq stdio (create-stdio))
+		(defq opt_b :nil opt_l "" opt_x "" opt_o :nil opt_d "" opt_u :nil opt_g :nil opt_v :nil
+			args (options stdio usage))
 		(if (<= (length args) 1)
 			(print "A command line to run is needed, rack -h.")
 			(each (const print) (rack-run (join (rest args) " ")
-				opt_b (split opt_l ",") (split opt_d ":") opt_u :nil opt_g :nil (split opt_x ",") (if opt_o (split opt_o ","))
-				;-v, what each session says as it says it, so one that hangs
-				;shows where
-				(if opt_v (lambda (text) (prin text) (stream-flush (io-stream 'stdout)))))))))
+					opt_b (split opt_l ",") (split opt_d ":") opt_u :nil opt_g :nil (split opt_x ",") (if opt_o (split opt_o ","))
+					;-v, what each session says as it says it, so one that hangs
+					;shows where
+					(if opt_v (lambda (text) (prin text) (stream-flush (io-stream 'stdout)))))))))

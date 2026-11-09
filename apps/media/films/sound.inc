@@ -23,7 +23,7 @@
 	;the first sound track of a reel there is a decoder for here
 	(if (defq tracks (. reel :find :tracks))
 		(some (# (and (eql (. %0 :find :kind) "soun")
-			(find (. %0 :find :codec) '("mp4a" "ec-3" "ac-3" "mp3" "flac" "pcm" "adpcm_ms" "adpcm_ima")) %0)) tracks)))
+					(find (. %0 :find :codec) '("mp4a" "ec-3" "ac-3" "mp3" "flac" "pcm" "adpcm_ms" "adpcm_ima")) %0)) tracks)))
 
 (defun sound-avi (reel track)
 	; (sound-avi reel track) -> :nil | sound
@@ -75,9 +75,8 @@
 	;how many packets, the last may be short
 	(when (. sound :find :make)
 		(. sound :insert :track (scatter (Emap) :kind "soun" :codec codec :start 0
-			:samples (/ (+ bytes (dec (. sound :find :packet))) (. sound :find :packet))))
+				:samples (/ (+ bytes (dec (. sound :find :packet))) (. sound :find :packet))))
 		sound))
-
 
 (defun sound-of (reel)
 	; (sound-of reel) -> :nil | sound
@@ -92,77 +91,76 @@
 	(and (defq track (sound-track reel)) (. track :find :avi)
 		(eql (. track :find :codec) "mp3")
 		(setq track (when (defq sub (mp3-reel (avi-track-stream reel track)))
-			(. sub :insert :kind (some (# (if (eql (first %0) ".mp3") %0)) *reel_kinds*))
-			(setq reel sub)
-			(sound-track sub))))
+				(. sub :insert :kind (some (# (if (eql (first %0) ".mp3") %0)) *reel_kinds*))
+				(setq reel sub)
+				(sound-track sub))))
 	(when track
 		(cond
 			((. track :find :avi) (sound-avi reel track))
 			(track
-			(unless (find (. track :find :codec) '("mp3" "flac")) (mp4-tables track))
-			(defq sound (scatter (Emap) :track track :stream (. reel :find :stream) :reel reel
-				:start (. track :find :start) :handle :nil :written 0 :left 0 :time 0.0 :before 1
-				;the native that makes 16 bit samples, taken now, not as this is read
-				:s16 (ffi "lib/media/media_s16")))
-			;of a reel read as it is played its packets are had by their times
-			(if (. reel :find :track_packet)
-				(. sound :insert :read (lambda (sound n)
-					((. (. sound :find :reel) :find :track_packet) (. sound :find :reel) (. sound :find :track) n))))
-			(cond
-				((eql (. track :find :codec) "mp3")
-					;of an MP3 its reel's packets, of a film's track its own, its first
-					;frame's header what it is
-					(defq own (. reel :find :head) head (or own
-						(progn (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
-							(mp3-header (ifn (read-blk (. sound :find :stream) 4) "") 0))))
-					;the frames before one decoded first till the reservoir holds the 511
-					;bytes a frame may begin back
-					(and head (scatter sound :rate (. head :find :rate) :size (. head :find :samples) :delay 0
-						:before (mp3-before (. head :find :size))
-						:make (lambda (sound) (scatter (mp3-decoder) :samples (. sound :find :size)))
-						:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
-						;of an MP3 its pictures are its frames, kept as they are decoded
-						:kept (if own (map (lambda (_) :nil) (range 0 +sound_kept)))
-						;a frame not read is heard as nothing
-						:decode (lambda (decoder packet)
-							(defq pcm (if packet (catch (mp3-frame decoder packet) :t)))
-							(if (list? pcm) pcm (list (defq quiet (fill (reals) (. decoder :find :samples) (n2r 0))) quiet))))))
-				((eql (. track :find :codec) "flac")
-					;a FLAC's frames as they are heard, lossless, of a FLAC its reel's
-					;packets, of a film's track its own, its metadata the track's setup
-					(defq own (. reel :find :info) info (or own (and (. track :find :private) (flac-info (string-stream (. track :find :private))))))
-					(and info (scatter sound :rate (. info :find :rate) :size (. info :find :max_block) :delay 0 :before 0 :info info
-						:make (lambda (sound) (. sound :find :info))
-						:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
-						;a frame not read is heard as nothing
-						:decode (lambda (info packet)
-							(defq got (if packet (catch (flac-frame info packet) :t)))
-							(if (list? got) (flac-pcm info (first got))
-								(list (defq quiet (fill (reals) (. info :find :max_block) (n2r 0))) quiet))))))
-				((eql (. track :find :codec) "mp4a")
-					(and (defq config (aac-track-config track)) (= (first config) 2)
-						;HE-AAC's SBR at twice the rate of its core, packets of 2048 and
-						;the track's start in the core's time; a lambda finds nothing of
-						;where it was made, what it wants is in the sound
-						;of a core of 24000 or less SBR may be there unsaid, its first
-						;packet decoded to see
-						(defq times (cond
-							((elem-get config 4) 2)
-							((> (third config) 24000) 1)
-							((progn (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
-								(defq got (catch (aac-decode (aac-decoder config) (read-blk (. sound :find :stream) (elem-get (. track :find :sizes) 0))) :t))
-								(and (list? got) (= (length (first got)) 2048))) 2)
-							(1)))
-						(scatter sound :rate (* times (third config)) :size (* times 1024) :delay (* times 1024)
-							:start (* times (. sound :find :start)) :config config
-							:make (lambda (sound) (aac-decoder (. sound :find :config)))
-							:decode (lambda (decoder packet) (aac-decode decoder packet)))))
-				(:t (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
-					(defq head (ac3-header (bits-of (read-blk (. sound :find :stream) 16))))
-					(and head (scatter sound :rate (. head :find :rate) :size (* 256 (. head :find :blocks)) :delay 256 :head head
-						:make (lambda (sound) (ac3-decoder (. sound :find :head)))
-						:decode (lambda (decoder packet) (ac3-stereo decoder (ac3-frame decoder packet)))))))))))
-
+				(unless (find (. track :find :codec) '("mp3" "flac")) (mp4-tables track))
+				(defq sound (scatter (Emap) :track track :stream (. reel :find :stream) :reel reel
+						:start (. track :find :start) :handle :nil :written 0 :left 0 :time 0.0 :before 1
+						;the native that makes 16 bit samples, taken now, not as this is read
+						:s16 (ffi "lib/media/media_s16")))
+				;of a reel read as it is played its packets are had by their times
+				(if (. reel :find :track_packet)
+					(. sound :insert :read (lambda (sound n)
+							((. (. sound :find :reel) :find :track_packet) (. sound :find :reel) (. sound :find :track) n))))
+				(cond
+					((eql (. track :find :codec) "mp3")
+						;of an MP3 its reel's packets, of a film's track its own, its first
+						;frame's header what it is
+						(defq own (. reel :find :head) head (or own
+								(progn (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
+									(mp3-header (ifn (read-blk (. sound :find :stream) 4) "") 0))))
+						;the frames before one decoded first till the reservoir holds the 511
+						;bytes a frame may begin back
+						(and head (scatter sound :rate (. head :find :rate) :size (. head :find :samples) :delay 0
+								:before (mp3-before (. head :find :size))
+								:make (lambda (sound) (scatter (mp3-decoder) :samples (. sound :find :size)))
+								:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
+								;of an MP3 its pictures are its frames, kept as they are decoded
+								:kept (if own (map (lambda (_) :nil) (range 0 +sound_kept)))
+								;a frame not read is heard as nothing
+								:decode (lambda (decoder packet)
+									(defq pcm (if packet (catch (mp3-frame decoder packet) :t)))
+									(if (list? pcm) pcm (list (defq quiet (fill (reals) (. decoder :find :samples) (n2r 0))) quiet))))))
+					((eql (. track :find :codec) "flac")
+						;a FLAC's frames as they are heard, lossless, of a FLAC its reel's
+						;packets, of a film's track its own, its metadata the track's setup
+						(defq own (. reel :find :info) info (or own (and (. track :find :private) (flac-info (string-stream (. track :find :private))))))
+						(and info (scatter sound :rate (. info :find :rate) :size (. info :find :max_block) :delay 0 :before 0 :info info
+								:make (lambda (sound) (. sound :find :info))
+								:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
+								;a frame not read is heard as nothing
+								:decode (lambda (info packet)
+									(defq got (if packet (catch (flac-frame info packet) :t)))
+									(if (list? got) (flac-pcm info (first got))
+										(list (defq quiet (fill (reals) (. info :find :max_block) (n2r 0))) quiet))))))
+					((eql (. track :find :codec) "mp4a")
+						(and (defq config (aac-track-config track)) (= (first config) 2)
+							;HE-AAC's SBR at twice the rate of its core, packets of 2048 and
+							;the track's start in the core's time; a lambda finds nothing of
+							;where it was made, what it wants is in the sound
+							;of a core of 24000 or less SBR may be there unsaid, its first
+							;packet decoded to see
+							(defq times (cond
+									((elem-get config 4) 2)
+									((> (third config) 24000) 1)
+									((progn (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
+											(defq got (catch (aac-decode (aac-decoder config) (read-blk (. sound :find :stream) (elem-get (. track :find :sizes) 0))) :t))
+											(and (list? got) (= (length (first got)) 2048))) 2)
+									(1)))
+							(scatter sound :rate (* times (third config)) :size (* times 1024) :delay (* times 1024)
+								:start (* times (. sound :find :start)) :config config
+								:make (lambda (sound) (aac-decoder (. sound :find :config)))
+								:decode (lambda (decoder packet) (aac-decode decoder packet)))))
+					(:t (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
+						(defq head (ac3-header (bits-of (read-blk (. sound :find :stream) 16))))
+						(and head (scatter sound :rate (. head :find :rate) :size (* 256 (. head :find :blocks)) :delay 256 :head head
+								:make (lambda (sound) (ac3-decoder (. sound :find :head)))
+								:decode (lambda (decoder packet) (ac3-stereo decoder (ac3-frame decoder packet)))))))))))
 
 (defun sound-stop (sound)
 	; (sound-stop sound)

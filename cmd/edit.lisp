@@ -3,7 +3,6 @@
 (import "lib/text/edit.inc")
 (import "service/lock/app.inc")
 
-
 (defq usage `(
 (("-h" "--help")
 {Usage: edit [options] [path] ...
@@ -98,7 +97,7 @@
 	; because *fnc* executes in this scope
 	(when *fnc*
 		(defq *edit* (Document (if (notany (# (ends-with %0 *file*))
-				'(".md" ".txt")) +buffer_flag_syntax 0)))
+						'(".md" ".txt")) +buffer_flag_syntax 0)))
 		(catch
 			(progn
 				(with-read-lock *file*
@@ -153,9 +152,9 @@
 				; distribute to farm
 				(each (lambda ((job result)) (prin result))
 					(pipe-farm (map (# (str (first args)
-							" -j " opt_j
-							(if opt_q " -q" "")
-							(if opt_c (cat " -c \q" opt_c "\q") "")
-							(if opt_s (cat " -s " opt_s) "")
-							" " (slice (str %0) 1 -2)))
-						(partition jobs opt_j))))))))
+									" -j " opt_j
+									(if opt_q " -q" "")
+									(if opt_c (cat " -c \q" opt_c "\q") "")
+									(if opt_s (cat " -s " opt_s) "")
+									" " (slice (str %0) 1 -2)))
+							(partition jobs opt_j))))))))

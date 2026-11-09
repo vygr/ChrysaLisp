@@ -27,7 +27,6 @@
 		1411 1552 1707 1878 2066 2272 2499 2749 3024 3327 3660 4026 4428 4871 5358 5894 6484 7132 7845 8630 9493
 		10442 11487 12635 13899 15289 16818 18500 20350 22385 24623 27086 29794 32767))
 
-
 (defun adpcm-ms-coefs (extra)
 	; (adpcm-ms-coefs extra) -> (coef1 coef2 ...)
 	;the pairs of coefficients a format of Microsoft ADPCM says, after its

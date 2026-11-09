@@ -25,7 +25,7 @@
 	; (unzip-safe? name) -> :t | :nil
 	;a name that stays in the folder it is taken out to
 	(not (or (empty? name) (starts-with "/" name) (find "\\" name) (find ":" name)
-		(some (# (eql %0 "..")) (split name "/")))))
+			(some (# (eql %0 "..")) (split name "/")))))
 
 (defun main ()
 	(and

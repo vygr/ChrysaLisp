@@ -3,7 +3,7 @@
 
 ;the rules of a .gitignore
 (defq sy_rules (sync-rules (cat ".vs/" "\n" "/obj/" "\n" "# a comment" "\n"
-	"  os " "\r" "\n" "*.o" "\n" "/usr/*/*.tre" "\n" "\n" "!kept" "\n")))
+			"  os " "\r" "\n" "*.o" "\n" "/usr/*/*.tre" "\n" "\n" "!kept" "\n")))
 (defun sy-out? (path is_dir) (sync-ignored? sy_rules (split path "/") is_dir))
 (test-cases
 	(sy-out? ".git" :t) :t
@@ -129,7 +129,7 @@
 (assert-eq "it is sent" "deeper" (load (cat sy_dst "/a/b/c/deep.txt")))
 (assert-eq "and no other" 1 (first sy_res))
 (each (# (pii-remove %0)) (list (cat sy_src "/a/b/c/deep.txt") (cat sy_dst "/a/b/c/deep.txt")
-	(cat sy_dst "/a/b/side.txt") (cat sy_dst "/there/only/x.txt")))
+		(cat sy_dst "/a/b/side.txt") (cat sy_dst "/there/only/x.txt")))
 (setq sy_res (sync-push sy_svc sy_src sy_text :t))
 (assert-eq "taken away again, nothing differs" 0 (length (elem-get sy_res 4)))
 
@@ -246,10 +246,10 @@
 ;push, who it is from and a top
 (defq sy_old (mail-mbox))
 (open-task (str `(progn
-		(defq mbox (mail-mbox))
-		(mail-send (hex-decode ,(hex-encode sy_old)) mbox)
-		(times 3 (defq msg (mail-read mbox))
-			(mail-send (slice msg 0 +net_id_size) (char -1 +int_size)))))
+			(defq mbox (mail-mbox))
+			(mail-send (hex-decode ,(hex-encode sy_old)) mbox)
+			(times 3 (defq msg (mail-read mbox))
+				(mail-send (slice msg 0 +net_id_size) (char -1 +int_size)))))
 	(task-nodeid) +kn_call_pin 0 (mail-mbox))
 (defq sy_old_svc (mail-read sy_old))
 (assert-eq "its top is asked for and it is known to be old" :old (sync-root sy_old_svc sy_text))

@@ -83,8 +83,7 @@
 
 	(defmethod :size ()
 		; (. lmap :size) -> size
-		(/ (length (get :bucket this)) 2))
-	)
+		(/ (length (get :bucket this)) 2)))
 
 ;module
 (export-classes '(Lmap))

@@ -129,8 +129,8 @@
 	(when stsz
 		(defq one (mp4-n s (+ (second stsz) 4) 4) count (mp4-n s (+ (second stsz) 8) 4))
 		(setq sizes (if (= one 0)
-			(map (# (mp4-n s (+ (second stsz) 12 (* %0 4)) 4)) (range 0 count))
-			(map (lambda (_) one) (range 0 count)))))
+				(map (# (mp4-n s (+ (second stsz) 12 (* %0 4)) 4)) (range 0 count))
+				(map (lambda (_) one) (range 0 count)))))
 	;where each chunk is, and how many samples each holds
 	(defq chunks (cond
 			((defq co (mp4-in s stbl '("stco"))) (map (const first) (mp4-table s co 0 1)))
@@ -156,7 +156,7 @@
 	(each (lambda ((count delta)) (times count (push when_at clock) (setq clock (+ clock delta))))
 		(ifn (mp4-table s (mp4-in s stbl '("stts")) 0 2) (list)))
 	(defq keys (if (defq stss (mp4-in s stbl '("stss")))
-		(map (# (dec (first %0))) (mp4-table s stss 0 1)) :all))
+			(map (# (dec (first %0))) (mp4-table s stss 0 1)) :all))
 	;when each is shown: its time, and what ctts adds to it where frames
 	;are decoded in another order than they are shown, B-frames. The
 	;offsets are taken as signed, one may be before its time: version 1
@@ -208,11 +208,11 @@
 				;channels as 4, and is 72 long before its boxes
 				(case (mp4-n s (+ entry 16) 2)
 					(2 (scatter track :channels (mp4-n s (+ entry 48) 4) :bits (mp4-n s (+ entry 56) 4)
-						:sample_rate (reel-whole s (+ entry 40) 8)
-						:config (mp4-config s (+ entry 72) entry_end)))
+							:sample_rate (reel-whole s (+ entry 40) 8)
+							:config (mp4-config s (+ entry 72) entry_end)))
 					(:t (scatter track :channels (mp4-n s (+ entry 24) 2) :bits (mp4-n s (+ entry 26) 2)
-						:sample_rate (mp4-n s (+ entry 32) 2)
-						:config (mp4-config s (+ entry (if (= (mp4-n s (+ entry 16) 2) 1) 52 36)) entry_end)))))))
+							:sample_rate (mp4-n s (+ entry 32) 2)
+							:config (mp4-config s (+ entry (if (= (mp4-n s (+ entry 16) 2) 1) 52 36)) entry_end)))))))
 	;how many samples, and the tables of them now if it is the video's,
 	;else when they are asked for, (mp4-tables): those of the sound of a
 	;film of two hours are half a second
@@ -267,13 +267,13 @@
 		;each its time shown and its packet in one num, sorted by the
 		;native -, as a lambda that looks up the times is ten times slower
 		(setq order (cond
-			((not (. (. reel :find :video) :find :reordered)) (range 0 (. reel :find :frames)))
-			((< (. reel :find :frames) 0x100000)
-				(map (# (logand %0 0xfffff))
-					(sort (map (# (+ (<< %0 20) (!))) (. reel :find :shown)) (const -))))
-			;a film of more than 12 hours at 24 a second
-			((sort (range 0 (. reel :find :frames))
-				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))
+				((not (. (. reel :find :video) :find :reordered)) (range 0 (. reel :find :frames)))
+				((< (. reel :find :frames) 0x100000)
+					(map (# (logand %0 0xfffff))
+						(sort (map (# (+ (<< %0 20) (!))) (. reel :find :shown)) (const -))))
+				;a film of more than 12 hours at 24 a second
+				((sort (range 0 (. reel :find :frames))
+						(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))
 		(. reel :insert :order order))
 	order)
 
@@ -303,7 +303,6 @@
 		(scatter (Emap) :native native :handle handle :setup setup :reel reel :fed 0 :at -1
 			:canvas (Canvas (/ (. reel :find :width) scale) (/ (. reel :find :height) scale) scale) :scale scale
 			:order (mp4-order reel) :rescale (const mp4-rescale))))
-
 
 (defun mp4-feed (codec n)
 	;the packets fed to the host till the picture shown nth is out on the
@@ -408,7 +407,6 @@
 	(unless (= n (. codec :find :at)) (mkv-feed codec n))
 	(. codec :find :canvas))
 
-
 (defun mkv-any-codec (reel &optional scale)
 	; (mkv-any-codec reel [scale]) -> :nil | codec
 	;of a reel read as it is played, (mkv-reel), the codec that finds each
@@ -444,5 +442,5 @@
 
 ;module
 (export-symbols '(mp4-reel mp4-packet mp4-codec mp4-frame mp4-close mp4-tables avi-codec avi-frame avi-close
-	avi-reel avi-packet avi-track-stream avi-ts-fill avi-ts-seek avi-mjpeg-codec avi-mjpeg-frame))
+		avi-reel avi-packet avi-track-stream avi-ts-fill avi-ts-seek avi-mjpeg-codec avi-mjpeg-frame))
 (env-pop)

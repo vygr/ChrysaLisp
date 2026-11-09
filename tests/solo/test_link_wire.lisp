@@ -89,7 +89,7 @@
 ;every message of one fragment, the kernel's too: its src and offset are 0,
 ;not what the block it was made in had from a fragment of the parcel
 (bind '(lw_ones lw_stale) (map! (const str-as-num)
-	(list (split (mail-read lw_reply) " ")) 1 3))
+		(list (split (mail-read lw_reply) " ")) 1 3))
 (assert-true "messages of one fragment were seen" (> lw_ones 0))
 (assert-eq "none had a src or an offset that was not 0" 0 lw_stale)
 

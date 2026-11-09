@@ -143,7 +143,7 @@
 	;a str with one bit of one byte changed
 	(cat (slice text 0 at) (char (logxor (code (elem-get text at)) 1)) (slice text (inc at) -1)))
 (each (# (assert-eq (cat "a bit of byte " (str %0) " of what was sealed changed") :nil
-		(aead-open ae_key ae_nonce ae_aad (ae-flip ae_sealed %0))))
+			(aead-open ae_key ae_nonce ae_aad (ae-flip ae_sealed %0))))
 	(list 0 1 63 64 113 114 (- (length ae_sealed) 16) (- (length ae_sealed) 1)))
 (assert-eq "a bit of the aad changed" :nil (aead-open ae_key ae_nonce (ae-flip ae_aad 3) ae_sealed))
 (assert-eq "no aad where there was" :nil (aead-open ae_key ae_nonce "" ae_sealed))

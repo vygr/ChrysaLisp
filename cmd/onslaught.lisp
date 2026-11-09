@@ -139,8 +139,8 @@
 		(bind '(px py pw ph &ignore) man)
 		;the enemy banner is the one furthest right, capture needs feet level with its base
 		(bind '(& & bx by) (reduce (lambda (best ban)
-				(if (and (eql (first ban) :Banner) (or (not best) (> (third ban) (third best)))) ban best))
-			(. state :find :bans) :nil))
+					(if (and (eql (first ban) :Banner) (or (not best) (> (third ban) (third best)))) ban best))
+				(. state :find :bans) :nil))
 		(defq col (/ (+ px 8) 16) row (/ (+ py ph) 16)
 			overrun (. state :find :stack))
 		;too many enemies have got past, 16 loses the battle, so turn and
@@ -160,15 +160,15 @@
 			(:t (unless route (setq route (bot-route (/ bx 16) (/ (+ by 48) 16))))
 				(defq move (elem-get route (+ col (* row 127))))
 				(setq last_keys (cond
-					((eql move :t) (bot-toward px bx))
-					((not move) (bot-toward px bx))
-					((list? move)
-						;jump, walk a couple of frames to get moving, then leap
-						(if (= (% tick 3) 2) +fkey_up (first move)))
-					((or (= move +fkey_up) (= move +fkey_down))
-						;line up with the ladder first
-						(if (<= (abs (- px (* col 16))) 4) move (bot-toward px (* col 16))))
-					(:t move)))))))
+						((eql move :t) (bot-toward px bx))
+						((not move) (bot-toward px bx))
+						((list? move)
+							;jump, walk a couple of frames to get moving, then leap
+							(if (= (% tick 3) 2) +fkey_up (first move)))
+						((or (= move +fkey_up) (= move +fkey_down))
+							;line up with the ladder first
+							(if (<= (abs (- px (* col 16))) 4) move (bot-toward px (* col 16))))
+						(:t move)))))))
 
 (defun bot-keys (state tick)
 	; (bot-keys state tick) -> keys, fire and menu moves trigger on release

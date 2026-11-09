@@ -32,7 +32,7 @@
 		(get :launcher_auto_apps *env*))
 	al_once (list "tools/benchmark")
 	al_apps (sort (filter (lambda (app) (not (find app al_skip)))
-		(map (# (slice %0 5 -10)) (filter (# (= (length (split %0 "/")) 4)) (files-all "apps" '("app.lisp"))))))
+			(map (# (slice %0 5 -10)) (filter (# (= (length (split %0 "/")) 4)) (files-all "apps" '("app.lisp"))))))
 	al_before (lisp-nodes :t) al_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
 	al_t0 (pii-time) al_began (pii-time) al_gui :nil al_node :nil al_probe :nil
 	al_undrawn (list) al_nothing (list) al_keys (list :type :text :text_cache :paper :ink :font))
@@ -71,7 +71,7 @@
 		(and (nempty? texts) (notany (# (. %0 :find :text_cache)) texts)
 			(push al_undrawn title))
 		(if (some (lambda (node) (some (# (and (. node :find %0) (eql (. node :find %0) :nil)))
-				'(:paper :ink :font))) nodes)
+						'(:paper :ink :font))) nodes)
 			(push al_nothing title))))
 
 (defun al-probe-start ()
@@ -85,15 +85,15 @@
 	;gives one back; t how many tasks it has; a mailbox, is it there
 	(defq reply (mail-mbox))
 	(open-task (str `(progn
-			(defq in (mail-mbox))
-			(mail-send (hex-decode ,(hex-encode reply)) in)
-			(while :t
-				(defq msg (mail-read in) to (slice msg 0 +net_id_size) ask (slice msg +net_id_size -1))
-				(mail-send to (str (cond
-					((eql ask "u") (elem-get (kernel-stats :t) 5))
-					((eql ask "t") (elem-get (kernel-stats) 0))
-					((mail-validate (hex-decode ask)) "t")
-					("nil")))))))
+				(defq in (mail-mbox))
+				(mail-send (hex-decode ,(hex-encode reply)) in)
+				(while :t
+					(defq msg (mail-read in) to (slice msg 0 +net_id_size) ask (slice msg +net_id_size -1))
+					(mail-send to (str (cond
+								((eql ask "u") (elem-get (kernel-stats :t) 5))
+								((eql ask "t") (elem-get (kernel-stats) 0))
+								((mail-validate (hex-decode ask)) "t")
+								("nil")))))))
 		al_node +kn_call_pin 0 (mail-mbox))
 	(mail-read reply))
 
@@ -147,9 +147,9 @@
 	(task-sleep 300000)
 	(if look (al-look))
 	(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
-		(+ev_msg_type +ev_type_action)
-		(+ev_msg_target_id +event_close)
-		(+ev_msg_action_source_id 0)))
+			(+ev_msg_type +ev_type_action)
+			(+ev_msg_target_id +event_close)
+			(+ev_msg_action_source_id 0)))
 	(while (or (al-alive mbox) (> (al-windows) desk) (> (al-tasks) tasks))
 		(task-sleep 100000))
 	;the views of the frame being drawn as it went are let go of with that
@@ -170,7 +170,7 @@
 		;a host with no display, an emulator say, can not make a desktop
 		(test-skip "apps on a desktop" "no desktop could be started on this host"))
 	((not (and (setq al_node (slice (hex-decode (second (split (first al_gui) ","))) +long_size -1))
-			(setq al_probe (al-probe-start))))
+				(setq al_probe (al-probe-start))))
 		(test-skip "apps on a desktop" "no probe could be started on the desktop's node"))
 	(:t
 		;the desktop's own windows first

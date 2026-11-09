@@ -1086,14 +1086,14 @@
 (defun pc-push (lst &rest objs)
 	;objects put on the end of a list of arguments, each held once more
 	(each (lambda (obj)
-		(assign `((:rsp ,obj)) '(:r1))
-		(class/obj/ref :r1 :r2)
-		(call :list :push_back `((:rsp ,lst) :r1))) objs))
+			(assign `((:rsp ,obj)) '(:r1))
+			(class/obj/ref :r1 :r2)
+			(call :list :push_back `((:rsp ,lst) :r1))) objs))
 
 (defun pc-made (lst &rest objs)
 	;as (pc-push), of objects just made, which the list is to hold alone
 	(each (lambda (obj)
-		(call :list :push_back `((:rsp ,lst) (:rsp ,obj)))) objs))
+			(call :list :push_back `((:rsp ,lst) (:rsp ,obj)))) objs))
 
 (defun pc-do (func lst)
 	;a function of lib/math/polygon.inc done, with a list of arguments.
@@ -1630,4 +1630,3 @@
 	(signature '(:list :list :num :num))
 
 (def-func-end)
-

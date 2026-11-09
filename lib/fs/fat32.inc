@@ -71,7 +71,7 @@
 	;an entry of the table never lies over the end of a block
 	(defq offset (+ (<< (get :fat_offset vol) (get :sector_shift vol)) (* cluster 4)))
 	(logand (get-uint (exfat-block vol (>> offset +exfat_block_shift))
-		(logand offset (const (dec +exfat_block_size)))) +fat32_mask))
+			(logand offset (const (dec +exfat_block_size)))) +fat32_mask))
 
 (defun fat32-chain (vol start)
 	; (fat32-chain vol start) -> (cluster ...)
@@ -166,7 +166,7 @@
 	(if (/= (logand flags +fat32_case_name) 0) (setq base (to-lower base)))
 	(if (/= (logand flags +fat32_case_ext) 0) (setq ext (to-lower ext)))
 	(apply (const cat) (map (# (num-to-utf8 (code %0)))
-		(if (nempty? ext) (cat base "." ext) base))))
+			(if (nempty? ext) (cat base "." ext) base))))
 
 (defmacro fat32-checksum (name)
 	;the checksum of an 8 and 3 name, each part of a long name has it
@@ -191,7 +191,7 @@
 				;a part of a long name
 				(bind '(order check) (getf-> e +fat32_long_order +fat32_long_checksum))
 				(defq units (cat (getf e +fat32_long_name1) (getf e +fat32_long_name2)
-					(getf e +fat32_long_name3)))
+						(getf e +fat32_long_name3)))
 				(cond
 					((/= (logand order +fat32_long_last) 0)
 						(setq parts (list units) sum check
@@ -214,9 +214,9 @@
 				(unless name (setq name (fat32-short e)))
 				(unless (or (eql name ".") (eql name ".."))
 					(push out (list name (/= (logand attrs +fat32_attr_dir) 0)
-						(getf e +fat32_entry_length)
-						(+ (<< (getf e +fat32_entry_cluster_hi) 16) (getf e +fat32_entry_cluster_lo))
-						:nil (- i count) count)))
+							(getf e +fat32_entry_length)
+							(+ (<< (getf e +fat32_entry_cluster_hi) 16) (getf e +fat32_entry_cluster_lo))
+							:nil (- i count) count)))
 				(setq want 0 parts (list))))
 		(setq i (inc i)))
 	out)
@@ -239,11 +239,11 @@
 	;the entries from the root down to a path
 	(defq found (list (fat32-root vol)))
 	(each (lambda (part)
-		(when found
-			(defq entry (if (second (last found))
-				(some (# (if (exfat-same? vol (first %0) part) %0))
-					(fat32-dir vol (last found)))))
-			(if entry (push found entry) (setq found :nil))))
+			(when found
+				(defq entry (if (second (last found))
+						(some (# (if (exfat-same? vol (first %0) part) %0))
+							(fat32-dir vol (last found)))))
+				(if entry (push found entry) (setq found :nil))))
 		(filter (# (nempty? %0)) (split path "/")))
 	found)
 

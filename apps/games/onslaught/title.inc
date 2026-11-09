@@ -12,8 +12,8 @@
 	; spawn 4 explosion sprites in a diamond around the letter center
 	(defq cx (+ x 16) cy (+ y 16))
 	(each (lambda ((ox oy))
-		(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
-		(. *layer_missiles* :add_front exp))
+			(defq exp (. (Explosion) :sp_set_pos (+ cx ox) (+ cy oy)))
+			(. *layer_missiles* :add_front exp))
 		'((-32 -16) (-16 -32) (0 -16) (-16 0))))
 
 (defun spawn-title-letter (idx)
@@ -116,7 +116,7 @@
 (defun goto-title (&optional next_state)
 	; transition to title sequence with next target state
 	(setq *game_state_next* (or next_state +game_state_battle)
-		  *game_state* +game_state_title))
+		*game_state* +game_state_title))
 
 (defun title-state-init (&optional next_state)
 	(if next_state (setq *game_state_next* next_state))

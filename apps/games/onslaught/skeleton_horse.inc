@@ -26,7 +26,7 @@
 	(. *layer_enemies* :add_front skel)
 	(defq bx (+ x 24) by (+ y 28))
 	(each (lambda ((vx vy))
-		(. *layer_fx* :add_front (Bone bx by vx vy)))
+			(. *layer_fx* :add_front (Bone bx by vx vy)))
 		+bone_vectors)
 	(play-sfx *sfx_spell* this))
 

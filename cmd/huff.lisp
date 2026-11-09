@@ -31,7 +31,7 @@
 			((and opt_c (not (setq book (options-input (list "" opt_c) (const huffman-read-book)))))
 				(print "huff: no codebook " opt_c))
 			((not (options-input args (if book
-					(# (huffman-compress-static %0 out book))
-					(# (huffman-compress %0 out opt_t) :t))))
+							(# (huffman-compress-static %0 out book))
+							(# (huffman-compress %0 out opt_t) :t))))
 				(print "huff: a token the codebook has no code for")))
 		(stream-flush out)))

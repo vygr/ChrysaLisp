@@ -187,8 +187,6 @@
 		(defq reply (mail-read-timeout reply_mbox))
 		(if reply (getf reply +net_rpc_reply_status) :nil)))
 
-
-
 (defun net-what-is (system)
 	; (net-what-is system) -> str
 	;what a machine of the mesh says it is, arm64/Darwin, asked of one of
@@ -207,7 +205,7 @@
 	;bytes of its hello
 	(if (defq svc (net-service))
 		(mail-send svc (cat (setf-> (str-alloc +net_rpc_refused_size)
-				(+net_rpc_type +net_rpc_type_refused)) where " " (hex-encode head)))))
+					(+net_rpc_type +net_rpc_type_refused)) where " " (hex-encode head)))))
 
 (defun net-refused-rpc ()
 	; (net-refused-rpc) -> :nil | ((where head seconds) ...)
@@ -217,13 +215,13 @@
 	(when (defq svc (net-service))
 		(defq reply_mbox (mail-mbox))
 		(mail-send svc (setf-> (str-alloc +net_rpc_refusals_size)
-			(+net_rpc_type +net_rpc_type_refusals)
-			(+net_rpc_reply_id reply_mbox)))
+				(+net_rpc_type +net_rpc_type_refusals)
+				(+net_rpc_reply_id reply_mbox)))
 		(when (defq reply (mail-read-timeout reply_mbox))
 			(reduce (lambda (out line)
-				(when (= (length (defq parts (split line " "))) 3)
-					(push out (list (first parts) (hex-decode (to-upper (second parts))) (str-as-num (third parts)))))
-				out) (split (slice reply +net_rpc_reply_size -1) "\n") (list)))))
+					(when (= (length (defq parts (split line " "))) 3)
+						(push out (list (first parts) (hex-decode (to-upper (second parts))) (str-as-num (third parts)))))
+					out) (split (slice reply +net_rpc_reply_size -1) "\n") (list)))))
 
 (defun net-peers-rpc ()
 	; (net-peers-rpc) -> :nil | ((system_id ip port linked build link) ...)
@@ -235,9 +233,9 @@
 	(when (defq svc (net-service))
 		(defq reply_mbox (mail-mbox))
 		(mail-send svc (setf-> (str-alloc +net_rpc_peers_size)
-			(+net_rpc_type +net_rpc_type_peers)
-			(+net_rpc_reply_id reply_mbox)))
+				(+net_rpc_type +net_rpc_type_peers)
+				(+net_rpc_reply_id reply_mbox)))
 		(when (defq reply (mail-read-timeout reply_mbox))
 			(reduce (lambda (out line)
-				(if (= (length (defq parts (split line " "))) 6) (push out parts))
-				out) (split (slice reply +net_rpc_reply_size -1) "\n") (list)))))
+					(if (= (length (defq parts (split line " "))) 6) (push out parts))
+					out) (split (slice reply +net_rpc_reply_size -1) "\n") (list)))))

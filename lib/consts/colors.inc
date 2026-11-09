@@ -32,5 +32,4 @@
 
 	+argb_orange 0xffffa500
 	+argb_steel 0xff66a2d4
-	+argb_marker_yellow 0xfffffdaf
-)
+	+argb_marker_yellow 0xfffffdaf)

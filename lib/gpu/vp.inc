@@ -57,7 +57,7 @@
 (defun sv-emit (&rest form)
 	;a call of the system can lose the registers things are reached by
 	(defq keep (if (eql (first form) 'call)
-		(reduce (# (if (find (third %1) %0) %0 (push %0 (third %1)))) *sv_maps* (list)) (list)))
+			(reduce (# (if (find (third %1) %0) %0 (push %0 (third %1)))) *sv_maps* (list)) (list)))
 	(each (# (push code (list 'vp-push %0))) keep)
 	(push code form)
 	(each! (# (push code (list 'vp-pop %0))) (list keep) -1 0))
@@ -132,14 +132,14 @@
 (defun sv-store (regs type offset)
 	(if (sh-float? type)
 		(each (# (bind '(base at) (sv-at (+ offset (* (!) 8))))
-			(sv-emit 'vp-store-drc %0 base at)) regs)
+				(sv-emit 'vp-store-drc %0 base at)) regs)
 		(sv-emit 'vp-store-rrc (first regs) :r13 offset)))
 
 (defun sv-mat-copy (from to)
 	;a matrix from one place in the frame to another
 	(defq r (sv-getf))
 	(each (# (sv-ld (+ from (* %0 8)) r)
-		(sv-st r (+ to (* %0 8)))) (range 0 16))
+			(sv-st r (+ to (* %0 8)))) (range 0 16))
 	(sv-put r))
 
 (defun sv-mat (node &optional into)
@@ -160,31 +160,31 @@
 					((eql tag :var) (push steps (list :var a)))
 					(:t (defq items (list (list :mat (first b) :nil)) to (third item))
 						(each! (# (push items (list :mat %0 :nil)
-							(list :mul (if (= (!) (dec (length b))) to)))) (list b) 1)
+									(list :mul (if (= (!) (dec (length b))) to)))) (list b) 1)
 						(reach (# (push stack %0)) items))))
 			((push steps item))))
 	(each (lambda ((kind p0))
-		(cond
-			((eql kind :var) (push vs (sv-var p0)))
-			(:t (defq with (pop vs) at (pop vs)
-					out (ifn p0 (sv-slots :mat4))
-					scale (sv-getf)
-					sums (list (sv-getf) (sv-getf) (sv-getf) (sv-getf))
-					terms (list (sv-getf) (sv-getf) (sv-getf) (sv-getf)))
-				;a row of the answer at a time, its four numbers side by
-				;side, so that none waits on another. Each is a number
-				;of the row of the one times a row of the other, added
-				;up in the same order as ever
-				(each (lambda (row)
-					(each (lambda (k)
-						(sv-ld (+ at (* (+ (* row 4) k) 8)) scale)
-						(defq into_regs (if (= k 0) sums terms))
-						(each (# (sv-ld (+ with (* (+ (* k 4) (!)) 8)) %0)) into_regs)
-						(each (# (sv-emit 'vp-mul-dd scale %0)) into_regs)
-						(if (/= k 0) (each (# (sv-emit 'vp-add-dd %0 %1)) terms sums))) (range 0 4))
-					(each (# (sv-st %0 (+ out (* (+ (* row 4) (!)) 8)))) sums)) (range 0 4))
-				(sv-puts (cat (list scale) sums terms))
-				(push vs out))))
+			(cond
+				((eql kind :var) (push vs (sv-var p0)))
+				(:t (defq with (pop vs) at (pop vs)
+						out (ifn p0 (sv-slots :mat4))
+						scale (sv-getf)
+						sums (list (sv-getf) (sv-getf) (sv-getf) (sv-getf))
+						terms (list (sv-getf) (sv-getf) (sv-getf) (sv-getf)))
+					;a row of the answer at a time, its four numbers side by
+					;side, so that none waits on another. Each is a number
+					;of the row of the one times a row of the other, added
+					;up in the same order as ever
+					(each (lambda (row)
+							(each (lambda (k)
+									(sv-ld (+ at (* (+ (* row 4) k) 8)) scale)
+									(defq into_regs (if (= k 0) sums terms))
+									(each (# (sv-ld (+ with (* (+ (* k 4) (!)) 8)) %0)) into_regs)
+									(each (# (sv-emit 'vp-mul-dd scale %0)) into_regs)
+									(if (/= k 0) (each (# (sv-emit 'vp-add-dd %0 %1)) terms sums))) (range 0 4))
+							(each (# (sv-st %0 (+ out (* (+ (* row 4) (!)) 8)))) sums)) (range 0 4))
+					(sv-puts (cat (list scale) sums terms))
+					(push vs out))))
 		steps)
 	(first vs))
 
@@ -193,12 +193,12 @@
 	;vec3 is by the 3 by 3 of the matrix
 	(defq n (length regs) x (sv-getf)
 		out (map (lambda (row)
-			(defq acc (sv-getf))
-			(each (lambda (k)
-				(sv-ld (+ at (* (+ (* row 4) k) 8)) (if (= k 0) acc x))
-				(sv-emit 'vp-mul-dd (elem-get regs k) (if (= k 0) acc x))
-				(if (/= k 0) (sv-emit 'vp-add-dd x acc))) (range 0 n))
-			acc) (range 0 n)))
+				(defq acc (sv-getf))
+				(each (lambda (k)
+						(sv-ld (+ at (* (+ (* row 4) k) 8)) (if (= k 0) acc x))
+						(sv-emit 'vp-mul-dd (elem-get regs k) (if (= k 0) acc x))
+						(if (/= k 0) (sv-emit 'vp-add-dd x acc))) (range 0 n))
+				acc) (range 0 n)))
 	(sv-put x)
 	(sv-puts regs)
 	out)
@@ -219,8 +219,8 @@
 (defun sv-unspill (saved)
 	(when (nempty? saved)
 		(each (# (if (find %0 +sv_fregs)
-			(sv-emit 'vp-load-rcd :rsp (* (!) 8) %0)
-			(sv-emit 'vp-load-rcr :rsp (* (!) 8) %0))) saved)
+					(sv-emit 'vp-load-rcd :rsp (* (!) 8) %0)
+					(sv-emit 'vp-load-rcr :rsp (* (!) 8) %0))) saved)
 		(sv-emit 'vp-free (* (length saved) 8))))
 
 (defun sv-src (regs i)
@@ -287,8 +287,8 @@
 			(sv-puts a) b)
 		(:t (defq tmp (sv-getf))
 			(each (# (sv-emit 'vp-cpy-dd (first a) tmp)
-				(sv-emit 'vp-div-dd %0 tmp)
-				(sv-emit 'vp-cpy-dd tmp %0)) b)
+					(sv-emit 'vp-div-dd %0 tmp)
+					(sv-emit 'vp-cpy-dd tmp %0)) b)
 			(sv-put tmp)
 			(sv-puts a) b)))
 
@@ -340,11 +340,11 @@
 	(sv-emit 'vp-add-rr rt ry)
 	(sv-emit 'vp-load-rcr-ui ry 0 rx)
 	(each (lambda (r shift)
-		(sv-emit 'vp-cpy-rr rx rt)
-		(if (/= shift 0) (sv-emit 'vp-shr-cr shift rt))
-		(sv-emit 'vp-and-cr 0xff rt)
-		(sv-emit 'vp-cvt-rd rt r)
-		(sv-emit 'vp-mul-dd k r)) out '(16 8 0 24))
+			(sv-emit 'vp-cpy-rr rx rt)
+			(if (/= shift 0) (sv-emit 'vp-shr-cr shift rt))
+			(sv-emit 'vp-and-cr 0xff rt)
+			(sv-emit 'vp-cvt-rd rt r)
+			(sv-emit 'vp-mul-dd k r)) out '(16 8 0 24))
 	(sv-emit 'vp-jmp (sv-q l_end))
 	(sv-emit 'vp-label (sv-q l_none))
 	;nothing, a number less itself
@@ -378,15 +378,15 @@
 	(bind '(type tag a &optional b) node)
 	(case tag
 		(:lit (cond
-			((eql type :float) (list (sv-const (str-to-real a))))
-			(:t (sv-emit 'vp-cpy-cr (cond ((eql type :int) a) (a 1) (0)) (defq r (sv-getr)))
-				(list r))))
+				((eql type :float) (list (sv-const (str-to-real a))))
+				(:t (sv-emit 'vp-cpy-cr (cond ((eql type :int) a) (a 1) (0)) (defq r (sv-getr)))
+					(list r))))
 		(:var (sv-load type (sv-var a)))
 		(:buf (sv-emit 'vp-load-rcr :r13 (sv-var a) (defq r (sv-getr))) (list r))
 		(:t ;parts of a variable, only the parts asked for are loaded
 			(defq offset (sv-var (third b)))
 			(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
-				(sv-emit 'vp-load-rcd base at (defq r (sv-getf))) r) a))))
+					(sv-emit 'vp-load-rcd base at (defq r (sv-getf))) r) a))))
 
 (defun sv-apply (node a b c)
 	;a built in op whose args are all worked out before it, they are in a,
@@ -434,8 +434,8 @@
 				(4 (each (const sv-floor) a) a)
 				(:t (defq tmp (sv-getf))
 					(each (# (sv-emit 'vp-cpy-dd %0 tmp)
-						(sv-floor tmp)
-						(sv-emit 'vp-sub-dd tmp %0)) a)
+							(sv-floor tmp)
+							(sv-emit 'vp-sub-dd tmp %0)) a)
 					(sv-put tmp) a)))
 		((defq i (find op '(min max mod)))
 			(cond
@@ -443,10 +443,10 @@
 					(each (# (sv-emit (if (= i 0) 'vp-min-dd 'vp-max-dd) (sv-src b (!)) %0)) a))
 				(:t (defq tmp (sv-getf))
 					(each (# (sv-emit 'vp-cpy-dd %0 tmp)
-						(sv-emit 'vp-div-dd (sv-src b (!)) tmp)
-						(sv-floor tmp)
-						(sv-emit 'vp-mul-dd (sv-src b (!)) tmp)
-						(sv-emit 'vp-sub-dd tmp %0)) a)
+							(sv-emit 'vp-div-dd (sv-src b (!)) tmp)
+							(sv-floor tmp)
+							(sv-emit 'vp-mul-dd (sv-src b (!)) tmp)
+							(sv-emit 'vp-sub-dd tmp %0)) a)
 					(sv-put tmp)))
 			(sv-puts b) a)
 		((eql op 'pow)
@@ -454,12 +454,12 @@
 			(sv-puts a) (sv-puts b) regs)
 		((eql op 'clamp)
 			(each (# (sv-emit 'vp-max-dd (sv-src b (!)) %0)
-				(sv-emit 'vp-min-dd (sv-src c (!)) %0)) a)
+					(sv-emit 'vp-min-dd (sv-src c (!)) %0)) a)
 			(sv-puts b) (sv-puts c) a)
 		((eql op 'mix)
 			(each (# (sv-emit 'vp-sub-dd %0 %1)
-				(sv-emit 'vp-mul-dd (sv-src c (!)) %1)
-				(sv-emit 'vp-add-dd %1 %0)) a b)
+					(sv-emit 'vp-mul-dd (sv-src c (!)) %1)
+					(sv-emit 'vp-add-dd %1 %0)) a b)
 			(sv-puts b) (sv-puts c) a)
 		((eql op 'dot)
 			(each (# (sv-emit 'vp-mul-dd %1 %0)) a b)
@@ -477,20 +477,20 @@
 			(sv-emit 'vp-cpy-dd (first a) acc)
 			(sv-emit 'vp-mul-dd acc acc)
 			(each! (# (sv-emit 'vp-cpy-dd %0 tmp)
-				(sv-emit 'vp-mul-dd tmp tmp)
-				(sv-emit 'vp-add-dd tmp acc)) (list a) 1)
+					(sv-emit 'vp-mul-dd tmp tmp)
+					(sv-emit 'vp-add-dd tmp acc)) (list a) 1)
 			(sv-emit 'vp-sqrt-dd acc acc)
 			(each (# (sv-emit 'vp-div-dd acc %0)) a)
 			(sv-put acc) (sv-put tmp) a)
 		((eql op 'cross)
 			(defq tmp (sv-getf)
 				regs (map (lambda (i j)
-					(sv-emit 'vp-cpy-dd (elem-get a i) (defq r (sv-getf)))
-					(sv-emit 'vp-mul-dd (elem-get b j) r)
-					(sv-emit 'vp-cpy-dd (elem-get a j) tmp)
-					(sv-emit 'vp-mul-dd (elem-get b i) tmp)
-					(sv-emit 'vp-sub-dd tmp r)
-					r) '(1 2 0) '(2 0 1)))
+						(sv-emit 'vp-cpy-dd (elem-get a i) (defq r (sv-getf)))
+						(sv-emit 'vp-mul-dd (elem-get b j) r)
+						(sv-emit 'vp-cpy-dd (elem-get a j) tmp)
+						(sv-emit 'vp-mul-dd (elem-get b i) tmp)
+						(sv-emit 'vp-sub-dd tmp r)
+						r) '(1 2 0) '(2 0 1)))
 			(sv-put tmp) (sv-puts a) (sv-puts b) regs)
 		((eql op 'reflect)
 			;i - 2 * dot(n, i) * n
@@ -498,11 +498,11 @@
 			(sv-emit 'vp-cpy-dd (first a) acc)
 			(sv-emit 'vp-mul-dd (first b) acc)
 			(each! (# (sv-emit 'vp-cpy-dd %0 tmp)
-				(sv-emit 'vp-mul-dd %1 tmp)
-				(sv-emit 'vp-add-dd tmp acc)) (list a b) 1)
+					(sv-emit 'vp-mul-dd %1 tmp)
+					(sv-emit 'vp-add-dd tmp acc)) (list a b) 1)
 			(sv-emit 'vp-add-dd acc acc)
 			(each (# (sv-emit 'vp-mul-dd acc %1)
-				(sv-emit 'vp-sub-dd %1 %0)) a b)
+					(sv-emit 'vp-sub-dd %1 %0)) a b)
 			(sv-put acc) (sv-put tmp) (sv-puts b) a)))
 
 (defun sv-lin-expr (node)
@@ -511,7 +511,7 @@
 	(case tag
 		((:lit :var :buf) (list (list :leaf node)))
 		(:swz (if (eql (second b) :var) (list (list :leaf node))
-			(list (list :expr b) (list :swz node))))
+				(list (list :expr b) (list :swz node))))
 		(:user ;a call of a function of the shader, each arg and what is done with it
 			(defq items (list (list :user_begin)))
 			(each (# (push items (list :expr %0) (list :user_arg node (!)))) b)
@@ -531,7 +531,7 @@
 						((> (length args) 1)
 							(defq items (list (list :expr (first args))) ta (first types))
 							(each! (# (push items (list :expr %0) (list :arith i ta %1))
-								(setq ta (if (shader-dim ta) ta %1))) (list args types) 1)
+									(setq ta (if (shader-dim ta) ta %1))) (list args types) 1)
 							items)
 						((list (list :expr (first args)) (list :neg (first types))))))
 				((find op '(< <= > >= = /= and or not))
@@ -593,85 +593,85 @@
 	;stack, a list, each the registers a value is in
 	(defq vs (list))
 	(each (lambda ((kind &optional p0 p1 p2))
-		(case kind
-			(:leaf (push vs (sv-leaf p0)))
-			(:swz (bind '(type tag a &optional b) p0)
-				(defq regs (pop vs) used (list)
-					out (map (# (defq r (elem-get regs %0))
-						(cond
-							((find r used)
-								(sv-emit 'vp-cpy-dd r (defq r (sv-getf))) r)
-							((push used r) r))) a))
-				(sv-puts (filter (# (not (find %0 used))) regs))
-				(push vs out))
-			(:apply (defq c (if (> p1 2) (pop vs)) b (if (> p1 1) (pop vs)) a (pop vs))
-				(push vs (sv-apply p0 a b c)))
-			(:arith (defq b (pop vs) a (pop vs))
-				(push vs (sv-arith p0 a p1 b p2)))
-			(:bits (defq b (pop vs) a (last vs))
-				(sv-emit (elem-get '(vp-and-rr vp-or-rr vp-xor-rr) p0) (first b) (first a))
-				(sv-puts b))
-			(:neg (defq a (last vs))
-				(cond
-					((eql p0 :int)
-						(sv-emit 'vp-cpy-rr (first a) (defq tmp (sv-getr)))
-						(sv-emit 'vp-xor-rr (first a) (first a))
-						(sv-emit 'vp-sub-rr tmp (first a))
-						(sv-put tmp))
-					((each (# (sv-emit 'vp-neg-dd %0 %0)) a))))
-			(:mat4 (bind '(type & op args) p0)
-				(defq v (pop vs))
-				;each matrix is applied to the vector in turn, the nearest first
-				(each! (# (setq v (sv-mat-vec (sv-mat %0) v))) (list args) -2 0)
-				(push vs v))
-			(:bool_begin (defq r (sv-getr))
-				(elem-set p0 0 (sv-new-label))
-				(sv-emit 'vp-cpy-cr 1 r)
-				(push vs (list r)))
-			(:bool_end (sv-emit 'vp-cpy-cr 0 (first (last vs)))
-				(sv-emit 'vp-label (sv-q (first p0))))
-			(:vec_begin (push vs (list)))
-			(:vec_part (defq a (pop vs) regs (last vs))
-				(cond
-					((eql p0 :int)
-						(sv-emit 'vp-cvt-rd (first a) (defq r (sv-getf)))
-						(sv-puts a) (push regs r))
-					((each (# (push regs %0)) a))))
-			(:vec_end (defq regs (last vs))
-				(while (< (length regs) (shader-dim p0))
-					(sv-emit 'vp-cpy-dd (first regs) (defq r (sv-getf)))
-					(push regs r)))
-			(:user_begin (push vs (list)))
-			(:user_arg (bind '(type tag a &optional b) p0)
-				(bind '(& label offsets result) (some (# (if (eql (first %0) a) %0)) finfo))
-				;a value can go to its parameter slot at once if no later
-				;arg can call a function, else all are held till the end
-				(defq regs (pop vs) held (last vs) arg (elem-get b p1))
-				(push held (list regs (first arg) (elem-get offsets p1)))
-				(unless (some! sv-calls? (list b) :nil (inc p1))
-					(each (lambda ((regs type offset))
-						(sv-store regs type offset)
-						(sv-puts regs)) held)
-					(clear held)))
-			(:user_call (bind '(type tag a &optional b) p0)
-				(bind '(& label offsets result) (some (# (if (eql (first %0) a) %0)) finfo))
-				(pop vs)
-				(defq saved (sv-spill :t))
-				(sv-emit 'vp-call (sv-q label))
-				(defq regs (sv-load type result))
-				(sv-unspill saved)
-				(push vs regs))
-			(:br_cmp (defq y (pop vs) x (pop vs))
-				(sv-emit (elem-get (if p1
-						'(vp-blt-dd vp-ble-dd vp-bgt-dd vp-bge-dd vp-beq-dd vp-bne-dd)
-						'(vp-blt-rr vp-ble-rr vp-bgt-rr vp-bge-rr vp-beq-rr vp-bne-rr)) p0)
-					(first y) (first x) (sv-q (first p2)))
-				(sv-puts x) (sv-puts y))
-			(:br_val (defq r (pop vs))
-				(sv-emit (if p0 'vp-bne-cr 'vp-beq-cr) 0 (first r) (sv-q (first p1)))
-				(sv-puts r))
-			(:new_label (elem-set p0 0 (sv-new-label)))
-			(:label (sv-emit 'vp-label (sv-q (first p0))))))
+			(case kind
+				(:leaf (push vs (sv-leaf p0)))
+				(:swz (bind '(type tag a &optional b) p0)
+					(defq regs (pop vs) used (list)
+						out (map (# (defq r (elem-get regs %0))
+								(cond
+									((find r used)
+										(sv-emit 'vp-cpy-dd r (defq r (sv-getf))) r)
+									((push used r) r))) a))
+					(sv-puts (filter (# (not (find %0 used))) regs))
+					(push vs out))
+				(:apply (defq c (if (> p1 2) (pop vs)) b (if (> p1 1) (pop vs)) a (pop vs))
+					(push vs (sv-apply p0 a b c)))
+				(:arith (defq b (pop vs) a (pop vs))
+					(push vs (sv-arith p0 a p1 b p2)))
+				(:bits (defq b (pop vs) a (last vs))
+					(sv-emit (elem-get '(vp-and-rr vp-or-rr vp-xor-rr) p0) (first b) (first a))
+					(sv-puts b))
+				(:neg (defq a (last vs))
+					(cond
+						((eql p0 :int)
+							(sv-emit 'vp-cpy-rr (first a) (defq tmp (sv-getr)))
+							(sv-emit 'vp-xor-rr (first a) (first a))
+							(sv-emit 'vp-sub-rr tmp (first a))
+							(sv-put tmp))
+						((each (# (sv-emit 'vp-neg-dd %0 %0)) a))))
+				(:mat4 (bind '(type & op args) p0)
+					(defq v (pop vs))
+					;each matrix is applied to the vector in turn, the nearest first
+					(each! (# (setq v (sv-mat-vec (sv-mat %0) v))) (list args) -2 0)
+					(push vs v))
+				(:bool_begin (defq r (sv-getr))
+					(elem-set p0 0 (sv-new-label))
+					(sv-emit 'vp-cpy-cr 1 r)
+					(push vs (list r)))
+				(:bool_end (sv-emit 'vp-cpy-cr 0 (first (last vs)))
+					(sv-emit 'vp-label (sv-q (first p0))))
+				(:vec_begin (push vs (list)))
+				(:vec_part (defq a (pop vs) regs (last vs))
+					(cond
+						((eql p0 :int)
+							(sv-emit 'vp-cvt-rd (first a) (defq r (sv-getf)))
+							(sv-puts a) (push regs r))
+						((each (# (push regs %0)) a))))
+				(:vec_end (defq regs (last vs))
+					(while (< (length regs) (shader-dim p0))
+						(sv-emit 'vp-cpy-dd (first regs) (defq r (sv-getf)))
+						(push regs r)))
+				(:user_begin (push vs (list)))
+				(:user_arg (bind '(type tag a &optional b) p0)
+					(bind '(& label offsets result) (some (# (if (eql (first %0) a) %0)) finfo))
+					;a value can go to its parameter slot at once if no later
+					;arg can call a function, else all are held till the end
+					(defq regs (pop vs) held (last vs) arg (elem-get b p1))
+					(push held (list regs (first arg) (elem-get offsets p1)))
+					(unless (some! sv-calls? (list b) :nil (inc p1))
+						(each (lambda ((regs type offset))
+								(sv-store regs type offset)
+								(sv-puts regs)) held)
+						(clear held)))
+				(:user_call (bind '(type tag a &optional b) p0)
+					(bind '(& label offsets result) (some (# (if (eql (first %0) a) %0)) finfo))
+					(pop vs)
+					(defq saved (sv-spill :t))
+					(sv-emit 'vp-call (sv-q label))
+					(defq regs (sv-load type result))
+					(sv-unspill saved)
+					(push vs regs))
+				(:br_cmp (defq y (pop vs) x (pop vs))
+					(sv-emit (elem-get (if p1
+								'(vp-blt-dd vp-ble-dd vp-bgt-dd vp-bge-dd vp-beq-dd vp-bne-dd)
+								'(vp-blt-rr vp-ble-rr vp-bgt-rr vp-bge-rr vp-beq-rr vp-bne-rr)) p0)
+						(first y) (first x) (sv-q (first p2)))
+					(sv-puts x) (sv-puts y))
+				(:br_val (defq r (pop vs))
+					(sv-emit (if p0 'vp-bne-cr 'vp-beq-cr) 0 (first r) (sv-q (first p1)))
+					(sv-puts r))
+				(:new_label (elem-set p0 0 (sv-new-label)))
+				(:label (sv-emit 'vp-label (sv-q (first p0))))))
 		steps)
 	vs)
 
@@ -729,13 +729,13 @@
 				(case tag
 					(:defq (sv-define a (first b) b))
 					(:setq (cond
-						((eql (first b) :mat4) (sv-mat-copy (sv-mat b) (sv-var a)))
-						(:t (defq regs (sv-expr b))
-							(sv-store regs (first b) (sv-var a))
-							(sv-puts regs))))
+							((eql (first b) :mat4) (sv-mat-copy (sv-mat b) (sv-var a)))
+							(:t (defq regs (sv-expr b))
+								(sv-store regs (first b) (sv-var a))
+								(sv-puts regs))))
 					(:setsw (defq regs (sv-expr c) offset (sv-var a))
 						(each (# (bind '(base at) (sv-at (+ offset (* %1 8))))
-							(sv-emit 'vp-store-drc %0 base at)) regs b)
+								(sv-emit 'vp-store-drc %0 base at)) regs b)
 						(sv-puts regs))
 					(:if (defq l_else (sv-new-label))
 						(sv-branch a l_else :nil)
@@ -791,36 +791,36 @@
 	(sv-emit 'vp-ret)
 	(defq num_globals (length vars))
 	(each (lambda ((name type params block))
-		(setq vars (slice vars 0 num_globals))
-		(defq label (sym (cat prefix "f_" name))
-			offsets (map (lambda ((pname ptype))
-				(push vars (list pname (defq offset (sv-slots ptype)))) offset) params))
-		(setq ret_offset (if (eql type :void) 0 (sv-slots type)) ret_label (sv-new-label))
-		(push finfo (list name label offsets ret_offset))
-		;what the main of a vertex shader returns goes where the vertex
-		;is to be written
-		(and (nempty? *sv_maps*) (eql name 'main)
-			(push *sv_maps* (list ret_offset (+ ret_offset 32) :r10 0)))
-		;a function Lisp calls reads a reals arg where it is, if it never
-		;sets it, and what it gives goes where it is to go
-		(and *sv_entry* (eql name (first *sv_entry*))
-			(each! (lambda (entry)
-				(bind '(which reg) entry)
-				(cond
-					((eql which :ret)
-						(push *sv_maps* (list ret_offset (+ ret_offset (* (shader-size type) 8)) reg 0)))
-					((sv-sets? block (first (elem-get params which)))
-						(elem-set entry 1 :nil))
-					(:t (defq at (elem-get offsets which))
-						(push *sv_maps* (list at (+ at (* (shader-size (second (elem-get params which))) 8)) reg 0)))))
-				(list *sv_entry*) 1))
-		(sv-emit 'vp-label (sv-q label))
-		(sv-block block)
-		;a return that is the last thing has no jump to make
-		(and (eql (first (last code)) 'vp-jmp) (eql (second (second (last code))) ret_label)
-			(pop code))
-		(sv-emit 'vp-label (sv-q ret_label))
-		(sv-emit 'vp-ret)) funcs)
+			(setq vars (slice vars 0 num_globals))
+			(defq label (sym (cat prefix "f_" name))
+				offsets (map (lambda ((pname ptype))
+						(push vars (list pname (defq offset (sv-slots ptype)))) offset) params))
+			(setq ret_offset (if (eql type :void) 0 (sv-slots type)) ret_label (sv-new-label))
+			(push finfo (list name label offsets ret_offset))
+			;what the main of a vertex shader returns goes where the vertex
+			;is to be written
+			(and (nempty? *sv_maps*) (eql name 'main)
+				(push *sv_maps* (list ret_offset (+ ret_offset 32) :r10 0)))
+			;a function Lisp calls reads a reals arg where it is, if it never
+			;sets it, and what it gives goes where it is to go
+			(and *sv_entry* (eql name (first *sv_entry*))
+				(each! (lambda (entry)
+						(bind '(which reg) entry)
+						(cond
+							((eql which :ret)
+								(push *sv_maps* (list ret_offset (+ ret_offset (* (shader-size type) 8)) reg 0)))
+							((sv-sets? block (first (elem-get params which)))
+								(elem-set entry 1 :nil))
+							(:t (defq at (elem-get offsets which))
+								(push *sv_maps* (list at (+ at (* (shader-size (second (elem-get params which))) 8)) reg 0)))))
+					(list *sv_entry*) 1))
+			(sv-emit 'vp-label (sv-q label))
+			(sv-block block)
+			;a return that is the last thing has no jump to make
+			(and (eql (first (last code)) 'vp-jmp) (eql (second (second (last code))) ret_label)
+				(pop code))
+			(sv-emit 'vp-label (sv-q ret_label))
+			(sv-emit 'vp-ret)) funcs)
 	(bind '(& & offsets ret) (some (# (if (eql (first %0) (ifn entry 'main)) %0)) finfo))
 	(list offsets ret))
 
@@ -849,7 +849,7 @@
 	(bind '(s_n) (map (lambda (&) (sv-slots :int)) (range 0 1)))
 	(bind '(& ret) (sv-program program "v"))
 	(defq lf "\n" text (cat
-{(include "lib/asm/func.inc")
+			{(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
 (include "class/str/class.inc")
@@ -961,9 +961,9 @@
 		;plane, to vertex kb, behind it, crosses the plane
 		(E 'vp-cpy-dd da :d5) (E 'vp-cpy-dd da :d4) (E 'vp-sub-dd db :d4) (E 'vp-div-dd :d4 :d5)
 		(each (lambda (j)
-			(L (T ka j) :d6) (L (T kb j) :d7)
-			(E 'vp-sub-dd :d6 :d7) (E 'vp-mul-dd :d5 :d7) (E 'vp-add-dd :d6 :d7)
-			(S :d7 (T kd j))) (range 0 tv_n)))
+				(L (T ka j) :d6) (L (T kb j) :d7)
+				(E 'vp-sub-dd :d6 :d7) (E 'vp-mul-dd :d5 :d7) (E 'vp-add-dd :d6 :d7)
+				(S :d7 (T kd j))) (range 0 tv_n)))
 	(E 'vp-call (Q 'sh_init))
 	(E 'vp-xor-rr :r2 :r2)
 	(SI :r2 s_pend)
@@ -975,8 +975,8 @@
 	(E 'vp-xor-rr :r2 :r2)
 	(SI :r2 s_pend)
 	(each (lambda (j)
-		(L (T 2 j) :d6) (S :d6 (T 1 j))
-		(L (T 3 j) :d6) (S :d6 (T 2 j))) (range 0 tv_n))
+			(L (T 2 j) :d6) (S :d6 (T 1 j))
+			(L (T 3 j) :d6) (S :d6 (T 2 j))) (range 0 tv_n))
 	(E 'vp-jmp (Q 'sr_setup))
 	(E 'vp-label (Q 'sr_fetch))
 	;the next triangle, its three vertices. A triangle is some work done,
@@ -994,17 +994,17 @@
 	(SI :r2 s_tris)
 	(LI s_stride :r6) (LI s_placed :r7)
 	(each (lambda (r)
-		(E 'vp-mul-rr :r6 r) (E 'vp-add-rr :r7 r))
+			(E 'vp-mul-rr :r6 r) (E 'vp-add-rr :r7 r))
 		'(:r3 :r4 :r5))
 	;the near plane. A vertex is in front of it if its z + w is not less
 	;than 0. With none in front the triangle is left out
 	(K 0 :d3)
 	(E 'vp-xor-rr :r8 :r8)
 	(each (lambda (r d bit label)
-		(E 'vp-load-rcd r 16 d) (E 'vp-load-rcd r 24 :d6) (E 'vp-add-dd :d6 d)
-		(E 'vp-blt-dd :d3 d (Q label))
-		(E 'vp-add-cr bit :r8)
-		(E 'vp-label (Q label)))
+			(E 'vp-load-rcd r 16 d) (E 'vp-load-rcd r 24 :d6) (E 'vp-add-dd :d6 d)
+			(E 'vp-blt-dd :d3 d (Q label))
+			(E 'vp-add-cr bit :r8)
+			(E 'vp-label (Q label)))
 		'(:r3 :r4 :r5) '(:d0 :d1 :d2) '(1 2 4) '(sr_out0 sr_out1 sr_out2))
 	(E 'vp-beq-cr 0 :r8 (Q 'sr_tri))
 	;with one or two behind it, the vertices are taken round, the same
@@ -1027,11 +1027,11 @@
 	;the pixel shader reads, so a pixel has them without a sum to find
 	;them, and a triangle that is cut has somewhere to be
 	(each (lambda (r k)
-		(each (lambda (j) (E 'vp-load-rcd r (* j 8) :d6) (S :d6 (T k j))) (range 0 4))
-		(each (lambda (i)
-			(LI (+ s_vary (* i 8)) :r6)
-			(E 'vp-cpy-rr r :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-load-rcd :r7 0 :d6)
-			(S :d6 (T k (+ 4 i)))) (range 0 vary_slots)))
+			(each (lambda (j) (E 'vp-load-rcd r (* j 8) :d6) (S :d6 (T k j))) (range 0 4))
+			(each (lambda (i)
+					(LI (+ s_vary (* i 8)) :r6)
+					(E 'vp-cpy-rr r :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-load-rcd :r7 0 :d6)
+					(S :d6 (T k (+ 4 i)))) (range 0 vary_slots)))
 		'(:r3 :r4 :r5) '(0 1 2))
 	(E 'vp-beq-cr 7 :r8 (Q 'sr_setup))
 	(E 'vp-beq-cr 1 :r8 (Q 'sr_clip1))
@@ -1057,15 +1057,15 @@
 	(K 1 :d14) (K 0.5 :d15)
 	(E 'vp-load-rcd :r12 (list 'fn-const (logior (str-to-real "0.000001"))) :d11)
 	(each (lambda (k sx sy iw z)
-		(L (T k 3) :d6)
-		(E 'vp-ble-dd :d11 :d6 (Q 'sr_tri))
-		(E 'vp-cpy-dd :d14 :d7) (E 'vp-div-dd :d6 :d7) (S :d7 iw)
-		(L (T k 0) sx) (E 'vp-mul-dd :d7 sx) (E 'vp-add-dd :d14 sx)
-		(E 'vp-mul-dd :d15 sx) (E 'vp-mul-dd :d12 sx)
-		(L (T k 1) :d8) (E 'vp-mul-dd :d7 :d8)
-		(E 'vp-cpy-dd :d14 sy) (E 'vp-sub-dd :d8 sy)
-		(E 'vp-mul-dd :d15 sy) (E 'vp-mul-dd :d13 sy)
-		(L (T k 2) :d8) (E 'vp-mul-dd :d7 :d8) (S :d8 z))
+			(L (T k 3) :d6)
+			(E 'vp-ble-dd :d11 :d6 (Q 'sr_tri))
+			(E 'vp-cpy-dd :d14 :d7) (E 'vp-div-dd :d6 :d7) (S :d7 iw)
+			(L (T k 0) sx) (E 'vp-mul-dd :d7 sx) (E 'vp-add-dd :d14 sx)
+			(E 'vp-mul-dd :d15 sx) (E 'vp-mul-dd :d12 sx)
+			(L (T k 1) :d8) (E 'vp-mul-dd :d7 :d8)
+			(E 'vp-cpy-dd :d14 sy) (E 'vp-sub-dd :d8 sy)
+			(E 'vp-mul-dd :d15 sy) (E 'vp-mul-dd :d13 sy)
+			(L (T k 2) :d8) (E 'vp-mul-dd :d7 :d8) (S :d8 z))
 		'(0 1 2) '(:d0 :d2 :d4) '(:d1 :d3 :d5)
 		(list f_iw0 f_iw1 f_iw2) (list f_z0 f_z1 f_z2))
 	;twice its area, with a sign that says which way it faces. One of no
@@ -1092,11 +1092,11 @@
 	(E 'vp-cpy-dd :d1 :d8) (E 'vp-min-dd :d3 :d8) (E 'vp-min-dd :d5 :d8)
 	(E 'vp-cpy-dd :d1 :d9) (E 'vp-max-dd :d3 :d9) (E 'vp-max-dd :d5 :d9)
 	(each (lambda (lo hi c0 c1 smin smax)
-		(LI c0 :r8) (E 'vp-cvt-rd :r8 :d11) (E 'vp-max-dd :d11 lo)
-		(LI c1 :r10) (E 'vp-cvt-rd :r10 :d11) (E 'vp-min-dd :d11 hi)
-		(E 'vp-blt-dd lo hi (Q 'sr_tri))
-		(E 'vp-cvt-dr lo :r8) (SI :r8 smin)
-		(E 'vp-cvt-dr hi :r9) (E 'vp-add-cr 1 :r9) (E 'vp-min-rr :r10 :r9) (SI :r9 smax))
+			(LI c0 :r8) (E 'vp-cvt-rd :r8 :d11) (E 'vp-max-dd :d11 lo)
+			(LI c1 :r10) (E 'vp-cvt-rd :r10 :d11) (E 'vp-min-dd :d11 hi)
+			(E 'vp-blt-dd lo hi (Q 'sr_tri))
+			(E 'vp-cvt-dr lo :r8) (SI :r8 smin)
+			(E 'vp-cvt-dr hi :r9) (E 'vp-add-cr 1 :r9) (E 'vp-min-rr :r10 :r9) (SI :r9 smax))
 		'(:d6 :d8) '(:d7 :d9) (list s_cx0 s_cy0) (list s_cx1 s_cy1)
 		(list s_minx s_y) (list s_maxx s_maxy))
 	;for each edge, the share of the triangle a point has from the vertex
@@ -1108,13 +1108,13 @@
 	;whichever part of the screen is being drawn, and a frame drawn in
 	;strips is the frame drawn whole, to the bit
 	(each (lambda (ax ay bx by at kx ky)
-		(E 'vp-cpy-dd bx :d11) (E 'vp-sub-dd ax :d11)
-		(E 'vp-cpy-dd by :d7) (E 'vp-sub-dd ay :d7)
-		(E 'vp-cpy-dd :d7 :d12) (E 'vp-mul-dd ax :d12)
-		(E 'vp-cpy-dd :d11 :d13) (E 'vp-mul-dd ay :d13)
-		(E 'vp-sub-dd :d13 :d12) (E 'vp-mul-dd :d10 :d12) (S :d12 at)
-		(E 'vp-mul-dd :d10 :d7) (E 'vp-neg-dd :d7 :d7) (S :d7 kx)
-		(E 'vp-mul-dd :d10 :d11) (S :d11 ky))
+			(E 'vp-cpy-dd bx :d11) (E 'vp-sub-dd ax :d11)
+			(E 'vp-cpy-dd by :d7) (E 'vp-sub-dd ay :d7)
+			(E 'vp-cpy-dd :d7 :d12) (E 'vp-mul-dd ax :d12)
+			(E 'vp-cpy-dd :d11 :d13) (E 'vp-mul-dd ay :d13)
+			(E 'vp-sub-dd :d13 :d12) (E 'vp-mul-dd :d10 :d12) (S :d12 at)
+			(E 'vp-mul-dd :d10 :d7) (E 'vp-neg-dd :d7 :d7) (S :d7 kx)
+			(E 'vp-mul-dd :d10 :d11) (S :d11 ky))
 		'(:d2 :d4 :d0) '(:d3 :d5 :d1) '(:d4 :d0 :d2) '(:d5 :d1 :d3)
 		(list f_e0 f_e1 f_e2) (list f_kx0 f_kx1 f_kx2) (list f_ky0 f_ky1 f_ky2))
 	;a row, the shares at the left edge of the screen in this row
@@ -1166,12 +1166,12 @@
 	(K 1 :d5) (E 'vp-div-dd :d4 :d5)
 	(E 'vp-mul-dd :d5 :d0) (E 'vp-mul-dd :d5 :d1) (E 'vp-mul-dd :d5 :d2)
 	(each (lambda (i)
-		(L (T 0 (+ 4 i)) :d4) (E 'vp-mul-dd :d0 :d4)
-		(L (T 1 (+ 4 i)) :d5) (E 'vp-mul-dd :d1 :d5)
-		(E 'vp-add-dd :d5 :d4)
-		(L (T 2 (+ 4 i)) :d5) (E 'vp-mul-dd :d2 :d5)
-		(E 'vp-add-dd :d5 :d4)
-		(S :d4 (+ vary_at (* i 8)))) (range 0 vary_slots))
+			(L (T 0 (+ 4 i)) :d4) (E 'vp-mul-dd :d0 :d4)
+			(L (T 1 (+ 4 i)) :d5) (E 'vp-mul-dd :d1 :d5)
+			(E 'vp-add-dd :d5 :d4)
+			(L (T 2 (+ 4 i)) :d5) (E 'vp-mul-dd :d2 :d5)
+			(E 'vp-add-dd :d5 :d4)
+			(S :d4 (+ vary_at (* i 8)))) (range 0 vary_slots))
 	;the frag coord, the centre of the pixel, y up
 	(K 0.5 :d5)
 	(E 'vp-cvt-rd :r2 :d4) (E 'vp-add-dd :d5 :d4) (S :d4 frag)
@@ -1189,10 +1189,10 @@
 	;the pixel, a 32 bit argb
 	(E 'vp-cpy-rr :r4 :r7)
 	(each (lambda (offset)
-		(L offset :d0)
-		(E 'vp-max-dd :d1 :d0) (E 'vp-min-dd :d2 :d0) (E 'vp-mul-dd :d3 :d0)
-		(E 'vp-cvt-dr :d0 :r5)
-		(E 'vp-shl-cr 8 :r7) (E 'vp-add-rr :r5 :r7)) (list ret (+ ret 8) (+ ret 16)))
+			(L offset :d0)
+			(E 'vp-max-dd :d1 :d0) (E 'vp-min-dd :d2 :d0) (E 'vp-mul-dd :d3 :d0)
+			(E 'vp-cvt-dr :d0 :r5)
+			(E 'vp-shl-cr 8 :r7) (E 'vp-add-rr :r5 :r7)) (list ret (+ ret 8) (+ ret 16)))
 	(LI s_y :r5) (LI s_pstride :r6) (E 'vp-mul-rr :r6 :r5)
 	(LI s_x :r2) (E 'vp-cpy-rr :r2 :r6) (E 'vp-shl-cr 2 :r6) (E 'vp-add-rr :r6 :r5)
 	(LI s_pix :r6) (E 'vp-add-rr :r6 :r5)
@@ -1278,7 +1278,7 @@
 	(setq code (list))
 	(sv-fill-code)
 	(defq lf "\n" text (cat
-{(include "lib/asm/func.inc")
+			{(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
 (include "gui/pixmap/class.inc")
@@ -1353,7 +1353,7 @@
 		(map (lambda (&) (sv-slots :int)) (range 0 10)))
 	(bind '((frag) ret) (sv-program program "s"))
 	(defq lf "\n" text (cat
-{(include "lib/asm/func.inc")
+			{(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
 (include "class/str/class.inc")
@@ -1540,7 +1540,7 @@
 	(when (= (age obj) 0)
 		(save text (cat obj ".vp"))
 		(within-compile-env (lambda ()
-			(each (lambda (entry) (vp-translate-save entry)) (vp-compile (cat obj ".vp"))))))
+				(each (lambda (entry) (vp-translate-save entry)) (vp-compile (cat obj ".vp"))))))
 	(defq func (if (/= (age obj) 0) (ffi name)))
 	(lock-release-rpc obj)
 	(unless func (sh-err "could not assemble" name))
@@ -1552,7 +1552,7 @@
 	;of this CPU and the ops it knows: a VP64 function of the ops as they
 	;were numbered before is not the function now
 	(defq by (cat +sv_made_by (list "lib/asm/ops.inc" "lib/trans/trans.inc"
-		(cat "lib/trans/" (second (split (load-path) "/")) ".vp"))))
+				(cat "lib/trans/" (second (split (load-path) "/")) ".vp"))))
 	(shader-sweep "fstvk" (list (shader-make by)))
 	(cat "lib/gpu/jit/" letter (shader-make by) "_" (elem-get program 5)))
 
@@ -1606,8 +1606,8 @@
 		*sv_maps* (list)
 		*sv_entry* (cat (list fname)
 			(reduce (lambda (out (pname ptype))
-				(if (and (> (shader-size ptype) 1) (nempty? bases))
-					(push out (list (!) (pop bases))) out)) params (list))
+					(if (and (> (shader-size ptype) 1) (nempty? bases))
+						(push out (list (!) (pop bases))) out)) params (list))
 			(if (> count 1) (list (list :ret :r10)) (list)))
 		code (list) live (list) free_f (cat +sv_fregs)
 		free_r (filter (# (not (find %0 '(:r8 :r9 :r10)))) +sv_rregs)
@@ -1619,24 +1619,24 @@
 		lf "\n" tab "\t"
 		;an arg that is a reals has to be the right length
 		checks (map (lambda ((pname ptype)) (if (> (shader-size ptype) 1)
-			(cat tab "(vp-load-rcr :r1 +array_begin :r2)" lf
-				tab "(vp-load-rcr :r2 " (str (* (!) 8)) " :r2)" lf
-				tab "(assign '((:r2 +array_length)) '(:r3))" lf
-				tab "(gotoif '(:r3 /= " (str (shader-size ptype)) ") 'error)" lf) "")) (cat params '((_ :float))))
+					(cat tab "(vp-load-rcr :r1 +array_begin :r2)" lf
+						tab "(vp-load-rcr :r2 " (str (* (!) 8)) " :r2)" lf
+						tab "(assign '((:r2 +array_length)) '(:r3))" lf
+						tab "(gotoif '(:r3 /= " (str (shader-size ptype)) ") 'error)" lf) "")) (cat params '((_ :float))))
 		;each arg to its slots of the frame, the bits as they are, or the
 		;register it is reached by set to where it is
 		copies (map (lambda ((pname ptype) offset)
-			(defq at (!) reg (some! (lambda ((which reg)) (and (eql which at) reg)) (list *sv_entry*) :nil 1))
-			(cat tab "(vp-load-rcr :r1 " (str (* at 8)) " :r2)" lf
-				(cond
-					(reg (cat tab "(vp-load-rcr :r2 +array_begin " (str reg) ")" lf))
-					((> (shader-size ptype) 1)
-						(cat tab "(vp-load-rcr :r2 +array_begin :r2)" lf
-							(join (map (# (cat tab "(vp-load-rcr :r2 " (str (* %0 8)) " :r3)" lf
-								tab "(vp-store-rrc :r3 :r13 " (str (+ offset (* %0 8))) ")" lf))
-								(range 0 (shader-size ptype))) "")))
-					(:t (cat tab "(vp-load-rcr :r2 +num_value :r3)" lf
-						tab "(vp-store-rrc :r3 :r13 " (str offset) ")" lf))))) (cat params '((_ :float))) (cat offsets '(0)))
+				(defq at (!) reg (some! (lambda ((which reg)) (and (eql which at) reg)) (list *sv_entry*) :nil 1))
+				(cat tab "(vp-load-rcr :r1 " (str (* at 8)) " :r2)" lf
+					(cond
+						(reg (cat tab "(vp-load-rcr :r2 +array_begin " (str reg) ")" lf))
+						((> (shader-size ptype) 1)
+							(cat tab "(vp-load-rcr :r2 +array_begin :r2)" lf
+								(join (map (# (cat tab "(vp-load-rcr :r2 " (str (* %0 8)) " :r3)" lf
+												tab "(vp-store-rrc :r3 :r13 " (str (+ offset (* %0 8))) ")" lf))
+										(range 0 (shader-size ptype))) "")))
+						(:t (cat tab "(vp-load-rcr :r2 +num_value :r3)" lf
+								tab "(vp-store-rrc :r3 :r13 " (str offset) ")" lf))))) (cat params '((_ :float))) (cat offsets '(0)))
 		makes (if (> count 1)
 			(cat tab "(call :reals :create :nil '(:r0))" lf
 				tab "(call :reals :set_cap '(:r0 " (str count) ") '(:r0))" lf
@@ -1651,7 +1651,7 @@
 				tab "(call " (if (eql ret_type :float) ":real" ":num") " :create '(:r0) '(:r1))" lf))
 		arg_names (apply (const cat) (cat (list "") (map (# (cat " " (str (first %0)))) params)))
 		text (cat
-{(include "lib/asm/func.inc")
+			{(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
 (include "class/real/class.inc")
@@ -1703,7 +1703,7 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(} (str fname) arg_names {)" +error_msg_wrong_types))
 	(signature '(} (apply (const cat) (cat (list "") (map (lambda ((pname ptype)) (cond
-		((> (shader-size ptype) 1) ":REALS ") ((eql ptype :float) ":REAL ") (":NUM "))) params))) {))
+					((> (shader-size ptype) 1) ":REALS ") ((eql ptype :float) ":REAL ") (":NUM "))) params))) {))
 
 (def-func-end)
 }))
@@ -1724,7 +1724,7 @@
 	(bind '(s_i s_to s_work) (map (lambda (&) (sv-slots :int)) (range 0 3)))
 	(bind '((p_i) &ignore) (sv-program program "k"))
 	(defq text (cat
-{(include "lib/asm/func.inc")
+			{(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
 (include "class/str/class.inc")
@@ -1760,9 +1760,9 @@
 	;where the elements of each buffer are, the strs of the list
 	(vp-load-rcr :r4 +array_begin :r4)
 } (apply (const cat) (cat (list "") (map (lambda (_) (cat
-	"	(vp-load-rcr :r4 " (str (* (!) +ptr_size)) " :r2)\n"
-	"	(vp-add-cr +str_data :r2)\n"
-	"	(vp-store-rrc :r2 :r13 " (str (+ bufs_at (* (!) 8))) ")\n")) (shader-buffers program)))) {
+					"	(vp-load-rcr :r4 " (str (* (!) +ptr_size)) " :r2)\n"
+					"	(vp-add-cr +str_data :r2)\n"
+					"	(vp-store-rrc :r2 :r13 " (str (+ bufs_at (* (!) 8))) ")\n")) (shader-buffers program)))) {
 	(vp-call 'kh_init)
 (vp-label 'sk_loop)
 	(vp-load-rcr :r13 } (str s_i) { :r2)
@@ -1836,7 +1836,7 @@
 	(defq native_name (cat (sv-name "f" program) "_" (str name)))
 	(if (defq kept (sv-kept native_name)) (first kept)
 		(first (sv-keep native_name
-			(sv-native native_name (sv-func-source (shader-full program) name native_name)) (list)))))
+				(sv-native native_name (sv-func-source (shader-full program) name native_name)) (list)))))
 
 (defun shader-vp-fill (program)
 	; (shader-vp-fill program) -> (fill frame_size params vary_slots)
@@ -1857,13 +1857,13 @@
 	(shader-pair vertex pixel)
 	(defq place (shader-vp-vertex vertex) fill (shader-vp-fill pixel)
 		at 32 where (map (lambda ((name type))
-			(defq o at) (setq at (+ at (* (shader-size type) 8))) (list name o))
+				(defq o at) (setq at (+ at (* (shader-size type) 8))) (list name o))
 			(shader-varyings vertex)))
 	(list vertex pixel place fill
 		(apply (const cat) (cat (list (list)) (map (lambda ((name type))
-			(defq o (second (some (# (if (eql (first %0) name) %0)) where)))
-			(map (# (+ o (* %0 8))) (range 0 (shader-size type))))
-			(shader-varyings pixel))))))
+						(defq o (second (some (# (if (eql (first %0) name) %0)) where)))
+						(map (# (+ o (* %0 8))) (range 0 (shader-size type))))
+					(shader-varyings pixel))))))
 
 (defun shader-vp-depth (width height)
 	; (shader-vp-depth width height) -> depth
@@ -1874,9 +1874,9 @@
 	;str, the one that is kept is never the one that is handed out
 	(defq n (* width height 4))
 	(cat (memoize n (progn
-		(defq far (const (char -1 8)))
-		(while (< (length far) n) (setq far (cat far far)))
-		(slice far 0 (max 0 (- n 4)))) 31) (char -1 4)))
+				(defq far (const (char -1 8)))
+				(while (< (length far) n) (setq far (cat far far)))
+				(slice far 0 (max 0 (- n 4)))) 31) (char -1 4)))
 
 (defun sv-reals (n)
 	;a reals of n numbers, all 0
@@ -1920,13 +1920,13 @@
 	;the frame the native function works in, with the inputs set
 	(defq frame (str-alloc (second native)) offset 0)
 	(each (lambda ((name type val &rest _))
-		(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
-			(setq val (second v)))
-		(cond
-			((eql type :int) (set-long frame offset (n2i val)))
-			((eql type :float) (set-real frame offset (shader-real val)))
-			((seq? val) (each (# (set-real frame (+ offset (* (!) 8)) (shader-real %0))) val)))
-		(setq offset (+ offset (* (shader-size type) 8)))) (first program))
+			(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
+				(setq val (second v)))
+			(cond
+				((eql type :int) (set-long frame offset (n2i val)))
+				((eql type :float) (set-real frame offset (shader-real val)))
+				((seq? val) (each (# (set-real frame (+ offset (* (!) 8)) (shader-real %0))) val)))
+			(setq offset (+ offset (* (shader-size type) 8)))) (first program))
 	;then the textures of a pixel shader, each the pixmap given under its
 	;name: where its pixels are, its width, its height, and the bytes of
 	;a row. The frame does not hold the pixmap, whoever gave it must, for
@@ -1934,14 +1934,14 @@
 	;picture, all 0
 	(if (eql (shader-stage program) :pixel)
 		(each (lambda ((name))
-			;a frame is not made clear, so no picture is written as that
-			(defq pixmap (and (defq v (some (# (if (eql (first %0) name) %0)) vals)) (second v)))
-			(each (# (set-long frame (+ offset (* (!) 8)) %0))
-				(if pixmap
-					(list (getf pixmap +pixmap_data 0) (getf pixmap +pixmap_width 0)
-						(getf pixmap +pixmap_height 0) (getf pixmap +pixmap_stride 0))
-					'(0 0 0 0)))
-			(setq offset (+ offset 32))) (shader-textures program)))
+				;a frame is not made clear, so no picture is written as that
+				(defq pixmap (and (defq v (some (# (if (eql (first %0) name) %0)) vals)) (second v)))
+				(each (# (set-long frame (+ offset (* (!) 8)) %0))
+					(if pixmap
+						(list (getf pixmap +pixmap_data 0) (getf pixmap +pixmap_width 0)
+							(getf pixmap +pixmap_height 0) (getf pixmap +pixmap_stride 0))
+						'(0 0 0 0)))
+				(setq offset (+ offset 32))) (shader-textures program)))
 	frame)
 
 (defun shader-vp-draw-tris (pipeline verts tris pixmap depth &optional vvals pvals cull tri_size x y x1 y1 depth_y)
@@ -2012,4 +2012,4 @@
 	(defq out (str-alloc (* (- x1 x) (- y1 y) 32)))
 	((first native) x y x1 y1 frame out 0 0)
 	(map (# (reals (get-real out %0) (get-real out (+ %0 8))
-		(get-real out (+ %0 16)) (get-real out (+ %0 24)))) (range 0 (length out) 32)))
+				(get-real out (+ %0 16)) (get-real out (+ %0 24)))) (range 0 (length out) 32)))

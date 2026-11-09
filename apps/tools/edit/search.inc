@@ -67,8 +67,8 @@
 		(when (and found (= sy sy1) (< sy (length found)))
 			(defq match (elem-get found sy))
 			(when (defq match (some (lambda (m)
-						(bind '(x x1) (first m))
-						(and (= x sx) (= x1 sx1) m)) match))
+							(bind '(x x1) (first m))
+							(and (= x sx) (= x1 sx1) m)) match))
 				(defq edit (first (replace-edits (elem-get lines sy) (list match) rep_meta)))
 				(undoable (. *edit* :get_buffer)
 					(.-> *edit*
@@ -90,15 +90,15 @@
 					(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
 					(if (> (abs (- fy fy1)) 0) (setq sy (min fy fy1) sy1 (max fy fy1))))
 				(each! (lambda (match)
-					(defq y (!))
-					(when match
-						(defq line (elem-get lines y)
-							edits (replace-edits line match rep_meta))
-						; apply edits in reverse order to preserve indices
-						(reach (lambda ((x x1 s))
-							(.-> *edit*
-								(:set_cursor x y x1)
-								(:insert s))) edits)))
+						(defq y (!))
+						(when match
+							(defq line (elem-get lines y)
+								edits (replace-edits line match rep_meta))
+							; apply edits in reverse order to preserve indices
+							(reach (lambda ((x x1 s))
+									(.-> *edit*
+										(:set_cursor x y x1)
+										(:insert s))) edits)))
 					(list found) sy sy1)))
 		(refresh)))
 
@@ -116,9 +116,9 @@
 				(if whole_words "-w " "") (if regexp "-x " "") (if ignore_case "-i " "")
 				(hex-encode pattern) " ")
 			results (apply (const cat) (sort (map (const second)
-				(pipe-farm (map (# (cat cmd %0))
-					(filter (lambda (f) (notany (# (eql f %0)) +dictionaries))
-						(files-all "." +file_types 2))) 20000000)))))
+						(pipe-farm (map (# (cat cmd %0))
+								(filter (lambda (f) (notany (# (eql f %0)) +dictionaries))
+									(files-all "." +file_types 2))) 20000000)))))
 		;paste into scratch buffer
 		(action-push)
 		(switch-file :nil)
@@ -134,7 +134,7 @@
 			(if (> (abs (- fy fy1)) 0) (setq sy (min fy fy1) sy1 (max fy fy1))))
 		(each! (lambda (line found)
 				(if found (each (lambda (((x x1) &ignore))
-					(push results (slice line x x1))) found)))
+							(push results (slice line x x1))) found)))
 			(list lines found) sy sy1)))
 
 (defun action-collect (whole_words regexp ignore_case pattern)
@@ -167,13 +167,13 @@
 		(action-save-all)
 		(defq pos :nil)
 		(some (lambda (file)
-			(with-read-lock file
-				(lines! (lambda (line)
-					(and (> (length line) 10) (eql "(" (first line))
-						(>= (length (defq s (split line (const (char-class " ()\r\t"))))) 2)
-						(find (first s) '("defun" "defmacro" "redefun" "redefmacro" "defclass" "ffi"))
-						(or (eql (second s) name) (eql (third s) name)) (setq pos (list file 0 (!)))))
-					(file-stream file))) pos)
+				(with-read-lock file
+					(lines! (lambda (line)
+							(and (> (length line) 10) (eql "(" (first line))
+								(>= (length (defq s (split line (const (char-class " ()\r\t"))))) 2)
+								(find (first s) '("defun" "defmacro" "redefun" "redefmacro" "defclass" "ffi"))
+								(or (eql (second s) name) (eql (third s) name)) (setq pos (list file 0 (!)))))
+						(file-stream file))) pos)
 			(sort (cat *open_files*)))
 		(when pos
 			(action-push)

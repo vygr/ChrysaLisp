@@ -26,7 +26,7 @@
 			((and opt_c (not (setq book (options-input (list "" opt_c) (const huffman-read-book)))))
 				(print "unhuff: no codebook " opt_c))
 			((not (options-input args (if book
-					(# (huffman-decompress-static %0 out book))
-					(# (huffman-decompress %0 out)))))
+							(# (huffman-decompress-static %0 out book))
+							(# (huffman-decompress %0 out)))))
 				(print "unhuff: it stops before its end")))
 		(stream-flush out)))

@@ -151,8 +151,8 @@
 	;the normal of a triangle of reals, the way it faces when its corners go
 	;round counter clockwise, none if it has no area and faces no way
 	(defq n (apply (const reals) (vector-cross-3d
-			(vector-sub p1 p0 (const (cat +reals_zero3)))
-			(vector-sub p2 p0 (const (cat +reals_zero3)))))
+				(vector-sub p1 p0 (const (cat +reals_zero3)))
+				(vector-sub p2 p0 (const (cat +reals_zero3)))))
 		d (vector-dot n n))
 	(if (= d (n2r 0)) none (vector-scale n (recip (sqrt d)))))
 
@@ -163,11 +163,11 @@
 	(if (/= axb 0)
 		(list
 			(/ (vector-det
-				(list da (first av))
-				(list db (first bv))) axb)
+					(list da (first av))
+					(list db (first bv))) axb)
 			(/ (vector-det
-				(list da (second av))
-				(list db (second bv))) axb))))
+					(list da (second av))
+					(list db (second bv))) axb))))
 
 (defun vector-intersect-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
 	(defq av (vector-sub l1_p2 l1_p1)
@@ -178,11 +178,11 @@
 	(if (/= axb 0)
 		(list
 			(/ (vector-det
-				(list da (first av))
-				(list db (first bv))) axb)
+					(list da (first av))
+					(list db (first bv))) axb)
 			(/ (vector-det
-				(list da (second av))
-				(list db (second bv))) axb))))
+					(list da (second av))
+					(list db (second bv))) axb))))
 
 (defun vector-collide-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
 	(defq av (vector-sub l1_p2 l1_p1)
@@ -216,8 +216,8 @@
 	; (vector-bounds-2d paths) -> (min_v2 max_v2)
 	(defq min_v (slice (first paths) 0 2) max_v (cat min_v))
 	(each (# (each (#
-		(vector-min %0 min_v min_v)
-		(vector-max %0 max_v max_v)) (partition %0 2))) paths)
+					(vector-min %0 min_v min_v)
+					(vector-max %0 max_v max_v)) (partition %0 2))) paths)
 	(list min_v max_v))
 
 (defun vector-bounds-3d (verts &optional stride)
@@ -225,9 +225,9 @@
 	(setd stride +vec3_size)
 	(defq min_v (slice verts 0 +vec3_size) max_v (cat min_v))
 	(each (# (if (> stride +vec3_size)
-			(setq %0 (slice %0 0 +vec3_size)))
-		(vector-min %0 min_v min_v)
-		(vector-max %0 max_v max_v)) (partition verts stride))
+				(setq %0 (slice %0 0 +vec3_size)))
+			(vector-min %0 min_v min_v)
+			(vector-max %0 max_v max_v)) (partition verts stride))
 	(list min_v max_v))
 
 (defun vector-bounds-sphere (verts &optional stride)
@@ -237,11 +237,11 @@
 	(defq center (vector-scale (vector-add min_v max_v) +real_1/2)
 		radius (* (reduce max (vector-sub max_v min_v)) +real_1/2))
 	(each (# (if (> stride +vec3_size)
-			(setq %0 (slice %0 0 +vec3_size)))
-		(defq pv (vector-sub %0 center +reals_tmp3) rv (vector-length pv))
-		(when (> rv radius)
-			(setq radius (* (+ radius rv) +real_1/2))
-			(vector-sub %0 (vector-scale (vector-norm pv) radius pv) center)))
+				(setq %0 (slice %0 0 +vec3_size)))
+			(defq pv (vector-sub %0 center +reals_tmp3) rv (vector-length pv))
+			(when (> rv radius)
+				(setq radius (* (+ radius rv) +real_1/2))
+				(vector-sub %0 (vector-scale (vector-norm pv) radius pv) center)))
 		(partition verts stride))
 	(list center radius))
 
@@ -250,25 +250,25 @@
 	(defq winding 0)
 	(bind '(px py) p)
 	(if (some! (lambda (pth)
-			(defq pth (partition pth 2) p1 (last pth))
-			(some! (lambda (p2)
-				(bind '(x1 y1) p1)
-				(bind '(x2 y2) p2)
-				(defq d (- (* (- x2 x1) (- py y1)) (* (- y2 y1) (- px x1))))
-				(cond
-					((and (= d 0)
-						  (<= (min x1 x2) px (max x1 x2))
-						  (<= (min y1 y2) py (max y1 y2)))
-						:t)
-					(:t
+				(defq pth (partition pth 2) p1 (last pth))
+				(some! (lambda (p2)
+						(bind '(x1 y1) p1)
+						(bind '(x2 y2) p2)
+						(defq d (- (* (- x2 x1) (- py y1)) (* (- y2 y1) (- px x1))))
 						(cond
-							((<= y1 py)
-								(and (> y2 py) (> d 0) (++ winding)))
-							((and (<= y2 py) (< d 0))
-								(-- winding)))
-						(setq p1 p2)
-						:nil)))
-				(list pth)))
+							((and (= d 0)
+									(<= (min x1 x2) px (max x1 x2))
+									(<= (min y1 y2) py (max y1 y2)))
+								:t)
+							(:t
+								(cond
+									((<= y1 py)
+										(and (> y2 py) (> d 0) (++ winding)))
+									((and (<= y2 py) (< d 0))
+										(-- winding)))
+								(setq p1 p2)
+								:nil)))
+					(list pth)))
 			(list paths))
 		:t
 		;0 is odd and even, +winding_odd_even of the canvas, which this
@@ -288,7 +288,7 @@
 		((not a) b)
 		((not b) a)
 		(:t (list (min (first a) (first b)) (min (second a) (second b))
-			(max (third a) (third b)) (max (elem-get a 3) (elem-get b 3))))))
+				(max (third a) (third b)) (max (elem-get a 3) (elem-get b 3))))))
 
 (defun vector-collide-boxes-2d (a b)
 	; (vector-collide-boxes-2d a b) -> :t | :nil
@@ -302,13 +302,13 @@
 	;touches if anything of it is left
 	(defq dx (- x1 x0) dy (- y1 y0) t0 0.0 t1 1.0 ok :t)
 	(each (lambda ((p q))
-		(when ok
-			(cond
-				((= p 0.0) (if (< q 0.0) (setq ok :nil)))
-				(:t (defq r (/ q p))
-					(cond
-						((< p 0.0) (cond ((> r t1) (setq ok :nil)) ((> r t0) (setq t0 r))))
-						(:t (cond ((< r t0) (setq ok :nil)) ((< r t1) (setq t1 r)))))))))
+			(when ok
+				(cond
+					((= p 0.0) (if (< q 0.0) (setq ok :nil)))
+					(:t (defq r (/ q p))
+						(cond
+							((< p 0.0) (cond ((> r t1) (setq ok :nil)) ((> r t0) (setq t0 r))))
+							(:t (cond ((< r t0) (setq ok :nil)) ((< r t1) (setq t1 r)))))))))
 		(list (list (neg dx) (- x0 bx)) (list dx (- bx1 x0)) (list (neg dy) (- y0 by)) (list dy (- by1 y0))))
 	ok)
 

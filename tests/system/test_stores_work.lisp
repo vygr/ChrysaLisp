@@ -118,6 +118,6 @@
 		(pii-remove image))
 	(list sw_a sw_b) (list sw_a_image sw_b_image))
 (each (const pii-remove) (list (cat sw_host "/Album/t1.txt") (cat sw_host "/Album/sub/t2.bin") (cat sw_host "/loose.txt")
-	(cat sw_host "/Album/.hidden") (cat sw_host "/out/Album/t1.txt") (cat sw_host "/out/Album/sub/t2.bin")))
+		(cat sw_host "/Album/.hidden") (cat sw_host "/out/Album/t1.txt") (cat sw_host "/out/Album/sub/t2.bin")))
 (each (const pii-remove) (list (cat sw_host "/Album/sub") (cat sw_host "/Album") (cat sw_host "/out/Album/sub")
-	(cat sw_host "/out/Album") (cat sw_host "/out") sw_host))
+		(cat sw_host "/out/Album") (cat sw_host "/out") sw_host))

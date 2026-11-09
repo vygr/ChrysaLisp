@@ -27,11 +27,11 @@
 	; (opt-vector vector part) -> (new_vector new_indices)
 	(defq vec_map (Fmap 101) vec_imap (nums) new_vecs (reals) idx -1)
 	(each (#
-		(vector-quant %0 (const (n2r 0.0001)) %0)
-		(unless (defq i (. vec_map :find %0))
-			(. vec_map :insert %0 (setq idx (inc idx) i idx))
-			(push new_vecs %0))
-		(push vec_imap i)) (partition vector part))
+			(vector-quant %0 (const (n2r 0.0001)) %0)
+			(unless (defq i (. vec_map :find %0))
+				(. vec_map :insert %0 (setq idx (inc idx) i idx))
+				(push new_vecs %0))
+			(push vec_imap i)) (partition vector part))
 	(list new_vecs vec_imap))
 
 (defun opt-mesh (verts norms tris)
@@ -39,24 +39,24 @@
 	(bind '(new_verts vert_map) (opt-vector verts +vec4_size))
 	(bind '(new_norms norm_map) (opt-vector norms +vec3_size))
 	(defq new_tris (reduce (lambda (%0 (i0 i1 i2 in))
-			(push %0
-				(elem-get vert_map i0)
-				(elem-get vert_map i1)
-				(elem-get vert_map i2)
-				(elem-get norm_map in)))
-		(partition tris +tri_size) (cap (length tris) (nums))))
+				(push %0
+					(elem-get vert_map i0)
+					(elem-get vert_map i1)
+					(elem-get vert_map i2)
+					(elem-get norm_map in)))
+			(partition tris +tri_size) (cap (length tris) (nums))))
 	(list new_verts new_norms new_tris))
 
 (defun gen-norms (verts tris)
 	; (gen-norms verts tris) -> (norms new_tris)
 	(cap (length tris) (defq norms (reals)) (defq new_tris (nums)))
 	(each (lambda ((i0 i1 i2 &ignore))
-		(push new_tris i0 i1 i2 (/ (length norms) +vec3_size))
-		(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
-		(push norms (Normal
-			(slice verts i0 (+ i0 +vec3_size))
-			(slice verts i1 (+ i1 +vec3_size))
-			(slice verts i2 (+ i2 +vec3_size)))))
+			(push new_tris i0 i1 i2 (/ (length norms) +vec3_size))
+			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
+			(push norms (Normal
+					(slice verts i0 (+ i0 +vec3_size))
+					(slice verts i1 (+ i1 +vec3_size))
+					(slice verts i2 (+ i2 +vec3_size)))))
 		(partition tris +tri_size))
 	(list norms new_tris))
 
@@ -78,8 +78,7 @@
 		; (. mesh :optimise) -> mesh
 		(raise :verts :norms :tris)
 		(bind '(verts norms tris) (opt-mesh verts norms tris))
-		(lower :verts :norms :tris))
-	)
+		(lower :verts :norms :tris)))
 
 (defclass Mesh-sphere (radius eps) (Mesh)
 	; (Mesh-sphere radius eps) -> mesh
@@ -110,9 +109,9 @@
 			; Scale indices to byte offsets for normal generation
 			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 			(push norms (Normal
-				(slice verts i0 (+ i0 +vec3_size))
-				(slice verts i2 (+ i2 +vec3_size))
-				(slice verts i1 (+ i1 +vec3_size))))))
+					(slice verts i0 (+ i0 +vec3_size))
+					(slice verts i2 (+ i2 +vec3_size))
+					(slice verts i1 (+ i1 +vec3_size))))))
 	; gen norms and tris for end cap fans
 	(defq y (* eps2 (- eps 2)))
 	(for 0 eps2
@@ -123,18 +122,18 @@
 		(push tris i0 i2 i1 in)
 		(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 		(push norms (Normal
-			(slice verts i0 (+ i0 +vec3_size))
-			(slice verts i2 (+ i2 +vec3_size))
-			(slice verts i1 (+ i1 +vec3_size))))
+				(slice verts i0 (+ i0 +vec3_size))
+				(slice verts i2 (+ i2 +vec3_size))
+				(slice verts i1 (+ i1 +vec3_size))))
 		(defq i0 xn i1 (!)
 			i2 (- (/ (length verts) +vec4_size) 2)
 			in (/ (length norms) +vec3_size))
 		(push tris i0 i2 i1 in)
 		(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 		(push norms (Normal
-			(slice verts i0 (+ i0 +vec3_size))
-			(slice verts i2 (+ i2 +vec3_size))
-			(slice verts i1 (+ i1 +vec3_size)))))
+				(slice verts i0 (+ i0 +vec3_size))
+				(slice verts i2 (+ i2 +vec3_size))
+				(slice verts i1 (+ i1 +vec3_size)))))
 	(lower :verts :norms :tris))
 
 (defclass Mesh-cylinder (radius height eps) (Mesh)
@@ -186,18 +185,18 @@
 			; Scale indices to byte offsets for the normal generation
 			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
 			(push norms (Normal
-				(slice verts i0 (+ i0 +vec3_size))
-				(slice verts i2 (+ i2 +vec3_size))
-				(slice verts i1 (+ i1 +vec3_size))))))
+					(slice verts i0 (+ i0 +vec3_size))
+					(slice verts i2 (+ i2 +vec3_size))
+					(slice verts i1 (+ i1 +vec3_size))))))
 	(lower :verts :norms :tris))
 
 ;evaluates a single 2D slice of the 3D volume
 (defun eval-slice (z)
 	(defq slc (cap (* gw gh 2) (list)) pz (elem-get z_points z))
 	(each (lambda (py) (defq y (!))
-		(each (lambda (px) (defq x (!))
-				(push slc (Vec3-r px py pz) (get_scalar_fnc iso :get_scalar x y z)))
-			x_points))
+			(each (lambda (px) (defq x (!))
+					(push slc (Vec3-r px py pz) (get_scalar_fnc iso :get_scalar x y z)))
+				x_points))
 		y_points)
 	slc)
 
@@ -234,22 +233,22 @@
 						(push verts v0 +real_1 v1 +real_1 v2 +real_1)
 						(push norms (Normal v0 v2 v1)))
 					(iso-surface (list
-						(elem-get slice_z1 idx_00)
-						(elem-get slice_z1 idx_10)
-						(elem-get slice_z idx_10)
-						(elem-get slice_z idx_00)
-						(elem-get slice_z1 idx_01)
-						(elem-get slice_z1 idx_11)
-						(elem-get slice_z idx_11)
-						(elem-get slice_z idx_01)
-						(elem-get slice_z1 (inc idx_00))
-						(elem-get slice_z1 (inc idx_10))
-						(elem-get slice_z (inc idx_10))
-						(elem-get slice_z (inc idx_00))
-						(elem-get slice_z1 (inc idx_01))
-						(elem-get slice_z1 (inc idx_11))
-						(elem-get slice_z (inc idx_11))
-						(elem-get slice_z (inc idx_01))) isolevel)))))
+							(elem-get slice_z1 idx_00)
+							(elem-get slice_z1 idx_10)
+							(elem-get slice_z idx_10)
+							(elem-get slice_z idx_00)
+							(elem-get slice_z1 idx_01)
+							(elem-get slice_z1 idx_11)
+							(elem-get slice_z idx_11)
+							(elem-get slice_z idx_01)
+							(elem-get slice_z1 (inc idx_00))
+							(elem-get slice_z1 (inc idx_10))
+							(elem-get slice_z (inc idx_10))
+							(elem-get slice_z (inc idx_00))
+							(elem-get slice_z1 (inc idx_01))
+							(elem-get slice_z1 (inc idx_11))
+							(elem-get slice_z (inc idx_11))
+							(elem-get slice_z (inc idx_01))) isolevel)))))
 	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(lower :verts :norms :tris))
 
@@ -266,7 +265,7 @@
 	;its normals worked out from its faces
 	(defq obj (obj-read stream) positions (. obj :find :positions) verts (reals) tris (nums))
 	(each (# (push verts (elem-get positions (* %0 3)) (elem-get positions (inc (* %0 3)))
-			(elem-get positions (+ (* %0 3) 2)) +real_1))
+				(elem-get positions (+ (* %0 3) 2)) +real_1))
 		(range 0 (/ (length positions) 3)))
 	;a corner is three numbers, a triangle nine, the first of each corner
 	;its position

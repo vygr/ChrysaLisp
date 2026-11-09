@@ -215,17 +215,17 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defq +item_map (pmap
-	+item_gold +frm_16x16_gold
-	+item_mase +frm_16x16_shield
-	+item_big_bow (+ +frm_16x16_shield 1)
-	+item_small_bow (+ +frm_16x16_shield 2)
-	+item_naptha (+ +frm_16x16_shield 3)
-	+item_helper (+ +frm_16x16_shield 4)
-	+item_super_mase (+ +frm_16x16_shield 5)
-	+item_super_helper (+ +frm_16x16_shield 6)
-	+item_yellow_spell +frm_16x16_spells
-	+item_black_spell (+ +frm_16x16_spells 1)
-	+item_green_spell (+ +frm_16x16_spells 2)
-	+item_white_spell (+ +frm_16x16_spells 3)
-	+item_red_spell (+ +frm_16x16_spells 4)
-	+item_blue_spell (+ +frm_16x16_spells 5)))
+		+item_gold +frm_16x16_gold
+		+item_mase +frm_16x16_shield
+		+item_big_bow (+ +frm_16x16_shield 1)
+		+item_small_bow (+ +frm_16x16_shield 2)
+		+item_naptha (+ +frm_16x16_shield 3)
+		+item_helper (+ +frm_16x16_shield 4)
+		+item_super_mase (+ +frm_16x16_shield 5)
+		+item_super_helper (+ +frm_16x16_shield 6)
+		+item_yellow_spell +frm_16x16_spells
+		+item_black_spell (+ +frm_16x16_spells 1)
+		+item_green_spell (+ +frm_16x16_spells 2)
+		+item_white_spell (+ +frm_16x16_spells 3)
+		+item_red_spell (+ +frm_16x16_spells 4)
+		+item_blue_spell (+ +frm_16x16_spells 5)))

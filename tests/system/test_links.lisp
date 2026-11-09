@@ -10,7 +10,7 @@
 (assert-true "each is the size of the record" (every (# (= (length %0) +link_size)) lk_links))
 (assert-true "the peer of each is a node that is known, or has yet to say"
 	(every (# (or (find (getf %0 +link_peer_node) lk_nodes)
-		(eql (getf %0 +link_peer_node) (const (str-alloc +node_id_size)))) ) lk_links))
+				(eql (getf %0 +link_peer_node) (const (str-alloc +node_id_size)))) ) lk_links))
 (assert-true "what a link has carried is not less than nothing" (every (# (>= (getf %0 +link_sent) 0)) lk_links))
 
 ;mail to a node on the other end of a link is counted on a link. Which

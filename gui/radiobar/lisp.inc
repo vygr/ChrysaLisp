@@ -10,7 +10,7 @@
 	(def this :flow_flags +flow_right :mode mode)
 	(setq symbols (map (# (if (num? %0) (num-to-utf8 %0) %0)) symbols))
 	(each (# (def (defq button (Button)) :text %0)
-		(. this :add_child (. button :connect (. this :get_id)))) symbols)
+			(. this :add_child (. button :connect (. this :get_id)))) symbols)
 
 	(defmethod :get_states ()
 		; (. radiobar :get_states) -> states
@@ -46,5 +46,4 @@
 				(def button :paper (canvas-brighter (get :paper this))))
 			;radio mode, this one selected and no other
 			(. this :set_selected (find button (. this :children))))
-		(. this :emit))
-	)
+		(. this :emit)))

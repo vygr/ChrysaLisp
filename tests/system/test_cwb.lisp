@@ -47,8 +47,8 @@
 (defq wb_paths (path-gen-paths "M 100 0 A 100 100 0 0 1 0 100 a 100 100 0 0 1 -100 -100 Z"))
 (assert-eq "a path with an A and an a in it is one closed line" 1 (length wb_paths))
 (assert-true "that goes through the three points" (and (first (first wb_paths))
-	(some (lambda ((x y)) (wb-near? (list x y) '(0.0 100.0))) (partition (second (first wb_paths)) 2))
-	(some (lambda ((x y)) (wb-near? (list x y) '(-100.0 0.0))) (partition (second (first wb_paths)) 2))))
+		(some (lambda ((x y)) (wb-near? (list x y) '(0.0 100.0))) (partition (second (first wb_paths)) 2))
+		(some (lambda ((x y)) (wb-near? (list x y) '(-100.0 0.0))) (partition (second (first wb_paths)) 2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; matrices
@@ -82,8 +82,8 @@
 	wb_a (cwb-add wb_doc (cwb-shape (cwb-d-rect 10 10 60 40) :fill 0xffff0000 :stroke 0xff000000 :width 4 :join :miter))
 	wb_b (cwb-add wb_doc (cwb-shape (cwb-d-line 0 0 100 0) :m (mat3x2-translate 50 80)))
 	wb_g (cwb-add wb_doc (cwb-group (list (cwb-shape (cwb-d-rect 0 0 10 10) :fill 0xff00ff00 :stroke 0)
-		(cwb-group (list (cwb-shape (cwb-d-rect 20 0 30 10) :fill 0xff0000ff :stroke 0)) :name "inner"))
-		:m (mat3x2-translate 150 50) :name "outer")))
+				(cwb-group (list (cwb-shape (cwb-d-rect 20 0 30 10) :fill 0xff0000ff :stroke 0)) :name "inner"))
+			:m (mat3x2-translate 150 50) :name "outer")))
 (assert-list-eq "each item of a layer has an id" '(1 2 3) (wb-ids wb_doc))
 (assert-list-eq "those in a group too, in the order they are in" '(4 5 6)
 	(list (elem-get (first (cwb-get wb_g :items)) +cwb_id) (elem-get (second (cwb-get wb_g :items)) +cwb_id)
@@ -129,8 +129,8 @@
 
 ;a file written by hand, with no ids and only what matters said
 (defq wb_hand (cwb-load (string-stream (cat
-	"((:Emap 1) :version 1 :width 64 :height 48"
-	" :items ((:list 2) ((:list 3) :shape :d \q[M 0 0 L 10 10]\q) ((:list 5) :shape :d \q[M 5 5 L 9 9]\q :width 1.0)))"))))
+				"((:Emap 1) :version 1 :width 64 :height 48"
+				" :items ((:list 2) ((:list 3) :shape :d \q[M 0 0 L 10 10]\q) ((:list 5) :shape :d \q[M 5 5 L 9 9]\q :width 1.0)))"))))
 (assert-true "a file written by hand loads" wb_hand)
 (when wb_hand
 	(assert-list-eq "its items are given ids" '(1 2) (wb-ids wb_hand))
@@ -141,9 +141,9 @@
 ;a file of a newer Whiteboard: what is not known here, of the document,
 ;of a thing and of a thing in a group, is kept and saved back as it was
 (defq wb_new (cwb-load (string-stream (cat
-	"((:Emap 1) :version 1 :width 64 :height 48 :future 42"
-	" :items ((:list 2) ((:list 5) :shape :d \q[M 0 0 L 10 10]\q :glow 3)"
-	" ((:list 3) :group :items ((:list 1) ((:list 5) :shape :d \q[M 5 5 L 9 9]\q :sparkle \q[x]\q)))))"))))
+				"((:Emap 1) :version 1 :width 64 :height 48 :future 42"
+				" :items ((:list 2) ((:list 5) :shape :d \q[M 0 0 L 10 10]\q :glow 3)"
+				" ((:list 3) :group :items ((:list 1) ((:list 5) :shape :d \q[M 5 5 L 9 9]\q :sparkle \q[x]\q)))))"))))
 (assert-true "a file with keys not known here loads" wb_new)
 (when wb_new
 	(defq wb_new_s (string-stream (cat "")))
@@ -159,8 +159,8 @@
 ;each is to run, nothing runs it yet: kept as any key is, not as one
 ;not known
 (defq wb_scr (cwb-load (string-stream (cat
-	"((:Emap 1) :version 1 :width 64 :height 48 :script \q[(doc)]\q"
-	" :items ((:list 1) ((:list 5) :shape :d \q[M 0 0 L 10 10]\q :script \q[(item)]\q)))"))))
+				"((:Emap 1) :version 1 :width 64 :height 48 :script \q[(doc)]\q"
+				" :items ((:list 1) ((:list 5) :shape :d \q[M 0 0 L 10 10]\q :script \q[(item)]\q)))"))))
 (when wb_scr
 	(defq wb_scr_s (string-stream (cat "")))
 	(cwb-save wb_scr wb_scr_s)
@@ -173,10 +173,10 @@
 ;the file shown in docs/ai_digest/whiteboard.md is a file
 (defq wb_page (list) wb_on :nil)
 (lines! (lambda (line)
-	(cond
-		((starts-with "((:Emap 1)" line) (setq wb_on :t) (push wb_page line))
-		((and wb_on (starts-with "```" line)) (setq wb_on :nil))
-		(wb_on (push wb_page line))) :nil)
+		(cond
+			((starts-with "((:Emap 1)" line) (setq wb_on :t) (push wb_page line))
+			((and wb_on (starts-with "```" line)) (setq wb_on :nil))
+			(wb_on (push wb_page line))) :nil)
 	(file-stream "docs/ai_digest/whiteboard.md"))
 (defq wb_shown (cwb-load (string-stream (join wb_page "\n"))))
 (assert-true "the file shown in the page about this loads" wb_shown)
@@ -410,7 +410,7 @@
 
 ;one thing has its handles in its own frame. A box turned an eighth of a turn
 (defq wb_doc2 (. wb_board :get_doc) wb_turned (. wb_board :add (cwb-shape (cwb-d-rect 0 0 100 40) :fill 0xff00ff00 :stroke 0
-	:m (mat3x2-mul (mat3x2-translate 400 400) (mat3x2-rot (/ +fp_pi 4.0))))))
+			:m (mat3x2-mul (mat3x2-translate 400 400) (mat3x2-rot (/ +fp_pi 4.0))))))
 (. wb_board :select (list wb_turned))
 (defq wb_spots (. wb_handles :spots) wb_r (/ 100.0 (sqrt 2.0)))
 (assert-true "turned, its handles are at its own corners, not those of the box round it"
@@ -446,7 +446,7 @@
 		(wb-near? (slice wb_p 0 2) '(200.0 100.0) 0.05)))
 ;with angles that snap, it is its angle that snaps, so it can go back to square
 (defq wb_tilt (. wb_board :add (cwb-shape (cwb-d-rect 0 0 100 40) :fill 0xff00ff00 :stroke 0
-	:place (list 500.0 500.0 0.1 1.0 1.0))))
+			:place (list 500.0 500.0 0.1 1.0 1.0))))
 (. wb_board :select (list wb_tilt))
 (def wb_board :snap_angle (/ +fp_pi 12.0))
 (bind '(wb_tx wb_ty) (slice (last (. wb_handles :spots)) 1 3))
@@ -470,14 +470,14 @@
 ;its place does not slant
 (defq wb_u (Board (cwb-doc 400 300)))
 (defq wb_ug (. wb_u :add (cwb-group (list (cwb-shape (cwb-d-rect -30 -10 30 10) :fill 0xff0000ff :stroke 0xffff0000 :width 4
-	:place (list 0.0 0.0 0.5 1.0 1.0))) :place (list 200.0 150.0 0.0 2.0 1.0))))
+					:place (list 0.0 0.0 0.5 1.0 1.0))) :place (list 200.0 150.0 0.0 2.0 1.0))))
 (defun wb-ink-box (items)
 	;the box round what is drawn, its polygons where they are, not round
 	;their boxes
 	(defq polys (list))
 	(cwb-walk items +mat3x2_unity (lambda (shape m)
-		(bind '(fills strokes &ignore) (cwb-flat shape))
-		(each (# (push polys %0)) (cwb-mat-paths m (cat fills strokes)))))
+			(bind '(fills strokes &ignore) (cwb-flat shape))
+			(each (# (push polys %0)) (cwb-mat-paths m (cat fills strokes)))))
 	(bind '((x y) (x1 y1)) (vector-bounds-2d polys))
 	(list x y x1 y1))
 (defq wb_ub (wb-ink-box (cwb-items (. wb_u :get_doc))))
@@ -495,7 +495,7 @@
 (defq wb_sa (. wb_board :add (cwb-shape (cwb-d-rect 300 300 400 340) :fill 0xff00ff00 :stroke 0))
 	wb_sb (. wb_board :add (cwb-shape (cwb-d-rect 300 360 400 400) :fill 0xff00ff00 :stroke 0))
 	wb_sd (. wb_board :add (cwb-shape (cwb-d-line 0 0 100 0) :width 4
-		:m (mat3x2-mul (mat3x2-translate 600 600) (mat3x2-rot (/ +fp_pi 4.0))))))
+			:m (mat3x2-mul (mat3x2-translate 600 600) (mat3x2-rot (/ +fp_pi 4.0))))))
 (defun wb-of (id) (cwb-bounds (list (first (cwb-find (. wb_board :get_doc) id)))))
 (. wb_board :select (list wb_sa wb_sb))
 (assert-true "two things selected have a box square to the board, and no handles"
@@ -695,7 +695,7 @@
 ;a line that has been moved and made twice the size
 (. rb_board :clear)
 (. rb_board :add (cwb-shape (cwb-d-line 0 0 100 0) :width 2
-	:m (mat3x2-mul (mat3x2-translate 50 200) (mat3x2-scale 2.0))))
+		:m (mat3x2-mul (mat3x2-translate 50 200) (mat3x2-scale 2.0))))
 (. rb_board :rub 150 200 10)
 (assert-list-eq "a line that is twice the size is cut in its own space, half as far" '("M 0 0 L 44 0" "M 56 0 L 100 0") (rb-ds))
 (assert-true "and what is left is where it was on the board"
@@ -761,8 +761,8 @@
 	;the furthest a point of the arc from a0 round by sweep, about 400 300 of radius 180, is off its circle
 	(defq worst 0.0)
 	(each (lambda ((closed p))
-		(each (lambda ((x y)) (setq worst (max worst (abs (- (sqrt (+ (* (- x 400.0) (- x 400.0)) (* (- y 300.0) (- y 300.0)))) 180.0)))))
-			(partition p 2)))
+			(each (lambda ((x y)) (setq worst (max worst (abs (- (sqrt (+ (* (- x 400.0) (- x 400.0)) (* (- y 300.0) (- y 300.0)))) 180.0)))))
+				(partition p 2)))
 		(path-gen-paths (cwb-d-arc 400 300 180 a0 (+ a0 sweep))))
 	worst)
 (assert-list-eq "an arc of a quarter turn is one A, of half a turn two, of nearly all the way round three" '(1 2 3)
@@ -950,7 +950,7 @@
 ;several things selected each have their own box, a group that was broken up is seen to be its parts
 (defq ug_board (Board (cwb-doc 400 300)))
 (. ug_board :add (cwb-group (list (cwb-shape (cwb-d-rect 40 40 100 80) :fill 0xffff0000 :stroke 0)
-	(cwb-shape (cwb-d-rect 200 100 260 140) :fill 0xff00ff00 :stroke 0 :m (mat3x2-rot 0.5 230 120)))))
+			(cwb-shape (cwb-d-rect 200 100 260 140) :fill 0xff00ff00 :stroke 0 :m (mat3x2-rot 0.5 230 120)))))
 (def ug_board :mode :select)
 (. ug_board :select (list 1))
 (. ug_board :ungroup)
@@ -980,7 +980,7 @@
 	'(:nil :t :t) (map (# (if (Fset? %0) :t)) (list (cwb-id-set (slice cm_all 0 5)) (cwb-id-set cm_some) (cwb-id-set (cwb-id-set cm_some)))))
 (assert-list-eq "an id is one of them or is not, whichever they are asked of"
 	'(:t :nil :t :nil) (map (# (if %0 :t)) (list (cwb-id? (cwb-id-set cm_some) (first cm_some)) (cwb-id? (cwb-id-set cm_some) (first cm_all))
-		(cwb-id? (slice cm_all 0 5) (first cm_all)) (cwb-id? (slice cm_all 0 5) (last cm_all)))))
+			(cwb-id? (slice cm_all 0 5) (first cm_all)) (cwb-id? (slice cm_all 0 5) (last cm_all)))))
 (assert-list-eq "the items that are of the ids, and those that are not, in the order they were in"
 	(list 150 150 (first cm_some) (last cm_some) (first cm_all))
 	(progn (defq cm_in (cwb-pick (cwb-items cm_doc) cm_some) cm_out (cwb-pick (cwb-items cm_doc) cm_some :t))
@@ -1106,7 +1106,7 @@
 (assert-list-eq "a device of another origin, above 32 bits, is its own, and its contacts its"
 	(list 0x302000000 2 0x2000000) (list (ptr-device 0x302000002) (ptr-contact 0x302000002) (ptr-device 0x2000002)))
 (defq dv_bind (.-> (Bindings) (:bind :nil :nil :nil '(:color 1)) (:bind :touch (ptr-device 0x2000003) :nil '(:color 2))
-	(:bind :pen (ptr-device 0x3000000) :nil '(:color 3))))
+		(:bind :pen (ptr-device 0x3000000) :nil '(:color 3))))
 (assert-list-eq "what one panel is bound to is every finger of it, and no finger of another panel, and a pen its own"
 	'(2 2 1 3 1) (map (# (. dv_bind :value %0 :color))
 		(list (ptr-event 0x2000000 :touch 1 0 0) (ptr-event 0x2000007 :touch 1 0 0) (ptr-event 0x4000000 :touch 1 0 0)
@@ -1140,10 +1140,10 @@
 ;a box dragged out selects what it touches, what is drawn, not the box round it
 (defq tx_doc (cwb-doc 800 600))
 (defq tx_ids (map (# (elem-get (cwb-add tx_doc %0) +cwb_id)) (list
-	(cwb-shape (cwb-d-line 100 100 300 300) :stroke 0xff000000 :width 4.0)
-	(cwb-shape (cwb-d-rect 400 100 600 300) :fill 0xff0000ff :stroke 0)
-	(cwb-shape (cwb-d-rect 100 400 300 550) :stroke 0xff000000 :width 2.0)
-	(cwb-shape (cwb-d-ellipse 600 450 80 60) :stroke 0xff000000 :width 2.0))))
+			(cwb-shape (cwb-d-line 100 100 300 300) :stroke 0xff000000 :width 4.0)
+			(cwb-shape (cwb-d-rect 400 100 600 300) :fill 0xff0000ff :stroke 0)
+			(cwb-shape (cwb-d-rect 100 400 300 550) :stroke 0xff000000 :width 2.0)
+			(cwb-shape (cwb-d-ellipse 600 450 80 60) :stroke 0xff000000 :width 2.0))))
 (defun tx-touch (x y x1 y1) (map (# (elem-get (first %0) +cwb_id)) (cwb-touch-box tx_doc (list x y x1 y1))))
 (bind '(tx_line tx_fill tx_box tx_oval) tx_ids)
 (assert-list-eq "a box across the middle of a line touches it" (list tx_line) (tx-touch 180 190 220 210))

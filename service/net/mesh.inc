@@ -69,10 +69,10 @@
 	;for ever
 	(defq out (list "CHRYSA_HELLO " my_sys "\n"))
 	(. peers :each (lambda (sys peer)
-		(and (> (elem-get peer +mesh_peer_port) 0)
+			(and (> (elem-get peer +mesh_peer_port) 0)
 				(< (- now (elem-get peer +mesh_peer_t_heard)) +mesh_alive)
-			(push out sys " " (elem-get peer +mesh_peer_ip) " "
-				(str (elem-get peer +mesh_peer_port)) "\n"))))
+				(push out sys " " (elem-get peer +mesh_peer_ip) " "
+					(str (elem-get peer +mesh_peer_port)) "\n"))))
 	(apply (const cat) out))
 
 (defun mesh-heard (peers my_sys text now)
@@ -84,17 +84,17 @@
 	(when (and (= (length head) 2) (eql (first head) "CHRYSA_HELLO") (nql (second head) my_sys))
 		(defq from (mesh-peer peers (second head)) knows :nil)
 		(each! (lambda (line)
-			(when (= (length (defq parts (split line " "))) 3)
-				(bind '(sys ip port) parts)
-				(setq port (str-as-num port))
-				(cond
-					((eql sys my_sys) (setq knows :t))
-					((> port 0)
-						;it is alive, the one who says so heard it
-						(elem-set (defq peer (mesh-peer peers sys)) +mesh_peer_t_seen now)
-						(when (= (elem-get peer +mesh_peer_port) 0)
-							(elem-set peer +mesh_peer_ip ip)
-							(elem-set peer +mesh_peer_port port))))))
+				(when (= (length (defq parts (split line " "))) 3)
+					(bind '(sys ip port) parts)
+					(setq port (str-as-num port))
+					(cond
+						((eql sys my_sys) (setq knows :t))
+						((> port 0)
+							;it is alive, the one who says so heard it
+							(elem-set (defq peer (mesh-peer peers sys)) +mesh_peer_t_seen now)
+							(when (= (elem-get peer +mesh_peer_port) 0)
+								(elem-set peer +mesh_peer_ip ip)
+								(elem-set peer +mesh_peer_port port))))))
 			(list lines) 1)
 		(elem-set from +mesh_peer_t_heard now)
 		(elem-set from +mesh_peer_t_seen now)
@@ -118,7 +118,7 @@
 		((= (elem-get peer +mesh_peer_port) 0) (elem-set peer +mesh_peer_t_wait 0) :nil)
 		;dialled not long ago, it may yet come up. Longer each time it has not
 		((< (- now (elem-get peer +mesh_peer_t_dialled))
-			(<< +mesh_redial (max 0 (dec (elem-get peer +mesh_peer_tries))))) :nil)
+				(<< +mesh_redial (max 0 (dec (elem-get peer +mesh_peer_tries))))) :nil)
 		;both can dial, and it is for the other to. Wait, but not for ever
 		((and (elem-get peer +mesh_peer_dialler) (elem-get peer +mesh_peer_knows_me)
 				(> (cmp my_sys sys) 0)
@@ -134,10 +134,10 @@
 	;it is not dialled, and it is as one never met. If it comes back its
 	;beacon, or word of it, says where it is
 	(. peers :each (lambda (sys peer)
-		(and (> (elem-get peer +mesh_peer_port) 0)
+			(and (> (elem-get peer +mesh_peer_port) 0)
 				(> (- now (elem-get peer +mesh_peer_t_seen)) +mesh_alive)
-			(each (# (elem-set peer %0 %1))
-				(static-q (0 1 2 3 4 5 6 9)) (static-q ("" 0 :nil :nil :nil 0 0 0))))))
+				(each (# (elem-set peer %0 %1))
+					(static-q (0 1 2 3 4 5 6 9)) (static-q ("" 0 :nil :nil :nil 0 0 0))))))
 	peers)
 
 (defun mesh-beacon-text (port sys inst dials build &optional link)
@@ -158,9 +158,9 @@
 	(when (and (starts-with "CHRYSA_BEACON:" data) (>= (length (defq parts (split data ":"))) 4))
 		(defq dials :nil build "" link 0)
 		(each! (# (cond
-				((eql %0 "D") (setq dials :t))
-				((starts-with "B" %0) (setq build (rest %0)))
-				((starts-with "P" %0) (setq link (str-as-num (rest %0))))))
+					((eql %0 "D") (setq dials :t))
+					((starts-with "B" %0) (setq build (rest %0)))
+					((starts-with "P" %0) (setq link (str-as-num (rest %0))))))
 			(list parts) 4)
 		(list (str-as-num (second parts)) (third parts) (elem-get parts 3) dials build link)))
 
@@ -173,16 +173,16 @@
 	;it speaks if another, or unknown
 	(defq out (list))
 	(. peers :each (lambda (sys peer)
-		(defq build (elem-get peer +mesh_peer_build))
-		(push out (cat sys " " (if (eql (elem-get peer +mesh_peer_ip) "") "-" (elem-get peer +mesh_peer_ip))
-			" " (str (elem-get peer +mesh_peer_port)) " " (if (find sys linked) "linked" "unlinked") " "
-			(cond
-				((or (eql build "") (eql my_build "")) "unknown")
-				((starts-with build my_build) "same")
-				(:t "differs"))
-			" " (cond
-				((or (not (defq link (elem-get peer +mesh_peer_link))) (not my_link)) "unknown")
-				((= link my_link) "same")
-				((str link)))
-			"\n"))))
+			(defq build (elem-get peer +mesh_peer_build))
+			(push out (cat sys " " (if (eql (elem-get peer +mesh_peer_ip) "") "-" (elem-get peer +mesh_peer_ip))
+					" " (str (elem-get peer +mesh_peer_port)) " " (if (find sys linked) "linked" "unlinked") " "
+					(cond
+						((or (eql build "") (eql my_build "")) "unknown")
+						((starts-with build my_build) "same")
+						(:t "differs"))
+					" " (cond
+						((or (not (defq link (elem-get peer +mesh_peer_link))) (not my_link)) "unknown")
+						((= link my_link) "same")
+						((str link)))
+					"\n"))))
 	(apply (const cat) (cat (list "") out)))

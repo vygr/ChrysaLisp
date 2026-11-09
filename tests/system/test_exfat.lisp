@@ -12,7 +12,7 @@
 	(defq out (cat (exfat-zeros len)))
 	;a megabyte of these is a second of a small machine: it gives way as it goes
 	(each (# (if (= (logand %0 0x3fff) 0) (task-slice))
-		(set-byte out %0 (logand (+ (* %0 7) (>> %0 8) seed) 0xff))) (range 0 len))
+			(set-byte out %0 (logand (+ (* %0 7) (>> %0 8) seed) 0xff))) (range 0 len))
 	out)
 
 (defun xf-names (vol path)

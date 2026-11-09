@@ -72,10 +72,10 @@
 	(defq *emit_start* (length *emit_list*))
 	(def *compile_env* '*func_env* (env))
 	(env-push)
-	(validatecase
-		(and (not (ends-with "/vtable" (str *func_name*)))
-			(not (starts-with "sys/" (str *func_name*)))
-			(call :sys_task :stack))))
+(validatecase
+	(and (not (ends-with "/vtable" (str *func_name*)))
+		(not (starts-with "sys/" (str *func_name*)))
+		(call :sys_task :stack))))
 
 ;What is called is said where it is called: the class and the method, by
 ;the forms that call one bound to its function. They are kept as they come,
@@ -136,13 +136,13 @@
 			;made: one made before any was said, a function bound by its
 			;path, is of none, and what calls it is not followed
 			(defq *callees* (map (lambda (l)
-				(defq p (elem-get *paths* l) at -3 found :nil)
-				(while (and (not found) (< (setq at (+ at 3)) (length *link_methods*)))
-					(if (eql (elem-get *link_methods* at) p)
-						(setq found (fn-method-info (elem-get *link_methods* (inc at)) (elem-get *link_methods* (+ at 2))))))
-				found) *links*))
+						(defq p (elem-get *paths* l) at -3 found :nil)
+						(while (and (not found) (< (setq at (+ at 3)) (length *link_methods*)))
+							(if (eql (elem-get *link_methods* at) p)
+								(setq found (fn-method-info (elem-get *link_methods* (inc at)) (elem-get *link_methods* (+ at 2))))))
+						found) *links*))
 			(defq got (keep-locals (slice *emit_list* *emit_start* -1) *locals*
-				(filter (# (starts-with ":r" %0)) (second me)) (first me) (const fn-callee))))
+					(filter (# (starts-with ":r" %0)) (second me)) (first me) (const fn-callee))))
 		(defq head (slice *emit_list* 0 *emit_start*))
 		(clear *emit_list*)
 		(each (# (push *emit_list* %0)) head)
@@ -161,7 +161,7 @@
 		((vp-align +ptr_size)))
 (vp-label 'fn_links)
 	(each (# (vp-label (link-sym (!)))
-		(vp-long (list '- (label-sym (path-sym %0)) '*pc*))) *links*)
+			(vp-long (list '- (label-sym (path-sym %0)) '*pc*))) *links*)
 (vp-label 'fn_paths)
 	(when (nempty? *paths*)
 		(each (# (vp-label (path-sym (!))) (vp-cstr (str %0))) *paths*)

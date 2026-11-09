@@ -3,12 +3,12 @@
 (dia-say s "from the front" 0 22 11)
 (dia-say s "from the back" 0 118 11)
 (each (lambda (i)
-	(defq x (+ 110 (* i 70)))
-	(if (< i 5) (dia-put s :nil (dia-box (elem-get '("H" "E" "L" "L" "O") i) 70 40 (if (<= 1 i 3) green blue) 14 :t) x 44))
-	;each number is at a fence post, the gap before an item, or after the last
-	(dia-say s (str i) (- x 4) 22 12 :t 0xff202428)
-	(dia-say s (str (- i 6)) (- x 8) 118 12 :t 0xff202428)
-	(push (first s) (cwb-shape (cwb-d-line x 28 x 100) :stroke 0xff9aa4ae :width 1.0 :cap1 :butt :cap2 :butt)))
+		(defq x (+ 110 (* i 70)))
+		(if (< i 5) (dia-put s :nil (dia-box (elem-get '("H" "E" "L" "L" "O") i) 70 40 (if (<= 1 i 3) green blue) 14 :t) x 44))
+		;each number is at a fence post, the gap before an item, or after the last
+		(dia-say s (str i) (- x 4) 22 12 :t 0xff202428)
+		(dia-say s (str (- i 6)) (- x 8) 118 12 :t 0xff202428)
+		(push (first s) (cwb-shape (cwb-d-line x 28 x 100) :stroke 0xff9aa4ae :width 1.0 :cap1 :butt :cap2 :butt)))
 	'(0 1 2 3 4 5))
 (dia-say s "the end, the length" 474 44 11)
 (dia-say s "-1 is here, after the last" 474 60 11)

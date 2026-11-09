@@ -65,8 +65,8 @@
 ;a big tree with one change is a handful of folders, not all of it
 (defq ht_big (list))
 (each (lambda (i) (each (lambda (j) (each (lambda (k)
-	(push ht_big (list (cat "d" (str i) "/e" (str j) "/f" (str k) ".txt") (str (+ (* i 10000) (* j 100) k)) "420")))
-	(range 0 10))) (range 0 10))) (range 0 10))
+						(push ht_big (list (cat "d" (str i) "/e" (str j) "/f" (str k) ".txt") (str (+ (* i 10000) (* j 100) k)) "420")))
+					(range 0 10))) (range 0 10))) (range 0 10))
 (defq ht_b1 (hash-tree ht_big)
 	ht_b2 (hash-tree (map (# (if (eql (first %0) "d7/e3/f5.txt") (list (first %0) "changed" "420") %0)) ht_big)))
 (assert-list-eq "1000 things in 111 folders, one changed, 3 folders are looked at"

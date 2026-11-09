@@ -60,12 +60,12 @@
 	(while (defq next (pop todo))
 		(bind '(from into) next)
 		(each (lambda (item)
-			(defq copy (cat item))
-			(push into copy)
-			(when (cwb-group? item)
-				(defq kids (list))
-				(elem-set copy +cwb_items kids)
-				(push todo (list (elem-get item +cwb_items) kids))))
+				(defq copy (cat item))
+				(push into copy)
+				(when (cwb-group? item)
+					(defq kids (list))
+					(elem-set copy +cwb_items kids)
+					(push todo (list (elem-get item +cwb_items) kids))))
 			from))
 	root)
 
@@ -77,8 +77,8 @@
 	(defq thin (/ 1.0 zoom)
 		dashes (if (nempty? paths) (apply (const cat) (map (# (path-dash %0 (* 8.0 thin) (* 4.0 thin) :t)) paths)) (list)))
 	(cwb-group (list
-		(cwb-shape (cwb-d-paths paths :t) :fill 0x40ffffff :stroke 0)
-		(cwb-shape (cwb-d-paths dashes) :stroke 0xff808080 :width (* 1.5 thin) :fill 0))))
+			(cwb-shape (cwb-d-paths paths :t) :fill 0x40ffffff :stroke 0)
+			(cwb-shape (cwb-d-paths dashes) :stroke 0xff808080 :width (* 1.5 thin) :fill 0))))
 
 (defun board-ghost-line (paths zoom col)
 	; (board-ghost-line paths zoom col) -> (shape shape)
@@ -124,8 +124,8 @@
 		((= n 2) (apply (const cwb-d-line) (cat (first pts) (second pts))))
 		(:t (defq out (list "M" (first (first pts)) (second (first pts))))
 			(each! (lambda ((x y))
-				(bind '(nx ny) (elem-get pts (inc (!))))
-				(push out "Q" x y (* 0.5 (+ x nx)) (* 0.5 (+ y ny))))
+					(bind '(nx ny) (elem-get pts (inc (!))))
+					(push out "Q" x y (* 0.5 (+ x nx)) (* 0.5 (+ y ny))))
 				(list pts) 1 (dec n))
 			(push out "L" (first (last pts)) (second (last pts)))
 			(apply (const cwb-d) out))))
@@ -182,8 +182,8 @@
 	(when (and (= mode 0) (> (length fills) 1))
 		(defq near (list))
 		(each (lambda (ring)
-			(bind '((x y) (x1 y1)) (vector-bounds-2d (list ring)))
-			(push (if (and (< x bx1) (< bx x1) (< y by1) (< by y1)) near far) ring))
+				(bind '((x y) (x1 y1)) (vector-bounds-2d (list ring)))
+				(push (if (and (< x bx1) (< bx x1) (< y by1) (< by y1)) near far) ring))
 			fills)
 		(setq fills near))
 	;is it touched at all. Of a thing that is only rings filled by odd and
@@ -204,23 +204,23 @@
 			;does for that: not worked out again for each bite
 			hull (board-hull item))
 		(each (lambda (polys mode color)
-			(when (nempty? polys)
-				(defq left (if (and first_left (eql polys fills)) first_left (poly-difference polys swept mode 1)))
-				;with the rings that were not near
-				(if (eql polys fills) (setq left (cat left far)))
-				;what is left has to be something: a sliver of less than a
-				;square unit of the document is not seen, and would stay
-				;for ever as a shape that is not there
-				(when (and (nempty? left) (>= (poly-area left) 1.0))
-					(defq own (cwb-mat-paths back left)
-						shape (cwb-shape (join (map (# (cwb-d-points %0 :t)) own) " ")
-							:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name) :user (elem-get item +cwb_user)))
-					(cwb-place! shape (elem-get item +cwb_place))
-					;what it is drawn with is what was just worked out: kept,
-					;so its path is not read back from its text to find it
-					(bind '((x y) (x1 y1)) (vector-bounds-2d own))
-					(elem-set shape +cwb_cache (if hull (list own (list) (list x y x1 y1) hull) (list own (list) (list x y x1 y1))))
-					(push out shape))))
+				(when (nempty? polys)
+					(defq left (if (and first_left (eql polys fills)) first_left (poly-difference polys swept mode 1)))
+					;with the rings that were not near
+					(if (eql polys fills) (setq left (cat left far)))
+					;what is left has to be something: a sliver of less than a
+					;square unit of the document is not seen, and would stay
+					;for ever as a shape that is not there
+					(when (and (nempty? left) (>= (poly-area left) 1.0))
+						(defq own (cwb-mat-paths back left)
+							shape (cwb-shape (join (map (# (cwb-d-points %0 :t)) own) " ")
+								:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name) :user (elem-get item +cwb_user)))
+						(cwb-place! shape (elem-get item +cwb_place))
+						;what it is drawn with is what was just worked out: kept,
+						;so its path is not read back from its text to find it
+						(bind '((x y) (x1 y1)) (vector-bounds-2d own))
+						(elem-set shape +cwb_cache (if hull (list own (list) (list x y x1 y1) hull) (list own (list) (list x y x1 y1))))
+						(push out shape))))
 			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
 		;what is left of its fill and of its line are two things now, each
 		;a polygon, no group of them
@@ -278,33 +278,33 @@
 		;bigger than it is
 		swept_hull (list (poly-hull swept)))
 	(each (lambda ((name flags items))
-		(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items +mat3x2_unity))))
+			(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items +mat3x2_unity))))
 		(cwb-layers doc))
 	(while (defq job (pop todo))
 		(bind '(items m) job)
 		(defq out (list) changed :nil)
 		(each (lambda (item)
-			(defq pieces :nil)
-			(cond
-				;held, a group too, and all that is in it
-				((and but (find (elem-get item +cwb_id) but)))
-				((cwb-group? item)
-					;what is in it, in its own space, later
-					(push todo (list (elem-get item +cwb_items) (mat3x2-mul m (elem-get item +cwb_m)))))
-				((and lines (cwb-rub? item)))
-				((not (board-may-rub? user item)))
-				((defq box (third (cwb-flat item)))
-					(defq full (mat3x2-mul m (elem-get item +cwb_m)))
-					(and (vector-collide-boxes-2d reach (mat3x2-box box full))
+				(defq pieces :nil)
+				(cond
+					;held, a group too, and all that is in it
+					((and but (find (elem-get item +cwb_id) but)))
+					((cwb-group? item)
+						;what is in it, in its own space, later
+						(push todo (list (elem-get item +cwb_items) (mat3x2-mul m (elem-get item +cwb_m)))))
+					((and lines (cwb-rub? item)))
+					((not (board-may-rub? user item)))
+					((defq box (third (cwb-flat item)))
+						(defq full (mat3x2-mul m (elem-get item +cwb_m)))
+						(and (vector-collide-boxes-2d reach (mat3x2-box box full))
 							(poly-hit? (cwb-mat-paths full (list (board-hull item))) swept_hull)
-						(setq pieces (board-bite-shape item full m swept tol)))))
-			(cond
-				(pieces
-					(setq changed :t)
-					(push gone (elem-get item +cwb_id))
-					(push swaps (list (elem-get item +cwb_id) pieces))
-					(each (# (push out (cwb-adopt doc %0)) (push made (elem-get %0 +cwb_id))) pieces))
-				(:t (push out item))))
+							(setq pieces (board-bite-shape item full m swept tol)))))
+				(cond
+					(pieces
+						(setq changed :t)
+						(push gone (elem-get item +cwb_id))
+						(push swaps (list (elem-get item +cwb_id) pieces))
+						(each (# (push out (cwb-adopt doc %0)) (push made (elem-get %0 +cwb_id))) pieces))
+					(:t (push out item))))
 			items)
 		(when changed
 			;what is left is where it was, among the rest
@@ -313,11 +313,11 @@
 		(push seen items))
 	;the groups with nothing left in them, the innermost first
 	(reach (lambda (items)
-		(when (some (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)))) items)
-			(defq out (filter (# (not (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items))))) items))
-			(each (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)) (push gone (elem-get %0 +cwb_id)))) items)
-			(clear items)
-			(each (# (push items %0)) out))) seen)
+			(when (some (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)))) items)
+				(defq out (filter (# (not (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items))))) items))
+				(each (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)) (push gone (elem-get %0 +cwb_id)))) items)
+				(clear items)
+				(each (# (push items %0)) out))) seen)
 	(if (nempty? gone) (list made gone swaps)))
 
 (defun board-rub-group (doc group x y r)
@@ -330,11 +330,11 @@
 		(setq size (max 0.001 (sqrt (abs (- (* (elem-get m 0) (elem-get m 4)) (* (elem-get m 1) (elem-get m 3))))))))
 	(bind '(lx ly) (mat3x2-point (cwb-inv group) x y))
 	(each (lambda (item)
-		(cond
-			((and (cwb-rub? item) (defq pieces (cwb-rub item lx ly (/ (n2f r) size))))
-				(setq touched :t)
-				(each (# (push out (cwb-adopt doc %0))) pieces))
-			(:t (push out item))))
+			(cond
+				((and (cwb-rub? item) (defq pieces (cwb-rub item lx ly (/ (n2f r) size))))
+					(setq touched :t)
+					(each (# (push out (cwb-adopt doc %0))) pieces))
+				(:t (push out item))))
 		(elem-get group +cwb_items))
 	(if touched out))
 
@@ -412,10 +412,10 @@
 		(defq todo (get :rub_todo board) ways (list) done :nil)
 		(. todo :each (lambda (id (way reach user)) (push ways (list id way reach user))))
 		(each (lambda ((id way reach user))
-			(. todo :erase id)
-			(when (. board :bite way reach :nil user)
-				(setq done :t)
-				(if (defq state (. this :state id)) (elem-set state +stroke_moved :t))))
+				(. todo :erase id)
+				(when (. board :bite way reach :nil user)
+					(setq done :t)
+					(if (defq state (. this :state id)) (elem-set state +stroke_moved :t))))
 			ways)
 		done)
 
@@ -430,7 +430,7 @@
 		;the hand. A hand that holds a thing or drags a box out is not
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
-			(unless (find (elem-get state +stroke_tool) '(:hand :idle)) (setq found :t))))
+				(unless (find (elem-get state +stroke_tool) '(:hand :idle)) (setq found :t))))
 		found)
 
 	(defmethod :begin (event)
@@ -470,8 +470,8 @@
 				(elem-set state +stroke_tool :idle)
 				(when (nempty? (defq words (get :text board)))
 					(. board :commit (cwb-text words (. board :snap_x x id) (. board :snap_y y id)
-						:fill (. board :ink_of event)
-						:font (get :font board) :font_size (get :font_size board))
+							:fill (. board :ink_of event)
+							:font (get :font board) :font_size (get :font_size board))
 						(. board :user_of event))))
 			(:t ;something is drawn. What is picked up stays so, another may be
 				;drawing beside what one holds
@@ -547,7 +547,7 @@
 			(:t ;something is drawn. A line from where it began, at a step of
 				;angle if angles snap, (:snap_end)
 				(bind '(x y) (if (find tool '(:line :arrow :arrow2)) (. board :snap_end sx sy x y id)
-					(list (. board :snap_x x id) (. board :snap_y y id))))
+						(list (. board :snap_x x id) (. board :snap_y y id))))
 				(when (or (/= x (elem-get points -3)) (/= y (elem-get points -2)))
 					(push points x y)
 					(cwb-set item :d (. this :shape_d state x y))
@@ -564,32 +564,32 @@
 			(:idle)
 			(:hand
 				(progn (defq bands (get :bands board) band (. bands :find id) near (/ +board_near (get :zoom board))
-							holding (. (get :things board) :holding))
-						(. bands :erase id)
-						(cond
-							((and (eql snap :tap) (defq menu (get :menu board))
-									(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
-								;a tap on nothing, the board's menu, if it has
-								;one, lib/cwb/palette.inc. A tap of a finger
-								;puts away one that is open, and opens one if
-								;there was none to put away
-								(unless (and (eql kind :touch) (. board :dismiss event))
-									(menu board x y event)))
-							;what the box touches is selected, it need not be
-							;all round a thing: a long line, or a thing at
-							;the edge of the paper, can not be got round. With
-							;what other hands have hold of, which stays so
-							(band (defq found (map (# (elem-get (first %0) +cwb_id)) (cwb-touch-box (get :doc board) band))
-									;and what other users picked up, a box is this
-									;one's, and a tap on nothing puts down what this
-									;user picked up
-									user (. board :user_of event)
-									kept (if holding (get :selected board) (. board :others_of user)))
-								;what it takes is that user's, as a tap's is
-								(defq new (filter (# (not (find %0 kept))) found))
-								(. board :select (cat kept new))
-								(each (# (. board :pick_up %0 user)) new)))
-						(. board :touch +board_dirty_overlay)))
+						holding (. (get :things board) :holding))
+					(. bands :erase id)
+					(cond
+						((and (eql snap :tap) (defq menu (get :menu board))
+								(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
+							;a tap on nothing, the board's menu, if it has
+							;one, lib/cwb/palette.inc. A tap of a finger
+							;puts away one that is open, and opens one if
+							;there was none to put away
+							(unless (and (eql kind :touch) (. board :dismiss event))
+								(menu board x y event)))
+						;what the box touches is selected, it need not be
+						;all round a thing: a long line, or a thing at
+						;the edge of the paper, can not be got round. With
+						;what other hands have hold of, which stays so
+						(band (defq found (map (# (elem-get (first %0) +cwb_id)) (cwb-touch-box (get :doc board) band))
+								;and what other users picked up, a box is this
+								;one's, and a tap on nothing puts down what this
+								;user picked up
+								user (. board :user_of event)
+								kept (if holding (get :selected board) (. board :others_of user)))
+							;what it takes is that user's, as a tap's is
+							(defq new (filter (# (not (find %0 kept))) found))
+							(. board :select (cat kept new))
+							(each (# (. board :pick_up %0 user)) new)))
+					(. board :touch +board_dirty_overlay)))
 			(:eraser
 				(if (. this :rub_flush) (setq moved :t))
 				(setq moved (or moved (elem-get state +stroke_moved)))
@@ -642,30 +642,30 @@
 		;two fingers, or two of anything that moves things, down on what is
 		;selected, move it, turn it and size it together
 		(each (lambda (event)
-			(bind '(id kind buttons &ignore) event)
-			(defq state (. this :state id))
-			(cond
-				((and (not state) (/= buttons 0))
-					(. this :set_state id (. this :begin event)))
-				((and state (/= buttons 0))
-					(elem-set state +stroke_last_x (elem-get event +pev_x))
-					(elem-set state +stroke_last_y (elem-get event +pev_y))
-					(. this :step event state))
-				(state
-					;the last step is of the buttons it went down with: one
-					;that has come up has none, and is bound as no button is,
-					;an eraser of another width took one more bite as it
-					;lifted, Chris: "When I release the button on an erase
-					;action, I see a blip of change"
-					(defq last (cat event))
-					(elem-set last +pev_buttons (elem-get state +stroke_buttons))
-					(. this :step last state)
-					(. this :end event state)
-					(. this :set_state id :nil))))
+				(bind '(id kind buttons &ignore) event)
+				(defq state (. this :state id))
+				(cond
+					((and (not state) (/= buttons 0))
+						(. this :set_state id (. this :begin event)))
+					((and state (/= buttons 0))
+						(elem-set state +stroke_last_x (elem-get event +pev_x))
+						(elem-set state +stroke_last_y (elem-get event +pev_y))
+						(. this :step event state))
+					(state
+						;the last step is of the buttons it went down with: one
+						;that has come up has none, and is bound as no button is,
+						;an eraser of another width took one more bite as it
+						;lifted, Chris: "When I release the button on an erase
+						;action, I see a blip of change"
+						(defq last (cat event))
+						(elem-set last +pev_buttons (elem-get state +stroke_buttons))
+						(. this :step last state)
+						(. this :end event state)
+						(. this :set_state id :nil))))
 			events)
 		this)
 
-	)
+)
 
 (defclass Things (board) (Actor)
 	; (Things board) -> things
@@ -693,9 +693,9 @@
 		;kept for it
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
-			(and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
+				(and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
 					(some (# (= (elem-get (first %0) +cwb_id) item_id)) things)
-				(setq found (list id state)))))
+					(setq found (list id state)))))
 		found)
 
 	(defmethod :swapped (swaps)
@@ -707,21 +707,21 @@
 		;nothing is left of what it held it holds nothing, and does nothing
 		(defq any :nil)
 		(. (get :states this) :each (lambda (id state)
-			(when (and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
-					(some (lambda ((thing m0)) (some (# (= (first %0) (elem-get thing +cwb_id))) swaps)) things))
-				(setq any :t)
-				(defq now (list))
-				(each (lambda ((thing m0))
-					(if (defq swap (some (# (if (= (first %0) (elem-get thing +cwb_id)) %0)) swaps))
-						(each (# (push now (list %0 (elem-get %0 +cwb_place)))) (second swap))
-						(push now (list thing (elem-get thing +cwb_m)))))
-					things)
-				(elem-set state +stroke_x (elem-get state +stroke_last_x))
-				(elem-set state +stroke_y (elem-get state +stroke_last_y))
-				(elem-set state +stroke_box :nil)
-				(cond
-					((empty? now) (elem-set state +stroke_item :nil) (elem-set state +stroke_tool :idle))
-					(:t (elem-set state +stroke_item now))))))
+				(when (and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
+						(some (lambda ((thing m0)) (some (# (= (first %0) (elem-get thing +cwb_id))) swaps)) things))
+					(setq any :t)
+					(defq now (list))
+					(each (lambda ((thing m0))
+							(if (defq swap (some (# (if (= (first %0) (elem-get thing +cwb_id)) %0)) swaps))
+								(each (# (push now (list %0 (elem-get %0 +cwb_place)))) (second swap))
+								(push now (list thing (elem-get thing +cwb_m)))))
+						things)
+					(elem-set state +stroke_x (elem-get state +stroke_last_x))
+					(elem-set state +stroke_y (elem-get state +stroke_last_y))
+					(elem-set state +stroke_box :nil)
+					(cond
+						((empty? now) (elem-set state +stroke_item :nil) (elem-set state +stroke_tool :idle))
+						(:t (elem-set state +stroke_item now))))))
 		;two that had hold of them together go on from where they and the
 		;things are now, with what is left: begun again here, before
 		;either of them moves again, or that move would be lost
@@ -729,10 +729,10 @@
 			(bind '(ida idb) (elem-get grab 3))
 			(defq a (. this :state ida) b (. this :state idb))
 			(def this :grab (and a b (elem-get a +stroke_item) (elem-get b +stroke_item)
-				(list (list (elem-get a +stroke_last_x) (elem-get a +stroke_last_y))
-					(list (elem-get b +stroke_last_x) (elem-get b +stroke_last_y))
-					(map (# (list (first %0) (elem-get (first %0) +cwb_place))) (elem-get a +stroke_item))
-					(list ida idb)))))
+					(list (list (elem-get a +stroke_last_x) (elem-get a +stroke_last_y))
+						(list (elem-get b +stroke_last_x) (elem-get b +stroke_last_y))
+						(map (# (list (first %0) (elem-get (first %0) +cwb_place))) (elem-get a +stroke_item))
+						(list ida idb)))))
 		this)
 
 	(defmethod :held_ids ()
@@ -740,8 +740,8 @@
 		;every item some hand has hold of now
 		(defq out (list))
 		(. (get :states this) :each (lambda (id state)
-			(and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
-				(each (# (push out (elem-get (first %0) +cwb_id))) things))))
+				(and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
+					(each (# (push out (elem-get (first %0) +cwb_id))) things))))
 		out)
 
 	(defmethod :same_things (a b)
@@ -760,8 +760,8 @@
 		;a pointer that has hold of what is selected
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
-			(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item)
-				(setq found id))))
+				(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item)
+					(setq found id))))
 		found)
 
 	(defmethod :holders ()
@@ -769,7 +769,7 @@
 		;how many pointers have hold of things
 		(defq n 0)
 		(. (get :states this) :each (lambda (id state)
-			(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item) (++ n))))
+				(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item) (++ n))))
 		n)
 
 	(defmethod :hit (x y &optional event)
@@ -809,84 +809,84 @@
 				(elem-set state +stroke_item (elem-get (first hit) +cwb_id))
 				(elem-set state +stroke_points event))
 			(:t (when hit
-				(cond
-					((and hit (defq other (. this :holder (elem-get (first hit) +cwb_id))))
-						;what another has hold of. First come first served:
-						;a thing is the one's who took it, till they let it
-						;go, and nobody else's hand does anything to it.
-						;Unless it is the same one's other hand, a second
-						;finger of the device that has it: then the two of
-						;them move it, see (:two_hands), it has the same
-						;things. An id is its device and which of its
-						;contacts, lib/cwb/pointer.inc
-						;two contacts of one touch device: Chris, "The only
-						;device that is able to do multi contact
-						;drag/zoom/rotate is the touch device"
-						(if (and (eql kind :touch) (= (ptr-device id) (ptr-device (first other))))
-							(elem-set state +stroke_item (elem-get (second other) +stroke_item))
-							(elem-set state +stroke_tool :idle)))
-					((board-theirs? board (elem-get (first hit) +cwb_id) user)
-						(elem-set state +stroke_tool :idle))
-					(hit (defq id_hit (elem-get (first hit) +cwb_id) selected (get :selected board) mine :nil)
-						;on what was selected already, and no other hand at work.
-						;Not by the right button alone: that sends a thing to the
-						;back, below, and is to do that and no more. Chris: "i'd
-						;like to keep the right button push to back action. We
-						;have esc or min to get out of jail"
-						(and (not holding) (find id_hit selected) (/= buttons +pev_right)
-							(elem-set state +stroke_again id_hit))
-						(cond
-							(holding
-								;other hands have hold of other things. This
-								;one has its own: it is selected as well as
-								;theirs, and it alone is this hand's
-								(unless (find id_hit selected) (. board :select (cat selected (list id_hit))))
-								(setq mine (list (first hit))))
-							;its user's, and what other users picked up stays
-							;so, Chris: "2 users can select seperate item".
-							;Pressed on one it does not hold, the hand has
-							;that one alone, to move it or send it front or
-							;back, and what the user holds stays as it is. It
-							;is picked up while the hand has it, so it is in
-							;flight, and is put down again as it lets go
-							;unless that was a tap, which selects it, (:end).
-							;On one it holds, the hand has all it holds
-							((not (find id_hit mine_ids))
-								(. board :pick_up id_hit user)
-								(elem-set state +stroke_solo id_hit)
-								(setq mine (list (first hit))))
-							(:t (setq mine (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))))
-						(. board :snapshot)
-						(elem-set state +stroke_snap :t)
-						;what is taken hold of comes to the front of its layer, and
-						;taken by the right button alone it goes to the back, as an
-						;instrument does among the instruments: it is how what is
-						;under it is got at. Where that changes what is in front of
-						;what, it is a change, though nothing is moved
-						(defq ids (cwb-id-set (map (# (elem-get %0 +cwb_id)) mine)) back (= buttons +pev_right))
-						(each (lambda (layer)
-							(defq items (third layer)
-								these (cwb-pick items ids)
-								others (cwb-pick items ids :t)
-								now (if back (cat these others) (cat others these)))
-							(unless (or (empty? these) (every (const eql) now items))
-								(elem-set layer 2 now)
-								(elem-set state +stroke_moved :t)
-								(. board :touch_order)))
-							(cwb-layers (get :doc board)))
-						(elem-set state +stroke_item (map (# (list %0 (elem-get %0 +cwb_place))) mine))
-						;the box round it as it is picked up, a corner of which
-						;is what goes to the grid
-						(elem-set state +stroke_box (cwb-bounds mine))
-						;what is selected is in flight, (:touch), and its flight is
-						;in front of the document or behind it as it was taken,
-						;and stays there till it is taken again. Each hand says for
-						;what it has: two people can be pulling one thing to the
-						;front and pushing another to the back at once, Chris: "we
-						;will have to have 2 inflight layers, back/front and the
-						;committed layer in the middle"
-						(. board :fly (map (# (elem-get %0 +cwb_id)) mine) back)
-						(. board :touch +board_dirty_overlay))))))
+					(cond
+						((and hit (defq other (. this :holder (elem-get (first hit) +cwb_id))))
+							;what another has hold of. First come first served:
+							;a thing is the one's who took it, till they let it
+							;go, and nobody else's hand does anything to it.
+							;Unless it is the same one's other hand, a second
+							;finger of the device that has it: then the two of
+							;them move it, see (:two_hands), it has the same
+							;things. An id is its device and which of its
+							;contacts, lib/cwb/pointer.inc
+							;two contacts of one touch device: Chris, "The only
+							;device that is able to do multi contact
+							;drag/zoom/rotate is the touch device"
+							(if (and (eql kind :touch) (= (ptr-device id) (ptr-device (first other))))
+								(elem-set state +stroke_item (elem-get (second other) +stroke_item))
+								(elem-set state +stroke_tool :idle)))
+						((board-theirs? board (elem-get (first hit) +cwb_id) user)
+							(elem-set state +stroke_tool :idle))
+						(hit (defq id_hit (elem-get (first hit) +cwb_id) selected (get :selected board) mine :nil)
+							;on what was selected already, and no other hand at work.
+							;Not by the right button alone: that sends a thing to the
+							;back, below, and is to do that and no more. Chris: "i'd
+							;like to keep the right button push to back action. We
+							;have esc or min to get out of jail"
+							(and (not holding) (find id_hit selected) (/= buttons +pev_right)
+								(elem-set state +stroke_again id_hit))
+							(cond
+								(holding
+									;other hands have hold of other things. This
+									;one has its own: it is selected as well as
+									;theirs, and it alone is this hand's
+									(unless (find id_hit selected) (. board :select (cat selected (list id_hit))))
+									(setq mine (list (first hit))))
+								;its user's, and what other users picked up stays
+								;so, Chris: "2 users can select seperate item".
+								;Pressed on one it does not hold, the hand has
+								;that one alone, to move it or send it front or
+								;back, and what the user holds stays as it is. It
+								;is picked up while the hand has it, so it is in
+								;flight, and is put down again as it lets go
+								;unless that was a tap, which selects it, (:end).
+								;On one it holds, the hand has all it holds
+								((not (find id_hit mine_ids))
+									(. board :pick_up id_hit user)
+									(elem-set state +stroke_solo id_hit)
+									(setq mine (list (first hit))))
+								(:t (setq mine (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))))
+							(. board :snapshot)
+							(elem-set state +stroke_snap :t)
+							;what is taken hold of comes to the front of its layer, and
+							;taken by the right button alone it goes to the back, as an
+							;instrument does among the instruments: it is how what is
+							;under it is got at. Where that changes what is in front of
+							;what, it is a change, though nothing is moved
+							(defq ids (cwb-id-set (map (# (elem-get %0 +cwb_id)) mine)) back (= buttons +pev_right))
+							(each (lambda (layer)
+									(defq items (third layer)
+										these (cwb-pick items ids)
+										others (cwb-pick items ids :t)
+										now (if back (cat these others) (cat others these)))
+									(unless (or (empty? these) (every (const eql) now items))
+										(elem-set layer 2 now)
+										(elem-set state +stroke_moved :t)
+										(. board :touch_order)))
+								(cwb-layers (get :doc board)))
+							(elem-set state +stroke_item (map (# (list %0 (elem-get %0 +cwb_place))) mine))
+							;the box round it as it is picked up, a corner of which
+							;is what goes to the grid
+							(elem-set state +stroke_box (cwb-bounds mine))
+							;what is selected is in flight, (:touch), and its flight is
+							;in front of the document or behind it as it was taken,
+							;and stays there till it is taken again. Each hand says for
+							;what it has: two people can be pulling one thing to the
+							;front and pushing another to the back at once, Chris: "we
+							;will have to have 2 inflight layers, back/front and the
+							;committed layer in the middle"
+							(. board :fly (map (# (elem-get %0 +cwb_id)) mine) back)
+							(. board :touch +board_dirty_overlay))))))
 		state)
 
 	(defmethod :step (event state)
@@ -919,29 +919,29 @@
 			(:maybe (. board :toggle_select item (. board :user_of event)))
 			(:hand
 				(when item (and (eql snap :t) (not moved) (. board :forget))
-						;a tap on what was picked up already puts it down, as a
-						;tap of a pen on it does, and only it. One that was
-						;not, held only while it was moved, is put down again:
-						;a drag moves a thing and selects nothing, a tap does
-						(defq tap (. this :tap? state x y))
-						(and (defq again (elem-get state +stroke_again)) tap
-							(. board :toggle_select again (. board :user_of event)))
-						(and (defq solo (elem-get state +stroke_solo)) (not tap)
-							(. board :select (filter (# (/= %0 solo)) (get :selected board))))
-						;put down, it is selected still, and in flight still.
-						;Unless other hands have hold of other things: then
-						;what this one had is put down and is no longer
-						;selected, theirs is. If another has hold of the same
-						;things it has them still
-						(defq others :nil shared :nil)
-						(. (get :states this) :each (lambda (oid ostate)
+					;a tap on what was picked up already puts it down, as a
+					;tap of a pen on it does, and only it. One that was
+					;not, held only while it was moved, is put down again:
+					;a drag moves a thing and selects nothing, a tap does
+					(defq tap (. this :tap? state x y))
+					(and (defq again (elem-get state +stroke_again)) tap
+						(. board :toggle_select again (. board :user_of event)))
+					(and (defq solo (elem-get state +stroke_solo)) (not tap)
+						(. board :select (filter (# (/= %0 solo)) (get :selected board))))
+					;put down, it is selected still, and in flight still.
+					;Unless other hands have hold of other things: then
+					;what this one had is put down and is no longer
+					;selected, theirs is. If another has hold of the same
+					;things it has them still
+					(defq others :nil shared :nil)
+					(. (get :states this) :each (lambda (oid ostate)
 							(and (/= oid id) (eql (elem-get ostate +stroke_tool) :hand)
-									(defq theirs (elem-get ostate +stroke_item))
+								(defq theirs (elem-get ostate +stroke_item))
 								(if (. this :same_things item theirs) (setq shared :t) (setq others :t)))))
-						(when (and others (not shared))
-							(defq mine (map (# (elem-get (first %0) +cwb_id)) item))
-							(. board :select (filter (# (not (find %0 mine))) (get :selected board))))
-						(. board :touch +board_dirty_overlay)))))
+					(when (and others (not shared))
+						(defq mine (map (# (elem-get (first %0) +cwb_id)) item))
+						(. board :select (filter (# (not (find %0 mine))) (get :selected board))))
+					(. board :touch +board_dirty_overlay)))))
 
 	(defmethod :tap? (state x y)
 		; (. things :tap? state x y) -> :t | :nil
@@ -954,28 +954,28 @@
 		;been a tap and is moved further is the canvas's, (. stage :pass)
 		(defq board (obj-ref (get :board this)))
 		(each (lambda (event)
-			(bind '(id kind buttons x y &ignore) event)
-			(defq state (. this :state id))
-			(cond
-				((and (not state) (/= buttons 0))
-					(. this :set_state id (. this :begin event)))
-				((and state (eql (elem-get state +stroke_tool) :maybe))
-					(cond
-						((= buttons 0)
-							(. this :set_state id :nil)
-							;held too long to be a tap, it was a dot
-							(if (board-tap? board state x y) (. this :end event state)
-								(. stage :pass this id (list (elem-get state +stroke_points) event))))
-						((not (board-tap? board state x y))
-							(. this :set_state id :nil)
-							(. stage :pass this id (list (elem-get state +stroke_points) event)))))
-				((and state (/= buttons 0))
-					(elem-set state +stroke_last_x (elem-get event +pev_x))
-					(elem-set state +stroke_last_y (elem-get event +pev_y))
-					(unless (. this :grabbed id) (. this :step event state)))
-				(state
-					(. this :end event state)
-					(. this :set_state id :nil))))
+				(bind '(id kind buttons x y &ignore) event)
+				(defq state (. this :state id))
+				(cond
+					((and (not state) (/= buttons 0))
+						(. this :set_state id (. this :begin event)))
+					((and state (eql (elem-get state +stroke_tool) :maybe))
+						(cond
+							((= buttons 0)
+								(. this :set_state id :nil)
+								;held too long to be a tap, it was a dot
+								(if (board-tap? board state x y) (. this :end event state)
+									(. stage :pass this id (list (elem-get state +stroke_points) event))))
+							((not (board-tap? board state x y))
+								(. this :set_state id :nil)
+								(. stage :pass this id (list (elem-get state +stroke_points) event)))))
+					((and state (/= buttons 0))
+						(elem-set state +stroke_last_x (elem-get event +pev_x))
+						(elem-set state +stroke_last_y (elem-get event +pev_y))
+						(unless (. this :grabbed id) (. this :step event state)))
+					(state
+						(. this :end event state)
+						(. this :set_state id :nil))))
 			events)
 		(. this :two_hands)
 		this)
@@ -995,8 +995,8 @@
 		(defq board (obj-ref (get :board this)))
 		(defq hands (list) grab (get :grab this) pair :nil)
 		(. (get :states this) :each (lambda (id state)
-			(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item)
-				(push hands (list id state)))))
+				(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item)
+					(push hands (list id state)))))
 		;in the order they came, a contact that lands later has the bigger
 		;number. What is kept of them comes in no order, and the two must be
 		;the same way round each time: the other way round they are a half
@@ -1009,11 +1009,11 @@
 			(if (= (length still) 2) (setq pair still)))
 		(unless (or pair grab)
 			(each (lambda ((ida sa))
-				(each (lambda ((idb sb))
-					(and (not pair) (/= ida idb)
-							(. this :same_things (elem-get sa +stroke_item) (elem-get sb +stroke_item))
-						(setq pair (list (list ida sa) (list idb sb)))))
-					hands))
+					(each (lambda ((idb sb))
+							(and (not pair) (/= ida idb)
+								(. this :same_things (elem-get sa +stroke_item) (elem-get sb +stroke_item))
+								(setq pair (list (list ida sa) (list idb sb)))))
+						hands))
 				hands))
 		(cond
 			((not pair)
@@ -1021,20 +1021,20 @@
 					(def this :grab :nil)
 					;the one of them that is left carries on from where things are
 					(each (lambda ((id state))
-						(when (find id (elem-get grab 3))
-							(elem-set state +stroke_x (elem-get state +stroke_last_x))
-							(elem-set state +stroke_y (elem-get state +stroke_last_y))
-							(elem-set state +stroke_item
-								(map (# (list (first %0) (elem-get (first %0) +cwb_place))) (elem-get state +stroke_item)))
-							(elem-set state +stroke_box :nil)))
+							(when (find id (elem-get grab 3))
+								(elem-set state +stroke_x (elem-get state +stroke_last_x))
+								(elem-set state +stroke_y (elem-get state +stroke_last_y))
+								(elem-set state +stroke_item
+									(map (# (list (first %0) (elem-get (first %0) +cwb_place))) (elem-get state +stroke_item)))
+								(elem-set state +stroke_box :nil)))
 						hands)))
 			(:t (defq a (second (first pair)) b (second (second pair))
 					pa (list (elem-get a +stroke_last_x) (elem-get a +stroke_last_y))
 					pb (list (elem-get b +stroke_last_x) (elem-get b +stroke_last_y)))
 				(unless grab
 					(def this :grab (setq grab (list pa pb
-						(map (# (list (first %0) (elem-get (first %0) +cwb_place))) (elem-get a +stroke_item))
-						(list (first (first pair)) (first (second pair)))))))
+								(map (# (list (first %0) (elem-get (first %0) +cwb_place))) (elem-get a +stroke_item))
+								(list (first (first pair)) (first (second pair)))))))
 				(bind '(pa0 pb0 things &ignore) grab)
 				;one thing is moved, turned and sized; several, a loose
 				;group, are not a thing, and are only moved, by the middle
@@ -1046,8 +1046,7 @@
 						(cwb-place! thing (if one (place-pair p0 pa0 pb0 pa pb) (place-move p0 mx my))))
 					things)
 				(each (lambda ((id state)) (elem-set state +stroke_moved :t)) pair)
-				(. board :touch +board_dirty_overlay))))
-	)
+				(. board :touch +board_dirty_overlay)))))
 
 ;;;;;;;;;;;;;
 ; the handles
@@ -1100,7 +1099,7 @@
 					;reaches past
 					(defq pts (list))
 					(each (lambda (item)
-						(if (defq corners (board-item-corners item)) (each (# (push pts %0)) (partition corners 2))))
+							(if (defq corners (board-item-corners item)) (each (# (push pts %0)) (partition corners 2))))
 						items)
 					(when (nempty? pts)
 						(defq xs (map (const first) pts) ys (map (const second) pts))
@@ -1158,8 +1157,8 @@
 		(defq board (obj-ref (get :board this)))
 		(defq reach (/ (* 1.6 +board_handle) (get :zoom board)))
 		(some (lambda (spot)
-			(bind '(kind sx sy &ignore) spot)
-			(and (<= (abs (- x sx)) reach) (<= (abs (- y sy)) reach) spot))
+				(bind '(kind sx sy &ignore) spot)
+				(and (<= (abs (- x sx)) reach) (<= (abs (- y sy)) reach) spot))
 			(ifn (. this :spots) (list))))
 
 	(defmethod :zones_key ()
@@ -1175,74 +1174,73 @@
 		(defq reach (/ (* 1.6 +board_handle) (get :zoom board)))
 		(map (lambda ((kind sx sy &ignore))
 				(list kind (list (list (- sx reach) (- sy reach) (+ sx reach) (- sy reach)
-					(+ sx reach) (+ sy reach) (- sx reach) (+ sy reach)))))
+							(+ sx reach) (+ sy reach) (- sx reach) (+ sy reach)))))
 			(ifn (. this :spots) (list))))
 
 	(defmethod :pointers (stage events)
 		(defq board (obj-ref (get :board this)))
 		(each (lambda (event)
-			(bind '(id kind buttons x y &ignore) event)
-			(defq state (. this :state id))
-			(cond
-				((and (not state) (/= buttons 0))
-					(when (and (defq spot (. this :spot_at x y)) (= (. this :held) 0))
-						(. board :snapshot)
-						;the spot, the frame and the ends as they were, where
-						;the pointer went down, and each thing as it was
-						(. this :set_state id (list spot (. this :frame) (. this :ends) x y
-							(map (# (list %0 (elem-get %0 +cwb_place))) (. board :selected_items))))))
-				(state
-					(bind '((skind sx sy fx fy) frame ends dx dy things) state)
-					(defq px (. board :snap_x x id) py (. board :snap_y y id) step (. board :angle_step id))
-					(case skind
-						(:end ;that end of the line goes to the pointer, the other stays
-							(bind '(item (lx ly lx1 ly1)) ends)
-							(defq m0 (cwb-place-mat (second (first things))))
-							;from the other end, as a line is drawn, (:snap_end)
-							(bind '(ox oy) (if (= fx 0) (mat3x2-point m0 lx1 ly1) (mat3x2-point m0 lx ly)))
-							(bind '(px py) (. board :snap_end ox oy x y id))
-							(bind '(qx qy) (mat3x2-point (mat3x2-invert m0) px py))
-							(cwb-set item :d (if (= fx 0) (cwb-d-line qx qy lx1 ly1) (cwb-d-line lx ly qx qy))))
-						(:turn ;about the middle of the frame
-							(bind '(fm (bx by bx1 by1)) frame)
-							(bind '(cx cy) (mat3x2-point fm (* 0.5 (+ bx bx1)) (* 0.5 (+ by by1))))
-							(defq angle (- (path-angle (- x cx) (- y cy)) (path-angle (- dx cx) (- dy cy))))
-							(while (> angle +fp_pi) (setq angle (- angle +fp_2pi)))
-							(while (<= angle (neg +fp_pi)) (setq angle (+ angle +fp_2pi)))
-							;with angles that snap, the angle it is at snaps, not how
-							;far it is turned: what is turned can always go back to
-							;square, whatever angle it was at
-							(each (lambda ((thing p0))
-									(cwb-place! thing (if (= step 0.0) (place-turn p0 angle cx cy)
-										(place-angle p0 (board-snap (+ (third (ifn p0 +cwb_no_place)) angle) step) cx cy))))
-								things))
-						(:t ;sized in the frame: the pointer is taken into it, and the
-							;side or corner across from the handle stays where it is
-							(bind '(fm (bx by bx1 by1)) frame)
-							(defq inv (mat3x2-invert fm) cx (* 0.5 (+ bx bx1)) cy (* 0.5 (+ by by1)))
-							(bind '(qx qy) (mat3x2-point inv px py))
-							(defq ax (cond ((< fx 0) bx1) ((> fx 0) bx) (:t cx))
-								ay (cond ((< fy 0) by1) ((> fy 0) by) (:t cy))
-								w0 (- (cond ((< fx 0) bx) ((> fx 0) bx1) (:t cx)) ax)
-								h0 (- (cond ((< fy 0) by) ((> fy 0) by1) (:t cy)) ay)
-								scx (if (or (= fx 0) (= w0 0.0)) 1.0 (/ (- qx ax) w0))
-								scy (if (or (= fy 0) (= h0 0.0)) 1.0 (/ (- qy ay) h0)))
-							;a corner keeps the shape of the box unless the board says not
-							(and (/= fx 0) (/= fy 0) (. board :keep_shape? id)
-								(setq scx (if (> (abs scx) (abs scy)) scx (* (abs scy) (if (< scx 0.0) -1.0 1.0)))
-									scy (* (abs scx) (if (< scy 0.0) -1.0 1.0))))
-							(if (= scx 0.0) (setq scx 0.001))
-							(if (= scy 0.0) (setq scy 0.001))
-							;the frame is the thing's own, its box in its own space:
-							;sized along its own sides, about the side or corner that
-							;stays
-							(each (lambda ((thing p0)) (cwb-place! thing (place-scale p0 scx scy ax ay))) things)))
-					(. board :touch +board_dirty_overlay)
-					(when (= buttons 0)
-						(. this :set_state id :nil)))))
+				(bind '(id kind buttons x y &ignore) event)
+				(defq state (. this :state id))
+				(cond
+					((and (not state) (/= buttons 0))
+						(when (and (defq spot (. this :spot_at x y)) (= (. this :held) 0))
+							(. board :snapshot)
+							;the spot, the frame and the ends as they were, where
+							;the pointer went down, and each thing as it was
+							(. this :set_state id (list spot (. this :frame) (. this :ends) x y
+									(map (# (list %0 (elem-get %0 +cwb_place))) (. board :selected_items))))))
+					(state
+						(bind '((skind sx sy fx fy) frame ends dx dy things) state)
+						(defq px (. board :snap_x x id) py (. board :snap_y y id) step (. board :angle_step id))
+						(case skind
+							(:end ;that end of the line goes to the pointer, the other stays
+								(bind '(item (lx ly lx1 ly1)) ends)
+								(defq m0 (cwb-place-mat (second (first things))))
+								;from the other end, as a line is drawn, (:snap_end)
+								(bind '(ox oy) (if (= fx 0) (mat3x2-point m0 lx1 ly1) (mat3x2-point m0 lx ly)))
+								(bind '(px py) (. board :snap_end ox oy x y id))
+								(bind '(qx qy) (mat3x2-point (mat3x2-invert m0) px py))
+								(cwb-set item :d (if (= fx 0) (cwb-d-line qx qy lx1 ly1) (cwb-d-line lx ly qx qy))))
+							(:turn ;about the middle of the frame
+								(bind '(fm (bx by bx1 by1)) frame)
+								(bind '(cx cy) (mat3x2-point fm (* 0.5 (+ bx bx1)) (* 0.5 (+ by by1))))
+								(defq angle (- (path-angle (- x cx) (- y cy)) (path-angle (- dx cx) (- dy cy))))
+								(while (> angle +fp_pi) (setq angle (- angle +fp_2pi)))
+								(while (<= angle (neg +fp_pi)) (setq angle (+ angle +fp_2pi)))
+								;with angles that snap, the angle it is at snaps, not how
+								;far it is turned: what is turned can always go back to
+								;square, whatever angle it was at
+								(each (lambda ((thing p0))
+										(cwb-place! thing (if (= step 0.0) (place-turn p0 angle cx cy)
+												(place-angle p0 (board-snap (+ (third (ifn p0 +cwb_no_place)) angle) step) cx cy))))
+									things))
+							(:t ;sized in the frame: the pointer is taken into it, and the
+								;side or corner across from the handle stays where it is
+								(bind '(fm (bx by bx1 by1)) frame)
+								(defq inv (mat3x2-invert fm) cx (* 0.5 (+ bx bx1)) cy (* 0.5 (+ by by1)))
+								(bind '(qx qy) (mat3x2-point inv px py))
+								(defq ax (cond ((< fx 0) bx1) ((> fx 0) bx) (:t cx))
+									ay (cond ((< fy 0) by1) ((> fy 0) by) (:t cy))
+									w0 (- (cond ((< fx 0) bx) ((> fx 0) bx1) (:t cx)) ax)
+									h0 (- (cond ((< fy 0) by) ((> fy 0) by1) (:t cy)) ay)
+									scx (if (or (= fx 0) (= w0 0.0)) 1.0 (/ (- qx ax) w0))
+									scy (if (or (= fy 0) (= h0 0.0)) 1.0 (/ (- qy ay) h0)))
+								;a corner keeps the shape of the box unless the board says not
+								(and (/= fx 0) (/= fy 0) (. board :keep_shape? id)
+									(setq scx (if (> (abs scx) (abs scy)) scx (* (abs scy) (if (< scx 0.0) -1.0 1.0)))
+										scy (* (abs scx) (if (< scy 0.0) -1.0 1.0))))
+								(if (= scx 0.0) (setq scx 0.001))
+								(if (= scy 0.0) (setq scy 0.001))
+								;the frame is the thing's own, its box in its own space:
+								;sized along its own sides, about the side or corner that
+								;stays
+								(each (lambda ((thing p0)) (cwb-place! thing (place-scale p0 scx scy ax ay))) things)))
+						(. board :touch +board_dirty_overlay)
+						(when (= buttons 0)
+							(. this :set_state id :nil)))))
 			events)
-		this)
-	)
+		this))
 
 ;;;;;;;;;;;
 ; the board
@@ -1381,12 +1379,12 @@
 				(0)))
 		(when row
 			(defq col (cond
-				((eql kind :mouse) 0)
-				((eql kind :touch) 1)
-				(:t (defq users (get :users this) device (ptr-device id))
-					(unless (. users :find device) (. this :user_of (ptr-event id :pen 0 0 0)))
-					(defq user (. users :find device))
-					(if (= user +board_teacher) 2 (min 5 (+ 3 (- user +board_first_student)))))))
+					((eql kind :mouse) 0)
+					((eql kind :touch) 1)
+					(:t (defq users (get :users this) device (ptr-device id))
+						(unless (. users :find device) (. this :user_of (ptr-event id :pen 0 0 0)))
+						(defq user (. users :find device))
+						(if (= user +board_teacher) 2 (min 5 (+ 3 (- user +board_first_student)))))))
 			(+ (* row 6) col)))
 
 	(defmethod :appoint (event)
@@ -1443,8 +1441,8 @@
 				((> (length moved) 32) (def this :damage_full :t))
 				((not (get :damage_full this))
 					(each (lambda ((name flags items))
-						(each (# (if (defq box (cwb-bounds (list %0))) (push (get :damage this) box)))
-							(cwb-pick items moved)))
+							(each (# (if (defq box (cwb-bounds (list %0))) (push (get :damage this) box)))
+								(cwb-pick items moved)))
 						(cwb-layers (get :doc this)))))
 			(. this :changed floating)
 			(. this :changed selected)
@@ -1607,11 +1605,11 @@
 				(. this :settle_select))
 			(:switch
 				(bind '(snap angle keep) (if event (. this :pointer_settings (ptr-main event))
-					(list (get :snap this) (get :snap_angle this) (get :keep_shape this))))
+						(list (get :snap this) (get :snap_angle this) (get :keep_shape this))))
 				(cond
 					(event (. this :hold event val (not (case val (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep)))))
 					((eql val :snap) (def this :snap (if (= snap 0.0)
-						(if (> (get :snap_gap this) 0.0) (get :snap_gap this) (n2f (. (get :doc this) :find :grid))) 0.0)))
+								(if (> (get :snap_gap this) 0.0) (get :snap_gap this) (n2f (. (get :doc this) :find :grid))) 0.0)))
 					((eql val :snap_angle) (def this :snap_angle (if (= angle 0.0) (const (/ +fp_pi 12.0)) 0.0)))
 					((def this :keep_shape (not keep)))))
 			((:ink :alpha :none)
@@ -1630,9 +1628,9 @@
 					((nempty? mine)
 						(defq board_pick_val val)
 						(. this :paint mine part 0 (case what
-							(:ink (lambda (old) (logior (logand board_pick_val 0xffffff) (if (board-none? old) 0xff000000 (logand old 0xff000000)))))
-							(:alpha (lambda (old) (if (board-none? (defq c (logior (logand old 0xffffff) (<< board_pick_val 24)))) 0 c)))
-							(:t (lambda (old) 0)))))
+								(:ink (lambda (old) (logior (logand board_pick_val 0xffffff) (if (board-none? old) 0xff000000 (logand old 0xff000000)))))
+								(:alpha (lambda (old) (if (board-none? (defq c (logior (logand old 0xffffff) (<< board_pick_val 24)))) 0 c)))
+								(:t (lambda (old) 0)))))
 					;the pen it holds is filled, Chris: "that value become the
 					;ink in the current pen/marker"
 					((num? at) (. this :fill_pen at ink))
@@ -1664,9 +1662,9 @@
 		;two ends: a pen seen is both, and its other end, an eraser
 		(defq out (list))
 		(. (get :seen this) :each (lambda (k (kind id buttons))
-			(push out (list kind id buttons))
-			(when (eql kind :pen)
-				(push out (list :pen id +pev_left) (list :pen id +pev_right) (list :eraser id +pev_left)))))
+				(push out (list kind id buttons))
+				(when (eql kind :pen)
+					(push out (list :pen id +pev_left) (list :pen id +pev_right) (list :eraser id +pev_left)))))
 		out)
 
 	(defmethod :switch_of (what key)
@@ -1698,9 +1696,9 @@
 						tool (. bindings :value event :tool :pen)
 						own (lambda (key) (if (defq at (ptr-at what key)) (elem-get what at))))
 					(push out (list what slot (scatter (Emap)
-						:mode (case tool (:pen (ifn (own :mode) (get :mode this))) (:hand :select) (:eraser :eraser))
-						:width (ifn (own :width) (get :width this))
-						:pen (ifn (own :pen) (get :pen this)))))))
+								:mode (case tool (:pen (ifn (own :mode) (get :mode this))) (:hand :select) (:eraser :eraser))
+								:width (ifn (own :width) (get :width this))
+								:pen (ifn (own :pen) (get :pen this)))))))
 			(cat (list (list :mouse 0 +pev_left) (list :mouse 0 +pev_right))
 				(map (lambda ((kind id buttons &ignore)) (list kind id buttons))
 					(filter (# (second %0)) (get :rules bindings)))
@@ -1758,7 +1756,7 @@
 		;the layers as they are, and the size of the paper, to go back to
 		(defq doc (get :doc this))
 		(list (map (lambda ((name flags items)) (list name flags (board-copy-items items)))
-			(cwb-layers doc)) (. doc :find :width) (. doc :find :height)))
+				(cwb-layers doc)) (. doc :find :width) (. doc :find :height)))
 
 	(defmethod :snapshot ()
 		; (. board :snapshot) -> board
@@ -1818,7 +1816,7 @@
 		;board this shares with holds is not taken, by a box, a tap or a
 		;hand, "own only": it is left out, (:taken)
 		(def this :selected (if (nempty? (defq taken (. this :taken)))
-			(filter (# (not (find %0 taken))) ids) (cat ids)))
+				(filter (# (not (find %0 taken))) ids) (cat ids)))
 		(setq ids (get :selected this))
 		(defq selectors (get :selectors this) gone (list))
 		(. selectors :each (lambda (id &ignore) (unless (find id ids) (push gone id))))
@@ -1886,8 +1884,8 @@
 		; (. board :select_all) -> board
 		(defq ids (list))
 		(each (lambda ((name flags items))
-			(unless (or (bits? flags 1) (bits? flags 2))
-				(each (# (push ids (elem-get %0 +cwb_id))) items)))
+				(unless (or (bits? flags 1) (bits? flags 2))
+					(each (# (push ids (elem-get %0 +cwb_id))) items)))
 			(cwb-layers (get :doc this)))
 		(. this :select ids))
 
@@ -2040,42 +2038,42 @@
 		(and (eql mode :bite) (not lines) (setq done (. this :bite (path x y) r)))
 		(when (find mode '(:part :lines))
 			(each (lambda ((name flags items))
-				(unless (or (bits? flags 1) (bits? flags 2))
-					(defq out (list) changed :nil)
-					(each (lambda (item)
-						(cond
-							;what a board this shares with holds is theirs
-							((find (elem-get item +cwb_id) taken) (push out item))
-							((and (cwb-rub? item)
-									(defq box (cwb-bounds (list item)))
-									(vector-collide-boxes-2d reach (list (- (first box) 1.0) (- (second box) 1.0)
-										(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
-									(defq pieces (cwb-rub item x y r)))
-								(setq changed :t done :t)
-								(. this :select (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this)))
-								(each (# (push out (cwb-adopt doc %0))) pieces)
-								(. this :changed (map (# (elem-get %0 +cwb_id)) pieces)))
-							;a group: the lines in it are rubbed as lines are, in its
-							;own space, so a word that was written is rubbed a letter
-							;at a time, not taken whole. A group with nothing left goes
-							((and (cwb-group? item)
-									(defq box (cwb-bounds (list item)))
-									(vector-collide-boxes-2d reach (list (- (first box) 1.0) (- (second box) 1.0)
-										(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
-									(defq left (board-rub-group doc item x y r)))
-								(setq changed :t done :t)
+					(unless (or (bits? flags 1) (bits? flags 2))
+						(defq out (list) changed :nil)
+						(each (lambda (item)
 								(cond
-									((empty? left)
-										(. this :select (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this))))
-									(:t (elem-set item +cwb_items left)
-										(. this :changed (list (elem-get item +cwb_id)))
-										(push out item))))
-							(:t (push out item))))
-						items)
-					(when changed
-						;what is left is where it was, among the rest
-						(clear items)
-						(each (# (push items %0)) out))))
+									;what a board this shares with holds is theirs
+									((find (elem-get item +cwb_id) taken) (push out item))
+									((and (cwb-rub? item)
+											(defq box (cwb-bounds (list item)))
+											(vector-collide-boxes-2d reach (list (- (first box) 1.0) (- (second box) 1.0)
+													(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
+											(defq pieces (cwb-rub item x y r)))
+										(setq changed :t done :t)
+										(. this :select (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this)))
+										(each (# (push out (cwb-adopt doc %0))) pieces)
+										(. this :changed (map (# (elem-get %0 +cwb_id)) pieces)))
+									;a group: the lines in it are rubbed as lines are, in its
+									;own space, so a word that was written is rubbed a letter
+									;at a time, not taken whole. A group with nothing left goes
+									((and (cwb-group? item)
+											(defq box (cwb-bounds (list item)))
+											(vector-collide-boxes-2d reach (list (- (first box) 1.0) (- (second box) 1.0)
+													(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
+											(defq left (board-rub-group doc item x y r)))
+										(setq changed :t done :t)
+										(cond
+											((empty? left)
+												(. this :select (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this))))
+											(:t (elem-set item +cwb_items left)
+												(. this :changed (list (elem-get item +cwb_id)))
+												(push out item))))
+									(:t (push out item))))
+							items)
+						(when changed
+							;what is left is where it was, among the rest
+							(clear items)
+							(each (# (push items %0)) out))))
 				(cwb-layers doc)))
 		;what is not a line has a bite out
 		(and (eql mode :part) (not lines) (. this :bite (path x y) r) (setq done :t))
@@ -2099,8 +2097,8 @@
 			;the lines, a step at a time. And with them what is not a line,
 			;if it goes whole
 			(each (lambda (i)
-				(defq f (/ (n2f i) (n2f steps)))
-				(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r (eql mode :part)) (setq done :t)))
+					(defq f (/ (n2f i) (n2f steps)))
+					(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r (eql mode :part)) (setq done :t)))
 				(range 0 (inc steps))))
 		;the bite, all of the way at once, what it covers from the one to the other
 		(and (find mode '(:part :bite)) (. this :bite (path x y (n2f x1) (n2f y1)) r) (setq done :t))
@@ -2135,18 +2133,18 @@
 		;what a board this shares with holds is theirs, it is not bitten, as
 		;it is not taken into a selection, "own only"
 		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept (not (eql (get :rub_mode this) :bite))
-				(. this :taken) (/ 0.25 (get :zoom this)) user)))
+						(. this :taken) (/ 0.25 (get :zoom this)) user)))
 			(bind '(made gone swaps) did)
 			;what is left of a thing picked up is held by who held it
 			(defq carried (list))
 			(. this :select (reduce (lambda (out id)
-					(cond
-						((defq swap (some (# (if (= (first %0) id) %0)) swaps))
-							(defq who (. this :holder id))
-							(each (# (push out (elem-get %0 +cwb_id)) (if who (push carried (list (elem-get %0 +cwb_id) who)))) (second swap)))
-						((find id gone))
-						(:t (push out id)))
-					out) (get :selected this) (list)))
+						(cond
+							((defq swap (some (# (if (= (first %0) id) %0)) swaps))
+								(defq who (. this :holder id))
+								(each (# (push out (elem-get %0 +cwb_id)) (if who (push carried (list (elem-get %0 +cwb_id) who)))) (second swap)))
+							((find id gone))
+							(:t (push out id)))
+						out) (get :selected this) (list)))
 			(each (lambda ((id who)) (. this :pick_up id who)) carried)
 			(. (get :things this) :swapped swaps)
 			(. this :changed made)
@@ -2158,7 +2156,7 @@
 		;take out what is selected, or of those ids, of what that user may
 		;rub out, as an eraser does, (board-may-rub?)
 		(when (nempty? (defq ids (map (# (elem-get %0 +cwb_id))
-				(filter (# (board-may-rub? user %0)) (. this :selected_items ids)))))
+						(filter (# (board-may-rub? user %0)) (. this :selected_items ids)))))
 			(. this :snapshot)
 			(. this :remove ids))
 		this)
@@ -2173,8 +2171,8 @@
 			((defq by (cwb-fit (get :doc this) pad))
 				(bind '(dx dy) by)
 				(each (lambda (actor)
-					(when (defq origin (def? :origin actor))
-						(def actor :origin (list (+ (first origin) dx) (+ (second origin) dy)))))
+						(when (defq origin (def? :origin actor))
+							(def actor :origin (list (+ (first origin) dx) (+ (second origin) dy)))))
 					(. (get :stage this) :get_actors))
 				(. this :changed :all)
 				(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
@@ -2190,11 +2188,11 @@
 		(defq doc (get :doc this) gone (list)
 			paper (list 0.0 0.0 (n2f (. doc :find :width)) (n2f (. doc :find :height))))
 		(each (lambda ((name flags items))
-			(unless (bits? flags 2)
-				(each (lambda (item)
-					(unless (and (defq box (cwb-bounds (list item))) (vector-collide-boxes-2d paper box))
-						(push gone (elem-get item +cwb_id))))
-					items)))
+				(unless (bits? flags 2)
+					(each (lambda (item)
+							(unless (and (defq box (cwb-bounds (list item))) (vector-collide-boxes-2d paper box))
+								(push gone (elem-get item +cwb_id))))
+						items)))
 			(cwb-layers doc))
 		(when (nempty? gone)
 			(. this :snapshot)
@@ -2283,17 +2281,17 @@
 		;what each was. Words have only a fill, their colour. See
 		;(ptr-part)
 		(defq items (if (eql ids :t) (. this :selected_items)
-			(filter (# (find (elem-get %0 +cwb_id) ids)) (. this :selected_items))))
+				(filter (# (find (elem-get %0 +cwb_id) ids)) (. this :selected_items))))
 		(when (nempty? items)
 			(. this :snapshot)
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
 			(cwb-walk items +mat3x2_unity (lambda (shape m)
-				(defq part (cond
-					((eql (elem-get shape +cwb_kind) :text) :fill)
-					((eql key :ink) (if (and (= (ifn (cwb-get shape :stroke) 0) 0) (/= (ifn (cwb-get shape :fill) 0) 0)) :fill :stroke))
-					(key)))
-				(if (find part '(:fill :both)) (cwb-set shape :fill (if with (with (ifn (cwb-get shape :fill) 0)) color)))
-				(if (find part '(:stroke :both)) (cwb-set shape :stroke (if with (with (ifn (cwb-get shape :stroke) 0)) color)))))
+					(defq part (cond
+							((eql (elem-get shape +cwb_kind) :text) :fill)
+							((eql key :ink) (if (and (= (ifn (cwb-get shape :stroke) 0) 0) (/= (ifn (cwb-get shape :fill) 0) 0)) :fill :stroke))
+							(key)))
+					(if (find part '(:fill :both)) (cwb-set shape :fill (if with (with (ifn (cwb-get shape :fill) 0)) color)))
+					(if (find part '(:stroke :both)) (cwb-set shape :stroke (if with (with (ifn (cwb-get shape :stroke) 0)) color)))))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
@@ -2330,26 +2328,26 @@
 			(. this :changed :all)
 			(defq doc (get :doc this) ids (list) carried (list))
 			(each (lambda (group)
-				(defq id (elem-get group +cwb_id) who (. this :holder id) holder (third (cwb-find doc id))
-					kept (reduce (lambda (out item)
-						(if (= (elem-get item +cwb_id) id)
-							;each where the group put it, never slanted,
-							;(cwb-unslant)
-							(each (lambda (kid)
-								(each (lambda (piece)
-										(cwb-adopt doc piece)
-										(push ids (elem-get piece +cwb_id))
-										(if who (push carried (list (elem-get piece +cwb_id) who)))
-										(push out piece))
-									(cwb-unslant kid (mat3x2-mul (elem-get group +cwb_m) (elem-get kid +cwb_m)))))
-								(elem-get group +cwb_items))
-							(push out item))
-						out) holder (list)))
-				(clear holder)
-				(each (# (push holder %0)) kept))
+					(defq id (elem-get group +cwb_id) who (. this :holder id) holder (third (cwb-find doc id))
+						kept (reduce (lambda (out item)
+								(if (= (elem-get item +cwb_id) id)
+									;each where the group put it, never slanted,
+									;(cwb-unslant)
+									(each (lambda (kid)
+											(each (lambda (piece)
+													(cwb-adopt doc piece)
+													(push ids (elem-get piece +cwb_id))
+													(if who (push carried (list (elem-get piece +cwb_id) who)))
+													(push out piece))
+												(cwb-unslant kid (mat3x2-mul (elem-get group +cwb_m) (elem-get kid +cwb_m)))))
+										(elem-get group +cwb_items))
+									(push out item))
+								out) holder (list)))
+					(clear holder)
+					(each (# (push holder %0)) kept))
 				groups)
 			(. this :select (cat ids (filter (# (not (find %0 (map (# (elem-get %0 +cwb_id)) groups))))
-				(get :selected this))))
+						(get :selected this))))
 			;the items of a group are held by who held it
 			(each (lambda ((id who)) (. this :pick_up id who)) carried)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
@@ -2362,11 +2360,11 @@
 		(when (nempty? (defq ids (map (# (elem-get %0 +cwb_id)) (. this :selected_items of))))
 			(. this :snapshot)
 			(each (lambda (layer)
-				(defq items (third layer)
-					these (filter (# (find (elem-get %0 +cwb_id) ids)) items)
-					rest_of (filter (# (not (find (elem-get %0 +cwb_id) ids))) items))
-				(if (nempty? these)
-					(elem-set layer 2 (if front (cat rest_of these) (cat these rest_of)))))
+					(defq items (third layer)
+						these (filter (# (find (elem-get %0 +cwb_id) ids)) items)
+						rest_of (filter (# (not (find (elem-get %0 +cwb_id) ids))) items))
+					(if (nempty? these)
+						(elem-set layer 2 (if front (cat rest_of these) (cat these rest_of)))))
 				(cwb-layers (get :doc this)))
 			(. this :touch +board_dirty_doc))
 		this)
@@ -2382,13 +2380,13 @@
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
 			(bind '(ax ay ax1 ay1) all)
 			(each (lambda (item)
-				(when (defq box (cwb-bounds (list item)))
-					(bind '(x y x1 y1) box)
-					(defq dx (case how (:left (- ax x)) (:right (- ax1 x1))
-							(:hcenter (- (* 0.5 (+ ax ax1)) (* 0.5 (+ x x1)))) (:t 0.0))
-						dy (case how (:top (- ay y)) (:bottom (- ay1 y1))
-							(:vcenter (- (* 0.5 (+ ay ay1)) (* 0.5 (+ y y1)))) (:t 0.0)))
-					(cwb-place! item (place-move (elem-get item +cwb_place) dx dy))))
+					(when (defq box (cwb-bounds (list item)))
+						(bind '(x y x1 y1) box)
+						(defq dx (case how (:left (- ax x)) (:right (- ax1 x1))
+								(:hcenter (- (* 0.5 (+ ax ax1)) (* 0.5 (+ x x1)))) (:t 0.0))
+							dy (case how (:top (- ay y)) (:bottom (- ay1 y1))
+								(:vcenter (- (* 0.5 (+ ay ay1)) (* 0.5 (+ y y1)))) (:t 0.0)))
+						(cwb-place! item (place-move (elem-get item +cwb_place) dx dy))))
 				items)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
@@ -2402,14 +2400,14 @@
 			(defq doc (get :doc this) dx (ifn dx 16) dy (ifn dy 16) ids (list)
 				whos (map (# (. this :holder (elem-get %0 +cwb_id))) items))
 			(each (lambda (copy)
-				;a copy and all in it has ids of its own
-				(defq todo (list copy))
-				(while (defq next (pop todo))
-					(elem-set next +cwb_id 0)
-					(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items))))
-				(cwb-place! copy (place-move (elem-get copy +cwb_place) dx dy))
-				(cwb-add doc copy (. this :layer_index))
-				(push ids (elem-get copy +cwb_id)))
+					;a copy and all in it has ids of its own
+					(defq todo (list copy))
+					(while (defq next (pop todo))
+						(elem-set next +cwb_id 0)
+						(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items))))
+					(cwb-place! copy (place-move (elem-get copy +cwb_place) dx dy))
+					(cwb-add doc copy (. this :layer_index))
+					(push ids (elem-get copy +cwb_id)))
 				(board-copy-items items))
 			;the copies are held by who held each, in their place
 			(defq originals (map (# (elem-get %0 +cwb_id)) items))
@@ -2432,15 +2430,15 @@
 			(defq doc (get :doc this) user (ifn user +board_teacher) ids (list)
 				dx (n2i (- x (* 0.5 (+ bx bx1)))) dy (n2i (- y (* 0.5 (+ by by1)))))
 			(each (lambda (copy)
-				;a copy and all in it has ids of its own, and is the user's
-				(defq todo (list copy))
-				(while (defq next (pop todo))
-					(elem-set next +cwb_id 0)
-					(elem-set next +cwb_user user)
-					(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items))))
-				(cwb-place! copy (place-move (elem-get copy +cwb_place) dx dy))
-				(cwb-add doc copy (. this :layer_index))
-				(push ids (elem-get copy +cwb_id)))
+					;a copy and all in it has ids of its own, and is the user's
+					(defq todo (list copy))
+					(while (defq next (pop todo))
+						(elem-set next +cwb_id 0)
+						(elem-set next +cwb_user user)
+						(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items))))
+					(cwb-place! copy (place-move (elem-get copy +cwb_place) dx dy))
+					(cwb-add doc copy (. this :layer_index))
+					(push ids (elem-get copy +cwb_id)))
 				(board-copy-items items))
 			(defq mine (. this :selected_by user))
 			(. this :select (cat (filter (# (not (find %0 mine))) (get :selected this)) ids))
@@ -2500,21 +2498,21 @@
 		(defq contacts (get :contacts this) seen :nil devices (get :seen this)
 			at (get :pointer_at this) now (pii-time))
 		(each (lambda (event)
-			(bind '(id kind buttons &ignore) event)
-			;where it is, down or near: a finger that lifts is gone, it is
-			;not near as a pen or a mouse is
-			(if (and (eql kind :touch) (not (ptr-down? event)))
-				(. at :erase id)
-				(. at :insert id (list (elem-get event +pev_x) (elem-get event +pev_y) kind (ptr-down? event) now)))
-			;a device as it presses, its main button or its second
-			(when (and (/= buttons 0) (/= (logand buttons (logior +pev_left +pev_right)) 0))
-				(defq press (list kind (ptr-device id) (if (/= (logand buttons +pev_right) 0) +pev_right +pev_left)))
-				(unless (. devices :find (str press)) (. devices :insert (str press) press)))
-			(when (eql (elem-get event +pev_kind) :touch)
-				(setq seen :t)
-				(if (ptr-down? event)
-					(. contacts :insert (elem-get event +pev_id) (list (elem-get event +pev_x) (elem-get event +pev_y)))
-					(. contacts :erase (elem-get event +pev_id)))))
+				(bind '(id kind buttons &ignore) event)
+				;where it is, down or near: a finger that lifts is gone, it is
+				;not near as a pen or a mouse is
+				(if (and (eql kind :touch) (not (ptr-down? event)))
+					(. at :erase id)
+					(. at :insert id (list (elem-get event +pev_x) (elem-get event +pev_y) kind (ptr-down? event) now)))
+				;a device as it presses, its main button or its second
+				(when (and (/= buttons 0) (/= (logand buttons (logior +pev_left +pev_right)) 0))
+					(defq press (list kind (ptr-device id) (if (/= (logand buttons +pev_right) 0) +pev_right +pev_left)))
+					(unless (. devices :find (str press)) (. devices :insert (str press) press)))
+				(when (eql (elem-get event +pev_kind) :touch)
+					(setq seen :t)
+					(if (ptr-down? event)
+						(. contacts :insert (elem-get event +pev_id) (list (elem-get event +pev_x) (elem-get event +pev_y)))
+						(. contacts :erase (elem-get event +pev_id)))))
 			events)
 		(and seen (get :show_contacts this) (. this :touch +board_dirty_overlay))
 		;what each pointer that goes down is bound to snap and keep, kept
@@ -2540,22 +2538,22 @@
 		(defq hovers (get :hovers this) was (get :hover_shown this) now (list)
 			stage (get :stage this) bindings (get :bindings this))
 		(each (lambda (event)
-			(unless (eql (elem-get event +pev_kind) :touch)
-				(if (ptr-down? event)
-					(. hovers :erase (elem-get event +pev_id))
-					(. hovers :insert (elem-get event +pev_id)
-						(list (elem-get event +pev_kind) (elem-get event +pev_x) (elem-get event +pev_y))))))
+				(unless (eql (elem-get event +pev_kind) :touch)
+					(if (ptr-down? event)
+						(. hovers :erase (elem-get event +pev_id))
+						(. hovers :insert (elem-get event +pev_id)
+							(list (elem-get event +pev_kind) (elem-get event +pev_x) (elem-get event +pev_y))))))
 			events)
 		(when (get :hover_edges this)
 			(. hovers :each (lambda (id (kind x y))
-				;the one it would go down on, the one in front there: what
-				;goes down by an edge follows it, to draw or to rub out
-				(when (and (defq actor (. stage :hit x y)) (def? :edges actor))
-					(bind '(lx ly) (. actor :to_own x y))
-					(when (defq near (. actor :edge_near lx ly))
-						(defq edge (first near))
-						(unless (some (lambda ((a e)) (and (eql a actor) (eql e edge))) (partition now 2))
-							(push now actor edge)))))))
+					;the one it would go down on, the one in front there: what
+					;goes down by an edge follows it, to draw or to rub out
+					(when (and (defq actor (. stage :hit x y)) (def? :edges actor))
+						(bind '(lx ly) (. actor :to_own x y))
+						(when (defq near (. actor :edge_near lx ly))
+							(defq edge (first near))
+							(unless (some (lambda ((a e)) (and (eql a actor) (eql e edge))) (partition now 2))
+								(push now actor edge)))))))
 		(unless (and (= (length now) (length was)) (every (const eql) now was))
 			(def this :hover_shown now)
 			(. this :touch +board_dirty_overlay))
@@ -2590,8 +2588,8 @@
 		(each (# (if (or (not pick) (pick %0)) (. %0 :draw canvas m))) (. (get :stage this) :get_actors))
 		;the catch of an edge that would have a pen that is near, if it went down
 		(each (lambda ((actor edge))
-			(and (find actor (. (get :stage this) :get_actors)) (defq shape (. actor :catch_shape edge))
-				(cwb-draw-items canvas (list shape) (mat3x2-mul m (. actor :matrix)))))
+				(and (find actor (. (get :stage this) :get_actors)) (defq shape (. actor :catch_shape edge))
+					(cwb-draw-items canvas (list shape) (mat3x2-mul m (. actor :matrix)))))
 			(partition (get :hover_shown this) 2))
 		;and over them all, a ring where each finger is on the board,
 		;:show_contacts. A finger hides what is under it on a screen, and
@@ -2600,8 +2598,8 @@
 		(when (get :show_contacts this)
 			(defq rings (list) r (/ 16.0 (get :zoom this)) thin (/ 2.0 (get :zoom this)))
 			(. (get :contacts this) :each (lambda (id (x y))
-				(push rings (cwb-shape (cwb-d-ellipse x y r) :stroke 0xc0ff4000 :width thin :fill 0x30ff4000)
-					(cwb-shape (cwb-d-ellipse x y (* r 0.15)) :fill 0xc0ff4000 :stroke 0))))
+					(push rings (cwb-shape (cwb-d-ellipse x y r) :stroke 0xc0ff4000 :width thin :fill 0x30ff4000)
+						(cwb-shape (cwb-d-ellipse x y (* r 0.15)) :fill 0xc0ff4000 :stroke 0))))
 			(if (nempty? rings) (cwb-draw-items canvas rings m)))
 		;and the pointers of the boards this is shared with, so what someone
 		;does and points at is seen, each board in a color of its own: a
@@ -2609,14 +2607,14 @@
 		;near, a finger a ring as these are
 		(defq marks (list) s (/ 1.0 (get :zoom this)))
 		(. (get :remote_pointers this) :each (lambda (name (from x y kind down who))
-			(defq rgb (elem-get +board_guest_colors (% (ifn who 0) (length +board_guest_colors)))
-				col (+ rgb (if down 0xe0000000 0x90000000)))
-			(if (eql kind :touch)
-				(progn (push marks (cwb-shape (cwb-d-ellipse x y (* s 16.0)) :stroke 0 :fill (+ rgb 0x30000000)))
-					(each (# (push marks %0)) (board-ghost-line (list (path-gen-arc x y 0.0 +fp_2pi (* s 16.0) (path))) (get :zoom this) col)))
-				(push marks (cwb-shape (cwb-d-points (list x y x (+ y (* s 18.0)) (+ x (* s 5.0)) (+ y (* s 14.0))
-						(+ x (* s 12.0)) (+ y (* s 13.0))) :t)
-					:fill col :stroke 0xffffffff :width s :join :miter)))))
+				(defq rgb (elem-get +board_guest_colors (% (ifn who 0) (length +board_guest_colors)))
+					col (+ rgb (if down 0xe0000000 0x90000000)))
+				(if (eql kind :touch)
+					(progn (push marks (cwb-shape (cwb-d-ellipse x y (* s 16.0)) :stroke 0 :fill (+ rgb 0x30000000)))
+						(each (# (push marks %0)) (board-ghost-line (list (path-gen-arc x y 0.0 +fp_2pi (* s 16.0) (path))) (get :zoom this) col)))
+					(push marks (cwb-shape (cwb-d-points (list x y x (+ y (* s 18.0)) (+ x (* s 5.0)) (+ y (* s 14.0))
+									(+ x (* s 12.0)) (+ y (* s 13.0))) :t)
+							:fill col :stroke 0xffffffff :width s :join :miter)))))
 		(if (nempty? marks) (cwb-draw-items canvas marks m))
 		this)
 
@@ -2649,7 +2647,7 @@
 		(when (nempty? floating)
 			(setq floating (cwb-id-set floating))
 			(each (lambda ((name flags items))
-				(cwb-draw-items canvas (cwb-pick items floating) m))
+					(cwb-draw-items canvas (cwb-pick items floating) m))
 				(cwb-layers (get :doc this))))
 		(unless (eql side :back)
 			(. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m)))
@@ -2676,8 +2674,8 @@
 			(cwb-draw-items canvas (list (board-rub-look (list (path-gen-arc x y 0.0 +fp_2pi r (path))) zoom)) m))
 		;a box that is being dragged out, each pointer's own
 		(. (get :bands this) :each (lambda (id (x y x1 y1))
-			(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
-				:stroke 0xff0080ff :width thin :fill 0x200080ff :join :miter)) m)))
+				(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
+							:stroke 0xff0080ff :width thin :fill 0x200080ff :join :miter)) m)))
 		(unless no_selected (. this :draw_selected canvas m))
 		;what a board this shares with has hold of, a line round each in
 		;the color of the board that has it, as its pointer is, with
@@ -2689,7 +2687,7 @@
 							(when (defq corners (board-item-corners item))
 								(defq who (ifn (and whos (. whos :find (elem-get item +cwb_id))) 0))
 								(each (# (push marks %0)) (board-ghost-line (list (apply (const path) corners)) zoom
-									(+ 0xff000000 (elem-get +board_guest_colors (% who (length +board_guest_colors))))))))
+										(+ 0xff000000 (elem-get +board_guest_colors (% who (length +board_guest_colors))))))))
 						(cwb-pick items want)))
 				(cwb-layers (get :doc this)))
 			(if (nempty? marks) (cwb-draw-items canvas marks m)))
@@ -2719,24 +2717,24 @@
 						(not (or (. (get :things this) :holding) (/= (. handles :held) 0))))))
 			(if each_one
 				(cwb-draw-items canvas (map (# (cwb-shape (join %0 " ") :stroke 0xa00080ff :width thin :join :miter))
-					(partition (reduce (lambda (out item)
-						(if (defq corners (board-item-corners item))
-							(push out (cwb-d-points corners :t)))
-						out) items (list)) 32)) m))
+						(partition (reduce (lambda (out item)
+									(if (defq corners (board-item-corners item))
+										(push out (cwb-d-points corners :t)))
+									out) items (list)) 32)) m))
 			(cond
 				;a line has only its two ends
 				((. handles :ends))
 				;the frame the handles are on, which may be turned
 				((defq corners (. handles :corners))
 					(cwb-draw-items canvas (list (cwb-shape (cwb-d-points corners :t)
-						:stroke 0xff0080ff :width thin :join :miter)) m))
+								:stroke 0xff0080ff :width thin :join :miter)) m))
 				;while hands each hold things there are no handles. One thing
 				;has its own box, turned as it is turned:
 				;the box round that, square to the board, is a bigger and
 				;looser one that does not turn with it and looks wrong
 				((and (= (length items) 1) (defq corners (board-item-corners (first items))))
 					(cwb-draw-items canvas (list (cwb-shape (cwb-d-points corners :t)
-						:stroke 0xff0080ff :width thin :join :miter)) m))
+								:stroke 0xff0080ff :width thin :join :miter)) m))
 				;several things, each in its own hand: each has its own line
 				;round it, and that is all. A box round them all says they
 				;are one thing to take hold of, and they are not, each may
@@ -2745,12 +2743,11 @@
 				((and (not each_one) (defq box (cwb-bounds items)))
 					(bind '(x y x1 y1) box)
 					(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
-						:stroke 0xff0080ff :width thin :join :miter)) m)))
+								:stroke 0xff0080ff :width thin :join :miter)) m)))
 			(when (defq spots (. handles :spots))
 				(defq r (/ +board_handle zoom))
 				(cwb-draw-items canvas (map (lambda ((kind sx sy &ignore))
-					(cwb-shape (if (find kind '(:turn :end)) (cwb-d-ellipse sx sy r)
-							(cwb-d-rect (- sx r) (- sy r) (+ sx r) (+ sy r)))
-						:fill 0xffffffff :stroke 0xff0080ff :width thin :join :miter)) spots) m)))
-		this)
-	)
+							(cwb-shape (if (find kind '(:turn :end)) (cwb-d-ellipse sx sy r)
+									(cwb-d-rect (- sx r) (- sy r) (+ sx r) (+ sy r)))
+								:fill 0xffffffff :stroke 0xff0080ff :width thin :join :miter)) spots) m)))
+		this))

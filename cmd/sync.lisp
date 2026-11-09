@@ -54,7 +54,7 @@
 		(cond
 			(opt_x
 				(each (# (sync-tell (first %0) (defq mbox (mail-mbox)) +sync_type_quit "")
-					(sync-hear mbox 2000000)) here)
+						(sync-hear mbox 2000000)) here)
 				(print (if (empty? here) "This machine was not taking a sync." "This machine no longer takes a sync.")))
 			(opt_a
 				(cond
@@ -66,32 +66,32 @@
 						(print "This machine will take a sync, under " opt_r))))
 			(opt_t
 				(defq targets (if (eql opt_t "all") there
-					(filter (# (starts-with (to-upper opt_t) (second %0))) services)))
+						(filter (# (starts-with (to-upper opt_t) (second %0))) services)))
 				(if (empty? targets) (print "No machine that takes a sync is " opt_t))
 				(defq rules_text (sync-rules-text opt_r) kept (sync-kept opt_r))
 				(each (lambda ((svc id machine root))
-					;a host with no modes for its files is not sent them, or asked for them
-					(defq t0 (pii-time) result (sync-push svc opt_r rules_text opt_c opt_d kept
-						(sync-no-modes? machine)))
-					(cond
-						((not result) (print (slice id 0 8) " " machine " did not answer"))
-						((eql result :old) (print (slice id 0 8) " " machine
-							" has an older sync, it must be updated another way, and its sync started again"))
-						((eql result :refused) (print (slice id 0 8) " " machine
-							" refused it, it takes nothing from this machine, its sync_from"))
-						(:t (bind '(sent bytes removed failed send gone remoded) result)
-							(when (or opt_v opt_c)
-								(each (# (print "  " (if opt_c "differs " "sent ") %0)) send)
-								(each (# (print "  " (if opt_d (if opt_c "would remove " "removed ") "only there ") %0)) gone))
-							(print (slice id 0 8) " " machine " "
-								(if opt_c
-									(cat (str (length send)) " differ, " (str (length gone)) " only there"
-										(if (> remoded 0) (cat ", " (str remoded) " with another mode") ""))
-									(cat (str sent) " sent, " (str bytes) " bytes, " (str removed) " removed"
-										(if (> remoded 0) (cat ", " (str remoded) " given their mode") "")
-										(if (> failed 0) (cat ", " (str failed) " FAILED") "")
-										(if (and (not opt_d) (nempty? gone)) (cat ", " (str (length gone)) " only there") "")))
-								", " (str (/ (- (pii-time) t0) 1000)) "ms"))))
+						;a host with no modes for its files is not sent them, or asked for them
+						(defq t0 (pii-time) result (sync-push svc opt_r rules_text opt_c opt_d kept
+								(sync-no-modes? machine)))
+						(cond
+							((not result) (print (slice id 0 8) " " machine " did not answer"))
+							((eql result :old) (print (slice id 0 8) " " machine
+									" has an older sync, it must be updated another way, and its sync started again"))
+							((eql result :refused) (print (slice id 0 8) " " machine
+									" refused it, it takes nothing from this machine, its sync_from"))
+							(:t (bind '(sent bytes removed failed send gone remoded) result)
+								(when (or opt_v opt_c)
+									(each (# (print "  " (if opt_c "differs " "sent ") %0)) send)
+									(each (# (print "  " (if opt_d (if opt_c "would remove " "removed ") "only there ") %0)) gone))
+								(print (slice id 0 8) " " machine " "
+									(if opt_c
+										(cat (str (length send)) " differ, " (str (length gone)) " only there"
+											(if (> remoded 0) (cat ", " (str remoded) " with another mode") ""))
+										(cat (str sent) " sent, " (str bytes) " bytes, " (str removed) " removed"
+											(if (> remoded 0) (cat ", " (str remoded) " given their mode") "")
+											(if (> failed 0) (cat ", " (str failed) " FAILED") "")
+											(if (and (not opt_d) (nempty? gone)) (cat ", " (str (length gone)) " only there") "")))
+									", " (str (/ (- (pii-time) t0) 1000)) "ms"))))
 					targets))
 			(:t (if (empty? services) (print "No machine takes a sync. Run sync -a on one that will."))
 				;is each one's tree the same as this one's ? One number from
@@ -99,18 +99,18 @@
 				(defq rules_text (sync-rules-text opt_r) kept (sync-kept opt_r)
 					mine (if (nempty? there) (Fmap 3)))
 				(each (lambda ((svc id machine root))
-					(print (slice id 0 8) " " machine " " root
-						(cond
-							((eql id me) " (this machine)")
-							(:t (defq no_modes (sync-no-modes? machine)
-									theirs (sync-root svc rules_text no_modes 20000000))
-								;my own top, worked out the once, with modes or without
-								(unless (. mine :find no_modes)
-									(. mine :insert no_modes (hash-tree-root
-										(sync-tree opt_r (sync-rules rules_text) kept no_modes))))
-								(cond
-									((not theirs) ", no answer")
-									((eql theirs :old) ", an older sync")
-									((eql theirs (. mine :find no_modes)) ", the same as this one")
-									(:t ", differs from this one"))))))
+						(print (slice id 0 8) " " machine " " root
+							(cond
+								((eql id me) " (this machine)")
+								(:t (defq no_modes (sync-no-modes? machine)
+										theirs (sync-root svc rules_text no_modes 20000000))
+									;my own top, worked out the once, with modes or without
+									(unless (. mine :find no_modes)
+										(. mine :insert no_modes (hash-tree-root
+												(sync-tree opt_r (sync-rules rules_text) kept no_modes))))
+									(cond
+										((not theirs) ", no answer")
+										((eql theirs :old) ", an older sync")
+										((eql theirs (. mine :find no_modes)) ", the same as this one")
+										(:t ", differs from this one"))))))
 					services)))))

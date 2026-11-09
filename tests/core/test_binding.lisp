@@ -77,11 +77,11 @@
 
 ; --- Core Environment Utils ---
 ((lambda () (defq local_sym 555)
-	(export-symbols '(local_sym))))
+		(export-symbols '(local_sym))))
 (assert-eq "export-symbols" 555 (get 'local_sym))
 
 ((lambda () (defclass TestClassExtra () :nil (defmethod :test (this) 123))
-	(export-classes '(TestClassExtra))))
+		(export-classes '(TestClassExtra))))
 (assert-true "export-classes" (not (nil? (get 'TestClassExtra))))
 
 ; --- exec ---
