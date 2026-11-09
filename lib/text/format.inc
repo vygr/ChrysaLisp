@@ -106,7 +106,9 @@
 (rule "data" '(4) :fill)
 
 ;VP block forms. The lines after an :open form, up to its :close form, are
-;indented. A :mid form sits one back from the lines around it.
+;indented. A :mid form sits one back from the lines around it. A (switch) is
+;flat, its lines sit where it does, till a case: a case sits there too, and
+;the lines after it are indented
 (each (lambda ((tag ops)) (each (# (. +blocks :insert %0 tag)) (words ops)))
 	'((:open "def-method def-func vpif vpifnot loop-start loop-while switch")
 		(:open "loop-whilenot loop-flist loop-list-forward loop-list-backward") (:close
@@ -117,6 +119,9 @@
 ;forms that add no indent of their own, what is in them sits as if they
 ;were not there
 (defq +transparent `',(words "validatecase"))
+
+;the :mid forms that are the cases of a (switch)
+(defq +cases `',(words "vpcase vpcasenot default else elseif elseifnot"))
 
 ;forms that define a name, or that a source scanner looks for at the start
 ;of a line. The opening line of a definition, the operator and its heads, is
@@ -156,7 +161,7 @@
 
 ;an open form, as it sits on the stack
 (enums +f 0
-	(enum op col argc blocks here split rule))
+	(enum op col argc blocks here split rule kinds))
 
 (defun keep-word? (text pos)
 	; (keep-word? text pos) -> :t | :nil
@@ -359,11 +364,25 @@
 												(inc %0)
 												%0))
 										stack 0)) +tab_width) -1 0 :t
-							(and relay (elem-get tok 4)) (elem-get tok 3))))
+							(and relay (elem-get tok 4)) (elem-get tok 3) (list))))
 				(:rp
 					(when (nempty? stack)
 						(defq f (pop stack) op (elem-get f +f_op)
 							tag (and op (. +blocks :find op)))
+						;the blocks open, innermost last, (op cased)
+						(when tag
+							(defq kinds
+									(if (defq tgt (solid-frame))
+										(elem-get tgt +f_kinds)
+										top_kinds))
+							(case tag
+								(:open (push kinds (list op :nil)))
+								(:close (pop kinds))
+								(:mid
+									(and (find op +cases)
+										(nempty? kinds)
+										(eql (first (last kinds)) "switch")
+										(elem-set (last kinds) 1 :t)))))
 						(when (or (eql tag :open) (eql tag :close))
 							(defq step (if (eql tag :open) 1 -1) tgt (solid-frame))
 							(if tgt
@@ -382,7 +401,21 @@
 		ind (if f (+ (/ (elem-get f +f_col) +tab_width) 1 (elem-get f +f_blocks)
 				;a value on a line of its own sits in from its name
 				(if (pairs-value? (elem-get f +f_rule) (inc (elem-get f +f_argc))) 1 0))
-			top_blocks))
+			top_blocks)
+		;a tab less for each switch not yet at a case, but for the switch
+		;that this line is a case or the end of
+		kinds (if f (elem-get f +f_kinds) top_kinds)
+		flat
+			(reduce (# (if (and (eql (first %1) "switch") (not (second %1)))
+						(inc %0)
+						%0))
+				kinds 0))
+	(and (nempty? kinds)
+		(eql (first (defq k (last kinds))) "switch")
+		(not (second k))
+		(or (eql tag :close) (and (eql tag :mid) (find op +cases)))
+		(-- flat))
+	(setq ind (max 0 (- ind flat)))
 	(cond
 		((or (eql tag :mid) (eql tag :close)) (max 0 (dec ind)))
 		;a close bracket sits under the line its form opened on
@@ -737,8 +770,8 @@
 	(defq relay (> limit 0) lines (list) frozen (list))
 	(if relay (bind '(lines frozen) (unbreak data))
 		(lines! (# (push lines %0) (push frozen :nil) :nil) (string-stream data)))
-	(defq out (list) stack (list) top_blocks 0 instr :nil raw :nil note :nil
-		joinable :nil line_idx -1)
+	(defq out (list) stack (list) top_blocks 0 top_kinds (list) instr :nil
+		raw :nil note :nil joinable :nil line_idx -1)
 	(while (< (++ line_idx) (length lines))
 		;a file of thousands of lines is seconds of work on a small machine,
 		;and whatever else is on the node waits for all of it unless this
@@ -834,6 +867,42 @@
 	(while (and (nempty? out) (eql (last out) "")) (pop out))
 	(if (empty? out) "" (cat (join out "\n") "\n")))
 
+(defun format-vp-indent (data)
+	; (format-vp-indent data) -> str
+	;only the indent of the lines of VP function bodies, what a (def-method)
+	;or (def-func) opens and (def-func-end) closes, from their blocks. A line
+	;that carries a form on moves with the line the form opened on. No other
+	;white space is changed
+	(defq out (list) stack (list) top_blocks 0 top_kinds (list) instr :nil
+		relay :nil note :nil shift 0)
+	(lines! (lambda (line)
+			(task-slice)
+			(defq start_instr instr
+				body (if instr line (trim-start line +cls_space))
+				lead (slice line 0 (- (length line) (length body))) tabs (length lead))
+			(bind '(tokens instr) (scan-line body instr))
+			(cond
+				((or start_instr
+						(empty? tokens)
+						(nempty? (trim lead (const (char-class "\t")))))
+					;in a string, blank, or not indented by tabs alone, as it is
+					(push out line))
+				((nempty? stack)
+					;carries a form on
+					(push out (cat (pad "" (setq tabs (max 0 (+ tabs shift))) "\t") body)))
+				((> top_blocks 0)
+					(defq ind (line-indent tokens body lead))
+					(setq shift (- ind tabs) tabs ind)
+					(push out (cat (pad "" ind "\t") body)))
+				(:t
+					(setq shift 0)
+					(push out line)))
+			(apply-tokens tokens body tabs (length tokens))
+			(each (# (elem-set %0 +f_here :nil)) stack)
+			:nil)
+		(string-stream data))
+	(cat (join out "\n") (if (ends-with "\n" data) "\n" "")))
+
 ;module
-(export-symbols '(format-lisp))
+(export-symbols '(format-lisp format-vp-indent))
 (env-pop)

@@ -82,10 +82,37 @@
 	(fm-src "(def-func 'a)" "(loop-start)" "(switch)" "(vpcase '(:r0 = 0))"
 		"(break)" "(default)" "(vp-ret)" "(endswitch)"
 		"(loop-until '(:r0 = 0))" "(def-func-end)"))
+(fm-keep "a switch is flat till a case, and a case's lines are indented"
+	(fm-src "(def-func 'a)" "\t(switch 'out)"
+		"\t(breakif '(:r0 = 0) 'out)"
+		"\t(vpif '(:r1 = 0))" "\t\t(vp-ret)" "\t(endif)" "\t(default)" "\t\t(vp-cpy-rr :r0 :r1)" "\t(endswitch)"
+		"(def-func-end)") (fm-src "(def-func 'a)" "(switch 'out)" "\t\t(breakif '(:r0 = 0) 'out)" "(vpif '(:r1 = 0))"
+			"(vp-ret)" "(endif)" "(default)" "(vp-cpy-rr :r0 :r1)" "(endswitch)"
+			"(def-func-end)"))
 (fm-keep "in a function, a comment at the margin stays, as a banner does"
 	(fm-src "(def-func 'a)" "\t;note" ";;;;;;" "; b" ";;;;;;" "\t(vp-ret)"
 		"(def-func-end)") (fm-src "(def-func 'a)" "  ;note" ";;;;;;" "; b" "  ;;;;;;" "(vp-ret)"
 			"(def-func-end)"))
+
+; --- only the indent of VP function bodies, fmt -i ---
+(defun fm-indent (name want text)
+	;the text must indent to want, and want must then be left alone
+	(assert-eq name want (format-vp-indent text))
+	(assert-eq (cat name ", again") want (format-vp-indent want)))
+(fm-indent "a body is indented by its blocks, a line carried on moves with its form"
+	(fm-src "(def-method :a :b)" "\t(vp-rdef (x y)" "\t\t'(:r0 :r1))" "\t(loop-start)" "\t\t(gotoif '(:r0 = 0) 'error)"
+		"\t\t(call :a :c '(:r0)" "\t\t\t'(:r1))" "\t(loop-until '(:r0 = 0))" "\t(vp-ret)" "(vp-label 'error)"
+		"\t(jump :a :b)" "(def-func-end)")
+	(fm-src "(def-method :a :b)"
+		"\t(vp-rdef (x y)"
+		"\t\t'(:r0 :r1))"
+		"\t(loop-start)"
+		"\t(gotoif '(:r0 = 0) 'error)" "(call :a :c '(:r0)"
+		"\t'(:r1))" "\t(loop-until '(:r0 = 0))" "\t(vp-ret)" "(vp-label 'error)" "\t(jump :a :b)" "(def-func-end)"))
+(fm-indent "nothing else is touched, out of a body or in"
+	(fm-src "(defun f (a)" "      (print a)" "  )" "(def-func 'a)" "\t(vp-ret)   " "" "" "(def-func-end)" "" "")
+	(fm-src "(defun f (a)" "      (print a)" "  )" "(def-func 'a)" "(vp-ret)   " "" "" "(def-func-end)" "" ""))
+(assert-eq "fmt -i of no text is no text" "" (format-vp-indent ""))
 
 ; --- the layout is made from nothing but the code ---
 (fm-check "line breaks in a form are not kept, a short form is one line"

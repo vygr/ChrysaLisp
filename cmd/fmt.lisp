@@ -17,6 +17,11 @@
             break, default 80. VP assembler lines get half as
             much again. 0 keeps your line breaks, and only
             indents and tidies.
+        -i --indent: only the indent of the lines of VP function
+            bodies, from (def-method) or (def-func) to
+            (def-func-end), by their blocks. A line that carries a
+            form on moves with the line the form opened on, and
+            nothing else is changed.
 
     Formats ChrysaLisp source code. Only white space between
     tokens is ever changed, so what the reader sees, and so
@@ -30,7 +35,10 @@
     Where several forms open on the one line, each is a tab
     further in than the one around it, so the indent shows
     which form owns a line. VP block forms, (vpif)
-    (loop-start) and so on, indent the lines between them.
+    (loop-start) and so on, indent the lines between them. A
+    (switch) is flat, its lines sit where it does till a case,
+    (vpcase) (default) (else), which sits there too, and the
+    lines after a case are indented.
 
     A form is one line if it fits. A definition always has its
     body on lines of its own, as does a (cond) or (case) each
@@ -73,6 +81,7 @@
 (("-w" "--write") ,(opt-flag 'opt_w))
 (("-c" "--check") ,(opt-flag 'opt_c))
 (("-l" "--limit") ,(opt-num 'opt_l))
+(("-i" "--indent") ,(opt-flag 'opt_i))
 ))
 
 (defq +file_types ''(".lisp" ".inc" ".vp"))
@@ -103,7 +112,9 @@
 	(defq data :nil)
 	(with-read-lock file (setq data (load file)))
 	(when data
-		(defq formatted (format-lisp data opt_l (ends-with ".vp" file)))
+		(defq formatted
+				(if opt_i (format-vp-indent data)
+					(format-lisp data opt_l (ends-with ".vp" file))))
 		(when (nql data formatted)
 			(cond
 				((eql (defq before (catch (forms data) :t)) :t)
@@ -126,7 +137,8 @@
 
 (defun main ()
 	(when (and (defq stdio (create-stdio))
-			(defq opt_j 4 opt_w :nil opt_c :nil opt_l 80 args (options stdio usage)))
+			(defq opt_j 4 opt_w :nil opt_c :nil opt_l 80 opt_i :nil
+				args (options stdio usage)))
 		(defq files (rest args))
 		(if (empty? files) (lines! (# (push files %0) :nil) (io-stream 'stdin)))
 		(setq files
@@ -151,7 +163,8 @@
 									(push needs (slice %0 18 -1))
 									(print %0)))
 							(split result "\n")))
-					(pipe-farm (map (# (str (first args) " -c -j " opt_j " -l " opt_l " " (slice (str %0) 1 -2)))
+					(pipe-farm (map (# (str (first args) " -c -j " opt_j " -l " opt_l (if opt_i " -i " " ")
+									(slice (str %0) 1 -2)))
 							(partition files opt_j))))
 				(each (lambda (file)
 						(if opt_c (print "Needs formatting: " file)
@@ -160,5 +173,7 @@
 					(sort needs)))
 			(:t ;farm out the formatting, and print the results
 				(each (lambda ((job result)) (prin result))
-					(pipe-farm (map (# (str (first args) " -j " opt_j " -l " opt_l " " (slice (str %0) 1 -2)))
+					(pipe-farm (map (# (str (first args) " -j " opt_j
+									" -l " opt_l
+									(if opt_i " -i " " ") (slice (str %0) 1 -2)))
 							(partition files opt_j))))))))

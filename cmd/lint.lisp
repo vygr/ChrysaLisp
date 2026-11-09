@@ -25,6 +25,9 @@
     function reads a register after a call that is declared
     to trash it, which the trace does not look for.
 
+    Then 'fmt -i -c' of the VP source: a line of a function
+    body not indented as its blocks say.
+
     Prints what the lint and the builds have to say, which
     is nothing when all is well, then a line to say so.")
 (("-v" "--verbose") ,(opt-flag 'opt_v))
@@ -59,6 +62,9 @@
 		;and where a register is read after a call that is declared to
 		;trash it: what trace does not see, it is of what calls
 		(each (# (push said %0)) (run-step "relies -q"))
+		;and a function body indented as its blocks say
+		(each (lambda (dir) (each (# (push said %0)) (run-step (cat "files " dir " .vp | fmt -i -c -j 8"))))
+			'("apps/" "class/" "gui/" "lib/" "service/" "sys/" "tests/"))
 		(each (const print) said)
 		(print (if (empty? said) "lint: clean" "lint: see above")
 			", " (/ (- (pii-time) t0) 1000) "ms")))
