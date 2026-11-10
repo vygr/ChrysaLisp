@@ -5094,12 +5094,11 @@ runs of indices as the prefix and their ends, "r" (1 2 3 5) -> ("r1-r3" "r5")
 ### format-lisp
 
 ```code
-(format-lisp data [limit wide]) -> str
+(format-lisp data [limit]) -> str
 
-format the source text. limit is the line length to break at, default
-80, VP assembler lines get half as much again. wide if it is all VP.
-A limit of 0 keeps the line breaks of the source, and only indents and
-tidies.
+the source laid out afresh, in the house style, from its forms and its
+comments alone. limit is the line length that brings pressure to break,
+default 120
 ```
 
 ### found?
