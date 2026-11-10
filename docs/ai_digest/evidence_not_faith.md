@@ -102,15 +102,19 @@ As soon as all compilation jobs finish and each worker task exits:
 
 ## The Benchmarks: Multi-Platform Build Analysis
 
-The following benchmarks were last re-measured on 2026-10-06, from the TUI,
-on three machines, each with one node for each processor, `./run_tui.sh -n 0`.
+The following benchmarks were last re-measured on 2026-11-10, from the TUI,
+on three machines, each with one node for each processor, `./run_tui.sh -n 0`,
+three runs of each. Each machine had its standing member of the mesh up and
+idle beside the runs, and nothing else of ChrysaLisp.
 
-* An Apple MacBook Pro with an Apple M4 Max processor, 16 nodes. A second
-  session of 16 nodes, a GUI, was up and idle on it while these were taken.
+* An Apple MacBook Pro with an Apple M4 Max processor, 16 nodes.
 
 * An Apple MacBook Pro of 2018 with an Intel i9-8950HK processor, 12 nodes.
+  A second user was signed on to it.
 
 * A Raspberry Pi 4, 4 nodes.
+
+The figures of 2026-10-06, the time before, are kept under each.
 
 ### Test 1: Native Compilation & Distributed Lifecycle (The Baseline)
 
@@ -125,22 +129,35 @@ down all compiler environments.
 
 | Machine | Nodes | Mean | Best | Worst | On one node, mean |
 |---|---|---|---|---|---|
+| Apple M4 Max | 16 | 0.039 to 0.042 | 0.036 to 0.040 | 0.043 to 0.052 | 0.234 to 0.235 |
+| Intel i9-8950HK | 12 | 0.140 to 0.176 | 0.134 to 0.158 | 0.146 to 0.218 | 0.512 to 0.517 |
+| Raspberry Pi 4 | 4 | 0.96 to 1.08 | 0.91 to 0.93 | 1.02 to 1.41 | 2.42 to 2.58 |
+
+All times are seconds. On 19 nodes the M4 gave means of 0.0376 to 0.0379.
+The i9's first two runs were 0.175 and 0.176 and its third 0.140.
+
+* **Evidence:** On the M4 the best and worst cycle of a run are within 7 to
+  12 ms of each other, with no GC pause spikes, allocator fragmentation, or
+  JIT de-optimization penalties behind them. At ~40ms, the system can execute
+  this complete birth-to-death compilation cycle **25 times per second**. On
+  one node, one core, it does so 4 times a second. A Raspberry Pi 4 builds
+  the whole system from source once a second.
+
+On 2026-10-06 they were:
+
+| Machine | Nodes | Mean | Best | Worst | On one node, mean |
+|---|---|---|---|---|---|
 | Apple M4 Max | 16 | 0.052 to 0.055 | 0.048 | 0.057 to 0.073 | 0.340 |
 | Intel i9-8950HK | 12 | 0.170 to 0.190 | 0.158 | 0.178 to 0.222 | 0.757 |
 | Raspberry Pi 4 | 4 | 1.28 to 1.45 | 1.15 | 1.35 to 2.78 | 3.74 |
 
-All times are seconds. The M4 figures are five runs of the benchmark, the
-others three. On 20 nodes the M4 gave means of 0.052 and 0.056, so more nodes
-than processors no longer helps.
+Since then the M4 and the Pi are a quarter quicker and the i9 a tenth to a
+fifth, and on one node all three are a third quicker. How is below, a
+change at a time, each measured as it went in.
 
-* **Evidence:** On the M4 the best and worst cycle of a run are within 9 to
-  25 ms of each other, with no GC pause spikes, allocator fragmentation, or
-  JIT de-optimization penalties behind them. At ~53ms, the system can execute
-  this complete birth-to-death compilation cycle **19 times per second**. On
-  one node, one core, it does so 3 times a second.
-
-These are quicker than the 0.070 seconds, on 20 nodes, that this document gave
-until 2026-10-03. The difference is the work on the Lisp engine, see
+Those of 2026-10-06 were themselves quicker than the 0.070 seconds, on 20
+nodes, that this document gave until 2026-10-03. The difference was the work
+on the Lisp engine, see
 [`docs/ai_digest/till_the_pips_squeak.md`](till_the_pips_squeak.md).
 
 By 2026-10-22 the source had grown to 142 `.vp` files and the M4 mean on 16
@@ -407,24 +424,8 @@ translators. Since then a change to the source that is not yet known to
 be right is built in a clone of the tree, and only what comes out the
 same, or was read, is brought across.
 
-`make test` on 2026-11-10 on the three machines of the table above, each
-brought level with the M4 and rebuilt first, three runs each, the standing
-member of the mesh up and idle beside each:
-
-| Machine | Nodes | Mean | Best | Worst | On one node, mean |
-|---|---|---|---|---|---|
-| Apple M4 Max | 16 | 0.039 to 0.042 | 0.036 to 0.040 | 0.043 to 0.052 | 0.234 to 0.235 |
-| Intel i9-8950HK | 12 | 0.140 to 0.176 | 0.134 to 0.158 | 0.146 to 0.218 | 0.512 to 0.517 |
-| Raspberry Pi 4 | 4 | 0.96 to 1.08 | 0.91 to 0.93 | 1.02 to 1.41 | 2.42 to 2.58 |
-
-On 19 nodes the M4 gave means of 0.0376 to 0.0379. The i9's first two runs
-were 0.175 and 0.176 and its third 0.140, with a second user signed on to
-it. Against 2026-10-06 the M4 and the Pi are a quarter quicker and the i9
-a tenth to a fifth; on one node all three are a third quicker.
-
-At 40 ms the whole birth to death cycle of the first section runs 25
-times a second on the M4, and on one core 4 times. A Raspberry Pi 4
-builds the whole system from source once a second.
+The figures of that day, on three machines, are the table at the head of
+this test.
 
 `tests -a` that night, on each machine's own build: 187 modules and 8,255
 tests on each, none failed, in 286 seconds on the M4, 289 on the i9 and
@@ -444,25 +445,18 @@ different target architectures from scratch.
 
 | Machine | Nodes | Result |
 |---|---|---|
-| Apple M4 Max | 16 | 0.32 to 0.37 seconds, five runs |
-| Intel i9-8950HK | 12 | 1.18 to 1.22 seconds, three runs |
-| Raspberry Pi 4 | 4 | 7.6 and 9.0 seconds, two runs |
-
-On 2026-11-10, three runs each, a node for each processor:
-
-| Machine | Nodes | Result |
-|---|---|---|
 | Apple M4 Max | 16 | 0.17 to 0.21 seconds |
 | Intel i9-8950HK | 12 | 0.43 to 0.51 seconds |
 | Raspberry Pi 4 | 4 | 1.48 to 1.57 seconds |
 
-Since 2026-10-22 the source is compiled to VP once and translated six
-times, see above: the Pi builds the system for all six platforms in a
-second and a half, where it took eight.
+* **Evidence:** The entire operating system is built for six architectures
+  in a fifth of a second on the M4, and in a second and a half on a
+  Raspberry Pi 4.
 
-* **Evidence:** The entire operating system is compiled from source six times
-  over (once for each architecture) in about a third of a second on the M4,
-  demonstrating the massive throughput of the lightweight JIT assembler.
+On 2026-10-06 they were 0.32 to 0.37 seconds on the M4, five runs, 1.18 to
+1.22 on the i9, three runs, and 7.6 and 9.0 on the Pi, two runs. Then every
+platform compiled everything from source. Since 2026-10-22 the source is
+compiled to VP once and translated six times, see above.
 
 ### Test 3: The Bootstrap Install (The Portability Test)
 
@@ -477,35 +471,31 @@ while running entirely inside the portable C++ software emulator.
 
 | Machine | Nodes | Result |
 |---|---|---|
-| Apple M4 Max | 16 | 1.13 to 1.19 seconds, four runs |
-| Intel i9-8950HK | 12 | 3.42 to 3.51 seconds, three runs |
-| Raspberry Pi 4 | 4 | 23.8 and 24.0 seconds, two runs |
-
-On the Pi 4 the same install on one emulated node took 74 seconds, and on two
-40 seconds, so it is the four nodes that bring it to 24.
-
-On 2026-11-10, three runs each, an emulated node for each processor,
-each run from a copy of the tree with only the host program and the
-unpacked `snapshot.zip` under `obj/`:
-
-| Machine | Nodes | Result |
-|---|---|---|
 | Apple M4 Max | 16 | 1.32 to 1.34 seconds |
 | Intel i9-8950HK | 12 | 3.04 to 3.45 seconds |
 | Raspberry Pi 4 | 4 | 15.2 to 15.9 seconds |
 
-The VP64 image now carries the translators of every platform and the
-install makes the VP and then translates it. The native image each
-install built was the size of its tree's own every time, 71,444 bytes on
-the M4 and the Pi, 68,588 on the i9.
+Each run was from a copy of the tree with only the host program and the
+unpacked `snapshot.zip` under `obj/`. The native image each install built
+was the size of its tree's own every time, 71,444 bytes on the M4 and the
+Pi, 68,588 on the i9.
 
 * **Evidence:** Even when executing inside a portable C++ software emulator,
   ChrysaLisp can compile and link its entire native environment in a little
-  over a second on an M4 laptop, and in 24 seconds on a low-power Raspberry
-  Pi 4.
+  over a second on an M4 laptop, and in under 16 seconds on a low-power
+  Raspberry Pi 4.
 
-The 10 seconds this document used to give for the Pi 4 was from an earlier and
-smaller system, and had not been measured again till now.
+On 2026-10-06 they were 1.13 to 1.19 seconds on the M4, four runs, 3.42 to
+3.51 on the i9, three runs, and 23.8 and 24.0 on the Pi, two runs. On the
+Pi the same install on one emulated node then took 74 seconds, and on two
+40 seconds, so it was the four nodes that brought it to 24. Since then the
+VP64 image carries the translators of every platform, and the install
+makes the VP once and translates it: the Pi is a third quicker, the i9 a
+little, and the M4, which had the least to gain, is 0.15 to 0.2 seconds
+slower.
+
+The 10 seconds this document gave for the Pi 4 before 2026-10-06 was from
+an earlier and smaller system.
 
 ## Compact Boot Images: L1 Cache Residence
 
