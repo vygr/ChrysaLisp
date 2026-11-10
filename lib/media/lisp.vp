@@ -2080,8 +2080,7 @@
 	(loop-until `(,out = ,end))
 
 	;the new head
-	(assign '((:rsp 80)) '(:r0))
-	(call :num :create '(:r0) '(:r1))
+	(call :num :create '((:rsp 80)) '(:r1))
 	(vp-free (* 13 +ptr_size))
 	(vp-pop :r0)
 	(exit `(:r0 :r1))

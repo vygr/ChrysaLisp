@@ -164,8 +164,7 @@
 								(assign '(+char_dot) `(,c))
 							(endif)
 							(vp-sub-cr 33 c)
-							(assign `((,this +vdu_textures)) '(:r0))
-							(call :list :get_elem `(:r0 ,c) '(_ :r0))
+							(call :list :get_elem `((,this +vdu_textures) ,c) '(_ :r0))
 							(call :texture :get_metrics '(:r0) '(:r0 :r1 :r2 :r3))
 							(vpif '(:r1 /= 0))
 								;blit the char texture, in the middle of its cell

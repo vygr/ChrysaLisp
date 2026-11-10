@@ -36,8 +36,7 @@
 	(save-fields :rsp '(slot_op slot_a slot_b slot_c slot_d slot_e slot_f slot_g) '(:r0 :r3 :r4 :r5 :r6 :r7 :r8 :r9))
 	;each arg, a num as it is, a str as where its bytes are
 	(each (lambda (slot)
-			(assign `((:rsp ,slot)) '(:r0))
-			(call :obj :inst_of `(:r0 (@ ,(f-path :num :vtable))) '(_ :r1))
+			(call :obj :inst_of `((:rsp ,slot) (@ ,(f-path :num :vtable))) '(_ :r1))
 			(vpif '(:r1 /= 0))
 				(assign '((:r0 +num_value)) '(:r0))
 			(else)

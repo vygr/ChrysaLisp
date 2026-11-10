@@ -95,8 +95,7 @@
 			;discard old value, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref `(,value))
-			(assign '((:rsp slot_args)) '(:r0))
-			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
+			(call :list :collect `((:rsp slot_args) ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			;if what was called kept the args, it is the value of (list),
 			;they are its now and the next time round has a list of its
@@ -236,8 +235,7 @@
 			;discard old value, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref `(,value))
-			(assign '((:rsp slot_args)) '(:r0))
-			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
+			(call :list :collect `((:rsp slot_args) ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			;if what was called kept the args, it is the value of (list),
 			;they are its now and the next time round has a list of its
@@ -394,8 +392,7 @@
 		(loop-start)
 			;get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
-			(assign '((:rsp slot_args)) '(:r0))
-			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
+			(call :list :collect `((:rsp slot_args) ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			;if what was called kept the args, it is the value of (list),
 			;they are its now and the next time round has a list of its
@@ -427,8 +424,7 @@
 			(gotoif `(,vt1 = ,vt2) 'error3)
 
 			;collect value of function call
-			(assign '((:rsp slot_out)) '(:r0))
-			(call :list :push_back `(:r0 ,value))
+			(call :list :push_back `((:rsp slot_out) ,value))
 
 			(load-fields :rsp '(slot_dir slot_end slot_func slot_seqs) `(,dir ,end ,func ,seqs))
 			(assign `((,this +lisp_seq_idx)) `(,idx))

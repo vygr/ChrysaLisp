@@ -699,8 +699,7 @@
 	;The hash of the list is the sum of the hashes of its entries, so the
 	;order they are held in does not matter, and 0 is kept for no services.
 	;The list is entry, line feed, entry, line feed...
-	(assign `((:rsp (+ slot_cat ,field))) '(:r0))
-	(call :list :get_both '(:r0) '(_ :r5 :r6))
+	(call :list :get_both `((:rsp (+ slot_cat ,field))) '(_ :r5 :r6))
 	(vp-xor-rr :r7 :r7)
 	(vpif '(:r5 /= :r6))
 		(loop-start)

@@ -21,8 +21,7 @@
 
 	(vp-push :r1 :r2 :r3)
 	(lisp-this :r0)
-	(assign '((:r0 +lisp_sym_stack_frame) (:r0 +lisp_environment)) '(:r1 :r0))
-	(call :hmap :search '(:r0 :r1) '(_ :r1 _))
+	(call :hmap :search '((:r0 +lisp_environment) (:r0 +lisp_sym_stack_frame)) '(_ :r1 _))
 	(vpif '(:r1 /= 0))
 		(assign `((:r1 ,+ptr_size)) '(:r6))
 		(class/obj/ref :r6 :r1)

@@ -41,8 +41,7 @@
 	(vpif '(:r3 /= 0))
 		(class/obj/ref :r3 :r2)
 	(endif)
-	(assign '((:rsp 0)) '(:r2))
-	(call :lstream :create '(:r0 :r1 :r2 :r3) '(:r1))
+	(call :lstream :create '(:r0 :r1 (:rsp 0) :r3) '(:r1))
 	(vp-pop :r0)
 
 	(exit :lstream :lisp_create '(:r0 :r1))

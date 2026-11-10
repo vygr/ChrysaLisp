@@ -375,8 +375,7 @@
 			,(+ lk_node_peer_system_id +node_id_node2))
 		`(,zero ,zero ,zero ,one ,zero ,zero ,zero ,zero))
 	(assign '((@ sys/statics/statics)) '(:r7))
-	(assign '((:r7 statics_sys_mail_links_array) (& :rsp slot_lk_node)) '(:r0 :r1))
-	(call :array :push_back '(:r0 :r1))
+	(call :array :push_back '((:r7 statics_sys_mail_links_array) (& :rsp slot_lk_node)))
 
 	;read params msg: the handle, whether it is sealed, and its two keys,
 	;the one the out link seals with and the one the in link opens with
@@ -460,16 +459,14 @@
 (vp-label 'conn_exit)
 	;remove link node from link array
 	(assign '((@ sys/statics/statics)) '(:r7))
-	(assign '((:r7 statics_sys_mail_links_array)) '(:r0))
-	(call :array :get_both '(:r0) `(,lst ,iter_begin ,iter_end))
+	(call :array :get_both '((:r7 statics_sys_mail_links_array)) `(,lst ,iter_begin ,iter_end))
 	(assign '((& :rsp slot_lk_node)) '(:r3))
 (vp-label 'find_link_loop)
 	(gotoif `(,iter_begin = ,iter_end) 'conn_done)
 	(assign `((,iter_begin 0)) '(:r4))
 	(vpif '(:r4 = :r3))
 		(assign '((@ sys/statics/statics)) '(:r7))
-		(assign '((:r7 statics_sys_mail_links_array)) '(:r0))
-		(call :array :erase `(:r0 ,iter_begin))
+		(call :array :erase `((:r7 statics_sys_mail_links_array) ,iter_begin))
 		(goto 'conn_done)
 	(endif)
 	(vp-add-cr +ptr_size iter_begin)

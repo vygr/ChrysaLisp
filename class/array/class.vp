@@ -466,8 +466,7 @@
 			(vp-shl-cr 3 :r2)
 			(vp-add-rr :r5 :r1)
 			(vp-add-rr :r5 :r2)
-			(load-fields :rsp '(slot_this slot_func slot_ctx) '(:r0 :r3 :r4))
-			(call :array :pivot '(:r0 :r1 :r2 :r3 :r4) '(_ :r1))
+			(call :array :pivot '((:rsp slot_this) :r1 :r2 (:rsp slot_func) (:rsp slot_ctx)) '(_ :r1))
 			;low to the pivot, then the pivot on to high: each interval
 			;made in a register, low then high, as it is in its slot
 			(load-fields :rsp '(slot_stack slot_iter_begin slot_low slot_high) '(:r0 :r5 :r4 :r6))

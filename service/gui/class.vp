@@ -311,8 +311,7 @@
 		(assign '(:r3) `((,root +view_dirty_region)))
 		(vp-cpy-rr root :r1)
 		(fn-bind 'sys/statics/statics :r0)
-		(assign '((:r0 statics_gui_draws)) '(:r0))
-		(call :array :push_back2 '(:r0 :r1 :r2))
+		(call :array :push_back2 '((:r0 statics_gui_draws) :r1 :r2))
 		(assign '((:rsp slot_ctx_next)) `(,root))
 	(loop-end)
 
