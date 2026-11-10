@@ -852,6 +852,8 @@
 
 	(vp-rdef (head ring type size old_head))
 
+	(entry `(,head ,ring ,type ,size))
+
 	;write size
 	(assign `(,size ,head) `((,head lk_buf_length) ,old_head))
 	;move on to next transfer, clear new status !
@@ -865,6 +867,8 @@
 	;allow read from :in
 	(vp-sync)
 	(assign `(,type) `((,old_head lk_buf_status)))
+
+	(exit `(,head))
 	(vp-ret)
 
 (def-func-end)

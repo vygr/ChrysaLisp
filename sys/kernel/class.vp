@@ -640,6 +640,8 @@
 		(save-net-id :r0 +msg_dest :r1 knode1 knode2)
 		(call :sys_mail :send '(:r0))
 	(loop-end)
+
+	(exit '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -732,6 +734,7 @@
 		(loop-end)
 	(loop-end)
 
+	(exit '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -838,6 +841,8 @@
 		;send to link task
 		(call :sys_mail :send '(:r3))
 	(endif)
+
+	(exit '())
 	(vp-ret)
 
 (vp-label 'opt_sid)
@@ -862,6 +867,8 @@
 	(fn-bind 'sys/statics/statics :r1)
 	(vp-add-cr statics_sys_task_kernel_system_id :r1)
 	(call :sys_mem :copy '(:r0 :r1 :r2))
+
+	(exit '())
 	(vp-ret)
 
 	(vp-align +ptr_size)

@@ -260,6 +260,8 @@
 	(call :str :create_from_buffer '("ChrysaLisp" 10) '(:r0))
 	(assign '((:rsp slot_this)) '(:r1))
 	(assign '(:r0) '((:r1 +lisp_stream_name)))
+
+	(exit '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -285,6 +287,8 @@
 	(env-func :lisp_quote +lisp_func_quote +lisp_sym_quote)
 	(env-func :lisp_qquote +lisp_func_qquote +lisp_sym_qquote)
 	(vp-pop :r0)
+
+	(exit '())
 	(vp-ret)
 
 (vp-label 'lookup_env_funcs)
@@ -307,6 +311,8 @@
 	(env-lookup +lisp_func_quote +lisp_sym_quote)
 	(env-lookup +lisp_func_qquote +lisp_sym_qquote)
 	(vp-pop :r0)
+
+	(exit '())
 	(vp-ret)
 
 ;;;;;;;;;;;

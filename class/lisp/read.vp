@@ -159,6 +159,8 @@
 	(goto 'funcexit1)
 
 (vp-label 'skip_not)
+	(entry '(:r0 :r1))
+
 	(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r3))
 	(loop-start)
 		(loop-while '(:r2 = :r3))
@@ -175,6 +177,7 @@
 	(loop-end)
 	(assign '(:r2) '((:r0 +stream_bufp)))
 (vp-label 'funcexit)
+	(exit '(:r0))
 	(vp-ret)
 
 (def-func-end)

@@ -132,6 +132,8 @@
 	(load-fields :rsp '(slot_iter slot_list) '(:r1 :r2))
 	(assign '((:r1 0) :r2) '(:r0 (:r1 0)))
 	(call :obj :deref '(:r0))
+
+	(exit '())
 	(vp-free slot_size)
 	(vp-ret)
 

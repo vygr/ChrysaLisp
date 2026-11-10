@@ -132,6 +132,9 @@
 	;trashes
 	;:r1-:r5
 	(vp-rdef (this obj flag iter_begin iter_end func))
+
+	(entry `(,this ,obj ,flag))
+
 	(vpif `(,flag /= 0))
 		(assign `((,obj +obj_vtable) (@ ,(f-path :list :vtable)))
 			`(,iter_begin ,iter_end))
@@ -152,6 +155,8 @@
 			(endif)
 		(endif)
 	(endif)
+
+	(exit `(,this ,obj))
 	(vp-ret)
 
 (def-func-end)
