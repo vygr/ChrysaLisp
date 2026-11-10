@@ -51,9 +51,8 @@
 	;trashes
 	;:r1-:r4, :d0-:d15
 
-	(entry :ctx :set_color '(:r0 :r1))
+	(entry :ctx :set_color '(:r0 :r4))
 
-	(vp-cpy-rr :r1 :r4)
 	(call :ctx :reserve '(:r0 2) '(:r0 :r1))
 	(vp-cpy-cr +ctx_op_color :r2)
 	(assign '(:r2 :r4) '((:r1 0) (:r1 +long_size)))

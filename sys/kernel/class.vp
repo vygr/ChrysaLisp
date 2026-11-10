@@ -698,8 +698,7 @@
 		(long offset))
 
 	(vp-alloc slot_size)
-	(entry '(:r0))
-	(assign '(:r0) '((:rsp slot_argv)))
+	(entry '((:rsp slot_argv)))
 
 	(loop-start)
 		(assign '((:rsp slot_argv)) '(:r0))
@@ -851,9 +850,8 @@
 	;the one the host has for the machine. Nodes given the same are a
 	;system of their own, tasks are not spread to them or from them
 
-	(entry '(:r0))
+	(entry '(:r4))
 
-	(vp-cpy-rr :r0 :r4)
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-add-cr statics_sys_task_kernel_system_id :r0)
 	(call :sys_mem :fill '(:r0 +node_id_size 0))
