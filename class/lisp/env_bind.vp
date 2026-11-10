@@ -255,8 +255,7 @@
 			(call :seq :ref_elem `(,vals ,index_vals) `(_ ,tmp))
 			(lisp-this this)
 			;the sym slot now holds the seq to destructure
-			(assign '((:rsp slot_sym)) `(,sym))
-			(assign `(,tmp) '((:rsp slot_sym)))
+			(assign `((:rsp slot_sym) ,tmp) `(,sym (:rsp slot_sym)))
 			(call :lisp :env_bind `(,this ,sym ,tmp) '(_ :r14))
 			(call :obj :deref '((:rsp slot_sym)))
 			(lisp-this this)

@@ -259,8 +259,7 @@
 	(vpif '(:r1 /= 0))
 		;we are GUI caperble
 		(fn-bind 'sys/statics/statics :r1)
-		(assign '((:r1 statics_gui_screen)) '(:r1))
-		(assign '(0 0 0 0) '(:r7 :r8 :r9 :r10))
+		(assign '((:r1 statics_gui_screen) 0 0 0 0) '(:r1 :r7 :r8 :r9 :r10))
 		(vpif '(:r1 /= 0))
 			;have screen
 			(fn-bind 'sys/statics/statics :r0)

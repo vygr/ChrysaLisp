@@ -232,8 +232,7 @@
 
 	(entry :mstream :ptoi `(,this ,bufp))
 
-	(assign `((,this +mstream_chunks)) `(,iter_begin))
-	(assign '(0 0) `(,total ,pos))
+	(assign `((,this +mstream_chunks) 0 0) `(,iter_begin ,total ,pos))
 	(class/array/get_both iter_begin iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
@@ -274,8 +273,7 @@
 
 	(entry :mstream :itop `(,this ,pos))
 
-	(assign `((,this +mstream_chunks)) `(,iter_begin))
-	(assign '(0 0 0 0 0) `(,bufp ,bufe ,chunk ,index ,total))
+	(assign `((,this +mstream_chunks) 0 0 0 0 0) `(,iter_begin ,bufp ,bufe ,chunk ,index ,total))
 	(class/array/get_both iter_begin iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end) 'exit)
 		(loop-start)

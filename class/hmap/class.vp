@@ -95,8 +95,7 @@
 	(entry :hmap :set_parent `(,this ,parent))
 
 	(vp-push this)
-	(assign `((,this +hmap_parent)) `(,old_parent))
-	(assign `(,parent) `((,this +hmap_parent)))
+	(assign `((,this +hmap_parent) ,parent) `(,old_parent (,this +hmap_parent)))
 	(call :hmap :deref_if `(,old_parent))
 	(vp-pop this)
 

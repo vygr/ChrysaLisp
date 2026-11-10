@@ -83,8 +83,7 @@
 
 		(assign '((:rsp slot_this)) `(,this))
 		(save-fields :rsp '(slot_dir slot_end slot_func slot_seqs) `(,dir ,end ,func ,seqs))
-		(assign `((,this +lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this +lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx) ,idx) `(,old_idx (,this +lisp_seq_idx)))
 		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 		;the one list of args for every time round, while nothing but this
@@ -225,8 +224,7 @@
 
 		(assign '((:rsp slot_this)) `(,this))
 		(save-fields :rsp '(slot_dir slot_end slot_mode slot_func slot_seqs) `(,dir ,end ,mode ,func ,seqs))
-		(assign `((,this +lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this +lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx) ,idx) `(,old_idx (,this +lisp_seq_idx)))
 		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 		;the one list of args for every time round, while nothing but this
@@ -377,8 +375,7 @@
 
 		(assign '((:rsp slot_this)) `(,this))
 		(save-fields :rsp '(slot_dir slot_end slot_func slot_seqs) `(,dir ,end ,func ,seqs))
-		(assign `((,this +lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this +lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx) ,idx) `(,old_idx (,this +lisp_seq_idx)))
 		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 		(assign '((:rsp slot_out)) '(:r0))
@@ -536,8 +533,7 @@
 
 		(assign '((:rsp slot_this)) `(,this))
 		(save-fields :rsp '(slot_dir slot_end slot_func slot_seqs) `(,dir ,end ,func ,seqs))
-		(assign `((,this +lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this +lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx) ,idx) `(,old_idx (,this +lisp_seq_idx)))
 		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 		;the one list of args for every time round, while nothing but this
@@ -679,8 +675,7 @@
 
 		(assign '((:rsp slot_this)) `(,this))
 		(save-fields :rsp '(slot_dir slot_end slot_func slot_seq) `(,dir ,end ,func ,seq))
-		(assign `((,this +lisp_seq_idx)) `(,old_idx))
-		(assign `(,idx) `((,this +lisp_seq_idx)))
+		(assign `((,this +lisp_seq_idx) ,idx) `(,old_idx (,this +lisp_seq_idx)))
 		(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 		(assign '((:rsp slot_out)) '(:r0))

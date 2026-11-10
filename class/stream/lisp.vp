@@ -350,8 +350,7 @@
 	(vp-add-rr :r0 :r2)
 	(assign '(:r2) '((:rsp slot_chars_end)))
 	(loop-start)
-		(assign '(:r0) '((:rsp slot_chars)))
-		(assign '((:rsp slot_iter_begin)) '(:r0))
+		(assign '(:r0 (:rsp slot_iter_begin)) '((:rsp slot_chars) :r0))
 		(call :stream :read_char '((:r0 0)) '(_ :r1))
 		(vpif '(:r1 = -1))
 			(call :obj :deref '((:rsp slot_value)))
@@ -417,8 +416,7 @@
 	;check of the arguments happened to leave where the error is told
 	(errorif-lisp-args-sig 'error2 :r1 2 3)
 
-	(assign `((,args +array_length)) `(,value))
-	(assign `((,args +array_begin)) `(,iter_begin))
+	(assign `((,args +array_length) (,args +array_begin)) `(,value ,iter_begin))
 	(assign `((,iter_begin 0)) `(,stream))
 
 	(vp-cpy-cr 1 width)
@@ -657,8 +655,7 @@
 	(assign '((:r3 +array_length)) '(:r4))
 	(gotoif '(:r4 < 2) 'error1)
 
-	(assign '(:r0) '((:rsp slot_stream)))
-	(assign '((:r3 +array_begin)) '(:r3))
+	(assign '(:r0 (:r3 +array_begin)) '((:rsp slot_stream) :r3))
 	(assign '(:r3) '((:rsp slot_iter_begin)))
 	(call :stream :read_bits '(:r0 :r1 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2 :r3))
 	(assign '((:rsp slot_iter_begin)) '(:r4))
@@ -705,8 +702,7 @@
 	(assign '((:r3 +array_length)) '(:r4))
 	(gotoif '(:r4 < 2) 'error1)
 
-	(assign '(:r0) '((:rsp slot_stream)))
-	(assign '((:r3 +array_begin)) '(:r3))
+	(assign '(:r0 (:r3 +array_begin)) '((:rsp slot_stream) :r3))
 	(assign '(:r3) '((:rsp slot_iter_begin)))
 	(call :stream :write_bits '(:r0 :r1 :r2 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2))
 	(assign '((:rsp slot_iter_begin)) '(:r3))
@@ -891,8 +887,7 @@
 
 	(errorif-lisp-args-sig 'error1 :r1 2 4)
 
-	(assign `((,args +array_length)) `(,old_idx))
-	(assign '(0 +max_long) `(,start ,end))
+	(assign `((,args +array_length) 0 +max_long) `(,old_idx ,start ,end))
 	(vpif `(,old_idx = 2))
 		(list-bind-args args `(,func ,stream) '(:obj :stream))
 	(elseif `(,old_idx = 3))
@@ -905,8 +900,7 @@
 	(gotoif `(,start < 0) 'error2)
 	(gotoif `(,end < ,start) 'error2)
 
-	(assign '(0) `(,idx))
-	(assign `((,this +lisp_seq_idx)) `(,old_idx))
+	(assign `(0 (,this +lisp_seq_idx)) `(,idx ,old_idx))
 	(assign `(,old_idx) '((:rsp slot_old_idx)))
 
 	(loop-start)

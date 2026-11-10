@@ -20,8 +20,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 2 3)
 
-	(assign `((,args +array_length)) `(,argc))
-	(assign `((,args +array_begin)) `(,iter_begin))
+	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
 	(array-get-args iter_begin `(,reals1 ,tol))
 	(assign `((,reals1 +array_length)) `(,len1))
 	(gotoif `(,len1 = 0) 'error)

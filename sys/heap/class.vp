@@ -106,13 +106,11 @@
 		(vp-ret)
 	(endif)
 	(vp-push blocksize cellsize block blockend cnt this)
-	(assign `((,this +hp_heap_cellsize)) `(,cellsize))
-	(assign `((,this +hp_heap_blocksize)) `(,blocksize))
+	(assign `((,this +hp_heap_cellsize) (,this +hp_heap_blocksize)) `(,cellsize ,blocksize))
 	(call :host_os :pii_mmap `(,blocksize -1 +mmap_data) `(,block))
 	(assert `(,block /= 0))
 	(fn-bind 'sys/statics/statics statics)
-	(assign `((:rsp 0)) `(,this))
-	(assign `((,statics statics_sys_mem_total)) `(,cnt))
+	(assign `((:rsp 0) (,statics statics_sys_mem_total)) `(,this ,cnt))
 	(vp-add-rr blocksize cnt)
 	(assign `(,cnt) `((,statics statics_sys_mem_total)))
 	(lh-add-at-head this block next)
@@ -124,12 +122,10 @@
 (validatecase
 	(vp-sub-cr +hp_cell_guard_size blockend))
 	(vp-add-cr (+ +hp_cell_next +hp_cell_guard_size) cellsize)
-	(assign `(,next) `((,block +hp_block_free_flist)))
-	(assign `(,next) `((,block +hp_block_free_flist_tail)))
-	(assign `(,cnt) `((,block +hp_block_freecnt)))
+	(assign `(,next ,next ,cnt)
+		`((,block +hp_block_free_flist) (,block +hp_block_free_flist_tail) (,block +hp_block_freecnt)))
 	(loop-start)
-		(assign `(,block) `((,cell ,(- +hp_cell_block +hp_cell_next))))
-		(assign `(,next) `((,cell +ln_fnode_next)))
+		(assign `(,block ,next) `((,cell ,(- +hp_cell_block +hp_cell_next)) (,cell +ln_fnode_next)))
 		(vp-lea-rrr cell cellsize next)
 		(vp-add-cr 1 cnt)
 		(breakif `(,next > ,blockend))
@@ -194,8 +190,7 @@
 		(endif)
 
 		;do we have a free block ?
-		(assign `((,blk +hp_block_freecnt)) '(:r1))
-		(assign `((,blk +hp_block_cellcnt)) '(:r0))
+		(assign `((,blk +hp_block_freecnt) (,blk +hp_block_cellcnt)) '(:r1 :r0))
 		(vp-add-cr 1 :r1)
 		(assign '(:r1) `((,blk +hp_block_freecnt)))
 		(continueif '(:r0 /= :r1))
@@ -217,9 +212,8 @@
 		(assign `((,blk +hp_block_free_flist_tail) (,this +hp_heap_free_flist)) '(:r1 :r2))
 		(assign '(:r0 :r2) `((,this +hp_heap_free_flist) (:r1 +ln_fnode_next)))
 		;reset free count and free list
-		(assign `(,cel) `((,blk +hp_block_free_flist)))
-		(assign `(,cel) `((,blk +hp_block_free_flist_tail)))
-		(assign `(,cel) `((,blk +hp_block_freecnt)))
+		(assign `(,cel ,cel ,cel)
+			`((,blk +hp_block_free_flist) (,blk +hp_block_free_flist_tail) (,blk +hp_block_freecnt)))
 	(loop-end)
 
 	;current total

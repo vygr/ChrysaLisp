@@ -124,8 +124,7 @@
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))
 	(list-bind-args :r1 `(,view ,rect) '(:view & :num))
-	(assign `(,view) '((:rsp slot_view)))
-	(assign `((& ,view ,rect)) `(,rect))
+	(assign `(,view (& ,view ,rect)) `((:rsp slot_view) ,rect))
 	(loop-flist rect 0 rect rect)
 		(assign `(,rect) '((:rsp slot_rect)))
 		(load-fields rect

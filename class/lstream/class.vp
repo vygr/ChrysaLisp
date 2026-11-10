@@ -283,8 +283,7 @@
 
 	;a str with something in it is more, an empty one or :nil the end, and
 	;anything else is the end of a fault, kept for (stream-fault) to give
-	(assign '((:rsp slot_this) -1) `(,this ,res))
-	(assign `((,value +obj_vtable) (@ ,(f-path :str :vtable))) '(:r3 :r4))
+	(assign `((:rsp slot_this) -1 (,value +obj_vtable) (@ ,(f-path :str :vtable))) `(,this ,res :r3 :r4))
 	(vpif '(:r3 = :r4))
 		(assign `((,value +str_length)) '(:r3))
 		(vpif '(:r3 /= 0))

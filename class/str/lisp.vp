@@ -20,8 +20,7 @@
 
 	(errorif-lisp-args-sig 'error1 :r1 1 3)
 
-	(assign `((,args +array_length)) `(,len))
-	(assign `((,args +array_begin) 1) `(,iter_begin ,width))
+	(assign `((,args +array_length) (,args +array_begin) 1) `(,len ,iter_begin ,width))
 	(vp-xor-rr index index)
 	(vp-load-rcr iter_begin 0 value)
 	(vpif `(,len > 1))
@@ -688,8 +687,7 @@
 	(errorif-lisp-args-sig 'error :r1 1 2)
 
 	(vp-alloc slot_size)
-	(assign `(,this) '((:rsp slot_this)))
-	(assign `((,args +array_length)) `(,len))
+	(assign `(,this (,args +array_length)) `((:rsp slot_this) ,len))
 	(vpif `(,len = 1) 'exit)
 		(list-bind-args args `(,string) '(:obj))
 		(call :str :split `(,string ,(ascii-code " ")) `(_ ,args))
@@ -938,8 +936,7 @@
 		(call :str :create_from_buffer `(0 ,len) `(,args))
 		;the length again: the create is declared to trash where it was,
 		;though as it is written it leaves it
-		(assign `((,src +str_length)) `(,len))
-		(assign `((& ,src +str_data) (& ,args +str_data)) `(,src_data ,dst_data))
+		(assign `((,src +str_length) (& ,src +str_data) (& ,args +str_data)) `(,len ,src_data ,dst_data))
 		(vp-lea-rrr dst_data len dst_end)
 		(loop-start)
 			(vp-load-rcr-ub src_data 0 ch)
@@ -986,8 +983,7 @@
 		(call :str :create_from_buffer `(0 ,len) `(,args))
 		;the length again: the create is declared to trash where it was,
 		;though as it is written it leaves it
-		(assign `((,src +str_length)) `(,len))
-		(assign `((& ,src +str_data) (& ,args +str_data)) `(,src_data ,dst_data))
+		(assign `((,src +str_length) (& ,src +str_data) (& ,args +str_data)) `(,len ,src_data ,dst_data))
 		(vp-lea-rrr dst_data len dst_end)
 		(loop-start)
 			(vp-load-rcr-ub src_data 0 ch)

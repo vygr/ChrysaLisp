@@ -85,8 +85,7 @@
 
 	;free any stream mail buffer
 	(vp-xor-rr zero zero)
-	(assign `((,this +stream_buffer)) `(,msg))
-	(assign `(,zero) `((,this +stream_buffer)))
+	(assign `((,this +stream_buffer) ,zero) `(,msg (,this +stream_buffer)))
 	(call :sys_mail :free `(,msg))
 
 	;free any allocated mailbox

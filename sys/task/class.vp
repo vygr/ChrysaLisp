@@ -542,8 +542,8 @@
 
 	(vp-xor-rr max_stack max_stack)
 	(fn-bind 'sys/statics/statics statics)
-	(assign `((,statics statics_sys_task_kernel_tcb)) `(,kernel_tcb))
-	(assign `((& ,statics statics_sys_task_suspend_list)) `(,tasks))
+	(assign `((,statics statics_sys_task_kernel_tcb) (& ,statics statics_sys_task_suspend_list))
+		`(,kernel_tcb ,tasks))
 	(assign `((& ,tasks ,(* (+ tk_num_task_lists 2) +lh_list_size))) `(,tasks_end))
 	(vp-cpy-cr tk_stack_canary canary)
 	(loop-start)

@@ -84,8 +84,7 @@
 	(vp-sub-rr :r2 :r1)
 	(assign '(:r0 :r1) '((:rsp slot_string) (:r0 +str_length)))
 	(call :str :create_from_buffer '(0 str_gap) '(:r0))
-	(assign '((:rsp slot_this)) '(:r1))
-	(assign '((& :r0 +str_data) (:r0 +str_length)) '(:r2 :r3))
+	(assign '((:rsp slot_this) (& :r0 +str_data) (:r0 +str_length)) '(:r1 :r2 :r3))
 	(vp-add-rr :r2 :r3)
 	(save-fields :r1 '(+stream_object +stream_bufp +stream_bufe) '(:r0 :r2 :r3))
 
@@ -132,8 +131,7 @@
 	(assign '(:r3) `((,new_str +str_length)))
 
 	;the new str in place of the old
-	(assign `((,this +stream_object)) '(:r0))
-	(assign `(,new_str) `((,this +stream_object)))
+	(assign `((,this +stream_object) ,new_str) `(:r0 (,this +stream_object)))
 	(call :str :deref '(:r0))
 
 	(exit :sstream :write_next `(,this))

@@ -190,8 +190,7 @@
 	(vpif '(:r11 < :r9) '(:r13 > :r8) '(:r12 < :r3) '(:r14 > :r2))
 		;setup active edge list, edge starts and coverage
 		(vp-xor-rr :r1 :r1)
-		(assign '(:r1) '((:rsp slot_tracker_list)))
-		(assign '((:r0 +canvas_edges_start)) '(:r1))
+		(assign '(:r1 (:r0 +canvas_edges_start)) '((:rsp slot_tracker_list) :r1))
 		(vpif '(:r1 = 0))
 			(assign '((:r0 +canvas_pixmap)) '(:r1))
 			(assign '((:r1 +pixmap_height)) '(:r0))

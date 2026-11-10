@@ -21,8 +21,7 @@
 	(call :sstream :create '(:r0) '(:r1))
 
 	;create lisp class
-	(assign '((:rsp 0)) '(:r0))
-	(assign '(:r1) '((:rsp 0)))
+	(assign '((:rsp 0) :r1) '(:r0 (:rsp 0)))
 	(call :lisp :create '(:r0 :r1 :r1 :r1) '(:r0))
 	(vp-pop :r1)
 	(vpif '(:r0 = 0))
@@ -41,8 +40,7 @@
 			(vp-push :r1)
 			(call :list :create :nil '(:r1))
 			;the args take the slot the main function had
-			(assign `((:rsp 0) (:rsp ,+ptr_size)) '(:r2 :r0))
-			(assign '(:r1) '((:rsp 0)))
+			(assign `((:rsp 0) (:rsp ,+ptr_size) :r1) '(:r2 :r0 (:rsp 0)))
 			(call :lisp :repl_apply '(:r0 :r1 :r2) '(_ :r1))
 			(vp-push :r1)
 			(assign `((:rsp ,(* 2 +ptr_size))) '(:r2))
