@@ -26,56 +26,47 @@
 	;trashes
 	;:r0-:r11, :r14, :d0-:d15
 
-	(structure slot 0
-		(ptr this name flat_set data)
-		(pptr iter_begin iter_end)
-		(uint pixels))
+	;all in registers the compare of names leaves, so no frame. The
+	;create of a font leaves none of them: the list of fonts is fetched
+	;again after it
+	(vp-rdef (name pixels iter iter_end data font flat_set) '(:r4 :r5 :r6 :r7 :r8 :r9 :r10))
 
-	(vp-alloc slot_size)
-	(entry :font :open '(:r0 :r1))
-	(save-fields :rsp '(slot_name slot_pixels) '(:r0 :r1))
+	(entry :font :open `(,name ,pixels))
 
 	(fn-bind 'sys/statics/statics :r1)
-	(assign '((:r1 statics_font_intern)) '(:r0))
-	(vpif '(:r0 = 0))
-		(call :list :create :nil '(:r0))
+	(assign '((:r1 statics_font_intern)) `(,flat_set))
+	(vpif `(,flat_set = 0))
+		(call :list :create :nil `(,flat_set))
 		(fn-bind 'sys/statics/statics :r1)
-		(assign '(:r0) '((:r1 statics_font_intern)))
+		(assign `(,flat_set) '((:r1 statics_font_intern)))
 	(endif)
-	(assign '(:r0) '((:rsp slot_flat_set)))
 
 	;intern font
-	(call :list :get_both '(:r0) '(_ :r1 :r2))
-	(vp-xor-rr :r0 :r0)
-	(assign '(:r0) '((:rsp slot_data)))
-	(vpif '(:r1 /= :r2))
+	(class/array/get_both flat_set iter iter_end)
+	(vp-xor-rr data data)
+	(vpif `(,iter /= ,iter_end))
 		(loop-start)
-			(save-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
-			(assign '((:r1 0)) '(:r1))
-			(assign '(:r1) '((:rsp slot_this)))
-			(assign '((:r1 +font_name) (:rsp slot_name)) '(:r0 :r1))
+			(assign `((,iter 0)) `(,font))
+			(assign `((,font +font_name)) '(:r0))
 			(vp-add-cr +str_data :r0)
-			(call :sys_str :compare '(:r0 :r1) '(:r0))
+			(call :sys_str :compare `(:r0 ,name) '(:r0))
 			(vpif '(:r0 = 0))
-				(load-fields :rsp '(slot_this slot_pixels) '(:r0 :r2))
-				(load-fields :r0 '(+font_data +font_pixels) '(:r1 :r3))
-				(assign '(:r1) '((:rsp slot_data)))
-				(gotoif '(:r3 = :r2) 'found)
+				(load-fields font '(+font_data +font_pixels) `(,data :r3))
+				(gotoif `(:r3 = ,pixels) 'found)
 			(endif)
-			(load-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
-			(vp-add-cr +ptr_size :r1)
-		(loop-until '(:r1 = :r2))
+			(vp-add-cr +ptr_size iter)
+		(loop-until `(,iter = ,iter_end))
 	(endif)
-	(call :font :create '((:rsp slot_name) (:rsp slot_data) (:rsp slot_pixels)) '(:r0))
-	(assign '(:r0) '((:rsp slot_this)))
-	(vpif '(:r0 /= 0))
-		(call :list :push_back '((:rsp slot_flat_set) :r0))
+	(call :font :create `(,name ,data ,pixels) `(,font))
+	(vpif `(,font /= 0))
+		(fn-bind 'sys/statics/statics :r0)
+		(assign '((:r0 statics_font_intern)) '(:r0))
+		(call :list :push_back `(:r0 ,font))
 	(vp-label 'found)
-		(call :font :ref '((:rsp slot_this)))
+		(class/obj/ref font :r1)
 	(endif)
 
-	(exit :font :open '((:rsp slot_this)))
-	(vp-free slot_size)
+	(exit :font :open `(,font))
 	(vp-ret)
 
 (def-func-end)
@@ -585,60 +576,67 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
+	;a symbol that has its texture, the usual case, has no frame: this
+	;and the symbol are in registers the find leaves. One that has not
+	;makes a frame for what the making of it, which keeps little, is
+	;called over, and its texture is in :r6, which the derefs leave
 	(structure slot 0
-		(ptr this sym txt sym_canvas paths info)
-		(uint w h)
-		(pptr iter bucket))
+		(ptr this sym sym_canvas paths info)
+		(pptr bucket))
 
-	(vp-alloc slot_size)
-	(entry :font :sym_texture '(:r0 :r1))
-	(save-fields :rsp '(slot_this slot_sym) '(:r0 :r1))
+	(vp-rdef (this sym) '(:r8 :r9))
+
+	(entry :font :sym_texture `(,this ,sym))
 
 	;look up string in sym map
-	(call :hmap :pfind '((:r0 +font_sym_map) :r1) '(_ :r1 :r2))
-	(save-fields :rsp '(slot_iter slot_bucket) '(:r1 :r2))
-	(vpif '(:r1 = 0))
-		;create sym canvas
-		(call :font :glyph_info '((:rsp slot_this) (:rsp slot_sym)) '(_ (:rsp slot_info)))
-		(call :font :glyph_paths '((:rsp slot_this) (:rsp slot_info)) '(_ (:rsp slot_paths) (:rsp slot_w) (:rsp slot_h)))
-		(call :canvas :create '((:rsp slot_w) (:rsp slot_h) 2) '(:r0))
-		(assign `(:r0 ,+argb_white 1) '((:rsp slot_sym_canvas) :r1 :r2))
-		(save-fields :r0 '(+canvas_color +canvas_flags) '(:r1 :r2))
-		(call :font :get_metrics '((:rsp slot_this)) '(_ :r2 _ _))
-		;by the non zero rule, as a TrueType outline is meant to be. Where
-		;two parts of a glyph overlap they are filled, they do not cut a
-		;hole, which is what lets a symbol be the outlines of its strokes
-		(vp-shl-cr (+ +fp_shift 1) :r2)
-		(call :canvas :fpoly `((:rsp slot_sym_canvas) 0 :r2 ,+winding_none_zero (:rsp slot_paths)))
+	(call :hmap :pfind `((,this +font_sym_map) ,sym) '(_ :r1 :r2))
+	(vpif '(:r1 /= 0))
+		(assign '((:r1 +ptr_size)) '(:r1))
+		(class/obj/ref :r1 :r2)
+		(exit :font :sym_texture `(,this :r1))
+		(vp-ret)
+	(endif)
 
-		;take texture from canvas
-		(call :canvas :swap `((:rsp slot_sym_canvas) ,+pixmap_mode_glyph))
-		(assign '((:rsp slot_sym_canvas)) '(:r0))
-		(assign '((:r0 +canvas_texture)) '(:r1))
-		(assign '(:r1) '((:rsp slot_txt)))
-		(vp-xor-rr :r1 :r1)
-		(assign '(:r1) '((:r0 +canvas_texture)))
+	;create sym canvas
+	(vp-alloc slot_size)
+	(save-fields :rsp '(slot_this slot_sym slot_bucket) `(,this ,sym :r2))
+	(call :font :glyph_info `(,this ,sym) '(:r0 :r1))
+	(assign '(:r1) '((:rsp slot_info)))
+	(call :font :glyph_paths '(:r0 :r1) '(_ :r1 :r2 :r3))
+	(assign '(:r1) '((:rsp slot_paths)))
+	(call :canvas :create '(:r2 :r3 2) '(:r0))
+	(assign `(:r0 ,+argb_white 1) '((:rsp slot_sym_canvas) :r1 :r2))
+	(save-fields :r0 '(+canvas_color +canvas_flags) '(:r1 :r2))
+	(call :font :get_metrics '((:rsp slot_this)) '(_ :r2 _ _))
+	;by the non zero rule, as a TrueType outline is meant to be. Where
+	;two parts of a glyph overlap they are filled, they do not cut a
+	;hole, which is what lets a symbol be the outlines of its strokes
+	(vp-shl-cr (+ +fp_shift 1) :r2)
+	(call :canvas :fpoly `((:rsp slot_sym_canvas) 0 :r2 ,+winding_none_zero (:rsp slot_paths)) '(:r0))
 
-		;free all the gubins
-		(call :canvas :deref '((:rsp slot_sym_canvas)))
-		(call :array :deref '((:rsp slot_info)))
-		(call :list :deref '((:rsp slot_paths)))
-		(assign '((:rsp slot_txt)) '(:r0))
-		(breakif '(:r0 = 0))
+	;take texture from canvas, the fill and the swap give the canvas back
+	(call :canvas :swap `(:r0 ,+pixmap_mode_glyph) '(:r0))
+	(assign '((:r0 +canvas_texture)) '(:r6))
+	(vp-xor-rr :r1 :r1)
+	(assign '(:r1) '((:r0 +canvas_texture)))
 
+	;free all the gubins
+	(call :canvas :deref '(:r0))
+	(call :array :deref '((:rsp slot_info)))
+	(call :list :deref '((:rsp slot_paths)))
+	(vpif '(:r6 /= 0))
 		;create new entry
-		(call :sym :ref '((:rsp slot_sym)))
-		(call :texture :ref '((:rsp slot_txt)))
-		(call :list :push_back2 '((:rsp slot_bucket) (:rsp slot_sym) (:rsp slot_txt)))
+		(load-fields :rsp '(slot_sym slot_bucket) '(:r1 :r0))
+		(class/obj/ref :r1 :r2)
+		(class/obj/ref :r6 :r2)
+		(call :list :push_back2 '(:r0 :r1 :r6))
 		(fn-bind 'sys/statics/statics :r0)
 		(assign '((:r0 statics_font_count)) '(:r1))
 		(vp-add-cr 1 :r1)
 		(assign '(:r1) '((:r0 statics_font_count)))
-	(else)
-		(call :obj :ref '((:r1 +ptr_size)) '((:rsp slot_txt)))
 	(endif)
 
-	(exit :font :sym_texture '((:rsp slot_this) (:rsp slot_txt)))
+	(exit :font :sym_texture '((:rsp slot_this) :r6))
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -653,18 +651,19 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
+	;a font that has its chars, the usual case, has no frame
 	(structure slot 0
 		(ptr this sym chars)
 		(uint code))
 
-	;save inputs
-	(vp-alloc slot_size)
-	(entry :font :ascii_textures '((:rsp slot_this)))
+	(entry :font :ascii_textures '(:r0))
 
 	;lazy create char textures
 	(assign '((:r0 +font_chars)) '(:r1))
 	(vpif '(:r1 = 0))
 		;note, don't write to member var yet in case flush gets called !
+		(vp-alloc slot_size)
+		(assign '(:r0) '((:rsp slot_this)))
 		(call :list :create :nil '(:r0))
 		(assign '(:r0) '((:rsp slot_chars)))
 		(call :list :set_cap `(:r0 ,(- 127 33)))
@@ -672,8 +671,9 @@
 		(assign '(33) '(:r0))
 		(assign '(:r0) '((:rsp slot_code)))
 		(loop-start)
-			(call :sym :intern_cstr '((& :rsp slot_code)) '((:rsp slot_sym)))
-			(call :font :sym_texture '((:rsp slot_this) (:rsp slot_sym)) '(_ :r1))
+			(call :sym :intern_cstr '((& :rsp slot_code)) '(:r1))
+			(assign '(:r1) '((:rsp slot_sym)))
+			(call :font :sym_texture '((:rsp slot_this) :r1) '(_ :r1))
 			(vpif '(:r1 /= 0))
 				(call :list :push_back '((:rsp slot_chars) :r1))
 			(endif)
@@ -687,16 +687,16 @@
 		(vpif '(:r2 /= 0))
 			;another thread got to it during a flush !
 			(call :list :deref '(:r1))
+			(assign '((:rsp slot_this)) '(:r0))
 		(else)
 			(assign '(:r1) '((:r0 +font_chars)))
 		(endif)
+		(vp-free slot_size)
+		(assign '((:r0 +font_chars)) '(:r1))
 	(endif)
-	(assign '((:rsp slot_this)) '(:r0))
-	(call :list :ref '((:r0 +font_chars)))
+	(class/obj/ref :r1 :r2)
 
-	(assign '((:rsp slot_this)) '(:r0))
-	(exit :font :ascii_textures '(:r0 (:r0 +font_chars)))
-	(vp-free slot_size)
+	(exit :font :ascii_textures '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)

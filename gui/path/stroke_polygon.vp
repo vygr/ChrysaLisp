@@ -13,38 +13,42 @@
 	;trashes
 	;:r1-:r13, :d0-:d15
 
+	;the frame is what the strokes of the joints, which keep little, are
+	;called over
 	(structure slot 0
-		(ptr this path1 path2)
+		(ptr this path1)
 		(plong iter_begin_polyline iter_end_polyline)
 		(int radius)
 		(byte join_style))
 
 	(vp-alloc slot_size)
-	(entry :path :stroke_polygon '((:rsp slot_this) (:rsp slot_radius) (:rsp slot_join_style)))
+	(entry :path :stroke_polygon '(:r0 :r1 :r2))
+	(save-fields :rsp '(slot_this slot_radius slot_join_style) '(:r0 :r1 :r2))
 
-	(call :path :filter_polygon `((:rsp slot_this) (:rsp slot_this) ,(<< 1 (- +fp_shift 1))))
-	(call :path :get_both '((:rsp slot_this)) '(_ (:rsp slot_iter_begin_polyline) (:rsp slot_iter_end_polyline)))
+	;the filter gives this back, to :r3 where the create leaves it
+	(call :path :filter_polygon `(:r0 :r0 ,(<< 1 (- +fp_shift 1))) '(:r3))
 	;the joints of the polygon one way round, the last point and the one
 	;before it as the two before the first
 	(call :path :create :nil '(:r0))
 	(assign '(:r0) '((:rsp slot_path1)))
-	(load-fields :rsp '(slot_iter_begin_polyline slot_iter_end_polyline slot_radius slot_join_style)
-		'(:r1 :r2 :r7 :r8))
+	(class/array/get_both :r3 :r1 :r2)
+	(save-fields :rsp '(slot_iter_begin_polyline slot_iter_end_polyline) '(:r1 :r2))
+	(load-fields :rsp '(slot_radius slot_join_style) '(:r7 :r8))
 	(load-fields :r2 (list (* (neg +long_size) 4) (* (neg +long_size) 3) (* (neg +long_size) 2) (neg +long_size))
 		'(:r3 :r4 :r5 :r6))
 	(call :path :stroke_joints '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
 
 	;and the other way round, the first two points as the two before the last
 	(call :path :create :nil '(:r0))
-	(assign '(:r0) '((:rsp slot_path2)))
 	(load-fields :rsp '(slot_iter_begin_polyline slot_iter_end_polyline slot_radius slot_join_style)
 		'(:r2 :r1 :r7 :r8))
 	(load-fields :r2 (list 0 +long_size (* +long_size 2) (* +long_size 3)) '(:r5 :r6 :r3 :r4))
 	(vp-sub-cr (* 2 +long_size) :r1)
 	(vp-sub-cr (* 2 +long_size) :r2)
-	(call :path :stroke_joints '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
+	(call :path :stroke_joints '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8) '(:r0))
 
-	(exit :path :stroke_polygon '((:rsp slot_this) (:rsp slot_path1) (:rsp slot_path2)))
+	;the second path is given back by its stroke
+	(exit :path :stroke_polygon '((:rsp slot_this) (:rsp slot_path1) :r0))
 	(vp-free slot_size)
 	(vp-ret)
 

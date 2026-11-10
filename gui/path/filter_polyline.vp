@@ -12,35 +12,34 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
+	;the frame is this, for the end: the rest is in registers, the source
+	;and the tolerance where the clear and the append leave them
 	(structure slot 0
-		(ptr this that)
-		(plong iter_begin iter_end iter_this)
-		(int eps)
-		(uint length))
+		(ptr this))
 
 	(vp-alloc slot_size)
-	(entry :path :filter_polyline '((:rsp slot_this) (:rsp slot_that) (:rsp slot_eps)))
+	(entry :path :filter_polyline '(:r0 :r4 :r5))
 
 	;room for all of the source, before any pointer is taken, and what
 	;is not filtered below, a point or none, is the source as it is
-	(vpif '(:r0 /= :r1))
-		(d-call :path :get_length '((:rsp slot_that)) '(_ (:rsp slot_length)))
-		(d-call :path :clear '((:rsp slot_this)))
-		(d-call :path :append '((:rsp slot_this) (:rsp slot_that) 0 (:rsp slot_length)))
+	(vpif '(:r0 /= :r4))
+		(assign '((:r4 +array_length)) '(:r3))
+		(d-call :path :clear '(:r0) '(:r0))
+		(d-call :path :append '(:r0 :r4 0 :r3) '(:r0))
 	(endif)
+	(assign '(:r0) '((:rsp slot_this)))
 
-	(call :path :get_both '((:rsp slot_that)) '(_ (:rsp slot_iter_begin) (:rsp slot_iter_end)))
-	(call :path :get_begin '((:rsp slot_this)) '(_ (:rsp slot_iter_this)))
-
-	(vec-set 0)
-	(vec-load 2 '((:rsp slot_iter_end) (:rsp slot_iter_begin)))
+	;the end and the begin of the source, as two on the stack of vectors
+	(class/array/get_both :r4 :r1 :r0)
+	(vec-set 2)
 	(vec-dup 2)
 	(vec-dif 2)
 	(vpif (list (first (vec-pop 1)) '> (* 2 +long_size)))
-		(vec-load 1 '((:rsp slot_eps)))
+		(vec-load 1 '(:r5))
 		(vec-fsquare 1)
-		(vec-load 1 '((:rsp slot_iter_this)))
+		(vec-load 1 '((:rsp slot_this)))
 		(bind '(e i x j) (vec-top 4))
+		(assign `((,j +array_begin)) `(,j))
 		(loop-start 'outer_loop)
 			(vpif `(,i /= ,j))
 				(vec-load-long 2 i)
@@ -55,12 +54,12 @@
 			(loop-until (list (first (vec-pop 1)) '>= x))
 			(vp-add-cr (* 2 +long_size) j)
 		(loop-end)
-		(vec-store 1 '((:rsp slot_iter_end)))
-		(load-fields :rsp '(slot_this slot_iter_end slot_iter_this) '(:r0 :r1 :r2))
-		(vp-sub-rr :r2 :r1)
-		(vp-shr-cr 3 :r1)
-		(vp-add-cr 2 :r1)
-		(call :path :set_length '(:r0 :r1))
+		(assign '((:rsp slot_this)) `(,e))
+		(assign `((,e +array_begin)) `(,i))
+		(vp-sub-rr i j)
+		(vp-shr-cr 3 j)
+		(vp-add-cr 2 j)
+		(call :path :set_length `(,e ,j))
 	(endif)
 
 	(exit :path :filter_polyline '((:rsp slot_this)))

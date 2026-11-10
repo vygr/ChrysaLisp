@@ -155,8 +155,11 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
+	;the frame is what the upload, which keeps nothing, is called over.
+	;The pixmap comes back from each call it is given to, and this, the
+	;old texture and the pixmap are in registers the derefs leave
 	(structure slot 0
-		(ptr this pixmap texture)
+		(ptr this)
 		(int flags))
 
 	(vp-alloc slot_size)
@@ -165,7 +168,6 @@
 
 	;a negative number is the other way, the texture back to the pixmap
 	(assign '((:r0 +canvas_pixmap)) '(:r2))
-	(assign '(:r2) '((:rsp slot_pixmap)))
 	(vpif '(:r1 < 0))
 		(call :canvas :read '(:r0))
 		;a canvas that has freed its pixmap has nothing new to show
@@ -173,42 +175,38 @@
 		(vp-and-cr +swap_flag_keep :r1)
 		(vpif '(:r1 = 0))
 			;must be in premul alpha format
-			(call :pixmap :as_premul '(:r2))
+			(call :pixmap :as_premul '(:r2) '(:r1))
 
 			;scale the pixmap if needed
-			(load-fields :rsp '(slot_this slot_pixmap) '(:r0 :r1))
+			(assign '((:rsp slot_this)) '(:r0))
 			(assign '((:r0 +canvas_scale)) '(:r2))
 			(vpif '(:r2 = 1))
-				(call :pixmap :ref '(:r1) '((:rsp slot_pixmap)))
+				(call :pixmap :ref '(:r1) '(:r0))
 			(else)
 				(load-fields :r1 '(+pixmap_width +pixmap_height) '(:r0 :r3))
 				(vp-div-rr-u :r2 :r0)
 				(vp-div-rr-u :r2 :r3)
 				(call :pixmap :create '(:r0 :r3 -32) '(:r0))
-				(assign '(:r0) '((:rsp slot_pixmap)))
 				(assign '((:rsp slot_this)) '(:r1))
-				(call :pixmap :resize '(:r0 (:r1 +canvas_pixmap)))
+				(call :pixmap :resize '(:r0 (:r1 +canvas_pixmap)) '(:r0))
 			(endif)
 
 			;upload then ref_if the texture
-			(load-fields :rsp '(slot_pixmap slot_flags) '(:r0 :r1))
+			(assign '((:rsp slot_flags)) '(:r1))
 			(vp-and-cr 0xff :r1)
-			(call :pixmap :upload '(:r0 :r1))
-			(load-fields :rsp '(slot_this slot_pixmap) '(:r1 :r0))
-			(assign '((:r1 +canvas_texture)) '(:r2))
-			(assign '(:r2) '((:rsp slot_texture)))
-			(call :texture :ref_if '((:r0 +pixmap_texture)) '(:r0))
-			(assign '((:rsp slot_this)) '(:r1))
-			(assign '(:r0) '((:r1 +canvas_texture)))
-			(call :texture :deref_if '((:rsp slot_texture)))
-			(call :pixmap :deref '((:rsp slot_pixmap)))
+			(call :pixmap :upload '(:r0 :r1) '(:r4))
+			(assign '((:rsp slot_this)) '(:r3))
+			(assign '((:r3 +canvas_texture)) '(:r2))
+			(call :texture :ref_if '((:r4 +pixmap_texture)) '(:r0))
+			(assign '(:r0) '((:r3 +canvas_texture)))
+			(call :texture :deref_if '(:r2))
+			(call :pixmap :deref '(:r4))
 
 			;the texture is now not one a shader can draw into
-			(assign '((:rsp slot_this)) '(:r0))
-			(assign '((:r0 +canvas_flags)) '(:r1))
+			(assign '((:r3 +canvas_flags)) '(:r1))
 			(vp-or-cr +canvas_flag_shader :r1)
 			(vp-xor-cr +canvas_flag_shader :r1)
-			(assign '(:r1) '((:r0 +canvas_flags)))
+			(assign '(:r1) '((:r3 +canvas_flags)))
 		(endif)
 
 		;free the pixmap if asked. One that is shared lives on in the

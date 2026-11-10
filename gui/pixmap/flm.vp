@@ -11,26 +11,31 @@
 	;:r0 = pixmap object (ptr)
 	;:r1 = 1 if the frame was whole, 0 if the stream ended first (uint)
 	;trashes
-	;:r1-:r8, :d0-:d15
+	;:r1-:r13, :d0-:d15
 	;info
 	;a frame of a film made from the frame before: runs, each a byte, of
 	;pixels to keep, 256 less the count, or of pixels to draw, the count
 	;and then the pixels, till every pixel of the pixmap is covered.
 	;lib/media/flm.inc has the packets of a film
 
+	;the stream stays in :r0, the reads of bits give it back and the pixel
+	;calls leave it. The place, the end, the count of a run and the pool
+	;of bits are in registers all of them leave. The frame is this, for
+	;the end, and what a pixel is, which each read and convert is given
 	(structure slot 0
-		(ptr this src)
-		(puint data data_end)
-		(long bit_pool)
-		(int len)
-		(uint bit_pool_size num_bits type ok))
+		(ptr this)
+		(uint num_bits type))
+
+	(vp-rdef (stream len) (method-input :stream :read_bits))
+	(vp-rdef (data data_end count pool pool_size) '(:r9 :r10 :r11 :r12 :r13))
+	(defq col len)
 
 	(vp-alloc slot_size)
-	(entry :pixmap :flm_delta '(:r0 :r1 :r2))
-	(save-fields :rsp '(slot_this slot_src slot_type) '(:r0 :r1 :r2))
+	(entry :pixmap :flm_delta '(:r0 :r8 :r2))
+	(save-fields :rsp '(slot_this slot_type) '(:r0 :r2))
 
 	;must be premul
-	(call :pixmap :as_premul '(:r0))
+	(call :pixmap :as_premul '(:r0) '(:r0))
 
 	;the bits of a pixel, 12 and 15 are read as 16
 	(assign '((:rsp slot_type)) '(:r1))
@@ -39,54 +44,47 @@
 	(elseif '(:r1 = 15))
 		(assign '(16) '(:r1))
 	(endif)
-	(assign '((:rsp slot_this)) '(:r0))
-	(load-fields :r0 '(+pixmap_data +pixmap_height +pixmap_stride) '(:r2 :r3 :r4))
+	(assign '(:r1) '((:rsp slot_num_bits)))
+	(load-fields :r0 '(+pixmap_data +pixmap_height +pixmap_stride) `(,data :r3 :r4))
 	(vp-mul-rr :r4 :r3)
-	(vp-add-rr :r2 :r3)
-	(vp-xor-rr :r0 :r0)
-	(save-fields :rsp '(slot_num_bits slot_ok slot_data slot_data_end slot_bit_pool slot_bit_pool_size)
-		'(:r1 :r0 :r2 :r3 :r0 :r0))
+	(vp-lea-rrr data :r3 data_end)
+	(vp-cpy-rr :r8 stream)
+	(vp-xor-rr pool pool)
+	(vp-xor-rr pool_size pool_size)
 
-	(vp-rdef (stream len bit_pool bit_pool_size col data data_end)
-		(method-input :stream :read_bits))
 	(loop-start)
 		;the next run, the frame is short if the stream ends first
-		(call :stream :read_bits '((:rsp slot_src) 8 (:rsp slot_bit_pool) (:rsp slot_bit_pool_size))
-			`(,stream ,len ,bit_pool ,bit_pool_size))
+		(call :stream :read_bits `(,stream 8 ,pool ,pool_size) `(,stream ,len ,pool ,pool_size))
 		(gotoif `(,len = -1) 'short)
-		(save-fields :rsp '(slot_bit_pool slot_bit_pool_size) `(,bit_pool ,bit_pool_size))
 
 		(vpif `(,len >= 128))
 			;pixels kept
-			(load-fields :rsp '(slot_data slot_data_end) `(,data ,data_end))
 			(vp-sub-cr 256 len)
 			(vp-shl-cr (log2 +int_size) len)
 			(vp-sub-rr len data)
 		(else)
 			;pixels drawn
+			(vp-cpy-rr len count)
 			(loop-start)
-				(assign `(,len) '((:rsp slot_len)))
-				(call :stream :read_bits '((:rsp slot_src) (:rsp slot_num_bits) (:rsp slot_bit_pool) (:rsp slot_bit_pool_size))
-					`(_ ,col ,bit_pool ,bit_pool_size))
-				(save-fields :rsp '(slot_bit_pool slot_bit_pool_size) `(,bit_pool ,bit_pool_size))
+				(call :stream :read_bits `(,stream (:rsp slot_num_bits) ,pool ,pool_size)
+					`(,stream ,col ,pool ,pool_size))
 				(gotoif `(,col = -1) 'short)
 				(call :pixmap :to_argb32 `(,col (:rsp slot_type)) `(,col))
 				(call :pixmap :to_premul `(,col) `(,col))
-				(load-fields :rsp '(slot_len slot_data slot_data_end) `(,len ,data ,data_end))
 				(gotoif `(,data >= ,data_end) 'short)
 				(vp-store-rrc-i col data 0)
-				(vp-sub-cr 1 len)
+				(vp-sub-cr 1 count)
 				(vp-add-cr +int_size data)
-				(assign `(,data) '((:rsp slot_data)))
-			(loop-until `(,len = 0))
+			(loop-until `(,count = 0))
 		(endif)
-		(assign `(,data) '((:rsp slot_data)))
 	(loop-until `(,data >= ,data_end))
-	(assign '(1) '(:r0))
-	(assign '(:r0) '((:rsp slot_ok)))
+
+	(exit :pixmap :flm_delta '((:rsp slot_this) 1))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'short)
-	(exit :pixmap :flm_delta '((:rsp slot_this) (:rsp slot_ok)))
+	(exit :pixmap :flm_delta '((:rsp slot_this) 0))
 	(vp-free slot_size)
 	(vp-ret)
 

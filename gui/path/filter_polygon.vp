@@ -12,20 +12,22 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
+	;the frame is what the filter of the line is called over, and this
+	;for the end: that filter gives it back
 	(structure slot 0
-		(ptr this that)
-		(pptr iter_begin iter_end)
-		(int eps))
+		(ptr this)
+		(long eps))
 
-	;the named locals are kept in registers where they can be
 	(vp-alloc slot_size)
-	(entry :path :filter_polygon '((:rsp slot_this) (:rsp slot_that) (:rsp slot_eps)))
+	(entry :path :filter_polygon '(:r0 :r1 :r2))
+	(assign '(:r2) '((:rsp slot_eps)))
 
-	(call :path :filter_polyline '((:rsp slot_this) (:rsp slot_that) (:rsp slot_eps)))
-	(call :path :get_both '((:rsp slot_this)) '(_ (:rsp slot_iter_begin) (:rsp slot_iter_end)))
+	(call :path :filter_polyline '(:r0 :r1 :r2) '(:r2))
+	(assign '(:r2) '((:rsp slot_this)))
 
-	(vec-set 0)
-	(vec-load 2 '((:rsp slot_iter_end) (:rsp slot_iter_begin)))
+	;the end and the begin, as two on the stack of vectors
+	(class/array/get_both :r2 :r1 :r0)
+	(vec-set 2)
 	(vec-dup 2)
 	(vec-dif 2)
 	(vpif (list (first (vec-pop 1)) '> (* 2 +long_size)))
