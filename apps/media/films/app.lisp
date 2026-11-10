@@ -246,14 +246,15 @@
 
 (defun film-next (any)
 	; (film-next any) -> :nil | :t
-	;the film after the one shown in its folder, or another of them at
-	;random, played from its start at the scale of this one. Those that
-	;will not play are passed over, :nil if none will
+	;the film after the one shown in its folder, round to the first after
+	;the last, or another of them at random, played from its start at the
+	;scale of this one. Those that will not play are passed over, :nil if
+	;none will, or there is no other
 	(defq films (films-beside *file*) at (find *file* films)
 		next (cond
 			(any (shuffle (filter (# (nql %0 *file*)) films)))
-			((and at (< (inc at) (length films))) (slice films (inc at) -1))
-			((list))))
+			(at (cat (slice films (inc at) -1) (slice films 0 at)))
+			(films)))
 	(some (lambda (file)
 			(setq *playing* :t)
 			(win-refresh file *scale* 0)
