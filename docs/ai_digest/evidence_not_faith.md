@@ -464,6 +464,12 @@ while running entirely inside the portable C++ software emulator.
 On the Pi 4 the same install on one emulated node took 74 seconds, and on two
 40 seconds, so it is the four nodes that bring it to 24.
 
+On 2026-11-10 the M4 gave 1.32 to 1.34 seconds, three runs on 16 emulated
+nodes, each from a tree with only the host program and the unpacked
+`snapshot.zip` under `obj/`. The VP64 image now carries the translators of
+every platform and the install makes the VP and then translates it; the
+native image it built was the 71,444 bytes of the tree's own each time.
+
 * **Evidence:** Even when executing inside a portable C++ software emulator,
   ChrysaLisp can compile and link its entire native environment in a little
   over a second on an M4 laptop, and in 24 seconds on a low-power Raspberry

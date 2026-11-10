@@ -2,6 +2,20 @@
 
 ChrysaLisp is a unique, 64-bit, MIMD operating system designed from the ground up for parallel and distributed computing. It's a complete, self-hosting environment featuring its own toolchain, a Virtual Processor (VP) for cross-platform portability, a responsive graphical user interface (GUI), a powerful command-line terminal with Unix-like pipes, an object-oriented assembler, extensive class libraries, a unique Lisp interpreter, a powerful programers editor, and vector font engine. Machines that run it find each other and join into one system, keep their files in step, and share a distributed object store. Its shader language draws the same picture on a GPU, or with none on every CPU of the network.
 
+## The Numbers
+
+Measured on an Apple M4 Max, with the system's own tools. How, and on what else, is in [`docs/ai_digest/evidence_not_faith.md`](docs/ai_digest/evidence_not_faith.md).
+
+* **40 ms**: the whole system rebuilt from source, all 1,074 functions of it, on 16 nodes. Every node makes its compiler from nothing and lets go of it after, each time. On one core, 0.23 seconds.
+
+* **0.2 seconds**: the system built for six platforms at once, x86_64 for Linux and Mac and for Windows, ARM64, RISC-V64, LoongArch64 and the VP64.
+
+* **1.3 seconds**: a full install. The portable emulator, booted from a 160 KB snapshot, builds the native system from source. Compiling the host program, the one piece of C++, is not in that time.
+
+* **70 KB**: a native boot image. The rest is bound from its files as it is asked for.
+
+* **8,255 tests**: what a change is run against.
+
 ![](./screen_shot_1.png)
 
 ![](./screen_shot_2.png)
@@ -216,9 +230,9 @@ Once inside the ChrysaLisp TUI (Terminal app), you can rebuild the system:
 
 * `make apps`: Builds only the apps, for all platforms.
 
-* `release`, `debug`, `validate`: the mode to build in, with any of the above, as `make it validate` or `make vp release`. With none, `it`, `apps` and `vp` build the VP64 in release and the rest in debug, and the others build this platform in debug.
+* `validate`: goes with any of the above, as `make it validate`, and all that is built is built in validate mode, with more checks as it runs. With none, all is built in the one normal mode.
 
-* `make test`: Runs internal timing tests for the make process.
+* `make test`: Rebuilds the whole system from source ten times over and gives the mean, the best and the worst time.
 
 You can combine options, for example: `make all platforms boot`.
 
