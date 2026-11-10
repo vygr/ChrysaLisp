@@ -111,7 +111,7 @@
 	;:r1-:r14, :d0-:d15
 
 	(structure slot 0
-		(ptr vars vals value sym)
+		(ptr vars vals sym)
 		(long index_vars index_vals len_vars len_vals state))
 
 	(enums +state 0
@@ -128,6 +128,8 @@
 (vp-label 'not_fresh)
 	;the general code. The lisp object is not in the frame, it stays in
 	;:r0 where it can, and is fetched again after a call that trashes it.
+	;The last value bound is in :r14: nothing between where it is bound
+	;and where it is dropped, or given back, trashes that
 	(vp-rdef (this vars state sym index_vars index_vals len tmp tmp2 optn rst ign mst blk))
 
 	(vp-alloc slot_size)
@@ -139,10 +141,10 @@
 	(gotoif `(,tmp = 0) 'error2)
 	(lisp-this this)
 
-	(assign `((,this +lisp_sym_nil)) `(,tmp))
-	(class/obj/ref tmp tmp2)
+	(assign `((,this +lisp_sym_nil)) '(:r14))
+	(class/obj/ref :r14 tmp2)
 	(vp-xor-rr tmp2 tmp2)
-	(save-fields :rsp '(slot_value slot_index_vars slot_index_vals slot_state) `(,tmp ,tmp2 ,tmp2 ,tmp2))
+	(save-fields :rsp '(slot_index_vars slot_index_vals slot_state) `(,tmp2 ,tmp2 ,tmp2))
 	(call :seq :get_length '((:rsp slot_vals)) `(_ ,tmp))
 	(assign '((:rsp slot_vars)) `(,vars))
 	(assign `((,vars +array_length)) `(,len))
@@ -190,8 +192,7 @@
 		(save-fields :rsp '(slot_index_vars slot_state slot_sym) `(,index_vars ,state ,sym))
 
 		;drop the last value bound, the environment has it, so in line
-		(assign '((:rsp slot_value)) `(,tmp))
-		(class/obj/deref-live tmp tmp2 'last_ref)
+		(class/obj/deref-live :r14 tmp2 'last_ref)
 	(vp-label 'derefed)
 
 		(vp-rdef (this vals state sym tmp index_vals len tmp2 tmp3))
@@ -240,7 +241,7 @@
 					(lisp-this this)
 				(endif)
 			(endswitch)
-			(assign `(,tmp) '((:rsp slot_value)))
+			(vp-cpy-rr tmp :r14)
 			(call :hmap :pinsert `((,this +lisp_environment) (:rsp slot_sym) ,tmp))
 			(lisp-this this)
 		(else)
@@ -256,12 +257,10 @@
 			;the sym slot now holds the seq to destructure
 			(assign '((:rsp slot_sym)) `(,sym))
 			(assign `(,tmp) '((:rsp slot_sym)))
-			(call :lisp :env_bind `(,this ,sym ,tmp) `(_ ,tmp))
-			(assign `(,tmp) '((:rsp slot_value)))
+			(call :lisp :env_bind `(,this ,sym ,tmp) '(_ :r14))
 			(call :obj :deref '((:rsp slot_sym)))
 			(lisp-this this)
-			(assign '((:rsp slot_value)) `(,tmp))
-			(assign `((,tmp +obj_vtable) (,this +lisp_error)) `(,tmp ,tmp2))
+			(assign `((:r14 +obj_vtable) (,this +lisp_error)) `(,tmp ,tmp2))
 			(gotoif `(,tmp = ,tmp2) 'funcexit)
 		(endif)
 	(loop-end)
@@ -270,14 +269,13 @@
 	(gotoif '(:r1 /= :r2) 'error4)
 
 (vp-label 'funcexit)
-	(assign '((:rsp slot_value)) '(:r1))
-	(exit :lisp :env_bind '(:r0 :r1))
+	(exit :lisp :env_bind '(:r0 :r14))
 	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'last_ref)
 	;the last ref of the last value, so a call, and all is trashed
-	(call :obj :deref '(:r7))
+	(call :obj :deref '(:r14))
 	(lisp-this :r0)
 	(load-fields :rsp '(slot_sym slot_state) '(:r3 :r2))
 	(goto 'derefed)
@@ -291,7 +289,7 @@
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(bind (param ...) seq)" +error_msg_not_a_sequence))
 (vp-label 'error4)
-	(call :obj :deref '((:rsp slot_value)))
+	(call :obj :deref '(:r14))
 (vp-label 'error)
 	(call :list :create :nil '(:r0))
 	(load-fields :rsp '(slot_vars slot_vals) '(:r1 :r2))

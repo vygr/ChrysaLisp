@@ -86,8 +86,10 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
+	;an insert keeps nothing, so the frame: it gives the props back, and
+	;the place is read after it and is still there at the top
 	(structure slot 0
-		(ptr this args lst)
+		(ptr this args)
 		(pptr iter_begin iter_end))
 
 	(vp-rdef (this args vt1 vt2 iter iter_end))
@@ -102,12 +104,10 @@
 	(class/array/get_both args iter iter_end)
 	(array-get-args iter `(,lst))
 	(vp-add-cr +ptr_size iter)
-	(save-fields :rsp '(slot_lst slot_iter_begin slot_iter_end) `(,lst ,iter ,iter_end))
+	(save-fields :rsp '(slot_iter_begin slot_iter_end) `(,iter ,iter_end))
 	(assign `((@ ,(f-path :pset :vtable)) (,lst +obj_vtable)) `(,vt1 ,vt2))
 	(vpif `(,vt1 = ,vt2))
 		(loop-start)
-			(assign '((:rsp slot_iter_begin)) `(,iter))
-			(assign '((:rsp slot_lst)) `(,lst))
 			(assign `((,iter 0)) `(,key))
 			(call :pset :pinsert `(,lst ,key) `(,lst _))
 			(load-fields :rsp '(slot_iter_begin slot_iter_end) `(,iter ,iter_end))
@@ -115,17 +115,13 @@
 			(assign `(,iter) '((:rsp slot_iter_begin)))
 		(loop-until `(,iter = ,iter_end))
 	(else)
-		(assign '((:rsp slot_lst)) `(,lst))
 		(assign `((@ ,(f-path :pmap :vtable)) (,lst +obj_vtable)) `(,vt1 ,vt2))
 		(gotoif `(,vt1 /= ,vt2) 'error2)
-		(assign '((:rsp slot_args)) `(,args))
 		(assign `((,args +array_length)) `(,argc))
 		(gotoif `(,argc < 3) 'error1)
 		(vp-and-cr 1 argc)
 		(gotoif `(,argc = 0) 'error1)
 		(loop-start)
-			(assign '((:rsp slot_iter_begin)) `(,iter))
-			(assign '((:rsp slot_lst)) `(,lst))
 			(assign `((,iter 0) (,iter +ptr_size)) `(,key ,val))
 			(call :pmap :pinsert `(,lst ,key ,val) `(,lst _))
 			(load-fields :rsp '(slot_iter_begin slot_iter_end) `(,iter ,iter_end))
@@ -133,7 +129,7 @@
 			(assign `(,iter) '((:rsp slot_iter_begin)))
 		(loop-until `(,iter = ,iter_end))
 	(endif)
-	(load-fields :rsp '(slot_this slot_lst) `(,this ,args))
+	(assign `(,lst (:rsp slot_this)) `(,args ,this))
 	(class/obj/ref args val)
 
 	(exit :pmap :lisp_pinsert `(,this ,args))
@@ -160,30 +156,23 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r10, :d0-:d15
+	;:r1-:r13, :d0-:d15
 
-	(structure slot 0
-		(ptr this args lst)
-		(pptr iter_begin iter_end))
+	;all in registers the find and the erase leave, so no frame
+	(vp-rdef (lst key vt1 vt2))
+	(vp-rdef (this args iter iter_end) '(:r13 :r10 :r11 :r12))
+	(defq found_iter key match key msg vt2)
 
-	(vp-rdef (this args vt1 vt2 iter iter_end))
-	(defq lst this key args found_iter args match args msg vt2)
-
-	(vp-alloc slot_size)
 	(entry :pmap :lisp_perase `(,this ,args))
-	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
 	(errorif-lisp-args-len 'error1 :r1 < 2)
 
 	(class/array/get_both args iter iter_end)
 	(array-get-args iter `(,lst))
 	(vp-add-cr +ptr_size iter)
-	(save-fields :rsp '(slot_lst slot_iter_begin slot_iter_end) `(,lst ,iter ,iter_end))
 	(call :obj :inst_of `(,lst (@ ,(f-path :pset :vtable))) `(,lst ,match))
 	(gotoif `(,match = 0) 'error2)
 	(loop-start)
-		(assign '((:rsp slot_iter_begin)) `(,iter))
-		(assign '((:rsp slot_lst)) `(,lst))
 		(assign `((,iter 0)) `(,key))
 		(call :pset :pfind `(,lst ,key) `(,lst ,found_iter _ _))
 		(vpif `(,found_iter /= 0))
@@ -194,15 +183,11 @@
 				(call :pmap :erase2 `(,lst ,found_iter) `(,lst _))
 			(endif)
 		(endif)
-		(load-fields :rsp '(slot_iter_begin slot_iter_end) `(,iter ,iter_end))
 		(vp-add-cr +ptr_size iter)
-		(assign `(,iter) '((:rsp slot_iter_begin)))
 	(loop-until `(,iter = ,iter_end))
-	(load-fields :rsp '(slot_this slot_lst) `(,this ,args))
-	(class/obj/ref args vt1)
+	(class/obj/ref lst vt1)
 
-	(exit :pmap :lisp_perase `(,this ,args))
-	(vp-free slot_size)
+	(exit :pmap :lisp_perase `(,this ,lst))
 	(vp-ret)
 
 (vp-label 'error1)
@@ -211,8 +196,7 @@
 (vp-label 'error2)
 	(assign '(+error_msg_wrong_types) `(,msg))
 (vp-label 'error)
-	(load-fields :rsp '(slot_this slot_args) `(,this ,args))
-	(vp-free slot_size)
+	(vp-cpy-rr this :r0)
 	(jump :lisp :repl_error `(,args "(perase props key [key] ...)" ,msg))
 
 (def-func-end)

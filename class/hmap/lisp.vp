@@ -106,10 +106,13 @@
 (def-func-end)
 
 (structure slot 0
-	(ptr this args val)
+	(ptr this args)
 	(pptr iter_begin iter_end))
 
-(defun defsetq (%0 p)
+(defun defsetq (%0 p iter)
+	;the frame is what the eval, which keeps nothing, is called over. The
+	;value is in :r13 and the place in iter, registers the insert or the
+	;set, p, leaves
 	(vp-alloc slot_size)
 	(entry :hmap %0 '(:r0 :r1))
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
@@ -117,29 +120,27 @@
 	(gotoif '(:r2 < 3) 'error1)
 	(vp-and-cr 1 :r2)
 	(gotoif '(:r2 = 0) 'error1)
-	(class/array/get_both :r1 :r1 :r2)
-	(vp-xor-rr :r0 :r0)
-	(vp-add-cr +ptr_size :r1)
-	(save-fields :rsp '(slot_val slot_iter_begin slot_iter_end) '(:r0 :r1 :r2))
+	(class/array/get_both :r1 iter :r2)
+	(vp-xor-rr :r13 :r13)
+	(vp-add-cr +ptr_size iter)
+	(assign '(:r2) '((:rsp slot_iter_end)))
 	(loop-start)
-		(call :obj :deref_if '((:rsp slot_val)))
-		(assign '((:rsp slot_iter_begin)) '(:r1))
-		(call :lisp :repl_eval '((:rsp slot_this) (:r1 +ptr_size)) '(:r0 :r1))
-		(assign '(:r1) '((:rsp slot_val)))
-		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r3 :r4))
+		(call :obj :deref_if '(:r13))
+		(assign `(,iter) '((:rsp slot_iter_begin)))
+		(call :lisp :repl_eval `((:rsp slot_this) (,iter +ptr_size)) '(:r0 :r13))
+		(assign '((:r13 +obj_vtable) (:r0 +lisp_error)) '(:r3 :r4))
 		(breakif '(:r3 = :r4))
-		(assign '(:r1 (:rsp slot_iter_begin)) '(:r2 :r1))
-		(assign '((:r1 0)) '(:r1))
+		(assign '((:rsp slot_iter_begin)) `(,iter))
+		(assign `((,iter 0)) '(:r1))
 		(assign '((:r1 +obj_vtable)) '(:r3))
 		(f-bind :sym :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error2)
-		(assign '((:r0 +lisp_environment)) '(:r0))
+		(assign '((:r0 +lisp_environment) :r13) '(:r0 :r2))
 		(exec p)
-		(load-fields :rsp '(slot_iter_begin slot_iter_end) '(:r1 :r2))
-		(vp-add-cr (* +ptr_size 2) :r1)
-		(assign '(:r1) '((:rsp slot_iter_begin)))
-	(loop-until '(:r1 = :r2))
-	(exit :hmap %0 '((:rsp slot_this) (:rsp slot_val)))
+		(vp-add-cr (* +ptr_size 2) iter)
+		(assign '((:rsp slot_iter_end)) '(:r2))
+	(loop-until `(,iter = :r2))
+	(exit :hmap %0 '((:rsp slot_this) :r13))
 	(vp-free slot_size)
 	(vp-ret))
 
@@ -155,7 +156,8 @@
 
 	(defsetq :lisp_defq
 		'(progn
-			(call :hmap :pinsert '(:r0 :r1 :r2))))
+			(call :hmap :pinsert '(:r0 :r1 :r2)))
+		:r12)
 
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) '(:r3))
@@ -184,7 +186,8 @@
 			(assign '((:r1 +str_data ub)) '(:r3))
 			(gotoif '(:r3 = +char_plus) 'error4)
 			(call :hmap :set '(:r0 :r1 :r2) '(_ :r1))
-			(gotoif '(:r1 = 0) 'error3)))
+			(gotoif '(:r1 = 0) 'error3))
+		:r9)
 
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) '(:r3))

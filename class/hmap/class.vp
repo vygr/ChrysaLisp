@@ -523,28 +523,19 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure slot 0
-		(ptr this that))
+	;the clear, the append and the deref leave these, so no frame
+	(vp-rdef (this that) '(:r5 :r4))
 
-	(vp-rdef (this that len))
+	(entry :hmap :resize '(:r0 :r1))
 
-	;save inputs
-	(vp-alloc slot_size)
-	(entry :hmap :resize `(,this ,that))
-
-	(call :hmap :copy `(,this ,that) `(,this ,that))
-	(save-fields :rsp '(slot_this slot_that) `(,this ,that))
-	(call :hmap :clear `(,this) `(,this))
-	(assign '((:rsp slot_that)) `(,that))
-	(call :hmap :append `(,this ,that 0 (,that +array_length)) `(,this))
-	(assign '((:rsp slot_that)) `(,that))
-	(assign `((,that +array_num_buckets)) `(,len))
-	(assign `(,len) `((,this +array_num_buckets)))
+	(call :hmap :copy '(:r0 :r1) `(,this ,that))
+	(call :hmap :clear `(,this) '(:r0))
+	(call :hmap :append `(:r0 ,that 0 (,that +array_length)))
+	(assign `((,that +array_num_buckets)) '(:r1))
+	(assign '(:r1) `((,this +array_num_buckets)))
 	(call :hmap :deref `(,that))
-	(assign '((:rsp slot_this)) `(,this))
 
 	(exit :hmap :resize `(,this))
-	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)

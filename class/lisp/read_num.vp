@@ -16,40 +16,40 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
+	;the frame is the buffer, and what the intern of the number, which
+	;keeps nothing, is called over. The stream stays in :r0, each read of
+	;a char gives it back, and the place in the buffer, its end and the
+	;sign are in registers a read of a char leaves
 	(structure slot 0
-		(ptr this stream)
-		(pubyte bufp)
-		(int char sign)
+		(ptr this)
+		(long char)
 		(struct buffer 72))
 
-	(vp-rdef (bufp base char num dot bufe))
+	(vp-rdef (stream char _ bufp bufe sign))
 
 	(vp-alloc slot_size)
-	(entry :lisp :read_num `((:rsp slot_this) (:rsp slot_stream) ,char))
-	(save-fields :rsp '(slot_char slot_sign) `(,char ,char))
+	(entry :lisp :read_num `((:rsp slot_this) ,stream ,char))
+	(vp-cpy-rr char sign)
 
 	(vpif `(,char = +char_minus))
-		(call :stream :read_char `((:rsp slot_stream)) `(,base ,char))
+		(call :stream :read_char `(,stream) `(,stream ,char))
 		(breakif `(,char >= +char_0))
 		;a symbol that starts with a minus. No char is pushed back into the
 		;stream, not every stream can take that. The rest of the symbol, if
 		;there is any, is read, then the minus put in front of it.
 		(assign `(,char) '((:rsp slot_char)))
 		(vpif `(,char > +char_space) `(,char /= +char_lrb) `(,char /= +char_rrb))
-			(call :lisp :read_sym '((:rsp slot_this) (:rsp slot_stream) (:rsp slot_char)) '(_ :r1 :r2))
-			(save-fields :rsp '(slot_bufp slot_char) '(:r1 :r2))
-			(assign '((:r1 +str_length)) '(:r1))
-			(call :str :create_from_buffer '(0 (& :r1 1)) '(:r0))
-			(assign '(:r0) '((:rsp slot_buffer)))
-			(assign '((:rsp slot_bufp) :r0) '(:r3 :r4))
+			;the rest in :r13 and the whole in :r14, the intern leaves them
+			(call :lisp :read_sym `((:rsp slot_this) ,stream ,char) '(_ :r13 :r2))
+			(assign '(:r2 (:r13 +str_length)) '((:rsp slot_char) :r1))
+			(call :str :create_from_buffer '(0 (& :r1 1)) '(:r14))
 			(vp-cpy-cr +char_minus :r1)
-			(vp-store-rrc-b :r1 :r4 +str_data)
-			(call :sys_mem :copy `((& :r3 +str_data) (& :r4 ,(inc +str_data)) (:r3 +str_length)))
-			(call :sym :intern_str '((:rsp slot_buffer)) '(:r0))
-			(assign '(:r0) '((:rsp (+ slot_buffer +ptr_size))))
-			(call :obj :deref '((:rsp slot_bufp)))
-			(call :obj :deref '((:rsp slot_buffer)))
-			(assign '((:rsp (+ slot_buffer +ptr_size))) '(:r0))
+			(vp-store-rrc-b :r1 :r14 +str_data)
+			(call :sys_mem :copy `((& :r13 +str_data) (& :r14 ,(inc +str_data)) (:r13 +str_length)))
+			(call :sym :intern_str '(:r14) '(:r12))
+			(call :obj :deref '(:r13))
+			(call :obj :deref '(:r14))
+			(vp-cpy-rr :r12 :r0)
 		(else)
 			;just the minus
 			(call :sym :intern_cstr '("-") '(:r0))
@@ -57,7 +57,7 @@
 		(goto 'exit)
 	(endif)
 
-	(assign '((& :rsp slot_buffer)) `(,bufp))
+	(assign `((& :rsp slot_buffer) (& :rsp ,(+ slot_buffer 72))) `(,bufp ,bufe))
 	(loop-start 'num_loop)
 		(vpif `(,char >= +char_0))
 			(gotoif `(,char <= +char_9) 'valid_digit)
@@ -71,15 +71,14 @@
 	(vp-label 'valid_digit)
 		(assign `(,char) `((,bufp 0 ub)))
 		(vp-add-cr 1 bufp)
-		(assign `(,bufp) '((:rsp slot_bufp)))
-		(call :stream :read_char `((:rsp slot_stream)) `(_ ,char))
-		(assign `((:rsp slot_bufp) (& :rsp ,(+ slot_buffer 72))) `(,bufp ,bufe))
+		(call :stream :read_char `(,stream) `(,stream ,char))
 	(loop-until `(,bufp = ,bufe))
 	(assign `(,char) `((:rsp slot_char)))
 	(vp-xor-rr char char)
 	(assign `(,char) `((,bufp 0 ub)))
 
 	;pick base
+	(vp-rdef (bufp base))
 	(assign `((& :rsp ,(+ slot_buffer 2))) `(,bufp))
 	(assign `((,bufp -1 ub)) `(,base))
 	(vp-or-cr (- (ascii-code "a") (ascii-code "A")) base)
@@ -94,13 +93,12 @@
 		(vp-cpy-cr 10 base)
 	(endif)
 
-	;create the number
-	(call :sys_str :to_long `(,bufp ,base) `(:r0 ,dot))
-	(assign '((:rsp slot_sign)) `(,char))
-	(vpif `(,char = +char_minus))
+	;create the number, the sign is where the parse leaves it
+	(call :sys_str :to_long `(,bufp ,base) '(:r0 :r4))
+	(vpif `(,sign = +char_minus))
 		(vp-mul-cr -1 :r0)
 	(endif)
-	(vpif `(,dot /= 0))
+	(vpif '(:r4 /= 0))
 		;there was a fixed point
 		(call :fixed :create '(:r0) '(:r0))
 	(else)

@@ -18,11 +18,13 @@
 	(structure slot 0
 		(ptr this sym))
 
+	;the frame is what the read, which keeps nothing, is called over
 	(vp-alloc slot_size)
-	(entry :lisp :read_quasi '((:rsp slot_this) :r1 :r2 (:rsp slot_sym)))
+	(entry :lisp :read_quasi '(:r4 :r0 :r2 :r3))
+	(save-fields :rsp '(slot_this slot_sym) '(:r4 :r3))
 
-	(call :stream :read_char '(:r1) '(:r0 :r1))
-	(call :lisp :read '((:rsp slot_this) :r0 :r1) '(:r0 :r1 :r2))
+	(call :stream :read_char '(:r0) '(:r0 :r1))
+	(call :lisp :read '(:r4 :r0 :r1) '(:r0 :r1 :r2))
 	(assign '(:r1 :r2) '(:r12 :r13))
 	(call :list :create :nil '(:r0))
 	(assign '((:rsp slot_sym)) '(:r1))
