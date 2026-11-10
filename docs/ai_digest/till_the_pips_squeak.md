@@ -626,6 +626,33 @@ a time round better than a call to the new clear.
 	`repl_eval_list` and `repl_progn`: a copy on the hot path to save a
 	load on the rare one.
 
+*	**A sort in `(assign)` that put loads and stores in the order of the
+	memory.** Neighbours of one base are what the arm64 prepass makes LDP
+	and STP of. Run alternately with and without, one node: 0.290 to
+	0.293 s without, 0.300 to 0.305 s with, 3 to 4% of every build, for 43
+	more pairs and 200 bytes less. Not kept. `(assign)` sorts for hazards
+	only; `(load-fields)` and `(save-fields)` impose the order where the
+	source asks. A build of the sorting assembler, kept apart, said where
+	the source was out of order, and the source was changed: 54 assigns
+	reordered, three frames laid in the order their calls load them, and
+	`(load-fields)` in the PCB router and the curve generators, with the
+	registers of `(vec-push)` where `(vec-load)` took a list in its own
+	order. 39 more pairs, no line added to the assembler.
+
+*	**Forward order for its own sake.** 19 calls that load their slots out
+	of the order of the memory, given registers loaded in order by a
+	`(load-fields)` before them: the same count of instructions, no more
+	pairs, 19 more lines. Not kept. An order is worth a line where it
+	makes a pair or saves a copy, and the count of pairs says which.
+
+*	**Two assigns made one where the second reads what the first wrote.**
+	The sort that keeps a reader ahead of a writer turns them round, and
+	the code is wrong. Of 744 assigns that stood next to another 544 are
+	so and stay apart; 184 were made one with their neighbour, the VP the
+	same to the instruction. And a build of code that is wrong is written
+	to `obj/`, where the next session loads it: what is not yet known to
+	be right is built in a clone of the tree.
+
 ### A clock that is cheap to ask
 
 `(task-slice)` asks if its slice of time is up, every time it is called, and

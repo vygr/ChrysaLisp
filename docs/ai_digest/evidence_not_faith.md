@@ -35,9 +35,7 @@ task-centric memory model across its nodes:
   `lib/task/local.inc` to spawn a herd of worker tasks (`lib/asm/asm.lisp`)
   across the 16 VP nodes, one for each node of the machine. Each worker sets
   up its compiler before its first file, about 8 ms of CPU on the M4, so a
-  worker more than there are nodes only adds that. Until 2026-10-22 the herd
-  was a tenth of the files and one more for each other node, 28 for 16 nodes
-  and 65 for 19, and as much CPU went on setting up as on compiling.
+  worker more than there are nodes only adds that.
 
 * **Biggest First:** The files are queued by size, the biggest given out
   first, so the small ones fill in at the end and the workers all finish
@@ -45,9 +43,9 @@ task-centric memory model across its nodes:
 
 * **Task-Local `within-compile-env` Environments:** While worker tasks share the
   root environment of their host node, the compilation environment is scoped per
-  task. Each of the 28 worker tasks enters its own `(within-compile-env ...)`
+  task. Each of the 16 worker tasks enters its own `(within-compile-env ...)`
   block, independently synthesizing its own private compiler environment from
-  scratch in parallel. The 16 worker tasks each do this once.
+  scratch in parallel, once.
 
 * **Zero-State Bootstrapping:** In the first fraction of a millisecond, each
   worker task evaluates `lib/asm/`, macro generators (`def-class`, `def-method`,
@@ -152,279 +150,38 @@ How the mean has come down, seconds:
 | 2026-10-22 | 0.052 to 0.054 | 0.362 to 0.373 | | | | | More source, 142 files; a worker a node, a translation that stops early, a save that does not truncate |
 | 2026-11-10 | 0.039 to 0.042 | 0.234 to 0.235 | 0.140 to 0.176 | 0.512 to 0.517 | 0.96 to 1.08 | 2.42 to 2.58 | vpx gone, no pass over a frame, functions written by hand |
 
-What follows is each change as it went in, measured then.
+What changed for each record:
 
-By 2026-10-22 the source had grown to 142 `.vp` files and the M4 mean on 16
-nodes was 0.074 seconds, the worst run up to 0.090. Profiled serially, one
-core took 0.40 seconds for the whole tree: VP to native translation 132 ms of
-it, evaluating the function bodies 107 ms, the VP optimiser 37 ms, emitting
-41 ms, writing the 1,032 function files 40 ms. Two changes brought it back:
-the herd of one worker a node, biggest file first, above, and translation
-that stops as soon as a pass leaves every label where it was, which saves
-a pass of each function, 132 to 104 ms. Every product of all six platforms
-was the same, byte for byte. Three interleaved runs each, 16 nodes:
+* **2026-10-06, the Lisp engine.** The evaluator, the binding of a lambda's
+  args, the environments and the iterators, see
+  [`till_the_pips_squeak.md`](till_the_pips_squeak.md). The assembler is a
+  Lisp program, so a quicker Lisp is a quicker build.
 
-| `make test` on the M4 | Mean | Best | Worst |
-|---|---|---|---|
-| Before, 2026-10-22 | 0.073 to 0.074 | 0.059 to 0.068 | 0.081 to 0.090 |
-| After | 0.057 to 0.059 | 0.055 to 0.056 | 0.059 to 0.066 |
+* **2026-10-22, the build itself.** The source had grown and the build
+  with it, to 0.074 seconds. One worker for each node with the biggest
+  file given out first, where there had been 28 workers for 16 nodes; a
+  translation that stops as soon as a pass leaves every label where it
+  was; and a save that writes over a file and cuts it to its length,
+  where truncating it first made the nodes wait on each other. The same
+  day the VP of every function was made the same on every platform, so a
+  source file is compiled to VP once, kept, and translated for each
+  platform: that is the record of Test 2.
 
-On 19 nodes the mean went from 0.074 to 0.056, and on one node from 0.405
-to 0.375. Splitting files into parcels of several was tried and made no
-difference: with the biggest first the herd was already even.
+* **2026-11-10, the source and not a pass.** vpx, the expression
+  compiler, had gone, and every function was written as plain VP. The
+  pass that kept the slots of a frame in registers was measured and taken
+  out: it was a sixth of a build, and of 1,074 functions it changed 42,
+  for 217 stack loads and 74 stores less and 375 register copies more. 31
+  of those were written by hand to hold their values in registers, and
+  are 1,770 instructions with 155 stack loads, where the pass had them at
+  2,020 and 198. Loads and stores were put in the order of the memory in
+  the source where that makes pairs, 39 more on arm64. An ordering sort
+  inside `(assign)` was measured too, 3 to 4% of a build, and not kept.
+  `till_the_pips_squeak.md` has what was tried.
 
-The same day, two more. Every function a build makes is a file, 1,032 of
-them, written from every node at once, and `(save)` opened each with
-`O_TRUNC`. A file cut to nothing and grown again has its blocks let go of
-and new ones found, and on APFS the processes doing it wait on each other:
-in C, 19 processes each rewriting 55 small files took 79 to 94 ms that way,
-7 to 8 ms written over and cut to the length after. The host's `pii_save`
-does the second. Same host, the old save against it, three interleaved
-runs each:
-
-| `make test` on the M4 | Old save | `pii_save` |
-|---|---|---|
-| 19 nodes | 0.056 to 0.057 | 0.048 to 0.052 |
-| 16 nodes | 0.057 to 0.060 | 0.052 to 0.054 |
-| 1 node | 0.378 to 0.382 | 0.362 to 0.373 |
-
-And `make` with something to find: it merged the include list of each
-`.vp` file with all it includes, and theirs, to see if any was newer than
-its oldest product, 97 files a closure on average and 1.9 million string
-compares for the system. Now each file has the newest age of it and all
-under it, found pass after pass till a pass changes none, as the includes
-have loops. Profiled on one node, the closure went from 6.0 ms to 0.65 ms;
-a merge of symbols was 3.4 ms, a hash set beside each list 14.8 ms, and a
-scan from the end of each list 4.3 million compares to the 1.9 million
-from the front. Twelve files touched in turn, each built by the old and
-the new, gave the same objects every time. On 19 nodes, interleaved:
-
-| `make` on the M4 | Before | After |
-|---|---|---|
-| Nothing to do, 15 runs each | 0.039 to 0.044, mean 0.0416 | 0.033 to 0.037, mean 0.0337 |
-| After a touch of `sys/pii/class.vp`, 6 runs each | mean 0.0524 | mean 0.0466 |
-
-Of what was left of a `make` with nothing to do, 11 ms was setting up the
-compile environment and finding the files: two walks of the tree, 4 to 5
-ms each, one for the `.vp` files and one for the `class.inc` files, and
-`lib/asm/func.inc`, the whole assembler and translator, 3.7 ms, where
-reading the classes needs only `lib/asm/class.inc`, `sys/pii/abi.inc` and
-`sys/statics/class.inc`, 1.0 ms. Now one walk gives both and that is
-what is loaded; what `make-info` found of all 300 files, includes and
-products, was the same either way, as were the boot images of all six
-platforms and what twelve touched files rebuilt. On 19 nodes, interleaved:
-
-| On the M4 | Before | After |
-|---|---|---|
-| `make`, nothing to do, 8 runs each | mean 0.0339 | mean 0.0258 |
-| `make` after a touch of `sys/pii/class.vp`, 6 each | mean 0.0447 | mean 0.0372 |
-| `make platforms`, nothing to do, 8 each | mean 0.157 | mean 0.143 |
-| `make all boot`, 5 each | mean 0.110 | mean 0.100 |
-
-A build of every platform walked the tree again in each of its six
-`make`s; the walk is now made once and handed down. Interleaved, 6 runs
-each: `make platforms` with nothing to do, mean 0.143 to 0.112;
-`make all boot platforms`, 0.605 to 0.565. The same objects were rebuilt
-on all six after six touched files.
-
-Reading every file for its includes was 13.6 ms of what was left, 300
-files read a line at a time, all of it in the reading. What make reads of
-each file is now kept, by the file's age, in `obj/make_scans`, and a file
-is read again only when it has changed: none of one changed in the second
-the keep was written, and none at all if `lib/asm/asm.inc` is not the one
-they were read with. The same objects were rebuilt after twelve touched
-files, and after a `.vp` file was given a new include and that include
-touched; the boot images of all six platforms were the same. Interleaved,
-8 runs each:
-
-| On the M4 | Before | After |
-|---|---|---|
-| `make`, nothing to do | mean 0.0261 | mean 0.0173 |
-| `make platforms`, nothing to do | mean 0.110 | mean 0.058 |
-| `make all boot` | mean 0.100 | mean 0.091 |
-
-### The VP Is The Package: One Compile, A Translation For Each Platform
-
-Each function is compiled from its source to VP, then translated to the
-native code of a platform. Until 2026-10-22 the VP of 86 of the 1,033
-functions of the system was not the same on every platform, and so each
-platform compiled everything from source. What differed, and what was done:
-
-* **Host calls**, 77 of them: their args were put in the host ABI's
-  registers and the ABI's trashed registers pushed, as the VP was made. Now
-  a host call has its args in `:r0 :r1 ...` and keeps every register but
-  `:r0`, and each translator's `call-abi` moves them to its ABI and
-  keeps what its ABI trashes. `sys/pii/abi.inc` is gone.
-* **The task switch**, 4: it pushed the translator's `stack_state`. Now
-  `vp-save-state` and `vp-load-state`, which each translator expands.
-* **The loader**, 3: its object folder was a string of the build, and its
-  entry took its args where the host's ABI put them. Now the folder is the
-  one the host read the boot image from, argv, and `vp-entry-abi` is the
-  reverse of a host call.
-* **Three timeouts** were ten times as long on the VP64. The Pi 4 is about
-  the speed of the VP64 on the M4 and has always run the native times; the
-  VP64 now does too.
-
-Every function's VP, all six platforms, the same: 1,033 of 1,033 built
-debug, 1,032 of 1,032 built release.
-
-So a build now has two stages. The VP stage compiles a source file once
-for a build mode, keeps the VP of its functions in a bundle under the
-file's name in `obj/vp/`, and translates it for the platform it is
-building at once. The translate stage gives the other platforms their
-code from the VP kept. Each stage does only what has changed: a file's VP
-when its sources are newer than its bundle, a platform's code of a file
-when its VP, its sources or that platform's translator are newer than the
-platform's stamp of it. A change to a translator rebuilds that platform's
-code, from the VP kept, and nothing else, which the old `make` did not see
-at all, the translator being imported by a name made at run time.
-
-Every object of all six platforms, the apps with them, built from nothing
-both ways, was the same, byte for byte. Twelve touched files rebuilt the
-same objects as the old `make`, and a second `make` after each rebuilt
-none. On 19 nodes, interleaved, 4 to 5 runs each:
-
-| On the M4 | Before | After |
-|---|---|---|
-| `make all platforms` | mean 0.315 | mean 0.248 |
-| `make all`, this platform, the VP kept | mean 0.058 | mean 0.046 |
-| `make platforms`, nothing to do | mean 0.059 | mean 0.050 |
-| `make`, nothing to do | mean 0.0168 | mean 0.0159 |
-| `make` after a touch of `sys/pii/class.vp` | mean 0.0283 | mean 0.0278 |
-| `lint` | about 2 s | 0.69 s |
-
-The lint is quicker as it no longer builds the VP64 in debug and then in
-release again: every debug build keeps the debug VP the trace reads. The
-one that is not quicker is `make test`, a build of everything from source
-ten times over: it writes the 1,033 files of VP as well, about 4 ms a
-build on 19 nodes, 0.051 to 0.059.
-
-At first each function's VP was a file of its own, 1,033 of them, and the
-farm's own task took a line from the workers for each function and wrote a
-manifest and a stamp for each source file, one after another. A bundle of
-each source file, written by the worker that made it, with its stamp, made
-142 files written at once, and a file that goes wrong has no bundle. The
-tools find a function in its bundle by an index of the first line of each
-entry. Interleaved, 4 runs each, means:
-
-| On the M4 | A file a function | A bundle a file |
-|---|---|---|
-| `make test`, from source | 0.0634 | 0.0550 |
-| `make all platforms` | 0.240 | 0.206 |
-| `make all`, the VP kept | 0.0471 | 0.0427 |
-| `make platforms`, nothing to do | 0.0513 | 0.0512 |
-| `lint` | 0.69 s | 0.77 s |
-
-### What Is Written Is What Is Built: No Pass Over A Function But The Optimiser
-
-Till 2026-11-10 the assembler had a second pass over every function with a
-frame, `lib/asm/slots.inc`: it saw the function whole, once assembled, and
-kept the slots of its frame in registers where it could follow them. It was
-measured, and taken out.
-
-**What it cost.** `make test` on the M4, the commit before and the commit
-that removed it, three runs each, means:
-
-| `make test` on the M4 | With the pass | Without |
-|---|---|---|
-| 1 node | 0.285 to 0.287 | 0.238 to 0.240 |
-| 19 nodes | 0.0417 to 0.0428 | 0.0366 to 0.0374 |
-
-A sixth of a build on one node, an eighth on 19.
-
-**What it bought.** The tree has 1,074 functions in 155 `.vp` files. Their
-VP was compared, function by function, with and without the pass: 42 were
-changed by it and 1,032 were the same to the instruction. In the 42 it took
-out 217 loads from the stack and 74 stores to it, and put in 375 register
-copies: 85 more instructions than the source as written gives, and 528 more
-bytes of arm64. Two of the 42, `repl_eval_list` and `repl_progn`, the eval
-of a list of forms, had a copy added on their hot path to save a load on
-the rare one.
-
-**The same by hand.** 31 of the 42 were then written to do in the source
-what the pass looked for: a value that lives over calls held in a register
-those calls are declared to leave, a call's own result used in place of a
-reload, a frame made only round a call that keeps nothing. Counted from the
-VP of each build:
-
-| The 31 functions | Instructions | Stack loads | Stack stores |
-|---|---|---|---|
-| The source as it was, no pass | 1,958 | 335 | 231 |
-| With the pass | 2,020 | 198 | 181 |
-| Written by hand | 1,770 | 155 | 108 |
-
-Nine of them have no frame at all now. `defq`, `setq`, the bind of a
-lambda's args, the number reader, the intern of a symbol, the vdu's draw,
-the film frame decoder and a font's textures are among them: the film
-decoder went from eight stack loads and four stores a pixel to two loads.
-The arm64 code of the tree is 1,204 bytes less than with the pass, and the
-arm64 boot image 71,460 bytes, was 71,572. The other eleven are left: the
-two the pass had made worse, and nine that run once a font, a task, a
-service or an error.
-
-**An ordering sort in `(assign)`, tried and not kept.** Loads and stores
-of one base in the order of the memory are what the arm64 prepass makes
-LDP and STP of. A sort for that inside `(assign)`, run alternately with
-and without, one node, four runs each: 0.290 to 0.293 without, 0.300 to
-0.305 with, 3 to 4% of a build, for 43 more pairs and 200 bytes less. Not
-kept: `(assign)` sorts for hazards only, `(load-fields)` and
-`(save-fields)` impose the order where the source asks, and the source is
-what is changed.
-
-**The order, in the source.** A build of the sorting assembler, kept
-apart, said where the loads and stores were out of order. 54 assigns had
-their operands written in the order of the memory, six more pairs; three
-path frames were laid in the order their calls load them, one more; and
-the PCB router's collide, delay and moves, the four curve generators and
-the init of an error, the places an ordered load makes neighbours, 32
-more: 39 pairs and 168 bytes less in all, with no line added to the
-assembler. Of the 34 pairs the sort would still have found after the
-first two, 32 are taken; the two left are in code that runs once.
-
-**Fewer statements, the same code.** 184 assigns that stood next to
-another are one with it, 55 loads straight before a call are the call's
-own operands, and 14 entries take the slots a save straight after stored
-to: 253 fewer statements, and the VP of all 1,074 functions the same to
-the instruction but one, array `lisp_fill`, which lost a copy. A run of
-assigns is only one where none reads a register, or loads memory, that
-one before it writes: of 744 that stood next to another 544 read what
-one before them wrote, and as one assign the sort that keeps a reader
-ahead of a writer would turn them round.
-
-**Tried, and not kept.** 19 calls and exits that load their slots out of
-the order of the memory, given registers loaded in order by a
-`(load-fields)` before them: the same count of instructions, the loads
-going up, and no more pairs, 43,603 against 43,604, for 19 more lines.
-And 58 calls whose results a store straight after puts in slots, written
-as the call's outputs: the same code, and a source that no longer names
-a register its next lines still use.
-
-**What each step was checked by.** The VP of every function compared
-with the build before: the same to the instruction, or the same
-instructions in another order, or read and understood. Then `lint`,
-which is the trashes of every function against what is declared and no
-caller reading a register its callee is declared to trash; `tests -a` on
-the M4, 187 modules and 8,255 tests, none failed; a build of all six
-platforms; and the core, stream, collection, sequence and path tests on
-the VP64 emulator.
-
-**What went wrong, twice.** A build writes what it makes into `obj/`,
-and the next session loads it. A timing run of an assembler with its
-hazard sort switched off, and later a script that made one assign of two
-where the second read what the first wrote, each left wrong code there,
-and no native session would start. Both were put right from the VP of
-the build before, translated again by the VP64 image, which carries the
-translators. Since then a change to the source that is not yet known to
-be right is built in a clone of the tree, and only what comes out the
-same, or was read, is brought across.
-
-The figures of that day, on three machines, are the table at the head of
-this test.
-
-`tests -a` that night, on each machine's own build: 187 modules and 8,255
-tests on each, none failed, in 286 seconds on the M4, 289 on the i9 and
-493 on the Pi. The Pi's native boot image was the 71,444 bytes of the
-M4's.
+Each machine ran `tests -a` on its own build before its figures were
+taken: 187 modules and 8,255 tests on each, none failed, in 286 seconds on
+the M4, 289 on the i9 and 493 on the Pi.
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
@@ -519,14 +276,9 @@ call, and no more; the VP64 image holds what an install needs before it
 has built anything, and carries the translators of every platform, so it
 is the big one.
 
-The three link register targets include call fusion, see `lib/trans/vp.inc`.
-It was measured when it went in, on 2026-10-03. The images were then 221,900,
-256,900 and 256,532 bytes, and without it 227,196, 267,900 and 267,516, so it
-saves 2.4% on ARM64 and 4.2% on RISCV64 and LA64. What it costs was measured
-too. On ARM64, as one sweep with the existing prepass, `make test` on 19
-nodes went from a mean of 0.0714 to 0.0723 seconds over 8 interleaved runs
-each, and the bootstrap install from 1.79 to 1.82 seconds, as they were that
-day. Both differences are inside the run to run noise.
+The three link register targets include call fusion, see `lib/trans/vp.inc`:
+it makes their images 2.4% smaller on ARM64 and 4.2% on RISCV64 and LA64,
+and costs a build and an install nothing that can be measured.
 
 Because a native system image is from 68 to 77 KB, it fits entirely
 inside the L1/L2 instruction and data caches of modern CPU cores. The CPU rarely
