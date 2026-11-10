@@ -86,7 +86,8 @@
 	(vp-rdef (this args mth) '(:r8 :r9 :r10))
 	(vp-rdef (obj vt1 vt2))
 
-	(entry :lisp :lisp_mcall `(,this ,args))
+	(entry :lisp :lisp_mcall '(:r0 :r1))
+	(assign '(:r0 :r1) `(,this ,args))
 
 	(errorif-lisp-args-len 'error :r1 < 2)
 	(array-bind-args :r1 `(,obj ,mth))

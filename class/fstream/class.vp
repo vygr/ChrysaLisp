@@ -285,8 +285,8 @@
 		(align))
 
 	(vp-alloc slot_size)
-	(entry :fstream :seek '(:r0 (:rsp slot_off) (:rsp slot_pos)))
-	(assign '(:r0) '((:rsp slot_this)))
+	(entry :fstream :seek '(:r0 :r1 :r2))
+	(assign '(:r1 :r2 :r0) '((:rsp slot_off) (:rsp slot_pos) (:rsp slot_this)))
 
 	; if whence is 1 (relative) and we are in read mode
 	; adjust offset by unread buffer size

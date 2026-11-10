@@ -458,8 +458,8 @@
 		(ptr this data down up))
 
 	(vp-alloc slot_size)
-	(entry :view :forward_tree '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up)))
-	(assign '(:r0) '(:r1))
+	(entry :view :forward_tree '(:r0 :r1 :r2 :r3))
+	(assign '(:r0 :r1 :r2 :r3 :r0) '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up) :r1))
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr :r1 :r0)
@@ -525,8 +525,8 @@
 		(ptr this data down up))
 
 	(vp-alloc slot_size)
-	(entry :view :backward_tree '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up)))
-	(assign '(:r0) '(:r1))
+	(entry :view :backward_tree '(:r0 :r1 :r2 :r3))
+	(assign '(:r0 :r1 :r2 :r3 :r0) '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up) :r1))
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr :r1 :r0)
@@ -640,7 +640,8 @@
 
 	;save inputs
 	(vp-alloc slot_size)
-	(entry :view :find_id '((:rsp slot_this) (:rsp slot_id)))
+	(entry :view :find_id '(:r0 :r1))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_id)))
 	(vp-xor-rr :r1 :r1)
 	(assign '(:r1) '((:rsp slot_view)))
 
@@ -720,7 +721,8 @@
 
 	;save inputs
 	(vp-alloc slot_size)
-	(entry :view :hit_tree '((:rsp slot_this) :r7 :r8))
+	(entry :view :hit_tree '(:r0 :r7 :r8))
+	(assign '(:r0) '((:rsp slot_this)))
 	(vp-xor-rr :r1 :r1)
 	(assign '(:r1) '((:rsp slot_hit)))
 

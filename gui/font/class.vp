@@ -401,7 +401,8 @@
 		(uint width height gap ox oy cur_code klen k_code))
 
 	(vp-alloc slot_size)
-	(entry :font :glyph_paths '((:rsp slot_this) (:rsp slot_info)))
+	(entry :font :glyph_paths '(:r0 :r1))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_info)))
 
 	;the height, ascent and descent, and the gap between glyphs
 	(assign '((:r0 +font_data)) '(:r2))

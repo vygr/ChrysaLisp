@@ -17,7 +17,8 @@
 	(vp-rdef (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_frag total))
 
 	(vp-alloc slot_size)
-	(entry :sys_mail :in '((:rsp slot_rx_frag) (:rsp slot_rx_buf) (:rsp slot_rx_ring) (:rsp slot_rx_extent)))
+	(entry :sys_mail :in '(:r0 :r1 :r2 :r3))
+	(assign '(:r0 :r1 :r2 :r3) '((:rsp slot_rx_frag) (:rsp slot_rx_buf) (:rsp slot_rx_ring) (:rsp slot_rx_extent)))
 
 	;look up parcel in mailbox
 	(vp-cpy-rr :r0 rx_frag)

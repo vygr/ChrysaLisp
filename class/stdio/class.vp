@@ -40,7 +40,8 @@
 
 	;read init args
 	(vp-alloc slot_size)
-	(entry :stdio :init '((:rsp slot_this) (:rsp slot_vtable)))
+	(entry :stdio :init '(:r0 :r1))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_vtable)))
 
 	;init parent
 	(s-call :stdio :init '(:r0 :r1) '(_ :r1))

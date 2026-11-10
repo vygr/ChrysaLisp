@@ -164,7 +164,8 @@
 		(int flags))
 
 	(vp-alloc slot_size)
-	(entry :canvas :swap '((:rsp slot_this) (:rsp slot_flags)))
+	(entry :canvas :swap '(:r0 :r1))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_flags)))
 
 	;a negative number is the other way, the texture back to the pixmap
 	(assign '((:r0 +canvas_pixmap)) '(:r2))
@@ -248,7 +249,8 @@
 		(uint w h))
 
 	(vp-alloc slot_size)
-	(entry :canvas :read '((:rsp slot_this)))
+	(entry :canvas :read '(:r0))
+	(assign '(:r0) '((:rsp slot_this)))
 
 	(assign '((:r0 +canvas_texture)) '(:r1))
 	(vpif '(:r1 /= 0))

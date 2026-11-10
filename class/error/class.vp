@@ -89,7 +89,8 @@
 		(ptr this))
 
 	(vp-alloc slot_size)
-	(entry :error :deinit '((:rsp slot_this)))
+	(entry :error :deinit '(:r0))
+	(assign '(:r0) '((:rsp slot_this)))
 
 	(call :obj :deref '((:r0 +error_description)))
 	(assign '((:rsp slot_this)) '(:r0))

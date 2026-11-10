@@ -163,7 +163,8 @@
 	(vp-rdef (this args iter iter_end) '(:r13 :r10 :r11 :r12))
 	(defq found_iter key match key msg vt2)
 
-	(entry :pmap :lisp_perase `(,this ,args))
+	(entry :pmap :lisp_perase '(:r0 :r1))
+	(assign '(:r0 :r1) `(,this ,args))
 
 	(errorif-lisp-args-len 'error1 :r1 < 2)
 

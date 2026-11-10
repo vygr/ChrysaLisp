@@ -75,7 +75,8 @@
 		(ptr this string))
 
 	(vp-alloc slot_size)
-	(entry :sstream :claim_string '((:rsp slot_this)))
+	(entry :sstream :claim_string '(:r0))
+	(assign '(:r0) '((:rsp slot_this)))
 
 	(assign '((:r0 +stream_bufp) (:r0 +stream_object)) '(:r1 :r0))
 	(vp-xor-rr :r2 :r2)

@@ -367,7 +367,8 @@
 		(pptr iter_begin iter_end))
 
 	(vp-alloc slot_size)
-	(entry :hmap :lisp_undef '((:rsp slot_this) (:rsp slot_args)))
+	(entry :hmap :lisp_undef '(:r0 :r1))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 
 	(errorif-lisp-args-len 'error1 :r1 < 2)
 

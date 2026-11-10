@@ -28,7 +28,8 @@
 	(vp-rdef (xlow iter_edge2 xhigh x y x1 x2 y1 y2 cy cy1 xs ys xe ye))
 
 	(vp-alloc slot_size)
-	(entry :canvas :set_edges '((:rsp slot_this) :r1 (:rsp slot_x) (:rsp slot_y) (:rsp slot_yscale)))
+	(entry :canvas :set_edges '(:r0 :r1 :r2 :r3 :r4))
+	(assign '(:r0 :r2 :r3 :r4) '((:rsp slot_this) (:rsp slot_x) (:rsp slot_y) (:rsp slot_yscale)))
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign '((:r0 +canvas_cy) (:r0 +canvas_cy1)) (list cy cy1))

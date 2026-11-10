@@ -69,7 +69,8 @@
 	;:r0-:r6, :d0-:d15
 
 	;save c string pointer
-	(entry :str :create_from_file '(:r5))
+	(entry :str :create_from_file '(:r0))
+	(assign '(:r0) '(:r5))
 
 	;get size of string from file size
 	(fn-bind 'sys/statics/statics :r6)

@@ -349,7 +349,8 @@
 		(pptr iter))
 
 	(vp-alloc slot_size)
-	(entry :lisp :deinit '((:rsp slot_this)))
+	(entry :lisp :deinit '(:r0))
+	(assign '(:r0) '((:rsp slot_this)))
 
 	;free the chain of args lists, each is empty, and holds the next in
 	;its first element

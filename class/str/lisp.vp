@@ -16,7 +16,8 @@
 
 	(vp-rdef (this args len value iter_begin width index) '(:r7 :r8 :r9))
 
-	(entry :str :lisp_code `(,this ,args))
+	(entry :str :lisp_code '(:r0 :r1))
+	(assign '(:r0 :r1) `(,this ,args))
 
 	(errorif-lisp-args-sig 'error1 :r1 1 3)
 
@@ -529,7 +530,8 @@
 
 	(vp-rdef (this args src cls idx len) '(:r11 :r12))
 
-	(entry :str :lisp_bskip `(,this ,args))
+	(entry :str :lisp_bskip '(:r0 :r1))
+	(assign '(:r0 :r1) `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 	(list-bind-args args `(,cls ,src ,idx) '(:obj :obj :num))
@@ -561,7 +563,8 @@
 
 	(vp-rdef (this args src cls idx len) '(:r11 :r12))
 
-	(entry :str :lisp_bskipn `(,this ,args))
+	(entry :str :lisp_bskipn '(:r0 :r1))
+	(assign '(:r0 :r1) `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 	(list-bind-args args `(,cls ,src ,idx) '(:obj :obj :num))
@@ -740,7 +743,8 @@
 
 	(vp-rdef (this args) '(:r9))
 
-	(entry :str :lisp_encode `(,this ,args))
+	(entry :str :lisp_encode '(:r0 :r1))
+	(assign '(:r0 :r1) `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args '(:r0) '(:obj))
@@ -767,7 +771,8 @@
 
 	(vp-rdef (this args) '(:r9))
 
-	(entry :str :lisp_decode `(,this ,args))
+	(entry :str :lisp_decode '(:r0 :r1))
+	(assign '(:r0 :r1) `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args '(:r0) '(:obj))
