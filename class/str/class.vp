@@ -528,29 +528,23 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
-	(structure slot 0
-		(ptr this escaped))
-
+	;the stream is where no call here trashes it, this and the escaped
+	;str where all but the escape leave them, and that gives them back
 	(vp-rdef (stream escaped) (method-input :stream :write))
-	(vp-rdef (saved_stream this) '(:r9))
+	(vp-rdef (saved_stream this saved_escaped) '(:r9 :r8 :r7))
 
-	(vp-alloc slot_size)
 	(entry :str :print `(,this ,saved_stream))
-	(assign `(,this) '((:rsp slot_this)))
 
 	(assign `((,this +str_length)) '(:r1))
 	(vp-shl-cr 1 :r1)
 	(call :str :create_from_buffer '(0 :r1) `(,escaped))
-	(assign '((:rsp slot_this)) `(,this))
-	(call :str :escape `(,this ,escaped) '(_ (:rsp slot_escaped)))
+	(call :str :escape `(,this ,escaped) `(,this ,saved_escaped))
 	(call :stream :write_char `(,saved_stream +char_double_quote) `(,stream))
-	(assign '((:rsp slot_escaped)) `(,escaped))
-	(call :stream :write `(,stream (& ,escaped +str_data) (,escaped +str_length)) `(,stream))
+	(call :stream :write `(,stream (& ,saved_escaped +str_data) (,saved_escaped +str_length)) `(,stream))
 	(call :stream :write_char `(,stream +char_double_quote))
-	(call :str :destroy '((:rsp slot_escaped)))
+	(call :str :destroy `(,saved_escaped))
 
-	(exit :str :print '((:rsp slot_this)))
-	(vp-free slot_size)
+	(exit :str :print `(,this))
 	(vp-ret)
 
 (def-func-end)

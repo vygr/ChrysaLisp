@@ -101,49 +101,42 @@
 	;outputs
 	;:r0 = sstream object (ptr)
 	;trashes
-	;:r1-:r5, :d0-:d15
+	;:r1-:r7, :d0-:d15
 
-	(structure slot 0
-		(ptr this new_str)
-		(uint len))
+	;what the calls leave, so no frame
+	(vp-rdef (this new_str) '(:r6 :r7))
 
-	(vp-alloc slot_size)
-	(entry :sstream :write_next '((:rsp slot_this)))
+	(entry :sstream :write_next `(,this))
 
 	;a str twice as long, what is written so far copied to it
-	(load-fields :r0 '(+stream_bufp +stream_object) '(:r1 :r2))
+	(load-fields this '(+stream_object +stream_bufp) '(:r2 :r1))
 	(vp-add-cr +str_data :r2)
 	(vp-sub-rr :r2 :r1)
-	(assign '(:r1) '((:rsp slot_len)))
 	(vp-shl-cr 1 :r1)
-	(call :str :create_from_buffer '(0 :r1) '(:r0))
-	(assign '(:r0) '((:rsp slot_new_str)))
-	(load-fields :rsp '(slot_this slot_len) '(:r3 :r2))
-	(vp-lea-rcr :r0 +str_data :r1)
-	(assign '((:r3 +stream_object)) '(:r0))
+	(call :str :create_from_buffer '(0 :r1) `(,new_str))
+	(load-fields this '(+stream_object +stream_bufp) '(:r0 :r2))
 	(vp-add-cr +str_data :r0)
-	(call :sys_mem :copy '(:r0 :r1 :r2) '(_ :r1))
+	(vp-sub-rr :r0 :r2)
+	(call :sys_mem :copy `(:r0 (& ,new_str +str_data) :r2) '(_ :r1))
 
 	;the buffer is all of its cell, the str as long
-	(load-fields :rsp '(slot_this slot_new_str) '(:r0 :r2))
-	(assign '(:r1) '((:r0 +stream_bufp)))
-	(vp-lea-rcr :r2 (neg +sys_mem_header_size) :r3)
+	(assign '(:r1) `((,this +stream_bufp)))
+	(vp-lea-rcr new_str (neg +sys_mem_header_size) :r3)
 	(assign '((:r3 +sys_mem_header_heap)) '(:r4))
 	(assign '((:r4 +hp_heap_cellsize)) '(:r4))
 	(vp-add-rr :r4 :r3)
 	(vp-sub-cr 1 :r3)
-	(assign '(:r3) '((:r0 +stream_bufe)))
-	(vp-lea-rcr :r2 +str_data :r4)
+	(assign '(:r3) `((,this +stream_bufe)))
+	(vp-lea-rcr new_str +str_data :r4)
 	(vp-sub-rr :r4 :r3)
-	(assign '(:r3) '((:r2 +str_length)))
+	(assign '(:r3) `((,new_str +str_length)))
 
 	;the new str in place of the old
-	(assign '((:r0 +stream_object)) '(:r1))
-	(assign '(:r2) '((:r0 +stream_object)))
-	(call :str :deref '(:r1))
+	(assign `((,this +stream_object)) '(:r0))
+	(assign `(,new_str) `((,this +stream_object)))
+	(call :str :deref '(:r0))
 
-	(exit :sstream :write_next '((:rsp slot_this)))
-	(vp-free slot_size)
+	(exit :sstream :write_next `(,this))
 	(vp-ret)
 
 (def-func-end)

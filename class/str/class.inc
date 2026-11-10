@@ -33,7 +33,7 @@
 	(dec-method :bskipn class/str/bskipn :static (:r0 :r1 :r2) (:r0 :r1 :r2) (:r2-:r10))
 	(dec-method :unescape class/str/unescape :static (:r0 :r1) (:r0 :r1) (:r2-:r8))
 	(dec-method :escape class/str/escape :static (:r0 :r1) (:r0 :r1) (:r2-:r8))
-	(dec-method :lisp_str class/str/lisp_str :static (:r0 :r1) (:r0 :r1) (:r1-:r9 :r14 :d0-:d15))
+	(dec-method :lisp_str class/str/lisp_str :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :d0-:d15))
 	(dec-method :lisp_to_num class/str/lisp_tonum :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :d0-:d15))
 	(dec-method :lisp_code class/str/lisp_code :static (:r0 :r1) (:r0 :r1) (:r1-:r9 :r14 :d0-:d15))
 	(dec-method :lisp_char class/str/lisp_char :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :d0-:d15))
