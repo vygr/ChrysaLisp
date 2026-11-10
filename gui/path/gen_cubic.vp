@@ -90,7 +90,9 @@
 			(call :array :set_cap '((:rsp slot_stack) :r1))
 			(call :array :get_end '((:rsp slot_stack)) '(_ (:rsp slot_iter_end)))
 			(call :array :set_length '((:rsp slot_stack) (:rsp slot_length)))
-			(vec-load 9 '((:rsp slot_p1234) (:rsp slot_p234) (:rsp slot_p34) (:rsp slot_p4) (:rsp slot_p1) (:rsp slot_p12) (:rsp slot_p123) (:rsp slot_p1234) (:rsp slot_iter_end)))
+			;the two halves to the stack of vectors, loaded in the order they lie in
+			(load-fields :rsp '(slot_p1234 slot_p234 slot_p34 slot_p4 slot_p1 slot_p12 slot_p123 slot_p1234 slot_iter_end)
+				(vec-push 9))
 			(vec-store-long 8 (first (vec-pop 1)))
 		(endif)
 

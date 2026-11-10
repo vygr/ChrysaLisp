@@ -48,7 +48,7 @@
 		(call :sys_math :f_cos '((:rsp slot_a1)) '((:rsp slot_ca1)))
 		(call :sys_math :f_sin '((:rsp slot_a2)) '((:rsp slot_sa2)))
 		(call :sys_math :f_cos '((:rsp slot_a2)) '((:rsp slot_ca2)))
-		(vec-load 5 '((:rsp slot_sa1) (:rsp slot_ca1) (:rsp slot_sa2) (:rsp slot_ca2) (:rsp slot_radius)))
+		(load-fields :rsp '(slot_sa1 slot_ca1 slot_sa2 slot_ca2 slot_radius) (vec-push 5))
 		(vec-fscale 4)
 		(vec-store 2 '((:rsp slot_v2x) (:rsp slot_v2y)) '((:rsp slot_v1x) (:rsp slot_v1y)))
 		(call :path :gen_clerp '((:rsp slot_this) (:rsp slot_cx) (:rsp slot_cy) (:rsp slot_v1x) (:rsp slot_v1y) (:rsp slot_v2x) (:rsp slot_v2y) (:rsp slot_radius)))

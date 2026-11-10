@@ -50,9 +50,10 @@
 
 	;save inputs
 	(vp-alloc slot_size)
-	(assign '(:r0 :r2 :r3 :r4 :r5 :r6 :r7 :r8)
-		'((:rsp slot_this) (:r0 +error_description) (:r0 +error_msg i) (:r0 +error_object)
-			(:r0 +error_script) (:r0 +error_file) (:r0 +error_line i) (:r0 +error_frame)))
+	;in the order the fields lie in
+	(assign '(:r0 :r2 :r4 :r5 :r6 :r8 :r3 :r7)
+		'((:rsp slot_this) (:r0 +error_description) (:r0 +error_object) (:r0 +error_script)
+			(:r0 +error_file) (:r0 +error_frame) (:r0 +error_msg i) (:r0 +error_line i)))
 
 	;init parent
 	(s-call :error :init '(:r0 :r1) '(:r0 :r1))
