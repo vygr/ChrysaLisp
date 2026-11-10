@@ -608,7 +608,7 @@ a time round better than a call to the new clear.
 
 *	**A pass that kept the slots of a frame in registers,
 	`lib/asm/slots.inc`.** It saw a function whole, once it was assembled,
-	and gave each slot it could follow a register of its own. Of 1,707
+	and gave each slot it could follow a register of its own. Of 1,074
 	functions it changed 42: 217 stack loads and 74 stores went, 375
 	register copies came, 85 more instructions and 528 more bytes of arm64
 	than the source as written gives. It was a sixth of every build, `make

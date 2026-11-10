@@ -9,13 +9,14 @@ These are not aspirations; they are the measured results of a system designed
 from first principles. This document presents the concrete evidence for these
 claims, derived directly from the system's own build and diagnostic tools.
 
-## The Anatomy of a 50ms Build: What Actually Happens
+## The Anatomy of a 40ms Build: What Actually Happens
 
-When a benchmark reports an entire operating system rebuild in **0.053 seconds
-(53 ms)** on an Apple Silicon M4 Max processor booted with 16 VP nodes, one
+When a benchmark reports an entire operating system rebuild in **0.040 seconds
+(40 ms)** on an Apple Silicon M4 Max processor booted with 16 VP nodes, one
 for each of its processors, which is what `./run_tui.sh -n 0` gives, it is
 natural to assume it is merely compiling a few differential modules using a
-pre-warmed, monolithic compiler cached in memory.
+pre-warmed, monolithic compiler cached in memory. That is the figure of
+2026-11-10; it was 53 ms on 2026-10-06, and how it came down is below.
 
 In ChrysaLisp, that is not what happens. Every build cycle executes a complete,
 cold, and hermetic lifecycle across a shared-nothing cluster:
@@ -303,6 +304,121 @@ entry. Interleaved, 4 runs each, means:
 | `make platforms`, nothing to do | 0.0513 | 0.0512 |
 | `lint` | 0.69 s | 0.77 s |
 
+### What Is Written Is What Is Built: No Pass Over A Function But The Optimiser
+
+Till 2026-11-10 the assembler had a second pass over every function with a
+frame, `lib/asm/slots.inc`: it saw the function whole, once assembled, and
+kept the slots of its frame in registers where it could follow them. It was
+measured, and taken out.
+
+**What it cost.** `make test` on the M4, the commit before and the commit
+that removed it, three runs each, means:
+
+| `make test` on the M4 | With the pass | Without |
+|---|---|---|
+| 1 node | 0.285 to 0.287 | 0.238 to 0.240 |
+| 19 nodes | 0.0417 to 0.0428 | 0.0366 to 0.0374 |
+
+A sixth of a build on one node, an eighth on 19.
+
+**What it bought.** The tree has 1,074 functions in 155 `.vp` files. Their
+VP was compared, function by function, with and without the pass: 42 were
+changed by it and 1,032 were the same to the instruction. In the 42 it took
+out 217 loads from the stack and 74 stores to it, and put in 375 register
+copies: 85 more instructions than the source as written gives, and 528 more
+bytes of arm64. Two of the 42, `repl_eval_list` and `repl_progn`, the eval
+of a list of forms, had a copy added on their hot path to save a load on
+the rare one.
+
+**The same by hand.** 31 of the 42 were then written to do in the source
+what the pass looked for: a value that lives over calls held in a register
+those calls are declared to leave, a call's own result used in place of a
+reload, a frame made only round a call that keeps nothing. Counted from the
+VP of each build:
+
+| The 31 functions | Instructions | Stack loads | Stack stores |
+|---|---|---|---|
+| The source as it was, no pass | 1,958 | 335 | 231 |
+| With the pass | 2,020 | 198 | 181 |
+| Written by hand | 1,770 | 155 | 108 |
+
+Nine of them have no frame at all now. `defq`, `setq`, the bind of a
+lambda's args, the number reader, the intern of a symbol, the vdu's draw,
+the film frame decoder and a font's textures are among them: the film
+decoder went from eight stack loads and four stores a pixel to two loads.
+The arm64 code of the tree is 1,204 bytes less than with the pass, and the
+arm64 boot image 71,460 bytes, was 71,572. The other eleven are left: the
+two the pass had made worse, and nine that run once a font, a task, a
+service or an error.
+
+**An ordering sort in `(assign)`, tried and not kept.** Loads and stores
+of one base in the order of the memory are what the arm64 prepass makes
+LDP and STP of. A sort for that inside `(assign)`, run alternately with
+and without, one node, four runs each: 0.290 to 0.293 without, 0.300 to
+0.305 with, 3 to 4% of a build, for 43 more pairs and 200 bytes less. Not
+kept: `(assign)` sorts for hazards only, `(load-fields)` and
+`(save-fields)` impose the order where the source asks, and the source is
+what is changed.
+
+**The order, in the source.** A build of the sorting assembler, kept
+apart, said where the loads and stores were out of order. 54 assigns had
+their operands written in the order of the memory, six more pairs; three
+path frames were laid in the order their calls load them, one more; and
+the PCB router's collide, delay and moves, the four curve generators and
+the init of an error, the places an ordered load makes neighbours, 32
+more: 39 pairs and 168 bytes less in all, with no line added to the
+assembler. Of the 34 pairs the sort would still have found after the
+first two, 32 are taken; the two left are in code that runs once.
+
+**Fewer statements, the same code.** 184 assigns that stood next to
+another are one with it, 55 loads straight before a call are the call's
+own operands, and 14 entries take the slots a save straight after stored
+to: 253 fewer statements, and the VP of all 1,074 functions the same to
+the instruction but one, array `lisp_fill`, which lost a copy. A run of
+assigns is only one where none reads a register, or loads memory, that
+one before it writes: of 744 that stood next to another 544 read what
+one before them wrote, and as one assign the sort that keeps a reader
+ahead of a writer would turn them round.
+
+**Tried, and not kept.** 19 calls and exits that load their slots out of
+the order of the memory, given registers loaded in order by a
+`(load-fields)` before them: the same count of instructions, the loads
+going up, and no more pairs, 43,603 against 43,604, for 19 more lines.
+And 58 calls whose results a store straight after puts in slots, written
+as the call's outputs: the same code, and a source that no longer names
+a register its next lines still use.
+
+**What each step was checked by.** The VP of every function compared
+with the build before: the same to the instruction, or the same
+instructions in another order, or read and understood. Then `lint`,
+which is the trashes of every function against what is declared and no
+caller reading a register its callee is declared to trash; `tests -a` on
+the M4, 187 modules and 8,255 tests, none failed; a build of all six
+platforms; and the core, stream, collection, sequence and path tests on
+the VP64 emulator.
+
+**What went wrong, twice.** A build writes what it makes into `obj/`,
+and the next session loads it. A timing run of an assembler with its
+hazard sort switched off, and later a script that made one assign of two
+where the second read what the first wrote, each left wrong code there,
+and no native session would start. Both were put right from the VP of
+the build before, translated again by the VP64 image, which carries the
+translators. Since then a change to the source that is not yet known to
+be right is built in a clone of the tree, and only what comes out the
+same, or was read, is brought across.
+
+`make test` on the M4 on 2026-11-10, three runs each, the standing
+member of the mesh up and idle beside it:
+
+| Nodes | Mean | Best | Worst |
+|---|---|---|---|
+| 16 | 0.039 to 0.042 | 0.036 to 0.040 | 0.043 to 0.052 |
+| 19 | 0.0376 to 0.0379 | 0.033 to 0.035 | 0.044 to 0.048 |
+| 1 | 0.234 to 0.235 | 0.231 to 0.233 | 0.236 to 0.241 |
+
+At 40 ms the whole birth to death cycle of the first section runs 25
+times a second, and on one core 4 times.
+
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
 This test measures the time to simultaneously compile all system sources for six
@@ -319,6 +435,10 @@ different target architectures from scratch.
 | Apple M4 Max | 16 | 0.32 to 0.37 seconds, five runs |
 | Intel i9-8950HK | 12 | 1.18 to 1.22 seconds, three runs |
 | Raspberry Pi 4 | 4 | 7.6 and 9.0 seconds, two runs |
+
+On 2026-11-10 the M4 gave 0.17 to 0.21 seconds, three runs on 16 nodes:
+since 2026-10-22 the source is compiled to VP once and translated six
+times, see above. The other two machines were not measured again that day.
 
 * **Evidence:** The entire operating system is compiled from source six times
   over (once for each architecture) in about a third of a second on the M4,
@@ -355,7 +475,27 @@ smaller system, and had not been measured again till now.
 ## Compact Boot Images: L1 Cache Residence
 
 ChrysaLisp's "linkerless" direct-offset architecture produces self-contained,
-minimal `boot_image` binaries across all supported architectures:
+minimal `boot_image` binaries across all supported architectures. On
+2026-11-10:
+
+* `obj/vp64/VP64/sys/boot_image`: **243,372 bytes**
+
+* `obj/x86_64/AMD64/sys/boot_image`: **68,588 bytes**
+
+* `obj/x86_64/WIN64/sys/boot_image`: **68,172 bytes**
+
+* `obj/arm64/ARM64/sys/boot_image`: **71,444 bytes**
+
+* `obj/riscv64/RISCV64/sys/boot_image`: **76,756 bytes**
+
+* `obj/la64/LA64/sys/boot_image`: **76,300 bytes**
+
+Since release 7.5 a native image holds the loader, the kernel and what they
+call, and the rest is bound from `obj/` as it is asked for, next section;
+the VP64 image holds what an install needs before it has built anything,
+and carries the translators of every platform, so it is the big one.
+
+On 2026-10-21 they were:
 
 * `obj/vp64/VP64/sys/boot_image`: **129,844 bytes**
 
@@ -369,7 +509,7 @@ minimal `boot_image` binaries across all supported architectures:
 
 * `obj/la64/LA64/sys/boot_image`: **218,052 bytes**
 
-These are the sizes on 2026-10-21. Since that day an image holds what an
+Since that day an image held what an
 install needs and no more, 773 functions of the 1,027 there are; the rest
 are bound from their files as they are asked for, see the next section.
 With every function in them, as the images were till then, the same tree
@@ -393,7 +533,7 @@ nodes went from a mean of 0.0714 to 0.0723 seconds over 8 interleaved runs
 each, and the bootstrap install from 1.79 to 1.82 seconds, as they were that
 day. Both differences are inside the run to run noise.
 
-Because these system images are from 130 to 219 KB, they fit entirely
+Because a native system image is from 68 to 77 KB, it fits entirely
 inside the L1/L2 instruction and data caches of modern CPU cores. The CPU rarely
 stalls on main memory access during core execution, resulting in near-zero memory
 bus latency.
