@@ -300,141 +300,42 @@ to end, each with the paths of the functions it calls, `sys/mem/alloc`,
 addresses. A function that is in the image is found there. One that is not
 is read from its own file, `obj/<cpu>/<abi>/<path>`, into the same blocks
 of memory, the first time anything asks for it, and what it calls is bound
-the same way in turn. The system has always been able to do this. It is how
-the functions of an application under `apps/` arrive, they are never in the
-image.
+the same way in turn. It is how the functions of an application under
+`apps/` have always arrived, they are never in the image.
 
-So what is in the image is what was chosen to be bound ahead of time, and
-nothing more than that. **Till 2026-10-21 the images packed in everything
-outside `apps/`, purely for convenience:** one file to ship, one file to
-boot from, and no list to keep of what an install will ask for. It was not
-a need of the system, and it was not for speed. Now they hold what an
-install needs, see below. The loader's `init` does not even hold the kernel:
-it binds `sys/kernel/kernel` by its name, as it would any function, once it
-has its statics and its buffer for relocating paths.
+So what is in an image is what was chosen to be bound ahead of time, and
+nothing more than that. On 2026-11-10, of the 1,061 functions there are
+outside `apps/`:
 
-**How small it can be.** `(boot-image)` given no list of functions makes an
-image of the three the loader starts from, `sys/load/init`,
-`sys/statics/statics` and `sys/kernel/kernel`, and what they call. Built on
-2026-10-11, beside the full image of the same tree:
-
-| Target | Every function | The least |
-|---|---|---|
-| VP64 | 178,004 | 27,132 |
-| x86_64 AMD64 | 242,380 | 31,972 |
-| x86_64 WIN64 | 242,956 | 32,084 |
-| arm64 ARM64 | 255,868 | 35,036 |
-| riscv64 RISCV64 | 298,036 | 40,828 |
-| la64 LA64 | 297,156 | 40,764 |
-
-About a seventh. Its author puts the floor lower still, about 4 KB, if a few
-more of what `init` reaches were bound by name as the kernel is. That has
-not been built or measured.
-
-**It runs.** On a Raspberry Pi 4, arm64, with the least image in place of
-the full one and the function files in `obj/` beside it:
-
-* **The whole test suite passes:** 135 modules, 6,006 tests, none failed, on
-  four nodes. Everything they use was bound as it was asked for.
-
-* **It is no slower.** A one node session started, given a command and
-  ended, timed from outside. The first run after an image is changed is
-  left out, it is slow with either image, 340 ms and 2.6 seconds, a cache
-  being filled:
-
-| Command | Full image | The least image |
-|---|---|---|
-| `echo up`, five runs | 132 to 133 ms | 121 to 122 ms |
-| `tests -m polygon`, three runs | 172 to 173 ms | 160 to 163 ms |
-| `make`, nothing to do, four runs | 373 to 377 ms | 354 to 357 ms |
-
-  The files are in the host's own cache after the first read, and a smaller
-  image is less to map. The session that ran `tests -m polygon` on the least
-  image made 1,428 calls to open a file, the host's count, the shell that
-  starts it among them.
-
-**What an install needs.** `snapshot.zip` holds the VP64 image and no
-function files, so an install has nothing to bind from: its image has to
-hold every function the install uses. Which those are was measured, not
-reasoned out. An emulated install was run from the least VP64 image with
-the VP64 function files beside it, and the host was asked which files it
-opened: 527 of the 944. An image of those 527 alone is **112,436 bytes**,
-and a clean tree with that image and nothing else under `obj/` installs:
-complete in 37 seconds on the Pi 4, one emulated node, the native image it
-builds the same 255,868 bytes.
-
-| The VP64 image of the snapshot | Functions | Bytes | Zipped |
+| Image | Functions | Bytes | What it holds |
 |---|---|---|---|
-| Every function, as it is shipped | 944 | 178,004 | 76,485 |
-| What an install uses | 527 | 112,436 | 46,459 |
+| A native one, `arm64/ARM64` | 237 | 71,444 | The loader, the kernel and what they call, the translator of its own CPU among them |
+| The VP64 one, in `snapshot.zip` | 797 | 243,372 | What an install binds before it has built anything, and the translator of every CPU |
 
-What an install never touches is nearly all of the GUI, the services, and
-the set logic of polygons. What it does touch that might not be guessed is
-`random-bytes` and SHA-256, for the key a machine is given the day it is
-installed.
+**A native image holds only what starts the system.** It is made by an
+install, after the rest has been built, so the files are there to bind
+from. The GUI, the services, the codecs and most of the class library are
+not in it.
 
-**Why the full image was shipped till 2026-10-21: convenience.** The saving
-was then 30 KB of download. Against it, the list of 527 was true of one
-tree on one day, and an image that is one function short of it fails on a
-clean machine, which is the worst place there is to fail. An image with
-everything in it can not be short.
+**It runs.** `tests -a` on 2026-11-10, on the native images of three
+machines: 187 modules and 8,255 tests on each, none failed, everything
+they use bound as it was asked for. That includes the module that starts
+a hidden desktop and opens every application on it. A one node session on
+the M4, started, given `echo up` and ended, timed from outside: 32 to 35
+ms, five runs after the first.
 
-**Why it no longer is.** In the ten days after, the image with every
-function in it grew by 39 KB, most of it native kernels that only a
-library's `ffi` reaches, and `snapshot.zip` from 129 KB, the one of
-2026-10-08, to 172 KB. So the
-image is now what an install needs, by a rule and not by a list of 527:
-
-* **Everything in `sys/` and `class/`,** the kernel and Lisp, and what
-  their functions call.
-
-* **And 29 others by name,** in `+boot_extras` of `lib/boot/image.inc`: the
-  font, pixmap and path functions Lisp's boot asks for, the four crypto
-  kernels a machine's key is made with, and the Net service's sockets.
-  `(boot-funcs)` there is what `make-boot-all` asks.
-
-The 29 were measured as the 527 were. An emulated install was run from an
-image of the kernel alone, the VP64 function files beside it, the loader
-of that tree made to say each file it read; of the files it read, those
-outside `sys/` and `class/` are the 29. Then:
-
-| The VP64 image of the snapshot | Functions | Bytes | Zipped |
-|---|---|---|---|
-| Every function, till 2026-10-21 | 1,027 | 217,308 | 91,783 |
-| What an install read, 2026-10-21 | 736 | 121,932 | |
-| `sys/`, `class/` and the 29, as shipped | 773 | 129,844 | 53,807 |
-
-The rule costs 8 KB over the bare list. For that, a new function in
-`sys/` or `class/` is in the image without anyone saying so, and only a
-new one elsewhere that an install binds before it has built anything has
-to be named. One that is not, stops the install with `Bind error:` and its
-name. `snapshot.zip` went from 172 KB to 134 KB.
-
-**What it was checked by, 2026-10-21:**
-
-* **Installs from the image alone,** nothing else under `obj/`: on the M4
-  from a copy of the tree, 16 emulated nodes; on the Pi 4 in a new folder,
-  `make install`, 57 seconds with the host programs compiled; and under
-  Wine from the new `snapshot.zip`. Each made its native image and its key.
-
-* **`tests -a` on the M4 on the new images,** 16 nodes: 186 modules, 7,791
-  tests, none failed. That includes the release modules, and the one that
-  starts a hidden desktop and opens every application on it, so a desktop
-  binding what it needs at its start was done too.
-
-* **A one node session started and ended on the M4,** timed from outside:
-  28 to 29 ms with the new arm64 image, 30 to 36 ms with the full one,
-  three runs each.
-
-**What was not measured.** Many desktops starting at once, each binding the
-same files; and how near the deepest chain of functions binding one
-another came to the end of the loader's buffer for relocating paths, which
-is two pages and is used as a stack.
-
-**What it leaves to know.** A tree that once built VP64 keeps those
-function files through `make install`, whose `clean` removes only the host
-programs. A function the image does not hold would be bound from such a
-file, from whatever source it was built of. No install binds one today.
+**The VP64 image is what an install needs.** `snapshot.zip` holds it and
+no function files, so an install has nothing to bind from till it has
+built something: its image has to hold every function the install uses
+before then. That is a rule, `(boot-funcs)` in `lib/boot/image.inc`, and
+not a list of what one install was seen to read: everything in `sys/` and
+`class/`, the kernel and Lisp, and 36 others by name, the font, pixmap and
+path functions Lisp's boot asks for, the crypto a machine's key is made
+with, the Net service's sockets, and the translators and the parser of VP
+text. A new function in `sys/` or `class/` is in it without anyone saying
+so. One elsewhere that an install binds too soon, and is not named, stops
+the install with `Bind error:` and its name. `snapshot.zip` is 159,487
+bytes, the VP64 image and the host program for Windows.
 
 ## The VP64 Target: A Blueprint for Silicon
 
