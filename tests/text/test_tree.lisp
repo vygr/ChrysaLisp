@@ -56,8 +56,8 @@
 		(files-scan "class/list/class.vp")))
 (assert-eq "a name made by (path-to-absolute)" "lib/crypto/sha256_blocks"
 	(elem-get (first (filter (# (eql (first %0) "def-func")) (files-scan "lib/crypto/lisp.vp"))) 2))
-(assert-eq "a name of a quoted symbol" "class/lisp/run"
-	(elem-get (first (filter (# (eql (first %0) "def-func")) (files-scan "class/lisp/run.vp"))) 2))
+(assert-eq "a name of a quoted symbol" "sys/statics/statics"
+	(elem-get (first (filter (# (eql (first %0) "def-func")) (files-scan "sys/statics/class.vp"))) 2))
 (assert-true "what a file imports" (find "gui/lisp.inc" (files-depends "cmd/input.lisp")))
 (assert-eq "not an import of a path worked out as it runs" (length (filter (# (eql (first %0) "import")) (files-scan "cmd/input.lisp")))
 	(length (files-depends "cmd/input.lisp")))
