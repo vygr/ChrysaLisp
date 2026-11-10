@@ -2,7 +2,7 @@
 ; Source Scan Child
 ;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/task/jobs.inc")
+(import "././task/jobs.inc")
 
 ;a worker with no job for this long ends, its farm has gone and did not
 ;say. A job sent to it as it went is given to another, (job-child), but

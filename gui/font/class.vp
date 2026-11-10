@@ -2,7 +2,6 @@
 (include "sys/str/class.inc")
 (include "lib/consts/colors.inc")
 (include "./class.inc")
-(include "././texture/class.inc")
 (include "././pixmap/class.inc")
 (include "././path/class.inc")
 (include "././canvas/class.inc")
