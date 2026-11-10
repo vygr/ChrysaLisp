@@ -15,13 +15,15 @@
 	;trashes
 	;:r1-:r13, :d0-:d15
 
+	;the paths first, then the points: a call given a path and a point
+	;loads them going up, the point's two as neighbours
 	(structure slot 0
+		(ptr this path1)
+		(plong iter iter_begin iter_end limit)
 		(union
 			(long p1 p2 p3 p4 l2_v l2_pv l2_npv l2_rv)
 			(int p1x p1y p2x p2y p3x p3y p4x p4y
 				l2_vx l2_vy l2_pvx l2_pvy l2_npvx l2_npvy l2_rvx l2_rvy))
-		(plong iter iter_begin iter_end limit)
-		(ptr this path1)
 		(int radius step)
 		(byte join_style cap1_style cap2_style))
 
