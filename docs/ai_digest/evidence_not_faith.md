@@ -244,10 +244,17 @@ How it has gone, seconds:
 | When | M4, 16 nodes | i9, 12 nodes | Pi 4, 4 nodes | What had changed |
 |---|---|---|---|---|
 | 2026-10-06 | 1.13 to 1.19 | 3.42 to 3.51 | 23.8 and 24.0 | |
-| 2026-11-10 | 1.32 to 1.34 | 3.04 to 3.45 | 15.2 to 15.9 | The VP64 image carries every translator; the install makes the VP once and translates it |
+| 2026-11-10 | 1.32 to 1.34 | 3.04 to 3.45 | 15.2 to 15.9 | The VP64 image is of the one normal build, with its checks, and carries every translator; the install makes the VP once and translates it |
 
-The Pi is a third quicker and the i9 a little. The M4, which had the least
-to gain, is 0.15 to 0.2 seconds slower.
+What changed for the record of 2026-11-10: two things, one each way. Since
+2026-10-26 there is one build mode, the normal one with its checks, and
+the VP64 image an install runs is of it, where it was a release build with
+none. That costs an install, and was chosen: it is one base every machine
+is tested on, and release mode was not winning enough on the native
+systems to keep a second one. Against it, the install now makes the VP
+once and translates it, with the translators the image carries. The Pi
+comes out a third quicker and the i9 a little; the M4, which had the least
+to gain from the second, is 0.15 to 0.2 seconds slower.
 
 ## Compact Boot Images: L1 Cache Residence
 
