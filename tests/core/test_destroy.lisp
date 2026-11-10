@@ -21,12 +21,15 @@
 (defq ds_l (ds-nest 1000) ds_l :nil ds_before (ds-used))
 (times 20 (defq ds_l (ds-nest 20000)) (setq ds_l :nil))
 ;what is asked is the whole node's, and other tests are run beside this one:
-;one that holds a few megabytes for a moment is waited out. What these lists
-;would hold, were they not let go of, does not go away
-(defq ds_tries 0)
-(while (and (>= (- (ds-used) ds_before) 1000000) (< (++ ds_tries) 40)) (task-sleep 50000))
+;one that holds a few megabytes is waited out, for as long as it holds them.
+;What these lists would hold, were they not let go of, does not go away:
+;then this waits for ever, and the runner says where it hangs
+(defq ds_held (- (ds-used) ds_before))
+(while (>= ds_held 1000000)
+	(task-sleep 50000)
+	(setq ds_held (- (ds-used) ds_before)))
 (assert-true "twenty of them, 20,000 deep, made and let go of: no more memory is held than before"
-	(< (- (ds-used) ds_before) 1000000))
+	(< ds_held 1000000))
 
 ;what is inside is destroyed with it: a stream in the deepest, closed when the outermost goes
 (defq ds_path (cat "tests/scratch/destroy_" (str (pii-pid)) ".txt")
