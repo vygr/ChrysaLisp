@@ -78,8 +78,7 @@
 	;trashes
 	;:r1-:r5, :d0-:d15
 
-	(entry :canvas :init_pixmap '(:r0 :r1 :r2))
-	(assign '(:r2) '((:r0 +canvas_pixmap)))
+	(entry :canvas :init_pixmap '(:r0 :r1 (:r0 +canvas_pixmap)))
 
 	;init parent
 	(s-call :canvas :init '(:r0 :r1) '(:r0 :r1))
@@ -163,8 +162,7 @@
 		(int flags))
 
 	(vp-alloc slot_size)
-	(entry :canvas :swap '(:r0 :r1))
-	(save-fields :rsp '(slot_this slot_flags) '(:r0 :r1))
+	(entry :canvas :swap '((:rsp slot_this) (:rsp slot_flags)))
 
 	;a negative number is the other way, the texture back to the pixmap
 	(assign '((:r0 +canvas_pixmap)) '(:r2))

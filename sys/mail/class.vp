@@ -562,7 +562,8 @@
 
 	;insert into service map, the node id of the mailbox id
 	(vp-add-cr (+ +str_data +net_id_node_id) :r0)
-	(call :nodeid :create '(:r0) '((:rsp slot_key)))
+	(call :nodeid :create '(:r0) '(:r0))
+	(assign '(:r0) '((:rsp slot_key)))
 	(fn-bind 'sys/statics/statics :r0)
 	(call :hmap :cfind '((:r0 statics_sys_mail_node_map) (:rsp slot_key) (@ class/nodeid/eql)) '(_ :r1 :r2))
 	(save-fields :rsp '(slot_tuple slot_bucket) '(:r1 :r2))
@@ -760,8 +761,7 @@
 		(struct cat cat_size))
 
 	(vp-alloc slot_size)
-	(entry :sys_mail :ping '(:r0))
-	(assign '(:r0) '((:rsp slot_full)))
+	(entry :sys_mail :ping '((:rsp slot_full)))
 
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-add-cr statics_sys_task_kernel_node_id :r0)

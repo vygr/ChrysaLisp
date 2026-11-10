@@ -22,8 +22,7 @@
 		(byte join_style))
 
 	(vp-alloc slot_size)
-	(entry :path :stroke_polygon '(:r0 :r1 :r2))
-	(save-fields :rsp '(slot_this slot_radius slot_join_style) '(:r0 :r1 :r2))
+	(entry :path :stroke_polygon '((:rsp slot_this) (:rsp slot_radius) (:rsp slot_join_style)))
 
 	;the filter gives this back, to :r3 where the create leaves it
 	(call :path :filter_polygon `(:r0 :r0 ,(<< 1 (- +fp_shift 1))) '(:r3))

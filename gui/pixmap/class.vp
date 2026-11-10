@@ -129,8 +129,7 @@
 		(long tex_id))
 
 	(vp-alloc slot_size)
-	(entry :pixmap :upload '(:r0 :r1))
-	(save-fields :rsp '(slot_this slot_flags) '(:r0 :r1))
+	(entry :pixmap :upload '((:rsp slot_this) (:rsp slot_flags)))
 
 	;a node with no GUI has no driver to make a texture with. The pixmap
 	;is left with none, as one that was never uploaded, and whoever asked

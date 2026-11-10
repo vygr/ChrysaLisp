@@ -572,8 +572,7 @@
 		(long name_len cap bytes n))
 
 	(vp-alloc slot_size)
-	(entry :sys_load :vp_find '(:r0))
-	(assign '(:r0) '((:rsp slot_name)))
+	(entry :sys_load :vp_find '((:rsp slot_name)))
 
 	(call :sys_str :length '(:r0) '(_ :r1))
 	(assign '(:r1) '((:rsp slot_name_len)))

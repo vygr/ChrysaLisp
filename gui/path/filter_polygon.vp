@@ -19,8 +19,7 @@
 		(long eps))
 
 	(vp-alloc slot_size)
-	(entry :path :filter_polygon '(:r0 :r1 :r2))
-	(assign '(:r2) '((:rsp slot_eps)))
+	(entry :path :filter_polygon '(:r0 :r1 (:rsp slot_eps)))
 
 	(call :path :filter_polyline '(:r0 :r1 :r2) '(:r2))
 	(assign '(:r2) '((:rsp slot_this)))

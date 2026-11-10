@@ -38,8 +38,7 @@
 	(endif)
 
 	(vp-alloc slot_size)
-	(entry :pixmap :resize '(:r0 :r1))
-	(save-fields :rsp '(slot_this slot_source) '(:r0 :r1))
+	(entry :pixmap :resize '((:rsp slot_this) (:rsp slot_source)))
 
 	;where each column starts in the source, in 256ths of a pixel, each
 	;worked out from the sizes and not by steps, which drift: with a step of

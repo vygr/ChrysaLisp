@@ -97,8 +97,7 @@
 			(long result)))
 
 	(vp-alloc slot_size)
-	(entry :list :lisp_pivot '(:r0 :r1))
-	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
+	(entry :list :lisp_pivot '((:rsp slot_this) (:rsp slot_args)))
 
 	(errorif-lisp-args-sig 'error1 :r1 4)
 
