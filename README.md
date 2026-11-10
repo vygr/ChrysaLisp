@@ -4,17 +4,23 @@ ChrysaLisp is a unique, 64-bit, MIMD operating system designed from the ground u
 
 ## The Numbers
 
-Measured on an Apple M4 Max, with the system's own tools. How, and on what else, is in [`docs/ai_digest/evidence_not_faith.md`](docs/ai_digest/evidence_not_faith.md).
+Measured with the system's own tools, on a laptop of today, a laptop of 2018 and a Raspberry Pi. How is in [`docs/ai_digest/evidence_not_faith.md`](docs/ai_digest/evidence_not_faith.md).
 
-* **40 ms**: the whole system rebuilt from source, all 1,074 functions of it, on 16 nodes. Every node makes its compiler from nothing and lets go of it after, each time. On one core, 0.23 seconds.
+| | Apple M4 Max, 16 cores | Intel i9-8950HK, 12 threads | Raspberry Pi 4, 4 cores |
+|---|---|---|---|
+| The whole system rebuilt from source | **40 ms** | 0.16 seconds | 1.0 second |
+| The same on one core | 0.23 seconds | 0.51 seconds | 2.5 seconds |
+| Built for six platforms at once | 0.2 seconds | 0.5 seconds | 1.5 seconds |
+| A full install, by the emulator | 1.3 seconds | 3.1 seconds | 15.6 seconds |
+| All 8,255 tests | 4 min 46 s | 4 min 49 s | 8 min 13 s |
 
-* **0.2 seconds**: the system built for six platforms at once, x86_64 for Linux and Mac and for Windows, ARM64, RISC-V64, LoongArch64 and the VP64.
+* **The whole system** is all 1,074 functions of it. Every node makes its compiler from nothing and lets go of it after, each time.
 
-* **1.3 seconds**: a full install. The portable emulator, booted from a 160 KB snapshot, builds the native system from source. Compiling the host program, the one piece of C++, is not in that time.
+* **Six platforms** are x86_64 for Linux and Mac and for Windows, ARM64, RISC-V64, LoongArch64 and the VP64.
 
-* **70 KB**: a native boot image. The rest is bound from its files as it is asked for.
+* **A full install** is the portable emulator, booted from a 160 KB snapshot, building the native system from source. Compiling the host program, the one piece of C++, is not in that time.
 
-* **8,255 tests**: what a change is run against.
+* **70 KB** is a native boot image. The rest is bound from its files as it is asked for.
 
 ![](./screen_shot_1.png)
 

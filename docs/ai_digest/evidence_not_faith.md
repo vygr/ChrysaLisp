@@ -407,17 +407,29 @@ translators. Since then a change to the source that is not yet known to
 be right is built in a clone of the tree, and only what comes out the
 same, or was read, is brought across.
 
-`make test` on the M4 on 2026-11-10, three runs each, the standing
-member of the mesh up and idle beside it:
+`make test` on 2026-11-10 on the three machines of the table above, each
+brought level with the M4 and rebuilt first, three runs each, the standing
+member of the mesh up and idle beside each:
 
-| Nodes | Mean | Best | Worst |
-|---|---|---|---|
-| 16 | 0.039 to 0.042 | 0.036 to 0.040 | 0.043 to 0.052 |
-| 19 | 0.0376 to 0.0379 | 0.033 to 0.035 | 0.044 to 0.048 |
-| 1 | 0.234 to 0.235 | 0.231 to 0.233 | 0.236 to 0.241 |
+| Machine | Nodes | Mean | Best | Worst | On one node, mean |
+|---|---|---|---|---|---|
+| Apple M4 Max | 16 | 0.039 to 0.042 | 0.036 to 0.040 | 0.043 to 0.052 | 0.234 to 0.235 |
+| Intel i9-8950HK | 12 | 0.140 to 0.176 | 0.134 to 0.158 | 0.146 to 0.218 | 0.512 to 0.517 |
+| Raspberry Pi 4 | 4 | 0.96 to 1.08 | 0.91 to 0.93 | 1.02 to 1.41 | 2.42 to 2.58 |
+
+On 19 nodes the M4 gave means of 0.0376 to 0.0379. The i9's first two runs
+were 0.175 and 0.176 and its third 0.140, with a second user signed on to
+it. Against 2026-10-06 the M4 and the Pi are a quarter quicker and the i9
+a tenth to a fifth; on one node all three are a third quicker.
 
 At 40 ms the whole birth to death cycle of the first section runs 25
-times a second, and on one core 4 times.
+times a second on the M4, and on one core 4 times. A Raspberry Pi 4
+builds the whole system from source once a second.
+
+`tests -a` that night, on each machine's own build: 187 modules and 8,255
+tests on each, none failed, in 286 seconds on the M4, 289 on the i9 and
+493 on the Pi. The Pi's native boot image was the 71,444 bytes of the
+M4's.
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
@@ -436,9 +448,17 @@ different target architectures from scratch.
 | Intel i9-8950HK | 12 | 1.18 to 1.22 seconds, three runs |
 | Raspberry Pi 4 | 4 | 7.6 and 9.0 seconds, two runs |
 
-On 2026-11-10 the M4 gave 0.17 to 0.21 seconds, three runs on 16 nodes:
-since 2026-10-22 the source is compiled to VP once and translated six
-times, see above. The other two machines were not measured again that day.
+On 2026-11-10, three runs each, a node for each processor:
+
+| Machine | Nodes | Result |
+|---|---|---|
+| Apple M4 Max | 16 | 0.17 to 0.21 seconds |
+| Intel i9-8950HK | 12 | 0.43 to 0.51 seconds |
+| Raspberry Pi 4 | 4 | 1.48 to 1.57 seconds |
+
+Since 2026-10-22 the source is compiled to VP once and translated six
+times, see above: the Pi builds the system for all six platforms in a
+second and a half, where it took eight.
 
 * **Evidence:** The entire operating system is compiled from source six times
   over (once for each architecture) in about a third of a second on the M4,
@@ -464,11 +484,20 @@ while running entirely inside the portable C++ software emulator.
 On the Pi 4 the same install on one emulated node took 74 seconds, and on two
 40 seconds, so it is the four nodes that bring it to 24.
 
-On 2026-11-10 the M4 gave 1.32 to 1.34 seconds, three runs on 16 emulated
-nodes, each from a tree with only the host program and the unpacked
-`snapshot.zip` under `obj/`. The VP64 image now carries the translators of
-every platform and the install makes the VP and then translates it; the
-native image it built was the 71,444 bytes of the tree's own each time.
+On 2026-11-10, three runs each, an emulated node for each processor,
+each run from a copy of the tree with only the host program and the
+unpacked `snapshot.zip` under `obj/`:
+
+| Machine | Nodes | Result |
+|---|---|---|
+| Apple M4 Max | 16 | 1.32 to 1.34 seconds |
+| Intel i9-8950HK | 12 | 3.04 to 3.45 seconds |
+| Raspberry Pi 4 | 4 | 15.2 to 15.9 seconds |
+
+The VP64 image now carries the translators of every platform and the
+install makes the VP and then translates it. The native image each
+install built was the size of its tree's own every time, 71,444 bytes on
+the M4 and the Pi, 68,588 on the i9.
 
 * **Evidence:** Even when executing inside a portable C++ software emulator,
   ChrysaLisp can compile and link its entire native environment in a little
