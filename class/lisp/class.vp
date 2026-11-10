@@ -75,7 +75,7 @@
 		(assign '(:r0) '((:r1 +lisp_stderr)))
 		(vp-xor-rr :r0 :r0)
 		(assign '(:r0 :r0 :r0 :r0 :r0)
-			'((:r1 +lisp_seq_idx) (:r1 +lisp_stream_line) (:r1 +lisp_nextsym) (:r1 +lisp_args_pool) (:r1 +lisp_env_pool)))
+			'((:r1 +lisp_args_pool) (:r1 +lisp_env_pool) (:r1 +lisp_seq_idx) (:r1 +lisp_stream_line) (:r1 +lisp_nextsym)))
 
 		;tls stack, object tls, error vtable
 		(fn-bind 'sys/statics/statics :r2)

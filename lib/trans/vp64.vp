@@ -205,7 +205,7 @@
 
 (vp-label 'branch)
 	;vp64-branch, :r0 = op, :r1 = l, :r7 = the record
-	(assign '((:r14 +trs_pc) (:r7 +tri_m) (:r14 +trs_pass)) '(:r2 :r3 :r4))
+	(assign '((:r14 +trs_pc) (:r14 +trs_pass) (:r7 +tri_m)) '(:r2 :r4 :r3))
 	(vp-sub-rr :r2 :r1)
 	(vpif '(:r4 > 0))
 		(vp-abs-rr :r1 :r5)

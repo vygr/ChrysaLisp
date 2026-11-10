@@ -32,7 +32,7 @@
 	(lisp-this :r7)
 	;payload, description and msg, to where :error :create wants them
 	(vp-pop :r2 :r0 :r1)
-	(assign '((:r7 +lisp_script_name) (:r7 +lisp_stream_name) (:r7 +lisp_stream_line)) '(:r3 :r4 :r5))
+	(assign '((:r7 +lisp_stream_name) (:r7 +lisp_script_name) (:r7 +lisp_stream_line)) '(:r4 :r3 :r5))
 	(call :error :create '(:r0 :r1 :r2 :r3 :r4 :r5 :r6) '(:r1))
 	(lisp-this :r0)
 

@@ -27,7 +27,7 @@
 			(else)
 				(call :lisp :repl_print '(:r0 (:r0 +lisp_stdout) :r2 1) '(:r0))
 			(endif)
-			(assign `((:rsp ,+ptr_size) (:rsp 0)) '(:r1 :r2))
+			(assign `((:rsp 0) (:rsp ,+ptr_size)) '(:r2 :r1))
 			(vp-add-cr +ptr_size :r1)
 			(breakif '(:r1 = :r2))
 			(assign '(:r1) `((:rsp ,+ptr_size)))

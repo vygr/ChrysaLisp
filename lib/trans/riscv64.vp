@@ -260,7 +260,7 @@
 (vp-label 'rv_branch)
 	;riscv64-branch, :r0 = f3, :r1 = rs1, :r2 = rs2, :r3 = l, :r7 = the
 	;record. Short if it can be, once long it is long
-	(assign '((:r14 +trs_pc) (:r7 +tri_m) (:r14 +trs_pass)) '(:r4 :r5 :r6))
+	(assign '((:r14 +trs_pc) (:r14 +trs_pass) (:r7 +tri_m)) '(:r4 :r6 :r5))
 	(vp-sub-rr :r4 :r3)
 	(vpif '(:r6 > 0))
 		(vp-abs-rr :r3 :r8)

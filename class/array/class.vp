@@ -321,7 +321,7 @@
 		(vp-cpy-rr this cur_cap)
 		(vp-pop :r3 :r4 :r5 this)
 		(vp-shr-cr (log2 +long_size) new_cap)
-		(assign `(,cur_cap ,new_cap) `((,this +array_begin) (,this +array_capacity)))
+		(assign `(,new_cap ,cur_cap) `((,this +array_capacity) (,this +array_begin)))
 	(endif)
 
 	(exit :array :set_cap `(,this))
@@ -819,7 +819,7 @@
 			(vp-simd vp-load-rcr `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
 			(vp-add-cr (* +long_size 2) idx_begin)
 			;the source this time
-			(assign `((,src1 +array_begin) (,src1 +array_length)) `(,src2 ,len))
+			(assign `((,src1 +array_length) (,src1 +array_begin)) `(,len ,src2))
 			(seq-elem-index si len)
 			(seq-elem-index ei len)
 			(vp-xor-rr swp_xor src1)

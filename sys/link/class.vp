@@ -227,10 +227,8 @@
 				(save-fields :rsp '(slot_sleep_time slot_quiet) '(:r1 :r2))
 
 				;is this msg part of a parcel for this node
-				(assign `((:r0 ,(+ lk_buf_size lk_frag_total) ui)
-						(:r0 ,(+ lk_buf_size lk_frag_dest +net_id_node_id +node_id_node1))
-						(:r0 ,(+ lk_buf_size lk_frag_dest +net_id_node_id +node_id_node2)))
-					'(:r1 :r2 :r3))
+				(assign `((:r0 ,(+ lk_buf_size lk_frag_dest +net_id_node_id +node_id_node1)) (:r0 ,(+ lk_buf_size lk_frag_dest +net_id_node_id +node_id_node2)) (:r0 ,(+ lk_buf_size lk_frag_total) ui))
+					'(:r2 :r3 :r1))
 				(load-node-id :rsp slot_node_id :r4 :r5)
 				(vpif '(:r1 /= 0) '(:r2 = :r4) '(:r3 = :r5))
 					;copy direct from link buffer to parcel !

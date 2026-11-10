@@ -86,7 +86,7 @@
 	;which leaves all but d and t
 	(call :array :set_cap `(,d ,t))
 
-	(assign `((,aiter +array_length) (,ebase +array_begin) (,aiter +array_begin)) `(,aend ,ebase ,aiter))
+	(assign `((,aiter +array_length) (,aiter +array_begin) (,ebase +array_begin)) `(,aend ,aiter ,ebase))
 	(vp-shl-cr (log2 +long_size) aend)
 	(vp-cpy-rr aiter witer)
 	(vp-add-rr aiter aend)
@@ -142,7 +142,7 @@
 		(vp-cpy-rr v eu)
 		(vp-mul-cr +pe_size eu)
 		(vp-add-rr ebase eu)
-		(assign `((,eu +pe_key) (,eu +pe_x1)) `(,kv ,xv))
+		(assign `((,eu +pe_x1) (,eu +pe_key)) `(,xv ,kv))
 		(vp-cpy-rr i j)
 		(loop-while `(,j /= ,abegin) 'back)
 			(assign `((,j ,(* -1 +long_size))) `(,eu))
@@ -325,8 +325,8 @@
 	(vp-alloc slot_size)
 	(assign `(,xlow) '((:rsp slot_this)))
 	(list-bind-args elm `(,ebase ,iiter ,ya ,yb ,t) '(:nums :nums :num :num :nums))
-	(assign `(,t (,iiter +array_length) (,ebase +array_begin) (,iiter +array_begin))
-		`((:rsp slot_cuts) ,aend ,ebase ,iiter))
+	(assign `(,t (,iiter +array_length) (,iiter +array_begin) (,ebase +array_begin))
+		`((:rsp slot_cuts) ,aend ,iiter ,ebase))
 	(vp-shl-cr (log2 +long_size) aend)
 	(vp-add-rr iiter aend)
 
@@ -491,7 +491,7 @@
 	;order, taken the least first
 	(vp-rdef (xa xb x px t sbase sw oiter oend y0 step aiter aend ia ib))
 	(load-fields :rsp '(slot_out slot_above) `(,oiter ,aiter))
-	(assign `((,aiter +array_length) (,oiter +array_begin) (,aiter +array_begin)) `(,aend ,oiter ,aiter))
+	(assign `((,aiter +array_length) (,aiter +array_begin) (,oiter +array_begin)) `(,aend ,aiter ,oiter))
 	(vp-shl-cr (log2 +long_size) aend)
 	(vp-xor-rr ia ia)
 	(vp-xor-rr ib ib)
@@ -759,7 +759,7 @@
 				(vpif `(,nxt = ,t))
 					(vp-cpy-rr j nxt)
 				(endif)
-				(assign `((,i 0) (,u 0) (,nxt ,+long_size) (,u ,+long_size)) `(,x ,a ,y ,idl))
+				(assign `((,i 0) (,u 0) (,u ,+long_size) (,nxt ,+long_size)) `(,x ,a ,idl ,y))
 				(vp-sub-rr a x)
 				(vp-sub-rr idl y)
 				(vp-mul-rr y x)

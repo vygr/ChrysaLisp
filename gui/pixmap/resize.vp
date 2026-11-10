@@ -21,7 +21,7 @@
 	;the same size, a copy
 	(vpif '(:r2 = :r4) '(:r3 = :r5))
 		(vp-push :r0)
-		(assign '((:r1 +pixmap_data) (:r0 +pixmap_data) (:r1 +pixmap_stride)) '(:r6 :r7 :r8))
+		(assign '((:r1 +pixmap_stride) (:r1 +pixmap_data) (:r0 +pixmap_data)) '(:r8 :r6 :r7))
 		(vp-mul-rr :r3 :r8)
 		(call :sys_mem :copy '(:r6 :r7 :r8))
 		(vp-pop :r0)

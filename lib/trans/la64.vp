@@ -253,7 +253,7 @@
 (vp-label 'la_branch)
 	;la64-branch, :r0 = o, :r1 = rj, :r2 = rd, :r3 = l, :r7 = the record.
 	;Short if it can be, once long it is long
-	(assign '((:r14 +trs_pc) (:r7 +tri_m) (:r14 +trs_pass)) '(:r4 :r5 :r6))
+	(assign '((:r14 +trs_pc) (:r14 +trs_pass) (:r7 +tri_m)) '(:r4 :r6 :r5))
 	(vp-sub-rr :r4 :r3)
 	(vpif '(:r6 > 0))
 		(vp-abs-rr :r3 :r8)

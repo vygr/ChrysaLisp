@@ -384,7 +384,7 @@
 				(call :region :remove_rect `(,heap (& ,view2 +view_dirty_region)
 						,x ,y ,x1 ,y1) `(,heap))
 
-				(assign '((:rsp vis_next) (:rsp vis_root)) `(,view1 ,view2))
+				(assign '((:rsp vis_root) (:rsp vis_next)) `(,view2 ,view1))
 			(loop-until `(,view1 = ,view2))
 		(else)
 			;use views opaque region
@@ -420,7 +420,7 @@
 				(call :region :remove_region `(,heap (& :rsp vis_region)
 						(& ,view2 +view_dirty_region) 0 0) `(,heap))
 
-				(assign '((:rsp vis_next) (:rsp vis_root)) `(,view1 ,view2))
+				(assign '((:rsp vis_root) (:rsp vis_next)) `(,view2 ,view1))
 			(loop-until `(,view1 = ,view2))
 
 			;free any temp region

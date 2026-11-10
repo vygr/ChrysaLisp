@@ -166,7 +166,7 @@
 	(call :sys_task :start '(($ fn_entry)) '(:r0 :r1 _ _ _))
 	(assign '((:rsp slot_statics)) '(:r2))
 	(assign '(:r0 :r0 :r1)
-		'((:r2 statics_sys_task_kernel_tcb) (:r2 statics_sys_task_current_tcb) (:rsp slot_mbox_addr)))
+		'((:r2 statics_sys_task_current_tcb) (:r2 statics_sys_task_kernel_tcb) (:rsp slot_mbox_addr)))
 
 	;init mailer
 	(call :sys_mail :statics_init1)
@@ -544,7 +544,7 @@
 
 		;how long that was is time the node was idle, (kernel-stats)
 		(call :host_os :pii_time :nil '(:r0))
-		(assign '((:rsp slot_time) (:rsp slot_statics)) '(:r1 :r2))
+		(assign '((:rsp slot_statics) (:rsp slot_time)) '(:r2 :r1))
 		(vp-sub-rr :r1 :r0)
 		(assign '((:r2 statics_sys_task_idle)) '(:r1))
 		(vp-add-rr :r1 :r0)

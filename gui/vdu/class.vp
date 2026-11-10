@@ -29,7 +29,7 @@
 		;init myself
 		(vp-xor-rr :r2 :r2)
 		(assign '(:r2 :r2 :r2 :r2 :r2)
-			'((:r0 +vdu_font) (:r0 +vdu_chars) (:r0 +vdu_width) (:r0 +vdu_height) (:r0 +vdu_textures)))
+			'((:r0 +vdu_font) (:r0 +vdu_textures) (:r0 +vdu_chars) (:r0 +vdu_width) (:r0 +vdu_height)))
 		;it draws only the lines that are dirty, so keeps no list of draws
 		(assign '((:r0 +view_flags)) '(:r2))
 		(vp-or-cr +view_flag_nocache :r2)

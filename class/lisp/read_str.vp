@@ -57,7 +57,7 @@
 		(vp-push :r1)
 		(call :stream :write_char `((:rsp ,+ptr_size) :r1))
 		(vp-pop :r2)
-		(assign `((:rsp ,(* 3 +ptr_size)) (:rsp ,(* 2 +ptr_size))) '(:r0 :r1))
+		(assign `((:rsp ,(* 2 +ptr_size)) (:rsp ,(* 3 +ptr_size))) '(:r1 :r0))
 		(call :lisp :read_char '(:r0 :r1 :r2) '(_ :r1))
 	(loop-end)
 	(assign '((:rsp 0)) '(:r0))

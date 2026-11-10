@@ -372,8 +372,7 @@
 		(vp-mul-cr -1 pix)
 		(assign `(,pix) `((,this +pixmap_type)))
 
-		(assign `((,this +pixmap_data) (,this +pixmap_stride) (,this +pixmap_height))
-			`(,dst ,end ,height))
+		(assign `((,this +pixmap_height) (,this +pixmap_stride) (,this +pixmap_data)) `(,height ,end ,dst))
 		(vp-mul-rr height end)
 		(vp-simd vp-xor-rr `(,pmul ,argb) `(,pmul ,argb))
 		(vp-add-rr dst end)
@@ -411,8 +410,7 @@
 		(vp-mul-cr -1 pix)
 		(assign `(,pix) `((,this +pixmap_type)))
 
-		(assign `((,this +pixmap_data) (,this +pixmap_stride) (,this +pixmap_height))
-			`(,dst ,end ,height))
+		(assign `((,this +pixmap_height) (,this +pixmap_stride) (,this +pixmap_data)) `(,height ,end ,dst))
 		(vp-mul-rr height end)
 		(vp-simd vp-xor-rr `(,pmul ,argb) `(,pmul ,argb))
 		(vp-add-rr dst end)

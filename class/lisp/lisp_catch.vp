@@ -77,7 +77,7 @@
 		(vp-pop :r1)
 		;the error stands if the handler gave :nil, if not, or if it gave
 		;an error of its own, what it gave is the value
-		(assign '((:r1 +obj_vtable) (:r0 +lisp_error) (:r0 +lisp_sym_nil)) '(:r2 :r3 :r4))
+		(assign '((:r1 +obj_vtable) (:r0 +lisp_sym_nil) (:r0 +lisp_error)) '(:r2 :r4 :r3))
 		(vpif '(:r2 /= :r3) '(:r1 = :r4))
 			(class/obj/ref :r1 :r2 -1)
 			(vp-pop :r1)

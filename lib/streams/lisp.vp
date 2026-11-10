@@ -215,7 +215,7 @@
 	(vp-rdef (offset m_len t_pos t v c t1 t2))
 	(assign '((:rsp slot_offset)) `(,offset))
 	(vpif `(,offset > 0))
-		(assign '((:rsp slot_m_len) (:rsp slot_t_pos) (:rsp slot_t) 255) `(,m_len ,t_pos ,t ,c))
+		(assign '((:rsp slot_t) (:rsp slot_m_len) (:rsp slot_t_pos) 255) `(,t ,m_len ,t_pos ,c))
 		(vp-add-rr t t_pos)
 		(vp-simd vp-cpy-rr `(,offset) `(,t1 ,t2))
 		(vp-and-rr c t1)

@@ -54,8 +54,8 @@
 	(entry :lisp :env_pop `(,this))
 
 	(assign `((,this +lisp_environment)) `(,env))
-	(assign `((,env +hmap_parent) (,env +obj_count) (,env +array_begin) (& ,env +hmap_elems))
-		`(,parent ,value ,iter_begin ,iter_end))
+	(assign `((,env +obj_count) (,env +array_begin) (,env +hmap_parent) (& ,env +hmap_elems))
+		`(,value ,iter_begin ,parent ,iter_end))
 	(assign `(,parent (,env +array_num_buckets)) `((,this +lisp_environment) ,tmp))
 	(gotoif `(,value /= 1) 'slow)
 	(gotoif `(,iter_begin /= ,iter_end) 'slow)

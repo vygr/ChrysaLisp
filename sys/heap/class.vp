@@ -190,7 +190,7 @@
 		(endif)
 
 		;do we have a free block ?
-		(assign `((,blk +hp_block_freecnt) (,blk +hp_block_cellcnt)) '(:r1 :r0))
+		(assign `((,blk +hp_block_cellcnt) (,blk +hp_block_freecnt)) '(:r0 :r1))
 		(vp-add-cr 1 :r1)
 		(assign '(:r1) `((,blk +hp_block_freecnt)))
 		(continueif '(:r0 /= :r1))
