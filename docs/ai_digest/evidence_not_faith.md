@@ -114,7 +114,7 @@ idle beside the runs, and nothing else of ChrysaLisp.
 
 * A Raspberry Pi 4, 4 nodes.
 
-The figures of 2026-10-06, the time before, are kept under each.
+Under each is how it has come down.
 
 ### Test 1: Native Compilation & Distributed Lifecycle (The Baseline)
 
@@ -143,22 +143,16 @@ The i9's first two runs were 0.175 and 0.176 and its third 0.140.
   one node, one core, it does so 4 times a second. A Raspberry Pi 4 builds
   the whole system from source once a second.
 
-On 2026-10-06 they were:
+How the mean has come down, seconds:
 
-| Machine | Nodes | Mean | Best | Worst | On one node, mean |
-|---|---|---|---|---|---|
-| Apple M4 Max | 16 | 0.052 to 0.055 | 0.048 | 0.057 to 0.073 | 0.340 |
-| Intel i9-8950HK | 12 | 0.170 to 0.190 | 0.158 | 0.178 to 0.222 | 0.757 |
-| Raspberry Pi 4 | 4 | 1.28 to 1.45 | 1.15 | 1.35 to 2.78 | 3.74 |
+| When | M4, 16 nodes | M4, one node | i9, 12 nodes | i9, one node | Pi 4, 4 nodes | Pi 4, one node | What had changed |
+|---|---|---|---|---|---|---|---|
+| Till 2026-10-03 | 0.070, on 20 | | | | | | |
+| 2026-10-06 | 0.052 to 0.055 | 0.340 | 0.170 to 0.190 | 0.757 | 1.28 to 1.45 | 3.74 | The Lisp engine, see [`till_the_pips_squeak.md`](till_the_pips_squeak.md) |
+| 2026-10-22 | 0.052 to 0.054 | 0.362 to 0.373 | | | | | More source, 142 files; a worker a node, a translation that stops early, a save that does not truncate |
+| 2026-11-10 | 0.039 to 0.042 | 0.234 to 0.235 | 0.140 to 0.176 | 0.512 to 0.517 | 0.96 to 1.08 | 2.42 to 2.58 | vpx gone, no pass over a frame, functions written by hand |
 
-Since then the M4 and the Pi are a quarter quicker and the i9 a tenth to a
-fifth, and on one node all three are a third quicker. How is below, a
-change at a time, each measured as it went in.
-
-Those of 2026-10-06 were themselves quicker than the 0.070 seconds, on 20
-nodes, that this document gave until 2026-10-03. The difference was the work
-on the Lisp engine, see
-[`docs/ai_digest/till_the_pips_squeak.md`](till_the_pips_squeak.md).
+What follows is each change as it went in, measured then.
 
 By 2026-10-22 the source had grown to 142 `.vp` files and the M4 mean on 16
 nodes was 0.074 seconds, the worst run up to 0.090. Profiled serially, one
@@ -453,10 +447,13 @@ different target architectures from scratch.
   in a fifth of a second on the M4, and in a second and a half on a
   Raspberry Pi 4.
 
-On 2026-10-06 they were 0.32 to 0.37 seconds on the M4, five runs, 1.18 to
-1.22 on the i9, three runs, and 7.6 and 9.0 on the Pi, two runs. Then every
-platform compiled everything from source. Since 2026-10-22 the source is
-compiled to VP once and translated six times, see above.
+How it has come down, seconds:
+
+| When | M4, 16 nodes | i9, 12 nodes | Pi 4, 4 nodes | What had changed |
+|---|---|---|---|---|
+| 2026-10-06 | 0.32 to 0.37 | 1.18 to 1.22 | 7.6 and 9.0 | Every platform compiled from source |
+| 2026-10-22 | 0.21 to 0.25, on 19 | | | The source compiled to VP once and translated six times |
+| 2026-11-10 | 0.17 to 0.21 | 0.43 to 0.51 | 1.48 to 1.57 | As Test 1 |
 
 ### Test 3: The Bootstrap Install (The Portability Test)
 
@@ -485,69 +482,42 @@ Pi, 68,588 on the i9.
   over a second on an M4 laptop, and in under 16 seconds on a low-power
   Raspberry Pi 4.
 
-On 2026-10-06 they were 1.13 to 1.19 seconds on the M4, four runs, 3.42 to
-3.51 on the i9, three runs, and 23.8 and 24.0 on the Pi, two runs. On the
-Pi the same install on one emulated node then took 74 seconds, and on two
-40 seconds, so it was the four nodes that brought it to 24. Since then the
-VP64 image carries the translators of every platform, and the install
-makes the VP once and translates it: the Pi is a third quicker, the i9 a
-little, and the M4, which had the least to gain, is 0.15 to 0.2 seconds
-slower.
+How it has gone, seconds:
 
-The 10 seconds this document gave for the Pi 4 before 2026-10-06 was from
-an earlier and smaller system.
+| When | M4, 16 nodes | i9, 12 nodes | Pi 4, 4 nodes | What had changed |
+|---|---|---|---|---|
+| 2026-10-06 | 1.13 to 1.19 | 3.42 to 3.51 | 23.8 and 24.0 | |
+| 2026-11-10 | 1.32 to 1.34 | 3.04 to 3.45 | 15.2 to 15.9 | The VP64 image carries every translator; the install makes the VP once and translates it |
+
+The Pi is a third quicker and the i9 a little. The M4, which had the least
+to gain, is 0.15 to 0.2 seconds slower.
 
 ## Compact Boot Images: L1 Cache Residence
 
 ChrysaLisp's "linkerless" direct-offset architecture produces self-contained,
-minimal `boot_image` binaries across all supported architectures. On
-2026-11-10:
+minimal `boot_image` binaries across all supported architectures. Bytes,
+on 2026-11-10 and before:
 
-* `obj/vp64/VP64/sys/boot_image`: **243,372 bytes**
+| Image | 2026-10-06 | 2026-10-11 | 2026-10-21 | 2026-10-21 | 2026-11-10 |
+|---|---|---|---|---|---|
+| What it holds | Every function | Every function | Every function | What an install needs | See below |
+| `vp64/VP64` | 160,764 | 178,004 | 217,308 | 129,844 | **243,372** |
+| `x86_64/AMD64` | 218,524 | 242,380 | 303,908 | 173,900 | **68,588** |
+| `x86_64/WIN64` | 219,076 | 242,956 | 304,532 | 174,108 | **68,172** |
+| `arm64/ARM64` | 233,164 | 255,868 | 312,732 | 187,940 | **71,444** |
+| `riscv64/RISCV64` | 270,540 | 298,036 | 360,684 | 218,556 | **76,756** |
+| `la64/LA64` | 270,108 | 297,156 | 359,460 | 218,052 | **76,300** |
 
-* `obj/x86_64/AMD64/sys/boot_image`: **68,588 bytes**
-
-* `obj/x86_64/WIN64/sys/boot_image`: **68,172 bytes**
-
-* `obj/arm64/ARM64/sys/boot_image`: **71,444 bytes**
-
-* `obj/riscv64/RISCV64/sys/boot_image`: **76,756 bytes**
-
-* `obj/la64/LA64/sys/boot_image`: **76,300 bytes**
-
-Since release 7.5 a native image holds the loader, the kernel and what they
-call, and the rest is bound from `obj/` as it is asked for, next section;
-the VP64 image holds what an install needs before it has built anything,
-and carries the translators of every platform, so it is the big one.
-
-On 2026-10-21 they were:
-
-* `obj/vp64/VP64/sys/boot_image`: **129,844 bytes**
-
-* `obj/x86_64/AMD64/sys/boot_image`: **173,900 bytes**
-
-* `obj/x86_64/WIN64/sys/boot_image`: **174,108 bytes**
-
-* `obj/arm64/ARM64/sys/boot_image`: **187,940 bytes**
-
-* `obj/riscv64/RISCV64/sys/boot_image`: **218,556 bytes**
-
-* `obj/la64/LA64/sys/boot_image`: **218,052 bytes**
-
-Since that day an image held what an
-install needs and no more, 773 functions of the 1,027 there are; the rest
-are bound from their files as they are asked for, see the next section.
-With every function in them, as the images were till then, the same tree
-gives 217,308, 303,908, 304,532, 312,732, 360,684 and 359,460 bytes.
-
-They had grown. With every function in them they were 160,764, 218,524,
-219,076, 233,164, 270,540 and 270,108 bytes on 2026-10-06, and 178,004,
-242,380, 242,956, 255,868, 298,036 and 297,156 on 2026-10-11: the network,
-the whiteboard's set logic of polygons and the crypto of the mesh went in.
-In the ten days after, more of the native kernels that libraries reach by
-`ffi` went in, for media, crypto, images, maths and streams, till they were
-45 KB of the VP64 image, and only four of them, the crypto of a machine's
-key, are needed to install, as the next section measured.
+With every function in them the images grew as the system did: the
+network, the whiteboard's set logic of polygons and the crypto of the mesh
+by 2026-10-11, then the native kernels that libraries reach by `ffi`, for
+media, crypto, images, maths and streams. On 2026-10-21 they were cut to
+what an install needs, 773 functions of the 1,027 there were, the rest
+bound from their files as they are asked for, see the next section. Since
+release 7.5 a native image holds the loader, the kernel and what they
+call, and no more; the VP64 image holds what an install needs before it
+has built anything, and carries the translators of every platform, so it
+is the big one.
 
 The three link register targets include call fusion, see `lib/trans/vp.inc`.
 It was measured when it went in, on 2026-10-03. The images were then 221,900,
