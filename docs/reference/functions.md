@@ -817,20 +817,6 @@ how long they were comes last
 (aes-block keys block) -> str
 ```
 
-### aes-block
-
-```code
-(aes-block keys block) -> str
-```
-
-### aes-count
-
-```code
-(aes-count counter n) -> str
-
-the counter n blocks on, its last 4 bytes counted up, high first
-```
-
 ### aes-count
 
 ```code
@@ -843,20 +829,6 @@ the counter n blocks on, its last 4 bytes counted up, high first
 
 ```code
 (aes-ctr keys counter data) -> str
-```
-
-### aes-ctr
-
-```code
-(aes-ctr keys counter data) -> str
-```
-
-### aes-key
-
-```code
-(aes-key key) -> keys
-
-the round keys, 4 numbers of 32 bits a round, as a str
 ```
 
 ### aes-key
@@ -877,22 +849,6 @@ map of the standard: 3 is a generator, so its powers and their
 logarithms give each inverse
 ```
 
-### aes-sbox
-
-```code
-(aes-sbox) -> str
-
-what each byte becomes, its inverse in the field turned by the affine
-map of the standard: 3 is a generator, so its powers and their
-logarithms give each inverse
-```
-
-### aes-sub
-
-```code
-each byte of a word through the box
-```
-
 ### aes-sub
 
 ```code
@@ -907,22 +863,6 @@ each byte of a word through the box
 the four tables of a round, 256 numbers of 4 bytes each, then the box
 itself, as the native code wants them. A byte of row r of a column
 goes to the four rows as the column mixing has it
-```
-
-### aes-tables
-
-```code
-(aes-tables) -> str
-
-the four tables of a round, 256 numbers of 4 bytes each, then the box
-itself, as the native code wants them. A byte of row r of a column
-goes to the four rows as the column mixing has it
-```
-
-### aes-xtime
-
-```code
-b times x in the field of AES
 ```
 
 ### aes-xtime

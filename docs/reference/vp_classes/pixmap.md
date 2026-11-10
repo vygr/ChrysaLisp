@@ -127,7 +127,7 @@ outputs
 :r0 = pixmap object (ptr)
 :r1 = 1 if the frame was whole, 0 if the stream ended first (uint)
 trashes
-:r1-:r8, :d0-:d15
+:r1-:r13, :d0-:d15
 info
 a frame of a film made from the frame before: runs, each a byte, of
 pixels to keep, 256 less the count, or of pixels to draw, the count

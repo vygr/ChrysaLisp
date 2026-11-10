@@ -220,7 +220,9 @@
 
     A path that is a folder is the source files in it, at
     any depth. If no paths given on command line then will
-    test files from stdin.")
+    test files from stdin, and of those leaves out the ones
+    of tests/scratch/: what is tried out there is not held
+    to any of this. One given by its path is looked at.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
@@ -1557,8 +1559,9 @@
 			(tolist *root_env*))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
-			;no, so from stdin
-			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
+			;no, so from stdin, less the scratch folder's
+			(lines! (# (if (notany (lambda (skip) (starts-with skip %0)) +unbound_skip) (push jobs %0)) :nil)
+				(io-stream 'stdin)))
 		;only source files, a folder the source files in it at any depth
 		(setq jobs (reduce (lambda (out f)
 					(if (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))

@@ -274,7 +274,9 @@ Usage: check [options] [path] ...
 
     A path that is a folder is the source files in it, at
     any depth. If no paths given on command line then will
-    test files from stdin.
+    test files from stdin, and of those leaves out the ones
+    of tests/scratch/: what is tried out there is not held
+    to any of this. One given by its path is looked at.
 ```
 ## cluster
 ```code
