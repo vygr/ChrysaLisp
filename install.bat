@@ -1,5 +1,8 @@
 @echo off
 @call stop.bat
+@rem what a VP64 node kept of the code it made goes with the image that made it,
+@rem the snapshot may be of other ops
+@if exist obj\vp64\VP64 rmdir /s /q obj\vp64\VP64
 @tar -xf snapshot.zip
 @rem the GUI is on SDL3, its one library is fetched if it is not here
 @if not exist SDL3.dll (

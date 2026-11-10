@@ -109,6 +109,9 @@ function install {
     # the system built by the emulator on a network sized to the machine.
     # $TRUE if it was, the installer leaves obj\install_failed if not
     Remove-Item "$NHROOT\obj\install_failed" -ErrorAction SilentlyContinue
+    # what a VP64 node kept of the code it made goes with the image that made
+    # it, the snapshot's may be of other ops, as install.bat
+    Remove-Item "$NHROOT\obj\vp64\VP64" -Recurse -Force -ErrorAction SilentlyContinue
     tar -xf "$NHROOT\snapshot.zip" -C $NHROOT
     if ($LASTEXITCODE -ne 0) { say "update: snapshot.zip could not be unpacked"; return $FALSE }
     $global:session_start = (Get-Date).AddSeconds(-2)
