@@ -615,7 +615,16 @@ a time round better than a call to the new clear.
 	test` on one node 0.286 s with it and 0.238 s without. Taken out. What
 	it looked for is done in the source: a value wanted again between
 	calls is held in a register the function already has, and no copy is
-	added to get it there.
+	added to get it there. 31 of the 42 were written so by hand, and are
+	1,770 instructions with 155 stack loads and 108 stores, where the pass
+	had them at 2,020, 198 and 181. How: look up what each call is
+	declared to trash and hold what lives over it in a register it
+	leaves; use what a call gives back, a stream its stream, an insert
+	its map, in place of a reload; make the frame only round the call
+	that keeps nothing; and give the usual path, a symbol found, a
+	texture cached, no frame at all. Two it had made worse,
+	`repl_eval_list` and `repl_progn`: a copy on the hot path to save a
+	load on the rare one.
 
 ### A clock that is cheap to ask
 
