@@ -116,8 +116,8 @@
 		;no vars, so no value bound
 		(assign `((,this +lisp_sym_nil)) `(,val))
 	(else)
-		(assign `((,env +array_length) (,env +array_num_buckets) (,env +array_capacity))
-			`(,tmp ,tmp2 ,index))
+		(assign `((,env +array_length) (,env +array_capacity) (,env +array_num_buckets))
+			`(,tmp ,index ,tmp2))
 		(gotoif `(,tmp /= 0) not_fresh)
 		(gotoif `(,tmp2 /= 1) not_fresh)
 		(vp-shr-cr 1 index)
