@@ -73,8 +73,8 @@
 (defun vp-alloc (c)
 	;a frame is whole longs, the stack pointer stays aligned. One that is
 	;the size of the function's (structure slot ...) is that frame, and
-	;its fields are noted with the function, *locals*, for the keeping of
-	;locals in registers and the (locals) command: which of the
+	;its fields are noted with the function, *locals*, for the (locals)
+	;command: which of the
 	;function's allocs it is, counted from 1, its size, and each field,
 	;its name, offset and type, "" for a struct
 	(emit (static-qqp (alloc ,(setq c (align (eval c (penv)) +long_size)))))

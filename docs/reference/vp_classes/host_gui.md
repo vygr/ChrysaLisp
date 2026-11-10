@@ -66,7 +66,7 @@ the dirty region bounds is returned for use by the :flush call !
 
 ```code
 trashes
-:r0-:r5, :d0-:d15
+:r0-:r4, :d0-:d15
 info
 the dirty regions of the frame freed, its views let go of, and its
 list, here, not on the host, as a view let go of may be the last of it

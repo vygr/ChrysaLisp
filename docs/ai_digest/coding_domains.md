@@ -67,7 +67,8 @@ registers between the calls.
 * **The Frame:** a `(structure slot 0 ...)` of typed fields, made by
   `(vp-alloc slot_size)` and freed by `(vp-free slot_size)`. A slot is
   `(:rsp slot_x)`, a field like any other, its width and sign from its type.
-  The slots are kept in registers where they can be, `lib/asm/slots.inc`.
+  A slot is memory, as written: a value wanted again between calls is
+  kept in a register by the source, no pass does it.
 
 * **Method Calls:** Uses `(call :class :method ...)` syntax.
 

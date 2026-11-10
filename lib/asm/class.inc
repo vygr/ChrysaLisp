@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar '*vtables* (pmap) '*supers* (pmap) '*trashes* (pmap) '*trashes_own* (pmap))
+(defcvar '*vtables* (pmap) '*supers* (pmap) '*trashes* (pmap))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -43,20 +43,6 @@
 			(each (# (push out (sym (cat kind (str %0))))) (range from (inc to)))
 			out) %0 (list)))
 
-(defun method-trashes (%0 %1)
-	;%0 = class name
-	;%1 = member name
-	;the registers a call of the method may leave not as they were, as
-	;its declaration says: of a virtual method, by any class that may be
-	;called so. An empty list is none of them. :nil if it is not said,
-	;and then a caller must take it that none is left as it was
-	;
-	;It is kept as it was written, and made a list of registers here,
-	;when it is asked for: a class is declared in every function that
-	;includes it, and few of them ask
-	(method-lookup %0 %1)
-	(if (defq said (pfind (pfind *trashes* %0) %1)) (trash-regs said)))
-
 ;the register a call by the vtable goes through. One the method is
 ;declared to trash and does not take: the call loses that one whatever
 ;is done, so the call costs no register of its own. :r14 when there is
@@ -71,33 +57,6 @@
 				(if (starts-with ":r" part)
 					(some (lambda (reg) (unless (find reg %2) reg)) (trash-regs (list part)))))
 			(pfind (pfind *trashes* %0) %1)) :r14))
-
-(defun path-method (%0)
-	;%0 = function path
-	;what is known of the function as a method, (takes_and_gives
-	;trashes own), the registers of each: what any method that is that
-	;function is declared with. trashes is what a call of it may trash,
-	;:nil if none of them says. own is what the function itself trashes:
-	;of a static method that is the same, of a virtual one it is less,
-	;what is declared to be trashed is by any class called so, and what
-	;the one function does is declared after it. :nil if it is not said.
-	;:nil if no method is that function
-	(defq io (list) said :nil is :nil static :t own :nil)
-	(each (lambda ((class vtable))
-			(each (lambda ((name m))
-					(when (and (list? m) (eql (first m) %0))
-						(setq is :t)
-						(if (nql (second m) :static) (setq static :nil))
-						(each (# (if (list? %0) (each (lambda (reg) (and (sym? reg) (not (find reg io)) (push io reg))) %0)))
-							(list (third m) (elem-get m 3)))
-						(when (defq trashes (pfind (pfind *trashes* class) name))
-							(setq said (ifn said (list)))
-							(each (# (unless (find %0 said) (push said %0))) (trash-regs trashes)))
-						(if (defq trashes (pfind (pfind *trashes_own* class) name))
-							(setq own (trash-regs trashes)))))
-				(partition vtable 2)))
-		(partition *vtables* 2))
-	(if is (list io said (if static said own))))
 
 (defun f-path (%0 %1)
 	;%0 = class name
@@ -161,15 +120,12 @@
 	;what the class above says of the method, and if none does, not known.
 	;Of a virtual method it is what any class called so may trash, and
 	;own, after it, is what the one function that is the method here
-	;does. Both are kept by themselves, what a method is in a vtable is
-	;as it was
-	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap)))
-		owned (copy (ifn (pfind *trashes_own* super) (pmap))))
+	;does, for lint and those who read the declaration: the assembler
+	;keeps trashes, by itself, what a method is in a vtable is as it was
+	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap))))
 	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes own))
 			(setd mtype :static)
 			(if (list? trashes) (pinsert trashed mname trashes))
-			;what the class above said its function trashes is not of this one
-			(pinsert owned mname (if (list? own) own))
 			(if (defq m (pfind vtable mname))
 				;existing method
 				(case mtype
@@ -207,12 +163,10 @@
 					(:t (throw "Must use static, virtual, final or override ! " mtype)))))
 		lines)
 	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)
-		(pinsert *trashes* ',class ',trashed) (pinsert *trashes_own* ',class ',owned)))
+		(pinsert *trashes* ',class ',trashed)))
 
 (defmacro def-method (class member)
-	;the function knows which method it is, (fn-keep-locals) asks
-	`(progn (def-func (f-path ,class ,member))
-			(setq *func_method* (list ,class ,member))))
+	`(def-func (f-path ,class ,member)))
 
 ;;;;;;;;;;;;;;;;;;
 ; function helpers
@@ -230,7 +184,6 @@
 				;f-call
 				((eql (second (defq m (method-lookup %0 %1))) :static)
 					(assign %2 (third m))
-					(fn-method (first m) %0 %1)
 					(fn-call (first m)))
 				;v-call
 				(:t (if (find (setd %4 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
@@ -256,7 +209,6 @@
 	(cond
 		((eql (second (defq m (method-lookup %0 %1))) :static)
 			(assign %2 (third m))
-			(fn-method (first m) %0 %1)
 			(fn-jump (first m)))
 		(:t (if (find (setd %3 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 				(throw "Dispatch register conflicts with arg !" (list %3 _)))
@@ -294,7 +246,6 @@
 	(unless (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is not static ! Use v-call ?" (list %0 %1)))
 	(assign %2 (third m))
-	(fn-method (first m) %0 %1)
 	(fn-call (first m))
 	(if %3 (assign (elem-get m 3) %3)))
 
@@ -305,7 +256,6 @@
 	(unless (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is not static ! Use v-jump ?" (list %0 %1)))
 	(assign %2 (third m))
-	(fn-method (first m) %0 %1)
 	(fn-jump (first m)))
 
 (defun f-bind (%0 %1 %2)
@@ -326,7 +276,6 @@
 			(throw "Method is static !" (list (pfind *supers* %0) %1))))
 	(assign %2 (third m))
 	(unless (eql (first m) 'class/obj/null)
-		(fn-method (first m) (pfind *supers* %0) %1)
 		(fn-call (first m))
 		(if %3 (assign (elem-get m 3) %3))))
 
@@ -340,7 +289,6 @@
 	(assign %2 (third m))
 	(if (eql (first m) 'class/obj/null)
 		(vp-ret)
-		(fn-method (first m) (pfind *supers* %0) %1)
 		(fn-jump (first m))))
 
 (defun s-bind (%0 %1 %2)
@@ -401,7 +349,6 @@
 	(if (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is static ! Use f-call ?" (list %0 %1)))
 	(assign %2 (third m))
-	(fn-method (first m) %0 %1)
 	(fn-call (first m))
 	(if %3 (assign (elem-get m 3) %3)))
 
@@ -412,7 +359,6 @@
 	(if (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is static ! Use f-jmp ?" (list %0 %1)))
 	(assign %2 (third m))
-	(fn-method (first m) %0 %1)
 	(fn-jump (first m)))
 
 (defun d-bind (%0 %1 %2)
@@ -530,5 +476,5 @@
 		entry exit call jump s-call d-call s-jump
 		v-call v-jump d-jump r-call r-jump v-bind
 		f-entry f-exit l-entry l-exit f-path f-bind
-		method-input method-output method-lookup method-trashes trash-regs path-method signature))
+		method-input method-output method-lookup trash-regs signature))
 (env-pop)

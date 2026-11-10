@@ -311,8 +311,7 @@ What a method trashes is in its declaration, `(dec-method name function type
 in out trashes own)` in the `class.inc`, and in the `;trashes` line of the
 function. `trashes` is what a call may trash, of a virtual method what any
 class called so may. `own` is what the one function does. Both are written
-by `trace -w` from a build, never by hand. `(method-trashes class
-method)` gives the registers.
+by `trace -w` from a build, never by hand.
 
 *	**Never make a function trash more than it does.** Hand-tuned callers
 	lean on what it leaves. To trash less is always safe.
@@ -390,13 +389,15 @@ method)` gives the registers.
 
 		(def-func-end)
 
-## Slots Kept In Registers
+## A Slot Is Memory
 
-Every function with a frame, `(vp-alloc slot_size)` of a `(structure slot
-...)`, has its slots kept in registers where they can be, when it has all
-been assembled: `lib/asm/slots.inc`. A slot whose address is taken, or
-that is a struct, or is read or written as less than a long, stays in
-memory.
+No pass keeps the slots of a frame in registers: what is written is what
+is assembled, and `lib/asm/vpopt.inc` is the only optimiser. A value
+wanted more than once between calls is loaded once to a register and used
+from there, not read from its slot again. What an `(entry)` gives in a
+register is used from the register, and saved to its slot only if it is
+wanted after a call. `locals -t` says which functions go to the stack
+most.
 
 ## Boot Image Functions Run From The Image
 

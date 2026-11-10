@@ -606,6 +606,17 @@ a time round better than a call to the new clear.
 	what follows can be two bytes off. The x64 does not mind. Both arm64
 	machines stop at the first instruction of it.
 
+*	**A pass that kept the slots of a frame in registers,
+	`lib/asm/slots.inc`.** It saw a function whole, once it was assembled,
+	and gave each slot it could follow a register of its own. Of 1,707
+	functions it changed 42: 217 stack loads and 74 stores went, 375
+	register copies came, 85 more instructions and 528 more bytes of arm64
+	than the source as written gives. It was a sixth of every build, `make
+	test` on one node 0.286 s with it and 0.238 s without. Taken out. What
+	it looked for is done in the source: a value wanted again between
+	calls is held in a register the function already has, and no copy is
+	added to get it there.
+
 ### A clock that is cheap to ask
 
 `(task-slice)` asks if its slice of time is up, every time it is called, and

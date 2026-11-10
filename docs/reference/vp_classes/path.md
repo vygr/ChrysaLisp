@@ -209,7 +209,7 @@ outputs
 :r1 = output path1 object (ptr)
 :r2 = output path2 object (ptr)
 trashes
-:r1-:r14, :d0-:d15
+:r1-:r13, :d0-:d15
 ```
 
 ### :stroke_polyline -> gui/path/stroke_polyline

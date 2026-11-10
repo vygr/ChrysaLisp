@@ -92,27 +92,23 @@ involves several stages:
    internal list (often `*emit_list*`, though this name is more prominent at
    the next stage).
 
-3. **Slots Kept In Registers:** The slots of a function's frames are kept
-   in registers where they can be, by `lib/asm/slots.inc`, the function
-   seen whole.
-
-4. **VP Emitter List Preparation:** The `(vp-xxx ...)` instructions are
+3. **VP Emitter List Preparation:** The `(vp-xxx ...)` instructions are
    transformed into `(op ...)` forms, still with VP register names,
    e.g. `(add-rr :r1 :r0)`.
 
-5. **VP Emitter Optimization:** The `opt-emit-list` function (from
+4. **VP Emitter Optimization:** The `opt-emit-list` function (from
    `lib/asm/vpopt.inc`) performs peephole optimizations on this list of
    `(op ...)` instructions (e.g., redundant load/store elimination).
 
-6. **VP Text:** The list is written as text, the function's entry in the
+5. **VP Text:** The list is written as text, the function's entry in the
    bundle of its file, `obj/vp/<file>`, `vp-entry-text` in
    `lib/trans/vp.inc`, below.
 
-7. **Translation:** The translator of the target CPU, itself a VP
+6. **Translation:** The translator of the target CPU, itself a VP
    function, is given the entry's text and gives back the native code as a
    string. `vp-translate-text` in `lib/trans/vp.inc` calls it.
 
-8. **Output:** The native code is saved to an object file by the
+7. **Output:** The native code is saved to an object file by the
    function's name (e.g., `obj/x86_64/AMD64/sys/mem/alloc`),
    `vp-translate-out`.
 

@@ -130,9 +130,10 @@ Will emit:
 A function that keeps values over its calls gives them a frame on the
 stack, a structure whose fields are its slots. The structure is named
 `slot`, so its fields are `slot_x`, its size `slot_size`, and `(vp-alloc
-slot_size)` notes it, so its slots can be kept in registers where nothing
-it calls is in the way, `lib/asm/slots.inc`. `(vp-alloc)` and `(vp-free)`
-round a size up to whole longs.
+slot_size)` notes it for the `locals` command. A slot is memory, and what
+is written is what is assembled: a value wanted more than once between
+calls is loaded once to a register and used from there. `(vp-alloc)` and
+`(vp-free)` round a size up to whole longs.
 
 ```vdu
 (def-method :thing :pair)

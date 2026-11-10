@@ -937,32 +937,10 @@ b times x in the field of AES
 (age path) -> 0 | time ns
 ```
 
-### ahead
-
-```code
-(ahead chain cands tokens) -> :nil | token index
-
-look ahead. A break has been found inside the forms that open on this
-line at the tokens in chain, outermost first. Those forms are going to
-be over several lines. Better that such a form starts a line of its
-own, near the left, than hangs off the end of this one. So give the
-gap before the outermost of them, if there is one and it is more than
-a last resort.
-```
-
 ### align
 
 ```code
 (align num div) -> num
-```
-
-### apply-tokens
-
-```code
-(apply-tokens tokens body ind end [start])
-
-move the stack of open forms over the tokens up to end. The tokens
-are of a line, or a part of one that begins at the char start.
 ```
 
 ### array?
@@ -1419,6 +1397,22 @@ the most the matrix of its object stretches anything
 
 ```code
 (base64-encode data) -> str
+```
+
+### begin-list
+
+```code
+(begin-list n whole)
+
+open a list, and its frame, how it is to be laid out
+```
+
+### big?
+
+```code
+(big? k i) -> :t | :nil
+
+will the form be over more than one line, even on a fresh line indented i
 ```
 
 ### bindings-default
@@ -2267,6 +2261,12 @@ cells of a size, each row of (what val) starting a new line and going
 on to the next after cols of them, from 0 0
 ```
 
+### cell-width
+
+```code
+(cell-width c) -> num
+```
+
 ### chacha20
 
 ```code
@@ -2320,6 +2320,17 @@ O(1) arithmetic calendar conversion (month 0..11, day 1..31)
 (clamp x lo hi) -> x
 
 x, no lower than lo and no higher than hi
+```
+
+### classify
+
+```code
+(classify nodes)
+
+what each node of the tree is, worked out the once, from the tree
+alone: the rule of each list, from the top down, then how wide each is
+on one line, and whether it must be over more than one, from the bottom
+up. A list of what is left to do, it does not call itself
 ```
 
 ### clip-get-rpc
@@ -3804,14 +3815,6 @@ is it the signature of this message, by the holder of the secret
 that this is the public key of ?
 ```
 
-### elem-end
-
-```code
-(elem-end tokens i n) -> pos
-
-where the element that starts at token i ends
-```
-
 ### empty?
 
 ```code
@@ -4664,23 +4667,6 @@ runs, it is not of the file. Only the first end lines, if given, and
 the forms of other heads, if given, ("def-class" "defun") say
 ```
 
-### find-break
-
-```code
-(find-break tokens body ind limit) -> :nil | token index
-```
-
-### find-gap
-
-```code
-(find-gap tokens body ind limit collect) -> :nil | :again | token index
-
-where to break a line, by the rules of the forms on it. The gaps are
-only gathered up if the line is too long, or collect is given, as most
-lines are not, and need no more than a look for a break that must be.
-:again if such a break was found, and the gaps are needed to look ahead.
-```
-
 ### first-string
 
 ```code
@@ -5055,32 +5041,6 @@ film, and says how many frames there were
 (folder-mode? mode) -> :nil | :t
 
 is a mode, the third of what (pii-fstat) says, a folder's
-```
-
-### form-elems
-
-```code
-(form-elems tokens i n) -> num
-
-the count of elements in the form that opens at token i, operator and
-all, or 1000 if it does not close on this line
-```
-
-### form-op
-
-```code
-(form-op tokens body i) -> :nil | str
-
-the operator of the form that opens at token i
-```
-
-### form-rule
-
-```code
-(form-rule op par_rule par_argc tokens body i n) -> rule
-
-the rule for the form that opens at token i, given the rule of the
-form around it, and the index of that form's last element
 ```
 
 ### format-group
@@ -5459,6 +5419,14 @@ what a folder's hash is the hash of, and what goes in a message
 (hash-tree-under tree folder) -> paths
 
 the path of every thing in a folder and in the folders below it
+```
+
+### head-width
+
+```code
+(head-width k) -> num
+
+how wide the form is up to the end of its first argument
 ```
 
 ### header-pass
@@ -5994,14 +5962,41 @@ the file does, before
 (json-to-tre str_or_stream) -> pmap | list | scalar
 ```
 
-### keep-word?
+### keep-form?
 
 ```code
-(keep-word? text pos) -> :t | :nil
+(keep-form? n) -> :t | :nil
 
-would a source scanner, reading a line that starts at pos, take it
-for a form it looks for ? Such a line must start where it did in the
-source, no more and no less.
+is the node a form the includes command looks for at the start of a
+line, one of +line_ops with what it names after it. It looks past a '
+```
+
+### keep-head?
+
+```code
+(keep-head? n) -> :t | :nil
+
+would the includes command, reading a line that starts with the node,
+a list, take it for a form it looks for. A word alone names nothing
+```
+
+### kid-done
+
+```code
+(kid-done f k)
+
+after k is laid out in the form of frame f: was it over more than one
+line, and the VP blocks open after it
+```
+
+### kid-indent
+
+```code
+(kid-indent f k) -> num
+
+the indent of a line that starts with k, in the form of frame f, by the
+VP blocks open in it. A tab less for each switch not yet at a case, but
+for the switch that k is a case or the end of
 ```
 
 ### lambda-func?
@@ -6014,6 +6009,15 @@ source, no more and no less.
 
 ```code
 (lambda? form) -> :t | :nil
+```
+
+### lay-all
+
+```code
+(lay-all nodes)
+
+lay out the tree. A stack of the forms being laid out, it does not call
+itself
 ```
 
 ### leapyear?
@@ -6044,22 +6048,6 @@ very basic attenuation and diffuse
 (lighting-at3 col at sp)
 
 very basic attenuation, diffuse and specular
-```
-
-### line-indent
-
-```code
-(line-indent tokens body lead) -> indent
-
-the indent of a line, from the open forms and what it starts with
-```
-
-### line-op
-
-```code
-(line-op tokens body) -> :nil | str
-
-the operator of the form the line starts with
 ```
 
 ### link-text
@@ -6276,6 +6264,16 @@ by its pings, so a service checks each time it wakes; one that has to
 give way stops saying its name, sends on what still comes to it, and
 goes. Only for a service a task may use any one of: two networks on
 one machine each have a Net service of their own
+```
+
+### mark-alone
+
+```code
+(mark-alone kids)
+
+the definitions among the kids that stand alone: neither the form before
+nor the one after is a definition too, with no blank line between. The
+comments between them are looked past
 ```
 
 ### mat3x2
@@ -7365,15 +7363,6 @@ each material by its name, an emap: :colour (r g b), :seen 0 to 1,
 and :map, the file of its picture, if it has one
 ```
 
-### must-break?
-
-```code
-(must-break? rule elems) -> :t | :nil
-
-is the form broken however short, as it has more than the one of its
-last arguments
-```
-
 ### name-folder?
 
 ```code
@@ -7547,12 +7536,27 @@ what a machine of the mesh says it is, arm64/Darwin, asked of one of
 its nodes. ? if none of its nodes is seen
 ```
 
-### next-op
+### new-frame
 
 ```code
-(next-op tokens body i n) -> :nil | str
+(new-frame n kids rule cont mode) -> frame
+```
 
-the word a line would start with, were it to start at token i
+### new-line
+
+```code
+(new-line i [gap])
+
+a new line indented i, after a blank line if gap
+```
+
+### next-per
+
+```code
+(next-per f)
+
+the count of cells to a row of the next part of the table, if the part
+before had any
 ```
 
 ### nil?
@@ -7873,15 +7877,6 @@ a block of the scan, at row br and column bc of the grid
 (open-remote task node mode) -> net_id
 ```
 
-### open-starts
-
-```code
-(open-starts tokens end) -> (token index ...)
-
-the forms that open on this line, and are still open at token end, as
-the tokens they open at, outermost first
-```
-
 ### open-task
 
 ```code
@@ -8045,14 +8040,6 @@ on at their foot. The outlines a font gives are twice its size
 (page-scale size) -> size
 
 a size by the zoom of the app's *window*
-```
-
-### pairs-value?
-
-```code
-(pairs-value? rule j) -> :t | :nil
-
-is argument j of a form, with this rule, the value of a binding
 ```
 
 ### pal-icon
@@ -8372,6 +8359,19 @@ the key of the shared memory its pixels are in, 0 if they are its own
 turned about a point of what holds it till its angle is a
 ```
 
+### place-broken
+
+```code
+(place-broken f k) -> whole
+
+a list over more than one line, by its rule. A gap of the lowest weight
+of a rule that does not fill always breaks, another only where what
+comes next does not fit. One that fills takes what fits, a name with its
+value, a keyword with its value. A form that will be over more than one
+line starts a line of its own, but in a form that is only being filled,
+where it has half the line
+```
+
 ### place-by-mat
 
 ```code
@@ -8403,6 +8403,22 @@ and b0 are taken to a1 and b1, as two fingers on a thing take it
 
 sized along its own sides by fx and fy, about a point of its own space,
 which stays where it is
+```
+
+### place-table
+
+```code
+(place-table f k i)
+```
+
+### place-top
+
+```code
+(place-top f k i)
+
+the top level forms and comments, each on its own line, a comment at the
+margin there still, a note right under a top level form a tab in, and
+the lines of VP function bodies by their blocks
 ```
 
 ### place-turn
@@ -8939,6 +8955,28 @@ what the thing shows
 the buttons of the rules of a device a press is, :nil for a finger
 ```
 
+### put
+
+```code
+(put s)
+```
+
+### put-cmt
+
+```code
+(put-cmt n)
+
+the comment after the node on its line, and so the line ends
+```
+
+### put-text
+
+```code
+(put-text s)
+
+text that may run over lines, as a string can, its lines as they are
+```
+
 ### quasi-quote?
 
 ```code
@@ -9018,6 +9056,15 @@ does not call itself
 
 ```code
 (range start end [step]) -> list
+```
+
+### read-source
+
+```code
+(read-source lines) -> (node ...)
+
+the tree of the source: the forms, each with the comment after it on
+its line, the comments on lines of their own, and where a blank line was
 ```
 
 ### real-to-str
@@ -9148,15 +9195,6 @@ the right, a column of two pixels a sample, joined to the one before
 (reflow words line_width [indent tab_width]) -> lines
 ```
 
-### repl-error?
-
-```code
-(repl-error? tokens body i n) -> :t | :nil
-
-is the form that opens at token i a jump or call to :repl_error, such
-a line holds the usage of a function, and is never broken
-```
-
 ### replace-compile
 
 ```code
@@ -9225,6 +9263,23 @@ restart a child
 
 ```code
 (rle-decompress in_stream out_stream [token_bits run_bits max_tokens])
+```
+
+### room
+
+```code
+(room w at) -> :t | :nil
+
+does w more fit on the line, now at col at. A line far in still has
+half the limit past its indent
+```
+
+### room-fresh
+
+```code
+(room-fresh w i) -> :t | :nil
+
+does w fit on a fresh line indented i
 ```
 
 ### ror-sum
@@ -9368,9 +9423,11 @@ the DER of the name of a hash, the DigestInfo the digest goes after
 ### rule
 
 ```code
-a rule is kept as (weights low one fill pairs clauses), all worked out
+a rule is kept as (weights low one fill pairs clauses flat all own), all
 
-here, the once, so that applying a rule is only a matter of looking
+worked out here, the once, so that applying a rule is only a matter of
+looking. own is how many twelfths of the limit the form may be wide and
+still be one line
 ```
 
 ### s-arc
@@ -11113,14 +11170,6 @@ v, the low bits of a number of two's complement, as that number
 (slices list) -> ((s0 e0) (s1 e1) ...)
 ```
 
-### solid-frame
-
-```code
-(solid-frame) -> :nil | frame
-
-the innermost open form that is not transparent
-```
-
 ### sort
 
 ```code
@@ -11666,13 +11715,116 @@ type, then the vector a matrix is of
 (spv-var name) -> (id type)
 ```
 
-### squeeze
+### src-actions?
 
 ```code
-(squeeze body tokens) -> str
+(src-actions? op forms) -> :t | :nil
 
-the line with one space between its tokens, and none inside a bracket.
-The gap before a comment at the end is kept, it may line comments up.
+is the list a map made of keys and the functions they are for, an event
+map: a (scatter) into a map it makes, each value a name, the keys not
+keywords alone
+```
+
+### src-call?
+
+```code
+(src-call? n) -> :t | :nil
+
+is the first form of the list a name it may be a call of
+```
+
+### src-def?
+
+```code
+(src-def? n) -> :t | :nil
+
+is the node a definition of a function, a macro or a method
+```
+
+### src-forms
+
+```code
+(src-forms n) -> (node ...)
+
+the forms of a list, not its comments
+```
+
+### src-key?
+
+```code
+(src-key? n) -> :t | :nil
+
+is the node a keyword, but :t or :nil
+```
+
+### src-must
+
+```code
+(src-must n rule forms) -> :t | :nil
+
+must the list be over more than one line, a gap that always breaks,
+more than the one of its last arguments for a rule with :one, or a
+definition with a body that stands alone. A definition among others is
+a line if it fits, whatever is in it
+```
+
+### src-node
+
+```code
+(src-node kind pre text) -> node
+```
+
+### src-op
+
+```code
+(src-op n) -> :nil | str
+
+the operator of a list, its first form if that is a word
+```
+
+### src-repl?
+
+```code
+(src-repl? n) -> :t | :nil
+
+is :repl_error anywhere in the form
+```
+
+### src-rule
+
+```code
+(src-rule n prule argi op forms) -> rule
+
+the rule for a list, given the rule of the form it is in and which of
+its arguments it is. A quoted list with a word first is code, made to
+be run, and is laid out as code is
+```
+
+### src-table?
+
+```code
+(src-table? n op forms) -> :t | :nil
+
+a table: a quoted list of atoms alone, or of lists, one of +rows_ops,
+or a form of eight or more atoms alone, after what heads its names and
+values if it is bindings, (scatter (Fmap) ...)
+```
+
+### src-text
+
+```code
+(src-text lines from to) -> str
+
+the text of the source from (line col) to (line col)
+```
+
+### src-word?
+
+```code
+(src-word? n) -> :t | :nil
+
+is the node a name, of a function say: no constant, keyword, number or
+string, and nothing quoted
 ```
 
 ### stage
@@ -14443,6 +14595,27 @@ when it was made, and the top of the tree of hashes it had then
 (sync-waypoint-text commit time top) -> str
 ```
 
+### table-per
+
+```code
+(table-per g at row) -> num
+
+the most cells of g to a row, a power of two, that fit in every row,
+the first starting at at, the others at row, or all of them in the one
+```
+
+### table-plan
+
+```code
+(table-plan f n)
+
+a table over more than one line: what heads it, then its cells in rows.
+A cell is a name and its value in a table of bindings or properties, a
+form in a table of lists, else an atom. A row is a power of two of cells,
+the most that fit, the same in each, but a table of lists takes as many
+as fit. A comment, or a blank line, starts a row
+```
+
 ### task-band
 
 ```code
@@ -14785,16 +14958,6 @@ why the last (tls-open) of this task gave :nil
 (tls-write state data flush)
 ```
 
-### tok-rule
-
-```code
-(tok-rule tokens body i n prule pargc) -> token
-
-the token that opens a form, with the rule of the form, whether the
-form must be broken, and its operator, kept on the end of it. They are
-worked out the once, the first time the token is come to.
-```
-
 ### tokenize-line
 
 ```code
@@ -15082,19 +15245,6 @@ itself. A name is in a list that is not run, so it is looked up here
 
 ```code
 (ui-tool-tips view tips)
-```
-
-### unbreak
-
-```code
-(unbreak data) -> (lines frozen)
-
-take out the line breaks inside forms, so the layout is then made
-from nothing but the code. A line stays a line of its own if it is
-blank, a comment, follows a comment, is in a string or the help text
-of a command, or starts with a form the source scanners look for.
-A frozen line is one that must not then be broken. The doc builder
-reads the comments under a definition, and the lines of a key map.
 ```
 
 ### unified-pass
@@ -15388,6 +15538,15 @@ Headphones have no need of it, d0. talk, if not :nil, is told T and
 from, hex, while this one is sent, who is talking
 ```
 
+### voice-sending?
+
+```code
+(voice-sending? sending now speech_until heard_until muted duplex) -> :nil | :t
+
+speech, not muted, and not over another unless this one was first, by
+the times as voice-send has them
+```
+
 ### voice-stage
 
 ```code
@@ -15433,7 +15592,7 @@ who hears what is said here now: their inboxes, hex
 ### vp-compile
 
 ```code
-(vp-compile file) -> ((name code [(locals ...)] [(kept ...)]) ...)
+(vp-compile file) -> ((name code [(locals ...)]) ...)
 
 within a compile env, the VP of the functions of a source file, an
 entry each, as a bundle has them. Nothing is translated or saved: what

@@ -1099,7 +1099,7 @@ Virtual Processor compilation pipeline, code generation, and make engine.
 
 *	**`structure` / `vp-alloc` / `vp-free`**: A function's frame, a
 	`(structure slot 0 ...)` of typed slots, made and freed on the stack.
-	The slots are kept in registers where they can be, `lib/asm/slots.inc`.
+	A slot is memory, as written: no pass keeps one in a register.
 
 	*	`(structure slot 0 [(type field ...)] ...)`
 

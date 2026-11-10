@@ -138,7 +138,7 @@ outputs
 :r1 = its VP text (pubyte)
 :r2 = its VP text length, to the end of the bundle (uint)
 trashes
-:r0-:r14, :d0-:d15
+:r0-:r9, :d0-:d15
 info
 the VP text of a function, from the bundles of its folder in obj/vp/,
 of the mode the image is made in, as @Source finds it. A build makes

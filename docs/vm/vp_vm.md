@@ -446,8 +446,7 @@ were, its trashes, ranges and all: `(:r1-:r8 :r14 :d0-:d15)`, `()` for none.
 Of a virtual method it is what any class that may be called so trashes. It is
 not written by hand: `trace -w`, which works out what each function really
 trashes, writes it, and `lint` says where a declaration is not what the code
-does. `(method-trashes class method)` gives the list to the assembler, `:nil`
-if it is not said: a method written in line in its `class.inc` has none.
+does. A method written in line in its `class.inc` has none.
 
 A virtual method has one more list after that, what the one function that is
 the method in this class trashes. A call through the vtable trashes the
@@ -498,8 +497,7 @@ A bundle is a run of forms, one a function, as `(read)` reads them:
 (long -1)
 (short _27 _2 _15 _21 6144)
 ...)
-(locals ...)
-(kept ...))
+(locals ...))
 ```
 
 The first item is the function's path, the second the list of its
@@ -542,8 +540,7 @@ and a label no `(label)` sets, and the build stops with the function's
 name.
 
 After the instructions there may be `(locals ...)`, the frames of named locals
-the function had, and `(kept ...)`, those of them kept in registers. They are
-for the tools; a translator does not read them.
+the function had. It is for the tools; a translator does not read it.
 
 ## VP function example
 

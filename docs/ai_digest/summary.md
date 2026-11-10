@@ -300,8 +300,8 @@ capabilities:
 * The build system handles dependencies between files and can create boot
   images (`lib/boot/image.inc`).
 
-* The optimizer for VP assembly is `vpopt.inc`, and `slots.inc` keeps the
-  slots of a function's frame in registers where it can.
+* The optimizer for VP assembly is `vpopt.inc`, the only pass over a
+  function's instructions: a slot of a frame is memory, as written.
 
 ## 7. Environment Configuration (`apps/system/login/`)
 
