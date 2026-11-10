@@ -261,6 +261,7 @@
 	(call :host_os :pii_spawn '((:r0 slot_args)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_pid)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)

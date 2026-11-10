@@ -4,12 +4,14 @@
 (include "./class.inc")
 (include "././sstream/class.inc")
 
-(def-func 'class/lisp/run)
+(def-method :lisp :run)
 	;lisp run loop task
 	;inputs
 	;msg of lisp filename
 	;trashes
 	;:r0-:r14, :d0-:d15
+
+	(entry :lisp :run '())
 
 	;get param string
 	(call :sys_mail :mymail :nil '(:r0 _))
@@ -73,6 +75,8 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(call :hset :flush '((:r0 statics_sym_intern)))
 	(call :sys_mem :collect)
+
+	(exit :lisp :run '())
 	(vp-ret)
 
 (def-func-end)

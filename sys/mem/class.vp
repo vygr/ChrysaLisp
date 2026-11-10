@@ -6,6 +6,8 @@
 	;trashes
 	;:r0-:r5
 
+	(entry :sys_mem :statics_init '())
+
 	;obj list init
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((& :r0 statics_sys_mem_obj_list)) '(:r1))
@@ -24,6 +26,8 @@
 		(vp-add-rr :r4 :r4)
 		(vp-shr-cr 1 :r3)
 	(loop-until '(:r0 = :r5))
+
+	(exit :sys_mem :statics_init '())
 	(vp-ret)
 
 (def-func-end)
@@ -34,6 +38,8 @@
 	;trashes
 	;:r0-:r7, :d0-:d15
 
+	(entry :sys_mem :statics_deinit '())
+
 	;free memory heaps
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-add-cr statics_sys_mem_heaps :r0)
@@ -42,6 +48,8 @@
 		(call :sys_heap :deinit '(:r0) '(:r0))
 		(vp-add-cr +hp_heap_size :r0)
 	(loop-until '(:r0 = :r7))
+
+	(exit :sys_mem :statics_deinit '())
 	(vp-ret)
 
 (def-func-end)
@@ -52,6 +60,8 @@
 	;info
 	;free all unused blocks
 
+	(entry :sys_mem :collect '())
+
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-cpy-cr +mem_cell_min_size :r9)
 	(vp-add-cr statics_sys_mem_heaps :r0)
@@ -60,6 +70,8 @@
 		(call :sys_heap :collect '(:r0) '(:r0))
 		(vp-add-cr +hp_heap_size :r0)
 	(loop-until '(:r0 = :r9))
+
+	(exit :sys_mem :collect '())
 	(vp-ret)
 
 (def-func-end)
@@ -69,6 +81,8 @@
 	;:r0 = available on free lists (uint)
 	;trashes
 	;:r0-:r4
+
+	(entry :sys_mem :avail '())
 
 	(fn-bind 'sys/statics/statics :r2)
 	(vp-xor-rr :r0 :r0)
@@ -82,6 +96,8 @@
 		(vp-add-cr +hp_heap_size :r2)
 		(vp-add-rr :r1 :r1)
 	(loop-until '(:r2 = :r4))
+
+	(exit :sys_mem :avail '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -96,6 +112,8 @@
 	;each at the size it gives. Not the total less what is free, which has
 	;in it the headers of free cells and the end of a block too short for
 	;another, and moves as a heap takes a block or gives one back
+
+	(entry :sys_mem :inuse '())
 
 	(fn-bind 'sys/statics/statics :r2)
 	(vp-xor-rr :r0 :r0)
@@ -118,6 +136,8 @@
 		(vp-add-cr +hp_heap_size :r2)
 		(vp-add-rr :r1 :r1)
 	(loop-until '(:r2 = :r4))
+
+	(exit :sys_mem :inuse '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -224,6 +244,8 @@
 	;none
 	;info
 	;a block being freed is not one that was given out, report and dump
+
+	(entry :sys_mem :bad_free '())
 
 	(call :host_os :pii_write_str '(2 "Bad free !\n"))
 	(jump :sys_task :dump)

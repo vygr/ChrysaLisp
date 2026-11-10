@@ -12,6 +12,8 @@
 	;trashes
 	;:r0-:r3
 
+	(entry :sys_mail :statics_init '())
+
 	(fn-bind 'sys/statics/statics :r3)
 	(vp-xor-rr :r0 :r0)
 	(assign '(:r0 (& :r3 statics_sys_mail_timeout_list)) '((:r3 statics_sys_mail_next_mbox_id) :r0))
@@ -29,6 +31,8 @@
 	;init the mail system
 	;trashes
 	;:r0-:r7, :r14, :d0-:d15
+
+	(entry :sys_mail :statics_init1 '())
 
 	;init postmen task
 	(fn-bind 'sys/statics/statics :r7)
@@ -59,6 +63,8 @@
 	;:r1 = mailbox address (ptr)
 	;trashes
 	;:r0-:r5, :d0-:d15
+
+	(entry :sys_mail :alloc_mbox '())
 
 	;pick next id
 	(fn-bind 'sys/statics/statics :r4)
@@ -117,6 +123,8 @@
 		(vp-add-cr statics_sys_mail_mbox_heap :r1)
 		(hp-freecell :r1 :r0 :r2)
 	(endif)
+
+	(exit :sys_mail :free_mbox '())
 	(vp-ret)
 
 (def-func-end)
@@ -151,6 +159,8 @@
 		(ln-set-succ :r1 0 :r4)
 		(ln-set-pred :r4 0 :r1)
 	(endif)
+
+	(exit :sys_mail :junk_mail '())
 	(vp-ret)
 
 (def-func-end)
@@ -193,6 +203,8 @@
 	;:r1 = string data (pubyte)
 	;trashes
 	;:r0-:r2, :d0-:d15
+
+	(entry :sys_mail :mymail '())
 
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_sys_task_current_tcb)) '(:r0))
@@ -276,6 +288,8 @@
 		(fn-bind 'sys/statics/statics :r0)
 		(call :sys_heap :free '((& :r0 statics_sys_mail_msg_heap) :r3))
 	(endif)
+
+	(exit :sys_mail :free '())
 	(vp-ret)
 
 (def-func-end)
@@ -397,6 +411,8 @@
 			(call :sys_task :wake_links)
 		(endif)
 	(endif)
+
+	(exit :sys_mail :send '())
 	(vp-ret)
 
 (def-func-end)
@@ -632,6 +648,7 @@
 	(assign '((:r3 +array_begin)) '(:r3))
 	(assign `((:r3 ,(* +node_hops +long_size))) '(:r3))
 	(vpif '(:r3 = +node_hops_none))
+		(exit :hmap :each_callback '())
 		(vp-ret)
 	(endif)
 
@@ -655,6 +672,7 @@
 		(class/obj/ref :r1 :r2)
 		(jump :list :push_back '((:r0 slot_entries) :r1))
 	(endif)
+	(exit :hset :each_callback '())
 	(vp-ret)
 
 (def-func-end)
@@ -665,6 +683,8 @@
 	;trashes
 	;:r0-:r14, :d0-:d15
 
+	(entry :sys_mail :forget '(:r0))
+
 	;find in service map and erase
 	(fn-bind 'sys/statics/statics :r1)
 	(call :hmap :each '((:r1 statics_sys_mail_node_map) ($ callback) :r0))
@@ -673,6 +693,8 @@
 	(vp-cpy-cr 1 :r1)
 	(vp-xor-rr :r2 :r2)
 	(save-fields :r0 '(statics_sys_mail_ping_full statics_sys_mail_ping_next) '(:r1 :r2))
+
+	(exit :sys_mail :forget '())
 	(vp-ret)
 
 (vp-label 'callback)
@@ -690,6 +712,8 @@
 	(vpif '(:r1 /= 0))
 		(jump :list :erase '(:r2 :r1))
 	(endif)
+
+	(exit :hmap :each_callback '())
 	(vp-ret)
 
 (def-func-end)
@@ -860,6 +884,8 @@
 		(class/obj/ref :r2 :r3)
 		(jump :list :push_back2 '((:r0 cat_entries_sys) :r1 :r2))
 	(endif)
+
+	(exit :hset :each_callback '())
 	(vp-ret)
 
 (def-func-end)
@@ -881,6 +907,7 @@
 		(long now spread)
 		(struct kick kick_size))
 
+	(entry :sys_mail :kick '())
 	(vp-alloc slot_size)
 
 	;count the nodes, with a limit that changes none of them
@@ -914,6 +941,7 @@
 	(assign '(:r1) '((:rsp (+ slot_kick kick_limit))))
 	(call :hmap :each '((:r3 statics_sys_mail_node_map) ($ callback) (& :rsp slot_kick)))
 
+	(exit :sys_mail :kick '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -933,6 +961,8 @@
 	(vpif '(:r0 < :r2))
 		(assign '(:r0) `((:r1 ,(* +node_time +long_size))))
 	(endif)
+
+	(exit :hmap :each_callback '())
 	(vp-ret)
 
 (def-func-end)
@@ -944,6 +974,8 @@
 	;:r0-:r14, :d0-:d15
 	;info
 	;each is a string, the node id and then the id of the machine it is on
+
+	(entry :sys_mail :devices '())
 
 	(call :list :create :nil '(:r0))
 	(vp-push :r0)
@@ -967,6 +999,7 @@
 	(assign '((:r3 +array_begin)) '(:r3))
 	(assign `((:r3 ,(* +node_hops +long_size))) '(:r3))
 	(vpif '(:r3 = +node_hops_none))
+		(exit :hmap :each_callback '())
 		(vp-ret)
 	(endif)
 

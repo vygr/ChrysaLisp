@@ -141,6 +141,7 @@
 	(cc-bytes x1 x2 x0 'cc_copy_out)
 
 (vp-label 'cc_done)
+	(exit :sys_crypto :chacha20 '())
 	(vp-free +cc_stack)
 	(vp-ret)
 
@@ -179,6 +180,8 @@
 	(each (lambda (r i)
 			(vp-cpy-rr r tm) (vp-shl-cr 2 tm) (vp-add-rr r tm)
 			(vp-store-rrc tm st (* (+ 10 i) 8))) (list q1 q2 q3 q4) '(0 1 2 3))
+
+	(exit :sys_crypto :poly1305_init '())
 	(vp-ret)
 
 (def-func-end)
@@ -248,6 +251,8 @@
 
 (vp-label 'pl_done)
 	(each (lambda (h) (vp-store-rrc h ps (* (!) 8))) hs)
+
+	(exit :sys_crypto :poly1305_blocks '())
 	(vp-ret)
 
 (def-func-end)
@@ -304,6 +309,8 @@
 			(vp-add-rr tm c)
 			(vp-store-rrc-i c out (* i 4)))
 		(list h0 h1 h2 h3) '(0 1 2 3))
+
+	(exit :sys_crypto :poly1305_finish '())
 	(vp-ret)
 
 (def-func-end)
@@ -375,6 +382,8 @@
 	(vp-add-rr :r1 :r0)
 	(vp-store-rrc :r0 :rsp +aead_tag)
 	(aead-tag +aead_out +aead_tag)
+
+	(exit :sys_crypto :aead_seal '())
 	(vp-free +aead_size)
 	(vp-ret)
 
@@ -418,6 +427,8 @@
 	(else)
 		(vp-xor-rr :r0 :r0)
 	(endif)
+
+	(exit :sys_crypto :aead_open '(:r0))
 	(vp-free +aead_size)
 	(vp-ret)
 

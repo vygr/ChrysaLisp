@@ -48,6 +48,7 @@
 	(structure slot 0
 		(ptr this))
 
+	(entry :error :init '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
 	;save inputs
 	(vp-alloc slot_size)
 	;in the order the fields lie in
@@ -70,6 +71,7 @@
 		(assign '((:rsp slot_this)) '(:r0))
 	(endif)
 
+	(exit :error :init '(:r0 :r1))
 	(vp-free slot_size)
 	(vp-ret)
 

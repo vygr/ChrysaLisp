@@ -72,6 +72,7 @@
 				(assign '((:r2 statics_sys_task_current_tcb) :r1) '(:r2 (:r0 +ptr_size)))
 				(assign '((:r2 +tk_node_dying)) '(:r1))
 				(assign '(:r1 :r0) '((:r0 0) (:r2 +tk_node_dying)))
+				(exit :obj :destroy '())
 				(vp-ret)
 			(endif)
 		(endif)
@@ -102,6 +103,8 @@
 	(vp-pop :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	(vp-xor-rr :r0 :r0)
 	(assign '(:r0) '((:r1 +tk_node_dying)))
+
+	(exit :obj :destroy '())
 	(vp-ret)
 
 (def-func-end)
@@ -140,7 +143,6 @@
 	(loop-until '(:r1 = :r2))
 	(assign '((:r0 +obj_vtable)) '(:r1))
 (vp-label 'funcexit)
-
 	(exit :obj :inst_of '(:r0 :r1))
 	(vp-ret)
 
@@ -148,6 +150,8 @@
 
 (def-method :obj :null)
 
+	(entry :obj :null '())
+	(exit :obj :null '())
 	(vp-ret)
 
 (def-func-end)
@@ -177,6 +181,8 @@
 	;dec ref count
 	(vp-sub-cr 1 :r1)
 	(assign '(:r1) '((:r0 +obj_count)))
+
+	(exit :obj :deref '())
 	(vp-ret)
 
 (def-func-end)
@@ -186,6 +192,8 @@
 	;none
 	;info
 	;a ref or deref of an object that is not alive, report and dump
+
+	(entry :obj :dead '())
 
 	(call :host_os :pii_write_str '(2 "Dead object !\n"))
 	(jump :sys_task :dump)
@@ -203,6 +211,8 @@
 	(vpif '(:r0 /= 0))
 		(jump :obj :deref '(:r0))
 	(endif)
+
+	(exit :obj :deref_if '())
 	(vp-ret)
 
 (def-func-end)

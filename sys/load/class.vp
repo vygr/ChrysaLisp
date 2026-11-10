@@ -344,6 +344,7 @@
 		;found function already loaded
 		(assign '((:r5 +fn_header_entry)) '(:r0))
 		(vp-add-rr :r5 :r0)
+		(exit :sys_load :load '(:r0))
 		(vp-ret)
 	(endif)
 
@@ -499,6 +500,7 @@
 	(endif)
 	(vp-pop :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	(vpif '(:r0 = 0))
+		(exit :sys_load :load '(:r0))
 		(vp-ret)
 	(endif)
 	(vp-push :r0)
@@ -912,6 +914,8 @@
 
 	(vp-rdef (statics srv last tasks tasks_end node next) '(:r7 :r8 :r9 :r10 :r11 :r12 :r13))
 
+	(entry :sys_load :sweep '())
+
 	(fn-bind 'sys/statics/statics statics)
 
 	;none marked
@@ -949,6 +953,7 @@
 		(call :sys_mem :free '(:r0))
 	(loop-end)
 
+	(exit :sys_load :sweep '())
 	(vp-ret)
 
 (def-func-end)

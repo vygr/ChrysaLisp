@@ -143,6 +143,8 @@
 	;info
 	;a cell being freed has had its guard word written on, report and dump
 
+	(entry :sys_heap :overrun '())
+
 	(call :host_os :pii_write_str '(2 "Heap overrun !\n"))
 	(jump :sys_task :dump)
 
@@ -153,6 +155,8 @@
 	;none
 	;info
 	;a cell being freed is already free, report and dump
+
+	(entry :sys_heap :double_free '())
 
 	(call :host_os :pii_write_str '(2 "Double free !\n"))
 	(jump :sys_task :dump)

@@ -120,6 +120,8 @@
 	;trashes
 	;:r1-:r4, :d0-:d15
 
+	(entry :canvas :deinit '(:r0))
+
 	(vp-push :r0)
 
 	;free edge arrays
@@ -292,7 +294,7 @@
 	;inputs
 	;:r0 = user data, the frame above
 
-	(entry '(:r0))
+	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
 	(assign '((:r0 slot_handle) (:r0 slot_pixmap)) '(:r0 :r1))
 	(host-gui-call :host_gui :read_texture '(:r0 (:r1 +pixmap_data)
@@ -300,6 +302,7 @@
 		'(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_ok)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (def-func-end)

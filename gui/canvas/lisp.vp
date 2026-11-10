@@ -254,7 +254,7 @@
 		(uint w h)
 		(struct rect host_gui_rect_size))
 
-	(entry '(:r0))
+	(entry :sys_task :task_callback '(:r0))
 	(vp-alloc cb_size)
 	(assign '((:r0 slot_this)) '(:r1))
 	(save-fields :rsp '(cb_user cb_this) '(:r0 :r1))
@@ -320,6 +320,7 @@
 		(assign '(:r1) '((:r0 slot_result)))
 	(endif)
 
+	(exit :sys_task :task_callback '())
 	(vp-free cb_size)
 	(vp-ret)
 

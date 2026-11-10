@@ -57,6 +57,8 @@
 	(call :ctx :reserve '(:r0 2) '(:r0 :r1))
 	(vp-cpy-cr +ctx_op_color :r2)
 	(assign '(:r2 :r4) '((:r1 0) (:r1 +long_size)))
+
+	(exit :ctx :set_color '())
 	(vp-ret)
 
 (def-func-end)
@@ -83,6 +85,8 @@
 	(vp-cpy-cr +ctx_op_box :r2)
 	(assign '(:r2) '((:r1 0)))
 	(ctx-rect +long_size)
+
+	(exit :ctx :box '())
 	(vp-ret)
 
 (def-func-end)
@@ -103,6 +107,8 @@
 	(vp-cpy-cr +ctx_op_filled_box :r2)
 	(assign '(:r2) '((:r1 0)))
 	(ctx-rect +long_size)
+
+	(exit :ctx :filled_box '())
 	(vp-ret)
 
 (def-func-end)
@@ -136,6 +142,8 @@
 		(vp-cpy-rr :r12 :r8)
 		(ctx-rect (* 5 +long_size))
 	(endif)
+
+	(exit :ctx :blit '())
 	(vp-ret)
 
 (def-func-end)

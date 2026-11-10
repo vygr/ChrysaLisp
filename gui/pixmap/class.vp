@@ -90,6 +90,8 @@
 	;trashes
 	;:r1-:r2, :d0-:d15
 
+	(entry :pixmap :deinit '(:r0))
+
 	(vp-push :r0)
 
 	;free any texture
@@ -149,7 +151,7 @@
 	;inputs
 	;:r0 = user data, the frame above
 
-	(entry '(:r0))
+	(entry :sys_task :task_callback '(:r0))
 	(vp-alloc cb_size)
 	(assign '((:r0 slot_this)) '(:r1))
 	(save-fields :rsp '(cb_user cb_this) '(:r0 :r1))
@@ -188,6 +190,7 @@
 	(call :texture :create '(:r0 (:r1 +pixmap_width) (:r1 +pixmap_height)) '(:r0))
 	(assign '((:rsp cb_this)) '(:r1))
 	(assign '(:r0) '((:r1 +pixmap_texture)))
+	(exit :sys_task :task_callback '())
 	(vp-free cb_size)
 	(vp-ret)
 

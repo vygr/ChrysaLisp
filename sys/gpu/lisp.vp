@@ -94,6 +94,7 @@
 	(endif)
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_out)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error1)

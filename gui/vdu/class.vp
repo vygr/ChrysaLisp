@@ -23,6 +23,8 @@
 	;trashes
 	;:r1-:r5, :d0-:d15
 
+	(entry :vdu :init '(:r0 :r1))
+
 	;init parent
 	(s-call :vdu :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
@@ -35,6 +37,8 @@
 		(vp-or-cr +view_flag_nocache :r2)
 		(assign '(:r2) '((:r0 +view_flags)))
 	(endif)
+
+	(exit :vdu :init '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
@@ -46,6 +50,8 @@
 	;:r0 = vdu object (ptr)
 	;trashes
 	;:r1-:r4, :d0-:d15
+
+	(entry :vdu :deinit '(:r0))
 
 	;save object
 	(vp-push :r0)

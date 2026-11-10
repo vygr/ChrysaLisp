@@ -144,6 +144,7 @@
 		'((:r0 cb_recv_handle) (:r0 cb_recv_buf) (:r0 cb_recv_remaining)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_recv_recvd)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (def-func-end)
@@ -168,6 +169,7 @@
 	(vp-rdef (parse_scan) '(:r0))
 	(vp-rdef (poll_res) (method-output :host_net :poll))
 
+	(entry :host_net :link '())
 	(vp-alloc slot_size)
 
 	;read params msg from kernel
@@ -314,6 +316,8 @@
 (vp-label 'link_exit)
 	;free params msg
 	(call :sys_mail :free '((:rsp slot_params)))
+
+	(exit :host_net :link '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -323,6 +327,8 @@
 	(host-net-call :host_net :listen '((:r0 cb_link_port)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_link_handle)))
+
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'accept_callback)
@@ -331,6 +337,8 @@
 	(host-net-call :host_net :accept '((:r0 cb_link_handle)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_link_handle)))
+
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'connect_callback)
@@ -339,6 +347,8 @@
 	(host-net-call :host_net :connect '((:r0 cb_link_host) (:r0 cb_link_port)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 cb_link_handle)))
+
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (def-func-end)
@@ -358,6 +368,7 @@
 	(vp-rdef (lst iter_begin iter_end) (method-output :array :get_both))
 	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
+	(entry :host_net :conn '())
 	(vp-alloc slot_size)
 
 	;decrement task count
@@ -475,6 +486,8 @@
 (vp-label 'conn_done)
 	;restore task count
 	(call :sys_task :count '(3))
+
+	(exit :host_net :conn '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -532,6 +545,7 @@
 	(vp-rdef (ready_msg) (method-output :sys_mail :ready))
 	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
+	(entry :host_net :out '())
 	(vp-alloc slot_size)
 
 	(call :nodeid :create '(0) '((:rsp slot_key)))
@@ -714,6 +728,8 @@
 	(assign '((:r0 0)) '(:r1))
 	(vp-sub-cr 1 :r1)
 	(assign '(:r1) '((:r0 0)))
+
+	(exit :host_net :out '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -745,6 +761,7 @@
 	(vp-rdef (recv_status) (method-output :host_net :recv_all))
 	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
+	(entry :host_net :in '())
 	(vp-alloc slot_size)
 
 	;read params msg, and of a sealed link its key, and a buffer to open in
@@ -955,6 +972,8 @@
 	(assign '((:r0 0)) '(:r1))
 	(vp-sub-cr 1 :r1)
 	(assign '(:r1) '((:r0 0)))
+
+	(exit :host_net :in '())
 	(vp-free slot_size)
 	(vp-ret)
 

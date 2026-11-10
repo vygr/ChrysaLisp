@@ -73,6 +73,7 @@
 		(call :sys_mail :send '((:rsp slot_msg)))
 	(endif)
 
+	(exit :sys_mail :in '())
 	(vp-free slot_size)
 	(vp-ret)
 

@@ -16,6 +16,8 @@
 		(uint x2 y2 y x1a x1b x1c x1d y1a y1b y1c y1d)
 		(long sw256 sh256 dw dh))
 
+	(entry :pixmap :resize '(:r0 :r1))
+
 	(assign '((:r0 +pixmap_width) (:r0 +pixmap_height) (:r1 +pixmap_width) (:r1 +pixmap_height))
 		'(:r2 :r3 :r4 :r5))
 	;the same size, a copy
@@ -25,6 +27,7 @@
 		(vp-mul-rr :r3 :r8)
 		(call :sys_mem :copy '(:r6 :r7 :r8))
 		(vp-pop :r0)
+		(exit :pixmap :resize '(:r0))
 		(vp-ret)
 	(endif)
 	(vp-simd vp-shl-cr '(1) '(:r2 :r3))
@@ -38,7 +41,7 @@
 	(endif)
 
 	(vp-alloc slot_size)
-	(entry :pixmap :resize '((:rsp slot_this) (:rsp slot_source)))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_source)))
 
 	;where each column starts in the source, in 256ths of a pixel, each
 	;worked out from the sizes and not by steps, which drift: with a step of

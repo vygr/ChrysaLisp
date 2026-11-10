@@ -22,6 +22,8 @@
 	;trashes
 	;:r1-:r5, :d0-:d15
 
+	(entry :view :init '(:r0 :r1))
+
 	;init parent
 	(s-call :view :init '(:r0 :r1 1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
@@ -49,6 +51,8 @@
 		(endif)
 		(vp-cpy-cr 1 :r1)
 	(endif)
+
+	(exit :view :init '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
@@ -60,6 +64,8 @@
 	;:r0 = view object (ptr)
 	;trashes
 	;:r1-:r4, :d0-:d15
+
+	(entry :view :deinit '(:r0))
 
 	;save object
 	(vp-push :r0)
@@ -147,6 +153,8 @@
 	;trashes
 	;:r1-:r3
 
+	(entry :view :add_front '(:r0 :r1))
+
 	;remove from any existing parent
 	(vp-cpy-rr :r0 :r3)
 	(call :view :sub '(:r1))
@@ -157,6 +165,8 @@
 	(vp-cpy-rr :r3 :r0)
 	(vp-add-cr +view_list :r3)
 	(lh-add-at-head :r3 :r2 :r1)
+
+	(exit :view :add_front '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -170,6 +180,8 @@
 	;trashes
 	;:r1-:r3
 
+	(entry :view :add_back '(:r0 :r1))
+
 	;remove from any existing parent
 	(vp-cpy-rr :r0 :r3)
 	(call :view :sub '(:r1))
@@ -180,6 +192,8 @@
 	(vp-cpy-rr :r3 :r0)
 	(vp-add-cr +view_list :r3)
 	(lh-add-at-tail :r3 :r2 :r1)
+
+	(exit :view :add_back '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -192,6 +206,8 @@
 	;:r0 = target view object (ptr)
 	;trashes
 	;:r1-:r3
+
+	(entry :view :add_before '(:r0 :r1))
 
 	;remove from any existing parent
 	(vp-cpy-rr :r0 :r3)
@@ -207,6 +223,8 @@
 		(ln-add-node-before :r0 :r1 :r2)
 	(endif)
 	(vp-cpy-rr :r3 :r0)
+
+	(exit :view :add_before '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -219,6 +237,8 @@
 	;:r0 = target view object (ptr)
 	;trashes
 	;:r1-:r3
+
+	(entry :view :add_after '(:r0 :r1))
 
 	;remove from any existing parent
 	(vp-cpy-rr :r0 :r3)
@@ -234,6 +254,8 @@
 		(ln-add-node-after :r0 :r1 :r2)
 	(endif)
 	(vp-cpy-rr :r3 :r0)
+
+	(exit :view :add_after '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -246,6 +268,8 @@
 	;trashes
 	;:r1-:r2
 
+	(entry :view :sub '(:r0))
+
 	;test parent
 	(assign '((:r0 +hmap_parent)) '(:r1))
 	(vpif '(:r1 /= 0))
@@ -257,6 +281,8 @@
 		(vp-lea-rcr :r0 +view_node :r2)
 		(ln-remove-node :r2 :r1)
 	(endif)
+
+	(exit :view :sub '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -268,6 +294,8 @@
 	;:r0 = view object (ptr)
 	;trashes
 	;:r1-:r14, :d0-:d15
+
+	(entry :view :hide '(:r0))
 
 	;test parent
 	(assign '((:r0 +hmap_parent)) '(:r1))
@@ -326,6 +354,8 @@
 		(vp-cpy-cr +view_flag_hidden :r5)
 		(assign '(:r5 :r4 :r4) '((:r1 +view_flags) (:r0 +hmap_parent) (:r0 +view_dirty_region)))
 	(endif)
+
+	(exit :view :hide '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -337,6 +367,8 @@
 	;:r0 = view object (ptr)
 	;trashes
 	;:r1-:r5
+
+	(entry :view :to_front '(:r0))
 
 	(assign '((:r0 +hmap_parent)) '(:r5))
 	(vpif '(:r5 /= 0))
@@ -363,6 +395,8 @@
 			(assign '(:r5) '((:r0 +hmap_parent)))
 		(endif)
 	(endif)
+
+	(exit :view :to_front '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -374,6 +408,8 @@
 	;:r0 = view object (ptr)
 	;trashes
 	;:r1-:r14, :d0-:d15
+
+	(entry :view :to_back '(:r0))
 
 	(assign '((:r0 +hmap_parent)) '(:r5))
 	(vpif '(:r5 /= 0))
@@ -398,6 +434,8 @@
 			(assign '(:r5) '((:r0 +hmap_parent)))
 		(endif)
 	(endif)
+
+	(exit :view :to_back '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -426,7 +464,8 @@
 		(ptr this data down up))
 
 	(vp-alloc slot_size)
-	(assign '(:r0 :r1 :r2 :r3 :r0) '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up) :r1))
+	(entry :view :forward_tree '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up)))
+	(assign '(:r0) '(:r1))
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr :r1 :r0)
@@ -461,8 +500,8 @@
 		;up to parent
 		(assign '((:r0 +hmap_parent)) '(:r0))
 	(loop-end)
-	(assign '((:rsp slot_this)) '(:r0))
 
+	(exit :view :forward_tree '((:rsp slot_this)))
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -492,7 +531,8 @@
 		(ptr this data down up))
 
 	(vp-alloc slot_size)
-	(assign '(:r0 :r1 :r2 :r3 :r0) '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up) :r1))
+	(entry :view :backward_tree '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up)))
+	(assign '(:r0) '(:r1))
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr :r1 :r0)
@@ -527,8 +567,8 @@
 		;up to parent
 		(assign '((:r0 +hmap_parent)) '(:r0))
 	(loop-end)
-	(assign '((:rsp slot_this)) '(:r0))
 
+	(exit :view :backward_tree '((:rsp slot_this)))
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -646,6 +686,8 @@
 	;trashes
 	;:r1
 
+	(entry :view :hit '(:r0 :r7 :r8))
+
 	(vpif '(:r7 >= 0) '(:r8 >= 0))
 		(assign '((:r0 +view_w)) '(:r1))
 		(vpif '(:r7 < :r1))
@@ -654,11 +696,14 @@
 				;hit ?
 				(assign '((:r0 +view_flags)) '(:r1))
 				(vp-and-cr +view_flag_solid :r1)
+				(exit :view :hit '(:r0 :r1))
 				(vp-ret)
 			(endif)
 		(endif)
 	(endif)
 	(vp-xor-rr :r1 :r1)
+
+	(exit :view :hit '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
@@ -681,18 +726,20 @@
 
 	;save inputs
 	(vp-alloc slot_size)
-	(assign '(:r0) '((:rsp slot_this)))
+	(entry :view :hit_tree '((:rsp slot_this) :r7 :r8))
 	(vp-xor-rr :r1 :r1)
 	(assign '(:r1) '((:rsp slot_hit)))
 
 	;iterate through views front to back
 	(call :view :forward_tree '(:r0 :rsp ($ hit_down_callback) ($ hit_up_callback)))
 
-	(load-fields :rsp '(slot_this slot_hit) '(:r0 :r1))
+	(exit :view :hit_tree '((:rsp slot_this) (:rsp slot_hit) :r7 :r8))
 	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'hit_down_callback)
+	(entry :view :forward_tree_callback '(:r0 :r1))
+
 	(assign '((:r0 +view_x)) '(:r1))
 	(vp-sub-rr :r1 :r7)
 	(assign '((:r0 +view_y)) '(:r1))
@@ -700,11 +747,14 @@
 	(d-jump :view :hit '(:r0 :r7 :r8))
 
 (vp-label 'hit_up_callback)
+	(entry :view :forward_tree_callback '(:r0 :r1))
+
 	(assign '(:r1 (:r1 slot_hit)) '(:r2 :r1))
 	(vpif '(:r1 = 0))
 		(call :view :hit '(:r0 :r7 :r8) '(:r0 :r1))
 		(vpif '(:r1 /= 0))
 			(assign '(:r0) '((:r2 slot_hit)))
+			(exit :view :forward_tree_callback '(:r0 :r1))
 			(vp-ret)
 		(endif)
 		(assign '((:r0 +view_x)) '(:r1))
@@ -713,6 +763,8 @@
 		(vp-add-rr :r1 :r8)
 		(vp-xor-rr :r1 :r1)
 	(endif)
+
+	(exit :view :forward_tree_callback '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)

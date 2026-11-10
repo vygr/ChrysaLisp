@@ -79,6 +79,7 @@
 	(endif)
 
 (vp-label 'update_done)
+	(exit :host_gui :update '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -114,7 +115,7 @@
 				(:rsp (+ replay_drect host_gui_rect_w) i) (:rsp (+ replay_drect host_gui_rect_h) i))))
 
 	(vp-alloc replay_size)
-	(assign '(:r0) '((:rsp replay_user)))
+	(entry :host_gui :replay '((:rsp replay_user)))
 
 	;render to the backbuffer, each view of the frame: for each rect of its
 	;dirty region, clipped to it, its list of draws where it is
@@ -192,6 +193,7 @@
 	;flush backbuffer
 	(host-gui-call :host_gui :flush '((:rsp replay_user)))
 
+	(exit :host_gui :replay '())
 	(vp-free replay_size)
 	(vp-ret)
 
@@ -203,6 +205,8 @@
 	;info
 	;the dirty regions of the frame freed, its views let go of, and its
 	;list, here, not on the host, as a view let go of may be the last of it
+
+	(entry :host_gui :frame_free '())
 
 	;the place and the end are in registers the free of a region and the
 	;deref of a view leave, so no frame
@@ -225,6 +229,7 @@
 	(vp-xor-rr :r2 :r2)
 	(assign '(:r2) '((:r1 statics_gui_draws)))
 	(call :array :deref '(:r0))
+	(exit :host_gui :frame_free '())
 	(vp-ret)
 
 (def-func-end)

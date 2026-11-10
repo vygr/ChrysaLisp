@@ -34,6 +34,8 @@
 	(entry :sys_task :task_callback '(:r0))
 
 	(host-gui-call :host_gui :destroy_texture '(:r0))
+
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (def-func-end)

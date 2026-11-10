@@ -68,6 +68,7 @@
 	(endif)
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -120,6 +121,7 @@
 	(host-audio-call :host_audio :deinit)
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -176,6 +178,7 @@
 	(host-audio-call :host_audio :add '((:r0 slot_c_path)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -232,6 +235,7 @@
 	(host-audio-call :host_audio :change '((:r0 slot_c_handle) (:r0 slot_c_state)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -288,6 +292,7 @@
 	(host-audio-call :host_audio :remove '((:r0 slot_c_handle)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -344,6 +349,7 @@
 	(host-audio-call :host_audio :play '((:r0 slot_c_handle) (:r0 slot_c_pan)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -388,6 +394,7 @@
 	(host-audio-call :host_audio :mic_open '() '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -439,6 +446,7 @@
 	(host-audio-call :host_audio :mic_read '((:r0 slot_c_data) (:r0 slot_c_max)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -483,6 +491,7 @@
 	(host-audio-call :host_audio :mic_close '() '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -532,6 +541,7 @@
 	(host-audio-call :host_audio :stream_open '((:r0 slot_c_rate) (:r0 slot_c_channels)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -586,6 +596,7 @@
 		'((:r0 slot_c_handle) (:r0 slot_c_data) (:r0 slot_c_frames)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -632,6 +643,7 @@
 	(host-audio-call :host_audio :stream_close '((:r0 slot_c_handle)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -681,6 +693,7 @@
 	(host-audio-call :host_audio :stream_left '((:r0 slot_c_handle)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)

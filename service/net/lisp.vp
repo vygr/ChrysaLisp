@@ -38,6 +38,7 @@
 	(host-net-call :host_net :init '() '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_result)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -79,6 +80,7 @@
 	(host-net-call :host_net :deinit '() '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_result)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -123,6 +125,7 @@
 	(host-net-call :host_net :connect '((:r0 slot_host) (:r0 slot_port)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_handle)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -167,6 +170,7 @@
 	(host-net-call :host_net :listen '((:r0 slot_port)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_handle)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -211,6 +215,7 @@
 	(host-net-call :host_net :accept '((:r0 slot_handle)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_handle)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -301,6 +306,7 @@
 		'((:r0 slot_handle) (& :r1 +str_data) (:r0 slot_max_len)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_ret_bytes)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -403,6 +409,7 @@
 	(host-net-call :host_net :udp_bind '((:r0 slot_port)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_handle)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -451,6 +458,7 @@
 	(host-net-call :host_net :udp_send '(:r0 :r1 :r2 :r3 :r4) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_ret_bytes)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -525,6 +533,7 @@
 	(host-net-call :host_net :udp_recv '(:r0 :r1 :r2 :r3 :r4) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_ret_bytes)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)

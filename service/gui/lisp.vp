@@ -93,6 +93,8 @@
 	(vp-ret)
 
 (vp-label 'deinit_callback)
+	(entry :sys_task :task_callback '(_))
+
 	;free any screen
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_gui_screen)) '(:r0))
@@ -143,6 +145,7 @@
 		(assign '(:r0) '((:r1 +tk_node_lisp)))
 	(endif)
 
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
@@ -214,7 +217,7 @@
 
 (vp-label 'event_callback)
 	(vp-alloc local1_size)
-	(assign '(:r0) '((:rsp local1_user)))
+	(entry :sys_task :task_callback '((:rsp local1_user)))
 
 	(host-gui-call :host_gui :poll_event '(0) '(:r0))
 	(vp-shl-cr 32 :r0)
@@ -231,6 +234,7 @@
 		(class/obj/ref :r1 :r2)
 		(assign '(:r1) '((:r0 slot_event)))
 	(endif)
+	(exit :sys_task :task_callback '())
 	(vp-free local1_size)
 	(vp-ret)
 
@@ -358,7 +362,7 @@
 	;inputs
 	;:r0 = user data
 
-	(entry '(:r0))
+	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
 	(assign '((:r0 rs_w)) '(:r6))
 	(vp-shl-cr 2 :r6)
@@ -366,6 +370,7 @@
 		'(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 rs_ok)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (def-func-end)
@@ -460,6 +465,7 @@
 	(endif)
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_out)))
+	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error1)

@@ -703,6 +703,7 @@
 		(ptr font flat_set)
 		(uint index))
 
+	(entry :font :flush '())
 	(vp-alloc slot_size)
 
 	;must not use iters as kernel callbacks will deshedule us !
@@ -742,6 +743,7 @@
 	(vp-xor-rr :r1 :r1)
 	(assign '(:r1) '((:r0 statics_font_count)))
 
+	(exit :font :flush '())
 	(vp-free slot_size)
 	(vp-ret)
 

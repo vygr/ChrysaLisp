@@ -30,6 +30,7 @@
 			(save-fields :r1 '(0 +ptr_size (* 2 +ptr_size) (* 3 +ptr_size)) '(:r5 :r6 :r7 :r2))
 			(call :sys_mail :send '(:r0))))
 
+	(entry :sys_link :link '())
 	(vp-alloc slot_size)
 
 	;decrement task count
@@ -149,6 +150,8 @@
 
 	;restore task count
 	(call :sys_task :count '(3))
+
+	(exit :sys_link :link '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -164,6 +167,7 @@
 		(long is_owner)
 		(uint length sleep_time quiet))
 
+	(entry :sys_link :in '())
 	(vp-alloc slot_size)
 
 	;read params msg
@@ -320,6 +324,8 @@
 	(assign '((:r0 0)) '(:r1))
 	(vp-sub-cr 1 :r1)
 	(assign '(:r1) '((:r0 0)))
+
+	(exit :sys_link :in '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -347,6 +353,7 @@
 		(int free)
 		(uint last_count sleep_time seen down alive quiet length))
 
+	(entry :sys_link :out '())
 	(vp-alloc slot_size)
 
 	(fn-bind 'sys/statics/statics :r0)
@@ -769,6 +776,8 @@
 	(assign '((:r0 0)) '(:r1))
 	(vp-sub-cr 1 :r1)
 	(assign '(:r1) '((:r0 0)))
+
+	(exit :sys_link :out '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -826,6 +835,8 @@
 			(endif)
 		(endif)
 	(endif)
+
+	(exit :hmap :each_callback '())
 	(vp-ret)
 
 (vp-label 'write_buf)

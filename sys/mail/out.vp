@@ -17,6 +17,7 @@
 
 	(vp-rdef (id0 id1 id2 heap msg offchip data obj frag time len off amount tot))
 
+	(entry :sys_mail :out '())
 	(vp-alloc slot_size)
 
 	(call :sys_task :set_priority '(tk_out_link_priority))
@@ -90,6 +91,7 @@
 		;exit if signaled by kernel...
 	(loop-end)
 
+	(exit :sys_mail :out '())
 	(vp-free slot_size)
 	(vp-ret)
 

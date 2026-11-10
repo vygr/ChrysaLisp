@@ -264,6 +264,8 @@
 	(vpif `(,data = 1))
 		(jump :list :erase `(,bucket ,iter))
 	(endif)
+
+	(exit :hset :each_callback '())
 	(vp-ret)
 
 (def-func-end)

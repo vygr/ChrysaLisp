@@ -1024,6 +1024,8 @@
 		(vp-simd vp-add-rr `(,tx ,ty ,tx ,ty) `(,x ,y ,x1 ,y1))
 		(vp-simd vp-store-rrc-i `(,x ,y ,x1 ,y1) `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1))
 	(loop-end)
+
+	(exit :region :translate '())
 	(vp-ret)
 
 (def-func-end)

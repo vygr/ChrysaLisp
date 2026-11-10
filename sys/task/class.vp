@@ -9,6 +9,8 @@
 	;trashes
 	;:r0-:r2
 
+	(entry :sys_task :statics_init '())
+
 	;init timer/task lists
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-xor-rr :r1 :r1)
@@ -19,6 +21,8 @@
 		(lh-init :r0 :r2)
 		(vp-add-cr +lh_list_size :r0)
 	(loop-until '(:r0 = :r1))
+
+	(exit :sys_task :statics_init '())
 	(vp-ret)
 
 (def-func-end)
@@ -112,6 +116,8 @@
 	;info
 	;restore next ready task
 
+	(entry :sys_task :restore '())
+
 	(fn-bind 'sys/statics/statics :r2)
 	(assign '((& :r2 statics_sys_task_task_lists)) '(:r1))
 	(loop-start)
@@ -126,6 +132,8 @@
 	(apply (const vp-trash) +vp_regs)
 	(tk-validate-trash)
 	(vp-load-state)
+
+	(exit :sys_task :restore '())
 	(vp-ret)
 
 (def-func-end)
@@ -139,6 +147,8 @@
 	;restore task
 	;the task deferred to runs before this comes back, so whoever calls
 	;has nothing left in a register, whatever these few instructions use
+
+	(entry :sys_task :defer '(:r0))
 
 	;push task state
 	(vp-save-state)
@@ -166,6 +176,8 @@
 	;pop task state
 	(tk-validate-trash)
 	(vp-load-state)
+
+	(exit :sys_task :defer '())
 	(vp-ret)
 
 (def-func-end)
@@ -175,6 +187,8 @@
 	;:r0-:r14, :d0-:d15
 	;info
 	;suspend current task, switch to next task
+
+	(entry :sys_task :suspend '())
 
 	;push task state
 	(vp-save-state)
@@ -236,6 +250,8 @@
 	;trashes
 	;:r0-:r2, :d0-:d15
 
+	(entry :sys_task :slice '())
+
 	(fn-bind 'sys/statics/statics :r2)
 	(assign '((:r2 statics_sys_task_tick)) '(:r1))
 	(vpif '(:r1 /= 0))
@@ -249,6 +265,8 @@
 		(assign '(:r0) '((:r2 statics_sys_task_then)))
 		(call :sys_task :sleep '(0))
 	(endif)
+
+	(exit :sys_task :slice '())
 	(vp-ret)
 
 (def-func-end)
@@ -271,6 +289,8 @@
 	(apply (const vp-push) (rest +vp_rregs_0_14))
 	(vp-call 'away)
 	(apply (const vp-pop) (rest +vp_rregs_0_14))
+
+	(exit :sys_task :sleep '())
 	(vp-ret)
 
 (vp-label 'away)
@@ -330,6 +350,8 @@
 	(vp-add-cr statics_sys_task_task_lists :r1)
 	(vp-add-rr :r0 :r1)
 	(lh-add-at-head :r1 :r2 :r3)
+
+	(exit :sys_task :set_priority '())
 	(vp-ret)
 
 (def-func-end)
@@ -408,6 +430,7 @@
 	(structure slot 0
 		(ptr tcb))
 
+	(entry :sys_task :stop '())
 	(vp-alloc slot_size)
 
 	;decrement task count
@@ -517,6 +540,8 @@
 
 	(vp-rdef (next node data) '(:r3))
 
+	(entry :sys_task :wake_links '())
+
 	(fn-bind 'sys/statics/statics node)
 	(loop-list-forward node statics_sys_task_timer_list node next)
 		(assign `((,node +tk_node_priority)) `(,data))
@@ -526,6 +551,8 @@
 		(assign `(,data) `((,node +tk_node_time)))
 		(call :sys_task :resume `(,node))
 	(loop-end)
+
+	(exit :sys_task :wake_links '())
 	(vp-ret)
 
 (def-func-end)
@@ -578,6 +605,8 @@
 
 	(vp-rdef (stack_top sptr node node_offset) '(:r3 :r4))
 
+	(entry :sys_task :dump '())
+
 	;print stack dump
 	(fn-bind 'sys/statics/statics stack_top)
 	(assign `((,stack_top statics_sys_task_current_tcb) (& :rsp ,(* +ptr_size 5))) `(,stack_top ,sptr))
@@ -621,6 +650,8 @@
 	;trashes
 	;none
 
+	(entry :sys_task :stack '())
+
 	(vp-push :r0 :r1)
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_sys_task_current_tcb) (:r0 statics_sys_task_kernel_tcb))
@@ -632,6 +663,8 @@
 		(endif)
 	(endif)
 	(vp-pop :r0 :r1)
+
+	(exit :sys_task :stack '())
 	(vp-ret)
 
 (def-func-end))

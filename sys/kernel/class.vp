@@ -145,8 +145,7 @@
 		(struct host 64))
 
 	(vp-alloc slot_size)
-	(entry '(:r0))
-	(assign '(:r0) '((:rsp slot_argv)))
+	(entry :sys_kernel :kernel '((:rsp slot_argv)))
 
 	;init allocator
 	(call :sys_mem :statics_init)
@@ -558,6 +557,7 @@
 	(call :sys_mem :statics_deinit)
 
 	;exit back to load init
+	(exit :sys_kernel :kernel '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -656,6 +656,8 @@
 	(vpif '(:r3 = :r0))
 		(jump :list :erase '(:r2 :r1))
 	(endif)
+
+	(exit :hset :each_callback '())
 	(vp-ret)
 
 (vp-label 'hash_prefix)
@@ -677,6 +679,8 @@
 		(vp-add-cr 1 :r3)
 		(assign '(:r2 :r3) `((:r0 ,+long_size) (:r0 ,(* 2 +long_size))))
 	(endif)
+
+	(exit :hset :each_callback '())
 	(vp-ret)
 
 (vp-label 'opts)
@@ -906,6 +910,7 @@
 		(struct purge purge_size)
 		(long now gap purge_nodes purge_mail lag))
 
+	(entry :sys_kernel :ping '())
 	(vp-alloc slot_size)
 
 	;don't count ping or postman tasks in load balancing
@@ -1041,6 +1046,7 @@
 		(endif)
 	(loop-end)
 
+	(exit :sys_kernel :ping '())
 	(vp-free slot_size)
 	(vp-ret)
 
@@ -1057,6 +1063,8 @@
 	(assign `((:r1 ,(* +node_time +long_size))) '(:r2))
 	(vp-add-rr :r0 :r2)
 	(assign '(:r2) `((:r1 ,(* +node_time +long_size))))
+
+	(exit :hmap :each_callback '())
 	(vp-ret)
 
 (vp-label 'purge_callback)
@@ -1106,6 +1114,7 @@
 		(call :list :erase2 '((:rsp slot_bucket) (:rsp slot_iter)))
 	(endif)
 
+	(exit :hmap :each_callback '())
 	(vp-free slot_size)
 	(vp-ret)
 
