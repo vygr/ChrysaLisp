@@ -206,14 +206,15 @@
 	(or (get (setq %0 (sym %0)) ages) (def ages %0 (age %0))))
 
 (defun make-info (%0)
-	;create lists of immediate dependencies and products, of the scan
-	;kept if the file has not changed
+	;lists of a file's immediate dependencies, and of the lines that name
+	;what it makes, (make-products) gives their paths, of the scan kept if
+	;the file has not changed
 	(defq k (sym %0) a (file-age %0) c (get k scans))
 	(unless (and c (= (first c) a))
 		(setq scanned :t)
 		(def scans k (setq c (list a (make-scan %0)))))
 	(bind '(d p) (second c))
-	(list (copy d) (make-products p)))
+	(list (copy d) p))
 
 (defun scans-stale (files)
 	;those of the files with no scan kept, or one of an older file
@@ -262,13 +263,13 @@
 	;the files and all they include and import, each with the newest age of
 	;all it is made of in newest, and the .vp files of them given back. Of
 	;the caller's ages, info, newest, scans and scanned
+	;no class is declared for it: what a file makes is only asked for a
+	;boot image, (boot-plan), and the classes were 4 ms of a make's 15
 	(scans-farm files)
-	(within-compile-env (lambda ()
-			(class-env classes)
-			(each-mergeable (#
-					(bind '(d p) (make-info %0))
-					(merge files d)
-					(def info (sym %0) (list d p))) files)))
+	(each-mergeable (#
+			(bind '(d p) (make-info %0))
+			(merge files d)
+			(def info (sym %0) (list d p))) files)
 	(if scanned (scans-save scans))
 	(newest-ages files)
 	(filter (# (ends-with ".vp" %0)) files))
@@ -377,7 +378,10 @@
 	(cond
 		((> (length facts) 4) (elem-get facts 4))
 		(:t (defq all (second facts) info (third facts) prods (list))
-			(each (# (merge prods (second (get (sym %0) info)))) all)
+			;the paths of what the files make, by the classes declared
+			(within-compile-env (lambda ()
+					(class-env classes)
+					(each (# (merge prods (make-products (second (get (sym %0) info))))) all)))
 			(defq plan (list prods (boot-id-of all) (join (sort (cat all)) "\n")))
 			(if kept (push kept plan))
 			plan)))
