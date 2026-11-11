@@ -220,9 +220,10 @@
 
     A path that is a folder is the source files in it, at
     any depth. If no paths given on command line then will
-    test files from stdin, and of those leaves out the ones
-    of tests/scratch/: what is tried out there is not held
-    to any of this. One given by its path is looked at.")
+    test files from stdin. Of those, and of a folder given,
+    the files of tests/scratch/ are left out: what is tried
+    out there is not held to any of this. A file given by
+    its own path is looked at, wherever it is.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
@@ -1237,6 +1238,11 @@
 	+unbound_skip ''("tests/scratch/")
 	+unbound_methods ''("defmethod" "defabstractmethod" "deffimethod" "defgetmethod" "defsetmethod" "defproxymethod"))
 
+(defun scratch? (file)
+	;a file of a folder that is not held to the checks, tests/scratch/
+	(if (starts-with "./" file) (setq file (slice file 2 -1)))
+	(some (# (starts-with %0 file)) +unbound_skip))
+
 (defun head-of (inner)
 	(and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
 
@@ -1439,7 +1445,7 @@
 					nodes))
 			(if (or (pfind checks "unquote") (pfind checks "global")) (check-unquote file top))
 			;a file that stands by itself: a program, or a module
-			(and (pfind checks "unbound") (not (ends-with ".vp" file)) (notany (# (starts-with %0 file)) +unbound_skip)
+			(and (pfind checks "unbound") (not (ends-with ".vp" file))
 				(or (ends-with ".lisp" file) (some (# (tree-form? %0 "env-push")) (forms-of top)))
 				(check-unbound file top))
 			(and (pfind checks "self") (ends-with ".vp" file) (check-self file top))
@@ -1560,13 +1566,14 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin, less the scratch folder's
-			(lines! (# (if (notany (lambda (skip) (starts-with skip %0)) +unbound_skip) (push jobs %0)) :nil)
+			(lines! (# (unless (scratch? %0) (push jobs %0)) :nil)
 				(io-stream 'stdin)))
-		;only source files, a folder the source files in it at any depth
+		;only source files, a folder the source files in it at any depth,
+		;less the scratch folder's
 		(setq jobs (reduce (lambda (out f)
 					(if (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))
 						(push out f)
-						(reduce (# (push %0 %1)) (files-all f '(".vp" ".inc" ".lisp")) out)))
+						(reduce (# (if (scratch? %1) %0 (push %0 %1))) (files-all f '(".vp" ".inc" ".lisp")) out)))
 				jobs (list)))
 		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !

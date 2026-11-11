@@ -250,7 +250,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq sg_t_name (cat "@StoreTree" (str (pii-pid)))
-	sg_t_image (cat "obj/tmp_store_tree_" (str (pii-pid)) ".img")
+	sg_t_image (cat "tests/scratch/tmp_store_tree_" (str (pii-pid)) ".img")
 	sg_t_svc (storage-start sg_t_image :size 0x800000 :id "trees" :name sg_t_name :block 64
 		:group (cat "*StoreTree" (str (pii-pid))) :tick 0))
 (assert-true "a service of a store of small blocks" sg_t_svc)

@@ -5,10 +5,10 @@
 ;three services of names of their own, on stores in files of their own:
 ;two of one size of block, and one of another
 (defq sc_pid (str (pii-pid))
-	sc_a_image (cat "obj/tmp_store_copy_a_" sc_pid ".img")
-	sc_b_image (cat "obj/tmp_store_copy_b_" sc_pid ".img")
-	sc_c_image (cat "obj/tmp_store_copy_c_" sc_pid ".img")
-	sc_file (cat "obj/tmp_store_copy_" sc_pid ".file")
+	sc_a_image (cat "tests/scratch/tmp_store_copy_a_" sc_pid ".img")
+	sc_b_image (cat "tests/scratch/tmp_store_copy_b_" sc_pid ".img")
+	sc_c_image (cat "tests/scratch/tmp_store_copy_c_" sc_pid ".img")
+	sc_file (cat "tests/scratch/tmp_store_copy_" sc_pid ".file")
 	sc_a (storage-start sc_a_image :size 0x800000 :id "copy_a" :name (cat "@StoreCopyA" sc_pid) :block 64
 		:group (cat "*StoreCopyA" sc_pid) :tick 0)
 	sc_b (storage-start sc_b_image :size 0x800000 :id "copy_b" :name (cat "@StoreCopyB" sc_pid) :block 64

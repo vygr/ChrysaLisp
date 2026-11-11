@@ -5,9 +5,9 @@
 ;two services of names of their own, on stores in files of their own, and
 ;a folder of files of the host
 (defq sw_pid (str (pii-pid))
-	sw_a_image (cat "obj/tmp_stores_a_" sw_pid ".img")
-	sw_b_image (cat "obj/tmp_stores_b_" sw_pid ".img")
-	sw_host (cat "obj/tmp_stores_" sw_pid)
+	sw_a_image (cat "tests/scratch/tmp_stores_a_" sw_pid ".img")
+	sw_b_image (cat "tests/scratch/tmp_stores_b_" sw_pid ".img")
+	sw_host (cat "tests/scratch/tmp_stores_" sw_pid)
 	sw_a (storage-start sw_a_image :size 0x800000 :id "work_a" :name (cat "@StoresA" sw_pid) :block 64
 		:group (cat "*StoresA" sw_pid) :tick 0)
 	sw_b (storage-start sw_b_image :size 0x800000 :id "work_b" :name (cat "@StoresB" sw_pid) :block 64

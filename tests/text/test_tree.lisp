@@ -82,12 +82,11 @@
 (assert-list-eq "check finds nothing wrong in any source file of the tree" '()
 	;nor the files this test makes further down, wrong on purpose, which a
 	;run that was stopped part way leaves behind
-	(filter (# (and (nempty? %0) (not (starts-with "tests/scratch/" %0)) (not (starts-with "./tests/scratch/" %0))
-				(not (starts-with "obj/tmp_check_test." %0))))
+	(filter (# (and (nempty? %0) (not (starts-with "tests/scratch/" %0)) (not (starts-with "./tests/scratch/" %0))))
 		(split (join tt_said "") "\n")))
 
 ;the check command, cmd/check.lisp, reads the tree: what can be seen to be wrong from the source
-(defq tt_file "obj/tmp_check_test.lisp" tt_lf "\n")
+(defq tt_file "tests/scratch/tmp_check_test.lisp" tt_lf "\n")
 (defun tt-check (checks &rest lines)
 	;what check says of a file of these lines, each line it says less the name of the file
 	(save (apply (const cat) (map (# (cat %0 tt_lf)) lines)) tt_file)
@@ -201,7 +200,7 @@
 	(tt-check "collect" "(defun f (as)" "	(defq out (list))" "	(each (# (push out (g %0))) as)" "	(defq todo (list 1))"
 		"	(each (# (push todo %0)) as)" "	(defq o2 (list))" "	(each (# (push o2 %0 %0)) as))"))
 ;a .vp file of its own, the names of the others' (defq)s are what it is checked against
-(defq tt_vp "obj/tmp_check_test.vp" tt_said (list))
+(defq tt_vp "tests/scratch/tmp_check_test.vp" tt_said (list))
 (save (cat "(defq +ae_ctr 0 +tt_own 8)" tt_lf) tt_vp)
 (pipe-run (cat "check -c vpname " tt_vp) (# (push tt_said %0)))
 (pii-remove tt_vp)

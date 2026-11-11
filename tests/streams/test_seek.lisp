@@ -39,7 +39,7 @@
 (defq ms :nil)
 
 ; --- 3. File Stream Seek ---
-(defq temp_file "obj/tmp_seek_test.txt")
+(defq temp_file "tests/scratch/tmp_seek_test.txt")
 (save "abcdefghijklmnopqrstuvwxyz" temp_file)
 (defq fs (file-stream temp_file))
 (assert-true "fstream open" (not (nil? fs)))
@@ -87,7 +87,7 @@
 ;a read or write of more than a file stream's buffer goes to the host past
 ;the buffer, class/fstream/class.vp :read_direct and :write_direct. What
 ;the buffer holds goes first, and small reads and writes after are as they were
-(defq dr_file "obj/tmp_direct_test.bin"
+(defq dr_file "tests/scratch/tmp_direct_test.bin"
 	dr_big (apply (const cat) (map (# (char (logand (* %0 7) 255))) (range 0 20000)))
 	dr_mid (apply (const cat) (map (# (char (logand (* %0 13) 255))) (range 0 9000)))
 	dr_all (cat "small" dr_big "tiny" dr_mid "end")
