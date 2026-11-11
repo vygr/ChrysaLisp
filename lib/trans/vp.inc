@@ -99,13 +99,16 @@
 	(vp-translate-out (first entry) (vp-translate-text (ifn text (vp-entry-text entry)))))
 
 (defun vp-translate-file (file dir)
-	; (vp-translate-file file dir)
+	; (vp-translate-file file dir) -> names
 	;a build's translate stage: the bundle of the source file, as the VP
 	;stage left it in dir, obj/vp/, each of its functions to this
-	;platform's native code. Each entry as read prints as VP text
-	(defq stream (file-stream (cat dir file)))
+	;platform's native code. Each entry as read prints as VP text. The
+	;names of the functions are given back
+	(defq stream (file-stream (cat dir file)) names (list))
 	(while (defq entry (first (read stream)))
-		(vp-translate-save entry (str entry))))
+		(push names (first entry))
+		(vp-translate-save entry (str entry)))
+	names)
 
 ;module
 (export-symbols '(emit-translate vp-translate-save vp-translate-text vp-translate-file trans-name

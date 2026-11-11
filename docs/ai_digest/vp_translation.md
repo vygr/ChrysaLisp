@@ -704,9 +704,34 @@ next make puts back what is not of this mode, with no `all`. The first make
 of a tree that was last made by age makes everything once, and takes away
 the empty files that make kept the ages in.
 
-`all` makes all the code of the platform again from the VP that is kept. It
-is for the timing of a build, and for code that was deleted or damaged:
-make goes by what it noted, it does not look at the files of the code.
+A boot image is kept the same way. It is made of the platform's code, and
+which functions it holds is said by `lib/boot/image.inc` and
+`lib/asm/asm.inc`. So `boot` makes the image again when the platform's
+manifest, or either of those files, is not what the image was made from,
+`obj/make_boot` notes that, or when the image has gone. The id beside it,
+`sys/boot_id`, is of the source, and is worked out from the hashes kept,
+not by reading every file again. A change that makes no code, a comment,
+writes a new id beside the image there is.
+
+Code that is no longer made is taken away. Each platform has the names of
+the functions there is code of, by source file,
+`obj/make_<cpu>_<abi>_names`. A name a file made the time before and does
+not now, nor does any other file, is a function taken out or named again,
+or one only a validate build has, and its code is removed: a node would go
+on binding it. The names are read only when a file's are not what they
+were, the manifest has a short hash of them.
+
+`all` makes all the code of the platform again from the VP that is kept,
+and with `boot` the image whatever is noted of it. It is for the timing of
+a build, and for code that was deleted or damaged: make goes by what it
+noted, it does not look at the files of the code. `make apps` makes the
+apps that have changed, for every platform, and `make all apps` all of
+them.
+
+With `-v 1` a make says what it did, a line for each platform:
+`make arm64 ARM64: 1 read, 1 assembled, 150 translated, 1036 functions`,
+the source files it read again, the first platform says those, the files
+it assembled, the files it made code of and how many functions that was.
 
 ### Translators Made First
 

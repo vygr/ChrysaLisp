@@ -42,6 +42,12 @@
 		(task-server (cat "trans_" (slice (hex-encode (sha256 (apply (const cat) natives))) 0 16)))
 		(task-place natives)))
 
+(defun said-names (names)
+	;the functions code was made of, as a file done says them: a short hash
+	;of the names, then the names
+	(defq names (map (const str) names))
+	(cat " " (slice (hex-encode (sha256 (join names " "))) 0 12) " " (join names " ")))
+
 (defun main ()
 	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil *placed* :nil)
 	(within-compile-env (lambda ()
@@ -69,7 +75,8 @@
 						;is the same with no code of any platform. A translate job is
 						;source files, their bundles to this platform's code. Each
 						;file done is said, with the hash of its bundle if it was
-						;made, and catch any errors
+						;made, and if code was made of it, the names of its
+						;functions and a short hash of them, and catch any errors
 						(setq *msg* (list))
 						(catch (cond
 								((find *kind* '(:vp :bundle))
@@ -81,12 +88,14 @@
 									(defq entries (vp-compile file) bundle (map (# (vp-entry-text %0)) entries)
 										text (apply (const cat) (cat (list "") bundle))
 										hash (hex-encode (sha256 text)))
-									(and (eql *kind* :vp) (nql hash prev)
-										(each (# (vp-translate-save %0 %1)) entries bundle))
+									(defq coded (and (eql *kind* :vp) (nql hash prev)))
+									(if coded (each (# (vp-translate-save %0 %1)) entries bundle))
 									(save text (cat *build_vp* file))
-									(print "=key= " file " " hash))
+									(print "=key= " file " " hash
+										(if coded (said-names (map (const first) entries)) "")))
 								(:t (include "lib/asm/func.inc")
-									(each (# (vp-translate-file %0 *build_vp*) (print "=key= " %0)) *files*)))
+									(each (# (print "=key= " %0 " -" (said-names (vp-translate-file %0 *build_vp*))))
+										*files*)))
 							(progn (print _) :t))
 						;send reply, the key it was given, then what was said
 						(mail-send *reply_mbox* (apply (const cat)

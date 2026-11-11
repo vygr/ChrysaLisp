@@ -224,7 +224,7 @@ Once inside the ChrysaLisp TUI (Terminal app), you can rebuild the system:
 
 * `make all`: Makes all the native code again from the VP that is kept, changed or not. An edit or a change of build mode does not need it: it is for timing a build, and for putting back native code that was deleted or damaged.
 
-* `make boot`: Creates a new native boot image for the current platform.
+* `make boot`: Makes the native boot image for the current platform, if the one there is not of the code as it is now.
 
 * `make docs`: Generates reference documentation by scanning source files.
 
@@ -234,7 +234,7 @@ Once inside the ChrysaLisp TUI (Terminal app), you can rebuild the system:
 
 * `make vp`: Builds only the VP64 emulator's image.
 
-* `make apps`: Builds only the apps, for all platforms.
+* `make apps`: Builds only the apps, those that have changed, for all platforms.
 
 * `validate`: goes with any of the above, as `make it validate`, and all that is built is built in validate mode, with more checks as it runs. With none, all is built in the one normal mode.
 

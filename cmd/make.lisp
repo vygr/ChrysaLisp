@@ -12,7 +12,10 @@
 
     options:
         -h --help: this help info.
-        -v --verbosity num: how much info, default 0.
+        -v --verbosity num: how much info, default 0. With 1 a make
+            says each function it makes code of, and at its end how
+            many source files it read again, how many it assembled,
+            how many it made code of and how many functions that was.
 
     all:        include all .vp files.
     boot:       create a boot image.
@@ -24,7 +27,8 @@
     it:         all of the above, and then a check of the include
                 and import lists, what includes and imports would
                 change is printed.
-    apps:       only the apps !
+    apps:       only the apps, those that have changed, for
+                every platform. With all, every one of them.
     validate:   validate mode, more checks as it runs.
     test:       test make timings.
     fmt:        format all the source files, with the fmt command.
@@ -464,7 +468,7 @@
 			(vp (remake-all-vp mode))
 			(trace (make-bundles mode))
 			(it (remake-all-platforms mode) (make-docs) (make-check))
-			(apps (make-app-platforms mode))
+			(apps (make-app-platforms mode all))
 			((and boot all platforms) (remake-all-platforms mode))
 			((and boot all) (remake-all))
 			((and boot platforms) (remake-platforms mode))
