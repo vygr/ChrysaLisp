@@ -94,6 +94,14 @@ does not free a cell in line, it calls `:sys_heap :free`. So the heap's
 checks are the boot image's, `make boot validate` for them, and all the
 others are the function's own.
 
+And no function is made by one mode alone. What a check jumps to,
+`:sys_task :stack`, `:obj :dead`, `:sys_heap :overrun` and `:double_free`,
+`:sys_mem :bad_free`, is made in every build and called in one: a validate
+function bound on a normal system finds them there. A node that binds a
+function whose callee is not there stops, and the VP of a function only a
+validate build made is not where a normal boot image looks. So a
+`(validatecase)` goes round checks, never round a function.
+
 Leaving the checks out was measured and is not worth it. Natively there is no
 speed difference you can measure, `make test` and MP3 and HE-AAC decode run
 the same. Under the VP64 emulator it is about 5% faster, and the images are

@@ -187,7 +187,7 @@
 
 (def-func-end)
 
-(validatecase (def-method :obj :dead)
+(def-method :obj :dead)
 	;trashes
 	;none
 	;info
@@ -198,7 +198,7 @@
 	(call :host_os :pii_write_str '(2 "Dead object !\n"))
 	(jump :sys_task :dump)
 
-(def-func-end))
+(def-func-end)
 
 (def-method :obj :deref_if)
 	;inputs

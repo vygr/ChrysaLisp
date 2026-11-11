@@ -171,7 +171,10 @@
 ; validatecase
 ;;;;;;;;;;;;;;
 
-;the checks of a validate build, which a normal one has not
+;the checks of a validate build, which a normal one has not. Not round a
+;function: one a validate build alone made is not there for a validate
+;function on a normal system to be bound to, and the node that binds it
+;stops. What a check jumps to is made in every build, and called in one
 (defmacro validatecase (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
 
 (defmacro gotoif-lisp-args-len (l args cnd len)

@@ -192,7 +192,7 @@
 
 (def-func-end)
 
-(validatecase (def-method :sys_heap :overrun)
+(def-method :sys_heap :overrun)
 	;trashes
 	;none
 	;info
@@ -203,9 +203,9 @@
 	(call :host_os :pii_write_str '(2 "Heap overrun !\n"))
 	(jump :sys_task :dump)
 
-(def-func-end))
+(def-func-end)
 
-(validatecase (def-method :sys_heap :double_free)
+(def-method :sys_heap :double_free)
 	;trashes
 	;none
 	;info
@@ -216,7 +216,7 @@
 	(call :host_os :pii_write_str '(2 "Double free !\n"))
 	(jump :sys_task :dump)
 
-(def-func-end))
+(def-func-end)
 
 (def-method :sys_heap :collect)
 	;inputs

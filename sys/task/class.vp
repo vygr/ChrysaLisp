@@ -642,7 +642,7 @@
 
 (def-func-end)
 
-(validatecase (def-method :sys_task :stack)
+(def-method :sys_task :stack)
 	;inputs
 	;none
 	;outputs
@@ -667,4 +667,4 @@
 	(exit :sys_task :stack '())
 	(vp-ret)
 
-(def-func-end))
+(def-func-end)
