@@ -704,7 +704,9 @@ unchanged. Each thing made is kept with a key of what it was made from:
 * A source file's key is of it and of all it includes and imports: each
   has a number, of its name and of the hash of its text, and the key is
   those folded together two ways, and how many there are. Its bundle is
-  made again when that key is not the one the bundle was made from.
+  made again when that key is not the one the bundle was made from. What
+  every file includes, the assembler, 82 of the 93 files an average one is
+  made of, is walked once for them all.
 
 * A platform's code of a file is made again when it is not of the bundle
   there is now, by the bundle's hash, or not of that platform's translator
@@ -740,6 +742,16 @@ What a make does before it knows there is nothing to do is kept as well:
 
 * The bundle of a source file that has gone is taken away by the manifest,
   which notes every bundle, not by listing the folder of them.
+
+What is noted is of what this make wrote. A make of a commit from before
+there were keys knows nothing of the notes, and writes bundles, code and a
+boot image of its own source over them. So with each bundle and each image
+the age of its file is noted, and one whose age is not the one noted was
+written by something else: it is made again, and the code of that bundle
+that is noted for any platform is forgotten, so each makes it again. The
+age is a guard and no more, what a bundle is of is its key. Code written by
+a make so old that it wrote no bundles is not seen, and `all` makes it
+again from the bundles.
 
 So a file touched and not changed makes nothing. A comment makes that
 file's VP again, the bundle comes out the same, and no code is made. A

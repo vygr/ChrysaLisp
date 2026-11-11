@@ -852,6 +852,19 @@ What did it, biggest first:
 *	A guess at what will help is a guess. Three of the four above were
 	expected to gain.
 
+*	Count before walking. A key walked all a file includes, 93 files on
+	average, for each of 151 files. 82 of the 93 are the same for every
+	one of them, the assembler. Walked once and each key begun from that,
+	it is 1,700 files and not 14,100, and the keys are the same keys. The
+	count took a minute to get and was not asked for till a Pi 4 showed
+	the walk as seconds of an install.
+
+*	What is noted is only true of what the one who noted it wrote. A build
+	by an older make, in the same tree, left bundles, code and an image
+	that the notes described as something else, and nothing said so. It
+	was found by building an old commit to time it. A cache needs to know
+	its files are its own: here by the age of each, noted with it.
+
 ## 14. Where to Look
 
 | What                                         | Where                            |

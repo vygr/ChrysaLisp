@@ -139,8 +139,13 @@
 		vp_dirty :nil plat_dirty :nil)
 	(each (lambda ((file hash &rest _))
 			(defq k (sym file))
-			(when (and (defq v (get k vpman)) (nql (second v) hash))
-				(undef vpman k) (setq vp_dirty :t))
+			(when (defq v (get k vpman))
+				;it wrote the bundle, so the file is not the one noted: one
+				;that came out the same is noted as the file it is now
+				(if (eql (second v) hash)
+					(def vpman k (list (first v) hash (age (cat (vp-dir *build_mode*) file))))
+					(undef vpman k))
+				(setq vp_dirty :t))
 			(when (and (defq n (get k platman)) (nql (first n) hash))
 				(undef platman k) (setq plat_dirty :t))) made)
 	(if vp_dirty (manifest-save vpman (vp-manifest)))
@@ -387,24 +392,54 @@
 	(or (get (defq k (sym f)) vals)
 		(def vals k (logxor (hash f) (get-long (hex-decode (file-hash f)) 0)))))
 
-(defun tree-key (file)
-	; (tree-key file) -> str
-	;the key of a file, what its VP is made from: it and all it includes
-	;and imports, and all they do. The assembler is among them, every .vp
-	;file includes it. The includes have loops, so by a walk, not once a
-	;file. Each has a number, (file-val), and the key is those of them all
-	;folded two ways, and how many there are. There is no order to a fold,
-	;so they are not sorted, and no text of them is made and hashed: a key
-	;was the hash of their names and hashes in order, and under the
-	;emulator, where an install makes every key, two thirds of 0.4 s was
-	;the sort, the text and the hash
-	(defq seen (env 101) todo (list file) x 0 s 0 n 0)
+(defun tree-fold (file &optional base)
+	; (tree-fold file [base]) -> (seen x s n)
+	;a file and all it includes and imports, and all they do, as a set, and
+	;the numbers of them, (file-val), folded two ways, and how many there
+	;are. The includes have loops, so by a walk, not once a file. base is
+	;such a fold of a file this one includes itself, with that file first:
+	;all that reaches is had already and is not walked again
+	(defq seen (env 101) todo (list file) x 0 s 0 n 0 had :nil)
+	(and base (find (first base) (first (get (sym file) info)))
+		(setq had (second base) x (third base) s (elem-get base 3) n (last base)))
 	(while (defq f (pop todo))
-		(unless (get (defq k (sym f)) seen)
+		(unless (or (get (defq k (sym f)) seen) (if had (get k had)))
 			(def seen k :t)
 			(defq v (file-val f))
 			(setq x (logxor x v) s (+ s v) n (inc n))
 			(each (# (push todo %0)) (first (get k info)))))
+	(list seen x s n))
+
+(defun key-base (vps)
+	; (key-base vps) -> :nil | (file seen x s n)
+	;of the files every one of these includes itself, the one that reaches
+	;the most, with its (tree-fold). Every .vp file includes the assembler,
+	;lib/asm/func.inc, and that and what it includes are 82 of the 93 files
+	;a .vp file is made of: walked once for them all they are 1,700 files
+	;to walk for the keys of the tree, not 14,100
+	(defq common (cat (first (get (sym (first vps)) info))))
+	(each (lambda (f)
+			(defq d (first (get (sym f) info)))
+			(setq common (filter (# (find %0 d)) common))) vps)
+	(defq best :nil)
+	(each (lambda (c)
+			(defq fold (tree-fold c))
+			(unless (and best (>= (last best) (last fold)))
+				(setq best (cat (list c) fold))))
+		(filter (# (not (find %0 vps))) common))
+	best)
+
+(defun tree-key (file base)
+	; (tree-key file base) -> str
+	;the key of a file, what its VP is made from: it and all it includes
+	;and imports, and all they do, (tree-fold). Each has a number,
+	;(file-val), and the key is those of them all folded two ways, and how
+	;many there are. There is no order to a fold, so they are not sorted,
+	;and no text of them is made and hashed: a key was the hash of their
+	;names and hashes in order, and under the emulator, where an install
+	;makes every key, two thirds of 0.4 s was the sort, the text and the
+	;hash. base is (key-base), or :nil
+	(bind '(_ x s n) (tree-fold file base))
 	(cat (str x) " " (str s) " " (str n)))
 
 (defun keys-fresh (vps known)
@@ -424,10 +459,12 @@
 				(each (# (push todo %0)) (ifn (get k users) '()))))
 		(setq keys (env 101))
 		(each (lambda (f) (and (not (get (defq k (sym f)) hit)) (defq v (get k old)) (def keys k v))) vps))
-	(each (lambda (f)
-			(unless (get (defq k (sym f)) keys)
-				(setq scanned :t)
-				(def keys k (tree-key f)))) vps))
+	(when (nempty? (defq need (filter (# (not (get (sym %0) keys))) vps)))
+		(setq scanned :t)
+		;what they all include is walked once, where there are enough of
+		;them to be worth the finding of it
+		(defq base (if (> (length need) 8) (key-base vps)))
+		(each (# (def keys (sym %0) (tree-key %0 base))) need)))
 
 (defun bundles-gone (vpman dir)
 	; (bundles-gone vpman dir) -> :t | :nil
@@ -472,21 +509,28 @@
 		(cat (second a) (second b))))
 
 (defun vp-stale? (f)
-	;is the bundle of the file not the one its key gives. Of the caller's
-	;vpman and keys
-	(not (and (defq v (get (defq k (sym f)) vpman)) (eql (first v) (get k keys)))))
+	;is the bundle of the file not the one its key gives, or not the file
+	;that was noted, by its age. A bundle can be written by other than this
+	;make: one of a commit before there were keys knows nothing of what is
+	;noted, and what it made was taken for what the notes say. An age is a
+	;guard here and no more, the key says what a bundle is of. Of the
+	;caller's vpman and keys
+	(not (and (defq v (get (defq k (sym f)) vpman)) (eql (first v) (get k keys))
+			(> (length v) 2) (= (third v) (age (cat (vp-dir *build_mode*) f))))))
 
 (defun native-stale? (f man id)
 	;is a platform's code of the file, by its manifest, not of the file's
-	;bundle and the translator of that id
-	(or (vp-stale? f)
-		(not (and (defq n (get (sym f) man))
-				(eql (first n) (second (get (sym f) vpman))) (eql (second n) id)))))
+	;bundle and the translator of that id. Of a file that is not
+	;(vp-stale?), that is asked first
+	(not (and (defq n (get (sym f) man))
+			(eql (first n) (second (get (sym f) vpman))) (eql (second n) id))))
 
 (defun note-vp (made)
-	;the bundles a VP stage made, into vpman: each file to its key and the
-	;hash of its bundle
-	(each (lambda ((file hash &rest _)) (def vpman (defq k (sym file)) (list (get k keys) hash))) made))
+	;the bundles a VP stage made, into vpman: each file to its key, the
+	;hash of its bundle and the age of the file it is
+	(each (lambda ((file hash &rest _))
+			(def vpman (defq k (sym file))
+				(list (get k keys) hash (age (cat (vp-dir *build_mode*) file))))) made))
 
 (defun note-native (made man id cpu abi)
 	;the code a stage made, into a platform's manifest: each file to the
@@ -609,7 +653,8 @@
 	;image as it is. Beside it are the id of the source it is of and
 	;the names of those files, written again when the source is not what it
 	;was: a comment makes no code, and a new id goes beside the image there
-	;is. What each was made from is noted in +make_boot, here for one that
+	;is. What each was made from is noted in +make_boot, with the age of
+	;the image's file, here for one that
 	;is not made again, when it says it is done for one that is. Of the
 	;caller's facts, bootman, boot_dirty and booting
 	(defq id (boot-id-kept facts) scans (get 'f_scans facts) scanned :nil units (list)
@@ -621,19 +666,38 @@
 						(defq n (get (sym f) man))
 						(push l f " " (if n (cat (str (first n)) " " (str (second n))) "-") "\n"))
 					made_of (list ""))))) tools)
-				image (and (not force) was (eql (second was) of)
-					(> (age (cat "obj/" cpu "/" abi "/sys/boot_image")) 0)))
+				;and is the file that was noted, by its age: one that has gone
+				;is not, nor one a make of before there were keys wrote
+				image (and (not force) was (eql (second was) of) (> (length was) 2)
+					(= (third was) (age (cat "obj/" cpu "/" abi "/sys/boot_image")))))
 			(unless (and image (eql (first was) id))
 				;what the image is built from, as one number, beside it
 				(save id (boot-id-file cpu abi))
 				(save (join (sort (cat (get 'f_all facts))) "\n") (boot-files-file cpu abi))
 				(cond
-					(image (def bootman k (list id of)) (setq boot_dirty :t))
+					(image (def bootman k (list id of (third was))) (setq boot_dirty :t))
 					;not all the functions there are, lib/boot/image.inc says which
 					(:t (push units (list :image (list cpu abi (image-funcs (boot-prods facts) cpu))))
 						(def booting k (list id of))))))
 		targets)
 	units)
+
+(defq +supported_abi ''(AMD64 WIN64 ARM64 RISCV64 LA64)
+	+supported_cpu ''(x86_64 x86_64 arm64 riscv64 la64))
+
+(defun this-target (&optional *abi* *cpu*)
+	(setd *abi* (abi) *cpu* (cpu))
+	(list (list *cpu* *abi*)))
+
+(defun all-targets ()
+	; (all-targets) -> targets
+	;every platform. This one first, the VP is assembled as it, and the
+	;VP64 last
+	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
+	(defq own (list) others (list))
+	(each (# (push (if (and (eql %0 run_abi) (eql %1 run_cpu)) own others) (list %1 %0)))
+		+supported_abi +supported_cpu)
+	(cat own others '((vp64 VP64))))
 
 (defun build (files targets &optional boot force)
 	; (build files targets [boot force])
@@ -665,7 +729,20 @@
 		mans (env 11) dirty (env 11) did (env 11) errors (list) vp_made :nil assembled 0
 		bootman (if boot (manifest-load +make_boot)) boot_dirty :nil booting (env 11)
 		;the VP is the same for every platform, it is assembled as the first
-		asm_cpu (first (first targets)) asm_abi (second (first targets)))
+		asm_cpu (first (first targets)) asm_abi (second (first targets))
+		;the bundles that are of their key and are not the files noted, by
+		;their ages: written by other than this make, (vp-stale?)
+		foreign (filter (lambda (f)
+				(and (defq v (get (defq k (sym f)) vpman)) (> (length v) 2) (eql (first v) (get k keys))
+					(/= (third v) (age (cat (vp-dir *build_mode*) f))))) files))
+	;what wrote them wrote the code of them too, of whatever platforms it
+	;made, and none of that is what is noted either: it is forgotten, of
+	;every platform, so each makes its code of them again when it is made
+	(when (nempty? foreign)
+		(each (lambda ((cpu abi))
+				(defq man (plat-man cpu abi))
+				(each (# (undef man (sym %0))) foreign)
+				(def dirty (plat-key cpu abi) (list cpu abi))) (all-targets)))
 	;the translators first, this platform's, the one that runs this, of
 	;each CPU: a build translates with what is made of lib/trans/<cpu>.vp
 	;for it, so those that are not of their source as it is now are made
@@ -679,7 +756,7 @@
 	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
 	(defq run (list (list run_cpu run_abi :nil)) run_id (trans-id run_cpu)
 		trans_files (filter (# (starts-with "lib/trans/" %0)) files)
-		stale (filter (# (native-stale? %0 (plat-man run_cpu run_abi) run_id)) trans_files)
+		stale (filter (# (or (vp-stale? %0) (native-stale? %0 (plat-man run_cpu run_abi) run_id))) trans_files)
 		built trans_files)
 	(when (> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0)
 		(setq built stale)
@@ -735,7 +812,8 @@
 	(note said)
 	;the images that were made, noted
 	(each (lambda ((cpu abi))
-			(def bootman (defq k (plat-key cpu abi)) (get k booting))
+			(def bootman (defq k (plat-key cpu abi))
+				(cat (get k booting) (list (age (cat "obj/" cpu "/" abi "/sys/boot_image")))))
 			(setq boot_dirty :t)) (said-of said "=image="))
 	(if boot_dirty (manifest-save bootman +make_boot))
 	;what is built here is not what make install built at its waypoint any
@@ -767,23 +845,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; this platform, and all of them
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defq +supported_abi ''(AMD64 WIN64 ARM64 RISCV64 LA64)
-	+supported_cpu ''(x86_64 x86_64 arm64 riscv64 la64))
-
-(defun this-target (&optional *abi* *cpu*)
-	(setd *abi* (abi) *cpu* (cpu))
-	(list (list *cpu* *abi*)))
-
-(defun all-targets ()
-	; (all-targets) -> targets
-	;every platform. This one first, the VP is assembled as it, and the
-	;VP64 last
-	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
-	(defq own (list) others (list))
-	(each (# (push (if (and (eql %0 run_abi) (eql %1 run_cpu)) own others) (list %1 %0)))
-		+supported_abi +supported_cpu)
-	(cat own others '((vp64 VP64))))
 
 (defun make (&optional files *abi* *cpu*)
 	; (make [files abi cpu])
