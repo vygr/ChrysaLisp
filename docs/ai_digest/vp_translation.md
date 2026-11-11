@@ -701,9 +701,10 @@ once for each platform.
 a file is of a second or two, and one written again inside it looked
 unchanged. Each thing made is kept with a key of what it was made from:
 
-* A source file's key is the hash of the names and hashes of it and of all
-  it includes and imports. Its bundle is made again when that key is not the
-  one the bundle was made from.
+* A source file's key is of it and of all it includes and imports: each
+  has a number, of its name and of the hash of its text, and the key is
+  those folded together two ways, and how many there are. Its bundle is
+  made again when that key is not the one the bundle was made from.
 
 * A platform's code of a file is made again when it is not of the bundle
   there is now, by the bundle's hash, or not of that platform's translator

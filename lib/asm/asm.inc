@@ -316,9 +316,9 @@
 			(list (length units) 1 1) (task-timeout 60)
 			(lambda (msg jobs)
 				(when (. jobs :job msg)
-					(each (lambda ((f scan))
+					(each (lambda ((f scan h))
 							(push changed f)
-							(def scans (sym f) (list (file-age f) (make-scan f scan) :nil)))
+							(def scans (sym f) (list (file-age f) (make-scan f scan) h)))
 						(first (read (string-stream (slice msg +job_reply_size -1)))))
 					(. jobs :answered msg))))))
 
@@ -337,20 +337,32 @@
 				(def info (sym %0) (list d p)))) files)
 	(filter (# (ends-with ".vp" %0)) files))
 
+(defun file-val (f)
+	; (file-val f) -> num
+	;a number of a file, of its name and of the hash of its text, for the
+	;key of what includes it. Kept for this make, of the caller's vals
+	(or (get (defq k (sym f)) vals)
+		(def vals k (logxor (hash f) (get-long (hex-decode (file-hash f)) 0)))))
+
 (defun tree-key (file)
-	; (tree-key file) -> hex
-	;the key of a file, what its VP is made from: the hash of the names and
-	;hashes of it and of all it includes and imports, and all they do, in
-	;the order of the names. The assembler is among them, every .vp file
-	;includes it. The includes have loops, so by a walk, not once a file
-	(defq seen (env 101) todo (list file) names (list))
+	; (tree-key file) -> str
+	;the key of a file, what its VP is made from: it and all it includes
+	;and imports, and all they do. The assembler is among them, every .vp
+	;file includes it. The includes have loops, so by a walk, not once a
+	;file. Each has a number, (file-val), and the key is those of them all
+	;folded two ways, and how many there are. There is no order to a fold,
+	;so they are not sorted, and no text of them is made and hashed: a key
+	;was the hash of their names and hashes in order, and under the
+	;emulator, where an install makes every key, two thirds of 0.4 s was
+	;the sort, the text and the hash
+	(defq seen (env 101) todo (list file) x 0 s 0 n 0)
 	(while (defq f (pop todo))
 		(unless (get (defq k (sym f)) seen)
 			(def seen k :t)
-			(push names f)
+			(defq v (file-val f))
+			(setq x (logxor x v) s (+ s v) n (inc n))
 			(each (# (push todo %0)) (first (get k info)))))
-	(hex-encode (sha256 (apply (const cat)
-				(reduce (# (push %0 %1 " " (file-hash %1) "\n")) (sort names) (list ""))))))
+	(cat (str x) " " (str s) " " (str n)))
 
 (defun keys-fresh (vps known)
 	;the keys of these .vp files, in keys: those kept that still stand, and
@@ -385,7 +397,7 @@
 	;taken away with it
 	(bundles-gone (vp-dir *build_mode*))
 	(bind '(scans keys) (scans-load))
-	(defq ages (env 31) info (env 101) scanned :nil changed (list)
+	(defq ages (env 31) info (env 101) vals (env 101) scanned :nil changed (list)
 		all (copy files) vps (tree-walk all))
 	(keys-fresh vps all)
 	(if scanned (scans-save scans keys))
@@ -567,7 +579,10 @@
 	;platform.
 	;It is one farm: a job is a file, assembled once if it has to be, and
 	;its code for every platform that wants it, so a herd is started once
-	;and a file is read once. The boot images are jobs of the same herd,
+	;and a file is read once. Two finer grains were tried and are not here,
+	;docs/ai_digest/till_the_pips_squeak.md: a job for each platform of a
+	;file was slower, and code made only of the functions of a file that
+	;changed gained next to nothing, the code of a file is soon made. The boot images are jobs of the same herd,
 	;given when the code is in and noted, each made if it is not of that.
 	;With -v it says what it did: the source files read again and the
 	;files assembled, then for each platform the files code was made of and
@@ -595,24 +610,23 @@
 		trans_files (filter (# (starts-with "lib/trans/" %0)) files)
 		stale (filter (# (native-stale? %0 (plat-man run_cpu run_abi) run_id)) trans_files)
 		built trans_files)
-	(cond
-		((> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0)
-			(setq built stale)
-			(when (nempty? stale)
-				(defq said (farm-jobs (file-units stale run :t) run_abi run_cpu run))
-				(said-vp said)
-				(when (nql run_id (setq run_id (trans-id run_cpu)))
-					(setq said (farm-jobs (file-units (setq built trans_files) run :t) run_abi run_cpu run))
-					(said-vp said))
-				(said-code said)))
-		(:t ;none made above. A platform's translator is known by the
-			;bundles of its source, so if they are not of their key their VP
-			;is made before it is asked, the VP alone: the code of them is
-			;translated with the rest
-			(defq trans_vp (filter (# (and (vp-stale? %0) (or (eql %0 +trans_parser)
-					(some (lambda ((cpu abi)) (eql %0 (cat "lib/trans/" cpu ".vp"))) targets)))) files))
-			(if (nempty? trans_vp)
-				(said-vp (farm-jobs (map (# (list :bundle (list %0))) trans_vp) asm_abi asm_cpu '())))))
+	(when (> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0)
+		(setq built stale)
+		(when (nempty? stale)
+			(defq said (farm-jobs (file-units stale run :t) run_abi run_cpu run))
+			(said-vp said)
+			(when (nql run_id (setq run_id (trans-id run_cpu)))
+				(setq said (farm-jobs (file-units (setq built trans_files) run :t) run_abi run_cpu run))
+				(said-vp said))
+			(said-code said)))
+	;where none were made, a platform with no translator of its own, the
+	;translators' sources are files of the farm as any are. The id of a
+	;translator is of the bundles of its source, so one that changes there
+	;is known only when the farm has said: the code made in this make is
+	;noted with it, and what was not made is of the id before, so the next
+	;make makes it. An install has nothing noted and makes everything in
+	;the one. To assemble them first, a farm of its own, was 0.23 s of an
+	;install's 1.7 under the emulator
 	;a unit for each file that is to be assembled, or whose code some
 	;platform wants: with each platform, the hash of the bundle its code is
 	;of, if it is of the translator there is now and this is not forced

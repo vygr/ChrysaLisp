@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (import "././task/jobs.inc")
+(import "././crypto/sha256.inc")
 
 ;a worker with no job for this long ends, its farm has gone and did not
 ;say. A job sent to it as it went is given to another, (job-child), but
@@ -12,9 +13,11 @@
 (defun main ()
 	(job-child +timeout (lambda (msg mbox)
 			;the files follow the job's head, lib/task/jobs.inc, and the reply is
-			;the key it was given, then each file with its (files-scan), for
-			;make, lib/asm/asm.inc (scans-farm)
+			;the key it was given, then each file with its (files-scan) and the
+			;hash of its text, for make, lib/asm/asm.inc (scans-farm): a hash
+			;here is on every node at once, where make took them one by one
 			(defq reply_key (getf msg +job_key) reply_mbox (getf msg +job_reply)
 				files (first (read (string-stream (slice msg +job_size -1)))))
 			(mail-send reply_mbox (cat (char reply_key +long_size)
-					(str (map (# (list %0 (files-scan %0))) files)))))))
+					(str (map (# (list %0 (files-scan %0) (hex-encode (sha256 (ifn (load %0) "")))))
+						files)))))))
