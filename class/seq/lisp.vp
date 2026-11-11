@@ -80,7 +80,7 @@
 
 	(entry :seq :lisp_slice `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error1 :r1 3)
+	(gotoif-lisp-args-sig 'error1 args 3)
 ;get_length returns over args, keep it for the index error
 	(assign `(,args) '(:r12))
 
@@ -120,7 +120,7 @@
 
 	(entry :seq :lisp_splice `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error1 :r1 3)
+	(gotoif-lisp-args-sig 'error1 args 3)
 
 	(list-bind-args args `(,src1 ,src2 ,idxs) '(:seq :seq :nums))
 	(assign `((,src1 +obj_vtable) (,src2 +obj_vtable)) `(,si ,ei))
@@ -590,7 +590,7 @@
 
 	(entry :seq :lisp_partition `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 1 2)
+	(gotoif-lisp-args-sig 'error args 1 2)
 
 	(assign `((,args +array_length)) `(,len))
 	(vpif `(,len = 1))

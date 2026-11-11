@@ -762,7 +762,7 @@
 
 	(entry :canvas :lisp_tile `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error args 6)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))

@@ -175,24 +175,26 @@
 (defmacro validatecase (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
 
 (defmacro gotoif-lisp-args-len (l args cnd len)
+	;args is the register the list of args is in, or a symbol of one, as
+	;(vp-rdef) makes, the same for the three below
 	`(progn
-		(assign '((,args +array_length)) '(:r2))
+		(assign (list (list ,args '+array_length)) '(:r2))
 		(gotoif '(:r2 ,cnd ,len) ,l)))
 
 (defmacro gotoif-lisp-args-sig (l args len1 &optional len2)
 	(setd len2 len1)
 	`(progn
-		(call :lisp :env_args_sig '(,args ($ sig) ,len1 ,len2) '(_ tmp))
+		(call :lisp :env_args_sig (list ,args '($ sig) ',len1 ',len2) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro gotoif-lisp-args-match (l args class len)
 	`(progn
-		(call :lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(_ tmp))
+		(call :lisp :env_args_match (list ,args '(@ ,(f-path class :vtable)) ',len) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro gotoif-lisp-args-type (l args class len)
 	`(progn
-		(call :lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(_ tmp))
+		(call :lisp :env_args_type (list ,args '(@ ,(f-path class :vtable)) ',len) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 ;module

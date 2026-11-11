@@ -50,7 +50,7 @@
 
 	(entry :pmap :lisp_pfind `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error args 2)
 
 	(vp-cpy-rr this saved_this)
 	(list-bind-args args `(,lst ,key) '(:pset :obj))
@@ -99,7 +99,7 @@
 	(entry :pmap :lisp_pinsert `(,this ,args))
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
-	(gotoif-lisp-args-len 'error1 :r1 < 2)
+	(gotoif-lisp-args-len 'error1 args < 2)
 
 	(class/array/get_both args iter iter_end)
 	(array-get-args iter `(,lst))

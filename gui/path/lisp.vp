@@ -19,7 +19,7 @@
 
 	(entry :path :lisp_mat3x2_mul `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error args 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
 	(array-get-args iter_begin `(,ma ,mb))

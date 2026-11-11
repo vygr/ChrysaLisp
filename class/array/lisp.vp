@@ -338,7 +338,7 @@
 
 	(entry :array :lisp_set `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error1 :r1 3)
+	(gotoif-lisp-args-sig 'error1 args 3)
 
 	(vp-push this args)
 	(list-bind-args args `(,a ,i ,v) '(:array :num :obj))

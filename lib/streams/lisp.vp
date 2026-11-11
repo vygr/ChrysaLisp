@@ -44,7 +44,7 @@
 	(vp-rdef (this args))
 
 	(entry `(,this ,args))
-	(gotoif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error args 4)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
@@ -265,7 +265,7 @@
 	(vp-rdef (token offset match_len) '(:r6 :r7 :r8))
 
 	(entry `(,this ,args))
-	(gotoif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error args 3)
 
 	(vp-alloc slot_size)
 	;this to the frame, it is wanted at the end
@@ -412,7 +412,7 @@
 	(vp-rdef (this args))
 
 	(entry `(,this ,args))
-	(gotoif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error args 4)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))
@@ -474,7 +474,7 @@
 	(vp-rdef (this args))
 
 	(entry `(,this ,args))
-	(gotoif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error args 4)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))

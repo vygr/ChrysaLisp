@@ -36,7 +36,7 @@
 
 	(entry :list :lisp_merge `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error args 2)
 
 	(array-bind-args args `(,dlist ,args))
 	(class/array/get_both args iter_begin iter_end)
@@ -205,7 +205,7 @@
 
 	(entry :list :lisp_match `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error1 :r1 2)
+	(gotoif-lisp-args-sig 'error1 args 2)
 
 	(assign `((,this +lisp_sym_underscore)) `(,wild_card))
 	(array-bind-args args `(,src ,args))

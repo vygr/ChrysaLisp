@@ -53,7 +53,7 @@
 
 	(entry :sys_mail :lisp_read `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error args 1)
 
 	(vp-push this)
 	(list-bind-args args `(,mbox) '(:obj))
@@ -164,7 +164,7 @@
 
 	(entry :sys_mail :lisp_send `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error args 2)
 
 	(list-bind-args args `(,mbox ,data) '(:obj :obj))
 	(call :sys_mail :alloc_obj `(,data (& ,data +str_data) (,data +str_length)) `(,msg))

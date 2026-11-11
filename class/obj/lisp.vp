@@ -16,7 +16,7 @@
 
 	(entry :obj :lisp_get `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error args 3)
 
 	(list-bind-args args `(,obj ,offset ,type) '(:obj :num :num))
 
@@ -119,7 +119,7 @@
 
 	(entry :obj :lisp_set `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error args 4)
 
 	(list-bind-args args `(,obj ,offset ,type ,val) '(:obj :num :num :obj))
 

@@ -19,7 +19,7 @@
 	(entry :reals :lisp_quant '(:r0 :r1))
 	(assign '(:r0 :r1) `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error args 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
 	(array-get-args iter_begin `(,reals1 ,tol))
@@ -61,7 +61,7 @@
 
 	(entry :reals :lisp_mat4x4_mul `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error args 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
 	(array-get-args iter_begin `(,reals1 ,reals2))
@@ -107,7 +107,7 @@
 
 	(entry :reals :lisp_mat4x4_v4_mul `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error args 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
 	(array-get-args iter_begin `(,reals1 ,reals2))
@@ -154,7 +154,7 @@
 
 	(entry :reals :lisp_mat4x4_v3_mul `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error args 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
 	(array-get-args iter_begin `(,reals1 ,reals2))

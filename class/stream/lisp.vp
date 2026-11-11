@@ -414,7 +414,7 @@
 
 	;to error2, which says which error: it went to error, with what the
 	;check of the arguments happened to leave where the error is told
-	(gotoif-lisp-args-sig 'error2 :r1 2 3)
+	(gotoif-lisp-args-sig 'error2 args 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,value ,iter_begin))
 	(assign `((,iter_begin 0)) `(,stream))
@@ -491,7 +491,7 @@
 
 	(entry :stream :lisp_readblk `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error args 2)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))
@@ -744,7 +744,7 @@
 	(entry :stream :lisp_fill_bits `(,this ,args))
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error args 5)
 
 	(list-bind-args args `(,stream ,parray ,data ,num_bits ,cnt) '(:stream :array :num :num :num))
 	(save-fields :rsp '(slot_stream slot_parray slot_data slot_num_bits slot_cnt) `(,stream ,parray ,data ,num_bits ,cnt))
@@ -811,7 +811,7 @@
 	(entry :stream :lisp_copy_bits `(,this ,args))
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error args 6)
 
 	(list-bind-args args `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
 		'(:stream :stream :array :array :num :num))
@@ -885,7 +885,7 @@
 	(entry :stream :lisp_each `(,this ,args))
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error1 :r1 2 4)
+	(gotoif-lisp-args-sig 'error1 args 2 4)
 
 	(assign `((,args +array_length) 0 +max_long) `(,old_idx ,start ,end))
 	(vpif `(,old_idx = 2))

@@ -67,7 +67,10 @@ or `gotoifnot` to an error label. `lib/asm/code.inc` adds:
   `*build_mode* >= 2`.
 
 * `(gotoif-lisp-args-sig ...)`, `-len`, `-match`, `-type`: A check call on
-  the args list, then a `gotoif` to the error label.
+  the args list, then a `gotoif` to the error label. The args list is given
+  as the register it is in, or a symbol of one as `(vp-rdef)` makes: `args`
+  where the function names it and has it there, `:r1` where the check comes
+  before the function has moved it.
 
 For example, a typical Lisp FFI binding in the source code looks like this:
 

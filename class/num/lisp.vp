@@ -587,7 +587,7 @@
 
 	(entry :num :lisp_n2i `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error args 1)
 
 	(assign `(,this) `(,saved_this))
 	(array-bind-args args `(,args))
@@ -632,7 +632,7 @@
 
 	(entry :num :lisp_n2f `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error args 1)
 
 	(assign `(,this) `(,saved_this))
 	(array-bind-args args `(,args))
@@ -679,7 +679,7 @@
 
 	(entry :num :lisp_n2r `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error args 1)
 
 	(assign `(,this) `(,saved_this))
 	(array-bind-args args `(,args))

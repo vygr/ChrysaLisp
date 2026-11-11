@@ -113,7 +113,7 @@
 
 	(entry :pixmap :lisp_write `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error args 3)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
@@ -214,7 +214,7 @@
 
 	(entry :pixmap :lisp_read `(,this ,args))
 
-	(gotoif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error args 3)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
