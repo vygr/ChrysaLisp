@@ -8,17 +8,18 @@ Measured with the system's own tools, on a laptop of today, a laptop of 2018 and
 
 | | Apple M4 Max, 16 cores | Intel i9-8950HK, 12 threads | Raspberry Pi 4, 4 cores |
 |---|---|---|---|
-| The whole system rebuilt from source | **40 ms** | 0.16 seconds | 1.0 second |
-| The same on one core | 0.23 seconds | 0.51 seconds | 2.5 seconds |
-| Built for six platforms at once | 0.2 seconds | 0.5 seconds | 1.5 seconds |
-| A full install, by the emulator | 1.3 seconds | 3.1 seconds | 15.6 seconds |
+| The whole system rebuilt from source | **39 ms** | 0.15 seconds | 0.94 seconds |
+| The same on one core | 0.24 seconds | 0.52 seconds | 2.6 seconds |
+| Its code made for six platforms at once | 0.07 seconds | 0.15 seconds | 0.45 seconds |
+| A make after one function has changed | 16 ms | 34 ms | 0.1 seconds |
+| A full install, by the emulator | 1.8 seconds | 5.7 seconds | 37 seconds |
 | All 8,255 tests | 4 min 46 s | 4 min 49 s | 8 min 13 s |
 
-* **The whole system** is all 1,074 functions of it. Every node makes its compiler from nothing and lets go of it after, each time.
+* **The whole system** is all 1,067 functions of it. Every node makes its compiler from nothing and lets go of it after, each time.
 
-* **Six platforms** are x86_64 for Linux and Mac and for Windows, ARM64, RISC-V64, LoongArch64 and the VP64.
+* **Six platforms** are x86_64 for Linux and Mac and for Windows, ARM64, RISC-V64, LoongArch64 and the VP64. The source is assembled once to VP, the same for every platform and kept, and the code of each is made from that.
 
-* **A full install** is the portable emulator, booted from a 160 KB snapshot, building the native system from source. Compiling the host program, the one piece of C++, is not in that time.
+* **A full install** is the portable emulator, booted from a 160 KB snapshot, building the native system from source and then its apps. Compiling the host program, the one piece of C++, is not in that time.
 
 * **70 KB** is a native boot image. The rest is bound from its files as it is asked for.
 
