@@ -54,7 +54,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))

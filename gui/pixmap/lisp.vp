@@ -16,7 +16,7 @@
 
 	(entry :pixmap :lisp_as_argb '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:pixmap))
@@ -45,7 +45,7 @@
 
 	(entry :pixmap :lisp_to_argb32 '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :pixmap :to_argb32))
@@ -75,7 +75,7 @@
 
 	(entry :pixmap :lisp_from_argb32 '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :pixmap :from_argb32))
@@ -113,7 +113,7 @@
 
 	(entry :pixmap :lisp_write `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
@@ -214,7 +214,7 @@
 
 	(entry :pixmap :lisp_read `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
@@ -307,7 +307,7 @@
 
 	(entry :pixmap :lisp_flm_delta '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0 :r1 :r2) '(:pixmap :stream :num))
@@ -352,7 +352,7 @@
 
 	(entry :pixmap :lisp_shared '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,width ,height ,key) '(:num :num :num))

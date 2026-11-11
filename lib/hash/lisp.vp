@@ -21,7 +21,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -81,7 +81,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))

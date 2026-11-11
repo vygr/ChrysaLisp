@@ -17,7 +17,7 @@
 
 	(entry :host_clipboard :lisp_put '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	;kernel callback for host call
 	(vp-alloc slot_size)
@@ -59,7 +59,7 @@
 
 	(entry :host_clipboard :lisp_get '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	;kernel callback for host call
 	(vp-alloc slot_size)

@@ -13,7 +13,7 @@
 
 	(entry :lisp :lisp_quote '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 2)
+	(gotoif-lisp-args-len 'error :r1 /= 2)
 
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign '((:r1 +ptr_size)) '(:r1))
@@ -39,7 +39,7 @@
 
 	(entry :lisp :lisp_qquote '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 2)
+	(gotoif-lisp-args-len 'error :r1 /= 2)
 
 	(vp-push :r0 :r1)
 	(class/obj/ref :r1 :r2)

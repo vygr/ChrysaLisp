@@ -17,7 +17,7 @@
 
 	(entry :ctx :lisp_set_color '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 3)
+	(gotoif-lisp-args-sig 'error1 :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input :ctx :set_color))
@@ -49,7 +49,7 @@
 
 	(entry :ctx :lisp_box '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 6)
+	(gotoif-lisp-args-sig 'error1 :r1 6)
 
 	(vp-push :r0)
 	(defq in (method-input :ctx :box))
@@ -81,7 +81,7 @@
 
 	(entry :ctx :lisp_filled_box '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 6)
+	(gotoif-lisp-args-sig 'error1 :r1 6)
 
 	(vp-push :r0)
 	(defq in (method-input :ctx :filled_box))
@@ -119,7 +119,7 @@
 
 	(entry :ctx :lisp_filled_region `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))
@@ -160,7 +160,7 @@
 
 	(entry :ctx :lisp_blit '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 8 10)
+	(gotoif-lisp-args-sig 'error1 :r1 8 10)
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(gotoif '(:r2 = 9) 'error1)

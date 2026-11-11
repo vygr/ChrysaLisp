@@ -876,14 +876,14 @@
 									:stroke
 									0
 									:text
-									"[errorif-lisp-args-sig, list-bind-args]"
+									"[gotoif-lisp-args-sig, list-bind-args]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										40.53906
+										42.03088
 										20.00000
 									)
 								)

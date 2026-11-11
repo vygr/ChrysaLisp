@@ -25,7 +25,7 @@
 
 	(entry :host_gpu :lisp_call '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 8)
+	(gotoif-lisp-args-len 'error :r1 /= 8)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))

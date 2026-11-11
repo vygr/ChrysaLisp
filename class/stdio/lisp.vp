@@ -17,7 +17,7 @@
 
 	(entry :stdio :lisp_create '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))

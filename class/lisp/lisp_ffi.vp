@@ -20,7 +20,7 @@
 
 	(entry :lisp :lisp_ffi '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2 4)
+	(gotoif-lisp-args-sig 'error :r1 2 4)
 
 	(vp-push :r1)
 	(assign '((:r1 +array_begin)) '(:r1))

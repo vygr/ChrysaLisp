@@ -14,7 +14,7 @@
 
 	(entry :sys_load :lisp_path '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r1)
@@ -45,7 +45,7 @@
 
 	(entry :sys_load :lisp_server '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 0 1)
+	(gotoif-lisp-args-sig 'error :r1 0 1)
 
 	(vp-push :r0)
 	(assign '((:r1 +array_length)) '(:r2))
@@ -102,7 +102,7 @@
 
 	(entry :sys_load :lisp_place '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:obj))

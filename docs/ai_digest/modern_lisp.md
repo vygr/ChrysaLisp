@@ -235,7 +235,7 @@ rule of error club is we don't pass errors."
 
 * Error checking is pushed up the call stack.
 
-* The various `errorif-lisp-args-*` macros (`lib/asm/code.inc`) check types
+* The various `gotoif-lisp-args-*` macros (`lib/asm/code.inc`) check types
 and argument counts at the Lisp/VP boundary, in every build. `(validatecase)`
 adds deeper runtime checks in a validate build. Natively the checks cost no
 measurable speed.

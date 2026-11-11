@@ -298,7 +298,7 @@
 
 	(entry :nums :lisp_sum '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 ;an empty vector has no sum, as with the other vector ops
 	(array-bind-args :r1 '(:r2))
 	(assign '((:r2 +array_length)) '(:r2))
@@ -337,7 +337,7 @@
 	(entry :nums :lisp_scale '(:r0 :r1))
 	(assign '(:r0 :r1) `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error :r1 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
 	(array-get-args iter_begin `(,nums1 ,scale))
@@ -403,8 +403,8 @@
 
 	(entry :nums :lisp_dot '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 2)
-	(errorif-lisp-args-match 'error :r1 :nums 2)
+	(gotoif-lisp-args-len 'error :r1 /= 2)
+	(gotoif-lisp-args-match 'error :r1 :nums 2)
 
 	(vp-push :r0 :r1)
 	(array-bind-args :r1 '(:r0 :r1))

@@ -25,7 +25,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	;:r7 to :r14 kept in the frame, the row is worked in registers: :r1 its
 	;bytes, :r2 those of prev, :r3 its length, :r4 step, :r5 i
@@ -161,7 +161,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	;:r7 to :r14 kept in the frame, the row made in registers
 	(vp-alloc slot_size)
@@ -311,7 +311,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	;:r7 to :r14 kept in the frame, the block is worked in registers
 	(vp-alloc slot_size)
@@ -414,7 +414,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	;:r7 to :r14 kept in the frame, the row is made in registers
 	(vp-alloc slot_size)
@@ -625,7 +625,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 7)
+	(gotoif-lisp-args-sig 'error :r1 7)
 
 	;:r7 to :r14 kept in the frame, the scan's state in :r11 to :r14
 	(vp-alloc slot_size)
@@ -771,7 +771,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 11)
+	(gotoif-lisp-args-sig 'error :r1 11)
 
 	;:r11 to :r13 kept in the frame, the scan's state in :r11 to :r14
 	(vp-alloc slot_size)

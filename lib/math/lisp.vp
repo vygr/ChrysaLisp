@@ -72,7 +72,7 @@
 
 	(entry `(,xlow ,t))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-alloc slot_size)
 	(assign `(,xlow) '((:rsp slot_this)))
@@ -320,7 +320,7 @@
 
 	(entry `(,xlow ,elm))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-alloc slot_size)
 	(assign `(,xlow) '((:rsp slot_this)))
@@ -396,7 +396,7 @@
 
 	(entry `(,a ,b))
 
-	(errorif-lisp-args-sig 'error :r1 8)
+	(gotoif-lisp-args-sig 'error :r1 8)
 
 	(vp-alloc slot_size)
 	(assign `(,a) '((:rsp slot_this)))
@@ -609,7 +609,7 @@
 
 	(entry `(,a ,b))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign `(,a) '((:rsp slot_this)))
@@ -907,7 +907,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -1147,7 +1147,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -1385,7 +1385,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))

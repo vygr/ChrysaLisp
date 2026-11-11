@@ -66,7 +66,7 @@ or `gotoifnot` to an error label. `lib/asm/code.inc` adds:
 * `(validatecase ...)`: Emits the enclosed code block only if
   `*build_mode* >= 2`.
 
-* `(errorif-lisp-args-sig ...)`, `-len`, `-match`, `-type`: A check call on
+* `(gotoif-lisp-args-sig ...)`, `-len`, `-match`, `-type`: A check call on
   the args list, then a `gotoif` to the error label.
 
 For example, a typical Lisp FFI binding in the source code looks like this:
@@ -75,7 +75,7 @@ For example, a typical Lisp FFI binding in the source code looks like this:
 (def-method :seq :lisp_elem)
 	(entry :seq :lisp_elem '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 2)
+	(gotoif-lisp-args-sig 'error1 :r1 2)
 
 	; ... payload extraction ...
 

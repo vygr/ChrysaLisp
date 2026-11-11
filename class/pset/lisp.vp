@@ -41,7 +41,7 @@
 
 	(entry :pset :lisp_pfindi `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-cpy-rr this saved_this)
 	(list-bind-args args `(,lst ,key) '(:pset :obj))

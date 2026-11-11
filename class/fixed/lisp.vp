@@ -5,7 +5,7 @@
 ;generic fixed math op
 (redefun mathop (%0)
 	(entry :fixed (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 	(vp-cpy-rr :r0 :r13)
 	(assign '((:r1 +array_begin)) '(:r2))
 	(call :fixed %0 '((:r2 0)) '(:r1))
@@ -114,7 +114,7 @@
 
 	(entry :fixed :lisp_recip '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(assign '((:r1 +array_begin)) '(:r0))

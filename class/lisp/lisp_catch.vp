@@ -14,7 +14,7 @@
 
 	(entry :lisp :lisp_throw '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(bind '(payload desc &ignore) (method-input :lisp :repl_error))
 	(list-bind-args :r1 `(,desc ,payload) '(:str :obj))

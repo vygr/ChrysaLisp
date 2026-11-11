@@ -18,7 +18,7 @@
 
 	(entry :stream :lisp_iostream '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-cpy-rr :r0 :r7)
 	(list-bind-args :r1 '(:r5) '(:str))
@@ -59,7 +59,7 @@
 
 	(entry :stream :lisp_fstream '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1 2)
+	(gotoif-lisp-args-sig 'error :r1 1 2)
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(vp-push :r0)
@@ -98,7 +98,7 @@
 
 	(entry :stream :lisp_sstream '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :sstream :create))
@@ -128,7 +128,7 @@
 
 	(entry :stream :lisp_mstream '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(call :mstream :create '() '(:r1))
@@ -154,7 +154,7 @@
 
 	(entry :stream :lisp_avail '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :stream :avail))
@@ -187,7 +187,7 @@
 
 	(entry :stream :lisp_fault '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:stream))
@@ -219,7 +219,7 @@
 
 	(entry :stream :lisp_readavail '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2) '(:stream))
@@ -250,7 +250,7 @@
 
 	(entry :stream :lisp_flush '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :stream :flush))
@@ -280,7 +280,7 @@
 
 	(entry :stream :lisp_seek '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input :stream :seek))
@@ -414,7 +414,7 @@
 
 	;to error2, which says which error: it went to error, with what the
 	;check of the arguments happened to leave where the error is told
-	(errorif-lisp-args-sig 'error2 :r1 2 3)
+	(gotoif-lisp-args-sig 'error2 :r1 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,value ,iter_begin))
 	(assign `((,iter_begin 0)) `(,stream))
@@ -491,7 +491,7 @@
 
 	(entry :stream :lisp_readblk `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))
@@ -534,7 +534,7 @@
 
 	(entry :stream :lisp_writeblk '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -568,7 +568,7 @@
 
 	(entry :stream :lisp_readline '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :stream :read_line))
@@ -604,7 +604,7 @@
 
 	(entry :stream :lisp_writeline '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -645,7 +645,7 @@
 	(vp-alloc slot_size)
 	(entry :stream :lisp_read_bits '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r3 :r1) '(:stream :array :num))
@@ -692,7 +692,7 @@
 	(vp-alloc slot_size)
 	(entry :stream :lisp_write_bits '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r3 :r1 :r2) '(:stream :array :num :num))
@@ -744,7 +744,7 @@
 	(entry :stream :lisp_fill_bits `(,this ,args))
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(list-bind-args args `(,stream ,parray ,data ,num_bits ,cnt) '(:stream :array :num :num :num))
 	(save-fields :rsp '(slot_stream slot_parray slot_data slot_num_bits slot_cnt) `(,stream ,parray ,data ,num_bits ,cnt))
@@ -811,7 +811,7 @@
 	(entry :stream :lisp_copy_bits `(,this ,args))
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(list-bind-args args `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
 		'(:stream :stream :array :array :num :num))
@@ -885,7 +885,7 @@
 	(entry :stream :lisp_each `(,this ,args))
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
 
-	(errorif-lisp-args-sig 'error1 :r1 2 4)
+	(gotoif-lisp-args-sig 'error1 :r1 2 4)
 
 	(assign `((,args +array_length) 0 +max_long) `(,old_idx ,start ,end))
 	(vpif `(,old_idx = 2))

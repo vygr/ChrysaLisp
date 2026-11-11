@@ -17,7 +17,7 @@
 
 	(entry `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args `(,nums) '(:nums))
 	(assign `((,nums +array_length)) `(,len))
 	(gotoif `(,len < 4) 'error)
@@ -58,7 +58,7 @@
 
 	(entry `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 	(list-bind-args args `(,nums1 ,nums2) '(:nums :nums))
 	(assign `((,nums1 +array_length)) `(,len))
 	(gotoif `(,len < 4) 'error)
@@ -104,7 +104,7 @@
 
 	(entry `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 	(list-bind-args args `(,px ,py ,cx ,cy ,ax ,ay) '(:num :num :num :num :num :num))
 
 	(vp-simd vp-cpy-rr `(,ax ,ay) `(,dcx ,dcy))
@@ -161,7 +161,7 @@
 
 	(entry `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 9)
+	(gotoif-lisp-args-sig 'error :r1 9)
 	(list-bind-args args `(,px ,py ,icx ,icy ,ecx ,ecy ,dy ,ax ,ay)
 		'(:num :num :num :num :num :num :num :num :num))
 

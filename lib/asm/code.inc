@@ -174,31 +174,31 @@
 ;the checks of a validate build, which a normal one has not
 (defmacro validatecase (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
 
-(defmacro errorif-lisp-args-len (l args cnd len)
+(defmacro gotoif-lisp-args-len (l args cnd len)
 	`(progn
 		(assign '((,args +array_length)) '(:r2))
 		(gotoif '(:r2 ,cnd ,len) ,l)))
 
-(defmacro errorif-lisp-args-sig (l args len1 &optional len2)
+(defmacro gotoif-lisp-args-sig (l args len1 &optional len2)
 	(setd len2 len1)
 	`(progn
 		(call :lisp :env_args_sig '(,args ($ sig) ,len1 ,len2) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
-(defmacro errorif-lisp-args-match (l args class len)
+(defmacro gotoif-lisp-args-match (l args class len)
 	`(progn
 		(call :lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
-(defmacro errorif-lisp-args-type (l args class len)
+(defmacro gotoif-lisp-args-type (l args class len)
 	`(progn
 		(call :lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 ;module
 (export-symbols
-	'(errorif-lisp-args-len errorif-lisp-args-sig
-		errorif-lisp-args-match errorif-lisp-args-type
+	'(gotoif-lisp-args-len gotoif-lisp-args-sig
+		gotoif-lisp-args-match gotoif-lisp-args-type
 		switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
 		vpif vpifnot else elseif elseifnot endif validatecase
 		break breakif breakifnot goto gotoif gotoifnot exitif exitifnot

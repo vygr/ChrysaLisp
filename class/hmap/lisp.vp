@@ -219,7 +219,7 @@
 
 	(entry :hmap :lisp_get '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1 2)
+	(gotoif-lisp-args-sig 'error :r1 1 2)
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(vp-push :r0)
@@ -259,7 +259,7 @@
 
 	(entry :hmap :lisp_defx '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1 2)
+	(gotoif-lisp-args-sig 'error :r1 1 2)
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(vp-push :r0)
@@ -336,7 +336,7 @@
 
 	(entry :hmap :lisp_list '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
@@ -370,7 +370,7 @@
 	(entry :hmap :lisp_undef '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 
-	(errorif-lisp-args-len 'error1 :r1 < 2)
+	(gotoif-lisp-args-len 'error1 :r1 < 2)
 
 	(class/array/get_both :r1 :r3 :r2)
 	(array-get-args :r3 '(:r0))
@@ -424,7 +424,7 @@
 
 	(entry :hmap :lisp_parent '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 0 1)
+	(gotoif-lisp-args-sig 'error :r1 0 1)
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(vpif '(:r2 = 0))
@@ -459,7 +459,7 @@
 
 	(entry :hmap :lisp_resize '(this args))
 
-	(errorif-lisp-args-sig 'error :r1 1 2)
+	(gotoif-lisp-args-sig 'error :r1 1 2)
 
 	(vp-push this args)
 	(bind '(hmap size) (method-input :hmap :resize))
@@ -498,7 +498,7 @@
 
 	(entry :hmap :lisp_copy '(this args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push this args)
 	(bind '(hmap size) (method-input :hmap :copy))

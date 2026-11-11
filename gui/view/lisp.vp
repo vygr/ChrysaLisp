@@ -16,7 +16,7 @@
 
 	(entry :view :lisp_create '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(call :view :create :nil '(:r1))
@@ -42,7 +42,7 @@
 
 	(entry :view :lisp_find_id '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input :view :find_id))
@@ -76,7 +76,7 @@
 
 	(entry :view :lisp_sub '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	;the view is given back with the reference its parent had of it. One
 	;that is in no parent has none to give, it is given with one of its
@@ -115,7 +115,7 @@
 
 	(entry :view :lisp_hide '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	;as :sub, the view is given back with the reference its parent had of
 	;it, it is in no parent after. One that is in none already is given
@@ -152,7 +152,7 @@
 
 	(entry :view :lisp_add '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0 :r1) '(:view & :view))
@@ -185,7 +185,7 @@
 
 	(entry :view :lisp_add_back '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0 :r1) '(:view & :view))
@@ -218,7 +218,7 @@
 
 	(entry :view :lisp_add_before '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0 :r1) '(:view & :view))
@@ -251,7 +251,7 @@
 
 	(entry :view :lisp_add_after '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0 :r1) '(:view & :view))
@@ -284,7 +284,7 @@
 
 	(entry :view :lisp_trans_dirty '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(defq in (method-input :region :translate))
 	(list-bind-args :r1 in '(:view & :num :num))
@@ -316,7 +316,7 @@
 
 	(entry :view :lisp_clr_opaque '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	;remove any opaque region
 	(vp-push :r0)
@@ -352,7 +352,7 @@
 
 	(entry :view :lisp_add_opaque '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	;paste opaque region
 	(vp-push :r0)
@@ -390,7 +390,7 @@
 
 	(entry :view :lisp_sub_opaque '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	;remove opaque region
 	(vp-push :r0)
@@ -428,7 +428,7 @@
 
 	(entry :view :lisp_set_flags '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
 	(defq in (method-input :view :set_flags))
@@ -458,7 +458,7 @@
 
 	(entry :view :lisp_add_dirty '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	;paste dirty region
 	(vp-push :r0)
@@ -504,7 +504,7 @@
 
 	(entry :view :lisp_children '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(assign '(:r0) `(,this))
 	(list-bind-args :r1 `(,node) '(:view))
@@ -544,7 +544,7 @@
 
 	(entry :view :lisp_flatten '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push this)
 	(list-bind-args :r1 `(,node) '(:view))
@@ -595,7 +595,7 @@
 
 	(entry :view :lisp_to_front '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :view :to_front))
@@ -625,7 +625,7 @@
 
 	(entry :view :lisp_to_back '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :view :to_back))
@@ -655,7 +655,7 @@
 
 	(entry :view :lisp_hit_tree '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
 	(defq in (method-input :view :hit_tree))

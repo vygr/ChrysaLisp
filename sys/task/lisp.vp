@@ -14,7 +14,7 @@
 
 	(entry :sys_task :lisp_count '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :sys_task :count))
@@ -44,7 +44,7 @@
 
 	(entry :sys_task :lisp_sleep '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 ;a task that was told to stop, before it sleeps or while it does, does
 ;not go on. A pipe that aborts a command signals it, and one that only
@@ -123,7 +123,7 @@
 
 	(entry :sys_task :lisp_mailbox '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(call :str :create_from_buffer '(0 +net_id_size) '(:r3))
@@ -153,7 +153,7 @@
 
 	(entry :sys_task :lisp_flags '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r0)
@@ -185,7 +185,7 @@
 
 	(entry :sys_task :lisp_priority '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :sys_task :set_priority))
@@ -224,7 +224,7 @@
 
 	(entry :sys_task :lisp_apps '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(fn-bind 'sys/statics/statics :r2)
 	(vp-add-cr (+ statics_sys_task_task_lists (* tk_app_priority +lh_list_size)) :r2)

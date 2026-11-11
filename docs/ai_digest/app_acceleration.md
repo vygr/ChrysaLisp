@@ -46,7 +46,7 @@ The entry point expects arguments in specific registers (Standard ABI: `:r0`
     (entry `(,this ,args))
 
     ; 3. Argument Validation
-    (errorif-lisp-args-sig 'error :r1 4)    ; Ensure 4 arguments type tested
+    (gotoif-lisp-args-sig 'error :r1 4)    ; Ensure 4 arguments type tested
 
     ; 4. Argument Unpacking
     (vp-push `(,this))  ; Save 'this' if needed
@@ -324,5 +324,5 @@ colour are done as one line each:
    them with `load-fields`, at the start, or where each is needed if there
    are more of them than registers.
 
-4. **Error Safety**: Always use `errorif-lisp-args-sig` to verify input types
+4. **Error Safety**: Always use `gotoif-lisp-args-sig` to verify input types
    before processing.

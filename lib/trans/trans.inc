@@ -91,7 +91,7 @@
 		(vp-cpy-rr :r2 :r1)
 		(vp-jmp 'translate)
 	(endif)
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 	(list-bind-args :r1 '(:r2) '(:obj))
 	(vp-push :r0)
 	(assign '((:r2 +str_length)) '(:r1))

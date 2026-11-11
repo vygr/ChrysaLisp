@@ -54,7 +54,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :num :num))
 	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r6 :r7))
 	(gotoif '(:r6 /= 32) 'error)
@@ -219,7 +219,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :num :num))
 	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r6 :r7))
 	(gotoif '(:r6 /= 64) 'error)
@@ -364,7 +364,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 7)
+	(gotoif-lisp-args-sig 'error :r1 7)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8) '(:obj :obj :num :obj :obj :num :num))
 	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r9 :r10))
 	(gotoif '(:r9 /= 32) 'error)
@@ -416,7 +416,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6) '(:obj :obj :num :num :num))
 	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r7 :r8))
 	(gotoif '(:r7 /= 120) 'error)
@@ -462,7 +462,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 	(list-bind-args :r1 '(:r2 :r3 :r4) '(:obj :obj :obj))
 	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r5 :r6))
 	(gotoif '(:r5 /= 32) 'error)
@@ -512,7 +512,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 	(list-bind-args :r1 '(:r2 :r3 :r4) '(:obj :obj :obj))
 	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r5 :r6))
 	(gotoif '(:r5 /= 32) 'error)
@@ -589,8 +589,8 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 3)
-	(errorif-lisp-args-match 'error :r1 :nums 3)
+	(gotoif-lisp-args-len 'error :r1 /= 3)
+	(gotoif-lisp-args-match 'error :r1 :nums 3)
 	(array-bind-args :r1 `(,po ,pa ,pb))
 	(each (lambda (r)
 			(assign `((,r +array_length)) '(:r2))
@@ -676,7 +676,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 	(list-bind-args :r1 '(:r2) '(:num))
 	(gotoif '(:r2 < 0) 'error)
 
@@ -753,7 +753,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 7)
+	(gotoif-lisp-args-sig 'error :r1 7)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8) '(:obj :obj :obj :obj :obj :num :num))
 	(assign '((:r2 +str_length) (:r3 +str_length) (:r4 +str_length)) '(:r9 :r10 :r11))
 	(vpif '(:r9 /= 176))
@@ -949,7 +949,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6) '(:obj :obj :obj :num :num))
 	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r7 :r8))
 	(gotoif '(:r7 /= 16) 'error)

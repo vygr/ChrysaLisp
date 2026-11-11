@@ -15,7 +15,7 @@
 
 	(entry :font :lisp_create '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :font :open))
@@ -52,7 +52,7 @@
 
 	(entry :font :lisp_glyph_paths '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(defq in1 (method-input :font :glyph_info)
@@ -86,7 +86,7 @@
 
 	(entry :font :lisp_info '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r13))
@@ -122,7 +122,7 @@
 
 	(entry :font :lisp_glyph_bounds '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(defq in1 (method-input :font :glyph_info)
@@ -160,7 +160,7 @@
 
 	(entry :font :lisp_glyph_ranges '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :font :glyph_ranges))
@@ -189,7 +189,7 @@
 
 	(entry :font :lisp_texture '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :font :sym_texture))

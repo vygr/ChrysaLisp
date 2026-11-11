@@ -36,7 +36,7 @@
 
 	(entry :list :lisp_merge `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(array-bind-args args `(,dlist ,args))
 	(class/array/get_both args iter_begin iter_end)
@@ -100,7 +100,7 @@
 	(entry :list :lisp_pivot '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 
-	(errorif-lisp-args-sig 'error1 :r1 4)
+	(gotoif-lisp-args-sig 'error1 :r1 4)
 
 	(call :list :get_begin '(:r1) '(_ :r1))
 	(load-fields :r1 (list 0 +ptr_size (* 2 +ptr_size) (* 3 +ptr_size)) '(:r2 :r3 :r4 :r5))
@@ -205,7 +205,7 @@
 
 	(entry :list :lisp_match `(,this ,args))
 
-	(errorif-lisp-args-sig 'error1 :r1 2)
+	(gotoif-lisp-args-sig 'error1 :r1 2)
 
 	(assign `((,this +lisp_sym_underscore)) `(,wild_card))
 	(array-bind-args args `(,src ,args))
@@ -251,7 +251,7 @@
 
 	(entry :list :lisp_copy '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 1)
+	(gotoif-lisp-args-len 'error :r1 /= 1)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))

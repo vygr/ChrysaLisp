@@ -18,7 +18,7 @@
 
 	(entry :vdu :lisp_create '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(call :vdu :create :nil '(:r1))
@@ -51,7 +51,7 @@
 
 	(entry :vdu :lisp_load '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-alloc slot_size)
 	(list-bind-args :r1 '(:r1 :r2 :r3 :r4 :r5 :r6) '(:vdu :list :num :num :num :num))
@@ -183,7 +183,7 @@
 
 	(entry :vdu :lisp_configure '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))

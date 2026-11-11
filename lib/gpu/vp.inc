@@ -871,7 +871,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r13 :r6 :r7 :r8 :r9) '(:str :obj :obj :num :num))
@@ -1301,7 +1301,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r13 :r6 :r7 :r8 :r9) '(:str :obj :obj :obj :str))
@@ -1374,7 +1374,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 8)
+	(gotoif-lisp-args-sig 'error :r1 8)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r13 :r6 :r7 :r8)
@@ -1675,7 +1675,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 } (str (length params)) {)
+	(gotoif-lisp-args-sig 'error :r1 } (str (length params)) {)
 } (apply (const cat) (cat (list "") (slice checks 0 -2))) {
 
 	(vp-push :r0)
@@ -1746,7 +1746,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2 :r3 :r13 :r4) '(:num :num :str :obj))

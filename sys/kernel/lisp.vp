@@ -62,7 +62,7 @@
 
 	(entry :sys_kernel :lisp_sysid '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r0)

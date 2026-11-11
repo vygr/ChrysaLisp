@@ -670,7 +670,7 @@
 	;the body of a run, a frame of the Z80, of zx_rom and zx_traps
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	;the machine, as big as it should be, it is written
 	(list-bind-args :r1 '(:r2) '(:obj))
@@ -1556,7 +1556,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
@@ -1737,7 +1737,7 @@
 	;as fit below 64K
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2 :r3 :r4) '(:obj :num :obj))

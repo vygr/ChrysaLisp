@@ -6,7 +6,7 @@
 
 (defun to-array (%0)
 	(entry :array (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
-	(errorif-lisp-args-match 'error :r1 :num (:r1 +array_length))
+	(gotoif-lisp-args-match 'error :r1 :num (:r1 +array_length))
 	(assign '(:r0 :r1) '(:r6 :r8))
 	(call %0 :create :nil '(:r7))
 	(assign '((:r8 +array_length)) '(:r1))
@@ -125,7 +125,7 @@
 
 	(entry :array :lisp_clear '(:r0 :r1))
 
-	(errorif-lisp-args-type 'error :r1 :array 1)
+	(gotoif-lisp-args-type 'error :r1 :array 1)
 
 	(vp-cpy-rr :r0 this)
 	(class/array/get_both :r1 iter iter_end)
@@ -155,7 +155,7 @@
 
 	(entry :array :lisp_pop '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
@@ -338,7 +338,7 @@
 
 	(entry :array :lisp_set `(,this ,args))
 
-	(errorif-lisp-args-sig 'error1 :r1 3)
+	(gotoif-lisp-args-sig 'error1 :r1 3)
 
 	(vp-push this args)
 	(list-bind-args args `(,a ,i ,v) '(:array :num :obj))
@@ -395,7 +395,7 @@
 	(vp-alloc slot_size)
 	(entry :array :lisp_fill '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r3 :r4) '(:obj :num :obj))

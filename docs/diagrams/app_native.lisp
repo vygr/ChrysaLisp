@@ -10,7 +10,7 @@
 (dia-put s 'lisp (dia-box '("Lisp" "(shade x0 y0 top pal)") 200 48 blue 11 :first) 0 126)
 (dia-put s 'ffi (dia-box '("(ffi ... shade)" "the function bound to the name") 200 48 blue 11 :first) 240 126)
 (dia-put s 'entry (dia-box '("entry" ":r0 this, :r1 the list of args") 200 48 green 11 :first) 480 126)
-(dia-put s 'bind (dia-box '("errorif-lisp-args-sig, list-bind-args" "4 args of their types, to registers") 260 48 green 11 :first) 420 222)
+(dia-put s 'bind (dia-box '("gotoif-lisp-args-sig, list-bind-args" "4 args of their types, to registers") 260 48 green 11 :first) 420 222)
 (dia-put s 'work (dia-box '("the work" "in registers, vp-rdef, vp-ddef") 180 48 green 11 :first) 210 222)
 (dia-put s 'back (dia-box '("(call :num :create)" "the answer, in :r1, back") 180 48 green 11 :first) 0 222)
 (dia-join s 'lisp 'ffi)

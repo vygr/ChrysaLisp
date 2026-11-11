@@ -17,7 +17,7 @@
 
 	(entry :canvas :lisp_create '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input :canvas :create))
@@ -46,7 +46,7 @@
 
 	(entry :canvas :lisp_create_pixmap '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :canvas :create_pixmap))
@@ -75,7 +75,7 @@
 
 	(entry :canvas :lisp_fill '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :pixmap :fill))
@@ -110,7 +110,7 @@
 
 	(entry :canvas :lisp_clear '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-push :r0)
 	(defq in (method-input :pixmap :clear))
@@ -145,7 +145,7 @@
 
 	(entry :canvas :lisp_swap '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :canvas :swap))
@@ -216,7 +216,7 @@
 
 	(entry :canvas :lisp_shade '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 7)
+	(gotoif-lisp-args-sig 'error :r1 7)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_lisp)))
@@ -346,7 +346,7 @@
 
 	(entry :canvas :lisp_shader_format '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-alloc slot_size)
 	(vp-xor-rr :r1 :r1)
@@ -389,7 +389,7 @@
 
 	(entry :canvas :lisp_shader_create '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -438,7 +438,7 @@
 
 	(entry :canvas :lisp_shader_destroy '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
@@ -488,7 +488,7 @@
 
 	(entry :canvas :lisp_pair_create '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -540,7 +540,7 @@
 
 	(entry :canvas :lisp_mesh_create '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -588,7 +588,7 @@
 
 	(entry :canvas :lisp_mesh_destroy '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
@@ -630,7 +630,7 @@
 
 	(entry :canvas :lisp_plot '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input :canvas :plot))
@@ -660,7 +660,7 @@
 
 	(entry :canvas :lisp_fbox '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(defq in (method-input :canvas :fbox))
@@ -690,7 +690,7 @@
 
 	(entry :canvas :lisp_fpoly '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(defq in (method-input :canvas :fpoly))
@@ -720,7 +720,7 @@
 
 	(entry :canvas :lisp_resize '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :pixmap :resize))
@@ -762,7 +762,7 @@
 
 	(entry :canvas :lisp_tile `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))
@@ -810,7 +810,7 @@
 
 	(entry :canvas :lisp_flip_x '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input :pixmap :flip_x))

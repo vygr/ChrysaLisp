@@ -19,7 +19,7 @@
 		(long c_result))
 
 	(entry :host_net :lisp_init '(:r0 :r1))
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -61,7 +61,7 @@
 		(long c_result))
 
 	(entry :host_net :lisp_deinit '(:r0 :r1))
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -104,7 +104,7 @@
 		(long port c_handle))
 
 	(entry :host_net :lisp_connect '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -149,7 +149,7 @@
 		(long port c_handle))
 
 	(entry :host_net :lisp_listen '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -194,7 +194,7 @@
 		(long handle c_handle))
 
 	(entry :host_net :lisp_accept '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -237,7 +237,7 @@
 	;send() is a thin syscall; keep it on the task stack so the
 	;service hot path does not bounce through the kernel mailbox.
 	(entry :host_net :lisp_send '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0 :r1) '(:num :obj))
@@ -270,7 +270,7 @@
 		(long handle max_len ret_bytes))
 
 	(entry :host_net :lisp_recv '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -326,7 +326,7 @@
 	;:r1-:r6, :r13-:r14, :d0-:d15
 
 	(entry :host_net :lisp_close '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:num))
@@ -356,7 +356,7 @@
 	;poll() is timeout-0 and runs on the service timer. Do not
 	;route it through :callback or every tick pays a kernel RPC.
 	(entry :host_net :lisp_poll '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:num))
@@ -388,7 +388,7 @@
 		(long port c_handle))
 
 	(entry :host_net :lisp_udp_bind '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -434,7 +434,7 @@
 		(long handle port len ret_bytes))
 
 	(entry :host_net :lisp_udp_send '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -483,7 +483,7 @@
 		(struct ip_buf 64))
 
 	(entry :host_net :lisp_udp_recv '(:r0 :r1))
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -561,7 +561,7 @@
 		(ptr this ret iter_begin iter_end))
 
 	(entry :host_net :lisp_links '(:r0 :r1))
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -608,7 +608,7 @@
 	;gives 0
 
 	(entry :host_net :lisp_drop '(:r0 :r1))
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r0)

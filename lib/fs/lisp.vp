@@ -24,7 +24,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,bm ,at ,to ,n) '(:obj :num :num :num))

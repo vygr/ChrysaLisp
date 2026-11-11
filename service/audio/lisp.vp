@@ -32,7 +32,7 @@
 	(entry :host_audio :lisp_init '(:r0 :r1))
 
 	;check 0 args
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	;allocate stack for locals
 	(vp-alloc slot_size)
@@ -93,7 +93,7 @@
 	(entry :host_audio :lisp_deinit '(:r0 :r1))
 
 	;check 0 args
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	;allocate stack for locals
 	(vp-alloc slot_size)
@@ -147,7 +147,7 @@
 	(entry :host_audio :lisp_add '(:r0 :r1))
 
 	;check 1 arg with given type
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	;allocate stack for locals
 	(vp-alloc slot_size)
@@ -204,7 +204,7 @@
 	(entry :host_audio :lisp_change '(:r0 :r1))
 
 	;check 2 args with given types
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	;allocate stack for locals
 	(vp-alloc slot_size)
@@ -261,7 +261,7 @@
 	(entry :host_audio :lisp_remove '(:r0 :r1))
 
 	;check 1 arg with given type
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	;allocate stack for locals
 	(vp-alloc slot_size)
@@ -318,7 +318,7 @@
 	(entry :host_audio :lisp_play '(:r0 :r1))
 
 	;check 2 args with given types
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	;allocate stack for locals
 	(vp-alloc slot_size)
@@ -374,7 +374,7 @@
 
 	(entry :host_audio :lisp_mic_open '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -422,7 +422,7 @@
 
 	(entry :host_audio :lisp_mic_read '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -471,7 +471,7 @@
 
 	(entry :host_audio :lisp_mic_close '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -519,7 +519,7 @@
 
 	(entry :host_audio :lisp_stream_open '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -571,7 +571,7 @@
 
 	(entry :host_audio :lisp_stream_write '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -621,7 +621,7 @@
 
 	(entry :host_audio :lisp_stream_close '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))
@@ -671,7 +671,7 @@
 
 	(entry :host_audio :lisp_stream_left '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(assign '(:r0) '((:rsp slot_this)))

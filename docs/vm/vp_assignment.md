@@ -249,7 +249,7 @@ the label `sig` at the front of the function signature table !
 
 ```vdu
 	...
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 	...
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(piece-scans brd index vectors)" +error_msg_wrong_types))

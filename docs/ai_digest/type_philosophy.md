@@ -84,7 +84,7 @@ inside the VP core.**
 VP-level Lisp bindings are littered with signature checks:
 
 ```vdu
-(errorif-lisp-args-sig 'error :r1 2)
+(gotoif-lisp-args-sig 'error :r1 2)
 ...
 (signature '(:str :num))
 ```

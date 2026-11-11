@@ -19,7 +19,7 @@
 
 	(entry :path :lisp_mat3x2_mul `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error :r1 2 3)
 
 	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
 	(array-get-args iter_begin `(,ma ,mb))
@@ -62,7 +62,7 @@
 
 	(entry :path :lisp_mat3x2_v2_mul '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0 :r1)
 	(bind '(dst sp m3x2) (method-input :path :mat3x2_v2_mul))
@@ -96,7 +96,7 @@
 
 	(entry :path :lisp_simplify '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(bind '(dst src tol) (method-input :path :simplify))
@@ -126,7 +126,7 @@
 
 	(entry :path :lisp_filter '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(bind '(dst sp tol) (method-input :path :filter_polyline))
@@ -156,7 +156,7 @@
 
 	(entry :path :lisp_gen_quadratic '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 7)
+	(gotoif-lisp-args-sig 'error :r1 7)
 
 	(vp-push :r0)
 	(bind '(dst p1x p1y p2x p2y p3x p3y) (method-input :path :gen_quadratic))
@@ -187,7 +187,7 @@
 
 	(entry :path :lisp_gen_cubic '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 9)
+	(gotoif-lisp-args-sig 'error :r1 9)
 
 	(vp-push :r0)
 	(bind '(dst p1x p1y p2x p2y p3x p3y p4x p4y) (method-input :path :gen_cubic))
@@ -218,7 +218,7 @@
 
 	(entry :path :lisp_gen_arc '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-push :r0)
 	(bind '(dst cx cy start end radius) (method-input :path :gen_arc))
@@ -249,7 +249,7 @@
 
 	(entry :path :lisp_stroke_polyline '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(defq in (method-input :path :stroke_polyline))
@@ -278,7 +278,7 @@
 
 	(entry :path :lisp_stroke_polygon '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input :path :stroke_polygon))
@@ -316,7 +316,7 @@
 
 	(entry :path :lisp_svg '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))

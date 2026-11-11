@@ -47,10 +47,10 @@
 	(entry :seq :lisp_each '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_seqs)))
 
-	(errorif-lisp-args-sig 'error1 :r1 2 4)
+	(gotoif-lisp-args-sig 'error1 :r1 2 4)
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type 'error1 :r1 :seq 0)
+	(gotoif-lisp-args-type 'error1 :r1 :seq 0)
 
 	(assign '((:rsp slot_seqs)) '(:r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
@@ -185,10 +185,10 @@
 	(entry :seq :lisp_some '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_seqs)))
 
-	(errorif-lisp-args-sig 'error1 :r1 2 5)
+	(gotoif-lisp-args-sig 'error1 :r1 2 5)
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type 'error1 :r1 :seq 0)
+	(gotoif-lisp-args-type 'error1 :r1 :seq 0)
 
 	(assign '((:rsp slot_this)) '(:r0))
 	(assign '((:r0 +lisp_sym_nil) (:rsp slot_seqs)) `(,mode :r1))
@@ -334,10 +334,10 @@
 	(entry :seq :lisp_map '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_seqs)))
 
-	(errorif-lisp-args-sig 'error1 :r1 2 5)
+	(gotoif-lisp-args-sig 'error1 :r1 2 5)
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type 'error1 :r1 :seq 0)
+	(gotoif-lisp-args-type 'error1 :r1 :seq 0)
 
 	(assign '((:rsp slot_seqs)) '(:r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
@@ -497,10 +497,10 @@
 	(entry :seq :lisp_reduce '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_seqs)))
 
-	(errorif-lisp-args-sig 'error1 :r1 3 5)
+	(gotoif-lisp-args-sig 'error1 :r1 3 5)
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type 'error1 :r1 :seq 0)
+	(gotoif-lisp-args-type 'error1 :r1 :seq 0)
 
 	(assign '((:rsp slot_seqs)) '(:r0))
 	(load-fields :r0 '(+array_length +array_begin) '(:r2 :r0))
@@ -637,7 +637,7 @@
 	(entry :seq :lisp_filter '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_seq)))
 
-	(errorif-lisp-args-sig 'error1 :r1 2 5)
+	(gotoif-lisp-args-sig 'error1 :r1 2 5)
 
 	(assign '((:rsp slot_seq)) '(:r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))

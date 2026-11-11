@@ -52,7 +52,7 @@
 
 	(entry :lisp :lisp_env_pop '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(assign '((:r0 +lisp_environment)) '(:r1))
 	(assign '((:r1 +hmap_parent)) '(:r2))
@@ -80,7 +80,7 @@
 
 	(entry :lisp :lisp_bind '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 2)
+	(gotoif-lisp-args-len 'error :r1 /= 2)
 
 	(array-bind-args :r1 '(:r1 :r2))
 	(jump :lisp :env_bind '(:r0 :r1 :r2))

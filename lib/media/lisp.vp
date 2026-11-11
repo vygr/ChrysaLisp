@@ -24,7 +24,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,xp ,tw ,rev ,out) '(:obj :obj :obj :obj))
@@ -235,7 +235,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,out ,chans ,from) '(:obj :obj :num))
@@ -327,7 +327,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,chans ,in ,width) '(:obj :obj :num))
@@ -451,7 +451,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,data ,at ,table) '(:obj :num :obj))
@@ -543,7 +543,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,in ,n) '(:obj :num))
@@ -577,7 +577,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,in) '(:obj))
@@ -612,7 +612,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,out ,start ,end ,seed ,scale) '(:obj :num :num :num :obj))
@@ -700,7 +700,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 10)
+	(gotoif-lisp-args-sig 'error :r1 10)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,in ,bap ,exps ,bin ,end ,out ,groups ,noise ,dither ,table)
@@ -821,7 +821,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 8)
+	(gotoif-lisp-args-sig 'error :r1 8)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,exps ,bin ,end ,psd ,band_psd ,band_start ,bin_band ,log_add)
@@ -947,7 +947,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 10)
+	(gotoif-lisp-args-sig 'error :r1 10)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,psd ,mask ,bin ,end ,snr ,floor ,tab ,bap ,band_start ,bin_band)
@@ -1077,7 +1077,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 9)
+	(gotoif-lisp-args-sig 'error :r1 9)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,bpsd ,begin ,bend ,fg ,lfe ,prm ,t ,u ,mask)
@@ -1291,7 +1291,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 12)
+	(gotoif-lisp-args-sig 'error :r1 12)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,data ,bap ,v ,bin ,x ,top ,gains ,out ,n ,consts ,g ,b)
@@ -1528,7 +1528,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,out ,p ,n ,s ,l) '(:obj :num :num :num :obj))
@@ -1596,7 +1596,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,m ,rows ,cols ,x ,from ,out) '(:obj :num :num :obj :num :obj))
@@ -1673,7 +1673,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,data ,lp ,end ,table ,level) '(:obj :obj :num :obj :obj))
@@ -1804,7 +1804,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 7)
+	(gotoif-lisp-args-sig 'error :r1 7)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,data ,table ,vals ,p ,e ,byte ,kind) '(:obj :obj :obj :obj :num :num :num))
@@ -1929,7 +1929,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,out ,q ,i ,end ,pow ,x) '(:obj :obj :num :num :obj :obj))
@@ -2001,7 +2001,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 13)
+	(gotoif-lisp-args-sig 'error :r1 13)
 
 	;the args on the stack, :r14 at 0 to :r2 at 96, this above
 	(vp-push :r0)
@@ -2115,7 +2115,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 7)
+	(gotoif-lisp-args-sig 'error :r1 7)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,ins ,fl ,lim ,kx ,delta ,p ,out) '(:obj :obj :obj :num :num :obj :obj))
@@ -2291,7 +2291,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,x ,sb ,cs ,ca) '(:obj :num :obj :obj))
@@ -2364,7 +2364,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,out ,arrays ,index) '(:obj :obj :num))
@@ -2416,7 +2416,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 17)
+	(gotoif-lisp-args-sig 'error :r1 17)
 
 	;the args on the stack, mode at 0 to r at 128, this above
 	(vp-push :r0)
@@ -2545,7 +2545,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 10)
+	(gotoif-lisp-args-sig 'error :r1 10)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,hr ,hi ,r ,i ,n ,e :r8 :r9 :r10 :r11)
@@ -2632,7 +2632,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,r ,i ,out) '(:obj :obj :obj))
@@ -2757,7 +2757,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,high ,kx ,count ,a ,b ,out) '(:obj :num :num :num :num :obj))
@@ -2838,7 +2838,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,u ,w ,x ,n) '(:obj :obj :obj :num))
@@ -2912,7 +2912,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 7)
+	(gotoif-lisp-args-sig 'error :r1 7)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,out_r ,out_i ,dr ,di ,a0r ,coeffs ,gains) '(:obj :obj :obj :obj :obj :obj :obj))
@@ -3027,7 +3027,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(gotoif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,in ,out ,from ,n ,k) '(:obj :obj :num :num :num))
@@ -3126,7 +3126,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,s ,order ,c ,shift) '(:obj :num :obj :num))
@@ -3195,7 +3195,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,a ,b ,mode) '(:obj :obj :num))
@@ -3260,7 +3260,7 @@
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,out ,ints ,scale) '(:obj :obj :obj))

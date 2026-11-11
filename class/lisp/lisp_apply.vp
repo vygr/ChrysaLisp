@@ -19,7 +19,7 @@
 
 	(entry :lisp :lisp_apply '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(array-bind-args :r1 '(:r2 :r1))
 	;a native function takes its args as a list of objects: a list is
@@ -89,7 +89,7 @@
 	(entry :lisp :lisp_mcall '(:r0 :r1))
 	(assign '(:r0 :r1) `(,this ,args))
 
-	(errorif-lisp-args-len 'error :r1 < 2)
+	(gotoif-lisp-args-len 'error :r1 < 2)
 	(array-bind-args :r1 `(,obj ,mth))
 
 	(call :obj :inst_of `(,obj (@ ,(f-path :hmap :vtable))) `(,obj tmp))

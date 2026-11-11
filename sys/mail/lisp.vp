@@ -15,7 +15,7 @@
 
 	(entry :sys_mail :lisp_validate '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:obj))
@@ -53,7 +53,7 @@
 
 	(entry :sys_mail :lisp_read `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push this)
 	(list-bind-args args `(,mbox) '(:obj))
@@ -92,11 +92,11 @@
 
 	(entry :sys_mail :lisp_poll '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(list-bind-args :r1 '(:r1) '(:list))
 
-	(errorif-lisp-args-type 'error :r1 :str 1)
+	(gotoif-lisp-args-type 'error :r1 :str 1)
 
 	(vp-push :r0)
 	(call :sys_mail :poll '(:r1) '(:r0 _ _))
@@ -130,11 +130,11 @@
 
 	(entry :sys_mail :lisp_select '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(list-bind-args :r1 '(:r1) '(:list))
 
-	(errorif-lisp-args-type 'error :r1 :str 1)
+	(gotoif-lisp-args-type 'error :r1 :str 1)
 
 	(vp-push :r0)
 	(call :sys_mail :select '(:r1) '(:r0))
@@ -164,7 +164,7 @@
 
 	(entry :sys_mail :lisp_send `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2)
 
 	(list-bind-args args `(,mbox ,data) '(:obj :obj))
 	(call :sys_mail :alloc_obj `(,data (& ,data +str_data) (,data +str_length)) `(,msg))
@@ -193,7 +193,7 @@
 
 	(entry :sys_mail :lisp_declare '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input :sys_mail :declare))
@@ -222,7 +222,7 @@
 
 	(entry :sys_mail :lisp_enquire '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :sys_mail :enquire))
@@ -251,7 +251,7 @@
 
 	(entry :sys_mail :lisp_forget '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input :sys_mail :forget))
@@ -283,7 +283,7 @@
 
 	(entry :sys_mail :lisp_devices '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(call :sys_mail :devices :nil '(:r1))
@@ -311,7 +311,7 @@
 
 	(entry :sys_mail :lisp_timeout '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r12 :r13 :r14) '(:obj :num :num))
@@ -377,7 +377,7 @@
 
 	(entry :sys_mail :lisp_netid '(:r0 :r1))
 
-	(errorif-lisp-args-len 'error :r1 /= 0)
+	(gotoif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(call :netid :create :nil '(:r1))

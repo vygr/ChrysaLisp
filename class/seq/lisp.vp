@@ -15,7 +15,7 @@
 
 	(entry :seq :lisp_length '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 1)
+	(gotoif-lisp-args-sig 'error1 :r1 1)
 
 	(vp-cpy-rr :r0 :r13)
 	(defq in (method-input :seq :get_length))
@@ -44,7 +44,7 @@
 
 	(entry :seq :lisp_elem '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error1 :r1 2)
+	(gotoif-lisp-args-sig 'error1 :r1 2)
 	(assign '(:r1) '(:r13))
 
 	(assign '(:r0) '(:r12))
@@ -80,7 +80,7 @@
 
 	(entry :seq :lisp_slice `(,this ,args))
 
-	(errorif-lisp-args-sig 'error1 :r1 3)
+	(gotoif-lisp-args-sig 'error1 :r1 3)
 ;get_length returns over args, keep it for the index error
 	(assign `(,args) '(:r12))
 
@@ -120,7 +120,7 @@
 
 	(entry :seq :lisp_splice `(,this ,args))
 
-	(errorif-lisp-args-sig 'error1 :r1 3)
+	(gotoif-lisp-args-sig 'error1 :r1 3)
 
 	(list-bind-args args `(,src1 ,src2 ,idxs) '(:seq :seq :nums))
 	(assign `((,src1 +obj_vtable) (,src2 +obj_vtable)) `(,si ,ei))
@@ -207,7 +207,7 @@
 
 	(entry :seq :lisp_find '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error :r1 2 3)
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(vp-cpy-rr :r1 args)
@@ -284,7 +284,7 @@
 
 	(entry :seq :lisp_rfind '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 2 3)
+	(gotoif-lisp-args-sig 'error :r1 2 3)
 
 	(assign '((:r1 +array_length)) '(:r2))
 	(vp-cpy-rr :r1 args)
@@ -358,7 +358,7 @@
 
 	(entry :seq :lisp_first '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -396,7 +396,7 @@
 
 	(entry :seq :lisp_second '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -434,7 +434,7 @@
 
 	(entry :seq :lisp_third '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -472,7 +472,7 @@
 
 	(entry :seq :lisp_last '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -510,7 +510,7 @@
 
 	(entry :seq :lisp_rest '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -548,7 +548,7 @@
 
 	(entry :seq :lisp_most '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 1)
+	(gotoif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -590,7 +590,7 @@
 
 	(entry :seq :lisp_partition `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 1 2)
+	(gotoif-lisp-args-sig 'error :r1 1 2)
 
 	(assign `((,args +array_length)) `(,len))
 	(vpif `(,len = 1))

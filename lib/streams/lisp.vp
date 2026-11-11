@@ -44,7 +44,7 @@
 	(vp-rdef (this args))
 
 	(entry `(,this ,args))
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) `(,this ,args))
@@ -265,7 +265,7 @@
 	(vp-rdef (token offset match_len) '(:r6 :r7 :r8))
 
 	(entry `(,this ,args))
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc slot_size)
 	;this to the frame, it is wanted at the end
@@ -412,7 +412,7 @@
 	(vp-rdef (this args))
 
 	(entry `(,this ,args))
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))
@@ -474,7 +474,7 @@
 	(vp-rdef (this args))
 
 	(entry `(,this ,args))
-	(errorif-lisp-args-sig 'error :r1 4)
+	(gotoif-lisp-args-sig 'error :r1 4)
 
 	(vp-alloc slot_size)
 	(assign `(,this) '((:rsp slot_this)))
@@ -611,7 +611,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 6)
+	(gotoif-lisp-args-sig 'error :r1 6)
 
 	;:r7 to :r14 kept in the frame. The bit pool in :r2 :r3, the stream
 	;:r11, at :r12, the ring's mask :r13 and its bytes :r14
@@ -757,7 +757,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 3)
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	;:r7 to :r11 kept in the frame, the bit pool in :r2 :r3, the stream :r11
 	(vp-alloc slot_size)
@@ -821,7 +821,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 8)
+	(gotoif-lisp-args-sig 'error :r1 8)
 
 	;:r8 to :r13 kept in the frame: :r8 end, :r9 i, :r10 the ring's mask,
 	;:r14 its bytes, :r11 out, the bit pool in :r12 :r13
