@@ -655,8 +655,12 @@ install makes them !`. It has:
 * `(vp-translate-save entry [text])`: a build's, a bundle entry to native
   code, saved by its name; the text is `(vp-entry-text entry)` if not given.
 
-* `(vp-translate-file file dir)`: a build's translate stage of one file,
-  each entry of its bundle.
+* `(vp-bundle-read file dir)`: the bundle of a source file read back, the
+  name and the VP text of each of its functions.
+
+* `(vp-translate-to trans cpu abi name text)`: a build's, a function's VP
+  text to the native code of a platform, by that platform's translator,
+  saved by its name.
 
 * `(vp-portable form)`, `(vp-code-text entry)` and `(vp-entry-text entry)`:
   an entry as text, above.
@@ -666,11 +670,30 @@ install makes them !`. It has:
 
 ## Build and Install
 
-The VP stage of a build writes the bundle of each file as text,
-`obj/vp/<file>`, `obj/vp_validate/<file>` for a validate build. The
-translate stage of each target reads the bundle and gives the text of each
-entry to its translator. The whole tree translates in about 7 ms, against 162 ms for the
-old Lisp translators.
+A build writes the bundle of each file as text, `obj/vp/<file>`,
+`obj/vp_validate/<file>` for a validate build, and gives the text of each
+entry of it to the translator of each target. The whole tree translates in
+about 7 ms, against 162 ms for the old Lisp translators.
+
+### One Farm
+
+A make is one farm of workers, `lib/asm/asm.lisp`, whatever it makes,
+`(build)` in `lib/asm/asm.inc`. A job is a source file: it is assembled, if
+its bundle is not of its key, once, and its code is made for every platform
+that wants it, each by that platform's translator. A file that is not
+assembled has its bundle read, once, for all of them. So `make platforms`
+starts one herd, not six, and reads a file once, not six times.
+
+The boot images are jobs of the same herd. When the last file is answered
+what was made is noted, and each platform's image that is not of its code as
+noted is given out as a job, so six images are made at once, on six nodes.
+
+A worker says what it did, lines that begin with `=`: `=key=` a file and
+the hash of the bundle it assembled, `=code=` a file, a platform, and the
+names of the functions it made code of, `=image=` a platform. A job that
+goes wrong says nothing but its error, and writes no bundle, so the file is
+tried again by the next make, once: an error in a file is reported once, not
+once for each platform.
 
 ### By Content, Not By Age
 
@@ -728,10 +751,10 @@ noted, it does not look at the files of the code. `make apps` makes the
 apps that have changed, for every platform, and `make all apps` all of
 them.
 
-With `-v 1` a make says what it did, a line for each platform:
-`make arm64 ARM64: 1 read, 1 assembled, 150 translated, 1036 functions`,
-the source files it read again, the first platform says those, the files
-it assembled, the files it made code of and how many functions that was.
+With `-v 1` a make says what it did: `make: 1 read, 1 assembled`, the
+source files it read again and the files it assembled, and a line for each
+platform it made code for, `make arm64 ARM64: 1 translated, 26 functions`,
+the files and how many functions that was.
 
 ### Translators Made First
 
@@ -747,11 +770,10 @@ translators before anything else:
   new one. A translator made by its new self is what a clean build would
   give.
 
-* The stages after leave them alone, they are made.
+* The farm after leaves them alone for this platform, they are made.
 
-`make platforms` and `make all platforms` build the platform they run on
-first, so the translators to every target are new before any target is
-translated.
+That is a small farm of its own, before the one that makes the rest, so the
+translators to every target are new before any target is translated.
 
 A target's functions are translated again when its translator is not the
 one that made them, by its id. A change to the RISC-V translator makes the
@@ -765,10 +787,11 @@ it does not change what the translator gives.
 A node binds a function once and keeps it. A node that ran a build before
 has the old translator in its function list, and a worker of the next build
 started there would bind that, not the one just made. So each worker of the
-farm, `lib/asm/asm.lisp`, before its first job loads the translator's file
-as it is now and places it in a function server of its own, named by its
-hash, `(task-server)` and `(task-place)`. Its bind of the translator finds
-that first. The server goes when the worker ends.
+farm, `lib/asm/asm.lisp`, before its first job loads the files of the
+translators of every platform the build makes code for, as they are now,
+and places them in a function server of its own, named by their hash,
+`(task-server)` and `(task-place)`. Its bind of a translator finds that
+first. The server goes when the worker ends.
 
 Other users of `emit-translate`, `@Source` and a shader's compile, bind the
 translator as any function is bound, and see a new one when their node is

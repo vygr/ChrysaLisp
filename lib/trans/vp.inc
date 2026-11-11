@@ -98,19 +98,26 @@
 	;this platform's native code, saved in obj/<cpu>/<abi>/ by its name
 	(vp-translate-out (first entry) (vp-translate-text (ifn text (vp-entry-text entry)))))
 
-(defun vp-translate-file (file dir)
-	; (vp-translate-file file dir) -> names
-	;a build's translate stage: the bundle of the source file, as the VP
-	;stage left it in dir, obj/vp/, each of its functions to this
-	;platform's native code. Each entry as read prints as VP text. The
-	;names of the functions are given back
-	(defq stream (file-stream (cat dir file)) names (list))
+(defun vp-translate-to (trans *cpu* *abi* name text)
+	; (vp-translate-to trans cpu abi name text)
+	;a build's: a function's VP text to the native code of a platform, by
+	;its translator, a function, saved in obj/<cpu>/<abi>/ by its name. A
+	;worker of a build makes the code of every platform asked of it, each
+	;by that platform's translator
+	(vp-translate-out name (ifn (trans text)
+			(throw (cat "The " *cpu* " translator failed on this function !") name))))
+
+(defun vp-bundle-read (file dir)
+	; (vp-bundle-read file dir) -> ((name text) ...)
+	;the bundle of a source file, as the VP stage left it in dir, obj/vp/:
+	;each of its functions, the name and the VP text. Each entry as read
+	;prints as VP text
+	(defq stream (file-stream (cat dir file)) funcs (list))
 	(while (defq entry (first (read stream)))
-		(push names (first entry))
-		(vp-translate-save entry (str entry)))
-	names)
+		(push funcs (list (first entry) (str entry))))
+	funcs)
 
 ;module
-(export-symbols '(emit-translate vp-translate-save vp-translate-text vp-translate-file trans-name
+(export-symbols '(emit-translate vp-translate-save vp-translate-text vp-translate-to vp-bundle-read trans-name
 		vp-portable vp-code-text vp-entry-text))
 (env-pop)

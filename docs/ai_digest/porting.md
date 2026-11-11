@@ -495,7 +495,7 @@ translator works on those records.
       `lib/boot/image.inc`, so the VP64 boot image in `snapshot.zip`
       carries the translator and `make install` can translate to the new
       CPU. `lib/trans/vp.inc` binds it by `*cpu*`, and the build counts
-      `lib/trans/<cpu>.vp` among what the translate stage depends on.
+      `lib/trans/<cpu>.vp` among what that CPU's code depends on.
 
 2. **Compile VP Code:** Use `make CPU=mycpu ABI=myabi` to compile some
    simple `.vp` files. Examine the generated object files

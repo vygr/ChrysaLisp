@@ -34,29 +34,36 @@
 	;end at much the same time
 	(map (const second) (sort (map (const list) sizes units) (# (- (first %0) (first %1))))))
 
-(defun farm-jobs (kind units *abi* *cpu*)
-	; (farm-jobs kind units abi cpu) -> (made errors)
-	;each unit a job for a herd of workers, lib/asm/asm.lisp, a worker for
-	;each node of this machine: each has to set up to compile before its
-	;first job, more of them than that only each pay for it. kind :vp is a
-	;source file and the hash of the bundle this platform's code of it was
-	;made from, its bundle of VP to (vp-dir) and this platform's code if
-	;the bundle is another, :bundle the same with no code, :trans a list of
-	;source files, their bundles to this platform's code. What a worker
-	;says is printed. made is each file that was done: its name, the hash
-	;of its bundle from a :vp or :bundle job, and if code was made of it a
-	;short hash of the names of its functions and the names. The errors are
-	;the rest
-	(defq made (list) errors (list))
+(defun farm-jobs (units *abi* *cpu* plats &optional more herd)
+	; (farm-jobs units abi cpu plats [more herd]) -> said
+	;each unit a job for a herd of workers, lib/asm/asm.lisp, on the nodes
+	;of this machine, a worker for each unit and no more than a node each,
+	;herd of them if that is more: each has to set up to compile before its
+	;first job. A unit is (kind what):
+	;:file (file assemble targets), a source file, if it is to be assembled,
+	;and the platforms to make code of it for, each (cpu abi prev), prev the
+	;hash of the bundle that platform's code is of if it is known: one whose
+	;bundle comes out that has no code made again.
+	;:bundle (file), the bundle of the file's VP and no code.
+	;:image (cpu abi funcs), a platform's boot image of those functions.
+	;The VP is assembled as abi and cpu, it is the same for every platform.
+	;plats are the platforms the workers place the translators of.
+	;When the last unit is answered (more said) is asked, once, for more
+	;units of what those made, and they are given to the same herd: the boot
+	;images, which are made of code. What a worker says is printed, but a
+	;line that starts with =, which is what it did: those are given back,
+	;each split at its spaces. The errors are put on the caller's errors
+	(defq said (list))
+	(and more (empty? units) (setq units (more said) more :nil))
 	(when (nempty? units)
+		(defq job (# (cat (const (str-alloc +job_size))
+				(str (list (first %0) (second %0) *abi* *cpu* plats *build_mode* *build_emit* *build_verb*
+						(vp-dir *build_mode*))))))
 		;a job is started again if its node goes. The timeout is only for a
 		;worker that dies and its node does not, so it is long, a slow job
 		;must not be taken for a dead one.
-		(jobs-farm "lib/asm/asm.lisp"
-			(map (# (cat (const (str-alloc +job_size))
-						(str (list kind %0 *abi* *cpu* *build_mode* *build_emit* *build_verb*
-								(vp-dir *build_mode*))))) units)
-			(list (length units) 1 1) (task-timeout 60)
+		(jobs-farm "lib/asm/asm.lisp" (map job units)
+			(list (max (length units) (ifn herd 0)) 1 1) (task-timeout 60)
 			(lambda (msg jobs)
 				;the key it was given, then what it said. A job with an
 				;error is not tried again.
@@ -65,10 +72,18 @@
 							((starts-with "Error:" %0)
 								(push errors %0)
 								(setq error_flag :t))
-							((starts-with "=key= " %0) (push made (rest (split %0 " "))))
+							((starts-with "=" %0) (push said (split %0 " ")))
 							((nempty? %0) (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
 				(stream-flush (io-stream 'stdout))
-				(if error_flag (. jobs :failed msg) (. jobs :answered msg)))
+				(defq out (if error_flag (. jobs :failed msg) (. jobs :answered msg)))
+				;the last of them is in: what more there is of what they made
+				(when (and more (eql out 0))
+					(defq next (more said))
+					(setq more :nil)
+					(when (nempty? next)
+						(. jobs :add (map job next))
+						(setq out (. jobs :out))))
+				out)
 			;a job that has gone out and not come back, again and again,
 			;is not waited on for ever
 			(lambda (tries)
@@ -77,30 +92,19 @@
 						(print "No answer from a worker, trying again")
 						(stream-flush (io-stream 'stdout)))
 					(:t (push errors "Error: no answer from the workers, the build is stopped"))))))
-	(list made errors))
+	said)
 
-(defun vp-stage (files *abi* *cpu* &optional kind prevs)
-	; (vp-stage files abi cpu [kind prevs]) -> (made errors)
-	;the VP of the functions of the source files, the same for every
-	;platform, a bundle of each file in (vp-dir) of the build mode, and this
-	;platform's code of it at once, or with kind :bundle no code of any
-	;platform. The bundle is what the other platforms translate, not a scan
-	;of the source, a function in a (validatecase) is only made in some
-	;modes. A file that goes wrong has none written. prevs is, for each
-	;file, the hash of the bundle this platform's code was made from, if it
-	;is known: a file whose bundle comes out the same has no code made
-	;again. made is each file done and the hash of its bundle
-	(setd kind :vp prevs (map (lambda (_) :nil) files))
-	(farm-jobs kind (biggest-first (map (const list) files prevs) (map (# (second (pii-fstat %0))) files))
-		*abi* *cpu*))
+(defun said-of (said what)
+	; (said-of said what) -> lines
+	;those of the lines a farm's workers said that start with what, less it
+	(map (const rest) (filter (# (eql (first %0) what)) said)))
 
-(defun translate-stage (files *abi* *cpu*)
-	; (translate-stage files abi cpu) -> (made errors)
-	;the bundles of the source files to this platform's code, a job a
-	;file, the biggest first
-	(defq dir (vp-dir *build_mode*))
-	(farm-jobs :trans (map (const list)
-			(biggest-first files (map (# (second (pii-fstat (cat dir %0)))) files))) *abi* *cpu*))
+(defun file-units (files targets &optional assemble)
+	; (file-units files targets [assemble]) -> units
+	;a unit for each file, its code for the targets, in the order the queue
+	;gives them out, the biggest first
+	(biggest-first (map (# (list :file (list %0 assemble targets))) files)
+		(map (# (second (pii-fstat %0))) files)))
 
 (defun manifest-load (path)
 	; (manifest-load path) -> env
@@ -152,15 +156,13 @@
 	(if plat_dirty (manifest-save platman (platform-manifest *cpu* *abi*))))
 
 (defun compile (files &optional *abi* *cpu*)
-	; (compile files [abi cpu])
+	; (compile files [abi cpu]) -> (made errors)
 	;the files, their VP and then this platform's code, whether or not
-	;they have changed
+	;they have changed. made is each file done and the hash of its bundle
 	(setd *abi* (abi) *cpu* (cpu))
 	(unless (list?? files) (setq files (list files)))
-	(bind '(made errors) (vp-stage files *abi* *cpu*))
-	(compiled made *abi* *cpu*)
-	(each (const print) errors)
-	(print "Done") :nil)
+	(defq errors (list) targets (list (list *cpu* *abi* :nil)))
+	(list (said-of (farm-jobs (file-units files targets :t) *abi* *cpu* targets) "=key=") errors))
 
 ;;;;;;;;;;;;;
 ; make system
@@ -372,30 +374,25 @@
 				(setq scanned :t)
 				(def keys k (tree-key f)))) vps))
 
-(defun tree-facts (files classes kept)
-	; (tree-facts files classes kept) -> facts
-	;what a make goes by of the source, whatever platform it makes, an env:
+(defun tree-facts (files classes)
+	; (tree-facts files classes) -> facts
+	;what a make goes by of the source, whatever platforms it makes, an env:
 	;f_vps the .vp files of the files given, f_all all of them with what
 	;they include and import, f_info what each includes and makes, f_keys
 	;the key of each .vp file, f_vpman the manifest of the bundles of the
 	;build mode, f_classes, f_scans what is kept of each file, f_read how
-	;many of them were read again. kept is a list
-	;the platforms of one make share, empty till the first asks, or :nil:
-	;working it out was 9 ms of each platform's 25 on the M4. The bundles of
-	;files that have gone are taken away with it
-	(cond
-		((and kept (nempty? kept)) (first kept))
-		(:t (bundles-gone (vp-dir *build_mode*))
-			(bind '(scans keys) (scans-load))
-			(defq ages (env 31) info (env 101) scanned :nil changed (list)
-				all (copy files) vps (tree-walk all))
-			(keys-fresh vps all)
-			(if scanned (scans-save scans keys))
-			(defq facts (env 11))
-			(def facts 'f_vps vps 'f_all all 'f_info info 'f_keys keys 'f_classes classes
-				'f_vpman (manifest-load (vp-manifest)) 'f_scans scans 'f_read (length changed))
-			(if kept (push kept facts))
-			facts)))
+	;many of them were read again. The bundles of files that have gone are
+	;taken away with it
+	(bundles-gone (vp-dir *build_mode*))
+	(bind '(scans keys) (scans-load))
+	(defq ages (env 31) info (env 101) scanned :nil changed (list)
+		all (copy files) vps (tree-walk all))
+	(keys-fresh vps all)
+	(if scanned (scans-save scans keys))
+	(defq facts (env 11))
+	(def facts 'f_vps vps 'f_all all 'f_info info 'f_keys keys 'f_classes classes
+		'f_vpman (manifest-load (vp-manifest)) 'f_scans scans 'f_read (length changed))
+	facts)
 
 (defun trans-id (cpu)
 	; (trans-id cpu) -> :nil | str
@@ -450,124 +447,44 @@
 			(each (# (unless (get (sym %0) now) (pii-remove (cat "obj/" cpu "/" abi "/" %0)))) gone))
 		(manifest-save all path)))
 
-(defun make-did (did)
-	; (make-did did) -> str
-	;what a make did, of all its stages said they made: how many files
-	;were assembled, how many had code made of them, and how many functions
-	;that was
-	(defq asm 0 files 0 funcs 0)
-	(each (lambda ((file &optional hash nh &rest names))
-			(if (nql hash "-") (++ asm))
-			(when nh (++ files) (setq funcs (+ funcs (length names))))) did)
-	(cat (str asm) " assembled, " (str files) " translated, " (str funcs) " functions"))
+(defun plat-key (cpu abi)
+	(sym (cat cpu "_" abi)))
 
-(defun make (&optional files *abi* *cpu* walk kept force)
-	; (make [files abi cpu walk kept force])
-	;the functions that have changed, of the files and all they include, in
-	;two stages, by content and not by age. A file's VP is made again if
-	;its key, the hash of all it is made of, is not the one its bundle was
-	;made from, and this platform's code of it with it, unless the bundle
-	;comes out as it was. The code of the other files is made again, from
-	;their VP, if it is not of the bundle there is now and this platform's
-	;translator as it is now, or of all of them with force. What was made
-	;from what is noted in a manifest of the bundles and one of each
-	;platform. walk is what (all-build-files) gave, if it has been asked
-	;already, kept what (tree-facts) keeps. With -v it says what it did: the
-	;source files read again, the first platform of a make says those, the
-	;files assembled, the files code was made of and the functions
-	(bind '(vps classes) (ifn walk (all-build-files)))
-	(setd files vps *abi* (abi) *cpu* (cpu))
-	(defq facts (tree-facts files classes kept) files (get 'f_vps facts)
-		keys (get 'f_keys facts) vpman (get 'f_vpman facts)
-		platman (manifest-load (platform-manifest *cpu* *abi*))
-		vp_made :nil plat_made :nil did (list))
-	;a platform with no manifest was last made by age: beside its code is
-	;an empty file of each source file's name, the age of which was when
-	;its code was made. They go
-	(if (= (age (platform-manifest *cpu* *abi*)) 0)
-		(each (const pii-remove) (files-all (cat "obj/" *cpu* "/" *abi*) '(".vp" ".inc"))))
-	;the translators first, this platform's, the one that runs this, of
-	;each CPU: a build translates with what is made of lib/trans/<cpu>.vp
-	;for it, so those that are not of their source as it is now are made
-	;before the rest. If this platform's own then comes out other than it
-	;was, by its id, the old one made them all, so all are made again by
-	;the new one. Those made here are not made by the stages after; the
-	;others are made as any file is, a forced make translates them from
-	;their VP, it does not make them twice. A platform with none of its
-	;own, the VP64 as it installs, translates with those of its boot image
-	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
-	(defq own (and (eql *cpu* run_cpu) (eql *abi* run_abi))
-		runman (if own platman (manifest-load (platform-manifest run_cpu run_abi)))
-		run_id (trans-id run_cpu) run_made :nil
-		trans_files (filter (# (starts-with "lib/trans/" %0)) files) errors (list)
-		stale (filter (# (native-stale? %0 runman run_id)) trans_files)
-		built trans_files)
-	(cond
-		((> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0)
-			(setq built stale)
-			(when (nempty? stale)
-				(bind '(made more) (vp-stage stale run_abi run_cpu))
-				(note-vp made)
-				(setq errors (cat errors more) vp_made :t run_made :t did (cat did made))
-				(when (nql run_id (setq run_id (trans-id run_cpu)))
-					(bind '(made more) (vp-stage (setq built trans_files) run_abi run_cpu))
-					(note-vp made)
-					(setq errors (cat errors more) did (cat did made)))
-				(note-native made runman run_id run_cpu run_abi)))
-		(:t ;none made above. This platform's translator is known by the
-			;bundles of its source, so if they are not of their key their VP
-			;is made before it is asked, the VP alone: the code of them is
-			;translated with the rest
-			(defq trans_vp (filter (# (and (vp-stale? %0)
-					(or (eql %0 +trans_parser) (eql %0 (cat "lib/trans/" *cpu* ".vp"))))) files))
-			(when (nempty? trans_vp)
-				(bind '(made more) (vp-stage trans_vp *abi* *cpu* :bundle))
-				(note-vp made)
-				(setq errors (cat errors more) vp_made :t did (cat did made)))))
-	(if own (setq files (filter (# (not (find %0 built))) files)))
-	(defq id (trans-id *cpu*))
-	;the VP stage, the files whose bundle is not of their key: their VP,
-	;and this platform's code at once if the bundle is not the one it has,
-	;or whatever it has with force
-	(defq vp_files (filter (const vp-stale?) files))
-	(bind '(made more) (vp-stage vp_files *abi* *cpu* :vp
-			(map (# (and (not force) (defq n (get (sym %0) platman)) (eql (second n) id) (first n))) vp_files)))
-	(when (nempty? made) (note-vp made) (note-native made platman id *cpu* *abi*) (setq vp_made :t plat_made :t))
-	(setq errors (cat errors more) did (cat did made))
-	;the translate stage, the other files whose code is not of their
-	;bundle and this platform's translator: their VP, from another
-	;platform's VP stage or one before, to this platform's code
-	(defq to_translate (filter (lambda (file)
-				(and (not (find file vp_files)) (or force (native-stale? file platman id)))) files))
-	(bind '(made more) (translate-stage to_translate *abi* *cpu*))
-	(when (nempty? made) (note-native made platman id *cpu* *abi*) (setq plat_made :t))
-	(setq did (cat did made))
-	;what was made, noted for the next make
-	(if vp_made (manifest-save vpman (vp-manifest)))
-	(if (or plat_made (and own run_made)) (manifest-save platman (platform-manifest *cpu* *abi*)))
-	(and run_made (not own) (manifest-save runman (platform-manifest run_cpu run_abi)))
-	;what is built here is not what make install built at its waypoint any
-	;more, service/source/app.inc (source-waypoint)
-	(if (or (nempty? stale) (nempty? vp_files) (nempty? to_translate)) (pii-remove "obj/installed"))
-	(each (const print) (cat errors more))
-	(when (> *build_verb* 0)
-		(print "make " *cpu* " " *abi* ": " (ifn (get 'f_read facts) 0) " read, " (make-did did))
-		(def facts 'f_read 0))
-	(print "Done") :nil)
+(defun plat-man (cpu abi)
+	; (plat-man cpu abi) -> manifest
+	;a platform's manifest, read the first time it is asked for. A platform
+	;with none was last made by age: beside its code is an empty file of
+	;each source file's name, the age of which was when its code was made.
+	;They go. Of the caller's mans
+	(or (get (defq k (plat-key cpu abi)) mans)
+		(progn
+			(if (= (age (platform-manifest cpu abi)) 0)
+				(each (const pii-remove) (files-all (cat "obj/" cpu "/" abi) '(".vp" ".inc"))))
+			(def mans k (manifest-load (platform-manifest cpu abi))))))
 
-(defun make-bundles (&optional mode)
-	; (make-bundles [mode])
-	;the VP alone of every file, the apps' too, whose bundle in (vp-dir) of
-	;the mode is not of its key, no platform's code of it: what trace
-	;reads of a mode the platforms here are not built in
-	(if mode (defq *build_mode* mode))
-	(bind '(vps classes) (all-build-files))
-	(defq facts (tree-facts (cat vps (all-app-files)) classes :nil)
-		keys (get 'f_keys facts) vpman (get 'f_vpman facts))
-	(bind '(made errors) (vp-stage (filter (const vp-stale?) (get 'f_vps facts)) (abi) (cpu) :bundle))
-	(when (nempty? made) (note-vp made) (manifest-save vpman (vp-manifest)))
-	(each (const print) errors)
-	(print "Done") :nil)
+(defun said-vp (said)
+	;the bundles a farm said it made, noted. Of the caller's vp_made and
+	;assembled
+	(when (nempty? (defq made (said-of said "=key=")))
+		(note-vp made)
+		(setq vp_made :t assembled (+ assembled (length made)))))
+
+(defun said-code (said)
+	;the code a farm said it made, noted in the manifest of each platform it
+	;was made for, by the translator there is now. Of the caller's mans,
+	;dirty and did
+	(defq plats (env 11))
+	(each (lambda ((file cpu abi nh &rest names))
+			(defq k (plat-key cpu abi))
+			(unless (get k plats) (def plats k (list (sym cpu) (sym abi) (list))))
+			(push (third (get k plats)) (cat (list file "-" nh) names))) (said-of said "=code="))
+	(each (lambda ((k (cpu abi made)))
+			(note-native made (plat-man cpu abi) (trans-id cpu) cpu abi)
+			(def dirty k (list cpu abi))
+			(defq d (ifn (get k did) (list cpu abi 0 0)))
+			(def did k (list cpu abi (+ (third d) (length made))
+				(reduce (# (+ %0 (- (length %1) 3))) made (last d)))))
+		(tolist plats)))
 
 (defun boot-id-kept (facts)
 	; (boot-id-kept facts) -> hex
@@ -581,108 +498,248 @@
 				(sort (cat (get 'f_all facts))))
 			(def facts 'f_id (to-lower (hex-encode (sha256-end ctx)))))))
 
-(defun boot-prods (walk kept)
-	; (boot-prods walk kept) -> prods
+(defun boot-prods (facts)
+	; (boot-prods facts) -> prods
 	;the functions the files of the tree make, what the boot image of any
 	;platform takes its own from. Of the source alone, so the same for
 	;every platform, and kept with the facts it is read from
-	(bind '(vps classes) (ifn walk (all-build-files)))
-	(defq facts (tree-facts vps classes kept))
 	(or (get 'f_prods facts)
 		(progn
 			(defq info (get 'f_info facts) prods (list))
 			;the paths of what the files make, by the classes declared
 			(within-compile-env (lambda ()
-					(class-env classes)
+					(class-env (get 'f_classes facts))
 					(each (# (merge prods (make-products (second (get (sym %0) info)))))
 						(get 'f_all facts))))
 			(def facts 'f_prods prods))))
 
-(defun make-boot-all (&optional *abi* *cpu* walk kept force)
-	; (make-boot-all [abi cpu walk kept force])
-	;the boot image of a platform, and beside it the id of the source it is
-	;of and the names of those files, each only if it is not what is there.
-	;An image is made of the platform's code, and which functions it holds
-	;is said by lib/boot/image.inc and this file. So it is made again if the
-	;platform's manifest, the code noted made, or either of those files, is
-	;not what the image was made from, if it has gone, or with force. The
-	;id is written again when the source is not what it was: a comment
-	;makes no code, and a new id goes beside the image there is. What each
-	;was made from is noted in +make_boot
-	(setd *abi* (abi) *cpu* (cpu) walk (all-build-files) kept (list))
-	(defq facts (tree-facts (first walk) (second walk) kept)
-		man (or (get 'f_bootman facts) (def facts 'f_bootman (manifest-load +make_boot)))
-		k (sym (cat *cpu* "_" *abi*)) was (get k man) id (boot-id-kept facts)
-		scans (get 'f_scans facts) scanned :nil
-		of (cat (hex-encode (sha256 (ifn (load (platform-manifest *cpu* *abi*)) "")))
-			(file-hash "lib/boot/image.inc") (file-hash "lib/asm/asm.inc"))
-		image (and (not force) was (eql (second was) of)
-			(> (age (cat "obj/" *cpu* "/" *abi* "/sys/boot_image")) 0)))
-	(unless (and image (eql (first was) id))
-		;what the image is built from, as one number, beside it
-		(save id (boot-id-file *cpu* *abi*))
-		(save (join (sort (cat (get 'f_all facts))) "\n") (boot-files-file *cpu* *abi*))
-		;not all the functions there are, lib/boot/image.inc says which
-		(unless image
-			(boot-image (image-funcs (boot-prods walk kept) *cpu*) *abi* *cpu*))
-		(def man k (list id of))
-		(manifest-save man +make_boot)))
+(defun boot-units (targets force)
+	; (boot-units targets force) -> units
+	;the boot images to make, of the platforms: a unit for each whose image
+	;is not what is there. An image is made of the platform's code, and
+	;which functions it holds is said by lib/boot/image.inc and this file.
+	;So it is made again if the platform's manifest, the code noted made, or
+	;either of those files, is not what the image was made from, if it has
+	;gone, or with force. Beside it are the id of the source it is of and
+	;the names of those files, written again when the source is not what it
+	;was: a comment makes no code, and a new id goes beside the image there
+	;is. What each was made from is noted in +make_boot, here for one that
+	;is not made again, when it says it is done for one that is. Of the
+	;caller's facts, bootman, boot_dirty and booting
+	(defq id (boot-id-kept facts) scans (get 'f_scans facts) scanned :nil units (list)
+		tools (cat (file-hash "lib/boot/image.inc") (file-hash "lib/asm/asm.inc")))
+	(each (lambda ((cpu abi))
+			(defq k (plat-key cpu abi) was (get k bootman)
+				of (cat (hex-encode (sha256 (ifn (load (platform-manifest cpu abi)) ""))) tools)
+				image (and (not force) was (eql (second was) of)
+					(> (age (cat "obj/" cpu "/" abi "/sys/boot_image")) 0)))
+			(unless (and image (eql (first was) id))
+				;what the image is built from, as one number, beside it
+				(save id (boot-id-file cpu abi))
+				(save (join (sort (cat (get 'f_all facts))) "\n") (boot-files-file cpu abi))
+				(cond
+					(image (def bootman k (list id of)) (setq boot_dirty :t))
+					;not all the functions there are, lib/boot/image.inc says which
+					(:t (push units (list :image (list cpu abi (image-funcs (boot-prods facts) cpu))))
+						(def booting k (list id of))))))
+		targets)
+	units)
 
-(defun make-all (&optional files *abi* *cpu* walk kept)
-	; (make-all [files abi cpu walk kept])
-	;all of this platform's code of the files, whether or not it has
-	;changed. The VP is made again only where it has, the rest of the code
-	;is translated from the VP kept
-	(make files *abi* *cpu* walk kept :t))
+(defun build (files targets &optional boot force)
+	; (build files targets [boot force])
+	;the functions that have changed, of the files and all they include, for
+	;each of the platforms, targets, each (cpu abi), by content and not by
+	;age, and with boot their boot images.
+	;A file's VP is made again if its key, the hash of all it is made of,
+	;is not the one its bundle was made from, and each platform's code of
+	;it with it, unless the bundle comes out the one that platform's code is
+	;of. The code of the other files is made again, from their VP, for each
+	;platform where it is not of the bundle there is now and that
+	;platform's translator as it is now, or all of it with force. What was
+	;made from what is noted in a manifest of the bundles and one of each
+	;platform.
+	;It is one farm: a job is a file, assembled once if it has to be, and
+	;its code for every platform that wants it, so a herd is started once
+	;and a file is read once. The boot images are jobs of the same herd,
+	;given when the code is in and noted, each made if it is not of that.
+	;With -v it says what it did: the source files read again and the
+	;files assembled, then for each platform the files code was made of and
+	;the functions
+	(bind '(vps classes) (all-build-files))
+	(setd files vps)
+	(defq facts (tree-facts files classes) files (get 'f_vps facts)
+		keys (get 'f_keys facts) vpman (get 'f_vpman facts)
+		mans (env 11) dirty (env 11) did (env 11) errors (list) vp_made :nil assembled 0
+		bootman (if boot (manifest-load +make_boot)) boot_dirty :nil booting (env 11)
+		;the VP is the same for every platform, it is assembled as the first
+		asm_cpu (first (first targets)) asm_abi (second (first targets)))
+	;the translators first, this platform's, the one that runs this, of
+	;each CPU: a build translates with what is made of lib/trans/<cpu>.vp
+	;for it, so those that are not of their source as it is now are made
+	;before the rest. If this platform's own then comes out other than it
+	;was, by its id, the old one made them all, so all are made again by
+	;the new one. Those made here are not made again for this platform by
+	;the farm after; the others are made as any file is, a forced make
+	;translates them from their VP, it does not make them twice. A platform
+	;with none of its own, the VP64 as it installs, translates with those
+	;of its boot image
+	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
+	(defq run (list (list run_cpu run_abi :nil)) run_id (trans-id run_cpu)
+		trans_files (filter (# (starts-with "lib/trans/" %0)) files)
+		stale (filter (# (native-stale? %0 (plat-man run_cpu run_abi) run_id)) trans_files)
+		built trans_files)
+	(cond
+		((> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0)
+			(setq built stale)
+			(when (nempty? stale)
+				(defq said (farm-jobs (file-units stale run :t) run_abi run_cpu run))
+				(said-vp said)
+				(when (nql run_id (setq run_id (trans-id run_cpu)))
+					(setq said (farm-jobs (file-units (setq built trans_files) run :t) run_abi run_cpu run))
+					(said-vp said))
+				(said-code said)))
+		(:t ;none made above. A platform's translator is known by the
+			;bundles of its source, so if they are not of their key their VP
+			;is made before it is asked, the VP alone: the code of them is
+			;translated with the rest
+			(defq trans_vp (filter (# (and (vp-stale? %0) (or (eql %0 +trans_parser)
+					(some (lambda ((cpu abi)) (eql %0 (cat "lib/trans/" cpu ".vp"))) targets)))) files))
+			(if (nempty? trans_vp)
+				(said-vp (farm-jobs (map (# (list :bundle (list %0))) trans_vp) asm_abi asm_cpu '())))))
+	;a unit for each file that is to be assembled, or whose code some
+	;platform wants: with each platform, the hash of the bundle its code is
+	;of, if it is of the translator there is now and this is not forced
+	(defq ids (map (lambda ((cpu abi)) (trans-id cpu)) targets)
+		tmans (map (lambda ((cpu abi)) (plat-man cpu abi)) targets)
+		todo (list) wants (list))
+	(each (lambda (file)
+			(defq k (sym file) assemble (vp-stale? file) want (list))
+			(each (lambda ((cpu abi) id man)
+					(unless (and (eql cpu run_cpu) (eql abi run_abi) (find file built))
+						(cond
+							(assemble (push want (list cpu abi
+								(and (not force) (defq n (get k man)) (eql (second n) id) (first n)))))
+							((or force (native-stale? file man id)) (push want (list cpu abi :nil))))))
+				targets ids tmans)
+			(when (or assemble (nempty? want))
+				(push todo file) (push wants (list :file (list file assemble want)))))
+		files)
+	(defq units (biggest-first wants (map (# (second (pii-fstat %0))) todo))
+		;what the farm made is noted, and kept, once: as its last file is
+		;answered if there are boot images to make of it, they go by what is
+		;noted, or when it is over
+		noted :nil
+		note (lambda (said)
+			(unless noted
+				(setq noted :t)
+				(said-vp said)
+				(said-code said)
+				(if vp_made (manifest-save vpman (vp-manifest)))
+				(each (lambda ((k (cpu abi)))
+						(manifest-save (get k mans) (platform-manifest cpu abi))) (tolist dirty))))
+		said (farm-jobs units asm_abi asm_cpu targets
+			(if boot (lambda (said) (note said) (boot-units targets force)))
+			(if boot (length targets))))
+	(note said)
+	;the images that were made, noted
+	(each (lambda ((cpu abi))
+			(def bootman (defq k (plat-key cpu abi)) (get k booting))
+			(setq boot_dirty :t)) (said-of said "=image="))
+	(if boot_dirty (manifest-save bootman +make_boot))
+	;what is built here is not what make install built at its waypoint any
+	;more, service/source/app.inc (source-waypoint)
+	(if (or (nempty? stale) (nempty? units)) (pii-remove "obj/installed"))
+	(each (const print) errors)
+	(when (> *build_verb* 0)
+		(print "make: " (get 'f_read facts) " read, " assembled " assembled")
+		(each (lambda ((_ (cpu abi files funcs)))
+				(print "make " cpu " " abi ": " files " translated, " funcs " functions"))
+			(tolist did)))
+	(print "Done") :nil)
 
-(defun remake (&optional files *abi* *cpu* walk kept)
-	;the facts of the tree are the make's and the boot image's both
-	(setd *abi* (abi) *cpu* (cpu) walk (all-build-files) kept (list))
-	(make files *abi* *cpu* walk kept)
-	(make-boot-all *abi* *cpu* walk kept))
+(defun make-bundles (&optional mode)
+	; (make-bundles [mode])
+	;the VP alone of every file, the apps' too, whose bundle in (vp-dir) of
+	;the mode is not of its key, no platform's code of it: what trace
+	;reads of a mode the platforms here are not built in
+	(if mode (defq *build_mode* mode))
+	(bind '(vps classes) (all-build-files))
+	(defq facts (tree-facts (cat vps (all-app-files)) classes)
+		keys (get 'f_keys facts) vpman (get 'f_vpman facts) errors (list)
+		made (said-of (farm-jobs (map (# (list :bundle (list %0)))
+			(filter (const vp-stale?) (get 'f_vps facts))) (abi) (cpu) '()) "=key="))
+	(when (nempty? made) (note-vp made) (manifest-save vpman (vp-manifest)))
+	(each (const print) errors)
+	(print "Done") :nil)
 
-(defun remake-all (&optional files *abi* *cpu* walk kept)
-	(setd *abi* (abi) *cpu* (cpu) walk (all-build-files) kept (list))
-	(make-all files *abi* *cpu* walk kept)
-	(make-boot-all *abi* *cpu* walk kept :t))
-
-;;;;;;;;;;;;;;;;;;;;;
-; cross platform make
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; this platform, and all of them
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq +supported_abi ''(AMD64 WIN64 ARM64 RISCV64 LA64)
 	+supported_cpu ''(x86_64 x86_64 arm64 riscv64 la64))
 
-(defun make-them (action &optional mode files)
-	;every platform, in the mode given or the one there is. The tree is
-	;walked once for all of them, and its facts worked out once, kept
-	(defq walk (all-build-files) kept (list))
-	(setd files (first walk))
-	(if mode (defq *build_mode* mode))
-	;this platform's first, its translators of each CPU are made with it
+(defun this-target (&optional *abi* *cpu*)
+	(setd *abi* (abi) *cpu* (cpu))
+	(list (list *cpu* *abi*)))
+
+(defun all-targets ()
+	; (all-targets) -> targets
+	;every platform. This one first, the VP is assembled as it, and the
+	;VP64 last
 	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
-	(each (# (and (eql %0 run_abi) (eql %1 run_cpu) (action files %0 %1 walk kept)))
+	(defq own (list) others (list))
+	(each (# (push (if (and (eql %0 run_abi) (eql %1 run_cpu)) own others) (list %1 %0)))
 		+supported_abi +supported_cpu)
-	(each (# (unless (and (eql %0 run_abi) (eql %1 run_cpu)) (action files %0 %1 walk kept)))
-		+supported_abi +supported_cpu)
-	(action files 'VP64 'vp64 walk kept))
+	(cat own others '((vp64 VP64))))
 
-(defun make-vp (action &optional mode files)
-	;only the VP64, in the mode given or the one there is
-	(defq walk (all-build-files))
-	(setd files (copy (first walk)))
+(defun make (&optional files *abi* *cpu*)
+	; (make [files abi cpu])
+	;what has changed, of this platform's code
+	(build files (this-target *abi* *cpu*)))
+
+(defun make-all (&optional files *abi* *cpu*)
+	; (make-all [files abi cpu])
+	;all of this platform's code of the files, whether or not it has
+	;changed. The VP is made again only where it has, the rest of the code
+	;is translated from the VP kept
+	(build files (this-target *abi* *cpu*) :nil :t))
+
+(defun remake (&optional files *abi* *cpu*)
+	; (remake [files abi cpu])
+	;what has changed, and the boot image
+	(build files (this-target *abi* *cpu*) :t))
+
+(defun remake-all (&optional files *abi* *cpu*)
+	(build files (this-target *abi* *cpu*) :t :t))
+
+(defun make-platforms (&optional mode)
+	;every platform, in the mode given or the one there is
 	(if mode (defq *build_mode* mode))
-	(action files 'VP64 'vp64 walk))
+	(build :nil (all-targets)))
 
-(defun make-platforms (&optional mode) (make-them (const make) mode))
-(defun make-all-platforms (&optional mode) (make-them (const make-all) mode))
-(defun remake-platforms (&optional mode) (make-them (const remake) mode))
-(defun remake-all-platforms (&optional mode) (make-them (const remake-all) mode))
-(defun remake-all-vp (&optional mode) (make-vp (const remake-all) mode))
+(defun make-all-platforms (&optional mode)
+	(if mode (defq *build_mode* mode))
+	(build :nil (all-targets) :nil :t))
+
+(defun remake-platforms (&optional mode)
+	(if mode (defq *build_mode* mode))
+	(build :nil (all-targets) :t))
+
+(defun remake-all-platforms (&optional mode)
+	(if mode (defq *build_mode* mode))
+	(build :nil (all-targets) :t :t))
+
+(defun remake-all-vp (&optional mode)
+	;only the VP64, in the mode given or the one there is
+	(if mode (defq *build_mode* mode))
+	(build :nil '((vp64 VP64)) :t :t))
+
 (defun make-app-platforms (&optional mode force)
 	;the apps alone, for every platform: those that have changed, or all of
 	;them with force
-	(make-them (if force (const make-all) (const make)) mode (all-app-files)))
+	(if mode (defq *build_mode* mode))
+	(build (all-app-files) (all-targets) :nil force))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; compile and make tests
@@ -694,7 +751,7 @@
 	;or not they have changed: what make test and the Benchmark app time
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(defq start (pii-time))
-	(bind '(made errors) (vp-stage files *abi* *cpu*))
+	(bind '(made errors) (compile files *abi* *cpu*))
 	(defq took (- (pii-time) start))
 	(compiled made *abi* *cpu*)
 	(each (const print) errors)

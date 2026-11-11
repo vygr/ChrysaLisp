@@ -480,10 +480,9 @@ data, below, and it makes them by doing what the data says.
 
 What a function is before any target, the VP its source file made, is kept as
 text, the bundle of that file, `obj/vp/<file>`, or `obj/vp_validate/<file>`
-for a validate build, `lib/asm/asm.inc`. The VP stage writes the bundles once;
-each target's translate stage, `(vp-translate-file)` in `lib/trans/vp.inc`,
-reads them back and its translator, `lib/trans/<cpu>.vp`, makes its own code
-from each entry's text. The text goes to the translator's records by
+for a validate build, `lib/asm/asm.inc`. A build writes the bundle of a file
+once, and the translator of each target, `lib/trans/<cpu>.vp`, makes its own
+code from each entry's text, `(vp-translate-to)` in `lib/trans/vp.inc`. The text goes to the translator's records by
 `lib/trans/vp_parse.vp`, VP that needs no Lisp, so the loader translates a
 function it finds no native of from its bundle, and @Source sends the text of
 an entry to another system. The tools that look at a function whole, `trace`,

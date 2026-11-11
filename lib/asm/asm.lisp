@@ -29,27 +29,33 @@
 (ffi "sys/load/lisp_server" task-server)
 (ffi "sys/load/lisp_place" task-place)
 
-(defun fresh-translator (cpu abi)
-	;the translator and the parser it calls as their files are now, placed
-	;in a function server of this worker named by their hash, so the bind
-	;of them is that and not what its node bound before, from files a build
-	;has since made again: the two are of one layout of records. A
-	;translator only in the boot image is bound as it is, it never changes
-	(when (defq native (load (cat (load-path) (trans-name cpu abi))))
-		;the parser first, so the translator's link to it is to this one
-		(defq natives (list native) parse (load (cat (load-path) "lib/trans/vp_parse")))
-		(if parse (setq natives (list parse native)))
+(defun place-translators (plats)
+	;the translators of the platforms this build makes code of, and the
+	;parser they call, as their files are now, placed in a function server
+	;of this worker named by their hash, so the bind of them is that and
+	;not what its node bound before, from files a build has since made
+	;again: they are of one layout of records. A translator only in the
+	;boot image is bound as it is, it never changes
+	(defq natives (list))
+	(each (lambda ((cpu abi &rest _))
+			(if (defq native (load (cat (load-path) (trans-name cpu abi)))) (push natives native))) plats)
+	(when (nempty? natives)
+		;the parser first, so a translator's link to it is to this one
+		(if (defq parse (load (cat (load-path) "lib/trans/vp_parse"))) (setq natives (cat (list parse) natives)))
 		(task-server (cat "trans_" (slice (hex-encode (sha256 (apply (const cat) natives))) 0 16)))
 		(task-place natives)))
 
-(defun said-names (names)
-	;the functions code was made of, as a file done says them: a short hash
-	;of the names, then the names
-	(defq names (map (const str) names))
-	(cat " " (slice (hex-encode (sha256 (join names " "))) 0 12) " " (join names " ")))
+(defun translator (cpu abi)
+	; (translator cpu abi) -> func
+	;the translator to a platform, bound the first time it is asked for,
+	;after they are placed
+	(defq name (trans-name cpu abi) k (sym name))
+	(or (get k *trans*)
+		(def *trans* k (if (or (> (age (cat (load-path) name)) 0) (image-has? name)) (ffi name)
+				(throw "No translator to this CPU here, make install makes them !" cpu)))))
 
 (defun main ()
-	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil *placed* :nil)
+	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil *placed* :nil *trans* (env 11))
 	(within-compile-env (lambda ()
 			(while *working*
 				(mail-timeout (elem-get *select* +_select_timeout) +_timeout 0)
@@ -65,37 +71,61 @@
 						;read job
 						(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply))
 						(each (# (def *compile_env* %0 %1))
-							'(*kind* *files* *abi* *cpu* *build_mode* *build_emit* *build_verb* *build_vp*)
+							'(*kind* *unit* *abi* *cpu* *plats* *build_mode* *build_emit* *build_verb* *build_vp*)
 							(first (read (string-stream (slice *msg* +_job_params -1)))))
-						(unless *placed* (setq *placed* :t) (fresh-translator *cpu* *abi*))
-						;a VP job is a source file and the hash of the bundle this
-						;platform's code of it was made from, if any: its bundle of the
-						;VP of its functions to *build_vp*, and each translated to this
-						;platform's code unless the bundle is that one. A bundle job
-						;is the same with no code of any platform. A translate job is
-						;source files, their bundles to this platform's code. Each
-						;file done is said, with the hash of its bundle if it was
-						;made, and if code was made of it, the names of its
-						;functions and a short hash of them, and catch any errors
+						(unless *placed* (setq *placed* :t) (place-translators *plats*))
+						;a file job is a source file, if it is to be assembled, and
+						;the platforms to make code of it for, each with the hash of
+						;the bundle its code is of, if that is known. Assembled, its
+						;bundle of the VP of its functions goes to *build_vp*; if
+						;not, the bundle there is read. Then each platform's code of
+						;each function, from its text, by that platform's translator,
+						;unless the bundle is the one its code is of. A bundle job is
+						;a source file, its bundle and no code. An image job is a
+						;platform and the functions of its boot image.
+						;What was done is said: the file and the hash of its bundle
+						;if it was assembled, each platform code was made for with a
+						;short hash of the names of the functions and the names, an
+						;image. Nothing is said of a job that goes wrong, and it has
+						;no bundle written: catch any errors
 						(setq *msg* (list))
-						(catch (cond
-								((find *kind* '(:vp :bundle))
-									;the compile gives the VP, this keeps it: the bundle of
-									;its text, and of a VP job each function translated
-									;from its text, by name. One that goes wrong has no
-									;bundle written
-									(bind '(file prev) *files*)
-									(defq entries (vp-compile file) bundle (map (# (vp-entry-text %0)) entries)
-										text (apply (const cat) (cat (list "") bundle))
-										hash (hex-encode (sha256 text)))
-									(defq coded (and (eql *kind* :vp) (nql hash prev)))
-									(if coded (each (# (vp-translate-save %0 %1)) entries bundle))
+						(catch (case *kind*
+								(:image
+									(bind '(cpu abi funcs) *unit*)
+									(boot-image funcs abi cpu)
+									(print "=image= " cpu " " abi))
+								(:bundle
+									(defq file (first *unit*)
+										text (apply (const cat) (cat (list "")
+											(map (# (vp-entry-text %0)) (vp-compile file)))))
 									(save text (cat *build_vp* file))
-									(print "=key= " file " " hash
-										(if coded (said-names (map (const first) entries)) "")))
-								(:t (include "lib/asm/func.inc")
-									(each (# (print "=key= " %0 " -" (said-names (vp-translate-file %0 *build_vp*))))
-										*files*)))
+									(print "=key= " file " " (hex-encode (sha256 text))))
+								(:t ;what it includes is in before anything here is named,
+									;it names things of its own. of is the hash of the
+									;bundle if it is assembled here: not named hash, that
+									;is a function, and (and) would be given it
+									(unless (second *unit*) (include "lib/asm/func.inc"))
+									(bind '(file assemble targets) *unit*)
+									(defq of :nil text :nil funcs
+										(cond
+											(assemble
+												(defq entries (vp-compile file) bundle (map (# (vp-entry-text %0)) entries))
+												(setq text (apply (const cat) (cat (list "") bundle))
+													of (hex-encode (sha256 text)))
+												(map (# (list (first %0) %1)) entries bundle))
+											((vp-bundle-read file *build_vp*)))
+										names (map (# (str (first %0))) funcs)
+										said (cat " " (slice (hex-encode (sha256 (join names " "))) 0 12) " " (join names " "))
+										coded (list))
+									(each (lambda ((cpu abi prev))
+											(unless (and of (eql of prev))
+												(defq trans (translator cpu abi))
+												(each (lambda ((name text)) (vp-translate-to trans cpu abi name text)) funcs)
+												(push coded (cat "=code= " file " " cpu " " abi said)))) targets)
+									(when assemble
+										(save text (cat *build_vp* file))
+										(print "=key= " file " " of))
+									(each (const print) coded)))
 							(progn (print _) :t))
 						;send reply, the key it was given, then what was said
 						(mail-send *reply_mbox* (apply (const cat)
