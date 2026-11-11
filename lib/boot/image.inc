@@ -107,7 +107,12 @@
 				;must be second function !
 				'sys/statics/statics
 				;must be included !
-				'sys/kernel/kernel)
+				'sys/kernel/kernel
+				;and the heap's free, with the init and alloc the kernel
+				;calls: the three that know how a heap's cells are set out
+				;are of the one build, sys/heap/class.inc. A normal build
+				;calls it from nowhere, a validate function bound later does
+				'sys/heap/free)
 			(map (const sym) *funcs*)))
 	;load refs recursively
 	(each-mergeable

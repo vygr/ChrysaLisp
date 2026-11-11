@@ -30,7 +30,9 @@
     fmt:        format all the source files, with the fmt command.
 
     validate goes with any build, and all that is built is
-    built so, without it all is built in the normal mode.")
+    built so, without it all is built in the normal mode.
+    Functions of the two modes mix. The heap's checks are
+    the boot image's, so give boot with it for those.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 ))
 

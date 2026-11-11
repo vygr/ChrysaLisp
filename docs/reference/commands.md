@@ -274,9 +274,10 @@ Usage: check [options] [path] ...
 
     A path that is a folder is the source files in it, at
     any depth. If no paths given on command line then will
-    test files from stdin, and of those leaves out the ones
-    of tests/scratch/: what is tried out there is not held
-    to any of this. One given by its path is looked at.
+    test files from stdin. Of those, and of a folder given,
+    the files of tests/scratch/ are left out: what is tried
+    out there is not held to any of this. A file given by
+    its own path is looked at, wherever it is.
 ```
 ## cluster
 ```code
@@ -1091,6 +1092,8 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
 
     validate goes with any build, and all that is built is
     built so, without it all is built in the normal mode.
+    Functions of the two modes mix. The heap's checks are
+    the boot image's, so give boot with it for those.
 ```
 ## mesh
 ```code

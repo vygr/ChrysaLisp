@@ -587,7 +587,9 @@ sessions, developers and LLMs have direct access to the standard ChrysaLisp
 *	There are two build modes. Normal, `*build_mode*` 1, the default, has
 	every error check. `validate`, `*build_mode*` 2, adds more checks as it
 	runs, heap patterns, guard words, dead objects; `make it validate`, `make
-	all boot validate`. There is no release mode. The VP of a build is kept in
+	all boot validate`. Functions of the two modes mix: `make validate` with no
+	`boot` works, but the heap's checks are the boot image's, so want `boot`.
+	There is no release mode. The VP of a build is kept in
 	`obj/vp/` or `obj/vp_validate/`.
 
 *	`make vp` — the VP64 emulator image alone.

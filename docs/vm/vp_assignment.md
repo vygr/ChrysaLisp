@@ -238,7 +238,8 @@ compile option for the system. The various mode are:
 
 * 1 normal, with error checking, the default
 
-* 2 validate, normal plus heap patterns, guard words and dead object checks
+* 2 validate, normal plus heap patterns, guard words and dead object checks.
+	Functions of the two modes mix, see `errors.md`
 
 The `(validatecase)` macro allows you to conditionally include source code
 only if the `*build_mode*` is 2 or more. Error checks themselves are plain

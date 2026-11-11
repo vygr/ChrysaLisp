@@ -60,6 +60,13 @@ outputs
 :r1 = cell (ptr)
 trashes
 :r2
+info
+a cell back on the free list, for a function that does not free in
+line, see (hp-freecell): those of a validate build, here are its
+checks. A normal build's is the free alone, none of its own functions
+call it, and its boot image holds it for a validate function to be
+bound to: a normal system's cells have no guard word, and are not
+filled, so its free must not look for either.
 ```
 
 ### :init -> sys/heap/init

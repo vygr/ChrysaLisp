@@ -82,6 +82,18 @@ normal build, `*build_mode*` 1, is the default. The validate build,
 `*build_mode*` 2, adds heap patterns, guard words and dead object checks on
 top.
 
+The two mix. A function of a validate build runs on a normal system, and one
+of a normal build on a validate system, so `make validate` with no `boot` is
+a system that works. A validate function uses no more registers than the
+normal one and no structure differs between them. The one thing that does
+differ is how a heap sets out its cells, a validate heap keeps a guard word
+after each, and only `:sys_heap :init`, `:alloc` and `:free` know of it.
+Every boot image holds all three, so they are of the one build, the boot
+image's, whatever build the function that calls them is: a validate function
+does not free a cell in line, it calls `:sys_heap :free`. So the heap's
+checks are the boot image's, `make boot validate` for them, and all the
+others are the function's own.
+
 Leaving the checks out was measured and is not worth it. Natively there is no
 speed difference you can measure, `make test` and MP3 and HE-AAC decode run
 the same. Under the VP64 emulator it is about 5% faster, and the images are

@@ -58,9 +58,10 @@ docs/diagrams/memory_heaps.cwb
 	  `hp_block` and a `next` pointer for linking into a free list.
 
 	* **Free Lists:** `:sys_heap` maintains a primary free list
-	  (`hp_heap_free_flist`) of available `hp_cell`s. When a cell is freed via
-	  `:sys_heap :free` (which is an inline call to `hp-freecell`), it's added to
-	  this list.
+	  (`hp_heap_free_flist`) of available `hp_cell`s. When a cell is freed, by
+	  `hp-freecell`, it's added to this list. A normal build does that in
+	  line. A validate build calls `:sys_heap :free`, where its checks of the
+	  cell are.
 
 	* **Collection (`:sys_heap :collect`):** This method performs two main passes:
 

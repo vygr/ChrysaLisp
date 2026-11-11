@@ -137,6 +137,61 @@
 
 (def-func-end)
 
+(def-method :sys_heap :free)
+	;inputs
+	;:r0 = heap (ptr)
+	;:r1 = cell (ptr)
+	;outputs
+	;:r0 = heap (ptr)
+	;:r1 = cell (ptr)
+	;trashes
+	;:r2
+	;info
+	;a cell back on the free list, for a function that does not free in
+	;line, see (hp-freecell): those of a validate build, here are its
+	;checks. A normal build's is the free alone, none of its own functions
+	;call it, and its boot image holds it for a validate function to be
+	;bound to: a normal system's cells have no guard word, and are not
+	;filled, so its free must not look for either.
+
+	(vp-rdef (this cell next end fill tmp))
+
+	(entry :sys_heap :free `(,this ,cell))
+
+(validatecase
+	;the guard word after the cell must be whole, else something wrote
+	;past the end of the cell.
+	;fill the cell, past its free list link, with the freed pattern, so
+	;any use of it after the free shows up. If it holds that pattern
+	;already then it is being freed twice.
+	(vp-push end fill tmp)
+	(assign `((,this +hp_heap_cellsize)) `(,end))
+	(vp-lea-rrr cell end end)
+	(vp-cpy-cr +hp_cell_guard fill)
+	(assign `((,end 0)) `(,tmp))
+	(vpif `(,tmp /= ,fill))
+		(jump :sys_heap :overrun)
+	(endif)
+	(vp-lea-rcr cell +ptr_size next)
+	(vp-cpy-cr +hp_cell_free_fill fill)
+	(vpif `(,next /= ,end))
+		(assign `((,next 0)) `(,tmp))
+		(vpif `(,tmp = ,fill))
+			(jump :sys_heap :double_free)
+		(endif)
+		(loop-start)
+			(vp-store-rrc fill next 0)
+			(vp-add-cr +long_size next)
+		(loop-until `(,next = ,end))
+	(endif)
+	(vp-pop end fill tmp))
+	(ln-add-fnode this +hp_heap_free_flist cell next)
+
+	(exit :sys_heap :free `(,this ,cell))
+	(vp-ret)
+
+(def-func-end)
+
 (validatecase (def-method :sys_heap :overrun)
 	;trashes
 	;none

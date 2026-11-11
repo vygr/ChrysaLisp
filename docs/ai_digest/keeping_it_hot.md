@@ -37,7 +37,7 @@ docs/diagrams/hot_cells.cwb
 *	Allocating a cell (`(call :sys_heap :alloc)`) simply unlinks the head node
 	from the free list.
 
-*	Freeing a cell (`(call :sys_heap :free)`) pushes the pointer back onto the
+*	Freeing a cell (`hp-freecell`) pushes the pointer back onto the
 	top of the free list.
 
 *	Because function calls allocate and deallocate scopes in a strict

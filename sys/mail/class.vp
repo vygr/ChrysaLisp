@@ -286,7 +286,8 @@
 			(call :sys_mem :free '(:r0))
 		(endif)
 		(fn-bind 'sys/statics/statics :r0)
-		(call :sys_heap :free '((& :r0 statics_sys_mail_msg_heap) :r3))
+		(assign '((& :r0 statics_sys_mail_msg_heap) :r3) '(:r0 :r1))
+		(hp-freecell :r0 :r1 :r2)
 	(endif)
 
 	(exit :sys_mail :free '())
@@ -309,7 +310,8 @@
 	(vpif '(:r0 /= 0))
 		(load-fields :r0 '(+msg_obj +msg_data +msg_length) '(:r3 :r4 :r5))
 		(fn-bind 'sys/statics/statics :r2)
-		(call :sys_heap :free '((& :r2 statics_sys_mail_msg_heap) :r0))
+		(assign '((& :r2 statics_sys_mail_msg_heap) :r0) '(:r0 :r1))
+		(hp-freecell :r0 :r1 :r2)
 		(vp-simd vp-cpy-rr '(:r3 :r4 :r5) '(:r0 :r1 :r2))
 	(endif)
 
