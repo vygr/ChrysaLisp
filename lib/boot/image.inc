@@ -115,8 +115,9 @@
 				'sys/heap/free)
 			(map (const sym) *funcs*)))
 	;load refs recursively
+	;giving way as it goes, an image is a thousand of these
 	(each-mergeable
-		(# (merge boot_funcs (elem-get (func-load %0) +blob_refs)))
+		(# (merge boot_funcs (elem-get (func-load %0) +blob_refs)) (task-slice))
 		boot_funcs)
 	;sort into order, leaving the init/statics first !
 	(sort boot_funcs (const cmp) 2)

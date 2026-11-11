@@ -102,7 +102,12 @@
 	(defq entry (list (str *func_name*) (cat (emit-vp-code *emit_list*))))
 	(if (nempty? *locals*) (push entry (cat '(locals) *locals*)))
 	(push *build_entries* entry)
-	(if *build_emit* (print (vp-code-text entry))))
+	(if *build_emit* (print (vp-code-text entry)))
+	;a function is done, and the other tasks of this node have their turn
+	;if this one's slice is up: the links that carry mail through it, and
+	;whatever gives out the work. A file is many milliseconds of this,
+	;seconds under the emulator, and a task gives way only when it says so
+	(task-slice))
 
 (defun abort (&optional s)
 	;no ret as that screws up the tracer !

@@ -120,7 +120,8 @@
 									(each (lambda ((cpu abi prev))
 											(unless (and of (eql of prev))
 												(defq trans (translator cpu abi))
-												(each (lambda ((name text)) (vp-translate-to trans cpu abi name text)) funcs)
+												;giving way between functions, as the assembler does
+												(each (lambda ((name text)) (vp-translate-to trans cpu abi name text) (task-slice)) funcs)
 												(push coded (cat "=code= " file " " cpu " " abi said)))) targets)
 									(when assemble
 										(save text (cat *build_vp* file))

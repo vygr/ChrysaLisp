@@ -25,12 +25,26 @@
 	;end at much the same time
 	(map (const second) (sort (map (const list) sizes units) (# (- (first %0) (first %1))))))
 
+;the most workers a herd has, on a machine of no more nodes than this
+(defq +herd_most 20)
+
 (defun farm-jobs (units *abi* *cpu* plats &optional more herd)
 	; (farm-jobs units abi cpu plats [more herd]) -> said
 	;each unit a job for a herd of workers, lib/asm/asm.lisp, on the nodes
-	;of this machine, a worker for each unit and no more than a node each,
-	;herd of them if that is more: each has to set up to compile before its
-	;first job. A unit is (kind what):
+	;of this machine. No more workers than units, herd of them if that is
+	;more, each has to set up to compile before its first job. And of
+	;those, one worker and three more for each node beyond this one, to no
+	;more than +herd_most, or one a node where there are more nodes than
+	;that: 10 on 4 nodes, 20 on 8 to 20. More workers than nodes because a
+	;child is asked of a node and stays if no neighbour has fewer tasks,
+	;and the make's own task, a terminal, a service each count one, so one
+	;a node leaves some nodes with none, 1 of 4 or 2, and it is the few
+	;nodes of a small machine that can least spare one. And a worker whose
+	;answer is on its way here, its next job on the way back, is idle, a
+	;quarter of its time on 16 nodes: another on its node works meanwhile.
+	;Where the nodes are many each has less to do, a miss costs less, and
+	;a worker more is only its set up: twice as many is slower by 19 nodes.
+	;A unit is (kind what):
 	;:file (file assemble targets), a source file, if it is to be assembled,
 	;and the platforms to make code of it for, each (cpu abi prev), prev the
 	;hash of the bundle that platform's code is of if it is known: one whose
@@ -54,7 +68,8 @@
 		;worker that dies and its node does not, so it is long, a slow job
 		;must not be taken for a dead one.
 		(jobs-farm "lib/asm/asm.lisp" (map job units)
-			(list (max (length units) (ifn herd 0)) 1 1) (task-timeout 60)
+			(list (min (max (length units) (ifn herd 0))
+					(max (length (lisp-nodes :t)) +herd_most)) 1 3) (task-timeout 60)
 			(lambda (msg jobs)
 				;the key it was given, then what it said. A job with an
 				;error is not tried again.

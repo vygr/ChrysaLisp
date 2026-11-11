@@ -802,7 +802,59 @@ What did it, biggest first:
 	herd stood idle was moved to the herd, or not done: the scan workers
 	hash the files they read, the images are made by workers.
 
+*	**A worker gives way.** A worker ran a file's functions, and a boot
+	image's thousand, with no task switch: nothing else on its node ran
+	till the job ended, not the links that carry other nodes' mail through
+	it, nor the make if it was there. It gives way after each function
+	now, `(task-slice)`, a read of the clock till its millisecond is up.
+	The longest any task of 19 nodes waited for its turn during a build
+	was 19 ms and is 10 to 13. A build on a full mesh, every route direct,
+	is no faster for it. One whose mail goes through working nodes is:
+	`make all platforms` on 16 nodes 69 ms to 63 on a mesh, 74 to 70 on a
+	tree, 79 to 74 on a ring.
+
+*	**More workers than nodes, where the nodes are few.** A herd of one
+	worker a node did not put one on each. A child is asked of a node and
+	stays if no neighbour has fewer tasks, and the make's own task, the
+	terminal, a service, each count one: on 4 nodes 3 had workers,
+	sometimes 2, and an emulated install on a Pi 4 took 28.5 s or 37.5 by
+	which. And a worker whose answer is on its way to the make, its next
+	job on the way back, is idle: a quarter of its time on 16 nodes, more
+	on any shape but the full mesh, 39% on a ring. The herd is now one
+	worker and three more for each node beyond the first, to no more than
+	20, or one a node where there are more nodes than that: 10 on a Pi 4's
+	4 nodes, 20 on 8 nodes or on an M4's 19. The spare ones fill the nodes
+	that were left, and one works while another waits. `make test` on the
+	M4, before and after: 2 nodes 221 ms and 158, 4 nodes 119 and 89, 8
+	nodes 70 and 55, 12 nodes 51 and 43, 19 nodes 37 and 37.
+
 ### What did not work
+
+*	**Placing the herd by other means.** Each worker pinned to its node,
+	and a node's count of tasks made honest, a task that waits for mail
+	taken off it by the kernel: both put a worker on every node with no
+	more workers than nodes, and both were slower than the spare workers,
+	`make test` on 4 nodes 105 ms against 89, a worker still idle while it
+	waits to be fed. The count as it is also steers work away from a node
+	with a desktop or a service on it, and an honest one would not. The
+	make stepping its own count down while it only gives out work, as a
+	pipe does, was no better than not. And a herd of twice the nodes is
+	right for 4 and wrong for 19, 44 ms against 37: a worker more there
+	is only its set up.
+
+*	**Fewer workers than nodes on a big machine.** On 19 nodes a herd held
+	to 16 was the same, to 12 slower, 46 ms against 37: one a node is fed
+	all the way up.
+
+*	**Another shape of network.** A full mesh is best or equal at 16 nodes
+	and at 8: `make test` 41 ms, a star 46, a mesh 50, a tree 55, a ring 65.
+	Each hop is a link that polls.
+
+*	**Reading a function's code before writing it**, to write only what
+	changed. Two thirds of a forced build of every platform is the saving
+	of 6,400 small files, 124 ms of 180 on one node. A read first halves
+	that on one node and is worse on 19, 92 ms against 56: reads from many
+	processes at once wait on each other more than writes do.
 
 *	**A job for each platform of a file**, in place of one for all of them.
 	It spreads the work finer and it was slower, `make all platforms` 76
