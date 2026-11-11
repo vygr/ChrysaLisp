@@ -220,9 +220,9 @@ make GUI=fb install
 
 Once inside the ChrysaLisp TUI (Terminal app), you can rebuild the system:
 
-* `make`: Compiles only necessary changes based on file modification times.
+* `make`: Builds only what has changed, going by the content of the source files, not their modification times.
 
-* `make all`: Recompiles all VP source files, regardless of modification times.
+* `make all`: Makes all the native code again from the VP that is kept, changed or not. An edit or a change of build mode does not need it: it is for timing a build, and for putting back native code that was deleted or damaged.
 
 * `make boot`: Creates a new native boot image for the current platform.
 

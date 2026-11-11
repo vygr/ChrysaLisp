@@ -62,29 +62,31 @@
 							'(*kind* *files* *abi* *cpu* *build_mode* *build_emit* *build_verb* *build_vp*)
 							(first (read (string-stream (slice *msg* +_job_params -1)))))
 						(unless *placed* (setq *placed* :t) (fresh-translator *cpu* *abi*))
-						;a VP job is source files, the bundle of each of the VP of its
-						;functions to *build_vp*, a bundle job the same with no code of
-						;any platform, a translate job is source files, their bundles to
-						;this platform's code, each file stamped for this platform as it
-						;is done, and catch any errors
+						;a VP job is a source file and the hash of the bundle this
+						;platform's code of it was made from, if any: its bundle of the
+						;VP of its functions to *build_vp*, and each translated to this
+						;platform's code unless the bundle is that one. A bundle job
+						;is the same with no code of any platform. A translate job is
+						;source files, their bundles to this platform's code. Each
+						;file done is said, with the hash of its bundle if it was
+						;made, and catch any errors
 						(setq *msg* (list))
 						(catch (cond
 								((find *kind* '(:vp :bundle))
 									;the compile gives the VP, this keeps it: the bundle of
 									;its text, and of a VP job each function translated
-									;from its text as it goes, by name
-									(each (lambda (file)
-											(defq bundle (list))
-											(each (lambda (entry)
-													(push bundle (defq text (vp-entry-text entry)))
-													(if (eql *kind* :vp) (vp-translate-save entry text)))
-												(vp-compile file))
-											(save (apply (const cat) (cat (list "") bundle)) (cat *build_vp* file))
-											(if (eql *kind* :vp) (save "" (cat "obj/" *cpu* "/" *abi* "/" file))))
-										*files*))
+									;from its text, by name. One that goes wrong has no
+									;bundle written
+									(bind '(file prev) *files*)
+									(defq entries (vp-compile file) bundle (map (# (vp-entry-text %0)) entries)
+										text (apply (const cat) (cat (list "") bundle))
+										hash (hex-encode (sha256 text)))
+									(and (eql *kind* :vp) (nql hash prev)
+										(each (# (vp-translate-save %0 %1)) entries bundle))
+									(save text (cat *build_vp* file))
+									(print "=key= " file " " hash))
 								(:t (include "lib/asm/func.inc")
-									(each (# (vp-translate-file %0 *build_vp*)
-											(save "" (cat "obj/" *cpu* "/" *abi* "/" %0))) *files*)))
+									(each (# (vp-translate-file %0 *build_vp*) (print "=key= " %0)) *files*)))
 							(progn (print _) :t))
 						;send reply, the key it was given, then what was said
 						(mail-send *reply_mbox* (apply (const cat)

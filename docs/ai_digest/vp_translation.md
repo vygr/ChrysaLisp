@@ -672,6 +672,42 @@ translate stage of each target reads the bundle and gives the text of each
 entry to its translator. The whole tree translates in about 7 ms, against 162 ms for the
 old Lisp translators.
 
+### By Content, Not By Age
+
+`(make)` goes by what a file holds, not by when it was written. The age of
+a file is of a second or two, and one written again inside it looked
+unchanged. Each thing made is kept with a key of what it was made from:
+
+* A source file's key is the hash of the names and hashes of it and of all
+  it includes and imports. Its bundle is made again when that key is not the
+  one the bundle was made from.
+
+* A platform's code of a file is made again when it is not of the bundle
+  there is now, by the bundle's hash, or not of that platform's translator
+  as it is now.
+
+* A translator's id is the hashes of the bundles of its source,
+  `lib/trans/<cpu>.vp`, and the parser's, `lib/trans/vp_parse.vp`.
+
+What was made from what is noted under `obj/`: `make_vp`, and
+`make_vp_validate` for a validate build, each source file with its key and
+the hash of its bundle, and `make_<cpu>_<abi>`, each source file with the
+hash of the bundle its code is of and the translator's id. `make_scans`
+keeps what each file includes and its hash, and an age is used for one thing
+only, there: a file whose age is not the one kept with it is read and hashed
+again, and one written in the second the keep is saved is not kept at all.
+
+So a file touched and not changed makes nothing. A comment makes that
+file's VP again, the bundle comes out the same, and no code is made. A
+build in the other mode is known for what it is, by its bundles, and the
+next make puts back what is not of this mode, with no `all`. The first make
+of a tree that was last made by age makes everything once, and takes away
+the empty files that make kept the ages in.
+
+`all` makes all the code of the platform again from the VP that is kept. It
+is for the timing of a build, and for code that was deleted or damaged:
+make goes by what it noted, it does not look at the files of the code.
+
 ### Translators Made First
 
 A build translates with the translators of the platform it runs on, the
@@ -681,23 +717,23 @@ translators before anything else:
 
 * Those out of date are made first, by the translator there is now.
 
-* If this platform's own translator was one of them, it made all the
-  others, so all of them are made again, by the new one. A translator made
-  by its new self is what a clean build would give.
+* If this platform's own translator then comes out other than it was, by
+  its id, the old one made them all, so all of them are made again, by the
+  new one. A translator made by its new self is what a clean build would
+  give.
 
-* The stages after leave them alone: their own make would be newer than
-  them, and everything would be made again on the next build.
+* The stages after leave them alone, they are made.
 
 `make platforms` and `make all platforms` build the platform they run on
 first, so the translators to every target are new before any target is
 translated.
 
-A target's functions are translated again when its translator's sources,
-`lib/trans/<cpu>.vp` and `vp.inc`, `vp_parse.vp`, `trans_ops.inc` and
-`trans.inc`, are newer than them. A change to the RISC-V translator
-makes the RISC-V code again, and of the other targets only their own copy of
-the RISC-V translator. A change to one of the classes it includes does not,
-as it does not change what the translator gives.
+A target's functions are translated again when its translator is not the
+one that made them, by its id. A change to the RISC-V translator makes the
+RISC-V code again, and of the other targets only their own copy of the
+RISC-V translator. A change to its source that leaves its VP as it was, a
+comment, or to one of the classes it includes and does not use, does not, as
+it does not change what the translator gives.
 
 ### A Translator Bound Fresh
 
