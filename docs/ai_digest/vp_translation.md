@@ -727,11 +727,13 @@ next make puts back what is not of this mode, with no `all`. The first make
 of a tree that was last made by age makes everything once, and takes away
 the empty files that make kept the ages in.
 
-A boot image is kept the same way. It is made of the platform's code, and
-which functions it holds is said by `lib/boot/image.inc` and
-`lib/asm/asm.inc`. So `boot` makes the image again when the platform's
-manifest, or either of those files, is not what the image was made from,
-`obj/make_boot` notes that, or when the image has gone. The id beside it,
+A boot image is kept the same way. It is made of the platform's code of
+the system's files, and which functions it holds is said by
+`lib/boot/image.inc` and `lib/asm/asm.inc`. So `boot` makes the image again
+when what is noted of that code, or either of those files, is not what the
+image was made from, `obj/make_boot` notes that, or when the image has gone.
+The apps are noted in the same manifest and no image holds one, so
+`make apps` leaves the images as they are. The id beside it,
 `sys/boot_id`, is of the source, and is worked out from the hashes kept,
 not by reading every file again. A change that makes no code, a comment,
 writes a new id beside the image there is.

@@ -516,21 +516,28 @@
 (defun boot-units (targets force)
 	; (boot-units targets force) -> units
 	;the boot images to make, of the platforms: a unit for each whose image
-	;is not what is there. An image is made of the platform's code, and
-	;which functions it holds is said by lib/boot/image.inc and this file.
-	;So it is made again if the platform's manifest, the code noted made, or
-	;either of those files, is not what the image was made from, if it has
-	;gone, or with force. Beside it are the id of the source it is of and
+	;is not what is there. An image is made of the platform's code of the
+	;files of this make, the system's, and which functions it holds is said
+	;by lib/boot/image.inc and this file. So it is made again if what is
+	;noted of that code, each file's bundle and translator, or either of
+	;those files, is not what the image was made from, if it has gone, or
+	;with force. Not the whole of the platform's manifest: the apps are
+	;noted there too, and no image holds an app, so making them leaves the
+	;image as it is. Beside it are the id of the source it is of and
 	;the names of those files, written again when the source is not what it
 	;was: a comment makes no code, and a new id goes beside the image there
 	;is. What each was made from is noted in +make_boot, here for one that
 	;is not made again, when it says it is done for one that is. Of the
 	;caller's facts, bootman, boot_dirty and booting
 	(defq id (boot-id-kept facts) scans (get 'f_scans facts) scanned :nil units (list)
-		tools (cat (file-hash "lib/boot/image.inc") (file-hash "lib/asm/asm.inc")))
+		tools (cat (file-hash "lib/boot/image.inc") (file-hash "lib/asm/asm.inc"))
+		made_of (sort (cat (get 'f_vps facts))))
 	(each (lambda ((cpu abi))
-			(defq k (plat-key cpu abi) was (get k bootman)
-				of (cat (hex-encode (sha256 (ifn (load (platform-manifest cpu abi)) ""))) tools)
+			(defq k (plat-key cpu abi) was (get k bootman) man (plat-man cpu abi)
+				of (cat (hex-encode (sha256 (apply (const cat) (reduce (lambda (l f)
+						(defq n (get (sym f) man))
+						(push l f " " (if n (cat (str (first n)) " " (str (second n))) "-") "\n"))
+					made_of (list ""))))) tools)
 				image (and (not force) was (eql (second was) of)
 					(> (age (cat "obj/" cpu "/" abi "/sys/boot_image")) 0)))
 			(unless (and image (eql (first was) id))
