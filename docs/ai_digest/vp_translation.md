@@ -721,6 +721,26 @@ keeps what each file includes and its hash, and an age is used for one thing
 only, there: a file whose age is not the one kept with it is read and hashed
 again, and one written in the second the keep is saved is not kept at all.
 
+What a make does before it knows there is nothing to do is kept as well:
+
+* The source files of the tree. A walk of it lists 3,000 files to find the
+  500 that matter. What each folder holds, its folders and its `.vp` and
+  `.inc` files, is kept in `obj/make_walk` with the folder's age, which moves
+  when something is put in it, taken out or named again. A make asks each
+  folder its age and lists only one whose age is not the one kept, so a new
+  file anywhere is found by the next make, and nothing is listed when no
+  folder has changed. A folder listed in the second it was last changed is
+  not kept. `all` lists every folder.
+
+* The functions the tree makes, which a boot image takes its own from. To
+  work them out every class is declared and the lines of every file that
+  name what it makes are read. They are kept in `obj/make_prods` with a key
+  of those lines and the class files, and read back till a function is
+  added, taken away or named again, or a class file changes.
+
+* The bundle of a source file that has gone is taken away by the manifest,
+  which notes every bundle, not by listing the folder of them.
+
 So a file touched and not changed makes nothing. A comment makes that
 file's VP again, the bundle comes out the same, and no code is made. A
 build in the other mode is known for what it is, by its bundles, and the

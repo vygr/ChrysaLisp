@@ -19,15 +19,6 @@
 	;file's own name
 	(if (= mode 2) "obj/vp_validate/" "obj/vp/"))
 
-(defun bundles-gone (dir)
-	; (bundles-gone dir)
-	;the bundles in dir, (vp-dir), of source files there are no more: a
-	;file taken away leaves its bundle, and trace, lint and the loader go
-	;by what is in dir. The code of its functions is left, a function of
-	;that name may be another file's now
-	(each (# (if (= (age %0) 0) (pii-remove (cat dir %0))))
-		(files-all dir '(".vp") (length dir))))
-
 (defun biggest-first (units sizes)
 	;the units in the order the queue gives them out, the biggest first,
 	;the queue goes from the end. With the small ones last the workers all
@@ -168,27 +159,73 @@
 ; make system
 ;;;;;;;;;;;;;
 
+;what is kept of the folders of the tree, each with its age, the folders
+;in it and its source files, those that end .vp or .inc
+(defq +make_walk "obj/make_walk")
+
+(defun walk-tree (&optional force)
+	; (walk-tree [force]) -> paths
+	;the source files of the tree, every .vp and .inc file, in the order a
+	;walk of it has them. A walk lists every folder, 3,000 files to find the
+	;500 that matter, and was 4.5 ms of every make on the M4 and 15 on a Pi
+	;4, half of a make with nothing to do. So what each folder holds is
+	;kept, +make_walk, with the folder's age, which moves when something is
+	;put in it, taken out or named again: a make asks each folder its age
+	;and lists only one whose age is not the one kept. A new file anywhere
+	;is found by the next make, with nothing to be told. A folder listed in
+	;the second it was last changed is not kept, more may come in that
+	;second. With force every folder is listed. Not what is built, nor this
+	;machine's store, nor a folder whose name begins with a dot
+	(defq kept (if force (env 1) (manifest-load +make_walk)) seen (env 401)
+		now (/ (pii-time) 1000000) stack (list ".") paths (list) dirty :nil)
+	(while (defq dir (pop stack))
+		(unless (or (starts-with "./obj" dir) (starts-with "./storage" dir))
+			(defq k (sym dir) a (age dir) was (get k kept))
+			(unless (and was (= (first was) a))
+				(defq subs (list) fs (list))
+				(each! (lambda (file type)
+						(cond
+							((or (eql type "f") (eql type "l"))
+								(if (or (ends-with ".vp" file) (ends-with ".inc" file)) (push fs file)))
+							((not (starts-with "." file)) (push subs file))))
+					(dir-list dir))
+				(def kept k (setq was (list (if (< a now) a 0) subs fs)))
+				(setq dirty :t))
+			(def seen k :t)
+			(each (# (push stack (cat dir "/" %0))) (second was))
+			(each (# (push paths (cat dir "/" %0))) (third was))))
+	(when dirty
+		;folders that have gone are forgotten
+		(each (lambda ((k _)) (unless (get k seen) (undef kept k))) (tolist kept))
+		(manifest-save kept +make_walk))
+	(map (# (slice %0 2 -1)) paths))
+
+(defun source-files (exts &optional force)
+	; (source-files exts [force]) -> paths
+	;the source files of the tree with one of those endings
+	(filter (lambda (file) (some (# (ends-with %0 file)) exts)) (walk-tree force)))
+
 (defun all-vp-files ()
-	;filter to only the .vp files, strip off the leading "./"
-	(filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2)))
+	;the .vp files of the system, not the apps'
+	(filter (# (not (starts-with "apps/" %0))) (source-files '(".vp"))))
 
 (defun all-app-files ()
-	;filter to only the app .vp files, strip off the leading "./"
-	(filter (# (starts-with "apps/" %0)) (files-all "." '(".vp") 2)))
+	;the .vp files of the apps
+	(filter (# (starts-with "apps/" %0)) (source-files '(".vp"))))
 
 (defun all-class-files ()
-	;filter to only the class.inc files, strip off the leading "./"
-	(files-all "." '("class.inc") 2))
+	;the class.inc files
+	(source-files '("class.inc")))
 
-(defun all-build-files ()
-	; (all-build-files) -> (vp_files class_files)
-	;all-vp-files and all-class-files of one walk of the tree, each in the
-	;order it has there. A walk was 4 to 5 ms on the M4
+(defun all-build-files (&optional force)
+	; (all-build-files [force]) -> (vp_files class_files)
+	;all-vp-files and all-class-files of the one walk of the tree, each in
+	;the order it has there. With force every folder is listed again
 	(defq vps (list) classes (list))
 	(each (# (cond
 				((ends-with "class.inc" %0) (push classes %0))
 				((not (starts-with "apps/" %0)) (push vps %0))))
-		(files-all "." '(".vp" "class.inc") 2))
+		(source-files '(".vp" "class.inc") force))
 	(list vps classes))
 
 (defun class-env (classes)
@@ -241,7 +278,9 @@
 	;every translator is made of this as well as its own source
 	+trans_parser "lib/trans/vp_parse.vp"
 	;what each platform's boot image was made from
-	+make_boot "obj/make_boot")
+	+make_boot "obj/make_boot"
+	;the functions the tree makes, and the key of what says so
+	+make_prods "obj/make_prods")
 
 (defun scans-key ()
 	;how a file is read, the ages of what says so, and the form of the keep
@@ -308,7 +347,7 @@
 	;answer for is scanned when it is asked for. Of the caller's ages,
 	;scans and scanned
 	(when (and (> (length (scans-stale files)) +scans_farm_min)
-			(defq todo (scans-stale (merge (cat files) (files-all "." '(".inc" ".vp") 2)))))
+			(defq todo (scans-stale (merge (cat files) (source-files '(".inc" ".vp"))))))
 		;a herd that grows as the nodes come, an install starts them as it makes
 		(setq scanned :t)
 		(defq units (map (# (cat (const (str-alloc +job_size)) (str %0))) (partition todo 8)))
@@ -330,10 +369,14 @@
 	;declared for it: what a file makes is only asked for a boot image,
 	;(boot-prods), and the classes were 4 ms of a make's 15
 	(scans-farm files)
+	;a file that is new to the walk goes on the end of it: known by a set,
+	;to look along the list for each was most of the walk
+	(defq seen (env 401))
+	(each (# (def seen (sym %0) :t)) files)
 	(each-mergeable (#
 			(unless (get (sym %0) info)
 				(bind '(d p) (make-info %0))
-				(merge files d)
+				(each (lambda (f) (unless (get (defq k (sym f)) seen) (def seen k :t) (push files f))) d)
 				(def info (sym %0) (list d p)))) files)
 	(filter (# (ends-with ".vp" %0)) files))
 
@@ -386,6 +429,18 @@
 				(setq scanned :t)
 				(def keys k (tree-key f)))) vps))
 
+(defun bundles-gone (vpman dir)
+	; (bundles-gone vpman dir) -> :t | :nil
+	;the bundles in dir, (vp-dir), of source files there are no more, taken
+	;away, and what is noted of them: a file taken away leaves its bundle,
+	;and trace, lint and the loader go by what is in dir. The code of its
+	;functions is left, a function of that name may be another file's now.
+	;By the manifest, every bundle there is is noted in it: to list dir was
+	;3.7 ms of every make on a Pi 4. :t if any went. Of the caller's ages
+	(defq gone (filter (# (= (file-age %0) 0)) (map (# (str (first %0))) (tolist vpman))))
+	(each (# (pii-remove (cat dir %0)) (undef vpman (sym %0))) gone)
+	(nempty? gone))
+
 (defun tree-facts (files classes)
 	; (tree-facts files classes) -> facts
 	;what a make goes by of the source, whatever platforms it makes, an env:
@@ -394,16 +449,16 @@
 	;the key of each .vp file, f_vpman the manifest of the bundles of the
 	;build mode, f_classes, f_scans what is kept of each file, f_read how
 	;many of them were read again. The bundles of files that have gone are
-	;taken away with it
-	(bundles-gone (vp-dir *build_mode*))
+	;taken away with it, and the manifest kept if any were
 	(bind '(scans keys) (scans-load))
 	(defq ages (env 31) info (env 101) vals (env 101) scanned :nil changed (list)
-		all (copy files) vps (tree-walk all))
+		all (copy files) vps (tree-walk all) vpman (manifest-load (vp-manifest)))
 	(keys-fresh vps all)
 	(if scanned (scans-save scans keys))
+	(if (bundles-gone vpman (vp-dir *build_mode*)) (manifest-save vpman (vp-manifest)))
 	(defq facts (env 11))
 	(def facts 'f_vps vps 'f_all all 'f_info info 'f_keys keys 'f_classes classes
-		'f_vpman (manifest-load (vp-manifest)) 'f_scans scans 'f_read (length changed))
+		'f_vpman vpman 'f_scans scans 'f_read (length changed))
 	facts)
 
 (defun trans-id (cpu)
@@ -514,15 +569,31 @@
 	; (boot-prods facts) -> prods
 	;the functions the files of the tree make, what the boot image of any
 	;platform takes its own from. Of the source alone, so the same for
-	;every platform, and kept with the facts it is read from
+	;every platform, and kept with the facts it is read from.
+	;To work them out every class is declared and the lines of every file
+	;that name what it makes are read: 8.6 ms on the M4 and 60 on a Pi 4,
+	;each time an image was made. They are the same till a function is
+	;added, taken away or named again, or a class file changes, so they
+	;are kept, +make_prods, with a key of those lines and the class files,
+	;and read back while it is the same
 	(or (get 'f_prods facts)
 		(progn
-			(defq info (get 'f_info facts) prods (list))
-			;the paths of what the files make, by the classes declared
-			(within-compile-env (lambda ()
-					(class-env (get 'f_classes facts))
-					(each (# (merge prods (make-products (second (get (sym %0) info)))))
-						(get 'f_all facts))))
+			(defq info (get 'f_info facts) all (sort (cat (get 'f_all facts)))
+				scans (get 'f_scans facts) scanned :nil
+				key (hex-encode (sha256 (apply (const cat) (reduce (lambda (l f)
+						(push l f " " (str (second (get (sym f) info)))
+							(if (ends-with "class.inc" f) (file-hash f) "") "\n"))
+					all (list (str *build_mode*))))))
+				kept (manifest-load +make_prods) was (get 'prods kept) prods (list))
+			(cond
+				((and was (eql (first was) key)) (setq prods (rest was)))
+				(:t ;the paths of what the files make, by the classes declared
+					(within-compile-env (lambda ()
+							(class-env (get 'f_classes facts))
+							(each (# (merge prods (make-products (second (get (sym %0) info)))))
+								(get 'f_all facts))))
+					(def kept 'prods (cat (list key) (map (const str) prods)))
+					(manifest-save kept +make_prods)))
 			(def facts 'f_prods prods))))
 
 (defun boot-units (targets force)
@@ -587,7 +658,7 @@
 	;With -v it says what it did: the source files read again and the
 	;files assembled, then for each platform the files code was made of and
 	;the functions
-	(bind '(vps classes) (all-build-files))
+	(bind '(vps classes) (all-build-files force))
 	(setd files vps)
 	(defq facts (tree-facts files classes) files (get 'f_vps facts)
 		keys (get 'f_keys facts) vpman (get 'f_vpman facts)

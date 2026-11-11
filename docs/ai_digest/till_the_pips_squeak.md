@@ -761,7 +761,98 @@ are not tests and `tests` does not run them.
 	A change that helped one and hurt the other was found only by having
 	both.
 
-## 13. Where to Look
+## 13. The Build: Caches All the Way Down
+
+In November 2026 `make` was taken apart and put together as what it is, a
+chain of things made from other things: a file, its VP, each platform's
+code of it, each platform's boot image. Each is kept with a key of what it
+was made from, and made again only when that is not what there is. The
+docs are [VP translation](vp_translation.md) and
+[Evidence, not faith](evidence_not_faith.md). What follows is what the
+measuring taught, the wrong turns with it. M4 Max, 20 nodes, least of 5,
+ms, at the start and the end:
+
+| Build | Before | After |
+|---|---|---|
+| `make`, nothing to do | 15.3 | 3.3 |
+| `make platforms boot`, nothing to do | 203.8 | 6.1 |
+| `make all platforms` | 157.6 | 57.2 |
+| `make all platforms boot` | 341.7 | 77.4 |
+| `make`, one function changed | 21.9 | 14.1 |
+| `make platforms boot`, one function changed | 254.2 | 37.0 |
+| `make test`, mean | 37.7 | 38.8 |
+
+What did it, biggest first:
+
+*	**One farm.** Each platform had a herd of workers of its own, one after
+	another, and each read every bundle again. Now a job is a file,
+	assembled once and its code made for every platform that wants it, and
+	the boot images are jobs of the same herd, made at once when the code
+	is in. `make all platforms boot` 148 to 82.
+
+*	**What is the same is not made.** Keys of content, not ages: a file
+	touched makes nothing, a comment makes the file's VP and no code, an
+	image that is of its code is left. The work a make had done every time
+	to find there was nothing to do went the same way: the facts of the
+	tree once a make and not once a platform, the walk of the tree kept by
+	the ages of its folders, the functions the tree makes kept from one
+	image to the next.
+
+*	**The make's own task is one core.** What it did one at a time while a
+	herd stood idle was moved to the herd, or not done: the scan workers
+	hash the files they read, the images are made by workers.
+
+### What did not work
+
+*	**A job for each platform of a file**, in place of one for all of them.
+	It spreads the work finer and it was slower, `make all platforms` 76
+	against 57: six times the mail and six reads of a bundle cost more than
+	the spread saved.
+
+*	**Code made only of the functions of a file that changed.** The worker
+	kept the bundle that was there and made code only where a function's
+	text was not in it. The first go looked each text up in the old bundle
+	as a substring, and was slower by 5 ms on one platform and 29 on six:
+	the search cost more than translating the 25 functions it saved. The
+	second took the old bundle apart once and compared strings. It gained
+	3.8 ms on the M4 for six platforms, 3.9 on the i9, nothing on a Pi 4,
+	and nothing anywhere for one platform. The code of a file is soon
+	made: 26 functions in half a millisecond. It was not kept, it added
+	what has to be understood for nothing that could be felt.
+
+*	**A key that is a hash of a sorted text.** A file's key was the hash of
+	the names and hashes, in order, of all it includes. Natively that is 23
+	ms for the tree and only when something changed, and no native timing
+	showed it. An install makes every key at once under the emulator, and
+	there it was 0.4 s of 1.7, with another 0.23 for a small farm run
+	first. The install's first step had gone from 1.2 s to 1.9 and was not
+	seen for a day, because its second step had halved and only the total
+	was looked at. A key is now a fold of a number of each file, with no
+	sort, no text and no hash.
+
+### What was learned
+
+*	Time the parts. A make made to say where its time went, a line of
+	milliseconds for itself and one for each job of a worker, showed in one
+	run what a day of whole timings had not: on a Pi 4 the tree walk was 15
+	ms of every make and the list of functions 60 of every boot build, and
+	the code for five more platforms, which was thought to be the cost of
+	them, was 6.
+
+*	Time it where it is slow. The emulator is fifteen times slower than
+	native code and a Pi 4 five times slower than an M4, and each shows what
+	the fast machine hides. Every step of an install is timed against the
+	day before, not the install as a whole.
+
+*	Compare in one tree, turn about. A copy of the tree in another folder
+	read a millisecond slower for the same code, and the M4 drifts by a
+	millisecond over an afternoon: two variants are timed in the same tree,
+	one then the other, and again.
+
+*	A guess at what will help is a guess. Three of the four above were
+	expected to gain.
+
+## 14. Where to Look
 
 | What                                         | Where                            |
 |----------------------------------------------|----------------------------------|
