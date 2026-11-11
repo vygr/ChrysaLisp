@@ -273,20 +273,35 @@
 	(newest-ages files)
 	(filter (# (ends-with ".vp" %0)) files))
 
-(defun make (&optional files *abi* *cpu* walk force)
-	; (make [files abi cpu walk force])
+(defun tree-facts (files classes kept)
+	; (tree-facts files classes kept) -> (vps all info newest)
+	;what a make goes by of the source, whatever platform it makes: the .vp
+	;files of the files given, all of them with what they include and
+	;import, what each includes and makes, and the newest age of all each
+	;is made of. kept is a list the platforms of one make share, empty till
+	;the first asks, or :nil: working it out was 9 ms of each platform's 25
+	;on the M4. The bundles of files that have gone are taken away with it
+	(cond
+		((and kept (nempty? kept)) kept)
+		(:t (bundles-gone (vp-dir *build_mode*))
+			(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil
+				all (copy files) facts (list (make-newest all classes) all info newest))
+			(if kept (each (# (push kept %0)) facts))
+			facts)))
+
+(defun make (&optional files *abi* *cpu* walk kept force)
+	; (make [files abi cpu walk kept force])
 	;the functions that have changed, of the files and all they include, in
 	;two stages. A file's VP is made again if anything it is made of is
 	;newer than the VP of any of its functions, and this platform's code of
 	;it with it. The code of the other files is made again, from their VP,
 	;if anything they are made of, or this platform's translator, is newer
 	;than it, or of all of them with force. walk is what (all-build-files)
-	;gave, if it has been asked already
+	;gave, if it has been asked already, kept what (tree-facts) keeps
 	(bind '(vps classes) (ifn walk (all-build-files)))
-	(setd files (copy vps) *abi* (abi) *cpu* (cpu))
-	(bundles-gone (vp-dir *build_mode*))
-	(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil
-		dir (vp-dir *build_mode*) files (make-newest files classes))
+	(setd files vps *abi* (abi) *cpu* (cpu))
+	(defq facts (tree-facts files classes kept) files (first facts) newest (elem-get facts 3)
+		dir (vp-dir *build_mode*))
 	;the translators first, this platform's, the one that runs this, of
 	;each CPU: a build translates with what is made of lib/trans/<cpu>.vp
 	;for it, so those with anything they are made of newer are made before
@@ -351,40 +366,49 @@
 	(each (const print) errors)
 	(print "Done") :nil)
 
-(defun make-boot-all (&optional *abi* *cpu* walk)
-	(setd *abi* (abi) *cpu* (cpu))
-	(boot-image
-		(within-compile-env (lambda ()
-				;its own list of the files, they are merged into
-				(bind '(l classes) (ifn walk (all-build-files)))
-				(setq l (copy l))
-				(class-env classes)
-				(defq *prods* (list) ages (env 31) scans (scans-load) scanned :nil)
-				;lists of all file imports and products
-				(each-mergeable (# (merge *prods* (bind '(d %0) (make-info %0))) (merge l d)) l)
-				(if scanned (scans-save scans))
-				;what the image is built from, as one number, beside it
-				(save (boot-id-of l) (boot-id-file *cpu* *abi*))
-				(save (join (sort (cat l)) "\n") (boot-files-file *cpu* *abi*))
-				;not all of them, lib/boot/image.inc says which
-				(image-funcs *prods* *cpu*))) *abi* *cpu*))
+(defun boot-plan (walk kept)
+	; (boot-plan walk kept) -> (prods id names)
+	;what the boot image of any platform is made from: the functions the
+	;files of the tree make, the id of those files and their names. Of the
+	;source alone, so the same for every platform, and kept with the facts
+	;it is read from: the hash of the files was 14 ms of an image's 25
+	(bind '(vps classes) (ifn walk (all-build-files)))
+	(defq facts (tree-facts vps classes kept))
+	(cond
+		((> (length facts) 4) (elem-get facts 4))
+		(:t (defq all (second facts) info (third facts) prods (list))
+			(each (# (merge prods (second (get (sym %0) info)))) all)
+			(defq plan (list prods (boot-id-of all) (join (sort (cat all)) "\n")))
+			(if kept (push kept plan))
+			plan)))
 
-(defun make-all (&optional files *abi* *cpu* walk)
-	; (make-all [files abi cpu walk])
+(defun make-boot-all (&optional *abi* *cpu* walk kept)
+	; (make-boot-all [abi cpu walk kept])
+	(setd *abi* (abi) *cpu* (cpu))
+	(bind '(prods id names) (boot-plan walk kept))
+	;what the image is built from, as one number, beside it
+	(save id (boot-id-file *cpu* *abi*))
+	(save names (boot-files-file *cpu* *abi*))
+	;not all of them, lib/boot/image.inc says which
+	(boot-image (image-funcs prods *cpu*) *abi* *cpu*))
+
+(defun make-all (&optional files *abi* *cpu* walk kept)
+	; (make-all [files abi cpu walk kept])
 	;all of this platform's code of the files, whether or not it has
 	;changed. The VP is made again only where it has, the rest of the code
 	;is translated from the VP kept
-	(make files *abi* *cpu* walk :t))
+	(make files *abi* *cpu* walk kept :t))
 
-(defun remake (&optional files *abi* *cpu* walk)
-	(setd *abi* (abi) *cpu* (cpu) walk (all-build-files))
-	(make files *abi* *cpu* walk)
-	(make-boot-all *abi* *cpu* walk))
+(defun remake (&optional files *abi* *cpu* walk kept)
+	;the facts of the tree are the make's and the boot image's both
+	(setd *abi* (abi) *cpu* (cpu) walk (all-build-files) kept (list))
+	(make files *abi* *cpu* walk kept)
+	(make-boot-all *abi* *cpu* walk kept))
 
-(defun remake-all (&optional files *abi* *cpu* walk)
-	(setd *abi* (abi) *cpu* (cpu))
-	(make-all files *abi* *cpu*)
-	(make-boot-all *abi* *cpu* walk))
+(defun remake-all (&optional files *abi* *cpu* walk kept)
+	(setd *abi* (abi) *cpu* (cpu) walk (all-build-files) kept (list))
+	(make-all files *abi* *cpu* walk kept)
+	(make-boot-all *abi* *cpu* walk kept))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; cross platform make
@@ -395,17 +419,17 @@
 
 (defun make-them (action &optional mode files)
 	;every platform, in the mode given or the one there is. The tree is
-	;walked once for all of them
-	(defq walk (all-build-files))
-	(setd files (copy (first walk)))
+	;walked once for all of them, and its facts worked out once, kept
+	(defq walk (all-build-files) kept (list))
+	(setd files (first walk))
 	(if mode (defq *build_mode* mode))
 	;this platform's first, its translators of each CPU are made with it
 	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
-	(each (# (and (eql %0 run_abi) (eql %1 run_cpu) (action files %0 %1 walk)))
+	(each (# (and (eql %0 run_abi) (eql %1 run_cpu) (action files %0 %1 walk kept)))
 		+supported_abi +supported_cpu)
-	(each (# (unless (and (eql %0 run_abi) (eql %1 run_cpu)) (action files %0 %1 walk)))
+	(each (# (unless (and (eql %0 run_abi) (eql %1 run_cpu)) (action files %0 %1 walk kept)))
 		+supported_abi +supported_cpu)
-	(action files 'VP64 'vp64 walk))
+	(action files 'VP64 'vp64 walk kept))
 
 (defun make-vp (action &optional mode files)
 	;only the VP64, in the mode given or the one there is
