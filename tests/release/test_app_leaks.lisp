@@ -24,13 +24,12 @@
 
 ;not those that are the desktop's own, nor those that end it or log in.
 ;Not Raymarch: it makes its whole film, seconds of the GPU or every node,
-;and its window draws only that. Benchmark is opened once, for its window:
-;its work is a build of the whole system, spread over the nodes, whose
-;passing allocations move the node by tens of KB either way; three builds
-;in one task hold no more than one
-(defq al_skip (cat (list "system/login" "system/logout" "system/launcher" "system/wallpaper" "demos/raymarch")
+;and its window draws only that. Not Benchmark: its work is a build of the
+;whole system, as make test, which writes every native of the tree the
+;tests are running in
+(defq al_skip (cat (list "system/login" "system/logout" "system/launcher" "system/wallpaper" "demos/raymarch"
+			"tools/benchmark")
 		(get :launcher_auto_apps *env*))
-	al_once (list "tools/benchmark")
 	al_apps (sort (filter (lambda (app) (not (find app al_skip)))
 			(map (# (slice %0 5 -10)) (filter (# (= (length (split %0 "/")) 4)) (files-all "apps" '("app.lisp"))))))
 	al_before (lisp-nodes :t) al_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
@@ -182,13 +181,12 @@
 		(defq al_grew (list))
 		(each (lambda (app)
 				(al-run app desk :t)
-				(unless (find app al_once)
-					(defq was (al-settled) grew (list))
-					(times 3
-						(al-run app desk)
-						(push grew (- (defq now (al-settled)) was))
-						(setq was now))
-					(if (every (# (> %0 4096)) grew) (push al_grew (cat app " " (str grew))))))
+				(defq was (al-settled) grew (list))
+				(times 3
+					(al-run app desk)
+					(push grew (- (defq now (al-settled)) was))
+					(setq was now))
+				(if (every (# (> %0 4096)) grew) (push al_grew (cat app " " (str grew)))))
 			al_apps)
 		(assert-true "there were apps to try" (> (length al_apps) 40))
 		(assert-list-eq "every window draws its words" '() al_undrawn)
