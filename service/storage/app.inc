@@ -394,11 +394,18 @@
 	(elem-set pages +storage_pages_chunks (if was (list chunk was) (list chunk)))
 	chunk)
 
+(defun storage-pages-ask (svc names)
+	; (storage-pages-ask svc names) -> (:asked mbox)
+	;which of a chunk's blocks the service has, asked and not waited for:
+	;a chunk is a manifest block's worth of names, so one ask
+	(list :asked (storage-send svc +storage_type_has (apply (const cat) (cat (list "") names)))))
+
 (defun storage-pages-chunk (pages c)
 	; (storage-pages-chunk pages chunk) -> :nil | (chunk names has)
 	;the names of the blocks of a chunk, +store_manifest_names of them from
-	;chunk times that, and which the service has. A child of a block of the
-	;manifest of height h is over the names of 1000^(h - 1) chunks
+	;chunk times that, and which the service has, asked and not waited
+	;for, (storage-pages-has?). A child of a block of the manifest of
+	;height h is over the names of 1000^(h - 1) chunks
 	(bind '(svc height top &ignore) pages)
 	(defq chunks (elem-get pages +storage_pages_chunks))
 	(cond
@@ -407,14 +414,14 @@
 			;a manifest of one block, of before the tree, may have any number
 			(defq at (min (* c +store_manifest_names) (length top))
 				names (slice top at (min (+ at +store_manifest_names) (length top))))
-			(storage-pages-keep pages (list c names (storage-has svc names))))
+			(storage-pages-keep pages (list c names (storage-pages-ask svc names))))
 		(:t (defq names top h height span 1 left c)
 			(times (dec height) (setq span (* span +store_manifest_names)))
 			(while (and names (> h 0))
 				(defq k (/ left span))
 				(setq names (if (< k (length names)) (storage-pages-node pages (elem-get names k) (dec h)))
 					left (% left span) span (/ span +store_manifest_names) h (dec h)))
-			(if names (storage-pages-keep pages (list c names (storage-has svc names)))))))
+			(if names (storage-pages-keep pages (list c names (storage-pages-ask svc names)))))))
 
 (defun storage-pages-name (pages at)
 	; (storage-pages-name pages at) -> :nil | hash
@@ -425,9 +432,20 @@
 
 (defun storage-pages-has? (pages at)
 	; (storage-pages-has? pages at) -> :t | :nil
-	;the service has block at
+	;the service has block at, as far as is known: till it has said which
+	;of the chunk it has, it is taken to, and a block it has not got is had
+	;from another member when it does not come, (storage-block-retry). A
+	;seek does not wait for the answer before its first block is asked for
 	(and (defq chunk (storage-pages-chunk pages (/ at +store_manifest_names)))
-		(eql (elem-get (third chunk) (% at +store_manifest_names)) "1")))
+		(progn
+			(defq has (third chunk))
+			(and (list?? has) (mail-poll (list (second has)))
+				(elem-set chunk 2 (setq has (ifn (mail-read (second has)) ""))))
+			(cond
+				((list?? has) :t)
+				((< (% at +store_manifest_names) (length has))
+					(eql (elem-get has (% at +store_manifest_names)) "1"))
+				(:t)))))
 
 (defun storage-read (name offset len &optional svc)
 	; (storage-read path offset len [svc]) -> :nil | data
@@ -632,16 +650,22 @@
 	;nothing, as a file would be. :nil if there is no service
 	(setd svc (storage-service) ahead 4 mode +file_open_read)
 	(cond
-		((not (and svc (defq info (storage-info svc)))) :nil)
+		((not svc) :nil)
 		((= mode +file_open_read)
-			;only the top of its manifest now, the rest as it is read
-			(when (and (defq entry (storage-stat name svc))
+			;what the store is and what the path is, asked at once, then only
+			;the top of its manifest, the rest as it is read
+			(defq info_mbox (storage-send svc +storage_type_info)
+				stat_mbox (storage-send svc +storage_type_stat name)
+				info (storage-info-read (mail-read-timeout info_mbox (task-timeout +storage_wait)))
+				answer (mail-read-timeout stat_mbox (task-timeout +storage_wait)))
+			(when (and info answer (nempty? answer) (defq entry (store-entry-read answer))
 					(defq pages (storage-pages (elem-get entry +store_entry_hash) (. info :find :block_size) svc)))
 				(defq st (list svc pages (. info :find :block_size) (elem-get pages +storage_pages_bytes)
 						0 0 (list) (max 1 ahead) +storage_retry (list -1 "") :nil))
 				;the state is in the functions, a function has only what it is given
 				(lisp-stream `(lambda () (,storage-stream-fill ',st))
 					`(lambda (offset whence) (,storage-stream-seek ',st offset whence)))))
+		((not (defq info (storage-info svc))) :nil)
 		(:t (defq size (. info :find :block_size) names (list) part "" dirty (= mode +file_open_write))
 			(when (and (= mode +file_open_append) (defq object (storage-manifest name svc)))
 				;the blocks that are whole are had by their names, they are
