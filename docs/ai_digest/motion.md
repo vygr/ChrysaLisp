@@ -2,7 +2,8 @@
 
 `lib/motion/` is a 2D scene graph of vector figures that look after themselves.
 It is for motion graphics, vector games and interactive lessons. The Motion
-demo, `apps/demos/motion/`, is a story and a playground made with it, and
+demo, `apps/demos/motion/`, is a story, a playground, and the build of one
+function from its source to a call of it, made with it, and
 `tests/math/test_motion.lisp` runs them with no screen.
 
 There is no timeline and no script of the whole. Each figure has its own small
@@ -30,10 +31,10 @@ A presentation is that with a story in it, a game is that with a player in it.
 (. stage :add_node ball)
 ```
 
-and for each frame, by the seconds since the last:
+and for each frame, by the seconds of the wall clock since the last:
 
 ```vdu
-(. stage :tick dt)
+(. stage :advance dt)
 (. canvas :fill +argb_black)
 (. stage :draw canvas view)
 (. canvas :swap +swap_write)
@@ -62,6 +63,11 @@ needs one, nothing does yet.
 | `:fig_fill :fig_stroke` | Colours, 0 for none |
 | `:fig_width :fig_join :fig_cap1 :fig_cap2` | Of the stroke |
 | `:fig_trim` | How much of each line of the stroke is drawn, 0.0 to 1.0 |
+| `:fig_reveal` | How many of its lines are there, the first of them, 0.0 to 1.0: words come a letter at a time |
+| `:fig_dash :fig_dash_phase` | Its stroke as dashes, `(on off)`, begun so far along, a phase that changes marches them |
+| `:fig_glow :fig_glow_size` | A halo round it, a colour seen through, two layers to that size |
+| `:fig_fill2` | A second colour its fill goes to, down it |
+| `:fig_trail` | How many of the places it was are drawn after it, fainter the older |
 | `:fig_rule` | How it is filled, `+winding_odd_even` unless it is said |
 | `:fig_outline` | A list of `(closed path)`, as `(path-gen-paths)` gives |
 | `:fig_kinds :fig_meets` | Bit masks, what it is and what it looks out for |
@@ -99,6 +105,8 @@ From outside, `(def comp 'rate 4.0)`, which is how a wall turns a ball.
 | `(Tie other keys [offset scale])` | Attributes taken from another figure, while it is there |
 | `(Cues comp ...)` | Each in turn, the cue list of the one figure |
 | `(Custom fnc [then])` | `(fnc figure dt)` says `:t` to go on |
+| `(Shake key size secs [then])` | Jolted about what it was, dying away, then back. On a group of all there is, a camera shake |
+| `(Emit rate fnc [secs then])` | `(fnc figure)` so many times a second, sparks, bits of mail |
 
 The eases are `ease-linear`, `ease-in` slow in and fast out, `ease-out` fast in
 and slow out, `ease-in-out`, `ease-in3`, `ease-out3`, `ease-back`,
@@ -114,7 +122,9 @@ with children has all of theirs as well as its own.
 
 `:fig_on_enter` is fired when two come to touch, `:fig_on_stay` each tick they go on
 touching, and `:fig_on_leave` when they part, each for a figure that looks out for
-the other. It is asked in the picture, as they look, not in 3D.
+the other. It is asked in the picture as they are placed, with no focus, not in
+3D: the focus is the camera's, how a scene is seen, and what a scene does is
+the same whichever, so a scene sought to is the one that was seen.
 
 A figure whose colour has no alpha, `0x00ffffff`, draws nothing and is met, a
 wall or a zone that fires when something enters it. A pointer is a small figure
@@ -143,7 +153,52 @@ ms for a line of words, and each frame after it is a sum over arrays in native
 code. `(Tween :fig_outline to ...)` does all of it.
 
 Outlines come from `(outline-svg d)`, `(outline-text text font size)` and
-`(outline-centred outline)`.
+`(outline-centred outline)`. Code comes from `(outline-mono text font size)`,
+set in cells as a Vdu sets it, 9/16 of the font's height wide with each
+glyph in the middle of its cell: a font keeps its glyphs by their ink, so a
+monospaced one lines up in columns only so, and a space is an empty cell.
+
+## Effects
+
+A halo is `(path-glow paths radii join)` of `gui/path/lisp.inc`, which the
+Opcodes demo draws with too: what a figure fills, or its stroke if it fills
+nothing, stroked round at each radius and filled by the none zero rule, the
+widest first. It is kept while the figure's flattening is the one it was
+made from. A second fill colour is drawn in bands of rows, the canvas
+clipped to each in turn and put back after. A trail is the figure drawn at
+the places it was, with no halo. Dashes are cut from each line by
+`(outline-dashes)` and stroked one by one.
+
+Each costs a draw or more: a halo two, a graded fill 16, a trail one for
+each place. They are for the few figures that are the point of a moment.
+
+## Steps, and seeking
+
+A rostrum goes on in steps of `+ros_step`, a sixtieth of a second.
+`(:advance secs)` takes as many as the wall clock owes, times
+`:ros_speed`, and keeps the rest for the next, so a scene is the same
+however fast it is drawn. `(:tick dt)` is one step. `(:random n)` is the
+rostrum's own random numbers, from the seed it was made with,
+`(Rostrum width height focus seed)`, and a figure is numbered by when the
+rostrum first comes to it. So a scene made again from its seed and gone on
+by as many steps is the same scene, as long as it takes its random
+numbers from the rostrum and nothing from the wall clock. `Shake` jolts by
+two fast waves of its own time, not at random.
+
+`(:copy)` makes all of a rostrum anew, each figure, its components and what
+the scene keeps on them, referring to each other as they did: the copy
+goes on as the rostrum would have, and the rostrum is not changed by it.
+It shares what is never changed in place, code, paths and outlines. A
+weak link a component keeps, Tie's, is still to what it was. The Build
+scene, 307 figures at its most, copies in 17 ms on an M4.
+
+The Motion app seeks so. As a scene starts it runs it again with no
+picture, a little each frame, till it ends, which gives its length, and
+keeps a copy every 5 seconds of it, an I-frame. A seek goes on from where
+it is if that is between the I-frame before the point and the point, else
+from a copy of that I-frame, a step at a time and drawn as it goes. The
+whole Build scene, near 3 minutes, steps through in 1.6 s on an M4, about 10
+ms a second of it, so no seek is more than about 50 ms of steps.
 
 ## How fast
 

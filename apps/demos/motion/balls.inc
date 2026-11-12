@@ -44,14 +44,14 @@
 	(set-speed this (* speed (/ dx len)) (* speed (/ dy len)))
 	(. this :add (Cues (Tween :fig_fill 0xffffffff 0.08 (const ease-out))
 			(Tween :fig_fill (get :colour this) 0.4 (const ease-in))))
-	(when (< (get :fig_id this) (get :fig_id other))
+	(when (< (get :fig_turn this) (get :fig_turn other))
 		(defq x (* 0.5 (+ (get :fig_x this) (get :fig_x other))) y (* 0.5 (+ (get :fig_y this) (get :fig_y other))))
 		(times 5 (spark-at x y (get :colour this)))))
 
 (defun ball-new (x y r)
 	;a ball, grown from nothing. It comes on as something it can meet only
 	;when it is grown, or two made together would part at once
-	(defq fig (Figure "ball") colour (elem-get +colours (random (length +colours)))
+	(defq fig (Figure "ball") colour (elem-get +colours (. stage :random (length +colours)))
 		comp_x (Rate :fig_x 0.0) comp_y (Rate :fig_y 0.0))
 	(. fig :set_outline (list (list :t (path-gen-ellipse 0.0 0.0 r r (path)))))
 	(def fig :fig_fill colour :colour colour :fig_stroke 0xffffffff :fig_width 1.5 :radius r

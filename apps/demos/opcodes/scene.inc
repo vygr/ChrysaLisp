@@ -95,8 +95,7 @@
 						0.0 1.0 (neg cy))
 					%0 (cat %0))) raw_paths))
 	; Generate multi-layered stroked outlines
-	(defq outline_paths (path-stroke-polygons (list) (* f_scale 2.2) +join_round core_paths)
-		glow_paths (path-stroke-polygons (list) (* f_scale 5.5) +join_round core_paths))
+	(bind '(outline_paths glow_paths) (path-glow core_paths (list (* f_scale 2.2) (* f_scale 5.5)) +join_round))
 	(list name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh))
 
 ;a model is made the first time its opcode is drawn, and kept. There are
@@ -148,9 +147,7 @@
 					sa (sin angle) ca (cos angle)
 					tx_matrix (fixeds (* final_sx ca) (* final_sx (* sa -1.0)) x
 						(* final_sy sa) (* final_sy ca) y))
-				;a stroked outline laps over itself wherever the glyph is thinner
-				;than the stroke is wide, and where two letters are close. So it
-				;is filled by the none zero rule, odd even would leave holes there
+				;the outline and glow are filled by the none zero rule, (path-glow)
 				; 1. Outer Translucent Neon Glow
 				(.-> canvas (:set_color col_glow) (:fpoly 0.0 0.0 +winding_none_zero
 						(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) glow_paths)))

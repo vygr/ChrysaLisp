@@ -4,17 +4,31 @@
 (import "lib/motion/rostrum.inc")
 
 ;Scenes of vector figures that look after themselves, lib/motion/. The story
-;of where this system came from, and a playground. The window keeps the shape
-;of the picture, which is 640 by 480 whatever size it is drawn
+;of where this system came from, a playground, and the build of a function
+;from its source to a call of it. The window keeps the shape of the picture,
+;which is 640 by 480 whatever size it is drawn
 
 (enums +event +event_user
-	(enum play pause home scene depth))
+	(enum play pause home scene timeline))
 
 (enums +select 0
 	(enum main timer tip))
 
-(defq +width 640 +height 480 +rate (/ 1000000 60) +focus 700.0
-	id :t select :nil stage :nil restart :nil
+(defq +width 640 +height 480 +rate (/ 1000000 60)
+	;of each frame, how long the run that finds a scene's length may have,
+	;and a seek, in us
+	+dry_us 12000 +seek_us 10000
+	;the bar's length while the scene's is not known, so the elevator is small and
+	;still at the start, not drawn against a length still to be found
+	+bar_unknown 1000000000
+	;how many steps apart the I-frames are kept, copies of the whole scene
+	;a seek goes on from
+	+iframe_steps 300
+	id :t select :nil stage :nil restart :nil playing :t
+	;the scene: what starts it, its seed, how many steps long it is once
+	;that is known, the run that finds out, its I-frames, (step copy), and
+	;the step a seek is going to
+	maker :nil seed 1 steps :nil dry :nil iframes (list) target :nil
 	;how long a tick and a draw took, and when that was last shown
 	tick_us 0 draw_us 0 frames 0 last_show 0 last_t 0)
 
@@ -26,11 +40,11 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_media_play +sym_media_pause +sym_media_start) +event_play))
-		(. (ui-radio-bar *scene_toolbar* ("Story" "Balls") (:font :font_body)) :connect +event_scene)
-		(. (ui-radio-bar *depth_toolbar* ("Flat" "Depth") (:font :font_body)) :connect +event_depth)
+		(. (ui-radio-bar *scene_toolbar* ("Story" "Balls" "Build") (:font :font_body)) :connect +event_scene)
 		(ui-label *status* (:text " 400 figures  100.0 tick  100.0 draw " :font :font_body
 				:flow_flags +flow_flag_align_vcenter))
 		(ui-backdrop _ (:paper :paper_toolbar)))
+	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 14)) :connect +event_timeline)
 	(ui-backdrop *picture* (:style :plain :paper +argb_black :ink +argb_black
 			:min_width (/ +width 2) :min_height (/ +height 2) :want_width +width :want_height +height)
 		(ui-element *canvas* (make-canvas +width +height))))
@@ -61,11 +75,73 @@
 (import "./scene.inc")
 (import "./balls.inc")
 (import "./story.inc")
+(import "./build.inc")
+
+(defun scene-view ()
+	;playing or not, put on whichever rostrum is the one shown, made or
+	;sought to
+	(def stage :ros_speed (if playing 1.0 0.0)))
+
+(defun scene-make ()
+	;the scene from its start, by its seed: the same scene every time. A
+	;scene that wants depth sets its own focus, the camera is its own
+	(setq stage (Rostrum +width +height :nil seed) restart :nil)
+	(maker)
+	(scene-view))
+
+(defun dry-step ()
+	;the scene run again with no picture, a little each frame, to find how
+	;many steps it is, keeping a copy of it every so often, an I-frame. The
+	;scene's code knows only stage and restart, so they are this run's
+	;while it goes
+	(defq live stage live_restart restart start (pii-time))
+	(setq stage dry restart :nil)
+	(while (and (not restart) (< (- (pii-time) start) +dry_us))
+		(. stage :tick +ros_step)
+		(and (not restart) (= 0 (% (defq at (get :ros_ticks stage)) +iframe_steps))
+			(push iframes (list at (. stage :copy)))))
+	;at its end the bar is the scene's length, and goes to where it is
+	(when restart
+		(setq steps (get :ros_ticks dry) dry :nil)
+		(def *timeline* :maximum (dec steps))
+		(. *timeline* :dirty_all))
+	(setq stage live restart live_restart))
 
 (defun scene-new ()
-	;a new stage and what is to start on it
-	(setq stage (Rostrum +width +height (if (= (. *depth_toolbar* :get_selected) 1) +focus)) restart :nil)
-	(if (= (. *scene_toolbar* :get_selected) 0) (story-new) (balls-new)))
+	;a scene, a new seed for it, and a run that finds its length. Balls is
+	;played with, it has no end and is not sought
+	(setq maker (elem-get (list (const story-new) (const balls-new) (const build-new))
+			(. *scene_toolbar* :get_selected))
+		seed (inc (random 1000000000)) steps :nil dry :nil iframes (list) target :nil)
+	(def *timeline* :value 0 :maximum +bar_unknown)
+	(. *timeline* :dirty_all)
+	(unless (eql maker (const balls-new))
+		(scene-make)
+		(setq dry stage))
+	(scene-make))
+
+(defun seek-from ()
+	;where a seek goes on from: where it is, if that is between the last
+	;I-frame before the step and the step, else a copy of that I-frame, or
+	;the start if there is none
+	(defq from :nil now (get :ros_ticks stage))
+	(each (lambda (iframe) (if (<= (first iframe) target) (setq from iframe))) iframes)
+	(cond
+		((and (<= now target) (or (not from) (>= now (first from)))))
+		(from
+			(setq stage (. (second from) :copy) restart :nil)
+			(scene-view))
+		((scene-make))))
+
+(defun seek-step ()
+	;on toward the step sought, a little each frame, from the nearest place
+	;to go on from
+	(seek-from)
+	(defq start (pii-time))
+	(while (and target (< (- (pii-time) start) +seek_us))
+		(if (< (get :ros_ticks stage) target)
+			(. stage :tick +ros_step)
+			(setq target :nil))))
 
 (defun pointer-move ()
 	;the pointer figure goes where the mouse is, in the picture's space
@@ -80,11 +156,20 @@
 	;the time since the last, it all goes on by that, then the picture
 	(defq now (pii-time) dt (/ (n2f (min 100000 (- now last_t))) 1000000.0))
 	(setq last_t now)
-	(if restart (scene-new))
-	(pointer-move)
-	(. stage :tick dt)
+	;at its end a scene begins again, the same
+	(if restart (scene-make))
+	(cond
+		(target (seek-step))
+		(:t (pointer-move)
+			(. stage :advance dt)))
+	(if dry (dry-step))
 	(defq t1 (pii-time))
 	(frame-draw)
+	;where it is on the bar, unless the bar is being held
+	(when (and steps (= (get :state *timeline*) 0)
+			(/= (get :value *timeline*) (get :ros_ticks stage)))
+		(def *timeline* :value (min (get :maximum *timeline*) (get :ros_ticks stage)))
+		(. *timeline* :dirty_all))
 	(setq tick_us (+ tick_us (- t1 now)) draw_us (+ draw_us (- (pii-time) t1)) frames (inc frames))
 	(when (>= (- now last_show) 500000)
 		(defq n (length (. stage :children)))
@@ -97,10 +182,9 @@
 	(setq select (task-mboxes +select_size))
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *main_toolbar* '("play" "pause" "restart"))
-	(ui-tool-tips *scene_toolbar* '("story" "balls"))
-	(ui-tool-tips *depth_toolbar* '("flat" "depth"))
+	(ui-tool-tips *scene_toolbar* '("story" "balls" "build"))
+	(def *timeline* :tip_text "seek")
 	(. *scene_toolbar* :set_selected 0)
-	(. *depth_toolbar* :set_selected 1)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(.-> *window* (:connect +event_layout) :open)
 	;it keeps its shape
@@ -117,15 +201,22 @@
 						(setq id :nil))
 					((= id +event_layout)
 						(action-layout))
-					((or (= id +event_home) (= id +event_scene))
+					((= id +event_scene)
 						(scene-new))
+					((= id +event_home)
+						;from the start, the same scene
+						(setq target :nil)
+						(scene-make))
+					((= id +event_timeline)
+						;to the step the bar is at, once the scene's length is known
+						(if steps (setq target (get :value *timeline*))))
 					((= id +event_play)
-						(def stage :ros_speed 1.0))
+						(setq playing :t)
+						(scene-view))
 					((= id +event_pause)
 						;all stands still where it is
-						(def stage :ros_speed 0.0))
-					((= id +event_depth)
-						(def stage :ros_focus (if (= (. *depth_toolbar* :get_selected) 1) +focus)))
+						(setq playing :nil)
+						(scene-view))
 					((. *window* :event msg))))
 			(+select_tip
 				(. *window* :tip msg))

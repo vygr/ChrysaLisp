@@ -308,3 +308,14 @@
 			(bind '(p p1) (path-stroke-polygon p radius joint))
 			(push dst p p1)) src)
 	dst)
+
+(defun path-glow (paths radii joint)
+	; (path-glow paths radii join) -> (paths ...)
+	;the halos round a shape, its closed paths stroked round each radius
+	;with that join, +join_round for a soft one, one set of polygons for
+	;each. A halo laps over
+	;itself wherever the shape is thinner than it is wide, and where two
+	;parts are close, so it is filled by the none zero rule: odd even would
+	;leave holes there. Drawn the widest first, each in a colour that is
+	;seen through, they glow
+	(map (# (path-stroke-polygons (list) %0 joint paths)) radii))

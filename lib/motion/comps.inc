@@ -9,7 +9,8 @@
 ; figures, or kill the figure.
 ;
 ; Any of them can change any attribute. A number goes by its value, a colour,
-; of :fig_fill :fig_stroke, by each of its channels, an outline by a morph.
+; of :fig_fill :fig_stroke :fig_fill2 :fig_glow, by each of its channels, an
+; outline by a morph.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./ease.inc")
@@ -37,7 +38,7 @@
 	(cond
 		((find key '(:fig_x :fig_y :fig_z :fig_rx :fig_ry :fig_rz :fig_sx :fig_sy :fig_px :fig_py))
 			(def figure :fig_local :nil))
-		((find key '(:fig_width :fig_trim))
+		((find key '(:fig_width :fig_trim :fig_reveal :fig_dash_phase))
 			(def figure :fig_flat :nil))
 		((find key '(:fig_fill :fig_stroke))
 			(unless (eql (= val 0) (= (get key figure) 0)) (def figure :fig_flat :nil))))
@@ -57,7 +58,7 @@
 			(cond
 				((eql key :fig_outline)
 					(. figure :set_outline (if done to (morph-at morph e))))
-				((find key '(:fig_fill :fig_stroke))
+				((find key '(:fig_fill :fig_stroke :fig_fill2 :fig_glow))
 					(motion-set figure key (if done to (motion-mix from to e))))
 				(:t (motion-set figure key (if done to (+ from (* (- to from) e))))))
 			(not done))))
@@ -162,6 +163,43 @@
 	;the components each in turn, the next when the last is over. The cue
 	;list of the one figure, what it is to do and in what order
 	(def (defq that (env 1)) :update (const cues-update) 'cues comps 'at 0)
+	that)
+
+(defun shake-update (figure dt)
+	(unless base (setq base (get key figure)))
+	(setq time (+ time dt))
+	(defq going (< time secs))
+	;a new place each tick, less far as the time goes, by two fast waves
+	;of its time, not at random, so a scene run again shakes the same
+	(motion-set figure key (if going
+			(+ base (* size (- 1.0 (/ time secs)) (sin (* time 71.3)) (cos (* time 37.9))))
+			base))
+	going)
+
+(defun Shake (key size secs &optional then)
+	; (Shake key size secs [then]) -> comp
+	;the attribute jolted about what it was, up to size either way, dying
+	;away over those seconds, then back where it was. A jolt, on a group of
+	;all there is a camera shake
+	(def (defq that (env 1)) :update (const shake-update) 'then then
+		'key key 'size (n2f size) 'secs (n2f secs) 'time 0.0 'base :nil)
+	that)
+
+(defun emit-update (figure dt)
+	(setq time (+ time dt) owed (+ owed (* rate dt)))
+	;as many as are due since the last tick, so the rate is kept at any frame rate
+	(while (>= owed 1.0)
+		(setq owed (- owed 1.0))
+		(fnc figure))
+	(or (not secs) (< time secs)))
+
+(defun Emit (rate fnc &optional secs then)
+	; (Emit rate fnc [secs then]) -> comp
+	;(fnc figure) so many times a second, to make sparks, bubbles, bits of
+	;mail, what it likes. For ever, or for so many seconds. Its rate can be
+	;changed as it goes, (def comp 'rate rate)
+	(def (defq that (env 1)) :update (const emit-update) 'then then
+		'rate (n2f rate) 'fnc fnc 'secs (if secs (n2f secs)) 'time 0.0 'owed 0.0)
 	that)
 
 (defun custom-update (figure dt)

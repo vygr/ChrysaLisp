@@ -375,6 +375,142 @@
 (assert-eq "the mail is on top of what came later" 0 mo_buried)
 (print "the story took " (n2i mo_time) "s of its own time, at most " mo_most " figures at the top")
 
+;code in cells, as a vdu has it: a narrow letter and a wide one are each in
+;the middle of a cell, and a space is a cell, so columns line up
+(defun mo-mid (text)
+	(bind '(x & x1 &ignore) (outline-box (outline-mono text "fonts/Hack-Regular.ctf" 24)))
+	(* 0.5 (+ x x1)))
+(assert-true "a narrow letter in the middle of its cell" (mo-near (mo-mid "i") (mo-mid "W") 0.6))
+(assert-true "a space is a cell" (mo-near (- (mo-mid "  i") (mo-mid "i")) (* 4.0 (- (mo-mid "ii") (mo-mid "i"))) 0.6))
+
+;the effects. Dashes: a line 100 long of 10 on and 10 off is 5 dashes, each
+;10 long, and a phase of the period is the same dashes again
+(defq mo_line (path 0.0 0.0 100.0 0.0) mo_d (outline-dashes mo_line :nil 10.0 10.0 0.0))
+(assert-eq "a line of dashes, so many of them" 5 (length mo_d))
+(assert-true "each as long as on is" (every (# (mo-near (morph-length %0 :nil) 10.0)) mo_d))
+(assert-eq "a phase of the period is where it began" (str mo_d) (str (outline-dashes mo_line :nil 10.0 10.0 20.0)))
+(assert-eq "half a dash on, the first is half of one" 6 (length (outline-dashes mo_line :nil 10.0 10.0 5.0)))
+(assert-eq "half a gap on, it starts with the gap" 5 (length (outline-dashes mo_line :nil 10.0 10.0 15.0)))
+(assert-true "with no gap there are no dashes" (empty? (outline-dashes mo_line :nil 10.0 0.0 0.0)))
+;reveal: so many of its lines, the first of them
+(defq mo_f (Figure))
+(. mo_f :set_outline (list (list :t mo_square) (list :t (path 200.0 0.0 300.0 0.0 300.0 100.0 200.0 100.0))))
+(def mo_f :fig_fill 0xffffffff :fig_reveal 0.5)
+(assert-eq "half revealed, one line of two" 1 (length (first (. mo_f :flat))))
+(motion-set mo_f :fig_reveal 0.0)
+(assert-true "none, nothing" (empty? (first (. mo_f :flat))))
+(motion-set mo_f :fig_reveal 1.0)
+(assert-eq "all of it" 2 (length (first (. mo_f :flat))))
+;a halo, two layers the widest first, kept till the shape changes
+(def mo_f :fig_glow 0x40ffffff :fig_glow_size 8.0)
+(defq mo_g (. mo_f :glow))
+(assert-eq "two layers" 2 (length mo_g))
+(assert-true "the first is the wider" (> (- (elem-get (second (vector-bounds-2d (first mo_g))) 0)
+		(elem-get (first (vector-bounds-2d (first mo_g))) 0))
+	(- (elem-get (second (vector-bounds-2d (second mo_g))) 0)
+		(elem-get (first (vector-bounds-2d (second mo_g))) 0))))
+(assert-true "and kept" (eql mo_g (. mo_f :glow)))
+(motion-set mo_f :fig_width 2.0)
+(assert-true "made again when the shape is" (not (eql mo_g (. mo_f :glow))))
+;a fill that goes from one colour to another down it, drawn in bands, the
+;clip of the canvas as it was after
+(import "gui/canvas/lisp.inc")
+(defq mo_canvas (Canvas 100 100 1) mo_stage (Rostrum 100 100) mo_f (Figure))
+(. mo_f :set_outline (list (list :t (path 0.0 0.0 100.0 0.0 100.0 100.0 0.0 100.0))))
+(def mo_f :fig_fill 0xffff0000 :fig_fill2 0xff0000ff)
+(. mo_stage :add_node mo_f)
+(. mo_stage :tick 0.033)
+(defq mo_clip (. mo_canvas :get_clip))
+(. mo_stage :draw mo_canvas)
+(assert-eq "the clip is as it was" (str mo_clip) (str (. mo_canvas :get_clip)))
+;a trail of the places it was, so many of the last
+(def mo_f :fig_trail 3)
+(times 5 (. mo_f :set_place :fig_x (+ (get :fig_x mo_f) 10.0)) (. mo_stage :tick 0.033))
+(assert-eq "a trail of the last 3" 3 (length (get :fig_trail_was mo_f)))
+;a shake dies away and is back where it was, an emit keeps its rate
+(defq mo_f (Figure) mo_made 0)
+(def mo_f :fig_x 50.0)
+(. mo_f :add (Shake :fig_x 10.0 0.5) (Emit 20.0 (lambda (f) (setq mo_made (inc mo_made))) 1.0))
+(defq mo_far 0.0)
+(times 40
+	(. mo_f :update 0.033)
+	(setq mo_far (max mo_far (abs (- (get :fig_x mo_f) 50.0)))))
+(assert-true "a shake goes no further than its size" (<= mo_far 10.0))
+(assert-true "and is back where it was" (mo-near (get :fig_x mo_f) 50.0))
+(assert-true "an emit makes so many a second" (and (>= mo_made 19) (<= mo_made 21)))
+
+;the build, all of it, in simulated time, on a canvas no one sees
+(import "apps/demos/motion/build.inc")
+(setq stage (Rostrum 640 480 700.0) restart :nil mo_time 0.0 mo_most 0 mo_ticks 0)
+(setq mo_canvas (. (Canvas 320 240 1) :set_canvas_flags +canvas_flag_antialias))
+(build-new)
+(while (and (not restart) (< mo_time 600.0))
+	(. stage :tick 0.033)
+	(setq mo_time (+ mo_time 0.033) mo_most (max mo_most (length (. stage :children))))
+	(when (= 0 (% (setq mo_ticks (inc mo_ticks)) 10))
+		(. stage :draw mo_canvas mo_view))
+	(task-slice))
+(assert-true "the build comes to its end" restart)
+(assert-true "in a few minutes" (and (> mo_time 60.0) (< mo_time 300.0)))
+(print "the build took " (n2i mo_time) "s of its own time, at most " mo_most " figures at the top")
+
+;a rostrum's own random numbers, the same for the same seed
+(defq mo_r1 (Rostrum 10 10 :nil 7) mo_r2 (Rostrum 10 10 :nil 7) mo_r3 (Rostrum 10 10 :nil 8))
+(defq mo_s1 (map (lambda (_) (. mo_r1 :random 1000)) (range 0 20))
+	mo_s2 (map (lambda (_) (. mo_r2 :random 1000)) (range 0 20))
+	mo_s3 (map (lambda (_) (. mo_r3 :random 1000)) (range 0 20)))
+(assert-eq "the same seed, the same numbers" (str mo_s1) (str mo_s2))
+(assert-true "another seed, others" (nql (str mo_s1) (str mo_s3)))
+(assert-true "each below what was asked" (every (# (< -1 %0 1000)) mo_s1))
+
+;seeking: a scene gone on by the wall clock in uneven pieces, and the same
+;scene made again from its seed and stepped as many times, are the same
+(defun mo-print ()
+	(str (map (lambda (n) (list (. n :get_name) (get :fig_x n) (get :fig_y n) (get :fig_alpha n) (get :fig_sx n)))
+		(get :ros_order stage))))
+(setq stage (Rostrum 640 480 700.0 12345) restart :nil)
+(build-new)
+(defq mo_pieces '(0.016 0.033 0.05 0.021 0.008) mo_at 0)
+(while (< (get :ros_time stage) 40.0)
+	(. stage :advance (elem-get mo_pieces (% (setq mo_at (inc mo_at)) (length mo_pieces))))
+	(task-slice))
+(defq mo_ticks (get :ros_ticks stage) mo_played (mo-print) mo_count (length (get :ros_order stage)))
+(setq stage (Rostrum 640 480 700.0 12345) restart :nil)
+(build-new)
+(times mo_ticks (. stage :tick +ros_step))
+(assert-true "a seek has something to compare" (> mo_count 20))
+(assert-eq "sought to the same step, the same scene" mo_played (mo-print))
+
+;the focus is how a scene is seen, not what it does: the story, which has
+;meetings and a focus of its own, is the same run with none
+(setq stage (Rostrum 640 480 :nil 77) restart :nil)
+(story-new)
+(times 3000 (. stage :tick +ros_step))
+(defq mo_deep (mo-print))
+(setq stage (Rostrum 640 480 :nil 77) restart :nil)
+(story-new)
+(def stage :ros_focus :nil)
+(times 3000 (. stage :tick +ros_step))
+(assert-eq "Flat or Depth, the same run" mo_deep (mo-print))
+
+;an I-frame: a copy of the whole scene goes on as the scene would have, and
+;the scene is not changed by it
+(setq stage (Rostrum 640 480 700.0 12345) restart :nil)
+(build-new)
+(times 1500 (. stage :tick +ros_step))
+(defq mo_orig stage mo_copy (. stage :copy) mo_before (mo-print))
+(setq stage mo_copy)
+(assert-eq "a copy is the scene as it was" mo_before (mo-print))
+(times 900 (. stage :tick +ros_step))
+(defq mo_copied (mo-print))
+(setq stage mo_orig)
+(assert-eq "going on with the copy leaves the scene as it was" mo_before (mo-print))
+(times 900 (. stage :tick +ros_step))
+(assert-eq "and the scene goes on to the same as its copy did" mo_copied (mo-print))
+(assert-true "the copy's figures are its own" (not (eql (first (get :ros_order mo_orig)) (first (get :ros_order mo_copy)))))
+(assert-true "a child's parent is in its own copy"
+	(every (lambda (n) (or (eql n mo_copy) (eql (. (. n :get_parent) :root) mo_copy))) (get :ros_order mo_copy)))
+
 ;the demo's balls, in simulated time, and a wall changes a ball's rate
 (import "apps/demos/motion/balls.inc")
 (setq stage (Rostrum 640 480 700.0) restart :nil)

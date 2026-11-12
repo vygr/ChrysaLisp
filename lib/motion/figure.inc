@@ -40,14 +40,13 @@
 	;what it was told to do when it is over
 	(if (defq then (get 'then comp)) (then figure comp)))
 
-;each figure's own number, to know a pair of them by
-(defq *figure_ids* 0)
-
 (defclass Figure (&optional name) (Tree-node name)
 	; (Figure [name]) -> figure
 	;a node of a tree of figures, Tree-node, and how it looks and moves
 	(def this
-		:fig_id (++ *figure_ids*)
+		;its number in its rostrum, by when the rostrum first came to it,
+		;to know a pair of them by
+		:fig_turn :nil
 		:fig_comps (list) :fig_dead :nil :fig_on_death :nil
 		;where it is
 		:fig_x 0.0 :fig_y 0.0 :fig_z 0.0 :fig_rx 0.0 :fig_ry 0.0 :fig_rz 0.0 :fig_sx 1.0 :fig_sy 1.0 :fig_px 0.0 :fig_py 0.0
@@ -55,6 +54,13 @@
 		;is drawn, along each of its lines
 		:fig_alpha 1.0 :fig_fill 0 :fig_stroke 0 :fig_width 0.0 :fig_trim 1.0 :fig_rule +winding_odd_even
 		:fig_join +join_round :fig_cap1 +cap_round :fig_cap2 +cap_round :fig_outline (list) :fig_flat :nil
+		;how much of its outline is there, a line at a time, and its stroke as
+		;dashes, (on off), begun so far along them
+		:fig_reveal 1.0 :fig_dash :nil :fig_dash_phase 0.0
+		;the effects: a halo round it of a colour seen through, (path-glow),
+		;a second colour its fill goes to down it, and how many of the places
+		;it was are drawn after it
+		:fig_glow 0 :fig_glow_size 0.0 :fig_glow_flat :nil :fig_fill2 0 :fig_trail 0 :fig_trail_was :nil
 		;what it is, what it looks out for, and what is fired when it does
 		:fig_kinds 0 :fig_meets 0 :fig_on_enter :nil :fig_on_stay :nil :fig_on_leave :nil
 		;worked out by the rostrum, each tick
@@ -99,12 +105,35 @@
 		; (. figure :flat) -> (fills strokes box)
 		;the polygons it is drawn with, in its own space, and the box they
 		;are all in, :nil if there is nothing, (outline-flat). Worked out
-		;once and kept
+		;once and kept. Only as many of its lines as :fig_reveal says are
+		;there, the first of them, so words come a letter at a time
 		(unless (defq flat (get :fig_flat this))
-			(raise :fig_outline :fig_width :fig_trim :fig_join :fig_cap1 :fig_cap2 :fig_fill :fig_stroke)
+			(raise :fig_outline :fig_width :fig_trim :fig_join :fig_cap1 :fig_cap2 :fig_fill :fig_stroke
+				:fig_reveal :fig_dash :fig_dash_phase)
+			(if (< fig_reveal 1.0)
+				(setq fig_outline (slice fig_outline 0
+					(n2i (* (max 0.0 fig_reveal) (n2f (length fig_outline)))))))
 			(def this :fig_flat (setq flat (outline-flat fig_outline fig_fill fig_stroke (* 0.5 fig_width)
-						fig_join fig_cap1 fig_cap2 fig_trim))))
+						fig_join fig_cap1 fig_cap2 fig_trim
+						(if fig_dash (list (first fig_dash) (second fig_dash) fig_dash_phase))))))
 		flat)
+
+	(defmethod :glow ()
+		; (. figure :glow) -> (paths ...)
+		;the layers of its halo, the widest first, in its own space, by
+		;(path-glow) of what it fills, or of its stroke if it fills nothing,
+		;so a line being drawn or dashed glows as it is. Kept as long as its
+		;flattening and the size are those it was made from
+		(raise :fig_glow_flat :fig_glow_size)
+		(defq flat (. this :flat))
+		(cond
+			((and fig_glow_flat (eql (first fig_glow_flat) flat) (= (second fig_glow_flat) fig_glow_size))
+				(third fig_glow_flat))
+			(:t (bind '(fills strokes &ignore) flat)
+				(defq layers (path-glow (if (nempty? fills) fills strokes)
+						(list fig_glow_size (* 0.5 fig_glow_size)) +join_round))
+				(def this :fig_glow_flat (list flat fig_glow_size layers))
+				layers)))
 
 	(defmethod :local ()
 		; (. figure :local) -> matrix

@@ -32,6 +32,30 @@
 	(map (# (list :t (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0)))
 		(if (nempty? text) (font-glyph-paths (create-font font_name size) text) (list))))
 
+(defun outline-mono (text font_name size)
+	; (outline-mono text font_name size) -> outline
+	;the letters in cells of the one width, as a vdu has them: 9/16 of the
+	;height of the font, each in the middle of its cell, the left of the
+	;first cell at 0 and the line they sit on at their foot. A font keeps
+	;its glyphs by their ink, so code in a monospaced one lines up in
+	;columns only so. A space is a cell with nothing in it
+	(defq font (create-font font_name size) out (list) glyphs (Fmap 31) x 0.0
+		cell (/ (* (n2f (second (font-glyph-bounds font "M"))) 9.0) 16.0))
+	(each (lambda (c)
+			(unless (defq glyph (. glyphs :find c))
+				(defq paths (font-glyph-paths font c))
+				(. glyphs :insert c (setq glyph (if (nempty? paths)
+					(progn (bind '((x0 &ignore) (x1 &ignore)) (vector-bounds-2d paths)) (list paths x0 x1))
+					(list paths)))))
+			(when (nempty? (first glyph))
+				(bind '(paths x0 x1) glyph)
+				;the outlines a font gives are twice its size
+				(defq m (fixeds 0.5 0.0 (+ x (* 0.5 (- cell (* 0.5 (- x1 x0)))) (* -0.5 x0)) 0.0 0.5 0.0))
+				(each (# (push out (list :t (mat3x2-vec2-mul m %0 (cat %0))))) paths))
+			(setq x (+ x cell)))
+		text)
+	out)
+
 (defun outline-box (outline)
 	; (outline-box outline) -> :nil | (x y x1 y1)
 	;the box round all of its lines
@@ -91,14 +115,49 @@
 					(setq gone (+ gone seg) x nx y ny at (+ at 2))))))
 	out)
 
-(defun outline-flat (outline fill stroke radius join cap1 cap2 &optional trim)
-	; (outline-flat outline fill stroke radius join cap1 cap2 [trim]) -> (fills strokes box)
+(defun outline-dashes (p closed on off phase)
+	; (outline-dashes p closed on off phase) -> (path ...)
+	;the dashes of a line, on long and off apart, the first of them begun
+	;phase along the pattern. A phase that grows marches them along it.
+	;With no gap it is the one line, a stroke with no dash
+	(defq n (length p) out (list) period (+ on off) dash :nil)
+	(when (and (>= n 4) (> on 0.0) (> off 0.0))
+		;how far into the pattern the line starts, on is the first part of it
+		(defq at (- phase (* period (n2f (n2i (/ phase period))))))
+		(if (< at 0.0) (setq at (+ at period)))
+		(defq i 2 x (elem-get p 0) y (elem-get p 1) going :t)
+		(if (< at on) (push (setq dash (path)) x y))
+		(while (and going (or (< i n) (and closed (= i n))))
+			(defq nx (if (< i n) (elem-get p i) (elem-get p 0))
+				ny (if (< i n) (elem-get p (inc i)) (elem-get p 1))
+				dx (- nx x) dy (- ny y) seg (sqrt (+ (* dx dx) (* dy dy))) done 0.0)
+			;each change from on to off, or back, on this part of the line
+			(while (< done seg)
+				(defq left (- (if (< at on) on period) at) step (min left (- seg done)))
+				(setq done (+ done step) at (+ at step))
+				(defq f (if (> seg 0.0) (/ done seg) 1.0) px (+ x (* f dx)) py (+ y (* f dy)))
+				(cond
+					((>= at period)
+						(setq at 0.0)
+						(push (setq dash (path)) px py))
+					((and (>= at on) dash)
+						(push dash px py)
+						(push out dash)
+						(setq dash :nil))
+					(dash (push dash px py))))
+			(setq x nx y ny i (+ i 2)))
+		(and dash (>= (length dash) 4) (push out dash)))
+	out)
+
+(defun outline-flat (outline fill stroke radius join cap1 cap2 &optional trim dash)
+	; (outline-flat outline fill stroke radius join cap1 cap2 [trim dash]) -> (fills strokes box)
 	;the polygons an outline is drawn with, and the box they are all in,
 	;:nil if there are none. Its closed lines are filled if fill is not 0,
 	;and all of them stroked radius either side if stroke is not 0, a line
 	;whose points are all the one point as a dot. trim, under 1.0, is how
 	;much of each line is stroked, from its start. A stroke too short to
-	;have a width, the first hair of a line being drawn, is left out
+	;have a width, the first hair of a line being drawn, is left out. dash,
+	;(on off phase), strokes each line as dashes, (outline-dashes)
 	(defq fills (list) strokes (list) trim (ifn trim 1.0))
 	(if (/= fill 0)
 		(each (lambda ((closed p)) (if (>= (length p) 6) (push fills p))) outline))
@@ -110,6 +169,11 @@
 						((every (# (eql %0 at)) pts)
 							(push strokes (path-gen-arc (first p) (second p) 0.0 +fp_2pi radius (path))))
 						((< (length p) 4))
+						(dash
+							(bind '(on off phase) dash)
+							(each (# (push strokes (path-stroke-polyline %0 radius join cap1 cap2)))
+								(outline-dashes (if (< trim 1.0) (morph-trim p closed (max trim 0.0)) p)
+									(and closed (>= trim 1.0)) on off phase)))
 						((< trim 1.0)
 							(push strokes (path-stroke-polyline (morph-trim p closed (max trim 0.0)) radius join cap1 cap2)))
 						(closed
