@@ -14,12 +14,14 @@
 ;save, a name may be written of one not there, in a folder not there yet,
 ;which the host makes as the file is written, and one that is there is
 ;replaced only when asked again. A folder of the tree is from its top,
-;one of the host from /, one of the store from store:, lib/files/names.inc.
+;one of the host from /, one of the store from store:, one of another
+;store from store://who/, lib/files/names.inc.
 ;
 ;Down the side the places to go to: the tree, the user's folder, the
 ;app's own folders, the store if there is one and the app takes its
-;objects, and those of the app that asked, where it last took a file from,
-;newest first, kept for each user and app in the user's places.tre.
+;objects, the stores of the others of the mesh, and those of the app that
+;asked, where it last took a file from, newest first, kept for each user
+;and app in the user's places.tre.
 ;
 ;It is mailed reply_mbox then title|root[|kinds[|mode[|app[|names[|places]]]]]: root a
 ;folder, or a file to start at, its name in the field, "." to start where
@@ -44,24 +46,25 @@
 
 (defun folder-of (path)
 	;a folder written as it is kept: of the tree from its top, no ./, of
-	;the host from /, of the store from store:, and no / at the end
+	;the host from /, of a store from its top, and no / at the end
 	(while (starts-with "./" path) (setq path (slice path 2 -1)))
-	(while (and (> (length path) 1) (ends-with "/" path) (nql path +name_store)) (setq path (slice path 0 -2)))
+	(while (and (> (length path) 1) (ends-with "/" path) (nql path (name-store-top path))) (setq path (slice path 0 -2)))
 	(if (eql path "") "." path))
 
 (defun folder-above (folder)
 	;the folder a folder is in, the top of the tree, of the host or of the
 	;store no further
 	(cond
-		((find folder (list "." "/" +name_store)) folder)
+		((find folder (list "." "/")) folder)
+		((defq top (name-store-top folder))
+			(if (and (defq at (rfind "/" folder)) (> at (length top))) (slice folder 0 (dec at)) top))
 		((defq at (rfind "/" folder)) (if (= at 1) "/" (slice folder 0 (dec at))))
-		((name-in-store folder) +name_store)
 		(".")))
 
 (defun path-in (folder name)
 	(cond
 		((eql folder ".") name)
-		((find folder (list "/" +name_store)) (cat folder name))
+		((or (eql folder "/") (eql folder (name-store-top folder))) (cat folder name))
 		((cat folder "/" name))))
 
 (defun name-last (full)
@@ -75,7 +78,7 @@
 	;a folder as the path field and a place say it
 	(cond
 		((eql folder ".") "./")
-		((find folder (list "/" +name_store)) folder)
+		((or (eql folder "/") (eql folder (name-store-top folder))) folder)
 		((cat folder "/"))))
 
 (defun wanted? (name engine meta)
@@ -183,12 +186,13 @@
 
 (defun places-show ()
 	;the places down the side: the tree, the user's folder, the folders the
-	;app gave that are there, the store if this machine has one and the app
-	;takes its objects, then where the app last took things from, a button
-	;each, in a scroll of their own
+	;app gave that are there, if the app takes objects of a store this
+	;machine's if it has one and each of the others of the mesh, then where
+	;the app last took things from, a button each, in a scroll of their own
 	(defq home (folder-of (get :home *env*))
 		given (filter (# (and (folder? %0) (not (find %0 (list "." home))))) *given*)
-		fixed (cat (list "." home) given (if (and *names* (storage-service)) (list +name_store) (list))))
+		stores (if *names* (map (lambda ((id svc member)) (if member (cat +name_stores id "/") +name_store)) (storage-stores)) (list))
+		fixed (cat (list "." home) given stores))
 	(setq *place_list* (cat fixed
 			(filter! (# (and (nempty? %0) (not (find %0 fixed)))) *app_places* 1 -1)))
 	(if (> (length *place_list*) +places_max) (setq *place_list* (slice *place_list* 0 +places_max)))
@@ -200,6 +204,7 @@
 					((eql folder ".") "The tree")
 					((eql folder home) "Your folder")
 					((eql folder +name_store) "The store")
+					((eql folder (name-store-top folder)) (cat "Store " (slice folder (length +name_stores) -2)))
 					((place-name folder named))))
 			*place_list*))
 	(each (# (. %0 :sub)) (. *places* :children))

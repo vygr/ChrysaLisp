@@ -21,22 +21,11 @@
 	;the files of this machine, its store if it has one, and the stores of
 	;the other machines of the mesh, one member of each store, as the
 	;group says who is there: the members of a store have the one tree
-	(defq out (list (list "Files of this machine" :host :nil)) ids (list))
-	(when (defq svc (storage-service))
-		(defq id (. (ifn (storage-info svc) (Emap)) :find :id))
-		(push ids id)
-		(push out (list (cat "Store " id ", this machine") :store svc)))
-	;the group's name, the service, its machine, and the store and member
-	(each (lambda (entry)
-			(defq parts (split entry ","))
-			(when (> (length parts) 3)
-				(bind '(id member &ignore) (split (elem-get parts 3) " "))
-				(unless (find id ids)
-					(push ids id)
-					(push out (list (cat "Store " id ", of " (slice member 0 (min 8 (length member))))
-							:store (hex-decode (second parts)))))))
-		(mail-enquire (cat +storage_group ",")))
-	out)
+	(cat (list (list "Files of this machine" :host :nil))
+		(map (lambda ((id svc member))
+				(list (cat "Store " id (if member (cat ", of " (slice member 0 (min 8 (length member)))) ", this machine"))
+					:store svc))
+			(storage-stores))))
 
 (defun side-source (side)
 	;what a side is, (label kind svc)

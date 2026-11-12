@@ -60,6 +60,37 @@
 				svc))
 		(mail-enquire (cat +storage_group ","))))
 
+(defun storage-stores (&optional name group)
+	; (storage-stores [name group]) -> ((id svc member) ...)
+	;each store of the mesh, by one member of it that is up, as the group
+	;says who is there, this machine's first if it has one, its member :nil:
+	;the members of a store have the one tree. The group's name, the
+	;service, its machine, and the store and member. A name and group of
+	;their own are a test's
+	(defq out (list) ids (list))
+	(when (defq svc (storage-service name))
+		(push ids (defq id (. (ifn (storage-info svc) (Emap)) :find :id)))
+		(push out (list id svc :nil)))
+	(each (lambda (entry)
+			(defq parts (split entry ","))
+			(when (> (length parts) 3)
+				(bind '(id member &ignore) (split (elem-get parts 3) " "))
+				(unless (find id ids)
+					(push ids id)
+					(push out (list id (hex-decode (second parts)) member)))))
+		(mail-enquire (cat (ifn group +storage_group) ",")))
+	out)
+
+(defun storage-service-of (who &optional name group)
+	; (storage-service-of who [name group]) -> :nil | netid
+	;the Storage service of a store by its id, or of a machine by the start
+	;of its system id, as mesh lists it: what is in it looked at, put or
+	;got, as a client, this machine no member of it if it is another's
+	(or (some (lambda ((id svc member))
+				(if (or (eql id who) (and member (starts-with (to-upper who) (to-upper member)))) svc))
+			(storage-stores name group))
+		(unless group (storage-service-on who))))
+
 (defun storage-there? (svc)
 	; (storage-there? svc) -> :nil | :t
 	;is the task of a service there still: one of this node can be asked,
