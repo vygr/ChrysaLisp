@@ -336,14 +336,24 @@
 	(and (defq entry (storage-stat name svc))
 		(store-manifest-walk (elem-get entry +store_entry_hash) (# (storage-block %0 svc)))))
 
+;how many blocks of an object storage-get has on their way at once
+(defq +storage_get_ahead 16)
+
 (defun storage-get (name &optional svc)
 	; (storage-get path [svc]) -> :nil | data
-	;all of an object. :nil if there is none, or a block of it can not be had
+	;all of an object. :nil if there is none, or a block of it can not be
+	;had. Its blocks are asked for so many at once, (storage-gets), and
+	;written into it as they come, its length known from its manifest:
+	;between machines it is the going and coming that takes the time, and
+	;a block at a time was a quarter of what the link could carry
 	(setd svc (storage-service))
 	(when (defq object (storage-manifest name svc))
-		(defq parts (list ""))
-		(if (every (# (if (defq data (storage-block %0 svc)) (push parts data))) (second object))
-			(apply (const cat) parts))))
+		(defq names (second object) out (string-stream (str-alloc (first object))) at 0 whole :t)
+		(while (and whole (< at (length names)))
+			(each (# (if %0 (write-blk out %0) (setq whole :nil)))
+				(storage-gets svc (slice names at (min (length names) (+ at +storage_get_ahead)))))
+			(setq at (+ at +storage_get_ahead)))
+		(if whole (str out))))
 
 ;the manifest of an object had a part at a time, as it is read: the top
 ;when it is opened, and the rest a block of it at a time, when a block of
