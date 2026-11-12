@@ -81,8 +81,12 @@
 		;off and on is not a reason to copy what it kept
 		(defq there (list member))
 		(. heard :each (lambda (who when) (if (<= (- now when) grace) (push there who))))
+		;with no other member there, there is no share to look to: none to
+		;have a block from, and none to keep one in its place. To work it
+		;out is a walk of every object of the store after each write, a
+		;big store's service seconds at it, and every asker waits
 		(defq there (filter (# (find %0 (. (ifn (storage-state svc) me) :find :members))) there)
-			more :t rounds 0)
+			more (nempty? peers) rounds 0)
 		;my share. A manifest fetched says what more there is to want, so
 		;it is asked again, while what was asked for comes: a look that
 		;stopped short of it left the rest for the next, a tick away
