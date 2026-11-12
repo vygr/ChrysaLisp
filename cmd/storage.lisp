@@ -177,22 +177,23 @@
 (defun store-say (svc members)
 	;each member of the store, a line each: this machine, one that is
 	;there or one that is not, and as far as the mesh knows, what it is
-	;and where
-	(defq me (. (storage-info svc) :find :member) there (store-there svc)
+	;and where. This machine is this one, not the member that answers,
+	;which is another's for a store looked at with -o
+	(defq me (hex-encode (system-id)) there (store-there svc)
 		peers (ifn (net-peers-rpc) (list)) systems (lisp-systems))
 	(each (lambda (member)
 			(defq sys (some (# (if (eql (hex-encode %0) (to-upper member)) %0)) systems)
 				ip (some (lambda ((id ip &ignore)) (if (eql (to-upper id) (to-upper member)) ip)) peers)
-				state (cond ((eql member me) "this machine") ((find member there) "there") ("not there")))
+				state (cond ((eql (to-upper member) me) "this machine") ((find member there) "there") ("not there")))
 			(defq more (cat (if sys (cat "  " (net-what-is sys)) "") (if ip (cat "  " ip) "")))
 			(print "    " (slice member 0 8) "  " state (if (nempty? more) (cat (pad "" (- 12 (length state))) more) "")))
 		members))
 
 (defun store-to (svc)
 	;before a put, the store it goes to and who keeps it, on one line
-	(defq info (storage-info svc) me (. info :find :member) there (store-there svc))
+	(defq info (storage-info svc) me (hex-encode (system-id)) there (store-there svc))
 	(print "To " (. info :find :id) ", kept by its members: "
-		(join (map (# (cat (slice %0 0 8) (cond ((eql %0 me) " this machine") ((find %0 there) " there") (" not there"))))
+		(join (map (# (cat (slice %0 0 8) (cond ((eql (to-upper %0) me) " this machine") ((find %0 there) " there") (" not there"))))
 				(ifn (storage-members :nil svc) (list))) ", ")))
 
 (defun got-all (object)
