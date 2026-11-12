@@ -73,6 +73,10 @@
 ;asked, or by nothing asked for this long
 (defq +batch_quiet 100000)
 
+;how long the plan of what this member is to keep is worked on at a
+;time, between the things asked: a big store's is seconds of work
+(defq +plan_slice 2000)
+
 (defun notes-text (store at)
 	;what one member tells another: where its count of changes is now,
 	;who the members are, and its path map, or what of it is not as it was
@@ -153,6 +157,16 @@
 				(defq msg (and batch (mail-read-timeout (task-mbox) +batch_quiet)))
 				(unless msg
 					(if batch (setq batch (progn (exfat-end batch) :nil)))
+					;the plan is worked on while nothing is asked, a slice at a
+					;time, with the apps of the node, not before them. One that
+					;throws is let go of, and made anew when next asked
+					(when (and (store-plan-busy? store) (not (mail-poll (list (task-mbox)))))
+						(task-band :app)
+						(catch (while (and (store-plan-step store (+ (pii-time) +plan_slice)) (not (mail-poll (list (task-mbox)))))
+								(task-breathe))
+							(progn (prin "Storage: plan, " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print)
+								(store-plan-forget store) :t))
+						(task-band :bot))
 					(setq msg (mail-read (task-mbox))))
 				;a stop to its open that came as it was up, (storage-start),
 				;is no request and is let go
@@ -255,8 +269,11 @@
 							(+storage_type_share
 								;its share among the members that are there: what it wants,
 								;a line of -, and what it has that is others' to keep, each
-								;with who they are. No more than so many at a time
-								(bind '(wants extras) (store-share store (split body " ")))
+								;with who they are. No more than so many at a time. Nothing
+								;till there is a plan for them, it is made when nothing
+								;else is asked
+								(bind '(wants extras) (ifn (store-share-now store (split body " ") (+ (pii-time) +plan_slice) +share_most)
+									(list (list) (list))))
 								(join (cat (map! (const hex-encode) (list wants) 0 (min +share_most (length wants)))
 										(list "-")
 										(map! (lambda ((hash holders)) (join (cat (list (hex-encode hash)) holders) " ")) (list extras) 0 (min +share_most (length extras))))

@@ -229,6 +229,38 @@
 ;with only two of the members there, they keep everything between them
 (assert-list-eq "with two members there, a member has nothing that is not its to keep" '() (second (store-share sm_s1 '("aaaa" "bbbb"))))
 
+;what it is to keep is kept up to date as paths are set, and is what it
+;would be if it was worked out anew
+(defun sm-shared (got)
+	(list (sort (map (const hex-encode) (first got)))
+		(sort (map (lambda ((name holders)) (cat (hex-encode name) " " (join holders " "))) (second got)))))
+(defun sm-afresh (store among)
+	;the plan made for another member alone first, then for them
+	(store-share store '("aaaa"))
+	(sm-shared (store-share store among)))
+(store-share sm_s1 sm_five)
+(store-share sm_s2 sm_five)
+;an object of 8 blocks of the first and 12 more
+(store-put sm_s1 "more" (cat (slice sm_obj 0 (* 8 4096))
+	(apply (const cat) (map! (# (cat (sha256 (str "more" (!))) (exfat-zeros 4064))) '() 0 12))))
+(assert-list-eq "while what was set is still to be added, nothing is said to be others'"
+	'() (second (store-share-now sm_s1 sm_five (pii-time))))
+(defq sm_kept (sm-shared (store-share sm_s1 sm_five)))
+(assert-list-eq "added to, it is as it would be made anew" (sm-afresh sm_s1 sm_five) sm_kept)
+;another member hears of it, and then has its manifest
+(store-meet sm_s2 (store-entries sm_s1))
+(setq sm_kept (sm-shared (store-share sm_s2 sm_five)))
+(assert-list-eq "one that has heard of it, as it would be made anew" (sm-afresh sm_s2 sm_five) sm_kept)
+(store-block-put sm_s2 (store-block-get sm_s1 (store-now sm_s1 "more")))
+(setq sm_kept (sm-shared (store-share sm_s2 sm_five)))
+(assert-true "and with its manifest, it wants more" (> (length (first sm_kept)) 1))
+(assert-list-eq "and is as it would be made anew" (sm-afresh sm_s2 sm_five) sm_kept)
+;a delete: what it said is used till it is made anew, and is then as it would be
+(store-delete sm_s1 "more")
+(assert-true "deleted, what there was is said meanwhile" (list? (store-share-now sm_s1 sm_five (pii-time))))
+(setq sm_kept (sm-shared (store-share sm_s1 sm_five)))
+(assert-list-eq "and when it is made anew, it is as it would be" (sm-afresh sm_s1 sm_five) sm_kept)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; only what is new is told, and it is written later
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
