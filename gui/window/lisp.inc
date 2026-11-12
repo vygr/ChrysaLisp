@@ -18,6 +18,13 @@
 	(when (or (< w min_w) (< h min_h))
 		(setq w (max min_w (+ cw (/ (* (- min_h ch) aw) ah)))
 			h (+ ch (/ (* (- w cw) ah) aw))))
+	;a top or left edge that moves is not taken off the screen, it stops at
+	;its edge and the other way is cut to keep the shape: the title, its
+	;buttons and the drag are always there to be had
+	(and (bits? mode 2) (< y1 h)
+		(setq h y1 w (+ cw (/ (* (- h ch) aw) ah))))
+	(and (bits? mode 1) (< x1 w)
+		(setq w x1 h (+ ch (/ (* (- w cw) ah) aw))))
 	(if (bits? mode 1) (setq x (- x1 w)))
 	(if (bits? mode 2) (setq y (- y1 h)))
 	(list x y (+ x w) (+ y h)))

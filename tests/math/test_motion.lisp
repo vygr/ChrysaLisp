@@ -337,6 +337,10 @@
 	(str (window-aspect 100 340 300 640 2 10 40 640 480 100 100)))
 (assert-eq "a corner, the side says" (str '(50 50 460 390))
 	(str (window-aspect 50 200 460 390 3 10 40 640 480 100 100)))
+(assert-eq "the top held stops at the top of the screen" (str '(100 0 456 300))
+	(str (window-aspect 100 100 510 300 6 10 40 640 480 100 100)))
+(assert-eq "the left held stops at the left of the screen" (str '(0 100 300 357))
+	(str (window-aspect -100 100 300 300 9 10 40 640 480 100 100)))
 (assert-eq "never smaller than it can be" (str '(100 100 363 329))
 	(str (window-aspect 100 100 120 120 12 10 40 640 480 100 230)))
 
