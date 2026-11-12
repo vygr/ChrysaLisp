@@ -15,7 +15,7 @@
 	;load state
 	(defq config (with-read-lock +config_file
 			(tree-load (file-stream +config_file))))
-	(when (and config (= (. config :find :version) +config_version))
+	(when (and config (eql (. config :find :version) +config_version))
 		(bind '(zoom find_txt wwords regx icase)
 			(gather config :zoom :find :whole_words :regexp :ignore_case))
 		(def *window* :zoom zoom)

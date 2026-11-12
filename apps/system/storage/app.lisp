@@ -67,7 +67,7 @@
 
 (defun config-load ()
 	(defq config (with-read-lock +config_file (tree-load (file-stream +config_file))))
-	(if (or (not config) (/= (. config :find :version) +config_version))
+	(if (or (not config) (nql (. config :find :version) +config_version))
 		(setq config (scatter (Emap) :version +config_version :scene "demo" :trace :nil :shown "" :record :nil)))
 	(if (defq at (find (. config :find :scene) *scenes*)) (. *scene* :set_selected at))
 	;the object that was shown is wanted, and shown when it is there

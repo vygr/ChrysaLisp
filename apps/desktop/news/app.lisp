@@ -27,7 +27,7 @@
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
 			(tree-load (file-stream +config_file))))
-	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(setq *selected_category* (. *config* :find :selected_category)))
 
