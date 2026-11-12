@@ -29,6 +29,12 @@
 		(. m :each (lambda (k v) (push keys k) (push vals v)))
 		(assert-eq (cat ,name " each count") 3 (length keys))
 
+		; some, it stops at the first that is not :nil, and gives it
+		(defq seen 0)
+		(assert-true (cat ,name " some finds one") (find (. m :some (lambda (k v) (++ seen) k)) keys))
+		(assert-eq (cat ,name " some stops there") 1 seen)
+		(assert-eq (cat ,name " some of none") :nil (. m :some (lambda (k v) :nil)))
+
 		; copy (shallow copy verification)
 		(defq shallow_list (list 1 2))
 		(defq shallow_arr (array 10 20))

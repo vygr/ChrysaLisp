@@ -52,6 +52,12 @@
 		(each (# (each (lambda (k) (callback fnc e k)) %0)) (get :buckets this))
 		this)
 
+	(defmethod :some (fnc)
+		; (. xset :some lambda) -> :nil | val
+		;each key till the lambda gives other than :nil, what it gave
+		(defq e (penv))
+		(some (# (some (lambda (k) (callback fnc e k)) %0)) (get :buckets this)))
+
 	(defmethod :tolist ()
 		; (. xset :tolist) -> list
 		(apply (const cat) (get :buckets this)))

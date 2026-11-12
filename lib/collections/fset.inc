@@ -47,6 +47,14 @@
 			(get :buckets this))
 		this)
 
+	(defmethod :some (fnc)
+		; (. fset :some lambda) -> :nil | val
+		;each key till the lambda gives other than :nil, what it gave
+		(defq e (penv))
+		(some (lambda (bucket)
+				(some (lambda (k) (callback fnc e k)) bucket))
+			(get :buckets this)))
+
 	(defmethod :tolist ()
 		; (. fset :tolist) -> list
 		(defq out (list))

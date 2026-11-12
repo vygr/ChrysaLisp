@@ -46,6 +46,12 @@
 		(each (lambda ((k v)) (callback fnc e k v)) (. this :tolist))
 		this)
 
+	(defmethod :some (fnc)
+		; (. lmap :some lambda) -> :nil | val
+		;each key and value till the lambda gives other than :nil, what it gave
+		(defq e (penv))
+		(some (lambda ((k v)) (callback fnc e k v)) (. this :tolist)))
+
 	(defmethod :tolist ()
 		; (. lmap :tolist) -> list
 		(partition (get :bucket this) 2))

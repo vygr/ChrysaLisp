@@ -40,6 +40,12 @@
 		(each (lambda ((k v)) (callback fnc e k v)) (tolist (get :buckets this)))
 		this)
 
+	(defmethod :some (fnc)
+		; (. emap :some lambda) -> :nil | val
+		;each key and value till the lambda gives other than :nil, what it gave
+		(defq e (penv))
+		(some (lambda ((k v)) (callback fnc e k v)) (tolist (get :buckets this))))
+
 	(defmethod :tolist ()
 		; (. emap :tolist) -> list
 		(tolist (get :buckets this)))

@@ -68,6 +68,13 @@
 			(partition (get :buckets this) 2))
 		this)
 
+	(defmethod :some (fnc)
+		; (. xmap :some lambda) -> :nil | val
+		;each key and value till the lambda gives other than :nil, what it gave
+		(defq e (penv))
+		(some (lambda ((kl vl)) (some (lambda (k v) (callback fnc e k v)) kl vl))
+			(partition (get :buckets this) 2)))
+
 	(defmethod :tolist ()
 		; (. xmap :tolist) -> list
 		(defq out (list))

@@ -12,6 +12,8 @@
 	; (. map :erase key) -> map
 	(defabstractmethod :each (fnc))
 	; (. map :each lambda) -> map
+	(defabstractmethod :some (fnc))
+	; (. map :some lambda) -> :nil | val
 	(defabstractmethod :tolist ())
 	; (. map :tolist) -> list
 	(defabstractmethod :copy ())

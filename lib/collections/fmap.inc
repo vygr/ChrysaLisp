@@ -50,6 +50,14 @@
 			(get :buckets this))
 		this)
 
+	(defmethod :some (fnc)
+		; (. fmap :some lambda) -> :nil | val
+		;each key and value till the lambda gives other than :nil, what it gave
+		(defq e (penv))
+		(some (lambda (bucket)
+				(some (lambda ((k v)) (callback fnc e k v)) (partition bucket 2)))
+			(get :buckets this)))
+
 	(defmethod :tolist ()
 		; (. fmap :tolist) -> list
 		(defq out (list))

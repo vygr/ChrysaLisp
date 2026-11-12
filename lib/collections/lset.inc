@@ -44,6 +44,12 @@
 		(each (lambda (k) (callback fnc e k)) (get :bucket this))
 		this)
 
+	(defmethod :some (fnc)
+		; (. lset :some lambda) -> :nil | val
+		;each key till the lambda gives other than :nil, what it gave
+		(defq e (penv))
+		(some (lambda (k) (callback fnc e k)) (get :bucket this)))
+
 	(defmethod :tolist ()
 		; (. lset :tolist) -> list
 		(merge (list) (get :bucket this)))

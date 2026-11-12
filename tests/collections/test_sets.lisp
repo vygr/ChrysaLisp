@@ -94,6 +94,12 @@
 		(. s :each (lambda (i) (push items i)))
 		(assert-eq (cat ,name " each count") 3 (length items))
 
+		; some, it stops at the first that is not :nil, and gives it
+		(defq seen 0)
+		(assert-true (cat ,name " some finds one") (find (. s :some (lambda (i) (++ seen) i)) items))
+		(assert-eq (cat ,name " some stops there") 1 seen)
+		(assert-eq (cat ,name " some of none") :nil (. s :some (lambda (i) :nil)))
+
 		; copy (shallow copy verification)
 		(defq shallow_list (list 1 2))
 		(defq shallow_arr (array 10 20))
