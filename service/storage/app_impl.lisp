@@ -271,10 +271,13 @@
 								;a line of -, and what it has that is others' to keep, each
 								;with who they are. No more than so many at a time. Nothing
 								;till there is a plan for them, it is made when nothing
-								;else is asked
-								(bind '(wants extras) (ifn (store-share-now store (split body " ") (+ (pii-time) +plan_slice) +share_most)
-									(list (list) (list))))
-								(join (cat (map! (const hex-encode) (list wants) 0 (min +share_most (length wants)))
+								;else is asked, and none of what is others' while what was
+								;set is still to be added to it: then a first line of ?,
+								;there is more to come, to be asked again
+								(defq got (store-share-now store (split body " ") (+ (pii-time) +plan_slice) +share_most))
+								(bind '(wants extras) (ifn got (list (list) (list))))
+								(join (cat (if (or (not got) (get :plan_adds store)) (list "?") (list))
+										(map! (const hex-encode) (list wants) 0 (min +share_most (length wants)))
 										(list "-")
 										(map! (lambda ((hash holders)) (join (cat (list (hex-encode hash)) holders) " ")) (list extras) 0 (min +share_most (length extras))))
 									+storage_lf))

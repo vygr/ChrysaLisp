@@ -25,6 +25,10 @@
 ;how many blocks are asked for at once
 (defq +tender_window 32)
 
+;how long the service is given at its plan, when a share says it is still
+;at it, before it is asked again
+(defq +tender_plan_wait 10000)
+
 (defun others (svc group me)
 	; (others svc group me) -> ((member netid state) ...)
 	;the other members of my store that are there, and not cut off from
@@ -93,6 +97,9 @@
 		(while (and more (< (++ rounds) 256))
 			(setq more :nil)
 			(defq lines (split (ifn (storage-ask svc +storage_type_share (join there " ") 60) "-") +storage_lf)
+				;a first line of ?, the service is still at its plan: asked again,
+				;once it has had a moment at it
+				busy (eql (first lines) "?") lines (if busy (rest lines) lines)
 				at (ifn (find "-" lines) (length lines)))
 			;so many at a time. Each peer is asked the once which of them it
 			;has, then each block is asked of one that has it, in turn where
@@ -147,7 +154,10 @@
 									holders)
 								(storage-send svc +storage_type_block_drop (hex-decode extra))))
 						extras))
-				(each (# (and %0 (eql (mail-read-timeout %0 (task-timeout 10)) "1") (++ dropped))) drops))))
+				(each (# (and %0 (eql (mail-read-timeout %0 (task-timeout 10)) "1") (++ dropped))) drops))
+			;the service still at its plan, a moment for it, nothing asked of
+			;it meanwhile, and then asked again
+			(when busy (setq more :t) (task-sleep +tender_plan_wait))))
 	(list met fetched dropped))
 
 (defun main ()
