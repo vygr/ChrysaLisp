@@ -54,7 +54,7 @@
 		(each (lambda ((font_file radius joint cap))
 				;a font made of the set as it is, under a name of its own, as
 				;a font is kept by its name once made
-				(defq tmp (cat "obj/symbols_picture_" (str (pii-pid)) "_" (str (!)) ".ctf") y (+ 8 (* (!) block)))
+				(defq tmp (cat "tests/scratch/symbols_picture_" (str (pii-pid)) "_" (str (!)) ".ctf") y (+ 8 (* (!) block)))
 				(save (sym-font *symbols* radius joint cap) tmp)
 				(defq small (create-font tmp +pic_small) big (create-font tmp +pic_big))
 				(each (lambda (codes)

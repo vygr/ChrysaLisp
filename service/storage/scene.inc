@@ -52,7 +52,7 @@
 	ok)
 
 (defun scene-image (scene id)
-	(cat "obj/storage_scene_" (. scene :find :tag) "_" id ".img"))
+	(cat "tests/scratch/storage_scene_" (. scene :find :tag) "_" id ".img"))
 
 (defun scene-start (scene id)
 	; (scene-start scene id) -> :nil | netid
@@ -220,16 +220,16 @@
 	; (scene-sweep) -> count
 	;the stores of scenes whose process has gone are removed. A scene cut
 	;short, its test given up on or its node gone, never stopped its members
-	;nor removed their stores, and its images were left in obj/. Each has
-	;the process of its scene in its name, how many were removed
+	;nor removed their stores, and its images were left in tests/scratch/.
+	;Each has the process of its scene in its name, how many were removed
 	(defq gone 0)
 	(each! (lambda (file type)
 			(when (and (eql type "f") (starts-with "storage_scene_" file)
 					(or (ends-with ".img" file) (ends-with ".img.member" file))
 					(not (pii-alive (str-as-num (first (split (slice file 14 -1) "_"))))))
-				(pii-remove (cat "obj/" file))
+				(pii-remove (cat "tests/scratch/" file))
 				(++ gone)))
-		(dir-list "obj"))
+		(dir-list "tests/scratch"))
 	gone)
 
 (defun scene-run (name say &optional record wait)
