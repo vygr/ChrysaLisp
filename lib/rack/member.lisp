@@ -4,9 +4,11 @@
 ;and tests nothing itself, a session is started for that. rack.sh starts
 ;and stops it.
 ;
-;It is also a way in from a shell. A command line left in the file
-;/tmp/chrysalisp_rack_job is run here, and what it said is left in
-;/tmp/chrysalisp_rack_result, with DONE as its last line.
+;It is also a way in from a shell. A command line left in a file
+;/tmp/chrysalisp_rack_job_<tag> is run here, and what it said is left in
+;/tmp/chrysalisp_rack_result_<tag>, with DONE as its last line. Each job
+;has its own tag, rack.sh run's, and they are run one at a time, the
+;oldest first, so one is never given another's answer.
 ;
 ;It is stopped by leaving /tmp/chrysalisp_rack_stop, as rack.sh does: the
 ;stores it keeps put what they have on their volumes first, and so does
@@ -34,6 +36,20 @@
 	(storage-stop-here)
 	(if update (save update "/tmp/chrysalisp_rack_update"))
 	(pii-exit))
+
+(defun job-next ()
+	; (job-next) -> :nil | tag
+	;the tag of the oldest job left for this member, the first by name of
+	;those left in the same second
+	(defq jobs (list))
+	(each! (lambda (name type)
+			(and (eql type "f") (starts-with "chrysalisp_rack_job_" name)
+				(defq info (pii-fstat (cat "/tmp/" name)))
+				(push jobs (list (first info) name))))
+		(dir-list "/tmp"))
+	(when (nempty? jobs)
+		(slice (second (first (sort jobs (lambda ((ta na) (tb nb))
+				(if (= ta tb) (cmp na nb) (- ta tb)))))) (length "chrysalisp_rack_job_") -1)))
 
 (mail-await (# (mail-first "@Net")) "service/net/app.lisp" +kn_call_run (task-timeout 2))
 ;and a lock, as any session has: a kernel a child sent here builds is
@@ -70,11 +86,14 @@
 	(when (pii-fstat "/tmp/chrysalisp_rack_stop")
 		(pii-remove "/tmp/chrysalisp_rack_stop")
 		(member-leave))
-	(when (defq text (load "/tmp/chrysalisp_rack_job"))
-		(pii-remove "/tmp/chrysalisp_rack_job")
+	;a job is taken whatever is in it, one that can not be read is not
+	;looked at again and again before the others
+	(when (and (defq tag (job-next))
+			(progn (defq job (cat "/tmp/chrysalisp_rack_job_" tag) text (load job))
+				(pii-remove job) text))
 		;what it says is written as it is said, so rack.sh run shows a long
 		;job as it goes, DONE last
-		(defq out (file-stream "/tmp/chrysalisp_rack_result" +file_open_write))
+		(defq out (file-stream (cat "/tmp/chrysalisp_rack_result_" tag) +file_open_write))
 		(catch (each (lambda (cmdline)
 					(if (nempty? cmdline) (pipe-run cmdline (# (write-blk out %0) (stream-flush out)))))
 				(split text "\n"))

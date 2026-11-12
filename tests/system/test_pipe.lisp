@@ -33,6 +33,15 @@
 (. pipe :close)
 (assert-true "pipe eof, then its output" (found? (apply (const cat) pipe_out) "after eof"))
 
+; --- pipe-run gives a command nothing: lisp with a file, which reads its
+; --- stdin after the file, goes on to its end ---
+(defq pipe_file (cat "tests/scratch/tmp_pipe_run_" (str (pii-pid)) ".lisp") pipe_out (list))
+(save "(print {the file was run})" pipe_file)
+(pipe-run (cat "lisp " pipe_file) (# (push pipe_out %0)))
+(pii-remove pipe_file)
+(assert-true "pipe-run of lisp with a file ends, its stdin ended for it"
+	(found? (apply (const cat) pipe_out) "the file was run"))
+
 ; --- Abort, the signal path ---
 (defq reply_mbox (mail-mbox)
 	pipe (pipe-test-child reply_mbox "(mail-read (task-mbox))"))

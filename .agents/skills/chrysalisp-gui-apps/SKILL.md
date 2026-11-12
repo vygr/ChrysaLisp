@@ -461,8 +461,8 @@ desktop of the agent's own:
 *	**A Test desktop, `widgets` and `grab`:** from the tree root on the M4,
 	`./rack.sh run 'rack -g -v -u Test -l arm64/Linux,x86_64/Darwin "launch
 	desktop/docs ; lisp -r (task-sleep 2000000) ; widgets -t Docs -d 5 -k text
-	; grab -t Docs /path/docs.png"'`, the result in
-	`/tmp/chrysalisp_rack_result`. `-l` leaves those machines out, it does not
+	; grab -t Docs /path/docs.png"'`, what it says shown by `rack.sh run`, from
+	`/tmp/chrysalisp_rack_result_<tag>` as it comes. `-l` leaves those machines out, it does not
 	pick them. The desktop of `rack -g` is hidden, the host given `-hidden`
 	(SDL3 hosts): never shown, never raised, no Dock icon, so it never takes
 	the input of whoever is at the machine, and `grab` reads the back buffer

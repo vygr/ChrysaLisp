@@ -9,7 +9,9 @@
 #           stops every node of the machine
 #   status  is it up
 #   run     have it run a command line, and say what came of it, as
-#           ./rack.sh run 'rack "tests -a"'
+#           ./rack.sh run 'rack "tests -a"'. Each run is a job of its
+#           own, run one at a time in the order sent: one sent while
+#           another is being run waits its turn, and says so
 # It joins the mesh and takes a sync, so a machine it is up on can be
 # written to, within its tree, by any machine that has its key, see
 # docs/ai_digest/rack.md. It is not started unless asked for.
@@ -89,6 +91,14 @@ function member_stop
 #written, and give it that long to: busy with a job it sees the ask once
 #the job is done. Then it, if it has not ended, and the nodes it started
 #are stopped as above
+#the files of jobs and their answers, left by a run that was killed, or
+#by a member that went part way through one
+function jobs_clear
+{
+	rm -f $TEMP/chrysalisp_rack_job_* $TEMP/chrysalisp_rack_result_* $TEMP/chrysalisp_rack_tmp_* \
+		$TEMP/chrysalisp_rack_job $TEMP/chrysalisp_rack_result
+}
+
 function member_leave
 {
 	local member=$1
@@ -238,6 +248,7 @@ case $what in
 			fi
 			: > $TEMP/chrysalisp_rack.log
 			rm -f $TEMP/chrysalisp_rack.pid
+			jobs_clear
 			nohup ./rack.sh loop < /dev/null > /dev/null 2>&1 &
 			echo $! > $TEMP/chrysalisp_rack_loop.pid
 			#the member says its own pid as it starts
@@ -258,6 +269,7 @@ case $what in
 			[ -n "$pid" ] && member_leave $pid
 			rm -f $TEMP/chrysalisp_rack.pid $TEMP/chrysalisp_rack_loop.pid $TEMP/chrysalisp_rack_update \
 				$TEMP/chrysalisp_rack_follow
+			jobs_clear
 			echo "stopped, pid $pid"
 		else
 			echo "was not up"
@@ -285,25 +297,39 @@ case $what in
 			echo "not up, ./rack.sh up"
 			exit 1
 		fi
-		rm -f $TEMP/chrysalisp_rack_result
-		echo "$*" > $TEMP/chrysalisp_rack_job.tmp
-		mv -f $TEMP/chrysalisp_rack_job.tmp $TEMP/chrysalisp_rack_job
+		#the job a file of its own, and its answer another, by a tag of this
+		#run, so one sent while another is being run waits its turn and
+		#neither has the other's answer. Written under another name and
+		#then moved, so the member never reads half of it. Both go when this
+		#does, a job not yet taken is not run
+		tag="$$_$(date +%s)"
+		job=$TEMP/chrysalisp_rack_job_$tag
+		result=$TEMP/chrysalisp_rack_result_$tag
+		trap 'rm -f $job $result' EXIT
+		trap 'exit 1' INT TERM HUP ALRM
+		echo "$*" > $TEMP/chrysalisp_rack_tmp_$tag
+		mv -f $TEMP/chrysalisp_rack_tmp_$tag $job
 		#the member writes what the job says as it is said: it is shown as
 		#it comes, whole lines, till the DONE it ends with
 		shown=0
+		n=0
 		while kill -0 $pid 2>/dev/null
 		do
-			if [ -f $TEMP/chrysalisp_rack_result ]
+			if [ -f $result ]
 			then
-				done=$(grep -c "^DONE$" $TEMP/chrysalisp_rack_result)
-				lines=$(wc -l < $TEMP/chrysalisp_rack_result)
+				done=$(grep -c "^DONE$" $result)
+				lines=$(wc -l < $result)
 				if [ $lines -gt $shown ]
 				then
-					sed -n "$((shown + 1)),${lines}p" $TEMP/chrysalisp_rack_result | grep -v "^DONE$"
+					sed -n "$((shown + 1)),${lines}p" $result | grep -v "^DONE$"
 					shown=$lines
 				fi
 				[ $done -gt 0 ] && exit 0
+			elif [ $n -eq 20 ] && [ -f $job ]
+			then
+				echo "waiting, the member is at a job sent before this one" >&2
 			fi
+			n=$((n+1))
 			sleep 0.1
 		done
 		echo "the member has gone"

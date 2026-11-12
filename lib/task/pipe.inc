@@ -170,9 +170,12 @@
 
 (defun pipe-run (cmdline &optional out)
 	; (pipe-run cmdline [outfun])
+	;what the commands say is had, nothing is given them: their stdin
+	;ends at once, so one that reads it, lisp after its files, goes on
+	;to its end rather than waiting for ever on what will never come
 	(task-count -1) ;we will be only collating results !
 	(setd out print)
-	(defq pipe (Pipe cmdline))
+	(if (defq pipe (Pipe cmdline)) (. pipe :eof))
 	;an error from the outfun ends the pipe on its way by, what is left
 	;of it is not wanted. A pipe let go of while still open waits for ever
 	;on a command that has not stopped, and the error is never seen

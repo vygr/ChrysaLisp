@@ -66,6 +66,13 @@ function tree_stop ($root) {
     }
 }
 
+# the files of jobs and their answers, left by a run that was killed, or
+# by a member that went part way through one
+function jobs_clear {
+    Remove-Item "$T\chrysalisp_rack_job_*", "$T\chrysalisp_rack_result_*", "$T\chrysalisp_rack_tmp_*", `
+        "$T\chrysalisp_rack_job", "$T\chrysalisp_rack_result" -ErrorAction SilentlyContinue
+}
+
 function member_leave ($id) {
     # ask a member to stop, its stores closed first so no volume is left
     # part written, and give it that long to: busy with a job it sees the
@@ -238,6 +245,7 @@ switch ($what) {
             else { Remove-Item "$T\chrysalisp_rack_follow" -ErrorAction SilentlyContinue }
             Set-Content -Path $LOG -Value ""
             Remove-Item "$T\chrysalisp_rack.pid" -ErrorAction SilentlyContinue
+            jobs_clear
             $loop = Start-Process -FilePath (Get-Process -Id $PID).Path -WindowStyle Hidden -PassThru `
                 -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$NHROOT\rack.ps1`" loop"
             Set-Content -Path "$T\chrysalisp_rack_loop.pid" -Value $loop.Id
@@ -253,6 +261,7 @@ switch ($what) {
             if (alive $member_id) { member_leave $member_id }
             Remove-Item "$T\chrysalisp_rack.pid", "$T\chrysalisp_rack_loop.pid", "$T\chrysalisp_rack_update", `
                 "$T\chrysalisp_rack_follow" -ErrorAction SilentlyContinue
+            jobs_clear
             Write-Output "stopped, pid $member_id"
         } else {
             Write-Output "was not up"
@@ -273,18 +282,32 @@ switch ($what) {
     }
     "run" {
         if (-not $up) { Write-Output "not up, rack.bat up"; exit 1 }
-        Remove-Item "$T\chrysalisp_rack_result" -ErrorAction SilentlyContinue
-        Set-Content -Path "$T\chrysalisp_rack_job.tmp" -Value ($args[1..($args.Count - 1)] -join " ")
-        Move-Item -Path "$T\chrysalisp_rack_job.tmp" -Destination "$T\chrysalisp_rack_job" -Force
-        while (alive $member_id) {
-            if ((Test-Path "$T\chrysalisp_rack_result") -and (Select-String -Path "$T\chrysalisp_rack_result" -Pattern "^DONE$" -Quiet)) {
-                Get-Content "$T\chrysalisp_rack_result" | Where-Object { $_ -ne "DONE" }
-                exit 0
+        # the job a file of its own, and its answer another, by a tag of this
+        # run, so one sent while another is being run waits its turn and
+        # neither has the other's answer. Written under another name and
+        # then moved, so the member never reads half of it. Both go when this
+        # does, a job not yet taken is not run
+        $tag = "$($PID)_$([DateTimeOffset]::Now.ToUnixTimeSeconds())"
+        $job = "$T\chrysalisp_rack_job_$tag"
+        $result = "$T\chrysalisp_rack_result_$tag"
+        try {
+            Set-Content -Path "$T\chrysalisp_rack_tmp_$tag" -Value ($args[1..($args.Count - 1)] -join " ")
+            Move-Item -Path "$T\chrysalisp_rack_tmp_$tag" -Destination $job -Force
+            for ($n = 0; alive $member_id; $n++) {
+                if ((Test-Path $result) -and (Select-String -Path $result -Pattern "^DONE$" -Quiet)) {
+                    Get-Content $result | Where-Object { $_ -ne "DONE" }
+                    exit 0
+                }
+                if (($n -eq 20) -and (Test-Path $job)) {
+                    [Console]::Error.WriteLine("waiting, the member is at a job sent before this one")
+                }
+                Start-Sleep -Milliseconds 100
             }
-            Start-Sleep -Milliseconds 100
+            Write-Output "the member has gone"
+            exit 1
+        } finally {
+            Remove-Item $job, $result -ErrorAction SilentlyContinue
         }
-        Write-Output "the member has gone"
-        exit 1
     }
     "loop" {
         # what up starts, hidden, so it outlives the shell it was asked from
