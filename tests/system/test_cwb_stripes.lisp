@@ -166,6 +166,9 @@
 			(eql (st-bytes st_shared)
 				(progn (defq st_c (Canvas 320 240 1)) (. st_c :set_canvas_flags +canvas_flag_antialias)
 					(. st_board :draw st_c st_m) (st-bytes st_c))))
+		;the draw by one task above can take more than the while on a busy
+		;node, so no time at all is from now
+		(def st_stripes :stamp (pii-time))
 		(assert-eq "kept, with nothing to do for no time at all, they are left be" :idle
 			(progn (. st_stripes :keep) (get :state st_stripes)))
 		(def st_stripes :stamp (- (pii-time) 6000000))

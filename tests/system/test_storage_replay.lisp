@@ -131,8 +131,15 @@
 (assert-list-eq "its five members are in the recording" '("m-a" "m-b" "m-c" "m-d" "m-e") (sort (. rp2 :find :members)))
 (assert-true "what the scene said is in it too" (some (# (eql (elem-get %0 +ev_kind) "say")) (. rp2 :find :events)))
 (replay-seek rp2 (length (. rp2 :find :events)))
-(defq rp_m (replay-path rp2 "m-a" "big"))
-(assert-true "at the end every member has the object" (every (# (eql (replay-path rp2 %0 "big") rp_m)) '("m-a" "m-b" "m-c" "m-d" "m-e")))
+(defq rp_m (replay-path rp2 "m-a" "big")
+	rp_short (filter (# (nql (replay-path rp2 %0 "big") rp_m)) '("m-a" "m-b" "m-c" "m-d" "m-e")))
+;one that fails, 2 runs in 37 of the full suite on the M4 and never alone,
+;says what each member short of it has, and every line of the recording
+;of the object, as played
+(assert-eq "at the end every member has the object" :t
+	(or (and rp_m (empty? rp_short))
+		(list rp_m (map (# (list %0 (replay-path rp2 %0 "big"))) rp_short)
+			(map (const replay-line) (filter (# (eql (elem-get %0 +ev_path) "big")) (. rp2 :find :events))))))
 (defq rp_blocks (replay-blocks rp2 rp_m))
 (assert-eq "and what it is made of is known" 20 (length rp_blocks))
 (assert-true "every block is kept by three or more of them, as it was recorded"
