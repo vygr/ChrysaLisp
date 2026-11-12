@@ -35,7 +35,7 @@
 	(structure slot 0
 		(ptr this seqs func args)
 		(int dir end)
-		(uint old_idx))
+		(int old_idx))
 
 	;func, seqs and this are where :list :collect leaves them, and value
 	;where a deref and :list :min_length do, so the loop reads each from
@@ -68,13 +68,21 @@
 	(call :obj :ref '((:r0 +lisp_sym_nil)) `(,value))
 
 	(call :list :min_length `(,seqs) '(_ len))
-	(seq-elem-index idx len)
-	(seq-elem-index end len)
-
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2)
+	(vpif `(,len >= 0))
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
+		(gotoif `(,idx < 0) 'error2)
+		(gotoif `(,end < 0) 'error2)
+		(gotoif `(,idx > ,len) 'error2)
+		(gotoif `(,end > ,len) 'error2)
+	(else)
+		;no seqs, no length, -1: a span of the numbers as given, counted up
+		;from the start till the end, the end not done. A start at or past
+		;the end is none
+		(vpif `(,idx > ,end))
+			(vp-cpy-rr end idx)
+		(endif)
+	(endif)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -173,7 +181,7 @@
 	(structure slot 0
 		(ptr this seqs mode func args)
 		(int dir end)
-		(uint old_idx))
+		(int old_idx))
 
 	;func, seqs and this are where :list :collect leaves them, and value
 	;where a deref and :list :min_length do, so the loop reads each from
@@ -209,13 +217,21 @@
 	(call :obj :ref `(,mode) `(,value))
 
 	(call :list :min_length `(,seqs) '(_ len))
-	(seq-elem-index idx len)
-	(seq-elem-index end len)
-
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2)
+	(vpif `(,len >= 0))
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
+		(gotoif `(,idx < 0) 'error2)
+		(gotoif `(,end < 0) 'error2)
+		(gotoif `(,idx > ,len) 'error2)
+		(gotoif `(,end > ,len) 'error2)
+	(else)
+		;no seqs, no length, -1: a span of the numbers as given, counted up
+		;from the start till the end, the end not done. A start at or past
+		;the end is none
+		(vpif `(,idx > ,end))
+			(vp-cpy-rr end idx)
+		(endif)
+	(endif)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -322,7 +338,7 @@
 	(structure slot 0
 		(ptr this seqs func args out)
 		(int dir end)
-		(uint old_idx))
+		(int old_idx))
 
 	;func, seqs and this are where :list :collect leaves them, and value
 	;where a deref and a push do, so the loop reads each from the stack
@@ -360,13 +376,21 @@
 	(assign '(:r0) '((:rsp slot_out)))
 
 	(call :list :min_length `(,seqs) '(_ len))
-	(seq-elem-index idx len)
-	(seq-elem-index end len)
-
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2)
+	(vpif `(,len >= 0))
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
+		(gotoif `(,idx < 0) 'error2)
+		(gotoif `(,end < 0) 'error2)
+		(gotoif `(,idx > ,len) 'error2)
+		(gotoif `(,end > ,len) 'error2)
+	(else)
+		;no seqs, no length, -1: a span of the numbers as given, counted up
+		;from the start till the end, the end not done. A start at or past
+		;the end is none
+		(vpif `(,idx > ,end))
+			(vp-cpy-rr end idx)
+		(endif)
+	(endif)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -485,7 +509,7 @@
 	(structure slot 0
 		(ptr this seqs func args)
 		(int dir end)
-		(uint old_idx))
+		(int old_idx))
 
 	;func, seqs and this are where :list :collect leaves them, and value
 	;where a deref and :list :min_length do, so the loop reads each from
@@ -517,13 +541,21 @@
 	(class/obj/ref value dir)
 
 	(call :list :min_length `(,seqs) `(,seqs len))
-	(seq-elem-index idx len)
-	(seq-elem-index end len)
-
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2)
+	(vpif `(,len >= 0))
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
+		(gotoif `(,idx < 0) 'error2)
+		(gotoif `(,end < 0) 'error2)
+		(gotoif `(,idx > ,len) 'error2)
+		(gotoif `(,end > ,len) 'error2)
+	(else)
+		;no seqs, no length, -1: a span of the numbers as given, counted up
+		;from the start till the end, the end not done. A start at or past
+		;the end is none
+		(vpif `(,idx > ,end))
+			(vp-cpy-rr end idx)
+		(endif)
+	(endif)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -625,7 +657,7 @@
 	(structure slot 0
 		(ptr this seq func args out)
 		(int dir end)
-		(uint old_idx))
+		(int old_idx))
 
 	;this and value are where a deref, a push and a pop leave them, so
 	;the loop reads this from the stack the once, after the apply, that

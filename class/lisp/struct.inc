@@ -13,4 +13,7 @@
 	;a chain of empty environments, for the call of a lambda, see :lisp
 	;:env_push
 	(ptr env_pool)
-	(uint seq_idx stream_line nextsym))
+	;the index of the ! iterator at work, signed: with no seqs its span may
+	;be of any numbers
+	(int seq_idx)
+	(uint stream_line nextsym))
