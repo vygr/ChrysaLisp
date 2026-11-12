@@ -153,11 +153,9 @@
 		((= sequence +aac_eight_short)
 			(defq max_sfb (bits-get in 4) grouping (bits-get in 7) lengths (list 1))
 			;a 1 of the grouping puts the next window in the group before it
-			(each (lambda (i)
-					(if (/= 0 (logand grouping (<< 1 (- 6 i))))
+			(each! (lambda () (if (/= 0 (logand grouping (<< 1 (- 6 (!)))))
 						(elem-set lengths -2 (inc (last lengths)))
-						(push lengths 1)))
-				(range 0 7))
+						(push lengths 1))) '() 0 7)
 			(scatter info :windows 8 :lengths lengths :bands (elem-get (. +aac :find :bands_short) rate_index)))
 		(:t (defq max_sfb (bits-get in 6))
 			;no prediction in AAC-LC
@@ -203,15 +201,14 @@
 (defun aac-pulses (in)
 	; (aac-pulses reader) -> (start (offset amp) ...)
 	(defq count (inc (bits-get in 2)) start (bits-get in 6))
-	(cat (list start) (map (lambda (_) (list (bits-get in 5) (bits-get in 4))) (range 0 count))))
+	(cat (list start) (map! (lambda () (list (bits-get in 5) (bits-get in 4))) '() 0 count)))
 
 (defun aac-tns (in info)
 	; (aac-tns reader info) -> (((length direction (coef ...)) ...) ...)
 	;the filters of each window, each over so many bands down from the top,
 	;its direction and its coefficients, as the indices they were sent as
 	(defq short (= (. info :find :sequence) +aac_eight_short))
-	(map (lambda (_)
-			(defq count (bits-get in (if short 1 2)) filters (list))
+	(map! (lambda () (defq count (bits-get in (if short 1 2)) filters (list))
 			(when (> count 0)
 				(defq res (bits-1 in))
 				(times count
@@ -221,10 +218,9 @@
 							(defq direction (bits-1 in) compress (bits-1 in)
 								bits (- (+ res 3) compress))
 							(push filters (list len direction
-									(map (lambda (_) (bits-get in bits)) (range 0 order)) res compress)))
+									(map! (lambda () (bits-get in bits)) '() 0 order) res compress)))
 						(:t (push filters (list len 0 (list) res 0))))))
-			filters)
-		(range 0 (. info :find :windows))))
+			filters) '() 0 (. info :find :windows)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the spectrum of a channel
@@ -264,13 +260,11 @@
 	;of a book, each code's values for the native reader, lib/media/lisp.vp
 	;media_aac_values: 6 bits each and 16 more than it is, the first highest,
 	;signed as the book has them; and what kind of book it is to that reader
-	(list (reduce (lambda (out index)
-				(push out (reduce (# (+ (<< %0 6) 16 (if signed (- %1 top) %1)))
+	(list (reduce! (lambda (out) (defq index (!)) (push out (reduce (# (+ (<< %0 6) 16 (if signed (- %1 top) %1)))
 						(if (= dims 4)
 							(list (/ index (* base base base)) (% (/ index (* base base)) base) (% (/ index base) base) (% index base))
 							(list (/ index base) (% index base)))
-						0)))
-			(range 0 (if (= dims 4) (* base base base base) (* base base))) (nums))
+						0))) '() (nums) 0 (if (= dims 4) (* base base base base) (* base base)))
 		(+ (if (= dims 4) 2 0) (if signed 4 0) (if (= base 17) 8 0))))
 
 (defun aac-spectrum (in info sections)
@@ -284,15 +278,13 @@
 		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) out (fill (nums) 1024 0)
 		native (. +aac :find :values) tables (. +aac :find :spectral) books_values (. +aac :find :book_values))
 	(each (lambda (count books)
-			(each (lambda (sfb)
-					(defq book (elem-get books sfb) from (elem-get bands sfb) to (elem-get bands (inc sfb))
+			(each! (lambda () (defq sfb (!)) (defq book (elem-get books sfb) from (elem-get bands sfb) to (elem-get bands (inc sfb))
 						w window)
 					(times count
 						(when (<= 1 book 11)
 							(bind '(values kind) (elem-get books_values (dec book)))
 							(native in (elem-get tables (dec book)) values out (+ (* w size) from) (+ (* w size) to) kind))
-						(setq w (inc w))))
-				(range 0 max_sfb))
+						(setq w (inc w)))) '() 0 max_sfb)
 			(setq window (+ window count)))
 		(. info :find :lengths) sections)
 	out)
@@ -349,7 +341,7 @@
 					(setq info (aac-ics-info in rate_index) ms (bits-get in 2))
 					(if (= ms 1)
 						(setq ms_mask (map (lambda (_)
-									(map (lambda (_) (bits-1 in)) (range 0 (. info :find :max_sfb))))
+									(map! (lambda () (bits-1 in)) '() 0 (. info :find :max_sfb)))
 								(. info :find :lengths)))))
 				(defq left (aac-channel in info rate_index (= common 1))
 					right (aac-channel in info rate_index (= common 1)))
@@ -414,7 +406,7 @@
 		(times 100 (setq g (/ g step)))
 		(times 512 (push gain g) (setq g (* g step)))
 		;|v|^(4/3), to 8191
-		(each (# (defq v (n2r %0)) (push pow (* v (aac-root v 3)))) (range 1 8192))
+		(each! (# (defq v (n2r (!))) (push pow (* v (aac-root v 3)))) '() 1 8192)
 		;the native reader of codes, taken now, not as this is read
 		(. +aac :insert :values (ffi "lib/media/media_aac_values"))
 		(. +aac :insert :made (scatter (Emap) :gain gain :pow pow
@@ -441,15 +433,13 @@
 				(elem-set q k (if (> (elem-get q k) 0) (+ (elem-get q k) amp) (- (elem-get q k) amp))))
 			(list pulses) 1 -1))
 	(each (lambda (count books scales)
-			(each (lambda (sfb)
-					(defq book (elem-get books sfb))
+			(each! (lambda () (defq sfb (!)) (defq book (elem-get books sfb))
 					(when (<= 1 book 11)
 						(defq g (elem-get gain (elem-get scales sfb)) w window)
 						;each window of the group, native, lib/media/lisp.vp media_dequant
 						(times count
 							(aac-native-dequant out q (+ (* w size) (elem-get bands sfb)) (+ (* w size) (elem-get bands (inc sfb))) pow g)
-							(setq w (inc w)))))
-				(range 0 (. info :find :max_sfb)))
+							(setq w (inc w))))) '() 0 (. info :find :max_sfb))
 			(setq window (+ window count)))
 		(. info :find :lengths) (. ch :find :sections) (. ch :find :scales))
 	out)
@@ -460,8 +450,7 @@
 	(defq info (. ch :find :info) bands (. info :find :bands) window 0
 		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) seed (. decoder :find :seed))
 	(each (lambda (count books scales)
-			(each (lambda (sfb)
-					(when (= (elem-get books sfb) +aac_noise)
+			(each! (lambda () (defq sfb (!)) (when (= (elem-get books sfb) +aac_noise)
 						(defq w window)
 						(times count
 							;the band's noise made once to know its energy, then again
@@ -472,8 +461,7 @@
 							(defq energy (nums-sum (nums-mul values values)))
 							(setq seed (noise-fill out from to seed (if (> energy (n2r 0))
 										(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2r 0))))
-							(setq w (inc w)))))
-				(range 0 (. info :find :max_sfb)))
+							(setq w (inc w))))) '() 0 (. info :find :max_sfb))
 			(setq window (+ window count)))
 		(. info :find :lengths) (. ch :find :sections) (. ch :find :scales))
 	(. decoder :insert :seed seed))
@@ -489,8 +477,7 @@
 		ms (. left :find :ms) mask (. left :find :ms_mask) gain (. tables :find :gain))
 	(each (lambda (count rbooks rscales)
 			(defq g (!))
-			(each (lambda (sfb)
-					(defq rbook (elem-get rbooks sfb)
+			(each! (lambda () (defq sfb (!)) (defq rbook (elem-get rbooks sfb)
 						used (and ms (or (= ms 2) (and (= ms 1) (= 1 (elem-get (elem-get mask g) sfb))))) w window)
 					(times count
 						(defq from (+ (* w size) (elem-get bands sfb)) to (+ (* w size) (elem-get bands (inc sfb))))
@@ -499,15 +486,12 @@
 								(defq scale (elem-get gain (- 100 (elem-get rscales sfb))))
 								(if (= rbook +aac_intensity2) (setq scale (neg scale)))
 								(and (= ms 1) used (setq scale (neg scale)))
-								(each (# (elem-set r %0 (* (elem-get l %0) scale))) (range from to)))
+								(each! (# (elem-set r (!) (* %0 scale))) (list l) from to))
 							((and used (< (elem-get (elem-get (. left :find :sections) g) sfb) +aac_noise) (< rbook +aac_noise))
-								(each (lambda (k)
-										(defq m (elem-get l k) s (elem-get r k))
-										(elem-set l k (+ m s))
-										(elem-set r k (- m s)))
-									(range from to))))
-						(setq w (inc w))))
-				(range 0 (. info :find :max_sfb)))
+								(each! (lambda (m s)
+										(elem-set l (!) (+ m s))
+										(elem-set r (!) (- m s))) (list l r) from to)))
+						(setq w (inc w)))) '() 0 (. info :find :max_sfb))
 			(setq window (+ window count)))
 		(. info :find :lengths) (. right :find :sections) (. right :find :scales)))
 
@@ -535,11 +519,9 @@
 										(sin (/ (n2r c) (if (>= c 0) iqp iqm))))
 									coefs)
 								lpc (reals (n2r 1)))
-							(each (lambda (k)
-									(defq b (cat lpc) p (elem-get parcor k))
+							(each! (lambda () (defq k (!)) (defq b (cat lpc) p (elem-get parcor k))
 									(push lpc p)
-									(each (# (elem-set lpc %0 (+ (elem-get b %0) (* p (elem-get b (- (inc k) %0)))))) (range 1 (inc k))))
-								(range 0 order))
+									(each! (# (elem-set lpc (!) (+ %0 (* p (elem-get b (- (inc k) (!))))))) (list b) 1 (inc k))) '() 0 order)
 							(defq from (+ (* w size) (elem-get bands (min bottom top_bands)))
 								to (+ (* w size) (elem-get bands (min top top_bands))))
 							;the filter over the lines, down them if the direction says,
@@ -566,8 +548,8 @@
 		:ps (and (> (length config) 5)
 			(or (eql (elem-get config 5) :t) (and (not (elem-get config 5)) (<= (elem-get config 3) 1))))
 		:tables tables :dct4 (ffi "lib/media/media_dct4") :seed 1
-		:overlap (map (lambda (_) (cat zeros)) (range 0 8)) :shape (map (lambda (_) 0) (range 0 8))
-		:zeros zeros :ones (nums-add (nums-scale zeros (n2r 0)) (apply (const reals) (map (lambda (_) (n2r 1)) (range 0 1024))))))
+		:overlap (map! (lambda () (cat zeros)) '() 0 8) :shape (map! (lambda () 0) '() 0 8)
+		:zeros zeros :ones (nums-add (nums-scale zeros (n2r 0)) (fill (reals) 1024 (n2r 1)))))
 
 (defun aac-unfold (decoder lines n)
 	; (aac-unfold decoder lines n) -> reals
@@ -587,12 +569,10 @@
 				;eight short windows, each at 448 and 128 on, the first rising by
 				;the shape before, those after by this one
 				(defq buf (cat zeros zeros))
-				(each (lambda (w)
-						(defq x (nums-mul (aac-unfold decoder (slice lines (* w 128) (* (inc w) 128)) 128)
+				(each! (lambda () (defq w (!)) (defq x (nums-mul (aac-unfold decoder (slice lines (* w 128) (* (inc w) 128)) 128)
 								(cat (if (= w 0) short_rise short_cur) short_fall))
 							at (+ 448 (* w 128)))
-						(each (# (elem-set buf (+ at (!)) (+ (elem-get buf (+ at (!))) %0))) x))
-					(range 0 8))
+						(each (# (elem-set buf (+ at (!)) (+ (elem-get buf (+ at (!))) %0))) x)) '() 0 8)
 				buf)
 			(:t (nums-mul (aac-unfold decoder lines 1024)
 					(cat (if (= sequence +aac_long_stop) (cat (slice zeros 0 448) short_rise (slice ones 0 448)) long_rise)

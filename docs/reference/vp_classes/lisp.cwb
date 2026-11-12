@@ -978,7 +978,7 @@
 									:stroke
 									0
 									:text
-									"[uint seq_idx]"
+									"[int seq_idx]"
 									:font_size
 									12
 									:pos

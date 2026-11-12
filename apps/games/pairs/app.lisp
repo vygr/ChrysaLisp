@@ -34,10 +34,8 @@
 		(ui-buttons (+sym_scramble +sym_peek) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
 			:paper :paper_window :font *font*)
-		(each (lambda (i)
-				(. (ui-button _ (:min_width 60 :min_height 60))
-					:connect (+ +event_click i)))
-			(range 0 *tile_count*)))
+		(each! (lambda () (. (ui-button _ (:min_width 60 :min_height 60))
+					:connect (+ +event_click (!)))) '() 0 *tile_count*))
 	(ui-label *status* (:text "Score: 0" :flow_flags +flow_flag_align_hcenter)))
 
 (defun tooltips ()
@@ -79,7 +77,7 @@
 	(defq all_chars (shuffle (map code *char_pool*))
 		pool (slice all_chars 0 (/ *tile_count* 2)))
 	(setq *values* (shuffle (cat pool pool))
-		*states* (map (lambda (&) 0) (range 0 *tile_count*))
+		*states* (map! (lambda () 0) '() 0 *tile_count*)
 		*score* 0
 		*first_pick* :nil
 		*locked* :nil)

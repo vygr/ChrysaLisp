@@ -130,7 +130,8 @@
 	(defq fy (n2f y) fy1 (n2f y1) drawn 0)
 	(.-> canvas (:set_clip 0 y +scene_width y1)
 		(:set_color +scene_back) (:fbox 0 y +scene_width (- y1 y)))
-	(each (lambda (at)
+	(each! (lambda ()
+			(defq at (* (!) +bouncer_size))
 			(bind '(model x y angle scale phase sq_x sq_y)
 				(map (# (/ (n2f %0) 65536.0)) (getf-> (slice packed at (+ at +bouncer_size))
 						+bouncer_model +bouncer_x +bouncer_y +bouncer_angle +bouncer_scale
@@ -158,5 +159,5 @@
 				(.-> canvas (:set_color col_core) (:fpoly 0.0 0.0 +winding_odd_even
 						(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) core_paths)))
 				(setq drawn (inc drawn))))
-		(range 0 (length packed) +bouncer_size))
+		'() 0 (/ (length packed) +bouncer_size))
 	drawn)

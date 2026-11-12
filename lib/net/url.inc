@@ -10,10 +10,10 @@
 
 ;precomputed 769-byte table: "+" at 0, followed by all 256 "%XX" tokens
 (defq +url_rep_table (cat "+" (apply (const cat)
-			(map (# (cat "%" (hex-encode (char %0)))) (range 0 256)))))
+			(map! (# (cat "%" (hex-encode (char (!))))) '() 0 256))))
 
 ;precomputed 256-byte table containing all single byte values (0 to 255)
-(defq +all_chars (apply (const cat) (map (const char) (range 0 256))))
+(defq +all_chars (apply (const cat) (map! (# (char (!))) '() 0 256)))
 
 (defun url-scheme-port (scheme)
 	; (url-scheme-port scheme) -> num

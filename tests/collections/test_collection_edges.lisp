@@ -41,12 +41,12 @@
 
 ; --- one bucket still works, and so does a resize down to one ---
 (defq ce_m (Fmap 1))
-(each (# (. ce_m :insert %0 (* %0 %0))) (range 0 50))
+(each! (# (. ce_m :insert (!) (* (!) (!)))) '() 0 50)
 (assert-eq "one bucket size" 50 (. ce_m :size))
 (assert-eq "one bucket last" 2401 (. ce_m :find 49))
 (assert-eq "one bucket missing" :nil (. ce_m :find 50))
 (defq ce_m (Fmap 3))
-(each (# (. ce_m :insert %0 %0)) (range 0 10))
+(each! (# (. ce_m :insert (!) (!))) '() 0 10)
 (. ce_m :resize 1)
 (assert-eq "resize keeps size" 10 (. ce_m :size))
 (assert-eq "resize keeps entries" 9 (. ce_m :find 9))

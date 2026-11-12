@@ -29,18 +29,22 @@
 			(.-> canvas (:set_color back) (:fbox 0 y width rows)))
 		(. canvas :set_color +cwb_paper_ink)
 		(defq gap (max 2 gap))
+		;a line every gap across, and every gap down of those in these rows
+		(defq at gap ys (min height y1))
 		(case style
 			(:grid
-				(each (# (. canvas :fbox %0 y 1 rows)) (range gap width gap))
-				(each (# (and (>= %0 y) (< %0 y1) (. canvas :fbox 0 %0 width 1))) (range gap height gap)))
+				(while (< at width) (. canvas :fbox at y 1 rows) (setq at (+ at gap)))
+				(setq at gap)
+				(while (< at ys) (if (>= at y) (. canvas :fbox 0 at width 1)) (setq at (+ at gap))))
 			(:lines
-				(each (# (and (>= %0 y) (< %0 y1) (. canvas :fbox 0 %0 width 1))) (range gap height gap)))
+				(while (< at ys) (if (>= at y) (. canvas :fbox 0 at width 1)) (setq at (+ at gap))))
 			(:axis
 				;the two lines through the middle, on the grid, and marks along them
 				(defq cx (* (/ (/ width 2) gap) gap) cy (* (/ (/ height 2) gap) gap))
 				(. canvas :fbox cx y 1 rows)
 				(and (>= cy y) (< cy y1) (. canvas :fbox 0 cy width 1))
-				(each (# (. canvas :fbox %0 (max y (- cy 3)) 1 (max 0 (- (min y1 (+ cy 4)) (max y (- cy 3))))))
-					(range gap width gap))
-				(each (# (and (>= %0 y) (< %0 y1) (. canvas :fbox (- cx 3) %0 7 1))) (range gap height gap)))))
+				(defq mark_y (max y (- cy 3)) mark_h (max 0 (- (min y1 (+ cy 4)) mark_y)))
+				(while (< at width) (. canvas :fbox at mark_y 1 mark_h) (setq at (+ at gap)))
+				(setq at gap)
+				(while (< at ys) (if (>= at y) (. canvas :fbox (- cx 3) at 7 1)) (setq at (+ at gap))))))
 	canvas)

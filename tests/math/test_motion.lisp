@@ -304,14 +304,12 @@
 
 ;the same pairs as asking every pair, for a good many that move
 (defq mo_stage (Rostrum 640 480) mo_many (list) mo_seen 0)
-(each (lambda (i)
-		(defq f (Figure))
+(each! (lambda () (defq f (Figure))
 		(. f :set_outline (list (list :t (path 0.0 0.0 20.0 0.0 20.0 20.0 0.0 20.0))))
 		(def f :fig_fill 0xffffffff :fig_kinds 1 :fig_meets 1 :fig_x (n2f (random 600)) :fig_y (n2f (random 440)))
 		(def f :fig_on_enter (lambda (a b) (setq mo_seen (inc mo_seen))))
 		(push mo_many f)
-		(. mo_stage :add_node f))
-	(range 0 200))
+		(. mo_stage :add_node f)) '() 0 200)
 (. mo_stage :tick 0.0)
 (defq mo_all 0)
 (each! (lambda (a)
@@ -460,9 +458,9 @@
 
 ;a rostrum's own random numbers, the same for the same seed
 (defq mo_r1 (Rostrum 10 10 :nil 7) mo_r2 (Rostrum 10 10 :nil 7) mo_r3 (Rostrum 10 10 :nil 8))
-(defq mo_s1 (map (lambda (_) (. mo_r1 :random 1000)) (range 0 20))
-	mo_s2 (map (lambda (_) (. mo_r2 :random 1000)) (range 0 20))
-	mo_s3 (map (lambda (_) (. mo_r3 :random 1000)) (range 0 20)))
+(defq mo_s1 (map! (lambda () (. mo_r1 :random 1000)) '() 0 20)
+	mo_s2 (map! (lambda () (. mo_r2 :random 1000)) '() 0 20)
+	mo_s3 (map! (lambda () (. mo_r3 :random 1000)) '() 0 20))
 (assert-eq "the same seed, the same numbers" (str mo_s1) (str mo_s2))
 (assert-true "another seed, others" (nql (str mo_s1) (str mo_s3)))
 (assert-true "each below what was asked" (every (# (< -1 %0 1000)) mo_s1))

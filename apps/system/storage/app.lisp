@@ -301,7 +301,7 @@
 					(defq x (+ left (* col cell) (if (> col 0) 4 0))
 						keeps (if (= col 0) (eql has manifest) (. held :find (elem-get blocks (dec col)))))
 					(push items (cwb-shape (cwb-d-rect x (+ y 6) (+ x (- cell 2)) (+ y 28) 2) :fill (if keeps hue +none) :stroke 0)))
-				(if manifest (range 0 cols) (list))))
+				(if manifest (map! (const !) '() 0 cols) (list))))
 		all)
 	;where the gopher of the object shown has been, block by block
 	(when (and (defq walk (gopher-shown)) (> cols 1))
@@ -348,7 +348,7 @@
 		rows)
 	;what was done, the event the timeline is at marked
 	;the event marked is the last done, of those listed
-	(defq lx 10 list_at (if *trace* (traced) (range 0 count))
+	(defq lx 10 list_at (if *trace* (traced) (map! (const !) '() 0 count))
 		here (some (# (if (>= %0 (dec at)) (!))) list_at) here (ifn here (length list_at))
 		marked (rsome (# (if (< %0 at) %0)) list_at)
 		;as many events as there is room for, down the whole of it

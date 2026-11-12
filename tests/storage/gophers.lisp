@@ -26,11 +26,9 @@
 			want (map (lambda ((path data)) (map (lambda ((name g)) (gopher-fold g data block)) jobs)) objects))
 		;all of them out at once
 		(defq t0 (pii-time)
-			sent (map (lambda (i)
-					(defq o (% i (length objects)) j (% (/ i (length objects)) (length jobs)) from (elem-get +scene_ids (% i 5)))
+			sent (map! (lambda () (defq o (% (!) (length objects)) j (% (/ (!) (length objects)) (length jobs)) from (elem-get +scene_ids (% (!) 5)))
 					(bind '(state visit) (second (elem-get jobs j)))
-					(list o j (storage-walk-send (first (elem-get objects o)) state visit :nil (scene-svc sc from))))
-				(range 0 +out))
+					(list o j (storage-walk-send (first (elem-get objects o)) state visit :nil (scene-svc sc from)))) '() 0 +out)
 			;no member goes, so every one comes back: each is waited for till it does
 			back (map (lambda ((o j mbox)) (list o j (storage-walk-answer mbox :t))) sent)
 			ms (/ (- (pii-time) t0) 1000)

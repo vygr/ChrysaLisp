@@ -1,6 +1,6 @@
 ;a time round each iterator, for each kind of thing it may call, over
 ;lists too big for the cache: a million boxed numbers
-(defq bi_n 1000000 bi_l (map (# %0) (range 0 bi_n))
+(defq bi_n 1000000 bi_l (map! (# (!)) '() 0 bi_n)
 	bi_s1 (list bi_l) bi_s2 (list bi_l (map (# (inc %0)) bi_l)))
 
 (bench "each! progn, 1 seq" bi_n (each! (const progn) bi_s1))

@@ -13,8 +13,7 @@
 	(when (and (defq a (canvas-load file +load_flag_noswap)) (defq b (canvas-load mac +load_flag_noswap)))
 		(defq pa (tj-pixels a) pb (tj-pixels b) most 0 sum 0)
 		(when (= (length pa) (length pb))
-			(each (lambda (i) (defq d (abs (- (code pa 1 i) (code pb 1 i)))) (setq most (max most d) sum (+ sum d)))
-				(range 0 (length pa)))
+			(each! (lambda () (defq d (abs (- (code pa 1 (!)) (code pb 1 (!))))) (setq most (max most d) sum (+ sum d))) '() 0 (length pa))
 			(list most (/ (* sum 100) (length pa))))))
 
 (assert-list-eq "its size, and 32 bits a pixel" '(32 32 32) (canvas-info "tests/system/data/jpg_grey.jpg"))

@@ -116,10 +116,8 @@
 	;a line from one place to another bowed up by h in its middle, or down
 	;by a negative h
 	(defq out (path))
-	(each (lambda (i)
-			(defq u (/ (n2f i) 16.0))
-			(push out (+ x (* u (- x1 x))) (- (+ y (* u (- y1 y))) (* h 4.0 u (- 1.0 u)))))
-		(range 0 17))
+	(each! (lambda () (defq u (/ (n2f (!)) 16.0))
+			(push out (+ x (* u (- x1 x))) (- (+ y (* u (- y1 y))) (* h 4.0 u (- 1.0 u))))) '() 0 17)
 	out)
 
 (defun build-dot-end (f c)
@@ -368,7 +366,7 @@
 (defun build-chain (f c)
 	;the statics and all after them, each put on the function list
 	(defq points (path) chain (Figure "list"))
-	(each (lambda (i) (bind '(x y) (build-cell i)) (push points x y)) (range 1 +build_funcs))
+	(each! (lambda () (bind '(x y) (build-cell (!))) (push points x y)) '() 1 +build_funcs)
 	(. chain :set_outline (list (list :nil points)))
 	(def chain :fig_stroke +build_lime :fig_width 1.2 :fig_trim 0.0
 		:fig_glow (build-glow +build_lime) :fig_glow_size 3.0)
@@ -444,16 +442,14 @@
 	;made smaller later, about its corner
 	(def image :fig_x 28.0 :fig_y 100.0 :fig_px 28.0 :fig_py 100.0)
 	(build-add image)
-	(each (lambda (i)
-			(bind '(x y) (build-cell i))
-			(defq block (Figure "function") wait (+ 0.4 (* 0.006 (n2f i))))
+	(each! (lambda () (bind '(x y) (build-cell (!)))
+			(defq block (Figure "function") wait (+ 0.4 (* 0.006 (n2f (!)))))
 			(. block :set_outline shape)
-			(def block :fig_fill (logior (logand (build-colour i) 0xffffff) 0xb0000000)
+			(def block :fig_fill (logior (logand (build-colour (!)) 0xffffff) 0xb0000000)
 				:fig_x (random-fixed -100.0 740.0) :fig_y (random-fixed 500.0 700.0) :fig_alpha 0.0)
 			(. block :add (Tween :fig_alpha 1.0 0.3 (const ease-out) :nil wait))
 			(scene-to block x y 0.9 (const ease-out3) :nil wait)
-			(push blocks (scene-add block image)))
-		(range 0 +build_funcs))
+			(push blocks (scene-add block image))) '() 0 +build_funcs)
 	(defq ours (elem-get blocks 51))
 	(def ours :fig_fill +build_cyan :fig_glow (build-glow +build_cyan) :fig_glow_size 5.0)
 	(def stage :image image :blocks blocks
@@ -545,10 +541,8 @@
 		+build_parts)
 	;a ruler under it, a tick at each long, and the byte each part starts at:
 	;the parts are not of longs, only the code, links and paths start on one
-	(each (lambda (k)
-			(defq x (+ 20.0 (* 40.0 (n2f k))))
-			(push lines (list :nil (path x 156.0 x 161.0))))
-		(range 0 16))
+	(each! (lambda () (defq x (+ 20.0 (* 40.0 (n2f (!)))))
+			(push lines (list :nil (path x 156.0 x 161.0)))) '() 0 16)
 	(. ticks :set_outline lines)
 	(def ticks :fig_stroke 0x90ffffff :fig_width 1.0 :fig_alpha 0.0)
 	(scene-show ticks 0.6 1.4)
@@ -697,8 +691,8 @@
 	;comes later is drawn under them and they can be read
 	(defq world (Figure "world") back (Figure "rules"))
 	(scene-add world)
-	(. back :set_outline (cat (map (lambda (x) (list :nil (path (n2f x) 0.0 (n2f x) 480.0))) (range 0 641 40))
-		(map (lambda (y) (list :nil (path 0.0 (n2f y) 640.0 (n2f y)))) (range 0 481 40))))
+	(. back :set_outline (cat (map! (lambda () (list :nil (path (n2f (* (!) 40)) 0.0 (n2f (* (!) 40)) 480.0))) '() 0 17)
+		(map! (lambda () (list :nil (path 0.0 (n2f (* (!) 40)) 640.0 (n2f (* (!) 40))))) '() 0 13)))
 	(def back :fig_stroke +build_rules :fig_width 1.0 :fig_alpha 0.0)
 	(scene-show back 1.5)
 	(scene-add back world)

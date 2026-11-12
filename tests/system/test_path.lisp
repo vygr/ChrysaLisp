@@ -25,7 +25,7 @@
 (assert-list-eq "a point on top of the last goes" '(0.0 0.0 5.0 0.0)
 	(path-filter 0.5 (path 0.0 0.0 0.1 0.0 5.0 0.0) (path)))
 ;many times over, a write past the end of a path is found by what is next to it
-(each (lambda (_) (path-filter 0.5 pa_circle (path))) (range 0 200))
+(each! (lambda () (path-filter 0.5 pa_circle (path))) '() 0 200)
 (assert-eq "and it does not write past the end" pa_count (length pa_circle))
 
 ;simplify, a point is kept if it is further than the tolerance from the line without it

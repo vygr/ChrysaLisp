@@ -1,6 +1,6 @@
 ;streams: a str written a piece at a time and read back, by chars, lines
 ;and blocks
-(defq bt_lines (map (# (cat "this is line number " (str %0))) (range 0 10000))
+(defq bt_lines (map! (# (cat "this is line number " (str (!)))) '() 0 10000)
 	bt_text (apply (const cat) (map (# (cat %0 "\n")) bt_lines))
 	bt_bytes (length bt_text) bt_runs 20)
 

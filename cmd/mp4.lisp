@@ -46,11 +46,9 @@
 				(print "  video: " (. reel :find :frames) " frames, "
 					(/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0) " a second, "
 					(if (eql keys :all) "every one a key" (cat (str (length keys)) " keys")))
-				(each (lambda (i)
-						(print "    " i " at " (elem-get (. reel :find :offsets) i) " " (elem-get (. reel :find :lengths) i)
-							" bytes, time " (elem-get (. reel :find :times) i) " shown " (elem-get (. reel :find :shown) i)
-							(if (or (eql keys :all) (find i keys)) " key" "")))
-					(range 0 (min opt_s (. reel :find :frames))))))))
+				(each! (lambda (offset length e v) (print "    " (!) " at " offset " " length
+							" bytes, time " e " shown " v
+							(if (or (eql keys :all) (find (!) keys)) " key" ""))) (list (. reel :find :offsets) (. reel :find :lengths) (. reel :find :times) (. reel :find :shown)) 0 (min opt_s (. reel :find :frames)))))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

@@ -93,7 +93,7 @@
 	;a machine with no node left is gone, and its hue is free again
 	(defq there (list))
 	(. global_tasks :each (lambda (key node) (merge there (list (get :system node)))))
-	(defq keep (filter (# (find (elem-get machines %0) there)) (range 0 (length machines))))
+	(defq keep (reduce! (# (if (find %1 there) (push %0 (!)) %0)) (list machines) (list)))
 	(setq machine_hues (map (# (elem-get machine_hues %0)) keep)
 		machines (map (# (elem-get machines %0)) keep)))
 

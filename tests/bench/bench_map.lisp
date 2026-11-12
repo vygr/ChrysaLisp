@@ -1,7 +1,7 @@
 ;maps and sets: a thing put in, found and taken out, of each kind there is,
 ;with a symbol for a key and with a str
-(defq bm_n 1000000 bm_keys (map (# (sym (cat "bm_key_" (str %0)))) (range 0 64))
-	bm_strs (map (# (cat "bm_str_" (str %0))) (range 0 64))
+(defq bm_n 1000000 bm_keys (map! (# (sym (cat "bm_key_" (str (!))))) '() 0 64)
+	bm_strs (map! (# (cat "bm_str_" (str (!)))) '() 0 64)
 	bm_key (elem-get bm_keys 37) bm_str (elem-get bm_strs 37)
 	bm_fmap (Fmap 31) bm_emap (Emap 31) bm_lmap (Lmap) bm_fset (Fset 31)
 	bm_pmap (pmap) bm_env (env 31))

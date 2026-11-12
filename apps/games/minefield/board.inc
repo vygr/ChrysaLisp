@@ -41,14 +41,12 @@
 	(each (# (elem-set b %0 9)) (mine-list (length b) n s w h)) b)
 
 (defun board-set-values (a b)
-	(each (# (when (/= (elem-get b %0) 9) (cell-set-value %0 a b))) (range 0 (length b))))
+	(each! (# (when (/= %0 9) (cell-set-value (!) a b))) (list b)))
 
 (defun create-game (w h n s)
 	(defq a (list) b (list) p (list) x_index 0 y_index 0 m (mine-list (* w h) n s w h))
-	(each (lambda (&)
-			(defq neighbors (adjacent-elem (list x_index y_index) w h))
+	(each! (lambda () (defq neighbors (adjacent-elem (list x_index y_index) w h))
 			(push a neighbors) (push b 0) (push p "b")
-			(if (= x_index (dec w)) (setq x_index 0 y_index (inc y_index)) (setq x_index (inc x_index))))
-		(range 0 (* w h)))
+			(if (= x_index (dec w)) (setq x_index 0 y_index (inc y_index)) (setq x_index (inc x_index)))) '() 0 (* w h))
 	(board-set-mines m b n s w h)
 	(board-set-values a b) (list b p a))

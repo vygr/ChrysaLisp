@@ -28,7 +28,7 @@
 	atom_waiting (Fmap 31) atom_queue (list) +make_budget (/ timer_rate 3)
 	;the atoms in view by depth, near to far, a bucket for each 1024th of it,
 	;kept from frame to frame
-	depth_buckets (map (lambda (_) (list)) (range 0 1024))
+	depth_buckets (map! (lambda () (list)) '() 0 1024)
 	+bucket_scale (/ (n2r 1023) (- +far +near))
 	sdf_files (sort (files-all (cat *app_root* "data") '(".sdf")))
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
@@ -150,7 +150,7 @@
 	(while (and (not canvas) (<= (++ d) 64))
 		(some! (# (setq canvas (or (. atom_cache :find (atom-key (- size d) kind %0))
 						(. atom_cache :find (atom-key (+ size d) kind %0)))))
-			(list (range 0 6))))
+			(list (map! (const !) '() 0 6))))
 	canvas)
 
 (defun get-atom-texture (radius kind level)
@@ -199,11 +199,9 @@
 	;each atom in view to the bucket of its depth, one pass and no compares,
 	;and drawn from the furthest bucket in: two in one bucket are as near as
 	;makes no odds, which goes over which
-	(each (lambda (i)
-			(defq w (elem-get out (+ (* i +placed_size) 3)))
+	(each! (lambda () (defq w (elem-get out (+ (* (!) +placed_size) 3)))
 			(if (<= +near w +far)
-				(push (elem-get depth_buckets (n2i (* (- w +near) +bucket_scale))) i)))
-		(range 0 *num_atoms*))
+				(push (elem-get depth_buckets (n2i (* (- w +near) +bucket_scale))) (!)))) '() 0 *num_atoms*)
 	(while (> bucket_at 0)
 		(defq bucket (elem-get depth_buckets (setq bucket_at (dec bucket_at))))
 		(each (lambda (i)

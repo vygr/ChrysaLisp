@@ -15,7 +15,7 @@
 (import "./ed25519.inc")
 
 (defq *x25519_121665* (nums 0xdb41 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-	*x25519_base* (cat (char 9) (apply (const cat) (map (lambda (&) (char 0)) (range 0 31)))))
+	*x25519_base* (cat (char 9) (apply (const cat) (map! (lambda () (char 0)) '() 0 31))))
 
 (defun x25519-swap (p q bit)
 	;p and q swapped if bit is 1

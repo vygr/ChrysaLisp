@@ -24,7 +24,7 @@
 	(pixmap-write (getf canvas +canvas_pixmap 0) stream 32)
 	(stream-seek stream 0 0)
 	(defq bytes (read-blk stream 100000000) want (char back 4))
-	(each (# (unless (eql (slice bytes %0 (+ %0 4)) want) (++ n))) (range 0 (length bytes) 4))
+	(for 0 (>> (length bytes) 2) (defq at (<< (!) 2)) (unless (eql (slice bytes at (+ at 4)) want) (++ n)))
 	n)
 
 ;a board with no menu is as it was
@@ -460,12 +460,10 @@
 (defq pf_data (read-blk pf_stream 10000000) pf_at (- (length pf_data) (* 400 400 4)))
 (defun pf-has (col)
 	;is that colour on the canvas, near it, as it is drawn soft at its edges
-	(some (lambda (i)
-			(defq p (get-uint pf_data (+ pf_at (* 4 i))))
+	(some! (lambda () (defq p (get-uint pf_data (+ pf_at (* 4 (!)))))
 			(and (< (abs (- (logand p 0xff) (logand col 0xff))) 12)
 				(< (abs (- (logand (>> p 8) 0xff) (logand (>> col 8) 0xff))) 12)
-				(< (abs (- (logand (>> p 16) 0xff) (logand (>> col 16) 0xff))) 12)))
-		(range 0 (* 400 400))))
+				(< (abs (- (logand (>> p 16) 0xff) (logand (>> col 16) 0xff))) 12))) '() :nil 0 (* 400 400)))
 (assert-true "each device's dot is drawn" (and (pf-has 0xffff0000) (pf-has 0xff000000)))
 ;an ink wholly see through is none, Chris: "a pen can be fully transparent ?
 ;if that the pen used for the outline it does just fill the inner, if the

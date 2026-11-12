@@ -94,7 +94,7 @@
 	(reduce (lambda (out part)
 			(when (starts-with ":r" part)
 				(defq ends (split part "-") from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
-				(each (# (push out %0)) (range from (inc to))))
+				(each! (# (push out (!))) '() from (inc to)))
 			out) (split text (const (char-class ", "))) (list)))
 
 (defun target-of (inst labels start count)

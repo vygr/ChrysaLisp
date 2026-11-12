@@ -228,8 +228,7 @@
 	(defq fy (n2f y) fy1 (n2f y1) drawn 0)
 	(.-> canvas (:set_clip 0 y +scene_width y1)
 		(:set_color 0xff141c28) (:fbox 0 y +scene_width (- y1 y)))
-	(each (lambda (i)
-			(bind '(winding body body_col core core_col radius live)
+	(each! (lambda () (defq i (!)) (bind '(winding body body_col core core_col radius live)
 				(elem-get scene_kinds (% i (length scene_kinds))))
 			;every shape has a way of its own, from its number
 			;the broad phase, how far down it is and how far it reaches is all
@@ -250,5 +249,5 @@
 				(when core
 					(.-> canvas (:set_color core_col)
 						(:fpoly 0.0 0.0 winding (scene-place core rot scale tx ty))))
-				(setq drawn (inc drawn)))) (range 0 count))
+				(setq drawn (inc drawn)))) '() 0 count)
 	drawn)

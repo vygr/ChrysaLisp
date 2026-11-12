@@ -141,7 +141,7 @@
 	;(node-nets) and (node-stop). sid is a system id for them, in place
 	;of this machine's, 16 characters, the kernel's -sid option.
 	(setd fronts total)
-	(defq links (map (lambda (&) (list)) (range 0 total)) names (list)
+	(defq links (map! (lambda () (list)) '() 0 total) names (list)
 		chars "0123456789abcdefghijklmnopqrstuvwxyz"
 		;a GUI that is never seen, its window hidden, -hidden, for a test
 		host (if (eql kind :gui_hidden) "-hidden " "")
@@ -178,8 +178,7 @@
 			(:t told)))
 	(each (lambda ((i j))
 			;a link name is ???-???, the form the stop scripts clear away
-			(defq name (apply (const cat) (map (lambda (_)
-							(if (= _ 3) "-" (elem-get chars (random 36)))) (range 0 7))))
+			(defq name (apply (const cat) (map! (lambda () (if (= (!) 3) "-" (elem-get chars (random 36)))) '() 0 7)))
 			(push names name)
 			(push (elem-get links i) name)
 			(push (elem-get links j) name))
@@ -243,22 +242,17 @@
 	(while (> (pow cnt wide) most) (-- cnt))
 	(defq total (pow cnt wide))
 	(case shape
-		(:ring (each (# (pair %0 (% (inc %0) total))) (range 0 total)))
-		(:star (each (# (pair 0 %0)) (range 1 total)))
-		(:tree (each (# (pair %0 (/ (dec %0) 2))) (range 1 total)))
-		(:mesh (each (lambda (y) (each (lambda (x)
-							(defq node (+ (* y cnt) x))
-							(pair node (+ (* y cnt) (% (inc x) cnt)))
-							(pair node (+ (* (% (inc y) cnt) cnt) x)))
-						(range 0 cnt))) (range 0 cnt)))
-		(:cube (each (lambda (z) (each (lambda (y) (each (lambda (x)
-									(defq node (+ (* z cnt cnt) (* y cnt) x))
-									(pair node (+ (* z cnt cnt) (* y cnt) (% (inc x) cnt)))
-									(pair node (+ (* z cnt cnt) (* (% (inc y) cnt) cnt) x))
-									(pair node (+ (* (% (inc z) cnt) cnt cnt) (* y cnt) x)))
-								(range 0 cnt))) (range 0 cnt))) (range 0 cnt)))
-		(:t (each (lambda (i) (each (lambda (j) (pair i j))
-						(range (inc i) total))) (range 0 total))))
+		(:ring (each! (# (pair (!) (% (inc (!)) total))) '() 0 total))
+		(:star (each! (# (pair 0 (!))) '() 1 total))
+		(:tree (each! (# (pair (!) (/ (dec (!)) 2))) '() 1 total))
+		(:mesh (each! (lambda () (defq y (!)) (each! (lambda () (defq node (+ (* y cnt) (!)))
+							(pair node (+ (* y cnt) (% (inc (!)) cnt)))
+							(pair node (+ (* (% (inc y) cnt) cnt) (!)))) '() 0 cnt)) '() 0 cnt))
+		(:cube (each! (lambda () (defq z (!)) (each! (lambda () (defq y (!)) (each! (lambda () (defq node (+ (* z cnt cnt) (* y cnt) (!)))
+									(pair node (+ (* z cnt cnt) (* y cnt) (% (inc (!)) cnt)))
+									(pair node (+ (* z cnt cnt) (* (% (inc y) cnt) cnt) (!)))
+									(pair node (+ (* (% (inc z) cnt) cnt cnt) (* y cnt) (!)))) '() 0 cnt)) '() 0 cnt)) '() 0 cnt))
+		(:t (each! (lambda () (defq i (!)) (each! (lambda () (pair i (!))) '() (inc i) total)) '() 0 total)))
 	(list total pairs))
 
 (defun node-spawn (&optional num kind script)

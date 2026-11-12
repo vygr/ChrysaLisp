@@ -36,11 +36,9 @@
 	:rates '(0 88200 176400 192000 8000 16000 22050 24000 32000 44100 48000 96000)
 	:sizes '(0 8 12 0 16 20 24 32)
 	;the CRC-8 of the header, x^8 + x^2 + x + 1, a byte at a time
-	:crc8 (reduce (lambda (out b)
-			(defq c b)
+	:crc8 (reduce! (lambda (out) (defq b (!)) (defq c b)
 			(times 8 (setq c (logand 0xff (if (/= 0 (logand c 0x80)) (logxor (<< c 1) 7) (<< c 1)))))
-			(push out c))
-		(range 0 256) (cap 256 (nums))))
+			(push out c)) '() (cap 256 (nums)) 0 256))
 
 (defun flac-native (key)
 	; (flac-native key) -> function
@@ -84,7 +82,7 @@
 	(defq at 0 head (read-blk stream 10))
 	(and head (>= (length head) 10) (eql (slice head 0 3) "ID3")
 		(setq at (+ 10 (if (/= 0 (logand (code head 1 5) 0x10)) 10 0)
-				(reduce (# (+ (<< %0 7) (logand (code head 1 (+ 6 %1)) 127))) (range 0 4) 0))))
+				(reduce! (# (+ (<< %0 7) (logand (code head 1 (+ 6 (!))) 127))) '() 0 0 4))))
 	(stream-seek stream at 0)
 	(when (eql (read-blk stream 4) "fLaC")
 		(defq info (Emap) final 0 ok :t seek (list))
@@ -104,11 +102,9 @@
 								:channels (inc (bits-get in 3)) :bps (inc (bits-get in 5))
 								:total (+ (<< (bits-get in 4) 32) (flac-bits in 32))))
 						((= type 3)
-							(each (lambda (i)
-									(defq p (* 18 i) sample (code-be body 8 p))
+							(each! (lambda () (defq p (* 18 (!)) sample (code-be body 8 p))
 									;a placeholder point is all ones
-									(if (/= sample -1) (push seek (list sample (code-be body 8 (+ p 8))))))
-								(range 0 (/ len 18)))))
+									(if (/= sample -1) (push seek (list sample (code-be body 8 (+ p 8)))))) '() 0 (/ len 18))))
 					(setq at (+ at 4 len)))))
 		(and ok (. info :find :rate)
 			(scatter info :start at :seek seek))))
@@ -119,15 +115,13 @@
 	;of a Rice parameter, of 4 bits or 5, or the escape and its raw bits
 	(defq method (bits-get in 2) pbits (if (= method 1) 5 4) escape (if (= method 1) 31 15)
 		porder (bits-get in 4) parts (<< 1 porder) at order)
-	(each (lambda (p)
-			(defq count (if (= p 0) (- (>> n porder) order) (>> n porder)) k (bits-get in pbits))
+	(each! (lambda () (defq p (!)) (defq count (if (= p 0) (- (>> n porder) order) (>> n porder)) k (bits-get in pbits))
 			(cond
 				((= k escape)
 					(defq raw (bits-get in 5))
-					(each (# (elem-set samples (+ at %0) (flac-signed in raw))) (range 0 count)))
+					(each! (# (elem-set samples (+ at (!)) (flac-signed in raw))) '() 0 count))
 				(((flac-native :rice) in samples at count k)))
-			(setq at (+ at count)))
-		(range 0 parts)))
+			(setq at (+ at count))) '() 0 parts))
 
 (defun flac-subframe (in n bps)
 	; (flac-subframe reader n bps) -> nums
@@ -139,7 +133,7 @@
 	(bits-skip in 1)
 	(defq type (bits-get in 6) wasted (if (= (bits-1 in) 1) (inc (flac-unary in)) 0)
 		bits (- bps wasted) samples (fill (nums) n 0)
-		warm (lambda (order) (each (# (elem-set samples %0 (flac-signed in bits))) (range 0 order))))
+		warm (lambda (order) (each! (# (elem-set samples (!) (flac-signed in bits))) '() 0 order)))
 	(cond
 		((= type 0) (fill samples n (flac-signed in bits)))
 		((= type 1) (warm n))
@@ -153,7 +147,7 @@
 			(warm order)
 			(defq precision (inc (bits-get in 4)) shift (flac-signed in 5))
 			(when (and (< precision 16) (>= shift 0))
-				(defq coeffs (reduce (lambda (out _) (push out (flac-signed in precision))) (range 0 order) (cap order (nums))))
+				(defq coeffs (reduce! (lambda (out) (push out (flac-signed in precision))) '() (cap order (nums)) 0 order))
 				(flac-residual in samples order n)
 				((flac-native :lpc) samples order coeffs shift))))
 	(if (> wasted 0) (nums-mul samples (fill (nums) n (<< 1 wasted)) samples) samples))
@@ -198,7 +192,7 @@
 	(when (defq h (flac-head info s))
 		(defq in (bits-seek (bits-of s) (. h :find :bits)) n (. h :find :n) bps (. h :find :bps) assign (. h :find :assign)
 			chans (if (< assign 8)
-				(map (lambda (_) (flac-subframe in n bps)) (range 0 (inc assign)))
+				(map! (lambda () (flac-subframe in n bps)) '() 0 (inc assign))
 				(defq a (flac-subframe in n (if (= assign 9) (inc bps) bps)) b (flac-subframe in n (if (= assign 9) bps (inc bps))))
 				((flac-native :stereo) a b assign)
 				(list a b)))

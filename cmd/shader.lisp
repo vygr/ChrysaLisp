@@ -87,8 +87,7 @@
 (defun spirv-listing (module)
 	;an instruction to a line, its name and its words. It is a plain
 	;listing, the ids are not named, spirv-dis does that from the binary
-	(defq words (map (# (logand (code module 4 (* %0 4)) 0xffffffff))
-			(range 0 (/ (length module) 4)))
+	(defq words (map! (# (logand (code module 4 (* (!) 4)) 0xffffffff)) '() 0 (/ (length module) 4))
 		lines (list (cat "; SPIR-V, " (str (length module)) " bytes, "
 				(str (dec (elem-get words 3))) " ids")) i 5 n (length words))
 	(while (< i n)

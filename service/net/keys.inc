@@ -48,7 +48,7 @@
 	; (keys-print key) -> str
 	;the fingerprint of a key, its 32 bytes
 	(defq hex (slice (hex-encode (sha256 (cat "ChrysaLisp key fingerprint " key))) 0 16))
-	(join (map (# (slice hex %0 (+ %0 4))) (range 0 16 4)) "-"))
+	(join (map! (# (slice hex (* (!) 4) (+ (* (!) 4) 4))) '() 0 4) "-"))
 
 (defun keys-in-use (&optional root)
 	; (keys-in-use [root]) -> :nil | name

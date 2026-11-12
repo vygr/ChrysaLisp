@@ -110,18 +110,14 @@
 	;the levels of each code of a grouped bap, per to a code, of a code v the
 	;first v mod levels, the next of v by levels, the last what is left, in
 	;the order a list of them is popped, the last first
-	(reduce (lambda (out v)
-			(each (lambda (i)
-					(defq q (/ v (pow levels i)))
-					(push out (/ (n2r (- (* 2 (if (= i (dec per)) q (% q levels))) (dec levels))) (n2r levels))))
-				(range 0 per))
-			out)
-		(range 0 codes) (list)))
+	(reduce! (lambda (out) (defq v (!)) (each! (lambda () (defq q (/ v (pow levels (!))))
+					(push out (/ (n2r (- (* 2 (if (= (!) (dec per)) q (% q levels))) (dec levels))) (n2r levels)))) '() 0 per)
+			out) '() (list) 0 codes))
 
 ;the levels of each code of bap 1, 2 and 4, at 0, 96 and 480, and of bap
 ;3 and 5, at 736 and 744, for the native reader of the mantissas
 (defq +ac3_levels (reduce (# (push %0 %1)) (cat (ac3-grouped 32 3 3) (ac3-grouped 128 3 5) (ac3-grouped 128 2 11)
-			(map (# (/ (n2r (- (* 2 %0) 6)) (n2r 7))) (range 0 8)) (map (# (/ (n2r (- (* 2 %0) 14)) (n2r 15))) (range 0 16)))
+			(map! (# (/ (n2r (- (* 2 (!)) 6)) (n2r 7))) '() 0 8) (map! (# (/ (n2r (- (* 2 (!)) 14)) (n2r 15))) '() 0 16))
 		(cap 760 (reals))))
 
 (ffi (path-to-absolute "./media_ac3_mantissas") ac3-read-mantissas)
@@ -260,39 +256,33 @@
 		bamode (bits-1 in) frmfgaincode (bits-1 in) dbaflde (bits-1 in) skipflde (bits-1 in)
 		spxattene (bits-1 in) cplstre (cap blocks (list)) cplinu (cap blocks (list)))
 	;coupling, its strategy each block, and if it is in use
-	(each (lambda (b)
-			(cond
+	(each! (lambda () (cond
 				((> mode 1)
-					(push cplstre (if (or (= b 0) (= (bits-1 in) 1)) 1 0))
-					(push cplinu (if (= (last cplstre) 1) (bits-1 in) (if (> b 0) (elem-get cplinu (dec b)) 0))))
-				(:t (push cplstre 0) (push cplinu 0))))
-		(range 0 blocks))
+					(push cplstre (if (or (= (!) 0) (= (bits-1 in) 1)) 1 0))
+					(push cplinu (if (= (last cplstre) 1) (bits-1 in) (if (> (!) 0) (elem-get cplinu (dec (!))) 0))))
+				(:t (push cplstre 0) (push cplinu 0)))) '() 0 blocks)
 	(defq ncpl (reduce (const +) cplinu 0)
 		;each block's strategy of each channel, coupling 0, then 1 to fbw
-		expstr (map (lambda (_) (map (lambda (_) 0) (range 0 (+ fbw 1)))) (range 0 blocks)))
+		expstr (map! (lambda () (map! (lambda () 0) '() 0 (+ fbw 1))) '() 0 blocks))
 	(cond
 		((= expstre 1)
-			(each (lambda (b)
-					(each (# (elem-set (elem-get expstr b) %0 (bits-get in 2)))
-						(range (if (= (elem-get cplinu b) 1) 0 1) (inc fbw))))
-				(range 0 blocks)))
-		(:t (each (lambda (c)
-					(defq frm (elem-get (. +ac3 :find :frm_expstr) (bits-get in 5)))
-					(each (# (elem-set (elem-get expstr %0) c (elem-get frm %0))) (range 0 6)))
-				(range (if (and (> mode 1) (> ncpl 0)) 0 1) (inc fbw)))))
-	(defq lfe_expstr (if (= lfe 1) (map (lambda (_) (bits-1 in)) (range 0 blocks)) (list)))
+			(each! (lambda () (defq b (!)) (each! (# (elem-set (elem-get expstr b) (!) (bits-get in 2))) '() (if (= (elem-get cplinu b) 1) 0 1) (inc fbw))) '() 0 blocks))
+		(:t (each! (lambda ()
+					(defq c (!) frm (elem-get (. +ac3 :find :frm_expstr) (bits-get in 5)))
+					(each! (# (elem-set %0 c %1)) (list expstr frm) 0 6))
+				'() (if (and (> mode 1) (> ncpl 0)) 0 1) (inc fbw))))
+	(defq lfe_expstr (if (= lfe 1) (map! (lambda () (bits-1 in)) '() 0 blocks) (list)))
 	;converter strategies of a stream from AC-3, stepped over
 	(and (= (. h :find :type) 0) (or six (= (bits-1 in) 1)) (bits-skip in (* 5 fbw)))
 	;AHT: which channels have it, of those that reuse their exponents after
 	;the first block; the coupling channel and the LFE
-	(defq aht (map (lambda (_) 0) (range 0 (+ fbw 2))))
+	(defq aht (map! (lambda () 0) '() 0 (+ fbw 2)))
 	(when (= ahte 1)
-		(each (lambda (c)
-				(defq reuse (every (# (= 0 (if (= c (inc fbw)) (elem-get lfe_expstr %0) (elem-get (elem-get expstr %0) c))))
-						(range 1 6)))
-				(if (= c 0) (setq reuse (and reuse (= ncpl 6) (every (# (= 0 (elem-get cplstre %0))) (range 1 6)))))
+		(each! (lambda ()
+				(defq c (!) reuse (some! (# (= 0 (if (= c (inc fbw)) %0 (elem-get %1 c)))) (list lfe_expstr expstr) :t 1 6))
+				(if (= c 0) (setq reuse (and reuse (= ncpl 6) (some! (# (= 0 %0)) (list cplstre) :t 1 6))))
 				(elem-set aht c (if (and reuse (= (bits-1 in) 1)) 1 0)))
-			(range (if (= ncpl 6) 0 1) (+ fbw 1 lfe))))
+			'() (if (= ncpl 6) 0 1) (+ fbw 1 lfe)))
 	;the SNR offset of the frame if it is one for all
 	(defq snr :nil)
 	(when (= snroffststr 0)
@@ -300,7 +290,7 @@
 		(setq snr (<< (+ (<< (- coarse 15) 4) fine) 2)))
 	;transient processing and spectral extension attenuation, stepped over
 	(if (= transproce 1) (times fbw (if (= (bits-1 in) 1) (bits-get in 18))))
-	(defq spxatten (map (lambda (_) (if (and (= spxattene 1) (= (bits-1 in) 1)) (bits-get in 5) -1)) (range 0 fbw)))
+	(defq spxatten (map! (lambda () (if (and (= spxattene 1) (= (bits-1 in) 1)) (bits-get in 5) -1)) '() 0 fbw))
 	;where each block starts, stepped over
 	(when (and (> blocks 1) (= (bits-1 in) 1))
 		;floor of log2 of the bytes of the frame less 2
@@ -364,23 +354,23 @@
 	;channel: 0 the coupling channel, 1 to fbw the full ones, fbw+1 the LFE
 	(defq n (+ (. h :find :fbw) 2))
 	(scatter (Emap) :fbw (. h :find :fbw) :lfe (. h :find :lfe) :mode (. h :find :mode) :rate_code (. h :find :rate_code)
-		:exps (map (lambda (_) (fill (nums) 256 0)) (range 0 n)) :bap (map (lambda (_) (fill (nums) 256 0)) (range 0 n))
-		:psd (map (lambda (_) :nil) (range 0 n)) :band_psd (map (lambda (_) :nil) (range 0 n))
-		:mask (map (lambda (_) :nil) (range 0 n))
-		:start (map (lambda (_) 0) (range 0 n)) :end (map (lambda (_) 0) (range 0 n))
-		:snr (map (lambda (_) 0) (range 0 n)) :fgain (map (lambda (_) 0) (range 0 n))
-		:dba (map (lambda (_) :nil) (range 0 n)) :dither (map (lambda (_) 1) (range 0 n))
-		:in_cpl (map (lambda (_) 0) (range 0 n)) :first_coords (map (lambda (_) 1) (range 0 n))
-		:coords (map (lambda (_) (list)) (range 0 n)) :phase (list) :cpl_sizes (list) :cpl_struct (list)
-		:first_cpl_leak 1 :cpl_fast_leak 0 :cpl_slow_leak 0 :seed 1 :blksw (map (lambda (_) 0) (range 0 n)) :shorts 0
+		:exps (map! (lambda () (fill (nums) 256 0)) '() 0 n) :bap (map! (lambda () (fill (nums) 256 0)) '() 0 n)
+		:psd (map! (lambda () :nil) '() 0 n) :band_psd (map! (lambda () :nil) '() 0 n)
+		:mask (map! (lambda () :nil) '() 0 n)
+		:start (map! (lambda () 0) '() 0 n) :end (map! (lambda () 0) '() 0 n)
+		:snr (map! (lambda () 0) '() 0 n) :fgain (map! (lambda () 0) '() 0 n)
+		:dba (map! (lambda () :nil) '() 0 n) :dither (map! (lambda () 1) '() 0 n)
+		:in_cpl (map! (lambda () 0) '() 0 n) :first_coords (map! (lambda () 1) '() 0 n)
+		:coords (map! (lambda () (list)) '() 0 n) :phase (list) :cpl_sizes (list) :cpl_struct (list)
+		:first_cpl_leak 1 :cpl_fast_leak 0 :cpl_slow_leak 0 :seed 1 :blksw (map! (lambda () 0) '() 0 n) :shorts 0
 		;spectral extension, in use, each channel using it, its first
 		;coordinates still to come, and its blend of noise and signal a band
-		:spx 0 :spx_uses (map (lambda (_) 0) (range 0 n)) :spx_first (map (lambda (_) 1) (range 0 n))
-		:spx_blend (map (lambda (_) (list)) (range 0 n))
+		:spx 0 :spx_uses (map! (lambda () 0) '() 0 n) :spx_first (map! (lambda () 1) '() 0 n)
+		:spx_blend (map! (lambda () (list)) '() 0 n)
 		:spx_struct (list) :spx_sizes (list) :spx_dst 0 :spx_src 0 :spx_end 0
 		;the 6 blocks' mantissas of each channel of AHT, and the noise made
 		;for the bins of a channel that are dither or extension
-		:aht (map (lambda (_) :nil) (range 0 n)) :noise (fill (reals) 256 (n2r 0))
+		:aht (map! (lambda () :nil) '() 0 n) :noise (fill (reals) 256 (n2r 0))
 		;the dynamic range gains, of one or a dual mono's two
 		:drc (list (n2r 1) (n2r 1))))
 
@@ -411,13 +401,11 @@
 	(if (= blk 0) (setq struct (cat default)))
 	(defq n (- end_sub start_sub))
 	(if (or (not eac3) (= (bits-1 in) 1))
-		(each (# (elem-set struct (+ start_sub 1 %0) (bits-1 in))) (range 0 (dec n))))
+		(each! (# (elem-set struct (+ start_sub 1 (!)) (bits-1 in))) '() 0 (dec n)))
 	(defq sizes (list 12))
-	(each (lambda (sub)
-			(if (= (elem-get struct (+ start_sub sub)) 1)
+	(each! (lambda () (if (= (elem-get struct (+ start_sub (!))) 1)
 				(elem-set sizes -2 (+ (last sizes) 12))
-				(push sizes 12)))
-		(range 1 n))
+				(push sizes 12))) '() 1 n)
 	(list struct sizes))
 
 (defun ac3-aht (d in c)
@@ -429,20 +417,19 @@
 	;numbers, the DCT of 6 back across the blocks, by 2^-exponent, the
 	;exponents the same in all 6: a reals of 6 blocks of 256
 	(defq bap (elem-get (. d :find :bap) c) start (elem-get (. d :find :start) c) end (elem-get (. d :find :end) c)
-		bins (range start end) gaq (bits-get in 2) top (if (< gaq 2) 12 17) gains (nums)
+		gaq (bits-get in 2) top (if (< gaq 2) 12 17) gains (nums)
 		out (fill (reals) 1536 (n2r 0)) state (nums (. d :find :seed)))
 	;the gains of the bins of bap 8 to the top, of 1 bit each, or 3 to a
 	;code of 5 bits
 	(case gaq
-		((1 2) (reduce (# (if (< 7 (elem-get bap %1) top) (push %0 (<< (bits-1 in) (dec gaq))) %0)) bins gains))
+		((1 2) (reduce! (# (if (< 7 %1 top) (push %0 (<< (bits-1 in) (dec gaq))) %0)) (list bap) gains start end))
 		(3 (defq k 0)
-			(each (lambda (bin)
-					(when (< 7 (elem-get bap bin) 17)
+			(each! (lambda (e)
+					(when (< 7 e 17)
 						(when (= 0 (% k 3))
 							(defq v (min 26 (bits-get in 5)))
 							(push gains (/ v 9) (% (/ v 3) 3) (% v 3)))
-						(setq k (inc k))))
-				bins)))
+						(setq k (inc k)))) (list bap) start end)))
 	(ac3-native-aht in bap (elem-get (. d :find :exps) c) start end (if (= gaq 0) 0 top) gains out
 		+ac3_aht_vq +ac3_aht_consts +ac3_aht_itab state)
 	(. d :insert :seed (first state))
@@ -498,11 +485,10 @@
 				(setq bin (+ bin n) i (+ i n))))
 		sizes)
 	(push copies (- bin dst))
-	(each (lambda (c)
-			(when (= 1 (elem-get (. d :find :spx_uses) c))
+	(each! (lambda () (defq c (!)) (when (= 1 (elem-get (. d :find :spx_uses) c))
 				(defq coeffs (elem-get out (dec c)) at src)
 				(each (lambda (n)
-						(each (# (elem-set coeffs (+ at %0) (elem-get coeffs (+ dst %0)))) (range 0 n))
+						(each! (# (elem-set coeffs (+ at (!)) (elem-get coeffs (+ dst (!))))) '() 0 n)
 						(setq at (+ at n)))
 					copies)
 				;the power of each band as copied
@@ -529,8 +515,7 @@
 						(times size
 							(elem-set coeffs at (+ (* (elem-get coeffs at) k) (* q (elem-get noise at))))
 							(setq at (inc at))))
-					sizes (elem-get (. d :find :spx_blend) c) rms)))
-		(range 1 (inc (. d :find :fbw)))))
+					sizes (elem-get (. d :find :spx_blend) c) rms))) '() 1 (inc (. d :find :fbw))))
 
 (defun ac3-block (d in h blk)
 	; (ac3-block decoder reader header blk) -> (reals ...)
@@ -542,17 +527,15 @@
 		lfe_ch (inc fbw) channels (+ fbw lfe) stages (fill (list) (+ fbw 2) 0)
 		start (. d :find :start) end (. d :find :end) in_cpl (. d :find :in_cpl) aht (. h :find :aht))
 	;block switching, and dither
-	(each (# (elem-set (. d :find :blksw) %0 (if (= (. h :find :blkswe) 1) (bits-1 in) 0))) (range 1 (inc fbw)))
+	(each! (# (elem-set (. d :find :blksw) (!) (if (= (. h :find :blkswe) 1) (bits-1 in) 0))) '() 1 (inc fbw))
 	(if (= (. h :find :dithflage) 1)
-		(each (# (elem-set (. d :find :dither) %0 (bits-1 in))) (range 1 (inc fbw)))
-		(each (# (elem-set (. d :find :dither) %0 1)) (range 1 (inc fbw))))
+		(each! (# (elem-set (. d :find :dither) (!) (bits-1 in))) '() 1 (inc fbw))
+		(each! (# (elem-set (. d :find :dither) (!) 1)) '() 1 (inc fbw)))
 	;dynamic range, the gain of the block, of each of a dual mono, 1 if
 	;the first block has none, else kept
-	(each (lambda (i)
-			(cond
-				((= (bits-1 in) 1) (elem-set (. d :find :drc) i (ac3-drc (bits-get in 8))))
-				((= blk 0) (elem-set (. d :find :drc) i (n2r 1)))))
-		(range 0 (if (= mode 0) 2 1)))
+	(each! (lambda () (cond
+				((= (bits-1 in) 1) (elem-set (. d :find :drc) (!) (ac3-drc (bits-get in 8))))
+				((= blk 0) (elem-set (. d :find :drc) (!) (n2r 1))))) '() 0 (if (= mode 0) 2 1))
 	;spectral extension, of E-AC-3: the high bins of a channel made from
 	;its lower ones, copied up and blended with noise to the energy each
 	;band is said to have. Which channels, from where to where, its bands
@@ -560,7 +543,7 @@
 	(when (and eac3 (or (= blk 0) (= (bits-1 in) 1)))
 		(. d :insert :spx (bits-1 in))
 		(when (= 1 (. d :find :spx))
-			(each (# (elem-set uses %0 (if (= mode 1) 1 (bits-1 in)))) (range 1 (inc fbw)))
+			(each! (# (elem-set uses (!) (if (= mode 1) 1 (bits-1 in)))) '() 1 (inc fbw))
 			(defq dst (bits-get in 2) s0 (+ 2 (bits-get in 3)) e0 (+ 5 (bits-get in 3)))
 			(if (> s0 7) (setq s0 (+ s0 (- s0 7))))
 			(if (> e0 7) (setq e0 (+ e0 (- e0 7))))
@@ -571,11 +554,10 @@
 			(scatter d :spx_struct struct :spx_sizes sizes)))
 	(unless (and eac3 (= 1 (. d :find :spx)))
 		(. d :insert :spx 0)
-		(each (# (elem-set uses %0 0) (elem-set first %0 1)) (range 1 (inc fbw))))
+		(each! (# (elem-set uses (!) 0) (elem-set first (!) 1)) '() 1 (inc fbw)))
 	;its coordinates, each band's blend of noise and of the signal copied
 	(when (= 1 (. d :find :spx))
-		(each (lambda (c)
-				(cond
+		(each! (lambda () (defq c (!)) (cond
 					((= 0 (elem-get uses c)) (elem-set first c 1))
 					((or (= 1 (elem-get first c)) (= 1 (bits-1 in)))
 						(elem-set first c 0)
@@ -589,8 +571,7 @@
 									(setq bin (+ bin size))
 									;noise of -1 to 1 by root 3 is of the power of the signal
 									(list (* (sqrt (* (n2r 3) ratio)) coord) (* (sqrt (- (n2r 1) ratio)) coord)))
-								(. d :find :spx_sizes))))))
-			(range 1 (inc fbw))))
+								(. d :find :spx_sizes)))))) '() 1 (inc fbw)))
 	;coupling: its strategy, given by the frame of E-AC-3, by each block of
 	;AC-3, which keeps that of the block before if it says none
 	(unless eac3
@@ -599,13 +580,13 @@
 		(push (. h :find :cplinu) (if (= cplstre 1) (bits-1 in) (if (> blk 0) (elem-get (. h :find :cplinu) (dec blk)) 0))))
 	(defq cplinu (elem-get (. h :find :cplinu) blk))
 	(when (= (elem-get (. h :find :cplstre) blk) 1)
-		(each (# (elem-set stages %0 3)) (range 0 (+ fbw 2)))
+		(each! (# (elem-set stages (!) 3)) '() 0 (+ fbw 2))
 		(cond
 			((= cplinu 1)
 				(and eac3 (= (bits-1 in) 1) (throw "ac3: enhanced coupling is not here" blk))
 				(if (and eac3 (= mode 2))
 					(progn (elem-set in_cpl 1 1) (elem-set in_cpl 2 1))
-					(each (# (elem-set in_cpl %0 (bits-1 in))) (range 1 (inc fbw))))
+					(each! (# (elem-set in_cpl (!) (bits-1 in))) '() 1 (inc fbw)))
 				(. d :insert :phase_in_use (if (= mode 2) (bits-1 in) 0))
 				;with spectral extension coupling ends where it begins
 				(defq begf (bits-get in 4)
@@ -614,13 +595,12 @@
 				(elem-set end 0 (+ 37 (* 12 endf)))
 				(bind '(struct sizes) (ac3-bands in blk eac3 begf endf (. +ac3 :find :cpl_bands) (. d :find :cpl_struct)))
 				(scatter d :cpl_struct struct :cpl_sizes sizes))
-			(:t (each (# (elem-set in_cpl %0 0) (elem-set (. d :find :first_coords) %0 1)) (range 1 (inc fbw)))
+			(:t (each! (# (elem-set in_cpl (!) 0) (elem-set (. d :find :first_coords) (!) 1)) '() 1 (inc fbw))
 				(scatter d :first_cpl_leak (if eac3 1 0) :phase_in_use 0))))
 	;coupling coordinates, and the phase of the right of a pair
 	(when (= cplinu 1)
 		(defq any :nil)
-		(each (lambda (c)
-				(cond
+		(each! (lambda () (defq c (!)) (cond
 					((= 0 (elem-get in_cpl c)) (elem-set (. d :find :first_coords) c 1))
 					((or (and eac3 (= 1 (elem-get (. d :find :first_coords) c))) (= (bits-1 in) 1))
 						(elem-set (. d :find :first_coords) c 0)
@@ -629,8 +609,7 @@
 						(elem-set (. d :find :coords) c (map (lambda (_)
 									(defq e (bits-get in 4) m (bits-get in 4))
 									(/ (n2r (>> (if (= e 15) (<< m 22) (<< (+ m 16) 21)) (+ e master))) (n2r 0x800000)))
-								(. d :find :cpl_sizes))))))
-			(range 1 (inc fbw)))
+								(. d :find :cpl_sizes)))))) '() 1 (inc fbw))
 		(and (= mode 2) any
 			(. d :insert :phase (map (lambda (_) (if (= 1 (. d :find :phase_in_use)) (bits-1 in) 0)) (. d :find :cpl_sizes)))))
 	;rematrixing, of a pair alone
@@ -640,28 +619,26 @@
 			(cond
 				((and (= cplinu 1) (<= (elem-get start 0) 61)) (setq bands (- bands 1 (if (= (elem-get start 0) 37) 1 0))))
 				((and (= 1 (. d :find :spx)) (<= (. d :find :spx_src) 61)) (setq bands (dec bands))))
-			(. d :insert :rematrix (map (lambda (_) (bits-1 in)) (range 0 bands)))))
+			(. d :insert :rematrix (map! (lambda () (bits-1 in)) '() 0 bands))))
 	;the strategies of the exponents, from the frame of E-AC-3, of AC-3 in
 	;each block, 2 bits, the LFE's 1
 	(defq strategy (if eac3 (cat (elem-get (. h :find :expstr) blk))
-			(map (lambda (c) (if (or (> c 0) (= cplinu 1)) (bits-get in 2) 0)) (range 0 (inc fbw)))))
+			(map! (lambda () (if (or (> (!) 0) (= cplinu 1)) (bits-get in 2) 0)) '() 0 (inc fbw))))
 	(push strategy (if (= lfe 1) (if eac3 (elem-get (. h :find :lfe_expstr) blk) (bits-1 in)) 0))
-	(each (# (if (/= 0 (elem-get strategy %0)) (elem-set stages %0 3))) (range (if (= cplinu 1) 0 1) (+ fbw 1 lfe)))
+	(each! (# (if (/= 0 %0) (elem-set stages (!) 3))) (list strategy) (if (= cplinu 1) 0 1) (+ fbw 1 lfe))
 	;the bandwidth of each full channel
-	(each (lambda (c)
-			(elem-set start c 0)
+	(each! (lambda () (defq c (!)) (elem-set start c 0)
 			(unless (= 0 (elem-get strategy c))
 				(defq prev (elem-get end c))
 				(elem-set end c (cond
 						((= 1 (elem-get in_cpl c)) (elem-get start 0))
 						((= 1 (elem-get uses c)) (. d :find :spx_src))
 						((+ 73 (* 3 (bits-get in 6))))))
-				(and (> blk 0) (/= prev (elem-get end c)) (each (# (elem-set stages %0 3)) (range 0 (+ fbw 2))))))
-		(range 1 (inc fbw)))
+				(and (> blk 0) (/= prev (elem-get end c)) (each! (# (elem-set stages (!) 3)) '() 0 (+ fbw 2))))) '() 1 (inc fbw))
 	(when (= lfe 1) (elem-set start lfe_ch 0) (elem-set end lfe_ch 7))
 	;the exponents of each channel of a new strategy
-	(each (lambda (c)
-			(defq st (elem-get strategy c))
+	(each! (lambda ()
+			(defq c (!) st (elem-get strategy c))
 			(unless (= st 0)
 				(defq size (* 3 (elem-get '(0 1 2 4) st))
 					groups (cond
@@ -673,7 +650,7 @@
 				(if (/= c 0) (elem-set exps 0 abs))
 				(each (# (if (< (+ at (!)) 256) (elem-set exps (+ at (!)) %0))) got)
 				(and (/= c 0) (/= c lfe_ch) (bits-get in 2))))
-		(range (if (= cplinu 1) 0 1) (+ fbw 1 lfe)))
+		'() (if (= cplinu 1) 0 1) (+ fbw 1 lfe))
 	;the bit allocation's parameters
 	(cond
 		((= (. h :find :bamode) 1)
@@ -683,7 +660,7 @@
 					:slow_gain (elem-get (. +ac3 :find :slow_gain) (bits-get in 2))
 					:db_per_bit (elem-get (. +ac3 :find :db_per_bit) (bits-get in 2))
 					:floor (elem-get (. +ac3 :find :floor) (bits-get in 3)))
-				(each (# (elem-set stages %0 (max (elem-get stages %0) 2))) (range 0 (+ fbw 2)))))
+				(each! (# (elem-set stages (!) (max %0 2))) (list stages) 0 (+ fbw 2))))
 		((and eac3 (= blk 0)) (ac3-defaults d)))
 	;the SNR offsets, of the frame or of each channel, of AC-3 each with its
 	;fast gain, in any block that says so
@@ -692,25 +669,25 @@
 			((/= (. h :find :snroffststr) 0)
 				(when (= (bits-1 in) 1)
 					(defq coarse (<< (- (bits-get in 6) 15) 4) snr 0)
-					(each (lambda (c)
-							(if (or (= (!) 0) (= (. h :find :snroffststr) 2)) (setq snr (<< (+ coarse (bits-get in 4)) 2)))
+					(defq first_c (if (= cplinu 1) 0 1))
+					(each! (lambda ()
+							(defq c (!))
+							(if (or (= c first_c) (= (. h :find :snroffststr) 2)) (setq snr (<< (+ coarse (bits-get in 4)) 2)))
 							(if (/= snr (elem-get (. d :find :snr) c)) (elem-set stages c (max (elem-get stages c) 1)))
 							(elem-set (. d :find :snr) c snr)
 							(unless eac3
 								(defq g (elem-get (. +ac3 :find :fast_gain) (bits-get in 3)))
 								(if (/= g (elem-get (. d :find :fgain) c)) (elem-set stages c (max (elem-get stages c) 2)))
 								(elem-set (. d :find :fgain) c g)))
-						(range (if (= cplinu 1) 0 1) (+ fbw 1 lfe)))))
-			(:t (each (# (elem-set (. d :find :snr) %0 (. h :find :snr))) (range 0 (+ fbw 2))))))
+						'() first_c (+ fbw 1 lfe))))
+			(:t (each! (# (elem-set (. d :find :snr) (!) (. h :find :snr))) '() 0 (+ fbw 2)))))
 	;the fast gains
 	(cond
 		((and (= (. h :find :frmfgaincode) 1) (= (bits-1 in) 1))
-			(each (lambda (c)
-					(defq g (elem-get (. +ac3 :find :fast_gain) (bits-get in 3)))
-					(if (/= g (elem-get (. d :find :fgain) c)) (elem-set stages c (max (elem-get stages c) 2)))
-					(elem-set (. d :find :fgain) c g))
-				(range (if (= cplinu 1) 0 1) (+ fbw 1 lfe))))
-		((and eac3 (= blk 0)) (each (# (elem-set (. d :find :fgain) %0 (elem-get (. +ac3 :find :fast_gain) 4))) (range 0 (+ fbw 2)))))
+			(each! (lambda (fgain stage) (defq g (elem-get (. +ac3 :find :fast_gain) (bits-get in 3)))
+					(if (/= g fgain) (elem-set stages (!) (max stage 2)))
+					(elem-set (. d :find :fgain) (!) g)) (list (. d :find :fgain) stages) (if (= cplinu 1) 0 1) (+ fbw 1 lfe)))
+		((and eac3 (= blk 0)) (each! (# (elem-set (. d :find :fgain) (!) (elem-get (. +ac3 :find :fast_gain) 4))) '() 0 (+ fbw 2))))
 	;converter SNR offset, stepped over
 	(and (= (. h :find :type) 0) (= (bits-1 in) 1) (bits-get in 10))
 	;the leaks of the coupling channel
@@ -723,18 +700,18 @@
 	;delta bit allocation
 	(cond
 		((and (= (. h :find :dbaflde) 1) (= (bits-1 in) 1))
-			(defq modes (map (lambda (_) (bits-get in 2)) (range (if (= cplinu 1) 0 1) (inc fbw))))
-			(each (lambda (c m)
+			(defq first_c (if (= cplinu 1) 0 1) modes (map! (lambda () (bits-get in 2)) '() first_c (inc fbw)))
+			(each! (lambda (m)
+					(defq c (+ first_c (!)))
 					(cond
 						((= m 1) (elem-set (. d :find :dba) c
-								(map (lambda (_) (list (bits-get in 5) (bits-get in 4) (bits-get in 3))) (range 0 (inc (bits-get in 3))))))
+								(map! (lambda () (list (bits-get in 5) (bits-get in 4) (bits-get in 3))) '() 0 (inc (bits-get in 3)))))
 						((= m 2) (elem-set (. d :find :dba) c :nil)))
 					(elem-set stages c (max (elem-get stages c) 2)))
-				(range (if (= cplinu 1) 0 1) (inc fbw)) modes))
-		((= blk 0) (each (# (elem-set (. d :find :dba) %0 :nil)) (range 0 (+ fbw 2)))))
+				(list modes)))
+		((= blk 0) (each! (# (elem-set (. d :find :dba) (!) :nil)) '() 0 (+ fbw 2))))
 	;the bit allocation of each channel, as far as it has changed
-	(each (lambda (c)
-			(defq st (elem-get stages c))
+	(each! (lambda () (defq c (!) st (elem-get stages c))
 			(when (> st 2)
 				(bind '(psd band_psd) (ac3-psd (elem-get (. d :find :exps) c) (elem-get start c) (elem-get end c)))
 				(elem-set (. d :find :psd) c psd)
@@ -745,16 +722,14 @@
 			(if (> st 0)
 				(elem-set (. d :find :bap) c (ac3-bap d (elem-get (. d :find :psd) c) (elem-get (. d :find :mask) c)
 						(elem-get start c) (elem-get end c) (elem-get (. d :find :snr) c)
-						(if (= 0 (elem-get aht c)) +ac3_bap +ac3_hebap)))))
-		(range (if (= cplinu 1) 0 1) (+ fbw 1 lfe)))
+						(if (= 0 (elem-get aht c)) +ac3_bap +ac3_hebap))))) '() (if (= cplinu 1) 0 1) (+ fbw 1 lfe))
 	;dummy data, stepped over
 	(and (= (. h :find :skipflde) 1) (= (bits-1 in) 1) (bits-skip in (* 8 (bits-get in 9))))
 	;the mantissas, the coupling channel's after the first coupled one's
 	;those of a channel of AHT all in the first block
 	(defq groups (fill (nums) 6 0) cpl :nil
 		mants (lambda (c) (if (= 0 (elem-get aht c)) (ac3-mantissas d in c groups) (ac3-aht-coeffs d in c blk))))
-	(defq out (map (lambda (c)
-				(defq coeffs (mants c))
+	(defq out (map! (lambda () (defq c (!)) (defq coeffs (mants c))
 				(when (= 1 (elem-get in_cpl c))
 					(unless cpl (setq cpl (mants 0)))
 					;the coupled bins, the coupling channel's by this one's coordinates
@@ -768,18 +743,15 @@
 												(= 0 (elem-get (. d :find :dither) c))) (n2r 0) (elem-get cpl bin)) k))
 								(setq bin (inc bin))))
 						(. d :find :cpl_sizes) coords))
-				coeffs)
-			(range 1 (inc channels))))
+				coeffs) '() 1 (inc channels)))
 	;rematrixing of a pair, the sum and difference
 	(when (and (= mode 2) (. d :find :rematrix))
 		(defq lo (min (elem-get end 1) (elem-get end 2)) bands (. +ac3 :find :rematrix))
 		(each (lambda (flag)
 				(when (= flag 1)
-					(each (lambda (k)
-							(defq a (elem-get (first out) k) b (elem-get (second out) k))
-							(elem-set (first out) k (+ a b))
-							(elem-set (second out) k (- a b)))
-						(range (elem-get bands (!)) (min lo (elem-get bands (inc (!))))))))
+					(each! (lambda (e v) (defq a e b v)
+							(elem-set (first out) (!) (+ a b))
+							(elem-set (second out) (!) (- a b))) (list (first out) (second out)) (elem-get bands (!)) (min lo (elem-get bands (inc (!)))))))
 			(. d :find :rematrix)))
 	;the dynamic range gain, of the first of a dual mono to the second
 	(defq drc (. d :find :drc))
@@ -813,16 +785,15 @@
 	(. d :insert :first_cpl_leak (if (. h :find :eac3) 1 0))
 	(unless (. d :find :window)
 		(scatter d :window (mdct-kbd 256 5) :tables (mdct-tables 256) :short_tables (mdct-tables 128)
-			:dct4 (ffi "lib/media/media_dct4") :delay (map (lambda (_) :nil) (range 0 8))))
+			:dct4 (ffi "lib/media/media_dct4") :delay (map! (lambda () :nil) '() 0 8)))
 	(defq rise (slice (. d :find :window) 0 128) fall (slice (. d :find :window) 256 128)
 		dct4 (. d :find :dct4) blksw (. d :find :blksw) fbw (. d :find :fbw)
-		channels (+ fbw (. d :find :lfe)) out (map (lambda (_) (cap (. h :find :blocks) (list))) (range 0 channels))
+		channels (+ fbw (. d :find :lfe)) out (map! (lambda () (cap (. h :find :blocks) (list))) '() 0 channels)
 		half (lambda (lines n tables)
 			;the middle half of the IMDCT, n of its 2n samples, what the
 			;window and the block before make a block of
 			(slice (mdct-imdct dct4 tables lines n) (>> n 1) (+ n (>> n 1)))))
-	(each (lambda (blk)
-			(each (lambda (coeffs)
+	(each! (lambda () (defq blk (!)) (each (lambda (coeffs)
 					(defq c (!) delay (elem-get (. d :find :delay) c))
 					(unless delay (setq delay (nums-scale (slice rise 0 128) (n2r 0))))
 					(defq now :nil next :nil)
@@ -845,8 +816,7 @@
 					(push (elem-get out c) (cat (nums-sub (nums-mul delay fall) (nums-mul back rise))
 							(reverse (nums-add (nums-mul delay rise) (nums-mul back fall)))))
 					(elem-set (. d :find :delay) c next))
-				(ac3-block d in h blk)))
-		(range 0 (. h :find :blocks)))
+				(ac3-block d in h blk))) '() 0 (. h :find :blocks))
 	(map (# (apply (const cat) %0)) out))
 
 (defun ac3-stereo (d chans)

@@ -40,7 +40,7 @@
 			(defq ends (split (str reg) "-") kind (slice (first ends) 0 2)
 				kind (if (eql kind ":f") ":d" kind)
 				from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
-			(each (# (push out (sym (cat kind (str %0))))) (range from (inc to)))
+			(each! (# (push out (sym (cat kind (str (!)))))) '() from (inc to))
 			out) %0 (list)))
 
 ;the register a call by the vtable goes through. One the method is

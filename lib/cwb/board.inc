@@ -2096,10 +2096,8 @@
 		(unless (eql mode :bite)
 			;the lines, a step at a time. And with them what is not a line,
 			;if it goes whole
-			(each (lambda (i)
-					(defq f (/ (n2f i) (n2f steps)))
-					(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r (eql mode :part)) (setq done :t)))
-				(range 0 (inc steps))))
+			(each! (lambda () (defq f (/ (n2f (!)) (n2f steps)))
+					(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r (eql mode :part)) (setq done :t))) '() 0 (inc steps)))
 		;the bite, all of the way at once, what it covers from the one to the other
 		(and (find mode '(:part :bite)) (. this :bite (path x y (n2f x1) (n2f y1)) r) (setq done :t))
 		done)

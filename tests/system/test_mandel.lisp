@@ -26,8 +26,7 @@
 		(defq name (first p) pal (mandel-pal (!)))
 		(assert-eq (cat "the palette " name " is an int for each colour") (* +mandel_pal_size +int_size) (length pal))
 		(assert-true (cat "and every one of them is solid")
-			(every (# (= (logand (get-int pal (* %0 +int_size)) 0xff000000) 0xff000000))
-				(range 0 +mandel_pal_size))))
+			(some! (# (= (logand (get-int pal (* (!) +int_size)) 0xff000000) 0xff000000)) '() :t 0 +mandel_pal_size)))
 	+mandel_palettes)
 (assert-eq "the first is made once" (mandel-pal 0) mb_pal)
 
@@ -45,9 +44,8 @@
 ;the depth has no steps in it, two points close by are close in colour,
 ;from near the edge to far off
 (assert-true "the colour has no steps in it"
-	(every (lambda (i)
-			(defq x (+ 0.4 (* (n2f i) 0.002)))
-			(< (mb-far (mb-at x 0.5) (mb-at (+ x 0.002) 0.5)) 8)) (range 0 400)))
+	(some! (lambda () (defq x (+ 0.4 (* (n2f (!)) 0.002)))
+			(< (mb-far (mb-at x 0.5) (mb-at (+ x 0.002) 0.5)) 8)) '() :t 0 400))
 
 ;more turns find more of the outside
 (defq mb_deep '(-0.74543 0.11301))

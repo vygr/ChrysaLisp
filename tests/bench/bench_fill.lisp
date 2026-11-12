@@ -4,7 +4,7 @@
 (import "gui/lisp.inc")
 
 (defq bf_font (create-font "fonts/OpenSans-Regular.ctf" 14)
-	bf_text (apply (const cat) (map (# (str (% %0 10) "abcdef7")) (range 0 125))))
+	bf_text (apply (const cat) (map! (# (str (% (!) 10) "abcdef7")) '() 0 125)))
 
 (defun bf-line (len)
 	; (bf-line len) -> (canvas paths y)

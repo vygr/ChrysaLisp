@@ -15,7 +15,7 @@
 
 (defun sg-bytes (len seed)
 	(defq out (cat (str-alloc len)))
-	(each (# (set-byte out %0 (logand (+ (* %0 7) (>> %0 8) seed) 0xff))) (range 0 len))
+	(each! (# (set-byte out (!) (logand (+ (* (!) 7) (>> (!) 8) seed) 0xff))) '() 0 len)
 	out)
 
 (assert-true "the service is started, on a store it made" sg_svc)
@@ -68,9 +68,9 @@
 	(assert-list-eq "one told to begin at the last" '(2)
 		(sg-walk "a/big" :nil '(lambda (state data at count) (list at :nil)) 2 :nil sg_svc))
 	(assert-eq "the sum of every byte, worked out where the blocks are"
-		(reduce (# (+ %0 (code sg_big 1 %1))) (range 0 (length sg_big)) 0)
+		(reduce! (# (+ %0 (code sg_big 1 (!)))) '() 0 0 (length sg_big))
 		(first (storage-walk "a/big" 0 '(lambda (sum data at count)
-					(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
+					(list (reduce! (# (+ %0 (code data 1 (!)))) '() sum 0 (length data)) (inc at))) :nil :nil sg_svc)))
 	(assert-list-eq "what it has can be a str with spaces and quotes in it, and comes back as it was"
 		(list "a \qb\q c 3")
 		(sg-walk "a/big" "a \qb\q c"
@@ -97,7 +97,7 @@
 	(assert-eq "let go of, it is all that was written" "hello world, again" (storage-get "w/one" sg_svc))
 	;of more than a block, and of blocks exactly
 	(defq sg_long (sg-bytes 10000 5) sg_out (storage-stream "w/long" +file_open_write sg_svc))
-	(each (# (write-blk sg_out (slice sg_long %0 (min 10000 (+ %0 700))))) (range 0 10000 700))
+	(each! (# (write-blk sg_out (slice sg_long (* (!) 700) (min 10000 (+ (* (!) 700) 700))))) '() 0 15)
 	(setq sg_out :nil)
 	(assert-eq "10,000 bytes written 700 at a time are the object, three blocks" sg_long (storage-get "w/long" sg_svc))
 	(assert-eq "its length is what was written" 10000 (third (storage-stat "w/long" sg_svc)))
@@ -126,7 +126,7 @@
 	(assert-eq "opened to write and let go of with nothing written, an object of nothing, as a file" 0 (third (storage-stat "w/new" sg_svc)))
 	;what a stream writes, a stream reads
 	(defq sg_out (storage-stream "w/lines" +file_open_write sg_svc))
-	(each (# (write-line sg_out (cat "line " (str %0)))) (range 0 500))
+	(each! (# (write-line sg_out (cat "line " (str (!))))) '() 0 500)
 	(setq sg_out :nil)
 	(defq sg_in (storage-stream "w/lines" +file_open_read sg_svc) sg_lines (list))
 	(lines! (# (push sg_lines %0) :nil) sg_in)
@@ -149,7 +149,7 @@
 	;one to the next block keeps what is on its way; one far off and then
 	;back to the old block reads the old block, not the far one. An MP3
 	;seeks twice a frame of a few hundred bytes
-	(storage-put "w/seek" (apply (const cat) (map (# (str %0 " ")) (range 0 4000))) :nil sg_svc)
+	(storage-put "w/seek" (apply (const cat) (map! (# (str (!) " ")) '() 0 4000)) :nil sg_svc)
 	(defq sg_all (storage-get "w/seek" sg_svc) sg_in (storage-stream "w/seek" :nil sg_svc))
 	(defq sg_at (lambda (at n) (stream-seek sg_in at 0) (read-blk sg_in n)))
 	(assert-list-eq "seeks back into a block, on to the next, far off and back read what is there"
@@ -192,11 +192,11 @@
 	(assert-list-eq "what is quoted in a function is not code, it comes back as it was" '((while 1 2))
 		(sg-walk "a/big" 0 '(lambda (state data at count) (list '(while 1 2) :nil)) :nil :nil sg_svc))
 	(assert-eq "the gophers after them are run as ever"
-		(reduce (# (+ %0 (code sg_big 1 %1))) (range 0 (length sg_big)) 0)
+		(reduce! (# (+ %0 (code sg_big 1 (!)))) '() 0 0 (length sg_big))
 		(first (storage-walk "a/big" 0 '(lambda (sum data at count)
-					(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
+					(list (reduce! (# (+ %0 (code data 1 (!)))) '() sum 0 (length data)) (inc at))) :nil :nil sg_svc)))
 	;a search by halves of 4096 numbers in order, 512 a block
-	(storage-put "a/sorted" (apply (const cat) (map (# (cat (pad (str %0) 7 "0") "\n")) (range 0 4096))) :nil sg_svc)
+	(storage-put "a/sorted" (apply (const cat) (map! (# (cat (pad (str (!)) 7 "0") "\n")) '() 0 4096)) :nil sg_svc)
 	(defun sg-search (want)
 		(first (storage-walk "a/sorted" (list want :nil 0 0 7)
 				'(lambda ((want found reads lo hi) data at count)

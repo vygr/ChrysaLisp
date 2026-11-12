@@ -77,14 +77,9 @@
 	(partition (list 1 2 3) 5) '((1 2 3))
 	(partition (list 1 2 3 4) 1) '((1) (2) (3) (4))
 	(partition "abcdef" 4) '("abcd" "ef")
-	(range 0 0) '()
-	(range 0 1) '(0)
-	(range 5 0) '(5 4 3 2 1)
-	(range 0 10 3) '(0 3 6 9)
-	(range 10 0 3) '(10 7 4 1)
-	;the sign of the step is ignored
-	(range 0 5 -1) '(0 1 2 3 4)
-	(range -3 3) '(-3 -2 -1 0 1 2))
+	(map! (const !) '() 0 0) '()
+	(map! (const !) '() 0 1) '(0)
+	(map! (const !) '() -3 3) '(-3 -2 -1 0 1 2))
 
 ; --- zip, unzip, flatten, unique, join ---
 (test-cases

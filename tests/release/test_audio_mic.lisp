@@ -73,7 +73,7 @@
 					(defq handle (audio-stream-open-rpc))
 					(cond
 						(handle
-							(defq piece (apply (const cat) (map (# (char (* (% %0 40) 400) 2)) (range 0 320))))
+							(defq piece (apply (const cat) (map! (# (char (* (% (!) 40) 400) 2)) '() 0 320)))
 							(times 50 (audio-stream-write-rpc handle piece))
 							(defq one (audio-stream-close-rpc handle) two (audio-stream-close-rpc handle))
 							(cat "1 " (if (and one (= (getf one +audio_ret_retval) 0)) "1" "0")

@@ -7,12 +7,12 @@
 	rz_image (cat "tests/scratch/resize_" rz_pid ".img")
 	rz_svc (storage-start rz_image :size 0x200000 :id "resizing" :name rz_name :block 4096
 		:group (cat "*ResizeTest" rz_pid) :tick 0)
-	rz_data (map (# (apply (const cat) (map (lambda (i) (hex-encode (sha256 (str %0 " " i)))) (range 0 (+ 20 (* %0 30)))))) (range 0 6)))
+	rz_data (map! (lambda () (defq j (!)) (apply (const cat) (map! (lambda () (hex-encode (sha256 (str j " " (!))))) '() 0 (+ 20 (* j 30))))) '() 0 6))
 
 (assert-true "a store of 2MB is started" rz_svc)
 (each (# (storage-put (cat "docs/file " (str (!))) %0 :nil rz_svc)) rz_data)
 ;and one of 768KB, that with the rest 1MB can not hold
-(defq rz_big_data (apply (const cat) (map (# (hex-encode (sha256 (str %0)))) (range 0 12000))))
+(defq rz_big_data (apply (const cat) (map! (# (hex-encode (sha256 (str (!))))) '() 0 12000)))
 (storage-put "docs/big" rz_big_data :nil rz_svc)
 (storage-pin "docs/" :nil rz_svc)
 (defq rz_count (length (storage-list "" rz_svc)))
@@ -63,7 +63,7 @@
 ;full to the last cluster, by a put that did not fit, so that its path map
 ;could not be written to it, and made bigger: what it has is all there
 (defq rz_before (length (storage-list "" rz_svc)))
-(storage-put "docs/huge" (apply (const cat) (map (# (hex-encode (sha256 (str "huge " %0)))) (range 0 24000))) :nil rz_svc)
+(storage-put "docs/huge" (apply (const cat) (map! (# (hex-encode (sha256 (str "huge " (!))))) '() 0 24000)) :nil rz_svc)
 (defq rz_full (storage-resize 8 rz_svc))
 (assert-eq "full, made bigger" (storage-resized-name rz_image 8) rz_full)
 (assert-eq "with every object it had" rz_before (length (filter (# (nql (first %0) "docs/huge")) (storage-list "" rz_svc))))

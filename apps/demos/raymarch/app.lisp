@@ -95,9 +95,9 @@
 		((eql mode :cpu)
 			;the nodes shade it, a tile each
 			(defq inputs (frame-inputs) key (canvas-key *canvas*))
-			(. jobs :add (map (# (shader-tile +shader_file inputs
-							0 %0 +width (min +height (+ %0 +line_batch)) +width +height key))
-					(range 0 +height +line_batch))))))
+			(. jobs :add (map! (lambda () (defq y (* (!) +line_batch))
+							(shader-tile +shader_file inputs 0 y +width (min +height (+ y +line_batch)) +width +height key))
+					'() 0 (const (/ (+ +height +line_batch -1) +line_batch)))))))
 
 (defun frame-done ()
 	;the frame is whole, and is in the pixmap of the canvas. It goes

@@ -64,7 +64,7 @@ through `"%FF"`.
 	+cls_pct (char-class "%") +cls_pct_plus (char-class "%+"))
 
 (defq +url_rep_table (cat "+" (apply (const cat)
-	(map (# (cat "%" (hex-encode (char %0)))) (range 0 256)))))
+	(map! (# (cat "%" (hex-encode (char (!))))) '() 0 256))))
 ```
 
 * **Fast-Path Verification:** Before allocating index buffers, `(rbskip

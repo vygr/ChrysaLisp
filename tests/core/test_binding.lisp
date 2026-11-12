@@ -55,7 +55,7 @@
 ;a form of many lists: the expander's stack holds the lists still to be
 ;looked at, so a wide form fills it as a deep one does. A cap on it left
 ;the lists in hand unexpanded, and said nothing
-(defq mx_wide (cat (list 'list) (map (lambda (_) (list 'progn (list 'inc 'x))) (range 0 1500))))
+(defq mx_wide (cat (list 'list) (map! (lambda () (list 'progn (list 'inc 'x))) '() 0 1500)))
 (defq mx_out (macroexpand mx_wide))
 (assert-true "a form of 1500 lists is expanded in every one of them"
 	(some! (# (eql "#add" (str (first (second %0))))) (list mx_out) :t 1 -1))

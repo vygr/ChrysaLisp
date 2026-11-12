@@ -78,8 +78,7 @@
 	;the scene
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
-	(. jobs :add (map (lambda (&) (slice-job (bubble-count) 0 +height +height))
-			(range 0 (. jobs :size)))))
+	(. jobs :add (map! (lambda () (slice-job (bubble-count) 0 +height +height)) '() 0 (. jobs :size))))
 
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them. The canvas is
@@ -87,8 +86,8 @@
 	(defq nodes (max 1 (length (lisp-nodes :t))) count (bubble-count) time (scene-time))
 	(setq farming :t frame_time (pii-time) frame_drawn 0)
 	(. *canvas* :fill 0)
-	(. jobs :add (map (# (slice-job count time (/ (* %0 +height) nodes)
-					(/ (* (inc %0) +height) nodes))) (range 0 nodes))))
+	(. jobs :add (map! (# (slice-job count time (/ (* (!) +height) nodes)
+					(/ (* (inc (!)) +height) nodes))) '() 0 nodes)))
 
 (defun one-task-frame (how)
 	;a frame drawn here, all of it

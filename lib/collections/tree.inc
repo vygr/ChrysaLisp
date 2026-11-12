@@ -36,9 +36,10 @@
 			(defq enc (tree-encode-chunk atom))
 			(if (<= (length enc) +tree_chunk_size)
 				(cat "\q" enc "\q")
-				(defq chunks (reduce (lambda (p off)
-							(push p (cat "\q" (slice enc off (min (length enc) (+ off +tree_chunk_size))) "\q")))
-						(range 0 (length enc) +tree_chunk_size) (list)))
+				(defq chunks (map! (lambda ()
+							(defq off (* (!) +tree_chunk_size))
+							(cat "\q" (slice enc off (min (length enc) (+ off +tree_chunk_size))) "\q"))
+						'() 0 (/ (+ (length enc) (dec +tree_chunk_size)) +tree_chunk_size)))
 				(cat "(:cat\n\t\t" (join chunks "\n\t\t") ")")))
 		((throw "Invalid tree encode !" atom))))
 

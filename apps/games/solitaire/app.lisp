@@ -43,14 +43,12 @@
 	(ui-flow *board_view* (:flow_flags +flow_stack_fill)
 		(ui-grid *grid* (:grid_width +grid_w :grid_height +grid_h
 				:paper 0 :font *font*)
-			(each (lambda (i)
-					(if (is-valid-pos i)
+			(each! (lambda () (if (is-valid-pos (!))
 						; Valid position: Interactive button
 						(. (ui-button _ (:min_width 40 :min_height 40))
-							:connect (+ +event_click i))
+							:connect (+ +event_click (!)))
 						; Invalid position: Solid backdrop (visual only)
-						(ui-backdrop _ (:paper +argb_grey3 :min_width 40 :min_height 40))))
-				(range 0 +tile_count)))
+						(ui-backdrop _ (:paper +argb_grey3 :min_width 40 :min_height 40)))) '() 0 +tile_count))
 		(ui-backdrop _ (:paper +argb_grey3)))
 
 	(ui-label *status* (:text "Pegs: 32" :flow_flags +flow_flag_align_hcenter)))
@@ -62,10 +60,9 @@
 (defun config-default ()
 	; Create standard English board (33 holes)
 	(defq b (list))
-	(each (lambda (i)
-			(if (is-valid-pos i)
+	(each! (lambda () (if (is-valid-pos (!))
 				(push b +state_peg)
-				(push b +state_invalid))) (range 0 +tile_count))
+				(push b +state_invalid))) '() 0 +tile_count)
 	; Clear center
 	(elem-set b (+ 3 (* 3 +grid_w)) +state_empty)
 	(scatter (Emap)

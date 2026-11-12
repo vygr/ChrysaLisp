@@ -9,7 +9,7 @@
 
 (defun hkdf-extract (salt secret)
 	; (hkdf-extract salt secret) -> str
-	(hmac-sha256 (if (empty? salt) (apply (const cat) (map (lambda (&) (char 0)) (range 0 32))) salt) secret))
+	(hmac-sha256 (if (empty? salt) (apply (const cat) (map! (lambda () (char 0)) '() 0 32)) salt) secret))
 
 (defun hkdf-expand (prk info len)
 	; (hkdf-expand prk info len) -> str

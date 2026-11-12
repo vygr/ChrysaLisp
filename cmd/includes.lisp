@@ -86,7 +86,7 @@
 ;the kept includes in an order each comes after those whose names it
 ;uses, as it is read where it is put: trans.inc after trans_ops.inc
 (defun include-order (kept uses defines)
-	(defq out (list) left (range 0 (length kept)))
+	(defq out (list) left (map! (const !) '() 0 (length kept)))
 	(until (empty? left)
 		(defq i (or (some (lambda (i)
 						(when (notany (lambda (j)

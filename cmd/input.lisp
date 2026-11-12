@@ -153,9 +153,8 @@
 	(bind '(x1 y1) (place))
 	(cat (event +gui_ev_mouse_motion x y)
 		(event +gui_ev_mouse_down x y 1 1)
-		(apply (const cat) (map (# (event +gui_ev_mouse_motion
-						(+ x (/ (* (- x1 x) %0) 8)) (+ y (/ (* (- y1 y) %0) 8)) 1))
-				(range 1 9)))
+		(apply (const cat) (map! (# (event +gui_ev_mouse_motion
+						(+ x (/ (* (- x1 x) (!)) 8)) (+ y (/ (* (- y1 y) (!)) 8)) 1)) '() 1 9))
 		(event +gui_ev_mouse_up x1 y1 1 1)))
 
 ;a pen or a finger, as the host gives one: its id, device << 24 | contact,
@@ -185,8 +184,8 @@
 		(:to (bind '(x y) (place))
 			(bind '(buttons ox oy) (ifn at (list 1 x y)))
 			(. *contacts* :insert id (list buttons x y))
-			(apply (const cat) (map (# (pointer-event +gui_ev_pointer_motion id kind buttons
-							(+ ox (/ (* (- x ox) %0) 8)) (+ oy (/ (* (- y oy) %0) 8)))) (range 1 9))))
+			(apply (const cat) (map! (# (pointer-event +gui_ev_pointer_motion id kind buttons
+							(+ ox (/ (* (- x ox) (!)) 8)) (+ oy (/ (* (- y oy) (!)) 8)))) '() 1 9)))
 		(:up (bind '(& x y) (ifn at (cat '(0) (place))))
 			(. *contacts* :erase id)
 			(pointer-event +gui_ev_pointer_up id kind 0 x y))))

@@ -1027,7 +1027,7 @@
 (defun check-gap (file node)
 	;(# (f %1)): it takes those it has in the order of their numbers, so %1
 	;with no %0 is what it is given first, whatever is meant by the number
-	(and (defq used (hash-used node)) (some (# (not (find %0 used))) (range 0 (reduce (const max) used 0)))
+	(and (defq used (hash-used node)) (some! (# (not (find (!) used))) '() :nil 0 (reduce (const max) used 0))
 		(found file node "args" "a (# ) with a %n missing takes those it has in order, the first it is given is the lowest of them, (lambda (x y) ...)")))
 
 (defun check-args (file forms head)
@@ -1061,7 +1061,7 @@
 					") calls it with something, (lambda (x) ...)"))
 			((and calls (/= arity calls))
 				(found file (elem-get forms at) "args" (cat "a (# ) of " (str arity) " %n takes " (str arity) ", and (") head
-					(cat ") calls it with " (str calls) ", (lambda (" (join (map (# (elem-get '("x" "y" "z" "w") (min %0 3))) (range 0 calls)) " ") ") ...)"))))))
+					(cat ") calls it with " (str calls) ", (lambda (" (join (map! (# (elem-get '("x" "y" "z" "w") (min (!) 3))) '() 0 calls) " ") ") ...)"))))))
 
 (defun check-held (file forms head)
 	;(when (create-stdio) ...): the stdio is the value of the test and no more

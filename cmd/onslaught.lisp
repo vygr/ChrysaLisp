@@ -110,7 +110,7 @@
 	; (bot-route goal_col goal_row) -> route, the move to make from each cell
 	;to reach the goal, :t at the goal, :nil if it cannot be reached.
 	;done once per battle, searching back from the goal over reversed moves
-	(defq cells (range 0 (* 127 17)) route (map (lambda (i) :nil) cells)
+	(defq cells (map! (const !) '() 0 (* 127 17)) route (map (lambda (i) :nil) cells)
 		back (map (lambda (i) (list)) cells) queue (list) qi -1)
 	(each (lambda (i)
 			(defq col (% i 127) row (/ i 127))

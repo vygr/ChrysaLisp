@@ -125,7 +125,7 @@
 		(cell-rows (list
 				(map (# (list :tool %0)) +pal_tools)
 				(if (defq pens (get :pens board))
-					(map (# (list :pen %0)) (range 0 (length pens)))
+					(map! (# (list :pen (!))) '() 0 (length pens))
 					(map (# (list :color %0)) (ifn (get :menu_colors board) +pal_colors)))
 				(map (# (list :width %0)) (ifn (get :menu_widths board) +pal_widths))
 				(map (# (list :action %0)) (cat +pal_actions

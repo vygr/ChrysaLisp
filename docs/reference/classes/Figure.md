@@ -27,7 +27,19 @@ components, run from the next time this figure has its turn
 
 the polygons it is drawn with, in its own space, and the box they
 are all in, :nil if there is nothing, (outline-flat). Worked out
-once and kept
+once and kept. Only as many of its lines as :fig_reveal says are
+there, the first of them, so words come a letter at a time
+```
+
+### :glow
+
+```code
+(. figure :glow) -> (paths ...)
+
+the layers of its halo, the widest first, in its own space, by
+(path-glow) of what it fills, or of its stroke if it fills nothing,
+so a line being drawn or dashed glows as it is. Kept as long as its
+flattening and the size are those it was made from
 ```
 
 ### :kill

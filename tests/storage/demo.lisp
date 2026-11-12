@@ -5,7 +5,7 @@
 (defun main ()
 	(defq sc (scene-begin "Five members of a store, each on a node of this machine. Three keep each block."))
 	(when (scene-check sc "five members start and meet" (scene-members sc +scene_ids))
-		(defq objects (map (lambda (n) (list (cat "docs/object-" (str n)) (scene-bytes (+ 10 (* n 7)) n))) (range 0 3)))
+		(defq objects (map! (lambda () (list (cat "docs/object-" (str (!))) (scene-bytes (+ 10 (* (!) 7)) (!)))) '() 0 3))
 		(each (lambda ((path data))
 				(defq id (elem-get +scene_ids (* (!) 2)))
 				(scene-say sc path ", " (/ (length data) 4096) " blocks, put at " id ": "

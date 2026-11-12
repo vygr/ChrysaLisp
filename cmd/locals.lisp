@@ -59,7 +59,7 @@
 	;registers it may leave not as they were. :nil if it is not known
 	(when (defq called (called-of inst all labels trashes))
 		(defq mask (second called))
-		(list (first called) (filter (# (/= 0 (logand mask (<< 1 %0)))) (range 0 15)))))
+		(list (first called) (reduce! (# (if (/= 0 (logand mask (<< 1 (!)))) (push %0 (!)) %0)) '() (list) 0 15))))
 
 (defun place-of (stack sizes offset)
 	; (place-of stack sizes offset) -> :nil | (which offset)
@@ -241,8 +241,7 @@
 									(when (find (first inst) +call_ops)
 										(defq wanted (ones (logand keeps (reduce (# (logior %0 (elem-get live %1))) (elem-get next at) 0)))
 											called (call-trashes inst all labels trashes) trashed (if called (second called))
-											room (if trashed (length (filter (# (not (or (find %0 trashed) (and (not all_free) (find %0 numbers)))))
-														(range 0 15))) 0))
+											room (if trashed (reduce! (# (if (or (find (!) trashed) (and (not all_free) (find (!) numbers))) %0 (inc %0))) '() 0 0 15) 0))
 										(when (and trashed (= which 0))
 											(++ known)
 											;what this call costs, put to what is called: the locals
@@ -251,7 +250,7 @@
 											;does not use, which would be a home for one more
 											(defq ledger (third trashes) entry (. ledger :find (first called)))
 											(unless entry (. ledger :insert (first called)
-													(setq entry (list 0 0 0 (map (lambda (n) 0) (range 0 15)) (cat trashed) 0))))
+													(setq entry (list 0 0 0 (map! (lambda () 0) '() 0 15) (cat trashed) 0))))
 											(elem-set entry 0 (inc (first entry)))
 											(elem-set entry 1 (+ (second entry) wanted))
 											(when (> wanted room)
@@ -377,7 +376,7 @@
 			(print "the ones it is the call that keeps out:")
 			(each! (lambda ((name sites wanted short helps trashed its))
 					;the registers that would each be a home for one more, the most calls first
-					(defq best (sort (filter (# (> (second %0) 0)) (map (# (list %0 (elem-get helps %0))) (range 0 15)))
+					(defq best (sort (filter (# (> (second %0) 0)) (map! (# (list (!) %0)) (list helps) 0 15))
 							(# (- (second %1) (second %0)))))
 					(print "  " (pad sites 4) " " (pad wanted 5) " " (pad short 5) " " (pad its 5) "  " name)
 					(print "                          trashes " (length trashed) " of 15"

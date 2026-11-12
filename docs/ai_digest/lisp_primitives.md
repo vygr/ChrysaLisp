@@ -380,6 +380,23 @@ Iterative sequence processors utilizing small, non-recursive stack allocations.
 
 	*	`(!)`
 
+*	**A span of numbers**: with an empty seqs list, `'()`, the `...!` forms
+	count from `start` up to `end`, the end not done, the numbers as they
+	are, negative ones too. The lambda gets no args and `(!)` is each
+	number. A start at or past the end does nothing. No list of the
+	numbers is made, this is what replaces `range`.
+
+	*	`(each! (# (print (!))) '() 0 5)` prints 0 to 4
+
+	*	`(map! (const !) '() 3 7) -> (3 4 5 6)`, a list of the numbers when
+		one is the thing wanted, `!` is a function of any args
+
+	*	`(reduce! (# (+ %0 (!))) '() 0 -3 3) -> -3`
+
+	*	a step is a count of steps and the value worked out in the lambda,
+		`(* (!) 4)`, or a `while` that adds it when it is known only at run
+		time: a `while` is the quicker of the two, measured
+
 *	**`each` / `reach`**: Iterates forward or backward across sequences.
 
 	*	`(each lambda seq ...)`
@@ -486,10 +503,6 @@ Primitives targeting mutable `:array` and `:list` data structures.
 *	**`shuffle`**: Pseudo-randomly shuffles list elements.
 
 	*	`(shuffle list [start end]) -> list`
-
-*	**`range`**: Generates a list of integers over an interval.
-
-	*	`(range start end [step]) -> list`
 
 *	**`lists`**: Allocates `n` independent, mutable empty lists.
 

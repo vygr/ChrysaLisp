@@ -334,10 +334,8 @@
 			(defq pieces (max 1 (n2i (+ 0.9999 (/ sweep (const (/ +fp_2pi 3.0))))))
 				out (if pie (list "M" cx cy "L") (list "M")))
 			(push out (+ cx (* r (cos a0))) (+ cy (* r (sin a0))))
-			(each (lambda (i)
-					(defq a (+ a0 (/ (* sweep (n2f i)) (n2f pieces))))
-					(push out "A" r r 0 0 1 (+ cx (* r (cos a))) (+ cy (* r (sin a)))))
-				(range 1 (inc pieces)))
+			(each! (lambda () (defq a (+ a0 (/ (* sweep (n2f (!))) (n2f pieces))))
+					(push out "A" r r 0 0 1 (+ cx (* r (cos a))) (+ cy (* r (sin a))))) '() 1 (inc pieces))
 			(if pie (push out "Z"))
 			(apply (const cwb-d) out))))
 

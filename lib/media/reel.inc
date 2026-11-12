@@ -103,11 +103,12 @@
 		(each (lambda (samples mid colour)
 				(defq len (length samples) y0 mid ys (nums-scale samples (/ (n2r (/ h 4)) (n2r 32768))))
 				(. canvas :set_color colour)
-				(each (lambda (x)
-						(defq y (- mid (n2i (elem-get ys (/ (* x len) w)))))
+				;every other x, a count of them
+				(each! (lambda ()
+						(defq x (<< (!) 1) y (- mid (n2i (elem-get ys (/ (* x len) w)))))
 						(fbox canvas x (min y y0) 2 (inc (abs (- y y0))))
 						(setq y0 y))
-					(range 0 w 2)))
+					'() 0 (>> (inc w) 1)))
 			pcm (list (/ h 4) (* 3 (/ h 4))) '(0xff40c060 0xff4080e0)))
 	canvas)
 

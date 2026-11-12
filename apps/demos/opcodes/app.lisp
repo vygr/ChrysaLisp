@@ -164,16 +164,15 @@
 	;found the canvas
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
-	(. jobs :add (map (lambda (&) (slice-job +scene_height +scene_height ""))
-			(range 0 (. jobs :size)))))
+	(. jobs :add (map! (lambda () (slice-job +scene_height +scene_height "")) '() 0 (. jobs :size))))
 
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them, and where every
 	;opcode is goes out with each slice
 	(defq count (max 1 (length (lisp-nodes :t))) packed (scene-pack bouncers))
 	(setq farming :t frame_time (pii-time) frame_drawn 0)
-	(. jobs :add (map (# (slice-job (/ (* %0 +scene_height) count)
-					(/ (* (inc %0) +scene_height) count) packed)) (range 0 count))))
+	(. jobs :add (map! (# (slice-job (/ (* (!) +scene_height) count)
+					(/ (* (inc (!)) +scene_height) count) packed)) '() 0 count)))
 
 (defun one-task-frame (how)
 	;a frame drawn here, all of it

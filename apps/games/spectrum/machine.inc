@@ -39,7 +39,7 @@
 		(+zx_af2 0xffff) (+zx_bc2 0) (+zx_de2 0) (+zx_hl2 0)
 		(+zx_i 0) (+zx_r 0) (+zx_r7 0) (+zx_im 0) (+zx_iff1 0) (+zx_iff2 0)
 		(+zx_halted 0) (+zx_border 7) (+zx_kemp 0) (+zx_ear 0) (+zx_beep 0) (+zx_trap 0))
-	(each (# (zx-key-row m %0 0xff)) (range 0 8))
+	(each! (# (zx-key-row m (!) 0xff)) '() 0 8)
 	m)
 
 (defun zx-machine (rom)
@@ -90,7 +90,7 @@
 (defun zx-keys (m held key_map joy_map)
 	; (zx-keys machine held key_map joy_map)
 	;the matrix and joystick of the scan codes held
-	(defq rows (map (lambda (_) 0xff) (range 0 8)) joy 0)
+	(defq rows (map! (lambda () 0xff) '() 0 8) joy 0)
 	(each (lambda (scode)
 			(each (lambda ((row bit)) (elem-set rows row (logand (elem-get rows row) (lognot bit))))
 				(ifn (. key_map :find scode) '()))

@@ -4,7 +4,7 @@
 
 ;a box: its size, 4 bytes high first, its name, and what is in it
 (defun m4-be (n bytes)
-	(apply (const cat) (map (# (char (logand (>> n (* 8 (- bytes 1 %0))) 0xff))) (range 0 bytes))))
+	(apply (const cat) (map! (# (char (logand (>> n (* 8 (- bytes 1 (!)))) 0xff))) '() 0 bytes)))
 (defun m4-box (name &rest parts)
 	(defq body (apply (const cat) (cat (list "") parts)))
 	(cat (m4-be (+ 8 (length body)) 4) name body))
@@ -13,7 +13,7 @@
 	(apply (const m4-box) (cat (list name (m4-be 0 4)) parts)))
 
 ;the samples, each its own bytes, seven of them
-(defq m4_samples (map (# (apply (const cat) (map (lambda (_) (char (+ 65 %0))) (range 0 (+ 10 (* %0 7)))))) (range 0 7)))
+(defq m4_samples (map! (lambda () (defq i (!)) (apply (const cat) (map! (lambda () (char (+ 65 i))) '() 0 (+ 10 (* i 7))))) '() 0 7))
 
 (defun m4-moov (chunk_offsets wide &optional ctts edts)
 	;a moov of one video track, 320 by 240, avc1, at 600 a second each
@@ -71,7 +71,7 @@
 				(list (. reel :find :width) (. reel :find :height) (. reel :find :codec)))
 			(assert-eq (cat "30 a second, from the times, " what) 30 (n2i (. reel :find :rate)))
 			(assert-list-eq (cat "every packet its sample, from the chunk the tables say, " what) m4_samples
-				(map (# (mp4-packet reel %0)) (range 0 7)))
+				(map! (# (mp4-packet reel (!))) '() 0 7))
 			(assert-list-eq (cat "the keys, " what) '(0 4) (. reel :find :keys))
 			(assert-list-eq (cat "its setup, the avcC, " what) '("avcC" "setup") (first (. (. reel :find :video) :find :config)))))
 	'((:nil :nil "moov after mdat, as a camera writes it") (:t :nil "moov first, as the web has it")

@@ -11,8 +11,8 @@
 	;bytes that are not all the same, and differ with the seed
 	(defq out (cat (exfat-zeros len)))
 	;a megabyte of these is a second of a small machine: it gives way as it goes
-	(each (# (if (= (logand %0 0x3fff) 0) (task-slice))
-			(set-byte out %0 (logand (+ (* %0 7) (>> %0 8) seed) 0xff))) (range 0 len))
+	(each! (# (if (= (logand (!) 0x3fff) 0) (task-slice))
+			(set-byte out (!) (logand (+ (* (!) 7) (>> (!) 8) seed) 0xff))) '() 0 len)
 	out)
 
 (defun xf-names (vol path)
@@ -98,7 +98,7 @@
 ;a directory with more in it than one cluster holds
 (exfat-mkdir vol "many")
 (exfat-begin vol)
-(each (# (exfat-save vol (cat "many/file number " (str %0) ".txt") (str %0))) (range 0 150))
+(each! (# (exfat-save vol (cat "many/file number " (str (!)) ".txt") (str (!)))) '() 0 150)
 (exfat-end vol)
 (assert-eq "directory grown" 150 (length (exfat-list vol "many")))
 (assert-true "directory is more than a cluster" (> (third (exfat-find vol "many")) 4096))
@@ -169,8 +169,8 @@
 (assert-true "format with 512 byte clusters" vol)
 (assert-eq "small cluster size" 512 (exfat-cluster-size vol))
 (exfat-begin vol)
-(each (# (exfat-save vol (cat "f" (str %0)) (xf-bytes 3000 %0))) (range 0 40))
-(each (# (exfat-delete vol (cat "f" (str %0)))) (range 0 40 2))
+(each! (# (exfat-save vol (cat "f" (str (!))) (xf-bytes 3000 (!)))) '() 0 40)
+(each! (# (exfat-delete vol (cat "f" (str (* (!) 2))))) '() 0 20)
 (exfat-end vol)
 ;all the room after them is taken, which leaves the gaps of 6 clusters
 (assert-true "fill the room after" (exfat-save vol "filler.bin" (xf-bytes (- (exfat-free vol) (* 20 3072)) 3)))
@@ -208,7 +208,7 @@
 ;says it has is what a mount of the volume after finds there
 (bind '(xf_d xf_d_stream) (xf-volume 0x200000))
 (exfat-mkdir xf_d "many")
-(defq xf_d_want (map (# (cat "f" (str %0))) (range 0 300)))
+(defq xf_d_want (map! (# (cat "f" (str (!)))) '() 0 300))
 (exfat-begin xf_d)
 (each (# (exfat-save xf_d (cat "many/" %0) (xf-bytes 100 (length %0)))) xf_d_want)
 (exfat-end xf_d)
@@ -254,7 +254,7 @@
 (exfat-save xc_vol "a.bin" (xf-bytes 10000 3))
 (exfat-mkdir xc_vol "d")
 ;more than a cluster of entries, so the folder is grown
-(each (# (exfat-save xc_vol (cat "d/f" (str %0)) (xf-bytes 3000 %0))) (range 0 60))
+(each! (# (exfat-save xc_vol (cat "d/f" (str (!))) (xf-bytes 3000 (!)))) '() 0 60)
 (assert-true "the folder grew past a cluster" (> (third (exfat-find xc_vol "d")) 4096))
 (assert-list-eq "a sound volume says nothing" '() (exfat-check xc_vol))
 ;a cluster of a file marked free, and another file then given it

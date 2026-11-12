@@ -42,7 +42,7 @@
 ;"usage is up since we do the screen grabbing"
 (defq +working ''(:sym_cache :text_cache :offset :state :last_buttons :is_window
 		:drag_mode :drag_offx :drag_offy :tip_mbox)
-	+char_class_control (char-class (apply (const cat) (map (const char) (range 0 32)))))
+	+char_class_control (char-class (apply (const cat) (map! (# (char (!))) '() 0 32))))
 
 (defun value-text (v)
 	; (value-text v) -> str

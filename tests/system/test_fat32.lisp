@@ -51,21 +51,22 @@
 	(if (/= (% (length units) 13) 0) (push units 0))
 	(while (/= (% (length units) 13) 0) (push units 0xffff))
 	(defq count (/ (length units) 13))
-	(each (lambda (i)
-			(defq part (apply (const cat) (map! (# (char %0 2)) (list units) (* i 13) (* (inc i) 13)))
+	;the last part first
+	(each! (lambda ()
+			(defq i (- count 1 (!)) part (apply (const cat) (map! (# (char %0 2)) (list units) (* i 13) (* (inc i) 13)))
 				e (exfat-zeros 32))
 			(setf-> e (+fat32_long_order (+ (inc i) (if (= i (dec count)) +fat32_long_last 0)))
 				(+fat32_long_attributes +fat32_attr_long) (+fat32_long_checksum sum))
 			(each! (# (set-byte e (+ +fat32_long_name1 (!)) (code %0))) (list part) 0 10)
 			(each! (# (set-byte e (+ +fat32_long_name2 (- (!) 10)) (code %0))) (list part) 10 22)
 			(each! (# (set-byte e (+ +fat32_long_name3 (- (!) 22)) (code %0))) (list part) 22 26)
-			(push out e)) (range (dec count) -1 -1))
+			(push out e)) '() 0 count)
 	(apply (const cat) out))
 
 (defun ff-bytes (len seed)
 	;bytes that are not all the same, and differ with the seed
 	(defq out (cat (exfat-zeros len)))
-	(each (# (set-byte out %0 (logand (+ (* %0 7) (>> %0 8) seed) 0xff))) (range 0 len))
+	(each! (# (set-byte out (!) (logand (+ (* (!) 7) (>> (!) 8) seed) 0xff))) '() 0 len)
 	out)
 
 (defun ff-names (vol path)

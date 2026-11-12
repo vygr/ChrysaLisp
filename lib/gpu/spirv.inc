@@ -36,7 +36,7 @@
 (defun spv-str (s)
 	;the words of a string, it ends with a zero byte
 	(setq s (cat s (slice (const (char 0 4)) 0 (- 4 (logand (length s) 3)))))
-	(map (# (logand (code s 4 (* %0 4)) 0xffffffff)) (range 0 (/ (length s) 4))))
+	(map! (# (logand (code s 4 (* (!) 4)) 0xffffffff)) '() 0 (/ (length s) 4)))
 
 (defun spv-memo (key fnc)
 	;the id of a type or a constant, made the first time it is asked for
@@ -155,7 +155,7 @@
 (defun spv-splat (id from to)
 	;a float that goes with a vector is made a vector
 	(if (and (shader-dim to) (not (shader-dim from)))
-		(apply (const spv-emit) (cat (list to 80) (map (lambda (&) id) (range 0 (shader-dim to)))))
+		(apply (const spv-emit) (cat (list to 80) (map! (lambda () id) '() 0 (shader-dim to))))
 		id))
 
 (defun spv-fold (type opcode ids types)
@@ -293,7 +293,7 @@
 						(spv-op spv_body 62 p (if (= (length b) 1)
 								(spv-emit vt 82 v old (first b))
 								(apply (const spv-emit) (cat (list vt 79 old v)
-										(map (lambda (i) (if (defq k (find i b)) (+ n k) i)) (range 0 n)))))))
+										(map! (lambda () (if (defq k (find (!) b)) (+ n k) (!))) '() 0 n))))))
 					(:if (defq ci (spv-expr a) lt (spv-id) lm (spv-id) le (if (nempty? c) (spv-id) lm))
 						(spv-op spv_body 247 lm 0)
 						(spv-op spv_body 250 ci lt le)

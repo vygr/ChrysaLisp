@@ -544,7 +544,7 @@
 			(cond
 				((eql folder "end") (setq whole (if (= count total) :t :bad)))
 				((or (< count 0) (> (+ at (* count 32)) (length data))) (setq whole :bad))
-				(:t (push out (list folder (map! (# (slice data %0 (+ %0 32))) (list (range at (+ at (* count 32)) 32)))))
+				(:t (push out (list folder (map! (lambda () (defq name_at (+ at (<< (!) 5))) (slice data name_at (+ name_at 32))) '() 0 count)))
 					(setq at (+ at (* count 32)) total (+ total count)))))
 		(if (eql whole :t) out)))
 
@@ -983,7 +983,8 @@
 	;an object as the blocks it is kept in, each the block size but the
 	;last. One of nothing is no blocks
 	(defq size (get :block_size store))
-	(map (# (slice data %0 (min (length data) (+ %0 size)))) (range 0 (length data) size)))
+	(map! (lambda () (defq at (* (!) size)) (slice data at (min (length data) (+ at size))))
+		'() 0 (/ (+ (length data) (dec size)) size)))
 
 (defun store-stat (store name)
 	; (store-stat store path) -> :nil | entry

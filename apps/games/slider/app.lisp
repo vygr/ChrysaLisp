@@ -14,8 +14,8 @@
 	*grid_h* 5
 	*tile_count* (* *grid_w* *grid_h*)
 	*blank_value* (dec *tile_count*)
-	*board* (range 0 *tile_count*)
-	*solved_board* (range 0 *tile_count*)
+	*board* (map! (const !) '() 0 *tile_count*)
+	*solved_board* (map! (const !) '() 0 *tile_count*)
 	*font* (create-font "fonts/OpenSans-Bold.ctf" 58)
 	*running* :t)
 
@@ -25,10 +25,8 @@
 		(ui-buttons (+sym_scramble +sym_solve) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
 			:paper :paper_window :font *font*)
-		(each (lambda (i)
-				(. (ui-button _ (:min_width 80 :min_height 80))
-					:connect (+ +event_click i)))
-			(range 0 *tile_count*)))
+		(each! (lambda () (. (ui-button _ (:min_width 80 :min_height 80))
+					:connect (+ +event_click (!)))) '() 0 *tile_count*))
 	(ui-label *status* (:text " " :flow_flags +flow_flag_align_hcenter)))
 
 (defun tooltips ()

@@ -52,12 +52,12 @@
 	(when (and (defq prefix (rsa-prefix hash_name)) (defq opened (rsa-open n e signature)))
 		(defq em (second opened) info (cat prefix digest) pad (- (length em) (length info) 3))
 		(and (>= pad 8)
-			(eql em (cat (char 0) (char 1) (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 pad)))
+			(eql em (cat (char 0) (char 1) (apply (const cat) (map! (lambda () (char 0xff)) '() 0 pad))
 					(char 0) info)))))
 
 (defun rsa-xor (a b)
 	; (rsa-xor a b) -> str
-	(apply (const cat) (map (# (char (logxor (code a 1 %0) (code b 1 %0)))) (range 0 (length a)))))
+	(apply (const cat) (map! (# (char (logxor (code a 1 (!)) (code b 1 (!))))) '() 0 (length a))))
 
 (defun rsa-mgf1 (hash_name seed len)
 	; (rsa-mgf1 hash_name seed len) -> str

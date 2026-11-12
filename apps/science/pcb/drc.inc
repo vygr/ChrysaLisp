@@ -53,23 +53,23 @@
 	;is the point inside the polygon (x y ...), by how many of its edges a
 	;ray to the right of it crosses
 	(defq in :nil n (length pts) j (- n 2))
-	(each! (lambda (i)
-			(defq xi (elem-get pts i) yi (elem-get pts (inc i))
+	(each! (lambda ()
+			(defq i (<< (!) 1) xi (elem-get pts i) yi (elem-get pts (inc i))
 				xj (elem-get pts j) yj (elem-get pts (inc j)))
 			(and (not (eql (> yi py) (> yj py)))
 				(< px (+ xi (/ (* (- xj xi) (- py yi)) (- yj yi))))
 				(setq in (not in)))
 			(setq j i))
-		(list (range 0 n 2)))
+		'() 0 (>> n 1))
 	in)
 
 (defun drc-edges (pts)
 	;the edges of a polygon (x y ...), (x1 y1 x2 y2) each, closed
 	(defq n (length pts))
-	(map (lambda (i)
-			(defq k (% (+ i 2) n))
+	(map! (lambda ()
+			(defq i (<< (!) 1) k (% (+ i 2) n))
 			(list (elem-get pts i) (elem-get pts (inc i)) (elem-get pts k) (elem-get pts (inc k))))
-		(range 0 n 2)))
+		'() 0 (>> n 1)))
 
 (defun drc-seg-poly (x1 y1 x2 y2 pts)
 	;the square of the distance from a segment to a filled polygon
@@ -163,7 +163,7 @@
 	(bind '(w h depth) (first pcb_list))
 	(bind '(pieces pads) (drc-pieces pcb_list))
 	(defq shorts (list) unjoined (list) outside (list)
-		set (map (const identity) (range 0 (length pieces))) w (n2r w) h (n2r h) z (n2r 0))
+		set (map! (# (identity (!))) '() 0 (length pieces)) w (n2r w) h (n2r h) z (n2r 0))
 	;every pair that is near: a short between two nets, or one net joined
 	(each! (lambda (a)
 			(defq i (!))

@@ -416,7 +416,8 @@
 						(* +queen_value (reduce (lambda (cnt past_brd) (if (eql past_brd brd) (inc cnt) cnt)) history 0))
 						brd)) (all-moves brd color)))
 	;iterative deepening of ply so we always have a best move to go with if the time expires
-	(some! (lambda (ply)
+	(some! (lambda ()
+			(defq ply (!))
 			(reply "s" (str (LF) "Ply" ply " "))
 			(defq value +min_int alpha +min_int beta +max_int timeout
 					(some! (lambda (ply0_brd)
@@ -435,7 +436,7 @@
 								((>= alpha beta))))
 						(list (sort ply0_brds (lambda (a b) (- (first b) (first a)))))))
 			(if (num? timeout) :t
-				(setq nbrd (if pbrd pbrd nbrd) pbrd :nil))) (list (range 1 max_ply)))
+				(setq nbrd (if pbrd pbrd nbrd) pbrd :nil))) '() :nil 1 max_ply)
 	nbrd)
 
 (enums +select 0

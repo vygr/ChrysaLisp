@@ -32,7 +32,7 @@
 			(voice-stage 'voice-send (stage-mbox ctl) (stage-mbox from) :nil)) done)
 	(mail-read done)
 	(map (lambda (box) (vc-got box from)) (if tap (cat boxes (list tap)) boxes)))
-(defun vc-all (peak) (map (# (list %0 :t +sound_piece peak)) (range 0 10)))
+(defun vc-all (peak) (map! (# (list (!) :t +sound_piece peak)) '() 0 10))
 (assert-list-eq "each that is to hear is sent each piece of 20ms, numbered, from who said it"
 	(list (vc-all :t) (vc-all :t)) (vc-run '(:t :t)))
 (assert-list-eq "to none, nothing is sent" '(() ()) (vc-run '(:nil :nil)))
@@ -42,7 +42,7 @@
 ;the gate: what is quiet is not sent, the tap has it all
 (defun vc-quiet (got) (map (lambda ((seq from bytes peak)) (list seq from bytes)) got))
 (assert-list-eq "quiet, below the gate, nothing is sent, and the tap has each piece"
-	(list (list) (map (# (list %0 :t +sound_piece)) (range 0 10))) (map (const vc-quiet) (vc-run '(:t) :nil (mail-mbox) 500)))
+	(list (list) (map! (# (list (!) :t +sound_piece)) '() 0 10)) (map (const vc-quiet) (vc-run '(:t) :nil (mail-mbox) 500)))
 ;half duplex: another heard of late is not spoken over. The sender is run
 ;here on pieces already made, with an h before the first of them: with
 ;half duplex off every one is sent
@@ -52,7 +52,7 @@
 		loud (sound-map (str-alloc +sound_piece) (lambda (_) 6000)))
 	(mail-send ctl (cat "t" (hex-encode box)))
 	(each (# (mail-send ctl %0)) said)
-	(voice-send (string-stream (apply (const cat) (map (lambda (_) loud) (range 0 10)))) :nil ctl from :nil)
+	(voice-send (string-stream (apply (const cat) (map! (lambda () loud) '() 0 10))) :nil ctl from :nil)
 	(list (vc-got box from)))
 (assert-list-eq "half duplex off, as with headphones, it is" (list (vc-all :t))
 	(vc-held '("d0" "h")))
@@ -70,17 +70,17 @@
 ;pieces added, sample by sample
 (defq vc_a (sound-map (slice (str-alloc 8) 0 8) (lambda (_) 20000)) vc_b (sound-map (slice (str-alloc 4) 0 4) (lambda (_) -5000)))
 (assert-list-eq "a mix of two is the sum of them, kept in range, as long as the first"
-	'(15000 15000 20000 20000) (map (# (sound-sample (sound-add (list vc_a vc_b)) %0)) (range 0 4)))
+	'(15000 15000 20000 20000) (map! (# (sound-sample (sound-add (list vc_a vc_b)) (!))) '() 0 4))
 (assert-list-eq "and loud ones are kept in range" '(32767 32767)
-	(map (# (sound-sample (sound-add (list vc_a vc_a)) %0)) (range 0 2)))
+	(map! (# (sound-sample (sound-add (list vc_a vc_a)) (!))) '() 0 2))
 
 ;a mix of what is said here and what another says, to a file: what is said
 ;here is the clock, a piece of the file for each of it, the other's added in
 (defq vc_tap (mail-mbox) vc_ctl (mail-mbox) vc_done (mail-mbox) vc_own (mail-mbox) vc_other (mail-mbox)
 	vc_file "tests/scratch/voice_mix.wav"
 	vc_here (sound-map (str-alloc +sound_piece) (lambda (_) 6000)) vc_there (sound-map (str-alloc +sound_piece) (lambda (_) 4000)))
-(each (# (mail-send vc_tap (voice-piece vc_other %0 vc_there))) (range 0 3))
-(each (# (mail-send vc_tap (voice-piece vc_own %0 vc_here))) (range 0 5))
+(each! (# (mail-send vc_tap (voice-piece vc_other (!) vc_there))) '() 0 3)
+(each! (# (mail-send vc_tap (voice-piece vc_own (!) vc_here))) '() 0 5)
 (stages-run (list (voice-stage 'voice-mix (stage-mbox vc_tap) (hex-encode vc_own) (stage-mbox vc_ctl))
 		(sound-stage 'sound-to-file vc_file)) vc_done)
 (task-sleep 500000)
@@ -88,7 +88,7 @@
 (mail-read vc_done)
 (defq vc_stream (file-stream vc_file))
 (WAV-info vc_stream)
-(defq vc_pieces (map (lambda (_) (sound-peak (read-blk vc_stream +sound_piece))) (range 0 5)))
+(defq vc_pieces (map! (lambda () (sound-peak (read-blk vc_stream +sound_piece))) '() 0 5))
 (assert-list-eq "five pieces said here, the first three with the other's three added" '(10000 10000 10000 6000 6000) vc_pieces)
 (pii-remove vc_file)
 

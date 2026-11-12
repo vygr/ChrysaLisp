@@ -177,7 +177,7 @@
 (assert-true "and it is all one step, undone it is the box" (eql bt_was (bt-d)))
 ;a long line of many points is thinned before it is bitten: what is left has far fewer points than what it was drawn with
 (defq bt (Board (cwb-doc 1200 600)) bt_doc (. bt :get_doc) bt_pts (list))
-(each (# (push bt_pts (+ 100.0 (* 0.9 (n2f %0))) (+ 300.0 (* 100.0 (sin (* 0.05 (n2f %0))))))) (range 0 1000))
+(each! (# (push bt_pts (+ 100.0 (* 0.9 (n2f (!)))) (+ 300.0 (* 100.0 (sin (* 0.05 (n2f (!)))))))) '() 0 1000)
 (. bt :add (cwb-shape (board-pen-d bt_pts) :width 3 :kind :pen))
 (defq bt_n (/ (length (first (second (cwb-flat (first (cwb-items bt_doc)))))) 2))
 (. bt :bite (path 500.0 100.0 500.0 500.0) 8.0)

@@ -25,10 +25,8 @@
 	; (m3-ratio samples want lo hi) -> real
 	;the signal to the error, from lo to hi of the signal, want of a time
 	(defq sig (n2r 0) err (n2r 0))
-	(each (lambda (i)
-			(defq w (* (n2r 32767) (want (/ (n2r i) (n2r m3_rate)))) x (elem-get got (+ i m3_late)))
-			(setq sig (+ sig (* w w)) err (+ err (* (- x w) (- x w)))))
-		(range lo hi))
+	(each! (lambda () (defq w (* (n2r 32767) (want (/ (n2r (!)) (n2r m3_rate)))) x (elem-get got (+ (!) m3_late)))
+			(setq sig (+ sig (* w w)) err (+ err (* (- x w) (- x w))))) '() lo hi)
 	(/ sig err))
 
 (defun m3-click (t)

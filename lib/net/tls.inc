@@ -41,7 +41,7 @@
 	;the suites offered, TLS_CHACHA20_POLY1305_SHA256 of 1.3, then of 1.2
 	;ECDHE with ChaCha20-Poly1305, ECDSA and RSA, and with AES-128-GCM
 	+tls_suites ''(0x1303 0xcca9 0xcca8 0xc02b 0xc02f)
-	+tls_zero32 (apply (const cat) (map (lambda (&) (char 0)) (range 0 32)))
+	+tls_zero32 (apply (const cat) (map! (lambda () (char 0)) '() 0 32))
 	+tls_empty_hash (sha256 ""))
 
 (defmacro tls-be (n bytes)
@@ -79,7 +79,7 @@
 	; (tls-nonce iv seq) -> str
 	;the iv with the number of the record in its last 8 bytes, xor
 	(defq seq_bytes (cat (char 0 4) (tls-be seq 8)))
-	(apply (const cat) (map (# (char (logxor (code iv 1 %0) (code seq_bytes 1 %0)))) (range 0 12))))
+	(apply (const cat) (map! (# (char (logxor (code iv 1 (!)) (code seq_bytes 1 (!))))) '() 0 12)))
 
 (defun tls-record-read (state)
 	; (tls-record-read state) -> :nil | (type body)
@@ -275,7 +275,7 @@
 		(not (eql (first way) :pkcs1))
 		(= (length msg) (+ 8 len))
 		(x509-sig-check (. cert :find :key_kind) (. cert :find :key) (first way) (second way)
-			(cat (apply (const cat) (map (lambda (&) " ") (range 0 64)))
+			(cat (apply (const cat) (map! (lambda () " ") '() 0 64))
 				"TLS 1.3, server CertificateVerify" (char 0) (sha256 transcript))
 			(slice msg 8 -1))))
 

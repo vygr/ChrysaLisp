@@ -47,7 +47,7 @@
 		(when (>= len 0x80)
 			(defq n (logand len 0x7f))
 			(setq len (if (and (<= 1 n 4) (<= (+ start n) (length data)))
-					(reduce (# (+ (<< %0 8) (code data 1 (+ start %1)))) (range 0 n) 0)
+					(reduce! (# (+ (<< %0 8) (code data 1 (+ start (!))))) '() 0 0 n)
 					-1) start (+ start n)))
 		(and (>= len 0) (<= (+ start len) (length data)) (list tag start (+ start len) at))))
 

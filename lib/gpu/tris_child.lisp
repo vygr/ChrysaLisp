@@ -42,7 +42,7 @@
 (defun order (count)
 	;the triangles of count vertices taken three at a time
 	(unless (defq tris (. orders :find count))
-		(. orders :insert count (setq tris (apply (const nums) (range 0 count)))))
+		(. orders :insert count (setq tris (reduce! (# (push %0 (!))) '() (nums) 0 count))))
 	tris)
 
 (defun strip (msg main)

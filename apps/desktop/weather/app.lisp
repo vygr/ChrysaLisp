@@ -49,13 +49,11 @@
 		(:fpoly 0.0 0.0 +winding_none_zero
 			(list (path-gen-arc cx cy 0.0 +fp_2pi r (path))))
 		(:fpoly 0.0 0.0 +winding_none_zero
-			(map (#
-					(defq a (/ (* (n2f %0) +fp_2pi) 8.0)
+			(map! (# (defq a (/ (* (n2f (!)) +fp_2pi) 8.0)
 						r1 (+ r 5.0) r2 (+ r 13.0)
 						x1 (+ cx (* r1 (cos a))) y1 (+ cy (* r1 (sin a)))
 						x2 (+ cx (* r2 (cos a))) y2 (+ cy (* r2 (sin a))))
-					(path-stroke-polyline (path x1 y1 x2 y2) 1.5 +join_miter +cap_round +cap_round))
-				(range 0 8)))))
+					(path-stroke-polyline (path x1 y1 x2 y2) 1.5 +join_miter +cap_round +cap_round)) '() 0 8))))
 
 (defun draw-cloud (canvas cx cy scale col)
 	(.-> canvas
@@ -268,9 +266,7 @@
 	(defq city_btns (list
 			*btn_city_0* *btn_city_1* *btn_city_2*
 			*btn_city_3* *btn_city_4* *btn_city_5*))
-	(each (lambda (i)
-			(def (elem-get city_btns i) :text (elem-get *quick_cities* i)))
-		(range 0 6))
+	(each! (lambda (city_btn quick_city) (def city_btn :text quick_city)) (list city_btns *quick_cities*) 0 6)
 	(. *window* :open)
 	(render-weather-icon *icon_canvas* 116)
 	(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash) *city*)

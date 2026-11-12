@@ -55,7 +55,7 @@
 	;the codes a block of its own codes says, at its head
 	(defq nlen (+ (read-bits in bits 5) 257) ndist (+ (read-bits in bits 5) 1) ncode (+ (read-bits in bits 4) 4)
 		lengths (fill (nums) 19 0))
-	(each (# (elem-set lengths (elem-get +inflate_order %0) (read-bits in bits 3))) (range 0 ncode))
+	(each! (# (elem-set lengths %0 (read-bits in bits 3))) (list +inflate_order) 0 ncode)
 	(defq lencode (huffman-table lengths) all (list) ok :t)
 	(while (and ok (< (length all) (+ nlen ndist)))
 		(defq sym (huffman-symbol in bits lencode))

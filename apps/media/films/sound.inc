@@ -121,7 +121,7 @@
 								:make (lambda (sound) (scatter (mp3-decoder) :samples (. sound :find :size)))
 								:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
 								;of an MP3 its pictures are its frames, kept as they are decoded
-								:kept (if own (map (lambda (_) :nil) (range 0 +sound_kept)))
+								:kept (if own (map! (lambda () :nil) '() 0 +sound_kept))
 								;a frame not read is heard as nothing
 								:decode (lambda (decoder packet)
 									(defq pcm (if packet (catch (mp3-frame decoder packet) :t)))
@@ -191,8 +191,7 @@
 		sample (+ (max 0 (+ (* whole rate) (n2i (* (- time (n2f whole)) (n2f rate))) (. sound :find :start))) delay)
 		packet (/ sample size))
 	(. sound :insert :decoder ((. sound :find :make) sound))
-	(each (# (sound-packet sound %0))
-		(range (max 0 (- packet (. sound :find :before))) (min packet (. (. sound :find :track) :find :samples))))
+	(each! (# (sound-packet sound (!))) '() (max 0 (- packet (. sound :find :before))) (min packet (. (. sound :find :track) :find :samples)))
 	(scatter sound :next packet :drop (- sample (* packet size)) :time time
 		:written 0 :left 0 :anchor (pii-time) :began (pii-time) :handle (audio-stream-open-rpc rate 2)))
 

@@ -60,7 +60,7 @@
 	(each! (# (setq fc (+ fc (if %0 (length %0) 0)))) (list found) fy fy1)
 	fc)
 
-(defq +range_0_10 `'(~(range 0 10)))
+(defq +range_0_10 `'(~(map! (const !) '() 0 10)))
 
 (defun context-words (window)
 	; (context-words window) -> (word ...)

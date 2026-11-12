@@ -70,23 +70,15 @@
 	;place, 3 numbers, and where on the map that is, 2. North is up, and
 	;east goes round to the right as seen from outside, as a map has it.
 	;A triangle goes round counter clockwise as seen from outside
-	(defq out (list) rows (map (lambda (r)
-				(defq theta (/ (* +real_pi (n2r r)) (n2r rings)) st (sin theta) ct (cos theta))
-				(map (lambda (s)
-						(defq phi (/ (* +real_2pi (n2r s)) (n2r segs)))
+	(defq out (list) rows (map! (lambda () (defq r (!)) (defq theta (/ (* +real_pi (n2r r)) (n2r rings)) st (sin theta) ct (cos theta))
+				(map! (lambda () (defq phi (/ (* +real_2pi (n2r (!))) (n2r segs)))
 						(list (* st (sin phi)) ct (* st (cos phi))
-							(/ (n2r s) (n2r segs)) (/ (n2r r) (n2r rings))))
-					(range 0 (inc segs))))
-			(range 0 (inc rings))))
-	(each (lambda (r)
-			(each (lambda (s)
-					(defq a (elem-get (elem-get rows r) s) b (elem-get (elem-get rows (inc r)) s)
+							(/ (n2r (!)) (n2r segs)) (/ (n2r r) (n2r rings)))) '() 0 (inc segs))) '() 0 (inc rings)))
+	(each! (lambda () (defq r (!)) (each! (lambda () (defq s (!)) (defq a (elem-get (elem-get rows r) s) b (elem-get (elem-get rows (inc r)) s)
 						c (elem-get (elem-get rows (inc r)) (inc s)) d (elem-get (elem-get rows r) (inc s)))
 					;at a pole a quad is a triangle, the other has no area
 					(if (< r (dec rings)) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a b c)))
-					(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d))))
-				(range 0 segs)))
-		(range 0 rings))
+					(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d)))) '() 0 segs)) '() 0 rings)
 	(apply (const reals) out))
 
 (defun globe-map (i)
@@ -146,11 +138,9 @@
 	(defq count (. farm :size)
 		draws (list (list 0 (shader-pack vertex vvals) (shader-pack pixel (list (list 'sun sun)))
 				0 +size (list (ifn (shader-strip-texture (globe-map which)) "")))))
-	(. farm :add (map (lambda (i)
-				(shader-strip (cat *app_root* "globe_vertex.shader") (cat *app_root* "globe_lit.shader")
+	(. farm :add (map! (lambda () (shader-strip (cat *app_root* "globe_vertex.shader") (cat *app_root* "globe_lit.shader")
 					(elem-get select +select_farm_ask) (canvas-key *canvas*) +size +size
-					(if rows (/ (* i +size) count) 0) (if rows (/ (* (inc i) +size) count) 0) :t draws))
-			(range 0 count))))
+					(if rows (/ (* (!) +size) count) 0) (if rows (/ (* (inc (!)) +size) count) 0) :t draws)) '() 0 count)))
 
 (defun draw-farm (vvals)
 	; (draw-farm vvals) -> :t | :nil
@@ -206,7 +196,7 @@
 
 (defun main ()
 	(setq select (task-mboxes +select_size))
-	(defq verts (globe-verts +segs +rings) tris (apply (const nums) (range 0 (/ (length verts) 5))))
+	(defq verts (globe-verts +segs +rings) tris (reduce! (# (push %0 (!))) '() (nums) 0 (/ (length verts) 5)))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *planet* :set_selected 0)
 	(. *mode* :set_selected 1)

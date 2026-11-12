@@ -29,7 +29,7 @@
 				(cond
 					((<= left 8)
 						(defq from (<< (logand v (dec (<< 1 left))) (- 8 left)))
-						(each (# (elem-set table (+ base from %0) (+ (<< sym 8) left))) (range 0 (<< 1 (- 8 left)))))
+						(each! (# (elem-set table (+ base from (!)) (+ (<< sym 8) left))) '() 0 (<< 1 (- 8 left))))
 					(:t (defq at (logand (>> v (- left 8)) 255))
 						(. subs :insert at (push (ifn (. subs :find at) (list)) (list sym n v))))))
 			level_codes)

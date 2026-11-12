@@ -46,7 +46,7 @@
 	(md-texts md_md))
 
 ;so many columns that they can not all be on the page: a scroll
-(defq md_cols (map (# (cat "col" (str %0))) (range 0 16)))
+(defq md_cols (map! (# (cat "col" (str (!)))) '() 0 16))
 (bind '(md_md md_w) (md-make (list (cat "| " (join md_cols " | ") " |")
 			(cat "|" (join (map (lambda (&) "---") md_cols) "|") "|") (cat "| " (join md_cols " | ") " |"))))
 (assert-true "a table of 16 columns is put in a scroll" (some (# (Scroll? %0)) (. md_md :flatten)))

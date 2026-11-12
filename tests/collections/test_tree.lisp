@@ -88,7 +88,7 @@
 
 ; 11. Test large string chunking (> 512 chars) roundtrip
 ; a) Large binary string spanning full range of 0-255 bytes across multiple chunks
-(defq all_bytes (apply (const cat) (map (const char) (range 0 256)))
+(defq all_bytes (apply (const cat) (map! (# (char (!))) '() 0 256))
 	large_bin (cat all_bytes all_bytes all_bytes all_bytes all_bytes all_bytes)
 	tree_bin (Emap 5))
 (. tree_bin :insert :demo large_bin)

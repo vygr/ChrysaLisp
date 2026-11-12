@@ -53,9 +53,9 @@
 			;minute
 			(defq out 1 drawn :t start (pii-time))
 			(. tf_canvas :fill 0)
-			(. tf_jobs :add (map (# (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
-							(canvas-key tf_canvas) tf_size tf_size (/ (* %0 tf_size) strips) (/ (* (inc %0) tf_size) strips)
-							:t tf_draws)) (range 0 strips)))
+			(. tf_jobs :add (map! (# (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
+							(canvas-key tf_canvas) tf_size tf_size (/ (* (!) tf_size) strips) (/ (* (inc (!)) tf_size) strips)
+							:t tf_draws)) '() 0 strips))
 			(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0)
 			(while (> out 0)
 				(defq msg (mail-read (elem-get tf_select (defq idx (mail-select tf_select)))))
@@ -89,12 +89,12 @@
 		;the inputs of a strip travel as the blocks a GPU takes, 32 bit
 		;floats, so the one task is given them from the blocks as well
 		(each (lambda (mesh (id vblock pblock))
-				(shader-vp-draw-tris tf_pipeline mesh (apply (const nums) (range 0 (/ (length mesh) 7)))
+				(shader-vp-draw-tris tf_pipeline mesh (reduce! (# (push %0 (!))) '() (nums) 0 (/ (length mesh) 7))
 					tf_alone_pixmap tf_depth (shader-unpack tf_vertex vblock) (shader-unpack tf_pixel pblock) :t))
 			tf_meshes tf_draws)
 		(assert-eq "the farm's frame is the frame one task draws" (tf-pixels tf_alone_pixmap tf_size) tf_farmed)
 		(assert-true "and it is a picture"
-			(> (length (filter (# (/= (get-uint tf_farmed %0) 0)) (range 0 (length tf_farmed) 4))) 2000))
+			(> (reduce! (# (if (/= (get-uint tf_farmed (<< (!) 2)) 0) (inc %0) %0)) '() 0 0 (>> (length tf_farmed) 2)) 2000))
 		(assert-true "a second frame, of seven strips" (tf-frame 7))
 		(assert-eq "is the same frame" tf_farmed (tf-pixels tf_pixmap tf_size))
 		;the children are kept while there is work, but one with none for 5s

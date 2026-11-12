@@ -179,7 +179,7 @@
 						(setq tint (list +real_1 +real_1 +real_1))))
 				(defq verts (obj-flat obj corners fit) n (/ (length verts) 8))
 				(setq count (+ count (/ n 3)))
-				(push out (list verts (apply (const nums) (range 0 n)) (ifn picture (model-plain))
+				(push out (list verts (reduce! (# (push %0 (!))) '() (nums) 0 n) (ifn picture (model-plain))
 						(apply (const reals) tint) :nil)))
 			(. obj :find :groups))
 		(when (nempty? out)

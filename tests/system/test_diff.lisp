@@ -15,7 +15,7 @@
 
 ;a diff, put to the first of the two, is the second. There was no test of
 ;this, and (stream-patch) had not worked for some time
-(defq df_base (map (# (cat "line " (str %0))) (range 0 60)))
+(defq df_base (map! (# (cat "line " (str (!)))) '() 0 60))
 (each (lambda ((name a b))
 		(setq a (df-text a) b (df-text b))
 		(assert-true (cat name ", there and back") (eql b (df-patch a (df-diff a b))))

@@ -124,10 +124,9 @@
 	;rows, which a child answers when it has the shaders and the meshes
 	(defq count (. farm :size) size (* canvas_size canvas_scale))
 	(setq farm_key (canvas-key *main_widget*))
-	(. farm :add (map (# (shader-strip (first +scene_shiny_files) (second +scene_shiny_files)
+	(. farm :add (map! (# (shader-strip (first +scene_shiny_files) (second +scene_shiny_files)
 					(elem-get select +select_farm_ask) farm_key size size
-					(if rows (/ (* %0 size) count) 0) (if rows (/ (* (inc %0) size) count) 0) :t draws))
-			(range 0 count))))
+					(if rows (/ (* (!) size) count) 0) (if rows (/ (* (inc (!)) size) count) 0) :t draws)) '() 0 count)))
 
 (defun warm-farm (draws)
 	;a child on each node, started, or started again, one with nothing to

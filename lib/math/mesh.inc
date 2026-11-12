@@ -264,14 +264,15 @@
 	;the positions and faces of an .obj, (obj-read), in a ball of radius 1,
 	;its normals worked out from its faces
 	(defq obj (obj-read stream) positions (. obj :find :positions) verts (reals) tris (nums))
-	(each (# (push verts (elem-get positions (* %0 3)) (elem-get positions (inc (* %0 3)))
-				(elem-get positions (+ (* %0 3) 2)) +real_1))
-		(range 0 (/ (length positions) 3)))
+	(each! (# (push verts (elem-get positions (* (!) 3)) (elem-get positions (inc (* (!) 3)))
+				(elem-get positions (+ (* (!) 3) 2)) +real_1)) '() 0 (/ (length positions) 3))
 	;a corner is three numbers, a triangle nine, the first of each corner
 	;its position
 	(each (lambda ((material corners))
-			(each (# (push tris (elem-get corners %0) (elem-get corners (+ %0 3)) (elem-get corners (+ %0 6)) 0))
-				(range 0 (length corners) 9)))
+			;a triangle is nine numbers
+			(each! (lambda () (defq at (* (!) 9))
+					(push tris (elem-get corners at) (elem-get corners (+ at 3)) (elem-get corners (+ at 6)) 0))
+				'() 0 (/ (length corners) 9)))
 		(. obj :find :groups))
 	(bind '((cx cy cz) scale) (vector-bounds-sphere verts +vec4_size))
 	(defq scale (if (> scale +real_0) (recip scale) +real_1)

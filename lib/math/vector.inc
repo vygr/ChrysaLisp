@@ -42,7 +42,7 @@
 
 ;useful real constants
 (defmacro def_real (c s e f)
-	`(bind (map (# (sym (str ,c %0))) (range ,s ,e)) (map ,f (range ,s ,e))))
+	`(bind (map! (# (sym (str ,c (!)))) '() ,s ,e) (map! (# (,f (!))) '() ,s ,e)))
 ;[0:10]
 (def_real "+real_" 0 11 (# (n2r %0)))
 ;[-1:-10]

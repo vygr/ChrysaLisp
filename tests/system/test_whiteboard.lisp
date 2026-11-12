@@ -484,9 +484,10 @@
 			" (. canvas :fill 0) (. *board* :draw canvas :nil) (eql (wa-bytes canvas) (wa-bytes *committed*)))"
 			;no more than three children, other tests are running
 			"(def *stripes* :herd 3) (defq doc (. *board* :get_doc))"
-			"(each (lambda (i) (defq x (% (* i 37) 980) y (% (* i 53) 730))"
-			" (cwb-add doc (cwb-shape (cwb-d-rect x y (+ x 40) (+ y 30) 6) :fill (+ 0xff000000 (% (* i 2654435761) 0xffffff)) :stroke 0xff000000 :width 2)))"
-			" (range 0 300))"
+			;a count by while, a command line holds no !
+			"(defq i 0) (while (< i 300) (defq x (% (* i 37) 980) y (% (* i 53) 730))"
+			" (cwb-add doc (cwb-shape (cwb-d-rect x y (+ x 40) (+ y 30) 6) :fill (+ 0xff000000 (% (* i 2654435761) 0xffffff)) :stroke 0xff000000 :width 2))"
+			" (++ i))"
 			"(. *board* :changed :all) (. *board* :touch +board_dirty_doc)"
 			;a small document, this task draws it and no node is asked. What is a
 			;while is set, a slow machine is a while over 300 shapes
@@ -610,10 +611,10 @@
 			;two fingers down on empty paper, and both moved 60 right and 40 down
 			"(wa-mode :select) (wa-ptr 0x1000001 3 1 600 500) (wa-ptr 0x1000002 3 1 700 500)"
 			;a little at a time, first the one and then the other, as hands do
-			"(each (lambda (i) (wa-ptr 0x1000001 3 1 (+ 600 (* i 6)) (+ 500 (* i 4))) (wa-ptr 0x1000002 3 1 (+ 700 (* i 6)) (+ 500 (* i 4)))) (range 1 11))"
+			"(defq i 1) (while (< i 11) (wa-ptr 0x1000001 3 1 (+ 600 (* i 6)) (+ 500 (* i 4))) (wa-ptr 0x1000002 3 1 (+ 700 (* i 6)) (+ 500 (* i 4))) (++ i))"
 			"(defq moved (wa-view))"
 			;then twice as far apart
-			"(each (lambda (i) (wa-ptr 0x1000001 3 1 (- 660 (* i 5)) 540) (wa-ptr 0x1000002 3 1 (+ 760 (* i 5)) 540)) (range 1 11))"
+			"(defq i 1) (while (< i 11) (wa-ptr 0x1000001 3 1 (- 660 (* i 5)) 540) (wa-ptr 0x1000002 3 1 (+ 760 (* i 5)) 540) (++ i))"
 			"(defq zoomed (wa-view))"
 			"(wa-ptr 0x1000001 3 0 610 540) (wa-ptr 0x1000002 3 0 810 540)"
 			;let go, it is on its way to the zoom it rests at, and gets there

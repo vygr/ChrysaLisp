@@ -18,7 +18,7 @@
 
 (defun sc-bytes (len seed)
 	(defq out (cat (str-alloc len)))
-	(each (# (set-byte out %0 (logand (+ (* %0 7) (>> %0 8) seed) 0xff))) (range 0 len))
+	(each! (# (set-byte out (!) (logand (+ (* (!) 7) (>> (!) 8) seed) 0xff))) '() 0 len)
 	out)
 
 (defun sc-ticks (&optional most)
@@ -113,7 +113,7 @@
 	(pii-remove sc_file)
 
 	;a service that says nothing is waited for the once, not for each block
-	(defq sc_quiet (mail-mbox) sc_t0 (pii-time) sc_blocks (map (# (sc-bytes 64 %0)) (range 0 8)))
+	(defq sc_quiet (mail-mbox) sc_t0 (pii-time) sc_blocks (map! (# (sc-bytes 64 (!))) '() 0 8))
 	(assert-eq "blocks put to a service that says nothing are lost" :lost
 		(storage-puts sc_quiet sc_blocks (map (const sha256) sc_blocks)))
 	(assert-true "in the time of one wait, not of each" (< (- (pii-time) sc_t0) (task-timeout (* 2 +storage_wait))))

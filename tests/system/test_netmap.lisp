@@ -125,9 +125,9 @@
 (node-busy nm_work 5000 2000000)
 (assert-true "one that was not idle at all since, is half way to all of it"
 	(= (get :busy nm_work) +real_1/2))
-(each (lambda (i) (node-busy nm_work 5000 (+ 3000000 (* i 1000000)))) (range 0 8))
+(each! (lambda () (node-busy nm_work 5000 (+ 3000000 (* (!) 1000000)))) '() 0 8)
 (assert-true "and all but there if it goes on" (> (get :busy nm_work) (const (n2r 0.99))))
-(each (lambda (i) (node-busy nm_work (+ 5000 (* (inc i) 1000000)) (+ 11000000 (* i 1000000)))) (range 0 8))
+(each! (lambda () (node-busy nm_work (+ 5000 (* (inc (!)) 1000000)) (+ 11000000 (* (!) 1000000)))) '() 0 8)
 (assert-true "idle all of the time, it falls away to none" (< (get :busy nm_work) (const (n2r 0.01))))
 (node-busy nm_work 12000000 19000000)
 (assert-true "it is never less than none, a clock is not that good" (>= (get :busy nm_work) +real_0))

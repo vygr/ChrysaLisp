@@ -123,7 +123,7 @@
 		(push active (length active)))
 	;now and then one over another
 	(and (> n 2) (= 0 (pg-rnd 3))
-		(each (# (elem-set edges (+ +poly_edge %0) (elem-get edges %0))) (range 0 4)))
+		(each! (# (elem-set edges (+ +poly_edge (!)) %0)) (list edges) 0 4))
 	(shuffle active)
 	(each (lambda (mode)
 			(defq e1 (cat edges) a1 (cat active) o1 (nums) e2 (cat edges) a2 (cat active) o2 (nums 7 7 7)

@@ -26,7 +26,7 @@
 	;draws nothing is in no band
 	(defq count (inc (n2i (/ (n2f (. doc :find :height)) +band))))
 	(map (lambda ((name flags layer_items))
-			(defq rows (map (lambda (&) (list)) (range 0 count)))
+			(defq rows (map! (lambda () (list)) '() 0 count))
 			(each (lambda (item)
 					;every shape is flattened here, the first time, which is a
 					;while. The other tasks of the node are given a turn
@@ -34,8 +34,7 @@
 					(when (defq box (cwb-bounds (list item)))
 						(defq entry (list (!) item))
 						;a row more each way, as the stripe has
-						(each (# (push (elem-get rows %0) entry))
-							(range (band-of (- (second box) 1.0) count) (inc (band-of (+ (elem-get box 3) 1.0) count))))))
+						(each! (# (push %0 entry)) (list rows) (band-of (- (second box) 1.0) count) (inc (band-of (+ (elem-get box 3) 1.0) count)))))
 				layer_items)
 			(list flags rows (map (lambda (&) :nil) layer_items)))
 		(cwb-layers doc)))

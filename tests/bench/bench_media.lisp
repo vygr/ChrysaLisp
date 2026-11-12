@@ -48,7 +48,7 @@
 (defun bm-packets (file)
 	;the packets of a reel, each as the reel gives it
 	(defq reel (reel-open file))
-	(map (# (reel-packet reel %0)) (range 0 (. reel :find :frames))))
+	(map! (# (reel-packet reel (!))) '() 0 (. reel :find :frames)))
 
 (bind '(bm_he bm_he_packets) (bm-track "tests/streams/data/he_aac.m4a"))
 (bind '(bm_ps bm_ps_packets) (bm-track "tests/streams/data/he_ps.m4a"))

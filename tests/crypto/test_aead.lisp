@@ -6,10 +6,10 @@
 	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
 (defun cr-unhex (text)
 	;the bytes of a str of hex
-	(apply (const cat) (map (# (char (str-to-num (cat "0x" (slice text %0 (+ %0 2)))))) (range 0 (length text) 2))))
+	(hex-decode text))
 
 ;the example of RFC 8439, 2.8.2
-(defq ae_key (apply (const cat) (map (const char) (range 0x80 0xa0)))
+(defq ae_key (apply (const cat) (map! (# (char (!))) '() 0x80 0xa0))
 	ae_nonce (cr-unhex "070000004041424344454647")
 	ae_aad (cr-unhex "50515253c0c1c2c3c4c5c6c7")
 	ae_plain "Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it."
@@ -22,7 +22,7 @@
 (assert-eq "and opened" ae_plain (aead-open ae_key ae_nonce ae_aad ae_sealed))
 
 ;sizes about the edges of the blocks of both, with and without aad
-(defq ae_text (apply (const cat) (map (# (char (logand (+ (* %0 17) 1) 0xff))) (range 0 300))))
+(defq ae_text (apply (const cat) (map! (# (char (logand (+ (* (!) 17) 1) 0xff))) '() 0 300)))
 (defq ae_out (aead-seal ae_key ae_nonce (slice ae_text 0 0) (slice ae_text 0 0)))
 (assert-eq "0 bytes, no aad" "4beb58a946c2fe18a4d07e10728ccc14d9773224407fc019b045e36cb236af8d" (cr-hex (sha256 ae_out)))
 (assert-eq "0 bytes, no aad, opened" (slice ae_text 0 0) (aead-open ae_key ae_nonce (slice ae_text 0 0) ae_out))
@@ -133,7 +133,7 @@
 (assert-eq "300 bytes, aad of 33, opened" (slice ae_text 0 300) (aead-open ae_key ae_nonce (slice ae_text 0 33) ae_out))
 
 ;more than the native code is given at once
-(defq ae_big (apply (const cat) (map (# (char (logand (+ (* %0 23) 11) 0xff))) (range 0 100001)))
+(defq ae_big (apply (const cat) (map! (# (char (logand (+ (* (!) 23) 11) 0xff))) '() 0 100001))
 	ae_big_sealed (aead-seal ae_key ae_nonce ae_aad ae_big))
 (assert-eq "100,001 bytes" "2c6b45d0f49ab61beb1d3eeee5813b0bca69bf2367f0281eed7725b44fe58cd5" (cr-hex (sha256 ae_big_sealed)))
 (assert-eq "100,001 bytes, opened" (sha256 ae_big) (sha256 (aead-open ae_key ae_nonce ae_aad ae_big_sealed)))
@@ -163,18 +163,14 @@
 ;the native code of the core, :sys_crypto, with no aad, as a link seals:
 ;the same as the Lisp of the RFC each size about the edges of the blocks
 ;of both, opened again, and not opened with a byte changed
-(defq ae_k2 (apply (const cat) (map (# (char (logand (* %0 7) 0xff))) (range 0 32)))
-	ae_n2 (apply (const cat) (map (# (char (+ %0 1))) (range 0 12))))
+(defq ae_k2 (apply (const cat) (map! (# (char (logand (* (!) 7) 0xff))) '() 0 32))
+	ae_n2 (apply (const cat) (map! (# (char (+ (!) 1))) '() 0 12)))
 (assert-true "native sealing is the RFC's, every size 0 to 299"
-	(every (lambda (n)
-			(defq data (slice ae_text 0 n) cipher (chacha20 ae_k2 ae_n2 1 data))
-			(eql (aead-seal-native ae_k2 ae_n2 data) (cat cipher (aead-tag ae_k2 ae_n2 "" cipher))))
-		(range 0 300)))
+	(some! (lambda () (defq data (slice ae_text 0 (!)) cipher (chacha20 ae_k2 ae_n2 1 data))
+			(eql (aead-seal-native ae_k2 ae_n2 data) (cat cipher (aead-tag ae_k2 ae_n2 "" cipher)))) '() :t 0 300))
 (assert-true "and opened, every size"
-	(every (lambda (n)
-			(defq data (slice ae_text 0 n))
-			(eql data (aead-open-native ae_k2 ae_n2 (aead-seal-native ae_k2 ae_n2 data))))
-		(range 0 300)))
+	(some! (lambda () (defq data (slice ae_text 0 (!)))
+			(eql data (aead-open-native ae_k2 ae_n2 (aead-seal-native ae_k2 ae_n2 data)))) '() :t 0 300))
 (defq ae_s2 (aead-seal-native ae_k2 ae_n2 (slice ae_text 0 100)))
 (assert-eq "not opened with a byte of it changed" :nil
 	(aead-open-native ae_k2 ae_n2 (cat (char (logxor (code ae_s2) 1)) (slice ae_s2 1 -1))))

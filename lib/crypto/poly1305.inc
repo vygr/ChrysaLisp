@@ -69,7 +69,7 @@
 	(when (nempty? pending)
 		(poly1305-blocks state
 			(cat pending (char 1) (slice +poly1305_zeros 0 (- 15 (length pending)))) 0 1 0))
-	(bind '(h0 h1 h2 h3 h4) (map (# (get-long state (* %0 8))) (range 0 5)))
+	(bind '(h0 h1 h2 h3 h4) (map! (# (get-long state (* (!) 8))) '() 0 5))
 	;every part of h down to 26 bits, what is over going on to the next
 	(defq c (>> h1 26) h1 (logand h1 +poly1305_mask)
 		h2 (+ h2 c) c (>> h2 26) h2 (logand h2 +poly1305_mask)

@@ -81,13 +81,9 @@
 	;the entries, each so many 4 byte numbers, head more bytes before them
 	(when box
 		(defq at (+ (second box) 8 head))
-		(map (lambda (i)
-				;the tables of a long film have hundreds of thousands of entries,
-				;the other tasks of its node, the GUI's, are let run as it goes
-				(task-slice)
+		(map! (lambda () (defq i (!)) (task-slice)
 				(defq e (+ at (* i width 4)))
-				(map (# (mp4-n s (+ e (* %0 4)) 4)) (range 0 width)))
-			(range 0 (mp4-n s (- at 4) 4)))))
+				(map! (# (mp4-n s (+ e (* (!) 4)) 4)) '() 0 width)) '() 0 (mp4-n s (- at 4) 4))))
 
 (defun mp4-config (s at end)
 	; (mp4-config str at end) -> ((name str) ...)
@@ -129,13 +125,13 @@
 	(when stsz
 		(defq one (mp4-n s (+ (second stsz) 4) 4) count (mp4-n s (+ (second stsz) 8) 4))
 		(setq sizes (if (= one 0)
-				(map (# (mp4-n s (+ (second stsz) 12 (* %0 4)) 4)) (range 0 count))
-				(map (lambda (_) one) (range 0 count)))))
+				(map! (# (mp4-n s (+ (second stsz) 12 (* (!) 4)) 4)) '() 0 count)
+				(map! (lambda () one) '() 0 count))))
 	;where each chunk is, and how many samples each holds
 	(defq chunks (cond
 			((defq co (mp4-in s stbl '("stco"))) (map (const first) (mp4-table s co 0 1)))
 			((defq co (mp4-in s stbl '("co64")))
-				(map (# (mp4-n s (+ (second co) 8 (* %0 8)) 8)) (range 0 (mp4-n s (+ (second co) 4) 4))))
+				(map! (# (mp4-n s (+ (second co) 8 (* (!) 8)) 8)) '() 0 (mp4-n s (+ (second co) 4) 4)))
 			((list)))
 		runs (mp4-table s (mp4-in s stbl '("stsc")) 0 3) offsets (cap (length sizes) (list)) at 0 run 0 per 0)
 	(each (lambda (chunk_at)
@@ -267,12 +263,12 @@
 		;each its time shown and its packet in one num, sorted by the
 		;native -, as a lambda that looks up the times is ten times slower
 		(setq order (cond
-				((not (. (. reel :find :video) :find :reordered)) (range 0 (. reel :find :frames)))
+				((not (. (. reel :find :video) :find :reordered)) (map! (const !) '() 0 (. reel :find :frames)))
 				((< (. reel :find :frames) 0x100000)
 					(map (# (logand %0 0xfffff))
 						(sort (map (# (+ (<< %0 20) (!))) (. reel :find :shown)) (const -))))
 				;a film of more than 12 hours at 24 a second
-				((sort (range 0 (. reel :find :frames))
+				((sort (map! (const !) '() 0 (. reel :find :frames))
 						(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))
 		(. reel :insert :order order))
 	order)

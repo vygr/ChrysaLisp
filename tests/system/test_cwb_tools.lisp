@@ -225,12 +225,10 @@
 (defun wt-arc-off (r)
 	;eighty short arcs, of a few thousandths of a turn, round a circle about 400 300: the furthest any point is off it
 	(defq worst 0.0)
-	(each (lambda (i)
-			(defq a0 (* (n2f i) 0.0731) a1 (+ a0 (* (n2f (inc (% i 7))) 0.004))
+	(each! (lambda () (defq i (!)) (defq a0 (* (n2f i) 0.0731) a1 (+ a0 (* (n2f (inc (% i 7))) 0.004))
 				x0 (+ 400.0 (* r (cos a0))) y0 (+ 300.0 (* r (sin a0))))
 			(each (lambda ((x y)) (setq worst (max worst (abs (- (sqrt (+ (* (- x 400.0) (- x 400.0)) (* (- y 300.0) (- y 300.0)))) r)))))
-				(partition (path-gen-earc x0 y0 r r 0.0 0.0 1.0 (+ 400.0 (* r (cos a1))) (+ 300.0 (* r (sin a1))) (path x0 y0)) 2)))
-		(range 0 80))
+				(partition (path-gen-earc x0 y0 r r 0.0 0.0 1.0 (+ 400.0 (* r (cos a1))) (+ 300.0 (* r (sin a1))) (path x0 y0)) 2))) '() 0 80)
 	worst)
 (assert-true "a short arc of a circle of 180 is on the circle, to a twentieth of a pixel" (< (wt-arc-off 180.0) 0.05))
 (assert-true "and of one of 600" (< (wt-arc-off 600.0) 0.1))
@@ -540,8 +538,10 @@
 ;dots, not a line: along 200, there and back, in dots of 4 and gaps of 4, half is drawn
 (defq hv_len 0.0)
 (each (lambda (dash)
-		(each (lambda (i) (setq hv_len (+ hv_len (abs (- (elem-get dash (+ i 2)) (elem-get dash i))) (abs (- (elem-get dash (+ i 3)) (elem-get dash (inc i)))))))
-			(range 0 (- (length dash) 2) 2)))
+		(defq i 0)
+		(while (< i (- (length dash) 2))
+			(setq hv_len (+ hv_len (abs (- (elem-get dash (+ i 2)) (elem-get dash i))) (abs (- (elem-get dash (+ i 3)) (elem-get dash (inc i)))))
+				i (+ i 2))))
 	(path-dash (path 0.0 0.0 100.0 0.0 100.0 0.0001) 4.0 4.0 :t))
 (assert-true "dots of 4 with gaps of 4 along 200 draw 100 of it" (< 99.0 hv_len 101.0))
 ;and it is drawn, over the instruments, where the catch is and not where it is not
@@ -556,7 +556,7 @@
 (defun hv-ink (x0 y0 x1 y1)
 	;how many pixels of a box have anything on them
 	(defq n 0)
-	(each (lambda (y) (each (lambda (x) (if (/= 0 (get-uint hv_data (+ hv_base (* 4 (+ (* y 800) x))))) (++ n))) (range x0 x1))) (range y0 y1))
+	(each! (lambda () (defq y (!)) (each! (lambda () (if (/= 0 (get-uint hv_data (+ hv_base (* 4 (+ (* y 800) (!)))))) (++ n))) '() x0 x1)) '() y0 y1)
 	n)
 (assert-true "the catch of the ruler's top side is drawn above it, a row of dots" (< 20 (hv-ink 300 252 500 256) 500))
 (assert-eq "none of it between the catch and the side" 0 (hv-ink 300 257 500 260))

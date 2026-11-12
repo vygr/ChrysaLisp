@@ -13,7 +13,7 @@
 		word (logior (<< (dec (<< 1 shift)) (- (* bytes 8) shift))
 			(<< v (- (* bytes 8) bits))
 			(dec (<< 1 (- (* bytes 8) bits)))))
-	(cat (apply (const cat) (map (# (char (logand (>> word (* 8 (- bytes 1 %0))) 0xff))) (range 0 bytes)))
+	(cat (apply (const cat) (map! (# (char (logand (>> word (* 8 (- bytes 1 (!)))) 0xff))) '() 0 bytes))
 		(const (cat (char -1 8) (char -1 8) (char -1 8) (char -1 8)))))
 
 ;every code of each of the books of AAC, at each of 8 places in a byte, reads
@@ -22,10 +22,8 @@
 		(defq table (huff-table book) bad 0)
 		(each (lambda ((n v))
 				(defq sym (!))
-				(each (lambda (shift)
-						(defq got (hf_read (hf-code n v shift) shift table))
-						(if (or (/= (>> got 32) sym) (/= (logand got 0xffffffff) (+ shift n))) (++ bad)))
-					(range 0 8)))
+				(each! (lambda () (defq got (hf_read (hf-code n v (!)) (!) table))
+						(if (or (/= (>> got 32) sym) (/= (logand got 0xffffffff) (+ (!) n))) (++ bad))) '() 0 8))
 			(partition book 2))
 		(assert-eq (cat "every code of " name " at every place in a byte") 0 bad))
 	(cat (list *aac_sf_book*) *aac_books*)

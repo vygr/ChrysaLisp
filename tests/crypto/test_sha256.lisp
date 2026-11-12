@@ -17,7 +17,7 @@
 
 ;every length about the edges of a block, where the padding changes, of
 ; bytes that are not all the same
-(defq sha_text (apply (const cat) (map (# (char (logand (+ (* %0 7) 3) 0xff))) (range 0 200))))
+(defq sha_text (apply (const cat) (map! (# (char (logand (+ (* (!) 7) 3) 0xff))) '() 0 200)))
 (assert-eq "1 bytes" "084fed08b978af4d7d196a7446a86b58009e636b611db16211b65a9aadff29c5" (sha-hex (sha256 (slice sha_text 0 1))))
 (assert-eq "54 bytes" "160bbf14b458c877b7049e7cb5771dd653930f97d20bdd8ee795c16062906233" (sha-hex (sha256 (slice sha_text 0 54))))
 (assert-eq "55 bytes" "e7313d333c272e639f790978283f9eb392e843d0f29b7016828bb1daa4aac70b" (sha-hex (sha256 (slice sha_text 0 55))))
@@ -37,7 +37,7 @@
 ;a million of the letter a, which is more than the native code is given
 ; at once
 (defq sha_million (str-alloc 1000000))
-(each (# (set-long sha_million %0 0x6161616161616161)) (range 0 1000000 8))
+(each! (# (set-long sha_million (* (!) 8) 0x6161616161616161)) '() 0 125000)
 (assert-eq "a million a" "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0" (sha-hex (sha256 sha_million)))
 
 ;added a part at a time, in parts of any size, it is the same hash
@@ -66,7 +66,7 @@
 
 (defun sha-bytes (value count)
 	;count bytes of that value
-	(apply (const cat) (map (lambda (&) (char value)) (range 0 count))))
+	(apply (const cat) (map! (lambda () (char value)) '() 0 count)))
 
 ;the test cases of RFC 4231
 (assert-eq "case 1, a key of 20 bytes" "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"

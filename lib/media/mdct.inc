@@ -31,15 +31,13 @@
 	;e^(-2 pi i k/m), each cos and sin, and the bit reversal of m
 	(defq m (>> n 1) tw (cap (* 5 m) (reals)) rev (cap m (nums)) bits 0 pi (. +mdct :find :pi)
 		twiddle (lambda (a) (push tw (cos a) (sin a))))
-	(each (# (twiddle (/ (* (neg pi) (n2r (inc (* 4 %0)))) (n2r (* 4 n))))) (range 0 m))
-	(each (# (twiddle (/ (* (neg pi) (n2r %0)) (n2r n)))) (range 0 m))
-	(each (# (twiddle (/ (* (n2r -2) pi (n2r %0)) (n2r m)))) (range 0 (>> m 1)))
+	(each! (# (twiddle (/ (* (neg pi) (n2r (inc (* 4 (!))))) (n2r (* 4 n))))) '() 0 m)
+	(each! (# (twiddle (/ (* (neg pi) (n2r (!))) (n2r n)))) '() 0 m)
+	(each! (# (twiddle (/ (* (n2r -2) pi (n2r (!))) (n2r m)))) '() 0 (>> m 1))
 	(while (< (<< 1 bits) m) (setq bits (inc bits)))
-	(each (lambda (i)
-			(defq r 0)
-			(each (# (if (/= 0 (logand i (<< 1 %0))) (setq r (logior r (<< 1 (- bits 1 %0)))))) (range 0 bits))
-			(push rev r))
-		(range 0 m))
+	(each! (lambda () (defq i (!)) (defq r 0)
+			(each! (# (if (/= 0 (logand i (<< 1 (!)))) (setq r (logior r (<< 1 (- bits 1 (!))))))) '() 0 bits)
+			(push rev r)) '() 0 m)
 	(list tw rev))
 
 (defun mdct-imdct (dct4 tables lines n)
@@ -62,21 +60,17 @@
 	; (mdct-sine n) -> reals
 	;the rising half, n, of the sine window of 2n
 	(defq pi (. +mdct :find :pi))
-	(reduce (# (push %0 (sin (/ (* pi (+ (n2r %1) (n2r 0.5))) (n2r (* 2 n)))))) (range 0 n) (cap n (reals))))
+	(reduce! (# (push %0 (sin (/ (* pi (+ (n2r (!)) (n2r 0.5))) (n2r (* 2 n)))))) '() (cap n (reals)) 0 n))
 
 (defun mdct-kbd (n alpha)
 	; (mdct-kbd n alpha) -> reals
 	;the rising half, n, of the Kaiser-Bessel derived window of 2n
 	(defq out (cap n (reals)) sum (n2r 0) pi (. +mdct :find :pi)
-		kernel (map (lambda (j)
-				(defq t (- (/ (* (n2r 2) (n2r j)) (n2r n)) (n2r 1)))
-				(mdct-i0 (* pi (n2r alpha) (sqrt (- (n2r 1) (* t t))))))
-			(range 0 (inc n))))
+		kernel (map! (lambda () (defq t (- (/ (* (n2r 2) (n2r (!))) (n2r n)) (n2r 1)))
+				(mdct-i0 (* pi (n2r alpha) (sqrt (- (n2r 1) (* t t)))))) '() 0 (inc n)))
 	(defq total (reduce (const +) kernel (n2r 0)))
-	(each (lambda (j)
-			(setq sum (+ sum (elem-get kernel j)))
-			(push out (sqrt (/ sum total))))
-		(range 0 n))
+	(each! (lambda (e) (setq sum (+ sum e))
+			(push out (sqrt (/ sum total)))) (list kernel) 0 n)
 	out)
 
 ;module

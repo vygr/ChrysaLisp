@@ -112,34 +112,31 @@
 		n_steps (n2i (/ w step_x))
 		curve_pts (list)
 		shadow_poly (path))
-	(each (lambda (i)
-			(defq px (* (n2f i) step_x)
+	(each! (lambda () (defq px (* (n2f (!)) step_x)
 				lon_rad (- (* (/ px w) +fp_2pi) +fp_pi)
 				lat_rad (terminator-lat lon_rad sun_lon_rad sun_lat_rad)
 				py (* (/ (- +fp_hpi lat_rad) +fp_pi) h))
-			(push curve_pts px py))
-		(range 0 (inc n_steps)))
+			(push curve_pts px py)) '() 0 (inc n_steps))
 	(if (>= sun_lat_deg 0.0)
 		; Northern summer: North is day, South is night
 		(progn
 			(push shadow_poly 0.0 h w h)
-			(each (lambda (i)
-					(defq idx (* i 2))
+			(each! (lambda ()
+					;the curve from its end back to its start
+					(defq idx (<< (- n_steps (!)) 1))
 					(push shadow_poly (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
-				(range n_steps -1 -1))
+				'() 0 (inc n_steps))
 			(push shadow_poly 0.0 h))
 		; Northern winter: North is night, South is day
 		(push shadow_poly 0.0 0.0 w 0.0)
-		(each (lambda (i)
-				(defq idx (* i 2))
+		(each! (lambda ()
+				(defq idx (<< (- n_steps (!)) 1))
 				(push shadow_poly (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
-			(range n_steps -1 -1))
+			'() 0 (inc n_steps))
 		(push shadow_poly 0.0 0.0))
 	(defq twilight_path (path))
-	(each (lambda (i)
-			(defq idx (* i 2))
-			(push twilight_path (elem-get curve_pts idx) (elem-get curve_pts (inc idx))))
-		(range 0 (inc n_steps)))
+	(each! (lambda () (defq idx (* (!) 2))
+			(push twilight_path (elem-get curve_pts idx) (elem-get curve_pts (inc idx)))) '() 0 (inc n_steps))
 	(defq twilight_stroke (path-stroke-polyline twilight_path 1.5
 			+join_round +cap_round +cap_round))
 	(.-> canvas
@@ -177,24 +174,22 @@
 		(:fpoly 0.0 0.0 +winding_none_zero (list moon_disc)))
 
 	; 7. Cities Markers
-	(each (lambda (i)
-			(defq c (elem-get *cities* i)
+	(each! (lambda (city) (defq c city
 				clat (elem-get c 2)
 				clon (elem-get c 3)
 				is_day (daylight? clat clon sun_lat_deg sun_lon_deg))
 			(bind '(cpx cpy) (geo-to-canvas clon clat w h))
-			(defq dot (path-gen-arc cpx cpy 0.0 +fp_2pi (if (= i *selected_city_id*) 3.8 2.6) (path))
+			(defq dot (path-gen-arc cpx cpy 0.0 +fp_2pi (if (= (!) *selected_city_id*) 3.8 2.6) (path))
 				col (if is_day 0xffffe066 0xff5c8ae6))
 			(.-> canvas
 				(:set_color col)
 				(:fpoly 0.0 0.0 +winding_none_zero (list dot)))
-			(when (= i *selected_city_id*)
+			(when (= (!) *selected_city_id*)
 				(defq sel_ring (path-stroke-polyline (path-gen-arc cpx cpy 0.0 +fp_2pi 6.5 (path))
 						1.4 +join_miter +cap_round +cap_round))
 				(.-> canvas
 					(:set_color 0xeeffffff)
-					(:fpoly 0.0 0.0 +winding_none_zero (list sel_ring)))))
-		(range 0 (length *cities*)))
+					(:fpoly 0.0 0.0 +winding_none_zero (list sel_ring))))) (list *cities*))
 	(. canvas :swap +swap_write))
 
 (ui-window *window* ()
@@ -302,15 +297,13 @@
 	(defq btns (list
 			*btn_city_0* *btn_city_1* *btn_city_2*
 			*btn_city_3* *btn_city_4* *btn_city_5*))
-	(each (lambda (i)
-			(bind '(cn & la lo of) (elem-get *cities* i))
+	(each! (lambda (city e) (bind '(cn & la lo of) city)
 			(defq c_sec (+ now_sec (n2i (* of 3600.0))))
 			(bind '(& m h &ignore) (date c_sec))
 			(defq day? (daylight? la lo sun_lat_deg sun_lon_deg)
 				badge (if day? "Day " "Night ")
-				btn (elem-get btns i))
-			(. btn :set_text (cat badge cn " " (pad h 2 "0") ":" (pad m 2 "0"))))
-		(range 0 6)))
+				btn e)
+			(. btn :set_text (cat badge cn " " (pad h 2 "0") ":" (pad m 2 "0")))) (list *cities* btns) 0 6))
 
 (defun main ()
 	(config-load)

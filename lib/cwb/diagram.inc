@@ -161,8 +161,8 @@
 		(reach (# (push todo (list %0 (inc d)))) (sort (. kids :find name) (const cmp))))
 	;how wide each depth is, and where it starts
 	(defq deep (reduce (# (max %0 (. depth :find %1))) order 0)
-		widths (map (lambda (d) (reduce (lambda (w name)
-						(if (= (. depth :find name) d) (max w (+ (dia-width name 13) 20.0)) w)) order 0.0)) (range 0 (inc deep)))
+		widths (map! (lambda () (defq d (!)) (reduce (lambda (w name)
+						(if (= (. depth :find name) d) (max w (+ (dia-width name 13) 20.0)) w)) order 0.0)) '() 0 (inc deep))
 		starts (list) x 0.0)
 	(each (lambda (w) (push starts x) (setq x (+ x w gap))) widths)
 	;a leaf has the next line down, what has things come of it is half

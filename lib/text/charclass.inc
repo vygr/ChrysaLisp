@@ -10,8 +10,7 @@
 	(memoize k (. (const (Fset 5)) :intern (apply (const cat)
 				(usort (apply (const cat)
 						(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
-									(map (const char)
-										(range (code (first %0)) (inc (code (last %0)))))
+									(map! (# (char (!))) '() (code (first %0)) (inc (code (last %0))))
 									(map (const identity) %0)))
 							(partition k 3)))))) 7))
 

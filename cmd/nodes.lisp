@@ -67,10 +67,10 @@
 						(print "A shape is full, ring, star, tree, mesh or cube, not " opt_s))
 					(:t ;a name of four, as a link has two threes
 						(defq chars "0123456789abcdefghijklmnopqrstuvwxyz"
-							id (apply (const cat) (map (lambda (&) (elem-get chars (random 36))) (range 0 4)))
+							id (apply (const cat) (map! (lambda () (elem-get chars (random 36))) '() 0 4))
 							;a system id of its own is its name and twelve more
 							sid (if opt_o (apply (const cat) (cat (list id)
-										(map (lambda (&) (elem-get chars (random 36))) (range 0 12)))))
+										(map! (lambda () (elem-get chars (random 36))) '() 0 12))))
 							pids (node-net (sym (cat ":" opt_s)) opt_n 0 :nil :nil id sid)
 							bad (length (filter (# (< %0 0)) pids)))
 						(print "started " id ", a " opt_s " of "

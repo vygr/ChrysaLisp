@@ -44,7 +44,7 @@
 (bind '(a r g b) (ey-at ey_out 32 58))
 (assert-true "and out by the edge is the white" (and (= a 255) (> (min r g b) 50) (< (- (max r g b) (min r g b)) 60)))
 (assert-eq "the two eyes that look the same way are the same"
-	(str (map (# (ey-at ey_out %0 20)) (range 4 60))) (str (map (# (ey-at ey_out (+ %0 64) 20)) (range 4 60))))
+	(str (map! (# (ey-at ey_out (!) 20)) '() 4 60)) (str (map! (# (ey-at ey_out (+ (!) 64) 20)) '() 4 60)))
 
 ;looking away
 (defq ey_side (ey-draw (ey-look 2.4 0.0) (ey-look 0.0 0.0)))
@@ -53,4 +53,4 @@
 (bind '(a r g b) (ey-at ey_side 58 32))
 (assert-true "and its iris or pupil over at that side" (< (min r b) 100))
 (assert-eq "the other eye is as it was"
-	(str (map (# (ey-at ey_out %0 32)) (range 64 128))) (str (map (# (ey-at ey_side %0 32)) (range 64 128))))
+	(str (map! (# (ey-at ey_out (!) 32)) '() 64 128)) (str (map! (# (ey-at ey_side (!) 32)) '() 64 128)))

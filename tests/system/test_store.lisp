@@ -10,7 +10,7 @@
 (defun so-bytes (len seed)
 	;bytes that are not all the same, and differ with the seed
 	(defq out (cat (exfat-zeros len)))
-	(each (# (set-byte out %0 (logand (+ (* %0 7) (>> %0 8) seed) 0xff))) (range 0 len))
+	(each! (# (set-byte out (!) (logand (+ (* (!) 7) (>> (!) 8) seed) 0xff))) '() 0 len)
 	out)
 
 (defun so-is (result) (first result))
@@ -91,9 +91,9 @@
 (assert-eq "and there is none of what there is none of" :nil
 	(store-fold so "a/nothing" 0 (lambda (state data at) state)))
 (assert-eq "the sum of every byte, a block at a time, is the sum of them all"
-	(reduce (# (+ %0 (code so_big 1 %1))) (range 0 (length so_big)) 0)
+	(reduce! (# (+ %0 (code so_big 1 (!)))) '() 0 0 (length so_big))
 	(first (store-fold so "a/big" 0 (lambda (sum data at)
-				(reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum)))))
+				(reduce! (# (+ %0 (code data 1 (!)))) '() sum 0 (length data))))))
 
 ;a walk goes where it says: each block read says which is next, or that it is done
 (assert-list-eq "a walk told to go on is a fold" '((0 1 2))
@@ -108,7 +108,7 @@
 (assert-list-eq "of an object of nothing, nothing is read" '(:start)
 	(store-walk so "a/none" :start (lambda (state data at count) (list :read :nil))))
 ;a search of a sorted object by halves reads few of its blocks
-(defq so_sorted (apply (const cat) (map (# (cat (pad (str %0) 7 "0") "\n")) (range 0 4096))))
+(defq so_sorted (apply (const cat) (map! (# (cat (pad (str (!)) 7 "0") "\n")) '() 0 4096)))
 (store-put so "a/sorted" so_sorted)
 (defun so-search (want)
 	;the block of 512 numbers in order that a number is in: (found reads)
@@ -302,9 +302,9 @@
 (assert-eq "an object that fits" :ok (so-is (store-put so_tiny "x" (so-bytes 20000 6))))
 (defq so_turn (so-bytes 0x10000 7))
 (assert-eq "an object of a pattern that comes round is few blocks, however long: 2MB in a store of 1MB" :ok
-	(so-is (store-put so_tiny "round" (apply (const cat) (map (lambda (&) so_turn) (range 0 32))))))
+	(so-is (store-put so_tiny "round" (apply (const cat) (map! (lambda () so_turn) '() 0 32)))))
 ;bytes of which no two blocks are the same
-(defq so_much (apply (const cat) (map (# (cat (sha256 (str "much" %0)) (exfat-zeros 32736))) (range 0 40))))
+(defq so_much (apply (const cat) (map! (# (cat (sha256 (str "much" (!))) (exfat-zeros 32736))) '() 0 40)))
 (assert-eq "one there is no room for" :full (so-is (store-put so_tiny "y" so_much)))
 (assert-eq "has no path" :nil (store-stat so_tiny "y"))
 (assert-eq "and what was there is" (so-bytes 20000 6) (store-get so_tiny "x"))
@@ -352,7 +352,7 @@
 (assert-eq "and it is added to from there" so_j_good (get :journal_at so_j4))
 ;a journal that fills
 (defq so_j_count (get :journal_count so_j4))
-(each (# (store-put so_j4 "over and over" (so-bytes 50 (logand %0 3)))) (range 0 1000))
+(each! (# (store-put so_j4 "over and over" (so-bytes 50 (logand (!) 3)))) '() 0 1000)
 (assert-true "a journal that is full, and the map is written and it begins again" (> (get :journal_count so_j4) so_j_count))
 (defq so_j5 (store-open so_j_stream "aaaa"))
 (assert-list-eq "nothing lost by it" '("a" "d" "e" "f" "over and over") (so-paths so_j5))
@@ -399,7 +399,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (bind '(so_f so_f_stream) (so-new 0x400000 "folders" "aaaa" 4096))
-(defq so_f_names (map (# (store-block-put so_f (cat (char %0 8)))) (range 0 (inc +store_folder_blocks))))
+(defq so_f_names (map! (# (store-block-put so_f (cat (char (!) 8)))) '() 0 (inc +store_folder_blocks)))
 (assert-true "blocks are put in the first folder"
 	(starts-with "blocks/w0/" (store-block-file so_f (first so_f_names))))
 (assert-true "till it has so many, then the next"
@@ -436,7 +436,7 @@
 (assert-list-eq "its manifest is a top of height 1 over two blocks of it"
 	(list (length so_t_big) 1 2) (cat (slice so_t_read 0 2) (list (length (third so_t_read)))))
 (assert-list-eq "its blocks are all there, in order"
-	(map (# (sha256 (slice so_t_big %0 (+ %0 16)))) (range 0 (length so_t_big) 16)) (second so_t_m))
+	(map! (lambda () (defq at (<< (!) 4)) (sha256 (slice so_t_big at (+ at 16)))) '() 0 (>> (length so_t_big) 4)) (second so_t_m))
 (assert-eq "and the blocks of its manifest, the top first" 3 (length (third so_t_m)))
 (assert-eq "the top first" so_t_top (first (third so_t_m)))
 (assert-true "none of them bigger than a block of the object can be"
@@ -445,7 +445,7 @@
 	(slice so_t_big (- (* 16 +store_manifest_names) 5) (+ (* 16 +store_manifest_names) 5))
 	(store-read so_t "t/big" (- (* 16 +store_manifest_names) 5) 10))
 (assert-eq "a small object's manifest is the one block, as it was"
-	(store-manifest-text 160 (map (# (sha256 (slice so_t_small %0 (+ %0 16)))) (range 0 160 16)))
+	(store-manifest-text 160 (map! (# (sha256 (slice so_t_small (* (!) 16) (+ (* (!) 16) 16)))) '() 0 10))
 	(progn (store-put so_t "t/small" so_t_small)
 		(store-block-get so_t (elem-get (store-stat so_t "t/small") +store_entry_hash))))
 (assert-true "the blocks of its manifest are wanted"
@@ -474,7 +474,7 @@
 (assert-eq "put back, it is the object again" so_t_big (store-get so_t "t/big"))
 
 ;a tree of any height is walked in order
-(defq so_t_held (Fmap 11) so_t_leaves (map (# (list (sha256 (str "a" %0)) (sha256 (str "b" %0)))) (range 0 4)))
+(defq so_t_held (Fmap 11) so_t_leaves (map! (# (list (sha256 (str "a" (!))) (sha256 (str "b" (!))))) '() 0 4))
 (defun so-t-put (data) (. so_t_held :insert (defq h (sha256 data)) data) h)
 (defq so_t_low (map (# (so-t-put (store-manifest-text 0 %0))) so_t_leaves)
 	so_t_mid (list (so-t-put (store-tree-text 0 1 (slice so_t_low 0 2))) (so-t-put (store-tree-text 0 1 (slice so_t_low 2 4))))
@@ -483,7 +483,7 @@
 	(list 99 (apply (const cat) so_t_leaves) 7)
 	(progn (defq so_t_w (store-manifest-walk so_t_high (# (. so_t_held :find %0))))
 		(list (first so_t_w) (second so_t_w) (length (third so_t_w)))))
-(defq so_t_names (map (# (sha256 (str "n" %0))) (range 0 (inc +store_manifest_names))))
+(defq so_t_names (map! (# (sha256 (str "n" (!)))) '() 0 (inc +store_manifest_names)))
 (assert-list-eq "made of as many names as a block of a manifest has, it is the one block"
 	(list 5 0 +store_manifest_names)
 	(progn (defq so_t_r (store-manifest-read (. so_t_held :find (store-manifest-make 5 (slice so_t_names 0 -2) (const so-t-put)))))

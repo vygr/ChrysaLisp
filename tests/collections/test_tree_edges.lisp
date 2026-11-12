@@ -41,7 +41,7 @@
 	(te-value (list 1 (list 2 (list)) "x" :s)) '(1 (2 ()) "x" :s))
 
 ;a string too long for one chunk is split, and joined on load
-(defq te_long (apply (const cat) (map (# (str %0 ",")) (range 0 400))))
+(defq te_long (apply (const cat) (map! (# (str (!) ",")) '() 0 400)))
 (assert-eq "long string round trip" te_long (te-value te_long))
 (assert-true "long string is long" (> (length te_long) 1000))
 

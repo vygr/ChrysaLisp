@@ -88,8 +88,8 @@
 ;the buffer, class/fstream/class.vp :read_direct and :write_direct. What
 ;the buffer holds goes first, and small reads and writes after are as they were
 (defq dr_file "tests/scratch/tmp_direct_test.bin"
-	dr_big (apply (const cat) (map (# (char (logand (* %0 7) 255))) (range 0 20000)))
-	dr_mid (apply (const cat) (map (# (char (logand (* %0 13) 255))) (range 0 9000)))
+	dr_big (apply (const cat) (map! (# (char (logand (* (!) 7) 255))) '() 0 20000))
+	dr_mid (apply (const cat) (map! (# (char (logand (* (!) 13) 255))) '() 0 9000))
 	dr_all (cat "small" dr_big "tiny" dr_mid "end")
 	dr_stream (file-stream dr_file +file_open_write))
 (each (# (write-blk dr_stream %0)) (list "small" dr_big "tiny" dr_mid "end"))

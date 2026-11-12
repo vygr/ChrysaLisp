@@ -30,7 +30,7 @@
 (defun names-of (text)
 	;names sent one after another, 32 bytes each. Only whole ones: what is
 	;left over, as a peer that is not of this build may send, is no name
-	(map (# (slice text %0 (+ %0 32))) (range 0 (* (/ (length text) 32) 32) 32)))
+	(map! (lambda () (defq at (<< (!) 5)) (slice text at (+ at 32))) '() 0 (>> (length text) 5)))
 
 (defun said (result)
 	;what a write came to, as it is sent back

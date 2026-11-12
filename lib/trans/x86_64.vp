@@ -1634,8 +1634,7 @@
 	;(r b c n), the args moved and pushed for each n there may be, made as
 	;the call ABI wants them
 	(vp-push :r0 :r1 :r2)
-	(each (lambda (n)
-			(defq k (min n (length abi_regs)) src (list) dst (list)
+	(each! (lambda () (defq n (!)) (defq k (min n (length abi_regs)) src (list) dst (list)
 				stack (slice vp_args n k))
 			(each! (lambda (s d) (when (/= s d) (push src s) (push dst d)))
 				(list vp_args abi_regs) 0 k)
@@ -1681,8 +1680,7 @@
 					(apply (const x-regs) (cat '(h_pop) abi_save))
 					(vp-free (* 3 +ptr_size))
 					(vp-ret))
-			(endif))
-		(range 0 (inc (length vp_args))))
+			(endif)) '() 0 (inc (length vp_args)))
 (vp-label 'call_abi_fail)
 	(vp-free (* 3 +ptr_size))
 	(vp-jmp 'h_none)
@@ -1690,8 +1688,7 @@
 
 (vp-label 'e_entry_abi)
 	;(n), the args to :r0 :r1 ... by the stack
-	(each (lambda (n)
-			(defq src (list) dst (list))
+	(each! (lambda () (defq n (!)) (defq src (list) dst (list))
 			(each! (lambda (s d) (when (/= s d) (push src s) (push dst d)))
 				(list abi_regs vp_args) 0 n)
 			(vpif `(:r0 = ,n))
@@ -1699,8 +1696,7 @@
 					(apply (const x-regs) (cat '(h_push) src))
 					(apply (const x-regs) (cat '(h_pop) dst)))
 				(vp-ret)
-			(endif))
-		(range 0 (inc (min (length abi_regs) (length vp_args)))))
+			(endif)) '() 0 (inc (min (length abi_regs) (length vp_args))))
 	(vp-jmp 'h_none)
 	(handler 'entry-abi 'e_entry_abi)
 

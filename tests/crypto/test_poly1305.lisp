@@ -5,7 +5,7 @@
 	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
 (defun cr-unhex (text)
 	;the bytes of a str of hex
-	(apply (const cat) (map (# (char (str-to-num (cat "0x" (slice text %0 (+ %0 2)))))) (range 0 (length text) 2))))
+	(hex-decode text))
 
 ;the example of RFC 8439, 2.5.2
 (defq pl_key (cr-unhex "85d6be7857556d337f4452fe42d506a80103808afb0db2fd4abff6af4149f51b"))
@@ -14,9 +14,9 @@
 
 ;every length about the edges of a block, with keys that have every bit
 ;set, which is where the sums are biggest
-(defq pl_text (apply (const cat) (map (# (char (logand (+ (* %0 13) 9) 0xff))) (range 0 200)))
-	pl_ones (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 32)))
-	pl_ffs (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 200))))
+(defq pl_text (apply (const cat) (map! (# (char (logand (+ (* (!) 13) 9) 0xff))) '() 0 200))
+	pl_ones (apply (const cat) (map! (lambda () (char 0xff)) '() 0 32))
+	pl_ffs (apply (const cat) (map! (lambda () (char 0xff)) '() 0 200)))
 (assert-eq "0 bytes" "0103808afb0db2fd4abff6af4149f51b" (cr-hex (poly1305 pl_key (slice pl_text 0 0))))
 (assert-eq "1 bytes" "b8120c98f861df89aaa31f839008086b" (cr-hex (poly1305 pl_key (slice pl_text 0 1))))
 (assert-eq "15 bytes" "7b8d2890f95c6a79085a74bae1146381" (cr-hex (poly1305 pl_key (slice pl_text 0 15))))
@@ -43,7 +43,7 @@
 	(cr-hex (poly1305 (cr-unhex "0100000000000000000000000000000000000000000000000000000000000000") (cr-unhex "fbfffffffffffffffffffffffffffffffefefefefefefefefefefefefefefefe01010101010101010101010101010101"))))
 
 ;more than the native code is given at once
-(defq pl_big (apply (const cat) (map (# (char (logand (+ (* %0 29) 3) 0xff))) (range 0 150001))))
+(defq pl_big (apply (const cat) (map! (# (char (logand (+ (* (!) 29) 3) 0xff))) '() 0 150001)))
 (assert-eq "150,001 bytes" "b8ad0715bad0f596debbbe4a9d0281ee" (cr-hex (poly1305 pl_key pl_big)))
 
 ;added a part at a time, in parts of any size, it is the same tag

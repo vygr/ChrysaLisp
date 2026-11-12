@@ -43,7 +43,6 @@
 (assert-list-eq "deflate of nothing" '(:t "") (first (td-round "")))
 ;32KB that do not repeat, and their start again: a copy from 32768 back,
 ;the most there is, and a block of the second 32KB
-(defq td_seed 7 td_noise (apply (const cat) (map (lambda (&)
-				(char (logand (>> (setq td_seed (logand (+ (* td_seed 1103515245) 12345) 0x7fffffff)) 16) 0xff))) (range 0 32768))))
+(defq td_seed 7 td_noise (apply (const cat) (map! (lambda () (char (logand (>> (setq td_seed (logand (+ (* td_seed 1103515245) 12345) 0x7fffffff)) 16) 0xff))) '() 0 32768)))
 (defq td_far (cat td_noise (slice td_noise 0 300)))
 (assert-list-eq "a copy from 32768 back" (list :t td_far) (first (td-round td_far)))

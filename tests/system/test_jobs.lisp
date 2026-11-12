@@ -43,8 +43,8 @@
 
 (assert-eq "children" 4 (. jobs :size))
 (assert-eq "nothing out" 0 (. jobs :out))
-(assert-list-eq "every job answered, once" (map (# (* 2 %0)) (range 0 40))
-	(jt-run (map (const jt-work) (range 0 40))))
+(assert-list-eq "every job answered, once" (map! (# (* 2 (!))) '() 0 40)
+	(jt-run (map! (# (jt-work (!))) '() 0 40)))
 (assert-eq "none out after" 0 (. jobs :out))
 (assert-list-eq "and again on the same children" '(200 202 204)
 	(jt-run (map (const jt-work) '(100 101 102))))

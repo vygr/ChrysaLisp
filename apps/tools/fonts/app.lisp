@@ -23,8 +23,7 @@
 	(def *window_title* :text (cat "Fonts -> " (path-stem ctf)))
 	(while (defq s (pop ranges) e (pop ranges))
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
-		(each (lambda (row_idx)
-				(defq c (+ s (* row_idx grid_width)))
+		(each! (lambda () (defq row_idx (!)) (defq c (+ s (* row_idx grid_width)))
 				(unless (find c drawn_rows)
 					(push drawn_rows c)
 					(setq grid_height (inc grid_height))
@@ -34,14 +33,12 @@
 						:text (num-to-hex-str c))
 					(view-variant l :font :font_small_terminal)
 					(. symbol_grid :add_child l)
-					(each (lambda (char_code)
-							(def (. (defq l (Button)) :connect +event_copy)
+					(each! (lambda () (def (. (defq l (Button)) :connect +event_copy)
 								:border 1
 								:flow_flags +flow_flag_align_hcenter
-								:text (num-to-utf8 char_code)
-								:tip_text (num-to-hex-str char_code))
-							(. symbol_grid :add_child l))
-						(range c (+ c grid_width))))) (range 0 n)))
+								:text (num-to-utf8 (!))
+								:tip_text (num-to-hex-str (!)))
+							(. symbol_grid :add_child l)) '() c (+ c grid_width)))) '() 0 n))
 	(def symbol_grid
 		:grid_width (inc grid_width)
 		:grid_height grid_height

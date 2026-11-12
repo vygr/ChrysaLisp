@@ -49,6 +49,16 @@ list of the one figure, what it is to do and in what order
 a routine, (fnc figure dt), that says :t to go on
 ```
 
+### Emit
+
+```code
+(Emit rate fnc [secs then]) -> comp
+
+(fnc figure) so many times a second, to make sparks, bubbles, bits of
+mail, what it likes. For ever, or for so many seconds. Its rate can be
+changed as it goes, (def comp 'rate rate)
+```
+
 ### FLM-info
 
 ```code
@@ -133,6 +143,16 @@ For ever, or for so many seconds. Its rate can be changed as it goes,
 
 ```code
 (SVG-load stream [scale]) -> :nil | canvas
+```
+
+### Shake
+
+```code
+(Shake key size secs [then]) -> comp
+
+the attribute jolted about what it was, up to size either way, dying
+away over those seconds, then back where it was. A jolt, on a group of
+all there is a camera shake
 ```
 
 ### TGA-info
@@ -7328,12 +7348,29 @@ what is in a folder, as (pii-dirlist) says it, unzipped: each name, and
 its type, "d" a folder, "f" a file
 ```
 
+### name-service
+
+```code
+(name-service name) -> :nil | netid
+
+the Storage service a name of a store is had of, this machine's or a
+member of the other store, (storage-service-of)
+```
+
 ### name-size
 
 ```code
 (name-size name) -> :nil | bytes
 
 how long the thing named is, :nil if there is none, or it is a folder
+```
+
+### name-store-top
+
+```code
+(name-store-top name) -> :nil | top
+
+the top of the store a name is of, store: or store://who/
 ```
 
 ### name-stream
@@ -7938,17 +7975,40 @@ the box round all of its lines
 a new one, the middle of its box at 0 0
 ```
 
+### outline-dashes
+
+```code
+(outline-dashes p closed on off phase) -> (path ...)
+
+the dashes of a line, on long and off apart, the first of them begun
+phase along the pattern. A phase that grows marches them along it.
+With no gap it is the one line, a stroke with no dash
+```
+
 ### outline-flat
 
 ```code
-(outline-flat outline fill stroke radius join cap1 cap2 [trim]) -> (fills strokes box)
+(outline-flat outline fill stroke radius join cap1 cap2 [trim dash]) -> (fills strokes box)
 
 the polygons an outline is drawn with, and the box they are all in,
 :nil if there are none. Its closed lines are filled if fill is not 0,
 and all of them stroked radius either side if stroke is not 0, a line
 whose points are all the one point as a dot. trim, under 1.0, is how
 much of each line is stroked, from its start. A stroke too short to
-have a width, the first hair of a line being drawn, is left out
+have a width, the first hair of a line being drawn, is left out. dash,
+(on off phase), strokes each line as dashes, (outline-dashes)
+```
+
+### outline-mono
+
+```code
+(outline-mono text font_name size) -> outline
+
+the letters in cells of the one width, as a vdu has them: 9/16 of the
+height of the font, each in the middle of its cell, the left of the
+first cell at 0 and the line they sit on at their foot. A font keeps
+its glyphs by their ink, so code in a monospaced one lines up in
+columns only so. A space is a cell with nothing in it
 ```
 
 ### outline-svg
@@ -8141,6 +8201,20 @@ distance to go, it is a line
 (path-gen-rect x y x1 y1 rx ry dst) -> dst
 ```
 
+### path-glow
+
+```code
+(path-glow paths radii join) -> (paths ...)
+
+the halos round a shape, its closed paths stroked round each radius
+with that join, +join_round for a soft one, one set of polygons for
+each. A halo laps over
+itself wherever the shape is thinner than it is wide, and where two
+parts are close, so it is filled by the none zero rule: odd even would
+leave holes there. Drawn the widest first, each in a colour that is
+seen through, they glow
+```
+
 ### path-name
 
 ```code
@@ -8254,6 +8328,10 @@ nothing for retry_timeout, not when it is slow
 
 ```code
 (pipe-run cmdline [outfun])
+
+what the commands say is had, nothing is given them: their stdin
+ends at once, so one that reads it, lisp after its files, goes on
+to its end rather than waiting for ever on what will never come
 ```
 
 ### pipe-split
@@ -8992,12 +9070,6 @@ links they name go with them. A list of those still to look at, this
 does not call itself
 ```
 
-### range
-
-```code
-(range start end [step]) -> list
-```
-
 ### read-source
 
 ```code
@@ -9240,12 +9312,41 @@ exFAT's entries and its boot sectors, FAT32's long names
 a colour with its alpha times that
 ```
 
+### rostrum-figure
+
+```code
+(rostrum-figure canvas node m alpha cx cy focus view glow)
+
+one figure drawn by a matrix to space and an alpha: its halo if glow,
+the widest first, its fill, then its stroke. A colour with no alpha is
+there to be met, not seen
+```
+
+### rostrum-fill
+
+```code
+(rostrum-fill canvas col col2 rule polys)
+
+polygons of the picture filled in a colour, or if there is a second
+going from the one at the top to the other at the bottom, in bands of
+rows that the canvas is clipped to in turn
+```
+
 ### rostrum-fire
 
 ```code
 (rostrum-fire this other what)
 
 what a figure is to do, if it looks out for the other and is not going
+```
+
+### rostrum-kind
+
+```code
+(rostrum-kind x) -> :env | :fmap | :list | :nil
+
+what a copy of a scene makes anew: figures, components and the like,
+maps, and lists that are not code. The rest it shares
 ```
 
 ### rostrum-mover
@@ -9261,7 +9362,8 @@ the polygons of one the sweep has come to, worked out the first time
 ```code
 (rostrum-pair a b) -> num
 
-the one number of two figures, which ever way round
+the one number of two figures, which ever way round, by the order the
+rostrum first came to them in, the same each time a scene is run
 ```
 
 ### rostrum-paths
@@ -11994,7 +12096,11 @@ what a path is said to be now, as it is sent: ? not said, - none
 ```code
 (storage-get path [svc]) -> :nil | data
 
-all of an object. :nil if there is none, or a block of it can not be had
+all of an object. :nil if there is none, or a block of it can not be
+had. Its blocks are asked for so many at once, (storage-gets), and
+written into it as they come, its length known from its manifest:
+between machines it is the going and coming that takes the time, and
+a block at a time was a quarter of what the link could carry
 ```
 
 ### storage-get-file
@@ -12167,14 +12273,24 @@ others, from now on
 the manifest of that name, its top had now, :nil if it can not be
 ```
 
+### storage-pages-ask
+
+```code
+(storage-pages-ask svc names) -> (:asked mbox)
+
+which of a chunk's blocks the service has, asked and not waited for:
+a chunk is a manifest block's worth of names, so one ask
+```
+
 ### storage-pages-chunk
 
 ```code
 (storage-pages-chunk pages chunk) -> :nil | (chunk names has)
 
 the names of the blocks of a chunk, +store_manifest_names of them from
-chunk times that, and which the service has. A child of a block of the
-manifest of height h is over the names of 1000^(h - 1) chunks
+chunk times that, and which the service has, asked and not waited
+for, (storage-pages-has?). A child of a block of the manifest of
+height h is over the names of 1000^(h - 1) chunks
 ```
 
 ### storage-pages-has?
@@ -12182,7 +12298,10 @@ manifest of height h is over the names of 1000^(h - 1) chunks
 ```code
 (storage-pages-has? pages at) -> :t | :nil
 
-the service has block at
+the service has block at, as far as is known: till it has said which
+of the chunk it has, it is taken to, and a block it has not got is had
+from another member when it does not come, (storage-block-retry). A
+seek does not wait for the answer before its first block is asked for
 ```
 
 ### storage-pages-keep
@@ -12485,6 +12604,16 @@ of several services, and be on their way together
 the Storage service of this system, or one of another name, a test's
 ```
 
+### storage-service-of
+
+```code
+(storage-service-of who [name group]) -> :nil | netid
+
+the Storage service of a store by its id, or of a machine by the start
+of its system id, as mesh lists it: what is in it looked at, put or
+got, as a client, this machine no member of it if it is another's
+```
+
 ### storage-service-on
 
 ```code
@@ -12610,6 +12739,18 @@ the service puts what it has on the volume and goes
 each store kept on this node puts what it has on its volume and goes,
 (storage-stop), those of the *Storage group: a node that is to end
 ends with no volume part written
+```
+
+### storage-stores
+
+```code
+(storage-stores [name group]) -> ((id svc member) ...)
+
+each store of the mesh, by one member of it that is up, as the group
+says who is there, this machine's first if it has one, its member :nil:
+the members of a store have the one tree. The group's name, the
+service, its machine, and the store and member. A name and group of
+their own are a test's
 ```
 
 ### storage-stream
@@ -13442,18 +13583,53 @@ the blocks of what is pinned that are not kept here yet, in hex.
 None, and what is pinned is all here: the machine can be taken away
 ```
 
-### store-plan
+### store-plan-adds
 
 ```code
-(store-plan store among) -> plan
+(store-plan-adds store paths)
 
-what this member is to keep among those members, as it is now
+these paths are to be added to each plan there is, when there is
+time, (store-plan-step). One walked already is walked again
+```
+
+### store-plan-begin
+
+```code
+(store-plan-begin store among)
+
+a plan made anew, of every path as it is now, a walk at a time,
+(store-plan-step). What is added meanwhile goes in it too
+```
+
+### store-plan-block
+
+```code
+a block of an object: this member's to keep, or if not, others' with
+
+who they are, and if it is here it is theirs to have. One of another
+object too may have more keepers, or be mine for that one
+```
+
+### store-plan-busy?
+
+```code
+(store-plan-busy? store) -> :nil | :t
+
+there is more to add to a plan, or one is being made
 ```
 
 ### store-plan-dropped
 
 ```code
 a block that is no longer kept
+```
+
+### store-plan-forget
+
+```code
+(store-plan-forget store)
+
+what a member is to keep is to be worked out again
 ```
 
 ### store-plan-held
@@ -13465,9 +13641,48 @@ a block that is kept now
 ### store-plan-object
 
 ```code
-the object of a path, into what is wanted and what is others'. If
+(store-plan-object store plan path entry) -> :nil | object
 
-its manifest is not here, what it is made of is known when it comes
+the manifest of a path's object, every block of it wanted, a big
+one's are a tree of them, and the object if it is all here: its blocks
+are each to be placed, (store-plan-block). If it is not all here,
+what the object is made of is known when the rest of it comes
+```
+
+### store-plan-step
+
+```code
+(store-plan-step store [until]) -> :nil | :t
+
+more of the plans worked on, till it is time until if there is one:
+what is to be added to them first, then a plan being made anew,
+which when it is made is the plan. :t if there is more to do
+```
+
+### store-plan-walk
+
+```code
+(store-plan-walk store walk plans [until]) -> :nil | :t
+
+the paths of a walk into each of those plans, so many blocks at a
+time, till it is time until, if there is one. :t when it has been
+through them all. A path is as it is in the map when it is come to
+```
+
+### store-plan-want
+
+```code
+a block this member is to keep: wanted, not another's, and missing
+
+if it is not here
+```
+
+### store-plans
+
+```code
+(store-plans store) -> (plan ...)
+
+the plan there is, and the one being made, if they are
 ```
 
 ### store-put
@@ -13587,11 +13802,29 @@ path is pinned. How many keepers a block has is its object's to say,
 the one that asks for more. A block that no object is made of is
 neither, that is for (store-sweep)
 
-What it is to keep is worked out the once, (store-plan), and kept
-till the path map, the pins or who is there change. What it wants
-and what is others' are kept as blocks come and go: a tender asks
-this many times a look, and to work it out each time was a walk of
-every block of every object
+What it is to keep is worked out the once, a plan, and kept up to
+date: a path set adds its object to it, and what it wants and what
+is others' are kept as blocks come and go. A tender asks this many
+times a look, and to work it out each time was a walk of every block
+of every object. Made anew only when the pins or who is there change,
+or something was deleted or replaced, and this is the plan as it
+would be made now, (store-share-now)
+```
+
+### store-share-now
+
+```code
+(store-share-now store among [until]) -> :nil | (wants extras)
+
+this member's share, as (store-share), with no more time taken at
+the plan than till it is time until, if there is one, the rest of it
+done later, (store-plan-step). :nil if there is no plan yet for these
+members, and none of what is others' while what was set is still to
+be added: a block of it may be mine now.
+
+A plan with more in it than there need be, a path deleted, is used as
+it is while it is made anew: what it says is mine is mine or was, and
+what it says is others' is theirs
 ```
 
 ### store-since
@@ -13745,6 +13978,12 @@ not kept here. A block there is not, past the end, is the end.
 This is how a search is sent to the data: what it has is small, and
 with the function is all there is of it, so it can be carried on by
 whoever has the next block
+```
+
+### store-walk-new
+
+```code
+(store-walk-new paths) -> walk
 ```
 
 ### store-wanted

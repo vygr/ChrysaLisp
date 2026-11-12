@@ -37,21 +37,15 @@
 	;map of the standard: 3 is a generator, so its powers and their
 	;logarithms give each inverse
 	(defq exp (nums) lg (cap 256 (nums)) x 1)
-	(each (lambda (&) (push lg 0)) (range 0 256))
-	(each (lambda (i)
-			(push exp x)
-			(elem-set lg x i)
-			(setq x (logxor x (aes-xtime x))))
-		(range 0 255))
-	(apply (const cat) (map (lambda (b)
-				(defq inv (if (= b 0) 0 (elem-get exp (% (- 255 (elem-get lg b)) 255)))
+	(each! (lambda () (push lg 0)) '() 0 256)
+	(each! (lambda () (push exp x)
+			(elem-set lg x (!))
+			(setq x (logxor x (aes-xtime x)))) '() 0 255)
+	(apply (const cat) (map! (lambda () (defq b (!)) (defq inv (if (= b 0) 0 (elem-get exp (% (- 255 (elem-get lg b)) 255)))
 					out inv)
-				(each (lambda (k)
-						(setq inv (logand (logior (<< inv 1) (>> inv 7)) 0xff)
-							out (logxor out inv)))
-					(range 0 4))
-				(char (logxor out 0x63)))
-			(range 0 256))))
+				(each! (lambda () (setq inv (logand (logior (<< inv 1) (>> inv 7)) 0xff)
+							out (logxor out inv))) '() 0 4)
+				(char (logxor out 0x63))) '() 0 256)))
 
 ;the box, a str of 256 bytes
 (defq +aes_box (aes-sbox))
@@ -62,18 +56,14 @@
 	;itself, as the native code wants them. A byte of row r of a column
 	;goes to the four rows as the column mixing has it
 	(defq out (list))
-	(each (lambda (rot)
-			(each (lambda (b)
-					(defq s (code +aes_box 1 b) s2 (aes-xtime s) s3 (logxor s2 s)
+	(each! (lambda () (defq rot (!)) (each! (lambda () (defq s (code +aes_box 1 (!)) s2 (aes-xtime s) s3 (logxor s2 s)
 						w (list s2 s s s3))
 					;the row it is in turns the four round
 					(push out (char (logior
 								(elem-get w (% (- 4 rot) 4))
 								(<< (elem-get w (% (- 5 rot) 4)) 8)
 								(<< (elem-get w (% (- 6 rot) 4)) 16)
-								(<< (elem-get w (% (- 7 rot) 4)) 24)) 4)))
-				(range 0 256)))
-		(range 0 4))
+								(<< (elem-get w (% (- 7 rot) 4)) 24)) 4))) '() 0 256)) '() 0 4)
 	(push out +aes_box)
 	(apply (const cat) out))
 
@@ -96,9 +86,8 @@
 	; (aes-key key) -> keys
 	;the round keys, 4 numbers of 32 bits a round, as a str
 	(defq nk (/ (length key) 4) rounds (+ nk 6) w (list) rcon 1)
-	(each (# (push w (aes-word key (* %0 4)))) (range 0 nk))
-	(each (lambda (i)
-			(defq tw (elem-get w (dec i)))
+	(each! (# (push w (aes-word key (* (!) 4)))) '() 0 nk)
+	(each! (lambda () (defq i (!)) (defq tw (elem-get w (dec i)))
 			(cond
 				((= (% i nk) 0)
 					;turned a byte, each through the box, and the round's constant
@@ -106,8 +95,7 @@
 						rcon (aes-xtime rcon)))
 				((and (> nk 6) (= (% i nk) 4))
 					(setq tw (aes-sub tw))))
-			(push w (logxor (elem-get w (- i nk)) tw)))
-		(range nk (* 4 (inc rounds))))
+			(push w (logxor (elem-get w (- i nk)) tw))) '() nk (* 4 (inc rounds)))
 	(apply (const cat) (map (# (char %0 4)) w)))
 
 (defun aes-table (n b)
@@ -116,23 +104,17 @@
 (defun aes-block (keys block)
 	; (aes-block keys block) -> str
 	(defq rounds (dec (/ (length keys) 16))
-		s (map (# (logxor (aes-word block (* %0 4)) (aes-word keys (* %0 4)))) (range 0 4)))
-	(each (lambda (r)
-			(setq s (map (lambda (c)
-						(logxor (aes-table 0 (logand (elem-get s c) 0xff))
-							(aes-table 1 (logand (>> (elem-get s (% (+ c 1) 4)) 8) 0xff))
-							(aes-table 2 (logand (>> (elem-get s (% (+ c 2) 4)) 16) 0xff))
-							(aes-table 3 (logand (>> (elem-get s (% (+ c 3) 4)) 24) 0xff))
-							(aes-word keys (* (+ (* r 4) c) 4))))
-					(range 0 4))))
-		(range 1 rounds))
-	(apply (const cat) (map (lambda (c)
-				(char (logxor (logior (aes-box (logand (elem-get s c) 0xff))
-							(<< (aes-box (logand (>> (elem-get s (% (+ c 1) 4)) 8) 0xff)) 8)
-							(<< (aes-box (logand (>> (elem-get s (% (+ c 2) 4)) 16) 0xff)) 16)
-							(<< (aes-box (logand (>> (elem-get s (% (+ c 3) 4)) 24) 0xff)) 24))
-						(aes-word keys (* (+ (* rounds 4) c) 4))) 4))
-			(range 0 4))))
+		s (map! (# (logxor (aes-word block (* (!) 4)) (aes-word keys (* (!) 4)))) '() 0 4))
+	(each! (lambda () (defq r (!)) (setq s (map! (lambda (e) (logxor (aes-table 0 (logand e 0xff))
+							(aes-table 1 (logand (>> (elem-get s (% (+ (!) 1) 4)) 8) 0xff))
+							(aes-table 2 (logand (>> (elem-get s (% (+ (!) 2) 4)) 16) 0xff))
+							(aes-table 3 (logand (>> (elem-get s (% (+ (!) 3) 4)) 24) 0xff))
+							(aes-word keys (* (+ (* r 4) (!)) 4)))) (list s) 0 4))) '() 1 rounds)
+	(apply (const cat) (map! (lambda (e) (char (logxor (logior (aes-box (logand e 0xff))
+							(<< (aes-box (logand (>> (elem-get s (% (+ (!) 1) 4)) 8) 0xff)) 8)
+							(<< (aes-box (logand (>> (elem-get s (% (+ (!) 2) 4)) 16) 0xff)) 16)
+							(<< (aes-box (logand (>> (elem-get s (% (+ (!) 3) 4)) 24) 0xff)) 24))
+						(aes-word keys (* (+ (* rounds 4) (!)) 4))) 4)) (list s) 0 4)))
 
 (defun aes-count (counter n)
 	; (aes-count counter n) -> str

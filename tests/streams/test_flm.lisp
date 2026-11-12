@@ -22,13 +22,13 @@
 (defun flm-play (reel)
 	;every frame of a reel, in order, as pixels
 	(defq codec (flm-codec reel))
-	(map (# (flm-pixels (flm-decode codec (flm-packet reel %0) %0))) (range 0 (. reel :find :frames))))
+	(map! (# (flm-pixels (flm-decode codec (flm-packet reel (!)) (!)))) '() 0 (. reel :find :frames)))
 
 (each (lambda (format)
 		;six frames pumped in, the film comes out of the stream
 		(defq out (memory-stream) film (flm-open out format 25)
-			want (map (# (flm-pixels (flm-made %0))) (range 0 6)))
-		(each (# (flm-add film (flm-made %0))) (range 0 6))
+			want (map! (# (flm-pixels (flm-made (!)))) '() 0 6))
+		(each! (# (flm-add film (flm-made (!)))) '() 0 6)
 		(assert-eq (cat "frames written, " (str format) " bit") 6 (flm-close film))
 		;a reel of it, a packet a frame and the rate it was made at
 		(defq reel (flm-reel out))
@@ -41,7 +41,7 @@
 			(length (filter (const identity) (map (const eql) (flm-play reel) want))))
 		;round again from the first, as a player that loops does
 		(defq codec (flm-codec reel))
-		(each (# (flm-decode codec (flm-packet reel %0) %0)) (range 0 4))
+		(each! (# (flm-decode codec (flm-packet reel (!)) (!))) '() 0 4)
 		(assert-eq "back to the first, it is the first again" (first want)
 			(flm-pixels (flm-decode codec (flm-packet reel 0) 0)))
 		(assert-true "frames that differ are told apart" (not (eql (first want) (second want))))

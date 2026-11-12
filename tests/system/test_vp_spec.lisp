@@ -35,13 +35,11 @@
 ;less, RISC-V's 4KB, takes its long form, and back: of two the same and
 ;two not, each taken or not as the compare says
 (defq vs_long (vs-native "tests/vp_spec_long" (cat (vs-head "tests/vp_spec_long")
-			(apply (const cat) (map (lambda (op i)
+			(apply (const cat) (map! (lambda (op) (defq i (!))
 						(cat "(vp-b" (slice op 1 -1) "-rr :r3 :r2 'far" (str i) ")" vs_lf "(vp-label 'back" (str i) ")" vs_lf))
-					vs_ops (range 0 6)))
+					(list vs_ops)))
 			"(vp-jmp 'done)" vs_lf "(vp-align 8192)" vs_lf
-			(apply (const cat) (map (lambda (i)
-						(cat "(vp-label 'far" (str i) ")" vs_lf "(vp-or-cr " (str (<< 1 i)) " :r4)" vs_lf "(vp-jmp 'back" (str i) ")" vs_lf))
-					(range 0 6)))
+			(apply (const cat) (map! (lambda () (cat "(vp-label 'far" (str (!)) ")" vs_lf "(vp-or-cr " (str (<< 1 (!))) " :r4)" vs_lf "(vp-jmp 'back" (str (!)) ")" vs_lf)) '() 0 6))
 			"(vp-label 'done)" vs_lf
 			(vs-tail))))
 
@@ -60,10 +58,10 @@
 			"(vp-cvt-rd :r2 :d0)" vs_lf "(vp-cvt-rd :r3 :d1)" vs_lf
 			"(vp-bne-cr 999 :r2 'real)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rd :r5 :d0)" vs_lf
 			"(vp-div-dd :d0 :d0)" vs_lf "(vp-label 'real)" vs_lf
-			(apply (const cat) (map (lambda (op i)
+			(apply (const cat) (map! (lambda (op) (defq i (!))
 						(cat "(vp-b" (slice op 1 -1) "-dd :d1 :d0 'took" (str i) ")" vs_lf "(vp-jmp 'next" (str i) ")" vs_lf
 							"(vp-label 'took" (str i) ")" vs_lf "(vp-or-cr " (str (<< 1 i)) " :r4)" vs_lf "(vp-label 'next" (str i) ")" vs_lf))
-					vs_ops (range 0 6)))
+					(list vs_ops)))
 			(vs-tail))))
 
 (each (lambda ((a b))
@@ -156,10 +154,10 @@
 			"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-load-rcf :r6 100008 :f2)" vs_lf
 			"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-load-rcf :r6 -8 :f3)" vs_lf
 			"(vp-cpy-cr 16 :r7)" vs_lf "(vp-load-rrf :rsp :r7 :f4)" vs_lf
-			(apply (const cat) (map (# (cat "(vp-cvt-fd :f" (str %0) " :d" (str %0) ")" vs_lf)) (range 0 5)))
+			(apply (const cat) (map! (# (cat "(vp-cvt-fd :f" (str (!)) " :d" (str (!)) ")" vs_lf)) '() 0 5))
 			"(vp-cpy-dr :d0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
-			(apply (const cat) (map (# (cat "(vp-cpy-dr :d" (str %0) " :r5)" vs_lf "(vp-beq-rr :r4 :r5 'same" (str %0) ")" vs_lf
-							"(vp-add-cr 1 :r8)" vs_lf "(vp-label 'same" (str %0) ")" vs_lf)) (range 1 5)))
+			(apply (const cat) (map! (# (cat "(vp-cpy-dr :d" (str (!)) " :r5)" vs_lf "(vp-beq-rr :r4 :r5 'same" (str (!)) ")" vs_lf
+							"(vp-add-cr 1 :r8)" vs_lf "(vp-label 'same" (str (!)) ")" vs_lf)) '() 1 5))
 			"(vp-shl-cr 60 :r8)" vs_lf "(vp-xor-rr :r8 :r4)" vs_lf
 			"(vp-free 32)" vs_lf
 			(vs-tail))))
@@ -247,10 +245,10 @@
 			"(vp-cvt-rf :r2 :f0)" vs_lf "(vp-cvt-rf :r3 :f1)" vs_lf
 			"(vp-bne-cr 999 :r2 'real)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rf :r5 :f0)" vs_lf
 			"(vp-div-ff :f0 :f0)" vs_lf "(vp-label 'real)" vs_lf
-			(apply (const cat) (map (lambda (op i)
+			(apply (const cat) (map! (lambda (op) (defq i (!))
 						(cat "(vp-b" (slice op 1 -1) "-ff :f1 :f0 'took" (str i) ")" vs_lf "(vp-jmp 'next" (str i) ")" vs_lf
 							"(vp-label 'took" (str i) ")" vs_lf "(vp-or-cr " (str (<< 1 i)) " :r4)" vs_lf "(vp-label 'next" (str i) ")" vs_lf))
-					vs_ops (range 0 6)))
+					(list vs_ops)))
 			(vs-tail))))
 (each (lambda ((a b))
 		(assert-eq (cat "the single branches of " (str a) " and " (str b))

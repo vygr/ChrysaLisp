@@ -86,15 +86,13 @@
 			st_select (. st_stripes :mboxes))
 		;240 shapes, of every kind, all over it, and no more than three
 		;children, other tests are running
-		(each (lambda (i)
-				(defq x (% (* i 37) 600) y (% (* i 53) 440) col (+ 0xff000000 (% (* i 2654435761) 0xffffff)))
-				(cwb-add st_doc (case (% i 5)
+		(each! (lambda () (defq x (% (* (!) 37) 600) y (% (* (!) 53) 440) col (+ 0xff000000 (% (* (!) 2654435761) 0xffffff)))
+				(cwb-add st_doc (case (% (!) 5)
 						(0 (cwb-shape (cwb-d-rect x y (+ x 40) (+ y 30) 6) :fill col :stroke 0xff000000 :width 2))
 						(1 (cwb-shape (cwb-d-ellipse (+ x 20) (+ y 20) 18 12) :stroke col :width 3))
 						(2 (cwb-shape (cwb-d-line x y (+ x 50) (+ y 35)) :stroke col :width 4 :cap2 :arrow))
 						(3 (cwb-shape (cwb-d-arc (+ x 20) (+ y 20) 16 0.3 4.0 :t) :fill col))
-						(:t (cwb-shape (board-pen-d (list x y (+ x 15) (+ y 25) (+ x 30) y (+ x 45) (+ y 25))) :stroke col :width 3)))))
-			(range 0 240))
+						(:t (cwb-shape (board-pen-d (list x y (+ x 15) (+ y 25) (+ x 30) y (+ x 45) (+ y 25))) :stroke col :width 3))))) '() 0 240)
 		(. st_board :changed :all)
 		(defun st-pump (done)
 			;what comes to the stripes is handled, till done says so or they

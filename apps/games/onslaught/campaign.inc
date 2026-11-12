@@ -336,10 +336,9 @@
 						(* (/ raw_y th) ts) (% raw_y th)))
 				tiles)
 			;map borders
-			(each (# (defq y (+ +campaign_y (* %0 8)))
+			(each! (# (defq y (+ +campaign_y (* (!) 8)))
 					(draw-ascii-string this "_" (const (- +campaign_x 8)) y +argb_magenta zoom tid)
-					(draw-ascii-string this "_" (const (+ +campaign_x 128)) y +argb_magenta zoom tid))
-				(range 0 16)))
+					(draw-ascii-string this "_" (const (+ +campaign_x 128)) y +argb_magenta zoom tid)) '() 0 16))
 		(each (lambda ((txt x y col))
 				(draw-ascii-string this txt x y col zoom tid)) (get :texts this))
 		this))

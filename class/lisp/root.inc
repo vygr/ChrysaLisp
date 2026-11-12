@@ -830,13 +830,6 @@
 	; (times num [body])
 	(static-qq (each! (,'lambda () ~%1) '() 0 ,c)))
 
-(defun range (b e &optional s)
-	; (range start end [step]) -> list
-	(defq s (ifn s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
-	(if (<= b e)
-		(while (< b e) (push l b) (++ b s))
-		(while (> b e) (push l b) (-- b s))) l)
-
 (defun slices (%0)
 	; (slices list) -> ((s0 e0) (s1 e1) ...)
 	(if (empty? %0) (list)
@@ -1523,7 +1516,7 @@
 		i (or (some (# (if (nql %0 %1) (!))) t_parts c_parts)
 			(min (length t_parts) (length c_parts)))
 		current (join (cat
-				(slice (static-q (const (reduce (lambda (%0 &) (push %0 ".")) (range 0 32) '())))
+				(slice (static-q (const (map! (lambda () ".") '() 0 32)))
 					0 (- (length c_parts) i))
 				(slice t_parts i -1)) "/"))
 	(if (> (length current) (length target)) target current))

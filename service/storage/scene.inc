@@ -160,7 +160,7 @@
 (defun scene-bytes (count seed)
 	; (scene-bytes count seed) -> str
 	;blocks of 4096, no two the same
-	(apply (const cat) (map (# (cat (hex-encode (sha256 (str seed %0))) (pad "" 4032 "."))) (range 0 count))))
+	(apply (const cat) (map! (# (cat (hex-encode (sha256 (str seed (!)))) (pad "" 4032 "."))) '() 0 count)))
 
 (defun scene-keepers (scene path)
 	; (scene-keepers scene path) -> (count ...)
@@ -169,8 +169,7 @@
 		names (ifn (some (# (second (storage-manifest path %0))) svcs) (list))
 		body (apply (const cat) (cat (list "") names))
 		has (map (# (ifn (storage-ask %0 +storage_type_has body) "")) svcs))
-	(map (lambda (at) (length (filter (# (and (< at (length %0)) (eql (elem-get %0 at) "1"))) has)))
-		(range 0 (length names))))
+	(map! (lambda () (defq at (!)) (length (filter (# (and (< at (length %0)) (eql (elem-get %0 at) "1"))) has))) '() 0 (length names)))
 
 (defun scene-seen? (scene path id seen members)
 	; (scene-seen? scene path id seen members) -> :nil | :t
@@ -181,10 +180,14 @@
 (defun scene-sum (data)
 	; (scene-sum data) -> num
 	;every 64th byte added up, what the gopher of a scene adds
-	(reduce (# (+ %0 (code data 1 %1))) (range 0 (length data) 64) 0))
+	(defq sum 0 at 0)
+	(while (< at (length data)) (setq sum (+ sum (code data 1 at)) at (+ at 64)))
+	sum)
 
 (defq +scene_gopher '(lambda (sum data at count)
-		(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data) 64) sum) (inc at))))
+		(defq byte 0)
+		(while (< byte (length data)) (setq sum (+ sum (code data 1 byte)) byte (+ byte 64)))
+		(list sum (inc at))))
 
 (defun scene-end (scene)
 	; (scene-end scene)

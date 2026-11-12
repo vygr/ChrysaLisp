@@ -143,9 +143,8 @@
 	; (obj-fit obj) -> mat4x4
 	;the matrix that puts the whole of it in a ball of radius 1 about 0
 	(defq positions (. obj :find :positions) fours (reals))
-	(each (# (push fours (elem-get positions (* %0 3)) (elem-get positions (inc (* %0 3)))
-				(elem-get positions (+ (* %0 3) 2)) +real_1))
-		(range 0 (/ (length positions) 3)))
+	(each! (# (push fours (elem-get positions (* (!) 3)) (elem-get positions (inc (* (!) 3)))
+				(elem-get positions (+ (* (!) 3) 2)) +real_1)) '() 0 (/ (length positions) 3))
 	(bind '((cx cy cz) scale) (vector-bounds-sphere fours +vec4_size))
 	(defq scale (if (> scale +real_0) (recip scale) +real_1))
 	(reals

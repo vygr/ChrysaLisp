@@ -52,13 +52,13 @@
 	(path-stroke-polygons clock_face (* scale 0.018) +join_miter (list (first clock_dial)))
 	; 60 minute/second sub-ticks (0..59)
 	(path-stroke-polylines clock_face (* scale 0.005) +join_miter +cap_butt +cap_butt
-		(map (lambda (a) (transform (path 0.0 -0.405 0.0 -0.425) (/ (* (n2f a) +fp_2pi) 60.0) scale)) (range 0 60)))
+		(map! (lambda () (transform (path 0.0 -0.405 0.0 -0.425) (/ (* (n2f (!)) +fp_2pi) 60.0) scale)) '() 0 60))
 	; 12 hour ticks (0..11)
 	(path-stroke-polylines clock_face (* scale 0.012) +join_miter +cap_butt +cap_butt
-		(map (lambda (a) (transform (path 0.0 -0.385 0.0 -0.425) (/ (* (n2f a) +fp_2pi) 12.0) scale)) (range 0 12)))
+		(map! (lambda () (transform (path 0.0 -0.385 0.0 -0.425) (/ (* (n2f (!)) +fp_2pi) 12.0) scale)) '() 0 12))
 	; 4 major cardinal ticks (12, 3, 6, 9)
 	(path-stroke-polylines clock_face (* scale 0.018) +join_miter +cap_butt +cap_butt
-		(map (lambda (a) (transform (path 0.0 -0.370 0.0 -0.425) (/ (* (n2f a) +fp_2pi) 4.0) scale)) (range 0 4)))
+		(map! (lambda () (transform (path 0.0 -0.370 0.0 -0.425) (/ (* (n2f (!)) +fp_2pi) 4.0) scale)) '() 0 4))
 	; 12 dial numeral glyph paths (1..12)
 	(when (get :clock_numerals *env*)
 		(defq font_size (max 10 (n2i (* scale 0.062)))
@@ -67,8 +67,7 @@
 				(create-font "fonts/Hack-Regular.ctf" font_size)))
 		(when font
 			(defq num_r (* scale 0.30))
-			(each (lambda (n)
-					(defq a (/ (* (n2f n) +fp_2pi) 12.0)
+			(each! (lambda () (defq n (!)) (defq a (/ (* (n2f n) +fp_2pi) 12.0)
 						text (str n)
 						nx (+ cx (* num_r (sin a)))
 						ny (- cy (* num_r (cos a))))
@@ -78,8 +77,7 @@
 						mat (fixeds 1.0 0.0 tx 0.0 1.0 ty))
 					(each (lambda (p)
 							(push clock_face (mat3x2-vec2-mul mat p p)))
-						(font-glyph-paths font text)))
-				(range 1 13)))))
+						(font-glyph-paths font text))) '() 1 13))))
 
 (defun view-analog-time (canvas (s m h) scale)
 	; Dial disc and face markings

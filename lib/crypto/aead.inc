@@ -24,7 +24,7 @@
 ; (aead-open-native key nonce sealed) -> :nil | str
 ;with no aad, all of it native code, :sys_crypto, as a link seals
 
-(defq +aead_zeros (apply (const cat) (map (lambda (&) (char 0 8)) (range 0 8))))
+(defq +aead_zeros (apply (const cat) (map! (lambda () (char 0 8)) '() 0 8)))
 
 (defun aead-tag (key nonce aad cipher)
 	;the tag of what was encrypted and what goes with it. The key of the

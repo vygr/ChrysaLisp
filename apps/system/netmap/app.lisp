@@ -133,10 +133,8 @@
 		(machines-heard system)
 		(node-busy node (getf msg +reply_idle) (getf msg +reply_time))
 		(def node :timestamp now :tasks (getf msg +reply_task_count) :system system
-			:links (map (lambda (i)
-					(defq link (slice msg (+ +reply_links (* i +link_size)) (+ +reply_links (* (inc i) +link_size))))
-					(list (getf link +link_peer_node) (getf link +link_sent)))
-				(range 0 (getf msg +reply_num_links))))
+			:links (map! (lambda () (defq link (slice msg (+ +reply_links (* (!) +link_size)) (+ +reply_links (* (inc (!)) +link_size))))
+					(list (getf link +link_peer_node) (getf link +link_sent))) '() 0 (getf msg +reply_num_links)))
 		(push poll_que (get :child node))))
 
 (defun pose-scene ()

@@ -252,7 +252,7 @@ Never write multi-line ladders of `(elem-get seq 0)`, `(elem-get seq 1)` in a `d
 Never use built-in function or primitive names as variable or argument identifiers.
 Symbols such as `sym`, `str`, `num`, `char`, `type`, `list`, `first`, `rest`,
 `last`, `find`, `slice`, `map`, `each`, `eval`, `read`, `print`, `length`,
-`format`, `min`, `max`, `abs`, `sort`, `filter`, `range`, `path`, etc., are
+`format`, `min`, `max`, `abs`, `sort`, `filter`, `path`, etc., are
 core language primitives. Shadowing them breaks lexical/global lookups and
 introduces subtle bugs. Always use descriptive names (e.g. `coin_sym`,
 `item_name`, `val_str`).

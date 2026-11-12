@@ -6,10 +6,10 @@
 	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
 (defun cc-unhex (text)
 	;the bytes of a str of hex
-	(apply (const cat) (map (# (char (str-to-num (cat "0x" (slice text %0 (+ %0 2)))))) (range 0 (length text) 2))))
+	(hex-decode text))
 
 ;the example of RFC 8439, 2.4.2
-(defq cc_key (apply (const cat) (map (const char) (range 0 32)))
+(defq cc_key (apply (const cat) (map! (# (char (!))) '() 0 32))
 	cc_nonce (cc-unhex "000000000000004a00000000")
 	cc_plain "Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it.")
 (assert-eq "RFC 8439, the sunscreen text"
@@ -24,7 +24,7 @@
 	(cc-hex (chacha20 cc_key cc_nonce 1 (cc-unhex "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"))))
 
 ;every length about the edges of a block, the answers by their hashes
-(defq cc_text (apply (const cat) (map (# (char (logand (+ (* %0 11) 5) 0xff))) (range 0 300))))
+(defq cc_text (apply (const cat) (map! (# (char (logand (+ (* (!) 11) 5) 0xff))) '() 0 300)))
 (assert-eq "0 bytes" "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" (cc-hex (sha256 (chacha20 cc_key cc_nonce 7 (slice cc_text 0 0)))))
 (assert-eq "1 bytes" "ffe679bb831c95b67dc17819c63c5090d221aac6f4c7bf530f594ab43d21fa1e" (cc-hex (sha256 (chacha20 cc_key cc_nonce 7 (slice cc_text 0 1)))))
 (assert-eq "2 bytes" "ee98dc6af27a9f1c8cc4aaa2fd05b5f6e7c98f51390253a5263b0d096c3510fe" (cc-hex (sha256 (chacha20 cc_key cc_nonce 7 (slice cc_text 0 2)))))
@@ -42,7 +42,7 @@
 
 ;more than the native code is given at once, and not a whole number of
 ; blocks, so the counter has to carry on right from one part to the next
-(defq cc_big (apply (const cat) (map (# (char (logand (+ (* %0 31) 7) 0xff))) (range 0 200003))))
+(defq cc_big (apply (const cat) (map! (# (char (logand (+ (* (!) 31) 7) 0xff))) '() 0 200003)))
 (defq cc_big_out (chacha20 cc_key cc_nonce 0 cc_big))
 (assert-eq "200,003 bytes" "e4cca1ad6e7627fb786aede51634476e9be9f2670f0347c3a0002b6cb36ded9a" (cc-hex (sha256 cc_big_out)))
 (assert-eq "200,003 bytes, and back" (sha256 cc_big) (sha256 (chacha20 cc_key cc_nonce 0 cc_big_out)))

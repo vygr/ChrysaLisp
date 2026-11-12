@@ -46,7 +46,7 @@
 	(reach (lambda (i)
 			(defq a (elem-get args i) r (elem-get (list :r0 :r1 :r2 :r3) i))
 			(if (num? a) (vp-cpy-cr a r) (unless (eql a r) (vp-cpy-rr a r))))
-		(range 0 (length args)))
+		(map! (const !) '() 0 (length args)))
 	(vp-call label))
 
 (def-func (path-to-absolute "./riscv64"))

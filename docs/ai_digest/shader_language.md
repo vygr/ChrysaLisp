@@ -414,8 +414,8 @@ by `(canvas-attach)`.
 
 ```vdu
 (defq jobs (Jobs +shader_tris_child task_mbox reply_mbox '(64 3 0) :t))
-(. jobs :add (map (# (shader-strip vfile pfile ask_mbox (canvas-key canvas)
-	width height (/ (* %0 height) 3) (/ (* (inc %0) height) 3) :t draws)) (range 0 3)))
+(. jobs :add (map! (# (shader-strip vfile pfile ask_mbox (canvas-key canvas)
+	width height (/ (* (!) height) 3) (/ (* (inc (!)) height) 3) :t draws)) '() 0 3))
 ```
 
 * A job is a strip. It names the two shader files, and lists what is drawn,

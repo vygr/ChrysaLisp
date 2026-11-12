@@ -14,13 +14,13 @@
 	(pixmap-write (getf canvas +canvas_pixmap 0) stream 32)
 	(stream-seek stream 0 0)
 	(defq d (read-blk stream 1000000) off (- (length d) (* 20 20 4)))
-	(list (map (# (logand (get-uint d (+ off (* 4 (+ 200 %0)))) 0xff)) (range 0 20))
-		(map (# (logand (get-uint d (+ off (* 4 (+ (* %0 20) 10)))) 0xff)) (range 0 20))))
+	(list (map! (# (logand (get-uint d (+ off (* 4 (+ 200 (!))))) 0xff)) '() 0 20)
+		(map! (# (logand (get-uint d (+ off (* 4 (+ (* (!) 20) 10)))) 0xff)) '() 0 20)))
 
 (defun fp-run (line)
 	; (fp-run line) -> (first last count)
 	;the first and the last pixel of a line that has anything, and how many do
-	(defq at (filter (# (/= 0 (elem-get line %0))) (range 0 20)))
+	(defq at (reduce! (# (if (/= 0 %1) (push %0 (!)) %0)) (list line) (list) 0 20))
 	(if (empty? at) (list -1 -1 0) (list (first at) (last at) (length at))))
 
 ;a box from 5 to 15 is pixels 5 to 14, each way
@@ -82,7 +82,7 @@
 	(pixmap-write (getf canvas +canvas_pixmap 0) stream 32)
 	(stream-seek stream 0 0)
 	(defq d (read-blk stream 1000000) off (- (length d) (* 140 140 4)))
-	(length (filter (# (/= 0 (logand (get-uint d (+ off (* 4 %0))) 0xff))) (range 0 (* 140 140)))))
+	(length (reduce! (# (if (/= 0 (logand (get-uint d (+ off (* 4 (!)))) 0xff)) (push %0 (!)) %0)) '() (list) 0 (* 140 140))))
 
 (assert-eq "hard edges, a stroke 1.0 wide is a line of pixels one wide" 240 (fp-count 0 1.0))
 (assert-eq "one 2.0 wide is two" 480 (fp-count 0 2.0))
@@ -120,15 +120,12 @@
 
 (defq fp_text "The quick brown fox jumps over the lazy dog, 0123456789 times; (WAVE) %$#@!"
 	fp_bounds (font-glyph-bounds fp_font fp_text) fp_glyphs (font-glyph-paths fp_font fp_text)
-	fp_boxes (map (lambda (_)
-			(defq x (n2f (fp-rnd 380)) y (n2f (fp-rnd 180)) w (n2f (+ 3 (fp-rnd 60))) h (n2f (+ 3 (fp-rnd 60))))
+	fp_boxes (map! (lambda () (defq x (n2f (fp-rnd 380)) y (n2f (fp-rnd 180)) w (n2f (+ 3 (fp-rnd 60))) h (n2f (+ 3 (fp-rnd 60))))
 			(if (= 0 (fp-rnd 2))
 				(path x y (+ x w) y (+ x w) (+ y h) x (+ y h))
-				(path x y x (+ y h) (+ x w) (+ y h) (+ x w) y)))
-		(range 0 300))
+				(path x y x (+ y h) (+ x w) (+ y h) (+ x w) y))) '() 0 300)
 	fp_lines (path-stroke-polylines (list) 1.5 +join_bevel +cap_butt +cap_butt
-		(map (lambda (_) (path (n2f (fp-rnd 400)) (n2f (fp-rnd 200)) (n2f (fp-rnd 400)) (n2f (fp-rnd 200))))
-			(range 0 120))))
+		(map! (lambda () (path (n2f (fp-rnd 400)) (n2f (fp-rnd 200)) (n2f (fp-rnd 400)) (n2f (fp-rnd 200)))) '() 0 120)))
 
 (each (lambda (flags)
 		(each (lambda (mode)
@@ -152,7 +149,7 @@
 ;a line of 2,000 characters, 3,000 paths and 120,000 points, was 8 seconds on
 ;the fastest of the machines and is a few hundredths. Twice as long was four
 ;times as much. It is filled here, its time is in tests/bench/bench_fill.lisp
-(defq fp_long (apply (const cat) (map (# (str (% %0 10) "abcdef7")) (range 0 250)))
+(defq fp_long (apply (const cat) (map! (# (str (% (!) 10) "abcdef7")) '() 0 250))
 	fp_bounds (font-glyph-bounds fp_font fp_long) fp_glyphs (font-glyph-paths fp_font fp_long)
 	fp_canvas (Canvas (first fp_bounds) (second fp_bounds) 2))
 (. fp_canvas :set_canvas_flags +canvas_flag_antialias)

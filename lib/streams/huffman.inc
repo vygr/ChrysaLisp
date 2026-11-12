@@ -41,7 +41,7 @@
 	; (huffman-lengths freqs limit) -> lengths
 	;freqs a nums of how often each symbol is, lengths a nums of the same
 	;length, none more than limit, which must be enough for the symbols
-	(defq used (filter (# (> (elem-get freqs %0) 0)) (range 0 (length freqs)))
+	(defq used (reduce! (# (if (> %1 0) (push %0 (!)) %0)) (list freqs) (list))
 		lengths (fill (nums) (length freqs) 0) n (length used))
 	(cond
 		((= n 0))
@@ -72,8 +72,7 @@
 			;K.3 does it: two of the longest are made one shorter, and one
 			;shorter one made two of one longer
 			(defq counts (fill (nums) (inc (max limit n)) 0))
-			(each (# (defq d (elem-get depth %0)) (elem-set counts d (inc (elem-get counts d))) (setq most (max most d)))
-				(range 0 n))
+			(each! (# (defq d %0) (elem-set counts d (inc (elem-get counts d))) (setq most (max most d))) (list depth) 0 n)
 			(setq i most)
 			(while (> i limit)
 				(while (> (elem-get counts i) 0)
@@ -102,7 +101,7 @@
 		counts (fill (nums) (inc most) 0)
 		next (fill (nums) (inc most) 0) code 0)
 	(each (# (if (> %0 0) (elem-set counts %0 (inc (elem-get counts %0))))) lengths)
-	(each (# (setq code (<< (+ code (elem-get counts (dec %0))) 1)) (elem-set next %0 code)) (range 1 (inc most)))
+	(each! (# (setq code (<< (+ code (elem-get counts (dec (!)))) 1)) (elem-set next (!) code)) '() 1 (inc most))
 	(map (lambda (len)
 			(cond
 				((= len 0) 0)
@@ -123,7 +122,7 @@
 	(each (# (elem-set counts %0 (inc (elem-get counts %0)))) lengths)
 	(elem-set counts 0 0)
 	;where the codes of each length begin, after those shorter
-	(each (# (elem-set offsets (inc %0) (+ (elem-get offsets %0) (elem-get counts %0)))) (range 1 most))
+	(each! (# (elem-set offsets (inc (!)) (+ %0 %1))) (list offsets counts) 1 most)
 	(each (lambda (len)
 			(when (> len 0)
 				(elem-set symbols (elem-get offsets len) (!))
@@ -134,7 +133,7 @@
 ;the lengths of a code as it is stored: how many symbols have a code, and
 ;each of them, and its length, in 5 bits
 (defun huffman-write-lengths (out bits lengths symbol_bits)
-	(defq used (filter (# (> (elem-get lengths %0) 0)) (range 0 (length lengths))))
+	(defq used (reduce! (# (if (> %1 0) (push %0 (!)) %0)) (list lengths) (list)))
 	(write-bits out bits (length used) (inc symbol_bits))
 	(each (# (write-bits out bits %0 symbol_bits) (write-bits out bits (elem-get lengths %0) 5)) used))
 

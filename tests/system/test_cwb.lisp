@@ -768,9 +768,9 @@
 (assert-list-eq "an arc of a quarter turn is one A, of half a turn two, of nearly all the way round three" '(1 2 3)
 	(map (# (length (filter (# (eql %0 "A")) (split (cwb-d-arc 0 0 100 0.5 (+ 0.5 %0)) " ")))) (list 1.5708 3.14159 6.2)))
 (assert-true "an arc all but a five hundredth of a turn round, its ends a third of a pixel apart, is on its circle to a twentieth of a pixel"
-	(< (reduce (# (max %0 (rb-arc-off (* (n2f %1) 0.0731) (- +fp_2pi 0.002)))) (range 0 40) 0.0) 0.05))
+	(< (reduce! (# (max %0 (rb-arc-off (* (n2f (!)) 0.0731) (- +fp_2pi 0.002)))) '() 0.0 0 40) 0.05))
 (assert-true "and so is one of half a turn, and of a little more"
-	(< (reduce (# (max %0 (rb-arc-off (* (n2f %1) 0.0731) 3.14159) (rb-arc-off (* (n2f %1) 0.0731) 3.2832))) (range 0 40) 0.0) 0.05))
+	(< (reduce! (# (max %0 (rb-arc-off (* (n2f (!)) 0.0731) 3.14159) (rb-arc-off (* (n2f (!)) 0.0731) 3.2832))) '() 0.0 0 40) 0.05))
 (assert-true "a slice of pie is its two lines and those arcs"
 	(progn (defq rb_pie (cwb-d-arc 400 300 180 0 4.0 :t)) (and (starts-with "M 400 300 L 580 300 A" rb_pie) (ends-with "Z" rb_pie))))
 
@@ -974,7 +974,7 @@
 ;many at once. A board of hundreds of things, hundreds of them selected:
 ;what is asked of each is asked of a set, and many are taken out in a pass
 (defq cm_doc (cwb-doc 800 600) cm_board (Board cm_doc))
-(each (# (cwb-add cm_doc (cwb-shape (cwb-d-rect (* %0 2) 10 (+ (* %0 2) 1) 20)))) (range 0 300))
+(each! (# (cwb-add cm_doc (cwb-shape (cwb-d-rect (* (!) 2) 10 (+ (* (!) 2) 1) 20)))) '() 0 300)
 (defq cm_all (map (# (elem-get %0 +cwb_id)) (cwb-items cm_doc)) cm_some (slice cm_all 100 250))
 (assert-list-eq "a few ids are asked of as the list they are, many as a set, and a set is left a set"
 	'(:nil :t :t) (map (# (if (Fset? %0) :t)) (list (cwb-id-set (slice cm_all 0 5)) (cwb-id-set cm_some) (cwb-id-set (cwb-id-set cm_some)))))
@@ -1006,7 +1006,7 @@
 	(stream-seek stream 0 0)
 	(bind '(w h) (. canvas :pref_size))
 	(defq d (read-blk stream 10000000) at (+ (- (length d) (* w h 4)) (* 4 (* y w))))
-	(length (filter (# (/= (get-uint d (+ at (* 4 %0))) 0)) (range x x1))))
+	(reduce! (# (if (/= (get-uint d (+ at (* 4 (!)))) 0) (inc %0) %0)) '() 0 x x1))
 (defq cm_canvas (Canvas 800 600 1))
 (. cm_canvas :fill 0)
 (. cm_board :draw_overlay cm_canvas :nil :t)

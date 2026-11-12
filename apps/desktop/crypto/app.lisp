@@ -77,13 +77,11 @@
 				n_pts (length flt_pts)
 				step_x (/ chart_w (n2f (- n_pts 1)))
 				raw_path (path))
-			(each (#
-					(defq val (elem-get flt_pts %0)
+			(each! (# (defq val %0
 						norm_y (/ (- val min_val) val_range)
-						px (+ margin_x (* (n2f %0) step_x))
+						px (+ margin_x (* (n2f (!)) step_x))
 						py (- (- h margin_y) (* norm_y chart_h)))
-					(push raw_path px py))
-				(range 0 n_pts))
+					(push raw_path px py)) (list flt_pts) 0 n_pts)
 			; Smooth curve through points
 			(defq smooth_line (path-smooth raw_path)
 				is_positive (not (starts-with "-" change_str))
@@ -186,13 +184,11 @@
 		(defq btns (list
 				*btn_coin_0* *btn_coin_1* *btn_coin_2*
 				*btn_coin_3* *btn_coin_4* *btn_coin_5*))
-		(each (#
-				(when (< %0 (length *coins_data*))
-					(defq c (elem-get *coins_data* %0)
+		(each! (# (when (< (!) (length *coins_data*))
+					(defq c %0
 						csym (elem-get c 0)
 						cprice (elem-get c 2))
-					(. (elem-get btns %0) :set_text (cat csym " " (format-price cprice)))))
-			(range 0 (min 6 (length *coins_data*))))
+					(. %1 :set_text (cat csym " " (format-price cprice))))) (list *coins_data* btns) 0 (min 6 (length *coins_data*)))
 		(. *status_label* :set_text (cat "Tracking " (str (length *coins_data*)) " assets"))))
 
 (defun trigger-fetch (worker_mbox trash_mbox)

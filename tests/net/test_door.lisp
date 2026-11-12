@@ -131,7 +131,7 @@
 			(door-recv h 1 (+ (pii-time) (task-timeout 600))) :nil)))
 (assert-list-eq "not sealed, the dialler said not" '("yes" "yes")
 	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil (task-timeout 600))))
-(assert-eq "so neither end has keys, two of 32 bytes of nothing" (cat "yesU" (hex-encode (apply (const cat) (map (lambda (_) (char 0 8)) (range 0 8)))))
+(assert-eq "so neither end has keys, two of 32 bytes of nothing" (cat "yesU" (hex-encode (apply (const cat) (map! (lambda () (char 0 8)) '() 0 8))))
 	(first dr_said))
 (assert-list-eq "sealed, the dialler said so" '("yes" "yes")
 	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :t (task-timeout 600))))

@@ -124,9 +124,8 @@
 
 (defun sv-load (type offset)
 	(if (sh-float? type)
-		(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
-				(sv-emit 'vp-load-rcd base at (defq r (sv-getf))) r)
-			(range 0 (ifn (shader-dim type) 1)))
+		(map! (# (bind '(base at) (sv-at (+ offset (* (!) 8))))
+				(sv-emit 'vp-load-rcd base at (defq r (sv-getf))) r) '() 0 (ifn (shader-dim type) 1))
 		(sv-emit 'vp-load-rcr :r13 offset (defq r (sv-getr))) (list r)))
 
 (defun sv-store (regs type offset)
@@ -138,8 +137,8 @@
 (defun sv-mat-copy (from to)
 	;a matrix from one place in the frame to another
 	(defq r (sv-getf))
-	(each (# (sv-ld (+ from (* %0 8)) r)
-			(sv-st r (+ to (* %0 8)))) (range 0 16))
+	(each! (# (sv-ld (+ from (* (!) 8)) r)
+			(sv-st r (+ to (* (!) 8)))) '() 0 16)
 	(sv-put r))
 
 (defun sv-mat (node &optional into)
@@ -175,14 +174,12 @@
 					;side, so that none waits on another. Each is a number
 					;of the row of the one times a row of the other, added
 					;up in the same order as ever
-					(each (lambda (row)
-							(each (lambda (k)
-									(sv-ld (+ at (* (+ (* row 4) k) 8)) scale)
+					(each! (lambda () (defq row (!)) (each! (lambda () (defq k (!)) (sv-ld (+ at (* (+ (* row 4) k) 8)) scale)
 									(defq into_regs (if (= k 0) sums terms))
 									(each (# (sv-ld (+ with (* (+ (* k 4) (!)) 8)) %0)) into_regs)
 									(each (# (sv-emit 'vp-mul-dd scale %0)) into_regs)
-									(if (/= k 0) (each (# (sv-emit 'vp-add-dd %0 %1)) terms sums))) (range 0 4))
-							(each (# (sv-st %0 (+ out (* (+ (* row 4) (!)) 8)))) sums)) (range 0 4))
+									(if (/= k 0) (each (# (sv-emit 'vp-add-dd %0 %1)) terms sums))) '() 0 4)
+							(each (# (sv-st %0 (+ out (* (+ (* row 4) (!)) 8)))) sums)) '() 0 4)
 					(sv-puts (cat (list scale) sums terms))
 					(push vs out))))
 		steps)
@@ -192,13 +189,11 @@
 	;a matrix times a vector that is in registers, to new registers. A
 	;vec3 is by the 3 by 3 of the matrix
 	(defq n (length regs) x (sv-getf)
-		out (map (lambda (row)
-				(defq acc (sv-getf))
-				(each (lambda (k)
-						(sv-ld (+ at (* (+ (* row 4) k) 8)) (if (= k 0) acc x))
-						(sv-emit 'vp-mul-dd (elem-get regs k) (if (= k 0) acc x))
-						(if (/= k 0) (sv-emit 'vp-add-dd x acc))) (range 0 n))
-				acc) (range 0 n)))
+		out (map! (lambda () (defq row (!)) (defq acc (sv-getf))
+				(each! (lambda (reg) (sv-ld (+ at (* (+ (* row 4) (!)) 8)) (if (= (!) 0) acc x))
+						(sv-emit 'vp-mul-dd reg (if (= (!) 0) acc x))
+						(if (/= (!) 0) (sv-emit 'vp-add-dd x acc))) (list regs) 0 n)
+				acc) '() 0 n))
 	(sv-put x)
 	(sv-puts regs)
 	out)
@@ -326,7 +321,7 @@
 	;where in the frame the picture is said, uv the two registers of the
 	;place, which are used up. The one pixel the place is in. A picture
 	;of no width is none, and is nothing
-	(defq out (map (lambda (&) (sv-getf)) (range 0 4)) k (sv-const +sv_255th)
+	(defq out (map! (lambda () (sv-getf)) '() 0 4) k (sv-const +sv_255th)
 		l_none (sv-new-label) l_end (sv-new-label) rw (sv-getr))
 	(sv-emit 'vp-load-rcr :r13 (+ at 8) rw)
 	(sv-emit 'vp-beq-cr 0 rw (sv-q l_none))
@@ -846,7 +841,7 @@
 	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-varyings program))
 	(defq vary_slots (/ (- frame_size vary_at) 8)
 		*sv_maps* (list (list attr_at vary_at :r11 0) (list vary_at frame_size :r10 32)))
-	(bind '(s_n) (map (lambda (&) (sv-slots :int)) (range 0 1)))
+	(bind '(s_n) (map! (lambda () (sv-slots :int)) '() 0 1))
 	(bind '(& ret) (sv-program program "v"))
 	(defq lf "\n" text (cat
 			{(include "lib/asm/func.inc")
@@ -907,8 +902,8 @@
 	;its varyings start as 0, main reads its attrs and writes where it is
 	;and its varyings, all where they are
 	(vp-xor-rr :r3 :r3)
-	(each (lambda (i)
-		(vp-store-rrc :r3 :r10 (+ 32 (* i 8)))) (range 0 } (str vary_slots) {))
+	(each! (lambda ()
+		(vp-store-rrc :r3 :r10 (+ 32 (* (!) 8)))) '() 0 } (str vary_slots) {)
 	(vp-call 'vf_main)
 	(vp-add-cr } (str (* attr_slots 8)) { :r11)
 	(vp-add-cr } (str (+ 32 (* vary_slots 8))) { :r10)
@@ -960,10 +955,9 @@
 		;vertex kd is where the edge from vertex ka, in front of the near
 		;plane, to vertex kb, behind it, crosses the plane
 		(E 'vp-cpy-dd da :d5) (E 'vp-cpy-dd da :d4) (E 'vp-sub-dd db :d4) (E 'vp-div-dd :d4 :d5)
-		(each (lambda (j)
-				(L (T ka j) :d6) (L (T kb j) :d7)
+		(each! (lambda () (L (T ka (!)) :d6) (L (T kb (!)) :d7)
 				(E 'vp-sub-dd :d6 :d7) (E 'vp-mul-dd :d5 :d7) (E 'vp-add-dd :d6 :d7)
-				(S :d7 (T kd j))) (range 0 tv_n)))
+				(S :d7 (T kd (!)))) '() 0 tv_n))
 	(E 'vp-call (Q 'sh_init))
 	(E 'vp-xor-rr :r2 :r2)
 	(SI :r2 s_pend)
@@ -974,9 +968,8 @@
 	(E 'vp-beq-cr 0 :r2 (Q 'sr_fetch))
 	(E 'vp-xor-rr :r2 :r2)
 	(SI :r2 s_pend)
-	(each (lambda (j)
-			(L (T 2 j) :d6) (S :d6 (T 1 j))
-			(L (T 3 j) :d6) (S :d6 (T 2 j))) (range 0 tv_n))
+	(each! (lambda () (L (T 2 (!)) :d6) (S :d6 (T 1 (!)))
+			(L (T 3 (!)) :d6) (S :d6 (T 2 (!)))) '() 0 tv_n)
 	(E 'vp-jmp (Q 'sr_setup))
 	(E 'vp-label (Q 'sr_fetch))
 	;the next triangle, its three vertices. A triangle is some work done,
@@ -1027,11 +1020,10 @@
 	;the pixel shader reads, so a pixel has them without a sum to find
 	;them, and a triangle that is cut has somewhere to be
 	(each (lambda (r k)
-			(each (lambda (j) (E 'vp-load-rcd r (* j 8) :d6) (S :d6 (T k j))) (range 0 4))
-			(each (lambda (i)
-					(LI (+ s_vary (* i 8)) :r6)
+			(each! (lambda () (E 'vp-load-rcd r (* (!) 8) :d6) (S :d6 (T k (!)))) '() 0 4)
+			(each! (lambda () (LI (+ s_vary (* (!) 8)) :r6)
 					(E 'vp-cpy-rr r :r7) (E 'vp-add-rr :r6 :r7) (E 'vp-load-rcd :r7 0 :d6)
-					(S :d6 (T k (+ 4 i)))) (range 0 vary_slots)))
+					(S :d6 (T k (+ 4 (!))))) '() 0 vary_slots))
 		'(:r3 :r4 :r5) '(0 1 2))
 	(E 'vp-beq-cr 7 :r8 (Q 'sr_setup))
 	(E 'vp-beq-cr 1 :r8 (Q 'sr_clip1))
@@ -1165,13 +1157,12 @@
 	(E 'vp-cpy-dd :d0 :d4) (E 'vp-add-dd :d1 :d4) (E 'vp-add-dd :d2 :d4)
 	(K 1 :d5) (E 'vp-div-dd :d4 :d5)
 	(E 'vp-mul-dd :d5 :d0) (E 'vp-mul-dd :d5 :d1) (E 'vp-mul-dd :d5 :d2)
-	(each (lambda (i)
-			(L (T 0 (+ 4 i)) :d4) (E 'vp-mul-dd :d0 :d4)
-			(L (T 1 (+ 4 i)) :d5) (E 'vp-mul-dd :d1 :d5)
+	(each! (lambda () (L (T 0 (+ 4 (!))) :d4) (E 'vp-mul-dd :d0 :d4)
+			(L (T 1 (+ 4 (!))) :d5) (E 'vp-mul-dd :d1 :d5)
 			(E 'vp-add-dd :d5 :d4)
-			(L (T 2 (+ 4 i)) :d5) (E 'vp-mul-dd :d2 :d5)
+			(L (T 2 (+ 4 (!))) :d5) (E 'vp-mul-dd :d2 :d5)
 			(E 'vp-add-dd :d5 :d4)
-			(S :d4 (+ vary_at (* i 8)))) (range 0 vary_slots))
+			(S :d4 (+ vary_at (* (!) 8)))) '() 0 vary_slots)
 	;the frag coord, the centre of the pixel, y up
 	(K 0.5 :d5)
 	(E 'vp-cvt-rd :r2 :d4) (E 'vp-add-dd :d5 :d4) (S :d4 frag)
@@ -1266,7 +1257,7 @@
 			s_minx s_maxx s_y s_maxy s_x s_zi s_dptr s_work
 			f_iw0 f_iw1 f_iw2 f_z0 f_z1 f_z2 f_row0 f_row1 f_row2 f_e0 f_e1 f_e2
 			f_kx0 f_kx1 f_kx2 f_ky0 f_ky1 f_ky2)
-		(map (lambda (&) (sv-slots :int)) (range 0 43)))
+		(map! (lambda () (sv-slots :int)) '() 0 43))
 	(defq s_vary frame_size)
 	(times vary_slots (sv-slots :int))
 	;four vertices, where each is and its varyings, the three of the
@@ -1350,7 +1341,7 @@
 	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
 	(defq tex_at (sv-tex-slots program))
 	(bind '(s_x0 s_x1 s_x s_y s_y1 s_mode s_height s_out s_skip s_work)
-		(map (lambda (&) (sv-slots :int)) (range 0 10)))
+		(map! (lambda () (sv-slots :int)) '() 0 10))
 	(bind '((frag) ret) (sv-program program "s"))
 	(defq lf "\n" text (cat
 			{(include "lib/asm/func.inc")
@@ -1632,9 +1623,8 @@
 						(reg (cat tab "(vp-load-rcr :r2 +array_begin " (str reg) ")" lf))
 						((> (shader-size ptype) 1)
 							(cat tab "(vp-load-rcr :r2 +array_begin :r2)" lf
-								(join (map (# (cat tab "(vp-load-rcr :r2 " (str (* %0 8)) " :r3)" lf
-												tab "(vp-store-rrc :r3 :r13 " (str (+ offset (* %0 8))) ")" lf))
-										(range 0 (shader-size ptype))) "")))
+								(join (map! (# (cat tab "(vp-load-rcr :r2 " (str (* (!) 8)) " :r3)" lf
+												tab "(vp-store-rrc :r3 :r13 " (str (+ offset (* (!) 8))) ")" lf)) '() 0 (shader-size ptype)) "")))
 						(:t (cat tab "(vp-load-rcr :r2 +num_value :r3)" lf
 								tab "(vp-store-rrc :r3 :r13 " (str offset) ")" lf))))) (cat params '((_ :float))) (cat offsets '(0)))
 		makes (if (> count 1)
@@ -1721,7 +1711,7 @@
 	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
 	(defq bufs_at frame_size)
 	(each (lambda ((name &rest _)) (push vars (list name (sv-slots :int)))) (shader-buffers program))
-	(bind '(s_i s_to s_work) (map (lambda (&) (sv-slots :int)) (range 0 3)))
+	(bind '(s_i s_to s_work) (map! (lambda () (sv-slots :int)) '() 0 3))
 	(bind '((p_i) &ignore) (sv-program program "k"))
 	(defq text (cat
 			{(include "lib/asm/func.inc")
@@ -1862,7 +1852,7 @@
 	(list vertex pixel place fill
 		(apply (const cat) (cat (list (list)) (map (lambda ((name type))
 						(defq o (second (some (# (if (eql (first %0) name) %0)) where)))
-						(map (# (+ o (* %0 8))) (range 0 (shader-size type))))
+						(map! (# (+ o (* (!) 8))) '() 0 (shader-size type)))
 					(shader-varyings pixel))))))
 
 (defun shader-vp-depth (width height)
@@ -2011,5 +2001,7 @@
 	;the pixels of a tile, row by row, each a reals of 4
 	(defq out (str-alloc (* (- x1 x) (- y1 y) 32)))
 	((first native) x y x1 y1 frame out 0 0)
-	(map (# (reals (get-real out %0) (get-real out (+ %0 8))
-				(get-real out (+ %0 16)) (get-real out (+ %0 24)))) (range 0 (length out) 32)))
+	(map! (lambda ()
+			(defq at (<< (!) 5))
+			(reals (get-real out at) (get-real out (+ at 8)) (get-real out (+ at 16)) (get-real out (+ at 24))))
+		'() 0 (* (- x1 x) (- y1 y))))

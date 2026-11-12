@@ -21,8 +21,8 @@
 ;a zip made, and read back by what reads them: a folder, one too small to
 ;pack, one that packs well and one that packs some
 (defq tz_files (list (list "a/" "") (list "a/small.txt" "hi")
-		(list "a/big.txt" (apply (const cat) (map (# (str "line " %0 " of a file that packs well\n")) (range 0 2000))))
-		(list "a/b/some.bin" (apply (const cat) (map (# (char (logand (* %0 7919) 0xff))) (range 0 3000)))))
+		(list "a/big.txt" (apply (const cat) (map! (# (str "line " (!) " of a file that packs well\n")) '() 0 2000)))
+		(list "a/b/some.bin" (apply (const cat) (map! (# (char (logand (* (!) 7919) 0xff))) '() 0 3000))))
 	tz_out (string-stream (cat "")))
 (assert-eq "a zip made of four" 4 (zip-write tz_out tz_files '(30 15 10 18 9 2026 0)))
 (defq tz_made (str tz_out) tz_made_list (zip-list tz_made))

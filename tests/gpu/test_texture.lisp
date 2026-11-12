@@ -18,7 +18,7 @@
 	(+ 0xff000000 (* i 0x060504) (<< (logand i 3) 8)))
 
 (defq tx_canvas (Canvas 8 4 1))
-(each (lambda (i) (.-> tx_canvas (:set_color (tx-color i)) (:plot (% i 8) (/ i 8)))) (range 0 32))
+(each! (lambda () (.-> tx_canvas (:set_color (tx-color (!))) (:plot (% (!) 8) (/ (!) 8)))) '() 0 32)
 (defq tx_pixmap (getf tx_canvas +canvas_pixmap 0)
 	tx_prog (tx-src "(definput resolution :vec2)" "(definput turn :float 1.5)" "(deftexture pic)"
 		"(defun main :vec4 ((frag :vec2))"
@@ -52,10 +52,9 @@
 	tx_got (shader-vp-pixels tx_native (shader-vp-frame tx_prog tx_native tx_vals) 0 0 16 8))
 (assert-eq "a tile of 16 by 8 is shaded" 128 (length tx_ref))
 (assert-true "every pixel of it is one the picture has"
-	(every (lambda (p) (some (lambda (i)
-					(defq c (tx-color i))
+	(every (lambda (p) (some! (lambda () (defq c (tx-color (!)))
 					(eql (str p) (str (reals (/ (n2r (logand (>> c 16) 0xff)) (n2r 255)) (/ (n2r (logand (>> c 8) 0xff)) (n2r 255))
-								(/ (n2r (logand c 0xff)) (n2r 255)) (n2r 1))))) (range 0 32)))
+								(/ (n2r (logand c 0xff)) (n2r 255)) (n2r 1))))) '() :nil 0 32))
 		(list (first tx_ref) (elem-get tx_ref 37) (last tx_ref))))
 (assert-true "it goes round again outside 0 to 1, more than 8 of the 32 pixels are met, and more than once"
 	(< 8 (length (unique (map (const str) tx_ref))) 128))
@@ -83,7 +82,7 @@
 (defq tx_want (third (shader-texture (getf tx_soft +canvas_pixmap 0)))
 	tx_ref (shader-cpu-tris tx_vert tx_pix tx_verts tx_tris 32 32 :nil (list (list 'pic tx_pixmap)) :t))
 (assert-eq "a quad of 24 by 24 is drawn, of a frame of 32" 576
-	(length (filter (# (/= (get-uint tx_want %0) 0)) (range 0 (length tx_want) 4))))
+	(reduce! (# (if (/= (get-uint tx_want (<< (!) 2)) 0) (inc %0) %0)) '() 0 0 (>> (length tx_want) 2)))
 (assert-true "the top left of the quad is the top left of the picture, and the bottom right the bottom right"
 	(and (= (get-uint tx_want (* 4 (+ 4 (* 4 32)))) 0xff000000)
 		(= (get-uint tx_want (* 4 (+ 27 (* 27 32)))) (tx-color 31))))
@@ -104,7 +103,7 @@
 ;SPIR-V, the words of the module
 (defun tx-insts (module)
 	;the instructions, each (opcode operand ...)
-	(defq words (map (# (logand (code module 4 (* %0 4)) 0xffffffff)) (range 0 (/ (length module) 4)))
+	(defq words (map! (# (logand (code module 4 (* (!) 4)) 0xffffffff)) '() 0 (/ (length module) 4))
 		insts (list) i 5)
 	(while (< i (length words))
 		(defq len (max 1 (>> (elem-get words i) 16)))

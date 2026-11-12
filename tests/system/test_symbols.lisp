@@ -50,10 +50,9 @@
 (assert-eq "the first glyph is after the page and its end" (+ 8 4 (* 4 (length *symbols*)) 4) sy_first)
 (assert-eq "and is that of the first code" +sf_base (get-ushort sy_font sy_first))
 (assert-true "every glyph is where its offset says, with its own code"
-	(every (# (= (get-ushort sy_font (get-uint sy_font (+ 12 (* 4 %0)))) (+ +sf_base %0)))
-		(range 0 (length *symbols*))))
+	(some! (# (= (get-ushort sy_font (get-uint sy_font (+ 12 (* 4 (!))))) (+ +sf_base (!)))) '() :t 0 (length *symbols*)))
 (assert-true "and no glyph is empty"
-	(every (# (> (get-uint sy_font (+ (get-uint sy_font (+ 12 (* 4 %0))) 4)) 0)) (range 0 (length *symbols*))))
+	(some! (# (> (get-uint sy_font (+ (get-uint sy_font (+ 12 (* 4 (!)))) 4)) 0)) '() :t 0 (length *symbols*)))
 
 ;what is in the repo is what the system makes now
 (each (lambda ((file radius joint cap))

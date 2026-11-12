@@ -13,7 +13,7 @@
 (defun sp-line (m y)
 	;the 32 bytes of pixel line y of the screen, summed
 	(defq at (logior 0x4000 (<< (logand y 0xc0) 5) (<< (logand y 7) 8) (<< (logand y 0x38) 2)))
-	(reduce (lambda (sum i) (+ sum (zx-peek m (+ at i)))) (range 0 32) 0))
+	(reduce! (lambda (sum) (+ sum (zx-peek m (+ at (!))))) '() 0 0 32))
 
 (defun sp-frames (m tape n &optional script)
 	; (sp-frames machine tape n [script]) -> script
@@ -40,7 +40,7 @@
 (sp-frames sp_m :nil 10)
 (assert-eq "each frame's interrupt counts in FRAMES" 10 (- (zx-peek16 sp_m 0x5c78) sp_frames))
 (assert-true "the screen is clear but for its last line"
-	(every (# (= 0 (sp-line sp_m %0))) (range 0 184)))
+	(some! (# (= 0 (sp-line sp_m (!)))) '() :t 0 184))
 (assert-true "and that has the words of who made it" (> (sp-line sp_m 188) 0))
 
 ;a game, LOAD "" typed in, the ROM's loader trapped and its blocks put

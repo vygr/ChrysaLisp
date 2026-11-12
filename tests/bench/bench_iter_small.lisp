@@ -1,7 +1,7 @@
 ;a time round each iterator over lists that stay in the cache, a thousand
 ;numbers gone over a thousand times. Set beside bench_iter it says what
 ;of a time is the work and what is waiting for memory
-(defq bs_n 1000 bs_reps 1000 bs_per (* bs_n bs_reps) bs_l (map (# %0) (range 0 bs_n))
+(defq bs_n 1000 bs_reps 1000 bs_per (* bs_n bs_reps) bs_l (map! (# (!)) '() 0 bs_n)
 	bs_s1 (list bs_l) bs_s2 (list bs_l (map (# (inc %0)) bs_l)))
 
 (bench "each! progn, 1 seq" bs_per (times bs_reps (each! (const progn) bs_s1)))

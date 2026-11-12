@@ -35,9 +35,7 @@
 	(gcm-open tg_k4 tg_iv tg_aad (cat (char (logxor (code tg_s4) 1)) (slice tg_s4 1 -1))))
 (assert-eq "nor too short to have a tag" :nil (gcm-open tg_k4 tg_iv tg_aad "short"))
 ;sizes about the edges of the blocks, with and without aad
-(defq tg_text (apply (const cat) (map (# (char (logand (+ (* %0 17) 1) 0xff))) (range 0 70))))
+(defq tg_text (apply (const cat) (map! (# (char (logand (+ (* (!) 17) 1) 0xff))) '() 0 70)))
 (assert-true "each size, sealed and opened, 0 to 69, aad or none"
-	(every (lambda (n)
-			(defq data (slice tg_text 0 n) aad (slice tg_text 0 (% n 23)))
-			(eql data (gcm-open tg_k4 tg_iv aad (gcm-seal tg_k4 tg_iv aad data))))
-		(range 0 70)))
+	(some! (lambda () (defq data (slice tg_text 0 (!)) aad (slice tg_text 0 (% (!) 23)))
+			(eql data (gcm-open tg_k4 tg_iv aad (gcm-seal tg_k4 tg_iv aad data)))) '() :t 0 70))

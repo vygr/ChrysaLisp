@@ -40,11 +40,11 @@
 
 (defq kt_n 300 kt_from 5 kt_to 290 kt_vals '((scale 1.5) (n 280))
 	kt_src (str-alloc (* kt_n 4)) kt_cols (str-alloc (* kt_n 4)))
-(each (# (set-int kt_src (* %0 4) (sh-real-to-float (n2r (- %0 3))))
-		(set-int kt_cols (* %0 4) (- (* %0 0x010307) 0x5000))) (range 0 kt_n))
+(each! (# (set-int kt_src (* (!) 4) (sh-real-to-float (n2r (- (!) 3))))
+		(set-int kt_cols (* (!) 4) (- (* (!) 0x010307) 0x5000))) '() 0 kt_n)
 (defun kt-zeros ()
 	(defq s (str-alloc (* kt_n 4)))
-	(each (# (set-long s %0 0)) (range 0 (* kt_n 4) 8))
+	(for 0 (>> (inc kt_n) 1) (set-long s (<< (!) 3) 0))
 	s)
 
 ;the CPU back end is the reference
@@ -70,7 +70,7 @@
 		(test-skip "a kernel on the GPU" "this node has no GPU"))
 	(:t
 		(defq kt_kernel (shader-gpu-kernel kt_prog)
-			kt_bufs (map (lambda (_) (gpu-buffer (* kt_n 4))) (range 0 4)))
+			kt_bufs (map! (lambda () (gpu-buffer (* kt_n 4))) '() 0 4))
 		(assert-true "a kernel for this GPU" (num? kt_kernel))
 		(each (# (gpu-write %0 0 %1)) kt_bufs (list (kt-zeros) kt_src (kt-zeros) kt_cols))
 		(assert-true "it runs" (shader-gpu-run kt_prog kt_kernel (shader-pack kt_prog kt_vals) kt_from kt_to kt_bufs))

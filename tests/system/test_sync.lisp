@@ -60,7 +60,7 @@
 
 ;a tree, a service with a root of its own, and a push from one to the other
 (defq sy_src "tests/scratch/sync_src" sy_dst "tests/scratch/sync_dst" sy_name "*SyncTest"
-	sy_big (apply (const cat) (map (# (cat "line " (str %0) "\n")) (range 0 30000))))
+	sy_big (apply (const cat) (map! (# (cat "line " (str (!)) "\n")) '() 0 30000)))
 (defun sy-clear (root)
 	(each (# (pii-remove (cat root "/" %0))) (sync-walk root (sync-rules ""))))
 (sy-clear sy_src) (sy-clear sy_dst)

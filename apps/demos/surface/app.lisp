@@ -107,9 +107,9 @@
 	;The inputs block goes out with every tile of it.
 	(defq inputs (frame-inputs (setq frame_time (pii-time))))
 	(setq cpu_running :t)
-	(. jobs :add (map (# (shader-tile +shader_file inputs
-					0 %0 +width (min +height (+ %0 +line_batch)) +width +height shared_key))
-			(range 0 +height +line_batch))))
+	(. jobs :add (map! (lambda () (defq y (* (!) +line_batch))
+					(shader-tile +shader_file inputs 0 y +width (min +height (+ y +line_batch)) +width +height shared_key))
+			'() 0 (const (/ (+ +height +line_batch -1) +line_batch)))))
 
 (defun to-cpu ()
 	;the frames are drawn by the CPU from here on

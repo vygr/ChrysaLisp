@@ -549,8 +549,7 @@
 	(vp-int -12288 28672 4096 -20480 20480 -4096 -28672 12288)
 
 (vp-label 'mask_to_coverage)
-	(apply (const vp-byte) (map (lambda (m)
-				(/ (* 0x80 (apply (const +) (map (lambda (s)
-									(logand 1 (>> m s))) (const (push (list quote) (range 0 8)))))) 8)) (range 0 256)))
+	(apply (const vp-byte) (map! (lambda () (defq m (!)) (/ (* 0x80 (apply (const +) (map (lambda (s)
+									(logand 1 (>> m s))) (const (push (list quote) (map! (const !) '() 0 8)))))) 8)) '() 0 256))
 
 (def-func-end)

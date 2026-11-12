@@ -36,7 +36,7 @@
 	(reduce (# (logand (+ (* %0 33) (code %1)) 0xffffffff)) s 0))
 
 (defun ph-table ()
-	(defq slots (map (lambda (_) :nil) (range 0 +ph_size)))
+	(defq slots (map! (lambda () :nil) '() 0 +ph_size))
 	(each (lambda (op)
 			(defq name (str op) i (logand (ph-hash name) (dec +ph_size)))
 			(while (elem-get slots i) (setq i (logand (inc i) (dec +ph_size))))

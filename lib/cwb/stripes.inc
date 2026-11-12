@@ -149,8 +149,7 @@
 		;When the last answers (:handle) says :warm
 		(when (and (defq jobs (get :jobs this)) (eql (get :state this) :idle))
 			(def this :state :warming :sent (get :version this) :bad 0 :stamp (pii-time))
-			(. jobs :add (map (lambda (&) (. this :job :nil 0 0 0 0 1.0 0 :plain 32 (list)))
-					(range 0 (max 1 (. jobs :size)))))
+			(. jobs :add (map! (lambda () (. this :job :nil 0 0 0 0 1.0 0 :plain 32 (list))) '() 0 (max 1 (. jobs :size))))
 			:t))
 
 	(defmethod :ready? ()
@@ -200,10 +199,9 @@
 			(bind '(w h) (. canvas :pref_size))
 			(defq jobs (get :jobs this) count (max 1 (. jobs :size)))
 			(def this :state :frame :sent (get :version this) :drawn 0 :bad 0 :stamp (pii-time))
-			(. jobs :add (map (# (. this :job key w h (/ (* %0 h) count) (/ (* (inc %0) h) count)
+			(. jobs :add (map! (# (. this :job key w h (/ (* (!) h) count) (/ (* (inc (!)) h) count)
 							zoom (. doc :find :background) style
-							(if style (max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) 0) (get :floating board) m))
-					(range 0 count)))
+							(if style (max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) 0) (get :floating board) m)) '() 0 count))
 			:t))
 
 	(defmethod :handle (index msg)

@@ -34,12 +34,11 @@
 	;how many of the members keep each block
 	(defq has (map (# (ifn (storage-ask %0 +storage_type_has (apply (const cat) (cat (list "") names))) ""))
 			(filter (const identity) (ifn svcs sn_svcs))))
-	(map (lambda (at) (length (filter (# (and (< at (length %0)) (eql (elem-get %0 at) "1"))) has)))
-		(range 0 (length names))))
+	(map! (lambda () (defq at (!)) (length (filter (# (and (< at (length %0)) (eql (elem-get %0 at) "1"))) has))) '() 0 (length names)))
 
 (defun sn-bytes (count seed)
 	;blocks of 4096, no two the same
-	(apply (const cat) (map (# (cat (sha256 (str seed %0)) (pad "" 4064 "."))) (range 0 count))))
+	(apply (const cat) (map! (# (cat (sha256 (str seed (!))) (pad "" 4064 "."))) '() 0 count)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; three members, and all of it on each
@@ -85,9 +84,13 @@
 	(assert-eq "and a part of it" (slice sn_big 4000 9000) (storage-read "big" 4000 5000 (sn-of "m-e")))
 
 	;a gopher goes where the blocks are
-	(defq sn_sum (reduce (# (+ %0 (code sn_big 1 %1))) (range 0 (length sn_big) 97) 0)
-		sn_visit '(lambda (sum data at count)
-			(list (reduce (# (+ %0 (code data 1 %1))) (range (% (- 97 (% (* at 4096) 97)) 97) (length data) 97) sum) (inc at)))
+	;every 97th byte added up, and the same by a gopher, block by block
+	(defq sn_sum 0 sn_at 0)
+	(while (< sn_at (length sn_big)) (setq sn_sum (+ sn_sum (code sn_big 1 sn_at)) sn_at (+ sn_at 97)))
+	(defq sn_visit '(lambda (sum data at count)
+			(defq byte (% (- 97 (% (* at 4096) 97)) 97))
+			(while (< byte (length data)) (setq sum (+ sum (code data 1 byte)) byte (+ byte 97)))
+			(list sum (inc at)))
 		sn_back (storage-walk "big" 0 sn_visit :nil 30 (sn-of "m-a")))
 	(assert-eq "a gopher sent to an object no member has all of comes back with the answer" sn_sum (first sn_back))
 	(defq sn_went (map (const first) (second sn_back)))
@@ -117,8 +120,7 @@
 	(gopher-pass (list (sn-of "m-a")) sn_two "ver" 0 0 sn_len (list) (list) 5 sn_was)
 	(gopher-pass (list (sn-of "m-a")) sn_two "ver" 0 0 sn_len (list) (list) 5)
 	(gopher-pass (list (sn-of "m-a")) sn_two "big" 0 0 sn_visit (list) (list) 5)
-	(defq sn_said (map (lambda (i) (if (defq said (mail-read sn_two)) (first (first (read (string-stream said))))))
-			(range 0 3)))
+	(defq sn_said (map! (lambda () (if (defq said (mail-read sn_two)) (first (first (read (string-stream said)))))) '() 0 3))
 	(assert-list-eq "three gophers at a member at once all come back, one of what the object was, one of what it is"
 		(sort (list (length (sn-bytes 2 "was")) (length (sn-bytes 3 "is")) sn_sum) (const -)) (sort (map (# (ifn %0 0)) sn_said) (const -)))
 
@@ -257,7 +259,7 @@
 		(assert-eq "sought from the end" (- (length sn_big) 50) (stream-seek sn_stream -50 2))
 		(assert-true "and read from there, to the end" (eql (slice sn_big -51 -1) (read-blk sn_stream 50)))
 		(assert-eq "and there is no more" :nil (read-char sn_stream)))
-	(storage-put "text" (apply (const cat) (map (# (cat "line " (str %0) "\n")) (range 0 2000))) :nil (sn-of "m-b"))
+	(storage-put "text" (apply (const cat) (map! (# (cat "line " (str (!)) "\n")) '() 0 2000)) :nil (sn-of "m-b"))
 	(sn-settle)
 	(defq sn_stream (storage-stream "text" +file_open_read (sn-of "m-d") 2) sn_count 0 sn_last "")
 	(when sn_stream (lines! (lambda (sn_line) (++ sn_count) (setq sn_last sn_line) :nil) sn_stream))

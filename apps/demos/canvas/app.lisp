@@ -61,8 +61,7 @@
 	;found the canvas
 	(unless fresh (. jobs :restart))
 	(setq warming :t farming :nil)
-	(. jobs :add (map (lambda (&) (slice-job 0.0 0 +scene_height +scene_height))
-			(range 0 (. jobs :size)))))
+	(. jobs :add (map! (lambda () (slice-job 0.0 0 +scene_height +scene_height)) '() 0 (. jobs :size))))
 
 (defun start-farm-frame ()
 	;a frame drawn by the nodes, a slice for each of them. More slices than
@@ -71,8 +70,8 @@
 	(defq count (max 1 (length (lisp-nodes :t)))
 		angle (scene-angle) shapes (shape-count))
 	(setq farming :t frame_time (pii-time) frame_shapes 0)
-	(. jobs :add (map (# (slice-job angle shapes (/ (* %0 +scene_height) count)
-					(/ (* (inc %0) +scene_height) count))) (range 0 count))))
+	(. jobs :add (map! (# (slice-job angle shapes (/ (* (!) +scene_height) count)
+					(/ (* (inc (!)) +scene_height) count))) '() 0 count)))
 
 (defun one-task-frame (how)
 	;a frame drawn here, all of it

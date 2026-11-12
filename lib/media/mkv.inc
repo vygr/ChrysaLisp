@@ -91,7 +91,7 @@
 	(each (lambda ((v w)) (setq bits (logior (<< bits w) v) count (+ count w))) (partition fields 2))
 	;the bits high first, made whole bytes
 	(defq pad (logand (- 8 (logand count 7)) 7) bits (<< bits pad) n (/ (+ count pad) 8))
-	(apply (const cat) (map (# (char (logand (>> bits (* 8 (- n 1 %0))) 0xff))) (range 0 n))))
+	(apply (const cat) (map! (# (char (logand (>> bits (* 8 (- n 1 (!)))) 0xff))) '() 0 n)))
 
 (defun mkv-track (s at end)
 	; (mkv-track str at end) -> track
@@ -162,7 +162,7 @@
 						(setq at (+ at n)))))
 			(defq known (reduce (const +) sizes 0))
 			(cond
-				((= lacing 2) (setq sizes (map (lambda (_) (/ (- end at) count)) (range 0 count))))
+				((= lacing 2) (setq sizes (map! (lambda () (/ (- end at) count)) '() 0 count)))
 				((push sizes (- end at known))))
 			(map (lambda (size) (defq frame (list at size)) (setq at (+ at size)) frame) sizes))))
 

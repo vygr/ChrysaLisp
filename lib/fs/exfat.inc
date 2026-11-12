@@ -200,14 +200,11 @@
 	;device now, whole sectors, as they are not kept: the blocks of them
 	;that are kept are let go
 	(defq size (exfat-cluster-size vol) clusters (get :bitmap_clusters vol))
-	(each (lambda (i)
-			(defq at (* i size) part (slice bitmap at (min (length bitmap) (+ at size)))
+	(each! (lambda () (defq i (!)) (defq at (* i size) part (slice bitmap at (min (length bitmap) (+ at size)))
 				offset (exfat-cluster-offset vol (elem-get clusters i)))
-			(each (# (exfat-drop vol %0)) (range (>> offset +exfat_block_shift)
-					(>> (+ offset (length part) (const (dec +exfat_block_size))) +exfat_block_shift)))
+			(each! (# (exfat-drop vol (!))) '() (>> offset +exfat_block_shift) (>> (+ offset (length part) (const (dec +exfat_block_size))) +exfat_block_shift))
 			(exfat-raw-write vol offset
-				(cat part (exfat-zeros (- (logand (+ (length part) 511) -512) (length part))))))
-		(range (/ (get :dirty_lo vol) size) (inc (/ (get :dirty_hi vol) size)))))
+				(cat part (exfat-zeros (- (logand (+ (length part) 511) -512) (length part)))))) '() (/ (get :dirty_lo vol) size) (inc (/ (get :dirty_hi vol) size))))
 
 (defun exfat-flush (vol)
 	; (exfat-flush vol) -> vol
@@ -260,9 +257,7 @@
 	(or (. (get :cache vol) :find index)
 		;the last block of a device can be short of a whole block
 		(exfat-keep vol index (ifn (exfat-raw-read vol (<< index +exfat_block_shift) +exfat_block_size)
-				(apply (const cat) (cat (list "") (filter (const identity) (map (lambda (i)
-									(exfat-raw-read vol (+ (<< index +exfat_block_shift) (* i 512)) 512))
-								(range 0 8)))))))))
+				(apply (const cat) (cat (list "") (filter (const identity) (map! (lambda () (exfat-raw-read vol (+ (<< index +exfat_block_shift) (* (!) 512)) 512)) '() 0 8))))))))
 
 (defun exfat-read (vol offset len &optional keep)
 	; (exfat-read vol offset len [keep]) -> str
@@ -283,10 +278,10 @@
 						(exfat-raw-read vol (<< i +exfat_block_shift) (<< (- j i) +exfat_block_shift))))
 				(cond
 					;the last block of a device can be short, so a block at a time
-					((not data) (each (# (push parts (exfat-block vol %0))) (range i j)))
+					((not data) (each! (# (push parts (exfat-block vol (!)))) '() i j))
 					((or keep (<= (- j i) +exfat_direct_blocks))
-						(each (# (push parts (exfat-keep vol %0 (slice data
-											(<< (- %0 i) +exfat_block_shift) (<< (- (inc %0) i) +exfat_block_shift))))) (range i j)))
+						(each! (# (push parts (exfat-keep vol (!) (slice data
+											(<< (- (!) i) +exfat_block_shift) (<< (- (inc (!)) i) +exfat_block_shift))))) '() i j))
 					((push parts data)))
 				(setq i j))))
 	(slice (apply (const cat) parts) (- offset base) (+ (- offset base) len)))
@@ -306,20 +301,19 @@
 		whole_lo (>> (+ offset (const (dec +exfat_block_size))) +exfat_block_shift)
 		whole_hi (>> end +exfat_block_shift))
 	(if (< (- whole_hi whole_lo) +exfat_direct_blocks) (setq whole_hi whole_lo))
-	(each (lambda (index)
-			(defq base (<< index +exfat_block_shift)
+	(each! (lambda () (defq base (<< (!) +exfat_block_shift)
 				from (max offset base) to (min end (+ base +exfat_block_size)))
 			(cond
-				((and (>= index whole_lo) (< index whole_hi))
-					(exfat-drop vol index))
+				((and (>= (!) whole_lo) (< (!) whole_hi))
+					(exfat-drop vol (!)))
 				((= (- to from) +exfat_block_size)
-					(exfat-keep vol index (slice data (- from offset) (- to offset)))
-					(. dirty :insert index :t))
-				(:t (defq old (exfat-block vol index))
-					(exfat-keep vol index (cat (slice old 0 (- from base))
+					(exfat-keep vol (!) (slice data (- from offset) (- to offset)))
+					(. dirty :insert (!) :t))
+				(:t (defq old (exfat-block vol (!)))
+					(exfat-keep vol (!) (cat (slice old 0 (- from base))
 							(slice data (- from offset) (- to offset))
 							(slice old (min (length old) (- to base)) -1)))
-					(. dirty :insert index :t)))) (range lo hi))
+					(. dirty :insert (!) :t)))) '() lo hi)
 	(when (> whole_hi whole_lo)
 		(defq at (<< whole_lo +exfat_block_shift)
 			run (slice data (- at offset) (- (<< whole_hi +exfat_block_shift) offset)))
@@ -364,7 +358,7 @@
 		clusters (list))
 	(cond
 		((< start 2) clusters)
-		(no_fat (range start (+ start (/ (+ len (dec size)) size))))
+		(no_fat (map! (const !) '() start (+ start (/ (+ len (dec size)) size))))
 		(:t ;the table a block of it at a time, the next of each cluster read
 			;from the block it is in, not asked of the cache one by one
 			(defq want (if len (/ (+ len (dec size)) size) limit)
@@ -495,7 +489,7 @@
 						(bind '(start len) (getf-> e +exfat_upcase_first_cluster +exfat_upcase_data_length))
 						(exfat-upcase-load vol (exfat-data vol start len :nil)))))
 			;its upper case of ASCII is ASCII's own, a to z and nothing else
-			(def vol :ascii (every (# (= (exfat-upper vol %0) (if (<= 97 %0 122) (- %0 32) %0))) (range 0 128)))
+			(def vol :ascii (some! (# (= (exfat-upper vol (!)) (if (<= 97 (!) 122) (- (!) 32) (!)))) '() :t 0 128))
 			(if (get :bitmap vol) vol))))
 
 (defun exfat-hash (vol units)
@@ -562,7 +556,7 @@
 	;the root as an entry, its length is not kept, its chain is followed
 	(list "" :t :nil (get :root vol) :nil -1 0))
 
-(defq +exfat_ascii (apply (const cat) (map (const char) (range 1 128))))
+(defq +exfat_ascii (apply (const cat) (map! (# (char (!))) '() 1 128)))
 
 (defun exfat-key-units (vol name)
 	(apply (const cat) (cat (list "") (map (# (char (exfat-upper vol %0) 2)) (exfat-units name)))))
@@ -733,7 +727,7 @@
 		(setq loose (list) found (exfat-scan bitmap 2 limit want loose)))
 	(cond
 		(found
-			(defq clusters (range found (+ found want)))
+			(defq clusters (map! (const !) '() found (+ found want)))
 			(each (# (exfat-mark vol %0 :t)) clusters)
 			(def vol :hint (+ found want))
 			(list clusters :t))
@@ -801,10 +795,9 @@
 				(+exfat_stream_valid_length size)
 				(+exfat_stream_first_cluster start)
 				(+exfat_stream_data_length size))))
-	(each (lambda (i)
-			(defq e (setf-> (exfat-zeros +exfat_name_size) (+exfat_name_type +exfat_type_name)))
+	(each! (lambda () (defq i (!)) (defq e (setf-> (exfat-zeros +exfat_name_size) (+exfat_name_type +exfat_type_name)))
 			(each! (# (set-short e (+ 2 (* (- (!) (* i +exfat_name_units)) 2)) %0)) (list units) (* i +exfat_name_units) (min (length units) (* (inc i) +exfat_name_units)))
-			(push parts e)) (range 0 names))
+			(push parts e)) '() 0 names)
 	(defq eset (apply (const cat) parts))
 	(set-short eset +exfat_file_checksum (exfat-checksum eset))
 	eset)
@@ -816,12 +809,10 @@
 	(defq clusters (exfat-chain vol start size no_fat) shift (get :cluster_shift vol))
 	;it is read again the next time it is wanted
 	(. (get :dirs vol) :erase start)
-	(each (lambda (i)
-			(defq at (* (+ index i) +exfat_entry_size))
+	(each! (lambda () (defq at (* (+ index (!)) +exfat_entry_size))
 			(exfat-write vol (+ (exfat-cluster-offset vol (elem-get clusters (>> at shift)))
 					(logand at (dec (<< 1 shift))))
-				(slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size))))
-		(range 0 (/ (length data) +exfat_entry_size))))
+				(slice data (* (!) +exfat_entry_size) (* (inc (!)) +exfat_entry_size)))) '() 0 (/ (length data) +exfat_entry_size)))
 
 (defun exfat-dir-data (vol entry)
 	(bind '(& & size start no_fat &rest _) entry)
@@ -896,11 +887,9 @@
 	;bit of the bitmap
 	(unless (get :free vol)
 		(defq bitmap (get :bitmap vol) count (get :cluster_count vol) used 0)
-		(each (lambda (i)
-				(defq byte (code bitmap 1 i))
+		(each! (lambda () (defq byte (code bitmap 1 (!)))
 				(while (/= byte 0)
-					(setq used (+ used (logand byte 1)) byte (>> byte 1))))
-			(range 0 (length bitmap)))
+					(setq used (+ used (logand byte 1)) byte (>> byte 1)))) '() 0 (length bitmap))
 		(def vol :free (- count used)))
 	(<< (get :free vol) (get :cluster_shift vol)))
 
@@ -952,9 +941,8 @@
 			(exfat-begin vol)
 			(defq eset (exfat-eset vol found))
 			;an entry that is not in use has the top bit of its type clear
-			(each (lambda (i)
-					(defq at (* i +exfat_entry_size))
-					(set-byte eset at (logand (code eset 1 at) (const (dec +exfat_in_use))))) (range 0 (inc count)))
+			(each! (lambda () (defq at (* (!) +exfat_entry_size))
+					(set-byte eset at (logand (code eset 1 at) (const (dec +exfat_in_use))))) '() 0 (inc count))
 			(exfat-dir-put vol (elem-get found (- (length found) 2)) index eset)
 			;a directory that is gone is not kept, its clusters will be another's
 			(. (get :dirs vol) :erase start)
@@ -1044,18 +1032,16 @@
 					(slice fresh (const (* 2 +exfat_entry_size)) -1)))
 			(set-short eset +exfat_file_checksum (exfat-checksum eset))
 			;the old entries are let go first, the new can go where they were
-			(each (lambda (i)
-					(defq at (* i +exfat_entry_size))
-					(set-byte old at (logand (code old 1 at) (const (dec +exfat_in_use))))) (range 0 (inc count)))
+			(each! (lambda () (defq at (* (!) +exfat_entry_size))
+					(set-byte old at (logand (code old 1 at) (const (dec +exfat_in_use))))) '() 0 (inc count))
 			(exfat-dir-put vol (elem-get found (- (length found) 2)) index old)
 			(cond
 				((defq slot (exfat-slot vol target (/ (length eset) +exfat_entry_size)))
 					(exfat-dir-put vol (last (second slot)) (first slot) eset)
 					(setq ok :t))
 				;no room in the new directory, so it is back where it was
-				(:t (each (lambda (i)
-							(defq at (* i +exfat_entry_size))
-							(set-byte old at (logior (code old 1 at) +exfat_in_use))) (range 0 (inc count)))
+				(:t (each! (lambda () (defq at (* (!) +exfat_entry_size))
+							(set-byte old at (logior (code old 1 at) +exfat_in_use))) '() 0 (inc count))
 					(exfat-dir-put vol (elem-get found (- (length found) 2)) index old)))
 			(exfat-end vol)))
 	ok)
@@ -1157,14 +1143,12 @@
 		(. ck_twice :each (lambda (ck_c ck_who)
 				(push ck_lines (cat "cluster " (str ck_c) " is had by " (join ck_who ", "))))))
 	;in use, and had by nothing
-	(each (lambda (ck_i)
-			(defq ck_b (logand (code ck_bitmap 1 ck_i) (logxor (code ck_seen 1 ck_i) 0xff)) ck_c (+ (<< ck_i 3) 2))
+	(each! (lambda () (defq ck_b (logand (code ck_bitmap 1 (!)) (logxor (code ck_seen 1 (!)) 0xff)) ck_c (+ (<< (!) 3) 2))
 			(while (/= ck_b 0)
 				(when (/= (logand ck_b 1) 0)
 					(++ ck_lost)
 					(if ck_mend (push ck_freed ck_c)))
-				(setq ck_b (>> ck_b 1) ck_c (inc ck_c))))
-		(range 0 (length ck_bitmap)))
+				(setq ck_b (>> ck_b 1) ck_c (inc ck_c)))) '() 0 (length ck_bitmap))
 	(if (> ck_lost 0) (push ck_lines (cat (str ck_lost) " clusters marked in use are had by nothing")))
 	(when (and ck_mend (or (nempty? ck_used) (nempty? ck_freed) (nempty? ck_reread)))
 		(exfat-begin vol)
@@ -1220,10 +1204,10 @@
 				(+exfat_boot_fats 1) (+exfat_boot_drive 0x80) (+exfat_boot_percent 0xff))
 			mark (cat (char 0x55) (char 0xaa))
 			region (apply (const cat) (cat (list boot mark)
-					(map (lambda (&) (cat (exfat-zeros 510) mark)) (range 0 8))
+					(map! (lambda () (cat (exfat-zeros 510) mark)) '() 0 8)
 					(list (exfat-zeros 1024))))
 			sum (char (exfat-sum region '(106 107 112)) 4)
-			region (cat region (apply (const cat) (map (lambda (&) sum) (range 0 128)))))
+			region (cat region (apply (const cat) (map! (lambda () sum) '() 0 128))))
 		;all that comes before the clusters is zero, but for these
 		(fput 0 (exfat-zeros (<< heap_offset 9)))
 		(fput 0 region)
@@ -1232,14 +1216,13 @@
 		;of the bitmap, of the upper case table, and of the root
 		(defq chain (list 0xfffffff8 +exfat_last))
 		(each (lambda (count)
-				(each (lambda (&) (push chain (+ (length chain) 1))) (range 1 count))
+				(each! (lambda () (push chain (+ (length chain) 1))) '() 1 count)
 				(push chain +exfat_last)) (list bitmap_clusters upcase_clusters 1))
 		(fput fat_offset (fpad (apply (const cat) (map (# (char %0 4)) chain))
 				(logand (+ (* (length chain) 4) 511) -512)))
 		;the bitmap, with its own clusters, the table's and the root's in use
 		(defq bitmap (exfat-zeros bitmap_len))
-		(each (# (set-byte bitmap (>> %0 3) (logior (code bitmap 1 (>> %0 3)) (<< 1 (logand %0 7)))))
-			(range 0 used))
+		(each! (# (set-byte bitmap (>> (!) 3) (logior (code bitmap 1 (>> (!) 3)) (<< 1 (logand (!) 7))))) '() 0 used)
 		(fput (fcluster 2) (fpad bitmap (* bitmap_clusters cluster_size)))
 		(fput (fcluster upcase_first) (fpad upcase (* upcase_clusters cluster_size)))
 		;the root, the label if there is one, the bitmap, the table

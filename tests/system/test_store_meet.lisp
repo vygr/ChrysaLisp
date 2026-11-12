@@ -172,7 +172,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq sm_five '("aaaa" "bbbb" "cccc" "dddd" "eeee") sm_h (sm-new "aaaa" sm_five) sm_h2 (sm-new "dddd" sm_five)
-	sm_names (map (# (sha256 (str "block" %0))) (range 0 300)))
+	sm_names (map! (# (sha256 (str "block" (!)))) '() 0 300))
 (assert-eq "a block is kept by three of five members" 3 (length (store-holders sm_h (first sm_names))))
 (assert-true "by three that are not the same one twice"
 	(every (# (= 3 (length (store-seen (store-holders sm_h %0) (list))))) sm_names))
@@ -204,7 +204,7 @@
 
 ;an object of 20 blocks, put at one of five members, which has all of it
 (defq sm_s1 (sm-new "aaaa" sm_five) sm_s2 (sm-new "bbbb" sm_five)
-	sm_obj (apply (const cat) (map (# (cat (sha256 (str "share" %0)) (exfat-zeros 4064))) (range 0 20))))
+	sm_obj (apply (const cat) (map! (# (cat (sha256 (str "share" (!))) (exfat-zeros 4064))) '() 0 20)))
 (store-put sm_s1 "big" sm_obj)
 (bind '(sm_wants sm_extras) (store-share sm_s1 sm_five))
 (assert-list-eq "the one it was put at wants nothing, it has it all" '() sm_wants)

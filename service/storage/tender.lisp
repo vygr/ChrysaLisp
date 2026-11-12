@@ -101,16 +101,16 @@
 			;of it over a Wi-Fi link, measured, and a block at a time was a
 			;third of what the link could carry
 			(defq wants (map! (const hex-decode) (list lines) 0 at))
-			(each (lambda (start)
+			(each! (lambda ()
 					;each peer is asked at once, and each answer then read
+					(defq start (* (!) +tender_window))
 					(defq batch (slice wants start (min (length wants) (+ start +tender_window)))
 						names (apply (const cat) (cat (list "") batch))
 						has (map (# (ifn (mail-read-timeout %0 (task-timeout 5)) ""))
 							(map (lambda ((who where state)) (storage-send where +storage_type_has names)) peers))
 						froms (map (lambda (want)
 								(defq at_want (!)
-									having (filter (# (and (< at_want (length (elem-get has %0))) (eql (elem-get (elem-get has %0) at_want) "1")))
-										(range 0 (length peers))))
+									having (reduce! (# (if (and (< at_want (length %1)) (eql (elem-get %1 at_want) "1")) (push %0 (!)) %0)) (list has) (list) 0 (length peers)))
 								(if (nempty? having) (elem-get peers (elem-get having (% at_want (length having))))))
 							batch)
 						boxes (map (lambda (want peer) (if peer (storage-send (second peer) +storage_type_block_get want))) batch froms)
@@ -128,7 +128,7 @@
 								(++ fetched)
 								(setq more :t)))
 						batch puts froms))
-				(range 0 (length wants) +tender_window))
+				'() 0 (/ (+ (length wants) (dec +tender_window)) +tender_window))
 			;what is others' to keep is let go of when each of them has it
 			;each peer is asked the once which of them it has, all at once, and
 			;those that every holder has are let go of, all at once too

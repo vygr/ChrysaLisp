@@ -903,7 +903,7 @@
 	;real, a fixed or an int, a vector is a sequence of them.
 	(bind '(size &rest fields) (shader-layout program))
 	(defq block (str-alloc size))
-	(each (# (set-long block %0 0)) (range 0 size 8))
+	(for 0 (>> (+ size 7) 3) (set-long block (<< (!) 3) 0))
 	(each (lambda ((name type offset) (& & val &rest _))
 			(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
 				(setq val (second v)))
@@ -929,7 +929,6 @@
 					((eql type :int) (get-int block offset))
 					((eql type :float) (sh-float-to-real (get-uint block offset)))
 					((eql type :mat4)
-						(apply (const reals) (map (# (sh-float-to-real (get-uint block
-											(+ offset (* (+ (* (% %0 4) 4) (/ %0 4)) 4))))) (range 0 16))))
-					((apply (const reals) (map (# (sh-float-to-real (get-uint block (+ offset (* %0 4)))))
-								(range 0 (shader-dim type)))))))) (list (shader-layout program)) 1))
+						(reduce! (# (push %0 (sh-float-to-real (get-uint block
+											(+ offset (* (+ (* (% (!) 4) 4) (/ (!) 4)) 4)))))) '() (cap 16 (reals)) 0 16))
+					((reduce! (# (push %0 (sh-float-to-real (get-uint block (+ offset (* (!) 4)))))) '() (cap (shader-dim type) (reals)) 0 (shader-dim type)))))) (list (shader-layout program)) 1))

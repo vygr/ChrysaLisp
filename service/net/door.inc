@@ -66,7 +66,7 @@
 
 ;32 bytes of nothing, the keys of a link that is not sealed, and the
 ;secret of a share of a small order
-(defq +door_nothing (apply (const cat) (map (lambda (_) (char 0 +long_size)) (range 0 4))))
+(defq +door_nothing (apply (const cat) (map! (lambda () (char 0 +long_size)) '() 0 4)))
 
 (defun door-outside? (host)
 	; (door-outside? host) -> :t | :nil

@@ -23,10 +23,8 @@
 
 (defun remote-land ()
 	; (remote-land) -> str, tile flags of the battle map, row by row
-	(apply (const cat) (map (lambda (i)
-				(char (. *layer_land* :get_tile_flags
-						(* (% i +map_width) +tile_width) (* (/ i +map_width) +tile_height))))
-			(range 0 (const (* +map_width +map_height))))))
+	(apply (const cat) (map! (lambda () (char (. *layer_land* :get_tile_flags
+						(* (% (!) +map_width) +tile_width) (* (/ (!) +map_width) +tile_height)))) '() 0 (const (* +map_width +map_height)))))
 
 (defun remote-state ()
 	; (remote-state) -> (key value ...)

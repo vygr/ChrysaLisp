@@ -245,7 +245,7 @@
 		;those it knows, in its order, in the places they are in here, if
 		;its order is new to it
 		(defq order (cwb-id-set (if (eql (. data :find :order) 0) (list) ids))
-			places (filter (# (cwb-id? order (elem-get (elem-get kept %0) +cwb_id))) (range 0 (length kept)))
+			places (reduce! (# (if (cwb-id? order (elem-get %1 +cwb_id)) (push %0 (!)) %0)) (list kept) (list))
 			theirs (map (# (elem-get kept %0)) places))
 		(sort theirs (# (- (find (elem-get %0 +cwb_id) ids) (find (elem-get %1 +cwb_id) ids))))
 		(each (# (elem-set kept %0 %1)) places theirs)

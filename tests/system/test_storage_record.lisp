@@ -45,7 +45,7 @@
 	(defq sr_said (mail-mbox) sr_keeper (open-child "tests/system/record_keeper.lisp" +kn_call_pin))
 	(mail-send sr_keeper (join (map (const hex-encode) (cat (list sr_said sr_box) sr_svcs)) " "))
 	;a put at one, and the others meet it
-	(defq sr_data (apply (const cat) (map (# (cat (sha256 (str "rec" %0)) (pad "" 4064 "."))) (range 0 3))))
+	(defq sr_data (apply (const cat) (map! (# (cat (sha256 (str "rec" (!))) (pad "" 4064 "."))) '() 0 3)))
 	(storage-put "doc/one" sr_data :nil (sr-of "r-a"))
 	(sr-settle)
 	(sr-take (lambda () (and (nempty? (sr-did "r-a" "set" "doc/one")) (>= (length (sr-did "r-a" "block+")) 4)

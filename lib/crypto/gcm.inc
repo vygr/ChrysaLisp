@@ -26,7 +26,7 @@
 
 ;how many blocks the native code is given at a time, 64KB, between which
 ;the other tasks of the node have a turn
-(defq +gcm_slice 4096 +gcm_zeros (apply (const cat) (map (lambda (&) (char 0)) (range 0 16))))
+(defq +gcm_slice 4096 +gcm_zeros (apply (const cat) (map! (lambda () (char 0)) '() 0 16)))
 
 (defun gcm-key (key)
 	; (gcm-key key) -> (keys h)

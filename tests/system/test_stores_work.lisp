@@ -37,7 +37,7 @@
 (defun sw-store (svc folder)
 	(list :store (hex-encode svc) folder))
 
-(each (lambda (i) (set-byte sw_t2 i (logand (* i 13) 0xff))) (range 0 (length sw_t2)))
+(each! (lambda () (set-byte sw_t2 (!) (logand (* (!) 13) 0xff))) '() 0 (length sw_t2))
 (save sw_t1 (cat sw_host "/Album/t1.txt"))
 (save sw_t2 (cat sw_host "/Album/sub/t2.bin"))
 (save sw_loose (cat sw_host "/loose.txt"))

@@ -418,7 +418,7 @@
 ;ends draw was seen on a Raspberry Pi 4, see docs/ai_digest/shader_language.md
 
 (defun spvt-words (module)
-	(map (# (logand (code module 4 (* %0 4)) 0xffffffff)) (range 0 (/ (length module) 4))))
+	(map! (# (logand (code module 4 (* (!) 4)) 0xffffffff)) '() 0 (/ (length module) 4)))
 
 (defun spvt-insts (module)
 	;the instructions, each (opcode operand ...), or :nil if they do not
@@ -450,7 +450,7 @@
 (assert-list-eq "SPIR-V vertex header" (list 0x07230203 0x00010000 0) (slice words 0 3))
 (assert-eq "SPIR-V vertex size" 896 (length module))
 (assert-true "SPIR-V vertex stream" insts)
-(assert-list-eq "SPIR-V vertex ids" (range 1 (elem-get words 3)) (spvt-ids insts))
+(assert-list-eq "SPIR-V vertex ids" (map! (const !) '() 1 (elem-get words 3)) (spvt-ids insts))
 (assert-true "SPIR-V vertex entry point" (apply spvt-has? (cat (list insts 15 0 :nil) (spv-str "vertex_main"))))
 (assert-true "SPIR-V vertex index" (spvt-has? insts 71 :nil 11 42))
 (assert-true "SPIR-V vertex position" (spvt-has? insts 71 :nil 11 0))
@@ -475,7 +475,7 @@
 			"		(return (vec4 (clamp c 0.0 1.0) (mod total 2.0)))))"))
 	words (spvt-words module) insts (spvt-insts module))
 (assert-true "SPIR-V fragment stream" insts)
-(assert-list-eq "SPIR-V fragment ids" (range 1 (elem-get words 3)) (spvt-ids insts))
+(assert-list-eq "SPIR-V fragment ids" (map! (const !) '() 1 (elem-get words 3)) (spvt-ids insts))
 (assert-true "SPIR-V fragment entry point" (apply spvt-has? (cat (list insts 15 4 :nil) (spv-str "fragment_main"))))
 (assert-true "SPIR-V origin upper left" (spvt-has? insts 16 :nil 7))
 (assert-true "SPIR-V block set" (spvt-has? insts 71 :nil 34 3))
@@ -492,7 +492,7 @@
 (defq module (shader-spirv (shader-load "apps/demos/surface/surface.shader"))
 	words (spvt-words module) insts (spvt-insts module))
 (assert-true "SPIR-V raymarch stream" insts)
-(assert-list-eq "SPIR-V raymarch ids" (range 1 (elem-get words 3)) (spvt-ids insts))
+(assert-list-eq "SPIR-V raymarch ids" (map! (const !) '() 1 (elem-get words 3)) (spvt-ids insts))
 (assert-eq "SPIR-V raymarch functions" 20 (length (filter (# (= (first %0) 54)) insts)))
 
 (report-header "GPU: shader language, the inputs block")
@@ -506,10 +506,10 @@
 (defq blk (shader-pack prog))
 (assert-eq "block size" 80 (length blk))
 (assert-list-eq "defaults packed" '(0x3fc00000 0 0 0 0 0 0 0xfffffffd 0 0 0x3e4ccccd 0 0 0 0 0 7 0 0 0)
-	(map (# (get-uint blk (* %0 4))) (range 0 20)))
+	(map! (# (get-uint blk (* (!) 4))) '() 0 20))
 (defq blk (shader-pack prog (list '(b (1.0 -2.5 16777217)) '(d (0.3 64.0)) (list 'a (n2r 0.75)) '(c 9))))
 (assert-list-eq "values packed" '(0x3f400000 0 0 0 0x3f800000 0xc0200000 0x4b800000 9 0x3e99999a 0x42800000 0x3e4ccccd)
-	(map (# (get-uint blk (* %0 4))) (range 0 11)))
+	(map! (# (get-uint blk (* (!) 4))) '() 0 11))
 (defq vals (shader-unpack prog blk))
 (assert-list-eq "unpacked names" '(a b c d e f g) (map (const first) vals))
 (assert-list-eq "unpacked ints" '(9 7) (list (second (third vals)) (second (last vals))))
@@ -530,12 +530,12 @@
 (defq out (shader-vp-argb native frame 0 0 2 2))
 (assert-eq "argb size" 16 (length out))
 (assert-list-eq "argb tile" '(0xff1f1fff 0xff5f1fff 0xff1f5fff 0xff5f5fff)
-	(map (# (get-uint out (* %0 4))) (range 0 4)))
+	(map! (# (get-uint out (* (!) 4))) '() 0 4))
 (assert-list-eq "argb tile, top row first" '(0xff1fdfff 0xff5fdfff 0xff1f9fff 0xff5f9fff)
-	(map (# (get-uint (shader-vp-argb native frame 0 0 2 2 4) (* %0 4))) (range 0 4)))
+	(map! (# (get-uint (shader-vp-argb native frame 0 0 2 2 4) (* (!) 4))) '() 0 4))
 (assert-list-eq "argb tile, inputs given" '(0xff3f3f00 0xffbf3f00)
-	(map (# (get-uint (shader-vp-argb native
-					(shader-vp-frame prog native '((k 2.0) (n 0))) 0 0 2 1) (* %0 4))) (range 0 2)))
+	(map! (# (get-uint (shader-vp-argb native
+					(shader-vp-frame prog native '((k 2.0) (n 0))) 0 0 2 1) (* (!) 4))) '() 0 2))
 (assert-list-eq "same program, same function" (first native) (first (shader-vp prog)))
 (defq pixels (shader-vp-pixels native frame 1 2 3 4))
 (assert-list-eq "pixels tile" '((0.375 0.625) (0.625 0.625) (0.375 0.875) (0.625 0.875))
@@ -669,12 +669,12 @@
 ;is given a row at a time
 (assert-list-eq "layout with matrices" '(144 (model :mat4 0) (view :mat4 64) (tint :vec3 128))
 	(shader-layout vert))
-(defq rows (map (const n2r) (range 1 17))
+(defq rows (map! (# (n2r (!))) '() 1 17)
 	blk (shader-pack vert (list (list 'model rows) '(tint (0.5 0.25 1.0)))))
 (assert-eq "block size" 144 (length blk))
 (assert-list-eq "a matrix packed a column at a time"
 	(map (const sh-real-to-float) '(1 5 9 13 2 6 10 14 3 7 11 15 4 8 12 16))
-	(map (# (get-uint blk (* %0 4))) (range 0 16)))
+	(map! (# (get-uint blk (* (!) 4))) '() 0 16))
 (assert-list-eq "and comes back a row at a time" rows (second (first (shader-unpack vert blk))))
 (assert-error "wrong size of matrix" (shader-pack vert '((model (1.0 2.0 3.0)))))
 
@@ -844,7 +844,7 @@
 
 (defun tri-drawn (pixels)
 	;how many pixels were drawn
-	(length (filter (# (/= (get-uint pixels %0) 0)) (range 0 (length pixels) 4))))
+	(reduce! (# (if (/= (get-uint pixels (<< (!) 2)) 0) (inc %0) %0)) '() 0 0 (>> (length pixels) 2)))
 
 (defq drawn (list))
 (each (lambda ((title cull x y x1 y1))
@@ -897,7 +897,7 @@
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
 (shader-vp-draw-tris (shader-vp-pipeline tvert thalf) tverts (nums 6 7 8) pixmap depth tvv '((gain 1.0)))
 (defq half_pixels (slice (tri-pixels pixmap) 0 1600)
-	half_seen (filter (# (/= %0 0)) (map (# (get-uint half_pixels %0)) (range 0 1600 4))))
+	half_seen (filter (# (/= %0 0)) (map! (# (get-uint half_pixels (* (!) 4))) '() 0 400)))
 (assert-true "half there, some pixels" (> (length half_seen) 10))
 (assert-true "half there, over nothing, half the color and half the alpha"
 	(every (# (= %0 0x7f7e7e7e)) half_seen))
@@ -909,7 +909,7 @@
 (defq under_pixels (slice (tri-pixels pixmap) 0 1600))
 (shader-vp-draw-tris (shader-vp-pipeline tvert thalf) tverts (nums 6 7 8) pixmap depth tvv '((gain 1.0)))
 (defq over_pixels (slice (tri-pixels pixmap) 0 1600)
-	mixed (filter (# (and (/= (get-uint under_pixels %0) 0) (/= (get-uint half_pixels %0) 0))) (range 0 1600 4)))
+	mixed (reduce! (# (if (and (/= (get-uint under_pixels (* (!) 4)) 0) (/= (get-uint half_pixels (* (!) 4)) 0)) (push %0 (* (!) 4)) %0)) '() (list) 0 400))
 (assert-true "see through over solid, pixels where both are" (> (length mixed) 10))
 (assert-true "see through over solid, a mix of the two, and as good as solid"
 	(every (# (defq p (get-uint over_pixels %0))
@@ -1021,7 +1021,7 @@
 (each (lambda ((name module model entry has))
 		(defq words (spvt-words module) insts (spvt-insts module))
 		(assert-true (cat "SPIR-V pair, " name ", stream") insts)
-		(assert-list-eq (cat "SPIR-V pair, " name ", ids") (range 1 (elem-get words 3)) (spvt-ids insts))
+		(assert-list-eq (cat "SPIR-V pair, " name ", ids") (map! (const !) '() 1 (elem-get words 3)) (spvt-ids insts))
 		(assert-true (cat "SPIR-V pair, " name ", entry point")
 			(apply spvt-has? (cat (list insts 15 model :nil) (spv-str entry))))
 		(each (lambda ((what &rest inst))

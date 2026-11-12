@@ -35,7 +35,7 @@
 (assert-true "RSA 2048, PSS, SHA-256, a salt as long as the hash" (rsa-verify-pss ts_n ts_e :sha256 (sha256 ts_msg) ts_pss))
 (assert-true "not of another message" (not (rsa-verify-pss ts_n ts_e :sha256 (sha256 "the quick brown fix") ts_pss)))
 (assert-true "nor the one way taken for the other" (not (rsa-verify-pss ts_n ts_e :sha256 (sha256 ts_msg) ts_pkcs1)))
-(assert-true "nor a signature as long as n and more than it" (not (rsa-verify-pkcs1 ts_n ts_e :sha256 (sha256 ts_msg) (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 256))))))
+(assert-true "nor a signature as long as n and more than it" (not (rsa-verify-pkcs1 ts_n ts_e :sha256 (sha256 ts_msg) (apply (const cat) (map! (lambda () (char 0xff)) '() 0 256)))))
 
 (assert-eq "SHA-384 of abc, FIPS 180-2" "CB00753F45A35E8BB5A03D699AC65007272C32AB0EDED1631A8B605A43FF5BED8086072BA1E7CC2358BAECA134C825A7" (hex-encode (sha384 "abc")))
 

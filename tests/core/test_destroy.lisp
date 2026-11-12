@@ -34,7 +34,7 @@
 ;what is inside is destroyed with it: a stream in the deepest, closed when the outermost goes
 (defq ds_path (cat "tests/scratch/destroy_" (str (pii-pid)) ".txt")
 	ds_l (ds-nest 3000 (file-stream ds_path +file_open_write)))
-(write-blk (first (reduce (lambda (l n) (first l)) (range 0 3000) ds_l)) "written")
+(write-blk (first (reduce! (lambda (l) (first l)) '() ds_l 0 3000)) "written")
 (setq ds_l :nil)
 (assert-eq "a file stream 3,000 lists deep is flushed and closed when the outermost is let go of" "written" (load ds_path))
 (pii-remove ds_path)
