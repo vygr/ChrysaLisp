@@ -62,6 +62,27 @@
 
 (def-func-end)
 
+(def-method :array :truncate)
+	;inputs
+	;:r0 = array object (ptr)
+	;:r1 = length (uint)
+	;outputs
+	;:r0 = array object (ptr)
+	;trashes
+	;none
+	;info
+	;no longer than that, what is there kept, the capacity as it was.
+	;The length is no more than it was
+
+	(entry :array :truncate '(:r0 :r1))
+
+	(class/array/set_length)
+
+	(exit :array :truncate '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :array :find)
 	;inputs
 	;:r0 = array object (ptr)

@@ -221,7 +221,7 @@
 (ffi "class/array/lisp_fill" fill)
 ; (fill array length value) -> array
 (ffi "class/array/lisp_clear" clear)
-; (clear array ...) -> array
+; (clear [idx] array ...) -> array
 (ffi "class/array/lisp_push" push)
 ; (push array elem ...) -> array
 (ffi "class/array/lisp_pop" pop)

@@ -98,6 +98,56 @@
 
 (def-func-end)
 
+(def-method :list :truncate)
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = length (uint)
+	;outputs
+	;:r0 = list object (ptr)
+	;trashes
+	;:r1-:r2, :d0-:d15
+	;info
+	;no longer than that, the elements after it let go of, the capacity
+	;as it was. The length is no more than it was
+
+	(vp-rdef (this elem tmp iter_begin iter_end saved_this))
+
+	(entry :list :truncate `(,this ,elem))
+
+	(assign `((,this +array_length)) `(,tmp))
+	(vpif `(,elem /= ,tmp))
+		(vp-push iter_begin iter_end saved_this)
+		;the length first, so what letting go of an element does sees
+		;the list as it now is
+		(class/array/set_length)
+		(vp-cpy-rr this saved_this)
+		(vp-cpy-rr tmp iter_end)
+		(assign `((,this +array_begin)) `(,iter_begin))
+		(vp-shl-cr (log2 +ptr_size) iter_end)
+		(vp-shl-cr (log2 +ptr_size) elem)
+		(vp-add-rr iter_begin iter_end)
+		(vp-add-rr elem iter_begin)
+		(loop-start)
+			(assign `((,iter_begin 0)) `(,elem))
+			(class/obj/deref-live elem tmp 'last_ref)
+		(vp-label 'next)
+			(vp-add-cr +ptr_size iter_begin)
+		(loop-until `(,iter_begin = ,iter_end))
+		(vp-cpy-rr saved_this this)
+		(vp-pop iter_begin iter_end saved_this)
+	(endif)
+
+	(exit :list :truncate `(,this))
+	(vp-ret)
+
+(vp-label 'last_ref)
+	;the last ref of an element, it is destroyed: that leaves the
+	;registers the place is held in
+	(call :obj :deref `(,elem))
+	(vp-jmp 'next)
+
+(def-func-end)
+
 (def-method :list :ref_back)
 	;inputs
 	;:r0 = list object (ptr)

@@ -118,19 +118,54 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r5, :d0-:d15
+	;:r1-:r7, :d0-:d15
+	;info
+	;each array emptied, or with an index first, cut there: what is after
+	;it let go of, the capacity as it was, nothing copied. The index is as
+	;a slice's, -1 the end, so -4 lets the last 3 go, or as many as there
+	;are: one before the start is 0, all of it, one past the end is none
 
-	;a clear leaves these, so no frame
-	(vp-rdef (this iter iter_end) '(:r3 :r4 :r5))
+	;a clear and a truncate leave these, so no frame
+	(vp-rdef (this iter iter_end num args) '(:r3 :r4 :r5 :r6 :r7))
 
-	(entry :array :lisp_clear '(:r0 :r1))
-
-	(gotoif-lisp-args-type 'error :r1 :array 1)
+	(entry :array :lisp_clear `(:r0 ,args))
 
 	(vp-cpy-rr :r0 this)
-	(class/array/get_both :r1 iter iter_end)
+	(class/array/get_both args iter iter_end)
+	(gotoif `(,iter = ,iter_end) 'error)
+	;a num first is the index each is cut at, none is all of it
+	(vp-xor-rr num num)
+	(assign `((,iter 0)) '(:r0))
+	(f-bind :num :vtable :r1)
+	(assign '((:r0 +obj_vtable)) '(:r2))
+	(vpif '(:r1 = :r2))
+		(vp-cpy-rr :r0 num)
+		(vp-add-cr +ptr_size iter)
+		(gotoif `(,iter = ,iter_end) 'error)
+	(endif)
+	;all of them looked at before any is changed: each an array
+	(vp-push iter)
 	(loop-start)
-		(call :array :clear `((,iter 0)) '(:r0))
+		(assign `((,iter 0)) '(:r0))
+		(call :obj :inst_of `(:r0 (@ ,(f-path :array :vtable))) '(:r0 :r1))
+		(gotoif '(:r1 = 0) 'error_pop)
+		(vp-add-cr +ptr_size iter)
+	(loop-until `(,iter = ,iter_end))
+	(vp-pop iter)
+	(loop-start)
+		(assign `((,iter 0)) '(:r0))
+		(vpif `(,num = 0))
+			(call :array :clear '(:r0) '(:r0))
+		(else)
+			(assign `((:r0 +array_length) (,num +num_value)) '(:r2 :r1))
+			(seq-elem-index :r1 :r2)
+			(vpif '(:r1 < 0))
+				(vp-xor-rr :r1 :r1)
+			(endif)
+			(vpif '(:r1 < :r2))
+				(call :array :truncate '(:r0 :r1) '(:r0))
+			(endif)
+		(endif)
 		(vp-add-cr +ptr_size iter)
 	(loop-until `(,iter = ,iter_end))
 	(class/obj/ref :r0 :r1)
@@ -138,8 +173,10 @@
 	(exit :array :lisp_clear `(,this :r0))
 	(vp-ret)
 
+(vp-label 'error_pop)
+	(vp-pop iter)
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(clear array ...)" +error_msg_wrong_types))
+	(jump :lisp :repl_error `(,args "(clear [idx] array ...)" +error_msg_wrong_types))
 
 (def-func-end)
 

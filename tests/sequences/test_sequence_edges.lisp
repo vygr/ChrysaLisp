@@ -114,7 +114,34 @@
 	(length (cap 10 (array 1 2 3))) 3
 	;merge appends what the first list does not have, and gives it back
 	(merge (list 1 2) (list 3 4)) '(1 2 3 4)
-	(clear (list 1 2) (list 3)) '())
+	(clear (list 1 2) (list 3)) '()
+	;with an index first, each cut there, the rest let go of. As a slice's,
+	;-1 is the end, and one before the start or past the end is no error
+	(clear 2 (list 1 2 3 4)) '(1 2)
+	(clear 0 (list 1 2)) '()
+	(clear 3 (list 1 2 3)) '(1 2 3)
+	(clear 1 (nums 5 6 7)) (nums 5)
+	(clear -2 (list 1 2 3)) '(1 2)
+	(clear -4 (list 1 2 3 4 5)) '(1 2)
+	(clear -1 (list 1 2)) '(1 2)
+	(clear -4 (list 1 2)) '()
+	(clear 5 (list 1 2)) '(1 2))
+
+;cut, the arrays are the same, what was after the index gone from each,
+;what is still had elsewhere kept, and the room it had used again
+(defq edge_cut (list "a" "b" "c" "d") edge_nums (nums 1 2 3) edge_kept (elem-get edge_cut 3))
+(clear 1 edge_cut edge_nums)
+(assert-list-eq "clear cuts each at the index" '("a") edge_cut)
+(assert-eq "clear cuts nums too" 1 (length edge_nums))
+(assert-eq "clear lets go, what is had elsewhere lives" "d" edge_kept)
+(push edge_cut "e")
+(assert-list-eq "clear, then pushed to" '("a" "e") edge_cut)
+(defq edge_long (list 1 2 3 4) edge_short (list 1))
+(clear -3 edge_long edge_short)
+(assert-list-eq "clear of the last 2, each by its own length" '(1 2) edge_long)
+(assert-list-eq "clear of the last 2 of one shorter" '() edge_short)
+(assert-error "clear of an index, and not an array" (clear 1 (list 1) 2))
+(assert-error "clear of an index alone" (clear 1))
 
 (defq edge_list (list 1 2 3))
 (pop edge_list) (pop edge_list) (pop edge_list)

@@ -459,9 +459,15 @@ Primitives targeting mutable `:array` and `:list` data structures.
 
 	*	`(fill array length value) -> array`
 
-*	**`clear`**: Erases all elements and resets length to zero.
+*	**`clear`**: Erases all elements and resets length to zero, or with an
+	index first, cuts each array there: the elements after it are let go
+	of, the capacity stays as it was and nothing is copied. The index is
+	as a slice's, -1 the end, so `(clear -4 a)` lets the last 3 go, and
+	each array is cut by its own length. An index before the start is 0,
+	all of it, and one past the end leaves the array as it is: it never
+	fails for the index.
 
-	*	`(clear array ...) -> array`
+	*	`(clear [idx] array ...) -> array`
 
 *	**`push`**: Appends one or more items to the end of an array or list.
 

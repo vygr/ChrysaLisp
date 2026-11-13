@@ -15,6 +15,7 @@
 	(dec-method :cat class/list/cat :final :nil :nil (:r0-:r9 :d0-:d15) (:r0-:r9 :d0-:d15))
 	(dec-method :slice class/list/slice :final :nil :nil (:r0-:r4 :r6-:r8 :d0-:d15) (:r0-:r4 :r6-:r8 :d0-:d15))
 	(dec-method :clear class/list/clear :final :nil :nil (:r1-:r2 :d0-:d15) (:r1-:r2 :d0-:d15))
+	(dec-method :truncate class/list/truncate :final :nil :nil (:r1-:r2 :d0-:d15) (:r1-:r2 :d0-:d15))
 	(dec-method :ref_back class/list/ref_back :final :nil :nil (:r1-:r2) (:r1-:r2))
 	(dec-method :set_elem class/list/set_elem :final :nil :nil (:r1-:r3 :d0-:d15) (:r1-:r3 :d0-:d15))
 	(dec-method :append class/list/append :final :nil :nil (:r1-:r3 :r6-:r9 :d0-:d15) (:r1-:r3 :r6-:r9 :d0-:d15))
