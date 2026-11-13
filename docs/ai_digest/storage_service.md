@@ -149,6 +149,27 @@ has read, the room left, and each directory it has read with its names
 indexed, read again only once it is written. Without these a put of the
 tree, 2,001 files, into one member was 26 s. It is 6 s.
 
+## What Is Done First
+
+The service does one thing at a time, all of it, before the next. What
+has come is put with those of its kind as it comes, and the first of the
+first kind there is, is next:
+
+1. what an asker waits on to read: info, stat, list, has, a block, where
+   a block is, pins;
+2. what is written: blocks, paths, deletes, copies, pins, snapshots, and
+   the rest;
+3. what the members and the tender ask of each other: state, entries,
+   merge, share, gophers, peers, members.
+
+Its own work is done when nothing is asked: the end of a run of block
+puts, what other members told it written to the volume, then the plan of
+what it is to keep, 2 ms at a time in the apps' band. A timer in the
+service's select wakes it for the end of a run of block puts; otherwise
+it waits on what is asked. A stat sent behind 256 block puts waited 67 ms
+when it was done in turn, and is answered in 2 ms now. A read amid a run
+of block puts ends that run, as anything else asked does.
+
 ## Members
 
 A member is a system, by its system id. One service a system. The members of

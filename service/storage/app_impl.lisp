@@ -14,7 +14,9 @@
 ; (storage-start).
 ;
 ; It does each thing asked before it looks at the next, so a write is all
-; done or not begun as far as any other asker can see. And it only ever
+; done or not begun as far as any other asker can see. What has come is
+; done by its kind, (asked-kind), what an asker waits on to read first,
+; and its own work, the plan, when nothing is asked. And it only ever
 ; answers. It asks nothing of another member and waits: two services that
 ; did, each of the other, would wait for ever. What a member has to ask of
 ; the others, to compare notes and to fetch its share, its tender asks,
@@ -76,6 +78,43 @@
 ;how long the plan of what this member is to keep is worked on at a
 ;time, between the things asked: a big store's is seconds of work
 (defq +plan_slice 2000)
+
+(defun asked-kind (type)
+	;what an asker waits on to read is done first, then what is written,
+	;then what the members and the tender ask of each other
+	(case type
+		((+storage_type_info +storage_type_stat +storage_type_list +storage_type_has
+				+storage_type_block_get +storage_type_where +storage_type_pinned +storage_type_pins_missing)
+			0)
+		((+storage_type_state +storage_type_entries +storage_type_merge +storage_type_share
+				+storage_type_walk +storage_type_peers +storage_type_members)
+			2)
+		(:t 1)))
+
+(defun asked-next (select queues heads)
+	; (asked-next select queues heads) -> :nil | msg
+	;what has come, each put after those of its kind, and the first of
+	;the first kind there is. Each kind's is taken from where its head is,
+	;and let go of all at once when all of it is taken
+	(defq main (first select) box (list main) msg :nil)
+	(while (mail-poll box)
+		(setq msg (mail-read main))
+		(cond
+			;a stop to its open that came as it was up, (storage-start), is
+			;no request and is let go
+			((< (length msg) +storage_rpc_size) (setq msg :nil))
+			;one alone, with none of any kind before it, is the next as it is
+			((and (not (mail-poll box)) (every (const empty?) queues)))
+			(:t (push (elem-get queues (asked-kind (getf msg +storage_rpc_type))) msg)
+				(setq msg :nil))))
+	(cond
+		(msg)
+		((defq at (some! (# (if (< %1 (length %0)) (!))) (list queues heads)))
+			(defq queue (elem-get queues at) head (elem-get heads at) msg (elem-get queue head))
+			(cond
+				((= (inc head) (length queue)) (clear queue) (elem-set heads at 0))
+				((elem-set heads at (inc head))))
+			msg)))
 
 (defun notes-text (store at)
 	;what one member tells another: where its count of changes is now,
@@ -145,37 +184,46 @@
 				(mail-send tender (join (list (hex-encode (task-mbox)) group (ifn tick (str +storage_tick))
 							(ifn grace (str +storage_grace))) +storage_lf)))
 			(mail-send ready "ok")
+			;what is asked, as it comes, and a timer: its own work is done
+			;when nothing is asked, the timer says when that waits on time
+			(defq select (task-mboxes 2) timed :nil batch_at 0 queues (list (list) (list) (list)) heads (nums 0 0 0) msg :nil)
 			(while running
-				;a run of block puts is one writing of the volume, so what they
-				;are goes to the device together, the blocks next to each other
-				;and their folder once: a flash stick is slow at many small
-				;writes. Anything else asked ends it first, so a path is set
-				;only to blocks that are on the device, and so does nothing
-				;asked for a moment
-				;waited for, not looked for now and then: the next block is
-				;here as soon as it is sent
-				(defq msg (and batch (mail-read-timeout (task-mbox) +batch_quiet)))
-				(unless msg
-					(if batch (setq batch (progn (exfat-end batch) :nil)))
-					;the plan is worked on while nothing is asked, a slice at a
-					;time, with the apps of the node, not before them. One that
-					;throws is let go of, and made anew when next asked
-					(when (and (store-plan-busy? store) (not (mail-poll (list (task-mbox)))))
-						(task-band :app)
-						(catch (while (and (store-plan-step store (+ (pii-time) +plan_slice)) (not (mail-poll (list (task-mbox)))))
-								(task-breathe))
-							(progn (prin "Storage: plan, " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print)
-								(store-plan-forget store) :t))
-						(task-band :bot))
-					(setq msg (mail-read (task-mbox))))
-				;a stop to its open that came as it was up, (storage-start),
-				;is no request and is let go
-				(while (< (length msg) +storage_rpc_size) (setq msg (mail-read (task-mbox))))
+				(until (setq msg (asked-next select queues heads))
+					(cond
+						;a run of block puts is one writing of the volume, so
+						;what they are goes to the device together, the blocks
+						;next to each other and their folder once: a flash stick
+						;is slow at many small writes. Anything else asked ends
+						;it first, so a path is set only to blocks that are on
+						;the device, and so does nothing asked for a moment
+						((and batch (>= (- (pii-time) batch_at) +batch_quiet))
+							(setq batch (progn (exfat-end batch) :nil)))
+						;what was learnt from other members and is not written yet
+						((get :dirty store) (store-save store))
+						;the plan is worked on a slice at a time, with the apps
+						;of the node, not before them. One that throws is let go
+						;of, and made anew when next asked
+						((store-plan-busy? store)
+							(task-band :app)
+							(catch (store-plan-step store (+ (pii-time) +plan_slice))
+								(progn (prin "Storage: plan, " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print)
+									(store-plan-forget store) :t))
+							(task-breathe)
+							(task-band :bot))
+						;nothing to do but wait, for what is asked, or for the end
+						;of a run of block puts
+						(:t (when (and batch (not timed))
+								(mail-timeout (second select) (max 1 (- (+ batch_at +batch_quiet) (pii-time))) 0)
+								(setq timed :t))
+							(when (= (mail-select select) 1)
+								(mail-read (second select))
+								(setq timed :nil)))))
 				(defq reply (getf msg +storage_rpc_reply_id)
 					type (getf msg +storage_rpc_type) body (slice msg +storage_rpc_size -1))
 				(cond
 					((= type +storage_type_block_put)
-						(unless batch (setq batch (exfat-begin (get :vol store)))))
+						(unless batch (setq batch (exfat-begin (get :vol store))))
+						(setq batch_at (pii-time)))
 					(batch (setq batch (progn (exfat-end batch) :nil))))
 				;a thing asked that throws is said to have, and the service goes on
 				(defq answer (catch (case type
@@ -365,10 +413,10 @@
 				;and the apps of the node have a turn, if it has been at it a while
 				(task-breathe)
 				;what was learnt from other members and is not written yet, is,
-				;when nothing else is asked, or it has waited long enough
-				(and (defq dirty (get :dirty store))
-					(or (not (mail-poll (list (task-mbox)))) (> (- (pii-time) dirty) +dirty_most))
+				;when nothing else is asked, above, or it has waited long enough
+				(and (defq dirty (get :dirty store)) (> (- (pii-time) dirty) +dirty_most)
 					(store-save store)))
+			(if timed (mail-timeout (second select) 0 0))
 			(if (/= 0 (get-long tender 0)) (mail-send tender "stop"))
 			(if (/= 0 (get-long runner 0)) (mail-send runner "stop"))
 			(mail-forget service)
