@@ -167,8 +167,9 @@ the one that has waited longest first, so reads that keep coming do not
 hold a write back for ever.
 
 Its own work is done when nothing is asked: the end of a run of block
-puts, what other members told it written to the volume, a sweep, then the
-plan of what it is to keep, each 2 ms at a time in the apps' band. A timer in the
+puts, what other members told it written to the volume, a sweep, a check
+of its blocks, then the plan of what it is to keep, each 2 ms at a time in
+the apps' band. A timer in the
 service's select wakes it for the end of a run of block puts; otherwise
 it waits on what is asked. A stat sent behind 256 block puts waited 67 ms
 when it was done in turn, and is answered in 2 ms now. A read amid a run
@@ -644,7 +645,15 @@ may not be set yet, and a path set meanwhile is gone through before any
 more is let go of, its blocks may have been put before the sweep began.
 One asked while another is under way is the next. Of a store of a million
 blocks a sweep was 8.6 s with every request waiting; it is 5 s now, and
-the longest a stat waited meanwhile was 7 ms. `(storage-settle)`, `(storage-pace)` and
+the longest a stat waited meanwhile was 7 ms.
+
+A check of the blocks is the same: a folder of blocks/ at a time, then
+each block in it read, answered when it is done. A block let go of since
+its folder was listed is not called wrong. Those who ask while one is
+under way are the next, which mends if any of them asked it to. Of a
+store of a million blocks a check is 36 s, and was 36 s with every
+request waiting; the longest a stat waited meanwhile was 5.4 ms. A check
+of the volume, `(storage-volume-check)`, is still done at once. `(storage-settle)`, `(storage-pace)` and
 `(storage-cut)` are for tests: have the tender look now, change how often it
 looks, and make a member as if it could not reach some others.
 

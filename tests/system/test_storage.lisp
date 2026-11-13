@@ -227,6 +227,9 @@
 		(map (# (mail-read-timeout %0 (task-timeout 60)))
 			(list (storage-send sg_svc +storage_type_sweep) (storage-send sg_svc +storage_type_sweep))))
 	(assert-list-eq "nothing kept is wrong" '() (storage-check :nil sg_svc))
+	(assert-list-eq "two checks asked at once, both are answered" '("" "")
+		(map (# (mail-read-timeout %0 (task-timeout 60)))
+			(list (storage-send sg_svc +storage_type_check) (storage-send sg_svc +storage_type_check))))
 	(assert-list-eq "nothing is wrong with the volume, after puts, deletes and a sweep" '() (storage-volume-check sg_svc))
 	(assert-list-eq "and a mend of it has nothing to do" '() (storage-volume-check sg_svc :t))
 

@@ -51,6 +51,22 @@
 (assert-list-eq "and is found" (list so_n1) (store-check so))
 (assert-list-eq "mended, it is let go of" (list so_n1) (store-check so :t))
 (assert-eq "and is not kept" :nil (store-block-has? so so_n1))
+;a step at a time, a thing a step: a block let go of after its folder is
+;listed is not wrong, one on the volume not known to be kept is, and
+;mended both that and one gone wrong are gone from the volume
+(defq so_c1 (store-block-put so "check one") so_c2 (store-block-put so "check two")
+	so_c3 (sha256 "check three") so_c3_file (store-block-file so so_c3))
+(exfat-save (get :vol so) so_c3_file "check three")
+(exfat-save (get :vol so) (store-block-file so so_c2) "check two gone wrong")
+(store-check-begin so :t)
+(assert-eq "a check is under way" :t (store-check-busy? so))
+(store-check-step so 0)
+(store-block-drop so so_c1)
+(while (store-check-step so 0))
+(assert-list-eq "a step at a time it finds what is wrong, not what was let go of meanwhile"
+	(sort (list so_c2 so_c3)) (sort (store-check-end so)))
+(assert-list-eq "mended, they are gone from the volume" '(:nil :nil)
+	(list (store-block-has? so so_c2) (exfat-find (get :vol so) so_c3_file)))
 
 ;;;;;;;;;
 ; objects

@@ -113,6 +113,12 @@
 (enums +sweep 0
 	(enum paths at blocks next live spared bucket buckets gone))
 
+;a check that can stop and go on: the folders of blocks, how far through
+;them, the files of the folder at hand and the start of their names, how
+;far through those, if it mends, and the blocks found wrong
+(enums +check 0
+	(enum folders at files prefix next mend bad))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the counts of who has written a path
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1599,9 +1605,11 @@
 	;time: one that no object is made of, and that was not put since the
 	;sweep began, is let go of. A path set meanwhile is walked before any
 	;more are: its blocks may have been put before the sweep began
-	(defq sweep (get :sweep store) done (not sweep) vol (get :vol store))
+	(defq sweep (get :sweep store) done (not sweep) vol (get :vol store) once :t)
 	(exfat-begin vol)
-	(while (and (not done) (or (not until) (< (pii-time) until)))
+	;one thing at least, though it be time
+	(while (and (not done) (or once (not until) (< (pii-time) until)))
+		(setq once :nil)
 		(task-breathe)
 		(defq live (elem-get sweep +sweep_live) paths (elem-get sweep +sweep_paths))
 		(cond
@@ -1659,17 +1667,67 @@
 	(store-plan-free store)
 	gone)
 
+(defun store-check-begin (store &optional mend)
+	; (store-check-begin store [mend])
+	;a check of every block on the volume, a step at a time,
+	;(store-check-step). One under way is let go of
+	(def store :check (list
+		(map (# (cat "blocks/" (first %0))) (filter (const second) (ifn (exfat-list (get :vol store) "blocks") '())))
+		0 '() "" 0 mend (list))))
+
+(defun store-check-step (store &optional until)
+	; (store-check-step store [until]) -> :nil | :t
+	;more of a check, till it is time until, if there is one. :t if there
+	;is more to do. A folder of blocks at a time, then each of its blocks
+	;read: one whose data is not what its name says, or that is not known
+	;to be kept, is wrong, and with mend let go of. One let go of since its
+	;folder was listed is not
+	(defq check (get :check store) done (not check) vol (get :vol store) once :t)
+	(exfat-begin vol)
+	;one thing at least, though it be time
+	(while (and (not done) (or once (not until) (< (pii-time) until)))
+		(setq once :nil)
+		(task-breathe)
+		(cond
+			;of the folder at hand, the next of its blocks
+			((< (defq next (elem-get check +check_next)) (length (defq files (elem-get check +check_files))))
+				(elem-set check +check_next (inc next))
+				(defq file (elem-get files next) name (hex-decode (cat (elem-get check +check_prefix) (last (split file "/")))))
+				(when (and (not (store-block-get store name)) (exfat-find vol file))
+					(push (elem-get check +check_bad) name)
+					(when (elem-get check +check_mend)
+						(if (store-block-has? store name) (store-block-drop store name) (exfat-delete vol file)))))
+			;the next folder, the blocks in it
+			((< (defq at (elem-get check +check_at)) (length (defq folders (elem-get check +check_folders))))
+				(elem-set check +check_at (inc at))
+				(defq folder (elem-get folders at) part (last (split folder "/")))
+				(elem-set check +check_prefix (if (starts-with "w" part) "" part))
+				(elem-set check +check_files (map (# (cat folder "/" (first %0)))
+					(filter (# (not (second %0))) (ifn (exfat-list vol folder) '()))))
+				(elem-set check +check_next 0))
+			(:t (setq done :t))))
+	(exfat-end vol)
+	(not done))
+
+(defun store-check-end (store)
+	; (store-check-end store) -> :nil | (name ...)
+	;a check is over, the blocks it found wrong
+	(when (defq check (get :check store))
+		(def store :check :nil)
+		(elem-get check +check_bad)))
+
+(defun store-check-busy? (store)
+	; (store-check-busy? store) -> :nil | :t
+	(if (get :check store) :t))
+
 (defun store-check (store &optional mend)
 	; (store-check store [mend]) -> (name ...)
 	;the blocks kept here that are not what their names say, gone wrong
-	;on the disk. With mend they are let go of, to be had again from
-	;another member that has them right
-	(defq bad (filter (# (not (store-block-get store %0))) (store-blocks store)))
-	(when (and mend (nempty? bad))
-		(exfat-begin (get :vol store))
-		(each (# (store-block-drop store %0)) bad)
-		(exfat-end (get :vol store)))
-	bad)
+	;on the disk, all at once, (store-check-step). With mend they are let
+	;go of, to be had again from another member that has them right
+	(store-check-begin store mend)
+	(while (store-check-step store))
+	(store-check-end store))
 
 (defun store-pin (store prefix &optional off)
 	; (store-pin store prefix [off]) -> store
@@ -1725,7 +1783,7 @@
 		store-cut store-manifest store-manifest-text store-tree-text store-manifest-read store-manifest-make store-manifest-walk
 		store-find store-stat store-now
 		store-commit store-commit-root store-put store-delete store-rename store-copies store-get store-read store-fold store-walk store-list
-		store-wanted store-sweep store-sweep-begin store-sweep-step store-sweep-end store-sweep-busy? store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
+		store-wanted store-sweep store-sweep-begin store-sweep-step store-sweep-end store-sweep-busy? store-check store-check-begin store-check-step store-check-end store-check-busy? store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
 		store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
 		store-entry-line store-entry-read store-journal-write
 		store-snapshot store-snapshots store-restore store-snapshot-drop store-snapshot-name? +store_snapshots

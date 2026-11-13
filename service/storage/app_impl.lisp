@@ -190,8 +190,9 @@
 				;how the members of a store find each other, whatever machine they are on
 				known (mail-declare (task-mbox) group (cat (get :id store) " " member))
 				running :t cut (list) peers (list) recorder (storage-record-new) batch :nil stopped :nil
-				;who asked for the sweep under way, and who for one after it
-				sweepers (list) sweep_next (list)
+				;who asked for the sweep under way, and who for one after it,
+				;and the same of a check, each after it with if it mends
+				sweepers (list) sweep_next (list) checkers (list) check_next (list)
 				tender (open-child "service/storage/tender.lisp" +kn_call_pin)
 				runner (open-child "service/storage/gopher.lisp" +kn_call_pin))
 			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
@@ -232,6 +233,19 @@
 								;the paths as they are now
 								(setq sweepers sweep_next sweep_next (list))
 								(if (nempty? sweepers) (store-sweep-begin store)))
+							(task-breathe)
+							(task-band :bot))
+						;a check of the blocks the same, those who asked while one
+						;was under way the next, which mends if any of them asked
+						((or (store-check-busy? store) (nempty? checkers))
+							(task-band :app)
+							(unless (catch (store-check-step store (+ (pii-time) +plan_slice))
+									(progn (prin "Storage: check, " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) :nil))
+								(defq checked (join (map (const hex-encode) (ifn (store-check-end store) '())) +storage_lf))
+								(each (# (mail-send %0 checked)) checkers)
+								(setq checkers (map (const first) check_next))
+								(if (nempty? checkers) (store-check-begin store (some (const second) check_next)))
+								(setq check_next (list)))
 							(task-breathe)
 							(task-band :bot))
 						;the plan is worked on a slice at a time, with the apps
@@ -331,9 +345,13 @@
 									(:t (store-sweep-begin store) (push sweepers reply)))
 								:nil)
 							(+storage_type_check
-								;the volume the store is on, mended if asked, or its blocks
-								(join (if (starts-with "volume" body) (exfat-check (get :vol store) (eql body "volume mend"))
-										(map (const hex-encode) (store-check store (eql body "mend")))) +storage_lf))
+								;the volume the store is on, mended if asked, or its
+								;blocks, answered when it is done, as a sweep is
+								(cond
+									((starts-with "volume" body)
+										(join (exfat-check (get :vol store) (eql body "volume mend")) +storage_lf))
+									((store-check-busy? store) (push check_next (list reply (eql body "mend"))) :nil)
+									(:t (store-check-begin store (eql body "mend")) (push checkers reply) :nil)))
 							(+storage_type_walk
 								;a gopher. The task that runs them here is given it, with
 								;who is to be answered: who asked, or the member that
@@ -458,6 +476,9 @@
 			;a sweep under way is over, those who asked told what it let go of
 			(defq swept (str (ifn (store-sweep-end store) 0)))
 			(each (# (mail-send %0 swept)) (cat sweepers sweep_next))
+			;and a check, told what it found so far
+			(defq checked (join (map (const hex-encode) (ifn (store-check-end store) '())) +storage_lf))
+			(each (# (mail-send %0 checked)) (cat checkers (map (const first) check_next)))
 			(if (/= 0 (get-long tender 0)) (mail-send tender "stop"))
 			(if (/= 0 (get-long runner 0)) (mail-send runner "stop"))
 			(mail-forget service)
