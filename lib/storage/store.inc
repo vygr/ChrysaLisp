@@ -74,6 +74,9 @@
 	+store_manifest_names 1000
 	;how many are in a bucket of a map of a store, of its blocks or paths
 	+store_per_bucket 32
+	;of the blocks kept, how many to a bucket as it is opened, and the
+	;most there are ever to be, (store-open)
+	+store_held_per 16 +store_held_most 128
 	;the first line of the file of the blocks kept, (store-held-save)
 	+store_held_magic "CHRYSA_HELD 1"
 	+store_block_size 65536 +store_copies 3 +store_lf "\n"
@@ -279,12 +282,13 @@
 	;through its bucket, and so many is no slower than one a bucket, timed
 	(max least (/ count +store_per_bucket)))
 
-(defun store-grow (table count)
-	; (store-grow table count) -> table
+(defun store-grow (table count &optional per)
+	; (store-grow table count [per]) -> table
 	;a map of a store made twice as big when it has more than so many to a
-	;bucket, as the store grows: once in a while, not at every insert
+	;bucket, +store_per_bucket if not said, as the store grows: once in a
+	;while, not at every insert
 	(defq buckets (get :num_buckets table))
-	(if (> count (* buckets +store_per_bucket)) (. table :resize (* buckets 2)))
+	(if (> count (* buckets (ifn per +store_per_bucket))) (. table :resize (* buckets 2)))
 	table)
 
 (defun store-span (store)
@@ -684,7 +688,15 @@
 				;a bucket of the map for every so many blocks, a store has a
 				;million of them, and the number of a folder once for all
 				;its blocks, which come together
-				(defq held (. (get :held store) :resize (store-buckets (reduce (# (+ %0 (length (second %1)))) groups 0) 1021)))
+				;the map of the blocks kept never to grow: to double a map of a
+				;million was 127 ms, at the first block put. A bucket for every
+				;+store_held_per kept, and no fewer than one for every
+				;+store_held_most clusters of the volume, the most blocks there
+				;can be, so it never has more to a bucket than that: a find of
+				;one not kept 1.3 us at most, 0.6 at 32 to a bucket
+				(defq held (. (get :held store) :resize
+					(max 1021 (/ (reduce (# (+ %0 (length (second %1)))) groups 0) +store_held_per)
+						(/ (get :cluster_count vol) +store_held_most))))
 				(each (lambda ((folder names))
 						(each (# (. held :insert %0 folder)) names)
 						(defq n (if (starts-with "blocks/w" folder) (str-as-num (slice folder (const (length "blocks/w")) -1)) -1))
@@ -1074,7 +1086,7 @@
 			(defq kept (exfat-save vol file data))
 			(exfat-end vol)
 			(when kept
-				(. (store-grow (get :held store) (inc (get :blocks store))) :insert name folder)
+				(. (store-grow (get :held store) (inc (get :blocks store)) +store_held_most) :insert name folder)
 				(def store :folder_count (inc (get :folder_count store)) :blocks (inc (get :blocks store)))
 				(if (defq sweep (get :sweep store)) (. (elem-get sweep +sweep_spared) :insert name))
 				(store-plan-held store name)
