@@ -886,10 +886,20 @@
 	;asked with every put to a store, and the count was a look at every
 	;bit of the bitmap
 	(unless (get :free vol)
-		(defq bitmap (get :bitmap vol) count (get :cluster_count vol) used 0)
-		(each! (lambda () (defq byte (code bitmap 1 (!)))
-				(while (/= byte 0)
-					(setq used (+ used (logand byte 1)) byte (>> byte 1)))) '() 0 (length bitmap))
+		;a long at a time: all in use, or none, is most of a bitmap, and a
+		;long that is neither a byte at a time, each one's count from a table
+		(defq bitmap (get :bitmap vol) count (get :cluster_count vol) used 0
+			bits (const (reduce! (lambda (out) (defq byte (!) n 0)
+					(while (/= byte 0) (setq n (+ n (logand byte 1)) byte (>> byte 1)))
+					(push out n)) '() (cap 256 (nums)) 0 256))
+			longs (>> (length bitmap) 3))
+		(each! (lambda () (defq at (<< (!) 3) word (get-long bitmap at))
+				(cond
+					((= word -1) (setq used (+ used 64)))
+					((/= word 0)
+						(each! (# (setq used (+ used (elem-get bits (code bitmap 1 (+ at (!))))))) '() 0 8))))
+			'() 0 longs)
+		(each! (# (setq used (+ used (elem-get bits (code bitmap 1 (!)))))) '() (<< longs 3) (length bitmap))
 		(def vol :free (- count used)))
 	(<< (get :free vol) (get :cluster_shift vol)))
 
