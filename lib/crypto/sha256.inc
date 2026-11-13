@@ -59,10 +59,21 @@
 	(apply (const cat) (map! (lambda () (defq word (get-uint state (* (!) 4)))
 				(char-be word 4)) '() 0 8)))
 
+;the state a hash starts with, copied for each
+(defq +sha256_start (first (sha256-start)))
+
 (defun sha256 (data)
 	; (sha256 data) -> str
-	;the hash of a str, 32 bytes
-	(sha256-end (sha256-add (sha256-start) data)))
+	;the hash of a str, 32 bytes. One of no more than +sha256_slice blocks
+	;is padded and given to the native code the once: a store hashes names
+	;and lines by the hundred thousand, and the ctx of each was most of it
+	(defq n (length data))
+	(cond
+		((> n (const (* +sha256_slice 64))) (sha256-end (sha256-add (sha256-start) data)))
+		(:t (defq state (cat +sha256_start)
+				tail (cat data "\x80" (slice +sha256_zeros 0 (% (- 119 (% n 64)) 64)) (char-be (* n 8) 8)))
+			(sha256-blocks state tail 0 (/ (length tail) 64))
+			(apply (const cat) (map! (# (char-be (get-uint state (* (!) 4)) 4)) '() 0 8)))))
 
 (defun hmac-sha256 (key data)
 	; (hmac-sha256 key data) -> str

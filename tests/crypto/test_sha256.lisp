@@ -54,6 +54,11 @@
 (sha256 sha_text)
 (assert-eq "the data is as it was" sha_before sha_text)
 (assert-eq "the same again" (sha256 sha_text) (sha256 sha_text))
+;one short enough is hashed the once, the same as a part at a time
+(defq sha_long (apply (const cat) (map! (# (char (logand (* (!) 13) 0xff))) '() 0 65537)))
+(assert-true "every length to 300, and either side of 64KB, the same hashed at once or a part at a time"
+	(every (lambda (n) (defq d (slice sha_long 0 n)) (eql (sha256 d) (sha256-end (sha256-add (sha256-start) d))))
+		(cat (map! (const !) '() 0 301) '(65535 65536 65537))))
 (assert-eq "32 bytes" 32 (length (sha256 "")))
 
 ;what the native code refuses
