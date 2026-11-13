@@ -359,8 +359,8 @@
 (store-delete so_j "b c")
 (store-put so_j "d" (so-bytes 100 4))
 (assert-true "a path that is set is added to it" (> (get :journal_at so_j) so_j_first))
-(assert-list-eq "and the map on the volume has none of them, only the digest of none" '("digest 0 0 0 0")
-	(filter (const nempty?) (split (exfat-load (get :vol so_j) "paths") "\n")))
+(assert-list-eq "and the map on the volume has none of them" '()
+	(filter (const store-entry-read) (split (exfat-load (get :vol so_j) "paths") "\n")))
 ;not closed: opened again as it is on the volume
 (defq so_j2 (store-open so_j_stream "aaaa"))
 (assert-list-eq "opened, it has the paths, the last of each" '("a" "d") (so-paths so_j2))
@@ -390,6 +390,34 @@
 (defq so_j5 (store-open so_j_stream "aaaa"))
 (assert-list-eq "nothing lost by it" '("a" "d" "e" "f" "over and over") (so-paths so_j5))
 (assert-eq "and the last that was set is what is had" (so-bytes 50 3) (store-get so_j5 "over and over"))
+;three quarters full, a save is begun, to be done a step at a time
+(bind '(so_q so_q_stream) (so-new 0x400000 "quarters" "aaaa" 4096))
+(defq so_q_n 0)
+(while (and (not (store-save-busy? so_q)) (< (++ so_q_n) 2000)) (store-put so_q "q" (so-bytes 50 so_q_n)))
+(assert-true "a journal three quarters full begins a save" (> (* 4 (get :journal_at so_q)) (* 3 (get :journal_size so_q))))
+
+;a save a step at a time: it writes the map as it was when it began, what
+;changes meanwhile goes to the other journal, and opened before it is
+;done or after, nothing is lost
+(bind '(so_s so_s_stream) (so-new 0x400000 "saving" "aaaa" 4096))
+(each! (# (store-put so_s (cat "s" (str (!))) (so-bytes 50 (!)))) '() 0 40)
+(store-save so_s)
+(defq so_s_gen (get :save_gen so_s))
+(store-save-begin so_s)
+(assert-eq "a save is under way" :t (store-save-busy? so_s))
+(store-save-step so_s 0)
+(store-put so_s "s0" (so-bytes 60 9))
+(store-delete so_s "s1")
+(store-put so_s "new" (so-bytes 70 9))
+(defq so_s_digest (store-digest so_s) so_s_want (list (so-bytes 60 9) :nil (so-bytes 70 9) (so-bytes 50 39)))
+(defun so-s-has (store) (list (store-get store "s0") (store-stat store "s1") (store-get store "new") (store-get store "s39")))
+(assert-list-eq "opened as the volume is, a save not done, it is as it is" so_s_want (so-s-has (defq so_s2 (store-open so_s_stream "aaaa"))))
+(assert-eq "and its digest is the same" so_s_digest (store-digest so_s2))
+(store-save-finish so_s)
+(assert-list-eq "the save done, opened, it is the same" so_s_want (so-s-has (defq so_s3 (store-open so_s_stream "aaaa"))))
+(assert-eq "and its digest" so_s_digest (store-digest so_s3))
+(assert-list-eq "the files of the map of the save before are gone, those of this one there" '(:nil :t)
+	(map (# (if (exfat-find (get :vol so_s) (cat "paths." (str %0) ".0")) :t)) (list so_s_gen (get :save_gen so_s))))
 
 ;;;;;;;;;;;
 ; snapshots

@@ -86,7 +86,11 @@
 	;how long the journal of the path map is at most, it is no more than
 	;a 64th of the volume. 0 and there is none, and every change of a
 	;path writes the whole map as it did
-	+store_journal_size 1048576)
+	+store_journal_size 1048576
+	;the path map is written in files of so many bytes at most, a step
+	;at a time, (store-save-step): one is a moment's writing, a flash
+	;stick too
+	+store_part_bytes 131072)
 
 (enums +store_entry 0
 	(enum path hash bytes vv writer seen deleted copies))
@@ -118,6 +122,16 @@
 ;far through those, if it mends, and the blocks found wrong
 (enums +check 0
 	(enum folders at files prefix next mend bad))
+
+;a save of the path map that can stop and go on: what it is at, :paths,
+;:gone, :write, :clean; which save it is; the bucket it is at, and how
+;many there are; the lines of the file being made, and how many bytes;
+;how many files of the map it has written; the digest of the map as it
+;began; the entries changed since, as they were, by their bucket; the
+;gone to write, and if they are all of them; the files of the gone; the
+;files to remove once it is written
+(enums +save 0
+	(enum phase gen bucket buckets lines bytes parts sum before gone all gone_lo gone_hi clean gone_at))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the counts of who has written a path
@@ -351,12 +365,22 @@
 	;whose store was put back from before the delete would have the path
 	;had again, and one told late of it would take it back. An entry
 	;after it takes it out of :gone
-	(defq was (. (get :map store) :find name) gone (get :gone store) settled (store-settled? store entry))
+	(defq was (. (get :map store) :find name) gone (get :gone store) settled (store-settled? store entry)
+		saving (get :save store))
+	;a saving under way writes the map as it was when it began: an entry of
+	;a bucket it has not come to yet is given it as it was, the first time
+	;it changes. Neither map is made bigger meanwhile, its buckets stay
+	(when (and saving (eql (elem-get saving +save_phase) :paths))
+		(defq bucket (% (hash name) (elem-get saving +save_buckets)))
+		(when (>= bucket (elem-get saving +save_bucket))
+			(defq before (elem-get saving +save_before) stash (ifn (. before :find bucket) (list)))
+			(unless (some (# (eql (first %0) name)) stash)
+				(. before :insert bucket (push stash (list name (ifn was :none)))))))
 	(if was (store-digest-mix store was))
 	(cond
 		(settled
 			(unless (. gone :find name) (def store :gones (inc (get :gones store))))
-			(. (store-grow gone (get :gones store) +store_held_most) :insert name entry)
+			(. (if saving gone (store-grow gone (get :gones store) +store_held_most)) :insert name entry)
 			(push (get :gone_new store) name))
 		;out of :gone, nothing to write: the path is in the map, which is
 		;read after them
@@ -387,7 +411,7 @@
 	(cond
 		(settled (when was (. (get :map store) :erase name) (def store :paths (dec (get :paths store)))))
 		(:t (unless was (def store :paths (inc (get :paths store))))
-			(. (store-grow (get :map store) (get :paths store)) :insert name entry))))
+			(. (if saving (get :map store) (store-grow (get :map store) (get :paths store) +store_held_most)) :insert name entry))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the journal of the path map
@@ -466,48 +490,64 @@
 		(store-journal-write store 0 head)
 		(def store :journal_at (length head))))
 
-(defun store-journal-add (store entries)
-	; (store-journal-add store entries) -> :nil | :t
-	;entries of the path map are on the volume, at the end of the journal,
-	;as the one write. :nil if there is no journal or no room in it for
-	;them all, and the map is to be written
-	(when (def? :journal store)
-		(defq count (get :journal_count store) at (get :journal_at store)
-			lines (apply (const cat) (cat (list "") (map (# (store-journal-mark count (store-entry-line %0))) entries))))
-		(when (<= (+ at (length lines)) (get :journal_size store))
-			(store-journal-write store at lines)
-			(exfat-sync (get :vol store))
-			(def store :journal_at (+ at (length lines)) :digest :nil)
-			:t)))
+(defun store-journal-switch (store)
+	;changes go to the other journal from now, begun again, its count one
+	;more than either's. The one they went to is as it was, and read as
+	;the store is opened, till a map that has all that is in it is
+	;written. Only so: if it is not yet, they go on where they were
+	(when (and (defq other (get :journal_other store)) (get :journal_covered store))
+		(bind '(name clusters size count) other)
+		(def store :journal_other (list (get :journal_name store) (get :journal store) (get :journal_size store) (get :journal_count store))
+			:journal_name name :journal clusters :journal_size size :journal_count (max count (get :journal_count store))
+			:journal_covered :nil)
+		(store-journal-reset store)))
 
-(defun store-journal-open (store)
-	;the journal of a store that has just had its map read: what it has
-	;that is later than the map is taken, and it is added to from there.
-	;One that has none is given one. How many entries were taken
-	(defq vol (get :vol store) took 0
-		want (min +store_journal_size (>> (* (get :cluster_count vol) (exfat-cluster-size vol)) 6)))
-	(and (not (exfat-find vol "journal")) (> want 2)
+(defun store-journal-read (store name want)
+	; (store-journal-read store name want) -> :nil | (name clusters size count at lines)
+	;a journal, made of want bytes if there is none: its count, where it
+	;ends, and its lines that are whole and of that count
+	(defq vol (get :vol store))
+	(and (not (exfat-find vol name)) (> want 2)
 		(progn (exfat-begin vol)
-			(exfat-save vol "journal" (cat "0" +store_lf (exfat-zeros (- want 2))))
+			(exfat-save vol name (cat "0" +store_lf (exfat-zeros (- want 2))))
 			(exfat-end vol)))
-	(when (defq found (exfat-find vol "journal"))
+	(when (defq found (exfat-find vol name))
 		(bind '(& & size start no_fat &rest _) found)
 		(defq text (exfat-data vol start size no_fat) end (ifn (find +store_lf text) 0)
-			count (str-as-num (cat "0" (slice text 0 end))) at (min size (inc end)) more :t)
+			count (str-as-num (cat "0" (slice text 0 end))) at (min size (inc end)) more :t lines (list))
 		(while (and more (< at size) (defq end (find +store_lf text at)))
 			(defq line (slice text (+ at 9) end))
 			(cond
-				((and (> (- end at) 9) (eql (slice text at (inc end)) (store-journal-mark count line))
-						(defq entry (store-entry-read line)))
-					(defq was (store-find store (first entry)))
-					(when (or (not was) (eql :after (store-vv-cmp (elem-get entry +store_entry_vv) (elem-get was +store_entry_vv))))
-						(store-map-insert store (first entry) entry)
-						(++ took))
+				((and (> (- end at) 9) (eql (slice text at (inc end)) (store-journal-mark count line)))
+					(push lines line)
 					(setq at (inc end)))
 				((setq more :nil))))
-		(when (> +store_journal_size 0)
-			(def store :journal (exfat-chain vol start size no_fat) :journal_size size
-				:journal_count count :journal_at at)))
+		(list name (exfat-chain vol start size no_fat) size count at lines)))
+
+(defun store-journal-open (store)
+	;the two journals of a store that has just had its map read, the
+	;older first: what each has that is later than the map is taken, and
+	;the later is added to from where it ends. One that is not there is
+	;made. How many entries were taken
+	(defq vol (get :vol store) took 0
+		want (min +store_journal_size (>> (* (get :cluster_count vol) (exfat-cluster-size vol)) 6))
+		journals (sort (filter (const identity) (map (# (store-journal-read store %0 want)) '("journal.b" "journal")))
+			(# (- (elem-get %0 3) (elem-get %1 3)))))
+	(each (lambda (journal)
+			(each (lambda (line)
+					(when (defq entry (store-entry-read line))
+						(defq was (store-find store (first entry)))
+						(when (or (not was) (eql :after (store-vv-cmp (elem-get entry +store_entry_vv) (elem-get was +store_entry_vv))))
+							(store-map-insert store (first entry) entry)
+							(++ took))))
+				(elem-get journal 5)))
+		journals)
+	;the map written may not yet have all of the older, a save is to be
+	;written before it is begun again
+	(when (and (> +store_journal_size 0) (nempty? journals))
+		(bind '(name clusters size count at &ignore) (last journals))
+		(def store :journal clusters :journal_size size :journal_count count :journal_at at :journal_name name
+			:journal_covered :nil :journal_other (if (> (length journals) 1) (slice (first journals) 0 4))))
 	took)
 
 (defun store-gone-read (store data)
@@ -524,51 +564,201 @@
 		lines)
 	(length lines))
 
-(defun store-gone-save (store)
-	;those gone since the last time, a file of their own, gone.1, gone.2
-	;and on, not all of them again: they are hundreds of thousands. When
-	;those files have half as many as gone has, all of them are written
-	;as gone, and the others go, so each is written so many times at most
-	(when (nempty? (defq names (get :gone_new store)))
-		(defq vol (get :vol store) gone (get :gone store) lines (list))
-		(each (# (if (defq entry (. gone :find %0)) (push lines (store-entry-line entry)))) names)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the path map written, a step at a time
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; The map is written as files of +store_part_bytes at most, paths.<save>.
+; <n>, and the file paths says which they are: the digest of the map, the
+; save and how many, and the files of the gone. It is written last, and
+; the save is done when it is: the files of the save before are removed
+; after it. Till then a store opens to the save before and both journals.
+;
+; A save begins with changes going to the other journal, and writes the
+; map as it was then: an entry that changes in a bucket not yet written is
+; kept as it was for it, (store-map-insert). So the digest of the map as it
+; began is that of what is written, and the journal has all that is later.
+;
+; The gone are written a file of those gone since the save before, gone.
+; <n>, and all of them again, in files after those, when those added since
+; have half as many: so each is written so many times at most.
+
+(defun store-save-begin (store)
+	; (store-save-begin store)
+	;a save of the path map as it is now, (store-save-step). Not if one is
+	;under way
+	(unless (get :save store)
+		(store-journal-switch store)
+		(defq gone (get :gone_new store)
+			all (> (* 2 (+ (get :gone_extra store) (length gone))) (+ (get :gone_base store) 1024)))
+		;numbers of files never had before, so what a save that was not
+		;done left is not what one writes
+		(defq hi (max (get :gone_hi store) (get :gone_next store)))
+		;what changes the members or the pins ends in a save, and the
+		;digest is of them too
+		(def store :gone_new (list) :dirty :nil :digest :nil :save_next (defq gen (inc (get :save_next store))))
+		(def store :save (list :paths gen 0 (get :num_buckets (get :map store)) (list) 0 0
+				(cat (get :digest_paths store)) (Fmap 101) gone all
+				(if all (inc hi) (get :gone_lo store)) hi (cat (get :save_clean store)) 0))
+		(def store :save_clean (list))))
+
+(defun store-save-part (store saving name)
+	;the lines made so far, a file of that name. :nil if there is no room
+	(defq lines (elem-get saving +save_lines))
+	(elem-set saving +save_lines (list))
+	(elem-set saving +save_bytes 0)
+	(exfat-save (get :vol store) name (store-text lines)))
+
+(defun store-save-lines (saving entries)
+	;the lines of these entries to those of the file being made
+	(defq lines (elem-get saving +save_lines) bytes (elem-get saving +save_bytes))
+	(each (# (setq bytes (+ bytes (length (push lines (store-entry-line %0))) 1))) entries)
+	(elem-set saving +save_bytes bytes))
+
+(defun store-save-step (store &optional until)
+	; (store-save-step store [until]) -> :nil | :t
+	;more of a saving, till it is time until, if there is one, one thing at
+	;least: a bucket of the map, a file written, some of the gone, the
+	;file paths, or a file of the saving before removed. :t if there is more
+	;to do. One that can not write a file, there is no room, is given up:
+	;the journal is not begun again till one is written
+	(defq saving (get :save store) vol (get :vol store) once :t)
+	(exfat-begin vol)
+	(while (and saving (or once (not until) (< (pii-time) until)))
+		(setq once :nil)
+		(task-breathe)
+		(defq phase (elem-get saving +save_phase) ok :t)
 		(cond
-			((> (* 2 (+ (get :gone_extra store) (length lines))) (+ (get :gone_base store) 1024))
-				(setq lines (list))
-				(. gone :each (lambda (name entry) (push lines (store-entry-line entry))))
-				(exfat-save vol "gone" (store-text (sort lines)))
-				(each! (# (exfat-delete vol (cat "gone." (str (inc (!)))))) '() 0 (get :gone_files store))
-				(def store :gone_base (length lines) :gone_extra 0 :gone_files 0))
-			(:t (def store :gone_files (inc (get :gone_files store)))
-				(exfat-save vol (cat "gone." (str (get :gone_files store))) (store-text lines))
-				(def store :gone_extra (+ (get :gone_extra store) (length lines)))))
-		(def store :gone_new (list))))
+			;a file of the map, when there is enough for one, or at the end
+			((and (find phase '(:paths :gone)) (or (>= (elem-get saving +save_bytes) +store_part_bytes)
+					(and (nempty? (elem-get saving +save_lines)) (>= (elem-get saving +save_bucket) (elem-get saving +save_buckets))
+						(or (eql phase :paths) (elem-get saving +save_all)))))
+				(cond
+					((eql phase :paths)
+						(setq ok (store-save-part store saving (cat "paths." (str (elem-get saving +save_gen)) "." (str (elem-get saving +save_parts)))))
+						(elem-set saving +save_parts (inc (elem-get saving +save_parts))))
+					(:t (elem-set saving +save_gone_hi (inc (elem-get saving +save_gone_hi)))
+						(setq ok (store-save-part store saving (cat "gone." (str (elem-get saving +save_gone_hi))))))))
+			;the next bucket of the map, as it was when the saving began
+			((eql phase :paths)
+				(cond
+					((< (defq at (elem-get saving +save_bucket)) (elem-get saving +save_buckets))
+						(defq pairs (elem-get (get :buckets (get :map store)) at) entries (list) i 0
+							stash (ifn (. (elem-get saving +save_before) :find at) '()))
+						(while (< i (length pairs))
+							(defq name (elem-get pairs i))
+							(unless (some (# (eql (first %0) name)) stash) (push entries (elem-get pairs (inc i))))
+							(setq i (+ i 2)))
+						(each (# (unless (eql (second %0) :none) (push entries (second %0)))) stash)
+						(store-save-lines saving entries)
+						(elem-set saving +save_bucket (inc at)))
+					;then the gone, all of them, a bucket at a time, or those since
+					(:t (elem-set saving +save_phase :gone)
+						(elem-set saving +save_bucket 0)
+						(elem-set saving +save_buckets (if (elem-get saving +save_all) (get :num_buckets (get :gone store)) 0)))))
+			((eql phase :gone)
+				(cond
+					((elem-get saving +save_all)
+						(cond
+							((< (defq at (elem-get saving +save_bucket)) (elem-get saving +save_buckets))
+								(defq pairs (elem-get (get :buckets (get :gone store)) at) entries (list) i 1)
+								(while (< i (length pairs)) (push entries (elem-get pairs i)) (setq i (+ i 2)))
+								(store-save-lines saving entries)
+								(elem-set saving +save_bucket (inc at)))
+							((elem-set saving +save_phase :write))))
+					((< (elem-get saving +save_gone_at) (length (elem-get saving +save_gone)))
+						(defq at (elem-get saving +save_gone_at) names (elem-get saving +save_gone)
+							end (min (length names) (+ at 1024)) gone (get :gone store))
+						(elem-set saving +save_gone_at end)
+						(store-save-lines saving (filter (const identity) (map! (# (. gone :find %0)) (list names) at end)))
+						(when (and (= end (length names)) (nempty? (elem-get saving +save_lines)))
+							(elem-set saving +save_gone_hi (inc (elem-get saving +save_gone_hi)))
+							(setq ok (store-save-part store saving (cat "gone." (str (elem-get saving +save_gone_hi)))))))
+					((elem-set saving +save_phase :write))))
+			;the file that says it is done, and the others that are small
+			((eql phase :write)
+				(defq gen (elem-get saving +save_gen) clean (elem-get saving +save_clean))
+				(setq ok (exfat-save vol "paths" (store-text (list
+					(cat "digest " (join (map (const str) (elem-get saving +save_sum)) " "))
+					(cat "parts " (str gen) " " (str (elem-get saving +save_parts)))
+					(cat "gone " (str (elem-get saving +save_gone_lo)) " " (str (elem-get saving +save_gone_hi))
+						" " (str (if (elem-get saving +save_all) (get :gones store) (get :gone_base store)))
+						" " (str (if (elem-get saving +save_all) 0 (+ (get :gone_extra store) (length (elem-get saving +save_gone))))))))))
+				(when ok
+					(exfat-save vol "members" (store-text (get :members store)))
+					(exfat-save vol "retired" (store-text (get :retired store)))
+					(exfat-save vol "pins" (store-text (get :pins store)))
+					(exfat-save vol "pinned" (store-text (store-pinned-lines store)))
+					;what the saving before was in goes, and so do the gone written again
+					(each! (# (push clean (cat "paths." (str (get :save_gen store)) "." (str (!))))) '() 0 (get :save_parts store))
+					(cond
+						((elem-get saving +save_all)
+							(each! (# (push clean (cat "gone." (str (!))))) '() (get :gone_lo store) (inc (get :gone_hi store)))
+							(def store :gone_base (get :gones store) :gone_extra 0))
+						((def store :gone_extra (+ (get :gone_extra store) (length (elem-get saving +save_gone))))))
+					(def store :save_gen gen :save_parts (elem-get saving +save_parts) :gone_next (elem-get saving +save_gone_hi)
+						:gone_lo (elem-get saving +save_gone_lo) :gone_hi (elem-get saving +save_gone_hi) :journal_covered :t)
+					;of a store with the one journal, it begins again now
+					(unless (get :journal_other store) (store-journal-reset store))
+					(elem-set saving +save_phase :clean)))
+			;then what it no longer needs, a file at a time
+			((nempty? (defq clean (elem-get saving +save_clean)))
+				(defq name (pop clean))
+				(if (exfat-find vol name) (exfat-delete vol name)))
+			((def store :save (setq saving :nil))))
+		;a file not written: given up, what it had written is removed later
+		(unless ok
+			(def store :save_clean (cat (get :save_clean store)
+					(map! (# (cat "paths." (str (elem-get saving +save_gen)) "." (str (!)))) '() 0 (elem-get saving +save_parts)))
+				:gone_new (cat (get :gone_new store) (elem-get saving +save_gone))
+				:gone_next (max (get :gone_next store) (elem-get saving +save_gone_hi))
+				:save (setq saving :nil))))
+	(exfat-end vol)
+	(if saving :t))
+
+(defun store-save-finish (store)
+	; (store-save-finish store) -> store
+	;a save under way is done now, all of it
+	(while (store-save-step store))
+	store)
 
 (defun store-save (store)
 	; (store-save store) -> store
-	;the path map, the members and the pins, as they are now. Whatever
-	;changes any of them ends here, so what was worked out from them, the
-	;digest, is not held any longer
+	;the path map, the members and the pins, as they are now, written all
+	;at once: a save under way is done, and one begun and done
 	(task-breathe)
-	(def store :digest :nil :dirty :nil)
-	(defq vol (get :vol store) lines (list))
-	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
-	(exfat-begin vol)
-	;the deletes that are gone, before the paths: a path that went is in
-	;the one or the other, or both
-	(store-gone-save store)
-	;the digest of the paths first, a line no entry can be, so it is not
-	;made again of every path as the store is opened
-	(exfat-save vol "paths" (store-text (cat (list (cat "digest " (join (map (const str) (get :digest_paths store)) " ")))
-		(sort lines))))
-	(exfat-save vol "members" (store-text (get :members store)))
-	(exfat-save vol "retired" (store-text (get :retired store)))
-	(exfat-save vol "pins" (store-text (get :pins store)))
-	(exfat-save vol "pinned" (store-text (store-pinned-lines store)))
-	;all that the journal has is in the map now
-	(store-journal-reset store)
-	(exfat-end vol)
+	(store-save-finish store)
+	(store-save-begin store)
+	(store-save-finish store)
+	;nothing changed while it was written, so all the journals have is in
+	;it: the one in use begins again, as when the other was begun
+	(if (get :journal_covered store) (store-journal-reset store))
 	store)
+
+(defun store-save-busy? (store)
+	; (store-save-busy? store) -> :nil | :t
+	(if (get :save store) :t))
+
+(defun store-journal-add (store entries)
+	; (store-journal-add store entries) -> :nil | :t
+	;entries of the path map are on the volume, at the end of the journal,
+	;as the one write. Three quarters full, a save is begun, so it is done
+	;before the journal is full; full, the save under way is done now, and
+	;one begun, to the other journal. :nil if there is no journal, or the
+	;entries are more than one holds
+	(when (def? :journal store)
+		(defq lines (map (const store-entry-line) entries)
+			bytes (reduce (# (+ %0 (length %1) 10)) lines 0))
+		(when (> (+ (get :journal_at store) bytes) (get :journal_size store))
+			(store-save-finish store)
+			(store-save-begin store))
+		(when (<= (+ (defq at (get :journal_at store)) bytes) (get :journal_size store))
+			(defq count (get :journal_count store))
+			(store-journal-write store at (apply (const cat) (cat (list "") (map (# (store-journal-mark count %0)) lines))))
+			(exfat-sync (get :vol store))
+			(def store :journal_at (+ at bytes) :digest :nil)
+			(if (> (* 4 (get :journal_at store)) (* 3 (get :journal_size store))) (store-save-begin store))
+			:t)))
 
 (defun store-count (store)
 	;a store counts the changes to its path map from when it was opened,
@@ -632,7 +822,8 @@
 			(defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :gone (Fmap 11) :gones 0 :gone_new (list) :gone_files 0 :gone_base 0 :gone_extra 0 :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
+			:map (Fmap 11) :gone (Fmap 11) :gones 0 :gone_new (list) :gone_lo 1 :gone_hi 0 :gone_next 0 :gone_base 0 :gone_extra 0
+			:save :nil :save_gen 0 :save_parts 0 :save_next 0 :save_clean (list) :journal_covered :nil :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
 			:folders (Fset 11) :folder_next 0 :folder_count 0)
 		(store-count store)
 		(exfat-begin vol)
@@ -716,6 +907,35 @@
 	;every block that is kept here, whatever is in it, as the volume has it
 	(map (const first) (store-blocks-found store)))
 
+(defun store-open-line (store line out)
+	;an entry of the map as it was written, as the store is opened. One
+	;gone since, or that goes now, a member retired, is not had in the
+	;map: it is pushed to out, it is in the digest that was written
+	(when (defq entry (store-entry-read line))
+		(defq was (. (get :gone store) :find (first entry)))
+		(cond
+			((and was (not (eql :after (store-vv-cmp (elem-get entry +store_entry_vv) (elem-get was +store_entry_vv)))))
+				(push out entry))
+			(:t (if (store-settled? store entry) (push out entry))
+				(store-map-insert store (first entry) entry)))))
+
+(defun store-open-leftovers (store gen hi)
+	;the files a save that was not done left, of another save than gen or
+	;gone past hi, to be removed by the next, and no number of theirs had
+	;again
+	(defq vol (get :vol store) most_gen gen most_gone hi)
+	(each (lambda ((name &ignore))
+			(defq words (split name "."))
+			(cond
+				((and (= (length words) 3) (eql (first words) "paths"))
+					(defq g (str-as-num (second words)))
+					(setq most_gen (max most_gen g))
+					(if (/= g gen) (push (get :save_clean store) name)))
+				((and (= (length words) 2) (eql (first words) "gone"))
+					(setq most_gone (max most_gone (str-as-num (second words)))))))
+		(ifn (exfat-list vol "") '()))
+	(def store :save_next most_gen :gone_next most_gone))
+
 (defun store-open (device member &optional going)
 	; (store-open path | stream member [going]) -> :nil | :stopped | store
 	;a store that is there. :nil if the volume is not one. It is opened by
@@ -730,7 +950,8 @@
 			(nempty? head) (eql (first head) +store_magic))
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
-			:map (Fmap 101) :gone (Fmap 101) :gones 0 :gone_new (list) :gone_files 0 :gone_base 0 :gone_extra 0 :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
+			:map (Fmap 101) :gone (Fmap 101) :gones 0 :gone_new (list) :gone_lo 1 :gone_hi 0 :gone_next 0 :gone_base 0 :gone_extra 0
+			:save :nil :save_gen 0 :save_parts 0 :save_next 0 :save_clean (list) :journal_covered :nil :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
 			:folders (Fset 101) :folder_next 0 :folder_count 0)
 		(defq had "")
 		(each! (lambda (line)
@@ -747,28 +968,45 @@
 		;a store of before there was such a thing has pins and has not said so
 		(and (nempty? (get :pins store)) (not (. (get :pinned store) :find (get :member store)))
 			(. (get :pinned store) :insert (get :member store) (cat (list 1) (get :pins store))))
-		;the deletes that are gone, then the map as it was written, and the
-		;digest of it, or one of before there was that made of every path
-		;the once. Then what the journal has since, each into the digest as
-		;it goes in. A delete every member had, of a store of before there
-		;were the gone, goes as it is read
-		(defq data (ifn (exfat-load vol "gone") "") files 0)
-		(. (get :gone store) :resize (max 101 (/ (length data) 1024)))
-		(def store :gone_base (store-gone-read store data))
-		(while (defq data (exfat-load vol (cat "gone." (str (inc files)))))
-			(def store :gone_extra (+ (get :gone_extra store) (store-gone-read store data)) :gone_files (++ files)))
-		(def store :digest_paths :nil)
-		(defq sum :nil)
+		;the file paths: the digest of the map, the save and how many files
+		;of it, and the files of the gone. Of a store of before, the map is
+		;in it, and the gone are gone and gone.1 and on. Then the gone, the
+		;map, and what the journals have since, each into the digest as it
+		;goes in. What a save not done left is removed by the next
+		(defq lines (store-lines (exfat-load vol "paths")) sum :nil gen 0 parts 0 range :nil out (list))
 		(each (lambda (line)
+				(defq words (split line " "))
 				(cond
-					((defq entry (store-entry-read line)) (store-map-insert store (first entry) entry))
-					((starts-with "digest " line)
-						(setq sum (apply nums (map! (const str-as-num) (list (split line " ")) 1 -1))))))
-			(store-lines (exfat-load vol "paths")))
-		;the digest written is of what was written: if any of it went as it
-		;was read, a member retired since, it is made again
+					((starts-with "digest " line) (setq sum (apply nums (map! (const str-as-num) (list words) 1 -1))))
+					((starts-with "parts " line) (setq gen (str-as-num (second words)) parts (str-as-num (third words))))
+					((starts-with "gone " line) (setq range (map! (const str-as-num) (list words) 1 -1)))))
+			lines)
+		(store-open-leftovers store gen (if range (second range) 0))
 		(cond
-			((and sum (= (length sum) 4) (empty? (get :gone_new store))) (def store :digest_paths sum))
+			(range (bind '(lo hi base extra) range)
+				(. (get :gone store) :resize (max 101 (/ (+ base extra) +store_held_per)))
+				(def store :gone_lo lo :gone_hi hi :gone_base base :gone_extra extra)
+				(each! (# (if (defq data (exfat-load vol (cat "gone." (str (!))))) (store-gone-read store data))) '() lo (inc hi)))
+			(:t (defq n 0)
+				(store-gone-read store (ifn (exfat-load vol "gone") ""))
+				(while (defq data (exfat-load vol (cat "gone." (str (inc n))))) (store-gone-read store data) (++ n))
+				;all written again, as files of now, at the next save
+				(def store :gone_lo 1 :gone_hi n :gone_base 0 :gone_extra (+ (get :gones store) 1024))
+				(if (exfat-find vol "gone") (push (get :save_clean store) "gone"))))
+		(def store :digest_paths :nil :save_gen gen :save_parts parts :save_next (max gen (get :save_next store)))
+		(each (# (store-open-line store %0 out)) lines)
+		(each! (lambda () (if (defq data (exfat-load vol (cat "paths." (str gen) "." (str (!)))))
+				(each (# (store-open-line store %0 out)) (store-lines data)))) '() 0 parts)
+		;room for the paths there are and as many again, so the map does not
+		;grow, a million made anew, while it is open: a bucket for every
+		;+store_held_per, and it grows only at +store_held_most
+		(. (get :map store) :resize (max 101 (/ (get :paths store) +store_held_per)))
+		;the digest written is of what was written: what was not had as it
+		;was read is taken out of it. Of a store of before, it is made
+		(cond
+			((and sum (= (length sum) 4))
+				(def store :digest_paths sum)
+				(each (# (store-digest-mix store %0)) out))
 			(:t (def store :digest_paths (nums 0 0 0 0))
 				(. (get :map store) :each (lambda (name entry) (store-digest-mix store entry)))))
 		(store-journal-open store)
@@ -835,7 +1073,8 @@
 
 (defun store-close (store)
 	; (store-close store) -> :nil
-	;all that it has is on the device
+	;all that it has is on the device: a save under way is done
+	(store-save-finish store)
 	(if (get :dirty store) (store-save store))
 	(unless (get :held_saved store)
 		(exfat-begin (get :vol store))
@@ -1878,6 +2117,7 @@
 
 ;module
 (export-symbols '(store-make store-cluster-shift store-open store-close store-resize store-save
+		store-save-begin store-save-step store-save-finish store-save-busy?
 		store-members store-join store-most? store-other-name store-keeps store-meet store-digest
 		store-entries store-holders store-rank store-seen store-share store-share-now store-plan-step store-plan-busy? store-plan-forget store-since store-at store-later
 		store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file +store_folder_blocks

@@ -104,10 +104,11 @@ members      the members, a line each
 retired      those that were members and are no more
 pins         the paths this member holds all of
 pinned       what every member holds all of, as far as is known here
-paths        the digest of the path map, then the map, a line an entry
-gone         the deletes every member had, out of the map, a line each
-gone.1 ...   those gone since gone was written, a file each save
-journal      the entries set since the map was last written whole
+paths        the digest of the path map, which save it is, and its files
+paths.s.n    the map of save s, 128KB a file at most, a line an entry
+gone.n       the deletes every member had, out of the map, a line each
+journal      the entries set since the map was last written, and
+journal.b    a second, written to while the map is
 blocks/xx/y  a block, its name in hex, xx the first two of it
 ```
 
@@ -124,12 +125,27 @@ name.
 ### The journal
 
 The path map is not written whole when a path is set. The entry is added as
-a line to the end of `journal`, a file of a set length made once and written
-where it is, so nothing of the volume but its own bytes changes. The map is
-written whole when the journal is full, or when anything else writes it, and
-then the journal is emptied. A store that is opened reads `paths` and then
-the journal, and an entry of the journal is taken where it is later than the
-map's.
+a line to the end of the journal, a file of a set length made once and written
+where it is, so nothing of the volume but its own bytes changes.
+
+The map is written a step at a time, the service's own work when nothing is
+asked, as the plan is. A save begins when the journal is three quarters
+full, or when anything else wants the map written: changes go to the other
+journal from then, and the map is written as it was when the save began,
+in files of 128KB at most. An entry that changes in a part of the map not yet
+written is kept as it was for the save, so what is written is one moment's
+map, and the digest written with it is that moment's. `paths`, written last,
+says which files are the map: the save is done when it is, and the files of
+the save before are removed. A journal is only begun again once a map that
+has all of it is written. Should the other journal fill first, the save is
+done there and then. Of a map of 100000 paths, a put that filled the journal
+wrote it whole, 806 ms; the longest put of 20000 is 0.3 ms now, and the
+longest step of a save 7.5 ms.
+
+A store that is opened reads `paths`, the files it names, and then both
+journals, the older first, and an entry of a journal is taken where it is
+later than the map's. A save not done, the power gone, loses nothing: the
+map of the save before and both journals are there.
 
 The journal begins with a count. A line of it is 8 hex digits, a space, and
 the entry: the digits are the start of the SHA-256 of the count and the

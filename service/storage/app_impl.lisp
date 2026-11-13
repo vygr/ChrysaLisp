@@ -271,7 +271,18 @@
 						((and batch (>= (- (pii-time) batch_at) +batch_quiet))
 							(setq batch (progn (exfat-end batch) :nil)))
 						;what was learnt from other members and is not written yet
-						((get :dirty store) (store-save store))
+						;one under way first: what is written after it began is
+						;in the one after
+						((and (get :dirty store) (not (store-save-busy? store))) (store-save-begin store))
+						;a save of the path map, a slice at a time, as the plan is.
+						;One that throws is given up, and made anew later
+						((store-save-busy? store)
+							(task-band :app)
+							(catch (store-save-step store (+ (pii-time) +plan_slice))
+								(progn (prin "Storage: save, " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print)
+									(def store :save :nil) :t))
+							(task-breathe)
+							(task-band :bot))
 						;a sweep, a check of the blocks or of the volume, a slice at
 						;a time, as the plan is, with the apps of the node
 						((defq work (some (# (if (nempty? (elem-get %0 +work_askers)) %0)) works))
@@ -500,7 +511,7 @@
 				;what was learnt from other members and is not written yet, is,
 				;when nothing else is asked, above, or it has waited long enough
 				(and (defq dirty (get :dirty store)) (> (- (pii-time) dirty) +dirty_most)
-					(store-save store)))
+					(store-save-begin store)))
 			(if timed (mail-timeout (second select) 0 0))
 			;its own work under way is over, those who asked told what it found
 			(each (# (work-stop %0 store)) works)
