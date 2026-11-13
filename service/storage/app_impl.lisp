@@ -79,6 +79,9 @@
 ;time, between the things asked: a big store's is seconds of work
 (defq +plan_slice 2000)
 
+;how long one of any kind may wait while those of a kind before it go
+(defq +wait_most 20000)
+
 (defun asked-kind (type)
 	;what an asker waits on to read is done first, then what is written,
 	;then what the members and the tender ask of each other
@@ -91,11 +94,13 @@
 			2)
 		(:t 1)))
 
-(defun asked-next (select queues heads)
-	; (asked-next select queues heads) -> :nil | msg
-	;what has come, each put after those of its kind, and the first of
-	;the first kind there is. Each kind's is taken from where its head is,
-	;and let go of all at once when all of it is taken
+(defun asked-next (select queues stamps heads)
+	; (asked-next select queues stamps heads) -> :nil | msg
+	;what has come, each put after those of its kind with when it came, and
+	;the first of the first kind there is, unless one of any kind has
+	;waited too long: then the one that has waited longest. Each kind's is
+	;taken from where its head is, and let go of all at once when all of
+	;it is taken
 	(defq main (first select) box (list main) msg :nil)
 	(while (mail-poll box)
 		(setq msg (mail-read main))
@@ -105,16 +110,24 @@
 			((< (length msg) +storage_rpc_size) (setq msg :nil))
 			;one alone, with none of any kind before it, is the next as it is
 			((and (not (mail-poll box)) (every (const empty?) queues)))
-			(:t (push (elem-get queues (asked-kind (getf msg +storage_rpc_type))) msg)
+			(:t (defq kind (asked-kind (getf msg +storage_rpc_type)))
+				(push (elem-get queues kind) msg)
+				(push (elem-get stamps kind) (pii-time))
 				(setq msg :nil))))
 	(cond
 		(msg)
-		((defq at (some! (# (if (< %1 (length %0)) (!))) (list queues heads)))
-			(defq queue (elem-get queues at) head (elem-get heads at) msg (elem-get queue head))
-			(cond
-				((= (inc head) (length queue)) (clear queue) (elem-set heads at 0))
-				((elem-set heads at (inc head))))
-			msg)))
+		(:t (defq now (pii-time) at :nil)
+			(each! (lambda (queue stamp head)
+					(and (< head (length queue)) (> (- now (elem-get stamp head)) +wait_most)
+						(or (not at) (< (elem-get stamp head) (elem-get (elem-get stamps at) (elem-get heads at))))
+						(setq at (!))))
+				(list queues stamps heads))
+			(when (setq at (ifn at (some! (# (if (< %1 (length %0)) (!))) (list queues heads))))
+				(defq queue (elem-get queues at) head (elem-get heads at) msg (elem-get queue head))
+				(cond
+					((= (inc head) (length queue)) (clear queue) (clear (elem-get stamps at)) (elem-set heads at 0))
+					((elem-set heads at (inc head))))
+				msg))))
 
 (defun notes-text (store at)
 	;what one member tells another: where its count of changes is now,
@@ -186,9 +199,10 @@
 			(mail-send ready "ok")
 			;what is asked, as it comes, and a timer: its own work is done
 			;when nothing is asked, the timer says when that waits on time
-			(defq select (task-mboxes 2) timed :nil batch_at 0 queues (list (list) (list) (list)) heads (nums 0 0 0) msg :nil)
+			(defq select (task-mboxes 2) timed :nil batch_at 0 queues (list (list) (list) (list))
+				stamps (list (nums) (nums) (nums)) heads (nums 0 0 0) msg :nil)
 			(while running
-				(until (setq msg (asked-next select queues heads))
+				(until (setq msg (asked-next select queues stamps heads))
 					(cond
 						;a run of block puts is one writing of the volume, so
 						;what they are goes to the device together, the blocks

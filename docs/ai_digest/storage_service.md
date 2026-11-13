@@ -162,6 +162,10 @@ first kind there is, is next:
 3. what the members and the tender ask of each other: state, entries,
    merge, share, gophers, peers, members.
 
+One of any kind that has waited more than 20 ms goes before them all,
+the one that has waited longest first, so reads that keep coming do not
+hold a write back for ever.
+
 Its own work is done when nothing is asked: the end of a run of block
 puts, what other members told it written to the volume, then the plan of
 what it is to keep, 2 ms at a time in the apps' band. A timer in the
