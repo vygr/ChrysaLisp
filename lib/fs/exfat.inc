@@ -920,6 +920,19 @@
 		(def vol :free (- count used)))
 	(<< (get :free vol) (get :cluster_shift vol)))
 
+(defun exfat-dir-keep (vol folder had index new)
+	;a directory as it was read, had, with its entry at index put right as
+	;new, or gone if new is :nil, not read again: a folder of many files was
+	;read, all of it, for each one removed or written over
+	(when had
+		(defq old (some (# (if (= (elem-get %0 5) index) %0)) (first had))
+			entries (filter (# (/= (elem-get %0 5) index)) (first had)))
+		(if old (. (second had) :erase (exfat-key vol (first old))))
+		(when new
+			(push entries new)
+			(. (second had) :insert (exfat-key vol (first new)) new))
+		(. (get :dirs vol) :insert (elem-get folder 3) (list entries (second had)))))
+
 (defun exfat-add (vol path dir data)
 	;a new file or directory, of this data, in the directory it names
 	(bind '(parent name) (exfat-split path))
@@ -970,7 +983,9 @@
 			;an entry that is not in use has the top bit of its type clear
 			(each! (lambda () (defq at (* (!) +exfat_entry_size))
 					(set-byte eset at (logand (code eset 1 at) (const (dec +exfat_in_use))))) '() 0 (inc count))
-			(exfat-dir-put vol (elem-get found (- (length found) 2)) index eset)
+			(defq folder (elem-get found (- (length found) 2)) had (. (get :dirs vol) :find (elem-get folder 3)))
+			(exfat-dir-put vol folder index eset)
+			(exfat-dir-keep vol folder had index :nil)
 			;a directory that is gone is not kept, its clusters will be another's
 			(. (get :dirs vol) :erase start)
 			(exfat-release vol start size no_fat)
@@ -1009,7 +1024,9 @@
 					(+exfat_stream_data_length new_size))
 				(slice eset (const (* 2 +exfat_entry_size)) -1)))
 		(set-short eset +exfat_file_checksum (exfat-checksum eset))
-		(exfat-dir-put vol (elem-get found (- (length found) 2)) index eset)
+		(defq folder (elem-get found (- (length found) 2)) had (. (get :dirs vol) :find (elem-get folder 3)))
+		(exfat-dir-put vol folder index eset)
+		(exfat-dir-keep vol folder had index (list name dir new_size (if (empty? clusters) 0 (first clusters)) no_fat index count))
 		(each (# (exfat-mark vol %0 :nil)) old))
 	(exfat-end vol)
 	(if got :t))
