@@ -235,6 +235,14 @@
 	(assert-list-eq "two checks of the volume asked at once, both are answered" '("" "")
 		(map (# (mail-read-timeout %0 (task-timeout 60)))
 			(list (storage-send sg_svc +storage_type_check "volume") (storage-send sg_svc +storage_type_check "volume"))))
+	;each snapshot asked for is its own, the second after the first
+	(defq sg_snaps (map (# (mail-read-timeout %0 (task-timeout 60)))
+		(list (storage-send sg_svc +storage_type_snapshot (cat "one" +storage_lf))
+			(storage-send sg_svc +storage_type_snapshot (cat "two" +storage_lf)))))
+	(assert-true "two snapshots asked at once, each is made, of as many" (and (nempty? (first sg_snaps)) (eql (first sg_snaps) (second sg_snaps))))
+	(assert-list-eq "and both are there" '("one" "two") (map (const first) (storage-snapshots sg_svc)))
+	(assert-list-eq "both dropped, of as many" (list (str-as-num (first sg_snaps)) (str-as-num (first sg_snaps)))
+		(list (storage-snapshot-drop "one" sg_svc) (storage-snapshot-drop "two" sg_svc)))
 
 	;a has of a name and a byte more, as a peer of another build may send,
 	;is of the whole name alone, and the service is still there after

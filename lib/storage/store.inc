@@ -124,14 +124,28 @@
 	(enum folders at files prefix next mend bad))
 
 ;a save of the path map that can stop and go on: what it is at, :paths,
-;:gone, :write, :clean; which save it is; the bucket it is at, and how
-;many there are; the lines of the file being made, and how many bytes;
-;how many files of the map it has written; the digest of the map as it
-;began; the entries changed since, as they were, by their bucket; the
-;gone to write, and if they are all of them; the files of the gone; the
-;files to remove once it is written
+;:gone, :write, :clean; which save it is; the bucket of the gone it is
+;at, and how many there are; the lines of the file being made, and how
+;many bytes; how many files of the map it has written; the digest of the
+;map as it began; the moment of the map it writes; the gone to write, if
+;they are all of them, and how far through those since; the files of the
+;gone; the files to remove once it is written
+;a walk of the path map as it was at a moment, a bucket at a time: the
+;bucket it is at, how many there are, and the entries that changed since
+;in buckets it has not come to, as they were, by bucket. (store-map-insert)
+;gives it them, and the map is not made bigger while one is under way
+(enums +moment 0
+	(enum bucket buckets before))
+
 (enums +save 0
-	(enum phase gen bucket buckets lines bytes parts sum before gone all gone_lo gone_hi clean gone_at))
+	(enum phase gen bucket buckets lines bytes parts sum moment gone all gone_lo gone_hi clean gone_at))
+
+;a snapshot, a restore of one or its drop that can stop and go on: which,
+;the name, where its paths are, of which paths, the moment of the map it
+;walks, how many it set, of a restore how many paths there are that the
+;snapshot has not, and if the snapshot was found
+(enums +snap 0
+	(enum kind name at prefix moment count newer found))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the counts of who has written a path
@@ -366,16 +380,18 @@
 	;had again, and one told late of it would take it back. An entry
 	;after it takes it out of :gone
 	(defq was (. (get :map store) :find name) gone (get :gone store) settled (store-settled? store entry)
-		saving (get :save store))
-	;a saving under way writes the map as it was when it began: an entry of
-	;a bucket it has not come to yet is given it as it was, the first time
-	;it changes. Neither map is made bigger meanwhile, its buckets stay
-	(when (and saving (eql (elem-get saving +save_phase) :paths))
-		(defq bucket (% (hash name) (elem-get saving +save_buckets)))
-		(when (>= bucket (elem-get saving +save_bucket))
-			(defq before (elem-get saving +save_before) stash (ifn (. before :find bucket) (list)))
-			(unless (some (# (eql (first %0) name)) stash)
-				(. before :insert bucket (push stash (list name (ifn was :none)))))))
+		saving (get :save store) moments (get :moments store))
+	;a walk of the map as it was at a moment, a save or a snapshot, is
+	;given an entry of a bucket it has not come to yet as it was, the first
+	;time it changes. The map is not made bigger meanwhile, nor the gone
+	;while a save is under way: their buckets stay
+	(each (lambda (moment)
+			(defq bucket (% (hash name) (elem-get moment +moment_buckets)))
+			(when (>= bucket (elem-get moment +moment_bucket))
+				(defq before (elem-get moment +moment_before) stash (ifn (. before :find bucket) (list)))
+				(unless (some (# (eql (first %0) name)) stash)
+					(. before :insert bucket (push stash (list name (ifn was :none)))))))
+		moments)
 	(if was (store-digest-mix store was))
 	(cond
 		(settled
@@ -411,7 +427,7 @@
 	(cond
 		(settled (when was (. (get :map store) :erase name) (def store :paths (dec (get :paths store)))))
 		(:t (unless was (def store :paths (inc (get :paths store))))
-			(. (if saving (get :map store) (store-grow (get :map store) (get :paths store) +store_held_most)) :insert name entry))))
+			(. (if (nempty? moments) (get :map store) (store-grow (get :map store) (get :paths store) +store_held_most)) :insert name entry))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the journal of the path map
@@ -583,6 +599,34 @@
 ; <n>, and all of them again, in files after those, when those added since
 ; have half as many: so each is written so many times at most.
 
+(defun store-moment (store)
+	; (store-moment store) -> moment
+	;a walk of the path map as it is now, (store-moment-next)
+	(push (get :moments store) (defq moment (list 0 (get :num_buckets (get :map store)) (Fmap 101))))
+	moment)
+
+(defun store-moment-end (store moment)
+	; (store-moment-end store moment)
+	;a walk is over, done or not
+	(def store :moments (filter (# (not (eql %0 moment))) (get :moments store))))
+
+(defun store-moment-next (store moment)
+	; (store-moment-next store moment) -> :nil | (entry ...)
+	;the entries of the next bucket of the map as they were at the moment,
+	;:nil when there are no more, and the walk is done
+	(cond
+		((< (defq at (elem-get moment +moment_bucket)) (elem-get moment +moment_buckets))
+			(defq pairs (elem-get (get :buckets (get :map store)) at) entries (list) i 0
+				stash (ifn (. (elem-get moment +moment_before) :find at) '()))
+			(while (< i (length pairs))
+				(defq name (elem-get pairs i))
+				(unless (some (# (eql (first %0) name)) stash) (push entries (elem-get pairs (inc i))))
+				(setq i (+ i 2)))
+			(each (# (unless (eql (second %0) :none) (push entries (second %0)))) stash)
+			(elem-set moment +moment_bucket (inc at))
+			entries)
+		(:t (store-moment-end store moment) :nil)))
+
 (defun store-save-begin (store)
 	; (store-save-begin store)
 	;a save of the path map as it is now, (store-save-step). Not if one is
@@ -597,8 +641,8 @@
 		;what changes the members or the pins ends in a save, and the
 		;digest is of them too
 		(def store :gone_new (list) :dirty :nil :digest :nil :save_next (defq gen (inc (get :save_next store))))
-		(def store :save (list :paths gen 0 (get :num_buckets (get :map store)) (list) 0 0
-				(cat (get :digest_paths store)) (Fmap 101) gone all
+		(def store :save (list :paths gen 0 0 (list) 0 0
+				(cat (get :digest_paths store)) (store-moment store) gone all
 				(if all (inc hi) (get :gone_lo store)) hi (cat (get :save_clean store)) 0))
 		(def store :save_clean (list))))
 
@@ -617,9 +661,9 @@
 
 (defun store-save-step (store &optional until)
 	; (store-save-step store [until]) -> :nil | :t
-	;more of a saving, till it is time until, if there is one, one thing at
+	;more of a save, till it is time until, if there is one, one thing at
 	;least: a bucket of the map, a file written, some of the gone, the
-	;file paths, or a file of the saving before removed. :t if there is more
+	;file paths, or a file of the save before removed. :t if there is more
 	;to do. One that can not write a file, there is no room, is given up:
 	;the journal is not begun again till one is written
 	(defq saving (get :save store) vol (get :vol store) once :t)
@@ -627,31 +671,17 @@
 	(while (and saving (or once (not until) (< (pii-time) until)))
 		(setq once :nil)
 		(task-breathe)
-		(defq phase (elem-get saving +save_phase) ok :t)
+		(defq phase (elem-get saving +save_phase) ok :t full (>= (elem-get saving +save_bytes) +store_part_bytes))
 		(cond
-			;a file of the map, when there is enough for one, or at the end
-			((and (find phase '(:paths :gone)) (or (>= (elem-get saving +save_bytes) +store_part_bytes)
-					(and (nempty? (elem-get saving +save_lines)) (>= (elem-get saving +save_bucket) (elem-get saving +save_buckets))
-						(or (eql phase :paths) (elem-get saving +save_all)))))
-				(cond
-					((eql phase :paths)
-						(setq ok (store-save-part store saving (cat "paths." (str (elem-get saving +save_gen)) "." (str (elem-get saving +save_parts)))))
-						(elem-set saving +save_parts (inc (elem-get saving +save_parts))))
-					(:t (elem-set saving +save_gone_hi (inc (elem-get saving +save_gone_hi)))
-						(setq ok (store-save-part store saving (cat "gone." (str (elem-get saving +save_gone_hi))))))))
-			;the next bucket of the map, as it was when the saving began
+			;the map as it was when the save began, a bucket at a time, a file
+			;when there is enough for one, and at the end
 			((eql phase :paths)
 				(cond
-					((< (defq at (elem-get saving +save_bucket)) (elem-get saving +save_buckets))
-						(defq pairs (elem-get (get :buckets (get :map store)) at) entries (list) i 0
-							stash (ifn (. (elem-get saving +save_before) :find at) '()))
-						(while (< i (length pairs))
-							(defq name (elem-get pairs i))
-							(unless (some (# (eql (first %0) name)) stash) (push entries (elem-get pairs (inc i))))
-							(setq i (+ i 2)))
-						(each (# (unless (eql (second %0) :none) (push entries (second %0)))) stash)
-						(store-save-lines saving entries)
-						(elem-set saving +save_bucket (inc at)))
+					((and (not full) (defq entries (store-moment-next store (elem-get saving +save_moment))))
+						(store-save-lines saving entries))
+					((nempty? (elem-get saving +save_lines))
+						(setq ok (store-save-part store saving (cat "paths." (str (elem-get saving +save_gen)) "." (str (elem-get saving +save_parts)))))
+						(elem-set saving +save_parts (inc (elem-get saving +save_parts))))
 					;then the gone, all of them, a bucket at a time, or those since
 					(:t (elem-set saving +save_phase :gone)
 						(elem-set saving +save_bucket 0)
@@ -660,20 +690,24 @@
 				(cond
 					((elem-get saving +save_all)
 						(cond
-							((< (defq at (elem-get saving +save_bucket)) (elem-get saving +save_buckets))
+							((and (not full) (< (defq at (elem-get saving +save_bucket)) (elem-get saving +save_buckets)))
 								(defq pairs (elem-get (get :buckets (get :gone store)) at) entries (list) i 1)
 								(while (< i (length pairs)) (push entries (elem-get pairs i)) (setq i (+ i 2)))
 								(store-save-lines saving entries)
 								(elem-set saving +save_bucket (inc at)))
+							((nempty? (elem-get saving +save_lines))
+								(elem-set saving +save_gone_hi (inc (elem-get saving +save_gone_hi)))
+								(setq ok (store-save-part store saving (cat "gone." (str (elem-get saving +save_gone_hi))))))
 							((elem-set saving +save_phase :write))))
-					((< (elem-get saving +save_gone_at) (length (elem-get saving +save_gone)))
+					;those since, a file when there is enough for one, and at the end
+					((and (not full) (< (elem-get saving +save_gone_at) (length (elem-get saving +save_gone))))
 						(defq at (elem-get saving +save_gone_at) names (elem-get saving +save_gone)
 							end (min (length names) (+ at 1024)) gone (get :gone store))
 						(elem-set saving +save_gone_at end)
-						(store-save-lines saving (filter (const identity) (map! (# (. gone :find %0)) (list names) at end)))
-						(when (and (= end (length names)) (nempty? (elem-get saving +save_lines)))
-							(elem-set saving +save_gone_hi (inc (elem-get saving +save_gone_hi)))
-							(setq ok (store-save-part store saving (cat "gone." (str (elem-get saving +save_gone_hi)))))))
+						(store-save-lines saving (filter (const identity) (map! (# (. gone :find %0)) (list names) at end))))
+					((nempty? (elem-get saving +save_lines))
+						(elem-set saving +save_gone_hi (inc (elem-get saving +save_gone_hi)))
+						(setq ok (store-save-part store saving (cat "gone." (str (elem-get saving +save_gone_hi))))))
 					((elem-set saving +save_phase :write))))
 			;the file that says it is done, and the others that are small
 			((eql phase :write)
@@ -689,7 +723,7 @@
 					(exfat-save vol "retired" (store-text (get :retired store)))
 					(exfat-save vol "pins" (store-text (get :pins store)))
 					(exfat-save vol "pinned" (store-text (store-pinned-lines store)))
-					;what the saving before was in goes, and so do the gone written again
+					;what the save before was in goes, and so do the gone written again
 					(each! (# (push clean (cat "paths." (str (get :save_gen store)) "." (str (!))))) '() 0 (get :save_parts store))
 					(cond
 						((elem-get saving +save_all)
@@ -708,6 +742,7 @@
 			((def store :save (setq saving :nil))))
 		;a file not written: given up, what it had written is removed later
 		(unless ok
+			(store-moment-end store (elem-get saving +save_moment))
 			(def store :save_clean (cat (get :save_clean store)
 					(map! (# (cat "paths." (str (elem-get saving +save_gen)) "." (str (!)))) '() 0 (elem-get saving +save_parts)))
 				:gone_new (cat (get :gone_new store) (elem-get saving +save_gone))
@@ -823,7 +858,7 @@
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
 			:map (Fmap 11) :gone (Fmap 11) :gones 0 :gone_new (list) :gone_lo 1 :gone_hi 0 :gone_next 0 :gone_base 0 :gone_extra 0
-			:save :nil :save_gen 0 :save_parts 0 :save_next 0 :save_clean (list) :journal_covered :nil :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
+			:save :nil :save_gen 0 :save_parts 0 :save_next 0 :save_clean (list) :journal_covered :nil :moments (list) :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
 			:folders (Fset 11) :folder_next 0 :folder_count 0)
 		(store-count store)
 		(exfat-begin vol)
@@ -951,7 +986,7 @@
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
 			:map (Fmap 101) :gone (Fmap 101) :gones 0 :gone_new (list) :gone_lo 1 :gone_hi 0 :gone_next 0 :gone_base 0 :gone_extra 0
-			:save :nil :save_gen 0 :save_parts 0 :save_next 0 :save_clean (list) :journal_covered :nil :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
+			:save :nil :save_gen 0 :save_parts 0 :save_next 0 :save_clean (list) :journal_covered :nil :moments (list) :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
 			:folders (Fset 101) :folder_next 0 :folder_count 0)
 		(defq had "")
 		(each! (lambda (line)
@@ -1498,6 +1533,23 @@
 			(unless (store-journal-add store (list entry)) (store-save store))
 			(list :ok entry))))
 
+(defun store-sets (store sets)
+	; (store-sets store sets) -> count
+	; sets: ((path hash size deleted copies) ...)
+	;paths changed as (store-set) with nothing said of what they are now,
+	;many at once, the journal written the once for them all
+	(defq member (get :member store)
+		entries (map (lambda ((name hash size deleted copies))
+				(defq was (store-find store name)
+					entry (list name hash size (store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member)
+						member (list member) deleted copies))
+				(store-map-insert store name entry)
+				(store-touch store name)
+				entry)
+			sets))
+	(and (nempty? entries) (not (store-journal-add store entries)) (store-save store))
+	(length entries))
+
 (defun store-commit (store name names size &optional from)
 	; (store-commit store path names size [from]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:missing names)
 	;a path is set to the object of these blocks, which are kept here
@@ -1600,20 +1652,73 @@
 	;a name a snapshot may have: not empty, and no / or space in it
 	(and (nempty? name) (not (find "/" name)) (not (find " " name)) :t))
 
+(defun store-snap-end (store)
+	; (store-snap-end store) -> :nil | (kind name got)
+	;a snapshot, restore or drop is over, done or not, and what it came to:
+	;how many set, of a restore (restored newer), :nil if it found no such
+	;snapshot
+	(when (defq snap (get :snap store))
+		(store-moment-end store (elem-get snap +snap_moment))
+		(def store :snap :nil)
+		(bind '(kind name at prefix moment count newer found) snap)
+		(list kind name (cond ((eql kind :restore) (if found (list count newer))) (count)))))
+
+(defun store-snap-begin (store kind name &optional prefix)
+	; (store-snap-begin store kind name [prefix]) -> :nil | :t
+	;a snapshot, :snapshot, a restore of one, :restore, or its drop, :drop,
+	;of the paths that begin so, all if not said, done a step at a time,
+	;(store-snap-step), of the map as it is now. :nil if the name is not
+	;one a snapshot may have. One under way is let go of
+	(store-snap-end store)
+	(when (store-snapshot-name? name)
+		(def store :snap (list kind name (cat +store_snapshots name "/") (ifn prefix "") (store-moment store) 0 0 :nil))
+		:t))
+
+(defun store-snap-step (store &optional until)
+	; (store-snap-step store [until]) -> :nil | :t
+	;more of a snapshot, restore or drop, till it is time until, if there
+	;is one, a bucket of the map at least, the paths set by it written to
+	;the journal the once. :t if there is more to do. A path it has set
+	;already is not set again, it may come round as it was
+	(defq snap (get :snap store) once :t done (not snap))
+	(while (and (not done) (or once (not until) (< (pii-time) until)))
+		(setq once :nil)
+		(task-breathe)
+		(bind '(kind name at prefix moment &ignore) snap)
+		(cond
+			((defq entries (store-moment-next store moment))
+				(defq sets (list) sets_at (cat at prefix))
+				(each (lambda ((path hash bytes vv writer seen deleted copies))
+						(unless deleted
+							(cond
+								((eql kind :snapshot)
+									(and (starts-with prefix path) (not (starts-with +store_snapshots path))
+										(push sets (list (cat at path) hash bytes :nil copies))))
+								((eql kind :drop)
+									(and (starts-with at path) (store-stat store path)
+										(push sets (list path "" 0 :t copies))))
+								((starts-with sets_at path)
+									;a restore: the path as it was in the snapshot
+									(elem-set snap +snap_found :t)
+									(defq orig (slice path (length at) -1))
+									(unless (eql (store-now store orig) hash) (push sets (list orig hash bytes :nil copies))))
+								;and one there is now that the snapshot has not
+								((and (starts-with prefix path) (not (starts-with +store_snapshots path))
+										(not (store-stat store (cat at path))))
+									(elem-set snap +snap_newer (inc (elem-get snap +snap_newer)))))))
+					entries)
+				(elem-set snap +snap_count (+ (elem-get snap +snap_count) (store-sets store sets))))
+			((setq done :t))))
+	(not done))
+
 (defun store-snapshot (store name &optional prefix)
 	; (store-snapshot store name [prefix]) -> :nil | count
 	;a snapshot of the objects whose paths begin so, all if not said, how
-	;many. Not of the paths of other snapshots. :nil if the name is not one
-	;a snapshot may have
-	(when (store-snapshot-name? name)
-		(defq at (cat +store_snapshots name "/") count 0)
-		(each (lambda (entry)
-				(bind '(path hash bytes vv writer seen deleted copies) entry)
-				(unless (starts-with +store_snapshots path)
-					(store-set store (cat at path) hash bytes :nil :nil copies)
-					(++ count)))
-			(store-list store (ifn prefix "")))
-		count))
+	;many, all at once, (store-snap-step). Not of the paths of other
+	;snapshots. :nil if the name is not one a snapshot may have
+	(when (store-snap-begin store :snapshot name prefix)
+		(while (store-snap-step store))
+		(third (store-snap-end store))))
 
 (defun store-snapshots (store)
 	; (store-snapshots store) -> ((name count) ...)
@@ -1633,30 +1738,22 @@
 	;all of it if not said: each path that is not as it was is set back,
 	;and one deleted since is had again. How many were set back, and how
 	;many paths there are now under the prefix that the snapshot has not,
-	;which are left. :nil if there is no such snapshot
-	(defq at (cat +store_snapshots name "/") prefix (ifn prefix "") restored 0
-		snap (filter (# (starts-with (cat at prefix) (first %0))) (store-list store at))
-		had (Fset (store-buckets (length snap) 101)))
-	(when (nempty? snap)
-		(each (lambda (entry)
-				(bind '(path hash bytes vv writer seen deleted copies) entry)
-				(defq path (slice path (length at) -1))
-				(. had :insert path)
-				(unless (eql (store-now store path) hash)
-					(store-set store path hash bytes :nil :nil copies)
-					(++ restored)))
-			snap)
-		(list restored (length (filter (# (and (not (starts-with +store_snapshots (first %0))) (not (. had :find (first %0)))))
-					(store-list store prefix))))))
+	;which are left. All at once, (store-snap-step). :nil if there is no
+	;such snapshot
+	(when (store-snap-begin store :restore name prefix)
+		(while (store-snap-step store))
+		(third (store-snap-end store))))
 
 (defun store-snapshot-drop (store name)
 	; (store-snapshot-drop store name) -> count
-	;a snapshot is gone, its paths deleted, how many. Its blocks are let go
-	;of by a sweep, if nothing else is made of them
-	(defq count 0)
-	(each (lambda (entry) (if (eql (first (store-delete store (first entry))) :ok) (++ count)))
-		(if (store-snapshot-name? name) (store-list store (cat +store_snapshots name "/")) (list)))
-	count)
+	;a snapshot is gone, its paths deleted, how many, all at once,
+	;(store-snap-step). Its blocks are let go of by a sweep, if nothing
+	;else is made of them
+	(cond
+		((store-snap-begin store :drop name)
+			(while (store-snap-step store))
+			(third (store-snap-end store)))
+		(0)))
 
 (defun store-walk (store name state visit &optional at)
 	; (store-walk store path state visit [at]) -> :nil | (state)
@@ -2128,6 +2225,7 @@
 		store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
 		store-entry-line store-entry-read store-journal-write
 		store-snapshot store-snapshots store-restore store-snapshot-drop store-snapshot-name? +store_snapshots
+		store-snap-begin store-snap-step store-snap-end store-sets
 		+store_block_size +store_copies +store_manifest_names +store_entry_path +store_entry_hash +store_entry_bytes
 		+store_entry_vv +store_entry_writer +store_entry_seen +store_entry_deleted +store_entry_copies))
 (env-pop)

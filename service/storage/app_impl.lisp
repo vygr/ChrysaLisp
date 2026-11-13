@@ -162,15 +162,16 @@
 ;asked, and answers when it is done: a sweep, a check of the blocks, a
 ;check of the volume. What it is called, what begins, steps and ends it,
 ;what is said of what it ends with, who asked for the one under way, and
-;who for one after it with what they asked
+;who for one after it with what they asked, and if those after are each
+;one of their own, not one for them all
 (enums +work 0
-	(enum name begin step end said askers next))
+	(enum name begin step end said askers next each))
 
-(defun work-new (name begin step end said)
-	; (work-new name begin step end said) -> work
+(defun work-new (name begin step end said &optional each)
+	; (work-new name begin step end said [each]) -> work
 	; (begin store opt) (step store until) -> :t | :nil, (end store) -> any
 	; (said any) -> str
-	(list name begin step end said (list) (list)))
+	(list name begin step end said (list) (list) each))
 
 (defun work-ask (work store reply opt)
 	;asked for: begun, or if one is under way, the next, which sees things
@@ -196,10 +197,16 @@
 	(unless (catch ((elem-get work +work_step) store (+ (pii-time) +plan_slice))
 			(progn (prin "Storage: " (elem-get work +work_name) ", " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) :nil))
 		(defq said (work-done work store) next (elem-get work +work_next))
-		(elem-set work +work_next (list))
-		(when (nempty? next)
-			((elem-get work +work_begin) store (some (const second) next))
-			(elem-set work +work_askers (map (const first) next)))
+		(cond
+			((empty? next))
+			;each its own, in the order asked
+			((elem-get work +work_each)
+				(elem-set work +work_next (rest next))
+				((elem-get work +work_begin) store (second (first next)))
+				(elem-set work +work_askers (list (first (first next)))))
+			(:t (elem-set work +work_next (list))
+				((elem-get work +work_begin) store (some (const second) next))
+				(elem-set work +work_askers (map (const first) next))))
 		said))
 
 (defun work-stop (work store)
@@ -247,7 +254,21 @@
 					(work-new "check" (const store-check-begin) (const store-check-step) (const store-check-end)
 						(# (join (map (const hex-encode) (ifn %0 '())) +storage_lf)))
 					(work-new "volume check" (# (exfat-check-begin (get :vol %0) %1)) (# (exfat-check-step (get :vol %0) %1))
-						(# (exfat-check-end (get :vol %0))) (# (join (ifn %0 '()) +storage_lf))))
+						(# (exfat-check-end (get :vol %0))) (# (join (ifn %0 '()) +storage_lf)))
+					;a snapshot, a restore of one, or its drop, each its own: what
+					;it set is told, and its tender is to tell the others now
+					(work-new "snapshot" (lambda (store (kind name prefix)) (store-snap-begin store kind name prefix))
+						(const store-snap-step) (const store-snap-end)
+						(lambda (got)
+							(cond
+								((and got (third got))
+									(bind '(kind name value) got)
+									(storage-record recorder member (cond ((eql kind :snapshot) "snapshot") ((eql kind :restore) "restore") ("snapshot-drop"))
+										(cat (str (if (list? value) (first value) value)) " " name))
+									(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+									(if (list? value) (join (map (const str) value) " ") (str value)))
+								((and got (eql (first got) :drop)) "0")
+								(""))) :t))
 				tender (open-child "service/storage/tender.lisp" +kn_call_pin)
 				runner (open-child "service/storage/gopher.lisp" +kn_call_pin))
 			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
@@ -449,24 +470,17 @@
 								(storage-record recorder member "cut" body)
 								(setq cut (split body " ")) "ok")
 							(+storage_type_snapshot
-								(defq at (find +storage_lf body) name (slice body 0 at)
-									count (store-snapshot store name (slice body (inc at) -1)))
-								(when count
-									(storage-record recorder member "snapshot" (cat (str count) " " name))
-									(if (/= 0 (get-long tender 0)) (mail-send tender "kick")))
-								(if count (str count) ""))
+								;answered when it is done, as a sweep is, each its own
+								(defq at (find +storage_lf body))
+								(work-ask (elem-get works 3) store reply (list :snapshot (slice body 0 at) (slice body (inc at) -1)))
+								:nil)
 							(+storage_type_restore
-								(defq at (find +storage_lf body) name (slice body 0 at)
-									got (store-restore store name (slice body (inc at) -1)))
-								(when got
-									(storage-record recorder member "restore" (cat (str (first got)) " " name))
-									(if (/= 0 (get-long tender 0)) (mail-send tender "kick")))
-								(if got (join (map (const str) got) " ") ""))
+								(defq at (find +storage_lf body))
+								(work-ask (elem-get works 3) store reply (list :restore (slice body 0 at) (slice body (inc at) -1)))
+								:nil)
 							(+storage_type_snapshot_drop
-								(defq count (store-snapshot-drop store body))
-								(storage-record recorder member "snapshot-drop" (cat (str count) " " body))
-								(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
-								(str count))
+								(work-ask (elem-get works 3) store reply (list :drop body ""))
+								:nil)
 							(+storage_type_resize
 								;a copy of the store on a volume of that size, beside this one,
 								;and then that is the store: the old file is gone, and the

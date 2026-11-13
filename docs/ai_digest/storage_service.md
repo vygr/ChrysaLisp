@@ -339,8 +339,15 @@ docs/diagrams/storage_snapshot.cwb
 (storage-snapshot-drop name [svc])     -> count        storage -D name
 ```
 
-A snapshot is taken at one member in one step, of that member's map as it
-is then; the others learn of it as of any write. A restore sets each path
+A snapshot is taken at one member, of that member's map as it was when it
+was asked for; the others learn of it as of any write. It is the service's
+own work, a bucket of the map at a time when nothing else is asked, the
+paths it sets written to the journal the once for each, and answered when it
+is done; a path that changes meanwhile is in it as it was. A restore and a
+drop go the same way, and those asked for at once are done one after the
+other. Of a map of 100000 paths, a snapshot of all of it is 16 s, and its
+drop 13 s, with no step over 2.5 ms; they were 18 and 16 s, the service
+answering nothing meanwhile. A restore sets each path
 of the snapshot back to the object it was, and one deleted since is had
 again; a path made since under the prefix is left, and counted. Dropped,
 its paths are deleted, and its blocks go at a sweep if nothing else is

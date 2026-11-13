@@ -1407,7 +1407,7 @@
 	;lib/storage/store.inc. :nil if the name is not one a snapshot may have,
 	;not empty, no / or space
 	(and (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_snapshot
-				(cat name +storage_lf (ifn prefix ""))))
+				(cat name +storage_lf (ifn prefix "")) :t))
 		(nql answer "") (str-as-num answer)))
 
 (defun storage-snapshots (&optional svc)
@@ -1430,7 +1430,7 @@
 	;there are now under the prefix that the snapshot has not, which are
 	;left. :nil if there is no such snapshot
 	(and (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_restore
-				(cat name +storage_lf (ifn prefix ""))))
+				(cat name +storage_lf (ifn prefix "")) :t))
 		(nql answer "") (map (const str-as-num) (split answer " "))))
 
 (defun storage-resized-name (image megabytes)
@@ -1458,5 +1458,5 @@
 	; (storage-snapshot-drop name [svc]) -> :nil | count
 	;a snapshot is gone, how many paths it had. Its blocks are let go of by
 	;a sweep, if nothing else is made of them
-	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_snapshot_drop name))
+	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_snapshot_drop name :t))
 		(str-as-num answer)))

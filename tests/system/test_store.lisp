@@ -453,6 +453,18 @@
 (store-snapshot-drop so_s "all")
 (store-put so_s "docs/a" (so-bytes 100 6))
 (assert-true "with no snapshot, a sweep lets go of what nothing is made of" (> (store-sweep so_s) 0))
+;a step at a time: of the map as it was when it began, a path changed
+;meanwhile is in it as it was
+(store-put so_s "docs/m" (so-bytes 300 7))
+(store-snap-begin so_s :snapshot "moment" "docs/")
+(store-put so_s "docs/m" (so-bytes 400 8))
+(store-put so_s "docs/n" (so-bytes 500 9))
+(while (store-snap-step so_s 0))
+(assert-list-eq "a snapshot a step at a time is of the map as it was when it began" (list :snapshot "moment" 4)
+	(store-snap-end so_s))
+(assert-list-eq "what was changed meanwhile as it was, and none made since" (list (so-bytes 300 7) :nil)
+	(list (store-get so_s "snapshots/moment/docs/m") (store-stat so_s "snapshots/moment/docs/n")))
+(store-snapshot-drop so_s "moment")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; where blocks are on the volume: in the folder they were put in, so many to
