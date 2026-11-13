@@ -199,6 +199,21 @@
 			(store-vv-read vv) writer (if (eql seen "-") (list) (split seen ",")) (starts-with "1" deleted)
 			(if (defq at (find "/" deleted)) (str-as-num (slice deleted (inc at) -1)) 0))))
 
+(defun store-plan-let-go (store plan)
+	;a plan no longer wanted, kept to be let go of a part at a time by
+	;(store-plan-step): one of a million blocks is millions of entries,
+	;20 ms let go of at once
+	(when plan
+		(def store :plan_free (cat (ifn (get :plan_free store) (list))
+			(map (# (elem-get plan %0)) (list +plan_wanted +plan_others +plan_unknown +plan_missing +plan_extras))))))
+
+(defun store-plan-forget (store)
+	; (store-plan-forget store)
+	;what a member is to keep is to be worked out again
+	(store-plan-let-go store (get :plan store))
+	(store-plan-let-go store (get :plan_next store))
+	(def store :plan :nil :plan_next :nil :plan_walk :nil :plan_adds :nil :plan_redo :nil))
+
 ;What each member has pinned is known to every member: it goes with the
 ;path map when two compare notes. A gopher is sent to a member that holds
 ;all of an object, and has nobody to ask who that is. A member's line is
@@ -959,14 +974,6 @@
 			(:t (setq done :t))))
 	done)
 
-(defun store-plan-let-go (store plan)
-	;a plan no longer wanted, kept to be let go of a part at a time by
-	;(store-plan-step): one of a million blocks is millions of entries,
-	;20 ms let go of at once
-	(when plan
-		(def store :plan_free (cat (ifn (get :plan_free store) (list))
-			(map (# (elem-get plan %0)) (list +plan_wanted +plan_others +plan_unknown +plan_missing +plan_extras))))))
-
 (defun store-plan-free (store &optional until)
 	;what is kept to be let go of, let go of, 1024 at a time, till it is
 	;time until if there is one. :t when it is all gone
@@ -1008,13 +1015,6 @@
 				(store-plan-let-go store (get :plan store))
 				(def store :plan next :plan_next :nil :plan_walk :nil))))
 	(store-plan-busy? store))
-
-(defun store-plan-forget (store)
-	; (store-plan-forget store)
-	;what a member is to keep is to be worked out again
-	(store-plan-let-go store (get :plan store))
-	(store-plan-let-go store (get :plan_next store))
-	(def store :plan :nil :plan_next :nil :plan_walk :nil :plan_adds :nil :plan_redo :nil))
 
 (defun store-plan-held (store name)
 	;a block that is kept now
