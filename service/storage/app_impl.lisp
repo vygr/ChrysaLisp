@@ -158,6 +158,56 @@
 		changed)
 	(+ pins (length changed)))
 
+;work the service does as its own, a slice at a time when nothing is
+;asked, and answers when it is done: a sweep, a check of the blocks, a
+;check of the volume. What it is called, what begins, steps and ends it,
+;what is said of what it ends with, who asked for the one under way, and
+;who for one after it with what they asked
+(enums +work 0
+	(enum name begin step end said askers next))
+
+(defun work-new (name begin step end said)
+	; (work-new name begin step end said) -> work
+	; (begin store opt) (step store until) -> :t | :nil, (end store) -> any
+	; (said any) -> str
+	(list name begin step end said (list) (list)))
+
+(defun work-ask (work store reply opt)
+	;asked for: begun, or if one is under way, the next, which sees things
+	;as they are then. opt is what one is asked to do, a mend
+	(cond
+		((nempty? (elem-get work +work_askers)) (push (elem-get work +work_next) (list reply opt)))
+		(:t ((elem-get work +work_begin) store opt) (push (elem-get work +work_askers) reply))))
+
+(defun work-done (work store)
+	; (work-done work store) -> str
+	;one is over, those who asked for it told what it ended with
+	(defq said ((elem-get work +work_said) ((elem-get work +work_end) store)))
+	(each (# (mail-send %0 said)) (elem-get work +work_askers))
+	(elem-set work +work_askers (list))
+	said)
+
+(defun work-step (work store)
+	; (work-step work store) -> :nil | str
+	;a slice of one under way, and when it is done, what was said. One that
+	;throws is over, with what it found so far, and so is one of a store
+	;resized meanwhile, the new store has none. Those who asked while it was
+	;under way are the next, asked for opt if any of them asked for it
+	(unless (catch ((elem-get work +work_step) store (+ (pii-time) +plan_slice))
+			(progn (prin "Storage: " (elem-get work +work_name) ", " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) :nil))
+		(defq said (work-done work store) next (elem-get work +work_next))
+		(elem-set work +work_next (list))
+		(when (nempty? next)
+			((elem-get work +work_begin) store (some (const second) next))
+			(elem-set work +work_askers (map (const first) next)))
+		said))
+
+(defun work-stop (work store)
+	;the service stops: one under way is over, and those who asked for it
+	;and for the next told what it found so far
+	(defq said (work-done work store))
+	(each (# (mail-send (first %0) said)) (elem-get work +work_next)))
+
 (defun child-run (said)
 	;what it is to keep
 	(defq opts (Emap))
@@ -190,9 +240,14 @@
 				;how the members of a store find each other, whatever machine they are on
 				known (mail-declare (task-mbox) group (cat (get :id store) " " member))
 				running :t cut (list) peers (list) recorder (storage-record-new) batch :nil stopped :nil
-				;who asked for the sweep under way, and who for one after it,
-				;and the same of a check, each after it with if it mends
-				sweepers (list) sweep_next (list) checkers (list) check_next (list)
+				;its own work, in the order it is done
+				works (list
+					(work-new "sweep" (lambda (store &ignore) (store-sweep-begin store)) (const store-sweep-step) (const store-sweep-end)
+						(# (str (ifn %0 0))))
+					(work-new "check" (const store-check-begin) (const store-check-step) (const store-check-end)
+						(# (join (map (const hex-encode) (ifn %0 '())) +storage_lf)))
+					(work-new "volume check" (# (exfat-check-begin (get :vol %0) %1)) (# (exfat-check-step (get :vol %0) %1))
+						(# (exfat-check-end (get :vol %0))) (# (join (ifn %0 '()) +storage_lf))))
 				tender (open-child "service/storage/tender.lisp" +kn_call_pin)
 				runner (open-child "service/storage/gopher.lisp" +kn_call_pin))
 			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
@@ -217,35 +272,12 @@
 							(setq batch (progn (exfat-end batch) :nil)))
 						;what was learnt from other members and is not written yet
 						((get :dirty store) (store-save store))
-						;a sweep is worked on a slice at a time, as the plan is,
-						;and those who asked for it are answered when it is done.
-						;One that throws is over, with what it let go of so far,
-						;and so is one of a store resized meanwhile, the new one
-						;has none
-						((or (store-sweep-busy? store) (nempty? sweepers))
+						;a sweep, a check of the blocks or of the volume, a slice at
+						;a time, as the plan is, with the apps of the node
+						((defq work (some (# (if (nempty? (elem-get %0 +work_askers)) %0)) works))
 							(task-band :app)
-							(unless (catch (store-sweep-step store (+ (pii-time) +plan_slice))
-									(progn (prin "Storage: sweep, " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) :nil))
-								(defq swept (str (ifn (store-sweep-end store) 0)))
-								(storage-record recorder member "sweep" swept)
-								(each (# (mail-send %0 swept)) sweepers)
-								;those who asked while it was under way, a sweep of
-								;the paths as they are now
-								(setq sweepers sweep_next sweep_next (list))
-								(if (nempty? sweepers) (store-sweep-begin store)))
-							(task-breathe)
-							(task-band :bot))
-						;a check of the blocks the same, those who asked while one
-						;was under way the next, which mends if any of them asked
-						((or (store-check-busy? store) (nempty? checkers))
-							(task-band :app)
-							(unless (catch (store-check-step store (+ (pii-time) +plan_slice))
-									(progn (prin "Storage: check, " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) :nil))
-								(defq checked (join (map (const hex-encode) (ifn (store-check-end store) '())) +storage_lf))
-								(each (# (mail-send %0 checked)) checkers)
-								(setq checkers (map (const first) check_next))
-								(if (nempty? checkers) (store-check-begin store (some (const second) check_next)))
-								(setq check_next (list)))
+							(and (defq said (work-step work store)) (eql (elem-get work +work_name) "sweep")
+								(storage-record recorder member "sweep" said))
 							(task-breathe)
 							(task-band :bot))
 						;the plan is worked on a slice at a time, with the apps
@@ -340,18 +372,15 @@
 								;answered when it is done, it is done when nothing else
 								;is asked. One asked while another is under way waits
 								;for the next: what was deleted since is let go of too
-								(cond
-									((store-sweep-busy? store) (push sweep_next reply))
-									(:t (store-sweep-begin store) (push sweepers reply)))
+								(work-ask (first works) store reply :nil)
 								:nil)
 							(+storage_type_check
-								;the volume the store is on, mended if asked, or its
-								;blocks, answered when it is done, as a sweep is
-								(cond
-									((starts-with "volume" body)
-										(join (exfat-check (get :vol store) (eql body "volume mend")) +storage_lf))
-									((store-check-busy? store) (push check_next (list reply (eql body "mend"))) :nil)
-									(:t (store-check-begin store (eql body "mend")) (push checkers reply) :nil)))
+								;its blocks, or the volume it is on, mended if asked,
+								;answered when it is done, as a sweep is
+								(if (starts-with "volume" body)
+									(work-ask (third works) store reply (eql body "volume mend"))
+									(work-ask (second works) store reply (eql body "mend")))
+								:nil)
 							(+storage_type_walk
 								;a gopher. The task that runs them here is given it, with
 								;who is to be answered: who asked, or the member that
@@ -473,12 +502,8 @@
 				(and (defq dirty (get :dirty store)) (> (- (pii-time) dirty) +dirty_most)
 					(store-save store)))
 			(if timed (mail-timeout (second select) 0 0))
-			;a sweep under way is over, those who asked told what it let go of
-			(defq swept (str (ifn (store-sweep-end store) 0)))
-			(each (# (mail-send %0 swept)) (cat sweepers sweep_next))
-			;and a check, told what it found so far
-			(defq checked (join (map (const hex-encode) (ifn (store-check-end store) '())) +storage_lf))
-			(each (# (mail-send %0 checked)) (cat checkers (map (const first) check_next)))
+			;its own work under way is over, those who asked told what it found
+			(each (# (work-stop %0 store)) works)
 			(if (/= 0 (get-long tender 0)) (mail-send tender "stop"))
 			(if (/= 0 (get-long runner 0)) (mail-send runner "stop"))
 			(mail-forget service)

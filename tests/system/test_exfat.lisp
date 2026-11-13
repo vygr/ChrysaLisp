@@ -287,6 +287,19 @@
 (defq xc_lines (exfat-check xc_vol))
 (assert-true "after it, only what a mend can not put right" (and (xc-has xc_lines "cluster ") (not (xc-mendable xc_lines))))
 (assert-true "and so the device has it" (not (xc-mendable (exfat-check (exfat-mount xc_stream)))))
+;a check a step at a time, a thing a step, while the volume is written:
+;nothing marked meanwhile is said, nor mended
+(bind '(xs_vol xs_stream) (xf-volume 0x200000))
+(each! (# (exfat-save xs_vol (cat "f" (str (!))) (xf-bytes 3000 (!)))) '() 0 8)
+(exfat-check-begin xs_vol :t)
+(assert-eq "a check is under way" :t (exfat-check-busy? xs_vol))
+(each! (# (exfat-check-step xs_vol 0)) '() 0 8)
+(exfat-save xs_vol "late.bin" (xf-bytes 9000 7))
+(exfat-delete xs_vol "f3")
+(while (exfat-check-step xs_vol 0))
+(assert-list-eq "a check while the volume is written says nothing of what was written" '() (exfat-check-end xs_vol))
+(assert-list-eq "and its mend let go of nothing written meanwhile" '() (exfat-check xs_vol))
+(assert-eq "what was written is had back" (xf-bytes 9000 7) (exfat-load xs_vol "late.bin"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; let go of part way

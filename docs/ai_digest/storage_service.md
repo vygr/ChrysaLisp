@@ -652,8 +652,17 @@ each block in it read, answered when it is done. A block let go of since
 its folder was listed is not called wrong. Those who ask while one is
 under way are the next, which mends if any of them asked it to. Of a
 store of a million blocks a check is 36 s, and was 36 s with every
-request waiting; the longest a stat waited meanwhile was 5.4 ms. A check
-of the volume, `(storage-volume-check)`, is still done at once. `(storage-settle)`, `(storage-pace)` and
+request waiting; the longest a stat waited meanwhile was 5.4 ms.
+
+A check of the volume, `(storage-volume-check)`, is the same too: each
+file and directory as the device has it, a directory read 256 entries at
+a time and a chain 1024 clusters at a time, then the bitmap 4096 bytes at
+a time. The volume is written meanwhile, so every cluster marked while it
+is under way is noted, `exfat-mark`, and nothing is said of it, nor
+mended: a cluster given to a file after its directory was walked is not
+"had by nothing", and a mend never frees it. A mend waits till nothing is
+being written. Of a store of a million blocks it is 6.9 s, 6.1 s at once
+before with every request waiting; the longest a stat waited was 5 ms. `(storage-settle)`, `(storage-pace)` and
 `(storage-cut)` are for tests: have the tender look now, change how often it
 looks, and make a member as if it could not reach some others.
 

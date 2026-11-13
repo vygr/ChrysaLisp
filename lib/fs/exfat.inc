@@ -351,6 +351,22 @@
 	(get-uint (exfat-read vol (+ (<< (get :fat_offset vol) (get :sector_shift vol))
 				(* cluster 4)) 4) 0))
 
+(defun exfat-chain-part (vol cluster most)
+	; (exfat-chain-part vol cluster most) -> (clusters next)
+	;of a chain from this cluster on, as many as most, from the allocation
+	;table, and the cluster after them, :nil if the chain ends. The table a
+	;block of it at a time, the next of each cluster read from the block it
+	;is in, not asked of the cache one by one
+	(defq limit (+ (get :cluster_count vol) 2) clusters (list)
+		fat (<< (get :fat_offset vol) (get :sector_shift vol)) at_block -1 block "")
+	(while (and (>= cluster 2) (< cluster limit) (< (length clusters) most))
+		(push clusters cluster)
+		(defq at (+ fat (<< cluster 2)))
+		(unless (= (>> at +exfat_block_shift) at_block)
+			(setq at_block (>> at +exfat_block_shift) block (exfat-block vol at_block)))
+		(setq cluster (get-uint block (logand at (const (dec +exfat_block_size))))))
+	(list clusters (and (>= cluster 2) (< cluster limit) cluster)))
+
 (defun exfat-chain (vol start len no_fat)
 	; (exfat-chain vol start len no_fat) -> (cluster ...)
 	;the clusters of a file or a directory. A len of :nil is all of the chain
@@ -359,17 +375,7 @@
 	(cond
 		((< start 2) clusters)
 		(no_fat (map! (const !) '() start (+ start (/ (+ len (dec size)) size))))
-		(:t ;the table a block of it at a time, the next of each cluster read
-			;from the block it is in, not asked of the cache one by one
-			(defq want (if len (/ (+ len (dec size)) size) limit)
-				fat (<< (get :fat_offset vol) (get :sector_shift vol)) at_block -1 block "")
-			(while (and (>= start 2) (< start limit) (< (length clusters) want))
-				(push clusters start)
-				(defq at (+ fat (<< start 2)))
-				(unless (= (>> at +exfat_block_shift) at_block)
-					(setq at_block (>> at +exfat_block_shift) block (exfat-block vol at_block)))
-				(setq start (get-uint block (logand at (const (dec +exfat_block_size))))))
-			clusters)))
+		((first (exfat-chain-part vol start (if len (/ (+ len (dec size)) size) limit))))))
 
 (defun exfat-data (vol start len no_fat &optional keep)
 	; (exfat-data vol start len no_fat [keep]) -> str
@@ -515,14 +521,15 @@
 	;the checksum of the entries of a file, all but the checksum itself
 	(static-qq (ror-sum ,set 16 '(2 3))))
 
-(defun exfat-entries (vol start len no_fat)
-	; (exfat-entries vol start len no_fat) -> ((name dir size start no_fat index count) ...)
-	;the files and directories of a directory. A file is a set of entries,
-	;one for the file, one for its data, then as many as its name needs.
-	;Each is read where it is, a folder of a store has thousands
-	(defq data (exfat-data vol start len no_fat :t) out (list) i 0
-		n (/ (length data) +exfat_entry_size) type 1)
-	(while (and (< i n) (/= (setq type (code data 1 (defq at (* i +exfat_entry_size)))) +exfat_type_end))
+(defun exfat-entries-part (data i out &optional most)
+	; (exfat-entries-part data i out [most]) -> i
+	;the files and directories of a directory's data from entry i on, onto
+	;out, as many entries as most if given: where to go on from, the end
+	;of the data at the end mark. A file is a set of entries, one for the
+	;file, one for its data, then as many as its name needs. Each is read
+	;where it is, a folder of a store has thousands
+	(defq n (/ (length data) +exfat_entry_size) stop (if most (min n (+ i most)) n) type 1)
+	(while (and (< i stop) (/= (setq type (code data 1 (defq at (* i +exfat_entry_size)))) +exfat_type_end))
 		(defq count 0)
 		(when (= type +exfat_type_file)
 			(setq count (code data 1 (+ at +exfat_file_count)))
@@ -544,6 +551,13 @@
 						(/= (logand attrs +exfat_attr_dir) 0) size start
 						(/= (logand flags +exfat_flag_no_fat) 0) i count))))
 		(setq i (+ i (inc count))))
+	(if (and (< i n) (= type +exfat_type_end)) n i))
+
+(defun exfat-entries (vol start len no_fat)
+	; (exfat-entries vol start len no_fat) -> ((name dir size start no_fat index count) ...)
+	;the files and directories of a directory, (exfat-entries-part)
+	(defq out (list))
+	(exfat-entries-part (exfat-data vol start len no_fat :t) 0 out)
 	out)
 
 (defun exfat-same? (vol a b)
@@ -664,6 +678,9 @@
 	;one given out is in use in the marks too, one let go is still in use
 	;there till the bitmap that has it free is written
 	(if used (set-byte marks i (logior (code marks 1 i) mask)) (def vol :freed :t))
+	;a check under way is told, it says nothing of a cluster changed while
+	;it was, (exfat-check-step)
+	(if (defq touched (get :touched vol)) (set-byte touched i (logior (code touched 1 i) mask)))
 	;the count of the clusters that are free, once it has been counted
 	(when (defq free (get :free vol))
 		(defq was (/= 0 (logand old mask)))
@@ -1068,107 +1085,253 @@
 ; checking, the volume as it stands
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun exfat-check-walk (vol fnc)
-	; (exfat-check-walk vol fnc) -> vol
-	; (fnc path clusters want entry)
-	;every file and directory as the device has it, not as it was kept,
-	;the root, the bitmap and the upper case table first. Each is given
-	;to fnc with its clusters, how many its length wants, :nil for the
-	;root, which keeps no length, and its entry, :nil for the bitmap and
-	;the table. fnc is called from inside it, so the names it uses are
-	;not these: vol fnc root csize data i n e type start len todo dir path
-	;name is_dir no_fat child
+;a check of a volume that can stop and go on, (exfat-check-step): the
+;walk it is on, :what each file and directory has, :who has a cluster
+;two have, then :lost the bitmap, :mend, :done; the directories still to
+;read; the files and directories found to look at, taken from the end;
+;the directory being read, (path data i), and what is found in it so
+;far; the one at hand, (path start len no_fat want entry), how many of
+;its clusters have been looked at, the next of its chain, and how many
+;not of the volume and marked free; a directory being compared with how
+;it is kept, (path entry data i kept k same); if it mends; the lines so
+;far; the clusters seen; those two have; how many in use had by nothing;
+;what is to be mended
+(enums +exfat_ck 0
+	(enum phase todo items dir found item at next out free cmp
+		mend lines seen twice lost used freed reread))
+
+(defun exfat-check-first (vol)
+	; (exfat-check-first vol) -> (todo items)
+	;where a walk of the volume starts: the root, the bitmap and the upper
+	;case table, then what is in the root
 	(defq root (get :root vol) csize (exfat-cluster-size vol)
-		data (exfat-data vol root :nil :nil) i 0 n (/ (length data) +exfat_entry_size))
-	(fnc "/" (exfat-chain vol root :nil :nil) :nil (exfat-root vol))
+		data (exfat-data vol root :nil :nil) i 0 n (/ (length data) +exfat_entry_size)
+		items (list (list "/" root :nil :nil :nil (exfat-root vol))))
 	(while (< i n)
 		(defq e (slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size)) type (getf e +exfat_entry_type))
 		(cond
 			((= type +exfat_type_bitmap)
 				(bind '(start len) (getf-> e +exfat_bitmap_first_cluster +exfat_bitmap_data_length))
-				(fnc "(bitmap)" (exfat-chain vol start len :nil) (/ (+ len (dec csize)) csize) :nil))
+				(push items (list "(bitmap)" start len :nil (/ (+ len (dec csize)) csize) :nil)))
 			((= type +exfat_type_upcase)
 				(bind '(start len) (getf-> e +exfat_upcase_first_cluster +exfat_upcase_data_length))
-				(fnc "(upcase)" (exfat-chain vol start len :nil) (/ (+ len (dec csize)) csize) :nil)))
+				(push items (list "(upcase)" start len :nil (/ (+ len (dec csize)) csize) :nil))))
 		(setq i (if (= type +exfat_type_end) n (inc i))))
-	;what is still to do is a list, nothing here calls itself
-	(defq todo (list (list "" root :nil :nil)))
-	(while (defq dir (pop todo))
-		(bind '(path start len no_fat) dir)
-		(each (lambda ((name is_dir len start no_fat &ignore))
-				(defq child (cat path "/" name))
-				(fnc child (if (> len 0) (exfat-chain vol start len no_fat) (list))
-					(/ (+ len (dec csize)) csize) (list name is_dir len start no_fat))
-				(if is_dir (push todo (list child start len no_fat))))
-			(exfat-entries vol start len no_fat)))
-	vol)
+	(list (list (list "" root :nil :nil)) (reverse items)))
 
-(defun exfat-check-text (entries)
-	;the entries of a directory, in the order they are in it, to compare
-	(str (sort (cat entries) (# (- (elem-get %0 5) (elem-get %1 5))))))
+(defun exfat-bit? (bitmap cluster)
+	;is a cluster's bit set in a bitmap of the volume's
+	(defq bit (- cluster 2))
+	(/= 0 (logand (code bitmap 1 (>> bit 3)) (<< 1 (logand bit 7)))))
+
+(defun exfat-check-begin (vol &optional mend)
+	; (exfat-check-begin vol [mend])
+	;a check of the volume, a step at a time, (exfat-check-step). Every
+	;cluster marked meanwhile is noted, and nothing is said of it
+	(bind '(todo items) (exfat-check-first vol))
+	(defq size (length (get :bitmap vol)))
+	(def vol :touched (exfat-zeros size)
+		:check (list :what todo items :nil (list) :nil 0 :nil 0 0 :nil
+			mend (list) (exfat-zeros size) (Fmap 31) 0 (list) (list) (list))))
+
+(defun exfat-check-clusters (vol ck item at next out free)
+	;the next of the clusters of one, 1024 of them, and what is said of it
+	;when they are done, or it is the one at hand, to go on with. A cluster
+	;marked since the check began is passed over. Of a directory, then, how
+	;it is kept is compared with how the device has it, and it is walked
+	(bind '(path start len no_fat want entry) item)
+	(defq limit (+ (get :cluster_count vol) 2) most (- (ifn want limit) at))
+	(cond
+		((or (not next) (<= most 0)) (defq clusters (list) next :nil))
+		(no_fat (defq clusters (map! (const !) '() next (+ next (min most 1024))) next (+ next (length clusters)))
+			(if (>= (+ at (length clusters)) want) (setq next :nil)))
+		(:t (bind '(clusters next) (exfat-chain-part vol next (min most 1024)))))
+	(cond
+		((eql (elem-get ck +exfat_ck_phase) :what)
+			(defq used (elem-get ck +exfat_ck_used)
+				touched (get :touched vol) seen (elem-get ck +exfat_ck_seen) twice (elem-get ck +exfat_ck_twice)
+				bitmap (get :bitmap vol))
+			(each (lambda (c)
+					(defq bit (- c 2) i (>> bit 3) m (<< 1 (logand bit 7)))
+					(cond
+						((or (< c 2) (>= c limit)) (++ out))
+						((/= 0 (logand (code touched 1 i) m)))
+						(:t (if (/= 0 (logand (code seen 1 i) m))
+								(. twice :insert c (list))
+								(set-byte seen i (logior (code seen 1 i) m)))
+							(when (= 0 (logand (code bitmap 1 i) m)) (++ free) (push used c)))))
+				clusters))
+		(:t (defq twice (elem-get ck +exfat_ck_twice))
+			(each (# (if (defq who (. twice :find %0)) (push who path))) clusters)))
+	(setq at (+ at (length clusters)))
+	(cond
+		;more of it, it is the one at hand
+		(next (elem-set ck +exfat_ck_item item)
+			(elem-set ck +exfat_ck_at at)
+			(elem-set ck +exfat_ck_next next)
+			(elem-set ck +exfat_ck_out out)
+			(elem-set ck +exfat_ck_free free))
+		(:t (elem-set ck +exfat_ck_item :nil)
+			(when (eql (elem-get ck +exfat_ck_phase) :what)
+				(defq lines (elem-get ck +exfat_ck_lines))
+				(if (> out 0) (push lines (cat path ": " (str out) " clusters not of the volume")))
+				(if (> free 0) (push lines (cat path ": " (str free) " clusters in use marked free")))
+				(and want (< at want)
+					(push lines (cat path ": a chain of " (str at) " clusters, its length wants " (str want))))
+				;a directory as it is kept, to compare with the device as it is now
+				(and entry (second entry)
+					(defq kept (. (get :dirs vol) :find (elem-get entry 3)))
+					(elem-set ck +exfat_ck_cmp (list path entry (exfat-data vol (elem-get entry 3) (elem-get entry 2) (elem-get entry 4) :t) 0
+						(sort (cat (first kept)) (# (- (elem-get %0 5) (elem-get %1 5)))) 0 :t))))
+			;a directory in a directory is walked, the root is already
+			(and entry (second entry) (>= (elem-get entry 5) 0)
+				(push (elem-get ck +exfat_ck_todo) (list path (elem-get entry 3) (elem-get entry 2) (elem-get entry 4)))))))
+
+(defun exfat-check-item (vol ck item)
+	;one of the walk begun, and its first clusters, unless it was changed
+	;since its directory was read: its first cluster marked since the
+	;check began
+	(bind '(path start len no_fat want entry) item)
+	(defq bit (- start 2))
+	(unless (and (>= start 2) (< start (+ (get :cluster_count vol) 2))
+			(/= 0 (logand (code (get :touched vol) 1 (>> bit 3)) (<< 1 (logand bit 7)))))
+		(exfat-check-clusters vol ck item 0 (and (>= start 2) (or (not len) (> len 0)) start) 0 0)))
+
+(defun exfat-check-compare (vol ck)
+	;the next 256 entries of a directory as the device has it, against how
+	;it is kept, and what is said when they are all done
+	(bind '(path entry data i kept k same) (defq cmp (elem-get ck +exfat_ck_cmp)))
+	(defq got (list) n (/ (length data) +exfat_entry_size) i (exfat-entries-part data i got 256))
+	(each (lambda (e)
+			(if (or (>= k (length kept)) (nql (str e) (str (elem-get kept k)))) (setq same :nil))
+			(setq k (inc k)))
+		got)
+	(elem-set cmp 3 i)
+	(elem-set cmp 5 k)
+	(elem-set cmp 6 same)
+	(when (>= i n)
+		(elem-set ck +exfat_ck_cmp :nil)
+		(unless (and same (= k (length kept)))
+			(push (elem-get ck +exfat_ck_reread) (elem-get entry 3))
+			(push (elem-get ck +exfat_ck_lines) (cat path ": the directory as it is kept is not as the device has it")))))
+
+(defun exfat-check-step (vol &optional until)
+	; (exfat-check-step vol [until]) -> :nil | :t
+	;more of a check, till it is time until, if there is one, one thing at
+	;least. :t if there is more to do. Each file and directory as the
+	;device has it, a directory read 256 entries at a time, a chain 1024
+	;clusters at a time, then who has a cluster that two have, then the
+	;bitmap 4096 bytes at a time. A mend waits till nothing is being
+	;written, or is not done if there is no until
+	(defq ck (get :check vol) once :t)
+	(while (and ck (not (eql (elem-get ck +exfat_ck_phase) :done)) (or once (not until) (< (pii-time) until)))
+		(setq once :nil)
+		(task-breathe)
+		(defq phase (elem-get ck +exfat_ck_phase))
+		(cond
+			((elem-get ck +exfat_ck_cmp) (exfat-check-compare vol ck))
+			((defq item (elem-get ck +exfat_ck_item))
+				(exfat-check-clusters vol ck item (elem-get ck +exfat_ck_at) (elem-get ck +exfat_ck_next)
+					(elem-get ck +exfat_ck_out) (elem-get ck +exfat_ck_free)))
+			((defq dir (elem-get ck +exfat_ck_dir))
+				;the directory being read, its next 256 entries
+				(bind '(path data i) dir)
+				(defq found (elem-get ck +exfat_ck_found) got (list) csize (exfat-cluster-size vol)
+					i (exfat-entries-part data i got 256))
+				(each (lambda (e)
+						(defq len (elem-get e 2))
+						(push found (list (cat path "/" (first e)) (elem-get e 3) len (elem-get e 4) (/ (+ len (dec csize)) csize) e)))
+					got)
+				(elem-set dir 2 i)
+				(when (>= i (/ (length data) +exfat_entry_size))
+					(elem-set ck +exfat_ck_dir :nil)
+					(elem-set ck +exfat_ck_items (reverse found))
+					(elem-set ck +exfat_ck_found (list))))
+			;the next found, and its first clusters, most have no more
+			((nempty? (defq items (elem-get ck +exfat_ck_items)))
+				(exfat-check-item vol ck (pop items)))
+			((nempty? (defq todo (elem-get ck +exfat_ck_todo)))
+				(bind '(path start len no_fat) (pop todo))
+				(elem-set ck +exfat_ck_dir (list path (exfat-data vol start len no_fat :t) 0)))
+			((and (eql phase :what) (not (. (elem-get ck +exfat_ck_twice) :empty?)))
+				;a walk again, for who has a cluster two have
+				(bind '(todo items) (exfat-check-first vol))
+				(elem-set ck +exfat_ck_todo todo)
+				(elem-set ck +exfat_ck_items items)
+				(elem-set ck +exfat_ck_phase :who))
+			((find phase '(:what :who))
+				(defq touched (get :touched vol) lines (elem-get ck +exfat_ck_lines))
+				(. (elem-get ck +exfat_ck_twice) :each (lambda (c who)
+						(unless (exfat-bit? touched c)
+							(push lines (cat "cluster " (str c) " is had by " (join who ", "))))))
+				(elem-set ck +exfat_ck_phase :lost)
+				(elem-set ck +exfat_ck_at 0))
+			((eql phase :lost)
+				;in use, and had by nothing, nor marked since the check began
+				(defq bitmap (get :bitmap vol) seen (elem-get ck +exfat_ck_seen) touched (get :touched vol)
+					at (elem-get ck +exfat_ck_at) end (min (length bitmap) (+ at 4096))
+					lost (elem-get ck +exfat_ck_lost) freed (elem-get ck +exfat_ck_freed))
+				(each! (lambda ()
+						(defq b (logand (code bitmap 1 (!)) (logxor (logior (code seen 1 (!)) (code touched 1 (!))) 0xff)) c (+ (<< (!) 3) 2))
+						(while (/= b 0)
+							(when (/= (logand b 1) 0)
+								(++ lost)
+								(if (elem-get ck +exfat_ck_mend) (push freed c)))
+							(setq b (>> b 1) c (inc c))))
+					'() at end)
+				(elem-set ck +exfat_ck_lost lost)
+				(elem-set ck +exfat_ck_at end)
+				(when (= end (length bitmap))
+					(if (> lost 0) (push (elem-get ck +exfat_ck_lines) (cat (str lost) " clusters marked in use are had by nothing")))
+					(elem-set ck +exfat_ck_phase :mend)))
+			;a mend, of what has not been marked since it was found
+			((or (not (elem-get ck +exfat_ck_mend)) (and (> (get :depth vol) 0) (not until)))
+				(elem-set ck +exfat_ck_phase :done))
+			((= (get :depth vol) 0)
+				(defq touched (get :touched vol)
+					used (filter (# (not (exfat-bit? touched %0))) (elem-get ck +exfat_ck_used))
+					freed (filter (# (not (exfat-bit? touched %0))) (elem-get ck +exfat_ck_freed))
+					reread (elem-get ck +exfat_ck_reread))
+				(when (or (nempty? used) (nempty? freed) (nempty? reread))
+					(def vol :touched :nil)
+					(exfat-begin vol)
+					(each (# (exfat-mark vol %0 :t)) used)
+					(each (# (exfat-mark vol %0 :nil)) freed)
+					(each (# (. (get :dirs vol) :erase %0)) reread)
+					(exfat-end vol)
+					(push (elem-get ck +exfat_ck_lines) (cat "mended: " (str (length used)) " clusters marked in use, "
+							(str (length freed)) " free, " (str (length reread)) " directories read again")))
+				(elem-set ck +exfat_ck_phase :done))))
+	(and ck (not (eql (elem-get ck +exfat_ck_phase) :done))))
+
+(defun exfat-check-end (vol)
+	; (exfat-check-end vol) -> :nil | (line ...)
+	;a check is over, what it found
+	(when (defq ck (get :check vol))
+		(def vol :check :nil :touched :nil)
+		(elem-get ck +exfat_ck_lines)))
+
+(defun exfat-check-busy? (vol)
+	; (exfat-check-busy? vol) -> :nil | :t
+	(if (get :check vol) :t))
 
 (defun exfat-check (vol &optional mend)
 	; (exfat-check vol [mend]) -> (line ...)
-	;what is wrong with the volume, a line each, none if nothing is. Of
-	;each file and directory, as the device has it: clusters that are not
-	;of the volume, clusters in use that the bitmap says are free, a chain
-	;that ends before its length does, and a directory as it is kept here,
-	;(exfat-dir-read), that is not as the device has it. Then each cluster
-	;that two have, and who has it, and how many clusters are marked in use
-	;that nothing has: room lost, no harm. It only reads, unless mend is
-	;asked for and nothing is being written: then a cluster in use is
-	;marked in use, one that nothing has is free, a directory is read
-	;again, and a last line says so. A cluster two have, a chain cut short
-	;and one not of the volume are only said
-	(defq ck_vol vol ck_lines (list) ck_bitmap (get :bitmap vol) ck_limit (+ (get :cluster_count vol) 2)
-		ck_seen (exfat-zeros (length ck_bitmap)) ck_twice (Fmap 31) ck_lost 0
-		ck_mend (and mend (= (get :depth vol) 0)) ck_used (list) ck_freed (list) ck_reread (list))
-	(exfat-check-walk vol (lambda (ck_path ck_clusters ck_want ck_entry)
-			(task-breathe)
-			(defq ck_out 0 ck_free 0)
-			(each (lambda (ck_c)
-					(cond
-						((or (< ck_c 2) (>= ck_c ck_limit)) (++ ck_out))
-						(:t (defq ck_bit (- ck_c 2) ck_i (>> ck_bit 3) ck_m (<< 1 (logand ck_bit 7)))
-							(if (/= 0 (logand (code ck_seen 1 ck_i) ck_m))
-								(. ck_twice :insert ck_c (list))
-								(set-byte ck_seen ck_i (logior (code ck_seen 1 ck_i) ck_m)))
-							(unless (exfat-used? ck_vol ck_c) (++ ck_free) (push ck_used ck_c)))))
-				ck_clusters)
-			(if (> ck_out 0) (push ck_lines (cat ck_path ": " (str ck_out) " clusters not of the volume")))
-			(if (> ck_free 0) (push ck_lines (cat ck_path ": " (str ck_free) " clusters in use marked free")))
-			(and ck_want (< (length ck_clusters) ck_want)
-				(push ck_lines (cat ck_path ": a chain of " (str (length ck_clusters))
-						" clusters, its length wants " (str ck_want))))
-			(and ck_entry (second ck_entry)
-				(defq ck_kept (. (get :dirs ck_vol) :find (elem-get ck_entry 3)))
-				(nql (exfat-check-text (first ck_kept))
-					(exfat-check-text (exfat-entries ck_vol (elem-get ck_entry 3) (elem-get ck_entry 2) (elem-get ck_entry 4))))
-				(push ck_reread (elem-get ck_entry 3))
-				(push ck_lines (cat ck_path ": the directory as it is kept is not as the device has it")))))
-	;who has each cluster that two have, a second walk, only if there are any
-	(unless (. ck_twice :empty?)
-		(exfat-check-walk vol (lambda (ck_path ck_clusters &ignore)
-				(each (# (if (defq ck_who (. ck_twice :find %0)) (push ck_who ck_path))) ck_clusters)))
-		(. ck_twice :each (lambda (ck_c ck_who)
-				(push ck_lines (cat "cluster " (str ck_c) " is had by " (join ck_who ", "))))))
-	;in use, and had by nothing
-	(each! (lambda () (defq ck_b (logand (code ck_bitmap 1 (!)) (logxor (code ck_seen 1 (!)) 0xff)) ck_c (+ (<< (!) 3) 2))
-			(while (/= ck_b 0)
-				(when (/= (logand ck_b 1) 0)
-					(++ ck_lost)
-					(if ck_mend (push ck_freed ck_c)))
-				(setq ck_b (>> ck_b 1) ck_c (inc ck_c)))) '() 0 (length ck_bitmap))
-	(if (> ck_lost 0) (push ck_lines (cat (str ck_lost) " clusters marked in use are had by nothing")))
-	(when (and ck_mend (or (nempty? ck_used) (nempty? ck_freed) (nempty? ck_reread)))
-		(exfat-begin vol)
-		(each (# (exfat-mark vol %0 :t)) ck_used)
-		(each (# (exfat-mark vol %0 :nil)) ck_freed)
-		(each (# (. (get :dirs vol) :erase %0)) ck_reread)
-		(exfat-end vol)
-		(push ck_lines (cat "mended: " (str (length ck_used)) " clusters marked in use, "
-				(str (length ck_freed)) " free, " (str (length ck_reread)) " directories read again")))
-	ck_lines)
+	;what is wrong with the volume, a line each, none if nothing is, all
+	;at once, (exfat-check-step). Of each file and directory, as the
+	;device has it: clusters that are not of the volume, clusters in use
+	;that the bitmap says are free, a chain that ends before its length
+	;does, and a directory as it is kept here, (exfat-dir-read), that is
+	;not as the device has it. Then each cluster that two have, and who
+	;has it, and how many clusters are marked in use that nothing has:
+	;room lost, no harm. It only reads, unless mend is asked for and
+	;nothing is being written: then a cluster in use is marked in use, one
+	;that nothing has is free, a directory is read again, and a last line
+	;says so. A cluster two have, a chain cut short and one not of the
+	;volume are only said
+	(exfat-check-begin vol mend)
+	(while (exfat-check-step vol))
+	(exfat-check-end vol))
 
 (defun exfat-cluster-shift (size)
 	; (exfat-cluster-shift size) -> num

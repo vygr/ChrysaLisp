@@ -232,6 +232,9 @@
 			(list (storage-send sg_svc +storage_type_check) (storage-send sg_svc +storage_type_check))))
 	(assert-list-eq "nothing is wrong with the volume, after puts, deletes and a sweep" '() (storage-volume-check sg_svc))
 	(assert-list-eq "and a mend of it has nothing to do" '() (storage-volume-check sg_svc :t))
+	(assert-list-eq "two checks of the volume asked at once, both are answered" '("" "")
+		(map (# (mail-read-timeout %0 (task-timeout 60)))
+			(list (storage-send sg_svc +storage_type_check "volume") (storage-send sg_svc +storage_type_check "volume"))))
 
 	;a has of a name and a byte more, as a peer of another build may send,
 	;is of the whole name alone, and the service is still there after
