@@ -97,6 +97,20 @@ However, this map is extendable by providing your own hash and equality testing
 functions on construction. This allows you to create arbitrary maps where the
 keys can be anything your hash and equal function can work with.
 
+## Emptying a part at a time
+
+`(. set :empty)` lets go of all of a set or a map at once. With a count,
+`(. set :empty count)` lets go of about that many items and gives `:t`
+while there are more, `:nil` when there are none, so a big one can be let
+go of a part at a time, with other work between, and is as good as ever
+meanwhile. Those of many buckets let go of a bucket at a time in turn,
+from where the last call stopped; an `Lset` or `Lmap` lets go of its last
+items. An `Emap`'s env is let go of as one, whatever the count.
+
+```lisp
+(while (. big_set :empty 1024) (task-slice))
+```
+
 ## Trees
 
 Trees are an arbitrary mix of maps, sets, lists, and arrays that can be loaded

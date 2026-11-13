@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./set.inc")
+(import "./buckets.inc")
 
 ;module
 (env-push)
@@ -81,10 +82,15 @@
 				(defq _b (get :buckets this))))
 		this)
 
-	(defmethod :empty ()
-		; (. xset :empty) -> xset
-		(each (# (clear %0)) (get :buckets this))
-		this)
+	(defmethod :empty (&optional count)
+		; (. xset :empty [count]) -> xset | :t | :nil
+		;all of it, or with a count about so many items let go of, a bucket
+		;at a time in turn, :t while there is more: a big one let go of a
+		;part at a time, and as good as ever meanwhile
+		(cond
+			(count (buckets-empty this count 1 1))
+			(:t (each (# (clear %0)) (get :buckets this))
+				this)))
 
 	(defmethod :move ()
 		; (. xset :move) -> xset

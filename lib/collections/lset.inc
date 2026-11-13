@@ -74,10 +74,14 @@
 			(set this :bucket new_bucket))
 		this)
 
-	(defmethod :empty ()
-		; (. lset :empty) -> lset
-		(clear (get :bucket this))
-		this)
+	(defmethod :empty (&optional count)
+		; (. lset :empty [count]) -> lset | :t | :nil
+		;all of it, or with a count so many items let go of, the last, :t
+		;while there is more
+		(cond
+			(count (nempty? (clear (- -1 count) (get :bucket this))))
+			(:t (clear (get :bucket this))
+				this)))
 
 	(defmethod :move ()
 		; (. lset :move) -> lset

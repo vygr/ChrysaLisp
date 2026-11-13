@@ -35,6 +35,23 @@
 		(assert-eq (cat ,name " some stops there") 1 seen)
 		(assert-eq (cat ,name " some of none") :nil (. m :some (lambda (k v) :nil)))
 
+		; empty with a count, a part at a time, as good as ever meanwhile.
+		; An emap's env is let go of as one
+		(defq e (,constructor) steps 0)
+		(each! (# (. e :insert (sym (str "k" (!))) (!))) '() 0 100)
+		(cond
+			((eql ,name "Emap")
+				(assert-eq (cat ,name " empty part, all of it") :nil (. e :empty 30))
+				(assert-eq (cat ,name " empty part, none left") 0 (. e :size)))
+			(:t (assert-true (cat ,name " empty part, more") (. e :empty 30))
+				(assert-true (cat ,name " empty part, fewer") (< (. e :size) 100))
+				(. e :insert 'new 7)
+				(assert-eq (cat ,name " empty part, then insert") 7 (. e :find 'new))
+				(while (. e :empty 30) (++ steps))
+				(assert-eq (cat ,name " empty part, till none") 0 (. e :size))
+				(assert-true (cat ,name " empty part, in parts") (> steps 1))
+				(assert-eq (cat ,name " empty part, of none") :nil (. e :empty 30))))
+
 		; copy (shallow copy verification)
 		(defq shallow_list (list 1 2))
 		(defq shallow_arr (array 10 20))

@@ -100,6 +100,18 @@
 		(assert-eq (cat ,name " some stops there") 1 seen)
 		(assert-eq (cat ,name " some of none") :nil (. s :some (lambda (i) :nil)))
 
+		; empty with a count, a part at a time, as good as ever meanwhile
+		(defq e (,constructor) steps 0)
+		(each! (# (. e :insert (str (!)))) '() 0 100)
+		(assert-true (cat ,name " empty part, more") (. e :empty 30))
+		(assert-true (cat ,name " empty part, fewer") (< (. e :size) 100))
+		(. e :insert "new")
+		(assert-eq (cat ,name " empty part, then insert") "new" (. e :find "new"))
+		(while (. e :empty 30) (++ steps))
+		(assert-eq (cat ,name " empty part, till none") 0 (. e :size))
+		(assert-true (cat ,name " empty part, in parts") (> steps 1))
+		(assert-eq (cat ,name " empty part, of none") :nil (. e :empty 30))
+
 		; copy (shallow copy verification)
 		(defq shallow_list (list 1 2))
 		(defq shallow_arr (array 10 20))

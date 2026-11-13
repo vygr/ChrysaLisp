@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (import "./map.inc")
+(import "./buckets.inc")
 
 ;module
 (env-push)
@@ -81,10 +82,15 @@
 			(get :buckets this) that_buckets)
 		that)
 
-	(defmethod :empty ()
-		; (. fmap :empty) -> fmap
-		(each (# (clear %0)) (get :buckets this))
-		this)
+	(defmethod :empty (&optional count)
+		; (. fmap :empty [count]) -> fmap | :t | :nil
+		;all of it, or with a count about so many items let go of, a bucket
+		;at a time in turn, :t while there is more: a big one let go of a
+		;part at a time, and as good as ever meanwhile
+		(cond
+			(count (buckets-empty this count 1 2))
+			(:t (each (# (clear %0)) (get :buckets this))
+				this)))
 
 	(defmethod :move ()
 		; (. fmap :move) -> fmap

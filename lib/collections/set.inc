@@ -20,8 +20,8 @@
 	; (. set :copy) -> set
 	(defabstractmethod :deep_copy ())
 	; (. set :deep_copy) -> set
-	(defabstractmethod :empty ())
-	; (. set :empty) -> set
+	(defabstractmethod :empty (&optional count))
+	; (. set :empty [count]) -> set | :t | :nil
 	(defabstractmethod :move ())
 	; (. set :move) -> set
 	(defabstractmethod :resize (num_buckets))

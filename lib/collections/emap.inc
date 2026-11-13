@@ -62,10 +62,12 @@
 		(each (lambda ((key val)) (def that_buckets (copy key) (copy val))) (tolist (get :buckets this)))
 		that)
 
-	(defmethod :empty ()
-		; (. emap :empty) -> emap
+	(defmethod :empty (&optional count)
+		; (. emap :empty [count]) -> emap | :nil
+		;all of it, with a count too: an env is let go of as one, so an
+		;emap is not for what is to be let go of a part at a time
 		(def this :buckets (env (get :num_buckets this)))
-		this)
+		(if count :nil this))
 
 	(defmethod :move ()
 		; (. emap :move) -> emap

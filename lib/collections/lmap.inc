@@ -68,10 +68,14 @@
 		(each (lambda ((key val)) (pinsert that_pmap (copy key) (copy val))) (. this :tolist))
 		that)
 
-	(defmethod :empty ()
-		; (. lmap :empty) -> lmap
-		(set this :bucket (pmap))
-		this)
+	(defmethod :empty (&optional count)
+		; (. lmap :empty [count]) -> lmap | :t | :nil
+		;all of it, or with a count so many items let go of, the last, :t
+		;while there is more
+		(cond
+			(count (nempty? (clear (- -1 (* 2 count)) (get :bucket this))))
+			(:t (set this :bucket (pmap))
+				this)))
 
 	(defmethod :move ()
 		; (. lmap :move) -> lmap
