@@ -138,10 +138,25 @@ function member_wait
 {
 	local member=$1
 	#the first look soon after it starts, so a machine that was off catches up
-	local next=$(( $(date +%s) + ${CHRYSALISP_FOLLOW_FIRST:-60} ))
+	local next=$(( $(date +%s) + ${CHRYSALISP_FOLLOW_FIRST:-60} )) kept=0
 	while kill -0 $member 2>/dev/null
 	do
-		if [ -f $TEMP/chrysalisp_rack_follow ] && [ $(date +%s) -ge $next ]
+		#what says it is up, and that it follows, is kept new: what is old in
+		#/tmp is taken by the system, Ubuntu's after 10 days, the Mac's after 3,
+		#and put back if it was
+		if [ $(date +%s) -ge $kept ]
+		then
+			kept=$(( $(date +%s) + 600 ))
+			[ -f $TEMP/chrysalisp_rack.pid ] || echo $member > $TEMP/chrysalisp_rack.pid
+			[ -f $TEMP/chrysalisp_rack_loop.pid ] || echo $$ > $TEMP/chrysalisp_rack_loop.pid
+			if [ -n "$CHRYSALISP_RACK_FOLLOWS" ] && [ ! -f $TEMP/chrysalisp_rack_follow ]
+			then
+				echo "follow: its flag was gone from $TEMP, put back, $(date)" >> $TEMP/chrysalisp_rack.log
+			fi
+			touch $TEMP/chrysalisp_rack.pid $TEMP/chrysalisp_rack_loop.pid $TEMP/chrysalisp_rack.log
+			[ -n "$CHRYSALISP_RACK_FOLLOWS" ] && touch $TEMP/chrysalisp_rack_follow
+		fi
+		if [ -n "$CHRYSALISP_RACK_FOLLOWS" ] && [ $(date +%s) -ge $next ]
 		then
 			next=$(( $(date +%s) + ${CHRYSALISP_FOLLOW_EVERY:-600} ))
 			local new=$(follow_new)
@@ -338,7 +353,10 @@ case $what in
 	loop)
 		#what up starts, by nohup, so it outlives the shell it was asked from.
 		#bash reads a file as it goes, and git may have changed this one, so
-		#nothing after the loop is read from it
+		#nothing after the loop is read from it. Whether it follows is known
+		#from the flag up left, once, and kept as the loop goes on as the new
+		#one after an update
+		[ -z "$CHRYSALISP_RACK_FOLLOWS" ] && [ -f $TEMP/chrysalisp_rack_follow ] && export CHRYSALISP_RACK_FOLLOWS=1
 		member_loop
 		exit 0
 		;;
