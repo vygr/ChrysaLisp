@@ -104,7 +104,7 @@ members      the members, a line each
 retired      those that were members and are no more
 pins         the paths this member holds all of
 pinned       what every member holds all of, as far as is known here
-paths        the path map, a line an entry
+paths        the digest of the path map, then the map, a line an entry
 journal      the entries set since the map was last written whole
 blocks/xx/y  a block, its name in hex, xx the first two of it
 ```
@@ -368,6 +368,11 @@ docs/diagrams/storage_put.cwb
   taken here, and what this one has, with that, is taken there. Only what is
   new since the last time is told, `(store-since)`, by a count of changes
   that each store keeps from when it was opened.
+  The digest of the paths is kept as the map changes: the xor of a hash of
+  each entry's line, so a change takes one out and puts one in. It is
+  written at the head of `paths` and read back as the store is opened.
+  Made of every path each time something changed, it was 940 ms of a map
+  of 220000 paths, at every look after a write.
 * It asks its service for its share, `(store-share)`, among the members that
   are there, 64 blocks of it at most. What it wants and has not got, it
   fetches, 32 at a time, `+tender_window`: each peer is asked at once which

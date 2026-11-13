@@ -359,7 +359,8 @@
 (store-delete so_j "b c")
 (store-put so_j "d" (so-bytes 100 4))
 (assert-true "a path that is set is added to it" (> (get :journal_at so_j) so_j_first))
-(assert-eq "and the map on the volume has none of them" "" (exfat-load (get :vol so_j) "paths"))
+(assert-list-eq "and the map on the volume has none of them, only the digest of none" '("digest 0 0 0 0")
+	(filter (const nempty?) (split (exfat-load (get :vol so_j) "paths") "\n")))
 ;not closed: opened again as it is on the volume
 (defq so_j2 (store-open so_j_stream "aaaa"))
 (assert-list-eq "opened, it has the paths, the last of each" '("a" "d") (so-paths so_j2))

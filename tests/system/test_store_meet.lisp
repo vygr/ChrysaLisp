@@ -298,6 +298,26 @@
 (assert-true "and is not as it was, to another that asks" (nql sm_d0 (store-digest sm_n3)))
 (assert-list-eq "it has the paths, written or not" (sm-paths sm_n1) (sm-paths sm_n3))
 (store-save sm_n3)
+;the digest of the paths is kept as the map changes, and is the one made
+;of the map as it is read again
+(defq sm_ds (string-stream (cat (exfat-zeros 0x80000))))
+(store-make sm_ds 0x80000 "meet" "dddd" 4096)
+(defq sm_dg (store-open sm_ds "dddd"))
+(store-put sm_dg "a" "one")
+(store-put sm_dg "b" "two")
+(store-put sm_dg "a" "three")
+(store-delete sm_dg "b")
+(defq sm_d1 (store-digest sm_dg))
+;written, so it is read again from the paths, not the journal's changes
+(store-save sm_dg)
+(store-close sm_dg)
+(assert-eq "the digest kept as the paths changed is that of them read again" sm_d1 (store-digest (defq sm_dv (store-open sm_ds "dddd"))))
+;of a store of before the digest went with the paths, it is made of them
+(exfat-save (get :vol sm_dv) "paths"
+	(apply (const cat) (map (# (cat %0 "\n")) (filter (# (and (nempty? %0) (not (starts-with "digest " %0))))
+		(split (exfat-load (get :vol sm_dv) "paths") "\n")))))
+(store-close sm_dv)
+(assert-eq "and of a store whose paths do not say it, made of them" sm_d1 (store-digest (store-open sm_ds "dddd")))
 (assert-eq "written, there is nothing to write" :nil (get :dirty sm_n3))
 (store-meet sm_n3 (store-since sm_n1) :t)
 (assert-eq "told the same again, nothing is new and there is nothing to write" :nil (get :dirty sm_n3))

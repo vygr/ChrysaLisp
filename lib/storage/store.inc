@@ -324,11 +324,22 @@
 			paths)
 		(def store :plan_adds (store-walk-new (cat paths)))))
 
+(defun store-digest-mix (store entry)
+	;an entry into the digest of the path map, or out of it, the same: each
+	;is the hash of its line, and they are put together by xor, in any
+	;order. So the digest is kept as the map changes, (store-digest). Not
+	;while the map is read as a store is opened, the file has it
+	(when (defq sum (get :digest_paths store))
+		(defq hash (sha256 (store-entry-line entry)))
+		(each! (# (elem-set sum (!) (logxor %0 (get-long hash (<< (!) 3))))) (list sum))))
+
 (defun store-map-insert (store name entry)
 	;an entry goes in the path map, in place of what that path was. How
 	;many objects there are is kept as it goes, it is asked with every
 	;put, and to count them was a walk of the map each time
 	(defq was (. (get :map store) :find name))
+	(if was (store-digest-mix store was))
+	(store-digest-mix store entry)
 	(def store :objects (+ (get :objects store)
 			(if (elem-get entry +store_entry_deleted) 0 1)
 			(if (and was (not (elem-get was +store_entry_deleted))) -1 0)))
@@ -481,7 +492,10 @@
 	(defq vol (get :vol store) lines (list))
 	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
 	(exfat-begin vol)
-	(exfat-save vol "paths" (store-text (sort lines)))
+	;the digest of the paths first, a line no entry can be, so it is not
+	;made again of every path as the store is opened
+	(exfat-save vol "paths" (store-text (cat (list (cat "digest " (join (map (const str) (get :digest_paths store)) " ")))
+		(sort lines))))
 	(exfat-save vol "members" (store-text (get :members store)))
 	(exfat-save vol "retired" (store-text (get :retired store)))
 	(exfat-save vol "pins" (store-text (get :pins store)))
@@ -552,7 +566,7 @@
 			(defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
+			:map (Fmap 11) :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
 			:folders (Fset 11) :folder_next 0 :folder_count 0)
 		(store-count store)
 		(exfat-begin vol)
@@ -650,7 +664,7 @@
 			(nempty? head) (eql (first head) +store_magic))
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
-			:map (Fmap 101) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
+			:map (Fmap 101) :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
 			:folders (Fset 101) :folder_next 0 :folder_count 0)
 		(defq had "")
 		(each! (lambda (line)
@@ -667,10 +681,21 @@
 		;a store of before there was such a thing has pins and has not said so
 		(and (nempty? (get :pins store)) (not (. (get :pinned store) :find (get :member store)))
 			(. (get :pinned store) :insert (get :member store) (cat (list 1) (get :pins store))))
+		;the map as it was written, and the digest of it, or one of before
+		;there was that made of every path the once. Then what the journal
+		;has since, each into the digest as it goes in
+		(def store :digest_paths :nil)
+		(defq sum :nil)
 		(each (lambda (line)
-				(if (defq entry (store-entry-read line))
-					(store-map-insert store (first entry) entry)))
+				(cond
+					((defq entry (store-entry-read line)) (store-map-insert store (first entry) entry))
+					((starts-with "digest " line)
+						(setq sum (apply nums (map! (const str-as-num) (list (split line " ")) 1 -1))))))
 			(store-lines (exfat-load vol "paths")))
+		(cond
+			((and sum (= (length sum) 4)) (def store :digest_paths sum))
+			(:t (def store :digest_paths (nums 0 0 0 0))
+				(. (get :map store) :each (lambda (name entry) (store-digest-mix store entry)))))
 		(store-journal-open store)
 		(store-count store)
 		;the names of the blocks it has, and where each is. Blocks are put
@@ -1491,15 +1516,13 @@
 	; (store-digest store) -> hash
 	;the path map and the members, as one name: two members with the same
 	;have nothing to tell each other. It is asked for by every member each
-	;time it looks, and is of every path there is, so it is held till
-	;something changes, (store-save)
+	;time it looks. Of the paths, it is kept as the map changes,
+	;(store-digest-mix): made of every path each time something changed it
+	;was 940 ms of a map of 220000. It is held till something changes
 	(or (def? :digest store)
-		(progn
-			(defq lines (list))
-			(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
-			(def store :digest (sha256 (store-text (cat (sort lines) (list "members") (store-members store)
-							(list "retired") (sort (cat (get :retired store)))
-							(list "pinned") (store-pinned-lines store))))))))
+		(def store :digest (sha256 (store-text (cat (list (join (map (const str) (get :digest_paths store)) " "))
+				(list "members") (store-members store) (list "retired") (sort (cat (get :retired store)))
+				(list "pinned") (store-pinned-lines store)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; what it holds, and keeping it so
