@@ -401,7 +401,7 @@
 	(if (= blk 0) (setq struct (cat default)))
 	(defq n (- end_sub start_sub))
 	(if (or (not eac3) (= (bits-1 in) 1))
-		(each! (# (elem-set struct (+ start_sub 1 (!)) (bits-1 in))) '() 0 (dec n)))
+		(each! (# (elem-set struct (+ start_sub 1 (!)) (bits-1 in))) '() 0 (max 0 (dec n))))
 	(defq sizes (list 12))
 	(each! (lambda () (if (= (elem-get struct (+ start_sub (!))) 1)
 				(elem-set sizes -2 (+ (last sizes) 12))

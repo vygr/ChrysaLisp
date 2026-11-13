@@ -525,6 +525,8 @@
 	;top row first, each a 32 bit argb, 0 where nothing was drawn.
 	(shader-pair vertex pixel)
 	(setd tri_size 3 x 0 y 0 x1 width y1 height)
+	;the box clipped to the frame, and none of it if it is outside
+	(setq x (max x 0) y (max y 0) x1 (max x (min x1 width)) y1 (max y (min y1 height)))
 	(defq sizes (map (# (shader-size (second %0))) (shader-attrs vertex))
 		stride (reduce (const +) sizes 0) at 0
 		;each vertex as a list of its attrs
@@ -593,7 +595,7 @@
 																	(cpu-share (logand pixel 0xffffff) (+ alpha (>> alpha 7)))
 																	(cpu-share (get-uint out (* di 4)) (- 255 alpha)))))
 														(elem-set depth di z)
-														(set-int out (* di 4) pixel))))) '() (max x 0) (min x1 width))) '() (max y 0) (min y1 height)))))
+														(set-int out (* di 4) pixel))))) '() x x1)) '() y y1))))
 				(cpu-near-cut (list (elem-get placed i0) (elem-get placed i1) (elem-get placed i2)))))
 		(partition tris tri_size))
 	out)

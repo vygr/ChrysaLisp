@@ -191,7 +191,9 @@
 		sample (+ (max 0 (+ (* whole rate) (n2i (* (- time (n2f whole)) (n2f rate))) (. sound :find :start))) delay)
 		packet (/ sample size))
 	(. sound :insert :decoder ((. sound :find :make) sound))
-	(each! (# (sound-packet sound (!))) '() (max 0 (- packet (. sound :find :before))) (min packet (. (. sound :find :track) :find :samples)))
+	;the packets before it that the decoder needs, none past the track's end
+	(defq lo (max 0 (- packet (. sound :find :before))) hi (min packet (. (. sound :find :track) :find :samples)))
+	(each! (# (sound-packet sound (!))) '() lo (max lo hi))
 	(scatter sound :next packet :drop (- sample (* packet size)) :time time
 		:written 0 :left 0 :anchor (pii-time) :began (pii-time) :handle (audio-stream-open-rpc rate 2)))
 
