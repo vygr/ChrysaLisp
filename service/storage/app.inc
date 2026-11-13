@@ -236,21 +236,31 @@
 		(if (mail-poll (list mbox)) (mail-read mbox))
 		(mail-read-timeout mbox (task-timeout +storage_wait))))
 
+;how many blocks a put has on their way at once
+(defq +storage_put_window 4)
+
+(defun storage-put-land (flight most how quiet)
+	; (storage-put-land flight most how quiet) -> (flight how quiet)
+	;the answers to blocks put, ((mbox hash) ...), the oldest first, till
+	;no more than most are on their way. :full if one said there was no
+	;room, :lost if one said nothing. Once one has said nothing in the
+	;time, the rest are not waited for, only looked at
+	(while (> (length flight) most)
+		(bind '(mbox hash) (first flight))
+		(defq said (storage-heard mbox quiet))
+		(cond
+			((eql said hash))
+			((not said) (setq quiet :t) (if (eql how :ok) (setq how :lost)))
+			((setq how :full)))
+		(setq flight (rest flight)))
+	(list flight how quiet))
+
 (defun storage-puts (svc blocks hashes)
 	; (storage-puts svc blocks hashes) -> :ok | :full | :lost
 	;blocks put to a service all at once, not one after the other, and
-	;then what it said of each looked at. :full if it said it had no room
-	;for one, :lost if it said nothing of one. Once one has said nothing
-	;in the time, the rest are not waited for, only looked at
-	(defq how :ok quiet :nil)
-	(each (lambda (mbox hash)
-			(defq said (storage-heard mbox quiet))
-			(cond
-				((eql said hash))
-				((not said) (setq quiet :t) (if (eql how :ok) (setq how :lost)))
-				((setq how :full))))
-		(map (# (storage-send svc +storage_type_block_put %0)) blocks) hashes)
-	how)
+	;then what it said of each looked at, (storage-put-land)
+	(second (storage-put-land (map (# (list (storage-send svc +storage_type_block_put %0) %1)) blocks hashes)
+		0 :ok :nil)))
 
 (defun storage-gets (svc hashes)
 	; (storage-gets svc hashes) -> (:nil | data ...)
@@ -268,6 +278,17 @@
 				((storage-block hash svc))))
 		(map (# (storage-send svc +storage_type_block_get %0)) hashes) hashes))
 
+(defun storage-put-few (svc stream size)
+	; (storage-put-few svc stream size) -> :nil | (blocks hashes mbox)
+	;the next few blocks of a stream, their names, and the service asked
+	;which of them it has, the answer to be read from mbox. :nil at the end
+	(defq blocks (list) block :nil)
+	(while (and (< (length blocks) 8) (setq block (read-blk stream size)))
+		(push blocks block))
+	(when (nempty? blocks)
+		(defq hashes (map (const sha256) blocks))
+		(list blocks hashes (storage-send svc +storage_type_has (apply (const cat) (cat (list "") hashes))))))
+
 (defun storage-put-stream (name stream &optional from svc tick)
 	; (storage-put-stream path stream [from svc tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:stopped :nil)
 	; (tick bytes) -> :nil | :t
@@ -275,29 +296,40 @@
 	;end, provided it is now the object from: its name, "" for none, and
 	;not given, not to say. :stale with what it is if it is not that. It
 	;is read a few blocks at a time, so what is put can be of any length,
-	;and only the blocks the service has not got are sent, those few at
-	;once. tick, if given, is told how many bytes more have been read each
-	;time, and says :nil to stop: :stopped, and the path is as it was
+	;and only the blocks the service has not got are sent. tick, if given,
+	;is told how many bytes more have been read each time, and says :nil to
+	;stop: :stopped, and the path is as it was.
+	;
+	;The blocks go as a steady few on their way, +storage_put_window, the
+	;next sent as each is answered, from one few read to the next. Sent a
+	;few at once and all waited for, they were a burst on the line and then
+	;nothing: 8MB to another machine 5.8 s, and a film played over the
+	;same line waited 153 ms for a block; sent so, 4.0 s, and it waited 2
 	(setd svc (storage-service))
 	(cond
 		((not (defq info (storage-info svc))) (list :lost :nil))
-		(:t (defq size (. info :find :block_size) names (list) bytes 0 how :ok more :t)
-			(while (and more (eql how :ok))
-				(defq blocks (list))
-				(while (and (< (length blocks) 8) (setq more (read-blk stream size)))
-					(push blocks more))
-				(defq hashes (map (const sha256) blocks)
-					has (if (empty? blocks) "" (storage-has svc hashes)) sends (list) sent (list))
+		(:t (defq size (. info :find :block_size) names (list) bytes 0 how :ok flight (list) quiet :nil
+				next (storage-put-few svc stream size))
+			;which of the next few the service has is asked while these go,
+			;so the line is not idle a round trip each few
+			(while (and next (eql how :ok))
+				(bind '(blocks hashes mbox) next)
+				(setq next (storage-put-few svc stream size))
+				(defq has (ifn (mail-read-timeout mbox (task-timeout +storage_wait)) ""))
+				(if (/= (length has) (length blocks)) (setq has (pad "" (length blocks) "0")))
 				(each (lambda (block hash had)
 						(setq bytes (+ bytes (length block)))
 						(push names hash)
-						(unless (eql had "1")
-							(push sends block) (push sent hash)))
+						;no room is the service saying so, no answer is not
+						(when (and (nql had "1") (eql how :ok))
+							(defq landed (storage-put-land (push flight (list (storage-send svc +storage_type_block_put block) hash))
+									(dec +storage_put_window) how quiet))
+							(setq flight (first landed) how (second landed) quiet (third landed))))
 					blocks hashes has)
-				;no room is the service saying so, no answer is not
-				(if (nempty? sends) (setq how (storage-puts svc sends sent)))
 				(and (eql how :ok) tick (not (tick (reduce (# (+ %0 (length %1))) blocks 0)))
 					(setq how :stopped)))
+			;all of them answered before the path is set
+			(if (eql how :ok) (setq how (second (storage-put-land flight 0 how quiet))))
 			(if (eql how :ok) (storage-commit svc name from bytes names) (list how :nil)))))
 
 (defun storage-put (name data &optional from svc)
