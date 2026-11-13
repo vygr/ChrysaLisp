@@ -682,6 +682,10 @@
 								((= n high) (setq in_last (+ in_last (length names)))))))
 					groups)
 				(def store :folder_next (max 0 high) :folder_count in_last :blocks (. held :size) :held_saved (not walked))
+				;blocks/ read now, not by the first block had or put: of a
+				;million blocks it has 4000 folders, 7 ms to read, and more
+				;as the store grows. It is read once, a folder is never gone
+				(exfat-list vol "blocks")
 				(when walked
 					(exfat-begin vol)
 					(store-held-save store)
