@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 42
+	:next_id 43
 	:items
 	((:list 1)
 		((:list 7)
@@ -164,7 +164,7 @@
 							:id
 							10
 							:items
-							((:list 27)
+							((:list 28)
 								((:list 11)
 									:shape
 									:id
@@ -678,13 +678,33 @@
 									:stroke
 									0
 									:text
-									:tolist
+									:some
 									:font_size
 									12
 									:pos
 									((:list 2)
 										91.10400
 										287.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									42
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:tolist
+									:font_size
+									12
+									:pos
+									((:list 2)
+										91.10400
+										304.00000
 									)
 								)
 							)

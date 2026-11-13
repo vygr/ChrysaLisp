@@ -1892,6 +1892,18 @@ we bracket the range by including one extra cursor before and after
 to ensure merges are handled correctly.
 ```
 
+### buckets-empty
+
+```code
+(buckets-empty this count width per) -> :t | :nil
+
+about count items let go of, a bucket at a time in turn from where it
+stopped last, so a big one is let go of a part at a time: width lists
+to a bucket, per elements of its first to an item. :t while there is
+more. A bucket found empty is a step of the count, so a call is short
+even when most are
+```
+
 ### build-method-overrides
 
 ```code
@@ -13632,10 +13644,27 @@ a block that is no longer kept
 what a member is to keep is to be worked out again
 ```
 
+### store-plan-free
+
+```code
+what is kept to be let go of, let go of, 1024 at a time, till it is
+
+time until if there is one. :t when it is all gone
+```
+
 ### store-plan-held
 
 ```code
 a block that is kept now
+```
+
+### store-plan-let-go
+
+```code
+a plan no longer wanted, kept to be let go of a part at a time by
+
+(store-plan-step): one of a million blocks is millions of entries,
+20 ms let go of at once
 ```
 
 ### store-plan-object
@@ -13655,8 +13684,9 @@ what the object is made of is known when the rest of it comes
 (store-plan-step store [until]) -> :nil | :t
 
 more of the plans worked on, till it is time until if there is one:
-what is to be added to them first, then a plan being made anew,
-which when it is made is the plan. :t if there is more to do
+what is to be added to them first, then what is to be let go of, then
+a plan being made anew, which when it is made is the plan, the old
+one to be let go of. :t if there is more to do
 ```
 
 ### store-plan-walk
@@ -13814,11 +13844,12 @@ would be made now, (store-share-now)
 ### store-share-now
 
 ```code
-(store-share-now store among [until]) -> :nil | (wants extras)
+(store-share-now store among [until at_most]) -> :nil | (wants extras)
 
 this member's share, as (store-share), with no more time taken at
 the plan than till it is time until, if there is one, the rest of it
-done later, (store-plan-step). :nil if there is no plan yet for these
+done later, (store-plan-step), and no more than at_most of each, if
+given: a store's are a million and more. :nil if there is no plan yet for these
 members, and none of what is others' while what was set is still to
 be added: a block of it may be mine now.
 

@@ -298,6 +298,13 @@ Arrays can be cleared using `(clear array ...)` and the capacity set with `(cap
 length array ...)`. These functions act on the arrays 'in place', existing
 references to the arrays are still valid but the contents will be mutated !
 
+With an index first, `(clear idx array ...)` cuts each array there instead:
+what is after the index is let go of, the capacity stays as it was and nothing
+is copied. The index is as a slice's, -1 the end, so `(clear -4 array)` lets
+the last 3 elements go, each array by its own length. An index before the start
+empties the array and one past the end leaves it as it is, it is never an
+error.
+
 Classes that inherit from `class/array`:
 
 * class/list

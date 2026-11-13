@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 278
-	:height 857
+	:height 874
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 96
+	:next_id 97
 	:items
 	((:list 1)
 		((:list 7)
@@ -340,13 +340,13 @@
 							:id
 							22
 							:items
-							((:list 52)
+							((:list 53)
 								((:list 11)
 									:shape
 									:id
 									32
 									:d
-									"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 727 A 8 8 0 0 1 142 735 L 8 735 A 8 8 0 0 1 0 727 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 744 A 8 8 0 0 1 142 752 L 8 752 A 8 8 0 0 1 0 744 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -816,8 +816,8 @@
 									12
 									:pos
 									((:list 2)
-										75.31445
-										268.00000
+										12.00000
+										387.00000
 									)
 								)
 								((:list 15)
@@ -837,7 +837,7 @@
 									:pos
 									((:list 2)
 										75.31445
-										285.00000
+										268.00000
 									)
 								)
 								((:list 15)
@@ -857,7 +857,7 @@
 									:pos
 									((:list 2)
 										75.31445
-										302.00000
+										285.00000
 									)
 								)
 								((:list 15)
@@ -877,7 +877,7 @@
 									:pos
 									((:list 2)
 										75.31445
-										319.00000
+										302.00000
 									)
 								)
 								((:list 15)
@@ -897,7 +897,7 @@
 									:pos
 									((:list 2)
 										75.31445
-										336.00000
+										319.00000
 									)
 								)
 								((:list 15)
@@ -917,7 +917,7 @@
 									:pos
 									((:list 2)
 										75.31445
-										353.00000
+										336.00000
 									)
 								)
 								((:list 15)
@@ -937,15 +937,35 @@
 									:pos
 									((:list 2)
 										75.31445
+										353.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									63
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:truncate]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										75.31445
 										370.00000
 									)
 								)
 								((:list 13)
 									:shape
 									:id
-									63
+									64
 									:d
-									"[M 0 384 L 150 384]"
+									"[M 0 401 L 150 401]"
 									:stroke
 									4282140240
 									:width
@@ -958,7 +978,7 @@
 								((:list 17)
 									:shape
 									:id
-									64
+									65
 									:kind
 									:text
 									:fill
@@ -974,27 +994,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										400.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									65
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:deinit]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										419.00000
+										417.00000
 									)
 								)
 								((:list 15)
@@ -1008,7 +1008,7 @@
 									:stroke
 									0
 									:text
-									"[:type]"
+									"[:deinit]"
 									:font_size
 									12
 									:pos
@@ -1028,7 +1028,7 @@
 									:stroke
 									0
 									:text
-									"[:vcreate]"
+									"[:type]"
 									:font_size
 									12
 									:pos
@@ -1037,12 +1037,32 @@
 										453.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									68
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:vcreate]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										470.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									69
 									:d
-									"[M 0 467 L 150 467]"
+									"[M 0 484 L 150 484]"
 									:stroke
 									4282140240
 									:width
@@ -1055,7 +1075,7 @@
 								((:list 17)
 									:shape
 									:id
-									69
+									70
 									:kind
 									:text
 									:fill
@@ -1071,27 +1091,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										483.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									70
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:collect]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										502.00000
+										500.00000
 									)
 								)
 								((:list 15)
@@ -1105,7 +1105,7 @@
 									:stroke
 									0
 									:text
-									"[:copy]"
+									"[:collect]"
 									:font_size
 									12
 									:pos
@@ -1125,7 +1125,7 @@
 									:stroke
 									0
 									:text
-									"[:create]"
+									"[:copy]"
 									:font_size
 									12
 									:pos
@@ -1145,7 +1145,7 @@
 									:stroke
 									0
 									:text
-									"[:min_length]"
+									"[:create]"
 									:font_size
 									12
 									:pos
@@ -1165,7 +1165,7 @@
 									:stroke
 									0
 									:text
-									"[:print_enter]"
+									"[:min_length]"
 									:font_size
 									12
 									:pos
@@ -1185,7 +1185,7 @@
 									:stroke
 									0
 									:text
-									"[:print_leave]"
+									"[:print_enter]"
 									:font_size
 									12
 									:pos
@@ -1205,7 +1205,7 @@
 									:stroke
 									0
 									:text
-									"[:ref_all]"
+									"[:print_leave]"
 									:font_size
 									12
 									:pos
@@ -1214,12 +1214,32 @@
 										604.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									77
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:ref_all]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										621.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									78
 									:d
-									"[M 0 618 L 150 618]"
+									"[M 0 635 L 150 635]"
 									:stroke
 									4282140240
 									:width
@@ -1232,7 +1252,7 @@
 								((:list 17)
 									:shape
 									:id
-									78
+									79
 									:kind
 									:text
 									:fill
@@ -1248,27 +1268,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										634.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									79
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[copy]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										653.00000
+										651.00000
 									)
 								)
 								((:list 15)
@@ -1282,7 +1282,7 @@
 									:stroke
 									0
 									:text
-									"[list]"
+									"[copy]"
 									:font_size
 									12
 									:pos
@@ -1302,7 +1302,7 @@
 									:stroke
 									0
 									:text
-									"[lmatch?]"
+									"[list]"
 									:font_size
 									12
 									:pos
@@ -1322,7 +1322,7 @@
 									:stroke
 									0
 									:text
-									"[merge]"
+									"[lmatch?]"
 									:font_size
 									12
 									:pos
@@ -1342,13 +1342,33 @@
 									:stroke
 									0
 									:text
-									"[pivot]"
+									"[merge]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
 										721.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									84
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pivot]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										738.00000
 									)
 								)
 							)
@@ -1379,7 +1399,7 @@
 					:pos
 					((:list 2)
 						0.00000
-						799.00000
+						816.00000
 					)
 				)
 				((:list 7)
@@ -1397,19 +1417,19 @@
 								((:list 5)
 									:group
 									:id
-									84
+									85
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											87
+											88
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													90
+													91
 													:d
 													"[M 6 0 L 45.40625 0 A 6 6 0 0 1 51.40625 6 L 51.40625 18 A 6 6 0 0 1 45.40625 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1422,7 +1442,7 @@
 												((:list 15)
 													:shape
 													:id
-													91
+													92
 													:kind
 													:text
 													:fill
@@ -1446,19 +1466,19 @@
 								((:list 7)
 									:group
 									:id
-									85
+									86
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											88
+											89
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													92
+													93
 													:d
 													"[M 6 0 L 38.78076 0 A 6 6 0 0 1 44.78076 6 L 44.78076 18 A 6 6 0 0 1 38.78076 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1471,7 +1491,7 @@
 												((:list 15)
 													:shape
 													:id
-													93
+													94
 													:kind
 													:text
 													:fill
@@ -1500,19 +1520,19 @@
 								((:list 7)
 									:group
 									:id
-									86
+									87
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											89
+											90
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													94
+													95
 													:d
 													"[M 6 0 L 39.06787 0 A 6 6 0 0 1 45.06787 6 L 45.06787 18 A 6 6 0 0 1 39.06787 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1525,7 +1545,7 @@
 												((:list 15)
 													:shape
 													:id
-													95
+													96
 													:kind
 													:text
 													:fill
@@ -1557,7 +1577,7 @@
 					:pos
 					((:list 2)
 						0.00000
-						807.00000
+						824.00000
 					)
 				)
 			)

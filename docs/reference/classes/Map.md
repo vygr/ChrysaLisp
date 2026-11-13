@@ -29,7 +29,7 @@ docs/reference/classes/Map.cwb
 ### :empty
 
 ```code
-(. map :empty) -> map
+(. map :empty [count]) -> map | :t | :nil
 ```
 
 ### :empty?
@@ -78,6 +78,12 @@ docs/reference/classes/Map.cwb
 
 ```code
 (. map :size) -> size
+```
+
+### :some
+
+```code
+(. map :some lambda) -> :nil | val
 ```
 
 ### :tolist

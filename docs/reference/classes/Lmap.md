@@ -31,7 +31,10 @@ docs/reference/classes/Lmap.cwb
 ### :empty
 
 ```code
-(. lmap :empty) -> lmap
+(. lmap :empty [count]) -> lmap | :t | :nil
+
+all of it, or with a count so many items let go of, the last, :t
+while there is more
 ```
 
 ### :empty?
@@ -80,6 +83,14 @@ docs/reference/classes/Lmap.cwb
 
 ```code
 (. lmap :size) -> size
+```
+
+### :some
+
+```code
+(. lmap :some lambda) -> :nil | val
+
+each key and value till the lambda gives other than :nil, what it gave
 ```
 
 ### :tolist

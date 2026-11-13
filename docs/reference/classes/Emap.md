@@ -31,7 +31,10 @@ docs/reference/classes/Emap.cwb
 ### :empty
 
 ```code
-(. emap :empty) -> emap
+(. emap :empty [count]) -> emap | :nil
+
+all of it, with a count too: an env is let go of as one, so an
+emap is not for what is to be let go of a part at a time
 ```
 
 ### :empty?
@@ -80,6 +83,14 @@ docs/reference/classes/Emap.cwb
 
 ```code
 (. emap :size) -> size
+```
+
+### :some
+
+```code
+(. emap :some lambda) -> :nil | val
+
+each key and value till the lambda gives other than :nil, what it gave
 ```
 
 ### :tolist

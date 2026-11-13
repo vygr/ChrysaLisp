@@ -31,7 +31,11 @@ docs/reference/classes/Xset.cwb
 ### :empty
 
 ```code
-(. xset :empty) -> xset
+(. xset :empty [count]) -> xset | :t | :nil
+
+all of it, or with a count about so many items let go of, a bucket
+at a time in turn, :t while there is more: a big one let go of a
+part at a time, and as good as ever meanwhile
 ```
 
 ### :empty?
@@ -92,6 +96,14 @@ docs/reference/classes/Xset.cwb
 
 ```code
 (. xset :size) -> size
+```
+
+### :some
+
+```code
+(. xset :some lambda) -> :nil | val
+
+each key till the lambda gives other than :nil, what it gave
 ```
 
 ### :tolist

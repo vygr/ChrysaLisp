@@ -31,7 +31,11 @@ docs/reference/classes/Fmap.cwb
 ### :empty
 
 ```code
-(. fmap :empty) -> fmap
+(. fmap :empty [count]) -> fmap | :t | :nil
+
+all of it, or with a count about so many items let go of, a bucket
+at a time in turn, :t while there is more: a big one let go of a
+part at a time, and as good as ever meanwhile
 ```
 
 ### :empty?
@@ -80,6 +84,14 @@ docs/reference/classes/Fmap.cwb
 
 ```code
 (. fmap :size) -> size
+```
+
+### :some
+
+```code
+(. fmap :some lambda) -> :nil | val
+
+each key and value till the lambda gives other than :nil, what it gave
 ```
 
 ### :tolist

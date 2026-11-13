@@ -31,7 +31,10 @@ docs/reference/classes/Lset.cwb
 ### :empty
 
 ```code
-(. lset :empty) -> lset
+(. lset :empty [count]) -> lset | :t | :nil
+
+all of it, or with a count so many items let go of, the last, :t
+while there is more
 ```
 
 ### :empty?
@@ -92,6 +95,14 @@ docs/reference/classes/Lset.cwb
 
 ```code
 (. lset :size) -> size
+```
+
+### :some
+
+```code
+(. lset :some lambda) -> :nil | val
+
+each key till the lambda gives other than :nil, what it gave
 ```
 
 ### :tolist

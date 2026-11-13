@@ -12,7 +12,7 @@ docs/reference/vp_classes/array.cwb
 
 ### (cap len array ...) -> array
 
-### (clear array ...) -> array
+### (clear [idx] array ...) -> array
 
 ### (fill array length value) -> array
 
@@ -547,6 +547,21 @@ outputs
 :r0 = new array object (ptr)
 trashes
 :r0-:r11, :d0-:d15
+```
+
+### :truncate -> class/array/truncate
+
+```code
+inputs
+:r0 = array object (ptr)
+:r1 = length (uint)
+outputs
+:r0 = array object (ptr)
+trashes
+none
+info
+no longer than that, what is there kept, the capacity as it was.
+The length is no more than it was
 ```
 
 ### :type -> class/array/type

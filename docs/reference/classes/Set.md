@@ -35,7 +35,7 @@ docs/reference/classes/Set.cwb
 ### :empty
 
 ```code
-(. set :empty) -> set
+(. set :empty [count]) -> set | :t | :nil
 ```
 
 ### :empty?
@@ -102,6 +102,12 @@ docs/reference/classes/Set.cwb
 
 ```code
 (. set :size) -> size
+```
+
+### :some
+
+```code
+(. set :some lambda) -> :nil | val
 ```
 
 ### :tolist

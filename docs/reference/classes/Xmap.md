@@ -31,7 +31,11 @@ docs/reference/classes/Xmap.cwb
 ### :empty
 
 ```code
-(. xmap :empty) -> xmap
+(. xmap :empty [count]) -> xmap | :t | :nil
+
+all of it, or with a count about so many items let go of, a bucket
+at a time in turn, :t while there is more: a big one let go of a
+part at a time, and as good as ever meanwhile
 ```
 
 ### :empty?
@@ -80,6 +84,14 @@ docs/reference/classes/Xmap.cwb
 
 ```code
 (. xmap :size) -> size
+```
+
+### :some
+
+```code
+(. xmap :some lambda) -> :nil | val
+
+each key and value till the lambda gives other than :nil, what it gave
 ```
 
 ### :tolist

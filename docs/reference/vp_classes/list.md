@@ -299,6 +299,21 @@ trashes
 :r0-:r11, :d0-:d15
 ```
 
+### :truncate -> class/list/truncate
+
+```code
+inputs
+:r0 = list object (ptr)
+:r1 = length (uint)
+outputs
+:r0 = list object (ptr)
+trashes
+:r1-:r2, :d0-:d15
+info
+no longer than that, the elements after it let go of, the capacity
+as it was. The length is no more than it was
+```
+
 ### :type -> class/list/type
 
 ```code
