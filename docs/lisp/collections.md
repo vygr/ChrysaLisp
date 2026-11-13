@@ -108,7 +108,10 @@ from where the last call stopped; an `Lset` or `Lmap` lets go of its last
 items. An `Emap`'s env is let go of as one, whatever the count.
 
 ```lisp
+(defq big_set (Fset 101))
+(each! (# (. big_set :insert (str (!)))) '() 0 10000)
 (while (. big_set :empty 1024) (task-slice))
+(. big_set :size)
 ```
 
 ## Trees
