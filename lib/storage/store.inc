@@ -333,13 +333,37 @@
 		(defq hash (sha256 (store-entry-line entry)))
 		(each! (# (elem-set sum (!) (logxor %0 (get-long hash (<< (!) 3))))) (list sum))))
 
+(defun store-settled? (store entry)
+	; (store-settled? store entry) -> :nil | :t
+	;a delete every member has: it need be in the path map no longer, and
+	;is gone, (store-map-insert)
+	(and (elem-get entry +store_entry_deleted)
+		(defq seen (elem-get entry +store_entry_seen) retired (get :retired store))
+		(every (# (or (find %0 seen) (find %0 retired))) (get :members store))))
+
 (defun store-map-insert (store name entry)
 	;an entry goes in the path map, in place of what that path was. How
 	;many objects there are is kept as it goes, it is asked with every
-	;put, and to count them was a walk of the map each time
-	(defq was (. (get :map store) :find name))
+	;put, and to count them was a walk of the map each time.
+	;
+	;A delete every member has is gone: out of the map, kept by itself in
+	;:gone, and told as an entry is, (store-since). Without it a member
+	;whose store was put back from before the delete would have the path
+	;had again, and one told late of it would take it back. An entry
+	;after it takes it out of :gone
+	(defq was (. (get :map store) :find name) gone (get :gone store) settled (store-settled? store entry))
 	(if was (store-digest-mix store was))
-	(store-digest-mix store entry)
+	(cond
+		(settled
+			(unless (. gone :find name) (def store :gones (inc (get :gones store))))
+			(. (store-grow gone (get :gones store) +store_held_most) :insert name entry)
+			(push (get :gone_new store) name))
+		;out of :gone, nothing to write: the path is in the map, which is
+		;read after them
+		(:t (store-digest-mix store entry)
+			(when (. gone :find name)
+				(. gone :erase name)
+				(def store :gones (dec (get :gones store))))))
 	(def store :objects (+ (get :objects store)
 			(if (elem-get entry +store_entry_deleted) 0 1)
 			(if (and was (not (elem-get was +store_entry_deleted))) -1 0)))
@@ -360,8 +384,10 @@
 	;blocks may have been put before the sweep began
 	(and (defq sweep (get :sweep store)) (not (elem-get entry +store_entry_deleted))
 		(push (elem-get sweep +sweep_paths) name))
-	(unless was (def store :paths (inc (get :paths store))))
-	(. (store-grow (get :map store) (get :paths store)) :insert name entry))
+	(cond
+		(settled (when was (. (get :map store) :erase name) (def store :paths (dec (get :paths store)))))
+		(:t (unless was (def store :paths (inc (get :paths store))))
+			(. (store-grow (get :map store) (get :paths store)) :insert name entry))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the journal of the path map
@@ -399,8 +425,8 @@
 
 (defun store-find (store name)
 	; (store-find store path) -> :nil | entry
-	;what a path is now, one that is deleted too
-	(. (get :map store) :find name))
+	;what a path is now, one that is deleted too, or gone
+	(or (. (get :map store) :find name) (. (get :gone store) :find name)))
 
 (defun store-list (store &optional prefix deleted)
 	; (store-list store [prefix deleted]) -> (entry ...)
@@ -410,6 +436,8 @@
 	(. (get :map store) :each (lambda (name entry)
 			(and (starts-with prefix name) (or deleted (not (elem-get entry +store_entry_deleted)))
 				(push out entry))))
+	;and those gone, if those deleted are asked for
+	(if deleted (. (get :gone store) :each (lambda (name entry) (if (starts-with prefix name) (push out entry)))))
 	(sort out (# (cmp (first %0) (first %1)))))
 
 (defun store-entries (store)
@@ -482,6 +510,40 @@
 				:journal_count count :journal_at at)))
 	took)
 
+(defun store-gone-read (store data)
+	; (store-gone-read store data) -> count
+	;the lines of a file of the gone into :gone, how many. Of two of a path
+	;the later is kept, whichever file it is in
+	(defq lines (store-lines data) gone (get :gone store))
+	(each (lambda (line)
+			(when (defq entry (store-entry-read line))
+				(defq was (. gone :find (first entry)))
+				(when (or (not was) (eql :after (store-vv-cmp (elem-get entry +store_entry_vv) (elem-get was +store_entry_vv))))
+					(unless was (def store :gones (inc (get :gones store))))
+					(. (store-grow gone (get :gones store) +store_held_most) :insert (first entry) entry))))
+		lines)
+	(length lines))
+
+(defun store-gone-save (store)
+	;those gone since the last time, a file of their own, gone.1, gone.2
+	;and on, not all of them again: they are hundreds of thousands. When
+	;those files have half as many as gone has, all of them are written
+	;as gone, and the others go, so each is written so many times at most
+	(when (nempty? (defq names (get :gone_new store)))
+		(defq vol (get :vol store) gone (get :gone store) lines (list))
+		(each (# (if (defq entry (. gone :find %0)) (push lines (store-entry-line entry)))) names)
+		(cond
+			((> (* 2 (+ (get :gone_extra store) (length lines))) (+ (get :gone_base store) 1024))
+				(setq lines (list))
+				(. gone :each (lambda (name entry) (push lines (store-entry-line entry))))
+				(exfat-save vol "gone" (store-text (sort lines)))
+				(each! (# (exfat-delete vol (cat "gone." (str (inc (!)))))) '() 0 (get :gone_files store))
+				(def store :gone_base (length lines) :gone_extra 0 :gone_files 0))
+			(:t (def store :gone_files (inc (get :gone_files store)))
+				(exfat-save vol (cat "gone." (str (get :gone_files store))) (store-text lines))
+				(def store :gone_extra (+ (get :gone_extra store) (length lines)))))
+		(def store :gone_new (list))))
+
 (defun store-save (store)
 	; (store-save store) -> store
 	;the path map, the members and the pins, as they are now. Whatever
@@ -492,6 +554,9 @@
 	(defq vol (get :vol store) lines (list))
 	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
 	(exfat-begin vol)
+	;the deletes that are gone, before the paths: a path that went is in
+	;the one or the other, or both
+	(store-gone-save store)
 	;the digest of the paths first, a line no entry can be, so it is not
 	;made again of every path as the store is opened
 	(exfat-save vol "paths" (store-text (cat (list (cat "digest " (join (map (const str) (get :digest_paths store)) " ")))
@@ -540,8 +605,9 @@
 	(cond
 		((and (= (length parts) 2) (eql (first parts) (get :epoch store)))
 			(defq rev (str-as-num (second parts)))
-			(. (get :map store) :each (lambda (name entry)
-					(if (> (ifn (. revs :find name) 0) rev) (push out entry))))
+			(each (lambda (paths) (. paths :each (lambda (name entry)
+					(if (> (ifn (. revs :find name) 0) rev) (push out entry)))))
+				(list (get :map store) (get :gone store)))
 			(sort out (# (cmp (first %0) (first %1)))))
 		((store-entries store))))
 
@@ -566,7 +632,7 @@
 			(defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
+			:map (Fmap 11) :gone (Fmap 11) :gones 0 :gone_new (list) :gone_files 0 :gone_base 0 :gone_extra 0 :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
 			:folders (Fset 11) :folder_next 0 :folder_count 0)
 		(store-count store)
 		(exfat-begin vol)
@@ -664,7 +730,7 @@
 			(nempty? head) (eql (first head) +store_magic))
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
-			:map (Fmap 101) :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
+			:map (Fmap 101) :gone (Fmap 101) :gones 0 :gone_new (list) :gone_files 0 :gone_base 0 :gone_extra 0 :digest_paths (nums 0 0 0 0) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
 			:folders (Fset 101) :folder_next 0 :folder_count 0)
 		(defq had "")
 		(each! (lambda (line)
@@ -681,9 +747,16 @@
 		;a store of before there was such a thing has pins and has not said so
 		(and (nempty? (get :pins store)) (not (. (get :pinned store) :find (get :member store)))
 			(. (get :pinned store) :insert (get :member store) (cat (list 1) (get :pins store))))
-		;the map as it was written, and the digest of it, or one of before
-		;there was that made of every path the once. Then what the journal
-		;has since, each into the digest as it goes in
+		;the deletes that are gone, then the map as it was written, and the
+		;digest of it, or one of before there was that made of every path
+		;the once. Then what the journal has since, each into the digest as
+		;it goes in. A delete every member had, of a store of before there
+		;were the gone, goes as it is read
+		(defq data (ifn (exfat-load vol "gone") "") files 0)
+		(. (get :gone store) :resize (max 101 (/ (length data) 1024)))
+		(def store :gone_base (store-gone-read store data))
+		(while (defq data (exfat-load vol (cat "gone." (str (inc files)))))
+			(def store :gone_extra (+ (get :gone_extra store) (store-gone-read store data)) :gone_files (++ files)))
 		(def store :digest_paths :nil)
 		(defq sum :nil)
 		(each (lambda (line)
@@ -692,12 +765,16 @@
 					((starts-with "digest " line)
 						(setq sum (apply nums (map! (const str-as-num) (list (split line " ")) 1 -1))))))
 			(store-lines (exfat-load vol "paths")))
+		;the digest written is of what was written: if any of it went as it
+		;was read, a member retired since, it is made again
 		(cond
-			((and sum (= (length sum) 4)) (def store :digest_paths sum))
+			((and sum (= (length sum) 4) (empty? (get :gone_new store))) (def store :digest_paths sum))
 			(:t (def store :digest_paths (nums 0 0 0 0))
 				(. (get :map store) :each (lambda (name entry) (store-digest-mix store entry)))))
 		(store-journal-open store)
 		(store-count store)
+		;what went as it was read is written when there is a moment
+		(if (nempty? (get :gone_new store)) (store-later store))
 		;the names of the blocks it has, and where each is. Blocks are put
 		;in the last folder of them, the highest wN, while it has room
 		(def store :held (Fmap 1021) :blocks 0 :manifests (Fmap (store-buckets (get :objects store) 101)) :plan :nil :held_saved :nil)
@@ -1471,7 +1548,8 @@
 	(each (lambda (theirs)
 			(task-breathe)
 			(bind '(name hash bytes vv writer seen deleted copies) theirs)
-			(defq mine (. map :find name) now :nil)
+			;a path gone here is as its delete was
+			(defq mine (store-find store name) now :nil)
 			(cond
 				((not mine)
 					(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))

@@ -105,6 +105,8 @@ retired      those that were members and are no more
 pins         the paths this member holds all of
 pinned       what every member holds all of, as far as is known here
 paths        the digest of the path map, then the map, a line an entry
+gone         the deletes every member had, out of the map, a line each
+gone.1 ...   those gone since gone was written, a file each save
 journal      the entries set since the map was last written whole
 blocks/xx/y  a block, its name in hex, xx the first two of it
 ```
@@ -373,6 +375,14 @@ docs/diagrams/storage_put.cwb
   written at the head of `paths` and read back as the store is opened.
   Made of every path each time something changed, it was 940 ms of a map
   of 220000 paths, at every look after a write.
+* A delete every member has seen is gone: out of the path map, kept by
+  itself, `:gone`, and told on as an entry is. A member that is told late of
+  it, or whose store was put back from before it, does not have the path
+  back: its entry is as old as the delete, or older, and loses; and the
+  member that let it go turns it back into a deleted entry, which goes round
+  again. So the map has the paths there are, and a save, a list, a plan and
+  a sweep are of them. The gone are written a file of those since the last
+  save each time, and all as `gone` when those files have half as many.
 * It asks its service for its share, `(store-share)`, among the members that
   are there, 64 blocks of it at most. What it wants and has not got, it
   fetches, 32 at a time, `+tender_window`: each peer is asked at once which
