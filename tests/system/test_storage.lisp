@@ -221,6 +221,11 @@
 	(storage-delete "a/big" :nil sg_svc)
 	(storage-delete "a/sorted" :nil sg_svc)
 	(assert-true "a sweep lets go of the blocks of what was deleted" (> (storage-sweep sg_svc) 0))
+	;answered when it is done, and one asked while it is under way is the
+	;next: both are answered
+	(assert-list-eq "two sweeps asked at once, both are answered" '("0" "0")
+		(map (# (mail-read-timeout %0 (task-timeout 60)))
+			(list (storage-send sg_svc +storage_type_sweep) (storage-send sg_svc +storage_type_sweep))))
 	(assert-list-eq "nothing kept is wrong" '() (storage-check :nil sg_svc))
 	(assert-list-eq "nothing is wrong with the volume, after puts, deletes and a sweep" '() (storage-volume-check sg_svc))
 	(assert-list-eq "and a mend of it has nothing to do" '() (storage-volume-check sg_svc :t))

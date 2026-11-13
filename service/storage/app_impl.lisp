@@ -190,6 +190,8 @@
 				;how the members of a store find each other, whatever machine they are on
 				known (mail-declare (task-mbox) group (cat (get :id store) " " member))
 				running :t cut (list) peers (list) recorder (storage-record-new) batch :nil stopped :nil
+				;who asked for the sweep under way, and who for one after it
+				sweepers (list) sweep_next (list)
 				tender (open-child "service/storage/tender.lisp" +kn_call_pin)
 				runner (open-child "service/storage/gopher.lisp" +kn_call_pin))
 			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
@@ -214,6 +216,24 @@
 							(setq batch (progn (exfat-end batch) :nil)))
 						;what was learnt from other members and is not written yet
 						((get :dirty store) (store-save store))
+						;a sweep is worked on a slice at a time, as the plan is,
+						;and those who asked for it are answered when it is done.
+						;One that throws is over, with what it let go of so far,
+						;and so is one of a store resized meanwhile, the new one
+						;has none
+						((or (store-sweep-busy? store) (nempty? sweepers))
+							(task-band :app)
+							(unless (catch (store-sweep-step store (+ (pii-time) +plan_slice))
+									(progn (prin "Storage: sweep, " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) :nil))
+								(defq swept (str (ifn (store-sweep-end store) 0)))
+								(storage-record recorder member "sweep" swept)
+								(each (# (mail-send %0 swept)) sweepers)
+								;those who asked while it was under way, a sweep of
+								;the paths as they are now
+								(setq sweepers sweep_next sweep_next (list))
+								(if (nempty? sweepers) (store-sweep-begin store)))
+							(task-breathe)
+							(task-band :bot))
 						;the plan is worked on a slice at a time, with the apps
 						;of the node, not before them. One that throws is let go
 						;of, and made anew when next asked
@@ -303,9 +323,13 @@
 							(+storage_type_pins_missing (join (store-pins-missing store) +storage_lf))
 							(+storage_type_pinned (join (store-pinned-by store body) " "))
 							(+storage_type_sweep
-								(defq swept (store-sweep store))
-								(storage-record recorder member "sweep" (str swept))
-								(str swept))
+								;answered when it is done, it is done when nothing else
+								;is asked. One asked while another is under way waits
+								;for the next: what was deleted since is let go of too
+								(cond
+									((store-sweep-busy? store) (push sweep_next reply))
+									(:t (store-sweep-begin store) (push sweepers reply)))
+								:nil)
 							(+storage_type_check
 								;the volume the store is on, mended if asked, or its blocks
 								(join (if (starts-with "volume" body) (exfat-check (get :vol store) (eql body "volume mend"))
@@ -431,6 +455,9 @@
 				(and (defq dirty (get :dirty store)) (> (- (pii-time) dirty) +dirty_most)
 					(store-save store)))
 			(if timed (mail-timeout (second select) 0 0))
+			;a sweep under way is over, those who asked told what it let go of
+			(defq swept (str (ifn (store-sweep-end store) 0)))
+			(each (# (mail-send %0 swept)) (cat sweepers sweep_next))
 			(if (/= 0 (get-long tender 0)) (mail-send tender "stop"))
 			(if (/= 0 (get-long runner 0)) (mail-send runner "stop"))
 			(mail-forget service)

@@ -102,6 +102,14 @@
 (enums +walk 0
 	(enum paths at blocks next keep copies))
 
+;a sweep that can stop and go on: the paths, how far through them, the
+;blocks of the object at hand, how far through those, the blocks objects
+;are made of, those put since it began, the bucket of the blocks kept it
+;is at, -1 till the paths are done, how many buckets there were then,
+;and how many it has let go of
+(enums +sweep 0
+	(enum paths at blocks next live spared bucket buckets gone))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the counts of who has written a path
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -327,6 +335,10 @@
 				(< (if (> (defq copies (elem-get entry +store_entry_copies)) 0) copies (get :copies store))
 					(if (> (defq copies (elem-get was +store_entry_copies)) 0) copies (get :copies store))))
 			(def store :plan_redo :t)))
+	;and a sweep under way walks it before it lets go of any more: its
+	;blocks may have been put before the sweep began
+	(and (defq sweep (get :sweep store)) (not (elem-get entry +store_entry_deleted))
+		(push (elem-get sweep +sweep_paths) name))
 	(unless was (def store :paths (inc (get :paths store))))
 	(. (store-grow (get :map store) (get :paths store)) :insert name entry))
 
@@ -1047,7 +1059,10 @@
 	(task-breathe)
 	(defq vol (get :vol store) name (sha256 data))
 	(cond
-		((store-block-has? store name) name)
+		((store-block-has? store name)
+			;a sweep under way spares it: what it is of may not be set yet
+			(if (defq sweep (get :sweep store)) (. (elem-get sweep +sweep_spared) :insert name))
+			name)
 		(:t (defq folder (store-folder store) file (cat folder "/" (hex-encode name)))
 			(exfat-begin vol)
 			;the folders of blocks are made as they are wanted and never go,
@@ -1061,6 +1076,7 @@
 			(when kept
 				(. (store-grow (get :held store) (inc (get :blocks store))) :insert name folder)
 				(def store :folder_count (inc (get :folder_count store)) :blocks (inc (get :blocks store)))
+				(if (defq sweep (get :sweep store)) (. (elem-get sweep +sweep_spared) :insert name))
 				(store-plan-held store name)
 				name))))
 
@@ -1544,18 +1560,91 @@
 	;would be made now, (store-share-now)
 	(store-share-now store among))
 
+(defun store-sweep-end (store)
+	; (store-sweep-end store) -> :nil | num
+	;a sweep is over, how many it let go of. Its sets are let go of a part
+	;at a time, (store-plan-step): of a million blocks they are millions
+	(when (defq sweep (get :sweep store))
+		(def store :sweep :nil
+			:plan_free (cat (ifn (get :plan_free store) (list))
+				(list (elem-get sweep +sweep_live) (elem-get sweep +sweep_spared))))
+		(elem-get sweep +sweep_gone)))
+
+(defun store-sweep-begin (store)
+	; (store-sweep-begin store)
+	;a sweep, of every path as it is now, a step at a time,
+	;(store-sweep-step). One under way is let go of
+	(store-sweep-end store)
+	(defq paths (list))
+	(. (get :map store) :each (lambda (path entry) (unless (elem-get entry +store_entry_deleted) (push paths path))))
+	(def store :sweep (list paths 0 '() 0 (Fset (store-buckets (store-span store) 101)) (Fset 11) -1 0 0)))
+
+(defun store-sweep-step (store &optional until)
+	; (store-sweep-step store [until]) -> :nil | :t
+	;more of a sweep, till it is time until, if there is one. :t if there
+	;is more to do. First what every path is made of, a manifest or 256
+	;of its blocks at a time, then the blocks kept, a bucket of them at a
+	;time: one that no object is made of, and that was not put since the
+	;sweep began, is let go of. A path set meanwhile is walked before any
+	;more are: its blocks may have been put before the sweep began
+	(defq sweep (get :sweep store) done (not sweep) vol (get :vol store))
+	(exfat-begin vol)
+	(while (and (not done) (or (not until) (< (pii-time) until)))
+		(task-breathe)
+		(defq live (elem-get sweep +sweep_live) paths (elem-get sweep +sweep_paths))
+		(cond
+			;of the object at hand, the next of its blocks
+			((< (defq next (elem-get sweep +sweep_next)) (length (defq blocks (elem-get sweep +sweep_blocks))))
+				(defq end (min (length blocks) (+ next 256)))
+				(each! (# (. live :insert %0)) (list blocks) next end)
+				(elem-set sweep +sweep_next end))
+			;the next path, the blocks of its manifest kept here, and its
+			;object's if all its manifest is
+			((< (defq at (elem-get sweep +sweep_at)) (length paths))
+				(elem-set sweep +sweep_at (inc at))
+				(elem-set sweep +sweep_blocks '())
+				(elem-set sweep +sweep_next 0)
+				(when (and (defq entry (. (get :map store) :find (elem-get paths at)))
+						(not (elem-get entry +store_entry_deleted)))
+					(defq parts (list (list) (list))
+						object (store-manifest store (elem-get entry +store_entry_hash) parts))
+					(each (# (. live :insert %0)) (first parts))
+					(if object (elem-set sweep +sweep_blocks (second object)))))
+			;the blocks kept, a bucket at a time. Should the map of them have
+			;grown meanwhile it is gone through again from the start: those
+			;kept are not let go of twice
+			(:t (defq held (get :held store) bucket (elem-get sweep +sweep_bucket))
+				(when (or (< bucket 0) (/= (elem-get sweep +sweep_buckets) (get :num_buckets held)))
+					(elem-set sweep +sweep_buckets (get :num_buckets held))
+					(setq bucket 0))
+				(cond
+					((>= bucket (elem-get sweep +sweep_buckets)) (setq done :t))
+					(:t (defq pairs (elem-get (get :buckets held) bucket) spared (elem-get sweep +sweep_spared)
+							drop (list) i 0)
+						;a bucket is a list of name and folder after name and folder
+						(while (< i (length pairs))
+							(defq name (elem-get pairs i))
+							(unless (or (. live :find name) (. spared :find name)) (push drop name))
+							(setq i (+ i 2)))
+						(each (# (if (store-block-drop store %0)
+								(elem-set sweep +sweep_gone (inc (elem-get sweep +sweep_gone))))) drop)
+						(elem-set sweep +sweep_bucket (inc bucket)))))))
+	(exfat-end vol)
+	(not done))
+
+(defun store-sweep-busy? (store)
+	; (store-sweep-busy? store) -> :nil | :t
+	(if (get :sweep store) :t))
+
 (defun store-sweep (store)
 	; (store-sweep store) -> num
-	;the blocks that no object is made of are let go of, how many. Not
-	;while an object is half written: its blocks are kept before its path
-	;is set
-	(defq vol (get :vol store) live (first (store-wanted store)) gone 0)
-	(exfat-begin vol)
-	(each (lambda (name)
-			(unless (. live :find (hex-encode name))
-				(if (store-block-drop store name) (++ gone))))
-		(store-blocks store))
-	(exfat-end vol)
+	;the blocks that no object is made of are let go of, how many, all at
+	;once, (store-sweep-step). Not while an object is half written: its
+	;blocks are kept before its path is set
+	(store-sweep-begin store)
+	(while (store-sweep-step store))
+	(defq gone (store-sweep-end store))
+	(store-plan-free store)
 	gone)
 
 (defun store-check (store &optional mend)
@@ -1624,7 +1713,7 @@
 		store-cut store-manifest store-manifest-text store-tree-text store-manifest-read store-manifest-make store-manifest-walk
 		store-find store-stat store-now
 		store-commit store-commit-root store-put store-delete store-rename store-copies store-get store-read store-fold store-walk store-list
-		store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
+		store-wanted store-sweep store-sweep-begin store-sweep-step store-sweep-end store-sweep-busy? store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
 		store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
 		store-entry-line store-entry-read store-journal-write
 		store-snapshot store-snapshots store-restore store-snapshot-drop store-snapshot-name? +store_snapshots

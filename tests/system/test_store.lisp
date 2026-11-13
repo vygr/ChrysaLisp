@@ -239,6 +239,22 @@
 (store-delete so "a/big")
 (assert-eq "one of two paths to an object deleted, and swept: nothing goes" 0 (store-sweep so))
 (assert-eq "the object is there by the other" so_big (store-get so "b/copy"))
+;a sweep a step at a time: a block put while it is under way is spared,
+;what it is of may not be set yet, and so are the blocks put before it
+;began of a path set while it is under way
+(defq so_lone (store-block-put so "swept lone") so_early (store-block-put so "swept early"))
+(store-sweep-begin so)
+(defq so_late (store-block-put so "swept late"))
+(store-commit so "s/early" (list so_early) (length "swept early"))
+(assert-eq "a sweep is under way" :t (store-sweep-busy? so))
+(while (store-sweep-step so (+ (pii-time) 1000)))
+(assert-eq "a step at a time, it lets go of what nothing is made of" 1 (store-sweep-end so))
+(assert-list-eq "not of a block put meanwhile, nor of one a path set meanwhile is made of"
+	'(:nil :t :t) (map (# (store-block-has? so %0)) (list so_lone so_late so_early)))
+(assert-eq "the object of that path is there" "swept early" (store-get so "s/early"))
+(assert-eq "swept again, the block put meanwhile goes" 1 (store-sweep so))
+(store-delete so "s/early")
+(store-sweep so)
 
 ;;;;;;
 ; pins

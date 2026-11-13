@@ -167,8 +167,8 @@ the one that has waited longest first, so reads that keep coming do not
 hold a write back for ever.
 
 Its own work is done when nothing is asked: the end of a run of block
-puts, what other members told it written to the volume, then the plan of
-what it is to keep, 2 ms at a time in the apps' band. A timer in the
+puts, what other members told it written to the volume, a sweep, then the
+plan of what it is to keep, each 2 ms at a time in the apps' band. A timer in the
 service's select wakes it for the end of a run of block puts; otherwise
 it waits on what is asked. A stat sent behind 256 block puts waited 67 ms
 when it was done in turn, and is answered in 2 ms now. A read amid a run
@@ -633,7 +633,18 @@ this system's, if not given.
 names the blocks that are not what their names say, and with `mend` lets go
 of them too, to be fetched again. Both are waited for as long as the
 service is there, `(storage-ask)` with a wait of `:t`: of a store of a
-million blocks each is minutes. `(storage-settle)`, `(storage-pace)` and
+million blocks each is seconds or minutes.
+
+A sweep is the service's own work, done a step at a time when nothing is
+asked, and it answers when it is done; other requests are answered
+meanwhile. It goes through every path first, what each is made of, then
+the blocks kept, from the names held in memory, not a read of every
+folder. A block put while it is under way is spared, the path it is of
+may not be set yet, and a path set meanwhile is gone through before any
+more is let go of, its blocks may have been put before the sweep began.
+One asked while another is under way is the next. Of a store of a million
+blocks a sweep was 8.6 s with every request waiting; it is 5 s now, and
+the longest a stat waited meanwhile was 7 ms. `(storage-settle)`, `(storage-pace)` and
 `(storage-cut)` are for tests: have the tender look now, change how often it
 looks, and make a member as if it could not reach some others.
 
