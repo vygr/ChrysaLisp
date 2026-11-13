@@ -56,6 +56,11 @@
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seqs))
+	;no seqs, an end not given is 0, not a seq's end
+	(assign `((,seqs +array_length)) '(:r1))
+	(vpif '(:r1 = 0))
+		(vp-cpy-rr :r1 end)
+	(endif)
 	(vpif '(:r2 > 2))
 		(array-get-args :r0 `(_ _ ,idx))
 		(list-cast-args `(,idx) '(:num))
@@ -75,14 +80,9 @@
 		(gotoif `(,end < 0) 'error2)
 		(gotoif `(,idx > ,len) 'error2)
 		(gotoif `(,end > ,len) 'error2)
-	(else)
-		;no seqs, no length, -1: a span of the numbers as given, counted up
-		;from the start till the end, the end not done. A start at or past
-		;the end is none
-		(vpif `(,idx > ,end))
-			(vp-cpy-rr end idx)
-		(endif)
 	(endif)
+	;no seqs, no length, -1: a span of the numbers as given, unchecked, and
+	;like a seq's, the end not done, a start past the end counts down
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -203,6 +203,11 @@
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seqs))
+	;no seqs, an end not given is 0, not a seq's end
+	(assign `((,seqs +array_length)) '(:r1))
+	(vpif '(:r1 = 0))
+		(vp-cpy-rr :r1 end)
+	(endif)
 	(vpif '(:r2 > 2))
 		(array-get-args :r0 `(_ _ ,mode))
 	(endif)
@@ -224,14 +229,9 @@
 		(gotoif `(,end < 0) 'error2)
 		(gotoif `(,idx > ,len) 'error2)
 		(gotoif `(,end > ,len) 'error2)
-	(else)
-		;no seqs, no length, -1: a span of the numbers as given, counted up
-		;from the start till the end, the end not done. A start at or past
-		;the end is none
-		(vpif `(,idx > ,end))
-			(vp-cpy-rr end idx)
-		(endif)
 	(endif)
+	;no seqs, no length, -1: a span of the numbers as given, unchecked, and
+	;like a seq's, the end not done, a start past the end counts down
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -359,6 +359,11 @@
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seqs))
+	;no seqs, an end not given is 0, not a seq's end
+	(assign `((,seqs +array_length)) '(:r1))
+	(vpif '(:r1 = 0))
+		(vp-cpy-rr :r1 end)
+	(endif)
 	(vpif '(:r2 > 2))
 		(array-get-args :r0 `(_ _ ,idx))
 		(list-cast-args `(,idx) '(:num))
@@ -383,14 +388,9 @@
 		(gotoif `(,end < 0) 'error2)
 		(gotoif `(,idx > ,len) 'error2)
 		(gotoif `(,end > ,len) 'error2)
-	(else)
-		;no seqs, no length, -1: a span of the numbers as given, counted up
-		;from the start till the end, the end not done. A start at or past
-		;the end is none
-		(vpif `(,idx > ,end))
-			(vp-cpy-rr end idx)
-		(endif)
 	(endif)
+	;no seqs, no length, -1: a span of the numbers as given, unchecked, and
+	;like a seq's, the end not done, a start past the end counts down
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -530,6 +530,11 @@
 	(load-fields :r0 '(+array_length +array_begin) '(:r2 :r0))
 	(assign '(0 -1) `(,idx ,end))
 	(array-get-args :r0 `(,func ,seqs ,value))
+	;no seqs, an end not given is 0, not a seq's end
+	(assign `((,seqs +array_length)) '(:r1))
+	(vpif '(:r1 = 0))
+		(vp-cpy-rr :r1 end)
+	(endif)
 	(vpif '(:r2 > 3))
 		(array-get-args :r0 `(_ _ _ ,idx))
 		(list-cast-args `(,idx) '(:num))
@@ -548,14 +553,9 @@
 		(gotoif `(,end < 0) 'error2)
 		(gotoif `(,idx > ,len) 'error2)
 		(gotoif `(,end > ,len) 'error2)
-	(else)
-		;no seqs, no length, -1: a span of the numbers as given, counted up
-		;from the start till the end, the end not done. A start at or past
-		;the end is none
-		(vpif `(,idx > ,end))
-			(vp-cpy-rr end idx)
-		(endif)
 	(endif)
+	;no seqs, no length, -1: a span of the numbers as given, unchecked, and
+	;like a seq's, the end not done, a start past the end counts down
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)

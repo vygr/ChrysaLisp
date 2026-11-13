@@ -381,12 +381,15 @@ Iterative sequence processors utilizing small, non-recursive stack allocations.
 	*	`(!)`
 
 *	**A span of numbers**: with an empty seqs list, `'()`, the `...!` forms
-	count from `start` up to `end`, the end not done, the numbers as they
-	are, negative ones too. The lambda gets no args and `(!)` is each
-	number. A start at or past the end does nothing. No list of the
-	numbers is made, this is what replaces `range`.
+	count from `start` to `end`, the end not done, the numbers as they
+	are, negative ones too, not made indexes of a seq. The lambda gets no
+	args and `(!)` is each number. A start past the end counts down, as
+	over a seq. The start and end not given are 0. No list of the numbers is made, this is what replaces
+	`range`.
 
 	*	`(each! (# (print (!))) '() 0 5)` prints 0 to 4
+
+	*	`(map! ! '() 10 0) -> (9 8 7 6 5 4 3 2 1 0)`
 
 	*	`(map! (const !) '() 3 7) -> (3 4 5 6)`, a list of the numbers when
 		one is the thing wanted, `!` is a function of any args

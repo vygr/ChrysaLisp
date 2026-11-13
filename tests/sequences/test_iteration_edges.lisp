@@ -103,8 +103,8 @@
 	(filter! (# (> %0 2)) (list 1 2 3 4)) '(3 4))
 
 ; --- with no seqs, a span of the numbers as given: (!) is each, no list
-; is made. It counts up from the start till the end, the end not done, and
-; a start at or past the end is none ---
+; is made. It counts from the start to the end, the end not done, and a
+; start past the end counts down, as a seq's do ---
 (test-cases
 	(map! (# (!)) '() 0 5) '(0 1 2 3 4)
 	;! is a function of no args, the index: the numbers themselves
@@ -112,15 +112,20 @@
 	;and it takes any args it is given, the elements of seqs
 	(map! (const !) '((a b c) (d e f))) '(0 1 2)
 	(map! (const !) '((a b c d)) 1 3) '(1 2)
-	(map! (# (!)) '() 5 0) '()
+	(map! (# (!)) '() 5 0) '(4 3 2 1 0)
+	(map! ! '() 10 0) '(9 8 7 6 5 4 3 2 1 0)
 	(map! (# (!)) '() -10 -5) '(-10 -9 -8 -7 -6)
 	(map! (# (!)) '() -3 -1) '(-3 -2)
 	(map! (# (!)) '() -1 0) '(-1)
 	(map! (# (!)) '() -1 3) '(-1 0 1 2)
-	(map! (# (!)) '() 0 -1) '()
-	(map! (# (!)) '() 2 -3) '()
+	(map! (# (!)) '() 0 -1) '(-1)
+	(map! (# (!)) '() 2 -3) '(1 0 -1 -2 -3)
+	(map! (# (!)) '() 3 3) '()
 	(map! (# (!)) '() -3 2) '(-3 -2 -1 0 1)
+	;with no seqs the bounds not given are 0 and 0
 	(map! (# (!)) '()) '()
+	(map! (# (!)) '() 5) '(4 3 2 1 0)
+	(map! (# (!)) '() -3) '(-3 -2 -1)
 	(reduce! (# (+ %0 (!))) '() 0 -10 10) -10
 	(some! (# (if (= (!) -4) (!))) '() :nil -9 9) -4
 	(some! (# (< (!) 9)) '() :t -9 9) :t
