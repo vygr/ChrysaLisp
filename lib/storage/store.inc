@@ -239,9 +239,9 @@
 			(when (or (not was) (> (first row) (first was)))
 				(. (get :pinned store) :insert member (cat (list (first row)) (sort (rest row))))
 				(when (eql member me)
-					;what it is to keep is worked out again, (store-plan-forget)
-					(def store :pins (sort (rest row))
-						:plan :nil :plan_next :nil :plan_walk :nil :plan_adds :nil :plan_redo :nil))
+					;what it is to keep is worked out again
+					(store-plan-forget store)
+					(def store :pins (sort (rest row))))
 				(setq new :t))))
 	new)
 
@@ -959,12 +959,31 @@
 			(:t (setq done :t))))
 	done)
 
+(defun store-plan-let-go (store plan)
+	;a plan no longer wanted, kept to be let go of a part at a time by
+	;(store-plan-step): one of a million blocks is millions of entries,
+	;20 ms let go of at once
+	(when plan
+		(def store :plan_free (cat (ifn (get :plan_free store) (list))
+			(map (# (elem-get plan %0)) (list +plan_wanted +plan_others +plan_unknown +plan_missing +plan_extras))))))
+
+(defun store-plan-free (store &optional until)
+	;what is kept to be let go of, let go of, 1024 at a time, till it is
+	;time until if there is one. :t when it is all gone
+	(defq free (get :plan_free store))
+	(while (and free (or (not until) (< (pii-time) until)))
+		(unless (. (first free) :empty 1024)
+			(setq free (if (> (length free) 1) (rest free)))))
+	(def store :plan_free free)
+	(not free))
+
 (defun store-plan-begin (store among)
 	; (store-plan-begin store among)
 	;a plan made anew, of every path as it is now, a walk at a time,
 	;(store-plan-step). What is added meanwhile goes in it too
 	(defq span (store-span store) paths (list))
 	(. (get :map store) :each (lambda (path entry) (unless (elem-get entry +store_entry_deleted) (push paths path))))
+	(store-plan-let-go store (get :plan_next store))
 	(def store :plan_redo :nil :plan_walk (store-walk-new paths)
 		:plan_next (list (join among " ") (Fset (store-buckets span 101)) (Fmap (store-buckets span 101)) (Fmap 11)
 			(Fset (store-buckets span 101)) (Fset (store-buckets span 101)) among)))
@@ -972,24 +991,29 @@
 (defun store-plan-busy? (store)
 	; (store-plan-busy? store) -> :nil | :t
 	;there is more to add to a plan, or one is being made
-	(if (or (get :plan_adds store) (get :plan_next store)) :t))
+	(if (or (get :plan_adds store) (get :plan_next store) (get :plan_free store)) :t))
 
 (defun store-plan-step (store &optional until)
 	; (store-plan-step store [until]) -> :nil | :t
 	;more of the plans worked on, till it is time until if there is one:
-	;what is to be added to them first, then a plan being made anew,
-	;which when it is made is the plan. :t if there is more to do
+	;what is to be added to them first, then what is to be let go of, then
+	;a plan being made anew, which when it is made is the plan, the old
+	;one to be let go of. :t if there is more to do
 	(cond
 		((defq adds (get :plan_adds store))
 			(if (store-plan-walk store adds (store-plans store) until) (def store :plan_adds :nil)))
+		((get :plan_free store) (store-plan-free store until))
 		((defq next (get :plan_next store))
 			(when (store-plan-walk store (get :plan_walk store) (list next) until)
+				(store-plan-let-go store (get :plan store))
 				(def store :plan next :plan_next :nil :plan_walk :nil))))
 	(store-plan-busy? store))
 
 (defun store-plan-forget (store)
 	; (store-plan-forget store)
 	;what a member is to keep is to be worked out again
+	(store-plan-let-go store (get :plan store))
+	(store-plan-let-go store (get :plan_next store))
 	(def store :plan :nil :plan_next :nil :plan_walk :nil :plan_adds :nil :plan_redo :nil))
 
 (defun store-plan-held (store name)
@@ -1477,7 +1501,9 @@
 		((and next (eql (elem-get next +plan_key) key)))
 		((and plan (eql (elem-get plan +plan_key) key) (not (get :plan_redo store)))
 			;one being made for others is let go
-			(if next (def store :plan_next :nil :plan_walk :nil)))
+			(when next
+				(store-plan-let-go store next)
+				(def store :plan_next :nil :plan_walk :nil)))
 		(:t (store-plan-begin store among)))
 	(while (and (store-plan-step store until) (or (not until) (< (pii-time) until))))
 	(when (and (defq plan (get :plan store)) (eql (elem-get plan +plan_key) key))
