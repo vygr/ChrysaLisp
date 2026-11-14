@@ -72,6 +72,10 @@
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *insert_user* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*canvas_size* :nil
+	;has the document's canvas been shown, and the canvases of another size
+	;that are seen still, from the front, till it has, (board-resized). The
+	;one the nodes are drawing a frame on, (frame-done)
+	*committed_shown* :nil *swap_out* :nil *frame_canvas* :nil
 	;the size of the paper on the screen, not turned, :nil for the
 	;document's. It is what the frame in the window has room for, and the
 	;zoom is what is seen on it, (view-follow)
@@ -389,9 +393,10 @@
 (defun tools-stack ()
 	;every canvas there is, taken out and put back in the order they lie
 	;in, each where it was. One added goes behind those there. From the
-	;front: *top*, the instruments, *overlay*, and the three of the document
-	(defq all (cat (list *top*) (rmap (# (elem-get %0 +tv_canvas)) *tools*) (list *overlay*)
-			(list *flight_clip* *committed* *flight_b* *paper*))
+	;front: *top*, the instruments, *overlay*, and the three of the document.
+	;Those that are seen, the last there were while new ones are not yet
+	(defq seen (ifn *swap_out* (list *top* *overlay* *flight_clip* *committed* *flight_b* *paper*))
+		all (cat (slice seen 0 1) (rmap (# (elem-get %0 +tv_canvas)) *tools*) (slice seen 1 -1))
 		all (filter (const identity) all) bounds (map (# (. %0 :get_bounds)) all))
 	(each (# (. %0 :sub)) all)
 	(each (# (. *backdrop* :add_child %0)) all)
@@ -500,6 +505,23 @@
 		swapped)
 	(if restack (tools-stack)))
 
+(defun canvases-add ()
+	;the canvases there are, put in the board: a child that is added goes
+	;behind those there are, so the front one first
+	(.-> *backdrop* (:add_child *top*) (:add_child *overlay*) (:add_child *flight_clip*) (:add_child *committed*)
+		(:add_child *flight_b*) (:add_child *paper*)))
+
+(defun canvases-switch ()
+	;the new document's canvas has been shown: the new canvases take the
+	;place of those of another size that were seen till now, all at once,
+	;the instruments in front of them still
+	(when *swap_out*
+		(each (# (if %0 (. %0 :sub))) *swap_out*)
+		(if (defq old (elem-get *swap_out* 3)) (. old :free))
+		(setq *swap_out* :nil)
+		(canvases-add)
+		(if (nempty? *tools*) (tools-stack) (. *backdrop* :dirty_all))))
+
 (defun board-resized ()
 	;the board is another size on the screen, the document's or the zoom
 	;has changed. New canvases of that size take the place of those there
@@ -517,17 +539,26 @@
 	(bind '(w h) (setq *canvas_size* (canvas-size)))
 	;the grid the board snaps to at this zoom, (snap-gap)
 	(def *board* :snap_gap (snap-gap))
-	;the pixels of the one the nodes can reach are let go of by name, they
-	;last till then, whatever becomes of this task
-	(when *committed* (. *committed* :sub) (. *committed* :free))
-	(each (# (if %0 (. %0 :sub))) (list *overlay* *flight_clip* *flight_b* *paper* *top*))
+	;the canvases there are stay seen, as they are, till the new document's
+	;has been drawn and shown, (canvases-switch): new ones are blank till
+	;then, and with the drawing settled all of it is on the document's.
+	;Chris, of the instruments: "keep the old canvas around until the new
+	;one is read and then switch over". New ones made since that were never
+	;seen are let go of. The pixels of the one the nodes can reach are let
+	;go of by name, they last till then, whatever becomes of this task
+	(defq was (list *top* *overlay* *flight_clip* *committed* *flight_b* *paper*))
+	(cond
+		(*swap_out* (if *committed* (. *committed* :free)))
+		((and *committed* *committed_shown*) (setq *swap_out* was))
+		(:t (when *committed* (. *committed* :sub) (. *committed* :free))
+			(each (# (if %0 (. %0 :sub))) was)))
 	;the pixels of the document's are shared, if the host has that, for the nodes
 	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1))
 		*overlay* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1)
 		*top* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1) *top_used* :t
 		*flight* (Canvas w h 1) *paper* (Backdrop) *paper_dirty* :t *flight_used* :nil
 		*flight_clip* (View) *flight_at* :nil *flight_spare* (Canvas w h 1)
-		*flight_b* (Canvas w h 1) *flight_b_used* :nil)
+		*flight_b* (Canvas w h 1) *flight_b_used* :nil *committed_shown* :nil)
 	(. *flight_spare* :set_canvas_flags +canvas_flag_antialias)
 	(def *flight_spare* :paper 0)
 	;a view with no colour of its own has its parent's, and covers what is under it
@@ -539,9 +570,7 @@
 	(. *flight* :fill 0)
 	(. *flight_b* :fill 0)
 	(. *top* :fill 0)
-	;a child that is added goes behind those there are, so the front one first
-	(.-> *backdrop* (:add_child *top*) (:add_child *overlay*) (:add_child *flight_clip*) (:add_child *committed*)
-		(:add_child *flight_b*) (:add_child *paper*))
+	(unless *swap_out* (canvases-add))
 	;the document's, and the two behind it, are in from the corner by the margin
 	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *flight_b* *paper*))
 	(def *board* :zoom *zoom*)
@@ -552,7 +581,7 @@
 	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *flight_b* *paper*))
 	(.-> *image_scroll* :layout :dirty_all)
 	;the canvases of the instruments are in front of the new ones still
-	(if (nempty? *tools*) (tools-stack))
+	(and (nempty? *tools*) (not *swap_out*) (tools-stack))
 	(def *board* :view_box (view-seen))
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
@@ -1097,7 +1126,7 @@
 		((and doc_dirty (farm?) (. *stripes* :cheap?)
 				;they draw the shapes and no paper, on pixels made clear for them.
 				;What shows is as it was till they have done
-				(progn (. *committed* :fill 0) (. *stripes* :frame *committed* *zoom* :nil m)))
+				(progn (. *committed* :fill 0) (. *stripes* :frame (setq *frame_canvas* *committed*) *zoom* :nil m)))
 			;the nodes draw it, (frame-done) when they have. What was
 			;landing is in this frame
 			(. *board* :take_appended)
@@ -1124,7 +1153,11 @@
 	(if show_over (. *overlay* :swap +swap_write))
 	(when *top_show*
 		(setq *top_show* :nil)
-		(. *top* :swap +swap_write)))
+		(. *top* :swap +swap_write))
+	;new canvases, of another size, are seen once the document's is
+	(when (or show show_parts)
+		(setq *committed_shown* :t)
+		(canvases-switch)))
 
 (defun frame-done (said)
 	;what the stripes said of what came to them: :done, the nodes have
@@ -1142,7 +1175,16 @@
 			(when (nempty? *landed*)
 				(setq *landed* (list))
 				(. *board* :touch +board_dirty_overlay))
-			(. *committed* :swap +swap_write))
+			;on the canvas it was drawn on, which may be one of another size
+			;that is seen still, the new one is drawn next, or one let go
+			;of, made and not seen before another size came
+			(cond
+				((eql *frame_canvas* *committed*)
+					(. *committed* :swap +swap_write)
+					(setq *committed_shown* :t)
+					(canvases-switch))
+				((and *swap_out* (eql *frame_canvas* (elem-get *swap_out* 3)))
+					(. *frame_canvas* :swap +swap_write))))
 		(:failed
 			;this task draws it, and the nodes are left alone if they keep at it
 			(setq *framing* :nil *again* :nil *farm_fails* (inc *farm_fails*))
@@ -1150,7 +1192,9 @@
 			(setq *landing* (list) *landed* (list))
 			(. *board* :touch +board_dirty_overlay)
 			(draw-local (view-matrix))
-			(. *committed* :swap +swap_write))))
+			(. *committed* :swap +swap_write)
+			(setq *committed_shown* :t)
+			(canvases-switch))))
 
 (defun frame-watch ()
 	;a frame the nodes have had for three seconds is not coming. They are
@@ -1419,4 +1463,5 @@
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
 	(. *window* :close)
-	(if *committed* (. *committed* :free)))
+	(if *committed* (. *committed* :free))
+	(and *swap_out* (defq old (elem-get *swap_out* 3)) (. old :free)))

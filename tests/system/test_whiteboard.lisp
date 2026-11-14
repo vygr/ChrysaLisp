@@ -813,3 +813,22 @@
 (assert-eq "a board inserted: its things added to the one rectangle, they alone selected, the teacher's, the rectangle put down, in the middle of the view"
 	"(1 :t :t :t :t :t :t)" (first wa_insert))
 (assert-eq "one undo takes all the inserted away" "1" (second wa_insert))
+
+;another size, the canvases that are seen stay seen till the new document's
+;has been drawn and shown, and then they change places all at once. Not
+;before it was ever shown, there is nothing to keep
+(defq wa_swap (wa-run (cat
+			"(defun in? (v) (if (find v (. *backdrop* :children)) :t :nil))"
+			"(wa-mode :rect) (wa-drag 1 10 10 60 60) (catch (redraw) :t)"
+			"(defq c1 *committed* o1 *overlay*) (setq *margin* 100) (board-resized)"
+			"(print (list *committed_shown* (in? c1) (in? o1) (in? *committed*) (in? *overlay*)))"
+			;sized again before the new ones are shown, those are let go and the first stay
+			"(defq c2 *committed*) (setq *margin* 120) (board-resized)"
+			"(print (list (in? c1) (in? c2) (in? *committed*) (if (eql (elem-get *swap_out* 3) c1) :t :nil)))"
+			"(catch (redraw) :t)"
+			"(defq kids (. *backdrop* :children))"
+			"(print (list *committed_shown* *swap_out* (in? c1) (in? o1) (in? *committed*) (in? *overlay*)"
+			" (< (find *overlay* kids) (find *committed* kids)) (< (find *committed* kids) (find *paper* kids))))")))
+(assert-eq "sized, the canvases seen are kept, the new not yet in the board" "(:nil :t :t :nil :nil)" (first wa_swap))
+(assert-eq "sized again first, the first are kept still" "(:t :nil :nil :t)" (second wa_swap))
+(assert-eq "drawn and shown, the new are in the board, in their order, the old gone" "(:t :nil :nil :nil :t :t :t :t)" (third wa_swap))
