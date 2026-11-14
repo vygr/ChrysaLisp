@@ -1162,3 +1162,84 @@
 (. tx_board :pointers (list (ptr-event 0 :mouse 1 450 200)))
 (. tx_board :pointers (list (ptr-event 0 :mouse 0 450 200)))
 (assert-list-eq "a box dragged out over a corner of a thing selects it" (list tx_fill) (. tx_board :get_selected))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the boxes kept, each item's in the space of what holds it
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;an item's box as it would be worked out now: a copy of it with no box
+;kept, in it or in anything in it, asked for its box
+(defun bx-fresh (item)
+	(defq copy (first (board-copy-items (list item))) todo (list copy))
+	(while (defq next (pop todo))
+		(elem-set next +cwb_box :nil)
+		(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items))))
+	(cwb-box copy))
+
+;the ids of the items whose kept box is not what it would be now
+(defun bx-stale (board)
+	(defq out (list))
+	(cwb-each (. board :get_doc) (lambda (item layer_index holder)
+			(defq kept (elem-get item +cwb_box))
+			(and kept (nql (str (if (eql kept :none) :nil kept)) (str (bx-fresh item)))
+				(push out (elem-get item +cwb_id)))))
+	out)
+
+;every box asked for, so each is kept
+(defun bx-ask (board) (cwb-bounds (cwb-items (. board :get_doc))))
+
+(defq bx_board (Board (cwb-doc 800 600))
+	bx_a (. bx_board :add (cwb-shape (cwb-d-rect 10 10 50 50) :fill 0xff808080 :stroke 0))
+	bx_b (. bx_board :add (cwb-shape (cwb-d-rect 100 100 150 130) :fill 0xff808080 :stroke 0))
+	bx_f (cwb-shape (cwb-d-rect 300 300 320 320) :fill 0xff808080 :stroke 0)
+	bx_line (cwb-shape (board-pen-d '(180 260 280 260)) :width 4 :kind :pen)
+	bx_c (. bx_board :add (cwb-group (list (cwb-shape (cwb-d-rect 200 200 240 240) :fill 0xff808080 :stroke 0)
+		bx_line (cwb-group (list bx_f))) :name "written")))
+(assert-list-eq "asked for, each box is kept, the groups' of what is in them" (list 10 10 320 320)
+	(map (const n2i) (bx-ask bx_board)))
+(assert-list-eq "and none is other than it would be worked out now" '() (bx-stale bx_board))
+(assert-true "a shape in a group in a group keeps its box too" (list? (elem-get bx_f +cwb_box)))
+;moved, its box is let go of, and is worked out again as it is asked for
+(. bx_board :select (list bx_a))
+(. bx_board :transform (mat3x2-translate 600.0 0.0))
+(assert-list-eq "a thing moved has its box worked out again, the rest are kept" '() (bx-stale bx_board))
+(assert-list-eq "and the bounds are where it went" (list 100 10 650 320) (map (const n2i) (bx-ask bx_board)))
+;a shape in a group in a group changed where nothing is told: the groups it
+;is in are told by (cwb-box-forget)
+(cwb-set bx_f :d (cwb-d-rect 300 300 360 380))
+(cwb-box-forget (. bx_board :get_doc) (elem-get bx_f +cwb_id))
+(assert-list-eq "a shape deep in groups changed, it and the groups it is in are worked out again" '() (bx-stale bx_board))
+(assert-list-eq "and the bounds have it" (list 100 10 650 380) (map (const n2i) (bx-ask bx_board)))
+;rubbed out in the group, the left end of the line in it, the group's left
+;edge: a change that is not at an edge would leave the box as it was
+(defq bx_was (cwb-box (first (filter (# (= (elem-get %0 +cwb_id) bx_c)) (cwb-items (. bx_board :get_doc))))))
+(. bx_board :rub 180.0 260.0 6.0)
+(assert-list-eq "a line in a group rubbed out at its end, the group's box is worked out again" '() (bx-stale bx_board))
+(assert-true "and it is not the box it was" (nql (str bx_was)
+	(str (cwb-box (first (filter (# (= (elem-get %0 +cwb_id) bx_c)) (cwb-items (. bx_board :get_doc))))))))
+(bx-ask bx_board)
+;a bite off the right side of the shape in the group in the group, the
+;right edge of both groups
+(. bx_board :bite (list 358.0 290.0 358.0 390.0) 8.0)
+(assert-list-eq "a bite out of a shape in a group in a group, each box it is in is worked out again" '() (bx-stale bx_board))
+(bx-ask bx_board)
+;turned, a hit in it is still found, by the boxes, and not one beside it
+(. bx_board :select (list bx_c))
+(. bx_board :transform (mat3x2-rot 0.5 220.0 220.0))
+(bx-ask bx_board)
+(defq bx_in (mat3x2-point (cwb-place-mat (cwb-place (first (filter (# (= (elem-get %0 +cwb_id) bx_c)) (cwb-items (. bx_board :get_doc)))))) 220.0 220.0))
+(assert-eq "a point in a turned group hits it, found by the boxes" bx_c
+	(elem-get (first (cwb-hit (. bx_board :get_doc) (first bx_in) (second bx_in))) +cwb_id))
+(assert-eq "and a point nowhere near hits nothing" :nil (cwb-hit (. bx_board :get_doc) 500.0 500.0))
+;grouped, ungrouped, undone and done again
+(. bx_board :group (list bx_a bx_b))
+(assert-list-eq "grouped" '() (bx-stale bx_board))
+(bx-ask bx_board)
+(. bx_board :ungroup)
+(assert-list-eq "ungrouped" '() (bx-stale bx_board))
+(bx-ask bx_board)
+(. bx_board :undo)
+(assert-list-eq "undone" '() (bx-stale bx_board))
+(bx-ask bx_board)
+(. bx_board :redo)
+(assert-list-eq "and done again" '() (bx-stale bx_board))

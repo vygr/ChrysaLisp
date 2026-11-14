@@ -277,26 +277,29 @@
 		;eraser are not touched by it, a line that slants has a box far
 		;bigger than it is
 		swept_hull (list (poly-hull swept)))
+	;each list to look through, with its matrix, what is reached as a box
+	;of its own space, and the groups it is in, whose boxes go if it changes
 	(each (lambda ((name flags items))
-			(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items +mat3x2_unity))))
+			(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items +mat3x2_unity reach (list)))))
 		(cwb-layers doc))
 	(while (defq job (pop todo))
-		(bind '(items m) job)
+		(bind '(items m local above) job)
 		(defq out (list) changed :nil)
 		(each (lambda (item)
 				(defq pieces :nil)
 				(cond
 					;held, a group too, and all that is in it
 					((and but (find (elem-get item +cwb_id) but)))
+					;nowhere near, by the box it keeps, (cwb-box)
+					((not (and (defq box (cwb-box item)) (vector-collide-boxes-2d local box))))
 					((cwb-group? item)
 						;what is in it, in its own space, later
-						(push todo (list (elem-get item +cwb_items) (mat3x2-mul m (elem-get item +cwb_m)))))
+						(push todo (list (elem-get item +cwb_items) (mat3x2-mul m (elem-get item +cwb_m))
+							(mat3x2-box local (cwb-inv item)) (cat above (list item)))))
 					((and lines (cwb-rub? item)))
 					((not (board-may-rub? user item)))
-					((defq box (third (cwb-flat item)))
-						(defq full (mat3x2-mul m (elem-get item +cwb_m)))
-						(and (vector-collide-boxes-2d reach (mat3x2-box box full))
-							(poly-hit? (cwb-mat-paths full (list (board-hull item))) swept_hull)
+					(:t (defq full (mat3x2-mul m (elem-get item +cwb_m)))
+						(and (poly-hit? (cwb-mat-paths full (list (board-hull item))) swept_hull)
 							(setq pieces (board-bite-shape item full m swept tol)))))
 				(cond
 					(pieces
@@ -309,7 +312,9 @@
 		(when changed
 			;what is left is where it was, among the rest
 			(clear items)
-			(each (# (push items %0)) out))
+			(each (# (push items %0)) out)
+			;the groups it is in are not the size they were
+			(each (# (elem-set %0 +cwb_box :nil)) above))
 		(push seen items))
 	;the groups with nothing left in them, the innermost first
 	(reach (lambda (items)
@@ -1995,6 +2000,7 @@
 						(every (const =) (elem-get under +cwb_m) +mat3x2_unity))
 					(pop items)
 					(push (elem-get under +cwb_items) item)
+					(elem-set under +cwb_box :nil)
 					(setq target (elem-get under +cwb_id)))
 				((cwb-shape? under)
 					(pop items) (pop items)
@@ -2065,7 +2071,7 @@
 										(cond
 											((empty? left)
 												(. this :select (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this))))
-											(:t (elem-set item +cwb_items left)
+											(:t (cwb-items! item left)
 												(. this :changed (list (elem-get item +cwb_id)))
 												(push out item))))
 									(:t (push out item))))

@@ -98,6 +98,23 @@ those of its fill, those of its stroke, and the box they are in. They are
 kept with it till what it is drawn with changes, and are not saved. Its
 place is not part of that, a shape that is moved is not flattened again.
 
+Each item also keeps its box in the space of what holds it, the document
+or its group, `(cwb-box)`: a shape's from what it is flattened to, a
+group's from the boxes of what is in it, each put through its matrix once.
+They are a tree of boxes. A look for what is at a point `(cwb-hit)`, in a
+box `(cwb-touch-box)`, what a bite reaches, and a draw with a clip, go into
+an item or a group only if its box is near, `(cwb-walk)` with a box, and
+take what they look for into each group's space once, never a box out of
+it. The bounds of what is drawn, `(cwb-bounds)`, are the items' boxes and
+no more. A change lets go of the box of what changed, `(cwb-place!)`
+`(cwb-set)` `(cwb-items!)`, and of each group it is in: what changes a list
+in a group in a group says so, `(cwb-box-forget)`, or clears those it went
+through, as a bite does. Only those are worked out again, as they are next
+asked for. A turned group's box is the box round its turned box, a little
+more than what it draws. On 10,000 shapes and 500 groups of 10, the bounds
+are 3.3 ms for 15, a hit on nothing 1.5 for 17.6, a small box selected 2.1
+for 17.5, a small clip drawn 3.5 for 14.8.
+
 ## The file
 
 `(cwb-save doc stream)` is `(tree-save)`, the `.tre` format a `.cwb` always

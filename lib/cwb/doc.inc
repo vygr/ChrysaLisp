@@ -47,12 +47,13 @@
 ;script is the Lisp the item is to run, reserved, nothing runs it yet,
 ;see docs/ai_digest/whiteboard.md. others is what a file had of it that is not known here, a key and its
 ;value each, from a newer Whiteboard, written back as it was, so what is
-;new is not lost by a save here
+;new is not lost by a save here. box is the box round what it draws in the
+;space of what holds it, the document or its group, kept, (cwb-box)
 (enums +cwb 0
 	(enum type id name m props user script)
 	(enum kind d fill stroke width rule join cap1 cap2 text font font_size)
 	(enum items)
-	(enum cache place inv)
+	(enum cache place inv box)
 	(enum others))
 
 ;the name of each slot in a file, and what a slot has when the file does
@@ -60,10 +61,10 @@
 ;of its name as code is read
 (defq +cwb_keys ''(:type :id :name :m :props :user :script
 		:kind :d :fill :stroke :width :rule :join :cap1 :cap2 :text :font :font_size
-		:items :cache :place :inv :others)
+		:items :cache :place :inv :box :others)
 	+cwb_defaults ''(:shape 0 "" :nil :nil 0 :nil
 		:path "" 0 0xff000000 2.0 :nonzero :round :round :round "" "fonts/OpenSans-Regular.ctf" 24
-		:nil :nil :nil :nil :nil))
+		:nil :nil :nil :nil :nil :nil))
 
 ;;;;;;;;;;
 ; matrices
@@ -127,11 +128,13 @@
 
 (defun cwb-place! (item place)
 	; (cwb-place! item place) -> item
-	;put an item in a place, and work out its matrix and the inverse of that
+	;put an item in a place, and work out its matrix and the inverse of that.
+	;Its box is not where it was, (cwb-box)
 	(defq m (cwb-place-mat place))
 	(elem-set item +cwb_place place)
 	(elem-set item +cwb_m m)
 	(elem-set item +cwb_inv (mat3x2-invert m))
+	(elem-set item +cwb_box :nil)
 	item)
 
 (defun cwb-inv (item)
@@ -202,9 +205,9 @@
 
 (defun cwb-set (item &rest key_vals)
 	; (cwb-set item [key val] ...) -> item
-	;set what an item has. What it was flattened to is let go of, unless
-	;all that was set was its place, its name, its props or its user,
-	;which do not change what it is flattened to. :place is a place, :m a
+	;set what an item has. What it was flattened to is let go of, and its
+	;box, unless all that was set was its place, its name, its props or its
+	;user, which do not change what it is flattened to. :place is a place, :m a
 	;matrix, which is made a place, (cwb-mat-place), and its slant, if it
 	;has any, left out: nothing is slanted
 	(defq stale :nil)
@@ -216,7 +219,7 @@
 				(:t (elem-set item (cwb-slot key) val)))
 			(unless (find key '(:m :place :inv :name :props :id :user)) (setq stale :t)))
 		(partition key_vals 2))
-	(if stale (elem-set item +cwb_cache :nil))
+	(when stale (elem-set item +cwb_cache :nil) (elem-set item +cwb_box :nil))
 	item)
 
 (defun cwb-item (type key_vals)
@@ -247,11 +250,18 @@
 	(cwb-place! item (place-move (elem-get item +cwb_place) x y))
 	item)
 
+(defun cwb-items! (group items)
+	; (cwb-items! group items) -> group
+	;what is in a group is that list now, and its box is not what it was.
+	;A group that holds it is not told: who changes what is in a group in
+	;a group says so to each that holds it, (cwb-box-forget)
+	(elem-set group +cwb_items items)
+	(elem-set group +cwb_box :nil)
+	group)
+
 (defun cwb-group (items &rest key_vals)
 	; (cwb-group items [key val] ...) -> group
-	(defq item (cwb-item :group key_vals))
-	(elem-set item +cwb_items (cat items))
-	item)
+	(cwb-items! (cwb-item :group key_vals) (cat items)))
 
 (defun cwb-shape? (item) (eql (elem-get item +cwb_type) :shape))
 (defun cwb-group? (item) (eql (elem-get item +cwb_type) :group))
@@ -410,7 +420,7 @@
 			((cwb-group? item)
 				;its items are done after it, each into its new list, in turn
 				(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) kids (list) old (elem-get item +cwb_items))
-				(elem-set item +cwb_items kids)
+				(cwb-items! item kids)
 				(push into (cwb-place! item place))
 				(reach (lambda (kid) (push todo (list kid (mat3x2-mul k (elem-get kid +cwb_m)) kids))) old))
 			(:t (bind '(fills strokes &ignore) (cwb-flat item))
@@ -429,34 +439,123 @@
 					(each (# (push into %0)) made)))))
 	top)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the boxes kept, a tree of them
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Each item keeps the box round what it draws in the space of what holds
+;it, the document or its group: a shape's box from what it is flattened
+;to, a group's from the boxes of what is in it. Each is put through its
+;own matrix once, as it is worked out, and kept. So a look for what is
+;at a point, in a box, or what a bite of the eraser reaches goes into a
+;group only if its box is near, (cwb-walk), and the bounds of a document
+;are its items' boxes and no more, (cwb-bounds). A change lets go of the
+;box of what changed, (cwb-place!) (cwb-set) (cwb-items!), and of each
+;group it is in, (cwb-box-forget): only those are worked out again, as
+;they are next asked for.
+
+(defun cwb-box-put (item box)
+	;an item's box, of its own space, put through its matrix and kept,
+	;:none if it draws nothing
+	(defq m (elem-get item +cwb_m))
+	(elem-set item +cwb_box (setq box (cond
+		((not box) :none)
+		((eql m +mat3x2_unity) box)
+		((mat3x2-box box m)))))
+	box)
+
+(defun cwb-box-keep (item)
+	;an item's box worked out and kept, :none if it draws nothing: a
+	;shape's from what it is flattened to, a group's from what is in it,
+	;whose boxes are kept already if they are groups, (cwb-box). Not a
+	;(reduce) from :nil, that starts from the first of them
+	(defq box :nil)
+	(if (cwb-group? item)
+		(each (lambda (kid)
+				(defq kid_box (ifn (elem-get kid +cwb_box) (cwb-box-put kid (third (cwb-flat kid)))))
+				(unless (eql kid_box :none) (setq box (vector-box-join-2d box kid_box))))
+			(elem-get item +cwb_items))
+		(setq box (third (cwb-flat item))))
+	(cwb-box-put item box))
+
+(defun cwb-box (item)
+	; (cwb-box item) -> (x y x1 y1) | :nil
+	;the box round what an item draws, in the space of what holds it, the
+	;document or its group, as kept. :nil if it draws nothing. Those not
+	;kept are worked out, the groups in it before the group, each once
+	(unless (defq box (elem-get item +cwb_box))
+		;the groups in it with no box kept, each before what is in it, then
+		;worked out the other way about, what is in a group first
+		(defq groups (list) todo (list item))
+		(while (defq next (pop todo))
+			(when (and (cwb-group? next) (not (elem-get next +cwb_box)))
+				(push groups next)
+				(each (# (push todo %0)) (elem-get next +cwb_items))))
+		(reach (const cwb-box-keep) groups)
+		(setq box (ifn (elem-get item +cwb_box) (cwb-box-keep item))))
+	(if (eql box :none) :nil box))
+
+(defun cwb-box-forget (doc id)
+	; (cwb-box-forget doc id) -> doc
+	;what an item draws has changed and nothing was told, a list in a group
+	;in a group: its box, and that of each group it is in, are let go of.
+	;A look through the document for it
+	(defq found :nil)
+	(each (lambda ((name flags items))
+			(defq todo (map (# (list %0 (list))) items))
+			(while (and (not found) (defq next (pop todo)))
+				(bind '(item above) next)
+				(cond
+					((= (elem-get item +cwb_id) id)
+						(setq found :t)
+						(each (# (elem-set %0 +cwb_box :nil)) (cat above (list item))))
+					((cwb-group? item)
+						(defq above (cat above (list item)))
+						(each (# (push todo (list %0 above))) (elem-get item +cwb_items))))))
+		(. doc :find :layers))
+	doc)
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; walking a tree of items
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun cwb-walk (items m fnc)
-	; (cwb-walk items m fnc)
+(defun cwb-walk (items m fnc &optional near)
+	; (cwb-walk items m fnc [near])
 	;call (fnc shape matrix) for each shape of the items, and of the
 	;groups in them, the one at the back first. The matrix is the one that
 	;puts the shape where it is in the space the items are in, given one
 	;for that space, +mat3x2_unity for none. A list of what is left to do, no function
-	;here calls itself
-	(defq todo (rmap (# (list %0 m)) items))
+	;here calls itself.
+	;
+	;With near, a box of the space m puts them in, an item whose box,
+	;(cwb-box), is nowhere in it is passed by, and all that is in it: only
+	;what is near is gone into. near is taken into the space of what holds
+	;each item, once for each group gone into, so no item's box is moved:
+	;a box round it there, bigger if the group is turned, so nothing near
+	;is missed
+	;its own names are of no caller's: a function given it that names one
+	;has the walk's
+	(defq walk_near (and near (if (eql m +mat3x2_unity) near (mat3x2-box near (mat3x2-invert m))))
+		todo (rmap (# (list %0 m walk_near)) items))
 	(while (defq next (pop todo))
-		(bind '(item m) next)
-		(defq m (mat3x2-mul m (elem-get item +cwb_m)))
-		(if (cwb-group? item)
-			(reach (# (push todo (list %0 m))) (elem-get item +cwb_items))
-			(fnc item m))))
+		(bind '(item m walk_near) next)
+		(when (or (not walk_near) (and (defq walk_box (cwb-box item)) (vector-collide-boxes-2d walk_near walk_box)))
+			(defq m (mat3x2-mul m (elem-get item +cwb_m)))
+			(cond
+				((cwb-group? item)
+					(defq walk_in (and walk_near (mat3x2-box walk_near (cwb-inv item))))
+					(reach (# (push todo (list %0 m walk_in))) (elem-get item +cwb_items)))
+				((fnc item m))))))
 
 (defun cwb-bounds (items &optional m)
 	; (cwb-bounds items [m]) -> (x y x1 y1) | :nil
-	;the box round all that the items draw, :nil if they draw nothing
-	(setd m +mat3x2_unity)
+	;the box round all that the items draw, :nil if they draw nothing: the
+	;boxes they keep, (cwb-box), put through m if one is given. A group
+	;that is turned has the box round its turned box, a little more than
+	;what it draws, as a turned shape has round its own
 	(defq box :nil)
-	(cwb-walk items m (lambda (shape m)
-			(if (defq flat_box (third (cwb-flat shape)))
-				(setq box (vector-box-join-2d box (mat3x2-box flat_box m))))))
-	box)
+	(each (# (setq box (vector-box-join-2d box (cwb-box %0)))) items)
+	(if (and box m (not (eql m +mat3x2_unity))) (mat3x2-box box m) box))
 
 ;;;;;;;;;;;
 ; documents
@@ -539,9 +638,11 @@
 
 (defun cwb-remove (doc id)
 	; (cwb-remove doc id) -> :nil | item
-	;take an item out of the document, a group goes with all in it
+	;take an item out of the document, a group goes with all in it. The
+	;groups it was in are not the size they were
 	(when (defq found (cwb-find doc id))
 		(bind '(item layer_index holder) found)
+		(cwb-box-forget doc id)
 		(defq index (some (# (if (= (elem-get %0 +cwb_id) id) (!))) holder)
 			kept (cat (slice holder 0 index) (slice holder (inc index) -1)))
 		(clear holder)
@@ -609,7 +710,7 @@
 		(push out (elem-get item +cwb_type))
 		(each (lambda (key default val)
 				(cond
-					((find key '(:type :cache :m :inv)))
+					((find key '(:type :cache :m :inv :box)))
 					((eql key :items)
 						(when (cwb-group? item)
 							(defq outs (map (lambda (&) (list)) val))
@@ -645,7 +746,7 @@
 				(cond
 					((eql key :items)
 						(defq kids (map (lambda (&) :nil) val))
-						(elem-set item +cwb_items kids)
+						(cwb-items! item kids)
 						(each (# (push todo (list %0 kids (!)))) val))
 					;where it is, its place
 					((eql key :pos) (bind '(x y) val) (cwb-place! item (scatter-place (cwb-place item) 0 x 1 y)))
@@ -721,6 +822,7 @@
 	;is not drawn. How many shapes were drawn
 	(setd m +mat3x2_unity)
 	(defq count 0)
+	;a group nowhere in the clip is not gone into, (cwb-walk)
 	(cwb-walk items m (lambda (shape m)
 			(bind '(fills strokes box &ignore) (cwb-flat shape))
 			(when (and box (or (not clip) (vector-collide-boxes-2d clip (mat3x2-box box m))))
@@ -731,7 +833,7 @@
 							(cwb-mat-paths m fills))))
 				(if (nempty? strokes)
 					(.-> canvas (:set_color (elem-get shape +cwb_stroke))
-						(:fpoly 0.0 0.0 +winding_none_zero (cwb-mat-paths m strokes)))))))
+						(:fpoly 0.0 0.0 +winding_none_zero (cwb-mat-paths m strokes)))))) clip)
 	count)
 
 (defun cwb-draw (canvas doc &optional m clip skip)
@@ -901,17 +1003,20 @@
 	;the item of a layer a point is on, the one on top, in a layer that is
 	;not hidden or locked. The item is one of the layer's own, a group if
 	;the shape that was hit is in one. m is the matrix the document is
-	;seen by, if the point is in the space of a view of it
+	;seen by, if the point is in the space of a view of it. Only an item
+	;whose box is near the point is looked into, and in it only the groups
+	;near it, (cwb-walk)
 	(setd m +mat3x2_unity)
-	(defq found :nil)
+	(defq found :nil tl (n2f (ifn tol 0)) near (list (- (n2f x) tl) (- (n2f y) tl) (+ (n2f x) tl) (+ (n2f y) tl))
+		local (if (eql m +mat3x2_unity) near (mat3x2-box near (mat3x2-invert m))))
 	(each! (lambda ((name flags items))
 			(unless (or found (bits? flags 1) (bits? flags 2))
 				(defq layer_index (!))
 				(each! (lambda (item)
-						(unless found
+						(when (and (not found) (defq box (cwb-box item)) (vector-collide-boxes-2d local box))
 							(defq hit :nil)
 							(cwb-walk (list item) m (lambda (shape sm)
-									(and (not hit) (cwb-shape-hit? shape sm x y tol) (setq hit shape))))
+									(and (not hit) (cwb-shape-hit? shape sm x y tol) (setq hit shape))) near)
 							(if hit (setq found (list item layer_index hit)))))
 					(list items) -1 0)))
 		(list (cwb-layers doc)) -1 0)
@@ -954,16 +1059,19 @@
 	; (cwb-touch-box doc box [m]) -> ((item layer_index) ...)
 	;the items of the layers that a box touches, as a box dragged out to
 	;select has it: an item any shape of which is in it, crosses it or has
-	;it inside. Not those of a layer that is hidden or locked
+	;it inside. Not those of a layer that is hidden or locked. Only an item
+	;whose box is near it is looked into, (cwb-walk)
 	(setd m +mat3x2_unity)
-	(defq out (list))
+	(defq out (list) near (map (const n2f) box)
+		local (if (eql m +mat3x2_unity) near (mat3x2-box near (mat3x2-invert m))))
 	(each (lambda ((name flags items))
 			(unless (or (bits? flags 1) (bits? flags 2))
 				(defq layer_index (!))
 				(each (lambda (item)
 						(defq hit :nil)
-						(cwb-walk (list item) m (lambda (shape sm)
-								(and (not hit) (cwb-shape-touch? shape sm box) (setq hit :t))))
+						(and (defq ib (cwb-box item)) (vector-collide-boxes-2d local ib)
+							(cwb-walk (list item) m (lambda (shape sm)
+									(and (not hit) (cwb-shape-touch? shape sm box) (setq hit :t))) near))
 						(if hit (push out (list item layer_index))))
 					items)))
 		(cwb-layers doc))

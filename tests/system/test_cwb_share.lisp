@@ -145,7 +145,9 @@
 (. sh_t :select (list 1 2))
 (sh-go sh_t :a sh_a :t)
 (defun sh-has (board id) (if (find id (map (# (elem-get %0 +cwb_id)) (cwb-items (. board :get_doc)))) :t :nil))
-(defun sh-look (board) (str (cwb-items (. board :get_doc))))
+;what is in a board's document, as a file has it, not what each keeps
+;with an item, worked out when it is asked for, its box
+(defun sh-look (board) (str (map (const cwb-item-out) (cwb-items (. board :get_doc)))))
 (defq sh_was (sh-look sh_a))
 (def sh_a :rub_mode :part)
 (. sh_a :bite (path 140.0 150.0 160.0 150.0) 10)

@@ -384,10 +384,12 @@
 (. pe_board :pointers (list (ptr-event 0 :mouse +pev_left 100 200)))
 (. pe_board :pointers (list (ptr-event 0 :mouse +pev_left 110 200)))
 (. pe_board :tick 2000000)
-(defq pe_was (str (cwb-items (. pe_board :get_doc))))
+;what is in the document, as a file has it: not what is kept with an item,
+;what it is flattened to and its box, which are worked out when asked for
+(defq pe_was (str (map (const cwb-item-out) (cwb-items (. pe_board :get_doc)))))
 (. pe_board :pointers (list (ptr-event 0 :mouse 0 110 200)))
 (. pe_board :tick 3000000)
-(assert-eq "nothing more is rubbed out as the eraser lifts" pe_was (str (cwb-items (. pe_board :get_doc))))
+(assert-eq "nothing more is rubbed out as the eraser lifts" pe_was (str (map (const cwb-item-out) (cwb-items (. pe_board :get_doc)))))
 ;what is selected stays so as an eraser bites it, the left selecting and
 ;the right rubbing out, Chris: "the select controls vanish as the erase takes
 ;a bite"
