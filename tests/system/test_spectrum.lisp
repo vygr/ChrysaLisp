@@ -3,7 +3,7 @@
 (import "lib/consts/scodes.inc")
 (import "apps/games/spectrum/machine.inc")
 
-;the Z80 is held in VP registers for a frame, apps/games/spectrum/lisp.vp.
+;the Z80 is held in VP registers for a frame, apps/games/spectrum/z80.inc.
 ;Each opcode was checked against FUSE's tests and the whole of zexall; what
 ;this keeps is that the machine as a whole still works: the ROM tests the
 ;memory, clears the screen and says who made it, each frame's interrupt

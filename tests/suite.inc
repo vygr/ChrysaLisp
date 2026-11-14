@@ -256,16 +256,23 @@
 	;path on the line is in, that makes a function of the name the path
 	;ends with. Native code that is not the core's, a library's or an
 	;app's, is in the boot image, but only what calls a function of it
-	;stands on it, and on that function, not the rest of its file
-	(defq out (list))
+	;stands on it, and on that function, not the rest of its file. An app
+	;names its own as (cat *app_root* "name"), a name with no path, of the
+	;file's own folder
+	(defq out (list) app (found? line "*app_root*")
+		own (slice file 0 (max 0 (dec (ifn (rfind "/" file) 1)))))
 	(each (lambda (piece)
 			(each (lambda (word)
-					(when (and (find "/" word) (= (age word) 0))
-						;(rfind) gives the place after the slash
-						(defq at (ifn (rfind "/" word) 1) fname (slice word at -1)
-							folder (if (starts-with "./" word)
-								(slice file 0 (max 0 (dec (ifn (rfind "/" file) 1))))
-								(slice word 0 (dec at))))
+					(defq fname :nil folder :nil)
+					(cond
+						((and (find "/" word) (= (age word) 0))
+							;(rfind) gives the place after the slash
+							(defq at (ifn (rfind "/" word) 1))
+							(setq fname (slice word at -1)
+								folder (if (starts-with "./" word) own (slice word 0 (dec at)))))
+						((and app (nempty? word) (not (find "/" word)))
+							(setq fname word folder own)))
+					(when fname
 						(each (lambda (vp)
 								(and (some (# (test-def-func? %0 fname)) (split (ifn (load vp) "") "\n"))
 									(not (find (defq name (cat vp "#" fname)) out))
@@ -349,7 +356,7 @@
 (defq +test_file_most 16777216
 	;the rules of what a file names, (test-file-scan): when they change,
 	;what a cache made by others says a file names is not kept
-	+test_scan_version "3")
+	+test_scan_version "5")
 
 (defun test-file-info (file)
 	; (test-file-info file) -> (age hash names)
@@ -368,7 +375,9 @@
 				((> size +test_file_most) (cat (str now) " " (str size)))
 				((ifn (load file) ""))))
 		(. *test_files* :insert file (setq info (list now (test-hex (sha256 text))
-					(if (or (ends-with ".lisp" file) (ends-with ".inc" file))
+					;a native stands on what its file includes too, the macros
+					;that make its code may be in a .inc beside it
+					(if (or hash_at (ends-with ".lisp" file) (ends-with ".inc" file))
 						(test-file-scan file text) (list))))))
 	info)
 

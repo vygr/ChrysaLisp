@@ -38,6 +38,8 @@
 (assert-true "a native function is its own block, and not the others of its file"
 	(and (some (# (test-def-func? %0 "aes_ctr_xor")) sc_aes)
 		(notany (# (test-def-func? %0 "sha256_blocks")) sc_aes)))
+(assert-true "a native function stands on what its file includes, the macros of its code"
+	(find "apps/games/spectrum/z80.inc" (third (test-file-info "apps/games/spectrum/lisp_run.vp#zx_run"))))
 (assert-eq "a file that is not Lisp names nothing" 0
 	(length (third (test-file-info "apps/demos/surface/surface.shader"))))
 (assert-eq "a file that is not there has an age of 0" 0 (first (test-file-info "lib/no/such/file.inc")))

@@ -1,0 +1,22 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+(include "./app.inc")
+(include "./z80.inc")
+
+(def-func (path-to-absolute "./zx_run"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d15
+
+	;the ROM below 0x4000 is not written, and the tape loader is LD-BYTES,
+	;from its start or from after it sets the border, as some loaders call it
+	(setq zx_rom 0x4000 zx_traps (list +zx_ld_bytes +zx_ld_bytes2) zx_sound :t)
+	(zx-run-body "(zx-run machine)")
+
+(def-func-end)

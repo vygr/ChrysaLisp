@@ -3,7 +3,7 @@
 (import "./reader.inc")
 (import "./drc.inc")
 
-;native, apps/science/pcb/lisp.vp
+;native, apps/science/pcb/lisp*.vp
 (ffi (cat *app_root* "flood_near") flood-near)
 ; (flood-near ctx node flood_vecs via_vecs radius gap via out_n out_v) -> out_n
 (ffi (cat *app_root* "flood_cost") flood-cost)

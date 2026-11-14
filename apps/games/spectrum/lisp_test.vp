@@ -1,0 +1,22 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+(include "./app.inc")
+(include "./z80.inc")
+
+(def-func (path-to-absolute "./zx_test"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d15
+
+	;all the memory is written, and the stop is CP/M's BDOS call at 5,
+	;for the test of the Z80
+	(setq zx_rom 0 zx_traps '(5) zx_sound :nil)
+	(zx-run-body "(zx-test machine)")
+
+(def-func-end)
