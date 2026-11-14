@@ -93,7 +93,10 @@
 	(bind '(& & sw sh) (gui-info))
 	(defq k (picture-next (/ pw 4) (max 160 (min (/ (- sw (- ww pw)) 4) (/ (- sh (- wh ph)) 3))) way))
 	(def *picture* :want_width (* k 4) :want_height (* k 3))
-	(. *window* :fit))
+	;a fit sends no layout event, as a drag does: the canvas is made the
+	;new size here
+	(. *window* :fit)
+	(action-layout))
 
 (import "./scene.inc")
 (import "./balls.inc")
