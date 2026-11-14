@@ -312,10 +312,14 @@
 (store-save sm_dg)
 (store-close sm_dg)
 (assert-eq "the digest kept as the paths changed is that of them read again" sm_d1 (store-digest (defq sm_dv (store-open sm_ds "dddd"))))
-;of a store of before the digest went with the paths, it is made of them
+(assert-eq "the paths say how many paths there are, the map made big enough first"
+	(str (get :paths sm_dv)) (elem-get (split (first (filter (# (starts-with "parts " %0)) (split (exfat-load (get :vol sm_dv) "paths") "\n"))) " ") 3))
+;of a store of before the digest went with the paths, it is made of them,
+;and the count of paths is not said
 (exfat-save (get :vol sm_dv) "paths"
-	(apply (const cat) (map (# (cat %0 "\n")) (filter (# (and (nempty? %0) (not (starts-with "digest " %0))))
-		(split (exfat-load (get :vol sm_dv) "paths") "\n")))))
+	(apply (const cat) (map (# (cat (if (starts-with "parts " %0) (join (slice (split %0 " ") 0 3) " ") %0) "\n"))
+		(filter (# (and (nempty? %0) (not (starts-with "digest " %0))))
+			(split (exfat-load (get :vol sm_dv) "paths") "\n")))))
 (store-close sm_dv)
 (assert-eq "and of a store whose paths do not say it, made of them" sm_d1 (store-digest (store-open sm_ds "dddd")))
 (assert-eq "written, there is nothing to write" :nil (get :dirty sm_n3))

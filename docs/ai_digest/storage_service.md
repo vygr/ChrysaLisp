@@ -104,7 +104,8 @@ members      the members, a line each
 retired      those that were members and are no more
 pins         the paths this member holds all of
 pinned       what every member holds all of, as far as is known here
-paths        the digest of the path map, which save it is, and its files
+paths        the digest of the path map, which save it is, its files and
+             how many paths, and the files of the gone
 paths.s.n    the map of save s, 128KB a file at most, a line an entry
 gone.n       the deletes every member had, out of the map, a line each
 journal      the entries set since the map was last written, and
@@ -145,7 +146,10 @@ longest step of a save 7.5 ms.
 A store that is opened reads `paths`, the files it names, and then both
 journals, the older first, and an entry of a journal is taken where it is
 later than the map's. A save not done, the power gone, loses nothing: the
-map of the save before and both journals are there.
+map of the save before and both journals are there. The map is made as big
+as `paths` says it is to be before the files are read, and an entry of them
+goes straight in, a save has each path once: of 100000 paths with 100000
+gone, an open is 358 ms.
 
 The journal begins with a count. A line of it is 8 hex digits, a space, and
 the entry: the digits are the start of the SHA-256 of the count and the

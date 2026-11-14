@@ -138,7 +138,7 @@
 	(enum bucket buckets before))
 
 (enums +save 0
-	(enum phase gen bucket buckets lines bytes parts sum moment gone all gone_lo gone_hi clean gone_at))
+	(enum phase gen bucket buckets lines bytes parts sum moment gone all gone_lo gone_hi clean gone_at paths))
 
 ;a snapshot, a restore of one or its drop that can stop and go on: which,
 ;the name, where its paths are, of which paths, the moment of the map it
@@ -239,8 +239,9 @@
 (defun store-entry-read (line)
 	(defq parts (split line " "))
 	(when (>= (length parts) 7)
-		(bind '(hash size vv writer seen deleted) (slice parts 0 6))
-		(list (join (slice parts 6 -1) " ") (if (eql hash "-") "" (hex-decode hash)) (str-as-num size)
+		;a path with no space in it, most, is had as it is: 1.17 -> 0.84 us
+		(bind '(hash size vv writer seen deleted &rest names) parts)
+		(list (if (= (length names) 1) (first names) (join names " ")) (if (eql hash "-") "" (hex-decode hash)) (str-as-num size)
 			(store-vv-read vv) writer (if (eql seen "-") (list) (split seen ",")) (starts-with "1" deleted)
 			(if (defq at (find "/" deleted)) (str-as-num (slice deleted (inc at) -1)) 0))))
 
@@ -643,7 +644,7 @@
 		(def store :gone_new (list) :dirty :nil :digest :nil :save_next (defq gen (inc (get :save_next store))))
 		(def store :save (list :paths gen 0 0 (list) 0 0
 				(cat (get :digest_paths store)) (store-moment store) gone all
-				(if all (inc hi) (get :gone_lo store)) hi (cat (get :save_clean store)) 0))
+				(if all (inc hi) (get :gone_lo store)) hi (cat (get :save_clean store)) 0 (get :paths store)))
 		(def store :save_clean (list))))
 
 (defun store-save-part (store saving name)
@@ -714,7 +715,7 @@
 				(defq gen (elem-get saving +save_gen) clean (elem-get saving +save_clean))
 				(setq ok (exfat-save vol "paths" (store-text (list
 					(cat "digest " (join (map (const str) (elem-get saving +save_sum)) " "))
-					(cat "parts " (str gen) " " (str (elem-get saving +save_parts)))
+					(cat "parts " (str gen) " " (str (elem-get saving +save_parts)) " " (str (elem-get saving +save_paths)))
 					(cat "gone " (str (elem-get saving +save_gone_lo)) " " (str (elem-get saving +save_gone_hi))
 						" " (str (if (elem-get saving +save_all) (get :gones store) (get :gone_base store)))
 						" " (str (if (elem-get saving +save_all) 0 (+ (get :gone_extra store) (length (elem-get saving +save_gone))))))))))
@@ -942,17 +943,36 @@
 	;every block that is kept here, whatever is in it, as the volume has it
 	(map (const first) (store-blocks-found store)))
 
+(defun store-map-size (store paths)
+	;the path map of a store as it is opened, a bucket for every
+	;+store_held_per of so many paths. Made again only if that is not what
+	;it is: each is put in its bucket again
+	(defq buckets (max 101 (/ paths +store_held_per)))
+	(if (/= buckets (get :num_buckets (get :map store))) (. (get :map store) :resize buckets)))
+
 (defun store-open-line (store line out)
 	;an entry of the map as it was written, as the store is opened. One
 	;gone since, or that goes now, a member retired, is not had in the
-	;map: it is pushed to out, it is in the digest that was written
+	;map: it is pushed to out, it is in the digest that was written.
+	;
+	;The rest go in the map as (store-map-insert) would put them, less what
+	;has no part in an open, nothing walks the map nor plans yet and the
+	;digest is the one written, and less a find of each, a save has a path
+	;once: 100k read 257 -> 173 ms
 	(when (defq entry (store-entry-read line))
-		(defq was (. (get :gone store) :find (first entry)))
+		(defq name (first entry) gone (get :gone store) was (. gone :find name))
 		(cond
 			((and was (not (eql :after (store-vv-cmp (elem-get entry +store_entry_vv) (elem-get was +store_entry_vv)))))
 				(push out entry))
-			(:t (if (store-settled? store entry) (push out entry))
-				(store-map-insert store (first entry) entry)))))
+			((store-settled? store entry)
+				(push out entry)
+				(store-map-insert store name entry))
+			(:t (when was
+					(. gone :erase name)
+					(def store :gones (dec (get :gones store))))
+				(def store :paths (inc (get :paths store))
+					:objects (if (elem-get entry +store_entry_deleted) (get :objects store) (inc (get :objects store))))
+				(. (store-grow (get :map store) (get :paths store) +store_held_most) :insert name entry)))))
 
 (defun store-open-leftovers (store gen hi)
 	;the files a save that was not done left, of another save than gen or
@@ -1013,7 +1033,10 @@
 				(defq words (split line " "))
 				(cond
 					((starts-with "digest " line) (setq sum (apply nums (map! (const str-as-num) (list words) 1 -1))))
-					((starts-with "parts " line) (setq gen (str-as-num (second words)) parts (str-as-num (third words))))
+					((starts-with "parts " line) (setq gen (str-as-num (second words)) parts (str-as-num (third words)))
+						;how many paths, the map big enough for them before they are
+						;read: grown as they were, 100k read 394 -> 296 ms
+						(if (> (length words) 3) (store-map-size store (str-as-num (elem-get words 3)))))
 					((starts-with "gone " line) (setq range (map! (const str-as-num) (list words) 1 -1)))))
 			lines)
 		(store-open-leftovers store gen (if range (second range) 0))
@@ -1035,7 +1058,7 @@
 		;room for the paths there are and as many again, so the map does not
 		;grow, a million made anew, while it is open: a bucket for every
 		;+store_held_per, and it grows only at +store_held_most
-		(. (get :map store) :resize (max 101 (/ (get :paths store) +store_held_per)))
+		(store-map-size store (get :paths store))
 		;the digest written is of what was written: what was not had as it
 		;was read is taken out of it. Of a store of before, it is made
 		(cond
