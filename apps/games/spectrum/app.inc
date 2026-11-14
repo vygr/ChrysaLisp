@@ -38,5 +38,6 @@
 	+zx_bins 0x10000 +zx_pcm (+ 0x10000 (* 624 2))
 	+zx_machine_size (+ +zx_size 0x10000 (* 624 4)))
 
-;the screen and the border round it, as drawn at zoom 1
-(defq +zx_edge 32 +zx_width (+ 256 (* 2 32)) +zx_height (+ 192 (* 2 32)))
+;the screen and the border round it, as drawn at zoom 1: a character's
+;width of border, 8 pixels, all round
+(defq +zx_edge 8 +zx_width (+ 256 (* 2 +zx_edge)) +zx_height (+ 192 (* 2 +zx_edge)))

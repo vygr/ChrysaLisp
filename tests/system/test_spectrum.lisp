@@ -33,6 +33,23 @@
 (defq sp_rom (load "apps/games/spectrum/data/48.rom"))
 (assert-eq "the ROM is there, 16K" 0x4000 (length sp_rom))
 
+;the screen is drawn with a character's width of border all round, 8
+;pixels, in the border's colour. A machine just reset has its border
+;white and its screen all 0, black, so the edge between them shows
+(import "gui/lisp.inc")
+(defq sp_canvas (Canvas +zx_width +zx_height 1))
+(zx-render sp_canvas (zx-machine sp_rom) 0 1)
+(defq sp_s (memory-stream))
+(pixmap-write (getf sp_canvas +canvas_pixmap 0) sp_s 32)
+(stream-seek sp_s 0 0)
+(defq sp_px (read-blk sp_s 100000000))
+(defun sp-at (x y) (get-uint sp_px (+ (- (length sp_px) (* +zx_width +zx_height 4)) (* 4 (+ (* y +zx_width) x)))))
+(assert-list-eq "the screen and its border are 272 by 208" '(272 208) (list +zx_width +zx_height))
+(assert-true "the border is all round, a character wide"
+	(every (# (= (sp-at (first %0) (second %0)) (sp-at 0 0))) '((7 7) (264 0) (271 207) (0 200) (7 100) (264 100) (100 7) (100 200))))
+(assert-true "and the screen is in from it by 8 each way"
+	(every (# (/= (sp-at (first %0) (second %0)) (sp-at 0 0))) '((8 8) (263 8) (8 199) (263 199))))
+
 (defq sp_m (zx-machine sp_rom))
 (sp-frames sp_m :nil 100)
 (assert-true "the ROM has the Z80 in its interrupt mode 1" (= 1 (getf sp_m +zx_im)))
