@@ -85,6 +85,20 @@ what a board this shares with holds is theirs, it is not bitten, as
 it is not taken into a selection, "own only"
 ```
 
+### :bounds
+
+```code
+(. board :bounds) -> (x y x1 y1) | :nil
+
+the bounds of the document as it is now, what is drawn, :nil if
+nothing is, whatever has changed: a stroke added, a piece moved or
+made bigger, an edge rubbed out. Nothing is done as a change is
+made, every change comes by (:touch) and only says they are to be
+worked out again; that is done here, as they are next asked for,
+from the boxes the items keep, (cwb-doc-bounds), and kept till the
+next change. Nothing is moved, the document is as it was
+```
+
 ### :busy?
 
 ```code

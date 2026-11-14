@@ -2600,7 +2600,48 @@ the items, a group and then what is in it
 ```code
 (cwb-bounds items [m]) -> (x y x1 y1) | :nil
 
-the box round all that the items draw, :nil if they draw nothing
+the box round all that the items draw, :nil if they draw nothing: the
+boxes they keep, (cwb-box), put through m if one is given. A group
+that is turned has the box round its turned box, a little more than
+what it draws, as a turned shape has round its own
+```
+
+### cwb-box
+
+```code
+(cwb-box item) -> (x y x1 y1) | :nil
+
+the box round what an item draws, in the space of what holds it, the
+document or its group, as kept. :nil if it draws nothing. Those not
+kept are worked out, the groups in it before the group, each once
+```
+
+### cwb-box-forget
+
+```code
+(cwb-box-forget doc id) -> doc
+
+what an item draws has changed and nothing was told, a list in a group
+in a group: its box, and that of each group it is in, are let go of.
+A look through the document for it
+```
+
+### cwb-box-keep
+
+```code
+an item's box worked out and kept, :none if it draws nothing: a
+
+shape's from what it is flattened to, a group's from what is in it,
+whose boxes are kept already if they are groups, (cwb-box). Not a
+(reduce) from :nil, that starts from the first of them
+```
+
+### cwb-box-put
+
+```code
+an item's box, of its own space, put through its matrix and kept,
+
+:none if it draws nothing
 ```
 
 ### cwb-d
@@ -2679,6 +2720,15 @@ gap, it is not part of the picture. Nor is :view, how it was last
 looked at, (x y zoom turn): the point of it at the top left of what
 showed it, how big, and how many quarters turned. The things of a document are anywhere, what
 shows it is a view of some of that, and :nil is from 0 0 at 1
+```
+
+### cwb-doc-bounds
+
+```code
+(cwb-doc-bounds doc) -> (x y x1 y1) | :nil
+
+the bounds of the document as it is now, the box round all that every
+layer draws, :nil if nothing: the boxes its items keep, joined
 ```
 
 ### cwb-draw
@@ -2763,7 +2813,9 @@ nothing. Worked out once and kept
 the item of a layer a point is on, the one on top, in a layer that is
 not hidden or locked. The item is one of the layer's own, a group if
 the shape that was hit is in one. m is the matrix the document is
-seen by, if the point is in the space of a view of it
+seen by, if the point is in the space of a view of it. Only an item
+whose box is near the point is looked into, and in it only the groups
+near it, (cwb-walk)
 ```
 
 ### cwb-id-set
@@ -2843,6 +2895,16 @@ items the same way. What is left to do is a list
 (cwb-items doc [index]) -> items
 
 the items of a layer, default the top one, the list itself
+```
+
+### cwb-items!
+
+```code
+(cwb-items! group items) -> group
+
+what is in a group is that list now, and its box is not what it was.
+A group that holds it is not told: who changes what is in a group in
+a group says so to each that holds it, (cwb-box-forget)
 ```
 
 ### cwb-layer
@@ -2944,7 +3006,8 @@ in, or with out those whose id is not
 ```code
 (cwb-place! item place) -> item
 
-put an item in a place, and work out its matrix and the inverse of that
+put an item in a place, and work out its matrix and the inverse of that.
+Its box is not where it was, (cwb-box)
 ```
 
 ### cwb-place-mat
@@ -2960,7 +3023,8 @@ the matrix that does what a place says: sized, turned, then moved
 ```code
 (cwb-remove doc id) -> :nil | item
 
-take an item out of the document, a group goes with all in it
+take an item out of the document, a group goes with all in it. The
+groups it was in are not the size they were
 ```
 
 ### cwb-remove-ids
@@ -3017,9 +3081,9 @@ not, each is all there or not there
 ```code
 (cwb-set item [key val] ...) -> item
 
-set what an item has. What it was flattened to is let go of, unless
-all that was set was its place, its name, its props or its user,
-which do not change what it is flattened to. :place is a place, :m a
+set what an item has. What it was flattened to is let go of, and its
+box, unless all that was set was its place, its name, its props or its
+user, which do not change what it is flattened to. :place is a place, :m a
 matrix, which is made a place, (cwb-mat-place), and its slant, if it
 has any, left out: nothing is slanted
 ```
@@ -3085,7 +3149,8 @@ words with their middle at a point, to label a box by its middle say
 
 the items of the layers that a box touches, as a box dragged out to
 select has it: an item any shape of which is in it, crosses it or has
-it inside. Not those of a layer that is hidden or locked
+it inside. Not those of a layer that is hidden or locked. Only an item
+whose box is near it is looked into, (cwb-walk)
 ```
 
 ### cwb-unslant
@@ -3108,13 +3173,22 @@ matrix and the list what it makes goes into
 ### cwb-walk
 
 ```code
-(cwb-walk items m fnc)
+(cwb-walk items m fnc [near])
 
 call (fnc shape matrix) for each shape of the items, and of the
 groups in them, the one at the back first. The matrix is the one that
 puts the shape where it is in the space the items are in, given one
 for that space, +mat3x2_unity for none. A list of what is left to do, no function
-here calls itself
+here calls itself.
+
+With near, a box of the space m puts them in, an item whose box,
+(cwb-box), is nowhere in it is passed by, and all that is in it: only
+what is near is gone into. near is taken into the space of what holds
+each item, once for each group gone into, so no item's box is moved:
+a box round it there, bigger if the group is turned, so nothing near
+is missed
+its own names are of no caller's: a function given it that names one
+has the walk's
 ```
 
 ### database-stale?
@@ -3912,6 +3986,12 @@ device at the last (exfat-end), so many small files cost little more
 than one.
 ```
 
+### exfat-bit?
+
+```code
+is a cluster's bit set in a bitmap of the volume's
+```
+
 ### exfat-bitmap-write
 
 ```code
@@ -3944,43 +4024,106 @@ out, or the power goes, whoever mounts it next can tell.
 the clusters of a file or a directory. A len of :nil is all of the chain
 ```
 
+### exfat-chain-part
+
+```code
+(exfat-chain-part vol cluster most) -> (clusters next)
+
+of a chain from this cluster on, as many as most, from the allocation
+table, and the cluster after them, :nil if the chain ends. The table a
+block of it at a time, the next of each cluster read from the block it
+is in, not asked of the cache one by one
+```
+
 ### exfat-check
 
 ```code
 (exfat-check vol [mend]) -> (line ...)
 
-what is wrong with the volume, a line each, none if nothing is. Of
-each file and directory, as the device has it: clusters that are not
-of the volume, clusters in use that the bitmap says are free, a chain
-that ends before its length does, and a directory as it is kept here,
-(exfat-dir-read), that is not as the device has it. Then each cluster
-that two have, and who has it, and how many clusters are marked in use
-that nothing has: room lost, no harm. It only reads, unless mend is
-asked for and nothing is being written: then a cluster in use is
-marked in use, one that nothing has is free, a directory is read
-again, and a last line says so. A cluster two have, a chain cut short
-and one not of the volume are only said
+what is wrong with the volume, a line each, none if nothing is, all
+at once, (exfat-check-step). Of each file and directory, as the
+device has it: clusters that are not of the volume, clusters in use
+that the bitmap says are free, a chain that ends before its length
+does, and a directory as it is kept here, (exfat-dir-read), that is
+not as the device has it. Then each cluster that two have, and who
+has it, and how many clusters are marked in use that nothing has:
+room lost, no harm. It only reads, unless mend is asked for and
+nothing is being written: then a cluster in use is marked in use, one
+that nothing has is free, a directory is read again, and a last line
+says so. A cluster two have, a chain cut short and one not of the
+volume are only said
 ```
 
-### exfat-check-text
+### exfat-check-begin
 
 ```code
-the entries of a directory, in the order they are in it, to compare
+(exfat-check-begin vol [mend])
+
+a check of the volume, a step at a time, (exfat-check-step). Every
+cluster marked meanwhile is noted, and nothing is said of it
 ```
 
-### exfat-check-walk
+### exfat-check-busy?
 
 ```code
-(exfat-check-walk vol fnc) -> vol
+(exfat-check-busy? vol) -> :nil | :t
+```
 
-(fnc path clusters want entry)
-every file and directory as the device has it, not as it was kept,
-the root, the bitmap and the upper case table first. Each is given
-to fnc with its clusters, how many its length wants, :nil for the
-root, which keeps no length, and its entry, :nil for the bitmap and
-the table. fnc is called from inside it, so the names it uses are
-not these: vol fnc root csize data i n e type start len todo dir path
-name is_dir no_fat child
+### exfat-check-clusters
+
+```code
+the next of the clusters of one, 1024 of them, and what is said of it
+
+when they are done, or it is the one at hand, to go on with. A cluster
+marked since the check began is passed over. Of a directory, then, how
+it is kept is compared with how the device has it, and it is walked
+```
+
+### exfat-check-compare
+
+```code
+the next 256 entries of a directory as the device has it, against how
+
+it is kept, and what is said when they are all done
+```
+
+### exfat-check-end
+
+```code
+(exfat-check-end vol) -> :nil | (line ...)
+
+a check is over, what it found
+```
+
+### exfat-check-first
+
+```code
+(exfat-check-first vol) -> (todo items)
+
+where a walk of the volume starts: the root, the bitmap and the upper
+case table, then what is in the root
+```
+
+### exfat-check-item
+
+```code
+one of the walk begun, and its first clusters, unless it was changed
+
+since its directory was read: its first cluster marked since the
+check began
+```
+
+### exfat-check-step
+
+```code
+(exfat-check-step vol [until]) -> :nil | :t
+
+more of a check, till it is time until, if there is one, one thing at
+least. :t if there is more to do. Each file and directory as the
+device has it, a directory read 256 entries at a time, a chain 1024
+clusters at a time, then who has a cluster that two have, then the
+bitmap 4096 bytes at a time. A mend waits till nothing is being
+written, or is not done if there is no until
 ```
 
 ### exfat-cluster-offset
@@ -4023,6 +4166,15 @@ a file, or a directory that has nothing in it
 what is in a directory, a list of its own
 ```
 
+### exfat-dir-keep
+
+```code
+a directory as it was read, had, with its entry at index put right as
+
+new, or gone if new is :nil, not read again: a folder of many files was
+read, all of it, for each one removed or written over
+```
+
 ### exfat-dir-put
 
 ```code
@@ -4058,9 +4210,19 @@ a block is no longer kept, and is not to be written
 ```code
 (exfat-entries vol start len no_fat) -> ((name dir size start no_fat index count) ...)
 
-the files and directories of a directory. A file is a set of entries,
-one for the file, one for its data, then as many as its name needs.
-Each is read where it is, a folder of a store has thousands
+the files and directories of a directory, (exfat-entries-part)
+```
+
+### exfat-entries-part
+
+```code
+(exfat-entries-part data i out [most]) -> i
+
+the files and directories of a directory's data from entry i on, onto
+out, as many entries as most if given: where to go on from, the end
+of the data at the end mark. A file is a set of entries, one for the
+file, one for its data, then as many as its name needs. Each is read
+where it is, a folder of a store has thousands
 ```
 
 ### exfat-eset
@@ -10228,7 +10390,9 @@ how far in it is, or a line that closes what was opened before it
 ```code
 (sha256 data) -> str
 
-the hash of a str, 32 bytes
+the hash of a str, 32 bytes. One of no more than +sha256_slice blocks
+is padded and given to the native code the once: a store hashes names
+and lines by the hundred thousand, and the ctx of each was most of it
 ```
 
 ### sha256-add
@@ -12376,6 +12540,15 @@ hex. None, and it is all here
 a path is set to an object of this data, as (storage-put-stream)
 ```
 
+### storage-put-few
+
+```code
+(storage-put-few svc stream size) -> :nil | (blocks hashes mbox)
+
+the next few blocks of a stream, their names, and the service asked
+which of them it has, the answer to be read from mbox. :nil at the end
+```
+
 ### storage-put-file
 
 ```code
@@ -12383,6 +12556,17 @@ a path is set to an object of this data, as (storage-put-stream)
 
 a path is set to an object of what is in a file of the host, of any
 length, as (storage-put-stream). :none if there is no such file
+```
+
+### storage-put-land
+
+```code
+(storage-put-land flight most how quiet) -> (flight how quiet)
+
+the answers to blocks put, ((mbox hash) ...), the oldest first, till
+no more than most are on their way. :full if one said there was no
+room, :lost if one said nothing. Once one has said nothing in the
+time, the rest are not waited for, only looked at
 ```
 
 ### storage-put-stream
@@ -12395,9 +12579,15 @@ a path is set to an object of what is read from a stream, to its
 end, provided it is now the object from: its name, "" for none, and
 not given, not to say. :stale with what it is if it is not that. It
 is read a few blocks at a time, so what is put can be of any length,
-and only the blocks the service has not got are sent, those few at
-once. tick, if given, is told how many bytes more have been read each
-time, and says :nil to stop: :stopped, and the path is as it was
+and only the blocks the service has not got are sent. tick, if given,
+is told how many bytes more have been read each time, and says :nil to
+stop: :stopped, and the path is as it was.
+
+The blocks go as a steady few on their way, +storage_put_window, the
+next sent as each is answered, from one few read to the next. Sent a
+few at once and all waited for, they were a burst on the line and then
+nothing: 8MB to another machine 5.8 s, and a film played over the
+same line waited 153 ms for a block; sent so, 4.0 s, and it waited 2
 ```
 
 ### storage-puts
@@ -12406,9 +12596,7 @@ time, and says :nil to stop: :stopped, and the path is as it was
 (storage-puts svc blocks hashes) -> :ok | :full | :lost
 
 blocks put to a service all at once, not one after the other, and
-then what it said of each looked at. :full if it said it had no room
-for one, :lost if it said nothing of one. Once one has said nothing
-in the time, the rest are not waited for, only looked at
+then what it said of each looked at, (storage-put-land)
 ```
 
 ### storage-read
@@ -13075,8 +13263,43 @@ through its bucket, and so many is no slower than one a bucket, timed
 (store-check store [mend]) -> (name ...)
 
 the blocks kept here that are not what their names say, gone wrong
-on the disk. With mend they are let go of, to be had again from
-another member that has them right
+on the disk, all at once, (store-check-step). With mend they are let
+go of, to be had again from another member that has them right
+```
+
+### store-check-begin
+
+```code
+(store-check-begin store [mend])
+
+a check of every block on the volume, a step at a time,
+(store-check-step). One under way is let go of
+```
+
+### store-check-busy?
+
+```code
+(store-check-busy? store) -> :nil | :t
+```
+
+### store-check-end
+
+```code
+(store-check-end store) -> :nil | (name ...)
+
+a check is over, the blocks it found wrong
+```
+
+### store-check-step
+
+```code
+(store-check-step store [until]) -> :nil | :t
+
+more of a check, till it is time until, if there is one. :t if there
+is more to do. A folder of blocks at a time, then each of its blocks
+read: one whose data is not what its name says, or that is not known
+to be kept, is wrong, and with mend let go of. One let go of since its
+folder was listed is not
 ```
 
 ### store-close
@@ -13084,7 +13307,7 @@ another member that has them right
 ```code
 (store-close store) -> :nil
 
-all that it has is on the device
+all that it has is on the device: a save under way is done
 ```
 
 ### store-cluster-shift
@@ -13174,8 +13397,19 @@ there is no object of that name from now, provided it is from, as
 
 the path map and the members, as one name: two members with the same
 have nothing to tell each other. It is asked for by every member each
-time it looks, and is of every path there is, so it is held till
-something changes, (store-save)
+time it looks. Of the paths, it is kept as the map changes,
+(store-digest-mix): made of every path each time something changed it
+was 940 ms of a map of 220000. It is held till something changes
+```
+
+### store-digest-mix
+
+```code
+an entry into the digest of the path map, or out of it, the same: each
+
+is the hash of its line, and they are put together by xor, in any
+order. So the digest is kept as the map changes, (store-digest). Not
+while the map is read as a store is opened, the file has it
 ```
 
 ### store-entries
@@ -13201,7 +13435,7 @@ written before there was such a thing reads as not said
 ```code
 (store-find store path) -> :nil | entry
 
-what a path is now, one that is deleted too
+what a path is now, one that is deleted too, or gone
 ```
 
 ### store-fold
@@ -13233,13 +13467,23 @@ the folder blocks are put in now, the next once one has so many
 all of an object
 ```
 
+### store-gone-read
+
+```code
+(store-gone-read store data) -> count
+
+the lines of a file of the gone into :gone, how many. Of two of a path
+the later is kept, whichever file it is in
+```
+
 ### store-grow
 
 ```code
-(store-grow table count) -> table
+(store-grow table count [per]) -> table
 
 a map of a store made twice as big when it has more than so many to a
-bucket, as the store grows: once in a while, not at every insert
+bucket, +store_per_bucket if not said, as the store grows: once in a
+while, not at every insert
 ```
 
 ### store-held
@@ -13326,23 +13570,45 @@ there anything new
 (store-journal-add store entries) -> :nil | :t
 
 entries of the path map are on the volume, at the end of the journal,
-as the one write. :nil if there is no journal or no room in it for
-them all, and the map is to be written
+as the one write. Three quarters full, a save is begun, so it is done
+before the journal is full; full, the save under way is done now, and
+one begun, to the other journal. :nil if there is no journal, or the
+entries are more than one holds
 ```
 
 ### store-journal-open
 
 ```code
-the journal of a store that has just had its map read: what it has
+the two journals of a store that has just had its map read, the
 
-that is later than the map is taken, and it is added to from there.
-One that has none is given one. How many entries were taken
+older first: what each has that is later than the map is taken, and
+the later is added to from where it ends. One that is not there is
+made. How many entries were taken
+```
+
+### store-journal-read
+
+```code
+(store-journal-read store name want) -> :nil | (name clusters size count at lines)
+
+a journal, made of want bytes if there is none: its count, where it
+ends, and its lines that are whole and of that count
 ```
 
 ### store-journal-reset
 
 ```code
 it has nothing in it, as it does when the map has just been written
+```
+
+### store-journal-switch
+
+```code
+changes go to the other journal from now, begun again, its count one
+
+more than either's. The one they went to is as it was, and read as
+the store is opened, till a map that has all that is in it is
+written. Only so: if it is not yet, they go on where they were
 ```
 
 ### store-journal-write
@@ -13460,7 +13726,22 @@ given the names of the blocks of the manifest had and those not
 an entry goes in the path map, in place of what that path was. How
 
 many objects there are is kept as it goes, it is asked with every
-put, and to count them was a walk of the map each time
+put, and to count them was a walk of the map each time.
+
+A delete every member has is gone: out of the map, kept by itself in
+:gone, and told as an entry is, (store-since). Without it a member
+whose store was put back from before the delete would have the path
+had again, and one told late of it would take it back. An entry
+after it takes it out of :gone
+```
+
+### store-map-size
+
+```code
+the path map of a store as it is opened, a bucket for every
+
++store_held_per of so many paths. Made again only if that is not what
+it is: each is put in its bucket again
 ```
 
 ### store-meet
@@ -13488,6 +13769,31 @@ written to the volume now, (store-later)
 
 who the members are meant to be, in order: every one that was ever
 joined and has not been retired, away or not
+```
+
+### store-moment
+
+```code
+(store-moment store) -> moment
+
+a walk of the path map as it is now, (store-moment-next)
+```
+
+### store-moment-end
+
+```code
+(store-moment-end store moment)
+
+a walk is over, done or not
+```
+
+### store-moment-next
+
+```code
+(store-moment-next store moment) -> :nil | (entry ...)
+
+the entries of the next bucket of the map as they were at the moment,
+:nil when there are no more, and the walk is done
 ```
 
 ### store-most?
@@ -13520,6 +13826,29 @@ takes the place of the one it was, in the members too: there is not
 one more member, and (get :was store) is who it was. going is as
 (store-blocks-found) has it: an open given up is :stopped, and has
 written nothing but a journal where there was none
+```
+
+### store-open-leftovers
+
+```code
+the files a save that was not done left, of another save than gen or
+
+gone past hi, to be removed by the next, and no number of theirs had
+again
+```
+
+### store-open-line
+
+```code
+an entry of the map as it was written, as the store is opened. One
+
+gone since, or that goes now, a member retired, is not had in the
+map: it is pushed to out, it is in the digest that was written.
+
+The rest go in the map as (store-map-insert) would put them, less what
+has no part in an open, nothing walks the map nor plans yet and the
+digest is the one written, and less a find of each, a save has a path
+once: 100k read 257 -> 173 ms
 ```
 
 ### store-other-name
@@ -13785,7 +14114,8 @@ the objects whose paths begin so are as they were in the snapshot,
 all of it if not said: each path that is not as it was is set back,
 and one deleted since is had again. How many were set back, and how
 many paths there are now under the prefix that the snapshot has not,
-which are left. :nil if there is no such snapshot
+which are left. All at once, (store-snap-step). :nil if there is no
+such snapshot
 ```
 
 ### store-save
@@ -13793,9 +14123,55 @@ which are left. :nil if there is no such snapshot
 ```code
 (store-save store) -> store
 
-the path map, the members and the pins, as they are now. Whatever
-changes any of them ends here, so what was worked out from them, the
-digest, is not held any longer
+the path map, the members and the pins, as they are now, written all
+at once: a save under way is done, and one begun and done
+```
+
+### store-save-begin
+
+```code
+(store-save-begin store)
+
+a save of the path map as it is now, (store-save-step). Not if one is
+under way
+```
+
+### store-save-busy?
+
+```code
+(store-save-busy? store) -> :nil | :t
+```
+
+### store-save-finish
+
+```code
+(store-save-finish store) -> store
+
+a save under way is done now, all of it
+```
+
+### store-save-lines
+
+```code
+the lines of these entries to those of the file being made
+```
+
+### store-save-part
+
+```code
+the lines made so far, a file of that name. :nil if there is no room
+```
+
+### store-save-step
+
+```code
+(store-save-step store [until]) -> :nil | :t
+
+more of a save, till it is time until, if there is one, one thing at
+least: a bucket of the map, a file written, some of the gone, the
+file paths, or a file of the save before removed. :t if there is more
+to do. One that can not write a file, there is no room, is given up:
+the journal is not begun again till one is written
 ```
 
 ### store-seen
@@ -13813,6 +14189,25 @@ the one way a path is changed here. from is what the writer says it
 
 is now, :nil if it does not say. How many copies there are to be of
 it is of the path, and stays as it is unless it is given
+```
+
+### store-sets
+
+```code
+(store-sets store sets) -> count
+
+sets: ((path hash size deleted copies) ...)
+paths changed as (store-set) with nothing said of what they are now,
+many at once, the journal written the once for them all
+```
+
+### store-settled?
+
+```code
+(store-settled? store entry) -> :nil | :t
+
+a delete every member has: it need be in the path map no longer, and
+is gone, (store-map-insert)
 ```
 
 ### store-share
@@ -13868,14 +14263,46 @@ were at that count, as (store-at) gave it. All of them if it is not
 given, or is of another opening of the store
 ```
 
+### store-snap-begin
+
+```code
+(store-snap-begin store kind name [prefix]) -> :nil | :t
+
+a snapshot, :snapshot, a restore of one, :restore, or its drop, :drop,
+of the paths that begin so, all if not said, done a step at a time,
+(store-snap-step), of the map as it is now. :nil if the name is not
+one a snapshot may have. One under way is let go of
+```
+
+### store-snap-end
+
+```code
+(store-snap-end store) -> :nil | (kind name got)
+
+a snapshot, restore or drop is over, done or not, and what it came to:
+how many set, of a restore (restored newer), :nil if it found no such
+snapshot
+```
+
+### store-snap-step
+
+```code
+(store-snap-step store [until]) -> :nil | :t
+
+more of a snapshot, restore or drop, till it is time until, if there
+is one, a bucket of the map at least, the paths set by it written to
+the journal the once. :t if there is more to do. A path it has set
+already is not set again, it may come round as it was
+```
+
 ### store-snapshot
 
 ```code
 (store-snapshot store name [prefix]) -> :nil | count
 
 a snapshot of the objects whose paths begin so, all if not said, how
-many. Not of the paths of other snapshots. :nil if the name is not one
-a snapshot may have
+many, all at once, (store-snap-step). Not of the paths of other
+snapshots. :nil if the name is not one a snapshot may have
 ```
 
 ### store-snapshot-drop
@@ -13883,8 +14310,9 @@ a snapshot may have
 ```code
 (store-snapshot-drop store name) -> count
 
-a snapshot is gone, its paths deleted, how many. Its blocks are let go
-of by a sweep, if nothing else is made of them
+a snapshot is gone, its paths deleted, how many, all at once,
+(store-snap-step). Its blocks are let go of by a sweep, if nothing
+else is made of them
 ```
 
 ### store-snapshot-name?
@@ -13926,9 +14354,46 @@ what a path is now, :nil if there is no object of that name
 ```code
 (store-sweep store) -> num
 
-the blocks that no object is made of are let go of, how many. Not
-while an object is half written: its blocks are kept before its path
-is set
+the blocks that no object is made of are let go of, how many, all at
+once, (store-sweep-step). Not while an object is half written: its
+blocks are kept before its path is set
+```
+
+### store-sweep-begin
+
+```code
+(store-sweep-begin store)
+
+a sweep, of every path as it is now, a step at a time,
+(store-sweep-step). One under way is let go of
+```
+
+### store-sweep-busy?
+
+```code
+(store-sweep-busy? store) -> :nil | :t
+```
+
+### store-sweep-end
+
+```code
+(store-sweep-end store) -> :nil | num
+
+a sweep is over, how many it let go of. Its sets are let go of a part
+at a time, (store-plan-step): of a million blocks they are millions
+```
+
+### store-sweep-step
+
+```code
+(store-sweep-step store [until]) -> :nil | :t
+
+more of a sweep, till it is time until, if there is one. :t if there
+is more to do. First what every path is made of, a manifest or 256
+of its blocks at a time, then the blocks kept, a bucket of them at a
+time: one that no object is made of, and that was not put since the
+sweep began, is let go of. A path set meanwhile is walked before any
+more are: its blocks may have been put before the sweep began
 ```
 
 ### store-text
