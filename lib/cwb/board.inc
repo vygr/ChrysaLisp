@@ -1280,7 +1280,7 @@
 		;what is in flight behind the document, by id, the rest is in front,
 		;and what was behind as it landed, (:fly). :float_back is if any is
 		:back_ids (list) :was_back (list)
-		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0
+		:floating (list) :float_back :nil :bounds_kept :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0
 		;who each device is, by its kind and number, see (:user_of)
 		:users (Fmap 11) :next_user +board_first_student :selectors (Fmap 11)
 		;every device and button that has pressed on it, (kind id buttons),
@@ -1435,6 +1435,8 @@
 		;to what draws. Anything else that changes the document is told
 		;here with +board_dirty_doc, and then it is all of it
 		(if (bits? flags +board_dirty_doc) (def this :damage_full :t))
+		;and the bounds are as they were no longer, (:bounds)
+		(def this :bounds_kept :nil)
 		(defq selected (get :selected this) floating (get :floating this))
 		(and (nempty? selected) (empty? (get :back_ids this))
 			(not (. (get :things this) :holding)) (= (. (get :handles this) :held) 0)
@@ -1461,6 +1463,19 @@
 			(setq flags (logior flags +board_dirty_doc +board_dirty_overlay)))
 		(def this :dirty (logior (get :dirty this) flags))
 		this)
+
+	(defmethod :bounds ()
+		; (. board :bounds) -> (x y x1 y1) | :nil
+		;the bounds of the document as it is now, what is drawn, :nil if
+		;nothing is, whatever has changed: a stroke added, a piece moved or
+		;made bigger, an edge rubbed out. Nothing is done as a change is
+		;made, every change comes by (:touch) and only says they are to be
+		;worked out again; that is done here, as they are next asked for,
+		;from the boxes the items keep, (cwb-doc-bounds), and kept till the
+		;next change. Nothing is moved, the document is as it was
+		(when (eql (defq box (get :bounds_kept this)) :nil)
+			(def this :bounds_kept (setq box (ifn (cwb-doc-bounds (get :doc this)) :none))))
+		(if (eql box :none) :nil box))
 
 	(defmethod :touch_order ()
 		; (. board :touch_order) -> board

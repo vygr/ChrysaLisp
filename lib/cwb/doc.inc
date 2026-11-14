@@ -557,6 +557,14 @@
 	(each (# (setq box (vector-box-join-2d box (cwb-box %0)))) items)
 	(if (and box m (not (eql m +mat3x2_unity))) (mat3x2-box box m) box))
 
+(defun cwb-doc-bounds (doc)
+	; (cwb-doc-bounds doc) -> (x y x1 y1) | :nil
+	;the bounds of the document as it is now, the box round all that every
+	;layer draws, :nil if nothing: the boxes its items keep, joined
+	(defq box :nil)
+	(each (lambda ((name flags items)) (setq box (vector-box-join-2d box (cwb-bounds items)))) (. doc :find :layers))
+	box)
+
 ;;;;;;;;;;;
 ; documents
 ;;;;;;;;;;;
@@ -863,9 +871,8 @@
 	;that box and pad all round. How far they were moved, :nil for a
 	;document with nothing in it, which is left as it is
 	(setd pad 16)
-	(defq box :nil pad (n2f pad))
-	(each (lambda ((name flags items)) (setq box (vector-box-join-2d box (cwb-bounds items)))) (cwb-layers doc))
-	(when box
+	(defq pad (n2f pad))
+	(when (defq box (cwb-doc-bounds doc))
 		(bind '(x y x1 y1) box)
 		;by whole pixels, so what was sharp on the grid is sharp still
 		(defq dx (- pad (floor x)) dy (- pad (floor y)))

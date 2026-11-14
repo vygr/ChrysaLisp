@@ -115,6 +115,14 @@ more than what it draws. On 10,000 shapes and 500 groups of 10, the bounds
 are 3.3 ms for 15, a hit on nothing 1.5 for 17.6, a small box selected 2.1
 for 17.5, a small clip drawn 3.5 for 14.8.
 
+The board keeps the bounds of the document as it is now, `(. board
+:bounds)`, x y x1 y1, or `:nil` with nothing drawn: what min shows and the
+bars measure. Nothing is done as a change is made. Every change ends in
+`(:touch)`, a move in a hand too, and that only says they are stale; they
+are joined from the top level kept boxes, `(cwb-doc-bounds)`, the next time
+they are asked for, and kept till the next change. Nothing is moved for
+them, a shape off the top left of the paper starts them there.
+
 ## The file
 
 `(cwb-save doc stream)` is `(tree-save)`, the `.tre` format a `.cwb` always

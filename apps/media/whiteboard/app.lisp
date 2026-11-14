@@ -277,15 +277,16 @@
 
 (defun doc-box ()
 	; (doc-box) -> (x y x1 y1)
-	;the bounds of the document as it is now: what is drawn, with the room
-	;round it a fit leaves, (cwb-fit), or the paper if nothing is. What min
-	;shows. Chris: "keep the doc's bounds up to date and that changes as
-	;the doc changes", a stroke added, a piece made bigger, an edge rubbed
-	;out. The document is not changed, a save fits the paper to it
+	;the bounds of the document as it is now, (. board :bounds), with the
+	;room round it a fit leaves, (cwb-fit), or the paper if nothing is
+	;drawn. What min shows. Chris: "keep the doc's bounds up to date and
+	;that changes as the doc changes", a stroke added, a piece made
+	;bigger, an edge rubbed out. The document is not changed, a save fits
+	;the paper to it
 	(bind '(dw dh) (doc-size))
-	(defq doc (. *board* :get_doc) pad 16.0)
+	(defq pad 16.0)
 	(cond
-		((defq drawn (cwb-bounds (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers doc))))))
+		((defq drawn (. *board* :bounds))
 			(bind '(x y x1 y1) drawn)
 			(list (- x pad) (- y pad) (+ x1 pad) (+ y1 pad)))
 		((list 0.0 0.0 (n2f dw) (n2f dh)))))
@@ -562,7 +563,7 @@
 	;a view moved out past the drawing is part of what there is. The
 	;thumb is the view. In pixels of the paper as it is seen, turned too
 	(bind '(cw ch) (canvas-size))
-	(defq box (if (defq drawn (cwb-bounds (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers (. *board* :get_doc)))))))
+	(defq box (if (defq drawn (. *board* :bounds))
 			(mat3x2-box drawn (view-matrix)) (list 0.0 0.0 (n2f cw) (n2f ch)))
 		x0 (min 0.0 (first box)) y0 (min 0.0 (second box))
 		x1 (max (n2f cw) (third box)) y1 (max (n2f ch) (elem-get box 3)))

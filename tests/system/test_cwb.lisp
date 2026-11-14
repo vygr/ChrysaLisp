@@ -1243,3 +1243,55 @@
 (bx-ask bx_board)
 (. bx_board :redo)
 (assert-list-eq "and done again" '() (bx-stale bx_board))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the bounds of the document, as it is now
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;the bounds as they would be worked out now, from no box kept
+(defun bd-fresh (board)
+	(defq box :nil)
+	(each (lambda ((name flags items))
+			(each (# (setq box (vector-box-join-2d box (bx-fresh %0)))) items))
+		(cwb-layers (. board :get_doc)))
+	box)
+(defun bd-is (board) (map (const n2i) (. board :bounds)))
+(defun bd-ok? (board) (eql (str (. board :bounds)) (str (bd-fresh board))))
+
+(defq bd_board (Board (cwb-doc 800 600)))
+(assert-eq "nothing drawn, there are no bounds" :nil (. bd_board :bounds))
+(defq bd_a (. bd_board :add (cwb-shape (cwb-d-rect 100 100 200 150) :fill 0xff808080 :stroke 0)))
+(assert-list-eq "a shape added, the bounds are its box" '(100 100 200 150) (bd-is bd_board))
+(assert-true "asked again with nothing changed, they are the ones kept"
+	(eql (. bd_board :bounds) (. bd_board :bounds)))
+;left of the paper and above it: the bounds start there and nothing is moved
+(defq bd_b (. bd_board :add (cwb-shape (cwb-d-rect -50 -30 0 10) :fill 0xff808080 :stroke 0)))
+(assert-list-eq "a shape off the top left of the paper, the bounds start where it is" '(-50 -30 200 150) (bd-is bd_board))
+(assert-list-eq "and it is not moved to be on it" '(-50 -30 0 10)
+	(map (const n2i) (cwb-bounds (list (first (cwb-find (. bd_board :get_doc) bd_b))))))
+;in a hand, moved as the handles move it, only (:touch) is told
+(. bd_board :select (list bd_a))
+(defq bd_item (first (cwb-find (. bd_board :get_doc) bd_a)))
+(cwb-place! bd_item (place-move (elem-get bd_item +cwb_place) 400.0 0.0))
+(. bd_board :touch +board_dirty_overlay)
+(assert-list-eq "a thing in a hand moved, the bounds go with it" '(-50 -30 600 150) (bd-is bd_board))
+(. bd_board :select (list))
+;a stroke out to the right, then its right end rubbed out
+(. bd_board :add (cwb-shape (board-pen-d '(600 300 700 300)) :width 4 :kind :pen))
+(defq bd_x1 (third (. bd_board :bounds)))
+(assert-true "a stroke drawn out to the right, the bounds have it" (> bd_x1 700.0))
+(. bd_board :rub 700.0 300.0 8.0)
+(assert-true "its end rubbed out, the bounds come in" (< (third (. bd_board :bounds)) bd_x1))
+(assert-true "and are what they would be worked out from nothing" (bd-ok? bd_board))
+;taken out, undone and done again
+(. bd_board :select (list bd_b))
+(. bd_board :delete)
+(assert-true "the shape off the top left taken out, the bounds come in" (> (first (. bd_board :bounds)) 0.0))
+(assert-true "taken out, they are what they would be from nothing" (bd-ok? bd_board))
+(. bd_board :undo)
+(assert-list-eq "undone, they go out to it again" '(-50 -30) (slice (bd-is bd_board) 0 2))
+(. bd_board :redo)
+(assert-true "done again, they come in" (> (first (. bd_board :bounds)) 0.0))
+;another document
+(. bd_board :set_doc (cwb-doc 800 600))
+(assert-eq "another document with nothing drawn has no bounds" :nil (. bd_board :bounds))
