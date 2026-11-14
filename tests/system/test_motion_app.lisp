@@ -12,3 +12,16 @@
 (assert-eq "up: a step at a time, from between steps to the next, and no further than the most" "(200 256 256 400 400)" (first mp_out))
 (assert-eq "down: a step at a time, and no less than 640 by 480" "(320 200 160 160 160)" (second mp_out))
 (assert-eq "the most is what the screen has room for, not a step of its own" "(200 300 300 300)" (third mp_out))
+
+;what it was showing when closed is what it opens on: the scene, its seed, the
+;step it was at, playing or not, where the window was and the picture's size.
+;Into a file of the test's own, not the user's
+(defq mp_cfg (split (test-output (cat
+		"(catch (import {apps/demos/motion/app.lisp}) :t)"
+		" (setq *config_file* {tests/scratch/test_motion_app.tre}) (config-load)"
+		" (. *scene_toolbar* :set_selected 2) (scene-new 12345) (setq playing :nil target 300)"
+		" (. *window* :change 40 50 700 600) (. *picture* :change 0 0 800 600)"
+		" (config-save) (setq *config* :nil) (config-load)"
+		" (print (gather *config* :scene :seed :step :playing :x :y :width :height))"
+		" (pii-remove *config_file*)")) "\n"))
+(assert-eq "saved and loaded, it is as it was" "(2 12345 300 :nil 40 50 800 600)" (first mp_cfg))

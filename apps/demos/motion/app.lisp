@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/motion/rostrum.inc")
 
 ;Scenes of vector figures that look after themselves, lib/motion/. The story
@@ -30,7 +31,9 @@
 	;the step a seek is going to
 	maker :nil seed 1 steps :nil dry :nil iframes (list) target :nil
 	;how long a tick and a draw took, and when that was last shown
-	tick_us 0 draw_us 0 frames 0 last_show 0 last_t 0)
+	tick_us 0 draw_us 0 frames 0 last_show 0 last_t 0
+	;what it was showing when it was last closed, and where, (config-save)
+	*config* :nil +config_version 1 *config_file* (cat (get :home *env*) "motion.tre"))
 
 (defun make-canvas (w h)
 	(. (Canvas w h 1) :set_canvas_flags +canvas_flag_antialias))
@@ -133,12 +136,12 @@
 		(. *timeline* :dirty_all))
 	(setq stage live restart live_restart))
 
-(defun scene-new ()
-	;a scene, a new seed for it, and a run that finds its length. Balls is
-	;played with, it has no end and is not sought
+(defun scene-new (&optional with_seed)
+	;a scene, a new seed for it or the one given, and a run that finds its
+	;length. Balls is played with, it has no end and is not sought
 	(setq maker (elem-get (list (const story-new) (const balls-new) (const build-new))
 			(. *scene_toolbar* :get_selected))
-		seed (inc (random 1000000000)) steps :nil dry :nil iframes (list) target :nil)
+		seed (ifn with_seed (inc (random 1000000000))) steps :nil dry :nil iframes (list) target :nil)
 	(def *timeline* :value 0 :maximum +bar_unknown)
 	(. *timeline* :dirty_all)
 	(unless (eql maker (const balls-new))
@@ -204,18 +207,57 @@
 				(str (/ draw_us frames 1000)) "." (str (/ (% (/ draw_us frames) 1000) 100)) " draw "))
 		(setq tick_us 0 draw_us 0 frames 0 last_show now)))
 
+(defun config-load ()
+	;as it was when last closed, or as it is the first time: :x :nil, the
+	;window put where the screen puts a new one
+	(setq *config* (with-read-lock *config_file*
+			(tree-load (file-stream *config_file*))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version :x :nil :y :nil
+			:width +width :height +height :scene 0 :seed :nil :step 0 :playing :t))))
+
+(defun config-save ()
+	;the scene, its seed and the step it is at, or is being sought to,
+	;playing or not, where the window is and how big the picture
+	(bind '(x y) (. *window* :get_pos))
+	(bind '(w h) (. *picture* :get_size))
+	(scatter *config* :x x :y y :width w :height h
+		:scene (. *scene_toolbar* :get_selected) :seed seed
+		:step (ifn target (get :ros_ticks stage)) :playing playing)
+	(with-write-lock *config_file*
+		(tree-save (file-stream *config_file* +file_open_write) *config*)))
+
+(defun window-place (x y w h)
+	;the window where it was, as far as the screen lets it, round a picture
+	;of that size, and the canvas made that size
+	(def *picture* :want_width w :want_height h)
+	(bind '(ww wh) (. *window* :want_size))
+	(bind '(x y ww wh) (view-fit x y ww wh))
+	(. *window* :change x y ww wh)
+	(. *window* :open :here)
+	(action-layout))
+
 (defun main ()
 	(setq select (task-mboxes +select_size))
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *main_toolbar* '("play" "pause" "restart"))
 	(ui-tool-tips *scene_toolbar* '("story" "balls" "build"))
 	(def *timeline* :tip_text "seek")
-	(. *scene_toolbar* :set_selected 0)
+	;the scene it was showing, its seed, at the step it was at, so it is
+	;the same, seen where it was
+	(config-load)
+	(bind '(x y w h scene was_seed step was_playing)
+		(gather *config* :x :y :width :height :scene :seed :step :playing))
+	(. *scene_toolbar* :set_selected scene)
+	(scene-new was_seed)
+	(setq playing was_playing)
+	(scene-view)
+	(and (> step 0) (not (eql maker (const balls-new))) (setq target step))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(.-> *window* (:connect +event_layout) :open)
+	(. *window* :connect +event_layout)
+	(if x (window-place x y w h) (. *window* :open))
 	;it keeps its shape
 	(def *window* :aspect_view *picture* :aspect (list +width +height))
-	(scene-new)
 	(setq last_t (pii-time) last_show last_t)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while id
@@ -255,4 +297,5 @@
 				(frame)
 				(mail-timeout (elem-get select +select_timer)
 					(max 1000 (- +rate (- (pii-time) start))) 0))))
+	(config-save)
 	(. *window* :close))
