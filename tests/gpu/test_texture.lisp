@@ -4,7 +4,6 @@
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/msl.inc")
 (import "lib/gpu/spirv.inc")
-(import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 
 (defq tx_lf "\n")
@@ -46,29 +45,30 @@
 (assert-error "a vertex shader has none" (tx-src "(deftexture pic)" "(defun main :vec4 () (vec4 1.0))"))
 (assert-error "nor do functions for Lisp" (tx-src "(deftexture pic)" "(defun f :float ((a :float)) a)"))
 
-;the Lisp back end, the reference, and the native code, the same to the bit
-(defq tx_ref (apply (eval (shader-cpu tx_prog)) (cat (list 0 0 16 8) (shader-cpu-args tx_prog tx_vals)))
-	tx_native (shader-vp tx_prog)
+;native code shades a tile. Each pixel is the one pixel of the picture its
+;place is in, every place is a sum of halves and quarters, so which it is
+;is known to the bit. Its color is each byte over 255, the nearest 32 bit
+;float to that, as a GPU has it
+(defun tx-byte (c)
+	(sh-float-to-real (sh-real-to-float (/ (n2r (logand c 0xff)) (n2r 255)))))
+(defun tx-want (x y)
+	;the place, uv by 1.5 less a quarter across, gone round, of 8 by 4
+	(defq u (frac (- (* (/ (+ (n2r x) (n2r 0.5)) (n2r 16)) (n2r 1.5)) (n2r 0.25)))
+		v (frac (* (/ (+ (n2r y) (n2r 0.5)) (n2r 8)) (n2r 1.5)))
+		c (tx-color (+ (n2i (floor (* u (n2r 8)))) (* 8 (n2i (floor (* v (n2r 4))))))))
+	(reals (tx-byte (>> c 16)) (tx-byte (>> c 8)) (tx-byte c) (tx-byte (>> c 24))))
+(defq tx_native (shader-vp tx_prog)
 	tx_got (shader-vp-pixels tx_native (shader-vp-frame tx_prog tx_native tx_vals) 0 0 16 8))
-(assert-eq "a tile of 16 by 8 is shaded" 128 (length tx_ref))
-(assert-true "every pixel of it is one the picture has"
-	(every (lambda (p) (some! (lambda () (defq c (tx-color (!)))
-					(eql (str p) (str (reals (/ (n2r (logand (>> c 16) 0xff)) (n2r 255)) (/ (n2r (logand (>> c 8) 0xff)) (n2r 255))
-								(/ (n2r (logand c 0xff)) (n2r 255)) (n2r 1))))) '() :nil 0 32))
-		(list (first tx_ref) (elem-get tx_ref 37) (last tx_ref))))
+(assert-eq "a tile of 16 by 8 is shaded" 128 (length tx_got))
 (assert-true "it goes round again outside 0 to 1, more than 8 of the 32 pixels are met, and more than once"
-	(< 8 (length (unique (map (const str) tx_ref))) 128))
-(assert-eq "native code gives the same pixels as the reference, to the bit"
-	(str tx_ref) (str tx_got))
-(assert-eq "a texture that is not given is no picture, and is nothing, in the reference"
-	"(0x0 0x0 0x0 0x0)" (str (first (apply (eval (shader-cpu tx_prog))
-				(cat (list 0 0 1 1) (shader-cpu-args tx_prog (list (list 'resolution '(16.0 8.0)))))))))
-(assert-eq "and in native code"
+	(< 8 (length (unique (map (const str) tx_got))) 128))
+(assert-eq "each pixel is the one of the picture its place is in, to the bit"
+	(str (map! (# (tx-want (% (!) 16) (/ (!) 16))) '() 0 128)) (str tx_got))
+(assert-eq "a texture that is not given is no picture, and is nothing"
 	"(0x0 0x0 0x0 0x0)" (str (first (shader-vp-pixels tx_native
 				(shader-vp-frame tx_prog tx_native (list (list 'resolution '(16.0 8.0)))) 0 0 1 1))))
 
 ;triangles: a quad with the picture on it, by the pair as native code
-;and by the reference
 (defq tx_vert (tx-src "(defattr position :vec3)" "(defattr coord :vec2)" "(defvarying uv :vec2)"
 		"(defun main :vec4 () (setq uv coord) (vec4 position 1.0))")
 	tx_pix (tx-src "(deftexture pic)" "(defvarying uv :vec2)"
@@ -79,14 +79,20 @@
 	tx_tris (nums 0 1 2 3 4 5) tx_soft (Canvas 32 32 1))
 (shader-vp-draw-tris (shader-vp-pipeline tx_vert tx_pix) tx_verts tx_tris (getf tx_soft +canvas_pixmap 0)
 	(shader-vp-depth 32 32) :nil (list (list 'pic tx_pixmap)) :t)
-(defq tx_want (third (shader-texture (getf tx_soft +canvas_pixmap 0)))
-	tx_ref (shader-cpu-tris tx_vert tx_pix tx_verts tx_tris 32 32 :nil (list (list 'pic tx_pixmap)) :t))
+(defq tx_want (third (shader-texture (getf tx_soft +canvas_pixmap 0))))
 (assert-eq "a quad of 24 by 24 is drawn, of a frame of 32" 576
 	(reduce! (# (if (/= (get-uint tx_want (<< (!) 2)) 0) (inc %0) %0)) '() 0 0 (>> (length tx_want) 2)))
 (assert-true "the top left of the quad is the top left of the picture, and the bottom right the bottom right"
 	(and (= (get-uint tx_want (* 4 (+ 4 (* 4 32)))) 0xff000000)
 		(= (get-uint tx_want (* 4 (+ 27 (* 27 32)))) (tx-color 31))))
-(assert-true "native triangles give the same pixels as the reference" (eql tx_want tx_ref))
+;a pixel of the quad, x and y of 4 to 27, is the picture's at (x - 3.5) / 3
+;across and (y - 3.5) / 6 down, never nearer than a sixth to the edge of a
+;pixel of the picture, and a byte of it is the byte
+(assert-true "each pixel of the quad is the one of the picture it is over"
+	(not (some! (lambda () (defq x (% (!) 32) y (/ (!) 32))
+				(/= (get-uint tx_want (* (!) 4))
+					(if (and (<= 4 x 27) (<= 4 y 27))
+						(tx-color (+ (/ (- (* 2 x) 7) 6) (* 8 (/ (- (* 2 y) 7) 12)))) 0))) '() :nil 0 1024)))
 
 ;the text of the other back ends
 (defq tx_glsl (shader-glsl tx_prog) tx_msl (shader-msl tx_prog)

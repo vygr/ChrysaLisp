@@ -1,7 +1,6 @@
 (report-header "GPU: triangles, a frame drawn in strips by a farm of children")
 
 (import "gui/lisp.inc")
-(import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 (import "lib/gpu/tris.inc")
 (import "lib/math/mesh.inc")

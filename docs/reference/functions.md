@@ -133,6 +133,14 @@ For ever, or for so many seconds. Its rate can be changed as it goes,
 (def comp 'rate rate)
 ```
 
+### S
+
+```code
+a double to a slot the pixel shader reads, as the nearest single, and
+
+a single it gave to a double
+```
+
 ### SVG-info
 
 ```code
@@ -2352,150 +2360,6 @@ what it was told to do when it is over
 
 ```code
 (cpu) -> sym
-```
-
-### cpu-arith
-
-```code
-one step of + - * /, by the types of the two sides
-```
-
-### cpu-block
-
-```code
-forms for a block. With no flag it is the body of the function,
-
-and the value of the last form is the return value. With a flag
-it is the body of a loop, and the flag is set to leave the loop.
-The forms of a block go onto a list. An if and a for have lists of
-their own, for the blocks in them, and the rest of a block can go
-inside the arms of an if that leaves it. Each is a thing to do, a
-block, its flag and the list its forms go onto, on a list of those
-still to do. No function here calls itself
-```
-
-### cpu-edge-cut
-
-```code
-where the edge from vertex a, in front of the near plane, to vertex b,
-
-behind it, crosses the plane, every number of the vertex
-```
-
-### cpu-exits?
-
-```code
-does this block hold a return, or a break of the loop it is in ? The
-
-blocks in it are asked in turn, from a list of those still to ask
-```
-
-### cpu-fget
-
-```code
-the 32 bit float at i of a buffer, as a real, the double it is
-```
-
-### cpu-fold
-
-```code
-run it now if all the args are constants
-```
-
-### cpu-fset
-
-```code
-the nearest 32 bit float to a real at i of a buffer
-```
-
-### cpu-funcs
-
-```code
--> the lambda of main, or of the function named
-
-the constants worked out, and each function a lambda
-```
-
-### cpu-iget
-
-```code
-the 32 bit int at i of a buffer
-```
-
-### cpu-iset
-
-```code
-an int at i of a buffer, its low 32 bits
-```
-
-### cpu-loop-return?
-
-```code
-does this block hold a return from inside a loop ?
-```
-
-### cpu-mat-mul
-
-```code
-a matrix times a matrix, each row of the one dotted with each
-
-column of the other
-```
-
-### cpu-mat-vec
-
-```code
-a matrix times a vec4, each row of the matrix dotted with it
-```
-
-### cpu-mat-vec3
-
-```code
-the 3 by 3 of a matrix times a vec3
-```
-
-### cpu-near-cut
-
-```code
-(cpu-near-cut (v0 v1 v2)) -> ((v0 v1 v2) ...)
-
-a triangle cut by the near plane, where z is -w, as the native code
-cuts it. None, the triangle, a smaller one, or two
-```
-
-### cpu-op
-
-```code
-a built in op
-```
-
-### cpu-pow
-
-```code
-whole part of the power by squaring, the rest by repeated roots
-```
-
-### cpu-share
-
-```code
-that much of a 32 bit argb pixel, a share of 0 to 256
-```
-
-### cpu-texture
-
-```code
-the color of a picture at a place. tex is (width height pixels), of
-
-(shader-texture). The place is 0 to 1 across and 0 to 1 down, from
-the top left, and goes round again outside that. It is the one pixel
-the place is in, no pixel is mixed with the next. One with no width
-is no picture, and is nothing
-```
-
-### cpu-zero
-
-```code
-what a value of the type is before it is set
 ```
 
 ### crc32
@@ -10509,77 +10373,6 @@ function gives and takes. No body is read or checked, and the consts
 and globals are :lazy. (shader-full) reads the rest when it is wanted.
 ```
 
-### shader-cpu
-
-```code
-(shader-cpu program) -> lambda
-
-(lambda x y x1 y1 input ... varying ... texture ...) -> (vec4 ...)
-the lambda shades the pixels of the tile, row by row, the
-centre of pixel x y is at frag coord x + 0.5, y + 0.5. A pixel
-shader with varyings is given a value for each, after the inputs,
-and every pixel of the tile has those. And then each of its
-textures, as (shader-texture) gives one.
-```
-
-### shader-cpu-args
-
-```code
-(shader-cpu-args program [((name val) ...)]) -> (val ...)
-
-the input args for the lambda, defaults for those not given, then a
-value for each varying of a pixel shader, 0 for those not given, then
-each texture of it, the pixmap given under its name as
-(shader-texture) has it, or as it is if that is how it was given, and
-no picture at all for one not given
-```
-
-### shader-cpu-func
-
-```code
-(shader-cpu-func program name) -> lambda
-
-(lambda arg ...) -> value
-a function of a file of functions, as a Lisp lambda. It is what the
-native code of (shader-vp-func) is checked by. A float is a real, a
-vector a reals, and a matrix a reals of 16, a row at a time.
-```
-
-### shader-cpu-kernel
-
-```code
-(shader-cpu-kernel program) -> lambda
-
-(lambda from to buffer ... input ...) -> :nil
-the lambda runs main of a kernel for each i of from to to, not to.
-A buffer is a str, 4 bytes an element, a float a 32 bit float, given
-in the order the kernel has them, then the inputs
-```
-
-### shader-cpu-tris
-
-```code
-(shader-cpu-tris vertex pixel verts tris width height [vvals pvals cull tri_size x y x1 y1]) -> str
-
-triangles drawn with a vertex shader and a pixel shader, in Lisp, a
-pixel at a time. It is slow, and is what the native code is checked
-by. The args are those of (shader-vp-draw-tris), with the size of the
-frame in place of a pixmap. The result is the pixels, row by row, the
-top row first, each a 32 bit argb, 0 where nothing was drawn.
-```
-
-### shader-cpu-vertex
-
-```code
-(shader-cpu-vertex program) -> lambda
-
-(lambda verts input ...) -> ((position varying ...) ...)
-the lambda places each vertex of a list. A vertex is a list of its
-attrs, in the order the shader has them. For each it gives where the
-vertex is, a vec4, as main gave it, then what main left each varying
-as, in the order the shader has them. A varying that is not set is 0.
-```
-
 ### shader-dim
 
 ```code
@@ -14632,7 +14425,13 @@ the code so far as lines of VP source
 ### sv-const
 
 ```code
-a float constant, to a new register
+a float constant, to a new register, the nearest single, kept as one
+```
+
+### sv-d
+
+```code
+the double of a float register, the one register
 ```
 
 ### sv-define
@@ -14728,6 +14527,14 @@ the loop keeps
 a float from a slot of the frame, or from where that slot really is
 ```
 
+### sv-ldf
+
+```code
+a float to a register, of the frame the single it is, of a reals the
+
+nearest single to its double
+```
+
 ### sv-leaf
 
 ```code
@@ -14817,7 +14624,9 @@ to make and clear for each object of each frame
 ### sv-pow
 
 ```code
-x to the power y, both kept, to a new register
+x to the power y, both kept, to a new register. The power of the
+
+system is of doubles, of the singles, its answer made the nearest single
 ```
 
 ### sv-program
@@ -14857,7 +14666,10 @@ with a list as the stack of what is still to be looked at
 ### sv-sin
 
 ```code
-sin or cos of a register, which is given up, to a new register
+sin or cos of a register, which is given up, to a new register. The
+
+sin of the system is of a double, of the single, and its answer is
+made the nearest single
 ```
 
 ### sv-slots
@@ -14884,6 +14696,15 @@ save the live registers, all of them or those of a list
 
 ```code
 a float goes with every component of a vector
+```
+
+### sv-stf
+
+```code
+a float register to the frame as the single, to a reals as the double
+
+of it. Then the register is the double, every store is of a register
+that is given up after, or loaded again before it is used
 ```
 
 ### sv-tex-coord

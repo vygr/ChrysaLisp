@@ -3,8 +3,8 @@
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/msl.inc")
 (import "lib/gpu/spirv.inc")
-(import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
+(import "lib/hash/sums.inc")
 
 (defq sh_lf "\n")
 
@@ -17,13 +17,7 @@
 	(sh-src (cat "(defun main :vec4 ((frag :vec2)) " (join lines " ") ")")))
 
 (defun sh-pixel (program &optional vals x y)
-	;the vec4 the CPU back end gives for one pixel, as fixeds
-	(setd x 0 y 0)
-	(map (const n2f) (first (apply (shader-cpu program)
-				(cat (list x y (inc x) (inc y)) (shader-cpu-args program vals))))))
-
-(defun sh-pixel-vp (program &optional vals x y)
-	;the vec4 the VP back end gives for one pixel, as fixeds
+	;the vec4 the native code gives for one pixel, as fixeds
 	(setd x 0 y 0)
 	(defq native (shader-vp program))
 	(map (const n2f) (first (shader-vp-pixels native
@@ -35,17 +29,13 @@
 
 (defmacro assert-pixel (name expected program &rest args)
 	; (assert-pixel name expected program [vals x y])
-	;both the CPU back end and the VP back end must give the pixel
-	(defq res (gensym) exp (gensym) prg (gensym))
+	;the native code must give the pixel
+	(defq res (gensym) exp (gensym))
 	`(progn
-		(defq ,prg ,program ,exp ,expected ,res (sh-pixel ,prg ~args))
+		(defq ,exp ,expected ,res (sh-pixel ,program ~args))
 		(if (sh-near? ,exp ,res)
 			(test-pass ,name)
-			(test-fail ,name ,exp ,res))
-		(setq ,res (sh-pixel-vp ,prg ~args))
-		(if (sh-near? ,exp ,res)
-			(test-pass (cat ,name ", native"))
-			(test-fail (cat ,name ", native") ,exp ,res))))
+			(test-fail ,name ,exp ,res))))
 
 ;the tree for a small program
 (defq prog (sh-src
@@ -145,7 +135,7 @@
 (assert-error "a when is no value" (sh-main "(when (> (:x frag) 1.0) (vec4 1.0))"))
 (assert-error "a loop is no value" (sh-main "(for (i 0 4) (vec4 1.0))"))
 
-(report-header "GPU: shader language, CPU back end")
+(report-header "GPU: shader language, what native code gives")
 
 ;scalars
 (assert-pixel "arithmetic" '(3.0 -5.0 0.25 14.0)
@@ -260,8 +250,8 @@
 		"(defun main :vec4 ((frag :vec2)) (return (vec4 (+ g four) h (/ frag size))))"))
 (assert-pixel "defaults" '(7.0 6.0 0.25 0.25) prog '((size (2.0 2.0))))
 (assert-pixel "values given" '(5.0 6.0 0.625 0.875) prog '((size (4.0 4.0)) (n 5) (k 0.5)) 2 3)
-(assert-list-eq "args" (list (n2r 1.5) 3 (reals (n2r 0) (n2r 0))) (shader-cpu-args prog))
-(defq out (apply (shader-cpu prog) (cat '(1 2 4 4) (shader-cpu-args prog '((size (1.0 1.0)))))))
+(defq native (shader-vp prog)
+	out (shader-vp-pixels native (shader-vp-frame prog native '((size (1.0 1.0)))) 1 2 4 4))
 (assert-eq "tile size" 6 (length out))
 (assert-list-eq "tile order" '((1.5 2.5) (2.5 2.5) (3.5 2.5) (1.5 3.5) (2.5 3.5) (3.5 3.5))
 	(map (# (map! (const n2f) (list %0) 2 4)) out))
@@ -520,20 +510,21 @@
 
 (report-header "GPU: shader language, VP back end")
 
-;a tile as 32 bit argb pixels, clamped, and with the top row first
+;a tile as 32 bit argb pixels, clamped, and with the top row first. A
+;byte is the nearest to 255 of the float, as a GPU writes one
 (defq prog (sh-src "(definput k :float 4.0)" "(definput n :int 2)"
 		"(defun main :vec4 ((frag :vec2)) (return (vec4 (/ frag k) (float n) -1.0)))")
 	native (shader-vp prog) frame (shader-vp-frame prog native))
 (assert-true "native function" (func? (first native)))
-(assert-eq "frame holds the inputs" (n2r 4.0) (get-real frame 0))
+(assert-eq "frame holds the inputs, a float as the 32 bit float it is" (n2r 4.0) (sh-float-to-real (get-uint frame 0)))
 (assert-eq "frame holds the ints" 2 (get-long frame 8))
 (defq out (shader-vp-argb native frame 0 0 2 2))
 (assert-eq "argb size" 16 (length out))
-(assert-list-eq "argb tile" '(0xff1f1fff 0xff5f1fff 0xff1f5fff 0xff5f5fff)
+(assert-list-eq "argb tile" '(0xff2020ff 0xff6020ff 0xff2060ff 0xff6060ff)
 	(map! (# (get-uint out (* (!) 4))) '() 0 4))
-(assert-list-eq "argb tile, top row first" '(0xff1fdfff 0xff5fdfff 0xff1f9fff 0xff5f9fff)
+(assert-list-eq "argb tile, top row first" '(0xff20dfff 0xff60dfff 0xff209fff 0xff609fff)
 	(map! (# (get-uint (shader-vp-argb native frame 0 0 2 2 4) (* (!) 4))) '() 0 4))
-(assert-list-eq "argb tile, inputs given" '(0xff3f3f00 0xffbf3f00)
+(assert-list-eq "argb tile, inputs given" '(0xff404000 0xffbf4000)
 	(map! (# (get-uint (shader-vp-argb native
 					(shader-vp-frame prog native '((k 2.0) (n 0))) 0 0 2 1) (* (!) 4))) '() 0 2))
 (assert-list-eq "same program, same function" (first native) (first (shader-vp prog)))
@@ -547,13 +538,11 @@
 		"(defun main :vec4 ((frag :vec2))"
 		"(defq a (vec4 1.0 2.0 3.0 4.0))"
 		"(return (+ a (+ (f a) (f (+ a (f (f a))))))))"))
-;one more value held and there is no register for it, the CPU back end
-;has no such limit
+;one more value held and there is no register for it
 (defq prog (sh-src "(defun f :vec4 ((a :vec4)) (return (* a 2.0)))"
 		"(defun main :vec4 ((frag :vec2))"
 		"(defq a (vec4 1.0 2.0 3.0 4.0))"
 		"(return (+ a (+ (f a) (+ (f (f a)) (+ a (f (+ a (f (f a))))))))))"))
-(assert-list-eq "deep expression, CPU back end" '(18.0 36.0 54.0 72.0) (sh-pixel prog))
 (assert-error "deep expression, VP back end" (shader-vp prog))
 (assert-pixel "sin and pow in the middle of a vector" '(1.8415 4.5403 11.0 0.0)
 	(sh-main "(defq a (vec4 1.0 2.0 3.0 4.0))"
@@ -592,16 +581,16 @@
 		(48 45 0.3835 0.0409 0.3835)))
 
 ;the second shader, the Raymarch film. Every back end takes it, and the
-;native code gives the pixels the Lisp back end does
+;native code gives the pixels it gave when they were last worked out by
+;hand, in 32 bit floats
 (defq film (shader-load "apps/demos/raymarch/film.shader")
 	film_vals '((resolution (96.0 96.0)) (cam_z -2.4) (light_x -0.02)))
 (assert-true "film, GLSL" (> (length (shader-glsl film)) 1000))
 (assert-true "film, MSL" (> (length (shader-msl film)) 1000))
 (assert-true "film, SPIR-V" (> (length (shader-spirv film)) 1000))
-(each (lambda ((x y))
-		(assert-true (cat "film, native code and Lisp agree, " (str x) " " (str y))
-			(sh-near? (sh-pixel film film_vals x y) (sh-pixel-vp film film_vals x y))))
-	'((48 48) (10 80) (70 20)))
+(each (lambda ((x y &rest want))
+		(assert-pixel (cat "film, native code, " (str x) " " (str y)) want film film_vals x y))
+	'((48 48 0.0 0.0 0.0 1.0) (10 80 0.1343 0.1340 0.1331 1.0) (70 20 0.0930 0.0746 0.6284 1.0)))
 
 (report-header "GPU: shader language, vertex shaders, varyings and a matrix")
 
@@ -678,18 +667,26 @@
 (assert-list-eq "and comes back a row at a time" rows (second (first (shader-unpack vert blk))))
 (assert-error "wrong size of matrix" (shader-pack vert '((model (1.0 2.0 3.0)))))
 
-;the reference, the Lisp back end. The matrices are those of the matrix
-;library, and where it puts a vertex is where the library does
-(defq place (shader-cpu-vertex vert)
-	model (mat4x4-mul (mat4x4-translate (n2r 1) (n2r 2) (n2r 3)) (mat4x4-rotx (n2r 0.5)))
+;native code places vertices. A vertex goes in as its attrs one after
+;another, and comes out as where it is, then its varyings. The matrices
+;are those of the matrix library, and where a vertex is put is where the
+;library puts it
+(defq model (mat4x4-mul (mat4x4-translate (n2r 1) (n2r 2) (n2r 3)) (mat4x4-rotx (n2r 0.5)))
 	view (mat4x4-frustum (n2r -1) (n2r 1) (n2r 1) (n2r -1) (n2r 2) (n2r 10))
 	verts (list (list (reals (n2r 0.5) (n2r -0.25) (n2r 2)) (reals (n2r 0) (n2r 0) (n2r 1)))
 		(list (reals (n2r -3) (n2r 1) (n2r 0.75)) (reals (n2r 0) (n2r 1) (n2r 0))))
-	placed (apply place (cat (list verts)
-			(shader-cpu-args vert (list (list 'model model) (list 'view view) '(tint (1.0 0.5 0.25))))))
-	both (mat4x4-mul view model))
-(assert-eq "a vertex out for each in" 2 (length placed))
-(each (lambda ((position normal) (pos shade color unset))
+	both (mat4x4-mul view model)
+	vnative (shader-vp-vertex vert)
+	vvals (list (list 'model model) (list 'view view) '(tint (1.0 0.5 0.25)))
+	vframe (shader-vp-frame vert vnative vvals)
+	flat (apply (const cat) (map (# (apply (const cat) %0)) verts))
+	out (shader-vp-place vnative vframe flat))
+(assert-true "native function for a vertex shader" (func? (first vnative)))
+(assert-list-eq "numbers in and out for a vertex" '(6 10) (rest (rest vnative)))
+(assert-eq "numbers out, 10 for each vertex" 20 (length out))
+(each (lambda ((position normal))
+		(defq at (* (!) 10) pos (slice out at (+ at 4)) shade (elem-get out (+ at 4))
+			color (slice out (+ at 5) (+ at 8)) unset (slice out (+ at 8) (+ at 10)))
 		(assert-true (cat "where vertex " (str (!)) " is, as the matrix library has it")
 			(sh-near? (map (const n2f) pos)
 				(map (const n2f) (mat4x4-vec4-mul both (cat position (reals (n2r 1)))))))
@@ -701,7 +698,9 @@
 			(sh-near? (map (const n2f) color) (list want (* want 0.5) (* want 0.25))))
 		(assert-list-eq (cat "varying of vertex " (str (!)) ", not set, is 0") '(0.0 0.0)
 			(map (const n2f) unset)))
-	verts placed)
+	verts)
+(assert-eq "no vertices, nothing out" 0 (length (shader-vp-place vnative vframe (reals))))
+(assert-list-eq "same program, same function" (first vnative) (first (shader-vp-vertex vert)))
 
 ;a pixel shader reads varyings, by name, and goes with a vertex shader
 ;that has them
@@ -710,8 +709,6 @@
 		"(defvarying shade :float)"
 		"(defun main :vec4 ((frag :vec2)) (vec4 (* color shade) 1.0))"))
 (assert-list-eq "the varyings of a pixel shader" '((color :vec3) (shade :float)) (shader-varyings pix))
-(assert-list-eq "the pixel shader given its varyings" '(0.4 0.2 0.1 1.0)
-	(sh-pixel pix '((color (0.8 0.4 0.2)) (shade 0.5))))
 (assert-true "a pair" (lmatch? (shader-pair vert pix) (list vert pix)))
 (assert-true "a pixel shader with no varyings goes with any vertex shader"
 	(shader-pair vert film))
@@ -721,27 +718,6 @@
 	(shader-pair vert (sh-src "(defvarying shade :vec2)" "(defun main :vec4 ((frag :vec2)) (vec4 shade shade))")))
 (assert-error "two pixel shaders are not a pair" (shader-pair pix pix))
 (assert-error "two vertex shaders are not a pair" (shader-pair vert vert))
-(assert-error "the reference places with a vertex shader" (shader-cpu-vertex pix))
-(assert-error "and shades with a pixel shader" (shader-cpu vert))
-
-;the native code places vertices as the reference does. A vertex goes in
-;as its attrs one after another, and comes out as where it is, then its
-;varyings
-(defq vnative (shader-vp-vertex vert)
-	vvals (list (list 'model model) (list 'view view) '(tint (1.0 0.5 0.25)))
-	vframe (shader-vp-frame vert vnative vvals)
-	flat (apply (const cat) (map (# (apply (const cat) %0)) verts))
-	out (shader-vp-place vnative vframe flat))
-(assert-true "native function for a vertex shader" (func? (first vnative)))
-(assert-list-eq "numbers in and out for a vertex" '(6 10) (rest (rest vnative)))
-(assert-eq "numbers out" 20 (length out))
-(each (lambda (want)
-		(assert-true (cat "native code and the reference agree, vertex " (str (!)))
-			(sh-near? (map (const n2f) (apply (const cat) (map (# (if (real? %0) (reals %0) %0)) want)))
-				(map! (const n2f) (list out) (* (!) 10) (* (inc (!)) 10)))))
-	placed)
-(assert-eq "no vertices, nothing out" 0 (length (shader-vp-place vnative vframe (reals))))
-(assert-list-eq "same program, same function" (first vnative) (first (shader-vp-vertex vert)))
 
 ;matrices kept in locals and globals, set, and multiplied together
 (defq vert2 (sh-src
@@ -757,18 +733,18 @@
 		"	(+ (* m p) (* n p) (* a b p)))")
 	vvals (list (list 'a model) (list 'b view))
 	pts (list (list (reals (n2r 1) (n2r 2) (n2r 3) (n2r 1))) (list (reals (n2r -0.5) (n2r 0.25) (n2r 4) (n2r 1))))
-	want (apply (shader-cpu-vertex vert2) (cat (list pts) (shader-cpu-args vert2 vvals)))
 	vnative (shader-vp-vertex vert2)
 	out (shader-vp-place vnative (shader-vp-frame vert2 vnative vvals)
-		(apply (const cat) (map (const first) pts))))
-(each (lambda ((pos turned))
-		(assert-true (cat "matrices in locals and globals, vertex " (str (!)))
-			(sh-near? (map (const n2f) (cat pos turned)) (map! (const n2f) (list out) (* (!) 7) (* (inc (!)) 7)))))
-	want)
-(defq ab (mat4x4-mul model view))
-(assert-true "and the reference is the matrix library's answer"
-	(sh-near? (map (const n2f) (second (first want)))
-		(map (const n2f) (mat4x4-vec3-mul ab (slice (first (first pts)) 0 3)))))
+		(apply (const cat) (map (const first) pts)))
+	;what the matrix library gives
+	ab (mat4x4-mul model view) aab (mat4x4-mul (mat4x4-mul model model) view))
+(each (lambda ((p))
+		(defq m_p (mat4x4-vec4-mul ab p)
+			want (cat (nums-add (nums-add m_p (mat4x4-vec4-mul aab p)) m_p)
+				(mat4x4-vec3-mul ab (slice p 0 3))))
+		(assert-true (cat "matrices in locals and globals, as the matrix library has it, vertex " (str (!)))
+			(sh-near? (map (const n2f) want) (map! (const n2f) (list out) (* (!) 7) (* (inc (!)) 7)))))
+	pts)
 ;a vertex function reads its attrs and writes its vertex where they are,
 ;by two registers. A call of the system must not lose them, nor a function
 ;of the shader's own that reads an attr, and a varying can be read back
@@ -789,16 +765,21 @@
 		(list (reals (n2r -0.5) (n2r 0.25) (n2r 4) (n2r 1)) (n2r 2))
 		(list (reals (n2r 0.3) (n2r -1.25) (n2r -2) (n2r 1)) (n2r 1.25)))
 	vvals3 (list (list 'a model))
-	want3 (apply (shader-cpu-vertex vert3) (cat (list pts3) (shader-cpu-args vert3 vvals3)))
 	vnative3 (shader-vp-vertex vert3)
 	out3 (shader-vp-place vnative3 (shader-vp-frame vert3 vnative3 vvals3)
 		(apply (const cat) (map (# (cat (first %0) (reals (second %0)))) pts3))))
 (assert-eq "sin, pow and a function that reads an attr, the size of what comes out" 21 (length out3))
-(each (lambda ((pos wave far))
+(each (lambda ((p k))
+		;what it is worked out by hand, a power of 1.5 is a number times its root
+		(bind '(px py pz &ignore) p)
+		(defq bend (lambda (x) (+ (sin (* x k)) (* (abs py) (sqrt (abs py)))))
+			wx (bend px) wy (cos k) far (+ wx wy pz) q (mat4x4-vec4-mul model p)
+			pos (if (> k (n2r 1.5)) (reals (third q) (second q) (first q) far)
+				(nums-add q (reals wy (bend k) (elem-get q 3) far))))
 		(assert-true (cat "sin, pow and a function that reads an attr, vertex " (str (!)))
-			(sh-near? (map (const n2f) (cat pos wave (reals far)))
+			(sh-near? (map (const n2f) (cat pos (reals wx wy far)))
 				(map! (const n2f) (list out3) (* (!) 7) (* (inc (!)) 7)))))
-	want3)
+	pts3)
 (assert-error "a function can not take a matrix"
 	(sh-src "(defun f :vec4 ((m :mat4)) (vec4 0.0))" "(defun main :vec4 () (vec4 0.0))"))
 (assert-error "a function can not give a matrix"
@@ -808,10 +789,13 @@
 
 (import "gui/canvas/lisp.inc")
 
-;triangles drawn as native code are, to the bit, what the reference
-;draws, a pixel at a time in Lisp. The vertex shader has more varyings
-;than the pixel shader reads, and in another order. The matrix gives a w
-;that changes with depth, so a varying has perspective to get right
+;triangles drawn as native code. Each way of drawing the one picture must
+;draw it the same, to the bit: in parts, in strips, in another order, a
+;triangle's vertices taken round. A picture is known by the CRC of its
+;pixels, as they were drawn when last looked at. The vertex shader has
+;more varyings than the pixel shader reads, and in another order. The
+;matrix gives a w that changes with depth, so a varying has perspective
+;to get right
 (defq tvert (sh-src "(definput m :mat4)" "(defattr p :vec4)" "(defattr c :vec3)" "(defattr k :float)"
 		"(defvarying unused :vec2)" "(defvarying glow :float)" "(defvarying col :vec3)"
 		"(defun main :vec4 () (setq col c glow k) (* m p))")
@@ -846,34 +830,46 @@
 	;how many pixels were drawn
 	(reduce! (# (if (/= (get-uint pixels (<< (!) 2)) 0) (inc %0) %0)) '() 0 0 (>> (length pixels) 2)))
 
+(defun tri-draw (pipeline tris &optional pvals cull tri_size x y x1 y1 verts)
+	;the pixels of triangles drawn on a frame of 20 by 20 of their own
+	(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0))
+	(shader-vp-draw-tris pipeline (ifn verts tverts) tris pixmap (shader-vp-depth 20 20) tvv (ifn pvals tpv)
+		cull (ifn tri_size 3) (ifn x 0) (ifn y 0) (ifn x1 20) (ifn y1 20))
+	(slice (tri-pixels pixmap) 0 1600))
+
+(defun tri-only (pixels x y x1 y1)
+	;the pixels with all outside that box made 0
+	(defq out (cat pixels))
+	(each! (lambda () (defq px (% (!) 20) py (/ (!) 20))
+			(unless (and (<= x px) (< px x1) (<= y py) (< py y1)) (set-int out (* (!) 4) 0))) '() 0 400)
+	out)
+
 (defq drawn (list))
-(each (lambda ((title cull x y x1 y1))
-		(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0)
-			depth (shader-vp-depth 20 20))
-		(shader-vp-draw-tris pipe tverts ttris pixmap depth tvv tpv cull 3 x y x1 y1)
-		(defq got (slice (tri-pixels pixmap) 0 1600)
-			want (shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv cull 3 x y x1 y1))
-		(push drawn want)
-		(assert-eq (cat "native code and the reference, " title) want got))
-	'(("all of it" :nil 0 0 20 20) ("those that face away left out" :t 0 0 20 20)
-		("those that face us left out" :front 0 0 20 20)
-		("a part of the screen" :nil 3 5 17 14) ("a part that is not on the screen" :nil -5 -5 40 8)))
+(each (lambda ((title cull x y x1 y1 crc))
+		(push drawn (defq got (tri-draw pipe ttris :nil cull 3 x y x1 y1)))
+		(assert-eq (cat "the pixels as they were, " title) crc (crc32 got)))
+	'(("all of it" :nil 0 0 20 20 3973177273) ("those that face away left out" :t 0 0 20 20 2764376830)
+		("those that face us left out" :front 0 0 20 20 2496602895)))
 (assert-true "it is a picture" (> (tri-drawn (first drawn)) 100))
 (assert-true "one faced away, and without it the picture is another"
 	(not (eql (second drawn) (first drawn))))
 (assert-true "with only the one that faced away the picture is small"
 	(< 0 (tri-drawn (third drawn)) 120))
-(assert-true "a part is less" (< (tri-drawn (elem-get drawn 3)) (tri-drawn (first drawn))))
+(each (lambda ((title x y x1 y1))
+		(assert-eq (cat "a part of the screen is that part of the whole, " title)
+			(tri-only (first drawn) x y x1 y1) (tri-draw pipe ttris :nil :nil 3 x y x1 y1)))
+	'(("in the middle" 3 5 17 14) ("partly off the screen" -5 -5 40 8)))
 
 ;the nearer triangle is the one seen, whichever is drawn first
-(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
 (defq tsolid (sh-src "(definput gain :float 1.0)" "(defvarying col :vec3)" "(defvarying glow :float)"
 		"(defun main :vec4 ((frag :vec2)) (vec4 (* col glow gain) 1.0))")
-	pipe_solid (shader-vp-pipeline tvert tsolid))
+	pipe_solid (shader-vp-pipeline tvert tsolid)
+	solid (tri-draw pipe_solid ttris))
+(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
 (shader-vp-draw-tris pipe_solid tverts (nums 3 4 5 0 1 2) pixmap depth tvv tpv)
 (shader-vp-draw-tris pipe_solid tverts (nums 6 7 8 0 1 9) pixmap depth tvv tpv)
 (assert-eq "solid, the order they are drawn in does not matter, nor how many calls"
-	(shader-cpu-tris tvert tsolid tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+	solid (slice (tri-pixels pixmap) 0 1600))
 ;alpha. The pixel shader of the tests above has an alpha that goes from
 ;next to nothing at the bottom row to nearly full on at the top, so
 ;they are all tests of a pixel going over what is there. Here, the two
@@ -887,22 +883,15 @@
 (assert-eq "alpha of 0, nothing drawn" 0 (tri-drawn (slice (tri-pixels pixmap) 0 1600)))
 (shader-vp-draw-tris pipe_solid tverts ttris pixmap depth tvv tpv)
 (assert-eq "alpha of 0 left the depth buffer alone, so what is drawn next is all there"
-	(shader-cpu-tris tvert tsolid tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
-(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
-(shader-vp-draw-tris (shader-vp-pipeline tvert tover) tverts ttris pixmap depth tvv tpv)
-(assert-eq "alpha over 1 is full on"
-	(shader-cpu-tris tvert tsolid tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+	solid (slice (tri-pixels pixmap) 0 1600))
+(assert-eq "alpha over 1 is full on" solid (tri-draw (shader-vp-pipeline tvert tover) ttris))
 ;half there, over nothing, a pixel has half its color and half its
-;alpha, 127 of 255, and 255 * 127 / 256 of white
-(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
-(shader-vp-draw-tris (shader-vp-pipeline tvert thalf) tverts (nums 6 7 8) pixmap depth tvv '((gain 1.0)))
-(defq half_pixels (slice (tri-pixels pixmap) 0 1600)
+;alpha, 0.5 of 255 to the nearest is 128, and 255 * 129 / 256 of white
+(defq half_pixels (tri-draw (shader-vp-pipeline tvert thalf) (nums 6 7 8) '((gain 1.0)))
 	half_seen (filter (# (/= %0 0)) (map! (# (get-uint half_pixels (* (!) 4))) '() 0 400)))
 (assert-true "half there, some pixels" (> (length half_seen) 10))
 (assert-true "half there, over nothing, half the color and half the alpha"
-	(every (# (= %0 0x7f7e7e7e)) half_seen))
-(assert-eq "half there, as the reference has it"
-	(shader-cpu-tris tvert thalf tverts (nums 6 7 8) 20 20 tvv '((gain 1.0))) half_pixels)
+	(every (# (= %0 0x80808080)) half_seen))
 ;and over a solid one that is further off, it is not what either is alone
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
 (shader-vp-draw-tris pipe_solid tverts (nums 3 4 5) pixmap depth tvv tpv)
@@ -918,8 +907,7 @@
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
 (each (lambda ((x y x1 y1)) (shader-vp-draw-tris pipe tverts ttris pixmap depth tvv tpv :nil 3 x y x1 y1))
 	'((0 0 20 7) (0 7 9 20) (9 7 20 20)))
-(assert-eq "a frame drawn in three parts"
-	(shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+(assert-eq "a frame drawn in three parts" (first drawn) (slice (tri-pixels pixmap) 0 1600))
 ;and by strips, each with a depth buffer of only its own rows, and the
 ;vertices as the bytes they are in a message
 (defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0)
@@ -929,41 +917,37 @@
 			tvv tpv :nil 3 0 y 20 y1 y))
 	'((0 6) (6 13) (13 20)))
 (assert-eq "a frame drawn in three strips, each with a depth buffer of its own rows"
-	(shader-cpu-tris tvert tpix tverts ttris 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+	(first drawn) (slice (tri-pixels pixmap) 0 1600))
 ;the near plane. A triangle with one vertex behind it, or two, is cut,
 ;and what is in front is drawn, whichever of its vertices comes first
 (defq tnear (cat tverts (apply (const reals) (map (const n2r) '(0.3 0.2 -3.0 1   0 1 0   1)))))
-(each (lambda ((title tri))
-		(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
-		(shader-vp-draw-tris pipe_solid tnear tri pixmap depth tvv tpv)
-		(defq got (slice (tri-pixels pixmap) 0 1600))
-		(assert-true (cat "the near plane, " title ", some of it is drawn") (> (tri-drawn got) 0))
-		(assert-eq (cat "the near plane, " title ", native code and the reference")
-			(shader-cpu-tris tvert tsolid tnear tri 20 20 tvv tpv) got))
-	(list (list "the last vertex behind" (nums 0 1 9)) (list "the second behind" (nums 1 9 0))
-		(list "the first behind" (nums 9 0 1)) (list "the first in front" (nums 2 9 10))
-		(list "the last in front" (nums 9 10 2)) (list "the second in front" (nums 10 2 9))
-		(list "all behind and all in front" (nums 9 10 9 0 1 2))
-		(list "cut ones among whole ones" (nums 0 1 2 0 1 9 3 4 5 10 2 9 6 7 8))))
-(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
-(shader-vp-draw-tris pipe_solid tnear (nums 9 10 9) pixmap depth tvv tpv)
-(assert-eq "the near plane, all behind, nothing drawn" 0 (tri-drawn (slice (tri-pixels pixmap) 0 1600)))
+(each (lambda ((title crc &rest tris))
+		(defq got (map (# (tri-draw pipe_solid %0 :nil :nil 3 0 0 20 20 tnear)) tris))
+		(assert-true (cat "the near plane, " title ", some of it is drawn") (> (tri-drawn (first got)) 0))
+		(assert-true (cat "the near plane, " title ", whichever vertex comes first")
+			(every (# (eql %0 (first got))) got))
+		(assert-eq (cat "the near plane, " title ", the pixels as they were") crc (crc32 (first got))))
+	(list (list "one vertex behind" 3909020676 (nums 0 1 9) (nums 1 9 0) (nums 9 0 1))
+		(list "one vertex in front" 2309378785 (nums 2 9 10) (nums 9 10 2) (nums 10 2 9))
+		(list "cut ones among whole ones" 284662683 (nums 0 1 2 0 1 9 3 4 5 10 2 9 6 7 8))))
+(assert-eq "the near plane, one all behind and one all in front, only the one in front"
+	(tri-draw pipe_solid (nums 0 1 2) :nil :nil 3 0 0 20 20 tnear)
+	(tri-draw pipe_solid (nums 9 10 9 0 1 2) :nil :nil 3 0 0 20 20 tnear))
+(assert-eq "the near plane, all behind, nothing drawn" 0
+	(tri-drawn (tri-draw pipe_solid (nums 9 10 9) :nil :nil 3 0 0 20 20 tnear)))
 ;triangles of 4 numbers, as a mesh has them, the 4th is not a vertex
-(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
-(shader-vp-draw-tris pipe tverts (nums 0 1 2 99 3 4 5 99) pixmap depth tvv tpv :nil 4)
 (assert-eq "triangles of 4 numbers"
-	(shader-cpu-tris tvert tpix tverts (nums 0 1 2 3 4 5) 20 20 tvv tpv) (slice (tri-pixels pixmap) 0 1600))
+	(tri-draw pipe (nums 0 1 2 3 4 5)) (tri-draw pipe (nums 0 1 2 99 3 4 5 99) :nil :nil 4))
 ;nothing to draw
-(defq canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
-(shader-vp-draw-tris pipe tverts (nums) pixmap depth tvv tpv)
-(assert-eq "no triangles, nothing drawn" 0 (tri-drawn (slice (tri-pixels pixmap) 0 1600)))
+(assert-eq "no triangles, nothing drawn" 0 (tri-drawn (tri-draw pipe (nums))))
 ;a pixel shader with no varyings goes with it too, and one function of
-;each kind serves every pair it is in
+;each kind serves every pair it is in. Each byte is the nearest to 255 of
+;what it gave, 64, 128 and 191, where the solid ones are drawn
 (defq flat (sh-main "(vec4 0.25 0.5 0.75 1.0)") pipe2 (shader-vp-pipeline tvert flat)
-	canvas (Canvas 20 20 1) pixmap (getf canvas +canvas_pixmap 0) depth (shader-vp-depth 20 20))
-(shader-vp-draw-tris pipe2 tverts ttris pixmap depth tvv)
-(assert-eq "a pixel shader with no varyings"
-	(shader-cpu-tris tvert flat tverts ttris 20 20 tvv) (slice (tri-pixels pixmap) 0 1600))
+	flat_pixels (tri-draw pipe2 ttris))
+(assert-true "a pixel shader with no varyings"
+	(not (some! (# (defq p (get-uint flat_pixels (* (!) 4)))
+			(if (= (get-uint solid (* (!) 4)) 0) (/= p 0) (/= p 0xff4080bf))) '() :nil 0 400)))
 (assert-list-eq "the one vertex function for both pairs" (first (third pipe)) (first (third pipe2)))
 (assert-error "a pair that does not go together" (shader-vp-pipeline tvert
 		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
@@ -1055,7 +1039,8 @@
 (report-header "GPU: shader language, functions for Lisp to call")
 
 ;a file with no main is functions. Each is a native function that Lisp
-;calls, and gives what the Lisp reference gives, to the bit
+;calls, and gives what the matrix library and the sums worked out by hand
+;give, near enough, as it works in 32 bit floats
 (defq fn_prog (sh-src
 		"(defconst half 0.5)"
 		"(defglobal twice (* half 4.0))"
@@ -1076,22 +1061,41 @@
 (assert-list-eq "what a function gives and takes" '(place :vec4 ((m :mat4) (p :vec4)))
 	(shader-func fn_prog 'place))
 (assert-eq "all its functions" 9 (length (shader-funcs fn_prog)))
-(each (lambda ((name args))
-		(defq native (shader-vp-func fn_prog name) ref (eval (shader-cpu-func fn_prog name)))
-		(assert-eq (cat "native code and the reference, " (str name))
-			(str (apply ref args)) (str (apply native args))))
-	(list (list 'mul (list fn_a fn_b)) (list 'place (list fn_b fn_p)) (list 'turn (list fn_a fn_n))
-		(list 'same (list fn_b))
-		(list 'wave (list (n2r 0.7) (n2r 3)))
-		(list 'mix3 (list fn_n (reals (n2r 1) (n2r 2) (n2r 3)) (n2r 0.25)))
-		(list 'bend (list (n2r 0.3))) (list 'count (list 5 (n2r 0.9))) (list 'count (list 5 (n2r 0.1)))
-		(list 'none (list))))
-;and what the matrix library gives, written by hand
+(defun fn-nums (v)
+	;what a function gave, or what is wanted of it, as fixeds
+	(map (const n2f) (if (reals? v) v (list v))))
+(defun fn-wave (x k)
+	;a power of 1.5 is a number times its root
+	(+ (sin (* x k)) (* (abs x) (sqrt (abs x))) (n2r 0.5)))
+(each (lambda ((name args want))
+		(assert-true (cat "native code, " (str name))
+			(sh-near? (fn-nums want) (fn-nums (apply (shader-vp-func fn_prog name) args)))))
+	(list (list 'mul (list fn_a fn_b) (mat4x4-mul fn_a fn_b))
+		(list 'place (list fn_b fn_p) (mat4x4-vec4-mul fn_b fn_p))
+		(list 'turn (list fn_a fn_n) (mat4x4-vec3-mul fn_a fn_n))
+		(list 'same (list fn_b) fn_b)
+		(list 'wave (list (n2r 0.7) (n2r 3)) (fn-wave (n2r 0.7) (n2r 3)))
+		(list 'mix3 (list fn_n (reals (n2r 1) (n2r 2) (n2r 3)) (n2r 0.25))
+			(nums-add (nums-scale fn_n (n2r 0.75)) (nums-scale (reals (n2r 1) (n2r 2) (n2r 3)) (n2r 0.25))))
+		(list 'bend (list (n2r 0.3)) (fn-wave (n2r 0.3) (n2r 2)))
+		(list 'count (list 5 (n2r 0.9)) 15) (list 'count (list 5 (n2r 0.1)) 5)
+		(list 'none (list) (n2r 1))))
 (defq fn_mul (shader-vp-func fn_prog 'mul) fn_place (shader-vp-func fn_prog 'place)
 	fn_turn (shader-vp-func fn_prog 'turn))
-(assert-eq "a matrix by a matrix, as the library has it" (str (mat4x4-mul fn_a fn_b)) (str (fn_mul fn_a fn_b)))
-(assert-eq "a matrix by a vec4, as the library has it" (str (mat4x4-vec4-mul fn_b fn_p)) (str (fn_place fn_b fn_p)))
-(assert-eq "a matrix by a vec3, as the library has it" (str (mat4x4-vec3-mul fn_a fn_n)) (str (fn_turn fn_a fn_n)))
+;a float is a 32 bit float, as a GPU has it, each sum the nearest one
+(defq fn_single (sh-src "(defun add :float ((a :float) (b :float)) (+ a b))"
+		"(defun over :float ((a :float)) (/ 1.0 a))" "(defun tenth :float () 0.1)"))
+(defun fn-single (r)
+	;the real that is the nearest 32 bit float to r
+	(sh-float-to-real (sh-real-to-float r)))
+(assert-eq "a float is 32 bits, 2^24 and 1 is 2^24" (n2r 16777216)
+	((shader-vp-func fn_single 'add) (n2r 16777216) (n2r 1)))
+(assert-eq "a third is the nearest 32 bit float to it" (fn-single (/ (n2r 1) (n2r 3)))
+	((shader-vp-func fn_single 'over) (n2r 3)))
+(assert-eq "a tenth, a constant, is the nearest 32 bit float to it" (fn-single (str-to-real "0.1"))
+	((shader-vp-func fn_single 'tenth)))
+(assert-eq "an arg is made the nearest 32 bit float to it" (fn-single (str-to-real "0.1"))
+	((shader-vp-func fn_single 'add) (str-to-real "0.1") (n2r 0)))
 ;what comes back is new each time, and the args are as they were
 (defq fn_before (cat fn_b) fn_one (fn_mul fn_a fn_b) fn_two (fn_mul fn_a fn_b))
 (assert-true "a reals of 16 comes back" (and (reals? fn_one) (= (length fn_one) 16)))
@@ -1113,20 +1117,20 @@
 		"(defun keeps :mat4 ((a :mat4) (b :mat4)) (defq m (* a b)) (setq m (* m a)) m)")
 	fn_v (reals (n2r 1) (n2r 2) (n2r 3) (n2r 4)) fn_w (reals (n2r 0.5) (n2r -1) (n2r 2) (n2r 0.25))
 	fn_n3 (reals (n2r 0) (n2r 0.6) (n2r 0.8)))
-(each (lambda ((name args))
-		(defq before (map (# (str %0)) args)
-			native (shader-vp-func fn_more name) ref (eval (shader-cpu-func fn_more name)))
-		(assert-eq (cat "args where they are, native code and the reference, " (str name))
-			(str (apply ref args)) (str (apply native args)))
+(defq fn_s (sin (n2r 2)))
+(each (lambda ((name args want))
+		(defq before (map (# (str %0)) args) got (apply (shader-vp-func fn_more name) args))
+		(assert-true (cat "args where they are, native code, " (str name))
+			(sh-near? (fn-nums want) (fn-nums got)))
 		(assert-list-eq (cat "args where they are, no arg is changed, " (str name))
 			before (map (# (str %0)) args)))
-	(list (list 'sets (list fn_n3 (n2r 2))) (list 'part (list fn_n3))
-		(list 'four (list fn_v fn_w fn_v fn_w (n2r 3)))
-		(list 'chain (list fn_a fn_b fn_a)) (list 'keeps (list fn_a fn_b))))
-(assert-eq "three matrices, as the library has it" (str (mat4x4-mul (mat4x4-mul fn_a fn_b) fn_a))
-	(str ((shader-vp-func fn_more 'chain) fn_a fn_b fn_a)))
-(assert-eq "the same reals as two args" (str (mat4x4-mul fn_a fn_a))
-	(str ((shader-vp-func fn_prog 'mul) fn_a fn_a)))
+	(list (list 'sets (list fn_n3 (n2r 2)) (nums-add (nums-scale fn_n3 (n2r 2)) (reals fn_s fn_s fn_s)))
+		(list 'part (list fn_n3) (reals (first fn_n3) (n2r 9) (third fn_n3)))
+		(list 'four (list fn_v fn_w fn_v fn_w (n2r 3)) (nums-add (nums-add (nums-scale fn_v (n2r 3)) fn_w) (nums-mul fn_v fn_w)))
+		(list 'chain (list fn_a fn_b fn_a) (mat4x4-mul (mat4x4-mul fn_a fn_b) fn_a))
+		(list 'keeps (list fn_a fn_b) (mat4x4-mul (mat4x4-mul fn_a fn_b) fn_a))))
+(assert-true "the same reals as two args"
+	(sh-near? (fn-nums (mat4x4-mul fn_a fn_a)) (fn-nums ((shader-vp-func fn_prog 'mul) fn_a fn_a))))
 
 ;what is refused, by the language
 (assert-error "no functions at all" (sh-src "(defconst a 1.0)"))
@@ -1193,11 +1197,11 @@
 (defq kf_text (sh-main "(vec4 0.25)"))
 (assert-eq "from text, a key" 32 (length (elem-get kf_text 5)))
 (assert-true "from text, all of it" (list? (second kf_text)))
-;the Lisp reference reads the rest for itself
+;a back end that makes text reads the rest for itself
 (defq kf_atom (shader-load "apps/science/molecule/atom.shader"))
-(assert-eq "before the reference is asked for, only the head" :lazy (second kf_atom))
-(shader-cpu kf_atom)
-(assert-true "the reference read the rest" (list? (second kf_atom)))
+(assert-eq "before a back end is asked for, only the head" :lazy (second kf_atom))
+(shader-glsl kf_atom)
+(assert-true "the back end read the rest" (list? (second kf_atom)))
 
 ;which make of a back end it is, is a hash of the files it is written in,
 ;and is part of the name of all it keeps, so a change to a back end can

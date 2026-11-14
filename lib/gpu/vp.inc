@@ -15,19 +15,27 @@
 ;str the caller gives, with the inputs written at the start of it, so
 ;none of this is on the task's stack. :r13 holds the frame, :r12 the
 ;constants. A value being worked on is in registers, a float in each
-;of :d0 to :d15, an int or bool in :r2 to :r10, and any that are live
-;over a call are saved on the stack around it. A matrix is never in
+;of :f0 to :f15, an int or bool in :r2 to :r10, and any that are live
+;over a call are saved on the stack around it.
+;A float is worked on as a 32 bit float, a single, as a GPU has it: each
+;op of the shader gives the nearest single. In the frame a float is the
+;single, the first 4 bytes of its slot, and an input is written there as
+;the nearest single to what it is given, (shader-vp-frame). What Lisp
+;gives and is given, reals reached by a register other than the frame's,
+;is doubles, and a float of them is made the nearest single as it is
+;loaded and the double of the single as it is stored A matrix is never in
 ;registers, it is 16 slots of the frame, a row at a time, and is known by
 ;where it is.
 
-(defq +sv_fregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15)
-	;each as a single, what a buffer's floats are
-	+sv_sregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
+(defq +sv_fregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
+	;each as a double, the one register, for a float in memory
+	+sv_dregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15)
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
-	+sv_sin_trash ''(:d0 :d1 :d2 :d3)
+	+sv_sin_trash ''(:f0 :f1 :f2 :f3)
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
-	;a byte of a pixel as a number of 0 to 1, by a multiply, as the Lisp back end has it
-	+sv_255th (/ (n2r 1) (n2r 255))
+	;a byte of a pixel as a number of 0 to 1 is it over this, the nearest
+	;single to that, as a GPU has it, and the Lisp back end
+	+sv_255 (n2r 255)
 	;this much work, a pixel is 1, and a native function gives the other
 	;tasks of its node a turn
 	+sv_work 16384
@@ -62,6 +70,27 @@
 	(push code form)
 	(each! (# (push code (list 'vp-pop %0))) (list keep) -1 0))
 
+(defun sv-d (r)
+	;the double of a float register, the one register
+	(elem-get +sv_dregs (find r +sv_fregs)))
+
+(defun sv-ldf (base at r)
+	;a float to a register, of the frame the single it is, of a reals the
+	;nearest single to its double
+	(cond
+		((eql base :r13) (sv-emit 'vp-load-rcf base at r))
+		(:t (sv-emit 'vp-load-rcd base at (defq d (sv-d r)))
+			(sv-emit 'vp-cvt-df d r))))
+
+(defun sv-stf (r base at)
+	;a float register to the frame as the single, to a reals as the double
+	;of it. Then the register is the double, every store is of a register
+	;that is given up after, or loaded again before it is used
+	(cond
+		((eql base :r13) (sv-emit 'vp-store-frc r base at))
+		(:t (sv-emit 'vp-cvt-fd r (defq d (sv-d r)))
+			(sv-emit 'vp-store-drc d base at))))
+
 (defun sv-at (offset)
 	; -> (register offset)
 	;where a slot of the frame is
@@ -72,11 +101,11 @@
 (defun sv-ld (offset reg)
 	;a float from a slot of the frame, or from where that slot really is
 	(bind '(base at) (sv-at offset))
-	(sv-emit 'vp-load-rcd base at reg))
+	(sv-ldf base at reg))
 
 (defun sv-st (reg offset)
 	(bind '(base at) (sv-at offset))
-	(sv-emit 'vp-store-drc reg base at))
+	(sv-stf reg base at))
 
 (defun sv-sets? (tree name)
 	;does any statement of a block set this variable. The block is walked
@@ -125,13 +154,13 @@
 (defun sv-load (type offset)
 	(if (sh-float? type)
 		(map! (# (bind '(base at) (sv-at (+ offset (* (!) 8))))
-				(sv-emit 'vp-load-rcd base at (defq r (sv-getf))) r) '() 0 (ifn (shader-dim type) 1))
+				(sv-ldf base at (defq r (sv-getf))) r) '() 0 (ifn (shader-dim type) 1))
 		(sv-emit 'vp-load-rcr :r13 offset (defq r (sv-getr))) (list r)))
 
 (defun sv-store (regs type offset)
 	(if (sh-float? type)
 		(each (# (bind '(base at) (sv-at (+ offset (* (!) 8))))
-				(sv-emit 'vp-store-drc %0 base at)) regs)
+				(sv-stf %0 base at)) regs)
 		(sv-emit 'vp-store-rrc (first regs) :r13 offset)))
 
 (defun sv-mat-copy (from to)
@@ -177,8 +206,8 @@
 					(each! (lambda () (defq row (!)) (each! (lambda () (defq k (!)) (sv-ld (+ at (* (+ (* row 4) k) 8)) scale)
 									(defq into_regs (if (= k 0) sums terms))
 									(each (# (sv-ld (+ with (* (+ (* k 4) (!)) 8)) %0)) into_regs)
-									(each (# (sv-emit 'vp-mul-dd scale %0)) into_regs)
-									(if (/= k 0) (each (# (sv-emit 'vp-add-dd %0 %1)) terms sums))) '() 0 4)
+									(each (# (sv-emit 'vp-mul-ff scale %0)) into_regs)
+									(if (/= k 0) (each (# (sv-emit 'vp-add-ff %0 %1)) terms sums))) '() 0 4)
 							(each (# (sv-st %0 (+ out (* (+ (* row 4) (!)) 8)))) sums)) '() 0 4)
 					(sv-puts (cat (list scale) sums terms))
 					(push vs out))))
@@ -191,16 +220,16 @@
 	(defq n (length regs) x (sv-getf)
 		out (map! (lambda () (defq row (!)) (defq acc (sv-getf))
 				(each! (lambda (reg) (sv-ld (+ at (* (+ (* row 4) (!)) 8)) (if (= (!) 0) acc x))
-						(sv-emit 'vp-mul-dd reg (if (= (!) 0) acc x))
-						(if (/= (!) 0) (sv-emit 'vp-add-dd x acc))) (list regs) 0 n)
+						(sv-emit 'vp-mul-ff reg (if (= (!) 0) acc x))
+						(if (/= (!) 0) (sv-emit 'vp-add-ff x acc))) (list regs) 0 n)
 				acc) '() 0 n))
 	(sv-put x)
 	(sv-puts regs)
 	out)
 
 (defun sv-const (val)
-	;a float constant, to a new register
-	(sv-emit 'vp-load-rcd :r12 (list 'fn-const (logior val)) (defq r (sv-getf)))
+	;a float constant, to a new register, the nearest single, kept as one
+	(sv-emit 'vp-load-rcf :r12 (list 'fn-const (sh-real-to-float val)) (defq r (sv-getf)))
 	r)
 
 (defun sv-spill (regs)
@@ -208,13 +237,13 @@
 	(defq saved (if (eql regs :t) (cat live) (filter (# (find %0 regs)) live)))
 	(when (nempty? saved)
 		(sv-emit 'vp-alloc (* (length saved) 8))
-		(each (# (sv-emit (if (find %0 +sv_fregs) 'vp-store-drc 'vp-store-rrc) %0 :rsp (* (!) 8))) saved))
+		(each (# (sv-emit (if (find %0 +sv_fregs) 'vp-store-frc 'vp-store-rrc) %0 :rsp (* (!) 8))) saved))
 	saved)
 
 (defun sv-unspill (saved)
 	(when (nempty? saved)
 		(each (# (if (find %0 +sv_fregs)
-					(sv-emit 'vp-load-rcd :rsp (* (!) 8) %0)
+					(sv-emit 'vp-load-rcf :rsp (* (!) 8) %0)
 					(sv-emit 'vp-load-rcr :rsp (* (!) 8) %0))) saved)
 		(sv-emit 'vp-free (* (length saved) 8))))
 
@@ -225,43 +254,51 @@
 (defun sv-floor (r)
 	;floor of a register, in place
 	(defq ri (sv-getr) rf (sv-getf) skip (sv-new-label))
-	(sv-emit 'vp-cvt-dr r ri)
-	(sv-emit 'vp-cvt-rd ri rf)
-	(sv-emit 'vp-ble-dd r rf (sv-q skip))
-	(sv-emit 'vp-sub-dd (defq one (sv-const +sv_1)) rf)
+	(sv-emit 'vp-cvt-fr r ri)
+	(sv-emit 'vp-cvt-rf ri rf)
+	(sv-emit 'vp-ble-ff r rf (sv-q skip))
+	(sv-emit 'vp-sub-ff (defq one (sv-const +sv_1)) rf)
 	(sv-emit 'vp-label (sv-q skip))
-	(sv-emit 'vp-cpy-dd rf r)
+	(sv-emit 'vp-cpy-ff rf r)
 	(sv-puts (list ri rf one)))
 
 (defun sv-sin (r is_cos)
-	;sin or cos of a register, which is given up, to a new register
+	;sin or cos of a register, which is given up, to a new register. The
+	;sin of the system is of a double, of the single, and its answer is
+	;made the nearest single
 	(sv-put r)
 	(defq saved (sv-spill +sv_sin_trash))
-	(unless (eql r :d0) (sv-emit 'vp-cpy-dd r :d0))
+	(unless (eql r :f0) (sv-emit 'vp-cpy-ff r :f0))
+	(sv-emit 'vp-cvt-fd :f0 :d0)
 	(when is_cos
 		(sv-emit 'vp-load-rcd :r12 (list 'fn-const (logior +sv_hpi)) :d1)
 		(sv-emit 'vp-add-dd :d1 :d0))
 	(sv-emit 'call :sys_math :r_sin (sv-q '(:d0)) (sv-q '(:d0)))
+	(sv-emit 'vp-cvt-df :d0 :f0)
 	(defq r (sv-getf))
-	(unless (eql r :d0) (sv-emit 'vp-cpy-dd :d0 r))
+	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
 	(sv-unspill saved)
 	r)
 
 (defun sv-pow (x y)
-	;x to the power y, both kept, to a new register
+	;x to the power y, both kept, to a new register. The power of the
+	;system is of doubles, of the singles, its answer made the nearest single
 	(defq saved (sv-spill :t))
-	(sv-emit 'vp-load-rcd :rsp (* (find x saved) 8) :d0)
-	(sv-emit 'vp-load-rcd :rsp (* (find y saved) 8) :d1)
+	(sv-emit 'vp-load-rcf :rsp (* (find x saved) 8) :f0)
+	(sv-emit 'vp-load-rcf :rsp (* (find y saved) 8) :f1)
+	(sv-emit 'vp-cvt-fd :f0 :d0)
+	(sv-emit 'vp-cvt-fd :f1 :d1)
 	(sv-emit 'call :sys_math :r_pow (sv-q '(:d0 :d1)) (sv-q '(:d0)))
+	(sv-emit 'vp-cvt-df :d0 :f0)
 	(defq r (sv-getf))
-	(unless (eql r :d0) (sv-emit 'vp-cpy-dd :d0 r))
+	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
 	(sv-unspill saved)
 	r)
 
 (defun sv-arith (i a ta b tb)
 	;one step of + - * /, by the types of the two sides
 	(defq va (shader-dim ta) vb (shader-dim tb)
-		op (elem-get '(vp-add-dd vp-sub-dd vp-mul-dd vp-div-dd) i))
+		op (elem-get '(vp-add-ff vp-sub-ff vp-mul-ff vp-div-ff) i))
 	(cond
 		((eql ta :int)
 			(cond
@@ -278,12 +315,12 @@
 			(each (# (sv-emit op (first a) %0)) b)
 			(sv-puts a) b)
 		((= i 1)
-			(each (# (sv-emit 'vp-neg-dd %0 %0) (sv-emit 'vp-add-dd (first a) %0)) b)
+			(each (# (sv-emit 'vp-neg-ff %0 %0) (sv-emit 'vp-add-ff (first a) %0)) b)
 			(sv-puts a) b)
 		(:t (defq tmp (sv-getf))
-			(each (# (sv-emit 'vp-cpy-dd (first a) tmp)
-					(sv-emit 'vp-div-dd %0 tmp)
-					(sv-emit 'vp-cpy-dd tmp %0)) b)
+			(each (# (sv-emit 'vp-cpy-ff (first a) tmp)
+					(sv-emit 'vp-div-ff %0 tmp)
+					(sv-emit 'vp-cpy-ff tmp %0)) b)
 			(sv-put tmp)
 			(sv-puts a) b)))
 
@@ -298,14 +335,14 @@
 	;which pixel of that many it is, to a new int register. limit is
 	;where in the frame the many is. The float register is used up
 	(defq tmp (sv-getf) rl (sv-getr) ri (sv-getr) ok (sv-new-label) low (sv-new-label))
-	(sv-emit 'vp-cpy-dd r tmp)
+	(sv-emit 'vp-cpy-ff r tmp)
 	(sv-floor tmp)
-	(sv-emit 'vp-sub-dd tmp r)
+	(sv-emit 'vp-sub-ff tmp r)
 	(sv-emit 'vp-load-rcr :r13 limit rl)
-	(sv-emit 'vp-cvt-rd rl tmp)
-	(sv-emit 'vp-mul-dd tmp r)
+	(sv-emit 'vp-cvt-rf rl tmp)
+	(sv-emit 'vp-mul-ff tmp r)
 	(sv-floor r)
-	(sv-emit 'vp-cvt-dr r ri)
+	(sv-emit 'vp-cvt-fr r ri)
 	(sv-emit 'vp-blt-rr rl ri (sv-q ok))
 	(sv-emit 'vp-cpy-rr rl ri)
 	(sv-emit 'vp-sub-cr 1 ri)
@@ -321,7 +358,7 @@
 	;where in the frame the picture is said, uv the two registers of the
 	;place, which are used up. The one pixel the place is in. A picture
 	;of no width is none, and is nothing
-	(defq out (map! (lambda () (sv-getf)) '() 0 4) k (sv-const +sv_255th)
+	(defq out (map! (lambda () (sv-getf)) '() 0 4) k (sv-const +sv_255)
 		l_none (sv-new-label) l_end (sv-new-label) rw (sv-getr))
 	(sv-emit 'vp-load-rcr :r13 (+ at 8) rw)
 	(sv-emit 'vp-beq-cr 0 rw (sv-q l_none))
@@ -338,12 +375,12 @@
 			(sv-emit 'vp-cpy-rr rx rt)
 			(if (/= shift 0) (sv-emit 'vp-shr-cr shift rt))
 			(sv-emit 'vp-and-cr 0xff rt)
-			(sv-emit 'vp-cvt-rd rt r)
-			(sv-emit 'vp-mul-dd k r)) out '(16 8 0 24))
+			(sv-emit 'vp-cvt-rf rt r)
+			(sv-emit 'vp-div-ff k r)) out '(16 8 0 24))
 	(sv-emit 'vp-jmp (sv-q l_end))
 	(sv-emit 'vp-label (sv-q l_none))
 	;nothing, a number less itself
-	(each (# (sv-emit 'vp-cpy-dd k %0) (sv-emit 'vp-sub-dd k %0)) out)
+	(each (# (sv-emit 'vp-cpy-ff k %0) (sv-emit 'vp-sub-ff k %0)) out)
 	(sv-emit 'vp-label (sv-q l_end))
 	(sv-puts (list rx ry rt k))
 	(sv-puts uv)
@@ -381,7 +418,7 @@
 		(:t ;parts of a variable, only the parts asked for are loaded
 			(defq offset (sv-var (third b)))
 			(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
-					(sv-emit 'vp-load-rcd base at (defq r (sv-getf))) r) a))))
+					(sv-ldf base at (defq r (sv-getf))) r) a))))
 
 (defun sv-apply (node a b c)
 	;a built in op whose args are all worked out before it, they are in a,
@@ -392,15 +429,13 @@
 		((eql op 'texture)
 			(sv-texture (elem-get tex_at (elem-get (first args) 3)) a))
 		((eql op 'elem-get)
-			;an element of a buffer, 32 bits, a float made a real
+			;an element of a buffer, 32 bits, a float a single as it is
 			(sv-emit 'vp-shl-cr 2 (first b))
 			(sv-emit 'vp-add-rr (first b) (first a))
 			(sv-puts b)
 			(cond
 				((eql ta :fbuf)
-					(sv-emit 'vp-load-rcf (first a) 0
-						(defq s (elem-get +sv_sregs (find (defq r (sv-getf)) +sv_fregs))))
-					(sv-emit 'vp-cvt-fd s r)
+					(sv-emit 'vp-load-rcf (first a) 0 (defq r (sv-getf)))
 					(sv-puts a) (list r))
 				(:t (sv-emit 'vp-load-rcr-i (first a) 0 (first a)) a)))
 		((defq i (find op '(<< >>)))
@@ -409,13 +444,13 @@
 		((eql op 'float)
 			(cond
 				((eql ta :int)
-					(sv-emit 'vp-cvt-rd (first a) (defq r (sv-getf)))
+					(sv-emit 'vp-cvt-rf (first a) (defq r (sv-getf)))
 					(sv-puts a) (list r))
 				(a)))
 		((eql op 'int)
 			(cond
 				((eql ta :float)
-					(sv-emit 'vp-cvt-dr (first a) (defq r (sv-getr)))
+					(sv-emit 'vp-cvt-fr (first a) (defq r (sv-getr)))
 					(sv-puts a) (list r))
 				(a)))
 		((defq i (find op '(sin cos sqrt abs floor fract)))
@@ -424,80 +459,80 @@
 					(times n (push a (sv-sin (first a) (= i 1)))
 						(setq a (rest a)))
 					a)
-				(2 (each (# (sv-emit 'vp-sqrt-dd %0 %0)) a) a)
-				(3 (each (# (sv-emit 'vp-abs-dd %0 %0)) a) a)
+				(2 (each (# (sv-emit 'vp-sqrt-ff %0 %0)) a) a)
+				(3 (each (# (sv-emit 'vp-abs-ff %0 %0)) a) a)
 				(4 (each (const sv-floor) a) a)
 				(:t (defq tmp (sv-getf))
-					(each (# (sv-emit 'vp-cpy-dd %0 tmp)
+					(each (# (sv-emit 'vp-cpy-ff %0 tmp)
 							(sv-floor tmp)
-							(sv-emit 'vp-sub-dd tmp %0)) a)
+							(sv-emit 'vp-sub-ff tmp %0)) a)
 					(sv-put tmp) a)))
 		((defq i (find op '(min max mod)))
 			(cond
 				((< i 2)
-					(each (# (sv-emit (if (= i 0) 'vp-min-dd 'vp-max-dd) (sv-src b (!)) %0)) a))
+					(each (# (sv-emit (if (= i 0) 'vp-min-ff 'vp-max-ff) (sv-src b (!)) %0)) a))
 				(:t (defq tmp (sv-getf))
-					(each (# (sv-emit 'vp-cpy-dd %0 tmp)
-							(sv-emit 'vp-div-dd (sv-src b (!)) tmp)
+					(each (# (sv-emit 'vp-cpy-ff %0 tmp)
+							(sv-emit 'vp-div-ff (sv-src b (!)) tmp)
 							(sv-floor tmp)
-							(sv-emit 'vp-mul-dd (sv-src b (!)) tmp)
-							(sv-emit 'vp-sub-dd tmp %0)) a)
+							(sv-emit 'vp-mul-ff (sv-src b (!)) tmp)
+							(sv-emit 'vp-sub-ff tmp %0)) a)
 					(sv-put tmp)))
 			(sv-puts b) a)
 		((eql op 'pow)
 			(defq regs (map (const sv-pow) a b))
 			(sv-puts a) (sv-puts b) regs)
 		((eql op 'clamp)
-			(each (# (sv-emit 'vp-max-dd (sv-src b (!)) %0)
-					(sv-emit 'vp-min-dd (sv-src c (!)) %0)) a)
+			(each (# (sv-emit 'vp-max-ff (sv-src b (!)) %0)
+					(sv-emit 'vp-min-ff (sv-src c (!)) %0)) a)
 			(sv-puts b) (sv-puts c) a)
 		((eql op 'mix)
-			(each (# (sv-emit 'vp-sub-dd %0 %1)
-					(sv-emit 'vp-mul-dd (sv-src c (!)) %1)
-					(sv-emit 'vp-add-dd %1 %0)) a b)
+			(each (# (sv-emit 'vp-sub-ff %0 %1)
+					(sv-emit 'vp-mul-ff (sv-src c (!)) %1)
+					(sv-emit 'vp-add-ff %1 %0)) a b)
 			(sv-puts b) (sv-puts c) a)
 		((eql op 'dot)
-			(each (# (sv-emit 'vp-mul-dd %1 %0)) a b)
-			(each! (# (sv-emit 'vp-add-dd %0 (first a))) (list a) 1)
+			(each (# (sv-emit 'vp-mul-ff %1 %0)) a b)
+			(each! (# (sv-emit 'vp-add-ff %0 (first a))) (list a) 1)
 			(sv-puts b) (each! (const sv-put) (list a) 1) (list (first a)))
 		((eql op 'length)
 			(cond
-				(va (each (# (sv-emit 'vp-mul-dd %0 %0)) a)
-					(each! (# (sv-emit 'vp-add-dd %0 (first a))) (list a) 1)
-					(sv-emit 'vp-sqrt-dd (first a) (first a))
+				(va (each (# (sv-emit 'vp-mul-ff %0 %0)) a)
+					(each! (# (sv-emit 'vp-add-ff %0 (first a))) (list a) 1)
+					(sv-emit 'vp-sqrt-ff (first a) (first a))
 					(each! (const sv-put) (list a) 1) (list (first a)))
-				(:t (sv-emit 'vp-abs-dd (first a) (first a)) a)))
+				(:t (sv-emit 'vp-abs-ff (first a) (first a)) a)))
 		((eql op 'normalize)
 			(defq acc (sv-getf) tmp (sv-getf))
-			(sv-emit 'vp-cpy-dd (first a) acc)
-			(sv-emit 'vp-mul-dd acc acc)
-			(each! (# (sv-emit 'vp-cpy-dd %0 tmp)
-					(sv-emit 'vp-mul-dd tmp tmp)
-					(sv-emit 'vp-add-dd tmp acc)) (list a) 1)
-			(sv-emit 'vp-sqrt-dd acc acc)
-			(each (# (sv-emit 'vp-div-dd acc %0)) a)
+			(sv-emit 'vp-cpy-ff (first a) acc)
+			(sv-emit 'vp-mul-ff acc acc)
+			(each! (# (sv-emit 'vp-cpy-ff %0 tmp)
+					(sv-emit 'vp-mul-ff tmp tmp)
+					(sv-emit 'vp-add-ff tmp acc)) (list a) 1)
+			(sv-emit 'vp-sqrt-ff acc acc)
+			(each (# (sv-emit 'vp-div-ff acc %0)) a)
 			(sv-put acc) (sv-put tmp) a)
 		((eql op 'cross)
 			(defq tmp (sv-getf)
 				regs (map (lambda (i j)
-						(sv-emit 'vp-cpy-dd (elem-get a i) (defq r (sv-getf)))
-						(sv-emit 'vp-mul-dd (elem-get b j) r)
-						(sv-emit 'vp-cpy-dd (elem-get a j) tmp)
-						(sv-emit 'vp-mul-dd (elem-get b i) tmp)
-						(sv-emit 'vp-sub-dd tmp r)
+						(sv-emit 'vp-cpy-ff (elem-get a i) (defq r (sv-getf)))
+						(sv-emit 'vp-mul-ff (elem-get b j) r)
+						(sv-emit 'vp-cpy-ff (elem-get a j) tmp)
+						(sv-emit 'vp-mul-ff (elem-get b i) tmp)
+						(sv-emit 'vp-sub-ff tmp r)
 						r) '(1 2 0) '(2 0 1)))
 			(sv-put tmp) (sv-puts a) (sv-puts b) regs)
 		((eql op 'reflect)
 			;i - 2 * dot(n, i) * n
 			(defq acc (sv-getf) tmp (sv-getf))
-			(sv-emit 'vp-cpy-dd (first a) acc)
-			(sv-emit 'vp-mul-dd (first b) acc)
-			(each! (# (sv-emit 'vp-cpy-dd %0 tmp)
-					(sv-emit 'vp-mul-dd %1 tmp)
-					(sv-emit 'vp-add-dd tmp acc)) (list a b) 1)
-			(sv-emit 'vp-add-dd acc acc)
-			(each (# (sv-emit 'vp-mul-dd acc %1)
-					(sv-emit 'vp-sub-dd %1 %0)) a b)
+			(sv-emit 'vp-cpy-ff (first a) acc)
+			(sv-emit 'vp-mul-ff (first b) acc)
+			(each! (# (sv-emit 'vp-cpy-ff %0 tmp)
+					(sv-emit 'vp-mul-ff %1 tmp)
+					(sv-emit 'vp-add-ff tmp acc)) (list a b) 1)
+			(sv-emit 'vp-add-ff acc acc)
+			(each (# (sv-emit 'vp-mul-ff acc %1)
+					(sv-emit 'vp-sub-ff %1 %0)) a b)
 			(sv-put acc) (sv-put tmp) (sv-puts b) a)))
 
 (defun sv-lin-expr (node)
@@ -595,7 +630,7 @@
 						out (map (# (defq r (elem-get regs %0))
 								(cond
 									((find r used)
-										(sv-emit 'vp-cpy-dd r (defq r (sv-getf))) r)
+										(sv-emit 'vp-cpy-ff r (defq r (sv-getf))) r)
 									((push used r) r))) a))
 					(sv-puts (filter (# (not (find %0 used))) regs))
 					(push vs out))
@@ -613,7 +648,7 @@
 							(sv-emit 'vp-xor-rr (first a) (first a))
 							(sv-emit 'vp-sub-rr tmp (first a))
 							(sv-put tmp))
-						((each (# (sv-emit 'vp-neg-dd %0 %0)) a))))
+						((each (# (sv-emit 'vp-neg-ff %0 %0)) a))))
 				(:mat4 (bind '(type & op args) p0)
 					(defq v (pop vs))
 					;each matrix is applied to the vector in turn, the nearest first
@@ -629,12 +664,12 @@
 				(:vec_part (defq a (pop vs) regs (last vs))
 					(cond
 						((eql p0 :int)
-							(sv-emit 'vp-cvt-rd (first a) (defq r (sv-getf)))
+							(sv-emit 'vp-cvt-rf (first a) (defq r (sv-getf)))
 							(sv-puts a) (push regs r))
 						((each (# (push regs %0)) a))))
 				(:vec_end (defq regs (last vs))
 					(while (< (length regs) (shader-dim p0))
-						(sv-emit 'vp-cpy-dd (first regs) (defq r (sv-getf)))
+						(sv-emit 'vp-cpy-ff (first regs) (defq r (sv-getf)))
 						(push regs r)))
 				(:user_begin (push vs (list)))
 				(:user_arg (bind '(type tag a &optional b) p0)
@@ -658,7 +693,7 @@
 					(push vs regs))
 				(:br_cmp (defq y (pop vs) x (pop vs))
 					(sv-emit (elem-get (if p1
-								'(vp-blt-dd vp-ble-dd vp-bgt-dd vp-bge-dd vp-beq-dd vp-bne-dd)
+								'(vp-blt-ff vp-ble-ff vp-bgt-ff vp-bge-ff vp-beq-ff vp-bne-ff)
 								'(vp-blt-rr vp-ble-rr vp-bgt-rr vp-bge-rr vp-beq-rr vp-bne-rr)) p0)
 						(first y) (first x) (sv-q (first p2)))
 					(sv-puts x) (sv-puts y))
@@ -730,7 +765,7 @@
 								(sv-puts regs))))
 					(:setsw (defq regs (sv-expr c) offset (sv-var a))
 						(each (# (bind '(base at) (sv-at (+ offset (* %1 8))))
-								(sv-emit 'vp-store-drc %0 base at)) regs b)
+								(sv-stf %0 base at)) regs b)
 						(sv-puts regs))
 					(:if (defq l_else (sv-new-label))
 						(sv-branch a l_else :nil)
@@ -756,11 +791,8 @@
 						(sv-emit 'vp-add-rr (first at) r)
 						(cond
 							((eql (first c) :float)
-								;the nearest single, in a register of its own
-								(defq ft (sv-getf) s (elem-get +sv_sregs (find ft +sv_fregs)))
-								(sv-emit 'vp-cvt-df (first regs) s)
-								(sv-emit 'vp-store-frc s r 0)
-								(sv-put ft))
+								;the single as it is
+								(sv-emit 'vp-store-frc (first regs) r 0))
 							((sv-emit 'vp-store-rrc-i (first regs) r 0)))
 						(sv-puts regs) (sv-puts at) (sv-put r))
 					(:return (cond
@@ -946,6 +978,12 @@
 	(defun E (&rest form) (push code form))
 	(defun L (slot reg) (E 'vp-load-rcd :r13 slot reg))
 	(defun S (reg slot) (E 'vp-store-drc reg :r13 slot))
+	;a double to a slot the pixel shader reads, as the nearest single, and
+	;a single it gave to a double
+	(defun SF (reg slot) (E 'vp-cvt-df reg (defq f (elem-get +sv_fregs (find reg +sv_dregs))))
+		(E 'vp-store-frc f :r13 slot))
+	(defun LF (slot reg) (E 'vp-load-rcf :r13 slot (defq f (elem-get +sv_fregs (find reg +sv_dregs))))
+		(E 'vp-cvt-fd f reg))
 	(defun LI (slot reg) (E 'vp-load-rcr :r13 slot reg))
 	(defun SI (reg slot) (E 'vp-store-rrc reg :r13 slot))
 	(defun K (val reg) (E 'vp-load-rcd :r12 (list 'fn-const (logior (n2r val))) reg))
@@ -1162,26 +1200,27 @@
 			(E 'vp-add-dd :d5 :d4)
 			(L (T 2 (+ 4 (!))) :d5) (E 'vp-mul-dd :d2 :d5)
 			(E 'vp-add-dd :d5 :d4)
-			(S :d4 (+ vary_at (* (!) 8)))) '() 0 vary_slots)
+			(SF :d4 (+ vary_at (* (!) 8)))) '() 0 vary_slots)
 	;the frag coord, the centre of the pixel, y up
 	(K 0.5 :d5)
-	(E 'vp-cvt-rd :r2 :d4) (E 'vp-add-dd :d5 :d4) (S :d4 frag)
+	(E 'vp-cvt-rd :r2 :d4) (E 'vp-add-dd :d5 :d4) (SF :d4 frag)
 	(LI s_y :r6) (LI s_vh :r7)
 	(E 'vp-sub-rr :r6 :r7) (E 'vp-sub-cr 1 :r7)
-	(E 'vp-cvt-rd :r7 :d4) (E 'vp-add-dd :d5 :d4) (S :d4 (+ frag 8))
+	(E 'vp-cvt-rd :r7 :d4) (E 'vp-add-dd :d5 :d4) (SF :d4 (+ frag 8))
 	(E 'vp-call (Q 'sf_main))
 	;the alpha of the pixel, 0 to 255. One of 0 is not there at all, and
 	;is the quick way out
-	(K 0 :d1) (K 1 :d2) (K 255 :d3)
-	(L (+ ret 24) :d0)
-	(E 'vp-max-dd :d1 :d0) (E 'vp-min-dd :d2 :d0) (E 'vp-mul-dd :d3 :d0)
+	;a byte is the nearest to 255 of it, as a GPU writes one
+	(K 0 :d1) (K 1 :d2) (K 255 :d3) (K 0.5 :d4)
+	(LF (+ ret 24) :d0)
+	(E 'vp-max-dd :d1 :d0) (E 'vp-min-dd :d2 :d0) (E 'vp-mul-dd :d3 :d0) (E 'vp-add-dd :d4 :d0)
 	(E 'vp-cvt-dr :d0 :r4)
 	(E 'vp-beq-cr 0 :r4 (Q 'sr_next))
 	;the pixel, a 32 bit argb
 	(E 'vp-cpy-rr :r4 :r7)
 	(each (lambda (offset)
-			(L offset :d0)
-			(E 'vp-max-dd :d1 :d0) (E 'vp-min-dd :d2 :d0) (E 'vp-mul-dd :d3 :d0)
+			(LF offset :d0)
+			(E 'vp-max-dd :d1 :d0) (E 'vp-min-dd :d2 :d0) (E 'vp-mul-dd :d3 :d0) (E 'vp-add-dd :d4 :d0)
 			(E 'vp-cvt-dr :d0 :r5)
 			(E 'vp-shl-cr 8 :r7) (E 'vp-add-rr :r5 :r7)) (list ret (+ ret 8) (+ ret 16)))
 	(LI s_y :r5) (LI s_pstride :r6) (E 'vp-mul-rr :r6 :r5)
@@ -1432,11 +1471,12 @@
 	(vp-load-rcr :r13 } (str s_x) { :r2)
 	(vp-load-rcr :r13 } (str s_x1) { :r3)
 	(vp-bge-rr :r3 :r2 'sh_xend)
-	;the frag coord, the centre of the pixel, y up if a height is given
-	(vp-load-rcd :r12 (fn-const (n2r 0.5)) :d2)
-	(vp-cvt-rd :r2 :d0)
-	(vp-add-dd :d2 :d0)
-	(vp-store-drc :d0 :r13 } (str frag) {)
+	;the frag coord, the centre of the pixel, y up if a height is given, as
+	;singles in the frame
+	(vp-load-rcf :r12 (fn-const } (str (sh-real-to-float 0.5)) {) :f2)
+	(vp-cvt-rf :r2 :f0)
+	(vp-add-ff :f2 :f0)
+	(vp-store-frc :f0 :r13 } (str frag) {)
 	(vp-load-rcr :r13 } (str s_y) { :r3)
 	(vp-load-rcr :r13 } (str s_height) { :r4)
 	(vp-beq-cr 0 :r4 'sh_noflip)
@@ -1444,18 +1484,22 @@
 	(vp-sub-cr 1 :r4)
 	(vp-cpy-rr :r4 :r3)
 (vp-label 'sh_noflip)
-	(vp-cvt-rd :r3 :d0)
-	(vp-add-dd :d2 :d0)
-	(vp-store-drc :d0 :r13 } (str (+ frag 8)) {)
+	(vp-cvt-rf :r3 :f0)
+	(vp-add-ff :f2 :f0)
+	(vp-store-frc :f0 :r13 } (str (+ frag 8)) {)
 	(vp-call 'sf_main)
 	(vp-load-rcr :r13 } (str s_out) { :r2)
 	(vp-load-rcr :r13 } (str s_mode) { :r3)
 	(vp-bne-cr 0 :r3 'sh_argb)
-	;mode 0, the 4 floats as they are
-	(vp-load-rcd :r13 } (str ret) { :d0)
-	(vp-load-rcd :r13 } (str (+ ret 8)) { :d1)
-	(vp-load-rcd :r13 } (str (+ ret 16)) { :d2)
-	(vp-load-rcd :r13 } (str (+ ret 24)) { :d3)
+	;mode 0, the 4 floats as they are, the doubles of the singles
+	(vp-load-rcf :r13 } (str ret) { :f0)
+	(vp-load-rcf :r13 } (str (+ ret 8)) { :f1)
+	(vp-load-rcf :r13 } (str (+ ret 16)) { :f2)
+	(vp-load-rcf :r13 } (str (+ ret 24)) { :f3)
+	(vp-cvt-fd :f0 :d0)
+	(vp-cvt-fd :f1 :d1)
+	(vp-cvt-fd :f2 :d2)
+	(vp-cvt-fd :f3 :d3)
 	(vp-store-drc :d0 :r2 0)
 	(vp-store-drc :d1 :r2 8)
 	(vp-store-drc :d2 :r2 16)
@@ -1464,23 +1508,29 @@
 	(vp-jmp 'sh_next)
 (vp-label 'sh_argb)
 	;modes 1 and 2, a 32 bit argb pixel, alpha full on. In mode 3 the
-	;alpha is the one main gave
+	;alpha is the one main gave. A byte is the nearest to 255 of it, as a
+	;GPU writes one, the double of the single times 255 is exact
 	(vp-load-rcd :r12 (fn-const (n2r 0)) :d1)
 	(vp-load-rcd :r12 (fn-const (n2r 1)) :d2)
 	(vp-load-rcd :r12 (fn-const (n2r 255)) :d3)
+	(vp-load-rcd :r12 (fn-const (n2r 0.5)) :d4)
 	(vp-cpy-cr 0xff :r4)
 	(vp-bne-cr 3 :r3 'sh_rgb)
-	(vp-load-rcd :r13 } (str (+ ret 24)) { :d0)
+	(vp-load-rcf :r13 } (str (+ ret 24)) { :f0)
+	(vp-cvt-fd :f0 :d0)
 	(vp-max-dd :d1 :d0)
 	(vp-min-dd :d2 :d0)
 	(vp-mul-dd :d3 :d0)
+	(vp-add-dd :d4 :d0)
 	(vp-cvt-dr :d0 :r4)
 (vp-label 'sh_rgb)
 	(each (lambda (offset)
-		(vp-load-rcd :r13 offset :d0)
+		(vp-load-rcf :r13 offset :f0)
+		(vp-cvt-fd :f0 :d0)
 		(vp-max-dd :d1 :d0)
 		(vp-min-dd :d2 :d0)
 		(vp-mul-dd :d3 :d0)
+		(vp-add-dd :d4 :d0)
 		(vp-cvt-dr :d0 :r5)
 		(vp-shl-cr 8 :r4)
 		(vp-add-rr :r5 :r4)) '(} (str ret) " " (str (+ ret 8)) " " (str (+ ret 16)) {))
@@ -1614,8 +1664,9 @@
 						tab "(vp-load-rcr :r2 " (str (* (!) 8)) " :r2)" lf
 						tab "(assign '((:r2 +array_length)) '(:r3))" lf
 						tab "(gotoif '(:r3 /= " (str (shader-size ptype)) ") 'error)" lf) "")) (cat params '((_ :float))))
-		;each arg to its slots of the frame, the bits as they are, or the
-		;register it is reached by set to where it is
+		;each arg to its slots of the frame, an int as it is and a float as
+		;the nearest single to its double, or the register it is reached by
+		;set to where it is
 		copies (map (lambda ((pname ptype) offset)
 				(defq at (!) reg (some! (lambda ((which reg)) (and (eql which at) reg)) (list *sv_entry*) :nil 1))
 				(cat tab "(vp-load-rcr :r1 " (str (* at 8)) " :r2)" lf
@@ -1623,8 +1674,13 @@
 						(reg (cat tab "(vp-load-rcr :r2 +array_begin " (str reg) ")" lf))
 						((> (shader-size ptype) 1)
 							(cat tab "(vp-load-rcr :r2 +array_begin :r2)" lf
-								(join (map! (# (cat tab "(vp-load-rcr :r2 " (str (* (!) 8)) " :r3)" lf
-												tab "(vp-store-rrc :r3 :r13 " (str (+ offset (* (!) 8))) ")" lf)) '() 0 (shader-size ptype)) "")))
+								(join (map! (# (cat tab "(vp-load-rcd :r2 " (str (* (!) 8)) " :d0)" lf
+												tab "(vp-cvt-df :d0 :f0)" lf
+												tab "(vp-store-frc :f0 :r13 " (str (+ offset (* (!) 8))) ")" lf)) '() 0 (shader-size ptype)) "")))
+						((eql ptype :float)
+							(cat tab "(vp-load-rcd :r2 +num_value :d0)" lf
+								tab "(vp-cvt-df :d0 :f0)" lf
+								tab "(vp-store-frc :f0 :r13 " (str offset) ")" lf))
 						(:t (cat tab "(vp-load-rcr :r2 +num_value :r3)" lf
 								tab "(vp-store-rrc :r3 :r13 " (str offset) ")" lf))))) (cat params '((_ :float))) (cat offsets '(0)))
 		makes (if (> count 1)
@@ -1637,7 +1693,11 @@
 				tab "(vp-load-rcr :r10 +array_begin :r10)" lf) "")
 		gives (if (> count 1)
 			(cat tab "(vp-load-rcr :rsp " (str s_gives) " :r1)" lf)
-			(cat tab "(vp-load-rcr :r13 " (str ret) " :r0)" lf
+			(cat (if (eql ret_type :float)
+					(cat tab "(vp-load-rcf :r13 " (str ret) " :f0)" lf
+						tab "(vp-cvt-fd :f0 :d0)" lf
+						tab "(vp-cpy-dr :d0 :r0)" lf)
+					(cat tab "(vp-load-rcr :r13 " (str ret) " :r0)" lf))
 				tab "(call " (if (eql ret_type :float) ":real" ":num") " :create '(:r0) '(:r1))" lf))
 		arg_names (apply (const cat) (cat (list "") (map (# (cat " " (str (first %0)))) params)))
 		text (cat
@@ -1914,8 +1974,9 @@
 				(setq val (second v)))
 			(cond
 				((eql type :int) (set-long frame offset (n2i val)))
-				((eql type :float) (set-real frame offset (shader-real val)))
-				((seq? val) (each (# (set-real frame (+ offset (* (!) 8)) (shader-real %0))) val)))
+				;a float is the nearest single, the first 4 bytes of its slot
+				((eql type :float) (set-int frame offset (sh-real-to-float val)))
+				((seq? val) (each (# (set-int frame (+ offset (* (!) 8)) (sh-real-to-float %0))) val)))
 			(setq offset (+ offset (* (shader-size type) 8)))) (first program))
 	;then the textures of a pixel shader, each the pixmap given under its
 	;name: where its pixels are, its width, its height, and the bytes of

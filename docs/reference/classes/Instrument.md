@@ -29,6 +29,9 @@ not what a hand changes:
 				part other than :move is drawn too, a shade darker
 	:zero		(x y), the 0 of its marks, what is put on a line of the
 				paper when the board's snap is on, (:snap_zero)
+	:zeros		((x y) ...), each 0 of its marks if it has more than
+				one, a ruler's of each side: the one nearest the hand
+				is what is put on a line, (:zero_near)
 	:readouts	((x y [turn]) ...), where the angle it is turned to
 				is written, in degrees, the way a protractor counts,
 				up from level. One with a turn is written turned by
@@ -253,7 +256,8 @@ have the 0 of its marks, :zero, on a line of the paper each way: a
 ruler's 0, the middle of a protractor's straight side, the square
 corner of a set square. Its marks are of the paper, (:mm), so with
 the 0 on a line, and it level or upright, each centimetre is on
-one. Chris: "yes, snap the 0 mark to the grid when snap is on"
+one. Chris: "yes, snap the 0 mark to the grid when snap is on". Of
+more than one 0, the one nearest the event's point, (:zero_near)
 ```
 
 ### :step
@@ -287,6 +291,18 @@ The first two that came are the two. A third that comes down on it
 while they have it does nothing, they have it. When one of the two
 lifts, those that are left carry on from where things are, the
 next two of them together
+```
+
+### :zero_near
+
+```code
+(. instrument :zero_near [x y]) -> :nil | (x y)
+
+the 0 of its marks nearest that point of the board, of its own
+space, :zero if no point is given or it has only the one. Chris:
+"make the 0 mark that we snap to grid the one nearest to the drag
+point", a ruler's top side in centimetres from its left end, its
+bottom side in inches from its right
 ```
 
 ### :zones

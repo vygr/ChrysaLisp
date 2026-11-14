@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Shader language, s-expression source to a checked, typed tree.
-; The tree is what the back ends take, see glsl.inc and cpu.inc.
+; The tree is what the back ends take, see glsl.inc and vp.inc.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././crypto/sha256.inc")

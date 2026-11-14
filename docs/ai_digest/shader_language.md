@@ -4,9 +4,8 @@ ChrysaLisp has its own shader language. A shader is written as s-expressions,
 read by the Lisp reader, type checked in Lisp, and handed to a back end. One
 back end gives the text of a GLSL fragment shader for a GPU. One gives VP code,
 a native function that shades pixels with no GPU at all, on any CPU ChrysaLisp
-runs on, which can be farmed over the nodes of a network. One gives a Lisp
-lambda that does the same, interpreted, the reference the others are checked
-against. The same source, the same inputs, the same picture.
+runs on, which can be farmed over the nodes of a network. It works in 32 bit
+floats, as a GPU does. The same source, the same inputs, the same picture.
 
 ```image
 docs/diagrams/shader_backends.cwb
@@ -37,7 +36,6 @@ rewrite of every shader.
 * `lib/gpu/glsl.inc`, the GLSL text back end.
 * `lib/gpu/msl.inc`, the Metal Shading Language text back end.
 * `lib/gpu/spirv.inc`, the SPIR-V binary back end, for Vulkan.
-* `lib/gpu/cpu.inc`, the CPU back end, interpreted Lisp.
 * `lib/gpu/vp.inc`, the VP back end, native code.
 * `lib/gpu/gui.inc`, a shader on the GPU of the GUI.
 * `lib/gpu/kernel.inc`, a kernel on the GPU, see Kernels below.
@@ -274,22 +272,9 @@ at a time, as `lib/math/matrix.inc` makes them, `(mat4x4-frustum)` and the
 rest. In the inputs block it is its 4 columns, each a `vec4`, as a GPU wants
 it.
 
-The Lisp back end is the reference for it.
-
-```vdu
-(defq place (shader-cpu-vertex vertex)
-	placed (apply place (cat (list verts) (shader-cpu-args vertex vals))))
-```
-
-`verts` is a list of vertices, each a list of its attrs in the order the
-shader has them. For each the lambda gives a list, where the vertex is, then
-each varying as `main` left it. And the lambda of a pixel shader that has
-varyings takes a value for each after its inputs, `(shader-cpu-args)` gives
-them, and every pixel of the tile has those. Where the reference puts a
-vertex is where `(mat4x4-vec4-mul)` puts it, and a normal where
-`(mat4x4-vec3-mul)` does.
-
-The VP back end has the vertex shader as native code.
+The VP back end has the vertex shader as native code. Where it puts a vertex
+is where `(mat4x4-vec4-mul)` puts it, and a normal where `(mat4x4-vec3-mul)`
+does, to 32 bit floats.
 
 ```vdu
 (defq native (shader-vp-vertex vertex)
@@ -394,9 +379,9 @@ assembled once however many pixel shaders it is used with. What ties a pair
 is a short list, where in a placed vertex each varying of the pixel shader
 is.
 
-`(shader-cpu-tris vertex pixel verts tris width height ...)` is the
-reference, the same in Lisp, a pixel at a time, and gives the pixels as a
-string. The native code draws what it draws, to the bit.
+Each way of drawing the one picture draws it the same, to the bit: whole, in
+parts, in strips each with a depth buffer of its own rows, in another order,
+or with a triangle's vertices taken round.
 
 A sphere of 6,240 triangles, 800 by 800, a colour for each pixel from a
 varying, takes 2.5ms on one core of an Apple M4 Max with those facing away
@@ -559,7 +544,7 @@ were declared, which is the order they are given in.
 The same shader on each back end reads the same pixel. How the picture is
 given differs:
 
-* Native code, `(shader-vp-draw-tris)`, and the CPU back end: beside the
+* Native code, `(shader-vp-draw-tris)`: beside the
   inputs of the pixel shader, as `(name pixmap)`. The frame of the native
   code has four slots a texture after its inputs, where the pixels are, the
   width, the height and the bytes a row. A texture not given reads as
@@ -633,8 +618,6 @@ args in place of a pixel or a vertex.
 * `(shader-func program name)` is what a function gives and takes,
   `(shader-funcs program)` all of them, and `(shader-stage program)` is
   `:func`.
-* `(shader-cpu-func program name)` is the same function as a Lisp lambda,
-  the reference the native code is checked by.
 
 Such a file has `defconst`, `defglobal` and `defun`. It has no `definput`,
 `defattr` or `defvarying`, a function has args. A function of it can take a
@@ -665,7 +648,7 @@ is the call. It was 156ns for the matrices there when each arg was copied
 in, the product copied out twice, and one number worked out at a time.
 
 `shader -t vp file` shows the VP of each function of such a file, as it
-does of a shader, and `-t cpu` the Lisp.
+does of a shader.
 
 The GLSL, MSL and SPIR-V back ends have no functions for Lisp. Work for a
 GPU is a kernel.
@@ -721,9 +704,7 @@ On the CPU, `lib/gpu/vp.inc`:
   time a CPU meets it and kept, as a shader is.
 * `(shader-vp-run program native frame from to bufs)`. frame is
   `(shader-vp-frame program native vals)`, bufs a str for each buffer. A float
-  is worked on as a real and stored as the nearest 32 bit float.
-* `(shader-cpu-kernel program)` is the reference, a lambda `(from to buf ...
-  input ...)`.
+  is a 32 bit float, as on the GPU, which writes the same bytes.
 
 Nothing is bounds checked, on the GPU or the CPU. Each buffer must be long
 enough for the range.
@@ -745,7 +726,6 @@ the x64 by MSL and on the Pi by SPIR-V.
 
 ```vdu
 (import "lib/gpu/glsl.inc")
-(import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 
 (defq program (shader-load "apps/demos/surface/surface.shader"))
@@ -1011,44 +991,6 @@ which on a Raspberry Pi 4 the first time is 18 seconds on. On a driver that
 can not, the SDL2 one say, it comes up on the CPU, and the GPU button says
 the driver can not.
 
-## The CPU Back End
-
-`(shader-cpu program)` gives a Lisp lambda that shades a tile.
-
-```vdu
-(defq shade (shader-cpu program)
-	args (shader-cpu-args program '((time 2.0) (resolution (64.0 48.0)))))
-(defq pixels (apply shade (cat (list 0 0 64 48) args)))
-```
-
-The lambda takes the tile, `x y x1 y1`, then a value for each input, in the
-order they are declared. It returns a list of the pixels, row by row, each a
-`reals` of 4. `(shader-cpu-args program [vals])` gives the input values from a
-list of `(name value)` pairs, with the default for any input not named.
-
-A float is a `real`, a vector a `reals`, an int a `num`. The types are known,
-so the code that is generated calls the right primitive directly, `nums-add`
-for two vectors, `nums-scale` for a vector and a float, `+` for two floats.
-There is no test of type at run time.
-
-Three things make the generated code quick for interpreted Lisp.
-
-* Every function symbol in it is prebound, the list holds the function, not
-  its name. A call of one shader function from another holds the lambda of
-  the callee itself, so that is the prebound lambda path of `:lisp
-  :repl_eval`, with no lookup.
-* Constants are folded when the lambda is built. `(vec3 0.0)`, a constant
-  times a constant, a float literal made a `real`, are all values in the code.
-* No vector is ever changed in place, so a constant vector can be shared by
-  everything that uses it.
-
-A `(break)` or an early `(return)` has no direct match in Lisp. The back end
-turns the rest of a block, after an `if` that may leave, into the other side
-of that `if`, and a loop into a `while` with a flag.
-
-`pow` is not a primitive of `real`. It is done by squaring for the whole part
-of the power, and by repeated square roots for the rest.
-
 ## The VP Back End
 
 `(shader-vp program)` gives a native function for the program.
@@ -1068,7 +1010,7 @@ pixels as a string of 32 bit argb, clamped, which is what `(. canvas :tile)`
 takes. If the height of the frame is given then row 0 is the top row, as a
 canvas has it, and the shader still sees y going up.
 `(shader-vp-pixels native frame x y x1 y1)` gives the pixels as a list of
-`reals`, as the CPU back end does.
+`reals`.
 
 `(shader-vp-draw native frame pixmap x y x1 y1 [height alpha])` draws the
 tile straight onto a 32 bit pixmap, where it belongs on it, with no string in
@@ -1186,8 +1128,8 @@ How the code is laid out.
 * A `(break)` is a jump, a `(return)` is a store and a jump, a test is a
   branch on the float or int compare. `and` and `or` stop at the first arg
   that settles them.
-* `sin` and `cos` call `:sys_math :r_sin`. `pow` is a subroutine in the
-  function, with the same method as the CPU back end, so the two agree.
+* `sin` and `cos` call `:sys_math :r_sin`, and `pow` `:sys_math :r_pow`, of
+  the double of the single, and the answer is made the nearest single.
   `floor`, `fract` and `mod` are built from a convert to int and back.
 
 It has one limit the others do not. An expression that holds more than 16
@@ -1217,15 +1159,50 @@ The last is not a fault. The bump map is built on `fract(sin(n) * 43758.5453)`,
 a hash that depends on the last bits of a float, so 32 bit and 64 bit maths
 give different noise. Any two GPUs can differ there as well.
 
-The VP back end and the CPU back end both work in doubles, with the same
-method for each built in. Over the 3,072 pixels of the first row of the table
-they give the same values to all 6 decimal places that were compared. Every
-test of a pixel in the test module is run through both.
+That table was of the back ends as they were then, in doubles. Since
+2026-11-14 the VP back end works in 32 bit floats, as the GPU does, see 32 Bit
+Floats below, and the Lisp back end that was the reference while the language
+was made is gone: the tests check the native code against what is worked out
+by hand, the matrix library, and itself drawn each way it can be.
 
 The test module, 157 tests, passes on ARM64 macOS, ARM64 Linux on a Pi 4,
 x86_64 macOS, RISC-V 64 and LoongArch 64 Linux under QEMU, and the VP64
 emulator, so the VP back end has made working code through all five
 translators.
+
+## 32 Bit Floats
+
+The VP back end works in 32 bit floats, singles, as a GPU does, so a picture
+on the CPU is the picture on the GPU, and a demo that can draw on either
+looks the same on both. The VP has single floats of their own, the `-ff` ops
+of `:f0` to `:f15`, the same registers as the doubles `:d0` to `:d15`.
+
+* Each op of a shader is a single op and gives the nearest single.
+* A float in the frame is a single, the first 4 bytes of its 8 byte slot,
+  loaded and stored as it is. An input is written there as the nearest
+  single to what it is given, `(shader-vp-frame)`.
+* What Lisp gives and is given, reals reached by a register other than the
+  frame's, the attrs and placed vertices of a vertex shader and the args and
+  answer of a function for Lisp, stays doubles: a float of it is made the
+  nearest single as it is loaded, and the double of the single as it is
+  stored.
+* A constant is the nearest single, kept as one.
+* `sin`, `cos` and `pow` are the system's, of doubles, and the answer is made
+  the nearest single.
+* A byte of a texture is the nearest single to it over 255, as a GPU reads
+  one.
+* A byte of a pixel written is the nearest to 255 of the float, worked out in
+  doubles where it is exact, as a GPU writes one. It had been the whole part,
+  so the CPU picture was half a level darker than the GPU's.
+
+The walk of the triangles, where a varying is worked out for a pixel from
+the three vertices, is still in doubles, and its answers are made singles as
+the pixel shader is given them.
+
+The surface demo at 640 by 480, time 1.0, default settings, on one core of
+an Apple M4 Max, was 899ms a frame in doubles and is 848ms in singles. Of its
+307,200 pixels 2,672 are another color, 2,454 of them by 1 in a byte; the few
+that are more are where a ray, a little off, meets another surface.
 
 ## How Fast
 
@@ -1296,10 +1273,6 @@ The app is in the Demos list of the launcher, as surface.
 
 ## Limits
 
-* On the CPU back end a divide by zero is an error on an error checked
-  build, where a GPU, and the VP back end, give an infinity. The raymarch
-  shader at time 0.0 has the camera at the point it looks at. The CPU back end
-  fails there, the other two give a black frame.
 * A kernel's native code is made on the machine that wants it, so a farm's
   children are kept to the nodes of its own machine. For a child on another
   machine the native is to come from the originator, by its @Source.

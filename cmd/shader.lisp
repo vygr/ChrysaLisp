@@ -3,7 +3,6 @@
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/msl.inc")
 (import "lib/gpu/spirv.inc")
-(import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 
 (defq usage `(
@@ -19,7 +18,6 @@
             vp      VP assembler source, the native code back end.
                     Of a pixel shader, a vertex shader, or each
                     function of a file of functions for Lisp.
-            cpu     the Lisp the CPU back end runs, of any of them.
             tree    the checked, typed tree the back ends are given.
         -v --vertex: the vertex shader that goes with every
             fragment shader, for msl and spirv.
@@ -124,17 +122,6 @@
 		((nempty? (shader-varyings program)) (first (sv-fill-source program name)))
 		((first (sv-source program name)))))
 
-(defun cpu-listing (program)
-	;the Lisp the reference back end runs, whatever kind the program is
-	(defq stage (shader-stage program))
-	(cond
-		((eql stage :vertex) (str (shader-cpu-vertex program)))
-		((eql stage :func)
-			(join (map (lambda ((fname &rest _))
-						(cat ";" (str fname) "\n" (str (shader-cpu-func program fname))))
-					(shader-funcs program)) "\n"))
-		((str (shader-cpu program)))))
-
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
@@ -170,7 +157,6 @@
 							(defq module (if opt_v (shader-spirv-vertex) (shader-spirv program)))
 							(if opt_o module (spirv-listing module)))
 						((eql target 'vp) (vp-listing program))
-						((eql target 'cpu) (cpu-listing program))
 						((eql target 'tree) (tree-listing program))))
 				(cond
 					((not out) (print (second (first usage))))

@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 66
+	:next_id 67
 	:items
 	((:list 1)
 		((:list 7)
@@ -252,7 +252,7 @@
 							:id
 							15
 							:items
-							((:list 44)
+							((:list 45)
 								((:list 11)
 									:shape
 									:id
@@ -1052,10 +1052,30 @@
 										404.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									63
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:zeros]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										98.43408
+										421.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									64
 									:d
 									"[M 0 435 L 170.48828 435]"
 									:stroke
@@ -1070,7 +1090,7 @@
 								((:list 17)
 									:shape
 									:id
-									64
+									65
 									:kind
 									:text
 									:fill
@@ -1092,7 +1112,7 @@
 								((:list 15)
 									:shape
 									:id
-									65
+									66
 									:kind
 									:text
 									:fill

@@ -1445,7 +1445,6 @@ Usage: shader [options] file
             vp      VP assembler source, the native code back end.
                     Of a pixel shader, a vertex shader, or each
                     function of a file of functions for Lisp.
-            cpu     the Lisp the CPU back end runs, of any of them.
             tree    the checked, typed tree the back ends are given.
         -v --vertex: the vertex shader that goes with every
             fragment shader, for msl and spirv.

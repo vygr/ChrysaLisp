@@ -1,6 +1,5 @@
 (report-header "GPU: shader language, kernels on the CPU, the VP and the GPU")
 
-(import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 (import "lib/gpu/kernel.inc")
 
@@ -47,24 +46,27 @@
 	(for 0 (>> (inc kt_n) 1) (set-long s (<< (!) 3) 0))
 	s)
 
-;the CPU back end is the reference
+;what it writes, worked out: in the range and less than n, the src by the
+;scale and the square of the index xor 3, every one a whole number or a
+;half, so the 32 bit float is exact, and the bits of the int
 (defq kt_cdst (kt-zeros) kt_cpk (kt-zeros))
-((eval (shader-cpu-kernel kt_prog)) kt_from kt_to kt_cdst kt_src kt_cpk kt_cols (n2r 1.5) 280)
-(assert-eq "the CPU writes the range" (sh-real-to-float (n2r 39)) (get-int kt_cdst (* 5 4)))
-(assert-eq "and not before it" 0 (get-int kt_cdst (* 4 4)))
-(assert-eq "nor at n and after" 0 (get-int kt_cdst (* 280 4)))
-(defq kt_c (- (* 5 0x010307) 0x5000))
-(assert-eq "an int buffer" (logior (<< (logand (>> kt_c 8) 255) 16) (logand kt_c 255) (neg kt_c))
-	(get-int kt_cpk (* 5 4)))
+(each! (lambda ()
+		(set-int kt_cdst (* (!) 4) (sh-real-to-float (+ (* (n2r (- (!) 3)) (n2r 1.5)) (n2r (* (logxor (!) 3) (logxor (!) 3))))))
+		(defq c (- (* (!) 0x010307) 0x5000))
+		(set-int kt_cpk (* (!) 4) (logior (<< (logand (>> c 8) 255) 16) (logand c 255) (neg c))))
+	'() kt_from (min kt_to 280))
 
-;the VP back end, the same bytes
+;the VP back end
 (defq kt_native (shader-vp-kernel kt_prog) kt_vdst (kt-zeros) kt_vpk (kt-zeros))
 (shader-vp-run kt_prog kt_native (shader-vp-frame kt_prog kt_native kt_vals)
 	kt_from kt_to (list kt_vdst kt_src kt_vpk kt_cols))
-(assert-eq "the VP writes the same floats" kt_cdst kt_vdst)
-(assert-eq "and the same ints" kt_cpk kt_vpk)
+(assert-eq "the VP writes the range" (sh-real-to-float (n2r 39)) (get-int kt_vdst (* 5 4)))
+(assert-eq "and not before it" 0 (get-int kt_vdst (* 4 4)))
+(assert-eq "nor at n and after" 0 (get-int kt_vdst (* 280 4)))
+(assert-eq "the VP writes the floats" kt_cdst kt_vdst)
+(assert-eq "and the ints" kt_cpk kt_vpk)
 
-;the GPU, MSL or SPIR-V, the same bytes
+;the GPU, MSL or SPIR-V, the same bytes as the VP
 (cond
 	((= (gpu-format) 0)
 		(test-skip "a kernel on the GPU" "this node has no GPU"))
@@ -87,4 +89,4 @@
 		(gpu-kernel-free kt_kernel)))
 
 (undef (env) 'kt-src 'kt-refused 'kt-zeros 'kt_prog 'kt_n 'kt_from 'kt_to 'kt_vals 'kt_src 'kt_cols
-	'kt_c 'kt_cdst 'kt_cpk 'kt_native 'kt_vdst 'kt_vpk 'kt_kernel 'kt_bufs)
+	'kt_cdst 'kt_cpk 'kt_native 'kt_vdst 'kt_vpk 'kt_kernel 'kt_bufs)
