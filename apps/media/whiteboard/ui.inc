@@ -98,10 +98,11 @@
 	;the paper is the document at the zoom there is, as much of it as the
 	;screen has room for, Chris: "I zoomed, and then hit min, thinking I
 	;would be seeing the whole canvas but just with everything 2x larger"
+	;and the bounds of the document as it is now, what is drawn, (doc-box)
 	(full-window)
-	(bind '(dw dh) (doc-size))
-	(setq *view_size* (list (max 1 (n2i (* (n2f dw) *zoom*))) (max 1 (n2i (* (n2f dh) *zoom*)))))
-	(view-home)
+	(bind '(x y x1 y1) (defq box (doc-box)))
+	(setq *view_size* (list (max 1 (n2i (* (- x1 x) *zoom*))) (max 1 (n2i (* (- y1 y) *zoom*)))))
+	(view-home box)
 	(window-round 0))
 
 (defun action-maximise ()

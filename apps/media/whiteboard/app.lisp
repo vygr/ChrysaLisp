@@ -275,6 +275,21 @@
 	(defq doc (. *board* :get_doc))
 	(list (max 1 (. doc :find :width)) (max 1 (. doc :find :height))))
 
+(defun doc-box ()
+	; (doc-box) -> (x y x1 y1)
+	;the bounds of the document as it is now: what is drawn, with the room
+	;round it a fit leaves, (cwb-fit), or the paper if nothing is. What min
+	;shows. Chris: "keep the doc's bounds up to date and that changes as
+	;the doc changes", a stroke added, a piece made bigger, an edge rubbed
+	;out. The document is not changed, a save fits the paper to it
+	(bind '(dw dh) (doc-size))
+	(defq doc (. *board* :get_doc) pad 16.0)
+	(cond
+		((defq drawn (cwb-bounds (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers doc))))))
+			(bind '(x y x1 y1) drawn)
+			(list (- x pad) (- y pad) (+ x1 pad) (+ y1 pad)))
+		((list 0.0 0.0 (n2f dw) (n2f dh)))))
+
 (defun paper-size ()
 	; (paper-size) -> (width height)
 	;the size of the paper on the screen, not turned: what the frame has
@@ -658,17 +673,18 @@
 	(tools-hold held)
 	(view-changed))
 
-(defun view-home ()
-	;the middle of the document is in the middle of the paper again, at
-	;the zoom there is. Not while anybody is drawing a line. The
-	;instruments go with the document, where they lie on it, Chris: "when
-	;I hit min, the instruments move..."
+(defun view-home (&optional box)
+	;the middle of the document, or of the box (x y x1 y1) in it, is in the
+	;middle of the paper again, at the zoom there is. Not while anybody is
+	;drawing a line. The instruments go with the document, where they lie
+	;on it, Chris: "when I hit min, the instruments move..."
 	(unless (. *board* :busy?)
 		(bind '(dw dh) (doc-size))
+		(bind '(x y x1 y1) (ifn box (list 0.0 0.0 (n2f dw) (n2f dh))))
 		(bind '(pw ph) (paper-size))
 		(setq *pan_go* (list 0.0 0.0)
-			*pan_x* (- (/ (n2f dw) 2.0) (/ (n2f pw) (* 2.0 *zoom*)))
-			*pan_y* (- (/ (n2f dh) 2.0) (/ (n2f ph) (* 2.0 *zoom*))))
+			*pan_x* (- (/ (+ x x1) 2.0) (/ (n2f pw) (* 2.0 *zoom*)))
+			*pan_y* (- (/ (+ y y1) 2.0) (/ (n2f ph) (* 2.0 *zoom*))))
 		(view-changed)))
 
 (defun bars-moved ()

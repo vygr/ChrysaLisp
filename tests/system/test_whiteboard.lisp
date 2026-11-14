@@ -692,6 +692,25 @@
 (defq wa_turned (first (read (string-stream (second wa_home)) (ascii-code " "))))
 (assert-eq "and the same with the board turned a quarter" (str (first wa_turned)) (str (second wa_turned)))
 (assert-eq "still turned" "1" (str (third wa_turned)))
+;min shows the bounds of the document as it is now, what is drawn and 16
+;round it, the room a fit leaves, not the paper it was opened with. Chris:
+;"selecting and resizing a piece of it, so the diagram is larger. Clicking
+;the min button does not size and center the window correctly to the new
+;bounds", and "keep the doc's bounds up to date and that changes as the
+;doc changes": made bigger past every edge, rubbed down to a small piece,
+;and nothing drawn, the paper
+(defq wa_min (wa-run (cat
+			"(. *board* :new 400 200) (cwb-add (. *board* :get_doc) (cwb-shape (cwb-d-rect -150 -60 900 400) :fill 0xff808080 :stroke 0))"
+			"(print (list (wa-do +event_min) *view_size* (map (const n2i) (view-middle)) (. (. *board* :get_doc) :find :width)))"
+			"(zoom-set 2.0 0 0) (wa-do +event_min) (print (list *view_size* (map (const n2i) (view-middle))))"
+			"(zoom-set 1.0 0 0) (. *board* :remove (wa-ids)) (cwb-add (. *board* :get_doc) (cwb-shape (cwb-d-rect 100 50 200 100) :fill 0xff808080 :stroke 0))"
+			"(wa-do +event_min) (print (list *view_size* (map (const n2i) (view-middle))))"
+			"(. *board* :remove (wa-ids)) (wa-do +event_min) (print (list *view_size* (map (const n2i) (view-middle))))")))
+(assert-eq "min: all that is drawn and 16 round it, its middle in the middle, the document as it was"
+	"(:ok (1082 492) (375 170) 400)" (first wa_min))
+(assert-eq "and at twice the zoom, twice as big" "((2164 984) (375 170))" (second wa_min))
+(assert-eq "rubbed down to a small piece, the bounds are as small" "((132 82) (150 75))" (third wa_min))
+(assert-eq "and with nothing drawn, the paper" "((400 200) (200 100))" (elem-get wa_min 3))
 
 ;a document's kept view is of a paper its own size, the paper is the frame's:
 ;opened on a paper bigger than it, the middle of what is seen is the middle
