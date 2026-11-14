@@ -642,7 +642,12 @@ from the palette or the toolbar, as a ruler is made longer by its 0 end,
 which makes it as long as has the 0 on a line, and, since an instrument
 stays where it is on the screen while the paper goes by under it, when a
 pan or a zoom has come to rest and when the snap is put on,
-`(tools-snap)` in the app. A set square is turned about
+`(tools-snap)` in the app. A ruler has two, `:zeros`, the centimetres' at
+the left end of its top side and the inches' at the right end of its
+bottom: the one put on the lines is the one nearest the hand that moves
+it, `(:zero_near)`, and of the end that makes it longer, so its inch 0
+goes on a line as readily as its centimetre 0. With no hand, a pan, a
+zoom or the snap put on, it is the centimetres'. A set square is turned about
 its square corner, and made bigger or smaller from it, Chris: "The snap
 corner and the rotation cneter of the SetSquers should be the 0 scale
 corner."

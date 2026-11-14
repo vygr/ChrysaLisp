@@ -579,16 +579,17 @@
 (defun wt-zero (tool) (apply (lambda (x y) (. tool :to_board x y)) (get :zero tool)))
 (defun wt-on-line? (v step) (< (abs (- v (board-snap v step))) 0.01))
 (defun wt-gb-go (&rest events) (. wt_gb :pointers (map (# (apply (const ptr-event) %0)) events)))
-;by its middle, clear of the sign in the middle of it
-(wt-gb-go '(0 :mouse 4 460 296)) (wt-gb-go '(0 :mouse 4 497 307))
+;by its left half, clear of the sign in the middle of it, so the 0 nearest
+;the hand is the centimetres', at its left end
+(wt-gb-go '(0 :mouse 4 340 296)) (wt-gb-go '(0 :mouse 4 377 307))
 (bind '(wt_zx wt_zy) (wt-zero wt_gr))
 (assert-true "moved with the snap on, the 0 of a ruler is on a line across and a line down" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))
 (assert-true "and it has gone about as far as the hand, no further than half a step from it"
 	(and (< (abs (- (first (get :origin wt_gr)) 437.0)) 10.01) (< (abs (- (second (get :origin wt_gr)) 311.0)) 10.01)))
-(wt-gb-go '(0 :mouse 4 511 318))
+(wt-gb-go '(0 :mouse 4 391 318))
 (bind '(wt_zx wt_zy) (wt-zero wt_gr))
 (assert-true "moved on, it is on a line still" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))
-(wt-gb-go '(0 :mouse 0 511 318))
+(wt-gb-go '(0 :mouse 0 391 318))
 ;turned, its 0 is still what is put on the lines
 (def wt_gr :angle 0.6)
 (. wt_gr :snap_zero)
@@ -638,6 +639,34 @@
 (defq wt_new (. (Ruler wt_gb 413 307) :snap_zero))
 (bind '(wt_zx wt_zy) (wt-zero wt_new))
 (assert-true "a ruler just made, with the snap on, has its 0 on a line each way" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))
+;of a ruler's two 0s, the one nearest the hand is put on the lines: its top
+;side's, centimetres, at its left end, its bottom side's, inches, at its
+;right. 348 apart, so when one is on a line across the other is not
+(defun wt-at (tool z) (. tool :to_board (first z) (second z)))
+(def wt_gr :origin (list 400.0 300.0) :angle 0.0)
+(. wt_gr :set_extent 400.0)
+(bind '(wt_cm wt_in) (get :zeros wt_gr))
+(wt-gb-go '(0 :mouse 4 500 305)) (wt-gb-go '(0 :mouse 4 537 316))
+(assert-true "moved by its right half, the 0 of the inches, at its right end, is on a line each way"
+	(and (wt-on-line? (first (wt-at wt_gr wt_in)) 20.0) (wt-on-line? (second (wt-at wt_gr wt_in)) 20.0)))
+(assert-true "and not the 0 of the centimetres" (not (wt-on-line? (first (wt-at wt_gr wt_cm)) 20.0)))
+(wt-gb-go '(0 :mouse 0 537 316))
+(def wt_gr :origin (list 400.0 300.0))
+(wt-gb-go '(0 :mouse 4 300 305)) (wt-gb-go '(0 :mouse 4 337 316))
+(assert-true "moved by its left half, the 0 of the centimetres is"
+	(and (wt-on-line? (first (wt-at wt_gr wt_cm)) 20.0) (wt-on-line? (second (wt-at wt_gr wt_cm)) 20.0)))
+(assert-true "and not the 0 of the inches" (not (wt-on-line? (first (wt-at wt_gr wt_in)) 20.0)))
+(wt-gb-go '(0 :mouse 0 337 316))
+;made longer by its right end, the 0 of the inches there is put on a line,
+;its left end stays where it is
+(def wt_gr :origin (list 400.0 300.0))
+(. wt_gr :set_extent 400.0)
+(defq wt_left (wt-at wt_gr (first (get :zeros wt_gr))) wt_end (. wt_gr :to_board (- (* 0.5 (get :length wt_gr)) 8.0) 0.0))
+(wt-gb-go (list 0 :mouse 4 (first wt_end) (second wt_end))) (wt-gb-go (list 0 :mouse 4 (+ (first wt_end) 47.0) (second wt_end)))
+(assert-true "made longer by its inch end, it is longer" (> (get :length wt_gr) 430.0))
+(assert-true "the 0 of the inches is on a line" (wt-on-line? (first (wt-at wt_gr (second (get :zeros wt_gr)))) 20.0))
+(assert-true "and its left end is where it was" (wt-near? (wt-at wt_gr (first (get :zeros wt_gr))) wt_left 0.05))
+(wt-gb-go (list 0 :mouse 0 (+ (first wt_end) 47.0) (second wt_end)))
 
 ;what rubs out, held to an edge, rubs out along it, shown as it goes and
 ;rubbed out as it lets go, Chris: "we should be able to erase along an

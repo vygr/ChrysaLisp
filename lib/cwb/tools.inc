@@ -177,6 +177,9 @@
 	;				part other than :move is drawn too, a shade darker
 	;	:zero		(x y), the 0 of its marks, what is put on a line of the
 	;				paper when the board's snap is on, (:snap_zero)
+	;	:zeros		((x y) ...), each 0 of its marks if it has more than
+	;				one, a ruler's of each side: the one nearest the hand
+	;				is what is put on a line, (:zero_near)
 	;	:readouts	((x y [turn]) ...), where the angle it is turned to
 	;				is written, in degrees, the way a protractor counts,
 	;				up from level. One with a turn is written turned by
@@ -296,6 +299,23 @@
 		(mat3x2-mul (mat3x2-translate ox oy)
 			(mat3x2-mul (mat3x2-rot (get :angle this)) (mat3x2-scale (get :size this)))))
 
+	(defmethod :zero_near (&optional x y)
+		; (. instrument :zero_near [x y]) -> :nil | (x y)
+		;the 0 of its marks nearest that point of the board, of its own
+		;space, :zero if no point is given or it has only the one. Chris:
+		;"make the 0 mark that we snap to grid the one nearest to the drag
+		;point", a ruler's top side in centimetres from its left end, its
+		;bottom side in inches from its right
+		(defq zero (def? :zero this) zeros (def? :zeros this))
+		(when (and x zeros)
+			(defq near :nil)
+			(each (lambda (z)
+					(bind '(zx zy) (. this :to_board (first z) (second z)))
+					(defq d (+ (* (- zx x) (- zx x)) (* (- zy y) (- zy y))))
+					(when (or (not near) (< d near)) (setq near d zero z)))
+				zeros))
+		zero)
+
 	(defmethod :snap_zero (&optional event)
 		; (. instrument :snap_zero [event]) -> instrument
 		;with the snap on, of the pointer that made it, the event of its
@@ -304,9 +324,12 @@
 		;ruler's 0, the middle of a protractor's straight side, the square
 		;corner of a set square. Its marks are of the paper, (:mm), so with
 		;the 0 on a line, and it level or upright, each centimetre is on
-		;one. Chris: "yes, snap the 0 mark to the grid when snap is on"
+		;one. Chris: "yes, snap the 0 mark to the grid when snap is on". Of
+		;more than one 0, the one nearest the event's point, (:zero_near)
 		(unless (get :body this) (. this :built))
-		(defq board (obj-ref (get :board this)) zero (def? :zero this) step (cond ((not board) 0.0) (event (first (. board :pointer_settings event))) ((get :snap board))))
+		(defq board (obj-ref (get :board this))
+			zero (if event (. this :zero_near (elem-get event +pev_x) (elem-get event +pev_y)) (def? :zero this))
+			step (cond ((not board) 0.0) (event (first (. board :pointer_settings event))) ((get :snap board))))
 		(when (and zero (/= step 0.0))
 			(bind '(zx zy) (. this :to_board (first zero) (second zero)))
 			(bind '(ox oy) (get :origin this))
@@ -523,9 +546,11 @@
 					;the end with the 0 of its marks, with the snap on: it is
 					;as long as has the 0 on a line of the paper, the lines
 					;that cross it most squarely. Its other end has not moved,
-					;so only how long it is can put it there
-					(defq zero (def? :zero this) step (. board :snap_step id))
-					(when (and zero (/= step 0.0) (> (* way (first zero)) 0.0))
+					;so only how long it is can put it there. Of a ruler's
+					;two, the one at the end that is moved
+					(defq step (. board :snap_step id)
+						zero (some (# (if (> (* way (first %0)) 0.0) %0)) (ifn (def? :zeros this) (list (def? :zero this)))))
+					(when (and zero (/= step 0.0))
 						(bind '(zx zy) (. this :to_board (first zero) (second zero)))
 						(defq along (if (>= (abs c) (abs s)) (/ (- (board-snap zx step) zx) c) (/ (- (board-snap zy step) zy) s)))
 						(. this :set_extent (+ (. this :extent) (* way along)))
@@ -786,7 +811,8 @@
 		;reads the top side and the one for who reads the bottom
 		;The one that is the right way up is on the left, where reading starts
 		(def this :readouts (list (list -44.0 0.0) (list 44.0 0.0 +fp_pi)))
-		(def this :marks marks :zero (list (neg inset) top))
+		;the 0 of each side: centimetres at the top left, inches at the bottom right
+		(def this :marks marks :zero (list (neg inset) top) :zeros (list (list (neg inset) top) (list inset bot)))
 		this))
 
 ;;;;;;;;;;;;;;;;
