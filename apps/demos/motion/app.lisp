@@ -36,7 +36,7 @@
 	(. (Canvas w h 1) :set_canvas_flags +canvas_flag_antialias))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Motion" (+sym_close) +event_close)
+	(ui-title-bar _ "Motion" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_media_play +sym_media_pause +sym_media_start) +event_play))
@@ -71,6 +71,29 @@
 		(. *canvas* :change 0 0 w h)
 		(. *window* :layout)
 		(frame-draw)))
+
+(defun picture-next (now most way)
+	; (picture-next now most way) -> k
+	;the size a step larger, way 1, or smaller, -1, than now, each in
+	;quarters of the width, a picture of 4 by 3 of them so each is whole:
+	;640 by 480, 800 by 600, 1024 by 768 and on, 640 by 480 the least and
+	;most, the largest the screen has room for, the most
+	(defq steps (cat (filter (# (< %0 most)) '(160 200 256 320 400 512 640 800)) (list most)))
+	(if (> way 0)
+		(ifn (some (# (if (> %0 now) %0)) steps) most)
+		(ifn (rsome (# (if (< %0 now) %0)) steps) 160)))
+
+(defun picture-step (way)
+	;the picture a step larger or smaller than it is now, (picture-next),
+	;the window round it. As large as the screen has room for, of its shape,
+	;the window round it too, is the most. A window sized by hand is any
+	;size, these go on from where it is
+	(bind '(ww wh) (. *window* :get_size))
+	(bind '(pw ph) (. *picture* :get_size))
+	(bind '(& & sw sh) (gui-info))
+	(defq k (picture-next (/ pw 4) (max 160 (min (/ (- sw (- ww pw)) 4) (/ (- sh (- wh ph)) 3))) way))
+	(def *picture* :want_width (* k 4) :want_height (* k 3))
+	(. *window* :fit))
 
 (import "./scene.inc")
 (import "./balls.inc")
@@ -201,6 +224,10 @@
 						(setq id :nil))
 					((= id +event_layout)
 						(action-layout))
+					((= id +event_max)
+						(picture-step 1))
+					((= id +event_min)
+						(picture-step -1))
 					((= id +event_scene)
 						(scene-new))
 					((= id +event_home)
