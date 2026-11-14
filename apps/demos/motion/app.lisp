@@ -17,8 +17,9 @@
 
 (defq +width 640 +height 480 +rate (/ 1000000 60)
 	;of each frame, how long the run that finds a scene's length may have,
-	;and a seek, in us
-	+dry_us 12000 +seek_us 10000
+	;and a seek, in us. A seek has nearly all of it, nothing is drawn
+	;while it goes on, and the run waits for it
+	+dry_us 12000 +seek_us 14000
 	;the bar's length while the scene's is not known, so the elevator is small and
 	;still at the start, not drawn against a length still to be found
 	+bar_unknown 1000000000
@@ -54,12 +55,15 @@
 
 (defun frame-draw ()
 	;the picture as it is now. What is round the canvas, as the window grows and
-	;before it is made again, is the colour of the picture
+	;before it is made again, is the colour of the picture. While a seek goes
+	;on it is not drawn: what is seen is where the seek lands, not the way
+	;there, the scene run on fast, Chris: "it visibly fast skips forward
+	;(playing) rather than jumps to the saved position"
 	(bind '(w h) (. *canvas* :get_size))
 	(defq k (/ (n2f w) (n2f +width)) paper (ifn (get :paper_is stage) +argb_black))
 	(def *picture* :paper paper)
 	(. *canvas* :fill paper)
-	(. stage :draw *canvas* (fixeds k 0.0 0.0 0.0 k 0.0))
+	(unless target (. stage :draw *canvas* (fixeds k 0.0 0.0 0.0 k 0.0)))
 	(. *canvas* :swap +swap_write))
 
 (defun action-layout ()
@@ -191,9 +195,10 @@
 		(target (seek-step))
 		(:t (pointer-move)
 			(. stage :advance dt)))
-	(if dry (dry-step))
+	(and dry (not target) (dry-step))
 	(defq t1 (pii-time))
-	(frame-draw)
+	;the last picture is kept while a seek goes on, and drawn when it lands
+	(unless target (frame-draw))
 	;where it is on the bar, unless the bar is being held
 	(when (and steps (= (get :state *timeline*) 0)
 			(/= (get :value *timeline*) (get :ros_ticks stage)))
