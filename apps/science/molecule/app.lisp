@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/math/matrix.inc")
 (import "lib/files/files.inc")
 (import "lib/gpu/vp.inc")
@@ -32,6 +33,8 @@
 	+bucket_scale (/ (n2r 1023) (- +far +near))
 	sdf_files (sort (files-all (cat *app_root* "data") '(".sdf")))
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
+	;the toolbar as it was when it was last closed, (config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "molecule.tre")
 	+radius_quant (n2r 1.0)
 	;an atom is a shader, a polished ball of the atom's color, as native
 	;code. An image of it is made for each color and size that is drawn,
@@ -252,10 +255,27 @@
 		(setq *atoms* (apply (const cat) (cat (list (reals))
 					(map (# (cat %0 (reals %1))) (partition *verts* 4) *radii*))))))
 
-(defun reset ()
+(defun reset (name)
+	;the molecule of that name, if it is still there, else maltose
 	(setq *dirty* :t
-		*mol_index* (ifn (some (# (if (ends-with "/maltose.sdf" %0) (!))) sdf_files) 0))
+		*mol_index* (ifn (some (# (if (ends-with (cat "/" name) %0) (!))) sdf_files)
+			(ifn (some (# (if (ends-with "/maltose.sdf" %0) (!))) sdf_files) 0)))
 	(sdf-file *mol_index*))
+
+(defun config-load ()
+	;the toolbar as it was when last closed, or as it is the first time
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version
+			:molecule "maltose.sdf" :auto :nil :style 1))))
+
+(defun config-save ()
+	;the toolbar: the molecule shown, turning or not, the backdrop
+	(scatter *config* :molecule (path-name (elem-get sdf_files *mol_index*))
+		:auto *auto_mode* :style (. *style_toolbar* :get_selected))
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -263,10 +283,15 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
 	(. *window* :connect +event_layout)
-	(. *style_toolbar* :set_selected 1)
+	;the toolbar as it was
+	(config-load)
+	(bind '(name auto style) (gather *config* :molecule :auto :style))
+	(. *style_toolbar* :set_selected style)
+	(action-style)
 	(. *window* :open)
 	(tooltips)
-	(reset)
+	(reset name)
+	(if auto (action-auto))
 	(mail-timeout (elem-get select +select_timer) timer_rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -292,4 +317,5 @@
 				(if (make-waiting) (setq *dirty* :t)))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
+	(config-save)
 	(. *window* :close))
