@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
 (import "lib/gpu/tris.inc")
@@ -27,7 +28,9 @@
 	+near +focal_dist +far (+ +near +stage_depth)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	*auto_mode* :nil *render_mode* :nil *use_gpu* :t)
+	*auto_mode* :nil *render_mode* :nil *use_gpu* :t
+	;the toolbar as it was when it was last closed, (config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "mesh.tre"))
 
 ;the pixels of the canvas are in shared memory if the host has it, and
 ;the faces are then drawn on them by a child on each node, a strip each
@@ -216,10 +219,30 @@
 		(. scene :render *main_widget* (* canvas_size canvas_scale)
 			+left +right +top +bottom +near +far :nil)))
 
+(defun config-load ()
+	;the toolbar as it was when last closed, or as it is the first time
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version
+			:mode :nil :auto :nil :style 0 :gpu :t))))
+
+(defun config-save ()
+	;the toolbar: the mode, turning or not, the backdrop, what draws the faces
+	(scatter *config* :mode *render_mode* :auto *auto_mode*
+		:style (. *style_toolbar* :get_selected) :gpu *use_gpu*)
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
+
 (defun main ()
 	(. *window* :connect +event_layout)
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap +swap_write))
-	(. *style_toolbar* :set_selected 0)
+	;the toolbar as it was
+	(config-load)
+	(bind '(mode auto style gpu) (gather *config* :mode :auto :style :gpu))
+	(. *style_toolbar* :set_selected style)
+	(action-style)
+	(setq *use_gpu* gpu)
 	(. *gpu_toolbar* :set_selected (if *use_gpu* 1 0))
 	(. *window* :open)
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
@@ -234,6 +257,9 @@
 		jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
 			(elem-get select +select_reply) '(4 2)))
 	(. jobs :add meshes)
+	;the mode and turning buttons lit as they were
+	(if mode (action-mode))
+	(if auto (action-auto))
 	(tooltips (elem-get select +select_tip))
 	(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
 	(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
@@ -313,6 +339,7 @@
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
+	(config-save)
 	(. jobs :close)
 	(if farm (. farm :close))
 	;what was kept on the GPU
