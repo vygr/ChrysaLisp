@@ -9,6 +9,9 @@
 ;our UI widgets
 (import "./widgets.inc")
 
+;what is kept from one run to the next
+(import "./config.inc")
+
 (enums +select 0
 	(enum main tip timer))
 
@@ -20,6 +23,9 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	;as it was when last closed
+	(config-load)
+	(config-apply)
 	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
@@ -34,4 +40,5 @@
 			;must be +select_main
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
+	(config-save)
 	(. *window* :close))
