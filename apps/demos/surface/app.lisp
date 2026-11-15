@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/gpu/shader.inc")
 (import "lib/gpu/gui.inc")
 (import "lib/gpu/tile.inc")
@@ -35,7 +36,9 @@
 	;draws them, if it has been started
 	gpu_want :nil cpu_running :nil
 	;a notice on the status line stays for a while
-	+notice_time 4000000 notice_until 0)
+	+notice_time 4000000 notice_until 0
+	;the sliders and CPU or GPU as they were when last closed, (config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "surface.tre"))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Surface" (+sym_close) +event_close)
@@ -174,18 +177,42 @@
 			;the GPU takes over when the driver has built the shader
 			(setq gpu_want :t gpu_inputs :nil gpu_y 0 gpu_wait 0))))
 
+(defun config-load ()
+	;as it was when last closed, or as it is the first time: the GPU if
+	;there is one, the shader's own values
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version :gpu :t :sliders (list))))
+	;each slider where it was, by its input's name, an input the shader no
+	;longer has is passed over
+	(each (lambda ((name value))
+			(when (defq control (some (# (if (eql (str (first %0)) name) %0)) controls))
+				(defq slider (elem-get control 4))
+				(set slider :value (max 0 (min (get :maximum slider) value)))))
+		(. *config* :find :sliders)))
+
+(defun config-save ()
+	;where each slider is, by its input's name, and CPU or GPU
+	(scatter *config* :gpu (= (. *mode* :get_selected) 1)
+		:sliders (map (# (list (str (first %0)) (get :value (elem-get %0 4)))) controls))
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
+
 (defun main ()
 	(setq select (task-mboxes +select_size))
 	(make-controls)
+	(config-load)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *window* :open)
 	(setq jobs (Jobs +shader_tile_child
 			(elem-get select +select_task) (elem-get select +select_reply))
 		gpu_shader (shader-gui program))
-	;it comes up on the GPU if there is one. The CPU is not started at
-	;once, most drivers have the shader built before it would have a frame
+	;it comes up on the GPU if there is one and it was last time. The CPU
+	;is not started at once, most drivers have the shader built before it
+	;would have a frame
 	(cond
-		(gpu_shader
+		((and gpu_shader (. *config* :find :gpu))
 			(. *mode* :set_selected 1)
 			(setq gpu_want :t)
 			(. *status* :set_text "GPU, the driver is building the shader"))
@@ -235,6 +262,7 @@
 						;the shader is taking the driver a while, so the CPU starts
 						((not cpu_running) (start-frame))
 						((. jobs :refresh +retry_timeout)))))))
+	(config-save)
 	;close window and children
 	(if gpu_shader (canvas-shader-destroy gpu_shader))
 	(. jobs :close)
