@@ -29,7 +29,9 @@
 	+config_version 1 +config_file (cat (get :home *env*) "spectrum.tre"))
 
 (defun say ()
-	;what is shown, in the line at the foot
+	;what is shown, in the line at the foot, and the sound button lit while
+	;it is off, as a toggle is
+	(toolbar-states *tools* (list :nil :nil :nil :nil :nil :nil *quiet*))
 	(. *status* :set_text (cat (if *file* (path-stem *file*) "BASIC")
 			(if *paused* ", paused" "") (if *quiet* ", quiet" "") ", x" (str *zoom*))))
 

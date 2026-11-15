@@ -1,7 +1,7 @@
 (enums +event +event_user
 	(enum open reset play pause smaller bigger quiet))
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar *window_title* "Spectrum" (+sym_close +sym_max +sym_min) +event_close)
 	;the buttons, the screen, and what is shown in a line at the foot
 	(ui-flow _ (:flow_flags +flow_up_fill)
