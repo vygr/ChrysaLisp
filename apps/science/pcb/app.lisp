@@ -102,8 +102,15 @@
 ;import actions and bindings
 (import "./actions.inc")
 
+(defun route-spinners ()
+	; (route-spinners) -> ((spinner key) ...)
+	;the route's settings, each by the key it is kept as
+	(list (list res_spinner :grid_res) (list vias_spinner :vias_cost)
+		(list flood_spinner :flood_range) (list even_spinner :even_range)
+		(list odd_spinner :odd_range)))
+
 (defun config-default ()
-	(scatter (Emap) :version +config_version :zoom 1.0 :file *file*))
+	(scatter (Emap) :version +config_version :zoom 1.0 :file *file* :mode 0 :show -1))
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
@@ -111,11 +118,19 @@
 	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
 	(def *window* :zoom (. *config* :find :zoom))
+	;pcb or gerber, the layers shown, and the route's settings, as they
+	;were. A file from before they were kept has none of them
+	(setq *mode* (ifn (. *config* :find :mode) 0) *show* (ifn (. *config* :find :show) -1))
+	(each (lambda ((spinner key))
+			(when (defq value (. *config* :find key))
+				(set spinner :value (max (get :minimum spinner) (min (get :maximum spinner) value)))))
+		(route-spinners))
 	;the board shown last, if it is still there
 	(and (defq file (. *config* :find :file)) (name-size file) (setq *file* file)))
 
 (defun config-save ()
-	(scatter *config* :zoom (get :zoom *window*) :file *file*)
+	(scatter *config* :zoom (get :zoom *window*) :file *file* :mode *mode* :show *show*)
+	(each (lambda ((spinner key)) (scatter *config* key (get :value spinner))) (route-spinners))
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
@@ -123,8 +138,8 @@
 	(defq select (task-mboxes +select_size))
 	(tooltips)
 	(config-load)
-	(. *layer_toolbar* :set_selected 0)
-	(. *mode_toolbar* :set_selected 0)
+	(. *layer_toolbar* :set_selected (inc *show*))
+	(. *mode_toolbar* :set_selected *mode*)
 	(win-load *file*)
 	(. *window* :open)
 	(while *running*
