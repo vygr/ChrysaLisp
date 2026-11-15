@@ -46,6 +46,16 @@ The standard is built upon a few key components that work together.
 *   `+config_file`: The full path to the user's configuration file,
     `(cat (get :home *env*) "appname.tre")`.
 
+The names follow the language's rule for what is constant. A `+` name is
+bound once and its value is put in place of the name where a function is
+read, so it can not be changed afterwards. The version, and a file name
+that is fixed once the app has started, are `+config_version` and
+`+config_file`. A value that is set again while the app runs is a `*name*`,
+as `*config*` always is, and so is a file name that is changed: Motion's is
+`*config_file*` because its test points it at a file in `tests/scratch`, so
+a test run never touches the user's own. Choose `*config_file*` when
+something will set it, `+config_file` when nothing will.
+
 ### The `.tre` Data Format
 
 Configuration data is serialized to a `.tre` file, which is a human-readable
