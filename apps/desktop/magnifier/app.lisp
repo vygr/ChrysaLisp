@@ -1,6 +1,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "gui/canvas/lisp.inc")
+(import "service/lock/app.inc")
 
 ;The screen round the mouse, made bigger, in a window that stays where it
 ;is put. A few times a second the GUI is asked for what is round the
@@ -15,7 +16,9 @@
 	(enum close)
 	(enum bigger smaller))
 
-(defq +width 360 +height 240 +tick 100000 +zooms ''(2 3 4 6 8))
+(defq +width 360 +height 240 +tick 100000 +zooms ''(2 3 4 6 8)
+	;the zoom as it was when last closed, (config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "magnifier.tre"))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar *title* "Magnifier" (+sym_close) +event_close)
@@ -41,8 +44,25 @@
 	(setq *zoom* (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at by)))))
 	(. *title* :set_text (cat "Magnifier " (str *zoom*) "x")))
 
+(defun config-default ()
+	(scatter (Emap) :version +config_version :zoom 3))
+
+(defun config-load ()
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (config-default))))
+
+(defun config-save ()
+	(scatter *config* :zoom *zoom*)
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
+
 (defun main ()
-	(defq id :t select (task-mboxes +select_size) *zoom* 3 *small* :nil *small_w* 0 *small_h* 0)
+	(config-load)
+	;the zoom it was, if it is still one of them
+	(defq id :t select (task-mboxes +select_size) *small* :nil *small_w* 0 *small_h* 0
+		*zoom* (if (find (defq z (. *config* :find :zoom)) +zooms) z 3))
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(zoom 0)
 	(. *window* :open)
@@ -62,4 +82,5 @@
 			(+select_timer
 				(look)
 				(mail-timeout (elem-get select +select_timer) +tick 0))))
+	(config-save)
 	(. *window* :close))
