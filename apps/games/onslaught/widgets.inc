@@ -46,7 +46,8 @@
 			(ui-map *layer_land*)
 			(ui-sky *layer_sky*)))
 	(ui-view *panel_layers* (:paper 0 :min_width (* *zoom* +screen_width) :min_height (* *zoom* +panel_height))
-		(ui-view *layer_panel_axes*)
+		(ui-view *layer_panel_axe_l*)
+		(ui-view *layer_panel_axe_r*)
 		(ui-element *layer_panel_items* (ItemPanel))
 		(ui-view *layer_panel_status* (:paper 0)
 			(ui-element *panel_flag_l* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_flag))
@@ -59,4 +60,5 @@
 		,*layer_missiles* ,*layer_bodies* ,*layer_fx*)
 	+world_layers `'(,*layer_player* ,*layer_bans* ,*layer_items* ,*layer_enemies*
 		,*layer_missiles* ,*layer_bodies* ,*layer_fx* ,*layer_land* ,*layer_sky*)
-	+panel_layers `'(,*layer_panel_detail* ,*layer_panel_items* ,*layer_panel_status* ,*layer_panel_axes*))
+	+panel_layers `'(,*layer_panel_detail* ,*layer_panel_items* ,*layer_panel_status*
+		,*layer_panel_axe_l* ,*layer_panel_axe_r*))

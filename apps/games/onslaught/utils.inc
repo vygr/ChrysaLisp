@@ -186,6 +186,27 @@
 		(:sp_set_bounds +status_strength_x strength_y 32 strength_val)
 		(:sp_set_oy strength_oy)))
 
+(defun cp-panel-drip (this that)
+	; this = sprite, that = component instance
+	(if (>= (get :sp_y this) +panel_axe_h) (. this :sp_kill)))
+
+(defclass PanelDrip () (Sprite *img_frm_16x16* :nil 16 16 :16x16)
+	; (PanelDrip) -> sprite
+	;starts all but its bottom row above its axe view, under the head, and
+	;is still for its first move, as a vy of -1 and the pull of 1 make 0,
+	;so it seeps off
+	(.-> this
+		(:sp_add_component (MV 0 -1 0 1 100 10))
+		(:sp_add_component (CP cp-panel-drip))
+		(:sp_set_frame +frm_16x16_blooddrip)
+		(:sp_set_pos 0 -15)))
+
+(defun start-panel-drip ()
+	; a kill drips blood off both axe heads, unless they already are
+	(when (empty? (. *layer_panel_axe_l* :children))
+		(. *layer_panel_axe_l* :add_front (PanelDrip))
+		(. *layer_panel_axe_r* :add_front (PanelDrip))))
+
 (defun update-panel-layers ()
 	; tick all active sprites across panel layers
 	(check-empty-mase)

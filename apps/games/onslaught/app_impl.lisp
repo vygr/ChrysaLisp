@@ -72,9 +72,12 @@
 		(. *layer_panel_status* :change
 			(* *zoom* +panel_status_x) (* *zoom* +panel_status_y)
 			(* *zoom* +panel_status_w) (* *zoom* +panel_status_h) :t)
-		(. *layer_panel_axes* :change
-			(* *zoom* +panel_axes_x) (* *zoom* +panel_axes_y)
-			(* *zoom* +panel_axes_w) (* *zoom* +panel_axes_h) :t)
+		(. *layer_panel_axe_l* :change
+			(* *zoom* +panel_axe_l_x) (* *zoom* +panel_axe_y)
+			(* *zoom* +panel_axe_w) (* *zoom* +panel_axe_h) :t)
+		(. *layer_panel_axe_r* :change
+			(* *zoom* +panel_axe_r_x) (* *zoom* +panel_axe_y)
+			(* *zoom* +panel_axe_w) (* *zoom* +panel_axe_h) :t)
 		(def *panel_flag_l* :sp_canvas_l *img_frm_32c32*)
 		(def *panel_flag_r* :sp_canvas_l *img_frm_32c32*)
 		(def *panel_power* :sp_canvas_l *img_frm_32c32*)

@@ -11,10 +11,11 @@
 		+ftp_tower +ftp_carpet +ftp_skeleton_monk +ftp_skeleton_horse +ftp_skeleton))
 
 (defun play-death-score (node)
-	; banners and untyped sprites score nothing
-	(and (/= (defq sp_type (get :sp_type node)) 0)
-		(< (defq idx (log2 sp_type)) (length +score_table))
-		(setq *man_score* (+ *man_score* (elem-get +score_table idx)))))
+	; banners and untyped sprites score nothing, nor drip
+	(when (/= (defq sp_type (get :sp_type node)) 0)
+		(if (< (defq idx (log2 sp_type)) (length +score_table))
+			(setq *man_score* (+ *man_score* (elem-get +score_table idx))))
+		(start-panel-drip)))
 
 ; collision handlers for player and weapons
 

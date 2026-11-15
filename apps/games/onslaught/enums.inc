@@ -9,7 +9,9 @@
 	+max_strength 2048 +max_power (/ +max_strength 2) +en_comp_mv 0 +en_comp_at 1
 	; movement component (MV, MT, ML) is first on missiles, items, addons and fx
 	+comp_move 0 +manbits_comp_mv 1
-	+panel_axes_x 0 +panel_axes_y (- +panel_height 64) +panel_axes_w +panel_width +panel_axes_h 64
+	; under each axe head, where its blood drips off the panel
+	+panel_axe_l_x 2 +panel_axe_r_x (- +panel_width 18) +panel_axe_y 35
+	+panel_axe_w 16 +panel_axe_h (- +panel_height 35)
 	+panel_status_x (- 32 3) +panel_status_y (- +panel_height 64)
 	+panel_status_w (- (+ 256 6 32) (- 32 3)) +panel_status_h 64
 	+panel_items_x (- (/ +screen_width 2) (* 16 4)) +panel_items_y (- +panel_height 64)
