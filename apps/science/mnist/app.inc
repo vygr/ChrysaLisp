@@ -93,12 +93,7 @@
 ; the samples
 ;;;;;;;;;;;;;
 
-;each grey level of a pixel, 0 to 255, as a double 0 to 1
-(defq +mnist_grey (apply (const doubles) (map! (# (/ (n2d (!)) (n2d 255))) '() 0 256)))
-
 (defun mnist-input (pixels x)
 	; (mnist-input str x) -> x
-	;the bytes of a picture as doubles into x
-	(each! (lambda () (elem-set x (!) (elem-get +mnist_grey (code pixels 1 (!)))))
-		'() 0 +mnist_inputs)
-	x)
+	;the bytes of a picture as doubles 0 to 1 into x
+	(nn-scale-bytes pixels (const (/ (n2d 1) (n2d 255))) x))

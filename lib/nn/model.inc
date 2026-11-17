@@ -20,6 +20,12 @@
 
 (import "lib/math/vector.inc")
 
+;native, lib/nn/lisp.vp
+(ffi (path-to-absolute "./scale_bytes") nn-scale-bytes)
+; (nn-scale-bytes bytes scale out) -> out
+;each byte of a str times the double scale into the doubles of out, as
+;many as both have
+
 ;a layer of a model, offsets counts of doubles
 (enums +nn_layer 0
 	(enum kind ins outs act name weights biases))

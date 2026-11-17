@@ -45,7 +45,7 @@
 				(nn-backward *mnist_model* net grads x scratch label)
 				(neg (log (max (elem-get p label) (const (str-to-double "1e-300")))))))))
 		'() 0 count)
-	(if train (buf-set grads_buf (mnist-slice slot) (* +mnist_params +long_size) (nn-bytes (nn-flat grads))))
+	(if train (buf-set grads_buf (mnist-slice slot) (* +mnist_params +long_size) (nn-flat grads)))
 	(mail-send reply (cat (setf-> (str-alloc +mnist_reply_size)
 				(+job_reply_key key) (+mnist_reply_step step) (+mnist_reply_count count)
 				(+mnist_reply_right right) (+mnist_reply_loss loss))

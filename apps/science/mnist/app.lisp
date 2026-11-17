@@ -150,7 +150,7 @@
 (defun jobs-give (kind msgs)
 	;the params where the children read them, and the jobs out
 	(farm-start)
-	(buf-set params_buf 0 (* +mnist_params +long_size) (nn-bytes params))
+	(buf-set params_buf 0 (* +mnist_params +long_size) params)
 	(setq step (inc step) busy kind out (length msgs) answers (list))
 	(. jobs :add msgs))
 

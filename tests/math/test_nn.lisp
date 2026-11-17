@@ -48,3 +48,13 @@
 (defq nn_p (nn-forward nn_small nn_net nn_x nn_scratch))
 (assert-true "softmax adds up to 1" (< (abs (- (nums-sum nn_p) (n2d 1))) (str-to-double "1e-12")))
 (assert-eq "the guess is the biggest" (nn-guess (doubles (n2d 0.1) (n2d 0.7) (n2d 0.2))) 1)
+
+;bytes as doubles, native, as the sum of each in Lisp
+(defq nn_bytes (apply (const cat) (map! (# (char (* (!) 17))) '() 0 15)) nn_k (/ (n2d 1) (n2d 255))
+	nn_out (fill (doubles) 20 (n2d -1)))
+(nn-scale-bytes nn_bytes nn_k nn_out)
+(assert-eq "bytes times a scale" (apply (const doubles) (map! (# (* (n2d (* (!) 17)) nn_k)) '() 0 15))
+	(slice nn_out 0 15))
+(assert-eq "no further than there are bytes" (n2d -1) (elem-get nn_out 15))
+(assert-eq "no further than there are doubles" 3
+	(length (nn-scale-bytes nn_bytes nn_k (fill (doubles) 3 (n2d 0)))))
