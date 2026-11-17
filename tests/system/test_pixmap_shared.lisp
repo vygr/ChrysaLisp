@@ -18,6 +18,12 @@
 (assert-eq "one that is smaller than asked for is not found" :nil (pixmap-shared 640 320 key))
 (assert-true "two keys differ" (/= key (pixmap-key (pixmap-shared 64 32 0))))
 (assert-eq "a plain pixmap has no key" 0 (pixmap-key (getf (Canvas 8 8 1) +canvas_pixmap 0)))
+;its pixels are the block of a buf, and the buf is the one that has the key
+(import "class/buf/lisp.inc")
+(assert-true "its pixels are a buf's" (buf? (pixmap-buf made)))
+(assert-eq "the buf has the key" key (buf-key (pixmap-buf made)))
+(assert-eq "as big as its pixels" (* 64 32 4) (buf-size (pixmap-buf made)))
+(assert-eq "a plain pixmap has no buf" :nil (pixmap-buf (getf (Canvas 8 8 1) +canvas_pixmap 0)))
 
 ;drawn on through one, seen through the other, and the same as a canvas
 ;that has its pixels to itself

@@ -8463,12 +8463,20 @@ when the key or the size is not the one it was found by. :nil if the
 key is 0 or the pixels can not be reached, from another machine say
 ```
 
+### pixmap-buf
+
+```code
+(pixmap-buf pixmap) -> :nil | buf
+
+the buf its pixels are the block of, :nil if they are its own
+```
+
 ### pixmap-key
 
 ```code
 (pixmap-key pixmap) -> 0 | key
 
-the key of the shared memory its pixels are in, 0 if they are its own
+the key of the buf its pixels are the block of, 0 if they are its own
 ```
 
 ### place-angle

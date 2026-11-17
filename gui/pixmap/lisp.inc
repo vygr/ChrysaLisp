@@ -1,4 +1,5 @@
 (import "./struct.inc")
+(import "class/buf/lisp.inc")
 
 (ffi "gui/pixmap/lisp_as_argb" pixmap-as-argb)
 ; (pixmap-as-argb pixmap) -> pixmap
@@ -12,16 +13,22 @@
 ; (pixmap-read pixmap stream type) -> :nil | pixmap
 (ffi "gui/pixmap/lisp_shared" pixmap-shared)
 ; (pixmap-shared width height key) -> :nil | pixmap
-;a premultiplied 32 bit pixmap with its pixels in shared memory. A key of
-;0 makes them, zero, under a key of its own, (pixmap-key). A pixmap on
-;another node of this machine that is given that key, and the same size,
-;finds them, and both draw on the same pixels. The key goes when the
-;pixmap that made it does, the pixels last till the last one on them has.
+;a premultiplied 32 bit pixmap with its pixels the block of a buf, shared
+;memory, class/buf. A key of 0 makes them, zero, under a key of its own,
+;(pixmap-key). A pixmap on another node of this machine that is given that
+;key, and the same size, finds them, and both draw on the same pixels. The
+;key goes when the buf of the pixmap that made it does, the pixels last
+;till the last one on them has.
+
+(defun pixmap-buf (pixmap)
+	; (pixmap-buf pixmap) -> :nil | buf
+	;the buf its pixels are the block of, :nil if they are its own
+	(getf pixmap +pixmap_buf 0))
 
 (defun pixmap-key (pixmap)
 	; (pixmap-key pixmap) -> 0 | key
-	;the key of the shared memory its pixels are in, 0 if they are its own
-	(getf pixmap +pixmap_key 0))
+	;the key of the buf its pixels are the block of, 0 if they are its own
+	(if (defq b (pixmap-buf pixmap)) (buf-key b) 0))
 
 (defun pixmap-attach (held width height key)
 	; (pixmap-attach held width height key) -> :nil | pixmap

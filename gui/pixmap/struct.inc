@@ -4,11 +4,11 @@
 	(int type)
 	(ptr texture)
 	(uint width height stride)
-	;the pixels. They follow the object, or they are in shared memory that
-	;other nodes of this machine can draw on, under a key, which is 0 if
-	;they are not. owner is the pixmap that made the shared memory.
+	;the pixels. They follow the object, or they are the block of a buf,
+	;shared memory that other nodes of this machine can draw on, and buf
+	;is 0 if they are not
 	(pubyte data)
-	(long key handle owner)
+	(ptr buf)
 	(align)
 	(offset pixels))
 

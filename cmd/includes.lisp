@@ -41,7 +41,7 @@
 		(":fixeds" "+fixeds_") (":fixed" "+fixed_")
 		(":nums" "+nums_") (":num" "+num_")
 		(":out" "+stream_mail_" "+out_") (":stream" "+stream_")
-		(":lisp" "+lisp_") (":str" "+str_")
+		(":lisp" "+lisp_") (":str" "+str_") (":buf" "+buf_")
 		(":seq" "+seq_") (":array" "+array_") (":list" "+list_")
 		(":dim" "+dim_") (":sys_math" "+math_")
 		(":hset" "+hset_") (":hmap" "+hmap_") (":fstream" "+fstream_") (":lstream" "+lstream_")
