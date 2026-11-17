@@ -276,8 +276,8 @@
 	;5 bands split by the hybrid filters, each with 6 slots before, the rest
 	;as they are
 	(defq in_buf (. ps :find :in_buf)
-		xs (map! (lambda (buf) (bind '(r i) (ps-series slots (!) 38))
-				(bind '(hr hi) buf)
+		xs (map! (lambda (pair) (bind '(r i) (ps-series slots (!) 38))
+				(bind '(hr hi) pair)
 				(defq xr (cat hr r) xi (cat hi i))
 				(elem-set in_buf (!) (list (slice xr 32 38) (slice xi 32 38)))
 				(list xr xi)) (list in_buf) 0 5))

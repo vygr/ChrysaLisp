@@ -1928,6 +1928,24 @@ more. A bucket found empty is a step of the count, so a call is short
 even when most are
 ```
 
+### buf-key
+
+```code
+(buf-key buffer) -> key
+```
+
+### buf-size
+
+```code
+(buf-size buffer) -> bytes
+```
+
+### buf?
+
+```code
+(buf? form) -> :t | :nil
+```
+
 ### build-method-overrides
 
 ```code

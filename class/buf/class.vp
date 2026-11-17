@@ -1,0 +1,305 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "././list/class.inc")
+(include "././num/class.inc")
+(include "././fixed/class.inc")
+(include "././double/class.inc")
+(include "././str/class.inc")
+
+;a block of memory that the nodes of this machine share, and nothing more:
+;what is kept in it, and how it is read and written, is for those who use
+;it. A node makes one under a key, at random, and the others it gives the
+;key to open it by. The one that made it lets go of the key when it goes,
+;and the memory lasts till the last node that has it mapped lets go
+
+(gen-create :buf)
+	;inputs
+	;:r0 = size in bytes (ulong)
+	;:r1 = key, 0 to make a block under a new key (long)
+	;outputs
+	;:r0 = 0 if error, else buf object (ptr)
+	;trashes
+	;:r0-:r3, :r8-:r14, :d0-:d15
+(gen-vtable :buf)
+(gen-type :buf)
+	;inputs
+	;:r0 = buf object (ptr)
+	;outputs
+	;:r0 = buf object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r3, :d0-:d15
+
+(def-method :buf :init)
+	;inputs
+	;:r0 = buf object (ptr)
+	;:r1 = vtable (pptr)
+	;:r2 = size in bytes (ulong)
+	;:r3 = key, 0 to make a block under a new key (long)
+	;outputs
+	;:r0 = buf object (ptr)
+	;:r1 = 0 if error, else ok
+	;trashes
+	;:r1-:r2, :r8-:r13, :d0-:d15
+	;info
+	;the block of a key mapped on this node, or with a key of 0 a new one,
+	;zero, under a key at random that no other block has. An error if there
+	;is no block of that key of at least that size on this machine, or the
+	;host has no shared memory
+
+	(vp-rdef (this size key handle flags tries) '(:r8 :r9 :r10 :r11 :r12 :r13))
+
+	(entry :buf :init `(:r0 :r1 ,size ,key))
+
+	;init parent
+	(s-call :buf :init '(:r0 :r1) `(,this :r1))
+	(vpif '(:r1 /= 0))
+		(vp-cpy-cr -1 handle)
+		(vp-xor-rr flags flags)
+		(vpif `(,size > 0))
+			(vpif `(,key /= 0))
+				(call :host_os :pii_shm_open `(,key ,size 0) `(,handle))
+			(else)
+				;a key at random, another if it is taken
+				(vp-cpy-cr +buf_flag_owner flags)
+				(vp-cpy-cr 8 tries)
+				(vp-alloc +long_size)
+				(loop-start)
+					(call :host_os :pii_rand '(:rsp +long_size))
+					(assign '((:rsp 0)) `(,key))
+					(vpif `(,key /= 0))
+						(call :host_os :pii_shm_open `(,key ,size 1) `(,handle))
+					(endif)
+					(breakif `(,handle /= -1))
+					(vp-sub-cr 1 tries)
+				(loop-until `(,tries = 0))
+				(vp-free +long_size)
+			(endif)
+		(endif)
+		(vp-xor-rr :r1 :r1)
+		(vpif `(,handle /= -1))
+			;mapped, it is the address, or it is 0 or -1
+			(call :host_os :pii_mmap `(,size ,handle +mmap_shared) '(:r0))
+			(vp-lea-rcr :r0 1 :r1)
+			(vpif '(:r1 > 1))
+				(assign `(:r0 ,size ,key ,handle ,flags)
+					`((,this +buf_data) (,this +buf_bytes) (,this +buf_key)
+						(,this +buf_handle) (,this +buf_flags)))
+				(vp-cpy-rr this :r1)
+			(else)
+				(vp-and-cr +buf_flag_owner flags)
+				(call :host_os :pii_shm_close `(,key ,handle ,flags))
+				(vp-xor-rr :r1 :r1)
+			(endif)
+		(endif)
+	(endif)
+
+	(exit :buf :init `(,this :r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :buf :deinit)
+	;inputs
+	;:r0 = buf object (ptr)
+	;outputs
+	;:r0 = buf object (ptr)
+	;trashes
+	;:r1-:r2, :d0-:d15
+	;info
+	;the block unmapped, and its key let go of if this made it
+
+	(entry :buf :deinit '(:r0))
+
+	(vp-push :r0)
+	(assign '((:r0 +buf_data) (:r0 +buf_bytes)) '(:r1 :r2))
+	(call :host_os :pii_munmap '(:r1 :r2 +mmap_shared))
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 +buf_flags)) '(:r2))
+	(vp-and-cr +buf_flag_owner :r2)
+	(call :host_os :pii_shm_close '((:r0 +buf_key) (:r0 +buf_handle) :r2))
+	(vp-pop :r0)
+
+	;deinit parent
+	(s-jump :buf :deinit '(:r0))
+
+(def-func-end)
+
+;;;;;;;;;;;;;;;;;
+; raw data access
+;;;;;;;;;;;;;;;;;
+
+;what a field of a type is at an address, and setting it, the access to
+;raw data that (buf-get) and (buf-set) make of a buf's block, and (obj-get)
+;and (obj-set) of an object's own fields. A type is a +type_ of a number, a
+;double down to a pointer, or more than 0, a struct of that many bytes, as
+;a str. 0, an object reference, is the caller's to do, it has no meaning in
+;memory another process may read
+
+(def-method :buf :check)
+	;inputs
+	;:r0 = passed through (ptr)
+	;:r1 = limit, how many bytes there are (ulong)
+	;:r2 = offset (long)
+	;:r3 = type (long)
+	;outputs
+	;:r0 = as it was (ptr)
+	;:r1 = 0 if ok, 1 if it is no type, 2 if it is not all inside the limit,
+	;or not at the alignment of its type
+	;trashes
+	;:r1, :r4-:r5
+	;info
+	;a field of a type, not a struct, is at its natural alignment,
+	;docs/vm/vp_vm.md: what it is in starts on a word, so its offset is a
+	;whole number of its size
+
+	(vp-rdef (this limit offset type fsize sizes) '(:r0 :r1 :r2 :r3 :r4 :r5))
+
+	(entry :buf :check `(,this ,limit ,offset ,type))
+
+	(gotoif `(,offset < 0) 'index)
+	(gotoif `(,type < +type_double) 'kind)
+	(vp-cpy-rr type fsize)
+	(vpif `(,type <= 0))
+		(vp-lea-pr 'type_sizes sizes)
+		(vp-sub-rr type sizes)
+		(vp-load-rcr-ub sizes 0 fsize)
+	(endif)
+	(vp-cpy-rr fsize sizes)
+	(vp-add-rr offset fsize)
+	(gotoif `(,fsize > ,limit) 'index)
+	(vpif `(,type <= 0))
+		(vp-mul-cr -1 sizes)
+		(vp-and-rr offset sizes)
+		(gotoif `(,sizes /= ,offset) 'index)
+	(endif)
+	(vp-xor-rr :r1 :r1)
+	(vp-jmp 'done)
+(vp-label 'kind)
+	(vp-cpy-cr 1 :r1)
+	(vp-jmp 'done)
+(vp-label 'index)
+	(vp-cpy-cr 2 :r1)
+(vp-label 'done)
+
+	(exit :buf :check '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'type_sizes)
+	(vp-byte +ptr_size +ptr_size +byte_size +byte_size +short_size +short_size
+		+int_size +int_size +long_size +long_size +long_size)
+
+(def-func-end)
+
+(def-method :buf :get)
+	;inputs
+	;:r0 = passed through (ptr)
+	;:r1 = address (pubyte)
+	;:r2 = type, not 0 (long)
+	;outputs
+	;:r0 = as it was (ptr)
+	;:r1 = value object (ptr)
+	;trashes
+	;:r1-:r6, :r14, :d0-:d15
+	;info
+	;:r0 is passed through, the lisp object of a caller that jumps here
+	;for the end of its binding
+
+	(vp-rdef (this addr type keep) '(:r0 :r1 :r2 :r6))
+
+	(entry :buf :get `(,this ,addr ,type))
+
+	(vp-cpy-rr this keep)
+	(switch)
+	(vpcase `(,type > 0))
+		;a struct, as a str of its bytes
+		(call :str :create_from_buffer `(,addr ,type) '(:r1))
+		(goto 'done)
+	(vpcase `(,type = ,+type_byte))
+		(assign `((,addr 0 b)) `(,addr))
+		(break)
+	(vpcase `(,type = ,+type_ubyte))
+		(assign `((,addr 0 ub)) `(,addr))
+		(break)
+	(vpcase `(,type = ,+type_short))
+		(assign `((,addr 0 s)) `(,addr))
+		(break)
+	(vpcase `(,type = ,+type_ushort))
+		(assign `((,addr 0 us)) `(,addr))
+		(break)
+	(vpcase `(,type = ,+type_int))
+		(assign `((,addr 0 i)) `(,addr))
+		(break)
+	(vpcase `(,type = ,+type_uint))
+		(assign `((,addr 0 ui)) `(,addr))
+		(break)
+	(vpcase `(,type = ,+type_fixed))
+		(call :fixed :create `((,addr 0)) '(:r1))
+		(goto 'done)
+	(vpcase `(,type = ,+type_double))
+		(call :double :create `((,addr 0)) '(:r1))
+		(goto 'done)
+	(default)
+		(assign `((,addr 0)) `(,addr))
+	(endswitch)
+	(call :num :create `(,addr) '(:r1))
+(vp-label 'done)
+	(vp-cpy-rr keep :r0)
+
+	(exit :buf :get '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :buf :set)
+	;inputs
+	;:r0 = passed through (ptr)
+	;:r1 = address (pubyte)
+	;:r2 = type, not 0 (long)
+	;:r3 = value object (ptr)
+	;outputs
+	;:r0 = as it was (ptr)
+	;trashes
+	;:r1-:r5
+	;info
+	;a struct is the bytes of a str, a number its value
+
+	(vp-rdef (this addr type val num keep) '(:r0 :r1 :r2 :r3 :r4 :r5))
+
+	(entry :buf :set `(,this ,addr ,type ,val))
+
+	(vpif `(,type > 0))
+		(vp-cpy-rr this keep)
+		(vp-lea-rcr val +str_data num)
+		(call :sys_mem :copy `(,num ,addr ,type))
+		(vp-cpy-rr keep :r0)
+	(else)
+		(assign `((,val +num_value)) `(,num))
+		(switch)
+		(vpcase `(,type = ,+type_byte))
+			(assign `(,num) `((,addr 0 b)))
+			(break)
+		(vpcase `(,type = ,+type_ubyte))
+			(assign `(,num) `((,addr 0 b)))
+			(break)
+		(vpcase `(,type = ,+type_short))
+			(assign `(,num) `((,addr 0 s)))
+			(break)
+		(vpcase `(,type = ,+type_ushort))
+			(assign `(,num) `((,addr 0 s)))
+			(break)
+		(vpcase `(,type = ,+type_int))
+			(assign `(,num) `((,addr 0 i)))
+			(break)
+		(vpcase `(,type = ,+type_uint))
+			(assign `(,num) `((,addr 0 i)))
+			(break)
+		(default)
+			(assign `(,num) `((,addr 0)))
+		(endswitch)
+	(endif)
+
+	(exit :buf :set '(:r0))
+	(vp-ret)
+
+(def-func-end)

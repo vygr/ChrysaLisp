@@ -50,16 +50,16 @@
 			(. square :constrain :t)) (list (. chess_grid :children) board) 0 64)
 	(. chess_grid :dirty_all))
 
-(defun vdu-print (vdu buf s)
+(defun vdu-print (vdu lines s)
 	(each (lambda (c)
 			(cond
 				((eql c "\n")
 					;line feed and truncate
-					(if (> (length (push buf "")) (const vdu_height))
-						(setq buf (slice buf (const (dec (neg vdu_height))) -1))))
+					(if (> (length (push lines "")) (const vdu_height))
+						(setq lines (slice lines (const (dec (neg vdu_height))) -1))))
 				(:t ;char
-					(elem-set buf -2 (cat (last buf) c))))) s)
-	(. vdu :load buf 0 0 (length (last buf)) (dec (length buf))) buf)
+					(elem-set lines -2 (cat (last lines) c))))) s)
+	(. vdu :load lines 0 0 (length (last lines)) (dec (length lines))) lines)
 
 (defun update-vdu ()
 	(setq text_buf (vdu-print vdu (list "")

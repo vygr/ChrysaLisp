@@ -1,0 +1,119 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "class/lisp/class.inc")
+(include "class/num/class.inc")
+
+(def-method :buf :lisp_create)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r8-:r14, :d0-:d15
+
+	(entry :buf :lisp_create '(:r0 :r1))
+
+	(gotoif-lisp-args-sig 'error :r1 1 2)
+
+	(assign '((:r1 +array_length)) '(:r2))
+	(vp-push :r0)
+	(defq in (method-input :buf :create))
+	(vpif '(:r2 = 1))
+		(list-bind-args :r1 (slice in 0 1) '(:num))
+		(assign '(0) (slice in 1 2))
+	(else)
+		(list-bind-args :r1 in '(:num :num))
+	(endif)
+	(call :buf :create in '(:r1))
+	(vp-pop :r0)
+	(vpif '(:r1 = 0))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
+	(endif)
+
+	(exit :buf :lisp_create '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(buf size [key])" +error_msg_wrong_types))
+	(signature '(:NUM :NUM))
+
+(def-func-end)
+
+(def-method :buf :lisp_get)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r8-:r12, :r14, :d0-:d15
+	;info
+	;a field of the block at an offset from its start, as (obj-get) has one
+	;of an object, but not an object reference
+
+	(vp-rdef (this args buf offset type tmp) '(:r8 :r9 :r10 :r11 :r12 :r13))
+
+	(entry :buf :lisp_get `(,this ,args))
+
+	(gotoif-lisp-args-sig 'error args 3)
+
+	(list-bind-args args `(,buf ,offset ,type) '(:obj :num :num))
+	(gotoif `(,type = 0) 'error)
+	(call :buf :check `(,this (,buf +buf_bytes) ,offset ,type) `(,this :r1))
+	(gotoif '(:r1 = 1) 'error)
+	(gotoif '(:r1 /= 0) 'error1)
+	(assign `((,buf +buf_data)) '(:r0))
+	(vp-add-rr :r0 offset)
+	(jump :buf :get `(,this ,offset ,type))
+
+(vp-label 'error1)
+	(jump :lisp :repl_error `(,args "(buf-get buf offset type)" +error_msg_not_valid_index))
+(vp-label 'error)
+	(jump :lisp :repl_error `(,args "(buf-get buf offset type)" +error_msg_wrong_types))
+	(signature '(:buf :NUM :NUM))
+
+(def-func-end)
+
+(def-method :buf :lisp_set)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r8-:r13
+	;info
+	;a field of the block at an offset from its start set, as (obj-set) sets
+	;one of an object, but not to an object reference
+
+	(vp-rdef (this args buf offset type val tmp) '(:r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
+	(entry :buf :lisp_set `(,this ,args))
+
+	(gotoif-lisp-args-sig 'error args 4)
+
+	(list-bind-args args `(,buf ,offset ,type ,val) '(:obj :num :num :obj))
+	(gotoif `(,type = 0) 'error)
+	(call :buf :check `(,this (,buf +buf_bytes) ,offset ,type) `(,this :r1))
+	(gotoif '(:r1 = 1) 'error)
+	(gotoif '(:r1 /= 0) 'error1)
+	(assign `((,buf +buf_data)) '(:r0))
+	(vp-add-rr :r0 offset)
+	(call :buf :set `(,this ,offset ,type ,val) `(,this))
+	(class/obj/ref buf :r0)
+
+	(exit :buf :lisp_set `(,this ,buf))
+	(vp-ret)
+
+(vp-label 'error1)
+	(jump :lisp :repl_error `(,args "(buf-set buf offset type val)" +error_msg_not_valid_index))
+(vp-label 'error)
+	(jump :lisp :repl_error `(,args "(buf-set buf offset type val)" +error_msg_wrong_types))
+	(signature '(:buf :NUM :NUM :obj))
+
+(def-func-end)

@@ -165,15 +165,15 @@
 	; (tls-message state) -> :nil | (type whole)
 	;the next handshake message, from as many records as it takes, the
 	;whole of it with its head, as the transcript has it
-	(defq buf (. state :find :hbuf) ok :t)
-	(while (and ok (or (< (length buf) 4) (< (length buf) (+ 4 (tls-num buf 1 3)))))
+	(defq hbuf (. state :find :hbuf) ok :t)
+	(while (and ok (or (< (length hbuf) 4) (< (length hbuf) (+ 4 (tls-num hbuf 1 3)))))
 		(defq rec (tls-open-record state))
-		(if (and rec (= (first rec) 22)) (setq buf (cat buf (second rec))) (setq ok :nil)))
+		(if (and rec (= (first rec) 22)) (setq hbuf (cat hbuf (second rec))) (setq ok :nil)))
 	(cond
-		(ok (defq whole (slice buf 0 (+ 4 (tls-num buf 1 3))))
-			(. state :insert :hbuf (slice buf (length whole) -1))
+		(ok (defq whole (slice hbuf 0 (+ 4 (tls-num hbuf 1 3))))
+			(. state :insert :hbuf (slice hbuf (length whole) -1))
 			(list (code whole 1 0) whole))
-		(:t (. state :insert :hbuf buf) :nil)))
+		(:t (. state :insert :hbuf hbuf) :nil)))
 
 (defun tls-client-hello (host public random)
 	; (tls-client-hello host public random) -> str

@@ -568,12 +568,12 @@
 			((= sequence +aac_eight_short)
 				;eight short windows, each at 448 and 128 on, the first rising by
 				;the shape before, those after by this one
-				(defq buf (cat zeros zeros))
+				(defq acc (cat zeros zeros))
 				(each! (lambda () (defq w (!)) (defq x (nums-mul (aac-unfold decoder (slice lines (* w 128) (* (inc w) 128)) 128)
 								(cat (if (= w 0) short_rise short_cur) short_fall))
 							at (+ 448 (* w 128)))
-						(each (# (elem-set buf (+ at (!)) (+ (elem-get buf (+ at (!))) %0))) x)) '() 0 8)
-				buf)
+						(each (# (elem-set acc (+ at (!)) (+ (elem-get acc (+ at (!))) %0))) x)) '() 0 8)
+				acc)
 			(:t (nums-mul (aac-unfold decoder lines 1024)
 					(cat (if (= sequence +aac_long_stop) (cat (slice zeros 0 448) short_rise (slice ones 0 448)) long_rise)
 						(if (= sequence +aac_long_start) (cat (slice ones 0 448) short_fall (slice zeros 0 448)) long_fall))))))

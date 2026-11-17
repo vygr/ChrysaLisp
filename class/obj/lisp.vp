@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "././double/class.inc")
 (include "././lisp/class.inc")
+(include "././buf/class.inc")
 
 (def-method :obj :lisp_get)
 	;inputs
@@ -10,94 +11,43 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r8, :r14, :d0-:d15
+	;:r1-:r6, :r8-:r12, :r14, :d0-:d15
+	;info
+	;a field of an object, inside its own heap cell, by the raw access of
+	;:buf, and an object reference here
 
-	(vp-rdef (this obj args offset type osize fsize sizes) '(:r8))
+	(vp-rdef (this args obj offset type tmp) '(:r8 :r9 :r10 :r11 :r12 :r13))
 
 	(entry :obj :lisp_get `(,this ,args))
 
 	(gotoif-lisp-args-sig 'error args 3)
 
 	(list-bind-args args `(,obj ,offset ,type) '(:obj :num :num))
-
-	(gotoif `(,offset < 0) 'error1)
-	(gotoif `(,type < +type_double) 'error)
-	(vp-load-rcr obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
-	(assign `((,osize +hp_heap_cellsize)) `(,osize))
-	(vp-sub-cr +sys_mem_header_size osize)
-	(vp-cpy-rr type fsize)
-	(vpif `(,type <= 0))
-		(vp-lea-pr 'type_sizes sizes)
-		(vp-sub-rr type sizes)
-		(vp-load-rcr-ub sizes 0 fsize)
-	(endif)
-	(vp-cpy-rr fsize sizes)
-	(vp-add-rr offset fsize)
-	(gotoif `(,fsize > ,osize) 'error1)
-;a field of a type, not a struct, is at its natural alignment, docs/vm/vp_vm.md:
-;an object starts on a word, so its offset is a whole number of its size
-	(vpif `(,type <= 0))
-		(vp-mul-cr -1 sizes)
-		(vp-and-rr offset sizes)
-		(gotoif `(,sizes /= ,offset) 'error1)
-	(endif)
-
-	(switch)
-	(vpcase `(,type >= 0))
-		(vpif `(,type = 0))
-			;object reference
-			(assign `((,obj ,offset)) `(,args))
-			(vpif `(,args = 0))
-				(assign `((,this +lisp_sym_nil)) `(,args))
-			(endif)
-			(class/obj/ref args obj)
-			(exit :obj :lisp_get `(,this ,args))
-			(vp-ret)
+	(vp-load-rcr obj (- +sys_mem_header_heap +sys_mem_header_size) :r0)
+	(assign '((:r0 +hp_heap_cellsize)) '(:r0))
+	(vp-sub-cr +sys_mem_header_size :r0)
+	(call :buf :check `(,this :r0 ,offset ,type) `(,this :r1))
+	(gotoif '(:r1 = 1) 'error)
+	(gotoif '(:r1 /= 0) 'error1)
+	(vp-add-rr obj offset)
+	(vpif `(,type = 0))
+		;object reference
+		(assign `((,offset 0)) '(:r1))
+		(vpif '(:r1 = 0))
+			(assign `((,this +lisp_sym_nil)) '(:r1))
 		(endif)
-		;sub struct
-		(call :str :create_from_buffer `((& ,obj ,offset) ,type) `(,args))
-		(exit :obj :lisp_get `(,this ,args))
-		(vp-ret)
-	(vpcase `(,type = ,+type_byte))
-		(assign `((,obj ,offset b)) `(,obj))
-		(break)
-	(vpcase `(,type = ,+type_ubyte))
-		(assign `((,obj ,offset ub)) `(,obj))
-		(break)
-	(vpcase `(,type = ,+type_short))
-		(assign `((,obj ,offset s)) `(,obj))
-		(break)
-	(vpcase `(,type = ,+type_ushort))
-		(assign `((,obj ,offset us)) `(,obj))
-		(break)
-	(vpcase `(,type = ,+type_int))
-		(assign `((,obj ,offset i)) `(,obj))
-		(break)
-	(vpcase `(,type = ,+type_uint))
-		(assign `((,obj ,offset ui)) `(,obj))
-		(break)
-	(vpcase `(,type = ,+type_fixed))
-		(call :fixed :create `((,obj ,offset)) `(,args))
-		(exit :obj :lisp_get `(,this ,args))
-		(vp-ret)
-	(vpcase `(,type = ,+type_double))
-		(call :double :create `((,obj ,offset)) `(,args))
-		(exit :obj :lisp_get `(,this ,args))
-		(vp-ret)
-	(default)
-		(assign `((,obj ,offset)) `(,obj))
-	(endswitch)
-	(call :num :create `(,obj) `(,args))
-	(exit :obj :lisp_get `(,this ,args))
+		(class/obj/ref :r1 :r0)
+	(else)
+		(jump :buf :get `(,this ,offset ,type))
+	(endif)
+
+	(exit :obj :lisp_get `(,this :r1))
 	(vp-ret)
 
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(obj-get obj offset type)" +error_msg_not_valid_index))
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(obj-get obj offset type)" +error_msg_wrong_types))
-(vp-label 'type_sizes)
-	(vp-byte +ptr_size +ptr_size +byte_size +byte_size +short_size +short_size
-		+int_size +int_size +long_size +long_size +long_size)
 	(signature '(:obj :NUM :NUM))
 
 (def-func-end)
@@ -110,88 +60,46 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :d0-:d15
+	;:r1-:r6, :r8-:r13, :d0-:d15
+	;info
+	;a field of an object set, inside its own heap cell, by the raw access
+	;of :buf, and an object reference here
 
 	(structure slot 0
-		(ptr this obj))
+		(ptr this obj addr val))
 
-	(vp-rdef (this args obj offset type val num osize fsize sizes))
+	(vp-rdef (this args obj offset type val tmp) '(:r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry :obj :lisp_set `(,this ,args))
 
 	(gotoif-lisp-args-sig 'error args 4)
 
 	(list-bind-args args `(,obj ,offset ,type ,val) '(:obj :num :num :obj))
-
-	(gotoif `(,offset < 0) 'error1)
-	(gotoif `(,type < +type_double) 'error)
-	(vp-load-rcr obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
-	(assign `((,osize +hp_heap_cellsize)) `(,osize))
-	(vp-sub-cr +sys_mem_header_size osize)
-	(vp-cpy-rr type fsize)
-	(vpif `(,type <= 0))
-		(vp-lea-pr 'type_sizes sizes)
-		(vp-sub-rr type sizes)
-		(vp-load-rcr-ub sizes 0 fsize)
-	(endif)
-	(vp-cpy-rr fsize sizes)
-	(vp-add-rr offset fsize)
-	(gotoif `(,fsize > ,osize) 'error1)
-;a field of a type, not a struct, is at its natural alignment, docs/vm/vp_vm.md:
-;an object starts on a word, so its offset is a whole number of its size
-	(vpif `(,type <= 0))
-		(vp-mul-cr -1 sizes)
-		(vp-and-rr offset sizes)
-		(gotoif `(,sizes /= ,offset) 'error1)
-	(endif)
-
-	;the frame after the checks, an error goes with the stack as it came
-	(vp-alloc slot_size)
-	(save-fields :rsp '(slot_this slot_obj) `(,this ,obj))
-	(assign `((,val +num_value)) `(,num))
-	(switch 'exit)
-	(vpcase `(,type >= 0))
-		(vpif `(,type = 0))
-			;object reference
-			;:obj :deref_if leaves val and offset
-			(call :obj :deref_if `((,obj ,offset)))
-			(load-fields :rsp '(slot_this slot_obj) `(,this ,obj))
-			(assign `((,this +lisp_sym_nil)) `(,this))
-			(vpif `(,val = ,this))
-				(vp-xor-rr val val)
-			(else)
-				(class/obj/ref val this)
-			(endif)
-			(assign `(,val) `((,obj ,offset)))
-			(break 'exit)
+	(vp-load-rcr obj (- +sys_mem_header_heap +sys_mem_header_size) :r0)
+	(assign '((:r0 +hp_heap_cellsize)) '(:r0))
+	(vp-sub-cr +sys_mem_header_size :r0)
+	(call :buf :check `(,this :r0 ,offset ,type) `(,this :r1))
+	(gotoif '(:r1 = 1) 'error)
+	(gotoif '(:r1 /= 0) 'error1)
+	(vp-add-rr obj offset)
+	(vpif `(,type = 0))
+		;object reference, the one there let go of, :nil is none
+		(vp-alloc slot_size)
+		(save-fields :rsp '(slot_this slot_obj slot_addr slot_val) `(,this ,obj ,offset ,val))
+		(call :obj :deref_if `((,offset 0)))
+		(load-fields :rsp '(slot_this slot_obj slot_addr slot_val) `(,this ,obj ,offset ,val))
+		(vp-free slot_size)
+		(assign `((,this +lisp_sym_nil)) '(:r0))
+		(vpif `(,val = :r0))
+			(vp-xor-rr val val)
+		(else)
+			(class/obj/ref val :r0)
 		(endif)
-		;sub struct
-		(call :sys_mem :copy `((& ,val +str_data) (& ,obj ,offset) ,type))
-		(break)
-	(vpcase `(,type = ,+type_byte))
-		(assign `(,num) `((,obj ,offset b)))
-		(break)
-	(vpcase `(,type = ,+type_ubyte))
-		(assign `(,num) `((,obj ,offset b)))
-		(break)
-	(vpcase `(,type = ,+type_short))
-		(assign `(,num) `((,obj ,offset s)))
-		(break)
-	(vpcase `(,type = ,+type_ushort))
-		(assign `(,num) `((,obj ,offset s)))
-		(break)
-	(vpcase `(,type = ,+type_int))
-		(assign `(,num) `((,obj ,offset i)))
-		(break)
-	(vpcase `(,type = ,+type_uint))
-		(assign `(,num) `((,obj ,offset i)))
-		(break)
-	(default)
-		(assign `(,num) `((,obj ,offset)))
-	(endswitch)
-	(load-fields :rsp '(slot_this slot_obj) `(,this ,obj))
-	(class/obj/ref obj type)
-	(vp-free slot_size)
+		(assign `(,val) `((,offset 0)))
+	(else)
+		(call :buf :set `(,this ,offset ,type ,val) `(,this))
+	(endif)
+	(class/obj/ref obj :r0)
 
 	(exit :obj :lisp_set `(,this ,obj))
 	(vp-ret)
@@ -200,9 +108,6 @@
 	(jump :lisp :repl_error `(,args "(obj-set obj offset type)" +error_msg_not_valid_index))
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(obj-set obj offset type val)" +error_msg_wrong_types))
-(vp-label 'type_sizes)
-	(vp-byte +ptr_size +ptr_size +byte_size +byte_size +short_size +short_size
-		+int_size +int_size +long_size +long_size +long_size)
 	(signature '(:obj :NUM :NUM :obj))
 
 (def-func-end)

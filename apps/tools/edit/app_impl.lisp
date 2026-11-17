@@ -141,8 +141,8 @@
 
 (defun get_marker (f)
 	(if (defq meta (.-> *meta_map* (:find :files) (:find f)))
-		(if (defq buf (. meta :find :buffer))
-			(. buf :get_mark) -1) -1))
+		(if (defq tbuf (. meta :find :buffer))
+			(. tbuf :get_mark) -1) -1))
 
 (defun dispatch-action (&rest action)
 	(defq func (first action)

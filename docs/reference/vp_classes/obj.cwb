@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
-	:width 638
-	:height 600
+	:width 617
+	:height 632
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 87
+	:next_id 91
 	:items
 	((:list 1)
 		((:list 7)
@@ -737,7 +737,7 @@
 					:stroke
 					0
 					:text
-					"[11 classes come of it]"
+					"[12 classes come of it]"
 					:font
 					"[fonts/OpenSans-Bold.ctf]"
 					:font_size
@@ -759,7 +759,7 @@
 							:id
 							6
 							:items
-							((:list 11)
+							((:list 12)
 								((:list 5)
 									:group
 									:id
@@ -769,15 +769,15 @@
 										((:list 5)
 											:group
 											:id
-											54
+											55
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													65
+													67
 													:d
-													"[M 6 0 L 34.41552 0 A 6 6 0 0 1 40.41552 6 L 40.41552 18 A 6 6 0 0 1 34.41552 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+													"[M 6 0 L 34.3496 0 A 6 6 0 0 1 40.3496 6 L 40.3496 18 A 6 6 0 0 1 34.3496 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
 													4294112502
 													:stroke
@@ -788,7 +788,7 @@
 												((:list 15)
 													:shape
 													:id
-													66
+													68
 													:kind
 													:text
 													:fill
@@ -796,7 +796,7 @@
 													:stroke
 													0
 													:text
-													"[:dim]"
+													"[:buf]"
 													:font_size
 													12
 													:pos
@@ -818,13 +818,67 @@
 										((:list 5)
 											:group
 											:id
-											55
+											56
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													67
+													69
+													:d
+													"[M 6 0 L 34.41552 0 A 6 6 0 0 1 40.41552 6 L 40.41552 18 A 6 6 0 0 1 34.41552 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+													:fill
+													4294112502
+													:stroke
+													4282140240
+													:width
+													1.19999
+												)
+												((:list 15)
+													:shape
+													:id
+													70
+													:kind
+													:text
+													:fill
+													4280296488
+													:stroke
+													0
+													:text
+													"[:dim]"
+													:font_size
+													12
+													:pos
+													((:list 2)
+														10.00000
+														16.00000
+													)
+												)
+											)
+										)
+									)
+									:pos
+									((:list 2)
+										48.34960
+										0.00000
+									)
+								)
+								((:list 7)
+									:group
+									:id
+									45
+									:items
+									((:list 1)
+										((:list 5)
+											:group
+											:id
+											57
+											:items
+											((:list 2)
+												((:list 11)
+													:shape
+													:id
+													71
 													:d
 													"[M 6 0 L 42.54541 0 A 6 6 0 0 1 48.54541 6 L 48.54541 18 A 6 6 0 0 1 42.54541 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -837,7 +891,7 @@
 												((:list 15)
 													:shape
 													:id
-													68
+													72
 													:kind
 													:text
 													:fill
@@ -859,26 +913,26 @@
 									)
 									:pos
 									((:list 2)
-										48.41552
+										96.76513
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									45
+									46
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											56
+											58
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													69
+													73
 													:d
 													"[M 6 0 L 38.11572 0 A 6 6 0 0 1 44.11572 6 L 44.11572 18 A 6 6 0 0 1 38.11572 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -891,7 +945,7 @@
 												((:list 15)
 													:shape
 													:id
-													70
+													74
 													:kind
 													:text
 													:fill
@@ -913,26 +967,26 @@
 									)
 									:pos
 									((:list 2)
-										104.96093
+										153.31054
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									46
+									47
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											57
+											59
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													71
+													75
 													:d
 													"[M 6 0 L 39.40771 0 A 6 6 0 0 1 45.40771 6 L 45.40771 18 A 6 6 0 0 1 39.40771 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -945,7 +999,7 @@
 												((:list 15)
 													:shape
 													:id
-													72
+													76
 													:kind
 													:text
 													:fill
@@ -967,26 +1021,26 @@
 									)
 									:pos
 									((:list 2)
-										157.07666
+										205.42626
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									47
+									48
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											58
+											60
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													73
+													77
 													:d
 													"[M 6 0 L 32.40429 0 A 6 6 0 0 1 38.40429 6 L 38.40429 18 A 6 6 0 0 1 32.40429 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -999,7 +1053,7 @@
 												((:list 15)
 													:shape
 													:id
-													74
+													78
 													:kind
 													:text
 													:fill
@@ -1021,26 +1075,26 @@
 									)
 									:pos
 									((:list 2)
-										210.48437
+										258.83398
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									48
+									49
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											59
+											61
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													75
+													79
 													:d
 													"[M 6 0 L 38.80859 0 A 6 6 0 0 1 44.80859 6 L 44.80859 18 A 6 6 0 0 1 38.80859 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1053,7 +1107,7 @@
 												((:list 15)
 													:shape
 													:id
-													76
+													80
 													:kind
 													:text
 													:fill
@@ -1075,26 +1129,26 @@
 									)
 									:pos
 									((:list 2)
-										256.88867
+										305.23828
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									49
+									50
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											60
+											62
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													77
+													81
 													:d
 													"[M 6 0 L 54.99218 0 A 6 6 0 0 1 60.99218 6 L 60.99218 18 A 6 6 0 0 1 54.99218 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1107,7 +1161,7 @@
 												((:list 15)
 													:shape
 													:id
-													78
+													82
 													:kind
 													:text
 													:fill
@@ -1129,26 +1183,26 @@
 									)
 									:pos
 									((:list 2)
-										309.69726
+										358.04687
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									50
+									51
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											61
+											63
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													79
+													83
 													:d
 													"[M 6 0 L 34.54296 0 A 6 6 0 0 1 40.54296 6 L 40.54296 18 A 6 6 0 0 1 34.54296 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1161,7 +1215,7 @@
 												((:list 15)
 													:shape
 													:id
-													80
+													84
 													:kind
 													:text
 													:fill
@@ -1183,26 +1237,26 @@
 									)
 									:pos
 									((:list 2)
-										378.68945
+										427.03906
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									51
+									52
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											62
+											64
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													81
+													85
 													:d
 													"[M 6 0 L 41.79248 0 A 6 6 0 0 1 47.79248 6 L 47.79248 18 A 6 6 0 0 1 41.79248 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1215,7 +1269,7 @@
 												((:list 15)
 													:shape
 													:id
-													82
+													86
 													:kind
 													:text
 													:fill
@@ -1237,26 +1291,26 @@
 									)
 									:pos
 									((:list 2)
-										427.23242
+										475.58203
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									52
+									53
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											63
+											65
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													83
+													87
 													:d
 													"[M 6 0 L 53.53759 0 A 6 6 0 0 1 59.53759 6 L 59.53759 18 A 6 6 0 0 1 53.53759 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1269,7 +1323,7 @@
 												((:list 15)
 													:shape
 													:id
-													84
+													88
 													:kind
 													:text
 													:fill
@@ -1291,26 +1345,26 @@
 									)
 									:pos
 									((:list 2)
-										483.02490
+										531.37451
 										0.00000
 									)
 								)
 								((:list 7)
 									:group
 									:id
-									53
+									54
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											64
+											66
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													85
+													89
 													:d
 													"[M 6 0 L 55.45361 0 A 6 6 0 0 1 61.45361 6 L 61.45361 18 A 6 6 0 0 1 55.45361 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1323,7 +1377,7 @@
 												((:list 15)
 													:shape
 													:id
-													86
+													90
 													:kind
 													:text
 													:fill
@@ -1345,8 +1399,8 @@
 									)
 									:pos
 									((:list 2)
-										550.56250
 										0.00000
+										32.00000
 									)
 								)
 							)

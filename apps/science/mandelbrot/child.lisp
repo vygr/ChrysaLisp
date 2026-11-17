@@ -30,12 +30,12 @@
 (defun run (sq ox oy ow n dx dy)
 	;n pixels of a square from ox oy, a step of dx dy each, worked out by
 	;the kernel into the square's pixels. :t if all of them are inside
-	(bind '(frame at_ox at_oy at_ow pal buf x y bw) sq)
+	(bind '(frame at_ox at_oy at_ow pal pixels x y bw) sq)
 	(defq out (str-alloc (* n +int_size)) solid :t)
 	(set-long frame at_ox ox) (set-long frame at_oy oy) (set-long frame at_ow ow)
 	(shader-vp-run program native frame 0 n (list pal out))
 	(each! (lambda () (defq c (get-uint out (* (!) +int_size)))
-			(set-int buf (* (+ (- (+ ox (* (!) dx)) x) (* (- (+ oy (* (!) dy)) y) bw)) +int_size) c)
+			(set-int pixels (* (+ (- (+ ox (* (!) dx)) x) (* (- (+ oy (* (!) dy)) y) bw)) +int_size) c)
 			(if (/= c +argb_black) (setq solid :nil))) '() 0 n)
 	solid)
 
@@ -45,7 +45,7 @@
 	;holes, and the rest is black. A row of a ring is a run of the kernel,
 	;as wide as the row, a column a run one wide, each index a row down
 	(defq found (canvas-attach held w h 1 canvas_key) bw (- x1 x) bh (- y1 y) pal (mandel-pal pal_i)
-		buf (str-alloc (* bw bh +int_size)) names (map (const first) (first program))
+		pixels (str-alloc (* bw bh +int_size)) names (map (const first) (first program))
 		at_ox (* (find 'ox names) 8) at_oy (* (find 'oy names) 8) at_ow (* (find 'ow names) 8)
 		frame (shader-vp-frame program native (list
 				(list 'cx cx) (list 'cy cy) (list 'step (/ (* z +double_2) (n2d h)))
@@ -53,7 +53,7 @@
 				(list 'rate +mandel_pal_rate) (list 'lbase +mandel_light_base)
 				(list 'lgain +mandel_light_gain) (list 'ss +mandel_samples)))
 		r 0 running :t inside 0 ix x iy y ix1 x1 iy1 y1)
-	(defq sq (list frame at_ox at_oy at_ow pal buf x y bw))
+	(defq sq (list frame at_ox at_oy at_ow pal pixels x y bw))
 	(while (and running (< (* r 2) bw) (< (* r 2) bh))
 		(defq rx (+ x r) ry (+ y r) rx1 (- x1 r) ry1 (- y1 r) rw (- rx1 rx) rh (- ry1 ry)
 			solid (run sq rx ry rw rw 1 0))
@@ -81,10 +81,10 @@
 			(+rect_reply_failed 0)))
 	(cond
 		(found
-			(draw-rect found buf x y x1 y1 ix iy ix1 iy1 inside)
+			(draw-rect found pixels x y x1 y1 ix iy ix1 iy1 inside)
 			(mail-send mbox reply))
 		(whole (mail-send mbox reply))
-		((mail-send mbox (cat reply buf)))))
+		((mail-send mbox (cat reply pixels)))))
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox)
