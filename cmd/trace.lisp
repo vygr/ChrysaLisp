@@ -36,7 +36,7 @@
 ))
 
 (defq +all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
-	+all_abi_trashed_regs (list quote +vp_fregs)
+	+all_abi_trashed_regs (list quote +vp_dregs)
 	;what never comes back: the dump of a task, and the reports of a
 	;validate build that end in one. A path that goes to one ends there,
 	;what it trashed and put on the stack is of no caller
@@ -147,7 +147,7 @@
 	(case expected
 		(:r (vp-rreg? actual))
 		(:d (vp-dreg? actual))
-		(:f (vp-sreg? actual))
+		(:f (vp-freg? actual))
 		(:reg (vp-reg? actual))
 		((:c :label) (not (vp-reg? actual)))
 		(:str (str? actual))
