@@ -3,10 +3,10 @@
 
 (def-class :buf :obj
 	(dec-method :vtable class/buf/vtable)
-	(dec-method :type class/buf/type :override :nil :nil (:r1-:r3 :d0-:d15) (:r1-:r3 :d0-:d15))
+	(dec-method :type class/buf/type :override :nil :nil (:r1-:r3 :d0-:d15))
 	(dec-method :create class/buf/create :static (:r0 :r1) (:r0) (:r0-:r3 :r8-:r14 :d0-:d15))
 	(dec-method :init class/buf/init :static (:r0 :r1 :r2 :r3) (:r0 :r1) (:r1-:r2 :r8-:r13 :d0-:d15))
-	(dec-method :deinit class/buf/deinit :final :nil :nil (:r1-:r2 :d0-:d15) (:r1-:r2 :d0-:d15))
+	(dec-method :deinit class/buf/deinit :final :nil :nil (:r1-:r2 :d0-:d15))
 	(dec-method :check class/buf/check :static (:r0 :r1 :r2 :r3) (:r0 :r1) (:r1 :r4-:r5))
 	(dec-method :get class/buf/get :static (:r0 :r1 :r2) (:r0 :r1) (:r1-:r6 :r14 :d0-:d15))
 	(dec-method :set class/buf/set :static (:r0 :r1 :r2 :r3) (:r0 :r1) (:r1-:r7))

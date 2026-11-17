@@ -451,7 +451,9 @@ does. A method written in line in its `class.inc` has none.
 A virtual method has one more list after that, what the one function that is
 the method in this class trashes. A call through the vtable trashes the
 first, it may be of any class. A call bound to the function trashes the
-second.
+second. It is said only where it is less than the first: not said, it is the
+first, and lint takes a copy of the first as a mismatch, which `trace -w`
+writes away.
 
 An example from the array class.inc.
 

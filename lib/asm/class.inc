@@ -120,7 +120,8 @@
 	;what the class above says of the method, and if none does, not known.
 	;Of a virtual method it is what any class called so may trash, and
 	;own, after it, is what the one function that is the method here
-	;does, for lint and those who read the declaration: the assembler
+	;does, for lint and those who read the declaration, said only where it
+	;is not the trashes, which it is when not said: the assembler
 	;keeps trashes, by itself, what a method is in a vtable is as it was
 	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap))))
 	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes own))

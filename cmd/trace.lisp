@@ -601,15 +601,18 @@
 																		(merge %0 (second (. db :find %1))))) impls (list)))))
 												;of a virtual method, what the one function that is it
 												;here trashes as well: a caller bound to the function
-												;goes by that, and so does what keeps locals in registers
+												;goes by that, and so does what keeps locals in registers.
+												;Said only where it is not what the method trashes, which
+												;it is when not said, so a copy of that is a mismatch too
 												(defq declared_own (. method_entry :find :declared_own)
 													own (and calc (nql (. method_entry :find :type) :static)
 														(not (find (first impls) +zero_clobber_funcs))
-														(format-trashes (second (. db :find (first impls))))))
+														(format-trashes (second (. db :find (first impls)))))
+													own (if (eql own calc) :nil own))
 												(when (and calc (or (nql calc declared) (nql own declared_own)))
 													(print "WARNING: Mismatch in " c " " m)
-													(print "\tDeclared: " (ifn declared "not said") (if own (cat ", of the function " (ifn declared_own "not said")) ""))
-													(print "\tCalculated: " calc (if own (cat ", of the function " own) ""))
+													(print "\tDeclared: " (ifn declared "not said") (if (or own declared_own) (cat ", of the function " (ifn declared_own "the same")) ""))
+													(print "\tCalculated: " calc (if (or own declared_own) (cat ", of the function " (ifn own "the same")) ""))
 													(print "\tFile: \q" file "\q Line: " line_num)
 													(if opt_w (. dec_edits :update file
 															(# (if %0 (push %0 (list line_num calc own)) (list (list line_num calc own)))))))))))))

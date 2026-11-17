@@ -4,8 +4,8 @@
 (def-class :path :fixeds
 	(dec-method :vtable gui/path/vtable)
 	(dec-method :create gui/path/create :static :nil :nil (:r0-:r2 :d0-:d15))
-	(dec-method :vcreate gui/path/create :final :nil :nil (:r0-:r2 :d0-:d15) (:r0-:r2 :d0-:d15))
-	(dec-method :type gui/path/type :override :nil :nil (:r1-:r3 :d0-:d15) (:r1-:r3 :d0-:d15))
+	(dec-method :vcreate gui/path/create :final :nil :nil (:r0-:r2 :d0-:d15))
+	(dec-method :type gui/path/type :override :nil :nil (:r1-:r3 :d0-:d15))
 	(dec-method :filter_polyline gui/path/filter_polyline :static (:r0 :r1 :r2) (:r0) (:r1-:r9 :d0-:d15))
 	(dec-method :filter_polygon gui/path/filter_polygon :static (:r0 :r1 :r2) (:r0) (:r1-:r9 :d0-:d15))
 	(dec-method :mat3x2_mul gui/path/mat3x2_mul :static (:r0 :r1 :r2) (:r0) (:r1-:r13))

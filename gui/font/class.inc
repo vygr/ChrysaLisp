@@ -15,7 +15,7 @@
 	(dec-method :glyph_info gui/font/glyph_info :static (:r0 :r1) (:r0 :r1) (:r1-:r4 :r6-:r8 :d0-:d15))
 	(dec-method :glyph_paths gui/font/glyph_paths :static (:r0 :r1) (:r0 :r1 :r2 :r3) (:r1-:r13 :d0-:d15))
 	(dec-method :glyph_bounds gui/font/glyph_bounds :static (:r0 :r1) (:r0 :r1 :r2) (:r1-:r13))
-	(dec-method :deinit gui/font/deinit :final :nil :nil (:r1-:r2 :d0-:d15) (:r1-:r2 :d0-:d15))
+	(dec-method :deinit gui/font/deinit :final :nil :nil (:r1-:r2 :d0-:d15))
 	(dec-method :lisp_create gui/font/lisp_create :static (:r0 :r1) (:r0 :r1) (:r1-:r11 :r14 :d0-:d15))
 	(dec-method :lisp_info gui/font/lisp_info :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r11-:r14 :d0-:d15))
 	(dec-method :lisp_glyph_ranges gui/font/lisp_glyph_ranges :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :d0-:d15))

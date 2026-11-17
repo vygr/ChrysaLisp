@@ -6,7 +6,7 @@
 	(dec-method :create gui/texture/create :static (:r0 :r1 :r2) (:r0) (:r0-:r4 :r14 :d0-:d15))
 	(dec-method :init gui/texture/init :static (:r0 :r1 :r2 :r3 :r4))
 	(dec-method :get_metrics gui/texture/get_metrics :static (:r0) (:r0 :r1 :r2 :r3))
-	(dec-method :deinit gui/texture/deinit :final :nil :nil (:r1-:r14 :d0-:d15) (:r1-:r14 :d0-:d15)))
+	(dec-method :deinit gui/texture/deinit :final :nil :nil (:r1-:r14 :d0-:d15)))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

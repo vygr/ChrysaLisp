@@ -3,9 +3,9 @@
 
 (def-class :nums :array
 	(dec-method :vtable class/nums/vtable)
-	(dec-method :type class/nums/type :override :nil :nil (:r1-:r3 :d0-:d15) (:r1-:r3 :d0-:d15))
-	(dec-method :hash class/nums/hash :override :nil :nil (:r1-:r4) (:r1-:r4))
-	(dec-method :vcreate class/nums/create :override :nil :nil (:r0-:r2 :d0-:d15) (:r0-:r2 :d0-:d15))
+	(dec-method :type class/nums/type :override :nil :nil (:r1-:r3 :d0-:d15))
+	(dec-method :hash class/nums/hash :override :nil :nil (:r1-:r4))
+	(dec-method :vcreate class/nums/create :override :nil :nil (:r0-:r2 :d0-:d15))
 	(dec-method :add class/nums/add :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r7 :d0-:d1) (:r1-:r7))
 	(dec-method :sub class/nums/sub :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r7 :d0-:d1) (:r1-:r7))
 	(dec-method :mul class/nums/mul :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r7 :d0-:d1) (:r1-:r7))
@@ -18,7 +18,7 @@
 	(dec-method :max class/nums/max :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r7 :d0-:d1) (:r1-:r7))
 	(dec-method :dot class/nums/dot :virtual (:r0 :r1) (:r0 :r1) (:r1-:r7 :d0-:d5) (:r1-:r7))
 	(dec-method :add_scaled class/nums/add_scaled :virtual (:r0 :r1 :r2 :r3) (:r0) (:r1-:r8 :d0-:d2) (:r1-:r2 :r4-:r8))
-	(dec-method :convert class/nums/convert :virtual (:r0 :r1) (:r0) (:r2-:r6 :d0-:d15) (:r2-:r6 :d0-:d15))
+	(dec-method :convert class/nums/convert :virtual (:r0 :r1) (:r0) (:r2-:r6 :d0-:d15))
 	(dec-method :kind class/nums/kind :static (:r0) (:r0 :r1) (:r1-:r2))
 	(dec-method :create class/nums/create :static :nil :nil (:r0-:r2 :d0-:d15))
 	(dec-method :lisp_vecop1 class/nums/lisp_vecop1 :static (:r0 :r1 :r2) (:r0 :r1) (:r1-:r14 :d0-:d15))
