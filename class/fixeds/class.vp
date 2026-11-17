@@ -200,6 +200,32 @@
 
 (def-func-end)
 
+(def-method :fixeds :add_scaled)
+	;inputs
+	;:r0 = fixeds object (ptr)
+	;:r1 = source1 fixeds object, can be same (ptr)
+	;:r2 = source2 fixeds object, can be same (ptr)
+	;:r3 = scale (fixed)
+	;outputs
+	;:r0 = fixeds object (ptr)
+	;trashes
+	;:r1-:r8
+	;info
+	;each of the first plus each of the second times the scale, in one pass
+
+	(vp-rdef (dst src1 src2 scale dst1 idx1 idx2 e0 e1))
+
+	(entry :fixeds :add_scaled `(,dst ,src1 ,src2 ,scale))
+
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
+		(# (vp-mul-rr scale %1) (vp-asr-cr +fp_shift %1) (vp-add-rr %1 %0) %0))
+
+	(exit :fixeds :add_scaled `(,dst))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :fixeds :dot)
 	;inputs
 	;:r0 = fixeds object (ptr)

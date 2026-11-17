@@ -262,6 +262,32 @@
 
 (def-func-end)
 
+(def-method :nums :add_scaled)
+	;inputs
+	;:r0 = nums object (ptr)
+	;:r1 = source1 nums object, can be same (ptr)
+	;:r2 = source2 nums object, can be same (ptr)
+	;:r3 = scale (int)
+	;outputs
+	;:r0 = nums object (ptr)
+	;trashes
+	;:r1-:r8
+	;info
+	;each of the first plus each of the second times the scale, in one pass
+
+	(vp-rdef (dst src1 src2 scale dst1 idx1 idx2 e0 e1))
+
+	(entry :nums :add_scaled `(,dst ,src1 ,src2 ,scale))
+
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
+		(# (vp-mul-rr scale %1) (vp-add-rr %1 %0) %0))
+
+	(exit :nums :add_scaled `(,dst))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :nums :dot)
 	;inputs
 	;:r0 = nums object (ptr)

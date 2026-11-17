@@ -99,13 +99,12 @@
 	out)
 
 (defun nn-scratch (model)
-	; (nn-scratch model) -> (acts deltas tmps)
-	;what a sample's sums are worked in, made once: each layer's outputs,
-	;its error, and a vector the width of what feeds it
+	; (nn-scratch model) -> (acts deltas)
+	;what a sample's sums are worked in, made once: each layer's outputs and
+	;its error
 	(defq layers (nn-layers model))
 	(list (map (# (fill (doubles) (elem-get %0 +nn_layer_outs) (n2d 0))) layers)
-		(map (# (fill (doubles) (elem-get %0 +nn_layer_outs) (n2d 0))) layers)
-		(map (# (fill (doubles) (elem-get %0 +nn_layer_ins) (n2d 0))) layers)))
+		(map (# (fill (doubles) (elem-get %0 +nn_layer_outs) (n2d 0))) layers)))
 
 (defun nn-activate (act a)
 	; (nn-activate act a) -> a
@@ -155,26 +154,26 @@
 	;grads: the cross entropy of softmax outputs, so the error at them is
 	;the outputs less the label's one, and back a layer at a time, through
 	;each one's weights and the activation of the one before
-	(bind '(acts deltas tmps) scratch)
+	(bind '(acts deltas) scratch)
 	(defq layers (nn-layers model) l (dec (length layers)) p (elem-get acts l)
 		loss (neg (log (max (elem-get p label) (const (str-to-double "1e-300")))))
 		d (elem-get deltas l))
 	(nums-scale p (const (n2d 1)) d)
 	(elem-set d label (- (elem-get d label) (const (n2d 1))))
 	(while (>= l 0)
-		(bind '((kind ins outs &ignore) (rows &ignore) (grows gbiases) d tmp)
-			(list (elem-get layers l) (elem-get net l) (elem-get grads l) (elem-get deltas l) (elem-get tmps l)))
+		(bind '((kind ins outs &ignore) (rows &ignore) (grows gbiases) d)
+			(list (elem-get layers l) (elem-get net l) (elem-get grads l) (elem-get deltas l)))
 		(defq in (if (= l 0) x (elem-get acts (dec l))))
 		(nums-add gbiases d gbiases)
 		(each (lambda (g e)
-				(unless (= e (const (n2d 0))) (nums-add g (nums-scale in e tmp) g)))
+				(unless (= e (const (n2d 0))) (nums-add-scaled g in e g)))
 			grows d)
 		;the error at the layer before, and back through its activation
 		(when (> l 0)
 			(defq back (elem-get deltas (dec l)))
 			(nums-scale back (const (n2d 0)) back)
 			(each (lambda (row e)
-					(unless (= e (const (n2d 0))) (nums-add back (nums-scale row e tmp) back)))
+					(unless (= e (const (n2d 0))) (nums-add-scaled back row e back)))
 				rows d)
 			(nn-slope (elem-get (elem-get layers (dec l)) +nn_layer_act) in back))
 		(setq l (dec l)))

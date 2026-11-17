@@ -792,6 +792,11 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(nums-scale nums scale [nums]) -> nums`
 
+*	**`nums-add-scaled`**: The first vector plus the second times a scale,
+	in one pass, as `nums-scale` then `nums-add` without the vector between.
+
+	*	`(nums-add-scaled nums nums scale [nums]) -> nums`
+
 *	**`nums-min` / `nums-max`**: Element-wise minimum and maximum.
 
 	*	`(nums-min nums nums [nums]) -> nums`

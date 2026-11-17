@@ -16,6 +16,22 @@ docs/reference/vp_classes/fixeds.cwb
 
 ## VP methods
 
+### :add_scaled -> class/fixeds/add_scaled
+
+```code
+inputs
+:r0 = fixeds object (ptr)
+:r1 = source1 fixeds object, can be same (ptr)
+:r2 = source2 fixeds object, can be same (ptr)
+:r3 = scale (fixed)
+outputs
+:r0 = fixeds object (ptr)
+trashes
+:r1-:r8
+info
+each of the first plus each of the second times the scale, in one pass
+```
+
 ### :ceil -> class/fixeds/ceil
 
 ```code

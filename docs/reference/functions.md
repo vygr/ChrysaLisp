@@ -5310,6 +5310,14 @@ len bytes of the buffer at offset, once what was given before is done
 (gpu-dispatch) and wait for it to be over
 ```
 
+### gpu-take
+
+```code
+(gpu-take ticket) -> ticket
+
+a ticket let go of, once its work is over, (gpu-wait)
+```
+
 ### gpu-wait
 
 ```code
@@ -7710,6 +7718,110 @@ a net as one vector, as the params are kept
 a sample through the layers, each one's outputs kept in the scratch
 ```
 
+### nn-gpu
+
+```code
+(nn-gpu model capacity) -> :nil | gpu
+
+the kernels and buffers to train the model on a batch of up to so
+many, :nil if there is no GPU or a kernel will not build on it
+```
+
+### nn-gpu-act
+
+```code
+(nn-gpu-act act) -> num
+
+an activation as the kernels know it
+```
+
+### nn-gpu-answers
+
+```code
+(nn-gpu-answers gpu n tickets) -> (loss guesses labels)
+
+what the chain worked out, the wait for it, and its tickets let go of
+```
+
+### nn-gpu-data
+
+```code
+(nn-gpu-data gpu str) -> gpu
+
+a data set's bytes onto the GPU, once
+```
+
+### nn-gpu-doubles
+
+```code
+(nn-gpu-doubles str) -> doubles
+```
+
+### nn-gpu-floats
+
+```code
+(nn-gpu-floats doubles) -> str
+```
+
+### nn-gpu-forward
+
+```code
+(nn-gpu-forward gpu idx inputs labels) -> (loss guesses labels)
+
+samples by their index in the data set taken through the network, the
+loss summed, what each is taken for and what each was, no training.
+inputs and labels are where they start in the data, in bytes
+```
+
+### nn-gpu-forward-chain
+
+```code
+(nn-gpu-forward-chain gpu idx inputs labels) -> (ticket ...)
+
+the batch picked out and taken through the layers to its loss
+```
+
+### nn-gpu-free
+
+```code
+(nn-gpu-free gpu) -> :nil
+```
+
+### nn-gpu-go
+
+```code
+(nn-gpu-go gpu name vals from to bufs) -> ticket
+
+a kernel given to the GPU, not waited for
+```
+
+### nn-gpu-params
+
+```code
+(nn-gpu-params gpu params) -> gpu
+
+the params onto the GPU, as the step's
+```
+
+### nn-gpu-read
+
+```code
+(nn-gpu-read gpu) -> params
+
+the params as they are on the GPU, back as doubles
+```
+
+### nn-gpu-step
+
+```code
+(nn-gpu-step gpu idx inputs labels rate) -> (loss guesses labels)
+
+a step of training on a batch, as (nn-gpu-forward), then the error
+back through the layers and their numbers moved down their gradients
+by rate over the batch, into the other of each, which is the next
+step's
+```
+
 ### nn-guess
 
 ```code
@@ -7772,10 +7884,10 @@ how many numbers the model has
 ### nn-scratch
 
 ```code
-(nn-scratch model) -> (acts deltas tmps)
+(nn-scratch model) -> (acts deltas)
 
-what a sample's sums are worked in, made once: each layer's outputs,
-its error, and a vector the width of what feeds it
+what a sample's sums are worked in, made once: each layer's outputs and
+its error
 ```
 
 ### nn-slope
@@ -10696,6 +10808,19 @@ alpha multiplied in, for a target that is blended that way.
 
 An input the two both have, of the one name, is the one uniform, as
 GL links them, and both are given the same precision so that it can.
+```
+
+### shader-gpu-dispatch
+
+```code
+(shader-gpu-dispatch program kernel block from to (buffer ...)) -> :nil | ticket
+
+the kernel given to the GPU for each index from to to, not waited for:
+what is given after it goes after it on the GPU's one queue, so a chain
+of kernels needs a wait only at its end, (gpu-wait), or a read of what
+they wrote. Each ticket is let go of by (gpu-take) once it is done. :nil
+for no indices, or a kernel that did not build. block, bufs as
+(shader-gpu-run) has them
 ```
 
 ### shader-gpu-kernel

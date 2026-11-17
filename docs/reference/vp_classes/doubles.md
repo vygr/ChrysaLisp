@@ -44,6 +44,23 @@ trashes
 :r1-:r5, :d0-:d1
 ```
 
+### :add_scaled -> class/doubles/add_scaled
+
+```code
+inputs
+:r0 = doubles object (ptr)
+:r1 = source1 doubles object, can be same (ptr)
+:r2 = source2 doubles object, can be same (ptr)
+:r3 = scale (double)
+outputs
+:r0 = doubles object (ptr)
+trashes
+:r1-:r5, :d0-:d2
+info
+each of the first plus each of the second times the scale, in one
+pass, a multiply then an add, so rounded twice as by scale then add
+```
+
 ### :ceil -> class/doubles/ceil
 
 ```code
@@ -89,7 +106,11 @@ outputs
 :r0 = doubles object (ptr)
 :r1 = dot product (double)
 trashes
-:r1-:r4, :d0-:d2
+:r1-:r4, :d0-:d5
+info
+four running sums over blocks of four, the rest into the first, then
+the four added: no add waits on the one before it, so a long vector
+goes as fast as it can be loaded
 ```
 
 ### :floor -> class/doubles/floor
@@ -260,7 +281,11 @@ outputs
 :r0 = doubles object (ptr)
 :r1 = sum (double)
 trashes
-:r1-:r3, :d0-:d1
+:r1-:r3, :d0-:d4
+info
+four running sums over blocks of four, the rest into the first, then
+the four added: no add waits on the one before it, so a long vector
+goes as fast as it can be loaded
 ```
 
 ### :type -> class/doubles/type

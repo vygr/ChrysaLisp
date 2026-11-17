@@ -364,6 +364,53 @@
 
 (def-func-end)
 
+(def-method :nums :lisp_add_scaled)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d15
+	;info
+	;(nums-add-scaled nums nums scale [nums]) -> nums, the first plus the
+	;second times scale, in one pass
+
+	(vp-rdef (dst iter_begin nums1 nums2 scale this args argc len1 len2)
+		'(:r0 :r1 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13))
+
+	(entry :nums :lisp_add_scaled '(:r0 :r1))
+	(assign '(:r0 :r1) `(,this ,args))
+
+	(gotoif-lisp-args-sig 'error args 3 4)
+
+	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
+	(array-get-args iter_begin `(,nums1 ,nums2 ,scale))
+	(assign `((,nums1 +array_length) (,nums2 +array_length)) `(,len1 ,len2))
+	(gotoif `(,len1 = 0) 'error)
+	(gotoif `(,len1 > ,len2) 'error)
+	(vpif `(,argc = 3))
+		(v-call :nums :vcreate `(,dst) `(,dst) nums1 iter_begin)
+		(call :nums :set_cap `(,dst ,len1) `(,dst))
+		(call :nums :set_length `(,dst ,len1) `(,dst _))
+	(else)
+		(vp-load-rcr iter_begin (* +ptr_size 3) dst)
+		(assign `((,dst +array_length)) `(,len2))
+		(gotoif `(,len1 > ,len2) 'error)
+		(call :obj :ref `(,dst) `(,dst))
+	(endif)
+	(call :nums :add_scaled `(,dst ,nums1 ,nums2 (,scale +num_value)) `(,dst))
+
+	(exit :nums :lisp_add_scaled `(,this ,dst))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error `(,args "(nums-add-scaled nums nums scale [nums])" +error_msg_wrong_types))
+	(signature '(:nums :nums :num :nums))
+
+(def-func-end)
+
 (def-method :nums :lisp_abs)
 	;inputs
 	;:r0 = lisp object (ptr)

@@ -347,6 +347,34 @@
 
 (def-func-end)
 
+(def-method :doubles :add_scaled)
+	;inputs
+	;:r0 = doubles object (ptr)
+	;:r1 = source1 doubles object, can be same (ptr)
+	;:r2 = source2 doubles object, can be same (ptr)
+	;:r3 = scale (double)
+	;outputs
+	;:r0 = doubles object (ptr)
+	;trashes
+	;:r1-:r5, :d0-:d2
+	;info
+	;each of the first plus each of the second times the scale, in one
+	;pass, a multiply then an add, so rounded twice as by scale then add
+
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
+	(vp-ddef (e0 e1 scale))
+
+	(entry :doubles :add_scaled `(,dst ,src1 ,src2 ,scale))
+
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
+		(# (vp-mul-dd scale %1) (vp-add-dd %1 %0) %0))
+
+	(exit :doubles :add_scaled `(,dst))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :doubles :sum)
 	;inputs
 	;:r0 = doubles object (ptr)

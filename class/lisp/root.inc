@@ -144,6 +144,8 @@
 ; (nums-scale nums scale [nums]) -> nums
 (ffi "class/nums/lisp_add" nums-add)
 ; (nums-add nums nums [nums]) -> nums
+(ffi "class/nums/lisp_add_scaled" nums-add-scaled)
+; (nums-add-scaled nums nums scale [nums]) -> nums
 (ffi "class/nums/lisp_div" nums-div)
 ; (nums-div nums nums [nums]) -> nums
 (ffi "class/nums/lisp_mod" nums-mod)

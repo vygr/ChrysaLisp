@@ -12,6 +12,8 @@ docs/reference/vp_classes/nums.cwb
 
 ### (nums-add nums nums [nums]) -> nums
 
+### (nums-add-scaled nums nums scale [nums]) -> nums
+
 ### (nums-div nums nums [nums]) -> nums
 
 ### (nums-dot nums nums) -> num
@@ -56,6 +58,22 @@ outputs
 :r1 = 0 if error, else ok
 trashes
 :r1-:r7
+```
+
+### :add_scaled -> class/nums/add_scaled
+
+```code
+inputs
+:r0 = nums object (ptr)
+:r1 = source1 nums object, can be same (ptr)
+:r2 = source2 nums object, can be same (ptr)
+:r3 = scale (int)
+outputs
+:r0 = nums object (ptr)
+trashes
+:r1-:r8
+info
+each of the first plus each of the second times the scale, in one pass
 ```
 
 ### :create -> class/nums/create
