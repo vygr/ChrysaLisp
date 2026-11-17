@@ -24,7 +24,7 @@
 (defun circle (r)
 	; (circle r) -> path
 	;cached circle generation, quantised to 1/4 pixel
-	(defq r (* (floor (* (n2f r) 4.0)) 0.25))
+	(defq r (* (floor (* (n2q r) 4.0)) 0.25))
 	(memoize r (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path)) 13))
 
 (defun lighting (col at)
@@ -33,7 +33,7 @@
 	(defq alpha (first col) col (rest col))
 	(bind '(r g b) (vector-min (vector-add
 				;attenuation
-				(vector-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
+				(vector-scale col (* (n2q at) 255.0) (const (cat +fixeds_tmp3)))
 				;diffuse
 				(vector-scale col 64.0 +fixeds_tmp3))
 			(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
@@ -45,25 +45,25 @@
 	(defq alpha (first col) col (rest col))
 	(bind '(r g b) (vector-min (vector-add (vector-add
 					;attenuation
-					(vector-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
+					(vector-scale col (* (n2q at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
 					;diffuse
 					(vector-scale col 64.0 (const (cat +fixeds_tmp3))) (const (cat +fixeds_tmp3)))
 				;specular
-				(vector-scale (const (fixeds 255.0 255.0 255.0)) (n2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
+				(vector-scale (const (fixeds 255.0 255.0 255.0)) (n2q sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
 			;clamp
 			(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun render-object-verts (size mat4x4_proj object)
-	(defq sp (* +real_1/2 (n2r (dec size))) col (. object :get_color))
+	(defq sp (* +double_1/2 (n2d (dec size))) col (. object :get_color))
 	(each (lambda ((x y z w))
 			(defq rw (recip w) z (* z rw))
-			(when (<= +real_-1 z +real_1)
+			(when (<= +double_-1 z +double_1)
 				;y is up, as the faces are drawn
-				(defq x (* x rw) y (* y rw) at (recip (+ z +real_2)) r (* (const (n2r 0.02)) sp rw)
-					sx (* (+ x +real_1) sp) sy (* (- +real_1 y) sp))
-				(push (elem-get poly_buckets (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))))
-					(list (circle r) (lighting col at) (n2f sx) (n2f sy)))))
+				(defq x (* x rw) y (* y rw) at (recip (+ z +double_2)) r (* (const (n2d 0.02)) sp rw)
+					sx (* (+ x +double_1) sp) sy (* (- +double_1 y) sp))
+				(push (elem-get poly_buckets (n2i (* (+ z +double_1) (const (n2d (/ +num_poly_buckets 2))))))
+					(list (circle r) (lighting col at) (n2q sx) (n2q sy)))))
 		(partition (mat4x4-vec4-mul mat4x4_proj (. object :get_verts)) +vec4_size)))
 
 (defun scene-pipeline (&optional files)
@@ -85,7 +85,7 @@
 	;then the normal of that face, 7 numbers. The triangles are then just
 	;the vertices in the order they come. It is the bytes of the numbers,
 	;as they go in a message to a child that draws.
-	(defq verts (. mesh :get_verts) norms (. mesh :get_norms) out (list (reals)))
+	(defq verts (. mesh :get_verts) norms (. mesh :get_norms) out (list (doubles)))
 	(each (lambda ((i0 i1 i2 in))
 			(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
 			(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) n))
@@ -98,14 +98,14 @@
 	;that of all the faces that share it, taken together, so a face shades
 	;from corner to corner and a ball of faces is round
 	(defq verts (. mesh :get_verts) norms (. mesh :get_norms)
-		tris (partition (. mesh :get_tris) +tri_size) out (list (reals))
-		sums (map! (lambda () (reals +real_0 +real_0 +real_0)) '() 0 (/ (length verts) +vec4_size)))
+		tris (partition (. mesh :get_tris) +tri_size) out (list (doubles))
+		sums (map! (lambda () (doubles +double_0 +double_0 +double_0)) '() 0 (/ (length verts) +vec4_size)))
 	(each (lambda ((i0 i1 i2 in))
 			(defq n (slice norms (* in +vec3_size) (* (inc in) +vec3_size)))
 			(each (# (nums-add (elem-get sums %0) n (elem-get sums %0))) (list i0 i1 i2))) tris)
 	(each (lambda (n)
 			(defq d (nums-dot n n))
-			(if (> d +real_0) (nums-scale n (recip (sqrt d)) n))) sums)
+			(if (> d +double_0) (nums-scale n (recip (sqrt d)) n))) sums)
 	(each (lambda ((i0 i1 i2 in))
 			(each (# (push out (slice verts (* %0 +vec4_size) (* (inc %0) +vec4_size)) (elem-get sums %0)))
 				(list i0 i1 i2))) tris)
@@ -117,9 +117,9 @@
 	;the furthest vertex is from there
 	(defq verts (partition (. mesh :get_verts) +vec4_size)
 		lo (reduce (const nums-min) verts) hi (reduce (const nums-max) verts)
-		centre (nums-scale (nums-add lo hi) +real_1/2) far +real_0)
+		centre (nums-scale (nums-add lo hi) +double_1/2) far +double_0)
 	(each (# (defq d (nums-sub %0 centre)) (setq far (max far (nums-dot d d)))) verts)
-	(list (cat (slice centre 0 3) (reals +real_1)) (sqrt far)))
+	(list (cat (slice centre 0 3) (doubles +double_1)) (sqrt far)))
 
 (defun ball-rows (centre radius mat4x4_obj mat4x4_frust height)
 	; (ball-rows centre radius mat4x4_obj mat4x4_frust height) -> (y y1)
@@ -128,26 +128,26 @@
 	;the most the matrix of its object stretches anything
 	(defq eye (mat4x4-vec4-mul mat4x4_obj centre)
 		stretch (sqrt (max
-				(nums-dot (defq c0 (reals (elem-get mat4x4_obj 0) (elem-get mat4x4_obj 4) (elem-get mat4x4_obj 8))) c0)
-				(nums-dot (defq c1 (reals (elem-get mat4x4_obj 1) (elem-get mat4x4_obj 5) (elem-get mat4x4_obj 9))) c1)
-				(nums-dot (defq c2 (reals (elem-get mat4x4_obj 2) (elem-get mat4x4_obj 6) (elem-get mat4x4_obj 10))) c2)))
+				(nums-dot (defq c0 (doubles (elem-get mat4x4_obj 0) (elem-get mat4x4_obj 4) (elem-get mat4x4_obj 8))) c0)
+				(nums-dot (defq c1 (doubles (elem-get mat4x4_obj 1) (elem-get mat4x4_obj 5) (elem-get mat4x4_obj 9))) c1)
+				(nums-dot (defq c2 (doubles (elem-get mat4x4_obj 2) (elem-get mat4x4_obj 6) (elem-get mat4x4_obj 10))) c2)))
 		r (* radius stretch) clip (mat4x4-vec4-mul mat4x4_frust eye) w (- (elem-get clip 3) r))
 	(cond
-		((<= w +real_0) (list 0 height))
+		((<= w +double_0) (list 0 height))
 		(:t (defq mid (/ (elem-get clip 1) (elem-get clip 3))
 				;how big it is on the screen, taken at its nearest point
 				reach (/ (* r (abs (elem-get mat4x4_frust 5))) w)
-				half (* (n2r height) +real_1/2))
-			(list (max 0 (- (n2i (* (- +real_1 (+ mid reach)) half)) 2))
-				(min height (+ (n2i (* (- +real_1 (- mid reach)) half)) 3))))))
+				half (* (n2d height) +double_1/2))
+			(list (max 0 (- (n2i (* (- +double_1 (+ mid reach)) half)) 2))
+				(min height (+ (n2i (* (- +double_1 (- mid reach)) half)) 3))))))
 
 (defclass Scene-node (&optional name) (Tree-node name)
 	; (Scene-node [name]) -> scene_node
 	;a node of the tree of a scene, Tree-node, and where it is
 	(def this
-		:rot_x +real_0 :rot_y +real_0 :rot_z +real_0
-		:trans_x +real_0 :trans_y +real_0 :trans_z +real_0
-		:scale_x +real_1 :scale_y +real_1 :scale_z +real_1
+		:rot_x +double_0 :rot_y +double_0 :rot_z +double_0
+		:trans_x +double_0 :trans_y +double_0 :trans_z +double_0
+		:scale_x +double_1 :scale_y +double_1 :scale_z +double_1
 		:matrix (mat4x4-unity) :imatrix (mat4x4-unity)
 		:dirty :nil)
 

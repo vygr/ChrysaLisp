@@ -264,7 +264,7 @@ What a function is declared to trash is the most that may happen. The code
 that calls it leans on the least that does, and between the two is a gap
 nobody wrote down, where everything fast lives. A check, `relies`, finds a
 register read after a call declared to trash it; of its first findings most
-were the check being wrong, and of the eleven left all were real, two of
+were the check being wrong, and of the eleven left all were double, two of
 them plain faults. The gap closes from either side. Make the rare path put
 its registers by, and the declaration becomes the common path's: the
 destroy, the growing of an array, the next buffer of a stream. The trick is

@@ -106,7 +106,7 @@
 	;way that is, no further apart than seg, pushed on a list as x y
 	(defq n (max 2 (n2i (+ 0.9999 (/ (* (abs (- a1 a0)) (max r 0.0)) seg)))) i -1)
 	(while (<= (++ i) n)
-		(defq a (+ a0 (/ (* (- a1 a0) (n2f i)) (n2f n))))
+		(defq a (+ a0 (/ (* (- a1 a0) (n2q i)) (n2q n))))
 		(push out (+ cx (* r (cos a))) (+ cy (* r (sin a)))))
 	out)
 
@@ -185,11 +185,11 @@
 	;				up from level. One with a turn is written turned by
 	;				that, and says the angle that much on: a ruler seen
 	;				from its other side
-	(def this :board (weak-ref board) :origin (list (n2f x) (n2f y)) :angle 0.0
+	(def this :board (weak-ref board) :origin (list (n2q x) (n2q y)) :angle 0.0
 		:length 400.0 :min_length 150.0 :max_length 2000.0 :readouts (list) :said :nil
 		;it is the size it is on the screen, whatever the zoom the board
 		;is seen at: it lies on the glass, it is not of the document
-		:size (/ 1.0 (n2f (ifn (get :zoom board) 1.0)))
+		:size (/ 1.0 (n2q (ifn (get :zoom board) 1.0)))
 		:outline "" :edges (list) :parts (list) :marks (list) :glyphs (list)
 		:mode :line :body :nil :regions :nil :shades :nil :grab :nil :dotted :nil)
 
@@ -206,7 +206,7 @@
 		;zoom rests, are the grid apart on the screen and half of it. The
 		;inches of a ruler are inches by these, and lie on no line
 		(defq board (obj-ref (get :board this)) doc (and board (. board :get_doc)))
-		(/ (* +tool_grid_cm (n2f (ifn (and doc (. doc :find :grid)) 32))) 10.0))
+		(/ (* +tool_grid_cm (n2q (ifn (and doc (. doc :find :grid)) 32))) 10.0))
 
 	(defmethod :rebuild ()
 		; (. instrument :rebuild) -> instrument
@@ -796,7 +796,7 @@
 			(push ticks (cwb-d "M" (- inset at) bot "L" (- inset at) (- bot tick)))
 			(and (= (% n 16) 0) (< at (- (* 2.0 inset) 6.0))
 				(push marks (flip (cwb-text-mid (str (/ n 16)) 0 0 :font_size 13) (- inset at (if (= n 0) 6.0 0.0)) (- bot 22.0))))
-			(setq n (inc n) at (/ (* (n2f n) inch) 16.0)))
+			(setq n (inc n) at (/ (* (n2q n) inch) 16.0)))
 		(push marks (cwb-shape (join ticks " ") :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(setq n 0 at 0.0)
 		(while (< at (- (* 2.0 inset) 6.0))
@@ -866,7 +866,7 @@
 				(list :turn (* 0.54 r 0.7071) (* -0.54 r 0.7071) (* 0.25 +fp_pi))
 				(list :turn (* -0.54 r 0.7071) (* -0.54 r 0.7071) (* -0.25 +fp_pi))))
 		;a mark every degree round from the right, longer every five and every ten
-		(each! (lambda () (defq deg (!)) (defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
+		(each! (lambda () (defq deg (!)) (defq a (neg (* (n2q deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
 					tick (* by (cond ((= (% deg 10) 0) 15.0) ((= (% deg 5) 0) 10.0) (:t 6.0))))
 				(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
 				;numbered every ten both ways, as a protractor is: from the right
@@ -876,7 +876,7 @@
 						(cwb-text-mid (str (- 180 deg)) (* (- r (* by 44.0)) c) (* (- r (* by 44.0)) s) :font_size (n2i (* by 9.0)))))) '() 0 181)
 		;the band that turns it is the inner scale, as a protractor has, that
 		;reads the other way round, marked every five and numbered every thirty
-		(each! (lambda () (defq a (neg (* (n2f (* (!) 5)) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
+		(each! (lambda () (defq a (neg (* (n2q (* (!) 5)) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
 					tick (* by (if (= (% (* (!) 5) 10) 0) 8.0 4.0)))
 				(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
 				(and (= (% (* (!) 5) 30) 0) (> (* (!) 5) 0) (< (* (!) 5) 180)
@@ -927,7 +927,7 @@
 				(list :size (* 0.5 (+ sq0 sq1)) 0.0) (list :size (* -0.5 (+ sq0 sq1)) 0.0)
 				(list :turn (* 0.54 r 0.7071) (* -0.54 r 0.7071) (* 0.25 +fp_pi))
 				(list :turn (* -0.54 r 0.7071) (* 0.54 r 0.7071) (* 1.25 +fp_pi))))
-		(each! (lambda () (defq a (neg (* (n2f (!)) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
+		(each! (lambda () (defq a (neg (* (n2q (!)) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
 					tick (* by (cond ((= (% (!) 10) 0) 15.0) ((= (% (!) 5) 0) 10.0) (:t 6.0))))
 				(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
 				(if (= (% (!) 10) 0)

@@ -7,8 +7,8 @@
 (defun wt-near? (a b &optional tol)
 	(setd tol 0.05)
 	(if (list?? a)
-		(and (list?? b) (= (length a) (length b)) (every (# (<= (abs (- (n2f %0) (n2f %1))) tol)) a b))
-		(<= (abs (- (n2f a) (n2f b))) tol)))
+		(and (list?? b) (= (length a) (length b)) (every (# (<= (abs (- (n2q %0) (n2q %1))) tol)) a b))
+		(<= (abs (- (n2q a) (n2q b))) tol)))
 
 (defq wt_board (Board (cwb-doc 800 600)) wt_ruler (Ruler wt_board 400 300) wt_stage (. wt_board :get_stage))
 (. wt_stage :add wt_ruler)
@@ -75,7 +75,7 @@
 	(and (wt-near? (get :angle wt_ruler) +fp_hpi 0.001) (wt-near? (get :origin wt_ruler) '(400 300) 0.1)))
 
 ;turned, it is pulled to the angles that matter when it is near one
-(defun wt-deg (d) (* (n2f d) (/ +fp_pi 180.0)))
+(defun wt-deg (d) (* (n2q d) (/ +fp_pi 180.0)))
 (assert-list-eq "an angle near a 45 is the 45 from 2.5 degrees off, near a 10 the 10 from 0.75, and else is as it is"
 	'(45 45 90 0 40 30 30 33 45 12)
 	(map (# (n2i (+ 0.5 (abs (/ (* (tool-magnet (wt-deg %0)) 180.0) +fp_pi))))) '(43 47 88 2 40.6 29.4 30.6 33 -47 12)))
@@ -200,7 +200,7 @@
 	;a pen run round just outside the round side, through those degrees up from the right
 	(def wt_pro :mode mode)
 	(defq at :nil)
-	(each (lambda (deg) (defq a (neg (* (n2f deg) (/ +fp_pi 180.0))))
+	(each (lambda (deg) (defq a (neg (* (n2q deg) (/ +fp_pi 180.0))))
 			(setq at (list (+ 400.0 (* 184.0 (cos a))) (+ 300.0 (* 184.0 (sin a)))))
 			(wt-go (cat '(1 :pen 1) at))) degs)
 	;it comes up where it is
@@ -225,7 +225,7 @@
 (defun wt-arc-off (r)
 	;eighty short arcs, of a few thousandths of a turn, round a circle about 400 300: the furthest any point is off it
 	(defq worst 0.0)
-	(each! (lambda () (defq i (!)) (defq a0 (* (n2f i) 0.0731) a1 (+ a0 (* (n2f (inc (% i 7))) 0.004))
+	(each! (lambda () (defq i (!)) (defq a0 (* (n2q i) 0.0731) a1 (+ a0 (* (n2q (inc (% i 7))) 0.004))
 				x0 (+ 400.0 (* r (cos a0))) y0 (+ 300.0 (* r (sin a0))))
 			(each (lambda ((x y)) (setq worst (max worst (abs (- (sqrt (+ (* (- x 400.0) (- x 400.0)) (* (- y 300.0) (- y 300.0)))) r)))))
 				(partition (path-gen-earc x0 y0 r r 0.0 0.0 1.0 (+ 400.0 (* r (cos a1))) (+ 300.0 (* r (sin a1))) (path x0 y0)) 2))) '() 0 80)
@@ -254,7 +254,7 @@
 	(and (wt-near? (get :length wt_pro) 540.0 0.5) (wt-near? (get :origin wt_pro) '(400 300) 0.01)))
 (assert-list-eq "seen no bigger, it is made bigger: its round side is of that radius, and the marks of its straight side are as far apart, to further out"
 	;a millimetre is a tenth of a square of the paper, 3.2 of a grid of 32
-	'(1 270 3 265) (progn (defq wt_base (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
+	'(1 270 3 265) (progn (defq wt_base (map (# (n2q (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
 					(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))))
 		(list (n2i (get :size wt_pro)) (n2i (elem-get (first (get :edges wt_pro)) 3))
 			(n2i (elem-get wt_base 4)) (n2i (reduce (# (max %0 (first %1))) (partition wt_base 4) 0.0)))))
@@ -281,7 +281,7 @@
 ;to the nearest whole one: a tenth of 32 is not a number a fixed is
 (defun wt-round (x) (n2i (floor (+ x 0.5))))
 (each (lambda ((x y x1 y1)) (if (find (wt-round x) '(0 32 -32)) (push wt_found (list (wt-round x) (n2i (abs (- y y1)))))))
-	(partition (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
+	(partition (map (# (n2q (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
 				(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))) 4))
 (assert-list-eq "the marks of its straight side have a long one at its middle and at each centimetre from it"
 	'((-32 8) (0 8) (0 8) (32 8)) (sort wt_found (# (- (first %0) (first %1)))))

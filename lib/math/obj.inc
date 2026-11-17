@@ -25,11 +25,11 @@
 (env-push)
 
 (defun obj-normal (p0 p1 p2)
-	; (obj-normal p0 p1 p2) -> reals
+	; (obj-normal p0 p1 p2) -> doubles
 	;the normal of a triangle, the way it faces when its corners go round
 	;counter clockwise
 	;one with no area faces up
-	(vector-face-normal p0 p1 p2 (reals +real_0 +real_0 +real_1)))
+	(vector-face-normal p0 p1 p2 (doubles +double_0 +double_0 +double_1)))
 
 (defun obj-index (text count)
 	; (obj-index text count) -> index
@@ -55,11 +55,11 @@
 
 (defun obj-read (stream)
 	; (obj-read stream) -> emap
-	;:positions reals, three a position, :places reals, two a place,
-	;:normals reals, three a normal, :groups ((material nums) ...), the
+	;:positions doubles, three a position, :places doubles, two a place,
+	;:normals doubles, three a normal, :groups ((material nums) ...), the
 	;nums three a corner and nine a triangle, in the order the materials
 	;were first used, and :libraries (name ...), the .mtl files
-	(defq positions (reals) places (reals) normals (reals) groups (Fmap 11) order (list)
+	(defq positions (doubles) places (doubles) normals (doubles) groups (Fmap 11) order (list)
 		libraries (list) material "" faces :nil)
 	(defun obj-group (name)
 		(unless (defq got (. groups :find name))
@@ -70,12 +70,12 @@
 	(lines! (lambda (line)
 			(when (nempty? (defq words (split (trim line) (const (char-class " \t\r")))))
 				(case (first words)
-					("v" (push positions (str-to-real (elem-get words 1)) (str-to-real (elem-get words 2))
-							(str-to-real (elem-get words 3))))
-					("vt" (push places (str-to-real (elem-get words 1))
-							(if (> (length words) 2) (str-to-real (elem-get words 2)) +real_0)))
-					("vn" (push normals (str-to-real (elem-get words 1)) (str-to-real (elem-get words 2))
-							(str-to-real (elem-get words 3))))
+					("v" (push positions (str-to-double (elem-get words 1)) (str-to-double (elem-get words 2))
+							(str-to-double (elem-get words 3))))
+					("vt" (push places (str-to-double (elem-get words 1))
+							(if (> (length words) 2) (str-to-double (elem-get words 2)) +double_0)))
+					("vn" (push normals (str-to-double (elem-get words 1)) (str-to-double (elem-get words 2))
+							(str-to-double (elem-get words 3))))
 					("f" (when (>= (length words) 4)
 							(defq counts (list (/ (length positions) 3) (/ (length places) 2) (/ (length normals) 3))
 								corners (map! (# (obj-corner %0 counts)) (list words) 1 -1) one (first corners))
@@ -100,19 +100,19 @@
 			(when (nempty? (defq words (split (trim line) (const (char-class " \t\r")))))
 				(case (first words)
 					("newmtl" (when (> (length words) 1)
-							(scatter (setq now (Emap)) :colour (list +real_1 +real_1 +real_1) :seen +real_1)
+							(scatter (setq now (Emap)) :colour (list +double_1 +double_1 +double_1) :seen +double_1)
 							(. out :insert (elem-get words 1) now)))
 					("Kd" (and now (> (length words) 3)
-							(. now :insert :colour (map! (const str-to-real) (list words) 1 4))))
-					("d" (and now (> (length words) 1) (. now :insert :seen (str-to-real (elem-get words 1)))))
-					("Tr" (and now (> (length words) 1) (. now :insert :seen (- +real_1 (str-to-real (elem-get words 1))))))
+							(. now :insert :colour (map! (const str-to-double) (list words) 1 4))))
+					("d" (and now (> (length words) 1) (. now :insert :seen (str-to-double (elem-get words 1)))))
+					("Tr" (and now (> (length words) 1) (. now :insert :seen (- +double_1 (str-to-double (elem-get words 1))))))
 					;the file is the last word, options before it
 					("map_Kd" (and now (> (length words) 1) (. now :insert :map (last words))))))
 			:nil) stream)
 	out)
 
 (defun obj-flat (obj corners &optional matrix)
-	; (obj-flat obj corners [matrix]) -> reals
+	; (obj-flat obj corners [matrix]) -> doubles
 	;the triangles of a group as a shader is given them, a corner eight
 	;numbers: where it is, three, after matrix if one is given, the place
 	;on the picture, two, across and down, and its normal, three. A place
@@ -120,18 +120,18 @@
 	;down is 1 less it. A corner with no place is at 0 0, and a triangle
 	;whose corners have no normal is given the one of its face
 	(defq positions (. obj :find :positions) places (. obj :find :places) normals (. obj :find :normals)
-		out (reals) at 0 count (length corners))
+		out (doubles) at 0 count (length corners))
 	(while (< at count)
 		(defq tri (map (lambda (i)
 					(defq p (* 3 (elem-get corners (+ at (* i 3)))) t (elem-get corners (+ at (* i 3) 1))
 						n (elem-get corners (+ at (* i 3) 2)))
 					(list (slice positions p (+ p 3))
-						(if (>= t 0) (reals (elem-get places (* t 2)) (- +real_1 (elem-get places (inc (* t 2))))) (reals +real_0 +real_0))
+						(if (>= t 0) (doubles (elem-get places (* t 2)) (- +double_1 (elem-get places (inc (* t 2))))) (doubles +double_0 +double_0))
 						(if (>= n 0) (slice normals (* n 3) (+ (* n 3) 3)) :nil)))
 				'(0 1 2))
 			face (obj-normal (first (first tri)) (first (second tri)) (first (third tri))))
 		(each (lambda ((p t n))
-				(if matrix (setq p (slice (mat4x4-vec4-mul matrix (cat p (reals +real_1)) (reals +real_0 +real_0 +real_0 +real_0)) 0 3)))
+				(if matrix (setq p (slice (mat4x4-vec4-mul matrix (cat p (doubles +double_1)) (doubles +double_0 +double_0 +double_0 +double_0)) 0 3)))
 				(push out (elem-get p 0) (elem-get p 1) (elem-get p 2) (elem-get t 0) (elem-get t 1))
 				(defq n (ifn n face))
 				(push out (elem-get n 0) (elem-get n 1) (elem-get n 2)))
@@ -142,16 +142,16 @@
 (defun obj-fit (obj)
 	; (obj-fit obj) -> mat4x4
 	;the matrix that puts the whole of it in a ball of radius 1 about 0
-	(defq positions (. obj :find :positions) fours (reals))
+	(defq positions (. obj :find :positions) fours (doubles))
 	(each! (# (push fours (elem-get positions (* (!) 3)) (elem-get positions (inc (* (!) 3)))
-				(elem-get positions (+ (* (!) 3) 2)) +real_1)) '() 0 (/ (length positions) 3))
+				(elem-get positions (+ (* (!) 3) 2)) +double_1)) '() 0 (/ (length positions) 3))
 	(bind '((cx cy cz) scale) (vector-bounds-sphere fours +vec4_size))
-	(defq scale (if (> scale +real_0) (recip scale) +real_1))
-	(reals
-		scale +real_0 +real_0 (* scale (neg cx))
-		+real_0 scale +real_0 (* scale (neg cy))
-		+real_0 +real_0 scale (* scale (neg cz))
-		+real_0 +real_0 +real_0 +real_1))
+	(defq scale (if (> scale +double_0) (recip scale) +double_1))
+	(doubles
+		scale +double_0 +double_0 (* scale (neg cx))
+		+double_0 scale +double_0 (* scale (neg cy))
+		+double_0 +double_0 scale (* scale (neg cz))
+		+double_0 +double_0 +double_0 +double_1))
 
 ;module
 (export-symbols '(obj-read mtl-read obj-flat obj-fit))

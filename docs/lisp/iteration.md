@@ -22,7 +22,7 @@ Classes that inherit from `class/seq`:
 
 * class/fixeds
 
-* class/reals
+* class/doubles
 
 * class/str
 
@@ -313,7 +313,7 @@ Classes that inherit from `class/array`:
 
 * class/fixeds
 
-* class/reals
+* class/doubles
 
 * gui/path
 

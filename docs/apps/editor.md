@@ -100,7 +100,7 @@ the project tree automatically loads all source files in that directory. The rig
 side places line numbers (`*vdu_lines*`) next to the main `*edit*` area with its
 scroll sliders (`*xslider*`, `*yslider*`).
 
-#### 2.3 Real-Time Status Metrics
+#### 2.3 Double-Time Status Metrics
 
 The status bar at the bottom of the editor pane displays five live metrics
 updated by `refresh-display`:

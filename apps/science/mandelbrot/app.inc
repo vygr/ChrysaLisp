@@ -11,7 +11,7 @@
 (structure +rect +job_size
 	(int x y x1 y1)
 	(long w h shared top pal)
-	(real cx cy z))
+	(double cx cy z))
 
 ;its answer. The square, and the part of it that is all inside the set,
 ;if inside is not 0. drawn says the child has drawn it on the shared
@@ -61,12 +61,12 @@
 	(defq out (cap +mandel_pal_size (list)))
 	(each! (lambda ((p0 r0 g0 b0))
 			(bind '(p1 r1 g1 b1) (elem-get stops (inc (!))))
-			(each! (lambda () (defq k (/ (n2f (- (!) p0)) (n2f (- p1 p0)))
+			(each! (lambda () (defq k (/ (n2q (- (!) p0)) (n2q (- p1 p0)))
 						k (* k k (- 3.0 (* 2.0 k))))
 					(push out (char (+ 0xff000000
-								(<< (+ r0 (n2i (* k (n2f (- r1 r0))))) 16)
-								(<< (+ g0 (n2i (* k (n2f (- g1 g0))))) 8)
-								(+ b0 (n2i (* k (n2f (- b1 b0)))))) +int_size))) '() p0 p1))
+								(<< (+ r0 (n2i (* k (n2q (- r1 r0))))) 16)
+								(<< (+ g0 (n2i (* k (n2q (- g1 g0))))) 8)
+								(+ b0 (n2i (* k (n2q (- b1 b0)))))) +int_size))) '() p0 p1))
 		(list stops) 0 (dec (length stops)))
 	(apply (const cat) out))
 

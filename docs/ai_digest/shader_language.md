@@ -284,8 +284,8 @@ does, to 32 bit floats.
 
 `(shader-vp-vertex program)` gives `(place frame_size attr_slots out_slots)`,
 the native function and how many numbers a vertex is going in and coming out.
-`verts` is a `reals`, the attrs of a vertex one after another, vertex after
-vertex. `(shader-vp-place native frame verts)` gives a `reals`, for each
+`verts` is a `doubles`, the attrs of a vertex one after another, vertex after
+vertex. `(shader-vp-place native frame verts)` gives a `doubles`, for each
 vertex where it is, 4 numbers, then its varyings. So a vertex shader can be
 used with no pixel shader at all, by an app that only wants its vertices
 placed and will draw them itself. The Molecule app does, its atoms are
@@ -303,9 +303,9 @@ The vertex function reads the attrs of a vertex where they are, and writes
 where it is and its varyings where they are to go, by two registers it
 keeps for that, `:r11` and `:r10`. Nothing of a vertex is copied to the
 frame or from it. 65,536 vertices placed by a matrix take 116us on an Apple
-M4 Max, into a reals that is used again, as a draw does. It was 204us
+M4 Max, into a doubles that is used again, as a draw does. It was 204us
 when they were copied. `(mat4x4-vec4-mul)`, written by hand for that one
-job, takes 131us, with a new reals to make. The vertex shader of the Mesh
+job, takes 131us, with a new doubles to make. The vertex shader of the Mesh
 demo, a matrix by a vec4, another by a vec3, and two divides, takes 242us,
 and was 477us.
 
@@ -328,7 +328,7 @@ pipeline. `(shader-vp-depth width height)` is a depth buffer with nothing in
 it, a new one for each frame. `(shader-vp-draw-tris pipeline verts tris
 pixmap depth [vvals pvals cull tri_size x y x1 y1])` draws.
 
-* `verts` is a `reals`, the attrs of a vertex one after another. `tris` is a
+* `verts` is a `doubles`, the attrs of a vertex one after another. `tris` is a
   `nums`, three numbers of vertices for each triangle, the first three of
   every `tri_size`, a mesh of `lib/math/mesh.inc` has 4.
 * Where the vertex shader puts a vertex, x and y of -1 to 1 are the edges of
@@ -611,8 +611,8 @@ args in place of a pixel or a vertex.
 * `(shader-vp-func program name) -> func`. It is assembled the first time a
   CPU meets it, kept under `obj/` by a hash of its source, and bound by
   name, as a shader is.
-* `(func arg ...)`. A `:float` is a real, an `:int` a num, a vector a reals
-  of its size, and a `:mat4` a reals of 16, a row at a time, as
+* `(func arg ...)`. A `:float` is a double, an `:int` a num, a vector a doubles
+  of its size, and a `:mat4` a doubles of 16, a row at a time, as
   `lib/math/matrix.inc` has a matrix. What comes back is one of those, made
   new. An arg is not changed.
 * `(shader-func program name)` is what a function gives and takes,
@@ -626,10 +626,10 @@ for Lisp to call, not for another function of the file, a matrix is never
 in registers to be handed on.
 
 The native function has its frame on the stack. A number arg is copied to
-it. A reals arg is read where it is, by a register, the first three of
+it. A doubles arg is read where it is, by a register, the first three of
 them, unless the function sets it, when it is copied, so no arg is ever
-changed. A reals that is given is made first and written straight into. It
-checks how many args it has, their types, and the length of each reals.
+changed. A doubles that is given is made first and written straight into. It
+checks how many args it has, their types, and the length of each doubles.
 
 A product of matrices is worked out a row of the answer at a time, its four
 numbers side by side so that none waits on another, which is how the
@@ -711,7 +711,7 @@ enough for the range.
 
 The Mandelbrot app is a kernel, `apps/science/mandelbrot/kernel.shader`. On
 the GPU the whole picture is one run, a pixel a thread, in floats. With no GPU
-the children of its farm run it as native code in reals, so the farm can go
+the children of its farm run it as native code in doubles, so the farm can go
 deeper than a float can. Its inputs say where a square of the picture is and
 how wide, and a child scans its square a ring at a time from the edge in, a
 run of the kernel for each side, and stops at a ring that is all inside the
@@ -1010,7 +1010,7 @@ pixels as a string of 32 bit argb, clamped, which is what `(. canvas :tile)`
 takes. If the height of the frame is given then row 0 is the top row, as a
 canvas has it, and the shader still sees y going up.
 `(shader-vp-pixels native frame x y x1 y1)` gives the pixels as a list of
-`reals`.
+`doubles`.
 
 `(shader-vp-draw native frame pixmap x y x1 y1 [height alpha])` draws the
 tile straight onto a 32 bit pixmap, where it belongs on it, with no string in
@@ -1182,7 +1182,7 @@ of `:f0` to `:f15`, the same registers as the doubles `:d0` to `:d15`.
 * A float in the frame is a single, the first 4 bytes of its 8 byte slot,
   loaded and stored as it is. An input is written there as the nearest
   single to what it is given, `(shader-vp-frame)`.
-* What Lisp gives and is given, reals reached by a register other than the
+* What Lisp gives and is given, doubles reached by a register other than the
   frame's, the attrs and placed vertices of a vertex shader and the args and
   answer of a function for Lisp, stays doubles: a float of it is made the
   nearest single as it is loaded, and the double of the single as it is

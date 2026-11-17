@@ -8,8 +8,8 @@
 	;two numbers, or two lists of them, the same to within tol, default 0.01
 	(setd tol 0.01)
 	(if (list?? a)
-		(and (list?? b) (= (length a) (length b)) (every (# (<= (abs (- (n2f %0) (n2f %1))) tol)) a b))
-		(<= (abs (- (n2f a) (n2f b))) tol)))
+		(and (list?? b) (= (length a) (length b)) (every (# (<= (abs (- (n2q %0) (n2q %1))) tol)) a b))
+		(<= (abs (- (n2q a) (n2q b))) tol)))
 
 (defun wb-ids (doc)
 	(map (# (elem-get %0 +cwb_id)) (cwb-items doc)))
@@ -768,9 +768,9 @@
 (assert-list-eq "an arc of a quarter turn is one A, of half a turn two, of nearly all the way round three" '(1 2 3)
 	(map (# (length (filter (# (eql %0 "A")) (split (cwb-d-arc 0 0 100 0.5 (+ 0.5 %0)) " ")))) (list 1.5708 3.14159 6.2)))
 (assert-true "an arc all but a five hundredth of a turn round, its ends a third of a pixel apart, is on its circle to a twentieth of a pixel"
-	(< (reduce! (# (max %0 (rb-arc-off (* (n2f (!)) 0.0731) (- +fp_2pi 0.002)))) '() 0.0 0 40) 0.05))
+	(< (reduce! (# (max %0 (rb-arc-off (* (n2q (!)) 0.0731) (- +fp_2pi 0.002)))) '() 0.0 0 40) 0.05))
 (assert-true "and so is one of half a turn, and of a little more"
-	(< (reduce! (# (max %0 (rb-arc-off (* (n2f (!)) 0.0731) 3.14159) (rb-arc-off (* (n2f (!)) 0.0731) 3.2832))) '() 0.0 0 40) 0.05))
+	(< (reduce! (# (max %0 (rb-arc-off (* (n2q (!)) 0.0731) 3.14159) (rb-arc-off (* (n2q (!)) 0.0731) 3.2832))) '() 0.0 0 40) 0.05))
 (assert-true "a slice of pie is its two lines and those arcs"
 	(progn (defq rb_pie (cwb-d-arc 400 300 180 0 4.0 :t)) (and (starts-with "M 400 300 L 580 300 A" rb_pie) (ends-with "Z" rb_pie))))
 

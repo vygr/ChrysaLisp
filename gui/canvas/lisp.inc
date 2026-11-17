@@ -303,7 +303,7 @@
 
 (defun canvas-mesh-create (verts)
 	; (canvas-mesh-create verts) -> 0 | mesh
-	;the vertices of a mesh, kept on the GPU, from the bytes of a reals,
+	;the vertices of a mesh, kept on the GPU, from the bytes of a doubles,
 	;the attrs of a vertex one after another
 	((const (ffi "gui/canvas/lisp_mesh_create")) verts))
 

@@ -45,7 +45,7 @@
 	;outputs
 	;cast register list
 	(assign (map (# (case %1
-					((:num :fixed :real) (list %0 +num_value))
+					((:num :fixed :double) (list %0 +num_value))
 					(:str (list '& %0 +str_data))
 					(:char (list %0 +str_data 'ub))
 					(:t %0))) src types) (ifn dst src)))

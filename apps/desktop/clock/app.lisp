@@ -52,13 +52,13 @@
 	(path-stroke-polygons clock_face (* scale 0.018) +join_miter (list (first clock_dial)))
 	; 60 minute/second sub-ticks (0..59)
 	(path-stroke-polylines clock_face (* scale 0.005) +join_miter +cap_butt +cap_butt
-		(map! (lambda () (transform (path 0.0 -0.405 0.0 -0.425) (/ (* (n2f (!)) +fp_2pi) 60.0) scale)) '() 0 60))
+		(map! (lambda () (transform (path 0.0 -0.405 0.0 -0.425) (/ (* (n2q (!)) +fp_2pi) 60.0) scale)) '() 0 60))
 	; 12 hour ticks (0..11)
 	(path-stroke-polylines clock_face (* scale 0.012) +join_miter +cap_butt +cap_butt
-		(map! (lambda () (transform (path 0.0 -0.385 0.0 -0.425) (/ (* (n2f (!)) +fp_2pi) 12.0) scale)) '() 0 12))
+		(map! (lambda () (transform (path 0.0 -0.385 0.0 -0.425) (/ (* (n2q (!)) +fp_2pi) 12.0) scale)) '() 0 12))
 	; 4 major cardinal ticks (12, 3, 6, 9)
 	(path-stroke-polylines clock_face (* scale 0.018) +join_miter +cap_butt +cap_butt
-		(map! (lambda () (transform (path 0.0 -0.370 0.0 -0.425) (/ (* (n2f (!)) +fp_2pi) 4.0) scale)) '() 0 4))
+		(map! (lambda () (transform (path 0.0 -0.370 0.0 -0.425) (/ (* (n2q (!)) +fp_2pi) 4.0) scale)) '() 0 4))
 	; 12 dial numeral glyph paths (1..12)
 	(when (get :clock_numerals *env*)
 		(defq font_size (max 10 (n2i (* scale 0.062)))
@@ -67,13 +67,13 @@
 				(create-font "fonts/Hack-Regular.ctf" font_size)))
 		(when font
 			(defq num_r (* scale 0.30))
-			(each! (lambda () (defq n (!)) (defq a (/ (* (n2f n) +fp_2pi) 12.0)
+			(each! (lambda () (defq n (!)) (defq a (/ (* (n2q n) +fp_2pi) 12.0)
 						text (str n)
 						nx (+ cx (* num_r (sin a)))
 						ny (- cy (* num_r (cos a))))
 					(bind '(w h) (font-glyph-bounds font text))
-					(defq tx (+ nx (* (n2f w) -1.0))
-						ty (+ ny (* (n2f h) 0.5))
+					(defq tx (+ nx (* (n2q w) -1.0))
+						ty (+ ny (* (n2q h) 0.5))
 						mat (fixeds 1.0 0.0 tx 0.0 1.0 ty))
 					(each (lambda (p)
 							(push clock_face (mat3x2-vec2-mul mat p p)))
@@ -122,8 +122,8 @@
 	(defq select (task-mboxes +select_size) *running* :t)
 	(when clock
 		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
-		(create-clockface (* (n2f clock_size) (n2f clock_scale)))
-		(view-analog-time clock (float-time) (* (n2f clock_size) (n2f clock_scale)))
+		(create-clockface (* (n2q clock_size) (n2q clock_scale)))
+		(view-analog-time clock (float-time) (* (n2q clock_size) (n2q clock_scale)))
 		(. clock :swap +swap_write))
 	(when *display*
 		(set *display* :text (view-digital-time (date))))
@@ -140,7 +140,7 @@
 			((= idx +select_timer)
 				(mail-timeout (elem-get select +select_timer) (next-sec-delay) 0)
 				(when clock
-					(view-analog-time clock (float-time) (* (n2f clock_size) (n2f clock_scale)))
+					(view-analog-time clock (float-time) (* (n2q clock_size) (n2q clock_scale)))
 					(. clock :swap +swap_write))
 				(when *display*
 					(. *display* :set_text (view-digital-time (date)))))

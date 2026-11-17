@@ -623,18 +623,18 @@ Macros for assembling declarative widget hierarchies.
 *	**`vector-length` / `vector-dist` / `vector-sdist`**: Distance and norm
 	calculators.
 
-	*	`(vector-length p) -> real`
+	*	`(vector-length p) -> double`
 
-	*	`(vector-dist p1 p2) -> real`
+	*	`(vector-dist p1 p2) -> double`
 
-	*	`(vector-sdist p1 p2) -> real`
+	*	`(vector-sdist p1 p2) -> double`
 
 *	**`vector-dist-to-line` / `vector-sdist-to-line`**: Point-to-line segment
 	distance calculations.
 
-	*	`(vector-dist-to-line p p1 p2) -> real`
+	*	`(vector-dist-to-line p p1 p2) -> double`
 
-	*	`(vector-sdist-to-line p p1 p2) -> real`
+	*	`(vector-sdist-to-line p p1 p2) -> double`
 
 ## 3D Mathematics, Meshes, and Isosurfaces
 
@@ -650,22 +650,22 @@ Macros for assembling declarative widget hierarchies.
 *	**`mat4x4-unity` / `mat4x4-rotx` / `mat4x4-roty` / `mat4x4-rotz`**: 4x4
 	rotation constructors.
 
-	*	`(mat4x4-unity) -> reals`
+	*	`(mat4x4-unity) -> doubles`
 
-	*	`(mat4x4-rotx a) -> reals`
+	*	`(mat4x4-rotx a) -> doubles`
 
-	*	`(mat4x4-roty a) -> reals`
+	*	`(mat4x4-roty a) -> doubles`
 
-	*	`(mat4x4-rotz a) -> reals`
+	*	`(mat4x4-rotz a) -> doubles`
 
 *	**`mat4x4-translate` / `mat4x4-scale` / `mat4x4-frustum`**: 4x4 transformation
 	and perspective frustum constructors.
 
-	*	`(mat4x4-translate x y z) -> reals`
+	*	`(mat4x4-translate x y z) -> doubles`
 
-	*	`(mat4x4-scale x y z) -> reals`
+	*	`(mat4x4-scale x y z) -> doubles`
 
-	*	`(mat4x4-frustum left right top bottom near far) -> reals`
+	*	`(mat4x4-frustum left right top bottom near far) -> doubles`
 
 *	**`Mesh` / `Mesh-sphere` / `Mesh-cylinder` / `Mesh-torus` / `Mesh-iso` / `Mesh-obj` / `Mesh-data`**:
 	3D triangle mesh representations.

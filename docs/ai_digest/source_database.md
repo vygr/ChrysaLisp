@@ -69,7 +69,7 @@ keys:
                 (:inputs ":r0-:r2")
                 (:outputs ":r0-:r1")
                 (:trashes ":r1-:r7")
-                (:overrides (:fixeds :reals))
+                (:overrides (:fixeds :doubles))
                 (:file "class/nums/class.vp")
                 (:trashes_line 14))))))))
 ```

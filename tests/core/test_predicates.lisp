@@ -14,7 +14,7 @@
 ; Vector Types
 (assert-true "nums? true"   (nums? (nums 1 2)))
 (assert-true "fixeds? true" (fixeds? (fixeds 1.0 2.0)))
-(assert-true "reals? true"  (reals? (reals (n2r 1.0))))
+(assert-true "doubles? true"  (doubles? (doubles (n2d 1.0))))
 
 ; Sequence Predicates
 (assert-true "seq? list"   (seq? (list 1)))
@@ -114,11 +114,11 @@
 (undef (env) 'old_env 'e1 'e2 'e3 'inner_ok 'nest_ok)
 
 ; --- A predicate with two ?, the class itself and not what is built on it ---
-(defq pq_things (list 3 1.5 (n2r 1.5) "a" 'a (list) (array) (nums 1) (fixeds 1.0) (reals (n2r 1)) (path) (env 1)))
+(defq pq_things (list 3 1.5 (n2d 1.5) "a" 'a (list) (array) (nums 1) (fixeds 1.0) (doubles (n2d 1)) (path) (env 1)))
 (defun pq-which (pred) (map (# (if (pred %0) :t :nil)) pq_things))
-(assert-list-eq "num?? is a num that is not a fixed or a real"
+(assert-list-eq "num?? is a num that is not a fixed or a double"
 	'(:t :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num??)))
-(assert-list-eq "fixed?? is a fixed that is not a real"
+(assert-list-eq "fixed?? is a fixed that is not a double"
 	'(:nil :t :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const fixed??)))
 (assert-list-eq "str?? is a str that is not a symbol"
 	'(:nil :nil :nil :t :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const str??)))
@@ -126,12 +126,12 @@
 	'(:nil :nil :nil :nil :nil :t :nil :nil :nil :nil :nil :nil) (pq-which (const list??)))
 (assert-list-eq "array?? is an array that is not a list or a vector of numbers"
 	'(:nil :nil :nil :nil :nil :nil :t :nil :nil :nil :nil :nil) (pq-which (const array??)))
-(assert-list-eq "nums?? is a nums that is not a fixeds, a reals or a path"
+(assert-list-eq "nums?? is a nums that is not a fixeds, a doubles or a path"
 	'(:nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil :nil) (pq-which (const nums??)))
-(assert-list-eq "fixeds?? is a fixeds that is not a reals or a path"
+(assert-list-eq "fixeds?? is a fixeds that is not a doubles or a path"
 	'(:nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil) (pq-which (const fixeds??)))
-(assert-list-eq "reals?? is a reals"
-	'(:nil :nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil) (pq-which (const reals??)))
+(assert-list-eq "doubles?? is a doubles"
+	'(:nil :nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil) (pq-which (const doubles??)))
 (assert-list-eq "where one ? is true of all that are built on the class, a num here"
 	'(:t :t :t :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num?)))
 (assert-list-eq "an array here, all seven kinds of one"

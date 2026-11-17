@@ -112,7 +112,7 @@
 				:fig_reveal :fig_dash :fig_dash_phase)
 			(if (< fig_reveal 1.0)
 				(setq fig_outline (slice fig_outline 0
-					(n2i (* (max 0.0 fig_reveal) (n2f (length fig_outline)))))))
+					(n2i (* (max 0.0 fig_reveal) (n2q (length fig_outline)))))))
 			(def this :fig_flat (setq flat (outline-flat fig_outline fig_fill fig_stroke (* 0.5 fig_width)
 						fig_join fig_cap1 fig_cap2 fig_trim
 						(if fig_dash (list (first fig_dash) (second fig_dash) fig_dash_phase))))))

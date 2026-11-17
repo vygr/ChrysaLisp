@@ -39,7 +39,7 @@
 	;kind is :mouse :pen :eraser or :touch. buttons is those held, 0 for a
 	;pointer that is only over the board, or has just come up. pressure is
 	;0.0 to 1.0, default 1.0 if a button is held. time in microseconds
-	(list id kind buttons (n2f x) (n2f y)
+	(list id kind buttons (n2q x) (n2q y)
 		(ifn pressure (if (= buttons 0) 0.0 1.0)) (ifn time 0)))
 
 (defun ptr-down? (event) (/= (elem-get event +pev_buttons) 0))

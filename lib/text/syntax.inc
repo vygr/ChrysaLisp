@@ -24,8 +24,8 @@
 	(tolist *root_env*))
 (each (# (pinsert +syntax_keywords %0 :ink_keyword4))
 	'(:t :nil &rest &optional &most &ignore
-		byte ubyte short ushort int uint long real ptr union struct
-		pbyte pubyte pshort pushort pint puint plong preal pptr
+		byte ubyte short ushort int uint long double ptr union struct
+		pbyte pubyte pshort pushort pint puint plong pdouble pptr
 		nodeid netid offset enum bit))
 
 (defclass Syntax () :nil

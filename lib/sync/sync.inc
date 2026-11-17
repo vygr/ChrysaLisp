@@ -129,24 +129,24 @@
 		(dir-list folder))
 	found)
 
-(defun sync-inside? (root path &optional real)
-	; (sync-inside? root path [real]) -> :nil | :t
+(defun sync-inside? (root path &optional double)
+	; (sync-inside? root path [double]) -> :nil | :t
 	;is a path, safe as written, under the root as the host has it ? Every
 	;folder on the way has to be a folder, and the file a file, or not
 	;there yet. A link is neither, so a link in the tree to somewhere else
 	;is never gone through, and nothing is written or removed beyond it.
-	;real is a set of the folders found to be so, to ask the host the once
+	;double is a set of the folders found to be so, to ask the host the once
 	(defq at root ok :t segs (split path "/") end (dec (length segs)))
 	(some! (lambda (seg)
 			(defq is_last (= (!) end) next (cat at "/" seg))
 			(cond
-				((and (not is_last) real (. real :find next)))
+				((and (not is_last) double (. double :find next)))
 				(:t (defq kind (sync-kind at seg))
 					(cond
 						;not there, so nothing is below it, and it will be made
 						((not kind) (setq end -1))
 						((eql kind (if is_last "f" "d"))
-							(and real (not is_last) (. real :insert next)))
+							(and double (not is_last) (. double :insert next)))
 						(:t (setq ok :nil)))))
 			(setq at next)
 			(or (not ok) (= end -1)))

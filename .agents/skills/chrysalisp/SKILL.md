@@ -64,7 +64,7 @@ Sections of this file:
 	What the VP guide covers. The guide itself is in `vp-assembler.md`.
 
 *	**[Numerical Representations & Systems](#numerical-representations--systems)**
-	The three number types, `num`, `fixed` and `real`, and their vector forms.
+	The three number types, `num`, `fixed` and `double`, and their vector forms.
 
 *	**[Subsystems & Architecture Reference](#subsystems--architecture-reference)**
 	The shared memory link protocol, service names and their scope, the
@@ -410,24 +410,24 @@ ChrysaLisp natively supports three numerical types:
 
 *	**Integers (`num`):** 64-bit signed integers.
 
-*	**Fixed-Point Reals (`fixed`, `fixeds`):** 48.16 signed fixed-point
+*	**Fixed-Point Doubles (`fixed`, `fixeds`):** 48.16 signed fixed-point
 	values (64-bit word with 16 fractional bits). Uses `+fp_frac_mask` and
 	`+fp_shift 16`. Trigonometric and transcendental math operate on fixed.
 
-*	**Double-Precision Reals (`real`, `reals`):** Standard 64-bit IEEE 754
+*	**Double-Precision Doubles (`double`, `doubles`):** Standard 64-bit IEEE 754
 	double-precision floating-point values.
 
 *	**Conversions:**
 
-	*	`(n2i x)`: Converts `fixed` or `real` to integer `num`. It is the
+	*	`(n2i x)`: Converts `fixed` or `double` to integer `num`. It is the
 		fastest conversion for each type and has no rounding mode: a `fixed`
-		goes down, `(n2i -5.9)` is -6, a `real` goes toward zero,
-		`(n2i (n2r -5.9))` is -5. When the direction matters apply `(floor)`
+		goes down, `(n2i -5.9)` is -6, a `double` goes toward zero,
+		`(n2i (n2d -5.9))` is -5. When the direction matters apply `(floor)`
 		or `(ceil)` first.
 
-	*	`(n2f x)`: Converts `num` or `real` to 48.16 `fixed`.
+	*	`(n2q x)`: Converts `num` or `double` to 48.16 `fixed`.
 
-	*	`(n2r x)`: Converts `num` or `fixed` to IEEE double `real`.
+	*	`(n2d x)`: Converts `num` or `fixed` to IEEE double `double`.
 
 ## Subsystems & Architecture Reference
 

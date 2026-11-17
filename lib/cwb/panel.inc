@@ -40,17 +40,17 @@
 	(defq cells (list) y 0.0)
 	(each (lambda (row)
 			(each (lambda ((what val))
-					(defq x (* cell (n2f (% (!) cols))) yy (+ y (* cell (n2f (/ (!) cols)))))
+					(defq x (* cell (n2q (% (!) cols))) yy (+ y (* cell (n2q (/ (!) cols)))))
 					(push cells (list what val x yy (+ x cell) (+ yy cell))))
 				row)
-			(setq y (+ y (* cell (n2f (/ (+ (length row) cols -1) cols))))))
+			(setq y (+ y (* cell (n2q (/ (+ (length row) cols -1) cols))))))
 		rows)
-	(list cells (* cell (n2f cols)) y))
+	(list cells (* cell (n2q cols)) y))
 
 (defclass Panel (board x y) (Actor)
 	; (Panel board x y) -> panel
 	;about a point of the document
-	(def this :board (weak-ref board) :origin (list (n2f x) (n2f y)) :hover :nil :cells :nil :shut :nil)
+	(def this :board (weak-ref board) :origin (list (n2q x) (n2q y)) :hover :nil :cells :nil :shut :nil)
 
 	(defmethod :layout ()
 		; (. panel :layout) -> (cells w h)
@@ -90,7 +90,7 @@
 		;screen, the right way up whichever way the board is turned
 		(bind '(ox oy) (get :origin this))
 		(defq zoom (get :zoom (obj-ref (get :board this))) turn (get :view_turn (obj-ref (get :board this))))
-		(mat3x2-point (if (and turn (/= turn 0.0)) (mat3x2-rot turn) +mat3x2_unity) (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
+		(mat3x2-point (if (and turn (/= turn 0.0)) (mat3x2-rot turn) +mat3x2_unity) (* (- (n2q x) ox) zoom) (* (- (n2q y) oy) zoom)))
 
 	(defmethod :cell_at (px py)
 		; (. panel :cell_at px py) -> :nil | :bar | cell

@@ -78,7 +78,7 @@ This is where the "Tao of Now" becomes profound.
 
 An application sitting on the edge of this cut might think it is staring at a
 solid frontier of services. But if it reaches out, it grasps nothing. It has
-been cut off from the 'real' frontier. It is a ghost ship sailing on a sea
+been cut off from the 'double' frontier. It is a ghost ship sailing on a sea
 that has drained away.
 
 Conversely, two nodes might join. Suddenly, two timelines merge. Service

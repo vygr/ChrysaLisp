@@ -214,7 +214,7 @@ line-by-line from `stdin`, making it fully pipe-compatible.
   `0`):
 
 	* `0`: Displays global font parameters (ascent, descent, default kern, page
-	  index ranges, and total glyph count) formatted as decimal reals.
+	  index ranges, and total glyph count) formatted as decimal doubles.
 
 	* `1`: Extends output to include individual glyph parameters (advance widths,
 	  local coordinate bounds, dimensions, and active kerning pairs associated with

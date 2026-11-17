@@ -5,7 +5,7 @@
 	;an arrow from post a to post b at a height, its name over it
 	(defq x (skip-post a) x1 (skip-post b) d (if (< a b) 3 -3))
 	(push (first s) (dia-arrow (+ x d) y (- x1 d) y))
-	(dia-say s name (+ (n2f (min x x1)) (* 0.5 (n2f (abs (- x1 x)))) (* -0.5 (dia-width name 11 :t))) (- y 8) 11 :t dark))
+	(dia-say s name (+ (n2q (min x x1)) (* 0.5 (n2q (abs (- x1 x)))) (* -0.5 (dia-width name 11 :t))) (- y 8) 11 :t dark))
 (dia-say s "on" 0 36 11)
 (dia-say s "back" 0 130 11)
 (each (lambda (i)

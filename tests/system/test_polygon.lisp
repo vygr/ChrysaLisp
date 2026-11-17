@@ -55,7 +55,7 @@
 (defun pg-rnd (n) (setq pg_seed (logand (+ (* pg_seed 1103515245) 12345) 0x7fffffff)) (% (>> pg_seed 8) n))
 (defun pg-any (n size)
 	(defq p (path))
-	(times n (push p (/ (n2f (pg-rnd (* size 256))) 256.0) (/ (n2f (pg-rnd (* size 256))) 256.0)))
+	(times n (push p (/ (n2q (pg-rnd (* size 256))) 256.0) (/ (n2q (pg-rnd (* size 256))) 256.0)))
 	(list p))
 (defun pg-in? (x y paths) (if (vector-point-in-polygon (path x y) paths +winding_odd_even) :t :nil))
 (defq pg_bad 0 pg_out 0.0)
@@ -65,7 +65,7 @@
 	(defq a (pg-any (+ 3 (pg-rnd 8)) 100) b (pg-any (+ 3 (pg-rnd 8)) 100)
 		u (poly-union a b) i (poly-intersect a b) d (poly-difference a b) d2 (poly-difference b a) x (poly-xor a b))
 	(times 40
-		(defq px (+ (n2f (pg-rnd 100)) 0.3711) py (+ (n2f (pg-rnd 100)) 0.4173)
+		(defq px (+ (n2q (pg-rnd 100)) 0.3711) py (+ (n2q (pg-rnd 100)) 0.4173)
 			ia (pg-in? px py a) ib (pg-in? px py b))
 		(unless (and (eql (pg-in? px py u) (if (or ia ib) :t :nil))
 				(eql (pg-in? px py i) (if (and ia ib) :t :nil))
@@ -166,7 +166,7 @@
 (defq pg_rwrong 0 pg_rings 0)
 (defun pg-shape (cx cy r n)
 	(defq p (path))
-	(times n (push p (n2f (+ cx (- (pg-hrnd (* 2 r)) r))) (n2f (+ cy (- (pg-hrnd (* 2 r)) r)))))
+	(times n (push p (n2q (+ cx (- (pg-hrnd (* 2 r)) r))) (n2q (+ cy (- (pg-hrnd (* 2 r)) r)))))
 	p)
 (times 300
 	(defq a (list (pg-shape 150 150 (+ 10 (pg-hrnd 90)) (+ 3 (pg-hrnd 14))) (pg-shape 150 150 (+ 10 (pg-hrnd 90)) (+ 3 (pg-hrnd 9))))
@@ -217,8 +217,8 @@
 (defq pg_hwrong 0 pg_hyes 0 pg_hno 0)
 (defun pg-frac-shape (cx cy r n)
 	(defq p (path))
-	(times n (push p (+ (n2f (+ cx (- (pg-hrnd (* 2 r)) r))) (/ (n2f (pg-hrnd 997)) 997.0))
-			(+ (n2f (+ cy (- (pg-hrnd (* 2 r)) r))) (/ (n2f (pg-hrnd 991)) 991.0))))
+	(times n (push p (+ (n2q (+ cx (- (pg-hrnd (* 2 r)) r))) (/ (n2q (pg-hrnd 997)) 997.0))
+			(+ (n2q (+ cy (- (pg-hrnd (* 2 r)) r))) (/ (n2q (pg-hrnd 991)) 991.0))))
 	p)
 (times 400
 	(defq a (list (pg-frac-shape (+ 100 (pg-hrnd 120)) (+ 100 (pg-hrnd 120)) (+ 8 (pg-hrnd 50)) (+ 3 (pg-hrnd 10))))

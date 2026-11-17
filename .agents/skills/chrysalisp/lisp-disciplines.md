@@ -142,7 +142,7 @@ consecutive `(defq ...)` calls:
 ## Type-Dependent Equality with `eql`
 
 *	`eql` performs deep content comparison on scalar numbers, strings,
-	and typed numeric vectors (`nums`, `fixeds`, `reals`).
+	and typed numeric vectors (`nums`, `fixeds`, `doubles`).
 
 *	`eql` performs pointer identity comparison on general containers
 	(`list`, `hmap`). To test list content equivalence, use:

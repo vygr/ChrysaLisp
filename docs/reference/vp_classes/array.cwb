@@ -1614,7 +1614,7 @@
 									:stroke
 									0
 									:text
-									"[elem-set]"
+									"[doubles]"
 									:font_size
 									12
 									:pos
@@ -1634,7 +1634,7 @@
 									:stroke
 									0
 									:text
-									"[fill]"
+									"[elem-set]"
 									:font_size
 									12
 									:pos
@@ -1654,7 +1654,7 @@
 									:stroke
 									0
 									:text
-									"[fixeds]"
+									"[fill]"
 									:font_size
 									12
 									:pos
@@ -1674,7 +1674,7 @@
 									:stroke
 									0
 									:text
-									"[nums]"
+									"[fixeds]"
 									:font_size
 									12
 									:pos
@@ -1694,7 +1694,7 @@
 									:stroke
 									0
 									:text
-									"[path]"
+									"[nums]"
 									:font_size
 									12
 									:pos
@@ -1714,7 +1714,7 @@
 									:stroke
 									0
 									:text
-									"[pop]"
+									"[path]"
 									:font_size
 									12
 									:pos
@@ -1734,7 +1734,7 @@
 									:stroke
 									0
 									:text
-									"[push]"
+									"[pop]"
 									:font_size
 									12
 									:pos
@@ -1754,7 +1754,7 @@
 									:stroke
 									0
 									:text
-									"[reals]"
+									"[push]"
 									:font_size
 									12
 									:pos

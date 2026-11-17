@@ -173,7 +173,7 @@
 				(:lit (cond
 						((eql type :bool) (spv-const :bool (if a 1 0)))
 						((eql type :int) (spv-const :int a))
-						((spv-const :float (sh-real-to-float (str-to-real a))))))
+						((spv-const :float (sh-double-to-float (str-to-double a))))))
 				(:var (spv-emit type 61 (first (spv-var a))))
 				;a buffer is the variable, an element of it is reached from that
 				(:buf (first (spv-var a)))

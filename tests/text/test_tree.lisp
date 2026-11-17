@@ -117,7 +117,7 @@
 		"(trim s \q ;\\t\q)"))
 (assert-list-eq "zero: a number with a point that is 0 as a fixed, and is not written 0"
 	'("(1) zero: 0.000001 is too small for a fixed, it is 0" "(3) zero: -0.00001 is too small for a fixed, it is 0")
-	(tt-check "zero" "(n2r 0.000001)" "(+ 0.0 0.5 0.00002 100 0)" "(* x -0.00001)"))
+	(tt-check "zero" "(n2d 0.000001)" "(+ 0.0 0.5 0.00002 100 0)" "(* x -0.00001)"))
 (assert-list-eq "shadow: a name of the system as a test of an and, an or, or a clause of a cond; not where it is given to a function"
 	'("(1) shadow: first as a test of (and) is taken as the function of the system, not the variable"
 		"(2) shadow: list as a test of (or) is taken as the function of the system, not the variable"
@@ -366,7 +366,7 @@
 	(tt-check "style" "(cond ((a) b)) ;check off, tried on purpose" "(cond ((a) b))" "(cond ((a) b))"))
 (assert-list-eq "all the checks are run when none are named"
 	'("(1) progn: a (progn) round the else of an (if)" "(2) zero: 0.000001 is too small for a fixed, it is 0")
-	(progn (save (cat "(if a b (progn c))" tt_lf "(n2r 0.000001)" tt_lf) tt_file)
+	(progn (save (cat "(if a b (progn c))" tt_lf "(n2d 0.000001)" tt_lf) tt_file)
 		(defq tt_said (list))
 		(pipe-run (cat "check " tt_file) (# (push tt_said %0)))
 		(map (# (slice %0 (inc (length tt_file)) -1)) (filter (const nempty?) (split (join tt_said "") tt_lf)))))

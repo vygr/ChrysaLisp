@@ -1,5 +1,5 @@
 (include "lib/asm/func.inc")
-(include "././real/class.inc")
+(include "././double/class.inc")
 (include "././lisp/class.inc")
 
 (def-method :obj :lisp_get)
@@ -21,7 +21,7 @@
 	(list-bind-args args `(,obj ,offset ,type) '(:obj :num :num))
 
 	(gotoif `(,offset < 0) 'error1)
-	(gotoif `(,type < +type_real) 'error)
+	(gotoif `(,type < +type_double) 'error)
 	(vp-load-rcr obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
 	(assign `((,osize +hp_heap_cellsize)) `(,osize))
 	(vp-sub-cr +sys_mem_header_size osize)
@@ -80,8 +80,8 @@
 		(call :fixed :create `((,obj ,offset)) `(,args))
 		(exit :obj :lisp_get `(,this ,args))
 		(vp-ret)
-	(vpcase `(,type = ,+type_real))
-		(call :real :create `((,obj ,offset)) `(,args))
+	(vpcase `(,type = ,+type_double))
+		(call :double :create `((,obj ,offset)) `(,args))
 		(exit :obj :lisp_get `(,this ,args))
 		(vp-ret)
 	(default)
@@ -124,7 +124,7 @@
 	(list-bind-args args `(,obj ,offset ,type ,val) '(:obj :num :num :obj))
 
 	(gotoif `(,offset < 0) 'error1)
-	(gotoif `(,type < +type_real) 'error)
+	(gotoif `(,type < +type_double) 'error)
 	(vp-load-rcr obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
 	(assign `((,osize +hp_heap_cellsize)) `(,osize))
 	(vp-sub-cr +sys_mem_header_size osize)

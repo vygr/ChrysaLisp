@@ -12,7 +12,7 @@
 ;GPU a frame is the whole picture, a pixel a thread; with none the children
 ;of the farm work it out, a square each, and are started on the view of the
 ;moment each time a picture is done. Both run the one kernel, kernel.shader,
-;the GPU in floats, the farm in reals as native code
+;the GPU in floats, the farm in doubles as native code
 
 (enums +event +event_user
 	(enum home pal mode))
@@ -27,14 +27,14 @@
 	;where it starts, and how far out and in it goes. In a float of the
 	;GPU, 24 bits, the step from one pixel to the next is lost in the
 	;centre's own a little past 1/20000 of the start
-	+home_x +real_-1/2 +home_y +real_0 +home_z +real_1
-	+z_max +real_2 +z_min (/ +real_1 (n2r 20000))
+	+home_x +double_-1/2 +home_y +double_0 +home_z +double_1
+	+z_max +double_2 +z_min (/ +double_1 (n2d 20000))
 	;and how far the middle of the picture may go, round the whole set
-	+x_min (n2r -2.2) +x_max (n2r 0.8) +y_min (n2r -1.3) +y_max (n2r 1.3)
+	+x_min (n2d -2.2) +x_max (n2d 0.8) +y_min (n2d -1.3) +y_max (n2d 1.3)
 	;how fast it flies, octaves a second, and pans, halves of the picture
 	;a second, and the still part in the middle of it, and how soon a
 	;speed comes up to what it is to be, the less the softer
-	+fly_rate +real_1 +pan_rate (n2r 0.6) +still (n2r 0.1) +ease (n2r 4)
+	+fly_rate +double_1 +pan_rate (n2d 0.6) +still (n2d 0.1) +ease (n2d 4)
 	+min_top 256 +level_top 64
 	+retry_timeout (task-timeout 5)
 	;the GPU if there is one, and it can be switched to the farm and back
@@ -46,7 +46,7 @@
 	shared_key (if shared_canvas (canvas-key shared_canvas) 0)
 	;where the picture is, how far it is from its middle to its top, the
 	;palette, the speeds of the moment, and the buttons held
-	cx +home_x cy +home_y z +home_z pal 0 zv +real_0 vx +real_0 vy +real_0 held 0
+	cx +home_x cy +home_y z +home_z pal 0 zv +double_0 vx +double_0 vy +double_0 held 0
 	;the kernel, the GPU's of it, its buffers, and the farm
 	program (shader-load (cat *app_root* "kernel.shader"))
 	kernel :nil pal_buf :nil out_buf :nil jobs :nil dirty :nil busy :nil
@@ -115,8 +115,8 @@
 	;the middle of the picture on the grid of its pixels, so a pan moves the
 	;picture by whole pixels, and what was worked out for a pixel is what is
 	;worked out for the one it moved to
-	(defq step (/ (* z +real_2) (n2r +height)))
-	(list (* (n2r (n2i (/ cx step))) step) (* (n2r (n2i (/ cy step))) step) step))
+	(defq step (/ (* z +double_2) (n2d +height)))
+	(list (* (n2d (n2i (/ cx step))) step) (* (n2d (n2i (/ cy step))) step) step))
 
 (defun gpu-frame ()
 	;the picture of the moment, worked out, read back, and shown, and how
@@ -191,48 +191,48 @@
 
 (defun ease (v to dt)
 	;v brought toward to, as far as the ease of this much time has it
-	(+ v (* (- to v) (min +real_1 (* +ease dt)))))
+	(+ v (* (- to v) (min +double_1 (* +ease dt)))))
 
 (defun pointer ()
 	;where the pointer is from the middle of the picture, each -1 to 1 at
 	;its edges, :nil if it is not over it
 	(bind '(mx my &ignore) (gui-info))
 	(bind '(px py &ignore) (. (penv *window*) :get_relative *canvas*))
-	(defq ox (/ (n2r (- mx px (/ +width 2))) (n2r (/ +width 2)))
-		oy (/ (n2r (- my py (/ +height 2))) (n2r (/ +height 2))))
-	(and (<= +real_-1 ox +real_1) (<= +real_-1 oy +real_1) (list ox oy)))
+	(defq ox (/ (n2d (- mx px (/ +width 2))) (n2d (/ +width 2)))
+		oy (/ (n2d (- my py (/ +height 2))) (n2d (/ +height 2))))
+	(and (<= +double_-1 ox +double_1) (<= +double_-1 oy +double_1) (list ox oy)))
 
 (defun near-end (r)
 	;1 more than an octave from an end, r its ratio to it, and down to 0 at it
-	(max +real_0 (min +real_1 (- r +real_1))))
+	(max +double_0 (min +double_1 (- r +double_1))))
 
 (defun pan-speed (o at lo hi)
 	;none in the still part, then up to the rate at the edge. Going toward
 	;an end of where the middle may go, it slows over the last half of a
 	;picture of that end, z the half of a picture, and stops at it
 	(cond
-		((< (abs o) +still) +real_0)
-		((defq v (* (/ (- (abs o) +still) (- +real_1 +still)) +pan_rate))
-			(if (< o +real_0)
-				(* (neg v) (near-end (+ +real_1 (/ (- at lo) (* z +real_1/2)))))
-				(* v (near-end (+ +real_1 (/ (- hi at) (* z +real_1/2)))))))))
+		((< (abs o) +still) +double_0)
+		((defq v (* (/ (- (abs o) +still) (- +double_1 +still)) +pan_rate))
+			(if (< o +double_0)
+				(* (neg v) (near-end (+ +double_1 (/ (- at lo) (* z +double_1/2)))))
+				(* v (near-end (+ +double_1 (/ (- hi at) (* z +double_1/2)))))))))
 
 (defun fly (dt)
 	;the speeds brought on, and the picture moved by them. The zoom comes
 	;to a stop at the end it is going to, slowing in the last octave of it
-	(defq to (cond ((= held 1) +fly_rate) ((or (= held 2) (= held 3)) (neg +fly_rate)) (+real_0)))
+	(defq to (cond ((= held 1) +fly_rate) ((or (= held 2) (= held 3)) (neg +fly_rate)) (+double_0)))
 	(cond
-		((> to +real_0) (setq to (* to (near-end (/ z +z_min)))))
-		((< to +real_0) (setq to (* to (near-end (/ +z_max z))))))
+		((> to +double_0) (setq to (* to (near-end (/ z +z_min)))))
+		((< to +double_0) (setq to (* to (near-end (/ +z_max z))))))
 	(setq zv (ease zv to dt))
 	(defq p (pointer))
-	(setq vx (ease vx (if p (pan-speed (first p) cx +x_min +x_max) +real_0) dt)
-		vy (ease vy (if p (pan-speed (second p) cy +y_min +y_max) +real_0) dt))
+	(setq vx (ease vx (if p (pan-speed (first p) cx +x_min +x_max) +double_0) dt)
+		vy (ease vy (if p (pan-speed (second p) cy +y_min +y_max) +double_0) dt))
 	;the zoom is about the point under the pointer, which stays under it,
 	;or the middle if the pointer is not over the picture: the middle goes
 	;toward that point as the picture gets bigger, away as it gets smaller
-	(defq z1 (max +z_min (min +z_max (* z (pow +real_2 (neg (* zv dt))))))
-		k (- +real_1 (/ z1 z))
+	(defq z1 (max +z_min (min +z_max (* z (pow +double_2 (neg (* zv dt))))))
+		k (- +double_1 (/ z1 z))
 		x1 (+ cx (* vx z dt)) y1 (+ cy (* vy z dt)))
 	(when p
 		(setq x1 (+ x1 (* k (first p) z)) y1 (+ y1 (* k (second p) z))))
@@ -241,11 +241,11 @@
 		(setq z z1 cx x1 cy y1 changed :t)))
 
 (defun home ()
-	(setq cx +home_x cy +home_y z +home_z zv +real_0 vx +real_0 vy +real_0 changed :t))
+	(setq cx +home_x cy +home_y z +home_z zv +double_0 vx +double_0 vy +double_0 changed :t))
 
 (defun tick ()
 	;a frame: the time since the last, the picture moved, and drawn
-	(defq now (pii-time) dt (min (n2r 0.1) (/ (n2r (- now last_t)) (n2r 1000000))))
+	(defq now (pii-time) dt (min (n2d 0.1) (/ (n2d (- now last_t)) (n2d 1000000))))
 	(setq last_t now)
 	(fly dt)
 	(cond

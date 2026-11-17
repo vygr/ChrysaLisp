@@ -186,14 +186,14 @@
 									:stroke
 									0
 									:text
-									"[an object, a :real]"
+									"[an object, a :double]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										37.23535
+										29.50769
 										19.00000
 									)
 								)
@@ -277,14 +277,14 @@
 									:stroke
 									0
 									:text
-									"[vtable of :real]"
+									"[vtable of :double]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										38.21539
+										30.48773
 										19.00000
 									)
 								)

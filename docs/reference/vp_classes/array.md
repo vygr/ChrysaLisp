@@ -14,6 +14,8 @@ docs/reference/vp_classes/array.cwb
 
 ### (clear [idx] array ...) -> array
 
+### (doubles [double ...]) -> doubles
+
 ### (fill array length value) -> array
 
 ### (fixeds [fixed ...]) -> fixeds
@@ -25,8 +27,6 @@ docs/reference/vp_classes/array.cwb
 ### (pop array) -> elem | :nil
 
 ### (push array elem ...) -> array
-
-### (reals [real ...]) -> reals
 
 ### (elem-set array idx elem) -> array
 

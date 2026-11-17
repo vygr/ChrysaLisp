@@ -49,7 +49,7 @@
 		(:fpoly 0.0 0.0 +winding_none_zero
 			(list (path-gen-arc cx cy 0.0 +fp_2pi r (path))))
 		(:fpoly 0.0 0.0 +winding_none_zero
-			(map! (# (defq a (/ (* (n2f (!)) +fp_2pi) 8.0)
+			(map! (# (defq a (/ (* (n2q (!)) +fp_2pi) 8.0)
 						r1 (+ r 5.0) r2 (+ r 13.0)
 						x1 (+ cx (* r1 (cos a))) y1 (+ cy (* r1 (sin a)))
 						x2 (+ cx (* r2 (cos a))) y2 (+ cy (* r2 (sin a))))
@@ -97,7 +97,7 @@
 
 (defun render-weather-icon (canvas code)
 	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
-	(defq cx (* (n2f *canvas_size*) 0.5) cy (* (n2f *canvas_size*) 0.5))
+	(defq cx (* (n2q *canvas_size*) 0.5) cy (* (n2q *canvas_size*) 0.5))
 	(cond
 		; Clear / Sunny
 		((= code 113)

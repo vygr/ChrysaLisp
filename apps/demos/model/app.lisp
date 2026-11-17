@@ -22,19 +22,19 @@
 (enums +select 0
 	(enum main fetch picker timer))
 
-(defq +size 512 +timer_rate (/ 1000000 30) +near +real_1 +far (n2r 20)
+(defq +size 512 +timer_rate (/ 1000000 30) +near +double_1 +far (n2d 20)
 	vertex (shader-load (cat *app_root* "model_vertex.shader"))
 	pixel (shader-load (cat *app_root* "model_lit.shader"))
 	;the light is up, to the left, and round to our side
-	sun (reals (n2r -0.4) (n2r 0.5) (n2r 0.77))
-	lens (mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) +near +far)
+	sun (doubles (n2d -0.4) (n2d 0.5) (n2d 0.77))
+	lens (mat4x4-frustum (n2d -0.5) (n2d 0.5) (n2d 0.5) (n2d -0.5) +near +far)
 	select :nil id :t picker :nil
 	;what a fetch, a task of its own, fetched: each address and its bytes,
 	;read in place of the internet as a model is made of them, and what was
 	;asked for, (name address picture), till it answers
 	*fetched* :nil fetching :nil
 	;how it is turned, how far away, and where the mouse was when pressed
-	yaw (n2r 0.6) pitch (n2r 0.4) away (n2r 3.2) drag :nil
+	yaw (n2d 0.6) pitch (n2d 0.4) away (n2d 3.2) drag :nil
 	;the parts of the model, a material each: (verts tris canvas tint mesh)
 	parts (list) name "" triangles 0
 	;on the GPU, the pair, and is it wanted; here, the pipeline
@@ -171,16 +171,16 @@
 		(each (lambda ((material corners))
 				(defq said (. materials :find material) picture lone
 					;a picture is its colour, at full
-					tint (cond (lone (list +real_1 +real_1 +real_1)) (said (. said :find :colour)) ((list (n2r 0.8) (n2r 0.8) (n2r 0.8)))))
+					tint (cond (lone (list +double_1 +double_1 +double_1)) (said (. said :find :colour)) ((list (n2d 0.8) (n2d 0.8) (n2d 0.8)))))
 				(when (and said (defq file (. said :find :map)))
 					;a picture's name may have a folder of another machine in it
 					(defq file (last (split file (const (char-class "/\\")))))
 					(if (setq picture (model-picture file (fetch file)))
-						(setq tint (list +real_1 +real_1 +real_1))))
+						(setq tint (list +double_1 +double_1 +double_1))))
 				(defq verts (obj-flat obj corners fit) n (/ (length verts) 8))
 				(setq count (+ count (/ n 3)))
 				(push out (list verts (reduce! (# (push %0 (!))) '() (nums) 0 n) (ifn picture (model-plain))
-						(apply (const reals) tint) :nil)))
+						(apply (const doubles) tint) :nil)))
 			(. obj :find :groups))
 		(when (nempty? out)
 			;what the GPU kept of the last is let go of
@@ -217,7 +217,7 @@
 
 (defun model-matrix ()
 	;how the model is turned, and it is away down the view
-	(mat4x4-mul (mat4x4-translate +real_0 +real_0 (neg away))
+	(mat4x4-mul (mat4x4-translate +double_0 +double_0 (neg away))
 		(mat4x4-mul (mat4x4-rotx pitch) (mat4x4-roty yaw))))
 
 (defun draw-gpu (vvals)
@@ -301,14 +301,14 @@
 							((fetch-start pick address picture))))
 					((= (getf msg +ev_msg_type) +ev_type_wheel)
 						;nearer or further
-						(setq away (max (n2r 1.5) (min (n2r 12) (+ away (* (n2r 0.2) (n2r (getf msg +ev_msg_wheel_y))))))))
+						(setq away (max (n2d 1.5) (min (n2d 12) (+ away (* (n2d 0.2) (n2d (getf msg +ev_msg_wheel_y))))))))
 					((and (= id (. *canvas* :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse))
 						;a drag turns it, across about the up, down about the side
 						(defq mx (getf msg +ev_msg_mouse_rx) my (getf msg +ev_msg_mouse_ry))
 						(cond
 							((= (getf msg +ev_msg_mouse_buttons) 0) (setq drag :nil))
-							(drag (setq yaw (+ yaw (* (n2r 0.01) (n2r (- mx (first drag)))))
-									pitch (max (n2r -1.5) (min (n2r 1.5) (+ pitch (* (n2r 0.01) (n2r (- my (second drag)))))))
+							(drag (setq yaw (+ yaw (* (n2d 0.01) (n2d (- mx (first drag)))))
+									pitch (max (n2d -1.5) (min (n2d 1.5) (+ pitch (* (n2d 0.01) (n2d (- my (second drag)))))))
 									drag (list mx my)))
 							((setq drag (list mx my)))))
 					((. *window* :event msg))))

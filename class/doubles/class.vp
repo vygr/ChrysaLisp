@@ -2,28 +2,28 @@
 (include "./class.inc")
 (include "././list/class.inc")
 
-(gen-create :reals)
+(gen-create :doubles)
 	;outputs
-	;:r0 = 0 if error, else reals object (ptr)
+	;:r0 = 0 if error, else doubles object (ptr)
 	;trashes
 	;:r0-:r2, :d0-:d15
-(gen-vtable :reals)
-(gen-type :reals)
+(gen-vtable :doubles)
+(gen-type :doubles)
 	;inputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
 	;:r1-:r3, :d0-:d15
 
-(def-method :reals :add)
+(def-method :doubles :add)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source1 reals object, can be same (ptr)
-	;:r2 = source2 reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source1 doubles object, can be same (ptr)
+	;:r2 = source2 doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r5, :d0-:d1
@@ -31,24 +31,24 @@
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-ddef (e0 e1))
 
-	(entry :reals :add `(,dst ,src1 ,src2))
+	(entry :doubles :add `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-add-dd %1 %0) %0))
 
-	(exit :reals :add `(,dst -1))
+	(exit :doubles :add `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :sub)
+(def-method :doubles :sub)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source1 reals object, can be same (ptr)
-	;:r2 = source2 reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source1 doubles object, can be same (ptr)
+	;:r2 = source2 doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r5, :d0-:d1
@@ -56,24 +56,24 @@
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-ddef (e0 e1))
 
-	(entry :reals :sub `(,dst ,src1 ,src2))
+	(entry :doubles :sub `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-sub-dd %1 %0) %0))
 
-	(exit :reals :sub `(,dst -1))
+	(exit :doubles :sub `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :min)
+(def-method :doubles :min)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source1 reals object, can be same (ptr)
-	;:r2 = source2 reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source1 doubles object, can be same (ptr)
+	;:r2 = source2 doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r5, :d0-:d1
@@ -81,24 +81,24 @@
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-ddef (e0 e1))
 
-	(entry :reals :min `(,dst ,src1 ,src2))
+	(entry :doubles :min `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-min-dd %1 %0) %0))
 
-	(exit :reals :min `(,dst -1))
+	(exit :doubles :min `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :max)
+(def-method :doubles :max)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source1 reals object, can be same (ptr)
-	;:r2 = source2 reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source1 doubles object, can be same (ptr)
+	;:r2 = source2 doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r5, :d0-:d1
@@ -106,24 +106,24 @@
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-ddef (e0 e1))
 
-	(entry :reals :max `(,dst ,src1 ,src2))
+	(entry :doubles :max `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-max-dd %1 %0) %0))
 
-	(exit :reals :max `(,dst -1))
+	(exit :doubles :max `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :mul)
+(def-method :doubles :mul)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source1 reals object, can be same (ptr)
-	;:r2 = source2 reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source1 doubles object, can be same (ptr)
+	;:r2 = source2 doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r5, :d0-:d1
@@ -131,24 +131,24 @@
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-ddef (e0 e1))
 
-	(entry :reals :mul `(,dst ,src1 ,src2))
+	(entry :doubles :mul `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-mul-dd %1 %0) %0))
 
-	(exit :reals :mul `(,dst -1))
+	(exit :doubles :mul `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :div)
+(def-method :doubles :div)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source1 reals object, can be same (ptr)
-	;:r2 = source2 reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source1 doubles object, can be same (ptr)
+	;:r2 = source2 doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r5, :d0-:d2
@@ -156,7 +156,7 @@
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-ddef (e0 e1 zero))
 
-	(entry :reals :div `(,dst ,src1 ,src2))
+	(entry :doubles :div `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
@@ -164,21 +164,21 @@
 			(vp-div-dd %1 %0) %0)
 		(#	(vp-cvt-rd idx1 zero)))
 
-	(exit :reals :div `(,dst -1))
+	(exit :doubles :div `(,dst -1))
 	(vp-ret)
 (vp-label 'error)
-	(exit :reals :div `(,dst 0))
+	(exit :doubles :div `(,dst 0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :mod)
+(def-method :doubles :mod)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source1 reals object, can be same (ptr)
-	;:r2 = source2 reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source1 doubles object, can be same (ptr)
+	;:r2 = source2 doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r6, :d0-:d3
@@ -186,7 +186,7 @@
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 trunc))
 	(vp-ddef (e0 e1 ftrunc zero))
 
-	(entry :reals :mod `(,dst ,src1 ,src2))
+	(entry :doubles :mod `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
@@ -200,27 +200,27 @@
 			%0)
 		(#	(vp-cvt-rd idx1 zero)))
 
-	(exit :reals :mod `(,dst -1))
+	(exit :doubles :mod `(,dst -1))
 	(vp-ret)
 (vp-label 'error)
-	(exit :reals :mod `(,dst 0))
+	(exit :doubles :mod `(,dst 0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :frac)
+(def-method :doubles :frac)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;trashes
 	;:r1-:r5, :d0-:d3
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-ddef (e0 ftrunc one zero))
 
-	(entry :reals :frac `(,dst ,src1))
+	(entry :doubles :frac `(,dst ,src1))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
@@ -235,24 +235,24 @@
 			(vp-cpy-cr 1 trunc)
 			(vp-cvt-rd trunc one)))
 
-	(exit :reals :frac `(,dst))
+	(exit :doubles :frac `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :floor)
+(def-method :doubles :floor)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;trashes
 	;:r1-:r5, :d0-:d2
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-ddef (e0 ftrunc one))
 
-	(entry :reals :floor `(,dst ,src1))
+	(entry :doubles :floor `(,dst ,src1))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
@@ -265,24 +265,24 @@
 		(#	(vp-cpy-cr 1 trunc)
 			(vp-cvt-rd trunc one)))
 
-	(exit :reals :floor `(,dst))
+	(exit :doubles :floor `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :ceil)
+(def-method :doubles :ceil)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;trashes
 	;:r1-:r5, :d0-:d2
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-ddef (e0 ftrunc one))
 
-	(entry :reals :ceil `(,dst ,src1))
+	(entry :doubles :ceil `(,dst ,src1))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
@@ -295,125 +295,125 @@
 		(#	(vp-cpy-cr 1 trunc)
 			(vp-cvt-rd trunc one)))
 
-	(exit :reals :ceil `(,dst))
+	(exit :doubles :ceil `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :abs)
+(def-method :doubles :abs)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = source doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;trashes
 	;:r1-:r4, :d0
 
 	(vp-rdef (dst src1 dst1 idx1 idx2))
 	(vp-ddef (e0))
 
-	(entry :reals :abs `(,dst ,src1))
+	(entry :doubles :abs `(,dst ,src1))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-abs-dd %0 %0) %0))
 
-	(exit :reals :abs `(,dst))
+	(exit :doubles :abs `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :scale)
+(def-method :doubles :scale)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = source reals object, can be same (ptr)
-	;:r2 = scale (real)
+	;:r0 = doubles object (ptr)
+	;:r1 = source doubles object, can be same (ptr)
+	;:r2 = scale (double)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;trashes
 	;:r1-:r4, :d0-:d1
 
 	(vp-rdef (dst src1 dst1 idx1 idx2))
 	(vp-ddef (e0 scale))
 
-	(entry :reals :scale `(,dst ,src1 ,scale))
+	(entry :doubles :scale `(,dst ,src1 ,scale))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-mul-dd scale %0) %0))
 
-	(exit :reals :scale `(,dst))
+	(exit :doubles :scale `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :sum)
+(def-method :doubles :sum)
 	;inputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
-	;:r1 = sum (real)
+	;:r0 = doubles object (ptr)
+	;:r1 = sum (double)
 	;trashes
 	;:r1-:r3, :d0-:d1
 
 	(vp-rdef (this src1 src_end tmp))
 	(vp-ddef (sum e0))
 
-	(entry :reals :sum `(,this))
+	(entry :doubles :sum `(,this))
 
 	(vec-reduce (list this) (list e0) (list src1) src_end
 		(# (vp-add-dd %0 sum))
 		(# (vp-cpy-cr 0 tmp)
 			(vp-cvt-rd tmp sum)))
 
-	(exit :reals :sum `(,this ,sum))
+	(exit :doubles :sum `(,this ,sum))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :dot)
+(def-method :doubles :dot)
 	;inputs
-	;:r0 = reals object (ptr)
-	;:r1 = reals object, can be same (ptr)
+	;:r0 = doubles object (ptr)
+	;:r1 = doubles object, can be same (ptr)
 	;outputs
-	;:r0 = reals object (ptr)
-	;:r1 = dot product (real)
+	;:r0 = doubles object (ptr)
+	;:r1 = dot product (double)
 	;trashes
 	;:r1-:r4, :d0-:d2
 
 	(vp-rdef (this src2 src1 idx1 idx2))
 	(vp-ddef (dot e0 e1))
 
-	(entry :reals :dot `(,this ,src2))
+	(entry :doubles :dot `(,this ,src2))
 
 	(vec-reduce-idx (list this src2) (list e0 e1) (list src1 src2) (list idx1 idx2)
 		(# (vp-mul-dd %0 %1) (vp-add-dd %1 dot))
 		(# (vp-cvt-rd idx1 dot)))
 
-	(exit :reals :dot `(,this ,dot))
+	(exit :doubles :dot `(,this ,dot))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :quant)
+(def-method :doubles :quant)
 	;inputs
-	;:r0 = reals object (dst)
-	;:r1 = source reals object (src)
-	;:r2 = tolerance real (real)
+	;:r0 = doubles object (dst)
+	;:r1 = source doubles object (src)
+	;:r2 = tolerance double (double)
 	;outputs
-	;:r0 = reals object (ptr)
+	;:r0 = doubles object (ptr)
 	;trashes
 	;:r1-:r4, :d0-:d4
 
 	(vp-rdef (dst src1 dst1 src_end trunc))
 	(vp-ddef (e0 tol half one ftrunc))
 
-	(entry :reals :quant `(,dst ,src1 ,tol))
+	(entry :doubles :quant `(,dst ,src1 ,tol))
 
 	; Load constants
 	(vp-lea-pr 'fn_consts trunc)
 	(load-fields trunc
-		(fn-consts (n2r 0.5) (n2r 1.0))
+		(fn-consts (n2d 0.5) (n2d 1.0))
 		`(,half ,one))
 
 	(assign `((,src1 +array_length)) `(,src_end))
@@ -432,25 +432,25 @@
 			(vp-mul-dd tol ftrunc)
 			ftrunc))
 
-	(exit :reals :quant `(,dst))
+	(exit :doubles :quant `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :mat4x4_mul)
+(def-method :doubles :mat4x4_mul)
 	;inputs
-	;:r0 = output reals object (ptr)
-	;:r1 = ma reals object (ptr)
-	;:r2 = mb reals object (ptr)
+	;:r0 = output doubles object (ptr)
+	;:r1 = ma doubles object (ptr)
+	;:r2 = mb doubles object (ptr)
 	;outputs
-	;:r0 = output reals object (ptr)
+	;:r0 = output doubles object (ptr)
 	;trashes
 	;:r1-:r3, :d0-:d12
 
 	(vp-rdef (this ptr_a ptr_b ptr_o))
 	(vp-ddef (o0 o1 o2 o3 o4 o5 o6 o7 t0 t1 t2 t3 s0))
 
-	(entry :reals :mat4x4_mul `(,this ,ptr_a ,ptr_b))
+	(entry :doubles :mat4x4_mul `(,this ,ptr_a ,ptr_b))
 
 	(vp-simd vp-load-rcr `(,ptr_a ,ptr_b ,this) `(,+array_begin) `(,ptr_a ,ptr_b ,ptr_o))
 	; batch 1
@@ -560,25 +560,25 @@
 	(vp-simd vp-store-drc `(,o4 ,o5 ,o6 ,o7) `(,ptr_o)
 		`(,(* 12 +long_size) ,(* 13 +long_size) ,(* 14 +long_size) ,(* 15 +long_size)))
 
-	(exit :reals :mat4x4_mul `(,this))
+	(exit :doubles :mat4x4_mul `(,this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :mat4x4_v4_mul)
+(def-method :doubles :mat4x4_v4_mul)
 	;inputs
-	;:r0 = output reals object (ptr)
-	;:r1 = matrix ma reals object (ptr)
-	;:r2 = vector reals object (ptr)
+	;:r0 = output doubles object (ptr)
+	;:r1 = matrix ma doubles object (ptr)
+	;:r2 = vector doubles object (ptr)
 	;outputs
-	;:r0 = output reals object (ptr)
+	;:r0 = output doubles object (ptr)
 	;trashes
 	;:r1-:r4, :d0-:d15
 
 	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ve))
 	(vp-ddef (m0 m1 m2 m3 m4 m5 m6 m7 v0 v1 v2 v3 t0 t1 t2 t3))
 
-	(entry :reals :mat4x4_v4_mul `(,this ,ptr_a ,ptr_v))
+	(entry :doubles :mat4x4_v4_mul `(,this ,ptr_a ,ptr_v))
 
 	(assign `((,ptr_v +array_length)) `(,ptr_ve))
 	(vp-simd vp-load-rcr `(,ptr_a ,ptr_v ,this) `(,+array_begin) `(,ptr_a ,ptr_v ,ptr_o))
@@ -633,25 +633,25 @@
 		(vp-simd vp-add-cr `(,(* 4 +long_size)) `(,ptr_v ,ptr_o))
 	(loop-until `(,ptr_v >= ,ptr_ve))
 
-	(exit :reals :mat4x4_v4_mul `(,this))
+	(exit :doubles :mat4x4_v4_mul `(,this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :reals :mat4x4_v3_mul)
+(def-method :doubles :mat4x4_v3_mul)
 	;inputs
-	;:r0 = output reals object (ptr)
-	;:r1 = matrix ma reals object (ptr)
-	;:r2 = vector reals object (ptr)
+	;:r0 = output doubles object (ptr)
+	;:r1 = matrix ma doubles object (ptr)
+	;:r2 = vector doubles object (ptr)
 	;outputs
-	;:r0 = output reals object (ptr)
+	;:r0 = output doubles object (ptr)
 	;trashes
 	;:r1-:r4, :d0-:d14
 
 	(vp-rdef (this ptr_a ptr_v ptr_o ptr_ve))
 	(vp-ddef (m0 m1 m2 m3 m4 m5 m6 m7 m8 v0 v1 v2 t0 t1 t2))
 
-	(entry :reals :mat4x4_v3_mul `(,this ,ptr_a ,ptr_v))
+	(entry :doubles :mat4x4_v3_mul `(,this ,ptr_a ,ptr_v))
 
 	(assign `((,ptr_v +array_length)) `(,ptr_ve))
 	(vp-simd vp-load-rcr `(,ptr_a ,ptr_v ,this) `(,+array_begin) `(,ptr_a ,ptr_v ,ptr_o))
@@ -693,7 +693,7 @@
 		(vp-simd vp-add-cr `(,(* 3 +long_size)) `(,ptr_v ,ptr_o))
 	(loop-until `(,ptr_v >= ,ptr_ve))
 
-	(exit :reals :mat4x4_v3_mul `(,this))
+	(exit :doubles :mat4x4_v3_mul `(,this))
 	(vp-ret)
 
 (def-func-end)

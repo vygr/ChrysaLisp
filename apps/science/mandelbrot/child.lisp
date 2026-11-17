@@ -8,7 +8,7 @@
 (import "./app.inc")
 
 ;the kernel the GPU runs, kernel.shader, as native code, the VP back end,
-;in reals. It is read from the app's system, by its @Source if this task
+;in doubles. It is read from the app's system, by its @Source if this task
 ;was sent by one, and assembled by the first child on this machine to
 ;want it, :nil if it can not be had
 (defq program :nil native :nil)
@@ -48,7 +48,7 @@
 		buf (str-alloc (* bw bh +int_size)) names (map (const first) (first program))
 		at_ox (* (find 'ox names) 8) at_oy (* (find 'oy names) 8) at_ow (* (find 'ow names) 8)
 		frame (shader-vp-frame program native (list
-				(list 'cx cx) (list 'cy cy) (list 'step (/ (* z +real_2) (n2r h)))
+				(list 'cx cx) (list 'cy cy) (list 'step (/ (* z +double_2) (n2d h)))
 				(list 'w w) (list 'h h) (list 'top top) (list 'base +mandel_pal_base)
 				(list 'rate +mandel_pal_rate) (list 'lbase +mandel_light_base)
 				(list 'lgain +mandel_light_gain) (list 'ss +mandel_samples)))

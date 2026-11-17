@@ -15,7 +15,7 @@
 	;the board drawn here, by one task, as the nodes are to draw it
 	(defq canvas (Canvas w h 1) doc (. board :get_doc))
 	(. canvas :set_canvas_flags +canvas_flag_antialias)
-	(cwb-paper canvas w h (. doc :find :background) style (max 2 (n2i (* (n2f (. doc :find :grid)) zoom))))
+	(cwb-paper canvas w h (. doc :find :background) style (max 2 (n2i (* (n2q (. doc :find :grid)) zoom))))
 	(. board :draw canvas (if (= zoom 1.0) :nil (mat3x2-scale zoom)))
 	(st-bytes canvas))
 

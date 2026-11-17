@@ -6,7 +6,7 @@
 
 (defq doc (cwb-doc 3200 2400) count 6000 cx 1600.0 cy 1200.0)
 (. doc :insert :style :plain)
-(each! (lambda () (defq a (* (n2f (!)) 0.0523) r (+ 40.0 (* (n2f (!)) 0.19))
+(each! (lambda () (defq a (* (n2q (!)) 0.0523) r (+ 40.0 (* (n2q (!)) 0.19))
 			x (n2i (+ cx (* r (cos a)))) y (n2i (+ cy (* r (sin a))))
 			h (% (* (!) 7) 360) col (+ 0xff000000 (cond
 					((< h 60) (+ 0xff0000 (* (/ (* h 255) 60) 0x100)))

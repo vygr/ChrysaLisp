@@ -534,7 +534,7 @@
 			(defq frames (. video :find :samples))
 			(scatter reel :frames frames :width (. video :find :width) :height (. video :find :height)
 				:codec (. video :find :codec) :fourcc (. video :find :fourcc)
-				:rate (/ (n2f (. video :find :rate)) (n2f (. video :find :scale)))
+				:rate (/ (n2q (. video :find :rate)) (n2q (. video :find :scale)))
 				:offsets (. video :find :offsets) :lengths (. video :find :sizes)
 				:keys (. video :find :keys) :times (. video :find :times) :shown (. video :find :shown)
 				:video video :start 0 :delay 0 :reordered (. video :find :reordered)))

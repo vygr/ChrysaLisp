@@ -111,16 +111,16 @@
 (assert-eq "a str mailed on the one node is the str itself" 5 (get-long tr_sent 0))
 
 (assert-error "an integer and a fixed do not add" (+ 1 1.5))
-(assert-error "a real and a fixed do not add" (+ (n2r 1.5) 1.5))
+(assert-error "a double and a fixed do not add" (+ (n2d 1.5) 1.5))
 (assert-true "an integer is not equal to a fixed of the same worth" (not (= 1 1.0)))
-(assert-eq "changed to a fixed it adds" 2.5 (+ (n2f 1) 1.5))
+(assert-eq "changed to a fixed it adds" 2.5 (+ (n2q 1) 1.5))
 (assert-eq "a fixed is cut as it is read" "0.00099" (str 0.001))
-(assert-true "a real is a real, a fixed and a num"
-	(and (real? (n2r 1.5)) (fixed? (n2r 1.5)) (num? (n2r 1.5))))
-(assert-true "a fixed is not a real" (not (real? 1.5)))
+(assert-true "a double is a double, a fixed and a num"
+	(and (double? (n2d 1.5)) (fixed? (n2d 1.5)) (num? (n2d 1.5))))
+(assert-true "a fixed is not a double" (not (double? 1.5)))
 (assert-eq "num? of a num is 0, which is true" 0 (num? 3))
-(assert-list-eq "a type is the chain of classes, its own last" '(:num :fixed :real) (type-of (n2r 1.5)))
-(assert-true "a predicate with one ? is true of a class built on its own" (and (num? (n2r 1.5)) (fixed? (n2r 1.5))))
+(assert-list-eq "a type is the chain of classes, its own last" '(:num :fixed :double) (type-of (n2d 1.5)))
+(assert-true "a predicate with one ? is true of a class built on its own" (and (num? (n2d 1.5)) (fixed? (n2d 1.5))))
 (assert-true "so a map is a list" (list? (Fmap 1)))
 (assert-eq "a predicate with two asks if it is that class itself" :t (list?? (list)))
 (assert-eq "and a map is not" :nil (list?? (Fmap 1)))

@@ -37,7 +37,7 @@
 
 (defun scene-angle ()
 	;the scene turns with the clock, not with how fast it is drawn
-	(/ (n2f (/ (- (pii-time) start_time) 1000)) 4000.0))
+	(/ (n2q (/ (- (pii-time) start_time) 1000)) 4000.0))
 
 (defun frame-done (how)
 	;the frame is whole, show it and say how long it took

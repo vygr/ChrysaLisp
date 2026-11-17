@@ -11,7 +11,7 @@
 	;a picture of one pixel, with no width and one point, is the point
 	(defq out (str-alloc 4))
 	(shader-vp-run mb_program mb_native
-		(shader-vp-frame mb_program mb_native (list (list 'cx (n2r x)) (list 'cy (n2r y))
+		(shader-vp-frame mb_program mb_native (list (list 'cx (n2d x)) (list 'cy (n2d y))
 				'(step 0.0) '(w 1) '(h 1) '(ow 1) (list 'top (ifn top 256)) '(ss 1)))
 		0 1 (list mb_pal out))
 	(get-uint out 0))
@@ -44,7 +44,7 @@
 ;the depth has no steps in it, two points close by are close in colour,
 ;from near the edge to far off
 (assert-true "the colour has no steps in it"
-	(some! (lambda () (defq x (+ 0.4 (* (n2f (!)) 0.002)))
+	(some! (lambda () (defq x (+ 0.4 (* (n2q (!)) 0.002)))
 			(< (mb-far (mb-at x 0.5) (mb-at (+ x 0.002) 0.5)) 8)) '() :t 0 400))
 
 ;more turns find more of the outside

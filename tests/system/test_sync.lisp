@@ -48,15 +48,15 @@
 	(sync-safe? "a\\b") :nil)
 
 ;under the root as the host has it. A folder on the way has to be a folder
-(save "x" "tests/scratch/sync_fence/real/file.txt")
+(save "x" "tests/scratch/sync_fence/double/file.txt")
 (test-cases
-	(sync-inside? "tests/scratch/sync_fence" "real/file.txt") :t
-	(sync-inside? "tests/scratch/sync_fence" "real/new.txt") :t
+	(sync-inside? "tests/scratch/sync_fence" "double/file.txt") :t
+	(sync-inside? "tests/scratch/sync_fence" "double/new.txt") :t
 	(sync-inside? "tests/scratch/sync_fence" "not/there/yet.txt") :t
-	(sync-inside? "tests/scratch/sync_fence" "real") :nil
-	(sync-inside? "tests/scratch/sync_fence" "real/file.txt/below.txt") :nil
-	(sync-inside? "tests/scratch/sync_fence" "real/file.txt" (Fset 3)) :t)
-(pii-remove "tests/scratch/sync_fence/real/file.txt")
+	(sync-inside? "tests/scratch/sync_fence" "double") :nil
+	(sync-inside? "tests/scratch/sync_fence" "double/file.txt/below.txt") :nil
+	(sync-inside? "tests/scratch/sync_fence" "double/file.txt" (Fset 3)) :t)
+(pii-remove "tests/scratch/sync_fence/double/file.txt")
 
 ;a tree, a service with a root of its own, and a push from one to the other
 (defq sy_src "tests/scratch/sync_src" sy_dst "tests/scratch/sync_dst" sy_name "*SyncTest"

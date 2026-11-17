@@ -203,21 +203,21 @@
 		h (logand (* (logxor h (>> h 15)) 0x2C1B3C6D) 0xffffffff)
 		h (logand (* (logxor h (>> h 12)) 0x297A2D39) 0xffffffff)
 		turns (+ (* angle speed (const (/ 1.0 +fp_2pi)))
-			(/ (n2f (logand (logxor h (>> h 15)) 4095)) 4096.0))
-		part (- turns (n2f (n2i turns))))
+			(/ (n2q (logand (logxor h (>> h 15)) 4095)) 4096.0))
+		part (- turns (n2q (n2i turns))))
 	(- (* 4.0 (abs (- part 0.5))) 1.0))
 
 (defun shape-x (angle i)
 	; (shape-x angle i) -> x
 	;where across the scene shape i is
-	(+ (const (* (n2f +scene_width) 0.5)) (* (const (* (n2f +scene_width) 0.5 0.92))
-			(shape-sway angle (+ 0.50 (* 0.37 (n2f (% i 5)))) i 0x9E3779B1))))
+	(+ (const (* (n2q +scene_width) 0.5)) (* (const (* (n2q +scene_width) 0.5 0.92))
+			(shape-sway angle (+ 0.50 (* 0.37 (n2q (% i 5)))) i 0x9E3779B1))))
 
 (defun shape-y (angle i)
 	; (shape-y angle i) -> y
 	;and where down it
-	(+ (const (* (n2f +scene_height) 0.5)) (* (const (* (n2f +scene_height) 0.5 0.90))
-			(shape-sway angle (+ 0.40 (* 0.29 (n2f (% i 7)))) i 0x85EBCA6B))))
+	(+ (const (* (n2q +scene_height) 0.5)) (* (const (* (n2q +scene_height) 0.5 0.90))
+			(shape-sway angle (+ 0.40 (* 0.29 (n2q (% i 7)))) i 0x85EBCA6B))))
 
 (defun scene-draw (canvas angle count y y1)
 	; (scene-draw canvas angle count y y1) -> drawn
@@ -225,7 +225,7 @@
 	;drawn is the result. A shape that does not reach the rows is not
 	;turned, placed or drawn, nor stroked if it is a live one, and the clip
 	;of the canvas cuts those that do to the rows.
-	(defq fy (n2f y) fy1 (n2f y1) drawn 0)
+	(defq fy (n2q y) fy1 (n2q y1) drawn 0)
 	(.-> canvas (:set_clip 0 y +scene_width y1)
 		(:set_color 0xff141c28) (:fbox 0 y +scene_width (- y1 y)))
 	(each! (lambda () (defq i (!)) (bind '(winding body body_col core core_col radius live)
@@ -233,13 +233,13 @@
 			;every shape has a way of its own, from its number
 			;the broad phase, how far down it is and how far it reaches is all
 			;that is worked out for a shape that is not in these rows
-			(defq fi (n2f i)
+			(defq fi (n2q i)
 				scale (+ 0.20 (* 0.09 (sin (+ (* angle 2.3) (* fi 0.91)))))
 				ty (shape-y angle i)
 				reach (+ (* radius scale) 8.0))
 			(when (and (> (+ ty reach) fy) (< (- ty reach) fy1))
 				(defq tx (shape-x angle i)
-					rot (* angle (if (= (logand i 1) 0) 1.0 -1.3) (+ 1.0 (* 0.4 (n2f (% i 3))))))
+					rot (* angle (if (= (logand i 1) 0) 1.0 -1.3) (+ 1.0 (* 0.4 (n2q (% i 3))))))
 				;only now is a live shape bent and stroked
 				(if live (setq body (live angle fi)))
 				(.-> canvas (:set_color 0x48000000)

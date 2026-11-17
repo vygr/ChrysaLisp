@@ -12,9 +12,13 @@ docs/reference/vp_classes/fixed.cwb
 
 ### (cos fixed) -> fixed
 
+### (exp fixed) -> fixed
+
 ### (floor fixed) -> fixed
 
 ### (frac fixed) -> fixed
+
+### (log fixed) -> fixed
 
 ### (recip fixed) -> fixed
 
@@ -67,6 +71,17 @@ trashes
 :r0-:r5, :r14, :d0-:d15
 ```
 
+### :exp -> class/fixed/exp
+
+```code
+inputs
+:r0 = fixed object (ptr)
+outputs
+:r0 = result fixed object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
 ### :floor -> class/fixed/floor
 
 ```code
@@ -79,6 +94,17 @@ trashes
 ```
 
 ### :frac -> class/fixed/frac
+
+```code
+inputs
+:r0 = fixed object (ptr)
+outputs
+:r0 = result fixed object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
+### :log -> class/fixed/log
 
 ```code
 inputs
@@ -124,7 +150,7 @@ outputs
 trashes
 :r0-:r2, :r14, :d0-:d15
 info
-0 if the number is not greater than 0, :sys_math :r_pow
+0 if the number is not greater than 0, :sys_math :d_pow
 ```
 
 ### :print -> class/fixed/print

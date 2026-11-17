@@ -24,7 +24,7 @@
 	;(place item) of each item with any part in it, place its place in
 	;the layer, and none a :nil for each item of the layer. An item that
 	;draws nothing is in no band
-	(defq count (inc (n2i (/ (n2f (. doc :find :height)) +band))))
+	(defq count (inc (n2i (/ (n2q (. doc :find :height)) +band))))
 	(map (lambda ((name flags layer_items))
 			(defq rows (map! (lambda () (list)) '() 0 count))
 			(each (lambda (item)
@@ -88,7 +88,7 @@
 				;document those rows show is the box round them taken back
 				;by the matrix, moved, zoomed and turned, its bands' items
 				(defq m (fixeds a b tx c d ty)
-					clip (list 0.0 (n2f (dec y)) (n2f width) (n2f (inc y1)))
+					clip (list 0.0 (n2q (dec y)) (n2q width) (n2q (inc y1)))
 					seen (mat3x2-box clip (mat3x2-invert m)))
 				(reduce (lambda (count (flags rows none))
 						(if (bits? flags 1) count

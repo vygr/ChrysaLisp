@@ -232,7 +232,7 @@ Here the paragraph reflow action mutations can be undone in a single step.
 
 You can write source code that allows easy switching of types by using macros
 to abstract them. The Bubbles application uses this idea to allow selection
-between fixed point and real number types.
+between fixed point and double number types.
 
 Here is a section of the `apps/demos/bubbles/app.inc` file:
 

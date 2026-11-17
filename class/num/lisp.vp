@@ -1,5 +1,5 @@
 (include "lib/asm/func.inc")
-(include "././real/class.inc")
+(include "././double/class.inc")
 (include "././lisp/class.inc")
 
 (def-method :num :lisp_num)
@@ -549,7 +549,7 @@
 	;trashes
 	;:r1-:r6, :r12-:r14, :d0-:d15
 	;info
-	;a number to a power of its own type, integer, fixed or real
+	;a number to a power of its own type, integer, fixed or double
 
 	(entry :num :lisp_pow '(:r0 :r1))
 
@@ -591,7 +591,7 @@
 
 	(assign `(,this) `(,saved_this))
 	(array-bind-args args `(,args))
-	(assign `((,args +obj_vtable) (@ ,(f-path :real :vtable))) `(,vt1 ,vt2))
+	(assign `((,args +obj_vtable) (@ ,(f-path :double :vtable))) `(,vt1 ,vt2))
 	(switch)
 	(vpcase `(,vt1 = ,vt2))
 		(assign `((,args +num_value)) '(:d0))
@@ -617,7 +617,7 @@
 
 (def-func-end)
 
-(def-method :num :lisp_n2f)
+(def-method :num :lisp_n2q)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -630,18 +630,18 @@
 	(vp-rdef (this args vt1 vt2 saved_this))
 	(defq in (method-input :fixed :create))
 
-	(entry :num :lisp_n2f `(,this ,args))
+	(entry :num :lisp_n2q `(,this ,args))
 
 	(gotoif-lisp-args-sig 'error args 1)
 
 	(assign `(,this) `(,saved_this))
 	(array-bind-args args `(,args))
-	(assign `((,args +obj_vtable) (@ ,(f-path :real :vtable))) `(,vt1 ,vt2))
+	(assign `((,args +obj_vtable) (@ ,(f-path :double :vtable))) `(,vt1 ,vt2))
 	(switch)
 	(vpcase `(,vt1 = ,vt2))
 		(assign `((,args +num_value)) '(:d0))
 		(vp-lea-pr 'fn_consts args)
-		(assign `((,args (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+		(assign `((,args (fn-const (n2d (<< 1 +fp_shift))))) '(:d1))
 		(vp-mul-dd :d1 :d0)
 		(vp-cvt-dr :d0 (first in))
 		(goto 'new_fixed)
@@ -656,16 +656,16 @@
 		(call :fixed :create in `(,args))
 	(endswitch)
 
-	(exit :num :lisp_n2f `(,saved_this ,args))
+	(exit :num :lisp_n2q `(,saved_this ,args))
 	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(n2f num)" +error_msg_wrong_types))
+	(jump :lisp :repl_error `(,args "(n2q num)" +error_msg_wrong_types))
 	(signature '(:num))
 
 (def-func-end)
 
-(def-method :num :lisp_n2r)
+(def-method :num :lisp_n2d)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -677,13 +677,13 @@
 
 	(vp-rdef (this args vt1 vt2 saved_this))
 
-	(entry :num :lisp_n2r `(,this ,args))
+	(entry :num :lisp_n2d `(,this ,args))
 
 	(gotoif-lisp-args-sig 'error args 1)
 
 	(assign `(,this) `(,saved_this))
 	(array-bind-args args `(,args))
-	(assign `((,args +obj_vtable) (@ ,(f-path :real :vtable))) `(,vt1 ,vt2))
+	(assign `((,args +obj_vtable) (@ ,(f-path :double :vtable))) `(,vt1 ,vt2))
 	(switch)
 	(vpcase `(,vt1 = ,vt2))
 		(class/obj/ref args vt1)
@@ -692,22 +692,22 @@
 		(nextcaseif `(,vt1 /= ,vt2))
 		(assign `((,args +num_value)) `(,vt1))
 		(vp-lea-pr 'fn_consts args)
-		(assign `((,args (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d1))
+		(assign `((,args (fn-const (recip (n2d (<< 1 +fp_shift)))))) '(:d1))
 		(vp-cvt-rd vt1 :d0)
 		(vp-mul-dd :d1 :d0)
-		(goto 'new_real)
+		(goto 'new_double)
 	(default)
 		(assign `((,args +num_value)) `(,args))
 		(vp-cvt-rd args :d0)
-	(vp-label 'new_real)
-		(call :real :create '(:d0) `(,args))
+	(vp-label 'new_double)
+		(call :double :create '(:d0) `(,args))
 	(endswitch)
 
-	(exit :num :lisp_n2r `(,saved_this ,args))
+	(exit :num :lisp_n2d `(,saved_this ,args))
 	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(n2r num)" +error_msg_wrong_types))
+	(jump :lisp :repl_error `(,args "(n2d num)" +error_msg_wrong_types))
 	(signature '(:num))
 
 (def-func-end)

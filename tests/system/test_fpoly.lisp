@@ -120,17 +120,17 @@
 
 (defq fp_text "The quick brown fox jumps over the lazy dog, 0123456789 times; (WAVE) %$#@!"
 	fp_bounds (font-glyph-bounds fp_font fp_text) fp_glyphs (font-glyph-paths fp_font fp_text)
-	fp_boxes (map! (lambda () (defq x (n2f (fp-rnd 380)) y (n2f (fp-rnd 180)) w (n2f (+ 3 (fp-rnd 60))) h (n2f (+ 3 (fp-rnd 60))))
+	fp_boxes (map! (lambda () (defq x (n2q (fp-rnd 380)) y (n2q (fp-rnd 180)) w (n2q (+ 3 (fp-rnd 60))) h (n2q (+ 3 (fp-rnd 60))))
 			(if (= 0 (fp-rnd 2))
 				(path x y (+ x w) y (+ x w) (+ y h) x (+ y h))
 				(path x y x (+ y h) (+ x w) (+ y h) (+ x w) y))) '() 0 300)
 	fp_lines (path-stroke-polylines (list) 1.5 +join_bevel +cap_butt +cap_butt
-		(map! (lambda () (path (n2f (fp-rnd 400)) (n2f (fp-rnd 200)) (n2f (fp-rnd 400)) (n2f (fp-rnd 200)))) '() 0 120)))
+		(map! (lambda () (path (n2q (fp-rnd 400)) (n2q (fp-rnd 200)) (n2q (fp-rnd 400)) (n2q (fp-rnd 200)))) '() 0 120)))
 
 (each (lambda (flags)
 		(each (lambda (mode)
 				(defq what (cat (if (= flags 0) "hard" "soft") " edges, " (if (eql mode +winding_odd_even) "odd even" "non zero") ": ")
-					h (second fp_bounds) y (n2f h)
+					h (second fp_bounds) y (n2q h)
 					want (fp-hash (first fp_bounds) h flags mode y fp_glyphs))
 				(assert-eq (cat what "a line of text is the same with its glyphs right to left")
 					want (fp-hash (first fp_bounds) h flags mode y (reverse fp_glyphs)))
@@ -153,7 +153,7 @@
 	fp_bounds (font-glyph-bounds fp_font fp_long) fp_glyphs (font-glyph-paths fp_font fp_long)
 	fp_canvas (Canvas (first fp_bounds) (second fp_bounds) 2))
 (. fp_canvas :set_canvas_flags +canvas_flag_antialias)
-(.-> fp_canvas (:set_color +argb_white) (:fpoly 0.0 (n2f (second fp_bounds)) +winding_none_zero fp_glyphs))
+(.-> fp_canvas (:set_color +argb_white) (:fpoly 0.0 (n2q (second fp_bounds)) +winding_none_zero fp_glyphs))
 
 ;and a Text is asked to draw no more of a line than any screen is wide
 (assert-eq "a Text draws a short line whole" "abc" (text-most "abc"))

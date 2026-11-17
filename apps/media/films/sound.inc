@@ -29,7 +29,7 @@
 	; (sound-avi reel track) -> :nil | sound
 	;the sound of an AVI that is not MP3: its chunks one stream, (avi-track-stream),
 	;cut into packets of a size, each read where it is. PCM of 16 bits and two
-	;channels is written as it is, the rest made reals. AC-3 its frames,
+	;channels is written as it is, the rest made doubles. AC-3 its frames,
 	;each of the size its first says
 	(defq in (avi-track-stream reel track) bytes (stream-seek in 0 2) codec (. track :find :codec)
 		channels (max 1 (. track :find :channels)) align (max 1 (. track :find :block_align))
@@ -49,7 +49,7 @@
 				:make (lambda (sound) sound)
 				:decode (lambda (sound packet)
 					(cond
-						((not packet) (list (defq quiet (fill (reals) 1024 (n2r 0))) quiet))
+						((not packet) (list (defq quiet (fill (doubles) 1024 (n2d 0))) quiet))
 						((and (= (. sound :find :bits) 16) (= (. sound :find :channels) 2)) packet)
 						((adpcm-pcm packet (. sound :find :channels) (. sound :find :bits)))))))
 		((eql codec "adpcm_ms")
@@ -58,13 +58,13 @@
 				:make (lambda (sound) sound)
 				:decode (lambda (sound packet)
 					(if packet (adpcm-ms-block packet (. sound :find :channels) (. sound :find :coefs))
-						(list (defq quiet (fill (reals) (. sound :find :size) (n2r 0))) quiet)))))
+						(list (defq quiet (fill (doubles) (. sound :find :size) (n2d 0))) quiet)))))
 		((eql codec "adpcm_ima")
 			(scatter sound :size (if (> per 0) per (inc (/ (* 2 (- align (* 4 channels))) channels))) :packet align
 				:make (lambda (sound) sound)
 				:decode (lambda (sound packet)
 					(if packet (adpcm-ima-block packet (. sound :find :channels))
-						(list (defq quiet (fill (reals) (. sound :find :size) (n2r 0))) quiet)))))
+						(list (defq quiet (fill (doubles) (. sound :find :size) (n2d 0))) quiet)))))
 		((eql codec "ac-3")
 			(stream-seek in 0 0)
 			(when (defq head (ac3-header (bits-of (ifn (read-blk in 16) ""))))
@@ -125,7 +125,7 @@
 								;a frame not read is heard as nothing
 								:decode (lambda (decoder packet)
 									(defq pcm (if packet (catch (mp3-frame decoder packet) :t)))
-									(if (list? pcm) pcm (list (defq quiet (fill (reals) (. decoder :find :samples) (n2r 0))) quiet))))))
+									(if (list? pcm) pcm (list (defq quiet (fill (doubles) (. decoder :find :samples) (n2d 0))) quiet))))))
 					((eql (. track :find :codec) "flac")
 						;a FLAC's frames as they are heard, lossless, of a FLAC its reel's
 						;packets, of a film's track its own, its metadata the track's setup
@@ -137,7 +137,7 @@
 								:decode (lambda (info packet)
 									(defq got (if packet (catch (flac-frame info packet) :t)))
 									(if (list? got) (flac-pcm info (first got))
-										(list (defq quiet (fill (reals) (. info :find :max_block) (n2r 0))) quiet))))))
+										(list (defq quiet (fill (doubles) (. info :find :max_block) (n2d 0))) quiet))))))
 					((eql (. track :find :codec) "mp4a")
 						(and (defq config (aac-track-config track)) (= (first config) 2)
 							;HE-AAC's SBR at twice the rate of its core, packets of 2048 and
@@ -169,7 +169,7 @@
 		(. sound :insert :handle :nil)))
 
 (defun sound-packet (sound n)
-	;the samples of packet n of the track, a list of reals a channel
+	;the samples of packet n of the track, a list of doubles a channel
 	(defq track (. sound :find :track) stream (. sound :find :stream))
 	((. sound :find :decode) (. sound :find :decoder)
 		(if (. sound :find :read) ((. sound :find :read) sound n)
@@ -188,7 +188,7 @@
 	;than 2^31, 13 hours of 44100 a second, and a book is longer
 	(defq rate (. sound :find :rate) size (. sound :find :size) delay (. sound :find :delay)
 		whole (n2i (max 0.0 time))
-		sample (+ (max 0 (+ (* whole rate) (n2i (* (- time (n2f whole)) (n2f rate))) (. sound :find :start))) delay)
+		sample (+ (max 0 (+ (* whole rate) (n2i (* (- time (n2q whole)) (n2q rate))) (. sound :find :start))) delay)
 		packet (/ sample size))
 	(. sound :insert :decoder ((. sound :find :make) sound))
 	;the packets before it that the decoder needs, none past the track's end
@@ -208,7 +208,7 @@
 	(when (defq handle (. sound :find :handle))
 		(defq rate (. sound :find :rate) packets (. (. sound :find :track) :find :samples)
 			left (ifn (audio-stream-left-rpc handle) 0) written (. sound :find :written)
-			ahead (n2i (* +sound_ahead (n2f rate))) next (. sound :find :next))
+			ahead (n2i (* +sound_ahead (n2q rate))) next (. sound :find :next))
 		(. sound :insert :left left)
 		(while (and (< left ahead) (< next packets))
 			;of PCM of 16 bit stereo, the packet as it is
@@ -247,7 +247,7 @@
 	;a fixed number divided is shifted up first, no more than 2^31 samples,
 	;13 hours of 44100, and a book is longer
 	(defq heard (- (. sound :find :written) (. sound :find :left)) rate (. sound :find :rate))
-	(+ (. sound :find :time) (n2f (/ heard rate)) (/ (n2f (% heard rate)) (n2f rate))))
+	(+ (. sound :find :time) (n2q (/ heard rate)) (/ (n2q (% heard rate)) (n2q rate))))
 
 (defun sound-smooth (sound)
 	; (sound-smooth sound) -> seconds
@@ -261,7 +261,7 @@
 	;yet, and where the two are half a second apart, after a stall
 	(defq now (pii-time) heard (sound-clock sound) time (. sound :find :time)
 		;in ms, a fixed number holds no more than 2^31 of the us of a film
-		smooth (+ time (/ (n2f (/ (- now (. sound :find :anchor)) 1000)) 1000.0)))
+		smooth (+ time (/ (n2q (/ (- now (. sound :find :anchor)) 1000)) 1000.0)))
 	(cond
 		((= (. sound :find :written) 0) time)
 		((> (abs (- smooth heard)) 0.5)

@@ -166,7 +166,7 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
 
 1. **Direct Mapping:**
 
-	* **Numbers (`:num`, `:fixed`, `:real`):** A Lisp number like `123` or `1.5` is
+	* **Numbers (`:num`, `:fixed`, `:double`):** A Lisp number like `123` or `1.5` is
 	  an instance of the `:num` or `:fixed` VP class, respectively. The actual
 	  numeric value is stored in the `value` field (e.g., `num_value`) defined in
 	  their respective `structure`.
@@ -181,7 +181,7 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
 	  unique instances for the same name) using a global hash table, typically
 	  managed within `sys/statics/statics_sym_intern`.
 
-	* **Arrays (`:array` and its typed variants `:nums`, `:fixeds`, `:reals`,
+	* **Arrays (`:array` and its typed variants `:nums`, `:fixeds`, `:doubles`,
 	  `:path`):**
 
 		* A Lisp `(array 1 2 3)` or `(nums 10 20)` is an instance of the `:array` or

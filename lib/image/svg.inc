@@ -31,7 +31,7 @@
 			key (first args)
 			;spaces after the last ) are a transform of no args, the (rest)
 			;check off: of which is (), where a (map!) from 1 is an error
-			vals (map (# (n2f (str-to-num %0))) (rest args))
+			vals (map (# (n2q (str-to-num %0))) (rest args))
 			mb (case key
 				("matrix"
 					(bind '(m00 m01 m10 m11 tx ty) vals)
@@ -60,11 +60,11 @@
 	(case key
 		(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r"
 				"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
-			(n2f (str-to-num val)))
+			(n2q (str-to-num val)))
 		("viewBox"
-			(map (# (n2f (str-to-num %0))) (split val (const (char-class ", ")))))
+			(map (# (n2q (str-to-num %0))) (split val (const (char-class ", ")))))
 		("points"
-			(reduce (# (push %0 (n2f (str-to-num %1)))) (split val (const (char-class ", "))) (path)))
+			(reduce (# (push %0 (n2q (str-to-num %1)))) (split val (const (char-class ", "))) (path)))
 		("transform"
 			(read-transform entry val))
 		(("stroke" "fill")
@@ -110,7 +110,7 @@
 				("lighter" "Lighter")
 				((throw "Unknown font-weight !" val))))
 		("font-size"
-			(n2f (str-to-num (pop (split val "pt")))))
+			(n2q (str-to-num (pop (split val "pt")))))
 		("font-family"
 			"OpenSans")
 		("text-anchor"
@@ -169,7 +169,7 @@
 
 (defun SVG-load (stream &optional scale)
 	; (SVG-load stream [scale]) -> :nil | canvas
-	(setq scale (n2f (ifn scale 1)))
+	(setq scale (n2q (ifn scale 1)))
 	(defq canvas :nil stack
 			(list (scatter (Lmap)
 					;this block of defaults are in order !
@@ -252,12 +252,12 @@
 				(setd font (create-font "fonts/OpenSans-Regular.ctf" (n2i size)))
 				(bind '(w h) (font-glyph-bounds font text))
 				(defq ox (case anchor
-						("middle" (* (n2f w) -1.0))
-						("end" (* (n2f w) -2.0))
+						("middle" (* (n2q w) -1.0))
+						("end" (* (n2q w) -2.0))
 						(:t 0.0))
 					oy (case baseline
-						("middle" (* (n2f h) 0.5))
-						("hanging" (n2f h))
+						("middle" (* (n2q h) 0.5))
+						("hanging" (n2q h))
 						(:t 0.0))
 					d (map (# (list :t (mat3x2-vec2-mul
 									(mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))

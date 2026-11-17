@@ -51,7 +51,7 @@ The entry point expects arguments in specific registers (Standard ABI: `:r0`
     ; 4. Argument Unpacking
     (vp-push `(,this))  ; Save 'this' if needed
     ; Extract arguments from Lisp list into registers
-    (list-bind-args :r1 `(,t0 ,t1 ,top ,pal) '(:real :real :num :str)
+    (list-bind-args :r1 `(,t0 ,t1 ,top ,pal) '(:double :double :num :str)
         `(,x0 ,y0 ,top ,pal))
 
     ; ... Logic ...
@@ -111,9 +111,9 @@ floating-point numbers for you.
 ```vdu
     (vp-align +long_size)
 (vp-label 'fn_consts)
-    ; n2r converts a number to the platform's Real format (double)
+    ; n2d converts a number to the platform's Double format (double)
     ; fn-consts generates the hex mapping table
-    (vp-long (n2r 2.0) (n2r 65536) ...) 
+    (vp-long (n2d 2.0) (n2d 65536) ...) 
 ```
 
 #### Step 2: Load the Address
@@ -134,7 +134,7 @@ values into `vp-ddef` registers.
 ```vdu
 ; Load 2.0 into register 'two' and 65536.0 into register 'bail'
 (load-fields consts
-    (fn-consts +real_2 (n2r 65536)) ; The definition to calculate offsets
+    (fn-consts +double_2 (n2d 65536)) ; The definition to calculate offsets
     `(,two ,bail))                  ; The destination registers
 ```
 
@@ -219,7 +219,7 @@ Here is the breakdown of the Mandelbrot set calculator, its `lisp.vp` as it
 was. One call works out the whole colour of
 one pixel, so the Lisp that calls it only has to store the answer.
 
-1. **Signature**: Expects `x0` and `y0` (Reals), `top`, how many turns of the
+1. **Signature**: Expects `x0` and `y0` (Doubles), `top`, how many turns of the
    loop a point is given (Integer), and the palette (String, an int for each
    colour). Returns the colour of the point, or -1 if it is inside the set.
 
@@ -244,7 +244,7 @@ one pixel, so the Lisp that calls it only has to store the answer.
     * Update squares: `x2 = x*x`, `y2 = y*y`.
 
     * Increment `cnt`. Every 64 turns, if the derivative is very big, scale
-      it and the `one` that is added to it down, before a Real overflows.
+      it and the `one` that is added to it down, before a Double overflows.
 
     * Loop until `cnt == top`, and that is a point inside the set.
 

@@ -127,12 +127,12 @@
 		offset_sec (timezone-offset-seconds *local_timezone*)
 		sec_day (% (+ (/ now 1000000) offset_sec) 86400)
 		sec_day (if (< sec_day 0) (+ sec_day 86400) sec_day)
-		sec_int (n2f (% sec_day 60))
+		sec_int (n2q (% sec_day 60))
 		s (if smooth
-			(+ sec_int (/ (n2f (% now 1000000)) 1000000.0))
+			(+ sec_int (/ (n2q (% now 1000000)) 1000000.0))
 			sec_int)
-		m (+ (n2f (% (/ sec_day 60) 60)) (/ s 60.0))
-		h (+ (n2f (% (/ sec_day 3600) 12)) (/ m 60.0)))
+		m (+ (n2q (% (/ sec_day 60) 60)) (/ s 60.0))
+		h (+ (n2q (% (/ sec_day 3600) 12)) (/ m 60.0)))
 	(list s m h))
 
 (defun check-date (td)

@@ -70,24 +70,24 @@
 	;mouse, a unit vector, z out of the screen. With the mouse on the eye
 	;the iris is under it, and as it goes off the eye turns less and less
 	;more, up to the most it turns, there is no stop that it hits
-	(defq off (Vec2-f (/ (- mx cx) r) (/ (- my cy) r))
+	(defq off (Vec2-q (/ (- mx cx) r) (/ (- my cy) r))
 		dist (/ (vector-length off) +look_most)
 		off (vector-scale off (/ 1.0 (sqrt (+ 1.0 (* dist dist))))))
-	(map (const n2r) (list (first off) (second off)
+	(map (const n2d) (list (first off) (second off)
 			(neg (sqrt (- 1.0 (vector-dot off off)))))))
 
 (defun redraw (mx my)
 	(bind '(w h) (. *canvas* :pref_size))
 	; Relative mouse position within the canvas
 	(bind '(canvas_x canvas_y &ignore) (. (penv *window*) :get_relative *canvas*))
-	(defq fw (n2f w) fh (n2f h) rel_mx (n2f (- mx canvas_x)) rel_my (n2f (- my canvas_y))
+	(defq fw (n2q w) fh (n2q h) rel_mx (n2q (- mx canvas_x)) rel_my (n2q (- my canvas_y))
 		eye_r (* fh 0.48) eye_cy (* fh 0.5))
 	(shader-vp-draw eyes_native
 		(shader-vp-frame eyes_program eyes_native (list
 				(list 'resolution (list w h))
 				(list 'look_left (look (* fw 0.25) eye_cy eye_r rel_mx rel_my))
 				(list 'look_right (look (* fw 0.75) eye_cy eye_r rel_mx rel_my))
-				(list 'iris_color (map (# (/ (n2f (logand (>> iris_color %0) 0xff)) 255.0)) '(16 8 0)))
+				(list 'iris_color (map (# (/ (n2q (logand (>> iris_color %0) 0xff)) 255.0)) '(16 8 0)))
 				;the iris is so much of the eye as it is seen flat, on the
 				;ball it is that far round
 				(list 'iris_size (* iris_scale 0.7))

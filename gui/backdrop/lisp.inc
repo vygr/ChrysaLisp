@@ -10,7 +10,7 @@
 	;it: one is at origin, and the rest are gap apart each way from it.
 	;origin and gap can be whole numbers or have parts, a line is on the
 	;pixel nearest where it falls. None if they are too close to tell apart
-	(defq out (list) gap (n2f gap) origin (n2f origin))
+	(defq out (list) gap (n2q gap) origin (n2q origin))
 	(when (>= gap 2.0)
 		;the first that is not before 0
 		(defq at (- origin (* gap (floor (/ origin gap)))))

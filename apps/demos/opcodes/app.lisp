@@ -26,10 +26,10 @@
 ; the model is the number of its opcode, see (opcode-model)
 (defun create-bouncer (op_sym x y vx vy &optional scale)
 	(defq index (if (num? op_sym) op_sym (opcode-index op_sym))
-		ang (* (n2f (random 628)) 0.01)
-		om (- (* (n2f (random 200)) 0.00015) 0.015)
-		phase (* (n2f (random 628)) 0.01)
-		s (ifn scale (+ 0.95 (* (n2f (random 25)) 0.01))))
+		ang (* (n2q (random 628)) 0.01)
+		om (- (* (n2q (random 200)) 0.00015) 0.015)
+		phase (* (n2q (random 628)) 0.01)
+		s (ifn scale (+ 0.95 (* (n2q (random 25)) 0.01))))
 	(bind '(name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh)
 		(opcode-model index))
 	(defq ca (abs (cos ang)) sa (abs (sin ang))
@@ -38,15 +38,15 @@
 		clamped_x (max ext_x (min x (- f_width ext_x)))
 		clamped_y (max ext_y (min y (- f_height ext_y))))
 	(list index
-		(Vec2-f clamped_x clamped_y)
-		(Vec2-f vx vy)
+		(Vec2-q clamped_x clamped_y)
+		(Vec2-q vx vy)
 		ang om s phase 1.0 1.0))
 
 (defun random-bouncer ()
 	;one more, of any opcode, from anywhere, going any way
 	(create-bouncer (random +opcode_count)
-		(n2f (random +scene_width)) (n2f (random +scene_height))
-		(* (- (n2f (random 400)) 200.0) 0.012) (* (- (n2f (random 400)) 200.0) 0.012)))
+		(n2q (random +scene_width)) (n2q (random +scene_height))
+		(* (- (n2q (random 400)) 200.0) 0.012) (* (- (n2q (random 400)) 200.0) 0.012)))
 
 ; Spawn an active flock of bouncers covering diverse opcode families proportionally
 (defq bouncers (list

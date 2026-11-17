@@ -39,7 +39,7 @@
 
 (defq kt_n 300 kt_from 5 kt_to 290 kt_vals '((scale 1.5) (n 280))
 	kt_src (str-alloc (* kt_n 4)) kt_cols (str-alloc (* kt_n 4)))
-(each! (# (set-int kt_src (* (!) 4) (sh-real-to-float (n2r (- (!) 3))))
+(each! (# (set-int kt_src (* (!) 4) (sh-double-to-float (n2d (- (!) 3))))
 		(set-int kt_cols (* (!) 4) (- (* (!) 0x010307) 0x5000))) '() 0 kt_n)
 (defun kt-zeros ()
 	(defq s (str-alloc (* kt_n 4)))
@@ -51,7 +51,7 @@
 ;half, so the 32 bit float is exact, and the bits of the int
 (defq kt_cdst (kt-zeros) kt_cpk (kt-zeros))
 (each! (lambda ()
-		(set-int kt_cdst (* (!) 4) (sh-real-to-float (+ (* (n2r (- (!) 3)) (n2r 1.5)) (n2r (* (logxor (!) 3) (logxor (!) 3))))))
+		(set-int kt_cdst (* (!) 4) (sh-double-to-float (+ (* (n2d (- (!) 3)) (n2d 1.5)) (n2d (* (logxor (!) 3) (logxor (!) 3))))))
 		(defq c (- (* (!) 0x010307) 0x5000))
 		(set-int kt_cpk (* (!) 4) (logior (<< (logand (>> c 8) 255) 16) (logand c 255) (neg c))))
 	'() kt_from (min kt_to 280))
@@ -60,7 +60,7 @@
 (defq kt_native (shader-vp-kernel kt_prog) kt_vdst (kt-zeros) kt_vpk (kt-zeros))
 (shader-vp-run kt_prog kt_native (shader-vp-frame kt_prog kt_native kt_vals)
 	kt_from kt_to (list kt_vdst kt_src kt_vpk kt_cols))
-(assert-eq "the VP writes the range" (sh-real-to-float (n2r 39)) (get-int kt_vdst (* 5 4)))
+(assert-eq "the VP writes the range" (sh-double-to-float (n2d 39)) (get-int kt_vdst (* 5 4)))
 (assert-eq "and not before it" 0 (get-int kt_vdst (* 4 4)))
 (assert-eq "nor at n and after" 0 (get-int kt_vdst (* 280 4)))
 (assert-eq "the VP writes the floats" kt_cdst kt_vdst)

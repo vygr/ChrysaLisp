@@ -363,15 +363,15 @@
 	;what is known of a file. It is read only if it has changed since it
 	;was last looked at
 	;a native function, file#name, is its file's age and its own block
-	(defq hash_at (find "#" file) real (if hash_at (slice file 0 hash_at) file)
-		info (. *test_files* :find file) now (age real))
+	(defq hash_at (find "#" file) double (if hash_at (slice file 0 hash_at) file)
+		info (. *test_files* :find file) now (age double))
 	(unless (and info (= (first info) now))
 		;not all of a file that is very big, a film, a store: it is taken as
 		;its time and its length. A test that named this machine's store, 4GB
 		;of it, asked for that much memory and the run stopped
-		(defq stat (pii-fstat real) size (if stat (second stat) 0)
+		(defq stat (pii-fstat double) size (if stat (second stat) 0)
 			text (cond
-				(hash_at (test-native-text real (slice file (inc hash_at) -1)))
+				(hash_at (test-native-text double (slice file (inc hash_at) -1)))
 				((> size +test_file_most) (cat (str now) " " (str size)))
 				((ifn (load file) ""))))
 		(. *test_files* :insert file (setq info (list now (test-hex (sha256 text))

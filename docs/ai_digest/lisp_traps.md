@@ -309,7 +309,7 @@ you keep what you send, or if you do not know what the other end does.
 ### Numbers do not mix
 
 A number with a point, `1.5`, is a fixed, 16 bits each side of the point.
-A number without is an integer. A real is a third kind, made with `(n2r)`.
+A number without is an integer. A double is a third kind, made with `(n2d)`.
 Arithmetic on two kinds is an error, `wrong_types`, which is easy to find.
 A compare is not.
 
@@ -318,20 +318,20 @@ A compare is not.
 (= 1 1.0)  ; -> :nil, and no error
 ```
 
-Change one, `(n2f 1)`, `(n2i 1.5)`, `(n2r 1.5)`.
+Change one, `(n2q 1)`, `(n2i 1.5)`, `(n2d 1.5)`.
 
 A fixed is cut to its 16 bits as it is read, `0.001` is `0.00099`. For a
-real that is exact use `(str-to-real "0.001")`.
+double that is exact use `(str-to-double "0.001")`.
 
 ### A type is a chain of classes, and `x?` asks if a class is in it
 
 `(type-of)` gives the classes a thing is, the one it inherits from first
-and its own last. A real is a fixed, and a fixed is a num.
+and its own last. A double is a fixed, and a fixed is a num.
 
 ```vdu
 (type-of 3)           ; -> (:num)
 (type-of 1.5)         ; -> (:num :fixed)
-(type-of (n2r 1.5))   ; -> (:num :fixed :real)
+(type-of (n2d 1.5))   ; -> (:num :fixed :double)
 (type-of (list))      ; -> (:seq :array :list)
 (type-of (Fmap))      ; -> (:seq :array :list :hmap)
 ```
@@ -343,7 +343,7 @@ happens, `0` for one, and `0` is true, only `:nil` is false. It is an
 answer to test, not a value to read.
 
 ```vdu
-(num? (n2r 1.5))      ; -> true, a real is a num
+(num? (n2d 1.5))      ; -> true, a double is a num
 (list? (Fmap))        ; -> true, a map is a list
 (if (num? 3) "yes")   ; -> "yes", though what (num? 3) gave was 0
 ```
@@ -361,7 +361,7 @@ and `str??`.
 (num?? 1.5)           ; -> :nil, it is a fixed
 ```
 
-So to tell a real from a fixed from a num, ask `real?` first, then
+So to tell a double from a fixed from a num, ask `double?` first, then
 `fixed?`, then `num?`. And where a list is to be told from the things that
 are built on one, a map, a class of your own, it is `list??` that is
 wanted. `(. obj :type_of)` is the chain with the Lisp classes on the end

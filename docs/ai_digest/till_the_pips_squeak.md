@@ -523,7 +523,7 @@ them moved `make test`. They are what the rest stands on.
 ### The check that a caller does not lean on more than is declared
 
 `relies`, run by `lint`: a register read after a call that is declared to
-trash it. Eleven places were real, two of them faults.
+trash it. Eleven places were double, two of them faults.
 
 ### One list of args for a loop
 

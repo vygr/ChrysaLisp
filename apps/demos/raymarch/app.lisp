@@ -25,7 +25,7 @@
 	+film_bits 24
 	+width 600 +height 600 +line_batch 8
 	+timer_rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
-	+num_frames 40 frame_idx 0 z_start (n2r -3.0) z_dist (n2r 2.0)
+	+num_frames 40 frame_idx 0 z_start (n2d -3.0) z_dist (n2d 2.0)
 	program (shader-load +shader_file) select :nil jobs :nil film :nil
 	film_time 0 frame_time 0 frame_us 0 save_us 0 first_frame :nil
 	;how the frames are being drawn. :wait, the driver is building the
@@ -45,11 +45,11 @@
 
 (defun frame-inputs ()
 	;the inputs block for the frame, where the camera and the light are
-	(defq fraction (/ (n2r frame_idx) (const (n2r +num_frames))))
+	(defq fraction (/ (n2d frame_idx) (const (n2d +num_frames))))
 	(shader-pack program (list
 			(list 'resolution (list +width +height))
 			(list 'cam_z (+ z_start (* z_dist fraction)))
-			(list 'light_x (+ (n2r -0.1) (* (sin (* fraction +real_2pi)) (n2r 0.15)))))))
+			(list 'light_x (+ (n2d -0.1) (* (sin (* fraction +double_2pi)) (n2d 0.15)))))))
 
 ;the film is made in a file of its own, and is the film only once it is
 ;whole: one stopped part way does not leave half a film in the tree,

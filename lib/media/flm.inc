@@ -193,7 +193,7 @@
 		(list (code header 4 8) (code header 4 4) (code header 4 12) (code header 4 16) (code header 4 20)
 			;the rate only this version has, the word was something else before
 			(if (or (/= (code header 4 8) +flm_version) (= (defq hundredths (code header 4 24)) 0))
-				+flm_rate (/ (n2f hundredths) 100.0)))))
+				+flm_rate (/ (n2q hundredths) 100.0)))))
 
 (defun flm-reel (stream &optional few)
 	; (flm-reel stream [few]) -> :nil | reel

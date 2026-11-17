@@ -47,7 +47,7 @@ the pool.
 docs/diagrams/task_farm.cwb
 ```
 
-### Real-World Examples
+### Double-World Examples
 
 * **`apps/demos/raymarch/app.lisp` & `apps/science/mandelbrot/app.lisp`**: Both
   use `(Farm create destroy (* 2 (length (lisp-nodes))))`. By requesting twice
@@ -96,7 +96,7 @@ that could not. A node need not be one that runs Lisp, see `alien_nodes.md`.
 		(push poll_que child)))
 ```
 
-### Real-World Examples
+### Double-World Examples
 
 * **`apps/system/netmon/app.lisp` & `apps/system/netspeed/app.lisp`**: These
   system monitors need to query every computer/core in the cluster. They use
@@ -136,7 +136,7 @@ node)`. If the farm determines it still has work to do and hasn't hit
 that scales up to match local hardware capabilities without ever leaking
 file-dependent tasks to remote machines.
 
-### Real-World Examples
+### Double-World Examples
 
 * **`lib/task/jobs.inc` (`Jobs`)**: a queue of jobs handed out to a `Local`
   farm of children, a child on each node of the machine. A task with nothing

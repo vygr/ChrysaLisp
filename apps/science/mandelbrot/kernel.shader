@@ -3,7 +3,7 @@
 ; On the GPU the square is the whole picture, in floats of 32 bits,
 ; so no deeper than a float can tell one pixel from the next. On the
 ; CPU, (shader-vp-kernel), a child of the farm works out a square of
-; it, in reals.
+; it, in doubles.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;the colour of each depth, and the pixels of the square, row by row

@@ -56,8 +56,8 @@
 ;NaN, as IEEE has it, every compare is false but bne
 (defq vs_ff (vs-native "tests/vp_spec_ff" (cat (vs-head "tests/vp_spec_ff")
 			"(vp-cvt-rd :r2 :d0)" vs_lf "(vp-cvt-rd :r3 :d1)" vs_lf
-			"(vp-bne-cr 999 :r2 'real)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rd :r5 :d0)" vs_lf
-			"(vp-div-dd :d0 :d0)" vs_lf "(vp-label 'real)" vs_lf
+			"(vp-bne-cr 999 :r2 'double)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rd :r5 :d0)" vs_lf
+			"(vp-div-dd :d0 :d0)" vs_lf "(vp-label 'double)" vs_lf
 			(apply (const cat) (map! (lambda (op) (defq i (!))
 						(cat "(vp-b" (slice op 1 -1) "-dd :d1 :d0 'took" (str i) ")" vs_lf "(vp-jmp 'next" (str i) ")" vs_lf
 							"(vp-label 'took" (str i) ")" vs_lf "(vp-or-cr " (str (<< 1 i)) " :r4)" vs_lf "(vp-label 'next" (str i) ")" vs_lf))
@@ -193,15 +193,15 @@
 			"(vp-free 32)" vs_lf
 			(vs-tail))))
 
-;the bits of the double of a number, 1.0 is a fixed, shader-real makes it a real
-(defun vs-bits-of (n) (get-long (set-real (str-alloc 8) 0 (shader-real n)) 0))
+;the bits of the double of a number, 1.0 is a fixed, shader-double makes it a double
+(defun vs-bits-of (n) (get-long (set-double (str-alloc 8) 0 (shader-double n)) 0))
 
 ;1, a third, a tie to even down and one up, -2.5, too big for a single,
 ;the largest and the smallest normal single, and 0
 (each (lambda (d)
-		(defq r (get-real (set-long (str-alloc 8) 0 d) 0))
+		(defq r (get-double (set-long (str-alloc 8) 0 d) 0))
 		(assert-eq (cat "the nearest single to " (long-to-hex-str d) " stored, each way, the register as it was")
-			(sh-real-to-float r) (vs_fi 0 d)))
+			(sh-double-to-float r) (vs_fi 0 d)))
 	(list (vs-bits-of 1.0) 0x3fd5555555555555 0x3ff0000010000000 0x3ff0000030000000 (vs-bits-of -2.5)
 		0x47f0000000000000 0x47efffffe0000000 0x3810000000000000 0))
 
@@ -243,8 +243,8 @@
 ;each single branch, as the double's above
 (defq vs_sf (vs-native "tests/vp_spec_sf" (cat (vs-head "tests/vp_spec_sf")
 			"(vp-cvt-rf :r2 :f0)" vs_lf "(vp-cvt-rf :r3 :f1)" vs_lf
-			"(vp-bne-cr 999 :r2 'real)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rf :r5 :f0)" vs_lf
-			"(vp-div-ff :f0 :f0)" vs_lf "(vp-label 'real)" vs_lf
+			"(vp-bne-cr 999 :r2 'double)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rf :r5 :f0)" vs_lf
+			"(vp-div-ff :f0 :f0)" vs_lf "(vp-label 'double)" vs_lf
 			(apply (const cat) (map! (lambda (op) (defq i (!))
 						(cat "(vp-b" (slice op 1 -1) "-ff :f1 :f0 'took" (str i) ")" vs_lf "(vp-jmp 'next" (str i) ")" vs_lf
 							"(vp-label 'took" (str i) ")" vs_lf "(vp-or-cr " (str (<< 1 i)) " :r4)" vs_lf "(vp-label 'next" (str i) ")" vs_lf))

@@ -91,7 +91,7 @@
 (defun solar-ephemeris (unix_sec)
 	; Given UTC timestamp in seconds, returns:
 	; (sun_lon_deg sun_lat_deg eot_min season_str)
-	(defq d (/ (- (n2f unix_sec) 946728000.0) 86400.0) ; Days since J2000.0 (2000-01-01 12:00 UTC)
+	(defq d (/ (- (n2q unix_sec) 946728000.0) 86400.0) ; Days since J2000.0 (2000-01-01 12:00 UTC)
 		m_deg (norm-angle-360 (+ 357.529 (* 0.98560028 d)))
 		l_deg (norm-angle-360 (+ 280.459 (* 0.98564736 d)))
 		m_rad (geo-deg-to-rad m_deg)
@@ -119,7 +119,7 @@
 		; UTC hour of the day
 		utc_sec (% unix_sec 86400)
 		utc_sec (if (< utc_sec 0) (+ utc_sec 86400) utc_sec)
-		utc_hours (/ (n2f utc_sec) 3600.0)
+		utc_hours (/ (n2q utc_sec) 3600.0)
 		; Solar time at Greenwich
 		solar_hours (+ utc_hours (/ eot_min 60.0))
 		; Subsolar longitude in degrees [-180, +180)

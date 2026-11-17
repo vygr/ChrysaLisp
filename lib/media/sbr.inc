@@ -60,48 +60,48 @@
 	;(sbr-analysis) and (sbr-synthesis) say how, and the analysis's
 	;twiddle after, 2 e^(-i 3 pi (k + 1/2)/128), its cos and its sin
 	(unless (. +sbr :find :tables)
-		(defq k (/ (n2r 1) (n2r 2147483648)) pi (mdct-pi) books (. +sbr :find :books)
-			window (apply (const reals) (map (# (* (n2r %0) k)) (. +sbr :find :window_q31)))
-			angle (lambda (k n d off) (/ (* pi (+ (n2r k) (n2r 0.5)) (- (n2r (* 2 n)) off)) (n2r d)))
-			two (n2r 2))
+		(defq k (/ (n2d 1) (n2d 2147483648)) pi (mdct-pi) books (. +sbr :find :books)
+			window (apply (const doubles) (map (# (* (n2d %0) k)) (. +sbr :find :window_q31)))
+			angle (lambda (k n d off) (/ (* pi (+ (n2d k) (n2d 0.5)) (- (n2d (* 2 n)) off)) (n2d d)))
+			two (n2d 2))
 		(scatter +sbr :tables (map (# (huff-table (second %0))) books) :least (map (const first) books) :window window
-			:window_ds (reduce! (# (push %0 (elem-get window (* 2 (!))))) '() (cap 320 (reals)) 0 320)
-			:noise (apply (const reals) (map (# (* (n2r %0) k)) (. +sbr :find :noise_q31)))
+			:window_ds (reduce! (# (push %0 (elem-get window (* 2 (!))))) '() (cap 320 (doubles)) 0 320)
+			:noise (apply (const doubles) (map (# (* (n2d %0) k)) (. +sbr :find :noise_q31)))
 			;the noise's re and im apart, the first 64 again after the 512, so a
 			;run of bands from anywhere is a slice of it
-			:noise_re (reduce! (# (push %0 (* (n2r (elem-get (. +sbr :find :noise_q31) (* 2 (% (!) 512)))) k))) '() (cap 576 (reals)) 0 576)
-			:noise_im (reduce! (# (push %0 (* (n2r (elem-get (. +sbr :find :noise_q31) (inc (* 2 (% (!) 512))))) k))) '() (cap 576 (reals)) 0 576)
-			:alt (reduce! (# (push %0 (n2r (if (= (logand (!) 1) 0) 1 -1)))) '() (cap 64 (reals)) 0 64)
+			:noise_re (reduce! (# (push %0 (* (n2d (elem-get (. +sbr :find :noise_q31) (* 2 (% (!) 512)))) k))) '() (cap 576 (doubles)) 0 576)
+			:noise_im (reduce! (# (push %0 (* (n2d (elem-get (. +sbr :find :noise_q31) (inc (* 2 (% (!) 512))))) k))) '() (cap 576 (doubles)) 0 576)
+			:alt (reduce! (# (push %0 (n2d (if (= (logand (!) 1) 0) 1 -1)))) '() (cap 64 (doubles)) 0 64)
 			:dct32 (mdct-tables 32) :dct64 (mdct-tables 64)
-			:ana_c (reduce! (# (push %0 (* two (cos (angle (!) 0 128 (n2r -3)))))) '() (cap 32 (reals)) 0 32)
-			:ana_s (reduce! (# (push %0 (* two (sin (angle (!) 0 128 (n2r -3)))))) '() (cap 32 (reals)) 0 32)
-			:smooth (map (const str-to-real) '("0.33333333333333" "0.30150283239582" "0.21816949906249" "0.11516383427084" "0.03183050093751"))
-			:limgain (map (const str-to-real) '("0.70795" "1.0" "1.41254" "10000000000"))
-			:bw (map (const str-to-real) '("0.0" "0.75" "0.9" "0.98"))
-			:flt_min (str-to-real "1.17549435e-38") :flt_eps (str-to-real "1.1920929e-7")
-			:zeros40 (fill (reals) 40 (n2r 0)) :zeros64 (fill (reals) 64 (n2r 0)))))
+			:ana_c (reduce! (# (push %0 (* two (cos (angle (!) 0 128 (n2d -3)))))) '() (cap 32 (doubles)) 0 32)
+			:ana_s (reduce! (# (push %0 (* two (sin (angle (!) 0 128 (n2d -3)))))) '() (cap 32 (doubles)) 0 32)
+			:smooth (map (const str-to-double) '("0.33333333333333" "0.30150283239582" "0.21816949906249" "0.11516383427084" "0.03183050093751"))
+			:limgain (map (const str-to-double) '("0.70795" "1.0" "1.41254" "10000000000"))
+			:bw (map (const str-to-double) '("0.0" "0.75" "0.9" "0.98"))
+			:flt_min (str-to-double "1.17549435e-38") :flt_eps (str-to-double "1.1920929e-7")
+			:zeros40 (fill (doubles) 40 (n2d 0)) :zeros64 (fill (doubles) 64 (n2d 0)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; the frequency tables
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun sbr-log2 (x)
-	; (sbr-log2 real) -> real
+	; (sbr-log2 double) -> double
 	;of 1 or more, by halving the step to it, pow being there and log not
-	(defq lo (n2r 0) hi (n2r 8))
+	(defq lo (n2d 0) hi (n2d 8))
 	(times 48
-		(defq mid (/ (+ lo hi) (n2r 2)))
-		(if (< (pow (n2r 2) mid) x) (setq lo mid) (setq hi mid)))
+		(defq mid (/ (+ lo hi) (n2d 2)))
+		(if (< (pow (n2d 2) mid) x) (setq lo mid) (setq hi mid)))
 	lo)
 
 (defun sbr-round (x)
-	; (sbr-round real) -> num
-	(n2i (floor (+ x (n2r 0.5)))))
+	; (sbr-round double) -> num
+	(n2i (floor (+ x (n2d 0.5)))))
 
 (defun sbr-bands (start stop n)
 	; (sbr-bands start stop n) -> nums
 	;the widths of n bands from start to stop, each the same ratio wider
-	(defq base (pow (/ (n2r stop) (n2r start)) (/ (n2r 1) (n2r n))) prod (n2r start) previous start
+	(defq base (pow (/ (n2d stop) (n2d start)) (/ (n2d 1) (n2d n))) prod (n2d start) previous start
 		out (cap n (nums)))
 	(times (dec n)
 		(setq prod (* prod base))
@@ -149,13 +149,13 @@
 						(setq master (sbr-sums k0 widths))))
 				(:t (defq half (- 7 (. sbr :find :freq_scale)) two (> (* 49 k2) (* 110 k0))
 						k1 (if two (* 2 k0) k2)
-						n0 (* 2 (sbr-round (* (n2r half) (sbr-log2 (/ (n2r k1) (n2r k0)))))))
+						n0 (* 2 (sbr-round (* (n2d half) (sbr-log2 (/ (n2d k1) (n2d k0)))))))
 					(when (> n0 0)
 						(defq vk0 (sbr-sorted (sbr-bands k0 k1 n0)) top0 (last vk0))
 						(when (> (reduce (const min) vk0 64) 0)
 							(cond
-								(two (defq warp (if (= (. sbr :find :alter_scale) 1) (str-to-real "0.76923076923076923077") (n2r 1))
-										n1 (* 2 (sbr-round (* (n2r half) warp (sbr-log2 (/ (n2r k2) (n2r k1))))))
+								(two (defq warp (if (= (. sbr :find :alter_scale) 1) (str-to-double "0.76923076923076923077") (n2d 1))
+										n1 (* 2 (sbr-round (* (n2d half) warp (sbr-log2 (/ (n2d k2) (n2d k1))))))
 										vk1 (sbr-bands k1 k2 n1))
 									(when (< (reduce (const min) vk1 64) top0)
 										(setq vk1 (sbr-sorted vk1))
@@ -203,7 +203,7 @@
 	(defq low (. sbr :find :low) kx (. sbr :find :kx) bands (. sbr :find :limiter_bands))
 	(cond
 		((> bands 0)
-			(defq warped (str-to-real (elem-get '("1.32715174233856803909" "1.18509277094158210129" "1.11987160404675912501") (dec bands)))
+			(defq warped (str-to-double (elem-get '("1.32715174233856803909" "1.18509277094158210129" "1.11987160404675912501") (dec bands)))
 				borders (sbr-sums kx (. sbr :find :patch_counts))
 				table (sbr-sorted (cat low (slice borders 1 -2))) out 0 in 1)
 			;out is the last kept, in the next looked at, as ffmpeg walks them
@@ -212,7 +212,7 @@
 			(while (<= in n)
 				(defq a (last lim) b (elem-get table in))
 				(cond
-					((>= (n2r b) (* (n2r a) warped)) (push lim b))
+					((>= (n2d b) (* (n2d a) warped)) (push lim b))
 					((or (= b a) (not (find b borders))))
 					((not (find a borders)) (elem-set lim (dec (length lim)) b))
 					((push lim b)))
@@ -229,7 +229,7 @@
 	(when (and (<= (+ kx m) 64) (<= kx 32))
 		(defq odd (logand n_high 1)
 			low (reduce! (# (push %0 (elem-get high (- (* 2 (!)) odd)))) '() (nums kx) 1 (inc n_low))
-			n_q (max 1 (sbr-round (* (n2r (. sbr :find :noise_bands)) (sbr-log2 (/ (n2r (. sbr :find :k2)) (n2r kx)))))))
+			n_q (max 1 (sbr-round (* (n2d (. sbr :find :noise_bands)) (sbr-log2 (/ (n2d (. sbr :find :k2)) (n2d kx)))))))
 		(when (<= n_q 5)
 			(defq temp 0 noise (nums kx))
 			(each! (lambda () (setq temp (+ temp (/ (- n_low temp) (- (inc n_q) (!)))))
@@ -248,21 +248,21 @@
 	; (sbr-channel) -> data
 	;what a channel keeps: of the frame before its grid and the last of its
 	;envelope and noise, its filters and the states of its QMF banks
-	(defq zeros (fill (reals) 64 (n2r 0)))
+	(defq zeros (fill (doubles) 64 (n2d 0)))
 	(scatter (Emap) :num_env 0 :freq_res (fill (nums) 9 0) :t_env (fill (nums) 9 0) :t_q (fill (nums) 3 0)
 		:num_noise 0 :frame_class 0 :amp_res 0 :df_env (fill (nums) 9 0) :df_noise (fill (nums) 2 0)
 		:invf (list (fill (nums) 5 0) (fill (nums) 5 0)) :harmonic_flag 0 :harmonic (fill (nums) 48 0)
 		:env_q (map! (lambda () (fill (nums) 48 0)) '() 0 9) :noise_q (map! (lambda () (fill (nums) 5 0)) '() 0 3)
-		:env (map! (lambda () (fill (reals) 48 (n2r 0))) '() 0 9) :noise_f (map! (lambda () (fill (reals) 5 (n2r 0))) '() 0 3)
-		:e_a (nums -1 -1) :t_env_old 0 :bw (fill (reals) 5 (n2r 0)) :index_noise 0 :index_sine 0
+		:env (map! (lambda () (fill (doubles) 48 (n2d 0))) '() 0 9) :noise_f (map! (lambda () (fill (doubles) 5 (n2d 0))) '() 0 3)
+		:e_a (nums -1 -1) :t_env_old 0 :bw (fill (doubles) 5 (n2d 0)) :index_noise 0 :index_sine 0
 		:s_index (map! (lambda () (fill (nums) 48 0)) '() 0 9)
 		;the low band of the frame before, by band, and of the gains of its
 		;last slots, the 32 bands of the analysis of each slot, and the high
 		;band made of it, each slot's 64
-		:w (map! (lambda () (map! (lambda () (list (fill (reals) 32 (n2r 0)) (fill (reals) 32 (n2r 0)))) '() 0 32)) '() 0 2)
+		:w (map! (lambda () (map! (lambda () (list (fill (doubles) 32 (n2d 0)) (fill (doubles) 32 (n2d 0)))) '() 0 32)) '() 0 2)
 		:y (map! (lambda () (map! (lambda () (list (cat zeros) (cat zeros))) '() 0 38)) '() 0 2) :ypos 0
-		:g_temp (map! (lambda () (fill (reals) 48 (n2r 0))) '() 0 42) :q_temp (map! (lambda () (fill (reals) 48 (n2r 0))) '() 0 42)
-		:analysis (fill (reals) 288 (n2r 0)) :synthesis (fill (reals) 2048 (n2r 0)) :synthesis_head 0))
+		:g_temp (map! (lambda () (fill (doubles) 48 (n2d 0))) '() 0 42) :q_temp (map! (lambda () (fill (doubles) 48 (n2d 0))) '() 0 42)
+		:analysis (fill (doubles) 288 (n2d 0)) :synthesis (fill (doubles) 2048 (n2d 0)) :synthesis_head 0))
 
 (defun sbr-new (rate &optional ps)
 	; (sbr-new rate [ps]) -> sbr
@@ -526,14 +526,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun sbr-exp2 (x)
-	(pow (n2r 2) (n2r x)))
+	(pow (n2d 2) (n2d x)))
 
 (defun sbr-dequant (sbr)
 	; (sbr-dequant sbr)
 	;the envelopes and noise floors as levels: of a coupled pair the first
 	;the level and the second the balance, made each side's
 	(bind '(left right) (. sbr :find :data))
-	(defq n (. sbr :find :n) n_q (. sbr :find :n_q) sqrt2 (sqrt (n2r 2)) one (n2r 1) big (str-to-real "1e20")
+	(defq n (. sbr :find :n) n_q (. sbr :find :n_q) sqrt2 (sqrt (n2d 2)) one (n2d 1) big (str-to-double "1e20")
 		level (lambda (q add amp)
 			(if (= amp 1) (sbr-exp2 (+ q add))
 				(* (sbr-exp2 (+ (>>> q 1) add)) (if (= (logand q 1) 1) sqrt2 one)))))
@@ -584,15 +584,15 @@
 	;the low band, each of 32 bands its 40 slots: 8 of the frame before and
 	;the 32 of this one, below kx and kx before
 	(defq w (. ch :find :w) now (elem-get w (. ch :find :ypos)) before (slice (elem-get w (logxor (. ch :find :ypos) 1)) 24 32)
-		kx (. sbr :find :kx) kx_old (. sbr :find :kx_old) zero (n2r 0)
+		kx (. sbr :find :kx) kx_old (. sbr :find :kx_old) zero (n2d 0)
 		now_r (map (const first) now) now_i (map (const second) now)
 		before_r (map (const first) before) before_i (map (const second) before)
 		;the 40 slots in turn, of a band below both, as most are, one gather
 		all_r (cat before_r now_r) all_i (cat before_i now_i)
 		;band k of the slots, those of the frame before or none
-		column (lambda (slots k n on) (if on (sbr-gather (fill (reals) n zero) slots k) (fill (reals) n zero))))
+		column (lambda (slots k n on) (if on (sbr-gather (fill (doubles) n zero) slots k) (fill (doubles) n zero))))
 	(map! (lambda () (if (and (< (!) kx_old) (< (!) kx))
-				(list (sbr-gather (fill (reals) 40 zero) all_r (!)) (sbr-gather (fill (reals) 40 zero) all_i (!)))
+				(list (sbr-gather (fill (doubles) 40 zero) all_r (!)) (sbr-gather (fill (doubles) 40 zero) all_i (!)))
 				(list (cat (column before_r (!) 8 (< (!) kx_old)) (column now_r (!) 32 (< (!) kx)))
 					(cat (column before_i (!) 8 (< (!) kx_old)) (column now_i (!) 32 (< (!) kx)))))) '() 0 32))
 
@@ -600,7 +600,7 @@
 	; (sbr-inverse sbr low) -> (alpha0 alpha1)
 	;of each band below k0 the two terms of its prediction, by its
 	;autocorrelation, each (re im), none of a band too tonal to predict
-	(defq zero (n2r 0) sixteen (n2r 16) k (str-to-real "1.000001") dots (fill (reals) 14 zero))
+	(defq zero (n2d 0) sixteen (n2d 16) k (str-to-double "1.000001") dots (fill (doubles) 14 zero))
 	(map! (lambda ((r i))
 			;its sums by lag, native, lib/media/lisp.vp media_sbr_dots
 			(sbr-dots r i dots)
@@ -628,11 +628,11 @@
 	;each noise band's chirp, of how hard it is to be filtered, now and in
 	;the frame before, smoothed
 	(defq bw (. ch :find :bw) invf (. ch :find :invf) tab (. +sbr :find :bw))
-	(each! (lambda (mode now was) (defq new (if (= (+ mode now) 1) (str-to-real "0.6") (elem-get tab mode)))
+	(each! (lambda (mode now was) (defq new (if (= (+ mode now) 1) (str-to-double "0.6") (elem-get tab mode)))
 			(setq new (if (< new was)
-					(+ (* (n2r 0.75) new) (* (n2r 0.25) was))
-					(+ (* (str-to-real "0.90625") new) (* (str-to-real "0.09375") was))))
-			(elem-set bw (!) (if (< new (str-to-real "0.015625")) (n2r 0) new))) (list (first invf) (second invf) bw) 0 (. sbr :find :n_q)))
+					(+ (* (n2d 0.75) new) (* (n2d 0.25) was))
+					(+ (* (str-to-double "0.90625") new) (* (str-to-double "0.09375") was))))
+			(elem-set bw (!) (if (< new (str-to-double "0.015625")) (n2d 0) new))) (list (first invf) (second invf) bw) 0 (. sbr :find :n_q)))
 
 (defun sbr-high (sbr ch low alphas)
 	; (sbr-high sbr data low alphas) -> ((re im) ...) | :nil
@@ -662,13 +662,13 @@
 		high))
 
 (defun sbr-runs (table count values kx)
-	; (sbr-runs table count values kx) -> reals
-	;48 reals from kx: of each of count bands of the table, its value over
+	; (sbr-runs table count values kx) -> doubles
+	;48 doubles from kx: of each of count bands of the table, its value over
 	;its run, 0 below its first and above its last
-	(defq zero (n2r 0) top (elem-get table count))
-	(apply (const cat) (cat (list (fill (reals) (- (first table) kx) zero))
-			(map! (# (fill (reals) (- (elem-get table (inc (!))) %0) %1)) (list table values) 0 count)
-			(list (fill (reals) (- (+ kx 48) top) zero)))))
+	(defq zero (n2d 0) top (elem-get table count))
+	(apply (const cat) (cat (list (fill (doubles) (- (first table) kx) zero))
+			(map! (# (fill (doubles) (- (elem-get table (inc (!))) %0) %1)) (list table values) 0 count)
+			(list (fill (doubles) (- (+ kx 48) top) zero)))))
 
 (defun sbr-mapping (sbr ch)
 	; (sbr-mapping sbr data) -> :nil | ((orig noise sines) ...)
@@ -704,20 +704,20 @@
 		maps))
 
 (defun sbr-estimate (sbr ch high)
-	; (sbr-estimate sbr data high) -> (reals ...)
+	; (sbr-estimate sbr data high) -> (doubles ...)
 	;of each envelope the energy of the high band made, each band's, or
 	;over each band of its table, by the slots of the envelope. Each band's
 	;energy over the slots native, lib/media/lisp.vp media_sbr_energy
-	(defq kx (. sbr :find :kx) m (. sbr :find :m) t_env (. ch :find :t_env) n (. sbr :find :n) zero (n2r 0))
+	(defq kx (. sbr :find :kx) m (. sbr :find :m) t_env (. ch :find :t_env) n (. sbr :find :n) zero (n2d 0))
 	(map! (lambda () (defq e (!)) (defq a (+ 2 (* 2 (elem-get t_env e))) b (+ 2 (* 2 (elem-get t_env (inc e))))
-				out (sbr-energy high kx m a b (fill (reals) 48 zero)))
+				out (sbr-energy high kx m a b (fill (doubles) 48 zero)))
 			(cond
 				((= (. sbr :find :interpol_freq) 1)
-					(nums-scale out (/ (n2r 1) (n2r (- b a))) out))
+					(nums-scale out (/ (n2d 1) (n2d (- b a))) out))
 				(:t (defq res (elem-get (. ch :find :freq_res) (inc e)) table (if (= res 1) (. sbr :find :high) (. sbr :find :low))
-						energies out out (fill (reals) 48 zero))
+						energies out out (fill (doubles) 48 zero))
 					(each! (lambda () (defq p (!)) (defq lo (elem-get table p) hi (elem-get table (inc p))
-								sum (/ (reduce! (# (+ %0 %1)) (list energies) zero (- lo kx) (- hi kx)) (n2r (* (- b a) (- hi lo)))))
+								sum (/ (reduce! (# (+ %0 %1)) (list energies) zero (- lo kx) (- hi kx)) (n2d (* (- b a) (- hi lo)))))
 							(each! (# (elem-set out (- (!) kx) sum)) '() lo hi)) '() 0 (elem-get n res))
 					out))) '() 0 (. ch :find :num_env)))
 
@@ -727,12 +727,12 @@
 	;band's gains kept to its limit and its energy made what was sent,
 	;native, lib/media/lisp.vp media_sbr_gains
 	(defq kx (. sbr :find :kx) lim (. sbr :find :limiter) e_a (. ch :find :e_a) s_index (. ch :find :s_index)
-		zero (n2r 0) consts (reals (n2r 1) (. +sbr :find :flt_eps) (. +sbr :find :flt_min) (n2r 100000)
-			(str-to-real "1.584893192") (elem-get (. +sbr :find :limgain) (. sbr :find :limiter_gains))))
+		zero (n2d 0) consts (doubles (n2d 1) (. +sbr :find :flt_eps) (. +sbr :find :flt_min) (n2d 100000)
+			(str-to-double "1.584893192") (elem-get (. +sbr :find :limgain) (. sbr :find :limiter_gains))))
 	(map (lambda ((orig q s) e_curr)
 			(defq e (!) delta (if (or (= e (second e_a)) (= e (first e_a))) 0 1)
 				out (sbr-envelope-gains (cat orig q e_curr) (cat s (elem-get s_index (inc e))) lim kx delta consts
-					(fill (reals) 144 zero)))
+					(fill (doubles) 144 zero)))
 			(list (slice out 0 48) (slice out 48 96) (slice out 96 144)))
 		maps curr))
 
@@ -749,7 +749,7 @@
 		alt (slice (. +sbr :find :alt) 0 m_max)
 		high_r (map! (const first) (list high) kx (+ kx m_max)) high_i (map! (const second) (list high) kx (+ kx m_max))
 		index_noise (. ch :find :index_noise) index_sine (. ch :find :index_sine) t0 (* 2 (first t_env))
-		zero (n2r 0) one (n2r 1))
+		zero (n2d 0) one (n2d 1))
 	(cond
 		((. sbr :find :reset)
 			(each! (lambda () (elem-set g_temp (+ (!) t0) (cat (first (first gains))))
@@ -766,13 +766,13 @@
 	(each (lambda ((_ _ s_m))
 			(defq e (!) edge (or (= e (first e_a)) (= e (second e_a))) sm (slice s_m 0 m_max)
 				;1 where there is no sinusoid, the noise's place
-				quiet (reduce! (# (push %0 (if (= %1 zero) one zero))) (list s_m) (cap m_max (reals)) 0 m_max))
+				quiet (reduce! (# (push %0 (if (= %1 zero) one zero))) (list s_m) (cap m_max (doubles)) 0 m_max))
 			(each! (lambda ()
 					(defq i (!) g_filt (elem-get g_temp (+ i h_sl)) q_filt (elem-get q_temp i))
 					(when (and (> h_sl 0) (not edge))
 						(defq at (+ i h_sl))
-						(setq g_filt (reduce! (# (nums-add %0 (nums-scale (elem-get g_temp (- at (!))) %1))) (list smooth) (fill (reals) 48 zero) 0 5)
-							q_filt (reduce! (# (nums-add %0 (nums-scale (elem-get q_temp (- at (!))) %1))) (list smooth) (fill (reals) 48 zero) 0 5)))
+						(setq g_filt (reduce! (# (nums-add %0 (nums-scale (elem-get g_temp (- at (!))) %1))) (list smooth) (fill (doubles) 48 zero) 0 5)
+							q_filt (reduce! (# (nums-add %0 (nums-scale (elem-get q_temp (- at (!))) %1))) (list smooth) (fill (doubles) 48 zero) 0 5)))
 					;the slot's bands of the high band by the gain, into its rows of Y
 					;from kx, native, lib/media/lisp.vp media_sbr_slot: with noise
 					;where there is no sinusoid, which goes round the four phases by
@@ -781,10 +781,10 @@
 					(bind '(row_r row_i) (elem-get y i))
 					(ifn edge
 						(sbr-slot row_r row_i kx high_r high_i (+ i 2) g_filt q_filt quiet sm noise_re noise_im
-							(logand (inc index_noise) 0x1ff) (n2r (elem-get '(1 0 -1 0) index_sine))
-							(n2r (* (elem-get '(0 1 0 -1) index_sine) (- 1 (* 2 (logand kx 1))))) alt 0)
+							(logand (inc index_noise) 0x1ff) (n2d (elem-get '(1 0 -1 0) index_sine))
+							(n2d (* (elem-get '(0 1 0 -1) index_sine) (- 1 (* 2 (logand kx 1))))) alt 0)
 						(sbr-slot row_r row_i kx high_r high_i (+ i 2) g_filt q_filt quiet sm noise_re noise_im 0
-							(n2r (- 1 (logand (+ index_sine (logand kx 1)) 2))) zero alt (if (= (logand index_sine 1) 1) 2 1)))
+							(n2d (- 1 (logand (+ index_sine (logand kx 1)) 2))) zero alt (if (= (logand index_sine 1) 1) 2 1)))
 					(setq index_noise (logand (+ index_noise m_max) 0x1ff) index_sine (logand (inc index_sine) 3)))
 				'() (* 2 (elem-get t_env e)) (* 2 (elem-get t_env (inc e)))))
 		gains)
@@ -798,16 +798,16 @@
 	(defq kx (. sbr :find :kx) m (. sbr :find :m) kx_old (. sbr :find :kx_old) m_old (. sbr :find :m_old)
 		ypos (. ch :find :ypos) y1 (elem-get (. ch :find :y) ypos) y0 (elem-get (. ch :find :y) (logxor ypos 1))
 		i_temp (max (- (* 2 (. ch :find :t_env_old)) 32) 0) zeros (. +sbr :find :zeros64)
-		low_r (map (const first) low) low_i (map (const second) low) zero (n2r 0))
+		low_r (map (const first) low) low_i (map (const second) low) zero (n2d 0))
 	;each slot the low band's slot i + 2 below top, the high band made above
 	;it, 0 above that
 	(map! (lambda () (defq old (< (!) i_temp) top (if old kx_old kx) span (if (or old (< (!) 32)) (if old m_old m) 0)
 				from (if old (elem-get y0 (+ (!) 32)) (elem-get y1 (min (!) 31))) rest (- 64 top span))
-			(list (cat (sbr-gather (fill (reals) top zero) (slice low_r 0 top) (+ (!) 2)) (slice (first from) top (+ top span)) (slice zeros 0 rest))
-				(cat (sbr-gather (fill (reals) top zero) (slice low_i 0 top) (+ (!) 2)) (slice (second from) top (+ top span)) (slice zeros 0 rest)))) '() 0 38))
+			(list (cat (sbr-gather (fill (doubles) top zero) (slice low_r 0 top) (+ (!) 2)) (slice (first from) top (+ top span)) (slice zeros 0 rest))
+				(cat (sbr-gather (fill (doubles) top zero) (slice low_i 0 top) (+ (!) 2)) (slice (second from) top (+ top span)) (slice zeros 0 rest)))) '() 0 38))
 
 (defun sbr-synthesis (ch slots)
-	; (sbr-synthesis data slots) -> reals
+	; (sbr-synthesis data slots) -> doubles
 	;the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
 	;bands newest in v, its 10 parts by the window, summed. Of the sum of
 	;the re by cos and the im by sin of pi (k + 1/2)(2n - 255)/128, over
@@ -818,9 +818,9 @@
 	;media_window, as MP3's: v a ring of 2048, its newest 1280 used, the
 	;128 of a slot put in front of them, nothing moved
 	(defq tables (. +sbr :find :dct64) tw (first tables) rev (second tables)
-		alt (. +sbr :find :alt) win (. +sbr :find :window) a64 (/ (n2r 1) (n2r 64))
+		alt (. +sbr :find :alt) win (. +sbr :find :window) a64 (/ (n2d 1) (n2d 64))
 		v (. ch :find :synthesis) head (. ch :find :synthesis_head)
-		zero (n2r 0) out (fill (reals) 2048 zero) one (n2r 1))
+		zero (n2d 0) out (fill (doubles) 2048 zero) one (n2d 1))
 	(each! (lambda ((re im))
 			(defq a (sbr-dct4 re tw rev (cat re)) b (nums-mul (sbr-dct4 (slice im 64 0) tw rev (cat im)) alt))
 			(setq head (sbr-window v (cat (nums-scale (nums-sub b a) a64) (slice (nums-scale (nums-add a b) a64) 64 0))
@@ -830,7 +830,7 @@
 	out)
 
 (defun sbr-apply (sbr kind chans &optional alone)
-	; (sbr-apply sbr kind chans [alone]) -> (reals ...)
+	; (sbr-apply sbr kind chans [alone]) -> (doubles ...)
 	;the 2048 samples of each of an element's channels of 1024, its kind
 	;0 a channel or 1 a pair: each to the QMF bank's bands, its high band
 	;made by the data read, and to samples at twice the rate; with PS, of

@@ -42,7 +42,7 @@
 			held :nil
 			;the hash of each file, held from one asking to the next
 			live (Fmap 101)
-			out :nil out_path "" out_at 0 running :t real (Fset 31)
+			out :nil out_path "" out_at 0 running :t double (Fset 31)
 			;what each node that tells it may do, as it said who it is, and the
 			;waypoint each said it was at
 			told (Fmap 31) said_at (Fmap 31)
@@ -121,7 +121,7 @@
 							(defq nl (find "\n" data)
 								path (slice data 0 (ifn nl 0)) body (slice data (inc (ifn nl -1)) -1))
 							(cond
-								((not (and nl (sync-safe? path) (sync-inside? root path real))) (setq status -2))
+								((not (and nl (sync-safe? path) (sync-inside? root path double))) (setq status -2))
 								(:t ;a file starts at 0, and goes on from where it had got to
 									(when (= at 0)
 										(setq out (file-stream (cat root "/" path) +file_open_write)
@@ -137,13 +137,13 @@
 												(if (/= mode 0) (pii-chmod (cat root "/" path) mode))))))))
 						(+sync_type_del
 							(setq held :nil)
-							(if (and (sync-safe? data) (sync-inside? root data real))
+							(if (and (sync-safe? data) (sync-inside? root data double))
 								;and the folders it leaves empty
 								(progn (pii-remove (cat root "/" data)) (sync-prune root data))
 								(setq status -2)))
 						(+sync_type_mode
 							(setq held :nil)
-							(if (and (/= mode 0) (sync-safe? data) (sync-inside? root data real)
+							(if (and (/= mode 0) (sync-safe? data) (sync-inside? root data double)
 									(= 0 (pii-chmod (cat root "/" data) mode)))
 								:t (setq status -2)))
 						(+sync_type_quit (setq running :nil))

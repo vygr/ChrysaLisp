@@ -1,7 +1,7 @@
 # ChrysaLisp Sequence Indexing & Memory Model
 
 In ChrysaLisp, `:seq` is the base class for all ordered collections, including
-`:array`, `:list`, `:str`, `:nums`, `:fixeds`, and `:reals`. Because they share
+`:array`, `:list`, `:str`, `:nums`, `:fixeds`, and `:doubles`. Because they share
 this lineage, they share a unified set of manipulation functions and a unique
 indexing logic designed for high-performance string and buffer manipulation.
 
@@ -40,7 +40,7 @@ docs/diagrams/seq_index.cwb
 ### The Resolution Formula
 
 When the system receives a negative index, it resolves the absolute index
-using this logic: RealIndex = Length + InputIndex + 1.
+using this logic: DoubleIndex = Length + InputIndex + 1.
 
 * Input `-1`: 5 + (-1) + 1 = 5 (The Length / End Boundary).
 

@@ -53,14 +53,14 @@
 	(defq px (list) py (list) pz (list) vx (list) vy (list) vz (list)
 		cr (list) cg (list) cb (list))
 	(times count
-		(push px (n2f (- (rnd 1000) 500)))
-		(push py (n2f (- (rnd 1000) 500)))
-		(push pz (n2f (- (rnd 1000) 500)))
-		(push vx (n2f (- (rnd (const (inc (* +max_vel 2)))) +max_vel)))
-		(push vy (n2f (- (rnd (const (inc (* +max_vel 2)))) +max_vel)))
-		(push vz (n2f (- (rnd (const (inc (* +max_vel 2)))) +max_vel)))
+		(push px (n2q (- (rnd 1000) 500)))
+		(push py (n2q (- (rnd 1000) 500)))
+		(push pz (n2q (- (rnd 1000) 500)))
+		(push vx (n2q (- (rnd (const (inc (* +max_vel 2)))) +max_vel)))
+		(push vy (n2q (- (rnd (const (inc (* +max_vel 2)))) +max_vel)))
+		(push vz (n2q (- (rnd (const (inc (* +max_vel 2)))) +max_vel)))
 		(bind '(r g b) (elem-get palette (rnd (length palette))))
-		(defq bright (* (/ (n2f (rnd 1000)) 1000.0) (const (- 1.0 +base))))
+		(defq bright (* (/ (n2q (rnd 1000)) 1000.0) (const (- 1.0 +base))))
 		(push cr (+ +base (* r bright)))
 		(push cg (+ +base (* g bright)))
 		(push cb (+ +base (* b bright))))
@@ -68,7 +68,7 @@
 		(list (scene-fill count +bubble_radius))
 		(map (# (apply (const fixeds) %0)) (list cr cg cb))
 		(map (# (scene-fill count %0)) (list +box_size (const (* +box_size 2.0)) (const (* +box_size 4.0))
-				+eye_dist (const (n2f (>> +width 1))) (const (n2f (>> +height 1))) 1.0))))
+				+eye_dist (const (n2q (>> +width 1))) (const (n2q (>> +height 1))) 1.0))))
 
 (defun scene-bounce (p0 v time box box2 box4)
 	;where every bubble is on one axis at a time. It goes on at its speed
@@ -88,7 +88,7 @@
 	;every bubble as it is on the screen at a time, an array each. Where
 	;it is, how big, where its highlight is, and how far away
 	(bind '(px py pz vx vy vz rad cr cg cb box box2 box4 eye hsw hsh one) scene)
-	(defq time (n2f time)
+	(defq time (n2q time)
 		x (scene-bounce px vx time box box2 box4)
 		y (scene-bounce py vy time box box2 box4)
 		z (nums-add (scene-bounce pz vz time box box2 box4) eye)
@@ -122,7 +122,7 @@
 	;of the canvas cuts them to the rows.
 	(bind '(sx sy sr hx hy z) (scene-frame scene time light_x light_y))
 	(bind '(& & & & & & & cr cg cb &rest _) scene)
-	(defq fy (n2f y) fy1 (n2f y1) near (list))
+	(defq fy (n2q y) fy1 (n2q y1) near (list))
 	;the broad phase, the one loop over every bubble there is. A highlight
 	;sits on the edge of its bubble and so reaches a little past it
 	(each (lambda (by r)

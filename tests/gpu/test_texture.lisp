@@ -50,13 +50,13 @@
 ;is known to the bit. Its color is each byte over 255, the nearest 32 bit
 ;float to that, as a GPU has it
 (defun tx-byte (c)
-	(sh-float-to-real (sh-real-to-float (/ (n2r (logand c 0xff)) (n2r 255)))))
+	(sh-float-to-double (sh-double-to-float (/ (n2d (logand c 0xff)) (n2d 255)))))
 (defun tx-want (x y)
 	;the place, uv by 1.5 less a quarter across, gone round, of 8 by 4
-	(defq u (frac (- (* (/ (+ (n2r x) (n2r 0.5)) (n2r 16)) (n2r 1.5)) (n2r 0.25)))
-		v (frac (* (/ (+ (n2r y) (n2r 0.5)) (n2r 8)) (n2r 1.5)))
-		c (tx-color (+ (n2i (floor (* u (n2r 8)))) (* 8 (n2i (floor (* v (n2r 4))))))))
-	(reals (tx-byte (>> c 16)) (tx-byte (>> c 8)) (tx-byte c) (tx-byte (>> c 24))))
+	(defq u (frac (- (* (/ (+ (n2d x) (n2d 0.5)) (n2d 16)) (n2d 1.5)) (n2d 0.25)))
+		v (frac (* (/ (+ (n2d y) (n2d 0.5)) (n2d 8)) (n2d 1.5)))
+		c (tx-color (+ (n2i (floor (* u (n2d 8)))) (* 8 (n2i (floor (* v (n2d 4))))))))
+	(doubles (tx-byte (>> c 16)) (tx-byte (>> c 8)) (tx-byte c) (tx-byte (>> c 24))))
 (defq tx_native (shader-vp tx_prog)
 	tx_got (shader-vp-pixels tx_native (shader-vp-frame tx_prog tx_native tx_vals) 0 0 16 8))
 (assert-eq "a tile of 16 by 8 is shaded" 128 (length tx_got))
@@ -73,7 +73,7 @@
 		"(defun main :vec4 () (setq uv coord) (vec4 position 1.0))")
 	tx_pix (tx-src "(deftexture pic)" "(defvarying uv :vec2)"
 		"(defun main :vec4 ((frag :vec2)) (texture pic uv))")
-	tx_verts (apply (const reals) (map (const n2r) '(
+	tx_verts (apply (const doubles) (map (const n2d) '(
 				-0.75 -0.75 0.0 0.0 1.0   0.75 -0.75 0.0 1.0 1.0   0.75 0.75 0.0 1.0 0.0
 				-0.75 -0.75 0.0 0.0 1.0   0.75 0.75 0.0 1.0 0.0   -0.75 0.75 0.0 0.0 0.0)))
 	tx_tris (nums 0 1 2 3 4 5) tx_soft (Canvas 32 32 1))

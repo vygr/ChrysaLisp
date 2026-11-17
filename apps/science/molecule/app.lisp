@@ -18,11 +18,11 @@
 	(enum vertex radius col))
 
 (defq anti_alias :t timer_rate (/ 1000000 30) +min_size 450 +max_size 800
-	*rotx* +real_0 *roty* +real_0 *rotz* +real_0 +focal_dist +real_4
-	+near +focal_dist +far (+ +near +real_4)
-	+top (* +focal_dist +real_1/3) +bottom (* +focal_dist +real_-1/3)
-	+left (* +focal_dist +real_-1/3) +right (* +focal_dist +real_1/3)
-	*verts* (reals) *radii* (reals) *colors* (list) *num_atoms* 0
+	*rotx* +double_0 *roty* +double_0 *rotz* +double_0 +focal_dist +double_4
+	+near +focal_dist +far (+ +near +double_4)
+	+top (* +focal_dist +double_1/3) +bottom (* +focal_dist +double_-1/3)
+	+left (* +focal_dist +double_-1/3) +right (* +focal_dist +double_1/3)
+	*verts* (doubles) *radii* (doubles) *colors* (list) *num_atoms* 0
 	atom_draw_list (list) atom_cache (Fmap 31) canvas_size +min_size
 	;images asked for and not made yet, each made between frames, a few
 	;milliseconds of them a tick, and the nearest made shown till it is
@@ -30,12 +30,12 @@
 	;the atoms in view by depth, near to far, a bucket for each 1024th of it,
 	;kept from frame to frame
 	depth_buckets (map! (lambda () (list)) '() 0 1024)
-	+bucket_scale (/ (n2r 1023) (- +far +near))
+	+bucket_scale (/ (n2d 1023) (- +far +near))
 	sdf_files (sort (files-all (cat *app_root* "data") '(".sdf")))
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	;the toolbar as it was when it was last closed, (config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "molecule.tre")
-	+radius_quant (n2r 1.0)
+	+radius_quant (n2d 1.0)
 	;an atom is a shader, a polished ball of the atom's color, as native
 	;code. An image of it is made for each color and size that is drawn,
 	;and kept
@@ -46,11 +46,11 @@
 	;as 9
 	place_program (shader-load (cat *app_root* "place.shader"))
 	place_native (shader-vp-vertex place_program)
-	*atoms* (reals) +placed_size 9
-	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
-					(/ (n2f (logand (>> %0 16) 0xff)) 255.0)
-					(/ (n2f (logand (>> %0 8) 0xff)) 255.0)
-					(/ (n2f (logand %0 0xff)) 255.0)))
+	*atoms* (doubles) +placed_size 9
+	+palette (push `(,quote) (map (lambda (%0) (Vec3-q
+					(/ (n2q (logand (>> %0 16) 0xff)) 255.0)
+					(/ (n2q (logand (>> %0 8) 0xff)) 255.0)
+					(/ (n2q (logand %0 0xff)) 255.0)))
 			;the first was black, and a black ball shows only its highlight, a
 			;dark grey shows it is a ball
 			(list 0xff505050 +argb_white +argb_red +argb_green
@@ -98,10 +98,10 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-			(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
+			(n2i (/ (* angle (const (n2d 1000))) +double_2pi))))
 
 (defun get-rot (slider)
-	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
+	(/ (* (n2d (get :value slider)) +double_2pi) (const (n2d 1000))))
 
 (defun lighting (z)
 	; (lighting z) -> 0 to 5
@@ -111,8 +111,8 @@
 	;it is turned back into how far away. The light is drawn into the
 	;atom's image, a texture with colors of its own is shown as it is and
 	;can not be dimmed after, so there is an image for each step
-	(defq away (/ (const (* +real_2 +far +near)) (- (const (+ +far +near)) (* z (const (- +far +near))))))
-	(clamp (n2i (* (- +far away) (const (/ (n2r 5.99) (- +far +near))))) 0 5))
+	(defq away (/ (const (* +double_2 +far +near)) (- (const (+ +far +near)) (* z (const (- +far +near))))))
+	(clamp (n2i (* (- +far away) (const (/ (n2d 5.99) (- +far +near))))) 0 5))
 
 (defun atom-key (size kind level)
 	(+ (* size 128) (* level 16) kind))
@@ -132,9 +132,9 @@
 			(shader-vp-draw atom_native
 				(shader-vp-frame atom_program atom_native (list
 						(list 'resolution (list size size))
-						(list 'color (map (const n2r) (elem-get +palette kind)))
+						(list 'color (map (const n2d) (elem-get +palette kind)))
 						;from two thirds of the light at the back to all of it at the front
-						(list 'light_level (/ (n2r (+ level 10)) (const (n2r 15))))))
+						(list 'light_level (/ (n2d (+ level 10)) (const (n2d 15))))))
 				(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 size size size :t)
 			(. *pixmap_cache* :insert name pixmap)
 			(. canvas :swap +swap_write)))
@@ -161,7 +161,7 @@
 	;the image of an atom, made between frames, (make-waiting): till then
 	;the nearest made of its color. Only the first of a color is made at
 	;once, there is nothing near it
-	(defq size (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5)))
+	(defq size (n2i (+ (* (quant radius +radius_quant) (n2d 2.0)) (n2d 0.5)))
 		key (atom-key size kind level))
 	(cond
 		((<= size 0) (list :nil 0 0))
@@ -193,10 +193,10 @@
 			(shader-vp-frame place_program place_native (list
 					(list 'spin (mat4x4-mul (mat4x4-mul (mat4x4-rotx *rotx*) (mat4x4-roty *roty*))
 							(mat4x4-rotz *rotz*)))
-					(list 'move (const (mat4x4-translate +real_0 +real_0 (- +real_0 +focal_dist +real_2))))
+					(list 'move (const (mat4x4-translate +double_0 +double_0 (- +double_0 +focal_dist +double_2))))
 					(list 'lens (const (mat4x4-frustum +left +right +top +bottom +near +far)))
 					(list 'centre (list (>> w 1) (>> h 1)))
-					(list 'half (* +real_1/2 (n2r (dec canvas_size))))))
+					(list 'half (* +double_1/2 (n2d (dec canvas_size))))))
 			*atoms*)
 		new_draw_list (list) bucket_at (length depth_buckets))
 	;each atom in view to the bucket of its depth, one pass and no compares,
@@ -209,12 +209,12 @@
 		(defq bucket (elem-get depth_buckets (setq bucket_at (dec bucket_at))))
 		(each (lambda (i)
 				(bind '(sx sy r z at) (slice out (+ (* i +placed_size) 4) (* (inc i) +placed_size)))
-				(when (<= +real_-1 z +real_1)
+				(when (<= +double_-1 z +double_1)
 					(bind '(tid tw th) (get-atom-texture r (elem-get *colors* i) (lighting z)))
 					(when tid
 						(defq col +argb_white
-							blit_x (n2i (- sx (n2r (/ tw 2))))
-							blit_y (n2i (- sy (n2r (/ th 2)))))
+							blit_x (n2i (- sx (n2d (/ tw 2))))
+							blit_y (n2i (- sy (n2d (/ th 2)))))
 						(push new_draw_list (list tid col blit_x blit_y tw th)))
 					(task-slice))) bucket)
 		(clear bucket))
@@ -230,30 +230,30 @@
 		(times *num_atoms*
 			(defq line (split (read-line stream) +char_class_space))
 			(push *verts*
-				(/ (n2r (str-as-num (elem-get line 0))) (const (n2r 65536)))
-				(/ (n2r (str-as-num (elem-get line 1))) (const (n2r 65536)))
-				(/ (n2r (str-as-num (elem-get line 2))) (const (n2r 65536))))
+				(/ (n2d (str-as-num (elem-get line 0))) (const (n2d 65536)))
+				(/ (n2d (str-as-num (elem-get line 1))) (const (n2d 65536)))
+				(/ (n2d (str-as-num (elem-get line 2))) (const (n2d 65536))))
 			(case (elem-get line 3)
-				("C" (push *radii* (const (n2r 70))) (push *colors* 0))
-				("H" (push *radii* (const (n2r 25))) (push *colors* 1))
-				("O" (push *radii* (const (n2r 60))) (push *colors* 2))
-				("N" (push *radii* (const (n2r 65))) (push *colors* 3))
-				("F" (push *radii* (const (n2r 50))) (push *colors* 4))
-				("S" (push *radii* (const (n2r 88))) (push *colors* 6))
-				("Si" (push *radii* (const (n2r 111))) (push *colors* 6))
-				("P" (push *radii* (const (n2r 98))) (push *colors* 7))
-				(:t (push *radii* (const (n2r 100))) (push *colors* 6))))
+				("C" (push *radii* (const (n2d 70))) (push *colors* 0))
+				("H" (push *radii* (const (n2d 25))) (push *colors* 1))
+				("O" (push *radii* (const (n2d 60))) (push *colors* 2))
+				("N" (push *radii* (const (n2d 65))) (push *colors* 3))
+				("F" (push *radii* (const (n2d 50))) (push *colors* 4))
+				("S" (push *radii* (const (n2d 88))) (push *colors* 6))
+				("Si" (push *radii* (const (n2d 111))) (push *colors* 6))
+				("P" (push *radii* (const (n2d 98))) (push *colors* 7))
+				(:t (push *radii* (const (n2d 100))) (push *colors* 6))))
 		(bind '(center radius) (vector-bounds-sphere *verts* 3))
-		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius)
-			new_verts (reals))
+		(defq scale_p (/ (const (n2d 2.0)) radius) scale_r (/ (const (n2d 0.0625)) radius)
+			new_verts (doubles))
 		(each (lambda (v)
-				(push new_verts (vector-scale (vector-sub v center v) scale_p v) +real_1))
+				(push new_verts (vector-scale (vector-sub v center v) scale_p v) +double_1))
 			(partition *verts* 3))
 		(setq *verts* new_verts)
 		(vector-scale *radii* scale_r *radii*)
 		;what the vertex shader is given, each atom and then its radius
-		(setq *atoms* (apply (const cat) (cat (list (reals))
-					(map (# (cat %0 (reals %1))) (partition *verts* 4) *radii*))))))
+		(setq *atoms* (apply (const cat) (cat (list (doubles))
+					(map (# (cat %0 (doubles %1))) (partition *verts* 4) *radii*))))))
 
 (defun reset (name)
 	;the molecule of that name, if it is still there, else maltose
@@ -303,9 +303,9 @@
 				;timer event
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(when *auto_mode*
-					(setq *rotx* (% (+ *rotx* (n2r 0.01)) +real_2pi)
-						*roty* (% (+ *roty* (n2r 0.02)) +real_2pi)
-						*rotz* (% (+ *rotz* (n2r 0.03)) +real_2pi)
+					(setq *rotx* (% (+ *rotx* (n2d 0.01)) +double_2pi)
+						*roty* (% (+ *roty* (n2d 0.02)) +double_2pi)
+						*rotz* (% (+ *rotz* (n2d 0.03)) +double_2pi)
 						*dirty* :t)
 					(set-rot *xrot_slider* *rotx*)
 					(set-rot *yrot_slider* *roty*)

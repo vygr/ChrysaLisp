@@ -46,7 +46,7 @@
 			(str (. whole :find :keys)) (str (. cut :find :keys))))
 	'("mjpeg_pcm" "xvid_mp3" "h264_mp3"))
 
-;the sound, Films' own: each packet decoded, the channels as reals at the
+;the sound, Films' own: each packet decoded, the channels as doubles at the
 ;scale of 16 bits, or of PCM of 16 bit stereo the bytes as they are
 (defun av-left (name)
 	;the left channel of all of a clip's sound, and how many packets

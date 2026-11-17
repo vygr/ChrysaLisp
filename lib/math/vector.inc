@@ -11,20 +11,20 @@
 (enums +vec4 0
 	(enum x y z w))
 
-(defmacro Vec2-f (x y)
+(defmacro Vec2-q (x y)
 	`(fixeds ,x ,y))
 
-(defmacro Vec3-f (x y z)
+(defmacro Vec3-q (x y z)
 	`(fixeds ,x ,y ,z))
 
-(defmacro Vec4-f (x y z w)
+(defmacro Vec4-q (x y z w)
 	`(fixeds ,x ,y ,z ,w))
 
-(defmacro Vec3-r (x y z)
-	`(reals ,x ,y ,z))
+(defmacro Vec3-d (x y z)
+	`(doubles ,x ,y ,z))
 
-(defmacro Vec4-r (x y z w)
-	`(reals ,x ,y ,z ,w))
+(defmacro Vec4-d (x y z w)
+	`(doubles ,x ,y ,z ,w))
 
 ;useful vector constants
 (defq +nums_zero2 (nums 0 0)
@@ -32,27 +32,27 @@
 	+fixeds_zero2 (fixeds 0.0 0.0)
 	+fixeds_zero3 (fixeds 0.0 0.0 0.0)
 	+fixeds_zero4 (fixeds 0.0 0.0 0.0 0.0)
-	+reals_zero3 (reals (n2r 0) (n2r 0) (n2r 0))
-	+reals_zero4 (reals (n2r 0) (n2r 0) (n2r 0) (n2r 0))
-	+reals_one3 (reals (n2r 1) (n2r 1) (n2r 1))
-	+reals_one4 (reals (n2r 1) (n2r 1) (n2r 1) (n2r 1))
+	+doubles_zero3 (doubles (n2d 0) (n2d 0) (n2d 0))
+	+doubles_zero4 (doubles (n2d 0) (n2d 0) (n2d 0) (n2d 0))
+	+doubles_one3 (doubles (n2d 1) (n2d 1) (n2d 1))
+	+doubles_one4 (doubles (n2d 1) (n2d 1) (n2d 1) (n2d 1))
 	+nums_tmp3 (cat +nums_zero3) +nums_tmp2 (cat +nums_zero2)
 	+fixeds_tmp3 (cat +fixeds_zero3) +fixeds_tmp4 (cat +fixeds_zero4)
-	+reals_tmp3 (cat +reals_zero3) +reals_tmp4 (cat +reals_zero4))
+	+doubles_tmp3 (cat +doubles_zero3) +doubles_tmp4 (cat +doubles_zero4))
 
-;useful real constants
-(defmacro def_real (c s e f)
+;useful double constants
+(defmacro def_double (c s e f)
 	`(bind (map! (# (sym (str ,c (!)))) '() ,s ,e) (map! (# (,f (!))) '() ,s ,e)))
 ;[0:10]
-(def_real "+real_" 0 11 (# (n2r %0)))
+(def_double "+double_" 0 11 (# (n2d %0)))
 ;[-1:-10]
-(def_real "+real_" -10 0 (# (n2r %0)))
+(def_double "+double_" -10 0 (# (n2d %0)))
 ;[1/2:1/20]
-(def_real "+real_1/" 2 21 (# (/ (const (n2r 1)) (n2r %0))))
+(def_double "+double_1/" 2 21 (# (/ (const (n2d 1)) (n2d %0))))
 ;[-1/2:-1/20]
-(def_real "+real_-1/" 2 21 (# (/ (const (n2r -1)) (n2r %0))))
+(def_double "+double_-1/" 2 21 (# (/ (const (n2d -1)) (n2d %0))))
 ;pi and temp vec3, vec4
-(defq +real_pi (n2r +fp_pi) +real_hpi (n2r +fp_hpi) +real_2pi (n2r +fp_2pi))
+(defq +double_pi (n2d +fp_pi) +double_hpi (n2d +fp_hpi) +double_2pi (n2d +fp_2pi))
 
 ;macro to define macros that take optional output vector
 (defmacro vector-macro (op &rest v)
@@ -71,12 +71,12 @@
 (vector-macro "fixeds-frac" v)
 (vector-macro "fixeds-floor" v)
 (vector-macro "fixeds-ceil" v)
-(vector-macro "reals-quant" v tol)
+(vector-macro "doubles-quant" v tol)
 ;these don't take an optional output but...
 (vector-macro "nums-dot" v0 v1)
 (vector-macro "nums-sum" v)
 
-(undef (env) 'def_real 'vector-macro)
+(undef (env) 'def_double 'vector-macro)
 
 (defmacro vector-clamp (p1 p2 p3 &optional _)
 	(if _
@@ -85,8 +85,8 @@
 
 (defmacro vector-reflect (p n &optional _)
 	(if _
-		`(vector-sub ,p (vector-scale ,n (* (vector-dot ,p ,n) +real_2) ,_) ,_)
-		`(vector-sub ,p (vector-scale ,n (* (vector-dot ,p ,n) +real_2)))))
+		`(vector-sub ,p (vector-scale ,n (* (vector-dot ,p ,n) +double_2) ,_) ,_)
+		`(vector-sub ,p (vector-scale ,n (* (vector-dot ,p ,n) +double_2)))))
 
 (defmacro vector-length-squared (p)
 	`(vector-dot ,p ,p))
@@ -147,14 +147,14 @@
 		(- (* x1 y2) (* y1 x2))))
 
 (defun vector-face-normal (p0 p1 p2 none)
-	; (vector-face-normal p0 p1 p2 none) -> reals
-	;the normal of a triangle of reals, the way it faces when its corners go
+	; (vector-face-normal p0 p1 p2 none) -> doubles
+	;the normal of a triangle of doubles, the way it faces when its corners go
 	;round counter clockwise, none if it has no area and faces no way
-	(defq n (apply (const reals) (vector-cross-3d
-				(vector-sub p1 p0 (const (cat +reals_zero3)))
-				(vector-sub p2 p0 (const (cat +reals_zero3)))))
+	(defq n (apply (const doubles) (vector-cross-3d
+				(vector-sub p1 p0 (const (cat +doubles_zero3)))
+				(vector-sub p2 p0 (const (cat +doubles_zero3)))))
 		d (vector-dot n n))
-	(if (= d (n2r 0)) none (vector-scale n (recip (sqrt d)))))
+	(if (= d (n2d 0)) none (vector-scale n (recip (sqrt d)))))
 
 (defun vector-intersect-2d (l1_p1 av l2_p1 bv)
 	(defq axb (vector-det av bv)
@@ -234,13 +234,13 @@
 	; (vector-bounds-sphere verts [stride]) -> (center_v3 radius)
 	(setd stride +vec3_size)
 	(bind '(min_v max_v) (vector-bounds-3d verts stride))
-	(defq center (vector-scale (vector-add min_v max_v) +real_1/2)
-		radius (* (reduce max (vector-sub max_v min_v)) +real_1/2))
+	(defq center (vector-scale (vector-add min_v max_v) +double_1/2)
+		radius (* (reduce max (vector-sub max_v min_v)) +double_1/2))
 	(each (# (if (> stride +vec3_size)
 				(setq %0 (slice %0 0 +vec3_size)))
-			(defq pv (vector-sub %0 center +reals_tmp3) rv (vector-length pv))
+			(defq pv (vector-sub %0 center +doubles_tmp3) rv (vector-length pv))
 			(when (> rv radius)
-				(setq radius (* (+ radius rv) +real_1/2))
+				(setq radius (* (+ radius rv) +double_1/2))
 				(vector-sub %0 (vector-scale (vector-norm pv) radius pv) center)))
 		(partition verts stride))
 	(list center radius))

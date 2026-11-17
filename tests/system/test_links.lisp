@@ -23,10 +23,10 @@
 	(assert-eq "a task on another node answers" "back" (mail-read lk_mbox))
 	(assert-true "and the links have carried more" (> (lk_sum) lk_before)))
 
-(defq lk_cyl (Mesh-cylinder +real_1 +real_2 8))
+(defq lk_cyl (Mesh-cylinder +double_1 +double_2 8))
 (assert-eq "a cylinder of 8 sides, a ring at each end and two middles" 18 (/ (length (. lk_cyl :get_verts)) 4))
 (assert-eq "two faces a side and a slice of each end" 32 (/ (length (. lk_cyl :get_tris)) 4))
 (assert-eq "a normal for each face" 32 (/ (length (. lk_cyl :get_norms)) 3))
 (assert-true "it stands on y, from -1 to 1"
-	(every (# (or (= %0 +real_1) (= %0 +real_-1)))
+	(every (# (or (= %0 +double_1) (= %0 +double_-1)))
 		(map (# (second %0)) (partition (. lk_cyl :get_verts) 4))))

@@ -16,9 +16,9 @@
 (defq d_fixeds (dim (nums 2) (fixeds 1.5 2.5)))
 (assert-eq "dim-get fixeds 1" 2.5 (dim-get d_fixeds (nums 1)))
 
-; 5. Using reals as backing
-(defq d_reals (dim (nums 2) (reals (n2r 1.1) (n2r 2.2))))
-(assert-eq "dim-get reals 1" (n2r 2.2) (dim-get d_reals (nums 1)))
+; 5. Using doubles as backing
+(defq d_doubles (dim (nums 2) (doubles (n2d 1.1) (n2d 2.2))))
+(assert-eq "dim-get doubles 1" (n2d 2.2) (dim-get d_doubles (nums 1)))
 
 ; 6. Mutation
 (dim-set d_arr (nums 1 1) 99)

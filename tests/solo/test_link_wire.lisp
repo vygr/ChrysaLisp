@@ -1,6 +1,6 @@
 (report-header "Link wire: what a TCP link sends is what docs/ai_digest/link_protocol.md says, byte by byte")
 
-;this node's end of a link is real, the Net service's door and link tasks;
+;this node's end of a link is double, the Net service's door and link tasks;
 ;the other is a task here with a bare socket, that reads what comes and
 ;takes it apart by the document, its offsets and sizes written out here as
 ;numbers, not the code's names for them: a change to the code that the

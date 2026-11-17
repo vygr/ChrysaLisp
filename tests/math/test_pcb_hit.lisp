@@ -22,8 +22,8 @@
 
 ;random lines, points as pads are, along each axis and any way, and
 ;lines near each, at sixteenths and between
-(defun ph-c () (n2f (/ (random 3200) 16)))
-(defun ph-f () (/ (n2f (random 1000)) 1000.0))
+(defun ph-c () (n2q (/ (random 3200) 16)))
+(defun ph-f () (/ (n2q (random 1000)) 1000.0))
 (defun ph-line ()
 	(defq x (+ (ph-c) (ph-f)) y (+ (ph-c) (ph-f)) r (ph-f) g (* 0.2 (ph-f)))
 	(case (random 4)

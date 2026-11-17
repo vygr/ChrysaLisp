@@ -129,11 +129,11 @@
 	;a tone of hz a second for ms, at level of 32767, or till ctl is sent
 	;anything
 	(defq n (/ (* +sound_rate ms) 1000) level (ifn level 8192) at 0
-		step (/ (* (n2r hz) (const (n2r +fp_2pi))) (n2r +sound_rate)))
+		step (/ (* (n2d hz) (const (n2d +fp_2pi))) (n2d +sound_rate)))
 	(while (and (< at n) (not (sound-stopped? ctl)))
 		(defq piece (list) end (min n (+ at (/ +sound_piece 2))))
 		(while (< at end)
-			(push piece (char (n2i (* (n2r level) (sin (* step (n2r at))))) 2))
+			(push piece (char (n2i (* (n2d level) (sin (* step (n2d at))))) 2))
 			(setq at (inc at)))
 		(sound-write out (apply (const cat) (cat (list "") piece)))
 		(task-slice)))
@@ -160,7 +160,7 @@
 (defun sound-lowpass (in out hz)
 	; (sound-lowpass in out hz)
 	;what is above hz let through less, a pole of its own
-	(defq k (n2i (* (n2r 65536) (/ (* (const (n2r +fp_2pi)) (n2r hz)) (+ (n2r +sound_rate) (* (const (n2r +fp_2pi)) (n2r hz))))))
+	(defq k (n2i (* (n2d 65536) (/ (* (const (n2d +fp_2pi)) (n2d hz)) (+ (n2d +sound_rate) (* (const (n2d +fp_2pi)) (n2d hz))))))
 		y 0)
 	(sound-pieces in (lambda (data)
 			(sound-write out (sound-map data (lambda (x)

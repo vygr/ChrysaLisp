@@ -188,8 +188,8 @@
 					(/= (getf *msg* +ev_msg_mouse_buttons) 0))
 				;the mouse held down on the canvas moves the light
 				(bind '(w h) (. *canvas* :get_size))
-				(defq lx (n2f (* (- (getf *msg* +ev_msg_mouse_rx) (/ w 2)) 4))
-					ly (n2f (* (- (getf *msg* +ev_msg_mouse_ry) (/ h 2)) 4))
+				(defq lx (n2q (* (- (getf *msg* +ev_msg_mouse_rx) (/ w 2)) 4))
+					ly (n2q (* (- (getf *msg* +ev_msg_mouse_ry) (/ h 2)) 4))
 					lz (const (* +box_size -4.0))
 					len (sqrt (+ (* lx lx) (* ly ly) (* lz lz))))
 				(setq light_x (/ lx len) light_y (/ ly len)))

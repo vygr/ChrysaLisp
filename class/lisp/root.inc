@@ -99,13 +99,13 @@
 (ffi "class/num/lisp_n2i" n2i)
 ; (n2i num) -> num
 ;the fastest conversion for each type, with no rounding mode. A fixed is
-;shifted, so goes down, a real is truncated, so goes toward zero. They only
+;shifted, so goes down, a double is truncated, so goes toward zero. They only
 ;differ for a negative value with a fraction. If it matters, use (floor) or
 ;(ceil) first.
-(ffi "class/num/lisp_n2f" n2f)
-; (n2f num) -> fixed
-(ffi "class/num/lisp_n2r" n2r)
-; (n2r num) -> real
+(ffi "class/num/lisp_n2q" n2q)
+; (n2q num) -> fixed
+(ffi "class/num/lisp_n2d" n2d)
+; (n2d num) -> double
 (ffi "class/num/lisp_random" random)
 ; (random num) -> num
 (ffi "class/num/lisp_num" num)
@@ -166,16 +166,16 @@
 ; (fixeds-floor fixeds [fixeds]) -> fixeds
 (ffi "class/fixeds/lisp_ceil" fixeds-ceil)
 ; (fixeds-ceil fixeds [fixeds]) -> fixeds
-(ffi "class/real/lisp_quant" quant)
-; (quant real tol) -> real
-(ffi "class/reals/lisp_quant" reals-quant)
-; (reals-quant reals tol [reals]) -> reals
-(ffi "class/reals/lisp_mat4x4_mul" mat4x4-mul)
-; (mat4x4-mul reals reals [reals]) -> reals
-(ffi "class/reals/lisp_mat4x4_v4_mul" mat4x4-vec4-mul)
-; (mat4x4-vec4-mul reals reals [reals]) -> reals
-(ffi "class/reals/lisp_mat4x4_v3_mul" mat4x4-vec3-mul)
-; (mat4x4-vec3-mul reals reals [reals]) -> reals
+(ffi "class/double/lisp_quant" quant)
+; (quant double tol) -> double
+(ffi "class/doubles/lisp_quant" doubles-quant)
+; (doubles-quant doubles tol [doubles]) -> doubles
+(ffi "class/doubles/lisp_mat4x4_mul" mat4x4-mul)
+; (mat4x4-mul doubles doubles [doubles]) -> doubles
+(ffi "class/doubles/lisp_mat4x4_v4_mul" mat4x4-vec4-mul)
+; (mat4x4-vec4-mul doubles doubles [doubles]) -> doubles
+(ffi "class/doubles/lisp_mat4x4_v3_mul" mat4x4-vec3-mul)
+; (mat4x4-vec3-mul doubles doubles [doubles]) -> doubles
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Sequence, Array, and List Operations
@@ -402,8 +402,8 @@
 ; (nums [num ...]) -> nums
 (ffi "class/array/lisp_fixeds" fixeds)
 ; (fixeds [fixed ...]) -> fixeds
-(ffi "class/array/lisp_reals" reals)
-; (reals [real ...]) -> reals
+(ffi "class/array/lisp_doubles" doubles)
+; (doubles [double ...]) -> doubles
 (ffi "class/array/lisp_path" path)
 ; (path [fixed ...]) -> path
 (ffi "class/dim/lisp_dim" dim)
@@ -526,7 +526,7 @@
 	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
 	+type_ptr 0 +type_pptr -1 +type_byte -2 +type_ubyte -3
 	+type_short -4 +type_ushort -5 +type_int -6 +type_uint -7
-	+type_long -8 +type_fixed -9 +type_real -10
+	+type_long -8 +type_fixed -9 +type_double -10
 	defmacro `(,macro (n a &rest _)
 		(,if (,get n (,penv)) (,throw "Macro override !, use redefmacro ? !" n))
 		`(defq ,n (macro ,a ~_))))
@@ -650,9 +650,13 @@
 	; (fixed?? form) -> :t | :nil
 	(eql :fixed (pop (type-of %0))))
 
-(defun real? (%0)
-	; (real? form) -> :t | :nil
-	(find :real (type-of %0)))
+(defun double? (%0)
+	; (double? form) -> :t | :nil
+	(find :double (type-of %0)))
+
+(defun double?? (%0)
+	; (double?? form) -> :t | :nil
+	(eql :double (pop (type-of %0))))
 
 (defun nums? (%0)
 	; (nums? form) -> :t | :nil
@@ -670,13 +674,13 @@
 	; (fixeds?? form) -> :t | :nil
 	(eql :fixeds (pop (type-of %0))))
 
-(defun reals? (%0)
-	; (reals? form) -> :t | :nil
-	(find :reals (type-of %0)))
+(defun doubles? (%0)
+	; (doubles? form) -> :t | :nil
+	(find :doubles (type-of %0)))
 
-(defun reals?? (%0)
-	; (reals?? form) -> :t | :nil
-	(eql :reals (pop (type-of %0))))
+(defun doubles?? (%0)
+	; (doubles?? form) -> :t | :nil
+	(eql :doubles (pop (type-of %0))))
 
 (defun func? (%0)
 	; (func? form) -> :t | :nil
@@ -1192,36 +1196,36 @@
 	(defq b (bskip (setd cls " ") s 0))
 	(slice s b (max b (rbskip cls s -1))))
 
-(defun real-to-str (r &optional precision)
-	; (real-to-str real [precision]) -> str
-	(ifn (real? r) (setq r (n2r r)))
+(defun double-to-str (r &optional precision)
+	; (double-to-str double [precision]) -> str
+	(ifn (double? r) (setq r (n2d r)))
 	;one that is less than 0 is that of what it is without its sign, with
 	;a - before it
 	(defq sign "")
-	(when (< r (const (n2r 0))) (setq r (neg r) sign "-"))
+	(when (< r (const (n2d 0))) (setq r (neg r) sign "-"))
 	(cond
-		((= r (const (n2r 0))) "0.0")
+		((= r (const (n2d 0))) "0.0")
 		(:t
 			(setd precision 8)
 			(setq precision (min 14 (max 1 precision)))
 			(defq exp 0 is_exp :nil)
-			(when (or (>= r (const (n2r 1000000000000)))
-					(< r (const (/ (n2r 1) (n2r 10000)))))
+			(when (or (>= r (const (n2d 1000000000000)))
+					(< r (const (/ (n2d 1) (n2d 10000)))))
 				(setq is_exp :t)
 				(cond
-					((>= r (const (n2r 10)))
-						(while (>= r (const (n2r 10)))
-							(setq r (/ r (const (n2r 10))))
+					((>= r (const (n2d 10)))
+						(while (>= r (const (n2d 10)))
+							(setq r (/ r (const (n2d 10))))
 							(++ exp)))
-					((< r (const (n2r 1)))
-						(while (< r (const (n2r 1)))
-							(setq r (* r (const (n2r 10))))
+					((< r (const (n2d 1)))
+						(while (< r (const (n2d 1)))
+							(setq r (* r (const (n2d 10))))
 							(-- exp)))))
 			(defq int_part (n2i r)
-				frac (- r (n2r int_part))
+				frac (- r (n2d int_part))
 				max_scaled (pow 10 precision)
-				pow10 (n2r max_scaled)
-				scaled (n2i (+ (* frac pow10) (const (n2r 0.5)))))
+				pow10 (n2d max_scaled)
+				scaled (n2i (+ (* frac pow10) (const (n2d 0.5)))))
 			(when (>= scaled max_scaled)
 				(++ int_part)
 				(setq scaled 0)
@@ -1301,7 +1305,7 @@
 		((i ui) +int_size)
 		((s us) +short_size)
 		((b ub) +byte_size)
-		;ptr, long, real
+		;ptr, long, double
 		(+long_size)))
 
 (defun lisp-nodes (&optional system)
@@ -1419,9 +1423,9 @@
 		(while (< idx e) (setq n (+ (<< n 8) (get-ubyte s idx)) idx (inc idx)))
 		n))
 
-(defmacro get-real (obj idx)
-	; (get-real str idx) -> real
-	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_real)))
+(defmacro get-double (obj idx)
+	; (get-double str idx) -> double
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_double)))
 
 (defmacro get-byte (obj idx)
 	; (get-byte str idx) -> num
@@ -1459,9 +1463,9 @@
 	; (set-long str idx num) -> str
 	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_long ,val)))
 
-(defmacro set-real (obj idx val)
-	; (set-real str idx num) -> str
-	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_real ,val)))
+(defmacro set-double (obj idx val)
+	; (set-double str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_double ,val)))
 
 (defmacro set-str (obj idx val)
 	; (set-str str idx val) -> str
@@ -1701,8 +1705,8 @@
 (import "lib/collections/collections.inc")
 (import "lib/text/searching.inc")
 (import "lib/math/bignum.inc")
-(defun str-to-real (%0)
-	; (str-to-real str) -> real
+(defun str-to-double (%0)
+	; (str-to-double str) -> double
 	;the nearest double to a number in decimal, 1.5, -2.5e-3, 9.97231e-09, a
 	;tie to the even one. Its digits are a whole number m, and where the
 	;point is and the e a power of 10. An m of up to 2^53 and a power of up
@@ -1725,20 +1729,20 @@
 	(defq n (length digits) word (str-alloc 8)
 		m (reduce! (# (+ (* %0 10) %1)) (list digits) 0 0 (min n 18))
 		r (cond
-			((= n 0) (const (n2r 0)))
-			((> (+ n e) 310) (get-real (set-long word 0 0x7ff0000000000000) 0))
-			((< (+ n e) -325) (const (n2r 0)))
+			((= n 0) (const (n2d 0)))
+			((> (+ n e) 310) (get-double (set-long word 0 0x7ff0000000000000) 0))
+			((< (+ n e) -325) (const (n2d 0)))
 			((and (<= n 16) (<= m 0x20000000000000) (<= -22 e 22))
-				(defq p (const (n2r 1)))
-				(times (abs e) (setq p (* p (const (n2r 10)))))
-				(if (< e 0) (/ (n2r m) p) (* (n2r m) p)))
+				(defq p (const (n2d 1)))
+				(times (abs e) (setq p (* p (const (n2d 10)))))
+				(if (< e 0) (/ (n2d m) p) (* (n2d m) p)))
 			(:t ;near enough, from the first 18 digits, a power below -300 in
 				;two, so neither is out of range
-				(defq e18 (+ e (max 0 (- n 18))) z (n2r m))
+				(defq e18 (+ e (max 0 (- n 18))) z (n2d m))
 				(if (< e18 -300)
-					(setq z (/ (* z (pow (const (n2r 10)) (n2r (+ e18 300))))
-						(const (pow (n2r 10) (n2r 300)))))
-					(setq z (* z (pow (const (n2r 10)) (n2r e18)))))
+					(setq z (/ (* z (pow (const (n2d 10)) (n2d (+ e18 300))))
+						(const (pow (n2d 10) (n2d 300)))))
+					(setq z (* z (pow (const (n2d 10)) (n2d e18)))))
 				;m and the power of 10 as whole numbers, lib/math/bignum.inc, m on
 				;the left if the power is up, the power on the right if down, each
 				;against a halfway point, a whole number times 2 to a power
@@ -1746,7 +1750,7 @@
 						digits (bn-from-num 0))
 					left (if (< e 0) big (bn-mul big (bn-pow10 e)))
 					right (if (< e 0) (bn-pow10 (neg e)) (bn-from-num 1))
-					b (get-long (set-real word 0 z) 0) running :t)
+					b (get-long (set-double word 0 z) 0) running :t)
 				(if (>= b 0x7ff0000000000000) (setq b 0x7fefffffffffffff))
 				(while running
 					(defq ef (>> b 52) f (logand b 0xfffffffffffff)
@@ -1763,7 +1767,7 @@
 							(if (or (< c 0) (and (= c 0) (/= (logand fm 1) 0)))
 								(setq b (dec b))
 								(setq running :nil)))))
-				(get-real (set-long word 0 b) 0))))
+				(get-double (set-long word 0 b) 0))))
 	(if (eql (first %0) "-") (neg r) r))
 
 (import "sys/lisp.inc")

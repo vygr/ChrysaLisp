@@ -317,7 +317,7 @@ does not read
 ### aac-decode
 
 ```code
-(aac-decode decoder packet) -> ((reals) ...)
+(aac-decode decoder packet) -> ((doubles) ...)
 
 the 1024 samples of each channel of a packet
 ```
@@ -335,7 +335,7 @@ of the DCT-IV is taken now, not as this is read
 ### aac-dequant
 
 ```code
-(aac-dequant channel tables) -> reals
+(aac-dequant channel tables) -> doubles
 
 the 1024 lines of a channel, each |v|^(4/3) by the gain of its band,
 the pulses added to them first; noise and intensity bands left 0
@@ -388,7 +388,7 @@ short windows, how many windows in each, and the bands' bounds
 ### aac-imdct
 
 ```code
-(aac-imdct decoder lines info channel) -> reals
+(aac-imdct decoder lines info channel) -> doubles
 
 the 1024 samples of a channel's lines: the IMDCT, windowed, its first
 half added to what the block before left, its second half left
@@ -411,9 +411,9 @@ each band of noise filled, random lines of the band's energy
 ### aac-root
 
 ```code
-(aac-root x n) -> real
+(aac-root x n) -> double
 
-the nth root of a real of 1 or more, by Newton's steps, from above it,
+the nth root of a double of 1 or more, by Newton's steps, from above it,
 so each is less than the one before till it is there: a step that is
 not less ends it, as the last bit may go to and fro
 ```
@@ -511,7 +511,7 @@ or as Matroska has it, the AudioSpecificConfig alone, :asc
 ### aac-unfold
 
 ```code
-(aac-unfold decoder lines n) -> reals
+(aac-unfold decoder lines n) -> doubles
 ```
 
 ### aac-values
@@ -539,20 +539,20 @@ the rising halves of the windows, alpha 4 for the long, 6 for the short
 ### ac3-aht
 
 ```code
-(ac3-aht decoder reader channel) -> reals
+(ac3-aht decoder reader channel) -> doubles
 
 the mantissas of a channel of AHT for all 6 blocks, all sent in the
 first: the gains of the gain adaptive quantisation read here, then by
 the native reader, lib/media/lisp.vp media_ac3_aht, each bin by its high
 efficiency bap, 0 noise, 1 to 7 a vector of 6 by one code, 8 and more 6
 numbers, the DCT of 6 back across the blocks, by 2^-exponent, the
-exponents the same in all 6: a reals of 6 blocks of 256
+exponents the same in all 6: a doubles of 6 blocks of 256
 ```
 
 ### ac3-aht-coeffs
 
 ```code
-(ac3-aht-coeffs decoder reader channel blk) -> reals
+(ac3-aht-coeffs decoder reader channel blk) -> doubles
 
 a block's coefficients of a channel of AHT, its mantissas read in the
 first block, by 2^-exponent
@@ -579,11 +579,11 @@ by the table of AC-3 or of AHT. Native, lib/media/lisp.vp media_ac3_bap
 ### ac3-block
 
 ```code
-(ac3-block decoder reader header blk) -> (reals ...)
+(ac3-block decoder reader header blk) -> (doubles ...)
 
 a block: its strategies, coupling, exponents, the bit allocation where
 it changes, and the mantissas, made coefficients, those of the coupled
-channels by their coordinates; a reals of 256 a channel, 1 to fbw and
+channels by their coordinates; a doubles of 256 a channel, 1 to fbw and
 the LFE, by 2^-exponent
 ```
 
@@ -607,7 +607,7 @@ channel: 0 the coupling channel, 1 to fbw the full ones, fbw+1 the LFE
 ### ac3-drc
 
 ```code
-(ac3-drc code) -> real
+(ac3-drc code) -> double
 
 a gain of dynamic range, 2^x by 1 to 2 in 32nds, x signed of 3 bits
 ```
@@ -624,7 +624,7 @@ information metadata, all stepped over
 ### ac3-frame
 
 ```code
-(ac3-frame decoder packet) -> ((reals ...) ...)
+(ac3-frame decoder packet) -> ((doubles ...) ...)
 
 the samples of a frame, 256 a block a channel, each channel's blocks
 one after another: the header, the frame's strategies, and each
@@ -646,7 +646,7 @@ each block, AHT, SNR offset, and what is stepped over
 ### ac3-grouped
 
 ```code
-(ac3-grouped codes per levels) -> (real ...)
+(ac3-grouped codes per levels) -> (double ...)
 
 the levels of each code of a grouped bap, per to a code, of a code v the
 first v mod levels, the next of v by levels, the last what is left, in
@@ -678,7 +678,7 @@ masking of the bit allocation by the rate's own bands
 ### ac3-mantissas
 
 ```code
-(ac3-mantissas decoder reader channel groups) -> reals
+(ac3-mantissas decoder reader channel groups) -> doubles
 
 the coefficients of a channel's bins, each its mantissa by 2^-exponent:
 bap 1 2 and 4 are levels sent three or two to a code, those codes
@@ -1490,6 +1490,14 @@ len bytes of a, the top byte first, 0s in front as need be
 (bn-cmp a b) -> -1 | 0 | 1
 ```
 
+### bn-cmp-shl
+
+```code
+(bn-cmp-shl a b q) -> -1 | 0 | 1
+
+a against b times 2 to the q, q above or below 0
+```
+
 ### bn-from-bytes
 
 ```code
@@ -1560,6 +1568,14 @@ has gone under 0 is an error
 a with limbs of 0 at the top, to n limbs
 ```
 
+### bn-pow10
+
+```code
+(bn-pow10 k) -> nums
+
+10 to the k, k not less than 0, 7 at a time, as 10^7 is a limb
+```
+
 ### bn-powmod
 
 ```code
@@ -1583,7 +1599,7 @@ too big, and what it times up is taken from x
 ```code
 (bn-shl a s) -> nums
 
-a moved up s bits, s less than 26
+a moved up s bits, whole limbs of them and then the rest
 ```
 
 ### bn-shr
@@ -2150,7 +2166,7 @@ files whose names end ext are read by these, (info stream) and
 ```code
 (canvas-mesh-create verts) -> 0 | mesh
 
-the vertices of a mesh, kept on the GPU, from the bytes of a reals,
+the vertices of a mesh, kept on the GPU, from the bytes of a doubles,
 the attrs of a vertex one after another
 ```
 
@@ -3408,6 +3424,36 @@ what is in a folder, each name and what the host says it is, "f" a
 file, "d" a folder, "l" a link to a file, as two lists. Not "." nor "..",
 nor a link to a folder, nor what is none of them. Nothing for a folder
 that is not there
+```
+
+### double-to-str
+
+```code
+(double-to-str double [precision]) -> str
+```
+
+### double?
+
+```code
+(double? form) -> :t | :nil
+```
+
+### double??
+
+```code
+(double?? form) -> :t | :nil
+```
+
+### doubles?
+
+```code
+(doubles? form) -> :t | :nil
+```
+
+### doubles??
+
+```code
+(doubles?? form) -> :t | :nil
 ```
 
 ### each-mergeable
@@ -4818,7 +4864,7 @@ frame n, to the header of frame n + 1; the ends of the last four kept
 ```code
 (flac-pcm info chans) -> (left right)
 
-a frame's channels as reals at the scale of 16 bits, the first two, the
+a frame's channels as doubles at the scale of 16 bits, the first two, the
 one of one on both
 ```
 
@@ -6402,7 +6448,7 @@ the file, not part of its name
 ### mdct-i0
 
 ```code
-(mdct-i0 x) -> real
+(mdct-i0 x) -> double
 
 the Bessel function I0, its series, the terms till they are nothing
 ```
@@ -6410,7 +6456,7 @@ the Bessel function I0, its series, the terms till they are nothing
 ### mdct-imdct
 
 ```code
-(mdct-imdct dct4 tables lines n) -> reals
+(mdct-imdct dct4 tables lines n) -> doubles
 
 the 2n samples of the IMDCT of n lines: their DCT-IV y, by 2/N, 1/n,
 as y from n/2, then -y backwards, then -y to n/2
@@ -6419,7 +6465,7 @@ as y from n/2, then -y backwards, then -y to n/2
 ### mdct-kbd
 
 ```code
-(mdct-kbd n alpha) -> reals
+(mdct-kbd n alpha) -> doubles
 
 the rising half, n, of the Kaiser-Bessel derived window of 2n
 ```
@@ -6427,13 +6473,13 @@ the rising half, n, of the Kaiser-Bessel derived window of 2n
 ### mdct-pi
 
 ```code
-(mdct-pi) -> real
+(mdct-pi) -> double
 ```
 
 ### mdct-sine
 
 ```code
-(mdct-sine n) -> reals
+(mdct-sine n) -> doubles
 
 the rising half, n, of the sine window of 2n
 ```
@@ -6941,7 +6987,7 @@ the bytes of an ID3v2 tag at the start, and its footer, 0 if none
 ### mp3-imdct
 
 ```code
-(mp3-imdct lines granule overlap) -> (reals ...)
+(mp3-imdct lines granule overlap) -> (doubles ...)
 
 each subband's 18 samples: the IMDCT of 36 of its 18 lines, or of a
 short block three of 12 of its 6 a window, by the window of its block
@@ -6986,7 +7032,7 @@ read are kept, the sound and the picture each read one after another
 ### mp3-pi
 
 ```code
-(mp3-pi) -> real
+(mp3-pi) -> double
 
 pi, by Newton from 3, sin(x) to 0
 ```
@@ -7033,7 +7079,7 @@ a short block's lines from band, window, line to band, line, window
 ### mp3-requant
 
 ```code
-(mp3-requant granule lines sf sri) -> reals
+(mp3-requant granule lines sf sri) -> doubles
 
 each line by the gain of its band: the global gain, less its scale
 factor and the pretab by the scale, of a short window its gain too
@@ -7042,7 +7088,7 @@ factor and the pretab by the scale, of a short window its gain too
 ### mp3-rows
 
 ```code
-(mp3-rows rows cols f) -> reals
+(mp3-rows rows cols f) -> doubles
 
 a matrix of (f row col), its rows one after another, as the native
 media_matvec takes it
@@ -7815,7 +7861,7 @@ the matrix that puts the whole of it in a ball of radius 1 about 0
 ### obj-flat
 
 ```code
-(obj-flat obj corners [matrix]) -> reals
+(obj-flat obj corners [matrix]) -> doubles
 
 the triangles of a group as a shader is given them, a corner eight
 numbers: where it is, three, after matrix if one is given, the place
@@ -7836,7 +7882,7 @@ a number of a corner as an index from 0, -1 if there is none
 ### obj-normal
 
 ```code
-(obj-normal p0 p1 p2) -> reals
+(obj-normal p0 p1 p2) -> doubles
 
 the normal of a triangle, the way it faces when its corners go round
 counter clockwise
@@ -7848,8 +7894,8 @@ one with no area faces up
 ```code
 (obj-read stream) -> emap
 
-:positions reals, three a position, :places reals, two a place,
-:normals reals, three a normal, :groups ((material nums) ...), the
+:positions doubles, three a position, :places doubles, two a place,
+:normals doubles, three a normal, :groups ((material nums) ...), the
 nums three a corner and nine a triangle, in the order the materials
 were first used, and :libraries (name ...), the .mtl files
 ```
@@ -8483,7 +8529,7 @@ the lines of VP function bodies by their blocks
 (place-turn place da cx cy) -> place
 
 turned by da about a point of what holds it. Where it goes is worked
-out in reals: a fixed cos and sin are a turn that is a little too
+out in doubles: a fixed cos and sin are a turn that is a little too
 small, and that, a thousand times, is a thing that creeps
 ```
 
@@ -8870,7 +8916,7 @@ centre and the odd are not 0
 (ps-map to from spec) -> to
 
 each band of the spec the mean of its bands of from, of numbers as C
-divides them, to 0, of reals by the count
+divides them, to 0, of doubles by the count
 ```
 
 ### ps-new
@@ -8938,7 +8984,7 @@ the 32 slots of 64 QMF bands of the hybrid bands, those split summed
 ```code
 (ps-tables)
 
-the books made native tables and the rest reals, made the once
+the books made native tables and the rest doubles, made the once
 ```
 
 ### pset?
@@ -9117,30 +9163,6 @@ the tree of the source: the forms, each with the comment after it on
 its line, the comments on lines of their own, and where a blank line was
 ```
 
-### real-to-str
-
-```code
-(real-to-str real [precision]) -> str
-```
-
-### real?
-
-```code
-(real? form) -> :t | :nil
-```
-
-### reals?
-
-```code
-(reals? form) -> :t | :nil
-```
-
-### reals??
-
-```code
-(reals?? form) -> :t | :nil
-```
-
 ### reel-clock
 
 ```code
@@ -9229,7 +9251,7 @@ had. :nil if it can not, and a codec of the scale is to be made
 (reel-wave canvas w h pcm) -> canvas
 
 the picture of a reel of sound, a frame's samples, pcm the left and the
-right as reals at the scale of 16 bits, or :nil for none: the left above
+right as doubles at the scale of 16 bits, or :nil for none: the left above
 the right, a column of two pixels a sample, joined to the one before
 ```
 
@@ -9669,7 +9691,7 @@ DST-IV of u n + u 63-n, im, a DCT-IV of it backwards by -1 to the k
 ### sbr-apply
 
 ```code
-(sbr-apply sbr kind chans [alone]) -> (reals ...)
+(sbr-apply sbr kind chans [alone]) -> (doubles ...)
 
 the 2048 samples of each of an element's channels of 1024, its kind
 0 a channel or 1 a pair: each to the QMF bank's bands, its high band
@@ -9762,7 +9784,7 @@ from the last envelope, its table of the other resolution mapped
 ### sbr-estimate
 
 ```code
-(sbr-estimate sbr data high) -> (reals ...)
+(sbr-estimate sbr data high) -> (doubles ...)
 
 of each envelope the energy of the high band made, each band's, or
 over each band of its table, by the slots of the envelope. Each band's
@@ -9862,7 +9884,7 @@ border kept over another
 ### sbr-log2
 
 ```code
-(sbr-log2 real) -> real
+(sbr-log2 double) -> double
 
 of 1 or more, by halving the step to it, pow being there and log not
 ```
@@ -9942,15 +9964,15 @@ data. How many bits it took, a wrong frame turns SBR off
 ### sbr-round
 
 ```code
-(sbr-round real) -> num
+(sbr-round double) -> num
 ```
 
 ### sbr-runs
 
 ```code
-(sbr-runs table count values kx) -> reals
+(sbr-runs table count values kx) -> doubles
 
-48 reals from kx: of each of count bands of the table, its value over
+48 doubles from kx: of each of count bands of the table, its value over
 its run, 0 below its first and above its last
 ```
 
@@ -9965,7 +9987,7 @@ the borders of bands of widths from start
 ### sbr-synthesis
 
 ```code
-(sbr-synthesis data slots) -> reals
+(sbr-synthesis data slots) -> doubles
 
 the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
 bands newest in v, its 10 parts by the window, summed. Of the sum of
@@ -10111,6 +10133,12 @@ to 4 decimal places, so that is what it is rounded to. A number that
 needs more is written as a str, and is taken as it stands.
 ```
 
+### sh-double-to-float
+
+```code
+the bits of a 32 bit float, from a double, a fixed or an int
+```
+
 ### sh-expr
 
 ```code
@@ -10121,10 +10149,10 @@ a list, the next thing last, an expression or the making of one whose
 args are done, and what has been made so far is another
 ```
 
-### sh-float-to-real
+### sh-float-to-double
 
 ```code
-a real from the bits of a 32 bit float
+a double from the bits of a 32 bit float
 ```
 
 ### sh-fold
@@ -10193,12 +10221,6 @@ pixel shaders with no varyings and no matrix in them
 
 ```code
 the offset of a kernel's range in the inputs block
-```
-
-### sh-real-to-float
-
-```code
-the bits of a 32 bit float, from a real, a fixed or an int
 ```
 
 ### sh-returns?
@@ -10377,6 +10399,14 @@ and globals are :lazy. (shader-full) reads the rest when it is wanted.
 
 ```code
 (shader-dim type) -> :nil | 2 | 3 | 4
+```
+
+### shader-double
+
+```code
+(shader-double num) -> double
+
+a fixed is rounded as a float literal of the language is
 ```
 
 ### shader-from-text
@@ -10650,7 +10680,7 @@ gives each pixel its frag coord, with y up. The entry point is vertex_main.
 (shader-pack program [((name val) ...)]) -> block
 
 a value not given is the default of the input. A float can be a
-real, a fixed or an int, a vector is a sequence of them.
+double, a fixed or an int, a vector is a sequence of them.
 ```
 
 ### shader-pair
@@ -10675,14 +10705,6 @@ the range of a kernel's run, its first index and the one past its last
 
 ```code
 (shader-read stream) -> forms
-```
-
-### shader-real
-
-```code
-(shader-real num) -> real
-
-a fixed is rounded as a float literal of the language is
 ```
 
 ### shader-size
@@ -10838,7 +10860,7 @@ canvas they came with the answer, and are put there
 ```code
 (shader-unpack program block) -> ((name val) ...)
 
-a float comes back as a real, a vector as a reals
+a float comes back as a double, a vector as a doubles
 ```
 
 ### shader-varyings
@@ -10852,9 +10874,9 @@ what a vertex shader sets for the pixel shader, or a pixel shader reads
 ### shader-verts-str
 
 ```code
-(shader-verts-str reals) -> str
+(shader-verts-str doubles) -> str
 
-the bytes of a reals of vertices, to send in a message
+the bytes of a doubles of vertices, to send in a message
 ```
 
 ### shader-vp
@@ -10906,7 +10928,7 @@ color times its alpha.
 ```code
 (shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1 depth_y]) -> pixmap
 
-draw triangles on a 32 bit pixmap. verts is a reals, the attrs of a
+draw triangles on a 32 bit pixmap. verts is a doubles, the attrs of a
 vertex one after another, vertex after vertex, or the bytes of one
 in a str. tris is a nums, three
 numbers of vertices for each triangle, the first three of every
@@ -10952,8 +10974,8 @@ the frame the native function works in, with the inputs set
 (shader-vp-func program name) -> func
 
 a function of a file of functions, as a native function Lisp calls,
-(func arg ...) -> value. A :float is a real, an :int a num, a vector
-a reals of its size, a :mat4 a reals of 16, a row at a time, and
+(func arg ...) -> value. A :float is a double, an :int a num, a vector
+a doubles of its size, a :mat4 a doubles of 16, a row at a time, and
 what comes back is one of those, made new. It is assembled the first
 time this CPU meets it, and kept.
 ```
@@ -10984,18 +11006,18 @@ placed vertex each varying of the pixel shader is.
 ```code
 (shader-vp-pixels native frame x y x1 y1) -> (vec4 ...)
 
-the pixels of a tile, row by row, each a reals of 4
+the pixels of a tile, row by row, each a doubles of 4
 ```
 
 ### shader-vp-place
 
 ```code
-(shader-vp-place native frame verts) -> reals
+(shader-vp-place native frame verts) -> doubles
 
-place the vertices of a reals, the attrs of one after another, vertex
-after vertex. The result is a reals, for each vertex where it is, 4
+place the vertices of a doubles, the attrs of one after another, vertex
+after vertex. The result is a doubles, for each vertex where it is, 4
 numbers, then its varyings. The vertices can be a str, the bytes of
-such a reals, 8 to a number, as (shader-verts-str) makes, which is
+such a doubles, 8 to a number, as (shader-verts-str) makes, which is
 how they are when they have come in a message.
 ```
 
@@ -14295,12 +14317,18 @@ not known
 return as type num even for fixed point
 ```
 
-### str-to-real
+### str-to-double
 
 ```code
-(str-to-real str) -> real
+(str-to-double str) -> double
 
-handles scientific notation like 1.5e-3 or 9.97231e-09
+the nearest double to a number in decimal, 1.5, -2.5e-3, 9.97231e-09, a
+tie to the even one. Its digits are a whole number m, and where the
+point is and the e a power of 10. An m of up to 2^53 and a power of up
+to 22 is one multiply or divide of two exact doubles, so the nearest.
+Any other is worked out near enough, then put right a bit at a time,
+m times the power checked against the halfway to the next double up
+and down as whole numbers
 ```
 
 ### str?
@@ -14440,6 +14468,12 @@ the double of a float register, the one register
 a new variable, set to the value of an expression
 ```
 
+### sv-doubles
+
+```code
+a doubles of n numbers, all 0
+```
+
 ### sv-emit
 
 ```code
@@ -14485,10 +14519,10 @@ floor of a register, in place
 
 the VP source of the native function for a function of a file of
 functions. It is called from Lisp as any native function is. Its
-frame is on the stack. A number arg is copied to it. A reals arg is
+frame is on the stack. A number arg is copied to it. A doubles arg is
 read where it is, by a register, the first three of them, if the
 function never sets it, else it is copied too. What it gives is a
-new real, num or reals, and a reals is made first and written
+new double, num or doubles, and a doubles is made first and written
 straight into.
 ```
 
@@ -14530,7 +14564,7 @@ a float from a slot of the frame, or from where that slot really is
 ### sv-ldf
 
 ```code
-a float to a register, of the frame the single it is, of a reals the
+a float to a register, of the frame the single it is, of a doubles the
 
 nearest single to its double
 ```
@@ -14592,6 +14626,15 @@ a matrix times a vector that is in registers, to new registers. A
 vec3 is by the 3 by 3 of the matrix
 ```
 
+### sv-math
+
+```code
+sin, cos, exp or log of a register, which is given up, to a new
+
+register. The function of the system is of a double, of the single,
+and its answer is made the nearest single
+```
+
 ### sv-name
 
 ```code
@@ -14616,7 +14659,7 @@ CPU has not got it yet
 ```code
 as (shader-vp-place), for a result that is used at once and let go
 
-of, as a draw does. The reals the last such call of that size gave
+of, as a draw does. The doubles the last such call of that size gave
 is used again, every number of it is written, so there is no new one
 to make and clear for each object of each frame
 ```
@@ -14640,12 +14683,6 @@ label of its own. The labels start with the prefix, so that the two
 programs of a pair can be in the one native function.
 ```
 
-### sv-reals
-
-```code
-a reals of n numbers, all 0
-```
-
 ### sv-run
 
 ```code
@@ -14661,15 +14698,6 @@ stack, a list, each the registers a value is in
 does any statement of a block set this variable. The block is walked
 
 with a list as the stack of what is still to be looked at
-```
-
-### sv-sin
-
-```code
-sin or cos of a register, which is given up, to a new register. The
-
-sin of the system is of a double, of the single, and its answer is
-made the nearest single
 ```
 
 ### sv-slots
@@ -14701,7 +14729,7 @@ a float goes with every component of a vector
 ### sv-stf
 
 ```code
-a float register to the frame as the single, to a reals as the double
+a float register to the frame as the single, to a doubles as the double
 
 of it. Then the register is the double, every store is of a register
 that is given up after, or loaded again before it is used
@@ -14877,13 +14905,13 @@ to have been asked of already, as a walk down the tree does
 ### sync-inside?
 
 ```code
-(sync-inside? root path [real]) -> :nil | :t
+(sync-inside? root path [double]) -> :nil | :t
 
 is a path, safe as written, under the root as the host has it ? Every
 folder on the way has to be a folder, and the file a file, or not
 there yet. A link is neither, so a link in the tree to somewhere else
 is never gone through, and nothing is written or removed beyond it.
-real is a set of the folders found to be so, to ask the host the once
+double is a set of the folders found to be so, to ask the host the once
 ```
 
 ### sync-kept
@@ -15878,9 +15906,9 @@ touches if anything of it is left
 ### vector-face-normal
 
 ```code
-(vector-face-normal p0 p1 p2 none) -> reals
+(vector-face-normal p0 p1 p2 none) -> doubles
 
-the normal of a triangle of reals, the way it faces when its corners go
+the normal of a triangle of doubles, the way it faces when its corners go
 round counter clockwise, none if it has no area and faces no way
 ```
 

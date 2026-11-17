@@ -11,8 +11,8 @@
 (defq +scale_size 5 +bops 1000000000
 	+max_bops_align (* +scale_size +bops)
 	+smooth_steps 100 +poll_rate (/ 1000000 4)
-	+bars ''(:regs_bar :memory_bar :reals_bar)
-	+results ''(:regs_results :memory_results :reals_results)
+	+bars ''(:regs_bar :memory_bar :doubles_bar)
+	+results ''(:regs_results :memory_results :doubles_results)
 	+max_aligns `'(,+max_bops_align ,+max_bops_align ,+max_bops_align)
 	+retry_timeout (task-timeout 5))
 
@@ -26,11 +26,11 @@
 			(ui-grid *net_charts* (:grid_height 1)
 				(ui-hchart _ "Net Regs (bops/s)" +scale_size (:units +bops :paper +argb_green))
 				(ui-hchart _ "Net Memory (bops/s)" +scale_size (:units +bops :paper +argb_yellow))
-				(ui-hchart _ "Net Reals (bops/s)" +scale_size (:units +bops :paper +argb_red)))
+				(ui-hchart _ "Net Doubles (bops/s)" +scale_size (:units +bops :paper +argb_red)))
 			(ui-grid *charts* (:grid_height 1)
 				(ui-hchart _ "Regs (bops/s)" +scale_size (:units +bops :paper +argb_green))
 				(ui-hchart _ "Memory (bops/s)" +scale_size (:units +bops :paper +argb_yellow))
-				(ui-hchart _ "Reals (bops/s)" +scale_size (:units +bops :paper +argb_red))))))
+				(ui-hchart _ "Doubles (bops/s)" +scale_size (:units +bops :paper +argb_red))))))
 
 (defun show-nodes ()
 	;how many nodes there are, to save counting the bars. A label lays
@@ -115,7 +115,7 @@
 					(update-result node
 						(getf msg +reply_vops_regs)
 						(getf msg +reply_vops_memory)
-						(getf msg +reply_vops_reals))
+						(getf msg +reply_vops_doubles))
 					(def node :timestamp (pii-time))
 					(push poll_que (get :child node))))
 			(:t ;polling timer event

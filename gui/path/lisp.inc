@@ -159,8 +159,8 @@
 				((and (/= sweep 0.0) (< dt 0.0)) (setq dt (+ dt +fp_2pi))))
 			;a chord is never more than an eighth of a pixel from the curve
 			(defq n (max 2 (n2i (+ 1.0 (/ (abs dt) (sqrt (/ 1.0 (max 1.0 (max rx ry))))))))
-				step (/ dt (n2f n)))
-			(each! (lambda () (defq ang (+ t1 (* step (n2f (!)))) ex (* rx (cos ang)) ey (* ry (sin ang)))
+				step (/ dt (n2q n)))
+			(each! (lambda () (defq ang (+ t1 (* step (n2q (!)))) ex (* rx (cos ang)) ey (* ry (sin ang)))
 					(push dst (+ cx (- (* cp ex) (* sp ey))) (+ cy (+ (* sp ex) (* cp ey))))) '() 1 n)
 			(push dst x2 y2)))
 	dst)

@@ -8,7 +8,7 @@
 	(int i1)
 	(long l1)
 	(fixed f1)
-	(real r1))
+	(double r1))
 
 (defq sobj (str-alloc +st_test_size))
 
@@ -17,13 +17,13 @@
 (setf sobj +st_test_i1 1000000)
 (setf sobj +st_test_l1 123456789012345)
 (setf sobj +st_test_f1 123.45)
-(setf sobj +st_test_r1 (n2r 3.14159))
+(setf sobj +st_test_r1 (n2d 3.14159))
 
 (assert-eq "getf short" 30000 (getf sobj +st_test_s1))
 (assert-eq "getf int" 1000000 (getf sobj +st_test_i1))
 (assert-eq "getf long" 123456789012345 (getf sobj +st_test_l1))
 (assert-eq "getf fixed" 123.45 (getf sobj +st_test_f1))
-(assert-eq "getf real" (n2r 3.14159) (getf sobj +st_test_r1))
+(assert-eq "getf double" (n2d 3.14159) (getf sobj +st_test_r1))
 
 ; --- Collective Macros ---
 (setf-> sobj

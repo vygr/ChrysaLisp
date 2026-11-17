@@ -17,7 +17,7 @@ the advanced Regular Expression replacement compiler.
 ## 1. The Core Primitives
 
 These functions are polymorphic methods defined on the `:seq` (Sequence) class.
-Because `:list`, `:array`, `:nums`, `:fixeds`, and `:reals` all share the
+Because `:list`, `:array`, `:nums`, `:fixeds`, and `:doubles` all share the
 underlying contiguous memory structure of `:array`, they share the exact same
 O(N) performance characteristics as `:str`.
 

@@ -29,7 +29,7 @@
 		(:t (print file ":")
 			(each (lambda (track)
 					(defq kind (. track :find :kind) seconds (if (> (. track :find :timescale) 0)
-							(/ (n2f (. track :find :duration)) (n2f (. track :find :timescale))) 0.0))
+							(/ (n2q (. track :find :duration)) (n2q (. track :find :timescale))) 0.0))
 					(print "  " kind " " (. track :find :codec) " "
 						(cond
 							((eql kind "vide") (cat (str (. track :find :width)) "x" (str (. track :find :height))))
@@ -44,7 +44,7 @@
 			(when (. reel :find :frames)
 				(defq keys (. reel :find :keys))
 				(print "  video: " (. reel :find :frames) " frames, "
-					(/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0) " a second, "
+					(/ (n2q (n2i (* (. reel :find :rate) 100.0))) 100.0) " a second, "
 					(if (eql keys :all) "every one a key" (cat (str (length keys)) " keys")))
 				(each! (lambda (offset length e v) (print "    " (!) " at " offset " " length
 							" bytes, time " e " shown " v

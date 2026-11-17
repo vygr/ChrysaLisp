@@ -119,14 +119,14 @@
 (assert-eq "right, keeping the sign, by 66 is by 2" -4 (>>> -16 66))
 (assert-eq "and by -62 is by 2" -4 (>>> -16 -62))
 
-; --- a real made an integer is toward 0 ---
-(assert-eq "2.9 is 2" 2 (n2i (n2r 2.9)))
-(assert-eq "-2.9 is -2" -2 (n2i (n2r -2.9)))
+; --- a double made an integer is toward 0 ---
+(assert-eq "2.9 is 2" 2 (n2i (n2d 2.9)))
+(assert-eq "-2.9 is -2" -2 (n2i (n2d -2.9)))
 ;one too big to be an integer is not the same on every CPU, the most
 ;negative number on x86-64 and the biggest on ARM64. The emulator is the
 ;one thing on whatever it runs: the biggest, and the most negative for one
 ;too far the other way
-(defq ie_big (* (n2r 1000000000) (n2r 1000000000) (n2r 1000000000)))
+(defq ie_big (* (n2d 1000000000) (n2d 1000000000) (n2d 1000000000)))
 (when (starts-with "obj/vp64" (load-path))
-	(assert-eq "emulated, a real too big is the biggest integer" 9223372036854775807 (n2i ie_big))
-	(assert-eq "emulated, one too far below is the most negative" (<< 1 63) (n2i (- (n2r 0) ie_big))))
+	(assert-eq "emulated, a double too big is the biggest integer" 9223372036854775807 (n2i ie_big))
+	(assert-eq "emulated, one too far below is the most negative" (<< 1 63) (n2i (- (n2d 0) ie_big))))

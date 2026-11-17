@@ -528,7 +528,7 @@ An operand is one of these, and nothing else:
 * a name, a keyword that is not a register, the class and method a call-rc
 names.
 
-Not a `fixed` nor a `real`: a table of fixed point numbers is written as their
+Not a `fixed` nor a `double`: a table of fixed point numbers is written as their
 16.16 bits, `(vp-int -12288 28672)`, not `(vp-int -0.1875 0.4375)`. Not a
 form left to be worked out: a constant the source works out is the number it
 came to by the time it is emitted. A form in a quoted list of operands is not

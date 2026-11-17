@@ -25,13 +25,13 @@
 	+planets ''(("Earth" "earth.cpm" 0.41 0.02) ("Moon" "moon.cpm" 0.03 0.012)
 		("Mars" "mars.cpm" 0.44 0.02) ("Jupiter" "jupiter.cpm" 0.05 0.03)
 		("Pluto" "pluto.cpm" 0.3 0.012))
-	+near +real_2 +far (n2r 8) +away (n2r -5.2)
+	+near +double_2 +far (n2d 8) +away (n2d -5.2)
 	vertex (shader-load (cat *app_root* "globe_vertex.shader"))
 	pixel (shader-load (cat *app_root* "globe_lit.shader"))
 	;the sun is up, to the left, and well round to our side of the globe
-	sun (reals (n2r -0.4) (n2r 0.4) (n2r 0.8246))
-	lens (mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) +near +far)
-	select :nil id :t which 0 turn +real_0
+	sun (doubles (n2d -0.4) (n2d 0.4) (n2d 0.8246))
+	lens (mat4x4-frustum (n2d -0.5) (n2d 0.5) (n2d 0.5) (n2d -0.5) +near +far)
+	select :nil id :t which 0 turn +double_0
 	;on the GPU, the pair of shaders, the ball, and has a frame been drawn
 	gpu_pair :nil gpu_mesh :nil gpu_drawn :nil gpu_want :t
 	;on this node, the same two shaders as native code
@@ -65,21 +65,21 @@
 		(ui-element *canvas* (ifn (canvas-shared +size +size 1) (Canvas +size +size 1)))))
 
 (defun globe-verts (segs rings)
-	; (globe-verts segs rings) -> reals
+	; (globe-verts segs rings) -> doubles
 	;a ball of radius 1 as triangles, three vertices each, a vertex its
 	;place, 3 numbers, and where on the map that is, 2. North is up, and
 	;east goes round to the right as seen from outside, as a map has it.
 	;A triangle goes round counter clockwise as seen from outside
-	(defq out (list) rows (map! (lambda () (defq r (!)) (defq theta (/ (* +real_pi (n2r r)) (n2r rings)) st (sin theta) ct (cos theta))
-				(map! (lambda () (defq phi (/ (* +real_2pi (n2r (!))) (n2r segs)))
+	(defq out (list) rows (map! (lambda () (defq r (!)) (defq theta (/ (* +double_pi (n2d r)) (n2d rings)) st (sin theta) ct (cos theta))
+				(map! (lambda () (defq phi (/ (* +double_2pi (n2d (!))) (n2d segs)))
 						(list (* st (sin phi)) ct (* st (cos phi))
-							(/ (n2r (!)) (n2r segs)) (/ (n2r r) (n2r rings)))) '() 0 (inc segs))) '() 0 (inc rings)))
+							(/ (n2d (!)) (n2d segs)) (/ (n2d r) (n2d rings)))) '() 0 (inc segs))) '() 0 (inc rings)))
 	(each! (lambda () (defq r (!)) (each! (lambda () (defq s (!)) (defq a (elem-get (elem-get rows r) s) b (elem-get (elem-get rows (inc r)) s)
 						c (elem-get (elem-get rows (inc r)) (inc s)) d (elem-get (elem-get rows r) (inc s)))
 					;at a pole a quad is a triangle, the other has no area
 					(if (< r (dec rings)) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a b c)))
 					(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d)))) '() 0 segs)) '() 0 rings)
-	(apply (const reals) out))
+	(apply (const doubles) out))
 
 (defun globe-map (i)
 	; (globe-map i) -> canvas
@@ -103,8 +103,8 @@
 	;how the globe is turned and where it is: it turns about its own
 	;axis, which leans, and it is away down the view
 	(bind '(& & lean &rest _) (elem-get +planets which))
-	(mat4x4-mul (mat4x4-translate +real_0 +real_0 +away)
-		(mat4x4-mul (mat4x4-rotz (n2r lean)) (mat4x4-roty turn))))
+	(mat4x4-mul (mat4x4-translate +double_0 +double_0 +away)
+		(mat4x4-mul (mat4x4-rotz (n2d lean)) (mat4x4-roty turn))))
 
 (defun draw-gpu (vvals)
 	; (draw-gpu vvals) -> :t | :nil
@@ -245,7 +245,7 @@
 				;is not still out with the farm
 				(defq start (pii-time))
 				(unless farming
-					(setq turn (% (+ turn (n2r (elem-get (elem-get +planets which) 3))) +real_2pi))
+					(setq turn (% (+ turn (n2d (elem-get (elem-get +planets which) 3))) +double_2pi))
 					(draw-frame))
 				;the next frame is a tick on, or four times as long as this
 				;one took here if that is more: on a slow machine drawing on

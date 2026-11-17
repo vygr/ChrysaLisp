@@ -25,12 +25,12 @@
 (defun sc-frame (smooth files)
 	;a red ball in the middle of a frame, drawn here
 	(defq size 128 canvas (Canvas size size 1) scene (Scene "root")
-		ball (Scene-object (Mesh-sphere +real_1 12) (fixeds 1.0 0.8 0.1 0.1)))
+		ball (Scene-object (Mesh-sphere +double_1 12) (fixeds 1.0 0.8 0.1 0.1)))
 	(if smooth (def ball :smooth :t))
 	(if files (def ball :shaders files))
-	(. ball :set_translation +real_0 +real_0 (const (n2r -4)))
+	(. ball :set_translation +double_0 +double_0 (const (n2d -4)))
 	(. scene :add_node ball)
-	(defq draws (. scene :draws (const (n2r -1)) +real_1 +real_1 (const (n2r -1)) +real_2 (const (n2r 6)) size))
+	(defq draws (. scene :draws (const (n2d -1)) +double_1 +double_1 (const (n2d -1)) +double_2 (const (n2d 6)) size))
 	(. scene :draw canvas draws)
 	(list draws (sc-pixels canvas size)))
 

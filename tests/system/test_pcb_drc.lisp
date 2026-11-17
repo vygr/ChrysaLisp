@@ -10,7 +10,7 @@
 
 (defun pd-n (x)
 	;a number as the router prints one, a fixed
-	(str (n2f x)))
+	(str (n2q x)))
 (defun pd-pad (x y z) (cat "(0.4 0.127 (" (pd-n x) " " (pd-n y) " " (pd-n z) ") ())"))
 (defun pd-net (id pads paths)
 	(cat "(" (str id) " 0.127 0.3 0.127 (" (apply (const cat) (cat (list "") pads)) ") () ("

@@ -14,8 +14,8 @@
 	(each (lambda ((x y))
 			(push (second s) (cwb-shape (cwb-d-ellipse (+ ox x) (+ 20 y) 6.5) :fill blue :stroke 0xff3c4650 :width 1.2)))
 		nodes)
-	(dia-say s name (+ (n2f ox) 60.0 (* -0.5 (dia-width name 12 :t))) 140.0 12 :t dark)
-	(dia-say s under (+ (n2f ox) 60.0 (* -0.5 (dia-width under 11))) 156.0 11))
+	(dia-say s name (+ (n2q ox) 60.0 (* -0.5 (dia-width name 12 :t))) 140.0 12 :t dark)
+	(dia-say s under (+ (n2q ox) 60.0 (* -0.5 (dia-width under 11))) 156.0 11))
 (net-shape 0 "full" "each to each, the default"
 	'((60 15) (98 43) (84 88) (36 88) (22 43))
 	'((0 1) (0 2) (0 3) (0 4) (1 2) (1 3) (1 4) (2 3) (2 4) (3 4)))

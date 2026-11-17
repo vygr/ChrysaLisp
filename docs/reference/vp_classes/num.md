@@ -36,11 +36,11 @@ docs/reference/vp_classes/num.cwb
 
 ### (* num num ...) -> num
 
-### (n2f num) -> fixed
+### (n2d num) -> double
 
 ### (n2i num) -> num
 
-### (n2r num) -> real
+### (n2q num) -> fixed
 
 ### (/= num num ...) -> :t | :nil
 

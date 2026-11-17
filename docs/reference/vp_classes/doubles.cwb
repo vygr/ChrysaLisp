@@ -1,6 +1,6 @@
 ((:Emap 1)
 	:version 1
-	:width 450
+	:width 467
 	:height 733
 	:background 0
 	:style :plain
@@ -466,7 +466,7 @@
 									:id
 									41
 									:d
-									"[M 6 0 L 44.49072 0 A 6 6 0 0 1 50.49072 6 L 50.49072 18 A 6 6 0 0 1 44.49072 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									"[M 6 0 L 61.35107 0 A 6 6 0 0 1 67.35107 6 L 67.35107 18 A 6 6 0 0 1 61.35107 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
 									4294961320
 									:stroke
@@ -485,7 +485,7 @@
 									:stroke
 									0
 									:text
-									"[:reals]"
+									"[:doubles]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -554,7 +554,7 @@
 									:stroke
 									0
 									:text
-									"[:reals]"
+									"[:doubles]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -576,7 +576,7 @@
 									:stroke
 									0
 									:text
-									"[class/reals/class.inc]"
+									"[class/doubles/class.inc]"
 									:font_size
 									11
 									:pos
@@ -1398,7 +1398,7 @@
 									:stroke
 									0
 									:text
-									"[mat4x4-mul]"
+									"[doubles-quant]"
 									:font_size
 									12
 									:pos
@@ -1418,7 +1418,7 @@
 									:stroke
 									0
 									:text
-									"[mat4x4-vec3-mul]"
+									"[mat4x4-mul]"
 									:font_size
 									12
 									:pos
@@ -1438,7 +1438,7 @@
 									:stroke
 									0
 									:text
-									"[mat4x4-vec4-mul]"
+									"[mat4x4-vec3-mul]"
 									:font_size
 									12
 									:pos
@@ -1458,7 +1458,7 @@
 									:stroke
 									0
 									:text
-									"[reals-quant]"
+									"[mat4x4-vec4-mul]"
 									:font_size
 									12
 									:pos

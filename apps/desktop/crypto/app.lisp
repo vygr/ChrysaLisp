@@ -54,7 +54,7 @@
 
 (defun render-sparkline (canvas sparkline_pts change_str)
 	(.-> canvas (:fill +argb_black) (:set_canvas_flags +canvas_flag_antialias))
-	(defq w (n2f *canvas_width*) h (n2f *canvas_height*)
+	(defq w (n2q *canvas_width*) h (n2q *canvas_height*)
 		margin_x 18.0 margin_y 14.0
 		num_pts (if sparkline_pts (length sparkline_pts) 0))
 	(if (< num_pts 2)
@@ -75,11 +75,11 @@
 			(defq chart_w (- w (* margin_x 2.0))
 				chart_h (- h (* margin_y 2.0))
 				n_pts (length flt_pts)
-				step_x (/ chart_w (n2f (- n_pts 1)))
+				step_x (/ chart_w (n2q (- n_pts 1)))
 				raw_path (path))
 			(each! (# (defq val %0
 						norm_y (/ (- val min_val) val_range)
-						px (+ margin_x (* (n2f (!)) step_x))
+						px (+ margin_x (* (n2q (!)) step_x))
 						py (- (- h margin_y) (* norm_y chart_h)))
 					(push raw_path px py)) (list flt_pts) 0 n_pts)
 			; Smooth curve through points

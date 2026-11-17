@@ -17,6 +17,6 @@
 			(def view :flow_flags +flow_down_fill :min_width most_w)
 			(if frame (. view :add_child frame))
 			(when (and (> rate 0.0) (not (. reel :find :partial)))
-				(def (defq label (Label)) :text (reel-clock (/ (n2f (. reel :find :frames)) rate)))
+				(def (defq label (Label)) :text (reel-clock (/ (n2q (. reel :find :frames)) rate)))
 				(. view :add_child label))
 			(if (nempty? (. view :children)) view))))

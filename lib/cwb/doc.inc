@@ -119,7 +119,7 @@
 	; (scatter-place place [index val] ...) -> place
 	;a new place, as that one with those parts set
 	(defq out (cat place))
-	(each (lambda ((i v)) (elem-set out i (n2f v))) (partition index_vals 2))
+	(each (lambda ((i v)) (elem-set out i (n2q v))) (partition index_vals 2))
 	out)
 
 (defun cwb-place (item)
@@ -145,17 +145,17 @@
 (defun place-move (place dx dy)
 	; (place-move place dx dy) -> place
 	(bind '(x y a sx sy) (ifn place +cwb_no_place))
-	(list (+ x (n2f dx)) (+ y (n2f dy)) a sx sy))
+	(list (+ x (n2q dx)) (+ y (n2q dy)) a sx sy))
 
 (defun place-turn (place da cx cy)
 	; (place-turn place da cx cy) -> place
 	;turned by da about a point of what holds it. Where it goes is worked
-	;out in reals: a fixed cos and sin are a turn that is a little too
+	;out in doubles: a fixed cos and sin are a turn that is a little too
 	;small, and that, a thousand times, is a thing that creeps
 	(bind '(x y a sx sy) (ifn place +cwb_no_place))
-	(defq rda (n2r da) c (cos rda) s (sin rda) rcx (n2r cx) rcy (n2r cy)
-		dx (- (n2r x) rcx) dy (- (n2r y) rcy))
-	(list (n2f (+ rcx (- (* c dx) (* s dy)))) (n2f (+ rcy (+ (* s dx) (* c dy)))) (+ a (n2f da)) sx sy))
+	(defq rda (n2d da) c (cos rda) s (sin rda) rcx (n2d cx) rcy (n2d cy)
+		dx (- (n2d x) rcx) dy (- (n2d y) rcy))
+	(list (n2q (+ rcx (- (* c dx) (* s dy)))) (n2q (+ rcy (+ (* s dx) (* c dy)))) (+ a (n2q da)) sx sy))
 
 (defun place-angle (place a cx cy)
 	; (place-angle place a cx cy) -> place
@@ -179,9 +179,9 @@
 		v1x (- (first b1) (first a1)) v1y (- (second b1) (second a1))
 		l0 (max 1.0 (sqrt (+ (* v0x v0x) (* v0y v0y)))) l1 (max 1.0 (sqrt (+ (* v1x v1x) (* v1y v1y))))
 		k (/ l1 l0) da (- (path-angle v1x v1y) (path-angle v0x v0y))
-		rk (n2r k) c (* rk (cos (n2r da))) s (* rk (sin (n2r da)))
-		dx (n2r (- x (first a0))) dy (n2r (- y (second a0))))
-	(list (+ (first a1) (n2f (- (* c dx) (* s dy)))) (+ (second a1) (n2f (+ (* s dx) (* c dy)))) (+ a da) (* sx k) (* sy k)))
+		rk (n2d k) c (* rk (cos (n2d da))) s (* rk (sin (n2d da)))
+		dx (n2d (- x (first a0))) dy (n2d (- y (second a0))))
+	(list (+ (first a1) (n2q (- (* c dx) (* s dy)))) (+ (second a1) (n2q (+ (* s dx) (* c dy)))) (+ a da) (* sx k) (* sy k)))
 
 ;;;;;;;
 ; items
@@ -273,7 +273,7 @@
 (defun cwb-num (n)
 	; (cwb-num n) -> str
 	;a number as a path has it, no more of it than there is
-	(defq s (str (n2f n)))
+	(defq s (str (n2q n)))
 	(if (find "." s)
 		(progn
 			(setq s (trim-end s "0"))
@@ -309,10 +309,10 @@
 (defun cwb-d-rect (x y x1 y1 &optional r)
 	; (cwb-d-rect x y x1 y1 [r]) -> d
 	;a box from one corner to the other, its corners round by r if given
-	(defq x (n2f x) y (n2f y) x1 (n2f x1) y1 (n2f y1))
+	(defq x (n2q x) y (n2q y) x1 (n2q x1) y1 (n2q y1))
 	(if (> x x1) (defq x_ x x x1 x1 x_))
 	(if (> y y1) (defq y_ y y y1 y1 y_))
-	(defq r (min (n2f (ifn r 0)) (* 0.5 (- x1 x)) (* 0.5 (- y1 y))))
+	(defq r (min (n2q (ifn r 0)) (* 0.5 (- x1 x)) (* 0.5 (- y1 y))))
 	(if (<= r 0.0)
 		(cwb-d "M" x y "L" x1 y x1 y1 x y1 "Z")
 		(cwb-d "M" (+ x r) y "L" (- x1 r) y "A" r r 0 0 1 x1 (+ y r)
@@ -323,7 +323,7 @@
 (defun cwb-d-ellipse (cx cy rx &optional ry)
 	; (cwb-d-ellipse cx cy rx [ry]) -> d
 	;an ellipse about a point, a circle if only one radius is given
-	(defq cx (n2f cx) cy (n2f cy) rx (n2f rx) ry (n2f (ifn ry rx)))
+	(defq cx (n2q cx) cy (n2q cy) rx (n2q rx) ry (n2q (ifn ry rx)))
 	(cwb-d "M" (+ cx rx) cy "A" rx ry 0 1 1 (- cx rx) cy "A" rx ry 0 1 1 (+ cx rx) cy "Z"))
 
 (defun cwb-d-arc (cx cy r a0 a1 &optional pie)
@@ -337,14 +337,14 @@
 	;is worked out from the two ends, and when they are close together,
 	;an arc most of the way round, or across from each other, half way,
 	;there is little to work it out from: the arc came off its circle
-	(defq cx (n2f cx) cy (n2f cy) r (n2f r) a0 (n2f a0) a1 (n2f a1) sweep (- a1 a0))
+	(defq cx (n2q cx) cy (n2q cy) r (n2q r) a0 (n2q a0) a1 (n2q a1) sweep (- a1 a0))
 	(cond
 		((>= (abs sweep) (const (- +fp_2pi 0.0005))) (cwb-d-ellipse cx cy r))
 		(:t (if (< sweep 0.0) (setq sweep (+ sweep +fp_2pi)))
 			(defq pieces (max 1 (n2i (+ 0.9999 (/ sweep (const (/ +fp_2pi 3.0))))))
 				out (if pie (list "M" cx cy "L") (list "M")))
 			(push out (+ cx (* r (cos a0))) (+ cy (* r (sin a0))))
-			(each! (lambda () (defq a (+ a0 (/ (* sweep (n2f (!))) (n2f pieces))))
+			(each! (lambda () (defq a (+ a0 (/ (* sweep (n2q (!))) (n2q pieces))))
 					(push out "A" r r 0 0 1 (+ cx (* r (cos a))) (+ cy (* r (sin a))))) '() 1 (inc pieces))
 			(if pie (push out "Z"))
 			(apply (const cwb-d) out))))
@@ -381,7 +381,7 @@
 	;nothing. Worked out once and kept
 	(unless (defq cache (elem-get shape +cwb_cache))
 		(elem-set shape +cwb_cache (setq cache (outline-flat (cwb-outline shape)
-					(elem-get shape +cwb_fill) (elem-get shape +cwb_stroke) (* 0.5 (n2f (elem-get shape +cwb_width)))
+					(elem-get shape +cwb_fill) (elem-get shape +cwb_stroke) (* 0.5 (n2q (elem-get shape +cwb_width)))
 					(cwb-join-of (elem-get shape +cwb_join))
 					(cwb-cap-of (elem-get shape +cwb_cap1)) (cwb-cap-of (elem-get shape +cwb_cap2))))))
 	cache)
@@ -392,7 +392,7 @@
 	(defq item (apply (const cwb-text) (cat (list text 0 0) key_vals)))
 	(when (defq box (third (cwb-flat item)))
 		(bind '(bx by bx1 by1) box)
-		(cwb-place! item (list (- (n2f x) (* 0.5 (+ bx bx1))) (- (n2f y) (* 0.5 (+ by by1))) 0.0 1.0 1.0)))
+		(cwb-place! item (list (- (n2q x) (* 0.5 (+ bx bx1))) (- (n2q y) (* 0.5 (+ by by1))) 0.0 1.0 1.0)))
 	item)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -871,7 +871,7 @@
 	;that box and pad all round. How far they were moved, :nil for a
 	;document with nothing in it, which is left as it is
 	(setd pad 16)
-	(defq pad (n2f pad))
+	(defq pad (n2q pad))
 	(when (defq box (cwb-doc-bounds doc))
 		(bind '(x y x1 y1) box)
 		;by whole pixels, so what was sharp on the grid is sharp still
@@ -952,7 +952,7 @@
 		(setq size (max 0.001 (sqrt (abs (- (* a d) (* b c)))))))
 	(bind '(lx ly) (mat3x2-point inv x y))
 	;as near as its own edge, half its width more than its middle
-	(defq lr (+ (/ (n2f r) size) (* 0.5 (n2f (elem-get item +cwb_width))))
+	(defq lr (+ (/ (n2q r) size) (* 0.5 (n2q (elem-get item +cwb_width))))
 		pieces (list) cut :nil)
 	(each (lambda ((closed p))
 			(defq runs (cwb-rub-points p lx ly lr))
@@ -986,8 +986,8 @@
 	;is a point on what a shape draws, its fill or its stroke, or within
 	;tol of it, default 0
 	(bind '(fills strokes box &ignore) (cwb-flat shape))
-	(setq x (n2f x) y (n2f y))
-	(defq tol (n2f (ifn tol 0)))
+	(setq x (n2q x) y (n2q y))
+	(defq tol (n2q (ifn tol 0)))
 	(when (and box (progn
 				(bind '(bx by bx1 by1) (mat3x2-box box m))
 				(and (>= x (- bx tol)) (<= x (+ bx1 tol)) (>= y (- by tol)) (<= y (+ by1 tol)))))
@@ -1014,7 +1014,7 @@
 	;whose box is near the point is looked into, and in it only the groups
 	;near it, (cwb-walk)
 	(setd m +mat3x2_unity)
-	(defq found :nil tl (n2f (ifn tol 0)) near (list (- (n2f x) tl) (- (n2f y) tl) (+ (n2f x) tl) (+ (n2f y) tl))
+	(defq found :nil tl (n2q (ifn tol 0)) near (list (- (n2q x) tl) (- (n2q y) tl) (+ (n2q x) tl) (+ (n2q y) tl))
 		local (if (eql m +mat3x2_unity) near (mat3x2-box near (mat3x2-invert m))))
 	(each! (lambda ((name flags items))
 			(unless (or found (bits? flags 1) (bits? flags 2))
@@ -1038,7 +1038,7 @@
 	(bind '(fills strokes sbox &ignore) (cwb-flat shape))
 	(when sbox
 		(bind '(sx sy sx1 sy1) (mat3x2-box sbox m))
-		(bind '(bx by bx1 by1) (map (const n2f) box))
+		(bind '(bx by bx1 by1) (map (const n2q) box))
 		(cond
 			;nowhere near
 			((or (> sx bx1) (< sx1 bx) (> sy by1) (< sy1 by)) :nil)
@@ -1069,7 +1069,7 @@
 	;it inside. Not those of a layer that is hidden or locked. Only an item
 	;whose box is near it is looked into, (cwb-walk)
 	(setd m +mat3x2_unity)
-	(defq out (list) near (map (const n2f) box)
+	(defq out (list) near (map (const n2q) box)
 		local (if (eql m +mat3x2_unity) near (mat3x2-box near (mat3x2-invert m))))
 	(each (lambda ((name flags items))
 			(unless (or (bits? flags 1) (bits? flags 2))

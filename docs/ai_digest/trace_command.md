@@ -96,7 +96,7 @@ subroutines inline in-context. This is achieved by maintaining an abstract
 
 * **On `ret`:** If the path's `call_stack` is not empty, the tracer pops
   the return address and continues execution after the caller. If the
-  `call_stack` is empty, it is a real return from the main function, so the
+  `call_stack` is empty, it is a double return from the main function, so the
   tracer merges the clobber state and terminates the path.
 
 This in-context evaluation tracks register modifications and restorations within

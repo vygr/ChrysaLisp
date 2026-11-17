@@ -8,7 +8,7 @@
 ; a block begins, for each channel, with its sample and the index of its
 ; step; then words of 8 samples a channel, a channel a word, low nibble
 ; first, each a step's worth more or less. And PCM of 8, 16 or 24 bits, low
-; byte first. Each is made the channels as reals at the scale of 16 bits,
+; byte first. Each is made the channels as doubles at the scale of 16 bits,
 ; the first two, the one of one on both, as lib/media/flac.inc's are.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

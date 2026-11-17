@@ -32,13 +32,13 @@
 
 ;what is added to a length that is divided by, so that none is nothing.
 ;The number as it is written is a fixed, and one smaller than this is 0
-(defq +tiny (n2r 0.0001))
+(defq +tiny (n2d 0.0001))
 (defq +size 640 +min_size 320 +scale 1 +frame_rate (/ 1000000 20) +poll_rate (/ 1000000 4)
 	+retry_timeout (task-timeout 5)
-	+focal_dist +real_2 +near +focal_dist +far (+ +near +real_4)
-	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
-	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	+ball_size (n2r 0.11) +bar_size (n2r 0.011))
+	+focal_dist +double_2 +near +focal_dist +far (+ +near +double_4)
+	+top (* +focal_dist +double_1/2) +bottom (* +focal_dist +double_-1/2)
+	+left (* +focal_dist +double_-1/2) +right (* +focal_dist +double_1/2)
+	+ball_size (n2d 0.11) +bar_size (n2d 0.011))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Map" (+sym_close) +event_close)
@@ -71,10 +71,10 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-			(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
+			(n2i (/ (* angle (const (n2d 1000))) +double_2pi))))
 
 (defun get-rot (slider)
-	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
+	(/ (* (n2d (get :value slider)) +double_2pi) (const (n2d 1000))))
 
 (defun set-auto (on)
 	;it turns by itself, or it is turned by the sliders. The button is
@@ -113,8 +113,8 @@
 	;a node is seen, it gets a ball, and is put near the middle to be
 	;pushed out to where it belongs
 	(def (defq node (env 1)) :timestamp now :key key :tasks 0 :system "" :links (list)
-		:idle 0 :time 0 :busy +real_0
-		:pos (reals (rnd) (rnd) (rnd)) :vel (reals +real_0 +real_0 +real_0)
+		:idle 0 :time 0 :busy +double_0
+		:pos (doubles (rnd) (rnd) (rnd)) :vel (doubles +double_0 +double_0 +double_0)
 		:ball (share (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0)) ball_proto))
 	(open-task child_task key +kn_call_pin 0 (elem-get select +select_task))
 	(setq changed :t)
@@ -143,13 +143,13 @@
 	(. global_tasks :each (lambda (key node)
 			(defq ball (get :ball node) pos (get :pos node)
 				;as big on the screen however far out it is all drawn from
-				load (/ (n2r (min 40 (get :tasks node))) (const (n2r 40)))
+				load (/ (n2d (min 40 (get :tasks node))) (const (n2d 40)))
 				busy (get :busy node)
-				size (/ (* +ball_size (+ +real_1 load)) zoom))
+				size (/ (* +ball_size (+ +double_1 load)) zoom))
 			(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
 			;the color of its machine, and whiter the harder it works
 			(def ball :color (apply (const fixeds) (cat (list 1.0)
-						(map (# (n2f (+ %0 (* (- +real_1 %0) busy))))
+						(map (# (n2q (+ %0 (* (- +double_1 %0) busy))))
 							(if (defq at (find (get :system node) machines))
 								(hue-color (elem-get machine_hues at))
 								(machine-color (get :system node)))))))
@@ -162,33 +162,33 @@
 				;a bar is a cylinder that stands on y, one long. Its matrix is
 				;made here, y laid along the link, and two more across it
 				(defq pa (get :pos a) pb (get :pos b) d (nums-sub pb pa)
-					mid (nums-scale (nums-add pa pb) +real_1/2)
-					across (if (< (abs (first d)) (abs (second d))) (reals +real_1 +real_0 +real_0)
-						(reals +real_0 +real_1 +real_0))
-					u (apply (const reals) (vector-cross-3d d across))
+					mid (nums-scale (nums-add pa pb) +double_1/2)
+					across (if (< (abs (first d)) (abs (second d))) (doubles +double_1 +double_0 +double_0)
+						(doubles +double_0 +double_1 +double_0))
+					u (apply (const doubles) (vector-cross-3d d across))
 					thick (/ +bar_size zoom)
 					u (nums-scale u (/ thick (sqrt (+ (nums-dot u u) +tiny))))
 					;u, the link and v go round the way x, y and z do. The other
 					;way and the bar is turned inside out, it is its far side
 					;that is seen, lit as that side is
-					v (apply (const reals) (vector-cross-3d u d))
+					v (apply (const doubles) (vector-cross-3d u d))
 					v (nums-scale v (/ thick (sqrt (+ (nums-dot v v) +tiny))))
 					;cold is a dim blue, half way is red, and hot is white
 					heat (get :heat link) bar (get :bar link)
-					red (min +real_1 (* heat +real_2)) cool (- +real_1 red)
-					white (max +real_0 (- (* heat +real_2) +real_1)))
+					red (min +double_1 (* heat +double_2)) cool (- +double_1 red)
+					white (max +double_0 (- (* heat +double_2) +double_1)))
 				;a machine to machine link is twice as thick
 				(unless (eql (get :system a) (get :system b))
-					(nums-scale u +real_2 u) (nums-scale v +real_2 v))
-				(def bar :dirty :nil :matrix (reals
+					(nums-scale u +double_2 u) (nums-scale v +double_2 v))
+				(def bar :dirty :nil :matrix (doubles
 						(first u) (first d) (first v) (first mid)
 						(second u) (second d) (second v) (second mid)
 						(third u) (third d) (third v) (third mid)
-						+real_0 +real_0 +real_0 +real_1)
+						+double_0 +double_0 +double_0 +double_1)
 					:color (fixeds 1.0
-						(n2f (+ (* cool (const (n2r 0.25))) red))
-						(n2f (+ (* cool (const (n2r 0.35))) (* red (const (n2r 0.2))) (* white (const (n2r 0.8)))))
-						(n2f (+ (* cool (const (n2r 0.6))) (* red (const (n2r 0.1))) (* white (const (n2r 0.9)))))))
+						(n2q (+ (* cool (const (n2d 0.25))) red))
+						(n2q (+ (* cool (const (n2d 0.35))) (* red (const (n2d 0.2))) (* white (const (n2d 0.8)))))
+						(n2q (+ (* cool (const (n2d 0.6))) (* red (const (n2d 0.1))) (* white (const (n2d 0.9)))))))
 				(push objs bar))))
 	(. world :set_children objs)
 	(.-> world (:set_scale zoom zoom zoom) (:set_rotation rotx roty rotz)))
@@ -236,10 +236,10 @@
 	;natives it binds too where that node has not the same of them
 	(defq child_task (source-task (cat *app_root* "child.lisp")))
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t canvas_size +size
-		machines (list) machine_hues (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1
-		auto :nil rotx (const (n2r 0.4)) roty +real_0 rotz +real_0
+		machines (list) machine_hues (list) links (Fmap 31) top_rate (n2d +quiet) zoom +double_1
+		auto :nil rotx (const (n2d 0.4)) roty +double_0 rotz +double_0
 		gpu_pair :nil gpu_shiny :nil gpu_matte :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
-		ball_mesh (Mesh-sphere +real_1 16) bar_mesh (Mesh-cylinder +real_1 +real_1 8)
+		ball_mesh (Mesh-sphere +double_1 16) bar_mesh (Mesh-cylinder +double_1 +double_1 8)
 		ball_proto (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0))
 		bar_proto (Scene-object bar_mesh (fixeds 1.0 1.0 1.0 1.0))
 		scene (Scene "root") world (Scene-node "world"))
@@ -250,7 +250,7 @@
 	(def bar_proto :shaders +scene_matte_files)
 	(.-> world (:add_node ball_proto) (:add_node bar_proto))
 	(.-> scene (:add_node world)
-		(:set_translation +real_0 +real_0 (const (- +real_0 +focal_dist +real_2))))
+		(:set_translation +double_0 +double_0 (const (- +double_0 +focal_dist +double_2))))
 	(. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale))
 	(defq global_tasks (Global create destroy))
 	(set-auto :t)
@@ -298,9 +298,9 @@
 			(:t ;frame timer
 				(mail-timeout (elem-get select +select_frame_timer) +frame_rate 0)
 				(when auto
-					(setq rotx (% (+ rotx (const (n2r 0.003))) +real_2pi)
-						roty (% (+ roty (const (n2r 0.01))) +real_2pi)
-						rotz (% (+ rotz (const (n2r 0.002))) +real_2pi))
+					(setq rotx (% (+ rotx (const (n2d 0.003))) +double_2pi)
+						roty (% (+ roty (const (n2d 0.01))) +double_2pi)
+						rotz (% (+ rotz (const (n2d 0.002))) +double_2pi))
 					(set-rot *xrot_slider* rotx)
 					(set-rot *yrot_slider* roty)
 					(set-rot *zrot_slider* rotz))

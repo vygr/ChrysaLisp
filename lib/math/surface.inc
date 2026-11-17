@@ -307,11 +307,11 @@
 (defun vertex-interp (isolevel p1 p2 valp1 valp2)
 	; (vertex-interp isolevel p1 p2 valp1 valp2) -> p
 	(cond
-		((< (abs (- isolevel valp1)) (const (n2r 0.0001))) p1)
-		((< (abs (- isolevel valp2)) (const (n2r 0.0001))) p2)
-		((< (abs (- valp1 valp2)) (const (n2r 0.0001))) p1)
-		(:t (vector-add p1 (vector-scale (vector-sub p2 p1 +reals_tmp3)
-					(/ (- isolevel valp1) (- valp2 valp1)) +reals_tmp3)))))
+		((< (abs (- isolevel valp1)) (const (n2d 0.0001))) p1)
+		((< (abs (- isolevel valp2)) (const (n2d 0.0001))) p2)
+		((< (abs (- valp1 valp2)) (const (n2d 0.0001))) p1)
+		(:t (vector-add p1 (vector-scale (vector-sub p2 p1 +doubles_tmp3)
+					(/ (- isolevel valp1) (- valp2 valp1)) +doubles_tmp3)))))
 
 ;given a grid cell and an isolevel, calculate the triangular
 ;facets required to represent the isosurface through the cell.
@@ -357,8 +357,8 @@
 (defclass Iso (width height depth) :nil
 	; (Iso) -> iso
 	(def this :width width :height height :depth depth
-		:center (vector-scale (Vec3-r (n2r (dec width)) (n2r (dec height)) (n2r (dec depth))) +real_1/2)
-		:scale (vector-div (Vec3-r +real_2 +real_2 +real_2) (Vec3-r (n2r width) (n2r height) (n2r depth))))
+		:center (vector-scale (Vec3-d (n2d (dec width)) (n2d (dec height)) (n2d (dec depth))) +double_1/2)
+		:scale (vector-div (Vec3-d +double_2 +double_2 +double_2) (Vec3-d (n2d width) (n2d height) (n2d depth))))
 
 	(defabstractmethod :get_scalar (this x y z))
 	; (. iso :get_scalar x y z) -> scalar
@@ -374,7 +374,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vector-length (vector-mul (vector-sub
-					(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3))))
+					(Vec3-d (n2d x) (n2d y) (n2d z)) center +doubles_tmp3) scale +doubles_tmp3))))
 
 (defclass Iso-cube (width height depth) (Iso width height depth)
 	; (Iso-cube width height depth) -> iso
@@ -383,7 +383,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(reduce max (vector-abs (vector-mul (vector-sub
-						(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3))))
+						(Vec3-d (n2d x) (n2d y) (n2d z)) center +doubles_tmp3) scale +doubles_tmp3) +doubles_tmp3))))
 
 (defclass Iso-tetra (width height depth) (Iso width height depth)
 	; (Iso-tetra width height depth) -> iso
@@ -392,7 +392,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vector-sum (vector-abs (vector-mul (vector-sub
-						(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3))))
+						(Vec3-d (n2d x) (n2d y) (n2d z)) center +doubles_tmp3) scale +doubles_tmp3) +doubles_tmp3))))
 
 (defclass Iso-capsule (width height depth) (Iso width height depth)
 	; (Iso-capsule width height depth) -> iso
@@ -401,9 +401,9 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vector-dist-to-line (vector-mul (vector-sub
-					(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3)
-			(const (Vec3-r (n2r -0.5) (n2r 0.0) (n2r 0.0)))
-			(const (Vec3-r (n2r 0.5) (n2r 0.0) (n2r 0.0))))))
+					(Vec3-d (n2d x) (n2d y) (n2d z)) center +doubles_tmp3) scale +doubles_tmp3)
+			(const (Vec3-d (n2d -0.5) (n2d 0.0) (n2d 0.0)))
+			(const (Vec3-d (n2d 0.5) (n2d 0.0) (n2d 0.0))))))
 
 ;module
 (export-symbols '(iso-surface))

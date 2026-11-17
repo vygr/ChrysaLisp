@@ -27,7 +27,7 @@
 	(defq out 0 sh 24)
 	(while (>= sh 0)
 		(defq ca (logand (>> a sh) 0xff) cb (logand (>> b sh) 0xff)
-			c (n2i (+ (n2f ca) (* u (n2f (- cb ca))) 0.5)))
+			c (n2i (+ (n2q ca) (* u (n2q (- cb ca))) 0.5)))
 		(setq out (logior out (<< (max 0 (min 255 c)) sh)) sh (- sh 8)))
 	out)
 
@@ -68,8 +68,8 @@
 	;the attribute goes from what it is when this starts to that value, over
 	;those seconds by that ease, after waiting so many seconds
 	(def (defq that (env 1)) :update (const tween-update) 'then then
-		'key key 'to to 'secs (n2f secs) 'ease (ifn ease (const ease-in-out))
-		'wait (n2f (ifn wait 0.0)) 'time 0.0 'from :nil 'morph :nil)
+		'key key 'to to 'secs (n2q secs) 'ease (ifn ease (const ease-in-out))
+		'wait (n2q (ifn wait 0.0)) 'time 0.0 'from :nil 'morph :nil)
 	that)
 
 (defun wait-update (figure dt)
@@ -80,7 +80,7 @@
 	; (Wait secs [then]) -> comp
 	;nothing for so many seconds, then it is over
 	(def (defq that (env 1)) :update (const wait-update) 'then then
-		'secs (n2f secs) 'time 0.0)
+		'secs (n2q secs) 'time 0.0)
 	that)
 
 (defun rate-update (figure dt)
@@ -94,8 +94,8 @@
 	;For ever, or for so many seconds. Its rate can be changed as it goes,
 	;(def comp 'rate rate)
 	(def (defq that (env 1)) :update (const rate-update) 'then then
-		'key key 'rate (n2f rate) 'accel (n2f (ifn accel 0.0))
-		'secs (if secs (n2f secs)) 'time 0.0)
+		'key key 'rate (n2q rate) 'accel (n2q (ifn accel 0.0))
+		'secs (if secs (n2q secs)) 'time 0.0)
 	that)
 
 (defun wave-update (figure dt)
@@ -112,8 +112,8 @@
 	;the attribute swings about what it was by size, each swing so many
 	;seconds. For ever, or for so many seconds and then back where it was
 	(def (defq that (env 1)) :update (const wave-update) 'then then
-		'key key 'size (n2f size) 'period (n2f period) 'phase (n2f (ifn phase 0.0))
-		'secs (if secs (n2f secs)) 'time 0.0 'base :nil)
+		'key key 'size (n2q size) 'period (n2q period) 'phase (n2q (ifn phase 0.0))
+		'secs (if secs (n2q secs)) 'time 0.0 'base :nil)
 	that)
 
 (defun follow-update (figure dt)
@@ -131,8 +131,8 @@
 	;x and y go along a path, x y x y, over those seconds by that ease, after
 	;waiting so many. An ease that goes past the ends stays on the line
 	(def (defq that (env 1)) :update (const follow-update) 'then then
-		'line line 'secs (n2f secs) 'ease (ifn ease (const ease-linear))
-		'wait (n2f (ifn wait 0.0)) 'time 0.0)
+		'line line 'secs (n2q secs) 'ease (ifn ease (const ease-linear))
+		'wait (n2q (ifn wait 0.0)) 'time 0.0)
 	that)
 
 (defun tie-update (figure dt)
@@ -146,8 +146,8 @@
 	;each of these attributes is that of another figure, times scale and
 	;plus offset, as long as the other is there. When it goes this is over
 	(def (defq that (env 1)) :update (const tie-update)
-		'other (weak-ref other) 'keys keys 'offset (n2f (ifn offset 0.0))
-		'scale (n2f (ifn scale 1.0)))
+		'other (weak-ref other) 'keys keys 'offset (n2q (ifn offset 0.0))
+		'scale (n2q (ifn scale 1.0)))
 	that)
 
 (defun cues-update (figure dt)
@@ -182,7 +182,7 @@
 	;away over those seconds, then back where it was. A jolt, on a group of
 	;all there is a camera shake
 	(def (defq that (env 1)) :update (const shake-update) 'then then
-		'key key 'size (n2f size) 'secs (n2f secs) 'time 0.0 'base :nil)
+		'key key 'size (n2q size) 'secs (n2q secs) 'time 0.0 'base :nil)
 	that)
 
 (defun emit-update (figure dt)
@@ -199,7 +199,7 @@
 	;mail, what it likes. For ever, or for so many seconds. Its rate can be
 	;changed as it goes, (def comp 'rate rate)
 	(def (defq that (env 1)) :update (const emit-update) 'then then
-		'rate (n2f rate) 'fnc fnc 'secs (if secs (n2f secs)) 'time 0.0 'owed 0.0)
+		'rate (n2q rate) 'fnc fnc 'secs (if secs (n2q secs)) 'time 0.0 'owed 0.0)
 	that)
 
 (defun custom-update (figure dt)

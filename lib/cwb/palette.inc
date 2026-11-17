@@ -251,8 +251,8 @@
 							;main button's row over the second's, along the foot
 							;of the cell, black 5 across with the colour inside,
 							;4 apart so two side by side share a line
-							(defq dx (+ x0 2.0 (* +pal_dot (n2f (% slot 6))))
-								dy (+ (- y1 3.0 (* 2.0 +pal_dot)) (* +pal_dot (n2f (/ slot 6)))))
+							(defq dx (+ x0 2.0 (* +pal_dot (n2q (% slot 6))))
+								dy (+ (- y1 3.0 (* 2.0 +pal_dot)) (* +pal_dot (n2q (/ slot 6)))))
 							(push items (cwb-shape (cwb-d-rect dx dy (+ dx +pal_dot 1.0) (+ dy +pal_dot 1.0)) :fill 0xff000000 :stroke 0)
 								(cwb-shape (cwb-d-rect (+ dx 1.0) (+ dy 1.0) (+ dx +pal_dot) (+ dy +pal_dot)) :fill col :stroke 0))))
 					devices))
@@ -271,7 +271,7 @@
 	;id, default the mouse. One that pointer had open shuts. It is about the
 	;point, wherever that is: under the hand that asked for it
 	(setd kind :mouse id 0)
-	(defq stage (. board :get_stage) x (n2f x) y (n2f y))
+	(defq stage (. board :get_stage) x (n2q x) y (n2q y))
 	(each (# (and (Palette? %0) (eql (get :kind %0) kind) (= (get :id %0) id) (. %0 :close)))
 		(. stage :get_actors))
 	(. board :place_new (defq palette (Palette board x y kind id))))
@@ -281,7 +281,7 @@
 	;a floating menu about a point, as many as are wanted, from a button of
 	;a toolbar. It stays till its cross is tapped, and a tap on it binds the
 	;device that tapped, see (. palette :pick) and (. board :pick)
-	(def (defq palette (Palette board (n2f x) (n2f y))) :floating :t)
+	(def (defq palette (Palette board (n2q x) (n2q y))) :floating :t)
 	(. board :place_new palette))
 
 (defun palette-enable (board &optional colors widths)

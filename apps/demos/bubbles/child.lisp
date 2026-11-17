@@ -21,7 +21,7 @@
 					((not canvas) -1)
 					((>= y y1) 0)
 					((scene-draw canvas scene time
-							(/ (n2f light_x) 65536.0) (/ (n2f light_y) 65536.0) y y1)))))))
+							(/ (n2q light_x) 65536.0) (/ (n2q light_y) 65536.0) y y1)))))))
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox)

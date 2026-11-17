@@ -72,7 +72,7 @@ means lists are dynamic, vector-like structures, offering O(1) indexed access.
     amenable to vectorization and parallel processing than operations on
     individual, disparate cons cells. ChrysaLisp's design anticipates a world
     where such hardware capabilities are leveraged. The `:nums`, `:fixeds`,
-    and `:reals` typed arrays, with their vectorized VP methods, are a
+    and `:doubles` typed arrays, with their vectorized VP methods, are a
     testament to this.
 
     * **Reduced Pointer Overhead:** For dense collections, arrays can have
@@ -83,7 +83,7 @@ means lists are dynamic, vector-like structures, offering O(1) indexed access.
 `:seq` as an abstract base class. This is brilliant because it allows a wide
 variety of underlying data structures to present a unified sequence interface
 to the Lisp programmer. As [`iteration.md`](../lisp/iteration.md) lists, `:array`, `:list`, `:nums`,
-`:fixeds`, `:reals`, `:str`, `:sym`, and even `gui/path` all inherit from (or
+`:fixeds`, `:doubles`, `:str`, `:sym`, and even `gui/path` all inherit from (or
 conform to the interface of) `:seq`. This means Lisp functions like
 `(length)`, `(elem-get)`, `(slice)`, `(map)`, `(each)` can operate on all
 these types transparently.

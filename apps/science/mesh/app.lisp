@@ -23,11 +23,11 @@
 	retry_timeout (task-timeout 60) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
-	+stage_depth +real_4 +focal_dist +real_2
-	*rotx* +real_0 *roty* +real_0 *rotz* +real_0
+	+stage_depth +double_4 +focal_dist +double_2
+	*rotx* +double_0 *roty* +double_0 *rotz* +double_0
 	+near +focal_dist +far (+ +near +stage_depth)
-	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
-	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
+	+top (* +focal_dist +double_1/2) +bottom (* +focal_dist +double_-1/2)
+	+left (* +focal_dist +double_-1/2) +right (* +focal_dist +double_1/2)
 	*auto_mode* :nil *render_mode* :nil *use_gpu* :t
 	;the toolbar as it was when it was last closed, (config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "mesh.tre"))
@@ -72,10 +72,10 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-			(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
+			(n2i (/ (* angle (const (n2d 1000))) +double_2pi))))
 
 (defun get-rot (slider)
-	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
+	(/ (* (n2d (get :value slider)) +double_2pi) (const (n2d 1000))))
 
 (defun create-scene (job_que)
 	; (create-scene job_que) -> scene_root
@@ -83,11 +83,11 @@
 	(each (lambda ((name command))
 			(push job_que (cat (str-alloc +mesh_name) (pad name 16) command)))
 		`(
-			("sphere.1" "(Mesh-iso (Iso-sphere 40 40 40) (n2r 0.25))")
-			("cube.1" "(Mesh-iso (Iso-cube 10 10 10) (n2r 0.45))")
-			("capsule" "(Mesh-iso (Iso-capsule 40 40 40) (n2r 0.25))")
-			("torus.1" "(Mesh-torus +real_1 +real_1/3 40)")
-			("sphere.2" "(Mesh-sphere +real_1/2 20)")
+			("sphere.1" "(Mesh-iso (Iso-sphere 40 40 40) (n2d 0.25))")
+			("cube.1" "(Mesh-iso (Iso-cube 10 10 10) (n2d 0.45))")
+			("capsule" "(Mesh-iso (Iso-capsule 40 40 40) (n2d 0.25))")
+			("torus.1" "(Mesh-torus +double_1 +double_1/3 40)")
+			("sphere.2" "(Mesh-sphere +double_1/2 20)")
 			("teapot.1" ,(cat "(Mesh-obj (file-stream {" *app_root* "data/teapot.obj}))"))))
 	;create scene graph
 	(defq scene (Scene "root")
@@ -98,19 +98,19 @@
 		torus_obj (Scene-object :nil (fixeds 1.0 0.0 1.0 0.0) "torus.1")
 		sphere2_obj (Scene-object :nil (fixeds 0.8 1.0 0.0 1.0) "sphere.2")
 		teapot_obj (Scene-object :nil (fixeds 1.0 1.0 1.0 1.0) "teapot.1"))
-	(. sphere_obj :set_translation (const (+ +real_-1/3 +real_-1/3)) (const (+ +real_-1/3 +real_-1/3)) (const (- +real_0 +focal_dist +real_1)))
-	(. torus_obj :set_translation (const (- +real_1/2 +real_1/3)) (const (+ +real_1/2 +real_1/3)) (const (- +real_0 +focal_dist +real_2)))
-	(. sphere2_obj :set_translation +real_0 +real_1/2 +real_0)
-	(. cube_obj :set_translation +real_0 +real_-1/2 +real_0)
+	(. sphere_obj :set_translation (const (+ +double_-1/3 +double_-1/3)) (const (+ +double_-1/3 +double_-1/3)) (const (- +double_0 +focal_dist +double_1)))
+	(. torus_obj :set_translation (const (- +double_1/2 +double_1/3)) (const (+ +double_1/2 +double_1/3)) (const (- +double_0 +focal_dist +double_2)))
+	(. sphere2_obj :set_translation +double_0 +double_1/2 +double_0)
+	(. cube_obj :set_translation +double_0 +double_-1/2 +double_0)
 	(.-> capsule1_obj
-		(:set_translation +real_0 +real_1/2 +real_0)
-		(:set_rotation +real_0 +real_hpi +real_0))
-	(. capsule2_obj :set_translation +real_0 +real_-1/2 +real_0)
+		(:set_translation +double_0 +double_1/2 +double_0)
+		(:set_rotation +double_0 +double_hpi +double_0))
+	(. capsule2_obj :set_translation +double_0 +double_-1/2 +double_0)
 	(.-> torus_obj (:add_node sphere2_obj) (:add_node cube_obj))
 	(.-> sphere_obj (:add_node capsule1_obj) (:add_node capsule2_obj))
 	(.-> teapot_obj
-		(:set_translation (const (- +real_1/2 +real_-1/3)) (const (+ +real_-1/2 +real_-1/3)) (const (- +real_0 +focal_dist +real_1)))
-		(:set_rotation +real_0 +real_hpi +real_0))
+		(:set_translation (const (- +double_1/2 +double_-1/3)) (const (+ +double_-1/2 +double_-1/3)) (const (- +double_0 +focal_dist +double_1)))
+		(:set_rotation +double_0 +double_hpi +double_0))
 	;all of it shines, a highlight where a face is turned half way between
 	;the light and the eye. What is round is lit smooth, a normal a
 	;vertex. The cube is not, its faces are flat
@@ -202,8 +202,8 @@
 			(. *main_widget* :swap +swap_write))))
 
 (defun frame-rotate ()
-	(. scene :set_rotation +real_0 +real_0 *rotz*)
-	(each (# (. %0 :set_rotation *rotx* *roty* +real_0)) (. scene :children)))
+	(. scene :set_rotation +double_0 +double_0 *rotz*)
+	(each (# (. %0 :set_rotation *rotx* *roty* +double_0)) (. scene :children)))
 
 (defun frame-now ()
 	;a frame here and now, not by the farm, which answers later. By the GPU if
@@ -295,9 +295,9 @@
 				;frame timer event
 				(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
 				(when *auto_mode*
-					(setq *rotx* (% (+ *rotx* (n2r 0.01)) +real_2pi)
-						*roty* (% (+ *roty* (n2r 0.02)) +real_2pi)
-						*rotz* (% (+ *rotz* (n2r 0.03)) +real_2pi)
+					(setq *rotx* (% (+ *rotx* (n2d 0.01)) +double_2pi)
+						*roty* (% (+ *roty* (n2d 0.02)) +double_2pi)
+						*rotz* (% (+ *rotz* (n2d 0.03)) +double_2pi)
 						*dirty* :t)
 					(set-rot *xrot_slider* *rotx*)
 					(set-rot *yrot_slider* *roty*)

@@ -34,7 +34,7 @@ is true. Not just a single form but an implicit `(progn ...)`.
 		(vec-add v (vec-sub (elem-get dlist +dlist_light_pos) v))) r)))
 	(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 		sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
-	(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
+	(push out (list (vec-n2q x y z) (vec-n2q sx sy) (n2q r)
 		(lighting c z) (lighting (const (vec-i2n 1 1 1)) z))))
 ```
 

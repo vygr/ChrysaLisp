@@ -40,7 +40,7 @@
 	;its glyphs by their ink, so code in a monospaced one lines up in
 	;columns only so. A space is a cell with nothing in it
 	(defq font (create-font font_name size) out (list) glyphs (Fmap 31) x 0.0
-		cell (/ (* (n2f (second (font-glyph-bounds font "M"))) 9.0) 16.0))
+		cell (/ (* (n2q (second (font-glyph-bounds font "M"))) 9.0) 16.0))
 	(each (lambda (c)
 			(unless (defq glyph (. glyphs :find c))
 				(defq paths (font-glyph-paths font c))
@@ -123,7 +123,7 @@
 	(defq n (length p) out (list) period (+ on off) dash :nil)
 	(when (and (>= n 4) (> on 0.0) (> off 0.0))
 		;how far into the pattern the line starts, on is the first part of it
-		(defq at (- phase (* period (n2f (n2i (/ phase period))))))
+		(defq at (- phase (* period (n2q (n2i (/ phase period))))))
 		(if (< at 0.0) (setq at (+ at period)))
 		(defq i 2 x (elem-get p 0) y (elem-get p 1) going :t)
 		(if (< at on) (push (setq dash (path)) x y))
@@ -205,8 +205,8 @@
 	;the mean of its points, near enough the middle of a line
 	(defq n (/ (length p) 2) sx 0.0 sy 0.0 i 0)
 	(while (< i (* n 2))
-		(setq sx (+ sx (/ (elem-get p i) (n2f (max n 1))))
-			sy (+ sy (/ (elem-get p (inc i)) (n2f (max n 1)))) i (+ i 2)))
+		(setq sx (+ sx (/ (elem-get p i) (n2q (max n 1))))
+			sy (+ sy (/ (elem-get p (inc i)) (n2q (max n 1)))) i (+ i 2)))
 	(list sx sy))
 
 (defun morph-resample (p closed count)
@@ -219,7 +219,7 @@
 			;a point, or nothing
 			(defq x (if (>= n 2) (elem-get p 0) 0.0) y (if (>= n 2) (elem-get p 1) 0.0))
 			(times count (push out x y)))
-		(:t (defq step (/ total (n2f (if closed count (max 1 (dec count)))))
+		(:t (defq step (/ total (n2q (if closed count (max 1 (dec count)))))
 				x (elem-get p 0) y (elem-get p 1) at 2 want 0.0 gone 0.0 seg 0.0
 				nx x ny y made 0)
 			(while (< made count)

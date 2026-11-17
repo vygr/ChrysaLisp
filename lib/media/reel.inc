@@ -12,7 +12,7 @@
 ; (reel-whole str at bytes) is a whole number held as a float of 4 or 8
 ; bytes, high first, as the containers hold a rate of sound.
 ; (reel-pcm chans [scale]) is the channels of a frame of sound, nums, as
-; reals times scale, the first two, the one of one on both.
+; doubles times scale, the first two, the one of one on both.
 ; (reel-clock seconds) is a time as h:mm:ss.
 ; Frames are counted in the order they are shown, packets in the order
 ; they are decoded, and with B-frames those differ: the codec reads the
@@ -39,8 +39,8 @@
 	; (reel-pcm chans [scale]) -> (left right)
 	;the native taken as it is used: a system not yet built with it can
 	;still import this, the kinds are of a desktop's shared root
-	(defq ints (ffi "lib/media/media_flac_ints") scale (ifn scale (n2r 1))
-		pcm (map! (lambda (ch) (ints (fill (reals) (length ch) (n2r 0)) ch scale)) (list chans) 0 (min 2 (length chans))))
+	(defq ints (ffi "lib/media/media_flac_ints") scale (ifn scale (n2d 1))
+		pcm (map! (lambda (ch) (ints (fill (doubles) (length ch) (n2d 0)) ch scale)) (list chans) 0 (min 2 (length chans))))
 	(if (= (length pcm) 1) (list (first pcm) (first pcm)) pcm))
 
 (defun reel-clock (time)
@@ -95,13 +95,13 @@
 (defun reel-wave (canvas w h pcm)
 	; (reel-wave canvas w h pcm) -> canvas
 	;the picture of a reel of sound, a frame's samples, pcm the left and the
-	;right as reals at the scale of 16 bits, or :nil for none: the left above
+	;right as doubles at the scale of 16 bits, or :nil for none: the left above
 	;the right, a column of two pixels a sample, joined to the one before
 	(.-> canvas (:fill 0xff000000) (:set_color 0xff303030) (:fbox 0 (dec (/ h 2)) w 1))
 	(when pcm
 		(defq fbox (const (ffi "gui/canvas/lisp_fbox")))
 		(each (lambda (samples mid colour)
-				(defq len (length samples) y0 mid ys (nums-scale samples (/ (n2r (/ h 4)) (n2r 32768))))
+				(defq len (length samples) y0 mid ys (nums-scale samples (/ (n2d (/ h 4)) (n2d 32768))))
 				(. canvas :set_color colour)
 				;every other x, a count of them
 				(each! (lambda ()

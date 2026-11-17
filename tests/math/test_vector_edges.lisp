@@ -1,4 +1,4 @@
-(report-header "Vector, Fixed & Real Edges: signs, rounding, in place results")
+(report-header "Vector, Fixed & Double Edges: signs, rounding, in place results")
 
 ; --- nums ---
 (test-cases
@@ -29,7 +29,7 @@
 (assert-true "nums? list" (not (nums? (list))))
 (assert-true "fixeds? fixeds" (fixeds? (fixeds 1.0)))
 (assert-true "fixeds? nums" (not (fixeds? (nums 1))))
-(assert-true "reals? reals" (reals? (reals (n2r 1))))
+(assert-true "doubles? doubles" (doubles? (doubles (n2d 1))))
 
 ;an empty vector has no sum or dot, and can not be added
 (assert-error "nums-sum empty" (nums-sum (nums)))
@@ -69,50 +69,50 @@
 ; --- conversions ---
 (test-cases
 	(n2i 1.0) 1				(n2i 5.9) 5
-	(n2f 2) 2.0				(n2f -2) -2.0
-	(n2i (n2f 7)) 7
-	(n2f (n2r 1.5)) 1.5
-	(n2i (n2r 1.5)) 1
+	(n2q 2) 2.0				(n2q -2) -2.0
+	(n2i (n2q 7)) 7
+	(n2q (n2d 1.5)) 1.5
+	(n2i (n2d 1.5)) 1
 	;n2i is the fastest conversion for each type, with no rounding mode, so
-	;for a negative value with a fraction a fixed goes down, a real toward zero
+	;for a negative value with a fraction a fixed goes down, a double toward zero
 	(n2i -5.9) -6
-	(n2i (n2r -5.9)) -5
+	(n2i (n2d -5.9)) -5
 	;use floor or ceil first when the direction matters
 	(n2i (floor -5.9)) -6
-	(n2i (floor (n2r -5.9))) -6
+	(n2i (floor (n2d -5.9))) -6
 	(n2i (ceil -5.9)) -5
-	(n2i (ceil (n2r -5.9))) -5
+	(n2i (ceil (n2d -5.9))) -5
 	(n2i -5.0) -5
-	(n2i (n2r -5.0)) -5
+	(n2i (n2d -5.0)) -5
 	(type-of 1.0) '(:num :fixed)
-	(type-of (n2r 1)) '(:num :fixed :real))
+	(type-of (n2d 1)) '(:num :fixed :double))
 
 (assert-true "fixed? fixed" (fixed? 1.0))
 (assert-true "fixed? num" (not (fixed? 1)))
-(assert-true "real? real" (real? (n2r 1)))
-(assert-true "real? fixed" (not (real? 1.0)))
-(assert-true "num? real" (num? (n2r 1)))
+(assert-true "double? double" (double? (n2d 1)))
+(assert-true "double? fixed" (not (double? 1.0)))
+(assert-true "num? double" (num? (n2d 1)))
 
-; --- reals ---
+; --- doubles ---
 (test-cases
-	(n2i (+ (n2r 1) (n2r 2))) 3
-	(n2i (* (n2r 3) (n2r 4))) 12
-	(n2f (/ (n2r 1) (n2r 4))) 0.25
-	(n2i (neg (n2r 5))) -5
-	(n2f (abs (n2r -1.5))) 1.5
-	(n2f (sqrt (n2r 4))) 2.0
-	(n2f (floor (n2r -1.5))) -2.0
-	(n2f (ceil (n2r -1.5))) -1.0
-	(n2f (frac (n2r 1.75))) 0.75
-	(n2f (recip (n2r 4))) 0.25
-	(< (n2r 1) (n2r 2)) :t
-	(= (n2r 1) (n2r 1)) :t
-	(eql (n2r 1.5) (n2r 1.5)) :t
-	(real-to-str (n2r 1.5)) "1.5"
-	(n2f (str-to-real "1.5")) 1.5
-	(n2f (str-to-real "-0.25")) -0.25
-	(n2f (str-to-real "1e2")) 100.0
-	(n2f (str-to-real "0")) 0.0
-	(n2f (str-to-real "")) 0.0
-	(n2f (sin 0.0)) 0.0
-	(n2f (cos 0.0)) 1.0)
+	(n2i (+ (n2d 1) (n2d 2))) 3
+	(n2i (* (n2d 3) (n2d 4))) 12
+	(n2q (/ (n2d 1) (n2d 4))) 0.25
+	(n2i (neg (n2d 5))) -5
+	(n2q (abs (n2d -1.5))) 1.5
+	(n2q (sqrt (n2d 4))) 2.0
+	(n2q (floor (n2d -1.5))) -2.0
+	(n2q (ceil (n2d -1.5))) -1.0
+	(n2q (frac (n2d 1.75))) 0.75
+	(n2q (recip (n2d 4))) 0.25
+	(< (n2d 1) (n2d 2)) :t
+	(= (n2d 1) (n2d 1)) :t
+	(eql (n2d 1.5) (n2d 1.5)) :t
+	(double-to-str (n2d 1.5)) "1.5"
+	(n2q (str-to-double "1.5")) 1.5
+	(n2q (str-to-double "-0.25")) -0.25
+	(n2q (str-to-double "1e2")) 100.0
+	(n2q (str-to-double "0")) 0.0
+	(n2q (str-to-double "")) 0.0
+	(n2q (sin 0.0)) 0.0
+	(n2q (cos 0.0)) 1.0)

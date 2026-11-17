@@ -25,7 +25,7 @@
 (each (# (defcvar (sym (cat "static_sym_"
 					(if (starts-with ":" %0) (rest %0) %0))) (* (length *static_syms*) +ptr_size))
 		(push *static_syms* (str %0)))
-	'(:vtable :num :fixed :real :nums :fixeds :reals :func :seq :str :sym :array
+	'(:vtable :num :fixed :double :nums :fixeds :doubles :func :seq :str :sym :array
 		:list :pmap :pset :path :hmap :font :text :ink :vdu_width :vdu_height :draw
 		:stream :sstream :fstream :mstream :netid :nodeid :in :out :stdio :lisp :error
 		:hset :dim :lstream main))

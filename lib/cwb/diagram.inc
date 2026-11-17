@@ -52,7 +52,7 @@
 	; (dia-pill text [size bold fill]) -> (group width height)
 	;words in a box with round corners, its top left at 0 0
 	(setd size 13)
-	(defq w (+ (dia-width text size bold) 20.0) h (+ (n2f size) 12.0))
+	(defq w (+ (dia-width text size bold) 20.0) h (+ (n2q size) 12.0))
 	(list (cwb-group (list
 				(cwb-shape (cwb-d-rect 0 0 w h 6) :fill (ifn fill +dia_paper) :stroke +dia_line :width 1.2)
 				(dia-words text 10.0 (- h 8.0) size bold)))
@@ -62,8 +62,8 @@
 	; (dia-head x y x1 y1) -> shape
 	;the head of an arrow that comes from a point and ends at another, a
 	;filled triangle big enough to be seen at the width a diagram's lines are
-	(defq dx (- (n2f x1) (n2f x)) dy (- (n2f y1) (n2f y)) len (max 0.001 (sqrt (+ (* dx dx) (* dy dy))))
-		ux (/ dx len) uy (/ dy len) bx (- (n2f x1) (* 9.0 ux)) by (- (n2f y1) (* 9.0 uy)))
+	(defq dx (- (n2q x1) (n2q x)) dy (- (n2q y1) (n2q y)) len (max 0.001 (sqrt (+ (* dx dx) (* dy dy))))
+		ux (/ dx len) uy (/ dy len) bx (- (n2q x1) (* 9.0 ux)) by (- (n2q y1) (* 9.0 uy)))
 	(cwb-shape (cwb-d "M" x1 y1 "L" (- bx (* 4.0 uy)) (+ by (* 4.0 ux)) (+ bx (* 4.0 uy)) (- by (* 4.0 ux)) "Z")
 		:fill +dia_line :stroke 0))
 
@@ -100,7 +100,7 @@
 				widths (map (lambda (part) (reduce (# (max %0 (dia-width %1 size))) part 0.0)) parts))
 			(push cols (list heading parts widths down))
 			(setq width (max width (+ pad pad (dia-width heading 11 :t))
-					(+ pad pad (reduce (const +) widths 0.0) (* gap (n2f (dec (length parts))))))))
+					(+ pad pad (reduce (const +) widths 0.0) (* gap (n2q (dec (length parts))))))))
 		sections)
 	;the band
 	(setq top band)
@@ -111,10 +111,10 @@
 				(push body (dia-words heading pad (+ top 16.0) 11 :t +dia_dim))
 				(defq x pad)
 				(each (lambda (part w)
-						(each (lambda (row) (push body (dia-words row x (+ top 20.0 (* pitch (n2f (inc (!)))) -2.0) size))) part)
+						(each (lambda (row) (push body (dia-words row x (+ top 20.0 (* pitch (n2q (inc (!)))) -2.0) size))) part)
 						(setq x (+ x w gap)))
 					parts widths)
-				(setq top (+ top 26.0 (* pitch (n2f down)) 6.0))))
+				(setq top (+ top 26.0 (* pitch (n2q down)) 6.0))))
 		cols)
 	(defq height (max top (+ band 8.0)))
 	(push items (cwb-shape (cwb-d-rect 0 0 width height 8) :fill +dia_paper :stroke +dia_line :width 1.4))
@@ -169,7 +169,7 @@
 	;way between the first and the last of them. From the last back, so
 	;that those are placed before it is
 	(each (lambda (name) (when (empty? (. kids :find name))
-				(. place :insert name (* pitch (n2f slot))) (setq slot (inc slot))))
+				(. place :insert name (* pitch (n2q slot))) (setq slot (inc slot))))
 		order)
 	(reach (lambda (name)
 			(when (nempty? (defq mine (. kids :find name)))
@@ -186,7 +186,7 @@
 			(bind '(pill w h) (dia-pill name 13 (eql name here) (if (eql name here) +dia_here +dia_paper)))
 			(push items (dia-move (list pill) (elem-get starts (. depth :find name)) (. place :find name))))
 		order)
-	(list (cwb-group items) (- x gap) (+ (* pitch (n2f (max 1 slot))) -5.0)))
+	(list (cwb-group items) (- x gap) (+ (* pitch (n2q (max 1 slot))) -5.0)))
 
 (defun dia-doc (parts &optional pad)
 	; (dia-doc parts [pad]) -> doc
@@ -263,12 +263,12 @@
 	;is a str, or a list of them for lines one under another, the first
 	;bold if bold is :first
 	(setd size 13)
-	(defq w (n2f w) h (n2f h) lines (if (str? text) (list text) text) pitch (+ (n2f size) 5.0)
-		top (+ (* 0.5 (- h (* pitch (n2f (length lines))))) (n2f size) 1.0)
+	(defq w (n2q w) h (n2q h) lines (if (str? text) (list text) text) pitch (+ (n2q size) 5.0)
+		top (+ (* 0.5 (- h (* pitch (n2q (length lines))))) (n2q size) 1.0)
 		items (list (cwb-shape (cwb-d-rect 0 0 w h 6) :fill (ifn fill +dia_paper) :stroke +dia_line :width 1.2)))
 	(each (lambda (line)
 			(defq strong (or (eql bold :t) (and (eql bold :first) (= (!) 0))))
-			(push items (dia-words line (* 0.5 (- w (dia-width line size strong))) (+ top (* pitch (n2f (!)))) size strong)))
+			(push items (dia-words line (* 0.5 (- w (dia-width line size strong))) (+ top (* pitch (n2q (!)))) size strong)))
 		lines)
 	(list (cwb-group items) w h))
 
@@ -284,7 +284,7 @@
 	;a name it can be joined to, :nil for one that is only there
 	(bind '(item w h) part)
 	(push (second scene) (dia-move (list item) x y))
-	(if name (. (third scene) :insert name (list (n2f x) (n2f y) w h)))
+	(if name (. (third scene) :insert name (list (n2q x) (n2q y) w h)))
 	scene)
 
 (defun dia-under (scene part x y)

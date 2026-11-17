@@ -34,7 +34,7 @@
 	;all of its outlines at once, so that a hole is a hole
 	(each (lambda (code)
 			(.-> canvas (:set_color +pic_ink)
-				(:fpoly (n2f (+ x (* (!) step))) (n2f y) +winding_none_zero
+				(:fpoly (n2q (+ x (* (!) step))) (n2q y) +winding_none_zero
 					(map (# (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0))
 						(font-glyph-paths font (num-to-utf8 code))))))
 		codes))

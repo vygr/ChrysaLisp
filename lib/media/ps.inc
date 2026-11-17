@@ -35,20 +35,20 @@
 
 (defun ps-tables ()
 	; (ps-tables)
-	;the books made native tables and the rest reals, made the once
+	;the books made native tables and the rest doubles, made the once
 	(unless (. +ps :find :tables)
-		(defq k (/ (n2r 1) (n2r 1073741824)) books (. +ps :find :books))
+		(defq k (/ (n2d 1) (n2d 1073741824)) books (. +ps :find :books))
 		(bind '(ha hb pd_re pd_im q20 phi20 q34 phi34 f20_8 f34_12 f34_8 f34_4 g1)
-			(map (lambda (l) (apply (const reals) (map (# (* (n2r %0) k)) l))) (. +ps :find :q30)))
+			(map (lambda (l) (apply (const doubles) (map (# (* (n2d %0) k)) l))) (. +ps :find :q30)))
 		(scatter +ps :tables (map (# (huff-table (second %0))) books) :least (map (const first) books)
 			:ha ha :hb hb :pd_re pd_re :pd_im pd_im :q (list q20 q34) :phi (list phi20 phi34)
 			:f20_8 f20_8 :f34_12 f34_12 :f34_8 f34_8 :f34_4 f34_4 :g1 g1
-			:zeros32 (fill (reals) 32 (n2r 0)) :ramp (reduce! (# (push %0 (n2r (!)))) '() (cap 32 (reals)) 1 33))))
+			:zeros32 (fill (doubles) 32 (n2d 0)) :ramp (reduce! (# (push %0 (n2d (!)))) '() (cap 32 (doubles)) 1 33))))
 
 (defun ps-new ()
 	; (ps-new) -> ps
 	(ps-tables)
-	(defq z34 (lambda () (fill (reals) 34 (n2r 0))) h (lambda () (map! (lambda () (map! (lambda () (z34)) '() 0 6)) '() 0 4)))
+	(defq z34 (lambda () (fill (doubles) 34 (n2d 0))) h (lambda () (map! (lambda () (map! (lambda () (z34)) '() 0 6)) '() 0 4)))
 	(scatter (Emap) :start :nil :enable_iid 0 :iid_quant 0 :nr_iid_par 0 :nr_ipdopd_par 0 :enable_icc 0 :icc_mode 0
 		:nr_icc_par 0 :enable_ext 0 :frame_class 0 :num_env_old 0 :num_env 0 :enable_ipdopd 0
 		:border (fill (nums) 6 0) :is34 0 :is34_old 0
@@ -57,9 +57,9 @@
 		;the hybrid filters' 6 slots before of the 5 lowest bands, the delays and
 		;the all-pass links of each band, the transient detector's energies,
 		;the matrices of the envelope before, re and im, and the phases' history
-		:in_buf (map! (lambda () (list (fill (reals) 6 (n2r 0)) (fill (reals) 6 (n2r 0)))) '() 0 5)
-		:delay (map! (lambda () (list (fill (reals) 46 (n2r 0)) (fill (reals) 46 (n2r 0)))) '() 0 91)
-		:ap (map! (lambda () (map! (lambda () (list (fill (reals) 37 (n2r 0)) (fill (reals) 37 (n2r 0)))) '() 0 3)) '() 0 50)
+		:in_buf (map! (lambda () (list (fill (doubles) 6 (n2d 0)) (fill (doubles) 6 (n2d 0)))) '() 0 5)
+		:delay (map! (lambda () (list (fill (doubles) 46 (n2d 0)) (fill (doubles) 46 (n2d 0)))) '() 0 91)
+		:ap (map! (lambda () (map! (lambda () (list (fill (doubles) 37 (n2d 0)) (fill (doubles) 37 (n2d 0)))) '() 0 3)) '() 0 50)
 		:peak (z34) :power (z34) :diff (z34)
 		:h (list (h) (h)) :opd_hist (fill (nums) 34 0) :ipd_hist (fill (nums) 34 0)))
 
@@ -206,11 +206,11 @@
 (defun ps-map (to from spec)
 	; (ps-map to from spec) -> to
 	;each band of the spec the mean of its bands of from, of numbers as C
-	;divides them, to 0, of reals by the count
+	;divides them, to 0, of doubles by the count
 	(each (lambda ((dst &rest srcs))
-			(defq sum (reduce (# (+ %0 (elem-get from %1))) srcs (if (reals?? from) (n2r 0) 0)) n (length srcs))
+			(defq sum (reduce (# (+ %0 (elem-get from %1))) srcs (if (doubles?? from) (n2d 0) 0)) n (length srcs))
 			(elem-set to dst (cond
-					((reals?? from) (/ sum (n2r n)))
+					((doubles?? from) (/ sum (n2d n)))
 					((< sum 0) (neg (/ (neg sum) n)))
 					((/ sum n)))))
 		spec)
@@ -236,8 +236,8 @@
 (defun ps-series (slots q n)
 	; (ps-series slots q n) -> (re im)
 	;band q's first n slots, of slots of 64 bands each
-	(list (ps-gather (fill (reals) n (n2r 0)) (map! (const first) (list slots) 0 n) q)
-		(ps-gather (fill (reals) n (n2r 0)) (map! (const second) (list slots) 0 n) q)))
+	(list (ps-gather (fill (doubles) n (n2d 0)) (map! (const first) (list slots) 0 n) q)
+		(ps-gather (fill (doubles) n (n2d 0)) (map! (const second) (list slots) 0 n) q)))
 
 (defun ps-filter (xr xi filter n)
 	; (ps-filter re im filter n) -> ((re im) ...)
@@ -261,7 +261,7 @@
 	;centre and the odd are not 0
 	(defq tap (lambda (x j) (slice x j (+ j 32))) g6 (elem-get g 6)
 		in_r (nums-scale (tap xr 6) g6) in_i (nums-scale (tap xi 6) g6)
-		op_r (fill (reals) 32 (n2r 0)) op_i (fill (reals) 32 (n2r 0)))
+		op_r (fill (doubles) 32 (n2d 0)) op_i (fill (doubles) 32 (n2d 0)))
 	(each (lambda (j)
 			(defq c (elem-get g (inc j)))
 			(setq op_r (nums-add op_r (nums-scale (nums-add (tap xr (inc j)) (tap xr (- 11 j))) c))
@@ -302,9 +302,9 @@
 	;links of their delays, those above by a delay of 14 slots, the top by 1
 	(defq nr_par (if (= is34 1) 34 20) nr_bands (length bands) nr_ap (if (= is34 1) 50 30) short (if (= is34 1) 62 42)
 		cutoff (if (= is34 1) 32 10) k_to_i (elem-get (. +ps :find :k_to_i) is34)
-		zero (n2r 0) one (n2r 1) quarter (n2r 0.25) impact (n2r 1.5) decay (str-to-real "0.76592833836465")
+		zero (n2d 0) one (n2d 1) quarter (n2d 0.25) impact (n2d 1.5) decay (str-to-double "0.76592833836465")
 		peak (. ps :find :peak) power_s (. ps :find :power) diff_s (. ps :find :diff)
-		power (map! (lambda () (fill (reals) 32 zero)) '() 0 34) gains (list))
+		power (map! (lambda () (fill (doubles) 32 zero)) '() 0 34) gains (list))
 	(when (/= is34 (. ps :find :is34_old))
 		(each (# (fill %0 34 zero)) (list peak power_s diff_s))
 		(each (# (fill (first %0) 46 zero) (fill (second %0) 46 zero)) (. ps :find :delay))
@@ -314,7 +314,7 @@
 		bands k_to_i)
 	;the transients, each parameter band's gain by its power against its
 	;peak decaying
-	(each! (lambda () (defq i (!)) (defq g (cap 32 (reals)) pk (elem-get peak i) ps_ (elem-get power_s i) df (elem-get diff_s i))
+	(each! (lambda () (defq i (!)) (defq g (cap 32 (doubles)) pk (elem-get peak i) ps_ (elem-get power_s i) df (elem-get diff_s i))
 			(each (lambda (p)
 					(setq pk (max (* decay pk) p) ps_ (+ ps_ (* quarter (- p ps_))) df (+ df (* quarter (- pk p df))))
 					(defq denom (* impact df))
@@ -323,23 +323,23 @@
 			(elem-set peak i pk) (elem-set power_s i ps_) (elem-set diff_s i df)
 			(push gains g)) '() 0 nr_par)
 	(defq q_tab (elem-get (. +ps :find :q) is34) phi_tab (elem-get (. +ps :find :phi) is34) delays (. ps :find :delay)
-		links (list (str-to-real "0.65143905753106") (str-to-real "0.56471812200776") (str-to-real "0.48954165955695")))
+		links (list (str-to-double "0.65143905753106") (str-to-double "0.56471812200776") (str-to-double "0.48954165955695")))
 	(map (lambda ((sr si))
 			(defq k (!) g (elem-get gains (elem-get k_to_i k)) dl (elem-get delays k)
 				dr (cat (slice (first dl) 32 46) sr) di (cat (slice (second dl) 32 46) si))
 			(elem-set delays k (list dr di))
 			(cond
 				((< k nr_ap)
-					(defq slope (max zero (min one (- one (* (n2r (- k cutoff)) (n2r 0.05)))))
+					(defq slope (max zero (min one (- one (* (n2d (- k cutoff)) (n2d 0.05)))))
 						at (* 6 k) z32 (. +ps :find :zeros32)
 						;the phase, then each link's fractional delay and decayed gain
-						coeffs (reals (elem-get phi_tab (* 2 k)) (elem-get phi_tab (inc (* 2 k)))
+						coeffs (doubles (elem-get phi_tab (* 2 k)) (elem-get phi_tab (inc (* 2 k)))
 							(elem-get q_tab at) (elem-get q_tab (+ at 1)) (* (first links) slope)
 							(elem-get q_tab (+ at 2)) (elem-get q_tab (+ at 3)) (* (second links) slope)
 							(elem-get q_tab (+ at 4)) (elem-get q_tab (+ at 5)) (* (third links) slope))
 						aps (map (lambda ((r i)) (list (cat (slice r 32 37) z32) (cat (slice i 32 37) z32)))
 							(elem-get (. ps :find :ap) k))
-						out_r (fill (reals) 32 zero) out_i (fill (reals) 32 zero))
+						out_r (fill (doubles) 32 zero) out_i (fill (doubles) 32 zero))
 					(ps-allpass out_r out_i dr di (reduce (# (push %0 (first %1) (second %1))) aps (list)) coeffs g)
 					(elem-set (. ps :find :ap) k aps)
 					(list out_r out_i))
@@ -356,7 +356,7 @@
 		h (. ps :find :h) num_env (. ps :find :num_env) old (. ps :find :num_env_old) ipdopd (= (. ps :find :enable_ipdopd) 1)
 		lut (if (< (. ps :find :icc_mode) 3) (. +ps :find :ha) (. +ps :find :hb)) quant (. ps :find :iid_quant)
 		opd_hist (. ps :find :opd_hist) ipd_hist (. ps :find :ipd_hist) ramp (. +ps :find :ramp)
-		pd_re (. +ps :find :pd_re) pd_im (. +ps :find :pd_im) border (. ps :find :border) zero (n2r 0))
+		pd_re (. +ps :find :pd_re) pd_im (. +ps :find :pd_im) border (. ps :find :border) zero (n2d 0))
 	;the matrices the frame before ended with, at 34 or 20 as now
 	(if (> old 0) (each (lambda (part) (each (# (elem-set %0 0 (cat (elem-get %0 old)))) part)) h))
 	(defq iid (map! (# (ps-remap %0 (. ps :find :nr_iid_par) (= is34 1) :t)) (list (. ps :find :iid)) 0 num_env)
@@ -386,14 +386,14 @@
 						(setq hs (list (* (first hs) opd_r) (* (second hs) adj_r) (* (third hs) opd_r) (* (elem-get hs 3) adj_r))))
 					(each (lambda (m v) (elem-set (elem-get m (inc e)) b v)) (first h) hs)) '() 0 nr_par)
 			(defq start (elem-get border e) stop (elem-get border (inc e)) len (- stop start)
-				width (/ (n2r 1) (n2r (if (= len 0) 1 len))) r (slice ramp 0 (max len 1)))
+				width (/ (n2d 1) (n2d (if (= len 0) 1 len))) r (slice ramp 0 (max len 1)))
 			(when (> len 0)
 				(each (lambda ((lr li) (rr ri))
 						(defq k (!) b (elem-get k_to_i k) a (inc start) z (+ a len)
 							neg_im (if (= is34 1) (<= 9 k 13) (<= k 1))
 							at (map (# (elem-get (elem-get %0 e) b)) (first h))
 							to (map (# (elem-get (elem-get %0 (inc e)) b)) (first h))
-							hv (map (# (nums-add (fill (reals) len %0) (nums-scale r (* (- %1 %0) width)))) at to)
+							hv (map (# (nums-add (fill (doubles) len %0) (nums-scale r (* (- %1 %0) width)))) at to)
 							l_r (slice lr a z) l_i (slice li a z) r_r (slice rr a z) r_i (slice ri a z))
 						(bind '(h0 h1 h2 h3) hv)
 						(defq nl_r (nums-add (nums-mul h0 l_r) (nums-mul h2 r_r)) nl_i (nums-add (nums-mul h0 l_i) (nums-mul h2 r_i))
@@ -402,7 +402,7 @@
 							(defq at_i (map (# (elem-get (elem-get %0 e) b)) (second h))
 								at_i (if neg_im (map (const neg) at_i) at_i)
 								to_i (map (# (elem-get (elem-get %0 (inc e)) b)) (second h))
-								gv (map (# (nums-add (fill (reals) len %0) (nums-scale r (* (- %1 %0) width)))) at_i to_i))
+								gv (map (# (nums-add (fill (doubles) len %0) (nums-scale r (* (- %1 %0) width)))) at_i to_i))
 							(bind '(g0 g1 g2 g3) gv)
 							(setq nl_r (nums-sub nl_r (nums-add (nums-mul g0 l_i) (nums-mul g2 r_i)))
 								nl_i (nums-add nl_i (nums-add (nums-mul g0 l_r) (nums-mul g2 r_r)))
@@ -421,15 +421,15 @@
 		qmf (if (= is34 1)
 			(cat (list (sum 0 12) (sum 12 20) (sum 20 24) (sum 24 28) (sum 28 32)) (slice bands 32 91))
 			(cat (list (sum 0 6) (sum 6 8) (sum 8 10)) (slice bands 10 71))))
-	(defq qr (map (const first) qmf) qi (map (const second) qmf) zero (n2r 0))
-	(map! (# (list (ps-gather (fill (reals) 64 zero) qr (!)) (ps-gather (fill (reals) 64 zero) qi (!)))) '() 0 32))
+	(defq qr (map (const first) qmf) qi (map (const second) qmf) zero (n2d 0))
+	(map! (# (list (ps-gather (fill (doubles) 64 zero) qr (!)) (ps-gather (fill (doubles) 64 zero) qi (!)))) '() 0 32))
 
 (defun ps-apply (ps slots top)
 	; (ps-apply ps slots top) -> (left right)
 	;the 32 QMF slots of each side, of the 38 of the one, top the band above
 	;the last SBR made, the delays above it let go
 	(defq is34 (. ps :find :is34) nr_bands (if (= is34 1) 91 71) nr_ap (if (= is34 1) 50 30)
-		top (+ top nr_bands -64) zero (n2r 0))
+		top (+ top nr_bands -64) zero (n2d 0))
 	(each! (# (fill (first %0) 46 zero) (fill (second %0) 46 zero)) (list (. ps :find :delay)) (max 0 top) nr_bands)
 	(if (< top nr_ap)
 		(each! (# (each (lambda ((r i)) (fill r 37 zero) (fill i 37 zero)) %0)) (list (. ps :find :ap)) (max 0 top) nr_ap))

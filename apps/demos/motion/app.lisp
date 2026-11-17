@@ -60,7 +60,7 @@
 	;there, the scene run on fast, Chris: "it visibly fast skips forward
 	;(playing) rather than jumps to the saved position"
 	(bind '(w h) (. *canvas* :get_size))
-	(defq k (/ (n2f w) (n2f +width)) paper (ifn (get :paper_is stage) +argb_black))
+	(defq k (/ (n2q w) (n2q +width)) paper (ifn (get :paper_is stage) +argb_black))
 	(def *picture* :paper paper)
 	(. *canvas* :fill paper)
 	(unless target (. stage :draw *canvas* (fixeds k 0.0 0.0 0.0 k 0.0)))
@@ -181,13 +181,13 @@
 	(bind '(mx my &ignore) (gui-info))
 	(bind '(px py &ignore) (. (penv *window*) :get_relative *canvas*))
 	(bind '(w &ignore) (. *canvas* :get_size))
-	(defq k (/ (n2f +width) (n2f (max w 1))))
+	(defq k (/ (n2q +width) (n2q (max w 1))))
 	(if (defq pointer (get :pointer stage))
-		(. pointer :set_place :fig_x (* k (n2f (- mx px))) :fig_y (* k (n2f (- my py))))))
+		(. pointer :set_place :fig_x (* k (n2q (- mx px))) :fig_y (* k (n2q (- my py))))))
 
 (defun frame ()
 	;the time since the last, it all goes on by that, then the picture
-	(defq now (pii-time) dt (/ (n2f (min 100000 (- now last_t))) 1000000.0))
+	(defq now (pii-time) dt (/ (n2q (min 100000 (- now last_t))) 1000000.0))
 	(setq last_t now)
 	;at its end a scene begins again, the same
 	(if restart (scene-make))

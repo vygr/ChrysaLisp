@@ -21,7 +21,7 @@
 ;op of the shader gives the nearest single. In the frame a float is the
 ;single, the first 4 bytes of its slot, and an input is written there as
 ;the nearest single to what it is given, (shader-vp-frame). What Lisp
-;gives and is given, reals reached by a register other than the frame's,
+;gives and is given, doubles reached by a register other than the frame's,
 ;is doubles, and a float of them is made the nearest single as it is
 ;loaded and the double of the single as it is stored A matrix is never in
 ;registers, it is 16 slots of the frame, a row at a time, and is known by
@@ -34,10 +34,10 @@
 	+sv_sin_trash ''(:f0 :f1 :f2 :f3)
 	;exp and log trash :r2 as well, the first of the registers for ints
 	+sv_exp_trash ''(:f0 :f1 :f2 :f3 :r2)
-	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
+	+sv_1 (n2d 1) +sv_hpi (str-to-double "1.5707963267948966")
 	;a byte of a pixel as a number of 0 to 1 is it over this, the nearest
 	;single to that, as a GPU has it, and the Lisp back end
-	+sv_255 (n2r 255)
+	+sv_255 (n2d 255)
 	;this much work, a pixel is 1, and a native function gives the other
 	;tasks of its node a turn
 	+sv_work 16384
@@ -60,7 +60,7 @@
 ;the frame are not used, and this says what is there in their place,
 ;each (first last register offset). It is empty for a pixel shader
 (defq *sv_maps* (list)
-	;for a function Lisp calls, the registers its reals args and what it
+	;for a function Lisp calls, the registers its doubles args and what it
 	;gives are reached by, (entry (param register) ... (:ret register))
 	*sv_entry* :nil)
 
@@ -77,7 +77,7 @@
 	(elem-get +sv_dregs (find r +sv_fregs)))
 
 (defun sv-ldf (base at r)
-	;a float to a register, of the frame the single it is, of a reals the
+	;a float to a register, of the frame the single it is, of a doubles the
 	;nearest single to its double
 	(cond
 		((eql base :r13) (sv-emit 'vp-load-rcf base at r))
@@ -85,7 +85,7 @@
 			(sv-emit 'vp-cvt-df d r))))
 
 (defun sv-stf (r base at)
-	;a float register to the frame as the single, to a reals as the double
+	;a float register to the frame as the single, to a doubles as the double
 	;of it. Then the register is the double, every store is of a register
 	;that is given up after, or loaded again before it is used
 	(cond
@@ -231,7 +231,7 @@
 
 (defun sv-const (val)
 	;a float constant, to a new register, the nearest single, kept as one
-	(sv-emit 'vp-load-rcf :r12 (list 'fn-const (sh-real-to-float val)) (defq r (sv-getf)))
+	(sv-emit 'vp-load-rcf :r12 (list 'fn-const (sh-double-to-float val)) (defq r (sv-getf)))
 	r)
 
 (defun sv-spill (regs)
@@ -413,7 +413,7 @@
 	(bind '(type tag a &optional b) node)
 	(case tag
 		(:lit (cond
-				((eql type :float) (list (sv-const (str-to-real a))))
+				((eql type :float) (list (sv-const (str-to-double a))))
 				(:t (sv-emit 'vp-cpy-cr (cond ((eql type :int) a) (a 1) (0)) (defq r (sv-getr)))
 					(list r))))
 		(:var (sv-load type (sv-var a)))
@@ -831,7 +831,7 @@
 			;is to be written
 			(and (nempty? *sv_maps*) (eql name 'main)
 				(push *sv_maps* (list ret_offset (+ ret_offset 32) :r10 0)))
-			;a function Lisp calls reads a reals arg where it is, if it never
+			;a function Lisp calls reads a doubles arg where it is, if it never
 			;sets it, and what it gives goes where it is to go
 			(and *sv_entry* (eql name (first *sv_entry*))
 				(each! (lambda (entry)
@@ -908,7 +908,7 @@
 	;a constant, so that there is a table of them, a shader may have none
 	(fn-const 0)
 	(vp-lea-pr 'fn_consts :r12)
-	;the vertices are a reals, or the bytes of one in a str
+	;the vertices are a doubles, or the bytes of one in a str
 	(vpif '(:r9 = 0))
 		(vp-load-rcr :r6 +array_begin :r6)
 	(else)
@@ -989,7 +989,7 @@
 		(E 'vp-cvt-fd f reg))
 	(defun LI (slot reg) (E 'vp-load-rcr :r13 slot reg))
 	(defun SI (reg slot) (E 'vp-store-rrc reg :r13 slot))
-	(defun K (val reg) (E 'vp-load-rcd :r12 (list 'fn-const (logior (n2r val))) reg))
+	(defun K (val reg) (E 'vp-load-rcd :r12 (list 'fn-const (logior (n2d val))) reg))
 	(defun Q (label) (list 'quote label))
 	(defun T (k j) (+ tv_at (* (+ (* k tv_n) j) 8)))
 	(defun lerp (ka kb da db kd)
@@ -1088,7 +1088,7 @@
 	(LI s_vw :r8) (E 'vp-cvt-rd :r8 :d12)
 	(LI s_vh :r8) (E 'vp-cvt-rd :r8 :d13)
 	(K 1 :d14) (K 0.5 :d15)
-	(E 'vp-load-rcd :r12 (list 'fn-const (logior (str-to-real "0.000001"))) :d11)
+	(E 'vp-load-rcd :r12 (list 'fn-const (logior (str-to-double "0.000001"))) :d11)
 	(each (lambda (k sx sy iw z)
 			(L (T k 3) :d6)
 			(E 'vp-ble-dd :d11 :d6 (Q 'sr_tri))
@@ -1476,7 +1476,7 @@
 	(vp-bge-rr :r3 :r2 'sh_xend)
 	;the frag coord, the centre of the pixel, y up if a height is given, as
 	;singles in the frame
-	(vp-load-rcf :r12 (fn-const } (str (sh-real-to-float 0.5)) {) :f2)
+	(vp-load-rcf :r12 (fn-const } (str (sh-double-to-float 0.5)) {) :f2)
 	(vp-cvt-rf :r2 :f0)
 	(vp-add-ff :f2 :f0)
 	(vp-store-frc :f0 :r13 } (str frag) {)
@@ -1513,10 +1513,10 @@
 	;modes 1 and 2, a 32 bit argb pixel, alpha full on. In mode 3 the
 	;alpha is the one main gave. A byte is the nearest to 255 of it, as a
 	;GPU writes one, the double of the single times 255 is exact
-	(vp-load-rcd :r12 (fn-const (n2r 0)) :d1)
-	(vp-load-rcd :r12 (fn-const (n2r 1)) :d2)
-	(vp-load-rcd :r12 (fn-const (n2r 255)) :d3)
-	(vp-load-rcd :r12 (fn-const (n2r 0.5)) :d4)
+	(vp-load-rcd :r12 (fn-const (n2d 0)) :d1)
+	(vp-load-rcd :r12 (fn-const (n2d 1)) :d2)
+	(vp-load-rcd :r12 (fn-const (n2d 255)) :d3)
+	(vp-load-rcd :r12 (fn-const (n2d 0.5)) :d4)
 	(vp-cpy-cr 0xff :r4)
 	(vp-bne-cr 3 :r3 'sh_rgb)
 	(vp-load-rcf :r13 } (str (+ ret 24)) { :f0)
@@ -1640,10 +1640,10 @@
 	; -> text
 	;the VP source of the native function for a function of a file of
 	;functions. It is called from Lisp as any native function is. Its
-	;frame is on the stack. A number arg is copied to it. A reals arg is
+	;frame is on the stack. A number arg is copied to it. A doubles arg is
 	;read where it is, by a register, the first three of them, if the
 	;function never sets it, else it is copied too. What it gives is a
-	;new real, num or reals, and a reals is made first and written
+	;new double, num or doubles, and a doubles is made first and written
 	;straight into.
 	(bind '(& ret_type params) (shader-func program fname))
 	(defq count (shader-size ret_type) bases (list :r8 :r9 :r11)
@@ -1661,7 +1661,7 @@
 	;above the frame, what it gives, and the args
 	(defq frame (logand (+ frame_size 15) -16) s_gives frame s_args (+ frame 8)
 		lf "\n" tab "\t"
-		;an arg that is a reals has to be the right length
+		;an arg that is a doubles has to be the right length
 		checks (map (lambda ((pname ptype)) (if (> (shader-size ptype) 1)
 					(cat tab "(vp-load-rcr :r1 +array_begin :r2)" lf
 						tab "(vp-load-rcr :r2 " (str (* (!) 8)) " :r2)" lf
@@ -1687,9 +1687,9 @@
 						(:t (cat tab "(vp-load-rcr :r2 +num_value :r3)" lf
 								tab "(vp-store-rrc :r3 :r13 " (str offset) ")" lf))))) (cat params '((_ :float))) (cat offsets '(0)))
 		makes (if (> count 1)
-			(cat tab "(call :reals :create :nil '(:r0))" lf
-				tab "(call :reals :set_cap '(:r0 " (str count) ") '(:r0))" lf
-				tab "(call :reals :set_length '(:r0 " (str count) ") '(:r0 _))" lf
+			(cat tab "(call :doubles :create :nil '(:r0))" lf
+				tab "(call :doubles :set_cap '(:r0 " (str count) ") '(:r0))" lf
+				tab "(call :doubles :set_length '(:r0 " (str count) ") '(:r0 _))" lf
 				tab "(vp-store-rrc :r0 :rsp " (str s_gives) ")" lf) "")
 		reach (if (> count 1)
 			(cat tab "(vp-load-rcr :rsp " (str s_gives) " :r10)" lf
@@ -1701,14 +1701,14 @@
 						tab "(vp-cvt-fd :f0 :d0)" lf
 						tab "(vp-cpy-dr :d0 :r0)" lf)
 					(cat tab "(vp-load-rcr :r13 " (str ret) " :r0)" lf))
-				tab "(call " (if (eql ret_type :float) ":real" ":num") " :create '(:r0) '(:r1))" lf))
+				tab "(call " (if (eql ret_type :float) ":double" ":num") " :create '(:r0) '(:r1))" lf))
 		arg_names (apply (const cat) (cat (list "") (map (# (cat " " (str (first %0)))) params)))
 		text (cat
 			{(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
-(include "class/real/class.inc")
-(include "class/reals/class.inc")
+(include "class/double/class.inc")
+(include "class/doubles/class.inc")
 (include "class/str/class.inc")
 (include "class/array/class.inc")
 (include "class/lisp/class.inc")
@@ -1756,7 +1756,7 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(} (str fname) arg_names {)" +error_msg_wrong_types))
 	(signature '(} (apply (const cat) (cat (list "") (map (lambda ((pname ptype)) (cond
-					((> (shader-size ptype) 1) ":REALS ") ((eql ptype :float) ":REAL ") (":NUM "))) params))) {))
+					((> (shader-size ptype) 1) ":DOUBLES ") ((eql ptype :float) ":DOUBLE ") (":NUM "))) params))) {))
 
 (def-func-end)
 }))
@@ -1881,8 +1881,8 @@
 (defun shader-vp-func (program name)
 	; (shader-vp-func program name) -> func
 	;a function of a file of functions, as a native function Lisp calls,
-	;(func arg ...) -> value. A :float is a real, an :int a num, a vector
-	;a reals of its size, a :mat4 a reals of 16, a row at a time, and
+	;(func arg ...) -> value. A :float is a double, an :int a num, a vector
+	;a doubles of its size, a :mat4 a doubles of 16, a row at a time, and
 	;what comes back is one of those, made new. It is assembled the first
 	;time this CPU meets it, and kept.
 	(shader-func program name)
@@ -1931,41 +1931,41 @@
 				(while (< (length far) n) (setq far (cat far far)))
 				(slice far 0 (max 0 (- n 4)))) 31) (char -1 4)))
 
-(defun sv-reals (n)
-	;a reals of n numbers, all 0
-	(defq out (reals (n2r 0) (n2r 0) (n2r 0) (n2r 0)))
+(defun sv-doubles (n)
+	;a doubles of n numbers, all 0
+	(defq out (doubles (n2d 0) (n2d 0) (n2d 0) (n2d 0)))
 	(while (< (length out) n) (setq out (cat out out)))
 	(slice out 0 n))
 
 (defun shader-vp-place (native frame verts)
-	; (shader-vp-place native frame verts) -> reals
-	;place the vertices of a reals, the attrs of one after another, vertex
-	;after vertex. The result is a reals, for each vertex where it is, 4
+	; (shader-vp-place native frame verts) -> doubles
+	;place the vertices of a doubles, the attrs of one after another, vertex
+	;after vertex. The result is a doubles, for each vertex where it is, 4
 	;numbers, then its varyings. The vertices can be a str, the bytes of
-	;such a reals, 8 to a number, as (shader-verts-str) makes, which is
+	;such a doubles, 8 to a number, as (shader-verts-str) makes, which is
 	;how they are when they have come in a message.
 	(bind '(place & attr_slots out_slots) native)
 	(defq count (/ (if (str? verts) (/ (length verts) 8) (length verts)) (max attr_slots 1))
-		out (sv-reals (* count out_slots)))
+		out (sv-doubles (* count out_slots)))
 	(if (> count 0) (place frame verts out count (if (str? verts) 1 0)))
 	out)
 
 (defun sv-place-again (native frame verts)
 	;as (shader-vp-place), for a result that is used at once and let go
-	;of, as a draw does. The reals the last such call of that size gave
+	;of, as a draw does. The doubles the last such call of that size gave
 	;is used again, every number of it is written, so there is no new one
 	;to make and clear for each object of each frame
 	(bind '(place & attr_slots out_slots) native)
 	(defq count (/ (if (str? verts) (/ (length verts) 8) (length verts)) (max attr_slots 1))
-		out (memoize (* count out_slots) (sv-reals (* count out_slots)) 31))
+		out (memoize (* count out_slots) (sv-doubles (* count out_slots)) 31))
 	(if (> count 0) (place frame verts out count (if (str? verts) 1 0)))
 	out)
 
 (defun shader-verts-str (verts)
-	; (shader-verts-str reals) -> str
-	;the bytes of a reals of vertices, to send in a message
+	; (shader-verts-str doubles) -> str
+	;the bytes of a doubles of vertices, to send in a message
 	(defq out (str-alloc (* (length verts) 8)))
-	(each (# (set-real out (* (!) 8) %0)) verts)
+	(each (# (set-double out (* (!) 8) %0)) verts)
 	out)
 
 (defun shader-vp-frame (program native &optional vals)
@@ -1978,8 +1978,8 @@
 			(cond
 				((eql type :int) (set-long frame offset (n2i val)))
 				;a float is the nearest single, the first 4 bytes of its slot
-				((eql type :float) (set-int frame offset (sh-real-to-float val)))
-				((seq? val) (each (# (set-int frame (+ offset (* (!) 8)) (sh-real-to-float %0))) val)))
+				((eql type :float) (set-int frame offset (sh-double-to-float val)))
+				((seq? val) (each (# (set-int frame (+ offset (* (!) 8)) (sh-double-to-float %0))) val)))
 			(setq offset (+ offset (* (shader-size type) 8)))) (first program))
 	;then the textures of a pixel shader, each the pixmap given under its
 	;name: where its pixels are, its width, its height, and the bytes of
@@ -2000,7 +2000,7 @@
 
 (defun shader-vp-draw-tris (pipeline verts tris pixmap depth &optional vvals pvals cull tri_size x y x1 y1 depth_y)
 	; (shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1 depth_y]) -> pixmap
-	;draw triangles on a 32 bit pixmap. verts is a reals, the attrs of a
+	;draw triangles on a 32 bit pixmap. verts is a doubles, the attrs of a
 	;vertex one after another, vertex after vertex, or the bytes of one
 	;in a str. tris is a nums, three
 	;numbers of vertices for each triangle, the first three of every
@@ -2062,10 +2062,10 @@
 
 (defun shader-vp-pixels (native frame x y x1 y1)
 	; (shader-vp-pixels native frame x y x1 y1) -> (vec4 ...)
-	;the pixels of a tile, row by row, each a reals of 4
+	;the pixels of a tile, row by row, each a doubles of 4
 	(defq out (str-alloc (* (- x1 x) (- y1 y) 32)))
 	((first native) x y x1 y1 frame out 0 0)
 	(map! (lambda ()
 			(defq at (<< (!) 5))
-			(reals (get-real out at) (get-real out (+ at 8)) (get-real out (+ at 16)) (get-real out (+ at 24))))
+			(doubles (get-double out at) (get-double out (+ at 8)) (get-double out (+ at 16)) (get-double out (+ at 24))))
 		'() 0 (* (- x1 x) (- y1 y))))

@@ -345,14 +345,14 @@
 									:stroke
 									0
 									:text
-									"[:real]"
+									"[:double]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										88.83819
+										81.11053
 										19.00000
 									)
 								)
@@ -387,12 +387,12 @@
 									:stroke
 									0
 									:text
-									"[made by (n2r), +real_pi ...]"
+									"[made by (n2d), +double_pi ...]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										42.01568
+										33.42260
 										51.00000
 									)
 								)
@@ -436,7 +436,7 @@
 					:stroke
 					0
 					:text
-					"[(n2f x) to here]"
+					"[(n2q x) to here]"
 					:font_size
 					11
 					:pos
@@ -456,7 +456,7 @@
 					:stroke
 					0
 					:text
-					"[(n2r x) to here]"
+					"[(n2d x) to here]"
 					:font_size
 					11
 					:pos
@@ -476,7 +476,7 @@
 					:stroke
 					0
 					:text
-					"[All three keep their value in the one field, num_value. Each of n2i, n2f, n2r takes any of the three, and gives back]"
+					"[All three keep their value in the one field, num_value. Each of n2i, n2q, n2d takes any of the three, and gives back]"
 					:font_size
 					11
 					:pos

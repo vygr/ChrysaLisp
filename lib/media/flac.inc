@@ -247,7 +247,7 @@
 			((setq done :t))))
 	(defq frames (length offsets) total (. info :find :total))
 	(scatter reel :offsets offsets :frames frames
-		:rate (if (> total 0) (/ (n2f frames) (/ (n2f total) (n2f (. info :find :rate)))) (. reel :find :rate))))
+		:rate (if (> total 0) (/ (n2q frames) (/ (n2q total) (n2q (. info :find :rate)))) (. reel :find :rate))))
 
 (defun flac-locate (reel n)
 	; (flac-locate reel n) -> :nil | at
@@ -296,7 +296,7 @@
 					(/ (* block (. info :find :channels) (. info :find :bps)) 16)))
 			frames (if (> total 0) (/ (+ total block -1) block) (max 1 (/ (- end start) frame_bytes)))
 			reel (scatter (Emap) :stream stream :info info :start start :end end :block block :known (list)
-				:frames frames :rate (/ (n2f (. info :find :rate)) (n2f block))
+				:frames frames :rate (/ (n2q (. info :find :rate)) (n2q block))
 				:width 512 :height 192 :codec "flac" :audio :t))
 		;of blocks of sizes that vary, each frame's place found the once
 		(stream-seek stream start 0)
@@ -307,9 +307,9 @@
 
 (defun flac-pcm (info chans)
 	; (flac-pcm info chans) -> (left right)
-	;a frame's channels as reals at the scale of 16 bits, the first two, the
+	;a frame's channels as doubles at the scale of 16 bits, the first two, the
 	;one of one on both
-	(reel-pcm chans (pow (n2r 2) (n2r (- 16 (. info :find :bps))))))
+	(reel-pcm chans (pow (n2d 2) (n2d (- 16 (. info :find :bps))))))
 
 (defun flac-codec (reel &optional scale)
 	; (flac-codec reel [scale]) -> codec

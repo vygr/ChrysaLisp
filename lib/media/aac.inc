@@ -378,18 +378,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun aac-power (x n)
-	(defq p (n2r 1))
+	(defq p (n2d 1))
 	(times n (setq p (* p x)))
 	p)
 
 (defun aac-root (x n)
-	; (aac-root x n) -> real
-	;the nth root of a real of 1 or more, by Newton's steps, from above it,
+	; (aac-root x n) -> double
+	;the nth root of a double of 1 or more, by Newton's steps, from above it,
 	;so each is less than the one before till it is there: a step that is
 	;not less ends it, as the last bit may go to and fro
-	(defq r (if (> x (n2r 1)) x (n2r 1)) last (+ r (n2r 1)))
+	(defq r (if (> x (n2d 1)) x (n2d 1)) last (+ r (n2d 1)))
 	(while (< r last)
-		(setq last r r (/ (+ (* (n2r (dec n)) r) (/ x (aac-power r (dec n)))) (n2r n))))
+		(setq last r r (/ (+ (* (n2d (dec n)) r) (/ x (aac-power r (dec n)))) (n2d n))))
 	last)
 
 (defun aac-windows (n)
@@ -401,12 +401,12 @@
 	; (aac-tables) -> tables
 	;made the once, as the first decoder is
 	(unless (. +aac :find :made)
-		(defq gain (cap 512 (reals)) step (sqrt (sqrt (n2r 2))) g (n2r 1) pow (cap 8192 (reals (n2r 0))))
+		(defq gain (cap 512 (doubles)) step (sqrt (sqrt (n2d 2))) g (n2d 1) pow (cap 8192 (doubles (n2d 0))))
 		;2^(0.25 (i - 100)), i from 0 to 255, and 2^(0.25 i) from -100
 		(times 100 (setq g (/ g step)))
 		(times 512 (push gain g) (setq g (* g step)))
 		;|v|^(4/3), to 8191
-		(each! (# (defq v (n2r (!))) (push pow (* v (aac-root v 3)))) '() 1 8192)
+		(each! (# (defq v (n2d (!))) (push pow (* v (aac-root v 3)))) '() 1 8192)
 		;the native reader of codes, taken now, not as this is read
 		(. +aac :insert :values (ffi "lib/media/media_aac_values"))
 		(. +aac :insert :made (scatter (Emap) :gain gain :pow pow
@@ -419,12 +419,12 @@
 	*aac_tns_short* '(9 9 10 14 14 14 14 14 14 14 14 14 14))
 
 (defun aac-dequant (ch tables)
-	; (aac-dequant channel tables) -> reals
+	; (aac-dequant channel tables) -> doubles
 	;the 1024 lines of a channel, each |v|^(4/3) by the gain of its band,
 	;the pulses added to them first; noise and intensity bands left 0
 	(defq info (. ch :find :info) q (. ch :find :spectrum) bands (. info :find :bands)
 		short (= (. info :find :sequence) +aac_eight_short) size (if short 128 1024)
-		pow (. tables :find :pow) gain (. tables :find :gain) out (fill (reals) 1024 (n2r 0)) window 0)
+		pow (. tables :find :pow) gain (. tables :find :gain) out (fill (doubles) 1024 (n2d 0)) window 0)
 	(when (defq pulses (. ch :find :pulses))
 		(setq q (cat q))
 		(defq k (elem-get bands (first pulses)))
@@ -456,11 +456,11 @@
 							;the band's noise made once to know its energy, then again
 							;from the same seed into the lines, by the scale it gives
 							(defq from (+ (* w size) (elem-get bands sfb)) to (+ (* w size) (elem-get bands (inc sfb)))
-								values (fill (reals) (- to from) (n2r 0)))
-							(noise-fill values 0 (- to from) seed (n2r 1))
+								values (fill (doubles) (- to from) (n2d 0)))
+							(noise-fill values 0 (- to from) seed (n2d 1))
 							(defq energy (nums-sum (nums-mul values values)))
-							(setq seed (noise-fill out from to seed (if (> energy (n2r 0))
-										(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2r 0))))
+							(setq seed (noise-fill out from to seed (if (> energy (n2d 0))
+										(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2d 0))))
 							(setq w (inc w))))) '() 0 (. info :find :max_sfb))
 			(setq window (+ window count)))
 		(. info :find :lengths) (. ch :find :sections) (. ch :find :scales))
@@ -512,13 +512,13 @@
 						(when (> order 0)
 							;the coefficients, sign extended, to sines, to a filter
 							(defq bits (- (+ res 3) compress) half (<< 1 (- (+ res 3) 1))
-								iqm (/ (+ (n2r half) (n2r 0.5)) (/ (. +aac :find :pi) (n2r 2)))
-								iqp (/ (- (n2r half) (n2r 0.5)) (/ (. +aac :find :pi) (n2r 2)))
+								iqm (/ (+ (n2d half) (n2d 0.5)) (/ (. +aac :find :pi) (n2d 2)))
+								iqp (/ (- (n2d half) (n2d 0.5)) (/ (. +aac :find :pi) (n2d 2)))
 								parcor (map (lambda (c)
 										(if (>= c (<< 1 (dec bits))) (setq c (- c (<< 1 bits))))
-										(sin (/ (n2r c) (if (>= c 0) iqp iqm))))
+										(sin (/ (n2d c) (if (>= c 0) iqp iqm))))
 									coefs)
-								lpc (reals (n2r 1)))
+								lpc (doubles (n2d 1)))
 							(each! (lambda () (defq k (!)) (defq b (cat lpc) p (elem-get parcor k))
 									(push lpc p)
 									(each! (# (elem-set lpc (!) (+ %0 (* p (elem-get b (- (inc k) (!))))))) (list b) 1 (inc k))) '() 0 order)
@@ -537,7 +537,7 @@
 	;what a channel carries from one block to the next: the half of its
 	;window that overlaps the next, and the shape of its window. The native
 	;of the DCT-IV is taken now, not as this is read
-	(defq tables (aac-tables) zeros (fill (reals) 1024 (n2r 0)))
+	(defq tables (aac-tables) zeros (fill (doubles) 1024 (n2d 0)))
 	(scatter (Emap) :rate_index (second config) :rate (third config) :channels (elem-get config 3)
 		;SBR said, or a core of 24000 or less that may have it unsaid, which
 		;is taken from the first fill that holds it; PS said, or unless said
@@ -549,14 +549,14 @@
 			(or (eql (elem-get config 5) :t) (and (not (elem-get config 5)) (<= (elem-get config 3) 1))))
 		:tables tables :dct4 (ffi "lib/media/media_dct4") :seed 1
 		:overlap (map! (lambda () (cat zeros)) '() 0 8) :shape (map! (lambda () 0) '() 0 8)
-		:zeros zeros :ones (nums-add (nums-scale zeros (n2r 0)) (fill (reals) 1024 (n2r 1)))))
+		:zeros zeros :ones (nums-add (nums-scale zeros (n2d 0)) (fill (doubles) 1024 (n2d 1)))))
 
 (defun aac-unfold (decoder lines n)
-	; (aac-unfold decoder lines n) -> reals
+	; (aac-unfold decoder lines n) -> doubles
 	(mdct-imdct (. decoder :find :dct4) (. (. decoder :find :tables) :find (if (= n 1024) :dct_long :dct_short)) lines n))
 
 (defun aac-imdct (decoder lines info c)
-	; (aac-imdct decoder lines info channel) -> reals
+	; (aac-imdct decoder lines info channel) -> doubles
 	;the 1024 samples of a channel's lines: the IMDCT, windowed, its first
 	;half added to what the block before left, its second half left
 	(defq tables (. decoder :find :tables) sequence (. info :find :sequence)
@@ -583,7 +583,7 @@
 	out)
 
 (defun aac-decode (decoder packet)
-	; (aac-decode decoder packet) -> ((reals) ...)
+	; (aac-decode decoder packet) -> ((doubles) ...)
 	;the 1024 samples of each channel of a packet
 	(defq tables (. decoder :find :tables) rate_index (. decoder :find :rate_index)
 		channels (. decoder :insert :last (aac-block decoder packet))
@@ -628,7 +628,7 @@
 	:book_values (map (const aac-book-values) *aac_book_kinds*)
 	:bands_long *aac_bands_long* :bands_short *aac_bands_short*
 	:tns_long *aac_tns_long* :tns_short *aac_tns_short* :made :nil :pi (mdct-pi)
-	:centre (sqrt (/ (n2r 1) (n2r 2))))
+	:centre (sqrt (/ (n2d 1) (n2d 2))))
 
 ;module
 (export-symbols '(aac-config aac-track-config aac-decoder aac-decode))

@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
-(include "class/reals/class.inc")
-(include "class/real/class.inc")
+(include "class/doubles/class.inc")
+(include "class/double/class.inc")
 (include "class/lisp/class.inc")
 
 (def-func (path-to-absolute "./media_dct4"))
@@ -13,8 +13,8 @@
 	;trashes
 	;:r1-:r14, :d0-:d9
 	;info
-	;(media-dct4 x tw rev out) -> out, the DCT-IV of the n reals of x, by an
-	;FFT of n/2, m, into out, n reals. tw is 5m reals: the twiddles before,
+	;(media-dct4 x tw rev out) -> out, the DCT-IV of the n doubles of x, by an
+	;FFT of n/2, m, into out, n doubles. tw is 5m doubles: the twiddles before,
 	;e^(-i pi (4j+1)/4n) as cos and sin, m of them, after, e^(-i pi k/n),
 	;m, and of the FFT, e^(-2 pi i k/m), m/2. rev is the nums of the bit
 	;reversal of m. lib/media/mdct.inc makes them
@@ -210,7 +210,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-dct4 x tw rev out)" +error_msg_wrong_types))
-	(signature '(:reals :reals :nums :reals))
+	(signature '(:doubles :doubles :nums :doubles))
 
 (def-func-end)
 
@@ -224,7 +224,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d4
 	;info
-	;(media-s16 out chans from) -> out, the samples of each channel, reals
+	;(media-s16 out chans from) -> out, the samples of each channel, doubles
 	;all as long, from frame from, written to the str out one frame after
 	;another, each a 16 bit sample of each channel, low byte first, rounded
 	;to the nearest and held to -32768 to 32767. out is to be as long as
@@ -603,7 +603,7 @@
 	;trashes
 	;:r1-:r12, :r14, :d0-:d15
 	;info
-	;(media-noise out start end seed scale) -> seed, the reals of out from
+	;(media-noise out start end seed scale) -> seed, the doubles of out from
 	;start to end each the next of the generator of lib/media/noise.inc,
 	;seed by 1664525 and 1013904223 of 32 bits, less 2^31, by scale
 
@@ -647,7 +647,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-noise out start end seed scale)" +error_msg_wrong_types))
-	(signature '(:reals :num :num :num :real))
+	(signature '(:doubles :num :num :num :double))
 
 (def-func-end)
 
@@ -693,7 +693,7 @@
 	;channels of a block; the levels of a code from table, at 0, 96 and
 	;480, 3, 3 and 2 a code in the order they are used. bap 3 and 5 are 3
 	;and 4 bits, their levels at 736 and 744; 6 to 15 numbers of 5 to 16
-	;bits. bap 0 is noise of the reals noise, or 0 if dither is 0
+	;bits. bap 0 is noise of the doubles noise, or 0 if dither is 0
 
 	(vp-rdef (in bap exps bin end out groups noise dither table at b v x y)
 		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r0 :r1))
@@ -796,7 +796,7 @@
 
 (vp-label 'error)
 (jump :lisp :repl_error '(:r1 "(media-ac3-mantissas reader bap exps start end out groups noise dither table)" +error_msg_wrong_types))
-(signature '(:list :nums :nums :num :num :reals :nums :reals :num :reals))
+(signature '(:list :nums :nums :num :num :doubles :nums :doubles :num :doubles))
 
 (def-func-end)
 
@@ -1277,7 +1277,7 @@
 	;transform for all 6 blocks, read from a reader of lib/media/bits.inc,
 	;by its high efficiency bap: 0 noise of 0.5, the seed of the generator
 	;of lib/media/noise.inc first in the nums state; 1 to 7 a vector of 6
-	;of the reals vq, at the offset itab has after the bits of each bap; 8
+	;of the doubles vq, at the offset itab has after the bits of each bap; 8
 	;and more 6 numbers of the gain adaptive quantisation, of the gain of
 	;gains in turn where the bap is under top, remapped by consts. Then the
 	;DCT of 6 back across the blocks, each by 2^-exponent, into out, 6
@@ -1504,7 +1504,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ac3-aht reader bap exps start end top gains out vq consts itab state)" +error_msg_wrong_types))
-	(signature '(:list :nums :nums :num :num :num :nums :reals :reals :reals :nums :nums))
+	(signature '(:list :nums :nums :num :num :num :nums :doubles :doubles :doubles :nums :nums))
 
 (def-func-end)
 
@@ -1519,7 +1519,7 @@
 	;:r1-:r11, :d0-:d2
 	;info
 	;(media-lpc out start count step lpc) -> out, the all pole filter of the
-	;reals lpc, its first the 1 it is of, run over count reals of out in
+	;doubles lpc, its first the 1 it is of, run over count doubles of out in
 	;place, from start a step of 1 or -1 at a time: each less the sum of
 	;the outputs before it by lpc 1 on, as many as there are before it
 
@@ -1573,7 +1573,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-lpc out start count step lpc)" +error_msg_wrong_types))
-	(signature '(:reals :num :num :num :reals))
+	(signature '(:doubles :num :num :num :doubles))
 
 (def-func-end)
 
@@ -1587,8 +1587,8 @@
 	;trashes
 	;:r1-:r11, :d0-:d2
 	;info
-	;(media-matvec matrix rows cols x from out) -> out, the matrix, reals of
-	;rows of cols one after another, by cols reals of x from from: each
+	;(media-matvec matrix rows cols x from out) -> out, the matrix, doubles of
+	;rows of cols one after another, by cols doubles of x from from: each
 	;row's sum of its products into out, as many as rows
 
 	(vp-rdef (m rows cols x from out r c p q)
@@ -1633,7 +1633,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-matvec matrix rows cols x from out)" +error_msg_wrong_types))
-	(signature '(:reals :num :num :reals :num :reals))
+	(signature '(:doubles :num :num :doubles :num :doubles))
 
 (def-func-end)
 
@@ -1920,7 +1920,7 @@
 	;:r1-:r9, :d0-:d1
 	;info
 	;(media-dequant out q from to pow gain) -> out, the lines from to of the
-	;nums q, quantised and signed, each not 0 into out as the reals pow at
+	;nums q, quantised and signed, each not 0 into out as the doubles pow at
 	;its size, at most the last of pow, by gain, of its sign, as AAC and
 	;MP3 requantise, pow |v|^4/3. The rest of out left as it is
 
@@ -1977,7 +1977,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-dequant out q from to pow gain)" +error_msg_wrong_types))
-	(signature '(:reals :nums :num :num :reals :real))
+	(signature '(:doubles :nums :num :num :doubles :double))
 
 (def-func-end)
 
@@ -2088,7 +2088,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-window v new head d out at scale n parts dstep vstep doff voff)" +error_msg_wrong_types))
-	(signature '(:reals :reals :num :reals :reals :num :real :num :num :num :num :num :num))
+	(signature '(:doubles :doubles :num :doubles :doubles :num :double :num :num :num :num :num :num))
 
 (def-func-end)
 
@@ -2103,9 +2103,9 @@
 	;:r1-:r14, :d0-:d15
 	;info
 	;(media-sbr-gains ins flags lim kx delta consts out) -> out, SBR's gains
-	;of an envelope, lib/media/sbr.inc sbr-gains: ins the reals orig, q and
+	;of an envelope, lib/media/sbr.inc sbr-gains: ins the doubles orig, q and
 	;energy, 48 each, flags the nums s and si, 48 each, lim the limiter
-	;band edges, consts the reals one eps tiny top boost_max limgain. Into
+	;band edges, consts the doubles one eps tiny top boost_max limgain. Into
 	;out its gain, noise and sinusoid, 48 each, of each limiter band kept
 	;to its limit and its energy made what was sent. In the order the Lisp
 	;did it, so the samples are the same
@@ -2122,7 +2122,7 @@
 	(vp-push out)
 	(assign `((,lim +array_length ui) (,lim +array_begin) (,ins +array_begin) (,fl +array_begin) (,p +array_begin) (,out +array_begin))
 		`(,nlim ,lim ,ins ,fl ,p ,out))
-	;one eps tiny top boost_max limgain, and delta as a real
+	;one eps tiny top boost_max limgain, and delta as a double
 	(load-fields p '(0 8 16 24 32 40) '(:d8 :d9 :d10 :d11 :d12 :d13))
 	(vp-cvt-rd delta :d14)
 	(vp-sub-cr 1 nlim)
@@ -2268,7 +2268,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-gains ins flags lim kx delta consts out)" +error_msg_wrong_types))
-	(signature '(:reals :nums :nums :num :num :reals :reals))
+	(signature '(:doubles :nums :nums :num :num :doubles :doubles))
 
 (def-func-end)
 
@@ -2283,7 +2283,7 @@
 	;:r1-:r9, :d0-:d5
 	;info
 	;(media-mp3-alias x bands cs ca) -> x, of MP3, the 8 butterflies at
-	;each boundary of the 576 reals x's subbands 1 to bands, by the reals
+	;each boundary of the 576 doubles x's subbands 1 to bands, by the doubles
 	;cs and ca: below by cs less above by ca, above by cs and below by ca
 
 	(vp-rdef (x sb cs ca i lo hi c a)
@@ -2340,7 +2340,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-mp3-alias x bands cs ca)" +error_msg_wrong_types))
-	(signature '(:reals :num :reals :reals))
+	(signature '(:doubles :num :doubles :doubles))
 
 (def-func-end)
 
@@ -2355,7 +2355,7 @@
 	;:r1-:r7
 	;info
 	;(media-gather out arrays index) -> out, element index of each of a list
-	;of arrays of numbers or reals in turn into out, which is to be as long
+	;of arrays of numbers or doubles in turn into out, which is to be as long
 	;as the list: a column of rows, the bands of one slot of a list of
 	;slots, or a slot of a list of bands
 
@@ -2521,7 +2521,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-slot r i kx hr hi at g q quiet sm nre nim from cr ci alt mode)" +error_msg_wrong_types))
-	(signature '(:reals :reals :num :list :list :num :reals :reals :reals :reals :reals :reals :num :real :real :reals :num))
+	(signature '(:doubles :doubles :num :list :list :num :doubles :doubles :doubles :doubles :doubles :doubles :num :double :double :doubles :num))
 
 (def-func-end)
 
@@ -2606,7 +2606,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-predict hr hi r i from to c0 c1 c2 c3)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals :reals :num :num :real :real :real :real))
+	(signature '(:doubles :doubles :doubles :doubles :num :num :double :double :double :double))
 
 (def-func-end)
 
@@ -2733,7 +2733,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-dots r i out)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals))
+	(signature '(:doubles :doubles :doubles))
 
 (def-func-end)
 
@@ -2814,7 +2814,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-energy high kx count a b out)" +error_msg_wrong_types))
-	(signature '(:list :num :num :num :num :reals))
+	(signature '(:list :num :num :num :num :doubles))
 
 (def-func-end)
 
@@ -2883,7 +2883,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-ana u win x base)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals :num))
+	(signature '(:doubles :doubles :doubles :num))
 
 (def-func-end)
 
@@ -2899,8 +2899,8 @@
 	;info
 	;(media-ps-allpass out_r out_i dr di links coeffs gains) -> out_r, a band
 	;of parametric stereo made unlike itself, its 32 slots: each slot of the
-	;delay line, reals dr and di, from 12 on, turned by the band's phase,
-	;then through the 3 links of the all-pass filter, links their reals re
+	;delay line, doubles dr and di, from 12 on, turned by the band's phase,
+	;then through the 3 links of the all-pass filter, links their doubles re
 	;and im one after another, each 5 slots before and the 32 of this frame
 	;written in place: of link m the slot 2 - m before by its fractional
 	;delay, less the decayed gain by the slot, and its own slot 5 on the
@@ -2917,7 +2917,7 @@
 	(vp-push :r0)
 	(list-bind-args :r1 `(,out_r ,out_i ,dr ,di ,a0r ,coeffs ,gains) '(:obj :obj :obj :obj :obj :obj :obj))
 	(vp-push out_r)
-	;the links' 6 reals of the list, the list's own register last
+	;the links' 6 doubles of the list, the list's own register last
 	(assign `((,a0r +array_begin)) `(,a0r))
 	(vp-load-rcr a0r +ptr_size a0i)
 	(vp-load-rcr a0r (* 2 +ptr_size) a1r)
@@ -3001,7 +3001,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ps-allpass out_r out_i dr di links coeffs gains)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals :reals :list :reals :reals))
+	(signature '(:doubles :doubles :doubles :doubles :list :doubles :doubles))
 
 (def-func-end)
 
@@ -3250,8 +3250,8 @@
 	;trashes
 	;:r1-:r6, :d0-:d1
 	;info
-	;(media-flac-ints out ints scale) -> out, each of the nums ints a real
-	;by the real scale, into the reals out as long as it
+	;(media-flac-ints out ints scale) -> out, each of the nums ints a double
+	;by the double scale, into the doubles out as long as it
 
 	(vp-rdef (out ints scale n x)
 		'(:r2 :r3 :r4 :r5 :r6))
@@ -3285,6 +3285,6 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-flac-ints out ints scale)" +error_msg_wrong_types))
-	(signature '(:reals :nums :real))
+	(signature '(:doubles :nums :double))
 
 (def-func-end)

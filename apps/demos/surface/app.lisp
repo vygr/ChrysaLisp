@@ -61,12 +61,12 @@
 	(defq v (get :value slider))
 	(cond
 		((eql type :int) (+ lo v))
-		((= v init) (shader-real val))
-		((+ (shader-real lo) (/ (* (- (shader-real hi) (shader-real lo)) (n2r v))
-					(const (n2r +steps)))))))
+		((= v init) (shader-double val))
+		((+ (shader-double lo) (/ (* (- (shader-double hi) (shader-double lo)) (n2d v))
+					(const (n2d +steps)))))))
 
 (defun control-text (type val)
-	(if (eql type :int) (str val) (real-to-str val 4)))
+	(if (eql type :int) (str val) (double-to-str val 4)))
 
 (defun make-label (text)
 	(defq label (Label))
@@ -84,8 +84,8 @@
 				(def slider :maximum steps :portion (max 1 (/ steps 10))
 					:min_width 256
 					:value (defq init (if (eql type :int) (- val lo)
-							(n2i (/ (* (- (shader-real val) (shader-real lo)) (n2r steps))
-									(- (shader-real hi) (shader-real lo)))))))
+							(n2i (/ (* (- (shader-double val) (shader-double lo)) (n2d steps))
+									(- (shader-double hi) (shader-double lo)))))))
 				(view-variant slider :paper :paper_slider)
 				(. *names* :add_child (make-label (str name)))
 				(. *values* :add_child label)
@@ -96,7 +96,7 @@
 (defun frame-inputs (now)
 	;the inputs block for a frame, from the time and the controls
 	(defq vals (list
-			(list 'time (/ (n2r (- now start_time)) (const (n2r 1000000))))
+			(list 'time (/ (n2d (- now start_time)) (const (n2d 1000000))))
 			(list 'resolution (list +width +height))))
 	(each (lambda (control)
 			(bind '(name type lo hi slider label &rest _) control)

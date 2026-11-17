@@ -21,13 +21,13 @@
 
 (defmacro Normal (p0 p1 p2)
 	;a triangle with no area adds nothing to a smooth normal
-	(static-qq (vector-face-normal ,p0 ,p1 ,p2 +reals_zero3)))
+	(static-qq (vector-face-normal ,p0 ,p1 ,p2 +doubles_zero3)))
 
 (defun opt-vector (vector part)
 	; (opt-vector vector part) -> (new_vector new_indices)
-	(defq vec_map (Fmap 101) vec_imap (nums) new_vecs (reals) idx -1)
+	(defq vec_map (Fmap 101) vec_imap (nums) new_vecs (doubles) idx -1)
 	(each (#
-			(vector-quant %0 (const (n2r 0.0001)) %0)
+			(vector-quant %0 (const (n2d 0.0001)) %0)
 			(unless (defq i (. vec_map :find %0))
 				(. vec_map :insert %0 (setq idx (inc idx) i idx))
 				(push new_vecs %0))
@@ -49,7 +49,7 @@
 
 (defun gen-norms (verts tris)
 	; (gen-norms verts tris) -> (norms new_tris)
-	(cap (length tris) (defq norms (reals)) (defq new_tris (nums)))
+	(cap (length tris) (defq norms (doubles)) (defq new_tris (nums)))
 	(each (lambda ((i0 i1 i2 &ignore))
 			(push new_tris i0 i1 i2 (/ (length norms) +vec3_size))
 			(setq i0 (* i0 +vec4_size) i1 (* i1 +vec4_size) i2 (* i2 +vec4_size))
@@ -62,7 +62,7 @@
 
 (defclass Mesh () :nil
 	; (Mesh) -> mesh
-	(def this :verts (reals) :norms (reals) :tris (nums))
+	(def this :verts (doubles) :norms (doubles) :tris (nums))
 
 	(defgetmethod :verts)
 	(defgetmethod :norms)
@@ -82,19 +82,19 @@
 
 (defclass Mesh-sphere (radius eps) (Mesh)
 	; (Mesh-sphere radius eps) -> mesh
-	(defq eps2 (* eps 2) eps2_r (n2r eps2)
-		step (/ +real_2pi eps2_r)
-		verts (reals) norms (reals) tris (nums)
+	(defq eps2 (* eps 2) eps2_r (n2d eps2)
+		step (/ +double_2pi eps2_r)
+		verts (doubles) norms (doubles) tris (nums)
 		;pre-calculate longitudinal (horizontal) angles
 		;prevents recalculating the same sines and cosines for every latitude ring
-		x_sins (map! (# (sin (* (n2r (!)) step))) '() 0 eps2)
-		x_coses (map! (# (cos (* (n2r (!)) step))) '() 0 eps2))
+		x_sins (map! (# (sin (* (n2d (!)) step))) '() 0 eps2)
+		x_coses (map! (# (cos (* (n2d (!)) step))) '() 0 eps2))
 	; gen verts
 	(for 1 eps
 		(task-slice)
-		(defq ya (* (n2r (!)) step) yv (* radius (cos ya)) r (* radius (sin ya)))
-		(each! (# (push verts (* r %0) yv (* r %1) +real_1)) (list x_sins x_coses)))
-	(push verts +real_0 radius +real_0 +real_1 +real_0 (neg radius) +real_0 +real_1)
+		(defq ya (* (n2d (!)) step) yv (* radius (cos ya)) r (* radius (sin ya)))
+		(each! (# (push verts (* r %0) yv (* r %1) +double_1)) (list x_sins x_coses)))
+	(push verts +double_0 radius +double_0 +double_1 +double_0 (neg radius) +double_0 +double_1)
 	; gen norms and tris for mid section strips
 	(for 1 (dec eps)
 		(task-slice)
@@ -140,14 +140,14 @@
 	; (Mesh-cylinder radius height eps) -> mesh
 	;a cylinder that stands on the y axis, its middle at the origin, eps
 	;sides round, with its two ends closed
-	(defq step (/ +real_2pi (n2r eps)) half (* height +real_1/2)
-		verts (reals) tris (nums)
-		xs (map! (# (* radius (sin (* (n2r (!)) step)))) '() 0 eps)
-		zs (map! (# (* radius (cos (* (n2r (!)) step)))) '() 0 eps))
+	(defq step (/ +double_2pi (n2d eps)) half (* height +double_1/2)
+		verts (doubles) tris (nums)
+		xs (map! (# (* radius (sin (* (n2d (!)) step)))) '() 0 eps)
+		zs (map! (# (* radius (cos (* (n2d (!)) step)))) '() 0 eps))
 	;a ring at the top, a ring at the bottom, then the middle of each end
-	(each! (# (push verts %0 half %1 +real_1)) (list xs zs))
-	(each! (# (push verts %0 (neg half) %1 +real_1)) (list xs zs))
-	(push verts +real_0 half +real_0 +real_1 +real_0 (neg half) +real_0 +real_1)
+	(each! (# (push verts %0 half %1 +double_1)) (list xs zs))
+	(each! (# (push verts %0 (neg half) %1 +double_1)) (list xs zs))
+	(push verts +double_0 half +double_0 +double_1 +double_0 (neg half) +double_0 +double_1)
 	(for 0 eps
 		(defq t0 (!) t1 (% (inc (!)) eps) b0 (+ t0 eps) b1 (+ t1 eps))
 		;the side, two faces, then a slice of each end
@@ -158,19 +158,19 @@
 
 (defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
 	; (Mesh-torus radius_ring radius_body eps) -> mesh
-	(defq eps2 (* eps 2) eps_r (n2r eps) eps2_r (n2r eps2)
-		y_step (/ +real_2pi eps_r) x_step (/ +real_2pi eps2_r)
-		verts (reals) norms (reals) tris (nums)
+	(defq eps2 (* eps 2) eps_r (n2d eps) eps2_r (n2d eps2)
+		y_step (/ +double_2pi eps_r) x_step (/ +double_2pi eps2_r)
+		verts (doubles) norms (doubles) tris (nums)
 		;pre-calculate toroidal (horizontal) angles
 		;prevents recalculating the same sines and cosines for every single ring
-		x_sins (map! (# (sin (* (n2r (!)) x_step))) '() 0 eps2)
-		x_coses (map! (# (cos (* (n2r (!)) x_step))) '() 0 eps2))
+		x_sins (map! (# (sin (* (n2d (!)) x_step))) '() 0 eps2)
+		x_coses (map! (# (cos (* (n2d (!)) x_step))) '() 0 eps2))
 	; gen verts
 	(for 0 eps
 		(task-slice)
-		(defq ya (* (n2r (!)) y_step) yv (* radius_body (cos ya))
+		(defq ya (* (n2d (!)) y_step) yv (* radius_body (cos ya))
 			r (+ radius_ring (* radius_body (sin ya))))
-		(each! (# (push verts (* r %0) yv (* r %1) +real_1)) (list x_sins x_coses)))
+		(each! (# (push verts (* r %0) yv (* r %1) +double_1)) (list x_sins x_coses)))
 	; gen norms and tris
 	(for 0 eps
 		(task-slice)
@@ -195,7 +195,7 @@
 	(defq slc (cap (* gw gh 2) (list)) pz (elem-get z_points z))
 	(each (lambda (py) (defq y (!))
 			(each (lambda (px) (defq x (!))
-					(push slc (Vec3-r px py pz) (get_scalar_fnc iso :get_scalar x y z)))
+					(push slc (Vec3-d px py pz) (get_scalar_fnc iso :get_scalar x y z)))
 				x_points))
 		y_points)
 	slc)
@@ -205,13 +205,13 @@
 	(bind '(gw gh gd) (. iso :get_metrics))
 	(bind '(cx cy cz) (get :center iso))
 	(bind '(sx sy sz) (get :scale iso))
-	(defq verts (reals) norms (reals) tris (nums)
+	(defq verts (doubles) norms (doubles) tris (nums)
 		cw (dec gw) ch (dec gh) cd (dec gd)
 		get_scalar_fnc (.? iso :get_scalar)
 		;precalculate axes coordinates to avoid vector math in the inner loops
-		x_points (map! (# (* (- (n2r (!)) cx) sx)) '() 0 gw)
-		y_points (map! (# (* (- (n2r (!)) cy) sy)) '() 0 gh)
-		z_points (map! (# (* (- (n2r (!)) cz) sz)) '() 0 gd))
+		x_points (map! (# (* (- (n2d (!)) cx) sx)) '() 0 gw)
+		y_points (map! (# (* (- (n2d (!)) cy) sy)) '() 0 gh)
+		z_points (map! (# (* (- (n2d (!)) cz) sz)) '() 0 gd))
 	; march through the Z depth, on slice at a time
 	(defq slice_z :nil slice_z1 (eval-slice 0))
 	(for 0 cd
@@ -230,7 +230,7 @@
 				(each (lambda ((v0 v1 v2))
 						(defq i (/ (length verts) +vec4_size) in (/ (length norms) +vec3_size))
 						(push tris i (+ i 2) (inc i) in)
-						(push verts v0 +real_1 v1 +real_1 v2 +real_1)
+						(push verts v0 +double_1 v1 +double_1 v2 +double_1)
 						(push norms (Normal v0 v2 v1)))
 					(iso-surface (list
 							(elem-get slice_z1 idx_00)
@@ -255,17 +255,17 @@
 (defclass Mesh-data (num_verts num_norms num_tris data) (Mesh)
 	; (Mesh-data num_verts num_norms num_tris data) -> mesh
 	(lower
-		(:verts (push (reals) (slice data (defq i 0) (++ i (* num_verts (const (* +long_size +vec4_size)))))))
-		(:norms (push (reals) (slice data i (++ i (* num_norms (const (* +long_size +vec3_size)))))))
+		(:verts (push (doubles) (slice data (defq i 0) (++ i (* num_verts (const (* +long_size +vec4_size)))))))
+		(:norms (push (doubles) (slice data i (++ i (* num_norms (const (* +long_size +vec3_size)))))))
 		(:tris (push (nums) (slice data i (++ i (* num_tris (const (* +long_size +tri_size)))))))))
 
 (defclass Mesh-obj (stream) (Mesh)
 	; (Mesh-obj stream) -> mesh
 	;the positions and faces of an .obj, (obj-read), in a ball of radius 1,
 	;its normals worked out from its faces
-	(defq obj (obj-read stream) positions (. obj :find :positions) verts (reals) tris (nums))
+	(defq obj (obj-read stream) positions (. obj :find :positions) verts (doubles) tris (nums))
 	(each! (# (push verts (elem-get positions (* (!) 3)) (elem-get positions (inc (* (!) 3)))
-				(elem-get positions (+ (* (!) 3) 2)) +real_1)) '() 0 (/ (length positions) 3))
+				(elem-get positions (+ (* (!) 3) 2)) +double_1)) '() 0 (/ (length positions) 3))
 	;a corner is three numbers, a triangle nine, the first of each corner
 	;its position
 	(each (lambda ((material corners))
@@ -275,12 +275,12 @@
 				'() 0 (/ (length corners) 9)))
 		(. obj :find :groups))
 	(bind '((cx cy cz) scale) (vector-bounds-sphere verts +vec4_size))
-	(defq scale (if (> scale +real_0) (recip scale) +real_1)
-		matrix (reals
-			scale +real_0 +real_0 (* scale (neg cx))
-			+real_0 scale +real_0 (* scale (neg cy))
-			+real_0 +real_0 scale (* scale (neg cz))
-			+real_0 +real_0 +real_0 +real_1))
+	(defq scale (if (> scale +double_0) (recip scale) +double_1)
+		matrix (doubles
+			scale +double_0 +double_0 (* scale (neg cx))
+			+double_0 scale +double_0 (* scale (neg cy))
+			+double_0 +double_0 scale (* scale (neg cz))
+			+double_0 +double_0 +double_0 +double_1))
 	(bind '(norms tris) (gen-norms (mat4x4-vec4-mul matrix verts verts) tris))
 	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(lower :verts :norms :tris))

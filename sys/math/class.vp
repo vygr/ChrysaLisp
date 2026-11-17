@@ -51,11 +51,11 @@
 	(entry :sys_math :q_sqrt '(:r0))
 
 	(vp-lea-pr 'fn_consts :r1)
-	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
+	(assign '((:r1 (fn-const (recip (n2d (<< 1 +fp_shift)))))) '(:d0))
 	(vp-cvt-rd :r0 :d1)
 	(vp-mul-dd :d0 :d1)
 	(vp-sqrt-dd :d1 :d1)
-	(assign '((:r1 (fn-const (n2r (<< 1 +fp_shift))))) '(:d0))
+	(assign '((:r1 (fn-const (n2d (<< 1 +fp_shift))))) '(:d0))
 	(vp-mul-dd :d1 :d0)
 	(vp-cvt-dr :d0 :r0)
 
@@ -75,11 +75,11 @@
 	(entry :sys_math :q_sin '(:r0))
 
 	(vp-lea-pr 'fn_consts :r2)
-	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
+	(assign '((:r2 (fn-const (recip (n2d (<< 1 +fp_shift)))))) '(:d0))
 	(vp-cvt-rd :r0 :d1)
 	(vp-mul-dd :d1 :d0)
 	(call :sys_math :d_sin '(:d0) '(:d0))
-	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+	(assign '((:r2 (fn-const (n2d (<< 1 +fp_shift))))) '(:d1))
 	(vp-mul-dd :d1 :d0)
 	(vp-cvt-dr :d0 :r0)
 
@@ -99,13 +99,13 @@
 	(entry :sys_math :q_cos '(:r0))
 
 	(vp-lea-pr 'fn_consts :r2)
-	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
+	(assign '((:r2 (fn-const (recip (n2d (<< 1 +fp_shift)))))) '(:d0))
 	(vp-cvt-rd :r0 :d1)
 	(vp-mul-dd :d1 :d0)
 	(assign '((:r2 (fn-const 0x3ff921fb54442d18))) '(:d1))
 	(vp-add-dd :d1 :d0)
 	(call :sys_math :d_sin '(:d0) '(:d0))
-	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+	(assign '((:r2 (fn-const (n2d (<< 1 +fp_shift))))) '(:d1))
 	(vp-mul-dd :d1 :d0)
 	(vp-cvt-dr :d0 :r0)
 
@@ -116,9 +116,9 @@
 
 (def-method :sys_math :d_sin)
 	;inputs
-	;:d0 = real (real)
+	;:d0 = double (double)
 	;outputs
-	;:d0 = real (real)
+	;:d0 = double (double)
 	;trashes
 	;:r0-:r1, :d0-:d3
 
@@ -350,22 +350,22 @@
 
 (def-method :sys_math :d_pow)
 	;inputs
-	;:d0 = real (real)
-	;:d1 = power (real)
+	;:d0 = double (double)
+	;:d1 = power (double)
 	;outputs
-	;:d0 = real to the power (real)
+	;:d0 = double to the power (double)
 	;trashes
 	;:r0-:r2, :d0-:d7
 	;info
-	;0 if the real is not greater than 0. The whole part of the power is
+	;0 if the double is not greater than 0. The whole part of the power is
 	;by squaring, the rest by repeated roots, to 31 bits of it. It is the
 	;method of the shader language, every back end of which must agree
 
 	(entry :sys_math :d_pow '(:d0 :d1))
 
 	(vp-lea-pr 'fn_consts :r2)
-	(vp-load-rcd :r2 (fn-const (n2r 0)) :d2)
-	(vp-load-rcd :r2 (fn-const (n2r 1)) :d6)
+	(vp-load-rcd :r2 (fn-const (n2d 0)) :d2)
+	(vp-load-rcd :r2 (fn-const (n2d 1)) :d6)
 	(vp-bgt-dd :d2 :d0 'positive)
 	(vp-cpy-dd :d2 :d0)
 	(vp-jmp 'exit)
@@ -424,9 +424,9 @@
 
 (def-method :sys_math :d_exp)
 	;inputs
-	;:d0 = power (real)
+	;:d0 = power (double)
 	;outputs
-	;:d0 = e to the power (real)
+	;:d0 = e to the power (double)
 	;trashes
 	;:r0-:r2, :d0-:d3
 	;info
@@ -500,14 +500,14 @@
 
 (def-method :sys_math :d_log)
 	;inputs
-	;:d0 = real (real)
+	;:d0 = double (double)
 	;outputs
-	;:d0 = natural log of the real (real)
+	;:d0 = natural log of the double (double)
 	;trashes
 	;:r0-:r2, :d0-:d3
 	;info
 	;minus infinity of 0, not a number below 0, infinity and not a number
-	;as they are. The real is 2 to the e times m, m from the root of a half
+	;as they are. The double is 2 to the e times m, m from the root of a half
 	;to the root of 2, and the log of m is 2 atanh of f, f (m - 1) / (m + 1),
 	;by its series in f squared to the 10th power. It is the method of the
 	;shader language, every back end of which must agree
@@ -520,7 +520,7 @@
 	(vp-cpy-rr :r1 :r2)
 	(vp-shr-cr 52 :r2)
 	(vp-beq-cr 0x7ff :r2 'exit)
-	;m, from 1 to 2, the real with its exponent taken out, e what was taken
+	;m, from 1 to 2, the double with its exponent taken out, e what was taken
 	(defq mantissa (lambda ()
 		(vp-sub-cr 1023 :r2)
 		(vp-shl-cr 52 :r2)
@@ -601,12 +601,12 @@
 	(entry :sys_math :q_exp '(:r0))
 
 	(vp-lea-pr 'fn_consts :r1)
-	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d1))
+	(assign '((:r1 (fn-const (recip (n2d (<< 1 +fp_shift)))))) '(:d1))
 	(vp-cvt-rd :r0 :d0)
 	(vp-mul-dd :d1 :d0)
 	(call :sys_math :d_exp '(:d0) '(:d0))
 	(vp-lea-pr 'fn_consts :r1)
-	(assign '((:r1 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+	(assign '((:r1 (fn-const (n2d (<< 1 +fp_shift))))) '(:d1))
 	(vp-mul-dd :d1 :d0)
 	(vp-cvt-dr :d0 :r0)
 
@@ -628,12 +628,12 @@
 	(entry :sys_math :q_log '(:r0))
 
 	(vp-lea-pr 'fn_consts :r1)
-	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d1))
+	(assign '((:r1 (fn-const (recip (n2d (<< 1 +fp_shift)))))) '(:d1))
 	(vp-cvt-rd :r0 :d0)
 	(vp-mul-dd :d1 :d0)
 	(call :sys_math :d_log '(:d0) '(:d0))
 	(vp-lea-pr 'fn_consts :r1)
-	(assign '((:r1 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+	(assign '((:r1 (fn-const (n2d (<< 1 +fp_shift))))) '(:d1))
 	(vp-mul-dd :d1 :d0)
 	(vp-cvt-dr :d0 :r0)
 

@@ -235,6 +235,12 @@ the checksum of an 8 and 3 name, each part of a long name has it
 (get-byte str idx) -> num
 ```
 
+### get-double
+
+```code
+(get-double str idx) -> double
+```
+
 ### get-int
 
 ```code
@@ -245,12 +251,6 @@ the checksum of an 8 and 3 name, each part of a long name has it
 
 ```code
 (get-long str idx) -> num
-```
-
-### get-real
-
-```code
-(get-real str idx) -> real
 ```
 
 ### get-short
@@ -403,16 +403,16 @@ two bytes high first, as a .jpg has its numbers
 (memoize key form [num_buckets]) -> (eval form)
 ```
 
+### noise-double
+
+```code
+(noise-double seed) -> double
+```
+
 ### noise-next
 
 ```code
 (noise-next seed) -> seed
-```
-
-### noise-real
-
-```code
-(noise-real seed) -> real
 ```
 
 ### not
@@ -579,6 +579,12 @@ four bytes high first
 (set-byte str idx num) -> str
 ```
 
+### set-double
+
+```code
+(set-double str idx num) -> str
+```
+
 ### set-int
 
 ```code
@@ -589,12 +595,6 @@ four bytes high first
 
 ```code
 (set-long str idx num) -> str
-```
-
-### set-real
-
-```code
-(set-real str idx num) -> str
 ```
 
 ### set-short

@@ -67,7 +67,7 @@
 
 (defun tenth (n)
 	;a number to the nearest tenth, as text
-	(defq n (n2i (floor (+ (* (n2f n) 10.0) 0.5))) whole (/ (abs n) 10) part (% (abs n) 10))
+	(defq n (n2i (floor (+ (* (n2q n) 10.0) 0.5))) whole (/ (abs n) 10) part (% (abs n) 10))
 	(cat (if (< n 0) "-" "") (str whole) (if (= part 0) "" (cat "." (str part)))))
 
 (defun pointer-events (line)
@@ -144,8 +144,8 @@
 				(setq doc (. board :get_doc))
 				(if opt_i (info doc))
 				(when opt_o
-					(defq zoom (n2f (ifn opt_z 1)) w (max 1 (n2i (* (n2f (. doc :find :width)) zoom)))
-						h (max 1 (n2i (* (n2f (. doc :find :height)) zoom)))
+					(defq zoom (n2q (ifn opt_z 1)) w (max 1 (n2i (* (n2q (. doc :find :width)) zoom)))
+						h (max 1 (n2i (* (n2q (. doc :find :height)) zoom)))
 						canvas (Canvas w h 1) m (if (= zoom 1.0) :nil (mat3x2-scale zoom)))
 					(.-> canvas (:set_canvas_flags +canvas_flag_antialias)
 						(:fill (ifn opt_b (. doc :find :background))))

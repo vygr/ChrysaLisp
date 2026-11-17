@@ -49,7 +49,7 @@
 	(dec-method :lisp_array class/array/lisp_array :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :d0-:d15))
 	(dec-method :lisp_nums class/array/lisp_nums :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :d0-:d15))
 	(dec-method :lisp_fixeds class/array/lisp_fixeds :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :d0-:d15))
-	(dec-method :lisp_reals class/array/lisp_reals :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :d0-:d15))
+	(dec-method :lisp_doubles class/array/lisp_doubles :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :d0-:d15))
 	(dec-method :lisp_path class/array/lisp_path :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :d0-:d15))
 	(dec-method :lisp_set class/array/lisp_eset :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :d0-:d15))
 	(dec-method :lisp_clear class/array/lisp_clear :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :d0-:d15))

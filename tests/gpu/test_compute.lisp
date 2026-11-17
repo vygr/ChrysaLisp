@@ -3,10 +3,10 @@
 (import "lib/gpu/compute.inc")
 (import "lib/gpu/shader.inc")
 
-;n floats, 32 bits each, as a GPU has them, made from reals
+;n floats, 32 bits each, as a GPU has them, made from doubles
 (defun gc-floats (vals)
 	(defq s (str-alloc (* 4 (length vals))))
-	(each (# (set-int s (* (!) 4) (sh-real-to-float %0))) vals)
+	(each (# (set-int s (* (!) 4) (sh-double-to-float %0))) vals)
 	s)
 
 (defq gc_format (gpu-format))
@@ -25,7 +25,7 @@
 
 		;a kernel: each float doubled, then times a scale and plus an add, of
 		;a block of uniforms
-		(defq gc_n 256 gc_in (gc-floats (map! (# (n2r (- (!) 100))) '() 0 gc_n)))
+		(defq gc_n 256 gc_in (gc-floats (map! (# (n2d (- (!) 100))) '() 0 gc_n)))
 		(cond
 			((= gc_format 1)
 				(defq gc_double (gpu-kernel (cat
@@ -58,12 +58,12 @@
 				(gpu-write gc_src 0 gc_in)
 				(assert-true "a kernel run over 256 floats" (gpu-run gc_double (list gc_src gc_dst) :nil (list (/ gc_n 64) 1 1)))
 				(assert-eq "each one doubled"
-					(gc-floats (map! (# (n2r (* 2 (- (!) 100)))) '() 0 gc_n))
+					(gc-floats (map! (# (n2d (* 2 (- (!) 100)))) '() 0 gc_n))
 					(gpu-read gc_dst 0 (* 4 gc_n)))
 				(assert-true "a kernel with uniforms"
-					(gpu-run gc_scale (list gc_src gc_dst) (gc-floats (list (n2r 3) (n2r 1))) (list (/ gc_n 64) 1 1)))
+					(gpu-run gc_scale (list gc_src gc_dst) (gc-floats (list (n2d 3) (n2d 1))) (list (/ gc_n 64) 1 1)))
 				(assert-eq "each one times 3 and plus 1"
-					(gc-floats (map! (# (n2r (+ 1 (* 3 (- (!) 100))))) '() 0 gc_n))
+					(gc-floats (map! (# (n2d (+ 1 (* 3 (- (!) 100))))) '() 0 gc_n))
 					(gpu-read gc_dst 0 (* 4 gc_n)))
 				(gpu-buffer-free gc_src)
 				(gpu-buffer-free gc_dst)

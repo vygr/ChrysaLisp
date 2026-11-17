@@ -217,7 +217,7 @@
 				(+pev_left))
 			kind (elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
 			rx (getf event +ev_msg_pointer_rx) ry (getf event +ev_msg_pointer_ry)
-			pressure (/ (n2f (getf event +ev_msg_pointer_pressure)) 65535.0))
+			pressure (/ (n2q (getf event +ev_msg_pointer_pressure)) 65535.0))
 		(if (/= buttons 0) (. (get :down this) :insert id (list kind buttons rx ry pressure)) (. (get :down this) :erase id))
 		(bind '(x y) (. this :to_doc rx ry))
 		(. (get :board this) :pointers (list (ptr-event id kind buttons x y pressure)))
@@ -255,14 +255,14 @@
 				;are, the zoom there is, and that it has not been zoomed
 				;and the angle the one is at from the other
 				(def this :grip (setq grip (list ida idb (/ (+ ax bx) 2) (/ (+ ay by) 2)
-							(max 1.0 (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))))
-							(get :zoom this) :nil (path-angle (n2f (- bx ax)) (n2f (- by ay))))))))
+							(max 1.0 (sqrt (n2q (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))))
+							(get :zoom this) :nil (path-angle (n2q (- bx ax)) (n2q (- by ay))))))))
 		(when grip
 			(bind '(ida idb mx my apart zoom zoomed angle) grip)
 			(bind '(ax ay) (. fingers :find ida))
 			(bind '(bx by) (. fingers :find idb))
 			(defq nx (/ (+ ax bx) 2) ny (/ (+ ay by) 2)
-				by_far (/ (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))) apart)
+				by_far (/ (sqrt (n2q (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))) apart)
 				;somebody is drawing: these two do nothing to what is seen
 				;till they have done, and then go on from where they are,
 				;not from where they were
@@ -292,7 +292,7 @@
 			;the board is turned a quarter, a jump, and there it is till
 			;they are half way to the next. It has no other angle to be at
 			(when (and on_pan (defq on_turn (get :on_turn this)))
-				(defq turned (- (path-angle (n2f (- bx ax)) (n2f (- by ay))) angle))
+				(defq turned (- (path-angle (n2q (- bx ax)) (n2q (- by ay))) angle))
 				(while (> turned +fp_pi) (setq turned (- turned +fp_2pi)))
 				(while (<= turned (neg +fp_pi)) (setq turned (+ turned +fp_2pi)))
 				(when (> (abs turned) (const (/ +fp_pi 4.0)))

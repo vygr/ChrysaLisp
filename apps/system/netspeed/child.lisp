@@ -4,7 +4,7 @@
 
 ;native versions
 (ffi (cat *app_root* "vops") vops)
-; (vops) -> (vops_regs vops_memory vops_reals)
+; (vops) -> (vops_regs vops_memory vops_doubles)
 
 (enums +select 0
 	(enum main timeout))
@@ -21,9 +21,9 @@
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with info
 				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(bind '(vops_regs vops_memory vops_reals) (vops))
+				(bind '(vops_regs vops_memory vops_doubles) (vops))
 				(mail-send msg (setf-> (str-alloc +reply_size)
 						(+reply_node (task-nodeid))
 						(+reply_vops_regs vops_regs)
 						(+reply_vops_memory vops_memory)
-						(+reply_vops_reals vops_reals)))))))
+						(+reply_vops_doubles vops_doubles)))))))

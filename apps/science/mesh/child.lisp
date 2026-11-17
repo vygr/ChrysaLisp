@@ -14,8 +14,8 @@
 			(+mesh_reply_num_tris (/ (length tris) +tri_size))
 			(+mesh_reply_name name))
 		data (const (+ +str_data +mesh_reply_data)))
-	(each (# (obj-set reply_msg data +type_real %0) (++ data +long_size)) verts)
-	(each (# (obj-set reply_msg data +type_real %0) (++ data +long_size)) norms)
+	(each (# (obj-set reply_msg data +type_double %0) (++ data +long_size)) verts)
+	(each (# (obj-set reply_msg data +type_double %0) (++ data +long_size)) norms)
 	(each (# (obj-set reply_msg data +type_long %0) (++ data +long_size)) tris)
 	(mail-send mbox reply_msg))
 

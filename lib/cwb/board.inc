@@ -117,7 +117,7 @@
 	;the path of a line drawn by hand, points is x y x y ... It goes
 	;from the first to the last, and between is curved: each point is
 	;where the line turns toward, and it passes half way between each two
-	(defq pts (partition (map (const n2f) points) 2) n (length pts))
+	(defq pts (partition (map (const n2q) points) 2) n (length pts))
 	(cond
 		((= n 0) "")
 		((= n 1) (cwb-d "M" (first (first pts)) (second (first pts)) "L" (first (first pts)) (second (first pts))))
@@ -336,7 +336,7 @@
 	(bind '(lx ly) (mat3x2-point (cwb-inv group) x y))
 	(each (lambda (item)
 			(cond
-				((and (cwb-rub? item) (defq pieces (cwb-rub item lx ly (/ (n2f r) size))))
+				((and (cwb-rub? item) (defq pieces (cwb-rub item lx ly (/ (n2q r) size))))
 					(setq touched :t)
 					(each (# (push out (cwb-adopt doc %0))) pieces))
 				(:t (push out item))))
@@ -491,7 +491,7 @@
 				(when (find tool '(:frect :fellipse))
 					(bind '(line fill) (. board :ink_pair event))
 					(and (= line fill) (not (board-none? line))
-						(elem-set state +stroke_grow (* 0.5 (n2f (. (get :bindings board) :value event :width (get :width board)))))))))
+						(elem-set state +stroke_grow (* 0.5 (n2q (. (get :bindings board) :value event :width (get :width board)))))))))
 		state)
 
 	(defmethod :shape_d (state x y)
@@ -1119,7 +1119,7 @@
 				(find (elem-get item +cwb_kind) '(:line :arrow :arrow2)))
 			(defq parts (split (elem-get item +cwb_d) " "))
 			(and (= (length parts) 6) (eql (first parts) "M") (eql (elem-get parts 3) "L")
-				(list item (map (# (n2f (str-to-num (elem-get parts %0)))) '(1 2 4 5))))))
+				(list item (map (# (n2q (str-to-num (elem-get parts %0)))) '(1 2 4 5))))))
 
 	(defmethod :corners ()
 		; (. handles :corners) -> :nil | (x y x y x y x y)
@@ -1566,7 +1566,7 @@
 		(defq bindings (get :bindings this)
 			snap (. bindings :value event :snap :none) angle (. bindings :value event :snap_angle :none))
 		(list (cond ((eql snap :none) (get :snap this))
-				(snap (if (> (get :snap_gap this) 0.0) (get :snap_gap this) (n2f (. (get :doc this) :find :grid))))
+				(snap (if (> (get :snap_gap this) 0.0) (get :snap_gap this) (n2q (. (get :doc this) :find :grid))))
 				(0.0))
 			(cond ((eql angle :none) (get :snap_angle this)) (angle (const (/ +fp_pi 12.0))) (0.0))
 			(. bindings :value event :keep_shape (get :keep_shape this))))
@@ -1629,7 +1629,7 @@
 				(cond
 					(event (. this :hold event val (not (case val (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep)))))
 					((eql val :snap) (def this :snap (if (= snap 0.0)
-								(if (> (get :snap_gap this) 0.0) (get :snap_gap this) (n2f (. (get :doc this) :find :grid))) 0.0)))
+								(if (> (get :snap_gap this) 0.0) (get :snap_gap this) (n2q (. (get :doc this) :find :grid))) 0.0)))
 					((eql val :snap_angle) (def this :snap_angle (if (= angle 0.0) (const (/ +fp_pi 12.0)) 0.0)))
 					((def this :keep_shape (not keep)))))
 			((:ink :alpha :none)
@@ -2052,8 +2052,8 @@
 		;only the lines are cut, whatever the mode, (:rub_along) takes the
 		;bite of all its way at once. No step is made. Was anything
 		;rubbed out
-		(defq doc (get :doc this) r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
-			x (n2f x) y (n2f y) reach (list (- x r) (- y r) (+ x r) (+ y r)) done :nil
+		(defq doc (get :doc this) r (n2q (ifn r (/ (get :rub_reach this) (get :zoom this))))
+			x (n2q x) y (n2q y) reach (list (- x r) (- y r) (+ x r) (+ y r)) done :nil
 			mode (get :rub_mode this) taken (. this :taken))
 		;a bite is another thing altogether
 		(and (eql mode :bite) (not lines) (setq done (. this :bite (path x y) r)))
@@ -2110,17 +2110,17 @@
 		; (. board :rub_along x y x1 y1 [r]) -> :t | :nil
 		;rub out from one point to another, as the eraser goes, at every
 		;step of half its reach
-		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
-			x (n2f x) y (n2f y) dx (- (n2f x1) x) dy (- (n2f y1) y)
+		(defq r (n2q (ifn r (/ (get :rub_reach this) (get :zoom this))))
+			x (n2q x) y (n2q y) dx (- (n2q x1) x) dy (- (n2q y1) y)
 			steps (max 1 (n2i (/ (sqrt (+ (* dx dx) (* dy dy))) (* 0.5 r)))) done :nil)
 		(defq mode (get :rub_mode this))
 		(unless (eql mode :bite)
 			;the lines, a step at a time. And with them what is not a line,
 			;if it goes whole
-			(each! (lambda () (defq f (/ (n2f (!)) (n2f steps)))
+			(each! (lambda () (defq f (/ (n2q (!)) (n2q steps)))
 					(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r (eql mode :part)) (setq done :t))) '() 0 (inc steps)))
 		;the bite, all of the way at once, what it covers from the one to the other
-		(and (find mode '(:part :bite)) (. this :bite (path x y (n2f x1) (n2f y1)) r) (setq done :t))
+		(and (find mode '(:part :bite)) (. this :bite (path x y (n2q x1) (n2q y1)) r) (setq done :t))
 		done)
 
 	(defmethod :bite (points &optional r shape user)
@@ -2130,7 +2130,7 @@
 		;filled outline of what was left of it. The eraser is a path about
 		;0 0 with no dent in it, default a circle of r, default the
 		;board's reach by its zoom. No step is made. Was anything touched
-		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this)))))
+		(defq r (n2q (ifn r (/ (get :rub_reach this) (get :zoom this)))))
 		(. this :bite_area (poly-sweep (ifn shape (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) points) user))
 
 	(defmethod :bite_area (swept &optional user)
@@ -2205,7 +2205,7 @@
 		;One that is partly on it stays, all of it. Those in a layer that
 		;is locked stay. How many went
 		(defq doc (get :doc this) gone (list)
-			paper (list 0.0 0.0 (n2f (. doc :find :width)) (n2f (. doc :find :height))))
+			paper (list 0.0 0.0 (n2q (. doc :find :width)) (n2q (. doc :find :height))))
 		(each (lambda ((name flags items))
 				(unless (bits? flags 2)
 					(each (lambda (item)
@@ -2489,7 +2489,7 @@
 		;width, so 9, 18 and 36 for the three widths of the app, and not
 		;less than :rub_reach. It is that many pixels on the screen
 		;whatever the zoom, as an instrument is the size it is
-		(/ (max (n2f (get :rub_reach this)) (* 3.0 (n2f (ifn width (get :width this))))) (get :zoom this)))
+		(/ (max (n2q (get :rub_reach this)) (* 3.0 (n2q (ifn width (get :width this))))) (get :zoom this)))
 
 	(defmethod :pointer_free? (id)
 		; (. board :pointer_free? id) -> :t | :nil

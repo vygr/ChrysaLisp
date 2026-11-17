@@ -9,7 +9,7 @@
 (defun ey-look (x y)
 	;a gaze, so far to the right and so far down, as the app works it out
 	(defq len (sqrt (+ (* x x) (* y y) 1.44)))
-	(map (# (n2r (/ %0 len))) (list x y -1.2)))
+	(map (# (n2d (/ %0 len))) (list x y -1.2)))
 
 (defun ey-draw (left right)
 	; (ey-draw left right) -> pixels
@@ -20,7 +20,7 @@
 		(shader-vp-frame ey_program ey_native (list
 				(list 'resolution (list ey_w ey_h))
 				(list 'look_left left) (list 'look_right right)
-				(list 'iris_color (map (const n2r) '(0.0 1.0 0.0)))
+				(list 'iris_color (map (const n2d) '(0.0 1.0 0.0)))
 				(list 'iris_size 0.49) (list 'pupil_size 0.4)))
 		pixmap 0 0 ey_w ey_h ey_h :t)
 	(pixmap-write pixmap stream 32)

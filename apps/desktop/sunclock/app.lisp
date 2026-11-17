@@ -73,7 +73,7 @@
 	(cat (str deg) "o" (pad min_val 2 "0") "'" hem))
 
 (defun render-world-map (canvas unix_sec w_i h_i)
-	(defq w (n2f w_i) h (n2f h_i))
+	(defq w (n2q w_i) h (n2q h_i))
 	(.-> canvas
 		(:fill 0xff132338) ; Deep atmospheric ocean blue
 		(:set_canvas_flags +canvas_flag_antialias))
@@ -112,7 +112,7 @@
 		n_steps (n2i (/ w step_x))
 		curve_pts (list)
 		shadow_poly (path))
-	(each! (lambda () (defq px (* (n2f (!)) step_x)
+	(each! (lambda () (defq px (* (n2q (!)) step_x)
 				lon_rad (- (* (/ px w) +fp_2pi) +fp_pi)
 				lat_rad (terminator-lat lon_rad sun_lon_rad sun_lat_rad)
 				py (* (/ (- +fp_hpi lat_rad) +fp_pi) h))

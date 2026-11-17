@@ -1,7 +1,7 @@
 # Numbers and Vectors
 
 ChrysaLisp supports a variety of number formats. Integers, fixed point and
-reals. Functions are provided to convert between these formats.
+doubles. Functions are provided to convert between these formats.
 
 Vectors are arrays of these primitives. There are functions that operate on
 every member of the vector with a single call.
@@ -47,19 +47,19 @@ Useful constants defined in `root.inc`.
 
 `+fp_shift +fp_int_mask +fp_frac_mask +fp_2pi +fp_pi +fp_hpi +fp_rpi`
 
-### Real
+### Double
 
-These are a floating point number format. The VP class, `class/real/`, holds a
-real value in the `num_value` field. 64bit IEEE format.
+These are a floating point number format. The VP class, `class/double/`, holds a
+double value in the `num_value` field. 64bit IEEE format.
 
 Useful constants defined in `lib/math/vector.inc`.
 
-`+real_0 to +real_10 +real_-1 to +real_-10 +real_1/2 to +real_1/20 +real_-1/2 to
-+real_-1/20 +real_pi +real_hpi +real_2pi`
+`+double_0 to +double_10 +double_-1 to +double_-10 +double_1/2 to +double_1/20 +double_-1/2 to
++double_-1/20 +double_pi +double_hpi +double_2pi`
 
 ## Conversions
 
-There are three conversion functions built in. `(n2i)`, `(n2f)` and `(n2r)`.
+There are three conversion functions built in. `(n2i)`, `(n2q)` and `(n2d)`.
 These pass through, without change, the same type number, otherwise they
 convert the input into the requested output.
 
@@ -108,7 +108,7 @@ These operate on any number type and return `:t | :nil`.
 
 ## Vectors
 
-Vectors are created with the `(nums ...)`, `(fixeds ...)` or `(reals ...)`
+Vectors are created with the `(nums ...)`, `(fixeds ...)` or `(doubles ...)`
 functions. These functions do not care what numeric data format is given ! They
 just pack the `num_value` fields of the input parameters into a typed array.
 
@@ -116,8 +116,8 @@ The `lib/math/vector.inc` library provides a host of functions to operate on
 vectors. From simple operations such as `(vec-add ...)` to complex operations
 like `(vec-dist-to-line ...)`.
 
-Standard constructor macros are provided for common types. `(Vec3-f ...)`,
-`(Vec4-f ...)`, `(Vec3-r ...)`, `(Vec4-r ...)` etc.
+Standard constructor macros are provided for common types. `(Vec3-q ...)`,
+`(Vec4-q ...)`, `(Vec3-d ...)`, `(Vec4-d ...)` etc.
 
 All base vector operations take an optional output vector. This avoids a memory
 allocation and can provide faster operation. But be aware that the given
@@ -125,5 +125,5 @@ optional output vector will be the returned value from the call, be aware you
 may mutate an input vector !
 
 Temp vector constants are defined in the `lib/math/vector.inc` file, such as
-`+fixeds_tmp3`, `+fixeds_tmp4`, `+reals_tmp3`, `+reals_tmp4`, `+fixeds_zero3`,
-`+fixeds_zero4`, `+reals_zero3` and `+reals_zero4`.
+`+fixeds_tmp3`, `+fixeds_tmp4`, `+doubles_tmp3`, `+doubles_tmp4`, `+fixeds_zero3`,
+`+fixeds_zero4`, `+doubles_zero3` and `+doubles_zero4`.

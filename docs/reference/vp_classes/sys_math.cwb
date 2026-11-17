@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 176
-	:height 244
+	:height 210
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 17
+	:next_id 21
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 14)
+					((:list 18)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 210 A 8 8 0 0 1 142 218 L 8 218 A 8 8 0 0 1 0 210 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 176 A 8 8 0 0 1 142 184 L 8 184 A 8 8 0 0 1 0 176 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -136,7 +136,7 @@
 							:stroke
 							0
 							:text
-							"[:f_cos]"
+							"[:d_exp]"
 							:font_size
 							12
 							:pos
@@ -156,7 +156,7 @@
 							:stroke
 							0
 							:text
-							"[:f_dist_sqd]"
+							"[:d_log]"
 							:font_size
 							12
 							:pos
@@ -176,7 +176,7 @@
 							:stroke
 							0
 							:text
-							"[:f_intersect]"
+							"[:d_pow]"
 							:font_size
 							12
 							:pos
@@ -196,7 +196,7 @@
 							:stroke
 							0
 							:text
-							"[:f_sin]"
+							"[:d_sin]"
 							:font_size
 							12
 							:pos
@@ -216,7 +216,7 @@
 							:stroke
 							0
 							:text
-							"[:f_sqrt]"
+							"[:i_rand]"
 							:font_size
 							12
 							:pos
@@ -236,7 +236,7 @@
 							:stroke
 							0
 							:text
-							"[:i_rand]"
+							"[:q_cos]"
 							:font_size
 							12
 							:pos
@@ -256,13 +256,13 @@
 							:stroke
 							0
 							:text
-							"[:r_pow]"
+							"[:q_dist_sqd]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								12.00000
-								187.00000
+								71.53662
+								85.00000
 							)
 						)
 						((:list 15)
@@ -276,13 +276,93 @@
 							:stroke
 							0
 							:text
-							"[:r_sin]"
+							"[:q_exp]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								12.00000
-								204.00000
+								71.53662
+								102.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							17
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:q_intersect]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								71.53662
+								119.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							18
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:q_log]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								71.53662
+								136.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							19
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:q_sin]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								71.53662
+								153.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							20
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:q_sqrt]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								71.53662
+								170.00000
 							)
 						)
 					)

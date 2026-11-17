@@ -31,8 +31,8 @@ usemtl nothing
 	(str (slice (second (second (. to_obj :find :groups))) 0 9)))
 (assert-eq "a has neither" "(0 -1 -1 1 -1 -1 2 -1 -1)" (str (slice (second (second (. to_obj :find :groups))) 9 18)))
 
-;reals as whole hundredths, to compare
-(defun to-h (rs) (str (map (# (n2i (* %0 (n2r 100)))) rs)))
+;doubles as whole hundredths, to compare
+(defun to-h (rs) (str (map (# (n2i (* %0 (n2d 100)))) rs)))
 (defq to_flat (obj-flat to_obj (second (first (. to_obj :find :groups)))))
 (assert-eq "flat, eight numbers a corner" 48 (length to_flat))
 (assert-eq "a place goes down from the top, 1 less the .obj's" "(0 100)" (to-h (slice to_flat 3 5)))

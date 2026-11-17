@@ -973,7 +973,7 @@ Things worth knowing:
 
 * Numbers that are given to the functions here can be whole or not. In
 arithmetic of your own they can not be mixed, `(+ 1 0.5)` is an error,
-`(n2f)` makes one the other.
+`(n2q)` makes one the other.
 
 * A string in Lisp that is on a command line is in `{braces}`.
 

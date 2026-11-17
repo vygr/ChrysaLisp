@@ -2,7 +2,7 @@
 
 ChrysaLisp did not come out of nowhere. It is the latest turn of one idea
 that its author, Chris Hinsley, has been working at since the early 1980s:
-write for a small, clean machine that does not exist, and let the real
+write for a small, clean machine that does not exist, and let the double
 machine, whatever it is, be somebody else's problem.
 
 This is the record of that idea, from a ZX81 to the system in this

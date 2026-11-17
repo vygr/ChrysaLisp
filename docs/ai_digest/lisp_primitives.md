@@ -454,7 +454,7 @@ Primitives targeting mutable `:array` and `:list` data structures.
 
 *	**`fill`**: Makes an array so long, every element the one given. Of a
 	list, each element is the object, a reference to it for each, and those
-	it had are let go; of nums, fixeds, reals or a path, the number. A set
+	it had are let go; of nums, fixeds, doubles or a path, the number. A set
 	or a map is refused.
 
 	*	`(fill array length value) -> array`
@@ -580,9 +580,9 @@ Type inspection and structural verification predicates.
 
 	*	`(pmap? form) -> :t | :nil`
 
-*	**`num?` / `fixed?` / `real?` / `num??` / `fixed??`**: Numerical scalar
-	type checks. A real is a fixed, and a fixed is a num, `num??` is a num
-	that is neither, `fixed??` a fixed that is not a real.
+*	**`num?` / `fixed?` / `double?` / `num??` / `fixed??`**: Numerical scalar
+	type checks. A double is a fixed, and a fixed is a num, `num??` is a num
+	that is neither, `fixed??` a fixed that is not a double.
 
 	*	`(num? form) -> :t | :nil`
 
@@ -592,9 +592,9 @@ Type inspection and structural verification predicates.
 
 	*	`(fixed?? form) -> :t | :nil`
 
-	*	`(real? form) -> :t | :nil`
+	*	`(double? form) -> :t | :nil`
 
-*	**`nums?` / `fixeds?` / `reals?` / `nums??` / `fixeds??` / `reals??`**: Numeric
+*	**`nums?` / `fixeds?` / `doubles?` / `nums??` / `fixeds??` / `doubles??`**: Numeric
 	vector type checks, and for one that is that class itself.
 
 	*	`(nums? form) -> :t | :nil`
@@ -605,9 +605,9 @@ Type inspection and structural verification predicates.
 
 	*	`(fixeds?? form) -> :t | :nil`
 
-	*	`(reals? form) -> :t | :nil`
+	*	`(doubles? form) -> :t | :nil`
 
-	*	`(reals?? form) -> :t | :nil`
+	*	`(doubles?? form) -> :t | :nil`
 
 *	**`func?` / `str?` / `str??` / `sym?` / `env?` / `seq?`**: Core object type
 	checks. A symbol is a str, `str??` is a str that is not one.
@@ -721,14 +721,14 @@ Arithmetic, bitwise math, trigonometry, and SIMD-like numerical vector operation
 
 ### Numerical Types and Conversion
 
-*	**`n2i` / `n2f` / `n2r`**: Inter-type numerical conversion between integer,
-	fixed-point (16.16), and 64-bit double precision real.
+*	**`n2i` / `n2q` / `n2d`**: Inter-type numerical conversion between integer,
+	fixed-point (16.16), and 64-bit double precision double.
 
 	*	`(n2i num) -> num`
 
-	*	`(n2f num) -> fixed`
+	*	`(n2q num) -> fixed`
 
-	*	`(n2r num) -> real`
+	*	`(n2d num) -> double`
 
 *	**`num`**: Interns a 64-bit integer.
 
@@ -746,7 +746,7 @@ Arithmetic, bitwise math, trigonometry, and SIMD-like numerical vector operation
 
 	*	`(align num div) -> num`
 
-### Fixed-Point Trigonometry and Real Operations
+### Fixed-Point Trigonometry and Double Operations
 
 *	**`sin` / `cos`**: Fixed-point sine and cosine operations.
 
@@ -765,11 +765,11 @@ Arithmetic, bitwise math, trigonometry, and SIMD-like numerical vector operation
 
 	*	`(recip fixed) -> fixed`
 
-*	**`quant`**: Quantizes a real number to a specified tolerance.
+*	**`quant`**: Quantizes a double number to a specified tolerance.
 
-	*	`(quant real tol) -> real`
+	*	`(quant double tol) -> double`
 
-### Numeric Vector Operations (`nums`, `fixeds`, `reals`)
+### Numeric Vector Operations (`nums`, `fixeds`, `doubles`)
 
 High-performance vector operations executed across packed numeric vectors.
 
@@ -813,19 +813,19 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(fixeds-ceil fixeds [fixeds]) -> fixeds`
 
-*	**`reals-quant`**: Quantizes an entire vector of real numbers.
+*	**`doubles-quant`**: Quantizes an entire vector of double numbers.
 
-	*	`(reals-quant reals tol [reals]) -> reals`
+	*	`(doubles-quant doubles tol [doubles]) -> doubles`
 
 *	**`mat4x4-mul`**: 4x4 matrix multiplication.
 
-	*	`(mat4x4-mul reals reals [reals]) -> reals`
+	*	`(mat4x4-mul doubles doubles [doubles]) -> doubles`
 
 *	**`mat4x4-vec4-mul` / `mat4x4-vec3-mul`**: Matrix-vector transformation.
 
-	*	`(mat4x4-vec4-mul reals reals [reals]) -> reals`
+	*	`(mat4x4-vec4-mul doubles doubles [doubles]) -> doubles`
 
-	*	`(mat4x4-vec3-mul reals reals [reals]) -> reals`
+	*	`(mat4x4-vec3-mul doubles doubles [doubles]) -> doubles`
 
 ## String and Character Functions
 
@@ -833,13 +833,13 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(str form) -> str`
 
-*	**`str-to-num` / `str-as-num` / `str-to-real`**: String numeric parsing.
+*	**`str-to-num` / `str-as-num` / `str-to-double`**: String numeric parsing.
 
 	*	`(str-to-num str) -> num`
 
 	*	`(str-as-num str) -> num`
 
-	*	`(str-to-real str) -> real`
+	*	`(str-to-double str) -> double`
 
 *	**`char` / `code`**: Character creation and character extraction.
 
@@ -935,7 +935,7 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(rpad form width [str]) -> str`
 
-*	**`get-ubyte` / `get-ushort` / `get-uint` / `get-long` / `get-real` / `get-byte` / `get-short` / `get-int`**:
+*	**`get-ubyte` / `get-ushort` / `get-uint` / `get-long` / `get-double` / `get-byte` / `get-short` / `get-int`**:
 	Typed memory getters from strings or objects.
 
 	*	`(get-ubyte obj idx) -> num`
@@ -946,7 +946,7 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(get-cstr obj idx) -> str`
 
-*	**`set-byte` / `set-short` / `set-int` / `set-long` / `set-real` / `set-str`**:
+*	**`set-byte` / `set-short` / `set-int` / `set-long` / `set-double` / `set-str`**:
 	Typed memory setters for strings or objects.
 
 	*	`(set-byte obj idx val) -> str`
@@ -1073,9 +1073,9 @@ Lexical environment creation and variable manipulation.
 
 	*	`(fixeds [fixed ...]) -> fixeds`
 
-*	**`reals`**: Constructs a 64-bit double-precision real vector.
+*	**`doubles`**: Constructs a 64-bit double-precision double vector.
 
-	*	`(reals [real ...]) -> reals`
+	*	`(doubles [double ...]) -> doubles`
 
 *	**`path`**: Constructs a 2D vector graphic path.
 

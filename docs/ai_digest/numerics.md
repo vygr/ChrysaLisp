@@ -3,7 +3,7 @@
 ChrysaLisp provides a set of numeric object types and corresponding vector
 formats designed for efficiency and control, particularly with an eye towards
 systems programming and performance on integer-based hardware. This document
-details these numeric types-`Num` (integer), `Fixed` (fixed-point), and `Real`
+details these numeric types-`Num` (integer), `Fixed` (fixed-point), and `Double`
 (IEEE double floating-point)-along with their vector counterparts and the
 broader vision for numeric computation in the ChrysaLisp ecosystem.
 
@@ -86,40 +86,40 @@ coordinates, and its internal operations are conducted in this format.
     (half Pi), `+fp_rpi` (reciprocal of Pi) are defined in
     `class/lisp/root.inc`.
 
-**`Real` (Floating-Point)**
+**`Double` (Floating-Point)**
 
 * **Description:** Implements a 64bit IEEE floating-point number format
 (double).
 
-* **VP Class:** `class/real/class.inc` and `class/real/class.vp`. It inherits
+* **VP Class:** `class/double/class.inc` and `class/double/class.vp`. It inherits
 from `:fixed`.
 
-* **Internal Storage:** The `:real` value is stored in the `num_value` field
+* **Internal Storage:** The `:double` value is stored in the `num_value` field
   (inherited from `:num`). It uses an IEEE double format.
 
-* **Constants:** Pre-calculated `:real` constants are defined in
-  `lib/math/vector.inc`, such as `+real_0` to `+real_10`, `+real_pi`, etc.
-  These are instances of the `:real` VP class.
+* **Constants:** Pre-calculated `:double` constants are defined in
+  `lib/math/vector.inc`, such as `+double_0` to `+double_10`, `+double_pi`, etc.
+  These are instances of the `:double` VP class.
 
 ## Numeric Conversions
 
 ChrysaLisp provides built-in functions for converting between these numeric
 types:
 
-* `(n2i num)`: Converts a number (`Num`, `Fixed`, or `Real`) to an integer
+* `(n2i num)`: Converts a number (`Num`, `Fixed`, or `Double`) to an integer
   (`Num`).
 
-* `(n2f num)`: Converts a number to fixed-point (`Fixed`).
+* `(n2q num)`: Converts a number to fixed-point (`Fixed`).
 
-* `(n2r num)`: Converts a number to real (`Real`).
+* `(n2d num)`: Converts a number to double (`Double`).
 
 **Behavior:**
 
 * If the input number is already of the target type, it is passed through
 without change.
 
-* Conversion to a format with lower precision (e.g., `Real` or `Fixed` to
-`Num`, or `Real` to `Fixed`) will result in loss of fractional information;
+* Conversion to a format with lower precision (e.g., `Double` or `Fixed` to
+`Num`, or `Double` to `Fixed`) will result in loss of fractional information;
 bits are discarded, not rounded.
 
 ## Numeric Functions
@@ -136,7 +136,7 @@ Fixed`).
 `(sign)`. These also operate on any numeric type and return results of the same
 type.
 
-* **Fractional Arithmetic (primarily for `Fixed` and `Real`):** `(recip)`,
+* **Fractional Arithmetic (primarily for `Fixed` and `Double`):** `(recip)`,
 `(sin)`, `(cos)`, `(exp)`, `(log)`, `(frac)`, `(floor)` and `(ceil)`.
 
 * **Bitwise Logical (operate on the underlying integer representation):**
@@ -153,14 +153,14 @@ numeric type and return `:t` or `:nil`.
 trailing zeros), `(nto)` (number of trailing ones), `(nlz)` (number of leading
 zeros), `(nlo)` (number of leading ones).
 
-* **Quantization:** `(quant real tolerance)` and `(reals-quant reals tolerance
+* **Quantization:** `(quant double tolerance)` and `(doubles-quant doubles tolerance
   [out])`. Used for floating-point comparisons.
 
 ## Vector Types
 
-ChrysaLisp provides typed arrays for `Num`, `Fixed`, and `Real` values,
+ChrysaLisp provides typed arrays for `Num`, `Fixed`, and `Double` values,
 offering efficient storage and operations on collections of these primitives.
-These are `:nums`, `:fixeds`, and `:reals` respectively.
+These are `:nums`, `:fixeds`, and `:doubles` respectively.
 
 **Introduction to Vector Types**
 
@@ -184,7 +184,7 @@ than as lists of boxed numeric objects.
 
 * `(fixeds [fixed-point-literal ...])`: Creates a vector of `Fixed` values.
 
-* `(reals [real-literal ...])`: Creates a vector of `Real` values.
+* `(doubles [double-literal ...])`: Creates a vector of `Double` values.
 
 * **Type-Agnostic Packing:** These constructor functions are designed to be
 flexible. They typically take Lisp numbers and pack their underlying
@@ -196,8 +196,8 @@ the input literal's type doesn't match the vector's native type.
 This library provides a host of Lisp-level functions and macros for working
 with these numeric vectors:
 
-* **Constructor Macros:** Convenience macros like `(Vec3-f x y z)` (for a
-3-element `:fixeds` vector), `(Vec4-r x y z w)`, etc., simplify vector creation.
+* **Constructor Macros:** Convenience macros like `(Vec3-q x y z)` (for a
+3-element `:fixeds` vector), `(Vec4-d x y z w)`, etc., simplify vector creation.
 
 * **Optional Output Vector:** Many vector operations (e.g., `vector-add`) can
 take an optional output vector as an argument. If provided, the result is
@@ -205,7 +205,7 @@ stored in this vector, avoiding a new memory allocation. If not provided, a
 new vector is created.
 
 * **Temporary Vector Constants:** The library defines constants like
-`+fixeds_tmp3`, `+reals_tmp4`, `+fixeds_zero3` which are pre-allocated vectors
+`+fixeds_tmp3`, `+doubles_tmp4`, `+fixeds_zero3` which are pre-allocated vectors
 useful for intermediate calculations without repeated allocations.
 
 **Vectorized Operations (VP Level)**
@@ -215,7 +215,7 @@ methods, which are implemented in highly optimized VP assembly.
 These methods operate directly on the raw numeric data within the vectors.
 
 * **VP Classes:** `class/nums/class.inc`, `class/fixeds/class.inc`,
-`class/reals/class.inc`. These inherit from `:array` and ultimately `:seq`.
+`class/doubles/class.inc`. These inherit from `:array` and ultimately `:seq`.
 
 * **Methods:** These classes override methods like `:add`, `:sub`, `:mul`,
 `:div`, `:dot` (dot product), `:scale` to perform element-wise or specialized
@@ -226,8 +226,8 @@ vector arithmetic.
     
     * `:fixeds :dot` calculates the dot product of two `:fixeds` vectors.
     
-    * `:reals :scale` multiplies each element of a `:reals` vector by a scalar
-      `:real` value.
+    * `:doubles :scale` multiplies each element of a `:doubles` vector by a scalar
+      `:double` value.
 
 * **Efficiency:** These VP methods are designed for performance, directly
 manipulating the contiguous data blocks without the overhead of Lisp object
@@ -246,7 +246,7 @@ reflects a pragmatic approach to achieve good performance on systems primarily
 or solely equipped with integer ALUs.
 
 3. **Hardware Vector Primitives:** The use of contiguous typed arrays (`:nums`,
-`:fixeds`, `:reals`) makes the system inherently amenable to
+`:fixeds`, `:doubles`) makes the system inherently amenable to
 hardware-accelerated vector operations. Future translators or VP extensions
 could map high-level vector operations or specific VP vector instructions to
 CPU SIMD instructions (e.g., SSE, AVX on x86; NEON on ARM).
@@ -260,8 +260,8 @@ matrix arithmetic tasks.
 
 ChrysaLisp's numeric system offers a tiered approach: standard 64-bit integers,
 a `48.16` fixed-point type well-suited for graphics and embedded control, and a
-64bit IEEE real format for floating-point calculations. The corresponding vector
-types (`:nums`, `:fixeds`, `:reals`) are crucial for performance, providing
+64bit IEEE double format for floating-point calculations. The corresponding vector
+types (`:nums`, `:fixeds`, `:doubles`) are crucial for performance, providing
 efficient, contiguous storage and enabling optimized low-level VP operations.
 This architecture balances current needs for efficiency on diverse hardware with
 a clear path towards future enhancements.

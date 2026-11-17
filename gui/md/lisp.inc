@@ -168,7 +168,7 @@
 	text)
 
 (defun md-scale (s zoom)
-	(n2i (* (n2f s) (n2f zoom))))
+	(n2i (* (n2q s) (n2q zoom))))
 
 (defun line-flow (this container &optional size)
 	(raise :zoom :font_doc (font (get :font this)))

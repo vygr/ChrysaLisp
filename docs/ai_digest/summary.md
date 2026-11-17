@@ -71,11 +71,11 @@ custom Virtual Processor (VP64).
 * **Core Data Types:**
 
     * **Numbers:** `Num` (integers), `Fixed` (fixed-point, `+fp_shift` for
-      precision), `Real` (higher-precision numbers).
+      precision), `Double` (higher-precision numbers).
 
     * **Sequences:** `Seq` (base class), `Str` (strings), `List` (dynamic
       lists/arrays of objects), `Array` (base for numeric arrays), `Nums`
-      (arrays of numbers), `Fixeds`, `Reals`, `Path` (for 2D graphics).
+      (arrays of numbers), `Fixeds`, `Doubles`, `Path` (for 2D graphics).
 
     * **Symbols:** `Sym` (interned symbols).
 
@@ -232,7 +232,7 @@ capabilities:
       node.
 
     * `netspeed`: Network speed tester, measures VOPs (Vector Operations Per
-      Second) for registers, memory, and reals across nodes.
+      Second) for registers, memory, and doubles across nodes.
 
     * `fonts`: Displays available fonts and their glyphs.
 

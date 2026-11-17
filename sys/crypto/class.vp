@@ -22,7 +22,7 @@
 	(vp-rdef (x0 x1 x2 x3 x4 x5 x6 x7 x12 x13 x14 x15 ct tm cm))
 
 	(defq +cc_state 0 +cc_work 64 +cc_tail 128 +cc_in 192 +cc_out 200 +cc_left 208
-		+cc_rounds 216 +cc_real 224 +cc_part 232 +cc_stack 240)
+		+cc_rounds 216 +cc_double 224 +cc_part 232 +cc_stack 240)
 
 	(defun cc-rotl (x n)
 		;x rotated left by n, of 32 bits
@@ -84,7 +84,7 @@
 	(vp-lea-rcr :rsp +cc_tail x2)
 	(cc-bytes x1 x2 x0 'cc_copy_in)
 	(vp-load-rcr :rsp +cc_out x1)
-	(vp-store-rrc x1 :rsp +cc_real)
+	(vp-store-rrc x1 :rsp +cc_double)
 	(vp-lea-rcr :rsp +cc_tail x2)
 	(vp-store-rrc x2 :rsp +cc_in)
 	(vp-store-rrc x2 :rsp +cc_out)
@@ -134,7 +134,7 @@
 	(vp-load-rcr :rsp +cc_part x0)
 	(vp-beq-cr 0 x0 'cc_block)
 	(vp-lea-rcr :rsp +cc_tail x1)
-	(vp-load-rcr :rsp +cc_real x2)
+	(vp-load-rcr :rsp +cc_double x2)
 	(cc-bytes x1 x2 x0 'cc_copy_out)
 
 (vp-label 'cc_done)

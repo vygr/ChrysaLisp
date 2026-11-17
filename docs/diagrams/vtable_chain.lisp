@@ -1,7 +1,7 @@
 ;docs/ai_digest/type_system.md: an object, its vtable, and the vtables of what it comes of
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
-(dia-put s 'obj (dia-box '("an object, a :real" "slot 0: its vtable" "num_value ...") 160 62 gold 11 :first) 0 0)
-(dia-put s 'v0 (dia-box '("vtable of :real" "slot 0: its parent" "methods ...") 150 62 blue 11 :first) 205 0)
+(dia-put s 'obj (dia-box '("an object, a :double" "slot 0: its vtable" "num_value ...") 160 62 gold 11 :first) 0 0)
+(dia-put s 'v0 (dia-box '("vtable of :double" "slot 0: its parent" "methods ...") 150 62 blue 11 :first) 205 0)
 (dia-put s 'v1 (dia-box '("vtable of :fixed" "slot 0: its parent" "methods ...") 150 62 blue 11 :first) 400 0)
 (dia-put s 'v2 (dia-box '("vtable of :num" "slot 0: its parent" "methods ...") 150 62 blue 11 :first) 595 0)
 (dia-put s 'v3 (dia-box '("vtable of :obj" "slot 0: 0" "methods ...") 150 62 grey 11 :first) 595 100)

@@ -4,29 +4,29 @@
 (include "././stream/class.inc")
 (include "././list/class.inc")
 
-(gen-create :real)
+(gen-create :double)
 	;inputs
-	;:r0 = initial value (real)
+	;:r0 = initial value (double)
 	;outputs
-	;:r0 = 0 if error, else real object (ptr)
+	;:r0 = 0 if error, else double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
-(gen-vtable :real)
-(gen-type :real)
+(gen-vtable :double)
+(gen-type :double)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
 	;:r1-:r3, :d0-:d15
 
-(def-method :real :print)
+(def-method :double :print)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;:r1 = stream object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;trashes
 	;:r1-:r5, :d0-:d15
 
@@ -34,7 +34,7 @@
 		(ptr this stream tmp))
 
 	(vp-alloc slot_size)
-	(entry :real :print '(:r0 :r1))
+	(entry :double :print '(:r0 :r1))
 
 	(save-fields :rsp '(slot_this slot_stream) '(:r0 :r1))
 	(call :stream :write_cstr '(:r1 "0x"))
@@ -44,14 +44,14 @@
 	(call :stream :write '((:rsp slot_stream) (& :r0 +str_data) (:r0 +str_length)))
 	(call :obj :deref '((:rsp slot_tmp)))
 
-	(exit :real :print '((:rsp slot_this)))
+	(exit :double :print '((:rsp slot_this)))
 	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
 
 (redefun addop (%0)
-	(entry :real %0 '(:r0 :r1))
+	(entry :double %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-load-rcr :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -64,12 +64,12 @@
 	(loop-until '(:r1 = :r2))
 	(v-jump :num :vcreate '(:d0) :r4 :r1))
 
-(def-method :real :add)
+(def-method :double :add)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r4, :r14, :d0-:d15
 
@@ -77,12 +77,12 @@
 
 (def-func-end)
 
-(def-method :real :sub)
+(def-method :double :sub)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r4, :r14, :d0-:d15
 
@@ -90,12 +90,12 @@
 
 (def-func-end)
 
-(def-method :real :mul)
+(def-method :double :mul)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r4, :r14, :d0-:d15
 
@@ -106,7 +106,7 @@
 (redefun minop (%0 p)
 	(vp-rdef (this args obj iter_begin iter_end))
 	(vp-ddef (val new_val))
-	(entry :real %0 `(,this ,args))
+	(entry :double %0 `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vp-load-rcr iter_begin 0 args)
 	(vp-add-cr +ptr_size iter_begin)
@@ -118,15 +118,15 @@
 		(exec p)
 	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref args iter_begin)
-	(exit :real %0 `(,args))
+	(exit :double %0 `(,args))
 	(vp-ret))
 
-(def-method :real :min)
+(def-method :double :min)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
-	;:r1 = result real object (ptr)
+	;:r1 = result double object (ptr)
 	;trashes
 	;:r1-:r4, :d0-:d1
 
@@ -139,12 +139,12 @@
 
 (def-func-end)
 
-(def-method :real :max)
+(def-method :double :max)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
-	;:r1 = result real object (ptr)
+	;:r1 = result double object (ptr)
 	;trashes
 	;:r1-:r4, :d0-:d1
 
@@ -158,7 +158,7 @@
 (def-func-end)
 
 (redefun divop (%0 p)
-	(entry :real %0 '(:r0 :r1))
+	(entry :double %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r4)
 	(vp-load-rcr :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -173,15 +173,15 @@
 	(loop-until '(:r1 = :r4))
 	(v-jump :num :vcreate '(:d0) :r5 :r1)
 (vp-label 'error)
-	(exit :real %0 '(0))
+	(exit :double %0 '(0))
 	(vp-ret))
 
-(def-method :real :div)
+(def-method :double :div)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
-	;:r0 = 0 if error, else result real object (ptr)
+	;:r0 = 0 if error, else result double object (ptr)
 	;trashes
 	;:r0-:r5, :r14, :d0-:d15
 
@@ -190,12 +190,12 @@
 
 (def-func-end)
 
-(def-method :real :mod)
+(def-method :double :mod)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
-	;:r0 = 0 if error, else result real object (ptr)
+	;:r0 = 0 if error, else result double object (ptr)
 	;trashes
 	;:r0-:r5, :r14, :d0-:d15
 
@@ -211,7 +211,7 @@
 (def-func-end)
 
 (redefun compareop (%0 p)
-	(entry :real %0 '(:r0 :r1))
+	(entry :double %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-load-rcr :r1 0 :r3)
 	(vp-add-cr +ptr_size :r1)
@@ -222,16 +222,16 @@
 		(assign '((:r3 +num_value)) '(:d1))
 		(exec p)
 	(loop-until '(:r1 = :r2))
-	(exit :real %0 '(-1))
+	(exit :double %0 '(-1))
 	(vp-ret)
 (vp-label 'fail)
-	(exit :real %0 '(0))
+	(exit :double %0 '(0))
 	(vp-ret))
 
-(def-method :real :ge)
+(def-method :double :ge)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
@@ -244,10 +244,10 @@
 
 (def-func-end)
 
-(def-method :real :gt)
+(def-method :double :gt)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
@@ -260,10 +260,10 @@
 
 (def-func-end)
 
-(def-method :real :le)
+(def-method :double :le)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
@@ -276,10 +276,10 @@
 
 (def-func-end)
 
-(def-method :real :lt)
+(def-method :double :lt)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = list of real objects (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = list of double objects (ptr)
 	;outputs
 	;:r1 = 0, -1 (int)
 	;trashes
@@ -292,18 +292,18 @@
 
 (def-func-end)
 
-;generic real math ops
+;generic double math ops
 (redefun mathop (%0 p)
-	(entry :real %0 '(:r0))
+	(entry :double %0 '(:r0))
 	(assign '((:r0 +num_value)) '(:d1))
 	(exec p)
-	(jump :real :create '(:d0)))
+	(jump :double :create '(:d0)))
 
-(def-method :real :sqrt)
+(def-method :double :sqrt)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -312,11 +312,11 @@
 
 (def-func-end)
 
-(def-method :real :sin)
+(def-method :double :sin)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -325,11 +325,11 @@
 
 (def-func-end)
 
-(def-method :real :cos)
+(def-method :double :cos)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -343,11 +343,11 @@
 
 (def-func-end)
 
-(def-method :real :exp)
+(def-method :double :exp)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -356,11 +356,11 @@
 
 (def-func-end)
 
-(def-method :real :log)
+(def-method :double :log)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -369,11 +369,11 @@
 
 (def-func-end)
 
-(def-method :real :frac)
+(def-method :double :frac)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -384,19 +384,19 @@
 			(vp-cvt-dr :d0 :r0)
 			(vp-cvt-rd :r0 :d1)
 			(vp-sub-dd :d1 :d0)
-			(assign '((:r1 (fn-const (n2r 0)))) '(:d1))
+			(assign '((:r1 (fn-const (n2d 0)))) '(:d1))
 			(vpif '(:d0 < :d1))
-				(assign '((:r1 (fn-const (n2r 1)))) '(:d1))
+				(assign '((:r1 (fn-const (n2d 1)))) '(:d1))
 				(vp-add-dd :d1 :d0)
 			(endif)))
 
 (def-func-end)
 
-(def-method :real :floor)
+(def-method :double :floor)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -406,17 +406,17 @@
 			(vp-cvt-rd :r0 :d0)
 			(vpif '(:d0 > :d1))
 				(vp-lea-pr 'fn_consts :r1)
-				(assign '((:r1 (fn-const (n2r 1)))) '(:d1))
+				(assign '((:r1 (fn-const (n2d 1)))) '(:d1))
 				(vp-sub-dd :d1 :d0)
 			(endif)))
 
 (def-func-end)
 
-(def-method :real :ceil)
+(def-method :double :ceil)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -426,33 +426,33 @@
 			(vp-cvt-rd :r0 :d0)
 			(vpif '(:d0 < :d1))
 				(vp-lea-pr 'fn_consts :r1)
-				(assign '((:r1 (fn-const (n2r 1)))) '(:d1))
+				(assign '((:r1 (fn-const (n2d 1)))) '(:d1))
 				(vp-add-dd :d1 :d0)
 			(endif)))
 
 (def-func-end)
 
-(def-method :real :recip)
+(def-method :double :recip)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :recip
 		'(progn
 			(vp-lea-pr 'fn_consts :r1)
-			(assign '((:r1 (fn-const (n2r 1)))) '(:d0))
+			(assign '((:r1 (fn-const (n2d 1)))) '(:d0))
 			(vp-div-dd :d1 :d0)))
 
 (def-func-end)
 
-(def-method :real :abs)
+(def-method :double :abs)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -461,11 +461,11 @@
 
 (def-func-end)
 
-(def-method :real :neg)
+(def-method :double :neg)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
@@ -474,60 +474,60 @@
 
 (def-func-end)
 
-(def-method :real :sign)
+(def-method :double :sign)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :sign
 		'(progn
 			(vp-lea-pr 'fn_consts :r1)
-			(assign '((:r1 (fn-const (n2r 0)))) '(:d0))
+			(assign '((:r1 (fn-const (n2d 0)))) '(:d0))
 			(vpif '(:d1 > :d0))
-				(assign '((:r1 (fn-const (n2r 1)))) '(:d0))
+				(assign '((:r1 (fn-const (n2d 1)))) '(:d0))
 			(elseif '(:d1 < :d0))
-				(assign '((:r1 (fn-const (n2r -1)))) '(:d0))
+				(assign '((:r1 (fn-const (n2d -1)))) '(:d0))
 			(endif)))
 
 (def-func-end)
 
-(def-method :real :random)
+(def-method :double :random)
 	;inputs
-	;:r0 = real object (ptr)
+	;:r0 = double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r4, :r14, :d0-:d15
 
 	(mathop :random
 		'(progn
 			(vp-lea-pr 'fn_consts :r4)
-			(assign '((:r4 (fn-const (n2r 1)))) '(:d0))
+			(assign '((:r4 (fn-const (n2d 1)))) '(:d0))
 			(vp-mul-dd :d0 :d1)
 			(vp-cvt-dr :d1 :r0)
 			(call :sys_math :i_rand '(:r0) '(:r0))
 			(vp-cvt-rd :r0 :d0)
-			(assign '((:r4 (fn-const (recip (n2r 1))))) '(:d1))
+			(assign '((:r4 (fn-const (recip (n2d 1))))) '(:d1))
 			(vp-mul-dd :d1 :d0)))
 
 (def-func-end)
 
-(def-method :real :quant)
+(def-method :double :quant)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = tolerance real object (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = tolerance double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
 	(vp-rdef (this tol trunc))
 	(vp-ddef (v tmp half one ftrunc))
 
-	(entry :real :quant `(,this ,tol))
+	(entry :double :quant `(,this ,tol))
 
 	(assign `((,this +num_value) (,tol +num_value)) `(,v ,tmp))
 
@@ -535,37 +535,37 @@
 	(vp-div-dd tmp v)
 	; v = v + 0.5
 	(vp-lea-pr 'fn_consts tol)
-	(assign `((,tol (fn-const (n2r 0.5)))) `(,half))
+	(assign `((,tol (fn-const (n2d 0.5)))) `(,half))
 	(vp-add-dd half v)
 	; v = floor(v)
 	(vp-cvt-dr v trunc)
 	(vp-cvt-rd trunc ftrunc)
 	(vpif `(,ftrunc > ,v))
-		(assign `((,tol (fn-const (n2r 1.0)))) `(,one))
+		(assign `((,tol (fn-const (n2d 1.0)))) `(,one))
 		(vp-sub-dd one ftrunc)
 	(endif)
 	(vp-cpy-dd ftrunc v)
 	; v = v * tol
 	(vp-mul-dd tmp v)
-	(jump :real :create `(,v))
+	(jump :double :create `(,v))
 
 (def-func-end)
 
-(def-method :real :pow)
+(def-method :double :pow)
 	;inputs
-	;:r0 = real object (ptr)
-	;:r1 = power real object (ptr)
+	;:r0 = double object (ptr)
+	;:r1 = power double object (ptr)
 	;outputs
-	;:r0 = result real object (ptr)
+	;:r0 = result double object (ptr)
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 	;info
-	;0 if the real is not greater than 0, :sys_math :d_pow
+	;0 if the double is not greater than 0, :sys_math :d_pow
 
-	(entry :real :pow '(:r0 :r1))
+	(entry :double :pow '(:r0 :r1))
 
 	(assign '((:r0 +num_value) (:r1 +num_value)) '(:d0 :d1))
 	(call :sys_math :d_pow '(:d0 :d1) '(:d0))
-	(jump :real :create '(:d0))
+	(jump :double :create '(:d0))
 
 (def-func-end)

@@ -387,7 +387,7 @@
 (defun page-scale (s)
 	; (page-scale size) -> size
 	;a size by the zoom of the app's *window*
-	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
+	(n2i (* (n2q s) (n2q (get :zoom *window*)))))
 
 (defun ui-tool-tips (view tips)
 	; (ui-tool-tips view tips)

@@ -1506,7 +1506,7 @@
 									:stroke
 									0
 									:text
-									"[n2f]"
+									"[n2d]"
 									:font_size
 									12
 									:pos
@@ -1546,7 +1546,7 @@
 									:stroke
 									0
 									:text
-									"[n2r]"
+									"[n2q]"
 									:font_size
 									12
 									:pos

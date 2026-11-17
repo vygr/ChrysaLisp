@@ -28,7 +28,7 @@
 	(long model x y angle scale phase sq_x sq_y))
 
 (defq +scene_width 800 +scene_height 600 +scene_back 0xff0a0e14
-	f_width (n2f +scene_width) f_height (n2f +scene_height) f_scale 1.0
+	f_width (n2q +scene_width) f_height (n2q +scene_height) f_scale 1.0
 	font (create-font "fonts/Hack-Regular.ctf" 34))
 
 ; Assign chromatic color palettes based on opcode category
@@ -119,7 +119,7 @@
 	;(model pos vel angle omega scale phase sq_x sq_y)
 	(apply (const cat) (cat (list "") (map (lambda ((model pos vel angle omega scale phase sq_x sq_y))
 					(apply (const cat) (map (# (char (n2i (* %0 65536.0)) +long_size))
-							(list (/ (n2f model) 65536.0) (first pos) (second pos) angle scale phase sq_x sq_y))))
+							(list (/ (n2q model) 65536.0) (first pos) (second pos) angle scale phase sq_x sq_y))))
 				bouncers))))
 
 (defun scene-draw (canvas packed y y1)
@@ -127,13 +127,13 @@
 	;the rows of the scene from y up to y1, how many opcodes were drawn is
 	;the result. One that does not reach the rows is not placed or drawn,
 	;and the clip of the canvas cuts those that do to the rows.
-	(defq fy (n2f y) fy1 (n2f y1) drawn 0)
+	(defq fy (n2q y) fy1 (n2q y1) drawn 0)
 	(.-> canvas (:set_clip 0 y +scene_width y1)
 		(:set_color +scene_back) (:fbox 0 y +scene_width (- y1 y)))
 	(each! (lambda ()
 			(defq at (* (!) +bouncer_size))
 			(bind '(model x y angle scale phase sq_x sq_y)
-				(map (# (/ (n2f %0) 65536.0)) (getf-> (slice packed at (+ at +bouncer_size))
+				(map (# (/ (n2q %0) 65536.0)) (getf-> (slice packed at (+ at +bouncer_size))
 						+bouncer_model +bouncer_x +bouncer_y +bouncer_angle +bouncer_scale
 						+bouncer_phase +bouncer_sq_x +bouncer_sq_y)))
 			(bind '(name core_paths outline_paths glow_paths col_outline col_core col_glow hw hh)

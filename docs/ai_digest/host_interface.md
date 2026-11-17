@@ -236,7 +236,7 @@ docs/diagrams/host_layers.cwb
           shader is. `host_gui_shader_destroy` frees it.
 
         * `host_gui_mesh_create`: The vertices of a mesh, kept on the GPU.
-          They are given as doubles, the bytes of a reals, and kept as
+          They are given as doubles, the bytes of a doubles, and kept as
           floats. Returns a handle, or 0.
 
         * `host_gui_mesh_destroy`: Free a mesh.

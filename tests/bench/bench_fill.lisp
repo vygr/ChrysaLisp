@@ -11,7 +11,7 @@
 	(defq text (slice bf_text 0 len) b (font-glyph-bounds bf_font text)
 		canvas (Canvas (first b) (second b) 2))
 	(. canvas :set_canvas_flags +canvas_flag_antialias)
-	(list canvas (font-glyph-paths bf_font text) (n2f (second b))))
+	(list canvas (font-glyph-paths bf_font text) (n2q (second b))))
 
 (each (lambda (len runs)
 		(bind '(canvas paths y) (bf-line len))

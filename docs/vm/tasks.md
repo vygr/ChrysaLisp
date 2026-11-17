@@ -1,7 +1,7 @@
 # Tasks, Nodes and Networks
 
 What is the underlying VP machine abstraction ? What is a VP task, VP node, VP
-service, VP network ? How are these ideas mapped onto `real` hardware or host
+service, VP network ? How are these ideas mapped onto `double` hardware or host
 OS's ?
 
 The VP machine is a `sea` of nodes. So how does one sail upon this sea ? Maybe

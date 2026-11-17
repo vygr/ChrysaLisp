@@ -146,7 +146,7 @@ between JSON text and native ChrysaLisp data structures.
 
 * **Decimal (`3.14`):** 48.16 Fixed-point number (`fixed`).
 
-* **Exponent (`1e-4`):** IEEE 64-bit double float (`real`).
+* **Exponent (`1e-4`):** IEEE 64-bit double float (`double`).
 
 * **Boolean (`true`/`false`):** `:t` / `:nil`.
 
@@ -179,7 +179,7 @@ The parser processes an input string or open `stream`:
 
 3. **Number Recognition:** Numbers are scanned into a local buffer. Integers and
    fixed-point numbers resolve via `str-to-num`, while numbers containing `"e"`
-   or `"E"` resolve via `str-to-real`.
+   or `"E"` resolve via `str-to-double`.
 
 ### 3.3. Iterative Serializer (`json-stringify`)
 
@@ -192,7 +192,7 @@ without recursion:
 
 * **Scalar Serialization:**
 
-  * Floats use `real-to-str` to produce standards-compliant decimal strings.
+  * Floats use `double-to-str` to produce standards-compliant decimal strings.
 
   * Fixed-point numbers and integers convert directly via `str`.
 

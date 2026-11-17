@@ -34,44 +34,44 @@
 (defun s-line (&rest xy)
 	; (s-line x y x y ...) -> items
 	;a stroke from point to point
-	(list (list :line (map (const n2f) xy))))
+	(list (list :line (map (const n2q) xy))))
 
 (defun s-loop (&rest xy)
 	; (s-loop x y x y ...) -> items
 	;a stroke that comes back to where it began
-	(list (list :loop (map (const n2f) xy))))
+	(list (list :loop (map (const n2q) xy))))
 
 (defun s-ring (cx cy r)
 	; (s-ring cx cy r) -> items
 	;a circle, its line
-	(list (list :ring (n2f cx) (n2f cy) (n2f r))))
+	(list (list :ring (n2q cx) (n2q cy) (n2q r))))
 
 (defun s-disc (cx cy r)
 	; (s-disc cx cy r) -> items
 	;a circle, filled
-	(list (list :disc (n2f cx) (n2f cy) (n2f r))))
+	(list (list :disc (n2q cx) (n2q cy) (n2q r))))
 
 (defun s-box (x y x1 y1)
 	; (s-box x y x1 y1) -> items
 	;a rectangle, filled, its corners as round as a stroke's
-	(list (list :box (n2f x) (n2f y) (n2f x1) (n2f y1))))
+	(list (list :box (n2q x) (n2q y) (n2q x1) (n2q y1))))
 
 (defun s-fill (&rest xy)
 	; (s-fill x y x y ...) -> items
 	;a shape, filled, its corners a little round
-	(list (list :fill (map (const n2f) xy))))
+	(list (list :fill (map (const n2q) xy))))
 
 (defun s-deg (a)
 	;an angle in degrees as the system has angles
-	(* (n2f a) (const (/ +fp_pi 180.0))))
+	(* (n2q a) (const (/ +fp_pi 180.0))))
 
 (defun s-arc (cx cy r a0 a1 &optional steps)
 	; (s-arc cx cy r a0 a1 [steps]) -> items
 	;part of a circle, a stroke, from one angle to another in degrees,
 	;anticlockwise as they grow
 	(setd steps 32)
-	(defq cx (n2f cx) cy (n2f cy) r (n2f r) a0 (s-deg a0) da (/ (- (s-deg a1) a0) (n2f steps)) pts (list))
-	(each! (lambda () (defq a (+ a0 (* da (n2f (!)))))
+	(defq cx (n2q cx) cy (n2q cy) r (n2q r) a0 (s-deg a0) da (/ (- (s-deg a1) a0) (n2q steps)) pts (list))
+	(each! (lambda () (defq a (+ a0 (* da (n2q (!)))))
 			(push pts (+ cx (* r (cos a))) (- cy (* r (sin a))))) '() 0 (inc steps))
 	(list (list :line pts)))
 
@@ -79,7 +79,7 @@
 	; (s-rrect x y x1 y1 [r]) -> items
 	;a rectangle with round corners, its line
 	(setd r 2)
-	(defq x (n2f x) y (n2f y) x1 (n2f x1) y1 (n2f y1) r (n2f r) pts (list))
+	(defq x (n2q x) y (n2q y) x1 (n2q x1) y1 (n2q y1) r (n2q r) pts (list))
 	(each (lambda ((cx cy a))
 			(each! (lambda () (defq t (s-deg (+ a (* (!) 15))))
 					(push pts (+ cx (* r (cos t))) (- cy (* r (sin t))))) '() 0 7))
@@ -91,23 +91,23 @@
 	; (s-head x y dx dy [h]) -> items
 	;the head of an arrow, at x y, for a line that comes in along dx dy
 	(setd h 3.6)
-	(defq dx (n2f dx) dy (n2f dy) l (sqrt (+ (* dx dx) (* dy dy))) dx (/ dx l) dy (/ dy l)
+	(defq dx (n2q dx) dy (n2q dy) l (sqrt (+ (* dx dx) (* dy dy))) dx (/ dx l) dy (/ dy l)
 		c (const (cos (* 40.0 (/ +fp_pi 180.0)))) s (const (sin (* 40.0 (/ +fp_pi 180.0))))
-		x (n2f x) y (n2f y) h (n2f h))
+		x (n2q x) y (n2q y) h (n2q h))
 	(cat (s-line x y (- x (* h (- (* dx c) (* dy s)))) (- y (* h (+ (* dx s) (* dy c)))))
 		(s-line x y (- x (* h (+ (* dx c) (* dy s)))) (- y (* h (- (* dy c) (* dx s)))))))
 
 (defun s-arrow (x y x1 y1 &optional h)
 	; (s-arrow x y x1 y1 [h]) -> items
 	;a line with a head on its far end
-	(cat (s-line x y x1 y1) (s-head x1 y1 (- (n2f x1) (n2f x)) (- (n2f y1) (n2f y)) h)))
+	(cat (s-line x y x1 y1) (s-head x1 y1 (- (n2q x1) (n2q x)) (- (n2q y1) (n2q y)) h)))
 
 (defun s-arc-arrow (cx cy r a0 a1 &optional h)
 	; (s-arc-arrow cx cy r a0 a1 [h]) -> items
 	;an arc with a head on its end
 	(defq e (s-deg a1) way (if (> a1 a0) 1.0 -1.0))
 	(cat (s-arc cx cy r a0 a1)
-		(s-head (+ (n2f cx) (* (n2f r) (cos e))) (- (n2f cy) (* (n2f r) (sin e)))
+		(s-head (+ (n2q cx) (* (n2q r) (cos e))) (- (n2q cy) (* (n2q r) (sin e)))
 			(* way (neg (sin e))) (* way (neg (cos e))) h)))
 
 (defun s-corners (&optional a b l)

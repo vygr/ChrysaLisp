@@ -306,7 +306,7 @@
 (defq mo_stage (Rostrum 640 480) mo_many (list) mo_seen 0)
 (each! (lambda () (defq f (Figure))
 		(. f :set_outline (list (list :t (path 0.0 0.0 20.0 0.0 20.0 20.0 0.0 20.0))))
-		(def f :fig_fill 0xffffffff :fig_kinds 1 :fig_meets 1 :fig_x (n2f (random 600)) :fig_y (n2f (random 440)))
+		(def f :fig_fill 0xffffffff :fig_kinds 1 :fig_meets 1 :fig_x (n2q (random 600)) :fig_y (n2q (random 440)))
 		(def f :fig_on_enter (lambda (a b) (setq mo_seen (inc mo_seen))))
 		(push mo_many f)
 		(. mo_stage :add_node f)) '() 0 200)
@@ -320,7 +320,7 @@
 	(list mo_many))
 ;the edges touching count in the one and not the other, none of these are
 ;that close but a pair at exactly 20 apart would differ
-(assert-true "the sweep finds every pair, each fires both" (mo-near (n2f mo_seen) (n2f (* 2 mo_all)) 4.0))
+(assert-true "the sweep finds every pair, each fires both" (mo-near (n2q mo_seen) (n2q (* 2 mo_all)) 4.0))
 
 ;a window that keeps a view's shape, 4 to 3, with 10 by 40 of its own. The
 ;right side held, the top stays and the bottom goes

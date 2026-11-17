@@ -532,7 +532,7 @@
 	;:r1-:r14, :d0-:d15
 	;info
 	;the vertices of a mesh, kept on the GPU. They are given as the bytes
-	;of a reals. 0 if the driver can not.
+	;of a doubles. 0 if the driver can not.
 
 	(structure slot 0
 		(ptr this verts)

@@ -4,7 +4,7 @@
 ; tests/system/test_netmap.lisp.
 ;
 ; The nodes are a map, a node id to what is known of it: :pos and :vel,
-; three reals each, :system, the id of its machine, :tasks, :busy, how
+; three doubles each, :system, the id of its machine, :tasks, :busy, how
 ; hard it works, with :idle and :time that it is worked out from, and :links,
 ; each (peer_node_id bytes_sent) as the node itself said. The links are a
 ; map made from those, links, each with its two ends :a and :b, :sent,
@@ -20,16 +20,16 @@
 	;the bedspring. How hard nodes push apart, how stiff a link is and how
 	;long it would be, how much a busy link is more, the pull to the
 	;middle, what is lost each step, and the step
-	+k_push (n2r 0.02) +k_spring (n2r 4.0) +rest (n2r 0.5) +k_heat (n2r 1.0)
-	+k_middle (n2r 0.3) +damp (n2r 0.85) +dt (n2r 0.05)
+	+k_push (n2d 0.02) +k_spring (n2d 4.0) +rest (n2d 0.5) +k_heat (n2d 1.0)
+	+k_middle (n2d 0.3) +damp (n2d 0.85) +dt (n2d 0.05)
 	;the bytes a link carries between polls that is no more than idle
 	+quiet 4096
 	;how much of the way a link's flow goes, each poll, to what it carried
 	;in that poll. A fifth, at 4 polls a second, is a second or so
-	+ease (n2r 0.2)
+	+ease (n2d 0.2)
 	;how far out the furthest node is drawn. The window is 2 from the
 	;middle to an edge, where the middle of it all is
-	+fit (n2r 1.65)
+	+fit (n2d 1.65)
 	;how far apart round the colors two machines have to be to be told
 	;apart, of 360. There is room for 9
 	+hue_gap 40)
@@ -60,16 +60,16 @@
 	; (hue-color hue) -> (r g b)
 	;the color at a hue. It is kept bright, and not too deep, it is
 	;whitened by how hard a node works
-	(defq f (/ (n2r (% h 60)) (const (n2r 60)))
-		lo (const (n2r 0.25)) up (+ lo (* f (const (n2r 0.75))))
-		down (- +real_1 (* f (const (n2r 0.75)))))
+	(defq f (/ (n2d (% h 60)) (const (n2d 60)))
+		lo (const (n2d 0.25)) up (+ lo (* f (const (n2d 0.75))))
+		down (- +double_1 (* f (const (n2d 0.75)))))
 	(case (/ h 60)
-		(0 (list +real_1 up lo))
-		(1 (list down +real_1 lo))
-		(2 (list lo +real_1 up))
-		(3 (list lo down +real_1))
-		(4 (list up lo +real_1))
-		(:t (list +real_1 lo down))))
+		(0 (list +double_1 up lo))
+		(1 (list down +double_1 lo))
+		(2 (list lo +double_1 up))
+		(3 (list lo down +double_1))
+		(4 (list up lo +double_1))
+		(:t (list +double_1 lo down))))
 
 (defun machine-color (system)
 	; (machine-color system) -> (r g b)
@@ -106,14 +106,14 @@
 	;flicker. A node that gives no time, time of 0, is left as it is
 	(defq span (- time (get :time node)))
 	(and (/= (get :time node) 0) (> span 0)
-		(def node :busy (* +real_1/2 (+ (get :busy node)
-					(/ (n2r (max 0 (min span (- span (- idle (get :idle node)))))) (n2r span))))))
+		(def node :busy (* +double_1/2 (+ (get :busy node)
+					(/ (n2d (max 0 (min span (- span (- idle (get :idle node)))))) (n2d span))))))
 	(def node :idle idle :time time)
 	node)
 
 (defun rnd ()
 	;somewhere between -1/2 and 1/2
-	(/ (n2r (- (random 1000) 500)) (const (n2r 1000))))
+	(/ (n2d (- (random 1000) 500)) (const (n2d 1000))))
 
 (defun links-gather ()
 	;the links there are, from what each end says, each once, with how
@@ -135,11 +135,11 @@
 			(unless (defq link (. old :find name))
 				(setq changed :t)
 				(def (setq link (env 1)) :a (slice name 0 +node_id_size) :b (slice name +node_id_size -1)
-					:sent sent :flow +real_0 :heat +real_0
+					:sent sent :flow +double_0 :heat +double_0
 					:bar (make-bar)))
 			;the most there has been is of what a poll carried, not of the
 			;flow, or the busiest link would be white the moment it began
-			(defq rate (n2r (max 0 (- sent (get :sent link)))) flow (get :flow link)
+			(defq rate (n2d (max 0 (- sent (get :sent link)))) flow (get :flow link)
 				flow (+ flow (* (- rate flow) +ease)))
 			(setq top_rate (max top_rate rate))
 			(def link :sent sent :flow flow :heat (/ flow top_rate))
@@ -147,7 +147,7 @@
 	(if (/= (. links :size) (. old :size)) (setq changed :t))
 	;the busiest fades, so a burst long gone does not leave all else cold
 	;but not to nothing, or the pings of an idle network would be hot
-	(setq top_rate (max (const (n2r +quiet)) (* top_rate (const (n2r 0.97))))))
+	(setq top_rate (max (const (n2d +quiet)) (* top_rate (const (n2d 0.97))))))
 
 (defun spring-step ()
 	;a step of the bedspring
@@ -158,7 +158,7 @@
 	(each! (lambda (node force)
 			(defq i (!) p (get :pos node))
 			(each! (lambda (node1 force1)
-					(defq d (nums-sub p (get :pos node1)) d2 (+ (nums-dot d d) (const (n2r 0.0001)))
+					(defq d (nums-sub p (get :pos node1)) d2 (+ (nums-dot d d) (const (n2d 0.0001)))
 						f (nums-scale d (/ +k_push (* d2 (sqrt d2)))))
 					(nums-add force f force)
 					(nums-sub force1 f force1))
@@ -169,13 +169,13 @@
 	(. links :each (lambda (name link)
 			(when (and (defq a (. global_tasks :find (get :a link)))
 					(defq b (. global_tasks :find (get :b link))))
-				(defq d (nums-sub (get :pos b) (get :pos a)) len (sqrt (+ (nums-dot d d) (const (n2r 0.0001))))
-					warm (+ +real_1 (* +k_heat (get :heat link)))
+				(defq d (nums-sub (get :pos b) (get :pos a)) len (sqrt (+ (nums-dot d d) (const (n2d 0.0001))))
+					warm (+ +double_1 (* +k_heat (get :heat link)))
 					f (nums-scale d (/ (* +k_spring warm (- len (/ +rest warm))) len))
 					fa (elem-get forces (find a nodes)) fb (elem-get forces (find b nodes)))
 				(nums-add fa f fa)
 				(nums-sub fb f fb))))
-	(defq reach (const (n2r 0.01)) middle (reals +real_0 +real_0 +real_0))
+	(defq reach (const (n2d 0.01)) middle (doubles +double_0 +double_0 +double_0))
 	(each (lambda (node force)
 			(defq vel (get :vel node) pos (get :pos node))
 			(nums-scale (nums-add vel (nums-scale force +dt) vel) +damp vel)
@@ -184,10 +184,10 @@
 		nodes forces)
 	;kept about its own middle, it does not drift off
 	(when (nempty? nodes)
-		(nums-scale middle (/ +real_1 (n2r (length nodes))) middle)
+		(nums-scale middle (/ +double_1 (n2d (length nodes))) middle)
 		(each (lambda (node)
 				(defq pos (get :pos node))
 				(nums-sub pos middle pos)
 				(setq reach (max reach (nums-dot pos pos)))) nodes))
 	;how big it all is, so that it can be drawn to fit, eased
-	(setq zoom (+ zoom (* (- (/ +fit (sqrt reach)) zoom) (const (n2r 0.1))))))
+	(setq zoom (+ zoom (* (- (/ +fit (sqrt reach)) zoom) (const (n2d 0.1))))))

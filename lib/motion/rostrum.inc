@@ -72,7 +72,7 @@
 	;a colour with its alpha times that
 	(if (>= alpha 1.0) col
 		(logior (logand col 0xffffff)
-			(<< (n2i (* alpha (n2f (logand (>> col 24) 0xff)))) 24))))
+			(<< (n2i (* alpha (n2q (logand (>> col 24) 0xff)))) 24))))
 
 (defun rostrum-view (view paths)
 	; (rostrum-view view paths) -> paths
@@ -92,12 +92,12 @@
 			(.-> canvas (:set_color col) (:fpoly 0.0 0.0 rule polys)))
 		(:t (bind '((& y) (& y1)) (vector-bounds-2d polys))
 			(bind '(cx cy cx1 cy1) (. canvas :get_clip))
-			(defq h (/ (- y1 y) (n2f +rostrum_bands)) i 0 top (n2i y))
+			(defq h (/ (- y1 y) (n2q +rostrum_bands)) i 0 top (n2i y))
 			(while (< i +rostrum_bands)
-				(defq foot (if (= i (dec +rostrum_bands)) (inc (n2i y1)) (n2i (+ y (* h (n2f (inc i)))))))
+				(defq foot (if (= i (dec +rostrum_bands)) (inc (n2i y1)) (n2i (+ y (* h (n2q (inc i)))))))
 				(and (< top foot) (< (max top cy) (min foot cy1))
 					(.-> canvas (:set_clip cx (max top cy) cx1 (min foot cy1))
-						(:set_color (motion-mix col col2 (/ (+ (n2f i) 0.5) (n2f +rostrum_bands))))
+						(:set_color (motion-mix col col2 (/ (+ (n2q i) 0.5) (n2q +rostrum_bands))))
 						(:fpoly 0.0 0.0 rule polys)))
 				(setq top foot i (inc i)))
 			(. canvas :set_clip cx cy cx1 cy1))))
@@ -180,7 +180,7 @@
 	;is from z 0, :nil for none, and things at z 0 are their own size. seed
 	;starts its own random numbers, (:random), so that a scene made again
 	;with the same seed and gone on by the same steps is the same scene
-	(def this :ros_width (n2f width) :ros_height (n2f height) :ros_focus (if focus (n2f focus))
+	(def this :ros_width (n2q width) :ros_height (n2q height) :ros_focus (if focus (n2q focus))
 		:ros_speed 1.0 :ros_by_depth :nil :ros_time 0.0 :ros_touching (Fmap 31) :ros_order (list) :ros_ticks 0
 		:ros_owed 0.0 :ros_turns 0 :ros_seed (logand (ifn seed 1) 0x7fffffffffffffff))
 
@@ -241,7 +241,7 @@
 		;steps of +ros_step as that comes to are taken, what is left over
 		;is owed to the next. A scene goes on by the same steps however fast
 		;it is drawn, so it can be run again to any step
-		(defq owed (+ (get :ros_owed this) (* (n2f secs) (get :ros_speed this))))
+		(defq owed (+ (get :ros_owed this) (* (n2q secs) (get :ros_speed this))))
 		(while (>= owed +ros_step)
 			(setq owed (- owed +ros_step))
 			(. this :tick +ros_step))
@@ -251,7 +251,7 @@
 	(defmethod :tick (dt)
 		; (. rostrum :tick dt) -> rostrum
 		;dt seconds have gone, one step
-		(setq dt (n2f dt))
+		(setq dt (n2q dt))
 		(def this :ros_time (+ (get :ros_time this) dt))
 		(defq order (list) todo (reverse (cat (get :node_children this))))
 		(. this :update dt)
@@ -394,8 +394,8 @@
 					(when (and m (> alpha 0.0))
 						;the places it was, the oldest and faintest first, with no halo
 						(when (defq was (get :fig_trail_was node))
-							(defq n (n2f (inc (length was))))
-							(each (# (rostrum-figure canvas node %0 (* alpha 0.5 (/ (n2f (inc (!))) n))
+							(defq n (n2q (inc (length was))))
+							(each (# (rostrum-figure canvas node %0 (* alpha 0.5 (/ (n2q (inc (!))) n))
 									cx cy ros_focus view :nil))
 								was))
 						(rostrum-figure canvas node m alpha cx cy ros_focus view :t))))

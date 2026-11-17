@@ -313,7 +313,7 @@ Key points:
 	own node.
 
 *	**Zoom.** Scale font sizes with
-	`(n2i (* (n2f size) (n2f (get :zoom *window*))))`, set
+	`(n2i (* (n2q size) (n2q (get :zoom *window*))))`, set
 	`(def *window* :zoom new_size)`, and rebuild the affected views
 	(see `apps/desktop/docs/ui.inc` action-scale-up).
 
@@ -576,7 +576,7 @@ desktop of the agent's own:
 
 ### Opening a Live Window for the User
 
-A dump does not draw anything or handle events. To check those, open a real
+A dump does not draw anything or handle events. To check those, open a double
 window from a `lisp -r` script under `./run.sh -n 1 -f` and let the user
 interact with it. A command's stdin stream has its own mailbox, so
 `(task-mbox)` is free in the `lisp` command's task. The GUI service sends

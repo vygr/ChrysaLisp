@@ -78,7 +78,7 @@
 (defun build-code (lines colours x y step size &optional parent)
 	; (build-code lines colours x y step size [parent]) -> figs
 	;lines of code, one under another, each its own colour
-	(map (lambda (line colour) (build-text line size x (+ y (* step (n2f (!)))) colour parent))
+	(map (lambda (line colour) (build-text line size x (+ y (* step (n2q (!)))) colour parent))
 		lines colours))
 
 (defun build-lines (lines size step)
@@ -86,7 +86,7 @@
 	;lines of code from their left, one under another, the first on 0
 	(defq out (list))
 	(each (lambda (line)
-			(defq m (fixeds 1.0 0.0 0.0 0.0 1.0 (* step (n2f (!)))))
+			(defq m (fixeds 1.0 0.0 0.0 0.0 1.0 (* step (n2q (!)))))
 			(each (lambda ((closed p)) (push out (list closed (mat3x2-vec2-mul m p p))))
 				(scene-mono line size)))
 		lines)
@@ -95,8 +95,8 @@
 (defun build-panel (x y w h colour &optional parent)
 	;glass, its edge drawn round it, its fill darker down it, and a halo
 	(defq fig (Figure "panel"))
-	(. fig :set_outline (list (list :t (path-gen-rect 0.0 0.0 (n2f w) (n2f h) 8.0 8.0 (path)))))
-	(def fig :fig_x (n2f x) :fig_y (n2f y) :fig_fill +build_panel :fig_fill2 +build_panel2
+	(. fig :set_outline (list (list :t (path-gen-rect 0.0 0.0 (n2q w) (n2q h) 8.0 8.0 (path)))))
+	(def fig :fig_x (n2q x) :fig_y (n2q y) :fig_fill +build_panel :fig_fill2 +build_panel2
 		:fig_stroke colour :fig_width 1.5 :fig_trim 0.0 :fig_glow (build-glow colour) :fig_glow_size 5.0
 		:fig_alpha 0.0)
 	(. fig :add (Tween :fig_trim 1.0 0.8 (const ease-in-out)) (Tween :fig_alpha 1.0 0.4))
@@ -116,7 +116,7 @@
 	;a line from one place to another bowed up by h in its middle, or down
 	;by a negative h
 	(defq out (path))
-	(each! (lambda () (defq u (/ (n2f (!)) 16.0))
+	(each! (lambda () (defq u (/ (n2q (!)) 16.0))
 			(push out (+ x (* u (- x1 x))) (- (+ y (* u (- y1 y))) (* h 4.0 u (- 1.0 u))))) '() 0 17)
 	out)
 
@@ -156,7 +156,7 @@
 (defun build-cell (i)
 	; (build-cell i) -> (x y)
 	;where a function of the boot image is, in the grid of them
-	(list (+ 48.0 (* 33.0 (n2f (% i +build_cols)))) (+ 112.0 (* 20.0 (n2f (/ i +build_cols))))))
+	(list (+ 48.0 (* 33.0 (n2q (% i +build_cols)))) (+ 112.0 (* 20.0 (n2q (/ i +build_cols))))))
 
 (defun build-cell-small (i)
 	; (build-cell-small i) -> (x y)
@@ -280,9 +280,9 @@
 		(build-tag "class/lisp/repl_error" 150.0 278.0 +build_blue))
 	;two are not bound yet, they come in with it
 	(each (lambda (name)
-			(defq y (+ 238.0 (* 34.0 (n2f (!))))
+			(defq y (+ 238.0 (* 34.0 (n2q (!))))
 				chip (scene-chip name 760.0 y 124 22 +build_blue layer 10))
-			(scene-to chip 560.0 y 0.8 (const ease-back) :nil (+ 1.0 (* 0.3 (n2f (!)))))
+			(scene-to chip 560.0 y 0.8 (const ease-back) :nil (+ 1.0 (* 0.3 (n2q (!)))))
 			(push figs chip (build-flow (build-arc 408.0 242.0 498.0 y 16.0) +build_blue)))
 		'("env_args_type" "env_args_match"))
 	;its paths are what its links were bound by, and once they are they go,
@@ -443,7 +443,7 @@
 	(def image :fig_x 28.0 :fig_y 100.0 :fig_px 28.0 :fig_py 100.0)
 	(build-add image)
 	(each! (lambda () (bind '(x y) (build-cell (!)))
-			(defq block (Figure "function") wait (+ 0.4 (* 0.006 (n2f (!)))))
+			(defq block (Figure "function") wait (+ 0.4 (* 0.006 (n2q (!)))))
 			(. block :set_outline shape)
 			(def block :fig_fill (logior (logand (build-colour (!)) 0xffffff) 0xb0000000)
 				:fig_x (random-fixed -100.0 740.0) :fig_y (random-fixed 500.0 700.0) :fig_alpha 0.0)
@@ -527,8 +527,8 @@
 	(scene-go (get :vp stage) 0.5)
 	(defq figs (list) ticks (Figure "longs") lines (list))
 	(each (lambda ((from to name colour))
-			(defq x (+ 20.0 (* 5.0 (n2f from))) w (* 5.0 (n2f (- to from))) box (Figure "part")
-				wait (+ 0.4 (* 0.15 (n2f (!)))))
+			(defq x (+ 20.0 (* 5.0 (n2q from))) w (* 5.0 (n2q (- to from))) box (Figure "part")
+				wait (+ 0.4 (* 0.15 (n2q (!)))))
 			(. box :set_outline (list (list :t (path-gen-rect 2.5 0.0 (- w 2.5) 36.0 3.0 3.0 (path)))))
 			(def box :fig_x x :fig_y 116.0 :fig_fill (logior (logand colour 0xffffff) 0x70000000)
 				:fig_fill2 (logior (logand colour 0xffffff) 0x18000000) :fig_stroke colour :fig_width 1.5
@@ -541,13 +541,13 @@
 		+build_parts)
 	;a ruler under it, a tick at each long, and the byte each part starts at:
 	;the parts are not of longs, only the code, links and paths start on one
-	(each! (lambda () (defq x (+ 20.0 (* 40.0 (n2f (!)))))
+	(each! (lambda () (defq x (+ 20.0 (* 40.0 (n2q (!)))))
 			(push lines (list :nil (path x 156.0 x 161.0)))) '() 0 16)
 	(. ticks :set_outline lines)
 	(def ticks :fig_stroke 0x90ffffff :fig_width 1.0 :fig_alpha 0.0)
 	(scene-show ticks 0.6 1.4)
 	(push figs (build-add ticks))
-	(each (lambda (at) (push figs (build-label (str at) 7 (+ 20.0 (* 5.0 (n2f at))) 170.0 +build_dim 1.4)))
+	(each (lambda (at) (push figs (build-label (str at) 7 (+ 20.0 (* 5.0 (n2q at))) 170.0 +build_dim 1.4)))
 		'(0 18 33 40 64 80 120))
 	(def stage :native figs)
 	(scene-say '("Its native code, obj/arm64/ARM64/class/list/cat, 120 bytes, a tick each long:"
@@ -558,7 +558,7 @@
 	(each (lambda (lane size)
 			(defq chip (first lane))
 			(. (get :label chip) :add (Tween :fig_outline (outline-centred (scene-text size 12)) 0.8
-				(const ease-in-out) :nil (* 0.15 (n2f (!)))))
+				(const ease-in-out) :nil (* 0.15 (n2q (!)))))
 			(scene-pulse chip))
 		(get :lanes stage) +build_sizes)
 	(scene-say '("Pass after pass, till no label moves: 120 bytes for arm64, 112 for x86_64,"
@@ -574,9 +574,9 @@
 	(def parser :fig_sx 0.0 :fig_sy 0.0)
 	(scene-size parser 1.0 0.6 (const ease-elastic) :nil 0.8)
 	(each (lambda ((name colour))
-			(defq y (+ 128.0 (* 52.0 (n2f (!))))
+			(defq y (+ 128.0 (* 52.0 (n2q (!))))
 				chip (scene-chip name 760.0 y 150 30 colour layer 12))
-			(scene-to chip 545.0 y 0.8 (const ease-back) :nil (+ 0.6 (* 0.12 (n2f (!)))))
+			(scene-to chip 545.0 y 0.8 (const ease-back) :nil (+ 0.6 (* 0.12 (n2q (!)))))
 			(push figs chip (build-flow (path 430.0 258.0 470.0 y) colour))
 			(push lanes (list chip colour y)))
 		+build_lanes)
@@ -657,7 +657,7 @@
 (defun build-key (f c)
 	;what the file is made of folds into its key
 	(each (lambda (chip)
-			(defq wait (* 0.08 (n2f (!))))
+			(defq wait (* 0.08 (n2q (!))))
 			(scene-to chip 500.0 300.0 0.7 (const ease-in3) :nil wait)
 			(scene-size chip 0.1 0.7 (const ease-in3) (lambda (f c) (. f :kill)) wait))
 		(get :includes stage))
@@ -675,9 +675,9 @@
 	;what the file is made of comes to it
 	(defq chips (list))
 	(each (lambda (name)
-			(defq y (+ 112.0 (* 34.0 (n2f (!))))
+			(defq y (+ 112.0 (* 34.0 (n2q (!))))
 				chip (scene-chip name 760.0 y 210 24 +build_blue (get :layer stage) 11))
-			(scene-to chip 500.0 y 0.8 (const ease-back) :nil (* 0.2 (n2f (!))))
+			(scene-to chip 500.0 y 0.8 (const ease-back) :nil (* 0.2 (n2q (!))))
 			(push chips chip))
 		+build_includes)
 	(def stage :includes chips)
@@ -691,8 +691,8 @@
 	;comes later is drawn under them and they can be read
 	(defq world (Figure "world") back (Figure "rules"))
 	(scene-add world)
-	(. back :set_outline (cat (map! (lambda () (list :nil (path (n2f (* (!) 40)) 0.0 (n2f (* (!) 40)) 480.0))) '() 0 17)
-		(map! (lambda () (list :nil (path 0.0 (n2f (* (!) 40)) 640.0 (n2f (* (!) 40))))) '() 0 13)))
+	(. back :set_outline (cat (map! (lambda () (list :nil (path (n2q (* (!) 40)) 0.0 (n2q (* (!) 40)) 480.0))) '() 0 17)
+		(map! (lambda () (list :nil (path 0.0 (n2q (* (!) 40)) 640.0 (n2q (* (!) 40))))) '() 0 13)))
 	(def back :fig_stroke +build_rules :fig_width 1.0 :fig_alpha 0.0)
 	(scene-show back 1.5)
 	(scene-add back world)

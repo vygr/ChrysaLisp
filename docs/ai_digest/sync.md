@@ -146,7 +146,7 @@ times over.
   starts with a `/` or a `~`, that has a `:` or a `\`, or a character below
   a space, is refused. So is one into `.git`.
 * **A link is never gone through.** Before a file is written or removed,
-  each folder on the way to it is asked of the host. It has to be a real
+  each folder on the way to it is asked of the host. It has to be a double
   folder, and the file a real file or not there yet. A symbolic link is
   neither. So a link in the tree that points at your documents is not a way
   to them, not to write, and not to remove. The list of a tree does not go

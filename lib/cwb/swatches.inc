@@ -23,7 +23,7 @@
 	(defq out (list))
 	(each (lambda ((mix to))
 			(each! (lambda () (defq h (!)) (defq rgb (map (lambda (n)
-								(defq k (+ n (* (n2f h) 0.5)) k (- k (* 6.0 (floor (/ k 6.0))))
+								(defq k (+ n (* (n2q h) 0.5)) k (- k (* 6.0 (floor (/ k 6.0))))
 									c (- 1.0 (max 0.0 (min k (- 4.0 k) 1.0))))
 								(n2i (* 255.0 (+ (* c (- 1.0 mix)) (* to mix)))))
 							'(5.0 3.0 1.0)))
@@ -50,14 +50,14 @@
 		;the inks, row by row, then how see through, two cells each, and none
 		;at the end of that row
 		(defq colors (swatch-colors) n (/ (length colors) +swatch_cols)
-			w (* +swatch_cell (n2f +swatch_cols)) cells (list))
+			w (* +swatch_cell (n2q +swatch_cols)) cells (list))
 		(each (lambda (col)
-				(defq cx (* +swatch_cell (n2f (% (!) +swatch_cols))) cy (* +swatch_cell (n2f (/ (!) +swatch_cols))))
+				(defq cx (* +swatch_cell (n2q (% (!) +swatch_cols))) cy (* +swatch_cell (n2q (/ (!) +swatch_cols))))
 				(push cells (list :ink col cx cy (+ cx +swatch_cell) (+ cy +swatch_cell))))
 			colors)
-		(defq cy (+ (* +swatch_cell (n2f n)) +panel_pad) cy1 (+ cy +swatch_cell))
+		(defq cy (+ (* +swatch_cell (n2q n)) +panel_pad) cy1 (+ cy +swatch_cell))
 		(each (lambda (alpha)
-				(defq cx (* 2.0 +swatch_cell (n2f (!))))
+				(defq cx (* 2.0 +swatch_cell (n2q (!))))
 				(push cells (list :alpha alpha cx cy (+ cx (* 2.0 +swatch_cell)) cy1)))
 			+swatch_alphas)
 		(push cells (list :none 0 (- w +swatch_cell) cy w cy1))
@@ -81,7 +81,7 @@
 			(:alpha
 				;black that see through over a chequer, and how much in words
 				(push items (cwb-shape (cwb-d-rect (+ x0 1.0) (+ y0 1.0) (- x1 1.0) (- y1 1.0)) :fill 0xffffffff :stroke 0))
-				(each! (lambda () (defq cx (+ x0 1.0 (* 4.5 (n2f (% (!) 8)))) cy (+ y0 1.0 (* 4.5 (n2f (/ (!) 8)))))
+				(each! (lambda () (defq cx (+ x0 1.0 (* 4.5 (n2q (% (!) 8)))) cy (+ y0 1.0 (* 4.5 (n2q (/ (!) 8)))))
 						(if (= (% (+ (% (!) 8) (/ (!) 8)) 2) 1)
 							(push items (cwb-shape (cwb-d-rect cx cy (min (+ cx 4.5) (- x1 1.0)) (min (+ cy 4.5) (- y1 1.0)))
 									:fill 0xffb0b0b0 :stroke 0)))) '() 0 32)

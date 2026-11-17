@@ -35,9 +35,9 @@
 		;a reel that knows its frames' times itself, one read as it is played
 		((defq time_of (. *reel* :find :frame_time)) (time_of *reel* n))
 		((defq video (. *reel* :find :video))
-			(/ (n2f (- (elem-get (. *reel* :find :shown) (elem-get (. *codec* :find :order) n)) (. *reel* :find :start)))
-				(n2f (. video :find :timescale))))
-		((/ (n2f n) (. *reel* :find :rate)))))
+			(/ (n2q (- (elem-get (. *reel* :find :shown) (elem-get (. *codec* :find :order) n)) (. *reel* :find :start)))
+				(n2q (. video :find :timescale))))
+		((/ (n2q n) (. *reel* :find :rate)))))
 
 (defun frame-at (time)
 	; (frame-at seconds) -> n
@@ -115,7 +115,7 @@
 	(setq *reel* :nil)
 	(status-say (cat (path-name file) ": " (. reel :find :codec) " " (str (. reel :find :width)) "x"
 			(str (. reel :find :height)) ", " (str (. reel :find :frames)) " frames, "
-			(str (/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0)) " a second, no codec for it here yet"))
+			(str (/ (n2q (n2i (* (. reel :find :rate) 100.0))) 100.0)) " a second, no codec for it here yet"))
 	(. *window_title* :set_text (cat "Films -> " (path-name file)))
 	(. *window* :fit))
 
@@ -290,7 +290,7 @@
 			(sound-feed *sound*)
 			;the sound heard *sync* ms later than it was coded, the pictures
 			;as much ahead of the clock
-			(defq ahead (/ (n2f *sync*) 1000.0) n (frame-at (+ (sound-smooth *sound*) ahead)))
+			(defq ahead (/ (n2q *sync*) 1000.0) n (frame-at (+ (sound-smooth *sound*) ahead)))
 			(cond
 				;the last frame, or the end of the sound, which may come a frame
 				;or two before it

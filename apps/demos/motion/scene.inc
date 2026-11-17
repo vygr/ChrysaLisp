@@ -14,7 +14,7 @@
 
 (defun random-fixed (from to)
 	;a number between two others
-	(+ from (* (- to from) (/ (n2f (. stage :random 1000)) 1000.0))))
+	(+ from (* (- to from) (/ (n2q (. stage :random 1000)) 1000.0))))
 
 (defun spark-at (x y colour)
 	;a bit that flies off, spins, fades and goes. Only so many at once
@@ -51,7 +51,7 @@
 (defun scene-lines (lines size &optional font)
 	; (scene-lines lines size [font]) -> outline
 	;lines of words, each in the middle, one under another, about 0 0
-	(defq out (list) step (n2f (+ size (/ size 4))) y (* step (* -0.5 (n2f (dec (length lines))))))
+	(defq out (list) step (n2q (+ size (/ size 4))) y (* step (* -0.5 (n2q (dec (length lines))))))
 	(each (lambda (line)
 			(defq m (fixeds 1.0 0.0 0.0 0.0 1.0 y))
 			(each (lambda ((closed p)) (push out (list closed (mat3x2-vec2-mul m p p))))
@@ -103,7 +103,7 @@
 	;a box with a name in it, a group of the two. Its line draws round it
 	;and the rest comes up
 	(defq fig (Figure "chip") box (Figure "box") label (Figure "label")
-		hw (* 0.5 (n2f w)) hh (* 0.5 (n2f h)))
+		hw (* 0.5 (n2q w)) hh (* 0.5 (n2q h)))
 	(. box :set_outline (list (list :t (path-gen-rect (neg hw) (neg hh) hw hh 5.0 5.0 (path)))))
 	(def box :fig_fill +scene_dark :fig_stroke colour :fig_width 2.0 :fig_trim 0.0)
 	(. box :add (Tween :fig_trim 1.0 0.7 (const ease-in-out)))

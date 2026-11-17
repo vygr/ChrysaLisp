@@ -714,7 +714,7 @@
 	(vp-rdef (s0 s1 s2 s3 t0 t1 t2 t3 tab rk idx tm rn))
 
 	(defq +ae_ctr 0 +ae_tail 16 +ae_in 32 +ae_out 40 +ae_left 48 +ae_this 56 +ae_obj 64
-		+ae_real 72 +ae_part 80 +ae_n 88 +ae_keys 96 +ae_tab 104 +ae_rounds 112 +ae_stack 128)
+		+ae_double 72 +ae_part 80 +ae_n 88 +ae_keys 96 +ae_tab 104 +ae_rounds 112 +ae_stack 128)
 
 	(defun ae-col (tc sa sb sc sd k)
 		;a column of a round, the four tables of the bytes of four columns
@@ -809,7 +809,7 @@
 	(vp-lea-rcr :rsp +ae_tail s2)
 	(ae-bytes s1 s2 s0 'ae_copy_in)
 	(vp-load-rcr :rsp +ae_out s1)
-	(vp-store-rrc s1 :rsp +ae_real)
+	(vp-store-rrc s1 :rsp +ae_double)
 	(vp-lea-rcr :rsp +ae_tail s2)
 	(vp-store-rrc s2 :rsp +ae_in)
 	(vp-store-rrc s2 :rsp +ae_out)
@@ -861,7 +861,7 @@
 	(vp-load-rcr :rsp +ae_part s0)
 	(vp-beq-cr 0 s0 'ae_block)
 	(vp-lea-rcr :rsp +ae_tail s1)
-	(vp-load-rcr :rsp +ae_real s2)
+	(vp-load-rcr :rsp +ae_double s2)
 	(ae-bytes s1 s2 s0 'ae_copy_out)
 
 (vp-label 'ae_done)

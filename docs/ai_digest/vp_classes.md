@@ -30,7 +30,7 @@ docs/reference/vp_hierarchy.cwb
 	  is `virtual`, allowing subclasses to clean up their specific resources.
 
 	* `:type`: A `virtual` method that returns a `:list` of symbols representing
-	  the object's class hierarchy (e.g., `(:real :fixed :num :obj)`).
+	  the object's class hierarchy (e.g., `(:double :fixed :num :obj)`).
 
 	* `:hash`: A `virtual` method for generating a hash value, essential for use in
 	  `:hset` and `:hmap`.
@@ -223,7 +223,7 @@ docs/reference/vp_hierarchy.cwb
 * **Inherits From:** `:obj`
 
 * **Purpose:** A simple object wrapper for a standard `long` integer. It serves
-  as the base class for more complex number types like `:fixed` and `:real`.
+  as the base class for more complex number types like `:fixed` and `:double`.
 
 * **Key Methods:**
 
@@ -249,7 +249,7 @@ docs/reference/vp_hierarchy.cwb
 
 	* Adds fixed-point specific methods like `:frac` and `:floor`.
 
-**`:real`**
+**`:double`**
 
 * **Inherits From:** `:fixed`
 
@@ -293,7 +293,7 @@ docs/reference/vp_hierarchy.cwb
 	  logic (e.g., bit-shifting) to each element-wise operation within the vector
 	  loop.
 
-**`:reals`**
+**`:doubles`**
 
 * **Inherits From:** `:fixeds`
 

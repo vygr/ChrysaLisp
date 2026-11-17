@@ -37,7 +37,7 @@
 		(throw "JSON parse error: invalid number" num_str))
 	(defq num_val (cond
 			((or (find "e" num_str) (find "E" num_str))
-				(str-to-real num_str))
+				(str-to-double num_str))
 			((find "." num_str)
 				(str-to-num num_str))
 			((str-to-num num_str))))
@@ -199,7 +199,7 @@
 	(cond
 		((eql obj :nil) "null")
 		((eql obj :t) "true")
-		((real? obj) (real-to-str obj))
+		((double? obj) (double-to-str obj))
 		((fixed? obj) (str obj))
 		((num? obj) (str obj))
 		((str? obj) (json-escape-str obj))

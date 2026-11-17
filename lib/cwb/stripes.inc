@@ -175,7 +175,7 @@
 		(bind '(a b tx c d ty) (ifn m (mat3x2-scale zoom)))
 		(cat (setf-> (str-alloc +stripe_size)
 				(+stripe_shared (ifn key 0)) (+stripe_version (get :version this))
-				(+stripe_zoom (n2f zoom)) (+stripe_back back)
+				(+stripe_zoom (n2q zoom)) (+stripe_back back)
 				(+stripe_m_a a) (+stripe_m_b b) (+stripe_m_tx tx) (+stripe_m_c c) (+stripe_m_d d) (+stripe_m_ty ty)
 				(+stripe_sync (get :sync_mbox this))
 				(+stripe_width width) (+stripe_height height) (+stripe_y y) (+stripe_y1 y1)
@@ -201,7 +201,7 @@
 			(def this :state :frame :sent (get :version this) :drawn 0 :bad 0 :stamp (pii-time))
 			(. jobs :add (map! (# (. this :job key w h (/ (* (!) h) count) (/ (* (inc (!)) h) count)
 							zoom (. doc :find :background) style
-							(if style (max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) 0) (get :floating board) m)) '() 0 count))
+							(if style (max 2 (n2i (* (n2q (. doc :find :grid)) (n2q zoom)))) 0) (get :floating board) m)) '() 0 count))
 			:t))
 
 	(defmethod :handle (index msg)

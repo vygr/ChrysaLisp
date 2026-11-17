@@ -7,7 +7,7 @@
 (assert-eq "and all of it" -300000 (nums-sum tf_big))
 (assert-eq "the array it is given" :t (let ((a (nums 1))) (eql (fill a 3 2) a)))
 (assert-list-eq "fixeds" '(1.5 1.5 1.5) (map (const identity) (fill (fixeds) 3 1.5)))
-(assert-list-eq "reals" (list (n2r 2) (n2r 2)) (map (const identity) (fill (reals) 2 (n2r 2))))
+(assert-list-eq "doubles" (list (n2d 2) (n2d 2)) (map (const identity) (fill (doubles) 2 (n2d 2))))
 (assert-eq "a path" 4 (length (fill (path) 4 1.0)))
 
 ;a list, a reference for each, and those it had let go of

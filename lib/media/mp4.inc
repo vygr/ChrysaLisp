@@ -237,7 +237,7 @@
 				:height (. video :find :height) :codec (. video :find :codec)
 				;the seconds first: frames by the timescale is past what a fixed
 				;number holds, for a film of two hours
-				:rate (if (> span 0) (/ (n2f (dec frames)) (/ (n2f span) (n2f (. video :find :timescale)))) 0.0)
+				:rate (if (> span 0) (/ (n2q (dec frames)) (/ (n2q span) (n2q (. video :find :timescale)))) 0.0)
 				:offsets (. video :find :offsets) :lengths (. video :find :sizes)
 				:keys (. video :find :keys) :times when_at :shown (. video :find :shown) :video video
 				:start (. video :find :start) :delay (. video :find :delay)))

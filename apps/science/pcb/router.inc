@@ -38,11 +38,11 @@
 
 (defun gen-vectors (vec_range x_range y_range)
 	;generate range of routing vectors
-	(defq out (list) vec_range (n2f vec_range) y (neg y_range))
+	(defq out (list) vec_range (n2q vec_range) y (neg y_range))
 	(while (<= y y_range)
 		(defq x (neg x_range))
 		(while (<= x x_range)
-			(defq l (vector-length (Vec2-f (n2f x) (n2f y))))
+			(defq l (vector-length (Vec2-q (n2q x) (n2q y))))
 			(and (> l 0.1) (<= l vec_range)
 				(push out (nums x y 0)))
 			(++ x))
@@ -51,8 +51,8 @@
 
 (defun aabb-pads (pads)
 	;aabb of pads
-	(defq minxyz (Vec2-f 1000000.0 1000000.0)
-		maxxyz (Vec2-f -1000000.0 -1000000.0))
+	(defq minxyz (Vec2-q 1000000.0 1000000.0)
+		maxxyz (Vec2-q -1000000.0 -1000000.0))
 	(each (lambda (p)
 			(vector-min minxyz (setq p (. p :get_pos)) minxyz)
 			(vector-max maxxyz p maxxyz)) pads)
@@ -95,7 +95,7 @@
 
 (defclass Net (track pcb) :nil
 	; (Net track pcb) -> net
-	(defq grid_res (n2f (. pcb :get_grid_res)))
+	(defq grid_res (n2q (. pcb :get_grid_res)))
 	;the pcb by a weak ref, claimed where it is used: the pcb holds its
 	;nets, a net that held it by a count would hold it round
 	(def this
@@ -117,13 +117,13 @@
 			(. p :set_radius (* (. p :get_radius) grid_res))
 			(. p :set_gap (* (. p :get_gap) grid_res))
 			(bind '(x y z) (. p :get_pos))
-			(. p :set_pos (Vec3-f (* x grid_res) (* y grid_res) z))
+			(. p :set_pos (Vec3-q (* x grid_res) (* y grid_res) z))
 			(each (lambda (p)
 					(vector-scale p grid_res p)) (. p :get_shape))) pads)
 	(each (lambda (wire)
 			(each (lambda (p)
 					(bind '(x y z) p)
-					(elem-set wire (!) (Vec3-f (* x grid_res) (* y grid_res) z))) wire)) wires)
+					(elem-set wire (!) (Vec3-q (* x grid_res) (* y grid_res) z))) wire)) wires)
 
 	;sort pads
 	(sort pads (lambda (p1 p2)
@@ -172,7 +172,7 @@
 		(push pad_end_nodes (defq ends (list)))
 		(defq z z1)
 		(while (<= z z2)
-			(push ends (. pcb :pad_point_to_node (Vec3-f x y z)))
+			(push ends (. pcb :pad_point_to_node (Vec3-q x y z)))
 			(setq z (+ z 1.0))))
 
 	;build wires collision lines and visited
@@ -184,21 +184,21 @@
 						((/= (elem-get p0 +vec3_z) (elem-get p1 +vec3_z))
 							;via wire
 							(bind '(x0 y0 z0) p0)
-							(defq depth (n2f (dec (. pcb :get_depth))) z 0.0)
+							(defq depth (n2q (dec (. pcb :get_depth))) z 0.0)
 							(push wire_lines (Layers-line x0 y0 0.0 x0 y0 depth via gap))
 							(while (<= z depth)
-								(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-f x0 y0 z)))
+								(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-q x0 y0 z)))
 								(setq z (+ z 1.0))))
 						(:t ;layer wire
 							(bind '(x0 y0 z0) p0)
 							(bind '(x1 y1 z1) p1)
 							(push wire_lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap))
-							(defq p (Vec2-f x0 y0) v (vector-sub p (Vec2-f x1 y1))
+							(defq p (Vec2-q x0 y0) v (vector-sub p (Vec2-q x1 y1))
 								l (vector-length v) norm (vector-scale v (recip l))
 								i 0.0)
 							(while (< i l)
 								(bind '(x y) (vector-add p (vector-scale norm i)))
-								(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-f x y z0)))
+								(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-q x y z0)))
 								(setq i (+ i 0.25)))
 							(. wire_nodes :insert (. pcb :pad_point_to_node p1))))) (list wire) 1)) wires)
 
@@ -246,7 +246,7 @@
 		; (. net :create_paths_lines) -> lines
 		;create paths collision lines
 		(defq pcb (obj-ref (get :pcb this))) (raise :radius :via :gap)
-		(defq depth (n2f (dec (. pcb :get_depth))))
+		(defq depth (n2q (dec (. pcb :get_depth))))
 		(reduce (lambda (lines pth)
 				(defq p0 :nil p1 (. pcb :node_to_pad_point (first pth)))
 				(each! (lambda (p)
@@ -386,7 +386,7 @@
 		(defq pcb (obj-ref (get :pcb this)))
 		(reduce (lambda (opt_paths pth)
 				(defq opt_path (list)
-					d0 (Vec3-f 0.0 0.0 0.0) d1 :nil
+					d0 (Vec3-q 0.0 0.0 0.0) d1 :nil
 					p0 :nil p1 (. pcb :node_to_pad_point (first pth)))
 				(each! (lambda (p)
 						(setq p0 p1 p1 (. pcb :node_to_pad_point p)
@@ -437,7 +437,7 @@
 		;(. pcb :step_delay), and the cost of a via, the nearest of those as
 		;much
 		(defq pcb (obj-ref (get :pcb this)) soft (get :soft_layers pcb)
-			depth (n2f (dec (get :depth pcb))) np (. pcb :node_to_pad_point node)
+			depth (n2q (dec (get :depth pcb))) np (. pcb :node_to_pad_point node)
 			best :nil best_cost 0 best_dist 0)
 		(each (lambda (n)
 				(defq nnp (. pcb :node_to_pad_point n)
@@ -491,7 +491,7 @@
 		; (. net :print_net stream) -> net
 		;output net, pads, wires and paths, for viewer app
 		(defq pcb (obj-ref (get :pcb this))) (raise :pads :wires :paths :id :radius :via :gap
-			(scale (recip (n2f (. pcb :get_grid_res))) verbosity (. pcb :get_verbosity)))
+			(scale (recip (n2q (. pcb :get_grid_res))) verbosity (. pcb :get_verbosity)))
 		(if (>= verbosity 2) (write-line stream ";NET"))
 		(write-line stream "(")
 		(if (>= verbosity 2) (write-line stream " ;id, radius, via, gap"))
@@ -569,17 +569,17 @@
 			(gen-vectors (* fr +path_scale) (* fr +path_scale) (* fr_odd +path_scale)))
 		:netlist (list) :verbosity verb
 		:vias_cost (* vias_cost grid_res)
-		:layers (Layers (n2i (* (n2f width) +spacial_hash_res))
-			(n2i (* (n2f height) +spacial_hash_res))
-			depth (/ +spacial_hash_res (n2f grid_res)))
-		:via_layers (Layers (n2i (* (n2f width) +spacial_hash_res))
-			(n2i (* (n2f height) +spacial_hash_res))
-			depth (/ +spacial_hash_res (n2f grid_res)))
+		:layers (Layers (n2i (* (n2q width) +spacial_hash_res))
+			(n2i (* (n2q height) +spacial_hash_res))
+			depth (/ +spacial_hash_res (n2q grid_res)))
+		:via_layers (Layers (n2i (* (n2q width) +spacial_hash_res))
+			(n2i (* (n2q height) +spacial_hash_res))
+			depth (/ +spacial_hash_res (n2q grid_res)))
 		:nodes nodes)
 	(times (* width height depth grid_res grid_res) (push nodes 0) (push deform_idx 0) (push hist 0))
-	(def this :soft_layers (Layers (n2i (* (n2f width) +spacial_hash_res))
-			(n2i (* (n2f height) +spacial_hash_res))
-			depth (/ +spacial_hash_res (n2f grid_res))))
+	(def this :soft_layers (Layers (n2i (* (n2q width) +spacial_hash_res))
+			(n2i (* (n2q height) +spacial_hash_res))
+			depth (/ +spacial_hash_res (n2q grid_res))))
 
 	(defgetmethod :depth)
 	(defgetmethod :grid_res)
@@ -602,7 +602,7 @@
 	(defmethod :node_to_point ((x y z))
 		; (. pcb :node_to_point node) -> point
 		;convert node to point
-		(Vec3-f (n2f x) (n2f y) (n2f z)))
+		(Vec3-q (n2q x) (n2q y) (n2q z)))
 
 	(defmethod :point_to_node ((x y z))
 		; (. pcb :point_to_node point) -> node
@@ -660,12 +660,12 @@
 		;k soft lines: (1 + its history) * (1 + pf * k)
 		(bind '(x y z) node)
 		(defq h (elem-get (get :hist this) (+ x (* (get :width this) (+ y (* (get :height this) z))))))
-		(dec (n2i (* (+ 1.0 (* (n2f k) (first (get :pf this)))) (n2f (inc h))))))
+		(dec (n2i (* (+ 1.0 (* (n2q k) (first (get :pf this)))) (n2q (inc h))))))
 
 	(defmethod :flood_cost_lisp (node radius gap via out_n out_v out_nd out_vd)
 		; (. pcb :flood_cost_lisp node radius gap via out_n out_v out_nd out_vd) -> out_n
 		;the Lisp of what (flood-cost) does, kept to hold it to
-		(raise :flood_vectors :soft_layers (depth (n2f (dec (get :depth this)))
+		(raise :flood_vectors :soft_layers (depth (n2q (dec (get :depth this)))
 				np (. this :node_to_pad_point node)))
 		(each (lambda (n)
 				(push out_n n)
@@ -725,7 +725,7 @@
 		; (. pcb :all_not_shorting_via gather node radius gap) -> nodes
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :layers :via_layers (out (clear '())
-				np (push (slice (. this :node_to_pad_point node) +vec3_x +vec3_z) (n2f (dec (get :depth this))))))
+				np (push (slice (. this :node_to_pad_point node) +vec3_x +vec3_z) (n2q (dec (get :depth this))))))
 		(each (lambda (new_node)
 				(defq nnp (push (slice (. this :node_to_pad_point new_node) +vec3_x +vec3_z) 0.0))
 				(unless (. via_layers :hit_line np nnp radius gap)
@@ -903,7 +903,7 @@
 		(filter (lambda (other)
 				(and (not (eql other net))
 					(some (# (some (lambda (node)
-									(defq x (n2f (first node)) y (n2f (second node)))
+									(defq x (n2q (first node)) y (n2q (second node)))
 									(and (<= x1 x x2) (<= y1 y y2))) %0))
 						(get :paths other))))
 			(get :netlist this)))

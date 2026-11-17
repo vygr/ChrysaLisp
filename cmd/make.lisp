@@ -76,7 +76,7 @@
 				(push out %0)))) out)
 
 (defq +field_types ''("byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr" "pptr"
-		"pbyte" "pubyte" "pshort" "pushort" "pint" "puint" "plong" "pulong" "netid" "nodeid" "fixed" "real"))
+		"pbyte" "pubyte" "pshort" "pushort" "pint" "puint" "plong" "pulong" "netid" "nodeid" "fixed" "double"))
 
 (defun struct-of (file name)
 	; (struct-of file name) -> :nil | nodes

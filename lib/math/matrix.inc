@@ -6,52 +6,52 @@
 (import "gui/path/lisp.inc")
 
 (defun mat4x4-unity ()
-	(reals +real_1 +real_0 +real_0 +real_0
-		+real_0 +real_1 +real_0 +real_0
-		+real_0 +real_0 +real_1 +real_0
-		+real_0 +real_0 +real_0 +real_1))
+	(doubles +double_1 +double_0 +double_0 +double_0
+		+double_0 +double_1 +double_0 +double_0
+		+double_0 +double_0 +double_1 +double_0
+		+double_0 +double_0 +double_0 +double_1))
 
 (defun mat4x4-rotx (a)
 	(defq s (sin a) c (cos a))
-	(reals +real_1 +real_0 +real_0 +real_0
-		+real_0 c (neg s) +real_0
-		+real_0 s c +real_0
-		+real_0 +real_0 +real_0 +real_1))
+	(doubles +double_1 +double_0 +double_0 +double_0
+		+double_0 c (neg s) +double_0
+		+double_0 s c +double_0
+		+double_0 +double_0 +double_0 +double_1))
 
 (defun mat4x4-roty (a)
 	(defq s (sin a) c (cos a))
-	(reals c +real_0 s +real_0
-		+real_0 +real_1 +real_0 +real_0
-		(neg s) +real_0 c +real_0
-		+real_0 +real_0 +real_0 +real_1))
+	(doubles c +double_0 s +double_0
+		+double_0 +double_1 +double_0 +double_0
+		(neg s) +double_0 c +double_0
+		+double_0 +double_0 +double_0 +double_1))
 
 (defun mat4x4-rotz (a)
 	(defq s (sin a) c (cos a))
-	(reals c (neg s) +real_0 +real_0
-		s c +real_0 +real_0
-		+real_0 +real_0 +real_1 +real_0
-		+real_0 +real_0 +real_0 +real_1))
+	(doubles c (neg s) +double_0 +double_0
+		s c +double_0 +double_0
+		+double_0 +double_0 +double_1 +double_0
+		+double_0 +double_0 +double_0 +double_1))
 
 (defun mat4x4-translate (x y z)
-	(reals +real_1 +real_0 +real_0 x
-		+real_0 +real_1 +real_0 y
-		+real_0 +real_0 +real_1 z
-		+real_0 +real_0 +real_0 +real_1))
+	(doubles +double_1 +double_0 +double_0 x
+		+double_0 +double_1 +double_0 y
+		+double_0 +double_0 +double_1 z
+		+double_0 +double_0 +double_0 +double_1))
 
 (defun mat4x4-scale (x y z)
-	(reals x +real_0 +real_0 +real_0
-		+real_0 y +real_0 +real_0
-		+real_0 +real_0 z +real_0
-		+real_0 +real_0 +real_0 +real_1))
+	(doubles x +double_0 +double_0 +double_0
+		+double_0 y +double_0 +double_0
+		+double_0 +double_0 z +double_0
+		+double_0 +double_0 +double_0 +double_1))
 
 (defun mat4x4-frustum (left right top bottom near far)
 	(defq rl (recip (- right left))
 		tb (recip (- top bottom))
 		nf (recip (- near far)))
-	(reals (* (* +real_2 near) rl) +real_0 (* (+ left right) rl) +real_0
-		+real_0 (* (* +real_2 near) tb) (* (+ top bottom) tb) +real_0
-		+real_0 +real_0 (* (+ near far) nf) (* (* (* +real_2 near) far) nf)
-		+real_0 +real_0 +real_-1 +real_0))
+	(doubles (* (* +double_2 near) rl) +double_0 (* (+ left right) rl) +double_0
+		+double_0 (* (* +double_2 near) tb) (* (+ top bottom) tb) +double_0
+		+double_0 +double_0 (* (+ near far) nf) (* (* (* +double_2 near) far) nf)
+		+double_0 +double_0 +double_-1 +double_0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the 3x2 matrix of the plane, six fixeds, a b tx c d ty:
@@ -73,13 +73,13 @@
 
 (defun mat3x2-translate (tx ty)
 	; (mat3x2-translate tx ty) -> matrix
-	(fixeds 1.0 0.0 (n2f tx) 0.0 1.0 (n2f ty)))
+	(fixeds 1.0 0.0 (n2q tx) 0.0 1.0 (n2q ty)))
 
 (defun mat3x2-scale (sx &optional sy cx cy)
 	; (mat3x2-scale sx [sy cx cy]) -> matrix
 	;about a point, default the origin
 	(setd sy sx cx 0.0 cy 0.0)
-	(setq sx (n2f sx) sy (n2f sy) cx (n2f cx) cy (n2f cy))
+	(setq sx (n2q sx) sy (n2q sy) cx (n2q cx) cy (n2q cy))
 	(fixeds sx 0.0 (- cx (* sx cx)) 0.0 sy (- cy (* sy cy))))
 
 (defun mat3x2-rot (angle &optional cx cy)
@@ -87,8 +87,8 @@
 	;by an angle in radians, the way from the x axis to the y axis, about
 	;a point, default the origin
 	(setd cx 0.0 cy 0.0)
-	(setq cx (n2f cx) cy (n2f cy))
-	(defq c (cos (n2f angle)) s (sin (n2f angle)))
+	(setq cx (n2q cx) cy (n2q cy))
+	(defq c (cos (n2q angle)) s (sin (n2q angle)))
 	(fixeds c (neg s) (- cx (- (* c cx) (* s cy))) s c (- cy (+ (* s cx) (* c cy)))))
 
 (defun mat3x2-skew (ax &optional ay)
@@ -96,7 +96,7 @@
 	;by angles in radians, x leaning along y by ax and y along x by ay,
 	;default 0, as svg's skewX and skewY: x' = x + tan(ax)*y
 	(setd ay 0.0)
-	(setq ax (n2f ax) ay (n2f ay))
+	(setq ax (n2q ax) ay (n2q ay))
 	(fixeds 1.0 (/ (sin ax) (cos ax)) 0.0 (/ (sin ay) (cos ay)) 1.0 0.0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -148,7 +148,7 @@
 
 (defun mat3x2-point (m x y)
 	; (mat3x2-point m x y) -> (x y)
-	(setq x (n2f x) y (n2f y))
+	(setq x (n2q x) y (n2q y))
 	(bind '(a b tx c d ty) m)
 	(list (+ (* a x) (* b y) tx) (+ (* c x) (* d y) ty)))
 

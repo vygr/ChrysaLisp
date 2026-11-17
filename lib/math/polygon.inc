@@ -62,7 +62,7 @@
 	; (poly-num raw) -> fixed
 	;the fixed number that is held as this whole number, its whole part
 	;and its fraction made apart, so a big one has the room
-	(+ (n2f (>>> raw 16)) (/ (n2f (logand raw 0xffff)) 65536.0)))
+	(+ (n2q (>>> raw 16)) (/ (n2q (logand raw 0xffff)) 65536.0)))
 
 (defun poly-fixed (raw)
 	; (poly-fixed ((x y ...) ...)) -> paths

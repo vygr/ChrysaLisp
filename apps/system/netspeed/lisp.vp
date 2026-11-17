@@ -51,7 +51,7 @@
 
 	(structure slot 0
 		(ptr this args mem1 mem2)
-		(long regs_vops memory_vops reals_vops start cnt))
+		(long regs_vops memory_vops doubles_vops start cnt))
 
 	(entry '(:r0 :r1))
 
@@ -144,7 +144,7 @@
 	(loop-until '(:r0 >= 100000))
 	(time-end slot_memory_vops)
 
-	;reals ops test
+	;doubles ops test
 	(time-start)
 	(loop-start)
 
@@ -169,11 +169,11 @@
 
 		(time-step (* 24 100))
 	(loop-until '(:r0 >= 100000))
-	(time-end slot_reals_vops)
+	(time-end slot_doubles_vops)
 
 	(call :list :create :nil '(:r0))
 	(call :list :push_back2 '(:r0 (:rsp slot_regs_vops) (:rsp slot_memory_vops)) '(:r0 _ _ _ _))
-	(call :list :push_back '(:r0 (:rsp slot_reals_vops)) '(:r1 _ _ _))
+	(call :list :push_back '(:r0 (:rsp slot_doubles_vops)) '(:r1 _ _ _))
 
 	(exit '((:rsp slot_this) :r1))
 	(vp-free slot_size)
