@@ -358,9 +358,12 @@
 
 (defun mode-switch (to_gpu)
 	;to the GPU, the farm's work let go of and given the GPU's task, the
-	;params loaded first; to the farm once the GPU's task has done what it
-	;has out and its params are back
+	;params loaded first; to the farm at once if the GPU has nothing newer
+	;than here, no task yet or params not loaded, else once the GPU's task
+	;has done what it has out and its params are back
 	(cond
+		((and (not to_gpu) (not busy) (or (not gpu_child) gpu_stale))
+			(setq gpu_mode :nil to_farm :nil))
 		((not to_gpu) (setq to_farm :t)
 			(unless busy (next)))
 		(gpu_mode (setq to_farm :nil)
