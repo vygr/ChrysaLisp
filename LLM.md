@@ -315,6 +315,11 @@ Deep dives into meta-commentary and design philosophy:
     another machine made the same as this one's over the links between
     them, and the service a machine runs to say it will take one.
 
+75. **[Neural Networks](docs/ai_digest/neural_networks.md)** - `lib/nn`, a
+    network from a description, and MNIST learnt on a farm of nodes or on
+    the GPU: the vector operations and the shader kernels made for the sums,
+    and why each was chosen.
+
 ---
 
 ## Reading Paths
