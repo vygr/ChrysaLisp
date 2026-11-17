@@ -218,8 +218,8 @@ A dense layer: a thread for each output of each sample, its dot of the row
 and the inputs and its activation, 65,536 threads for the first layer at a
 batch of 512. The loop is to a constant limit, as a shader's must be, and
 leaves at the layer's real width. The first layer forward, a sample at a
-time, was 65us in Lisp, 98us as this kernel on the VP back end, and 2.6us
-on the GPU at a batch of 512.
+time, was 65us in Lisp, 98us as the same dense kernel on the VP back end,
+and 2.6us on the GPU at a batch of 512, as `evidence_not_faith.md` has it.
 
 ### loss
 
@@ -276,7 +276,8 @@ the window draws hold none of it up. The app gives it its steps 8 ahead, so
 the GPU never waits on the window; the params come back every 2 seconds for
 the picture, and at each epoch's check to be kept if they are the best. An
 epoch on the GPU takes about 300ms, the farm of 16 nodes 0.90s, and a run to
-its early stop about 8 seconds, 97.3% of the test set right.
+its early stop 15 epochs, about 8 seconds, 97.0% of the 10,000 test
+digits right.
 
 ## What is not done
 
