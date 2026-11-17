@@ -12,9 +12,9 @@
 ; was taken for and what it was.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/gpu/kernel.inc")
-(import "lib/gpu/vp.inc")
-(import "lib/nn/model.inc")
+(import "././gpu/kernel.inc")
+(import "././gpu/vp.inc")
+(import "./model.inc")
 
 (defq +nn_gpu_shaders ''("gather" "forward" "loss" "back" "update"))
 

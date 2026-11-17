@@ -1,8 +1,7 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
+(include "././list/class.inc")
 (include "././floats/class.inc")
 (include "././doubles/class.inc")
-(include "././list/class.inc")
 
 (gen-create :nums)
 	;outputs

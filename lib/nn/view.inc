@@ -10,8 +10,8 @@
 ; layer before it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/motion/rostrum.inc")
-(import "lib/nn/model.inc")
+(import "././motion/rostrum.inc")
+(import "./model.inc")
 
 (defq +nn_view_font "fonts/OpenSans-Regular.ctf" +nn_view_strong 4
 	+nn_view_back 0xff12161c +nn_view_off 0xff262c36 +nn_view_on 0xffffb040

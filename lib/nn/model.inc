@@ -18,7 +18,7 @@
 ; through it, and the gradient of its weights.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/math/vector.inc")
+(import "././math/vector.inc")
 
 ;native, lib/nn/lisp.vp
 (ffi (path-to-absolute "./scale_bytes") nn-scale-bytes)
