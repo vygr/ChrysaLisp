@@ -71,10 +71,6 @@
 (defun tf-ints (fs) (map (const n2i) fs))
 (defq tf_v (tf-floats 1 2 3 4 5) tf_w (tf-floats 10 20 30 40 50))
 
-(assert-true "floats? floats" (floats? tf_v))
-(assert-true "floats?? floats" (floats?? tf_v))
-(assert-true "fixeds? floats" (fixeds? tf_v))
-(assert-true "doubles? floats" (not (doubles? tf_v)))
 (assert-eq "floats length" 5 (length tf_v))
 (assert-eq "floats elem" (n2f 3) (elem-get tf_v 2))
 (assert-true "floats elem is a float" (float? (elem-get tf_v 0)))

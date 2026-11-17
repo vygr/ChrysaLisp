@@ -141,6 +141,14 @@
 (assert-true "double? float" (not (double? pq_float)))
 (assert-true "float? double" (not (float? (n2d 1.5))))
 (assert-true "float? fixed" (not (float? 1.5)))
+;a floats is a fixeds, as a doubles is, and neither is the other
+(defq pq_floats (floats pq_float))
+(assert-true "floats? floats" (floats? pq_floats))
+(assert-true "floats?? floats" (floats?? pq_floats))
+(assert-true "fixeds? floats" (fixeds? pq_floats))
+(assert-true "doubles? floats" (not (doubles? pq_floats)))
+(assert-true "nums? list" (not (nums? (list))))
+(assert-true "fixeds? nums" (not (fixeds? (nums 1))))
 (assert-list-eq "where one ? is true of all that are built on the class, a num here"
 	'(:t :t :t :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num?)))
 (assert-list-eq "an array here, all seven kinds of one"

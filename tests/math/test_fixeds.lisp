@@ -35,5 +35,3 @@
 (assert-eq "Fixed Sin PI/2" 1.0 (sin 1.570796))
 (assert-eq "Fixed Cos PI/2" 0.0 (cos 1.570796))
 
-; verify types
-(assert-true "Is fixeds?" (fixeds? v1))

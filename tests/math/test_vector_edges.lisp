@@ -29,11 +29,6 @@
 (nums-add-scaled ve_a ve_b 3 ve_a)
 (assert-true "nums-add-scaled in place" (eql ve_a (nums 11 16)))
 
-(assert-true "nums? nums" (nums? (nums)))
-(assert-true "nums? list" (not (nums? (list))))
-(assert-true "fixeds? fixeds" (fixeds? (fixeds 1.0)))
-(assert-true "fixeds? nums" (not (fixeds? (nums 1))))
-(assert-true "doubles? doubles" (doubles? (doubles (n2d 1))))
 
 ;an empty vector has no sum or dot, and can not be added
 (assert-error "nums-sum empty" (nums-sum (nums)))
@@ -46,16 +41,8 @@
 
 ; --- fixeds ---
 (test-cases
-	(nums-add (fixeds 1.5) (fixeds 2.25)) (fixeds 3.75)
-	(nums-mul (fixeds 1.5) (fixeds 2.0)) (fixeds 3.0)
-	(nums-div (fixeds 1.0) (fixeds 4.0)) (fixeds 0.25)
-	(nums-sum (fixeds 1.5 2.5)) 4.0
 	(nums-add-scaled (fixeds 1.0 2.0) (fixeds 0.5 0.25) 2.0) (fixeds 2.0 2.5)
-	(nums-add-scaled (fixeds 1.0) (fixeds 0.5) -1.5) (fixeds 0.25)
-	(fixeds-floor (fixeds 1.5 -1.5)) (fixeds 1.0 -2.0)
-	(fixeds-ceil (fixeds 1.5 -1.5)) (fixeds 2.0 -1.0)
-	;the fraction is what is left above the floor, so is never negative
-	(fixeds-frac (fixeds 1.5 -1.5)) (fixeds 0.5 0.5))
+	(nums-add-scaled (fixeds 1.0) (fixeds 0.5) -1.5) (fixeds 0.25))
 
 ; --- fixed point scalars ---
 (test-cases

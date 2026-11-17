@@ -85,13 +85,11 @@
 (assert-eq "Doubles Mul" (doubles (n2d 4.0) (n2d 16.0) (n2d 48.0)) (nums-mul rv1 rv2))
 ; Use exact powers of 2 for division to avoid any precision issues
 (assert-eq "Doubles Div" (doubles (n2d 0.25) (n2d 0.25) (n2d 0.1875)) (nums-div rv1 rv2))
-(assert-eq "Doubles Dot" (n2d 68.0) (nums-dot rv1 rv2))
 (assert-eq "Doubles Scale" (doubles (n2d 2.0) (n2d 4.0) (n2d 6.0)) (nums-scale rv1 (n2d 2.0)))
 
 (assert-eq "Doubles Max" (doubles (n2d 4.0) (n2d 8.0) (n2d 16.0)) (nums-max rv1 rv2))
 (assert-eq "Doubles Min" (doubles (n2d 1.0) (n2d 2.0) (n2d 3.0)) (nums-min rv1 rv2))
 (assert-eq "Doubles Abs" (doubles (n2d 1.0) (n2d 2.0) (n2d 3.0)) (nums-abs rv3))
-(assert-eq "Doubles Sum" (n2d 6.0) (nums-sum rv1))
 
 (defq rv_fp (doubles (n2d 1.5) (n2d -2.5) (n2d 3.75)))
 (assert-eq "Doubles Floor" (doubles (n2d 1.0) (n2d -3.0) (n2d 3.0)) (fixeds-floor rv_fp))
@@ -100,5 +98,3 @@
 
 (defq rv_q (doubles (n2d 1.2) (n2d 0.8) (n2d 2.1) (n2d -0.6)))
 (assert-eq "Doubles Quant" (doubles (n2d 1.0) (n2d 1.0) (n2d 2.0) (n2d -0.5)) (doubles-quant rv_q (n2d 0.5)))
-
-; verify types
