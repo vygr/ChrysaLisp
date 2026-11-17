@@ -1295,3 +1295,32 @@
 ;another document
 (. bd_board :set_doc (cwb-doc 800 600))
 (assert-eq "another document with nothing drawn has no bounds" :nil (. bd_board :bounds))
+
+;a thing taken up, or put down, changes only its part of the document's picture, and the board says which.
+;What is taken up is on top: one with something over it is in its place in the document till a hand has it
+(defq td_board (Board (cwb-doc 800 600)))
+(defun td-drag (mode pts)
+	(def td_board :mode mode)
+	(each (lambda ((x y)) (. td_board :pointers (list (ptr-event 0 :mouse 1 x y)))) pts)
+	(bind '(x y) (last pts))
+	(. td_board :pointers (list (ptr-event 0 :mouse 0 x y))))
+(td-drag :pen '((150 150) (380 390)))
+(td-drag :frect '((100 100) (300 300)))
+(def td_board :color 0xffff0000)
+(td-drag :frect '((200 200) (400 400)))
+(. td_board :select (list)) (. td_board :take_damage)
+(. td_board :select (list 3))
+(defq td_d (. td_board :take_damage))
+(assert-list-eq "one thing taken up is one part of the picture, the box round it"
+	'(1 (198 198 401 401)) (list (length td_d) (map (const n2i) (first td_d))))
+(. td_board :select (list))
+(setq td_d (. td_board :take_damage))
+(assert-list-eq "put down, the same part again"
+	'(1 (198 198 401 401)) (list (length td_d) (map (const n2i) (first td_d))))
+;a thing drawn is put on top and is no part to draw again, a few taken up are parts, and a change to them is all of it
+(td-drag :frect '((500 500) (520 520)))
+(assert-eq "a thing drawn is no part" '() (. td_board :take_damage))
+(. td_board :select (list 1 2 3))
+(assert-eq "three taken up are three parts" 3 (length (. td_board :take_damage)))
+(. td_board :style :stroke 0xff00ff00)
+(assert-eq "and a change to them is all of it" :all (. td_board :take_damage))

@@ -607,7 +607,7 @@
 
 ;a block is a file and takes a cluster at least: the clusters of a store's
 ;volume are no bigger than its blocks, nor smaller than exFAT's own or 4096
-(assert-list-eq "clusters of 64KB for blocks of 64KB on a volume over 32GB, not 128KB"
-	(list 8 7) (list (exfat-cluster-shift 0x1000000000) (store-cluster-shift 0x1000000000 65536)))
+(assert-eq "clusters of 64KB for blocks of 64KB on a volume over 32GB, not exFAT's 128KB"
+	7 (store-cluster-shift 0x1000000000 65536))
 (assert-list-eq "exFAT's own where it is smaller, and never under 4096 bytes"
 	(list 6 3 3) (list (store-cluster-shift 0x100000000 65536) (store-cluster-shift 0x100000 64) (store-cluster-shift 0x1000000000 16)))

@@ -320,3 +320,6 @@
 (assert-true "one let go is not given out in the same batch"
 	(notany (# (find %0 xk_old)) (exfat-chain xk_vol (elem-get xk_new 3) (elem-get xk_new 2) (elem-get xk_new 4))))
 (exfat-end xk_vol)
+
+;the clusters exFAT chooses of itself, 128KB on a volume over 32GB
+(assert-eq "exFAT's own clusters on a volume over 32GB are 128KB" 8 (exfat-cluster-shift 0x1000000000))
