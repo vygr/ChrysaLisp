@@ -221,6 +221,8 @@
 				(. depends_cache :update file (# (ifn %0
 							(filter (# (nql %0 file)) (depends-of file))))))) requires)
 	(setq requires (filter (# (not (. depends_set :find %0))) requires))
+	;the implicit file is always written first, if another brings it in too
+	(merge requires (list +implicit_file))
 	;sort and see if we need to report a difference and maybe rewrite
 	(sort includes) (sort requires)
 	(when (or (/= (length includes) (length requires))

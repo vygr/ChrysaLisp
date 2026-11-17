@@ -1,7 +1,4 @@
 (include "lib/asm/func.inc")
-(include "class/num/class.inc")
-(include "class/lisp/class.inc")
-(include "./app.inc")
 (include "./z80.inc")
 
 (def-func (path-to-absolute "./zx_run"))

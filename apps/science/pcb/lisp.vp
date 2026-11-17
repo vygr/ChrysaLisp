@@ -1,7 +1,4 @@
 (include "lib/asm/func.inc")
-(include "class/lisp/class.inc")
-(include "class/fixeds/class.inc")
-(include "class/fixed/class.inc")
 (include "./collide.inc")
 
 (def-func (path-to-absolute "./hit_line"))
