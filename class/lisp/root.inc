@@ -106,6 +106,8 @@
 ; (n2q num) -> fixed
 (ffi "class/num/lisp_n2d" n2d)
 ; (n2d num) -> double
+(ffi "class/num/lisp_n2f" n2f)
+; (n2f num) -> float
 (ffi "class/num/lisp_random" random)
 ; (random num) -> num
 (ffi "class/num/lisp_num" num)
@@ -659,6 +661,14 @@
 (defun double?? (%0)
 	; (double?? form) -> :t | :nil
 	(eql :double (pop (type-of %0))))
+
+(defun float? (%0)
+	; (float? form) -> :t | :nil
+	(find :float (type-of %0)))
+
+(defun float?? (%0)
+	; (float?? form) -> :t | :nil
+	(eql :float (pop (type-of %0))))
 
 (defun nums? (%0)
 	; (nums? form) -> :t | :nil

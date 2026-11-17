@@ -38,6 +38,7 @@
 (defq +split_class (char-class " ()'\t\r\q{@},`")
 	+implicit_file "lib/asm/func.inc"
 	+class_prefixes ''(
+		(":floats" "+floats_") (":float" "+float_")
 		(":fixeds" "+fixeds_") (":fixed" "+fixed_")
 		(":nums" "+nums_") (":num" "+num_")
 		(":out" "+stream_mail_" "+out_") (":stream" "+stream_")

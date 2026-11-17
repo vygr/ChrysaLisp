@@ -580,9 +580,10 @@ Type inspection and structural verification predicates.
 
 	*	`(pmap? form) -> :t | :nil`
 
-*	**`num?` / `fixed?` / `double?` / `num??` / `fixed??`**: Numerical scalar
-	type checks. A double is a fixed, and a fixed is a num, `num??` is a num
-	that is neither, `fixed??` a fixed that is not a double.
+*	**`num?` / `fixed?` / `double?` / `float?` / `num??` / `fixed??` /
+	`double??` / `float??`**: Numerical scalar type checks. A double and a
+	float are each a fixed, and a fixed is a num, `num??` is a num that is
+	none of them, `fixed??` a fixed that is not a double or a float.
 
 	*	`(num? form) -> :t | :nil`
 
@@ -593,6 +594,12 @@ Type inspection and structural verification predicates.
 	*	`(fixed?? form) -> :t | :nil`
 
 	*	`(double? form) -> :t | :nil`
+
+	*	`(double?? form) -> :t | :nil`
+
+	*	`(float? form) -> :t | :nil`
+
+	*	`(float?? form) -> :t | :nil`
 
 *	**`nums?` / `fixeds?` / `doubles?` / `nums??` / `fixeds??` / `doubles??`**: Numeric
 	vector type checks, and for one that is that class itself.
@@ -721,14 +728,19 @@ Arithmetic, bitwise math, trigonometry, and SIMD-like numerical vector operation
 
 ### Numerical Types and Conversion
 
-*	**`n2i` / `n2q` / `n2d`**: Inter-type numerical conversion between integer,
-	fixed-point (16.16), and 64-bit double precision double.
+*	**`n2i` / `n2q` / `n2d` / `n2f`**: Inter-type numerical conversion between
+	integer, fixed-point (48.16), 64-bit double and 32-bit float. A float holds
+	the 32 bits of an IEEE single in the low half of its value, its arithmetic
+	and compares in 32 bits, as a GPU's are, its maths by the double routines
+	rounded to the nearest float.
 
 	*	`(n2i num) -> num`
 
 	*	`(n2q num) -> fixed`
 
 	*	`(n2d num) -> double`
+
+	*	`(n2f num) -> float`
 
 *	**`num`**: Interns a 64-bit integer.
 

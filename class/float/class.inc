@@ -1,0 +1,43 @@
+(include "././fixed/class.inc")
+(include "./struct.inc")
+
+;a float of 32 bits, held in the low half of its value, the upper half
+;clear, so the same float is always the same value
+(def-class :float :fixed
+	(dec-method :vtable class/float/vtable)
+	(dec-method :type class/float/type :override :nil :nil (:r1-:r3 :d0-:d15) (:r1-:r3 :d0-:d15))
+	(dec-method :create class/float/create :static :nil :nil (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :print class/float/print :final :nil :nil (:r1-:r5 :d0-:d15) (:r1-:r5 :d0-:d15))
+	(dec-method :vcreate class/float/create :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :random class/float/random :final :nil :nil (:r0-:r4 :r14 :d0-:d15) (:r0-:r4 :r14 :d0-:d15))
+	(dec-method :add class/float/add :final :nil :nil (:r0-:r2 :r4 :r14 :d0-:d15) (:r0-:r2 :r4 :r14 :d0-:d15))
+	(dec-method :sub class/float/sub :final :nil :nil (:r0-:r2 :r4 :r14 :d0-:d15) (:r0-:r2 :r4 :r14 :d0-:d15))
+	(dec-method :mul class/float/mul :final :nil :nil (:r0-:r2 :r4 :r14 :d0-:d15) (:r0-:r2 :r4 :r14 :d0-:d15))
+	(dec-method :div class/float/div :final :nil :nil (:r0-:r5 :r14 :d0-:d15) (:r0-:r5 :r14 :d0-:d15))
+	(dec-method :mod class/float/mod :final :nil :nil (:r0-:r5 :r14 :d0-:d15) (:r0-:r5 :r14 :d0-:d15))
+	(dec-method :min class/float/min :final :nil :nil (:r1-:r4 :d0-:d1) (:r1-:r4 :d0-:d1))
+	(dec-method :max class/float/max :final :nil :nil (:r1-:r4 :d0-:d1) (:r1-:r4 :d0-:d1))
+	(dec-method :abs class/float/abs :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :sign class/float/sign :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :neg class/float/neg :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :sqrt class/float/sqrt :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :sin class/float/sin :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :cos class/float/cos :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :exp class/float/exp :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :log class/float/log :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :frac class/float/frac :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :floor class/float/floor :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :ceil class/float/ceil :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :recip class/float/recip :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :lt class/float/lt :final :nil :nil (:r1-:r3 :d0-:d1) (:r1-:r3 :d0-:d1))
+	(dec-method :gt class/float/gt :final :nil :nil (:r1-:r3 :d0-:d1) (:r1-:r3 :d0-:d1))
+	(dec-method :le class/float/le :final :nil :nil (:r1-:r3 :d0-:d1) (:r1-:r3 :d0-:d1))
+	(dec-method :ge class/float/ge :final :nil :nil (:r1-:r3 :d0-:d1) (:r1-:r3 :d0-:d1))
+	(dec-method :pow class/float/pow :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15)))
+
+(defun float-bits (f r)
+	;a single's 32 bits into a register, the upper 32 cleared, as some
+	;machines sign extend them on the move
+	(vp-cpy-fr f r)
+	(vp-shl-cr 32 r)
+	(vp-shr-cr 32 r))

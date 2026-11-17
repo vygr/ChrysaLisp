@@ -60,7 +60,8 @@
 	(dec-method :lisp_shl class/num/lisp_shl :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r13-:r14 :d0-:d15))
 	(dec-method :lisp_n2i class/num/lisp_n2i :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :d0-:d15))
 	(dec-method :lisp_n2q class/num/lisp_n2q :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :d0-:d15))
-	(dec-method :lisp_n2d class/num/lisp_n2d :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :d0-:d15)))
+	(dec-method :lisp_n2d class/num/lisp_n2d :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :d0-:d15))
+	(dec-method :lisp_n2f class/num/lisp_n2f :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :d0-:d15)))
 
 (defcvar 'num_num_buckets 101)
 

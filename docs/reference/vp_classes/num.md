@@ -38,6 +38,8 @@ docs/reference/vp_classes/num.cwb
 
 ### (n2d num) -> double
 
+### (n2f num) -> float
+
 ### (n2i num) -> num
 
 ### (n2q num) -> fixed

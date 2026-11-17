@@ -23,8 +23,14 @@
 				(throw "No such comparator" o)))
 		(:r (if e ((eval (elem-get '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr) e)) s d l)
 				(throw "No such comparator" o)))
-		(:f (if e ((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l)
-				(throw "No such comparator" o)))
+		(:f (cond
+				((not e) (throw "No such comparator" o))
+				;two singles by the 32 bit compares, two doubles by the 64. By
+				;the list, not vp-sreg?, a macro of regs.inc, which is after
+				((nql (not (find s +vp_sregs)) (not (find d +vp_sregs)))
+					(throw "A single compared with a double !" (list s d)))
+				((find s +vp_sregs) ((eval (elem-get '(vp-beq-ff vp-bne-ff vp-ble-ff vp-bge-ff vp-bgt-ff vp-blt-ff) e)) s d l))
+				(((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l))))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
 (defun gotoifnot (e l)
@@ -35,8 +41,14 @@
 				(throw "No such comparator" o)))
 		(:r (if e ((eval (elem-get '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr) e)) s d l)
 				(throw "No such comparator" o)))
-		(:f (if e ((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l)
-				(throw "No such comparator" o)))
+		(:f (cond
+				((not e) (throw "No such comparator" o))
+				;two singles by the 32 bit compares, two doubles by the 64. By
+				;the list, not vp-sreg?, a macro of regs.inc, which is after
+				((nql (not (find s +vp_sregs)) (not (find d +vp_sregs)))
+					(throw "A single compared with a double !" (list s d)))
+				((find s +vp_sregs) ((eval (elem-get '(vp-beq-ff vp-bne-ff vp-ble-ff vp-bge-ff vp-bgt-ff vp-blt-ff) e)) s d l))
+				(((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l))))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
 (defun switch (&optional %0)

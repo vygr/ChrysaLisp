@@ -1,0 +1,550 @@
+(include "lib/asm/func.inc")
+(include "sys/math/class.inc")
+(include "./class.inc")
+(include "././stream/class.inc")
+(include "././list/class.inc")
+
+(gen-create :float)
+	;inputs
+	;:r0 = initial value (the 32 bits of a float)
+	;outputs
+	;:r0 = 0 if error, else float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+(gen-vtable :float)
+(gen-type :float)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = float object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r3, :d0-:d15
+
+(def-method :float :print)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = stream object (ptr)
+	;outputs
+	;:r0 = float object (ptr)
+	;trashes
+	;:r1-:r5, :d0-:d15
+
+	(structure slot 0
+		(ptr this stream tmp))
+
+	(vp-alloc slot_size)
+	(entry :float :print '(:r0 :r1))
+
+	(save-fields :rsp '(slot_this slot_stream) '(:r0 :r1))
+	(call :stream :write_cstr '(:r1 "0x"))
+	(assign '((:rsp slot_this)) '(:r0))
+	(call :str :create_from_long '((:r0 +num_value) -16) '(:r0))
+	(assign '(:r0) '((:rsp slot_tmp)))
+	(call :stream :write '((:rsp slot_stream) (& :r0 +str_data) (:r0 +str_length)))
+	(call :obj :deref '((:rsp slot_tmp)))
+
+	(exit :float :print '((:rsp slot_this)))
+	(vp-free slot_size)
+	(vp-ret)
+
+(def-func-end)
+
+(redefun addop (%0)
+	(entry :float %0 '(:r0 :r1))
+	(class/array/get_both :r1 :r1 :r2)
+	(vp-load-rcr :r1 0 :r0)
+	(vp-add-cr +ptr_size :r1)
+	(assign `((:r0 ,+num_value i)) '(:f0))
+	(loop-start)
+		(vp-load-rcr :r1 0 :r4)
+		(vp-add-cr +ptr_size :r1)
+		(assign `((:r4 ,+num_value i)) '(:f1))
+		((eval (sym (cat "vp-" (rest %0) "-ff"))) :f1 :f0)
+	(loop-until '(:r1 = :r2))
+	(float-bits :f0 :r0)
+	(v-jump :num :vcreate '(:r0) :r4 :r1))
+
+(def-method :float :add)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r4, :r14, :d0-:d15
+
+	(addop :add)
+
+(def-func-end)
+
+(def-method :float :sub)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r4, :r14, :d0-:d15
+
+	(addop :sub)
+
+(def-func-end)
+
+(def-method :float :mul)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r4, :r14, :d0-:d15
+
+	(addop :mul)
+
+(def-func-end)
+
+(redefun minop (%0 p)
+	(vp-rdef (this args obj iter_begin iter_end))
+	(vp-fdef (val new_val))
+	(entry :float %0 `(,this ,args))
+	(class/array/get_both args iter_begin iter_end)
+	(vp-load-rcr iter_begin 0 args)
+	(vp-add-cr +ptr_size iter_begin)
+	(assign `((,args ,+num_value i)) `(,val))
+	(loop-start)
+		(vp-load-rcr iter_begin 0 obj)
+		(vp-add-cr +ptr_size iter_begin)
+		(assign `((,obj ,+num_value i)) `(,new_val))
+		(exec p)
+	(loop-until `(,iter_begin = ,iter_end))
+	(class/obj/ref args iter_begin)
+	(exit :float %0 `(,args))
+	(vp-ret))
+
+(def-method :float :min)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r1 = result float object (ptr)
+	;trashes
+	;:r1-:r4, :d0-:d1
+
+	(minop :min
+		'(progn
+			(vpif `(,new_val < ,val))
+				(vp-cpy-ff new_val val)
+				(vp-cpy-rr obj args)
+			(endif)))
+
+(def-func-end)
+
+(def-method :float :max)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r1 = result float object (ptr)
+	;trashes
+	;:r1-:r4, :d0-:d1
+
+	(minop :max
+		'(progn
+			(vpif `(,new_val > ,val))
+				(vp-cpy-ff new_val val)
+				(vp-cpy-rr obj args)
+			(endif)))
+
+(def-func-end)
+
+(redefun divop (%0 p)
+	(entry :float %0 '(:r0 :r1))
+	(class/array/get_both :r1 :r1 :r4)
+	(vp-load-rcr :r1 0 :r0)
+	(vp-add-cr +ptr_size :r1)
+	(assign `((:r0 ,+num_value i) 0) '(:f0 :r3))
+	(vp-cpy-rf :r3 :f3)
+	(loop-start)
+		(vp-load-rcr :r1 0 :r5)
+		(vp-add-cr +ptr_size :r1)
+		(assign `((:r5 ,+num_value i)) '(:f1))
+		(gotoif '(:f1 = :f3) 'error)
+		(exec p)
+	(loop-until '(:r1 = :r4))
+	(float-bits :f0 :r0)
+	(v-jump :num :vcreate '(:r0) :r5 :r1)
+(vp-label 'error)
+	(exit :float %0 '(0))
+	(vp-ret))
+
+(def-method :float :div)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r0 = 0 if error, else result float object (ptr)
+	;trashes
+	;:r0-:r5, :r14, :d0-:d15
+
+	(divop :div
+		'(vp-div-ff :f1 :f0))
+
+(def-func-end)
+
+(def-method :float :mod)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r0 = 0 if error, else result float object (ptr)
+	;trashes
+	;:r0-:r5, :r14, :d0-:d15
+
+	(divop :mod
+		'(progn
+			(vp-cpy-ff :f0 :f2)
+			(vp-div-ff :f1 :f2)
+			(vp-cvt-fr :f2 :r0)
+			(vp-cvt-rf :r0 :f2)
+			(vp-mul-ff :f1 :f2)
+			(vp-sub-ff :f2 :f0)))
+
+(def-func-end)
+
+(redefun compareop (%0 p)
+	(entry :float %0 '(:r0 :r1))
+	(class/array/get_both :r1 :r1 :r2)
+	(vp-load-rcr :r1 0 :r3)
+	(vp-add-cr +ptr_size :r1)
+	(assign `((:r3 ,+num_value i)) '(:f0))
+	(loop-start)
+		(vp-load-rcr :r1 0 :r3)
+		(vp-add-cr +ptr_size :r1)
+		(assign `((:r3 ,+num_value i)) '(:f1))
+		(exec p)
+	(loop-until '(:r1 = :r2))
+	(exit :float %0 '(-1))
+	(vp-ret)
+(vp-label 'fail)
+	(exit :float %0 '(0))
+	(vp-ret))
+
+(def-method :float :ge)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r1 = 0, -1 (int)
+	;trashes
+	;:r1-:r3, :d0-:d1
+
+	(compareop :ge
+		'(progn
+			(gotoif '(:f0 < :f1) 'fail)
+			(vp-cpy-ff :f1 :f0)))
+
+(def-func-end)
+
+(def-method :float :gt)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r1 = 0, -1 (int)
+	;trashes
+	;:r1-:r3, :d0-:d1
+
+	(compareop :gt
+		'(progn
+			(gotoif '(:f0 <= :f1) 'fail)
+			(vp-cpy-ff :f1 :f0)))
+
+(def-func-end)
+
+(def-method :float :le)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r1 = 0, -1 (int)
+	;trashes
+	;:r1-:r3, :d0-:d1
+
+	(compareop :le
+		'(progn
+			(gotoif '(:f0 > :f1) 'fail)
+			(vp-cpy-ff :f1 :f0)))
+
+(def-func-end)
+
+(def-method :float :lt)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r1 = 0, -1 (int)
+	;trashes
+	;:r1-:r3, :d0-:d1
+
+	(compareop :lt
+		'(progn
+			(gotoif '(:f0 >= :f1) 'fail)
+			(vp-cpy-ff :f1 :f0)))
+
+(def-func-end)
+
+;float math ops done in 32 bits, the value in :f1, the result in :f0
+(redefun singleop (%0 p)
+	(entry :float %0 '(:r0))
+	(assign `((:r0 ,+num_value i)) '(:f1))
+	(exec p)
+	(float-bits :f0 :r0)
+	(jump :float :create '(:r0)))
+
+;float math ops done as doubles, the value in :d1, the result in :d0, then
+;rounded to the float nearest it
+(redefun mathop (%0 p)
+	(entry :float %0 '(:r0))
+	(assign `((:r0 ,+num_value i)) '(:d1))
+	(exec p)
+	(vp-cvt-df :d0 :f0)
+	(float-bits :f0 :r0)
+	(jump :float :create '(:r0)))
+
+(def-method :float :sqrt)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(singleop :sqrt
+		'(vp-sqrt-ff :f1 :f0))
+
+(def-func-end)
+
+(def-method :float :abs)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(singleop :abs
+		'(vp-abs-ff :f1 :f0))
+
+(def-func-end)
+
+(def-method :float :neg)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(singleop :neg
+		'(vp-neg-ff :f1 :f0))
+
+(def-func-end)
+
+(def-method :float :sin)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :sin
+		'(call :sys_math :d_sin '(:d1) '(:d0)))
+
+(def-func-end)
+
+(def-method :float :cos)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :cos
+		'(progn
+			;pi/2
+			(vp-lea-pr 'fn_consts :r0)
+			(assign '((:r0 (fn-const 0x3ff921fb54442d18))) '(:d0))
+			(vp-add-dd :d0 :d1)
+			(call :sys_math :d_sin '(:d1) '(:d0))))
+
+(def-func-end)
+
+(def-method :float :exp)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :exp
+		'(call :sys_math :d_exp '(:d1) '(:d0)))
+
+(def-func-end)
+
+(def-method :float :log)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :log
+		'(call :sys_math :d_log '(:d1) '(:d0)))
+
+(def-func-end)
+
+(def-method :float :frac)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :frac
+		'(progn
+			(vp-lea-pr 'fn_consts :r1)
+			(vp-cpy-dd :d1 :d0)
+			(vp-cvt-dr :d0 :r0)
+			(vp-cvt-rd :r0 :d1)
+			(vp-sub-dd :d1 :d0)
+			(assign '((:r1 (fn-const (n2d 0)))) '(:d1))
+			(vpif '(:d0 < :d1))
+				(assign '((:r1 (fn-const (n2d 1)))) '(:d1))
+				(vp-add-dd :d1 :d0)
+			(endif)))
+
+(def-func-end)
+
+(def-method :float :floor)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :floor
+		'(progn
+			(vp-cvt-dr :d1 :r0)
+			(vp-cvt-rd :r0 :d0)
+			(vpif '(:d0 > :d1))
+				(vp-lea-pr 'fn_consts :r1)
+				(assign '((:r1 (fn-const (n2d 1)))) '(:d1))
+				(vp-sub-dd :d1 :d0)
+			(endif)))
+
+(def-func-end)
+
+(def-method :float :ceil)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :ceil
+		'(progn
+			(vp-cvt-dr :d1 :r0)
+			(vp-cvt-rd :r0 :d0)
+			(vpif '(:d0 < :d1))
+				(vp-lea-pr 'fn_consts :r1)
+				(assign '((:r1 (fn-const (n2d 1)))) '(:d1))
+				(vp-add-dd :d1 :d0)
+			(endif)))
+
+(def-func-end)
+
+(def-method :float :recip)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :recip
+		'(progn
+			(vp-lea-pr 'fn_consts :r1)
+			(assign '((:r1 (fn-const (n2d 1)))) '(:d0))
+			(vp-div-dd :d1 :d0)))
+
+(def-func-end)
+
+(def-method :float :sign)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :sign
+		'(progn
+			(vp-lea-pr 'fn_consts :r1)
+			(assign '((:r1 (fn-const (n2d 0)))) '(:d0))
+			(vpif '(:d1 > :d0))
+				(assign '((:r1 (fn-const (n2d 1)))) '(:d0))
+			(elseif '(:d1 < :d0))
+				(assign '((:r1 (fn-const (n2d -1)))) '(:d0))
+			(endif)))
+
+(def-func-end)
+
+(def-method :float :random)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r4, :r14, :d0-:d15
+
+	(mathop :random
+		'(progn
+			(vp-lea-pr 'fn_consts :r4)
+			(assign '((:r4 (fn-const (n2d (<< 1 32))))) '(:d0))
+			(vp-mul-dd :d0 :d1)
+			(vp-cvt-dr :d1 :r0)
+			(call :sys_math :i_rand '(:r0) '(:r0))
+			(vp-cvt-rd :r0 :d0)
+			(assign '((:r4 (fn-const (recip (n2d (<< 1 32)))))) '(:d1))
+			(vp-mul-dd :d1 :d0)))
+
+(def-func-end)
+
+(def-method :float :pow)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = power float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+	;info
+	;0 if the float is not greater than 0, :sys_math :d_pow
+
+	(entry :float :pow '(:r0 :r1))
+
+	(assign `((:r0 ,+num_value i) (:r1 ,+num_value i)) '(:d0 :d1))
+	(call :sys_math :d_pow '(:d0 :d1) '(:d0))
+	(vp-cvt-df :d0 :f0)
+	(float-bits :f0 :r0)
+	(jump :float :create '(:r0))
+
+(def-func-end)

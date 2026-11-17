@@ -5091,6 +5091,18 @@ film, and says how many frames there were
 (float-time [smooth]) -> (sec min hour)
 ```
 
+### float?
+
+```code
+(float? form) -> :t | :nil
+```
+
+### float??
+
+```code
+(float?? form) -> :t | :nil
+```
+
 ### flush-bits
 
 ```code

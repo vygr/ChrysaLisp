@@ -874,6 +874,7 @@
 	;a fixed is rounded as a float literal of the language is
 	(cond
 		((double? val) val)
+		((float? val) (n2d val))
 		((fixed? val) (str-to-double (sh-decimal val)))
 		((n2d val))))
 

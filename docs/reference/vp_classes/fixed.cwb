@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 74
+	:next_id 78
 	:items
 	((:list 1)
 		((:list 7)
@@ -1143,7 +1143,7 @@
 					:stroke
 					0
 					:text
-					"[1 class comes of it]"
+					"[2 classes come of it]"
 					:font
 					"[fonts/OpenSans-Bold.ctf]"
 					:font_size
@@ -1165,7 +1165,7 @@
 							:id
 							18
 							:items
-							((:list 1)
+							((:list 2)
 								((:list 5)
 									:group
 									:id
@@ -1175,13 +1175,13 @@
 										((:list 5)
 											:group
 											:id
-											71
+											72
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													72
+													74
 													:d
 													"[M 6 0 L 50.93896 0 A 6 6 0 0 1 56.93896 6 L 56.93896 18 A 6 6 0 0 1 50.93896 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1194,7 +1194,7 @@
 												((:list 15)
 													:shape
 													:id
-													73
+													75
 													:kind
 													:text
 													:fill
@@ -1213,6 +1213,60 @@
 												)
 											)
 										)
+									)
+								)
+								((:list 7)
+									:group
+									:id
+									71
+									:items
+									((:list 1)
+										((:list 5)
+											:group
+											:id
+											73
+											:items
+											((:list 2)
+												((:list 11)
+													:shape
+													:id
+													76
+													:d
+													"[M 6 0 L 41.48046 0 A 6 6 0 0 1 47.48046 6 L 47.48046 18 A 6 6 0 0 1 41.48046 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+													:fill
+													4294112502
+													:stroke
+													4282140240
+													:width
+													1.19999
+												)
+												((:list 15)
+													:shape
+													:id
+													77
+													:kind
+													:text
+													:fill
+													4280296488
+													:stroke
+													0
+													:text
+													"[:float]"
+													:font_size
+													12
+													:pos
+													((:list 2)
+														10.00000
+														16.00000
+													)
+												)
+											)
+										)
+									)
+									:pos
+									((:list 2)
+										64.93896
+										0.00000
 									)
 								)
 							)

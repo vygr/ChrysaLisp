@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 99
+	:next_id 100
 	:items
 	((:list 1)
 		((:list 7)
@@ -164,7 +164,7 @@
 							:id
 							12
 							:items
-							((:list 77)
+							((:list 78)
 								((:list 11)
 									:shape
 									:id
@@ -1526,7 +1526,7 @@
 									:stroke
 									0
 									:text
-									"[n2i]"
+									"[n2f]"
 									:font_size
 									12
 									:pos
@@ -1546,7 +1546,7 @@
 									:stroke
 									0
 									:text
-									"[n2q]"
+									"[n2i]"
 									:font_size
 									12
 									:pos
@@ -1566,7 +1566,7 @@
 									:stroke
 									0
 									:text
-									"[neg]"
+									"[n2q]"
 									:font_size
 									12
 									:pos
@@ -1586,7 +1586,7 @@
 									:stroke
 									0
 									:text
-									"[num]"
+									"[neg]"
 									:font_size
 									12
 									:pos
@@ -1606,7 +1606,7 @@
 									:stroke
 									0
 									:text
-									"[pow]"
+									"[num]"
 									:font_size
 									12
 									:pos
@@ -1626,7 +1626,7 @@
 									:stroke
 									0
 									:text
-									"[random]"
+									"[pow]"
 									:font_size
 									12
 									:pos
@@ -1646,7 +1646,7 @@
 									:stroke
 									0
 									:text
-									"[sign]"
+									"[random]"
 									:font_size
 									12
 									:pos
@@ -1666,13 +1666,33 @@
 									:stroke
 									0
 									:text
-									"[sqrt]"
+									"[sign]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										102.14404
 										755.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									95
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[sqrt]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										102.14404
+										772.00000
 									)
 								)
 							)
@@ -1721,19 +1741,19 @@
 								((:list 5)
 									:group
 									:id
-									95
+									96
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											96
+											97
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													97
+													98
 													:d
 													"[M 6 0 L 42.77392 0 A 6 6 0 0 1 48.77392 6 L 48.77392 18 A 6 6 0 0 1 42.77392 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1746,7 +1766,7 @@
 												((:list 15)
 													:shape
 													:id
-													98
+													99
 													:kind
 													:text
 													:fill

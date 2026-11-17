@@ -199,7 +199,7 @@
 	(cond
 		((eql obj :nil) "null")
 		((eql obj :t) "true")
-		((double? obj) (double-to-str obj))
+		((or (double? obj) (float? obj)) (double-to-str obj))
 		((fixed? obj) (str obj))
 		((num? obj) (str obj))
 		((str? obj) (json-escape-str obj))
