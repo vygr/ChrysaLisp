@@ -321,7 +321,7 @@
 	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :sin
-		'(call :sys_math :r_sin '(:d1) '(:d0)))
+		'(call :sys_math :d_sin '(:d1) '(:d0)))
 
 (def-func-end)
 
@@ -339,7 +339,33 @@
 			(vp-lea-pr 'fn_consts :r0)
 			(assign '((:r0 (fn-const 0x3ff921fb54442d18))) '(:d0))
 			(vp-add-dd :d0 :d1)
-			(call :sys_math :r_sin '(:d1) '(:d0))))
+			(call :sys_math :d_sin '(:d1) '(:d0))))
+
+(def-func-end)
+
+(def-method :real :exp)
+	;inputs
+	;:r0 = real object (ptr)
+	;outputs
+	;:r0 = result real object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :exp
+		'(call :sys_math :d_exp '(:d1) '(:d0)))
+
+(def-func-end)
+
+(def-method :real :log)
+	;inputs
+	;:r0 = real object (ptr)
+	;outputs
+	;:r0 = result real object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :log
+		'(call :sys_math :d_log '(:d1) '(:d0)))
 
 (def-func-end)
 
@@ -534,12 +560,12 @@
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 	;info
-	;0 if the real is not greater than 0, :sys_math :r_pow
+	;0 if the real is not greater than 0, :sys_math :d_pow
 
 	(entry :real :pow '(:r0 :r1))
 
 	(assign '((:r0 +num_value) (:r1 +num_value)) '(:d0 :d1))
-	(call :sys_math :r_pow '(:d0 :d1) '(:d0))
+	(call :sys_math :d_pow '(:d0 :d1) '(:d0))
 	(jump :real :create '(:d0))
 
 (def-func-end)

@@ -49,7 +49,7 @@
 		(vec-load 1 '((:rsp slot_radius)))
 		(vec-scale 2)
 		(vec-load 2 '((:rsp slot_bvx) (:rsp slot_bvy)))
-		(vec-flength 2)
+		(vec-qlength 2)
 		(vec-load 1 '(1))
 		(vec-high 2)
 		(vec-dup 1)

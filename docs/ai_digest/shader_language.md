@@ -199,7 +199,7 @@ name.
 * `(vec2 ...)`, `(vec3 ...)` and `(vec4 ...)` build a vector from floats, ints
   and smaller vectors, or from a single number for every component.
 * `(:x v)`, `(:xy v)`, `(:zyx v)` pick components, `xyzw` or `rgba`.
-* `sin cos sqrt floor fract abs`, of a float, or of each component.
+* `sin cos sqrt floor fract abs exp log`, of a float, or of each component.
 * `min max mod`, of two the same, or of a vector and a float.
 * `(pow x y)`, `(clamp x lo hi)`, `(mix a b t)`.
 * `(dot a b)`, `(cross a b)`, `(length v)`, `(normalize v)`, `(reflect i n)`.
@@ -1128,7 +1128,8 @@ How the code is laid out.
 * A `(break)` is a jump, a `(return)` is a store and a jump, a test is a
   branch on the float or int compare. `and` and `or` stop at the first arg
   that settles them.
-* `sin` and `cos` call `:sys_math :r_sin`, and `pow` `:sys_math :r_pow`, of
+* `sin` and `cos` call `:sys_math :d_sin`, `exp` and `log` `:d_exp` and
+  `:d_log`, and `pow` `:sys_math :d_pow`, of
   the double of the single, and the answer is made the nearest single.
   `floor`, `fract` and `mod` are built from a convert to int and back.
 

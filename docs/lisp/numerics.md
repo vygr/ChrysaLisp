@@ -82,7 +82,7 @@ These operate on any number type and return the same number type.
 
 These operate on any fractional type and return the same number type.
 
-`(recip) (sin) (cos) (frac) (floor) (ceil)`
+`(recip) (sin) (cos) (exp) (log) (frac) (floor) (ceil)`
 
 ### Bitwise logical
 

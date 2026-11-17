@@ -150,6 +150,11 @@
 	(sh-main "(return (vec4 (pow 2.0 3.0) (pow 2.0 0.5) (pow 4.0 -1.5) (pow 0.0 2.0)))"))
 (assert-pixel "sin cos sqrt" '(0.0 1.0 3.0 0.8415)
 	(sh-main "(return (vec4 (sin 0.0) (cos 0.0) (sqrt 9.0) (sin 1.0)))"))
+(assert-pixel "exp log" '(1.0 2.7183 0.0 0.6931)
+	(sh-main "(return (vec4 (exp 0.0) (exp 1.0) (log 1.0) (log 2.0)))"))
+(assert-pixel "exp log of a vector" '(0.3679 7.3891 -0.6931 2.3026)
+	(sh-main "(defq a (vec2 -1.0 2.0) b (vec2 0.5 10.0))"
+		"(return (vec4 (exp a) (log b)))"))
 (assert-pixel "compare and logic" '(1.0 1.0 1.0 1.0)
 	(sh-main "(defq a 0.0 b 0.0 c 0.0 d 0.0)"
 		"(if (and (< 1 2) (<= 2 2) (> 2.0 1.0) (>= 2.0 2.0)) (setq a 1.0))"

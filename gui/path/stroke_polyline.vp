@@ -53,10 +53,10 @@
 			(vec-tee 2 '((:rsp slot_l2_vx) (:rsp slot_l2_vy)))
 			(vec-perp)
 			(vec-tee 2 '((:rsp slot_l2_pvx) (:rsp slot_l2_pvy)))
-			(vec-fnorm 2)
+			(vec-qnorm 2)
 			(vec-tee 2 '((:rsp slot_l2_npvx) (:rsp slot_l2_npvy)))
 			(vec-load 1 '((:rsp slot_radius)))
-			(vec-fscale 2)
+			(vec-qscale 2)
 			(vec-store 2 '((:rsp slot_l2_rvx) (:rsp slot_l2_rvy)))
 
 			;the cap of this end, in :r1

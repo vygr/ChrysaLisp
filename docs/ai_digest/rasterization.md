@@ -52,7 +52,7 @@ The logic in `stroke_joints.vp` calculates the angle between the incoming
 segment and the outgoing segment using dot products.
 
 * **Miter Join:** The engine calculates the intersection point of the two
-  outer edge lines using `:f_intersect` (a linear algebra solver). This
+  outer edge lines using `:q_intersect` (a linear algebra solver). This
   creates a sharp point. If the angle is too acute (approaching parallel),
   it falls back to Bevel to prevent infinite spikes.
 

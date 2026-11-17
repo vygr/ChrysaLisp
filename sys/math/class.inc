@@ -6,13 +6,17 @@
 
 (def-class :sys_math :nil
 	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0) (:r0-:r3 :d0-:d15))
-	(dec-method :f_sqrt sys/math/f_sqrt :static (:r0) (:r0) (:r0-:r1 :d0-:d1))
-	(dec-method :f_sin sys/math/f_sin :static (:r0) (:r0) (:r0-:r2 :d0-:d3))
-	(dec-method :f_cos sys/math/f_cos :static (:r0) (:r0) (:r0-:r2 :d0-:d3))
-	(dec-method :f_intersect sys/math/f_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1) (:r0-:r2 :r8-:r13))
-	(dec-method :f_dist_sqd sys/math/f_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0) (:r0-:r3 :r6-:r10))
-	(dec-method :r_sin sys/math/r_sin :static (:d0) (:d0) (:r0-:r1 :d0-:d3))
-	(dec-method :r_pow sys/math/r_pow :static (:d0 :d1) (:d0) (:r0-:r2 :d0-:d7)))
+	(dec-method :q_sqrt sys/math/q_sqrt :static (:r0) (:r0) (:r0-:r1 :d0-:d1))
+	(dec-method :q_sin sys/math/q_sin :static (:r0) (:r0) (:r0-:r2 :d0-:d3))
+	(dec-method :q_cos sys/math/q_cos :static (:r0) (:r0) (:r0-:r2 :d0-:d3))
+	(dec-method :q_intersect sys/math/q_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1) (:r0-:r2 :r8-:r13))
+	(dec-method :q_dist_sqd sys/math/q_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0) (:r0-:r3 :r6-:r10))
+	(dec-method :d_sin sys/math/d_sin :static (:d0) (:d0) (:r0-:r1 :d0-:d3))
+	(dec-method :d_pow sys/math/d_pow :static (:d0 :d1) (:d0) (:r0-:r2 :d0-:d7))
+	(dec-method :d_exp sys/math/d_exp :static (:d0) (:d0) (:r0-:r2 :d0-:d3))
+	(dec-method :d_log sys/math/d_log :static (:d0) (:d0) (:r0-:r2 :d0-:d3))
+	(dec-method :q_exp sys/math/q_exp :static (:r0) (:r0) (:r0-:r2 :d0-:d3))
+	(dec-method :q_log sys/math/q_log :static (:r0) (:r0) (:r0-:r2 :d0-:d3)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fixed point vector math codegen
@@ -125,11 +129,11 @@
 	(setd v2 (vec-pop n) v1 (vec-top n))
 	(vp-simd vp-rem-rr v2 v1))
 
-(defun vec-fmul (n &optional v2 v1)
+(defun vec-qmul (n &optional v2 v1)
 	(vec-mul n v2 v1)
 	(vec-asr n +fp_shift v1))
 
-(defun vec-fdiv (n &optional v2 v1)
+(defun vec-qdiv (n &optional v2 v1)
 	(setd v2 (vec-pop n) v1 (vec-top n))
 	(each (# (vp-shl-cr +fp_shift %0)) v1)
 	(vp-simd vp-div-rr v2 v1))
@@ -153,14 +157,14 @@
 				(vp-add-cr (<< 1 +fp_shift) %0)
 			(endif)) v))
 
-(defun vec-frecip (n &optional v1)
+(defun vec-qrecip (n &optional v1)
 	(defq v2 (vec-tmp n))
 	(setd v1 (vec-top n))
 	(vp-simd vp-cpy-rr v1 v2)
 	(each (# (vp-cpy-cr (<< 1 (* 2 +fp_shift)) %0)) v1)
 	(vp-simd vp-div-rr v2 v1))
 
-(defun vec-fmod (n &optional v2 v1)
+(defun vec-qmod (n &optional v2 v1)
 	(setd v2 (vec-pop n) v1 (vec-top n))
 	(vp-simd vp-rem-rr v2 v1))
 
@@ -172,7 +176,7 @@
 	(setd v (vec-top n))
 	(vp-simd vp-mul-rr v v))
 
-(defun vec-fsquare (n &optional v)
+(defun vec-qsquare (n &optional v)
 	(vec-square n v)
 	(vec-asr n +fp_shift v))
 
@@ -182,7 +186,7 @@
 				(vp-mul-rr s %0)
 				(vp-mul-cr s %0))) v))
 
-(defun vec-fscale (n &optional s v)
+(defun vec-qscale (n &optional s v)
 	(vec-scale n s v)
 	(vec-asr n +fp_shift v))
 
@@ -207,37 +211,37 @@
 	(vp-swp-rr x y)
 	(vp-mul-cr -1 y))
 
-(defun vec-fdot (n &optional v2)
-	(vec-fmul n v2)
+(defun vec-qdot (n &optional v2)
+	(vec-qmul n v2)
 	(vec-sum n))
 
-(defun vec-fdet (n &optional v2)
+(defun vec-qdet (n &optional v2)
 	(setd v2 (vec-pop n))
 	(each (# (vp-mul-rr (elem-get v2 (- n (!) 1)) %0)) (vec-top n))
 	(vec-asr n +fp_shift)
 	(vec-dif n))
 
-(defun vec-flength-squared (n)
-	(vec-fsquare n)
+(defun vec-qlength-squared (n)
+	(vec-qsquare n)
 	(vec-sum n))
 
-(defun vec-flength (n)
-	(vec-flength-squared n)
+(defun vec-qlength (n)
+	(vec-qlength-squared n)
 	(defq r (slice +vp_rregs_0_14 0 (dec (if (>= *vsp* 4) 5 *vsp*))))
 	(if (/= (length r) 0) (apply (const vp-push) r))
-	(call :sys_math :f_sqrt (vec-top 1) (vec-top 1))
+	(call :sys_math :q_sqrt (vec-top 1) (vec-top 1))
 	(if (/= (length r) 0) (apply (const vp-pop) r)))
 
-(defun vec-fdistance-squared (n)
+(defun vec-qdistance-squared (n)
 	(vec-sub n)
-	(vec-flength-squared n))
+	(vec-qlength-squared n))
 
-(defun vec-fnorm (n)
+(defun vec-qnorm (n)
 	;each part over the length, a division each. Not by the length turned
 	;upside down, 1.0 over it has only 16 bits and a vector of 60 came out
 	;0.99976 long: a stroke 1.0 wide was not, and drew no pixel
 	(vec-dup n)
-	(vec-flength n)
+	(vec-qlength n)
 	(bind '(l) (vec-pop 1))
 	(vpif `(,l = 0))
 		(vec-clr n)

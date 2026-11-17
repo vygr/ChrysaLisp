@@ -137,7 +137,7 @@ Fixed`).
 type.
 
 * **Fractional Arithmetic (primarily for `Fixed` and `Real`):** `(recip)`,
-`(sin)`, `(cos)`, `(frac)`, `(floor)` and `(ceil)`.
+`(sin)`, `(cos)`, `(exp)`, `(log)`, `(frac)`, `(floor)` and `(ceil)`.
 
 * **Bitwise Logical (operate on the underlying integer representation):**
 `(logand)`, `(logior)`, `(logxor)`. Return a `Num`.

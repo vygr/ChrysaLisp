@@ -152,7 +152,7 @@
 		(assign '((:r6 +num_value)) '(:r1))
 		(gotoif '(:r1 = 0) 'error)
 		(vec-set 2)
-		(vec-fmod 1)
+		(vec-qmod 1)
 	(loop-until '(:r4 = :r5))
 	(v-jump :num :vcreate '(:r0) :r6 :r1)
 
@@ -178,7 +178,7 @@
 	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :sqrt
-		'(call :sys_math :f_sqrt '(:r0) '(:r0)))
+		'(call :sys_math :q_sqrt '(:r0) '(:r0)))
 
 (def-func-end)
 
@@ -191,7 +191,7 @@
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 	;info
-	;0 if the number is not greater than 0, :sys_math :r_pow
+	;0 if the number is not greater than 0, :sys_math :d_pow
 
 	(entry :fixed :pow '(:r0 :r1))
 
@@ -202,7 +202,7 @@
 	(vp-mul-dd :d2 :d0)
 	(vp-cvt-rd :r1 :d1)
 	(vp-mul-dd :d2 :d1)
-	(call :sys_math :r_pow '(:d0 :d1) '(:d0))
+	(call :sys_math :d_pow '(:d0 :d1) '(:d0))
 	(vp-lea-pr 'fn_consts :r2)
 	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
 	(vp-mul-dd :d1 :d0)
@@ -238,7 +238,7 @@
 	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :sin
-		'(call :sys_math :f_sin '(:r0) '(:r0)))
+		'(call :sys_math :q_sin '(:r0) '(:r0)))
 
 (def-func-end)
 
@@ -251,7 +251,33 @@
 	;:r0-:r2, :r14, :d0-:d15
 
 	(mathop :cos
-		'(call :sys_math :f_cos '(:r0) '(:r0)))
+		'(call :sys_math :q_cos '(:r0) '(:r0)))
+
+(def-func-end)
+
+(def-method :fixed :exp)
+	;inputs
+	;:r0 = fixed object (ptr)
+	;outputs
+	;:r0 = result fixed object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :exp
+		'(call :sys_math :q_exp '(:r0) '(:r0)))
+
+(def-func-end)
+
+(def-method :fixed :log)
+	;inputs
+	;:r0 = fixed object (ptr)
+	;outputs
+	;:r0 = result fixed object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :log
+		'(call :sys_math :q_log '(:r0) '(:r0)))
 
 (def-func-end)
 
@@ -311,6 +337,6 @@
 	(mathop :recip
 		'(progn
 			(vec-set 1)
-			(vec-frecip 1)))
+			(vec-qrecip 1)))
 
 (def-func-end)

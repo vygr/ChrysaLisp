@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-method :sys_math :f_sqrt)
+(def-method :sys_math :q_sqrt)
 	;inputs
 	;:r0 = number (fixed)
 	;outputs
@@ -48,7 +48,7 @@
 	;trashes
 	;:r0-:r1, :d0-:d1
 
-	(entry :sys_math :f_sqrt '(:r0))
+	(entry :sys_math :q_sqrt '(:r0))
 
 	(vp-lea-pr 'fn_consts :r1)
 	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
@@ -59,12 +59,12 @@
 	(vp-mul-dd :d1 :d0)
 	(vp-cvt-dr :d0 :r0)
 
-	(exit :sys_math :f_sqrt '(:r0))
+	(exit :sys_math :q_sqrt '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :sys_math :f_sin)
+(def-method :sys_math :q_sin)
 	;inputs
 	;:r0 = angle in radians (fixed)
 	;outputs
@@ -72,23 +72,23 @@
 	;trashes
 	;:r0-:r2, :d0-:d3
 
-	(entry :sys_math :f_sin '(:r0))
+	(entry :sys_math :q_sin '(:r0))
 
 	(vp-lea-pr 'fn_consts :r2)
 	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
 	(vp-cvt-rd :r0 :d1)
 	(vp-mul-dd :d1 :d0)
-	(call :sys_math :r_sin '(:d0) '(:d0))
+	(call :sys_math :d_sin '(:d0) '(:d0))
 	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
 	(vp-mul-dd :d1 :d0)
 	(vp-cvt-dr :d0 :r0)
 
-	(exit :sys_math :f_sin '(:r0))
+	(exit :sys_math :q_sin '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :sys_math :f_cos)
+(def-method :sys_math :q_cos)
 	;inputs
 	;:r0 = angle in radians (fixed)
 	;outputs
@@ -96,7 +96,7 @@
 	;trashes
 	;:r0-:r2, :d0-:d3
 
-	(entry :sys_math :f_cos '(:r0))
+	(entry :sys_math :q_cos '(:r0))
 
 	(vp-lea-pr 'fn_consts :r2)
 	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d0))
@@ -104,17 +104,17 @@
 	(vp-mul-dd :d1 :d0)
 	(assign '((:r2 (fn-const 0x3ff921fb54442d18))) '(:d1))
 	(vp-add-dd :d1 :d0)
-	(call :sys_math :r_sin '(:d0) '(:d0))
+	(call :sys_math :d_sin '(:d0) '(:d0))
 	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
 	(vp-mul-dd :d1 :d0)
 	(vp-cvt-dr :d0 :r0)
 
-	(exit :sys_math :f_cos '(:r0))
+	(exit :sys_math :q_cos '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :sys_math :r_sin)
+(def-method :sys_math :d_sin)
 	;inputs
 	;:d0 = real (real)
 	;outputs
@@ -122,7 +122,7 @@
 	;trashes
 	;:r0-:r1, :d0-:d3
 
-	(entry :sys_math :r_sin '(:d0))
+	(entry :sys_math :d_sin '(:d0))
 
 	(vp-lea-pr 'constants :r0)
 
@@ -206,7 +206,7 @@
 	(vp-add-dd :d2 :d0)
 	(vp-mul-dd :d1 :d0)
 
-	(exit :sys_math :r_sin '(:d0))
+	(exit :sys_math :d_sin '(:d0))
 	(vp-ret)
 
 	(vp-align 8)
@@ -226,7 +226,7 @@
 
 (def-func-end)
 
-(def-method :sys_math :f_intersect)
+(def-method :sys_math :q_intersect)
 	;inputs
 	;:r0 = p1x (fixed)
 	;:r1 = p1y (fixed)
@@ -243,7 +243,7 @@
 	;:r0-:r2, :r8-:r13
 
 	(vec-set 8)
-	(entry :sys_math :f_intersect (vec-top 8))
+	(entry :sys_math :q_intersect (vec-top 8))
 
 	(bind '(p1x p1y p2x p2y v1x v1y v2x v2y) (vec-top 8))
 	(defq p1 (list p1x p1y) p2 (list p2x p2y)
@@ -255,40 +255,40 @@
 	(vec-dup 2 p2)
 	(vec-add 2)
 	(vec-dup 2 p2)
-	(vec-fdet 2)
+	(vec-qdet 2)
 	(defq db (vec-top 1))
 
 	(vec-dup 2 v1)
 	(vec-dup 2 p1)
 	(vec-add 2)
 	(vec-dup 2 p1)
-	(vec-fdet 2)
+	(vec-qdet 2)
 	(defq da (vec-top 1))
 
 	(vec-dup 2 v1)
 	(vec-dup 2 v2)
-	(vec-fdet 2)
+	(vec-qdet 2)
 	(defq axb (vec-top 1))
 
 	(vpif (list (first axb) '/= 0))
 		(vec-dup 2 (cat da v1x))
-		(vec-fdet 2 (cat db v2x))
+		(vec-qdet 2 (cat db v2x))
 		(vec-dup 2 (cat da v1y))
-		(vec-fdet 2 (cat db v2y))
-		(vec-fdiv 2 (cat axb axb))
-		(exit :sys_math :f_intersect (vec-pop 2))
+		(vec-qdet 2 (cat db v2y))
+		(vec-qdiv 2 (cat axb axb))
+		(exit :sys_math :q_intersect (vec-pop 2))
 	(else)
 		(vec-set 4)
 		(vec-add 2)
 		(vec-load 1 (list (<< 1 (dec +fp_shift))))
-		(vec-fscale 2)
-		(exit :sys_math :f_intersect (vec-pop 2))
+		(vec-qscale 2)
+		(exit :sys_math :q_intersect (vec-pop 2))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :sys_math :f_dist_sqd)
+(def-method :sys_math :q_dist_sqd)
 	;inputs
 	;:r0 = px (fixed)
 	;:r1 = py (fixed)
@@ -307,7 +307,7 @@
 		(long px py p1x p1y p2x p2y))
 
 	(vp-alloc slot_size)
-	(entry :sys_math :f_dist_sqd '((:rsp slot_px) (:rsp slot_py) (:rsp slot_p1x) (:rsp slot_p1y) (:rsp slot_p2x) (:rsp slot_p2y)))
+	(entry :sys_math :q_dist_sqd '((:rsp slot_px) (:rsp slot_py) (:rsp slot_p1x) (:rsp slot_p1y) (:rsp slot_p2x) (:rsp slot_p2y)))
 
 	(vec-set 0)
 	(vec-load 2 '((:rsp slot_px) (:rsp slot_py)))
@@ -323,32 +323,32 @@
 
 	(vec-dup 2 p)
 	(vec-sub 2 p1)
-	(vec-fdot 2 lv)
+	(vec-qdot 2 lv)
 	(bind '(c1) (vec-top 1))
 
 	(vpif `(,c1 > 0))
 		(vec-dup 2 lv)
-		(vec-fdot 2 lv)
+		(vec-qdot 2 lv)
 		(bind '(c2) (vec-top 1))
 
 		(vpif `(,c2 <= ,c1))
 			(vec-cpy 2 p2 p1)
 		(else)
-			(vec-fdiv 1)
-			(vec-fscale 2)
+			(vec-qdiv 1)
+			(vec-qscale 2)
 			(vec-add 2 lv p1)
 		(endif)
 	(endif)
 	(vec-set 4)
-	(vec-fdistance-squared 2)
+	(vec-qdistance-squared 2)
 
-	(exit :sys_math :f_dist_sqd (vec-pop 1))
+	(exit :sys_math :q_dist_sqd (vec-pop 1))
 	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method :sys_math :r_pow)
+(def-method :sys_math :d_pow)
 	;inputs
 	;:d0 = real (real)
 	;:d1 = power (real)
@@ -361,7 +361,7 @@
 	;by squaring, the rest by repeated roots, to 31 bits of it. It is the
 	;method of the shader language, every back end of which must agree
 
-	(entry :sys_math :r_pow '(:d0 :d1))
+	(entry :sys_math :d_pow '(:d0 :d1))
 
 	(vp-lea-pr 'fn_consts :r2)
 	(vp-load-rcd :r2 (fn-const (n2r 0)) :d2)
@@ -417,7 +417,227 @@
 	(vp-cpy-dd :d4 :d0)
 (vp-label 'exit)
 
-	(exit :sys_math :r_pow '(:d0))
+	(exit :sys_math :d_pow '(:d0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :d_exp)
+	;inputs
+	;:d0 = power (real)
+	;outputs
+	;:d0 = e to the power (real)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;0 below the least power that gives a whole double, infinity above
+	;the greatest. The power is k ln2 + r, ln2 in two parts so r is exact,
+	;no more than half ln2 either way. e to the r by its series to the 13th
+	;power, and 2 to the k made from its bits, in two halves so neither is
+	;out of range. It is the method of the shader language, every back end
+	;of which must agree
+
+	(entry :sys_math :d_exp '(:d0))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcd :r0 (fn-const 0x40862e42fefa39ef) :d1)
+	(vp-bgt-dd :d1 :d0 'big)
+	(vp-load-rcd :r0 (fn-const 0xc086232bdd7abcd2) :d1)
+	(vp-blt-dd :d1 :d0 'small)
+	;k, the whole number nearest the power over ln2
+	(vp-load-rcd :r0 (fn-const 0x3ff71547652b82fe) :d1)
+	(vp-mul-dd :d0 :d1)
+	(vp-load-rcd :r0 (fn-const 0x3fe0000000000000) :d2)
+	(vp-load-rcd :r0 (fn-const 0) :d3)
+	(vp-bge-dd :d3 :d1 'up)
+	(vp-sub-dd :d2 :d1)
+	(vp-jmp 'nearest)
+(vp-label 'up)
+	(vp-add-dd :d2 :d1)
+(vp-label 'nearest)
+	(vp-cvt-dr :d1 :r1)
+	;r, the power less k ln2
+	(vp-cvt-rd :r1 :d1)
+	(vp-load-rcd :r0 (fn-const 0x3fe62e42fee00000) :d2)
+	(vp-mul-dd :d1 :d2)
+	(vp-sub-dd :d2 :d0)
+	(vp-load-rcd :r0 (fn-const 0x3dea39ef35793c76) :d2)
+	(vp-mul-dd :d1 :d2)
+	(vp-sub-dd :d2 :d0)
+	;e to the r, 1/13! down to 1/2!, then 1 and 1
+	(vp-load-rcd :r0 (fn-const 0x3de6124613a86d09) :d3)
+	(each (lambda (c)
+			(vp-mul-dd :d0 :d3)
+			(vp-load-rcd :r0 (fn-const c) :d2)
+			(vp-add-dd :d2 :d3))
+		'(0x3e21eed8eff8d898 0x3e5ae64567f544e4 0x3e927e4fb7789f5c 0x3ec71de3a556c734
+		0x3efa01a01a01a01a 0x3f2a01a01a01a01a 0x3f56c16c16c16c17 0x3f81111111111111
+		0x3fa5555555555555 0x3fc5555555555555 0x3fe0000000000000
+		0x3ff0000000000000 0x3ff0000000000000))
+	;times 2 to the k, as 2 to half of it, and 2 to the rest
+	(vp-cpy-rr :r1 :r2)
+	(vp-asr-cr 1 :r2)
+	(vp-sub-rr :r2 :r1)
+	(each (lambda (r)
+			(vp-add-cr 1023 r)
+			(vp-shl-cr 52 r)
+			(vp-cpy-rd r :d1)
+			(vp-mul-dd :d1 :d3))
+		'(:r1 :r2))
+	(vp-cpy-dd :d3 :d0)
+	(vp-jmp 'exit)
+(vp-label 'big)
+	(vp-load-rcd :r0 (fn-const 0x7ff0000000000000) :d0)
+	(vp-jmp 'exit)
+(vp-label 'small)
+	(vp-load-rcd :r0 (fn-const 0) :d0)
+(vp-label 'exit)
+
+	(exit :sys_math :d_exp '(:d0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :d_log)
+	;inputs
+	;:d0 = real (real)
+	;outputs
+	;:d0 = natural log of the real (real)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;minus infinity of 0, not a number below 0, infinity and not a number
+	;as they are. The real is 2 to the e times m, m from the root of a half
+	;to the root of 2, and the log of m is 2 atanh of f, f (m - 1) / (m + 1),
+	;by its series in f squared to the 10th power. It is the method of the
+	;shader language, every back end of which must agree
+
+	(entry :sys_math :d_log '(:d0))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-cpy-dr :d0 :r1)
+	(vp-ble-cr 0 :r1 'not_positive)
+	(vp-cpy-rr :r1 :r2)
+	(vp-shr-cr 52 :r2)
+	(vp-beq-cr 0x7ff :r2 'exit)
+	;m, from 1 to 2, the real with its exponent taken out, e what was taken
+	(defq mantissa (lambda ()
+		(vp-sub-cr 1023 :r2)
+		(vp-shl-cr 52 :r2)
+		(vp-sub-rr :r2 :r1)
+		(vp-asr-cr 52 :r2)
+		(vp-cpy-rd :r1 :d0)))
+	(vp-bne-cr 0 :r2 'normal)
+	;a subnormal, made normal by 2 to the 54
+	(vp-load-rcd :r0 (fn-const 0x4350000000000000) :d1)
+	(vp-mul-dd :d1 :d0)
+	(vp-cpy-dr :d0 :r1)
+	(vp-cpy-rr :r1 :r2)
+	(vp-shr-cr 52 :r2)
+	(mantissa)
+	(vp-sub-cr 54 :r2)
+	(vp-jmp 'fold)
+(vp-label 'normal)
+	(mantissa)
+(vp-label 'fold)
+	;to the root of a half to the root of 2
+	(vp-load-rcd :r0 (fn-const 0x3ff6a09e667f3bcd) :d1)
+	(vp-ble-dd :d1 :d0 'folded)
+	(vp-load-rcd :r0 (fn-const 0x3fe0000000000000) :d1)
+	(vp-mul-dd :d1 :d0)
+	(vp-add-cr 1 :r2)
+(vp-label 'folded)
+	;f and f squared
+	(vp-load-rcd :r0 (fn-const 0x3ff0000000000000) :d1)
+	(vp-cpy-dd :d0 :d2)
+	(vp-sub-dd :d1 :d2)
+	(vp-add-dd :d1 :d0)
+	(vp-div-dd :d0 :d2)
+	(vp-cpy-dd :d2 :d3)
+	(vp-mul-dd :d2 :d3)
+	;2 f times 1 + s/3 + s^2/5 ... + s^10/21
+	(vp-load-rcd :r0 (fn-const 0x3fa8618618618618) :d0)
+	(each (lambda (c)
+			(vp-mul-dd :d3 :d0)
+			(vp-load-rcd :r0 (fn-const c) :d1)
+			(vp-add-dd :d1 :d0))
+		'(0x3faaf286bca1af28 0x3fae1e1e1e1e1e1e 0x3fb1111111111111 0x3fb3b13b13b13b14
+		0x3fb745d1745d1746 0x3fbc71c71c71c71c 0x3fc2492492492492 0x3fc999999999999a
+		0x3fd5555555555555 0x3ff0000000000000))
+	(vp-mul-dd :d2 :d0)
+	(vp-add-dd :d0 :d0)
+	;and e ln2, in its two parts, the small first
+	(vp-cvt-rd :r2 :d1)
+	(vp-load-rcd :r0 (fn-const 0x3dea39ef35793c76) :d2)
+	(vp-mul-dd :d1 :d2)
+	(vp-add-dd :d2 :d0)
+	(vp-load-rcd :r0 (fn-const 0x3fe62e42fee00000) :d2)
+	(vp-mul-dd :d1 :d2)
+	(vp-add-dd :d2 :d0)
+	(vp-jmp 'exit)
+(vp-label 'not_positive)
+	;0 and -0 give minus infinity, the rest not a number
+	(vp-shl-cr 1 :r1)
+	(vp-load-rcd :r0 (fn-const 0xfff0000000000000) :d0)
+	(vp-beq-cr 0 :r1 'exit)
+	(vp-load-rcd :r0 (fn-const 0x7ff8000000000000) :d0)
+(vp-label 'exit)
+
+	(exit :sys_math :d_log '(:d0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :q_exp)
+	;inputs
+	;:r0 = power (fixed)
+	;outputs
+	;:r0 = e to the power (fixed)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;of the double, :sys_math :d_exp, so not to be had above 33
+
+	(entry :sys_math :q_exp '(:r0))
+
+	(vp-lea-pr 'fn_consts :r1)
+	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d1))
+	(vp-cvt-rd :r0 :d0)
+	(vp-mul-dd :d1 :d0)
+	(call :sys_math :d_exp '(:d0) '(:d0))
+	(vp-lea-pr 'fn_consts :r1)
+	(assign '((:r1 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+	(vp-mul-dd :d1 :d0)
+	(vp-cvt-dr :d0 :r0)
+
+	(exit :sys_math :q_exp '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :q_log)
+	;inputs
+	;:r0 = number (fixed)
+	;outputs
+	;:r0 = natural log of the number (fixed)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;of the double, :sys_math :d_log, so not to be had of 0 or less
+
+	(entry :sys_math :q_log '(:r0))
+
+	(vp-lea-pr 'fn_consts :r1)
+	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:d1))
+	(vp-cvt-rd :r0 :d0)
+	(vp-mul-dd :d1 :d0)
+	(call :sys_math :d_log '(:d0) '(:d0))
+	(vp-lea-pr 'fn_consts :r1)
+	(assign '((:r1 (fn-const (n2r (<< 1 +fp_shift))))) '(:d1))
+	(vp-mul-dd :d1 :d0)
+	(vp-cvt-dr :d0 :r0)
+
+	(exit :sys_math :q_log '(:r0))
 	(vp-ret)
 
 (def-func-end)

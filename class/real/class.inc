@@ -21,6 +21,8 @@
 	(dec-method :sqrt class/real/sqrt :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
 	(dec-method :sin class/real/sin :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
 	(dec-method :cos class/real/cos :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :exp class/real/exp :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
+	(dec-method :log class/real/log :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
 	(dec-method :frac class/real/frac :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
 	(dec-method :floor class/real/floor :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))
 	(dec-method :ceil class/real/ceil :final :nil :nil (:r0-:r2 :r14 :d0-:d15) (:r0-:r2 :r14 :d0-:d15))

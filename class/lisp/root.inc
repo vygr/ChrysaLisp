@@ -126,6 +126,10 @@
 ; (sin fixed) -> fixed
 (ffi "class/fixed/lisp_cos" cos)
 ; (cos fixed) -> fixed
+(ffi "class/fixed/lisp_exp" exp)
+; (exp fixed) -> fixed
+(ffi "class/fixed/lisp_log" log)
+; (log fixed) -> fixed
 (ffi "class/fixed/lisp_frac" frac)
 ; (frac fixed) -> fixed
 (ffi "class/fixed/lisp_floor" floor)

@@ -62,7 +62,7 @@
 				(loop-start)
 					(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_length)) '(_ :r0 :r1))
 					(load-fields :rsp '(slot_p2x slot_p2y slot_p3x slot_p3y) '(:r2 :r3 :r4 :r5))
-					(call :sys_math :f_dist_sqd '(:r0 :r1 :r2 :r3 :r4 :r5) '(:r0))
+					(call :sys_math :q_dist_sqd '(:r0 :r1 :r2 :r3 :r4 :r5) '(:r0))
 					(load-fields :rsp '(slot_last slot_max slot_length) '(:r3 :r1 :r2))
 					(vpif '(:r0 > :r1))
 						(save-fields :rsp '(slot_index slot_max) '(:r2 :r0))

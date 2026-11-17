@@ -32,6 +32,8 @@
 	+sv_dregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15)
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
 	+sv_sin_trash ''(:f0 :f1 :f2 :f3)
+	;exp and log trash :r2 as well, the first of the registers for ints
+	+sv_exp_trash ''(:f0 :f1 :f2 :f3 :r2)
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
 	;a byte of a pixel as a number of 0 to 1 is it over this, the nearest
 	;single to that, as a GPU has it, and the Lisp back end
@@ -262,18 +264,19 @@
 	(sv-emit 'vp-cpy-ff rf r)
 	(sv-puts (list ri rf one)))
 
-(defun sv-sin (r is_cos)
-	;sin or cos of a register, which is given up, to a new register. The
-	;sin of the system is of a double, of the single, and its answer is
-	;made the nearest single
+(defun sv-math (r op)
+	;sin, cos, exp or log of a register, which is given up, to a new
+	;register. The function of the system is of a double, of the single,
+	;and its answer is made the nearest single
 	(sv-put r)
-	(defq saved (sv-spill +sv_sin_trash))
+	(defq saved (sv-spill (if (find op '(sin cos)) +sv_sin_trash +sv_exp_trash)))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff r :f0))
 	(sv-emit 'vp-cvt-fd :f0 :d0)
-	(when is_cos
+	(when (eql op 'cos)
 		(sv-emit 'vp-load-rcd :r12 (list 'fn-const (logior +sv_hpi)) :d1)
 		(sv-emit 'vp-add-dd :d1 :d0))
-	(sv-emit 'call :sys_math :r_sin (sv-q '(:d0)) (sv-q '(:d0)))
+	(sv-emit 'call :sys_math (elem-get '(:d_sin :d_sin :d_exp :d_log) (find op '(sin cos exp log)))
+		(sv-q '(:d0)) (sv-q '(:d0)))
 	(sv-emit 'vp-cvt-df :d0 :f0)
 	(defq r (sv-getf))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
@@ -288,7 +291,7 @@
 	(sv-emit 'vp-load-rcf :rsp (* (find y saved) 8) :f1)
 	(sv-emit 'vp-cvt-fd :f0 :d0)
 	(sv-emit 'vp-cvt-fd :f1 :d1)
-	(sv-emit 'call :sys_math :r_pow (sv-q '(:d0 :d1)) (sv-q '(:d0)))
+	(sv-emit 'call :sys_math :d_pow (sv-q '(:d0 :d1)) (sv-q '(:d0)))
 	(sv-emit 'vp-cvt-df :d0 :f0)
 	(defq r (sv-getf))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
@@ -453,10 +456,10 @@
 					(sv-emit 'vp-cvt-fr (first a) (defq r (sv-getr)))
 					(sv-puts a) (list r))
 				(a)))
-		((defq i (find op '(sin cos sqrt abs floor fract)))
+		((defq i (find op '(sin cos sqrt abs floor fract exp log)))
 			(case i
-				((0 1) (defq n (length a))
-					(times n (push a (sv-sin (first a) (= i 1)))
+				((0 1 6 7) (defq n (length a))
+					(times n (push a (sv-math (first a) op))
 						(setq a (rest a)))
 					a)
 				(2 (each (# (sv-emit 'vp-sqrt-ff %0 %0)) a) a)
@@ -578,7 +581,7 @@
 					(push items (list :vec_end type)))
 				(:t ;the args, as many as the op has, and then the op
 					(defq n (cond
-							((find op '(float int sin cos sqrt abs floor fract length normalize)) 1)
+							((find op '(float int sin cos sqrt abs floor fract exp log length normalize)) 1)
 							((find op '(clamp mix)) 3)
 							(2))
 						items (map! (# (list :expr %0)) (list args) 0 n))
