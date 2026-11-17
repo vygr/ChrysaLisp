@@ -354,17 +354,52 @@
 	;:r0 = doubles object (ptr)
 	;:r1 = sum (double)
 	;trashes
-	;:r1-:r3, :d0-:d1
+	;:r1-:r3, :d0-:d4
+	;info
+	;four running sums over blocks of four, the rest into the first, then
+	;the four added: no add waits on the one before it, so a long vector
+	;goes as fast as it can be loaded
 
-	(vp-rdef (this src1 src_end tmp))
-	(vp-ddef (sum e0))
+	(vp-rdef (this src end quad))
+	(vp-ddef (sum s1 s2 s3 e0))
 
 	(entry :doubles :sum `(,this))
 
-	(vec-reduce (list this) (list e0) (list src1) src_end
-		(# (vp-add-dd %0 sum))
-		(# (vp-cpy-cr 0 tmp)
-			(vp-cvt-rd tmp sum)))
+	(assign `((,this +array_length) (,this +array_begin)) `(,end ,src))
+	(vp-xor-rr quad quad)
+	(vp-cvt-rd quad sum)
+	(vp-cpy-dd sum s1)
+	(vp-cpy-dd sum s2)
+	(vp-cpy-dd sum s3)
+	(vp-cpy-rr end quad)
+	(vp-and-cr -4 quad)
+	(vp-shl-cr (log2 +long_size) end)
+	(vp-shl-cr (log2 +long_size) quad)
+	(vp-add-rr src end)
+	(vp-add-rr src quad)
+	(vpif `(,src /= ,quad))
+		(loop-start)
+			(assign `((,src 0)) `(,e0))
+			(vp-add-dd e0 sum)
+			(assign `((,src ,+long_size)) `(,e0))
+			(vp-add-dd e0 s1)
+			(assign `((,src ,(* 2 +long_size))) `(,e0))
+			(vp-add-dd e0 s2)
+			(assign `((,src ,(* 3 +long_size))) `(,e0))
+			(vp-add-dd e0 s3)
+			(vp-add-cr (* 4 +long_size) src)
+		(loop-until `(,src = ,quad))
+	(endif)
+	(vpif `(,src /= ,end))
+		(loop-start)
+			(assign `((,src 0)) `(,e0))
+			(vp-add-dd e0 sum)
+			(vp-add-cr +long_size src)
+		(loop-until `(,src = ,end))
+	(endif)
+	(vp-add-dd s1 sum)
+	(vp-add-dd s3 s2)
+	(vp-add-dd s2 sum)
 
 	(exit :doubles :sum `(,this ,sum))
 	(vp-ret)
@@ -379,16 +414,59 @@
 	;:r0 = doubles object (ptr)
 	;:r1 = dot product (double)
 	;trashes
-	;:r1-:r4, :d0-:d2
+	;:r1-:r4, :d0-:d5
+	;info
+	;four running sums over blocks of four, the rest into the first, then
+	;the four added: no add waits on the one before it, so a long vector
+	;goes as fast as it can be loaded
 
-	(vp-rdef (this src2 src1 idx1 idx2))
-	(vp-ddef (dot e0 e1))
+	(vp-rdef (this src2 src1 end quad))
+	(vp-ddef (dot s1 s2 s3 e0 e1))
 
 	(entry :doubles :dot `(,this ,src2))
 
-	(vec-reduce-idx (list this src2) (list e0 e1) (list src1 src2) (list idx1 idx2)
-		(# (vp-mul-dd %0 %1) (vp-add-dd %1 dot))
-		(# (vp-cvt-rd idx1 dot)))
+	(assign `((,this +array_length) (,this +array_begin) (,src2 +array_begin)) `(,end ,src1 ,src2))
+	(vp-xor-rr quad quad)
+	(vp-cvt-rd quad dot)
+	(vp-cpy-dd dot s1)
+	(vp-cpy-dd dot s2)
+	(vp-cpy-dd dot s3)
+	(vp-cpy-rr end quad)
+	(vp-and-cr -4 quad)
+	(vp-shl-cr (log2 +long_size) end)
+	(vp-shl-cr (log2 +long_size) quad)
+	(vp-add-rr src1 end)
+	(vp-add-rr src1 quad)
+	(vpif `(,src1 /= ,quad))
+		(loop-start)
+			(assign `((,src1 0) (,src2 0)) `(,e0 ,e1))
+			(vp-mul-dd e1 e0)
+			(vp-add-dd e0 dot)
+			(assign `((,src1 ,+long_size) (,src2 ,+long_size)) `(,e0 ,e1))
+			(vp-mul-dd e1 e0)
+			(vp-add-dd e0 s1)
+			(assign `((,src1 ,(* 2 +long_size)) (,src2 ,(* 2 +long_size))) `(,e0 ,e1))
+			(vp-mul-dd e1 e0)
+			(vp-add-dd e0 s2)
+			(assign `((,src1 ,(* 3 +long_size)) (,src2 ,(* 3 +long_size))) `(,e0 ,e1))
+			(vp-mul-dd e1 e0)
+			(vp-add-dd e0 s3)
+			(vp-add-cr (* 4 +long_size) src1)
+			(vp-add-cr (* 4 +long_size) src2)
+		(loop-until `(,src1 = ,quad))
+	(endif)
+	(vpif `(,src1 /= ,end))
+		(loop-start)
+			(assign `((,src1 0) (,src2 0)) `(,e0 ,e1))
+			(vp-mul-dd e1 e0)
+			(vp-add-dd e0 dot)
+			(vp-add-cr +long_size src1)
+			(vp-add-cr +long_size src2)
+		(loop-until `(,src1 = ,end))
+	(endif)
+	(vp-add-dd s1 dot)
+	(vp-add-dd s3 s2)
+	(vp-add-dd s2 dot)
 
 	(exit :doubles :dot `(,this ,dot))
 	(vp-ret)
