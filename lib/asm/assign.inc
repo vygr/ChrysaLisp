@@ -12,7 +12,7 @@
 (defmacro assign-type-sym (%0) (static-qqp (sym (str ,%0 "_t"))))
 
 (defun assign-type-t (%0)
-	(elem-get '(b ub s us i ui "") (ifn (find (first %0) "bBsSiI") -2)))
+	(elem-get '(b ub s us i ui i "") (ifn (find (first %0) "bBsSiIf") -2)))
 
 (defun assign-src-type (o)
 	(pcase (pop (type-of o)) +pkeys1

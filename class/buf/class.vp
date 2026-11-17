@@ -4,6 +4,7 @@
 (include "././double/class.inc")
 (include "././nums/class.inc")
 (include "././floats/class.inc")
+(include "././float/class.inc")
 
 ;a block of memory that the nodes of this machine share, and nothing more:
 ;what is kept in it, and how it is read and written, is for those who use
@@ -157,7 +158,7 @@
 	(entry :buf :check `(,this ,limit ,offset ,type))
 
 	(gotoif `(,offset < 0) 'index)
-	(gotoif `(,type < +type_double) 'kind)
+	(gotoif `(,type < +type_float) 'kind)
 	(vp-cpy-rr type fsize)
 	(vpif `(,type <= 0))
 		(vp-lea-pr 'type_sizes sizes)
@@ -186,7 +187,7 @@
 
 (vp-label 'type_sizes)
 	(vp-byte +ptr_size +ptr_size +byte_size +byte_size +short_size +short_size
-		+int_size +int_size +long_size +long_size +long_size)
+		+int_size +int_size +long_size +long_size +long_size +int_size)
 
 (def-func-end)
 
@@ -237,6 +238,10 @@
 		(goto 'done)
 	(vpcase `(,type = ,+type_double))
 		(call :double :create `((,addr 0)) '(:r1))
+		(goto 'done)
+	(vpcase `(,type = ,+type_float))
+		;its 32 bits, the upper half clear, as a float keeps them
+		(call :float :create `((,addr 0 ui)) '(:r1))
 		(goto 'done)
 	(default)
 		(assign `((,addr 0)) `(,addr))
@@ -311,6 +316,9 @@
 			(assign `(,num) `((,addr 0 i)))
 			(break)
 		(vpcase `(,type = ,+type_uint))
+			(assign `(,num) `((,addr 0 i)))
+			(break)
+		(vpcase `(,type = ,+type_float))
 			(assign `(,num) `((,addr 0 i)))
 			(break)
 		(default)

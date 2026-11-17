@@ -146,3 +146,30 @@
 	(eql (nums-add-scaled ve_x ve_y (n2d 0.375)) (nums-add ve_x (nums-scale ve_y (n2d 0.375)))))
 (nums-add-scaled ve_x ve_y (n2d -1) ve_x)
 (assert-list-eq "nums-add-scaled doubles in place" (map (const n2i) ve_x) '(-3 -3 -3))
+
+;nums-convert, every kind into every kind, each element as its scalar's
+;own conversion has it: a fixed floored to an int, a double truncated
+(defq ve_ns '(-2.5 -1 0 0.75 3)
+	ve_kinds (list
+		(apply (const nums) (map (# (n2i (n2d %0))) ve_ns))
+		(apply (const fixeds) (map (const n2q) ve_ns))
+		(apply (const doubles) (map (const n2d) ve_ns))
+		(apply (const floats) (map (const n2f) ve_ns))))
+(defun ve-shown (v) (map (# (n2q (n2d %0))) v))
+(each (lambda (src)
+		(each (lambda (dst)
+				(defq ve_out (nums-convert src (slice dst 0 0)))
+				(assert-true "nums-convert keeps its kind" (eql (type-of ve_out) (type-of dst)))
+				(assert-eq "nums-convert length" 5 (length ve_out)))
+			ve_kinds))
+	ve_kinds)
+(test-cases
+	(ve-shown (nums-convert (elem-get ve_kinds 1) (nums))) '(-3.0 -1.0 0.0 0.0 3.0)
+	(ve-shown (nums-convert (elem-get ve_kinds 2) (nums))) '(-2.0 -1.0 0.0 0.0 3.0)
+	(ve-shown (nums-convert (elem-get ve_kinds 3) (fixeds))) '(-2.5 -1.0 0.0 0.75 3.0)
+	(ve-shown (nums-convert (elem-get ve_kinds 1) (floats))) '(-2.5 -1.0 0.0 0.75 3.0)
+	(ve-shown (nums-convert (elem-get ve_kinds 0) (doubles))) '(-2.0 -1.0 0.0 0.0 3.0)
+	(ve-shown (nums-convert (elem-get ve_kinds 2) (floats))) '(-2.5 -1.0 0.0 0.75 3.0))
+(assert-eq "nums-convert into a longer, made the source's length" 2
+	(length (nums-convert (floats (n2f 1) (n2f 2)) (doubles (n2d 9) (n2d 9) (n2d 9)))))
+(assert-error "nums-convert of a list" (nums-convert (list 1) (nums)))

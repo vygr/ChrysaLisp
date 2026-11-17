@@ -14,6 +14,8 @@ docs/reference/vp_classes/nums.cwb
 
 ### (nums-add-scaled nums nums scale [nums]) -> nums
 
+### (nums-convert src dst) -> dst
+
 ### (nums-div nums nums [nums]) -> nums
 
 ### (nums-dot nums nums) -> num
@@ -76,6 +78,20 @@ info
 each of the first plus each of the second times the scale, in one pass
 ```
 
+### :convert -> class/nums/convert
+
+```code
+inputs
+:r0 = nums object (ptr)
+:r1 = source nums object, of any kind (ptr)
+outputs
+:r0 = nums object (ptr)
+trashes
+:r2-:r6, :d0-:d15
+info
+made the source's length, each element of it converted
+```
+
 ### :create -> class/nums/create
 
 ```code
@@ -122,6 +138,20 @@ outputs
 :r1 = hash code (long)
 trashes
 :r1-:r4
+```
+
+### :kind -> class/nums/kind
+
+```code
+inputs
+:r0 = nums object (ptr)
+outputs
+:r0 = nums object (ptr)
+:r1 = 0 nums, 1 fixeds, 2 doubles, 3 floats (uint)
+trashes
+:r1-:r2
+info
+the kind of vector, a path as fixeds
 ```
 
 ### :max -> class/nums/max

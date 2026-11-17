@@ -148,6 +148,8 @@
 ; (nums-add nums nums [nums]) -> nums
 (ffi "class/nums/lisp_add_scaled" nums-add-scaled)
 ; (nums-add-scaled nums nums scale [nums]) -> nums
+(ffi "class/nums/lisp_convert" nums-convert)
+; (nums-convert src dst) -> dst
 (ffi "class/nums/lisp_div" nums-div)
 ; (nums-div nums nums [nums]) -> nums
 (ffi "class/nums/lisp_mod" nums-mod)
@@ -532,7 +534,7 @@
 	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
 	+type_ptr 0 +type_pptr -1 +type_byte -2 +type_ubyte -3
 	+type_short -4 +type_ushort -5 +type_int -6 +type_uint -7
-	+type_long -8 +type_fixed -9 +type_double -10
+	+type_long -8 +type_fixed -9 +type_double -10 +type_float -11
 	defmacro `(,macro (n a &rest _)
 		(,if (,get n (,penv)) (,throw "Macro override !, use redefmacro ? !" n))
 		`(defq ,n (macro ,a ~_))))
@@ -1449,6 +1451,10 @@
 	; (get-double str idx) -> double
 	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_double)))
 
+(defmacro get-float (obj idx)
+	; (get-float str idx) -> float
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_float)))
+
 (defmacro get-byte (obj idx)
 	; (get-byte str idx) -> num
 	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_byte)))
@@ -1488,6 +1494,10 @@
 (defmacro set-double (obj idx val)
 	; (set-double str idx num) -> str
 	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_double ,val)))
+
+(defmacro set-float (obj idx val)
+	; (set-float str idx float) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_float ,val)))
 
 (defmacro set-str (obj idx val)
 	; (set-str str idx val) -> str

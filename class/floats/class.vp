@@ -1067,6 +1067,21 @@
 
 (def-func-end)
 
+(def-method :floats :convert)
+	;inputs
+	;:r0 = floats object (ptr)
+	;:r1 = source nums object, of any kind (ptr)
+	;outputs
+	;:r0 = floats object (ptr)
+	;trashes
+	;:r2-:r6, :d0-:d15
+	;info
+	;made the source's length, each element of it converted
+
+	(nums-convert-method :floats :floats)
+
+(def-func-end)
+
 (def-method :floats :sum)
 	;inputs
 	;:r0 = floats object (ptr)

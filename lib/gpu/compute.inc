@@ -32,11 +32,20 @@
 	; (gpu-buffer-free buffer) -> :nil
 	(gpu-call +gpu_buffer_destroy b 0 0 0 0 0 0) :nil)
 
+(defun gpu-bytes (data)
+	; (gpu-bytes str | nums) -> bytes
+	;how many bytes data has, a str's, or a vector's elements, a floats 4
+	;each and the other kinds 8
+	(cond
+		((str? data) (length data))
+		((floats? data) (* (length data) +int_size))
+		((* (length data) +long_size))))
+
 (defun gpu-write (b offset data)
-	; (gpu-write buffer offset str) -> :t | :nil
-	;the bytes of data into the buffer at offset, in order after what was
-	;given before, not waited for
-	(= (gpu-call +gpu_buffer_write b offset data (length data) 0 0 0) 1))
+	; (gpu-write buffer offset str | nums) -> :t | :nil
+	;the bytes of data into the buffer at offset, a str's or a vector's
+	;elements, in order after what was given before, not waited for
+	(= (gpu-call +gpu_buffer_write b offset data (gpu-bytes data) 0 0 0) 1))
 
 (defun gpu-wait (ticket)
 	; (gpu-wait ticket) -> ticket
@@ -50,12 +59,15 @@
 	(gpu-call +gpu_take ticket 0 0 0 0 0 0)
 	ticket)
 
-(defun gpu-read (b offset len)
-	; (gpu-read buffer offset len) -> :nil | str
-	;len bytes of the buffer at offset, once what was given before is done
+(defun gpu-read (b offset into)
+	; (gpu-read buffer offset len | nums) -> :nil | str | nums
+	;the buffer at offset, once what was given before is done: len bytes as
+	;a new str, or into all of a vector of numbers given, as many bytes as
+	;its elements have
+	(defq len (if (num? into) into (gpu-bytes into)))
 	(when (> (defq ticket (gpu-call +gpu_buffer_read b offset len 0 0 0 0)) 0)
 		(gpu-wait ticket)
-		(defq data (str-alloc len))
+		(defq data (if (num? into) (str-alloc len) into))
 		(gpu-call +gpu_take ticket data len 0 0 0 0)
 		data))
 
@@ -77,12 +89,12 @@
 (defun gpu-dispatch (k buffers uniforms groups)
 	; (gpu-dispatch kernel (buffer ...) uniforms (x y z)) -> :nil | ticket
 	;the kernel run over groups of its threads, the buffers it reads then
-	;those it writes, uniforms a str of its block or :nil. Waits for the
+	;those it writes, uniforms a str of its block, a vector, or :nil. Waits for the
 	;kernel to be built, :nil if it did not build
 	(defq bs (str-alloc (* 8 (max 1 (length buffers)))) gs (str-alloc 12))
 	(each (# (set-long bs (* (!) 8) %0)) buffers)
 	(each (# (set-int gs (* (!) 4) %0)) groups)
-	(while (= 0 (defq ticket (gpu-call +gpu_dispatch k bs (ifn uniforms 0) (if uniforms (length uniforms) 0) gs 0 0)))
+	(while (= 0 (defq ticket (gpu-call +gpu_dispatch k bs (ifn uniforms 0) (if uniforms (gpu-bytes uniforms) 0) gs 0 0)))
 		(task-sleep 500))
 	(if (> ticket 0) ticket))
 
@@ -94,6 +106,6 @@
 		:t))
 
 ;module
-(export-symbols '(gpu-call gpu-format gpu-buffer gpu-buffer-free gpu-write gpu-read gpu-wait gpu-take
+(export-symbols '(gpu-call gpu-format gpu-buffer gpu-buffer-free gpu-bytes gpu-write gpu-read gpu-wait gpu-take
 		gpu-kernel gpu-kernel-free gpu-dispatch gpu-run))
 (env-pop)

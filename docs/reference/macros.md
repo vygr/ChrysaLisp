@@ -241,6 +241,12 @@ the checksum of an 8 and 3 name, each part of a long name has it
 (get-double str idx) -> double
 ```
 
+### get-float
+
+```code
+(get-float str idx) -> float
+```
+
 ### get-int
 
 ```code
@@ -583,6 +589,12 @@ four bytes high first
 
 ```code
 (set-double str idx num) -> str
+```
+
+### set-float
+
+```code
+(set-float str idx float) -> str
 ```
 
 ### set-int

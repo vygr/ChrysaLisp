@@ -60,7 +60,9 @@
 (assert-error "before the start" (buf-get b -8 +type_long))
 (assert-error "no object references" (buf-get b 0 0))
 (assert-error "no object references set" (buf-set b 0 0 b))
-(assert-error "not a type" (buf-get b 0 -11))
+;the type past the last, +type_float
+(assert-error "not a type" (buf-get b 0 (dec +type_float)))
+(assert-eq "a float" (n2f -2.5) (buf-get (buf-set b 8 +type_float (n2f -2.5)) 8 +type_float))
 (assert-error "not a buf" (buf-get "abcdefgh" 0 +type_long))
 
 ;opened on another node of this machine, if there is one, a process of its

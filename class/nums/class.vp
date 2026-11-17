@@ -1,5 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
+(include "././floats/class.inc")
+(include "././doubles/class.inc")
 (include "././list/class.inc")
 
 (gen-create :nums)
@@ -284,6 +286,54 @@
 		(# (vp-mul-rr scale %1) (vp-add-rr %1 %0) %0))
 
 	(exit :nums :add_scaled `(,dst))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :nums :convert)
+	;inputs
+	;:r0 = nums object (ptr)
+	;:r1 = source nums object, of any kind (ptr)
+	;outputs
+	;:r0 = nums object (ptr)
+	;trashes
+	;:r2-:r6, :d0-:d15
+	;info
+	;made the source's length, each element of it converted
+
+	(nums-convert-method :nums :nums)
+
+(def-func-end)
+
+(def-method :nums :kind)
+	;inputs
+	;:r0 = nums object (ptr)
+	;outputs
+	;:r0 = nums object (ptr)
+	;:r1 = 0 nums, 1 fixeds, 2 doubles, 3 floats (uint)
+	;trashes
+	;:r1-:r2
+	;info
+	;the kind of vector, a path as fixeds
+
+	(entry :nums :kind '(:r0))
+
+	(assign `((:r0 +obj_vtable) (@ ,(f-path :floats :vtable))) '(:r1 :r2))
+	(vpif '(:r1 = :r2))
+		(vp-cpy-cr 3 :r1)
+	(else)
+		(f-bind :doubles :vtable :r2)
+		(vpif '(:r1 = :r2))
+			(vp-cpy-cr 2 :r1)
+		(else)
+			(call :obj :inst_of `(:r0 (@ ,(f-path :fixeds :vtable))) '(:r0 :r1))
+			(vpif '(:r1 /= 0))
+				(vp-cpy-cr 1 :r1)
+			(endif)
+		(endif)
+	(endif)
+
+	(exit :nums :kind '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)

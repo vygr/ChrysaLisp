@@ -32,6 +32,7 @@
 	(dec-method :sub class/floats/sub :final :nil :nil (:r1-:r5 :d0-:d1) (:r1-:r5 :d0-:d1))
 	(dec-method :mul class/floats/mul :final :nil :nil (:r1-:r5 :d0-:d1) (:r1-:r5 :d0-:d1))
 	(dec-method :dot class/floats/dot :final :nil :nil (:r1-:r4 :d0-:d5) (:r1-:r4 :d0-:d5))
+	(dec-method :convert class/floats/convert :final :nil :nil (:r2-:r6 :d0-:d15) (:r2-:r6 :d0-:d15))
 	(dec-method :add_scaled class/floats/add_scaled :final :nil :nil (:r1-:r5 :d0-:d2) (:r1-:r5 :d0-:d2))
 	(dec-method :div class/floats/div :final :nil :nil (:r1-:r5 :d0-:d2) (:r1-:r5 :d0-:d2))
 	(dec-method :mod class/floats/mod :final :nil :nil (:r1-:r6 :d0-:d3) (:r1-:r6 :d0-:d3))

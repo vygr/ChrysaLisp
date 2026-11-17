@@ -5282,13 +5282,22 @@ a buffer of size bytes on the GPU
 (gpu-buffer-free buffer) -> :nil
 ```
 
+### gpu-bytes
+
+```code
+(gpu-bytes str | nums) -> bytes
+
+how many bytes data has, a str's, or a vector's elements, a floats 4
+each and the other kinds 8
+```
+
 ### gpu-dispatch
 
 ```code
 (gpu-dispatch kernel (buffer ...) uniforms (x y z)) -> :nil | ticket
 
 the kernel run over groups of its threads, the buffers it reads then
-those it writes, uniforms a str of its block or :nil. Waits for the
+those it writes, uniforms a str of its block, a vector, or :nil. Waits for the
 kernel to be built, :nil if it did not build
 ```
 
@@ -5321,9 +5330,11 @@ in groups of tx ty tz threads. It is built on a thread of the host,
 ### gpu-read
 
 ```code
-(gpu-read buffer offset len) -> :nil | str
+(gpu-read buffer offset len | nums) -> :nil | str | nums
 
-len bytes of the buffer at offset, once what was given before is done
+the buffer at offset, once what was given before is done: len bytes as
+a new str, or into all of a vector of numbers given, as many bytes as
+its elements have
 ```
 
 ### gpu-run
@@ -5353,10 +5364,10 @@ once the work of the ticket is over, giving way to other tasks till then
 ### gpu-write
 
 ```code
-(gpu-write buffer offset str) -> :t | :nil
+(gpu-write buffer offset str | nums) -> :t | :nil
 
-the bytes of data into the buffer at offset, in order after what was
-given before, not waited for
+the bytes of data into the buffer at offset, a str's or a vector's
+elements, in order after what was given before, not waited for
 ```
 
 ### gui-at-rpc
@@ -7775,18 +7786,6 @@ what the chain worked out, the wait for it, and its tickets let go of
 a data set's bytes onto the GPU, once
 ```
 
-### nn-gpu-doubles
-
-```code
-(nn-gpu-doubles str) -> doubles
-```
-
-### nn-gpu-floats
-
-```code
-(nn-gpu-floats doubles) -> str
-```
-
 ### nn-gpu-forward
 
 ```code
@@ -7824,7 +7823,7 @@ a kernel given to the GPU, not waited for
 ```code
 (nn-gpu-params gpu params) -> gpu
 
-the params onto the GPU, as the step's
+the params, a vector of any kind, onto the GPU as floats, the step's
 ```
 
 ### nn-gpu-read
@@ -10499,7 +10498,9 @@ needs more is written as a str, and is taken as it stands.
 ### sh-double-to-float
 
 ```code
-the bits of a 32 bit float, from a double, a fixed or an int
+(sh-double-to-float num) -> num
+
+the bits of the nearest float, as a number, for a constant of the code
 ```
 
 ### sh-expr
@@ -10512,10 +10513,21 @@ a list, the next thing last, an expression or the making of one whose
 args are done, and what has been made so far is another
 ```
 
+### sh-float
+
+```code
+(sh-float num) -> float
+
+the nearest float, of a double, a float, a fixed rounded as a float
+literal of the language is, or an int
+```
+
 ### sh-float-to-double
 
 ```code
-a double from the bits of a 32 bit float
+(sh-float-to-double num) -> double
+
+a double from the bits of a float
 ```
 
 ### sh-fold
@@ -11400,12 +11412,13 @@ how they are when they have come in a message.
 ### shader-vp-run
 
 ```code
-(shader-vp-run program native frame from to (str ...)) -> :nil
+(shader-vp-run program native frame from to (str | nums ...)) -> :nil
 
 run a kernel for each index from to to, in a frame (shader-vp-frame)
-made. The bufs are a str for each buffer, in the order the program
-has them, 4 bytes to an element, a 32 bit float or int. Nothing is
-bounds checked, as on a GPU, so each must be long enough
+made. The bufs are a str or a vector, a floats for a :float buffer,
+for each buffer, in the order the program has them, 4 bytes to an
+element, a 32 bit float or int. Nothing is bounds checked, as on a
+GPU, so each must be long enough
 ```
 
 ### shader-vp-vertex

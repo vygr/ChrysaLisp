@@ -11,6 +11,7 @@
 	(dec-method :sub class/doubles/sub :final :nil :nil (:r1-:r5 :d0-:d1) (:r1-:r5 :d0-:d1))
 	(dec-method :mul class/doubles/mul :final :nil :nil (:r1-:r5 :d0-:d1) (:r1-:r5 :d0-:d1))
 	(dec-method :dot class/doubles/dot :final :nil :nil (:r1-:r4 :d0-:d5) (:r1-:r4 :d0-:d5))
+	(dec-method :convert class/doubles/convert :final :nil :nil (:r2-:r6 :d0-:d15) (:r2-:r6 :d0-:d15))
 	(dec-method :add_scaled class/doubles/add_scaled :final :nil :nil (:r1-:r5 :d0-:d2) (:r1-:r5 :d0-:d2))
 	(dec-method :div class/doubles/div :final :nil :nil (:r1-:r5 :d0-:d2) (:r1-:r5 :d0-:d2))
 	(dec-method :mod class/doubles/mod :final :nil :nil (:r1-:r6 :d0-:d3) (:r1-:r6 :d0-:d3))

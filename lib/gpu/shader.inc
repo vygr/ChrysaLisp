@@ -878,25 +878,21 @@
 		((fixed? val) (str-to-double (sh-decimal val)))
 		((n2d val))))
 
+(defun sh-float (val)
+	; (sh-float num) -> float
+	;the nearest float, of a double, a float, a fixed rounded as a float
+	;literal of the language is, or an int
+	(n2f (shader-double val)))
+
 (defun sh-double-to-float (val)
-	;the bits of a 32 bit float, from a double, a fixed or an int
-	(defq val (get-long (set-double (str-alloc 8) 0 (shader-double val)) 0)
-		e (- (logand (>> val 52) 0x7ff) 896)
-		m (>> (+ (logand val 0xfffffffffffff) 0x10000000) 29))
-	;a tie rounds to even, then the mantissa may have carried
-	(and (= (logand val 0x1fffffff) 0x10000000) (odd? m) (setq m (dec m)))
-	(if (= m 0x800000) (setq m 0 e (inc e)))
-	(cond
-		((<= e 0) 0)
-		((>= e 255) (logior (<< (>> val 63) 31) 0x7f800000))
-		((logior (<< (>> val 63) 31) (<< e 23) m))))
+	; (sh-double-to-float num) -> num
+	;the bits of the nearest float, as a number, for a constant of the code
+	(get-uint (set-float (str-alloc 4) 0 (sh-float val)) 0))
 
 (defun sh-float-to-double (val)
-	;a double from the bits of a 32 bit float
-	(defq e (logand (>> val 23) 0xff))
-	(get-double (set-long (str-alloc 8) 0 (if (= e 0) 0
-				(logior (<< (logand (>> val 31) 1) 63) (<< (+ e 896) 52)
-					(<< (logand val 0x7fffff) 29)))) 0))
+	; (sh-float-to-double num) -> double
+	;a double from the bits of a float
+	(n2d (get-float (set-int (str-alloc 4) 0 val) 0)))
 
 (defun shader-pack (program &optional vals)
 	; (shader-pack program [((name val) ...)]) -> block
@@ -910,15 +906,15 @@
 				(setq val (second v)))
 			(cond
 				((eql type :int) (set-int block offset (n2i val)))
-				((eql type :float) (set-int block offset (sh-double-to-float val)))
+				((eql type :float) (set-float block offset (sh-float val)))
 				((not (seq? val)))
 				((/= (length val) (shader-size type))
 					(sh-err "wrong size of vector input" name))
 				((eql type :mat4)
 					;a row at a time to a column at a time
-					(each (# (set-int block (+ offset (* (+ (* (% (!) 4) 4) (/ (!) 4)) 4))
-								(sh-double-to-float %0))) val))
-				((each (# (set-int block (+ offset (* (!) 4)) (sh-double-to-float %0))) val))))
+					(each (# (set-float block (+ offset (* (+ (* (% (!) 4) 4) (/ (!) 4)) 4))
+								(sh-float %0))) val))
+				((each (# (set-float block (+ offset (* (!) 4)) (sh-float %0))) val))))
 		fields (first program))
 	block)
 
@@ -928,8 +924,8 @@
 	(map! (lambda ((name type offset))
 			(list name (cond
 					((eql type :int) (get-int block offset))
-					((eql type :float) (sh-float-to-double (get-uint block offset)))
+					((eql type :float) (n2d (get-float block offset)))
 					((eql type :mat4)
-						(reduce! (# (push %0 (sh-float-to-double (get-uint block
+						(reduce! (# (push %0 (n2d (get-float block
 											(+ offset (* (+ (* (% (!) 4) 4) (/ (!) 4)) 4)))))) '() (cap 16 (doubles)) 0 16))
-					((reduce! (# (push %0 (sh-float-to-double (get-uint block (+ offset (* (!) 4)))))) '() (cap (shader-dim type) (doubles)) 0 (shader-dim type)))))) (list (shader-layout program)) 1))
+					((reduce! (# (push %0 (n2d (get-float block (+ offset (* (!) 4)))))) '() (cap (shader-dim type) (doubles)) 0 (shader-dim type)))))) (list (shader-layout program)) 1))

@@ -18,6 +18,8 @@
 	(dec-method :max class/nums/max :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r7 :d0-:d1) (:r1-:r7))
 	(dec-method :dot class/nums/dot :virtual (:r0 :r1) (:r0 :r1) (:r1-:r7 :d0-:d5) (:r1-:r7))
 	(dec-method :add_scaled class/nums/add_scaled :virtual (:r0 :r1 :r2 :r3) (:r0) (:r1-:r8 :d0-:d2) (:r1-:r2 :r4-:r8))
+	(dec-method :convert class/nums/convert :virtual (:r0 :r1) (:r0) (:r2-:r6 :d0-:d15) (:r2-:r6 :d0-:d15))
+	(dec-method :kind class/nums/kind :static (:r0) (:r0 :r1) (:r1-:r2))
 	(dec-method :create class/nums/create :static :nil :nil (:r0-:r2 :d0-:d15))
 	(dec-method :lisp_vecop1 class/nums/lisp_vecop1 :static (:r0 :r1 :r2) (:r0 :r1) (:r1-:r14 :d0-:d15))
 	(dec-method :lisp_vecop2 class/nums/lisp_vecop2 :static (:r0 :r1 :r2) (:r0 :r1) (:r1-:r12 :r14 :d0-:d15))
@@ -29,6 +31,7 @@
 	(dec-method :lisp_sum class/nums/lisp_sum :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :d0-:d15))
 	(dec-method :lisp_dot class/nums/lisp_dot :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :r14 :d0-:d15))
 	(dec-method :lisp_add_scaled class/nums/lisp_add_scaled :static (:r0 :r1) (:r0 :r1) (:r1-:r13 :d0-:d15))
+	(dec-method :lisp_convert class/nums/lisp_convert :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :d0-:d15))
 	(dec-method :lisp_scale class/nums/lisp_scale :static (:r0 :r1) (:r0 :r1) (:r1-:r13 :d0-:d15))
 	(dec-method :lisp_min class/nums/lisp_min :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :d0-:d15))
 	(dec-method :lisp_max class/nums/lisp_max :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :d0-:d15))
@@ -96,3 +99,92 @@
 	(if fpre (fpre))
 	(vec-loop-until-idx sitrs elms idxs :nil func)
 	(if fpost (fpost)))
+
+;;;;;;;;;;;;;;;;;;;;;
+; vector conversions
+;;;;;;;;;;;;;;;;;;;;;
+
+;the kinds of vector, by the number :nums :kind gives
+;quoted twice, as a + name is put in place where it is used
+(defq +nums_kinds ''(:nums :fixeds :doubles :floats))
+
+(defun nums-step (kind)
+	;the bytes of an element of a kind
+	(if (eql kind :floats) +int_size +long_size))
+
+(defun nums-load (kind s tmp)
+	;the element of a kind at s into :d0 as a double, :d1 the recip of a
+	;fixed's one
+	(case kind
+		(:nums (assign `((,s 0)) `(,tmp)) (vp-cvt-rd tmp :d0))
+		(:fixeds (assign `((,s 0)) `(,tmp)) (vp-cvt-rd tmp :d0) (vp-mul-dd :d1 :d0))
+		(:doubles (assign `((,s 0)) '(:d0)))
+		(:floats (assign `((,s 0 i)) '(:d0)))))
+
+(defun nums-store (kind d tmp)
+	;:d0, a double, as the element of a kind at d, :d2 a fixed's one, ints
+	;and fixeds truncated as n2i and n2q do a double
+	(case kind
+		(:nums (vp-cvt-dr :d0 tmp) (assign `(,tmp) `((,d 0))))
+		(:fixeds (vp-mul-dd :d2 :d0) (vp-cvt-dr :d0 tmp) (assign `(,tmp) `((,d 0))))
+		(:doubles (assign '(:d0) `((,d 0))))
+		(:floats (vp-cvt-df :d0 :f0) (assign '(:f0) `((,d 0 i))))))
+
+(defun nums-convert-pair (from to s d len tmp)
+	;len elements of the kind from at s, as the kind to at d: the same kind
+	;its bits, nums and fixeds by a shift as n2q and n2i, the rest by a
+	;double
+	(vpif `(,len /= 0))
+		(loop-start)
+			(cond
+				((eql from to)
+					(if (eql to :floats)
+						(assign `((,s 0 ui)) `(,tmp))
+						(assign `((,s 0)) `(,tmp)))
+					(if (eql to :floats)
+						(assign `(,tmp) `((,d 0 i)))
+						(assign `(,tmp) `((,d 0)))))
+				((and (eql from :nums) (eql to :fixeds))
+					(assign `((,s 0)) `(,tmp))
+					(vp-shl-cr +fp_shift tmp)
+					(assign `(,tmp) `((,d 0))))
+				((and (eql from :fixeds) (eql to :nums))
+					(assign `((,s 0)) `(,tmp))
+					(vp-asr-cr +fp_shift tmp)
+					(assign `(,tmp) `((,d 0))))
+				(:t (nums-load from s tmp)
+					(nums-store to d tmp)))
+			(vp-add-cr (nums-step from) s)
+			(vp-add-cr (nums-step to) d)
+			(vp-sub-cr 1 len)
+		(loop-until `(,len = 0))
+	(endif))
+
+(defun nums-convert-method (cls to)
+	;the body of the :convert of a class whose elements are of the kind to:
+	;made the length of the source, each of its elements converted from
+	;whichever kind the source is, chosen once
+	(vp-rdef (dst src s d len tmp kind))
+	(entry cls :convert `(,dst ,src))
+	(assign `((,src +array_length)) `(,len))
+	(vp-push dst src len)
+	(call :nums :set_cap `(,dst ,len))
+	(vp-pop dst src len)
+	(assign `(,len) `((,dst +array_length)))
+	(vp-push dst)
+	(call :nums :kind `(,src) `(,src ,kind))
+	(vp-pop dst)
+	(assign `((,dst +array_begin) (,src +array_begin)) `(,d ,s))
+	(vp-lea-pr 'fn_consts tmp)
+	(load-fields tmp
+		(fn-consts (/ (n2d 1) (n2d (<< 1 +fp_shift))) (n2d (<< 1 +fp_shift)))
+		'(:d1 :d2))
+	(switch)
+	(each (lambda (from)
+			(vpcase `(,kind = ,(!)))
+				(nums-convert-pair from to s d len tmp)
+				(break))
+		+nums_kinds)
+	(endswitch)
+	(exit cls :convert `(,dst))
+	(vp-ret))

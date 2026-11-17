@@ -44,6 +44,20 @@ trashes
 :r1-:r6
 ```
 
+### :convert -> class/fixeds/convert
+
+```code
+inputs
+:r0 = fixeds object (ptr)
+:r1 = source nums object, of any kind (ptr)
+outputs
+:r0 = fixeds object (ptr)
+trashes
+:r2-:r6, :d0-:d15
+info
+made the source's length, each element of it converted
+```
+
 ### :create -> class/fixeds/create
 
 ```code

@@ -37,32 +37,33 @@
 		"	(elem-set packed i (logior (<< (logand (>> c 8) 255) 16) (logand c 255) (- c))))"))
 (assert-eq "it is a kernel" :kernel (shader-stage kt_prog))
 
+;the float buffers a floats, the int buffers a str of 4 bytes each
 (defq kt_n 300 kt_from 5 kt_to 290 kt_vals '((scale 1.5) (n 280))
-	kt_src (str-alloc (* kt_n 4)) kt_cols (str-alloc (* kt_n 4)))
-(each! (# (set-int kt_src (* (!) 4) (sh-double-to-float (n2d (- (!) 3))))
-		(set-int kt_cols (* (!) 4) (- (* (!) 0x010307) 0x5000))) '() 0 kt_n)
+	kt_src (apply (const floats) (map! (# (n2f (- (!) 3))) '() 0 kt_n)) kt_cols (str-alloc (* kt_n 4)))
+(each! (# (set-int kt_cols (* (!) 4) (- (* (!) 0x010307) 0x5000))) '() 0 kt_n)
 (defun kt-zeros ()
 	(defq s (str-alloc (* kt_n 4)))
 	(for 0 (>> (inc kt_n) 1) (set-long s (<< (!) 3) 0))
 	s)
+(defun kt-fzeros () (fill (floats) kt_n (n2f 0)))
 
 ;what it writes, worked out: in the range and less than n, the src by the
 ;scale and the square of the index xor 3, every one a whole number or a
 ;half, so the 32 bit float is exact, and the bits of the int
-(defq kt_cdst (kt-zeros) kt_cpk (kt-zeros))
+(defq kt_cdst (kt-fzeros) kt_cpk (kt-zeros))
 (each! (lambda ()
-		(set-int kt_cdst (* (!) 4) (sh-double-to-float (+ (* (n2d (- (!) 3)) (n2d 1.5)) (n2d (* (logxor (!) 3) (logxor (!) 3))))))
+		(elem-set kt_cdst (!) (n2f (+ (* (n2d (- (!) 3)) (n2d 1.5)) (n2d (* (logxor (!) 3) (logxor (!) 3))))))
 		(defq c (- (* (!) 0x010307) 0x5000))
 		(set-int kt_cpk (* (!) 4) (logior (<< (logand (>> c 8) 255) 16) (logand c 255) (neg c))))
 	'() kt_from (min kt_to 280))
 
 ;the VP back end
-(defq kt_native (shader-vp-kernel kt_prog) kt_vdst (kt-zeros) kt_vpk (kt-zeros))
+(defq kt_native (shader-vp-kernel kt_prog) kt_vdst (kt-fzeros) kt_vpk (kt-zeros))
 (shader-vp-run kt_prog kt_native (shader-vp-frame kt_prog kt_native kt_vals)
 	kt_from kt_to (list kt_vdst kt_src kt_vpk kt_cols))
-(assert-eq "the VP writes the range" (sh-double-to-float (n2d 39)) (get-int kt_vdst (* 5 4)))
-(assert-eq "and not before it" 0 (get-int kt_vdst (* 4 4)))
-(assert-eq "nor at n and after" 0 (get-int kt_vdst (* 280 4)))
+(assert-eq "the VP writes the range" (n2f 39) (elem-get kt_vdst 5))
+(assert-eq "and not before it" (n2f 0) (elem-get kt_vdst 4))
+(assert-eq "nor at n and after" (n2f 0) (elem-get kt_vdst 280))
 (assert-eq "the VP writes the floats" kt_cdst kt_vdst)
 (assert-eq "and the ints" kt_cpk kt_vpk)
 
@@ -74,19 +75,19 @@
 		(defq kt_kernel (shader-gpu-kernel kt_prog)
 			kt_bufs (map! (lambda () (gpu-buffer (* kt_n 4))) '() 0 4))
 		(assert-true "a kernel for this GPU" (num? kt_kernel))
-		(each (# (gpu-write %0 0 %1)) kt_bufs (list (kt-zeros) kt_src (kt-zeros) kt_cols))
+		(each (# (gpu-write %0 0 %1)) kt_bufs (list (kt-fzeros) kt_src (kt-zeros) kt_cols))
 		(assert-true "it runs" (shader-gpu-run kt_prog kt_kernel (shader-pack kt_prog kt_vals) kt_from kt_to kt_bufs))
 		;not the same: what shows why, the buffer read again, then the kernel run again
-		(defq kt_got (gpu-read (first kt_bufs) 0 (* kt_n 4)) kt_why "")
+		(defq kt_got (gpu-read (first kt_bufs) 0 (kt-fzeros)) kt_why "")
 		(unless (eql kt_got kt_cdst)
-			(defq kt_again (gpu-read (first kt_bufs) 0 (* kt_n 4)))
+			(defq kt_again (gpu-read (first kt_bufs) 0 (kt-fzeros)))
 			(shader-gpu-run kt_prog kt_kernel (shader-pack kt_prog kt_vals) kt_from kt_to kt_bufs)
 			(setq kt_why (cat ", read again " (if (eql kt_again kt_cdst) "right" "wrong")
-				", run again " (if (eql (gpu-read (first kt_bufs) 0 (* kt_n 4)) kt_cdst) "right" "wrong"))))
+				", run again " (if (eql (gpu-read (first kt_bufs) 0 (kt-fzeros)) kt_cdst) "right" "wrong"))))
 		(assert-eq (cat "the GPU writes the same floats" kt_why) kt_cdst kt_got)
 		(assert-eq "and the same ints" kt_cpk (gpu-read (third kt_bufs) 0 (* kt_n 4)))
 		(each (const gpu-buffer-free) kt_bufs)
 		(gpu-kernel-free kt_kernel)))
 
-(undef (env) 'kt-src 'kt-refused 'kt-zeros 'kt_prog 'kt_n 'kt_from 'kt_to 'kt_vals 'kt_src 'kt_cols
+(undef (env) 'kt-src 'kt-refused 'kt-zeros 'kt-fzeros 'kt_prog 'kt_n 'kt_from 'kt_to 'kt_vals 'kt_src 'kt_cols
 	'kt_cdst 'kt_cpk 'kt_native 'kt_vdst 'kt_vpk 'kt_kernel 'kt_bufs)

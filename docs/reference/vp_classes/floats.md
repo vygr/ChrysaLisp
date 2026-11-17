@@ -92,6 +92,20 @@ trashes
 :r1-:r5, :d0-:d2
 ```
 
+### :convert -> class/floats/convert
+
+```code
+inputs
+:r0 = floats object (ptr)
+:r1 = source nums object, of any kind (ptr)
+outputs
+:r0 = floats object (ptr)
+trashes
+:r2-:r6, :d0-:d15
+info
+made the source's length, each element of it converted
+```
+
 ### :create -> class/floats/create
 
 ```code

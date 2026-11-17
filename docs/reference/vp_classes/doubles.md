@@ -73,6 +73,20 @@ trashes
 :r1-:r5, :d0-:d2
 ```
 
+### :convert -> class/doubles/convert
+
+```code
+inputs
+:r0 = doubles object (ptr)
+:r1 = source nums object, of any kind (ptr)
+outputs
+:r0 = doubles object (ptr)
+trashes
+:r2-:r6, :d0-:d15
+info
+made the source's length, each element of it converted
+```
+
 ### :create -> class/doubles/create
 
 ```code

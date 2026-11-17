@@ -1814,11 +1814,18 @@
 	(vp-store-rrc :r3 :r13 } (str s_to) {)
 	(vp-xor-rr :r2 :r2)
 	(vp-store-rrc :r2 :r13 } (str s_work) {)
-	;where the elements of each buffer are, the strs of the list
+	;where the elements of each buffer are, the bytes of a str or the
+	;elements of a vector of numbers
 	(vp-load-rcr :r4 +array_begin :r4)
+	(f-bind :str :vtable :r5)
 } (apply (const cat) (cat (list "") (map (lambda (_) (cat
 					"	(vp-load-rcr :r4 " (str (* (!) +ptr_size)) " :r2)\n"
-					"	(vp-add-cr +str_data :r2)\n"
+					"	(vp-load-rcr :r2 +obj_vtable :r3)\n"
+					"	(vpif '(:r3 = :r5))\n"
+					"		(vp-add-cr +str_data :r2)\n"
+					"	(else)\n"
+					"		(vp-load-rcr :r2 +array_begin :r2)\n"
+					"	(endif)\n"
 					"	(vp-store-rrc :r2 :r13 " (str (+ bufs_at (* (!) 8))) ")\n")) (shader-buffers program)))) {
 	(vp-call 'kh_init)
 (vp-label 'sk_loop)
@@ -1873,13 +1880,15 @@
 		(sv-keep name (sv-native name text) (list frame_size))))
 
 (defun shader-vp-run (program native frame from to bufs)
-	; (shader-vp-run program native frame from to (str ...)) -> :nil
+	; (shader-vp-run program native frame from to (str | nums ...)) -> :nil
 	;run a kernel for each index from to to, in a frame (shader-vp-frame)
-	;made. The bufs are a str for each buffer, in the order the program
-	;has them, 4 bytes to an element, a 32 bit float or int. Nothing is
-	;bounds checked, as on a GPU, so each must be long enough
-	(unless (and (= (length bufs) (length (shader-buffers program))) (every (const str?) bufs))
-		(sh-err "a str for each buffer" 'main))
+	;made. The bufs are a str or a vector, a floats for a :float buffer,
+	;for each buffer, in the order the program has them, 4 bytes to an
+	;element, a 32 bit float or int. Nothing is bounds checked, as on a
+	;GPU, so each must be long enough
+	(unless (and (= (length bufs) (length (shader-buffers program)))
+			(every (# (or (str? %0) (nums? %0))) bufs))
+		(sh-err "a str or a vector for each buffer" 'main))
 	((first native) from to frame bufs))
 
 (defun shader-vp-func (program name)
@@ -1982,8 +1991,8 @@
 			(cond
 				((eql type :int) (set-long frame offset (n2i val)))
 				;a float is the nearest single, the first 4 bytes of its slot
-				((eql type :float) (set-int frame offset (sh-double-to-float val)))
-				((seq? val) (each (# (set-int frame (+ offset (* (!) 8)) (sh-double-to-float %0))) val)))
+				((eql type :float) (set-float frame offset (sh-float val)))
+				((seq? val) (each (# (set-float frame (+ offset (* (!) 8)) (sh-float %0))) val)))
 			(setq offset (+ offset (* (shader-size type) 8)))) (first program))
 	;then the textures of a pixel shader, each the pixmap given under its
 	;name: where its pixels are, its width, its height, and the bytes of

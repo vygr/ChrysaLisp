@@ -810,6 +810,12 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(nums-scale nums scale [nums]) -> nums`
 
+*	**`nums-convert`**: A vector of any kind of number into one of any kind,
+	nums, fixeds, doubles or floats, the destination made the source's
+	length, each element converted as its scalar would be.
+
+	*	`(nums-convert src dst) -> dst`
+
 *	**`nums-add-scaled`**: The first vector plus the second times a scale,
 	in one pass, as `nums-scale` then `nums-add` without the vector between.
 

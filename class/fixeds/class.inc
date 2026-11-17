@@ -12,6 +12,7 @@
 	(dec-method :div class/fixeds/div :override :nil :nil (:r1-:r8 :d0-:d2) (:r1 :r3-:r8))
 	(dec-method :mod class/fixeds/mod :override :nil :nil (:r1-:r9 :d0-:d3) (:r1 :r3-:r9))
 	(dec-method :scale class/fixeds/scale :override :nil :nil (:r1-:r6 :d0-:d1) (:r1 :r3-:r6))
+	(dec-method :convert class/fixeds/convert :override :nil :nil (:r2-:r6 :d0-:d15) (:r2-:r6 :d0-:d15))
 	(dec-method :add_scaled class/fixeds/add_scaled :override :nil :nil (:r1-:r8 :d0-:d2) (:r1-:r2 :r4-:r8))
 	(dec-method :frac class/fixeds/frac :virtual (:r0 :r1) (:r0) (:r1-:r5 :d0-:d3) (:r1-:r5))
 	(dec-method :floor class/fixeds/floor :virtual (:r0 :r1) (:r0) (:r1-:r5 :d0-:d2) (:r1-:r5))

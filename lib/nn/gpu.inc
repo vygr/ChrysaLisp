@@ -65,26 +65,14 @@
 	(gpu-write data 0 bytes)
 	(elem-set gpu +nn_gpu_data data))
 
-(defun nn-gpu-floats (vals)
-	; (nn-gpu-floats doubles) -> str
-	(defq out (str-alloc (* (length vals) +int_size)))
-	(each (# (set-int out (* (!) +int_size) (sh-double-to-float %0))) vals)
-	out)
-
-(defun nn-gpu-doubles (data)
-	; (nn-gpu-doubles str) -> doubles
-	(defq out (cap (/ (length data) +int_size) (doubles)))
-	(each! (lambda () (push out (sh-float-to-double (code data +int_size (* (!) +int_size)))))
-		'() 0 (/ (length data) +int_size))
-	out)
-
 (defun nn-gpu-params (gpu params)
 	; (nn-gpu-params gpu params) -> gpu
-	;the params onto the GPU, as the step's
+	;the params, a vector of any kind, onto the GPU as floats, the step's
 	(bind '(model capacity programs kernels bufs layers set &ignore) gpu)
+	(defq fs (nums-convert params (floats)))
 	(each (lambda ((kind ins outs act name w b) (ws bs &ignore))
-			(gpu-write (elem-get ws set) 0 (nn-gpu-floats (slice params w b)))
-			(gpu-write (elem-get bs set) 0 (nn-gpu-floats (slice params b (+ b outs)))))
+			(gpu-write (elem-get ws set) 0 (slice fs w b))
+			(gpu-write (elem-get bs set) 0 (slice fs b (+ b outs))))
 		(nn-layers model) layers)
 	gpu)
 
@@ -92,10 +80,10 @@
 	; (nn-gpu-read gpu) -> params
 	;the params as they are on the GPU, back as doubles
 	(bind '(model capacity programs kernels bufs layers set &ignore) gpu)
-	(apply (const cat) (reduce (lambda (out ((kind ins outs &ignore) (ws bs &ignore)))
-			(push out (nn-gpu-doubles (gpu-read (elem-get ws set) 0 (* ins outs +int_size)))
-				(nn-gpu-doubles (gpu-read (elem-get bs set) 0 (* outs +int_size)))))
-		(map (const list) (nn-layers model) layers) (list))))
+	(nums-convert (apply (const cat) (reduce (lambda (out ((kind ins outs &ignore) (ws bs &ignore)))
+			(push out (gpu-read (elem-get ws set) 0 (fill (floats) (* ins outs) (n2f 0)))
+				(gpu-read (elem-get bs set) 0 (fill (floats) outs (n2f 0)))))
+		(map (const list) (nn-layers model) layers) (list))) (doubles)))
 
 (defun nn-gpu-go (gpu name vals from to bufs)
 	; (nn-gpu-go gpu name vals from to bufs) -> ticket
@@ -125,11 +113,10 @@
 	; (nn-gpu-answers gpu n tickets) -> (loss guesses labels)
 	;what the chain worked out, the wait for it, and its tickets let go of
 	(bind '(model capacity programs kernels (bidx x y loss guess) &ignore) gpu)
-	(defq losses (gpu-read loss 0 (* n +int_size)) guesses (gpu-read guess 0 (* n +int_size))
-		labels (gpu-read y 0 (* n +int_size)))
+	(defq losses (gpu-read loss 0 (fill (floats) n (n2f 0)))
+		guesses (gpu-read guess 0 (* n +int_size)) labels (gpu-read y 0 (* n +int_size)))
 	(each (const gpu-take) tickets)
-	(list (reduce! (# (+ %0 (sh-float-to-double (code losses +int_size (* (!) +int_size)))))
-			'() (n2d 0) 0 n)
+	(list (n2d (nums-sum losses))
 		(map! (# (code guesses +int_size (* (!) +int_size))) '() 0 n)
 		(map! (# (code labels +int_size (* (!) +int_size))) '() 0 n)))
 

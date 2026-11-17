@@ -5,9 +5,7 @@
 
 ;n floats, 32 bits each, as a GPU has them, made from doubles
 (defun gc-floats (vals)
-	(defq s (str-alloc (* 4 (length vals))))
-	(each (# (set-int s (* (!) 4) (sh-double-to-float %0))) vals)
-	s)
+	(nums-convert (apply (const doubles) vals) (floats)))
 
 (defq gc_format (gpu-format))
 (cond
@@ -59,12 +57,12 @@
 				(assert-true "a kernel run over 256 floats" (gpu-run gc_double (list gc_src gc_dst) :nil (list (/ gc_n 64) 1 1)))
 				(assert-eq "each one doubled"
 					(gc-floats (map! (# (n2d (* 2 (- (!) 100)))) '() 0 gc_n))
-					(gpu-read gc_dst 0 (* 4 gc_n)))
+					(gpu-read gc_dst 0 (fill (floats) gc_n (n2f 0))))
 				(assert-true "a kernel with uniforms"
 					(gpu-run gc_scale (list gc_src gc_dst) (gc-floats (list (n2d 3) (n2d 1))) (list (/ gc_n 64) 1 1)))
 				(assert-eq "each one times 3 and plus 1"
 					(gc-floats (map! (# (n2d (+ 1 (* 3 (- (!) 100))))) '() 0 gc_n))
-					(gpu-read gc_dst 0 (* 4 gc_n)))
+					(gpu-read gc_dst 0 (fill (floats) gc_n (n2f 0))))
 				(gpu-buffer-free gc_src)
 				(gpu-buffer-free gc_dst)
 				(gpu-kernel-free gc_double)

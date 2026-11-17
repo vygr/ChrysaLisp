@@ -226,6 +226,21 @@
 
 (def-func-end)
 
+(def-method :fixeds :convert)
+	;inputs
+	;:r0 = fixeds object (ptr)
+	;:r1 = source nums object, of any kind (ptr)
+	;outputs
+	;:r0 = fixeds object (ptr)
+	;trashes
+	;:r2-:r6, :d0-:d15
+	;info
+	;made the source's length, each element of it converted
+
+	(nums-convert-method :fixeds :fixeds)
+
+(def-func-end)
+
 (def-method :fixeds :dot)
 	;inputs
 	;:r0 = fixeds object (ptr)
