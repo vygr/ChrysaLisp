@@ -44,6 +44,12 @@
 (assert-true "Double Log 0" (< (log (n2d 0.0)) (str-to-double "-1e308")))
 (assert-error "Double Exp of another type" (exp 3))
 
+; random, a double from 0 to it, not only whole numbers
+(defq dr_got (map! (lambda () (random (n2d 1))) '() 0 200))
+(assert-true "random of a double is below it" (every (# (and (>= %0 (n2d 0)) (< %0 (n2d 1)))) dr_got))
+(assert-true "and not only whole numbers" (some (# (> %0 (n2d 0))) dr_got))
+(assert-true "spread over it" (and (some (# (< %0 (n2d 0.25))) dr_got) (some (# (> %0 (n2d 0.75))) dr_got)))
+
 ; str-to-double, the nearest double, by its bits
 (defq s2r_bits (lambda (s) (get-long (set-double (str-alloc 8) 0 (str-to-double s)) 0)))
 (each (lambda ((s want)) (assert-eq (cat "Double from " s) want (s2r_bits s)))
