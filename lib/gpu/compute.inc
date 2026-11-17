@@ -44,6 +44,12 @@
 	(until (= (gpu-call +gpu_done ticket 0 0 0 0 0 0) 1) (task-sleep 500))
 	ticket)
 
+(defun gpu-take (ticket)
+	; (gpu-take ticket) -> ticket
+	;a ticket let go of, once its work is over, (gpu-wait)
+	(gpu-call +gpu_take ticket 0 0 0 0 0 0)
+	ticket)
+
 (defun gpu-read (b offset len)
 	; (gpu-read buffer offset len) -> :nil | str
 	;len bytes of the buffer at offset, once what was given before is done
@@ -84,11 +90,10 @@
 	; (gpu-run kernel (buffer ...) uniforms (x y z)) -> :t | :nil
 	;(gpu-dispatch) and wait for it to be over
 	(when (defq ticket (gpu-dispatch k buffers uniforms groups))
-		(gpu-wait ticket)
-		(gpu-call +gpu_take ticket 0 0 0 0 0 0)
+		(gpu-take (gpu-wait ticket))
 		:t))
 
 ;module
-(export-symbols '(gpu-call gpu-format gpu-buffer gpu-buffer-free gpu-write gpu-read gpu-wait
+(export-symbols '(gpu-call gpu-format gpu-buffer gpu-buffer-free gpu-write gpu-read gpu-wait gpu-take
 		gpu-kernel gpu-kernel-free gpu-dispatch gpu-run))
 (env-pop)

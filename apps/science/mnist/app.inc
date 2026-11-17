@@ -89,6 +89,21 @@
 	(long step count right)
 	(double loss))
 
+;a job of the GPU's task, a +mnist_job, slot the generation of the jobs it
+;is one of, those of an older one not done, then flags, load the params
+;from their buf before it, sync write them after into the gradient block's
+;slice past the farm's, and the rate of a step. The samples follow. Its
+;answer is a +mnist_reply, a count of -1 for no GPU there
+(structure +mnist_gpu_job +mnist_job_size
+	(long flags)
+	(double rate))
+
+(bits +mnist_gpu_flag 0
+	(bit load sync))
+
+;the most samples the GPU works on at once, a batch or a part of a check
+(defq +mnist_gpu_batch 1024)
+
 ;;;;;;;;;;;;;
 ; the samples
 ;;;;;;;;;;;;;

@@ -14,7 +14,9 @@
 	;the three bufs, opened again only if a key is not the one they were.
 	;:nil if one can not be, its app gone and its key with it, a job given
 	;out as it closed
-	(unless (eql (first bufs) (defq want (list data_key params_key grads_key children)))
+	(defq want (list data_key params_key grads_key children))
+	;the keys by =, two lists of the same big numbers are not eql
+	(unless (and (nempty? bufs) (every (const =) (first bufs) want))
 		(setq bufs (list want (buf +mnist_data_bytes data_key) (buf +mnist_params_bytes params_key)
 				(buf (mnist-slice children) grads_key)) step_had -1))
 	(if (some! (const identity) (list bufs) :t 1 -1) (rest bufs) (setq bufs (list)) :nil))

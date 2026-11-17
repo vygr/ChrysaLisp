@@ -402,6 +402,43 @@ so. One elsewhere that an install binds too soon, and is not named, stops
 the install with `Bind error:` and its name. `snapshot.zip` is 159,487
 bytes, the VP64 image and the host program for Windows.
 
+## A Network Learnt On The GPU
+
+MNIST, `apps/science/mnist`, learns handwritten digits with a network of
+`lib/nn`, 784 inputs, 128 ReLU, 10 softmax, 101,770 params, a batch of
+512. Measured on an M4 on 2026-11-17, sessions of 16 nodes.
+
+The first layer forward, a sample at a time, against the same dense kernel
+of the shader language, `tests/scratch/dense_forward.shader`, run by its VP
+back end and by the GPU over a whole batch:
+
+| Run by | A sample |
+|---|---|
+| Lisp, the native dot a row at a time | 65us |
+| The kernel as VP, batch 512 | 98us |
+| The kernel on the GPU, batch 512 | 2.6us |
+
+A GPU call has a wait of about 0.75ms however small it is, so a step is a
+chain of kernels given to the GPU's one queue with a wait only at its end,
+`lib/nn/gpu.inc` and `lib/nn/shaders`: the batch picked out of the data set,
+which is put on the GPU once as its bytes, each layer forward, the loss and
+its error, the error back, and each layer's weights moved down their
+gradients. The params never leave the GPU but to be shown. An epoch of
+55,000:
+
+| How | An epoch |
+|---|---|
+| A farm of 16 children, the gradients summed in shared bufs | 1.42s |
+| The GPU, from the task of the probe | 314ms |
+| The GPU, from a task of its own, given its steps 8 ahead | 323ms |
+
+The window's GPU mode is the last, so its frames hold none of it up. It
+ran 15 epochs to its early stop in 8 seconds, 97.0% of the 10,000 test
+digits right. The task of its own first took 1,571ms an epoch: the keys of
+its bufs were checked with `eql` on a list, which compares big numbers as
+objects, so every step opened the bufs again and put the 55MB data set back
+on the GPU.
+
 ## The VP64 Target: A Blueprint for Silicon
 
 `VP64` is not merely an emulation fallback; it is a fully specified, clean,

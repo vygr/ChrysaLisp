@@ -19,6 +19,21 @@
 		(1 (gpu-kernel (shader-msl-kernel program) layout))
 		(2 (gpu-kernel (shader-spirv-kernel program) layout))))
 
+(defun shader-gpu-dispatch (program kernel block from to bufs)
+	; (shader-gpu-dispatch program kernel block from to (buffer ...)) -> :nil | ticket
+	;the kernel given to the GPU for each index from to to, not waited for:
+	;what is given after it goes after it on the GPU's one queue, so a chain
+	;of kernels needs a wait only at its end, (gpu-wait), or a read of what
+	;they wrote. Each ticket is let go of by (gpu-take) once it is done. :nil
+	;for no indices, or a kernel that did not build. block, bufs as
+	;(shader-gpu-run) has them
+	(unless (>= from to)
+		(defq names (map (const first) (shader-buffers program)))
+		(gpu-dispatch kernel
+			(map (lambda ((name &rest _)) (elem-get bufs (find name names))) (sh-kernel-order program))
+			(shader-range program block from to)
+			(list (/ (+ (- to from) (dec +sh_kernel_threads)) +sh_kernel_threads) 1 1))))
+
 (defun shader-gpu-run (program kernel block from to bufs)
 	; (shader-gpu-run program kernel block from to (buffer ...)) -> :t | :nil
 	;the kernel run for each index from to to, and waited for, the other
@@ -28,8 +43,6 @@
 	;must be long enough, 4 bytes to an element
 	(cond
 		((>= from to))
-		(:t (defq names (map (const first) (shader-buffers program)))
-			(gpu-run kernel
-				(map (lambda ((name &rest _)) (elem-get bufs (find name names))) (sh-kernel-order program))
-				(shader-range program block from to)
-				(list (/ (+ (- to from) (dec +sh_kernel_threads)) +sh_kernel_threads) 1 1)))))
+		((defq ticket (shader-gpu-dispatch program kernel block from to bufs))
+			(gpu-take (gpu-wait ticket))
+			:t)))
