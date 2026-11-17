@@ -5,13 +5,12 @@
 (defq svc (ensure-lock-service))
 (assert-true "ensure-lock-service returns netid" (and (str? svc) (= (length svc) 24)))
 
-; --- Claim and release write lock ---
-(assert-true "lock-claim-rpc write" (lock-claim-rpc "test/file/write_key" +lock_mode_write))
-(assert-true "lock-release-rpc write" (lock-release-rpc "test/file/write_key"))
-
-; --- Claim and release read lock ---
-(assert-true "lock-claim-rpc read" (lock-claim-rpc "test/file/read_key" +lock_mode_read))
-(assert-true "lock-release-rpc read" (lock-release-rpc "test/file/read_key"))
+; --- a write lock and a read lock, claimed and released, for the history:
+;the claims themselves are checked with the exclusive and shared ones below
+(lock-claim-rpc "test/file/write_key" +lock_mode_write)
+(lock-release-rpc "test/file/write_key")
+(lock-claim-rpc "test/file/read_key" +lock_mode_read)
+(lock-release-rpc "test/file/read_key")
 
 ; --- Lock history retrieval ---
 (defq history (lock-history-rpc))
@@ -54,16 +53,12 @@
 (defq hist3 (lock-history-rpc))
 (assert-true "lock-history contains cp src read lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_cp_src.txt (lock read)") %0)) hist3)))
-(assert-true "lock-history contains cp dst write lock"
+(assert-true "lock-history contains cp dst and mv src write lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_cp_dst.txt (lock write)") %0)) hist3)))
-(assert-true "lock-history contains mv src write lock"
-	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_cp_dst.txt (lock write)") %0)) hist3)))
-(assert-true "lock-history contains mv dst write lock"
+(assert-true "lock-history contains mv dst and its removal's write lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_mv_dst.txt (lock write)") %0)) hist3)))
 (assert-true "lock-history contains dump read lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_mv_dst.txt (lock read)") %0)) hist3)))
-(assert-true "lock-history contains rm write lock"
-	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_mv_dst.txt (lock write)") %0)) hist3)))
 
 ; --- Test edit command locking ---
 (pipe-run "echo original | save tests/scratch/tmp_edit.txt" (lambda (&) :nil))
@@ -87,14 +82,10 @@
 (pipe-run "rm tests/scratch/tmp_db.txt" (lambda (&) :nil))
 
 (defq hist5 (lock-history-rpc))
-(assert-true "lock-history contains diff read lock"
+(assert-true "lock-history contains diff, sed and huff read lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_da.txt (lock read)") %0)) hist5)))
 (assert-true "lock-history contains patch read lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_db.txt (lock read)") %0)) hist5)))
-(assert-true "lock-history contains sed read lock"
-	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_da.txt (lock read)") %0)) hist5)))
-(assert-true "lock-history contains huff read lock"
-	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_da.txt (lock read)") %0)) hist5)))
 (assert-true "lock-history contains rm da write lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_da.txt (lock write)") %0)) hist5)))
 (assert-true "tests/scratch/tmp_da.txt removed" (not (file-stream "tests/scratch/tmp_da.txt")))
@@ -113,13 +104,9 @@
 (pipe-run "rm tests/scratch/tmp_head_tail.txt" (lambda (&) :nil))
 
 (defq hist9 (lock-history-rpc))
-(assert-true "lock-history contains head read lock"
+(assert-true "lock-history contains head and tail read lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_head_tail.txt (lock read)") %0)) hist9)))
-(assert-true "lock-history contains head read unlock"
-	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_head_tail.txt (unlock read)") %0)) hist9)))
-(assert-true "lock-history contains tail read lock"
-	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_head_tail.txt (lock read)") %0)) hist9)))
-(assert-true "lock-history contains tail read unlock"
+(assert-true "lock-history contains head and tail read unlock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_head_tail.txt (unlock read)") %0)) hist9)))
 
 ; --- Test ctf command locking ---

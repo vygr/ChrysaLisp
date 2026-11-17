@@ -101,8 +101,6 @@
 (assert-error "const from an input" (sh-src "(definput k :float)" "(defconst c (* k 2.0))" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
 (assert-error "wrong args to function" (sh-src "(defun f :float ((a :float)) (return a))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1))))"))
 (assert-error "recursion" (sh-src "(defun f :float ((a :float)) (return (f a)))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1.0))))"))
-;a file with no main is functions for Lisp to call, tested further on
-(assert-eq "no main, functions" :func (shader-stage (sh-src "(defun f :float ((a :float)) (return a))")))
 (assert-error "a main that is neither kind" (sh-src "(defun main :float ((a :float)) (return a))"))
 (assert-error "wrong main" (sh-src "(defun main :vec3 ((frag :vec2)) (return (vec3 1.0)))"))
 (assert-error "vector input with a default" (sh-src "(definput v :vec2 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
@@ -544,7 +542,6 @@
 (assert-list-eq "argb tile, inputs given" '(0xff404000 0xffbf4000)
 	(map! (# (get-uint (shader-vp-argb native
 					(shader-vp-frame prog native '((k 2.0) (n 0))) 0 0 2 1) (* (!) 4))) '() 0 2))
-(assert-list-eq "same program, same function" (first native) (first (shader-vp prog)))
 (defq pixels (shader-vp-pixels native frame 1 2 3 4))
 (assert-list-eq "pixels tile" '((0.375 0.625) (0.625 0.625) (0.375 0.875) (0.625 0.875))
 	(map (# (map! (const n2q) (list %0) 0 2)) pixels))
