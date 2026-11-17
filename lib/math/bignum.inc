@@ -143,8 +143,21 @@
 
 (defun bn-shl (a s)
 	; (bn-shl a s) -> nums
-	;a moved up s bits, s less than 26
+	;a moved up s bits, whole limbs of them and then the rest
+	(if (>= s +bn_bits) (setq a (cat (bn-zeros (/ s +bn_bits)) a) s (% s +bn_bits)))
 	(if (= s 0) a (bn-norm (nums-scale a (<< 1 s)))))
+
+(defun bn-pow10 (k)
+	; (bn-pow10 k) -> nums
+	;10 to the k, k not less than 0, 7 at a time, as 10^7 is a limb
+	(defq out (bn-from-num 1))
+	(while (>= k 7) (setq out (bn-norm (nums-scale out 10000000)) k (- k 7)))
+	(bn-norm (nums-scale out (pow 10 k))))
+
+(defun bn-cmp-shl (a b q)
+	; (bn-cmp-shl a b q) -> -1 | 0 | 1
+	;a against b times 2 to the q, q above or below 0
+	(if (< q 0) (bn-cmp (bn-shl a (neg q)) b) (bn-cmp a (bn-shl b q))))
 
 (defun bn-shr (a s)
 	; (bn-shr a s) -> nums
@@ -223,6 +236,6 @@
 
 ;module
 (export-symbols '(bn-zeros bn-trim bn-norm bn-from-num bn-from-bytes bn-bytes bn-bits bn-bit
-		bn-zero? bn-cmp bn-pad bn-add bn-sub bn-mul bn-shl bn-shr bn-modulus bn-reduce bn-mod
+		bn-zero? bn-cmp bn-pad bn-add bn-sub bn-mul bn-shl bn-shr bn-pow10 bn-cmp-shl bn-modulus bn-reduce bn-mod
 		bn-mulmod bn-addmod bn-submod bn-powmod bn-invmod))
 (env-pop)

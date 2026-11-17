@@ -1192,31 +1192,6 @@
 	(defq b (bskip (setd cls " ") s 0))
 	(slice s b (max b (rbskip cls s -1))))
 
-(defun str-to-real (%0)
-	; (str-to-real str) -> real
-	; handles scientific notation like 1.5e-3 or 9.97231e-09
-	(defq result (const (n2r 0)) frac_val (const (n2r 0)) frac_scale (const (n2r 1))
-		exp_val 0 exp_neg :nil in_exp :nil in_frac :nil)
-	(each (# (cond
-				((eql %0 "-") (if in_exp (setq exp_neg :t)))
-				((eql %0 "+") :nil)
-				((eql %0 ".") (ifn in_exp (setq in_frac :t)))
-				((find %0 "eE") (setq in_exp :t))
-				((defq d (find %0 "0123456789"))
-					(if in_exp
-						(setq exp_val (min 325 (+ (* exp_val 10) d)))
-						(if in_frac
-							(setq frac_val (+ (* frac_val (const (n2r 10))) (n2r d))
-								frac_scale (* frac_scale (const (n2r 10))))
-							(setq result (+ (* result (const (n2r 10))) (n2r d)))))))) %0)
-	(when (> frac_scale (const (n2r 1)))
-		(setq result (+ result (/ frac_val frac_scale))))
-	(when (> exp_val 0)
-		(times exp_val (setq result (if exp_neg
-					(/ result (const (n2r 10)))
-					(* result (const (n2r 10)))))))
-	(if (eql (first %0) "-") (neg result) result))
-
 (defun real-to-str (r &optional precision)
 	; (real-to-str real [precision]) -> str
 	(ifn (real? r) (setq r (n2r r)))
@@ -1725,6 +1700,72 @@
 (import "lib/class/class.inc")
 (import "lib/collections/collections.inc")
 (import "lib/text/searching.inc")
+(import "lib/math/bignum.inc")
+(defun str-to-real (%0)
+	; (str-to-real str) -> real
+	;the nearest double to a number in decimal, 1.5, -2.5e-3, 9.97231e-09, a
+	;tie to the even one. Its digits are a whole number m, and where the
+	;point is and the e a power of 10. An m of up to 2^53 and a power of up
+	;to 22 is one multiply or divide of two exact doubles, so the nearest.
+	;Any other is worked out near enough, then put right a bit at a time,
+	;m times the power checked against the halfway to the next double up
+	;and down as whole numbers
+	(defq digits (list) e 0 ex 0 in_frac :nil in_exp :nil exp_neg :nil)
+	(each (# (cond
+			((eql %0 "-") (if in_exp (setq exp_neg :t)))
+			((eql %0 ".") (setq in_frac :t))
+			((find %0 "eE") (setq in_exp :t))
+			((defq d (find %0 "0123456789"))
+				(cond
+					(in_exp (setq ex (min 99999 (+ (* ex 10) d))))
+					(:t (if in_frac (setq e (dec e)))
+						(if (or (nempty? digits) (/= d 0)) (push digits d))))))) %0)
+	(setq e (+ e (if exp_neg (neg ex) ex)))
+	(while (and (nempty? digits) (= (last digits) 0)) (pop digits) (setq e (inc e)))
+	(defq n (length digits) word (str-alloc 8)
+		m (reduce! (# (+ (* %0 10) %1)) (list digits) 0 0 (min n 18))
+		r (cond
+			((= n 0) (const (n2r 0)))
+			((> (+ n e) 310) (get-real (set-long word 0 0x7ff0000000000000) 0))
+			((< (+ n e) -325) (const (n2r 0)))
+			((and (<= n 16) (<= m 0x20000000000000) (<= -22 e 22))
+				(defq p (const (n2r 1)))
+				(times (abs e) (setq p (* p (const (n2r 10)))))
+				(if (< e 0) (/ (n2r m) p) (* (n2r m) p)))
+			(:t ;near enough, from the first 18 digits, a power below -300 in
+				;two, so neither is out of range
+				(defq e18 (+ e (max 0 (- n 18))) z (n2r m))
+				(if (< e18 -300)
+					(setq z (/ (* z (pow (const (n2r 10)) (n2r (+ e18 300))))
+						(const (pow (n2r 10) (n2r 300)))))
+					(setq z (* z (pow (const (n2r 10)) (n2r e18)))))
+				;m and the power of 10 as whole numbers, lib/math/bignum.inc, m on
+				;the left if the power is up, the power on the right if down, each
+				;against a halfway point, a whole number times 2 to a power
+				(defq big (reduce (# (bn-add (bn-mul %0 (bn-from-num 10)) (bn-from-num %1)))
+						digits (bn-from-num 0))
+					left (if (< e 0) big (bn-mul big (bn-pow10 e)))
+					right (if (< e 0) (bn-pow10 (neg e)) (bn-from-num 1))
+					b (get-long (set-real word 0 z) 0) running :t)
+				(if (>= b 0x7ff0000000000000) (setq b 0x7fefffffffffffff))
+				(while running
+					(defq ef (>> b 52) f (logand b 0xfffffffffffff)
+						fm (if (= ef 0) f (logior f 0x10000000000000))
+						k (if (= ef 0) -1074 (- ef 1075))
+						c (bn-cmp-shl left (bn-mul right (bn-from-num (inc (* fm 2)))) (dec k)))
+					(cond
+						((>= ef 2047) (setq running :nil))
+						((or (> c 0) (and (= c 0) (/= (logand fm 1) 0))) (setq b (inc b)))
+						((= b 0) (setq running :nil))
+						((defq c (if (and (= f 0) (> ef 1))
+									(bn-cmp-shl left (bn-mul right (bn-from-num (dec (* fm 4)))) (- k 2))
+									(bn-cmp-shl left (bn-mul right (bn-from-num (dec (* fm 2)))) (dec k))))
+							(if (or (< c 0) (and (= c 0) (/= (logand fm 1) 0)))
+								(setq b (dec b))
+								(setq running :nil)))))
+				(get-real (set-long word 0 b) 0))))
+	(if (eql (first %0) "-") (neg r) r))
+
 (import "sys/lisp.inc")
 (import "././lisp.inc")
 (import "lib/options/options.inc")

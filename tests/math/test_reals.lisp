@@ -43,6 +43,18 @@
 (assert-true "Real Log of Exp" (e_near (log (exp (n2r 5.5))) (n2r 5.5)))
 (assert-true "Real Log 0" (< (log (n2r 0.0)) (str-to-real "-1e308")))
 (assert-error "Real Exp of another type" (exp 3))
+
+; str-to-real, the nearest double, by its bits
+(defq s2r_bits (lambda (s) (get-long (set-real (str-alloc 8) 0 (str-to-real s)) 0)))
+(each (lambda ((s want)) (assert-eq (cat "Real from " s) want (s2r_bits s)))
+	'(("0.1" 0x3FB999999999999A) ("2.718281828459045" 0x4005BF0A8B145769)
+	("4.5399929762484854e-05" 0x3F07CD79B5647C9B) ("1e-300" 0x01A56E1FC2F8F359)
+	("1.0142320547350045e304" 0x7F0D945DF4F8EC8E) ("1e308" 0x7FE1CCF385EBC8A0)
+	("1.7976931348623157e308" 0x7FEFFFFFFFFFFFFF) ("2.2250738585072011e-308" 0x000FFFFFFFFFFFFF)
+	("5e-324" 0x1) ("2.4703282292062327e-324" 0x0) ("2.4703282292062328e-324" 0x1)
+	("9007199254740993" 0x4340000000000000) ("1e23" 0x44B52D02C7E14AF6)
+	("3.141592653589793238462643383279" 0x400921FB54442D18) ("-0.5" 0xBFE0000000000000)
+	("1e400" 0x7FF0000000000000) ("1e-400" 0x0)))
 (assert-true "Fixed Exp and Log" (and (< (abs (- (exp 1.0) 2.71828)) 0.0002) (< (abs (- (log 2.0) 0.69315)) 0.0002)))
 
 ; Trig (Scalar)
