@@ -10,6 +10,7 @@ deps/
 /usr/*/voice_notes/
 /usr/*/whiteboard_kept.*
 /lib/files/*.tre
+/apps/science/mnist/data/
 /tests/scratch/
 os
 cpu

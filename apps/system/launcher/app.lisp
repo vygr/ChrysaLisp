@@ -35,7 +35,7 @@
 			'Demos (scatter (Emap) :collapsed :nil
 				:apps '("boing" "freeball" "bubbles" "opcodes" "canvas" "motion" "raymarch" "surface" "planets" "model"))
 			'Science (scatter (Emap) :collapsed :nil
-				:apps '("molecule" "pcb" "mandelbrot" "mesh")))))
+				:apps '("molecule" "pcb" "mandelbrot" "mesh" "mnist")))))
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
