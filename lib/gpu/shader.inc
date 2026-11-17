@@ -77,7 +77,7 @@
 	;of ints, and >> keeps the sign, as a GPU's does
 	*sh_bits* '(logand logior logxor << >>)
 	*sh_words* '(definput defconst defglobal defattr defvarying deftexture defbuffer defun
-		defq setq if when progn for break return elem-set))
+		defq setq if when cond progn for break return elem-set))
 
 (defun sh-err (msg form)
 	(throw (cat "Shader, " msg " !") form))
@@ -476,6 +476,39 @@
 			((elem-set held idx (list 'return form)))))
 	(first top))
 
+(defun sh-cond-if (form)
+	;a cond as ifs: the first test's forms a progn, else an if of the next,
+	;and so on, a :t clause, which must be the last, the else of them all
+	(defq clauses (rest form) out :nil)
+	(if (empty? clauses) (sh-err "a cond with no clauses" form))
+	(reach (lambda (clause)
+			(unless (and (list? clause) (> (length clause) 1))
+				(sh-err "a cond clause is (test form ...)" form))
+			(defq body (cat '(progn) (rest clause)))
+			(setq out (cond
+				((eql (first clause) :t)
+					(if out (sh-err "the :t clause of a cond is its last" form))
+					body)
+				(out (list 'if (first clause) body out))
+				((list 'if (first clause) body)))))
+		clauses)
+	out)
+
+(defun sh-cond (forms)
+	; (sh-cond forms) -> forms
+	;each cond in the forms, at any depth, made the ifs it is, so a back
+	;end sees only ifs. A walk, a place at a time, each form it goes into a
+	;copy, as the source may be a constant
+	(defq top (cat forms) todo (list))
+	(each! (lambda (&) (push todo (list top (!)))) (list top))
+	(while (defq spot (pop todo))
+		(bind '(held idx) spot)
+		(when (and (list? (defq form (elem-get held idx))) (nempty? form))
+			(if (eql (first form) 'cond) (setq form (sh-cond-if form)))
+			(elem-set held idx (defq copy (cat form)))
+			(each! (lambda (&) (push todo (list copy (!)))) (list copy) 1)))
+	top)
+
 (defun sh-returns? (block)
 	;does every path through the block end at a return ? The arms of an
 	;if that is last are blocks to ask it of in turn, on a list
@@ -669,7 +702,7 @@
 							(sh-name (first %0) form)
 							(sh-type (second %0) form)
 							(push syms (list (first %0) (second %0) :param))) params)
-					(defq body (slice form 4 -1))
+					(defq body (sh-cond (slice form 4 -1)))
 					(and (nempty? body) (nql ret_type :void)
 						(setq body (cat (slice body 0 -2) (list (sh-tail (last body))))))
 					(defq block (sh-block body))

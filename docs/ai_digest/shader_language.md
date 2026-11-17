@@ -158,6 +158,10 @@ raymarch, `sphere`, `box`, `rounded_cube` and `smin`, and noise, `hash`,
   the caller's value does not change. `(setq (:w color) 1.0)` and
   `(setq (:xz p) (vec2 0.0 1.0))` set components of a vector.
 * `(if test then [else])`, `(when test body ...)` and `(progn body ...)`.
+* `(cond (test body ...) ... [(:t body ...)])`. The first clause whose test
+  is true, its body run; a `:t` clause, which must be the last, if none is.
+  The checker makes it the ifs it is, each body a `progn`, so the back ends
+  never see it.
 * `(for (i start end) body ...)`. `i` is an int that counts from `start` up
   to, but not including, `end`. The bounds are int literals or constants, a
   shader loop must have a known limit. `i` can not be set.
@@ -176,7 +180,8 @@ The value of a function is its last form. It need not say `return`.
 ```
 
 If the last form is an `if`, the last form of each of its arms is the value,
-and so on down, through a `progn` as well. An `if` with one arm, a `when` and
+and so on down, through a `progn` as well, and so a `cond` with a `:t`
+clause, the last form of each clause. An `if` with one arm, a `when` and
 a `for` are not values, a function that ends with one has not said what it
 returns, and is refused. `return` is for leaving early. Of the 19 functions
 of the raymarch shader one has a `return` in it.

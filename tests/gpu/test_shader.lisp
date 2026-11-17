@@ -113,6 +113,18 @@
 (assert-error "const is not a declaration" (sh-src "(const c 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
 (assert-error "global is not a declaration" (sh-src "(global g 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 g)))"))
 
+;a cond is the ifs it is, as the value of a function and as a statement
+(assert-list-eq "a cond as the value is its ifs"
+	(last (sh-main "(if (> (:x frag) 1.0) (vec4 1.0) (if (> (:x frag) 0.5) (vec4 0.5) (vec4 0.0)))"))
+	(last (sh-main "(cond ((> (:x frag) 1.0) (vec4 1.0)) ((> (:x frag) 0.5) (vec4 0.5)) (:t (vec4 0.0)))")))
+(assert-list-eq "a cond as a statement, no :t, is its ifs"
+	(last (sh-main "(defq a 0.0)" "(if (> (:x frag) 1.0) (setq a 1.0) (if (> (:x frag) 0.5) (progn (setq a 0.5) (setq a (* a 2.0)))))" "(vec4 a)"))
+	(last (sh-main "(defq a 0.0)" "(cond ((> (:x frag) 1.0) (setq a 1.0)) ((> (:x frag) 0.5) (setq a 0.5) (setq a (* a 2.0))))" "(vec4 a)")))
+(assert-error "a cond with no clauses" (sh-main "(cond)" "(return (vec4 1.0))"))
+(assert-error "a cond clause with no forms" (sh-main "(cond ((> (:x frag) 1.0)))" "(return (vec4 1.0))"))
+(assert-error "a :t clause before the last" (sh-main "(cond (:t (vec4 1.0)) ((> (:x frag) 1.0) (vec4 0.5)))"))
+(assert-error "a cond not returning on every path" (sh-main "(cond ((> (:x frag) 1.0) (vec4 1.0)))"))
+
 ;the last form of a function is its value
 (assert-list-eq "last form is the value"
 	(last (sh-src "(defun f :float ((a :float)) (return (* a 2.0)))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1.0))))"))
@@ -1101,6 +1113,10 @@
 	((shader-vp-func fn_single 'tenth)))
 (assert-eq "an arg is made the nearest 32 bit float to it" (fn-single (str-to-double "0.1"))
 	((shader-vp-func fn_single 'add) (str-to-double "0.1") (n2d 0)))
+;a cond, run, each clause in turn
+(defq fn_pick (shader-vp-func (sh-src "(defun pick :float ((x :float)) (cond ((> x 1.0) 2.0) ((> x 0.0) 1.0) (:t 0.0)))") 'pick))
+(assert-list-eq "a cond picks its clause" (list (n2d 2) (n2d 1) (n2d 0))
+	(map (# (fn_pick (n2d %0))) '(3 0.5 -1)))
 ;what comes back is new each time, and the args are as they were
 (defq fn_before (cat fn_b) fn_one (fn_mul fn_a fn_b) fn_two (fn_mul fn_a fn_b))
 (assert-true "a doubles of 16 comes back" (and (doubles? fn_one) (= (length fn_one) 16)))

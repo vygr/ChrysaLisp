@@ -18,9 +18,8 @@
 	(for (k 0 max_ins)
 		(when (>= k ins) (break))
 		(setq acc (+ acc (* (elem-get w (+ wr k)) (elem-get x (+ xr k))))))
-	(if (= act 1)
-		(when (< acc 0.0) (setq acc 0.0))
-		(if (= act 2)
-			(setq acc (/ 1.0 (+ 1.0 (exp (- acc)))))
-			(when (= act 3) (setq acc (- (/ 2.0 (+ 1.0 (exp (* -2.0 acc)))) 1.0)))))
+	(cond
+		((= act 1) (when (< acc 0.0) (setq acc 0.0)))
+		((= act 2) (setq acc (/ 1.0 (+ 1.0 (exp (- acc))))))
+		((= act 3) (setq acc (- (/ 2.0 (+ 1.0 (exp (* -2.0 acc)))) 1.0))))
 	(elem-set a i acc))

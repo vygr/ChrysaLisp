@@ -19,9 +19,8 @@
 	(for (j 0 max_outs)
 		(when (>= j outs) (break))
 		(setq acc (+ acc (* (elem-get dz (+ zr j)) (elem-get w (+ (* j ins) k))))))
-	(if (= act 1)
-		(when (<= v 0.0) (setq acc 0.0))
-		(if (= act 2)
-			(setq acc (* acc v (- 1.0 v)))
-			(when (= act 3) (setq acc (* acc (- 1.0 (* v v)))))))
+	(cond
+		((= act 1) (when (<= v 0.0) (setq acc 0.0)))
+		((= act 2) (setq acc (* acc v (- 1.0 v))))
+		((= act 3) (setq acc (* acc (- 1.0 (* v v))))))
 	(elem-set dx i acc))
