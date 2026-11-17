@@ -5811,6 +5811,17 @@ the codes a block of its own codes says, at its head
 the codes of a block of fixed codes
 ```
 
+### inflate-gzip
+
+```code
+(inflate-gzip in_stream out_stream) -> :nil | :t
+
+the bytes of a gzip member, RFC 1952, what a .gz file is: its head read
+past, a name, a comment and more if it has them, and the DEFLATE stream
+after it inflated. :nil if it is not one, or stops before its end. The
+sum and length at its end are not read, what was written is not to hand
+```
+
 ### int-to-hex-str
 
 ```code
@@ -7654,6 +7665,196 @@ before had any
 
 ```code
 (nlz num) -> num
+```
+
+### nn-activate
+
+```code
+(nn-activate act a) -> a
+
+an activation of a layer's scores, in place
+```
+
+### nn-backward
+
+```code
+(nn-backward model net grads x scratch label) -> loss
+
+the gradient of the loss of a sample, after its (nn-forward), added to
+grads: the cross entropy of softmax outputs, so the error at them is
+the outputs less the label's one, and back a layer at a time, through
+each one's weights and the activation of the one before
+```
+
+### nn-bytes
+
+```code
+(nn-bytes params) -> str
+
+the bytes of a vector of doubles, to go into a buf or a file
+```
+
+### nn-flat
+
+```code
+(nn-flat net) -> params
+
+a net as one vector, as the params are kept
+```
+
+### nn-forward
+
+```code
+(nn-forward model net x scratch) -> outputs
+
+a sample through the layers, each one's outputs kept in the scratch
+```
+
+### nn-guess
+
+```code
+(nn-guess outputs) -> index
+
+the output that is biggest
+```
+
+### nn-init
+
+```code
+(nn-init model) -> params
+
+weights at random, each layer's spread by how many feed a unit, He's
+uniform, the biases 0
+```
+
+### nn-ins
+
+```code
+(nn-ins model) -> count
+```
+
+### nn-layers
+
+```code
+(nn-layers model) -> ((kind ins outs act name weights biases) ...)
+```
+
+### nn-model
+
+```code
+(nn-model description) -> model
+
+(layers params), each layer (kind ins outs act name weights biases)
+```
+
+### nn-net
+
+```code
+(nn-net model params) -> ((rows biases) ...)
+
+the params as rows, each its own vector, a layer at a time
+```
+
+### nn-outs
+
+```code
+(nn-outs model) -> count
+```
+
+### nn-params
+
+```code
+(nn-params model) -> count
+
+how many numbers the model has
+```
+
+### nn-scratch
+
+```code
+(nn-scratch model) -> (acts deltas tmps)
+
+what a sample's sums are worked in, made once: each layer's outputs,
+its error, and a vector the width of what feeds it
+```
+
+### nn-slope
+
+```code
+(nn-slope act a d) -> d
+
+an error d at a layer's outputs a taken back through its activation,
+in place, the slope of it written by the outputs
+```
+
+### nn-view
+
+```code
+(nn-view model width height) -> view
+```
+
+### nn-view-draw
+
+```code
+(nn-view-draw view canvas dt pixels) -> view
+
+the scene gone on by dt seconds and drawn, and the input picture on it,
+pixels a str of a byte each, if the input is a square
+```
+
+### nn-view-figure
+
+```code
+(nn-view-figure stage outline fill x y) -> figure
+```
+
+### nn-view-rect
+
+```code
+(nn-view-rect w h) -> outline
+```
+
+### nn-view-show
+
+```code
+(nn-view-show view acts label) -> view
+
+the units eased to how strongly each fired for a sample, acts each
+layer's outputs as (nn-forward) left them, and the bars to the chance
+of each, the taken one green if it is the label, red if not
+```
+
+### nn-view-unit
+
+```code
+(nn-view-unit figure) -> (x y)
+
+the middle of a unit's figure
+```
+
+### nn-view-weights
+
+```code
+(nn-view-weights view net) -> view
+
+each output's strongest weights from the layer before, lines from
+those units to its bar, brighter the stronger
+```
+
+### nn-view-words
+
+```code
+(nn-view-words stage text x y size [colour]) -> figure
+
+words with their left at x and their foot at y
+```
+
+### nn-zeros
+
+```code
+(nn-zeros model) -> ((rows biases) ...)
+
+a net of 0s, the shape of the model's, for gradients
 ```
 
 ### node-auto
