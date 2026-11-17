@@ -108,6 +108,34 @@
 			(:t (setq ok :nil))))
 	ok)
 
+(defun inflate-gzip (in_stream out_stream)
+	; (inflate-gzip in_stream out_stream) -> :nil | :t
+	;the bytes of a gzip member, RFC 1952, what a .gz file is: its head read
+	;past, a name, a comment and more if it has them, and the DEFLATE stream
+	;after it inflated. :nil if it is not one, or stops before its end. The
+	;sum and length at its end are not read, what was written is not to hand
+	(defq head (read-blk in_stream 10) ok :t)
+	(cond
+		((or (not head) (/= (length head) 10) (/= (code head 1 0) 0x1f)
+				(/= (code head 1 1) 0x8b) (/= (code head 1 2) 8))
+			:nil)
+		(:t (defq flg (code head 1 3))
+			;more, its length first
+			(when (bits? flg 4)
+				(defq len (read-blk in_stream 2))
+				(if (and len (= (length len) 2))
+					(read-blk in_stream (code len 2 0))
+					(setq ok :nil)))
+			;a name and a comment, each to a 0
+			(each (lambda (bit)
+					(when (and ok (bits? flg bit))
+						(while (and (defq c (read-char in_stream)) (/= c 0)))
+						(unless c (setq ok :nil))))
+				'(8 16))
+			;a sum of the head
+			(if (bits? flg 2) (read-blk in_stream 2))
+			(and ok (inflate-decompress in_stream out_stream)))))
+
 (defun deflate-compress (in_stream out_stream &optional zlib)
 	; (deflate-compress in_stream out_stream [zlib]) -> :t
 	;the bytes of in as DEFLATE, raw, or with zlib's head and sum round it.
@@ -129,5 +157,5 @@
 	:t)
 
 ;module
-(export-symbols '(inflate-decompress deflate-compress *deflate_fixed*))
+(export-symbols '(inflate-decompress inflate-gzip deflate-compress *deflate_fixed*))
 (env-pop)

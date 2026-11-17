@@ -23,6 +23,17 @@
 
 (assert-eq "not zlib is not taken for it" :nil (first (td-inflate "not zlib at all" :t)))
 
+;gzip, a .gz file, its head read past
+(defun td-gunzip (data)
+	(defq out (string-stream (cat "")))
+	(list (inflate-gzip (string-stream data) out) (str out)))
+(assert-list-eq "gzip with a name" '(:t "hello gzip, hello gzip, hello gzip")
+	(td-gunzip (hex-decode "1F8B08080000000000FF612E74787400CB48CDC9C95748AFCA2CD051C8C0CA0600BA318E2622000000")))
+(assert-list-eq "gzip with more, a comment and a sum of its head" '(:t "hello gzip, hello gzip, hello gzip")
+	(td-gunzip (hex-decode "1F8B081600000000000306004142020078796120636F6D6D656E7400863CCB48CDC9C95748AFCA2CD051C8C0CA0600BA318E2622000000")))
+(assert-eq "not gzip is not taken for it" :nil (first (td-gunzip "not gzip at all")))
+(assert-eq "a head and no more" :nil (first (td-gunzip (hex-decode "1F8B0808000000000000FF612E74"))))
+
 ;the sums, as zlib has them
 (import "lib/hash/sums.inc")
 (defq td_fox "The quick brown fox jumps over the lazy dog")
