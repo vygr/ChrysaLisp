@@ -27,7 +27,7 @@
 	(dec-method :erase2 class/array/erase2 :virtual (:r0 :r1) (:r0 :r1) (:r2-:r3 :d0-:d15) (:r2-:r3))
 	(dec-method :fill class/array/fill :virtual (:r0 :r1 :r2) (:r0) (:r1-:r4 :d0-:d15) (:r1-:r4 :d0-:d15))
 	(dec-method :get_cap class/array/get_cap :static (:r0) (:r0 :r1))
-	(dec-method :set_cap class/array/set_cap :static (:r0 :r1) (:r0) (:r1-:r2 :d0-:d15))
+	(dec-method :set_cap class/array/set_cap :virtual (:r0 :r1) (:r0) (:r1-:r2 :d0-:d15) (:r1-:r2 :d0-:d15))
 	(dec-method :set_length class/array/set_length :static (:r0 :r1) (:r0 :r1))
 	(dec-method :sort class/array/sort :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0) (:r1-:r14 :d0-:d15))
 	(dec-method :pivot class/array/pivot :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1) (:r1-:r14 :d0-:d15))
