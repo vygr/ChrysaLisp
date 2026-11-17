@@ -27,7 +27,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r8
+:r1-:r2, :r4-:r8
 info
 each of the first plus each of the second times the scale, in one pass
 ```

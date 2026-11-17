@@ -408,6 +408,8 @@
 ; (fixeds [fixed ...]) -> fixeds
 (ffi "class/array/lisp_doubles" doubles)
 ; (doubles [double ...]) -> doubles
+(ffi "class/floats/lisp_floats" floats)
+; (floats [float ...]) -> floats
 (ffi "class/array/lisp_path" path)
 ; (path [fixed ...]) -> path
 (ffi "class/dim/lisp_dim" dim)
@@ -693,6 +695,14 @@
 (defun doubles?? (%0)
 	; (doubles?? form) -> :t | :nil
 	(eql :doubles (pop (type-of %0))))
+
+(defun floats? (%0)
+	; (floats? form) -> :t | :nil
+	(find :floats (type-of %0)))
+
+(defun floats?? (%0)
+	; (floats?? form) -> :t | :nil
+	(eql :floats (pop (type-of %0))))
 
 (defun func? (%0)
 	; (func? form) -> :t | :nil

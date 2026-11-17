@@ -26,10 +26,10 @@
 		(:f (cond
 				((not e) (throw "No such comparator" o))
 				;two singles by the 32 bit compares, two doubles by the 64. By
-				;the list, not vp-freg?, a macro of regs.inc, which is after
-				((nql (not (find s +vp_fregs)) (not (find d +vp_fregs)))
+				;the map vp-freg? reads, as the macro is of regs.inc, after this
+				((nql (not (pfind +vp_fregs_map s)) (not (pfind +vp_fregs_map d)))
 					(throw "A single compared with a double !" (list s d)))
-				((find s +vp_fregs) ((eval (elem-get '(vp-beq-ff vp-bne-ff vp-ble-ff vp-bge-ff vp-bgt-ff vp-blt-ff) e)) s d l))
+				((pfind +vp_fregs_map s) ((eval (elem-get '(vp-beq-ff vp-bne-ff vp-ble-ff vp-bge-ff vp-bgt-ff vp-blt-ff) e)) s d l))
 				(((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l))))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
@@ -44,10 +44,10 @@
 		(:f (cond
 				((not e) (throw "No such comparator" o))
 				;two singles by the 32 bit compares, two doubles by the 64. By
-				;the list, not vp-freg?, a macro of regs.inc, which is after
-				((nql (not (find s +vp_fregs)) (not (find d +vp_fregs)))
+				;the map vp-freg? reads, as the macro is of regs.inc, after this
+				((nql (not (pfind +vp_fregs_map s)) (not (pfind +vp_fregs_map d)))
 					(throw "A single compared with a double !" (list s d)))
-				((find s +vp_fregs) ((eval (elem-get '(vp-beq-ff vp-bne-ff vp-ble-ff vp-bge-ff vp-bgt-ff vp-blt-ff) e)) s d l))
+				((pfind +vp_fregs_map s) ((eval (elem-get '(vp-beq-ff vp-bne-ff vp-ble-ff vp-bge-ff vp-bgt-ff vp-blt-ff) e)) s d l))
 				(((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l))))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 

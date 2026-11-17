@@ -37,14 +37,14 @@
 		(defq programs (map (# (shader-load (cat "lib/nn/shaders/" %0 ".shader"))) +nn_gpu_shaders)
 			kernels (map (const shader-gpu-kernel) programs) ins (nn-ins model))
 		(when (every (const identity) kernels)
-			(defq floats (lambda (n) (gpu-buffer (* (max 1 n) +int_size))))
+			(defq float-buffer (lambda (n) (gpu-buffer (* (max 1 n) +int_size))))
 			(list model capacity programs kernels
-				(list (floats capacity) (floats (* capacity ins)) (floats capacity)
-					(floats capacity) (floats capacity))
+				(list (float-buffer capacity) (float-buffer (* capacity ins)) (float-buffer capacity)
+					(float-buffer capacity) (float-buffer capacity))
 				(map (lambda ((kind ins outs &ignore))
-						(list (list (floats (* ins outs)) (floats (* ins outs)))
-							(list (floats outs) (floats outs))
-							(floats (* capacity outs)) (floats (* capacity outs))))
+						(list (list (float-buffer (* ins outs)) (float-buffer (* ins outs)))
+							(list (float-buffer outs) (float-buffer outs))
+							(float-buffer (* capacity outs)) (float-buffer (* capacity outs))))
 					(nn-layers model))
 				0 :nil))))
 
@@ -71,11 +71,11 @@
 	(each (# (set-int out (* (!) +int_size) (sh-double-to-float %0))) vals)
 	out)
 
-(defun nn-gpu-doubles (floats)
+(defun nn-gpu-doubles (data)
 	; (nn-gpu-doubles str) -> doubles
-	(defq out (cap (/ (length floats) +int_size) (doubles)))
-	(each! (lambda () (push out (sh-float-to-double (code floats +int_size (* (!) +int_size)))))
-		'() 0 (/ (length floats) +int_size))
+	(defq out (cap (/ (length data) +int_size) (doubles)))
+	(each! (lambda () (push out (sh-float-to-double (code data +int_size (* (!) +int_size)))))
+		'() 0 (/ (length data) +int_size))
 	out)
 
 (defun nn-gpu-params (gpu params)

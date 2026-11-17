@@ -386,6 +386,22 @@ trashes
 :r1-:r5, :r14, :d0-:d15
 ```
 
+### :push -> class/array/push
+
+```code
+inputs
+:r0 = array object (ptr)
+:r1 = args list object (ptr)
+outputs
+:r0 = array object (ptr)
+:r1 = 0 if error, else ok
+trashes
+:r1-:r4, :r6-:r9, :r11-:r13, :d0-:d15
+info
+each of the args after the first onto the end, flattened: a number
+its value, an array its elements, a str its bytes in whole longs
+```
+
 ### :push_back -> class/array/push_back
 
 ```code

@@ -209,6 +209,21 @@ trashes
 :r1-:r2
 ```
 
+### :push -> class/list/push
+
+```code
+inputs
+:r0 = list object (ptr)
+:r1 = args list object (ptr)
+outputs
+:r0 = list object (ptr)
+:r1 = 0 if error, else ok
+trashes
+:r1-:r3, :r6-:r9, :d0-:d15
+info
+each of the args after the first onto the end, a reference each
+```
+
 ### :ref_all -> class/list/ref_all
 
 ```code

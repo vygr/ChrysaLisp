@@ -51,8 +51,12 @@
 	;name of every native function, so a change to any of them is a new
 	;name, and the functions the old ones made are not found: kept from
 	;before the pixmap lost three fields, eyes read its pixels at the old
-	;place and the desktop went down
-	+sv_made_by ''("lib/gpu/vp.inc" "lib/gpu/shader.inc" "gui/pixmap/struct.inc"))
+	;place and the desktop went down. And the classes of the doubles it
+	;makes, from :obj down, as it calls :set_cap through their vtable: a
+	;virtual added to :array moved its slot, and kept code called another
+	+sv_made_by ''("lib/gpu/vp.inc" "lib/gpu/shader.inc" "gui/pixmap/struct.inc"
+		"class/obj/class.inc" "class/seq/class.inc" "class/array/class.inc"
+		"class/nums/class.inc" "class/fixeds/class.inc" "class/doubles/class.inc"))
 
 ;a vertex function reads the attrs of a vertex where they are, by :r11,
 ;and writes where it is and its varyings where they are to go, by :r10.

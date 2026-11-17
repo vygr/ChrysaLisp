@@ -5103,6 +5103,18 @@ film, and says how many frames there were
 (float?? form) -> :t | :nil
 ```
 
+### floats?
+
+```code
+(floats? form) -> :t | :nil
+```
+
+### floats??
+
+```code
+(floats?? form) -> :t | :nil
+```
+
 ### flush-bits
 
 ```code

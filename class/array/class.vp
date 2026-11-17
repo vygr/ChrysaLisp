@@ -897,3 +897,91 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :array :push)
+	;inputs
+	;:r0 = array object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = array object (ptr)
+	;:r1 = 0 if error, else ok
+	;trashes
+	;:r1-:r4, :r6-:r9, :r11-:r13, :d0-:d15
+	;info
+	;each of the args after the first onto the end, flattened: a number
+	;its value, an array its elements, a str its bytes in whole longs
+
+	(vp-rdef (vt1 _ _ argc obj _
+			src_begin args src_end dst this src len old_len))
+
+	(entry :array :push `(,obj ,args))
+
+	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,src))
+	;array, so append flattened objects
+	;first get total elements we will be appending
+	(vp-shl-cr (log2 +long_size) argc)
+	(vp-lea-rrr src argc src_end)
+	(vp-add-cr +ptr_size src)
+	(vp-cpy-rr src src_begin)
+	(vp-cpy-cr 0 argc)
+	(loop-start)
+		(vp-load-rcr src 0 vt1)
+		(vp-add-cr +ptr_size src)
+		(switch)
+		(call :obj :inst_of `(,vt1 (@ ,(f-path :array :vtable))) '(o v))
+		(nextcaseif `(,v = 0))
+		(assign `((,o +array_length)) `(,len))
+		(else)
+			(call :obj :inst_of `(,vt1 (@ ,(f-path :str :vtable))) '(o v))
+			(nextcaseif `(,v = 0))
+			(assign `((,o +str_length)) `(,len))
+			(vp-shr-cr (log2 +long_size) len)
+		(else)
+			(vp-cpy-cr 1 len)
+		(endif)
+		(vp-add-rr len argc)
+	(loop-until `(,src = ,src_end))
+
+	;set the new capacity and length
+	(assign `((,obj +array_length)) `(,len))
+	(vp-cpy-rr len old_len)
+	(vp-add-rr argc len)
+	(call :array :set_cap `(,obj ,len) `(,obj))
+	(assign `(,len) `((,obj +array_length)))
+
+	;append the data
+	(assign `((,obj +array_begin)) `(,dst))
+	(vp-shl-cr (log2 +long_size) old_len)
+	(vp-add-rr old_len dst)
+	(loop-start)
+		(vp-load-rcr src_begin 0 vt1)
+		(switch)
+		(call :obj :inst_of `(,vt1 (@ ,(f-path :num :vtable))) '(o v))
+		(nextcaseif `(,v = 0))
+		(assign `((,o +num_value)) `(,vt1))
+		(goto 'single)
+		(default)
+			(call :obj :inst_of `(,vt1 (@ ,(f-path :array :vtable))) '(o v))
+			(nextcaseif `(,v = 0))
+			(assign `((,o +array_begin) (,o +array_length)) `(,vt1 ,len))
+			(vp-shl-cr (log2 +long_size) len)
+			(goto 'multiple)
+		(default)
+			(call :obj :inst_of `(,vt1 (@ ,(f-path :str :vtable))) '(o v))
+			(nextcaseif `(,v = 0))
+			(assign `((& ,o +str_data) (,o +str_length)) `(,vt1 ,len))
+			(vp-and-cr (neg +long_size) len)
+		(vp-label 'multiple)
+			(call :sys_mem :copy `(,vt1 ,dst ,len) `(_ ,dst))
+		(else)
+		(vp-label 'single)
+			(vp-store-rrc vt1 dst 0)
+			(vp-add-cr +long_size dst)
+		(endif)
+		(vp-add-cr +ptr_size src_begin)
+	(loop-until `(,src_begin = ,src_end))
+
+	(exit :array :push `(,obj -1))
+	(vp-ret)
+
+(def-func-end)

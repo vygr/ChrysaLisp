@@ -54,3 +54,78 @@
 
 (assert-error "float divide by zero" (/ tf_a (n2f 0)))
 (assert-error "float mod by zero" (% tf_a (n2f 0)))
+
+;compares across the sign, where the order of the raw bits is not the
+;order of the floats
+(defq tf_m2 (n2f -2) tf_m1 (n2f -1) tf_p1 (n2f 1))
+(assert-true "float < negatives" (< tf_m2 tf_m1))
+(assert-true "float < across zero" (< tf_m1 tf_p1))
+(assert-true "float > negatives" (> tf_m1 tf_m2))
+(assert-eq "float min negatives" tf_m2 (min tf_m1 tf_m2 tf_p1))
+(assert-eq "float max negatives" tf_p1 (max tf_m1 tf_p1 tf_m2))
+(assert-eq "float floor negative" (n2f -3) (floor (n2f -2.5)))
+(assert-eq "float ceil negative" (n2f -2) (ceil (n2f -2.5)))
+
+; --- floats, a vector of them, packed 4 bytes an element ---
+(defun tf-floats (&rest ns) (apply (const floats) (map (const n2f) ns)))
+(defun tf-ints (fs) (map (const n2i) fs))
+(defq tf_v (tf-floats 1 2 3 4 5) tf_w (tf-floats 10 20 30 40 50))
+
+(assert-true "floats? floats" (floats? tf_v))
+(assert-true "floats?? floats" (floats?? tf_v))
+(assert-true "fixeds? floats" (fixeds? tf_v))
+(assert-true "doubles? floats" (not (doubles? tf_v)))
+(assert-eq "floats length" 5 (length tf_v))
+(assert-eq "floats elem" (n2f 3) (elem-get tf_v 2))
+(assert-true "floats elem is a float" (float? (elem-get tf_v 0)))
+(assert-list-eq "floats slice" '(2 3 4) (tf-ints (slice tf_v 1 4)))
+(assert-list-eq "floats slice reversed" '(5 4 3 2 1) (tf-ints (slice tf_v -1 0)))
+(assert-list-eq "floats cat" '(1 2 3 4 5 10 20 30 40 50) (tf-ints (cat tf_v tf_w)))
+(assert-eq "floats find" 2 (find (n2f 3) tf_v))
+(assert-eq "floats find none" :nil (find (n2f 9) tf_v))
+(assert-eq "floats rfind, the end of a slice" 3 (rfind (n2f 3) tf_v))
+(assert-true "floats eql" (eql tf_v (cat tf_v)))
+(assert-true "floats not eql" (not (eql tf_v tf_w)))
+(assert-eq "floats hash" (hash tf_v) (hash (cat tf_v)))
+(assert-list-eq "floats map" '(1 2 3 4 5) (map (const n2i) tf_v))
+
+;elem-set, fill, push and pop, growing past its short storage
+(defq tf_u (cat tf_v))
+(elem-set tf_u 0 (n2f -7))
+(assert-list-eq "floats elem-set" '(-7 2 3 4 5) (tf-ints tf_u))
+(assert-list-eq "floats fill" '(9 9 9) (tf-ints (fill (floats) 3 (n2f 9))))
+(defq tf_p (floats))
+(push tf_p (n2f 1) (tf-floats 2 3))
+(assert-list-eq "floats push of a float and a floats" '(1 2 3) (tf-ints tf_p))
+(times 40 (push tf_p (n2f 4)))
+(assert-eq "floats grown" 43 (length tf_p))
+(assert-eq "floats pop" (n2f 4) (pop tf_p))
+(assert-eq "floats popped" 42 (length tf_p))
+;raw, as push is for the other arrays: a number's low 32 bits, an
+;array's or a str's bytes 4 to an element
+(defq tf_r (floats))
+(push tf_r (n2f 2) "\x00\x00\x80\x3F" (nums 0x3F80000040000000))
+(assert-list-eq "floats push raw" '(2 1 2 1) (tf-ints tf_r))
+
+;the vector ops in 32 bits
+(test-cases
+	(tf-ints (nums-add tf_v tf_w)) '(11 22 33 44 55)
+	(tf-ints (nums-sub tf_w tf_v)) '(9 18 27 36 45)
+	(tf-ints (nums-mul tf_v tf_w)) '(10 40 90 160 250)
+	(tf-ints (nums-div tf_w tf_v)) '(10 10 10 10 10)
+	(tf-ints (nums-scale tf_v (n2f 2))) '(2 4 6 8 10)
+	(tf-ints (nums-add-scaled tf_v tf_w (n2f 2))) '(21 42 63 84 105)
+	(tf-ints (nums-min (tf-floats -1 5) (tf-floats 2 -3))) '(-1 -3)
+	(tf-ints (nums-max (tf-floats -1 5) (tf-floats 2 -3))) '(2 5)
+	(tf-ints (nums-abs (tf-floats -1 2))) '(1 2)
+	(tf-ints (fixeds-floor (tf-floats -1.5 2.5))) '(-2 2)
+	(tf-ints (fixeds-ceil (tf-floats -1.5 2.5))) '(-1 3)
+	(n2d (elem-get (fixeds-frac (tf-floats -1.5 2.25)) 0)) (n2d 0.5)
+	(nums-sum tf_v) (n2f 15)
+	(nums-dot tf_v tf_w) (n2f 550))
+(assert-error "floats divide by zero" (nums-div tf_v (tf-floats 1 0 1 1 1)))
+
+;into a buf whole, 4 bytes an element
+(defq tf_b (buf 64))
+(buf-set tf_b 0 20 tf_v)
+(assert-eq "floats into a buf, 4 bytes each" 0x40000000 (code (buf-get tf_b 0 20) 4 4))

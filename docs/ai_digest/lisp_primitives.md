@@ -601,8 +601,10 @@ Type inspection and structural verification predicates.
 
 	*	`(float?? form) -> :t | :nil`
 
-*	**`nums?` / `fixeds?` / `doubles?` / `nums??` / `fixeds??` / `doubles??`**: Numeric
-	vector type checks, and for one that is that class itself.
+*	**`nums?` / `fixeds?` / `doubles?` / `floats?` / `nums??` / `fixeds??` /
+	`doubles??` / `floats??`**: Numeric vector type checks, and for one that is
+	that class itself. A floats is packed, 4 bytes an element, its elements
+	given out and taken in as floats.
 
 	*	`(nums? form) -> :t | :nil`
 
@@ -615,6 +617,10 @@ Type inspection and structural verification predicates.
 	*	`(doubles? form) -> :t | :nil`
 
 	*	`(doubles?? form) -> :t | :nil`
+
+	*	`(floats? form) -> :t | :nil`
+
+	*	`(floats?? form) -> :t | :nil`
 
 *	**`func?` / `str?` / `str??` / `sym?` / `env?` / `seq?`**: Core object type
 	checks. A symbol is a str, `str??` is a str that is not one.
@@ -1093,6 +1099,8 @@ Lexical environment creation and variable manipulation.
 *	**`doubles`**: Constructs a 64-bit double-precision double vector.
 
 	*	`(doubles [double ...]) -> doubles`
+
+	*	`(floats [float ...]) -> floats`
 
 *	**`path`**: Constructs a 2D vector graphic path.
 

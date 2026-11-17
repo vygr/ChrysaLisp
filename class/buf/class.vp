@@ -3,6 +3,7 @@
 (include "././list/class.inc")
 (include "././double/class.inc")
 (include "././nums/class.inc")
+(include "././floats/class.inc")
 
 ;a block of memory that the nodes of this machine share, and nothing more:
 ;what is kept in it, and how it is read and written, is for those who use
@@ -280,8 +281,14 @@
 		(else)
 			(call :obj :inst_of `(,val (@ ,(f-path :nums :vtable))) '(_ :r1))
 			(gotoif '(:r1 = 0) 'short)
+			;a floats is 4 bytes an element, the others 8
+			(call :obj :inst_of `(,val (@ ,(f-path :floats :vtable))) '(_ :r1))
 			(assign `((,val +array_begin) (,val +array_length)) `(,src ,num))
-			(vp-shl-cr (log2 +long_size) num)
+			(vpif '(:r1 = 0))
+				(vp-shl-cr (log2 +long_size) num)
+			(else)
+				(vp-shl-cr (log2 +int_size) num)
+			(endif)
 		(endif)
 		(gotoif `(,num < ,type) 'short)
 		(call :sys_mem :copy `(,src ,addr ,type))
