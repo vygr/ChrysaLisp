@@ -4,14 +4,18 @@
 
 (defun view-fit (x y w h)
 	; (view-fit x y w h) -> (x y w h)
-	(bind '(& & sw sh) (gui-info))
-	(setq x (max 0 (min x (- sw w))) y (max 0 (min y (- sh h))))
-	(list x y (min w sw) (min h sh)))
+	;as far as the screen lets it, and as it is with no screen to fit, a node
+	;with no GUI, whose (gui-info) is :nil, or a GUI with no screen open
+	(bind '(& & sw sh) (ifn (gui-info) '(0 0 0 0)))
+	(cond
+		((or (<= sw 0) (<= sh 0)) (list x y w h))
+		(:t (setq x (max 0 (min x (- sw w))) y (max 0 (min y (- sh h))))
+			(list x y (min w sw) (min h sh)))))
 
 (defun view-locate (w h &optional p)
 	; (view-locate w h [flag]) -> (x y w h)
 	(setd p :center)
-	(bind '(mx my sw sh) (gui-info))
+	(bind '(mx my sw sh) (ifn (gui-info) '(0 0 0 0)))
 	(defq x (- mx (/ w 2)) y (- my (/ h 2)))
 	(case p
 		(:top (setq y my))
