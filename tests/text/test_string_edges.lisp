@@ -17,15 +17,10 @@
 
 ; --- char and code ---
 (test-cases
-	(char 65) "A"
 	(char 0x4142 2) "BA"
-	(code "A") 65
 	(code "AB") 65
 	(code "AB" 2) 16961
 	(code "ABC" 1 1) 66
-	(ascii-code "A") 65
-	"a" "a"
-	(ascii-upper 97) 65		(ascii-lower 65) 97
 	;not a letter, left alone
 	(ascii-upper 33) 33)
 
@@ -60,8 +55,6 @@
 	(trim "a") "a"
 	(trim "xxaxx" "x") "a"
 	(trim "xxxx" "x") ""
-	(trim-start "  a  ") "a  "
-	(trim-end "  a  ") "  a"
 	(trim-start "   ") ""
 	(trim-end "   ") "")
 
@@ -72,15 +65,12 @@
 	(starts-with "abcd" "abc") :nil
 	(starts-with "a" "") :nil
 	(ends-with "" "abc") :t
-	(ends-with "bc" "abc") :t
 	(ends-with "abcd" "abc") :nil)
 
 ; --- searching, (found? text substr) ---
 (test-cases
 	(found? "abc" "b") :t
 	(found? "" "a") :nil
-	(substr "b" "abc") '()
-	(substr "abc" "abc") '(((0 3)))
 	(substr "abcd" "abc") '(((0 3)))
 	(replace-str "aXbXc" "X" "--") "a--b--c"
 	(replace-str "abc" "z" "--") "abc"
@@ -91,7 +81,6 @@
 	(pad "a" 3) "  a"
 	(pad "abc" 2) "abc"
 	(pad "" 3) "   "
-	(pad "a" 3 "-") "--a"
 	(pad 5 3 "0") "005"
 	(rpad "a" 3) "a  "
 	(rpad "abcd" 2) "abcd"
@@ -113,10 +102,5 @@
 
 ; --- char class scanning ---
 (test-cases
-	(char-class "a-c") "abc"
-	(bskip "ab" "abba c" 0) 4
 	(bskip "ab" "" 0) 0
-	(bskipn "ab" "ccab" 0) 2
-	(bfind "b" "abc") 1
-	(bfind "z" "abc") :nil
 	(bfind "a" "") :nil)

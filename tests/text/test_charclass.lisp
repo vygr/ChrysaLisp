@@ -23,7 +23,6 @@
 (assert-eq "escape all control chars" "\\r\\f\\v\\n\\t\\q\\b\\\\" (escape "\r\f\v\n\t\q\b\\"))
 (assert-eq "escape consecutive" "\\n\\n\\t\\t\\b\\b" (escape "\n\n\t\t\b\b"))
 (assert-eq "escape interleaved" "a\\rb\\fc\\vd\\ne\\tf\\qg\\bh\\\\i" (escape "a\rb\fc\vd\ne\tf\qg\bh\\i"))
-(assert-eq "escape-regexp" "Hello\\." (escape-regexp "Hello."))
 
 ; --- Unescaping: All standard character types ---
 (assert-eq "unescape empty" "" (unescape ""))

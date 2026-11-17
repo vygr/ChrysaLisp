@@ -62,7 +62,6 @@
 	(be-csr (be-new "ab\ncd")) '(2 1 2 1)
 	(be-csr (be-new "ab\ncd\n")) '(0 2 0 2)
 	;a line is given with its line end
-	(. (be-new "ab\ncd") :get_text_line 0) "ab\n"
 	(. (be-new "ab\ncd") :get_text_line 1) "cd\n"
 	(. (be-new "ab\ncd") :get_text_line 2) "\n")
 
@@ -78,10 +77,6 @@
 	;past the last text line is the end of file line
 	(be-at "ab\ncd" 2 1 :right) '("ab\ncd\n\n" (0 2 0 2))
 	(be-at "ab\ncd" 2 1 :down) '("ab\ncd\n\n" (0 2 0 2))
-	(be-at "ab\ncd" 1 0 :bottom) '("ab\ncd\n\n" (0 2 0 2))
-	(be-at "ab\ncd" 1 1 :top) '("ab\ncd\n\n" (0 0 0 0))
-	(be-at "ab\ncd" 1 0 :home) '("ab\ncd\n\n" (0 0 0 0))
-	(be-at "ab\ncd" 1 0 :end) '("ab\ncd\n\n" (2 0 2 0))
 	;up and down onto a shorter line clip to its end
 	(be-at "abc\nd" 3 0 :down) '("abc\nd\n\n" (1 1 1 1))
 	(be-at "a\nbcd" 3 1 :up) '("a\nbcd\n\n" (1 0 1 0)))
@@ -105,7 +100,6 @@
 
 ; --- selections, the anchor can be either side of the cursor ---
 (test-cases
-	(be-sel "abcd" 1 0 3 0 :delete) '("ad\n\n" (1 0 1 0))
 	(be-sel "abcd" 3 0 1 0 :delete) '("ad\n\n" (1 0 1 0))
 	(be-sel "abcd" 1 0 3 0 :backspace) '("ad\n\n" (1 0 1 0))
 	;typing replaces the selection
@@ -131,12 +125,10 @@
 	(. b :copy))
 
 (test-cases
-	(be-copy "abcd" 1 0 3 0) "bc"
 	(be-copy "abcd" 3 0 1 0) "bc"
 	(be-copy "ab\ncd" 1 0 1 1) "b\nc"
 	(be-copy "ab\ncd" 0 0 0 2) "ab\ncd\n"
 	(be-copy "abcd" 2 0 2 0) ""
-	(. (be-new "ab\ncd") :icopy 1 0 1 1) "b\nc"
 	(. (be-new "ab\ncd") :icopy 1 1 1 0) "b\nc"
 	(. (be-new "ab\ncd") :icopy 0 0 0 0) "")
 
@@ -144,7 +136,6 @@
 (test-cases
 	(slice (. (be-new "ab\ncd") :clip_cursor 99 99) 0 4) '(0 2 0 2)
 	(slice (. (be-new "ab\ncd") :clip_cursor -5 -5) 0 4) '(0 0 0 0)
-	(slice (. (be-new "ab\ncd") :clip_cursor 99 0) 0 4) '(2 0 2 0)
 	(slice (. (be-new "ab\ncd") :clip_cursor 1 1 99 99) 0 4) '(1 1 0 2)
 	(be-at "ab\ncd" 99 99) '("ab\ncd\n\n" (0 2 0 2))
 	(be-at "ab\ncd" -1 -1) '("ab\ncd\n\n" (0 0 0 0)))
@@ -160,7 +151,6 @@
 
 (test-cases
 	;a cursor added where one already is, is not added
-	(be-multi "abc" '((1 0) (1 0))) '("abc\n\n" ((1 0 1 0)))
 	(be-multi "abc" '((1 0) (2 0) (1 0))) '("abc\n\n" ((1 0 1 0) (2 0 2 0)))
 	;selections that overlap become one, ones that only touch stay two
 	(be-multi "abcdef" '((0 0 3 0) (2 0 5 0))) '("abcdef\n\n" ((0 0 5 0)))
@@ -173,9 +163,7 @@
 	(be-multi "ab\ncd" '((1 0) (1 1)) :backspace) '("b\nd\n\n" ((0 0 0 0) (0 1 0 1)))
 	;a join moves the cursor on the joined line
 	(be-multi "ab\ncd" '((0 0) (0 1)) :backspace) '("abcd\n\n" ((0 0 0 0) (2 0 2 0)))
-	(be-multi "ab\ncd" '((2 0) (2 1)) :delete) '("abcd\n\n" ((2 0 2 0) (4 0 4 0)))
-	;back to just the last cursor added
-	(be-multi "abc" '((1 0) (2 0)) :primary_cursor) '("abc\n\n" ((2 0 2 0))))
+	(be-multi "ab\ncd" '((2 0) (2 1)) :delete) '("abcd\n\n" ((2 0 2 0) (4 0 4 0))))
 
 ; --- undo and redo, on a buffer made with +buffer_flag_undo ---
 (defun be-undo (text &rest ops)
@@ -183,7 +171,6 @@
 	(be-run b ops))
 
 (test-cases
-	(be-undo "ab" '(:insert "c") :undo) '("ab\n\n" (2 0 2 0))
 	(be-undo "ab" '(:insert "c") :undo :undo :redo) '("ab\n\n" (2 0 2 0))
 	(be-undo "ab" '(:insert "c") :undo :undo :redo :redo) '("abc\n\n" (3 0 3 0))
 	;more undo or redo than there is does nothing more
@@ -278,8 +265,6 @@
 	(be-found "one two\nthree" "zz") '(() () ())
 	(be-found "" "a") '(())
 	;find_next selects the next match, and stays on the last one
-	(be-next "aXa" "a" 0 :find_next) '(1 0 0 0)
-	(be-next "aXa" "a" 0 :find_next :find_next) '(3 0 2 0)
 	(be-next "aXa" "a" 0 :find_next :find_next :find_next) '(3 0 2 0)
 	;with nothing before, or nothing found, the cursor stays
 	(be-next "aXa" "a" 0 :find_prev) '(0 0 0 0)

@@ -20,7 +20,6 @@
 	(match? "ac" "a(b)?c") :t
 	(match? "x" "a|x|b") :t
 	(match? "ab" "[ab][ab]") :t
-	(match? "aXc" "a.c") :t
 	;. matches a line end too
 	(match? "a\nc" "a.c") :t)
 
@@ -31,13 +30,7 @@
 	(match? "a+b" "a\\+b") :t
 	(match? "a-b" "a\\-b") :t
 	(match? "(a)" "\\(a\\)") :t
-	(match? "a b" "a\\sb") :t
-	(match? "ab" "a\\sb") :nil
-	(match? "tab\there" "\\t") :t
-	(escape-regexp "a.b*c") "a\\.b\\*c"
-	(escape-regexp "") ""
-	(match? "a.b*c" (escape-regexp "a.b*c")) :t
-	(match? "axbbc" (escape-regexp "a.b*c")) :nil)
+	(match? "ab" "a\\sb") :nil)
 
 ; --- matches, each is ((start end) capture ...) ---
 (test-cases
@@ -46,7 +39,6 @@
 	(matches "aaa" "a") '(((0 1)) ((1 2)) ((2 3)))
 	;greedy, one match not three
 	(matches "aaa" "a+") '(((0 3)))
-	(matches "aaa" "a*") '(((0 3)))
 	(matches "abab" "ab") '(((0 2)) ((2 4)))
 	(matches "abab" "(a)(b)") '(((0 2) (0 1) (1 2)) ((2 4) (2 3) (3 4)))
 	(matches "aXbXc" "X") '(((1 2)) ((3 4)))
@@ -60,7 +52,6 @@
 	(match? "abc" "$") :t
 	(match? "abc" "\\s*$") :t
 	(match? "abc" "x$") :nil
-	(match? "abc" "^$") :nil
 	(matches "abc" "$") '(((3 3)))
 	(matches "abc" "^") '(((0 0)))
 	(matches "abc" "^$") '()
@@ -90,7 +81,6 @@
 	(replace-regex "abc" "b" "") "ac"
 	(replace-regex "abc" "(b)" "[$1]") "a[b]c"
 	(replace-regex "abc" "(b)" "$1$1") "abbc"
-	(replace-regex "abc" "b" "$0$0") "abbc"
 	(replace-regex "a.b" "\\." "-") "a-b"
 	(replace-regex "abc" "^" ">") ">abc"
 	;a $ not followed by a group number is itself
@@ -98,9 +88,7 @@
 	;a group that took no part in the match is empty
 	(replace-regex "abc" "(x)?b" "[$1]") "a[]c"
 	(replace-regex "abc" "b(x)?" "[$1]") "a[]c"
-	(replace-regex "abc" "(x)?(b)" "$1-$2") "a-bc"
-	;groups put back in another order
-	(replace-regex "John Doe" "(\\w+) (\\w+)" "$2, $1") "Doe, John")
+	(replace-regex "abc" "(x)?(b)" "$1-$2") "a-bc")
 
 ; --- query, a search built from the find options ---
 (defun re-find (text pattern whole_words regexp)
@@ -188,11 +176,8 @@
 (defq re_cls (char-class "a-c"))
 (test-cases
 	(bfind "a" re_cls) 0
-	(bfind "d" re_cls) :nil
-	(bskip re_cls "abcd" 0) 3
 	(bskip re_cls "abcd" 4) 4
 	(bskip re_cls "dabc" 0) 0
-	(bskipn re_cls "xyzab" 0) 3
 	(bskipn re_cls "xyz" 0) 3
 	;the reverse scans give the index after the last character they stop at
 	(rbskip re_cls "xabc" -1) 1

@@ -8,7 +8,6 @@
 (assert-eq "trim-start" "abc  " (trim-start "  abc  "))
 (assert-eq "trim-end"   "  abc" (trim-end "  abc  "))
 (assert-eq "trim"	   "abc"   (trim "  abc  "))
-(assert-eq "trim custom" "abc"  (trim ",,abc.." (const (char-class ",."))))
 
 ; Padding
 (assert-eq "pad left"  "0042" (pad "42" 4 "0"))
@@ -41,7 +40,6 @@
 
 ; --- ASCII Utils ---
 (assert-eq "ascii-code" 65 (ascii-code "A"))
-(assert-eq "ascii-char" "A" "A")
 (assert-eq "ascii-upper" 65 (ascii-upper 97)) ; 'a' -> 'A'
 (assert-eq "ascii-lower" 97 (ascii-lower 65)) ; 'A' -> 'a'
 

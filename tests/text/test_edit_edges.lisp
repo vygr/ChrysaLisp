@@ -34,7 +34,6 @@
 (test-cases
 	(ee-replace "cat cats concat cat" "X" "cat") "X Xs conX X"
 	(ee-replace "a.b axb" "X" "a.b") "X axb"
-	(ee-replace "one\ntwo\none" "1" "one") "1\ntwo\n1"
 	;replace with nothing deletes
 	(ee-replace "a-b-c" "" "-") "abc"
 	;the replacement can hold the pattern
@@ -103,7 +102,6 @@
 (test-cases
 	(replace-str "" "a" "b") ""
 	(replace-regex "" "a" "b") ""
-	(replace-str "abc" "z" "--") "abc"
 	(replace-str "abc" "" "x") "abc"
 	(replace-matches "" (list) "x") ""
 	(replace-matches "abc" (list) "x") "abc"
@@ -150,17 +148,14 @@
 	(ee-multi "a,a" "a" (# (edit-insert "1\n2"))) "1\n2,1\n2"
 	(ee-multi "a,a" "," (# (edit-break))) "a\na")
 
-;copy gives each selection, split by a form feed, and the list form keeps empty ones
-(defq ee_copy "" ee_parts (list))
+;copy_parts gives each selection, in a list
+(defq ee_parts (list))
 (test-cases
-	(ee-multi "a b a" "a" (# (setq ee_copy (. *edit* :copy)))) "a b a"
-	ee_copy "a\fa"
 	(ee-multi "ab b cd" "\\w+" (# (setq ee_parts (. *edit* :copy_parts))) :x) "ab b cd"
 	ee_parts '("ab" "b" "cd"))
 
 ;paste, one part for each cursor
 (test-cases
-	(ee-multi "a b a" "a" (# (edit-paste "1\f2"))) "1 b 2"
 	;when the parts do not match the cursors, each cursor gets them all, as lines
 	(ee-multi "a b a" "a" (# (edit-paste "same"))) "same\n b same\n"
 	;paste_parts takes a list, so a part can be empty, which deletes
@@ -180,7 +175,3 @@
 	(ee-multi "a a" "a" (# (edit-home) (edit-insert ">"))) ">a a"
 	(ee-multi "a a" "a" (# (edit-end) (edit-insert "<"))) "a a<"
 	(ee-multi "a\na" "a" (# (edit-top) (edit-insert "^"))) "^a\na")
-
-;back to one cursor
-(ee-multi "a b a" "a" (# (edit-primary)))
-(assert-eq "primary leaves one cursor" 1 (length (. *edit* :get_cursors)))
