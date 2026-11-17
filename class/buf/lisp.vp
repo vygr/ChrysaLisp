@@ -86,7 +86,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r8-:r13
+	;:r1-:r13
 	;info
 	;a field of the block at an offset from its start set, as (obj-set) sets
 	;one of an object, but not to an object reference
@@ -104,7 +104,8 @@
 	(gotoif '(:r1 /= 0) 'error1)
 	(assign `((,buf +buf_data)) '(:r0))
 	(vp-add-rr :r0 offset)
-	(call :buf :set `(,this ,offset ,type ,val) `(,this))
+	(call :buf :set `(,this ,offset ,type ,val) `(,this :r1))
+	(gotoif '(:r1 /= 0) 'error)
 	(class/obj/ref buf :r0)
 
 	(exit :buf :lisp_set `(,this ,buf))

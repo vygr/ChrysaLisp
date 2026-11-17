@@ -108,10 +108,14 @@ inputs
 :r3 = value object (ptr)
 outputs
 :r0 = as it was (ptr)
+:r1 = 0 if set, 1 if a struct and the value has not that many bytes
 trashes
-:r1-:r5
+:r1-:r7
 info
-a struct is the bytes of a str, a number its value
+a number its value. A struct, a type of more than 0, that many bytes
+of a str, or of the elements of an array of numbers, a :nums, so a
+vector goes in whole. Not of a list, a map or a set, their elements
+are objects
 ```
 
 ### :type -> class/buf/type

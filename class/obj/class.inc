@@ -20,7 +20,7 @@
 	(dec-method :lisp_eql class/obj/lisp_eql :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r9-:r10))
 	(dec-method :lisp_nql class/obj/lisp_nql :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r9-:r10))
 	(dec-method :lisp_get class/obj/lisp_fget :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r8-:r12 :r14 :d0-:d15))
-	(dec-method :lisp_set class/obj/lisp_fset :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r8-:r13 :d0-:d15))
+	(dec-method :lisp_set class/obj/lisp_fset :static (:r0 :r1) (:r0 :r1) (:r1-:r13 :d0-:d15))
 	(dec-method :lisp_hash class/obj/lisp_hash :static (:r0 :r1) (:r0 :r1) (:r1-:r4 :r14 :d0-:d15))
 	(dec-method :lisp_weak_ref class/obj/lisp_wref :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r14 :d0-:d15))
 	(dec-method :lisp_obj_ref class/obj/lisp_oref :static (:r0 :r1) (:r0 :r1) (:r1-:r3))

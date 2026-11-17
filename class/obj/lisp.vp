@@ -60,7 +60,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r8-:r13, :d0-:d15
+	;:r1-:r13, :d0-:d15
 	;info
 	;a field of an object set, inside its own heap cell, by the raw access
 	;of :buf, and an object reference here
@@ -97,7 +97,8 @@
 		(endif)
 		(assign `(,val) `((,offset 0)))
 	(else)
-		(call :buf :set `(,this ,offset ,type ,val) `(,this))
+		(call :buf :set `(,this ,offset ,type ,val) `(,this :r1))
+		(gotoif '(:r1 /= 0) 'error)
 	(endif)
 	(class/obj/ref obj :r0)
 
