@@ -471,6 +471,11 @@ what each kind can do, a vector class beside each:
 	double and a float mixed in one sum is garbage. Constants match the
 	kind of the vector they meet.
 
+*	**An empty vector is an error** to every `nums` op, by design: no
+	identity is assumed, as `(+)` and a `reduce` of nothing with no start
+	are errors. Code that can hold an empty vector, a pool layer's
+	biases, passes it by, as `nn-clear` does.
+
 *	**`=` is bit for bit.** Of doubles and floats it compares the bits:
 	`(= -0.0 0.0)` is `:nil`, and a NaN is `=` itself. A number scaled by
 	0 keeps its sign, a negative one is -0.0. Compare a size, `(abs x)`,

@@ -170,7 +170,10 @@ bits, 4 bytes, as a GPU buffer has them, and gives each back as a
 converting each element.
 
 The operations on them are native methods of their classes, each over the
-whole vector in one call, with an optional output vector:
+whole vector in one call, with an optional output vector. An empty vector is
+an error to every one of them: no identity is assumed, as `(+)` and a
+`reduce` of nothing with no start are errors too, so a sum of nothing is
+not a 0 made up, and a vector left empty by a fault is said at once:
 
 `(nums-add) (nums-sub) (nums-mul) (nums-div) (nums-mod) (nums-min) (nums-max)
 (nums-abs) (nums-scale) (nums-sum) (nums-dot) (nums-add-scaled) (nums-convert)`
