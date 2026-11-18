@@ -56,7 +56,16 @@ that name. Its size is `lk_shmem_size`, 63648, and both ends must agree on it
 to the byte: an end that finds the file another size for 5 seconds gives the
 link up, and says `Link: no shared memory, or the other end's is another
 size, another build !`. The first end, which made it, waits for a second for
-ever, as it waits for any. The end that closes a link takes the file away.
+ever, as it waits for any.
+
+The guest, the end that finds the owner's id in `host_a`, knows by then
+that both ends have the memory mapped, so it closes its handle and takes the
+name away at once, with `pii_close_shared`, and then writes its id in
+`host_b`. Each end keeps the memory by its mapping, and the system lets it
+go when both are gone, crashed or not: only a crash in the moments before
+the guest comes leaves a file in `/tmp` for `stop.sh` to sweep. When the
+link ends the owner closes its handle, and takes the name away only if no
+guest came, `host_b` is 0: a name there by then would be another link's.
 
 ### The memory
 

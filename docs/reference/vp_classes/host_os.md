@@ -128,7 +128,7 @@ trashes
 
 ```code
 inputs
-:r0 = c string filename (pubyte)
+:r0 = c string filename (pubyte), or 0 to only close it
 :r1 = handle (long)
 outputs
 :r0 = error code (long)

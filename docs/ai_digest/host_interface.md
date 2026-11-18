@@ -56,8 +56,10 @@ docs/diagrams/host_layers.cwb
           in `/tmp` on macOS and Linux, Windows `CreateFileMapping`. It
           waits for the other end to make it. Used for inter-process links.
 
-        * `pii_close_shared`: Close the shared memory of a link. The file is
-          removed by the launch scripts.
+        * `pii_close_shared`: Close the shared memory of a link and take its
+          name away, or with no name only close it. The guest end takes the
+          name away as soon as both ends have it mapped,
+          `docs/ai_digest/link_protocol.md`.
 
         * `pii_shm_open`: Shared memory that is only ever memory, POSIX
           `shm_open` or Windows `CreateFileMapping` with no file, so nothing

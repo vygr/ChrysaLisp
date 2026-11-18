@@ -83,8 +83,16 @@
 		(assign `((:r0 ,(+ lk_shmem_host_a +node_id_node1))) '(:r2))
 		(vp-cpy-cr 1 :r3)
 		(vpif '(:r2 /= :r1))
+			;the host has it mapped, it is in host_a, and so has this end: the
+			;name has done its job, and goes now, so a crash of either end
+			;leaves nothing behind. The mappings keep it till both are gone.
+			;Before host_b is written, so one that is written says it is gone
+			(load-fields :rsp '(slot_pdata slot_handle) '(:r0 :r1))
+			(call :host_os :pii_close_shared '(:r0 :r1))
 			(vp-xor-rr :r3 :r3)
+			(assign '(:r3) '((:rsp slot_handle)))
 			;register as guest in host_b
+			(assign '((:rsp slot_mem)) '(:r0))
 			(load-node-id :rsp slot_node_id :r1 :r2)
 			(save-node-id :r0 lk_shmem_host_b :r1 :r2)
 		(endif)
@@ -115,6 +123,15 @@
 			(call :sys_task :sleep '(1000))
 			(assign '((:rsp slot_live)) '(:r0))
 		(loop-until '(:r0 = 0))
+
+		;a guest came and took the name away, so the close is of the handle
+		;alone: a name there now is of another link
+		(assign '((:rsp slot_mem)) '(:r0))
+		(assign `((:r0 ,(+ lk_shmem_host_b +node_id_node1))) '(:r0))
+		(vpif '(:r0 /= 0))
+			(vp-xor-rr :r0 :r0)
+			(assign '(:r0) '((:rsp slot_pdata)))
+		(endif)
 
 		;unmap object
 		(call :host_os :pii_munmap `((:rsp slot_mem) ,lk_shmem_size ,+mmap_shared))

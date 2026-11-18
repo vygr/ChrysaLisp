@@ -39,7 +39,9 @@
 		(assert-list-eq "with its shape and how many" '("ring" 4) (slice nt_net 1 3))
 		(assert-list-eq "the processes of its nodes" (sort (cat nt_pids) (const -)) (sort (cat (elem-get nt_net 3)) (const -)))
 		(assert-eq "and its links, a ring of 4 has 4" 4 (length (elem-get nt_net 4)))
-		(assert-true "each link has its file" (every (# (pii-fstat (cat "/tmp/" %0))) (elem-get nt_net 4)))
+		;the guest end of a link takes its file away once both ends have it
+		(assert-true "no link keeps its file once both ends have it"
+			(progn (while (some (# (pii-fstat (cat "/tmp/" %0))) (elem-get nt_net 4)) (task-sleep 100000)) :t))
 
 		;a network that is a system of its own. It has a system id that is
 		;not this machine's, this node is not one of it, and tasks are

@@ -142,6 +142,8 @@ int64_t pii_open_shared(const char *path, size_t len)
 
 int64_t pii_close_shared(const char *path, int64_t hndl)
 {
+	//a mapping has no name to take away, it goes with its last handle, so
+	//with a path or without it is only closed
 	if (CloseHandle((HANDLE)hndl)) return 0;
 	return -1;
 }

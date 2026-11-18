@@ -169,10 +169,12 @@ int64_t pii_open_shared(const char *path, size_t len)
 
 int64_t pii_close_shared(const char *path, int64_t hndl)
 {
-	//the file is the one pii_open_shared made, in /tmp
+	//the file is the one pii_open_shared made, in /tmp. With no path it
+	//is only closed: its name is gone, taken away by the other end
+	close((int)hndl);
+	if (!path) return 0;
 	char file[128];
 	snprintf(file, sizeof(file), "/tmp/%s", path);
-	close((int)hndl);
 	return unlink(file);
 }
 
