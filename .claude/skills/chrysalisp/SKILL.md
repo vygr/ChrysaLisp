@@ -407,6 +407,12 @@ each rule and worked examples of the right and wrong way. In short:
 *	**Mail Is Unordered:** streams give order; a new mailbox drops late
 	mail.
 
+*	**Messages Drive, Inactivity Dissolves:** messages drive an app's
+	states, acks, stops and exits are courtesies that make a change quick,
+	and inactivity ends the rest: every task has a time it goes by, a
+	child its idle time, a parent its patience. Read it before any design
+	of two tasks.
+
 *	**A Matrix Is Made from Its Raw Variables,** never updated in place.
 
 ## Virtual Processor (VP) Assembler Guide

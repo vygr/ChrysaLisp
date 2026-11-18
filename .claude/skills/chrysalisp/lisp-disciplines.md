@@ -70,6 +70,8 @@ examples. `SKILL.md` carries a one line summary of each.
 
 *	[Mail Is Unordered, Mailboxes Are Cheap](#mail-is-unordered-mailboxes-are-cheap)
 
+*	[Messages Drive, Inactivity Dissolves](#messages-drive-inactivity-dissolves)
+
 *	[A Matrix Is Made from Its Raw Variables](#a-matrix-is-made-from-its-raw-variables)
 
 ## Tab Style
@@ -880,6 +882,53 @@ that leaves its node holding more.
 	new mailbox, `(mail-mbox)`, put it where the old one was, the select
 	list or `(. jobs :reply_to mbox)`, and let the old one go: mail to it
 	goes nowhere.
+
+## Messages Drive, Inactivity Dissolves
+
+Read this before designing anything two tasks do together, an app and its
+child, a farm, a service and its clients. The full rule is in the
+`chrysalisp-net-testing` skill, "Rules Of Distributed Code". In one line:
+assume the other is there and can be reached, and never depend on it. It
+is always best intentions, with a fall back. A far task is not launched
+till its launch reply comes, and may never be; a job sent to it then may
+not arrive; an answer may not come back.
+
+*	Messages drive the states of an application, and fast: a job, its
+	answer, the next. That is the ideal path, and all of the usual one.
+
+*	Acks, stops and exits are courtesies, sent to make a change quick: the
+	app's empty message that ends a child at once, a child's word that it
+	is going. Nothing may depend on one arriving.
+
+*	No side can know the other is there, so no protocol tries to make it
+	certain. Inactivity dissolves what is left: a child given nothing for
+	its idle time takes its parent to have gone and goes; a parent with
+	work out and no answer for its patience takes the child to have gone
+	and starts again. Every task has such a time, none blocks on a mail
+	read for ever.
+
+*	A start is a message too: `open-task` with a mailbox of the select
+	list for the word that it started, never `open-child` or
+	`open-remote` where the node may not be there to answer, they wait
+	for ever, and in an app with the window frozen. What is for the task
+	is kept till it says it has started.
+
+*	Never keep track of whether a child may have gone. A farm lasts only
+	while its work goes on: when the work stops, or what is out is no
+	longer wanted, close it, the courtesy that ends its children at once,
+	and when work starts again make a new farm with new mailboxes. Chess
+	does it for each game, Digits for each run. A farm kept across a pause
+	gives its next jobs to children that have gone, and waits out its
+	patience for each.
+
+*	Use what is there: `Jobs`, `Farm` and `Local` of `lib/task/` are this
+	protocol, the start by message, the queue, the patience, the reply
+	mailbox. A task of one is a farm of one. Do not write it by hand.
+
+*	So a design is three lists: the messages of the ideal path, the
+	courtesies, and the time each side dissolves by. One with no time on
+	a side is not done. `lib/task/jobs.inc` is a farm's,
+	`apps/science/digits/gpu.lisp` a task's that holds state.
 
 ## A Matrix Is Made from Its Raw Variables
 

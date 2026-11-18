@@ -408,6 +408,17 @@ Key points:
 	```
 	Because standard `ui-window` flows downward (`+flow_down_fill`), placing an input bar at the bottom without `+flow_up_fill` causes the input bar to receive `lasth` and stretch vertically.
 
+*	**A task of the app's own, a child, a farm, a GPU task, ends by
+	inactivity.** The rule is in the `chrysalisp-net-testing` skill, "Rules
+	Of Distributed Code": the ideal path is messages only, and when it is
+	not, inactivity dissolves it on both sides. The child goes when it has
+	been given nothing for its idle time, and never blocks on a mail read
+	for ever; the app, with work out and no answer for its patience, takes
+	the child to have gone and starts again. The app's quit message, and a
+	child's word that it is going, are courtesies that shorten a wait,
+	nothing may depend on them. `lib/task/jobs.inc` does it for a farm,
+	`apps/science/digits/gpu.lisp` for a task that holds state.
+
 *	**Non-Blocking Child Spawning (`open-task` & Trash Mailbox):**
 	`open-child` internally allocates a temporary mailbox and performs a **synchronous, blocking** `(mail-read mbox)` waiting for the kernel to return the child's `net_id`. In GUI apps, calling `open-child` in `trigger-fetch` functions stalls the event loop and freezes the UI!
 	When the spawn confirmation `net_id` is not needed:
