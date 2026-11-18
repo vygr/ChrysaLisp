@@ -404,7 +404,7 @@ bytes, the VP64 image and the host program for Windows.
 
 ## A Network Learnt On The GPU
 
-MNIST, `apps/science/mnist`, learns handwritten digits with a network of
+Digits, `apps/science/digits`, learns MNIST's handwritten digits with a network of
 `lib/nn`, 784 inputs, 128 ReLU, 10 softmax, 101,770 params, a batch of
 512. Measured on an M4 on 2026-11-17, sessions of 16 nodes.
 

@@ -8,7 +8,7 @@
 
 (import "service/lock/app.inc")
 
-(defq *config* :nil +config_version 1 +config_file (cat (get :home *env*) "mnist.tre"))
+(defq *config* :nil +config_version 1 +config_file (cat (get :home *env*) "digits.tre"))
 
 (defun config-default ()
 	(scatter (Emap) :version +config_version :rate 1 :batch 1 :gpu :nil))
@@ -25,8 +25,8 @@
 (defun config-apply ()
 	;the rate, the batch and the GPU as the config says, each one of its bar
 	(bind '(r b g) (gather *config* :rate :batch :gpu))
-	(setq rate (max 0 (min (dec (length +mnist_rates)) r))
-		batch (max 0 (min (dec (length +mnist_batches)) b)))
+	(setq rate (max 0 (min (dec (length +digits_rates)) r))
+		batch (max 0 (min (dec (length +digits_batches)) b)))
 	(. *rate_bar* :set_selected rate)
 	(. *batch_bar* :set_selected batch)
 	(setq gpu_mode (and has_gpu g :t))

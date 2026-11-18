@@ -2,7 +2,7 @@
 
 `lib/nn/` is a neural network made from a description of its layers, trained
 by Lisp on a farm of nodes or by kernels of the shader language on the GPU.
-The MNIST app, `apps/science/mnist/`, learns the handwritten digits with it,
+The Digits app, `apps/science/digits/`, learns MNIST's handwritten digits with it,
 and shows the network, the loss and the confusion as it does.
 
 The network was written in Lisp first, a row of weights a vector at a time,
@@ -19,7 +19,7 @@ kernels, what each does to the sums and why it was the one chosen.
 * `lib/nn/shaders/`, its five kernels, `gather`, `forward`, `loss`, `back`
   and `update`.
 * `lib/nn/view.inc`, the picture of a network, on `lib/motion`.
-* `apps/science/mnist/`, the app, `child.lisp` a child of its farm and
+* `apps/science/digits/`, the app, `child.lisp` a child of its farm and
   `gpu.lisp` the task that drives the GPU.
 * `tests/math/test_nn.lisp` and `tests/gpu/test_nn_gpu.lisp`: the
   gradients against the slope of the loss, and the GPU against the Lisp.
@@ -129,7 +129,7 @@ A sample forward and back went from 81us to 64us.
 
 ```vdu
 (nn-scale-bytes pixels (/ (n2d 1) (n2d 255)) x)
-(buf-set params_buf 0 (* +mnist_params +long_size) params)
+(buf-set params_buf 0 (* +digits_params +long_size) params)
 ```
 
 A picture is 784 bytes, 0 to 255, and the network wants doubles 0 to 1.

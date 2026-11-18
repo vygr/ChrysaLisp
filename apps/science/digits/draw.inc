@@ -66,7 +66,7 @@
 	(draw-words canvas "hidden units" 6 16 11 +chart_text)
 	(when params
 		(each! (lambda ()
-				(defq unit (!) row (slice params (* unit +mnist_inputs) (* (inc unit) +mnist_inputs))
+				(defq unit (!) row (slice params (* unit +digits_inputs) (* (inc unit) +digits_inputs))
 					top (max (n2d 0.0001) (reduce (# (max %0 (abs %1))) row (n2d 0)))
 					x0 (+ 6 (* (% unit 4) 58)) y0 (+ 26 (* (/ unit 4) 58)))
 				(each (lambda (v)

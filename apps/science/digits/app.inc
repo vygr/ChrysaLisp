@@ -12,9 +12,9 @@
 ;chance for each digit out, lib/nn
 (import "lib/nn/model.inc")
 
-(defq +mnist_side 28 *mnist_model* (nn-model '((:input 784) (:dense 128 :relu) (:dense 10 :softmax))))
-(defq +mnist_inputs (nn-ins *mnist_model*) +mnist_outputs (nn-outs *mnist_model*)
-	+mnist_params (nn-params *mnist_model*))
+(defq +mnist_side 28 *digits_model* (nn-model '((:input 784) (:dense 128 :relu) (:dense 10 :softmax))))
+(defq +digits_inputs (nn-ins *digits_model*) +digits_outputs (nn-outs *digits_model*)
+	+digits_params (nn-params *digits_model*))
 
 ;;;;;;;;;;;;;;
 ; the buf layout
@@ -26,19 +26,19 @@
 ;go is here, so a layout can be tried by changing these. A slice starts on
 ;a line of its own, the M4's lines are 128 bytes, so no two children write
 ;the same line; a page, 16384 on macOS, is the other to try
-(defq +mnist_align 128)
+(defq +digits_align 128)
 
-(defun mnist-align (bytes)
-	; (mnist-align bytes) -> bytes
-	;up to a whole number of +mnist_align
-	(* (/ (+ bytes (dec +mnist_align)) +mnist_align) +mnist_align))
+(defun digits-align (bytes)
+	; (digits-align bytes) -> bytes
+	;up to a whole number of +digits_align
+	(* (/ (+ bytes (dec +digits_align)) +digits_align) +digits_align))
 
-(defq +mnist_params_bytes (mnist-align (* +mnist_params +long_size)))
+(defq +digits_params_bytes (digits-align (* +digits_params +long_size)))
 
-(defun mnist-slice (slot)
-	; (mnist-slice slot) -> offset
+(defun digits-slice (slot)
+	; (digits-slice slot) -> offset
 	;where a child's gradients are in the gradient block
-	(* slot +mnist_params_bytes))
+	(* slot +digits_params_bytes))
 
 ;;;;;;;;;;;;;;
 ; the data set
@@ -58,15 +58,15 @@
 ;the last of the training set is kept back from training, to say at the end
 ;of each epoch how it does on what it has not learnt from, and so when to
 ;stop, the test set kept for the end
-(defq +mnist_valid 5000 +mnist_used (- +mnist_train +mnist_valid))
+(defq +digits_valid 5000 +digits_used (- +mnist_train +digits_valid))
 
 ;where each is in the data block, their heads left out, each on a line of
 ;its own
 (defq +mnist_train_images 0)
-(defq +mnist_train_labels (mnist-align (* +mnist_train +mnist_inputs)))
-(defq +mnist_test_images (+ +mnist_train_labels (mnist-align +mnist_train)))
-(defq +mnist_test_labels (+ +mnist_test_images (mnist-align (* +mnist_test +mnist_inputs))))
-(defq +mnist_data_bytes (+ +mnist_test_labels (mnist-align +mnist_test)))
+(defq +mnist_train_labels (digits-align (* +mnist_train +digits_inputs)))
+(defq +mnist_test_images (+ +mnist_train_labels (digits-align +mnist_train)))
+(defq +mnist_test_labels (+ +mnist_test_images (digits-align (* +mnist_test +digits_inputs))))
+(defq +mnist_data_bytes (+ +mnist_test_labels (digits-align +mnist_test)))
 
 ;;;;;;;;;;
 ; the jobs
@@ -76,39 +76,39 @@
 ;over them summed into the child's slice, or test or valid, how many are
 ;right and the confusion of them, of the test set or the training set. The keys of the three bufs, so a child opens them
 ;once, and the samples, an int each, follow
-(enums +mnist_kind 0
+(enums +digits_kind 0
 	(enum train test valid))
 
-(structure +mnist_job +job_size
+(structure +digits_job +job_size
 	(long kind step slot count data_key params_key grads_key children))
 
 ;its answer: how many, the loss summed over them, how many it got right,
 ;and for a test the confusion, an int for each digit it was and each it
 ;was taken for, follows
-(structure +mnist_reply +job_reply_size
+(structure +digits_reply +job_reply_size
 	(long step count right)
 	(double loss))
 
-;a job of the GPU's task, a +mnist_job, slot the generation of the jobs it
+;a job of the GPU's task, a +digits_job, slot the generation of the jobs it
 ;is one of, those of an older one not done, then flags, load the params
 ;from their buf before it, sync write them after into the gradient block's
 ;slice past the farm's, and the rate of a step. The samples follow. Its
-;answer is a +mnist_reply, a count of -1 for no GPU there
-(structure +mnist_gpu_job +mnist_job_size
+;answer is a +digits_reply, a count of -1 for no GPU there
+(structure +digits_gpu_job +digits_job_size
 	(long flags)
 	(double rate))
 
-(bits +mnist_gpu_flag 0
+(bits +digits_gpu_flag 0
 	(bit load sync))
 
 ;the most samples the GPU works on at once, a batch or a part of a check
-(defq +mnist_gpu_batch 1024)
+(defq +digits_gpu_batch 1024)
 
 ;;;;;;;;;;;;;
 ; the samples
 ;;;;;;;;;;;;;
 
-(defun mnist-input (pixels x)
-	; (mnist-input str x) -> x
+(defun digits-input (pixels x)
+	; (digits-input str x) -> x
 	;the bytes of a picture as doubles 0 to 1 into x
 	(nn-scale-bytes pixels (const (/ (n2d 1) (n2d 255))) x))
