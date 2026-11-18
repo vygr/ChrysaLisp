@@ -743,12 +743,16 @@ shades onto them; the app shows either frame with the same swap. The GPU is
 the node's own, `lib/gpu/compute.inc`, not the GUI's, so the child is on any
 node of the machine, kept off the app's, and holds nothing of the app's.
 
-The frame is moved three times this way, read back from the GPU, copied to
-the shared pixels, and uploaded to a texture by the swap, where the GUI
-driver's own drawing, On The GPU, In The GUI below, moves it none. At 640 by
-480 it does not show: the Surface demo draws 59.8 frames a second this way on
-an Apple M4 Max, as fast as it asks for one, and drew 58.3 by the driver. The
-copy to the shared pixels could go, were the read given their block.
+The frame is moved twice this way, read back from the GPU and uploaded to a
+texture by the swap, where the GUI driver's own drawing, On The GPU, In The
+GUI below, moves it none. The read back is straight onto the shared pixels:
+`(gpu-read buffer offset len buf at)`, `lib/gpu/compute.inc`, has the host
+copy what it read into the block of a buf from `at` on, so a tile as wide as
+the frame, all of the frame as a rule, has no str made of it and no copy
+after. A tile not so wide is read as a str and put there a row at a time. At
+640 by 480 the two moves do not show: the Surface demo draws 59.8 frames a
+second this way on an Apple M4 Max, as fast as it asks for one, and drew 58.3
+by the driver.
 
 The Mandelbrot app is a kernel, `apps/science/mandelbrot/kernel.shader`, and
 a farm either way, the one job, a square of the picture. On the GPU the farm
@@ -763,7 +767,7 @@ Each child draws its square on the app's pixels, in shared memory. The farm
 is closed when the other takes over, and when the picture has stood still
 for 2 seconds, short of the 5 a child waits for work before it goes, so the
 app never has a farm whose children may have gone; the next move makes a new
-one. On an Apple M4 Max, 800 by 800 at the start, a picture is 5 to 7ms by
+one. On an Apple M4 Max, 800 by 800 at the start, a picture is 4 to 5.4ms by
 the GPU's child, 60ms the first, its kernel's build in that, and 54 to 57ms
 by the 32 children of 16 nodes.
 

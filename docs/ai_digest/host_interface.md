@@ -344,7 +344,8 @@ docs/diagrams/host_layers.cwb
         * `host_gpu_done`: 1 if a ticket's work is over.
 
         * `host_gpu_take`: a ticket let go of, waited for if not over, and
-          what a read read copied out.
+          what a read read copied out, to a str, a vector of numbers, or a
+          place in the block of a buf, shared memory, `(gpu-read)`.
 
         * `host_gpu_kernel_create`, `host_gpu_kernel_destroy`: a kernel of
           MSL text or a SPIR-V module, its function `kernel_main`, and its

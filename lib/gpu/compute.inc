@@ -9,6 +9,8 @@
 ; A node with no GPU, its host on no SDL3, has a (gpu-format) of 0.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "class/buf/lisp.inc")
+
 ;module
 (env-push)
 
@@ -59,16 +61,20 @@
 	(gpu-call +gpu_take ticket 0 0 0 0 0 0)
 	ticket)
 
-(defun gpu-read (b offset into)
-	; (gpu-read buffer offset len | nums) -> :nil | str | nums
+(defun gpu-read (b offset into &optional block at)
+	; (gpu-read buffer offset len | nums [buf at]) -> :nil | str | nums | buf
 	;the buffer at offset, once what was given before is done: len bytes as
 	;a new str, or into all of a vector of numbers given, as many bytes as
-	;its elements have
-	(defq len (if (num? into) into (gpu-bytes into)))
+	;its elements have. Given a buf, len bytes go into its block from at
+	;on, with no copy between: the pixels of a frame straight onto a
+	;pixmap that is shared. They must fit, or it throws
+	(defq len (if (num? into) into (gpu-bytes into)) at (ifn at 0))
+	(and block (not (<= 0 at (+ at len) (buf-size block)))
+		(throw "A read past the end of a buf !" (list at len)))
 	(when (> (defq ticket (gpu-call +gpu_buffer_read b offset len 0 0 0 0)) 0)
 		(gpu-wait ticket)
-		(defq data (if (num? into) (str-alloc len) into))
-		(gpu-call +gpu_take ticket data len 0 0 0 0)
+		(defq data (cond (block) ((num? into) (str-alloc len)) (into)))
+		(gpu-call +gpu_take ticket data len at 0 0 0)
 		data))
 
 (defun gpu-kernel (code layout)

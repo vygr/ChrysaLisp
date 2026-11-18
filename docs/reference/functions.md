@@ -5330,11 +5330,13 @@ in groups of tx ty tz threads. It is built on a thread of the host,
 ### gpu-read
 
 ```code
-(gpu-read buffer offset len | nums) -> :nil | str | nums
+(gpu-read buffer offset len | nums [buf at]) -> :nil | str | nums | buf
 
 the buffer at offset, once what was given before is done: len bytes as
 a new str, or into all of a vector of numbers given, as many bytes as
-its elements have
+its elements have. Given a buf, len bytes go into its block from at
+on, with no copy between: the pixels of a frame straight onto a
+pixmap that is shared. They must fit, or it throws
 ```
 
 ### gpu-run
@@ -7710,6 +7712,14 @@ before had any
 (nlz num) -> num
 ```
 
+### nn-act-of
+
+```code
+(nn-act-of act layer) -> act
+
+a layer's activation, :none if it gives none, one of those there are
+```
+
 ### nn-activate
 
 ```code
@@ -7776,7 +7786,8 @@ a sample through the layers, each one's outputs kept in the scratch
 (nn-gpu model capacity) -> :nil | gpu
 
 the kernels and buffers to train the model on a batch of up to so
-many, :nil if there is no GPU or a kernel will not build on it
+many, :nil if there is no GPU, a kernel will not build on it, or the
+model is past what the kernels sum, (nn-gpu-fits?)
 ```
 
 ### nn-gpu-act
@@ -7801,6 +7812,17 @@ what the chain worked out, the wait for it, and its tickets let go of
 (nn-gpu-data gpu str) -> gpu
 
 a data set's bytes onto the GPU, once
+```
+
+### nn-gpu-fits?
+
+```code
+(nn-gpu-fits? model capacity programs) -> :t | :nil
+
+is every layer, and a batch of capacity, within what the kernels sum.
+A shader's loop goes to a constant, so each kernel has a most it sums
+of each thing, a constant of its file, and past it would stop short
+and say nothing
 ```
 
 ### nn-gpu-forward
@@ -7830,9 +7852,9 @@ the batch picked out and taken through the layers to its loss
 ### nn-gpu-go
 
 ```code
-(nn-gpu-go gpu name vals from to bufs) -> ticket
+(nn-gpu-go gpu kernel vals from to bufs) -> ticket
 
-a kernel given to the GPU, not waited for
+a kernel, a +nn_kernel, given to the GPU, not waited for
 ```
 
 ### nn-gpu-params
@@ -7841,6 +7863,14 @@ a kernel given to the GPU, not waited for
 (nn-gpu-params gpu params) -> gpu
 
 the params, a vector of any kind, onto the GPU as floats, the step's
+```
+
+### nn-gpu-programs
+
+```code
+(nn-gpu-programs) -> (program ...)
+
+the kernels' programs, a +nn_kernel each
 ```
 
 ### nn-gpu-read
@@ -9587,6 +9617,15 @@ for each other machine, SKIP for each skipped, RAN for each machine,
 and DONE
 ```
 
+### rack-said
+
+```code
+(rack-said machine text) -> str
+
+what a session said, as lines for the one that asked, each with the
+machine it is of, an empty line left out: "" if they all are
+```
+
 ### rack-session-clear
 
 ```code
@@ -10872,6 +10911,15 @@ function gives and takes. No body is read or checked, and the consts
 and globals are :lazy. (shader-full) reads the rest when it is wanted.
 ```
 
+### shader-const
+
+```code
+(shader-const program name) -> :nil | num | str
+
+what a constant of a program is, if it is a number written there: an
+int a num, a float the str of its decimal
+```
+
 ### shader-dim
 
 ```code
@@ -11181,6 +11229,19 @@ double, a fixed or an int, a vector is a sequence of them.
 a vertex shader and a pixel shader that go together. Every varying
 the pixel shader reads must be one the vertex shader has, of the same
 type. The vertex shader may have more, they are not used.
+```
+
+### shader-pixel-kernel
+
+```code
+(shader-pixel-kernel file) -> :nil | program
+
+the kernel of a pixel shader's file, :nil if it has no main of a pixel
+shader to make one of. Its inputs are the shader's own, then tile_x
+and tile_y, the top left of the tile in the frame, y down as a canvas
+has it, tile_w its width, and tile_top the height of the frame. Its
+one buffer is the tile's pixels, an int each. It is run over as many
+indices as the tile has pixels
 ```
 
 ### shader-range

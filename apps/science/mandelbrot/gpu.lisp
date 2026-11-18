@@ -32,8 +32,11 @@
 (defun mandel (key mbox x y x1 y1 w h canvas_key top pal_i cx cy z)
 	;a square of the picture, a run of the kernel over its pixels. It is
 	;drawn straight onto the app's canvas if that can be reached, and only
-	;the word that it is done goes back. If not, its pixels go back
-	(defq found (canvas-attach held w h 1 canvas_key) n (* (- x1 x) (- y1 y)) pixels :nil)
+	;the word that it is done goes back. If not, its pixels go back. A
+	;square as wide as the picture, all of it as a rule, is read from the
+	;GPU straight onto the canvas's pixels, no copy between
+	(defq found (canvas-attach held w h 1 canvas_key) n (* (- x1 x) (- y1 y)) pixels :nil
+		block (and found (= x 0) (= x1 w) (pixmap-buf (getf found +canvas_pixmap 0))))
 	(unless (= pal_i pal_had)
 		(gpu-write pal_buf 0 (mandel-pal (setq pal_had pal_i))))
 	(when (> (* n +int_size) out_size)
@@ -48,7 +51,8 @@
 				(list 'lbase +mandel_light_base) (list 'lgain +mandel_light_gain)
 				(list 'ss +mandel_samples)))
 			0 n (list pal_buf out_buf))
-		(setq pixels (gpu-read out_buf 0 (* n +int_size))))
+		(setq pixels (if block (gpu-read out_buf 0 (* n +int_size) block (* y w +int_size))
+			(gpu-read out_buf 0 (* n +int_size)))))
 	(defq reply (setf-> (str-alloc +rect_reply_size)
 			(+job_reply_key key)
 			(+rect_reply_x x) (+rect_reply_y y)
@@ -61,7 +65,7 @@
 	(cond
 		((not pixels) (mail-send mbox reply))
 		(found
-			(draw-rect found pixels x y x1 y1 x y x1 y1 0)
+			(unless block (draw-rect found pixels x y x1 y1 x y x1 y1 0))
 			(mail-send mbox reply))
 		((mail-send mbox (cat reply pixels)))))
 

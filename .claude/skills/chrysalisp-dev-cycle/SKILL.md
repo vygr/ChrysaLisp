@@ -521,6 +521,16 @@ is done:
 	it again. Do not also `make install` there, or `rack.sh down` during
 	it, two installs race.
 
+*	A herd machine takes a waypoint only if its tree is exactly one. A
+	`rack` run made while there was work not committed, a look at a
+	hidden desktop say, has sent it that work, so after the push it is
+	at no waypoint and does not take the new one: `./rack.sh run sync`
+	says it differs. Bring it level with `~/.ssh/cl_sync.sh`, or a
+	`rack` run, and it then installs by itself. Its member ends for the
+	install, so a `rack` job that was waiting on its session never
+	hears, and the member here stays at that job: end the `rack.sh run`
+	by pid and restart this machine's member, then ask `sync` again.
+
 *	After a push the other machines are brought level with
 	`origin/master` by git, on each: fetch, remove untracked files that
 	the push now tracks, they were put there by a sync, and check out.

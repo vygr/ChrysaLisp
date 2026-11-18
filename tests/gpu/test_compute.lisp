@@ -19,6 +19,16 @@
 		(assert-eq "and the same read back" (cat gc_bytes gc_bytes) (gpu-read gc_b 0 512))
 		(assert-eq "a part of it" (slice gc_bytes 16 48) (gpu-read gc_b 272 32))
 		(assert-eq "none past its end" :nil (gpu-read gc_b 1000 32))
+		;read into a block that is shared, at a place in it, no str between
+		(defq gc_blk (buf 512))
+		(assert-eq "a read into a buf gives the buf" gc_blk (gpu-read gc_b 16 32 gc_blk 100))
+		(assert-eq "its bytes are where they were asked for" (slice gc_bytes 16 48) (buf-get gc_blk 100 32))
+		(assert-eq "and nothing before them" 0 (buf-get gc_blk 99 +type_ubyte))
+		(assert-eq "nor after" 0 (buf-get gc_blk 132 +type_ubyte))
+		(gpu-read gc_b 0 256 gc_blk 256)
+		(assert-eq "up to the end of it" gc_bytes (buf-get gc_blk 256 256))
+		(assert-error "a read past the end of a buf is refused" (gpu-read gc_b 0 256 gc_blk 257))
+		(assert-eq "and wrote nothing" gc_bytes (buf-get gc_blk 256 256))
 		(gpu-buffer-free gc_b)
 
 		;a kernel: each float doubled, then times a scale and plus an add, of
@@ -68,4 +78,4 @@
 				(gpu-kernel-free gc_double)
 				(gpu-kernel-free gc_scale)))))
 
-(undef (env) 'gc-floats 'gc_format 'gc_bytes 'gc_b 'gc_n 'gc_in 'gc_double 'gc_scale 'gc_src 'gc_dst)
+(undef (env) 'gc-floats 'gc_format 'gc_bytes 'gc_b 'gc_blk 'gc_n 'gc_in 'gc_double 'gc_scale 'gc_src 'gc_dst)
