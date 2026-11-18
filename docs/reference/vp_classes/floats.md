@@ -4,7 +4,7 @@
 docs/reference/vp_classes/floats.cwb
 ```
 
-## :fixeds
+## :doubles
 
 ## Lisp Bindings
 

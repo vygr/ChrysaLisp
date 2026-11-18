@@ -584,7 +584,7 @@
 		((eql type :int)
 			(if (or (fixed? val) (not (num? val))) (sh-err "wrong input value" form))
 			val)
-		((and (eql type :float) (fixed? val) (not (double? val))) val)
+		((and (eql type :float) (fixed?? val)) val)
 		((sh-err "wrong input value" form))))
 
 (defun shader-key (text)
@@ -906,7 +906,7 @@
 	; (shader-double num) -> double
 	;a fixed is rounded as a float literal of the language is
 	(cond
-		((double? val) val)
+		((double?? val) val)
 		((float? val) (n2d val))
 		((fixed? val) (str-to-double (sh-decimal val)))
 		((n2d val))))

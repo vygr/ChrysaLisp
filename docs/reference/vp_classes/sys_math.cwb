@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 176
-	:height 244
+	:height 227
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 24
+	:next_id 22
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 21)
+					((:list 19)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 210 A 8 8 0 0 1 142 218 L 8 218 A 8 8 0 0 1 0 210 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 193 A 8 8 0 0 1 142 201 L 8 201 A 8 8 0 0 1 0 193 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -281,8 +281,8 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
-								204.00000
+								71.53662
+								85.00000
 							)
 						)
 						((:list 15)
@@ -302,7 +302,7 @@
 							:pos
 							((:list 2)
 								71.53662
-								85.00000
+								102.00000
 							)
 						)
 						((:list 15)
@@ -322,33 +322,13 @@
 							:pos
 							((:list 2)
 								71.53662
-								102.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							19
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:q_exp]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								71.53662
 								119.00000
 							)
 						)
 						((:list 15)
 							:shape
 							:id
-							20
+							19
 							:kind
 							:text
 							:fill
@@ -368,27 +348,7 @@
 						((:list 15)
 							:shape
 							:id
-							21
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:q_log]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								71.53662
-								153.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							22
+							20
 							:kind
 							:text
 							:fill
@@ -402,13 +362,13 @@
 							:pos
 							((:list 2)
 								71.53662
-								170.00000
+								153.00000
 							)
 						)
 						((:list 15)
 							:shape
 							:id
-							23
+							21
 							:kind
 							:text
 							:fill
@@ -422,7 +382,7 @@
 							:pos
 							((:list 2)
 								71.53662
-								187.00000
+								170.00000
 							)
 						)
 					)

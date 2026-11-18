@@ -34,9 +34,9 @@
 ; pi/2 is approx 1.570796. +fp_hpi is 1.570796.
 (assert-eq "Fixed Sin PI/2" 1.0 (sin 1.570796))
 (assert-eq "Fixed Cos PI/2" 0.0 (cos 1.570796))
-;tanh, by d_tanh, to the 16 bits a fixed has
-(assert-eq "Fixed Tanh 0" 0.0 (tanh 0.0))
-(assert-true "Fixed Tanh 0.5" (< (abs (- (tanh 0.5) 0.462117)) 0.0001))
-(assert-true "Fixed Tanh -2" (< (abs (- (tanh -2.0) -0.964028)) 0.0001))
-(assert-eq "Fixed Tanh 30" 1.0 (tanh 30.0))
+;exp, log and tanh are of the real numbers, a double and a float, not of
+;fixed point, what drawing works in
+(assert-error "Fixed Exp" (exp 1.0))
+(assert-error "Fixed Log" (log 2.0))
+(assert-error "Fixed Tanh" (tanh 0.5))
 

@@ -132,21 +132,24 @@
 	'(:nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil) (pq-which (const fixeds??)))
 (assert-list-eq "doubles?? is a doubles"
 	'(:nil :nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil) (pq-which (const doubles??)))
-;a float is a fixed, as a double is, and neither is the other
+;a float is a double, what a double does it does at its own width, and so a
+;fixed too; ?? tells it from a double
 (defq pq_float (n2f 1.5))
 (assert-true "float? float" (float? pq_float))
 (assert-true "float?? float" (float?? pq_float))
 (assert-true "fixed? float" (fixed? pq_float))
 (assert-true "fixed?? float" (not (fixed?? pq_float)))
-(assert-true "double? float" (not (double? pq_float)))
+(assert-true "double? float" (double? pq_float))
+(assert-true "double?? float" (not (double?? pq_float)))
 (assert-true "float? double" (not (float? (n2d 1.5))))
 (assert-true "float? fixed" (not (float? 1.5)))
-;a floats is a fixeds, as a doubles is, and neither is the other
+;a floats is a doubles, and so a fixeds; ?? tells it from a doubles
 (defq pq_floats (floats pq_float))
 (assert-true "floats? floats" (floats? pq_floats))
 (assert-true "floats?? floats" (floats?? pq_floats))
 (assert-true "fixeds? floats" (fixeds? pq_floats))
-(assert-true "doubles? floats" (not (doubles? pq_floats)))
+(assert-true "doubles? floats" (doubles? pq_floats))
+(assert-true "doubles?? floats" (not (doubles?? pq_floats)))
 (assert-true "nums? list" (not (nums? (list))))
 (assert-true "fixeds? nums" (not (fixeds? (nums 1))))
 (assert-list-eq "where one ? is true of all that are built on the class, a num here"

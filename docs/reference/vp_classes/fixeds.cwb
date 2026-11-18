@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 91
+	:next_id 87
 	:items
 	((:list 1)
 		((:list 7)
@@ -1219,7 +1219,7 @@
 					:stroke
 					0
 					:text
-					"[3 classes come of it]"
+					"[2 classes come of it]"
 					:font
 					"[fonts/OpenSans-Bold.ctf]"
 					:font_size
@@ -1241,7 +1241,7 @@
 							:id
 							28
 							:items
-							((:list 3)
+							((:list 2)
 								((:list 5)
 									:group
 									:id
@@ -1251,13 +1251,13 @@
 										((:list 5)
 											:group
 											:id
-											82
+											81
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													85
+													83
 													:d
 													"[M 6 0 L 56.65771 0 A 6 6 0 0 1 62.65771 6 L 62.65771 18 A 6 6 0 0 1 56.65771 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1270,7 +1270,7 @@
 												((:list 15)
 													:shape
 													:id
-													86
+													84
 													:kind
 													:text
 													:fill
@@ -1300,67 +1300,13 @@
 										((:list 5)
 											:group
 											:id
-											83
+											82
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													87
-													:d
-													"[M 6 0 L 47.19921 0 A 6 6 0 0 1 53.19921 6 L 53.19921 18 A 6 6 0 0 1 47.19921 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
-													:fill
-													4294112502
-													:stroke
-													4282140240
-													:width
-													1.19999
-												)
-												((:list 15)
-													:shape
-													:id
-													88
-													:kind
-													:text
-													:fill
-													4280296488
-													:stroke
-													0
-													:text
-													"[:floats]"
-													:font_size
-													12
-													:pos
-													((:list 2)
-														10.00000
-														16.00000
-													)
-												)
-											)
-										)
-									)
-									:pos
-									((:list 2)
-										70.65771
-										0.00000
-									)
-								)
-								((:list 7)
-									:group
-									:id
-									81
-									:items
-									((:list 1)
-										((:list 5)
-											:group
-											:id
-											84
-											:items
-											((:list 2)
-												((:list 11)
-													:shape
-													:id
-													89
+													85
 													:d
 													"[M 6 0 L 40.05078 0 A 6 6 0 0 1 46.05078 6 L 46.05078 18 A 6 6 0 0 1 40.05078 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1373,7 +1319,7 @@
 												((:list 15)
 													:shape
 													:id
-													90
+													86
 													:kind
 													:text
 													:fill
@@ -1395,7 +1341,7 @@
 									)
 									:pos
 									((:list 2)
-										131.85693
+										70.65771
 										0.00000
 									)
 								)

@@ -8,7 +8,13 @@ docs/reference/vp_classes/double.cwb
 
 ## Lisp Bindings
 
+### (exp double) -> double
+
+### (log double) -> double
+
 ### (quant double tol) -> double
+
+### (tanh double) -> double
 
 ## VP methods
 

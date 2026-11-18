@@ -17,9 +17,7 @@
 	(dec-method :d_log sys/math/d_log :static (:d0) (:d0))
 	(dec-method :d_tanh sys/math/d_tanh :static (:d0) (:d0))
 	(dec-method :f_exp sys/math/f_exp :static (:f0) (:f0))
-	(dec-method :f_tanh sys/math/f_tanh :static (:f0) (:f0))
-	(dec-method :q_exp sys/math/q_exp :static (:r0) (:r0))
-	(dec-method :q_log sys/math/q_log :static (:r0) (:r0)))
+	(dec-method :f_tanh sys/math/f_tanh :static (:f0) (:f0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fixed point vector math codegen

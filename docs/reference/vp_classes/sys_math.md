@@ -161,19 +161,6 @@ trashes
 :r0-:r3, :r6-:r10
 ```
 
-### :q_exp -> sys/math/q_exp
-
-```code
-inputs
-:r0 = power (fixed)
-outputs
-:r0 = e to the power (fixed)
-trashes
-:r0-:r2, :d0-:d3
-info
-of the double, :sys_math :d_exp, so not to be had above 33
-```
-
 ### :q_intersect -> sys/math/q_intersect
 
 ```code
@@ -191,19 +178,6 @@ outputs
 :r1 = iy (fixed)
 trashes
 :r0-:r2, :r8-:r13
-```
-
-### :q_log -> sys/math/q_log
-
-```code
-inputs
-:r0 = number (fixed)
-outputs
-:r0 = natural log of the number (fixed)
-trashes
-:r0-:r2, :d0-:d3
-info
-of the double, :sys_math :d_log, so not to be had of 0 or less
 ```
 
 ### :q_sin -> sys/math/q_sin

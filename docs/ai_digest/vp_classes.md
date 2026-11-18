@@ -247,19 +247,39 @@ docs/reference/vp_hierarchy.cwb
 
 	* Overrides `:print` to display the number with a decimal point.
 
-	* Adds fixed-point specific methods like `:frac` and `:floor`.
+	* Adds the fractions that drawing works in: `:frac`, `:floor`, `:ceil`,
+	  `:recip`, `:sin` and `:cos`.
 
 **`:double`**
 
 * **Inherits From:** `:fixed`
 
-* **Purpose:** A 64bit IEEE floating-point number format (double).
+* **Purpose:** A 64bit IEEE floating-point number format (double), Lisp's
+  general real number.
 
 * **Key Methods:**
 
-	* Overrides all arithmetic and mathematical methods (`:add`, `:sub`, `:sin`,
-	  `:sqrt`, etc.) to delegate the calculations to the `:sys_math` library, which
-	  contains the low-level floating-point routines.
+	* Adds the real numbers beyond fixed point: `:exp`, `:log` and `:tanh`, and
+	  `:quant`.
+
+	* Overrides the arithmetic and mathematical methods (`:add`, `:sub`, `:sin`,
+	  `:sqrt`, etc.), each left to override again, with the VP's float ops and
+	  the `d_` functions of `sys/math`.
+
+**`:float`**
+
+* **Inherits From:** `:double`
+
+* **Purpose:** A 32bit IEEE single, what a double does at the width of a GPU,
+  held in the low half of `num_value`.
+
+* **Key Methods:**
+
+	* Overrides each method of `:double` with the VP's single ops, and the `f_`
+	  functions of `sys/math` where there is one.
+
+The classes are a ladder of what each can do, docs/lisp/numerics.md: `(fixed? x)`
+is true of a double and a float, `(fixed?? x)` only of a fixed.
 
 ### 4. Vectorized Numerical Types
 
@@ -302,9 +322,21 @@ docs/reference/vp_hierarchy.cwb
 
 * **Key Methods:**
 
-	* Overrides all arithmetic methods to call the corresponding `:sys_math`
-	  routine (e.g., `:r_add`, `:r_mul`) for each element pair inside the vector
-	  loop.
+	* Overrides the arithmetic methods with the VP's float ops inside the
+	  vector loop, each left to override again. `:dot` and `:sum` keep four
+	  running sums.
+
+**`:floats`**
+
+* **Inherits From:** `:doubles`
+
+* **Purpose:** A vector of 32bit floats, packed 4 bytes an element, as a GPU
+  buffer has them.
+
+* **Key Methods:**
+
+	* Overrides the storage of `:array` for its 4 byte elements, and each
+	  arithmetic method of `:doubles` with single ops.
 
 ### 5. I/O Stream Implementations
 

@@ -126,8 +126,9 @@ Deeper understanding of how Lisp works in ChrysaLisp:
 
 How ChrysaLisp handles different types of data:
 
-27. **[Numerics](docs/ai_digest/numerics.md)** - Numeric types (Num, Fixed,
-    Double) and vectorized operations (nums, fixeds, doubles).
+27. **[Numerics](docs/lisp/numerics.md)** - The ladder of number kinds,
+    Num, Fixed, Double and Float, what each can do, and their vectors (nums,
+    fixeds, doubles, floats).
 
 28. **[Text Parsing](docs/ai_digest/text_parsing.md)** - High-performance text
     processing using char-class and binary search primitives (bfind, bskip).

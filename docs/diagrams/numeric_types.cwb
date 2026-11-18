@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
-	:width 786
-	:height 162
+	:width 514
+	:height 480
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 33
+	:next_id 45
 	:items
 	((:list 1)
 		((:list 7)
@@ -13,7 +13,7 @@
 			:id
 			1
 			:items
-			((:list 12)
+			((:list 17)
 				((:list 5)
 					:group
 					:id
@@ -23,9 +23,9 @@
 						((:list 13)
 							:shape
 							:id
-							14
+							19
 							:d
-							"[M 280 31 L 200 31]"
+							"[M 100 110 L 100 62]"
 							:stroke
 							4282140240
 							:width
@@ -38,9 +38,9 @@
 						((:list 9)
 							:shape
 							:id
-							15
+							20
 							:d
-							"[M 200 31 L 209 27 209 35 Z]"
+							"[M 100 62 L 104 71 96 71 Z]"
 							:fill
 							4282140240
 							:stroke
@@ -64,8 +64,8 @@
 					11
 					:pos
 					((:list 2)
-						217.95703
-						26.00000
+						106.00000
+						90.00000
 					)
 				)
 				((:list 5)
@@ -77,9 +77,9 @@
 						((:list 13)
 							:shape
 							:id
-							16
+							21
 							:d
-							"[M 560 31 L 480 31]"
+							"[M 100 220 L 100 172]"
 							:stroke
 							4282140240
 							:width
@@ -92,9 +92,9 @@
 						((:list 9)
 							:shape
 							:id
-							17
+							22
 							:d
-							"[M 480 31 L 489 27 489 35 Z]"
+							"[M 100 172 L 104 181 96 181 Z]"
 							:fill
 							4282140240
 							:stroke
@@ -118,8 +118,8 @@
 					11
 					:pos
 					((:list 2)
-						497.95703
-						26.00000
+						106.00000
+						200.00000
 					)
 				)
 				((:list 5)
@@ -127,17 +127,71 @@
 					:id
 					6
 					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							23
+							:d
+							"[M 100 330 L 100 282]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							24
+							:d
+							"[M 100 282 L 104 291 96 291 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					7
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[comes of]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						106.00000
+						310.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					8
+					:items
 					((:list 1)
 						((:list 5)
 							:group
 							:id
-							18
+							25
 							:items
 							((:list 4)
 								((:list 11)
 									:shape
 									:id
-									21
+									29
 									:d
 									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 56 A 6 6 0 0 1 194 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
@@ -150,7 +204,7 @@
 								((:list 17)
 									:shape
 									:id
-									22
+									30
 									:kind
 									:text
 									:fill
@@ -172,7 +226,7 @@
 								((:list 15)
 									:shape
 									:id
-									23
+									31
 									:kind
 									:text
 									:fill
@@ -192,7 +246,7 @@
 								((:list 15)
 									:shape
 									:id
-									24
+									32
 									:kind
 									:text
 									:fill
@@ -216,19 +270,19 @@
 				((:list 7)
 					:group
 					:id
-					7
+					9
 					:items
 					((:list 1)
 						((:list 5)
 							:group
 							:id
-							19
+							26
 							:items
 							((:list 4)
 								((:list 11)
 									:shape
 									:id
-									25
+									33
 									:d
 									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 56 A 6 6 0 0 1 194 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
@@ -241,7 +295,7 @@
 								((:list 17)
 									:shape
 									:id
-									26
+									34
 									:kind
 									:text
 									:fill
@@ -263,7 +317,7 @@
 								((:list 15)
 									:shape
 									:id
-									27
+									35
 									:kind
 									:text
 									:fill
@@ -283,7 +337,7 @@
 								((:list 15)
 									:shape
 									:id
-									28
+									36
 									:kind
 									:text
 									:fill
@@ -305,26 +359,26 @@
 					)
 					:pos
 					((:list 2)
-						280.00000
 						0.00000
+						110.00000
 					)
 				)
 				((:list 7)
 					:group
 					:id
-					8
+					10
 					:items
 					((:list 1)
 						((:list 5)
 							:group
 							:id
-							20
+							27
 							:items
 							((:list 4)
 								((:list 11)
 									:shape
 									:id
-									29
+									37
 									:d
 									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 56 A 6 6 0 0 1 194 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
@@ -337,7 +391,7 @@
 								((:list 17)
 									:shape
 									:id
-									30
+									38
 									:kind
 									:text
 									:fill
@@ -359,7 +413,7 @@
 								((:list 15)
 									:shape
 									:id
-									31
+									39
 									:kind
 									:text
 									:fill
@@ -379,7 +433,7 @@
 								((:list 15)
 									:shape
 									:id
-									32
+									40
 									:kind
 									:text
 									:fill
@@ -401,68 +455,104 @@
 					)
 					:pos
 					((:list 2)
-						560.00000
 						0.00000
+						220.00000
 					)
 				)
-				((:list 15)
-					:shape
+				((:list 7)
+					:group
 					:id
-					9
-					:kind
-					:text
-					:fill
-					4284245616
-					:stroke
-					0
-					:text
-					"[(n2i x) to here]"
-					:font_size
 					11
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							28
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									41
+									:d
+									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 56 A 6 6 0 0 1 194 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									42
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:float]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										85.62292
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									43
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[32 bit IEEE single]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										61.93170
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									44
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[made by (n2f)]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										66.91809
+										51.00000
+									)
+								)
+							)
+						)
+					)
 					:pos
 					((:list 2)
 						0.00000
-						84.00000
-					)
-				)
-				((:list 15)
-					:shape
-					:id
-					10
-					:kind
-					:text
-					:fill
-					4284245616
-					:stroke
-					0
-					:text
-					"[(n2q x) to here]"
-					:font_size
-					11
-					:pos
-					((:list 2)
-						280.00000
-						84.00000
-					)
-				)
-				((:list 15)
-					:shape
-					:id
-					11
-					:kind
-					:text
-					:fill
-					4284245616
-					:stroke
-					0
-					:text
-					"[(n2d x) to here]"
-					:font_size
-					11
-					:pos
-					((:list 2)
-						560.00000
-						84.00000
+						330.00000
 					)
 				)
 				((:list 15)
@@ -476,13 +566,13 @@
 					:stroke
 					0
 					:text
-					"[All three keep their value in the one field, num_value. Each of n2i, n2q, n2d takes any of the three, and gives back]"
+					"[(n2i x) to here, the integers]"
 					:font_size
 					11
 					:pos
 					((:list 2)
-						0.00000
-						118.00000
+						240.00000
+						24.00000
 					)
 				)
 				((:list 15)
@@ -496,13 +586,113 @@
 					:stroke
 					0
 					:text
-					"[what it is given if that is already of its kind. Going left the fraction is cut off, it is not rounded.]"
+					"[(n2q x) to here, adds the fractions drawing works in]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						240.00000
+						134.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					14
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[(n2d x) to here, adds the real numbers, exp, log, tanh]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						240.00000
+						244.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					15
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[(n2f x) to here, what a double does, at 32 bits]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						240.00000
+						354.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					16
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[Each does what the one it comes of does. All four keep their value in the one field, num_value.]"
 					:font_size
 					11
 					:pos
 					((:list 2)
 						0.00000
-						134.00000
+						420.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					17
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[Each of n2i, n2q, n2d, n2f takes any of the four, and gives back what it is given if that is]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						436.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					18
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[exactly of its kind. Going to a fixed or an integer the fraction is cut off, it is not rounded.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						452.00000
 					)
 				)
 			)

@@ -4,7 +4,7 @@
 docs/reference/vp_classes/float.cwb
 ```
 
-## :fixed
+## :double
 
 ## VP methods
 

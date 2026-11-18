@@ -48,6 +48,6 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(nn-scale-bytes bytes scale out)" +error_msg_wrong_types))
-	(signature '(:str :double :doubles))
+	(signature '(:str :DOUBLE :DOUBLES))
 
 (def-func-end)

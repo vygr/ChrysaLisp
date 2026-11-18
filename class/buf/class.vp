@@ -2,7 +2,6 @@
 (include "./class.inc")
 (include "././list/class.inc")
 (include "././floats/class.inc")
-(include "././double/class.inc")
 
 ;a block of memory that the nodes of this machine share, and nothing more:
 ;what is kept in it, and how it is read and written, is for those who use

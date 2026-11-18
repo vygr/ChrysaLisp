@@ -128,12 +128,12 @@
 ; (sin fixed) -> fixed
 (ffi "class/fixed/lisp_cos" cos)
 ; (cos fixed) -> fixed
-(ffi "class/fixed/lisp_exp" exp)
-; (exp fixed) -> fixed
-(ffi "class/fixed/lisp_log" log)
-; (log fixed) -> fixed
-(ffi "class/fixed/lisp_tanh" tanh)
-; (tanh fixed) -> fixed
+(ffi "class/double/lisp_exp" exp)
+; (exp double) -> double
+(ffi "class/double/lisp_log" log)
+; (log double) -> double
+(ffi "class/double/lisp_tanh" tanh)
+; (tanh double) -> double
 (ffi "class/fixed/lisp_frac" frac)
 ; (frac fixed) -> fixed
 (ffi "class/fixed/lisp_floor" floor)
@@ -1224,7 +1224,7 @@
 
 (defun double-to-str (r &optional precision)
 	; (double-to-str double [precision]) -> str
-	(ifn (double? r) (setq r (n2d r)))
+	(ifn (double?? r) (setq r (n2d r)))
 	;one that is less than 0 is that of what it is without its sign, with
 	;a - before it
 	(defq sign "")

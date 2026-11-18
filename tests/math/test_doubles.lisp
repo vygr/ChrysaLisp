@@ -76,7 +76,7 @@
 	("9007199254740993" 0x4340000000000000) ("1e23" 0x44B52D02C7E14AF6)
 	("3.141592653589793238462643383279" 0x400921FB54442D18) ("-0.5" 0xBFE0000000000000)
 	("1e400" 0x7FF0000000000000) ("1e-400" 0x0)))
-(assert-true "Fixed Exp and Log" (and (< (abs (- (exp 1.0) 2.71828)) 0.0002) (< (abs (- (log 2.0) 0.69315)) 0.0002)))
+(assert-error "Fixed Exp, of a double only" (exp 1.0))
 
 ; Trig (Scalar)
 (assert-eq "Double Sin 0" 0.0 (n2q (sin (n2d 0.0))))

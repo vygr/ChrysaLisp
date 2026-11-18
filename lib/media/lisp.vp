@@ -210,7 +210,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-dct4 x tw rev out)" +error_msg_wrong_types))
-	(signature '(:doubles :doubles :nums :doubles))
+	(signature '(:DOUBLES :DOUBLES :nums :DOUBLES))
 
 (def-func-end)
 
@@ -647,7 +647,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-noise out start end seed scale)" +error_msg_wrong_types))
-	(signature '(:doubles :num :num :num :double))
+	(signature '(:DOUBLES :num :num :num :DOUBLE))
 
 (def-func-end)
 
@@ -796,7 +796,7 @@
 
 (vp-label 'error)
 (jump :lisp :repl_error '(:r1 "(media-ac3-mantissas reader bap exps start end out groups noise dither table)" +error_msg_wrong_types))
-(signature '(:list :nums :nums :num :num :doubles :nums :doubles :num :doubles))
+(signature '(:list :nums :nums :num :num :DOUBLES :nums :DOUBLES :num :DOUBLES))
 
 (def-func-end)
 
@@ -1504,7 +1504,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ac3-aht reader bap exps start end top gains out vq consts itab state)" +error_msg_wrong_types))
-	(signature '(:list :nums :nums :num :num :num :nums :doubles :doubles :doubles :nums :nums))
+	(signature '(:list :nums :nums :num :num :num :nums :DOUBLES :DOUBLES :DOUBLES :nums :nums))
 
 (def-func-end)
 
@@ -1573,7 +1573,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-lpc out start count step lpc)" +error_msg_wrong_types))
-	(signature '(:doubles :num :num :num :doubles))
+	(signature '(:DOUBLES :num :num :num :DOUBLES))
 
 (def-func-end)
 
@@ -1633,7 +1633,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-matvec matrix rows cols x from out)" +error_msg_wrong_types))
-	(signature '(:doubles :num :num :doubles :num :doubles))
+	(signature '(:DOUBLES :num :num :DOUBLES :num :DOUBLES))
 
 (def-func-end)
 
@@ -1977,7 +1977,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-dequant out q from to pow gain)" +error_msg_wrong_types))
-	(signature '(:doubles :nums :num :num :doubles :double))
+	(signature '(:DOUBLES :nums :num :num :DOUBLES :DOUBLE))
 
 (def-func-end)
 
@@ -2088,7 +2088,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-window v new head d out at scale n parts dstep vstep doff voff)" +error_msg_wrong_types))
-	(signature '(:doubles :doubles :num :doubles :doubles :num :double :num :num :num :num :num :num))
+	(signature '(:DOUBLES :DOUBLES :num :DOUBLES :DOUBLES :num :DOUBLE :num :num :num :num :num :num))
 
 (def-func-end)
 
@@ -2268,7 +2268,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-gains ins flags lim kx delta consts out)" +error_msg_wrong_types))
-	(signature '(:doubles :nums :nums :num :num :doubles :doubles))
+	(signature '(:DOUBLES :nums :nums :num :num :DOUBLES :DOUBLES))
 
 (def-func-end)
 
@@ -2340,7 +2340,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-mp3-alias x bands cs ca)" +error_msg_wrong_types))
-	(signature '(:doubles :num :doubles :doubles))
+	(signature '(:DOUBLES :num :DOUBLES :DOUBLES))
 
 (def-func-end)
 
@@ -2521,7 +2521,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-slot r i kx hr hi at g q quiet sm nre nim from cr ci alt mode)" +error_msg_wrong_types))
-	(signature '(:doubles :doubles :num :list :list :num :doubles :doubles :doubles :doubles :doubles :doubles :num :double :double :doubles :num))
+	(signature '(:DOUBLES :DOUBLES :num :list :list :num :DOUBLES :DOUBLES :DOUBLES :DOUBLES :DOUBLES :DOUBLES :num :DOUBLE :DOUBLE :DOUBLES :num))
 
 (def-func-end)
 
@@ -2606,7 +2606,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-predict hr hi r i from to c0 c1 c2 c3)" +error_msg_wrong_types))
-	(signature '(:doubles :doubles :doubles :doubles :num :num :double :double :double :double))
+	(signature '(:DOUBLES :DOUBLES :DOUBLES :DOUBLES :num :num :DOUBLE :DOUBLE :DOUBLE :DOUBLE))
 
 (def-func-end)
 
@@ -2733,7 +2733,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-dots r i out)" +error_msg_wrong_types))
-	(signature '(:doubles :doubles :doubles))
+	(signature '(:DOUBLES :DOUBLES :DOUBLES))
 
 (def-func-end)
 
@@ -2814,7 +2814,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-energy high kx count a b out)" +error_msg_wrong_types))
-	(signature '(:list :num :num :num :num :doubles))
+	(signature '(:list :num :num :num :num :DOUBLES))
 
 (def-func-end)
 
@@ -2883,7 +2883,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-ana u win x base)" +error_msg_wrong_types))
-	(signature '(:doubles :doubles :doubles :num))
+	(signature '(:DOUBLES :DOUBLES :DOUBLES :num))
 
 (def-func-end)
 
@@ -3001,7 +3001,7 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ps-allpass out_r out_i dr di links coeffs gains)" +error_msg_wrong_types))
-	(signature '(:doubles :doubles :doubles :doubles :list :doubles :doubles))
+	(signature '(:DOUBLES :DOUBLES :DOUBLES :DOUBLES :list :DOUBLES :DOUBLES))
 
 (def-func-end)
 
@@ -3285,6 +3285,6 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-flac-ints out ints scale)" +error_msg_wrong_types))
-	(signature '(:doubles :nums :double))
+	(signature '(:DOUBLES :nums :DOUBLE))
 
 (def-func-end)

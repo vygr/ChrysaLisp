@@ -1,10 +1,10 @@
-(include "././fixeds/class.inc")
+(include "././doubles/class.inc")
 (include "././float/class.inc")
 (include "./struct.inc")
 
 ;a vector of floats of 32 bits, packed, 4 bytes an element, two to a slot
 ;of the array, each given out and taken in as a :float of the same bits
-(def-class :floats :fixeds
+(def-class :floats :doubles
 	(dec-method :vtable class/floats/vtable)
 	(dec-method :type class/floats/type :override)
 	(dec-method :create class/floats/create)

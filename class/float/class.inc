@@ -1,9 +1,9 @@
-(include "././fixed/class.inc")
+(include "././double/class.inc")
 (include "./struct.inc")
 
 ;a float of 32 bits, held in the low half of its value, the upper half
 ;clear, so the same float is always the same value
-(def-class :float :fixed
+(def-class :float :double
 	(dec-method :vtable class/float/vtable)
 	(dec-method :type class/float/type :override)
 	(dec-method :create class/float/create)
