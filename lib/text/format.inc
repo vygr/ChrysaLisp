@@ -518,7 +518,7 @@
 	;more than the one of its last arguments for a rule with :one, or a
 	;definition with a body that stands alone. A definition among others is
 	;a line if it fits, whatever is in it
-	(or (some (lambda (_) (and (> (!) 0) (eql (gap-weight rule (!)) 0))) forms)
+	(or (some (lambda (&) (and (> (!) 0) (eql (gap-weight rule (!)) 0))) forms)
 		(and (elem-get n +n_alone) (> (length forms) (length (first rule))))
 		(and (elem-get rule +r_one)
 			(not (and (src-def? n) (not (elem-get n +n_alone))))

@@ -84,7 +84,7 @@
 	;Headphones have no need of it, d0. talk, if not :nil, is told T and
 	;from, hex, while this one is sent, who is talking
 	(defq to (list) seq 0 sent_seq 0 muted :nil tap :nil duplex :t file :nil file_left 0
-		silence (sound-map (str-alloc +sound_piece) (lambda (_) 0))
+		silence (sound-map (str-alloc +sound_piece) (lambda (&) 0))
 		speech_until 0 heard_until 0 sending :nil told 0 from_hex (hex-encode from))
 	(sound-pieces in (lambda (data)
 			(while (mail-poll (list ctl))
@@ -122,7 +122,7 @@
 				(setq sent_seq (inc sent_seq)))
 			;a mix goes by what is said here, so a piece goes to the tap muted or
 			;not, as quiet when it is
-			(if tap (mail-send tap (voice-piece from seq (if muted (sound-map data (lambda (_) 0)) data))))
+			(if tap (mail-send tap (voice-piece from seq (if muted (sound-map data (lambda (&) 0)) data))))
 			(setq seq (inc seq)))))
 
 (defun voice-hear (in out inbox ctl said talk)

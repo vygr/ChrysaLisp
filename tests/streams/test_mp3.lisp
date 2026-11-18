@@ -70,7 +70,7 @@
 	(if (/= (. reel :find :start) (first (first frames))) (setq frames (rest frames)))
 	(defq frame (lambda (n) (bind '(at size) (elem-get frames n)) (slice s at (+ at size))))
 	(list (. reel :find :frames) (length frames)
-		(every (lambda (_) (eql (reel-packet reel (!)) (frame (!)))) frames)
+		(every (lambda (&) (eql (reel-packet reel (!)) (frame (!)))) frames)
 		(every (# (eql (reel-packet reel %0) (frame %0))) (list 9 3 15 0 7 8 2 (dec (length frames))))
 		(reel-packet reel (length frames))))
 (each (lambda ((file name))

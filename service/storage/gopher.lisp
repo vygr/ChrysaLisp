@@ -136,7 +136,7 @@
 								(list head (second form) (list 'if (list 'gopher-tick) (cat (list 'progn) (slice form 2 -1))))))))
 				((setq form (cat form))))
 			(elem-set parent idx form)
-			(each! (lambda (_) (push todo (list form (!)))) (list form) from)))
+			(each! (lambda (&) (push todo (list form (!)))) (list form) from)))
 	(first hold))
 
 (defun gopher-names (svc kept version)

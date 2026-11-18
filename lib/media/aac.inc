@@ -168,7 +168,7 @@
 	;the book of each band of each group, in runs
 	(defq short (= (. info :find :sequence) +aac_eight_short)
 		bits (if short 3 5) escape (dec (<< 1 bits)) max_sfb (. info :find :max_sfb))
-	(map (lambda (_)
+	(map (lambda (&)
 			(defq books (cap max_sfb (list)))
 			(while (< (length books) max_sfb)
 				(defq book (bits-get in 4) run 0 more escape)
@@ -340,7 +340,7 @@
 				(when (= common 1)
 					(setq info (aac-ics-info in rate_index) ms (bits-get in 2))
 					(if (= ms 1)
-						(setq ms_mask (map (lambda (_)
+						(setq ms_mask (map (lambda (&)
 									(map! (lambda () (bits-1 in)) '() 0 (. info :find :max_sfb)))
 								(. info :find :lengths)))))
 				(defq left (aac-channel in info rate_index (= common 1))

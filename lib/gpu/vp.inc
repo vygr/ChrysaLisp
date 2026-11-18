@@ -1824,7 +1824,7 @@
 	;elements of a vector of numbers
 	(vp-load-rcr :r4 +array_begin :r4)
 	(f-bind :str :vtable :r5)
-} (apply (const cat) (cat (list "") (map (lambda (_) (cat
+} (apply (const cat) (cat (list "") (map (lambda (&) (cat
 					"	(vp-load-rcr :r4 " (str (* (!) +ptr_size)) " :r2)\n"
 					"	(vp-load-rcr :r2 +obj_vtable :r3)\n"
 					"	(vpif '(:r3 = :r5))\n"

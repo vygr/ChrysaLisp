@@ -23,7 +23,7 @@
 ;none, muted or not, and to a tap or not
 (defun vc-run (to &optional muted tap level said)
 	; (vc-run to [muted tap level said]) -> ((seq from bytes peak) ...) of each that was sent to
-	(defq done (mail-mbox) ctl (mail-mbox) from (mail-mbox) boxes (map (lambda (_) (mail-mbox)) to))
+	(defq done (mail-mbox) ctl (mail-mbox) from (mail-mbox) boxes (map (lambda (&) (mail-mbox)) to))
 	(mail-send ctl (cat "t" (join (map (const hex-encode) (filter (const identity) (map (# (if %0 %1)) to boxes))) ",")))
 	(if muted (mail-send ctl "m1"))
 	(if tap (mail-send ctl (cat "p" (hex-encode tap))))
@@ -49,7 +49,7 @@
 (defun vc-held (said)
 	; (vc-held said) -> (((seq from bytes peak) ...)) of the one to hear it
 	(defq ctl (mail-mbox) from (mail-mbox) box (mail-mbox)
-		loud (sound-map (str-alloc +sound_piece) (lambda (_) 6000)))
+		loud (sound-map (str-alloc +sound_piece) (lambda (&) 6000)))
 	(mail-send ctl (cat "t" (hex-encode box)))
 	(each (# (mail-send ctl %0)) said)
 	(voice-send (string-stream (apply (const cat) (map! (lambda () loud) '() 0 10))) :nil ctl from :nil)
@@ -68,7 +68,7 @@
 (assert-eq "nor once the speech is over" :nil (voice-sending? :t 500 500 0 :nil :nil))
 
 ;pieces added, sample by sample
-(defq vc_a (sound-map (slice (str-alloc 8) 0 8) (lambda (_) 20000)) vc_b (sound-map (slice (str-alloc 4) 0 4) (lambda (_) -5000)))
+(defq vc_a (sound-map (slice (str-alloc 8) 0 8) (lambda (&) 20000)) vc_b (sound-map (slice (str-alloc 4) 0 4) (lambda (&) -5000)))
 (assert-list-eq "a mix of two is the sum of them, kept in range, as long as the first"
 	'(15000 15000 20000 20000) (map! (# (sound-sample (sound-add (list vc_a vc_b)) (!))) '() 0 4))
 (assert-list-eq "and loud ones are kept in range" '(32767 32767)
@@ -78,7 +78,7 @@
 ;here is the clock, a piece of the file for each of it, the other's added in
 (defq vc_tap (mail-mbox) vc_ctl (mail-mbox) vc_done (mail-mbox) vc_own (mail-mbox) vc_other (mail-mbox)
 	vc_file "tests/scratch/voice_mix.wav"
-	vc_here (sound-map (str-alloc +sound_piece) (lambda (_) 6000)) vc_there (sound-map (str-alloc +sound_piece) (lambda (_) 4000)))
+	vc_here (sound-map (str-alloc +sound_piece) (lambda (&) 6000)) vc_there (sound-map (str-alloc +sound_piece) (lambda (&) 4000)))
 (each! (# (mail-send vc_tap (voice-piece vc_other (!) vc_there))) '() 0 3)
 (each! (# (mail-send vc_tap (voice-piece vc_own (!) vc_here))) '() 0 5)
 (stages-run (list (voice-stage 'voice-mix (stage-mbox vc_tap) (hex-encode vc_own) (stage-mbox vc_ctl))

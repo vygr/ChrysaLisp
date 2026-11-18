@@ -49,7 +49,7 @@
 ;the maps, a canvas each, loaded when first wanted. Not in the (defq) of
 ;+planets: there the name is not yet a constant, and its value is the
 ;quoted list, of two things, not the list of globes
-(defq maps (map (lambda (_) :nil) +planets))
+(defq maps (map (lambda (&) :nil) +planets))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Planets" (+sym_close) +event_close)
