@@ -36,6 +36,8 @@ mesh_key
 /keys/
 sync_from
 waypoint
+# what a Claude Code session keeps of its own beside the skills
+/.claude/scheduled_tasks.lock
 
 # reference source that is not ours to publish, and not to be synced
 /prototype1/
