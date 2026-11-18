@@ -113,7 +113,7 @@
 	(setf pixmap +pixmap_type -32 0)
 	(setq save_us (+ save_us (- (pii-time) now))
 		frame_us (- (pii-time) frame_time) frame_idx (inc frame_idx))
-	(. *status* :set_text (cat (if (eql mode :gpu) "GPU" (cat (str (length (lisp-nodes))) " nodes"))
+	(. *status* :set_text (cat (if (eql mode :gpu) "GPU" (cat (str (length (lisp-nodes :t))) " nodes"))
 			", frame " (str frame_idx) " of " (str +num_frames) ", "
 			(str (/ frame_us 1000)) "ms to draw and save it"))
 	(start-frame))
@@ -158,8 +158,10 @@
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *window* :open)
 	(setq film (flm-open (file-stream +film_part +file_open_write) +film_bits)
+		;a herd on the nodes of this machine, kept off this one, as Surface's:
+		;the tiles shade straight into pixels only they can reach
 		jobs (Jobs +shader_tile_child
-			(elem-get select +select_task) (elem-get select +select_reply))
+			(elem-get select +select_task) (elem-get select +select_reply) (list +max_int 1 1) :t)
 		gpu_shader (shader-gui program) film_time (pii-time))
 	(if gpu_shader
 		(. *status* :set_text "GPU, the driver is building the shader")

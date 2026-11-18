@@ -205,8 +205,13 @@
 	(config-load)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *window* :open)
+	;the tiles are shaded by a herd on the nodes of this machine, a child a
+	;node, which shade straight into the pixels that only they can reach;
+	;one of another machine would send its pixels back, and every frame
+	;waits for its last tile. Kept off this node, a tile is one long call
+	;of native code, and this node is the window's
 	(setq jobs (Jobs +shader_tile_child
-			(elem-get select +select_task) (elem-get select +select_reply))
+			(elem-get select +select_task) (elem-get select +select_reply) (list +max_int 1 1) :t)
 		gpu_shader (shader-gui program))
 	;it comes up on the GPU if there is one and it was last time. The CPU
 	;is not started at once, most drivers have the shader built before it
@@ -245,7 +250,7 @@
 						(if (> (pii-time) notice_until)
 							(. *status* :set_text (cat "Frame "
 									(str (/ (- (pii-time) frame_time) 1000)) "ms, "
-									(str (length (lisp-nodes))) " nodes, native code on the CPU"
+									(str (length (lisp-nodes :t))) " nodes, native code on the CPU"
 									(if gpu_want ", while the driver builds the shader for the GPU" ""))))
 						(start-frame))))
 			(:t ;timer event, a strip of the GPU frame every tick, or all of it
