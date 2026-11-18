@@ -1125,17 +1125,20 @@ How the code is laid out.
 * A function is a label, and a call is a `vp-call`. The args are stored to the
   parameter slots of the callee, and the result is read back from its result
   slot.
-* A value being worked on is held in registers, a float in each of `:d0` to
-  `:d15`, an int or bool in `:r2` to `:r10`. A `vec3` is three registers. Any
-  that are live over a call are saved on the stack around it.
+* A value being worked on is held in registers, a float in each of `:f0` to
+  `:f15`, an int or bool in `:r2` to `:r10`. A `vec3` is three registers. Any
+  that are live over a call of a function of the program are saved on the
+  stack around it; over a call of `sys/math`, only those of what it may
+  trash, `sys/math/trashes.inc`, `:r0` to `:r2` and `:f0` to `:f3`.
 * `:r13` holds the frame and `:r12` the constants. A float literal is a
   constant in the function's table.
 * A `(break)` is a jump, a `(return)` is a store and a jump, a test is a
   branch on the float or int compare. `and` and `or` stop at the first arg
   that settles them.
 * `sin` and `cos` call `:sys_math :d_sin`, `exp` and `log` `:d_exp` and
-  `:d_log`, and `pow` `:sys_math :d_pow`, of
-  the double of the single, and the answer is made the nearest single.
+  `:d_log`, and `pow` `:sys_math :d_pow`, of the double of the single, and
+  the answer is made the nearest single. `tanh` calls `:sys_math :f_tanh`,
+  of the single as it is.
   `floor`, `fract` and `mod` are built from a convert to int and back.
 
 It has one limit the others do not. An expression that holds more than 16
@@ -1143,8 +1146,8 @@ floats at once, counting each component, has no register for the next, and is
 refused with an error. Split it with a `(defq)`. The raymarch shader fits
 as it is written.
 
-Its maths is IEEE doubles, done by the CPU, so a divide by zero gives an
-infinity as it does on a GPU.
+Its maths is IEEE singles, done by the CPU, as a GPU's is, so a divide by
+zero gives an infinity as it does on a GPU.
 
 ## Do They Agree
 

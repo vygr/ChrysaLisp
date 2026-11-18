@@ -15076,7 +15076,9 @@ to make and clear for each object of each frame
 ```code
 x to the power y, both kept, to a new register. The power of the
 
-system is of doubles, of the singles, its answer made the nearest single
+system is of doubles, of the singles, its answer made the nearest single.
+Each to its place from where it was put by if it was, it may be where
+the other goes, else from its register, which the call leaves
 ```
 
 ### sv-program

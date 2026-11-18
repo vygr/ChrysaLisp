@@ -7,6 +7,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./shader.inc")
+(import "sys/math/trashes.inc")
 (import "gui/pixmap/struct.inc")
 (import "././collections/collections.inc")
 
@@ -31,9 +32,6 @@
 	;each as a double, the one register, for a float in memory
 	+sv_dregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15)
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
-	+sv_sin_trash ''(:f0 :f1 :f2 :f3)
-	;exp and log trash :r2 as well, the first of the registers for ints
-	+sv_exp_trash ''(:f0 :f1 :f2 :f3 :r2)
 	+sv_1 (n2d 1) +sv_hpi (str-to-double "1.5707963267948966")
 	;a byte of a pixel as a number of 0 to 1 is it over this, the nearest
 	;single to that, as a GPU has it, and the Lisp back end
@@ -53,10 +51,14 @@
 	;before the pixmap lost three fields, eyes read its pixels at the old
 	;place and the desktop went down. And the classes of the doubles it
 	;makes, from :obj down, as it calls :set_cap through their vtable: a
-	;virtual added to :array moved its slot, and kept code called another
+	;virtual added to :array moved its slot, and kept code called another.
+	;The classes of the numbers too, and sys/math, whose set of what its
+	;functions trash the code keeps to around their calls
 	+sv_made_by ''("lib/gpu/vp.inc" "lib/gpu/shader.inc" "gui/pixmap/struct.inc"
 		"class/obj/class.inc" "class/seq/class.inc" "class/array/class.inc"
-		"class/nums/class.inc" "class/fixeds/class.inc" "class/doubles/class.inc"))
+		"class/nums/class.inc" "class/fixeds/class.inc" "class/doubles/class.inc"
+		"class/num/class.inc" "class/fixed/class.inc" "class/double/class.inc"
+		"sys/math/class.inc" "sys/math/trashes.inc"))
 
 ;a vertex function reads the attrs of a vertex where they are, by :r11,
 ;and writes where it is and its varyings where they are to go, by :r10.
@@ -238,6 +240,10 @@
 	(sv-emit 'vp-load-rcf :r12 (list 'fn-const (sh-double-to-float val)) (defq r (sv-getf)))
 	r)
 
+;what a function of sys/math may trash, sys/math/trashes.inc, its float
+;registers as the singles they are here
+(defq *sv_math_trash* (map (# (if (defq i (find %0 +sv_dregs)) (elem-get +sv_fregs i) %0)) +sys_math_trashes))
+
 (defun sv-spill (regs)
 	;save the live registers, all of them or those of a list
 	(defq saved (if (eql regs :t) (cat live) (filter (# (find %0 regs)) live)))
@@ -273,7 +279,7 @@
 	;register. tanh is of the single, by f_tanh. The others are of a
 	;double, of the single, and their answer is made the nearest single
 	(sv-put r)
-	(defq saved (sv-spill (if (find op '(sin cos)) +sv_sin_trash +sv_exp_trash)))
+	(defq saved (sv-spill *sv_math_trash*))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff r :f0))
 	(cond
 		((eql op 'tanh)
@@ -292,10 +298,15 @@
 
 (defun sv-pow (x y)
 	;x to the power y, both kept, to a new register. The power of the
-	;system is of doubles, of the singles, its answer made the nearest single
-	(defq saved (sv-spill :t))
-	(sv-emit 'vp-load-rcf :rsp (* (find x saved) 8) :f0)
-	(sv-emit 'vp-load-rcf :rsp (* (find y saved) 8) :f1)
+	;system is of doubles, of the singles, its answer made the nearest single.
+	;Each to its place from where it was put by if it was, it may be where
+	;the other goes, else from its register, which the call leaves
+	(defq saved (sv-spill *sv_math_trash*))
+	(each (lambda (r to)
+			(if (defq i (find r saved))
+				(sv-emit 'vp-load-rcf :rsp (* i 8) to)
+				(sv-emit 'vp-cpy-ff r to)))
+		(list x y) '(:f0 :f1))
 	(sv-emit 'vp-cvt-fd :f0 :d0)
 	(sv-emit 'vp-cvt-fd :f1 :d1)
 	(sv-emit 'call :sys_math :d_pow (sv-q '(:d0 :d1)) (sv-q '(:d0)))

@@ -50,11 +50,13 @@ inputs
 outputs
 :d0 = double to the power (double)
 trashes
-:r0-:r2, :d0-:d7
+:r0-:r2, :d0-:d3
 info
 0 if the double is not greater than 0. The whole part of the power is
 by squaring, the rest by repeated roots, to 31 bits of it. It is the
-method of the shader language, every back end of which must agree
+method of the shader language, every back end of which must agree.
+The double waits in :d3 and the whole part in :r2, and the 1 of the
+roots is kept in :d3 while they are taken, so none of it is memory
 ```
 
 ### :d_sin -> sys/math/d_sin
@@ -95,7 +97,7 @@ inputs
 outputs
 :f0 = e to the power (single)
 trashes
-:r0-:r2, :f0-:f3
+:r0-:r2, :d0-:d3
 info
 d_exp of singles: 0 below the least power that gives a whole single,
 infinity above the greatest. The power is k ln2 + r, ln2 in two parts,
@@ -113,7 +115,7 @@ inputs
 outputs
 :f0 = tanh of the single (single)
 trashes
-:r0-:r2, :f0-:f3
+:r0-:r2, :d0-:d3
 info
 d_tanh of singles: 1 from 10 on, below 0.55 the series of e to the
 twice of it less 1 to the 11th power, t / (t + 2), between 1 - 2 / (e

@@ -6,6 +6,7 @@
 (import "lib/text/tree.inc")
 (import "service/lock/app.inc")
 (import "lib/asm/assembled.inc")
+(import "sys/math/trashes.inc")
 
 (defq usage `(
 	(("-h" "--help")
@@ -557,7 +558,13 @@
 													(and opt_w file (str? file) (nql file "none") (nql line_num 0)
 														(. file_edits :update file
 															(# (if %0 (push %0 (list line_num calc_set))
-																	(list (list line_num calc_set))))))))))))
+																	(list (list line_num calc_set)))))))))
+										;a function of sys/math of a number keeps to its set,
+										;sys/math/trashes.inc
+										(and (starts-with "sys/math/" function) (not (find function +sys_math_free))
+											(nempty? (defq outside (filter (# (and (nql %0 :rsp) (not (find %0 +sys_math_trashes))))
+													(if (pmap? (second entry)) (vpmap-tolist (second entry)) (second entry)))))
+											(print "WARNING: Outside what sys/math may trash, " function ": " (format-trashes outside))))))
 							functions)
 						(and opt_w (not (. file_edits :empty?))
 							(. file_edits :each (lambda (file edits)

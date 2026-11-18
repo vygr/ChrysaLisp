@@ -355,66 +355,72 @@
 	;outputs
 	;:d0 = double to the power (double)
 	;trashes
-	;:r0-:r2, :d0-:d7
+	;:r0-:r2, :d0-:d3
 	;info
 	;0 if the double is not greater than 0. The whole part of the power is
 	;by squaring, the rest by repeated roots, to 31 bits of it. It is the
-	;method of the shader language, every back end of which must agree
+	;method of the shader language, every back end of which must agree.
+	;The double waits in :d3 and the whole part in :r2, and the 1 of the
+	;roots is kept in :d3 while they are taken, so none of it is memory
 
 	(entry :sys_math :d_pow '(:d0 :d1))
 
-	(vp-lea-pr 'fn_consts :r2)
-	(vp-load-rcd :r2 (fn-const (n2d 0)) :d2)
-	(vp-load-rcd :r2 (fn-const (n2d 1)) :d6)
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcd :r0 (fn-const (n2d 0)) :d2)
 	(vp-bgt-dd :d2 :d0 'positive)
 	(vp-cpy-dd :d2 :d0)
 	(vp-jmp 'exit)
 (vp-label 'positive)
 	;the whole part of the power, and what is left of it
-	(vp-cpy-dd :d0 :d7)
-	(vp-cvt-dr :d1 :r0)
-	(vp-cvt-rd :r0 :d3)
-	(vp-ble-dd :d1 :d3 'floored)
-	(vp-sub-dd :d6 :d3)
-	(vp-sub-cr 1 :r0)
+	(vp-cpy-dd :d0 :d3)
+	(vp-cvt-dr :d1 :r2)
+	(vp-cvt-rd :r2 :d2)
+	(vp-ble-dd :d1 :d2 'floored)
+	(vp-load-rcd :r0 (fn-const (n2d 1)) :d0)
+	(vp-sub-dd :d0 :d2)
+	(vp-sub-cr 1 :r2)
 (vp-label 'floored)
-	(vp-sub-dd :d3 :d1)
-	(vp-cpy-dd :d6 :d4)
-	(vp-cpy-dd :d0 :d5)
-	(vp-abs-rr :r0 :r1)
+	(vp-sub-dd :d2 :d1)
+	(vp-load-rcd :r0 (fn-const (n2d 1)) :d0)
+	(vp-cpy-dd :d3 :d2)
+	(vp-abs-rr :r2 :r1)
 (vp-label 'whole)
 	;the whole part, by squaring
 	(vp-beq-cr 0 :r1 'recip)
 	(vp-cpy-rr :r1 :r0)
 	(vp-and-cr 1 :r0)
 	(vp-beq-cr 0 :r0 'even)
-	(vp-mul-dd :d5 :d4)
+	(vp-mul-dd :d2 :d0)
 (vp-label 'even)
-	(vp-mul-dd :d5 :d5)
+	(vp-mul-dd :d2 :d2)
 	(vp-shr-cr 1 :r1)
 	(vp-jmp 'whole)
 (vp-label 'recip)
 	;a power less than 0 is 1 over it
-	(vp-bge-dd :d2 :d3 'rest)
-	(vp-cpy-dd :d6 :d5)
-	(vp-div-dd :d4 :d5)
-	(vp-cpy-dd :d5 :d4)
+	(vp-bge-cr 0 :r2 'rest)
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcd :r0 (fn-const (n2d 1)) :d2)
+	(vp-div-dd :d0 :d2)
+	(vp-cpy-dd :d2 :d0)
 (vp-label 'rest)
-	(vp-cpy-dd :d7 :d5)
+	(vp-cpy-dd :d3 :d2)
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcd :r0 (fn-const (n2d 1)) :d3)
 	(vp-cpy-cr 31 :r1)
 (vp-label 'root)
-	;the rest, a bit of it at a time, by a root for each bit
-	(vp-ble-dd :d2 :d1 'done)
-	(vp-beq-cr 0 :r1 'done)
+	;the rest, a bit of it at a time, by a root for each bit, till none
+	;is left, 0 or -0, all its bits but the sign 0
+	(vp-cpy-dr :d1 :r0)
+	(vp-shl-cr 1 :r0)
+	(vp-beq-cr 0 :r0 'exit)
+	(vp-beq-cr 0 :r1 'exit)
 	(vp-sub-cr 1 :r1)
-	(vp-sqrt-dd :d5 :d5)
+	(vp-sqrt-dd :d2 :d2)
 	(vp-add-dd :d1 :d1)
-	(vp-blt-dd :d6 :d1 'root)
-	(vp-mul-dd :d5 :d4)
-	(vp-sub-dd :d6 :d1)
+	(vp-blt-dd :d3 :d1 'root)
+	(vp-mul-dd :d2 :d0)
+	(vp-sub-dd :d3 :d1)
 	(vp-jmp 'root)
-(vp-label 'done)
-	(vp-cpy-dd :d4 :d0)
 (vp-label 'exit)
 
 	(exit :sys_math :d_pow '(:d0))

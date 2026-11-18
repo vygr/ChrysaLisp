@@ -1396,37 +1396,7 @@ Usage: sed [options] [path] ...
 ```
 ## shader
 ```code
-Usage: shader [options] file
-
-    options:
-        -h --help: this help info.
-        -t --target name: what to show, default glsl.
-            glsl    GLSL text, for OpenGL and WebGL.
-            msl     Metal Shading Language text, for Apple.
-            spirv   a SPIR-V module, for Vulkan, as a listing.
-            vp      VP assembler source, the native code back end.
-                    Of a pixel shader, a vertex shader, or each
-                    function of a file of functions for Lisp.
-            tree    the checked, typed tree the back ends are given.
-        -v --vertex: the vertex shader that goes with every
-            fragment shader, for msl and spirv.
-        -p --pair file: the other shader of a pair, a vertex shader
-            and a pixel shader that go together, in either order, for
-            glsl, msl and spirv. Both halves are shown. With -o they
-            are written to the file's name with .vert and .frag on.
-        -o --out file: write it to a file. A spirv module is
-            then written as the binary a driver, or spirv-dis,
-            takes, not as a listing.
-
-    Compiles a shader in the shader language, and shows what
-    it is compiled to, or writes it to a file for use outside
-    ChrysaLisp. See docs/ai_digest/shader_language.md.
-
-    shader apps/demos/surface/surface.shader
-    shader -t vp lib/gpu/shaders/mesh_vertex.shader
-    shader -t msl -o surface.metal apps/demos/surface/surface.shader
-    shader -t spirv -o surface.spv apps/demos/surface/surface.shader
-    shader -p lib/gpu/shaders/mesh_lit.shader lib/gpu/shaders/mesh_vertex.shader
+Error: (lambda ([arg ...]) body) not_a_function ! Repl: (import-cmd "cmd/shader.lisp") lib/gpu/vp.inc(241) Frame: :nil Obj: :r0
 ```
 ## shuffle
 ```code
