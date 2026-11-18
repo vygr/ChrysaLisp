@@ -10480,6 +10480,24 @@ forms, how far through them it is, its statements so far, how long
 syms was when it began, and what is to be made of it when it is done
 ```
 
+### sh-cond
+
+```code
+(sh-cond forms) -> forms
+
+each cond in the forms, at any depth, made the ifs it is, so a back
+end sees only ifs. A walk, a place at a time, each form it goes into a
+copy, as the source may be a constant
+```
+
+### sh-cond-if
+
+```code
+a cond as ifs: the first test's forms a progn, else an if of the next,
+
+and so on, a :t clause, which must be the last, the else of them all
+```
+
 ### sh-const-int
 
 ```code
@@ -16325,6 +16343,9 @@ the point of a line nearest a point, and how far along it that is, 0 to 1
 
 ```code
 (view-fit x y w h) -> (x y w h)
+
+as far as the screen lets it, and as it is with no screen to fit, a node
+with no GUI, whose (gui-info) is :nil, or a GUI with no screen open
 ```
 
 ### view-locate
@@ -16505,7 +16526,7 @@ who hears what is said here now: their inboxes, hex
 ### vp-compile
 
 ```code
-(vp-compile file) -> ((name code [(locals ...)]) ...)
+(vp-compile file) -> ((name code) ...)
 
 within a compile env, the VP of the functions of a source file, an
 entry each, as a bundle has them. Nothing is translated or saved: what

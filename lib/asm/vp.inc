@@ -71,18 +71,8 @@
 (defun vp-pop (&rest b) (emit `(pop ~b)))
 (defun vp-trash (&rest b) (emit `(trash ~b)))
 (defun vp-alloc (c)
-	;a frame is whole longs, the stack pointer stays aligned. One that is
-	;the size of the function's (structure slot ...) is that frame, and
-	;its fields are noted with the function, *locals*, for the (locals)
-	;command: which of the
-	;function's allocs it is, counted from 1, its size, and each field,
-	;its name, offset and type, "" for a struct
-	(emit (static-qqp (alloc ,(setq c (align (eval c (penv)) +long_size)))))
-	(and (defq fields (get 'slot_fields)) (= c (align slot_size +long_size))
-		(push *locals* (list
-				(reduce (# (if (eql (first %1) 'alloc) (inc %0) %0)) *emit_list* 0) c
-				(map (lambda ((field offset type))
-						(list field offset (if (find (first type) "0123456789") "" type))) fields)))))
+	;a frame is whole longs, the stack pointer stays aligned
+	(emit (static-qqp (alloc ,(align (eval c (penv)) +long_size)))))
 (defun vp-free (c) (emit (static-qqp (free ,(align (eval c (penv)) +long_size)))))
 (defun vp-ret () (emit `(ret)))
 (defun vp-sync (&optional n) (emit (static-qqp (sync ,(ifn n 0)))))

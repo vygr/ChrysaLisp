@@ -120,9 +120,7 @@ bundle is one function, as `(read)` reads it back:
 ```vdu
 ("name"
 ((op operand ...)
-...)
-(locals ...)
-...)
+...))
 ```
 
 `vp-entry-text` and `vp-code-text` in `lib/trans/vp.inc` write it.
@@ -158,8 +156,7 @@ anything stores or sends.
 * A label is `_N`, `_0 _1 ...`, quoted where it is set,
   `(label '_0)`.
 
-* What is after the instructions, the locals and the like, is no
-  translator's.
+* What is after the instructions, if anything, is no translator's.
 
 The parser refuses text that is not VP: an op it does not know, a number,
 an escape or a label of the wrong form, a label it never sets, or text cut

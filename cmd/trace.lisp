@@ -518,13 +518,12 @@
 		(defq t_set changed_set changed_set next_changed next_changed t_set))
 	db)
 
-(defun declared-line (line calc &optional own)
-	; (declared-line line calc [own]) -> :nil | line
+(defun declared-line (line calc)
+	; (declared-line line calc) -> :nil | line
 	;a line that is a (dec-method), with what the method trashes said in
 	;it, after what it takes and gives: those, and what kind it is, are
-	;said too if they were not, the one comes after the other. And after
-	;that, of a virtual method, what its one function trashes, own.
-	;:nil if the line is not one this can write again
+	;said too if they were not, the one comes after the other. :nil if
+	;the line is not one this can write again
 	(bind '(nodes open stray) (tree-read (string-stream line)))
 	(when (and (= open 0) (nempty? nodes) (defq kids (tree-form? (first nodes) "dec-method")) (>= (length kids) 3)
 			(some! (# (eql (first %0) :comment)) (list nodes) :t 1 -1))
@@ -536,8 +535,7 @@
 			"(dec-method " (third (second kids)) " " (tree-text (third kids)) " " kind
 			" " (if (> (length more) 0) (tree-text (first more)) ":nil")
 			" " (if (> (length more) 1) (tree-text (second more)) ":nil")
-			" (" (if (eql calc "none") "" (join (split calc (const (char-class ", "))) " ")) ")"
-			(if own (cat " (" (if (eql own "none") "" (join (split own (const (char-class ", "))) " ")) ")") "") ")"
+			" (" (if (eql calc "none") "" (join (split calc (const (char-class ", "))) " ")) "))"
 			(pad "" stray ")")
 			(apply (const cat) (cat (list "") (map! (# (cat " " (third %0))) (list nodes) 1 -1))))))
 
@@ -599,23 +597,13 @@
 													calc (and (every (# (and (defq entry (. db :find %0)) (nql (first entry) :external))) impls)
 														(format-trashes (reduce (# (if (find %1 +zero_clobber_funcs) %0
 																		(merge %0 (second (. db :find %1))))) impls (list)))))
-												;of a virtual method, what the one function that is it
-												;here trashes as well: a caller bound to the function
-												;goes by that, and so does what keeps locals in registers.
-												;Said only where it is not what the method trashes, which
-												;it is when not said, so a copy of that is a mismatch too
-												(defq declared_own (. method_entry :find :declared_own)
-													own (and calc (nql (. method_entry :find :type) :static)
-														(not (find (first impls) +zero_clobber_funcs))
-														(format-trashes (second (. db :find (first impls)))))
-													own (if (eql own calc) :nil own))
-												(when (and calc (or (nql calc declared) (nql own declared_own)))
+												(when (and calc (nql calc declared))
 													(print "WARNING: Mismatch in " c " " m)
-													(print "\tDeclared: " (ifn declared "not said") (if (or own declared_own) (cat ", of the function " (ifn declared_own "the same")) ""))
-													(print "\tCalculated: " calc (if (or own declared_own) (cat ", of the function " (ifn own "the same")) ""))
+													(print "\tDeclared: " (ifn declared "not said"))
+													(print "\tCalculated: " calc)
 													(print "\tFile: \q" file "\q Line: " line_num)
 													(if opt_w (. dec_edits :update file
-															(# (if %0 (push %0 (list line_num calc own)) (list (list line_num calc own)))))))))))))
+															(# (if %0 (push %0 (list line_num calc)) (list (list line_num calc)))))))))))))
 						(and opt_w (not (. dec_edits :empty?))
 							(. dec_edits :each (lambda (file edits)
 									(with-write-lock file
@@ -623,10 +611,10 @@
 											(defq doc (Document))
 											(. doc :stream_load in_s)
 											(setq in_s :nil)
-											(each (lambda ((line_num calc own))
+											(each (lambda ((line_num calc))
 													(defq orig_line (. doc :get_text_line line_num))
 													(cond
-														((defq new_line (declared-line orig_line calc own))
+														((defq new_line (declared-line orig_line calc))
 															(. doc :idelete 0 line_num (dec (length orig_line)) line_num)
 															(. doc :iinsert 0 line_num new_line))
 														((print "WARNING: not written, " file " line " line_num))))

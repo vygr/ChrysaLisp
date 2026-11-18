@@ -18,7 +18,7 @@
 ;An operand is a register, :r0 to :r14 :rsp :d0 to :d15 :f0 to :f15, a name, a keyword
 ;that is not a register, a number, a string, a label, _0 _1 ..., quoted or
 ;not, or (- a b) of two labels or a label and *pc*. What is after the
-;instructions, its locals and the like, is no translator's.
+;instructions, if anything, is no translator's.
 ;
 ;Every part is in line, nothing is called once the text is begun, so what
 ;is not VP text goes to 'fail from anywhere with the stack as it came.

@@ -5,8 +5,8 @@
 ; of them under the file's name in obj/vp/, a validate one's beside it in
 ; obj/vp_validate/, see lib/asm/asm.inc. This finds a function's, reads it, and says where control goes from
 ; each instruction, and what a call in it is of and is declared to trash,
-; take and give. It is what the commands that see a function whole stand
-; on, (locals) and (relies).
+; take and give. It is what (relies), that sees a function whole, stands
+; on.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;module
@@ -72,20 +72,17 @@
 						((push out arg)))) args (list)))))
 
 (defun insts-of (function)
-	; (insts-of function) -> :nil | (insts labels start frames)
+	; (insts-of function) -> :nil | (insts labels start all)
 	;the instructions of a function, from where it is entered to where
-	;its table of links begins. The fourth thing of the file is the
-	;header, which has the two labels. And what its frames of named
-	;locals were, the form after the instructions, if it has any: each
-	;(which_alloc size ((name offset type) ...))
+	;its table of links begins, and all of them. The third of all is the
+	;header, which has the two labels
 	(when (and (defq listing (vp-listing function))
 			(defq all (first listing)) (> (length all) 3))
-		(defq head (elem-get all 2) labels (Fmap 31) more (second listing))
+		(defq head (elem-get all 2) labels (Fmap 31))
 		(each (# (if (find (first %0) '(label tlabel)) (. labels :insert (last (second %0)) (!)))) all)
 		(and (eql (first head) 'short) (>= (length head) 4)
 			(defq start (. labels :find (third head))) (defq end (. labels :find (elem-get head 3)))
-			(list (slice all start end) labels start
-				(if (and (list? more) (nempty? more) (eql (first more) 'locals)) (rest more) (list)) all))))
+			(list (slice all start end) labels start all))))
 
 (defun regs-of (text)
 	; (regs-of text) -> (num ...)
@@ -152,13 +149,13 @@
 (defun methods-of (class_db)
 	; (methods-of class_db) -> (by_function class_db)
 	;what is declared of each method, by the function it is: (trashes
-	;takes gives), as bits. trashes is what the function itself does if
-	;that is said, a virtual method's, and :nil if nothing is said
+	;takes gives), as bits. trashes is what the function's comment says
+	;it does
 	(defq by_function (Fmap 1021))
 	(. class_db :each (lambda (class entry)
 			(.-> entry (:find :methods) (:each (lambda (method m)
 						(when (. m :find :dec_line)
-							(defq said (ifn (. m :find :declared_own) (. m :find :declared)) path (str (. m :find :function))
+							(defq said (. m :find :trashes) path (str (. m :find :function))
 								now (list (if said (bits-of (regs-of said)))
 									(declared-of class_db class method :dec_inputs)
 									(declared-of class_db class method :dec_outputs))

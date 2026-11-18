@@ -42,7 +42,8 @@
     and does not give, is such a place.
 
     Two things called are left out. What does not come back,
-    :sys_pii :exit. And a walk that calls back to what called
+    :sys_pii :exit, the dump of a task, and the reports of a
+    validate build that end in one. And a walk that calls back to what called
     it, :view :forward_tree: it is declared to trash every
     register, it can not know what it is given to call, and
     what gives it the callbacks keeps in registers what they
@@ -84,6 +85,12 @@
 		add-ff sub-ff mul-ff div-ff min-ff max-ff sqrt-ff
 		abs-ff neg-ff beq-ff bne-ff blt-ff bgt-ff ble-ff bge-ff
 		cvt-fd cvt-df))
+
+(defq
+	;what is called and left out: what does not come back, and the walk
+	;that calls back to what called it
+	+left_out ''("sys/pii/exit" "sys/task/dump" "class/obj/dead" "sys/heap/overrun"
+		"sys/heap/double_free" "sys/mem/bad_free" "gui/view/forward_tree"))
 
 (defun regs-in (mask)
 	; (regs-in mask) -> (reg ...)
@@ -129,7 +136,7 @@
 	;is declared to trash it: which instruction, what was called, and
 	;the registers, as bits. :nil if the function is not there
 	(when (defq got (insts-of function))
-		(bind '(insts labels start frames all) got)
+		(bind '(insts labels start all) got)
 		(defq count (length insts) next (next-of insts labels start)
 			me (. (first methods) :find function) gives (if me (third me) 0)
 			;what each instruction reads, writes, and, of a call, what is
@@ -190,7 +197,7 @@
 		(each (lambda (flow)
 				(when (defq called (third flow))
 					;what does not come back has nothing read after it
-					(defq at (!) bad (if (find (first called) '("sys/pii/exit" "gui/view/forward_tree")) 0
+					(defq at (!) bad (if (find (first called) +left_out) 0
 							(logand (after-of at) (second called) (lognot (elem-get called 3)))))
 					(when (/= bad 0)
 						;the first instruction after it, by where control goes, that
@@ -222,7 +229,7 @@
 	;the call, and the call and the bringing back, has to be plain: a
 	;label, a branch or another call ends the looking
 	(when (defq got (insts-of function))
-		(bind '(insts labels start frames all) got)
+		(bind '(insts labels start all) got)
 		(defq found (list) count (length insts)
 			plain (lambda (inst) (not (or (find (first inst) +call_ops) (find (first inst) +leave_ops)
 						(find (first inst) '(label tlabel jmp alloc free))

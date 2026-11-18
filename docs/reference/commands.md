@@ -1004,46 +1004,6 @@ Usage: lisp [options] [path] ...
     If no paths given on command line
     then will REPL from stdin.
 ```
-## locals
-```code
-Usage: locals [options] [function] ...
-
-    options:
-        -h --help: this help info.
-        -v --verbose: a line for every function that has
-            locals, not only the sum.
-        -t --top num: the functions that move most to and
-            from the stack, that many of them, default 10.
-        -c --cost num: what the methods called cost their
-            callers, the worst that many of them: for each,
-            the calls of it from functions with locals, the
-            locals wanted after those calls, how many of
-            them there is no register for that the call
-            leaves alone and the caller does not use, and
-            how many of those it is the call that keeps
-            out: there would be a register if it trashed
-            less. Then the registers it trashes that would
-            each be a home for one more local, and at how
-            many of those calls. To trash less is safe for
-            every caller, and lint says if the code does.
-
-    What the named locals of each VP function cost, and what
-    of that a compiler that kept them in registers could save.
-    It reads the instructions of a function as they were
-    assembled, the VP a normal build keeps, obj/vp/,
-    and sees the function whole: where its frame
-    is made and let go of, each place in the frame that is
-    read or written, a local, which of them have their
-    address taken, and, by where control goes, which are
-    still wanted after each call.
-
-    A local that never has its address taken could be kept
-    in a register. One that is not wanted after any call
-    could be in any. One that is has to be in a register the
-    call leaves alone, or be put by for the call.
-
-    With no function named, all there are.
-```
 ## locks
 ```code
 Usage: locks [options]

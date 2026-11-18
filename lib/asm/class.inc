@@ -114,17 +114,15 @@
 	(pinsert vtable mname m))
 
 (defmacro def-class (class super &rest lines)
-	; (def-class class super (dec-method name function [type regs_in regs_out trashes own]) ...)
+	; (def-class class super (dec-method name function [type regs_in regs_out trashes]) ...)
 	;trashes is the registers a call of the method may leave not as they
 	;were, ranges and all, (:r1-:r14 :d0), () for none. Not said, it is
 	;what the class above says of the method, and if none does, not known.
-	;Of a virtual method it is what any class called so may trash, and
-	;own, after it, is what the one function that is the method here
-	;does, for lint and those who read the declaration, said only where it
-	;is not the trashes, which it is when not said: the assembler
-	;keeps trashes, by itself, what a method is in a vtable is as it was
+	;Of a virtual method it is what any class called so may trash: the
+	;assembler keeps trashes, by itself, what a method is in a vtable is
+	;as it was
 	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap))))
-	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes own))
+	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes))
 			(setd mtype :static)
 			(if (list? trashes) (pinsert trashed mname trashes))
 			(if (defq m (pfind vtable mname))

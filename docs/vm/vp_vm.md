@@ -448,13 +448,6 @@ not written by hand: `trace -w`, which works out what each function really
 trashes, writes it, and `lint` says where a declaration is not what the code
 does. A method written in line in its `class.inc` has none.
 
-A virtual method has one more list after that, what the one function that is
-the method in this class trashes. A call through the vtable trashes the
-first, it may be of any class. A call bound to the function trashes the
-second. It is said only where it is less than the first: not said, it is the
-first, and lint takes a copy of the first as a mismatch, which `trace -w`
-writes away.
-
 An example from the array class.inc.
 
 ```file
@@ -497,8 +490,7 @@ A bundle is a run of forms, one a function, as `(read)` reads them:
 ((label '_0)
 (long -1)
 (short _27 _2 _15 _21 6144)
-...)
-(locals ...))
+...))
 ```
 
 The first item is the function's path, the second the list of its
@@ -539,9 +531,6 @@ worked out, and a macro in one is only expanded, so `'((& :r4 (inc
 The parser of VP text, `lib/trans/vp_parse.vp`, refuses any other operand,
 and a label no `(label)` sets, and the build stops with the function's
 name.
-
-After the instructions there may be `(locals ...)`, the frames of named locals
-the function had. It is for the tools; a translator does not read it.
 
 ## VP function example
 

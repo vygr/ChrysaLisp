@@ -9,6 +9,6 @@
 	(dec-method :create class/pset/create :static :nil :nil (:r0-:r2 :d0-:d15))
 	(dec-method :vcreate class/pset/create :override :nil :nil (:r0-:r2 :d0-:d15))
 	(dec-method :pfind class/pset/find :virtual (:r0 :r1) (:r0 :r1 :r7 :r8) (:r1-:r10))
-	(dec-method :pinsert class/pset/insert :virtual (:r0 :r1) (:r0 :r1) (:r1-:r14 :d0-:d15) (:r1-:r12 :d0-:d15))
+	(dec-method :pinsert class/pset/insert :virtual (:r0 :r1) (:r0 :r1) (:r1-:r14 :d0-:d15))
 	(dec-method :lisp_pset class/pset/lisp_pset :static (:r0 :r1) (:r0 :r1) (:r2))
 	(dec-method :lisp_pfindi class/pset/lisp_pfindi :static (:r0 :r1) (:r0 :r1) (:r1-:r11 :r14 :d0-:d15)))

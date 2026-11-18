@@ -53,7 +53,7 @@
 
 (defun def-func (*func_name* &optional *func_stack*)
 	(defq *strings* (clear '()) *paths* (clear '()) *consts* (clear '())
-		*links* (clear '()) *emit_list* (clear '()) *locals* (list)
+		*links* (clear '()) *emit_list* (clear '())
 		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
 (vp-label 'fn_start)
 	(vp-long -1)
@@ -95,13 +95,10 @@
 (vp-label 'fn_end)
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	;the function's VP, the same for every platform, all a compile gives:
-	;its name, the instructions, and after them what the frames of named
-	;locals were. A copy, the list (emit-vp-code) gives is its own and
-	;made again for the next
+	;its name and the instructions. A copy, the list (emit-vp-code) gives
+	;is its own and made again for the next
 	(unless *build_entries* (throw "VP compiled other than by (vp-compile) !" *func_name*))
-	(defq entry (list (str *func_name*) (cat (emit-vp-code *emit_list*))))
-	(if (nempty? *locals*) (push entry (cat '(locals) *locals*)))
-	(push *build_entries* entry)
+	(push *build_entries* (defq entry (list (str *func_name*) (cat (emit-vp-code *emit_list*)))))
 	(if *build_emit* (print (vp-code-text entry)))
 	;a function is done, and the other tasks of this node have their turn
 	;if this one's slice is up: the links that carry mail through it, and

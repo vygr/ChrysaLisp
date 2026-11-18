@@ -396,8 +396,7 @@ is assembled, and `lib/asm/vpopt.inc` is the only optimiser. A value
 wanted more than once between calls is loaded once to a register and used
 from there, not read from its slot again. What an `(entry)` gives in a
 register is used from the register, and saved to its slot only if it is
-wanted after a call. `locals -t` says which functions go to the stack
-most.
+wanted after a call.
 
 ## Boot Image Functions Run From The Image
 

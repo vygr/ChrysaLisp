@@ -10,7 +10,7 @@
 	(dec-method :ref_all class/list/ref_all :static (:r0) (:r0) (:r1-:r4))
 	(dec-method :collect class/list/collect :static (:r0 :r1 :r2) (:r0) (:r1-:r6 :r8-:r11 :r14 :d0-:d15))
 	(dec-method :vcreate class/list/create :override :nil :nil (:r0-:r2 :d0-:d15))
-	(dec-method :deinit class/list/deinit :override :nil :nil (:r1-:r4 :d0-:d15) (:r1-:r3 :d0-:d15))
+	(dec-method :deinit class/list/deinit :override :nil :nil (:r1-:r4 :d0-:d15))
 	(dec-method :ref_elem class/list/ref_elem :final :nil :nil (:r1-:r2))
 	(dec-method :cat class/list/cat :final :nil :nil (:r0-:r9 :d0-:d15))
 	(dec-method :slice class/list/slice :final :nil :nil (:r0-:r4 :r6-:r8 :d0-:d15))

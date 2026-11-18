@@ -9,7 +9,7 @@
 	;same as another by what is in it, and this is not a list to those
 	;who use it
 	(dec-method :eql class/obj/eql :final :nil :nil (:r1))
-	(dec-method :deinit class/hmap/deinit :override :nil :nil (:r1-:r4 :d0-:d15) (:r1-:r3 :d0-:d15))
+	(dec-method :deinit class/hmap/deinit :override :nil :nil (:r1-:r4 :d0-:d15))
 	(dec-method :create class/hmap/create :static (:r0) (:r0) (:r0-:r5 :r14 :d0-:d15))
 	(dec-method :init class/hmap/init :static (:r0 :r1 :r2) :nil (:r1-:r5 :d0-:d15))
 	(dec-method :cfind class/hmap/cfind :static (:r0 :r1 :r2) (:r0 :r1 :r2) (:r1-:r10))

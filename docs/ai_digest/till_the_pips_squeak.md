@@ -932,7 +932,7 @@ What did it, biggest first:
 | The optimiser's stack slot tracking          | `lib/asm/vpopt.inc`              |
 | The iterators                                | `class/seq/lisp_pling.vp`        |
 | `:list :clear`                               | `class/list/class.vp`            |
-| `relies`, `locals`, `bench`                  | `cmd/`                           |
+| `relies`, `bench`                            | `cmd/`                           |
 | The benchmark modules                        | `tests/bench/`                   |
 | The sort of a scan line's edges              | `gui/canvas/fpoly.vp`            |
 | The call, phase by phase                     | [Keeping It Hot](keeping_it_hot.md) |

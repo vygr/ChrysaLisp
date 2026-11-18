@@ -1719,7 +1719,7 @@
 		(progn (undef (penv) '*func_env* '*compile_env*) :nil)))
 
 (defun vp-compile (file)
-	; (vp-compile file) -> ((name code [(locals ...)]) ...)
+	; (vp-compile file) -> ((name code) ...)
 	;within a compile env, the VP of the functions of a source file, an
 	;entry each, as a bundle has them. Nothing is translated or saved: what
 	;is done with them, and where it is kept, is the caller's

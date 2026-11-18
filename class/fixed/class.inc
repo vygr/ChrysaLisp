@@ -9,7 +9,7 @@
 	(dec-method :vcreate class/fixed/create :override :nil :nil (:r0-:r2 :r14 :d0-:d15))
 	(dec-method :mul class/fixed/mul :override :nil :nil (:r0-:r4 :r14 :d0-:d15))
 	(dec-method :div class/fixed/div :override :nil :nil (:r0-:r5 :r14 :d0-:d15))
-	(dec-method :mod class/fixed/mod :override :nil :nil (:r0-:r6 :r14 :d0-:d15) (:r0-:r2 :r4-:r6 :r14 :d0-:d15))
+	(dec-method :mod class/fixed/mod :override :nil :nil (:r0-:r6 :r14 :d0-:d15))
 	(dec-method :sign class/fixed/sign :override :nil :nil (:r0-:r2 :r14 :d0-:d15))
 	(dec-method :sqrt class/fixed/sqrt :override :nil :nil (:r0-:r2 :r14 :d0-:d15))
 	(dec-method :pow class/fixed/pow :override :nil :nil (:r0-:r2 :r14 :d0-:d15))
