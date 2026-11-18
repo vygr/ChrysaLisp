@@ -844,8 +844,8 @@ new trap there with its test. Others to know:
 	`cmd/`.
 
 *	Run `check` on new or changed Lisp before its first run. It reads paths
-	from stdin, one folder at a time: `files <folder> | check -j 40`;
-	`check <path>` checks nothing, silently. `check`, `forward` and
+	from stdin, one folder at a time: `files <folder> | check -j 40`,
+	or the paths of files and folders as its arguments. `check`, `forward` and
 	`brackets` need the Lock service and say nothing without it: a
 	`run_tui.sh -s` script starts it first.
 

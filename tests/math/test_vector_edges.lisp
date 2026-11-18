@@ -38,6 +38,8 @@
 (assert-error "nums-add-scaled empty" (nums-add-scaled (nums) (nums) 2))
 (assert-error "nums-add-scaled second short" (nums-add-scaled (nums 1 2) (nums 1) 2))
 (assert-error "nums-add-scaled output short" (nums-add-scaled (nums 1 2) (nums 1 2) 2 (nums 0)))
+(assert-error "nums-add-scaled output of another kind" (nums-add-scaled (nums 1 2) (nums 1 2) 2 (fixeds 0.0 0.0)))
+(assert-error "nums-scale output of another kind" (nums-scale (nums 1 2) 2 (fixeds 0.0 0.0)))
 
 ; --- fixeds ---
 (test-cases

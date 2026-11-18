@@ -207,7 +207,20 @@
 (assert-list-eq "vpname: a + name of a .vp file's (defq) another .vp file's (defq) gives too; not one of its own alone"
 	'("(1) vpname: +ae_ctr is given by a (defq) in lib/crypto/lisp.vp as well: read by the one assembler task the second is of the first's value, give it a prefix of this file's own")
 	(map (# (slice %0 (inc (length tt_vp)) -1)) (filter (const nempty?) (split (join tt_said "") tt_lf))))
-(assert-list-eq "early: a + constant that is a quoted list used in the (defq) that makes it, in a function there too; not in a later (defq), nor a number"
+;a .shader file, of a language of its own: with every check asked for only
+;its numbers and its brackets are looked at, nothing that is of Lisp
+(defq tt_shader "tests/scratch/tmp_check_test.shader" tt_said (list))
+(save (cat "(max p 0.0000001)" tt_lf "(vec3 -0.57735 0.5 1.25000)" tt_lf "(* dx {0.00000000000000000001})" tt_lf
+	"(if a b (progn (n2d 0.0001)))" tt_lf) tt_shader)
+(pipe-run (cat "check " tt_shader) (# (push tt_said %0)))
+(pii-remove tt_shader)
+(assert-list-eq "places: a shader's number of more than 4 places; not one of 4, a 0 on its end, a str, nor what is of Lisp"
+	'("(1) places: 0.0000001 has more than 4 places, a shader's number is rounded to 4, write it as a str"
+		"(2) places: -0.57735 has more than 4 places, a shader's number is rounded to 4, write it as a str")
+	(map (# (slice %0 (inc (length tt_shader)) -1)) (filter (const nempty?) (split (join tt_said "") tt_lf))))
+(assert-list-eq "places: not asked of Lisp, where a number of more places is a fixed"
+	'() (tt-check "places" "(n2d 0.57735)"))
+(assert-list-eq "early:a + constant that is a quoted list used in the (defq) that makes it, in a function there too; not in a later (defq), nor a number"
 	'("(1) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"
 		"(2) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)")
 	(tt-check "early" "(defq +tt ''((1) (2) (3)) m (map (lambda (x) :nil) +tt)" "	f (lambda () (length +tt)))"

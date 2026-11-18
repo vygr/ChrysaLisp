@@ -167,7 +167,9 @@ are given ! They just pack the `num_value` fields of the input parameters into
 a typed array, a word an element. `(floats ...)` keeps each as a float, an element of 32
 bits, 4 bytes, as a GPU buffer has them, and gives each back as a
 `:float`. `(nums-convert)` makes a vector of one kind from one of another,
-converting each element.
+converting each element. It is the only op that takes two kinds: every vector
+given to any other, the one it writes to as well, is of the one class, and an
+op of two is an error, as a floats' elements are half the size of the others'.
 
 The operations on them are native methods of their classes, each over the
 whole vector in one call, with an optional output vector. An empty vector is

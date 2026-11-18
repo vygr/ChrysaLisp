@@ -257,10 +257,21 @@
 				(map! (const !) '() (+ +digits_used (* (!) per)) (min +mnist_train (+ +digits_used (* (inc (!)) per))))))
 			'() 0 +jobs)))))
 
+(defun step-next ()
+	;a step, if the epoch has a batch left for it, else the end of the
+	;epoch, the check of the kept back part. Every step is started by this:
+	;one asked for by hand, or as it trains again, may be at an epoch's end,
+	;and the batch may have been made bigger since the last
+	(cond
+		((> (+ at (* (elem-get +digits_batches batch) +jobs)) +digits_used)
+			(setq order :nil at 0 epoch (inc epoch))
+			(valid-start))
+		(:t (step-start))))
+
 (defun train-start ()
 	(setq training :t stopped :nil)
 	(buttons)
-	(unless busy (step-start)))
+	(unless busy (step-next)))
 
 (defun next ()
 	;after a step or a test, the next: a test asked for while it was busy,
@@ -275,10 +286,7 @@
 			(setq test_next :nil)
 			(test-start))
 		((not training))
-		((> (+ at (* (elem-get +digits_batches batch) +jobs)) +digits_used)
-			(setq order :nil at 0 epoch (inc epoch))
-			(valid-start))
-		(:t (step-start))))
+		(:t (step-next))))
 
 (defun stepped ()
 	;the slices added up, and the params moved down them
@@ -410,22 +418,11 @@
 				(setq after :nil)
 				(case then
 					(:train (train-start))
-					(:step (step-start))
+					(:step (step-next))
 					(:test (test-start)))))
 		("!" (setq fetch :nil after :nil training :nil)
 			(buttons)
 			(show-status (cat " could not fetch: " (rest msg))))))
-
-(defun net-switch (to)
-	;another net: what is out let go of, its view made, and its params
-	;afresh
-	(farm-forget)
-	(setq which to model (elem-get *digits_models* to) params_size (digits-params-size model)
-		view (nn-view model 560 504) scratch (nn-scratch model)
-		x (fill (nn-vector model) +digits_inputs (nn-num model 0)))
-	;the GPU's params are of the net before, so load the new ones first
-	(setq gpu_stale :t)
-	(reset))
 
 (defun reset ()
 	(farm-forget)
@@ -440,6 +437,17 @@
 	(nn-view-weights view net)
 	(show-sample)
 	(buttons))
+
+(defun net-switch (to)
+	;another net: what is out let go of, its view made, and its params
+	;afresh
+	(farm-forget)
+	(setq which to model (elem-get *digits_models* to) params_size (digits-params-size model)
+		view (nn-view model 560 504) scratch (nn-scratch model)
+		x (fill (nn-vector model) +digits_inputs (nn-num model 0)))
+	;the GPU's params are of the net before, so load the new ones first
+	(setq gpu_stale :t)
+	(reset))
 
 ;;;;;;;;;;;;
 ; the frames
@@ -505,7 +513,7 @@
 					((= id +event_step)
 						(setq training :nil)
 						(buttons)
-						(and (not busy) (data-ready :step) (step-start)))
+						(and (not busy) (data-ready :step) (step-next)))
 					((= id +event_test)
 						;busy, it is done when the step ends
 						(cond

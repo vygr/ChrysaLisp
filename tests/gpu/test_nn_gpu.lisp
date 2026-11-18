@@ -56,4 +56,24 @@
 (ng-check "conv" (nn-model '((:input 1 4 4) (:conv 3 3 :tanh :pad 1) (:pool 2) (:conv 2 2 :sigmoid) (:dense 4 :softmax))))
 (ng-check "stride" (nn-model '((:input 1 4 4) (:conv 3 3 :relu :stride 2 :pad 1) (:conv 2 2 :tanh :pad 1) (:pool 2) (:dense 4 :softmax))))
 
+;a chance too small for a float to hold: its loss is that of the least
+;chance a log is taken of, as a Lisp model of floats has it, not infinity.
+;No weights, and a bias that makes the first output all but certain, of a
+;sample whose label is another
+(defq ng_cap (nn-model '((:input 16) (:dense 4 :softmax)) :floats))
+(cond
+	((not (defq ng_gpu (nn-gpu ng_cap 64)))
+		(test-skip "the loss of no chance on the GPU" "this node has no GPU"))
+	(:t (defq ng_p (fill (floats) (nn-params ng_cap) +float_0) ng_x (fill (floats) 16 +float_0))
+		(elem-set ng_p (elem-get (first (nn-layers ng_cap)) +nn_layer_biases) (n2f 200))
+		(nn-gpu-data ng_gpu ng_data)
+		(nn-gpu-params ng_gpu ng_p)
+		(bind '(ng_gl &ignore) (nn-gpu-forward ng_gpu (list 1) 0 ng_labels))
+		(defq ng_out (nn-forward ng_cap (nn-net ng_cap ng_p) (nn-scale-bytes (slice ng_data 16 32) ng_k ng_x)
+			(nn-scratch ng_cap)))
+		(assert-eq "the sample's label is not the certain one" 3 (code ng_data 1 (inc ng_labels)))
+		(assert-true "the loss of no chance is the least chance's, as the Lisp model's"
+			(ng-near ng_gl (nn-loss ng_out 3) (n2d 0.001)))
+		(nn-gpu-free ng_gpu)))
+
 (undef (env) 'ng-check 'ng-near 'ng_n 'ng_labels 'ng_data 'ng_batch 'ng_k)

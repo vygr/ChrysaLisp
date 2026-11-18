@@ -16,7 +16,7 @@
 (defvarying eye :vec3)
 
 ;the way to the light, it is up, to the left, and on our side of the scene
-(defconst light (vec3 -0.57735 0.57735 0.57735))
+(defconst light (vec3 -0.5774 0.5774 0.5774))
 (defconst ambient 0.22)
 ;how much of the color the light brings out, how bright the highlight
 ;is, and how small, a bigger power is a smaller spot

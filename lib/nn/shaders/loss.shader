@@ -25,7 +25,9 @@
 		(when (>= j outs) (break))
 		(defq p (/ (exp (- (elem-get z (+ r j)) top)) sum) e p)
 		(when (= j label)
-			(elem-set loss s (- (log (max p 0.0000001))))
+			;no log of a chance less than 1e-37, the least a model of floats
+			;takes one of, lib/nn/model.inc. A str, a number here is 4 places
+			(elem-set loss s (- (log (max p "0.0000000000000000000000000000000000001"))))
 			(setq e (- p 1.0)))
 		(elem-set dz (+ r j) e))
 	(elem-set guess s best))

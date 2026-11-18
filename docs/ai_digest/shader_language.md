@@ -87,7 +87,8 @@ The Lisp reader gives a float literal as a 16.16 fixed point number, which is
 good to 4 decimal places, so a float literal is rounded to 4 places, `0.001`
 is 0.0010 and not the 0.00099 the fixed holds. A number that needs more digits
 is written as a string, `(defconst pi "3.1415926535898")`. Both back ends are
-given the same decimal text.
+given the same decimal text. `check` reads a `.shader` for this, its `places`
+rule: a number written with more than 4 places is said, as `0.00001` is 0.
 
 An int is 32 bits, as on a GPU. An int literal from `0x80000000` to
 `0xffffffff` is taken as its bits, so `0xff000000` is the same word on every

@@ -87,6 +87,13 @@ Usage: check [options] [path] ...
             only some of it. (char-class) puts it in order.
     zero    a number written with a point that is too
             small for a fixed to hold, and so is 0.
+    places  in a .shader, a number written with more than 4
+            places after its point. A shader's number is
+            read as a fixed and rounded to 4 places,
+            lib/gpu/shader.inc, so 0.00001 is 0: one that
+            needs more is written as a str. It and bracket
+            are all that is asked of a .shader, which is of
+            a language of its own.
     shadow  a variable with the name of a function or a
             macro of the system, as a test of an (and), an
             (or) or a clause of a (cond): there it is taken
@@ -272,9 +279,10 @@ Usage: check [options] [path] ...
             with a (defq). A name is found where a function
             is called from, so it is the other's that is had.
 
-    A path that is a folder is the source files in it, at
-    any depth. If no paths given on command line then will
-    test files from stdin. Of those, and of a folder given,
+    A path that is a folder is the source files in it,
+    .vp, .inc, .lisp and .shader, at any depth. If no
+    paths given on command line then will test files
+    from stdin. Of those, and of a folder given,
     the files of tests/scratch/ are left out: what is tried
     out there is not held to any of this. A file given by
     its own path is looked at, wherever it is.

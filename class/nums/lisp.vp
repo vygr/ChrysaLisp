@@ -351,6 +351,9 @@
 		(vp-load-rcr iter_begin (* +ptr_size 2) dst)
 		(assign `((,dst +array_length)) `(,len2))
 		(gotoif `(,len1 > ,len2) 'error)
+		;of the kind it is scaled from, a floats' numbers are half the size
+		(assign `((,nums1 +obj_vtable) (,dst +obj_vtable)) `(,argc ,len2))
+		(gotoif `(,argc /= ,len2) 'error)
 		(call :obj :ref `(,dst) `(,dst))
 	(endif)
 	(call :nums :scale `(,dst ,nums1 (,scale +num_value)) `(,dst) :r3)
@@ -390,6 +393,9 @@
 	(assign `((,nums1 +array_length) (,nums2 +array_length)) `(,len1 ,len2))
 	(gotoif `(,len1 = 0) 'error)
 	(gotoif `(,len1 > ,len2) 'error)
+	;all of one kind, a floats' numbers are half the size of the others'
+	(assign `((,nums1 +obj_vtable) (,nums2 +obj_vtable)) `(,dst ,len2))
+	(gotoif `(,dst /= ,len2) 'error)
 	(vpif `(,argc = 3))
 		(v-call :nums :vcreate `(,dst) `(,dst) nums1 iter_begin)
 		(call :nums :set_cap `(,dst ,len1) `(,dst) :r2)
@@ -398,6 +404,8 @@
 		(vp-load-rcr iter_begin (* +ptr_size 3) dst)
 		(assign `((,dst +array_length)) `(,len2))
 		(gotoif `(,len1 > ,len2) 'error)
+		(assign `((,nums1 +obj_vtable) (,dst +obj_vtable)) `(,argc ,len2))
+		(gotoif `(,argc /= ,len2) 'error)
 		(call :obj :ref `(,dst) `(,dst))
 	(endif)
 	(call :nums :add_scaled `(,dst ,nums1 ,nums2 (,scale +num_value)) `(,dst) :r4)

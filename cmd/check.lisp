@@ -33,6 +33,13 @@
             only some of it. (char-class) puts it in order.
     zero    a number written with a point that is too
             small for a fixed to hold, and so is 0.
+    places  in a .shader, a number written with more than 4
+            places after its point. A shader's number is
+            read as a fixed and rounded to 4 places,
+            lib/gpu/shader.inc, so 0.00001 is 0: one that
+            needs more is written as a str. It and bracket
+            are all that is asked of a .shader, which is of
+            a language of its own.
     shadow  a variable with the name of a function or a
             macro of the system, as a test of an (and), an
             (or) or a clause of a (cond): there it is taken
@@ -218,9 +225,10 @@
             with a (defq). A name is found where a function
             is called from, so it is the other's that is had.
 
-    A path that is a folder is the source files in it, at
-    any depth. If no paths given on command line then will
-    test files from stdin. Of those, and of a folder given,
+    A path that is a folder is the source files in it,
+    .vp, .inc, .lisp and .shader, at any depth. If no
+    paths given on command line then will test files
+    from stdin. Of those, and of a folder given,
     the files of tests/scratch/ are left out: what is tried
     out there is not held to any of this. A file given by
     its own path is looked at, wherever it is.")
@@ -228,8 +236,11 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "def" "char" "glyph" "unbound" "scan" "override")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "def" "char" "glyph" "unbound" "scan" "override" "places")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789")
+	+char_class_decimal (char-class "0123456789.")
+	;the source files, and what is asked of a shader, a language of its own
+	+check_exts ''(".vp" ".inc" ".lisp" ".shader") +check_shader ''("places" "bracket")
 	+char_class_opens (char-class "\q;{")
 	;the heads (tree-read) is given, by (files-scan), includes and make docs
 	+tree_heads (list quote (cat +scan_kinds '("defq" "defcvar" "defun" "defmacro" "enums" "bits"
@@ -279,6 +290,16 @@
 		(defq cls (catch (first (read (string-stream (third arg)))) :t))
 		(and (str? cls) (> (length cls) 1) (nql cls (char-class cls))
 			(found file arg "class" (third arg) " given to (" head ") is not in order, (char-class " (third arg) ")"))))
+
+(defun check-places (file node)
+	;a shader's number is a fixed made a decimal of 4 places, (sh-decimal),
+	;a 0 on its end is no place
+	(and (find (first node) '(:number :symbol)) (nempty? (defq text (third node)))
+		(defq digits (if (find (first text) "+-") (rest text) text))
+		(nempty? digits) (= (bskip +char_class_decimal digits 0) (length digits))
+		(defq dot (find "." digits))
+		(> (- (length (trim-end digits "0")) dot 1) 4)
+		(found file node "places" text " has more than 4 places, a shader's number is rounded to 4, write it as a str")))
 
 (defun check-zero (file node)
 	;a number with a sign before it is read as a symbol by the tree
@@ -1431,6 +1452,9 @@
 	(with-read-lock file
 		(when (defq in (file-stream file))
 			(defq whole (tree-read in) top (first whole) todo (list top) *found* (list) off (Fset 11)
+				;a shader is asked only what holds of its language
+				is_shader (ends-with ".shader" file)
+				checks (if is_shader (apply (const pset) (filter (# (pfind checks %0)) +check_shader)) checks)
 				;the functions of this file, and what each takes
 				*defuns* (Fmap 31) *inner_defuns* (Fset 11) inner_scan (list top))
 			;the functions made inside another, (defun) not at the top of the file
@@ -1496,6 +1520,7 @@
 							(found file node "stray" "a name by itself at the top of the file, " (third node)
 								", was a form closed before its end ?"))
 						(if (pfind checks "zero") (check-zero file node))
+						(and is_shader (pfind checks "places") (check-places file node))
 						(when (defq kids (tree-form? node))
 							(push todo kids)
 							(defq forms (forms-of kids)
@@ -1571,9 +1596,9 @@
 		;only source files, a folder the source files in it at any depth,
 		;less the scratch folder's
 		(setq jobs (reduce (lambda (out f)
-					(if (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))
+					(if (some (# (ends-with %0 f)) +check_exts)
 						(push out f)
-						(reduce (# (if (scratch? %1) %0 (push %0 %1))) (files-all f '(".vp" ".inc" ".lisp")) out)))
+						(reduce (# (if (scratch? %1) %0 (push %0 %1))) (files-all f +check_exts) out)))
 				jobs (list)))
 		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !

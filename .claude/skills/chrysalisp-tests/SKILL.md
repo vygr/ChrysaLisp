@@ -323,6 +323,9 @@ check and what it found. It must say nothing. `-c` names the checks to run:
 	of it is found. `(char-class)` puts one in order.
 *	`zero`, a number written with a point that is too small for a fixed,
 	`0.000001`, and so is 0.
+*	`places`, in a `.shader`, a number written with more than 4 places
+	after its point: a shader's number is rounded to 4, one that needs more
+	is a str. It and `bracket` are all that is asked of a `.shader`.
 *	`shadow`, a variable with the name of a function or macro of the system
 	as a test of an `(and)`, an `(or)` or a clause of a `(cond)`: there the
 	function is what is taken, and it is always true. `(and path x)`.

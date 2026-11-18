@@ -469,7 +469,10 @@ what each kind can do, a vector class beside each:
 
 *	**Mixing:** a method reads its argument's value as its own kind, so a
 	double and a float mixed in one sum is garbage. Constants match the
-	kind of the vector they meet.
+	kind of the vector they meet. Every vector of a `nums-` op, the one
+	it writes to too, is of the one class, or it is an error: only
+	`nums-convert` takes two kinds. A new native that takes vectors
+	checks that, a floats' elements are half the size.
 
 *	**An empty vector is an error** to every `nums` op, by design: no
 	identity is assumed, as `(+)` and a `reduce` of nothing with no start
