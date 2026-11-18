@@ -70,7 +70,8 @@
 		(. (ui-radio-bar *mode_bar* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
 		(ui-label _ (:text " " :font :font_body :flow_flags +flow_flag_align_vcenter))
 		(. (ui-radio-bar *net_bar* ("dense" "LeNet") (:font :font_body :paper :paper_toolbar2)) :connect +event_net)
-		(ui-label *status* (:text "" :font :font_body :min_width 520
+		;room for the longest status, the toolbar no wider than the canvases
+		(ui-label *status* (:text "" :font :font_body :min_width 440
 			:flow_flags +flow_flag_align_vcenter))
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
