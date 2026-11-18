@@ -694,7 +694,10 @@ doc.
 	that.
 
 *	Results of several walks collect into one `out` list of `map!` or
-	`filter!`, not a `cat` of several. A walk that stops early is `some!`.
+	`filter!`, not a `cat` of several. A walk that stops early is `some!`,
+	whose mode comes before its span: `:nil` stops at the first that is
+	not `:nil`, `:t` at the first that is, as `every`. A span of numbers is
+	`(some! f '() :nil a b)`; `(some! f '() a b)` takes `a` as the mode.
 
 *	There is no `range`. A span of numbers is an iterator with an empty
 	list of sequences, `(each! (lambda () ... (!) ...) '() start end)`: the

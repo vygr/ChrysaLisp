@@ -4,14 +4,14 @@
 
 ;what the app was set to when it was last closed, kept in the user's home,
 ;see docs/ai_digest/app_configuration.md: the learning rate and the batch
-;chosen, and the farm or the GPU, not where its window was
+;chosen, the farm or the GPU, and the net, not where its window was
 
 (import "service/lock/app.inc")
 
 (defq *config* :nil +config_version 1 +config_file (cat (get :home *env*) "digits.tre"))
 
 (defun config-default ()
-	(scatter (Emap) :version +config_version :rate 1 :batch 1 :gpu :nil))
+	(scatter (Emap) :version +config_version :rate 1 :batch 1 :gpu :nil :net 0))
 
 (defun config-load ()
 	;the defaults with what was kept laid over them
@@ -23,16 +23,19 @@
 			(unless (eql key :version) (. *config* :insert key val))))))
 
 (defun config-apply ()
-	;the rate, the batch and the GPU as the config says, each one of its bar
-	(bind '(r b g) (gather *config* :rate :batch :gpu))
+	;the rate, the batch, the GPU and the net as the config says, each one
+	;of its bar, the GPU only of the dense net
+	(bind '(r b g n) (gather *config* :rate :batch :gpu :net))
 	(setq rate (max 0 (min (dec (length +digits_rates)) r))
-		batch (max 0 (min (dec (length +digits_batches)) b)))
+		batch (max 0 (min (dec (length +digits_batches)) b))
+		which (max 0 (min (dec (length +digits_nets)) (ifn n 0))))
 	(. *rate_bar* :set_selected rate)
 	(. *batch_bar* :set_selected batch)
-	(setq gpu_mode (and has_gpu g :t))
+	(. *net_bar* :set_selected which)
+	(setq gpu_mode (and has_gpu g (= which 0) :t))
 	(. *mode_bar* :set_selected (if gpu_mode 1 0)))
 
 (defun config-save ()
-	(scatter *config* :rate rate :batch batch :gpu (and gpu_mode (not to_farm)))
+	(scatter *config* :rate rate :batch batch :gpu (and gpu_mode (not to_farm)) :net which)
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))

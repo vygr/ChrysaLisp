@@ -8,15 +8,23 @@
 ; the network
 ;;;;;;;;;;;;;
 
-;a picture of 28 by 28 grey levels in, a layer of hidden units, and a
-;chance for each digit out, lib/nn
+;a picture of 28 by 28 grey levels in and a chance for each digit out,
+;lib/nn, by a net of the user's choice: a layer of hidden units, or
+;LeNet-5, two layers of convolutions each pooled, then three dense. Each
+;of floats, as the GPU has them, the GPU's kernels of dense layers only
 (import "lib/nn/model.inc")
 
-(defq +mnist_side 28 *digits_model* (nn-model '((:input 784) (:dense 128 :relu) (:dense 10 :softmax)) :floats))
-(defq +digits_inputs (nn-ins *digits_model*) +digits_outputs (nn-outs *digits_model*)
-	+digits_params (nn-params *digits_model*))
-;its params' bytes, 4 a float
-(defq +digits_params_size (nn-bytes-of *digits_model* +digits_params))
+(defq +mnist_side 28 +digits_nets ''(
+	("dense" ((:input 784) (:dense 128 :relu) (:dense 10 :softmax)))
+	("LeNet" ((:input 1 28 28) (:conv 6 5 :tanh :pad 2) (:pool 2) (:conv 16 5 :tanh) (:pool 2)
+		(:dense 120 :tanh) (:dense 84 :tanh) (:dense 10 :softmax)))))
+(defq *digits_models* (map (# (nn-model (second %0) :floats)) +digits_nets))
+(defq +digits_inputs (nn-ins (first *digits_models*)) +digits_outputs (nn-outs (first *digits_models*)))
+
+(defun digits-params-size (model)
+	; (digits-params-size model) -> bytes
+	;its params' bytes, 4 a float
+	(nn-bytes-of model (nn-params model)))
 
 ;;;;;;;;;;;;;;
 ; the buf layout
@@ -35,7 +43,8 @@
 	;up to a whole number of +digits_align
 	(* (/ (+ bytes (dec +digits_align)) +digits_align) +digits_align))
 
-(defq +digits_params_bytes (digits-align +digits_params_size))
+;the params and each slice of gradients room for the biggest net
+(defq +digits_params_bytes (digits-align (reduce (# (max %0 (digits-params-size %1))) *digits_models* 0)))
 
 (defun digits-slice (slot)
 	; (digits-slice slot) -> offset
@@ -77,12 +86,12 @@
 ;a job, what to do with which samples: train, the gradients of the loss
 ;over them summed into the child's slice, or test or valid, how many are
 ;right and the confusion of them, of the test set or the training set. The keys of the three bufs, so a child opens them
-;once, and the samples, an int each, follow
+;once, which net, and the samples, an int each, follow
 (enums +digits_kind 0
 	(enum train test valid))
 
 (structure +digits_job +job_size
-	(long kind step slot count data_key params_key grads_key children))
+	(long kind step slot count data_key params_key grads_key children net))
 
 ;its answer: how many, the loss summed over them, how many it got right,
 ;and for a test the confusion, an int for each digit it was and each it

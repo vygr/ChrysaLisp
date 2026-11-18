@@ -7,7 +7,8 @@
 (import "lib/gpu/compute.inc")
 (import "./draw.inc")
 
-;Handwritten digits, MNIST, learnt. The data set is fetched the first time
+;Handwritten digits, MNIST, learnt, by the net chosen, a dense one or
+;LeNet-5, on the farm, or the dense one on the GPU. The data set is fetched the first time
 ;it is wanted and kept, and loaded into a buf the farm's children read
 ;their pictures from. Each step the app writes the params into a second
 ;buf and gives each child a part of the batch; each sums the gradients of
@@ -22,7 +23,8 @@
 	(enum reset train step test)
 	(enum rate)
 	(enum batch)
-	(enum mode))
+	(enum mode)
+	(enum net))
 
 ;by priority, mail-select takes the first that has mail: what the user
 ;does first, the timer last so a slow frame starves nothing
@@ -34,6 +36,10 @@
 	;twentieth of a second, a new sample shown each second
 	+jobs 16 +frame_rate 50000 +show_rate 1000000 +features_rate 2000000
 	*running* :t rate 1 batch 1 select :nil
+	;the net chosen, its model and the bytes of its params
+	which 0 model (first *digits_models*) params_size (digits-params-size (first *digits_models*))
+	;a word on the status line till the net or the mode is changed
+	note ""
 	;the bufs, the farm, and where it is
 	data :nil params_buf :nil grads_buf :nil jobs :nil fetch :nil
 	params :nil net :nil out 0 answers (list) busy :nil training :nil after :nil test_next :nil
@@ -63,7 +69,9 @@
 		(. (ui-radio-bar *batch_bar* ("16" "32" "64") (:font :font_body :paper :paper_toolbar2)) :connect +event_batch)
 		(ui-label _ (:text " " :font :font_body :flow_flags +flow_flag_align_vcenter))
 		(. (ui-radio-bar *mode_bar* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
-		(ui-label *status* (:text "" :font :font_body :min_width 600
+		(ui-label _ (:text " " :font :font_body :flow_flags +flow_flag_align_vcenter))
+		(. (ui-radio-bar *net_bar* ("dense" "LeNet") (:font :font_body :paper :paper_toolbar2)) :connect +event_net)
+		(ui-label *status* (:text "" :font :font_body :min_width 520
 			:flow_flags +flow_flag_align_vcenter))
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -81,7 +89,8 @@
 	(ui-tool-tips *main_toolbar* '("reset" "train" "step" "test"))
 	(ui-tool-tips *rate_bar* '("rate" "rate" "rate" "rate"))
 	(ui-tool-tips *batch_bar* '("batch" "batch" "batch" "batch"))
-	(ui-tool-tips *mode_bar* '("farm" "GPU")))
+	(ui-tool-tips *mode_bar* '("farm" "GPU"))
+	(ui-tool-tips *net_bar* '("dense" "LeNet-5")))
 
 (defun rate-now ()
 	; (rate-now) -> rate
@@ -99,7 +108,7 @@
 			(if (> speed 0) (cat "  " (str speed) "/s") "")
 			(if (nempty? valids) (cat "  valid " (percent (second (last valids)))) "")
 			(if (nempty? tests) (cat "  test " (percent (second (last tests)))) "")
-			(ifn stopped "")))))
+			(ifn stopped "") note))))
 
 (defun buttons ()
 	;the train button lit while it trains, and its symbol pause, to stop it
@@ -115,7 +124,7 @@
 	;eased to what it makes of it
 	(when data
 		(defq pixels (buf-get data (+ +mnist_test_images (* shown +digits_inputs)) +digits_inputs))
-		(nn-forward *digits_model* net (digits-input pixels x) scratch)
+		(nn-forward model net (digits-input pixels x) scratch)
 		(nn-view-show view (first scratch) (buf-get data (+ +mnist_test_labels shown) +type_ubyte))))
 
 (defun show-next ()
@@ -162,13 +171,13 @@
 	(cat (setf-> (str-alloc +digits_job_size) (+digits_job_kind kind) (+digits_job_step step)
 			(+digits_job_slot slot) (+digits_job_count (length samples))
 			(+digits_job_data_key (buf-key data)) (+digits_job_params_key (buf-key params_buf))
-			(+digits_job_grads_key (buf-key grads_buf)) (+digits_job_children +jobs))
+			(+digits_job_grads_key (buf-key grads_buf)) (+digits_job_children +jobs) (+digits_job_net which))
 		(apply (const cat) (map (# (char %0 +int_size)) samples))))
 
 (defun jobs-give (kind msgs)
 	;the params where the children read them, and the jobs out
 	(farm-start)
-	(buf-set params_buf 0 +digits_params_size params)
+	(buf-set params_buf 0 params_size params)
 	(setq step (inc step) busy kind out (length msgs) answers (list))
 	(. jobs :add msgs))
 
@@ -182,7 +191,7 @@
 		(setq gpu_child (open-remote (cat *app_root* "gpu.lisp") node +kn_call_pin)))
 	(defq flags 0)
 	(when gpu_stale
-		(buf-set params_buf 0 +digits_params_size params)
+		(buf-set params_buf 0 params_size params)
 		(setq gpu_stale :nil loading step flags +digits_gpu_flag_load))
 	(when sync
 		(setq sync_step step sync_t (pii-time) flags (logior flags +digits_gpu_flag_sync)))
@@ -190,7 +199,7 @@
 			(+job_reply (elem-get select +select_gpu)) (+digits_job_kind kind) (+digits_job_step step)
 			(+digits_job_slot gen) (+digits_job_count (length samples))
 			(+digits_job_data_key (buf-key data)) (+digits_job_params_key (buf-key params_buf))
-			(+digits_job_grads_key (buf-key grads_buf)) (+digits_job_children +jobs)
+			(+digits_job_grads_key (buf-key grads_buf)) (+digits_job_children +jobs) (+digits_job_net which)
 			(+digits_gpu_job_flags flags) (+digits_gpu_job_rate (rate-now)))
 		(apply (const cat) (cat '("") (map (# (char %0 +int_size)) samples)))))
 	(setq step (inc step) out (inc out)))
@@ -273,12 +282,12 @@
 
 (defun stepped ()
 	;the slices added up, and the params moved down them
-	(defq bytes +digits_params_size sum (push (nn-vector *digits_model*) (buf-get grads_buf 0 bytes))
+	(defq bytes params_size sum (push (nn-vector model) (buf-get grads_buf 0 bytes))
 		total (* (elem-get +digits_batches batch) +jobs))
-	(each! (lambda () (nums-add sum (push (nn-vector *digits_model*) (buf-get grads_buf (digits-slice (!)) bytes)) sum))
+	(each! (lambda () (nums-add sum (push (nn-vector model) (buf-get grads_buf (digits-slice (!)) bytes)) sum))
 		'() 1 +jobs)
-	(nums-add params (nums-scale sum (nn-num *digits_model* (/ (neg (rate-now)) (n2d total))) sum) params)
-	(setq net (nn-net *digits_model* params) dirty_loss :t)
+	(nums-add params (nums-scale sum (nn-num model (/ (neg (rate-now)) (n2d total))) sum) params)
+	(setq net (nn-net model params) dirty_loss :t)
 	;idle, the same digit again, to see what this step did to it
 	(unless training (show-sample))
 	(push losses (/ (reduce (# (+ %0 (getf %1 +digits_reply_loss))) answers (n2d 0)) (n2d total))))
@@ -307,7 +316,7 @@
 		((> got best_right)
 			(setq best_right got best_params (cat params) best_epoch epoch misses 0))
 		((>= (setq misses (inc misses)) +patience)
-			(setq training :nil params (cat best_params) net (nn-net *digits_model* params) test_next :t gpu_stale :t
+			(setq training :nil params (cat best_params) net (nn-net model params) test_next :t gpu_stale :t
 				stopped (cat "  best epoch " (str best_epoch)))
 			(buttons)
 			(show-sample))
@@ -319,8 +328,8 @@
 
 (defun gpu-params ()
 	;the params the GPU's task wrote back
-	(setq params (push (nn-vector *digits_model*) (buf-get grads_buf (digits-slice +jobs) +digits_params_size))
-		net (nn-net *digits_model* params) dirty_features :t))
+	(setq params (push (nn-vector model) (buf-get grads_buf (digits-slice +jobs) params_size))
+		net (nn-net model params) dirty_features :t))
 
 (defun gpu-answered (msg)
 	;an answer of the GPU's task, a job done, or there is no GPU there. A
@@ -407,16 +416,28 @@
 			(buttons)
 			(show-status (cat " could not fetch: " (rest msg))))))
 
+(defun net-switch (to)
+	;another net: what is out let go of, the farm for one the GPU's kernels
+	;are not of, its view made, and its params afresh
+	(farm-forget)
+	(setq which to model (elem-get *digits_models* to) params_size (digits-params-size model)
+		view (nn-view model 560 504) scratch (nn-scratch model)
+		x (fill (nn-vector model) +digits_inputs (nn-num model 0)))
+	(unless (= to 0)
+		(setq gpu_mode :nil to_farm :nil)
+		(. *mode_bar* :set_selected 0))
+	(reset))
+
 (defun reset ()
 	(farm-forget)
-	(setq training :nil test_next :nil params (nn-init *digits_model*) step 0 epoch 0 order :nil at 0
+	(setq training :nil test_next :nil params (nn-init model) step 0 epoch 0 order :nil at 0
 		gpu_stale :t
 		losses (list) tests (list) confusion :nil right 0
 		valids (list) best_right -1 best_params :nil best_epoch 0 misses 0 factor (n2d 1) stopped :nil
 		dirty_loss :t dirty_features :t dirty_confusion :t)
 	;the farm wanted, it is had now, the new params are here
 	(if to_farm (setq gpu_mode :nil to_farm :nil))
-	(setq net (nn-net *digits_model* params))
+	(setq net (nn-net model params))
 	(nn-view-weights view net)
 	(show-sample)
 	(buttons))
@@ -438,7 +459,7 @@
 		(draw-loss *loss_canvas* losses valids tests))
 	(when (or dirty_features (and training (> (- now features_t) +features_rate)))
 		(setq dirty_features :nil features_t now)
-		(draw-features *feat_canvas* params)
+		(draw-features *feat_canvas* model params)
 		(nn-view-weights view net))
 	(when dirty_confusion
 		(setq dirty_confusion :nil)
@@ -456,9 +477,7 @@
 	;antialiased, the words, the lines and the curves of the charts
 	(each (# (. %0 :set_canvas_flags +canvas_flag_antialias))
 		(list *net_canvas* *loss_canvas* *feat_canvas* *conf_canvas*))
-	(setq view (nn-view *digits_model* 560 504) scratch (nn-scratch *digits_model*)
-		x (fill (nn-vector *digits_model*) +digits_inputs (nn-num *digits_model* 0)))
-	(reset)
+	(net-switch which)
 	;each canvas the colour of what is drawn on it, before the window is seen,
 	;so till the first frame it is not bare
 	(each (# (.-> %0 (:fill +chart_back) (:swap +swap_write)))
@@ -495,8 +514,14 @@
 							((data-ready :test) (test-start))))
 					((= id +event_rate) (setq rate (. *rate_bar* :get_selected)))
 					((= id +event_batch) (setq batch (. *batch_bar* :get_selected)))
+					((= id +event_net)
+						(setq note "")
+						(unless (= (defq to (. *net_bar* :get_selected)) which) (net-switch to)))
 					((= id +event_mode)
-						(defq to_gpu (and has_gpu (= (. *mode_bar* :get_selected) 1)))
+						;the GPU's kernels are of the dense net only
+						(defq want (= (. *mode_bar* :get_selected) 1) to_gpu (and has_gpu (= which 0) want))
+						(setq note (if (and want has_gpu (/= which 0)) "  GPU: the dense net only, as yet" ""))
+						(show-status)
 						(. *mode_bar* :set_selected (if to_gpu 1 0))
 						(unless (eql to_gpu (and gpu_mode (not to_farm))) (mode-switch to_gpu)))
 					((. *window* :event msg))))

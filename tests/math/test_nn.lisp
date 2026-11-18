@@ -301,3 +301,11 @@
 	'(:doubles :floats))
 (assert-true "an activation of one kind only"
 	(catch (progn (nn-act-slope 3 (doubles +double_1) (floats +float_1)) :nil) :t))
+
+;a net's gradients made 0 again, a pool layer's empty vectors passed by
+(defq nn_cg (nn-zeros nn_conv))
+(nn-forward nn_conv (nn-net nn_conv nn_cparams) nn_cx (nn-scratch nn_conv))
+(nn-backward nn_conv (nn-net nn_conv nn_cparams) nn_cg nn_cx (nn-scratch nn_conv) 1)
+(assert-true "nn-clear makes every gradient 0, of a net with a pool"
+;by its size, a negative one scaled by 0 is -0.0
+	(every (# (= (abs %0) +double_0)) (nn-flat (nn-clear nn_cg))))

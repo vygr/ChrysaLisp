@@ -122,7 +122,7 @@
 	(case kind
 		(:dense (list outs ins outs))
 		(:conv
-			(bind '(c _ _ k _ _ f &ignore) (elem-get layer +nn_layer_shape))
+			(bind '(c & & k & & f &ignore) (elem-get layer +nn_layer_shape))
 			(list 1 (* f c k k) f))
 		(:t '(0 0 0))))
 
@@ -131,7 +131,7 @@
 	;how many numbers feed one of its units
 	(bind '(kind ins &ignore) layer)
 	(case kind
-		(:conv (bind '(c _ _ k &ignore) (elem-get layer +nn_layer_shape)) (* c k k))
+		(:conv (bind '(c & & k &ignore) (elem-get layer +nn_layer_shape)) (* c k k))
 		(:t ins)))
 
 (defun nn-kind (model)
@@ -216,6 +216,17 @@
 				(fill (nn-vector model) biases zero)))
 		(nn-layers model)))
 
+(defun nn-clear (net)
+	; (nn-clear net) -> net
+	;each number of a net 0, gradients made ready again; a pool layer's
+	;vectors are empty, which the nums natives refuse, so they are passed by
+	(defq zero (first (nn-consts (second (first net)))))
+	(each (lambda ((rows biases))
+			(each (# (nums-scale %0 zero %0)) rows)
+			(if (nempty? biases) (nums-scale biases zero biases)))
+		net)
+	net)
+
 (defun nn-flat (net)
 	; (nn-flat net) -> params
 	;a net as one vector, as the params are kept
@@ -231,7 +242,7 @@
 		(map (# (fill (nn-vector model) (elem-get %0 +nn_layer_outs) zero)) layers)
 		(map (lambda (layer)
 				(when (eql (first layer) :conv)
-					(bind '(c _ _ k _ _ _ oh ow) (elem-get layer +nn_layer_shape))
+					(bind '(c & & k & & & oh ow) (elem-get layer +nn_layer_shape))
 					(list (fill (nn-vector model) (* c k k oh ow) zero) (fill (nn-vector model) (* c k k oh ow) zero)
 						(fill (nn-vector model) (* oh ow) one))))
 			layers)))

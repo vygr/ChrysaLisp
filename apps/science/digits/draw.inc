@@ -58,26 +58,42 @@
 	(draw-words canvas (cat "steps " (str first_step) " to " (str (length losses))) x0 (- h 8) 10 +chart_text)
 	(. canvas :swap +swap_write))
 
-(defun draw-features (canvas params)
-	; (draw-features canvas params)
-	;the weights of the first 16 hidden units, each its 28 by 28 of what
-	;it looks for, warm where it wants ink and blue where it wants none
+(defun draw-weight (canvas v top x y cell)
+	; (draw-weight canvas v top x y cell)
+	;a weight's square, warm where it wants ink and blue where it wants none
+	(defq v (n2d v) k (min 255 (n2i (* (/ (abs v) top) (const (n2d 255))))))
+	(when (> k 24)
+		(.-> canvas (:set_color (if (> v +double_0)
+				(+ 0xff000000 (<< k 16) (<< (/ (* k 176) 255) 8) 0x30)
+				(+ 0xff000000 (<< (/ (* k 64) 255) 16) (<< (/ (* k 128) 255) 8) k)))
+			(:fbox x y cell cell))))
+
+(defun draw-features (canvas model params)
+	; (draw-features canvas model params)
+	;what the first layer has learnt to look for: of a dense one the
+	;weights of its first 16 units, each its 28 by 28, of a conv one each
+	;filter, its k by k
 	(.-> canvas (:fill +chart_back))
-	(draw-words canvas "hidden units" 6 16 11 +chart_text)
-	(when params
-		(each! (lambda ()
-				(defq unit (!) row (slice params (* unit +digits_inputs) (* (inc unit) +digits_inputs))
-					top (max (const (n2d 0.0001)) (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
-					x0 (+ 6 (* (% unit 4) 58)) y0 (+ 26 (* (/ unit 4) 58)))
-				(each (lambda (v)
-						(defq v (n2d v) k (min 255 (n2i (* (/ (abs v) top) (const (n2d 255))))))
-						(when (> k 24)
-							(.-> canvas (:set_color (if (> v +double_0)
-									(+ 0xff000000 (<< k 16) (<< (/ (* k 176) 255) 8) 0x30)
-									(+ 0xff000000 (<< (/ (* k 64) 255) 16) (<< (/ (* k 128) 255) 8) k)))
-								(:fbox (+ x0 (* (% (!) 28) 2)) (+ y0 (* (/ (!) 28) 2)) 2 2))))
-					row))
-			'() 0 16))
+	(defq first_layer (first (nn-layers model)))
+	(cond
+		((and params (eql (first first_layer) :conv))
+			(bind '(c & & k & & f &ignore) (elem-get first_layer +nn_layer_shape))
+			(draw-words canvas "filters" 6 16 11 +chart_text)
+			(defq n (* c k k) cell (/ 52 k))
+			(each! (lambda ()
+					(defq filter (!) row (slice params (* filter n) (* (inc filter) n))
+						top (max (const (n2d 0.0001)) (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
+						x0 (+ 6 (* (% filter 4) 58)) y0 (+ 26 (* (/ filter 4) 58)))
+					(each (# (draw-weight canvas %0 top (+ x0 (* (% (!) k) cell)) (+ y0 (* (/ (!) k) cell)) cell)) row))
+				'() 0 (min f 16)))
+		(:t (draw-words canvas "hidden units" 6 16 11 +chart_text)
+			(when params
+				(each! (lambda ()
+						(defq unit (!) row (slice params (* unit +digits_inputs) (* (inc unit) +digits_inputs))
+							top (max (const (n2d 0.0001)) (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
+							x0 (+ 6 (* (% unit 4) 58)) y0 (+ 26 (* (/ unit 4) 58)))
+						(each (# (draw-weight canvas %0 top (+ x0 (* (% (!) 28) 2)) (+ y0 (* (/ (!) 28) 2)) 2)) row))
+					'() 0 16))))
 	(. canvas :swap +swap_write))
 
 (defun draw-confusion (canvas confusion right)

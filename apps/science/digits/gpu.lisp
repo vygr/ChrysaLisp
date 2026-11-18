@@ -9,8 +9,9 @@
 ;job says, and written back after it if it says. Told to go, an empty
 ;message, the GPU's buffers are let go of
 
-(defq gpu :nil bufs (list) gen_had 0
-	+params_bytes +digits_params_size)
+;the dense net, the one the GPU's kernels are of
+(defq gpu :nil bufs (list) gen_had 0 *gpu_model* (first *digits_models*)
+	+params_bytes (digits-params-size *gpu_model*))
 
 (defun open-bufs (data_key params_key grads_key children)
 	; (open-bufs data_key params_key grads_key children) -> :nil | (data params grads)
@@ -44,7 +45,7 @@
 (defun work ((data params grads) kind count children flags rate msg)
 	; (work bufs kind count children flags rate msg) -> (loss right confusion)
 	(if (bits? flags +digits_gpu_flag_load)
-		(nn-gpu-params gpu (push (nn-vector *digits_model*) (buf-get params 0 +params_bytes))))
+		(nn-gpu-params gpu (push (nn-vector *gpu_model*) (buf-get params 0 +params_bytes))))
 	(defq out (cond
 		((= count 0) (list (n2d 0) 0 :nil))
 		((= kind +digits_kind_train)
@@ -67,7 +68,7 @@
 	;a job of an older generation is not wanted, its answer let go of
 	(when (>= gen gen_had)
 		(setq gen_had gen)
-		(unless gpu (setq gpu (nn-gpu *digits_model* +digits_gpu_batch)))
+		(unless gpu (setq gpu (nn-gpu *gpu_model* +digits_gpu_batch)))
 		(defq opened (if gpu (open-bufs data_key params_key grads_key children)))
 		(cond
 			((not gpu)
