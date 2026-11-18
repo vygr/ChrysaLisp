@@ -40,7 +40,7 @@
 	;been started
 	has_gpu (> (gpu-format) 0) gpu_want :nil gpu_out :nil gpu_mode :nil cpu_running :nil
 	;the frames the GPU has drawn since the status line was last set
-	gpu_frames 0 gpu_time 0
+	gpu_frames 0 gpu_time 0 gpu_last 0 gpu_given 0
 	;a notice on the status line stays for a while
 	+notice_time 4000000 notice_until 0
 	;the sliders and CPU or GPU as they were when last closed, (config-save)
@@ -159,7 +159,7 @@
 	(unless gpu_jobs
 		(setq gpu_jobs (Jobs +shader_shade_child
 			(elem-get select +select_gpu_task) (elem-get select +select_gpu) 1 :t)))
-	(setq gpu_out :t)
+	(setq gpu_out :t gpu_given (pii-time))
 	(. gpu_jobs :add (list (shader-tile +shader_file (frame-inputs (pii-time))
 		0 0 +width +height +width +height shared_key))))
 
@@ -182,15 +182,22 @@
 				(. *mode* :set_selected 0)
 				(to-cpu)
 				(notice "No GPU, it could not run the shader"))
-			(:t (unless gpu_mode
-					;the kernel is built, the GPU draws the frames from here
-					;on, and the CPU's farm is let go of. The wait for the build
-					;says nothing of the GPU
-					(cpu-stop)
-					(setq gpu_mode :t gpu_frames 0 gpu_time (pii-time) ticks 0))
+			(:t (defq now (pii-time))
+				(cond
+					(gpu_mode (++ gpu_frames))
+					(:t ;the kernel is built, the GPU draws the frames from here
+						;on, and the CPU's farm is let go of. The wait for the build
+						;says nothing of the GPU, its rate is from this frame on
+						(cpu-stop)
+						(setq gpu_mode :t gpu_frames 0 gpu_time now ticks 0)))
 				;the frame is on the pixels, as one of tiles is
+				(setq gpu_last now)
 				(. *canvas* :swap +swap_write)
-				(++ gpu_frames)))))
+				;the next frame at once, if this one took a tick or more: its
+				;answer drives the next, a GPU that takes longer than a tick
+				;does not wait for the one after. A faster one is given its
+				;next by the timer, a frame a tick
+				(and gpu_want (>= (- now gpu_given) +timer_rate) (gpu-frame))))))
 
 (defun set-mode ()
 	;the CPU or GPU button was pressed
@@ -284,10 +291,13 @@
 				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
 					(cond
 						(gpu_mode
-							(defq now (pii-time) rate (/ (* gpu_frames 10000000) (- now gpu_time)))
-							(. *status* :set_text (cat "GPU, "
-									(str (/ rate 10)) "." (str (% rate 10)) " frames a second"))
-							(setq gpu_frames 0 gpu_time now))
+							;the rate, from a frame to a frame, so of a slow GPU as well, whose
+							;frames are further apart than this is looked at
+							(when (> gpu_frames 0)
+								(defq rate (/ (* gpu_frames 10000000) (max 1 (- gpu_last gpu_time))))
+								(. *status* :set_text (cat "GPU, "
+										(str (/ rate 10)) "." (str (% rate 10)) " frames a second"))
+								(setq gpu_frames 0 gpu_time gpu_last)))
 						;the kernel is taking a while to build, so the CPU starts
 						((not cpu_running) (start-frame)))
 					;the patience of each farm

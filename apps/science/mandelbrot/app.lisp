@@ -317,11 +317,15 @@
 										+rect_reply_ix +rect_reply_iy +rect_reply_ix1 +rect_reply_iy1
 										+rect_reply_inside))))
 						(when (= out 0)
-							;the picture is whole, shown, how long it took, and the
-							;next may start
+							;the picture is whole, shown, and how long it took. If the view
+							;has moved meanwhile the next is started at once: an answer
+							;drives the next, it does not wait for the tick
 							(setq busy :nil dirty :nil farm_done (pii-time) took (- farm_done farm_t))
 							(. *canvas* :swap +swap_write)
-							(status)))))
+							(status)
+							(when changed
+								(setq changed :nil)
+								(farm-frame))))))
 			(:t ;a frame, the next one a frame from when this one started
 				(defq start (pii-time))
 				(if jobs (. jobs :refresh (if gpu +gpu_timeout +retry_timeout)))

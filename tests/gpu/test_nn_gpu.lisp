@@ -7,7 +7,10 @@
 	ng_data (apply (const cat) (cat
 		(map! (# (char (% (+ (* (!) 37) 11) 256))) '() 0 ng_labels)
 		(map! (# (char (% (* (!) 7) 4))) '() 0 ng_n)))
-	ng_batch (map! (# (% (* (!) 3) ng_n)) '() 0 12) ng_k (/ (n2d 1) (n2d 255)))
+	;a batch of 11, its labels 3 of each and 2 of the last: of 12, 3 of each,
+	;a model whose guesses are all but even has gradients that sum to all
+	;but nothing, and a step that moves no number far enough to be seen
+	ng_batch (map! (# (% (* (!) 3) ng_n)) '() 0 11) ng_k (/ (n2d 1) (n2d 255)))
 
 (defun ng-near (a b tol) (<= (abs (- a b)) tol))
 

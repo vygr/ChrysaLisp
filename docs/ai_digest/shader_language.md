@@ -697,8 +697,14 @@ On the GPU, `lib/gpu/kernel.inc`, over `lib/gpu/compute.inc` and the host's
 GPU table, see [`docs/ai_digest/host_interface.md`](host_interface.md):
 
 * `(shader-gpu-kernel program) -> :nil | kernel`. MSL text or a SPIR-V
-  module, as `(gpu-format)` says, its entry `kernel_main`, in groups of 64
-  threads. :nil on a node with no GPU.
+  module, as `(gpu-format)` says, its entry `kernel_main`, in groups of 256
+  threads, `+sh_kernel_threads`. :nil on a node with no GPU. The size of a
+  group is nothing to Metal and a great deal to a Raspberry Pi 4's V3D, whose
+  most it is: the surface shader's frame as a kernel, 640 by 480, is 3.8s
+  there in groups of 16, 1.2s in groups of 64 and 0.57s in groups of 256,
+  and a kernel that does next to nothing 21ms, 5ms and 3ms. Vulkan promises
+  no more than 128, so a GPU of that least builds no kernel, and what uses
+  one falls back to the CPU.
 * `(shader-gpu-run program kernel block from to bufs) -> :t | :nil`. The
   range run and waited for, the node's other tasks have their turns
   meanwhile. block is `(shader-pack program vals)`, bufs a GPU buffer for each
@@ -749,10 +755,24 @@ GUI below, moves it none. The read back is straight onto the shared pixels:
 `(gpu-read buffer offset len buf at)`, `lib/gpu/compute.inc`, has the host
 copy what it read into the block of a buf from `at` on, so a tile as wide as
 the frame, all of the frame as a rule, has no str made of it and no copy
-after. A tile not so wide is read as a str and put there a row at a time. At
-640 by 480 the two moves do not show: the Surface demo draws 59.8 frames a
-second this way on an Apple M4 Max, as fast as it asks for one, and drew 58.3
-by the driver.
+after. A tile not so wide is read as a str and put there a row at a time.
+
+The Surface demo this way, 640 by 480, against the GUI driver's own drawing
+of it, frames a second:
+
+| | The farm's child | The driver |
+| :--- | ---: | ---: |
+| Apple M4 Max | 59.8 | 58.3 |
+| Intel MacBook Pro | 45 to 50 | 54 to 57 |
+| Raspberry Pi 4 | 1.6 to 1.7 | 1.5 to 2.4 |
+
+The M4 is as fast as the app asks for a frame, 60 a second. The driver's
+figures for the two Macs are of the app as it was, run on the same hidden
+desktop the same night; the Pi's are those of On The GPU, In The GUI below,
+taken with a display, as a hidden desktop on Linux has no driver that draws
+a shader. An answer gives the app's next frame at once when the last took a
+tick of its timer or more, or the Intel Mac, a little over a tick a frame,
+would draw every other tick, 30 a second.
 
 The Mandelbrot app is a kernel, `apps/science/mandelbrot/kernel.shader`, and
 a farm either way, the one job, a square of the picture. On the GPU the farm
