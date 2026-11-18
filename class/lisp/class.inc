@@ -95,6 +95,10 @@
 	;slot. That slot also shows up a symbol given twice, the only way it
 	;can point at itself here is if this loop put it there.
 	;
+	;A last &ignore binds the names before it to the first values and
+	;leaves the rest, of none or more, the caller's. Stolen they would have
+	;to be let go of, so with steal there must be none left.
+	;
 	;That, a & symbol, a list to destructure, a count that differs, and
 	;all else, jumps to not_fresh, with the inputs as they were, to do it
 	;with the general code of :env_bind.
@@ -109,6 +113,20 @@
 	(gotoif `(,tmp2 /= ,sym_vtable) not_fresh)
 	(assign `((,vars +array_length) (,vals +array_length) (,this +lisp_environment))
 		`(,iter_end ,tmp ,env))
+	;a last &ignore, the names before it as many values as they are or more
+	(defq no_ignore (sym (cat (str not_fresh) "_no_ignore")))
+	(gotoif `(,iter_end = 0) no_ignore)
+	(assign `((,vars +array_begin) (,this +lisp_sym_ignore)) `(,tmp2 ,index))
+	(vp-cpy-rr iter_end sym)
+	(vp-shl-cr (log2 +ptr_size) sym)
+	(vp-add-rr sym tmp2)
+	(assign `((,tmp2 ,(neg +ptr_size))) `(,tmp2))
+	(gotoif `(,tmp2 /= ,index) no_ignore)
+	(vp-sub-cr 1 iter_end)
+	(unless steal
+		(gotoif `(,iter_end > ,tmp) not_fresh)
+		(vp-cpy-rr iter_end tmp))
+(vp-label no_ignore)
 	(gotoif `(,iter_end /= ,tmp) not_fresh)
 	(vp-cpy-rr vars :r12)
 	(vp-cpy-rr vals :r13)

@@ -28,6 +28,19 @@
 	(map (lambda (&ignore) (!)) (list 1 2 3) (list 4 5 6)))
 (assert-list-eq "an & takes a thing and binds nothing, the second of two here" '(4 5 6)
 	(map (lambda (& b) b) (list 1 2 3) (list 4 5 6)))
+;a last &ignore: the names before it bound, the values after left, by the
+;quick bind of a call and by the general one alike
+(defun tt-first (a &ignore) a)
+(assert-list-eq "the names before a last &ignore, of a callback given more" '(1 2 3)
+	(map (lambda (a &ignore) a) (list 1 2 3) (list 4 5 6) (list 7 8 9)))
+(assert-eq "of a call given as many" 1 (tt-first 1))
+(assert-eq "and given more, the rest let go of" 1 (tt-first 1 2 3))
+(assert-eq "of none" 7 ((lambda (&ignore) 7)))
+(assert-true "too few for the names before it an error"
+	(and (catch (progn (tt-first) :nil) :t) (catch (progn (map (lambda (a b &ignore) a) (list 1)) :nil) :t)))
+(assert-list-eq "and nothing bound by it" '(:nil :nil)
+	(map (lambda (&ignore) (def? '&ignore (env))) (list 1 2)))
+(undef (env) 'tt-first)
 (assert-true "where a _ is a name, and is bound in the function" (first (map (lambda (_) (def? '_ (env))) (list 7))))
 (assert-eq "and an & is not" :nil (first (map (lambda (&) (def? '& (env))) (list 7))))
 
