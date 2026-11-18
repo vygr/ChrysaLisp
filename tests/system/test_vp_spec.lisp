@@ -266,5 +266,21 @@
 (assert-list-eq "a trash of a single is of its double, one register"
 	'(:r1 :d0 :d1 :d2 :d5 :d7) vs_trash)
 
-(undef (env) 'vs_ops 'vs_lf 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse
+;assign moves a value of its width and makes no conversion: a single to
+;a double, or a double to a single, is refused, the vp-cvt- left to write
+(defq vs_assigns (map (lambda (form)
+		(defq name (cat "tests/vp_spec_assign_" (str (!))))
+		(catch (progn (vs-native name
+				(cat "(include {lib/asm/func.inc})" vs_lf "(def-func {" name "})" vs_lf
+					form vs_lf "(vp-ret)" vs_lf "(def-func-end)" vs_lf)) :nil)
+			;refused, its text left, which vs-native removes when it is made
+			(progn (bind '(& cpu abi) (split (load-path) "/"))
+				(pii-remove (cat "obj/" cpu "/" abi "/" name ".vp")) :t)))
+	'("(assign '((:r0 0 i)) '(:f0))" "(assign '(:f1) '(:f2))" "(assign '(:d1) '(:d2))"
+		"(assign '(:f0) '((:r0 0 i)))" "(assign '((:r0 0 i)) '(:d0))" "(assign '(:f1) '(:d2))"
+		"(assign '(:d1) '(:f2))" "(assign '(:d0) '((:r0 0 i)))")))
+(assert-list-eq "assign moves a single or a double, of its width, and makes no conversion"
+	'(:nil :nil :nil :nil :t :t :t :t) vs_assigns)
+
+(undef (env) 'vs_assigns 'vs_ops 'vs_lf 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse
 	'vs_if 'vs_fi 'vs-double-of 'vs-bits-of 'vs_s_ops 'vs_s 'vs_sb 'vs_sf 'vs_trash)

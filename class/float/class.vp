@@ -306,7 +306,8 @@
 ;rounded to the float nearest it
 (redefun mathop (%0 p)
 	(entry :float %0 '(:r0))
-	(assign `((:r0 ,+num_value i)) '(:d1))
+	(vp-load-rcf :r0 +num_value :f1)
+	(vp-cvt-fd :f1 :d1)
 	(exec p)
 	(vp-cvt-df :d0 :f0)
 	(float-bits :f0 :r0)
@@ -549,7 +550,10 @@
 
 	(entry :float :pow '(:r0 :r1))
 
-	(assign `((:r0 ,+num_value i) (:r1 ,+num_value i)) '(:d0 :d1))
+	(vp-load-rcf :r0 +num_value :f0)
+	(vp-cvt-fd :f0 :d0)
+	(vp-load-rcf :r1 +num_value :f1)
+	(vp-cvt-fd :f1 :d1)
 	(call :sys_math :d_pow '(:d0 :d1) '(:d0))
 	(vp-cvt-df :d0 :f0)
 	(float-bits :f0 :r0)

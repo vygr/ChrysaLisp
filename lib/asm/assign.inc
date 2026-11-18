@@ -86,22 +86,19 @@
 		(setq src s dst d)))
 
 (defun assign-single-in (op b o d)
-	;a single from memory to a float register, to a double by its single
-	(cond
-		((vp-freg? d) (op b o d))
-		((op b o (defq f (elem-get +vp_fregs (vp-fpreg? d)))) (vp-cvt-fd f d))))
+	;a single from memory to a single register, assign makes no conversion
+	(if (vp-freg? d) (op b o d) (throw "32 bits to a double, load a single and (vp-cvt-fd) it !" d)))
 
 (defun assign-single-out (s)
 	;a float register to 32 bits is a single
 	(if (vp-freg? s) s (throw "A double to 32 bits, (vp-cvt-df) it to a single first !" s)))
 
 (defun assign-ff (s d)
-	;a float register to another, of its width, or made the other's
+	;a float register to another of its width, assign makes no conversion
 	(defq fs (vp-freg? s) fd (vp-freg? d))
 	(cond
 		((and fs fd) (vp-cpy-ff s d))
-		(fs (vp-cvt-fd s d))
-		(fd (vp-cvt-df s d))
+		((or fs fd) (throw "A single and a double, (vp-cvt-fd) or (vp-cvt-df) it !" (list s d)))
 		((vp-cpy-dd s d))))
 
 (defun assign (&optional src dst)

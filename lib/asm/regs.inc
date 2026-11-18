@@ -23,6 +23,9 @@
 ;the one name of the register a name is of: a single's :fN is the double
 ;:dN, what a tool that sees a register whole goes by
 (defun vp-reg-whole (r) (ifn (vp-freg? r) r))
+;the single's name of a float register, :fN of :dN, to load a single into
+;the register a double is named by, then (vp-cvt-fd) it
+(defun vp-reg-single (r) (elem-get +vp_fregs (vp-fpreg? r)))
 
 ; (pmap) +vp_regs vpmap, used in trace command, all slots lined up
 (defmacro vpmap-copy (%0) (static-qq (cat ,%0)))

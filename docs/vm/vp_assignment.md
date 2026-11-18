@@ -9,6 +9,13 @@ registers, memory, constants and resource operators to registers, or of
 registers to memory. Memory to memory, and a constant to memory, throw: go
 by a register.
 
+It moves a value as it is and makes no conversion. A 32 bit field, `i`, goes
+to or from a single, `:f0` to `:f15`, and a word to or from a double, `:d0` to
+`:d15`; a single to a double register, or a double to a single, throws, and
+the `(vp-cvt-fd)` or `(vp-cvt-df)` is written where it is wanted.
+`(vp-reg-single :d4)` is `:f4`, the single of the register a double is named
+by.
+
 Assignment can be used directly by use of the `(assign)` function in your
 source, but it is always used, under the hood, by functions like `(entry)`,
 `(exit)`, `(call)` etc. The input and output parameters you declare in such

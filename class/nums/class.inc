@@ -119,7 +119,7 @@
 		(:nums (assign `((,s 0)) `(,tmp)) (vp-cvt-rd tmp :d0))
 		(:fixeds (assign `((,s 0)) `(,tmp)) (vp-cvt-rd tmp :d0) (vp-mul-dd :d1 :d0))
 		(:doubles (assign `((,s 0)) '(:d0)))
-		(:floats (assign `((,s 0 i)) '(:d0)))))
+		(:floats (assign `((,s 0 i)) '(:f0)) (vp-cvt-fd :f0 :d0))))
 
 (defun nums-store (kind d tmp)
 	;:d0, a double, as the element of a kind at d, :d2 a fixed's one, ints
