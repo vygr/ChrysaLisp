@@ -71,17 +71,20 @@
 	;:r0 = sin (fixed)
 	;trashes
 	;:r0-:r2, :d0-:d3
+	;info
+	;by f_sin: a single holds an angle of a drawing, to 256 radians, to all
+	;16 bits of its fraction, and its answer to more than a fixed has
 
 	(entry :sys_math :q_sin '(:r0))
 
 	(vp-lea-pr 'fn_consts :r2)
-	(assign '((:r2 (fn-const (recip (n2d (<< 1 +fp_shift)))))) '(:d0))
-	(vp-cvt-rd :r0 :d1)
-	(vp-mul-dd :d1 :d0)
-	(call :sys_math :d_sin '(:d0) '(:d0))
-	(assign '((:r2 (fn-const (n2d (<< 1 +fp_shift))))) '(:d1))
-	(vp-mul-dd :d1 :d0)
-	(vp-cvt-dr :d0 :r0)
+	(vp-cvt-rf :r0 :f0)
+	(vp-load-rcf :r2 (fn-const 0x37800000) :f1)
+	(vp-mul-ff :f1 :f0)
+	(call :sys_math :f_sin '(:f0) '(:f0))
+	(vp-load-rcf :r2 (fn-const 0x47800000) :f1)
+	(vp-mul-ff :f1 :f0)
+	(vp-cvt-fr :f0 :r0)
 
 	(exit :sys_math :q_sin '(:r0))
 	(vp-ret)
@@ -95,19 +98,20 @@
 	;:r0 = cos (fixed)
 	;trashes
 	;:r0-:r2, :d0-:d3
+	;info
+	;by f_cos: a single holds an angle of a drawing, to 256 radians, to all
+	;16 bits of its fraction, and its answer to more than a fixed has
 
 	(entry :sys_math :q_cos '(:r0))
 
 	(vp-lea-pr 'fn_consts :r2)
-	(assign '((:r2 (fn-const (recip (n2d (<< 1 +fp_shift)))))) '(:d0))
-	(vp-cvt-rd :r0 :d1)
-	(vp-mul-dd :d1 :d0)
-	(assign '((:r2 (fn-const 0x3ff921fb54442d18))) '(:d1))
-	(vp-add-dd :d1 :d0)
-	(call :sys_math :d_sin '(:d0) '(:d0))
-	(assign '((:r2 (fn-const (n2d (<< 1 +fp_shift))))) '(:d1))
-	(vp-mul-dd :d1 :d0)
-	(vp-cvt-dr :d0 :r0)
+	(vp-cvt-rf :r0 :f0)
+	(vp-load-rcf :r2 (fn-const 0x37800000) :f1)
+	(vp-mul-ff :f1 :f0)
+	(call :sys_math :f_cos '(:f0) '(:f0))
+	(vp-load-rcf :r2 (fn-const 0x47800000) :f1)
+	(vp-mul-ff :f1 :f0)
+	(vp-cvt-fr :f0 :r0)
 
 	(exit :sys_math :q_cos '(:r0))
 	(vp-ret)

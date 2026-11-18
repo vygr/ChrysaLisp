@@ -187,6 +187,9 @@ outputs
 :r0 = cos (fixed)
 trashes
 :r0-:r2, :d0-:d3
+info
+by f_cos: a single holds an angle of a drawing, to 256 radians, to all
+16 bits of its fraction, and its answer to more than a fixed has
 ```
 
 ### :q_dist_sqd -> sys/math/q_dist_sqd
@@ -233,6 +236,9 @@ outputs
 :r0 = sin (fixed)
 trashes
 :r0-:r2, :d0-:d3
+info
+by f_sin: a single holds an angle of a drawing, to 256 radians, to all
+16 bits of its fraction, and its answer to more than a fixed has
 ```
 
 ### :q_sqrt -> sys/math/q_sqrt
