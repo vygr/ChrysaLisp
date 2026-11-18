@@ -5,6 +5,7 @@
 ; same kernel with (shader-vp-kernel), lib/gpu/vp.inc.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "././text/searching.inc")
 (import "./msl.inc")
 (import "./spirv.inc")
 (import "./compute.inc")
@@ -46,3 +47,42 @@
 		((defq ticket (shader-gpu-dispatch program kernel block from to bufs))
 			(gpu-take (gpu-wait ticket))
 			:t)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a pixel shader as a kernel
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;A pixel shader gives the colour of a pixel, a kernel is run for each of a
+;range of indices and writes buffers. So a pixel shader is made a kernel
+;in the language itself, and the back ends take it as any other: its main
+;is kept as a function, and the main of the kernel takes the index of a
+;pixel of a tile, row by row from its top, works out the frag coord of it,
+;the centre of the bottom left pixel of the frame 0.5 0.5 and y going up,
+;has the function give its colour, and writes that to a buffer as a 32 bit
+;argb, clamped, its alpha full on, as (shader-vp-argb) gives one. The tile
+;is four inputs after the shader's own, so a block of the pixel shader's
+;inputs is the start of the kernel's
+(defq +sh_pixel_main "(defun main " +sh_pixel_func "(defun tile_pixel "
+	+sh_pixel_kernel (cat "\n"
+		"(definput tile_x :int 0)\n(definput tile_y :int 0)\n"
+		"(definput tile_w :int 1)\n(definput tile_top :int 1)\n"
+		"(defbuffer tile_out :int :write)\n"
+		"(defun main :void ((i :int))\n"
+		"	(defq row (/ i tile_w)\n"
+		"		c (tile_pixel (vec2 (+ (float (+ tile_x (- i (* row tile_w)))) 0.5)\n"
+		"			(- (float (- tile_top (+ tile_y row))) 0.5))))\n"
+		"	(elem-set tile_out i (logior 0xff000000\n"
+		"		(<< (int (+ (* (clamp (:x c) 0.0 1.0) 255.0) 0.5)) 16)\n"
+		"		(<< (int (+ (* (clamp (:y c) 0.0 1.0) 255.0) 0.5)) 8)\n"
+		"		(int (+ (* (clamp (:z c) 0.0 1.0) 255.0) 0.5)))))\n"))
+
+(defun shader-pixel-kernel (file)
+	; (shader-pixel-kernel file) -> :nil | program
+	;the kernel of a pixel shader's file, :nil if it has no main of a pixel
+	;shader to make one of. Its inputs are the shader's own, then tile_x
+	;and tile_y, the top left of the tile in the frame, y down as a canvas
+	;has it, tile_w its width, and tile_top the height of the frame. Its
+	;one buffer is the tile's pixels, an int each. It is run over as many
+	;indices as the tile has pixels
+	(when (found? (defq text (shader-text file)) +sh_pixel_main)
+		(shader-from-text (cat (replace-str text +sh_pixel_main +sh_pixel_func) +sh_pixel_kernel))))

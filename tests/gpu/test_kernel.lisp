@@ -120,6 +120,37 @@
 (kt-math "log" 0.01 0.75)
 (kt-math "tanh" -12.0 0.375)
 
+;a pixel shader as a kernel, (shader-pixel-kernel): the pixels of a tile
+;it writes are those the pixel shader gives of that tile, each in its place
+;and of its colour, to the bit, as the tile children have them. On the VP,
+;and on the GPU if there is one. The alpha main gives is not the pixel's
+(defq kt_pfile "tests/scratch/tmp_pixel_kernel.shader")
+(save (join (list
+		"(definput k :float 0.25)"
+		"(defun main :vec4 ((frag :vec2))"
+		"	(vec4 (/ (:x frag) 16.0) (/ (:y frag) 8.0) k 0.5))") "\n") kt_pfile)
+(defq kt_pixel (shader-load kt_pfile) kt_pk (shader-pixel-kernel kt_pfile)
+	kt_h 8 kt_x 3 kt_y 2 kt_x1 11 kt_y1 7 kt_pn (* (- kt_x1 kt_x) (- kt_y1 kt_y))
+	kt_pvals '((k 0.75)) kt_pnative (shader-vp kt_pixel)
+	kt_want (shader-vp-argb kt_pnative (shader-vp-frame kt_pixel kt_pnative kt_pvals) kt_x kt_y kt_x1 kt_y1 kt_h)
+	kt_tile (cat kt_pvals (list (list 'tile_x kt_x) (list 'tile_y kt_y)
+		(list 'tile_w (- kt_x1 kt_x)) (list 'tile_top kt_h)))
+	kt_knative (shader-vp-kernel kt_pk) kt_out (str-alloc (* kt_pn 4)))
+(pii-remove kt_pfile)
+(assert-eq "a pixel shader made a kernel is one" :kernel (shader-stage kt_pk))
+(assert-eq "a file with no main of a pixel shader makes none" :nil (shader-pixel-kernel "lib/gpu/shaders/sdf.shader"))
+(shader-vp-run kt_pk kt_knative (shader-vp-frame kt_pk kt_knative kt_tile) 0 kt_pn (list kt_out))
+(assert-eq "its top left pixel is the tile's, opaque" (code kt_want 4 0) (code kt_out 4 0))
+(assert-eq "it gives the tile's pixels, on the VP" kt_want kt_out)
+(cond
+	((= (gpu-format) 0)
+		(test-skip "a pixel shader as a kernel on the GPU" "this node has no GPU"))
+	(:t (defq kt_pkernel (shader-gpu-kernel kt_pk) kt_pbuf (gpu-buffer (* kt_pn 4)))
+		(shader-gpu-run kt_pk kt_pkernel (shader-pack kt_pk kt_tile) 0 kt_pn (list kt_pbuf))
+		(assert-eq "and on the GPU" kt_want (gpu-read kt_pbuf 0 (* kt_pn 4)))
+		(gpu-buffer-free kt_pbuf)
+		(gpu-kernel-free kt_pkernel)))
+
 (undef (env) 'kt-src 'kt-refused 'kt-zeros 'kt-fzeros 'kt_prog 'kt_n 'kt_from 'kt_to 'kt_vals 'kt_src 'kt_cols
 	'kt_cdst 'kt_cpk 'kt_native 'kt_vdst 'kt_vpk 'kt_kernel 'kt_bufs
 	'kt-math)

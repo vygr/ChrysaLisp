@@ -48,6 +48,8 @@ rewrite of every shader.
   with none.
 * `lib/gpu/tile.inc` and `lib/gpu/tile_child.lisp`, a shader drawn with no
   GPU by the nodes, a tile each, as native code. Both apps use it.
+* `lib/gpu/shade.inc` and `lib/gpu/shade_child.lisp`, the same tile shaded
+  on the GPU by a task, see A pixel shader as a kernel below.
 * `cmd/shader.lisp`, the `shader` command, a shader compiled from the command
   line.
 * `apps/science/mandelbrot/kernel.shader`, a kernel, the Mandelbrot app's
@@ -715,6 +717,39 @@ On the CPU, `lib/gpu/vp.inc`:
 Nothing is bounds checked, on the GPU or the CPU. Each buffer must be long
 enough for the range.
 
+### A pixel shader as a kernel
+
+A pixel shader gives the colour of a pixel, a kernel is run for each of a
+range of indices and writes buffers. `(shader-pixel-kernel file) -> :nil |
+program`, `lib/gpu/kernel.inc`, makes the one into the other in the language
+itself, so no back end knows of it: the shader's `main` is kept as a function,
+and the kernel's `main` takes the index of a pixel of a tile, row by row from
+its top, works out its frag coord, has the function give its colour, and
+writes it to a buffer as a 32 bit argb, clamped, its alpha full on. That is
+the pixel `(shader-vp-argb)` gives, to the bit, `tests/gpu/test_kernel.lisp`
+holds the two together on the VP and on the GPU. The kernel's inputs are the
+shader's own, so a block packed for the pixel shader unpacks into them, then
+`tile_x` and `tile_y`, the top left of the tile in the frame, y down as a
+canvas has it, `tile_w` its width and `tile_top` the height of the frame. Its
+one buffer is the tile's pixels.
+
+It is what lets the GPU be used as the nodes are. `lib/gpu/shade.inc` is the
+GPU's side of `lib/gpu/tile.inc`, and the same job, `(shader-tile)`: an app has
+a farm of many tile children for the CPU and a farm of one for the GPU,
+`lib/task/jobs.inc` both, the one protocol. The GPU's child runs the kernel
+over the tile, all of the frame as a rule, reads the pixels back, and writes
+them to the app's pixels in shared memory, by their key, as a tile child
+shades onto them; the app shows either frame with the same swap. The GPU is
+the node's own, `lib/gpu/compute.inc`, not the GUI's, so the child is on any
+node of the machine, kept off the app's, and holds nothing of the app's.
+
+The frame is moved three times this way, read back from the GPU, copied to
+the shared pixels, and uploaded to a texture by the swap, where the GUI
+driver's own drawing, On The GPU, In The GUI below, moves it none. At 640 by
+480 it does not show: the Surface demo draws 59.8 frames a second this way on
+an Apple M4 Max, as fast as it asks for one, and drew 58.3 by the driver. The
+copy to the shared pixels could go, were the read given their block.
+
 The Mandelbrot app is a kernel, `apps/science/mandelbrot/kernel.shader`. On
 the GPU the whole picture is one run, a pixel a thread, in floats. With no GPU
 the children of its farm run it as native code in doubles, so the farm can go
@@ -1260,7 +1295,11 @@ same 32 bit values the GPU would be given.
 ## The Demo
 
 `apps/demos/surface` is the raymarch shader on screen, on the GPU, or with no
-GPU. This is how it draws with none, the CPU button.
+GPU. Either way its frames are drawn by a farm, of one child on the GPU, A
+pixel shader as a kernel above, or of a child a node on the CPU, and a farm
+lasts while it draws them: it is closed when the other takes over, and a new
+one made when it is wanted again. This is how it draws with no GPU, the CPU
+button.
 
 The app reads the shader, and makes a slider for each input that has a range,
 with its name and value. It knows nothing else of the shader, a new input in
