@@ -262,11 +262,12 @@ $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.c
 #what a VP64 node kept of the functions it made its own code for, as it
 #bound them, goes with the VP64 boot image that made it: the snapshot's
 #image may be of other ops than that one was, as after 7.6, and code of
-#the old numbers, loaded as it is found, takes the emulator down
+#the old numbers, loaded as it is found, takes the emulator down. And the
+#manifests of the VP64's code with it, or make takes it all to be made
 clean:
 	@rm -rf ./obj/$(CPU)/$(ABI)/$(OS)
 	@rm -rf ./src/obj/$(CPU)/$(ABI)/$(OS)
-	@rm -rf ./obj/vp64/VP64
+	@rm -rf ./obj/vp64/VP64 ./obj/make_vp64_VP64 ./obj/make_vp64_VP64_names
 	@unzip -oq snapshot.zip
 
  -include $(OBJ_FILES:.o=.d)

@@ -117,8 +117,10 @@ function install {
     # $TRUE if it was, the installer leaves obj\install_failed if not
     Remove-Item "$NHROOT\obj\install_failed" -ErrorAction SilentlyContinue
     # what a VP64 node kept of the code it made goes with the image that made
-    # it, the snapshot's may be of other ops, as install.bat
+    # it, the snapshot's may be of other ops, and the manifests of that code
+    # with it, as install.bat
     Remove-Item "$NHROOT\obj\vp64\VP64" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item "$NHROOT\obj\make_vp64_VP64", "$NHROOT\obj\make_vp64_VP64_names" -ErrorAction SilentlyContinue
     tar -xf "$NHROOT\snapshot.zip" -C $NHROOT
     if ($LASTEXITCODE -ne 0) { say "update: snapshot.zip could not be unpacked"; return $FALSE }
     $global:session_start = (Get-Date).AddSeconds(-2)
