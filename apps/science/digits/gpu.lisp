@@ -10,7 +10,7 @@
 ;message, the GPU's buffers are let go of
 
 (defq gpu :nil bufs (list) gen_had 0
-	+params_bytes (* +digits_params +long_size))
+	+params_bytes +digits_params_size)
 
 (defun open-bufs (data_key params_key grads_key children)
 	; (open-bufs data_key params_key grads_key children) -> :nil | (data params grads)
@@ -44,7 +44,7 @@
 (defun work ((data params grads) kind count children flags rate msg)
 	; (work bufs kind count children flags rate msg) -> (loss right confusion)
 	(if (bits? flags +digits_gpu_flag_load)
-		(nn-gpu-params gpu (push (doubles) (buf-get params 0 +params_bytes))))
+		(nn-gpu-params gpu (push (nn-vector *digits_model*) (buf-get params 0 +params_bytes))))
 	(defq out (cond
 		((= count 0) (list (n2d 0) 0 :nil))
 		((= kind +digits_kind_train)

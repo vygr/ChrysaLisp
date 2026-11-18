@@ -1,7 +1,6 @@
 (include "lib/asm/func.inc")
 (include "class/lisp/class.inc")
-(include "class/doubles/class.inc")
-(include "class/double/class.inc")
+(include "class/floats/class.inc")
 
 (def-func (path-to-absolute "./scale_bytes"))
 	;inputs
@@ -11,19 +10,30 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :d0-:d1
+	;:r1-:r7, :d0-:d1
 	;info
 	;(nn-scale-bytes bytes scale out) -> out, each byte of a str, 0 to
-	;255, times the double scale into the doubles of out, as many as both
-	;have, a picture's grey levels as the inputs of a network
+	;255, times the double scale into out, as many as both have, a
+	;picture's grey levels as the inputs of a network. out is exactly a
+	;doubles, or a floats, each the nearest float
 
-	(vp-rdef (this args bytes scale out end dst) '(:r0 :r1 :r2 :r3 :r4 :r5 :r6))
+	(vp-rdef (this args bytes scale out end dst vt) '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7))
 
 	(entry `(,this ,args))
 
 	(gotoif-lisp-args-sig 'error args 3)
 
 	(list-bind-args args `(,bytes ,scale ,out) '(:obj :obj :obj))
+	;a doubles or a floats, nothing else that comes of a doubles, vt 1 for
+	;a floats
+	(assign `((,out +obj_vtable) (@ ,(f-path :floats :vtable)) (@ ,(f-path :doubles :vtable)))
+		`(,vt ,end ,dst))
+	(vpif `(,vt = ,end))
+		(vp-cpy-cr 1 vt)
+	(else)
+		(gotoif `(,vt /= ,dst) 'error)
+		(vp-xor-rr vt vt)
+	(endif)
 	(assign `((,scale +num_value) (,bytes +str_length) (,out +array_length)) `(:d0 ,end ,dst))
 	(vpif `(,dst < ,end))
 		(vp-cpy-rr dst end)
@@ -32,14 +42,26 @@
 	(vp-add-rr bytes end)
 	(assign `((,out +array_begin)) `(,dst))
 	(vpif `(,bytes /= ,end))
-		(loop-start)
-			(vp-load-rcr-ub bytes 0 args)
-			(vp-cvt-rd args :d1)
-			(vp-mul-dd :d0 :d1)
-			(vp-store-drc :d1 dst 0)
-			(vp-add-cr +byte_size bytes)
-			(vp-add-cr +long_size dst)
-		(loop-until `(,bytes = ,end))
+		(vpif `(,vt /= 0))
+			(loop-start)
+				(vp-load-rcr-ub bytes 0 args)
+				(vp-cvt-rd args :d1)
+				(vp-mul-dd :d0 :d1)
+				(vp-cvt-df :d1 :f1)
+				(vp-store-frc :f1 dst 0)
+				(vp-add-cr +byte_size bytes)
+				(vp-add-cr +int_size dst)
+			(loop-until `(,bytes = ,end))
+		(else)
+			(loop-start)
+				(vp-load-rcr-ub bytes 0 args)
+				(vp-cvt-rd args :d1)
+				(vp-mul-dd :d0 :d1)
+				(vp-store-drc :d1 dst 0)
+				(vp-add-cr +byte_size bytes)
+				(vp-add-cr +long_size dst)
+			(loop-until `(,bytes = ,end))
+		(endif)
 	(endif)
 	(class/obj/ref out args)
 
@@ -48,6 +70,6 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(nn-scale-bytes bytes scale out)" +error_msg_wrong_types))
-	(signature '(:str :DOUBLE :DOUBLES))
+	(signature '(:str :DOUBLE :doubles))
 
 (def-func-end)

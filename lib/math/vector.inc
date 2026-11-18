@@ -40,19 +40,25 @@
 	+fixeds_tmp3 (cat +fixeds_zero3) +fixeds_tmp4 (cat +fixeds_zero4)
 	+doubles_tmp3 (cat +doubles_zero3) +doubles_tmp4 (cat +doubles_zero4))
 
-;useful double constants
-(defmacro def_double (c s e f)
+;useful double and float constants, the same set of each
+(defmacro def_nums_consts (c s e f)
 	`(bind (map! (# (sym (str ,c (!)))) '() ,s ,e) (map! (# (,f (!))) '() ,s ,e)))
 ;[0:10]
-(def_double "+double_" 0 11 (# (n2d %0)))
+(def_nums_consts "+double_" 0 11 (# (n2d %0)))
+(def_nums_consts "+float_" 0 11 (# (n2f %0)))
 ;[-1:-10]
-(def_double "+double_" -10 0 (# (n2d %0)))
+(def_nums_consts "+double_" -10 0 (# (n2d %0)))
+(def_nums_consts "+float_" -10 0 (# (n2f %0)))
 ;[1/2:1/20]
-(def_double "+double_1/" 2 21 (# (/ (const (n2d 1)) (n2d %0))))
+(def_nums_consts "+double_1/" 2 21 (# (/ (const (n2d 1)) (n2d %0))))
+(def_nums_consts "+float_1/" 2 21 (# (n2f (/ (const (n2d 1)) (n2d %0)))))
 ;[-1/2:-1/20]
-(def_double "+double_-1/" 2 21 (# (/ (const (n2d -1)) (n2d %0))))
-;pi and temp vec3, vec4
-(defq +double_pi (n2d +fp_pi) +double_hpi (n2d +fp_hpi) +double_2pi (n2d +fp_2pi))
+(def_nums_consts "+double_-1/" 2 21 (# (/ (const (n2d -1)) (n2d %0))))
+(def_nums_consts "+float_-1/" 2 21 (# (n2f (/ (const (n2d -1)) (n2d %0)))))
+;pi, as near as each kind holds it, and temp vec3, vec4
+(defq +double_pi (str-to-double "3.141592653589793") +double_hpi (str-to-double "1.5707963267948966")
+	+double_2pi (str-to-double "6.283185307179586")
+	+float_pi (n2f +double_pi) +float_hpi (n2f +double_hpi) +float_2pi (n2f +double_2pi))
 
 ;macro to define macros that take optional output vector
 (defmacro vector-macro (op &rest v)
@@ -76,7 +82,7 @@
 (vector-macro "nums-dot" v0 v1)
 (vector-macro "nums-sum" v)
 
-(undef (env) 'def_double 'vector-macro)
+(undef (env) 'def_nums_consts 'vector-macro)
 
 (defmacro vector-clamp (p1 p2 p3 &optional _)
 	(if _

@@ -161,8 +161,8 @@ These operate on any number type and return `:t | :nil`.
 Vectors are created with the `(nums ...)`, `(fixeds ...)`, `(doubles ...)` or
 `(floats ...)` functions. The first three do not care what kind of number they
 are given ! They just pack the `num_value` fields of the input parameters into
-a typed array, a word an element. `(floats ...)` packs each as a float, 4 bytes
-an element, two to a word, as a GPU buffer has them, and gives each back as a
+a typed array, a word an element. `(floats ...)` keeps each as a float, an element of 32
+bits, 4 bytes, as a GPU buffer has them, and gives each back as a
 `:float`. `(nums-convert)` makes a vector of one kind from one of another,
 converting each element.
 

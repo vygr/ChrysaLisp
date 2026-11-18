@@ -7729,12 +7729,12 @@ the outputs less the label's one, and back a layer at a time, through
 each one's weights and the activation of the one before
 ```
 
-### nn-bytes
+### nn-bytes-of
 
 ```code
-(nn-bytes params) -> str
+(nn-bytes-of model count) -> bytes
 
-the bytes of a vector of doubles, to go into a buf or a file
+of so many of its numbers, 4 bytes a float, 8 a double
 ```
 
 ### nn-flat
@@ -7831,7 +7831,7 @@ the params, a vector of any kind, onto the GPU as floats, the step's
 ```code
 (nn-gpu-read gpu) -> params
 
-the params as they are on the GPU, back as doubles
+the params as they are on the GPU, back as the model's kind
 ```
 
 ### nn-gpu-step
@@ -7868,18 +7868,34 @@ uniform, the biases 0
 (nn-ins model) -> count
 ```
 
+### nn-kind
+
+```code
+(nn-kind model) -> :doubles | :floats
+```
+
 ### nn-layers
 
 ```code
 (nn-layers model) -> ((kind ins outs act name weights biases) ...)
 ```
 
+### nn-loss
+
+```code
+(nn-loss outputs label) -> double
+
+the cross entropy of softmax outputs for the label, a double whatever
+the kind, to be summed
+```
+
 ### nn-model
 
 ```code
-(nn-model description) -> model
+(nn-model description [kind]) -> model
 
-(layers params), each layer (kind ins outs act name weights biases)
+(layers params kind), each layer (kind ins outs act name weights
+biases), the kind of its numbers :doubles, or :floats
 ```
 
 ### nn-net
@@ -7888,6 +7904,14 @@ uniform, the biases 0
 (nn-net model params) -> ((rows biases) ...)
 
 the params as rows, each its own vector, a layer at a time
+```
+
+### nn-num
+
+```code
+(nn-num model num) -> double | float
+
+a number made the model's kind
 ```
 
 ### nn-outs
@@ -7920,6 +7944,14 @@ its error
 
 an error d at a layer's outputs a taken back through its activation,
 in place, the slope of it written by the outputs
+```
+
+### nn-vector
+
+```code
+(nn-vector model) -> doubles | floats
+
+an empty vector of the model's kind
 ```
 
 ### nn-view

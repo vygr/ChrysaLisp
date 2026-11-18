@@ -96,13 +96,13 @@
 	(bind '(stage input_box units bars links model) view)
 	(unless (empty? units)
 		(defq from (last units) rows (first (last net)) at 0
-			top (reduce (lambda (m row) (reduce (# (max %0 %1)) row m)) rows (n2d 0)))
+			top (reduce (lambda (m row) (reduce (# (max %0 (n2d %1))) row m)) rows +double_0))
 		(each (lambda (row bar)
 				(defq best (list))
 				;the strongest few, a pass for each
 				(times +nn_view_strong
-					(defq i -1 w (n2d 0))
-					(each (# (and (> %0 w) (not (find (!) best)) (setq i (!) w %0))) row)
+					(defq i -1 w +double_0)
+					(each (# (and (> (n2d %0) w) (not (find (!) best)) (setq i (!) w (n2d %0)))) row)
 					(push best i))
 				(each (lambda (i)
 						(defq fig (elem-get links at))
@@ -112,7 +112,7 @@
 								(bind '(x y) (nn-view-unit (elem-get from i)))
 								(. fig :set_outline (list (list :nil (path (n2q x) (n2q y)
 									(get :fig_x bar) (+ (get :fig_y bar) 5.0)))))
-								(defq a (min 255 (n2i (* (/ (elem-get row i) top) (n2d 200)))))
+								(defq a (min 255 (n2i (* (/ (n2d (elem-get row i)) top) (const (n2d 200))))))
 								(def fig :fig_stroke (+ (<< a 24) (logand +nn_view_link 0xffffff))))
 							(:t (def fig :fig_stroke 0))))
 					best))
@@ -126,9 +126,9 @@
 	;of each, the taken one green if it is the label, red if not
 	(bind '(stage input_box units bars links model) view)
 	(each (lambda (layer a)
-			(defq top (max (reduce (const max) a (n2d 0)) (n2d 0.001)))
+			(defq top (max (reduce (# (max %0 (n2d %1))) a +double_0) (const (n2d 0.001))))
 			(each (lambda (fig v)
-					(defq k (n2i (* (/ (max v (n2d 0)) top) (n2d 255))))
+					(defq k (n2i (* (/ (max (n2d v) +double_0) top) (const (n2d 255)))))
 					(. fig :add (Tween :fig_fill (+ 0xff000000 (<< (+ 0x26 (/ (* k (- 0xff 0x26)) 255)) 16)
 						(<< (+ 0x2c (/ (* k (- 0xb0 0x2c)) 255)) 8) (+ 0x36 (/ (* k (- 0x40 0x36)) 255))) 0.25)))
 				layer a))

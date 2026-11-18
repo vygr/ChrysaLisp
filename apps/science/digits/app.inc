@@ -12,9 +12,11 @@
 ;chance for each digit out, lib/nn
 (import "lib/nn/model.inc")
 
-(defq +mnist_side 28 *digits_model* (nn-model '((:input 784) (:dense 128 :relu) (:dense 10 :softmax))))
+(defq +mnist_side 28 *digits_model* (nn-model '((:input 784) (:dense 128 :relu) (:dense 10 :softmax)) :floats))
 (defq +digits_inputs (nn-ins *digits_model*) +digits_outputs (nn-outs *digits_model*)
 	+digits_params (nn-params *digits_model*))
+;its params' bytes, 4 a float
+(defq +digits_params_size (nn-bytes-of *digits_model* +digits_params))
 
 ;;;;;;;;;;;;;;
 ; the buf layout
@@ -33,7 +35,7 @@
 	;up to a whole number of +digits_align
 	(* (/ (+ bytes (dec +digits_align)) +digits_align) +digits_align))
 
-(defq +digits_params_bytes (digits-align (* +digits_params +long_size)))
+(defq +digits_params_bytes (digits-align +digits_params_size))
 
 (defun digits-slice (slot)
 	; (digits-slice slot) -> offset
@@ -110,5 +112,5 @@
 
 (defun digits-input (pixels x)
 	; (digits-input str x) -> x
-	;the bytes of a picture as doubles 0 to 1 into x
+	;the bytes of a picture as numbers 0 to 1 into x, of the model's kind
 	(nn-scale-bytes pixels (const (/ (n2d 1) (n2d 255))) x))

@@ -168,7 +168,7 @@
 (defun jobs-give (kind msgs)
 	;the params where the children read them, and the jobs out
 	(farm-start)
-	(buf-set params_buf 0 (* +digits_params +long_size) params)
+	(buf-set params_buf 0 +digits_params_size params)
 	(setq step (inc step) busy kind out (length msgs) answers (list))
 	(. jobs :add msgs))
 
@@ -182,7 +182,7 @@
 		(setq gpu_child (open-remote (cat *app_root* "gpu.lisp") node +kn_call_pin)))
 	(defq flags 0)
 	(when gpu_stale
-		(buf-set params_buf 0 (* +digits_params +long_size) params)
+		(buf-set params_buf 0 +digits_params_size params)
 		(setq gpu_stale :nil loading step flags +digits_gpu_flag_load))
 	(when sync
 		(setq sync_step step sync_t (pii-time) flags (logior flags +digits_gpu_flag_sync)))
@@ -273,11 +273,11 @@
 
 (defun stepped ()
 	;the slices added up, and the params moved down them
-	(defq bytes (* +digits_params +long_size) sum (push (doubles) (buf-get grads_buf 0 bytes))
+	(defq bytes +digits_params_size sum (push (nn-vector *digits_model*) (buf-get grads_buf 0 bytes))
 		total (* (elem-get +digits_batches batch) +jobs))
-	(each! (lambda () (nums-add sum (push (doubles) (buf-get grads_buf (digits-slice (!)) bytes)) sum))
+	(each! (lambda () (nums-add sum (push (nn-vector *digits_model*) (buf-get grads_buf (digits-slice (!)) bytes)) sum))
 		'() 1 +jobs)
-	(nums-add params (nums-scale sum (/ (neg (rate-now)) (n2d total)) sum) params)
+	(nums-add params (nums-scale sum (nn-num *digits_model* (/ (neg (rate-now)) (n2d total))) sum) params)
 	(setq net (nn-net *digits_model* params) dirty_loss :t)
 	;idle, the same digit again, to see what this step did to it
 	(unless training (show-sample))
@@ -319,7 +319,7 @@
 
 (defun gpu-params ()
 	;the params the GPU's task wrote back
-	(setq params (push (doubles) (buf-get grads_buf (digits-slice +jobs) (* +digits_params +long_size)))
+	(setq params (push (nn-vector *digits_model*) (buf-get grads_buf (digits-slice +jobs) +digits_params_size))
 		net (nn-net *digits_model* params) dirty_features :t))
 
 (defun gpu-answered (msg)
@@ -457,7 +457,7 @@
 	(each (# (. %0 :set_canvas_flags +canvas_flag_antialias))
 		(list *net_canvas* *loss_canvas* *feat_canvas* *conf_canvas*))
 	(setq view (nn-view *digits_model* 560 504) scratch (nn-scratch *digits_model*)
-		x (fill (doubles) +digits_inputs (n2d 0)))
+		x (fill (nn-vector *digits_model*) +digits_inputs (nn-num *digits_model* 0)))
 	(reset)
 	;each canvas the colour of what is drawn on it, before the window is seen,
 	;so till the first frame it is not bare

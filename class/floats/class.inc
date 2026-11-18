@@ -2,8 +2,8 @@
 (include "././float/class.inc")
 (include "./struct.inc")
 
-;a vector of floats of 32 bits, packed, 4 bytes an element, two to a slot
-;of the array, each given out and taken in as a :float of the same bits
+;a vector of floats, each element 32 bits, 4 bytes, as a GPU buffer has
+;them, each given out and taken in as a :float of the same bits
 (def-class :floats :doubles
 	(dec-method :vtable class/floats/vtable)
 	(dec-method :type class/floats/type :override)

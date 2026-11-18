@@ -78,12 +78,12 @@
 
 (defun nn-gpu-read (gpu)
 	; (nn-gpu-read gpu) -> params
-	;the params as they are on the GPU, back as doubles
+	;the params as they are on the GPU, back as the model's kind
 	(bind '(model capacity programs kernels bufs layers set &ignore) gpu)
 	(nums-convert (apply (const cat) (reduce (lambda (out ((kind ins outs &ignore) (ws bs &ignore)))
 			(push out (gpu-read (elem-get ws set) 0 (fill (floats) (* ins outs) (n2f 0)))
 				(gpu-read (elem-get bs set) 0 (fill (floats) outs (n2f 0)))))
-		(map (const list) (nn-layers model) layers) (list))) (doubles)))
+		(map (const list) (nn-layers model) layers) (list))) (nn-vector model)))
 
 (defun nn-gpu-go (gpu name vals from to bufs)
 	; (nn-gpu-go gpu name vals from to bufs) -> ticket

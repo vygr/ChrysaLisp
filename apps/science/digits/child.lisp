@@ -7,7 +7,8 @@
 ;their gradients summed into the job's slice of the gradient block
 
 (defq bufs (list) step_had -1 net :nil grads :nil
-	scratch (nn-scratch *digits_model*) x (fill (doubles) +digits_inputs (n2d 0)))
+	scratch (nn-scratch *digits_model*) x (fill (nn-vector *digits_model*) +digits_inputs (nn-num *digits_model* 0))
+	zero (nn-num *digits_model* 0))
 
 (defun open-bufs (data_key params_key grads_key children)
 	; (open-bufs data_key params_key grads_key children) -> :nil | (data params grads)
@@ -26,14 +27,14 @@
 	;the params of this step, read the once
 	(unless (= step step_had)
 		(setq step_had step net (nn-net *digits_model*
-				(push (doubles) (buf-get params 0 (* +digits_params +long_size))))))
+				(push (nn-vector *digits_model*) (buf-get params 0 +digits_params_size)))))
 	(defq train (= kind +digits_kind_train) right 0 loss (n2d 0) confusion (fill (nums) 100 0)
 		test (= kind +digits_kind_test)
 		images (if test +mnist_test_images +mnist_train_images)
 		labels (if test +mnist_test_labels +mnist_train_labels))
 	(if train
-		(if grads (each (lambda ((rows biases)) (each (# (nums-scale %0 (const (n2d 0)) %0)) rows)
-				(nums-scale biases (const (n2d 0)) biases)) grads)
+		(if grads (each (lambda ((rows biases)) (each (# (nums-scale %0 zero %0)) rows)
+				(nums-scale biases zero biases)) grads)
 			(setq grads (nn-zeros *digits_model*))))
 	(each! (lambda ()
 			(defq at (code msg 4 (+ +digits_job_size (* (!) 4)))
@@ -45,9 +46,9 @@
 			(elem-set confusion (+ (* label 10) guess) (inc (elem-get confusion (+ (* label 10) guess))))
 			(setq loss (+ loss (if train
 				(nn-backward *digits_model* net grads x scratch label)
-				(neg (log (max (elem-get p label) (const (str-to-double "1e-300")))))))))
+				(nn-loss p label)))))
 		'() 0 count)
-	(if train (buf-set grads_buf (digits-slice slot) (* +digits_params +long_size) (nn-flat grads)))
+	(if train (buf-set grads_buf (digits-slice slot) +digits_params_size (nn-flat grads)))
 	(mail-send reply (cat (setf-> (str-alloc +digits_reply_size)
 				(+job_reply_key key) (+digits_reply_step step) (+digits_reply_count count)
 				(+digits_reply_right right) (+digits_reply_loss loss))

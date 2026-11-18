@@ -9,13 +9,15 @@
 ; :softmax, the last only, and a name if given, "fc1", for the tensors of
 ; a weights file, else its place, "0", "1", as PyTorch names the layers of
 ; a Sequential. The model made of it says where each layer's numbers are
-; in one vector of doubles, the params: a layer's weights a row for each
-; unit, a weight for each unit of the layer before, then its biases.
+; in one vector, the params: a layer's weights a row for each unit, a
+; weight for each unit of the layer before, then its biases. Its numbers
+; are of a kind, doubles, or floats as a GPU has them, and every vector
+; of it and constant its sums meet is of that kind.
 ;
-; The sums are Lisp over doubles, a row a vector at a time by the native
-; dot, scale and add, into vectors made once and used again. Each is what
-; a kernel will be later, a row a thread: a layer forward, the error back
-; through it, and the gradient of its weights.
+; The sums are Lisp over the vectors, a row a vector at a time by the
+; native dot, scale and add, into vectors made once and used again. Each
+; is what a kernel will be later, a row a thread: a layer forward, the
+; error back through it, and the gradient of its weights.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././math/vector.inc")
@@ -23,23 +25,55 @@
 ;native, lib/nn/lisp.vp
 (ffi (path-to-absolute "./scale_bytes") nn-scale-bytes)
 ; (nn-scale-bytes bytes scale out) -> out
-;each byte of a str times the double scale into the doubles of out, as
-;many as both have
+;each byte of a str times the double scale into out, doubles or floats,
+;as many as both have
 
 ;a layer of a model, offsets counts of doubles
 (enums +nn_layer 0
 	(enum kind ins outs act name weights biases))
 
-(defun nn-model (description)
-	; (nn-model description) -> model
-	;(layers params), each layer (kind ins outs act name weights biases)
+(defun nn-model (description &optional kind)
+	; (nn-model description [kind]) -> model
+	;(layers params kind), each layer (kind ins outs act name weights
+	;biases), the kind of its numbers :doubles, or :floats
 	(defq ins (second (first description)) at 0 layers (list))
 	(each! (lambda ((kind outs &optional act name))
 			(push layers (list kind ins outs (ifn act :none) (ifn name (str (length layers)))
 				at (+ at (* ins outs))))
 			(setq at (+ at (* ins outs) outs) ins outs))
 		(list description) 1)
-	(list layers at))
+	(list layers at (ifn kind :doubles)))
+
+(defun nn-kind (model)
+	; (nn-kind model) -> :doubles | :floats
+	(elem-get model 2))
+
+(defun nn-vector (model)
+	; (nn-vector model) -> doubles | floats
+	;an empty vector of the model's kind
+	(if (eql (nn-kind model) :floats) (floats) (doubles)))
+
+(defun nn-num (model num)
+	; (nn-num model num) -> double | float
+	;a number made the model's kind
+	(if (eql (nn-kind model) :floats) (n2f num) (n2d num)))
+
+(defun nn-bytes-of (model count)
+	; (nn-bytes-of model count) -> bytes
+	;of so many of its numbers, 4 bytes a float, 8 a double
+	(* count (if (eql (nn-kind model) :floats) +int_size +long_size)))
+
+;the 0, the 1, and the least chance a log is taken of, of a vector's kind
+(defq *nn_doubles_consts* (list +double_0 +double_1 (str-to-double "1e-300"))
+	*nn_floats_consts* (list +float_0 +float_1 (n2f (str-to-double "1e-37"))))
+(defmacro nn-consts (v)
+	`(if (floats? ,v) *nn_floats_consts* *nn_doubles_consts*))
+
+(defun nn-loss (p label)
+	; (nn-loss outputs label) -> double
+	;the cross entropy of softmax outputs for the label, a double whatever
+	;the kind, to be summed
+	(n2d (neg (log (max (elem-get p label) (third (nn-consts p)))))))
 
 (defun nn-layers (model)
 	; (nn-layers model) -> ((kind ins outs act name weights biases) ...)
@@ -62,11 +96,11 @@
 	; (nn-init model) -> params
 	;weights at random, each layer's spread by how many feed a unit, He's
 	;uniform, the biases 0
-	(defq params (cap (nn-params model) (doubles)))
+	(defq params (cap (nn-params model) (nn-vector model)) zero (nn-num model 0))
 	(each (lambda ((kind ins outs &ignore))
-			(defq l (sqrt (/ (n2d 6) (n2d ins))) two (n2d 2) one (n2d 1))
-			(times (* ins outs) (push params (* (- (random two) one) l)))
-			(times outs (push params (n2d 0))))
+			(defq l (sqrt (/ +double_6 (n2d ins))))
+			(times (* ins outs) (push params (nn-num model (* (- (random +double_2) +double_1) l))))
+			(times outs (push params zero)))
 		(nn-layers model))
 	params)
 
@@ -81,9 +115,10 @@
 (defun nn-zeros (model)
 	; (nn-zeros model) -> ((rows biases) ...)
 	;a net of 0s, the shape of the model's, for gradients
+	(defq zero (nn-num model 0))
 	(map (lambda ((kind ins outs &ignore))
-			(list (map! (lambda () (fill (doubles) ins (n2d 0))) '() 0 outs)
-				(fill (doubles) outs (n2d 0))))
+			(list (map! (lambda () (fill (nn-vector model) ins zero)) '() 0 outs)
+				(fill (nn-vector model) outs zero)))
 		(nn-layers model)))
 
 (defun nn-flat (net)
@@ -91,44 +126,38 @@
 	;a net as one vector, as the params are kept
 	(apply (const cat) (reduce (lambda (out (rows biases)) (cat out rows (list biases))) net (list))))
 
-(defun nn-bytes (params)
-	; (nn-bytes params) -> str
-	;the bytes of a vector of doubles, to go into a buf or a file
-	(defq out (str-alloc (* (length params) +long_size)))
-	(each (# (set-double out (* (!) +long_size) %0)) params)
-	out)
-
 (defun nn-scratch (model)
 	; (nn-scratch model) -> (acts deltas)
 	;what a sample's sums are worked in, made once: each layer's outputs and
 	;its error
-	(defq layers (nn-layers model))
-	(list (map (# (fill (doubles) (elem-get %0 +nn_layer_outs) (n2d 0))) layers)
-		(map (# (fill (doubles) (elem-get %0 +nn_layer_outs) (n2d 0))) layers)))
+	(defq layers (nn-layers model) zero (nn-num model 0))
+	(list (map (# (fill (nn-vector model) (elem-get %0 +nn_layer_outs) zero)) layers)
+		(map (# (fill (nn-vector model) (elem-get %0 +nn_layer_outs) zero)) layers)))
 
 (defun nn-activate (act a)
 	; (nn-activate act a) -> a
 	;an activation of a layer's scores, in place
+	(bind '(zero one &ignore) (nn-consts a))
 	(case act
-		(:relu (each (# (if (< %0 (const (n2d 0))) (elem-set a (!) (const (n2d 0))))) a))
-		(:sigmoid (each (# (elem-set a (!) (/ (const (n2d 1)) (+ (const (n2d 1)) (exp (neg %0)))))) a))
-		(:tanh (each (# (elem-set a (!) (- (/ (const (n2d 2)) (+ (const (n2d 1)) (exp (* (const (n2d -2)) %0))))
-				(const (n2d 1))))) a))
+		(:relu (each (# (if (< %0 zero) (elem-set a (!) zero))) a))
+		(:sigmoid (each (# (elem-set a (!) (/ one (+ one (exp (neg %0)))))) a))
+		(:tanh (each (# (elem-set a (!) (tanh %0))) a))
 		(:softmax
 			;its biggest taken from all first, so none overflows
 			(defq top (reduce (const max) a (elem-get a 0)))
 			(each (# (elem-set a (!) (exp (- %0 top)))) a)
-			(nums-scale a (/ (const (n2d 1)) (nums-sum a)) a)))
+			(nums-scale a (/ one (nums-sum a)) a)))
 	a)
 
 (defun nn-slope (act a d)
 	; (nn-slope act a d) -> d
 	;an error d at a layer's outputs a taken back through its activation,
 	;in place, the slope of it written by the outputs
+	(bind '(zero one &ignore) (nn-consts a))
 	(case act
-		(:relu (each (# (if (<= %0 (const (n2d 0))) (elem-set d (!) (const (n2d 0))))) a))
-		(:sigmoid (each (# (elem-set d (!) (* %1 %0 (- (const (n2d 1)) %0)))) a d))
-		(:tanh (each (# (elem-set d (!) (* %1 (- (const (n2d 1)) (* %0 %0))))) a d)))
+		(:relu (each (# (if (<= %0 zero) (elem-set d (!) zero))) a))
+		(:sigmoid (each (# (elem-set d (!) (* %1 %0 (- one %0)))) a d))
+		(:tanh (each (# (elem-set d (!) (* %1 (- one (* %0 %0))))) a d)))
 	d)
 
 (defun nn-forward (model net x scratch)
@@ -156,24 +185,24 @@
 	;each one's weights and the activation of the one before
 	(bind '(acts deltas) scratch)
 	(defq layers (nn-layers model) l (dec (length layers)) p (elem-get acts l)
-		loss (neg (log (max (elem-get p label) (const (str-to-double "1e-300")))))
-		d (elem-get deltas l))
-	(nums-scale p (const (n2d 1)) d)
-	(elem-set d label (- (elem-get d label) (const (n2d 1))))
+		loss (nn-loss p label) d (elem-get deltas l))
+	(bind '(zero one &ignore) (nn-consts p))
+	(nums-scale p one d)
+	(elem-set d label (- (elem-get d label) one))
 	(while (>= l 0)
 		(bind '((kind ins outs &ignore) (rows &ignore) (grows gbiases) d)
 			(list (elem-get layers l) (elem-get net l) (elem-get grads l) (elem-get deltas l)))
 		(defq in (if (= l 0) x (elem-get acts (dec l))))
 		(nums-add gbiases d gbiases)
 		(each (lambda (g e)
-				(unless (= e (const (n2d 0))) (nums-add-scaled g in e g)))
+				(unless (= e zero) (nums-add-scaled g in e g)))
 			grows d)
 		;the error at the layer before, and back through its activation
 		(when (> l 0)
 			(defq back (elem-get deltas (dec l)))
-			(nums-scale back (const (n2d 0)) back)
+			(nums-scale back zero back)
 			(each (lambda (row e)
-					(unless (= e (const (n2d 0))) (nums-add-scaled back row e back)))
+					(unless (= e zero) (nums-add-scaled back row e back)))
 				rows d)
 			(nn-slope (elem-get (elem-get layers (dec l)) +nn_layer_act) in back))
 		(setq l (dec l)))
