@@ -359,8 +359,8 @@
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
-	(mathop :sin
-		'(call :sys_math :d_sin '(:d1) '(:d0)))
+	(singleop :sin
+		'(call :sys_math :f_sin '(:f1) '(:f0)))
 
 (def-func-end)
 
@@ -372,13 +372,8 @@
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
-	(mathop :cos
-		'(progn
-			;pi/2
-			(vp-lea-pr 'fn_consts :r0)
-			(assign '((:r0 (fn-const 0x3ff921fb54442d18))) '(:d0))
-			(vp-add-dd :d0 :d1)
-			(call :sys_math :d_sin '(:d1) '(:d0))))
+	(singleop :cos
+		'(call :sys_math :f_cos '(:f1) '(:f0)))
 
 (def-func-end)
 
@@ -390,8 +385,8 @@
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
-	(mathop :exp
-		'(call :sys_math :d_exp '(:d1) '(:d0)))
+	(singleop :exp
+		'(call :sys_math :f_exp '(:f1) '(:f0)))
 
 (def-func-end)
 
@@ -403,8 +398,8 @@
 	;trashes
 	;:r0-:r2, :r14, :d0-:d15
 
-	(mathop :log
-		'(call :sys_math :d_log '(:d1) '(:d0)))
+	(singleop :log
+		'(call :sys_math :f_log '(:f1) '(:f0)))
 
 (def-func-end)
 

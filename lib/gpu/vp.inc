@@ -32,7 +32,7 @@
 	;each as a double, the one register, for a float in memory
 	+sv_dregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15)
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
-	+sv_1 (n2d 1) +sv_hpi (str-to-double "1.5707963267948966")
+	+sv_1 (n2d 1)
 	;a byte of a pixel as a number of 0 to 1 is it over this, the nearest
 	;single to that, as a GPU has it, and the Lisp back end
 	+sv_255 (n2d 255)
@@ -276,21 +276,13 @@
 
 (defun sv-math (r op)
 	;sin, cos, exp, log or tanh of a register, which is given up, to a new
-	;register. tanh is of the single, by f_tanh. The others are of a
-	;double, of the single, and their answer is made the nearest single
+	;register, each by the function of sys/math of the single as it is,
+	;the float methods' own, so the two agree to the bit
 	(sv-put r)
 	(defq saved (sv-spill *sv_math_trash*))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff r :f0))
-	(cond
-		((eql op 'tanh)
-			(sv-emit 'call :sys_math :f_tanh (sv-q '(:f0)) (sv-q '(:f0))))
-		(:t (sv-emit 'vp-cvt-fd :f0 :d0)
-			(when (eql op 'cos)
-				(sv-emit 'vp-load-rcd :r12 (list 'fn-const (logior +sv_hpi)) :d1)
-				(sv-emit 'vp-add-dd :d1 :d0))
-			(sv-emit 'call :sys_math (elem-get '(:d_sin :d_sin :d_exp :d_log) (find op '(sin cos exp log)))
-				(sv-q '(:d0)) (sv-q '(:d0)))
-			(sv-emit 'vp-cvt-df :d0 :f0)))
+	(sv-emit 'call :sys_math (elem-get '(:f_sin :f_cos :f_exp :f_log :f_tanh) (find op '(sin cos exp log tanh)))
+		(sv-q '(:f0)) (sv-q '(:f0)))
 	(defq r (sv-getf))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
 	(sv-unspill saved)

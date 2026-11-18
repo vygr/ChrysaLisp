@@ -803,3 +803,200 @@
 
 (def-func-end)
 
+;the sine of the double in :d0, :r0 the function's constants, to the single
+;in :f0. Brought to the turn in doubles, as d_sin is, so a single of any
+;size keeps its bits, and the series to the 13th power, all a single holds
+;over a half turn, in doubles too and rounded once: summed in singles it
+;was 2 bits out where it comes to 1, cos 0 not 1
+(defun f-sin-body ()
+	(vp-load-rcd :r0 (fn-const 0x3fc45f306dc9c883) :d2)
+	(vp-cpy-dd :d0 :d1)
+	(vp-mul-dd :d2 :d0)
+	(vp-cvt-dr :d0 :r1)
+	(vp-cvt-rd :r1 :d2)
+	(vp-load-rcd :r0 (fn-const 0x401921fb54442d18) :d3)
+	(vp-mul-dd :d3 :d2)
+	(vp-sub-dd :d2 :d1)
+	;to -pi to pi
+	(vp-load-rcd :r0 (fn-const 0x400921fb54442d18) :d3)
+	(vp-cpy-dd :d3 :d2)
+	(vp-neg-dd :d2 :d2)
+	(vp-bgt-dd :d3 :d1 'sub_2pi)
+	(vp-blt-dd :d2 :d1 'add_2pi)
+	(vp-jmp 'check_hpi)
+(vp-label 'sub_2pi)
+	(vp-load-rcd :r0 (fn-const 0x401921fb54442d18) :d2)
+	(vp-sub-dd :d2 :d1)
+	(vp-jmp 'check_hpi)
+(vp-label 'add_2pi)
+	(vp-load-rcd :r0 (fn-const 0x401921fb54442d18) :d2)
+	(vp-add-dd :d2 :d1)
+	;to -pi/2 to pi/2
+(vp-label 'check_hpi)
+	(vp-load-rcd :r0 (fn-const 0x3ff921fb54442d18) :d3)
+	(vp-cpy-dd :d3 :d2)
+	(vp-neg-dd :d2 :d2)
+	(vp-bgt-dd :d3 :d1 'fold_pos)
+	(vp-blt-dd :d2 :d1 'fold_neg)
+	(vp-jmp 'poly)
+(vp-label 'fold_pos)
+	(vp-load-rcd :r0 (fn-const 0x400921fb54442d18) :d2)
+	(vp-sub-dd :d1 :d2)
+	(vp-cpy-dd :d2 :d1)
+	(vp-jmp 'poly)
+(vp-label 'fold_neg)
+	(vp-load-rcd :r0 (fn-const 0x400921fb54442d18) :d2)
+	(vp-neg-dd :d2 :d2)
+	(vp-sub-dd :d1 :d2)
+	(vp-cpy-dd :d2 :d1)
+	;x (1 + c1 x^2 + c2 x^4 ... + c6 x^12), and the nearest single
+(vp-label 'poly)
+	(vp-cpy-dd :d1 :d3)
+	(vp-mul-dd :d1 :d3)
+	(vp-load-rcd :r0 (fn-const 0x3de6124613a86d09) :d0)
+	(each (lambda (c)
+			(vp-mul-dd :d3 :d0)
+			(vp-load-rcd :r0 (fn-const c) :d2)
+			(vp-add-dd :d2 :d0))
+		'(0xbe5ae64567f544e4 0x3ec71de3a556c734 0xbf2a01a01a01a01a 0x3f81111111111111
+		0xbfc5555555555555 0x3ff0000000000000))
+	(vp-mul-dd :d1 :d0)
+	(vp-cvt-df :d0 :f0))
+
+(def-method :sys_math :f_sin)
+	;inputs
+	;:f0 = single (single)
+	;outputs
+	;:f0 = sin of the single (single)
+	;trashes
+	;:r0-:r1, :d0-:d3
+	;info
+	;the single made a double and brought to the turn, and the series, in
+	;doubles, as d_sin does, to the nearest single
+
+	(entry :sys_math :f_sin '(:f0))
+
+	(vp-cvt-fd :f0 :d0)
+	(vp-lea-pr 'fn_consts :r0)
+	(f-sin-body)
+
+	(exit :sys_math :f_sin '(:f0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :f_cos)
+	;inputs
+	;:f0 = single (single)
+	;outputs
+	;:f0 = cos of the single (single)
+	;trashes
+	;:r0-:r1, :d0-:d3
+	;info
+	;the sine of a quarter turn on, the quarter turn added in doubles, so
+	;near where it is 0 it has all the bits a single can
+
+	(entry :sys_math :f_cos '(:f0))
+
+	(vp-cvt-fd :f0 :d0)
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcd :r0 (fn-const 0x3ff921fb54442d18) :d1)
+	(vp-add-dd :d1 :d0)
+	(f-sin-body)
+
+	(exit :sys_math :f_cos '(:f0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :f_log)
+	;inputs
+	;:f0 = single (single)
+	;outputs
+	;:f0 = natural log of the single (single)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;d_log of singles: minus infinity of 0, not a number below 0, infinity
+	;and not a number as they are. The single is 2 to the e times m, m from
+	;the root of a half to the root of 2, and the log of m is 2 atanh of f,
+	;f (m - 1) / (m + 1), by its series in f squared to the 5th power
+
+	(entry :sys_math :f_log '(:f0))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-cpy-fr :f0 :r1)
+	(vp-cpy-rr :r1 :r2)
+	(vp-and-cr 0x7fffffff :r2)
+	(vp-beq-cr 0 :r2 'zero)
+	(vp-bge-cr 0x80000000 :r1 'negative)
+	(vp-cpy-rr :r1 :r2)
+	(vp-shr-cr 23 :r2)
+	(vp-beq-cr 0xff :r2 'exit)
+	;m, from 1 to 2, the single with its exponent taken out, e what was taken
+	(defq mantissa (lambda ()
+		(vp-sub-cr 127 :r2)
+		(vp-shl-cr 23 :r2)
+		(vp-sub-rr :r2 :r1)
+		(vp-asr-cr 23 :r2)
+		(vp-cpy-rf :r1 :f0)))
+	(vp-bne-cr 0 :r2 'normal)
+	;a subnormal, made normal by 2 to the 25
+	(vp-load-rcf :r0 (fn-const 0x4c000000) :f1)
+	(vp-mul-ff :f1 :f0)
+	(vp-cpy-fr :f0 :r1)
+	(vp-cpy-rr :r1 :r2)
+	(vp-shr-cr 23 :r2)
+	(mantissa)
+	(vp-sub-cr 25 :r2)
+	(vp-jmp 'fold)
+(vp-label 'normal)
+	(mantissa)
+(vp-label 'fold)
+	;to the root of a half to the root of 2
+	(vp-load-rcf :r0 (fn-const 0x3fb504f3) :f1)
+	(vp-ble-ff :f1 :f0 'folded)
+	(vp-load-rcf :r0 (fn-const 0x3f000000) :f1)
+	(vp-mul-ff :f1 :f0)
+	(vp-add-cr 1 :r2)
+(vp-label 'folded)
+	;f and f squared
+	(vp-load-rcf :r0 (fn-const 0x3f800000) :f1)
+	(vp-cpy-ff :f0 :f2)
+	(vp-sub-ff :f1 :f2)
+	(vp-add-ff :f1 :f0)
+	(vp-div-ff :f0 :f2)
+	(vp-cpy-ff :f2 :f3)
+	(vp-mul-ff :f2 :f3)
+	;2 f times 1 + s/3 + s^2/5 ... + s^5/11
+	(vp-load-rcf :r0 (fn-const 0x3dba2e8c) :f0)
+	(each (lambda (c)
+			(vp-mul-ff :f3 :f0)
+			(vp-load-rcf :r0 (fn-const c) :f1)
+			(vp-add-ff :f1 :f0))
+		'(0x3de38e39 0x3e124925 0x3e4ccccd 0x3eaaaaab 0x3f800000))
+	(vp-mul-ff :f2 :f0)
+	(vp-add-ff :f0 :f0)
+	;and e ln2, in its two parts, the small first
+	(vp-cvt-rf :r2 :f1)
+	(vp-load-rcf :r0 (fn-const 0xb95e8083) :f2)
+	(vp-mul-ff :f1 :f2)
+	(vp-add-ff :f2 :f0)
+	(vp-load-rcf :r0 (fn-const 0x3f318000) :f2)
+	(vp-mul-ff :f1 :f2)
+	(vp-add-ff :f2 :f0)
+	(vp-jmp 'exit)
+(vp-label 'zero)
+	;0 and -0 give minus infinity
+	(vp-load-rcf :r0 (fn-const 0xff800000) :f0)
+	(vp-jmp 'exit)
+(vp-label 'negative)
+	;below 0, not a number
+	(vp-load-rcf :r0 (fn-const 0x7fc00000) :f0)
+(vp-label 'exit)
+
+	(exit :sys_math :f_log '(:f0))
+	(vp-ret)
+
+(def-func-end)
+

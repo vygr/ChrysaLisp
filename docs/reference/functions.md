@@ -15038,8 +15038,8 @@ vec3 is by the 3 by 3 of the matrix
 ```code
 sin, cos, exp, log or tanh of a register, which is given up, to a new
 
-register. tanh is of the single, by f_tanh. The others are of a
-double, of the single, and their answer is made the nearest single
+register, each by the function of sys/math of the single as it is,
+the float methods' own, so the two agree to the bit
 ```
 
 ### sv-name

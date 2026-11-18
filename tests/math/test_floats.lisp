@@ -47,10 +47,18 @@
 (assert-true "a float third" (/= (n2d (/ (n2f 1) (n2f 3))) (/ (n2d 1) (n2d 3))))
 (assert-true "a float third, its 24 bits" (< (abs (- (n2d (/ (n2f 1) (n2f 3))) (/ (n2d 1) (n2d 3))))
 	(str-to-double "1e-7")))
-;the maths by the double routines, rounded
+;the maths in 32 bits, by the f_ functions of sys/math: sin and cos the
+;nearest single, where they come to 1 too, exp and log within a bit of it
 (assert-true "float sin" (< (abs (- (n2d (sin (n2f 1))) (sin (n2d 1)))) (str-to-double "1e-7")))
+(assert-eq "float cos of 0 is 1" (n2f 1) (cos (n2f 0)))
+(assert-eq "float sin of 3pi/2 is -1" (n2f -1) (sin (n2f (str-to-double "4.71238898"))))
+(assert-true "float cos 2" (< (abs (- (n2d (cos (n2f 2))) (str-to-double "-0.4161468365471424"))) (str-to-double "3e-8")))
 (assert-true "float exp" (< (abs (- (n2d (exp (n2f 1))) (exp (n2d 1)))) (str-to-double "1e-6")))
+(assert-true "float exp 3" (< (abs (- (n2d (exp (n2f 3))) (str-to-double "20.085536923187668"))) (str-to-double "4e-6")))
 (assert-eq "float log of one" (n2f 0) (log (n2f 1)))
+(assert-true "float log 10" (< (abs (- (n2d (log (n2f 10))) (str-to-double "2.302585092994046"))) (str-to-double "5e-7")))
+(assert-true "float log of a subnormal" (< (abs (- (n2d (log (n2f (str-to-double "1e-40")))) (str-to-double "-92.10340910966488"))) (str-to-double "2e-5")))
+(assert-true "float log of 0, minus infinity" (< (log (n2f 0)) (n2f (str-to-double "-3e38"))))
 ;tanh, by f_tanh in 32 bits, within two of its last bits of the nearest single
 (defq tf_near (lambda (a b) (< (abs (- (n2d a) b)) (* (abs b) (str-to-double "2.5e-7")))))
 (assert-eq "float tanh of 0" (n2f 0) (tanh (n2f 0)))

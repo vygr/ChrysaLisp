@@ -89,6 +89,20 @@ d_exp, from 0.55 on the 1 is never much more than what it takes. Of
 tanh at the most, 680 of them the nearest double
 ```
 
+### :f_cos -> sys/math/f_cos
+
+```code
+inputs
+:f0 = single (single)
+outputs
+:f0 = cos of the single (single)
+trashes
+:r0-:r1, :d0-:d3
+info
+the sine of a quarter turn on, the quarter turn added in doubles, so
+near where it is 0 it has all the bits a single can
+```
+
 ### :f_exp -> sys/math/f_exp
 
 ```code
@@ -105,6 +119,36 @@ the first of few bits so k times it is exact, r no more than half ln2
 either way. e to the r by its series to the 7th power, all a single
 holds, and 2 to the k made from its bits, in two halves so neither is
 out of range
+```
+
+### :f_log -> sys/math/f_log
+
+```code
+inputs
+:f0 = single (single)
+outputs
+:f0 = natural log of the single (single)
+trashes
+:r0-:r2, :d0-:d3
+info
+d_log of singles: minus infinity of 0, not a number below 0, infinity
+and not a number as they are. The single is 2 to the e times m, m from
+the root of a half to the root of 2, and the log of m is 2 atanh of f,
+f (m - 1) / (m + 1), by its series in f squared to the 5th power
+```
+
+### :f_sin -> sys/math/f_sin
+
+```code
+inputs
+:f0 = single (single)
+outputs
+:f0 = sin of the single (single)
+trashes
+:r0-:r1, :d0-:d3
+info
+the single made a double and brought to the turn, and the series, in
+doubles, as d_sin does, to the nearest single
 ```
 
 ### :f_tanh -> sys/math/f_tanh
