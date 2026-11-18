@@ -166,7 +166,7 @@
 		(loop-while '(:r2 = :r3))
 			(vp-push :r1)
 			(assign '(:r2) '((:r0 +stream_bufp)))
-			(call :stream :read_next '(:r0) '(:r0 :r4))
+			(call :stream :read_next '(:r0) '(:r0 :r4) :r1)
 			(vp-pop :r1)
 			(gotoif '(:r4 = -1) 'funcexit)
 			(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r2 :r3))

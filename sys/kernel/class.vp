@@ -111,7 +111,7 @@
 	(vp-shl-cr 1 :r0)
 	(vp-add-rr :r0 :r1)
 	(vp-add-cr ping_slack :r1)
-	(call :array :set_elem `((:rsp slot_tuple) :r1 ,+node_time)))
+	(call :array :set_elem `((:rsp slot_tuple) :r1 ,+node_time) :nil :r3))
 
 (defun kn-via ()
 	;emit the code to add the via of the ping to the ways to its origin
@@ -269,7 +269,7 @@
 			(vpcase '(:r0 = +kn_call_run))
 				;find best cpu to run task on the same physical system, the
 				;one with the least load, see sys/statics/class.inc
-				(call :array :clear '((:rsp slot_best_nodes)))
+				(call :array :clear '((:rsp slot_best_nodes)) :nil :r1)
 				(assign '((:rsp slot_statics)) '(:r0))
 				(load-fields :r0 '(statics_sys_task_task_count statics_sys_task_lag) '(:r1 :r2))
 				(vp-add-rr :r2 :r1)
@@ -298,7 +298,7 @@
 					(continueif '(:r2 = 0) '(:r2 > :r3))
 					(vpif '(:r2 < :r3))
 						(assign '(:r2) '((:rsp slot_best_cnt)))
-						(call :array :clear '((:rsp slot_best_nodes)))
+						(call :array :clear '((:rsp slot_best_nodes)) :nil :r1)
 					(endif)
 					(call :array :push_back '((:rsp slot_best_nodes) (:rsp slot_link)))
 				(loop-end)
@@ -308,7 +308,7 @@
 				(vp-add-rr :r2 :r1)
 				(gotoif '(:r1 <= :r3) 'run_here)
 				;send to random better kernel
-				(call :array :get_length '((:rsp slot_best_nodes)) '(_ :r1))
+				(call :array :get_length '((:rsp slot_best_nodes)) '(_ :r1) :r1)
 				(assign '((:rsp slot_best_rand)) '(:r0))
 				(vp-add-cr 1 :r0)
 				(assign '(:r0) '((:rsp slot_best_rand)))
@@ -390,7 +390,7 @@
 					(breakif '(:r0 <= :r1) 'exit_ping_sys)
 
 					;update session_sys (index 3) and time (index 1)
-					(call :array :set_elem `((:rsp slot_tuple) :r0 ,+node_session_sys))
+					(call :array :set_elem `((:rsp slot_tuple) :r0 ,+node_session_sys) :nil :r3)
 					(kn-time)
 
 					;flood onwards within the physical system
@@ -416,11 +416,11 @@
 						(call :array :set_length `((:rsp slot_tuple) ,+node_hops))
 						(kn-time)
 						(assign '((:rsp slot_data)) '(:r1))
-						(call :array :set_elem `((:rsp slot_tuple) (:r1 +kn_msg_ping_session) ,+node_session_cluster))
+						(call :array :set_elem `((:rsp slot_tuple) (:r1 +kn_msg_ping_session) ,+node_session_cluster) :nil :r3)
 						(assign '((:rsp slot_data)) '(:r1))
-						(call :array :set_elem `((:rsp slot_tuple) (:r1 ,(+ +kn_msg_ping_system +node_id_node1)) ,+node_system1))
+						(call :array :set_elem `((:rsp slot_tuple) (:r1 ,(+ +kn_msg_ping_system +node_id_node1)) ,+node_system1) :nil :r3)
 						(assign '((:rsp slot_data)) '(:r1))
-						(call :array :set_elem `((:rsp slot_tuple) (:r1 ,(+ +kn_msg_ping_system +node_id_node2)) ,+node_system2))
+						(call :array :set_elem `((:rsp slot_tuple) (:r1 ,(+ +kn_msg_ping_system +node_id_node2)) ,+node_system2) :nil :r3)
 						(assign '((:rsp slot_data)) '(:r1))
 						(call :array :push_back '((:rsp slot_tuple) (:r1 +kn_msg_ping_hops)))
 						;a kick from another node ?
@@ -656,7 +656,7 @@
 	(assign '((:r1 0)) '(:r3))
 	(vp-load-rcr-ub :r3 +str_data :r3)
 	(vpif '(:r3 = :r0))
-		(jump :list :erase '(:r2 :r1))
+		(jump :list :erase '(:r2 :r1) :r2)
 	(endif)
 
 	(exit :hset :each_callback '())
@@ -674,7 +674,7 @@
 	(vp-load-rcr-ub :r1 +str_data :r2)
 	(vpif '(:r2 = :r3))
 		(vp-push :r0)
-		(call :str :hash '(:r1) '(_ :r1))
+		(call :str :hash '(:r1) '(_ :r1) :r1)
 		(vp-pop :r0)
 		(assign `((:r0 ,+long_size) (:r0 ,(* 2 +long_size))) '(:r2 :r3))
 		(vp-add-rr :r1 :r2)
@@ -1116,7 +1116,7 @@
 	(loop-end)
 	(default)
 		(call :hset :deref `((,tuple ,(* +node_set +ptr_size))))
-		(call :list :erase2 '((:rsp slot_bucket) (:rsp slot_iter)))
+		(call :list :erase2 '((:rsp slot_bucket) (:rsp slot_iter)) :nil :r2)
 	(endif)
 
 	(exit :hmap :each_callback '())

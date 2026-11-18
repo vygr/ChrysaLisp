@@ -169,15 +169,17 @@
 									(list (if (or (first was) (first now)) (logior (ifn (first was) 0) (ifn (first now) 0)))
 										(logand (second was) (second now)) (logior (third was) (third now)))
 									now))))))))
-	(list by_function class_db))
+	(list by_function class_db (Fmap 101)))
 
 (defun called-of (inst all labels methods)
 	; (called-of inst all labels methods) -> :nil | (name trashes takes gives)
 	;what a call or a jump out is of, and what is declared of it: one
 	;bound to its function, through a link to its path, and what that
 	;function trashes; or one through a vtable, which has its class and
-	;name with it, and what any class called so may. :nil if not known
-	(bind '(by_function class_db &ignore) methods)
+	;name with it, and what any class called so may, the class and those
+	;that come of it, by their functions' comments, and the register it
+	;goes through as well. :nil if not known
+	(bind '(by_function class_db by_vtable &ignore) methods)
 	(case (first inst)
 		((call-p jmp-p)
 			(and (defq at (. labels :find (second inst))) (< (inc at) (length all))
@@ -188,15 +190,20 @@
 				(cat (list path) m)))
 		((call-rc jmp-rc)
 			(when (> (length inst) 4)
-				(defq class (elem-get inst 3) method (elem-get inst 4) found :nil of class
-					name (cat (str class) " " (str method) ", by its vtable"))
-				;said by the class, or the nearest above it that does
-				(while (and (not found) class (nql class :nil) (defq entry (. class_db :find class)))
-					(and (defq m (.-> entry (:find :methods) (:find method))) (. m :find :declared) (setq found m))
-					(setq class (. entry :find :parent)))
-				(if found (list name (bits-of (regs-of (. found :find :declared)))
-						(declared-of class_db of method :dec_inputs)
-						(declared-of class_db of method :dec_outputs)))))))
+				(defq class (elem-get inst 3) method (elem-get inst 4)
+					name (cat (str class) " " (str method) ", by its vtable") key (cat (str class) " " (str method)))
+				(unless (defq trashes (. by_vtable :find key))
+					(defq trashes 0 todo (list class))
+					(while (defq c (pop todo))
+						(when (defq entry (. class_db :find c))
+							(if (defq m (.-> entry (:find :methods) (:find method)))
+								(setq trashes (logior trashes (bits-of (regs-of (. m :find :trashes))))))
+							(each (# (push todo %0)) (. entry :find :subclasses))))
+					(. by_vtable :insert key trashes))
+				(and (defq entry (. class_db :find class)) (.-> entry (:find :methods) (:find method))
+					(list name (logior trashes (bit-of (second inst)))
+						(declared-of class_db class method :dec_inputs)
+						(declared-of class_db class method :dec_outputs)))))))
 
 ;module
 (defq *vp_root* +obj_dir)

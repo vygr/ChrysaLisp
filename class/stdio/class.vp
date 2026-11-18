@@ -117,7 +117,7 @@
 
 	;flush remaining stdout, stderr
 	(vp-push this)
-	(call :out :flush `((,this +stdio_stderr)))
+	(call :out :flush `((,this +stdio_stderr)) :nil :r1)
 
 	;send stopping on stderr, and on stdout. Each is a stream of its own,
 	;and what reads them, a pipe, has them in whatever order they come.

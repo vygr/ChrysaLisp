@@ -307,11 +307,9 @@ Follow this 7-step discipline when designing VP routines:
 
 ## Declared Trashes, And What May Lean On Them (2026-10-13)
 
-What a method trashes is in its declaration, `(dec-method name function type
-in out trashes own)` in the `class.inc`, and in the `;trashes` line of the
-function. `trashes` is what a call may trash, of a virtual method what any
-class called so may. `own` is what the one function does. Both are written
-by `trace -w` from a build, never by hand.
+What a function trashes is in the `;trashes` line of its comment, written by
+`trace -w` from a build, never by hand. Not in the `(dec-method)`. A call by
+the vtable may trash what any class called so does.
 
 *	**Never make a function trash more than it does.** Hand-tuned callers
 	lean on what it leaves. To trash less is always safe.
@@ -337,9 +335,10 @@ by `trace -w` from a build, never by hand.
 	`trace -w` writes them. If it ever says the same thing twice, look
 	there, `(database-stale?)` in `lib/files/info.inc`.
 
-*	**A call by the vtable** goes through a register the method trashes
-	anyway and does not take, `(dispatch-reg)`, not `:r14`. Give one at the
-	call only for a reason.
+*	**A call by the vtable** goes through `:r14` unless it is given another.
+	Give one only having looked at the trashes comments of the method, of
+	every class called so. `relies` says if a register is read after a call
+	that went through it.
 
 *	**A change of task keeps nothing** but what the translator needs for
 	its stack. `:sys_task :sleep` and `:sys_mail :read` push their caller's

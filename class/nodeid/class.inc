@@ -3,7 +3,7 @@
 
 (def-class :nodeid :str
 	(dec-method :vtable class/nodeid/vtable)
-	(dec-method :type class/nodeid/type :override :nil :nil (:r1-:r3 :d0-:d15))
-	(dec-method :create class/nodeid/create :static (:r0) (:r0) (:r0-:r5 :d0-:d15))
-	(dec-method :eql class/nodeid/eql :final :nil :nil (:r1-:r4))
-	(dec-method :hash class/nodeid/hash :final :nil :nil (:r1-:r2)))
+	(dec-method :type class/nodeid/type :override)
+	(dec-method :create class/nodeid/create :static (:r0) (:r0))
+	(dec-method :eql class/nodeid/eql :final)
+	(dec-method :hash class/nodeid/hash :final))

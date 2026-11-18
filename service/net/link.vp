@@ -477,7 +477,7 @@
 	(assign `((,iter_begin 0)) '(:r4))
 	(vpif '(:r4 = :r3))
 		(assign '((@ sys/statics/statics)) '(:r7))
-		(call :array :erase `((:r7 statics_sys_mail_links_array) ,iter_begin))
+		(call :array :erase `((:r7 statics_sys_mail_links_array) ,iter_begin) :nil :r2)
 		(goto 'conn_done)
 	(endif)
 	(vp-add-cr +ptr_size iter_begin)

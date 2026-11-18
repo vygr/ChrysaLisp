@@ -97,7 +97,7 @@
 						(assign '(:r1) '((:rsp slot_rec)))
 						(call :num :ref '(:r2))
 						(load-fields :rsp '(slot_rec slot_idnum) '(:r0 :r1))
-						(call :list :set_elem '(:r0 :r1 0))
+						(call :list :set_elem '(:r0 :r1 0) :nil :r3)
 						(load-fields :rsp '(slot_line slot_rec) '(:r13 :r1))
 						(vp-call 'collide)
 						(cond

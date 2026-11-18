@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar '*vtables* (pmap) '*supers* (pmap) '*trashes* (pmap))
+(defcvar '*vtables* (pmap) '*supers* (pmap))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -42,21 +42,6 @@
 				from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
 			(each! (# (push out (sym (cat kind (str (!)))))) '() from (inc to))
 			out) %0 (list)))
-
-;the register a call by the vtable goes through. One the method is
-;declared to trash and does not take: the call loses that one whatever
-;is done, so the call costs no register of its own. :r14 when there is
-;none such, or it is not said what the method trashes
-(defun dispatch-reg (%0 %1 %2)
-	;%0 = class name
-	;%1 = member name
-	;%2 = in parameters of the method
-	;as it was written, a part at a time, and only as far as the first
-	;that will do: this is asked at every such call there is
-	(or (some (lambda (part)
-				(if (starts-with ":r" part)
-					(some (lambda (reg) (unless (find reg %2) reg)) (trash-regs (list part)))))
-			(pfind (pfind *trashes* %0) %1)) :r14))
 
 (defun f-path (%0 %1)
 	;%0 = class name
@@ -114,17 +99,11 @@
 	(pinsert vtable mname m))
 
 (defmacro def-class (class super &rest lines)
-	; (def-class class super (dec-method name function [type regs_in regs_out trashes]) ...)
-	;trashes is the registers a call of the method may leave not as they
-	;were, ranges and all, (:r1-:r14 :d0), () for none. Not said, it is
-	;what the class above says of the method, and if none does, not known.
-	;Of a virtual method it is what any class called so may trash: the
-	;assembler keeps trashes, by itself, what a method is in a vtable is
-	;as it was
-	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap))))
-	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes))
+	; (def-class class super (dec-method name function [type regs_in regs_out]) ...)
+	;what a method trashes is said by its function's trashes comment
+	(defq vtable (copy (pfind *vtables* super)))
+	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out))
 			(setd mtype :static)
-			(if (list? trashes) (pinsert trashed mname trashes))
 			(if (defq m (pfind vtable mname))
 				;existing method
 				(case mtype
@@ -161,8 +140,7 @@
 						(throw "Method does not exist !" mname))
 					(:t (throw "Must use static, virtual, final or override ! " mtype)))))
 		lines)
-	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)
-		(pinsert *trashes* ',class ',trashed)))
+	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)))
 
 (defmacro def-method (class member)
 	`(def-func (f-path ,class ,member)))
@@ -185,7 +163,7 @@
 					(assign %2 (third m))
 					(fn-call (first m)))
 				;v-call
-				(:t (if (find (setd %4 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
+				(:t (if (find (setd %4 :r14) (defq _ (third m)))
 						(throw "Dispatch register conflicts with arg !" (list %4 _)))
 					(assign %2 _)
 					(vp-load-rcr (first _) +obj_vtable %4)
@@ -209,7 +187,7 @@
 		((eql (second (defq m (method-lookup %0 %1))) :static)
 			(assign %2 (third m))
 			(fn-jump (first m)))
-		(:t (if (find (setd %3 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
+		(:t (if (find (setd %3 :r14) (defq _ (third m)))
 				(throw "Dispatch register conflicts with arg !" (list %3 _)))
 			(assign %2 _)
 			(vp-load-rcr (first _) +obj_vtable %3)
@@ -308,7 +286,7 @@
 	;%5 = dispatch reg
 	(if (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is static ! Use f-call ?" (list %0 %1)))
-	(if (find (setd %4 :r0 %5 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
+	(if (find (setd %4 :r0 %5 :r14) (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list %5 _)))
 	(assign %2 _)
 	(vp-load-rcr %4 +obj_vtable %5)
@@ -323,7 +301,7 @@
 	;%4 = dispatch reg
 	(if (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is static ! Use f-jmp ?" (list %0 %1)))
-	(if (find (setd %3 :r0 %4 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
+	(if (find (setd %3 :r0 %4 :r14) (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list %4 _)))
 	(assign %2 _)
 	(vp-load-rcr %3 +obj_vtable %4)

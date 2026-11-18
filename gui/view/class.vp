@@ -747,7 +747,7 @@
 
 	(assign '(:r1 (:r1 slot_hit)) '(:r2 :r1))
 	(vpif '(:r1 = 0))
-		(call :view :hit '(:r0 :r7 :r8) '(:r0 :r1))
+		(call :view :hit '(:r0 :r7 :r8) '(:r0 :r1) :r1)
 		(vpif '(:r1 /= 0))
 			(assign '(:r0) '((:r2 slot_hit)))
 			(exit :view :forward_tree_callback '(:r0 :r1))

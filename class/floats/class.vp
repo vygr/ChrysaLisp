@@ -128,7 +128,7 @@
 
 	(entry :floats :fill '(:r0 :r3 :r4))
 
-	(call :floats :set_cap '(:r0 :r3) '(:r0))
+	(call :floats :set_cap '(:r0 :r3) '(:r0) :r2)
 	(assign '(:r3) '((:r0 +array_length)))
 	(assign '((:r0 +array_begin)) '(:r1))
 	(vp-shl-cr (log2 +int_size) :r3)
@@ -235,14 +235,14 @@
 
 	(entry :floats :slice `(,src ,si ,ei))
 
-	(call :floats :vcreate `(,src) `(,this))
+	(call :floats :vcreate `(,src) `(,this) :r1)
 	(vpif `(,si /= ,ei))
 		;first set the capacity/length
 		(vp-cpy-rr si total)
 		(vp-sub-rr ei total)
 		(vp-abs-rr total total)
 		(assign `(,total) `((,this +array_length)))
-		(call :floats :set_cap `(,this ,total) `(,this))
+		(call :floats :set_cap `(,this ,total) `(,this) :r2)
 		;now transfer the slice, reversed if needed
 		(assign `((,src +array_begin)) `(,total))
 		(vp-simd vp-shl-cr `(,(log2 +int_size)) `(,si ,ei))
@@ -282,7 +282,7 @@
 
 	(entry :floats :cat `(,this ,seqs))
 
-	(call :floats :vcreate `(,this) `(,this))
+	(call :floats :vcreate `(,this) `(,this) :r1)
 	(class/array/get_both seqs seqs_begin seqs_end)
 	(vpif `(,seqs_begin /= ,seqs_end))
 		;first set the capacity/length
@@ -294,7 +294,7 @@
 			(vp-add-rr len total)
 		(loop-until `(,seqs_begin = ,seqs_end))
 		(assign `(,total) `((,this +array_length)))
-		(call :floats :set_cap `(,this ,total) `(,this))
+		(call :floats :set_cap `(,this ,total) `(,this) :r2)
 		;now transfer the sequences
 		(assign `((,this +array_begin) (,seqs +array_begin)) `(,di ,seqs_begin))
 		(loop-start)
@@ -334,7 +334,7 @@
 
 	(entry :floats :splice `(,src1 ,src2 ,idxs))
 
-	(call :floats :vcreate `(,src1) `(,this))
+	(call :floats :vcreate `(,src1) `(,this) :r1)
 	(class/array/get_both idxs idx_begin idx_end)
 	(vpif `(,idx_begin /= ,idx_end))
 		;first set the capacity/length
@@ -356,7 +356,7 @@
 			(vp-add-rr ei total)
 		(loop-until `(,idx_begin = ,idx_end))
 		(assign `(,total) `((,this +array_length)))
-		(call :floats :set_cap `(,this ,total) `(,this))
+		(call :floats :set_cap `(,this ,total) `(,this) :r2)
 		;now transfer the slices
 		(assign `((,this +array_begin) (,idxs +array_begin)) `(,di ,idx_begin))
 		(vp-cpy-rr src1 swp_xor)
@@ -421,7 +421,7 @@
 		(vp-sub-rr si ei)
 		(assign `((& ,ei ,di)) `(,that))
 		(assign `(,that) `((,this +array_length)))
-		(call :floats :set_cap `(,this ,that) `(,this))
+		(call :floats :set_cap `(,this ,that) `(,this) :r2)
 
 		;append elements
 		(assign `((,saved_that +array_begin)) `(,that))
@@ -600,7 +600,7 @@
 			(assign '((:r4 0 ui)) '(:r0))
 			(assign '((:rsp slot_this)) '(:r1))
 			(v-call :floats :velement '(:r0) '(:r0) :r1 :r1)
-			(call :num :print '(:r0 (:rsp slot_stream)) '(:r0))
+			(call :num :print '(:r0 (:rsp slot_stream)) '(:r0) :r2)
 			(call :num :deref '(:r0))
 			(load-fields :rsp '(slot_iter_begin slot_iter_end) '(:r4 :r2))
 			(vp-add-cr +int_size :r4)
@@ -652,7 +652,7 @@
 			(vp-cpy-rr len arg)
 			(vp-add-cr 1 arg)
 			(assign `(,arg) `((,saved +array_length)))
-			(call :floats :set_cap `(,saved ,arg))
+			(call :floats :set_cap `(,saved ,arg) :nil :r2)
 			(vp-pop tmp len)
 			(assign `((,saved +array_begin)) `(,arg))
 			(vp-shl-cr (log2 +int_size) len)
@@ -663,7 +663,7 @@
 			(nextcaseif `(,tmp = 0))
 			;a floats, its elements
 			(assign `((,arg +array_length)) `(,len))
-			(call :floats :append `(,saved ,arg 0 ,len))
+			(call :floats :append `(,saved ,arg 0 ,len) :nil :r6)
 			(break)
 		(default)
 			(call :obj :inst_of `(,arg (@ ,(f-path :array :vtable))) `(,arg ,tmp))
@@ -685,7 +685,7 @@
 			(vp-push tmp len arg)
 			(vp-add-rr len arg)
 			(assign `(,arg) `((,saved +array_length)))
-			(call :floats :set_cap `(,saved ,arg))
+			(call :floats :set_cap `(,saved ,arg) :nil :r2)
 			(vp-pop tmp len arg)
 			(assign `((,saved +array_begin)) `(,this))
 			(vp-shl-cr (log2 +int_size) arg)

@@ -64,7 +64,7 @@
 	(lisp-this :r0)
 	(vp-pop :r2)
 	(vpif '(:r2 = 0))
-		(call :stream :flush '((:r0 +lisp_stdout)))
+		(call :stream :flush '((:r0 +lisp_stdout)) :nil :r1)
 		(lisp-this :r0)
 	(endif)
 	(vp-pop :r1)

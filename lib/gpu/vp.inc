@@ -1692,7 +1692,7 @@
 								tab "(vp-store-rrc :r3 :r13 " (str offset) ")" lf))))) (cat params '((_ :float))) (cat offsets '(0)))
 		makes (if (> count 1)
 			(cat tab "(call :doubles :create :nil '(:r0))" lf
-				tab "(call :doubles :set_cap '(:r0 " (str count) ") '(:r0))" lf
+				tab "(call :doubles :set_cap '(:r0 " (str count) ") '(:r0) :r2)" lf
 				tab "(call :doubles :set_length '(:r0 " (str count) ") '(:r0 _))" lf
 				tab "(vp-store-rrc :r0 :rsp " (str s_gives) ")" lf) "")
 		reach (if (> count 1)

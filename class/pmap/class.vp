@@ -121,7 +121,7 @@
 	(entry :pmap :pinsert `(,this ,key ,saved_value))
 	(assign `(,key) `(,saved_key))
 
-	(call :pmap :pfind `(,this ,key) `(,this ,iter _ _))
+	(call :pmap :pfind `(,this ,key) `(,this ,iter _ _) :r2)
 	(vpif `(,iter /= 0))
 		;have old key
 		(assign `((,iter +ptr_size)) `(,old_value))

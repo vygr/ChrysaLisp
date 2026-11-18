@@ -119,7 +119,7 @@
 				(assign '(:r1) '((:r0 statics_lisp_root_env)))
 			(vp-label 'error)
 				;deinit myself and parent
-				(call :lisp :deinit '((:rsp slot_this)))
+				(call :lisp :deinit '((:rsp slot_this)) :nil :r1)
 			(else)
 				;save shared boot env
 				(assign '((:rsp slot_this)) '(:r0))
@@ -216,7 +216,7 @@
 			(assign '((:rsp slot_this)) '(:r0))
 			(call :stream :write_char `((:r0 +lisp_stderr) ,+char_lf))
 			(assign '((:rsp slot_this)) '(:r0))
-			(call :stream :flush '((:r0 +lisp_stderr)))
+			(call :stream :flush '((:r0 +lisp_stderr)) :nil :r1)
 			(vp-xor-rr :r0 :r0)
 			(assign '(:r0) '((:rsp slot_stream)))
 		(endif)

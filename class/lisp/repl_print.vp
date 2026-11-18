@@ -30,7 +30,7 @@
 	(assign `((:r2 +obj_vtable) (@ ,(f-path :list :vtable))) '(:r4 :r5))
 	(vpif '(:r4 /= :r5))
 		;default to whatever the object does
-		(call :obj :print '(:r2 :r1))
+		(call :obj :print '(:r2 :r1) :nil :r2)
 		(lisp-this :r0)
 		(exit :lisp :repl_print '(:r0))
 		(vp-ret)

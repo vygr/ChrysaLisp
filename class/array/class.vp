@@ -201,7 +201,7 @@
 		;double the capacity
 		(vp-add-rr begin begin)
 		(vp-push elm)
-		(call :array :set_cap `(,this ,begin) `(,this))
+		(call :array :set_cap `(,this ,begin) `(,this) :r2)
 		(assign `((,this +array_length)) `(,end))
 		(vp-pop elm)
 	(endif)
@@ -241,7 +241,7 @@
 		;double the capacity
 		(vp-add-rr begin begin)
 		(vp-push elm1 elm2)
-		(call :array :set_cap `(,this ,begin) `(,this))
+		(call :array :set_cap `(,this ,begin) `(,this) :r2)
 		(assign `((,this +array_length)) `(,end))
 		(vp-pop elm1 elm2)
 	(endif)
@@ -538,7 +538,7 @@
 		(vp-sub-rr si ei)
 		(assign `((& ,ei ,di)) `(,that))
 		(assign `(,that) `((,this +array_length)))
-		(call :array :set_cap `(,this ,that) `(,this))
+		(call :array :set_cap `(,this ,that) `(,this) :r2)
 
 		;append elements
 		(class/array/get_iters saved_that saved_si saved_ei that)
@@ -582,7 +582,7 @@
 			(vp-load-rcr :r4 0 :r0)
 			(assign '((:rsp slot_this)) '(:r1))
 			(v-call :array :velement '(:r0) '(:r0) :r1 :r1)
-			(call :num :print '(:r0 (:rsp slot_stream)) '(:r0))
+			(call :num :print '(:r0 (:rsp slot_stream)) '(:r0) :r2)
 			(call :num :deref '(:r0))
 			(load-fields :rsp '(slot_iter_begin slot_iter_end) '(:r4 :r2))
 			(vp-add-cr +long_size :r4)
@@ -712,7 +712,7 @@
 
 	(entry :array :cat `(,this ,seqs))
 
-	(call :array :vcreate `(,this) `(,this))
+	(call :array :vcreate `(,this) `(,this) :r1)
 	(class/array/get_both seqs seqs_begin seqs_end)
 	(vpif `(,seqs_begin /= ,seqs_end))
 		;first set the capacity/length
@@ -724,7 +724,7 @@
 			(vp-add-rr len total)
 		(loop-until `(,seqs_begin = ,seqs_end))
 		(assign `(,total) `((,this +array_length)))
-		(call :array :set_cap `(,this ,total) `(,this))
+		(call :array :set_cap `(,this ,total) `(,this) :r2)
 		;now transfer the sequences
 		(assign `((,this +array_begin) (,seqs +array_begin)) `(,di ,seqs_begin))
 		(loop-start)
@@ -761,14 +761,14 @@
 
 	(entry :array :slice `(,src ,si ,ei))
 
-	(call :array :vcreate `(,src) `(,this))
+	(call :array :vcreate `(,src) `(,this) :r1)
 	(vpif `(,si /= ,ei))
 		;first set the capacity/length
 		(vp-cpy-rr si total)
 		(vp-sub-rr ei total)
 		(vp-abs-rr total total)
 		(assign `(,total) `((,this +array_length)))
-		(call :array :set_cap `(,this ,total) `(,this))
+		(call :array :set_cap `(,this ,total) `(,this) :r2)
 		;now transfer the slice, reversed if needed
 		(class/array/get_iters src si ei)
 		(assign `((,this +array_begin)) `(,di))
@@ -807,7 +807,7 @@
 
 	(entry :array :splice `(,src1 ,src2 ,idxs))
 
-	(call :array :vcreate `(,src1) `(,this))
+	(call :array :vcreate `(,src1) `(,this) :r1)
 	(class/array/get_both idxs idx_begin idx_end)
 	(vpif `(,idx_begin /= ,idx_end))
 		;first set the capacity/length
@@ -829,7 +829,7 @@
 			(vp-add-rr ei total)
 		(loop-until `(,idx_begin = ,idx_end))
 		(assign `(,total) `((,this +array_length)))
-		(call :array :set_cap `(,this ,total) `(,this))
+		(call :array :set_cap `(,this ,total) `(,this) :r2)
 		;now transfer the slices
 		(assign `((,this +array_begin) (,idxs +array_begin)) `(,di ,idx_begin))
 		(vp-cpy-rr src1 swp_xor)
@@ -883,7 +883,7 @@
 
 	(entry :array :fill '(:r0 :r3 :r4))
 
-	(call :array :set_cap '(:r0 :r3) '(:r0))
+	(call :array :set_cap '(:r0 :r3) '(:r0) :r2)
 	(assign '(:r3) '((:r0 +array_length)))
 	(class/array/get_both :r0 :r1 :r2)
 	(vpif '(:r1 /= :r2))
@@ -946,7 +946,7 @@
 	(assign `((,obj +array_length)) `(,len))
 	(vp-cpy-rr len old_len)
 	(vp-add-rr argc len)
-	(call :array :set_cap `(,obj ,len) `(,obj))
+	(call :array :set_cap `(,obj ,len) `(,obj) :r2)
 	(assign `(,len) `((,obj +array_length)))
 
 	;append the data

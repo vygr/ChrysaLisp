@@ -29,7 +29,7 @@
 	(gotoif `(,len < 6) 'error)
 	(vpif `(,argc = 2))
 		(call :fixeds :create :nil `(,dst))
-		(call :fixeds :set_cap `(,dst 6) `(,dst))
+		(call :fixeds :set_cap `(,dst 6) `(,dst) :r2)
 		(call :fixeds :set_length `(,dst 6) `(,dst _))
 	(else)
 		(vp-load-rcr iter_begin (* +ptr_size 2) dst)

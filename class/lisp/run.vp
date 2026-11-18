@@ -28,7 +28,7 @@
 	(vp-pop :r1)
 	(vpif '(:r0 = 0))
 		;script failed to load - flush error output from sstream
-		(call :stream :flush '(:r1) '(:r0))
+		(call :stream :flush '(:r1) '(:r0) :r1)
 		(call :obj :deref '(:r0))
 	(else)
 		(vp-push :r0)
@@ -49,11 +49,11 @@
 			(assign '((:r1 +obj_vtable) (:r2 +lisp_error)) '(:r3 :r4))
 			(vpif '(:r3 = :r4))
 				;error in main
-				(call :obj :print '(:r1 (:r2 +lisp_stderr)))
+				(call :obj :print '(:r1 (:r2 +lisp_stderr)) :nil :r2)
 				(assign `((:rsp ,(* 2 +ptr_size))) '(:r0))
 				(call :stream :write_char '((:r0 +lisp_stderr) +char_lf))
 				(assign `((:rsp ,(* 2 +ptr_size))) '(:r0))
-				(call :stream :flush '((:r0 +lisp_stderr)))
+				(call :stream :flush '((:r0 +lisp_stderr)) :nil :r1)
 			(endif)
 			(vp-pop :r0)
 			(call :obj :deref '(:r0))

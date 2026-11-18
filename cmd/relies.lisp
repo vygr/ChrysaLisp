@@ -39,7 +39,8 @@
     what each instruction reads and writes. A call reads what
     its method takes and writes what it gives. A register
     wanted after a call, that the call is declared to trash
-    and does not give, is such a place.
+    and does not give, is such a place. A call by the vtable
+    trashes the register it goes through as well.
 
     Two things called are left out. What does not come back,
     :sys_pii :exit, the dump of a task, and the reports of a

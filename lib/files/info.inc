@@ -204,17 +204,13 @@
 										more (if kinded (rest more) more)
 										methods_map (.-> class_db (:find active_class) (:find :methods))
 										dec_inputs (if (> (length more) 0) (node-regs (first more)) "none")
-										dec_outputs (if (> (length more) 1) (node-regs (second more)) "none")
-										;what it is declared to trash, as (format-regs) writes
-										;registers, "none" for (), and :nil if it is not said
-										declared (and (> (length more) 2) (tree-form? (third more)) (node-regs (third more))))
+										dec_outputs (if (> (length more) 1) (node-regs (second more)) "none"))
 									(. methods_map :insert method_name (scatter (Emap)
 											:type mtype
 											:function dec_func_name
 											:inputs dec_inputs
 											:outputs dec_outputs
 											:trashes "none"
-											:declared declared
 											;what it takes and gives as it is declared here, "none"
 											;if not said: :inputs and :outputs are made what the
 											;function's comment says, and a function may be many methods

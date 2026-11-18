@@ -441,12 +441,12 @@ The `(dec-method)` function takes the lists of input and output parameter
 registers. If the list of inputs or outputs is `:nil` this means to inherit the
 list from the parent class declaration.
 
-After them it takes the registers a call of the method may leave not as they
-were, its trashes, ranges and all: `(:r1-:r8 :r14 :d0-:d15)`, `()` for none.
-Of a virtual method it is what any class that may be called so trashes. It is
-not written by hand: `trace -w`, which works out what each function really
-trashes, writes it, and `lint` says where a declaration is not what the code
-does. A method written in line in its `class.inc` has none.
+What a method trashes is not in its declaration, it is the `;trashes` comment
+of its function. `trace -w`, which works out what each function really
+trashes, writes it, and `lint` says where a comment is not what the code does.
+A call by the vtable goes through `:r14`, unless the call gives another
+register. Give one only having looked at the trashes of the method, of every
+class that may be called so.
 
 An example from the array class.inc.
 

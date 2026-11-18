@@ -41,7 +41,7 @@
 	(array-bind-args args `(,dlist ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
-		(call :list :set_cap `(,dlist (,args +array_length)) `(,dlist))
+		(call :list :set_cap `(,dlist (,args +array_length)) `(,dlist) :r2)
 		(loop-start)
 			(d-call :list :find `(,dlist (,iter_begin 0) 0) `(,dlist ,args tmp))
 			(vp-add-cr +ptr_size iter_begin)

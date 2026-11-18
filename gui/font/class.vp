@@ -283,7 +283,7 @@
 	(entry :font :glyph_info `(,this ,utf8))
 
 	(call :array :create :nil `(,info))
-	(call :array :set_cap `(,info (,utf8 +str_length)) `(,info))
+	(call :array :set_cap `(,info (,utf8 +str_length)) `(,info) :r2)
 	(assign `((& ,utf8 +str_data)) `(,data))
 	(loop-start)
 		(call :sys_str :read_utf8 `(,data) `(,data ,c))
@@ -661,7 +661,7 @@
 		(assign '(:r0) '((:rsp slot_this)))
 		(call :list :create :nil '(:r0))
 		(assign '(:r0) '((:rsp slot_chars)))
-		(call :list :set_cap `(:r0 ,(- 127 33)))
+		(call :list :set_cap `(:r0 ,(- 127 33)) :nil :r2)
 		;the code is a C string of one char, the bytes above it 0
 		(assign '(33) '(:r0))
 		(assign '(:r0) '((:rsp slot_code)))
@@ -715,7 +715,7 @@
 	(save-fields :rsp '(slot_flat_set slot_index) '(:r0 :r1))
 	(vpif '(:r0 /= 0))
 		(loop-start)
-			(call :array :get_length '((:rsp slot_flat_set)) '(_ :r1))
+			(call :array :get_length '((:rsp slot_flat_set)) '(_ :r1) :r1)
 			(assign '((:rsp slot_index)) '(:r2))
 			(breakif '(:r1 = :r2))
 			(call :list :get_elem '((:rsp slot_flat_set) :r2) '(_ :r0))

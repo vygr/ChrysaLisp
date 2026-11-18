@@ -81,7 +81,7 @@
 
 	;flush any data
 	(vp-push :r0)
-	(call :fstream :flush '(:r0) '(:r0))
+	(call :fstream :flush '(:r0) '(:r0) :r1)
 	;close file
 	(call :host_os :pii_close '((:r0 +fstream_handle)))
 	(vp-pop :r0)
@@ -137,7 +137,7 @@
 
 	;flush any read/write data
 	(vp-push :r0)
-	(call :fstream :flush '(:r0) '(:r0))
+	(call :fstream :flush '(:r0) '(:r0) :r1)
 
 	;set read mode
 	(vp-cpy-cr +file_open_read :r1)
@@ -208,7 +208,7 @@
 	(vpif '(:r2 >= :r3))
 		;flush any read/write data, and set read mode
 		(vp-push :r1 :r2)
-		(call :fstream :flush '(:r0) '(:r0))
+		(call :fstream :flush '(:r0) '(:r0) :r1)
 		(vp-cpy-cr +file_open_read :r1)
 		(assign '(:r1) '((:r0 +fstream_mode)))
 		(vp-pop :r1 :r2)
@@ -245,7 +245,7 @@
 	(vpif '(:r2 >= :r3))
 		;flush any read/write data, and set write mode
 		(vp-push :r1 :r2)
-		(call :fstream :flush '(:r0) '(:r0))
+		(call :fstream :flush '(:r0) '(:r0) :r1)
 		(vp-cpy-cr +file_open_write :r1)
 		(assign '(:r1) '((:r0 +fstream_mode)))
 		(vp-pop :r1 :r2)
@@ -302,7 +302,7 @@
 		(endif)
 	(endif)
 
-	(call :fstream :flush '(:r0) '(:r0))
+	(call :fstream :flush '(:r0) '(:r0) :r1)
 	(call :host_os :pii_seek '((:r0 +fstream_handle) (:rsp slot_off) (:rsp slot_pos)) '(:r1))
 
 	(exit :fstream :seek '((:rsp slot_this) :r1))

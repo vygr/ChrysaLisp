@@ -37,7 +37,7 @@
 		(assign '((:r2 +array_capacity)) '(:r4))
 		(vpif '(:r3 > :r4))
 			(vp-cpy-rr :r0 :r10)
-			(call :array :set_cap '(:r2 :r3))
+			(call :array :set_cap '(:r2 :r3) :nil :r2)
 			(vp-cpy-rr :r10 :r0)
 			(assign '((:rsp slot_form)) '(:r1))
 		(endif)

@@ -18,7 +18,7 @@
 
 	(vp-cpy-rr :r0 :r13)
 	(list-bind-args :r1 '(:r0 :r1) '(:obj :obj))
-	(call :double :quant '(:r0 :r1) '(:r1))
+	(call :double :quant '(:r0 :r1) '(:r1) :r2)
 
 	(exit :double :lisp_quant '(:r13 :r1))
 	(vp-ret)

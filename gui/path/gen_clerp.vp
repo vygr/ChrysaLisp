@@ -83,7 +83,7 @@
 			(d-call :array :get_length '((:rsp slot_stack)) '(_ :r1))
 			(vp-add-cr 4 :r1)
 			(assign '(:r1) '((:rsp slot_length)))
-			(call :array :set_cap '((:rsp slot_stack) :r1))
+			(call :array :set_cap '((:rsp slot_stack) :r1) :nil :r2)
 			(call :array :get_end '((:rsp slot_stack)) '(_ (:rsp slot_iter_end)))
 			(call :array :set_length '((:rsp slot_stack) (:rsp slot_length)))
 			;the two halves to the stack of vectors, loaded in the order they lie in

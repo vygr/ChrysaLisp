@@ -84,7 +84,7 @@
 	(vp-mul-cr 3 t)
 	(vp-add-cr 6 t)
 	;which leaves all but d and t
-	(call :array :set_cap `(,d ,t))
+	(call :array :set_cap `(,d ,t) :nil :r2)
 
 	(assign `((,aiter +array_length) (,aiter +array_begin) (,ebase +array_begin)) `(,aend ,aiter ,ebase))
 	(vp-shl-cr (log2 +long_size) aend)
@@ -406,7 +406,7 @@
 	;room in below for the bottom of each piece
 	(assign `((,oiter +array_length)) `(,b))
 	(vp-add-cr 6 b)
-	(call :array :set_cap `(,bw ,b))
+	(call :array :set_cap `(,bw ,b) :nil :r2)
 	;and in segs for the two sides of each, and a line across for each
 	;end of a piece of this band and of the band above
 	(load-fields :rsp '(slot_out slot_above slot_segs) `(,oiter ,i ,a))
@@ -416,7 +416,7 @@
 	(vp-add-rr t b)
 	(vp-add-rr i b)
 	(vp-add-cr 10 b)
-	(call :array :set_cap `(,a ,b))
+	(call :array :set_cap `(,a ,b) :nil :r2)
 
 	(load-fields :rsp '(slot_out slot_y0 slot_y1 slot_below slot_segs slot_openl slot_openr) `(,oiter ,y0 ,y1 ,bw ,sbase ,ol ,or))
 	(assign `((,oiter +array_length) (,sbase +array_length)) `(,oend ,sw))
@@ -782,7 +782,8 @@
 				(call :path :create :nil '(:r0))
 				(assign '((:rsp slot_bytes)) '(:r1))
 				(vp-shr-cr (log2 +long_size) :r1)
-				(call :array :set_cap '(:r0 :r1) '(:r0))
+				;by :r2, :r14 is wanted after
+				(call :array :set_cap '(:r0 :r1) '(:r0) :r2)
 				(assign '(:r0 (:rsp slot_bytes)) '((:rsp slot_newp) :r2))
 				(vp-cpy-rr :r2 :r1)
 				(vp-shr-cr (log2 +long_size) :r1)
@@ -943,10 +944,10 @@
 	(call :sys_mem :alloc '(:r1) '(:r0 _))
 	(assign '(:r0 (:rsp slot_points)) '((:rsp slot_mem) :r1))
 	(vp-mul-cr (/ +pe_size +long_size) :r1)
-	(call :array :set_cap '((:rsp slot_edges) :r1))
-	(call :array :set_cap '((:rsp slot_ys) (:rsp slot_points)))
-	(call :array :set_cap '((:rsp slot_openl) (:rsp slot_points)))
-	(call :array :set_cap '((:rsp slot_openr) (:rsp slot_points)))
+	(call :array :set_cap '((:rsp slot_edges) :r1) :nil :r2)
+	(call :array :set_cap '((:rsp slot_ys) (:rsp slot_points)) :nil :r2)
+	(call :array :set_cap '((:rsp slot_openl) (:rsp slot_points)) :nil :r2)
+	(call :array :set_cap '((:rsp slot_openr) (:rsp slot_points)) :nil :r2)
 
 	;the edges and the heights, as they are met
 	(load-fields :rsp '(slot_edges slot_ys) `(,eptr ,yptr))
@@ -1178,8 +1179,8 @@
 	(pc-push 'slot_cargs 'slot_edges 'slot_active 'slot_ya 'slot_yb)
 	(pc-made 'slot_cargs 'slot_cuts)
 	;every edge can be in a band at once, and a band cut has its two heights
-	(call :array :set_cap '((:rsp slot_active) (:rsp slot_n)))
-	(call :array :set_cap '((:rsp slot_cuts) 2))
+	(call :array :set_cap '((:rsp slot_active) (:rsp slot_n)) :nil :r2)
+	(call :array :set_cap '((:rsp slot_cuts) 2) :nil :r2)
 
 	(loop-start 'bands)
 		;the band from this height to the next, if there is a next

@@ -22,7 +22,7 @@
 	(assign `((,nums +array_length)) `(,len))
 	(gotoif `(,len < 4) 'error)
 
-	(call :array :slice `(,nums 0 4) `(,nums))
+	(call :array :slice `(,nums 0 4) `(,nums) :r3)
 	(assign `((,nums +array_begin)) `(,iter))
 	(vp-simd vp-load-rcr `(,iter)
 		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size))

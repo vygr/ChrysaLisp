@@ -550,7 +550,7 @@
 	;3: info
 	(call :str :ref '((:rsp slot_tmp1)))
 	(call :list :push_back2 '((:rsp slot_cat) (:rsp slot_tmp1) (:rsp slot_info)))
-	(call :str :cat '((:rsp slot_name) (:rsp slot_cat)) '((:rsp slot_name)))
+	(call :str :cat '((:rsp slot_name) (:rsp slot_cat)) '((:rsp slot_name)) :r2)
 	(call :list :destroy '((:rsp slot_cat)))
 
 	(exit :sys_mail :service '((:rsp slot_name)))
@@ -599,7 +599,7 @@
 		(call :nodeid :destroy '((:rsp slot_key)))
 	(endif)
 	(call :host_os :pii_time :nil '((:rsp slot_time)))
-	(call :array :set_elem `((:rsp slot_tuple) (:rsp slot_time) ,+node_time))
+	(call :array :set_elem `((:rsp slot_tuple) (:rsp slot_time) ,+node_time) :nil :r3)
 	(call :array :get_first '((:rsp slot_tuple)) '(_ (:rsp slot_set)))
 	(call :sys_mail :service '((:rsp slot_name) (:rsp slot_id) (:rsp slot_info)) '((:rsp slot_name)))
 	(call :hset :cinsert '((:rsp slot_set) (:rsp slot_name) (@ class/sym/eql_str)))
@@ -712,7 +712,7 @@
 	(class/array/get_elem :r2 :r0 :r0 :r2)
 	(call :hset :cfind `(:r0 :r1 (@ ,(f-path :sym :eql_str))) '(:r0 :r1 :r2))
 	(vpif '(:r1 /= 0))
-		(jump :list :erase '(:r2 :r1))
+		(jump :list :erase '(:r2 :r1) :r2)
 	(endif)
 
 	(exit :hmap :each_callback '())
@@ -730,7 +730,7 @@
 	(vp-xor-rr :r7 :r7)
 	(vpif '(:r5 /= :r6))
 		(loop-start)
-			(call :str :hash '((:r5 0)) '(_ :r1))
+			(call :str :hash '((:r5 0)) '(_ :r1) :r1)
 			(vp-add-rr :r1 :r7)
 			(vp-add-cr (* +ptr_size 2) :r5)
 		(loop-until '(:r5 = :r6))
@@ -743,7 +743,7 @@
 	(endif)
 	(assign '(:r7) '((:rsp slot_hash)))
 	;the services follow the header only in a full ping
-	(call :str :cat `((:rsp (+ slot_cat cat_lf)) (:rsp (+ slot_cat ,field))) '(:r0))
+	(call :str :cat `((:rsp (+ slot_cat cat_lf)) (:rsp (+ slot_cat ,field))) '(:r0) :r2)
 	(assign '((:rsp slot_full)) '(:r2))
 	(vp-xor-rr :r1 :r1)
 	(vpif '(:r2 /= 0))

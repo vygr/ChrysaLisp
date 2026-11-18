@@ -5,18 +5,18 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class :sys_math :nil
-	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0) (:r0-:r3 :d0-:d15))
-	(dec-method :q_sqrt sys/math/q_sqrt :static (:r0) (:r0) (:r0-:r1 :d0-:d1))
-	(dec-method :q_sin sys/math/q_sin :static (:r0) (:r0) (:r0-:r2 :d0-:d3))
-	(dec-method :q_cos sys/math/q_cos :static (:r0) (:r0) (:r0-:r2 :d0-:d3))
-	(dec-method :q_intersect sys/math/q_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1) (:r0-:r2 :r8-:r13))
-	(dec-method :q_dist_sqd sys/math/q_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0) (:r0-:r3 :r6-:r10))
-	(dec-method :d_sin sys/math/d_sin :static (:d0) (:d0) (:r0-:r1 :d0-:d3))
-	(dec-method :d_pow sys/math/d_pow :static (:d0 :d1) (:d0) (:r0-:r2 :d0-:d7))
-	(dec-method :d_exp sys/math/d_exp :static (:d0) (:d0) (:r0-:r2 :d0-:d3))
-	(dec-method :d_log sys/math/d_log :static (:d0) (:d0) (:r0-:r2 :d0-:d3))
-	(dec-method :q_exp sys/math/q_exp :static (:r0) (:r0) (:r0-:r2 :d0-:d3))
-	(dec-method :q_log sys/math/q_log :static (:r0) (:r0) (:r0-:r2 :d0-:d3)))
+	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0))
+	(dec-method :q_sqrt sys/math/q_sqrt :static (:r0) (:r0))
+	(dec-method :q_sin sys/math/q_sin :static (:r0) (:r0))
+	(dec-method :q_cos sys/math/q_cos :static (:r0) (:r0))
+	(dec-method :q_intersect sys/math/q_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1))
+	(dec-method :q_dist_sqd sys/math/q_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
+	(dec-method :d_sin sys/math/d_sin :static (:d0) (:d0))
+	(dec-method :d_pow sys/math/d_pow :static (:d0 :d1) (:d0))
+	(dec-method :d_exp sys/math/d_exp :static (:d0) (:d0))
+	(dec-method :d_log sys/math/d_log :static (:d0) (:d0))
+	(dec-method :q_exp sys/math/q_exp :static (:r0) (:r0))
+	(dec-method :q_log sys/math/q_log :static (:r0) (:r0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fixed point vector math codegen

@@ -185,13 +185,13 @@
 
 	(call :stream :write_cstr '((:rsp slot_stream) " Frame: "))
 	(assign '((:rsp slot_this)) '(:r0))
-	(call :obj :print '((:r0 +error_frame) (:rsp slot_stream)))
+	(call :obj :print '((:r0 +error_frame) (:rsp slot_stream)) :nil :r2)
 
 	(call :stream :write_cstr '((:rsp slot_stream) " Obj: "))
 	(call :str :create_from_buffer `(0 ,str_gap) '((:rsp slot_string)))
 	(call :sstream :create '((:rsp slot_string)) '((:rsp slot_sstream)))
 	(assign '((:rsp slot_this)) '(:r0))
-	(call :obj :print '((:r0 +error_object) (:rsp slot_sstream)))
+	(call :obj :print '((:r0 +error_object) (:rsp slot_sstream)) :nil :r2)
 	(call :sstream :ref_string '((:rsp slot_sstream)) '(_ (:rsp slot_string)))
 	(call :obj :destroy '((:rsp slot_sstream)))
 	;no more than 256 chars of it

@@ -255,7 +255,7 @@
 	(vp-push :r0)
 	(defq in (method-input :stream :flush))
 	(array-bind-args :r1 in)
-	(call :stream :flush in '(:r1))
+	(call :stream :flush in '(:r1) :r1)
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 
@@ -285,7 +285,7 @@
 	(vp-push :r0)
 	(defq in (method-input :stream :seek))
 	(list-bind-args :r1 in '(:stream :num :num))
-	(call :stream :seek in '(_ :r0))
+	(call :stream :seek in '(_ :r0) :r3)
 	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 

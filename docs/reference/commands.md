@@ -1309,10 +1309,12 @@ Usage: relies [options] [function] ...
     what each instruction reads and writes. A call reads what
     its method takes and writes what it gives. A register
     wanted after a call, that the call is declared to trash
-    and does not give, is such a place.
+    and does not give, is such a place. A call by the vtable
+    trashes the register it goes through as well.
 
     Two things called are left out. What does not come back,
-    :sys_pii :exit. And a walk that calls back to what called
+    :sys_pii :exit, the dump of a task, and the reports of a
+    validate build that end in one. And a walk that calls back to what called
     it, :view :forward_tree: it is declared to trash every
     register, it can not know what it is given to call, and
     what gives it the callbacks keeps in registers what they
@@ -1782,8 +1784,7 @@ Usage: trace [options] [function_name] ...
         -l --lint: lint documented vs calculated trace.
         -i --integrity: check register and instruction integrity.
         -w --write: write back calculated trashes to source
-            files on mismatch, to the comment of the function
-            and to the declaration of the method.
+            files on mismatch, to the comment of the function.
 
     Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions
