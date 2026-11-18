@@ -3,15 +3,24 @@
 (import "lib/nn/gpu.inc")
 
 ;The GPU's task, on a node away from the window, so its frames hold none
-;of this up. The app sends it jobs a few ahead, a step on a batch or a
+;of this up, the model on the GPU of the net its jobs say. The app sends it jobs a few ahead, a step on a batch or a
 ;check, and it does them as they come: the model on the GPU and the data
 ;set put there the first time, the params loaded from their buf if the
 ;job says, and written back after it if it says. Told to go, an empty
 ;message, the GPU's buffers are let go of
 
-;the dense net, the one the GPU's kernels are of
-(defq gpu :nil bufs (list) gen_had 0 *gpu_model* (first *digits_models*)
-	+params_bytes (digits-params-size *gpu_model*))
+;the GPU model of the net of the jobs, made again when it is another
+(defq gpu :nil gpu_net -1 bufs (list) gen_had 0 model :nil params_bytes 0)
+
+(defun net-is (which)
+	; (net-is which) -> :nil | gpu
+	;the GPU model of a net, the old one let go of, and the data set put on
+	;it again when the bufs are next opened
+	(unless (= which gpu_net)
+		(if gpu (nn-gpu-free gpu))
+		(setq gpu_net which model (elem-get *digits_models* which) params_bytes (digits-params-size model)
+			gpu (nn-gpu model +digits_gpu_batch) bufs (list)))
+	gpu)
 
 (defun open-bufs (data_key params_key grads_key children)
 	; (open-bufs data_key params_key grads_key children) -> :nil | (data params grads)
@@ -45,7 +54,7 @@
 (defun work ((data params grads) kind count children flags rate msg)
 	; (work bufs kind count children flags rate msg) -> (loss right confusion)
 	(if (bits? flags +digits_gpu_flag_load)
-		(nn-gpu-params gpu (push (nn-vector *gpu_model*) (buf-get params 0 +params_bytes))))
+		(nn-gpu-params gpu (push (nn-vector model) (buf-get params 0 params_bytes))))
 	(defq out (cond
 		((= count 0) (list (n2d 0) 0 :nil))
 		((= kind +digits_kind_train)
@@ -57,18 +66,18 @@
 			(list loss right :nil))
 		(:t (check kind count msg))))
 	(if (bits? flags +digits_gpu_flag_sync)
-		(buf-set grads (digits-slice children) +params_bytes (nn-gpu-read gpu)))
+		(buf-set grads (digits-slice children) params_bytes (nn-gpu-read gpu)))
 	out)
 
 (defun job (msg)
-	(bind '(reply kind step gen count data_key params_key grads_key children flags rate)
+	(bind '(reply kind step gen count data_key params_key grads_key children which flags rate)
 		(getf-> msg +job_reply +digits_job_kind +digits_job_step +digits_job_slot +digits_job_count
 			+digits_job_data_key +digits_job_params_key +digits_job_grads_key +digits_job_children
-			+digits_gpu_job_flags +digits_gpu_job_rate))
+			+digits_job_net +digits_gpu_job_flags +digits_gpu_job_rate))
 	;a job of an older generation is not wanted, its answer let go of
 	(when (>= gen gen_had)
 		(setq gen_had gen)
-		(unless gpu (setq gpu (nn-gpu *gpu_model* +digits_gpu_batch)))
+		(net-is which)
 		(defq opened (if gpu (open-bufs data_key params_key grads_key children)))
 		(cond
 			((not gpu)

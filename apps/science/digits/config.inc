@@ -24,7 +24,7 @@
 
 (defun config-apply ()
 	;the rate, the batch, the GPU and the net as the config says, each one
-	;of its bar, the GPU only of the dense net
+	;of its bar
 	(bind '(r b g n) (gather *config* :rate :batch :gpu :net))
 	(setq rate (max 0 (min (dec (length +digits_rates)) r))
 		batch (max 0 (min (dec (length +digits_batches)) b))
@@ -32,7 +32,7 @@
 	(. *rate_bar* :set_selected rate)
 	(. *batch_bar* :set_selected batch)
 	(. *net_bar* :set_selected which)
-	(setq gpu_mode (and has_gpu g (= which 0) :t))
+	(setq gpu_mode (and has_gpu g :t))
 	(. *mode_bar* :set_selected (if gpu_mode 1 0)))
 
 (defun config-save ()

@@ -11,7 +11,7 @@
 ;a picture of 28 by 28 grey levels in and a chance for each digit out,
 ;lib/nn, by a net of the user's choice: a layer of hidden units, or
 ;LeNet-5, two layers of convolutions each pooled, then three dense. Each
-;of floats, as the GPU has them, the GPU's kernels of dense layers only
+;of floats, as the GPU has them
 (import "lib/nn/model.inc")
 
 (defq +mnist_side 28 +digits_nets ''(

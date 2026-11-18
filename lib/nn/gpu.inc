@@ -10,13 +10,22 @@
 ; error back a layer at a time, and each layer's numbers moved down their
 ; gradients. What comes back is a few bytes a sample, its loss, what it
 ; was taken for and what it was.
+;
+; A dense layer is a thread an output forward, an input back, and a weight
+; to move. A layer of convolutions is the same, convolved where it is, no
+; patches made: an output the bias and its filter over the patch under
+; it, an input back the error of each output whose patch it is in by the
+; weight it met, a weight the sum over the batch and the places of the
+; error by the input it met. A pool layer has no numbers, an average
+; forward and its error spread back.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././gpu/kernel.inc")
 (import "././gpu/vp.inc")
 (import "./model.inc")
 
-(defq +nn_gpu_shaders ''("gather" "forward" "loss" "back" "update"))
+(defq +nn_gpu_shaders ''("gather" "forward" "loss" "back" "update"
+	"conv" "conv_back" "conv_update" "pool" "pool_back"))
 
 ;a GPU model: (model capacity programs kernels bufs layers set data)
 ;programs and kernels by name, bufs (idx x y loss guess), layers a list of
@@ -32,10 +41,7 @@
 (defun nn-gpu (model capacity)
 	; (nn-gpu model capacity) -> :nil | gpu
 	;the kernels and buffers to train the model on a batch of up to so
-	;many, :nil if there is no GPU or a kernel will not build on it. Its
-	;kernels are of dense layers, as yet
-	(unless (every (# (eql (first %0) :dense)) (nn-layers model))
-		(throw "The GPU's kernels are of dense layers only, as yet !" (map (const first) (nn-layers model))))
+	;many, :nil if there is no GPU or a kernel will not build on it
 	(when (> (gpu-format) 0)
 		(defq programs (map (# (shader-load (cat "lib/nn/shaders/" %0 ".shader"))) +nn_gpu_shaders)
 			kernels (map (const shader-gpu-kernel) programs) ins (nn-ins model))
@@ -44,9 +50,11 @@
 			(list model capacity programs kernels
 				(list (float-buffer capacity) (float-buffer (* capacity ins)) (float-buffer capacity)
 					(float-buffer capacity) (float-buffer capacity))
-				(map (lambda ((kind ins outs &ignore))
-						(list (list (float-buffer (* ins outs)) (float-buffer (* ins outs)))
-							(list (float-buffer outs) (float-buffer outs))
+				(map (lambda (layer)
+						(bind '(rows row biases) (nn-layer-sizes layer))
+						(defq outs (elem-get layer +nn_layer_outs))
+						(list (list (float-buffer (* rows row)) (float-buffer (* rows row)))
+							(list (float-buffer biases) (float-buffer biases))
 							(float-buffer (* capacity outs)) (float-buffer (* capacity outs))))
 					(nn-layers model))
 				0 :nil))))
@@ -73,9 +81,13 @@
 	;the params, a vector of any kind, onto the GPU as floats, the step's
 	(bind '(model capacity programs kernels bufs layers set &ignore) gpu)
 	(defq fs (nums-convert params (floats)))
-	(each (lambda ((kind ins outs act name w b &ignore) (ws bs &ignore))
-			(gpu-write (elem-get ws set) 0 (slice fs w b))
-			(gpu-write (elem-get bs set) 0 (slice fs b (+ b outs))))
+	;a pool layer has none
+	(each (lambda (layer (ws bs &ignore))
+			(bind '(rows row biases) (nn-layer-sizes layer))
+			(defq w (elem-get layer +nn_layer_weights) b (elem-get layer +nn_layer_biases))
+			(when (> biases 0)
+				(gpu-write (elem-get ws set) 0 (slice fs w b))
+				(gpu-write (elem-get bs set) 0 (slice fs b (+ b biases)))))
 		(nn-layers model) layers)
 	gpu)
 
@@ -83,10 +95,21 @@
 	; (nn-gpu-read gpu) -> params
 	;the params as they are on the GPU, back as the model's kind
 	(bind '(model capacity programs kernels bufs layers set &ignore) gpu)
-	(nums-convert (apply (const cat) (reduce (lambda (out ((kind ins outs &ignore) (ws bs &ignore)))
-			(push out (gpu-read (elem-get ws set) 0 (fill (floats) (* ins outs) (n2f 0)))
-				(gpu-read (elem-get bs set) 0 (fill (floats) outs (n2f 0)))))
+	(nums-convert (apply (const cat) (reduce (lambda (out (layer (ws bs &ignore)))
+			(bind '(rows row biases) (nn-layer-sizes layer))
+			(if (> biases 0)
+				(push out (gpu-read (elem-get ws set) 0 (fill (floats) (* rows row) +float_0))
+					(gpu-read (elem-get bs set) 0 (fill (floats) biases +float_0)))
+				out))
 		(map (const list) (nn-layers model) layers) (list))) (nn-vector model)))
+
+(defun nn-gpu-shape (shape &rest more)
+	; (nn-gpu-shape shape [key val] ...) -> vals
+	;a conv or pool layer's shape as the inputs of its kernels
+	(cat (if (= (length shape) 9)
+			(map (const list) '(planes rows cols k stride pad filters oh ow) shape)
+			(map (const list) '(planes rows cols q oh ow) shape))
+		(partition more 2)))
 
 (defun nn-gpu-go (gpu name vals from to bufs)
 	; (nn-gpu-go gpu name vals from to bufs) -> ticket
@@ -103,9 +126,15 @@
 	(gpu-write bidx 0 (apply (const cat) (map (# (char %0 +int_size)) idx)))
 	(push tickets (nn-gpu-go gpu "gather" `((ins ,ins) (inputs ,inputs) (labels ,labels))
 		0 (* n ins) (list data bidx x y)))
-	(each (lambda ((kind ins outs act &ignore) (ws bs a d))
-			(push tickets (nn-gpu-go gpu "forward" `((ins ,ins) (outs ,outs) (act ,(nn-gpu-act act)))
-				0 (* n outs) (list in (elem-get ws set) (elem-get bs set) a)))
+	(each (lambda ((kind ins outs act name wt bs_at shape) (ws bs a d))
+			(push tickets (case kind
+				(:dense (nn-gpu-go gpu "forward" `((ins ,ins) (outs ,outs) (act ,(nn-gpu-act act)))
+					0 (* n outs) (list in (elem-get ws set) (elem-get bs set) a)))
+				(:conv (nn-gpu-go gpu "conv" (nn-gpu-shape shape 'act (nn-gpu-act act))
+					0 (* n outs) (list in (elem-get ws set) (elem-get bs set) a)))
+				(:pool (nn-gpu-go gpu "pool" (nn-gpu-shape shape)
+					;an index each plane's average of each sample, the planes run on
+					0 (* n outs) (list in a)))))
 			(setq in a))
 		(nn-layers model) layers)
 	(bind '(& & a d) (last layers))
@@ -142,19 +171,31 @@
 		step (/ (n2d rate) (n2d n)))
 	;the error back, the last layer's to the first's
 	(while (> l 0)
-		(bind '((& ins outs &ignore) (ws & & d)) (list (elem-get descr l) (elem-get layers l)))
+		(bind '((kind ins outs act name wt bs_at shape) (ws & & d)) (list (elem-get descr l) (elem-get layers l)))
 		(bind '(& & pa pd) (elem-get layers (dec l)))
 		;worked out first, a macro, dec, in an unquote is not run
 		(defq act (nn-gpu-act (elem-get (elem-get descr (dec l)) +nn_layer_act)))
-		(push tickets (nn-gpu-go gpu "back" `((ins ,ins) (outs ,outs) (act ,act))
-			0 (* n ins) (list d (elem-get ws set) pa pd)))
+		(push tickets (case kind
+			(:dense (nn-gpu-go gpu "back" `((ins ,ins) (outs ,outs) (act ,act))
+				0 (* n ins) (list d (elem-get ws set) pa pd)))
+			(:conv (nn-gpu-go gpu "conv_back" (nn-gpu-shape shape 'act act)
+				0 (* n ins) (list d (elem-get ws set) pa pd)))
+			(:pool (nn-gpu-go gpu "pool_back" (nn-gpu-shape shape 'act act)
+				0 (* n ins) (list d pa pd)))))
 		(setq l (dec l)))
-	;each layer's numbers moved, into the other
+	;each layer's numbers moved, into the other, a pool layer has none
 	(defq in x)
-	(each (lambda ((kind ins outs &ignore) (ws bs a d))
-			(push tickets (nn-gpu-go gpu "update" `((ins ,ins) (outs ,outs) (batch ,n) (step ,step))
-				0 (+ (* ins outs) outs)
-				(list (elem-get ws set) (elem-get bs set) d in (elem-get ws next) (elem-get bs next))))
+	(each (lambda (layer (ws bs a d))
+			(bind '(kind ins outs act name wt bs_at shape) layer)
+			(case kind
+				(:dense (push tickets (nn-gpu-go gpu "update" `((ins ,ins) (outs ,outs) (batch ,n) (step ,step))
+					0 (+ (* ins outs) outs)
+					(list (elem-get ws set) (elem-get bs set) d in (elem-get ws next) (elem-get bs next)))))
+				(:conv
+					(bind '(rows row biases) (nn-layer-sizes layer))
+					(push tickets (nn-gpu-go gpu "conv_update" (nn-gpu-shape shape 'batch n 'step step)
+						0 (+ (* rows row) biases)
+						(list (elem-get ws set) (elem-get bs set) d in (elem-get ws next) (elem-get bs next))))))
 			(setq in a))
 		descr layers)
 	(elem-set gpu +nn_gpu_set next)

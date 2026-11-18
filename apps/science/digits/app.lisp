@@ -8,7 +8,7 @@
 (import "./draw.inc")
 
 ;Handwritten digits, MNIST, learnt, by the net chosen, a dense one or
-;LeNet-5, on the farm, or the dense one on the GPU. The data set is fetched the first time
+;LeNet-5, on the farm or the GPU. The data set is fetched the first time
 ;it is wanted and kept, and loaded into a buf the farm's children read
 ;their pictures from. Each step the app writes the params into a second
 ;buf and gives each child a part of the batch; each sums the gradients of
@@ -38,8 +38,7 @@
 	*running* :t rate 1 batch 1 select :nil
 	;the net chosen, its model and the bytes of its params
 	which 0 model (first *digits_models*) params_size (digits-params-size (first *digits_models*))
-	;a word on the status line till the net or the mode is changed
-	note ""
+
 	;the bufs, the farm, and where it is
 	data :nil params_buf :nil grads_buf :nil jobs :nil fetch :nil
 	params :nil net :nil out 0 answers (list) busy :nil training :nil after :nil test_next :nil
@@ -108,7 +107,7 @@
 			(if (> speed 0) (cat "  " (str speed) "/s") "")
 			(if (nempty? valids) (cat "  valid " (percent (second (last valids)))) "")
 			(if (nempty? tests) (cat "  test " (percent (second (last tests)))) "")
-			(ifn stopped "") note))))
+			(ifn stopped "")))))
 
 (defun buttons ()
 	;the train button lit while it trains, and its symbol pause, to stop it
@@ -417,15 +416,14 @@
 			(show-status (cat " could not fetch: " (rest msg))))))
 
 (defun net-switch (to)
-	;another net: what is out let go of, the farm for one the GPU's kernels
-	;are not of, its view made, and its params afresh
+	;another net: what is out let go of, its view made, and its params
+	;afresh
 	(farm-forget)
 	(setq which to model (elem-get *digits_models* to) params_size (digits-params-size model)
 		view (nn-view model 560 504) scratch (nn-scratch model)
 		x (fill (nn-vector model) +digits_inputs (nn-num model 0)))
-	(unless (= to 0)
-		(setq gpu_mode :nil to_farm :nil)
-		(. *mode_bar* :set_selected 0))
+	;the GPU's params are of the net before, so load the new ones first
+	(setq gpu_stale :t)
 	(reset))
 
 (defun reset ()
@@ -515,13 +513,9 @@
 					((= id +event_rate) (setq rate (. *rate_bar* :get_selected)))
 					((= id +event_batch) (setq batch (. *batch_bar* :get_selected)))
 					((= id +event_net)
-						(setq note "")
 						(unless (= (defq to (. *net_bar* :get_selected)) which) (net-switch to)))
 					((= id +event_mode)
-						;the GPU's kernels are of the dense net only
-						(defq want (= (. *mode_bar* :get_selected) 1) to_gpu (and has_gpu (= which 0) want))
-						(setq note (if (and want has_gpu (/= which 0)) "  GPU: the dense net only, as yet" ""))
-						(show-status)
+						(defq to_gpu (and has_gpu (= (. *mode_bar* :get_selected) 1)))
 						(. *mode_bar* :set_selected (if to_gpu 1 0))
 						(unless (eql to_gpu (and gpu_mode (not to_farm))) (mode-switch to_gpu)))
 					((. *window* :event msg))))

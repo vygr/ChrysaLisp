@@ -21,5 +21,5 @@
 	(cond
 		((= act 1) (when (< acc 0.0) (setq acc 0.0)))
 		((= act 2) (setq acc (/ 1.0 (+ 1.0 (exp (- acc))))))
-		((= act 3) (setq acc (- (/ 2.0 (+ 1.0 (exp (* -2.0 acc)))) 1.0))))
+		((= act 3) (setq acc (tanh acc))))
 	(elem-set a i acc))
