@@ -45,8 +45,8 @@
 ;;;;;;;;;;;;;;
 
 ;MNIST, from where PyTorch and TensorFlow fetch it, Yann LeCun's own pages
-;having gone. Each file is a .gz there, kept here as it is inflated, in the
-;app's data/ folder, which git leaves alone. Each is (name bytes head): an
+;having gone. Each file is a .gz there, kept here as it is inflated, in
+;downloads/mnist/, which git leaves alone. Each is (name bytes head): an
 ;idx file has a head of its magic number and sizes, then a byte a pixel or
 ;a label
 (defq +mnist_mirrors ''("https://ossci-datasets.s3.amazonaws.com/mnist/"

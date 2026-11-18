@@ -40,7 +40,8 @@
 	;on the GPU, the pair, and is it wanted; here, the pipeline
 	gpu_pair :nil gpu_want :t pipeline :nil cpu_time 0 cpu_frames 0
 	;models to show it can, the cube of its own, and others fetched from
-	;the internet as they are picked, over https, by lib/net/tls.inc, each
+	;the internet as they are picked, over https, by lib/net/tls.inc, and
+	;kept in downloads/models/ for the next time, fetch.lisp, each
 	;an .obj, its .mtl and the pictures that names: examples of the three.js
 	;project and test models of assimp, on GitHub, and Keenan Crane's model
 	;repository at CMU. (name address [picture]),

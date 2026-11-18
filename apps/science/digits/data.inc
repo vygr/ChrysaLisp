@@ -6,7 +6,9 @@
 
 (defun mnist-cache (name)
 	; (mnist-cache name) -> path
-	(cat *app_root* "data/" name))
+	;where a file is kept, of the tree's downloads/, which any app that
+	;wants the data set shares
+	(cat "downloads/mnist/" name))
 
 (defun mnist-have? (file)
 	; (mnist-have? (name bytes head)) -> :t | :nil

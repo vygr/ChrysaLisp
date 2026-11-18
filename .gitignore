@@ -10,7 +10,7 @@ deps/
 /usr/*/voice_notes/
 /usr/*/whiteboard_kept.*
 /lib/files/*.tre
-/apps/science/digits/data/
+/downloads/
 /tests/scratch/
 os
 cpu

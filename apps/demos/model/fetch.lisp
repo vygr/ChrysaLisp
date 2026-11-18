@@ -7,19 +7,33 @@
 ;the model will ask for: the .obj, the .mtl files it names and the
 ;pictures they name, or the .zip alone, that has the rest in it. All are
 ;sent back in one message, each its address, its length and its bytes,
-;or if the model itself could not be had, ! and why
+;or if the model itself could not be had, ! and why. Each file is kept
+;in downloads/models/, by its address, and taken from there after
 
 ;why the last fetch had nothing
 (defq *why* "")
 
+(defun kept-path (url)
+	; (kept-path url) -> path
+	;where a file fetched is kept, of the tree's downloads/, by its address:
+	;the host and the folders of it, each a plain name, so none climbs out
+	(defq parts (filter (# (and (nempty? %0) (nql %0 ".") (nql %0 "..")))
+			(split (slice url (length "https://") -1) "/")))
+	(apply (const cat) (cat (list "downloads/models")
+		(map (lambda (part)
+				(cat "/" (apply (const cat) (map (# (if (bfind %0 (const (char-class "A-Za-z0-9._-"))) %0 "_")) part))))
+			parts))))
+
 (defun fetch (url)
 	; (fetch url) -> :nil | str
-	(defq resp (http-get url))
+	;kept from a fetch before, or fetched and kept
+	(defq path (kept-path url))
 	(cond
-		((not resp) (setq *why* (ifn (tls-why) "no connection")) :nil)
+		((defq data (load path)) data)
+		((not (defq resp (http-get url))) (setq *why* (ifn (tls-why) "no connection")) :nil)
 		((/= (pfind resp :status) 200)
 			(setq *why* (cat (str (pfind resp :status)) " " (ifn (pfind resp :reason) ""))) :nil)
-		((http-body-str resp))))
+		((defq data (http-body-str resp)) (save data path) data)))
 
 (defun child-run (said)
 	(defq reply (slice said 0 +net_id_size)
