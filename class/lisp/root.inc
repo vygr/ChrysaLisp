@@ -1231,6 +1231,9 @@
 	(defq sign "")
 	(when (< r (const (n2d 0))) (setq r (neg r) sign "-"))
 	(cond
+		;an infinity or a NaN has no digits to give, and is the only double
+		;that less itself is not 0
+		((/= (- r r) (const (n2d 0))) "nan")
 		((= r (const (n2d 0))) "0.0")
 		(:t
 			(setd precision 8)

@@ -107,6 +107,10 @@
 	(= (n2d 1) (n2d 1)) :t
 	(eql (n2d 1.5) (n2d 1.5)) :t
 	(double-to-str (n2d 1.5)) "1.5"
+	(double-to-str (exp (n2d 1000))) "nan"
+	(double-to-str (log (n2d 0))) "nan"
+	(double-to-str (- (exp (n2d 1000)) (exp (n2d 1000)))) "nan"
+	(double-to-str (n2f (exp (n2d 1000)))) "nan"
 	(n2q (str-to-double "1.5")) 1.5
 	(n2q (str-to-double "-0.25")) -0.25
 	(n2q (str-to-double "1e2")) 100.0
