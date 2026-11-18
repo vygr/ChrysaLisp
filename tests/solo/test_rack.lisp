@@ -19,6 +19,12 @@
 	(filter (# (or (starts-with "chrysalisp_rack_cmds_" %0) (starts-with "chrysalisp_rack_out_" %0)))
 		(map (const first) (partition (split (pii-dirlist "/tmp") ",") 2))))
 
+;what a session said goes to the one that asked a line at a time, each
+;with its machine. Empty lines alone are nothing to say, not an error: one
+;said by itself ended the run that was asked for, its session still going
+(assert-eq "what a session said, a line each with its machine" "m4 one\nm4 two\n" (rack-said "m4" "one\n\ntwo"))
+(assert-eq "and of empty lines alone, nothing" "" (rack-said "m4" "\n"))
+
 (cond
 	((nempty? (sync-services))
 		;a rack run is of every machine that takes a sync. Run from a desktop

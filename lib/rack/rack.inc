@@ -47,6 +47,12 @@
 					(split text "\n"))
 				(pii-remove file)))))
 
+(defun rack-said (machine text)
+	; (rack-said machine text) -> str
+	;what a session said, as lines for the one that asked, each with the
+	;machine it is of, an empty line left out: "" if they all are
+	(apply (const cat) (cat (list "") (map (# (cat machine " " %0 "\n")) (split text "\n")))))
+
 (defun rack-fresh (phases &optional user gui asker)
 	; (rack-fresh phases [user gui asker]) -> str
 	;on this machine, a new session for each phase, a list of command
@@ -109,8 +115,9 @@
 				(when (and asker res (> (length res) told)
 						;just past the last whole line, (rfind) is past what it finds
 						(defq cut (rfind "\n" res)) (> cut told))
-					(mail-send asker (cat "LINE " (apply (const cat) (map (# (cat machine " " %0 "\n"))
-									(split (slice res told (dec cut)) "\n")))))
+					;lines that are all empty are nothing to say, and not an error
+					(if (nempty? (defq lines (rack-said machine (slice res told (dec cut)))))
+						(mail-send asker (cat "LINE " lines)))
 					(setq told cut))
 				(when (> (- (pii-time) beat) 1000000)
 					(save (str (setq beat (pii-time))) alive_file))
