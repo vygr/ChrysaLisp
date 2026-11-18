@@ -2,6 +2,232 @@
 (include "class/lisp/class.inc")
 (include "class/floats/class.inc")
 
+(structure gemm 0
+	(ptr this args cobj c a b bias)
+	(long m n k flags es ai ap))
+
+(defun gemm-kind (kind)
+	;the sums of nn-gemm for a kind, the frame filled: floats loaded,
+	;worked and stored as singles, doubles as doubles
+	(defq floats (eql kind :floats) es (if floats +int_size +long_size)
+		ld (if floats vp-load-rcf vp-load-rcd) st (if floats vp-store-frc vp-store-drc)
+		mul (if floats vp-mul-ff vp-mul-dd) add (if floats vp-add-ff vp-add-dd)
+		cpy (if floats vp-cpy-ff vp-cpy-dd) cvt (if floats vp-cvt-rf vp-cvt-rd))
+	(bind '(f0 f1 f2 f3 f4) (if floats '(:f0 :f1 :f2 :f3 :f4) '(:d0 :d1 :d2 :d3 :d4)))
+	;:r1 rows left, :r2 the row of c, :r3 of a, :r4 the bias or 0, :r11 the
+	;bytes of a row of c, :r12 and :r13 the steps of a along a row and to the
+	;next, :r14 not 0 to add to c, f3 a 0
+	(load-fields :rsp '(gemm_m gemm_c gemm_a gemm_bias gemm_ap gemm_ai gemm_flags gemm_n)
+		'(:r1 :r2 :r3 :r4 :r12 :r13 :r14 :r11))
+	(vp-mul-cr es :r11)
+	(vp-xor-rr :r0 :r0)
+	(cvt :r0 f3)
+	(vp-cpy-rr :r14 :r0)
+	(vp-and-cr 4 :r14)
+	(vp-and-cr 2 :r0)
+	(vpif '(:r0 = 0))
+		;b as it is, k rows of n: each row of c the rows of b, each times
+		;its number of the row of a, added in, along the rows of both
+		(vpif '(:r1 /= 0) '(:r11 /= 0))
+			(loop-start)
+				(vpif '(:r14 = 0))
+					(vpif '(:r4 = 0))
+						(cpy f3 f0)
+					(else)
+						(ld :r4 0 f0)
+					(endif)
+					(vp-cpy-rr :r2 :r8)
+					(vp-lea-rrr :r2 :r11 :r10)
+					(loop-start)
+						(st f0 :r8 0)
+						(vp-add-cr es :r8)
+					(loop-until '(:r8 = :r10))
+				(endif)
+				(load-fields :rsp '(gemm_k gemm_b) '(:r5 :r7))
+				(vp-cpy-rr :r3 :r6)
+				(vpif '(:r5 /= 0))
+					(loop-start)
+						(ld :r6 0 f0)
+						(vp-add-rr :r12 :r6)
+						(vp-cpy-rr :r2 :r8)
+						(vp-cpy-rr :r7 :r9)
+						(vp-lea-rrr :r2 :r11 :r10)
+						(loop-start)
+							(ld :r9 0 f1)
+							(ld :r8 0 f2)
+							(mul f0 f1)
+							(add f1 f2)
+							(st f2 :r8 0)
+							(vp-add-cr es :r8)
+							(vp-add-cr es :r9)
+						(loop-until '(:r8 = :r10))
+						(vp-add-rr :r11 :r7)
+						(vp-sub-cr 1 :r5)
+					(loop-until '(:r5 = 0))
+				(endif)
+				(vp-add-rr :r11 :r2)
+				(vp-add-rr :r13 :r3)
+				(vpif '(:r4 /= 0))
+					(vp-add-cr es :r4)
+				(endif)
+				(vp-sub-cr 1 :r1)
+			(loop-until '(:r1 = 0))
+		(endif)
+	(else)
+		;b turned, n rows of k: each number of c the dot of a row of a and a
+		;row of b, :r10 the bytes of a row of b
+		(load-fields :rsp '(gemm_k) '(:r10))
+		(vp-mul-cr es :r10)
+		(vpif '(:r1 /= 0) '(:r11 /= 0))
+			(loop-start)
+				(vpif '(:r4 = 0))
+					(cpy f3 f4)
+				(else)
+					(ld :r4 0 f4)
+				(endif)
+				(vp-cpy-rr :r2 :r8)
+				(load-fields :rsp '(gemm_b) '(:r9))
+				(vp-lea-rrr :r2 :r11 :r5)
+				(loop-start)
+					(vpif '(:r14 = 0))
+						(cpy f4 f0)
+					(else)
+						(ld :r8 0 f0)
+					(endif)
+					(vp-cpy-rr :r3 :r6)
+					(vp-cpy-rr :r9 :r7)
+					(load-fields :rsp '(gemm_k) '(:r0))
+					(vpif '(:r0 /= 0))
+						(loop-start)
+							(ld :r6 0 f1)
+							(ld :r7 0 f2)
+							(mul f1 f2)
+							(add f2 f0)
+							(vp-add-rr :r12 :r6)
+							(vp-add-cr es :r7)
+							(vp-sub-cr 1 :r0)
+						(loop-until '(:r0 = 0))
+					(endif)
+					(st f0 :r8 0)
+					(vp-add-cr es :r8)
+					(vp-add-rr :r10 :r9)
+				(loop-until '(:r8 = :r5))
+				(vp-add-rr :r11 :r2)
+				(vp-add-rr :r13 :r3)
+				(vpif '(:r4 /= 0))
+					(vp-add-cr es :r4)
+				(endif)
+				(vp-sub-cr 1 :r1)
+			(loop-until '(:r1 = 0))
+		(endif)
+	(endif))
+
+(def-func (path-to-absolute "./gemm"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d4
+	;info
+	;(nn-gemm c a b m n k flags [bias]) -> c, the m by n matrix c the m by k
+	;a times the k by n b, each a vector of its rows. flags 1 a is given
+	;turned, k rows of m, 2 b is, n rows of k, 4 the product is added to c,
+	;else c is the bias of each row, or 0, and the product. All exactly a
+	;doubles, or a floats, whose sums are of singles
+
+	(vp-rdef (this args c a b m n k flags bias vt len))
+
+	(entry `(,this ,args))
+
+	(gotoif-lisp-args-sig 'error args 7 8)
+
+	(vp-alloc gemm_size)
+	(save-fields :rsp '(gemm_this gemm_args) `(,this ,args))
+	(assign `((,args +array_length)) `(,len))
+	(vpif `(,len = 8))
+		(list-bind-args args `(,c ,a ,b ,m ,n ,k ,flags ,bias) '(:obj :obj :obj :num :num :num :num :obj))
+	(else)
+		(list-bind-args args `(,c ,a ,b ,m ,n ,k ,flags) '(:obj :obj :obj :num :num :num :num))
+		(vp-xor-rr bias bias)
+	(endif)
+	;all of one kind, a doubles or a floats, nothing else of a doubles
+	(assign `((,c +obj_vtable) (@ ,(f-path :floats :vtable))) `(,vt ,len))
+	(vpif `(,vt /= ,len))
+		(assign `((@ ,(f-path :doubles :vtable))) `(,len))
+		(gotoif `(,vt /= ,len) 'bad)
+	(endif)
+	(assign `((,a +obj_vtable)) `(,len))
+	(gotoif `(,vt /= ,len) 'bad)
+	(assign `((,b +obj_vtable)) `(,len))
+	(gotoif `(,vt /= ,len) 'bad)
+	;of the sizes the shape says, no less
+	(gotoif `(,m < 0) 'bad)
+	(gotoif `(,n < 0) 'bad)
+	(gotoif `(,k < 0) 'bad)
+	(vp-cpy-rr m :r12)
+	(vp-mul-rr n :r12)
+	(assign `((,c +array_length)) `(,len))
+	(gotoif `(,len < :r12) 'bad)
+	(vp-cpy-rr m :r12)
+	(vp-mul-rr k :r12)
+	(assign `((,a +array_length)) `(,len))
+	(gotoif `(,len < :r12) 'bad)
+	(vp-cpy-rr k :r12)
+	(vp-mul-rr n :r12)
+	(assign `((,b +array_length)) `(,len))
+	(gotoif `(,len < :r12) 'bad)
+	(vpif `(,bias /= 0))
+		(assign `((,bias +obj_vtable)) `(,len))
+		(gotoif `(,vt /= ,len) 'bad)
+		(assign `((,bias +array_length)) `(,len))
+		(gotoif `(,len < ,m) 'bad)
+		(assign `((,bias +array_begin)) `(,bias))
+	(endif)
+	;the bytes of a number, and the steps along a and to its next row
+	(assign `((@ ,(f-path :floats :vtable))) `(,len))
+	(vp-cpy-cr +long_size :r12)
+	(vpif `(,vt = ,len))
+		(vp-cpy-cr +int_size :r12)
+	(endif)
+	(vp-cpy-rr flags :r13)
+	(vp-and-cr 1 :r13)
+	(vpif '(:r13 = 0))
+		(vp-cpy-rr k :r13)
+		(vp-mul-rr :r12 :r13)
+		(vp-cpy-rr :r12 :r14)
+	(else)
+		(vp-cpy-rr :r12 :r13)
+		(vp-cpy-rr m :r14)
+		(vp-mul-rr :r12 :r14)
+	(endif)
+	(save-fields :rsp '(gemm_cobj gemm_m gemm_n gemm_k gemm_flags gemm_es gemm_bias gemm_ai gemm_ap)
+		`(,c ,m ,n ,k ,flags :r12 ,bias :r13 :r14))
+	(assign `((,c +array_begin) (,a +array_begin) (,b +array_begin)) `(,c ,a ,b))
+	(save-fields :rsp '(gemm_c gemm_a gemm_b) `(,c ,a ,b))
+	(vpif `(,vt = ,len))
+		(gemm-kind :floats)
+	(else)
+		(gemm-kind :doubles)
+	(endif)
+	(load-fields :rsp '(gemm_this gemm_cobj) '(:r0 :r1))
+	(vp-free gemm_size)
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'bad)
+	(load-fields :rsp '(gemm_this gemm_args) `(,this ,args))
+	(vp-free gemm_size)
+(vp-label 'error)
+	(jump :lisp :repl_error `(,args "(nn-gemm c a b m n k flags [bias])" +error_msg_wrong_types))
+	(signature '(:doubles :doubles :doubles :num :num :num :num :doubles))
+
+(def-func-end)
+
 (def-func (path-to-absolute "./scale_bytes"))
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -71,5 +297,384 @@
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(nn-scale-bytes bytes scale out)" +error_msg_wrong_types))
 	(signature '(:str :DOUBLE :doubles))
+
+(def-func-end)
+
+(structure shape 0
+	(ptr this args dobj src dst)
+	(long c h w k s pad oh ow es))
+
+(defun shape-kind (src dst vt len)
+	;src and dst exactly one kind, a doubles or a floats, the bytes of a
+	;number of it to :r12
+	(assign `((,src +obj_vtable) (@ ,(f-path :floats :vtable))) `(,vt ,len))
+	(vp-cpy-cr +int_size :r12)
+	(vpif `(,vt /= ,len))
+		(assign `((@ ,(f-path :doubles :vtable))) `(,len))
+		(gotoif `(,vt /= ,len) 'bad)
+		(vp-cpy-cr +long_size :r12)
+	(endif)
+	(assign `((,dst +obj_vtable)) `(,len))
+	(gotoif `(,vt /= ,len) 'bad))
+
+(defun shape-ops (kind)
+	;(es shift ldi sti ld st add mul cvt) of a kind: the bytes of a number,
+	;its bits moved by ldi and sti, its value worked by the rest
+	(defq floats (eql kind :floats))
+	(list (if floats +int_size +long_size) (if floats 2 3)
+		(if floats vp-load-rcr-ui vp-load-rcr) (if floats vp-store-rrc-i vp-store-rrc)
+		(if floats vp-load-rcf vp-load-rcd) (if floats vp-store-frc vp-store-drc)
+		(if floats vp-add-ff vp-add-dd) (if floats vp-mul-ff vp-mul-dd) (if floats vp-cvt-rf vp-cvt-rd)))
+
+(defun shape-zero (shift sti)
+	;c planes of h by w from :r2 made 0, a number at a time by the store of
+	;its width, the bits of 0 a 0 of either kind
+	(load-fields :rsp '(shape_c shape_h shape_w) '(:r3 :r0 :r4))
+	(vp-mul-rr :r0 :r3)
+	(vp-mul-rr :r4 :r3)
+	(vp-shl-cr shift :r3)
+	(vp-add-rr :r2 :r3)
+	(vp-cpy-rr :r2 :r4)
+	(vp-xor-rr :r0 :r0)
+	(loop-start)
+		(sti :r0 :r4 0)
+		(vp-add-cr (<< 1 shift) :r4)
+	(loop-until '(:r4 >= :r3)))
+
+(defun im2col-kind (kind back)
+	;the patches of c planes of h by w, a row for each number of a k by k
+	;patch of each plane, a column for each place of it, the places s apart
+	;from pad before the edges, outside the planes 0: :r1 the patches, :r2
+	;the plane, :r3 its row, :r4 and :r5 the row and column in it of a
+	;place, :r6 to :r10 the counts, :r11 w, :r12 h, :r13 s. Back, the
+	;patches added into the planes, made 0 first
+	(bind '(es shift ldi sti ld st add &ignore) (shape-ops kind))
+	(bind '(f0 f1) (if (eql kind :floats) '(:f0 :f1) '(:d0 :d1)))
+	(load-fields :rsp (if back '(shape_src shape_dst) '(shape_dst shape_src)) '(:r1 :r2))
+	(if back (shape-zero shift sti))
+	(load-fields :rsp '(shape_w shape_h shape_s shape_c) '(:r11 :r12 :r13 :r10))
+	(loop-start)
+		(vp-xor-rr :r9 :r9)
+		(loop-start)
+			(vp-xor-rr :r8 :r8)
+			(loop-start)
+				(load-fields :rsp '(shape_pad shape_oh) '(:r0 :r6))
+				(vp-cpy-rr :r9 :r4)
+				(vp-sub-rr :r0 :r4)
+				(loop-start)
+					(vpif '(:r4 >= 0) '(:r4 < :r12))
+						(vp-cpy-rr :r4 :r3)
+						(vp-mul-rr :r11 :r3)
+						(vp-shl-cr shift :r3)
+						(vp-add-rr :r2 :r3)
+						(load-fields :rsp '(shape_pad shape_ow) '(:r0 :r7))
+						(vp-cpy-rr :r8 :r5)
+						(vp-sub-rr :r0 :r5)
+						(loop-start)
+							(cond
+								(back
+									(vpif '(:r5 >= 0) '(:r5 < :r11))
+										(vp-cpy-rr :r5 :r14)
+										(vp-shl-cr shift :r14)
+										(vp-add-rr :r3 :r14)
+										(ld :r1 0 f0)
+										(ld :r14 0 f1)
+										(add f0 f1)
+										(st f1 :r14 0)
+									(endif))
+								(:t
+									(vpif '(:r5 >= 0) '(:r5 < :r11))
+										(vp-cpy-rr :r5 :r14)
+										(vp-shl-cr shift :r14)
+										(vp-add-rr :r3 :r14)
+										(ldi :r14 0 :r0)
+									(else)
+										(vp-xor-rr :r0 :r0)
+									(endif)
+									(sti :r0 :r1 0)))
+							(vp-add-cr es :r1)
+							(vp-add-rr :r13 :r5)
+							(vp-sub-cr 1 :r7)
+						(loop-until '(:r7 = 0))
+					(else)
+						;a row of places all outside
+						(load-fields :rsp '(shape_ow) '(:r7))
+						(cond
+							(back
+								(vp-shl-cr shift :r7)
+								(vp-add-rr :r7 :r1))
+							(:t
+								(vp-xor-rr :r0 :r0)
+								(loop-start)
+									(sti :r0 :r1 0)
+									(vp-add-cr es :r1)
+									(vp-sub-cr 1 :r7)
+								(loop-until '(:r7 = 0))))
+					(endif)
+					(vp-add-rr :r13 :r4)
+					(vp-sub-cr 1 :r6)
+				(loop-until '(:r6 = 0))
+				(vp-add-cr 1 :r8)
+				(load-fields :rsp '(shape_k) '(:r0))
+			(loop-until '(:r8 = :r0))
+			(vp-add-cr 1 :r9)
+			(load-fields :rsp '(shape_k) '(:r0))
+		(loop-until '(:r9 = :r0))
+		(vp-cpy-rr :r12 :r0)
+		(vp-mul-rr :r11 :r0)
+		(vp-shl-cr shift :r0)
+		(vp-add-rr :r0 :r2)
+		(vp-sub-cr 1 :r10)
+	(loop-until '(:r10 = 0)))
+
+(defun im2col-func (name back)
+	(vp-rdef (this args src c h w k s pad dst vt len))
+	(entry `(,this ,args))
+	(gotoif-lisp-args-sig 'error args 8)
+	(vp-alloc shape_size)
+	(save-fields :rsp '(shape_this shape_args) `(,this ,args))
+	(list-bind-args args `(,src ,c ,h ,w ,k ,s ,pad ,dst) '(:obj :num :num :num :num :num :num :obj))
+	(shape-kind src dst vt len)
+	(gotoif `(,c < 1) 'bad)
+	(gotoif `(,h < 1) 'bad)
+	(gotoif `(,w < 1) 'bad)
+	(gotoif `(,k < 1) 'bad)
+	(gotoif `(,s < 1) 'bad)
+	(gotoif `(,pad < 0) 'bad)
+	;the places down and across, (h + 2pad - k) / s + 1, at least 1
+	(vp-cpy-rr pad :r13)
+	(vp-add-rr :r13 :r13)
+	(vp-cpy-rr :r13 :r14)
+	(vp-add-rr h :r13)
+	(vp-add-rr w :r14)
+	(vp-sub-rr k :r13)
+	(vp-sub-rr k :r14)
+	(gotoif '(:r13 < 0) 'bad)
+	(gotoif '(:r14 < 0) 'bad)
+	(vp-div-rr s :r13)
+	(vp-div-rr s :r14)
+	(vp-add-cr 1 :r13)
+	(vp-add-cr 1 :r14)
+	;the planes c * h * w, the patches c * k * k * oh * ow
+	(vp-cpy-rr c vt)
+	(vp-mul-rr h vt)
+	(vp-mul-rr w vt)
+	(assign `((,(if back dst src) +array_length)) `(,len))
+	(gotoif `(,len < ,vt) 'bad)
+	(vp-cpy-rr c vt)
+	(vp-mul-rr k vt)
+	(vp-mul-rr k vt)
+	(vp-mul-rr :r13 vt)
+	(vp-mul-rr :r14 vt)
+	(assign `((,(if back src dst) +array_length)) `(,len))
+	(gotoif `(,len < ,vt) 'bad)
+	(save-fields :rsp '(shape_dobj shape_c shape_h shape_w shape_k shape_s shape_pad shape_oh shape_ow shape_es)
+		`(,dst ,c ,h ,w ,k ,s ,pad :r13 :r14 :r12))
+	(assign `((,src +array_begin) (,dst +array_begin)) `(,src ,dst))
+	(save-fields :rsp '(shape_src shape_dst) `(,src ,dst))
+	(vpif '(:r12 = 4))
+		(im2col-kind :floats back)
+	(else)
+		(im2col-kind :doubles back)
+	(endif)
+	(load-fields :rsp '(shape_this shape_dobj) '(:r0 :r1))
+	(vp-free shape_size)
+	(class/obj/ref :r1 :r2)
+	(exit '(:r0 :r1))
+	(vp-ret)
+(vp-label 'bad)
+	(load-fields :rsp '(shape_this shape_args) `(,this ,args))
+	(vp-free shape_size)
+(vp-label 'error)
+	(jump :lisp :repl_error `(,args ,(cat "(" name " src c h w k s pad dst)") +error_msg_wrong_types))
+	(signature '(:doubles :num :num :num :num :num :num :doubles)))
+
+(def-func (path-to-absolute "./im2col"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(nn-im2col planes c h w k s pad patches) -> patches, the k by k patches
+	;of c planes of h by w, s apart, from pad before the edges: a row of
+	;patches for each number of a patch, c * k * k, plane by plane, row by
+	;row, a column for each place, oh * ow, (h + 2pad - k) / s + 1 down and
+	;so across, outside the planes 0. Exactly a doubles, or a floats
+
+	(im2col-func "nn-im2col" :nil)
+
+(def-func-end)
+
+(def-func (path-to-absolute "./col2im"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d1
+	;info
+	;(nn-col2im patches c h w k s pad planes) -> planes, what nn-im2col
+	;takes back: each number of the patches added into the place of the
+	;planes it was of, the planes made 0 first, those outside them none
+
+	(im2col-func "nn-col2im" :t)
+
+(def-func-end)
+
+(defun pool-kind (kind back)
+	;the average of each q by q block of c planes of h by w, q apart: :r1
+	;the averages, :r2 the plane, :r3 a row of blocks, :r4 a block, :r5
+	;and :r14 a row and a number of it, :r6 to :r10 the counts, :r11 w,
+	;:r12 q, :r13 the bytes of a row, f3 1 / q^2, f4 0. Back, each block the
+	;average's error over q^2, made 0 first where no block is
+	(bind '(es shift ldi sti ld st add mul cvt) (shape-ops kind))
+	(defq floats (eql kind :floats))
+	(bind '(f0 f1 f3 f4) (if floats '(:f0 :f1 :f3 :f4) '(:d0 :d1 :d3 :d4)))
+	(load-fields :rsp (if back '(shape_src shape_dst) '(shape_dst shape_src)) '(:r1 :r2))
+	(if back (shape-zero shift sti))
+	(load-fields :rsp '(shape_w shape_k shape_c) '(:r11 :r12 :r10))
+	(vp-cpy-rr :r11 :r13)
+	(vp-shl-cr shift :r13)
+	(vp-cpy-rr :r12 :r0)
+	(vp-mul-rr :r12 :r0)
+	(vp-cvt-rd :r0 :d1)
+	(vp-cpy-cr 1 :r0)
+	(vp-cvt-rd :r0 :d3)
+	(vp-div-dd :d1 :d3)
+	(if floats (vp-cvt-df :d3 :f3))
+	(vp-xor-rr :r0 :r0)
+	(cvt :r0 f4)
+	(loop-start)
+		(vp-cpy-rr :r2 :r3)
+		(load-fields :rsp '(shape_oh) '(:r6))
+		(loop-start)
+			(vp-cpy-rr :r3 :r4)
+			(load-fields :rsp '(shape_ow) '(:r7))
+			(loop-start)
+				(if back
+					(progn (ld :r1 0 f0) (mul f3 f0))
+					(assign (list f4) (list f0)))
+				(vp-cpy-rr :r4 :r5)
+				(vp-cpy-rr :r12 :r8)
+				(loop-start)
+					(vp-cpy-rr :r5 :r14)
+					(vp-cpy-rr :r12 :r9)
+					(loop-start)
+						(cond
+							(back (st f0 :r14 0))
+							(:t (ld :r14 0 f1) (add f1 f0)))
+						(vp-add-cr es :r14)
+						(vp-sub-cr 1 :r9)
+					(loop-until '(:r9 = 0))
+					(vp-add-rr :r13 :r5)
+					(vp-sub-cr 1 :r8)
+				(loop-until '(:r8 = 0))
+				(unless back
+					(mul f3 f0)
+					(st f0 :r1 0))
+				(vp-add-cr es :r1)
+				(vp-cpy-rr :r12 :r0)
+				(vp-shl-cr shift :r0)
+				(vp-add-rr :r0 :r4)
+				(vp-sub-cr 1 :r7)
+			(loop-until '(:r7 = 0))
+			(vp-cpy-rr :r13 :r0)
+			(vp-mul-rr :r12 :r0)
+			(vp-add-rr :r0 :r3)
+			(vp-sub-cr 1 :r6)
+		(loop-until '(:r6 = 0))
+		(load-fields :rsp '(shape_h) '(:r0))
+		(vp-mul-rr :r13 :r0)
+		(vp-add-rr :r0 :r2)
+		(vp-sub-cr 1 :r10)
+	(loop-until '(:r10 = 0)))
+
+(defun pool-func (name back)
+	(vp-rdef (this args src c h w k dst vt len))
+	(entry `(,this ,args))
+	(gotoif-lisp-args-sig 'error args 6)
+	(vp-alloc shape_size)
+	(save-fields :rsp '(shape_this shape_args) `(,this ,args))
+	(list-bind-args args `(,src ,c ,h ,w ,k ,dst) '(:obj :num :num :num :num :obj))
+	(shape-kind src dst vt len)
+	(gotoif `(,c < 1) 'bad)
+	(gotoif `(,k < 1) 'bad)
+	(gotoif `(,h < ,k) 'bad)
+	(gotoif `(,w < ,k) 'bad)
+	;the blocks down and across, h / q and w / q
+	(vp-cpy-rr h :r13)
+	(vp-cpy-rr w :r14)
+	(vp-div-rr k :r13)
+	(vp-div-rr k :r14)
+	(vp-cpy-rr c vt)
+	(vp-mul-rr h vt)
+	(vp-mul-rr w vt)
+	(assign `((,(if back dst src) +array_length)) `(,len))
+	(gotoif `(,len < ,vt) 'bad)
+	(vp-cpy-rr c vt)
+	(vp-mul-rr :r13 vt)
+	(vp-mul-rr :r14 vt)
+	(assign `((,(if back src dst) +array_length)) `(,len))
+	(gotoif `(,len < ,vt) 'bad)
+	(save-fields :rsp '(shape_dobj shape_c shape_h shape_w shape_k shape_oh shape_ow shape_es)
+		`(,dst ,c ,h ,w ,k :r13 :r14 :r12))
+	(assign `((,src +array_begin) (,dst +array_begin)) `(,src ,dst))
+	(save-fields :rsp '(shape_src shape_dst) `(,src ,dst))
+	(vpif '(:r12 = 4))
+		(pool-kind :floats back)
+	(else)
+		(pool-kind :doubles back)
+	(endif)
+	(load-fields :rsp '(shape_this shape_dobj) '(:r0 :r1))
+	(vp-free shape_size)
+	(class/obj/ref :r1 :r2)
+	(exit '(:r0 :r1))
+	(vp-ret)
+(vp-label 'bad)
+	(load-fields :rsp '(shape_this shape_args) `(,this ,args))
+	(vp-free shape_size)
+(vp-label 'error)
+	(jump :lisp :repl_error `(,args ,(cat "(" name " src c h w q dst)") +error_msg_wrong_types))
+	(signature '(:doubles :num :num :num :num :doubles)))
+
+(def-func (path-to-absolute "./pool"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d1, :d3-:d4
+	;info
+	;(nn-pool planes c h w q pooled) -> pooled, the average of each q by q
+	;block of c planes of h by w, h / q down, w / q across, what is left
+	;over at the edges in none. Exactly a doubles, or a floats
+
+	(pool-func "nn-pool" :nil)
+
+(def-func-end)
+
+(def-func (path-to-absolute "./pool_back"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d1, :d3-:d4
+	;info
+	;(nn-pool-back errors c h w q planes) -> planes, what nn-pool takes
+	;back: the error of each average over q^2 to every number of its
+	;block, 0 where no block is
+
+	(pool-func "nn-pool-back" :t)
 
 (def-func-end)

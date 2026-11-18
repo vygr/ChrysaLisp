@@ -27,6 +27,28 @@
 ; (nn-scale-bytes bytes scale out) -> out
 ;each byte of a str times the double scale into out, doubles or floats,
 ;as many as both have
+(ffi (path-to-absolute "./gemm") nn-gemm)
+; (nn-gemm c a b m n k flags [bias]) -> c
+;the m by n c the m by k a times the k by n b, each a vector of its rows:
+;flags 1 a is given turned, k rows of m, 2 b is, n rows of k, 4 added to
+;c, else c is each row's bias, or 0, and the product. Of one kind, doubles
+;or floats
+(ffi (path-to-absolute "./im2col") nn-im2col)
+; (nn-im2col planes c h w k s pad patches) -> patches
+;the k by k patches of c planes of h by w, s apart, from pad before the
+;edges, a row for each number of a patch, c * k * k, a column for each
+;place, (h + 2pad - k) / s + 1 down and so across, outside the planes 0
+(ffi (path-to-absolute "./col2im") nn-col2im)
+; (nn-col2im patches c h w k s pad planes) -> planes
+;the patches added back into the places of the planes they were of, the
+;planes made 0 first
+(ffi (path-to-absolute "./pool") nn-pool)
+; (nn-pool planes c h w q pooled) -> pooled
+;the average of each q by q block of c planes of h by w, q apart
+(ffi (path-to-absolute "./pool_back") nn-pool-back)
+; (nn-pool-back errors c h w q planes) -> planes
+;the error of each average over q^2 to each number of its block, 0 where
+;no block is
 
 ;a layer of a model, offsets counts of doubles
 (enums +nn_layer 0
