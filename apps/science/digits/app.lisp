@@ -66,7 +66,7 @@
 		(. (ui-radio-bar *rate_bar* ("0.05" "0.1" "0.2" "0.5") (:font :font_body :paper :paper_toolbar2)) :connect +event_rate)
 		(ui-title _ (:text "batch" :paper :paper_title :flow_flags +flow_flag_align_vcenter))
 		(. (ui-radio-bar *batch_bar* ("16" "32" "64") (:font :font_body :paper :paper_toolbar2)) :connect +event_batch)
-		(ui-label _ (:text " " :font :font_body :flow_flags +flow_flag_align_vcenter))
+		(ui-title _ (:text "modes" :paper :paper_title :flow_flags +flow_flag_align_vcenter))
 		(. (ui-radio-bar *mode_bar* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
 		(ui-label _ (:text " " :font :font_body :flow_flags +flow_flag_align_vcenter))
 		(. (ui-radio-bar *net_bar* ("dense" "LeNet") (:font :font_body :paper :paper_toolbar2)) :connect +event_net)
