@@ -131,17 +131,20 @@
 					(elem-get select +select_farm_ask) farm_key size size
 					(if rows (/ (* (!) size) count) 0) (if rows (/ (* (inc (!)) size) count) 0) :t draws)) '() 0 count)))
 
+(defun farm-end ()
+	;the farm let go of, its work has stopped
+	(setq farm (jobs-end farm select +select_farm_task +select_farm_reply)
+		farming :nil warming :nil))
+
 (defun warm-farm (draws)
-	;a child on each node, started, or started again, one with nothing to
-	;do for a while has gone. Till they have all said they are ready the
-	;frames are drawn here
-	;a child for each node but this one, and none of them on this one, a
-	;strip is one long call and would hold up the app and the GUI
-	(if farm (. farm :restart)
-		(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
-				(elem-get select +select_farm_reply)
-				(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)))
-	(setq warming :t farming :nil last_farm 1)
+	;a new farm, a child for each node but this one, and none of them on
+	;this one, a strip is one long call and would hold up the app and the
+	;GUI. Till they have all said they are ready the frames are drawn here
+	(farm-end)
+	(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
+			(elem-get select +select_farm_reply)
+			(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)
+		warming :t)
 	(strips draws :nil))
 
 (defun draw-faces-gpu (draws)
@@ -191,7 +194,7 @@
 	(cond
 		((draw-faces-gpu draws))
 		((and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
-				(> (length (lisp-nodes :t)) 1) farm (< (- now last_farm) +farm_stale))
+				(> (length (lisp-nodes :t)) 1) farm)
 			(setq farming :t last_farm now)
 			(. *main_widget* :fill 0)
 			(strips draws :t))
@@ -248,7 +251,10 @@
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
 		meshes (list) scene (create-scene meshes)
 		;the farm that draws the faces, a frame is out with it, it has
-		;been asked if it is ready, and it can not reach the pixels
+		;been asked if it is ready, and it can not reach the pixels. A
+		;farm lasts while its work goes on: one that has had no frame for
+		;+farm_stale, less than the time a child waits for work before it
+		;goes, is let go of, and the next frame makes a new one
 		farm :nil farming :nil warming :nil no_farm :nil last_farm 0 ticks 0 farm_key 0
 		;the pair of shaders on the GPU, it has drawn a frame, and it can not
 		gpu_pair :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
@@ -311,7 +317,10 @@
 						(. scene :render *main_widget* (* canvas_size canvas_scale)
 							+left +right +top +bottom +near +far :nil)))
 				(and farm (= (setq ticks (% (inc ticks) 30)) 0)
-					(. farm :refresh retry_timeout)))
+					(. farm :refresh retry_timeout))
+				;the faces have stood still a while, the farm's work has stopped
+				(and farm (not farming) (not warming) (> (- (pii-time) last_farm) +farm_stale)
+					(farm-end)))
 			((= idx +select_farm_task)
 				;a child of the farm has started
 				(if farm (. farm :launched *msg*)))
@@ -321,27 +330,28 @@
 			((= idx +select_farm_reply)
 				;a strip is drawn, or a child has said it is ready
 				(when (and farm (defq out (. farm :answered *msg*)))
-					;a child that could not reach the pixels. If they are
-					;still the pixels of the canvas the farm is no use, and
-					;the faces are drawn here from now on. If the canvas is
-					;a new one, the window was sized, the farm is asked
-					;again for the new one
-					(when (= (getf *msg* +strip_reply_drawn) 0)
-						(setq *dirty* :t last_farm 0)
-						(if (= farm_key (canvas-key *main_widget*)) (setq no_farm :t)))
-					(when (= out 0)
-						(cond
-							(warming (setq warming :nil)
-								(if (> last_farm 0) (setq last_farm (pii-time))))
-							(farming (setq farming :nil)
-								(if (= farm_key (canvas-key *main_widget*))
-									(. *main_widget* :swap +swap_write)))))))
+					(cond
+						((= (getf *msg* +strip_reply_drawn) 0)
+							;a child that could not reach the pixels. If they are
+							;still the pixels of the canvas a farm is no use, and
+							;the faces are drawn here from now on. If the canvas is
+							;a new one, the window was sized, this farm is let go
+							;of, and the next frame makes one for the new canvas
+							(if (= farm_key (canvas-key *main_widget*)) (setq no_farm :t))
+							(farm-end)
+							(setq *dirty* :t))
+						((= out 0)
+							(cond
+								(warming (setq warming :nil last_farm (pii-time)))
+								(farming (setq farming :nil)
+									(if (= farm_key (canvas-key *main_widget*))
+										(. *main_widget* :swap +swap_write))))))))
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
 	(config-save)
 	(. jobs :close)
-	(if farm (. farm :close))
+	(farm-end)
 	;what was kept on the GPU
 	(each (# (if %0 (canvas-mesh-destroy %0))) gpu_meshes)
 	(if gpu_pair (canvas-shader-destroy gpu_pair))

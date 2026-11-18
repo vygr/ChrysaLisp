@@ -109,6 +109,24 @@
 	(jt-run (map (const jt-work) '(1 2 3))))
 (task-sleep 300000)
 (assert-eq "nor does one come in late" :nil (mail-poll (list (elem-get jt_select +jt_reply))))
+
+;the farm let go of with work out, as an app does when its work stops, and
+;a new one, on the new mailboxes, does the next: nothing of the old comes
+;to it
+(. jobs :add (map (const jt-work) '(30 31 32 33)))
+(defq jt_old (list (elem-get jt_select +jt_task) (elem-get jt_select +jt_reply)))
+(assert-eq "a farm let go of is :nil" :nil (setq jobs (jobs-end jobs jt_select +jt_task +jt_reply)))
+(defq jt_new (list (elem-get jt_select +jt_task) (elem-get jt_select +jt_reply)))
+(assert-true "and its two mailboxes are new ones" (notany (# (eql %0 %1)) jt_old jt_new))
+(assert-eq "none to let go of is :nil too" :nil (jobs-end jobs jt_select +jt_task +jt_reply))
+(assert-true "and the mailboxes are left as they are"
+	(every (# (eql %0 %1)) jt_new (list (elem-get jt_select +jt_task) (elem-get jt_select +jt_reply))))
+(setq jobs (Jobs "tests/system/data/jobs_child.lisp"
+	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 2))
+(assert-list-eq "a new farm does the next work, and none of the old's is among it" '(2 4 6)
+	(jt-run (map (const jt-work) '(1 2 3))))
+(task-sleep 300000)
+(assert-eq "nor does any of it come in late" :nil (mail-poll (list (elem-get jt_select +jt_reply))))
 (. jobs :close)
 
 ;a child that goes of its own accord says so, and a job given to it as it

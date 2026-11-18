@@ -17,6 +17,8 @@
 	;the children draw their slices straight onto them
 	shared_canvas (canvas-shared +width +height 1)
 	shared_key (if shared_canvas (canvas-key shared_canvas) 0)
+	;the farm, there is one while the nodes draw the frames, All nodes, and
+	;none while this task does, One task: a farm lasts while its work goes on
 	select :nil jobs :nil
 	;farming, a frame is out with the children. warming, they have been
 	;asked if they are up, and till they all are the frames are drawn
@@ -71,13 +73,20 @@
 		(+slice_light_y (n2i (* light_y 65536.0)))
 		(+slice_y y) (+slice_y1 y1)))
 
-(defun warm-farm (&optional fresh)
-	;every child is started again, one with no work for a while has gone,
-	;unless they are fresh, only just started. Each is asked for a slice
-	;of no rows, which it answers when it has found the canvas and made
-	;the scene
-	(unless fresh (. jobs :restart))
-	(setq warming :t farming :nil)
+(defun farm-end ()
+	;the farm let go of, this task draws the frames from here on
+	(setq jobs (jobs-end jobs select +select_task +select_reply) warming :nil farming :nil))
+
+(defun warm-farm ()
+	;a new farm. The children are on the nodes of this machine, and no
+	;other: they draw on the pixels of the canvas, in shared memory, and a
+	;node of another machine, there is one when the machines are a mesh,
+	;can not reach them. Each is asked for a slice of no rows, which it
+	;answers when it has found the canvas and made the scene
+	(farm-end)
+	(setq jobs (Jobs (cat *app_root* "child.lisp")
+			(elem-get select +select_task) (elem-get select +select_reply) (list 64))
+		warming :t)
 	(. jobs :add (map! (lambda () (slice-job (bubble-count) 0 +height +height)) '() 0 (. jobs :size))))
 
 (defun start-farm-frame ()
@@ -114,14 +123,9 @@
 	(. *backdrop* :set_size +width +height)
 	(. *style_toolbar* :set_selected 0)
 	(. *window* :open)
-	;the children are on the nodes of this machine, and no other. They draw
-	;on the pixels of the canvas, in shared memory, and a node of another
-	;machine, there is one when the machines are a mesh, can not reach them
-	(setq jobs (Jobs (cat *app_root* "child.lisp")
-			(elem-get select +select_task) (elem-get select +select_reply) (list 64)))
 	;it comes up on all the nodes, if their pixels can be shared
 	(. *mode* :set_selected (if shared_canvas 1 0))
-	(if shared_canvas (warm-farm :t))
+	(if shared_canvas (warm-farm))
 
 	;main event loop
 	(defq id :t)
@@ -139,7 +143,7 @@
 						(warming
 							(one-task-frame "one task, while the nodes get ready"))
 						((start-farm-frame))))
-				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
+				(and jobs (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
 					(. jobs :refresh +retry_timeout)))
 			((= idx +select_task)
 				;a child has started
@@ -174,11 +178,13 @@
 			((= id +event_mode)
 				;one task, or all the nodes
 				(cond
-					((/= (. *mode* :get_selected) 1))
+					;one task, the farm's work has stopped
+					((/= (. *mode* :get_selected) 1) (farm-end))
 					((not shared_canvas)
 						(. *mode* :set_selected 0)
 						(. *status* :set_text "No shared memory on this host"))
-					((not farming) (warm-farm))))
+					;all nodes, a new farm if there is none
+					((not jobs) (warm-farm))))
 			((= id +event_style)
 				;styles
 				(def (. *backdrop* :dirty) :style
@@ -195,5 +201,5 @@
 				(setq light_x (/ lx len) light_y (/ ly len)))
 			((. *window* :event *msg*))))
 	;close window and children
-	(. jobs :close)
+	(farm-end)
 	(. *window* :close))

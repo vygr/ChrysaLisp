@@ -39,12 +39,12 @@
 	;how long the frames drawn with no GPU took, and how many of them
 	cpu_time 0 cpu_frames 0
 	;the children that draw a strip each, they have said they are ready,
-	;a frame is out with them and when it went, and they can not be used
+	;a frame is out with them and when it went, and they can not be used.
+	;A farm lasts while its work goes on: it is let go of when the GPU has
+	;the frames, and at a change of mode, and a new one made when the
+	;nodes are to draw again
 	farm :nil farm_ready :nil farm_asked :nil farming :nil farm_began 0 no_farm :nil ticks 0
-	+retry_timeout (task-timeout 60)
-	;a child with nothing to do for 5 seconds goes. When the farm was last
-	;given a frame, and how long after that it is not to be counted on
-	last_farm 0 +farm_stale 3000000)
+	+retry_timeout (task-timeout 60))
 
 ;the maps, a canvas each, loaded when first wanted. Not in the (defq) of
 ;+planets: there the name is not yet a constant, and its value is the
@@ -106,6 +106,11 @@
 	(mat4x4-mul (mat4x4-translate +double_0 +double_0 +away)
 		(mat4x4-mul (mat4x4-rotz (n2d lean)) (mat4x4-roty turn))))
 
+(defun farm-end ()
+	;the farm let go of, its work has stopped
+	(setq farm (jobs-end farm select +select_farm_task +select_farm_reply)
+		farming :nil farm_ready :nil farm_asked :nil))
+
 (defun draw-gpu (vvals)
 	; (draw-gpu vvals) -> :t | :nil
 	;a frame by the GPU. :nil if it is to be drawn here, there is no GPU
@@ -125,7 +130,9 @@
 				(setq gpu_pair :nil gpu_want :nil)
 				(. *mode* :set_selected 0)
 				:nil)
-			(drawn (setq gpu_drawn :t))
+			;the GPU has the frames, the farm that drew them while its pair
+			;was built has no more to do
+			(drawn (farm-end) (setq gpu_drawn :t))
 			;the GPU is busy with the last frame, or has not got the map
 			;yet, which goes to it with the next frame of the GUI, so the
 			;GUI is given a reason to draw one. This frame is let go
@@ -149,28 +156,17 @@
 	;or the children are not yet ready
 	(when (and (not no_farm) (/= (canvas-key *canvas*) 0) (/= (canvas-key (globe-map which)) 0)
 			(> (length (lisp-nodes :t)) 1))
-		(cond
-			((not farm)
-				;a child for each node but this one, and none of them on
-				;this one, a strip is one long call and would hold up the app
-				(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
-						(elem-get select +select_farm_reply)
-						(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)
-					farm_asked :t)
-				(strips vvals :nil))
-			((or (not (or farm_ready farm_asked))
-					(and farm_ready (> (- (pii-time) last_farm) +farm_stale)))
-				;the GPU has had the frames for a while, and the children
-				;may have gone. They are started again, and till they say
-				;they are ready the frames are drawn here. A frame given to
-				;children that had gone was never drawn, and the globe stood
-				;still
-				;or the mode was changed, and what it had been asked let go
-				(setq farm_ready :nil farm_asked :t)
-				(. farm :restart)
-				(strips vvals :nil)))
+		(unless farm
+			;a new farm, a child for each node but this one, and none of
+			;them on this one, a strip is one long call and would hold up
+			;the app. Till they say they are ready the frames are drawn here
+			(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
+					(elem-get select +select_farm_reply)
+					(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)
+				farm_asked :t)
+			(strips vvals :nil))
 		(when farm_ready
-			(setq farming :t farm_began (pii-time) last_farm farm_began)
+			(setq farming :t farm_began (pii-time))
 			(. *canvas* :fill +argb_black)
 			(strips vvals :t)
 			:t)))
@@ -213,14 +209,10 @@
 						(if (defq chosen (. *planet* :get_selected)) (setq which chosen)))
 					((= id +event_mode)
 						(setq gpu_want (= (. *mode* :get_selected) 1) gpu_drawn :nil)
-						;a frame that is out with the farm is not waited for. The
-						;strips of it are told to a mailbox nobody reads from now,
-						;the farm has a new one
-						(when farm
-							(elem-set select +select_farm_reply (mail-mbox))
-							(. farm :reply_to (elem-get select +select_farm_reply))
-							;and is asked afresh if it is wanted again
-							(setq farming :nil farm_ready :nil farm_asked :nil)))
+						;a frame that is out with the farm is not waited for: the
+						;farm is let go of, and a new one made if the nodes are to
+						;draw
+						(farm-end))
 					((. *window* :event msg))))
 			(+select_farm_task
 				;a child of the farm has started
@@ -239,8 +231,8 @@
 							(farming (setq farming :nil
 									cpu_time (+ cpu_time (- (pii-time) farm_began)) cpu_frames (inc cpu_frames))
 								(. *canvas* :swap +swap_write))
-							;they are ready, and as good as just used
-							((setq farm_ready :t farm_asked :nil last_farm (pii-time)))))))
+							;they are ready
+							((setq farm_ready :t farm_asked :nil))))))
 			(:t ;the timer, the globe turns and is drawn, if the last frame
 				;is not still out with the farm
 				(defq start (pii-time))
@@ -268,7 +260,7 @@
 									(str (/ tenths 10)) "." (str (% tenths 10)) "ms a frame")
 								"the GPU")))
 					(setq frames 0 since now cpu_time 0 cpu_frames 0)))))
-	(if farm (. farm :close))
+	(farm-end)
 	(if gpu_mesh (canvas-mesh-destroy gpu_mesh))
 	(if gpu_pair (canvas-shader-destroy gpu_pair))
 	(. *window* :close))

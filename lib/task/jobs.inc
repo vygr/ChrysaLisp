@@ -13,6 +13,10 @@
 ; by (:refresh), and its job goes back on the queue. A child that goes of
 ; its own accord, (job-child), says so on the reply mailbox, and a job
 ; given it as it went goes back on the queue at once.
+;
+; A farm lasts while its work goes on. When the work stops, a pause, a
+; reset, another way of doing it taking over, the app lets the farm go,
+; (jobs-end), and makes a new one for the next work.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./farm.inc")
@@ -325,7 +329,22 @@
 	(. jobs :close)
 	tried)
 
+(defun jobs-end (jobs select task_idx reply_idx)
+	; (jobs-end jobs select task_idx reply_idx) -> :nil
+	;a farm let go of, as its work stops: every child is told to go, and
+	;the two of select, the mailboxes an app reads, that the farm had are
+	;new ones, so nothing late of it comes in. A farm lasts while its work
+	;goes on. It is not kept over a pause, a child with nothing to do goes
+	;of its own accord and there is no telling which have: the next work
+	;makes a new farm, on the new mailboxes. :nil, for the name the farm
+	;was kept in, and nothing is done if that had none
+	(when jobs
+		(. jobs :close)
+		(elem-set select task_idx (mail-mbox))
+		(elem-set select reply_idx (mail-mbox)))
+	:nil)
+
 ;module
 (export-classes '(Jobs Monitored))
-(export-symbols '(jobs-farm))
+(export-symbols '(jobs-farm jobs-end))
 (env-pop)
