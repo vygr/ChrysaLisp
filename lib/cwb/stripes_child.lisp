@@ -36,7 +36,7 @@
 						;a row more each way, as the stripe has
 						(each! (# (push %0 entry)) (list rows) (band-of (- (second box) 1.0) count) (inc (band-of (+ (elem-get box 3) 1.0) count)))))
 				layer_items)
-			(list flags rows (map (lambda (&) :nil) layer_items)))
+			(list flags rows (map (lambda (&ignore) :nil) layer_items)))
 		(cwb-layers doc)))
 
 (defun band-items (rows none y y1)

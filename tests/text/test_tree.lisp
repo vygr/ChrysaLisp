@@ -370,5 +370,5 @@
 		(defq tt_said (list))
 		(pipe-run (cat "check " tt_file) (# (push tt_said %0)))
 		(map (# (slice %0 (inc (length tt_file)) -1)) (filter (const nempty?) (split (join tt_said "") tt_lf)))))
-(pipe-run (cat "rm " tt_file) (lambda (&) :nil))
+(pipe-run (cat "rm " tt_file) (lambda (&ignore) :nil))
 

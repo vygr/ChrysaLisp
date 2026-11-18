@@ -687,9 +687,9 @@ releases across CLI commands and libraries:
 	unlock events are recorded in `(lock-history-rpc)`:
 
 	```lisp
-	(pipe-run "echo data | save tmp_test.txt" (lambda (&) :nil))
-	(pipe-run "cat tmp_test.txt" (lambda (&) :nil))
-	(pipe-run "rm tmp_test.txt" (lambda (&) :nil))
+	(pipe-run "echo data | save tmp_test.txt" (lambda (&ignore) :nil))
+	(pipe-run "cat tmp_test.txt" (lambda (&ignore) :nil))
+	(pipe-run "rm tmp_test.txt" (lambda (&ignore) :nil))
 
 	(defq hist (lock-history-rpc))
 	(assert-true "save write lock"

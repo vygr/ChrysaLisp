@@ -606,12 +606,12 @@
 						(elem-set (. d :find :first_coords) c 0)
 						(setq any :t)
 						(defq master (* 3 (bits-get in 2)))
-						(elem-set (. d :find :coords) c (map (lambda (&)
+						(elem-set (. d :find :coords) c (map (lambda (&ignore)
 									(defq e (bits-get in 4) m (bits-get in 4))
 									(/ (n2d (>> (if (= e 15) (<< m 22) (<< (+ m 16) 21)) (+ e master))) (n2d 0x800000)))
 								(. d :find :cpl_sizes)))))) '() 1 (inc fbw))
 		(and (= mode 2) any
-			(. d :insert :phase (map (lambda (&) (if (= 1 (. d :find :phase_in_use)) (bits-1 in) 0)) (. d :find :cpl_sizes)))))
+			(. d :insert :phase (map (lambda (&ignore) (if (= 1 (. d :find :phase_in_use)) (bits-1 in) 0)) (. d :find :cpl_sizes)))))
 	;rematrixing, of a pair alone
 	(when (= mode 2)
 		(when (or (and eac3 (= blk 0)) (= (bits-1 in) 1))
@@ -780,8 +780,8 @@
 	;each frame of E-AC-3 sends its coupling and spectral extension
 	;coordinates and its leaks afresh
 	;in its first block, with no flag before them; AC-3 has the flags
-	(. d :insert :first_coords (map (lambda (&) 1) (. d :find :first_coords)))
-	(if (. h :find :eac3) (. d :insert :spx_first (map (lambda (&) 1) (. d :find :spx_first))))
+	(. d :insert :first_coords (map (lambda (&ignore) 1) (. d :find :first_coords)))
+	(if (. h :find :eac3) (. d :insert :spx_first (map (lambda (&ignore) 1) (. d :find :spx_first))))
 	(. d :insert :first_cpl_leak (if (. h :find :eac3) 1 0))
 	(unless (. d :find :window)
 		(scatter d :window (mdct-kbd 256 5) :tables (mdct-tables 256) :short_tables (mdct-tables 128)

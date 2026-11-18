@@ -119,7 +119,7 @@
 (assert-true "the three that are there are, the one behind it by the long way round" (every (# (find %0 (lisp-nodes :t))) gn_others))
 (each (# (open-task (str `(mail-send (hex-decode ,(hex-encode gn_mbox)) "there")) %0 +kn_call_pin 0 (mail-mbox))) gn_others)
 (assert-list-eq "and a task sent to each of them runs" '("there" "there" "there")
-	(map (lambda (&) (mail-read gn_mbox)) gn_others))
+	(map (lambda (&ignore) (mail-read gn_mbox)) gn_others))
 ;each waits a moment before it goes. One of them is the way to the other
 ;two now, and if it went at once what it had yet to pass on went with it
 (each (# (open-task "(progn (task-sleep 300000) (pii-exit))" %0 +kn_call_pin 0 (mail-mbox))) gn_others)

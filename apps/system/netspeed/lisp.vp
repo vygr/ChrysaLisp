@@ -21,7 +21,7 @@
 		;of lib/media/noise.inc, so each build gives the same mix
 		(while (< (length _) n) (setq _ (cat _ _)))
 		(defq _ (copy (slice _ 0 n)) seed 1)
-		(each! (lambda (&) (swap _ (!) (% (>> (setq seed (logand (+ (* seed 1664525) 1013904223) 0xffffffff)) 8) (inc (!)))))
+		(each! (lambda (&ignore) (swap _ (!) (% (>> (setq seed (logand (+ (* seed 1664525) 1013904223) 0xffffffff)) 8) (inc (!)))))
 			(list _) n 0)
 		`(progn ~_))
 

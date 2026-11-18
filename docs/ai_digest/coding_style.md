@@ -271,8 +271,9 @@ allowing for sophisticated pattern matching.
 
 *   **`&` (Skip One)** An `&` in a pattern, or in the parameters of a
 	function, takes one positional value and binds nothing. It is the way to
-	ignore a single value, in the middle of a pattern or as the whole of it,
-	`(lambda (&) 0)`.
+	skip a single value before names that bind, `(bind '(& b c) seq)`,
+	`(lambda (& y) ...)`. A function that ignores all it is given, however
+	many, is `(lambda (&ignore) ...)`.
 
 *   **`_` (Not For Ignoring)** The underscore is a name like any other. Used
 	to consume a value that will not be used it **still performs a binding**

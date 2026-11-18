@@ -50,7 +50,7 @@
 		(defq reel (reel-open file) s (load file)
 			frame (lambda (n) (bind '(at len) (elem-get frames n)) (slice s at (+ at len))))
 		(assert-eq (cat name ": its frames counted") (length frames) (. reel :find :frames))
-		(assert-true (cat name ": each packet the frame, in order") (every (lambda (&) (eql (reel-packet reel (!)) (frame (!)))) frames))
+		(assert-true (cat name ": each packet the frame, in order") (every (lambda (&ignore) (eql (reel-packet reel (!)) (frame (!)))) frames))
 		(assert-true (cat name ": each packet the frame, by a seek")
 			(every (# (eql (reel-packet reel %0) (frame %0))) (cat (reverse (map! (const !) '() 0 (length frames))) (list 0))))
 		(assert-eq (cat name ": none after the last") :nil (reel-packet reel (length frames))))

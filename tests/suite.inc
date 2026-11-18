@@ -708,7 +708,7 @@
 	;the watchers are stopped, and the longest each was kept waiting
 	(bind '(stop back) watch)
 	(each (# (mail-send %0 "stop")) stop)
-	(sort (map (lambda (&) (/ (str-as-num (ifn (mail-read-timeout back (task-timeout 5)) "0")) 1000)) stop)
+	(sort (map (lambda (&ignore) (/ (str-as-num (ifn (mail-read-timeout back (task-timeout 5)) "0")) 1000)) stop)
 		(# (- %1 %0))))
 
 (defun run-suite (modules &optional verbose frames jobs child all stale watch leaks progress report)

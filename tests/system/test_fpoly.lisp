@@ -105,7 +105,7 @@
 (defun fp-mix (paths)
 	; (fp-mix paths) -> paths
 	(defq paths (cat paths))
-	(each (lambda (&) (swap paths (!) (fp-rnd (length paths)))) paths)
+	(each (lambda (&ignore) (swap paths (!) (fp-rnd (length paths)))) paths)
 	paths)
 
 (defun fp-hash (w h flags mode y paths)

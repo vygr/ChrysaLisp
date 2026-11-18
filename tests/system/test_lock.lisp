@@ -26,9 +26,9 @@
 
 ; --- Test save and cat command locking ---
 (import "lib/task/pipe.inc")
-(pipe-run "echo lock_test_data | save tests/scratch/tmp_lock_test.txt" (lambda (&) :nil))
-(pipe-run "cat tests/scratch/tmp_lock_test.txt" (lambda (&) :nil))
-(pipe-run "rm tests/scratch/tmp_lock_test.txt" (lambda (&) :nil))
+(pipe-run "echo lock_test_data | save tests/scratch/tmp_lock_test.txt" (lambda (&ignore) :nil))
+(pipe-run "cat tests/scratch/tmp_lock_test.txt" (lambda (&ignore) :nil))
+(pipe-run "rm tests/scratch/tmp_lock_test.txt" (lambda (&ignore) :nil))
 
 (defq hist2 (lock-history-rpc))
 (assert-true "lock-history contains save write lock"
@@ -41,14 +41,14 @@
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_lock_test.txt (unlock read)") %0)) hist2)))
 
 ; --- Test cp, mv, dump, rle, lz4, rm locking ---
-(pipe-run "echo cp_data | save tests/scratch/tmp_cp_src.txt" (lambda (&) :nil))
-(pipe-run "cp tests/scratch/tmp_cp_src.txt tests/scratch/tmp_cp_dst.txt" (lambda (&) :nil))
-(pipe-run "mv tests/scratch/tmp_cp_dst.txt tests/scratch/tmp_mv_dst.txt" (lambda (&) :nil))
-(pipe-run "dump tests/scratch/tmp_mv_dst.txt" (lambda (&) :nil))
-(pipe-run "rle tests/scratch/tmp_mv_dst.txt" (lambda (&) :nil))
-(pipe-run "lz4 tests/scratch/tmp_mv_dst.txt" (lambda (&) :nil))
-(pipe-run "rm tests/scratch/tmp_cp_src.txt" (lambda (&) :nil))
-(pipe-run "rm tests/scratch/tmp_mv_dst.txt" (lambda (&) :nil))
+(pipe-run "echo cp_data | save tests/scratch/tmp_cp_src.txt" (lambda (&ignore) :nil))
+(pipe-run "cp tests/scratch/tmp_cp_src.txt tests/scratch/tmp_cp_dst.txt" (lambda (&ignore) :nil))
+(pipe-run "mv tests/scratch/tmp_cp_dst.txt tests/scratch/tmp_mv_dst.txt" (lambda (&ignore) :nil))
+(pipe-run "dump tests/scratch/tmp_mv_dst.txt" (lambda (&ignore) :nil))
+(pipe-run "rle tests/scratch/tmp_mv_dst.txt" (lambda (&ignore) :nil))
+(pipe-run "lz4 tests/scratch/tmp_mv_dst.txt" (lambda (&ignore) :nil))
+(pipe-run "rm tests/scratch/tmp_cp_src.txt" (lambda (&ignore) :nil))
+(pipe-run "rm tests/scratch/tmp_mv_dst.txt" (lambda (&ignore) :nil))
 
 (defq hist3 (lock-history-rpc))
 (assert-true "lock-history contains cp src read lock"
@@ -61,9 +61,9 @@
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_mv_dst.txt (lock read)") %0)) hist3)))
 
 ; --- Test edit command locking ---
-(pipe-run "echo original | save tests/scratch/tmp_edit.txt" (lambda (&) :nil))
-(pipe-run "edit -q -c (edit-delete) tests/scratch/tmp_edit.txt" (lambda (&) :nil))
-(pipe-run "rm tests/scratch/tmp_edit.txt" (lambda (&) :nil))
+(pipe-run "echo original | save tests/scratch/tmp_edit.txt" (lambda (&ignore) :nil))
+(pipe-run "edit -q -c (edit-delete) tests/scratch/tmp_edit.txt" (lambda (&ignore) :nil))
+(pipe-run "rm tests/scratch/tmp_edit.txt" (lambda (&ignore) :nil))
 
 (defq hist4 (lock-history-rpc))
 (assert-true "lock-history contains edit read lock"
@@ -72,14 +72,14 @@
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_edit.txt (lock write)") %0)) hist4)))
 
 ; --- Test diff, patch, sed, huff locking ---
-(pipe-run "echo line1 | save tests/scratch/tmp_da.txt" (lambda (&) :nil))
-(pipe-run "echo line2 | save tests/scratch/tmp_db.txt" (lambda (&) :nil))
-(pipe-run "diff tests/scratch/tmp_da.txt tests/scratch/tmp_db.txt" (lambda (&) :nil))
-(pipe-run "patch tests/scratch/tmp_da.txt tests/scratch/tmp_db.txt" (lambda (&) :nil))
-(pipe-run "sed -e line1 -r changed tests/scratch/tmp_da.txt" (lambda (&) :nil))
-(pipe-run "huff tests/scratch/tmp_da.txt" (lambda (&) :nil))
-(pipe-run "rm tests/scratch/tmp_da.txt" (lambda (&) :nil))
-(pipe-run "rm tests/scratch/tmp_db.txt" (lambda (&) :nil))
+(pipe-run "echo line1 | save tests/scratch/tmp_da.txt" (lambda (&ignore) :nil))
+(pipe-run "echo line2 | save tests/scratch/tmp_db.txt" (lambda (&ignore) :nil))
+(pipe-run "diff tests/scratch/tmp_da.txt tests/scratch/tmp_db.txt" (lambda (&ignore) :nil))
+(pipe-run "patch tests/scratch/tmp_da.txt tests/scratch/tmp_db.txt" (lambda (&ignore) :nil))
+(pipe-run "sed -e line1 -r changed tests/scratch/tmp_da.txt" (lambda (&ignore) :nil))
+(pipe-run "huff tests/scratch/tmp_da.txt" (lambda (&ignore) :nil))
+(pipe-run "rm tests/scratch/tmp_da.txt" (lambda (&ignore) :nil))
+(pipe-run "rm tests/scratch/tmp_db.txt" (lambda (&ignore) :nil))
 
 (defq hist5 (lock-history-rpc))
 (assert-true "lock-history contains diff, sed and huff read lock"
@@ -92,16 +92,16 @@
 (assert-true "tests/scratch/tmp_db.txt removed" (not (file-stream "tests/scratch/tmp_db.txt")))
 
 ; --- Test trace command locking ---
-(pipe-run "trace sys/task/dump" (lambda (&) :nil))
+(pipe-run "trace sys/task/dump" (lambda (&ignore) :nil))
 (defq hist6 (lock-history-rpc))
 (assert-true "lock-history contains trace read lock"
 	(nempty? (some (# (if (eql %0 "obj/vp/ (lock read)") %0)) hist6)))
 
 ; --- Test head and tail command locking ---
-(pipe-run "echo test_line | save tests/scratch/tmp_head_tail.txt" (lambda (&) :nil))
-(pipe-run "head tests/scratch/tmp_head_tail.txt" (lambda (&) :nil))
-(pipe-run "tail tests/scratch/tmp_head_tail.txt" (lambda (&) :nil))
-(pipe-run "rm tests/scratch/tmp_head_tail.txt" (lambda (&) :nil))
+(pipe-run "echo test_line | save tests/scratch/tmp_head_tail.txt" (lambda (&ignore) :nil))
+(pipe-run "head tests/scratch/tmp_head_tail.txt" (lambda (&ignore) :nil))
+(pipe-run "tail tests/scratch/tmp_head_tail.txt" (lambda (&ignore) :nil))
+(pipe-run "rm tests/scratch/tmp_head_tail.txt" (lambda (&ignore) :nil))
 
 (defq hist9 (lock-history-rpc))
 (assert-true "lock-history contains head and tail read lock"
@@ -110,21 +110,21 @@
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_head_tail.txt (unlock read)") %0)) hist9)))
 
 ; --- Test ctf command locking ---
-(pipe-run "ctf fonts/Chess.ctf" (lambda (&) :nil))
+(pipe-run "ctf fonts/Chess.ctf" (lambda (&ignore) :nil))
 (defq hist10 (lock-history-rpc))
 (assert-true "lock-history contains ctf read lock"
 	(nempty? (some (# (if (eql %0 "fonts/Chess.ctf (lock read)") %0)) hist10)))
 (assert-true "lock-history contains ctf read unlock"
 	(nempty? (some (# (if (eql %0 "fonts/Chess.ctf (unlock read)") %0)) hist10)))
 
-(pipe-run "cp fonts/Chess.ctf tests/scratch/tmp_font.ctf" (lambda (&) :nil))
-(pipe-run "ctf -c tests/scratch/tmp_font.ctf" (lambda (&) :nil))
+(pipe-run "cp fonts/Chess.ctf tests/scratch/tmp_font.ctf" (lambda (&ignore) :nil))
+(pipe-run "ctf -c tests/scratch/tmp_font.ctf" (lambda (&ignore) :nil))
 (defq hist11 (lock-history-rpc))
 (assert-true "lock-history contains ctf convert write lock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_font.ctf (lock write)") %0)) hist11)))
 (assert-true "lock-history contains ctf convert write unlock"
 	(nempty? (some (# (if (eql %0 "tests/scratch/tmp_font.ctf (unlock write)") %0)) hist11)))
-(pipe-run "rm tests/scratch/tmp_font.ctf" (lambda (&) :nil))
+(pipe-run "rm tests/scratch/tmp_font.ctf" (lambda (&ignore) :nil))
 
 ; --- Test with-lock macros ---
 (defq res_write (with-write-lock "tests/scratch/tmp_macro_write.txt"
@@ -136,7 +136,7 @@
 		(load "tests/scratch/tmp_macro_write.txt")))
 (assert-eq "with-read-lock returns body result" "macro_data" res_read)
 
-(pipe-run "rm tests/scratch/tmp_macro_write.txt" (lambda (&) :nil))
+(pipe-run "rm tests/scratch/tmp_macro_write.txt" (lambda (&ignore) :nil))
 
 (defq hist12 (lock-history-rpc))
 (assert-true "lock-history contains macro write lock"

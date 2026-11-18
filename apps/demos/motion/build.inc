@@ -233,7 +233,7 @@
 		line (build-text "> (cat '(1 2) '(3 4))" 13 314.0 126.0 +build_pink)
 		vt (build-panel 300 194 210 224 +build_cyan)
 		head (build-text "class/list/vtable" 10 312.0 212.0 +build_cyan)
-		slots (build-code +build_vtable (map (lambda (&) +build_dim) +build_vtable) 312.0 232.0 18.0 10)
+		slots (build-code +build_vtable (map (lambda (&ignore) +build_dim) +build_vtable) 312.0 232.0 18.0 10)
 		fun (scene-chip "lisp_cat" 565.0 210.0 100 26 +build_gold (get :layer stage) 12)
 		rc (build-text "call-rc :r2 72" 10 518.0 246.0 +build_gold))
 	(def (last slots) :fig_fill +build_cyan :fig_glow (build-glow +build_cyan) :fig_glow_size 4.0)
@@ -500,7 +500,7 @@
 
 (defun build-arm (f c)
 	;the six instructions of its code
-	(defq lines (build-code +build_arm (map (lambda (&) +build_lime) +build_arm) 196.0 256.0 19.0 11))
+	(defq lines (build-code +build_arm (map (lambda (&ignore) +build_lime) +build_arm) 196.0 256.0 19.0 11))
 	(build-type lines 0.35)
 	(each (# (push (get :native stage) %0)) lines)
 	(scene-say '("The call keeps the link register on the VP stack, x28, round a blr;"

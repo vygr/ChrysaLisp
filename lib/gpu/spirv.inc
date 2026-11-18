@@ -329,7 +329,7 @@
 
 (defun spv-function (id type ptypes fnc)
 	;a function, fnc is given the ids of its parameters and makes its body
-	(defq pids (map (lambda (&) (spv-id)) ptypes) ftype (spv-ftype type ptypes))
+	(defq pids (map (lambda (&ignore) (spv-id)) ptypes) ftype (spv-ftype type ptypes))
 	(spv-op spv_code 54 (spv-type type) id 0 ftype)
 	(each (# (spv-op spv_code 55 (spv-type %0) %1)) ptypes pids)
 	(spv-op spv_code 248 (spv-id))

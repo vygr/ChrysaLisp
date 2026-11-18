@@ -712,10 +712,11 @@ doc.
 *	An expression of only constants and literals inside a function is
 	`(const ...)`. A value used once is put where it is used, not named.
 
-*	`&` takes one argument or element and binds nothing: `(lambda (&) ...)`
-	is a function of one argument it ignores, `(bind '(& b c) seq)` skips
-	the first. `&ignore` takes and drops all the rest. Never `(lambda (_)
-	...)`, which binds a variable named `_`.
+*	A function that ignores what it is given is `(lambda (&ignore) ...)`,
+	of any number of arguments, none among them. `&` skips one place before
+	names that bind, `(bind '(& b c) seq)`, `(lambda (& y) ...)`, and takes
+	exactly one there. Never `(lambda (_) ...)`, which binds a variable
+	named `_`.
 	`(const identity)` passes its argument on.
 
 ## No Recursion, a `(list)` Is the Stack

@@ -341,7 +341,7 @@
 	;room in the frame for the textures of a pixel shader, after its
 	;inputs: for each where its pixels are, how wide and how high it is,
 	;and how many bytes a row of it is, 8 bytes each. -> where each begins
-	(map (lambda (&) (defq at frame_size) (times 4 (sv-slots :int)) at) (shader-textures program)))
+	(map (lambda (&ignore) (defq at frame_size) (times 4 (sv-slots :int)) at) (shader-textures program)))
 
 (defun sv-tex-coord (r limit)
 	;a place of 0 to 1 that goes round again, in a float register, as
@@ -1824,7 +1824,7 @@
 	;elements of a vector of numbers
 	(vp-load-rcr :r4 +array_begin :r4)
 	(f-bind :str :vtable :r5)
-} (apply (const cat) (cat (list "") (map (lambda (&) (cat
+} (apply (const cat) (cat (list "") (map (lambda (&ignore) (cat
 					"	(vp-load-rcr :r4 " (str (* (!) +ptr_size)) " :r2)\n"
 					"	(vp-load-rcr :r2 +obj_vtable :r3)\n"
 					"	(vpif '(:r3 = :r5))\n"

@@ -467,7 +467,7 @@
 			((eql (first form) 'if)
 				(when (<= 3 (length form) 4)
 					(elem-set held idx (defq arms (cat form)))
-					(each! (lambda (&) (push todo (list arms (!)))) (list arms) 2)))
+					(each! (lambda (&ignore) (push todo (list arms (!)))) (list arms) 2)))
 			((eql (first form) 'progn)
 				(when (> (length form) 1)
 					(elem-set held idx (defq arms (cat form)))
@@ -500,13 +500,13 @@
 	;end sees only ifs. A walk, a place at a time, each form it goes into a
 	;copy, as the source may be a constant
 	(defq top (cat forms) todo (list))
-	(each! (lambda (&) (push todo (list top (!)))) (list top))
+	(each! (lambda (&ignore) (push todo (list top (!)))) (list top))
 	(while (defq spot (pop todo))
 		(bind '(held idx) spot)
 		(when (and (list? (defq form (elem-get held idx))) (nempty? form))
 			(if (eql (first form) 'cond) (setq form (sh-cond-if form)))
 			(elem-set held idx (defq copy (cat form)))
-			(each! (lambda (&) (push todo (list copy (!)))) (list copy) 1)))
+			(each! (lambda (&ignore) (push todo (list copy (!)))) (list copy) 1)))
 	top)
 
 (defun sh-returns? (block)

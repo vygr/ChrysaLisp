@@ -85,7 +85,7 @@
 		;each command placed on whichever node has least to do, and then all
 		;of them stopped. A node that goes cuts off those behind it
 		(import "lib/task/pipe.inc")
-		(defq nt_quiet (lambda (&)) nt_was (map (const first) (node-nets)) nt_before (lisp-nodes :t))
+		(defq nt_quiet (lambda (&ignore)) nt_was (map (const first) (node-nets)) nt_before (lisp-nodes :t))
 		(pipe-run "nodes -s ring -n 4" nt_quiet)
 		(times 3 (pipe-run "nodes -s ring -n 4 -o" nt_quiet))
 		(defq nt_new (filter (# (not (find (first %0) nt_was))) (node-nets))

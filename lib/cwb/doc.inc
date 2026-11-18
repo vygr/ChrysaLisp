@@ -721,7 +721,7 @@
 					((find key '(:type :cache :m :inv :box)))
 					((eql key :items)
 						(when (cwb-group? item)
-							(defq outs (map (lambda (&) (list)) val))
+							(defq outs (map (lambda (&ignore) (list)) val))
 							(push out :items outs)
 							(each (# (push todo (list %0 %1))) val outs)))
 					;what a file had that is not known here, as it was
@@ -753,7 +753,7 @@
 		(each (lambda ((key val))
 				(cond
 					((eql key :items)
-						(defq kids (map (lambda (&) :nil) val))
+						(defq kids (map (lambda (&ignore) :nil) val))
 						(cwb-items! item kids)
 						(each (# (push todo (list %0 kids (!)))) val))
 					;where it is, its place

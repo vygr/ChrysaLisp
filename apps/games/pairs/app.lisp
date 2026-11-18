@@ -153,7 +153,7 @@
 
 (defun solve ()
 	; Cheat function: reveal all
-	(setq *states* (map (lambda (&) 2) *states*))
+	(setq *states* (map (lambda (&ignore) 2) *states*))
 	(update-view))
 
 (defun dispatch-action (id)

@@ -93,9 +93,9 @@ both mean the usual thing.
 
 `(# ...)` makes a lambda of as many parameters as the highest `%n` in its
 body. One that uses only `(!)`, the index, or nothing of what it is given,
-has none, and is then called with one. Write `(lambda (&) ...)` for a
-function that ignores the one thing it is given, and `(lambda (&ignore)
-...)` for one that ignores all it is given, however many.
+has none, and is then called with one. Write `(lambda (&ignore) ...)` for a
+function that ignores what it is given, however many, none among them. An
+`&` takes exactly one place, for skipping one before names that bind.
 
 Not `(lambda (_) ...)`. The `_` is a name like any other, it is bound each
 time the function is called, to a thing that is never looked at, and it
@@ -104,7 +104,7 @@ of parameters, and in a `bind`, is a place that takes a thing and binds
 nothing.
 
 ```vdu
-(map (lambda (&) 0) seq)            ; a 0 for each
+(map (lambda (&ignore) 0) seq)      ; a 0 for each
 (each (lambda ((name & size)) ...)) ; the first and the third of each
 (bind '(a &ignore) seq)             ; the first, and no more is looked at
 ```
