@@ -342,7 +342,14 @@ From the machine the work is on:
 	its old boot image has no such function and a session can not start
 	to build. Build the native and boot first, then add the ffi. A new
 	native is bound in its library's `.inc`; into `root.inc` only at a
-	release, with a new snapshot. A boot-time ffi of a function the image
+	release, with a new snapshot. If it has been done, the others' sessions
+	end at their start, `(ffi path [sym flags]) wrong_types` in
+	`/tmp/chrysalisp_rack.log`, and `rack -b` can not help, its build is a
+	session too. `make it` on the machine the work is on makes the natives
+	and boot image of every platform: send `obj/<cpu>/<abi>/` to each by
+	rsync, leaving out the host program's folder, `Darwin/` or `Linux/`,
+	and `cache/`, `source/`, `sync_hashes` and `tests/`, then kill the
+	sessions left at their start, the member's children, by pid. A boot-time ffi of a function the image
 	does not hold says "Bind error" during an install: add it to
 	`+boot_extras`, `lib/boot/image.inc`.
 
