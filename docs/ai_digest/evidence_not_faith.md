@@ -406,7 +406,9 @@ bytes, the VP64 image and the host program for Windows.
 
 Digits, `apps/science/digits`, learns MNIST's handwritten digits with a network of
 `lib/nn`, 784 inputs, 128 ReLU, 10 softmax, 101,770 params, a batch of
-512. Measured on an M4 on 2026-11-17, sessions of 16 nodes.
+512. Measured on an M4, sessions of 16 nodes, the kernel table on
+2026-11-17, the epochs on 2026-11-18 from the app's own count of samples a
+second on a hidden desktop.
 
 The first layer forward, a sample at a time, against the same dense kernel
 of the shader language, `tests/scratch/dense_forward.shader`, run by its VP
@@ -428,16 +430,25 @@ gradients. The params never leave the GPU but to be shown. An epoch of
 
 | How | An epoch |
 |---|---|
-| A farm of 16 children, the gradients summed in shared bufs | 1.42s |
-| The GPU, from the task of the probe | 314ms |
-| The GPU, from a task of its own, given its steps 8 ahead | 323ms |
+| A farm of 16 children, the gradients summed in shared bufs | 0.75s |
+| The GPU, a farm of one task, a step a job | 0.44s |
 
-The window's GPU mode is the last, so its frames hold none of it up. It
-ran 15 epochs to its early stop in 8 seconds, 97.0% of the 10,000 test
-digits right. The task of its own first took 1,571ms an epoch: the keys of
-its bufs were checked with `eql` on a list, which compares big numbers as
-objects, so every step opened the bufs again and put the 55MB data set back
-on the GPU.
+| Date | The farm | The GPU |
+|---|---|---|
+| 2026-11-17 | 1.42s | 323ms, a task of its own given its steps 8 ahead |
+| 2026-11-18 | 0.75s | 0.44s, a farm of one, a step a job |
+
+The farm's gain is the natives and the floats of 7.8. The GPU's loss is the
+price of one protocol: its task is a farm of one, as the CPU's children are
+a farm of many, and is given its next step when the last is answered, where
+the task made by hand had 8 ahead. At a batch of 1,024 it is 0.36s an epoch,
+151,000 samples a second, the farm 90,000. LeNet-5 at that batch learns
+5,120 a second on the GPU and 18,000 on the farm: its convolutions are
+natives on the CPU, and kernels of few long threads on the GPU.
+
+The task made by hand first took 1,571ms an epoch: the keys of its bufs
+were checked with `eql` on a list, which compares big numbers as objects, so
+every step opened the bufs again and put the 55MB data set back on the GPU.
 
 ## The VP64 Target: A Blueprint for Silicon
 

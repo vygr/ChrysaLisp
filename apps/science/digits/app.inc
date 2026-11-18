@@ -83,6 +83,10 @@
 ; the jobs
 ;;;;;;;;;;
 
+;a step's batch is a part to each of so many jobs, each its slice of the
+;gradient buf, the part of each one of these, the user's choice
+(defq +digits_batches ''(16 32 64) +digits_jobs 16)
+
 ;a job, what to do with which samples: train, the gradients of the loss
 ;over them summed into the child's slice, or test or valid, how many are
 ;right and the confusion of them, of the test set or the training set. The keys of the three bufs, so a child opens them
@@ -100,11 +104,11 @@
 	(long step count right)
 	(double loss))
 
-;a job of the GPU's task, a +digits_job, slot the generation of the jobs it
-;is one of, those of an older one not done, then flags, load the params
-;from their buf before it, sync write them after into the gradient block's
-;slice past the farm's, and the rate of a step. The samples follow. Its
-;answer is a +digits_reply, a count of -1 for no GPU there
+;a job of the GPU's task, a +digits_job, its slot not used, then flags,
+;load the params from their buf before it, sync write them after into the
+;gradient block's slice past the CPU farm's, and the rate of a step. The
+;samples follow, none for a job that is only its flags. Its answer is a
+;+digits_reply, a count of -1 for no GPU there
 (structure +digits_gpu_job +digits_job_size
 	(long flags)
 	(double rate))
@@ -112,8 +116,18 @@
 (bits +digits_gpu_flag 0
 	(bit load sync))
 
-;the most samples the GPU works on at once, a batch or a part of a check
-(defq +digits_gpu_batch 1024)
+;The GPU's task is a farm of one, lib/task/jobs.inc, as the CPU's is a farm
+;of many, and ends as a child of any farm does. Given nothing for its idle
+;time it goes of its own accord, its app gone or with no more for it, and
+;what it had of the GPU with it. With a job out and no answer for the
+;app's patience the farm starts another and gives it the job again. So
+;the app asks for the params back when it stops, and puts its own where a
+;new task loads them from
+(defq +digits_gpu_idle 30 +digits_gpu_patience 30)
+
+;the most samples the GPU works on at once, the biggest batch of a step,
+;what its buffers are made for, and a part of a check
+(defq +digits_gpu_batch (* (reduce (const max) +digits_batches) +digits_jobs))
 
 ;;;;;;;;;;;;;
 ; the samples

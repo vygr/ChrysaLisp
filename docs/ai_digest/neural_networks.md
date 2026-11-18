@@ -279,12 +279,23 @@ the next's written, swapped each step.
 ### The GPU's own task
 
 The kernels are driven by `gpu.lisp`, a task on another node, so the frames
-the window draws hold none of it up. The app gives it its steps 8 ahead, so
-the GPU never waits on the window; the params come back every 2 seconds for
-the picture, and at each epoch's check to be kept if they are the best. An
-epoch on the GPU takes about 300ms, the farm of 16 nodes 0.90s, and a run to
-its early stop 15 epochs, about 8 seconds, 97.0% of the 10,000 test
-digits right.
+the window draws hold none of it up. It is a farm of one, `lib/task/jobs.inc`,
+as the CPU's children are a farm of many, the same protocol: the app gives it
+a step a job, the params come back every 2 seconds for the picture, at each
+epoch's check to be kept if they are the best, and when it stops.
+
+A farm lasts only while its work goes on. When it stops, or what is out is no
+longer wanted, a reset or a switch between the CPU and the GPU, the farm is
+closed, the courtesy that ends its children at once, and the next work makes
+a new one with new mailboxes. So nothing late comes in, and no child that
+may have gone, given nothing for a while, is ever given a job; a child the
+close did not reach goes by itself on its idle time. A new task of the GPU's
+has no params and loads them from their buf before its first job.
+
+On the M4, a batch of 1,024: the dense net learns 151,000 samples a second on
+the GPU, an epoch in 0.36s, and 90,000 on the farm of 16 nodes; LeNet-5 learns
+5,120 on the GPU and 18,000 on the farm, whose natives do its convolutions
+better than the GPU's kernels yet do.
 
 ## What is not done
 
