@@ -16,7 +16,7 @@
 			ng_scratch (nn-scratch ng_model) ng_x (fill (doubles) 16 (n2d 0))
 			ng_k (/ (n2d 1) (n2d 255)))
 		;biases not 0, so a ReLU is not at its corner for every unit
-		(each (lambda ((kind ins outs act name w b))
+		(each (lambda ((kind ins outs act name w b &ignore))
 				(each! (lambda () (elem-set ng_params (+ b (!)) (n2d 0.05))) '() 0 outs))
 			(nn-layers ng_model))
 		(nn-gpu-data ng_gpu ng_data)

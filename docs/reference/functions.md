@@ -7715,7 +7715,7 @@ before had any
 ```code
 (nn-activate act a) -> a
 
-an activation of a layer's scores, in place
+an activation of a layer's scores, in place, native but for softmax
 ```
 
 ### nn-backward
@@ -7735,6 +7735,14 @@ each one's weights and the activation of the one before
 (nn-bytes-of model count) -> bytes
 
 of so many of its numbers, 4 bytes a float, 8 a double
+```
+
+### nn-fan-in
+
+```code
+(nn-fan-in layer) -> count
+
+how many numbers feed one of its units
 ```
 
 ### nn-flat
@@ -7759,7 +7767,8 @@ a sample through the layers, each one's outputs kept in the scratch
 (nn-gpu model capacity) -> :nil | gpu
 
 the kernels and buffers to train the model on a batch of up to so
-many, :nil if there is no GPU or a kernel will not build on it
+many, :nil if there is no GPU or a kernel will not build on it. Its
+kernels are of dense layers, as yet
 ```
 
 ### nn-gpu-act
@@ -7859,7 +7868,7 @@ the output that is biggest
 (nn-init model) -> params
 
 weights at random, each layer's spread by how many feed a unit, He's
-uniform, the biases 0
+uniform for a ReLU, LeCun's for the rest, the biases 0
 ```
 
 ### nn-ins
@@ -7872,6 +7881,15 @@ uniform, the biases 0
 
 ```code
 (nn-kind model) -> :doubles | :floats
+```
+
+### nn-layer-sizes
+
+```code
+(nn-layer-sizes layer) -> (rows row biases)
+
+its weights, so many rows of so many, and its biases: a dense layer a
+row for each unit, a conv layer one row of all its filters
 ```
 
 ### nn-layers
@@ -7895,7 +7913,7 @@ the kind, to be summed
 (nn-model description [kind]) -> model
 
 (layers params kind), each layer (kind ins outs act name weights
-biases), the kind of its numbers :doubles, or :floats
+biases shape), the kind of its numbers :doubles, or :floats
 ```
 
 ### nn-net
@@ -7912,6 +7930,14 @@ the params as rows, each its own vector, a layer at a time
 (nn-num model num) -> double | float
 
 a number made the model's kind
+```
+
+### nn-option
+
+```code
+(nn-option options key default) -> val
+
+the value after a key of a list of keys and values, else the default
 ```
 
 ### nn-outs
@@ -7931,10 +7957,11 @@ how many numbers the model has
 ### nn-scratch
 
 ```code
-(nn-scratch model) -> (acts deltas)
+(nn-scratch model) -> (acts deltas works)
 
 what a sample's sums are worked in, made once: each layer's outputs and
-its error
+its error, and of a conv layer its patches, their error, and ones to
+sum its biases' gradient by
 ```
 
 ### nn-slope

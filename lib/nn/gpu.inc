@@ -32,7 +32,10 @@
 (defun nn-gpu (model capacity)
 	; (nn-gpu model capacity) -> :nil | gpu
 	;the kernels and buffers to train the model on a batch of up to so
-	;many, :nil if there is no GPU or a kernel will not build on it
+	;many, :nil if there is no GPU or a kernel will not build on it. Its
+	;kernels are of dense layers, as yet
+	(unless (every (# (eql (first %0) :dense)) (nn-layers model))
+		(throw "The GPU's kernels are of dense layers only, as yet !" (map (const first) (nn-layers model))))
 	(when (> (gpu-format) 0)
 		(defq programs (map (# (shader-load (cat "lib/nn/shaders/" %0 ".shader"))) +nn_gpu_shaders)
 			kernels (map (const shader-gpu-kernel) programs) ins (nn-ins model))
@@ -70,7 +73,7 @@
 	;the params, a vector of any kind, onto the GPU as floats, the step's
 	(bind '(model capacity programs kernels bufs layers set &ignore) gpu)
 	(defq fs (nums-convert params (floats)))
-	(each (lambda ((kind ins outs act name w b) (ws bs &ignore))
+	(each (lambda ((kind ins outs act name w b &ignore) (ws bs &ignore))
 			(gpu-write (elem-get ws set) 0 (slice fs w b))
 			(gpu-write (elem-get bs set) 0 (slice fs b (+ b outs))))
 		(nn-layers model) layers)

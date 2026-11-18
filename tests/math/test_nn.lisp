@@ -7,8 +7,8 @@
 (assert-eq "how many numbers" 101770 (nn-params nn_mnist))
 (assert-eq "ins" 784 (nn-ins nn_mnist))
 (assert-eq "outs" 10 (nn-outs nn_mnist))
-(assert-list-eq "the first layer" '(:dense 784 128 :relu "0" 0 100352) (first (nn-layers nn_mnist)))
-(assert-list-eq "the second, after the first's biases" '(:dense 128 10 :softmax "1" 100480 101760)
+(assert-list-eq "the first layer" '(:dense 784 128 :relu "0" 0 100352 :nil) (first (nn-layers nn_mnist)))
+(assert-list-eq "the second, after the first's biases" '(:dense 128 10 :softmax "1" 100480 101760 :nil)
 	(second (nn-layers nn_mnist)))
 (assert-eq "a name given" "fc1"
 	(elem-get (first (nn-layers (nn-model '((:input 2) (:dense 3 :relu "fc1"))))) +nn_layer_name))
@@ -22,7 +22,7 @@
 	nn_x (doubles (n2d 0.5) (n2d -0.25) (n2d 0.75) (n2d 0.1) (n2d -0.6)) nn_label 1
 	nn_params (nn-init nn_small) nn_scratch (nn-scratch nn_small))
 ;biases not 0, so a ReLU is not at its corner for every unit
-(each (lambda ((kind ins outs act name w b))
+(each (lambda ((kind ins outs act name w b &ignore))
 		(each! (lambda () (elem-set nn_params (+ b (!)) (n2d 0.05))) '() 0 outs))
 	(nn-layers nn_small))
 
@@ -222,3 +222,82 @@
 			'((2 4 4 2) (2 5 4 2) (3 6 7 3) (1 3 3 1)))
 		(assert-eq (cat "patches and pools of " kind) '() bad))
 	'(:doubles :floats))
+
+;LeNet-5 as it is made today, 28 by 28 padded by 2, average pools, tanh,
+;and its numbers as the papers count them
+(defq nn_lenet (nn-model '((:input 1 28 28) (:conv 6 5 :tanh :pad 2) (:pool 2)
+		(:conv 16 5 :tanh) (:pool 2) (:dense 120 :tanh) (:dense 84 :tanh) (:dense 10 :softmax))))
+(assert-eq "LeNet-5's numbers" 61706 (nn-params nn_lenet))
+(assert-list-eq "its planes, layer by layer" '(4704 1176 1600 400 120 84 10)
+	(map (# (elem-get %0 +nn_layer_outs)) (nn-layers nn_lenet)))
+(assert-list-eq "a conv layer, its shape" '(:conv 784 4704 :tanh "0" 0 150 (1 28 28 5 1 2 6 28 28))
+	(first (nn-layers nn_lenet)))
+(assert-true "a filter bigger than its planes refused"
+	(catch (progn (nn-model '((:input 1 4 4) (:conv 2 5))) :nil) :t))
+
+;the gradients of conv and pool layers against the slope of the loss:
+;padding, a pool, a conv of what a pool gave, and a dense after; then a
+;stride of 2, and a pool with an edge left over
+(defun nn-grad-worst (model x label)
+	; the worst a gradient is from the slope of the loss
+	(defq params (nn-init model) scratch (nn-scratch model) grads (nn-zeros model) h (str-to-double "1e-6")
+		loss-at (lambda (params) (neg (log (elem-get (nn-forward model (nn-net model params) x scratch) label)))))
+	(each (lambda ((kind ins outs act name w b &ignore))
+			(each! (lambda () (elem-set params (+ b (!)) (n2d 0.05))) '() 0 (- (nn-params model) b)))
+		(list (last (nn-layers model))))
+	(nn-forward model (nn-net model params) x scratch)
+	(nn-backward model (nn-net model params) grads x scratch label)
+	(defq flat (nn-flat grads) worst (n2d 0))
+	(each! (lambda ()
+			(defq up (cat params) down (cat params) i (!))
+			(elem-set up i (+ (elem-get params i) h))
+			(elem-set down i (- (elem-get params i) h))
+			(setq worst (max worst (abs (- (/ (- (loss-at up) (loss-at down)) (* (n2d 2) h)) (elem-get flat i))))))
+		'() 0 (nn-params model))
+	worst)
+(defq nn_conv (nn-model '((:input 2 5 5) (:conv 3 3 :tanh :pad 1) (:pool 2) (:conv 2 2 :sigmoid) (:dense 3 :softmax)))
+	nn_cx (apply (const doubles) (map! (# (n2d (/ (n2d (- (% (* (!) 37) 19) 9)) (n2d 10)))) '() 0 50)))
+(assert-true "the gradients of conv and pool layers are the slope of the loss"
+	(< (nn-grad-worst nn_conv nn_cx 2) (str-to-double "1e-6")))
+(defq nn_stride (nn-model '((:input 1 7 7) (:conv 2 3 :tanh :stride 2 :pad 1) (:pool 3) (:dense 2 :softmax))))
+(assert-true "and of a stride, and a pool with an edge left over"
+	(< (nn-grad-worst nn_stride (slice nn_cx 0 49) 1) (str-to-double "1e-6")))
+
+;of floats, conv and pool as of doubles, to a float's precision
+(defq nn_cparams (nn-init nn_conv) nn_fconv (nn-model '((:input 2 5 5) (:conv 3 3 :tanh :pad 1) (:pool 2)
+		(:conv 2 2 :sigmoid) (:dense 3 :softmax)) :floats)
+	nn_cd (nn-forward nn_conv (nn-net nn_conv nn_cparams) nn_cx (nn-scratch nn_conv))
+	nn_cf (nn-forward nn_fconv (nn-net nn_fconv (nums-convert nn_cparams (floats))) (nums-convert nn_cx (floats))
+		(nn-scratch nn_fconv)))
+(assert-true "a conv net of floats gives what one of doubles does"
+	(every (# (< (abs (- (n2d %0) %1)) (str-to-double "1e-6"))) nn_cf nn_cd))
+
+;the activations and their slopes native, as their sums in Lisp, to the
+;bit, of doubles and floats
+(defun nn-act-lisp (act a)
+	(bind '(zero one &ignore) (nn-consts a))
+	(case act
+		(:relu (each (# (if (< %0 zero) (elem-set a (!) zero))) a))
+		(:sigmoid (each (# (elem-set a (!) (/ one (+ one (exp (neg %0)))))) a))
+		(:tanh (each (# (elem-set a (!) (tanh %0))) a)))
+	a)
+(defun nn-slope-lisp (act a d)
+	(bind '(zero one &ignore) (nn-consts a))
+	(case act
+		(:relu (each (# (if (<= %0 zero) (elem-set d (!) zero))) a))
+		(:sigmoid (each (# (elem-set d (!) (* %1 %0 (- one %0)))) a d))
+		(:tanh (each (# (elem-set d (!) (* %1 (- one (* %0 %0))))) a d)))
+	d)
+(each (lambda (kind)
+		(defq v (if (eql kind :floats) (floats) (doubles))
+			xs (apply (const doubles) (map! (# (/ (n2d (- (!) 40)) (n2d 7))) '() 0 81))
+			x (nums-convert xs (slice v 0 0)) bad (list))
+		(each (lambda (act)
+				(unless (eql (nn-activate act (cat x)) (nn-act-lisp act (cat x))) (push bad (list act)))
+				(defq a (nn-act-lisp act (cat x)) d (nums-convert (nums-scale (cat xs) (n2d 0.3) (cat xs)) (slice v 0 0)))
+				(unless (eql (nn-slope act a (cat d)) (nn-slope-lisp act a (cat d))) (push bad (list act :slope))))
+			'(:relu :sigmoid :tanh))
+		(assert-eq (cat "activations and slopes native, of " kind) '() bad))
+	'(:doubles :floats))
+(assert-true "an activation of one kind only"
+	(catch (progn (nn-act-slope 3 (doubles +double_1) (floats +float_1)) :nil) :t))
