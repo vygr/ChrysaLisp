@@ -44,8 +44,8 @@ rewrite of every shader.
   https://vygr.github.io/JS-Raymarch.
 * `apps/demos/surface/`, an app that runs that shader, on the GPU or with none.
 * `apps/demos/raymarch/`, a second shader, `film.shader`, and an app that
-  draws a film with it, on the GPU, reading each frame back to save it, or
-  with none.
+  draws a film with it, a farm of one task on the GPU or of a task a node
+  with none, each frame saved from the pixels the children draw onto.
 * `lib/gpu/tile.inc` and `lib/gpu/tile_child.lisp`, a shader drawn with no
   GPU by the nodes, a tile each, as native code. Both apps use it.
 * `lib/gpu/shade.inc` and `lib/gpu/shade_child.lisp`, the same tile shaded
