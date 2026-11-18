@@ -10,8 +10,8 @@
 ;		(:dense 120 :tanh) (:dense 84 :tanh) (:dense 10 :softmax))
 ;
 ; the input so many numbers, or c planes of h by w. A dense layer its
-; width, its activation, :relu :sigmoid :tanh :none or :softmax, the last
-; only, and a name if given, "fc1", for the tensors of a weights file,
+; width, its activation, :relu :sigmoid :tanh :none or :softmax, which is
+; the last layer's and no other's, and a name if given, "fc1", for the tensors of a weights file,
 ; else its place, "0", "1", as PyTorch names the layers of a Sequential.
 ; A conv layer its filters and their size, k by k across all the planes
 ; before, its activation, and :pad :stride and :name if given, 0 1 and
@@ -75,6 +75,16 @@
 (enums +nn_layer 0
 	(enum kind ins outs act name weights biases shape))
 
+;the activations there are, :softmax the last layer's and no other's
+(defq +nn_acts ''(:none :relu :sigmoid :tanh :softmax))
+
+(defun nn-act-of (act layer)
+	; (nn-act-of act layer) -> act
+	;a layer's activation, :none if it gives none, one of those there are
+	(setd act :none)
+	(unless (find act +nn_acts) (throw "No such activation !" layer))
+	act)
+
 (defun nn-option (options key default)
 	; (nn-option options key default) -> val
 	;the value after a key of a list of keys and values, else the default
@@ -92,26 +102,36 @@
 			(case (first layer)
 				(:dense
 					(bind '(outs &optional act name) (rest layer))
-					(push layers (list :dense ins outs (ifn act :none) (ifn name place)
+					(if (< outs 1) (throw "A layer of no units !" layer))
+					(push layers (list :dense ins outs (nn-act-of act layer) (ifn name place)
 						at (+ at (* ins outs)) :nil))
 					(setq at (+ at (* ins outs) outs) c outs h 1 w 1))
 				(:conv
 					(bind '(f k &optional act &rest options) (rest layer))
-					(defq pad (nn-option options :pad 0) s (nn-option options :stride 1)
-						oh (inc (/ (- (+ h pad pad) k) s)) ow (inc (/ (- (+ w pad pad) k) s)) n (* f c k k))
+					(defq pad (nn-option options :pad 0) s (nn-option options :stride 1))
+					(if (or (< f 1) (< k 1) (< s 1) (< pad 0)) (throw "A filter of no size, stride or padding !" layer))
+					(defq oh (inc (/ (- (+ h pad pad) k) s)) ow (inc (/ (- (+ w pad pad) k) s)) n (* f c k k))
 					(if (or (< (+ h pad pad) k) (< (+ w pad pad) k)) (throw "A filter bigger than its planes !" layer))
-					(push layers (list :conv ins (* f oh ow) (ifn act :none) (nn-option options :name place)
+					(push layers (list :conv ins (* f oh ow) (nn-act-of act layer) (nn-option options :name place)
 						at (+ at n) (list c h w k s pad f oh ow)))
 					(setq at (+ at n f) c f h oh w ow))
 				(:pool
 					(bind '(q &rest options) (rest layer))
+					(if (< q 1) (throw "A block of no size !" layer))
 					(defq oh (/ h q) ow (/ w q))
-					(if (< oh 1) (throw "A block bigger than its planes !" layer))
+					(if (or (< oh 1) (< ow 1)) (throw "A block bigger than its planes !" layer))
 					(push layers (list :pool ins (* c oh ow) :none (nn-option options :name place)
 						at at (list c h w q oh ow)))
 					(setq h oh w ow))
 				(:t (throw "No such layer !" layer))))
 		(list description) 1)
+	;its outputs are chances, softmax, of the last layer and of no other:
+	;the loss is their cross entropy, on the CPU and the GPU, the one there is
+	(if (empty? layers) (throw "No layers !" description))
+	(each (lambda (layer)
+			(unless (eql (eql (elem-get layer +nn_layer_act) :softmax) (= (!) (dec (length layers))))
+				(throw "Softmax is of the last layer, and only of it !" (elem-get description (inc (!))))))
+		layers)
 	(list layers at (ifn kind :doubles)))
 
 (defun nn-layer-sizes (layer)

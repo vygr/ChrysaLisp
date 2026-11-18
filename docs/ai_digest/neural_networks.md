@@ -41,6 +41,13 @@ whole. `nn-init` spreads each layer's weights by how many feed a unit, He's
 uniform, so a deep layer starts neither dead nor saturated. `nn-net` gives the
 rows as vectors of their own, the shape the sums want.
 
+`nn-model` holds a description to what there is, and throws for one that is
+not: a kind of layer or an activation that is none, a filter or a block
+bigger than its planes, and softmax anywhere but the last layer, which must
+have it. The loss is the cross entropy of chances, on the CPU and on the
+GPU, so a model whose last layer gives none could be run forward and not
+taught; when there is a second loss the description will say which.
+
 ## The sums
 
 A dense layer takes its inputs x to its outputs a:

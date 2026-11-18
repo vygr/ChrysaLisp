@@ -11,7 +11,7 @@
 (assert-list-eq "the second, after the first's biases" '(:dense 128 10 :softmax "1" 100480 101760 :nil)
 	(second (nn-layers nn_mnist)))
 (assert-eq "a name given" "fc1"
-	(elem-get (first (nn-layers (nn-model '((:input 2) (:dense 3 :relu "fc1"))))) +nn_layer_name))
+	(elem-get (first (nn-layers (nn-model '((:input 2) (:dense 3 :softmax "fc1"))))) +nn_layer_name))
 (assert-eq "params at random, as many as it has" 101770 (length (nn-init nn_mnist)))
 (defq nn_p (nn-init nn_mnist))
 (assert-eq "the net of them back as they were" nn_p (nn-flat (nn-net nn_mnist nn_p)))
@@ -234,6 +234,15 @@
 	(first (nn-layers nn_lenet)))
 (assert-true "a filter bigger than its planes refused"
 	(catch (progn (nn-model '((:input 1 4 4) (:conv 2 5))) :nil) :t))
+;a description is held to what there is: an activation that is one, softmax
+;the last layer's and no other's, a block no wider than its planes
+(assert-error "no such activation" (nn-model '((:input 4) (:dense 3 :rleu) (:dense 2 :softmax))))
+(assert-error "a name where the activation is" (nn-model '((:input 4) (:dense 3 "fc1") (:dense 2 :softmax))))
+(assert-error "softmax before the last layer" (nn-model '((:input 4) (:dense 3 :softmax) (:dense 2 :softmax))))
+(assert-error "a last layer that is not softmax" (nn-model '((:input 4) (:dense 3 :relu) (:dense 2))))
+(assert-error "a block wider than its planes" (nn-model '((:input 1 4 1) (:pool 2) (:dense 2 :softmax))))
+(assert-error "a stride of none" (nn-model '((:input 1 4 4) (:conv 2 3 :tanh :stride 0) (:dense 2 :softmax))))
+(assert-error "no layers" (nn-model '((:input 4))))
 
 ;the gradients of conv and pool layers against the slope of the loss:
 ;padding, a pool, a conv of what a pool gave, and a dense after; then a
