@@ -23,6 +23,30 @@ Part of the `chrysalisp` skill. Read this in full before writing or changing a
 
 *	[Systematic VP Lowering Workflow](#systematic-vp-lowering-workflow)
 
+*	[Declared Trashes, And What May Lean On Them](#declared-trashes-and-what-may-lean-on-them)
+
+*	[Entry And Exit](#entry-and-exit)
+
+*	[Push, Pop And Alloc](#push-pop-and-alloc)
+
+*	[`sys/math` And Its Contract](#sysmath-and-its-contract)
+
+*	[Loops Over Things That Are Let Go Of](#loops-over-things-that-are-let-go-of)
+
+*	[The Shape Of Structured Code](#the-shape-of-structured-code)
+
+*	[A Slot Is Memory, And No Passes](#a-slot-is-memory-and-no-passes)
+
+*	[Boot Image Functions Run From The Image](#boot-image-functions-run-from-the-image)
+
+*	[A New Native And Its `ffi`](#a-new-native-and-its-ffi)
+
+*	[Validate Functions Mix](#validate-functions-mix)
+
+*	[VP Ops, The Text Format And The Translators](#vp-ops-the-text-format-and-the-translators)
+
+*	[Two Traps In The Lisp Of The Assembler](#two-traps-in-the-lisp-of-the-assembler)
+
 When writing or modifying `.vp` files, you target ChrysaLisp's register and
 execution model.
 
@@ -97,6 +121,13 @@ width said, `(:rsp (+ slot_rect host_gui_rect_x) i)`. An address is
 *	**No Memory-to-Memory or Constant-to-Memory:** `assign` throws for
 	either. Go by a register: load it, then store it. A swap of two
 	registers in one `assign` is a copy cycle, and throws too.
+
+*	**No conversion.** `assign` moves a value as it is: a 32 bit `i` field
+	to or from a single `:fN`, a word to or from a double `:dN`. A single
+	and a double, either way, throws; write the `(vp-cvt-fd)` or
+	`(vp-cvt-df)`. `(vp-reg-single :d4)` is `:f4`, to load a single into the
+	register a double is named by. Nothing in the tree converts a type
+	quietly.
 
 *	**A frame is a structure.** A function's frame is
 	`(structure slot 0 ...)`, its fields `slot_x`, made by
@@ -305,7 +336,7 @@ Follow this 7-step discipline when designing VP routines:
 	there; give the function a frame of slots when it must live over
 	calls.
 
-## Declared Trashes, And What May Lean On Them (2026-10-13)
+## Declared Trashes, And What May Lean On Them
 
 What a function trashes is in the `;trashes` line of its comment, written by
 `trace -w` from a build, never by hand. Not in the `(dec-method)`. A call by
@@ -329,11 +360,9 @@ the vtable may trash what any class called so does.
 	`lint`.
 
 *	**`trace -w` is one go**, `files obj/vp/ | trace -i -l -w`, then
-	`lint`. It needed two
-	till 2026-10-13: the database of classes was taken to be fresh when a
-	source had been written in the second it was made in, which is when
-	`trace -w` writes them. If it ever says the same thing twice, look
-	there, `(database-stale?)` in `lib/files/info.inc`.
+	`lint`. If it ever says the same thing twice, the class database was
+	taken as fresh when it was not: `(database-stale?)` in
+	`lib/files/info.inc`.
 
 *	**A call by the vtable** goes through `:r14` unless it is given another.
 	Give one only having looked at the trashes comments of the method, of
@@ -344,11 +373,76 @@ the vtable may trash what any class called so does.
 	its stack. `:sys_task :sleep` and `:sys_mail :read` push their caller's
 	registers round it. `:suspend` and `:defer` trash all.
 
+## Entry And Exit
+
+`(entry ...)` and `(exit ...)` tie a function to the registers its
+`dec-method` declares.
+
+*	Every method has an entry, and an exit at each return, `'()` where it
+	takes or gives nothing. One that ends by a `jump` needs no exit.
+
+*	A callback inside a function uses the callback's own declaration,
+	`:sys_task :task_callback`, `:hmap :each_callback`, `:array
+	:sort_callback`. A local subroutine reached by `(call 'label ...)` uses
+	the one argument form, `(entry '(...))`, `(exit '(...))`, mapping `:r0`,
+	`:r1` in order. One reached by a raw `(vp-call 'x)`, or working on the
+	registers of the function round it, is private and needs neither.
+
+*	**An entry takes an input only to where the code after it reads it.**
+	Never have the entry move an input to a slot or another register and
+	then go on reading the declared register: change the declaration and
+	that breaks, where an honest entry would emit one more copy. If both
+	the register and a saved copy are wanted, the entry names the register
+	and the copy is a plain `assign` after it. A register passed as it is to
+	an input the callee does not read is right.
+
+*	The argument checks, `gotoif-lisp-args-len`, `-sig`, `-match`, `-type`,
+	take a register or a `vp-rdef` name, the one the args are in when the
+	check runs: check before the args are moved, with the entry
+	`'(:r0 :r1)`, and move them after.
+
+*	An entry or exit change is proved by the binary: build the old and new
+	trees each with `make all platforms boot` and `diff -rq` every
+	`obj/<cpu>`; only `sys/boot_id`, a hash of the VP source, may differ.
+
+## Push, Pop And Alloc
+
+Pushes and allocs lie end to end, whole words, nothing before, after or
+between, as `docs/vm/vp_vm.md` says under Push, Pop.
+
+*	A push lays its registers as if pushed in turn, a word each: after
+	`(vp-push :r0 :r1 :r2)`, `:r2` is at `(:rsp 0)`.
+
+*	So anything may be taken back in any grouping: two pushes by one pop,
+	a push by a free, an alloc by a pop, nested scopes by one free. Words
+	put there may be read and written by offset.
+
+*	What must hold: never take back more than was put on, leave the stack
+	as found, allocs whole words. `trace` checks the first and last along
+	each path, and `lint` prints them.
+
+## `sys/math` And Its Contract
+
+`sys/math` holds the unboxed functions of a number, `q_` fixed, `d_`
+double, `f_` single, a value in a register in and a value out. The
+classes of numbers and the shader compiler call them directly.
+
+*	Every one of them trashes no more than `:r0` to `:r2` and `:d0` to
+	`:d3` (`:f0` to `:f3` the same registers), `+sys_math_trashes` in
+	`sys/math/trashes.inc`, which the shader compiler spills by and `lint`
+	checks. `i_rand`, `q_intersect` and `q_dist_sqd` are outside it,
+	`+sys_math_free`.
+
+*	So a caller keeps what it wants in `:r3` up and `:d4` up across them,
+	and a new one fits the set, saving what else it uses itself. This is
+	that family's rule, not the tree's: other VP reads each callee's
+	`;trashes`.
+
 ## Loops Over Things That Are Let Go Of
 
-*	Not `(loop-while)` in a hot loop: `(vpif '(a /= b)) (loop-start) ...
-	(loop-until '(a = b)) (endif)`. Chris: "loop-whiles are genrally bad...
-	give branch predicators a hard time."
+*	Not `(loop-while)`: `(vpif '(a /= b)) (loop-start) ...
+	(loop-until '(a = b)) (endif)`. A test at the top of every turn is
+	hard on branch predictors.
 
 *	Hold the place in registers above `:r2`, a deref leaves them. Do not
 	store it to the stack before the call and read it back after: that
@@ -388,7 +482,38 @@ the vtable may trash what any class called so does.
 
 		(def-func-end)
 
-## A Slot Is Memory
+## The Shape Of Structured Code
+
+The forms are `lib/asm/code.inc`, each with an optional loop name symbol
+last.
+
+*	`vpif`, `elseif`, `loop-while`: all of several conditions hold.
+	`vpifnot`, `elseifnot`, `loop-whilenot`: none holds. `breakif`,
+	`continueif`: any holds; `breakifnot`, `continueifnot`: any fails.
+	`loop-until`: ends when all hold. `gotoif` and `gotoifnot` take one.
+
+*	A `vpif` is a switch of its own: a `break`, `breakif` or `continue`
+	inside one inside a loop goes to the end of the `vpif`. Name the loop,
+	`(loop-start 'name)`, and `(break 'name)`, `(breakif c 'name)`,
+	`(continue 'name)`.
+
+*	A loop guarded by a `vpif` sits one level inside the `vpif`. A `vpif`
+	whose body is only a jump is a `gotoif`. A guard whose fall through
+	lands on a jump or its label is a `gotoifnot`, never a jump to a jump.
+	Never nest two `vpif`s with no `else` between them.
+
+*	A loop that stops on either of two things is `(breakif a)` then
+	`(loop-until b)` at its foot. `breakif` with `(loop-end)` costs a jump
+	more each time round.
+
+*	Negate a register by `(vp-mul-cr -1 r)`; the emitter makes it a
+	negate.
+
+*	A missing or extra bracket shows as an odd error at the end of a form,
+	`symbol_not_bound *switch*` when an `(endif)` falls to top level: run
+	`brackets <file>` first.
+
+## A Slot Is Memory, And No Passes
 
 No pass keeps the slots of a frame in registers: what is written is what
 is assembled, and `lib/asm/vpopt.inc` is the only optimiser. A value
@@ -397,12 +522,97 @@ from there, not read from its slot again. What an `(entry)` gives in a
 register is used from the register, and saved to its slot only if it is
 wanted after a call.
 
+*	`assign` does one thing beyond emitting, a topology sort against
+	hazards. It does not put loads and stores in memory order;
+	`load-fields` and `save-fields` do, before it. Add no analysis or
+	reordering to `assign`, `call`, `entry`, `exit` or a function's end:
+	better code is a change to the `.vp` source.
+
+*	Order the source by hand where it gains: reads and writes forward
+	through memory, neighbours together so the arm64 prepass (`pp_pair`
+	in `lib/trans/arm64.vp`) pairs them, and the slots of a frame laid in
+	the order a call or entry takes them. Not for order alone: count the
+	pairs before and after, and add no lines that gain none.
+
+*	A change to VP source not yet known to be right, a script's above all,
+	is built in a clone (`git clone`, copy `obj/` in), never the live tree:
+	`make` writes what it compiles to `obj/`, and wrong natives there stop
+	every session. Only sources whose VP comes out the same, or was read
+	and understood, come back.
+
 ## Boot Image Functions Run From The Image
 
 The loader, the statics, the kernel and all they call are in the boot
 image, `lib/boot/image.inc`, and a node runs those from it, not from their
 files. A change to one is not tested till `make` and `make all boot` have
-made the image again: a test of it before that tests the old code.
+made the image again: a test of it before that tests the old code. The
+library natives an image holds are the same, `lib/streams/lisp.vp`,
+`lib/image/lisp.vp` and the like: `(ffi ...)` takes the image's copy, so an
+edited one is tested only after `make all boot`; a new one runs from its
+file at once.
+
+## A New Native And Its `ffi`
+
+*	**Build, then bind.** A new native bound by `(ffi ...)` in
+	`class/lisp/root.inc`, or in anything a node reads as it boots: add the
+	function and its declarations, build and boot, and only then add the
+	`ffi` line and build again. An `ffi` of a function with no native yet
+	throws at boot, every node stops, the builder too. If a build is stuck
+	on one, take the line out, let the node's timeout end it, build, put it
+	back.
+
+*	**Kept natives are not stamped.** The loader translates a function
+	that has no native and keeps the result at `obj/<cpu>/<abi>/<path>`,
+	loaded as found by the next node. `make` retranslates when the
+	translator sources are newer, but only for the platform it builds.
+	After an op or translator change, `make all platforms boot` and `make
+	apps`. An emulator crash with no message at the same address every
+	time, in one tree and not a clone: suspect what `obj/` holds first.
+
+## Validate Functions Mix
+
+A validate function and a normal one must run together, so `make
+validate` with no `boot` gives a system that works.
+
+*	A `(validatecase)` check saves what it uses and changes no structure
+	or layout another function reads. If checks need state shared between
+	functions, those functions all go in the boot image, as
+	`:sys_heap :free` and its guard words do.
+
+*	`(validatecase)` goes round checks, never round a `def-method` or
+	`def-func`: no function is made by one mode alone.
+
+*	A validate make writes validate natives over the normal ones. Make one
+	in the live tree only for a validate system, with `boot`; try build
+	options in a clone.
+
+## VP Ops, The Text Format And The Translators
+
+*	**An op's place never moves.** An op's number is its place in
+	`+vp_emit_ops`, `lib/asm/ops.inc`. One make builds the new translators
+	with the old, whose dispatch tables are baked in: move an op the
+	translators use and they come out garbage. Rename an op in its slot,
+	reuse a retired slot, or append before `emit-vp-nop`. A slot may change
+	meaning only for ops no translator's code uses: check with
+	`grep -o "emit-[a-z-]*" obj/vp/lib/trans/*.vp`. A pure rename builds
+	every object byte identical but `sys/boot_id`.
+
+*	**VP64's opcodes** are one list, `VP64_OPS` in `src/host/vp64.cpp`, and
+	`vp64_ops` in `lib/trans/vp64.vp` follows it: renumber both together,
+	with a new host and snapshot, then `make all boot platforms` and `make
+	apps`.
+
+*	**The VP text is the format**, what tools `read`, what @Source sends and
+	what the loader translates: a raw list of bare op names, `(add-cr 1
+	:r0)`, no `progn`, no `emit-`. `lib/trans/vp_parse.vp` parses it as
+	bytes, strictly, into the translators' records, no Lisp in the load,
+	translate and bind path. Size does not matter.
+
+*	**A build uses the translator it has just built**, so a broken one
+	breaks the build at once, and with `boot` the image: recover by `make
+	install`. A build that fails to translate one function still ends
+	"Done" and keeps that function's old native: grep a make's output for
+	"Error", or run `lint`, never judge it by the last line.
 
 ## Two Traps In The Lisp Of The Assembler
 

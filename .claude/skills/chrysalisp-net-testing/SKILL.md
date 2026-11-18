@@ -40,6 +40,9 @@ Find the task below and read that section in full before acting.
 	A friend's server dialled over the internet with the same key: what
 	it can do here, what a sync takes, and how to test without touching it.
 
+*	**[8. Rules Of Distributed Code (Mandatory)](#8-rules-of-distributed-code-mandatory)**
+	Where a task may run, and how farms, children and links end.
+
 ## 1. Network Test Inventory in `tests/net/`
 
 The `tests/net/` directory contains three categories of network tests:
@@ -207,3 +210,31 @@ over the internet by dialling one that has TCP port 3333 open,
 *	When a guest is linked, timings and anything that counts the nodes of
 	the mesh see their machine as well.
 
+---
+
+## 8. Rules Of Distributed Code (Mandatory)
+
+*	**A run task stays on its machine.** A task started with `+kn_call_run`
+	is fenced to the nodes that share the file system of the node asked to
+	run it; the kernel never hands one across a link. Within a machine the
+	kernel places by load. No speed or power figure for a node goes in the
+	kernel, a link or a ping: a farm that should favour a faster machine
+	measures the nodes it has, `(lisp-systems)`, `(lisp-nodes system)`, and
+	batches for them itself, in Lisp.
+
+*	**The ideal path, and inactivity.** A farm can not know whether a child
+	it starts ever runs, gets a job, died or only went out of reach, and a
+	child can not know whether it will be given a job or see the courtesy
+	quit. So no protocol tries to give either side certainty. The ideal
+	path is messages only, the fastest: the farm sees its children start,
+	every job is done and replied, each child gets its quit. When anything
+	goes wrong, inactivity dissolves the construction, the child's idle
+	time on one side and the farm's patience on the other; courtesy
+	messages only shorten a wait.
+
+*	Every task times out and goes in the end, none blocks on a mail read
+	for ever. A child goes at its orphan time; given nothing in that time
+	it takes its parent to have gone, and says nothing. That is not a
+	fault to report. A stall that inactivity recovers is the design
+	working: look at whether the times fit the case, a test's patience
+	against a child's idle time, not for a missing message.

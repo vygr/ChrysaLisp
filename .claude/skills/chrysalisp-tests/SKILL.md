@@ -18,8 +18,10 @@ every task.
 
 *	**[Running the Test Suite](#running-the-test-suite)**
 	The `tests` command and its options, what the output looks like, and what
-	differs between the native and emulator images. Also `lisp -r` snippets,
-	the standard sanity tools, and how piped execution works.
+	differs between the native and emulator images. Which runs to make, how
+	to watch one and clear up after it, looking at apps from inside. Also
+	`lisp -r` snippets, the standard sanity tools, and how piped execution
+	works.
 
 *	**[Standard TUI Make Commands](#standard-tui-make-commands)**
 	Every `make` option, which build each produces, and when a validate
@@ -30,7 +32,8 @@ every task.
 
 *	**[Writing Suite Modules](#writing-suite-modules)**
 	Read before adding a test to the suite: the assert macros, error tests,
-	table tests with `test-cases`, and how a module is found and isolated.
+	table tests with `test-cases`, how a module is found and isolated, how a
+	test passes anywhere, and not repeating checks.
 
 *	**[Writing Standalone Test Scripts](#writing-standalone-test-scripts)**
 	One-off scripts outside the suite, with error catching and host shutdown.
@@ -87,6 +90,20 @@ Options:
 
 *	`tests path ...` runs just the module files given.
 
+*	The results are a cache: a module runs again only when something it
+	stands on changed. `tests -a` runs every module, the release ones of
+	`tests/release/` too, `tests -s` lists what is stale. Modules of
+	`tests/solo/` change the network and run one at a time, after the rest.
+
+*	A run always prints `=p=` lines as it goes: the plan, cached or dirty
+	per module, start and done with its last time in ms, `at` with a
+	module's last check, `late` for one well past its usual time, `lost` for
+	a batch with no result, and end. Watch those, not the summary.
+
+*	`tests -w` says the longest a task was kept from running on each node.
+	A module that holds its node a second or more is why a test elsewhere
+	fails now and then: its long loops need a `(task-slice)`.
+
 *	Every module runs at the same time as the others, so a module must not
 	rely on what another leaves behind, and must give any file or service
 	it makes a name of its own. Tests that do depend on each other go in
@@ -102,12 +119,10 @@ Options:
 	Use it with `-m` to chase a module that fails to run to the end. It is
 	slower, so is not the default.
 
-How many nodes the suite runs on matters too. `./run_tui.sh -f` boots the
-default network of several nodes, `-n 1` just one. Run both. Services and
+How many nodes the suite runs on matters too. `./run_tui.sh -n 0 -f` sizes
+the network to the machine, `-n 1` boots one node. Run both. Services and
 child tasks land on other nodes on a multi node network, so message timing
-and routing faults only show there. A test that waits for something that
-should happen must give it plenty of time, it returns as soon as it does,
-and use a short wait only for what should not happen.
+and routing faults only show there.
 
 Which boot image the suite runs on matters:
 
@@ -142,9 +157,86 @@ what goes into `snapshot.zip` and what `make install` runs on.
 
 Inside an interactive TUI or Terminal session just type `tests`.
 
-A full run takes a couple of seconds on native, and about 15 on the emulator.
-Guard a run with a time limit of seconds, not minutes, and treat hitting it
-as a hang or crash to investigate.
+A build, a module, or a cached run takes seconds; `tests -a` takes minutes,
+the release modules most of it. Guard a run with a limit a little over its
+usual time, never far over, and treat hitting it as a hang or crash to look
+into. See Watching A Run below.
+
+### Which Runs To Make
+
+Test runs must not eat the time of the work.
+
+*	While working, run the modules the change touches and the reproduction
+	itself, `tests path ...` or `tests -m str`. A change kept to one app or
+	to a library function whose users are known is checked by its own
+	module, `check`, and a look on a hidden desktop if it is visual, then
+	committed.
+
+*	The whole suite is for kernel, VP, translator and host changes, for a
+	tag, overnight, or when asked for. Regenerate docs and write notes
+	first, so it runs once, when nothing more is to change.
+
+*	One run at a time on a machine: two suites share fixed ports and the
+	rack's one job file, and each spoils the other. Check none is going
+	before starting one.
+
+*	When a change is decided, stop the run that tests the old code at
+	once, make the change, run the touched modules, then one full run.
+	Never wait a run out that will have to be made again.
+
+*	After a batch that adds tests or tasks, soak it: twelve full runs or
+	more, the slowest machine's results read first. Races show there, and
+	not in single runs. Count only the runs after a fix.
+
+### Watching A Run
+
+*	Send a long run's output to a file and watch the file: `=p= done`
+	against the plan, `[FAIL]`, `late`, and nothing new for a minute. A
+	`grep` on `tail -f` needs `--line-buffered`, and nothing after it in
+	the pipe that buffers, `tr` or `cut`; see one line come through before
+	trusting the watch. Never put a run behind `| tail` or `| head` alone,
+	nothing shows till it ends.
+
+*	Know each run's usual time. A run a minute or two past it is already
+	news: look at which module, which processes, what is stuck. A node at
+	no CPU with no new output for a minute is dead, stop it then.
+
+*	A run cut off at a limit: read what it was doing when cut, its last
+	`=p=` lines, before touching the limit. A run known to be stuck is
+	stopped at once, not run out.
+
+*	A time limit wrapper round `run_tui.sh` kills only the script. Its
+	nodes live on, keep its stdout open, so a `| grep` after it never ends,
+	and join the next run's network, where they take batches and never
+	answer. After a run cut short, find the nodes it left by start time and
+	parent (an orphan is parent 1) and kill them by pid. Never by a pattern
+	that may match another run's ssh or a standing rack member, never
+	`./stop.sh`, never a session that is not of this run. In `pgrep -f`, a
+	spawned node's `-run` arguments are joined by a vertical tab, not
+	spaces, and a wait loop on `pgrep -f name` matches its own command line.
+
+*	`./rack.sh run 'cmd'` runs `cmd` in the member's own one node, one job
+	at a time from one job file. Short commands and modules are fine there;
+	a full suite there is serial and slow, so give it a session,
+	`./rack.sh run 'rack "tests -a"'`. `lisp file.lisp` never ends as a
+	rack job, it REPLs on a stdin that never closes: use `lisp -r`. Errors
+	of a desktop a rack job started are in `/tmp/chrysalisp_rack.log`.
+
+*	A file made in the tree for a moment and deleted here is still on the
+	other machines, no sync deletes: remove it there too, or `check` fails
+	on it.
+
+### Looking From Inside
+
+Monitor and test with the system's own tools, not host scripts. Look at
+an app with `widgets` (text, `-f`, `-d`, `-k` to keep it short) and
+`locate`, drive it with `input`, which finds a view by name, never by a
+guessed x y, and `grab` only when the look itself is the question, the
+smallest area that answers it. An image costs far more than the same
+answer as text. Read a tree of views with `(ui-save)` and `(ui-find)` of
+`gui/lisp.inc`. Check files with `canvas-load`, `crc32`, `adler32`,
+`inflate-decompress`. Host tools only for a reference that must come from
+outside, and say so.
 
 ### Direct REPL Access (`lisp -r`)
 
@@ -460,6 +552,62 @@ Conventions:
 *	**Optional features:** If a feature may not be defined, check `(def? 'name)`
 	and call `(test-skip name "not defined")` rather than failing the suite.
 
+*	**Nothing under `obj/` but code:** `obj/` holds code generation,
+	loading and binding only, VP, natives, boot images, the caches of
+	those. A test's own files and every probe or scratch file go in
+	`tests/scratch/`.
+
+### A Test Passes Anywhere
+
+A test fails only for a real fault of what it tests, whatever machine,
+load or network it runs in.
+
+*	**Wait for the event, never for a time.** A test waits for the thing
+	it tests: an answer, a grant, a scene's end, a stream stopping. No
+	check of an upper bound on elapsed time; a lower bound, not before, is
+	fine. A wait that could be for ever is fine too: a true hang comes back
+	as a lost batch, `+test_retry` in `tests/suite.inc`. Library calls take
+	`:t` for till it comes where a test needs it. A time limit found in
+	library code is a design question, not a test fix.
+
+*	**Touch only what it made.** Its own nodes, counted by `(lisp-nodes
+	:t)` or by the ids it got, the services and desktop of the node it
+	started, files and names of its own. Never the first of a system wide
+	name, never another machine, session, sound or display device.
+
+*	**Give way.** Scheduling is cooperative: a long loop of Lisp in a test
+	or a farmed child, formatting whole files, reading thousands of shapes,
+	needs a `(task-slice)` every so many items, or tests beside it with a
+	deadline fail now and then.
+
+*	**Let go of what is shared.** A `(canvas-shared)` segment goes only when
+	the canvas is freed; in a test `(. canvas :sub)` and `(setq var :nil)`.
+	A count of the shared memory notes before and after a run must not grow.
+
+*	**Ports:** a test that listens on a fixed port takes one below 32768,
+	under what Linux and macOS give outgoing connections, and of its own.
+
+*	**Solo tests leave the network as they found it, as seen:** a killed
+	node is listed for a beat after its process has gone, so a solo test
+	ends by waiting till the node count is back, as `tests/solo/test_gone.lisp`
+	does.
+
+### No Repeated Checks
+
+Every check is time on every run of every machine. Before adding one, grep
+`tests/` for the function and read what is there; add only what no check
+covers, an edge, or a path with code of its own (a service reply, two
+members, after a restart). The kept check lives in the facility's home
+module. When a facility gets a home and a test of its own, take its old
+checks out of the other modules in the same batch. A function used as a
+tool inside another test is not a repeat.
+
+What the runner itself stands on needs no plain check, if it breaks no
+module runs. What the runner judges by does, with a negative case, as a
+broken one makes the run lie: `eql` for `assert-eq`, `str` for
+`assert-list-eq`, `catch` giving `:t` for `assert-error`, `str-as-num` for
+the counts.
+
 ## Writing Standalone Test Scripts
 
 For one-off scripts (specialized system checks, custom cmd app verification),
@@ -539,9 +687,9 @@ releases across CLI commands and libraries:
 	unlock events are recorded in `(lock-history-rpc)`:
 
 	```lisp
-	(pipe-run "echo data | save tmp_test.txt" (lambda (_) :nil))
-	(pipe-run "cat tmp_test.txt" (lambda (_) :nil))
-	(pipe-run "rm tmp_test.txt" (lambda (_) :nil))
+	(pipe-run "echo data | save tmp_test.txt" (lambda (&) :nil))
+	(pipe-run "cat tmp_test.txt" (lambda (&) :nil))
+	(pipe-run "rm tmp_test.txt" (lambda (&) :nil))
 
 	(defq hist (lock-history-rpc))
 	(assert-true "save write lock"

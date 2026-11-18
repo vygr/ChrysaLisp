@@ -40,6 +40,10 @@ every task.
 	Single instance guard, services and RPC, zoom, and the other patterns the
 	larger apps use.
 
+*	**[Design Rules (Mandatory)](#design-rules-mandatory)**
+	Objects that act by their own rules, the real thing first, components,
+	text, video and downloads.
+
 *	**[Running GUI Code & Inspecting View Trees](#running-gui-code--inspecting-view-trees)**
 	How an agent checks GUI work: dump a View tree with `ui-save`, read a live
 	window with `widgets` and `grab` on a Test desktop, open a live window for
@@ -451,6 +455,52 @@ Key points:
 	changed regions with `:add_dirty` and widgets with `:dirty` (see
 	`apps/demos/boing/app.lisp`).
 
+## Design Rules (Mandatory)
+
+*	**No master program.** Each object acts by its own rules and the app's
+	behaviour comes of them. When a behaviour is wanted, ask which object's
+	rule it is and put it there, never in a place that knows the kinds of
+	object. An object answers "is this contact mine" itself, then acts on
+	what it holds. Shared facts, who a device is, what a slot holds, are
+	maps any object reads, not code that decides for them. A new object
+	needs no change anywhere else. The canvas of a drawing app is only the
+	backmost object.
+
+*	**The real thing first.** Before a design, say what it is in the world,
+	who holds what, what they do with it, what it remembers, the pens and
+	inks of a whiteboard, people with notepads, and check that model with
+	the user before building. Ask questions in it, "which pen does a tap
+	refill?", not in data terms.
+
+*	**Components** are the pushed env form, `apps/games/onslaught/sprite.inc`:
+	an `(env 1)` of the constructor with a shared `:update`, run between
+	`(env-push comp)` and `(env-pop)`, so its state is plain variables. It
+	is measured faster than a class with `raise` and `def`. Read it before
+	writing anything like a component. Its variables need no prefix, the
+	parent's properties do, `:sp_`, `:fig_`, `:ros_`.
+
+*	**Tooltips** are a word or two, "crop", "lock shape", never a sentence.
+	More words go in comments or the app's doc.
+
+*	**Text layout** is fixed where the text is laid out, never in the `.ctf`
+	fonts, their format or `cmd/ctf.lisp`. A font keeps glyphs by their ink
+	and one gap, the space is made by `gui/font/class.vp`; monospaced text
+	is set in cells by the code that draws it, as `gui/vdu` does. The
+	`fonts/Symbols*.ctf` are made by `symbols` from
+	`lib/font/symbol_set.inc` and `test_symbols` holds them to it: a change
+	that moves them is made again only on the user's word.
+
+*	**Video** is decoded by the platform's hardware, VideoToolbox, VA-API,
+	V4L2, Media Foundation. No software decoder, no FFmpeg: a codec with no
+	hardware is not played there. A pull request that brings a dependency
+	or a new way of doing a thing is asked about before it is recommended.
+
+*	**Downloads** go in `downloads/<data>/` at the top of the tree, which git
+	leaves out, a folder named for the data, not the app, so apps share it:
+	MNIST in `downloads/mnist/`, the Model demo's in `downloads/models/` by
+	address, plain names only. A data set another app fetches is read from
+	where that one keeps it.
+
 ## Running GUI Code & Inspecting View Trees
 
 An agent can build a widget tree under the GUI boot image and get the
@@ -706,7 +756,29 @@ The launcher, run with `lisp -r (import {tests/scratch/gui_remote.lisp})`:
 	```
 	Note the trailing `(print)` to flush the output stream. The user runs the GUI app interactively to observe which checkpoint is reached before a crash or freeze. Clean up all debug prints before final commit.
 
-*	**Mandatory Elementary Bracket Match Counting:**
-	ALWAYS perform strict parenthesis / bracket counting on any modified forms or definitions before testing or declaring an edit complete. Lisp compilers and readers will report cryptic errors or fail silently during child task execution / file loading if an extra or missing paren alters function boundaries or swallows subsequent expressions.
+*	**Mandatory Bracket Check:**
+	Run `brackets file` (`cmd/brackets.lisp`) on every file edited, before testing or declaring an edit complete, and first on any odd error after an edit. It gives the line and column of a stray or missing bracket. An extra or missing paren moves a function's end and the reader then gives cryptic errors, or a child task fails silently.
+
+*	**Memory after the apps close.** After GUI or app work, measure what a
+	node holds once its apps are closed, not only that the tests pass: an
+	idle GUI node is about 10MB, most of it the backdrop. The figure is
+	`(elem-get (kernel-stats :t) 5)`, the cells in use, never total less
+	available, which moves with the heap blocks. `tests/release/test_app_leaks.lisp`
+	opens every app five times on a hidden desktop and fails four rises in
+	a row. To find one: open the app many times on one desktop, a leak
+	climbs where a cache levels off; run it off the GUI node, a leak only
+	there is in the shared root; cut it a call at a time. `(view-loops
+	view)` finds a view that holds its own frame. GPU memory is the host's,
+	`kernel-stats` does not see it: read the code.
+
+*	**The desktop still boots.** After a change to `class/lisp/root.inc`, or
+	to the imports of anything the GUI loads, `gui/`, `lib/text/syntax.inc`,
+	`lib/image/`, `lib/media/`, start a hidden desktop with `rack -g -u
+	Test` and read `/tmp/chrysalisp_rack.log` for `Error`, before asking
+	the user to start theirs again. Never a desktop by `run.sh` for this:
+	it is real on the user's screen and goes only by the Quit button of its
+	logout. A name missing in a `(const)` as a file is read does not stop
+	the load, it stops the first use. A change to `lib/media/reel.inc`,
+	`flm.inc` or `mp4.inc` needs the user's desktop started again.
 
 

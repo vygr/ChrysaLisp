@@ -380,6 +380,35 @@ each rule and worked examples of the right and wrong way. In short:
 	Bind inside the predicate that uses the value, order tests for the fastest
 	failure, and put the `(and ...)` straight in the `cond` test.
 
+*	**Spans and Parts of Sequences:**
+	Walk part of a sequence, or two side by side, with `each!` and friends
+	and a start and end, no copies. There is no `range`: a span is an
+	iterator over `'()`, `(!)` the number; a count is `times` or `for`.
+
+*	**No Recursion:** a `(list)` is the stack, as `flatten` does.
+
+*	**Characters Are Literals:** `"\n"` `"\q"` `"\xNN"`, never
+	`(ascii-char ...)`.
+
+*	**Time with `time-it`:** `time-it`, `time-add` and `time-report` of
+	`root.inc`, never `pii-time` loops by hand.
+
+*	**Traps:** read `docs/ai_digest/lisp_traps.md`, and the list in
+	lisp-disciplines.md.
+
+*	**Use What Is There:** grep `cmd/` and these skills before a new part;
+	one library facility, not two; the tree's own commands, not host
+	scripts; `check` before a first run, `brackets` for a strange error,
+	and a `check` rule for each fault the source shows.
+
+*	**Ownership Is a Tree:** back links are weak refs, letting go of the
+	last ref frees all.
+
+*	**Mail Is Unordered:** streams give order; a new mailbox drops late
+	mail.
+
+*	**A Matrix Is Made from Its Raw Variables,** never updated in place.
+
 ## Virtual Processor (VP) Assembler Guide
 
 Before you write or change a `.vp` file, read
@@ -406,28 +435,48 @@ Before you write or change a `.vp` file, read
 
 ## Numerical Representations & Systems
 
-ChrysaLisp natively supports three numerical types:
+`docs/lisp/numerics.md` is the doc. The number classes are a ladder of
+what each kind can do, a vector class beside each:
 
-*	**Integers (`num`):** 64-bit signed integers.
+	:num -> :fixed -> :double -> :float
+	:nums -> :fixeds -> :doubles -> :floats
 
-*	**Fixed-Point Doubles (`fixed`, `fixeds`):** 48.16 signed fixed-point
-	values (64-bit word with 16 fractional bits). Uses `+fp_frac_mask` and
-	`+fp_shift 16`. Trigonometric and transcendental math operate on fixed.
+*	**`num`:** 64 bit signed integers.
 
-*	**Double-Precision Doubles (`double`, `doubles`):** Standard 64-bit IEEE 754
-	double-precision floating-point values.
+*	**`fixed`, `fixeds`:** 48.16 fixed point, what drawing works in, the
+	Canvas, fonts and paths: `frac` `floor` `ceil` `recip` `sin` `cos`.
+	`+fp_shift` is 16.
 
-*	**Conversions:**
+*	**`double`, `doubles`:** 64 bit IEEE doubles, Lisp's general real
+	number, adding `exp` `log` `tanh` and `quant`. Of a fixed these are an
+	error.
 
-	*	`(n2i x)`: Converts `fixed` or `double` to integer `num`. It is the
-		fastest conversion for each type and has no rounding mode: a `fixed`
-		goes down, `(n2i -5.9)` is -6, a `double` goes toward zero,
-		`(n2i (n2d -5.9))` is -5. When the direction matters apply `(floor)`
-		or `(ceil)` first.
+*	**`float`, `floats`:** 32 bit IEEE singles, a double's protocol at the
+	width of a GPU, worked in 32 bits. A `floats` element is 4 bytes.
 
-	*	`(n2q x)`: Converts `num` or `double` to 48.16 `fixed`.
+*	**Predicates:** `(fixed? x)` asks if x can do what a fixed does, so is
+	true of a double and a float; `(double? x)` is true of a float. The
+	`??` form asks the exact class, `(double?? x)`. A signature in capitals,
+	`'(:DOUBLES)`, is that class exactly; lower case, any under it.
 
-	*	`(n2d x)`: Converts `num` or `fixed` to IEEE double `double`.
+*	**Names:** a kind takes the letter of its VP ops: `f` a single, as
+	`vp-add-ff`, `d` a double, `q` fixed point, `i` an integer. So
+	`:sys_math` has `f_sin` `d_sin` `q_sin`, the vector macros
+	`vec-qmul`, the conversions `n2i` `n2q` `n2d` `n2f`. A new numeric
+	routine or name takes its letter so. `+double_0` to `+double_10`, their
+	negatives and fractions, and `+float_` the same, are in
+	`lib/math/vector.inc`.
+
+*	**Mixing:** a method reads its argument's value as its own kind, so a
+	double and a float mixed in one sum is garbage. Constants match the
+	kind of the vector they meet.
+
+*	**Conversions:** `(n2i x)` is the fastest and has no rounding mode: a
+	`fixed` goes down, `(n2i -5.9)` is -6, a `double` toward zero, `(n2i
+	(n2d -5.9))` is -5; apply `(floor)` or `(ceil)` first when the direction
+	matters. `(n2q x)` to fixed, `(n2d x)` to double, `(n2f x)` to the
+	nearest float. Each passes through a number already exactly of the
+	kind.
 
 ## Subsystems & Architecture Reference
 

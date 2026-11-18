@@ -103,11 +103,33 @@ marked mandatory apply to every session.
 *	`nodes`, `cmd/nodes.lisp`: add nodes, a desktop, or a network of a shape
 	to a running one, and stop a network by name.
 
+*	One host program, `obj/<cpu>/<abi>/<os>/chrysalisp`, `chrysalisp.exe`
+	on Windows: find nodes by `pgrep -x chrysalisp`. SDL3 is loaded as it
+	starts, not linked: with none it is a terminal's node, `(gui-info)` is
+	`(0 0 0 0)`, and `CL_SDL3=/nonexistent` tries that path. `GUI=none`
+	builds a host with no drivers at all.
+
 *	`docs/releases/vX.Y.md`, the notes of the tag to come: each change
 	worth a note goes in as it lands, under its heading, a line or a few,
 	written for the people who read the release. Not a copy of the
 	commits: what was run and what was not seen go in the commit message
-	and in what is said to the user.
+	and in what is said to the user. They open with what forces an upgrade
+	or an install and end with what is not ready, figures only measured.
+	Only a GitHub release gets a name, the user's to give: before offering
+	one, `gh release list --limit 100`, names are not used twice.
+
+*	Two documents are kept as work lands, in the same commit:
+	`docs/ai_digest/till_the_pips_squeak.md` for a change to the Lisp
+	engine with a measured effect, its tables, and what was tried and did
+	not work with the number that killed it, and `keeping_it_hot.md` for
+	the call path; `docs/ai_digest/evidence_not_faith.md` for any measured
+	figure that moves, build times, image sizes, counts. Its shape: each
+	test's figures of today on each machine and a line of evidence, one
+	progression table, a row a date, and a paragraph for each record.
+	Every figure in it is today's, an old one only in the table, so grep
+	the whole file for old counts after an update. The README's The
+	Numbers has the headline figures and changes when one moves. Count
+	functions from the bundles under `obj/vp/`, lines starting `("`.
 
 ## Work As The Test User (Mandatory)
 
@@ -278,7 +300,10 @@ From the machine the work is on:
 	`files obj/vp/ | trace -i -l -w`, and `lint` again.
 
 3.	`rack -b "tests"` on every machine, the native code is not the same on
-	each CPU.
+	each CPU. `-b` for any change under `sys/`, `class/`, `gui/`,
+	`service/` or to a `lisp.vp`: without it the others test new source on
+	their old boot image. A machine given VP source by hand runs `make`
+	before its tests.
 
 4.	A change under everything, the boot image, `class/lisp/root.inc`, the
 	launch path of a command, is tried on the emulator as well, after a
@@ -296,6 +321,47 @@ From the machine the work is on:
 	change that moves data about: `echo "tests -a" | ./run_tui.sh -V -n 4 -f
 	-u Test -a`, and grep its output for UNALIGNED. It costs nothing when
 	not asked for, the interpreter is built twice.
+
+*	`files | includes` and `files | imports` say what they would change,
+	`-w` writes it: read it without `-w` first. `make it` prints it at its
+	end. If `-w` takes out what the build needs, the tool is wrong, fix
+	`cmd/includes.lisp`.
+
+*	There is a normal build and a validate build, nothing else. Never a
+	bare `make validate`: it makes this platform's natives validate under a
+	normal boot image and no node boots, `make install` mends it. `make
+	trace validate` makes the validate VP alone, to look at.
+
+*	A class renamed or removed leaves its outputs in `obj/vp/`,
+	`obj/vp_validate/` and `obj/<cpu>/<abi>/` on every machine, and lint
+	and `trace` trip on them there only: "No documentation found", or a
+	`wrong_types` in `cmd/trace.lisp`. Remove the outputs whose source is
+	gone.
+
+*	A new `(ffi ...)` in `class/lisp/root.inc` stops every other machine:
+	its old boot image has no such function and a session can not start
+	to build. Build the native and boot first, then add the ffi. A new
+	native is bound in its library's `.inc`; into `root.inc` only at a
+	release, with a new snapshot. A boot-time ffi of a function the image
+	does not hold says "Bind error" during an install: add it to
+	`+boot_extras`, `lib/boot/image.inc`.
+
+*	The translator loops till its output is the same and its passes are
+	never counted: a length that depends on where a label is may only
+	grow from pass to pass, or be fixed. A build that hangs in the
+	assembler has a length that shrinks. After a kernel or emitter change
+	`make all platforms`, a native build hides LoongArch and RISC-V
+	faults. A function is at most 64KB.
+
+*	Native code made from Lisp keeps the Lisp beside it, and a test feeds
+	both the same random input and compares every number. A hot function
+	moved to VP gains little if the Lisp round it does as much for each
+	item: move the whole loop over the items.
+
+*	A change on the build's own path, the assembler's farm say, must not
+	make `make all`, `make all boot` or `make test` slower: time them
+	before and after, several runs, on a quiet machine, and go back if it
+	is.
 
 The six CPU build, `make it`, the whole suite on the emulator, `make
 install` and the QEMU platforms are for a tagged release, not for each
@@ -316,8 +382,19 @@ after it was let go of.
 	the hunt, not committed, says the last pcs and every list form the VP
 	stack points at: the forms name the Lisp that was running. An offset
 	of memory is one of the image file plus one shift, as sys/load moves
-	the image's tail; a function's name is before its code.
-3.	A guarded run that times out leaves its nodes up, and they take the
+	the image's tail; a function's name is before its code. Find the shift
+	from where a name is in the image file and where it shows in a dump.
+	An opcode is the low byte, the enum order of vp64.cpp, `dr` bits 8 to
+	11, `sr` 12 to 15; at a call `[r15]` is the pushed pc. A virtual call
+	one slot past a short vtable is a primitive given the wrong type: the
+	fault is in Lisp, not vp64.cpp. Take the handler out after.
+3.	A native node that dies with no word on Linux: `sysctl -w
+	kernel.print-fatal-signals=1` puts the signal and registers in dmesg,
+	`ulimit -c unlimited` and a `kernel.core_pattern` give a core. In gdb
+	a frame of `??` is VP code: dump the memory round pc and the link
+	register, the nearest `path/name` string before each names the
+	function. Put both settings back after.
+4.	A guarded run that times out leaves its nodes up, and they take the
 	next run's batches. `pgrep -fl boot_image`, kill the VP64 and solo
 	ones, keep the standing member, `chrysalisp -shm_sweep`.
 
@@ -416,7 +493,26 @@ is done:
 	function's signature or a command's help changed.
 
 *	The commit message carries what was run, on what, and what was not
-	seen.
+	seen. It says what changed and why: no conversation, no quotes, no
+	story of the session, nothing relayed from a private talk, and no file
+	names of the user's own media, "a film of 1.7 GB". Docs and comments
+	the same.
+
+*	A new `snapshot.zip` comes with every change under `src/host/`, as
+	Windows gets its host program only from it, and when a system can not
+	make itself from the old one. Not for a boot image a few bytes
+	different. `make -f Makefile.mingw windows_all`, `make vp`, `make
+	snapshot`, which writes `snapshot_host`;
+	`tests/system/test_snapshot.lisp` fails while `src/host/` differs from
+	it. Compare `unzip -l snapshot.zip` with the last, `git show
+	HEAD:snapshot.zip`, a growth is to be explained, and the Windows exe
+	must have no `terminate called` in its strings. The boot image holds
+	what an install needs, no more, no less.
+
+*	A herd machine, with no `.git`, installs itself: given a newer
+	waypoint its member ends and `rack.sh` runs `make install` and starts
+	it again. Do not also `make install` there, or `rack.sh down` during
+	it, two installs race.
 
 *	After a push the other machines are brought level with
 	`origin/master` by git, on each: fetch, remove untracked files that
@@ -430,6 +526,18 @@ changes ? ... We can intermitently run the full set of machines, so we don't
 run too far without a good known milestone."
 
 *	While working a change, build and test on the machine the work is on.
+	A change that is the same code on every machine, Lisp, shaders, data,
+	docs, is tested there and synced. All the machines are for what can
+	differ by machine: VP and the code generators, the boot image, the
+	host, timing, speed or a GPU. A change that could stop the others
+	building or booting is tried on them at once.
+
+*	A crash is chased natively on the fast machine first, a validate build
+	if it needs the checks; long emulator runs go overnight. Runs on the
+	other machines go in the background, work goes on once the main one
+	passes, and what they find is fixed as its own change.
+
+*	Visible work: get it running, let the user look, then the long gate.
 
 *	All the machines, and a soak, at a milestone: before a commit that
 	touches the kernel, the emitters, the translators or the host program,
@@ -447,7 +555,17 @@ run too far without a good known milestone."
 *	After any change under `src/host/`: `make` here, the host built on the
 	other machines too, and `make -f Makefile.mingw`, which builds the
 	Windows host here with mingw. Where Wine is installed it can be run
-	there too, `make install` and `tests -a` have been.
+	there too, `make install` and `tests -a` have been. It is the one host
+	with no GUI functions, so it alone shows that kind of fault: it goes in
+	the overnight set. A Wine build for macOS is at
+	`github.com/Gcenx/macOS_Wine_builds`, untarred anywhere, `xattr -dr
+	com.apple.quarantine` on it, a scratch `WINEPREFIX`, `WINEDEBUG=-all`.
+	There is no PowerShell in it: start `chrysalisp.exe` directly, the
+	install as `chrysalisp.exe obj/vp64/VP64/sys/boot_image -e -run
+	"(progn (node-net :full 0) (import {apps/tui/install.lisp}))"`, a run
+	as a `-run` file that `pipe-run`s the command and `(pii-exit 0)`s.
+	Log to a file, never a pipe, the other nodes hold it, and kill them
+	after. A pass under Wine is not a pass on Windows.
 	A new host function is put at the end of the table, the host says how
 	new it is in the fourth word of `(pii-host)`, and the kernel asks
 	before it calls one an older host has not.
@@ -511,6 +629,19 @@ install` there stops no nodes of the machine.
 *	To find a session of yours: `ps -axo pid,ppid,lstart,command | grep
 	chrysalisp`. Yours has the start time of your run, and its nodes have its
 	first node as their parent. Kill those pids. Do not kill by name.
+
+*	`-s script` does not end the session when the script does, its nodes
+	stay: run a script as a command of an `echo "..." | ./run_tui.sh -f`
+	session. `rack ... "lisp file"` hangs at the end, `lisp` waits on its
+	stdin: give rack the steps as commands.
+
+*	A command that takes file names from stdin when given none, `tests`,
+	`check`, `forward`, reads the lines after it as names and they never
+	run. Give it its own session, or its paths.
+
+*	One suite on a machine at a time, they share `tests/scratch/` and
+	services. Test output can hold raw bytes, `grep` then prints nothing:
+	`LC_ALL=C grep -a`.
 
 *	Its note, `/tmp/chrysalisp_<pid>.session`, is left behind by a kill,
 	remove it. A note with a `net` line in it shows as a network in

@@ -54,6 +54,24 @@ examples. `SKILL.md` carries a one line summary of each.
 
 *	[Short-Circuiting, Embedded Binding, and Branching (`and` / `or`)](#short-circuiting-embedded-binding-and-branching-and--or)
 
+*	[Spans and Parts of Sequences (`each!` and Friends, No `range`)](#spans-and-parts-of-sequences-each-and-friends-no-range)
+
+*	[No Recursion, a `(list)` Is the Stack](#no-recursion-a-list-is-the-stack)
+
+*	[Characters Are Literals](#characters-are-literals)
+
+*	[Time with `time-it`, Never by Hand](#time-with-time-it-never-by-hand)
+
+*	[Traps](#traps)
+
+*	[Use What Is There, and Grow the Tools](#use-what-is-there-and-grow-the-tools)
+
+*	[Ownership Is a Tree, Back Links Are Weak](#ownership-is-a-tree-back-links-are-weak)
+
+*	[Mail Is Unordered, Mailboxes Are Cheap](#mail-is-unordered-mailboxes-are-cheap)
+
+*	[A Matrix Is Made from Its Raw Variables](#a-matrix-is-made-from-its-raw-variables)
+
 ## Tab Style
 
 Always use leading 4-space tab characters for indentation
@@ -657,3 +675,211 @@ user to interact with, see the `chrysalisp-gui-apps` skill.
 				(:cr
 					(elem-set emit_list (!) (list (second cpy_info) (second %1) s d))
 					(elem-set emit_list (inc (!)) '(nop))))))
+
+## Spans and Parts of Sequences (`each!` and Friends, No `range`)
+
+The `!` iterators take their sequences as a list, and a start and end:
+`(each! f seqs [start end])`, `(map! f seqs [start end out])`,
+`(filter! f seq [start end out])`, `(reduce! f seqs init [start end])`,
+`(some! f seqs [mode start end])`. `docs/ai_digest/rocinante.md` is their
+doc.
+
+*	Part of a sequence, or backwards, is a start and end, never a `slice`,
+	`rest`, `most` or reversed copy made only to walk. A start past the end
+	walks down. `(!)` is the index in what is walked, not counted from the
+	start given. Keep a `slice` where the copy itself is wanted.
+
+*	Two sequences side by side go in the one list, `(each (lambda (a b) ...)
+	as bs)`, never `(elem-get bs (!))` inside a walk of `as`. `check` flags
+	that.
+
+*	Results of several walks collect into one `out` list of `map!` or
+	`filter!`, not a `cat` of several. A walk that stops early is `some!`.
+
+*	There is no `range`. A span of numbers is an iterator with an empty
+	list of sequences, `(each! (lambda () ... (!) ...) '() start end)`: the
+	lambda takes nothing, `(!)` is the number, the end is not done, a start
+	past the end counts down, an end not given is 0. `(map! (const !) '() a
+	b)` is a list of the numbers where a list is the thing wanted. A count
+	is `(times n ...)` or `(for start end ...)`. A step is a count of steps
+	and `(* (!) step)`. `test-output` code can hold no `!`, so a span there
+	is a `while`.
+
+*	Bytes or text built a piece at a time go into a `(string-stream
+	(str-alloc size))`, written in place, then `(str out)`, not a list of
+	parts and `(apply cat ...)`.
+
+*	An expression of only constants and literals inside a function is
+	`(const ...)`. A value used once is put where it is used, not named.
+
+*	`&` takes one argument or element and binds nothing: `(lambda (&) ...)`
+	is a function of one argument it ignores, `(bind '(& b c) seq)` skips
+	the first. `&ignore` takes and drops all the rest. Never `(lambda (_)
+	...)`, which binds a variable named `_`.
+	`(const identity)` passes its argument on.
+
+## No Recursion, a `(list)` Is the Stack
+
+No function calls itself, or a ring of others. The stack runs out, and
+each call shadows the hash slots of its names. A tree is walked with a
+`(list)` of work items, popped and pushed, as `flatten` in `root.inc`
+does. A code generator lays the tree out as a flat list of steps first,
+then runs over the steps with a value stack.
+
+## Characters Are Literals
+
+A character known when the file is written is a string literal: `"\n"`
+`"\t"` `"\r"` `"\v"` `"\f"` `"\b"` `"\q"` (a double quote) `"\\"`, the
+character itself, or `"\xNN"`. Never `(ascii-char 10)` or `(ascii-char
++char_lf)`. The `+char_` names are the codes, for comparing and key codes.
+`check` has a `char` rule for it.
+
+## Time with `time-it`, Never by Hand
+
+Every measurement uses the macros of `class/lisp/root.inc`: `(time-it
+heading body)` prints the time of the body and nests; `(time-add heading
+body)` adds the time to a total, and `(time-report)` prints the totals,
+counts and longest, for what runs too often to print. A repeat count goes
+inside the body, `(times n ...)`. Never write `pii-time` loops, best of N
+or sums by hand: a missing feature is added to those macros, in that one
+place.
+
+Where a function can be written several ways with the iterators, time the
+variants and keep the fastest. A session carries an offset of its own of
+up to about 20 per cent, so compare variants across several fresh
+sessions, interleaved, against the old code's own spread.
+
+## Traps
+
+`docs/ai_digest/lisp_traps.md` is the list of known traps, each pinned by
+`tests/core/test_traps.lisp`. Read it before writing new Lisp, and add a
+new trap there with its test. Others to know:
+
+*	A `+name` is put in the code by value. A list made by a call, `(cat
+	...)` or `(list ...)`, is then run as a form: store it `(list quote
+	...)` or give it a `*name*`. `(const (list ...))` is the same. A
+	`+name` used in the `defq` that makes it is not yet the constant; use
+	it in a later `defq`. `check` has `early`.
+
+*	A function given as a value, a callback or an entry of data, is looked
+	up when used unless written `(const f)`, and defined above. A local
+	bound to a lambda, `(defq f (lambda ...))` then `(f ...)`, is a lookup
+	at every call: make it a real function defined above its caller.
+
+*	`>>` is the logical shift, `>>>` the arithmetic one. A shift of a value
+	that can be negative wants `>>>`.
+
+*	`(# ...)` takes exactly the `%n` it names: with only `%1` it takes one
+	argument, not two. Use a `lambda` for the second of two.
+
+*	`list?` is true of anything made of a list, an env, an `Fmap`, an
+	`Fset`, a `pset`, and gives the type depth. `list??` is a plain list.
+	`(str? :nil)` is true, a symbol is a string: `str??` for a string.
+
+*	`(find x lists)` finds only the same object: match by contents with
+	`some` and `eql`. `eql` of two lists compares big numbers as objects,
+	so compare lists of keys with `(every (const =) a b)`. `eql` of two
+	vectors compares their elements, it is not identity.
+
+*	`(found? text substr)` tests for a substring, `find` takes one element.
+	`(rfind x seq)` is the index just past the match. `(str-to-num
+	"word")` is 0, not an error.
+
+*	`(apply (const pset) lst)` makes `lst` itself the pset, give it `(cat
+	lst)`. `(pfind pset key)` asks if a key is in a pset.
+
+*	`()` given to a function is run: write `(list)` or `'()`. `&ignore` ends
+	a pattern, nested ones too, so name every part before it.
+
+*	A value held in no name is let go of at once: hold an object whose
+	letting go does something, `(defq stdio (create-stdio))`.
+
+*	`(exec form)` and `(macrobind)` rewrite the form in place; `(exec (copy
+	form))` keeps the text to send on. A lambda made by `eval` of a
+	backquote is not macro expanded.
+
+*	A macro of a library imported in the same top level form is not a
+	macro yet when the form is made, and gives its expansion back as a
+	list, silently. In a task's text put the import a form apart.
+
+*	A module's own `defq` globals are gone once it pops: a function of it
+	that names one at run time fails.
+
+*	A release build has no checks: an error is a value that the next form
+	walks over, and a `catch` sees only the very form it is round. A fault
+	a caller must see goes in a value or the object's state, never a
+	throw. Run a new stream or service on the `-e` emulator. A test of
+	what is wrong on purpose is skipped unless `*test_checked*`.
+
+*	`(print ...)` is buffered: a second `(print)` flushes it to the host.
+	`stream-flush` of a `string-stream` sends it to stdout; capture what a
+	writer writes with a `lisp-stream`.
+
+*	A structure's name is its fields' prefix: name an app's structures for
+	the app, `+pcb_job`, or two files clash.
+
+## Use What Is There, and Grow the Tools
+
+*	Before a new part, a watcher, a registry, a check, a tool, ask what
+	already does it: service names and their scopes, mail, `open-task`,
+	`open-child`, `node-spawn`, and the commands of `cmd/`. Grep `cmd/` and
+	these skills first, and offer the small version.
+
+*	A library facility is written once. Where a library or an app carries
+	its own copy of what a library does, or two libraries do one job, merge
+	them. It is not a drive to cut lines: alike frame code in apps is fine.
+	A library many tasks import may be proposed for `root.inc`, measured
+	first; files keep their `(import)` lines. Check `includes` and
+	`imports` after.
+
+*	Work on the tree is done by the tree's own commands, `files`, `grep`,
+	`check`, `forward`, `brackets`, `lint`, `imports`, `tests`, not host
+	shell or Python scripts. A host script used twice is a candidate for
+	`cmd/`.
+
+*	Run `check` on new or changed Lisp before its first run. It reads paths
+	from stdin, one folder at a time: `files <folder> | check -j 40`;
+	`check <path>` checks nothing, silently. `check`, `forward` and
+	`brackets` need the Lock service and say nothing without it: a
+	`run_tui.sh -s` script starts it first.
+
+*	A strange error after an edit, a `symbol_not_bound` of an assembler
+	name, a form run at the top level, is first a `brackets <file>`, which
+	gives the line and column of a stray or missing bracket.
+
+*	A fault the source text alone would have shown gets a rule in
+	`cmd/check.lisp` in the same change as its fix, with a case in
+	`tests/text/test_tree.lisp`. Only what is decidable from the text, and
+	tried on the tree first. A line that does it on purpose carries `;check
+	off`.
+
+## Ownership Is a Tree, Back Links Are Weak
+
+Letting go of the last reference to a structure, a window, a board, a
+farm, frees all of it, with no release call to remember. A link back
+towards an owner is a `(weak-ref owner)`, claimed with `obj-ref` only while
+it is used, on a path that came through the owner. A `:close` of a farm or
+jobs is a courtesy to the children; if memory ever needs it, that is a
+logic bug. `(view-loops view)` finds cycles, and `tests -e` fails a module
+that leaves its node holding more.
+
+## Mail Is Unordered, Mailboxes Are Cheap
+
+*	Two messages between the same two tasks can arrive in either order
+	where there is more than one route. That is by design. What needs order
+	uses the `:in` and `:out` streams, or waits for one step before sending
+	the next.
+
+*	Late or stale replies are not filtered with flags or counters. Make a
+	new mailbox, `(mail-mbox)`, put it where the old one was, the select
+	list or `(. jobs :reply_to mbox)`, and let the old one go: mail to it
+	goes nowhere.
+
+## A Matrix Is Made from Its Raw Variables
+
+A transform is always made afresh from its raw variables, position,
+angles, scales, never by applying a change to the matrix kept, which
+drifts. A world matrix is the parent's world times the local. Keeping the
+made matrix until a variable changes is fine; an inverse is made from the
+fresh one.
+
