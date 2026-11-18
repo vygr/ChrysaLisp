@@ -97,7 +97,7 @@
 
 (defun tree-listing (program)
 	;the program, a declaration to a line
-	(bind '(inputs consts globals funcs &rest _) (shader-full program))
+	(bind '(inputs consts globals funcs &ignore) (shader-full program))
 	;each kind collected into the one list, the inputs' made by a map
 	(defq lines (map (# (cat "input " (str %0))) inputs))
 	(map! (# (cat "const " (str %0))) (list consts) 0 -1 lines)
@@ -116,7 +116,7 @@
 	(cond
 		((eql stage :vertex) (first (sv-vertex-source program name)))
 		((eql stage :func)
-			(join (map (lambda ((fname &rest _))
+			(join (map (lambda ((fname &ignore))
 						(sv-func-source program fname (cat name "_" (str fname))))
 					(shader-funcs program)) "\n"))
 		((nempty? (shader-varyings program)) (first (sv-fill-source program name)))

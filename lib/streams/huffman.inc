@@ -186,7 +186,7 @@
 	(write-bits out_stream wbits 0 1)
 	(flush-bits out_stream wbits))
 
-(defun huffman-decompress (in_stream out_stream &optional _)
+(defun huffman-decompress (in_stream out_stream &ignore)
 	; (huffman-decompress in_stream out_stream) -> :t | :nil
 	;:nil if the stream stops before its end, or is not one, what was got
 	;by then is written

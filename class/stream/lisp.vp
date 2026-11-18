@@ -159,7 +159,7 @@
 	(vp-push :r0)
 	(defq in (method-input :stream :avail))
 	(list-bind-args :r1 in '(:stream))
-	(call :stream :avail in '(_ :r1))
+	(call :stream :avail in '(& :r1))
 	(call :num :create '(:r1) '(:r1))
 	(vp-pop :r0)
 
@@ -191,7 +191,7 @@
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:stream))
-	(call :stream :fault '(:r0) '(_ :r1) :r2)
+	(call :stream :fault '(:r0) '(& :r1) :r2)
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		(assign '((:r0 +lisp_sym_nil)) '(:r1))
@@ -285,7 +285,7 @@
 	(vp-push :r0)
 	(defq in (method-input :stream :seek))
 	(list-bind-args :r1 in '(:stream :num :num))
-	(call :stream :seek in '(_ :r0) :r3)
+	(call :stream :seek in '(& :r0) :r3)
 	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
@@ -318,14 +318,14 @@
 	(vp-alloc slot_size)
 	(entry :stream :lisp_readchar '((:rsp slot_this) (:rsp slot_args)))
 
-	(d-call :array :get_length '((:rsp slot_args)) '(_ :r1))
+	(d-call :array :get_length '((:rsp slot_args)) '(& :r1))
 	(gotoif '(:r1 < 1) 'error1)
 	(gotoif '(:r1 > 2) 'error1)
 	(assign '(:r1) '((:rsp slot_length)))
-	(call :list :get_begin '((:rsp slot_args)) '(_ :r0))
+	(call :list :get_begin '((:rsp slot_args)) '(& :r0))
 	(assign '(:r0) '((:rsp slot_iter_begin)))
 
-	(call :obj :inst_of `((:r0 0) (@ ,(f-path :stream :vtable))) '(_ tmp))
+	(call :obj :inst_of `((:r0 0) (@ ,(f-path :stream :vtable))) '(& tmp))
 	(gotoif `(,tmp = 0) 'error2)
 
 	(assign '((:rsp slot_length) 1 -1) '(:r0 :r1 :r2))
@@ -351,7 +351,7 @@
 	(assign '(:r2) '((:rsp slot_chars_end)))
 	(loop-start)
 		(assign '(:r0 (:rsp slot_iter_begin)) '((:rsp slot_chars) :r0))
-		(call :stream :read_char '((:r0 0)) '(_ :r1))
+		(call :stream :read_char '((:r0 0)) '(& :r1))
 		(vpif '(:r1 = -1))
 			(call :obj :deref '((:rsp slot_value)))
 			(assign '((:rsp slot_this)) '(:r0))
@@ -432,7 +432,7 @@
 	(assign `((,iter_begin +ptr_size)) `(,value))
 	(assign `((,value +obj_vtable) (@ ,(f-path :list :vtable))) '(:r13 :r14))
 	(vpif '(:r13 = :r14))
-		(call :lisp :env_args_type `(,value (@ ,(f-path :num :vtable)) 1) '(_ tmp))
+		(call :lisp :env_args_type `(,value (@ ,(f-path :num :vtable)) 1) '(& tmp))
 		(gotoif `(,tmp = 0) 'error2)
 		;:stream :write leaves all but this, the total is kept in value
 		(vp-push this)
@@ -450,7 +450,7 @@
 		(vp-pop this)
 	(else)
 		(assign `(,this) `(,iter_begin))
-		(call :obj :inst_of `(,value (@ ,(f-path :num :vtable))) '(_ tmp))
+		(call :obj :inst_of `(,value (@ ,(f-path :num :vtable))) '(& tmp))
 		(assign `(,iter_begin) `(,this))
 		(gotoif `(,tmp = 0) 'error2)
 		(vp-push this)
@@ -498,7 +498,7 @@
 	(list-bind-args args `(,stream ,len) '(:stream :num))
 	(call :str :create_from_buffer `(0 ,len) '(tmp))
 	(assign `(,tmp) '((:rsp slot_buf)))
-	(call :stream :read `(,stream (& ,tmp +str_data) ,len) '(_ tmp))
+	(call :stream :read `(,stream (& ,tmp +str_data) ,len) '(& tmp))
 	(vpif `(,tmp = -1))
 		(call :obj :deref '((:rsp slot_buf)))
 		(assign '((:rsp slot_this)) `(,this))
@@ -573,7 +573,7 @@
 	(vp-push :r0)
 	(defq in (method-input :stream :read_line))
 	(list-bind-args :r1 in '(:stream))
-	(call :stream :read_line in '(_ :r1))
+	(call :stream :read_line in '(& :r1))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		(assign '((:r0 +lisp_sym_nil)) '(:r1))
@@ -834,7 +834,7 @@
 		(load-fields :rsp '(slot_rparray slot_rstream slot_num_bits) `(,pool_state ,rstream ,rnum_bits))
 		(vp-simd vp-load-rcr `(,pool_state) `(0 ,+long_size) `(,rbit_pool ,rbit_pool_size))
 		(call :stream :read_bits `(,rstream ,rnum_bits ,rbit_pool ,rbit_pool_size)
-			`(_ rval rbit_pool rbit_pool_size))
+			`(& rval rbit_pool rbit_pool_size))
 		(assign '((:rsp slot_rparray)) `(,pool_state))
 		(vp-simd vp-store-rrc `(,rbit_pool ,rbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
@@ -842,7 +842,7 @@
 		(load-fields :rsp '(slot_wparray slot_wstream slot_num_bits) `(,pool_state ,wstream ,wnum_bits))
 		(vp-simd vp-load-rcr `(,pool_state) `(0 ,+long_size) `(,wbit_pool ,wbit_pool_size))
 		(call :stream :write_bits `(,wstream ,rval ,wnum_bits ,wbit_pool ,wbit_pool_size)
-			`(_ wbit_pool wbit_pool_size))
+			`(& wbit_pool wbit_pool_size))
 		(assign '((:rsp slot_wparray)) `(,pool_state))
 		(vp-simd vp-store-rrc `(,wbit_pool ,wbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
@@ -908,7 +908,7 @@
 		(breakif `(,idx >= ,end))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
 
-		(call :stream :read_line '((:rsp slot_stream)) `(_ ,value))
+		(call :stream :read_line '((:rsp slot_stream)) `(& ,value))
 		(assign `(,value) '((:rsp slot_value)))
 		(breakif `(,value = 0))
 
@@ -919,7 +919,7 @@
 		(else)
 			(call :list :create :nil '((:rsp slot_call_args)))
 			(call :list :push_back '((:rsp slot_call_args) (:rsp slot_value)))
-			(call :lisp :repl_apply '((:rsp slot_this) (:rsp slot_call_args) (:rsp slot_func)) '(_ (:rsp slot_value)))
+			(call :lisp :repl_apply '((:rsp slot_this) (:rsp slot_call_args) (:rsp slot_func)) '(& (:rsp slot_value)))
 			(call :obj :deref '((:rsp slot_call_args)))
 
 			(load-fields :rsp '(slot_this slot_value) `(,this ,value))

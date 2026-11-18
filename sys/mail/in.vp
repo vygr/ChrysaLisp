@@ -31,7 +31,7 @@
 	(vpif `(,next = 0))
 		;new parcel
 		(assign `((,rx_frag lk_frag_total)) `(,total))
-		(call :sys_mail :alloc `(,total) `(,node _))
+		(call :sys_mail :alloc `(,total) `(,node &))
 		(assign `(,total) `((,node +msg_total)))
 		(assign-net-id rx_frag lk_frag_dest node +msg_dest src1 src2 src3)
 		(assign-net-id rx_frag lk_frag_src node +msg_src src1 src2 src3)

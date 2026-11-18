@@ -380,7 +380,7 @@
 	; (spv-program program) -> block
 	;the inputs block of a program, a variable for each of its inputs,
 	;constants and globals, and its functions
-	(bind '(inputs consts globals funcs &rest _) (shader-full program))
+	(bind '(inputs consts globals funcs &ignore) (shader-full program))
 	(defq layout (rest (shader-layout program)) block :nil stage (shader-stage program))
 	;a kernel's block has its range after the inputs, from and to
 	(cond
@@ -391,10 +391,10 @@
 		((nempty? layout)
 			(setq block (spv-block-var (map (const second) layout) (map (const third) layout)
 					(if (eql stage :vertex) 1 3)))))
-	(each (lambda ((name type &rest _)) (spv-global name type)) (cat inputs consts globals))
+	(each (lambda ((name type &ignore)) (spv-global name type)) (cat inputs consts globals))
 	(each (lambda ((name)) (spv-texture name (!))) (shader-textures program))
 	(if (eql stage :kernel) (spv-buffers program))
-	(each (lambda ((name &rest _)) (. spv_fmap :insert name (spv-id))) funcs)
+	(each (lambda ((name &ignore)) (. spv_fmap :insert name (spv-id))) funcs)
 	(each (lambda ((name type params block))
 			;check off, the type it is called with is the type this was
 			(spv-function (. spv_fmap :find name) type (map (const second) params) (lambda (pids)
@@ -409,8 +409,8 @@
 (defun spv-start (program block)
 	;at the start of the entry point the inputs are copied from the block,
 	;and the constants and the globals are set
-	(bind '(inputs consts globals &rest _) program)
-	(each (lambda ((name type &rest _))
+	(bind '(inputs consts globals &ignore) program)
+	(each (lambda ((name type &ignore))
 			(defq p (spv-id))
 			(spv-op spv_body 65 (elem-get block (inc (!))) p (first block) (spv-const :int (!)))
 			(spv-op spv_body 62 (first (spv-var name)) (spv-emit type 61 p))) inputs)

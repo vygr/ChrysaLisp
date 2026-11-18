@@ -16,6 +16,10 @@ the `(vp-cvt-fd)` or `(vp-cvt-df)` is written where it is wanted.
 `(vp-reg-single :d4)` is `:f4`, the single of the register a double is named
 by.
 
+A destination of `&` is a value not wanted, left where it is, as of the
+outputs of a call: `(call :obj :type '(:r0) '(& :r1))` takes only the second.
+`_` there is refused.
+
 Assignment can be used directly by use of the `(assign)` function in your
 source, but it is always used, under the hood, by functions like `(entry)`,
 `(exit)`, `(call)` etc. The input and output parameters you declare in such

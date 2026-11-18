@@ -471,6 +471,11 @@ what each kind can do, a vector class beside each:
 	double and a float mixed in one sum is garbage. Constants match the
 	kind of the vector they meet.
 
+*	**`=` is bit for bit.** Of doubles and floats it compares the bits:
+	`(= -0.0 0.0)` is `:nil`, and a NaN is `=` itself. A number scaled by
+	0 keeps its sign, a negative one is -0.0. Compare a size, `(abs x)`,
+	where a sign of 0 is not the question.
+
 *	**Conversions:** `(n2i x)` is the fastest and has no rounding mode: a
 	`fixed` goes down, `(n2i -5.9)` is -6, a `double` toward zero, `(n2i
 	(n2d -5.9))` is -5; apply `(floor)` or `(ceil)` first when the direction

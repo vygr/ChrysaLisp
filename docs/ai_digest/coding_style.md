@@ -669,7 +669,7 @@ registers you must keep track of.
 	(vp-alloc slot_size)
 	(entry '((:rsp slot_list_obj)))
 
-	(call :array :get_both '((:rsp slot_list_obj)) '(_ :r1 :r2))
+	(call :array :get_both '((:rsp slot_list_obj)) '(& :r1 :r2))
 	(vp-xor-rr :r0 :r0)
 	(save-fields :rsp '(slot_iter slot_iter_end slot_sum) '(:r1 :r2 :r0))
 	(loop-start)
@@ -677,7 +677,7 @@ registers you must keep track of.
 		(breakif '(:r0 = :r1))
 		(vp-lea-rcr :r0 +ptr_size :r1)
 		(assign '(:r1) '((:rsp slot_iter)))
-		(call :num :get_value '((:r0 0)) '(_ :r1))
+		(call :num :get_value '((:r0 0)) '(& :r1))
 		(vp-mul-rr :r1 :r1)
 		(assign '((:rsp slot_sum)) '(:r0))
 		(vp-add-rr :r1 :r0)

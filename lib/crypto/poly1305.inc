@@ -50,7 +50,7 @@
 (defun poly1305-add (ctx data)
 	; (poly1305-add ctx data) -> ctx
 	;more of what the tag is of
-	(bind '(state pending &rest _) ctx)
+	(bind '(state pending &ignore) ctx)
 	(if (nempty? pending) (setq data (cat pending data)))
 	(defq blocks (/ (length data) 16) at 0)
 	(while (> blocks 0)

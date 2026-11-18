@@ -57,7 +57,7 @@
 		(call :list :create :nil '(:r0))
 		(assign '((:rsp 0)) '(:r1))
 		(class/obj/ref :r1 :r2)
-		(call :list :push_back '(:r0 :r1) '(:r1 _ _ _))
+		(call :list :push_back '(:r0 :r1) '(:r1 & & &))
 		(vp-push :r1)
 		(lisp-this :r0)
 		(call :str :lisp_str '(:r0 :r1) '(:r0 :r2))
@@ -72,7 +72,7 @@
 		(assign '((:r1 +array_begin)) '(:r1))
 		(call :lisp :repl_eval `(:r0 (:r1 ,(* 2 +ptr_size))) '(:r0 :r1))
 		(vp-push :r1)
-		(call :lisp :env_pop '(:r0) '(:r0 _))
+		(call :lisp :env_pop '(:r0) '(:r0 &))
 		(vp-pop :r1)
 		;the error stands if the handler gave :nil, if not, or if it gave
 		;an error of its own, what it gave is the value

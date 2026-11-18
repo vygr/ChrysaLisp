@@ -217,7 +217,7 @@
 	(while (< my mcus_y)
 		(task-slice)
 		;the planes of this row of MCUs, a nums each, its width in samples
-		(defq planes (map (lambda ((h v &rest _)) (str-alloc (* mcus_x h 8 v 8))) parts) mx 0)
+		(defq planes (map (lambda ((h v &ignore)) (str-alloc (* mcus_x h 8 v 8))) parts) mx 0)
 		(while (< mx mcus_x)
 			(when (and (> restart 0) (> done 0) (= (% done restart) 0))
 				(jpg-restart reader in)

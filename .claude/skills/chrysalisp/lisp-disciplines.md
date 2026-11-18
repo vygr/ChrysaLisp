@@ -719,7 +719,9 @@ doc.
 	of any number of arguments, none among them. `&` skips one place before
 	names that bind, `(bind '(& b c) seq)`, `(lambda (& y) ...)`, and takes
 	exactly one there. Never `(lambda (_) ...)`, which binds a variable
-	named `_`.
+	named `_`. `&` is the wildcard of `lmatch?`'s pattern too, `(lmatch?
+	inst '(cpy-rr & :r1))`. A `_` that is read, the error `catch` binds,
+	a macro's body spliced as `~_`, is a name and stays.
 	`(const identity)` passes its argument on.
 
 ## No Recursion, a `(list)` Is the Stack

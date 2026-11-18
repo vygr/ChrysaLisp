@@ -98,7 +98,7 @@
 
 			;find symbol binding
 			;is it a compiled function ?
-			(call :hmap :search '((:r0 +lisp_environment) :r1) '(_ :r1 _))
+			(call :hmap :search '((:r0 +lisp_environment) :r1) '(& :r1 &))
 			(breakif '(:r1 = 0))
 			(assign '((:r1 +ptr_size)) '(:r1))
 			(f-bind :func :vtable :r2)
@@ -147,7 +147,7 @@
 					(assign '((:r1 +str_data ub)) '(:r2))
 					(breakif '(:r2 /= +char_plus))
 					(assign '((:rsp slot_this)) '(:r0))
-					(call :hmap :get '((:r0 +lisp_environment) :r1) '(_ :r1))
+					(call :hmap :get '((:r0 +lisp_environment) :r1) '(& :r1))
 					(breakif '(:r1 = 0))
 					;yes so bind it
 					(assign '((:rsp slot_iter_begin)) '(:r2))

@@ -25,7 +25,7 @@
 	(entry :nodeid :create `(,saved_buf))
 
 	;create new str object
-	(call :sys_mem :alloc `(,+nodeid_size) `(,this _))
+	(call :sys_mem :alloc `(,+nodeid_size) `(,this &))
 	(vpif `(,this /= 0))
 		;init the object
 		(call :nodeid :init `(,this (@ ,(f-path :nodeid :vtable)) ,saved_buf +node_id_size) `(,this ,ok))

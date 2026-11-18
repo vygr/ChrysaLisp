@@ -143,13 +143,13 @@
 
 (defun find-past-r (_ rd)
 	(find-past
-		((lmatch? inst `(cpy-rr _ ,rd)) (!))
+		((lmatch? inst `(cpy-rr & ,rd)) (!))
 		((uses? rd inst) -1)
 		((pfind +opt_read_kill_ops (first inst)))))
 
 (defun find-past-cr (_ rd)
 	(find-past
-		((lmatch? inst `(cpy-cr _ ,rd)) (!))
+		((lmatch? inst `(cpy-cr & ,rd)) (!))
 		((trashes? rd inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((second info))))
 

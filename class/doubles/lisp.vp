@@ -74,7 +74,7 @@
 	(vpif `(,argc = 2))
 		(call :doubles :create :nil `(,dst))
 		(call :doubles :set_cap `(,dst 16) `(,dst) :r2)
-		(call :doubles :set_length `(,dst 16) `(,dst _))
+		(call :doubles :set_length `(,dst 16) `(,dst &))
 	(else)
 		(vp-load-rcr iter_begin (* +ptr_size 2) dst)
 		(assign `((,dst +array_length)) `(,len))

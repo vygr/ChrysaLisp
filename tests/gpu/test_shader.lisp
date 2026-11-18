@@ -46,7 +46,7 @@
 		"(defglobal g (* k two))"
 		"(defun half :float ((a :float)) (return (* a 0.5)))"
 		"(defun main :vec4 ((frag :vec2)) (return (vec4 (half g) frag 1.0)))"))
-(bind '(inputs consts globals funcs &rest _) prog)
+(bind '(inputs consts globals funcs &ignore) prog)
 (assert-list-eq "inputs" '((k :float 1.5 0.0 4.0) (n :int 3 :nil :nil) (size :vec2 0 :nil :nil)) inputs)
 (assert-list-eq "const" '((two :float (:float :lit "2.0000"))) consts)
 (assert-eq "global type" :float (second (first globals)))

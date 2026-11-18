@@ -124,7 +124,7 @@
 	(else)
 		;creating a new volatile chunk
 		(call :str :create_from_buffer `(0 ,mstream_buf_size) `(,chunk))
-		(call :list :push_back `(,chunks ,chunk) `(_ ,chunk _  _))
+		(call :list :push_back `(,chunks ,chunk) `(& ,chunk &  &))
 		(assign `(,chunk) `((,this +stream_object)))
 	(endif)
 	(assign `((,chunk +str_length) (& ,chunk +str_data)) `(,len ,bufp))

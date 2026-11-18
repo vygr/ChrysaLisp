@@ -29,7 +29,7 @@
 	(call :list :create :nil '(:r0))
 	(assign '((:rsp slot_sym)) '(:r1))
 	(class/obj/ref :r1 :r2)
-	(call :list :push_back2 '(:r0 :r1 :r12) '(:r0 _ _ _ _))
+	(call :list :push_back2 '(:r0 :r1 :r12) '(:r0 & & & &))
 	(assign '((:rsp slot_this) :r0 :r13) '(:r0 :r1 :r2))
 
 	(exit :lisp :read_quasi '(:r0 :r1 :r2))

@@ -164,7 +164,7 @@
 ;ui-save of a page, which widgets -t Docs sends: the words of an Md are
 ;symbols, :nil, a lone : and (file-stream) among them, and are read back as
 ;they were written; in a Scroll the page is a subtree, and is not gone into
-(bind '(md_md _) (md-make (list "A `(file-stream)` word, a `:nil` and a lone : here.")))
+(bind '(md_md &ignore) (md-make (list "A `(file-stream)` word, a `:nil` and a lone : here.")))
 (defq md_out (string-stream (cat "")))
 (ui-save md_out md_md)
 (defq md_read :t)

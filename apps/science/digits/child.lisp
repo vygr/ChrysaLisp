@@ -60,7 +60,7 @@
 				(+digits_reply_right right) (+digits_reply_loss loss))
 			(if train "" (apply (const cat) (map (# (char %0 +int_size)) confusion))))))
 
-(defun job (msg _)
+(defun job (msg &ignore)
 	(bind '(key reply kind step slot count data_key params_key grads_key children which)
 		(getf-> msg +job_key +job_reply +digits_job_kind +digits_job_step +digits_job_slot +digits_job_count
 			+digits_job_data_key +digits_job_params_key +digits_job_grads_key +digits_job_children

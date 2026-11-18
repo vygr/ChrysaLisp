@@ -487,7 +487,7 @@
 			(vp-shl-cr 3 :r2)
 			(vp-add-rr :r5 :r1)
 			(vp-add-rr :r5 :r2)
-			(call :array :pivot '((:rsp slot_this) :r1 :r2 (:rsp slot_func) (:rsp slot_ctx)) '(_ :r1))
+			(call :array :pivot '((:rsp slot_this) :r1 :r2 (:rsp slot_func) (:rsp slot_ctx)) '(& :r1))
 			;low to the pivot, then the pivot on to high: each interval
 			;made in a register, low then high, as it is in its slot
 			(load-fields :rsp '(slot_stack slot_iter_begin slot_low slot_high) '(:r0 :r5 :r4 :r6))
@@ -498,13 +498,13 @@
 			(vp-shl-cr 32 :r6)
 			(vp-add-rr :r4 :r1)
 			(vp-add-rr :r6 :r5)
-			(call :array :push_back '(:r0 :r1) '(:r0 _ _ _))
+			(call :array :push_back '(:r0 :r1) '(:r0 & & &))
 			(call :array :push_back '(:r0 :r5))
 		(endif)
 		(assign '((:rsp slot_stack) (:rsp slot_start)) '(:r0 :r2))
 		(assign '((:r0 +array_length)) '(:r1))
 		(breakif '(:r1 = :r2))
-		(call :array :pop_back '(:r0) '(_ (:rsp slot_interval)))
+		(call :array :pop_back '(:r0) '(& (:rsp slot_interval)))
 	(loop-end)
 
 	(exit :array :sort '((:rsp slot_this)))
@@ -972,7 +972,7 @@
 			(assign `((& ,o +str_data) (,o +str_length)) `(,vt1 ,len))
 			(vp-and-cr (neg +long_size) len)
 		(vp-label 'multiple)
-			(call :sys_mem :copy `(,vt1 ,dst ,len) `(_ ,dst))
+			(call :sys_mem :copy `(,vt1 ,dst ,len) `(& ,dst))
 		(else)
 		(vp-label 'single)
 			(vp-store-rrc vt1 dst 0)

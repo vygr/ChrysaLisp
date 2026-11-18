@@ -7737,6 +7737,15 @@ each one's weights and the activation of the one before
 of so many of its numbers, 4 bytes a float, 8 a double
 ```
 
+### nn-clear
+
+```code
+(nn-clear net) -> net
+
+each number of a net 0, gradients made ready again; a pool layer's
+vectors are empty, which the nums natives refuse, so they are passed by
+```
+
 ### nn-fan-in
 
 ```code
@@ -7767,8 +7776,7 @@ a sample through the layers, each one's outputs kept in the scratch
 (nn-gpu model capacity) -> :nil | gpu
 
 the kernels and buffers to train the model on a batch of up to so
-many, :nil if there is no GPU or a kernel will not build on it. Its
-kernels are of dense layers, as yet
+many, :nil if there is no GPU or a kernel will not build on it
 ```
 
 ### nn-gpu-act
@@ -7841,6 +7849,14 @@ the params, a vector of any kind, onto the GPU as floats, the step's
 (nn-gpu-read gpu) -> params
 
 the params as they are on the GPU, back as the model's kind
+```
+
+### nn-gpu-shape
+
+```code
+(nn-gpu-shape shape [key val] ...) -> vals
+
+a conv or pool layer's shape as the inputs of its kernels
 ```
 
 ### nn-gpu-step
@@ -8033,6 +8049,15 @@ the middle of a unit's figure
 
 each output's strongest weights from the layer before, lines from
 those units to its bar, brighter the stronger
+```
+
+### nn-view-width
+
+```code
+(nn-view-width text size) -> pixels
+
+how wide (nn-view-words) draws some words, the bounds of the font of
+twice the size it makes its outlines of
 ```
 
 ### nn-view-words

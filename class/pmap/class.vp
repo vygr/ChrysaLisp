@@ -121,7 +121,7 @@
 	(entry :pmap :pinsert `(,this ,key ,saved_value))
 	(assign `(,key) `(,saved_key))
 
-	(call :pmap :pfind `(,this ,key) `(,this ,iter _ _) :r2)
+	(call :pmap :pfind `(,this ,key) `(,this ,iter & &) :r2)
 	(vpif `(,iter /= 0))
 		;have old key
 		(assign `((,iter +ptr_size)) `(,old_value))
@@ -143,7 +143,7 @@
 	;new key, (key could be same as value !)
 	(class/obj/ref saved_key tmp)
 	(class/obj/ref saved_value tmp)
-	(call :pmap :push_back2 `(,this ,saved_key ,saved_value) `(,this ,iter _ iter_s iter_e))
+	(call :pmap :push_back2 `(,this ,saved_key ,saved_value) `(,this ,iter & iter_s iter_e))
 
 	;initial known slot ?
 	(f-bind :sym :vtable saved_key)

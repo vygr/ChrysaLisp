@@ -50,7 +50,7 @@
 
 	(defset :lisp_def
 		'(progn
-			(call :hmap :pinsert '(:r0 :r1 :r2) '(:r0 _ _))))
+			(call :hmap :pinsert '(:r0 :r1 :r2) '(:r0 & &))))
 
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) '(:r3))
@@ -185,7 +185,7 @@
 		'(progn
 			(assign '((:r1 +str_data ub)) '(:r3))
 			(gotoif '(:r3 = +char_plus) 'error4)
-			(call :hmap :set '(:r0 :r1 :r2) '(_ :r1))
+			(call :hmap :set '(:r0 :r1 :r2) '(& :r1))
 			(gotoif '(:r1 = 0) 'error3))
 		:r9)
 
@@ -229,7 +229,7 @@
 	(else)
 		(array-bind-args :r1 '(:r1 :r0))
 	(endif)
-	(call :hmap :search '(:r0 :r1) '(_ :r1 _))
+	(call :hmap :search '(:r0 :r1) '(& :r1 &))
 	(vp-pop :r0)
 	(vpif '(:r1 /= 0))
 		(assign '((:r1 +ptr_size)) '(:r1))
@@ -269,7 +269,7 @@
 	(else)
 		(array-bind-args :r1 '(:r1 :r0))
 	(endif)
-	(call :hmap :pfind '(:r0 :r1) '(_ :r1 _))
+	(call :hmap :pfind '(:r0 :r1) '(& :r1 &))
 	(vp-pop :r0)
 	(vpif '(:r1 /= 0))
 		(assign '((:r1 +ptr_size)) '(:r1))
@@ -340,7 +340,7 @@
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
-	(call :hmap :list '(:r0) '(_ :r1))
+	(call :hmap :list '(:r0) '(& :r1))
 	(vp-pop :r0)
 
 	(exit :hmap :lisp_list '(:r0 :r1))
@@ -504,7 +504,7 @@
 	(bind '(hmap size) (method-input :hmap :copy))
 	(list-bind-args args `(,hmap ,size) '(:env :num))
 	(gotoif `(,size < 1) 'error1)
-	(call :hmap :copy `(,hmap ,size) `(_ ,args))
+	(call :hmap :copy `(,hmap ,size) `(& ,args))
 	(vp-pop this :r14)
 
 	(exit :hmap :lisp_copy `(,this ,args))

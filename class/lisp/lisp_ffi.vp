@@ -28,7 +28,7 @@
 	(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
 	(gotoif '(:r2 = :r3) 'exit)
 	(vp-push :r1)
-	(call :obj :inst_of `(:r1 (@ ,(f-path :str :vtable))) '(_ :r1))
+	(call :obj :inst_of `(:r1 (@ ,(f-path :str :vtable))) '(& :r1))
 	(gotoif '(:r1 = 0) 'error1)
 	(assign '((:rsp 0)) '(:r1))
 	(call :sys_load :bind '((& :r1 +str_data)) '(:r0))

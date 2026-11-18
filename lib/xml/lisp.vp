@@ -35,22 +35,22 @@
 		(call :list :push_back `(,l ,t)))
 
 	(defun output-token ()
-		(call :sstream :claim_string '((:rsp slot_sstoken)) '(_ token))
+		(call :sstream :claim_string '((:rsp slot_sstoken)) '(& token))
 		(bind '(l t) (method-input :list :push_back))
 		(assign `(,token (:rsp slot_tokens)) `(,t ,l))
 		(call :list :push_back `(,l ,t)))
 
 	(defun output-state (&optional s)
 		(if s
-			(call :list :push_back `((:rsp slot_states) ,(first s)) '(_ obj tmp _))
-			(call :list :push_back '((:rsp slot_states) (:rsp slot_state)) '(_ obj tmp _)))
+			(call :list :push_back `((:rsp slot_states) ,(first s)) '(& obj tmp &))
+			(call :list :push_back '((:rsp slot_states) (:rsp slot_state)) '(& obj tmp &)))
 		(class/obj/ref obj tmp))
 
 	(defun find_char_in (s)
 		(bind '(st ch &ignore) (method-input :str :find))
 		(assign `(,c) `(,ch))
 		(assign s `(,st))
-		(d-call :str :find `(,st ,ch 0) '(_ _ idx)))
+		(d-call :str :find `(,st ,ch 0) '(& & idx)))
 
 	(entry '(:r0 :r1))
 
@@ -75,7 +75,7 @@
 	(assign '(($ states) (& :rsp slot_syms_start) (& :rsp slot_syms_end)) `(,table ,iter_begin ,iter_end))
 	(loop-start)
 		(call :sym :intern_cstr `(,table) `((,iter_begin 0)))
-		(call :sys_str :length `(,table) '(_ len))
+		(call :sys_str :length `(,table) '(& len))
 		(vp-add-cr +ptr_size iter_begin)
 		(vp-add-rr len table)
 		(vp-add-cr 1 table)
@@ -86,14 +86,14 @@
 	(call :list :create :nil '((:rsp slot_resources)))
 	(assign '((:rsp slot_resources) (& :rsp slot_res_start) (& :rsp slot_res_end)) `(,res ,iter_begin ,iter_end))
 	(loop-start)
-		(call :list :push_back `(,res (,iter_begin 0)) '(res _ _ _))
+		(call :list :push_back `(,res (,iter_begin 0)) '(res & & &))
 		(vp-add-cr +ptr_size iter_begin)
 	(loop-until `(,iter_begin = ,iter_end))
 
 	(assign '((:rsp slot_sym_text)) '(:r0))
 	(assign '(:r0) '((:rsp slot_state)))
 	(loop-start 'next_char)
-		(call :stream :read_char '((:rsp slot_stream)) '(_ c))
+		(call :stream :read_char '((:rsp slot_stream)) '(& c))
 		(breakif `(,c = -1))
 		(assign `(,c) '((:rsp slot_c)))
 	(vp-label 'proc_char)

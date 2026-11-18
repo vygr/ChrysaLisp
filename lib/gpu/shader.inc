@@ -732,7 +732,7 @@
 				(sh-err "no (defun main :vec4 ((frag :vec2)) ...), or (defun main :vec4 () ...) for a vertex shader" 'main))
 			;a matrix is an input, a global or a local of a shader, it
 			;is not handed to a function or back from one
-			(each (lambda ((name type params &rest _))
+			(each (lambda ((name type params &ignore))
 					(if (eql type :mat4) (sh-err "a function can not give a matrix" name))
 					(if (some (# (eql (second %0) :mat4)) params)
 						(sh-err "a function can not take a matrix" name))) funcs)))
@@ -870,7 +870,7 @@
 
 (defun shader-layout (program)
 	; (shader-layout program) -> (size (name type offset) ...)
-	(defq offset 0 fields (map (lambda ((name type &rest _))
+	(defq offset 0 fields (map (lambda ((name type &ignore))
 				(defq d (shader-size type) a (if (= d 16) 16 (elem-get '(0 4 8 16 16) d)))
 				(setq offset (+ (defq o (align offset a)) (* d 4)))
 				(list name type o)) (first program)))
@@ -881,7 +881,7 @@
 (defun sh-range-at (program)
 	;the offset of a kernel's range in the inputs block
 	(defq at 0)
-	(each! (lambda ((_ type o)) (setq at (+ o (* (shader-size type) 4))))
+	(each! (lambda ((& type o)) (setq at (+ o (* (shader-size type) 4))))
 		(list (shader-layout program)) 1)
 	at)
 
@@ -934,7 +934,7 @@
 	(bind '(size &rest fields) (shader-layout program))
 	(defq block (str-alloc size))
 	(for 0 (>> (+ size 7) 3) (set-long block (<< (!) 3) 0))
-	(each (lambda ((name type offset) (& & val &rest _))
+	(each (lambda ((name type offset) (& & val &ignore))
 			(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
 				(setq val (second v)))
 			(cond

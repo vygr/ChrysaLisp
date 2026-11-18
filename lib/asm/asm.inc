@@ -152,7 +152,7 @@
 	;the two is not the same
 	(defq vpman (manifest-load (vp-manifest)) platman (manifest-load (platform-manifest *cpu* *abi*))
 		vp_dirty :nil plat_dirty :nil)
-	(each (lambda ((file hash &rest _))
+	(each (lambda ((file hash &ignore))
 			(defq k (sym file))
 			(when (defq v (get k vpman))
 				;it wrote the bundle, so the file is not the one noted: one
@@ -216,7 +216,7 @@
 			(each (# (push paths (cat dir "/" %0))) (third was))))
 	(when dirty
 		;folders that have gone are forgotten
-		(each (lambda ((k _)) (unless (get k seen) (undef kept k))) (tolist kept))
+		(each (lambda ((k &ignore)) (unless (get k seen) (undef kept k))) (tolist kept))
 		(manifest-save kept +make_walk))
 	(map (# (slice %0 2 -1)) paths))
 
@@ -454,7 +454,7 @@
 	;names and hashes in order, and under the emulator, where an install
 	;makes every key, two thirds of 0.4 s was the sort, the text and the
 	;hash. base is (key-base), or :nil
-	(bind '(_ x s n) (tree-fold file base))
+	(bind '(& x s n) (tree-fold file base))
 	(cat (str x) " " (str s) " " (str n)))
 
 (defun keys-fresh (vps known)
@@ -543,7 +543,7 @@
 (defun note-vp (made)
 	;the bundles a VP stage made, into vpman: each file to its key, the
 	;hash of its bundle and the age of the file it is
-	(each (lambda ((file hash &rest _))
+	(each (lambda ((file hash &ignore))
 			(def vpman (defq k (sym file))
 				(list (get k keys) hash (age (cat (vp-dir *build_mode*) file))))) made))
 
@@ -569,7 +569,7 @@
 		(when (nempty? gone)
 			;not one that some file makes now, a function may have moved
 			(defq now (env 1009))
-			(each (lambda ((_ names)) (each (# (def now (sym %0) :t)) names)) (tolist all))
+			(each (lambda ((& names)) (each (# (def now (sym %0) :t)) names)) (tolist all))
 			(each (# (unless (get (sym %0) now) (pii-remove (cat "obj/" cpu "/" abi "/" %0)))) gone))
 		(manifest-save all path)))
 
@@ -837,7 +837,7 @@
 	(each (const print) errors)
 	(when (> *build_verb* 0)
 		(print "make: " (get 'f_read facts) " read, " assembled " assembled")
-		(each (lambda ((_ (cpu abi files funcs)))
+		(each (lambda ((& (cpu abi files funcs)))
 				(print "make " cpu " " abi ": " files " translated, " funcs " functions"))
 			(tolist did)))
 	(print "Done") :nil)

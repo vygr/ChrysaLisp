@@ -34,7 +34,7 @@
 		(vp-push this)
 		(call :num :create `(,value) `(,value))
 		(call :list :create :nil '(tmp))
-		(call :list :push_back2 `(,tmp ,form ,value) `(,args _ _ _ _))
+		(call :list :push_back2 `(,tmp ,form ,value) `(,args & & & &))
 		(vp-pop this)
 	(endif)
 

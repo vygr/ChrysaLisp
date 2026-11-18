@@ -140,9 +140,9 @@
 	;a nums of slot_cx cy cz on the list out
 	(call :nums :create :nil '(:r0))
 	(each (lambda (v)
-			(call :array :push_back `(:r0 (:rsp ,v)) '(:r0 _ _ _))) '(slot_cx slot_cy slot_cz))
+			(call :array :push_back `(:r0 (:rsp ,v)) '(:r0 & & &))) '(slot_cx slot_cy slot_cz))
 	(vp-cpy-rr :r0 :r1)
-	(call :list :push_back `((:rsp ,out) :r1) '(_ _ _ _)))
+	(call :list :push_back `((:rsp ,out) :r1) '(& & & &)))
 
 (defun pcb-candidate (vecs skip &optional marked)
 	;the next of the vectors, the node it moves to as slot_cx cy cz, if it is
@@ -215,7 +215,7 @@
 	;the delay of the move, put on the nums out
 	(pcb-delay-value)
 	(vp-cpy-rr :r0 :r1)
-	(call :array :push_back `((:rsp ,out) :r1) '(_ _ _ _)))
+	(call :array :push_back `((:rsp ,out) :r1) '(& & & &)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a step of the backtrack
@@ -269,7 +269,7 @@
 	;least first. Trash :r0-:r7
 (vp-label 'heap_push)
 	(vp-cpy-rr :r0 :r7)
-	(call :array :push_back '(:r0 :r1) '(_ _ _ _))
+	(call :array :push_back '(:r0 :r1) '(& & & &))
 	(load-fields :r7 '(+array_begin +array_length) '(:r2 :r3))
 	(vp-sub-cr 1 :r3)
 	(loop-start)
@@ -294,7 +294,7 @@
 	(assign '((:r7 +array_begin)) '(:r2))
 	(assign '((:r2 0)) '(:r1))
 	(vp-push :r1)
-	(call :array :pop_back '(:r7) '(_ :r1))
+	(call :array :pop_back '(:r7) '(& :r1))
 	(load-fields :r7 '(+array_begin +array_length) '(:r2 :r3))
 	(vpif '(:r3 /= 0))
 		(assign '(:r1) '((:r2 0)))
@@ -355,7 +355,7 @@
 	(vpif '(:r3 /= :r2))
 		(assign '(:r2) '((:r1 0)))
 		(vp-cpy-rr :r0 :r1)
-		(call :array :push_back '((:rsp slot_next) :r1) '(_ _ _ _))
+		(call :array :push_back '((:rsp slot_next) :r1) '(& & & &))
 	(endif))
 
 (defun pcb-wave-moves (vecs vias)

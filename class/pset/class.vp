@@ -120,7 +120,7 @@
 	(entry :pset :pinsert `(,this ,key))
 	(assign `(,key) `(,saved_key))
 
-	(call :pset :pfind `(,this ,key) `(,this ,iter _ _) tmp)
+	(call :pset :pfind `(,this ,key) `(,this ,iter & &) tmp)
 	(vpif `(,iter /= 0))
 		;have old key
 		(exit :pset :pinsert  `(,this ,iter))

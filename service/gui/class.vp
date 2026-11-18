@@ -428,7 +428,7 @@
 			(loop-until `(,view1 = ,view2))
 
 			;free any temp region
-			(call :region :free `(,heap (& :rsp vis_region)) `(,heap _))
+			(call :region :free `(,heap (& :rsp vis_region)) `(,heap &))
 		(endif)
 	(endif)
 
@@ -503,7 +503,7 @@
 
 		;free local dirty region
 		(assign '((:rsp vis_this)) `(,view1))
-		(call :region :free `(,heap (& ,view1 +view_dirty_region)) `(,heap _))
+		(call :region :free `(,heap (& ,view1 +view_dirty_region)) `(,heap &))
 	(endif)
 
 	;abs of parent view !
@@ -616,7 +616,7 @@
 				(loop-until `(,view1 = ,view2))
 
 				;free any temp region
-				(call :region :free `(,heap (& :rsp dist_region)) `(,heap _))
+				(call :region :free `(,heap (& :rsp dist_region)) `(,heap &))
 			(endif)
 
 			;return flag for traversing into children

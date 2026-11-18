@@ -524,7 +524,7 @@
 	;n bits of the stream into dst, -1 at its end: the stream in :r11, the
 	;pool and its size in :r2 and :r3, where read_bits takes and gives them,
 	;:r0 :r1 :r4 trashed
-	(call :stream :read_bits `(:r11 ,n :r2 :r3) `(_ ,dst :r2 :r3)))
+	(call :stream :read_bits `(:r11 ,n :r2 :r3) `(& ,dst :r2 :r3)))
 
 (defun inflate-symbol (counts syms most)
 	;the next symbol of a code into :r5, -1 if the bits are no code, as
@@ -794,7 +794,7 @@
 (defun deflate-put (code n)
 	;n bits of code to the out stream, the low first: the stream in :r11,
 	;the pool and its size in :r12 :r13, :r0-:r4 trashed
-	(call :stream :write_bits `(:r11 ,code ,n :r12 :r13) '(_ :r12 :r13)))
+	(call :stream :write_bits `(:r11 ,code ,n :r12 :r13) '(& :r12 :r13)))
 
 (def-func (path-to-absolute "./deflate_fixed"))
 	;inputs

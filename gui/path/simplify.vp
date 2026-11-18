@@ -31,7 +31,7 @@
 	(save-fields :rsp '(slot_this slot_that slot_eps) '(:r0 :r1 :r3))
 
 	;any point doing anything ?
-	(d-call :path :get_length '(:r1) '(_ :r1))
+	(d-call :path :get_length '(:r1) '(& :r1))
 	(vpif '(:r1 <= 4))
 		;just append to output
 		(d-call :path :append '((:rsp slot_this) (:rsp slot_that) 0 :r1))
@@ -42,7 +42,7 @@
 		(save-fields :rsp '(slot_first slot_last) '(:r0 :r1))
 
 		;output first point
-		(call :path :get_first2 '((:rsp slot_that)) '(_ :r1 :r2))
+		(call :path :get_first2 '((:rsp slot_that)) '(& :r1 :r2))
 		(call :path :push_back2 '((:rsp slot_this) :r1 :r2))
 
 		(call :array :create :nil '((:rsp slot_stack)))
@@ -55,12 +55,12 @@
 				(load-fields :rsp '(slot_first slot_eps) '(:r0 :r1))
 				(vp-add-cr 2 :r0)
 				(save-fields :rsp '(slot_max slot_length) '(:r1 :r0))
-				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_first)) '(_ :r1 :r2))
+				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_first)) '(& :r1 :r2))
 				(save-fields :rsp '(slot_p2x slot_p2y) '(:r1 :r2))
-				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_last)) '(_ :r1 :r2))
+				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_last)) '(& :r1 :r2))
 				(save-fields :rsp '(slot_p3x slot_p3y) '(:r1 :r2))
 				(loop-start)
-					(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_length)) '(_ :r0 :r1))
+					(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_length)) '(& :r0 :r1))
 					(load-fields :rsp '(slot_p2x slot_p2y slot_p3x slot_p3y) '(:r2 :r3 :r4 :r5))
 					(call :sys_math :q_dist_sqd '(:r0 :r1 :r2 :r3 :r4 :r5) '(:r0))
 					(load-fields :rsp '(slot_last slot_max slot_length) '(:r3 :r1 :r2))
@@ -81,14 +81,14 @@
 				(endif)
 			(default)
 				;output point
-				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_last)) '(_ :r1 :r2))
+				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_last)) '(& :r1 :r2))
 				(call :path :push_back2 '((:rsp slot_this) :r1 :r2))
 			(endswitch)
 
 			;next span
-			(d-call :array :get_length '((:rsp slot_stack)) '(_ :r1))
+			(d-call :array :get_length '((:rsp slot_stack)) '(& :r1))
 			(breakif '(:r1 = 0))
-			(call :array :pop_back '((:rsp slot_stack)) '(_ (:rsp slot_span)))
+			(call :array :pop_back '((:rsp slot_stack)) '(& (:rsp slot_span)))
 		(loop-end)
 		(call :array :deref '((:rsp slot_stack)))
 	(endif)

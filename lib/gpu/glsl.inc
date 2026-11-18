@@ -46,8 +46,8 @@
 (defun glsl-decls (program)
 	;the inputs as uniforms, the constants, the globals and the functions
 	;of a program, onto the lines of whoever calls
-	(bind '(inputs consts globals funcs &rest _) (shader-full program))
-	(each (lambda ((name type &rest _))
+	(bind '(inputs consts globals funcs &ignore) (shader-full program))
+	(each (lambda ((name type &ignore))
 			(push lines (cat "uniform " (glsl-type type) " " (glsl-name name) ";"))) inputs)
 	(each (lambda ((name))
 			(push lines (cat "uniform sampler2D " (glsl-name name) ";"))) (shader-textures program))

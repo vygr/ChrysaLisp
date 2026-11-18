@@ -92,7 +92,7 @@
 	;the path of every thing in a folder and in the folders below it
 	(defq out (list) stack (list folder))
 	(while (defq at (pop stack))
-		(each (lambda ((name kind &rest _))
+		(each (lambda ((name kind &ignore))
 				(defq path (if (eql at "") name (cat at "/" name)))
 				(if (eql kind "d") (push stack path) (push out path)))
 			(hash-tree-kids tree at)))

@@ -116,7 +116,7 @@
 	(load-fields this '(+stream_object +stream_bufp) '(:r0 :r2))
 	(vp-add-cr +str_data :r0)
 	(vp-sub-rr :r0 :r2)
-	(call :sys_mem :copy `(:r0 (& ,new_str +str_data) :r2) '(_ :r1))
+	(call :sys_mem :copy `(:r0 (& ,new_str +str_data) :r2) '(& :r1))
 
 	;the buffer is all of its cell, the str as long
 	(assign '(:r1) `((,this +stream_bufp)))

@@ -128,7 +128,7 @@
 		(breakif `(,buffer /= 0))
 		(assign `((,this +in_state)) `(,state))
 		(gotoif `(,state = +stream_mail_state_aborted) 'abort)
-		(call :sys_mail :read `((,this +in_mbox_addr)) `(,msg _))
+		(call :sys_mail :read `((,this +in_mbox_addr)) `(,msg &))
 		(gotoif `(,msg = 0) 'abort)
 		(assign `((,this +in_state)) `(,state))
 		(gotoif `(,state = +stream_mail_state_aborted) 'abort)
@@ -166,7 +166,7 @@
 		;next ack seq num
 		(vp-add-cr 1 acknum)
 		(assign `(,acknum) `((,this +in_ack_seqnum)))
-		(call :sys_mail :alloc '(0) `(,msg _))
+		(call :sys_mail :alloc '(0) `(,msg &))
 		(assign `((,buffer +msg_data)) `(,buffer))
 		(load-net-id buffer +stream_msg_ack_id id0 id1 id2)
 		(save-net-id msg +msg_dest id0 id1 id2)

@@ -101,7 +101,7 @@ registers between the calls.
 		(entry :my_class :my_method '((:rsp slot_this) (:rsp slot_list)))
 
 		; Virtual call
-		(call :array :get_length '((:rsp slot_list)) '(_ :r1))
+		(call :array :get_length '((:rsp slot_list)) '(& :r1))
 
 		(vpif '(:r1 > 0))
 			; the work is in registers

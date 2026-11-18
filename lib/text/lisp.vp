@@ -136,7 +136,7 @@
 (vp-label 'done)
 	(vp-cpy-rr this dcy)
 	(call :nums :create :nil `(,this))
-	(call :nums :push_back2 `(,this ,nx ,ny) `(,args _ _ _ _))
+	(call :nums :push_back2 `(,this ,nx ,ny) `(,args & & & &))
 
 	(exit `(,dcy ,args))
 	(vp-ret)
@@ -188,7 +188,7 @@
 (vp-label 'done)
 	(vp-cpy-rr this ay)
 	(call :nums :create :nil `(,this))
-	(call :nums :push_back2 `(,this ,px ,py) `(,args _ _ _ _))
+	(call :nums :push_back2 `(,this ,px ,py) `(,args & & & &))
 
 	(exit `(,ay ,args))
 	(vp-ret)

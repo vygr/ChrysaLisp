@@ -5,7 +5,7 @@
 	r (poly-intersect a b) ys (list))
 ;every y a point is at, of the two and of the answer: those of the answer
 ;that are not of the two are where edges cross
-(each (lambda (p) (each (lambda ((_ y)) (push ys y)) (partition p 2))) (cat a b r))
+(each (lambda (p) (each (lambda ((& y)) (push ys y)) (partition p 2))) (cat a b r))
 (setq ys (usort ys (const -)))
 (dia-put s :nil (list (cwb-shape (cwb-d-points (first a) :t) :fill blue :stroke line :width 1.4) 300 200) 0 0)
 (dia-put s :nil (list (cwb-shape (cwb-d-points (first b) :t) :fill gold :stroke line :width 1.4) 300 200) 0 0)

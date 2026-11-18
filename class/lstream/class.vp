@@ -193,7 +193,7 @@
 		(class/obj/ref :r1 :r2)
 		(call :list :push_back `(,args :r1))
 		;the value comes back where the flag was
-		(call :lisp :repl_apply `((,this +lstream_lisp) ,args (,this +lstream_write)) `(_ ,flush))
+		(call :lisp :repl_apply `((,this +lstream_lisp) ,args (,this +lstream_write)) `(& ,flush))
 		(call :obj :deref '((:rsp slot_args)))
 		(call :obj :deref_if `(,flush))
 
@@ -278,7 +278,7 @@
 	;the next of it is asked for
 	(call :list :create :nil '(:r1))
 	(save-fields :rsp '(slot_this slot_args) `(,this :r1))
-	(call :lisp :repl_apply `((,this +lstream_lisp) :r1 (,this +lstream_fill)) `(_ ,value))
+	(call :lisp :repl_apply `((,this +lstream_lisp) :r1 (,this +lstream_fill)) `(& ,value))
 	(call :obj :deref '((:rsp slot_args)))
 
 	;a str with something in it is more, an empty one or :nil the end, and
@@ -373,7 +373,7 @@
 		(call :num :create `(,whence) '(:r1))
 		(call :list :push_back `(,args :r1))
 		;the value comes back where the offset was
-		(call :lisp :repl_apply `((,this +lstream_lisp) ,args (,this +lstream_seek)) `(_ ,offset))
+		(call :lisp :repl_apply `((,this +lstream_lisp) ,args (,this +lstream_seek)) `(& ,offset))
 		(call :obj :deref '((:rsp slot_args)))
 		(assign '((:rsp slot_this) -1) `(,this ,pos))
 		(vp-free slot_size)

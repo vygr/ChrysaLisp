@@ -37,7 +37,7 @@
 	;again: they are of one layout of records. A translator only in the
 	;boot image is bound as it is, it never changes
 	(defq natives (list))
-	(each (lambda ((cpu abi &rest _))
+	(each (lambda ((cpu abi &ignore))
 			(if (defq native (load (cat (load-path) (trans-name cpu abi)))) (push natives native))) plats)
 	(when (nempty? natives)
 		;the parser first, so a translator's link to it is to this one

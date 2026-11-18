@@ -445,7 +445,7 @@
 ;it out of the node's link array before it ends. One left there is
 ;read by the kernel once this stack is freed: say so, and where it is.
 ;What is in it can not be said, this frame is over where it was
-	(call :array :get_both '((:r0 statics_sys_mail_links_array)) '(_ :r1 :r2))
+	(call :array :get_both '((:r0 statics_sys_mail_links_array)) '(& :r1 :r2))
 	(assign '((:rsp slot_tcb)) '(:r5))
 	(assign '((:r5 +tk_node_stack_top)) '(:r4))
 	(vpif '(:r1 /= :r2))

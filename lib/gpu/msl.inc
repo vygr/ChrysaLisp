@@ -88,9 +88,9 @@
 	;the shader as a struct. The inputs, the globals, the attrs and the
 	;varyings are members, the constants are members with a value, and the
 	;functions are methods
-	(bind '(inputs consts globals funcs &rest _) (shader-full program))
+	(bind '(inputs consts globals funcs &ignore) (shader-full program))
 	(push lines "struct Shader" "{")
-	(each (lambda ((name type &rest _))
+	(each (lambda ((name type &ignore))
 			(push lines (cat "\t" (msl-type type) " " (msl-name name) ";")))
 		(cat inputs globals (shader-attrs program) (shader-varyings program)))
 	(each (lambda ((name))
@@ -114,7 +114,7 @@
 
 (defun msl-set-inputs (program lines)
 	;the members that are inputs, from the block
-	(each (lambda ((name type &rest _))
+	(each (lambda ((name type &ignore))
 			(push lines (cat "\ts." (msl-name name) " = " (if (shader-dim type)
 						(cat (msl-type type) "(inputs." (msl-name name) ")")
 						(cat "inputs." (msl-name name))) ";"))) (first program)))
@@ -171,7 +171,7 @@
 			", uint gid [[thread_position_in_grid]])")
 		"{" "\tint i = inputs.range_from + int(gid);" "\tif (i >= inputs.range_to) return;" "\tShader s;")
 	(msl-set-inputs program lines)
-	(each (lambda ((name &rest _)) (push lines (cat "\ts." (msl-name name) " = buf_" (str (!)) ";")))
+	(each (lambda ((name &ignore)) (push lines (cat "\ts." (msl-name name) " = buf_" (str (!)) ";")))
 		(sh-kernel-order program))
 	(push lines "\ts.shader_init();" "\ts.shader_main(i);" "}" "")
 	(join lines "\n"))

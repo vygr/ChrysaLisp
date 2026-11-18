@@ -825,7 +825,7 @@
 	;A label that sets its constants and globals, then each function at a
 	;label of its own. The labels start with the prefix, so that the two
 	;programs of a pair can be in the one native function.
-	(bind '(inputs consts globals funcs &rest _) (shader-full program))
+	(bind '(inputs consts globals funcs &ignore) (shader-full program))
 	(sv-emit 'vp-label (sv-q (sym (cat prefix "h_init"))))
 	(each (lambda ((name type e)) (sv-define name type e)) (cat consts globals))
 	(sv-emit 'vp-ret)
@@ -879,7 +879,7 @@
 	;the frame starts with the inputs, then slots for the attrs and the
 	;varyings that are never used, they are read and written where they
 	;are, then what the loop keeps
-	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) (first program))
+	(each (lambda ((name type &ignore)) (push vars (list name (sv-slots type)))) (first program))
 	(defq attr_at frame_size)
 	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-attrs program))
 	(defq vary_at frame_size attr_slots (/ (- vary_at attr_at) 8))
@@ -1299,7 +1299,7 @@
 		ret_offset 0 ret_label :nil)
 	;the frame starts with the inputs, then the varyings of the pixel
 	;being shaded, then what the walk of the triangles keeps
-	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) (first program))
+	(each (lambda ((name type &ignore)) (push vars (list name (sv-slots type)))) (first program))
 	(defq tex_at (sv-tex-slots program))
 	(defq vary_at frame_size)
 	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-varyings program))
@@ -1384,13 +1384,13 @@
 	; -> (text frame_size)
 	;the VP source of the native function for a program
 	(sh-pixel-only program "VP")
-	(bind '(inputs consts globals funcs &rest _) (shader-full program))
+	(bind '(inputs consts globals funcs &ignore) (shader-full program))
 	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
 		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
 		ret_offset 0 ret_label :nil)
 	;the frame starts with the inputs, then the textures, then what the
 	;tile loop keeps
-	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
+	(each (lambda ((name type &ignore)) (push vars (list name (sv-slots type)))) inputs)
 	(defq tex_at (sv-tex-slots program))
 	(bind '(s_x0 s_x1 s_x s_y s_y1 s_mode s_height s_out s_skip s_work)
 		(map! (lambda () (sv-slots :int)) '() 0 10))
@@ -1699,7 +1699,7 @@
 		makes (if (> count 1)
 			(cat tab "(call :doubles :create :nil '(:r0))" lf
 				tab "(call :doubles :set_cap '(:r0 " (str count) ") '(:r0) :r2)" lf
-				tab "(call :doubles :set_length '(:r0 " (str count) ") '(:r0 _))" lf
+				tab "(call :doubles :set_length '(:r0 " (str count) ") '(:r0 &))" lf
 				tab "(vp-store-rrc :r0 :rsp " (str s_gives) ")" lf) "")
 		reach (if (> count 1)
 			(cat tab "(vp-load-rcr :rsp " (str s_gives) " :r10)" lf
@@ -1777,13 +1777,13 @@
 	;the VP source of the native function for a kernel. Its frame starts
 	;with the inputs, then where each buffer's elements are, then what
 	;the loop keeps
-	(bind '(inputs consts globals funcs &rest _) program)
+	(bind '(inputs consts globals funcs &ignore) program)
 	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
 		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
 		ret_offset 0 ret_label :nil)
-	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
+	(each (lambda ((name type &ignore)) (push vars (list name (sv-slots type)))) inputs)
 	(defq bufs_at frame_size)
-	(each (lambda ((name &rest _)) (push vars (list name (sv-slots :int)))) (shader-buffers program))
+	(each (lambda ((name &ignore)) (push vars (list name (sv-slots :int)))) (shader-buffers program))
 	(bind '(s_i s_to s_work) (map! (lambda () (sv-slots :int)) '() 0 3))
 	(bind '((p_i) &ignore) (sv-program program "k"))
 	(defq text (cat
@@ -1991,7 +1991,7 @@
 	; (shader-vp-frame program native [((name val) ...)]) -> frame
 	;the frame the native function works in, with the inputs set
 	(defq frame (str-alloc (second native)) offset 0)
-	(each (lambda ((name type val &rest _))
+	(each (lambda ((name type val &ignore))
 			(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
 				(setq val (second v)))
 			(cond

@@ -129,6 +129,10 @@ width said, `(:rsp (+ slot_rect host_gui_rect_x) i)`. An address is
 	register a double is named by. Nothing in the tree converts a type
 	quietly.
 
+*	**A value not wanted is `&`.** An output of a call, or any destination
+	of `assign`, written `&` is left where it is: `(call :obj :type '(:r0)
+	'(& :r1))`. `_` there is refused, it is a name, not a skip.
+
 *	**A frame is a structure.** A function's frame is
 	`(structure slot 0 ...)`, its fields `slot_x`, made by
 	`(vp-alloc slot_size)` and freed by `(vp-free slot_size)`. `vp-alloc`

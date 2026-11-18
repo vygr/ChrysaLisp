@@ -179,7 +179,7 @@
 	(endif)
 	(save-fields :rsp '(slot_this slot_polygons slot_x slot_y slot_mode slot_yscale) '(:r0 :r4 :r1 :r2 :r3 :r6))
 	(call :canvas :set_edges '((:rsp slot_this) (:rsp slot_polygons) (:rsp slot_x) (:rsp slot_y) (:rsp slot_yscale))
-		'(_ :r11 :r12 :r13 :r14))
+		'(& :r11 :r12 :r13 :r14))
 	(save-fields :rsp '(slot_xs slot_ys slot_xe slot_ye) '(:r11 :r12 :r13 :r14))
 
 	;clip check
@@ -196,7 +196,7 @@
 			(assign '((:r0 +canvas_pixmap)) '(:r1))
 			(assign '((:r1 +pixmap_height)) '(:r0))
 			(vp-mul-cr (* 8 +ptr_size) :r0)
-			(call :sys_mem :calloc '(:r0) '(:r0 _))
+			(call :sys_mem :calloc '(:r0) '(:r0 &))
 			(assign '((:rsp slot_this)) '(:r1))
 			(assign '(:r0) '((:r1 +canvas_edges_start)))
 		(endif)
@@ -210,7 +210,7 @@
 				(assign '((:r0 +canvas_pixmap)) '(:r1))
 				(assign '((:r1 +pixmap_width)) '(:r0))
 				(vp-add-cr 1 :r0)
-				(call :sys_mem :calloc '(:r0) '(:r0 _))
+				(call :sys_mem :calloc '(:r0) '(:r0 &))
 				(assign '((:rsp slot_this)) '(:r1))
 				(assign '(:r0) '((:r1 +canvas_coverage)))
 			(endif)
@@ -218,7 +218,7 @@
 
 		;edge pointers into edge starts
 		(assign '((:rsp slot_this)) '(:r0))
-		(call :array :get_both '((:r0 +canvas_edges)) '(_ (:rsp slot_tracker_node) (:rsp slot_tracker_last)))
+		(call :array :get_both '((:r0 +canvas_edges)) '(& (:rsp slot_tracker_node) (:rsp slot_tracker_last)))
 		(vp-rdef (edges_start edge_node edge_last edge_tmp edge_list_head))
 		(assign '((:rsp slot_this)) `(,edges_start))
 		(assign `((,edges_start +canvas_edges_start)) `(,edges_start))

@@ -529,7 +529,7 @@
 			(exfat-save vol name (cat "0" +store_lf (exfat-zeros (- want 2))))
 			(exfat-end vol)))
 	(when (defq found (exfat-find vol name))
-		(bind '(& & size start no_fat &rest _) found)
+		(bind '(& & size start no_fat &ignore) found)
 		(defq text (exfat-data vol start size no_fat) end (ifn (find +store_lf text) 0)
 			count (str-as-num (cat "0" (slice text 0 end))) at (min size (inc end)) more :t lines (list))
 		(while (and more (< at size) (defq end (find +store_lf text at)))
@@ -1513,7 +1513,7 @@
 	;the names of the blocks kept here, as they are held: what
 	;(store-block-has?) goes by. No reading of the volume
 	(defq out (list))
-	(. (get :held store) :each (lambda (name _) (push out name)))
+	(. (get :held store) :each (lambda (name &ignore) (push out name)))
 	out)
 
 ;;;;;;;;;

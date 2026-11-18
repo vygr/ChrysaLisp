@@ -199,17 +199,17 @@
 (defmacro gotoif-lisp-args-sig (l args len1 &optional len2)
 	(setd len2 len1)
 	`(progn
-		(call :lisp :env_args_sig (list ,args '($ sig) ',len1 ',len2) '(_ tmp))
+		(call :lisp :env_args_sig (list ,args '($ sig) ',len1 ',len2) '(& tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro gotoif-lisp-args-match (l args class len)
 	`(progn
-		(call :lisp :env_args_match (list ,args '(@ ,(f-path class :vtable)) ',len) '(_ tmp))
+		(call :lisp :env_args_match (list ,args '(@ ,(f-path class :vtable)) ',len) '(& tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro gotoif-lisp-args-type (l args class len)
 	`(progn
-		(call :lisp :env_args_type (list ,args '(@ ,(f-path class :vtable)) ',len) '(_ tmp))
+		(call :lisp :env_args_type (list ,args '(@ ,(f-path class :vtable)) ',len) '(& tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 ;module

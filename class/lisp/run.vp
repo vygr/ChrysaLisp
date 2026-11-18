@@ -14,8 +14,8 @@
 	(entry :lisp :run '())
 
 	;get param string
-	(call :sys_mail :mymail :nil '(:r0 _))
-	(call :sys_mail :free_obj '(:r0) '(:r0 _ _))
+	(call :sys_mail :mymail :nil '(:r0 &))
+	(call :sys_mail :free_obj '(:r0) '(:r0 & &))
 	(vp-push :r0)
 
 	;string output stream
@@ -36,14 +36,14 @@
 
 		;do we have a main ?
 		(assign '((:rsp 0)) '(:r0))
-		(call :view :get_prop '((:r0 +lisp_environment) static_sym_main) '(_ :r1))
+		(call :view :get_prop '((:r0 +lisp_environment) static_sym_main) '(& :r1))
 		(vpif '(:r1 /= 0))
 			;run main
 			(vp-push :r1)
 			(call :list :create :nil '(:r1))
 			;the args take the slot the main function had
 			(assign `((:rsp 0) (:rsp ,+ptr_size) :r1) '(:r2 :r0 (:rsp 0)))
-			(call :lisp :repl_apply '(:r0 :r1 :r2) '(_ :r1))
+			(call :lisp :repl_apply '(:r0 :r1 :r2) '(& :r1))
 			(vp-push :r1)
 			(assign `((:rsp ,(* 2 +ptr_size))) '(:r2))
 			(assign '((:r1 +obj_vtable) (:r2 +lisp_error)) '(:r3 :r4))

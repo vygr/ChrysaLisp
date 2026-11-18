@@ -50,7 +50,7 @@
 	(assign '((:r0 +pixmap_width)) '(:r0))
 	(vp-add-cr 1 :r0)
 	(vp-shl-cr (log2 +int_size) :r0)
-	(call :sys_mem :alloc '(:r0) '(:r0 _))
+	(call :sys_mem :alloc '(:r0) '(:r0 &))
 	(load-fields :rsp '(slot_this slot_source) '(:r1 :r2))
 	(assign '((:r2 +pixmap_width) (:r2 +pixmap_height) (:r1 +pixmap_width) (:r1 +pixmap_height))
 		'(:r3 :r4 :r5 :r6))

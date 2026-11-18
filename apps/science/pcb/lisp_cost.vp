@@ -54,7 +54,7 @@
 	(save-fields :rsp '(slot_px slot_py slot_pz) '(:r0 :r1 :r2))
 	(call :fixeds :create :nil '(:r0))
 	(assign '(:r0) '((:rsp slot_line)))
-	(times 6 (call :array :push_back '(:r0 0) '(:r0 _ _ _)))
+	(times 6 (call :array :push_back '(:r0 0) '(:r0 & & &)))
 	(assign '((:r0 +array_begin)) '(:r0))
 	(assign '(:r0) '((:rsp slot_ldata)))
 

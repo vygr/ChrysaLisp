@@ -40,7 +40,7 @@
 		(assign `(,char) '((:rsp slot_char)))
 		(vpif `(,char > +char_space) `(,char /= +char_lrb) `(,char /= +char_rrb))
 			;the rest in :r13 and the whole in :r14, the intern leaves them
-			(call :lisp :read_sym `((:rsp slot_this) ,stream ,char) '(_ :r13 :r2))
+			(call :lisp :read_sym `((:rsp slot_this) ,stream ,char) '(& :r13 :r2))
 			(assign '(:r2 (:r13 +str_length)) '((:rsp slot_char) :r1))
 			(call :str :create_from_buffer '(0 (& :r1 1)) '(:r14))
 			(vp-cpy-cr +char_minus :r1)

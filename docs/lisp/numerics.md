@@ -152,6 +152,9 @@ These operate on any number type and return `:t | :nil`.
 
 `(/=) (<) (<=) (=) (>) (>=)`
 
+`(=)` and `(/=)` are bit for bit: of doubles and floats -0.0 and 0.0 are
+not `=`, and a NaN is `=` itself.
+
 ### `root.inc` extras
 
 `(neg?) (pos?) (odd?) (even?) (lognot) (log2) (ntz) (nto) (nlz) (nlo)`

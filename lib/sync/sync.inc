@@ -400,7 +400,7 @@
 					(sync-tell svc reply_mbox +sync_type_folder at)
 					(cond
 						((and (setq reply (sync-hear reply_mbox)) (= (first reply) 0))
-							(each (lambda ((name kind &rest _))
+							(each (lambda ((name kind &ignore))
 									(push (if (eql kind "d") theirs_only gone) (cat at "/" name)))
 								(hash-tree-read (second reply))))
 						(:t (setq lost :t)))))

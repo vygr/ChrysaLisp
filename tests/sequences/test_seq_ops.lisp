@@ -13,6 +13,8 @@
 
 ; lmatch? matches a list against a pattern list
 (assert-true "lmatch? exact" (lmatch? '(1 2 3 4 3) s_seq))
+(assert-true "an & of the pattern matches anything" (lmatch? '(1 2 3 4 3) '(1 & 3 & 3)))
+(assert-true "and a _ is only itself" (not (lmatch? '(1 2 3 4 3) '(1 _ 3 4 3))))
 
 ; --- copy, of what test_traps does not: a pmap and a pset in a list ---
 ; Lists are deep-copied for nested :list types, but reference :pmap, :pset, :array and other types

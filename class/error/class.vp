@@ -161,7 +161,7 @@
 	(vp-add-cr +str_data :r1)
 	(call :stream :write_cstr '((:rsp slot_stream) :r1) '(stream))
 	(call :stream :write_char `(,stream +char_space))
-	(call :error :get_msg '((:rsp slot_this)) '(_ (:rsp slot_string)))
+	(call :error :get_msg '((:rsp slot_this)) '(& (:rsp slot_string)))
 	(call :stream :write_cstr '((:rsp slot_stream) (:rsp slot_string)))
 
 	(call :stream :write_cstr '((:rsp slot_stream) " Repl: "))
@@ -192,7 +192,7 @@
 	(call :sstream :create '((:rsp slot_string)) '((:rsp slot_sstream)))
 	(assign '((:rsp slot_this)) '(:r0))
 	(call :obj :print '((:r0 +error_object) (:rsp slot_sstream)) :nil :r2)
-	(call :sstream :ref_string '((:rsp slot_sstream)) '(_ (:rsp slot_string)))
+	(call :sstream :ref_string '((:rsp slot_sstream)) '(& (:rsp slot_string)))
 	(call :obj :destroy '((:rsp slot_sstream)))
 	;no more than 256 chars of it
 	(assign '((:rsp slot_string)) '(:r1))

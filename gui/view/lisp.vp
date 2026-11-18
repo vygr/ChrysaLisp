@@ -47,7 +47,7 @@
 	(vp-push :r0)
 	(defq in (method-input :view :find_id))
 	(list-bind-args :r1 in '(:view & :num))
-	(call :view :find_id in '(_ :r0))
+	(call :view :find_id in '(& :r0))
 	(vpif '(:r0 = 0))
 		(assign '((:rsp 0)) '(:r0))
 		(assign '((:r0 +lisp_sym_nil)) '(:r0))
@@ -433,7 +433,7 @@
 	(vp-push :r0)
 	(defq in (method-input :view :set_flags))
 	(list-bind-args :r1 in '(:view & :num :num))
-	(call :view :set_flags in '(:r0 _))
+	(call :view :set_flags in '(:r0 &))
 	(call :view :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
@@ -516,7 +516,7 @@
 		;push ref
 		(vp-sub-cr +view_node node)
 		(class/obj/ref node :r1)
-		(call :list :push_back `(:r0 ,node) '(:r0 :r1 _ _))
+		(call :list :push_back `(:r0 ,node) '(:r0 :r1 & &))
 		;across to sibling
 		(ln-get-succ :r1 +view_node node)
 	(loop-end)
@@ -556,7 +556,7 @@
 	(vp-ret)
 
 (vp-label 'up_callback)
-	(entry :view :forward_tree_callback `(,node _))
+	(entry :view :forward_tree_callback `(,node &))
 	(class/obj/ref node :r0)
 	(call :list :push_back `(,nodes ,node))
 	(exit :view :forward_tree_callback `(,node :r1))
@@ -660,7 +660,7 @@
 	(vp-push :r0)
 	(defq in (method-input :view :hit_tree))
 	(list-bind-args :r1 in '(:view & :num :num))
-	(call :view :hit_tree in '(_ :r10 :r11 :r12))
+	(call :view :hit_tree in '(& :r10 :r11 :r12))
 	(vpif '(:r10 = 0))
 		(assign '((:rsp 0)) '(:r10))
 		(assign '((:r10 +lisp_sym_nil)) '(:r10))
@@ -669,8 +669,8 @@
 	(call :num :create '(:r11) '(:r11))
 	(call :num :create '(:r12) '(:r12))
 	(call :list :create :nil '(:r0))
-	(call :list :push_back '(:r0 :r10) '(:r0 _ _ _))
-	(call :list :push_back2 '(:r0 :r11 :r12) '(:r1 _ _ _ _))
+	(call :list :push_back '(:r0 :r10) '(:r0 & & &))
+	(call :list :push_back2 '(:r0 :r11 :r12) '(:r1 & & & &))
 	(vp-pop :r0)
 
 	(exit :view :lisp_hit_tree '(:r0 :r1))

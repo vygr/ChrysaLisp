@@ -47,7 +47,7 @@
 			(assign '((:r3 +obj_vtable)) '(:r5))
 			(breakif '(:r4 /= :r5))
 			;is defined ?
-			(call :hmap :search '((:r0 +lisp_environment) :r3) '(_ :r1 _))
+			(call :hmap :search '((:r0 +lisp_environment) :r3) '(& :r1 &))
 			(breakif '(:r1 = 0))
 			;is a list ?
 			(assign '((:r1 +ptr_size)) '(:r1))
@@ -70,7 +70,7 @@
 				(assign '((:rsp slot_form) :r1) '(:r0 (:rsp slot_macro)))
 				(d-call :list :slice '(:r0 1 (:r0 +array_length)) '((:rsp slot_args)))
 				(call :obj :deref '((:rsp slot_form)))
-				(call :lisp :repl_apply '((:rsp slot_this) (:rsp slot_args) (:rsp slot_macro)) '(_ :r1))
+				(call :lisp :repl_apply '((:rsp slot_this) (:rsp slot_args) (:rsp slot_macro)) '(& :r1))
 				(assign '((:rsp slot_iter)) '(:r2))
 				(assign '(:r1) '((:r2 0)))
 				(call :obj :deref '((:rsp slot_args)))
@@ -106,7 +106,7 @@
 				(vp-sub-cr +ptr_size :r1)
 				(assign '((:r2 +obj_vtable)) '(:r2))
 				(vpif '(:r2 = :r7))
-					(call :array :push_back '(:r0 :r1) '(:r0 :r1 _ _))
+					(call :array :push_back '(:r0 :r1) '(:r0 :r1 & &))
 				(endif)
 			(loop-until '(:r1 = :r6))
 			(endswitch)

@@ -121,7 +121,7 @@
 	;reach the rows are found, sorted far to near, and drawn, and the clip
 	;of the canvas cuts them to the rows.
 	(bind '(sx sy sr hx hy z) (scene-frame scene time light_x light_y))
-	(bind '(& & & & & & & cr cg cb &rest _) scene)
+	(bind '(& & & & & & & cr cg cb &ignore) scene)
 	(defq fy (n2q y) fy1 (n2q y1) near (list))
 	;the broad phase, the one loop over every bubble there is. A highlight
 	;sits on the edge of its bubble and so reaches a little past it

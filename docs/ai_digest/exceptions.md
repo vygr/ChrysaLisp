@@ -85,7 +85,7 @@ For example, a typical Lisp FFI binding in the source code looks like this:
 	(gotoif '(:r11 < 0) 'error2)
 	(gotoif '(:r11 >= :r1) 'error2)
 
-	(call :seq :ref_elem '(:r0 :r11) '(_ :r1))
+	(call :seq :ref_elem '(:r0 :r11) '(& :r1))
 	; ...
 ```
 

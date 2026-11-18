@@ -33,7 +33,7 @@
 	(vec-set 0)
 	(call :path :filter_polyline `((:rsp slot_this) (:rsp slot_this) ,(logior 0 0.5)))
 	(call :path :create :nil '((:rsp slot_path1)))
-	(call :path :get_both '((:rsp slot_this)) '(_ :r1 :r2))
+	(call :path :get_both '((:rsp slot_this)) '(& :r1 :r2))
 	(save-fields :rsp '(slot_iter slot_iter_end) '(:r1 :r2))
 	(vp-sub-rr :r1 :r2)
 	(vpif `(:r2 >= ,(* 4 +ptr_size)))

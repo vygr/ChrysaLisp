@@ -148,7 +148,7 @@
 	(class/obj/ref key tmp)
 	(class/obj/ref val tmp)
 	(vp-push key val)
-	(call :hset :bucket `(,obj ,key) `(_ ,obj))
+	(call :hset :bucket `(,obj ,key) `(& ,obj))
 	(vp-pop key val)
 	(jump :list :push_back2 `(,obj ,key ,val))
 
@@ -193,7 +193,7 @@
 	(call :list :create :nil `(,pair_list))
 	(class/obj/ref key iter)
 	(class/obj/ref val iter)
-	(call :list :push_back2 `(,pair_list ,key ,val) `(,iter _ _ _ _))
+	(call :list :push_back2 `(,pair_list ,key ,val) `(,iter & & & &))
 	(jump :list :push_back `(,out_list ,iter))
 
 (def-func-end)
@@ -296,7 +296,7 @@
 
 	(class/obj/ref saved_key tmp)
 	(class/obj/ref saved_value tmp)
-	(call :list :push_back2 `(,bucket ,saved_key ,saved_value) `(,bucket ,iter _ iter_s iter_e))
+	(call :list :push_back2 `(,bucket ,saved_key ,saved_value) `(,bucket ,iter & iter_s iter_e))
 
 	;initial known slot
 	(vp-sub-cr (* +ptr_size 2) iter_e)
@@ -331,7 +331,7 @@
 	(entry :hmap :cfind `(,this ,key ,cmp_func))
 
 	;search hash bucket
-	(call :hset :bucket `(,this ,key) `(_ ,buckets))
+	(call :hset :bucket `(,this ,key) `(& ,buckets))
 	(class/array/get_both buckets iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
@@ -393,7 +393,7 @@
 
 	(entry :hmap :set `(,this ,key ,saved_value))
 
-	(call :hmap :search `(,this ,key) `(,this ,iter _))
+	(call :hmap :search `(,this ,key) `(,this ,iter &))
 	(vpif `(,iter /= 0))
 		;have old key
 		(assign `((,iter +ptr_size)) `(,old_value))

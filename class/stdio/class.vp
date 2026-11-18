@@ -44,7 +44,7 @@
 	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_vtable)))
 
 	;init parent
-	(s-call :stdio :init '(:r0 :r1) '(_ :r1))
+	(s-call :stdio :init '(:r0 :r1) '(& :r1))
 	(assign '(:r1) '((:rsp slot_ok)))
 	(vpif '(:r1 /= 0))
 		;init myself

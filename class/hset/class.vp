@@ -79,7 +79,7 @@
 	(entry :hset :cfind `(,this ,key ,cmp_func))
 
 	;search hash bucket
-	(call :hset :bucket `(,this ,key) `(_ ,buckets))
+	(call :hset :bucket `(,this ,key) `(& ,buckets))
 	(class/array/get_both buckets iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
@@ -123,7 +123,7 @@
 	(vpif `(,iter = 0))
 		(assign `(,saved_key ,this ,bucket) `(,key ,saved_this ,this))
 		(class/obj/ref key bucket)
-		(call :list :push_back `(,this ,key) `(,bucket _ _ iter_e))
+		(call :list :push_back `(,this ,key) `(,bucket & & iter_e))
 		(assign `((& ,iter_e (neg +ptr_size)) ,saved_this) `(,iter ,this))
 	(endif)
 
@@ -224,7 +224,7 @@
 		(vp-ret)
 	(endif)
 	(assign `(,this) `(,saved_this))
-	(call :obj :hash `(,key) `(_ ,this) bucket)
+	(call :obj :hash `(,key) `(& ,this) bucket)
 	(vp-cpy-rr this bucket)
 	(vp-rem-rr-u num_buckets bucket)
 	(vp-shl-cr (log2 +long_size) bucket)

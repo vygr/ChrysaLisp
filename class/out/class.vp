@@ -141,7 +141,7 @@
 		(vp-push this ack_num)
 		(assign `((,this +out_state)) `(,state))
 		(gotoif `(,state = +stream_mail_state_aborted) 'abort)
-		(call :sys_mail :read `((,this +out_ack_mbox_addr)) `(,this _))
+		(call :sys_mail :read `((,this +out_ack_mbox_addr)) `(,this &))
 		(gotoif `(,this = 0) 'abort)
 		(call :sys_mail :free `(,this))
 		(vp-pop this ack_num)

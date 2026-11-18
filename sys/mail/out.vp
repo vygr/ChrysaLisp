@@ -54,7 +54,7 @@
 		(vp-cpy-rr tot amount)
 		(loop-start)
 			;create fragment
-			(call :sys_heap :alloc `(,heap) `(_ ,frag))
+			(call :sys_heap :alloc `(,heap) `(& ,frag))
 			(class/obj/ref obj id0)
 
 			;fill in fragment

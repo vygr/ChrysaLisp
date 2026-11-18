@@ -44,7 +44,7 @@
 			(:r7 statics_sys_mail_ping_kick) (:r7 statics_sys_mail_links_sig)
 			(:r7 statics_sys_mail_ping_sys_tail)
 			(:r7 statics_sys_mail_ping_interval)))
-	(call :sys_task :start `((@ ,(f-path :sys_mail :out))) '(_ :r1 _ _ _))
+	(call :sys_task :start `((@ ,(f-path :sys_mail :out))) '(& :r1 & & &))
 	(fn-bind 'sys/statics/statics :r7)
 	(assign '(:r1) '((:r7 statics_sys_mail_out_mbox_addr)))
 
@@ -86,7 +86,7 @@
 	(assign '(:r0) '((:r4 statics_sys_mail_next_mbox_id)))
 
 	;allocate mailbox with this id
-	(call :sys_heap :alloc '((& :r4 statics_sys_mail_mbox_heap)) '(_ :r1))
+	(call :sys_heap :alloc '((& :r4 statics_sys_mail_mbox_heap)) '(& :r1))
 	(assign '((:r4 statics_sys_task_current_tcb)) '(:r4))
 	(vp-xor-rr :r2 :r2)
 	(save-fields :r1 '(+mbox_id +mbox_tcb +mbox_owner_tcb) '(:r3 :r2 :r4))
@@ -225,7 +225,7 @@
 
 	(call :str :create_from_buffer '(0 :r0) '(:r4))
 	(fn-bind 'sys/statics/statics :r0)
-	(call :sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(_ :r0))
+	(call :sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(& :r0))
 	(assign '((:r4 +str_length) (& :r4 +str_data)) '(:r3 :r1))
 	(vp-xor-rr :r2 :r2)
 	(assign '(:r3 :r2 :r2 :r4 :r1)
@@ -253,7 +253,7 @@
 
 	(call :obj :ref '(:r0) '(:r3))
 	(fn-bind 'sys/statics/statics :r0)
-	(call :sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(_ :r0))
+	(call :sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(& :r0))
 	(vp-xor-rr :r1 :r1)
 	(assign '(:r5 :r1 :r1 :r3 :r4)
 		'((:r0 +msg_length) (:r0 +msg_offset) (:r0 +msg_total) (:r0 +msg_obj) (:r0 +msg_data)))
@@ -583,7 +583,7 @@
 	(call :nodeid :create '(:r0) '(:r0))
 	(assign '(:r0) '((:rsp slot_key)))
 	(fn-bind 'sys/statics/statics :r0)
-	(call :hmap :cfind '((:r0 statics_sys_mail_node_map) (:rsp slot_key) (@ class/nodeid/eql)) '(_ :r1 :r2))
+	(call :hmap :cfind '((:r0 statics_sys_mail_node_map) (:rsp slot_key) (@ class/nodeid/eql)) '(& :r1 :r2))
 	(save-fields :rsp '(slot_tuple slot_bucket) '(:r1 :r2))
 	(vpif '(:r1 = 0))
 		(call :array :create :nil '((:rsp slot_tuple)))
@@ -600,7 +600,7 @@
 	(endif)
 	(call :host_os :pii_time :nil '((:rsp slot_time)))
 	(call :array :set_elem `((:rsp slot_tuple) (:rsp slot_time) ,+node_time) :nil :r3)
-	(call :array :get_first '((:rsp slot_tuple)) '(_ (:rsp slot_set)))
+	(call :array :get_first '((:rsp slot_tuple)) '(& (:rsp slot_set)))
 	(call :sys_mail :service '((:rsp slot_name) (:rsp slot_id) (:rsp slot_info)) '((:rsp slot_name)))
 	(call :hset :cinsert '((:rsp slot_set) (:rsp slot_name) (@ class/sym/eql_str)))
 	;a full ping is now due
@@ -668,7 +668,7 @@
 
 	(assign '((:r1 0)) '(:r1))
 	(vp-push :r0 :r1)
-	(call :str :starts_with '((:r0 slot_prefix) :r1) '(_ :r2))
+	(call :str :starts_with '((:r0 slot_prefix) :r1) '(& :r2))
 	(vp-pop :r0 :r1)
 	(vpif '(:r2 = 0))
 		(class/obj/ref :r1 :r2)
@@ -726,11 +726,11 @@
 	;The hash of the list is the sum of the hashes of its entries, so the
 	;order they are held in does not matter, and 0 is kept for no services.
 	;The list is entry, line feed, entry, line feed...
-	(call :list :get_both `((:rsp (+ slot_cat ,field))) '(_ :r5 :r6))
+	(call :list :get_both `((:rsp (+ slot_cat ,field))) '(& :r5 :r6))
 	(vp-xor-rr :r7 :r7)
 	(vpif '(:r5 /= :r6))
 		(loop-start)
-			(call :str :hash '((:r5 0)) '(_ :r1) :r1)
+			(call :str :hash '((:r5 0)) '(& :r1) :r1)
 			(vp-add-rr :r1 :r7)
 			(vp-add-cr (* +ptr_size 2) :r5)
 		(loop-until '(:r5 = :r6))
@@ -794,7 +794,7 @@
 	(call :nodeid :create '(:r0) '(:r0))
 	(assign '(:r0) '((:rsp slot_key)))
 	(fn-bind 'sys/statics/statics :r2)
-	(call :hmap :cfind '((:r2 statics_sys_mail_node_map) :r0 (@ class/nodeid/eql)) '(_ :r1 _))
+	(call :hmap :cfind '((:r2 statics_sys_mail_node_map) :r0 (@ class/nodeid/eql)) '(& :r1 &))
 	(vpif '(:r1 /= 0))
 		(assign '((:r1 +ptr_size) +char_lf) '(:r1 :r0))
 		(assign '(:r1 :r0) '((:rsp slot_tuple) (:rsp (+ slot_cat cat_lf))))
@@ -804,7 +804,7 @@
 		(assign '(:r0) '((:rsp (+ slot_cat cat_entries_global))))
 		(call :list :create :nil '(:r0))
 		(assign '(:r0) '((:rsp (+ slot_cat cat_entries_sys))))
-		(call :array :get_elem '((:rsp slot_tuple) +node_set) '(_ :r0))
+		(call :array :get_elem '((:rsp slot_tuple) +node_set) '(& :r0))
 		(call :hset :each '(:r0 ($ callback) (& :rsp slot_cat)))
 
 		;1. Send cluster ping (*)
@@ -1043,10 +1043,10 @@
 		(save-node-id key +str_data via1 via2)
 		(fn-bind 'sys/statics/statics tuple)
 		(vp-push peer1 peer2)
-		(call :hmap :cfind `((,tuple statics_sys_mail_node_map) ,key (@ ,(f-path :nodeid :eql))) `(_ ,iter_begin _))
+		(call :hmap :cfind `((,tuple statics_sys_mail_node_map) ,key (@ ,(f-path :nodeid :eql))) `(& ,iter_begin &))
 		(vp-pop peer1 peer2)
 		(continueif `(,iter_begin = 0))
-		(call :array :get_both `((,iter_begin +ptr_size)) `(_ ,iter_begin ,iter_end))
+		(call :array :get_both `((,iter_begin +ptr_size)) `(& ,iter_begin ,iter_end))
 		(vp-add-cr (* +node_vias +long_size) iter_begin)
 		(continueif `(,iter_begin = ,iter_end))
 		(loop-start)

@@ -246,6 +246,7 @@
 ; (pivot lambda list start end)
 (ffi "class/list/lisp_match" lmatch?)
 ; (lmatch? list list) -> :nil | :t
+;an & of the second list, the pattern, matches anything
 (ffi "class/list/lisp_copy" copy)
 ; (copy form) -> 'form
 (ffi "class/pset/lisp_pfindi" pfindi)

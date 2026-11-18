@@ -66,8 +66,13 @@
 					(:t :i))))))
 
 (defun assign-ignored-to-asm ()
+	;a destination of & is a value not wanted, one the same as its source
+	;is already there
 	(defq s (list) d (list))
-	(each (# (unless (find %1 (list %0 '_)) (push s %0) (push d %1))) src dst)
+	(each (lambda (%0 %1)
+			(if (eql %1 '_) (throw "A destination skipped is &, not _ !" (list src dst)))
+			(unless (find %1 (list %0 '&)) (push s %0) (push d %1)))
+		src dst)
 	(setq src s dst d))
 
 (defun assign-topology-sort ()

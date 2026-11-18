@@ -30,7 +30,7 @@
 	(unless (>= from to)
 		(defq names (map (const first) (shader-buffers program)))
 		(gpu-dispatch kernel
-			(map (lambda ((name &rest _)) (elem-get bufs (find name names))) (sh-kernel-order program))
+			(map (lambda ((name &ignore)) (elem-get bufs (find name names))) (sh-kernel-order program))
 			(shader-range program block from to)
 			(list (/ (+ (- to from) (dec +sh_kernel_threads)) +sh_kernel_threads) 1 1))))
 

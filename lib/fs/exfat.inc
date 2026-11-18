@@ -220,7 +220,7 @@
 		(exfat-stream-flush vol))
 	(exfat-pending-write vol)
 	(defq cache (get :cache vol) dirty (list))
-	(. (get :dirty vol) :each (lambda (index _) (push dirty index)))
+	(. (get :dirty vol) :each (lambda (index &ignore) (push dirty index)))
 	(sort dirty (const -))
 	(defq i 0 n (length dirty))
 	(while (< i n)
@@ -590,7 +590,7 @@
 	;a directory as it was last read, or read now. Every name looked for
 	;on the way to a file was a read of each directory on the way, and of
 	;every entry in it, a store of blocks has 256 in one
-	(bind '(& & size start no_fat &rest _) entry)
+	(bind '(& & size start no_fat &ignore) entry)
 	(defq dirs (get :dirs vol))
 	(unless (defq got (. dirs :find start))
 		(defq entries (exfat-entries vol start size no_fat) index (Fmap 31))
@@ -630,7 +630,7 @@
 (defun exfat-load (vol path)
 	; (exfat-load vol path) -> :nil | str
 	(when (and (defq entry (exfat-find vol path)) (not (second entry)))
-		(bind '(& & size start no_fat &rest _) entry)
+		(bind '(& & size start no_fat &ignore) entry)
 		(exfat-data vol start size no_fat)))
 
 (defun fs-walk (vol path fnc lister)
@@ -822,7 +822,7 @@
 (defun exfat-dir-put (vol entry index data)
 	;entries to a directory, from an index on. They can cross from one
 	;cluster of the directory to the next, so they go an entry at a time
-	(bind '(& & size start no_fat &rest _) entry)
+	(bind '(& & size start no_fat &ignore) entry)
 	(defq clusters (exfat-chain vol start size no_fat) shift (get :cluster_shift vol))
 	;it is read again the next time it is wanted
 	(. (get :dirs vol) :erase start)
@@ -832,7 +832,7 @@
 				(slice data (* (!) +exfat_entry_size) (* (inc (!)) +exfat_entry_size)))) '() 0 (/ (length data) +exfat_entry_size)))
 
 (defun exfat-dir-data (vol entry)
-	(bind '(& & size start no_fat &rest _) entry)
+	(bind '(& & size start no_fat &ignore) entry)
 	(exfat-data vol start size no_fat :t))
 
 (defun exfat-grow (vol found)

@@ -22,7 +22,7 @@
 		`(progn
 			(call :sys_mail :alloc '(32) '(:r0 :r1))
 			(save-fields :rsp '(slot_msg slot_data) '(:r0 :r1))
-			(call :sys_task :start '((@ ,(f-path :sys_link task))) '(_ _ :r2 :r3 :r4))
+			(call :sys_task :start '((@ ,(f-path :sys_link task))) '(& & :r2 :r3 :r4))
 			(load-fields :rsp '(slot_msg slot_data slot_mem slot_is_owner) '(:r0 :r1 :r6 :r7))
 			(save-net-id :r0 +msg_dest)
 			(vp-lea-rcr :rsp slot_lk_node :r5)
@@ -142,7 +142,7 @@
 	;remove link node from link array, and once it is gone the walk is over:
 	;the array is one shorter than its end says
 	(assign '((:rsp slot_statics)) '(:r0))
-	(call :array :get_both '((:r0 statics_sys_mail_links_array)) '(_ :r1 :r2))
+	(call :array :get_both '((:r0 statics_sys_mail_links_array)) '(& :r1 :r2))
 	(vp-lea-rcr :rsp slot_lk_node :r3)
 	(loop-while '(:r1 /= :r2))
 		(assign '((:r1 0)) '(:r0))

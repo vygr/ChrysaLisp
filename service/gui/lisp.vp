@@ -93,7 +93,7 @@
 	(vp-ret)
 
 (vp-label 'deinit_callback)
-	(entry :sys_task :task_callback '(_))
+	(entry :sys_task :task_callback '(&))
 
 	;free any screen
 	(fn-bind 'sys/statics/statics :r1)
@@ -275,8 +275,8 @@
 		(call :num :create '(:r8) '(:r8))
 		(call :num :create '(:r9) '(:r9))
 		(call :num :create '(:r10) '(:r10))
-		(call :list :push_back2 '(:r11 :r7 :r8) '(:r0 _ _ _ _))
-		(call :list :push_back2 '(:r0 :r9 :r10) '(:r1 _ _ _ _))
+		(call :list :push_back2 '(:r11 :r7 :r8) '(:r0 & & & &))
+		(call :list :push_back2 '(:r0 :r9 :r10) '(:r1 & & & &))
 	(else)
 		(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r1))
 	(endif)
@@ -408,9 +408,9 @@
 ;a frame is put in a pixmap, the rest are given a str
 	(vp-push :r0 :r1 :r2 :r3)
 	(vpif '(:r0 = 2))
-		(call :obj :inst_of `(:r2 (@ ,(f-path :pixmap :vtable))) '(_ :r4))
+		(call :obj :inst_of `(:r2 (@ ,(f-path :pixmap :vtable))) '(& :r4))
 	(else)
-		(call :obj :inst_of `(:r2 (@ ,(f-path :str :vtable))) '(_ :r4))
+		(call :obj :inst_of `(:r2 (@ ,(f-path :str :vtable))) '(& :r4))
 	(endif)
 	(vp-pop :r0 :r1 :r2 :r3)
 	(gotoif '(:r4 = 0) 'error1)

@@ -40,7 +40,7 @@
 	;printed already, that holds itself, is ...
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_stream slot_flag slot_list) '(:r1 :r3 :r2))
-	(call :list :print_enter '(:r2 (& :rsp slot_note)) '(_ :r1))
+	(call :list :print_enter '(:r2 (& :rsp slot_note)) '(& :r1))
 	(vpif '(:r1 /= 0))
 		(call :stream :write_cstr '((:rsp slot_stream) "..."))
 		(goto 'exit)

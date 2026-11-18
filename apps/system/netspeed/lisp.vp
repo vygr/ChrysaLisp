@@ -172,8 +172,8 @@
 	(time-end slot_doubles_vops)
 
 	(call :list :create :nil '(:r0))
-	(call :list :push_back2 '(:r0 (:rsp slot_regs_vops) (:rsp slot_memory_vops)) '(:r0 _ _ _ _))
-	(call :list :push_back '(:r0 (:rsp slot_doubles_vops)) '(:r1 _ _ _))
+	(call :list :push_back2 '(:r0 (:rsp slot_regs_vops) (:rsp slot_memory_vops)) '(:r0 & & & &))
+	(call :list :push_back '(:r0 (:rsp slot_doubles_vops)) '(:r1 & & &))
 
 	(exit '((:rsp slot_this) :r1))
 	(vp-free slot_size)

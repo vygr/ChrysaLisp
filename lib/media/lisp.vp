@@ -2026,7 +2026,7 @@
 	(vp-cpy-rr :r7 :r3)
 	(vp-shl-cr 3 :r3)
 	(vp-cpy-rr :r8 :r4)
-	(call :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4) '(_ _))
+	(call :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4) '(& &))
 
 	;the window, each v by its offset from the head masked to the ring
 	(vp-rdef (vb d out end jv i p q parts ds vs dof vof mask tmp)

@@ -179,7 +179,7 @@
 	(png-chunk-write out "IEND" "")
 	(stream-flush out))
 
-(defun PNG-save (canvas stream &rest _)
+(defun PNG-save (canvas stream &ignore)
 	; (PNG-save canvas stream) -> canvas
 	;the canvas as a PNG of 8 bits of red, green, blue and alpha, the rows
 	;filtered by none, a stage of a pipeline each as the load is: its rows,

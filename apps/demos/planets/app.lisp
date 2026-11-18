@@ -102,7 +102,7 @@
 (defun globe-model ()
 	;how the globe is turned and where it is: it turns about its own
 	;axis, which leans, and it is away down the view
-	(bind '(& & lean &rest _) (elem-get +planets which))
+	(bind '(& & lean &ignore) (elem-get +planets which))
 	(mat4x4-mul (mat4x4-translate +double_0 +double_0 +away)
 		(mat4x4-mul (mat4x4-rotz (n2d lean)) (mat4x4-roty turn))))
 

@@ -254,7 +254,7 @@
 			;the handle: not sealed
 			(call :sys_mail :alloc '(80) '((:rsp slot_msg) (:rsp slot_data)))
 			(call :sys_mem :fill '((:rsp slot_data) 80 0))
-			(call :sys_task :start `((@ ,(f-path :host_net :conn))) '(_ _ :r2 :r3 :r4))
+			(call :sys_task :start `((@ ,(f-path :host_net :conn))) '(& & :r2 :r3 :r4))
 			(load-fields :rsp '(slot_msg slot_data slot_conn_handle) '(:r0 :r1 :r5))
 			(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 			(assign '(:r5) '((:r1 0)))
@@ -306,7 +306,7 @@
 		;spawn connection worker task, not sealed, as above
 		(call :sys_mail :alloc '(80) '((:rsp slot_msg) (:rsp slot_data)))
 		(call :sys_mem :fill '((:rsp slot_data) 80 0))
-		(call :sys_task :start `((@ ,(f-path :host_net :conn))) '(_ _ :r2 :r3 :r4))
+		(call :sys_task :start `((@ ,(f-path :host_net :conn))) '(& & :r2 :r3 :r4))
 		(load-fields :rsp '(slot_msg slot_data slot_conn_handle) '(:r0 :r1 :r5))
 		(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 		(assign '(:r5) '((:r1 0)))
@@ -415,7 +415,7 @@
 
 	;start out link and send params, with the key it seals with
 	(call :sys_mail :alloc '(64) '((:rsp slot_msg) (:rsp slot_data)))
-	(call :sys_task :start `((@ ,(f-path :host_net :out))) '(_ _ :r2 :r3 :r4))
+	(call :sys_task :start `((@ ,(f-path :host_net :out))) '(& & :r2 :r3 :r4))
 	(assign '((:rsp slot_msg) (:rsp slot_data) (& :rsp slot_lk_node) (:rsp slot_conn_handle)) '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 	(save-fields :r1 '(0 +ptr_size) '(:r5 :r6))
@@ -431,7 +431,7 @@
 
 	;start in link and send params, with the key it opens with
 	(call :sys_mail :alloc '(64) '((:rsp slot_msg) (:rsp slot_data)))
-	(call :sys_task :start `((@ ,(f-path :host_net :in))) '(_ _ :r2 :r3 :r4))
+	(call :sys_task :start `((@ ,(f-path :host_net :in))) '(& & :r2 :r3 :r4))
 	(assign '((:rsp slot_msg) (:rsp slot_data) (& :rsp slot_lk_node) (:rsp slot_conn_handle)) '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 	(save-fields :r1 '(0 +ptr_size) '(:r5 :r6))
@@ -570,7 +570,7 @@
 	(assign '((& :rsp slot_ping_pkt) (& :rsp slot_frag_pkt) 0) '(:r1 :r2 :r0))
 	(assign '(:r0 :r0 (:rsp slot_sealed)) '((:r1 +net_ping_pkt_pad) (:r2 +net_frag_pkt_pad) :r0))
 	(vpif '(:r0 /= 0))
-		(call :sys_mem :alloc `(,(+ +long_size +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 _))
+		(call :sys_mem :alloc `(,(+ +long_size +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 &))
 		(assign '(:r0) '((:rsp slot_sbuf)))
 	(endif)
 
@@ -754,7 +754,7 @@
 		;of a sealed link, len bytes of the record opened, to dst, each as
 		;assign takes it
 		(assign (list '(:rsp slot_cursor) dst len) '(:r0 :r1 :r2))
-		(call :sys_mem :copy '(:r0 :r1 :r2) '(:r0 _))
+		(call :sys_mem :copy '(:r0 :r1 :r2) '(:r0 &))
 		(assign '(:r0) '((:rsp slot_cursor))))
 
 	(vp-rdef (recv_handle recv_buf recv_rem recv_node) (method-input :host_net :recv_all))
@@ -782,7 +782,7 @@
 	(save-fields :r1 '(0 8) '(:r0 :r0))
 	(assign '((:rsp slot_sealed)) '(:r0))
 	(vpif '(:r0 /= 0))
-		(call :sys_mem :alloc `(,(+ +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 _))
+		(call :sys_mem :alloc `(,(+ +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 &))
 		(assign '(:r0) '((:rsp slot_rbuf)))
 	(endif)
 
@@ -794,7 +794,7 @@
 	(save-node-id :rsp slot_node_id :r0 :r1)
 
 	;allocate private fragment buffer
-	(call :sys_mem :alloc `(,(+ lk_frag_size lk_data_size)) '((:rsp slot_frag_buf) _))
+	(call :sys_mem :alloc `(,(+ lk_frag_size lk_data_size)) '((:rsp slot_frag_buf) &))
 
 	;inbound packet loop
 (vp-label 'in_loop)

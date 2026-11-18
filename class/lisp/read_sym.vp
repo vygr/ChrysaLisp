@@ -47,7 +47,7 @@
 		(assign `((:rsp ,+ptr_size)) '(:r1))
 		(breakif '(:r1 <= +char_space) '(:r1 = +char_lrb) '(:r1 = +char_rrb))
 		(call :stream :write_char '((:rsp 0) :r1))
-		(call :stream :read_char `((:rsp ,(* 2 +ptr_size))) '(_ :r1))
+		(call :stream :read_char `((:rsp ,(* 2 +ptr_size))) '(& :r1))
 		(assign '(:r1) `((:rsp ,+ptr_size)))
 	(loop-end)
 	(assign '((:rsp 0)) '(:r2))

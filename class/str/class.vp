@@ -28,7 +28,7 @@
 	(entry :str :create_from_buffer `(,saved_buf ,saved_len))
 
 	;create new str object
-	(call :sys_mem :alloc `((& ,saved_len (+ +str_size +byte_size))) `(,this _))
+	(call :sys_mem :alloc `((& ,saved_len (+ +str_size +byte_size))) `(,this &))
 	(vpif `(,this /= 0))
 		;init the object
 		(call :str :init `(,this (@ ,(f-path :str :vtable)) ,saved_buf ,saved_len) `(,this ,ok))
@@ -92,7 +92,7 @@
 
 	;create new str object
 	(assign '((:r6 +stat_fsize)) '(:r1))
-	(call :sys_mem :alloc '((& :r1 (+ +str_size +byte_size))) '(:r0 _))
+	(call :sys_mem :alloc '((& :r1 (+ +str_size +byte_size))) '(:r0 &))
 	(vpif '(:r0 /= 0))
 		;init the object
 		(call :str :init2 `(:r0 (@ ,(f-path :str :vtable)) :r5 (:r6 +stat_fsize)) '(:r0 :r1))
@@ -163,7 +163,7 @@
 		(assign '(:r0 :r1 :r1 :r3 (& :r0 +str_data))
 			'(:r4 (:r0 +str_hashslot) (:r0 +str_hashcode) (:r0 +str_length) :r1))
 		(vpif '(:r2 /= 0))
-			(call :sys_mem :copy '(:r2 :r1 :r3) '(_ :r1))
+			(call :sys_mem :copy '(:r2 :r1 :r3) '(& :r1))
 		(else)
 			(vp-add-rr :r3 :r1)
 		(endif)
@@ -725,7 +725,7 @@
 	(vpif `(,idx /= ,len))
 		(assign `((& ,this +str_data)) `(,data))
 		(loop-start)
-			(call :str :bfind `(,cls (,data ,idx ub)) `(,cls _ tmp))
+			(call :str :bfind `(,cls (,data ,idx ub)) `(,cls & tmp))
 			(breakif `(,tmp = -1))
 			(vp-add-cr 1 idx)
 		(loop-until `(,idx = ,len))
@@ -756,7 +756,7 @@
 	(vpif `(,idx /= ,len))
 		(assign `((& ,this +str_data)) `(,data))
 		(loop-start)
-			(call :str :bfind `(,cls (,data ,idx ub)) `(,cls _ tmp))
+			(call :str :bfind `(,cls (,data ,idx ub)) `(,cls & tmp))
 			(breakif `(,tmp /= -1))
 			(vp-add-cr 1 idx)
 		(loop-until `(,idx = ,len))
@@ -889,7 +889,7 @@
 		(loop-start)
 			(assign `((,seqs_begin 0)) `(,src))
 			(vp-add-cr +ptr_size seqs_begin)
-			(call :sys_mem :copy `((& ,src +str_data) ,di (,src +str_length)) `(_ ,di))
+			(call :sys_mem :copy `((& ,src +str_data) ,di (,src +str_length)) `(& ,di))
 		(loop-until `(,seqs_begin = ,seqs_end))
 		(vp-cpy-rr seqs this)
 	(else)

@@ -15,7 +15,7 @@
 	; (. this :method [arg ...])
 	`(def *vtable* ,n (lambda (this & ~a) ~_)))
 
-(defmacro defabstractmethod (n a &rest _)
+(defmacro defabstractmethod (n a &ignore)
 	; (defabstractmethod ([arg ...]) body)
 	; Declare a method as abstract and will
 	; throw an error if invoked. Concrete

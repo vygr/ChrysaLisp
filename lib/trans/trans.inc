@@ -116,16 +116,16 @@
 (vp-label 'alloc0)
 	;:r0 = size, -> :r0 = a block of it all 0, trashes :r1-:r3
 	(vp-push :r0)
-	(call :sys_mem :alloc '(:r0) '(:r0 _))
+	(call :sys_mem :alloc '(:r0) '(:r0 &))
 	(vp-pop :r2)
 	(vp-push :r0)
-	(call :sys_mem :fill '(:r0 :r2 0) '(_))
+	(call :sys_mem :fill '(:r0 :r2 0) '(&))
 	(vp-pop :r0)
 	(vp-ret)
 
 (vp-label 'alloc1)
 	;:r0 = size, -> :r0 = a block of it as it comes, trashes :r1-:r2
-	(call :sys_mem :alloc '(:r0) '(:r0 _))
+	(call :sys_mem :alloc '(:r0) '(:r0 &))
 	(vp-ret)
 
 (vp-label 'translate)
@@ -272,7 +272,7 @@
 	(vp-push :r0)
 	(vp-lea-rcr :r0 +str_data :r1)
 	(assign '((:r14 +trs_buf) (:r14 +trs_pc)) '(:r0 :r2))
-	(call :sys_mem :copy '(:r0 :r1 :r2) '(_ _))
+	(call :sys_mem :copy '(:r0 :r1 :r2) '(& &))
 	(vp-pop :r0)
 	(vp-jmp 'done)
 

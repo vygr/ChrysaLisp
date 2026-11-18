@@ -45,13 +45,13 @@
 	(endswitch)
 
 	(vp-push :r1 :r3 :r4)
-	(call :lisp :env_push '(:r0) '(:r0 _))
+	(call :lisp :env_push '(:r0) '(:r0 &))
 	(assign `((:rsp ,+ptr_size)) '(:r1))
 	(call :lisp :env_bind `(:r0 (:r1 ,+ptr_size) (:rsp ,(* 2 +ptr_size))) '(:r0 :r1))
 	(vp-pop :r4 :r2 :r3)
 	(call :lisp :repl_progn `(:r0 :r1 (& :r2 ,(* 2 +ptr_size)) :r3) '(:r0 :r1))
 	(vp-push :r1)
-	(call :lisp :env_pop '(:r0) '(:r0 _))
+	(call :lisp :env_pop '(:r0) '(:r0 &))
 	(vp-pop :r1)
 
 	(exit :lisp :repl_apply '(:r0 :r1))

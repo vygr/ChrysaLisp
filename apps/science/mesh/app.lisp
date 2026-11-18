@@ -162,7 +162,7 @@
 		(. *gpu_toolbar* :set_selected 0))
 	(when (and *use_gpu* gpu_pair)
 		(defq drawn (shader-gui-frame *main_widget*
-				(map (lambda ((id vblock pblock &rest _))
+				(map (lambda ((id vblock pblock &ignore))
 						;a mesh goes to the GPU the first time it is drawn, and
 						;is kept there
 						(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))

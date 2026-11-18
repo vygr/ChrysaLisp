@@ -58,9 +58,9 @@
 	;where what it holds begins
 	(stream-seek stream at 0)
 	(when (and (defq s (read-blk stream 16)) (>= (length s) 2) (/= (code s 1 0) 0))
-		(bind '(_ n id) (mkv-vint s 0))
+		(bind '(& n id) (mkv-vint s 0))
 		(when (< (+ n 1) (length s))
-			(bind '(size m _) (mkv-vint s n))
+			(bind '(size m &ignore) (mkv-vint s n))
 			(list id size (+ at n m)))))
 
 (defun mkv-children (s at end)
@@ -68,8 +68,8 @@
 	;the elements from at to end of a str
 	(defq out (list))
 	(while (< at end)
-		(bind '(_ n id) (mkv-vint s at))
-		(bind '(size m _) (mkv-vint s (+ at n)))
+		(bind '(& n id) (mkv-vint s at))
+		(bind '(size m &ignore) (mkv-vint s (+ at n)))
 		(defq body (+ at n m) stop (if (< size 0) end (min end (+ body size))))
 		(push out (list id body stop))
 		(setq at stop))
@@ -153,11 +153,11 @@
 						(push sizes size)))
 				((= lacing 3)
 					;EBML's: the first a number, each after it how much more, signed
-					(bind '(first_size n _) (mkv-vint s at))
+					(bind '(first_size n &ignore) (mkv-vint s at))
 					(push sizes first_size)
 					(setq at (+ at n))
 					(times (max 0 (- count 2))
-						(bind '(v n _) (mkv-vint s at))
+						(bind '(v n &ignore) (mkv-vint s at))
 						(push sizes (+ (last sizes) (- v (dec (<< 1 (dec (* 7 n)))))))
 						(setq at (+ at n)))))
 			(defq known (reduce (const +) sizes 0))
@@ -171,7 +171,7 @@
 	;a block: its track, its time from the cluster's start, its keys, and
 	;its frames into its track's tables, each frame of a laced block where
 	;it is in the file, str of the block from start
-	(bind '(number n _) (mkv-vint s at))
+	(bind '(number n &ignore) (mkv-vint s at))
 	(when (defq track (some (# (if (= (. %0 :find :number) number) %0)) tracks))
 		(defq rel (code-be s 2 (+ at n)) flags (code s 1 (+ at n 2)))
 		(setq rel (sign-extend rel 16))
@@ -211,10 +211,10 @@
 		;each element whole in the window, its header there too unless the
 		;window is the last
 		(while (and (not done) (not refill) (< (+ i 2) (length s)) (or ends (<= (+ i 16) (length s))))
-			(bind '(_ n id) (mkv-vint s i))
+			(bind '(& n id) (mkv-vint s i))
 			(cond
 				((find id tops) (setq done :t))
-				(:t (bind '(size m _) (mkv-vint s (+ i n)))
+				(:t (bind '(size m &ignore) (mkv-vint s (+ i n)))
 					(defq body (+ i n m) stop (if (< size 0) (length s) (+ body size)))
 					(cond
 						((<= stop (length s)) (mkv-element s body stop at tracks id) (setq i stop))
@@ -233,7 +233,7 @@
 	; (mkv-seeks str at end) -> ((id at) ...)
 	;the SeekHead: of each element of the top it names, where it is from the
 	;start of the Segment's data
-	(map (lambda ((_ body stop))
+	(map (lambda ((& body stop))
 			(defq id 0 place 0)
 			(each (lambda ((id_of b e))
 					(cond
@@ -276,7 +276,7 @@
 	(cond
 		((defq got (some (# (if (= (first %0) at) (second %0))) kept)) got)
 		((and (defq el (mkv-head (defq stream (. reel :find :stream)) at)) (= (first el) +mkv_cluster))
-			(bind '(_ size body) el)
+			(bind '(& size body) el)
 			(defq stop (. lazy :find :stop)
 				tracks (map (# (scatter (Emap) :number (. %0 :find :number) :step (. %0 :find :step) :cluster 0
 							:offsets (list) :sizes (list) :shown (list) :keys (list))) (. reel :find :tracks))

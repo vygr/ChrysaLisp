@@ -99,7 +99,7 @@
 			(list 'time (/ (n2d (- now start_time)) (const (n2d 1000000))))
 			(list 'resolution (list +width +height))))
 	(each (lambda (control)
-			(bind '(name type lo hi slider label &rest _) control)
+			(bind '(name type lo hi slider label &ignore) control)
 			(defq val (control-value control))
 			(push vals (list name val))
 			(. label :set_text (control-text type val))) controls)

@@ -130,7 +130,7 @@
 	(vp-push :r0)
 	(defq in (method-input :obj :hash))
 	(array-bind-args :r1 in)
-	(call :obj :hash in '(_ :r0) :r1)
+	(call :obj :hash in '(& :r0) :r1)
 	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
@@ -159,7 +159,7 @@
 	(vp-push :r0)
 	(defq in (method-input :obj :type))
 	(array-bind-args :r1 in)
-	(call :obj :type in '(_ :r1) :r1)
+	(call :obj :type in '(& :r1) :r1)
 	(vp-pop :r0)
 
 	(exit :obj :lisp_type '(:r0 :r1))
@@ -255,7 +255,7 @@
 	(gotoif `(,obj1 /= 2) 'error)
 
 	(array-bind-args args `(,obj1 ,obj2))
-	(call :obj :eql `(,obj1 ,obj2) '(_ tmp) :r2)
+	(call :obj :eql `(,obj1 ,obj2) '(& tmp) :r2)
 	(vpif `(,tmp /= 0))
 		(assign `((,this +lisp_sym_nil)) `(,args))
 	(else)
@@ -289,7 +289,7 @@
 	(gotoif `(,obj1 /= 2) 'error)
 
 	(array-bind-args args `(,obj1 ,obj2))
-	(call :obj :eql `(,obj1 ,obj2) '(_ tmp) :r2)
+	(call :obj :eql `(,obj1 ,obj2) '(& tmp) :r2)
 	(vpif `(,tmp = 0))
 		(assign `((,this +lisp_sym_nil)) `(,args))
 	(else)

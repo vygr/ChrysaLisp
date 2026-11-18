@@ -58,7 +58,7 @@
 	(save-fields :rsp '(slot_this slot_script slot_stdin slot_stdout slot_stderr) '(:r0 :r2 :r3 :r4 :r5))
 
 	;init parent
-	(s-call :lisp :init '(:r0 :r1) '(_ :r1))
+	(s-call :lisp :init '(:r0 :r1) '(& :r1))
 	(assign '(:r1) '((:rsp slot_ok)))
 	(vpif '(:r1 /= 0))
 		;init myself
@@ -208,7 +208,7 @@
 			(call :str :create_from_cstr '(:r0) '(:r0))
 		(endif)
 		(call :list :push_back2 '((:rsp slot_args) (:rsp slot_stream) :r0))
-		(call :lisp :lisp_repl '((:rsp slot_this) (:rsp slot_args)) '(_ :r1))
+		(call :lisp :lisp_repl '((:rsp slot_this) (:rsp slot_args)) '(& :r1))
 		(assign '(:r1 (:rsp slot_this)) '((:rsp slot_obj) :r0))
 		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
 		(vpif '(:r2 = :r3))
@@ -299,7 +299,7 @@
 		;func, as sym is bound in the environment
 		`(progn
 			(assign '((:rsp 0)) '(:r0))
-			(call :hmap :get '((:r0 +lisp_environment) (:r0 ,sym)) '(_ :r1))
+			(call :hmap :get '((:r0 +lisp_environment) (:r0 ,sym)) '(& :r1))
 			(assign '((:rsp 0)) '(:r0))
 			(assign '(:r1) '((:r0 ,func)))))
 

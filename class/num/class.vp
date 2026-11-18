@@ -39,7 +39,7 @@
 		(fn-bind 'sys/statics/statics :r1)
 		(assign '(:r0) '((:r1 statics_num_intern)))
 	(endif)
-	(call :hset :cinsert `(:r0 (:rsp 0) (@ ,(f-path :num :eql))) '(_ :r1 _))
+	(call :hset :cinsert `(:r0 (:rsp 0) (@ ,(f-path :num :eql))) '(& :r1 &))
 	(call :obj :ref '((:r1 0)) '(:r3))
 	(vp-pop :r0)
 	(call :obj :deref '(:r0))

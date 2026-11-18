@@ -66,7 +66,7 @@
 				;put by: a note of it, and of the one put by before it. An
 				;object has not the room in it for that, its count is 32 bits
 				(vp-push :r0)
-				(call :sys_mem :alloc '(16) '(:r0 _))
+				(call :sys_mem :alloc '(16) '(:r0 &))
 				(vp-pop :r1)
 				(fn-bind 'sys/statics/statics :r2)
 				(assign '((:r2 statics_sys_task_current_tcb) :r1) '(:r2 (:r0 +ptr_size)))
