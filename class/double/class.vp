@@ -369,6 +369,19 @@
 
 (def-func-end)
 
+(def-method :double :tanh)
+	;inputs
+	;:r0 = double object (ptr)
+	;outputs
+	;:r0 = result double object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :tanh
+		'(call :sys_math :d_tanh '(:d1) '(:d0)))
+
+(def-func-end)
+
 (def-method :double :frac)
 	;inputs
 	;:r0 = double object (ptr)

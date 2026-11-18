@@ -24,6 +24,8 @@ docs/reference/vp_classes/fixed.cwb
 
 ### (sin fixed) -> fixed
 
+### (tanh fixed) -> fixed
+
 ## VP methods
 
 ### :ceil -> class/fixed/ceil
@@ -199,6 +201,17 @@ trashes
 ```
 
 ### :sqrt -> class/fixed/sqrt
+
+```code
+inputs
+:r0 = fixed object (ptr)
+outputs
+:r0 = result fixed object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
+### :tanh -> class/fixed/tanh
 
 ```code
 inputs

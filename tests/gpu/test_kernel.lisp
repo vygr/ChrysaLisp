@@ -89,5 +89,31 @@
 		(each (const gpu-buffer-free) kt_bufs)
 		(gpu-kernel-free kt_kernel)))
 
+;tanh: the VP back end calls f_tanh, which (tanh) of a float is too, so
+;the two are the same to the bit; the GPU's own is near them, the last
+;bit or two of a single, or a little more of a number near 0
+(defq kt_tprog (kt-src "(defbuffer dst :float :write) (defbuffer src :float :read)"
+		"(defun main :void ((i :int)) (elem-set dst i (tanh (elem-get src i))))")
+	kt_tn 64 kt_tsrc (apply (const floats) (map! (# (n2f (- (* (n2d (!)) (n2d 0.375)) (n2d 12)))) '() 0 kt_tn))
+	kt_twant (apply (const floats) (map (const tanh) kt_tsrc))
+	kt_tnative (shader-vp-kernel kt_tprog) kt_tvdst (fill (floats) kt_tn (n2f 0)))
+(shader-vp-run kt_tprog kt_tnative (shader-vp-frame kt_tprog kt_tnative '()) 0 kt_tn (list kt_tvdst kt_tsrc))
+(assert-eq "tanh on the VP, f_tanh as Lisp's is" kt_twant kt_tvdst)
+(cond
+	((= (gpu-format) 0)
+		(test-skip "tanh on the GPU" "this node has no GPU"))
+	(:t
+		(defq kt_tkernel (shader-gpu-kernel kt_tprog)
+			kt_tbufs (map! (lambda () (gpu-buffer (* kt_tn 4))) '() 0 2))
+		(gpu-write (second kt_tbufs) 0 kt_tsrc)
+		(shader-gpu-run kt_tprog kt_tkernel (shader-pack kt_tprog '()) 0 kt_tn kt_tbufs)
+		(defq kt_tgot (gpu-read (first kt_tbufs) 0 (fill (floats) kt_tn (n2f 0))))
+		(assert-true "tanh on the GPU, near f_tanh"
+			(every (# (< (abs (- (n2d %0) (n2d %1))) (+ (* (abs (n2d %1)) (str-to-double "5e-7")) (str-to-double "1e-7"))))
+				kt_tgot kt_twant))
+		(each (const gpu-buffer-free) kt_tbufs)
+		(gpu-kernel-free kt_tkernel)))
+
 (undef (env) 'kt-src 'kt-refused 'kt-zeros 'kt-fzeros 'kt_prog 'kt_n 'kt_from 'kt_to 'kt_vals 'kt_src 'kt_cols
-	'kt_cdst 'kt_cpk 'kt_native 'kt_vdst 'kt_vpk 'kt_kernel 'kt_bufs)
+	'kt_cdst 'kt_cpk 'kt_native 'kt_vdst 'kt_vpk 'kt_kernel 'kt_bufs
+	'kt_tprog 'kt_tn 'kt_tsrc 'kt_twant 'kt_tnative 'kt_tvdst 'kt_tkernel 'kt_tbufs 'kt_tgot)

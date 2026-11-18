@@ -44,6 +44,21 @@
 (assert-true "Double Log 0" (< (log (n2d 0.0)) (str-to-double "-1e308")))
 (assert-error "Double Exp of another type" (exp 3))
 
+;tanh, within two of its last bits of the true one, d_tanh: of each way it
+;is worked out, the series below 0.55 and by exp above, 1 from 22 on, and
+;odd
+(defq t_near (lambda (a b) (<= (abs (- a b)) (* (abs b) (str-to-double "5e-16")))))
+(assert-eq "Double Tanh 0" (n2d 0.0) (tanh (n2d 0.0)))
+(assert-true "Double Tanh small" (t_near (tanh (str-to-double "1e-8")) (str-to-double "1e-8")))
+(assert-true "Double Tanh 0.25" (t_near (tanh (str-to-double "0.25")) (str-to-double "0.24491866240370913")))
+(assert-true "Double Tanh 0.5" (t_near (tanh (str-to-double "0.5")) (str-to-double "0.46211715726000974")))
+(assert-true "Double Tanh 1" (t_near (tanh (n2d 1.0)) (str-to-double "0.7615941559557649")))
+(assert-true "Double Tanh 3" (t_near (tanh (n2d 3.0)) (str-to-double "0.9950547536867305")))
+(assert-eq "Double Tanh 30" (n2d 1.0) (tanh (n2d 30.0)))
+(assert-true "Double Tanh -0.75" (t_near (tanh (str-to-double "-0.75")) (str-to-double "-0.6351489523872873")))
+(assert-true "Double Tanh -2" (t_near (tanh (n2d -2.0)) (str-to-double "-0.9640275800758169")))
+(assert-eq "Double Tanh -30" (n2d -1.0) (tanh (n2d -30.0)))
+
 ; random, a double from 0 to it, not only whole numbers
 (defq dr_got (map! (lambda () (random (n2d 1))) '() 0 200))
 (assert-true "random of a double is below it" (every (# (and (>= %0 (n2d 0)) (< %0 (n2d 1)))) dr_got))

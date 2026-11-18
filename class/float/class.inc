@@ -25,6 +25,7 @@
 	(dec-method :cos class/float/cos :final)
 	(dec-method :exp class/float/exp :final)
 	(dec-method :log class/float/log :final)
+	(dec-method :tanh class/float/tanh :final)
 	(dec-method :frac class/float/frac :final)
 	(dec-method :floor class/float/floor :final)
 	(dec-method :ceil class/float/ceil :final)

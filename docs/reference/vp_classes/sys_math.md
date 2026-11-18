@@ -68,6 +68,59 @@ trashes
 :r0-:r1, :d0-:d3
 ```
 
+### :d_tanh -> sys/math/d_tanh
+
+```code
+inputs
+:d0 = double (double)
+outputs
+:d0 = tanh of the double (double)
+trashes
+:r0-:r2, :d0-:d3
+info
+of the double without its sign, the sign put back after. 1 from 22 on,
+where it is 1 to the last bit. Below 0.55, e to the twice of it less 1
+by its series to the 19th power, t, nothing taken from what is near
+it, and t / (t + 2). Between, 1 - 2 / (e to the twice of it + 1), by
+d_exp, from 0.55 on the 1 is never much more than what it takes. Of
+858 doubles from -25 to 25, 2 units of the last place from the true
+tanh at the most, 680 of them the nearest double
+```
+
+### :f_exp -> sys/math/f_exp
+
+```code
+inputs
+:f0 = power (single)
+outputs
+:f0 = e to the power (single)
+trashes
+:r0-:r2, :f0-:f3
+info
+d_exp of singles: 0 below the least power that gives a whole single,
+infinity above the greatest. The power is k ln2 + r, ln2 in two parts,
+the first of few bits so k times it is exact, r no more than half ln2
+either way. e to the r by its series to the 7th power, all a single
+holds, and 2 to the k made from its bits, in two halves so neither is
+out of range
+```
+
+### :f_tanh -> sys/math/f_tanh
+
+```code
+inputs
+:f0 = single (single)
+outputs
+:f0 = tanh of the single (single)
+trashes
+:r0-:r2, :f0-:f3
+info
+d_tanh of singles: 1 from 10 on, below 0.55 the series of e to the
+twice of it less 1 to the 11th power, t / (t + 2), between 1 - 2 / (e
+to the twice of it + 1), by f_exp. 2 units of the last place from the
+true tanh at the most, as d_tanh
+```
+
 ### :i_rand -> sys/math/i_rand
 
 ```code

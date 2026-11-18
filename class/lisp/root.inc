@@ -132,6 +132,8 @@
 ; (exp fixed) -> fixed
 (ffi "class/fixed/lisp_log" log)
 ; (log fixed) -> fixed
+(ffi "class/fixed/lisp_tanh" tanh)
+; (tanh fixed) -> fixed
 (ffi "class/fixed/lisp_frac" frac)
 ; (frac fixed) -> fixed
 (ffi "class/fixed/lisp_floor" floor)

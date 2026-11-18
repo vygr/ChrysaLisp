@@ -320,6 +320,17 @@ trashes
 :r0-:r2, :r4, :r14, :d0-:d15
 ```
 
+### :tanh -> class/float/tanh
+
+```code
+inputs
+:r0 = float object (ptr)
+outputs
+:r0 = result float object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
 ### :type -> class/float/type
 
 ```code

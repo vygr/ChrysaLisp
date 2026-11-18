@@ -269,19 +269,22 @@
 	(sv-puts (list ri rf one)))
 
 (defun sv-math (r op)
-	;sin, cos, exp or log of a register, which is given up, to a new
-	;register. The function of the system is of a double, of the single,
-	;and its answer is made the nearest single
+	;sin, cos, exp, log or tanh of a register, which is given up, to a new
+	;register. tanh is of the single, by f_tanh. The others are of a
+	;double, of the single, and their answer is made the nearest single
 	(sv-put r)
 	(defq saved (sv-spill (if (find op '(sin cos)) +sv_sin_trash +sv_exp_trash)))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff r :f0))
-	(sv-emit 'vp-cvt-fd :f0 :d0)
-	(when (eql op 'cos)
-		(sv-emit 'vp-load-rcd :r12 (list 'fn-const (logior +sv_hpi)) :d1)
-		(sv-emit 'vp-add-dd :d1 :d0))
-	(sv-emit 'call :sys_math (elem-get '(:d_sin :d_sin :d_exp :d_log) (find op '(sin cos exp log)))
-		(sv-q '(:d0)) (sv-q '(:d0)))
-	(sv-emit 'vp-cvt-df :d0 :f0)
+	(cond
+		((eql op 'tanh)
+			(sv-emit 'call :sys_math :f_tanh (sv-q '(:f0)) (sv-q '(:f0))))
+		(:t (sv-emit 'vp-cvt-fd :f0 :d0)
+			(when (eql op 'cos)
+				(sv-emit 'vp-load-rcd :r12 (list 'fn-const (logior +sv_hpi)) :d1)
+				(sv-emit 'vp-add-dd :d1 :d0))
+			(sv-emit 'call :sys_math (elem-get '(:d_sin :d_sin :d_exp :d_log) (find op '(sin cos exp log)))
+				(sv-q '(:d0)) (sv-q '(:d0)))
+			(sv-emit 'vp-cvt-df :d0 :f0)))
 	(defq r (sv-getf))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
 	(sv-unspill saved)
@@ -460,9 +463,9 @@
 					(sv-emit 'vp-cvt-fr (first a) (defq r (sv-getr)))
 					(sv-puts a) (list r))
 				(a)))
-		((defq i (find op '(sin cos sqrt abs floor fract exp log)))
+		((defq i (find op '(sin cos sqrt abs floor fract exp log tanh)))
 			(case i
-				((0 1 6 7) (defq n (length a))
+				((0 1 6 7 8) (defq n (length a))
 					(times n (push a (sv-math (first a) op))
 						(setq a (rest a)))
 					a)
@@ -585,7 +588,7 @@
 					(push items (list :vec_end type)))
 				(:t ;the args, as many as the op has, and then the op
 					(defq n (cond
-							((find op '(float int sin cos sqrt abs floor fract exp log length normalize)) 1)
+							((find op '(float int sin cos sqrt abs floor fract exp log tanh length normalize)) 1)
 							((find op '(clamp mix)) 3)
 							(2))
 						items (map! (# (list :expr %0)) (list args) 0 n))

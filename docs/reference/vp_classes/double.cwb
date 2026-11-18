@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 79
+	:next_id 80
 	:items
 	((:list 1)
 		((:list 7)
@@ -340,7 +340,7 @@
 							:id
 							20
 							:items
-							((:list 50)
+							((:list 51)
 								((:list 11)
 									:shape
 									:id
@@ -1131,7 +1131,7 @@
 									:stroke
 									0
 									:text
-									"[:vcreate]"
+									"[:tanh]"
 									:font_size
 									12
 									:pos
@@ -1140,10 +1140,30 @@
 										319.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									70
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:vcreate]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										110.82910
+										336.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									71
 									:d
 									"[M 0 367 L 165.50732 367]"
 									:stroke
@@ -1158,7 +1178,7 @@
 								((:list 17)
 									:shape
 									:id
-									71
+									72
 									:kind
 									:text
 									:fill
@@ -1180,7 +1200,7 @@
 								((:list 15)
 									:shape
 									:id
-									72
+									73
 									:kind
 									:text
 									:fill
@@ -1200,7 +1220,7 @@
 								((:list 13)
 									:shape
 									:id
-									73
+									74
 									:d
 									"[M 0 416 L 165.50732 416]"
 									:stroke
@@ -1215,7 +1235,7 @@
 								((:list 17)
 									:shape
 									:id
-									74
+									75
 									:kind
 									:text
 									:fill
@@ -1237,7 +1257,7 @@
 								((:list 15)
 									:shape
 									:id
-									75
+									76
 									:kind
 									:text
 									:fill
@@ -1257,7 +1277,7 @@
 								((:list 13)
 									:shape
 									:id
-									76
+									77
 									:d
 									"[M 0 465 L 165.50732 465]"
 									:stroke
@@ -1272,7 +1292,7 @@
 								((:list 17)
 									:shape
 									:id
-									77
+									78
 									:kind
 									:text
 									:fill
@@ -1294,7 +1314,7 @@
 								((:list 15)
 									:shape
 									:id
-									78
+									79
 									:kind
 									:text
 									:fill

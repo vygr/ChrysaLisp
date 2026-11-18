@@ -281,6 +281,29 @@
 
 (def-func-end)
 
+(def-method :fixed :tanh)
+	;inputs
+	;:r0 = fixed object (ptr)
+	;outputs
+	;:r0 = result fixed object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	;by d_tanh, the fixed made a double and back, its 16 bits are all it has
+	(mathop :tanh
+		'(progn
+			(vp-cvt-rd :r0 :d0)
+			(vp-lea-pr 'fn_consts :r1)
+			(vp-load-rcd :r1 (fn-const 0x3ef0000000000000) :d1)
+			(vp-mul-dd :d1 :d0)
+			(call :sys_math :d_tanh '(:d0) '(:d0))
+			(vp-lea-pr 'fn_consts :r1)
+			(vp-load-rcd :r1 (fn-const 0x40f0000000000000) :d1)
+			(vp-mul-dd :d1 :d0)
+			(vp-cvt-dr :d0 :r0)))
+
+(def-func-end)
+
 (def-method :fixed :frac)
 	;inputs
 	;:r0 = fixed object (ptr)

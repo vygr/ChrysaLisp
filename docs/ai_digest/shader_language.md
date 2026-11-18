@@ -204,7 +204,7 @@ name.
 * `(vec2 ...)`, `(vec3 ...)` and `(vec4 ...)` build a vector from floats, ints
   and smaller vectors, or from a single number for every component.
 * `(:x v)`, `(:xy v)`, `(:zyx v)` pick components, `xyzw` or `rgba`.
-* `sin cos sqrt floor fract abs exp log`, of a float, or of each component.
+* `sin cos sqrt floor fract abs exp log tanh`, of a float, or of each component.
 * `min max mod`, of two the same, or of a vector and a float.
 * `(pow x y)`, `(clamp x lo hi)`, `(mix a b t)`.
 * `(dot a b)`, `(cross a b)`, `(length v)`, `(normalize v)`, `(reflect i n)`.

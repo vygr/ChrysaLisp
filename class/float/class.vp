@@ -408,6 +408,19 @@
 
 (def-func-end)
 
+(def-method :float :tanh)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(singleop :tanh
+		'(call :sys_math :f_tanh '(:f1) '(:f0)))
+
+(def-func-end)
+
 (def-method :float :frac)
 	;inputs
 	;:r0 = float object (ptr)

@@ -23,6 +23,7 @@
 	(dec-method :cos class/double/cos :final)
 	(dec-method :exp class/double/exp :final)
 	(dec-method :log class/double/log :final)
+	(dec-method :tanh class/double/tanh :final)
 	(dec-method :frac class/double/frac :final)
 	(dec-method :floor class/double/floor :final)
 	(dec-method :ceil class/double/ceil :final)

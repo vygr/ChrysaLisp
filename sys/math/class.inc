@@ -15,6 +15,9 @@
 	(dec-method :d_pow sys/math/d_pow :static (:d0 :d1) (:d0))
 	(dec-method :d_exp sys/math/d_exp :static (:d0) (:d0))
 	(dec-method :d_log sys/math/d_log :static (:d0) (:d0))
+	(dec-method :d_tanh sys/math/d_tanh :static (:d0) (:d0))
+	(dec-method :f_exp sys/math/f_exp :static (:f0) (:f0))
+	(dec-method :f_tanh sys/math/f_tanh :static (:f0) (:f0))
 	(dec-method :q_exp sys/math/q_exp :static (:r0) (:r0))
 	(dec-method :q_log sys/math/q_log :static (:r0) (:r0)))
 

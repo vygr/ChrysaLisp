@@ -588,6 +588,215 @@
 
 (def-func-end)
 
+(def-method :sys_math :d_tanh)
+	;inputs
+	;:d0 = double (double)
+	;outputs
+	;:d0 = tanh of the double (double)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;of the double without its sign, the sign put back after. 1 from 22 on,
+	;where it is 1 to the last bit. Below 0.55, e to the twice of it less 1
+	;by its series to the 19th power, t, nothing taken from what is near
+	;it, and t / (t + 2). Between, 1 - 2 / (e to the twice of it + 1), by
+	;d_exp, from 0.55 on the 1 is never much more than what it takes. Of
+	;858 doubles from -25 to 25, 2 units of the last place from the true
+	;tanh at the most, 680 of them the nearest double
+
+	(entry :sys_math :d_tanh '(:d0))
+
+	(vp-alloc +long_size)
+	(vp-store-drc :d0 :rsp 0)
+	(vp-abs-dd :d0 :d0)
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcd :r0 (fn-const 0x4036000000000000) :d1)
+	(vp-bge-dd :d1 :d0 'one)
+	(vp-load-rcd :r0 (fn-const 0x3fe199999999999a) :d1)
+	(vp-blt-dd :d1 :d0 'small)
+	;1 - 2 / (e to the 2x + 1)
+	(vp-add-dd :d0 :d0)
+	(call :sys_math :d_exp '(:d0) '(:d0))
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcd :r0 (fn-const 0x3ff0000000000000) :d1)
+	(vp-add-dd :d1 :d0)
+	(vp-load-rcd :r0 (fn-const 0x4000000000000000) :d2)
+	(vp-div-dd :d0 :d2)
+	(vp-sub-dd :d2 :d1)
+	(vp-cpy-dd :d1 :d0)
+	(vp-jmp 'sign)
+(vp-label 'small)
+	;e to the 2x less 1, 1/19! down to 1/2!, then 1, times 2x, and t / (t + 2)
+	(vp-add-dd :d0 :d0)
+	(vp-load-rcd :r0 (fn-const 0x3c62f49b46814157) :d3)
+	(each (lambda (c)
+			(vp-mul-dd :d0 :d3)
+			(vp-load-rcd :r0 (fn-const c) :d2)
+			(vp-add-dd :d2 :d3))
+		'(0x3ca6827863b97d97 0x3ce952c77030ad4a 0x3d2ae7f3e733b81f 0x3d6ae7f3e733b81f
+		0x3da93974a8c07c9d 0x3de6124613a86d09 0x3e21eed8eff8d898 0x3e5ae64567f544e4
+		0x3e927e4fb7789f5c 0x3ec71de3a556c734 0x3efa01a01a01a01a 0x3f2a01a01a01a01a
+		0x3f56c16c16c16c17 0x3f81111111111111 0x3fa5555555555555 0x3fc5555555555555
+		0x3fe0000000000000 0x3ff0000000000000))
+	(vp-mul-dd :d0 :d3)
+	(vp-load-rcd :r0 (fn-const 0x4000000000000000) :d1)
+	(vp-add-dd :d3 :d1)
+	(vp-div-dd :d1 :d3)
+	(vp-cpy-dd :d3 :d0)
+	(vp-jmp 'sign)
+(vp-label 'one)
+	(vp-load-rcd :r0 (fn-const 0x3ff0000000000000) :d0)
+(vp-label 'sign)
+	(vp-load-rcd :rsp 0 :d1)
+	(vp-load-rcd :r0 (fn-const 0) :d2)
+	(vp-bge-dd :d2 :d1 'exit)
+	(vp-neg-dd :d0 :d0)
+(vp-label 'exit)
+	(vp-free +long_size)
+
+	(exit :sys_math :d_tanh '(:d0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :f_exp)
+	;inputs
+	;:f0 = power (single)
+	;outputs
+	;:f0 = e to the power (single)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;d_exp of singles: 0 below the least power that gives a whole single,
+	;infinity above the greatest. The power is k ln2 + r, ln2 in two parts,
+	;the first of few bits so k times it is exact, r no more than half ln2
+	;either way. e to the r by its series to the 7th power, all a single
+	;holds, and 2 to the k made from its bits, in two halves so neither is
+	;out of range
+
+	(entry :sys_math :f_exp '(:f0))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcf :r0 (fn-const 0x42b17218) :f1)
+	(vp-bgt-ff :f1 :f0 'big)
+	(vp-load-rcf :r0 (fn-const 0xc2cff1b4) :f1)
+	(vp-blt-ff :f1 :f0 'small)
+	;k, the whole number nearest the power over ln2
+	(vp-load-rcf :r0 (fn-const 0x3fb8aa3b) :f1)
+	(vp-mul-ff :f0 :f1)
+	(vp-load-rcf :r0 (fn-const 0x3f000000) :f2)
+	(vp-load-rcf :r0 (fn-const 0) :f3)
+	(vp-bge-ff :f3 :f1 'up)
+	(vp-sub-ff :f2 :f1)
+	(vp-jmp 'nearest)
+(vp-label 'up)
+	(vp-add-ff :f2 :f1)
+(vp-label 'nearest)
+	(vp-cvt-fr :f1 :r1)
+	;r, the power less k ln2
+	(vp-cvt-rf :r1 :f1)
+	(vp-load-rcf :r0 (fn-const 0x3f318000) :f2)
+	(vp-mul-ff :f1 :f2)
+	(vp-sub-ff :f2 :f0)
+	(vp-load-rcf :r0 (fn-const 0xb95e8083) :f2)
+	(vp-mul-ff :f1 :f2)
+	(vp-sub-ff :f2 :f0)
+	;e to the r, 1/7! down to 1/2!, then 1 and 1
+	(vp-load-rcf :r0 (fn-const 0x39500d01) :f3)
+	(each (lambda (c)
+			(vp-mul-ff :f0 :f3)
+			(vp-load-rcf :r0 (fn-const c) :f2)
+			(vp-add-ff :f2 :f3))
+		'(0x3ab60b61 0x3c088889 0x3d2aaaab 0x3e2aaaab 0x3f000000 0x3f800000 0x3f800000))
+	;times 2 to the k, as 2 to half of it, and 2 to the rest
+	(vp-cpy-rr :r1 :r2)
+	(vp-asr-cr 1 :r2)
+	(vp-sub-rr :r2 :r1)
+	(each (lambda (r)
+			(vp-add-cr 127 r)
+			(vp-shl-cr 23 r)
+			(vp-cpy-rf r :f1)
+			(vp-mul-ff :f1 :f3))
+		'(:r1 :r2))
+	(vp-cpy-ff :f3 :f0)
+	(vp-jmp 'exit)
+(vp-label 'big)
+	(vp-load-rcf :r0 (fn-const 0x7f800000) :f0)
+	(vp-jmp 'exit)
+(vp-label 'small)
+	(vp-load-rcf :r0 (fn-const 0) :f0)
+(vp-label 'exit)
+
+	(exit :sys_math :f_exp '(:f0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :f_tanh)
+	;inputs
+	;:f0 = single (single)
+	;outputs
+	;:f0 = tanh of the single (single)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;d_tanh of singles: 1 from 10 on, below 0.55 the series of e to the
+	;twice of it less 1 to the 11th power, t / (t + 2), between 1 - 2 / (e
+	;to the twice of it + 1), by f_exp. 2 units of the last place from the
+	;true tanh at the most, as d_tanh
+
+	(entry :sys_math :f_tanh '(:f0))
+
+	(vp-alloc +long_size)
+	(vp-store-frc :f0 :rsp 0)
+	(vp-abs-ff :f0 :f0)
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcf :r0 (fn-const 0x41200000) :f1)
+	(vp-bge-ff :f1 :f0 'one)
+	(vp-load-rcf :r0 (fn-const 0x3f0ccccd) :f1)
+	(vp-blt-ff :f1 :f0 'small)
+	;1 - 2 / (e to the 2x + 1)
+	(vp-add-ff :f0 :f0)
+	(call :sys_math :f_exp '(:f0) '(:f0))
+	(vp-lea-pr 'fn_consts :r0)
+	(vp-load-rcf :r0 (fn-const 0x3f800000) :f1)
+	(vp-add-ff :f1 :f0)
+	(vp-load-rcf :r0 (fn-const 0x40000000) :f2)
+	(vp-div-ff :f0 :f2)
+	(vp-sub-ff :f2 :f1)
+	(vp-cpy-ff :f1 :f0)
+	(vp-jmp 'sign)
+(vp-label 'small)
+	;e to the 2x less 1, 1/11! down to 1/2!, then 1, times 2x, and t / (t + 2)
+	(vp-add-ff :f0 :f0)
+	(vp-load-rcf :r0 (fn-const 0x32d7322b) :f3)
+	(each (lambda (c)
+			(vp-mul-ff :f0 :f3)
+			(vp-load-rcf :r0 (fn-const c) :f2)
+			(vp-add-ff :f2 :f3))
+		'(0x3493f27e 0x3638ef1d 0x37d00d01 0x39500d01 0x3ab60b61 0x3c088889 0x3d2aaaab
+		0x3e2aaaab 0x3f000000 0x3f800000))
+	(vp-mul-ff :f0 :f3)
+	(vp-load-rcf :r0 (fn-const 0x40000000) :f1)
+	(vp-add-ff :f3 :f1)
+	(vp-div-ff :f1 :f3)
+	(vp-cpy-ff :f3 :f0)
+	(vp-jmp 'sign)
+(vp-label 'one)
+	(vp-load-rcf :r0 (fn-const 0x3f800000) :f0)
+(vp-label 'sign)
+	(vp-load-rcf :rsp 0 :f1)
+	(vp-load-rcf :r0 (fn-const 0) :f2)
+	(vp-bge-ff :f2 :f1 'exit)
+	(vp-neg-ff :f0 :f0)
+(vp-label 'exit)
+	(vp-free +long_size)
+
+	(exit :sys_math :f_tanh '(:f0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :sys_math :q_exp)
 	;inputs
 	;:r0 = power (fixed)

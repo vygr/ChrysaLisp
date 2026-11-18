@@ -51,6 +51,14 @@
 (assert-true "float sin" (< (abs (- (n2d (sin (n2f 1))) (sin (n2d 1)))) (str-to-double "1e-7")))
 (assert-true "float exp" (< (abs (- (n2d (exp (n2f 1))) (exp (n2d 1)))) (str-to-double "1e-6")))
 (assert-eq "float log of one" (n2f 0) (log (n2f 1)))
+;tanh, by f_tanh in 32 bits, within two of its last bits of the nearest single
+(defq tf_near (lambda (a b) (< (abs (- (n2d a) b)) (* (abs b) (str-to-double "2.5e-7")))))
+(assert-eq "float tanh of 0" (n2f 0) (tanh (n2f 0)))
+(assert-true "float tanh 0.25" (tf_near (tanh (n2f 0.25)) (str-to-double "0.24491866240370913")))
+(assert-true "float tanh 0.5" (tf_near (tanh (n2f 0.5)) (str-to-double "0.46211715726000974")))
+(assert-true "float tanh -2" (tf_near (tanh (n2f -2.0)) (str-to-double "-0.9640275800758169")))
+(assert-eq "float tanh 20" (n2f 1) (tanh (n2f 20.0)))
+(assert-eq "float tanh -20" (n2f -1) (tanh (n2f -20.0)))
 
 (assert-error "float divide by zero" (/ tf_a (n2f 0)))
 (assert-error "float mod by zero" (% tf_a (n2f 0)))

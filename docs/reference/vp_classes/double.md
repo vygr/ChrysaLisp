@@ -336,6 +336,17 @@ trashes
 :r0-:r2, :r4, :r14, :d0-:d15
 ```
 
+### :tanh -> class/double/tanh
+
+```code
+inputs
+:r0 = double object (ptr)
+outputs
+:r0 = result double object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
 ### :type -> class/double/type
 
 ```code

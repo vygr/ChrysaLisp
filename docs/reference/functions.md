@@ -15036,10 +15036,10 @@ vec3 is by the 3 by 3 of the matrix
 ### sv-math
 
 ```code
-sin, cos, exp or log of a register, which is given up, to a new
+sin, cos, exp, log or tanh of a register, which is given up, to a new
 
-register. The function of the system is of a double, of the single,
-and its answer is made the nearest single
+register. tanh is of the single, by f_tanh. The others are of a
+double, of the single, and their answer is made the nearest single
 ```
 
 ### sv-name

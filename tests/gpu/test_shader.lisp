@@ -162,6 +162,8 @@
 	(sh-main "(return (vec4 (sin 0.0) (cos 0.0) (sqrt 9.0) (sin 1.0)))"))
 (assert-pixel "exp log" '(1.0 2.7183 0.0 0.6931)
 	(sh-main "(return (vec4 (exp 0.0) (exp 1.0) (log 1.0) (log 2.0)))"))
+(assert-pixel "tanh" '(0.0 0.7616 -0.964 1.0)
+	(sh-main "(return (vec4 (tanh 0.0) (tanh 1.0) (tanh -2.0) (tanh 20.0)))"))
 (assert-pixel "exp log of a vector" '(0.3679 7.3891 -0.6931 2.3026)
 	(sh-main "(defq a (vec2 -1.0 2.0) b (vec2 0.5 10.0))"
 		"(return (vec4 (exp a) (log b)))"))

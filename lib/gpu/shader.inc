@@ -71,7 +71,7 @@
 	*sh_equal* '(= /=)
 	*sh_logic* '(and or)
 	*sh_ctors* '(vec2 vec3 vec4)
-	*sh_gen1* '(sin cos sqrt floor fract abs exp log)
+	*sh_gen1* '(sin cos sqrt floor fract abs exp log tanh)
 	*sh_gen2* '(min max mod)
 	*sh_others* '(not float int pow clamp mix dot cross length normalize reflect texture elem-get)
 	;of ints, and >> keeps the sign, as a GPU's does
