@@ -74,6 +74,26 @@
 		(assert-eq "the sample's label is not the certain one" 3 (code ng_data 1 (inc ng_labels)))
 		(assert-true "the loss of no chance is the least chance's, as the Lisp model's"
 			(ng-near ng_gl (nn-loss ng_out 3) (n2d 0.001)))
+		;the buffers are for a batch of capacity, 64 here
+		(assert-error "a batch bigger than the model was made for is refused"
+			(nn-gpu-forward ng_gpu (map! (# (% (!) ng_n)) '() 0 65) 0 ng_labels))
 		(nn-gpu-free ng_gpu)))
+
+;a model the kernels can sum, and one past what a loop of them goes to, a
+;constant of its file: that one is not taken to the GPU, where its sums
+;would stop short and say nothing. Asked of the programs, so of any node
+(defq ng_programs (nn-gpu-programs))
+(assert-true "LeNet-5 is within what the kernels sum"
+	(nn-gpu-fits? (nn-model '((:input 1 28 28) (:conv 6 5 :tanh :pad 2) (:pool 2) (:conv 16 5 :tanh) (:pool 2)
+		(:dense 120 :tanh) (:dense 84 :tanh) (:dense 10 :softmax))) 1024 ng_programs))
+(assert-true "a dense layer of as many inputs as its kernel sums"
+	(nn-gpu-fits? (nn-model '((:input 8192) (:dense 2 :softmax))) 64 ng_programs))
+(assert-eq "and of one more is not" :nil
+	(nn-gpu-fits? (nn-model '((:input 8193) (:dense 2 :softmax))) 64 ng_programs))
+(assert-eq "nor a filter wider than its kernel's" :nil
+	(nn-gpu-fits? (nn-model '((:input 1 70 70) (:conv 2 65 :tanh) (:dense 2 :softmax))) 64 ng_programs))
+(assert-eq "nor a batch of more than its kernels'" :nil
+	(nn-gpu-fits? (nn-model '((:input 16) (:dense 4 :softmax))) 65537 ng_programs))
+(assert-eq "so no GPU model is made of it" :nil (nn-gpu (nn-model '((:input 8193) (:dense 2 :softmax))) 64))
 
 (undef (env) 'ng-check 'ng-near 'ng_n 'ng_labels 'ng_data 'ng_batch 'ng_k)

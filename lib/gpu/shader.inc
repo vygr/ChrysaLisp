@@ -763,6 +763,13 @@
 		(each (# (elem-set program %0 (elem-get full %0))) '(0 1 2 3 4)))
 	program)
 
+(defun shader-const (program name)
+	; (shader-const program name) -> :nil | num | str
+	;what a constant of a program is, if it is a number written there: an
+	;int a num, a float the str of its decimal
+	(and (defq c (some (# (if (eql (first %0) name) %0)) (elem-get (shader-full program) 1)))
+		(eql (second (defq e (third c))) :lit) (third e)))
+
 (defun sh-pixel-only (program back_end)
 	;for a back end that has not got the vertex stage yet. It has only
 	;pixel shaders with no varyings and no matrix in them
