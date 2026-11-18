@@ -136,7 +136,7 @@ user's folder, `usr/Guest/`, their app settings and the like.
 
 ## Start Of A Session (Mandatory)
 
-1.	Read the skills in `.agents/skills/`, the notes of the tag to come,
+1.	Read the skills in `.claude/skills/`, the notes of the tag to come,
 	`docs/releases/`, the newest, and `docs/ai_digest/ai_thoughts.md`.
 
 2.	`git status` and `git log`. A clean tree at the head of `master` is the
