@@ -750,14 +750,22 @@ driver's own drawing, On The GPU, In The GUI below, moves it none. At 640 by
 an Apple M4 Max, as fast as it asks for one, and drew 58.3 by the driver. The
 copy to the shared pixels could go, were the read given their block.
 
-The Mandelbrot app is a kernel, `apps/science/mandelbrot/kernel.shader`. On
-the GPU the whole picture is one run, a pixel a thread, in floats. With no GPU
-the children of its farm run it as native code in doubles, so the farm can go
-deeper than a float can. Its inputs say where a square of the picture is and
-how wide, and a child scans its square a ring at a time from the edge in, a
-run of the kernel for each side, and stops at a ring that is all inside the
-set. A child reads the kernel's text from the app's system by its @Source,
-`(shader-from-text)`.
+The Mandelbrot app is a kernel, `apps/science/mandelbrot/kernel.shader`, and
+a farm either way, the one job, a square of the picture. On the GPU the farm
+is one task, `gpu.lisp`, its square the whole picture, one run, a pixel a
+thread, in floats. With no GPU the children of the farm, `child.lisp`, run it
+as native code in doubles, so they can go deeper than a float can. Its inputs
+say where a square of the picture is and how wide, and a CPU child scans its
+square a ring at a time from the edge in, a run of the kernel for each side,
+and stops at a ring that is all inside the set. A CPU child reads the
+kernel's text from the app's system by its @Source, `(shader-from-text)`.
+Each child draws its square on the app's pixels, in shared memory. The farm
+is closed when the other takes over, and when the picture has stood still
+for 2 seconds, short of the 5 a child waits for work before it goes, so the
+app never has a farm whose children may have gone; the next move makes a new
+one. On an Apple M4 Max, 800 by 800 at the start, a picture is 5 to 7ms by
+the GPU's child, 60ms the first, its kernel's build in that, and 54 to 57ms
+by the 32 children of 16 nodes.
 
 `tests/gpu/test_kernel.lisp` runs one kernel on the CPU, on the VP and on
 the GPU of the machine, and the three give the same bytes, on the M4 and

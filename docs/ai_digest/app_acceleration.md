@@ -6,8 +6,9 @@ application used up to 7.5. This guide explains how to write
 (VP), and integrate them into ChrysaLisp applications.
 
 Since 7.6 Mandelbrot has no VP of its own. Its picture is a kernel of the
-shader language, `apps/science/mandelbrot/kernel.shader`, which the GPU
-runs, and which the VP back end makes native code of for the CPU, see
+shader language, `apps/science/mandelbrot/kernel.shader`, which a task
+runs on the GPU, and which the VP back end makes native code of for the
+children of the CPU's farm, see
 `docs/ai_digest/shader_language.md`. Work that is a function of an index,
 reading and writing buffers, is best written that way: one source, run on
 the GPU or the CPU. Hand written VP is for the rest. The shade below is the

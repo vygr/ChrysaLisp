@@ -3,16 +3,21 @@
 (import "gui/lisp.inc")
 (import "./app.inc")
 (import "service/source/app.inc")
-(import "lib/gpu/kernel.inc")
+(import "lib/gpu/compute.inc")
 
 ;Fly into and out of the set. The left button held flies in, the right
 ;flies out, and where the pointer is from the middle of the picture is
 ;where it goes, the further out the faster; at the middle it holds still.
-;Nothing steps: each frame moves on by how long the last one took. On the
-;GPU a frame is the whole picture, a pixel a thread; with none the children
-;of the farm work it out, a square each, and are started on the view of the
-;moment each time a picture is done. Both run the one kernel, kernel.shader,
-;the GPU in floats, the farm in doubles as native code
+;Nothing steps: each frame moves on by how long the last one took. A
+;picture is worked out by a farm, lib/task/jobs.inc: of one task on the
+;GPU, gpu.lisp, given the whole picture as its square, a pixel a thread,
+;or of children on the nodes of the CPU, child.lisp, a square each. The
+;one protocol and the one job, each child drawing on the pixels of the
+;canvas, in shared memory, and each started on the view of the moment
+;when a picture is done. Both run the one kernel, kernel.shader, the GPU
+;in floats, the CPU in doubles as native code. A farm lasts while its
+;work goes on: it is closed when the other takes over, and when the
+;picture has stood still a while, and the next work makes a new one
 
 (enums +event +event_user
 	(enum home pal mode))
@@ -21,7 +26,7 @@
 	(enum main task reply timer tip))
 
 (defq +width 800 +height 800 +job_rect_size 32
-	;a frame each sixtieth of a second, and the farm's picture shown ten
+	;a frame each sixtieth of a second, and the CPU's picture shown ten
 	;times a second as it fills in
 	+frame_rate 16666 +show_rate 100000
 	;where it starts, and how far out and in it goes. In a float of the
@@ -36,23 +41,25 @@
 	;speed comes up to what it is to be, the less the softer
 	+fly_rate +double_1 +pan_rate (n2d 0.6) +still (n2d 0.1) +ease (n2d 4)
 	+min_top 256 +level_top 64
-	+retry_timeout (task-timeout 5)
-	;the GPU if there is one, and it can be switched to the farm and back
+	;the patience of the farm, a square is quick, the GPU's first picture
+	;waits for its kernel to be built; and how long the picture stands
+	;still before the farm is let go of, less than a child's idle time
+	+retry_timeout (task-timeout 5) +gpu_timeout (task-timeout 30) +farm_idle (task-timeout 2)
+	;the GPU if there is one, and it can be switched to the CPU and back
 	id :t has_gpu (> (gpu-format) 0) gpu has_gpu
-	;the farm draws a square of the picture at a time straight onto the
-	;canvas, its pixels in shared memory if the host has them; the GPU's
-	;frame is put on the same pixels
+	;a child draws a square of the picture straight onto the canvas, its
+	;pixels in shared memory
 	shared_canvas (canvas-shared +width +height 1)
 	shared_key (if shared_canvas (canvas-key shared_canvas) 0)
 	;where the picture is, how far it is from its middle to its top, the
 	;palette, the speeds of the moment, and the buttons held
 	cx +home_x cy +home_y z +home_z pal 0 zv +double_0 vx +double_0 vy +double_0 held 0
-	;the kernel, the GPU's of it, its buffers, and the farm
-	program (shader-load (cat *app_root* "kernel.shader"))
-	kernel :nil pal_buf :nil out_buf :nil jobs :nil dirty :nil busy :nil
+	;the farm, and its picture not yet shown, or not yet whole
+	select :nil jobs :nil dirty :nil busy :nil
 	last_t 0 last_show 0 changed :t
-	;how long the last whole picture took, and when the farm's was started
-	took 0 farm_t 0)
+	;how long the last whole picture took, when the farm's was started,
+	;and when it was whole
+	took 0 farm_t 0 farm_done 0)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Mandelbrot" (+sym_close) +event_close)
@@ -96,19 +103,9 @@
 	(. *status* :set_text (cat " x" (str k) (if (<= z +z_min) " deepest" "")
 			"  " (str (/ took 1000)) "." (str (/ (% took 1000) 100)) " ms ")))
 
-;;;;;;;;;;;;;;;;
-; the GPU's frame
-;;;;;;;;;;;;;;;;
-
-(defun gpu-palette ()
-	(gpu-write pal_buf 0 (mandel-pal pal)))
-
-(defun gpu-init ()
-	;the kernel, in the language of this GPU, the palette, and the pixels
-	(when (setq kernel (shader-gpu-kernel program))
-		(setq pal_buf (gpu-buffer (* +mandel_pal_size +int_size))
-			out_buf (gpu-buffer (* +width +height +int_size)))
-		(gpu-palette)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the farm, and a picture of it
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun on-grid ()
 	; (on-grid) -> (x y step)
@@ -118,35 +115,29 @@
 	(defq step (/ (* z +double_2) (n2d +height)))
 	(list (* (n2d (n2i (/ cx step))) step) (* (n2d (n2i (/ cy step))) step) step))
 
-(defun gpu-frame ()
-	;the picture of the moment, worked out, read back, and shown, and how
-	;long that took
-	(defq t0 (pii-time))
-	(bind '(gx gy step) (on-grid))
-	(when (shader-gpu-run program kernel
-			(shader-pack program (list (list 'cx gx) (list 'cy gy) (list 'step step)
-					(list 'w +width) (list 'h +height) (list 'ow +width) (list 'top (top-of))
-					(list 'base +mandel_pal_base) (list 'rate +mandel_pal_rate)
-					(list 'lbase +mandel_light_base) (list 'lgain +mandel_light_gain)
-					(list 'ss +mandel_samples)))
-			0 (* +width +height) (list pal_buf out_buf))
-		(. *canvas* :tile (gpu-read out_buf 0 (* +width +height +int_size)) 0 0 +width +height)
-		(setq dirty :nil took (- (pii-time) t0))
-		(. *canvas* :swap +swap_write)))
-
-;;;;;;;;;;;;;;;;;
-; the farm's frame
-;;;;;;;;;;;;;;;;;
-
 (defun farm-start ()
-	;the children, started the first time the farm is wanted. Each is read
-	;from this system, by its @Source, its Lisp and the kernel, made native
-	;code where it runs
-	(setq jobs (Jobs (source-task (cat *app_root* "child.lisp"))
-			(elem-get select +select_task) (elem-get select +select_reply)
-			;two on each node of this machine, none on another
-			(list +max_int 2 2))
-		busy :nil))
+	;the farm, made when there is none. The GPU's is one task, kept off
+	;this node, which is the window's. The CPU's is two children on each
+	;node of this machine, none on another, each read from this system, by
+	;its @Source, its Lisp and the kernel, made native code where it runs
+	(unless jobs
+		(setq jobs (if gpu
+				(Jobs (cat *app_root* "gpu.lisp")
+					(elem-get select +select_task) (elem-get select +select_reply) 1 :t)
+				(Jobs (source-task (cat *app_root* "child.lisp"))
+					(elem-get select +select_task) (elem-get select +select_reply) (list +max_int 2 2)))
+			busy :nil farm_done (pii-time))))
+
+(defun farm-close ()
+	;the farm is closed, its children told to go, and its mailboxes made
+	;new, so nothing late comes in: the other is to take over, or there is
+	;no more for it. The next work makes a new one
+	(when jobs
+		(. jobs :close)
+		(elem-set select +select_task (mail-mbox))
+		(elem-set select +select_reply (mail-mbox))
+		(setq jobs :nil))
+	(setq busy :nil dirty :nil))
 
 (defun farm-forget ()
 	;what the farm has still to answer of the last picture is not wanted.
@@ -158,30 +149,29 @@
 		(. jobs :reply_to (elem-get select +select_reply))
 		(setq busy :nil)))
 
+(defun rect-job (x y x1 y1 gx gy top)
+	;a square of the picture of the moment, for a child
+	(setf-> (str-alloc +rect_size)
+		(+rect_x x) (+rect_y y) (+rect_x1 x1) (+rect_y1 y1)
+		(+rect_w +width) (+rect_h +height) (+rect_shared shared_key)
+		(+rect_top top) (+rect_pal pal) (+rect_cx gx) (+rect_cy gy) (+rect_z z)))
+
 (defun farm-frame ()
-	;the picture of the moment, a square to each child
+	;the picture of the moment: all of it the one square to the GPU's
+	;child, or a square to each child of the CPU's
+	(farm-start)
 	(farm-forget)
 	(bind '(gx gy &ignore) (on-grid))
 	(defq work (list) top (top-of))
-	(each! (lambda ()
-			(defq y (* (!) +job_rect_size))
-			(each! (lambda ()
-					(defq x (* (!) +job_rect_size))
-					(push work (setf-> (str-alloc +rect_size)
-							(+rect_x x)
-							(+rect_y y)
-							(+rect_x1 (min +width (+ x +job_rect_size)))
-							(+rect_y1 (min +height (+ y +job_rect_size)))
-							(+rect_w +width)
-							(+rect_h +height)
-							(+rect_shared shared_key)
-							(+rect_top top)
-							(+rect_pal pal)
-							(+rect_cx gx)
-							(+rect_cy gy)
-							(+rect_z z))))
-				'() 0 (const (/ (+ +width +job_rect_size -1) +job_rect_size))))
-		'() 0 (const (/ (+ +height +job_rect_size -1) +job_rect_size)))
+	(if gpu (push work (rect-job 0 0 +width +height gx gy top))
+		(each! (lambda ()
+				(defq y (* (!) +job_rect_size))
+				(each! (lambda ()
+						(defq x (* (!) +job_rect_size))
+						(push work (rect-job x y (min +width (+ x +job_rect_size))
+								(min +height (+ y +job_rect_size)) gx gy top)))
+					'() 0 (const (/ (+ +width +job_rect_size -1) +job_rect_size))))
+			'() 0 (const (/ (+ +height +job_rect_size -1) +job_rect_size))))
 	(. jobs :add work)
 	(setq busy :t farm_t (pii-time)))
 
@@ -248,28 +238,25 @@
 	(defq now (pii-time) dt (min (n2d 0.1) (/ (n2d (- now last_t)) (n2d 1000000))))
 	(setq last_t now)
 	(fly dt)
-	(cond
-		(gpu (when changed
+	(unless busy
+		(cond
+			(changed
 				(setq changed :nil)
-				(gpu-frame)
-				(status)))
-		(:t (unless jobs (farm-start))
-			(unless busy
-				(when changed
-					(setq changed :nil)
-					(farm-frame)
-					(status)))
-			(when (and dirty (> (- now last_show) +show_rate))
-				(setq dirty :nil last_show now)
-				(. *canvas* :swap +swap_write)))))
+				(farm-frame)
+				(status))
+			;the picture has stood still a while: the work has stopped, and
+			;the farm is let go of before its children would have gone
+			((and jobs (> (- now farm_done) +farm_idle))
+				(farm-close))))
+	;the CPU's picture is shown as it fills in
+	(when (and dirty (> (- now last_show) +show_rate))
+		(setq dirty :nil last_show now)
+		(. *canvas* :swap +swap_write)))
 
 (defun main ()
-	(defq select (task-mboxes +select_size))
+	(setq select (task-mboxes +select_size))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *window* :open)
-	;a GPU that could not take the kernel, the farm does it
-	(and gpu (not (gpu-init)) (setq gpu :nil has_gpu :nil))
-	(. *mode_toolbar* :set_selected (if gpu 1 0))
 	(tooltips)
 	(setq last_t (pii-time))
 	(mail-timeout (elem-get select +select_timer) +frame_rate 0)
@@ -294,15 +281,16 @@
 						(farm-forget)
 						(home))
 					((= id +event_mode)
-						;the GPU or the farm, from the next frame
-						(setq gpu (and has_gpu (= (. *mode_toolbar* :get_selected) 1)) changed :t)
-						(. *mode_toolbar* :set_selected (if gpu 1 0))
-						;to the GPU, what the farm has not answered is not wanted
-						(if gpu (farm-forget)))
+						;the GPU's farm or the CPU's, from the next frame: the
+						;one there is is closed, the other is to take over
+						(defq to_gpu (and has_gpu (= (. *mode_toolbar* :get_selected) 1)))
+						(. *mode_toolbar* :set_selected (if to_gpu 1 0))
+						(unless (eql to_gpu gpu)
+							(farm-close)
+							(setq gpu to_gpu changed :t)))
 					((= id +event_pal)
 						(setq pal (. *pal_toolbar* :get_selected) changed :t)
-						(farm-forget)
-						(if gpu (gpu-palette)))
+						(farm-forget))
 					((. *window* :event msg))))
 			(+select_task
 				(. jobs :launched msg))
@@ -313,9 +301,14 @@
 				;saying it has gone is shorter than an answer, (:answered) has it
 				(cond
 					((and (>= (length msg) +rect_reply_size) (/= (getf msg +rect_reply_failed) 0))
-						;its node could not have the kernel, another does the square
-						(print "Mandelbrot: a child could not have the kernel, its node is left out")
-						(. jobs :cannot msg))
+						(cond
+							(gpu ;there is no GPU after all, the CPU's farm takes over
+								(farm-close)
+								(setq gpu :nil has_gpu :nil changed :t)
+								(. *mode_toolbar* :set_selected 0))
+							(:t ;its node could not have the kernel, another does the square
+								(print "Mandelbrot: a child could not have the kernel, its node is left out")
+								(. jobs :cannot msg))))
 					((defq out (. jobs :answered msg))
 						(setq dirty :t)
 						(when (= (getf msg +rect_reply_drawn) 0)
@@ -326,17 +319,14 @@
 						(when (= out 0)
 							;the picture is whole, shown, how long it took, and the
 							;next may start
-							(setq busy :nil dirty :nil took (- (pii-time) farm_t))
+							(setq busy :nil dirty :nil farm_done (pii-time) took (- farm_done farm_t))
 							(. *canvas* :swap +swap_write)
 							(status)))))
 			(:t ;a frame, the next one a frame from when this one started
 				(defq start (pii-time))
-				(if jobs (. jobs :refresh +retry_timeout))
+				(if jobs (. jobs :refresh (if gpu +gpu_timeout +retry_timeout)))
 				(tick)
 				(mail-timeout (elem-get select +select_timer)
 					(max 1000 (- +frame_rate (- (pii-time) start))) 0))))
-	(if jobs (. jobs :close))
-	(if kernel (gpu-kernel-free kernel))
-	(if pal_buf (gpu-buffer-free pal_buf))
-	(if out_buf (gpu-buffer-free out_buf))
+	(farm-close)
 	(. *window* :close))
