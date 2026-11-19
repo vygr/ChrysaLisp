@@ -340,7 +340,10 @@ docs/diagrams/host_layers.cwb
       kept the copies waiting. Its own copy has it wait for every copy
       before it, 70us a dispatch on a Pi 4. `V3D_DEBUG=sync` has that
       driver make every job wait for all before it, to tell such a fault
-      from another.
+      from another. It is Mesa's issue 16937, with a program of 130 lines
+      that shows it, one turn in sixteen wrong with four at once: when a
+      Mesa with it fixed is what a Pi has, `order_copy` of
+      `src/host/gpu_sdl3.cpp` can go.
 
     * Functions:
 
