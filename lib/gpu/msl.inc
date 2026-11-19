@@ -176,10 +176,12 @@
 	(push lines "\ts.shader_init();" "\ts.shader_main(i);" "}" "")
 	(join lines "\n"))
 
-(defun shader-msl-pair (vertex pixel)
-	; (shader-msl-pair vertex pixel) -> (vertex_text fragment_text)
+(defun shader-msl-pair (vertex pixel &optional flat)
+	; (shader-msl-pair vertex pixel [flat]) -> (vertex_text fragment_text)
 	;a vertex shader and a pixel shader that go together, to draw
 	;triangles with. The entry points are vertex_main and fragment_main.
+	;A pixel that is clear is thrown away, so it is not in the depth
+	;buffer; of a flat pair, which has none, it is drawn, clear.
 	;
 	;The vertex function takes the attrs of a vertex as [[attribute(n)]],
 	;in the order the shader has them, and its inputs at [[buffer(0)]].
@@ -235,9 +237,9 @@
 	(each (lambda ((name type))
 			(push lines (cat "\ts." (msl-name name) " = in." (msl-name name) ";"))) (shader-varyings pixel))
 	(push lines "\ts.shader_init();"
-		"\tfloat4 c = clamp(s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y)), 0.0, 1.0);"
-		"\tif (c.w < 0.003921568627) discard_fragment();"
-		"\treturn float4(c.xyz * c.w, c.w);" "}" "")
+		"\tfloat4 c = clamp(s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y)), 0.0, 1.0);")
+	(unless flat (push lines "\tif (c.w < 0.003921568627) discard_fragment();"))
+	(push lines "\treturn float4(c.xyz * c.w, c.w);" "}" "")
 	(list vertex_text (join lines "\n")))
 
 (defun shader-msl-vertex ()

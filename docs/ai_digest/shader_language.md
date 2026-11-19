@@ -1003,7 +1003,9 @@ frame as a job, and a farm of many on the CPU given the same job in parts:
   all of the frame is not a kernel: the shader is the pixel shader of a
   pair, its vertex shader `lib/gpu/shaders/frame_vertex.shader`, drawn
   over two triangles that cover the frame, straight into a texture the
-  GUI shows. An app holds a `(Render-shade canvas file)`.
+  GUI shows, some rows at a time on a slow GPU so the desktop has its
+  turn between, `render_farm.md` section 3. An app holds a `(Render-shade
+  canvas file)`.
 
 * A pair, a vertex shader and a pixel shader, draws triangles, see Triangles
   on the GPU above. `lib/gpu/tris.inc` has the two children of a strip of a

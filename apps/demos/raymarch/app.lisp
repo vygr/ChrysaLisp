@@ -114,7 +114,7 @@
 
 (defun main ()
 	(setq select (task-mboxes +select_size) render (Render-shade *canvas* +shader_file +line_batch))
-	(def render :direct :nil)
+	(def render :direct :nil :partial :t)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *window* :open)
 	(setq film (flm-open (file-stream +film_part +file_open_write) +film_bits)

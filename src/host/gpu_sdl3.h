@@ -25,7 +25,8 @@ struct HostGpuGui
 {
 	// the texture to draw into, as the GPU has it, its size, and the depth
 	// buffer and the samples that go with it, kept with it, samples nullptr
-	// if the device has one a pixel. 1, 0 if it is not to be drawn into now,
+	// if the device has one a pixel. Asked with depth nullptr neither is
+	// wanted nor made, the draw is flat. 1, 0 if it is not to be drawn into now,
 	// the GPU is busy with the last draw into it or with another's, try
 	// again, -1 if it is not a texture to draw into. At 1 what the GUI has
 	// drawn so far has been handed to the GPU, the draw goes after it

@@ -13,22 +13,43 @@
 (defq shader_file "" pixel :nil program :nil kernel :nil out_buf :nil out_size 0 held (list))
 
 ;for a frame drawn straight into a texture of the GUI: the pixel shader
-;as a pair with the corners of a frame, made the first time it is wanted,
-;:none if it could not be, and the two triangles that cover a frame
-(defq pair :nil corners :nil)
+;as a flat pair with the corners of a frame, made the first time it is
+;wanted, :none if it could not be, and the two triangles that cover a
+;frame. And how many rows of a frame the GPU is given at a time
+(defq pair :nil corners :nil rows 16
+	;what the GPU is to take over the rows it is given, and the least
+	;rows: it can not be stopped part way through a draw, and the GUI is
+	;drawn by the same GPU, so a draw that takes it long stops the desktop
+	+rows_time 12000 +rows_least 4)
 
-(defun direct (handle block main)
-	; (direct handle block main) -> :nil | :gone | ticket
+(defun direct (handle block height main)
+	; (direct handle block height main) -> :nil | :gone | :t
 	;the frame drawn by the GPU straight into a texture of the GUI's, block
-	;the inputs of the pixel shader. :nil if it can not be, :gone if the
-	;child is told to go while it waits for the GPU
+	;the inputs of the pixel shader. Some rows at a time, each waited for,
+	;so the GUI has its turn between, and as many rows as the GPU does in
+	;about a tick of the GUI: a fast one takes all of a frame as the one
+	;draw. :nil if it can not be, :gone if the child is told to go while it
+	;waits for the GPU
 	(unless pair
-		(setq pair (ifn (shader-gpu-pair (shader-load +shade_vertex_file) pixel) :none)
+		(setq pair (ifn (shader-gpu-pair (shader-load +shade_vertex_file) pixel :nil :t) :none)
 			corners (gpu-mesh (apply (const doubles) (map (const n2d) '(-1 -1 1 -1 1 1 -1 -1 1 1 -1 1))))))
 	(when (and (nql pair :none) corners)
-		(defq frame (gpu-draw-frame (list (list pair corners "" block))) out 0)
-		(while (eql 0 (setq out (gpu-draw handle frame :t)))
-			(if (mail-poll (list main)) (setq out :gone) (task-sleep 500)))
+		(defq frame (gpu-draw-frame (list (list pair corners "" block))) y 0 out :t)
+		(while (and (eql out :t) (< y height))
+			(defq y1 (min height (+ y rows)) ticket 0)
+			(while (eql 0 (setq ticket (gpu-draw handle frame :t y y1)))
+				(if (mail-poll (list main)) (setq ticket :gone) (task-sleep 500)))
+			(cond
+				((not ticket) (setq out :nil))
+				((eql ticket :gone) (setq out :gone))
+				(:t ;said when the GPU is done with them, so an app that gives
+					;its next frame on the answer gives the GPU no more than it
+					;can do, and how long it took sets how many rows are next
+					(defq began (pii-time))
+					(gpu-take (gpu-wait ticket))
+					(defq took (max 500 (- (pii-time) began)))
+					(setq rows (max +rows_least (min height (* rows 4) (/ (* (- y1 y) +rows_time) took)))
+						y y1))))
 		out))
 
 (defun tile (key mbox x y x1 y1 height width file_length canvas_key handle main tail)
@@ -40,20 +61,17 @@
 	(unless (eql file shader_file)
 		(if kernel (gpu-kernel-free kernel))
 		(and pair (nql pair :none) (gpu-pair-free pair))
-		(setq shader_file file pixel (shader-load file) program (shader-pixel-kernel file) pair :nil
+		(setq shader_file file pixel (shader-load file) program (shader-pixel-kernel file) pair :nil rows 16
 			kernel (and program (> (gpu-format) 0) (shader-gpu-kernel program))))
 	;straight into the texture of the app's canvas, a tile that is all of
 	;the frame, if this is the node that has it: the GPU of this node is
 	;then the GUI's own
 	(when (and (/= handle 0) (= w width) (= n (* width height)) (> (gpu-format) 0)
 			(eql (slice mbox +long_size -1) (task-nodeid)))
-		(defq out (direct handle (slice tail file_length -1) main))
+		(defq out (direct handle (slice tail file_length -1) height main))
 		(cond
 			((eql out :gone) (setq gone :t))
-			;said when the GPU is done with it, so an app that gives its next
-			;frame on this answer gives the GPU no more than it can do
-			(out (gpu-take (gpu-wait out))
-				(setq drawn +shade_texture))))
+			(out (setq drawn +shade_texture))))
 	(when (and (= drawn +shade_none) (not gone) kernel pixmap (> n 0))
 		(when (> (* n +int_size) out_size)
 			(if out_buf (gpu-buffer-free out_buf))

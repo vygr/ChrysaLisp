@@ -26,7 +26,7 @@
 	(dec-method :picture_destroy :nil :virtual (:r0) (:r0))
 	(dec-method :target_create :nil :virtual (:r0 :r1) (:r0))
 	(dec-method :target_destroy :nil :virtual (:r0) (:r0))
-	(dec-method :draw :nil :virtual (:r0 :r1 :r2 :r3) (:r0))
+	(dec-method :draw :nil :virtual (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
 	(dec-method :lisp_call sys/gpu/lisp_call :static (:r0 :r1) (:r0 :r1)))
 
 (defun host-gpu-call (%0 %1 &optional %2 %3 %4 %5)

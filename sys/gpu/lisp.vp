@@ -137,7 +137,7 @@
 		(vp-xor-rr :r0 :r0)
 	(else)
 		(host-gpu-call :host_gpu :draw
-			'((:r0 slot_a) (:r0 slot_b) (:r0 slot_c) (:r0 slot_d)) '(:r0))
+			'((:r0 slot_a) (:r0 slot_b) (:r0 slot_c) (:r0 slot_d) (:r0 slot_e) (:r0 slot_f)) '(:r0))
 	(endif)
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_out)))

@@ -489,7 +489,7 @@ static int gui_tris_target(void *handle, SDL_GPUTexture **color, SDL_GPUTexture 
 	float fw = 0, fh = 0;
 	SDL_GetTextureSize(tex->texture, &fw, &fh);
 	Uint32 tw = (Uint32)fw, th = (Uint32)fh;
-	if (!tex->depth || tex->depth_w != tw || tex->depth_h != th)
+	if (depth && (!tex->depth || tex->depth_w != tw || tex->depth_h != th))
 	{
 		// the depth buffer of its own, and the samples if the device has more
 		// than one a pixel, as the GPU driver's pairs are built for
@@ -524,8 +524,11 @@ static int gui_tris_target(void *handle, SDL_GPUTexture **color, SDL_GPUTexture 
 	// what the renderer has drawn so far goes first
 	SDL_FlushRenderer(renderer);
 	*color = target;
-	*depth = tex->depth;
-	*samples = tex->samples;
+	if (depth)
+	{
+		*depth = tex->depth;
+		*samples = tex->samples;
+	}
 	*w = tw;
 	*h = th;
 	return 1;

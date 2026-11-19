@@ -329,7 +329,10 @@ docs/diagrams/host_layers.cwb
           and a pixel shader that draw triangles, from the code of the two
           stages and a layout, a byte each: how many attrs a vertex has,
           the cull, how many floats each attr is, and how many pictures the
-          pixel shader reads. Built on a thread, as a kernel is.
+          pixel shader reads. Built on a thread, as a kernel is. With 4
+          added to the cull the pair is flat: no depth buffer, a sample a
+          pixel, and what it draws is put where it goes, not over what is
+          there. A frame that is all a pixel shader is drawn with one.
 
         * `host_gpu_mesh_create`, `host_gpu_mesh_destroy`: the vertices of a
           mesh, kept on the GPU as floats, given as doubles.
@@ -352,7 +355,12 @@ docs/diagrams/host_layers.cwb
           `host_gpu_done` of it says when the GPU is over the draw, asked of
           the GUI driver, whose texture and fence it is. 0 is nothing
           drawn, a pair is still being built or the GUI's texture is not
-          yet to be drawn into, and -1 a frame that can not be.
+          yet to be drawn into, and -1 a frame that can not be. A frame of
+          flat pairs can be drawn the rows y to y1 of it only, the last two
+          args, the rest of the target left as it was: a GPU can not be
+          stopped part way through a draw, and the GUI is drawn by the same
+          one, so a frame that takes a slow GPU long is given to it some
+          rows at a time, and the GUI has its turn between.
 
     * Resources are where SDL has them for compute: MSL `[[buffer]]` is the
       uniform block first, then the buffers read, then those written;

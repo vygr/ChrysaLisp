@@ -186,8 +186,8 @@
 					(apply (const cat) (cat (list (char pair 8) (char mesh 8) (char (length vblock) 8) (char (length pblock) 8)
 								(gpu-pad8 vblock) (gpu-pad8 pblock)) (map (# (char %0 8)) (ifn pictures '()))))) draws))))
 
-(defun gpu-draw (target frame &optional gui)
-	; (gpu-draw target frame [gui]) -> 0 | :nil | ticket
+(defun gpu-draw (target frame &optional gui y y1)
+	; (gpu-draw target frame [gui y y1]) -> 0 | :nil | ticket
 	;a frame of triangles, of (gpu-draw-frame), drawn into a target, cleared
 	;first, what is nearest is what is seen. The target is one of
 	;(gpu-target), and a ticket is given: (gpu-take-pixels) has what was
@@ -197,8 +197,12 @@
 	;(gpu-take) lets it go. 0 is nothing drawn, a pair is still
 	;being built, or the GUI's texture is not to be drawn into yet: try
 	;again. :nil is a frame that can not be drawn, a pair that did not
-	;build, a target that is not one, a node with no GPU
-	(defq out (gpu-call +gpu_draw target frame (length frame) (if gui 1 0) 0 0 0))
+	;build, a target that is not one, a node with no GPU. A frame of flat
+	;pairs, (shader-gpu-pair), can be drawn the rows y to y1 of it only,
+	;the rest of the target left as it was: a slow GPU is given a long
+	;frame some rows at a time, and the GUI, drawn by the same GPU, has its
+	;turn between
+	(defq out (gpu-call +gpu_draw target frame (length frame) (if gui 1 0) (ifn y 0) (ifn y1 0) 0))
 	(cond
 		((= out 0) 0)
 		((< out 0) :nil)

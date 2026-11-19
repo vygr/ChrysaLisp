@@ -494,10 +494,12 @@
 			(spv-op spv_body 253)))
 	(spv-module 5 entry "kernel_main" (list gid_in)))
 
-(defun shader-spirv-pair (vertex pixel)
-	; (shader-spirv-pair vertex pixel) -> (vertex_module fragment_module)
+(defun shader-spirv-pair (vertex pixel &optional flat)
+	; (shader-spirv-pair vertex pixel [flat]) -> (vertex_module fragment_module)
 	;a vertex shader and a pixel shader that go together, to draw
 	;triangles with. The entry points are vertex_main and fragment_main.
+	;A pixel that is clear is thrown away, so it is not in the depth
+	;buffer; of a flat pair, which has none, it is drawn, clear.
 	;
 	;The vertex module takes the attrs of a vertex at locations, in the
 	;order the shader has them, and its inputs as a block, set 1 binding
@@ -553,13 +555,15 @@
 			;is not drawn, and the color leaves with its alpha multiplied in
 			(defq f0 (spv-const :float 0) f1 (spv-const :float 0x3f800000)
 				parts (map (# (spv-ext :float 43 (spv-emit :float 81 c %0) f0 f1)) '(0 1 2 3))
-				alpha (elem-get parts 3) lk (spv-id) lm (spv-id)
-				thin (spv-emit :bool 184 alpha (spv-const :float 0x3b808081)))
-			(spv-op spv_body 247 lm 0)
-			(spv-op spv_body 250 thin lk lm)
-			(spv-op spv_body 248 lk)
-			(spv-op spv_body 252)
-			(spv-op spv_body 248 lm)
+				alpha (elem-get parts 3))
+			(unless flat
+				(defq lk (spv-id) lm (spv-id)
+					thin (spv-emit :bool 184 alpha (spv-const :float 0x3b808081)))
+				(spv-op spv_body 247 lm 0)
+				(spv-op spv_body 250 thin lk lm)
+				(spv-op spv_body 248 lk)
+				(spv-op spv_body 252)
+				(spv-op spv_body 248 lm))
 			(spv-op spv_body 62 colour_out (spv-emit :vec4 80
 					(spv-emit :float 133 (first parts) alpha) (spv-emit :float 133 (second parts) alpha)
 					(spv-emit :float 133 (third parts) alpha) alpha))

@@ -21,6 +21,9 @@ pixels back
 wants every frame's pixels, to keep them, has it :nil: they are then
 always on the canvas's pixels, read back, and the same to the bit
 whatever node drew them
+:partial is a frame of the nodes shown as far as it has got, now and
+then, for a picture that stands still as it fills in; a picture that
+moves is shown whole frames only, which is how it starts
 :farm is the nodes to draw a frame the GPU does not. With it :nil such
 a frame is drawn here, in the app's own task, by native code, (:here):
 for a small picture drawn now and then, not worth a child a node

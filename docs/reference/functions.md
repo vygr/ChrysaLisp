@@ -5295,7 +5295,7 @@ kernel to be built, :nil if it did not build
 ### gpu-draw
 
 ```code
-(gpu-draw target frame [gui]) -> 0 | :nil | ticket
+(gpu-draw target frame [gui y y1]) -> 0 | :nil | ticket
 
 a frame of triangles, of (gpu-draw-frame), drawn into a target, cleared
 first, what is nearest is what is seen. The target is one of
@@ -5306,7 +5306,11 @@ ticket has no pixels: (gpu-wait) says when the GPU is done with it,
 (gpu-take) lets it go. 0 is nothing drawn, a pair is still
 being built, or the GUI's texture is not to be drawn into yet: try
 again. :nil is a frame that can not be drawn, a pair that did not
-build, a target that is not one, a node with no GPU
+build, a target that is not one, a node with no GPU. A frame of flat
+pairs, (shader-gpu-pair), can be drawn the rows y to y1 of it only,
+the rest of the target left as it was: a slow GPU is given a long
+frame some rows at a time, and the GUI, drawn by the same GPU, has its
+turn between
 ```
 
 ### gpu-draw-frame
@@ -11154,12 +11158,15 @@ a thread of the host, (shader-gpu-run) waits for that
 ### shader-gpu-pair
 
 ```code
-(shader-gpu-pair vertex pixel [cull]) -> :nil | pair
+(shader-gpu-pair vertex pixel [cull flat]) -> :nil | pair
 
 a vertex shader and a pixel shader that this node's GPU can draw
 triangles with, (gpu-draw). :nil if it has none. With cull a triangle
-that faces away is left out, :front those that face us. The host
-builds it on a thread of its own. It is let go of with (gpu-pair-free)
+that faces away is left out, :front those that face us. A flat pair
+has no depth buffer and puts what it draws where it goes, not over
+what is there: for a frame that is all a pixel shader, which can then
+be drawn some rows at a time. The host builds it on a thread of its
+own. It is let go of with (gpu-pair-free)
 ```
 
 ### shader-gpu-run
@@ -11252,10 +11259,12 @@ of the block, from the first, those past its end do nothing
 ### shader-msl-pair
 
 ```code
-(shader-msl-pair vertex pixel) -> (vertex_text fragment_text)
+(shader-msl-pair vertex pixel [flat]) -> (vertex_text fragment_text)
 
 a vertex shader and a pixel shader that go together, to draw
 triangles with. The entry points are vertex_main and fragment_main.
+A pixel that is clear is thrown away, so it is not in the depth
+buffer; of a flat pair, which has none, it is drawn, clear.
 
 The vertex function takes the attrs of a vertex as [[attribute(n)]],
 in the order the shader has them, and its inputs at [[buffer(0)]].
@@ -11303,11 +11312,12 @@ type. The vertex shader may have more, they are not used.
 ### shader-pair-text
 
 ```code
-(shader-pair-text vertex pixel by ext make) -> (vertex_stage fragment_stage)
+(shader-pair-text vertex pixel by ext make [kind]) -> (vertex_stage fragment_stage)
 
 the two stages of a pair, kept, both made if either is not there.
 The fragment stage is written last, so if it is there both are. What
-is kept of another make goes, the first time
+is kept of another make goes, the first time. kind is a word for a
+pair made another way of the same two shaders, kept beside it
 ```
 
 ### shader-pixel-kernel
@@ -11366,10 +11376,12 @@ block is set 2 binding 0
 ### shader-spirv-pair
 
 ```code
-(shader-spirv-pair vertex pixel) -> (vertex_module fragment_module)
+(shader-spirv-pair vertex pixel [flat]) -> (vertex_module fragment_module)
 
 a vertex shader and a pixel shader that go together, to draw
 triangles with. The entry points are vertex_main and fragment_main.
+A pixel that is clear is thrown away, so it is not in the depth
+buffer; of a flat pair, which has none, it is drawn, clear.
 
 The vertex module takes the attrs of a vertex at locations, in the
 order the shader has them, and its inputs as a block, set 1 binding

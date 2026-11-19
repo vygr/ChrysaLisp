@@ -255,6 +255,22 @@ handed over. So the answer that drives the next frame gives a slow GPU no
 more than it can do, and the desktop, drawn by the same GPU, is not kept
 waiting behind frames that have piled up.
 
+A GPU can not be stopped part way through a draw, as native code can be at
+a `(task-slice)`. So a frame of a pixel shader is given to it some rows at
+a time, each waited for, and the desktop has its turn between: the place a
+GPU frame can be let go of is the edge of a strip. The child times each
+strip and sizes the next to about 12ms of the GPU. A fast GPU takes all of
+a frame as the one draw; a Raspberry Pi 4 takes Surface's a dozen rows at a
+time, and the mouse stays live, where a frame as one draw held the GPU, and
+the pointer, for half a second. Nothing of a part frame is seen, the strips
+go to the canvas that is not on show.
+
+A strip leaves the rest of the texture as it was, so nothing is cleared
+first, and a pixel the shader leaves clear has to be drawn clear: the pair
+of such a frame is flat, `(shader-gpu-pair vertex pixel :nil :t)`, and its
+pixel shader does not throw a clear pixel away as that of a pair with a
+depth buffer does.
+
 The texture drawn into is of a canvas that is not on show. When the frame is
 whole the two canvases exchange their textures, `(. canvas :exchange that)`:
 what is shown is never a frame part drawn, nor a texture nothing has been
@@ -490,6 +506,11 @@ list of `(name value)`. All of an app:
 	(. render :close)
 	(. *window* :close))
 ```
+
+A frame of the nodes is shown when it is whole. `(def render :partial :t)`
+shows it as far as it has got, twice a second, for a picture that stands
+still while it fills in, as a frame of Raymarch's film does; of a picture
+that moves that would be two frames mixed.
 
 `(frame-values)` is the app's own, the inputs of its shader for this frame.
 `apps/demos/surface/app.lisp` is the whole of one.

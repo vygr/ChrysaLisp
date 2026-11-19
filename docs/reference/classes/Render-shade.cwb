@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 70
+	:next_id 69
 	:items
 	((:list 1)
 		((:list 7)
@@ -164,7 +164,7 @@
 							:id
 							10
 							:items
-							((:list 55)
+							((:list 54)
 								((:list 11)
 									:shape
 									:id
@@ -1038,7 +1038,7 @@
 									:stroke
 									0
 									:text
-									"[:partial]"
+									"[:patience]"
 									:font_size
 									12
 									:pos
@@ -1058,7 +1058,7 @@
 									:stroke
 									0
 									:text
-									"[:patience]"
+									"[:program]"
 									:font_size
 									12
 									:pos
@@ -1078,7 +1078,7 @@
 									:stroke
 									0
 									:text
-									"[:program]"
+									"[:ready]"
 									:font_size
 									12
 									:pos
@@ -1098,7 +1098,7 @@
 									:stroke
 									0
 									:text
-									"[:ready]"
+									"[:took]"
 									:font_size
 									12
 									:pos
@@ -1118,7 +1118,7 @@
 									:stroke
 									0
 									:text
-									"[:took]"
+									"[:vals]"
 									:font_size
 									12
 									:pos
@@ -1127,30 +1127,10 @@
 										440.00000
 									)
 								)
-								((:list 15)
-									:shape
-									:id
-									64
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:vals]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										67.93603
-										457.00000
-									)
-								)
 								((:list 13)
 									:shape
 									:id
-									65
+									64
 									:d
 									"[M 0 471 L 225.61206 471]"
 									:stroke
@@ -1165,7 +1145,7 @@
 								((:list 17)
 									:shape
 									:id
-									66
+									65
 									:kind
 									:text
 									:fill
@@ -1187,7 +1167,7 @@
 								((:list 15)
 									:shape
 									:id
-									67
+									66
 									:kind
 									:text
 									:fill
@@ -1207,7 +1187,7 @@
 								((:list 15)
 									:shape
 									:id
-									68
+									67
 									:kind
 									:text
 									:fill
@@ -1227,7 +1207,7 @@
 								((:list 15)
 									:shape
 									:id
-									69
+									68
 									:kind
 									:text
 									:fill

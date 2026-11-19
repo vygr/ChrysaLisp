@@ -491,6 +491,10 @@ struct Pair
 	Uint8 cull;
 	Uint32 stride;
 	Uint8 num_textures;
+	// flat: no depth, a sample a pixel, and what it draws is put where it
+	// goes, not over what is there. What a frame that is all a pixel shader
+	// is drawn with, and it can be drawn some rows at a time
+	Uint8 flat;
 };
 
 static SDL_GPUShader *pair_stage(const Uint8 *code, size_t size, SDL_GPUShaderFormat format,
@@ -559,19 +563,22 @@ static int SDLCALL build_pair(void *data)
 		info.rasterizer_state.cull_mode = pair->cull == 1 ? SDL_GPU_CULLMODE_BACK
 			: pair->cull == 2 ? SDL_GPU_CULLMODE_FRONT : SDL_GPU_CULLMODE_NONE;
 		// a pixel comes with its alpha multiplied in, and goes over what is there
-		target.blend_state.enable_blend = true;
+		target.blend_state.enable_blend = !pair->flat;
 		target.blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
 		target.blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
 		target.blend_state.color_blend_op = SDL_GPU_BLENDOP_ADD;
 		target.blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
 		target.blend_state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
 		target.blend_state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
-		info.depth_stencil_state.enable_depth_test = true;
-		info.depth_stencil_state.enable_depth_write = true;
-		info.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;
-		info.target_info.has_depth_stencil_target = true;
-		info.target_info.depth_stencil_format = tris_depth;
-		info.multisample_state.sample_count = tris_samples;
+		if (!pair->flat)
+		{
+			info.depth_stencil_state.enable_depth_test = true;
+			info.depth_stencil_state.enable_depth_write = true;
+			info.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;
+			info.target_info.has_depth_stencil_target = true;
+			info.target_info.depth_stencil_format = tris_depth;
+			info.multisample_state.sample_count = tris_samples;
+		}
 		pipeline = SDL_CreateGPUGraphicsPipeline(device, &info);
 	}
 	if (!pipeline) SDL_Log("pair: %s", SDL_GetError());
@@ -602,9 +609,10 @@ static Uint8 *pair_code(const char *code, uint64_t size)
 // a vertex shader and a pixel shader, MSL text or SPIR-V modules, their
 // functions vertex_main and fragment_main. The layout is how many attrs a
 // vertex has, the cull, 0 none, 1 those that face away, 2 those that face
-// us, then how many floats each attr is, a byte each, and then how many
-// pictures the pixel shader reads from, a byte. Given at once, it may not
-// be built yet, and may not build at all, a draw says which
+// us, and 4 more for a flat pair, then how many floats each attr is, a byte
+// each, and then how many pictures the pixel shader reads from, a byte.
+// Given at once, it may not be built yet, and may not build at all, a draw
+// says which
 
 void *host_gpu_pair_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size,
 	const uint8_t *layout)
@@ -618,7 +626,8 @@ void *host_gpu_pair_create(const char *vertex, uint64_t vertex_size, const char 
 	pair->pipeline = nullptr;
 	pair->format = format == 1 ? SDL_GPU_SHADERFORMAT_MSL : SDL_GPU_SHADERFORMAT_SPIRV;
 	pair->num_attrs = layout[0] > 8 ? 8 : layout[0];
-	pair->cull = layout[1];
+	pair->cull = layout[1] & 3;
+	pair->flat = (layout[1] & 4) ? 1 : 0;
 	pair->stride = 0;
 	for (int i = 0; i < pair->num_attrs; ++i)
 	{
@@ -873,8 +882,15 @@ static void order_draw(SDL_GPUCommandBuffer *cmd)
 // drawn, a pair is still being built, or the GUI's texture is not to be
 // drawn into yet, try again; and -1 is a frame that can not be drawn, a pair
 // that did not build, or a target that is not one
+//
+// A frame whose pairs are flat is drawn with no depth buffer and a sample a
+// pixel. And with y1 more than y only the rows y to y1 of it are drawn, the
+// rest of the target left as it was: a GPU can not be stopped part way
+// through a draw, and the GUI is drawn by the same one, so a frame that
+// takes a slow GPU long is given to it some rows at a time, and the GUI has
+// its turn between
 
-void *host_gpu_draw(void *handle, const void *frame, uint64_t size, uint64_t gui)
+void *host_gpu_draw(void *handle, const void *frame, uint64_t size, uint64_t gui, uint64_t y, uint64_t y1)
 {
 	auto failed = (void*)-1;
 	if (!host_gpu_device() || !handle || size < 8 || (gui && !gui_hooks)
@@ -889,6 +905,7 @@ void *host_gpu_draw(void *handle, const void *frame, uint64_t size, uint64_t gui
 	uint64_t good = 0;
 	void *result = nullptr;
 	bool building = false;
+	uint64_t flats = 0;
 	for (; good < count && at + 32 <= end; ++good)
 	{
 		auto d = &draws[good];
@@ -903,18 +920,22 @@ void *host_gpu_draw(void *handle, const void *frame, uint64_t size, uint64_t gui
 		auto state = d->pair ? SDL_GetAtomicInt(&d->pair->state) : pair_failed;
 		if (state != pair_building && state != pair_ready) { result = failed; break; }
 		if (state == pair_building) building = true;
+		if (d->pair->flat) ++flats;
 		d->textures = at;
 		if ((uint64_t)(end - at) < 8 * (uint64_t)d->pair->num_textures) { result = failed; break; }
 		at += 8 * (uint64_t)d->pair->num_textures;
 	}
 	if (result != failed && good < count) result = failed;
+	// flat or not, all of a frame, and only a flat one a part at a time
+	bool flat = flats != 0, band = y1 > y;
+	if (result != failed && ((flat && flats != good) || (band && !flat))) result = failed;
 	// the target, this driver's or the GUI's, and what goes with it
 	SDL_GPUTexture *color = nullptr, *depth = nullptr, *samples = nullptr;
 	Uint32 w = 0, h = 0;
 	bool ready = result != failed && !building;
 	if (ready && gui)
 	{
-		auto can = gui_hooks->target(handle, &color, &depth, &samples, &w, &h);
+		auto can = gui_hooks->target(handle, &color, flat ? nullptr : &depth, &samples, &w, &h);
 		if (can < 0) result = failed;
 		if (can <= 0) ready = false;
 	}
@@ -922,11 +943,15 @@ void *host_gpu_draw(void *handle, const void *frame, uint64_t size, uint64_t gui
 	{
 		auto target = (Target*)handle;
 		color = target->color;
-		depth = target->depth;
-		samples = target->samples;
+		if (!flat)
+		{
+			depth = target->depth;
+			samples = target->samples;
+		}
 		w = target->w;
 		h = target->h;
 	}
+	if (ready && band && (y >= h || y1 > h)) { result = failed; ready = false; }
 	if (ready && !tris_sampler)
 	{
 		// every picture is read the one way: the one pixel a place is in, and
@@ -963,7 +988,8 @@ void *host_gpu_draw(void *handle, const void *frame, uint64_t size, uint64_t gui
 		order_draw(cmd);
 		SDL_GPUColorTargetInfo color_info = {};
 		color_info.texture = color;
-		color_info.load_op = SDL_GPU_LOADOP_CLEAR;
+		// a part leaves the rest of the target as it was
+		color_info.load_op = band ? SDL_GPU_LOADOP_LOAD : SDL_GPU_LOADOP_CLEAR;
 		color_info.store_op = SDL_GPU_STOREOP_STORE;
 		if (samples)
 		{
@@ -980,7 +1006,12 @@ void *host_gpu_draw(void *handle, const void *frame, uint64_t size, uint64_t gui
 		depth_info.stencil_load_op = SDL_GPU_LOADOP_DONT_CARE;
 		depth_info.stencil_store_op = SDL_GPU_STOREOP_DONT_CARE;
 		float target_size[4] = {(float)w, (float)h, 0.0f, 0.0f};
-		auto pass = SDL_BeginGPURenderPass(cmd, &color_info, 1, &depth_info);
+		auto pass = SDL_BeginGPURenderPass(cmd, &color_info, 1, flat ? nullptr : &depth_info);
+		if (band)
+		{
+			SDL_Rect rows = {0, (int)y, (int)w, (int)(y1 - y)};
+			SDL_SetGPUScissor(pass, &rows);
+		}
 		for (uint64_t i = 0; i < good; ++i)
 		{
 			auto d = &draws[i];
