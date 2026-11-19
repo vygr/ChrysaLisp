@@ -330,6 +330,18 @@ docs/diagrams/host_layers.cwb
       write, a dispatch and a read of what it wrote follow one another with
       no wait between. A dispatch and a read give a ticket, polled.
 
+    * On Vulkan each dispatch begins with a copy of its own, 4 bytes to a
+      buffer nothing reads. The Raspberry Pi's driver, v3dv, has a queue of
+      the hardware for kernels and another for copies, and has a kernel
+      wait for the copies only when one is before it in the same command
+      buffer: the barrier a command buffer ends with is not kept for the
+      next that is submitted. A kernel given straight after a write could
+      so run first, on what the buffer held before, when other programs
+      kept the copies waiting. Its own copy has it wait for every copy
+      before it, 70us a dispatch on a Pi 4. `V3D_DEBUG=sync` has that
+      driver make every job wait for all before it, to tell such a fault
+      from another.
+
     * Functions:
 
         * `host_gpu_format`: 1 MSL, 2 SPIR-V, 0 no GPU.

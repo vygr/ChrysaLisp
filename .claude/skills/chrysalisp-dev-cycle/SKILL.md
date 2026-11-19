@@ -695,6 +695,16 @@ install` there stops no nodes of the machine.
 *	Timeouts are in seconds. A build is a tenth of a second and the suite
 	a few. Waiting minutes is waiting on a fault.
 
+*	A GPU answer wrong now and then, in a soak and never alone, is found
+	with the GPU shared: each node has a device of its own, so the test's
+	body as four module files in `tests/scratch/`, looped, and `tests -a`
+	of the four at once, shows in a minute what a soak shows in an hour.
+	Have it print what the buffers hold a moment later: a write that
+	landed after its kernel ran is a fault of order. On the Pi
+	`V3D_DEBUG=sync` has the driver make every job wait for all before
+	it; a fault that goes with it is the driver's order, see the GPU
+	driver in `docs/ai_digest/host_interface.md`.
+
 *	What is done by hand more than twice becomes a command or a script,
 	and is then timed like one.
 

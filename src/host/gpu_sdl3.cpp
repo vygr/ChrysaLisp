@@ -316,6 +316,44 @@ void host_gpu_kernel_destroy(void *handle)
 	SDL_free(k);
 }
 
+// A kernel must not run till the writes given before it are over. The queue
+// keeps that order by itself, but for the Vulkan driver of the Raspberry Pi,
+// v3dv. Its hardware has a queue for kernels and another for copies, and it
+// has a kernel wait for the copies only when one is before it in the same
+// command buffer: the barrier a command buffer ends with is not kept for the
+// next that is submitted. So a kernel given straight after a write, or after
+// SDL moved a buffer to pack its memory, could run first, on what the buffer
+// held before, when other programs kept the copies waiting. On Vulkan each
+// dispatch so begins with a copy of its own, 4 bytes to a buffer nothing
+// reads, and its kernel waits for that, and so for every copy before it
+
+static SDL_GPUBuffer *order_buffer = nullptr;
+static SDL_GPUTransferBuffer *order_transfer = nullptr;
+static bool order_tried = false;
+
+static void order_copy(SDL_GPUCommandBuffer *cmd)
+{
+	if (!order_tried)
+	{
+		order_tried = true;
+		if (host_gpu_format() != 2) return;
+		SDL_GPUBufferCreateInfo info = {};
+		info.usage = SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ;
+		info.size = 4;
+		SDL_GPUTransferBufferCreateInfo ti = {};
+		ti.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+		ti.size = 4;
+		order_buffer = SDL_CreateGPUBuffer(device, &info);
+		order_transfer = SDL_CreateGPUTransferBuffer(device, &ti);
+	}
+	if (!order_buffer || !order_transfer) return;
+	auto copy = SDL_BeginGPUCopyPass(cmd);
+	SDL_GPUTransferBufferLocation from = {order_transfer, 0};
+	SDL_GPUBufferRegion region = {order_buffer, 0, 4};
+	SDL_UploadToGPUBuffer(copy, &from, &region, false);
+	SDL_EndGPUCopyPass(copy);
+}
+
 // the kernel run over groups of its threads, three numbers of 32 bits, x y
 // z, with buffers, those it reads then those it reads and writes, as its
 // layout has them, and the uniforms of size bytes if it has a block of them.
@@ -339,6 +377,7 @@ void *host_gpu_dispatch(void *handle, void *const *buffers, const void *uniforms
 	for (Uint32 i = 0; i < rw; ++i) writes[i].buffer = ((Buffer*)buffers[ro + i])->buffer;
 	auto cmd = SDL_AcquireGPUCommandBuffer(device);
 	if (!cmd) return failed;
+	order_copy(cmd);
 	if (k->info.num_uniform_buffers) SDL_PushGPUComputeUniformData(cmd, 0, uniforms, (Uint32)size);
 	auto pass = SDL_BeginGPUComputePass(cmd, nullptr, 0, writes, rw);
 	SDL_BindGPUComputePipeline(pass, k->pipeline);

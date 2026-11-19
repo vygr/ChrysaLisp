@@ -1234,7 +1234,9 @@
 		;an infinity or a NaN has no digits to give, and is the only double
 		;that less itself is not 0
 		((/= (- r r) (const (n2d 0))) "nan")
-		((= r (const (n2d 0))) "0.0")
+		;as a number, not bit for bit as (=) is: a 0 with its sign set, what
+		;the neg of a 0 is, is a 0, and has no digit to find
+		((<= r (const (n2d 0))) "0.0")
 		(:t
 			(setd precision 8)
 			(setq precision (min 14 (max 1 precision)))
