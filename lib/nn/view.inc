@@ -176,11 +176,13 @@
 							(<< (+ 0x2c (/ (* k (- 0xb0 0x2c)) 255)) 8) (+ 0x36 (/ (* k (- 0x40 0x36)) 255))) 0.25)))
 					layer a)))
 		units (slice acts 0 -2))
-	;each plane a grey each number, from its least to its most
+	;each plane a grey each number, from its least to its most. Thousands
+	;of numbers, on the node the GUI is on: it is let in at each plane
 	(each (lambda (m)
 			(bind '(l places h w &ignore) m)
 			(defq a (elem-get acts l) n (* h w) greys (cap (length a) (nums)))
 			(each! (lambda ()
+					(task-slice)
 					(defq lo (n2d (elem-get a (* (!) n))) hi lo)
 					(each! (lambda (v) (setq v (n2d v) lo (min lo v) hi (max hi v))) (list a) (* (!) n) (* (inc (!)) n))
 					(defq span (max (- hi lo) (const (n2d 0.0001))))
@@ -204,11 +206,14 @@
 	(bind '(stage input_box units bars links model maps) view)
 	(. stage :advance dt)
 	(. stage :draw canvas)
-	;each plane's tile its greys, the darkest left as the tile is
+	;each plane's tile its greys, the darkest left as the tile is. A box a
+	;number, thousands a frame: the GUI is let in at each tile, and every
+	;few rows of the input's picture
 	(each (lambda ((l places h w cell greys))
 			(when greys
 				(defq n (* h w))
 				(each (lambda ((tx ty))
+						(task-slice)
 						(defq at (* (!) n))
 						(each! (lambda (k)
 								(when (> k 16)
@@ -221,6 +226,7 @@
 	(when (and input_box pixels)
 		(bind '(x y side cell) input_box)
 		(each! (lambda ()
+				(if (= 0 (% (!) (* side 4))) (task-slice))
 				(defq v (code pixels 1 (!)))
 				(when (> v 0)
 					(.-> canvas (:set_color (+ 0xff000000 (* v 0x010101)))
