@@ -357,7 +357,7 @@
 	;nodes of its own, nodes -a in a terminal on it, takes them with it. :nil
 	;if nothing went, else how many were told to. Each node of this machine
 	;is sent the processes that are to go, and goes if it is one; what is
-	;still up a moment on is ended by the host
+	;still up half a second on is ended by the host
 	(unless (eql (os) 'Windows)
 		(defq todo (list (pii-pid)) seen (list) pids (list) links (list) files (list) front :nil)
 		(while (defq pid (pop todo))
@@ -380,7 +380,14 @@
 		(unless (or front (empty? pids))
 			(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (pii-exit)))
 						%0 +kn_call_pin 0 (mail-mbox))) (lisp-nodes :t))
-			(task-sleep (/ (task-timeout 1) 2))
+			;till they have gone, which is at once as a rule, and no longer
+			;than this: it is their going that is waited for, not a time.
+			;The desktop's window is still up and its mouse still, so a
+			;wait of the whole time each quit was a window that hung about,
+			;half a second, and ten times that on the emulator
+			(defq until_t (+ (pii-time) (/ (task-timeout 1) 2)))
+			(while (and (< (pii-time) until_t) (some (# (pii-alive %0)) pids))
+				(task-sleep 1000))
 			(each (# (if (pii-alive %0) (pii-kill %0))) pids)
 			(each (# (pii-remove (cat "/tmp/" %0))) links)
 			(each (const pii-remove) files)
