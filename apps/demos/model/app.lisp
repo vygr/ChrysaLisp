@@ -6,21 +6,23 @@
 (import "lib/math/obj.inc")
 (import "lib/gpu/vp.inc")
 (import "lib/gpu/gui.inc")
+(import "lib/gpu/tris.inc")
 (import "lib/files/zip.inc")
 (import "lib/net/http.inc")
 
 ;A model of a .obj, with its .mtl and the pictures its materials have,
-;turned with the mouse and drawn by the GPU of the GUI, or by native code
-;here if there is none. A .zip of them is opened as well, the .obj in it
-;found and the rest taken from it. It starts on a cube of its own, see
-;data/
+;turned with the mouse and drawn by the GPU of the GUI, or with none by
+;native code, a strip of the frame by each node of this machine, or all of
+;it here if there is only this one. A .zip of them is opened as well, the
+;.obj in it found and the rest taken from it. It starts on a cube of its
+;own, see data/
 
 (enums +event +event_user
 	(enum open mode url model))
 
 ;the timer is last, what is first in the list is what is read first
 (enums +select 0
-	(enum main fetch picker timer))
+	(enum main fetch picker farm_task farm_reply farm_ask timer))
 
 (defq +size 512 +timer_rate (/ 1000000 30) +near +double_1 +far (n2d 20)
 	vertex (shader-load (cat *app_root* "model_vertex.shader"))
@@ -35,10 +37,22 @@
 	*fetched* :nil fetching :nil
 	;how it is turned, how far away, and where the mouse was when pressed
 	yaw (n2d 0.6) pitch (n2d 0.4) away (n2d 3.2) drag :nil
-	;the parts of the model, a material each: (verts tris canvas tint mesh)
-	parts (list) name "" triangles 0
+	;the parts of the model, a material each: (verts tris canvas tint mesh
+	;id), mesh what the GPU has it as, id what the children of the farm know
+	;it by, a number that is never used twice
+	parts (list) name "" triangles 0 mesh_ids 0
 	;on the GPU, the pair, and is it wanted; here, the pipeline
-	gpu_pair :nil gpu_want :t pipeline :nil cpu_time 0 cpu_frames 0
+	gpu_pair :nil gpu_want :t pipeline :nil frames 0 since (pii-time)
+	;how long the frames drawn with no GPU took, and how many of them
+	cpu_time 0 cpu_frames 0
+	;the children that draw a strip each, they have said they are ready,
+	;a frame is out with them and when it went, and they can not be used. A
+	;farm lasts while
+	;its work goes on: it is let go of when the GPU has the frames, at a
+	;change of mode and at a new model, and a new one made when the nodes
+	;are to draw again
+	farm :nil farm_ready :nil farming :nil farm_began 0 no_farm :nil ticks 0
+	+retry_timeout (task-timeout 60)
 	;models to show it can, the cube of its own, and others fetched from
 	;the internet as they are picked, over https, by lib/net/tls.inc, and
 	;kept in downloads/models/ for the next time, fetch.lisp, each
@@ -71,10 +85,18 @@
 			:connect +event_model)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-label *status* (:text "..." :font :font_body))
+	(ui-label *rate* (:text "..." :font :font_body))
 	(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
-		(ui-element *canvas* (Canvas +size +size 1))))
+		;its pixels are in shared memory if the host has it, the nodes of
+		;this machine then draw on them, a strip each
+		(ui-element *canvas* (ifn (canvas-shared +size +size 1) (Canvas +size +size 1)))))
 
 (ui-tool-tips *tools* '("open a model, an .obj or a .zip of one"))
+
+(defun farm-end ()
+	;the farm let go of, its work has stopped
+	(setq farm (jobs-end farm select +select_farm_task +select_farm_reply)
+		farming :nil farm_ready :nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a model, from files or a zip
@@ -133,16 +155,18 @@
 
 (defun model-picture (name bytes)
 	; (model-picture name bytes) -> :nil | canvas
-	;a picture of a kind a canvas loads, from its bytes
+	;a picture of a kind a canvas loads, from its bytes, its pixels in
+	;shared memory if the host has it, the nodes that draw a strip each
+	;all read the one copy of it
 	(and bytes (defq kind (canvas-loader-of (to-lower name)))
 		(defq canvas ((third kind) (string-stream bytes)))
-		(. canvas :swap +swap_write)))
+		(. (shader-strip-picture canvas) :swap +swap_write)))
 
 (defun model-plain ()
 	; (model-plain) -> canvas
 	;a picture of one white pixel, for a material that has none: its
 	;colour is the tint
-	(.-> (Canvas 1 1 1) (:fill +argb_white) (:swap +swap_write)))
+	(.-> (ifn (canvas-shared 1 1 1) (Canvas 1 1 1)) (:fill +argb_white) (:swap +swap_write)))
 
 (defun model-load (path &optional picture)
 	; (model-load path [picture]) -> :nil | :t
@@ -154,7 +178,12 @@
 		;each file it names had the once, two materials may name one picture
 		(defq got (Fmap 11) fetch (lambda (file)
 				(unless (. got :find file) (. got :insert file (list (named file))))
-				(first (. got :find file))))
+				(first (. got :find file)))
+			;and each picture is made the once, and the plain one
+			made (Fmap 11) painted (lambda (file)
+				(unless (. made :find file) (. made :insert file (list (model-picture file (fetch file)))))
+				(first (. made :find file)))
+			plain :nil)
 		(defq obj (obj-read (string-stream text)) materials (Fmap 11) fit (obj-fit obj) out (list) count 0)
 		(each (lambda (library)
 				(if (defq mtl (fetch library))
@@ -176,16 +205,19 @@
 				(when (and said (defq file (. said :find :map)))
 					;a picture's name may have a folder of another machine in it
 					(defq file (last (split file (const (char-class "/\\")))))
-					(if (setq picture (model-picture file (fetch file)))
+					(if (setq picture (painted file))
 						(setq tint (list +double_1 +double_1 +double_1))))
 				(defq verts (obj-flat obj corners fit) n (/ (length verts) 8))
 				(setq count (+ count (/ n 3)))
-				(push out (list verts (reduce! (# (push %0 (!))) '() (nums) 0 n) (ifn picture (model-plain))
-						(apply (const doubles) tint) :nil)))
+				(push out (list verts (reduce! (# (push %0 (!))) '() (nums) 0 n)
+						(ifn picture (ifn plain (setq plain (model-plain))))
+						(apply (const doubles) tint) :nil (++ mesh_ids))))
 			(. obj :find :groups))
 		(when (nempty? out)
-			;what the GPU kept of the last is let go of
+			;what the GPU kept of the last is let go of, and the farm that
+			;drew it, its children have the last model's parts
 			(each (# (if (elem-get %0 4) (canvas-mesh-destroy (elem-get %0 4)))) parts)
+			(farm-end)
 			(setq parts out triangles count name (last (split path "/")))
 			:t)))
 
@@ -230,7 +262,7 @@
 			(. *mode* :set_selected 0)))
 	(when (and gpu_want gpu_pair (every (# (shader-gui-texture (elem-get %0 2))) parts))
 		(each (# (unless (elem-get %0 4) (elem-set %0 4 (shader-gui-mesh (shader-verts-str (first %0)))))) parts)
-		(defq drawn (shader-gui-frame *canvas* (map (lambda ((verts tris canvas tint mesh))
+		(defq drawn (shader-gui-frame *canvas* (map (lambda ((verts tris canvas tint mesh part_id))
 						(list gpu_pair (ifn mesh 0) (shader-pack vertex vvals)
 							(shader-pack pixel (list (list 'tint tint) (list 'sun sun))) (list (shader-gui-texture canvas))))
 					parts)))
@@ -241,17 +273,52 @@
 				(setq gpu_pair :nil gpu_want :nil)
 				(. *mode* :set_selected 0)
 				:nil)
-			(drawn :t)
+			;the GPU has the frames, a farm has no more to do
+			(drawn (farm-end) :t)
 			;busy with the last frame, or a picture not there yet, a frame of
 			;the GUI is wanted
 			(:t (. *status* :dirty) :t))))
+
+(defun strips (vvals rows)
+	;a job for each child, a strip of the frame, every part a draw of it,
+	;or with no rows a job of nothing, which has a child fetch the parts
+	;and their pictures and say it is ready
+	(defq count (. farm :size) vblock (shader-pack vertex vvals)
+		draws (map (lambda ((verts tris canvas tint mesh part_id))
+				(list part_id vblock (shader-pack pixel (list (list 'tint tint) (list 'sun sun)))
+					0 +size (list (shader-strip-texture canvas)))) parts))
+	(. farm :add (map! (lambda () (shader-strip (cat *app_root* "model_vertex.shader") (cat *app_root* "model_lit.shader")
+					(elem-get select +select_farm_ask) (canvas-key *canvas*) +size +size
+					(if rows (/ (* (!) +size) count) 0) (if rows (/ (* (inc (!)) +size) count) 0) :nil draws)) '() 0 count)))
+
+(defun draw-farm (vvals)
+	; (draw-farm vvals) -> :t | :nil
+	;a frame by the nodes of this machine, a strip each. :nil if it is to
+	;be drawn here: the pixels or a picture are not shared, there is only
+	;this node, or the children are not yet ready
+	(when (and (not no_farm) (/= (canvas-key *canvas*) 0)
+			(every (# (/= (canvas-key (elem-get %0 2)) 0)) parts)
+			(> (length (lisp-nodes :t)) 1))
+		(unless farm
+			;a new farm, a child for each node but this one, and none of
+			;them on this one, a strip is one long call and would hold up
+			;the app. Till they say they are ready the frames are drawn here
+			(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
+					(elem-get select +select_farm_reply)
+					(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t))
+			(strips vvals :nil))
+		(when farm_ready
+			(setq farming :t farm_began (pii-time))
+			(. *canvas* :fill +argb_black)
+			(strips vvals :t)
+			:t)))
 
 (defun draw-cpu (vvals)
 	;a frame by native code, here, a part after another into the one depth
 	(unless pipeline (setq pipeline (shader-vp-pipeline vertex pixel)))
 	(defq began (pii-time) depth (shader-vp-depth +size +size) pixmap (getf *canvas* +canvas_pixmap 0))
 	(. *canvas* :fill +argb_black)
-	(each (lambda ((verts tris canvas tint mesh))
+	(each (lambda ((verts tris canvas tint mesh part_id))
 			(shader-vp-draw-tris pipeline verts tris pixmap depth vvals
 				(list (list 'tint tint) (list 'sun sun) (list 'surface (getf canvas +canvas_pixmap 0)))))
 		parts)
@@ -263,7 +330,9 @@
 	(cond
 		((empty? parts))
 		((draw-gpu vvals))
-		((draw-cpu vvals))))
+		((draw-farm vvals))
+		((draw-cpu vvals)))
+	(++ frames))
 
 (defun picker-open ()
 	;the Files app's picker, for the model to open
@@ -291,7 +360,11 @@
 						;a model fetched, over https
 						(fetch-start :nil (trim (get :clear_text *url*)) :nil))
 					((= id +event_mode)
-						(setq gpu_want (= (. *mode* :get_selected) 1)))
+						(setq gpu_want (= (. *mode* :get_selected) 1))
+						;a frame that is out with the farm is not waited for: the
+						;farm is let go of, and a new one made if the nodes are to
+						;draw
+						(farm-end))
 					((= id +event_model)
 						;one of the models it knows, the cube here, the rest fetched
 						(bind '(pick address &optional picture) (elem-get *models* (. *model* :get_selected)))
@@ -315,6 +388,31 @@
 					((. *window* :event msg))))
 			(+select_fetch
 				(fetch-done msg))
+			(+select_farm_task
+				;a child of the farm has started
+				(if farm (. farm :launched msg)))
+			(+select_farm_ask
+				;a child of the farm has not got a part. It waits for it, so
+				;it is answered whatever: one of a farm let go of, that asks
+				;for a part of a model that has gone, is given the first of
+				;this one, its frame was let go with its farm
+				(defq want (getf msg +strip_ask_mesh))
+				(shader-mesh-send msg (shader-verts-str (first (ifn
+					(some (# (if (= (elem-get %0 5) want) %0)) parts) (first parts))))))
+			(+select_farm_reply
+				;a strip is drawn, or a child has said it is ready
+				(when (and farm (defq out (. farm :answered msg)))
+					;a child that could not reach the pixels, the frames are
+					;drawn here from now on
+					(if (= (getf msg +strip_reply_drawn) 0) (setq no_farm :t))
+					(when (= out 0)
+						(cond
+							(farming (setq farming :nil
+									cpu_time (+ cpu_time (- (pii-time) farm_began)) cpu_frames (inc cpu_frames))
+								(. *canvas* :swap +swap_write))
+							;they are ready
+							((setq farm_ready :t)))
+						(if no_farm (farm-end)))))
 			(+select_picker
 				;the model to open, or "" the picker closed
 				(mail-send picker "")
@@ -324,16 +422,30 @@
 					((model-load msg)
 						(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials.")))
 					((. *status* :set_text (cat "Could not read a model from " msg ".")))))
-			(:t ;the timer, a frame
+			(:t ;the timer, a frame, if the last is not still out with the farm
 				(defq start (pii-time))
-				(draw-frame)
+				(unless farming (draw-frame))
 				;the next frame is a tick on, or four times as long as this
 				;one took if that is more: on a slow machine drawing on its
 				;own node it turns less smoothly, and never has more than a
 				;quarter of the node, the apps beside it have the rest
 				(defq took (- (pii-time) start))
 				(mail-timeout (elem-get select +select_timer)
-					(- (max +timer_rate (* took 4)) took) 0))))
+					(- (max +timer_rate (* took 4)) took) 0)
+				(and farm (= (setq ticks (% (inc ticks) 30)) 0)
+					(. farm :refresh +retry_timeout))
+				(when (>= (- (defq now (pii-time)) since) 1000000)
+					;the timer holds either to 30 a second, so for the frames
+					;drawn with no GPU it says how long one took
+					(defq tenths (if (> cpu_frames 0) (/ cpu_time cpu_frames 100) 0))
+					(. *rate* :set_text (cat (str (/ (* frames 1000000) (- now since))) " frames a second, "
+							(if (> cpu_frames 0)
+								(cat "native code, " (if (and farm farm_ready (not no_farm))
+										(cat "a strip each by " (str (. farm :size)) " nodes, ") "on this node, ")
+									(str (/ tenths 10)) "." (str (% tenths 10)) "ms a frame")
+								"the GPU")))
+					(setq frames 0 since now cpu_time 0 cpu_frames 0)))))
+	(farm-end)
 	(if picker (mail-send picker ""))
 	(each (# (if (elem-get %0 4) (canvas-mesh-destroy (elem-get %0 4)))) parts)
 	(if gpu_pair (canvas-shader-destroy gpu_pair))

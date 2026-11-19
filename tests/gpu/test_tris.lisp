@@ -113,4 +113,12 @@
 		(setq tf_draws tf_whole)
 		(assert-true "a strip of no rows is answered, it is how children are made ready" (tf-frame 1))
 		(. tf_jobs :close)
+		;a picture for the children to read, one whose pixels are its own is
+		;had again in shared memory, one that is there already is itself
+		(defq tf_picture (shader-strip-picture tf_alone))
+		(assert-true "a picture's pixels are put in shared memory" (/= (canvas-key tf_picture) 0))
+		(assert-eq "and are the pixels it had" (tf-pixels tf_alone_pixmap tf_size)
+			(tf-pixels (getf tf_picture +canvas_pixmap 0) tf_size))
+		(assert-true "it is named for a strip" (str? (shader-strip-texture tf_picture)))
+		(assert-true "one in shared memory is itself" (eql (shader-strip-picture tf_canvas) tf_canvas))
 		(if (> *test_failures* tf_failed) (each (# (print "test_tris: " %0)) tf_said))))

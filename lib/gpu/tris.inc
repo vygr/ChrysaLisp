@@ -95,6 +95,23 @@
 	(and (defq pixmap (getf canvas +canvas_pixmap 0)) (/= (defq key (pixmap-key pixmap)) 0)
 		(str key " " (getf pixmap +pixmap_width 0) " " (getf pixmap +pixmap_height 0))))
 
+(defun shader-strip-picture (canvas)
+	; (shader-strip-picture canvas) -> canvas
+	;a picture the children of a farm can read, a canvas of the same
+	;pixels in shared memory, in place of one whose pixels are its own,
+	;before its (:swap). The canvas given if they are shared already, or
+	;the host has no shared memory
+	(defq pixmap (getf canvas +canvas_pixmap 0))
+	(cond
+		((/= (pixmap-key pixmap) 0) canvas)
+		((defq shared (canvas-shared (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0) 1))
+			(defq stream (memory-stream))
+			(pixmap-write pixmap stream 32)
+			(stream-seek stream 0 0)
+			(pixmap-read (getf shared +canvas_pixmap 0) stream 32)
+			shared)
+		(canvas)))
+
 (defun shader-mesh-send (msg verts)
 	; (shader-mesh-send msg verts)
 	;answer a child that asked for a mesh, msg is what came to the ask

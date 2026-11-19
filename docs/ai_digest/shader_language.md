@@ -569,6 +569,8 @@ given differs:
   canvas whose pixels are in shared memory, `(canvas-shared)`. A child
   attaches to the pixels by the key, the once. There is the one copy of the
   picture on the machine, however many nodes draw with it.
+  `(shader-strip-picture canvas)` is a canvas of the same pixels in shared
+  memory, for a picture that was loaded with its own, before its `(:swap)`.
 
 In MSL a texture is a `texture2d<float>` and a sampler, args of the
 fragment function at `[[texture(i)]]` and `[[sampler(i)]]`. In SPIR-V it is a

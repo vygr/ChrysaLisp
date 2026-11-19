@@ -87,16 +87,8 @@
 	;are put in shared memory if the host has it, so the nodes that draw a
 	;strip each all read the one copy of it
 	(unless (elem-get maps i)
-		(defq canvas (canvas-load (cat *app_root* "data/" (second (elem-get +planets i))) +load_flag_noswap)
-			pixmap (getf canvas +canvas_pixmap 0)
-			shared (canvas-shared (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0) 1))
-		(when shared
-			(defq stream (memory-stream))
-			(pixmap-write pixmap stream 32)
-			(stream-seek stream 0 0)
-			(pixmap-read (getf shared +canvas_pixmap 0) stream 32)
-			(setq canvas shared))
-		(elem-set maps i (. canvas :swap +swap_write)))
+		(elem-set maps i (. (shader-strip-picture (canvas-load (cat *app_root* "data/"
+			(second (elem-get +planets i))) +load_flag_noswap)) :swap +swap_write)))
 	(elem-get maps i))
 
 (defun globe-model ()
