@@ -48,6 +48,33 @@
 			(gpu-take (gpu-wait ticket))
 			:t)))
 
+;how long a GPU is to take over what it is given at once, in us, and the
+;least it is given, a few groups of its threads. A GPU can not be stopped
+;part way through what it has been given, and the GUI is drawn by the same
+;one: a kernel that takes a slow GPU half a second holds the mouse as long
+(defq +sh_piece_time 12000 +sh_piece_least 1024)
+
+(defun shader-gpu-run-paced (program kernel block from to bufs pace)
+	; (shader-gpu-run-paced program kernel block from to (buffer ...) pace) -> :t | :nil
+	;as (shader-gpu-run), the indices given to the GPU a piece at a time,
+	;each waited for, so the GUI has its turn between. pace is a list of
+	;the one number, how many indices a piece is, which the caller keeps
+	;from run to run: each piece is timed, and the next sized to what the
+	;GPU does in about a tick of the GUI. A fast GPU is soon given all of
+	;them as the one piece
+	(defq ok :t)
+	(while (and ok (< from to))
+		(defq n (first pace) next (min to (+ from n)) began (pii-time))
+		(cond
+			((shader-gpu-run program kernel block from next bufs)
+				(defq took (max 500 (- (pii-time) began)))
+				;whole groups of threads
+				(elem-set pace 0 (max +sh_piece_least
+					(logand (+ (min (* n 4) (/ (* (- next from) +sh_piece_time) took)) 255) -256)))
+				(setq from next))
+			((setq ok :nil))))
+	ok)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a pixel shader as a kernel
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;

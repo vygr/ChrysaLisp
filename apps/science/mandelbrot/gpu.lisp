@@ -10,11 +10,13 @@
 ;the same job, a square of the picture, all of it as a rule. The kernel
 ;the CPU's children run as native code, kernel.shader, is run here on
 ;this node's GPU, a pixel a thread, in floats, the pixels read back and
-;put on the app's canvas, its pixels in shared memory
+;put on the app's canvas, its pixels in shared memory. The GPU is given
+;the pixels a piece at a time, (shader-gpu-run-paced): the GUI is drawn by
+;the same GPU, and a slow one given a whole picture holds the mouse
 
 ;the kernel, the GPU's of it, the palette there and which it is, and a
 ;buffer of the GPU's for the pixels of a square, as big as the biggest
-(defq program :nil kernel :nil pal_buf :nil pal_had -1 out_buf :nil out_size 0)
+(defq program :nil kernel :nil pal_buf :nil pal_had -1 out_buf :nil out_size 0 pace (list 4096))
 
 (defun kernel-up ()
 	; (kernel-up) -> :nil | kernel
@@ -43,14 +45,14 @@
 		(if out_buf (gpu-buffer-free out_buf))
 		(setq out_size (* n +int_size) out_buf (gpu-buffer out_size)))
 	(and out_buf
-		(shader-gpu-run program kernel
+		(shader-gpu-run-paced program kernel
 			(shader-pack program (list (list 'cx cx) (list 'cy cy)
 				(list 'step (/ (* z +double_2) (n2d h)))
 				(list 'w w) (list 'h h) (list 'ox x) (list 'oy y) (list 'ow (- x1 x))
 				(list 'top top) (list 'base +mandel_pal_base) (list 'rate +mandel_pal_rate)
 				(list 'lbase +mandel_light_base) (list 'lgain +mandel_light_gain)
 				(list 'ss +mandel_samples)))
-			0 n (list pal_buf out_buf))
+			0 n (list pal_buf out_buf) pace)
 		(setq pixels (if block (gpu-read out_buf 0 (* n +int_size) block (* y w +int_size))
 			(gpu-read out_buf 0 (* n +int_size)))))
 	(defq reply (setf-> (str-alloc +rect_reply_size)

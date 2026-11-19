@@ -9,8 +9,10 @@
 ;the shader last asked for: the pixel shader, for the layout of its
 ;inputs, the kernel made of it, and that on the GPU. A buffer of the
 ;GPU's for the pixels of a tile, as big as the biggest so far. And the
-;pixels of the app's canvas, in shared memory, (pixmap-attach)
-(defq shader_file "" pixel :nil program :nil kernel :nil out_buf :nil out_size 0 held (list))
+;pixels of the app's canvas, in shared memory, (pixmap-attach). And how
+;many pixels the GPU is given at a time, (shader-gpu-run-paced)
+(defq shader_file "" pixel :nil program :nil kernel :nil out_buf :nil out_size 0 held (list)
+	pace (list 4096))
 
 ;for a frame drawn straight into a texture of the GUI: the pixel shader
 ;as a flat pair with the corners of a frame, made the first time it is
@@ -77,10 +79,10 @@
 			(if out_buf (gpu-buffer-free out_buf))
 			(setq out_size (* n +int_size) out_buf (gpu-buffer out_size)))
 		(and out_buf
-			(shader-gpu-run program kernel
+			(shader-gpu-run-paced program kernel
 				(shader-pack program (cat (shader-unpack pixel (slice tail file_length -1))
 					(list (list 'tile_x x) (list 'tile_y y) (list 'tile_w w) (list 'tile_top height))))
-				0 n (list out_buf))
+				0 n (list out_buf) pace)
 			(defq block (pixmap-buf pixmap) row (* w +int_size))
 			;a tile as wide as the pixels is read straight onto them, no copy
 			;between; one not so wide is read, then put there a row at a time

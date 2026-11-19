@@ -242,8 +242,9 @@
 	;a child that has gone is started again, and when the picture has stood
 	;still a while the farm is let go of, its work has stopped
 	(. render :tick)
-	;the CPU's picture is shown as it fills in
-	(when (and dirty (> (- now last_show) +show_rate))
+	;the CPU's picture is shown as it fills in, when the view stands still:
+	;of one that is moving that would be two pictures mixed
+	(when (and dirty (not changed) (= held 0) (> (- now last_show) +show_rate))
 		(setq dirty :nil last_show now)
 		(. *canvas* :swap +swap_write)))
 
