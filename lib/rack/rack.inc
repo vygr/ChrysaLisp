@@ -128,6 +128,11 @@
 					(save (str (setq beat (pii-time))) alive_file))
 				(task-sleep 100000))
 			(unless (and res (ends-with done res))
+				;what it said last and had not been passed on when it went: of a
+				;session that died that is the most telling of all it said
+				(and asker (setq res (load out_file)) (> (length res) told)
+					(nempty? (defq lines (rack-said machine (slice res told -1))))
+					(mail-send asker (cat "LINE " lines)))
 				(and (> pid 0) (not (pii-alive pid)) (said "session ended with no result"))
 				(setq res :nil))
 			(each (# (if (pii-fstat %0) (pii-remove %0))) (list cmds_file out_file alive_file))
