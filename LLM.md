@@ -321,6 +321,12 @@ Deep dives into meta-commentary and design philosophy:
     the GPU: the vector operations and the shader kernels made for the sums,
     and why each was chosen.
 
+76. **[One Farm for the CPU and the GPU](docs/ai_digest/render_farm.md)** -
+    How an app draws, or works numbers out, on the nodes of the CPU or on the
+    GPU: a farm of many or a farm of one, the same job and the same answer,
+    the life of a farm, shared pixels, the kinds of job in use, and a
+    skeleton to start from.
+
 ---
 
 ## Reading Paths
@@ -335,7 +341,7 @@ Follow the order above from 0–70 for a complete understanding.
 
 Focus on the language, standard libraries, and GUI framework.
 
-Read: 1, 4, 14, 47, 18, 19, 16, 17, 24, 29, 31, 32, 37, 38, 39, 44, 58, 45, 55, 53, 68, 69
+Read: 1, 4, 14, 47, 18, 19, 16, 17, 24, 29, 31, 32, 37, 38, 39, 44, 58, 45, 55, 53, 68, 69, 76
 
 ### For System Programming
 

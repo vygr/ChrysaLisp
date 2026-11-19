@@ -932,6 +932,8 @@ not arrive; an answer may not come back.
 	`:buf` by its key. One farm at a time, the other's let go of at the
 	switch. `lib/gpu/tile.inc` and `lib/gpu/shade.inc` are the two sides
 	for a pixel shader; Surface, Raymarch and Mandelbrot are made so.
+	`docs/ai_digest/render_farm.md` is the whole of it, with a skeleton
+	of an app and of a child: read it before writing either.
 
 *	An answer drives the next job. An app that gives a frame only on a
 	tick of its timer draws every other tick when a frame takes a little

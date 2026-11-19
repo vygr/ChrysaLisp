@@ -385,6 +385,32 @@ Key points:
 		- `(get :font_display *env*)` (32 Bold): Hero metrics (temperatures, asset prices).
 		- `(get :font_terminal *env*)` / `(get :font_medium_terminal *env*)` / `(get :font_small_terminal *env*)`: Monospace code, terminals, hashes, hex values.
 
+*	**Work on the CPU or the GPU, a CPU/GPU button.** Read
+	`docs/ai_digest/render_farm.md` first, it has the model and a
+	skeleton, and build from that, never from scratch: a `Jobs` farm of
+	many children for the CPU and of one for the GPU, the same job and
+	answer, `lib/gpu/tile.inc` and `lib/gpu/shade.inc` for a pixel
+	shader, `lib/gpu/tris.inc` for triangles. What goes wrong when it is
+	done by hand:
+	*	The canvas is `(ifn (canvas-shared w h 1) (Canvas w h 1))`, its
+		key in every job, and the children draw on it. Pixels sent back
+		are the way back for a host with no shared memory, not the plan.
+	*	The app never calls the GPU. Its child does, on its own node's,
+		`lib/gpu/compute.inc`, and both kinds of farm are made with
+		`away`, off the app's node.
+	*	The farm is let go of, `(setq jobs (jobs-end jobs select
+		+select_task +select_reply))`, at every change of mode, when the
+		work stops, and at close. No test of whether an answer is stale.
+	*	The next frame is started from the reply branch when the last
+		answer is in. The timer is for `(. jobs :refresh timeout)`.
+	*	A line of status that says how the frames are drawn, by how many
+		nodes, and how long one took, as Planets and Model have: it is
+		how the user, and a hidden desktop's `widgets`, see which way it
+		went.
+	*	The three of triangles, Planets, Mesh and Model, still draw their
+		GPU frames by the GUI's driver, `lib/gpu/gui.inc`. Do not copy
+		that side of them, it is to go.
+
 *	**Overloading.** Import another app's `ui.inc` and `redefun` the
 	actions you need to change (see `apps/desktop/docs/ui.inc`).
 
