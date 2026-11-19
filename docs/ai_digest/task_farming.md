@@ -49,14 +49,12 @@ docs/diagrams/task_farm.cwb
 
 ### Double-World Examples
 
-* **`apps/demos/raymarch/app.lisp` & `apps/science/mandelbrot/app.lisp`**: Both
-  use `(Farm create destroy (* 2 (length (lisp-nodes))))`. By requesting twice
-  as many workers as there are available nodes, they ensure the network remains
-  highly saturated with rendering jobs, maximizing throughput. Pure math
-  rendering doesn't need disk access, so it can go anywhere.
-
 * **`apps/games/chess/app.lisp`**: Uses `(Farm create destroy 1)` to maintain
-  exactly one resilient background chess engine task.
+  exactly one resilient background chess engine task, a new farm for each
+  move it is asked for.
+
+* The demos that draw, Raymarch, Mandelbrot and the rest, were farms of this
+  kind once. They are `Jobs` now, below, which is a `Local` farm and a queue.
 
 ## 2. The `Global` Class (Node Singleton Daemon)
 
@@ -143,6 +141,21 @@ file-dependent tasks to remote machines.
   else to do runs one to its end with `(jobs-farm path units size
   retry_timeout on_reply [on_tries told])`: the mailboxes, the loop, a
   `:refresh` each second, and a stop after a job has gone out three times.
+
+* **An app's farm lasts while its work goes on.** `(jobs-end jobs select
+  task_idx reply_idx)` lets one go when the work stops, a pause, a reset,
+  another way of doing the work taking over: its children are told to go
+  and the two mailboxes of the app's select that it had are made new, so
+  nothing late comes in. The next work makes a new farm. A child with
+  nothing to do goes of its own accord, and there is no telling which have,
+  so a farm is never kept across a pause.
+
+* **The CPU or the GPU, one model.** Surface, Raymarch and Mandelbrot draw
+  by a farm either way: of many children on the CPU, `lib/gpu/tile.inc`, or
+  of one on the GPU, `lib/gpu/shade.inc`, the same job and the same answer,
+  each child writing the app's pixels in shared memory by their key. Digits
+  trains so. See [`docs/ai_digest/shader_language.md`](shader_language.md),
+  A pixel shader as a kernel.
 
 * **`lib/asm/asm.inc` (The VP Assembler)**: When you run `make`, the build
   system needs to read `.vp` files and write object files to disk. Its

@@ -5894,6 +5894,20 @@ timeout. Going of its own accord, a child that has had a job tells
 its farm, so a job sent to it as it went is not lost
 ```
 
+### jobs-end
+
+```code
+(jobs-end jobs select task_idx reply_idx) -> :nil
+
+a farm let go of, as its work stops: every child is told to go, and
+the two of select, the mailboxes an app reads, that the farm had are
+new ones, so nothing late of it comes in. A farm lasts while its work
+goes on. It is not kept over a pause, a child with nothing to do goes
+of its own accord and there is no telling which have: the next work
+makes a new farm, on the new mailboxes. :nil, for the name the farm
+was kept in, and nothing is done if that had none
+```
+
 ### jobs-farm
 
 ```code

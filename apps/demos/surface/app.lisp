@@ -117,23 +117,14 @@
 	(. *status* :set_text text))
 
 (defun cpu-stop ()
-	;the CPU's farm is closed, its children told to go, and its mailboxes
-	;made new, so a tile that is late comes nowhere
-	(when jobs
-		(. jobs :close)
-		(elem-set select +select_task (mail-mbox))
-		(elem-set select +select_reply (mail-mbox))
-		(setq jobs :nil))
-	(setq cpu_running :nil))
+	;the CPU's farm is let go of, (jobs-end): its children told to go, and
+	;its mailboxes made new, so a tile that is late comes nowhere
+	(setq jobs (jobs-end jobs select +select_task +select_reply) cpu_running :nil))
 
 (defun gpu-stop ()
-	;the GPU's farm is closed, as the CPU's is
-	(when gpu_jobs
-		(. gpu_jobs :close)
-		(elem-set select +select_gpu_task (mail-mbox))
-		(elem-set select +select_gpu (mail-mbox))
-		(setq gpu_jobs :nil))
-	(setq gpu_out :nil gpu_mode :nil))
+	;the GPU's farm is let go of, as the CPU's is
+	(setq gpu_jobs (jobs-end gpu_jobs select +select_gpu_task +select_gpu)
+		gpu_out :nil gpu_mode :nil))
 
 (defun start-frame ()
 	;a frame on the CPU, the nodes shade it, a tile each, as native code.

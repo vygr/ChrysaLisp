@@ -79,13 +79,9 @@
 	(pii-remove +film_part))
 
 (defun farm-close ()
-	;the farm is closed, its children told to go, and its mailboxes made
-	;new, so a tile that is late comes nowhere
-	(when jobs
-		(. jobs :close)
-		(elem-set select +select_task (mail-mbox))
-		(elem-set select +select_reply (mail-mbox))
-		(setq jobs :nil)))
+	;the farm is let go of, (jobs-end): its children told to go, and its
+	;mailboxes made new, so a tile that is late comes nowhere
+	(setq jobs (jobs-end jobs select +select_task +select_reply)))
 
 (defun farm-start ()
 	;the farm that draws the frames, made when there is none: one task for

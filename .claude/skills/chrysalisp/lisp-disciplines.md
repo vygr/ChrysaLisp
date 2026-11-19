@@ -915,11 +915,28 @@ not arrive; an answer may not come back.
 
 *	Never keep track of whether a child may have gone. A farm lasts only
 	while its work goes on: when the work stops, or what is out is no
-	longer wanted, close it, the courtesy that ends its children at once,
-	and when work starts again make a new farm with new mailboxes. Chess
-	does it for each game, Digits for each run. A farm kept across a pause
-	gives its next jobs to children that have gone, and waits out its
-	patience for each.
+	longer wanted, let it go, the courtesy that ends its children at once,
+	and when work starts again make a new farm with new mailboxes. `(setq
+	jobs (jobs-end jobs select +select_task +select_reply))`,
+	`lib/task/jobs.inc`, is the letting go, and every app with a farm
+	uses it. Chess does it for each game, Digits for each run, Surface at
+	each change of mode, Mandelbrot and Mesh when the picture has stood
+	still a few seconds, less than the 5 a child waits for work. A farm
+	kept across a pause gives its next jobs to children that have gone,
+	and waits out its patience for each. No `:restart`, and no time kept
+	to guess by whether they went.
+
+*	One model for work that the CPU or the GPU may do: a farm either way,
+	of many children for the CPU, of one for the GPU, the same job and
+	the same answer, each child writing shared memory, a `:pixmap` or a
+	`:buf` by its key. One farm at a time, the other's let go of at the
+	switch. `lib/gpu/tile.inc` and `lib/gpu/shade.inc` are the two sides
+	for a pixel shader; Surface, Raymarch and Mandelbrot are made so.
+
+*	An answer drives the next job. An app that gives a frame only on a
+	tick of its timer draws every other tick when a frame takes a little
+	over one: give the next on the answer when the last took a tick or
+	more, and leave a faster child to the timer.
 
 *	Use what is there: `Jobs`, `Farm` and `Local` of `lib/task/` are this
 	protocol, the start by message, the queue, the patience, the reply

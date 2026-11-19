@@ -129,15 +129,10 @@
 			busy :nil farm_done (pii-time))))
 
 (defun farm-close ()
-	;the farm is closed, its children told to go, and its mailboxes made
-	;new, so nothing late comes in: the other is to take over, or there is
-	;no more for it. The next work makes a new one
-	(when jobs
-		(. jobs :close)
-		(elem-set select +select_task (mail-mbox))
-		(elem-set select +select_reply (mail-mbox))
-		(setq jobs :nil))
-	(setq busy :nil dirty :nil))
+	;the farm is let go of, (jobs-end), its children told to go, and its
+	;mailboxes made new, so nothing late comes in: the other is to take
+	;over, or there is no more for it. The next work makes a new one
+	(setq jobs (jobs-end jobs select +select_task +select_reply) busy :nil dirty :nil))
 
 (defun farm-forget ()
 	;what the farm has still to answer of the last picture is not wanted.

@@ -170,17 +170,9 @@
 	;in, and no child that may have gone, given nothing for a while, is
 	;ever given a job. A new task of the GPU's has no params, so loads
 	;them first
-	(when jobs
-		(. jobs :close)
-		(elem-set select +select_task (mail-mbox))
-		(elem-set select +select_reply (mail-mbox))
-		(setq jobs :nil))
-	(when gpu_jobs
-		(. gpu_jobs :close)
-		(elem-set select +select_gpu_task (mail-mbox))
-		(elem-set select +select_gpu (mail-mbox))
-		(setq gpu_jobs :nil))
-	(setq busy :nil out 0 answers (list) gpu_stale :t))
+	(setq jobs (jobs-end jobs select +select_task +select_reply)
+		gpu_jobs (jobs-end gpu_jobs select +select_gpu_task +select_gpu)
+		busy :nil out 0 answers (list) gpu_stale :t))
 
 (defun job-msg (kind slot samples)
 	(cat (setf-> (str-alloc +digits_job_size) (+digits_job_kind kind) (+digits_job_step serial)

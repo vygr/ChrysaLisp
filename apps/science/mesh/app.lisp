@@ -329,7 +329,7 @@
 				(shader-mesh-send *msg* (. scene :mesh (getf *msg* +strip_ask_mesh))))
 			((= idx +select_farm_reply)
 				;a strip is drawn, or a child has said it is ready
-				(when (and farm (defq out (. farm :answered *msg*)))
+				(and farm (defq out (. farm :answered *msg*))
 					(cond
 						((= (getf *msg* +strip_reply_drawn) 0)
 							;a child that could not reach the pixels. If they are
