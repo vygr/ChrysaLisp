@@ -3,6 +3,7 @@
 
 (import "gui/pixmap/lisp.inc")
 (import "./kernel.inc")
+(import "./render.inc")
 (import "./shade.inc")
 
 ;the shader last asked for: the pixel shader, for the layout of its
@@ -11,17 +12,49 @@
 ;pixels of the app's canvas, in shared memory, (pixmap-attach)
 (defq shader_file "" pixel :nil program :nil kernel :nil out_buf :nil out_size 0 held (list))
 
-(defun tile (key mbox x y x1 y1 height width file_length canvas_key tail)
+;for a frame drawn straight into a texture of the GUI: the pixel shader
+;as a pair with the corners of a frame, made the first time it is wanted,
+;:none if it could not be, and the two triangles that cover a frame
+(defq pair :nil corners :nil)
+
+(defun direct (handle block main)
+	; (direct handle block main) -> :nil | :gone | ticket
+	;the frame drawn by the GPU straight into a texture of the GUI's, block
+	;the inputs of the pixel shader. :nil if it can not be, :gone if the
+	;child is told to go while it waits for the GPU
+	(unless pair
+		(setq pair (ifn (shader-gpu-pair (shader-load +shade_vertex_file) pixel) :none)
+			corners (gpu-mesh (apply (const doubles) (map (const n2d) '(-1 -1 1 -1 1 1 -1 -1 1 1 -1 1))))))
+	(when (and (nql pair :none) corners)
+		(defq frame (gpu-draw-frame (list (list pair corners "" block))) out 0)
+		(while (eql 0 (setq out (gpu-draw handle frame :t)))
+			(if (mail-poll (list main)) (setq out :gone) (task-sleep 500)))
+		out))
+
+(defun tile (key mbox x y x1 y1 height width file_length canvas_key handle main tail)
 	;the tile worked out on the GPU, and read back onto the app's pixels
 	;where it belongs. tail is the path of the shader file, then the inputs
 	;block of the pixel shader, which the tile's four are put after
-	(defq file (slice tail 0 file_length) drawn 0 w (- x1 x) n (* w (- y1 y))
-		pixmap (pixmap-attach held width height canvas_key))
+	(defq file (slice tail 0 file_length) drawn +shade_none w (- x1 x) n (* w (- y1 y))
+		pixmap (pixmap-attach held width height canvas_key) gone :nil)
 	(unless (eql file shader_file)
 		(if kernel (gpu-kernel-free kernel))
-		(setq shader_file file pixel (shader-load file) program (shader-pixel-kernel file)
+		(and pair (nql pair :none) (gpu-pair-free pair))
+		(setq shader_file file pixel (shader-load file) program (shader-pixel-kernel file) pair :nil
 			kernel (and program (> (gpu-format) 0) (shader-gpu-kernel program))))
-	(when (and kernel pixmap (> n 0))
+	;straight into the texture of the app's canvas, a tile that is all of
+	;the frame, if this is the node that has it: the GPU of this node is
+	;then the GUI's own
+	(when (and (/= handle 0) (= w width) (= n (* width height)) (> (gpu-format) 0)
+			(eql (slice mbox +long_size -1) (task-nodeid)))
+		(defq out (direct handle (slice tail file_length -1) main))
+		(cond
+			((eql out :gone) (setq gone :t))
+			;said when the GPU is done with it, so an app that gives its next
+			;frame on this answer gives the GPU no more than it can do
+			(out (gpu-take (gpu-wait out))
+				(setq drawn +shade_texture))))
+	(when (and (= drawn +shade_none) (not gone) kernel pixmap (> n 0))
 		(when (> (* n +int_size) out_size)
 			(if out_buf (gpu-buffer-free out_buf))
 			(setq out_size (* n +int_size) out_buf (gpu-buffer out_size)))
@@ -40,15 +73,18 @@
 								(slice pixels (* (!) row) (* (inc (!)) row))))
 						'() 0 (- y1 y))
 					:t))
-			(setq drawn 1)))
-	(mail-send mbox (setf-> (str-alloc +shade_reply_size)
-			(+job_reply_key key) (+shade_reply_drawn drawn))))
+			(setq drawn +shade_pixels)))
+	(unless gone
+		(mail-send mbox (setf-> (str-alloc +shade_reply_size)
+				(+job_reply_key key) (+shade_reply_drawn drawn)))))
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox)
 			(apply tile (push (getf-> msg +job_key +job_reply
 						+tile_x +tile_y +tile_x1 +tile_y1 +tile_height +tile_width
-						+tile_file_length +tile_shared)
-					(slice msg +tile_file -1)))))
+						+tile_file_length +tile_shared +tile_target)
+					mbox (slice msg +tile_file -1)))))
+	(and pair (nql pair :none) (gpu-pair-free pair))
+	(if corners (gpu-mesh-free corners))
 	(if kernel (gpu-kernel-free kernel))
 	(if out_buf (gpu-buffer-free out_buf)))

@@ -62,9 +62,12 @@
 (defun create (key val nodes)
 	;a child is started, the word that it has comes to the task mailbox.
 	;If the children are to be away from this node, and there is another,
-	;it is on one of the others, each in turn
+	;it is on one of the others, each in turn; if they are to be here, it
+	;is on this one
 	(defq mode +kn_call_run)
-	(when (get :away this)
+	(when (eql (get :away this) :here)
+		(setq mode +kn_call_pin nodes (list (task-nodeid))))
+	(when (eql (get :away this) :t)
 		(defq me (task-nodeid)
 			others (filter (# (not (eql %0 me))) (lisp-nodes :t)))
 		;it is pinned there, a task that is only run on a node may be
@@ -118,6 +121,10 @@
 	;task switch in it, holds up everything else on its node while it
 	;runs, and on the node of the app that is the app itself, its mail to
 	;the other children and from them, and the GUI if it is there.
+	;
+	;With an away of :here they are kept on this node, and no other: a
+	;child that has the GPU do its work, and draws where the GUI of this
+	;node shows it, lib/gpu/tris.inc.
 	(def this :path path :task_mbox task_mbox :reply_mbox reply_mbox
 		:queue (list) :out 0 :tried (Fmap) :tries 0 :away away)
 	(def this :farm (if (list? size)

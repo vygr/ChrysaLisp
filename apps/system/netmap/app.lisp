@@ -6,8 +6,7 @@
 (import "lib/net/links.inc")
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
-(import "lib/gpu/tris.inc")
-(import "lib/gpu/gui.inc")
+(import "lib/gpu/render_farm.inc")
 (import "./app.inc")
 (import "./map.inc")
 
@@ -60,7 +59,7 @@
 				:connect +event_zrot)))
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		(ui-label *status* (:text "..." :font :font_body))
-		(ui-backdrop _ (:style :plain :paper +argb_black :min_width +min_size :min_height +min_size
+		(ui-backdrop *backdrop* (:style :plain :paper +argb_black :min_width +min_size :min_height +min_size
 				:want_width +size :want_height +size)
 			(ui-element *canvas* (Canvas +size +size +scale)))))
 
@@ -85,15 +84,34 @@
 		(def button :paper (canvas-brighter (get :paper *main_toolbar*)))))
 
 (defun set-canvas (size)
-	;the window is a new size, and so is the picture, a square that fits
-	(unless (= size canvas_size)
-		(defq parent (penv *canvas*))
-		(. *canvas* :sub)
-		(setq *canvas* (Canvas size size +scale) canvas_size size)
-		(bind '(w h) (. parent :get_size))
-		(. parent :add_child *canvas*)
-		(. *canvas* :change 0 0 w h)
-		(. *window* :layout)))
+	;the window is a new size, and so is the picture that is wanted, a
+	;square that fits. No canvas is made of it here: a window that is being
+	;dragged says a new size many times a second, and the frame timer
+	;makes a canvas of the last of them when the next frame is to be drawn,
+	;(new-canvas). The picture on show still fills what it is in
+	(bind '(w h) (. *backdrop* :get_size))
+	(. (ifn shown *canvas*) :change 0 0 w h)
+	(. *window* :layout)
+	(setq want_size size))
+
+(defun new-canvas ()
+	;a canvas of the size that is wanted, if that is not the size there
+	;is, drawn on from this frame. It is not put on show till a frame of it
+	;is whole, (show-canvas): the one on show stays till then, so nothing
+	;is seen that is not a picture, and nothing waits for a frame
+	(unless (= want_size canvas_size)
+		(unless shown (setq shown *canvas*))
+		(setq *canvas* (Canvas want_size want_size +scale) canvas_size want_size)
+		(. render :canvas *canvas*)))
+
+(defun show-canvas ()
+	;a frame of the new canvas is whole, it goes on show in place of the old
+	(. shown :sub)
+	(. *backdrop* :add_child *canvas*)
+	(bind '(w h) (. *backdrop* :get_size))
+	(. *canvas* :change 0 0 w h)
+	(. *window* :layout)
+	(setq shown :nil))
 
 (defun share (obj proto)
 	;an object that draws the mesh a first one of its kind was drawn with,
@@ -194,37 +212,10 @@
 	(.-> world (:set_scale zoom zoom zoom) (:set_rotation rotx roty rotz)))
 
 (defun draw-frame ()
-	;a frame, by the GPU of the GUI if it has one that can, else here
-	(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale)))
-	;the pair of shaders a thing with none of its own is drawn with, the
-	;pair the balls are, and the pair the bars are, on the GPU, the first time
-	(and (not gpu_pair) (not gpu_failed)
-		(unless (and (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
-						(shader-load +scene_pixel_file) :t))
-				(setq gpu_shiny (shader-gui-pair (shader-load (first +scene_shiny_files))
-						(shader-load (second +scene_shiny_files)) :t))
-				(setq gpu_matte (shader-gui-pair (shader-load (first +scene_matte_files))
-						(shader-load (second +scene_matte_files)) :t)))
-			;one not made, and those that were are let go of
-			(each (# (if %0 (canvas-shader-destroy %0))) (list gpu_pair gpu_shiny gpu_matte))
-			(setq gpu_pair :nil gpu_shiny :nil gpu_matte :nil gpu_failed :t)))
-	(defq drawn (if gpu_pair (shader-gui-frame *canvas*
-				(map (lambda ((id vblock pblock &optional y y1 files))
-						(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
-						(unless (elem-get gpu_meshes id)
-							(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
-						(list (cond ((not files) gpu_pair) ((eql (second files) (second +scene_matte_files)) gpu_matte) (:t gpu_shiny))
-							(ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws))))
-	(cond
-		((eql drawn :error)
-			;a pair the driver could not build is still let go of
-			(canvas-shader-destroy gpu_pair)
-			(setq gpu_pair :nil gpu_failed :t))
-		(drawn (setq gpu_drawn :t))
-		;the GPU is busy, the next frame will do
-		(gpu_drawn)
-		(:t (. scene :draw *canvas* draws)
-			(. *canvas* :swap +swap_write))))
+	;a frame, by the render: the GPU if this host has one that can, else
+	;here. Each thing is drawn with the pair of shaders of its kind, the
+	;scene says which
+	(. render :frame (. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale))))
 
 (defun show-status ()
 	(defq text (cat (str (. global_tasks :size)) " nodes, " (str (. links :size)) " links, "
@@ -238,7 +229,12 @@
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t canvas_size +size
 		machines (list) machine_hues (list) links (Fmap 31) top_rate (n2d +quiet) zoom +double_1
 		auto :nil rotx (const (n2d 0.4)) roty +double_0 rotz +double_0
-		gpu_pair :nil gpu_shiny :nil gpu_matte :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
+		;what draws the frames, lib/gpu/render_farm.inc. The size of
+		;picture that is wanted, the last a window being sized said, and
+		;while a canvas of a new size has no whole frame yet, the one that
+		;is still on show
+		render (Render-tris *canvas* +scene_vertex_file +scene_pixel_file :t)
+		want_size +size shown :nil
 		ball_mesh (Mesh-sphere +double_1 16) bar_mesh (Mesh-cylinder +double_1 +double_1 8)
 		ball_proto (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0))
 		bar_proto (Scene-object bar_mesh (fixeds 1.0 1.0 1.0 1.0))
@@ -252,6 +248,10 @@
 	(.-> scene (:add_node world)
 		(:set_translation +double_0 +double_0 (const (- +double_0 +focal_dist +double_2))))
 	(. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale))
+	;the scene has the meshes, and draws a frame here when the GPU can not
+	(def render :clear 0
+		:mesh_fn (lambda (id) (if (< -1 id (length (get :meshes scene))) (. scene :mesh id)))
+		:here_fn (lambda (canvas draws) (. scene :draw canvas draws)))
 	(defq global_tasks (Global create destroy))
 	(set-auto :t)
 	(tooltips (elem-get select +select_tip))
@@ -261,14 +261,17 @@
 	(mail-timeout (elem-get select +select_frame_timer) +frame_rate 0)
 	(mail-timeout (elem-get select +select_poll_timer) 1 0)
 	(while id
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(case idx
+		;the render's mail is read with the app's, before the timers, and
+		;dealt with
+		(bind '(idx msg) (. render :read select +select_frame_timer))
+		(case (ifn idx -1)
+			(-1)
 			(+select_main
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
 					((= id +event_layout)
-						(bind '(w h) (. (penv *canvas*) :get_size))
+						(bind '(w h) (. *backdrop* :get_size))
 						(set-canvas (max +min_size (min w h))))
 					((= id +event_auto) (set-auto (not auto)))
 					;a slider is moved, and it no longer turns by itself
@@ -305,11 +308,14 @@
 					(set-rot *yrot_slider* roty)
 					(set-rot *zrot_slider* rotz))
 				(spring-step)
-				(pose-scene)
-				(draw-frame))))
+				;the next frame, if the last is not still out with the GPU
+				(unless (. render :busy)
+					(new-canvas)
+					(pose-scene)
+					(draw-frame))
+				(. render :tick)))
+		;a canvas of a new size goes on show once a frame of it is whole
+		(and shown (not (. render :busy)) (show-canvas)))
 	(. global_tasks :close)
-	(each (# (if %0 (canvas-mesh-destroy %0))) gpu_meshes)
-	(if gpu_pair (canvas-shader-destroy gpu_pair))
-	(if gpu_shiny (canvas-shader-destroy gpu_shiny))
-	(if gpu_matte (canvas-shader-destroy gpu_matte))
+	(. render :close)
 	(. *window* :close))

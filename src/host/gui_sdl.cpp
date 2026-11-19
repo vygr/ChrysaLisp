@@ -200,31 +200,14 @@ void host_gui_clip_free(char *text)
 	SDL_free(text);
 }
 
-// this driver can not draw a shader
+// this driver has no texture the GPU can draw into
 
-uint64_t host_gui_shader_format()
+
+void *host_gui_target_texture(uint64_t w, uint64_t h)
 {
 	return 0;
 }
 
-void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size)
-{
-	return 0;
-}
-
-void host_gui_shader_destroy(void *handle)
-{
-}
-
-void *host_gui_shader_texture(uint64_t w, uint64_t h)
-{
-	return 0;
-}
-
-uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size, const host_gui_rect *rect)
-{
-	return 0;
-}
 
 // copy a texture into a buffer, 32 bit premultiplied argb, as it was uploaded
 
@@ -252,27 +235,6 @@ uint64_t host_gui_read_texture(void *handle, uint32_t *data, uint64_t w, uint64_
 	return ok;
 }
 
-// this driver can not draw triangles with a pair of shaders
-
-void *host_gui_mesh_create(const void *verts, uint64_t size)
-{
-	return 0;
-}
-
-void host_gui_mesh_destroy(void *handle)
-{
-}
-
-void *host_gui_pair_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size,
-	const uint8_t *layout)
-{
-	return 0;
-}
-
-uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
-{
-	return 0;
-}
 
 // copy what was last drawn, a rectangle of the back buffer, into a buffer,
 // 32 bit argb, opaque
@@ -314,16 +276,8 @@ void (*host_gui_funcs[]) = {
     (void*)host_gui_clip_put,
     (void*)host_gui_clip_get,
     (void*)host_gui_clip_free,
-	(void*)host_gui_shader_format,
-	(void*)host_gui_shader_create,
-	(void*)host_gui_shader_destroy,
-	(void*)host_gui_shader_texture,
-	(void*)host_gui_shader_draw,
+	(void*)host_gui_target_texture,
 	(void*)host_gui_read_texture,
-	(void*)host_gui_mesh_create,
-	(void*)host_gui_mesh_destroy,
-	(void*)host_gui_pair_create,
-	(void*)host_gui_tris_draw,
 	(void*)host_gui_read_screen,
 	(void*)host_video_open,
 	(void*)host_video_decode,

@@ -3,26 +3,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun set-canvas (size)
-	;a new size of picture, a canvas of that size. It is drawn before it is put
-	;on show, the old one stays till then, or what is behind them is seen. Its
-	;pixels may be shared, and are let go of
-	(defq parent (penv *main_widget*))
-	(unless (= size canvas_size)
-		(defq old *main_widget*)
-		(setq *main_widget* (make-canvas size) canvas_size size)
-		(. *main_widget* :set_canvas_flags +canvas_mode)
-		(frame-now)
-		(.-> old :sub :free)
-		(. parent :add_child *main_widget*))
-	;the same picture still fills what it is in, that may be a new size. And drawn
-	;again now it is laid out, if nothing is turning there is no next frame
-	(bind '(w h) (. parent :get_size))
-	(. *main_widget* :change 0 0 w h)
+	;the size of picture that is wanted. No canvas is made of it here: a
+	;window that is being dragged says a new size many times a second, and
+	;the frame timer makes a canvas of the last of them when the next frame
+	;is to be drawn, (new-canvas). The picture on show still fills what it
+	;is in, that may be a new size, and is drawn again now it is laid out,
+	;if nothing is turning there is no next frame
+	(bind '(w h) (. *main_backdrop* :get_size))
+	(. (ifn *shown* *main_widget*) :change 0 0 w h)
 	(. *window* :layout)
-	(setq *dirty* :t))
+	(setq *want_size* size *dirty* :t))
 
 (defun set-size (size)
-	(def (penv *main_widget*) :want_width size :want_height size)
+	(def *main_backdrop* :want_width size :want_height size)
 	(. *window* :fit)
 	(set-canvas size))
 
@@ -42,7 +35,7 @@
 	(action-gpu))
 
 (defun action-layout ()
-	(bind '(w h) (. (penv *main_widget*) :get_size))
+	(bind '(w h) (. *main_backdrop* :get_size))
 	(set-canvas (min w h)))
 
 (defun action-close ()

@@ -1,11 +1,13 @@
 #if defined(_HOST_GUI)
 #if _HOST_GUI == 3
 
-// SDL3 GUI driver. The 2D drawing is SDL's GPU renderer, and a shader is
-// drawn into a texture with SDL's GPU interface on the same device.
+// SDL3 GUI driver. The 2D drawing is SDL's GPU renderer, on the device of
+// the GPU driver, gpu_sdl3.cpp, which is lent a texture of this driver's to
+// draw triangles straight into, where it is shown.
 
 #include <SDL3/SDL.h>
 #include "sdl3_load.h"
+#include "gpu_sdl3.h"
 #include <stdint.h>
 #include <string.h>
 #include "gui_sdl3_event.h"
@@ -29,62 +31,6 @@ static void set_macos_activation_policy(intptr_t policy)
 	}
 }
 #endif
-
-// a shader, the pipeline that draws it into a target texture
-
-// a shader is built by a thread of its own. A driver can take a long time
-// to build one, the Raspberry Pi 4's takes 18 seconds over the raymarch
-// shader the first time it sees it, and the GUI must not stop for that.
-enum
-{
-	shader_building,
-	shader_ready,
-	shader_failed,
-	shader_dropped,
-};
-
-struct Shader
-{
-	SDL_GPUGraphicsPipeline *pipeline;
-	SDL_AtomicInt state;
-	SDL_GPUShaderFormat format;
-	Uint8 *vertex;
-	Uint8 *fragment;
-	size_t vertex_size;
-	size_t fragment_size;
-	// a pair that draws triangles, how many attrs a vertex has, how many
-	// floats each is, and whether a triangle that faces away is left out
-	bool mesh;
-	Uint8 num_attrs;
-	Uint8 attrs[8];
-	Uint8 cull;
-	Uint32 stride;
-	// how many pictures the pixel shader of a pair reads from
-	Uint8 num_textures;
-};
-
-// the most pictures the pixel shader of a pair can read from, and how every
-// one of them is read: the one pixel a place is in, and round again outside
-// 0 to 1, as the code the nodes run with no GPU reads them
-static const Uint8 max_pair_textures = 8;
-static SDL_GPUSampler *pair_sampler = nullptr;
-
-// the vertices of a mesh, on the GPU, as floats
-struct Mesh
-{
-	SDL_GPUBuffer *buffer;
-	Uint32 floats;
-};
-
-// triangles are drawn with a depth buffer, and with 4 samples a pixel where
-// the device has that, into a target that is resolved to the texture that
-// is shown. Each texture drawn into has its own of both, see Texture
-static SDL_GPUSampleCount sample_count = SDL_GPU_SAMPLECOUNT_1;
-static bool sample_count_found = false;
-static SDL_GPUTextureFormat depth_format = SDL_GPU_TEXTUREFORMAT_INVALID;
-
-// how many shaders are being built
-static SDL_AtomicInt shader_builds;
 
 static const SDL_PixelFormat target_pixel_format = SDL_PIXELFORMAT_ARGB8888;
 static const SDL_GPUTextureFormat target_gpu_format = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
@@ -176,10 +122,17 @@ static SDL_Texture *create_backbuffer(uint64_t w, uint64_t h)
 #define HOST_GUI_GPU SDL_VERSION_ATLEAST(3, 4, 0)
 
 // the GPU device is the GPU driver's, gpu_sdl3.cpp, made with no more asked
-// of it than is used, and shared, so what a kernel makes a shader can draw
+// of it than is used, and shared, so what a kernel makes a shader can draw,
+// and what the GPU driver draws can go straight into a texture shown here
 
-SDL_GPUDevice *host_gpu_device();
-void host_gpu_quiet();
+// the textures a shader can be drawn into, those of host_gui_shader_texture.
+// The GPU driver is given a handle by a task, and only one of these is taken
+// as a texture to draw into
+static void *gui_targets[256];
+static int gui_num_targets = 0;
+
+// this driver's textures lent to the GPU driver to draw into, or no longer
+static void gui_lend(bool on);
 
 static SDL_GPUDevice *create_device()
 {
@@ -246,6 +199,7 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 #if HOST_GUI_GPU
 	if (device) renderer = SDL_CreateGPURenderer(device, window);
 #endif
+	if (renderer) gui_lend(true);
 	if (!renderer)
 	{
 		//the device is the GPU driver's, this driver just does not draw with it
@@ -290,6 +244,7 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 
 void host_gui_deinit()
 {
+	gui_lend(false);
 	SDL_ShowCursor();
 	if (backbuffer)
 	{
@@ -303,10 +258,6 @@ void host_gui_deinit()
 	}
 	if (device)
 	{
-		// a shader being built is using the device
-		while (SDL_GetAtomicInt(&shader_builds) > 0) SDL_Delay(10);
-		if (pair_sampler) SDL_ReleaseGPUSampler(device, pair_sampler);
-		pair_sampler = nullptr;
 		//the device is the GPU driver's, it lasts as long as the host
 		device = nullptr;
 	}
@@ -354,6 +305,10 @@ void host_gui_destroy_texture(void *handle)
 	gpu_forget(texture);
 	if (gpu_waiting == texture) gpu_waiting = nullptr;
 #endif
+	for (int i = 0; i < gui_num_targets; ++i)
+	{
+		if (gui_targets[i] == texture) gui_targets[i--] = gui_targets[--gui_num_targets];
+	}
 	SDL_DestroyTexture(texture->texture);
 	SDL_free(texture);
 }
@@ -440,317 +395,22 @@ void host_gui_clip_free(char *text)
 	SDL_free(text);
 }
 
-// the shading language the driver takes, 0 if it can not draw a shader
+// a texture the GPU driver can draw triangles into, and that blits as any
+// other does. What it holds is not set till it is drawn into
 
-uint64_t host_gui_shader_format()
-{
-	if (!device) return 0;
-	auto formats = SDL_GetGPUShaderFormats(device);
-	if (formats & SDL_GPU_SHADERFORMAT_MSL) return 1;
-	if (formats & SDL_GPU_SHADERFORMAT_SPIRV) return 2;
-	return 0;
-}
-
-static SDL_GPUTextureFormat find_depth_format();
-
-static SDL_GPUShader *create_shader(const Uint8 *code, size_t size, SDL_GPUShaderFormat format,
-	SDL_GPUShaderStage stage, const char *entry, Uint32 uniforms, Uint32 samplers = 0)
-{
-	SDL_GPUShaderCreateInfo info = {};
-	info.code = code;
-	info.code_size = size;
-	info.entrypoint = entry;
-	info.format = format;
-	info.stage = stage;
-	info.num_uniform_buffers = uniforms;
-	info.num_samplers = samplers;
-	return SDL_CreateGPUShader(device, &info);
-}
-
-// the format of a depth buffer, the first of these the GPU has
-
-static SDL_GPUTextureFormat find_depth_format()
-{
-	if (depth_format != SDL_GPU_TEXTUREFORMAT_INVALID) return depth_format;
-	const SDL_GPUTextureFormat formats[] = {SDL_GPU_TEXTUREFORMAT_D32_FLOAT,
-		SDL_GPU_TEXTUREFORMAT_D24_UNORM, SDL_GPU_TEXTUREFORMAT_D16_UNORM};
-	for (auto f : formats)
-	{
-		if (SDL_GPUTextureSupportsFormat(device, f, SDL_GPU_TEXTURETYPE_2D, SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET))
-		{
-			depth_format = f;
-			break;
-		}
-	}
-	return depth_format;
-}
-
-static SDL_GPUSampleCount find_sample_count()
-{
-	// both the color and the depth of a triangle target must have it
-	if (sample_count_found) return sample_count;
-	auto depth = find_depth_format();
-	if (depth != SDL_GPU_TEXTUREFORMAT_INVALID
-		&& SDL_GPUTextureSupportsSampleCount(device, target_gpu_format, SDL_GPU_SAMPLECOUNT_4)
-		&& SDL_GPUTextureSupportsSampleCount(device, depth, SDL_GPU_SAMPLECOUNT_4))
-		sample_count = SDL_GPU_SAMPLECOUNT_4;
-	sample_count_found = true;
-	return sample_count;
-}
-
-static int SDLCALL build_shader(void *data)
-{
-	auto shader = (Shader*)data;
-	// a pair that draws triangles has the inputs of the vertex shader as the
-	// vertex stage's block, and the fragment stage has the size of the target
-	// as a second block, after the inputs of the pixel shader
-	auto vs = create_shader(shader->vertex, shader->vertex_size, shader->format,
-		SDL_GPU_SHADERSTAGE_VERTEX, "vertex_main", 1);
-	auto fs = create_shader(shader->fragment, shader->fragment_size, shader->format,
-		SDL_GPU_SHADERSTAGE_FRAGMENT, "fragment_main", shader->mesh ? 2 : 1,
-		shader->mesh ? shader->num_textures : 0);
-	SDL_GPUGraphicsPipeline *pipeline = nullptr;
-	if (vs && fs)
-	{
-		SDL_GPUColorTargetDescription target = {};
-		target.format = target_gpu_format;
-		SDL_GPUGraphicsPipelineCreateInfo info = {};
-		info.vertex_shader = vs;
-		info.fragment_shader = fs;
-		info.primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST;
-		info.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
-		// depth is clipped, not clamped, the device was not asked for clamping
-		info.rasterizer_state.enable_depth_clip = true;
-		info.target_info.color_target_descriptions = &target;
-		info.target_info.num_color_targets = 1;
-		SDL_GPUVertexBufferDescription buffer = {};
-		SDL_GPUVertexAttribute attrs[8] = {};
-		if (shader->mesh)
-		{
-			// the attrs of a vertex, floats, one after another in the one buffer
-			const SDL_GPUVertexElementFormat formats[] = {SDL_GPU_VERTEXELEMENTFORMAT_FLOAT,
-				SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3,
-				SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4};
-			Uint32 offset = 0;
-			for (int i = 0; i < shader->num_attrs; ++i)
-			{
-				attrs[i].location = i;
-				attrs[i].buffer_slot = 0;
-				attrs[i].format = formats[shader->attrs[i] - 1];
-				attrs[i].offset = offset;
-				offset += shader->attrs[i] * sizeof(float);
-			}
-			buffer.slot = 0;
-			buffer.pitch = offset;
-			buffer.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
-			info.vertex_input_state.vertex_buffer_descriptions = &buffer;
-			info.vertex_input_state.num_vertex_buffers = 1;
-			info.vertex_input_state.vertex_attributes = attrs;
-			info.vertex_input_state.num_vertex_attributes = shader->num_attrs;
-			// the front of a triangle is the side it goes round counter
-			// clockwise from, and what is nearest is what is seen
-			info.rasterizer_state.front_face = SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE;
-			info.rasterizer_state.cull_mode = shader->cull == 1 ? SDL_GPU_CULLMODE_BACK
-				: shader->cull == 2 ? SDL_GPU_CULLMODE_FRONT : SDL_GPU_CULLMODE_NONE;
-			// a pixel comes with its alpha multiplied in, and goes over what is there
-			target.blend_state.enable_blend = true;
-			target.blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
-			target.blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-			target.blend_state.color_blend_op = SDL_GPU_BLENDOP_ADD;
-			target.blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
-			target.blend_state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-			target.blend_state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
-			info.depth_stencil_state.enable_depth_test = true;
-			info.depth_stencil_state.enable_depth_write = true;
-			info.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;
-			info.target_info.has_depth_stencil_target = true;
-			info.target_info.depth_stencil_format = find_depth_format();
-			info.multisample_state.sample_count = sample_count;
-		}
-		pipeline = SDL_CreateGPUGraphicsPipeline(device, &info);
-	}
-	if (!pipeline) SDL_Log("shader: %s", SDL_GetError());
-	if (vs) SDL_ReleaseGPUShader(device, vs);
-	if (fs) SDL_ReleaseGPUShader(device, fs);
-	SDL_free(shader->vertex);
-	SDL_free(shader->fragment);
-	shader->pipeline = pipeline;
-	if (!SDL_CompareAndSwapAtomicInt(&shader->state, shader_building, pipeline ? shader_ready : shader_failed))
-	{
-		// it was destroyed while it was being built
-		if (pipeline) SDL_ReleaseGPUGraphicsPipeline(device, pipeline);
-		SDL_free(shader);
-	}
-	SDL_AddAtomicInt(&shader_builds, -1);
-	return 0;
-}
-
-static Uint8 *copy_code(const char *code, uint64_t size)
-{
-	// a byte more, and zero, text is read as far as that by some drivers
-	auto copy = (Uint8*)SDL_malloc(size + 1);
-	SDL_memcpy(copy, code, size);
-	copy[size] = 0;
-	return copy;
-}
-
-// the handle is given at once, the shader may not be built yet, and may
-// turn out not to build at all. host_gui_shader_draw says which.
-
-static void *start_shader(Shader *shader, const char *vertex, uint64_t vertex_size,
-	const char *fragment, uint64_t fragment_size)
-{
-	shader->pipeline = nullptr;
-	shader->format = host_gui_shader_format() == 1 ? SDL_GPU_SHADERFORMAT_MSL : SDL_GPU_SHADERFORMAT_SPIRV;
-	shader->vertex = copy_code(vertex, vertex_size);
-	shader->fragment = copy_code(fragment, fragment_size);
-	shader->vertex_size = vertex_size;
-	shader->fragment_size = fragment_size;
-	SDL_SetAtomicInt(&shader->state, shader_building);
-	SDL_AddAtomicInt(&shader_builds, 1);
-	// a driver's compiler can want a deep stack
-	auto props = SDL_CreateProperties();
-	SDL_SetPointerProperty(props, SDL_PROP_THREAD_CREATE_ENTRY_FUNCTION_POINTER, (void*)build_shader);
-	SDL_SetStringProperty(props, SDL_PROP_THREAD_CREATE_NAME_STRING, "shader");
-	SDL_SetPointerProperty(props, SDL_PROP_THREAD_CREATE_USERDATA_POINTER, shader);
-	SDL_SetNumberProperty(props, SDL_PROP_THREAD_CREATE_STACKSIZE_NUMBER, 8 * 1024 * 1024);
-	auto thread = SDL_CreateThreadWithProperties(props);
-	SDL_DestroyProperties(props);
-	if (thread) SDL_DetachThread(thread);
-	else build_shader(shader);
-	return shader;
-}
-
-void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size)
-{
-	if (!host_gui_shader_format()) return nullptr;
-	auto shader = (Shader*)SDL_malloc(sizeof(Shader));
-	shader->mesh = false;
-	shader->num_textures = 0;
-	return start_shader(shader, vertex, vertex_size, fragment, fragment_size);
-}
-
-// a vertex shader and a pixel shader that draw triangles. The layout is how
-// many attrs a vertex has, the cull, 0 none, 1 those that face away, 2 those
-// that face us, then how many floats each attr is, a byte each, and then how
-// many pictures the pixel shader reads from, a byte. It is destroyed as a
-// shader is.
-
-void *host_gui_pair_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size,
-	const uint8_t *layout)
-{
-#if !HOST_GUI_GPU
-	return nullptr;
-#else
-	if (!host_gui_shader_format() || find_depth_format() == SDL_GPU_TEXTUREFORMAT_INVALID) return nullptr;
-	// found here, the pair is built on a thread
-	find_sample_count();
-	auto shader = (Shader*)SDL_malloc(sizeof(Shader));
-	shader->mesh = true;
-	shader->num_attrs = layout[0] > 8 ? 8 : layout[0];
-	shader->cull = layout[1];
-	shader->stride = 0;
-	for (int i = 0; i < shader->num_attrs; ++i)
-	{
-		auto n = layout[2 + i];
-		shader->attrs[i] = n < 1 ? 1 : n > 4 ? 4 : n;
-		shader->stride += shader->attrs[i];
-	}
-	auto textures = layout[2 + layout[0]];
-	shader->num_textures = textures > max_pair_textures ? max_pair_textures : textures;
-	return start_shader(shader, vertex, vertex_size, fragment, fragment_size);
-#endif
-}
-
-// the vertices of a mesh, kept on the GPU. They come as a double for each
-// number, as the nodes have them, and are kept as floats.
-
-void *host_gui_mesh_create(const void *verts, uint64_t size)
-{
-#if !HOST_GUI_GPU
-	return nullptr;
-#else
-	Uint32 floats = (Uint32)(size / 8);
-	if (!device || !floats) return nullptr;
-	SDL_GPUBufferCreateInfo bi = {};
-	bi.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
-	bi.size = floats * (Uint32)sizeof(float);
-	auto buffer = SDL_CreateGPUBuffer(device, &bi);
-	SDL_GPUTransferBufferCreateInfo ti = {};
-	ti.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
-	ti.size = bi.size;
-	auto transfer = SDL_CreateGPUTransferBuffer(device, &ti);
-	auto cmd = buffer && transfer ? SDL_AcquireGPUCommandBuffer(device) : nullptr;
-	if (!cmd)
-	{
-		if (buffer) SDL_ReleaseGPUBuffer(device, buffer);
-		if (transfer) SDL_ReleaseGPUTransferBuffer(device, transfer);
-		return nullptr;
-	}
-	auto out = (float*)SDL_MapGPUTransferBuffer(device, transfer, false);
-	for (Uint32 i = 0; i < floats; ++i)
-	{
-		double v;
-		SDL_memcpy(&v, (const Uint8*)verts + (size_t)i * 8, 8);
-		out[i] = (float)v;
-	}
-	SDL_UnmapGPUTransferBuffer(device, transfer);
-	auto copy = SDL_BeginGPUCopyPass(cmd);
-	SDL_GPUTransferBufferLocation from = {transfer, 0};
-	SDL_GPUBufferRegion to = {buffer, 0, bi.size};
-	SDL_UploadToGPUBuffer(copy, &from, &to, false);
-	SDL_EndGPUCopyPass(copy);
-	SDL_SubmitGPUCommandBuffer(cmd);
-	SDL_ReleaseGPUTransferBuffer(device, transfer);
-	auto mesh = (Mesh*)SDL_malloc(sizeof(Mesh));
-	mesh->buffer = buffer;
-	mesh->floats = floats;
-	return mesh;
-#endif
-}
-
-void host_gui_mesh_destroy(void *handle)
-{
-#if HOST_GUI_GPU
-	auto mesh = (Mesh*)handle;
-	if (!mesh) return;
-	if (device) SDL_ReleaseGPUBuffer(device, mesh->buffer);
-	SDL_free(mesh);
-#endif
-}
-
-void host_gui_shader_destroy(void *handle)
-{
-	auto shader = (Shader*)handle;
-	if (!shader) return;
-	// still being built, the thread that is building it frees it
-	if (SDL_CompareAndSwapAtomicInt(&shader->state, shader_building, shader_dropped)) return;
-	if (device && shader->pipeline) SDL_ReleaseGPUGraphicsPipeline(device, shader->pipeline);
-	SDL_free(shader);
-}
-
-// a texture a shader can be drawn into, and that blits as any other does
-
-void *host_gui_shader_texture(uint64_t w, uint64_t h)
+void *host_gui_target_texture(uint64_t w, uint64_t h)
 {
 	if (!device) return nullptr;
 	auto t = SDL_CreateTexture(renderer, target_pixel_format, SDL_TEXTUREACCESS_TARGET, (int)w, (int)h);
 	if (!t) return nullptr;
 	SDL_SetTextureBlendMode(t, premul_blend_mode());
 	SDL_SetTextureScaleMode(t, SDL_SCALEMODE_NEAREST);
-	return new_texture(t, 0);
+	auto texture = new_texture(t, 0);
+	// one more than there is room to know of is drawn into by this driver
+	// alone, not lent
+	if (gui_num_targets < 256) gui_targets[gui_num_targets++] = texture;
+	return texture;
 }
-
-// triangles, drawn into a texture by pairs of shaders, with a depth buffer,
-// a frame of them. What is nearest is what is seen, and the texture is
-// cleared first. As a shader is, a frame is one draw on the go at a time,
-// 0 is the GPU still busy with the last, or a pair not yet built, nothing
-// was drawn, try again. -1 is a pair that did not build.
-//
-// The frame is a count, 8 bytes, then for each thing drawn, 8 bytes each,
-// the pair, the mesh, the length of the vertex shader's block and of the
-// pixel shader's block, then the two blocks, each made up to a whole 8
-// bytes.
 
 #if HOST_GUI_GPU
 static bool gpu_may_draw(Texture *tex)
@@ -810,218 +470,92 @@ static void gpu_drawing(Texture *tex, SDL_GPUFence *fence)
 	tex->drawn_at = SDL_GetTicksNS();
 	if (fence) gpu_flights[gpu_num_flights++] = tex;
 }
-#endif
 
-uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
+// What is lent to the GPU driver, gpu_sdl3.h: a texture of this driver's for
+// its triangles to be drawn straight into, by the same rule of who may draw
+// and when as a draw of this driver's own
+
+static int gui_tris_target(void *handle, SDL_GPUTexture **color, SDL_GPUTexture **depth, SDL_GPUTexture **samples,
+	Uint32 *w, Uint32 *h)
 {
-#if !HOST_GUI_GPU
-	return 0;
-#else
-	if (!device || !texture || size < 8) return 0;
-	if (find_depth_format() == SDL_GPU_TEXTUREFORMAT_INVALID) return (uint64_t)-1;
-	struct Draw { Shader *pair; Mesh *mesh; uint64_t vlen, plen; const Uint8 *vblock, *pblock, *textures; };
-	auto data = (const Uint8*)frame;
-	uint64_t count;
-	SDL_memcpy(&count, data, 8);
-	auto draws = (Draw*)SDL_malloc(sizeof(Draw) * (count ? count : 1));
-	const Uint8 *at = data + 8, *end = data + size;
-	uint64_t good = 0, result = 1;
-	for (; good < count && at + 32 <= end; ++good)
-	{
-		auto d = &draws[good];
-		SDL_memcpy(d, at, 32);
-		at += 32;
-		auto vpad = (d->vlen + 7) & ~(uint64_t)7, ppad = (d->plen + 7) & ~(uint64_t)7;
-		if (at + vpad + ppad > end) break;
-		d->vblock = at;
-		d->pblock = at + vpad;
-		at += vpad + ppad;
-		// then the pictures its pixel shader reads from, a handle each, as
-		// many as the pair was made to have
-		d->textures = at;
-		if (d->pair && SDL_GetAtomicInt(&d->pair->state) == shader_ready && d->pair->mesh)
-		{
-			if (at + 8 * (uint64_t)d->pair->num_textures > end) { result = (uint64_t)-1; break; }
-			// one whose pixels have not gone to the GPU yet, and the frame is
-			// not drawn, the caller tries again later
-			for (int j = 0; j < d->pair->num_textures; ++j)
-			{
-				Texture *picture;
-				SDL_memcpy(&picture, at + 8 * j, 8);
-				if (picture && picture->made_at == gui_presents) result = 0;
-			}
-			at += 8 * (uint64_t)d->pair->num_textures;
-		}
-		// every pair of the frame has to be built before any of it is drawn
-		auto state = d->pair ? SDL_GetAtomicInt(&d->pair->state) : shader_failed;
-		if (state == shader_building) result = 0;
-		else if (state != shader_ready || !d->pair->mesh) { result = (uint64_t)-1; break; }
-	}
-	auto tex = (Texture*)texture;
-	if (result == 1 && !gpu_may_draw(tex)) result = 0;
-	auto t = ((Texture*)texture)->texture;
-	auto target = result == 1 ? (SDL_GPUTexture*)SDL_GetPointerProperty(SDL_GetTextureProperties(t),
-		SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr) : nullptr;
-	if (result == 1 && !target) result = 0;
+	bool known = false;
+	for (int i = 0; !known && i < gui_num_targets; ++i) known = gui_targets[i] == handle;
+	if (!device || !renderer || !known) return -1;
+	auto tex = (Texture*)handle;
+	if (!gpu_may_draw(tex)) return 0;
+	auto target = (SDL_GPUTexture*)SDL_GetPointerProperty(SDL_GetTextureProperties(tex->texture),
+		SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr);
+	if (!target) return 0;
 	float fw = 0, fh = 0;
-	if (result == 1) SDL_GetTextureSize(t, &fw, &fh);
-	Uint32 w = (Uint32)fw, h = (Uint32)fh;
-	if (result == 1 && (!tex->depth || tex->depth_w != w || tex->depth_h != h))
+	SDL_GetTextureSize(tex->texture, &fw, &fh);
+	Uint32 tw = (Uint32)fw, th = (Uint32)fh;
+	if (!tex->depth || tex->depth_w != tw || tex->depth_h != th)
 	{
+		// the depth buffer of its own, and the samples if the device has more
+		// than one a pixel, as the GPU driver's pairs are built for
 		if (tex->depth) SDL_ReleaseGPUTexture(device, tex->depth);
 		if (tex->samples) SDL_ReleaseGPUTexture(device, tex->samples);
 		tex->samples = nullptr;
 		SDL_GPUTextureCreateInfo info = {};
 		info.type = SDL_GPU_TEXTURETYPE_2D;
-		info.format = depth_format;
+		info.format = host_gpu_depth_format();
 		info.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET;
-		info.width = w;
-		info.height = h;
+		info.width = tw;
+		info.height = th;
 		info.layer_count_or_depth = 1;
 		info.num_levels = 1;
-		info.sample_count = find_sample_count();
+		info.sample_count = host_gpu_sample_count();
 		tex->depth = SDL_CreateGPUTexture(device, &info);
-		tex->depth_w = w;
-		tex->depth_h = h;
-		if (!tex->depth) result = 0;
-		if (tex->depth && sample_count != SDL_GPU_SAMPLECOUNT_1)
+		tex->depth_w = tw;
+		tex->depth_h = th;
+		if (tex->depth && info.sample_count != SDL_GPU_SAMPLECOUNT_1)
 		{
 			info.format = target_gpu_format;
 			info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
 			tex->samples = SDL_CreateGPUTexture(device, &info);
-			if (!tex->samples) result = 0;
 		}
-	}
-	if (result == 1 && !pair_sampler)
-	{
-		SDL_GPUSamplerCreateInfo info = {};
-		info.min_filter = SDL_GPU_FILTER_NEAREST;
-		info.mag_filter = SDL_GPU_FILTER_NEAREST;
-		info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_NEAREST;
-		info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-		info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-		info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-		pair_sampler = SDL_CreateGPUSampler(device, &info);
-	}
-	SDL_GPUCommandBuffer *cmd = nullptr;
-	if (result == 1)
-	{
-		// what the renderer has drawn so far goes first
-		SDL_FlushRenderer(renderer);
-		cmd = SDL_AcquireGPUCommandBuffer(device);
-		if (!cmd) result = 0;
-	}
-	if (result == 1)
-	{
-		SDL_GPUColorTargetInfo color = {};
-		color.texture = target;
-		color.load_op = SDL_GPU_LOADOP_CLEAR;
-		color.store_op = SDL_GPU_STOREOP_STORE;
-		if (tex->samples)
+		if (!tex->depth || (info.sample_count != SDL_GPU_SAMPLECOUNT_1 && !tex->samples))
 		{
-			// drawn with the samples, and the texture that is shown gets what they come to
-			color.texture = tex->samples;
-			color.resolve_texture = target;
-			color.store_op = SDL_GPU_STOREOP_RESOLVE;
+			if (tex->depth) SDL_ReleaseGPUTexture(device, tex->depth);
+			tex->depth = nullptr;
+			return 0;
 		}
-		SDL_GPUDepthStencilTargetInfo depth = {};
-		depth.texture = tex->depth;
-		depth.clear_depth = 1.0f;
-		depth.load_op = SDL_GPU_LOADOP_CLEAR;
-		depth.store_op = SDL_GPU_STOREOP_DONT_CARE;
-		depth.stencil_load_op = SDL_GPU_LOADOP_DONT_CARE;
-		depth.stencil_store_op = SDL_GPU_STOREOP_DONT_CARE;
-		float target_size[4] = {fw, fh, 0.0f, 0.0f};
-		auto pass = SDL_BeginGPURenderPass(cmd, &color, 1, &depth);
-		for (uint64_t i = 0; i < good; ++i)
-		{
-			auto d = &draws[i];
-			if (!d->mesh || !d->pair->stride) continue;
-			SDL_BindGPUGraphicsPipeline(pass, d->pair->pipeline);
-			SDL_GPUBufferBinding binding = {d->mesh->buffer, 0};
-			SDL_BindGPUVertexBuffers(pass, 0, &binding, 1);
-			SDL_PushGPUVertexUniformData(cmd, 0, d->vblock, (Uint32)d->vlen);
-			SDL_PushGPUFragmentUniformData(cmd, 0, d->pblock, (Uint32)d->plen);
-			SDL_PushGPUFragmentUniformData(cmd, 1, target_size, sizeof(target_size));
-			if (d->pair->num_textures)
-			{
-				// each as the renderer has it on the GPU. One that is not
-				// there, or is what is being drawn into, and the thing is
-				// not drawn
-				SDL_GPUTextureSamplerBinding bindings[max_pair_textures];
-				bool have = pair_sampler != nullptr;
-				for (int j = 0; have && j < d->pair->num_textures; ++j)
-				{
-					Texture *picture;
-					SDL_memcpy(&picture, d->textures + 8 * j, 8);
-					auto gpu = picture && picture->texture ? (SDL_GPUTexture*)SDL_GetPointerProperty(
-						SDL_GetTextureProperties(picture->texture), SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr) : nullptr;
-					if (!gpu || gpu == target) have = false;
-					bindings[j].texture = gpu;
-					bindings[j].sampler = pair_sampler;
-				}
-				if (!have) continue;
-				SDL_BindGPUFragmentSamplers(pass, 0, bindings, d->pair->num_textures);
-			}
-			SDL_DrawGPUPrimitives(pass, d->mesh->floats / d->pair->stride, 1, 0, 0);
-		}
-		SDL_EndGPURenderPass(pass);
-		gpu_drawing(tex, SDL_SubmitGPUCommandBufferAndAcquireFence(cmd));
 	}
-	SDL_free(draws);
-	return result;
-#endif
-}
-
-// a shader is drawn into a texture, all of it, or the part given. A draw
-// that takes the GPU a long time holds up the drawing of the GUI behind it,
-// so there is only ever one on the go. While the last has not finished, or
-// the shader is still being built, this draws nothing and returns 0, and the
-// caller tries again later. A caller with a slow GPU draws a frame as
-// strips, each small enough to be done in a tick, and the GUI is drawn in
-// between them. A shader that did not build returns -1.
-
-uint64_t host_gui_shader_draw(void *handle, void *texture, const void *block, uint64_t size, const host_gui_rect *rect)
-{
-#if !HOST_GUI_GPU
-	return 0;
-#else
-	auto shader = (Shader*)handle;
-	if (!device || !shader || !texture) return 0;
-	auto state = SDL_GetAtomicInt(&shader->state);
-	if (state == shader_building) return 0;
-	if (state != shader_ready || shader->mesh) return (uint64_t)-1;
-	auto tex = (Texture*)texture;
-	if (!gpu_may_draw(tex)) return 0;
-	auto t = ((Texture*)texture)->texture;
-	auto target = (SDL_GPUTexture*)SDL_GetPointerProperty(SDL_GetTextureProperties(t),
-		SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr);
-	if (!target) return 0;
-	float w, h;
-	SDL_GetTextureSize(t, &w, &h);
-	float target_size[4] = {w, h, 0.0f, 0.0f};
 	// what the renderer has drawn so far goes first
 	SDL_FlushRenderer(renderer);
-	auto cmd = SDL_AcquireGPUCommandBuffer(device);
-	if (!cmd) return 0;
-	SDL_PushGPUVertexUniformData(cmd, 0, target_size, sizeof(target_size));
-	SDL_PushGPUFragmentUniformData(cmd, 0, block, (Uint32)size);
-	SDL_GPUColorTargetInfo info = {};
-	info.texture = target;
-	// a part leaves the rest of the texture as it was
-	info.load_op = rect ? SDL_GPU_LOADOP_LOAD : SDL_GPU_LOADOP_DONT_CARE;
-	info.store_op = SDL_GPU_STOREOP_STORE;
-	auto pass = SDL_BeginGPURenderPass(cmd, &info, 1, nullptr);
-	SDL_BindGPUGraphicsPipeline(pass, shader->pipeline);
-	if (rect)
-	{
-		SDL_Rect scissor = {rect->x, rect->y, rect->w, rect->h};
-		SDL_SetGPUScissor(pass, &scissor);
-	}
-	SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
-	SDL_EndGPURenderPass(pass);
-	gpu_drawing(tex, SDL_SubmitGPUCommandBufferAndAcquireFence(cmd));
+	*color = target;
+	*depth = tex->depth;
+	*samples = tex->samples;
+	*w = tw;
+	*h = th;
 	return 1;
+}
+
+static void gui_tris_drawn(void *handle, SDL_GPUFence *fence)
+{
+	gpu_drawing((Texture*)handle, fence);
+}
+
+static int gui_tris_done(void *handle)
+{
+	for (int i = 0; i < gui_num_targets; ++i)
+	{
+		if (gui_targets[i] != handle) continue;
+		auto tex = (Texture*)handle;
+		return !device || !tex->fence || SDL_QueryGPUFence(device, tex->fence) ? 1 : 0;
+	}
+	return 1;
+}
+
+static const HostGpuGui gui_tris_hooks = {gui_tris_target, gui_tris_drawn, gui_tris_done};
+#endif
+
+static void gui_lend(bool on)
+{
+#if HOST_GUI_GPU
+	host_gpu_gui(on && device ? &gui_tris_hooks : nullptr);
+#else
+	(void)on;
 #endif
 }
 
@@ -1098,16 +632,8 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_clip_put,
 	(void*)host_gui_clip_get,
 	(void*)host_gui_clip_free,
-	(void*)host_gui_shader_format,
-	(void*)host_gui_shader_create,
-	(void*)host_gui_shader_destroy,
-	(void*)host_gui_shader_texture,
-	(void*)host_gui_shader_draw,
+	(void*)host_gui_target_texture,
 	(void*)host_gui_read_texture,
-	(void*)host_gui_mesh_create,
-	(void*)host_gui_mesh_destroy,
-	(void*)host_gui_pair_create,
-	(void*)host_gui_tris_draw,
 	(void*)host_gui_read_screen,
 	(void*)host_video_open,
 	(void*)host_video_decode,

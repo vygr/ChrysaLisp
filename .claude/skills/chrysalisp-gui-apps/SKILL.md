@@ -390,8 +390,12 @@ Key points:
 	skeleton, and build from that, never from scratch: a `Jobs` farm of
 	many children for the CPU and of one for the GPU, the same job and
 	answer, `lib/gpu/tile.inc` and `lib/gpu/shade.inc` for a pixel
-	shader, `lib/gpu/tris.inc` for triangles. What goes wrong when it is
-	done by hand:
+	shader. For triangles an app holds a `(Render-tris canvas vfile
+	pfile)`, `lib/gpu/render_farm.inc`, and has no farm, child or GPU call
+	of its own: `:mesh`, `:frame`, `:busy`, `:read`, `:tick`, `:mode`,
+	`:how`, `:close`, as Planets has them, or with `:mesh_fn` and
+	`:here_fn` for a scene of `lib/math/scene.inc`, as Mesh. What goes
+	wrong when it is done by hand:
 	*	The canvas is `(ifn (canvas-shared w h 1) (Canvas w h 1))`, its
 		key in every job, and the children draw on it. Pixels sent back
 		are the way back for a host with no shared memory, not the plan.
@@ -407,9 +411,15 @@ Key points:
 		nodes, and how long one took, as Planets and Model have: it is
 		how the user, and a hidden desktop's `widgets`, see which way it
 		went.
-	*	The three of triangles, Planets, Mesh and Model, still draw their
-		GPU frames by the GUI's driver, `lib/gpu/gui.inc`. Do not copy
-		that side of them, it is to go.
+	*	A window that is sized says so many times a second. Keep the
+		size that is wanted, make the canvas of it when the next frame
+		is given, `(. render :canvas canvas)`, and put it on show when
+		that frame is whole, the old one staying till then, as Mesh's
+		`(new-canvas)` and `(show-canvas)`. A canvas made at each event,
+		or shown before it has a frame, flickers or stalls.
+	*	The GPU never draws into a canvas that is on show. It draws into
+		one that is not, `(canvas-target)`, and they `:exchange` when the
+		frame is whole. The render does this.
 
 *	**Overloading.** Import another app's `ui.inc` and `redefun` the
 	actions you need to change (see `apps/desktop/docs/ui.inc`).

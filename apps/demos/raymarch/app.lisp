@@ -1,9 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "lib/gpu/shader.inc")
-(import "lib/gpu/compute.inc")
-(import "lib/gpu/shade.inc")
+(import "lib/gpu/render_farm.inc")
 (import "lib/media/flm.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11,32 +9,27 @@
 ; a lattice of balls, and the frame goes straight into the film file,
 ; for the Films app to play.
 ;
-; The frames are drawn by a farm, lib/task/jobs.inc: of one task on the
-; GPU if the host has one, lib/gpu/shade.inc, of a task a node on the
-; CPU if not, lib/gpu/tile.inc. The one protocol and the one job, a
-; tile of the frame, the GPU's all of it, each child drawing straight
-; onto the pixels of the canvas, in shared memory. The farm lasts while
-; the film is made.
+; The frames are drawn by a (Render-shade), lib/gpu/render_farm.inc: by
+; the GPU if the host has one, by the nodes of the CPU if not, a tile of
+; the frame each. Every frame's pixels are wanted, to go in the film, so
+; the GPU's are read back onto the canvas's, never drawn straight into
+; its texture, and the film is the same to the bit whichever drew it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (enums +select 0
-	(enum main task reply timer))
+	(enum main timer))
 
 (defq +shader_file (cat *app_root* "film.shader")
 	+film_path "apps/media/films/data/" +film_name "raymarch"
 	;24 bits a pixel, at 16 the shading of the balls shows bands
 	+film_bits 24
 	+width 600 +height 600 +line_batch 8
-	+timer_rate (/ 1000000 60) +slow_ticks 30 ticks 0
-	;the patience of the farm: a tile is quick, the first frame of the GPU
-	;waits for its kernel to be built
-	+retry_timeout (task-timeout 5) +gpu_timeout (task-timeout 30)
+	+timer_rate (/ 1000000 60)
 	+num_frames 40 frame_idx 0 z_start (n2d -3.0) z_dist (n2d 2.0)
-	program (shader-load +shader_file) select :nil jobs :nil film :nil
+	select :nil render :nil film :nil
 	film_time 0 frame_time 0 frame_us 0 save_us 0 first_frame :nil
-	;how the frames are being drawn. :gpu, the GPU. :cpu, the nodes.
-	;:done, the film is made
-	mode :cpu
+	;the film is made
+	done :nil
 	;the pixels of the canvas are in shared memory, the children draw
 	;their tiles straight onto them
 	shared_canvas (canvas-shared +width +height 1))
@@ -46,13 +39,12 @@
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))
 
-(defun frame-inputs ()
-	;the inputs block for the frame, where the camera and the light are
+(defun frame-values ()
+	;the inputs of the shader for the frame, where the camera and the light are
 	(defq fraction (/ (n2d frame_idx) (const (n2d +num_frames))))
-	(shader-pack program (list
-			(list 'resolution (list +width +height))
-			(list 'cam_z (+ z_start (* z_dist fraction)))
-			(list 'light_x (+ (n2d -0.1) (* (sin (* fraction +double_2pi)) (n2d 0.15)))))))
+	(list (list 'resolution (list +width +height))
+		(list 'cam_z (+ z_start (* z_dist fraction)))
+		(list 'light_x (+ (n2d -0.1) (* (sin (* fraction +double_2pi)) (n2d 0.15))))))
 
 ;the film is made in a file of its own, and is the film only once it is
 ;whole: one stopped part way does not leave half a film in the tree,
@@ -78,23 +70,6 @@
 		(setq film :nil))
 	(pii-remove +film_part))
 
-(defun farm-close ()
-	;the farm is let go of, (jobs-end): its children told to go, and its
-	;mailboxes made new, so a tile that is late comes nowhere
-	(setq jobs (jobs-end jobs select +select_task +select_reply)))
-
-(defun farm-start ()
-	;the farm that draws the frames, made when there is none: one task for
-	;the GPU, a herd on the nodes of this machine for the CPU. Each is kept
-	;off this node, which is the window's, and draws straight onto the
-	;pixels of the canvas
-	(unless jobs
-		(setq jobs (if (eql mode :gpu)
-			(Jobs +shader_shade_child
-				(elem-get select +select_task) (elem-get select +select_reply) 1 :t)
-			(Jobs +shader_tile_child
-				(elem-get select +select_task) (elem-get select +select_reply) (list +max_int 1 1) :t)))))
-
 (defun start-frame ()
 	;the next frame of the film, or the end of it
 	(setq frame_time (pii-time))
@@ -102,27 +77,21 @@
 		((>= frame_idx +num_frames)
 			;the film ends where it began, so that it loops, and is whole
 			(defq again (Canvas +width +height 1) pixmap (getf again +canvas_pixmap 0)
-				by (if (eql mode :gpu) "GPU" "nodes"))
+				by (if (eql (. render :mode) :gpu) "GPU" "nodes"))
 			(setf pixmap +pixmap_type 32 0)
 			(stream-seek first_frame 0 0)
 			(pixmap-read pixmap first_frame 32)
 			(flm-add film again)
 			(flm-close film)
 			(film-keep)
-			;there is no more for the farm
-			(farm-close)
-			(setq film :nil first_frame :nil mode :done)
+			;there is no more for the render's farm
+			(. render :close)
+			(setq film :nil first_frame :nil done :t)
 			(. *status* :set_text (cat "The film is made, " (str +num_frames) " frames in "
 					(str (/ (- (pii-time) film_time) 1000)) "ms, by the "
 					by ", " (str (/ save_us 1000)) "ms of it writing the film")))
 		(:t ;the GPU shades it, the one tile, or the nodes, a tile each
-			(farm-start)
-			(defq inputs (frame-inputs) key (canvas-key *canvas*))
-			(. jobs :add (if (eql mode :gpu)
-				(list (shader-tile +shader_file inputs 0 0 +width +height +width +height key))
-				(map! (lambda () (defq y (* (!) +line_batch))
-						(shader-tile +shader_file inputs 0 y +width (min +height (+ y +line_batch)) +width +height key))
-					'() 0 (const (/ (+ +height +line_batch -1) +line_batch))))))))
+			(. render :frame (frame-values)))))
 
 (defun frame-done ()
 	;the frame is whole, and is in the pixmap of the canvas. It goes
@@ -138,65 +107,41 @@
 	(setf pixmap +pixmap_type -32 0)
 	(setq save_us (+ save_us (- (pii-time) now))
 		frame_us (- (pii-time) frame_time) frame_idx (inc frame_idx))
-	(. *status* :set_text (cat (if (eql mode :gpu) "GPU" (cat (str (length (lisp-nodes :t))) " nodes"))
+	(. *status* :set_text (cat (if (eql (. render :mode) :gpu) "GPU" (cat (str (length (lisp-nodes :t))) " nodes"))
 			", frame " (str frame_idx) " of " (str +num_frames) ", "
 			(str (/ frame_us 1000)) "ms to draw and save it"))
 	(start-frame))
 
-(defun to-cpu (why)
-	;the nodes draw the film, there is no GPU for it: the GPU's farm is
-	;let go of, and the frame started again by the CPU's
-	(farm-close)
-	(setq mode :cpu)
-	(. *status* :set_text why)
-	(start-frame))
-
 (defun main ()
-	(setq select (task-mboxes +select_size))
+	(setq select (task-mboxes +select_size) render (Render-shade *canvas* +shader_file +line_batch))
+	(def render :direct :nil)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *window* :open)
 	(setq film (flm-open (file-stream +film_part +file_open_write) +film_bits)
-		film_time (pii-time) mode (if (> (gpu-format) 0) :gpu :cpu))
-	(. *status* :set_text (if (eql mode :gpu) "GPU, its kernel is being built" "No GPU, the nodes draw it"))
+		film_time (pii-time))
+	(. *status* :set_text (if (eql (. render :mode) :gpu) "GPU, its kernel is being built" "No GPU, the nodes draw it"))
 	(start-frame)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(defq id :t)
 	(while id
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(case idx
-			(+select_main
-				;main mailbox
+		;the render's mail is read with the app's, before the timer, and
+		;dealt with
+		(bind '(idx msg) (. render :read select +select_timer))
+		(cond
+			((not idx)
+				;a frame that was out is whole, and the next is started
+				(and (not done) (not (. render :busy)) (frame-done)))
+			((= idx +select_main)
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
 						(setq id :nil))
 					((. *window* :event msg))))
-			(+select_task
-				;a child has started
-				(. jobs :launched msg))
-			(+select_reply
-				;a tile is shaded
-				(when (defq out (. jobs :answered msg))
-					(cond
-						((nql mode :gpu)
-							;a child that could not reach the canvas sends the pixels
-							(shader-tile-show *canvas* msg)
-							(when (= out 0)
-								(. *canvas* :swap +swap_write)
-								(frame-done)))
-						((= (getf msg +shade_reply_drawn) 0)
-							(to-cpu "No GPU, it could not run the shader, the nodes draw it"))
-						(:t ;the frame is on the pixels, as one of tiles is
-							(. *canvas* :swap +swap_write)
-							(frame-done)))))
-			(:t ;timer event
+			(:t ;timer event, the patience of the render's farm, and what
+				;there is of a frame of tiles so far shown
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
-				(when (and jobs (= (setq ticks (% (inc ticks) +slow_ticks)) 0))
-					;show what there is of a frame of tiles so far, and the
-					;patience of the farm
-					(if (eql mode :cpu) (. *canvas* :swap +swap_write))
-					(. jobs :refresh (if (eql mode :gpu) +gpu_timeout +retry_timeout))))))
+				(. render :tick))))
 	;a film not finished is let go of, and the farm and the window closed
 	(film-drop)
-	(farm-close)
+	(. render :close)
 	(. *window* :close))

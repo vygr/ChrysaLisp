@@ -188,74 +188,26 @@ docs/diagrams/host_layers.cwb
           text on the host clipboard, get the text that is on it, and free
           what a get returned.
 
-    * The shader calls, at the end of the table. A driver that can not draw
-      a shader has them all the same, and answers format 0. Only the sdl3
-      driver can. See [`docs/ai_digest/shader_language.md`](shader_language.md).
+    * Two calls for a texture of the GPU. A driver that has none has them
+      all the same, and answers 0. Only the sdl3 driver has, see
+      [`docs/ai_digest/shader_language.md`](shader_language.md).
 
-        * `host_gui_shader_format`: The shading language the driver takes, 0
-          none, 1 Metal Shading Language text, 2 a SPIR-V module.
-
-        * `host_gui_shader_create`: A shader from a vertex and a fragment
-          shader in that language, each given as bytes and a length. Returns
-          a handle, or 0. The entry points are `vertex_main` and
-          `fragment_main`. The handle is given at once and the shader is
-          built on a thread, a driver can take many seconds over it.
-
-        * `host_gui_shader_destroy`: Free a shader.
-
-        * `host_gui_shader_texture`: A texture of a width and height that a
-          shader can draw into, and that `host_gui_blit` can then draw.
-
-        * `host_gui_shader_draw`: Draw a shader into such a texture, with a
-          block of bytes as its inputs, and a `host_gui_rect`, the part of
-          the texture to draw, or 0 for all of it. Returns 1 if it drew, and
-          -1 if the shader did not build. If it may not draw now, or the
-          shader is still being built, this draws nothing and returns 0,
-          and the caller tries again later. One draw is on the go at a time
-          for a texture. And a draw waits for the GPU to be done with any
-          other texture's draw, unless that draw is fresh, handed over in
-          the last 3ms. On a fast GPU every draw is fresh, and two apps
-          draw with no thought for each other. On a slow one draws do not
-          pile up in front of the GUI's own, which is drawn by the same
-          GPU. A texture that was refused has the next turn, so an app
-          that asks often does not take every gap from one that asks less.
-          That is so a GPU that takes long over a frame can be given
-          it a strip at a time, with the GUI drawn in between.
+        * `host_gui_target_texture`: A texture of a width and height that
+          the GPU driver can draw triangles into, and that blits as any
+          other does. What it holds is not set till it is drawn into. It
+          is lent to the GPU driver, below, by its handle: a handle that
+          is not of one of these, or of one that has gone, is refused.
 
         * `host_gui_read_texture`: Read a texture back as 32 bit ARGB pixels,
           premultiplied, into memory of the width, height and stride given.
           Returns 1 if it could.
 
-    * The triangle calls, after them. The sdl3 driver draws them, the others
-      have them and answer 0.
-
-        * `host_gui_pair_create`: A vertex shader and a pixel shader that
-          draw triangles, each given as bytes and a length, and a layout, a
-          byte for how many attrs a vertex has, a byte for the cull, 0 none,
-          1 what faces away, 2 what faces us, then a byte for the floats of
-          each attr, then a byte for how many textures the pixel shader
-          reads, 8 at most. Returns a handle, or 0, and is built on a thread as a
-          shader is. `host_gui_shader_destroy` frees it.
-
-        * `host_gui_mesh_create`: The vertices of a mesh, kept on the GPU.
-          They are given as doubles, the bytes of a doubles, and kept as
-          floats. Returns a handle, or 0.
-
-        * `host_gui_mesh_destroy`: Free a mesh.
-
-        * `host_gui_tris_draw`: Draw a frame of triangles into a texture
-          made by `host_gui_shader_texture`, with a depth buffer. The frame
-          is a block and its length, a count, 8 bytes, then for each thing
-          drawn, 8 bytes each, a pair, a mesh, the length of the vertex
-          shader's block and of the pixel shader's, then the two blocks,
-          each made up to a whole 8 bytes, then a texture handle, 8 bytes,
-          for each texture of the pair. One whose pixels have not gone to
-          the GPU yet, it was made since the last flush, and the return is
-          0. Returns as `host_gui_shader_draw`
-          does, 1, 0 for try again, or -1. A pixel comes from the fragment
-          shader with its alpha multiplied in, and is blended over what is
-          there. The frame is drawn with 4 samples a pixel if the device
-          has that, and resolved into the texture.
+      One draw into such a texture is on the go at a time, and a draw
+      waits for the GPU to be done with any other texture's, unless that
+      was handed over only a moment ago: the GUI is drawn by the same GPU,
+      which can not be stopped part way through a draw, so on a slow one
+      draws that pile up stop the desktop. A texture that is refused has
+      the next turn.
 
 3. **`host_audio_funcs` (Audio Layer):**
 
@@ -372,6 +324,33 @@ docs/diagrams/host_layers.cwb
           its buffers and uniforms. A ticket, 0 while the kernel is still
           being built, -1 if it did not build. The groups are three numbers
           of 32 bits by a pointer: a host call takes at most six args.
+
+        * `host_gpu_pair_create`, `host_gpu_pair_destroy`: a vertex shader
+          and a pixel shader that draw triangles, from the code of the two
+          stages and a layout, a byte each: how many attrs a vertex has,
+          the cull, how many floats each attr is, and how many pictures the
+          pixel shader reads. Built on a thread, as a kernel is.
+
+        * `host_gpu_mesh_create`, `host_gpu_mesh_destroy`: the vertices of a
+          mesh, kept on the GPU as floats, given as doubles.
+
+        * `host_gpu_picture_create`, `host_gpu_picture_destroy`: a picture a
+          pixel shader reads from, a copy of pixels of 32 bits.
+
+        * `host_gpu_target_create`, `host_gpu_target_destroy`: a target of
+          a width and height to draw into, with its depth buffer, and 4
+          samples a pixel where the device has that.
+
+        * `host_gpu_draw`: a frame of triangles drawn into a target,
+          cleared first. The frame is a count, then for each thing drawn
+          its pair, its mesh, the lengths of the blocks of the two shaders'
+          inputs, the blocks, and its pictures. Into a target of this
+          driver's it gives a ticket, and a take has the pixels drawn. Or,
+          told so, into a texture of the GUI driver's, by its handle, on a
+          host whose GUI draws with this device: the frame is drawn where
+          it is shown, nothing is read back, and 1 is given. 0 is nothing
+          drawn, a pair is still being built or the GUI's texture is not
+          yet to be drawn into, and -1 a frame that can not be.
 
     * Resources are where SDL has them for compute: MSL `[[buffer]]` is the
       uniform block first, then the buffers read, then those written;

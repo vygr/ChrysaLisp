@@ -1,25 +1,24 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "lib/gpu/render_farm.inc")
 (import "./scene.inc")
 
 (enums +event +event_user
 	(enum mode count))
 
 (enums +select 0
-	(enum main task reply timer))
+	(enum main timer))
 
-(defq +rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
+(defq +rate (/ 1000000 60)
 	+min_opcodes 9 +max_opcodes 240 global_tick 0.0
 	;the pixels of the canvas are in shared memory if the host has it, and
 	;the children draw their slices straight onto them
 	shared_canvas (canvas-shared +scene_width +scene_height 1)
 	shared_key (if shared_canvas (canvas-key shared_canvas) 0)
-	select :nil jobs :nil
-	;farming, a frame is out with the children. warming, they have been
-	;asked if they are up, and till they all are the frames are drawn
-	;here, so the picture never stops for them
-	farming :nil warming :nil
+	;what draws the frames, a (Render-work), lib/gpu/render_farm.inc: a
+	;farm of child.lisp on the nodes, All nodes, or this task, One task
+	select :nil render :nil
 	frame_time 0 frame_drawn 0 frames 0 frames_us 0)
 
 ; Bouncer Particle: (model pos_v vel_v angle omega scale scale_phase squash_x squash_y)
@@ -143,8 +142,7 @@
 			(elem-set b 8 sq_y)) bouncers))
 
 (defun frame-done (how)
-	;the frame is whole, show it and say how long it took
-	(. *canvas* :swap +swap_write)
+	;the frame is whole and shown, say how long it took
 	(setq frames (inc frames) frames_us (+ frames_us (- (pii-time) frame_time)))
 	(when (>= frames_us 500000)
 		(. *status* :set_text (cat (str (/ frames_us frames 1000)) "."
@@ -157,40 +155,29 @@
 	(cat (setf-> (str-alloc +slice_size)
 			(+slice_shared shared_key) (+slice_y y) (+slice_y1 y1)) packed))
 
-(defun farm-end ()
-	;the farm let go of, this task draws the frames from here on. A farm
-	;lasts while its work goes on: there is one while the nodes draw the
-	;frames, All nodes, and none while this task does, One task
-	(setq jobs (jobs-end jobs select +select_task +select_reply) warming :nil farming :nil))
+(defun frame-jobs (kind count ready)
+	;the jobs of a frame for the nodes, a slice for each of them, and where
+	;every opcode is goes out with each slice. Or, to ask if they are
+	;ready, each a slice of no rows, which a child answers when it has the
+	;scene loaded and has found the canvas
+	(setq frame_drawn 0)
+	(cond
+		(ready (map! (lambda () (slice-job +scene_height +scene_height "")) '() 0 count))
+		(:t (defq packed (scene-pack bouncers))
+			(map! (# (slice-job (/ (* (!) +scene_height) count)
+					(/ (* (inc (!)) +scene_height) count) packed)) '() 0 count))))
 
-(defun warm-farm ()
-	;a new farm. The children are on the nodes of this machine, and no
-	;other: they draw on the pixels of the canvas, in shared memory, and a
-	;node of another machine, there is one when the machines are a mesh,
-	;can not reach them. Each is asked for a slice of no rows, which it
-	;answers when it has the scene loaded and has found the canvas
-	(farm-end)
-	(setq jobs (Jobs (cat *app_root* "child.lisp")
-			(elem-get select +select_task) (elem-get select +select_reply) (list 64))
-		warming :t)
-	(. jobs :add (map! (lambda () (slice-job +scene_height +scene_height "")) '() 0 (. jobs :size))))
-
-(defun start-farm-frame ()
-	;a frame drawn by the nodes, a slice for each of them, and where every
-	;opcode is goes out with each slice
-	(defq count (max 1 (length (lisp-nodes :t))) packed (scene-pack bouncers))
-	(setq farming :t frame_time (pii-time) frame_drawn 0)
-	(. jobs :add (map! (# (slice-job (/ (* (!) +scene_height) count)
-					(/ (* (inc (!)) +scene_height) count) packed)) '() 0 count)))
-
-(defun one-task-frame (how)
-	;a frame drawn here, all of it
+(defun next-frame ()
+	;a frame of the moment, by the render: out with the nodes, or drawn here
 	(setq frame_time (pii-time))
-	(scene-draw *canvas* (scene-pack bouncers) 0 +scene_height)
-	(frame-done how))
+	(if (. render :frame)
+		(frame-done (if (eql (. render :mode) :here) "one task" "one task, while the nodes get ready"))))
 
 (defun main ()
-	(setq select (task-mboxes +select_size))
+	(setq select (task-mboxes +select_size) render (Render-work *canvas* (cat *app_root* "child.lisp")))
+	(def render :jobs_fn (const frame-jobs)
+		:here_fn (lambda (canvas) (scene-draw canvas (scene-pack bouncers) 0 +scene_height))
+		:reply_fn (lambda (msg) (setq frame_drawn (+ frame_drawn (max 0 (getf msg +slice_reply_drawn))))))
 	(.-> *canvas*
 		(:fill +scene_back)
 		(:set_canvas_flags +canvas_flag_antialias)
@@ -199,53 +186,42 @@
 	(set-count)
 	(. *window* :open)
 	;it comes up on all the nodes, if their pixels can be shared
+	(. render :mode (if shared_canvas :cpu :here))
 	(. *mode* :set_selected (if shared_canvas 1 0))
-	(if shared_canvas (warm-farm))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
-	(defq id :t)
+	(defq id :t out :nil)
 	(while id
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(case idx
-			(+select_main
+		;the render's mail is read with the app's, before the timer, and
+		;dealt with
+		(bind '(idx msg) (. render :read select +select_timer))
+		(cond
+			((not idx)
+				;a frame that was out with the nodes is whole
+				(when (and out (not (. render :busy)))
+					(setq out :nil)
+					(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
+							(str frame_drawn) " opcodes drawn over the slices"))))
+			((= idx +select_main)
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
 					((= id +event_mode)
 						(cond
 							;one task, the farm's work has stopped
-							((/= (. *mode* :get_selected) 1) (farm-end))
+							((/= (. *mode* :get_selected) 1) (. render :mode :here) (setq out :nil))
 							((not shared_canvas)
 								(. *mode* :set_selected 0)
 								(. *status* :set_text "This host has no shared memory for the nodes to draw on"))
-							;all nodes, a new farm if there is none
-							((not jobs) (warm-farm))))
+							;all the nodes
+							((. render :mode :cpu))))
 					((. *window* :event msg))))
-			(+select_task
-				;a child has started
-				(. jobs :launched msg))
-			(+select_reply
-				;a slice is drawn, or a child has said it is up
-				(when (defq out (. jobs :answered msg))
-					(cond
-						(warming (if (= out 0) (setq warming :nil)))
-						(farming
-							(setq frame_drawn (+ frame_drawn (max 0 (getf msg +slice_reply_drawn))))
-							(when (= out 0)
-								(setq farming :nil)
-								(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
-										(str frame_drawn) " opcodes drawn over the slices")))))))
 			(:t ;timer event, the next frame if the last is done
 				(mail-timeout (elem-get select +select_timer) +rate 0)
-				(unless farming
+				(unless (. render :busy)
 					(set-count)
 					(update-physics)
-					(cond
-						((or (not shared_canvas) (/= (. *mode* :get_selected) 1))
-							(one-task-frame "one task"))
-						(warming
-							(one-task-frame "one task, while the nodes get ready"))
-						((start-farm-frame))))
-				(and jobs (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
-					(. jobs :refresh +retry_timeout)))))
-	(farm-end)
+					(next-frame)
+					(setq out (. render :busy)))
+				(. render :tick))))
+	(. render :close)
 	(. *window* :close))

@@ -21,6 +21,15 @@
 ; finds it by them, the once. So there is the one copy of a picture on
 ; the machine, however many nodes draw with it, Chris: "If we have
 ; shared memory pixmaps, why do we need the texture on all children ?"
+;
+; The GPU's side is the same job to a farm of one, the child
+; +shader_tris_gpu_child, given the whole frame as its strip. It has the
+; two shaders as a pair on the GPU of its node, lib/gpu/render.inc, and
+; finds for itself how the frame gets to the app. On the node that has
+; the GUI its GPU is the GUI's, and it draws straight into the texture
+; of the app's canvas, which the job names, (canvas-target), nothing is
+; copied. Anywhere else it draws to a target of its own, and reads that
+; back onto the app's pixels in shared memory. Its answer says which.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././task/jobs.inc")
@@ -30,62 +39,75 @@
 ;passed over
 (import "gui/canvas/lisp.inc")
 
-(defq +shader_tris_child "lib/gpu/tris_child.lisp")
+(defq +shader_tris_child "lib/gpu/tris_child.lisp"
+	+shader_tris_gpu_child "lib/gpu/tris_gpu_child.lisp")
 
 ;a strip for a child to draw. Where it asks for a mesh, the key of the
-;shared pixels, the size of the frame, the rows, the cull, 0, 1 or 2,
-;then the paths of the vertex and pixel shader files, then the draws
+;shared pixels, the texture of the app's canvas as the GUI of the app's
+;node has it, 0 if there is none, the size of the frame, the rows, the
+;cull, 0, 1 or 2, then the paths of the vertex and pixel shader files,
+;then the draws
 (structure +strip +job_size
 	(netid ask)
-	(long shared)
+	(long shared target)
 	(uint width height y y1 cull vfile_length pfile_length draws)
 	(offset files))
 
 ;a draw, the number of the mesh, the rows of the frame it may be on, then
 ;the inputs blocks of the two shaders, then the textures of the pixel
 ;shader, in the order it has them, a line each, its key, its width and
-;its height. A child whose strip is none of those rows does nothing for
-;it, it does not even place its vertices
+;its height, then the files of a vertex and a pixel shader of its own, a
+;line each, if it is not drawn with the strip's. A child whose strip is
+;none of those rows does nothing for it, it does not even place its
+;vertices
 (structure +strip_draw 0
 	(long mesh)
-	(uint vblock_length pblock_length y y1 tfiles_length)
+	(uint vblock_length pblock_length y y1 tfiles_length sfiles_length)
 	(offset blocks))
 
-;its answer, the first row, and 1 if it was drawn, 0 if the child could
-;not reach the pixels
+;its answer, the first row, and 1 if it was drawn on the app's pixels, to
+;be shown by a (:swap), 2 if the GPU drew it straight into the texture of
+;the app's canvas, to be shown as that is, 0 if the child could do
+;neither
 (structure +strip_reply +job_reply_size
 	(uint y drawn))
+
+(defq +strip_none 0 +strip_pixels 1 +strip_texture 2)
 
 ;a child asks for a mesh, where to send it, and its number
 (structure +strip_ask 0
 	(netid reply)
 	(long mesh))
 
-(defun shader-strip (vfile pfile ask shared width height y y1 cull draws)
-	; (shader-strip vfile pfile ask shared width height y y1 cull draws) -> job
+(defun shader-strip (vfile pfile ask shared width height y y1 cull draws &optional target)
+	; (shader-strip vfile pfile ask shared width height y y1 cull draws [target]) -> job
 	;the job for rows y to y1 of a frame of that width and height. ask
 	;is the mailbox a child asks for a mesh at, shared the key of the
 	;pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1
-	;tfiles]), the number of a mesh, the blocks of (shader-pack) for the
-	;two shaders, the rows of the frame the mesh may be on, if the app
-	;knows, all of them if not, and a list of the textures of the pixel
+	;tfiles sfiles]), the number of a mesh, the blocks of (shader-pack) for
+	;the two shaders, the rows of the frame the mesh may be on, if the app
+	;knows, all of them if not, a list of the textures of the pixel
 	;shader, if it has any, in the order it has them, each of
-	;(shader-strip-texture).
+	;(shader-strip-texture), and the files of a vertex and a pixel shader
+	;of its own, a list of the two, for a thing that is not drawn with
+	;vfile and pfile: they have the inputs those have. target is of (canvas-target), for the GPU's
+	;child: it draws there if it is on the node the ask mailbox is of.
 	(apply (const cat) (cat (list (setf-> (str-alloc +strip_size)
-					(+strip_ask ask) (+strip_shared shared)
+					(+strip_ask ask) (+strip_shared shared) (+strip_target (ifn target 0))
 					(+strip_width width) (+strip_height height) (+strip_y y) (+strip_y1 y1)
 					(+strip_cull (cond ((not cull) 0) ((eql cull :front) 2) (1)))
 					(+strip_vfile_length (length vfile)) (+strip_pfile_length (length pfile))
 					(+strip_draws (length draws))) vfile pfile)
-			(map (lambda ((mesh vblock pblock &optional dy dy1 tfiles))
-					(defq tfiles (join (ifn tfiles '()) "\n"))
+			(map (lambda ((mesh vblock pblock &optional dy dy1 tfiles sfiles))
+					(defq tfiles (join (ifn tfiles '()) "\n") sfiles (join (ifn sfiles '()) "\n"))
 					(cat (setf-> (str-alloc +strip_draw_size)
 							(+strip_draw_mesh mesh)
 							(+strip_draw_vblock_length (length vblock))
 							(+strip_draw_pblock_length (length pblock))
 							(+strip_draw_y (max 0 (ifn dy 0)))
 							(+strip_draw_y1 (max 0 (ifn dy1 height)))
-							(+strip_draw_tfiles_length (length tfiles))) vblock pblock tfiles)) draws))))
+							(+strip_draw_tfiles_length (length tfiles))
+							(+strip_draw_sfiles_length (length sfiles))) vblock pblock tfiles sfiles)) draws))))
 
 (defun shader-strip-texture (canvas)
 	; (shader-strip-texture canvas) -> :nil | str

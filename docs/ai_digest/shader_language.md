@@ -37,9 +37,9 @@ rewrite of every shader.
 * `lib/gpu/msl.inc`, the Metal Shading Language text back end.
 * `lib/gpu/spirv.inc`, the SPIR-V binary back end, for Vulkan.
 * `lib/gpu/vp.inc`, the VP back end, native code.
-* `lib/gpu/gui.inc`, a shader on the GPU of the GUI.
+* `lib/gpu/render.inc`, a pair of shaders on the GPU of a node.
 * `lib/gpu/kernel.inc`, a kernel on the GPU, see Kernels below.
-* `src/host/gui_sdl3.cpp`, the SDL3 GUI driver, which can draw one.
+* `src/host/gpu_sdl3.cpp`, the SDL3 GPU driver, which runs and draws them.
 * `apps/demos/surface/surface.shader`, the surface raymarch demo, a port of
   https://vygr.github.io/JS-Raymarch.
 * `apps/demos/surface/`, an app that runs that shader, on the GPU or with none.
@@ -449,27 +449,35 @@ there is nothing in a register to save.
 
 ### Triangles on the GPU
 
-The same two shader files are drawn by the GPU of the GUI, through Metal on
-a Mac and through Vulkan on a Raspberry Pi.
+The same two shader files are drawn by the GPU of a node, through Metal on a
+Mac and through Vulkan on a Raspberry Pi, `lib/gpu/render.inc` and the calls
+of `lib/gpu/compute.inc`.
 
 ```vdu
-(defq pair (shader-gui-pair vertex pixel :t)
-	mesh (shader-gui-mesh verts))
-(shader-gui-frame canvas (list (list pair mesh vblock pblock)))
+(defq pair (shader-gpu-pair vertex pixel :t)
+	mesh (gpu-mesh verts) target (gpu-target width height)
+	frame (gpu-draw-frame (list (list pair mesh vblock pblock))))
+(while (eql 0 (defq ticket (gpu-draw target frame))) (task-sleep 500))
+(defq pixels (gpu-take-pixels ticket (* width height 4)))
 ```
 
-`(shader-gui-pair vertex pixel [cull])` gives a pair the GPU can draw with,
-`:nil` if this host can not. `(shader-gui-mesh verts)` puts the vertices of a
-mesh on the GPU, the bytes of `(shader-verts-str)`, and they stay there, a
-frame names the mesh and sends none of it. `(shader-gui-frame canvas draws)`
-draws a frame into the texture of the canvas, with a depth buffer, `draws` a
-list of `(pair mesh vblock pblock)`, a pair, a mesh, and the blocks of the two
-shaders of the pair. So the things of a frame need not all be drawn with the
-one pair. It gives the canvas, `:nil` if the GPU is busy or a pair is still
-being built, try again, or `:error`.
+`(shader-gpu-pair vertex pixel [cull])` gives a pair the GPU can draw with,
+`:nil` if this node has none. `(gpu-mesh verts)` puts the vertices of a mesh
+on the GPU, the once, and a frame names the mesh and sends none of it.
+`(gpu-draw-frame draws)` is a frame, a list of `(pair mesh vblock pblock
+[pictures])`, and `(gpu-draw target frame)` draws it into a target of
+`(gpu-target width height)`, cleared first, what is nearest is what is seen.
+It gives 0 while a pair is still being built, try again, `:nil` for a frame
+that can not be drawn, and a ticket, of which `(gpu-take-pixels ticket len
+[buf at])` has the pixels, into a block of shared memory if one is given.
+With a third argument the target is the handle of a texture of the GUI, on
+the node that has it, `(gpu-draw handle frame :t)`: the frame is drawn into
+it where it is, nothing is read back, and `:t` is given.
 
-A pair is let go of with `(canvas-shader-destroy)`, and a mesh with
-`(canvas-mesh-destroy)`.
+A pair is let go of with `(gpu-pair-free)`, a mesh with `(gpu-mesh-free)`, a
+target with `(gpu-target-free)`. An app has none of these in it: a
+`(Render-tris)`, `lib/gpu/render_farm.inc`, or the child of `lib/gpu/
+tris.inc`, makes them.
 
 `(shader-msl-pair vertex pixel)` is the text, a vertex function and a
 fragment function. The attrs of a vertex are `[[attribute(n)]]`, the
@@ -483,15 +491,14 @@ multiplied in, the driver blends the target that way. So the GPU has the
 rule the native code has, though not its rounding, a see through pixel can
 be a level out.
 
-The host has three calls for it, and one to let go of a mesh,
+The host has the calls for it in its GPU table,
 [`docs/ai_digest/host_interface.md`](host_interface.md). A pair is made from the code of the two
 stages and a layout, a byte for how many attrs a vertex has, a byte for the
-cull, and a byte for the floats of each attr, and the driver makes a pipeline
-with a depth test. A frame is given to it as the one block, a count, then for
-each thing drawn its pair, its mesh, the lengths of the two blocks, and the
-blocks. `src/host/gui_sdl3.cpp`. The Lisp side of them is
-`(canvas-pair-create)`, `(canvas-mesh-create)`, `(canvas-mesh-destroy)` and
-`(. canvas :shade_tris frame)`, in `gui/canvas/lisp.inc`.
+cull, a byte for the floats of each attr, and a byte for how many pictures
+the pixel shader reads, and the driver makes a pipeline with a depth test. A
+frame is given to it as the one block, a count, then for each thing drawn
+its pair, its mesh, the lengths of the two blocks, the blocks, and its
+pictures. `src/host/gpu_sdl3.cpp`.
 
 The edges of triangles are smoothed by the GPU's own means. The driver
 draws a frame into a target with 4 samples a pixel, where the device has
@@ -557,13 +564,12 @@ given differs:
   code has four slots a texture after its inputs, where the pixels are, the
   width, the height and the bytes a row. A texture not given reads as
   nothing, black and clear.
-* On the GPU, `(shader-gui-frame)`: a list of textures as the fifth thing of
-  a draw, `(pair mesh vblock pblock textures)`, each from
-  `(shader-gui-texture canvas)`, the picture of a canvas as the GPU has it.
-  The canvas must have been shown, `(. canvas :swap)`, and is kept for as
-  long as it is drawn with. The pixels of a new canvas go to the GPU with the
-  next frame of the GUI, not when it is made, and till then the driver does
-  not draw with it, the frame is to be tried again.
+* On the GPU, `(gpu-draw)`: a list of pictures as the fifth thing of
+  a draw, `(pair mesh vblock pblock pictures)`, each from `(gpu-picture
+  pixels width height)`, a copy on the GPU of the pixels of a pixmap, a str
+  of them or the block of a buf they are in. It is a copy: what is done to
+  the pixels after is not seen, and it is let go of with
+  `(gpu-picture-free)`.
 * By strips, `(shader-strip)`: a list of textures as the sixth thing of a
   draw, each from `(shader-strip-texture canvas)`, the key and size of a
   canvas whose pixels are in shared memory, `(canvas-shared)`. A child
@@ -979,92 +985,58 @@ pixels looked at are the same bytes the M4 gives. The surface demo in GPU
 mode ran at 2 frames a second, 640 by 480, which fits the 394ms above,
 and that was with nothing else able to draw, see the next section.
 
-## On The GPU, In The GUI
+## On The GPU, Of A Node
 
-Graphics belongs to the GUI. A GUI app runs on the node that has the GUI, so
-that no pixmap has to cross a link, and a shader is drawn there too, by the
-host GUI driver, into the texture of a canvas. There is no service and no
-message. The texture is then composited like any other.
+A shader is drawn on the GPU by a task of a node, with the GPU that node has,
+`src/host/gpu_sdl3.cpp`, any node of a host on SDL3, a desktop or not. An app
+does not draw one itself. It has a farm of one, a child that does, given the
+frame as a job, and a farm of many on the CPU given the same job in parts:
+[`docs/ai_digest/render_farm.md`](render_farm.md) is the model.
 
-```vdu
-(import "lib/gpu/gui.inc")
+* A pixel shader is run as a kernel, a pixel a thread, see Kernels below.
+  `lib/gpu/shade.inc` is the GPU's child of a tile of a frame, and
+  `lib/gpu/tile.inc` the CPU's. The pixels are read back onto the app's
+  canvas, in shared memory.
 
-(defq shader (shader-gui program))
-(when shader
-	(. canvas :shade shader (shader-pack program vals)))
-```
+* A pair, a vertex shader and a pixel shader, draws triangles, see Triangles
+  on the GPU above. `lib/gpu/tris.inc` has the two children of a strip of a
+  frame, and `lib/gpu/render_farm.inc` an object an app holds that hides
+  them, `(Render-tris canvas vfile pfile)`.
 
-`(shader-gui program)` asks the host GUI driver which shading language it
-takes, gives it the shader from that back end, MSL text or a SPIR-V module,
-and returns the shader, or `:nil` if this driver can not draw one.
-`(. canvas :shade shader block)` draws it over the whole canvas with that
-inputs block. The pixmap of the canvas is not used and not changed. A later
-`(. canvas :swap +swap_write)` puts the pixmap back on show, so an app can go from one to
-the other frame by frame.
+On the node that has the GUI the GPU of the node is the GUI's own, the 2D
+drawing is SDL's GPU renderer on the same device. So the child of a frame of
+triangles draws there straight into a texture the GUI shows, and nothing is
+read back. It draws into the texture of a canvas that is not on show,
+`(canvas-target canvas)`, and when the frame is whole `(. canvas :exchange
+that)` has the two canvases exchange their textures: what is shown is never a
+frame part drawn, nor a texture nothing has been drawn into. On any other
+node it draws to a target of its own and reads that back onto the app's
+pixels. The child finds which for itself, and its answer says.
 
-A shader is built by the driver in its own time, on a thread, so
-`(shader-gui program)` returns at once, with a shader that may not be ready.
-`:shade` returns the canvas if it drew, `:nil` if it drew nothing and the app
-should try again on its next tick, and `:error` if the driver could not build
-the shader. It draws nothing while the shader is still being built. On the
-Raspberry Pi 4 that is the 18 seconds, the first time, and the surface demo's
-status line says so while the desktop carries on, where the whole GUI used to
-stop.
+A pair or a kernel is built by the driver in its own time, on a thread, so
+it is given at once and may not be ready: a draw or a dispatch says so, and
+is tried again. On the Raspberry Pi 4 the first build of the raymarch shader
+is 18 seconds, and the desktop carries on.
 
-One shader draw is on the go at a time for a canvas as well, and on a slow GPU
-for the whole GUI, [`docs/ai_digest/host_interface.md`](host_interface.md) has the rule, so `:nil` is also the GPU not
-having finished the last one. On a fast GPU it
-never matters. On a slow one it is what keeps the desktop alive. The GUI is
-drawn by the same GPU, a GPU can not be stopped part way through a draw, and
-a Raspberry Pi 4 takes 400ms over a frame of the raymarch shader, so with a
-frame asked for on every tick the mouse pointer moved twice a second.
+One draw into a texture of the GUI's is on the go at a time, and on a slow
+GPU for the whole GUI, [`docs/ai_digest/host_interface.md`](host_interface.md)
+has the rule. The GUI is drawn by the same GPU, and a GPU can not be stopped
+part way through a draw, so draws that pile up stop the desktop.
 
-So a part of the canvas can be drawn, `(. canvas :shade shader block x y x1
-y1)`, in pixels of the texture, and the rest is left as it was. The surface
-demo draws its GPU frame as strips, one on each tick the GPU is free, and
-sizes the strip by how many ticks the last one took, to take the GPU more
-than one tick and less than two. On the Pi that settles at 15 to 40 lines.
-With the pointer moving the screen is then drawn 50 times a second, every
-20ms, the rate of the TV, and the raymarch runs at about 1.5 frames a second
-where it ran at 2.4 with the desktop frozen. On a Mac the strip is the whole
-frame and nothing has changed.
+To get at the pixels the GPU drew into a texture, swap the other way,
+`(. canvas :swap +swap_read)`. A swap with a negative number reads the
+texture back into the pixmap.
 
-The strips are not drawn on show, a frame filling in from the top is a poor
-thing to watch. The demo has a second canvas that is never added to the
-window, draws the strips into that, and when the frame is whole
-`(. canvas :exchange that)` has the two canvases exchange their textures.
-
-To get at the pixels the GPU drew, swap the other way, `(. canvas :swap
-+swap_read)`. A swap with a negative number reads the texture back into the
-pixmap. The raymarch shader drawn this way and read back is within 1 in 255
-of the native code for it, on every pixel of a 64 by 48 frame.
-
-Under that are three functions, `(canvas-shader-format)`,
-`(canvas-shader-create vertex fragment)` and `(canvas-shader-destroy shader)`,
-and six calls at the end of the host GUI table, `shader_format`,
-`shader_create`, `shader_destroy`, `shader_texture`, `shader_draw` and
-`read_texture`, see [`docs/ai_digest/host_interface.md`](host_interface.md). Every
-driver has them, the SDL2, raw and frame buffer drivers answer that they can
-not, format 0.
-
-The driver that can is `src/host/gui_sdl3.cpp`, built with `make gui GUI=sdl3`.
-It is the GUI on SDL3, with SDL's GPU renderer for the 2D drawing, and a
-shader is drawn with SDL's GPU interface on the same device, into a texture
-the renderer then blits. `make gui` builds the SDL2 driver again.
+The driver of a GUI on SDL3 is `src/host/gui_sdl3.cpp`, built with `make gui
+GUI=sdl3`. `make gui` builds the SDL2 driver again, which has no texture the
+GPU can draw into, and an app's triangles are then read back, or drawn by
+the CPU.
 
 SDL2 and SDL3 share the names of their calls, so one program can not link
 both, and the sdl3 GUI driver comes with an AUDIO driver of its own,
 `src/host/audio_sdl3.cpp`. SDL3 gives it the device and reads a wav file, the
 mixing is done by `src/host/mixer.h`, 32 voices, each with its pan, so there is no
 mixer library to depend on.
-
-The surface demo has a CPU and a GPU button, and comes up on the GPU if the
-driver can draw a shader. On a Mac that is 60 frames a second, the rate of
-its timer. If the driver has not built the shader within half a second the
-CPU starts drawing frames, and the GPU takes over when the shader is built,
-which on a Raspberry Pi 4 the first time is 18 seconds on. On a driver that
-can not, the SDL2 one say, it comes up on the CPU, and the GPU button says
-the driver can not.
 
 ## The VP Back End
 
@@ -1160,7 +1132,7 @@ something. It fills in the same program. A program from text,
 `(shader-compile forms)`, is all there from the start, and has a key too.
 
 What a back end makes of a file for the GPU is kept the same way,
-`(shader-kept-text name lambda)`. `(shader-gui)` and `(shader-gui-pair)`
+`(shader-kept-text name lambda)`. `(shader-gpu-pair)` and the kernels
 keep the Metal text or the SPIR-V modules of a file, or of a pair of files,
 under the hashes of the files and of the back end, and hand them to the
 driver the next time with nothing of the file read. What the driver then

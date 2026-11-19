@@ -5,9 +5,17 @@
 (import "./vp.inc")
 (import "./tris.inc")
 
-;the pair of shaders last asked for, as native code. They are assembled
-;by the first child on this machine to ask for them
-(defq shader_files "" pipeline :nil vertex :nil pixel :nil)
+;each pair of shaders it has been asked for, by its two files, as native
+;code: (vertex pixel pipeline). They are assembled by the first child on
+;this machine to ask for them
+(defq pipelines (Fmap 11))
+
+(defun pipeline-of (vfile pfile)
+	; (pipeline-of vfile pfile) -> (vertex pixel pipeline)
+	(unless (defq with (. pipelines :find (defq files (cat vfile "\n" pfile))))
+		(defq vertex (shader-load vfile) pixel (shader-load pfile))
+		(. pipelines :insert files (setq with (list vertex pixel (shader-vp-pipeline vertex pixel)))))
+	with)
 
 ;the meshes it has been sent, by their numbers, and the triangles of a
 ;mesh of that many vertices, which are just the vertices in order
@@ -57,37 +65,35 @@
 		(getf-> msg +job_key +job_reply +strip_ask +strip_shared +strip_width +strip_height
 			+strip_y +strip_y1 +strip_cull +strip_vfile_length +strip_pfile_length +strip_draws))
 	(defq at (+ +strip_files vfile_length pfile_length)
-		files (slice msg +strip_files at))
-	(unless (eql files shader_files)
-		(setq shader_files files
-			vertex (shader-load (slice files 0 vfile_length))
-			pixel (shader-load (slice files vfile_length -1))
-			pipeline (shader-vp-pipeline vertex pixel)))
-	(defq pixmap (pixmap-attach held width height pixels_key)
+		;the pair of the strip, what a draw with none of its own is drawn with
+		usual (pipeline-of (slice msg +strip_files (+ +strip_files vfile_length))
+			(slice msg (+ +strip_files vfile_length) at))
+		pixmap (pixmap-attach held width height pixels_key)
 		depth (and pixmap (> y1 y) (shader-vp-depth width (- y1 y)))
-		attrs (elem-get (third pipeline) 2))
-	(defq gone :nil)
+		gone :nil)
 	(times draws
 		(setq gone (or gone (mail-poll (list main))))
-		(bind '(id vlen plen dy dy1 tlen) (getf-> (slice msg at (+ at +strip_draw_size))
+		(bind '(id vlen plen dy dy1 tlen slen) (getf-> (slice msg at (+ at +strip_draw_size))
 				+strip_draw_mesh +strip_draw_vblock_length +strip_draw_pblock_length
-				+strip_draw_y +strip_draw_y1 +strip_draw_tfiles_length))
+				+strip_draw_y +strip_draw_y1 +strip_draw_tfiles_length +strip_draw_sfiles_length))
 		;a mesh that is on none of the rows of this strip is not drawn,
 		;and not asked for till it is. A strip of no rows asks for them all
-		(defq blocks (+ at +strip_draw_blocks)
+		(defq blocks (+ at +strip_draw_blocks) tfiles (+ blocks vlen plen) sfiles (+ tfiles tlen)
 			verts (if (or (= y1 y) (and (< dy y1) (> dy1 y))) (mesh id ask)))
-		(and depth verts (not gone)
-			(shader-vp-draw-tris pipeline verts (order (/ (length verts) 8 attrs)) pixmap depth
+		(when (and depth verts (not gone))
+			(bind '(vertex pixel pipeline) (if (= slen 0) usual
+					(apply (const pipeline-of) (split (slice msg sfiles (+ sfiles slen)) "\n"))))
+			(shader-vp-draw-tris pipeline verts (order (/ (length verts) 8 (elem-get (third pipeline) 2))) pixmap depth
 				(shader-unpack vertex (slice msg blocks (+ blocks vlen)))
 				;the inputs of the pixel shader, and each of its textures
 				;under its name, the picture it was named as. One that is
 				;not named, or can not be found, is no picture
-				(cat (shader-unpack pixel (slice msg (+ blocks vlen) (+ blocks vlen plen)))
+				(cat (shader-unpack pixel (slice msg (+ blocks vlen) tfiles))
 					(map (lambda ((name) named) (list name (picture named)))
 						(shader-textures pixel)
-						(split (slice msg (+ blocks vlen plen) (+ blocks vlen plen tlen)) "\n")))
+						(split (slice msg tfiles sfiles) "\n")))
 				(elem-get '(:nil :t :front) cull) 3 0 y width y1 y))
-		(setq at (+ blocks vlen plen tlen)))
+		(setq at (+ sfiles slen)))
 	(unless gone
 		(mail-send reply (setf-> (str-alloc +strip_reply_size)
 				(+job_reply_key key) (+strip_reply_y y) (+strip_reply_drawn (if pixmap 1 0))))))

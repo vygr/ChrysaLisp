@@ -232,7 +232,8 @@
 		;An object with :smooth is lit smooth, a normal a vertex. One with
 		;:shaders, the files of a vertex and a pixel shader, is drawn with
 		;those, they have the inputs of the scene's own, and its draw has
-		;the files on the end, for what draws it to choose them by.
+		;no pictures, an empty list, and the files on the end, for what
+		;draws it to choose them by: as a strip takes a draw, (shader-strip).
 		(defq mat4x4_frust (mat4x4-frustum left right top bottom near far)
 			matrix_stack (list (mat4x4-unity)) draws (list) thin (list)
 			pipeline (scene-pipeline (get :shaders this)))
@@ -260,7 +261,7 @@
 								(shader-pack (second with)
 									(list (list 'color (cat (rest col) (slice col 0 1))))))
 							(ball-rows centre radius mat4x4_obj mat4x4_frust height)
-							(if files (list files) '())))
+							(if files (list '() files) '())))
 					;what is see through is drawn after all that is not, the
 					;furthest first, by how far off its middle is
 					(if (< alpha 1.0)
@@ -287,7 +288,7 @@
 			depth (shader-vp-depth (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
 		(raise :meshes)
 		(. canvas :fill 0)
-		(each (lambda ((id vblock pblock &optional y y1 files))
+		(each (lambda ((id vblock pblock &optional y y1 pictures files))
 				(defq verts (elem-get meshes id) with (if files (scene-pipeline files) pipeline))
 				(shader-vp-draw-tris with verts (scene-order (/ (length verts) 56)) pixmap depth
 					(shader-unpack (first with) vblock) (shader-unpack (second with) pblock) :t)

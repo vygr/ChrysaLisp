@@ -4,8 +4,7 @@
 (import "service/lock/app.inc")
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
-(import "lib/gpu/tris.inc")
-(import "lib/gpu/gui.inc")
+(import "lib/gpu/render_farm.inc")
 (import "./app.inc")
 
 (enums +event +event_user
@@ -15,9 +14,9 @@
 
 ;the timers are last. A frame can take longer than the frame timer, and
 ;what is first in the list is what is read first, so a timer that was
-;ahead of the farm would leave the farm unread
+;ahead of the mail of what draws the faces would leave it unread
 (enums +select 0
-	(enum main task reply tip farm_task farm_reply farm_ask frame_timer retry_timer))
+	(enum main task reply tip frame_timer retry_timer))
 
 (defq anti_alias :nil frame_timer_rate (/ 1000000 30) retry_timer_rate 1000000
 	retry_timeout (task-timeout 60) +min_size 450 +max_size 800
@@ -29,11 +28,15 @@
 	+top (* +focal_dist +double_1/2) +bottom (* +focal_dist +double_-1/2)
 	+left (* +focal_dist +double_-1/2) +right (* +focal_dist +double_1/2)
 	*auto_mode* :nil *render_mode* :nil *use_gpu* :t
+	;the size of picture that is wanted, the last a window being sized
+	;said. And while a canvas of a new size has no whole frame yet, the
+	;one that is still on show
+	*want_size* canvas_size *shown* :nil
 	;the toolbar as it was when it was last closed, (config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "mesh.tre"))
 
 ;the pixels of the canvas are in shared memory if the host has it, and
-;the faces are then drawn on them by a child on each node, a strip each
+;the faces can then be drawn on them by a child on each node, a strip each
 (defun make-canvas (size)
 	(ifn (canvas-shared size size canvas_scale) (Canvas size size canvas_scale)))
 
@@ -44,7 +47,7 @@
 			(ui-buttons (+sym_mode +sym_auto) +event_mode))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
 				(:paper :paper_toolbar2)) :connect +event_style)
-		;what draws the faces, the nodes, a strip each, or the GPU of the GUI
+		;what draws the faces, the nodes, a strip each, or the GPU
 		(. (ui-radio-bar *gpu_toolbar* ("CPU" "GPU") (:font :font_body)) :connect +event_gpu)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -122,105 +125,40 @@
 ;import actions and bindings
 (import "./actions.inc")
 
-(defun strips (draws rows)
-	;a job for each child of the farm, a strip of the frame, or with no
-	;rows, which a child answers when it has the shaders and the meshes
-	(defq count (. farm :size) size (* canvas_size canvas_scale))
-	(setq farm_key (canvas-key *main_widget*))
-	(. farm :add (map! (# (shader-strip (first +scene_shiny_files) (second +scene_shiny_files)
-					(elem-get select +select_farm_ask) farm_key size size
-					(if rows (/ (* (!) size) count) 0) (if rows (/ (* (inc (!)) size) count) 0) :t draws)) '() 0 count)))
-
-(defun farm-end ()
-	;the farm let go of, its work has stopped
-	(setq farm (jobs-end farm select +select_farm_task +select_farm_reply)
-		farming :nil warming :nil))
-
-(defun warm-farm (draws)
-	;a new farm, a child for each node but this one, and none of them on
-	;this one, a strip is one long call and would hold up the app and the
-	;GUI. Till they have all said they are ready the frames are drawn here
-	(farm-end)
-	(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
-			(elem-get select +select_farm_reply)
-			(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)
-		warming :t)
-	(strips draws :nil))
-
-(defun draw-faces-gpu (draws)
-	; (draw-faces-gpu draws) -> :t | :nil
-	;a frame of the faces by the GPU of the GUI, if the host has one that
-	;can and it is wanted, the g key says. :t if there is no more to do for
-	;this frame, it was drawn, or the GPU is busy and it is to be tried
-	;again. :nil if the frame is to be drawn by the nodes, or here
-	(and *use_gpu* (not gpu_pair) (not gpu_failed)
-		;the pair of shaders, the first time, the driver builds it in its
-		;own time
-		(unless (setq gpu_pair (shader-gui-pair (shader-load (first +scene_shiny_files))
-					(shader-load (second +scene_shiny_files)) :t))
-			(setq gpu_failed :t)))
-	;a host that can not, and the button goes back
-	(when (and *use_gpu* gpu_failed)
-		(setq *use_gpu* :nil)
-		(. *gpu_toolbar* :set_selected 0))
-	(when (and *use_gpu* gpu_pair)
-		(defq drawn (shader-gui-frame *main_widget*
-				(map (lambda ((id vblock pblock &ignore))
-						;a mesh goes to the GPU the first time it is drawn, and
-						;is kept there
-						(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
-						(unless (elem-get gpu_meshes id)
-							(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
-						(list gpu_pair (ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws)))
-		(cond
-			((eql drawn :error)
-				;a pair the driver could not build is still let go of
-				(canvas-shader-destroy gpu_pair)
-				(setq gpu_pair :nil gpu_failed :t *use_gpu* :nil)
-				(. *gpu_toolbar* :set_selected 0)
-				:nil)
-			(drawn (setq gpu_drawn :t))
-			;not drawn. Once the GPU has drawn a frame that is it being busy,
-			;so this frame is tried again. Before that the driver is still
-			;building the pair, and the frame is drawn the other way
-			(gpu_drawn (setq *dirty* :t)))))
-
 (defun draw-faces ()
-	;a frame of the faces. By the GPU if it can and is wanted. If not, by
-	;the farm if the pixels can be shared, there is more than this node,
-	;and the children are ready. Here if not
-	(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size canvas_scale))
-		now (pii-time))
-	(cond
-		((draw-faces-gpu draws))
-		((and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
-				(> (length (lisp-nodes :t)) 1) farm)
-			(setq farming :t last_farm now)
-			(. *main_widget* :fill 0)
-			(strips draws :t))
-		(:t (and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
-				(> (length (lisp-nodes :t)) 1)
-				(warm-farm draws))
-			(.-> scene (:draw *main_widget* draws))
-			(. *main_widget* :swap +swap_write))))
+	;a frame of the faces, by the render: the GPU if it can and is wanted,
+	;the nodes, a strip each, or here. A host with no GPU for it, and the
+	;button goes back
+	(unless (eql (. render :mode (if *use_gpu* :gpu :cpu)) :gpu)
+		(when *use_gpu*
+			(setq *use_gpu* :nil)
+			(. *gpu_toolbar* :set_selected 0)))
+	(. render :frame (. scene :draws +left +right +top +bottom +near +far (* canvas_size canvas_scale))))
+
+(defun new-canvas ()
+	;a canvas of the size that is wanted, if that is not the size there
+	;is, drawn on from this frame. It is not put on show till a frame of it
+	;is whole, (show-canvas): the one on show stays till then, so nothing
+	;is seen that is not a picture, and nothing waits for a frame
+	(unless (= *want_size* canvas_size)
+		(unless *shown* (setq *shown* *main_widget*))
+		(setq *main_widget* (make-canvas *want_size*) canvas_size *want_size*)
+		(. *main_widget* :set_canvas_flags +canvas_mode)
+		(. render :canvas *main_widget*)))
+
+(defun show-canvas ()
+	;a frame of the new canvas is whole: it goes on show, and the old one,
+	;whose pixels may be shared, is let go of
+	(.-> *shown* :sub :free)
+	(. *main_backdrop* :add_child *main_widget*)
+	(bind '(w h) (. *main_backdrop* :get_size))
+	(. *main_widget* :change 0 0 w h)
+	(. *window* :layout)
+	(setq *shown* :nil))
 
 (defun frame-rotate ()
 	(. scene :set_rotation +double_0 +double_0 *rotz*)
 	(each (# (. %0 :set_rotation *rotx* *roty* +double_0)) (. scene :children)))
-
-(defun frame-now ()
-	;a frame here and now, not by the farm, which answers later. By the GPU if
-	;it takes it, it may be busy, and if not on this node
-	(frame-rotate)
-	(setq *dirty* :nil)
-	(if *render_mode*
-		(progn
-			(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size canvas_scale)))
-			(unless (and (draw-faces-gpu draws) (not *dirty*))
-				(.-> scene (:draw *main_widget* draws))
-				(. *main_widget* :swap +swap_write)))
-		(. scene :render *main_widget* (* canvas_size canvas_scale)
-			+left +right +top +bottom +near +far :nil)))
 
 (defun config-load ()
 	;the toolbar as it was when last closed, or as it is the first time
@@ -250,19 +188,16 @@
 	(. *window* :open)
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
 		meshes (list) scene (create-scene meshes)
-		;the farm that draws the faces, a frame is out with it, it has
-		;been asked if it is ready, and it can not reach the pixels. A
-		;farm lasts while its work goes on: one that has had no frame for
-		;+farm_stale, less than the time a child waits for work before it
-		;goes, is let go of, and the next frame makes a new one
-		farm :nil farming :nil warming :nil no_farm :nil last_farm 0 ticks 0 farm_key 0
-		;the pair of shaders on the GPU, it has drawn a frame, and it can not
-		gpu_pair :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
-		+farm_stale 3000000
+		;what draws the faces, lib/gpu/render_farm.inc. The scene has the
+		;meshes, and draws a frame here when no farm can
+		render (Render-tris *main_widget* (first +scene_shiny_files) (second +scene_shiny_files) :t)
 		;the meshes are made by a herd of children on this machine's nodes
 		jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
 			(elem-get select +select_reply) '(4 2)))
 	(. jobs :add meshes)
+	(def render :clear 0
+		:mesh_fn (lambda (id) (if (< -1 id (length (get :meshes scene))) (. scene :mesh id)))
+		:here_fn (lambda (canvas draws) (. scene :draw canvas draws)))
 	;the mode and turning buttons lit as they were
 	(if mode (action-mode))
 	(if auto (action-auto))
@@ -270,8 +205,11 @@
 	(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
 	(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
 	(while *running*
-		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
+		;the render's mail is read with the app's, before the timers, and
+		;dealt with
+		(bind '(idx *msg*) (. render :read select +select_frame_timer))
 		(cond
+			((not idx))
 			((= idx +select_tip)
 				;tip event
 				(. *window* :tip *msg*))
@@ -308,51 +246,24 @@
 					(set-rot *xrot_slider* *rotx*)
 					(set-rot *yrot_slider* *roty*)
 					(set-rot *zrot_slider* *rotz*))
-				;the next frame, if the last is not still out with the farm
-				(when (and *dirty* (not farming))
+				;the next frame, if the last is not still out with a farm
+				(when (and *dirty* (not (. render :busy)))
 					(setq *dirty* :nil)
+					(new-canvas)
 					(frame-rotate)
 					(if *render_mode*
 						(draw-faces)
 						(. scene :render *main_widget* (* canvas_size canvas_scale)
 							+left +right +top +bottom +near +far :nil)))
-				(and farm (= (setq ticks (% (inc ticks) 30)) 0)
-					(. farm :refresh retry_timeout))
-				;the faces have stood still a while, the farm's work has stopped
-				(and farm (not farming) (not warming) (> (- (pii-time) last_farm) +farm_stale)
-					(farm-end)))
-			((= idx +select_farm_task)
-				;a child of the farm has started
-				(if farm (. farm :launched *msg*)))
-			((= idx +select_farm_ask)
-				;a child of the farm has not got a mesh
-				(shader-mesh-send *msg* (. scene :mesh (getf *msg* +strip_ask_mesh))))
-			((= idx +select_farm_reply)
-				;a strip is drawn, or a child has said it is ready
-				(and farm (defq out (. farm :answered *msg*))
-					(cond
-						((= (getf *msg* +strip_reply_drawn) 0)
-							;a child that could not reach the pixels. If they are
-							;still the pixels of the canvas a farm is no use, and
-							;the faces are drawn here from now on. If the canvas is
-							;a new one, the window was sized, this farm is let go
-							;of, and the next frame makes one for the new canvas
-							(if (= farm_key (canvas-key *main_widget*)) (setq no_farm :t))
-							(farm-end)
-							(setq *dirty* :t))
-						((= out 0)
-							(cond
-								(warming (setq warming :nil last_farm (pii-time)))
-								(farming (setq farming :nil)
-									(if (= farm_key (canvas-key *main_widget*))
-										(. *main_widget* :swap +swap_write))))))))
+				;the patience of its farm, and one whose work has stopped, the
+				;faces have stood still a while, is let go of
+				(. render :tick))
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))
-			((. *window* :event *msg*))))
+			((. *window* :event *msg*)))
+		;a canvas of a new size goes on show once a frame of it is whole
+		(and *shown* (not (. render :busy)) (show-canvas)))
 	(config-save)
 	(. jobs :close)
-	(farm-end)
-	;what was kept on the GPU
-	(each (# (if %0 (canvas-mesh-destroy %0))) gpu_meshes)
-	(if gpu_pair (canvas-shader-destroy gpu_pair))
+	(. render :close)
 	(. *window* :close))

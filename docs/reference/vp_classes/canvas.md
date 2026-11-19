@@ -22,25 +22,13 @@ docs/reference/vp_classes/canvas.cwb
 
 ### (canvas-fpoly canvas x y mode list)
 
-### (canvas-mesh-create verts)
-
-### (canvas-mesh-destroy mesh)
-
-### (canvas-pair-create vertex fragment layout)
-
 ### (canvas-plot canvas x y)
 
 ### (canvas-resize canvas canvas)
 
-### (canvas-shade canvas shader block x y x1 y1)
-
-### (canvas-shader-create vertex fragment)
-
-### (canvas-shader-destroy shader)
-
-### (canvas-shader-format)
-
 ### (canvas-swap canvas flags)
+
+### (canvas-target canvas)
 
 ### (canvas-tile canvas data x1 y1 x2 y2)
 

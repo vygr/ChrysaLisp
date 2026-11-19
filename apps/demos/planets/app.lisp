@@ -2,15 +2,13 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/math/matrix.inc")
-(import "lib/gpu/vp.inc")
-(import "lib/gpu/gui.inc")
-(import "lib/gpu/tris.inc")
+(import "lib/gpu/render_farm.inc")
 
 ;A globe that turns, with a map on it: a mesh with a picture for a
-;texture, drawn by the GPU of the GUI, or with none by native code, a
-;strip of the frame by each node of this machine, or all of it here if
-;there is only this one. The maps are NASA's, made small, see
-;data/README.md
+;texture, drawn by a (Render-tris), lib/gpu/render_farm.inc, which has the
+;GPU draw it, or with none the nodes of this machine, a strip of the frame
+;each, or this task if there is only the one. The maps are NASA's, made
+;small, see data/README.md
 
 (enums +event +event_user
 	(enum planet mode))
@@ -18,7 +16,7 @@
 ;the timer is last, what is first in the list is what is read first, and
 ;a frame can take longer than a tick
 (enums +select 0
-	(enum main farm_task farm_reply farm_ask timer))
+	(enum main timer))
 
 (defq +size 512 +timer_rate (/ 1000000 30) +segs 64 +rings 32
 	;each globe: its name, its map, how far it leans, and how fast it turns
@@ -26,25 +24,12 @@
 		("Mars" "mars.cpm" 0.44 0.02) ("Jupiter" "jupiter.cpm" 0.05 0.03)
 		("Pluto" "pluto.cpm" 0.3 0.012))
 	+near +double_2 +far (n2d 8) +away (n2d -5.2)
-	vertex (shader-load (cat *app_root* "globe_vertex.shader"))
-	pixel (shader-load (cat *app_root* "globe_lit.shader"))
 	;the sun is up, to the left, and well round to our side of the globe
 	sun (doubles (n2d -0.4) (n2d 0.4) (n2d 0.8246))
 	lens (mat4x4-frustum (n2d -0.5) (n2d 0.5) (n2d 0.5) (n2d -0.5) +near +far)
 	select :nil id :t which 0 turn +double_0
-	;on the GPU, the pair of shaders, the ball, and has a frame been drawn
-	gpu_pair :nil gpu_mesh :nil gpu_drawn :nil gpu_want :t
-	;on this node, the same two shaders as native code
-	pipeline :nil frames 0 since (pii-time)
-	;how long the frames drawn with no GPU took, and how many of them
-	cpu_time 0 cpu_frames 0
-	;the children that draw a strip each, they have said they are ready,
-	;a frame is out with them and when it went, and they can not be used.
-	;A farm lasts while its work goes on: it is let go of when the GPU has
-	;the frames, and at a change of mode, and a new one made when the
-	;nodes are to draw again
-	farm :nil farm_ready :nil farm_asked :nil farming :nil farm_began 0 no_farm :nil ticks 0
-	+retry_timeout (task-timeout 60))
+	;what draws the frames, and how many it has in the second
+	render :nil frames 0 since (pii-time))
 
 ;the maps, a canvas each, loaded when first wanted. Not in the (defq) of
 ;+planets: there the name is not yet a constant, and its value is the
@@ -98,137 +83,47 @@
 	(mat4x4-mul (mat4x4-translate +double_0 +double_0 +away)
 		(mat4x4-mul (mat4x4-rotz (n2d lean)) (mat4x4-roty turn))))
 
-(defun farm-end ()
-	;the farm let go of, its work has stopped
-	(setq farm (jobs-end farm select +select_farm_task +select_farm_reply)
-		farming :nil farm_ready :nil farm_asked :nil))
-
-(defun draw-gpu (vvals)
-	; (draw-gpu vvals) -> :t | :nil
-	;a frame by the GPU. :nil if it is to be drawn here, there is no GPU
-	;that can, or its driver has not yet built the pair
-	(and gpu_want (not gpu_pair)
-		(unless (setq gpu_pair (shader-gui-pair vertex pixel :t))
-			(setq gpu_want :nil)
-			(. *mode* :set_selected 0)))
-	(when (and gpu_want gpu_pair (defq tid (shader-gui-texture (globe-map which))))
-		(unless gpu_mesh (setq gpu_mesh (shader-gui-mesh (shader-verts-str verts))))
-		(defq drawn (shader-gui-frame *canvas* (list (list gpu_pair (ifn gpu_mesh 0)
-						(shader-pack vertex vvals) (shader-pack pixel (list (list 'sun sun))) (list tid)))))
-		(cond
-			((eql drawn :error)
-				;a pair the driver could not build is still let go of
-				(canvas-shader-destroy gpu_pair)
-				(setq gpu_pair :nil gpu_want :nil)
-				(. *mode* :set_selected 0)
-				:nil)
-			;the GPU has the frames, the farm that drew them while its pair
-			;was built has no more to do
-			(drawn (farm-end) (setq gpu_drawn :t))
-			;the GPU is busy with the last frame, or has not got the map
-			;yet, which goes to it with the next frame of the GUI, so the
-			;GUI is given a reason to draw one. This frame is let go
-			(gpu_drawn (. *status* :dirty) :t))))
-
-(defun strips (vvals rows)
-	;a job for each child, a strip of the frame, or with no rows a job of
-	;nothing, which has a child fetch the ball and the map and say it is
-	;ready
-	(defq count (. farm :size)
-		draws (list (list 0 (shader-pack vertex vvals) (shader-pack pixel (list (list 'sun sun)))
-				0 +size (list (ifn (shader-strip-texture (globe-map which)) "")))))
-	(. farm :add (map! (lambda () (shader-strip (cat *app_root* "globe_vertex.shader") (cat *app_root* "globe_lit.shader")
-					(elem-get select +select_farm_ask) (canvas-key *canvas*) +size +size
-					(if rows (/ (* (!) +size) count) 0) (if rows (/ (* (inc (!)) +size) count) 0) :t draws)) '() 0 count)))
-
-(defun draw-farm (vvals)
-	; (draw-farm vvals) -> :t | :nil
-	;a frame by the nodes of this machine, a strip each. :nil if it is to
-	;be drawn here: the pixels are not shared, there is only this node,
-	;or the children are not yet ready
-	(when (and (not no_farm) (/= (canvas-key *canvas*) 0) (/= (canvas-key (globe-map which)) 0)
-			(> (length (lisp-nodes :t)) 1))
-		(unless farm
-			;a new farm, a child for each node but this one, and none of
-			;them on this one, a strip is one long call and would hold up
-			;the app. Till they say they are ready the frames are drawn here
-			(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
-					(elem-get select +select_farm_reply)
-					(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)
-				farm_asked :t)
-			(strips vvals :nil))
-		(when farm_ready
-			(setq farming :t farm_began (pii-time))
-			(. *canvas* :fill +argb_black)
-			(strips vvals :t)
-			:t)))
-
-(defun draw-cpu (vvals)
-	;a frame by native code, here
-	(unless pipeline (setq pipeline (shader-vp-pipeline vertex pixel)))
-	(defq began (pii-time))
-	(. *canvas* :fill +argb_black)
-	(shader-vp-draw-tris pipeline verts tris (getf *canvas* +canvas_pixmap 0)
-		(shader-vp-depth +size +size) vvals
-		(list (list 'sun sun) (list 'surface (getf (globe-map which) +canvas_pixmap 0))) :t)
-	(. *canvas* :swap +swap_write)
-	(setq cpu_time (+ cpu_time (- (pii-time) began)) cpu_frames (inc cpu_frames)))
-
 (defun draw-frame ()
-	(defq vvals (list (list 'model (globe-model)) (list 'lens lens)))
-	(cond
-		((draw-gpu vvals))
-		((draw-farm vvals))
-		((draw-cpu vvals)))
+	;the globe as it is turned, the one mesh, with its map
+	(. render :frame (list (list 0 (list (list 'model (globe-model)) (list 'lens lens))
+			(list (list 'sun sun)) (list (globe-map which)))))
 	(++ frames))
 
+(defun mode-show ()
+	;the button as the render has it: the GPU is not to be had on a host
+	;with none
+	(. *mode* :set_selected (if (eql (. render :mode) :gpu) 1 0)))
+
 (defun main ()
-	(setq select (task-mboxes +select_size))
-	(defq verts (globe-verts +segs +rings) tris (reduce! (# (push %0 (!))) '() (nums) 0 (/ (length verts) 5)))
+	(setq select (task-mboxes +select_size)
+		render (Render-tris *canvas* (cat *app_root* "globe_vertex.shader") (cat *app_root* "globe_lit.shader") :t))
+	(. render :mesh 0 (globe-verts +segs +rings))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *planet* :set_selected 0)
-	(. *mode* :set_selected 1)
+	(mode-show)
 	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(case idx
-			(+select_main
+		;the render's mail is read with the app's, before the timer, and
+		;dealt with: a child has started, wants the ball, or has drawn its
+		;part of a frame
+		(bind '(idx msg) (. render :read select +select_timer))
+		(cond
+			((not idx))
+			((= idx +select_main)
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
 					((= id +event_planet)
 						(if (defq chosen (. *planet* :get_selected)) (setq which chosen)))
 					((= id +event_mode)
-						(setq gpu_want (= (. *mode* :get_selected) 1) gpu_drawn :nil)
-						;a frame that is out with the farm is not waited for: the
-						;farm is let go of, and a new one made if the nodes are to
-						;draw
-						(farm-end))
+						(. render :mode (if (= (. *mode* :get_selected) 1) :gpu :cpu))
+						(mode-show))
 					((. *window* :event msg))))
-			(+select_farm_task
-				;a child of the farm has started
-				(if farm (. farm :launched msg)))
-			(+select_farm_ask
-				;a child of the farm has not got the ball
-				(shader-mesh-send msg (shader-verts-str verts)))
-			(+select_farm_reply
-				;a strip is drawn, or a child has said it is ready
-				(when (and farm (defq out (. farm :answered msg)))
-					;a child that could not reach the pixels, the frames are
-					;drawn here from now on
-					(if (= (getf msg +strip_reply_drawn) 0) (setq no_farm :t))
-					(when (= out 0)
-						(cond
-							(farming (setq farming :nil
-									cpu_time (+ cpu_time (- (pii-time) farm_began)) cpu_frames (inc cpu_frames))
-								(. *canvas* :swap +swap_write))
-							;they are ready
-							((setq farm_ready :t farm_asked :nil))))))
 			(:t ;the timer, the globe turns and is drawn, if the last frame
-				;is not still out with the farm
+				;is not still out with a farm
 				(defq start (pii-time))
-				(unless farming
+				(unless (. render :busy)
 					(setq turn (% (+ turn (n2d (elem-get (elem-get +planets which) 3))) +double_2pi))
 					(draw-frame))
 				;the next frame is a tick on, or four times as long as this
@@ -238,21 +133,12 @@
 				(defq took (- (pii-time) start))
 				(mail-timeout (elem-get select +select_timer)
 					(- (max +timer_rate (* took 4)) took) 0)
-				(and farm (= (setq ticks (% (inc ticks) 30)) 0)
-					(. farm :refresh +retry_timeout))
+				(. render :tick)
 				(when (>= (- (defq now (pii-time)) since) 1000000)
-					;the timer holds either to 30 a second, so for the frames
-					;drawn here it says how long one took
-					(defq tenths (if (> cpu_frames 0) (/ cpu_time cpu_frames 100) 0))
+					(mode-show)
 					(. *status* :set_text (cat (first (elem-get +planets which)) ", "
 							(str (/ (* frames 1000000) (- now since))) " frames a second, "
-							(if (> cpu_frames 0)
-								(cat "native code, " (if (and farm farm_ready (not no_farm))
-										(cat "a strip each by " (str (. farm :size)) " nodes, ") "on this node, ")
-									(str (/ tenths 10)) "." (str (% tenths 10)) "ms a frame")
-								"the GPU")))
-					(setq frames 0 since now cpu_time 0 cpu_frames 0)))))
-	(farm-end)
-	(if gpu_mesh (canvas-mesh-destroy gpu_mesh))
-	(if gpu_pair (canvas-shader-destroy gpu_pair))
+							(. render :how)))
+					(setq frames 0 since now)))))
+	(. render :close)
 	(. *window* :close))

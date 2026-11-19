@@ -76,12 +76,6 @@ list, here, not on the host, as a view let go of may be the last of it
 
 ### :init -> :nil
 
-### :mesh_create -> :nil
-
-### :mesh_destroy -> :nil
-
-### :pair_create -> :nil
-
 ### :poll_event -> :nil
 
 ### :read_screen -> :nil
@@ -108,17 +102,7 @@ dirty region, clipped to it, its list of draws played where it is
 
 ### :set_texture_color -> :nil
 
-### :shader_create -> :nil
-
-### :shader_destroy -> :nil
-
-### :shader_draw -> :nil
-
-### :shader_format -> :nil
-
-### :shader_texture -> :nil
-
-### :tris_draw -> :nil
+### :target_texture -> :nil
 
 ### :update -> service/gui/update
 

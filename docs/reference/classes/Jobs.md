@@ -18,6 +18,10 @@ another. A child whose job is one long call of native code, with no
 task switch in it, holds up everything else on its node while it
 runs, and on the node of the app that is the app itself, its mail to
 the other children and from them, and the GUI if it is there.
+
+With an away of :here they are kept on this node, and no other: a
+child that has the GPU do its work, and draws where the GUI of this
+node shows it, lib/gpu/tris.inc.
 ```
 
 ### :add

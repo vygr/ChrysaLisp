@@ -34,7 +34,8 @@ from here, so the two are the same to the bit.
 An object with :smooth is lit smooth, a normal a vertex. One with
 :shaders, the files of a vertex and a pixel shader, is drawn with
 those, they have the inputs of the scene's own, and its draw has
-the files on the end, for what draws it to choose them by.
+no pictures, an empty list, and the files on the end, for what
+draws it to choose them by: as a strip takes a draw, (shader-strip).
 ```
 
 ### :mesh

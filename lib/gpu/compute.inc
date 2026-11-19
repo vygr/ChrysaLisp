@@ -7,6 +7,11 @@
 ; dispatch and a read give a ticket, waited for by (gpu-wait), which looks
 ; each half a millisecond and gives way to the node's other tasks between.
 ; A node with no GPU, its host on no SDL3, has a (gpu-format) of 0.
+;
+; And triangles: a pair of shaders draws meshes into a target, a frame of
+; them, with pictures to read from, (gpu-draw). The target is one of this
+; node's GPU, and the frame is read back from it; or it is a texture of
+; the GUI, on the node that has the GUI, drawn into where it is shown.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "class/buf/lisp.inc")
@@ -18,7 +23,9 @@
 
 (enums +gpu 0
 	(enum format buffer_create buffer_destroy buffer_write buffer_read done take
-		kernel_create kernel_destroy dispatch))
+		kernel_create kernel_destroy dispatch
+		pair_create pair_destroy mesh_create mesh_destroy picture_create picture_destroy
+		target_create target_destroy draw))
 
 (defun gpu-format ()
 	; (gpu-format) -> 0 | 1 | 2
@@ -111,7 +118,109 @@
 		(gpu-take (gpu-wait ticket))
 		:t))
 
+;;;;;;;;;;;
+; triangles
+;;;;;;;;;;;
+
+(defun gpu-pair (vertex fragment layout)
+	; (gpu-pair vertex fragment layout) -> :nil | pair
+	;a vertex shader and a pixel shader that draw triangles, MSL text or
+	;SPIR-V modules, of the language (gpu-format) says, their functions
+	;vertex_main and fragment_main. layout is a str, a byte each: how many
+	;attrs a vertex has, the cull, 0 none, 1 those that face away, 2
+	;those that face us, how many floats each attr is, and how many
+	;pictures the pixel shader reads from. It is built on a thread of the
+	;host, a (gpu-draw) with it gives 0 till it is
+	(if (> (defq p (gpu-call +gpu_pair_create vertex (length vertex) fragment (length fragment) layout 0 0)) 0) p))
+
+(defun gpu-pair-free (p)
+	; (gpu-pair-free pair) -> :nil
+	(gpu-call +gpu_pair_destroy p 0 0 0 0 0 0) :nil)
+
+(defun gpu-mesh (verts)
+	; (gpu-mesh verts) -> :nil | mesh
+	;the vertices of a mesh, kept on the GPU as floats. verts is their
+	;bytes, a double a number, the attrs of a vertex one after another
+	(if (> (defq m (gpu-call +gpu_mesh_create verts (gpu-bytes verts) 0 0 0 0 0)) 0) m))
+
+(defun gpu-mesh-free (m)
+	; (gpu-mesh-free mesh) -> :nil
+	(gpu-call +gpu_mesh_destroy m 0 0 0 0 0 0) :nil)
+
+(defun gpu-picture (pixels width height)
+	; (gpu-picture pixels width height) -> :nil | picture
+	;a picture a pixel shader reads from, a copy on the GPU of width by
+	;height pixels of 32 bits, as a pixmap has them, the top row first.
+	;pixels is a str of them, or a buf they are the block of
+	(if (> (defq p (gpu-call +gpu_picture_create pixels width height 0 0 0 0)) 0) p))
+
+(defun gpu-picture-free (p)
+	; (gpu-picture-free picture) -> :nil
+	(gpu-call +gpu_picture_destroy p 0 0 0 0 0 0) :nil)
+
+(defun gpu-target (width height)
+	; (gpu-target width height) -> :nil | target
+	;a target of this node's GPU to draw triangles into, with its depth
+	;buffer, and what is drawn is read back from it
+	(if (> (defq target (gpu-call +gpu_target_create width height 0 0 0 0 0)) 0) target))
+
+(defun gpu-target-free (target)
+	; (gpu-target-free target) -> :nil
+	(gpu-call +gpu_target_destroy target 0 0 0 0 0 0) :nil)
+
+(defun gpu-pad8 (block)
+	;a block made up to a whole 8 bytes
+	(cat block (slice (const (char 0 8)) 0 (- (logand (+ (length block) 7) -8) (length block)))))
+
+(defun gpu-draw-frame (draws)
+	; (gpu-draw-frame draws) -> str
+	;a frame of triangles as (gpu-draw) takes it. draws is a list of (pair
+	;mesh vblock pblock [pictures]): a pair, a mesh, the blocks of the
+	;inputs of the pair's two shaders, and a list of the pictures its
+	;pixel shader reads from, in the order it has them, as many as it has
+	(apply (const cat) (cat (list (char (length draws) 8))
+			(map (lambda ((pair mesh vblock pblock &optional pictures))
+					;a shader with no inputs still has a block, of nothing
+					(if (empty? vblock) (setq vblock (const (char 0 8))))
+					(if (empty? pblock) (setq pblock (const (char 0 8))))
+					(apply (const cat) (cat (list (char pair 8) (char mesh 8) (char (length vblock) 8) (char (length pblock) 8)
+								(gpu-pad8 vblock) (gpu-pad8 pblock)) (map (# (char %0 8)) (ifn pictures '()))))) draws))))
+
+(defun gpu-draw (target frame &optional gui)
+	; (gpu-draw target frame [gui]) -> 0 | :nil | ticket
+	;a frame of triangles, of (gpu-draw-frame), drawn into a target, cleared
+	;first, what is nearest is what is seen. The target is one of
+	;(gpu-target), and a ticket is given: (gpu-take-pixels) has what was
+	;drawn. With gui the target is the handle of a texture of the GUI, on
+	;the node that has it, the frame is drawn into it where it is, and its
+	;ticket has no pixels: (gpu-wait) says when the GPU is done with it,
+	;(gpu-take) lets it go. 0 is nothing drawn, a pair is still
+	;being built, or the GUI's texture is not to be drawn into yet: try
+	;again. :nil is a frame that can not be drawn, a pair that did not
+	;build, a target that is not one, a node with no GPU
+	(defq out (gpu-call +gpu_draw target frame (length frame) (if gui 1 0) 0 0 0))
+	(cond
+		((= out 0) 0)
+		((< out 0) :nil)
+		(out)))
+
+(defun gpu-take-pixels (ticket len &optional block at)
+	; (gpu-take-pixels ticket len [buf at]) -> str | buf
+	;what a (gpu-draw) into a target of this node drew, once it is over:
+	;len bytes of it, the pixels of 32 bits, the top row first, as a new
+	;str, or into the block of a buf from at on, with no copy between.
+	;The ticket is let go of. They must fit, or it throws
+	(defq at (ifn at 0))
+	(and block (not (<= 0 at (+ at len) (buf-size block)))
+		(throw "A read past the end of a buf !" (list at len)))
+	(gpu-wait ticket)
+	(defq data (ifn block (str-alloc len)))
+	(gpu-call +gpu_take ticket data len at 0 0 0)
+	data)
+
 ;module
 (export-symbols '(gpu-call gpu-format gpu-buffer gpu-buffer-free gpu-bytes gpu-write gpu-read gpu-wait gpu-take
-		gpu-kernel gpu-kernel-free gpu-dispatch gpu-run))
+		gpu-kernel gpu-kernel-free gpu-dispatch gpu-run
+		gpu-pair gpu-pair-free gpu-mesh gpu-mesh-free gpu-picture gpu-picture-free
+		gpu-target gpu-target-free gpu-draw-frame gpu-draw gpu-take-pixels))
 (env-pop)

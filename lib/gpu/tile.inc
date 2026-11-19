@@ -15,11 +15,13 @@
 (defq +shader_tile_child "lib/gpu/tile_child.lisp")
 
 ;a tile for a child to shade. The height and width of the frame, the key
-;of the shared pixels it is drawn on, 0 if there are none, then the path
-;of the shader file, and then the inputs block
+;of the shared pixels it is drawn on, 0 if there are none, the texture of
+;the app's canvas as the GUI of the app's node has it, 0 if there is none,
+;for the GPU's child, then the path of the shader file, and then the
+;inputs block
 (structure +tile +job_size
 	(uint x y x1 y1 height width file_length)
-	(long shared)
+	(long shared target)
 	(offset file))
 
 ;its answer, the tile, and then its pixels if the child could not reach
@@ -28,11 +30,14 @@
 	(uint x y x1 y1)
 	(offset pixels))
 
-(defun shader-tile (file inputs x y x1 y1 width height shared)
-	; (shader-tile file inputs x y x1 y1 width height shared) -> job
+(defun shader-tile (file inputs x y x1 y1 width height shared &optional target)
+	; (shader-tile file inputs x y x1 y1 width height shared [target]) -> job
 	;the job for a tile of a frame of that width and height, inputs is the
-	;block from (shader-pack), shared the key of the pixels, (canvas-key)
+	;block from (shader-pack), shared the key of the pixels, (canvas-key).
+	;target is of (canvas-target), for the GPU's child: it draws there, all
+	;of the frame, if it is on the node the answer goes to
 	(cat (setf-> (str-alloc +tile_size)
+			(+tile_target (ifn target 0))
 			(+tile_x x) (+tile_y y) (+tile_x1 x1) (+tile_y1 y1)
 			(+tile_height height) (+tile_width width)
 			(+tile_file_length (length file))

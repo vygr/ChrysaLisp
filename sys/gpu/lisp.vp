@@ -35,9 +35,9 @@
 	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r3 :r4 :r5 :r6 :r7 :r8 :r9) '(:num :obj :obj :obj :obj :obj :obj :obj))
-	;an op of the table, :format 0 to :dispatch 9
+	;an op of the table, :format 0 to :draw 18
 	(gotoif '(:r0 < 0) 'error1)
-	(gotoif '(:r0 > 9) 'error1)
+	(gotoif '(:r0 > 18) 'error1)
 	(save-fields :rsp '(slot_op slot_a slot_b slot_c slot_d slot_e slot_f slot_g) '(:r0 :r3 :r4 :r5 :r6 :r7 :r8 :r9))
 	;each arg, a num as it is, a str as where its bytes are, a vector as
 	;where its elements are, a buf as where its block is
@@ -111,9 +111,33 @@
 	(elseif '(:r1 = 8))
 		(host-gpu-call :host_gpu :kernel_destroy '((:r0 slot_a)))
 		(vp-xor-rr :r0 :r0)
-	(else)
+	(elseif '(:r1 = 9))
 		(host-gpu-call :host_gpu :dispatch
 			'((:r0 slot_a) (:r0 slot_b) (:r0 slot_c) (:r0 slot_d) (:r0 slot_e)) '(:r0))
+	(elseif '(:r1 = 10))
+		(host-gpu-call :host_gpu :pair_create
+			'((:r0 slot_a) (:r0 slot_b) (:r0 slot_c) (:r0 slot_d) (:r0 slot_e)) '(:r0))
+	(elseif '(:r1 = 11))
+		(host-gpu-call :host_gpu :pair_destroy '((:r0 slot_a)))
+		(vp-xor-rr :r0 :r0)
+	(elseif '(:r1 = 12))
+		(host-gpu-call :host_gpu :mesh_create '((:r0 slot_a) (:r0 slot_b)) '(:r0))
+	(elseif '(:r1 = 13))
+		(host-gpu-call :host_gpu :mesh_destroy '((:r0 slot_a)))
+		(vp-xor-rr :r0 :r0)
+	(elseif '(:r1 = 14))
+		(host-gpu-call :host_gpu :picture_create '((:r0 slot_a) (:r0 slot_b) (:r0 slot_c)) '(:r0))
+	(elseif '(:r1 = 15))
+		(host-gpu-call :host_gpu :picture_destroy '((:r0 slot_a)))
+		(vp-xor-rr :r0 :r0)
+	(elseif '(:r1 = 16))
+		(host-gpu-call :host_gpu :target_create '((:r0 slot_a) (:r0 slot_b)) '(:r0))
+	(elseif '(:r1 = 17))
+		(host-gpu-call :host_gpu :target_destroy '((:r0 slot_a)))
+		(vp-xor-rr :r0 :r0)
+	(else)
+		(host-gpu-call :host_gpu :draw
+			'((:r0 slot_a) (:r0 slot_b) (:r0 slot_c) (:r0 slot_d)) '(:r0))
 	(endif)
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_out)))

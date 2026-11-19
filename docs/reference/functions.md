@@ -1332,6 +1332,17 @@ a number of Exp-Golomb: so many 0s, a 1, and that many bits
 four bytes, low first
 ```
 
+### back
+
+```code
+(back) -> canvas
+
+the canvas the GPU draws a frame into, off the screen, the size the
+app's is shown at: a frame is put on show when it is whole, the two
+exchange their textures, (whole), so what is shown is never a frame
+part drawn, nor a texture nothing has been drawn into yet
+```
+
 ### backdrop-lines
 
 ```code
@@ -2179,32 +2190,6 @@ files whose names end ext are read by these, (info stream) and
 (canvas-loader-of file) -> :nil | (ext info load save)
 ```
 
-### canvas-mesh-create
-
-```code
-(canvas-mesh-create verts) -> 0 | mesh
-
-the vertices of a mesh, kept on the GPU, from the bytes of a doubles,
-the attrs of a vertex one after another
-```
-
-### canvas-mesh-destroy
-
-```code
-(canvas-mesh-destroy mesh) -> mesh
-```
-
-### canvas-pair-create
-
-```code
-(canvas-pair-create vertex fragment layout) -> 0 | pair
-
-a vertex shader and a pixel shader that draw triangles, from the text
-of their stages. The layout is a byte for how many attrs a vertex
-has, a byte for the cull, 0 none, 1 what faces away, 2 what faces us,
-then a byte for the floats of each attr
-```
-
 ### canvas-save
 
 ```code
@@ -2220,31 +2205,6 @@ a little darker, a quarter of the way to black, the edge of a thing
 that is in shadow
 ```
 
-### canvas-shader-create
-
-```code
-(canvas-shader-create vertex fragment) -> 0 | shader
-
-a shader from the text of its vertex and fragment stages
-```
-
-### canvas-shader-destroy
-
-```code
-(canvas-shader-destroy shader) -> shader
-
-a shader, or a pair
-```
-
-### canvas-shader-format
-
-```code
-(canvas-shader-format) -> 0 | 1 | 2
-
-the shading language the host GUI driver takes for a shader,
-0 if it can not draw one, 1 for MSL, 2 for SPIR-V
-```
-
 ### canvas-shared
 
 ```code
@@ -2255,6 +2215,20 @@ machine can all draw on. With no key the pixels are made, and
 (canvas-key) is the key of them. Given that key, and the same size,
 a task on another node has a canvas on the same pixels. :nil if the
 host has no shared memory, or there are no pixels of that key.
+```
+
+### canvas-target
+
+```code
+(canvas-target canvas) -> 0 | handle
+
+the texture of a canvas as the GUI of this node has it, made one the
+GPU can draw triangles into if it is not: what a frame names for the
+GPU's child of lib/gpu/tris.inc to draw straight into. What it holds
+is not set till it is drawn into, so it is of a canvas that is not on
+show, which gives one that is what it has when a frame is whole,
+(:exchange). 0 on a node with no GUI, or whose GUI has none. Asked
+each frame, an (:exchange) or a (:swap) gives a canvas another texture
 ```
 
 ### canvas-tint
@@ -2408,7 +2382,8 @@ what it was told to do when it is over
 a child is started, the word that it has comes to the task mailbox.
 
 If the children are to be away from this node, and there is another,
-it is on one of the others, each in turn
+it is on one of the others, each in turn; if they are to be here, it
+is on this one
 ```
 
 ### create-word
@@ -4544,6 +4519,12 @@ that says it is known, or a reader takes the stamp as its own time
 (export-symbols symbols)
 ```
 
+### farm-end
+
+```code
+the farm let go of, its work has stopped
+```
+
 ### fat32-chain
 
 ```code
@@ -5153,6 +5134,16 @@ default 120
 (found? text substr) -> :t | :nil
 ```
 
+### frame-forget
+
+```code
+a frame that is out is not waited for, and the farm is kept: what its
+
+children still answer goes to the mailbox it was asked for with, let
+go of. But a farm of the CPU that has not yet said it is ready is let
+go of, that word would be lost too
+```
+
 ### fs-walk
 
 ```code
@@ -5301,6 +5292,33 @@ those it writes, uniforms a str of its block, a vector, or :nil. Waits for the
 kernel to be built, :nil if it did not build
 ```
 
+### gpu-draw
+
+```code
+(gpu-draw target frame [gui]) -> 0 | :nil | ticket | :t
+
+a frame of triangles, of (gpu-draw-frame), drawn into a target, cleared
+first, what is nearest is what is seen. The target is one of
+(gpu-target), and a ticket is given: (gpu-take-pixels) has what was
+drawn. With gui the target is the handle of a texture of the GUI, on
+the node that has it, the frame is drawn into it where it is, and :t
+is given, it is with the GPU. 0 is nothing drawn, a pair is still
+being built, or the GUI's texture is not to be drawn into yet: try
+again. :nil is a frame that can not be drawn, a pair that did not
+build, a target that is not one, a node with no GPU
+```
+
+### gpu-draw-frame
+
+```code
+(gpu-draw-frame draws) -> str
+
+a frame of triangles as (gpu-draw) takes it. draws is a list of (pair
+mesh vblock pblock [pictures]): a pair, a mesh, the blocks of the
+inputs of the pair's two shaders, and a list of the pictures its
+pixel shader reads from, in the order it has them, as many as it has
+```
+
 ### gpu-format
 
 ```code
@@ -5325,6 +5343,63 @@ in groups of tx ty tz threads. It is built on a thread of the host,
 
 ```code
 (gpu-kernel-free kernel) -> :nil
+```
+
+### gpu-mesh
+
+```code
+(gpu-mesh verts) -> :nil | mesh
+
+the vertices of a mesh, kept on the GPU as floats. verts is their
+bytes, a double a number, the attrs of a vertex one after another
+```
+
+### gpu-mesh-free
+
+```code
+(gpu-mesh-free mesh) -> :nil
+```
+
+### gpu-pad8
+
+```code
+a block made up to a whole 8 bytes
+```
+
+### gpu-pair
+
+```code
+(gpu-pair vertex fragment layout) -> :nil | pair
+
+a vertex shader and a pixel shader that draw triangles, MSL text or
+SPIR-V modules, of the language (gpu-format) says, their functions
+vertex_main and fragment_main. layout is a str, a byte each: how many
+attrs a vertex has, the cull, 0 none, 1 those that face away, 2
+those that face us, how many floats each attr is, and how many
+pictures the pixel shader reads from. It is built on a thread of the
+host, a (gpu-draw) with it gives 0 till it is
+```
+
+### gpu-pair-free
+
+```code
+(gpu-pair-free pair) -> :nil
+```
+
+### gpu-picture
+
+```code
+(gpu-picture pixels width height) -> :nil | picture
+
+a picture a pixel shader reads from, a copy on the GPU of width by
+height pixels of 32 bits, as a pixmap has them, the top row first.
+pixels is a str of them, or a buf they are the block of
+```
+
+### gpu-picture-free
+
+```code
+(gpu-picture-free picture) -> :nil
 ```
 
 ### gpu-read
@@ -5353,6 +5428,32 @@ pixmap that is shared. They must fit, or it throws
 (gpu-take ticket) -> ticket
 
 a ticket let go of, once its work is over, (gpu-wait)
+```
+
+### gpu-take-pixels
+
+```code
+(gpu-take-pixels ticket len [buf at]) -> str | buf
+
+what a (gpu-draw) into a target of this node drew, once it is over:
+len bytes of it, the pixels of 32 bits, the top row first, as a new
+str, or into the block of a buf from at on, with no copy between.
+The ticket is let go of. They must fit, or it throws
+```
+
+### gpu-target
+
+```code
+(gpu-target width height) -> :nil | target
+
+a target of this node's GPU to draw triangles into, with its depth
+buffer, and what is drawn is read back from it
+```
+
+### gpu-target-free
+
+```code
+(gpu-target-free target) -> :nil
 ```
 
 ### gpu-wait
@@ -5943,7 +6044,9 @@ the canonical code of a table, as the standard's F.2.2.3 has it
 (jpg-decode in out info)
 
 a baseline scan, from where the stream is, a row of MCUs at a time,
-each row of pixels written blue green red alpha
+each row of pixels written blue green red alpha. A row is one native
+call, every block of every component of it, or one a run of it
+between restarts
 ```
 
 ### jpg-geometry
@@ -5998,12 +6101,23 @@ the plane of each component, (h v) its sampling, of mcus_x h 8 by v 8,
 each row native
 ```
 
+### jpg-run
+
+```code
+(jpg-run reader in restart done vals left) -> count
+
+how many of the MCUs left of a row go in one run: all of them, or
+with restarts as many as there are to the next. At a restart the bits
+start again, and vals, the last dcs or the blocks to pass over, are 0
+```
+
 ### jpg-scan
 
 ```code
 (jpg-scan reader in head grids width height hmax vmax mcus_x mcus_y)
 
-a scan of a progressive JPEG, its numbers into the grids
+a scan of a progressive JPEG, its numbers into the grids, a row of it
+one native call, or one a run of it between restarts
 ```
 
 ### jpg-segment
@@ -6611,6 +6725,16 @@ as they go in a message to a child that draws.
 a mesh as the shaders want it, lit smooth. The normal at a vertex is
 that of all the faces that share it, taken together, so a face shades
 from corner to corner and a ball of faces is round
+```
+
+### mesh-of
+
+```code
+(mesh-of id) -> :nil | (verts tris packed)
+
+a mesh by its number: its vertices, a doubles or the bytes of one,
+the triangles of them taken three at a time, and its bytes if they
+have been made. One the app has not told of is asked of its :mesh_fn
 ```
 
 ### min-length
@@ -8394,12 +8518,6 @@ convert to obj-set args
 
 ```code
 (odd? num) -> :t | :nil
-```
-
-### one
-
-```code
-a block of the scan, at row br and column bc of the grid
 ```
 
 ### open-child
@@ -11032,6 +11150,17 @@ the kernel for this node's GPU, :nil if it has none. It is built on
 a thread of the host, (shader-gpu-run) waits for that
 ```
 
+### shader-gpu-pair
+
+```code
+(shader-gpu-pair vertex pixel [cull]) -> :nil | pair
+
+a vertex shader and a pixel shader that this node's GPU can draw
+triangles with, (gpu-draw). :nil if it has none. With cull a triangle
+that faces away is left out, :front those that face us. The host
+builds it on a thread of its own. It is let go of with (gpu-pair-free)
+```
+
 ### shader-gpu-run
 
 ```code
@@ -11042,81 +11171,6 @@ tasks of the node have their turns meanwhile. block is the inputs, as
 (shader-pack) makes them, and bufs a GPU buffer for each buffer, in
 the order the program has them. Nothing is bounds checked, so each
 must be long enough, 4 bytes to an element
-```
-
-### shader-gui
-
-```code
-(shader-gui program) -> :nil | shader
-
-a shader the GPU can draw into a canvas, with (. canvas :shade shader
-block), where block is from (shader-pack). :nil if this host can not.
-The driver builds it in its own time, till then :shade draws nothing.
-```
-
-### shader-gui-frame
-
-```code
-(shader-gui-frame canvas draws) -> :nil | :error | canvas
-
-a frame of triangles drawn by the GPU into the texture of a canvas,
-with a depth buffer. draws is a list of (pair mesh vblock pblock
-[textures]), a pair, a mesh, the blocks of (shader-pack) for the two
-shaders of the pair, and a list of the textures of its pixel shader,
-in the order it has them, each of (shader-gui-texture), as many as it
-has. :nil is the GPU still busy with the last frame, or the
-driver still building a pair, nothing was drawn, try again. :error is
-a pair the driver could not build.
-```
-
-### shader-gui-mesh
-
-```code
-(shader-gui-mesh verts) -> :nil | mesh
-
-the vertices of a mesh, kept on the GPU, to be drawn with a pair
-whose vertex shader has those attrs. verts is the bytes of
-(shader-verts-str). :nil if this host can not. It is let go of with
-(canvas-mesh-destroy).
-```
-
-### shader-gui-pair
-
-```code
-(shader-gui-pair vertex pixel [cull]) -> :nil | pair
-
-a vertex shader and a pixel shader that the GPU can draw triangles
-into a canvas with, (shader-gui-frame). :nil if this host can not.
-With cull a triangle that faces away is left out, :front those that
-face us. The driver builds it in its own time. It is let go of with
-(canvas-shader-destroy).
-and after the attrs, how many textures the pixel shader has
-```
-
-### shader-gui-pair-text
-
-```code
--> (vertex_stage fragment_stage)
-
-the two stages of a pair, kept, both made if either is not there.
-The fragment stage is written last, so if it is there both are
-```
-
-### shader-gui-sweep
-
-```code
-what the GUI back ends keep of another make goes, the first time
-```
-
-### shader-gui-texture
-
-```code
-(shader-gui-texture canvas) -> :nil | texture
-
-the picture of a canvas as the GPU has it, to give a pair whose pixel
-shader has a texture, (shader-gui-frame). The canvas must have been
-shown, (. canvas :swap), and is to be kept for as long as it is drawn
-with. :nil if it has none
 ```
 
 ### shader-kept-text
@@ -11245,6 +11299,16 @@ the pixel shader reads must be one the vertex shader has, of the same
 type. The vertex shader may have more, they are not used.
 ```
 
+### shader-pair-text
+
+```code
+(shader-pair-text vertex pixel by ext make) -> (vertex_stage fragment_stage)
+
+the two stages of a pair, kept, both made if either is not there.
+The fragment stage is written last, so if it is there both are. What
+is kept of another make goes, the first time
+```
+
 ### shader-pixel-kernel
 
 ```code
@@ -11340,16 +11404,30 @@ entry point is vertex_main.
 ### shader-strip
 
 ```code
-(shader-strip vfile pfile ask shared width height y y1 cull draws) -> job
+(shader-strip vfile pfile ask shared width height y y1 cull draws [target]) -> job
 
 the job for rows y to y1 of a frame of that width and height. ask
 is the mailbox a child asks for a mesh at, shared the key of the
 pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1
-tfiles]), the number of a mesh, the blocks of (shader-pack) for the
-two shaders, the rows of the frame the mesh may be on, if the app
-knows, all of them if not, and a list of the textures of the pixel
+tfiles sfiles]), the number of a mesh, the blocks of (shader-pack) for
+the two shaders, the rows of the frame the mesh may be on, if the app
+knows, all of them if not, a list of the textures of the pixel
 shader, if it has any, in the order it has them, each of
-(shader-strip-texture).
+(shader-strip-texture), and the files of a vertex and a pixel shader
+of its own, a list of the two, for a thing that is not drawn with
+vfile and pfile: they have the inputs those have. target is of (canvas-target), for the GPU's
+child: it draws there if it is on the node the ask mailbox is of.
+```
+
+### shader-strip-picture
+
+```code
+(shader-strip-picture canvas) -> canvas
+
+a picture the children of a farm can read, a canvas of the same
+pixels in shared memory, in place of one whose pixels are its own,
+before its (:swap). The canvas given if they are shared already, or
+the host has no shared memory
 ```
 
 ### shader-strip-texture
@@ -14958,6 +15036,15 @@ ids or :all. It does if what happened since have is not all in the
 log, or any of it was :all
 ```
 
+### strips
+
+```code
+a job for each child of the CPU's farm, a strip of the frame, or with
+
+no rows a job of nothing, which has a child fetch every mesh and
+picture and say it is ready
+```
+
 ### substr
 
 ```code
@@ -16708,6 +16795,14 @@ a turn not running on from the one before: the other way, or bigger
 (wheel-view view) -> view
 
 what takes a turn over view, the nearest up with a :mouse_wheel, else it
+```
+
+### whole
+
+```code
+a frame is whole, and is shown as it was made: one the GPU drew is on
+
+the back canvas, which gives the app's what it has
 ```
 
 ### window-action

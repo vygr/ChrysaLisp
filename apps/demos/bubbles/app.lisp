@@ -1,29 +1,26 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "lib/gpu/render_farm.inc")
 (import "./scene.inc")
 
 (enums +select 0
-	(enum main task reply timer tip))
+	(enum main timer tip))
 
 (enums +event +event_user
 	(enum reset)
 	(enum style mode count))
 
 (defq +min_width 300 +min_height 300
-	+rate (/ 1000000 60) +slow_ticks 30 ticks 0 +retry_timeout (task-timeout 5)
+	+rate (/ 1000000 60)
 	+min_bubbles 50 +max_bubbles 3000
 	;the pixels of the canvas are in shared memory if the host has it, and
 	;the children draw their slices straight onto them
 	shared_canvas (canvas-shared +width +height 1)
 	shared_key (if shared_canvas (canvas-key shared_canvas) 0)
-	;the farm, there is one while the nodes draw the frames, All nodes, and
-	;none while this task does, One task: a farm lasts while its work goes on
-	select :nil jobs :nil
-	;farming, a frame is out with the children. warming, they have been
-	;asked if they are up, and till they all are the frames are drawn
-	;here, so the picture never stops for them
-	farming :nil warming :nil
+	;what draws the frames, a (Render-work), lib/gpu/render_farm.inc: a
+	;farm of child.lisp on the nodes, All nodes, or this task, One task
+	select :nil render :nil
 	;the scene is its seed and how many bubbles, the app's copy of it is
 	;made again when either changes
 	seed (logand (pii-time) 0xffffff) scene_seed -1 scene_count -1 scene :nil
@@ -56,8 +53,7 @@
 	(/ (- (pii-time) start_time) 16667))
 
 (defun frame-done (how)
-	;the frame is whole, show it and say how long it took
-	(. *canvas* :swap +swap_write)
+	;the frame is whole and shown, say how long it took
 	(setq frames (inc frames) frames_us (+ frames_us (- (pii-time) frame_time)))
 	(when (>= frames_us 500000)
 		(. *status* :set_text (cat (str (/ frames_us frames 1000)) "."
@@ -73,40 +69,32 @@
 		(+slice_light_y (n2i (* light_y 65536.0)))
 		(+slice_y y) (+slice_y1 y1)))
 
-(defun farm-end ()
-	;the farm let go of, this task draws the frames from here on
-	(setq jobs (jobs-end jobs select +select_task +select_reply) warming :nil farming :nil))
+(defun frame-jobs (kind count ready)
+	;the jobs of a frame for the nodes, a slice for each of them. The
+	;canvas is made clear here first, the bubbles are see through. Or, to
+	;ask if they are ready, each a slice of no rows, which a child answers
+	;when it has found the canvas and made the scene
+	(setq frame_drawn 0)
+	(cond
+		(ready (map! (lambda () (slice-job (bubble-count) 0 +height +height)) '() 0 count))
+		(:t (defq bubbles (bubble-count) time (scene-time))
+			(. *canvas* :fill 0)
+			(map! (# (slice-job bubbles time (/ (* (!) +height) count)
+					(/ (* (inc (!)) +height) count))) '() 0 count))))
 
-(defun warm-farm ()
-	;a new farm. The children are on the nodes of this machine, and no
-	;other: they draw on the pixels of the canvas, in shared memory, and a
-	;node of another machine, there is one when the machines are a mesh,
-	;can not reach them. Each is asked for a slice of no rows, which it
-	;answers when it has found the canvas and made the scene
-	(farm-end)
-	(setq jobs (Jobs (cat *app_root* "child.lisp")
-			(elem-get select +select_task) (elem-get select +select_reply) (list 64))
-		warming :t)
-	(. jobs :add (map! (lambda () (slice-job (bubble-count) 0 +height +height)) '() 0 (. jobs :size))))
-
-(defun start-farm-frame ()
-	;a frame drawn by the nodes, a slice for each of them. The canvas is
-	;made clear here first, the bubbles are see through
-	(defq nodes (max 1 (length (lisp-nodes :t))) count (bubble-count) time (scene-time))
-	(setq farming :t frame_time (pii-time) frame_drawn 0)
-	(. *canvas* :fill 0)
-	(. jobs :add (map! (# (slice-job count time (/ (* (!) +height) nodes)
-					(/ (* (inc (!)) +height) nodes))) '() 0 nodes)))
-
-(defun one-task-frame (how)
+(defun frame-here (canvas)
 	;a frame drawn here, all of it
-	(setq frame_time (pii-time))
 	(defq count (bubble-count))
 	(unless (and (= seed scene_seed) (= count scene_count))
 		(setq scene_seed seed scene_count count scene (scene-make seed count)))
-	(. *canvas* :fill 0)
-	(scene-draw *canvas* scene (scene-time) light_x light_y 0 +height)
-	(frame-done how))
+	(. canvas :fill 0)
+	(scene-draw canvas scene (scene-time) light_x light_y 0 +height))
+
+(defun next-frame ()
+	;a frame of the moment, by the render: out with the nodes, or drawn here
+	(setq frame_time (pii-time))
+	(if (. render :frame)
+		(frame-done (if (eql (. render :mode) :here) "one task" "one task, while the nodes get ready"))))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))
@@ -117,48 +105,39 @@
 
 (defun main ()
 	;ui tree initial setup
-	(setq select (task-mboxes +select_size))
+	(setq select (task-mboxes +select_size) render (Render-work *canvas* (cat *app_root* "child.lisp")))
+	(def render :jobs_fn (const frame-jobs) :here_fn (const frame-here)
+		:reply_fn (lambda (msg) (setq frame_drawn (+ frame_drawn (max 0 (getf msg +slice_reply_drawn))))))
 	(tooltips)
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *backdrop* :set_size +width +height)
 	(. *style_toolbar* :set_selected 0)
 	(. *window* :open)
 	;it comes up on all the nodes, if their pixels can be shared
+	(. render :mode (if shared_canvas :cpu :here))
 	(. *mode* :set_selected (if shared_canvas 1 0))
-	(if shared_canvas (warm-farm))
 
 	;main event loop
-	(defq id :t)
+	(defq id :t out :nil)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while id
-		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
+		;the render's mail is read with the app's, before the timer, and
+		;dealt with
+		(bind '(idx *msg*) (. render :read select +select_timer))
 		(cond
+			((not idx)
+				;a frame that was out with the nodes is whole
+				(when (and out (not (. render :busy)))
+					(setq out :nil)
+					(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
+							(str frame_drawn) " drawn over the slices"))))
 			((= idx +select_timer)
 				;timer event, the next frame if the last is done
 				(mail-timeout (elem-get select +select_timer) +rate 0)
-				(unless farming
-					(cond
-						((or (not shared_canvas) (/= (. *mode* :get_selected) 1))
-							(one-task-frame "one task"))
-						(warming
-							(one-task-frame "one task, while the nodes get ready"))
-						((start-farm-frame))))
-				(and jobs (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
-					(. jobs :refresh +retry_timeout)))
-			((= idx +select_task)
-				;a child has started
-				(. jobs :launched *msg*))
-			((= idx +select_reply)
-				;a slice is drawn, or a child has said it is up
-				(when (defq out (. jobs :answered *msg*))
-					(cond
-						(warming (if (= out 0) (setq warming :nil)))
-						(farming
-							(setq frame_drawn (+ frame_drawn (max 0 (getf *msg* +slice_reply_drawn))))
-							(when (= out 0)
-								(setq farming :nil)
-								(frame-done (cat (str (length (lisp-nodes :t))) " nodes, "
-										(str frame_drawn) " drawn over the slices")))))))
+				(unless (. render :busy)
+					(next-frame)
+					(setq out (. render :busy)))
+				(. render :tick))
 			((= idx +select_tip)
 				;tip time mail
 				(. *window* :tip *msg*))
@@ -179,12 +158,12 @@
 				;one task, or all the nodes
 				(cond
 					;one task, the farm's work has stopped
-					((/= (. *mode* :get_selected) 1) (farm-end))
+					((/= (. *mode* :get_selected) 1) (. render :mode :here) (setq out :nil))
 					((not shared_canvas)
 						(. *mode* :set_selected 0)
 						(. *status* :set_text "No shared memory on this host"))
-					;all nodes, a new farm if there is none
-					((not jobs) (warm-farm))))
+					;all the nodes
+					((. render :mode :cpu))))
 			((= id +event_style)
 				;styles
 				(def (. *backdrop* :dirty) :style
@@ -201,5 +180,5 @@
 				(setq light_x (/ lx len) light_y (/ ly len)))
 			((. *window* :event *msg*))))
 	;close window and children
-	(farm-end)
+	(. render :close)
 	(. *window* :close))

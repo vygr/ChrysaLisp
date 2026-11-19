@@ -83,6 +83,11 @@ another. A child's job is one long call of native code with no task switch in
 it, and on the app's node that would hold up the app itself, and the GUI if
 it is there too.
 
+An `away` of `:here` is the other way about, the children are kept on the
+app's own node. It is for a GPU child that draws triangles: its work is a
+frame handed to the GPU and a wait that gives way, and on the node that has
+the GUI it can draw where the frame is shown, see below.
+
 An app keeps its farm in a name that is `:nil` when there is none, and makes
 it when the first job is to go:
 
@@ -230,6 +235,22 @@ pixels, with no str made and no copy after:
 That is from `lib/gpu/shade_child.lisp`. So a GPU frame costs one copy, from
 the GPU's memory to the pixels, and then the app shows them.
 
+### Or the GPU draws where the frame is shown
+
+A frame that is read back is copied from the GPU, and copied to it again to
+be shown. On the node that has the GUI neither is needed: the GPU of that
+node is the GUI's own, so a child there can draw straight into a texture the
+GUI shows. The child of a frame of triangles does, `lib/gpu/tris.inc`. The
+frame names the texture, `(canvas-target canvas)`, and a child that is on
+the node the frame came from draws into it; one that is not, or is refused,
+draws to a target of its own and reads back. It finds which for itself, and
+its answer says, so an app is written the one way.
+
+The texture drawn into is of a canvas that is not on show. When the frame is
+whole the two canvases exchange their textures, `(. canvas :exchange that)`:
+what is shown is never a frame part drawn, nor a texture nothing has been
+drawn into yet.
+
 ### The app shows them
 
 When the last answer is in, `(. *canvas* :swap +swap_write)`. An app whose
@@ -298,13 +319,52 @@ for it, the once, at a mailbox the app gives, and the app answers with
 big the meshes are. Each child has a depth buffer of its own, for just its
 rows.
 
-Planets, Mesh and Model draw so with the CPU button. A job with no rows is
-how an app has its children fetch their meshes before the first frame, and
-it draws the frames itself till they have answered.
+A draw can have a pair of shader files of its own, for a scene whose
+things are not all drawn alike. A job with no rows is how an app has its
+children fetch their meshes before the first frame, and it draws the frames
+itself till they have answered.
 
-With the GPU button these three do not yet follow the model: the frame is
-drawn by the GPU of the GUI, on the GUI's node, `lib/gpu/gui.inc`. It is the
-one place there are still two ways.
+The GPU's child is the same job to a farm of one on the app's node,
+`+shader_tris_gpu_child`, the whole frame its strip. It has each pair, mesh
+and picture on the GPU, and draws where the frame is shown or reads it back,
+as above.
+
+An app has none of this in it. It holds a `(Render-tris canvas vfile
+pfile)`, `lib/gpu/render_farm.inc`, tells it its meshes, and gives it a
+frame; Planets, Model, Mesh and the Network Map do:
+
+```vdu
+(defq render (Render-tris *canvas* vfile pfile :t))
+(. render :mesh 0 verts)
+...
+(bind '(idx msg) (. render :read select +select_timer))
+(cond
+	((not idx))
+	((= idx +select_main)
+		...
+		(. render :mode (if gpu_button :gpu :cpu)))
+	(:t ;the timer
+		(unless (. render :busy)
+			(. render :frame (list (list 0 vvals pvals (list picture)))))
+		(. render :tick)
+		(. *status* :set_text (. render :how))))
+...
+(. render :close)
+```
+
+`(:read)` reads the render's mail with the app's own and deals with it.
+`(:frame)` is a frame, by the GPU, by the nodes, or in the app's own task
+when neither can be, and `(:busy)` says while one is out. `(:mode)` is the
+button, and gives back what the render can do. `(:how)` is a line of status.
+An app whose scene is another library's gives the render that library's
+meshes and its own way of drawing a frame here, `:mesh_fn` and `:here_fn`,
+and its draws with the blocks already made, as Mesh does.
+
+A window that is sized is told its new size many times a second. An app
+does not make a canvas at each: it keeps the size that is wanted, makes a
+canvas of it when the next frame is to be given, `(. render :canvas
+canvas)`, and puts that on show when the frame of it is whole, the old one
+staying till then. Mesh and the Network Map do.
 
 ### A batch of numbers
 

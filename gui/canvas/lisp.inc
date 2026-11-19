@@ -76,38 +76,11 @@
 		;that is only ever shown, it can not be drawn on after this.
 		((const (ffi "gui/canvas/lisp_swap")) this (const (+ +swap_flag_free +swap_flag_keep))))
 
-	(defmethod :shade (shader block &optional x y x1 y1)
-		; (. canvas :shade shader block [x y x1 y1]) -> :nil | :error | canvas
-		;the GPU draws the shader into the texture of the canvas, all of
-		;it, or the part given, in pixels of the texture. One draw is on
-		;the go at a time, :nil is the GPU still busy with the last, or
-		;the driver still building the shader, it has drawn nothing, try
-		;again. :error is a shader the driver could not build. A frame a
-		;slow GPU takes long over is best drawn as strips, so the GUI can
-		;be drawn in between.
-		(setd x 0 y 0 x1 0 y1 0)
-		(cond
-			((num? (defq drawn ((const (ffi "gui/canvas/lisp_shade")) this shader block x y x1 y1))) :error)
-			(drawn (. this :dirty))))
-
-	(defmethod :shade_tris (frame)
-		; (. canvas :shade_tris frame) -> :nil | :error | canvas
-		;the GPU draws a frame of triangles into the texture of the
-		;canvas, with a depth buffer. The frame is a count, 8 bytes, then
-		;for each thing drawn, 8 bytes each, its pair, its mesh, the
-		;length of the vertex shader's block and of the pixel shader's,
-		;then the two blocks, each made up to a whole 8 bytes. :nil is
-		;the GPU still busy, or a pair still being built, nothing was
-		;drawn, try again. :error is a pair the driver could not build.
-		(cond
-			((num? (defq drawn ((const (ffi "gui/canvas/lisp_shade")) this 0 frame 0 0 0 0))) :error)
-			(drawn (. this :dirty))))
-
 	(defmethod :exchange (that)
 		; (. canvas :exchange that) -> canvas
 		;the two canvases exchange what they show, their textures. So one
-		;can be off screen, drawn into by a shader a strip at a time, and
-		;put on show when the frame is whole. They must be the same size.
+		;can be off screen, drawn into by the GPU, (canvas-target), and put
+		;on show when the frame is whole. They must be the same size.
 		(defq tex (getf this +canvas_texture 0) flags (getf this +canvas_flags 0)
 			that_flags (getf that +canvas_flags 0)
 			mask (const +canvas_flag_shader) keep (const (logxor +canvas_flag_shader -1)))
@@ -277,39 +250,16 @@
 						(+ swap_mode +swap_flag_free) swap_mode)))))
 	this)
 
-(defun canvas-shader-format ()
-	; (canvas-shader-format) -> 0 | 1 | 2
-	;the shading language the host GUI driver takes for a shader,
-	;0 if it can not draw one, 1 for MSL, 2 for SPIR-V
-	((const (ffi "gui/canvas/lisp_shader_format"))))
-
-(defun canvas-shader-create (vertex fragment)
-	; (canvas-shader-create vertex fragment) -> 0 | shader
-	;a shader from the text of its vertex and fragment stages
-	((const (ffi "gui/canvas/lisp_shader_create")) vertex fragment))
-
-(defun canvas-shader-destroy (shader)
-	; (canvas-shader-destroy shader) -> shader
-	;a shader, or a pair
-	((const (ffi "gui/canvas/lisp_shader_destroy")) shader))
-
-(defun canvas-pair-create (vertex fragment layout)
-	; (canvas-pair-create vertex fragment layout) -> 0 | pair
-	;a vertex shader and a pixel shader that draw triangles, from the text
-	;of their stages. The layout is a byte for how many attrs a vertex
-	;has, a byte for the cull, 0 none, 1 what faces away, 2 what faces us,
-	;then a byte for the floats of each attr
-	((const (ffi "gui/canvas/lisp_pair_create")) vertex fragment layout))
-
-(defun canvas-mesh-create (verts)
-	; (canvas-mesh-create verts) -> 0 | mesh
-	;the vertices of a mesh, kept on the GPU, from the bytes of a doubles,
-	;the attrs of a vertex one after another
-	((const (ffi "gui/canvas/lisp_mesh_create")) verts))
-
-(defun canvas-mesh-destroy (mesh)
-	; (canvas-mesh-destroy mesh) -> mesh
-	((const (ffi "gui/canvas/lisp_mesh_destroy")) mesh))
+(defun canvas-target (canvas)
+	; (canvas-target canvas) -> 0 | handle
+	;the texture of a canvas as the GUI of this node has it, made one the
+	;GPU can draw triangles into if it is not: what a frame names for the
+	;GPU's child of lib/gpu/tris.inc to draw straight into. What it holds
+	;is not set till it is drawn into, so it is of a canvas that is not on
+	;show, which gives one that is what it has when a frame is whole,
+	;(:exchange). 0 on a node with no GUI, or whose GUI has none. Asked
+	;each frame, an (:exchange) or a (:swap) gives a canvas another texture
+	((const (ffi "gui/canvas/lisp_target")) canvas))
 
 (defun canvas-flush ()
 	; (canvas-flush)

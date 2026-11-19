@@ -2,6 +2,7 @@
 
 (import "gui/lisp.inc")
 (import "lib/gpu/vp.inc")
+(import "lib/gpu/compute.inc")
 (import "lib/gpu/tris.inc")
 (import "lib/math/mesh.inc")
 (import "lib/math/matrix.inc")
@@ -110,9 +111,55 @@
 		(setq tf_draws (map (# (cat %0 (list 0 tf_size))) tf_whole))
 		(assert-true "a frame, both said to be on every row" (tf-frame 3))
 		(assert-eq "is the frame" tf_farmed (tf-pixels tf_pixmap tf_size))
+		;a draw with a pair of shaders of its own, not the strip's: the frame
+		;one task draws with the two pairs, each thing with its own
+		(defq tf_shiny '("lib/gpu/shaders/shiny_vertex.shader" "lib/gpu/shaders/shiny_lit.shader")
+			tf_shiny_vertex (shader-load (first tf_shiny)) tf_shiny_pixel (shader-load (second tf_shiny))
+			tf_withs (list (list tf_vertex tf_pixel tf_pipeline)
+				(list tf_shiny_vertex tf_shiny_pixel (shader-vp-pipeline tf_shiny_vertex tf_shiny_pixel)))
+			tf_two (Canvas tf_size tf_size 1) tf_two_pixmap (getf tf_two +canvas_pixmap 0)
+			tf_two_depth (shader-vp-depth tf_size tf_size))
+		(setq tf_draws (list (first tf_whole) (cat (second tf_whole) (list 0 tf_size '() tf_shiny))))
+		(assert-true "a frame, the second thing with a pair of its own" (tf-frame 3))
+		(defq tf_own (tf-pixels tf_pixmap tf_size))
+		(each (lambda (mesh (id vblock pblock &rest _) (vertex pixel pipeline))
+				(shader-vp-draw-tris pipeline mesh (reduce! (# (push %0 (!))) '() (nums) 0 (/ (length mesh) 7))
+					tf_two_pixmap tf_two_depth (shader-unpack vertex vblock) (shader-unpack pixel pblock) :t))
+			tf_meshes tf_draws tf_withs)
+		(assert-eq "is the frame one task draws with the two pairs" (tf-pixels tf_two_pixmap tf_size) tf_own)
+		(assert-true "and not the frame of the one pair" (not (eql tf_own tf_farmed)))
 		(setq tf_draws tf_whole)
 		(assert-true "a strip of no rows is answered, it is how children are made ready" (tf-frame 1))
 		(. tf_jobs :close)
+		;the GPU's child of the same job, a farm of one on this node, all
+		;of the frame its strip. This node shows nothing, so it reads the
+		;frame back onto the pixels. What it draws is the CPU's frame but
+		;at the edges of things, where the GPU has 4 samples a pixel and
+		;its own rule for which pixels a triangle has
+		(cond
+			((= (gpu-format) 0) (test-skip "triangles by the GPU's child" "this node has no GPU"))
+			(:t ;new mailboxes, nothing late of the farm before comes in
+				(elem-set tf_select +tf_task (mail-mbox))
+				(elem-set tf_select +tf_reply (mail-mbox))
+				(setq tf_jobs (Jobs +shader_tris_gpu_child (elem-get tf_select +tf_task)
+					(elem-get tf_select +tf_reply) 1 :here))
+				(assert-true "a frame by the GPU's child is drawn" (tf-frame 1))
+				(defq tf_gpu (tf-pixels tf_pixmap tf_size) tf_lit 0 tf_far 0)
+				(each! (lambda () (defq a (get-uint tf_farmed (<< (!) 2)) b (get-uint tf_gpu (<< (!) 2)))
+						(if (/= a 0) (++ tf_lit))
+						(if (> (reduce (# (max %0 (abs (- (logand (>> a %1) 255) (logand (>> b %1) 255)))))
+								'(0 8 16 24) 0) 16) (++ tf_far)))
+					'() 0 (>> (length tf_farmed) 2))
+				(push tf_said (str "the GPU's frame, " tf_far " pixels far from the CPU's of " tf_lit " lit"))
+				(assert-true "and is the frame the nodes draw, but at the edges of things" (< tf_far (/ tf_lit 6)))
+				(assert-true "a second frame of it" (tf-frame 1))
+				(assert-eq "is the same frame" tf_gpu (tf-pixels tf_pixmap tf_size))
+				;and a thing with a pair of its own is drawn with that, by the GPU too
+				(setq tf_draws (list (first tf_whole) (cat (second tf_whole) (list 0 tf_size '() tf_shiny))))
+				(assert-true "a frame of it with a pair of a thing's own" (tf-frame 1))
+				(assert-true "is not the frame of the one pair" (not (eql tf_gpu (tf-pixels tf_pixmap tf_size))))
+				(setq tf_draws tf_whole)
+				(. tf_jobs :close)))
 		;a picture for the children to read, one whose pixels are its own is
 		;had again in shared memory, one that is there already is itself
 		(defq tf_picture (shader-strip-picture tf_alone))

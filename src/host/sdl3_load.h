@@ -51,6 +51,7 @@
 	X(SDL_DetachThread) \
 	X(SDL_DispatchGPUCompute) \
 	X(SDL_DownloadFromGPUBuffer) \
+	X(SDL_DownloadFromGPUTexture) \
 	X(SDL_DrawGPUPrimitives) \
 	X(SDL_EndGPUComputePass) \
 	X(SDL_EndGPUCopyPass) \
@@ -135,6 +136,7 @@
 	X(SDL_UnlockAudioStream) \
 	X(SDL_UnmapGPUTransferBuffer) \
 	X(SDL_UploadToGPUBuffer) \
+	X(SDL_UploadToGPUTexture) \
 	X(SDL_WaitForGPUFences) \
 	X(SDL_WasInit) \
 	X(SDL_free) \
@@ -187,6 +189,7 @@ SDL3_CALLS(SDL3_DECLARE)
 #define SDL_DetachThread cl_SDL_DetachThread
 #define SDL_DispatchGPUCompute cl_SDL_DispatchGPUCompute
 #define SDL_DownloadFromGPUBuffer cl_SDL_DownloadFromGPUBuffer
+#define SDL_DownloadFromGPUTexture cl_SDL_DownloadFromGPUTexture
 #define SDL_DrawGPUPrimitives cl_SDL_DrawGPUPrimitives
 #define SDL_EndGPUComputePass cl_SDL_EndGPUComputePass
 #define SDL_EndGPUCopyPass cl_SDL_EndGPUCopyPass
@@ -271,6 +274,7 @@ SDL3_CALLS(SDL3_DECLARE)
 #define SDL_UnlockAudioStream cl_SDL_UnlockAudioStream
 #define SDL_UnmapGPUTransferBuffer cl_SDL_UnmapGPUTransferBuffer
 #define SDL_UploadToGPUBuffer cl_SDL_UploadToGPUBuffer
+#define SDL_UploadToGPUTexture cl_SDL_UploadToGPUTexture
 #define SDL_WaitForGPUFences cl_SDL_WaitForGPUFences
 #define SDL_WasInit cl_SDL_WasInit
 #define SDL_free cl_SDL_free
