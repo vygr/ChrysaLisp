@@ -137,6 +137,8 @@
 		(defq from (last units) rows (first (last net)) at 0
 			top (reduce (lambda (m row) (reduce (# (max %0 (n2d %1))) row m)) rows +double_0))
 		(each (lambda (row bar)
+				;an app's own task, on the node the GUI is on: it is let in
+				(task-slice)
 				(defq best (list))
 				;the strongest few, a pass for each
 				(times +nn_view_strong
@@ -165,6 +167,7 @@
 	;of each, the taken one green if it is the label, red if not
 	(bind '(stage input_box units bars links model maps) view)
 	(each (lambda (layer a)
+			(task-slice)
 			(when layer
 				(defq top (max (reduce (# (max %0 (n2d %1))) a +double_0) (const (n2d 0.001))))
 				(each (lambda (fig v)

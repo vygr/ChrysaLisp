@@ -294,10 +294,16 @@
 (defun nn-forward (model net x scratch)
 	; (nn-forward model net x scratch) -> outputs
 	;a sample through the layers, each one's outputs kept in the scratch
+	;A net is run by a child of a farm, or by an app for the one sample it
+	;shows, on the node the GUI is on or one the machine has no other
+	;than: the node's other tasks are let in at each layer, and every few
+	;rows of a dense one
 	(defq in x)
 	(each (lambda ((kind ins outs act name wt bs shape) (rows biases) a work)
+			(task-slice)
 			(case kind
-				(:dense (each (# (elem-set a (!) (+ (nums-dot %0 in) %1))) rows biases))
+				(:dense (each (# (if (= (logand (!) 15) 0) (task-slice))
+						(elem-set a (!) (+ (nums-dot %0 in) %1))) rows biases))
 				(:conv
 					(bind '(c h w k s pad f oh ow) shape)
 					(nn-im2col in c h w k s pad (first work))
@@ -329,6 +335,7 @@
 	(nums-scale p one d)
 	(elem-set d label (- (elem-get d label) one))
 	(while (>= l 0)
+		(task-slice)
 		(bind '((kind ins outs act name wt bs shape) (rows &ignore) (grows gbiases) d work)
 			(list (elem-get layers l) (elem-get net l) (elem-get grads l) (elem-get deltas l) (elem-get works l)))
 		(defq in (if (= l 0) x (elem-get acts (dec l))) back (if (> l 0) (elem-get deltas (dec l))))
@@ -338,11 +345,13 @@
 			(:dense
 				(nums-add gbiases d gbiases)
 				(each (lambda (g e)
+						(if (= (logand (!) 15) 0) (task-slice))
 						(unless (= e zero) (nums-add-scaled g in e g)))
 					grows d)
 				(when back
 					(nums-scale back zero back)
 					(each (lambda (row e)
+							(if (= (logand (!) 15) 0) (task-slice))
 							(unless (= e zero) (nums-add-scaled back row e back)))
 						rows d)))
 			(:conv

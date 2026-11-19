@@ -81,6 +81,7 @@
 			(draw-words canvas "filters" 6 16 11 +chart_text)
 			(defq n (* c k k) cell (/ 52 k))
 			(each! (lambda ()
+					(task-slice)
 					(defq filter (!) row (slice params (* filter n) (* (inc filter) n))
 						top (max (const (n2d 0.0001)) (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
 						x0 (+ 6 (* (% filter 4) 58)) y0 (+ 26 (* (/ filter 4) 58)))
@@ -89,6 +90,8 @@
 		(:t (draw-words canvas "hidden units" 6 16 11 +chart_text)
 			(when params
 				(each! (lambda ()
+						;16 squares of 784 weights, the GUI is let in at each
+						(task-slice)
 						(defq unit (!) row (slice params (* unit +digits_inputs) (* (inc unit) +digits_inputs))
 							top (max (const (n2d 0.0001)) (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
 							x0 (+ 6 (* (% unit 4) 58)) y0 (+ 26 (* (/ unit 4) 58)))
@@ -105,6 +108,7 @@
 		"confusion") 6 16 11 +chart_text)
 	(when confusion
 		(each! (lambda ()
+				(task-slice)
 				(defq row (!) total (max 1 (reduce! (const +) (list confusion) 0 (* row 10) (* (inc row) 10))))
 				(draw-words canvas (str row) 8 (+ 44 (* row 19)) 10 +chart_text)
 				(draw-words canvas (str row) (+ 30 (* row 20)) 238 10 +chart_text)

@@ -43,6 +43,10 @@
 		(if grads (nn-clear grads)
 			(setq grads (nn-zeros model))))
 	(each! (lambda ()
+			;a child is on any node of the machine, the GUI's too, and on a
+			;machine of one node there is no other: the node's other tasks
+			;are let in at each sample
+			(task-slice)
 			(defq at (code msg 4 (+ +digits_job_size (* (!) 4)))
 				label (buf-get data (+ labels at) +type_ubyte)
 				p (nn-forward model net

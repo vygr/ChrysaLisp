@@ -221,6 +221,8 @@
 	(defq order (map! (const !) '() 0 n))
 	;each swapped with one at random at or before it, Fisher and Yates
 	(each! (lambda (v) (defq j (random (inc (!))))
+			;55000 of them at the start of each epoch, the GUI is let in
+			(if (= (logand (!) 1023) 0) (task-slice))
 			(elem-set order (!) (elem-get order j)) (elem-set order j v)) (list order))
 	order)
 
