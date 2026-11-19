@@ -140,6 +140,9 @@
 				(:set_color (scene-color (elem-get cr i) (elem-get cg i) (elem-get cb i) at))
 				(:fpoly (elem-get sx i) (elem-get sy i) +winding_odd_even (list (circle r)))
 				(:set_color (scene-color 1.0 1.0 1.0 at))
-				(:fpoly (elem-get hx i) (elem-get hy i) +winding_odd_even (list (circle (* r 0.2))))))
+				(:fpoly (elem-get hx i) (elem-get hy i) +winding_odd_even (list (circle (* r 0.2)))))
+			;a frame drawn by the app's own task is drawn on the GUI's node,
+			;which has the mouse to draw: it is let in after each bubble
+			(task-slice))
 		near)
 	(length near))

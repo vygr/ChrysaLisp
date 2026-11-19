@@ -249,5 +249,8 @@
 				(when core
 					(.-> canvas (:set_color core_col)
 						(:fpoly 0.0 0.0 winding (scene-place core rot scale tx ty))))
-				(setq drawn (inc drawn)))) '() 0 count)
+				(setq drawn (inc drawn))
+				;a frame drawn by the app's own task is drawn on the GUI's node,
+				;which has the mouse to draw: it is let in after each shape
+				(task-slice))) '() 0 count)
 	drawn)

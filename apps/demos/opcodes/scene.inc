@@ -158,6 +158,9 @@
 				; 3. High-Contrast Luminescent Core
 				(.-> canvas (:set_color col_core) (:fpoly 0.0 0.0 +winding_odd_even
 						(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) core_paths)))
-				(setq drawn (inc drawn))))
+				(setq drawn (inc drawn))
+				;a frame drawn by the app's own task is drawn on the GUI's node,
+				;which has the mouse to draw: it is let in after each opcode
+				(task-slice)))
 		'() 0 (/ (length packed) +bouncer_size))
 	drawn)
