@@ -2017,6 +2017,16 @@
 				(setq offset (+ offset 32))) (shader-textures program)))
 	frame)
 
+;how many rows a call of the native code that fills triangles is given,
+;and how long it is to take, in us. Native code can not be left part way,
+;and all of a frame of a big mesh is long on a slow machine, 95ms on the
+;emulator for Mesh: drawn by a task on the node the GUI is on, an app's
+;own, or a child on a machine of the one node, that is the mouse held as
+;long. So a frame is filled so many rows at a time, the node's other
+;tasks let in between, and each call is timed and sets how many rows the
+;next has. A fast machine is soon given all of a frame as the one call
+(defq *sv_rows* 1000000 +sv_rows_time 5000 +sv_rows_least 8)
+
 (defun shader-vp-draw-tris (pipeline verts tris pixmap depth &optional vvals pvals cull tri_size x y x1 y1 depth_y)
 	; (shader-vp-draw-tris pipeline verts tris pixmap depth [vvals pvals cull tri_size x y x1 y1 depth_y]) -> pixmap
 	;draw triangles on a 32 bit pixmap. verts is a doubles, the attrs of a
@@ -2053,8 +2063,20 @@
 			(max x 0) (max y depth_y 0) (min x1 width) (min y1 height)
 			(cond ((not cull) 0) ((eql cull :front) 2) (1)) depth_y))
 	(each (# (set-long frame (+ s_vary (* (!) 8)) %0)) offsets)
-	(and (nempty? tris) (nempty? placed)
-		((first fill) frame placed tris pixmap depth))
+	(when (and (nempty? tris) (nempty? placed))
+		;the vertices were placed by a call of native code too
+		(task-slice)
+		(defq row (max y depth_y 0) end (min y1 height))
+		(while (< row end)
+			(defq next (min end (+ row *sv_rows*)) began (pii-time))
+			(set-long frame s_cy0 row)
+			(set-long frame s_cy1 next)
+			((first fill) frame placed tris pixmap depth)
+			(defq took (max 100 (- (pii-time) began)))
+			(setq *sv_rows* (max +sv_rows_least (min 1000000 (* *sv_rows* 4)
+					(/ (* (- next row) +sv_rows_time) took)))
+				row next)
+			(task-slice)))
 	pixmap)
 
 (defun shader-vp-argb (native frame x y x1 y1 &optional height)

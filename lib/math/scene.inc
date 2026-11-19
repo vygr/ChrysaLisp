@@ -57,6 +57,9 @@
 (defun render-object-verts (size mat4x4_proj object)
 	(defq sp (* +double_1/2 (n2d (dec size))) col (. object :get_color))
 	(each (lambda ((x y z w))
+			;thousands of vertices, by an app's own task on the node the GUI
+			;is on: it is let in every so many
+			(if (= (logand (!) 63) 0) (task-slice))
 			(defq rw (recip w) z (* z rw))
 			(when (<= +double_-1 z +double_1)
 				;y is up, as the faces are drawn
@@ -288,6 +291,9 @@
 			depth (shader-vp-depth (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
 		(raise :meshes)
 		(. canvas :fill 0)
+		;a depth buffer made and a canvas cleared, then each mesh: this is
+		;an app's own task, on the node the GUI is on
+		(task-slice)
 		(each (lambda ((id vblock pblock &optional y y1 pictures files))
 				(defq verts (elem-get meshes id) with (if files (scene-pipeline files) pipeline))
 				(shader-vp-draw-tris with verts (scene-order (/ (length verts) 56)) pixmap depth
@@ -320,8 +326,8 @@
 						(while (defq p (pop path_list))
 							(bind '(p col sx sy) p)
 							(. canvas :set_color col)
-							(. canvas :fpoly sx sy +winding_odd_even (list p)))
-						(task-slice))
+							(. canvas :fpoly sx sy +winding_odd_even (list p))
+							(task-slice)))
 					poly_buckets)))
 		(. canvas :swap +swap_write)
 		this))
