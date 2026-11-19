@@ -35,7 +35,10 @@
 (defun scene-text (text size &optional font)
 	; (scene-text text size [font]) -> outline
 	;the letters made big and brought down, so that they stay smooth drawn
-	;at more than the picture's size
+	;at more than the picture's size. A part of a scene is set up in the
+	;one turn of what fires it, many words at once, on the node the GUI
+	;is on: it is let in at each
+	(task-slice)
 	(map (lambda ((closed p))
 			(list closed (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) p p)))
 		(outline-text text (ifn font +scene_regular) (* size 2))))
@@ -44,6 +47,7 @@
 	; (scene-mono text size) -> outline
 	;code, in cells as a vdu has it, made big and brought down as
 	;(scene-text) is
+	(task-slice)
 	(map (lambda ((closed p))
 			(list closed (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) p p)))
 		(outline-mono text +scene_mono (* size 2))))

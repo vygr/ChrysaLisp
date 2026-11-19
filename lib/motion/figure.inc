@@ -85,8 +85,11 @@
 
 	(defmethod :add_node (child)
 		; (. figure :add_node child) -> figure
-		;a child added last, out of the parent it had first
+		;a child added last, out of the parent it had first. A part of a
+		;scene is set up in the one turn of what fires it, hundreds of
+		;figures at once, on the node the GUI is on: it is let in at each
 		(figure-tree-changed this)
+		(task-slice)
 		(.super this :add_node child))
 
 	(defmethod :set_children (children)

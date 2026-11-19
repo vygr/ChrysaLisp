@@ -267,7 +267,10 @@
 							(and (not (find k +ros_shared)) (rostrum-kind v) (push todo v)))
 						(tolist x)))
 					(:fmap (. x :each (lambda (k v) (if (rostrum-kind v) (push todo v)))))
-					(:t (each (# (if (rostrum-kind %0) (push todo %0))) x)))))
+					(:t (each (# (if (rostrum-kind %0) (push todo %0))) x)))
+				;a copy of a big scene is long, and is made on the node the GUI
+				;is on
+				(task-slice)))
 		;then what each new one holds is the new one of what it held
 		(each (lambda (x)
 				(defq new (. made :find (weak-ref x)))
@@ -280,7 +283,8 @@
 						(. new :insert k (if (rostrum-kind v) (. made :find (weak-ref v)) v)))))
 					(:t (each (lambda (v)
 							(if (rostrum-kind v) (elem-set new (!) (. made :find (weak-ref v)))))
-						x))))
+						x)))
+				(task-slice))
 			olds)
 		;and each child's weak link up is to its new parent
 		(defq top (. made :find (weak-ref this)))
@@ -297,7 +301,9 @@
 		(defq owed (+ (get :ros_owed this) (* (n2q secs) (get :ros_speed this))))
 		(while (>= owed +ros_step)
 			(setq owed (- owed +ros_step))
-			(. this :tick +ros_step))
+			(. this :tick +ros_step)
+			;a slow frame owes many steps
+			(task-slice))
 		(def this :ros_owed owed)
 		this)
 

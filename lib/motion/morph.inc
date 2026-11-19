@@ -292,6 +292,8 @@
 		larger (if (<= (length from) (length to)) to from)
 		flip (not (eql smaller from)))
 	(each (lambda (mark)
+			;many lines, each looks at every other: the GUI is let in
+			(task-slice)
 			(bind '(& & x y sign) mark)
 			(defq best :nil best_d +morph_far)
 			(each (lambda (other)
@@ -335,8 +337,11 @@
 	; (Morph from to) -> morph
 	;the two outlines made ready, a list of (closed start change) for each
 	;line. (morph-at) gives the outline at a part of the way
+	;It is made in the one turn of a tween that starts, on the node the GUI
+	;is on, and of words it is long: the GUI is let in at each line
 	(defq marks_a (morph-marks from) marks_b (morph-marks to))
 	(map (lambda ((ma mb))
+			(task-slice)
 			(defq pa (if ma (second ma)) pb (if mb (second mb))
 				closed (first (or ma mb))
 				count (min +morph_max (max +morph_min
