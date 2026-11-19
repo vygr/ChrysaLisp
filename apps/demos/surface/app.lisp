@@ -176,13 +176,17 @@
 				(unless (. render :busy) (next-frame))
 				(. render :tick)
 				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
-					;the rate, and how the frames are drawn
+					;the rate, and how the frames are drawn. Over a second or
+					;more, and a frame or more: a slow frame is longer than this
+					;is looked at
 					(mode-show)
-					(defq now (pii-time) rate (/ (* frames 10000000) (max 1 (- now since))))
-					(if (> now notice_until)
-						(. *status* :set_text (cat (str (/ rate 10)) "." (str (% rate 10))
-								" frames a second, " (. render :how))))
-					(setq frames 0 since now)))))
+					(defq now (pii-time))
+					(when (and (> frames 0) (>= (- now since) 1000000))
+						(defq rate (/ (* frames 10000000) (- now since)))
+						(if (> now notice_until)
+							(. *status* :set_text (cat (str (/ rate 10)) "." (str (% rate 10))
+									" frames a second, " (. render :how))))
+						(setq frames 0 since now))))))
 	(config-save)
 	;the render's farm let go of, its children told to go, and the window
 	(. render :close)
