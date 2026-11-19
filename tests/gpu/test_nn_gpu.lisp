@@ -95,6 +95,10 @@
 	(nn-gpu-fits? (nn-model '((:input 8193) (:dense 2 :softmax))) 64 ng_programs))
 (assert-eq "nor a filter wider than its kernel's" :nil
 	(nn-gpu-fits? (nn-model '((:input 1 70 70) (:conv 2 65 :tanh) (:dense 2 :softmax))) 64 ng_programs))
+(assert-eq "nor a row of places out longer than its kernel walks" :nil
+	(nn-gpu-fits? (nn-model '((:input 1 1 2000) (:conv 2 1 :tanh) (:dense 2 :softmax))) 64 ng_programs))
+(assert-true "though one as long as it walks is"
+	(nn-gpu-fits? (nn-model '((:input 1 1 1024) (:conv 2 1 :tanh) (:dense 2 :softmax))) 64 ng_programs))
 (assert-eq "nor a batch of more than its kernels'" :nil
 	(nn-gpu-fits? (nn-model '((:input 16) (:dense 4 :softmax))) 65537 ng_programs))
 (assert-eq "so no GPU model is made of it" :nil (nn-gpu (nn-model '((:input 8193) (:dense 2 :softmax))) 64))

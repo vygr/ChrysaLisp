@@ -294,13 +294,34 @@ has no params and loads them from their buf before its first job.
 
 On the M4, a batch of 1,024: the dense net learns 151,000 samples a second on
 the GPU, an epoch in 0.36s, and 90,000 on the farm of 16 nodes; LeNet-5 learns
-5,120 on the GPU and 18,000 on the farm, whose natives do its convolutions
+6,470 on the GPU and 18,000 on the farm, whose natives do its convolutions
 better than the GPU's kernels yet do.
+
+Timed a kernel at a time, each waited for, 80ms of the 92ms of a step of 512
+of LeNet-5 there is the one kernel, `conv_update`: a thread for each weight,
+156 of the first layer of convolutions and 2,416 of the second, and each a
+sum over the batch and the places out, 400,000 terms of the first. Too few
+threads, and each too long, where every other kernel of the step is 3ms or
+less. It walks the places a row at a time, with no divide for each, which
+took a step of 512 from 99ms to 78ms.
+
+On a Raspberry Pi 4 the GPU is the slower way for both nets, and it is the
+GPU, not the kernels' shape. A step of 512 of the dense net is 340ms, 1,500
+samples a second, where one task of the farm does 1,150 and there are four
+nodes. Of LeNet-5 it is 4.0s, 127 a second, where one task does 215 to 250:
+0.9s in the convolutions forward, 1.8s in their error back, 0.9s in their
+weights, 0.2s in the dense layers forward. That is 140 to 200 million
+multiplies and adds a second in these kernels, where a sample forward and
+back by the natives, about 1.1 million of them in 4ms to 4.6ms, is 250
+million a second of the one core, and there are four.
 
 ## What is not done
 
 * Tiles and memory shared between the threads of a kernel, the next step for
   big layers, where each weight is read by every sample's thread.
+* The gradient of a layer of convolutions' weights as a thread for each weight
+  of each sample, a sum over the places alone, then a sum over the batch: what
+  would make `conv_update` many short threads, as the other kernels are.
 * The VP back end of the shader language keeping a kernel's loop in
   registers, what makes it 98us where Lisp is 65us.
 * Half floats, 16 bits, for the weights and data on the GPU, where it has

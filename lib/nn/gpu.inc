@@ -37,7 +37,8 @@
 (defq +nn_gpu_most `'((,+nn_kernel_update max_batch) (,+nn_kernel_conv_update max_batch)
 	(,+nn_kernel_loss max_outs) (,+nn_kernel_forward max_ins) (,+nn_kernel_back max_outs)
 	(,+nn_kernel_conv max_planes) (,+nn_kernel_conv max_k) (,+nn_kernel_conv_back max_k)
-	(,+nn_kernel_conv_back max_filters) (,+nn_kernel_conv_update max_places) (,+nn_kernel_pool max_q)))
+	(,+nn_kernel_conv_back max_filters) (,+nn_kernel_conv_update max_places) (,+nn_kernel_pool max_q)
+	(,+nn_kernel_conv_update max_side)))
 
 ;a GPU model: (model capacity programs kernels bufs layers set data)
 ;programs and kernels by name, bufs (idx x y loss guess), layers a list of
@@ -61,14 +62,15 @@
 	;A shader's loop goes to a constant, so each kernel has a most it sums
 	;of each thing, a constant of its file, and past it would stop short
 	;and say nothing
-	(bind '(batch conv_batch loss_outs dense_ins dense_outs planes k back_k filters places block)
+	(bind '(batch conv_batch loss_outs dense_ins dense_outs planes k back_k filters places block side)
 		(map (lambda ((kernel most)) (shader-const (elem-get programs kernel) most)) +nn_gpu_most))
 	(and (<= capacity (min batch conv_batch)) (<= (nn-outs model) loss_outs)
 		(every (lambda ((kind ins outs act name wt bs shape))
 				(case kind
 					(:dense (and (<= ins dense_ins) (<= outs dense_outs)))
 					(:conv (bind '(c & & fk & & f oh ow) shape)
-						(and (<= c planes) (<= fk (min k back_k)) (<= f filters) (<= (* oh ow) places)))
+						(and (<= c planes) (<= fk (min k back_k)) (<= f filters) (<= (* oh ow) places)
+							(<= (max oh ow) side)))
 					(:pool (<= (elem-get shape 3) block))))
 			(nn-layers model))))
 
