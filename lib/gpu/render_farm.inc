@@ -91,7 +91,10 @@
 	;a frame is whole, and is shown as it was made: one the GPU drew is on
 	;the back canvas, which gives the app's what it has
 	(defq canvas (get :canvas this))
-	(if (= how +strip_texture) (. canvas :exchange (get :back this)) (. canvas :swap +swap_write))
+	(cond
+		((not canvas))
+		((= how +strip_texture) (. canvas :exchange (get :back this)))
+		((. canvas :swap +swap_write)))
 	(def this :out :nil :took (- (pii-time) (get :began this))
 		:how (cond ((= how +strip_texture) :gpu) ((eql (get :kind this) :gpu) :gpu_copy) (:t :farm)))
 	:t)
@@ -124,6 +127,9 @@
 		;waited for, what a part of a frame is called, and is a frame shown
 		;as it fills
 		:clear +argb_black :patience +cpu_timeout :part "strip" :partial :nil
+		;how long the GPU's child is waited for, and how long with no frame
+		;given before a farm is let go of, :nil never, the app does it
+		:gpu_patience +gpu_timeout :idle +stale
 		:began 0 :took 0 :last 0 :how :here :ticks 0)
 
 	(defmethod :read (select before)
@@ -170,6 +176,13 @@
 		;a frame is out with a farm, the next is not to be given yet
 		(get :out this))
 
+	(defmethod :drop ()
+		; (. render :drop) -> render
+		;a frame that is out is not waited for, the view it was of has
+		;gone, and the next may be given at once. The farm is kept
+		(frame-forget)
+		this)
+
 	(defmethod :tick ()
 		; (. render :tick) -> render
 		;called from the app's timer: now and then a child that has gone,
@@ -179,11 +192,12 @@
 		(defq ticks (% (inc (get :ticks this)) +tick_rate) jobs (get :jobs this))
 		(def this :ticks ticks)
 		(and jobs (= ticks 0)
-			(. jobs :refresh (if (eql (get :kind this) :gpu) +gpu_timeout (get :patience this))))
+			(. jobs :refresh (if (eql (get :kind this) :gpu) (get :gpu_patience this) (get :patience this))))
 		;a frame the nodes are still drawing is shown as far as it has got
 		(and jobs (= ticks 0) (get :out this) (get :partial this) (eql (get :kind this) :cpu)
 			(. (get :canvas this) :swap +swap_write))
-		(and jobs (not (get :out this)) (> (- (pii-time) (get :last this)) +stale)
+		(and jobs (not (get :out this)) (defq idle (get :idle this))
+			(> (- (pii-time) (get :last this)) idle)
 			(farm-end))
 		this)
 
@@ -201,6 +215,14 @@
 							(str (if (defq jobs (get :jobs this)) (. jobs :size) 0)) " nodes"))
 					(:t "native code, on this node"))
 				", " (str (/ tenths 10)) "." (str (% tenths 10)) "ms a frame")))
+
+	(defmethod :stop ()
+		; (. render :stop) -> render
+		;the farm let go of, its children told to go, and what it has out
+		;not waited for: its work has stopped, or is no longer wanted. The
+		;next frame makes a new one, and nothing late comes to it
+		(farm-end)
+		this)
 
 	(defmethod :close ()
 		; (. render :close) -> render
@@ -470,10 +492,20 @@
 	;asked; :here_fn (lambda (canvas)) the frame drawn here, not shown;
 	;:reply_fn (lambda (msg)) an answer of a frame, what the app keeps of
 	;it, and :none from it is a child that could not do the work where it
-	;is. :herd is how many children the nodes have, as (Jobs) takes it,
-	;and :away keeps them off this node
+	;is; :cannot_fn (lambda (msg)) asked of an answer before it is counted,
+	;:t if the child could not do its job where it is: the GPU's child has
+	;no GPU after all, and the CPU has the frames, or a child of the CPU's
+	;could not, and its job goes to another node, its own is left out
+	;while the farm lasts. :herd is how many children the nodes have, as
+	;(Jobs) takes it, and :away keeps them off this node. :send_back is
+	;children that send the pixels of a part they could not reach, which
+	;the :reply_fn puts on the canvas, so the nodes draw a frame with the
+	;pixels not shared too. :launched_fn (lambda (kind msg)) is told of
+	;each child as it starts, the first, or one in place of one that went.
+	;With no canvas, :nil, the work is not a picture: nothing is shown, the
+	;jobs are given to (:frame), and (:busy) says when all are answered
 	(def this :child child :gpu_child gpu_child :jobs_fn :nil :here_fn :nil :reply_fn :nil
-		:herd (list 64) :away :nil :part "part")
+		:cannot_fn :nil :launched_fn :nil :herd (list 64) :away :nil :send_back :nil :part "part")
 	(unless gpu_child (def this :no_gpu :t :mode :cpu))
 
 	(defmethod :here ()
@@ -485,15 +517,18 @@
 		(def this :took (- (pii-time) (get :began this)) :how :here :last (pii-time))
 		:t)
 
-	(defmethod :frame ()
-		; (. render :frame) -> :nil | :t
-		;a frame of the moment. :t if it is whole and shown, it was drawn
-		;here: the mode is :here, the pixels are not shared, or the children
-		;are not yet ready. :nil if it is out with a farm, (:busy) says when
-		;it no longer is; no more is given till then
+	(defmethod :frame (&optional work)
+		; (. render :frame [work]) -> :nil | :t
+		;a frame of the moment, its jobs asked of the :jobs_fn, or work, the
+		;jobs themselves. :t if it is whole and shown, it was drawn here:
+		;the mode is :here, the pixels are not shared, or the children are
+		;not yet ready. :nil if it is out with a farm, (:busy) says when it
+		;no longer is; no more is given till then
 		(defq mode (get :mode this) mboxes (get :mboxes this) make (get :jobs_fn this)
+			canvas (get :canvas this)
 			gpu (and (eql mode :gpu) (not (get :no_gpu this)))
-			farm (and (eql mode :cpu) (not (get :no_farm this)) (/= (canvas-key (get :canvas this)) 0)))
+			farm (and (eql mode :cpu) (not (get :no_farm this))
+				(or (not canvas) (get :send_back this) (/= (canvas-key canvas) 0))))
 		(def this :began (pii-time) :last (pii-time))
 		;a farm of the other kind is let go of
 		(and (get :jobs this) (nql (get :kind this) (cond (gpu :gpu) (farm :cpu))) (farm-end))
@@ -507,12 +542,12 @@
 								(elem-get mboxes +rt_mbox_reply) (get :herd this) (get :away this))))
 					;its children asked if they are ready, if the app has a job
 					;for that: till they are the frames are drawn here
-					(if (defq ready (make (get :kind this) (. (get :jobs this) :size) :t))
+					(if (and make (defq ready (make (get :kind this) (. (get :jobs this) :size) :t)))
 						(. (get :jobs this) :add ready)
 						(def this :ready :t)))
 				(cond
 					((get :ready this)
-						(. (get :jobs this) :add (make (get :kind this) (. (get :jobs this) :size) :nil))
+						(. (get :jobs this) :add (ifn work (make (get :kind this) (. (get :jobs this) :size) :nil)))
 						(def this :out :t)
 						:nil)
 					((. this :here))))))
@@ -521,26 +556,34 @@
 		; (. render :mail idx msg) -> :nil | :t
 		;what came to mailbox idx of the render's. :t if a frame that was
 		;out is now whole and shown, the app may give the next
-		(defq jobs (get :jobs this))
+		(defq jobs (get :jobs this) gpu (eql (get :kind this) :gpu))
 		(cond
 			((= idx +rt_mbox_task)
-				(if jobs (. jobs :launched msg))
+				(when jobs
+					(if (defq fn (get :launched_fn this)) (fn (get :kind this) msg))
+					(. jobs :launched msg))
 				:nil)
-			((and (= idx +rt_mbox_reply) jobs (defq out (. jobs :answered msg)))
-				(cond
-					((not (get :out this))
-						;its children have said they are ready
-						(if (= out 0) (def this :ready :t))
-						:nil)
-					((eql (if (defq fn (get :reply_fn this)) (fn msg)) :none)
-						;a child that can not do the work where it is: no GPU for
-						;it after all, or pixels it can not reach. The frame is
-						;drawn the next way down, and those after it
-						(defq gpu (eql (get :kind this) :gpu))
-						(farm-end)
-						(if gpu (def this :no_gpu :t :mode :cpu) (def this :no_farm :t))
-						(. this :frame))
-					((= out 0) (whole +shade_pixels)))))))
+			((/= idx +rt_mbox_reply) :nil)
+			((not jobs) :nil)
+			((and (not gpu) (defq fn (get :cannot_fn this)) (fn msg))
+				;its node can not do it, another does the job
+				(. jobs :cannot msg)
+				:nil)
+			((or (and gpu (defq fn (get :cannot_fn this)) (fn msg))
+					(and (defq out (. jobs :answered msg)) (get :out this)
+						(eql (if (defq fn (get :reply_fn this)) (fn msg)) :none)))
+				;a child that can not do the work where it is: no GPU for it
+				;after all, or pixels it can not reach. The frame is drawn the
+				;next way down, and those after it
+				(farm-end)
+				(if gpu (def this :no_gpu :t :mode :cpu) (def this :no_farm :t))
+				(. this :frame))
+			((not out) :nil)
+			((not (get :out this))
+				;its children have said they are ready
+				(if (= out 0) (def this :ready :t))
+				:nil)
+			((= out 0) (whole +shade_pixels)))))
 
 ;module
 (export-classes '(Render Render-tris Render-shade Render-work))

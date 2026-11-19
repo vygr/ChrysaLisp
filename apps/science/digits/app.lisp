@@ -4,7 +4,7 @@
 (import "./app.inc")
 (import "./data.inc")
 (import "lib/nn/view.inc")
-(import "lib/gpu/compute.inc")
+(import "lib/gpu/render_farm.inc")
 (import "./draw.inc")
 
 ;Handwritten digits, MNIST, learnt, by the net chosen, a dense one or
@@ -14,9 +14,11 @@
 ;buf and gives each child a part of the batch; each sums the gradients of
 ;its samples into its own slice of a third, and the app adds the slices up
 ;and moves the params down them. Or the GPU does the lot, its params kept
-;there: a farm too, of one task on another node, given a step a job. A
-;farm lasts while its work goes on, and is closed when it stops or is no
-;longer wanted; what starts again makes a new one.
+;there: a farm too, of one task on another node, given a step a job. The
+;farms are a (Render-work)'s, lib/gpu/render_farm.inc, with no canvas,
+;the work is not a picture. A farm lasts while its work goes on, and is
+;let go of when it stops or is no longer wanted; what starts again makes
+;a new one.
 ;The end of each epoch is a check of the part of the training set kept
 ;back, and a test is of all 10000, the share right, and the confusion of
 ;them
@@ -31,7 +33,7 @@
 ;by priority, mail-select takes the first that has mail: what the user
 ;does first, the timer last so a slow frame starves nothing
 (enums +select 0
-	(enum main tip task reply gpu_task gpu fetch timer))
+	(enum main tip fetch timer))
 
 (defq +digits_rates ''("0.05" "0.1" "0.2" "0.5")
 	;a frame each twentieth of a second, a new sample shown each second
@@ -40,9 +42,10 @@
 	;the net chosen, its model and the bytes of its params
 	which 0 model (first *digits_models*) params_size (digits-params-size (first *digits_models*))
 
-	;the bufs, the farm, and where it is
-	data :nil params_buf :nil grads_buf :nil jobs :nil fetch :nil
-	params :nil net :nil out 0 answers (list) busy :nil training :nil after :nil test_next :nil
+	;the bufs, the farms, an answer of theirs not yet looked at, and where
+	;it is
+	data :nil params_buf :nil grads_buf :nil render :nil heard :nil fetch :nil
+	params :nil net :nil answers (list) busy :nil training :nil after :nil test_next :nil
 	step 0 epoch 0 order :nil at 0 losses (list) tests (list) confusion :nil right 0
 	;the number a job is given, which tells a child of the farm if it has
 	;the params of the job already: never one used before, as the step is
@@ -53,9 +56,10 @@
 	+patience 3 valids (list) best_right -1 best_params :nil best_epoch 0 misses 0
 	factor (n2d 1) stopped :nil
 	;the GPU, if it is chosen: a farm too, of one task, as the CPU's is of
-	;many. The params here newer than its, its params newer than here, when
-	;they last came back, and the CPU's farm wanted once they have
-	has_gpu (> (gpu-format) 0) gpu_mode :nil gpu_jobs :nil gpu_stale :t gpu_ahead :nil
+	;many. What is out is its, and is to write its params back; the params
+	;here newer than its, its params newer than here, when they last came
+	;back, and the CPU's farm wanted once they have
+	has_gpu (> (gpu-format) 0) gpu_mode :nil gave_gpu :nil gpu_synced :nil gpu_stale :t gpu_ahead :nil
 	sync_t 0 to_farm :nil
 	;what is shown
 	view :nil scratch :nil x :nil shown 0 show_t 0 features_t 0 last_t 0
@@ -155,24 +159,16 @@
 			(show-sample)
 			:t)))
 
-(defun farm-start ()
-	;the CPU's farm, its children on the nodes of this machine, made when
-	;there is work for it
-	(unless jobs
-		(setq jobs (Jobs (cat *app_root* "child.lisp")
-			(elem-get select +select_task) (elem-get select +select_reply) (list +max_int 2 2)))))
-
 (defun farm-forget ()
 	;a farm lasts only while its work goes on. When what it has out is no
 	;longer wanted, a reset or a switch of form, or there is no more to
-	;give it, it is closed, its children told to go, and the next work
+	;give it, it is let go of, its children told to go, and the next work
 	;makes a new one, its mailboxes new from here. So nothing late comes
 	;in, and no child that may have gone, given nothing for a while, is
 	;ever given a job. A new task of the GPU's has no params, so loads
 	;them first
-	(setq jobs (jobs-end jobs select +select_task +select_reply)
-		gpu_jobs (jobs-end gpu_jobs select +select_gpu_task +select_gpu)
-		busy :nil out 0 answers (list) gpu_stale :t))
+	(. render :stop)
+	(setq busy :nil answers (list) heard :nil gpu_stale :t))
 
 (defun job-msg (kind slot samples)
 	(cat (setf-> (str-alloc +digits_job_size) (+digits_job_kind kind) (+digits_job_step serial)
@@ -182,11 +178,13 @@
 		(apply (const cat) (map (# (char %0 +int_size)) samples))))
 
 (defun jobs-give (kind msgs)
-	;the params where the children read them, and the jobs out
-	(farm-start)
+	;the params where the children read them, and the jobs out, to the
+	;CPU's farm, its children on the nodes of this machine, made when
+	;there is work for it
 	(buf-set params_buf 0 params_size params)
-	(setq step (inc step) serial (inc serial) busy kind out (length msgs) answers (list))
-	(. jobs :add msgs))
+	(setq step (inc step) serial (inc serial) busy kind answers (list) gave_gpu :nil)
+	(. render :mode :cpu)
+	(. render :frame msgs))
 
 (defun gpu-give (kind samples sync)
 	;a job to the GPU's farm, one task kept off this node, made when there
@@ -194,9 +192,6 @@
 	;back. The
 	;params put where the task loads them from first if they have changed
 	;here, and its params written back after the job if sync
-	(unless gpu_jobs
-		(setq gpu_jobs (Jobs (cat *app_root* "gpu.lisp")
-			(elem-get select +select_gpu_task) (elem-get select +select_gpu) 1 :t)))
 	(defq flags 0)
 	(when gpu_stale
 		(buf-set params_buf 0 params_size params)
@@ -210,16 +205,17 @@
 			(+digits_job_grads_key (buf-key grads_buf)) (+digits_job_children +digits_jobs) (+digits_job_net which)
 			(+digits_gpu_job_flags flags) (+digits_gpu_job_rate (rate-now)))
 		(apply (const cat) (cat '("") (map (# (char %0 +int_size)) samples)))))
-	(setq step (inc step) serial (inc serial) busy kind out 1 answers (list))
-	(. gpu_jobs :add (list msg)))
+	(setq step (inc step) serial (inc serial) busy kind answers (list) gave_gpu :t gpu_synced sync)
+	(. render :mode :gpu)
+	(. render :frame (list msg)))
 
-(defun gpu-launched (msg)
+(defun farm-launched (kind msg)
 	;a task of the GPU's farm has started, the first, or one in place of one
 	;that went. It has no params, and loads them from their buf before its
 	;first job, so those here are put there, the latest there are
-	(buf-set params_buf 0 params_size params)
-	(setq gpu_ahead :nil)
-	(. gpu_jobs :launched msg))
+	(when (eql kind :gpu)
+		(buf-set params_buf 0 params_size params)
+		(setq gpu_ahead :nil)))
 
 (defun shuffled (n)
 	(defq order (map! (const !) '() 0 n))
@@ -349,34 +345,30 @@
 (defun gpu-answered (msg)
 	;an answer of the GPU's farm: a job done, or there is no GPU there. Its
 	;params are taken if the job wrote them back, then what the job came
-	;to, and the next. One that is late, of a task started again since, or
-	;a task's word that it has gone, is the farm's own to deal with
-	(when (defq job (. gpu_jobs :job msg))
-		(defq count (getf msg +digits_reply_count) kind busy
-			synced (bits? (getf job +digits_gpu_job_flags) +digits_gpu_flag_sync))
-		(. gpu_jobs :answered msg)
-		(setq busy :nil out 0)
-		(cond
-			((< count 0)
-				;the CPU's farm after all
-				(farm-forget)
-				(setq has_gpu :nil gpu_mode :nil to_farm :nil)
-				(. *mode_bar* :set_selected 0))
-			(:t (if synced (gpu-params))
-				(setq samples (+ samples count))
-				(case kind
-					(:train (unless synced (setq gpu_ahead :t))
-						(push losses (/ (getf msg +digits_reply_loss) (n2d count)))
-						(setq dirty_loss :t)
-						;idle, the same digit again, to see what this step did to it
-						(unless training (show-sample)))
-					(:valid (push answers msg) (validated))
-					(:test (push answers msg) (tested))
-					;the CPU's farm from here, the GPU's let go of
-					(:sync (when to_farm
-						(farm-forget)
-						(setq gpu_mode :nil to_farm :nil))))))
-		(next)))
+	;to, and the next
+	(defq count (getf msg +digits_reply_count) kind busy synced gpu_synced)
+	(setq busy :nil)
+	(cond
+		((< count 0)
+			;the CPU's farm after all
+			(farm-forget)
+			(setq has_gpu :nil gpu_mode :nil to_farm :nil)
+			(. *mode_bar* :set_selected 0))
+		(:t (if synced (gpu-params))
+			(setq samples (+ samples count))
+			(case kind
+				(:train (unless synced (setq gpu_ahead :t))
+					(push losses (/ (getf msg +digits_reply_loss) (n2d count)))
+					(setq dirty_loss :t)
+					;idle, the same digit again, to see what this step did to it
+					(unless training (show-sample)))
+				(:valid (push answers msg) (validated))
+				(:test (push answers msg) (tested))
+				;the CPU's farm from here, the GPU's let go of
+				(:sync (when to_farm
+					(farm-forget)
+					(setq gpu_mode :nil to_farm :nil))))))
+	(next))
 
 (defun mode-switch (to_gpu)
 	;to the GPU, the farm's work let go of and given the GPU's task, the
@@ -384,7 +376,7 @@
 	;than here, no task yet or params not loaded, else once the GPU's task
 	;has done what it has out and its params are back
 	(cond
-		((and (not to_gpu) (not busy) (or (not gpu_jobs) gpu_stale))
+		((and (not to_gpu) (not busy) gpu_stale)
 			(setq gpu_mode :nil to_farm :nil))
 		((not to_gpu) (setq to_farm :t)
 			(unless busy (next)))
@@ -398,19 +390,18 @@
 				(:t (next))))))
 
 (defun answered (msg)
-	;an answer of a job, and when all are in, what they come to
-	(when (defq left (. jobs :answered msg))
-		(push answers msg)
-		(setq samples (+ samples (getf msg +digits_reply_count)))
-		(when (= left 0)
-			(defq kind busy)
-			(setq busy :nil)
-			(case kind
-				(:train (stepped))
-				(:valid (validated))
-				(:test (tested)))
-			(next))))
-
+	;an answer of a job of the CPU's farm, and when all are in, what they
+	;come to
+	(push answers msg)
+	(setq samples (+ samples (getf msg +digits_reply_count)))
+	(unless (. render :busy)
+		(defq kind busy)
+		(setq busy :nil)
+		(case kind
+			(:train (stepped))
+			(:valid (validated))
+			(:test (tested)))
+		(next)))
 
 (defun fetched (msg)
 	;what the fetch says, a file started on, all kept, or why not
@@ -481,7 +472,15 @@
 		(and data (not fetch) (show-status))))
 
 (defun main ()
-	(setq select (task-mboxes +select_size))
+	;the farms: the CPU's two children on each node of this machine, the
+	;GPU's one task. An answer is only kept by the render's mail, and
+	;looked at here after it; and a farm is let go of when its work
+	;stops, here, not by the render after a while
+	(setq select (task-mboxes +select_size)
+		render (Render-work :nil (cat *app_root* "child.lisp") (cat *app_root* "gpu.lisp")))
+	(def render :reply_fn (lambda (msg) (setq heard msg)) :launched_fn (const farm-launched)
+		:herd (list +max_int 2 2) :idle :nil :patience (task-timeout 30)
+		:gpu_patience (task-timeout +digits_gpu_patience))
 	(tooltips)
 	(config-load)
 	(config-apply)
@@ -498,9 +497,16 @@
 	(setq last_t (pii-time))
 	(mail-timeout (elem-get select +select_timer) +frame_rate 0)
 	(while *running*
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(case idx
-			(+select_main
+		;the render's mail is read with the app's, before the timer, and
+		;dealt with
+		(bind '(idx msg) (. render :read select +select_timer))
+		(cond
+			((not idx)
+				;an answer of a farm's
+				(when (defq answer heard)
+					(setq heard :nil)
+					(if gave_gpu (gpu-answered answer) (answered answer))))
+			((= idx +select_main)
 				(cond
 					((= (defq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq *running* :nil))
@@ -532,21 +538,15 @@
 						(. *mode_bar* :set_selected (if to_gpu 1 0))
 						(unless (eql to_gpu (and gpu_mode (not to_farm))) (mode-switch to_gpu)))
 					((. *window* :event msg))))
-			(+select_task (. jobs :launched msg))
-			(+select_reply (answered msg))
-			(+select_gpu_task (gpu-launched msg))
-			(+select_gpu (gpu-answered msg))
-			(+select_fetch (fetched msg))
-			(+select_tip (. *window* :tip msg))
+			((= idx +select_fetch) (fetched msg))
+			((= idx +select_tip) (. *window* :tip msg))
 			(:t (defq start (pii-time))
-				;the patience of each farm: a task that has gone, or has said
+				;the patience of the farm: a task that has gone, or has said
 				;nothing for it, is started again and its job given again
-				(if jobs (. jobs :refresh (task-timeout 30)))
-				(if gpu_jobs (. gpu_jobs :refresh (task-timeout +digits_gpu_patience)))
+				(. render :tick)
 				(frame)
 				(mail-timeout (elem-get select +select_timer)
 					(max 1000 (- +frame_rate (- (pii-time) start))) 0))))
-	(if jobs (. jobs :close))
-	(if gpu_jobs (. gpu_jobs :close))
+	(. render :close)
 	(config-save)
 	(. *window* :close))
