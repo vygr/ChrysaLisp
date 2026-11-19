@@ -53,8 +53,8 @@
 	;machine it is of, an empty line left out: "" if they all are
 	(apply (const cat) (cat (list "") (map (# (cat machine " " %0 "\n")) (split text "\n")))))
 
-(defun rack-fresh (phases &optional user gui asker)
-	; (rack-fresh phases [user gui asker]) -> str
+(defun rack-fresh (phases &optional user gui asker emu node_count)
+	; (rack-fresh phases [user gui asker emu node_count]) -> str
 	;on this machine, a new session for each phase, a list of command
 	;lines, one after another, and what they said. A session is started by
 	;the host, so it is on the boot image as it is on disk now, which a
@@ -63,7 +63,11 @@
 	;gui the session is a desktop, its GUI up before the
 	;command lines are run, as run.sh -f has it. With asker, a mailbox,
 	;what a session says is mailed to it as it comes, "LINE text", and
-	;if its node has gone the session is let go, and stops
+	;if its node has gone the session is let go, and stops. With emu the
+	;session is run by the emulator, on the VP64 boot image, as run.sh -e
+	;has it: a fast machine as slow as a small one, to see what a slow
+	;one shows. With node_count the session has that many, not one a processor:
+	;emu and 4 nodes is about a Raspberry Pi 4
 	;the form has no space or tab in it, a node's args are split at those
 	(defq acc (list) tab "\v" machine (cat (cpu) "/" (os)))
 	(each (lambda (cmds)
@@ -76,9 +80,10 @@
 			;seen and never takes the input of whoever is at the machine, Chris:
 			;"It can come up and down as much as it wants and it never steals my
 			;input etc ? We get to work on the same desktop with no issues."
-			(defq pid (pii-spawn (cat (if gui "-hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
+			(defq pid (pii-spawn (cat (if emu "-e " "") (if gui "-hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
 						(if gui (cat tab "(def" tab "*root_env*" tab "'*rack_gui*" tab ":t)") "")
 						(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
+						(if node_count (cat tab "(def" tab "*root_env*" tab "'*rack_nodes*" tab (str node_count) ")") "")
 						;a run keeps to itself, the member is what is in the mesh
 						tab "(def" tab "*root_env*" tab "'*env_node_solo*" tab ":t)"
 						tab "(import" tab "{lib/rack/session.lisp}))")))
@@ -130,8 +135,8 @@
 		phases)
 	(apply (const cat) (cat (list "") acc)))
 
-(defun rack-run (cmdline &optional make_first leave_out gone user tree gui all skip only said)
-	; (rack-run cmdline [make_first leave_out gone user tree gui all skip only said]) -> (line ...)
+(defun rack-run (cmdline &optional make_first leave_out gone user tree gui all skip only said emu node_count)
+	; (rack-run cmdline [make_first leave_out gone user tree gui all skip only said emu node_count]) -> (line ...)
 	;make every machine that takes a sync the same as this one, then run
 	;the command line on each, and on this one. With make_first, make,
 	;make all boot and make apps are run first, in a session before. leave_out is the
@@ -191,7 +196,7 @@
 								(import "lib/rack/rack.inc")
 								(mail-send (hex-decode ,(hex-encode reply_mbox))
 									(cat ,machine "\n" (rack-fresh (quote ,phases) ,user ,gui
-											(hex-decode ,(hex-encode reply_mbox)))))))
+											(hex-decode ,(hex-encode reply_mbox)) ,emu ,node_count)))))
 						(first nodes) +kn_call_pin 0 (mail-mbox))
 					(setq asked (inc asked)))))
 		ran)

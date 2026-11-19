@@ -416,6 +416,15 @@ is done:
 ./rack.sh run 'rack -g -v -u Test -l arm64/Darwin,x86_64/Darwin "launch desktop/calculator ; widgets -w 10 -t Calculator -d 3 -k text"'
 ```
 
+*	**The slow machine test.** `rack -e -n 4 -g ...` is the same hidden
+	desktop run by the emulator, on the VP64 boot image, with 4 nodes: a
+	fast machine about as slow as a Raspberry Pi 4, a plain loop some 19
+	times slower on an M4. It is the common test of what a slow machine
+	shows, before a small machine is asked: an app that holds the GUI's
+	node, a picture shown part made, a wait that is seconds there. It
+	does not make the GPU slow; a slow GPU's faults need the Pi's own
+	desktop. `-e` and `-n` are rack's, for any session.
+
 *	`widgets` is a view a line, type, bounds, properties; `-f type=Button`
 	or `-f text=Save` for one part, `-d` and `-k` to keep it short. `grab
 	-t title file` for the pixels, a picture costs far more to look at,

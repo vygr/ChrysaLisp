@@ -23,6 +23,11 @@
             and not whoever last signed on to each machine.
         -g --gui: each session is a desktop, its GUI up before the
             command is run, on the machine's own screen.
+        -e --emu: each session is run by the emulator, on the VP64 boot
+            image: a fast machine as slow as a small one.
+        -n --nodes num: each session has that many nodes, not one for
+            each processor. -e -n 4 on a fast machine is about a
+            Raspberry Pi 4, the common test of what a slow one shows.
         -v --verbose: every line each session says, as it says
             it, not only those of how the tests went.
 
@@ -43,6 +48,8 @@
 (("-d" "--delete") ,(opt-str 'opt_d))
 (("-u" "--user") ,(opt-str 'opt_u))
 (("-g" "--gui") ,(opt-flag 'opt_g))
+(("-e" "--emu") ,(opt-flag 'opt_e))
+(("-n" "--nodes") ,(opt-num 'opt_n))
 (("-v" "--verbose") ,(opt-flag 'opt_v))
 ))
 
@@ -50,7 +57,7 @@
 	;initialize pipe details and command args, abort on error
 	(and
 		(defq stdio (create-stdio))
-		(defq opt_b :nil opt_l "" opt_x "" opt_o :nil opt_d "" opt_u :nil opt_g :nil opt_v :nil
+		(defq opt_b :nil opt_l "" opt_x "" opt_o :nil opt_d "" opt_u :nil opt_g :nil opt_e :nil opt_n :nil opt_v :nil
 			args (options stdio usage))
 		(if (<= (length args) 1)
 			(print "A command line to run is needed, rack -h.")
@@ -58,4 +65,5 @@
 					opt_b (split opt_l ",") (split opt_d ":") opt_u :nil opt_g :nil (split opt_x ",") (if opt_o (split opt_o ","))
 					;-v, what each session says as it says it, so one that hangs
 					;shows where
-					(if opt_v (lambda (text) (prin text) (stream-flush (io-stream 'stdout)))))))))
+					(if opt_v (lambda (text) (prin text) (stream-flush (io-stream 'stdout))))
+					opt_e opt_n)))))

@@ -14,7 +14,12 @@
 	(stream-flush out))
 (mail-send (open-child "lib/rack/watch.lisp" +kn_call_pin) run)
 (catch (progn
-		(node-auto)
+		;sized to the machine, or to what was asked for: a small machine is
+		;a few nodes of a big one, on the emulator
+		(if (defq want (get '*rack_nodes*))
+			(node-wait (+ (defq before (length (lisp-nodes)))
+				(length (filter (# (> %0 0)) (node-spawn (max 0 (- want before)))))))
+			(node-auto))
 		;a desktop: the GUI on this node, the host's, as run.sh -f has it,
 		;and up before the command lines, which may look at it
 		(when (get '*rack_gui*)
