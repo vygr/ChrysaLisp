@@ -451,12 +451,14 @@
 ;;;;;;;;;;;;
 
 (defun frame ()
-	(defq now (pii-time) dt (min (n2q 0.1) (/ (n2q (- now last_t)) 1000000.0)))
+	;all the time since the last, however long: the picture eases by it
+	(defq now (pii-time) dt (/ (n2q (- now last_t)) 1000000.0))
 	(setq last_t now)
 	;training, a new test digit through the network each second
 	(and data training (> (- now show_t) +show_rate) (show-next))
-	(nn-view-draw view *net_canvas* dt (if data (buf-get data (+ +mnist_test_images (* shown +digits_inputs)) +digits_inputs)))
-	(. *net_canvas* :swap +swap_write)
+	;the network's picture, when there is something new of it to see
+	(if (nn-view-draw view *net_canvas* dt (if data (buf-get data (+ +mnist_test_images (* shown +digits_inputs)) +digits_inputs)))
+		(. *net_canvas* :swap +swap_write))
 	;the charts when they have changed, the weights every few seconds
 	(when dirty_loss
 		(setq dirty_loss :nil)
@@ -547,8 +549,14 @@
 				;nothing for it, is started again and its job given again
 				(. render :tick)
 				(frame)
+				;the next frame is a twentieth of a second from this one's
+				;start, or four times as long as this took if that is more:
+				;on a slow machine the pictures are drawn less often, and
+				;never have more than a quarter of the node, the training
+				;beside them has the rest
+				(defq took (- (pii-time) start))
 				(mail-timeout (elem-get select +select_timer)
-					(max 1000 (- +frame_rate (- (pii-time) start))) 0))))
+					(max 1000 (- (max +frame_rate (* took 4)) took)) 0))))
 	(. render :close)
 	(config-save)
 	(. *window* :close))

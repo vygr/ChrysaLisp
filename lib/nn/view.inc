@@ -10,6 +10,10 @@
 ; each bar to its chance, the one the network takes it for green if that
 ; is right, red if not, and (nn-view-weights) draws each output's
 ; strongest weights from the layer before it.
+;
+; The picture stands still but for a moment after each of those, so
+; (nn-view-draw) draws it only if one has been called since it last did,
+; or a figure is still easing, and says if it drew.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././motion/rostrum.inc")
@@ -56,6 +60,8 @@
 		gap (/ width columns) top 40 bottom (- height 50) input_box :nil units (list) bars (list) links (list)
 		maps (list) ins (nn-ins model) side (n2i (sqrt (n2d ins))))
 	(nn-view-figure stage (nn-view-rect width height) +nn_view_back 0 0)
+	;not drawn yet
+	(def stage :nn_view_dirty :t)
 	;the input, a square picture or a column of dots
 	(cond
 		((= (* side side) ins)
@@ -133,6 +139,7 @@
 	;each output's strongest weights from the layer before, lines from
 	;those units to its bar, brighter the stronger
 	(bind '(stage input_box units bars links model &ignore) view)
+	(def stage :nn_view_dirty :t)
 	(when (and (nempty? units) (last units))
 		(defq from (last units) rows (first (last net)) at 0
 			top (reduce (lambda (m row) (reduce (# (max %0 (n2d %1))) row m)) rows +double_0))
@@ -166,6 +173,7 @@
 	;layer's outputs as (nn-forward) left them, and the bars to the chance
 	;of each, the taken one green if it is the label, red if not
 	(bind '(stage input_box units bars links model maps) view)
+	(def stage :nn_view_dirty :t)
 	(each (lambda (layer a)
 			(task-slice)
 			(when layer
@@ -200,36 +208,44 @@
 	view)
 
 (defun nn-view-draw (view canvas dt pixels)
-	; (nn-view-draw view canvas dt pixels) -> view
+	; (nn-view-draw view canvas dt pixels) -> :t | :nil
 	;the scene gone on by dt seconds and drawn, and the input picture on it,
-	;pixels a str of a byte each, if the input is a square
+	;pixels a str of a byte each, if the input is a square. Only if there
+	;is something new to see: a sample shown or the weights placed since it
+	;was last drawn, or a figure still easing, which is drawn where it
+	;ends too. :t if it drew, and the canvas is to be swapped. All of dt
+	;is one step, whatever its length: an ease is by its time, and on a
+	;slow machine a frame that is seconds after the last shows where each
+	;has come to, most likely its end, for the one step's work
 	(bind '(stage input_box units bars links model maps) view)
-	(. stage :advance dt)
-	(. stage :draw canvas)
-	;each plane's tile its greys, the darkest left as the tile is. A box a
-	;number, thousands a frame: the GUI is let in at each tile, and every
-	;few rows of the input's picture
-	(each (lambda ((l places h w cell greys))
-			(when greys
-				(defq n (* h w))
-				(each (lambda ((tx ty))
-						(task-slice)
-						(defq at (* (!) n))
-						(each! (lambda (k)
-								(when (> k 16)
-									(defq i (- (!) at))
-									(.-> canvas (:set_color (+ 0xff000000 (* k 0x010101)))
-										(:fbox (+ tx (* (% i w) cell)) (+ ty (* (/ i w) cell)) cell cell))))
-							(list greys) at (+ at n)))
-					places)))
-		maps)
-	(when (and input_box pixels)
-		(bind '(x y side cell) input_box)
-		(each! (lambda ()
-				(if (= 0 (% (!) (* side 4))) (task-slice))
-				(defq v (code pixels 1 (!)))
-				(when (> v 0)
-					(.-> canvas (:set_color (+ 0xff000000 (* v 0x010101)))
-						(:fbox (+ x (* (% (!) side) cell)) (+ y (* (/ (!) side) cell)) cell cell))))
-			'() 0 (* side side)))
-	view)
+	(when (or (get :nn_view_dirty stage) (some (# (nempty? (get :fig_comps %0))) (rostrum-walk stage)))
+		(def stage :nn_view_dirty :nil)
+		(. stage :tick dt)
+		(. stage :draw canvas)
+		;each plane's tile its greys, the darkest left as the tile is. A box a
+		;number, thousands a frame: the GUI is let in at each tile, and every
+		;few rows of the input's picture
+		(each (lambda ((l places h w cell greys))
+				(when greys
+					(defq n (* h w))
+					(each (lambda ((tx ty))
+							(task-slice)
+							(defq at (* (!) n))
+							(each! (lambda (k)
+									(when (> k 16)
+										(defq i (- (!) at))
+										(.-> canvas (:set_color (+ 0xff000000 (* k 0x010101)))
+											(:fbox (+ tx (* (% i w) cell)) (+ ty (* (/ i w) cell)) cell cell))))
+								(list greys) at (+ at n)))
+						places)))
+			maps)
+		(when (and input_box pixels)
+			(bind '(x y side cell) input_box)
+			(each! (lambda ()
+					(if (= 0 (% (!) (* side 4))) (task-slice))
+					(defq v (code pixels 1 (!)))
+					(when (> v 0)
+						(.-> canvas (:set_color (+ 0xff000000 (* v 0x010101)))
+							(:fbox (+ x (* (% (!) side) cell)) (+ y (* (/ (!) side) cell)) cell cell))))
+				'() 0 (* side side)))
+		:t))

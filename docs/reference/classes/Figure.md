@@ -25,7 +25,9 @@ components, run from the next time this figure has its turn
 ```code
 (. figure :add_node child) -> figure
 
-a child added last, out of the parent it had first
+a child added last, out of the parent it had first. A part of a
+scene is set up in the one turn of what fires it, hundreds of
+figures at once, on the node the GUI is on: it is let in at each
 ```
 
 ### :flat

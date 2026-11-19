@@ -99,6 +99,8 @@ waiting so many. An ease that goes past the ends stays on the line
 
 the two outlines made ready, a list of (closed start change) for each
 line. (morph-at) gives the outline at a part of the way
+It is made in the one turn of a tween that starts, on the node the GUI
+is on, and of words it is long: the GUI is let in at each line
 ```
 
 ### PNG-info
@@ -7927,6 +7929,10 @@ a net as one vector, as the params are kept
 (nn-forward model net x scratch) -> outputs
 
 a sample through the layers, each one's outputs kept in the scratch
+A net is run by a child of a farm, or by an app for the one sample it
+shows, on the node the GUI is on or one the machine has no other
+than: the node's other tasks are let in at each layer, and every few
+rows of a dense one
 ```
 
 ### nn-gpu
@@ -8185,10 +8191,16 @@ an empty vector of the model's kind
 ### nn-view-draw
 
 ```code
-(nn-view-draw view canvas dt pixels) -> view
+(nn-view-draw view canvas dt pixels) -> :t | :nil
 
 the scene gone on by dt seconds and drawn, and the input picture on it,
-pixels a str of a byte each, if the input is a square
+pixels a str of a byte each, if the input is a square. Only if there
+is something new to see: a sample shown or the weights placed since it
+was last drawn, or a figure still easing, which is drawn where it
+ends too. :t if it drew, and the canvas is to be swapped. All of dt
+is one step, whatever its length: an ease is by its time, and on a
+slow machine a frame that is seconds after the last shows where each
+has come to, most likely its end, for the one step's work
 ```
 
 ### nn-view-figure
@@ -11632,6 +11644,19 @@ pixmap that is premultiplied as well as one that is not. With alpha
 the alpha of a pixel is the one main gave, for a shader that is to be
 seen through. A pixmap is premultiplied, so such a shader gives its
 color times its alpha.
+```
+
+### shader-vp-draw-rows
+
+```code
+(shader-vp-draw-rows native frame pixmap x y x1 y1 [height alpha]) -> :nil | pixmap
+
+as (shader-vp-draw), a row at a time, and the other tasks of the node
+let in between. Native code can not be left part way, and a tile of a
+heavy shader is long on a slow machine: 100ms on the emulator for 8
+rows of the Surface shader. Shaded by a task on the node the GUI is
+on, an app's own, or a child on a machine of the one node, that is
+the mouse held as long
 ```
 
 ### shader-vp-draw-tris
