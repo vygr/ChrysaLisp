@@ -4644,6 +4644,12 @@ every file and directory under a path, a directory before what is in it
 the boot sectors, 12 of them, and the same again as a spare
 ```
 
+### figure-tree-changed
+
+```code
+(figure-tree-changed node)
+```
+
 ### files-all
 
 ```code
@@ -8272,7 +8278,7 @@ session lives on in that. A desktop the member started that started
 nodes of its own, nodes -a in a terminal on it, takes them with it. :nil
 if nothing went, else how many were told to. Each node of this machine
 is sent the processes that are to go, and goes if it is one; what is
-still up a moment on is ended by the host
+still up half a second on is ended by the host
 ```
 
 ### node-link
@@ -9716,7 +9722,7 @@ for it. An empty pattern stays empty, and matches as it would without.
 ### rack-fresh
 
 ```code
-(rack-fresh phases [user gui asker]) -> str
+(rack-fresh phases [user gui asker emu node_count]) -> str
 
 on this machine, a new session for each phase, a list of command
 lines, one after another, and what they said. A session is started by
@@ -9726,14 +9732,18 @@ not whoever last signed on to the machine, as run.sh -u has it. With
 gui the session is a desktop, its GUI up before the
 command lines are run, as run.sh -f has it. With asker, a mailbox,
 what a session says is mailed to it as it comes, "LINE text", and
-if its node has gone the session is let go, and stops
+if its node has gone the session is let go, and stops. With emu the
+session is run by the emulator, on the VP64 boot image, as run.sh -e
+has it: a fast machine as slow as a small one, to see what a slow
+one shows. With node_count the session has that many, not one a processor:
+emu and 4 nodes is about a Raspberry Pi 4
 the form has no space or tab in it, a node's args are split at those
 ```
 
 ### rack-run
 
 ```code
-(rack-run cmdline [make_first leave_out gone user tree gui all skip only said]) -> (line ...)
+(rack-run cmdline [make_first leave_out gone user tree gui all skip only said emu node_count]) -> (line ...)
 
 make every machine that takes a sync the same as this one, then run
 the command line on each, and on this one. With make_first, make,
@@ -10063,15 +10073,6 @@ a new path of the points of a path of a figure in the picture, by its
 matrix to space and the camera
 ```
 
-### rostrum-place
-
-```code
-(rostrum-place node) -> node
-
-where a figure is, by where its parent is. A parent nothing has worked
-out, one just made, is worked out first, and those above it
-```
-
 ### rostrum-place-one
 
 ```code
@@ -10081,12 +10082,51 @@ by the world and alpha of its parent. Its alpha each time, its world only
 if it or what it is placed by has changed
 ```
 
+### rostrum-sure
+
+```code
+(rostrum-sure node) -> world
+
+where a figure is now, by where each above it is, the top first: any
+of them may have moved since it was last asked. The top is a rostrum,
+which is where it is, or a figure that is under none, placed by nothing
+```
+
+### rostrum-sure-under
+
+```code
+(rostrum-sure-under figure) -> figure
+
+where a figure is now, and every one under it, a parent before its
+children. (:each_node) has a node of its own, so this is fig
+```
+
+### rostrum-turn
+
+```code
+(rostrum-turn rostrum node)
+
+a figure's number in this rostrum, by when it was first come to
+```
+
 ### rostrum-view
 
 ```code
 (rostrum-view view paths) -> paths
 
 the paths moved by the view, which are new ones and can be moved in place
+```
+
+### rostrum-walk
+
+```code
+(rostrum-walk rostrum) -> figures
+
+every figure under it, in the order a tick comes to them, a parent
+before its children and they in order. Kept, with how far down the
+tree each is, till the tree is changed: (figure-tree-changed). One
+made anew may have figures no tick has come to, :ros_fresh, and one
+told to go that this rostrum was not told of
 ```
 
 ### rpad
@@ -11179,6 +11219,19 @@ tasks of the node have their turns meanwhile. block is the inputs, as
 (shader-pack) makes them, and bufs a GPU buffer for each buffer, in
 the order the program has them. Nothing is bounds checked, so each
 must be long enough, 4 bytes to an element
+```
+
+### shader-gpu-run-paced
+
+```code
+(shader-gpu-run-paced program kernel block from to (buffer ...) pace) -> :t | :nil
+
+as (shader-gpu-run), the indices given to the GPU a piece at a time,
+each waited for, so the GUI has its turn between. pace is a list of
+the one number, how many indices a piece is, which the caller keeps
+from run to run: each piece is timed, and the next sized to what the
+GPU does in about a tick of the GUI. A fast GPU is soon given all of
+them as the one piece
 ```
 
 ### shader-kept-text

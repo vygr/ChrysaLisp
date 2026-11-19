@@ -42,7 +42,8 @@ tilted figure's is by the corners of its box
 (. rostrum :collide order) -> rostrum
 
 who has come to touch whom, who still does, and who no longer does,
-and what they fire. Asked flat, with no focus: the focus is the
+and what they fire, of these figures, in the order a tick came to
+them. Asked flat, with no focus: the focus is the
 camera's, how the scene is seen, and what the scene does is the
 same whichever, so a run sought to is the run that was seen
 ```
@@ -65,8 +66,9 @@ from. A weak link a component keeps, Tie's, is to what it was
 (. rostrum :draw canvas [view]) -> rostrum
 
 the figures on a canvas, by a 3x2 matrix from the picture to it, as
-they were worked out by the last tick. By z, the furthest first, if
-:ros_by_depth is set, else in the order of the tree
+they are now, each placed if it or what it is placed by has moved.
+By z, the furthest first, if :ros_by_depth is set, else in the
+order of the tree
 ```
 
 ### :polygons
@@ -93,5 +95,15 @@ takes all of its from here is the same each time it is run
 (. rostrum :tick dt) -> rostrum
 
 dt seconds have gone, one step
+```
+
+### :world
+
+```code
+(. rostrum :world figure) -> matrix
+
+where a figure is now in the space of the picture, 3x4, worked out
+if it or what it is placed by has moved since it last was. Its
+alpha, with all above it, is then its :fig_world_alpha
 ```
 

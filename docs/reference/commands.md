@@ -1267,6 +1267,11 @@ Usage: rack [options] "command line"
             and not whoever last signed on to each machine.
         -g --gui: each session is a desktop, its GUI up before the
             command is run, on the machine's own screen.
+        -e --emu: each session is run by the emulator, on the VP64 boot
+            image: a fast machine as slow as a small one.
+        -n --nodes num: each session has that many nodes, not one for
+            each processor. -e -n 4 on a fast machine is about a
+            Raspberry Pi 4, the common test of what a slow one shows.
         -v --verbose: every line each session says, as it says
             it, not only those of how the tests went.
 

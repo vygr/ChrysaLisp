@@ -20,6 +20,14 @@ a node of a tree of figures, Tree-node, and how it looks and moves
 components, run from the next time this figure has its turn
 ```
 
+### :add_node
+
+```code
+(. figure :add_node child) -> figure
+
+a child added last, out of the parent it had first
+```
+
 ### :flat
 
 ```code
@@ -47,7 +55,9 @@ flattening and the size are those it was made from
 ```code
 (. figure :kill) -> figure
 
-it goes at the end of this tick, and all under it
+it goes at the end of this tick, and all under it. Its rostrum is
+told there is one to go, it does not look for them each tick: so
+this, and not a (def) of :fig_dead
 ```
 
 ### :local
@@ -56,6 +66,12 @@ it goes at the end of this tick, and all under it
 (. figure :local) -> matrix
 
 where it is in the space of its parent. Worked out once and kept
+```
+
+### :set_children
+
+```code
+(. figure :set_children children) -> figure
 ```
 
 ### :set_outline
@@ -83,6 +99,14 @@ any of :fig_x :fig_y :fig_z :fig_rx :fig_ry :fig_rz :fig_sx :fig_sy
 
 ```code
 (. figure :set_width width) -> figure
+```
+
+### :sub_node
+
+```code
+(. figure :sub_node) -> figure
+
+this one taken out of its parent
 ```
 
 ### :update
