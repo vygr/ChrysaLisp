@@ -57,22 +57,6 @@
 ; Drawing and Window Logic
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun resize-window (pw ph)
-	;a canvas of the new size. It is drawn here, in this task, before it is
-	;put on show, so nothing is seen that is not the eyes, and the frames
-	;after are the render's
-	(def *backdrop* :min_width pw :min_height ph)
-	(defq old *canvas*)
-	(setq *canvas* (ifn (canvas-shared pw ph 1) (Canvas pw ph 1)))
-	(. render :canvas *canvas*)
-	(bind '(mx my &ignore) (gui-info))
-	(. render :here (eyes-values mx my))
-	(if old (. old :sub))
-	(. *backdrop* :add_child *canvas*)
-	; Get current position then fit window to screen
-	(. *window* :fit :t)
-	(setq last_mx -1 last_my -1))
-
 (defun look (cx cy r mx my)
 	; (look cx cy r mx my) -> gaze
 	;the way an eye at cx cy, r across to its edge, looks to see the
@@ -103,6 +87,22 @@
 		;ball it is that far round
 		(list 'iris_size (* iris_scale 0.7))
 		(list 'pupil_size pupil_scale)))
+
+(defun resize-window (pw ph)
+	;a canvas of the new size. It is drawn here, in this task, before it is
+	;put on show, so nothing is seen that is not the eyes, and the frames
+	;after are the render's
+	(def *backdrop* :min_width pw :min_height ph)
+	(defq old *canvas*)
+	(setq *canvas* (ifn (canvas-shared pw ph 1) (Canvas pw ph 1)))
+	(. render :canvas *canvas*)
+	(bind '(mx my &ignore) (gui-info))
+	(. render :here (eyes-values mx my))
+	(if old (. old :sub))
+	(. *backdrop* :add_child *canvas*)
+	; Get current position then fit window to screen
+	(. *window* :fit :t)
+	(setq last_mx -1 last_my -1))
 
 ;;;;;;;;;;;
 ; Main Loop
