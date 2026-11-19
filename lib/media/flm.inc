@@ -80,8 +80,10 @@
 			(times pixels
 				;the encoder is on the node of what makes the film, the GUI's
 				;for an app: it gives way every so many pixels, or a frame
-				;held the node, the mouse and all, for the whole of it
-				(if (= (logand (++ at) 16383) 0) (task-slice))
+				;held the node, the mouse and all, for the whole of it. Every
+				;16384 was 190ms on the emulator, on a slow machine a thousand
+				;pixels is 10ms, and (task-slice) only looks at the time
+				(if (= (logand (++ at) 1023) 0) (task-slice))
 				(defq p (read-bits last p_state num_bits)
 					c (read-bits next c_state num_bits))
 				(if (= p -1) (setq p 0))
