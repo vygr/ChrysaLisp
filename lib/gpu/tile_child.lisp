@@ -22,7 +22,9 @@
 		(setq shader_file file program (shader-load file) native (shader-vp program)))
 	(defq frame (shader-vp-frame program native (shader-unpack program (slice tail file_length -1)))
 		pixmap (pixmap-attach held width height canvas_key)
-		data (if (and pixmap (shader-vp-draw native frame pixmap x y x1 y1 height)) ""
+		;a row at a time, the node's other tasks let in between: a child is
+		;kept off the node the GUI is on, but a machine may have the one
+		data (if (and pixmap (shader-vp-draw-rows native frame pixmap x y x1 y1 height)) ""
 			(shader-vp-argb native frame x y x1 y1 height)))
 	(mail-send mbox (cat (setf-> (str-alloc +tile_reply_size)
 				(+job_reply_key key)

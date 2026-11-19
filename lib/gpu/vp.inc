@@ -2079,6 +2079,23 @@
 		((first native) x y x1 y1 frame pixmap (if alpha 3 2) (ifn height 0))
 		pixmap))
 
+(defun shader-vp-draw-rows (native frame pixmap x y x1 y1 &optional height alpha)
+	; (shader-vp-draw-rows native frame pixmap x y x1 y1 [height alpha]) -> :nil | pixmap
+	;as (shader-vp-draw), a row at a time, and the other tasks of the node
+	;let in between. Native code can not be left part way, and a tile of a
+	;heavy shader is long on a slow machine: 100ms on the emulator for 8
+	;rows of the Surface shader. Shaded by a task on the node the GUI is
+	;on, an app's own, or a child on a machine of the one node, that is
+	;the mouse held as long
+	(when (and (<= 0 x) (< x x1) (<= x1 (getf pixmap +pixmap_width 0))
+			(<= 0 y) (< y y1) (<= y1 (getf pixmap +pixmap_height 0)))
+		(defq row y)
+		(while (< row y1)
+			((first native) x row x1 (inc row) frame pixmap (if alpha 3 2) (ifn height 0))
+			(setq row (inc row))
+			(task-slice))
+		pixmap))
+
 (defun shader-vp-pixels (native frame x y x1 y1)
 	; (shader-vp-pixels native frame x y x1 y1) -> (vec4 ...)
 	;the pixels of a tile, row by row, each a doubles of 4

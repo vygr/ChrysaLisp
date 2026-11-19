@@ -417,7 +417,8 @@
 		(defq canvas (get :canvas this) pixmap (getf canvas +canvas_pixmap 0) program (get :program this)
 			w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0))
 		(unless (get :native this) (def this :native (shader-vp program)))
-		(shader-vp-draw (get :native this) (shader-vp-frame program (get :native this) vals)
+		;a row at a time, this task is on the node the GUI is on
+		(shader-vp-draw-rows (get :native this) (shader-vp-frame program (get :native this) vals)
 			pixmap 0 0 w h h :t)
 		(. canvas :swap +swap_write)
 		(def this :took (- (pii-time) (get :began this)) :how :here :last (pii-time))
