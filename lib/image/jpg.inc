@@ -19,7 +19,9 @@
 ; It is read as a PNG is, a stage of a pipeline on this node: what comes
 ; before the scan is read here, and the scan is decoded by a task of its
 ; own that writes a row of MCUs at a time, 32 bits a pixel, into the stage
-; that reads the pixmap.
+; that reads the pixmap. A row of MCUs is one native call, every block of
+; every component of it: of a baseline scan its codes and its pixels, of a
+; progressive one its codes, each scan, and at the end its pixels.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
@@ -29,10 +31,10 @@
 ;module
 (env-push)
 
-(ffi (path-to-absolute "./jpg_idct") jpg-idct-put)
 (ffi (path-to-absolute "./jpg_line") jpg-line)
-(ffi (path-to-absolute "./jpg_block") jpg-block-decode)
-(ffi (path-to-absolute "./jpg_prog") jpg-prog-block)
+(ffi (path-to-absolute "./jpg_mcus") jpg-mcus)
+(ffi (path-to-absolute "./jpg_scan") jpg-prog-mcus)
+(ffi (path-to-absolute "./jpg_idcts") jpg-idct-blocks)
 
 (defq +jpg_zigzag (nums 0 1 8 16 9 2 3 10 17 24 32 25 18 11 4 5 12 19 26 33 40 48 41 34 27 20 13 6 7 14 21 28
 		35 42 49 56 57 50 43 36 29 22 15 23 30 37 44 51 58 59 52 45 38 31 39 46 53 60 61 54 47 55 62 63)
@@ -190,6 +192,18 @@
 	(when (= (elem-get st 2) 0) (read-char in) (read-char in))
 	(elem-set st 2 0))
 
+(defun jpg-run (reader in restart done vals left)
+	; (jpg-run reader in restart done vals left) -> count
+	;how many of the MCUs left of a row go in one run: all of them, or
+	;with restarts as many as there are to the next. At a restart the bits
+	;start again, and vals, the last dcs or the blocks to pass over, are 0
+	(cond
+		((= restart 0) left)
+		(:t (when (and (> done 0) (= (% done restart) 0))
+				(jpg-restart reader in)
+				(each! (lambda (&ignore) (elem-set vals (!) 0)) (list vals)))
+			(min left (- restart (% done restart))))))
+
 (defun jpg-rows (out samplings planes my width height hmax vmax mcus_x)
 	; (jpg-rows out samplings planes my width height hmax vmax mcus_x)
 	;the rows of pixels of a row of MCUs, those inside the picture, from
@@ -203,7 +217,9 @@
 (defun jpg-decode (in out info)
 	; (jpg-decode in out info)
 	;a baseline scan, from where the stream is, a row of MCUs at a time,
-	;each row of pixels written blue green red alpha
+	;each row of pixels written blue green red alpha. A row is one native
+	;call, every block of every component of it, or one a run of it
+	;between restarts
 	(bind '(width height comps scan quant dc ac restart &ignore) info)
 	(bind '(hmax vmax mcus_x mcus_y) (jpg-geometry width height comps))
 	;each component: its sampling, its codes and its table
@@ -212,22 +228,20 @@
 				(list h v (list (jpg-code (elem-get dc (second tables))) (jpg-code (elem-get ac (third tables))))
 					(apply (const nums) (elem-get quant tq))))
 			comps)
-		samplings (map (# (list (first %0) (second %0))) parts) scratch (fill (nums) 64 0) c (fill (nums) 64 0)
-		lasts (fill (list) (length comps) 0) reader (list in (nums 0 0 0)) done 0 my 0)
+		samplings (map (# (list (first %0) (second %0))) parts)
+		codes (map (const third) parts) quants (map (const last) parts)
+		;of each, its sampling and how wide its plane is, as the native has them
+		geom (reduce (lambda (out (h v &ignore)) (push out h v (* mcus_x h 8))) parts (nums))
+		scratch (fill (nums) 64 0) c (fill (nums) 64 0) lasts (fill (nums) (length comps) 0)
+		state (nums 0 0 0) reader (list in state) done 0 my 0)
 	(while (< my mcus_y)
 		(task-slice)
-		;the planes of this row of MCUs, a nums each, its width in samples
+		;the planes of this row of MCUs, a str each, its width in samples
 		(defq planes (map (lambda ((h v &ignore)) (str-alloc (* mcus_x h 8 v 8))) parts) mx 0)
 		(while (< mx mcus_x)
-			(when (and (> restart 0) (> done 0) (= (% done restart) 0))
-				(jpg-restart reader in)
-				(setq lasts (fill (list) (length comps) 0)))
-			(each (lambda ((h v codes q) plane)
-					(defq ci (!) pw (* mcus_x h 8))
-					(each! (lambda () (defq by (!)) (each! (lambda () (elem-set lasts ci (jpg-block-decode in (second reader) codes q +jpg_zigzag (elem-get lasts ci) c))
-									(jpg-idct-put c scratch *jpg_kflat* plane (+ (* by 8 pw) (* (+ (* mx h) (!)) 8)) pw)) '() 0 h)) '() 0 v))
-				parts planes)
-			(setq mx (inc mx) done (inc done)))
+			(defq n (jpg-run reader in restart done lasts (- mcus_x mx)))
+			(jpg-mcus in state codes quants geom lasts planes mx n +jpg_zigzag scratch *jpg_kflat* c)
+			(setq mx (+ mx n) done (+ done n)))
 		(jpg-rows out samplings planes my width height hmax vmax mcus_x)
 		(setq my (inc my))))
 
@@ -246,7 +260,8 @@
 
 (defun jpg-scan (reader in head grids width height hmax vmax mcus_x mcus_y)
 	; (jpg-scan reader in head grids width height hmax vmax mcus_x mcus_y)
-	;a scan of a progressive JPEG, its numbers into the grids
+	;a scan of a progressive JPEG, its numbers into the grids, a row of it
+	;one native call, or one a run of it between restarts
 	(bind '(start end high low) (. head :find :spectral))
 	(defq comps (. head :find :comps) restart (. head :find :restart)
 		kind (if (= start 0) (if (= high 0) 0 1) (if (= high 0) 2 3))
@@ -256,48 +271,34 @@
 					table (if (= kind 0) (elem-get (. head :find :dc) dt) (if (> kind 1) (elem-get (. head :find :ac) at))))
 				(list ci (second c) (third c) (if table (jpg-code table))))
 			(. head :find :scan))
-		lasts (fill (list) (length these) 0) eobrun 0 done 0)
-	(defun one (i ci code br bc)
-		;a block of the scan, at row br and column bc of the grid
-		(defq coefs (elem-get grids ci) base (* (+ (* br (* mcus_x (second (elem-get comps ci)))) bc) 64))
-		;native, the dc of kind 0 is a difference from the last, the acs of 2
-		;and 3 have a run of blocks to pass over
-		(defq val (jpg-prog-block kind in (second reader) code coefs base start end low
-				(if (= kind 0) (elem-get lasts i) eobrun) +jpg_zigzag))
-		(cond
-			((= kind 0) (elem-set lasts i val))
-			((> kind 1) (setq eobrun val))))
-	(defun restarted ()
-		(when (and (> restart 0) (> done 0) (= (% done restart) 0))
-			(jpg-restart reader in)
-			(setq lasts (fill (list) (length these) 0) eobrun 0))
-		(++ done))
+		;as the native has them: the code of each, its numbers, and its last
+		;dc, of kind 0, or of 2 and 3 the blocks still to pass over
+		codes (map (const last) these) coefs (map (# (elem-get grids (first %0))) these)
+		vals (fill (nums) (length these) 0) state (second reader) done 0)
 	(cond
 		((= (length these) 1)
 			;of one component, its blocks that are in the picture, each an MCU
-			(bind '(ci h v code) (first these))
+			(bind '(ci h v &ignore) (first these))
 			(defq cols (/ (+ (/ (+ (* width h) hmax -1) hmax) 7) 8)
-				rows (/ (+ (/ (+ (* height v) vmax -1) vmax) 7) 8) br 0)
+				rows (/ (+ (/ (+ (* height v) vmax -1) vmax) 7) 8)
+				geom (nums 1 1 (* mcus_x h)) br 0)
 			(while (< br rows)
 				(task-slice)
 				(defq bc 0)
 				(while (< bc cols)
-					(restarted)
-					(one 0 ci code br bc)
-					(++ bc))
+					(defq n (jpg-run reader in restart done vals (- cols bc)))
+					(jpg-prog-mcus kind in state codes coefs geom vals br bc n start end low +jpg_zigzag)
+					(setq bc (+ bc n) done (+ done n)))
 				(++ br)))
 		(:t ;of several, MCU by MCU, each the blocks of each
-			(defq my 0)
+			(defq geom (reduce (lambda (out (ci h v &ignore)) (push out h v (* mcus_x h))) these (nums)) my 0)
 			(while (< my mcus_y)
 				(task-slice)
 				(defq mx 0)
 				(while (< mx mcus_x)
-					(restarted)
-					(each (lambda ((ci h v code))
-							(defq i (!))
-							(each! (lambda () (defq by (!)) (each! (# (one i ci code (+ (* my v) by) (+ (* mx h) (!)))) '() 0 h)) '() 0 v))
-						these)
-					(++ mx))
+					(defq n (jpg-run reader in restart done vals (- mcus_x mx)))
+					(jpg-prog-mcus kind in state codes coefs geom vals my mx n start end low +jpg_zigzag)
+					(setq mx (+ mx n) done (+ done n)))
 				(++ my)))))
 
 (defun jpg-next-marker (reader in)
@@ -350,15 +351,14 @@
 				(each! (# (elem-set qn %0 %1)) (list +jpg_zigzag q) 0 64)
 				qn)
 			comps)
-		samplings (map (# (list (second %0) (third %0))) comps) scratch (fill (nums) 64 0) my 0)
+		samplings (map (# (list (second %0) (third %0))) comps) scratch (fill (nums) 64 0) c (fill (nums) 64 0) my 0)
 	(while (< my mcus_y)
 		(task-slice)
+		;the planes of this row of MCUs, a row of blocks of each a native call
 		(defq planes (map (lambda ((id h v tq) coefs qn)
 					(defq bw (* mcus_x h) pw (* bw 8) plane (str-alloc (* pw v 8)))
-					(each! (lambda () (defq by (!)) (defq br (+ (* my v) by))
-							(each! (lambda () (defq base (* (+ (* br bw) (!)) 64))
-									(jpg-idct-put (nums-mul (slice coefs base (+ base 64)) qn) scratch *jpg_kflat*
-										plane (+ (* by 8 pw) (* (!) 8)) pw)) '() 0 bw)) '() 0 v)
+					(each! (lambda () (jpg-idct-blocks coefs (* (+ (* my v) (!)) bw 64) qn c scratch *jpg_kflat*
+							plane (* (!) 8 pw) pw bw)) '() 0 v)
 					plane)
 				comps grids qns))
 		(jpg-rows out samplings planes my width height hmax vmax mcus_x)

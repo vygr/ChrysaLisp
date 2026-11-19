@@ -47,3 +47,45 @@
 
 (assert-true "progressive grey, the pixels of the baseline" (tj-same "tests/system/data/jpg_grey_prog.jpg" "tests/system/data/jpg_grey.jpg"))
 (assert-true "progressive 4:2:0, the pixels of the baseline" (tj-same "tests/system/data/jpg_420_prog.jpg" "tests/system/data/jpg_420.jpg"))
+
+;the inverse DCT a picture is read with takes only the rows of a block that
+;have a number, and of each only as far as its last. It gives the pixels of
+;the plain one, every sum of every pixel, to the byte
+(ffi "lib/image/jpg_idct" tj-idct-plain)
+(ffi "lib/image/jpg_idcts" tj-idct-blocks)
+(defq tj_seed 12345 tj_wrong 0 tj_t (fill (nums) 64 0) tj_c (fill (nums) 64 0)
+	tj_ones (fill (nums) 64 1))
+(defun tj-rnd (n)
+	(setq tj_seed (logand (+ (* tj_seed 6364136223846793005) 1442695040888963407) 0x7fffffffffffffff))
+	(% (>> tj_seed 33) n))
+(defun tj-blocks (coefs qn count)
+	;count blocks of numbers, each by a table: a block a call of the plain
+	;one, and all of them in one of the other
+	(defq pw (* count 8) plain (str-alloc (* pw 8)) rows (str-alloc (* pw 8)))
+	(each! (lambda () (defq base (* (!) 64))
+			(tj-idct-plain (nums-mul (slice coefs base (+ base 64)) qn) tj_t *jpg_kflat* plain (* (!) 8) pw)) '() 0 count)
+	(tj-idct-blocks coefs 0 qn tj_c (fill (nums) 64 77) *jpg_kflat* rows 0 pw count)
+	(unless (eql plain rows) (++ tj_wrong)))
+(tj-blocks (fill (nums) 64 0) tj_ones 1)
+(each! (lambda () (defq at (!))
+		(each (lambda (val) (defq b (fill (nums) 64 0)) (elem-set b at val) (tj-blocks b tj_ones 1))
+			'(1 -1 5 -700 1023 -1024 20000 -20000)))
+	'() 0 64)
+(assert-eq "a block of nothing, and of one number, in each place and of each sign" 0 tj_wrong)
+(defq tj_qn (reduce! (# (push %0 (+ 1 (tj-rnd 60)))) '() (nums) 0 64))
+(times 500
+	(defq b (fill (nums) 64 0))
+	(times (+ 1 (tj-rnd 6)) (elem-set b (+ (* 8 (tj-rnd 3)) (tj-rnd 3)) (- (tj-rnd 400) 200)))
+	(tj-blocks b tj_qn 1))
+(assert-eq "blocks of a few low numbers, as a picture has, by a table" 0 tj_wrong)
+(times 500
+	(defq n (+ 1 (tj-rnd 5)) b (fill (nums) (* n 64) 0))
+	(times (tj-rnd (* n 64)) (elem-set b (tj-rnd (* n 64)) (- (tj-rnd 2048) 1024)))
+	(tj-blocks b tj_qn n))
+(times 100
+	(defq n (+ 1 (tj-rnd 5)) b (reduce! (# (push %0 (- (tj-rnd 2048) 1024))) '() (nums) 0 (* n 64)))
+	(tj-blocks b tj_qn n))
+(assert-eq "blocks of any numbers, thin and full, several a call" 0 tj_wrong)
+
+(undef (env) 'tj-pixels 'tj-off 'tj-same 'tj-no-dht 'tj-rnd 'tj-blocks 'tj-idct-plain 'tj-idct-blocks
+	'tj_grey 'tj_420 'tj_seed 'tj_wrong 'tj_t 'tj_c 'tj_ones 'tj_qn)
