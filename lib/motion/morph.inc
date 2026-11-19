@@ -223,6 +223,8 @@
 				x (elem-get p 0) y (elem-get p 1) at 2 want 0.0 gone 0.0 seg 0.0
 				nx x ny y made 0)
 			(while (< made count)
+				;a long line has hundreds of points, the GUI is let in
+				(task-slice)
 				;on along the line till the next point lies on this part of it
 				(while (and (>= want (+ gone seg)) (or (< at n) (and closed (= at n))))
 					(setq gone (+ gone seg) x nx y ny)
@@ -253,6 +255,7 @@
 	(defq n (/ (length a) 2) stride (max 1 (/ n 32)) tries (max 1 (/ n 64))
 		best 0 best_sum +morph_far s 0)
 	(while (< s n)
+		(task-slice)
 		(defq sum 0.0 i 0)
 		(while (< i n)
 			(defq j (* 2 (% (+ i s) n))
