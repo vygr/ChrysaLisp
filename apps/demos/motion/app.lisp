@@ -20,9 +20,6 @@
 	;and a seek, in us. A seek has nearly all of it, nothing is drawn
 	;while it goes on, and the run waits for it
 	+dry_us 12000 +seek_us 14000
-	;the bar's length while the scene's is not known, so the elevator is small and
-	;still at the start, not drawn against a length still to be found
-	+bar_unknown 1000000000
 	;how many steps apart the I-frames are kept, copies of the whole scene
 	;a seek goes on from
 	+iframe_steps 300
@@ -131,6 +128,8 @@
 	(setq stage dry restart :nil)
 	(while (and (not restart) (< (- (pii-time) start) +dry_us))
 		(. stage :tick +ros_step)
+		;the GUI is on this node, and has the mouse to draw
+		(task-slice)
 		(and (not restart) (= 0 (% (defq at (get :ros_ticks stage)) +iframe_steps))
 			(push iframes (list at (. stage :copy)))))
 	;at its end the bar is the scene's length, and goes to where it is
@@ -146,7 +145,9 @@
 	(setq maker (elem-get (list (const story-new) (const balls-new) (const build-new))
 			(. *scene_toolbar* :get_selected))
 		seed (ifn with_seed (inc (random 1000000000))) steps :nil dry :nil iframes (list) target :nil)
-	(def *timeline* :value 0 :maximum +bar_unknown)
+	;till the scene's length is known the bar has none, and its elevator
+	;is all of it: it can not be sought yet
+	(def *timeline* :value 0 :maximum 0)
 	(. *timeline* :dirty_all)
 	(unless (eql maker (const balls-new))
 		(scene-make)
@@ -172,6 +173,7 @@
 	(seek-from)
 	(defq start (pii-time))
 	(while (and target (< (- (pii-time) start) +seek_us))
+		(task-slice)
 		(if (< (get :ros_ticks stage) target)
 			(. stage :tick +ros_step)
 			(setq target :nil))))

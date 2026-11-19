@@ -10,6 +10,9 @@
 ; between ticks with (get) and (def). What is worked out from them is kept
 ; until they change: its matrix, by (. figure :set_place) once it has been on a
 ; tick, its flattening by (. figure :set_outline), :set_width and :set_trim.
+; Where it is in the picture is worked out when it is asked for, by its
+; rostrum, (. rostrum :world figure), not each tick: a scene run with no
+; picture places nothing but what meets.
 ;
 ; It lives on its own turn, as a Sprite does in the Onslaught game. A figure
 ; told to go, (:kill), goes at the end of the tick. Things it fires, a
@@ -23,6 +26,14 @@
 (import "gui/canvas/struct.inc")
 (import "./morph.inc")
 (import "././collections/tree_node.inc")
+
+;The rostrum over a figure keeps the order it comes to its figures in, and
+;does not make it again while the tree is as it was. So each change to the
+;tree tells it, and a figure told to go tells it there is one
+(defun figure-tree-changed (node)
+	; (figure-tree-changed node)
+	(defq top (. node :root))
+	(if (get :ros_ticks top) (def top :ros_walk :nil)))
 
 ;a component's turn, its env pushed so what it keeps are plain variables
 (defmacro comp-turn (comp figure dt)
@@ -72,6 +83,24 @@
 		(each (# (push (get :fig_comps this) %0)) comps)
 		this)
 
+	(defmethod :add_node (child)
+		; (. figure :add_node child) -> figure
+		;a child added last, out of the parent it had first
+		(figure-tree-changed this)
+		(.super this :add_node child))
+
+	(defmethod :set_children (children)
+		; (. figure :set_children children) -> figure
+		(figure-tree-changed this)
+		(each (const figure-tree-changed) children)
+		(.super this :set_children children))
+
+	(defmethod :sub_node ()
+		; (. figure :sub_node) -> figure
+		;this one taken out of its parent
+		(figure-tree-changed this)
+		(.super this :sub_node))
+
 	(defmethod :set_place (&rest key_vals)
 		; (. figure :set_place key val ...) -> figure
 		;any of :fig_x :fig_y :fig_z :fig_rx :fig_ry :fig_rz :fig_sx :fig_sy
@@ -97,8 +126,12 @@
 
 	(defmethod :kill ()
 		; (. figure :kill) -> figure
-		;it goes at the end of this tick, and all under it
+		;it goes at the end of this tick, and all under it. Its rostrum is
+		;told there is one to go, it does not look for them each tick: so
+		;this, and not a (def) of :fig_dead
 		(def this :fig_dead :t)
+		(defq top (. this :root))
+		(if (get :ros_ticks top) (def top :ros_deaths :t))
 		this)
 
 	(defmethod :flat ()

@@ -6,9 +6,16 @@
 ; the last and never by how many frames there have been:
 ;
 ;	every figure's components have their turn, a parent before its children
-;	every figure is worked out where it is, in the space of the picture
 ;	those that meet one another are found, and what they fire is fired
 ;	those told to go are taken out, and what they fire is fired
+;
+; A tick does work for what has a component to run, not for every figure. The
+; order the figures are come to in is kept while the tree is as it was, and
+; one with nothing to run is passed over. Where a figure is in the space of
+; the picture is worked out when it is asked for, by the draw, by a meeting,
+; (. rostrum :world figure), and kept till it or what it is placed by moves:
+; a scene run on with no picture, to find its length or to seek, places only
+; what meets.
 ;
 ; The camera looks down z at the middle of the picture. With a focus, things
 ; further off, of more z, are smaller, and a tilted figure tapers. With none
@@ -139,23 +146,63 @@
 			(def node :fig_world out :fig_world_by world)
 			out)))
 
-(defun rostrum-place (node)
-	; (rostrum-place node) -> node
-	;where a figure is, by where its parent is. A parent nothing has worked
-	;out, one just made, is worked out first, and those above it
-	(defq up (. node :get_parent))
+(defun rostrum-sure (node)
+	; (rostrum-sure node) -> world
+	;where a figure is now, by where each above it is, the top first: any
+	;of them may have moved since it was last asked. The top is a rostrum,
+	;which is where it is, or a figure that is under none, placed by nothing
+	(defq chain (list) up node)
+	(while up
+		(push chain up)
+		(setq up (. up :get_parent)))
+	(defq top (pop chain) world :nil alpha 1.0)
 	(cond
-		((and up (get :fig_world up))
-			(rostrum-place-one node (get :fig_world up) (get :fig_world_alpha up)))
-		(:t (defq chain (list node))
-			(while (and up (not (get :fig_world up)))
-				(push chain up)
-				(setq up (. up :get_parent)))
-			(defq world (if up (get :fig_world up)) alpha (if up (get :fig_world_alpha up) 1.0))
-			(each! (lambda (one)
-					(setq world (rostrum-place-one one world alpha) alpha (get :fig_world_alpha one)))
-				(list chain) -1 0)))
-	node)
+		((get :ros_ticks top)
+			(def top :fig_world_alpha (setq alpha (get :fig_alpha top)))
+			(setq world (get :fig_world top)))
+		(:t (setq world (rostrum-place-one top :nil 1.0) alpha (get :fig_world_alpha top))))
+	(each! (lambda (one)
+			(setq world (rostrum-place-one one world alpha) alpha (get :fig_world_alpha one)))
+		(list chain) -1 0)
+	world)
+
+(defun rostrum-sure-under (fig)
+	; (rostrum-sure-under figure) -> figure
+	;where a figure is now, and every one under it, a parent before its
+	;children. (:each_node) has a node of its own, so this is fig
+	(rostrum-sure fig)
+	(. fig :each_node (lambda (n)
+		(unless (eql n fig)
+			(defq up (. n :get_parent))
+			(rostrum-place-one n (get :fig_world up) (get :fig_world_alpha up)))))
+	fig)
+
+(defun rostrum-walk (this)
+	; (rostrum-walk rostrum) -> figures
+	;every figure under it, in the order a tick comes to them, a parent
+	;before its children and they in order. Kept, with how far down the
+	;tree each is, till the tree is changed: (figure-tree-changed). One
+	;made anew may have figures no tick has come to, :ros_fresh, and one
+	;told to go that this rostrum was not told of
+	(unless (get :ros_walk this)
+		(defq walk (list) depths (list) todo (reverse (cat (get :node_children this)))
+			deep (map (lambda (_) 0) todo))
+		(while (defq node (pop todo))
+			(defq d (pop deep) kids (get :node_children node) i (length kids))
+			(push walk node)
+			(push depths d)
+			(while (> i 0)
+				(push todo (elem-get kids (setq i (dec i))))
+				(push deep (inc d))))
+		(def this :ros_walk walk :ros_depths depths :ros_fresh :t :ros_deaths :t))
+	(get :ros_walk this))
+
+(defun rostrum-turn (this node)
+	; (rostrum-turn rostrum node)
+	;a figure's number in this rostrum, by when it was first come to
+	(defq turn (inc (get :ros_turns this)))
+	(def this :ros_turns turn)
+	(def node :fig_turn turn))
 
 ;the step a rostrum goes on by, :advance takes as many as the time owes
 (defq +ros_step (/ 1.0 60.0)
@@ -182,7 +229,13 @@
 	;with the same seed and gone on by the same steps is the same scene
 	(def this :ros_width (n2q width) :ros_height (n2q height) :ros_focus (if focus (n2q focus))
 		:ros_speed 1.0 :ros_by_depth :nil :ros_time 0.0 :ros_touching (Fmap 31) :ros_order (list) :ros_ticks 0
-		:ros_owed 0.0 :ros_turns 0 :ros_seed (logand (ifn seed 1) 0x7fffffffffffffff))
+		:ros_owed 0.0 :ros_turns 0 :ros_seed (logand (ifn seed 1) 0x7fffffffffffffff)
+		;the order its figures are come to in, how far down each is, kept
+		;till the tree changes; is there one no tick has come to; and one
+		;told to go
+		:ros_walk :nil :ros_depths :nil :ros_fresh :nil :ros_deaths :nil
+		;it is where it is
+		:fig_world (const (fixeds 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0)))
 
 	(defmethod :random (n)
 		; (. rostrum :random n) -> 0 to n - 1
@@ -248,53 +301,94 @@
 		(def this :ros_owed owed)
 		this)
 
+	(defmethod :world (node)
+		; (. rostrum :world figure) -> matrix
+		;where a figure is now in the space of the picture, 3x4, worked out
+		;if it or what it is placed by has moved since it last was. Its
+		;alpha, with all above it, is then its :fig_world_alpha
+		(rostrum-sure node))
+
 	(defmethod :tick (dt)
 		; (. rostrum :tick dt) -> rostrum
 		;dt seconds have gone, one step
 		(setq dt (n2q dt))
 		(def this :ros_time (+ (get :ros_time this) dt))
-		(defq order (list) todo (reverse (cat (get :node_children this))))
+		;the order the figures are come to in, as the tree is before any
+		;has its turn: a parent before its children. It is kept from tick to
+		;tick, and one with no component to run is passed over
+		(defq walk (rostrum-walk this) depths (get :ros_depths this) fresh (get :ros_fresh this))
 		(. this :update dt)
 		(def this :fig_world (const (fixeds 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0))
 			:fig_world_alpha (get :fig_alpha this))
-		;a parent has its turn and is placed before its children are come to,
-		;what is still to come is a stack, and a figure added in its turn
-		;has its first the next tick
-		;A figure can be moved in its own turn, to a group made that moment,
-		;which has been worked out by nothing yet, or to one to come. A
-		;figure that has been come to this tick is not done again
-		(defq tick_no (inc (get :ros_ticks this)))
+		(defq tick_no (inc (get :ros_ticks this)) order walk
+			at (if (get :ros_walk this) :nil -1))
 		(def this :ros_ticks tick_no)
-		(while (defq node (pop todo))
-			(unless (eql (get :fig_tick_no node) tick_no)
-				(def node :fig_tick_no tick_no)
-				;its number in this rostrum, by when it was first come to
-				(unless (get :fig_turn node)
-					(defq turn (inc (get :ros_turns this)))
-					(def this :ros_turns turn)
-					(def node :fig_turn turn))
-				(. node :update dt)
-				(rostrum-place node)
-				(push order node)
-				(defq kids (get :node_children node) i (length kids))
-				(while (> i 0) (push todo (elem-get kids (setq i (dec i)))))))
-		(def this :ros_order order)
+		(unless at
+			(setq at (some (lambda (node)
+					(cond
+						((nempty? (get :fig_comps node))
+							;its number in this rostrum, by when it was first come to
+							(unless (get :fig_turn node) (rostrum-turn this node))
+							(. node :update dt)
+							;the tree was changed in its turn, the rest is not as kept
+							(unless (get :ros_walk this) (!)))
+						(fresh (unless (get :fig_turn node) (rostrum-turn this node))
+							:nil)))
+				walk)))
+		(when at
+			;The tree was changed part way. What was still to come is come to
+			;as the tree now is, a parent has its turn before its children
+			;are come to, and what is still to come is a stack: the children
+			;the last has now, then each that was next, at its depth or
+			;above. A figure added in its turn has its first the next tick.
+			;A figure can be moved in its own turn, to a group made that
+			;moment or to one to come, and one that has been come to this
+			;tick is not done again
+			(setq order (slice walk 0 (inc at)))
+			(each (# (def %0 :fig_tick_no tick_no)) order)
+			(defq next (list) limit (if (>= at 0) (elem-get depths at) 0))
+			(each! (lambda (node d)
+					(when (<= d limit)
+						(push next node)
+						(setq limit d)))
+				(list walk depths) (inc at))
+			(defq todo (reverse next))
+			(when (>= at 0)
+				(defq kids (get :node_children (elem-get walk at)) i (length kids))
+				(while (> i 0) (push todo (elem-get kids (setq i (dec i))))))
+			(while (defq node (pop todo))
+				(unless (eql (get :fig_tick_no node) tick_no)
+					(def node :fig_tick_no tick_no)
+					(unless (get :fig_turn node) (rostrum-turn this node))
+					(. node :update dt)
+					(push order node)
+					(defq kids (get :node_children node) i (length kids))
+					(while (> i 0) (push todo (elem-get kids (setq i (dec i))))))))
+		(def this :ros_order order :ros_fresh :nil)
+		;those that leave a trail, and those that are met or look out for
+		;others, as they are now every one has had its turn
+		(defq some_do (filter (# (/= 0 (logior (get :fig_trail %0) (get :fig_kinds %0) (get :fig_meets %0)))) order))
 		;the places of those that leave a trail, so many of the last
 		(each (lambda (node)
 				(when (> (defq n (get :fig_trail node)) 0)
 					(defq was (ifn (get :fig_trail_was node) (list)))
-					(push was (get :fig_world node))
+					(push was (rostrum-sure node))
 					(def node :fig_trail_was (if (> (length was) n) (slice was (- (length was) n) -1) was))))
-			order)
-		(. this :collide order)
-		;those told to go, by a collision too
-		(each (lambda (node)
-				(when (get :fig_dead node)
-					(. node :sub_node)
-					(when (defq death (get :fig_on_death node))
-						(def node :fig_on_death :nil)
-						(death node))))
-			order)
+			some_do)
+		(. this :collide some_do)
+		;those told to go, by a collision too. One told to go by another's
+		;going that this has passed goes the next tick
+		(when (get :ros_deaths this)
+			(def this :ros_deaths :nil)
+			(each (lambda (node)
+					(when (get :fig_dead node)
+						(. node :sub_node)
+						(when (defq death (get :fig_on_death node))
+							(def node :fig_on_death :nil)
+							(death node))))
+				order)
+			;one told to go as these went is looked for the next tick
+			(if (some (# (and (get :fig_dead %0) (. %0 :get_parent))) order) (def this :ros_deaths :t)))
 		this)
 
 	(defmethod :polygons (node &optional flat)
@@ -304,6 +398,7 @@
 		(raise :ros_width :ros_height :ros_focus)
 		(defq cx (* ros_width 0.5) cy (* ros_height 0.5) out (list))
 		(if flat (setq ros_focus :nil))
+		(rostrum-sure-under node)
 		(. node :each_node (lambda (n)
 				(bind '(fills strokes &ignore) (. n :flat))
 				(when (defq m (get :fig_world n))
@@ -319,6 +414,7 @@
 		(raise :ros_width :ros_height :ros_focus)
 		(defq cx (* ros_width 0.5) cy (* ros_height 0.5) out :nil)
 		(if flat (setq ros_focus :nil))
+		(rostrum-sure-under node)
 		(. node :each_node (lambda (n)
 				(bind '(& & box) (. n :flat))
 				(defq m (get :fig_world n))
@@ -335,7 +431,8 @@
 	(defmethod :collide (order)
 		; (. rostrum :collide order) -> rostrum
 		;who has come to touch whom, who still does, and who no longer does,
-		;and what they fire. Asked flat, with no focus: the focus is the
+		;and what they fire, of these figures, in the order a tick came to
+		;them. Asked flat, with no focus: the focus is the
 		;camera's, how the scene is seen, and what the scene does is the
 		;same whichever, so a run sought to is the run that was seen
 		(defq movers (list) old (get :ros_touching this) now (Fmap 31))
@@ -380,10 +477,16 @@
 	(defmethod :draw (canvas &optional view)
 		; (. rostrum :draw canvas [view]) -> rostrum
 		;the figures on a canvas, by a 3x2 matrix from the picture to it, as
-		;they were worked out by the last tick. By z, the furthest first, if
-		;:ros_by_depth is set, else in the order of the tree
-		(raise :ros_width :ros_height :ros_focus :ros_by_depth :ros_order)
-		(defq cx (* ros_width 0.5) cy (* ros_height 0.5))
+		;they are now, each placed if it or what it is placed by has moved.
+		;By z, the furthest first, if :ros_by_depth is set, else in the
+		;order of the tree
+		(raise :ros_width :ros_height :ros_focus :ros_by_depth)
+		(defq cx (* ros_width 0.5) cy (* ros_height 0.5) ros_order (rostrum-walk this))
+		(def this :fig_world_alpha (get :fig_alpha this))
+		(each (lambda (node)
+				(defq up (. node :get_parent))
+				(rostrum-place-one node (get :fig_world up) (get :fig_world_alpha up)))
+			ros_order)
 		(when ros_by_depth
 			(setq ros_order (map (# (second %0))
 					(sort (map (# (list (elem-get (get :fig_world %0) 11) %0)) ros_order)
@@ -398,6 +501,9 @@
 							(each (# (rostrum-figure canvas node %0 (* alpha 0.5 (/ (n2q (inc (!))) n))
 									cx cy ros_focus view :nil))
 								was))
-						(rostrum-figure canvas node m alpha cx cy ros_focus view :t))))
+						(rostrum-figure canvas node m alpha cx cy ros_focus view :t)
+						;a picture of many figures is long to draw, and an app
+						;draws on the node the GUI is on
+						(task-slice))))
 			ros_order)
 		this))
