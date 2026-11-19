@@ -42,7 +42,7 @@
 (defun list-cast-args (src types &optional dst)
 	;inputs
 	;(reg ...)
-	;'({:num :str :char _} ...)
+	;'({:num :str :char ...} ...)
 	;outputs
 	;cast register list
 	(assign (map (# (case %1
@@ -55,13 +55,14 @@
 	;inputs
 	;list object
 	; (reg ...)
-	;'({:num :str :char & &&} ...)
+	;'({:num :str :char &} ...)
 	;outputs
 	;load and cast register list from list
-	;&& ignore out element
-	;& skip src argument
-	;filter skipped args
+	;& an argument passed over, as in a (bind), it has no register
+	;a register that is not to be loaded is not in the list
+	(if (find '&& types) (throw "A register not loaded is left out of the list, there is no && !" types))
 	(setd dst src)
+	;where each argument that is wanted is
 	(bind '(types index)
 		(reduce! (# (unless (eql %1 '&)
 					(push (first %0) %1)
@@ -70,16 +71,6 @@
 	;test for mismatch
 	(unless (apply (const =) (map (const length) (list src dst types)))
 		(throw "Mismatched bind specs !" (list src dst types)))
-	;filter ignored elements
-	(defq index_offset 0)
-	(bind '(types src dst index)
-		(reduce! (# (if (eql %1 '&&)
-					(++ index_offset +ptr_size)
-					(push (first %0) %1)
-					(push (second %0) %2)
-					(push (third %0) %3)
-					(push (last %0) (- %4 index_offset)))
-				%0) (list types src dst index) (lists 4)))
 	;load from args list
 	(defq i (last src))
 	(assign `((,lst +array_begin)) `(,i))

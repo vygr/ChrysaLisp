@@ -318,7 +318,8 @@ colour are done as one line each:
    `:d2`) inside the logic. Use named variables.
 
 2. **Argument Binding**: Use `list-bind-args` or `array-bind-args` to
-   efficiently unpack Lisp data structures into registers.
+   efficiently unpack Lisp data structures into registers. A type of `&`
+   passes an argument over, as in a `bind`.
 
 3. **Constant Tables**: Group all floating-point constants at the end of the
    function, take their address once at the start using `vp-lea-pr`, and load

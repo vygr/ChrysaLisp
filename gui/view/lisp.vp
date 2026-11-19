@@ -321,7 +321,7 @@
 	;remove any opaque region
 	(vp-push :r0)
 	(defq in (method-input :region :free))
-	(list-bind-args :r1 in '(&& :view &))
+	(list-bind-args :r1 (rest in) '(:view &))
 	(vp-push (second in))
 	(fn-bind 'sys/statics/statics (first in))
 	(vp-add-cr +view_opaque_region (second in))
@@ -357,7 +357,7 @@
 	;paste opaque region
 	(vp-push :r0)
 	(defq in (method-input :region :paste_rect))
-	(list-bind-args :r1 in '(&& :view & :num :num :num :num))
+	(list-bind-args :r1 (rest in) '(:view & :num :num :num :num))
 	(vp-push (second in))
 	(fn-bind 'sys/statics/statics (first in))
 	(vp-add-rr (third in) (elem-get in 4))
@@ -395,7 +395,7 @@
 	;remove opaque region
 	(vp-push :r0)
 	(defq in (method-input :region :remove_rect))
-	(list-bind-args :r1 in '(&& :view & :num :num :num :num))
+	(list-bind-args :r1 (rest in) '(:view & :num :num :num :num))
 	(vp-push (second in))
 	(fn-bind 'sys/statics/statics (first in))
 	(vp-add-rr (third in) (elem-get in 4))
@@ -463,7 +463,7 @@
 	;paste dirty region
 	(vp-push :r0)
 	(defq in (method-input :region :paste_rect))
-	(list-bind-args :r1 in '(&& :view & :num :num :num :num))
+	(list-bind-args :r1 (rest in) '(:view & :num :num :num :num))
 	(vp-push (second in))
 	(fn-bind 'sys/statics/statics (first in))
 	(vp-cpy-cr 1 :r14)

@@ -298,6 +298,15 @@ A loop with no call in it runs in registers:
 		(list-bind-args args `(,buf ,pos) '(:obj :num))
 		(save-fields :rsp '(slot_buf slot_pos) `(,buf ,pos))
 
+*	*Arguments* (`(list-bind-args args regs types)`): a native's arguments
+	out of their list, each to its register by its type, `:num` `:fixed`
+	`:double` the value, `:str` the address of its data, `:char` its first
+	byte, any other the pointer. A type of `&` is an argument passed over,
+	as in a `bind`, with no register for it: `'(:view & :num :num)`. The
+	registers are those that are loaded and no others, so of a method's
+	inputs with one that is not an argument, `(rest in)` or `(most in)`;
+	there is no `&&`. The last of them is what the list is walked by.
+
 ## Calling Conventions & Register Introspection
 
 *	Inspect register contracts dynamically at compile time:
