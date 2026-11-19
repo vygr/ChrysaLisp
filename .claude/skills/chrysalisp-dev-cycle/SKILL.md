@@ -322,6 +322,17 @@ From the machine the work is on:
 	-u Test -a`, and grep its output for UNALIGNED. It costs nothing when
 	not asked for, the interpreter is built twice.
 
+*	The boot id is of every file the boot image's VP source reads, the
+	list is `obj/<cpu>/<abi>/sys/boot_files`, and some of them are Lisp,
+	`sys/lisp.inc` for one. A change to one of those with no `make all
+	boot` after leaves this machine's id that of the old source, though
+	its image is byte for byte what a new one would be. Nothing shows
+	while every machine is as stale; the day one installs, by a waypoint,
+	`mesh` says the rest are "on a different build" and a `rack` run
+	reaches only this machine. `(boot-id)` against `(boot-id-tree)`, of
+	`lib/boot/id.inc`, says if an image is behind its source. `make all
+	boot` here, then the members started again together.
+
 *	`files | includes` and `files | imports` say what they would change,
 	`-w` writes it: read it without `-w` first. `make it` prints it at its
 	end. If `-w` takes out what the build needs, the tool is wrong, fix
