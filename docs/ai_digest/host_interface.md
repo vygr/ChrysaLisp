@@ -348,7 +348,9 @@ docs/diagrams/host_layers.cwb
           driver's it gives a ticket, and a take has the pixels drawn. Or,
           told so, into a texture of the GUI driver's, by its handle, on a
           host whose GUI draws with this device: the frame is drawn where
-          it is shown, nothing is read back, and 1 is given. 0 is nothing
+          it is shown, nothing is read back, and its ticket has no pixels,
+          `host_gpu_done` of it says when the GPU is over the draw, asked of
+          the GUI driver, whose texture and fence it is. 0 is nothing
           drawn, a pair is still being built or the GUI's texture is not
           yet to be drawn into, and -1 a frame that can not be.
 

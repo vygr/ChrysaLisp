@@ -2,9 +2,11 @@
 
 An app that draws a picture, or works out a lot of numbers, can do it on the
 nodes of the CPU or on the GPU, and has a button to say which. There is one
-way to write that, and this is it. Ten apps follow it, all or part of it,
-and section 4 says which part: Surface, Raymarch, Mandelbrot, Digits, Canvas,
-Bubbles, Opcodes, Planets, Mesh and Model.
+way to do that, and this is it. Sections 1 to 3 are the model, section 4 the
+kinds of job, and section 5 the library that has it all, which an app holds:
+no app writes a farm of its own. Twelve apps are on it: Surface, Raymarch,
+Eyes, Mandelbrot, Digits, Canvas, Bubbles, Opcodes, Planets, Mesh, Model and
+the Network Map.
 
 What it stands on is in other documents, and they are worth having read:
 
@@ -240,11 +242,18 @@ the GPU's memory to the pixels, and then the app shows them.
 A frame that is read back is copied from the GPU, and copied to it again to
 be shown. On the node that has the GUI neither is needed: the GPU of that
 node is the GUI's own, so a child there can draw straight into a texture the
-GUI shows. The child of a frame of triangles does, `lib/gpu/tris.inc`. The
-frame names the texture, `(canvas-target canvas)`, and a child that is on
-the node the frame came from draws into it; one that is not, or is refused,
-draws to a target of its own and reads back. It finds which for itself, and
-its answer says, so an app is written the one way.
+GUI shows. The child of a frame of triangles does, `lib/gpu/tris.inc`, and
+the child of a pixel shader, `lib/gpu/shade.inc`, when its tile is all of the
+frame. The frame names the texture, `(canvas-target canvas)`, and a child
+that is on the node the frame came from draws into it; one that is not, or
+is refused, draws to a target of its own, or runs its kernel, and reads back.
+It finds which for itself, and its answer says, so an app is written the one
+way.
+
+The child answers when the GPU is done with the frame, not when it was
+handed over. So the answer that drives the next frame gives a slow GPU no
+more than it can do, and the desktop, drawn by the same GPU, is not kept
+waiting behind frames that have piled up.
 
 The texture drawn into is of a canvas that is not on show. When the frame is
 whole the two canvases exchange their textures, `(. canvas :exchange that)`:
@@ -283,13 +292,14 @@ canvas)` names it for a job by its key and size.
 the path of a shader file, and the block of its inputs:
 
 ```vdu
-(shader-tile file inputs x y x1 y1 width height shared)
+(shader-tile file inputs x y x1 y1 width height shared [target])
 ```
 
 The CPU's child, `+shader_tile_child`, has the shader as native code and
 shades the tile. The GPU's, `+shader_shade_child`, has it as a kernel and
-runs it over the tile's pixels. It is the same job to both, and an app needs
-no child of its own: Surface and Raymarch have none.
+runs it over the tile's pixels, or, given a target on the node that has the
+GUI, draws it there, section 3. It is the same job to both, and an app needs
+no child of its own. `(Render-shade)` holds it: Surface, Raymarch and Eyes.
 
 A CPU frame is cut into tiles of a few rows each, a GPU frame is the one
 tile, all of it.
@@ -301,7 +311,8 @@ its work is not a pixel shader: a kernel with a buffer, the palette, and on
 the CPU a way of leaving out the inside of the set. The job is its own
 structure, `+rect`, a square of the picture and where in the set it is, and
 the answer says what was drawn. The model is the same, and its two children
-are the place to look for how to write one, `apps/science/mandelbrot/`.
+are the place to look for how to write one, `apps/science/mandelbrot/`. The
+app holds a `(Render-work)` of them.
 
 ### Strips of triangles
 
@@ -374,160 +385,194 @@ Its GPU farm of one is given the whole batch, a step or a check, and runs
 the model's kernels on it, `lib/nn/gpu.inc`. The data, the model's numbers
 and the gradients are in shared memory, a `:buf` each by its key, as pixels
 are for a picture, so a job is small and an answer is small.
-`neural_networks.md` has it.
+`neural_networks.md` has it. Its farms are a `(Render-work)`'s with no
+canvas, the work is not a picture.
 
 ### A picture by a farm, with no GPU side
 
 Canvas, Bubbles and Opcodes draw by a farm of CPU children or in their own
 task, to show the one against the other. They have the farm's life, the
-shared canvas and the answer that drives the next frame, and no GPU child.
+shared canvas and the answer that drives the next frame, and no GPU child:
+a `(Render-work)` with the one child each.
 
-## 5. A worked skeleton
+## 5. The library an app holds
 
-Cut down from `apps/demos/raymarch/app.lisp`, with the button of
-`apps/science/mandelbrot/app.lisp`. Read those two for the whole of it.
+`lib/gpu/render_farm.inc`. An app writes none of sections 2 and 3. It holds
+a render, which has the farm and its life, the mailboxes, the way the pixels
+go, and what is done when a child can not do its work. There are three
+kinds, and what they share is the class `Render`:
 
-What the app has:
+* `(. render :read select before)` reads the render's mail with the app's
+  own. It gives `(idx msg)`, the app's mailbox and its mail, or `:nil` for
+  `idx` when the mail was the render's, and is dealt with. The render's
+  mailboxes are read as if they were in `select` before the one of index
+  `before`: an app names its first timer there, so a timer that is always
+  due does not leave them unread.
+
+* `(. render :busy)` is `:t` while a frame is out. No more is given till it
+  is not.
+
+* `(. render :mode [mode])` is how frames are drawn, `:gpu` or `:cpu`, and
+  with a mode asks for it. It gives back what the render has, and the button
+  is set from that: a node with no GPU stays on the CPU, and so does one
+  whose child could not have the shader.
+
+* `(. render :tick)`, from the app's timer, starts again a child that has
+  gone or is too long, and lets the farm go when no frame has been given for
+  a while.
+
+* `(. render :canvas canvas)` is another canvas from the next frame, one of
+  another size. `(. render :drop)` is the frame that is out not waited for,
+  the view it was of has gone. `(. render :stop)` lets the farm go now, and
+  `(. render :close)` is for the end.
+
+* `(. render :how)` is a line of status: what drew the last frame, and how
+  long it took.
+
+### A pixel shader over a frame
+
+`(Render-shade canvas file [lines])`. A frame is the inputs of the shader, a
+list of `(name value)`. All of an app:
 
 ```vdu
-(import "lib/gpu/shader.inc")
-(import "lib/gpu/compute.inc")
-(import "lib/gpu/shade.inc")
+(defq *app_root* (path-to-file))
+(import "usr/env.inc")
+(import "gui/lisp.inc")
+(import "lib/gpu/render_farm.inc")
 
 (enums +event +event_user
 	(enum mode))
 
 (enums +select 0
-	(enum main task reply timer))
+	(enum main timer))
 
-(defq +shader_file (cat *app_root* "my.shader")
-	+width 600 +height 600 +line_batch 8
-	+timer_rate (/ 1000000 60) +slow_ticks 30 ticks 0
-	;a tile is quick, the GPU's first frame waits for its kernel
-	+retry_timeout (task-timeout 5) +gpu_timeout (task-timeout 30)
-	program (shader-load +shader_file) select :nil jobs :nil
-	;there is a GPU, and it is wanted
-	has_gpu (> (gpu-format) 0) mode :cpu
+(defq +shader_file (cat *app_root* "my.shader") +width 600 +height 600
+	+timer_rate (/ 1000000 60) select :nil render :nil given 0
 	shared_canvas (canvas-shared +width +height 1))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Mine" (+sym_close) +event_close)
 	(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body)) :connect +event_mode)
 	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))
-```
 
-The farm, made and let go of:
+(defun next-frame ()
+	(. render :frame (frame-values (setq given (pii-time)))))
 
-```vdu
-(defun farm-close ()
-	(setq jobs (jobs-end jobs select +select_task +select_reply)))
+(defun mode-show ()
+	(. *mode* :set_selected (if (eql (. render :mode) :gpu) 1 0)))
 
-(defun farm-start ()
-	(unless jobs
-		(setq jobs (if (eql mode :gpu)
-			(Jobs +shader_shade_child
-				(elem-get select +select_task) (elem-get select +select_reply) 1 :t)
-			(Jobs +shader_tile_child
-				(elem-get select +select_task) (elem-get select +select_reply) (list +max_int 1 1) :t)))))
-```
-
-A frame, the one tile to the GPU's child or a tile to each of the CPU's:
-
-```vdu
-(defun start-frame ()
-	(farm-start)
-	(defq inputs (shader-pack program (frame-values)) key (canvas-key *canvas*))
-	(. jobs :add (if (eql mode :gpu)
-		(list (shader-tile +shader_file inputs 0 0 +width +height +width +height key))
-		(map! (lambda () (defq y (* (!) +line_batch))
-				(shader-tile +shader_file inputs 0 y +width (min +height (+ y +line_batch)) +width +height key))
-			'() 0 (const (/ (+ +height +line_batch -1) +line_batch))))))
-```
-
-`(frame-values)` is the app's own, the inputs of its shader for this frame,
-a list of `(name value)`.
-
-The other farm takes over, from the button or because the GPU's child could
-not:
-
-```vdu
-(defun to-mode (new_mode)
-	(farm-close)
-	(setq mode new_mode)
-	(. *mode* :set_selected (if (eql mode :gpu) 1 0))
-	(start-frame))
-```
-
-The loop:
-
-```vdu
 (defun main ()
-	(setq select (task-mboxes +select_size) mode (if has_gpu :gpu :cpu))
+	(setq select (task-mboxes +select_size) render (Render-shade *canvas* +shader_file))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(. *mode* :set_selected (if (eql mode :gpu) 1 0))
 	(. *window* :open)
-	(start-frame)
+	(mode-show)
+	(next-frame)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(defq id :t)
 	(while id
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(case idx
-			(+select_main
+		(bind '(idx msg) (. render :read select +select_timer))
+		(cond
+			((not idx)
+				;the render's mail: a frame that took a tick or more drives the next
+				(and (not (. render :busy)) (>= (- (pii-time) given) +timer_rate) (next-frame)))
+			((= idx +select_main)
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
 					((= id +event_mode)
-						;the other farm, if the host has it
-						(defq want (if (and has_gpu (= (. *mode* :get_selected) 1)) :gpu :cpu))
-						(if (eql want mode) (. *mode* :set_selected (if (eql mode :gpu) 1 0))
-							(to-mode want)))
+						(. render :mode (if (= (. *mode* :get_selected) 1) :gpu :cpu))
+						(mode-show))
 					((. *window* :event msg))))
-			(+select_task
-				;a child has started
-				(. jobs :launched msg))
-			(+select_reply
-				;a tile is shaded, one of an old farm never comes
-				(when (defq out (. jobs :answered msg))
-					(cond
-						((nql mode :gpu)
-							;a child that could not reach the canvas sends the pixels
-							(shader-tile-show *canvas* msg)
-							(when (= out 0)
-								(. *canvas* :swap +swap_write)
-								(start-frame)))
-						((= (getf msg +shade_reply_drawn) 0)
-							;no GPU after all, the CPU's farm takes over
-							(setq has_gpu :nil)
-							(to-mode :cpu))
-						(:t ;the frame is on the pixels, the next is started
-							(. *canvas* :swap +swap_write)
-							(start-frame)))))
-			(:t ;the timer, the patience of the farm
+			(:t ;the timer, a frame a tick if the last is drawn
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
-				(when (and jobs (= (setq ticks (% (inc ticks) +slow_ticks)) 0))
-					(if (eql mode :cpu) (. *canvas* :swap +swap_write))
-					(. jobs :refresh (if (eql mode :gpu) +gpu_timeout +retry_timeout))))))
-	(farm-close)
+				(unless (. render :busy) (next-frame))
+				(. render :tick))))
+	(. render :close)
 	(. *window* :close))
 ```
 
+`(frame-values)` is the app's own, the inputs of its shader for this frame.
+`apps/demos/surface/app.lisp` is the whole of one.
+
 What to see in it:
 
-* There is one `jobs`, one task mailbox and one reply mailbox. The mode is
-  looked at in three places only: which child, how the frame is cut, and what
-  an answer of its kind says.
+* There is no farm in it, no child, and no mailbox but the app's own two.
+  The app never touches the GPU, and does not ask if there is one.
 
-* `(start-frame)` is called from the reply branch. Nothing waits for a tick.
+* A frame is given from two places: the timer, a frame a tick, and the
+  render's mail, when a frame that took longer than a tick is whole. An
+  answer drives the next, nothing waits for a tick.
 
-* `(farm-close)` before every change of farm, and at the end. After it, no
-  answer of the old farm can arrive.
+* The button asks, and is set from what the render says.
 
-* The app never touches the GPU. `(gpu-format)` is asked once, to know if the
-  button means anything.
+Two properties change how it draws. `(def render :direct :nil)` has every
+frame's pixels on the canvas, read back, the same to the bit whatever drew
+them, for an app that keeps them: Raymarch writes a film. `(def render :farm
+:nil)` has a frame the GPU does not draw drawn in the app's own task, for a
+small picture drawn now and then that is not worth a child a node: Eyes.
+`(:frame)` then gives `:t`, the frame is whole and shown, where it gives
+`:nil` for one that is out.
 
-* This app draws for ever. One that can stand still, a picture that is done
-  till the view moves, lets its farm go when it has, as Mandelbrot does two
-  seconds after its last picture, and `(farm-start)` makes the next.
+### Triangles
+
+`(Render-tris canvas vfile pfile [cull])`, section 4 has its use: the meshes
+told to it, a frame a list of draws. Planets is the whole of one, Mesh one
+whose scene is another library's.
+
+### Children of the app's own
+
+`(Render-work canvas child [gpu_child])`, when the library's children do not
+fit. The farm, its life and its mail are the render's still; what a frame is
+the app says, in properties:
+
+```vdu
+(setq render (Render-work *canvas* (cat *app_root* "child.lisp")))
+(def render :jobs_fn (const frame-jobs) :here_fn (const frame-here)
+	:reply_fn (const part-done))
+```
+
+* `:jobs_fn`, `(lambda (kind count ready))`, gives the jobs of a frame for a
+  farm of that kind, `:cpu` or `:gpu`, of `count` children. With `ready` it
+  gives the jobs that ask the children if they are ready, each a job of
+  nothing, or `:nil` if they need not be asked. Till they have all answered
+  the frames are drawn in the app's task.
+
+* `:here_fn`, `(lambda (canvas))`, draws a frame in the app's own task. The
+  render shows it.
+
+* `:reply_fn`, `(lambda (msg))`, is given each answer of a frame, for what
+  the app keeps of it.
+
+* `:cannot_fn`, `(lambda (msg))`, is asked of an answer before it is
+  counted, and says `:t` if the child could not do its job where it is. The
+  GPU's child has no GPU after all, and the CPU has the frames from there;
+  or a child of the CPU's could not, and its job goes to another node.
+
+* `:launched_fn`, `(lambda (kind msg))`, is told of each child as it starts.
+
+* `:herd` is how many children the nodes have, as `(Jobs)` takes it, `:away`
+  keeps them off the app's node, `:send_back` is children that send the
+  pixels they could not reach, `:patience` and `:gpu_patience` how long a
+  child is waited for, and `:idle` how long with no frame before the farm is
+  let go of, `:nil` for an app that does that itself, with `(:stop)`.
+
+The modes are `:cpu`, `:gpu` if there is a `gpu_child`, and `:here`, the
+app's own task. `(. render :frame)` gives `:t` for a frame drawn here, whole
+and shown, and `:nil` for one that is out. Canvas is the least of one,
+Mandelbrot one with a GPU child, a child that can not, and a view that
+moves under a frame that is out, `(:drop)`.
+
+Work that is not a picture has no canvas, `(Render-work :nil child
+gpu_child)`, and gives its jobs themselves, `(. render :frame work)`:
+nothing is shown, and `(:busy)` says when all are answered. Digits does.
+
+A function given to a render runs inside the render's method, and names are
+found where a function is called from. So it must not `(setq)` a name the
+method has for itself, `out`, `jobs`, `gpu`, `fn`, `mode`, `farm`: it would
+set the method's. Give it names of the app's own, or have it only keep the
+answer, and look at it after `(:read)`, as Digits does.
+
+### A child
 
 A child of the app's own, when the library's two do not fit, is a file with a
 `main` that is all `(job-child timeout fn)`:
@@ -567,3 +612,11 @@ farm's end:
 
 `lib/gpu/tile_child.lisp` and `lib/gpu/shade_child.lisp` are the two to read,
 a CPU child and a GPU child of the same job.
+
+### The farm by hand
+
+Sections 2 and 3 are what the library does, and what an app that can not use
+it would have to do: a `Jobs` of each kind, `(jobs-end)` at every change of
+farm, a new reply mailbox for what is no longer wanted, the next frame from
+the answer, the canvas in shared memory. `lib/gpu/render_farm.inc` is the
+place to read it done, each kind's `(:frame)` and `(:mail)`.

@@ -472,12 +472,15 @@ that can not be drawn, and a ticket, of which `(gpu-take-pixels ticket len
 [buf at])` has the pixels, into a block of shared memory if one is given.
 With a third argument the target is the handle of a texture of the GUI, on
 the node that has it, `(gpu-draw handle frame :t)`: the frame is drawn into
-it where it is, nothing is read back, and `:t` is given.
+it where it is, nothing is read back, and the ticket has no pixels:
+`(gpu-wait ticket)` is till the GPU is done with the draw, and `(gpu-take
+ticket)` lets it go. A child waits so before it answers, so an app that
+gives its next frame on the answer gives a slow GPU no more than it can do.
 
 A pair is let go of with `(gpu-pair-free)`, a mesh with `(gpu-mesh-free)`, a
-target with `(gpu-target-free)`. An app has none of these in it: a
-`(Render-tris)`, `lib/gpu/render_farm.inc`, or the child of `lib/gpu/
-tris.inc`, makes them.
+target with `(gpu-target-free)`. An app has none of these in it: a render
+of `lib/gpu/render_farm.inc`, by the children of `lib/gpu/tris.inc` and
+`lib/gpu/shade.inc`, makes them.
 
 `(shader-msl-pair vertex pixel)` is the text, a vertex function and a
 fragment function. The attrs of a vertex are `[[attribute(n)]]`, the
@@ -996,12 +999,17 @@ frame as a job, and a farm of many on the CPU given the same job in parts:
 * A pixel shader is run as a kernel, a pixel a thread, see Kernels below.
   `lib/gpu/shade.inc` is the GPU's child of a tile of a frame, and
   `lib/gpu/tile.inc` the CPU's. The pixels are read back onto the app's
-  canvas, in shared memory.
+  canvas, in shared memory. On the node that has the GUI a tile that is
+  all of the frame is not a kernel: the shader is the pixel shader of a
+  pair, its vertex shader `lib/gpu/shaders/frame_vertex.shader`, drawn
+  over two triangles that cover the frame, straight into a texture the
+  GUI shows. An app holds a `(Render-shade canvas file)`.
 
 * A pair, a vertex shader and a pixel shader, draws triangles, see Triangles
   on the GPU above. `lib/gpu/tris.inc` has the two children of a strip of a
   frame, and `lib/gpu/render_farm.inc` an object an app holds that hides
-  them, `(Render-tris canvas vfile pfile)`.
+  them, `(Render-tris canvas vfile pfile)`. `render_farm.md`, section 5,
+  has the library.
 
 On the node that has the GUI the GPU of the node is the GUI's own, the 2D
 drawing is SDL's GPU renderer on the same device. So the child of a frame of

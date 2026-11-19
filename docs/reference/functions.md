@@ -5295,14 +5295,15 @@ kernel to be built, :nil if it did not build
 ### gpu-draw
 
 ```code
-(gpu-draw target frame [gui]) -> 0 | :nil | ticket | :t
+(gpu-draw target frame [gui]) -> 0 | :nil | ticket
 
 a frame of triangles, of (gpu-draw-frame), drawn into a target, cleared
 first, what is nearest is what is seen. The target is one of
 (gpu-target), and a ticket is given: (gpu-take-pixels) has what was
 drawn. With gui the target is the handle of a texture of the GUI, on
-the node that has it, the frame is drawn into it where it is, and :t
-is given, it is with the GPU. 0 is nothing drawn, a pair is still
+the node that has it, the frame is drawn into it where it is, and its
+ticket has no pixels: (gpu-wait) says when the GPU is done with it,
+(gpu-take) lets it go. 0 is nothing drawn, a pair is still
 being built, or the GUI's texture is not to be drawn into yet: try
 again. :nil is a frame that can not be drawn, a pair that did not
 build, a target that is not one, a node with no GPU
@@ -11483,10 +11484,12 @@ the pictures a pixel shader reads from, in the order it has them
 ### shader-tile
 
 ```code
-(shader-tile file inputs x y x1 y1 width height shared) -> job
+(shader-tile file inputs x y x1 y1 width height shared [target]) -> job
 
 the job for a tile of a frame of that width and height, inputs is the
-block from (shader-pack), shared the key of the pixels, (canvas-key)
+block from (shader-pack), shared the key of the pixels, (canvas-key).
+target is of (canvas-target), for the GPU's child: it draws there, all
+of the frame, if it is on the node the answer goes to
 ```
 
 ### shader-tile-show

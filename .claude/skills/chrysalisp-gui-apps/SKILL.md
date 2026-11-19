@@ -386,27 +386,39 @@ Key points:
 		- `(get :font_terminal *env*)` / `(get :font_medium_terminal *env*)` / `(get :font_small_terminal *env*)`: Monospace code, terminals, hashes, hex values.
 
 *	**Work on the CPU or the GPU, a CPU/GPU button.** Read
-	`docs/ai_digest/render_farm.md` first, it has the model and a
-	skeleton, and build from that, never from scratch: a `Jobs` farm of
-	many children for the CPU and of one for the GPU, the same job and
-	answer, `lib/gpu/tile.inc` and `lib/gpu/shade.inc` for a pixel
-	shader. For triangles an app holds a `(Render-tris canvas vfile
-	pfile)`, `lib/gpu/render_farm.inc`, and has no farm, child or GPU call
-	of its own: `:mesh`, `:frame`, `:busy`, `:read`, `:tick`, `:mode`,
-	`:how`, `:close`, as Planets has them, or with `:mesh_fn` and
-	`:here_fn` for a scene of `lib/math/scene.inc`, as Mesh. What goes
-	wrong when it is done by hand:
+	`docs/ai_digest/render_farm.md` first, it has the model and an app
+	to start from: a `Jobs` farm of many children for the CPU and of
+	one for the GPU, the same job and answer, `lib/gpu/tile.inc` and
+	`lib/gpu/shade.inc` for a pixel shader. An app writes none of that: it holds a render of
+	`lib/gpu/render_farm.inc`, section 5 of the doc, and has no farm,
+	child mailbox or GPU call of its own: `:frame`, `:busy`, `:read`,
+	`:tick`, `:mode`, `:how`, `:close`. `(Render-shade canvas file)` for a
+	pixel shader over a frame, as Surface; `(Render-tris canvas vfile
+	pfile)` for triangles, `:mesh` as Planets has it, or `:mesh_fn` and
+	`:here_fn` for a scene of `lib/math/scene.inc`, as Mesh;
+	`(Render-work canvas child [gpu_child])` for children and jobs of the
+	app's own, as Canvas and Mandelbrot, and with no canvas for work that
+	is not a picture, as Digits. A function given to a render,
+	`:reply_fn` and the like, runs inside its method: it must not `setq`
+	a name the method has, `out` `jobs` `gpu` `fn` `mode` `farm`, so keep
+	the answer and look at it after `(:read)`, as Digits does. What the
+	library does, and what goes wrong when it is done by hand:
 	*	The canvas is `(ifn (canvas-shared w h 1) (Canvas w h 1))`, its
 		key in every job, and the children draw on it. Pixels sent back
 		are the way back for a host with no shared memory, not the plan.
 	*	The app never calls the GPU. Its child does, on its own node's,
 		`lib/gpu/compute.inc`, and both kinds of farm are made with
 		`away`, off the app's node.
-	*	The farm is let go of, `(setq jobs (jobs-end jobs select
-		+select_task +select_reply))`, at every change of mode, when the
-		work stops, and at close. No test of whether an answer is stale.
-	*	The next frame is started from the reply branch when the last
-		answer is in. The timer is for `(. jobs :refresh timeout)`.
+	*	The farm is let go of, `(jobs-end)`, at every change of mode,
+		when the work stops, and at close. No test of whether an answer
+		is stale. The render's `(:mode)`, `(:tick)`, `(:stop)`.
+	*	The next frame is given when the last is whole, from the branch
+		of `(:read)` that is the render's mail, `(not idx)`, as well as
+		from the timer. The timer has `(. render :tick)`.
+	*	A GPU child answers when the GPU is done with the frame. An app
+		that draws now and then, Eyes, gives no frame while one is out,
+		and waits a few times as long as the last took: it never has
+		more than a share of a slow GPU.
 	*	A line of status that says how the frames are drawn, by how many
 		nodes, and how long one took, as Planets and Model have: it is
 		how the user, and a hidden desktop's `widgets`, see which way it

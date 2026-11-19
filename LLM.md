@@ -324,8 +324,8 @@ Deep dives into meta-commentary and design philosophy:
 76. **[One Farm for the CPU and the GPU](docs/ai_digest/render_farm.md)** -
     How an app draws, or works numbers out, on the nodes of the CPU or on the
     GPU: a farm of many or a farm of one, the same job and the same answer,
-    the life of a farm, shared pixels, the kinds of job in use, and a
-    skeleton to start from.
+    the life of a farm, shared pixels, the kinds of job in use, and the
+    library an app holds that has it all, `lib/gpu/render_farm.inc`.
 
 ---
 

@@ -4,7 +4,8 @@
 ; An app has a (Render-shade) of its canvas and a pixel shader file, and
 ; gives it a frame, the inputs of the shader. Or a (Render-tris) of its
 ; canvas and a pair of shader files, tells it its meshes, and gives it a
-; frame, a list of what is drawn.
+; frame, a list of what is drawn. Or a (Render-work) of its canvas and
+; children of its own, and says what the jobs of a frame are.
 ; How the frame is made is this object's: by the GPU, a farm of one on
 ; the app's own node, which draws straight into the canvas's texture
 ; where the node has the GUI and reads the frame back where it has not;
@@ -205,8 +206,8 @@
 		; (. render :how) -> str
 		;how the last frame was drawn, and how long it took, for a line
 		;of status. A frame the GPU drew straight into the canvas's texture
-		;has no time: it was handed over, and when the GPU was done with it
-		;is not known here
+		;has no time said: an app that draws them one after another says
+		;its rate
 		(defq tenths (/ (get :took this) 100) how (get :how this))
 		(if (eql how :gpu) "the GPU"
 			(cat (cond
