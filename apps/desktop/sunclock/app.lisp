@@ -202,7 +202,8 @@
 			(. (ui-button *btn_now* (:text "Now")) :connect +event_btn_now)
 			(. (ui-button *btn_next_h* (:text "+1h")) :connect +event_btn_next_h)
 			(. (ui-button *btn_next_d* (:text "+1d")) :connect +event_btn_next_d)
-			(. (ui-button *btn_play* (:text "Play")) :connect +event_btn_play))
+			;a symbol, play or pause: the two are one size, words were not
+			(. (ui-button *btn_play* (:text (num-to-utf8 +sym_play) :font :font_symbol)) :connect +event_btn_play))
 		(ui-label *utc_time_label* (:text "UTC: 00:00:00" :paper +argb_grey15)))
 	; Hero Card: Selected City Details
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -247,7 +248,7 @@
 			((> *sim_offset_sec* 0) (cat " [+" (str (/ *sim_offset_sec* 3600)) "h]"))
 			(:t (cat " [" (str (/ *sim_offset_sec* 3600)) "h]"))))
 	(. *utc_time_label* :set_text (cat utc_str sim_note))
-	(. *btn_play* :set_text (if *animating* "Pause" "Play"))
+	(. *btn_play* :set_text (num-to-utf8 (if *animating* +sym_pause +sym_play)))
 
 	; Solar Ephemeris
 	(bind '(sun_lon_deg sun_lat_deg eot_min season) (solar-ephemeris now_sec))
