@@ -4,6 +4,7 @@
 (import "service/lock/app.inc")
 (import "service/audio/app.inc")
 (import "apps/system/files/picker.inc")
+(import "lib/files/names.inc")
 (import "lib/media/mod.inc")
 (import "lib/media/tracker.inc")
 (import "lib/media/spectrum.inc")
@@ -34,10 +35,12 @@
 	;late, for the bars
 	*song* :nil *data* :nil *player* :nil *handle* :nil *written* 0 *marks* (list)
 	*recent* "" *recent_at* 0 *length* 0 *paused* :nil *ended* :nil *shown* :nil
-	;what plays now, (title url), and the list it is of, and in what order
-	*current* :nil *queue* (list) *order* (list) *queue_at* 0
-	;the entries of the list shown, and what is being fetched
-	*entries* (list) *fetching* :nil *picker* :nil *select* :nil
+	;what plays now, (title url), and the list it is of, and in what order,
+	;and what was playing when last closed, (title url seconds state), to go on
+	*current* :nil *queue* (list) *order* (list) *queue_at* 0 *resume* :nil
+	;the entries of the list shown, the url of the one played or fetched,
+	;marked, and what is being fetched
+	*entries* (list) *marked* :nil *fetching* :nil *picker* :nil *select* :nil
 	*spectrum* (spectrum-make +fft +rate +bars)
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
@@ -57,6 +60,14 @@
 
 (defun local? (url)
 	(not (starts-with "https://" url)))
+
+(defun module-load (name)
+	; (module-load name) -> :nil | str
+	;the bytes of a module of a file, or of an object of a store, store:path,
+	;lib/files/names.inc
+	(if (name-in-store name)
+		(and (defq stream (name-whole-stream name)) (read-blk stream (ifn (name-size name) 0)))
+		(load name)))
 
 (defun favourite? (url)
 	(some (# (eql (second %0) url)) *favourites*))
@@ -149,6 +160,31 @@
 	(setq *player* (tracker-player *song* +rate) *written* 0 *marks* (list)
 		*recent* "" *recent_at* 0 *ended* :nil *shown* :nil *paused* :nil))
 
+(defun song-stop ()
+	;stopped, to play from its start
+	(if *song* (song-rewind)))
+
+(defun song-seek (seconds)
+	;played from so many seconds in: the song from its start to there, its
+	;rows played and its voices moved on, nothing mixed, lib/media/tracker.inc
+	(defq paused *paused*)
+	(song-rewind)
+	(setq *written* (tracker-seek *player* (* seconds +rate)) *recent_at* *written*
+		*ended* (. *player* :find :ended) *paused* paused
+		*handle* (audio-stream-open-rpc +rate 2)))
+
+(defun song-resume (url)
+	; (song-resume url)
+	;the song as it was when last closed, if it is that one: played on
+	;from there, paused there, or stopped
+	(when (and *resume* (eql (second *resume*) url))
+		(bind '(& & seconds state) *resume*)
+		(setq *resume* :nil)
+		(cond
+			((eql state "stopped") (song-rewind))
+			(:t (setq *paused* (eql state "paused"))
+				(if (> seconds 0) (song-seek seconds))))))
+
 (defun song-start (data title url)
 	; (song-start data title url) -> :nil | :t
 	;a module's bytes played from its start, if they are one
@@ -164,20 +200,8 @@
 		(. *title* :set_text (cat "Jukebox -> " title))
 		(favourite-show)
 		(. *window* :fit)
+		(song-resume url)
 		:t))
-
-(defun song-stop ()
-	;stopped, to play from its start
-	(if *song* (song-rewind)))
-
-(defun song-seek (seconds)
-	;played from so many seconds in: the song from its start to there, its
-	;rows played and its voices moved on, nothing mixed, lib/media/tracker.inc
-	(defq paused *paused*)
-	(song-rewind)
-	(setq *written* (tracker-seek *player* (* seconds +rate)) *recent_at* *written*
-		*ended* (. *player* :find :ended) *paused* paused
-		*handle* (audio-stream-open-rpc +rate 2)))
 
 (defun feed ()
 	; (feed) -> :nil | heard
@@ -218,11 +242,21 @@
 	(status (cat "Fetching " (ifn title "the folder") " ..."))
 	(mail-send (open-child (cat *app_root* "fetch.lisp") +kn_call_pin) (cat reply url)))
 
+(defun list-mark ()
+	; (list-mark)
+	;the row of what is played or fetched on dark grey, the rest on black
+	(each (lambda (button (title url &ignore))
+			(defq paper (if (eql url *marked*) +argb_grey4 +argb_black))
+			(unless (= (get :paper button) paper) (def (. button :dirty) :paper paper)))
+		(. *list* :children) *entries*))
+
 (defun entry-play (entry)
 	;an entry played, (title url): a file, a favourite kept, or fetched
 	(bind '(title url) entry)
+	(setq *marked* url)
+	(list-mark)
 	(cond
-		((defq data (load (if (local? url) url (kept-path url))))
+		((defq data (module-load (if (local? url) url (kept-path url))))
 			(unless (song-start data title url) (status (cat title ": not a module it can read"))))
 		((local? url) (status (cat url ": not there")))
 		(:t ;what played stops, and the window says what is coming, till it
@@ -289,14 +323,24 @@
 			:jukebox :nil :shuffled :nil :list_at 1 :browse (list))))
 	(setq *favourites* (. *config* :find :favourites) *jukebox* (. *config* :find :jukebox)
 		*shuffled* (. *config* :find :shuffled) *list_at* (. *config* :find :list_at)
-		*browse* (. *config* :find :browse))
+		*browse* (. *config* :find :browse)
+		;what was playing, none in a config kept before it was
+		*queue* (ifn (. *config* :find :queue) (list)) *order* (ifn (. *config* :find :order) (list))
+		*queue_at* (ifn (. *config* :find :queue_at) 0))
+	(setq *resume* (. *config* :find :playing))
 	(. *mode* :set_selected (if *jukebox* 1 0))
 	(. *shuffle* :set_states (list *shuffled*))
 	(. *tab* :set_selected *list_at*))
 
 (defun config-save ()
+	;and what plays, or is fetched, where it is and how
+	(defq entry (cond
+		(*current*)
+		((and *fetching* (eql (first *fetching*) :module)) (list (third *fetching*) (second *fetching*))))
+		state (cond ((not *current*) "playing") (*paused* "paused") ((not *handle*) "stopped") ("playing")))
 	(scatter *config* :favourites *favourites* :jukebox *jukebox* :shuffled *shuffled*
-		:list_at *list_at* :browse *browse*)
+		:list_at *list_at* :browse *browse* :queue *queue* :order *order* :queue_at *queue_at*
+		:playing (if entry (list (first entry) (second entry) (if *current* (get :value *seek*) 0) state)))
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
@@ -331,27 +375,17 @@
 			(def (defq button (Button)) :text (if folder (cat title "/") title) :border 0
 				:paper +argb_black :ink +argb_white
 				:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))
-			(view-variant button :font :font_button)
+			;the letters of the tracker's rows, a size up
+			(view-variant button :font :font_medium_terminal)
 			(. button :connect (+ +event_item (!)))
 			(. *list* :add_child button))
 		(list *entries*) 0 (min +list_max (length *entries*)))
+	(list-mark)
 	(. *where* :set_text (cond
 		((= *list_at* 0) (cat (str (length *favourites*)) " favourites"))
 		((empty? *browse*) "Modland, the trackers played here")
 		((cat "Modland / " (join *browse* " / ") ", " (str (length *entries*)) " here"))))
 	(.-> *list_scroll* :layout :dirty_all))
-
-(defun fetch-done (msg)
-	(cond
-		;mail is unordered, how far it got may come after it has come
-		((not *fetching*))
-		((starts-with "%" msg)
-			;how far it has got, of how many, or of a megabyte if it is not
-			;said
-			(bind '(got total) (map (const str-as-num) (split (slice msg 1 -1) " ")))
-			(loading (min 1000 (/ (* got 1000) (if (> total 0) total (max got 1048576))))))
-		(:t (loading :nil)
-			(fetch-ended msg))))
 
 (defun fetch-ended (msg)
 	;= and its bytes, or ! and why not
@@ -366,13 +400,35 @@
 			(list-show))
 		((not (song-start msg title url)) (status (cat title ": not a module it can read")))))
 
+(defun fetch-done (msg)
+	(cond
+		;mail is unordered, how far it got may come after it has come
+		((not *fetching*))
+		((starts-with "%" msg)
+			;how far it has got, of how many, or of a megabyte if it is not
+			;said
+			(bind '(got total) (map (const str-as-num) (split (slice msg 1 -1) " ")))
+			(loading (min 1000 (/ (* got 1000) (if (> total 0) total (max got 1048576))))))
+		(:t (loading :nil)
+			(fetch-ended msg))))
+
+(defun player-mode (url)
+	; (player-mode url)
+	;a module picked that is not a favourite is played by hand, so Player
+	;mode; a favourite picked, the jukebox goes on from it
+	(when (and *jukebox* (not (favourite? url)))
+		(setq *jukebox* :nil)
+		(. *mode* :set_selected 0)
+		(config-save)))
+
 (defun item-pressed (i)
 	;a favourite played, a folder opened, or a module of Modland played,
 	;the modules of the list what next and prev go through
 	(bind '(title url folder) (elem-get *entries* i))
 	(cond
 		(folder (push *browse* title) (config-save) (list-show))
-		(:t (defq modules (filter (# (not (third %0))) *entries*))
+		(:t (player-mode url)
+			(defq modules (filter (# (not (third %0))) *entries*))
 			(queue-start (map (# (list (first %0) (second %0))) modules)
 				(ifn (find title (map (const first) modules)) 0)))))
 
@@ -402,6 +458,8 @@
 	(. *rows* :load (list) 0 0 -1 -1)
 	(list-show)
 	(. *window* :open)
+	;what was playing when last closed, on again
+	(if *resume* (entry-play (slice *resume* 0 2)))
 	(mail-timeout (elem-get *select* +select_timer) +frame_time 0)
 	(defq id :t)
 	(while id
@@ -415,6 +473,7 @@
 			((= idx +select_picker)
 				(setq *picker* :nil)
 				(unless (eql (defq file (trim msg)) "")
+					(player-mode file)
 					(entry-play (list (last (split file "/")) file))))
 			((= (setq id (getf msg +ev_msg_target_id)) +event_close) (setq id :nil))
 			((= id +event_play)
