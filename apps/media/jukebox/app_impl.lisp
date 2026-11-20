@@ -10,11 +10,12 @@
 (import "./widgets.inc")
 
 ;A player of the modules of the trackers, the Amiga's MODs, Scream
-;Tracker's S3Ms and FastTracker's XMs, and a jukebox of the user's favourites. A song is played
-;by ./player.lisp, a task on another node, so what draws the screen is not
-;slowed by it; it says what is heard, and this shows it: the row, the
-;samples, and the bars of its spectrum. The modules come from a file, a
-;store, the favourites, kept to play offline, or Modland, ./library.inc
+;Tracker's S3Ms, FastTracker's XMs and Impulse Tracker's ITs, and a jukebox
+;of the user's favourites. A song is played by ./player.lisp, a task on
+;another node, so what draws the screen is not slowed by it; it says what
+;is heard, and this shows it: the row, the samples, and the bars of its
+;spectrum. The modules come from a file, a store, the favourites, kept to
+;play offline, or Modland, ./library.inc
 
 (enums +select 0
 	(enum main timer tip fetch picker engine))
@@ -82,13 +83,15 @@
 		((= note 0) "---")
 		((= note +note_cut) "^^^")
 		((= note +note_off) "===")
+		((= note +note_fade) "~~~")
 		((cat (elem-get +names (% (dec note) 12)) (str (/ (dec note) 12))))))
 
 (defun cell-text (note ins vol effect param)
 	;a cell as its tracker shows it: an S3M's volume and its effects by
 	;letter, A 1; an XM's volume column, a volume or an effect of a sign
-	;and a digit, and its effects by number then letter, G 16; a MOD's
-	;effects by number
+	;and a digit, and its effects by number then letter, G 16; an IT's
+	;volume column, a volume or an effect of a letter and a digit, and
+	;its effects by letter; a MOD's effects by number
 	(defq mode (. *song* :find :mode))
 	(cat (note-name note) " " (if (> ins 0) (hex ins 2) "..")
 		(case mode
@@ -97,10 +100,16 @@
 				((< vol 0x10) " ..")
 				((<= vol 0x50) (cat " " (hex (- vol 0x10) 2)))
 				((cat " " (elem-get "------+DUSVPLRM" (>> vol 4)) (hex vol 1)))))
+			(:it (cond
+				((<= vol 64) (cat " " (hex vol 2)))
+				((< vol 125) (defq at (/ (- vol 65) 10)) (cat " " (elem-get "ABCDEF" at) (str (- vol 65 (* at 10)))))
+				((<= 128 vol 192) (cat " P" (hex (min 15 (/ (- vol 128) 4)) 1)))
+				((<= 193 vol 212) (defq at (/ (- vol 193) 10)) (cat " " (elem-get "GH" at) (str (- vol 193 (* at 10)))))
+				(" ..")))
 			(:t ""))
 		" " (cond
 			((and (= effect 0) (= param 0)) "...")
-			((eql mode :st3) (cat (char (+ 64 effect)) (hex param 2)))
+			((find mode '(:st3 :it)) (cat (char (+ 64 effect)) (hex param 2)))
 			((< effect 16) (cat (hex effect 1) (hex param 2)))
 			((cat (char (+ 55 effect)) (hex param 2))))))
 
@@ -514,7 +523,7 @@
 				(if (and *current* (favourite? (second *current*))) (favourite-remove) (favourite-add)))
 			((= id +event_open)
 				(if *picker* (mail-send *picker* ""))
-				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m .xm" :nil "mods" :t (list))))
+				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m .xm .it" :nil "mods" :t (list))))
 			((= id +event_mode)
 				;the jukebox plays the favourites
 				(setq *jukebox* (= (. *mode* :get_selected) 1))

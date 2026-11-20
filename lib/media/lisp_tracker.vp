@@ -203,7 +203,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r7
 	;info
 	;(media-widen out src from kind) -> out, as many samples as out holds,
 	;two bytes each, from the bytes of src at from, of a kind: +widen_s8 8
@@ -299,6 +299,203 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-widen out src from kind)" +error_msg_wrong_types))
+	(signature '(:str :str :num :num))
+
+(def-func-end)
+
+;the samples of an IT packed, Impulse Tracker's own: blocks of so many,
+;each its byte count then its codes, a code's width in bits changing as
+;the codes say, each the change from the last
+(defcvar '+itunpack_16 1 '+itunpack_215 2 '+itunpack_unsigned 4)
+
+(defun itunpack-read (n v src end bbuf bnum x eof)
+	;the next n bits, n a reg, low bit first, into v; to eof past the end
+	(loop-while `(,bnum < ,n))
+		(gotoif `(,src >= ,end) eof)
+		(vp-load-rcr-ub src 0 x)
+		(vp-shl-rr bnum x)
+		(vp-or-rr x bbuf)
+		(vp-add-cr 1 src)
+		(vp-add-cr 8 bnum)
+	(loop-end)
+	(vp-cpy-cr 1 x)
+	(vp-shl-rr n x)
+	(vp-sub-cr 1 x)
+	(vp-cpy-rr bbuf v)
+	(vp-and-rr x v)
+	(vp-shr-rr n bbuf)
+	(vp-sub-rr n bnum))
+
+(defun itunpack-width (wide out src end n mode d bbuf bnum left temp temp2 bits x y eof)
+	;the codes of one width of sample, 8 or 16 bits, into the mixer's
+	(bind '(block left0 esc mid big wrap maski offi offj sext shift unsigned label)
+		(if wide
+			(list 0x4000 17 4 17 18 0x10000 0xffff 8 16 16 48 0x8000 'unpack16)
+			(list 0x8000 9 3 9 10 256 0xff 4 8 8 56 0x80 'unpack8)))
+	(loop-start 'blocks)
+		;a block: its count of bytes, not needed, and a new start
+		(vp-add-cr 2 src)
+		(gotoif `(,src > ,end) eof)
+		(vp-cpy-cr block d)
+		(vpif `(,d > ,n))
+			(vp-cpy-rr n d)
+		(endif)
+		(vp-sub-rr d n)
+		(vp-xor-rr bbuf bbuf)
+		(vp-xor-rr bnum bnum)
+		(vp-cpy-cr left0 left)
+		(vp-xor-rr temp temp)
+		(vp-xor-rr temp2 temp2)
+		(loop-start 'codes)
+			(itunpack-read left bits src end bbuf bnum x eof)
+			(vpif `(,left < 7))
+				;all but the top bit set says a new width follows
+				(vp-cpy-cr 1 x)
+				(vp-cpy-rr left y)
+				(vp-sub-cr 1 y)
+				(vp-shl-rr y x)
+				(gotoif `(,bits /= ,x) label)
+				(vp-cpy-cr esc y)
+				(itunpack-read y bits src end bbuf bnum x eof)
+				(vp-add-cr 1 bits)
+				(vpif `(,bits >= ,left))
+					(vp-add-cr 1 bits)
+				(endif)
+				(vp-cpy-rr bits left)
+				(continue 'codes)
+			(elseif `(,left < ,mid))
+				;the top few values of the width say a new width
+				(vp-cpy-cr maski x)
+				(vp-cpy-cr mid y)
+				(vp-sub-rr left y)
+				(vp-shr-rr y x)
+				(vp-add-cr offi x)
+				(vp-cpy-rr x y)
+				(vp-sub-cr offj y)
+				(gotoif `(,bits <= ,y) label)
+				(gotoif `(,bits > ,x) label)
+				(vp-sub-rr y bits)
+				(vp-and-cr 0xff bits)
+				(vpif `(,bits >= ,left))
+					(vp-add-cr 1 bits)
+					(vp-and-cr 0xff bits)
+				(endif)
+				(vp-cpy-rr bits left)
+				(continue 'codes)
+			(elseif `(,left >= ,big))
+				;a width too wide is a sample of 0
+				(vp-xor-rr x x)
+				(vp-store-rrc-s x out 0)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 d)
+				(continue 'codes)
+			(elseif `(,bits >= ,wrap))
+				;the widest, past its values, a new width
+				(vp-cpy-rr bits left)
+				(vp-add-cr 1 left)
+				(vp-and-cr 0xff left)
+				(continue 'codes)
+			(endif)
+		(vp-label label)
+			;a change, of the width's bits signed, from the last
+			(vpif `(,left < ,sext))
+				(vp-cpy-cr 64 x)
+				(vp-sub-rr left x)
+				(vp-shl-rr x bits)
+				(vp-asr-rr x bits)
+			(endif)
+			(vp-add-rr bits temp)
+			(vp-shl-cr shift temp)
+			(vp-asr-cr shift temp)
+			(vp-add-rr temp temp2)
+			(vp-shl-cr shift temp2)
+			(vp-asr-cr shift temp2)
+			(vp-cpy-rr temp x)
+			(vpif `(,mode >= +itunpack_215))
+				(vp-cpy-rr mode y)
+				(vp-and-cr +itunpack_215 y)
+				(vpif `(,y /= 0))
+					(vp-cpy-rr temp2 x)
+				(endif)
+			(endif)
+			(vpif `(,mode >= +itunpack_unsigned))
+				(vp-xor-cr unsigned x)
+				(vp-shl-cr shift x)
+				(vp-asr-cr shift x)
+			(endif)
+			(unless wide (vp-shl-cr 8 x))
+			(vp-store-rrc-s x out 0)
+			(vp-add-cr 2 out)
+			(vp-sub-cr 1 d)
+		(loop-until `(,d = 0))
+	(loop-until `(,n = 0)))
+
+(def-func (path-to-absolute "./media_itunpack"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(media-itunpack out src from mode) -> out, as many samples as out holds,
+	;two bytes each, unpacked from the bytes of src at from, Impulse
+	;Tracker's packing of a sample: mode +itunpack_16 of 16 bit samples,
+	;else 8, +itunpack_215 its second form, each sample the change of the
+	;change, +itunpack_unsigned unsigned. What src does not hold is 0
+
+	(vp-rdef (out src end n mode d bbuf bnum left temp temp2 bits x y)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r1))
+
+	(entry '(:r0 :r1))
+
+	(gotoif-lisp-args-sig 'error :r1 4)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,out ,src ,n ,mode) '(:obj :obj :num :num))
+	(vp-push out)
+	(assign `((,src +str_length)) `(,end))
+	(vp-lea-rcr src +str_data src)
+	(vp-add-rr src end)
+	(vp-add-rr n src)
+	(assign `((,out +str_length)) `(,n))
+	(vp-shr-cr 1 n)
+	(vp-lea-rcr out +str_data out)
+	(vp-xor-rr d d)
+	(vpif `(,n /= 0))
+		(vp-cpy-rr mode x)
+		(vp-and-cr +itunpack_16 x)
+		(vpif `(,x /= 0))
+			(itunpack-width :t out src end n mode d bbuf bnum left temp temp2 bits x y 'eof)
+		(else)
+			(itunpack-width :nil out src end n mode d bbuf bnum left temp temp2 bits x y 'eof)
+		(endif)
+	(endif)
+	(goto 'done)
+
+(vp-label 'eof)
+	;what is not there, 0
+	(vp-add-rr d n)
+	(vpif `(,n /= 0))
+		(vp-xor-rr x x)
+		(loop-start)
+			(vp-store-rrc-s x out 0)
+			(vp-add-cr 2 out)
+			(vp-sub-cr 1 n)
+		(loop-until `(,n = 0))
+	(endif)
+
+(vp-label 'done)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-itunpack out src from mode)" +error_msg_wrong_types))
 	(signature '(:str :str :num :num))
 
 (def-func-end)
