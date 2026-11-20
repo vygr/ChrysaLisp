@@ -88,7 +88,7 @@
 				:rows (map! (# 64) '() 0 patterns)
 				:speed (if (> (code data 1 49) 0) (code data 1 49) 6)
 				:tempo (if (>= (code data 1 50) 32) (code data 1 50) 125)
-				:global 64 :mix mix :fast (or (bits? flags 64) (= version 0x1300))
+				:global 64 :mix mix :markers :t :fast (or (bits? flags 64) (= version 0x1300))
 				:pans (map! (lambda ()
 						(defq set (code data 1 (+ 64 (!))) x (logand set 31)
 							pan (if (and stereo (< x 16)) (if (< x 8) 0x30 0xc0) 128))

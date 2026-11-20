@@ -6,8 +6,9 @@
 
 (import "lib/media/mod.inc")
 (import "lib/media/s3m.inc")
+(import "lib/media/xm.inc")
 
 (defun module-read (data &optional bare)
 	; (module-read data [bare]) -> :nil | song
 	;bare, its samples' bytes not had, for what only shows it
-	(or (s3m-read data bare) (mod-read data bare)))
+	(or (s3m-read data bare) (xm-read data bare) (mod-read data bare)))

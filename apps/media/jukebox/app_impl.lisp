@@ -9,8 +9,8 @@
 (import "./library.inc")
 (import "./widgets.inc")
 
-;A player of the modules of the trackers, the Amiga's MODs and Scream
-;Tracker's S3Ms, and a jukebox of the user's favourites. A song is played
+;A player of the modules of the trackers, the Amiga's MODs, Scream
+;Tracker's S3Ms and FastTracker's XMs, and a jukebox of the user's favourites. A song is played
 ;by ./player.lisp, a task on another node, so what draws the screen is not
 ;slowed by it; it says what is heard, and this shows it: the row, the
 ;samples, and the bars of its spectrum. The modules come from a file, a
@@ -83,21 +83,27 @@
 		((cat (elem-get +names (% (dec note) 12)) (str (/ (dec note) 12))))))
 
 (defun cell-text (note ins vol effect param)
-	;a cell as its tracker shows it: an S3M's volume, and its effects by
-	;letter, a MOD's by number
-	(defq st3 (eql (. *song* :find :mode) :st3))
+	;a cell as its tracker shows it: an S3M's volume and its effects by
+	;letter, A 1; an XM's volume column, a volume or an effect of a sign
+	;and a digit, and its effects by number then letter, G 16; a MOD's
+	;effects by number
+	(defq mode (. *song* :find :mode))
 	(cat (note-name note) " " (if (> ins 0) (hex ins 2) "..")
-		(cond
-			((not st3) "")
-			((= vol +no_volume) " ..")
-			((cat " " (hex vol 2))))
+		(case mode
+			(:st3 (if (= vol +no_volume) " .." (cat " " (hex vol 2))))
+			(:ft2 (cond
+				((< vol 0x10) " ..")
+				((<= vol 0x50) (cat " " (hex (- vol 0x10) 2)))
+				((cat " " (elem-get "------+DUSVPLRM" (>> vol 4)) (hex vol 1)))))
+			(:t ""))
 		" " (cond
 			((and (= effect 0) (= param 0)) "...")
-			(st3 (cat (char (+ 64 effect)) (hex param 2)))
-			((cat (hex effect 1) (hex param 2))))))
+			((eql mode :st3) (cat (char (+ 64 effect)) (hex param 2)))
+			((< effect 16) (cat (hex effect 1) (hex param 2)))
+			((cat (char (+ 55 effect)) (hex param 2))))))
 
 (defun cell-width ()
-	(if (eql (. *song* :find :mode) :st3) 14 11))
+	(if (eql (. *song* :find :mode) :mod) 11 14))
 
 (defun rows-show (order row)
 	;the rows of the pattern about the one heard, it in the middle, as many
@@ -496,7 +502,7 @@
 				(if (and *current* (favourite? (second *current*))) (favourite-remove) (favourite-add)))
 			((= id +event_open)
 				(if *picker* (mail-send *picker* ""))
-				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m" :nil "mods" :t (list))))
+				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m .xm" :nil "mods" :t (list))))
 			((= id +event_mode)
 				;the jukebox plays the favourites
 				(setq *jukebox* (= (. *mode* :get_selected) 1))
