@@ -265,11 +265,22 @@
 	(def (. *list_slider* :dirty) :value *top* :maximum (max 0 (- (length *entries*) +list_rows)))
 	(list-mark))
 
+(defun list-visible ()
+	; (list-visible)
+	;the list moved as little as it takes for what is marked to be seen, as a
+	;scroll's :visible: the rows are relabelled, so there is no view to ask
+	(if (defq at (some (# (if (eql (second %0) *marked*) (!))) *entries*))
+		(list-at (cond
+			((< at *top*) at)
+			((>= at (+ *top* +list_rows)) (- at +list_rows -1))
+			(*top*)))
+		(list-mark)))
+
 (defun entry-play (entry)
 	;an entry played, (title url): a file, a favourite kept, or fetched
 	(bind '(title url) entry)
 	(setq *marked* url)
-	(list-mark)
+	(list-visible)
 	(cond
 		((defq data (module-load (if (local? url) url (kept-path url))))
 			(unless (song-start data title url) (status (cat title ": not a module it can read"))))
