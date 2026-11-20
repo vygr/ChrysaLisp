@@ -8,8 +8,9 @@
 ;the voices of a tracker's song, lib/media/tracker.inc, mixed. A voice is
 ;+mix_size longs of a nums: its sample, -1 none, where it is in it and its
 ;step a frame, 16.16, its weights left and right, its loop's start, -1
-;none, and its end, in samples
-(defcvar '+mix_size 7)
+;none, its end, in samples, and its flags: +mix_pingpong a loop that goes
+;back and forth, +mix_back going back now
+(defcvar '+mix_size 8 '+mix_pingpong 1 '+mix_back 2)
 
 (def-func (path-to-absolute "./media_mix"))
 	;inputs
@@ -24,16 +25,17 @@
 	;(media-mix out acc samples state) -> out, the voices of state mixed into
 	;out, a str of frames of two 16 bit samples, left first, low byte first,
 	;as many frames as it is long. acc is nums of two a frame or more, what
-	;is summed. samples is the list of the samples, a str each of 8 bit
-	;signed. Each sample of a voice is times its weights, the sum of them
-	;moved down 8 and held to 16 bits. A voice past its end with no loop is
-	;put to -1, where each is is kept in state
+	;is summed. samples is the list of the samples, a str each of 16 bit
+	;signed, low byte first. Each sample of a voice is times its weights,
+	;the sum of them moved down 16 and held to 16 bits. A voice past its end
+	;with no loop is put to -1, where each is and which way it goes is kept
+	;in state. Going back, its step is made less than 0 while it is mixed
 
 	(structure slot 0
 		(ptr this out acc samples state)
 		(long frames))
 
-	(vp-rdef (dptr pos step wl wr ls endq a n s x llen st stend)
+	(vp-rdef (dptr pos step wl wr lsq endq a n s x llen st stend)
 		'(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry '(:r0 :r1))
@@ -67,36 +69,69 @@
 			(loop-start)
 				(assign `((,st 0)) `(,s))
 				(vpif `(,s >= 0))
-					;its sample's bytes, and where it is, how it goes, and its loop
+					;its sample's bytes, and where it is, how it goes, which
+					;way, and its loop, lsq less than 0 none
 					(assign '((:rsp slot_samples)) `(,x))
 					(assign `((,x +array_begin)) `(,x))
 					(vp-shl-cr (log2 +long_size) s)
 					(vp-load-rrr x s dptr)
 					(vp-lea-rcr dptr +str_data dptr)
-					(load-fields st '(8 16 24 32 40 48) `(,pos ,step ,wl ,wr ,ls ,endq))
+					(load-fields st '(8 16 24 32 40 48 56) `(,pos ,step ,wl ,wr ,lsq ,endq ,x))
+					(vp-and-cr +mix_back x)
+					(vpif `(,x /= 0))
+						(vp-mul-cr -1 step)
+					(endif)
 					(vp-shl-cr 16 endq)
-					(vp-cpy-rr ls llen)
-					(vp-shl-cr 16 llen)
-					(vp-cpy-rr endq x)
-					(vp-sub-rr llen x)
-					(vp-cpy-rr x llen)
+					(vpif `(,lsq >= 0))
+						(vp-shl-cr 16 lsq)
+					(endif)
+					(vp-cpy-rr endq llen)
+					(vp-sub-rr lsq llen)
 					(assign '((:rsp slot_acc) (:rsp slot_frames)) `(,a ,n))
 					(assign `((,a +array_begin)) `(,a))
 					(loop-start 'frames)
 						(vpif `(,pos >= ,endq))
-							;past its end: round its loop, or it has ended
-							(vpif `(,ls < 0))
+							;past its end: round its loop, back along it, or
+							;it has ended
+							(vpif `(,lsq < 0))
 								(vp-cpy-cr -1 x)
 								(vp-store-rrc x st 0)
 								(break 'frames)
 							(endif)
-							(loop-start)
-								(vp-sub-rr llen pos)
-							(loop-until `(,pos < ,endq))
+							(assign `((,st 56)) `(,x))
+							(vp-and-cr +mix_pingpong x)
+							(vpif `(,x /= 0))
+								(vp-cpy-rr endq x)
+								(vp-add-rr endq x)
+								(vp-sub-cr 0x10000 x)
+								(vp-sub-rr pos x)
+								(vp-cpy-rr x pos)
+								(vpif `(,pos < ,lsq))
+									(vp-cpy-rr lsq pos)
+								(endif)
+								(vp-mul-cr -1 step)
+							(else)
+								(loop-start)
+									(vp-sub-rr llen pos)
+								(loop-until `(,pos < ,endq))
+							(endif)
+						(elseif `(,step < 0))
+							;going back, past its loop's start: forward again
+							(vpif `(,pos < ,lsq))
+								(vp-cpy-rr lsq x)
+								(vp-add-rr lsq x)
+								(vp-sub-rr pos x)
+								(vp-cpy-rr x pos)
+								(vpif `(,pos >= ,endq))
+									(vp-cpy-rr lsq pos)
+								(endif)
+								(vp-mul-cr -1 step)
+							(endif)
 						(endif)
 						(vp-cpy-rr pos x)
 						(vp-asr-cr 16 x)
-						(vp-load-rrr-b dptr x s)
+						(vp-shl-cr 1 x)
+						(vp-load-rrr-s dptr x s)
 						(vp-cpy-rr s x)
 						(vp-mul-rr wl x)
 						(vp-mul-rr wr s)
@@ -110,7 +145,14 @@
 						(vp-add-rr step pos)
 						(vp-sub-cr 1 n)
 					(loop-until `(,n = 0))
+					;where it is, and which way it goes
 					(vp-store-rrc pos st 8)
+					(assign `((,st 56)) `(,x))
+					(vp-and-cr +mix_pingpong x)
+					(vpif `(,step < 0))
+						(vp-or-cr +mix_back x)
+					(endif)
+					(vp-store-rrc x st 56)
 				(endif)
 				(vp-add-cr (* +mix_size +long_size) st)
 			(loop-until `(,st = ,stend))
@@ -125,7 +167,7 @@
 		(vp-cpy-cr -32768 wr)
 		(loop-start)
 			(vp-load-rcr a 0 x)
-			(vp-asr-cr 8 x)
+			(vp-asr-cr 16 x)
 			(vpif `(,x > ,wl))
 				(vp-cpy-rr wl x)
 			(elseif `(,x < ,wr))
@@ -147,6 +189,117 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-mix out acc samples state)" +error_msg_wrong_types))
 	(signature '(:str :nums :list :nums))
+
+(def-func-end)
+
+;the samples of a module made the mixer's: 16 bit signed, low byte first
+(defcvar '+widen_s8 0 '+widen_u8 1 '+widen_s16 2 '+widen_u16 3 '+widen_d8 4 '+widen_d16 5)
+
+(def-func (path-to-absolute "./media_widen"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(media-widen out src from kind) -> out, as many samples as out holds,
+	;two bytes each, from the bytes of src at from, of a kind: +widen_s8 8
+	;bit signed, +widen_u8 unsigned, +widen_s16 and +widen_u16 16 bit low
+	;byte first, +widen_d8 and +widen_d16 each the change from the last, as
+	;Fasttracker keeps them. src holds them all
+
+	(vp-rdef (out src kind n v acc)
+		'(:r2 :r3 :r4 :r5 :r6 :r7))
+
+	(entry '(:r0 :r1))
+
+	(gotoif-lisp-args-sig 'error :r1 4)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,out ,src ,n ,kind) '(:obj :obj :num :num))
+	(vp-push out)
+	(vp-lea-rcr src +str_data src)
+	(vp-add-rr n src)
+	(assign `((,out +str_length)) `(,n))
+	(vp-shr-cr 1 n)
+	(vp-lea-rcr out +str_data out)
+	(vp-xor-rr acc acc)
+	(vpif `(,n /= 0))
+		(vpif `(,kind = +widen_s8))
+			(loop-start)
+				(vp-load-rcr-b src 0 v)
+				(vp-shl-cr 8 v)
+				(vp-store-rrc-s v out 0)
+				(vp-add-cr 1 src)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(elseif `(,kind = +widen_u8))
+			(loop-start)
+				(vp-load-rcr-ub src 0 v)
+				(vp-sub-cr 128 v)
+				(vp-shl-cr 8 v)
+				(vp-store-rrc-s v out 0)
+				(vp-add-cr 1 src)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(elseif `(,kind = +widen_s16))
+			(loop-start)
+				(vp-load-rcr-s src 0 v)
+				(vp-store-rrc-s v out 0)
+				(vp-add-cr 2 src)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(elseif `(,kind = +widen_u16))
+			(loop-start)
+				(vp-load-rcr-us src 0 v)
+				(vp-sub-cr 32768 v)
+				(vp-store-rrc-s v out 0)
+				(vp-add-cr 2 src)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(elseif `(,kind = +widen_d8))
+			(loop-start)
+				(vp-load-rcr-b src 0 v)
+				(vp-add-rr v acc)
+				(vp-shl-cr 56 acc)
+				(vp-asr-cr 56 acc)
+				(vp-cpy-rr acc v)
+				(vp-shl-cr 8 v)
+				(vp-store-rrc-s v out 0)
+				(vp-add-cr 1 src)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(else)
+			(loop-start)
+				(vp-load-rcr-s src 0 v)
+				(vp-add-rr v acc)
+				(vp-shl-cr 48 acc)
+				(vp-asr-cr 48 acc)
+				(vp-store-rrc-s acc out 0)
+				(vp-add-cr 2 src)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(endif)
+	(endif)
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-widen out src from kind)" +error_msg_wrong_types))
+	(signature '(:str :str :num :num))
 
 (def-func-end)
 

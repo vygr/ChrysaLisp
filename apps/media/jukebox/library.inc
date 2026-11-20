@@ -8,7 +8,8 @@
 
 (defq +modland "https://modland.com/pub/modules/"
 	;the folders of the trackers whose modules play here
-	+modland_kinds ''("Protracker" "Noisetracker" "Soundtracker" "Startrekker AM" "Fasttracker"))
+	+modland_kinds ''("Protracker" "Noisetracker" "Soundtracker" "Startrekker AM" "Fasttracker"
+		"Screamtracker 3"))
 
 (defun kept-path (url)
 	; (kept-path url) -> path
