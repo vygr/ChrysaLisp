@@ -19,8 +19,11 @@
 			(. (ui-radio-bar *mode* ("Player" "Jukebox") (:font :font_body)) :connect +event_mode)
 			(. (ui-toggle-bar *shuffle* ("Shuffle") (:font :font_body)) :connect +event_shuffle)
 			(ui-backdrop _ (:paper :paper_toolbar)))
-		;where the song is, dragged to seek
-		(. (ui-slider *seek* (:value 0 :maximum 0 :portion 1 :min_height 14)) :connect +event_seek)
+		;where the song is, dragged to seek, or in front of it while a module
+		;or a folder comes, how much of it has
+		(ui-flow _ (:flow_flags +flow_stack_fill)
+			(. (ui-slider *seek* (:value 0 :maximum 0 :portion 1 :min_height 14)) :connect +event_seek)
+			(ui-progress *loading* (:value 0 :maximum 1000 :min_height 14)))
 		(ui-label *status* (:text "Nothing playing" :font :font_body))
 		;the song's samples, lit as they play, and its rows as a tracker shows
 		;them, the row heard in the middle

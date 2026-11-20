@@ -200,11 +200,21 @@
 ; what is played
 ;;;;;;;;;;;;;;;;
 
+(defun loading (part)
+	; (loading part)
+	;how much of what is fetched has come, out of 1000, the bar in front of
+	;the seek bar while it comes, :nil it has come
+	(cond
+		(part (def (. *loading* :dirty) :value part)
+			(. *loading* :to_front))
+		((. (. *seek* :dirty) :to_front))))
+
 (defun fetch-start (kind url &optional title)
 	;a module or a listing fetched by a task of its own, the window drawn
 	;meanwhile. A new mailbox each time, what was asked before is not heard
 	(elem-set *select* +select_fetch (defq reply (mail-mbox)))
 	(setq *fetching* (list kind url title))
+	(loading 0)
 	(status (cat "Fetching " (ifn title "the folder") " ..."))
 	(mail-send (open-child (cat *app_root* "fetch.lisp") +kn_call_pin) (cat reply url)))
 
@@ -254,7 +264,9 @@
 		(bars-show heard)
 		(unless (= (get :value *seek*) (defq second (/ (min heard *length*) +rate)))
 			(def (. *seek* :dirty) :value second))
-		(status (cat (. *song* :find :title) ", " (. *song* :find :kind) " of "
+		;a song with no title of its own by the name of its file
+		(defq title (trim (. *song* :find :title)))
+		(status (cat (if (eql title "") (first *current*) title) ", " (. *song* :find :kind) " of "
 			(str (. *song* :find :channels)) " channels, "
 			(if *shown* (cat "order " (str (inc (first *shown*))) " of " (str (length (. *song* :find :orders))) ", ") "")
 			(clock (min heard *length*)) " of " (clock *length*)
@@ -330,10 +342,24 @@
 	(.-> *list_scroll* :layout :dirty_all))
 
 (defun fetch-done (msg)
-	(bind '(kind url title) *fetching*)
-	(setq *fetching* :nil)
 	(cond
-		((starts-with "!" msg) (status (cat "Could not fetch it: " (slice msg 1 -1))))
+		;mail is unordered, how far it got may come after it has come
+		((not *fetching*))
+		((starts-with "%" msg)
+			;how far it has got, of how many, or of a megabyte if it is not
+			;said
+			(bind '(got total) (map (const str-as-num) (split (slice msg 1 -1) " ")))
+			(loading (min 1000 (/ (* got 1000) (if (> total 0) total (max got 1048576))))))
+		(:t (loading :nil)
+			(fetch-ended msg))))
+
+(defun fetch-ended (msg)
+	;= and its bytes, or ! and why not
+	(bind '(kind url title) *fetching*)
+	(defq ok (starts-with "=" msg))
+	(setq *fetching* :nil msg (slice msg 1 -1))
+	(cond
+		((not ok) (status (cat "Could not fetch it: " msg)))
 		((eql kind :listing)
 			(save msg (kept-path url))
 			(unless *song* (status "Nothing playing"))

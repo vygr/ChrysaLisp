@@ -70,12 +70,14 @@
 			(pinsert headers k_sym v_str)))
 	headers)
 
-(defun http-read-body (in &optional headers dest_stream)
-	; (http-read-body in [headers dest_stream]) -> stream
+(defun http-read-body (in &optional headers dest_stream progress)
+	; (http-read-body in [headers dest_stream progress]) -> stream
+	;progress, if given, is called after each block with the bytes had so
+	;far and how many there are to be, :nil if the reply does not say
 	(setd headers (pmap))
 	(defq out (ifn dest_stream (memory-stream))
 		te (or (pfind headers :transfer-encoding) "")
-		cl (pfind headers :content-length))
+		cl (pfind headers :content-length) got 0)
 	(cond
 		; 1. Chunked Transfer Encoding
 		((found? te "chunked")
@@ -99,21 +101,25 @@
 								(ifn blk
 									(setq rem 0 running :nil)
 									(write-blk out blk)
-									(setq rem (- rem (length blk)))))
+									(setq rem (- rem (length blk)) got (+ got (length blk)))
+									(if progress (progress got :nil))))
 							; Consume trailing CRLF after chunk payload
 							(read-line in))))))
 		; 2. Content-Length Framing
 		(cl
-			(defq rem (str-to-num cl))
+			(defq rem (str-to-num cl) total rem)
 			(while (> rem 0)
 				(defq blk (read-blk in (min rem +http_buf_size)))
 				(ifn blk
 					(setq rem 0)
 					(write-blk out blk)
-					(setq rem (- rem (length blk))))))
+					(setq rem (- rem (length blk)) got (+ got (length blk)))
+					(if progress (progress got total)))))
 		; 3. Connection: close (read until stream EOF)
 		(:t (while (defq blk (read-blk in +http_buf_size))
-				(write-blk out blk))))
+				(write-blk out blk)
+				(setq got (+ got (length blk)))
+				(if progress (progress got :nil)))))
 	(stream-flush out)
 	(if dest_stream
 		dest_stream
@@ -132,8 +138,8 @@
 			(apply (const cat) parts))
 		("")))
 
-(defun http-request (method url &optional headers body dest_stream)
-	; (http-request method url [headers body dest_stream]) -> pmap | :nil
+(defun http-request (method url &optional headers body dest_stream progress)
+	; (http-request method url [headers body dest_stream progress]) -> pmap | :nil
 	(setd headers (pmap))
 	(defq u (if (str? url) (url-parse url) url)
 		host (pfind u :host) port (pfind u :port)
@@ -189,7 +195,7 @@
 							;a reply to a HEAD, and one of 1xx, 204 or 304, has no body,
 							;whatever its Content-Length says, RFC 9110
 							resp_body (if (or (eql (to-upper method) "HEAD") (< status 200) (= status 204) (= status 304))
-								"" (http-read-body in resp_headers dest_stream)))
+								"" (http-read-body in resp_headers dest_stream progress)))
 						(setq res (pmap
 								:status status :reason reason :proto proto
 								:headers resp_headers :body resp_body))
@@ -202,9 +208,10 @@
 						(setq attempts 2))))))
 	res)
 
-(defun http-get (url &optional headers dest_stream)
-	; (http-get url [headers dest_stream]) -> pmap | :nil
-	(http-request "GET" url headers :nil dest_stream))
+(defun http-get (url &optional headers dest_stream progress)
+	; (http-get url [headers dest_stream progress]) -> pmap | :nil
+	;progress, if given, is called as the body comes, (http-read-body)
+	(http-request "GET" url headers :nil dest_stream progress))
 
 (defun http-post (url body &optional headers dest_stream)
 	; (http-post url body [headers dest_stream]) -> pmap | :nil
