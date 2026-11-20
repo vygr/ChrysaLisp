@@ -6740,6 +6740,16 @@ that of all the faces that share it, taken together, so a face shades
 from corner to corner and a ball of faces is round
 ```
 
+### mesh-hand-back
+
+```code
+(mesh-hand-back) -> :t
+
+said by a desktop as it goes: the session that gave it the port is to
+take it back. Nothing is waiting if none gave it, and nothing is said
+to the others, the port is not this one's to give if it has it not
+```
+
 ### mesh-of
 
 ```code

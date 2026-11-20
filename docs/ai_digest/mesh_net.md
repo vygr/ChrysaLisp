@@ -138,7 +138,10 @@ for the port again in a second and a half. A holder that is not a desktop,
 a member left up for `rack`, steps aside as it would for a new key: its
 listener, beacon and links let go of, its store stopped. It asks for the
 port every ten seconds as any other, and has it again once the desktop has
-gone. A holder that is a desktop does not step aside: of two desktops, the
+gone. While it waits it listens on UDP port 3335 of 127.0.0.1, and a
+desktop says `TAKE` there as it quits, `(mesh-hand-back)` of
+`service/net/app.inc`: the one that gave way asks for the port at once, and
+every second and a half till it has it, not in up to ten seconds. A holder that is a desktop does not step aside: of two desktops, the
 first keeps the port. Sessions of one machine are not linked to each
 other, the mesh knows a machine once, so the one that gives way is off the
 mesh while the desktop is up.

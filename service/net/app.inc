@@ -239,3 +239,21 @@
 			(reduce (lambda (out line)
 					(if (= (length (defq parts (split line " "))) 6) (push out parts))
 					out) (split (slice reply +net_rpc_reply_size -1) "\n") (list)))))
+
+;a session of this machine that gave the mesh port to a desktop, the
+;member as a rule, listens on this, and a desktop that has the port says on
+;it, as it goes, that the port is free: the machine is on the mesh again as
+;soon as it can be, not when the other would have asked again. A run asked
+;for by the member on another machine is let go when the member is not
+;seen for 30 s, lib/rack/rack.inc
+(defq +mesh_take_port 3335)
+
+(defun mesh-hand-back ()
+	; (mesh-hand-back) -> :t
+	;said by a desktop as it goes: the session that gave it the port is to
+	;take it back. Nothing is waiting if none gave it, and nothing is said
+	;to the others, the port is not this one's to give if it has it not
+	(when (> (defq ask ((ffi "service/net/lisp_udp_bind") 0)) 0)
+		((ffi "service/net/lisp_udp_send") ask "127.0.0.1" +mesh_take_port "TAKE")
+		((ffi "service/net/lisp_close") ask))
+	:t)
