@@ -5,9 +5,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "service/lock/app.inc")
-(import "service/net/app.inc")
-(import "lib/net/http.inc")
-(import "lib/net/json.inc")
 
 (enums +event +event_user
 	(enum refresh select_coin)
@@ -18,7 +15,7 @@
 
 (defq *config* :nil +config_version 1
 	+config_file (cat (get :home *env*) "crypto.tre")
-	*selected_symbol* "BTC" *coins_data* (list)
+	*selected_symbol* "BTC" *coins_data* (list) *site* :nil
 	*canvas_width* 360 *canvas_height* 110
 	*btn_coin_0* :nil *btn_coin_1* :nil *btn_coin_2* :nil
 	*btn_coin_3* :nil *btn_coin_4* :nil *btn_coin_5* :nil)
@@ -38,21 +35,20 @@
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
-(defun format-price (price_str)
-	(ifn (str? price_str) "$0.00"
-		(ifn (defq dot (find "." price_str)) (cat "$" price_str ".00")
-			(defq int_part (slice price_str 0 dot)
-				frac_part (slice price_str (+ dot 1) -1))
-			(if (eql int_part "0")
-				(cat "$0." (slice (cat frac_part "0000") 0 4))
-				(cat "$" int_part "." (slice (cat frac_part "00") 0 2))))))
+(defun format-places (val places)
+	; (format-places val places) -> str
+	;a fixed to 2 or 4 places, rounded: a fixed is a little under what it
+	;was written as, 0.15 is 0.14999, and cut it would say 0.14
+	(defq s (str (+ (abs val) (if (= places 2) 0.005 0.00005))))
+	(cat (if (< val 0.0) "-" "") (slice s 0 (+ (find "." s) 1 places))))
 
-(defun format-change (chg_str)
-	(ifn (str? chg_str) "+0.00%"
-		(if (starts-with "-" chg_str) (cat chg_str "%")
-			(cat "+" chg_str "%"))))
+(defun format-price (price)
+	(cat "$" (format-places price (if (< price 1.0) 4 2))))
 
-(defun render-sparkline (canvas sparkline_pts change_str)
+(defun format-change (change)
+	(cat (if (< change 0.0) "" "+") (format-places change 2) "%"))
+
+(defun render-sparkline (canvas sparkline_pts change)
 	(.-> canvas (:fill +argb_black) (:set_canvas_flags +canvas_flag_antialias))
 	(defq w (n2q *canvas_width*) h (n2q *canvas_height*)
 		margin_x 18.0 margin_y 14.0
@@ -63,8 +59,7 @@
 				base_stroke (path-stroke-polyline base_p 1.5 +join_miter +cap_round +cap_round))
 			(.-> canvas (:set_color 0x33ffffff) (:fpoly 0.0 0.0 +winding_none_zero (list base_stroke)))
 			(. canvas :swap +swap_write))
-		(defq flt_pts (list))
-		(each (# (and %0 (str? %0) (push flt_pts (str-to-num %0)))) sparkline_pts)
+		(defq flt_pts sparkline_pts)
 		(if (< (length flt_pts) 2) (. canvas :swap +swap_write)
 			(defq min_val (first flt_pts) max_val (first flt_pts))
 			(each (# (setq min_val (min min_val %0)
@@ -84,7 +79,7 @@
 					(push raw_path px py)) (list flt_pts) 0 n_pts)
 			; Smooth curve through points
 			(defq smooth_line (path-smooth raw_path)
-				is_positive (not (starts-with "-" change_str))
+				is_positive (>= change 0.0)
 				line_col (if is_positive 0xff00e676 0xffff3344)
 				bg_col (if is_positive 0x3000e676 0x30ff3344)
 				stroke (path-stroke-polyline smooth_line 2.2 +join_round +cap_round +cap_round))
@@ -151,7 +146,7 @@
 		(. (ui-button *btn_coin_4* (:text "XRP $0.00")) :connect +event_coin_4)
 		(. (ui-button *btn_coin_5* (:text "DOGE $0.00")) :connect +event_coin_5))
 	; Footer Attribution
-	(ui-label *footer_label* (:text "Live data from Coinranking (24h trend)" :font :font_small
+	(ui-label *footer_label* (:text "Live data (24h trend)" :font :font_small
 			:flow_flags +flow_flag_align_hcenter)))
 
 (defun update-ui ()
@@ -164,19 +159,18 @@
 		(. *hero_symbol* :set_text (cat "#" (str rank) "  " coin_sym))
 		(. *hero_name* :set_text (if (eql coin_sym name) "" name))
 		(defq chg_str (format-change change)
-			is_pos (not (starts-with "-" change)))
+			is_pos (>= change 0.0))
 		(def (. *hero_change* :dirty) :paper (if is_pos 0xff00e676 0xffff3344)
 			:ink (if is_pos +argb_black +argb_white))
 		(. *hero_change* :set_text chg_str)
 		(. *hero_price* :set_text (format-price price))
-		(defq flts (list))
-		(each (# (and %0 (str? %0) (push flts (str-to-num %0)))) spark)
-		(if (< (length flts) 2) (. *range_label* :set_text "")
-			(defq mn (first flts) mx (first flts))
+		(if (< (length spark) 2) (. *range_label* :set_text "")
+			(defq mn (first spark) mx (first spark))
 			(each (# (setq mn (min mn %0)
 						mx (max mx %0)))
-				flts)
-			(. *range_label* :set_text (cat "24h: " (format-price (str mn)) " - " (format-price (str mx)))))
+				spark)
+			(. *range_label* :set_text (cat "24h: " (format-price mn) " - " (format-price mx))))
+		(. *footer_label* :set_text (cat "Live data from " *site* " (24h trend)"))
 		;the two rows of the card laid out again for what they now say, the
 		;window as it is
 		(each (# (.-> %0 (:constrain :t) :dirty_all)) (list *hero_head* *hero_body*))
@@ -193,30 +187,11 @@
 
 (defun trigger-fetch (worker_mbox trash_mbox)
 	(. *status_label* :set_text "Updating prices...")
+	;the sites are asked by a task of their own, apps/desktop/crypto/fetch.inc,
+	;which says which answered and what it gave, or :nil
 	(defq task_code (str `(progn
-				(import "service/net/app.inc")
-				(import "lib/net/http.inc")
-				(import "lib/net/json.inc")
-				(ensure-net-service)
-				(defq result :nil)
-				(catch
-					(progn
-						(defq api_url "http://api.coinranking.com/v2/coins?limit=6")
-						(when (defq resp (http-get api_url))
-							(defq body (http-body-str resp))
-							(when (and body (starts-with "{" (trim body)))
-								(when (defq json (json-parse body))
-									(defq coin_list (map (#
-												(list (or (pfind %0 :symbol) "")
-													(or (pfind %0 :name) "")
-													(or (pfind %0 :price) "0")
-													(or (pfind %0 :change) "0")
-													(or (pfind %0 :rank) 0)
-													(or (pfind %0 :sparkline) (list))))
-											(pfind (pfind json :data) :coins)))
-									(setq result coin_list)))))
-					(progn (setq result :nil) :t))
-				(mail-send (hex-decode ,(hex-encode worker_mbox)) (str result)))))
+				(import "apps/desktop/crypto/fetch.inc")
+				(mail-send (hex-decode ,(hex-encode worker_mbox)) (str (crypto-fetch))))))
 	(open-task task_code (task-nodeid) +kn_call_run 0 trash_mbox))
 
 (defun main ()
@@ -226,7 +201,7 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *ctrl_bar* '("refresh market data" ""))
 	(. *window* :open)
-	(render-sparkline *chart_canvas* :nil "0")
+	(render-sparkline *chart_canvas* :nil 0.0)
 	(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash))
 	(mail-timeout (elem-get select +select_timer) refresh_interval 0)
 	(while *running*
@@ -236,9 +211,9 @@
 				(if (and *msg*
 						(defq parsed_data (first (read (string-stream *msg*)))))
 					(progn
-						(setq *coins_data* parsed_data)
+						(setq *site* (first parsed_data) *coins_data* (second parsed_data))
 						(update-ui))
-					(. *status_label* :set_text "Failed to update prices")))
+					(. *status_label* :set_text "No site gave prices")))
 			(+select_timer
 				(mail-timeout (elem-get select +select_timer) refresh_interval 0)
 				(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash)))
