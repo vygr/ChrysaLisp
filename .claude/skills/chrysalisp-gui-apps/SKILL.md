@@ -419,6 +419,11 @@ Key points:
 		that draws now and then, Eyes, gives no frame while one is out,
 		and waits a few times as long as the last took: it never has
 		more than a share of a slow GPU.
+	*	Till the GPU has its shader ready the frames are the CPU's, by
+		the render itself: its first frame out past `:gpu_warm`, a
+		second, the GPU is set aside and goes on building, 20 s on the
+		Pi the first time, and its first answer has it take over. An app
+		does nothing for it; its line of status says how each was drawn.
 	*	A line of status that says how the frames are drawn, by how many
 		nodes, and how long one took, as Planets and Model have: it is
 		how the user, and a hidden desktop's `widgets`, see which way it

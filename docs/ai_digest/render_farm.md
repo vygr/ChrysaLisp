@@ -122,7 +122,17 @@ A timer in the app's loop calls `(. jobs :refresh timeout)`. Any child that
 has died, or has had its job longer than the timeout, is started again, and
 its job goes back on the queue. The timeout is patience, not a rate: a tile
 is quick and 5 seconds is plenty, the GPU's first frame waits for its kernel
-to be built and is given 30.
+to be built and is given 30. A child given its job again is given twice as
+long, so a patience too short is a try or two, never a loop.
+
+The GPU's first frame is waited for a second, `:gpu_warm`. If it is still
+out then the GPU's shader is not ready, a driver may take 20 seconds to
+build one the first time, on the Pi. The GPU's farm is set aside on
+mailboxes of its own and goes on with that, and the frames are the CPU's,
+the farm or here, as in CPU mode. When the GPU answers the frame it was
+given it is the farm again, and the CPU's is let go of; one that says it
+has no GPU leaves the frames the CPU's. `Render-shade` and `Render-tris` do
+it, `Render-work`'s answers are the app's and it does not.
 
 A child goes of its own accord when it has had nothing to do for a while, 5
 seconds in the library's children, `(job-child timeout fn)`. It says so as it

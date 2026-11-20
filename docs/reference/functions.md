@@ -4524,7 +4524,9 @@ that says it is known, or a reader takes the stamp as its own time
 ### farm-end
 
 ```code
-the farm let go of, its work has stopped
+the farm let go of, its work has stopped, and the GPU's if it was set
+
+aside while it got ready
 ```
 
 ### fat32-chain
@@ -5397,6 +5399,15 @@ host, a (gpu-draw) with it gives 0 till it is
 
 ```code
 (gpu-pair-free pair) -> :nil
+```
+
+### gpu-park
+
+```code
+the GPU's first frame is still out after a while: its child is getting
+
+its shader ready. It is set aside, on mailboxes of its own, and goes on
+with that; the frames are the CPU's meanwhile, from the next
 ```
 
 ### gpu-picture
@@ -8826,6 +8837,18 @@ point, wherever that is: under the hand that asked for it
 (palettes board) -> palettes
 
 those that are open on a board
+```
+
+### parked-mail
+
+```code
+(parked-mail idx msg drawn none) -> :nil | :t
+
+mail of the GPU's farm that was set aside, drawn the offset of the uint
+of its answer that says how, and none the word that it has no GPU. When its
+frame is answered the GPU is ready: the CPU's farm is let go of, the
+GPU's is the farm again, and the next frame is its. :t then, the app
+may give it. A GPU that has none after all leaves the frames the CPU's
 ```
 
 ### parse-text

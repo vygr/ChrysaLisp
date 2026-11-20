@@ -34,14 +34,18 @@
 (env-push)
 
 (enums +rt_mbox 0
-	(enum task reply ask))
+	(enum task reply ask parked_task parked_reply))
 
 ;the patience of a farm: a strip may wait seconds for its node on a busy
 ;machine, the GPU's first frame waits for its pair to be built. And how
 ;long with no frame given before a farm is let go of, its work has
 ;stopped: less than the time a child waits for work before it goes
 (defq +cpu_timeout 60000000 +gpu_timeout 30000000 +tick_rate 30
-	+stale 3000000)
+	+stale 3000000
+	;how long the GPU's first frame is waited for before the frames are the
+	;CPU's while it gets ready: a driver can take seconds to build a shader
+	;the first time, 20 on the Pi, and the M4 takes a few ms
+	+gpu_warm 1000000)
 
 (defun mesh-of (id)
 	; (mesh-of id) -> :nil | (verts tris packed)
@@ -57,10 +61,48 @@
 	m)
 
 (defun farm-end ()
-	;the farm let go of, its work has stopped
+	;the farm let go of, its work has stopped, and the GPU's if it was set
+	;aside while it got ready
 	(defq mboxes (get :mboxes this))
 	(def this :jobs (jobs-end (get :jobs this) mboxes +rt_mbox_task +rt_mbox_reply)
+		:parked (jobs-end (get :parked this) mboxes +rt_mbox_parked_task +rt_mbox_parked_reply)
 		:kind :nil :ready :nil :out :nil))
+
+(defun gpu-park ()
+	;the GPU's first frame is still out after a while: its child is getting
+	;its shader ready. It is set aside, on mailboxes of its own, and goes on
+	;with that; the frames are the CPU's meanwhile, from the next
+	(defq mboxes (get :mboxes this))
+	(elem-set mboxes +rt_mbox_parked_task (elem-get mboxes +rt_mbox_task))
+	(elem-set mboxes +rt_mbox_parked_reply (elem-get mboxes +rt_mbox_reply))
+	(elem-set mboxes +rt_mbox_task (mail-mbox))
+	(elem-set mboxes +rt_mbox_reply (mail-mbox))
+	(def this :parked (get :jobs this) :jobs :nil :kind :nil :ready :nil :out :nil))
+
+(defun parked-mail (idx msg drawn none)
+	; (parked-mail idx msg drawn none) -> :nil | :t
+	;mail of the GPU's farm that was set aside, drawn the offset of the uint
+	;of its answer that says how, and none the word that it has no GPU. When its
+	;frame is answered the GPU is ready: the CPU's farm is let go of, the
+	;GPU's is the farm again, and the next frame is its. :t then, the app
+	;may give it. A GPU that has none after all leaves the frames the CPU's
+	(defq parked (get :parked this) mboxes (get :mboxes this))
+	(cond
+		((not parked) :nil)
+		((= idx +rt_mbox_parked_task) (. parked :launched msg) :nil)
+		((not (. parked :answered msg)) :nil)
+		((= (get-uint msg drawn) none)
+			(jobs-end parked mboxes +rt_mbox_parked_task +rt_mbox_parked_reply)
+			(def this :parked :nil :no_gpu :t :mode :cpu)
+			:nil)
+		(:t ;the CPU's farm let go of, not this one, (farm-end) would end both
+			(jobs-end (get :jobs this) mboxes +rt_mbox_task +rt_mbox_reply)
+			(elem-set mboxes +rt_mbox_task (elem-get mboxes +rt_mbox_parked_task))
+			(elem-set mboxes +rt_mbox_reply (elem-get mboxes +rt_mbox_parked_reply))
+			(elem-set mboxes +rt_mbox_parked_task (mail-mbox))
+			(elem-set mboxes +rt_mbox_parked_reply (mail-mbox))
+			(def this :jobs parked :kind :gpu :ready :t :out :nil :parked :nil :gpu_ready :t)
+			:t)))
 
 (defun frame-forget ()
 	;a frame that is out is not waited for, and the farm is kept: what its
@@ -98,6 +140,7 @@
 		((. canvas :swap +swap_write)))
 	(def this :out :nil :took (- (pii-time) (get :began this))
 		:how (cond ((= how +strip_texture) :gpu) ((eql (get :kind this) :gpu) :gpu_copy) (:t :farm)))
+	(if (eql (get :kind this) :gpu) (def this :gpu_ready :t))
 	:t)
 
 (defun strips (draws rows)
@@ -119,7 +162,7 @@
 	;if this node has one
 	(defq has_gpu (> (gpu-format) 0))
 	(def this :canvas canvas
-		:mboxes (list (mail-mbox) (mail-mbox) (mail-mbox))
+		:mboxes (list (mail-mbox) (mail-mbox) (mail-mbox) (mail-mbox) (mail-mbox))
 		:mode (if has_gpu :gpu :cpu) :no_gpu (not has_gpu) :no_farm :nil
 		;the farm there is, of which kind, :gpu or :cpu, its children have
 		;said they are ready, a frame is out with it
@@ -131,6 +174,10 @@
 		;how long the GPU's child is waited for, and how long with no frame
 		;given before a farm is let go of, :nil never, the app does it
 		:gpu_patience +gpu_timeout :idle +stale
+		;a kind whose GPU is set aside while it gets ready, (gpu-park), how
+		;long its first frame is waited for first, the GPU's farm so set
+		;aside, and has the GPU drawn a frame yet
+		:parks :nil :gpu_warm +gpu_warm :parked :nil :gpu_ready :nil
 		:began 0 :took 0 :last 0 :how :here :ticks 0)
 
 	(defmethod :read (select before)
@@ -192,6 +239,13 @@
 		;frame makes a new one
 		(defq ticks (% (inc (get :ticks this)) +tick_rate) jobs (get :jobs this))
 		(def this :ticks ticks)
+		;the GPU's first frame out too long, its shader is not ready yet: the
+		;CPU has the frames till it is
+		(and jobs (get :parks this) (eql (get :kind this) :gpu) (get :out this) (not (get :gpu_ready this))
+			(> (- (pii-time) (get :began this)) (get :gpu_warm this))
+			(gpu-park))
+		(if (defq parked (get :parked this)) (. parked :refresh (get :gpu_patience this)))
+		(setq jobs (get :jobs this))
 		(and jobs (= ticks 0)
 			(. jobs :refresh (if (eql (get :kind this) :gpu) (get :gpu_patience this) (get :patience this))))
 		;a frame the nodes are still drawing is shown as far as it has got
@@ -245,7 +299,9 @@
 		;how many numbers a vertex is, of the attrs of the vertex shader
 		:stride (reduce (# (+ %0 (shader-size (second %1)))) (shader-attrs vertex) 0)
 		;the frame that is out, and the meshes, by their numbers
-		:draws :nil :meshes (Fmap 31) :mesh_fn :nil :here_fn :nil)
+		:draws :nil :meshes (Fmap 31) :mesh_fn :nil :here_fn :nil
+		;the CPU has the frames while the GPU gets its pair ready
+		:parks :t)
 
 	(defmethod :mesh (id verts)
 		; (. render :mesh id verts) -> render
@@ -300,7 +356,7 @@
 		;(:busy) says when it no longer is; no more is given till then
 		(defq canvas (get :canvas this) pixmap (getf canvas +canvas_pixmap 0)
 			vertex (get :vertex this) pixel (get :pixel this) key (canvas-key canvas)
-			gpu (and (eql (get :mode this) :gpu) (not (get :no_gpu this)))
+			gpu (and (eql (get :mode this) :gpu) (not (get :no_gpu this)) (not (get :parked this)))
 			;can the nodes draw it: the pixels and every picture shared,
 			;and a node besides this one
 			farm (and (not gpu) (not (get :no_farm this)) (/= key 0) (> (length (lisp-nodes :t)) 1)
@@ -354,6 +410,7 @@
 		;is now whole and shown, the app may give the next
 		(defq jobs (get :jobs this))
 		(cond
+			((>= idx +rt_mbox_parked_task) (parked-mail idx msg +strip_reply_drawn +strip_none))
 			((= idx +rt_mbox_task)
 				(if jobs (. jobs :launched msg))
 				:nil)
@@ -409,7 +466,9 @@
 	;a frame is drawn here, in the app's own task, by native code, (:here):
 	;for a small picture drawn now and then, not worth a child a node
 	(def this :file file :program (shader-load file) :lines (ifn lines 8) :vals :nil
-		:direct :t :farm :t :native :nil :patience 5000000 :part "tile")
+		:direct :t :farm :t :native :nil :patience 5000000 :part "tile"
+		;the CPU has the frames while the GPU gets its shader ready
+		:parks :t)
 
 	(defmethod :here (vals)
 		; (. render :here vals) -> :t
@@ -434,7 +493,7 @@
 			w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0)
 			key (canvas-key canvas) file (get :file this) mboxes (get :mboxes this)
 			inputs (shader-pack (get :program this) vals) lines (get :lines this)
-			gpu (and (eql (get :mode this) :gpu) (not (get :no_gpu this))))
+			gpu (and (eql (get :mode this) :gpu) (not (get :no_gpu this)) (not (get :parked this))))
 		(def this :vals vals :began (pii-time) :last (pii-time))
 		;a farm of the other kind is let go of
 		(and (get :jobs this) (nql (get :kind this) (cond (gpu :gpu) ((get :farm this) :cpu))) (farm-end))
@@ -466,6 +525,7 @@
 		;out is now whole and shown, the app may give the next
 		(defq jobs (get :jobs this))
 		(cond
+			((>= idx +rt_mbox_parked_task) (parked-mail idx msg +shade_reply_drawn +shade_none))
 			((= idx +rt_mbox_task)
 				(if jobs (. jobs :launched msg))
 				:nil)
