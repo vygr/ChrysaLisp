@@ -76,6 +76,18 @@ trashes
 :r0-:r5, :r14, :d0-:d15
 ```
 
+### :eq -> class/float/eq
+
+```code
+inputs
+:r0 = float object (ptr)
+:r1 = list of float objects (ptr)
+outputs
+:r1 = 0, -1 (int)
+trashes
+:r1-:r3, :d0-:d1
+```
+
 ### :exp -> class/float/exp
 
 ```code
@@ -214,6 +226,18 @@ outputs
 :r0 = result float object (ptr)
 trashes
 :r0-:r2, :r4, :r14, :d0-:d15
+```
+
+### :ne -> class/float/ne
+
+```code
+inputs
+:r0 = float object (ptr)
+:r1 = list of float objects (ptr)
+outputs
+:r1 = 0, -1 (int)
+trashes
+:r1-:r5, :d0-:d1
 ```
 
 ### :neg -> class/float/neg

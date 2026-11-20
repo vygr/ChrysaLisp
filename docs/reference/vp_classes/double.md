@@ -86,6 +86,18 @@ trashes
 :r0-:r5, :r14, :d0-:d15
 ```
 
+### :eq -> class/double/eq
+
+```code
+inputs
+:r0 = double object (ptr)
+:r1 = list of double objects (ptr)
+outputs
+:r1 = 0, -1 (int)
+trashes
+:r1-:r3, :d0-:d1
+```
+
 ### :exp -> class/double/exp
 
 ```code
@@ -224,6 +236,18 @@ outputs
 :r0 = result double object (ptr)
 trashes
 :r0-:r2, :r4, :r14, :d0-:d15
+```
+
+### :ne -> class/double/ne
+
+```code
+inputs
+:r0 = double object (ptr)
+:r1 = list of double objects (ptr)
+outputs
+:r1 = 0, -1 (int)
+trashes
+:r1-:r5, :d0-:d1
 ```
 
 ### :neg -> class/double/neg

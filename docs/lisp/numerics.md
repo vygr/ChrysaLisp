@@ -152,8 +152,10 @@ These operate on any number type and return `:t | :nil`.
 
 `(/=) (<) (<=) (=) (>) (>=)`
 
-`(=)` and `(/=)` are bit for bit: of doubles and floats -0.0 and 0.0 are
-not `=`, and a NaN is `=` itself.
+Of doubles and floats they are the CPU's own compares, as IEEE has them:
+-0.0 is `=` 0.0, and a NaN is not `=`, `<`, `<=`, `>` nor `>=` anything,
+itself too, it is only `/=`. `(eql)` is of the bits, so tells -0.0 from
+0.0, and finds a NaN the same as itself, as a key of a map must.
 
 ### `root.inc` extras
 

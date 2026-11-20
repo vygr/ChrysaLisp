@@ -42,6 +42,15 @@
 (assert-true "float >=" (>= tf_c tf_a tf_a))
 (assert-true "float = negative" (= tf_m (n2f -2.5)))
 (assert-true "float /=" (/= tf_a tf_b))
+;as IEEE has them, as a double's: -0.0 is = 0.0, not eql, and a NaN is
+;only /= anything
+(defq tf_z (n2f 0) tf_mz (neg tf_z) tf_nan (n2f (- (exp (n2d 1000)) (exp (n2d 1000)))))
+(assert-true "float -0.0 = 0.0" (and (= tf_mz tf_z) (not (/= tf_mz tf_z)) (not (eql tf_mz tf_z))))
+(assert-true "float NaN not = itself" (and (not (= tf_nan tf_nan)) (/= tf_nan tf_nan) (eql tf_nan tf_nan)))
+(assert-true "float NaN no order with 0"
+	(not (or (< tf_nan tf_z) (<= tf_nan tf_z) (> tf_nan tf_z) (>= tf_nan tf_z)
+		(< tf_z tf_nan) (<= tf_z tf_nan) (> tf_z tf_nan) (>= tf_z tf_nan))))
+(assert-true "float /= no two equal" (and (/= tf_a tf_b tf_c) (not (/= tf_z tf_a tf_mz))))
 
 ;rounded to 32 bits: a third is not a double's third, but the float nearest it
 (assert-true "a float third" (/= (n2d (/ (n2f 1) (n2f 3))) (/ (n2d 1) (n2d 3))))

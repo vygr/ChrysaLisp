@@ -485,10 +485,11 @@ what each kind can do, a vector class beside each:
 	are errors. Code that can hold an empty vector, a pool layer's
 	biases, passes it by, as `nn-clear` does.
 
-*	**`=` is bit for bit.** Of doubles and floats it compares the bits:
-	`(= -0.0 0.0)` is `:nil`, and a NaN is `=` itself. A number scaled by
-	0 keeps its sign, a negative one is -0.0. Compare a size, `(abs x)`,
-	where a sign of 0 is not the question.
+*	**`=` is IEEE, `eql` is the bits.** Of doubles and floats `=` and the
+	order compares are the CPU's: `(= -0.0 0.0)` is `:t`, and a NaN is
+	not `=`, `<` nor `>` anything, itself too, only `/=`. `(eql -0.0 0.0)`
+	is `:nil` and a NaN is `eql` itself, as a map's key must be. A number
+	scaled by 0 keeps its sign, a negative one is -0.0.
 
 *	**Conversions:** `(n2i x)` is the fastest and has no rounding mode: a
 	`fixed` goes down, `(n2i -5.9)` is -6, a `double` toward zero, `(n2i

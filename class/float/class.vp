@@ -212,7 +212,8 @@
 
 (def-func-end)
 
-(redefun compareop (%0 p)
+;the compares are the CPU's own at 32 bits, as a double's are
+(redefun compareop (%0 c)
 	(entry :float %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-load-rcr :r1 0 :r3)
@@ -222,13 +223,63 @@
 		(vp-load-rcr :r1 0 :r3)
 		(vp-add-cr +ptr_size :r1)
 		(assign `((:r3 ,+num_value i)) '(:f1))
-		(exec p)
+		(gotoif `(:f0 ,c :f1) 'next)
+		(vp-jmp 'fail)
+	(vp-label 'next)
+		(vp-cpy-ff :f1 :f0)
 	(loop-until '(:r1 = :r2))
 	(exit :float %0 '(-1))
 	(vp-ret)
 (vp-label 'fail)
 	(exit :float %0 '(0))
 	(vp-ret))
+
+(def-method :float :eq)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r1 = 0, -1 (int)
+	;trashes
+	;:r1-:r3, :d0-:d1
+
+	(compareop :eq '=)
+
+(def-func-end)
+
+(def-method :float :ne)
+	;inputs
+	;:r0 = float object (ptr)
+	;:r1 = list of float objects (ptr)
+	;outputs
+	;:r1 = 0, -1 (int)
+	;trashes
+	;:r1-:r5, :d0-:d1
+
+	(entry :float :ne '(:r0 :r1))
+
+	;no two of them equal
+	(class/array/get_both :r1 :r1 :r2)
+	(vp-lea-rcr :r2 (neg +ptr_size) :r5)
+	(loop-start)
+		(vp-load-rcr :r1 0 :r3)
+		(vp-add-cr +ptr_size :r1)
+		(assign `((:r3 ,+num_value i) :r1) '(:f0 :r4))
+		(loop-start)
+			(vp-load-rcr :r4 0 :r3)
+			(vp-add-cr +ptr_size :r4)
+			(assign `((:r3 ,+num_value i)) '(:f1))
+			(gotoif '(:f1 = :f0) 'fail)
+		(loop-until '(:r4 = :r2))
+	(loop-until '(:r1 = :r5))
+
+	(exit :float :ne '(-1))
+	(vp-ret)
+(vp-label 'fail)
+	(exit :float :ne '(0))
+	(vp-ret)
+
+(def-func-end)
 
 (def-method :float :ge)
 	;inputs
@@ -239,10 +290,7 @@
 	;trashes
 	;:r1-:r3, :d0-:d1
 
-	(compareop :ge
-		'(progn
-			(gotoif '(:f0 < :f1) 'fail)
-			(vp-cpy-ff :f1 :f0)))
+	(compareop :ge '>=)
 
 (def-func-end)
 
@@ -255,10 +303,7 @@
 	;trashes
 	;:r1-:r3, :d0-:d1
 
-	(compareop :gt
-		'(progn
-			(gotoif '(:f0 <= :f1) 'fail)
-			(vp-cpy-ff :f1 :f0)))
+	(compareop :gt '>)
 
 (def-func-end)
 
@@ -271,10 +316,7 @@
 	;trashes
 	;:r1-:r3, :d0-:d1
 
-	(compareop :le
-		'(progn
-			(gotoif '(:f0 > :f1) 'fail)
-			(vp-cpy-ff :f1 :f0)))
+	(compareop :le '<=)
 
 (def-func-end)
 
@@ -287,10 +329,7 @@
 	;trashes
 	;:r1-:r3, :d0-:d1
 
-	(compareop :lt
-		'(progn
-			(gotoif '(:f0 >= :f1) 'fail)
-			(vp-cpy-ff :f1 :f0)))
+	(compareop :lt '<)
 
 (def-func-end)
 

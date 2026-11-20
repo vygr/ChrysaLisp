@@ -30,6 +30,8 @@
 	(dec-method :floor class/double/floor :override)
 	(dec-method :ceil class/double/ceil :override)
 	(dec-method :recip class/double/recip :override)
+	(dec-method :eq class/double/eq :override)
+	(dec-method :ne class/double/ne :override)
 	(dec-method :lt class/double/lt :override)
 	(dec-method :gt class/double/gt :override)
 	(dec-method :le class/double/le :override)

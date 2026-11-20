@@ -30,6 +30,8 @@
 	(dec-method :floor class/float/floor :final)
 	(dec-method :ceil class/float/ceil :final)
 	(dec-method :recip class/float/recip :final)
+	(dec-method :eq class/float/eq :final)
+	(dec-method :ne class/float/ne :final)
 	(dec-method :lt class/float/lt :final)
 	(dec-method :gt class/float/gt :final)
 	(dec-method :le class/float/le :final)

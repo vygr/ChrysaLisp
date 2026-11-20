@@ -44,6 +44,25 @@
 (assert-true "Double Log 0" (< (log (n2d 0.0)) (str-to-double "-1e308")))
 (assert-error "Double Exp of another type" (exp 3))
 
+;the compares are the CPU's, as IEEE has them: -0.0 is = 0.0, though eql
+;is of the bits and tells them apart, and a NaN is not =, <, <=, > nor >=
+;anything, itself too, only /=
+(defq dc_inf (exp (n2d 1000)) dc_nan (- dc_inf dc_inf) dc_z (n2d 0) dc_mz (neg dc_z) dc_one (n2d 1))
+(assert-true "Double -0.0 = 0.0" (= dc_mz dc_z))
+(assert-true "Double -0.0 not /= 0.0" (not (/= dc_mz dc_z)))
+(assert-true "Double -0.0 not eql 0.0" (not (eql dc_mz dc_z)))
+(assert-true "Double -0.0 <= and >= 0.0, not < nor >"
+	(and (<= dc_mz dc_z) (>= dc_mz dc_z) (not (< dc_mz dc_z)) (not (> dc_mz dc_z))))
+(assert-true "Double NaN not = itself" (not (= dc_nan dc_nan)))
+(assert-true "Double NaN /= itself" (/= dc_nan dc_nan))
+(assert-true "Double NaN eql itself" (eql dc_nan dc_nan))
+(assert-true "Double NaN no order with 0"
+	(not (or (< dc_nan dc_z) (<= dc_nan dc_z) (> dc_nan dc_z) (>= dc_nan dc_z)
+		(< dc_z dc_nan) (<= dc_z dc_nan) (> dc_z dc_nan) (>= dc_z dc_nan))))
+(assert-true "Double NaN in a chain" (not (< dc_z dc_nan dc_one)))
+(assert-true "Double = chain" (and (= dc_one dc_one dc_one) (not (= dc_one dc_one dc_z))))
+(assert-true "Double /= no two equal" (and (/= dc_z dc_one dc_inf) (not (/= dc_z dc_one dc_mz))))
+
 ;tanh, within two of its last bits of the true one, d_tanh: of each way it
 ;is worked out, the series below 0.55 and by exp above, 1 from 22 on, and
 ;odd
