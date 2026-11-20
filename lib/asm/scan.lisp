@@ -6,9 +6,9 @@
 (import "././crypto/sha256.inc")
 
 ;a worker with no job for this long ends, its farm has gone and did not
-;say. A job sent to it as it went is given to another, (job-child), but
-;the farm's node may be busy, and it is long so that is seldom.
-(defq +timeout (task-timeout 60))
+;say. A job sent to it as it went is given to another, (job-child), and
+;it is many times a job, so that is seldom.
+(defq +timeout 10000000)
 
 (defun main ()
 	(job-child +timeout (lambda (msg mbox)

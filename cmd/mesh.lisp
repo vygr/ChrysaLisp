@@ -122,7 +122,7 @@
 			;moment ago and left is not tried again at once, so longer
 			(print "Joining. It can take half a minute for the others to be seen.")
 			(defq t0 (pii-time))
-			(while (and (= (length (lisp-systems)) 1) (< (- (pii-time) t0) (task-timeout 30)))
+			(while (and (= (length (lisp-systems)) 1) (< (- (pii-time) t0) 30000000))
 				(task-sleep 200000))
 			;one is seen, the rest are close behind
 			(task-sleep 2000000))

@@ -29,7 +29,7 @@
 (while (<= lw_handle 0)
 	(if (/= 0 (logand (net-poll lw_listener) 1)) (setq lw_handle (net-accept lw_listener)) (task-sleep 5000)))
 (assert-true "the other end dials" (> lw_handle 0))
-(defq lw_shook (if (> lw_handle 0) (catch (door-shake lw_handle lw_key :nil :nil (task-timeout 600)) :nil)))
+(defq lw_shook (if (> lw_handle 0) (catch (door-shake lw_handle lw_key :nil :nil 30000000) :nil)))
 (assert-true "and is through the door" lw_shook)
 (if lw_shook (door-carry lw_handle lw_shook))
 

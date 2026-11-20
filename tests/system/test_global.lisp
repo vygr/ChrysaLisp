@@ -79,7 +79,7 @@
 	(while (and (< got want) (defq msg (mail-read fm_mbox)))
 		(++ got)
 		(if (. farm :reply msg) (++ started)))
-	(while (defq msg (mail-read-timeout fm_mbox (task-timeout 1)))
+	(while (defq msg (mail-read-timeout fm_mbox 1000000))
 		(if (. farm :reply msg) (++ started)))
 	started)
 

@@ -158,7 +158,7 @@
 ;its own desktop, of a node that was not there before it was started, not
 ;one of someone at the machine. A host with no display never has one:
 ;that ten seconds is how it is told
-(while (and (empty? (setq al_gui (filter (# (not (find (slice (hex-decode (second (split %0 ","))) +long_size -1) al_before))) (mail-enquire "@Gui,")))) (< (- (pii-time) al_t0) (task-timeout 10)))
+(while (and (empty? (setq al_gui (filter (# (not (find (slice (hex-decode (second (split %0 ","))) +long_size -1) al_before))) (mail-enquire "@Gui,")))) (< (- (pii-time) al_t0) 10000000))
 	(task-sleep 50000))
 (cond
 	((starts-with "obj/vp64" (load-path))
@@ -198,7 +198,7 @@
 	(when (defq al_new (some (# (unless (find %0 al_before) %0)) (lisp-nodes :t)))
 		(open-task "(pii-exit)" al_new +kn_call_pin 0 (mail-mbox)))
 	(setq al_t0 (pii-time))
-	(while (and (pii-alive al_pid) (< (- (pii-time) al_t0) (task-timeout 5)))
+	(while (and (pii-alive al_pid) (< (- (pii-time) al_t0) 5000000))
 		(task-sleep 10000))
 	(if (pii-alive al_pid) (pii-kill al_pid))
 	(while (/= (length (lisp-nodes :t)) (length al_before))

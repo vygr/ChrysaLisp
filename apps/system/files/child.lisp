@@ -275,4 +275,4 @@
 
 (defun main ()
 	;its parent may be gone before it says what is wanted
-	(if (defq msg (mail-read-timeout (task-mbox) (task-timeout 10))) (picker-run msg)))
+	(if (defq msg (mail-read-timeout (task-mbox) 10000000)) (picker-run msg)))

@@ -12,7 +12,7 @@
 			(unless (find node ht_before)
 				(open-task (str `(mail-send (hex-decode ,(hex-encode ht_reply)) (str (pii-pid))))
 					node +kn_call_pin 0 (mail-mbox))
-				(if (eql (mail-read-timeout ht_reply (task-timeout 1)) (str ht_pid)) node)))
+				(if (eql (mail-read-timeout ht_reply 1000000) (str ht_pid)) node)))
 		(lisp-nodes :t)))
 
 (assert-true "a node is started" (> ht_pid 0))

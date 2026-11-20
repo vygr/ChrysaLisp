@@ -93,7 +93,7 @@
 					;the members as the one word, that reads back as it was whatever
 					;is in an id
 					(cat "p" (hex-encode (join (ifn pinned (list)) " "))))))
-		(task-timeout (ifn wait +gopher_ack_wait))))
+		(* (ifn wait +gopher_ack_wait) 1000000)))
 
 (defun gopher-pass-turn (pass skip)
 	; (gopher-pass-turn pass skip) -> :wait | :lost | netid

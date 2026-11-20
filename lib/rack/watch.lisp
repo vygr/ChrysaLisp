@@ -5,7 +5,7 @@
 ;desktop of it is left up. Sent the name of the run.
 (import "./rack.inc")
 ;who started it may be gone before it says which run
-(when (defq run (mail-read-timeout (task-mbox) (task-timeout 10)))
+(when (defq run (mail-read-timeout (task-mbox) 10000000))
 	(defq file (cat +rack_alive run))
 	(while (and (defq then (load file)) (< (- (pii-time) (str-as-num then)) +rack_stale))
 		(task-sleep 1000000))

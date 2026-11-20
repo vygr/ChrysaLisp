@@ -196,7 +196,7 @@
 		((empty? nodes) "?")
 		(:t (open-task (str `(mail-send (hex-decode ,(hex-encode mbox)) (cat (str (cpu)) "/" (str (os)))))
 				(first nodes) +kn_call_pin 0 (mail-mbox))
-			(ifn (mail-read-timeout mbox (task-timeout 2)) "no answer"))))
+			(ifn (mail-read-timeout mbox 2000000) "no answer"))))
 
 (defun net-refused (where head)
 	; (net-refused where head)

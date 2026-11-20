@@ -11,7 +11,8 @@
 	; (pipe-farm jobs [retry_timeout told]) -> ((job result) ...)
 	;run pipe farm and collect output. A job that is not answered within
 	;retry_timeout, in microseconds, a minute if not given, is given to a
-	;new worker, and so is one whose node has gone. A job that has been
+	;new worker, and so is one whose node has gone; given again, it is given
+	;twice as long. A job that has been
 	;given out three times with no answer stops the farm, and it and any
 	;that are still out have no result. With told the farm says how it
 	;goes as it goes, (told :start job) and (told :done job result), see
@@ -21,9 +22,7 @@
 	;nothing for retry_timeout, not when it is slow
 	(task-count -1) ;we will be only collating results !
 	(setd retry_timeout 60000000)
-	(defq results (cap (length cmds) (list))
-		;the timeout is longer on the emulator, as (task-timeout) has it
-		retry_timeout (* retry_timeout (/ (task-timeout 1) 1000000)))
+	(defq results (cap (length cmds) (list)))
 	(if (nempty? cmds)
 		(jobs-farm "lib/task/cmd.lisp" (map (# (cat (const (str-alloc +job_size)) %0)) cmds)
 			(list (length cmds) 10) retry_timeout

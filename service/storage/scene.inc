@@ -255,13 +255,13 @@
 		(scene-sweep)
 		(defq scene_said (mail-mbox) scene_heard (mail-mbox) scene_group (cat "*StorageScene" (str (pii-pid)) "_" (str (random 1000000)))
 			scene_child (open-child scene_file +kn_call_run) scene_result :nil scene_going :t scene_next 0
-			scene_until (if (nql wait :t) (+ (pii-time) (task-timeout (ifn wait 600)))) scene_heard_at (pii-time))
+			scene_until (if (nql wait :t) (+ (pii-time) (* (ifn wait 600) 1000000))) scene_heard_at (pii-time))
 		(when (/= 0 (get-long scene_child 0))
 			(mail-send scene_child (join (list (hex-encode scene_said) scene_group (if record (hex-encode scene_heard) "-")) +storage_lf))
 			;and not for ever: a scene that has gone, it threw, says nothing more,
 			;and is given up on when it and its members have been quiet a minute
 			(while (and scene_going (or (not scene_until)
-						(and (< (pii-time) scene_until) (< (- (pii-time) scene_heard_at) (task-timeout 60)))))
+						(and (< (pii-time) scene_until) (< (- (pii-time) scene_heard_at) 60000000))))
 				;a recorder asks each member again, and asks those started since
 				(when (and record (>= (pii-time) scene_next))
 					(each (# (storage-send %0 +storage_type_record (hex-encode scene_heard))) (storage-record-members scene_group))
@@ -283,7 +283,7 @@
 		(unless scene_result
 			(say (cat "given up on, " (cond
 						((and scene_until (>= (pii-time) scene_until)) (cat "not done in " (str (ifn wait 600)) "s"))
-						((and scene_until (>= (- (pii-time) scene_heard_at) (task-timeout 60))) "nothing said for 60s")
+						((and scene_until (>= (- (pii-time) scene_heard_at) 60000000)) "nothing said for 60s")
 						("it went")))))
 		;what the members still have to say, till they have said nothing for
 		;half a second. What comes after that is to a mailbox nobody reads
@@ -294,8 +294,8 @@
 		;what started it may end as soon as this comes back, and the scene
 		;with it, before it had
 		(when scene_result
-			(defq scene_gone (+ (pii-time) (task-timeout 10)))
+			(defq scene_gone (+ (pii-time) 10000000))
 			(while (and (< (pii-time) scene_gone)
-					(defq scene_msg (mail-read-timeout scene_said (task-timeout 10)))
+					(defq scene_msg (mail-read-timeout scene_said 10000000))
 					(nql scene_msg "gone"))))
 		scene_result))

@@ -43,7 +43,7 @@
 	+fly_rate +double_1 +pan_rate (n2d 0.6) +still (n2d 0.1) +ease (n2d 4)
 	+min_top 256 +level_top 64
 	;the patience of the CPU's farm, a square is quick
-	+retry_timeout (task-timeout 5)
+	+retry_timeout 5000000
 	;the GPU if there is one, and it can be switched to the CPU and back
 	id :t has_gpu (> (gpu-format) 0)
 	;a child draws a square of the picture straight onto the canvas, its

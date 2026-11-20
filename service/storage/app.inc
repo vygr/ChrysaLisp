@@ -78,8 +78,8 @@
 		(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
 					(+storage_rpc_reply_id mbox) (+storage_rpc_type type)) (ifn body "")))
 		(if (eql wait :t)
-			(until (or (setq answer (mail-read-timeout mbox (task-timeout 1))) (not (storage-there? svc))))
-			(setq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait)))))
+			(until (or (setq answer (mail-read-timeout mbox 1000000)) (not (storage-there? svc))))
+			(setq answer (mail-read-timeout mbox (* (ifn wait +storage_wait) 1000000))))
 		answer))
 
 (defun storage-send (svc type &optional body)
@@ -234,7 +234,7 @@
 	;quiet already, only what is there now
 	(if quiet
 		(if (mail-poll (list mbox)) (mail-read mbox))
-		(mail-read-timeout mbox (task-timeout +storage_wait))))
+		(mail-read-timeout mbox (* +storage_wait 1000000))))
 
 ;how many blocks a put has on their way at once
 (defq +storage_put_window 4)
@@ -315,7 +315,7 @@
 			(while (and next (eql how :ok))
 				(bind '(blocks hashes mbox) next)
 				(setq next (storage-put-few svc stream size))
-				(defq has (ifn (mail-read-timeout mbox (task-timeout +storage_wait)) ""))
+				(defq has (ifn (mail-read-timeout mbox (* +storage_wait 1000000)) ""))
 				(if (/= (length has) (length blocks)) (setq has (pad "" (length blocks) "0")))
 				(each (lambda (block hash had)
 						(setq bytes (+ bytes (length block)))
@@ -526,7 +526,7 @@
 	;a block by its name, of any member that has it, asked again each
 	;second till there is one, or for secs seconds
 	(defq t0 (pii-time) data :nil)
-	(until (or (setq data (storage-block hash svc)) (> (- (pii-time) t0) (task-timeout secs)))
+	(until (or (setq data (storage-block hash svc)) (> (- (pii-time) t0) (* secs 1000000)))
 		(task-sleep 1000000))
 	data)
 
@@ -542,7 +542,7 @@
 		((empty? flight)
 			;the end, or a block of the manifest that could not be had
 			(if (< at count) (list :lost (hex-encode (ifn (elem-get pages +storage_pages_lost) "")))))
-		(:t (defq hash (storage-pages-name pages at) data (mail-read-timeout (first flight) (task-timeout 2)))
+		(:t (defq hash (storage-pages-name pages at) data (mail-read-timeout (first flight) 2000000))
 			(elem-set st +storage_stream_flight (rest flight))
 			(unless (and data (eql (sha256 data) hash))
 				(setq data (storage-block-retry hash svc retry)))
@@ -621,7 +621,7 @@
 	(defq flight (elem-get st +storage_out_flight))
 	(while (> (length flight) most)
 		(bind '(mbox hash) (first flight))
-		(unless (eql (mail-read-timeout mbox (task-timeout +storage_wait)) hash)
+		(unless (eql (mail-read-timeout mbox (* +storage_wait 1000000)) hash)
 			(elem-set st +storage_out_dirty :lost))
 		(setq flight (rest flight)))
 	(elem-set st +storage_out_flight flight)
@@ -688,8 +688,8 @@
 			;the top of its manifest, the rest as it is read
 			(defq info_mbox (storage-send svc +storage_type_info)
 				stat_mbox (storage-send svc +storage_type_stat name)
-				info (storage-info-read (mail-read-timeout info_mbox (task-timeout +storage_wait)))
-				answer (mail-read-timeout stat_mbox (task-timeout +storage_wait)))
+				info (storage-info-read (mail-read-timeout info_mbox (* +storage_wait 1000000)))
+				answer (mail-read-timeout stat_mbox (* +storage_wait 1000000)))
 			(when (and info answer (nempty? answer) (defq entry (store-entry-read answer))
 					(defq pages (storage-pages (elem-get entry +store_entry_hash) (. info :find :block_size) svc)))
 				(defq st (list svc pages (. info :find :block_size) (elem-get pages +storage_pages_bytes)
@@ -864,7 +864,7 @@
 	;what a gopher sent with (storage-walk-send) came back with, as
 	;(storage-walk), waited for so many seconds at most, or with :t till
 	;it comes
-	(and mbox (defq answer (if (eql wait :t) (mail-read mbox) (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait)))))
+	(and mbox (defq answer (if (eql wait :t) (mail-read mbox) (mail-read-timeout mbox (* (ifn wait +storage_wait) 1000000))))
 		(starts-with "(" answer)
 		(first (read (string-stream answer)))))
 
@@ -1122,7 +1122,7 @@
 							(when (and stop (not (mail-poll (list said))) (mail-poll (list stop)))
 								(mail-send task "stop")
 								(setq stop :nil))
-							(setq answer (mail-read-timeout said (task-timeout (if (eql wait :t) 1 wait)))))
+							(setq answer (mail-read-timeout said (* (if (eql wait :t) 1 wait) 1000000))))
 						(nql wait :t)
 						(not (storage-there? task))))
 				;the task's mailbox is the service's. Its name, from another
@@ -1131,7 +1131,7 @@
 				;one, but not for ever, the service is up all the same
 				(when (eql answer "ok")
 					(defq t0 (pii-time))
-					(until (or (storage-service name) (> (- (pii-time) t0) (task-timeout 10)))
+					(until (or (storage-service name) (> (- (pii-time) t0) 10000000))
 						(task-sleep 10000))
 					task)))))
 
@@ -1220,7 +1220,7 @@
 	(setd svc (storage-service) wait 10)
 	(defq t0 (pii-time) seen (storage-seen name svc))
 	(while (and seen (not (>= (first seen) (ifn want (inc (/ (second seen) 2)))))
-			(< (- (pii-time) t0) (task-timeout wait)))
+			(< (- (pii-time) t0) (* wait 1000000)))
 		(task-sleep 100000)
 		(setq seen (storage-seen name svc)))
 	(and seen (>= (first seen) (ifn want (inc (/ (second seen) 2)))) seen))
@@ -1233,7 +1233,7 @@
 	(when (and (defq state (storage-state svc)) (nempty? (defq tender (. state :find :tender))))
 		(defq mbox (mail-mbox))
 		(mail-send (hex-decode tender) (cat "pass " (hex-encode mbox)))
-		(if (defq answer (mail-read-timeout mbox (task-timeout (ifn wait 60))))
+		(if (defq answer (mail-read-timeout mbox (* (ifn wait 60) 1000000)))
 			(map (const str-as-num) (split answer " ")))))
 
 (defun storage-pace (tick grace &optional svc)
@@ -1290,7 +1290,7 @@
 			(setq them (filter (# (nql (first %0) mbox)) them)))
 		(:t (defq mbox (hex-decode text))
 			(setq them (cat (filter (# (nql (first %0) mbox)) them)
-					(list (list mbox (+ (pii-time) (task-timeout +storage_record_lease))))))))
+					(list (list mbox (+ (pii-time) (* +storage_record_lease 1000000))))))))
 	(elem-set rec 0 them))
 
 (defun storage-recording? (rec)

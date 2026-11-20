@@ -9,7 +9,7 @@
 
 (defun main ()
 	;who started it may be gone before it says where to tell
-	(when (defq reply (mail-read-timeout (task-mbox) (task-timeout 10)))
+	(when (defq reply (mail-read-timeout (task-mbox) 10000000))
 		(defq why :nil)
 		(each (lambda (file)
 				(unless why

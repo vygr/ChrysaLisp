@@ -9021,7 +9021,8 @@ boot image of before it was written still starts
 
 run pipe farm and collect output. A job that is not answered within
 retry_timeout, in microseconds, a minute if not given, is given to a
-new worker, and so is one whose node has gone. A job that has been
+new worker, and so is one whose node has gone; given again, it is given
+twice as long. A job that has been
 given out three times with no answer stops the farm, and it and any
 that are still out have no result. With told the farm says how it
 goes as it goes, (told :start job) and (told :done job result), see
@@ -15933,12 +15934,6 @@ Measured, 20 gophers that never came back, the apps waited 9.1 s
 
 ```code
 (task-nodeid [mbox]) -> nodeid
-```
-
-### task-timeout
-
-```code
-(task-timeout s) -> ns
 ```
 
 ### text-most

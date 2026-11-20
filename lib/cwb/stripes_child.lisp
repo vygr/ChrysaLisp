@@ -59,7 +59,7 @@
 		(progn
 			(mail-send sync (setf-> (str-alloc +stripe_sync_size)
 					(+stripe_sync_reply sync_mbox) (+stripe_sync_have have)))
-			(and (defq text (mail-read-timeout sync_mbox (task-timeout 10)))
+			(and (defq text (mail-read-timeout sync_mbox 10000000))
 				(defq now (stripes-apply doc items text))
 				(setq bands :nil have now)
 				(>= have version)))))

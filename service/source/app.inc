@@ -74,10 +74,10 @@
 	;mailbox nobody reads
 	(defq select (list (mail-mbox) (mail-mbox)) ask (cat (setf-> (str-alloc +source_rpc_size)
 				(+source_rpc_reply_id (first select))) path)
-		left (if (eql wait :t) :t (task-timeout (ifn wait +source_wait))) answer :nil)
+		left (if (eql wait :t) :t (* (ifn wait +source_wait) 1000000)) answer :nil)
 	(mail-send svc ask)
 	(while (and (not answer) (or (eql left :t) (> left 0)))
-		(defq beat (if (eql left :t) (task-timeout +source_wait) (min left (task-timeout +source_wait))))
+		(defq beat (if (eql left :t) (* +source_wait 1000000) (min left (* +source_wait 1000000))))
 		(mail-timeout (second select) beat 0)
 		(cond
 			((= (mail-select select) 0)
@@ -126,7 +126,7 @@
 	;the @Source a system has now, (source-seek) and its answer waited for
 	(defq select (list (mail-mbox) (mail-mbox)))
 	(when (source-seek sid (first select))
-		(mail-timeout (second select) (task-timeout +source_wait) 0)
+		(mail-timeout (second select) (* +source_wait 1000000) 0)
 		(when (= (mail-select select) 0)
 			(mail-timeout (second select) 0 0)
 			(if (nempty? (defq got (second (split (mail-read (first select)) "\n"))))

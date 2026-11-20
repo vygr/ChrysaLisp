@@ -77,7 +77,7 @@
 	pipe)
 ;a task is stopped by an error
 (defq reply_mbox (mail-mbox)
-	pipe (pipe-told reply_mbox (cat "(task-sleep " (str (task-timeout 600)) ")")))
+	pipe (pipe-told reply_mbox (cat "(task-sleep " (str 600000000) ")")))
 (assert-eq "a command that only sleeps says no more" :nil (mail-read-timeout reply_mbox 200000))
 ;its sleep is longer than the suite waits for a module, so that it is
 ;told at all is that it was woken
@@ -88,7 +88,7 @@
 (. pipe :abort)
 (assert-eq "aborted, it is stopped" "aborted" (mail-read reply_mbox))
 (defq reply_mbox (mail-mbox) pipe (pipe-told reply_mbox
-		(cat "(progn (catch (task-sleep " (str (task-timeout 600)) ") :t) (while :t (task-sleep 1000)))")))
+		(cat "(progn (catch (task-sleep " (str 600000000) ") :t) (while :t (task-sleep 1000)))")))
 (task-sleep 200000)
 (. pipe :abort)
 (assert-eq "one that catches the error and sleeps again is stopped again" "aborted" (mail-read reply_mbox))
@@ -106,7 +106,7 @@
 ;the slow one is given out three times, then the farm stops, with the
 ;result of the quick one and none for the slow
 (defq farmed (pipe-farm (list "echo quick"
-			(cat "lisp -r (task-sleep " (str (* 10 (task-timeout 1))) ")")) 1000000))
+			(cat "lisp -r (task-sleep " (str (* 10 1000000)) ")")) 1000000))
 (assert-list-eq "pipe farm, a command that is too slow is given up on" '("echo quick")
 	(map (const first) farmed))
 

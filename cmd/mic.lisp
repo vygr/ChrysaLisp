@@ -59,7 +59,7 @@
 							", on the whole " (/ (reduce + second 0) (length second)))
 						(setq second (list))))
 				(mail-send ctl "")
-				(mail-read-timeout done (task-timeout 5))
+				(mail-read-timeout done 5000000)
 				(while (defq msg (mail-read-timeout who 50000)) (push levels (str-as-num msg)))
 				(defq secs (sound-seconds opt_o) bytes (if (defq info (sound-info opt_o)) (elem-get info 3) 0))
 				(cond
@@ -69,5 +69,5 @@
 							", on the whole " (/ (reduce + levels 0) (max 1 (length levels))) " of 32767")
 						(when opt_p
 							(stages-run (list (sound-stage 'sound-from-file opt_o) (sound-stage 'sound-speaker)) done)
-							(mail-read-timeout done (task-timeout (+ secs 5)))
+							(mail-read-timeout done (* (+ secs 5) 1000000))
 							(print "mic: played back"))))))))

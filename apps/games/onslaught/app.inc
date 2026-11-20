@@ -31,7 +31,7 @@
 				(+ons_rpc_reply_id mbox)
 				(+ons_rpc_type type)
 				(+ons_rpc_keys (ifn keys 0))))
-		(mail-read-timeout mbox (task-timeout 2))))
+		(mail-read-timeout mbox 2000000)))
 
 (defun onslaught-keys-rpc (keys)
 	; (onslaught-keys-rpc keys) -> :t | :nil

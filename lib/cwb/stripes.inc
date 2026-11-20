@@ -241,7 +241,7 @@
 		;had nothing to do for a while are brought in step, which is also
 		;what tells them not to go
 		(when (defq jobs (get :jobs this))
-			(. jobs :refresh (task-timeout 5))
+			(. jobs :refresh 5000000)
 			(and (eql (get :state this) :idle) (> (- (pii-time) (get :stamp this)) 5000000)
 				(. this :warm)))
 		this)

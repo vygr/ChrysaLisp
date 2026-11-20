@@ -12,6 +12,6 @@
 	(while (mail-validate ls_link) (task-sleep 100000))
 	(assert-true "the link is given up on, not waited for for ever" (not (mail-validate ls_link)))
 	(assert-true "in the 5 seconds the host gives it"
-		(< (- (pii-time) ls_t0) (task-timeout 8)))
+		(< (- (pii-time) ls_t0) 8000000))
 	(pii-remove ls_file)
 	(undef (env) 'ls_name 'ls_file 'ls_t0 'ls_link))

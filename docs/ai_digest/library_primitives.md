@@ -64,11 +64,6 @@ introspection.
 
 	*	`(task-nodeid [mbox]) -> nodeid`
 
-*	**`task-timeout`**: Scales a duration in seconds into architecture-scaled
-	nanoseconds for timeouts.
-
-	*	`(task-timeout s) -> ns`
-
 *	**`open-task`**: Dispatches a raw task spawn request across the cluster.
 
 	*	`(open-task task node mode key_num reply)`

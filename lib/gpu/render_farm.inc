@@ -40,7 +40,7 @@
 ;machine, the GPU's first frame waits for its pair to be built. And how
 ;long with no frame given before a farm is let go of, its work has
 ;stopped: less than the time a child waits for work before it goes
-(defq +cpu_timeout (task-timeout 60) +gpu_timeout (task-timeout 30) +tick_rate 30
+(defq +cpu_timeout 60000000 +gpu_timeout 30000000 +tick_rate 30
 	+stale 3000000)
 
 (defun mesh-of (id)
@@ -409,7 +409,7 @@
 	;a frame is drawn here, in the app's own task, by native code, (:here):
 	;for a small picture drawn now and then, not worth a child a node
 	(def this :file file :program (shader-load file) :lines (ifn lines 8) :vals :nil
-		:direct :t :farm :t :native :nil :patience (task-timeout 5) :part "tile")
+		:direct :t :farm :t :native :nil :patience 5000000 :part "tile")
 
 	(defmethod :here (vals)
 		; (. render :here vals) -> :t

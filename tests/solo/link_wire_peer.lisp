@@ -11,7 +11,7 @@
 	(defq port (str-as-num (mail-read (task-mbox)))
 		h (net-connect "127.0.0.1" port)
 		;as long as it takes, longer than the suite waits for a module
-		until (+ (pii-time) (task-timeout 600)))
+		until (+ (pii-time) 30000000))
 	(defun tell (k v) (mail-send said (cat k " " v)))
 	(while (and (> h 0) (= 0 (logand (net-poll h) 2)) (< (pii-time) until)) (task-sleep 5000))
 	;1. the hello, 60 bytes, this end's own, not sealed
@@ -36,7 +36,7 @@
 		;second, the parcel before it, and the kernel's own mail to a node
 		;it has just heard of. And of every fragment that is a message of
 		;one, total 0, how many had a src or an offset that is not 0
-		(defq until (+ (pii-time) (task-timeout 600)) frag :nil ones 0 stale 0)
+		(defq until (+ (pii-time) 30000000) frag :nil ones 0 stale 0)
 		(while (and (not frag) (< (pii-time) until) (defq wire (door-recv h 8 until)))
 			(defq body (door-recv h (code wire 4 0) until))
 			(when (and body (= (code wire 4 4) 2))

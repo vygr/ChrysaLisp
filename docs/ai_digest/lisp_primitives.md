@@ -1466,10 +1466,6 @@ Task concurrency, cooperative scheduling, and process spawning.
 
 	*	`(task-nodeid [mbox]) -> nodeid`
 
-*	**`task-timeout`**: Calculates platform-scaled timeout values.
-
-	*	`(task-timeout s) -> ns`
-
 *	**`open-task`**: Dispatches a task launch request across the network.
 
 	*	`(open-task task node mode key_num reply)`

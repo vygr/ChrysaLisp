@@ -1,5 +1,5 @@
 ;read args from parent, who may be gone before it says
-(defq mbox (mail-read-timeout (task-mbox) (task-timeout 10)) running mbox)
+(defq mbox (mail-read-timeout (task-mbox) 10000000) running mbox)
 
 ;poll pii stdin
 (while running

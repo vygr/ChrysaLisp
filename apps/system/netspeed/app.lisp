@@ -14,7 +14,7 @@
 	+bars ''(:regs_bar :memory_bar :doubles_bar)
 	+results ''(:regs_results :memory_results :doubles_results)
 	+max_aligns `'(,+max_bops_align ,+max_bops_align ,+max_bops_align)
-	+retry_timeout (task-timeout 5))
+	+retry_timeout 5000000)
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Speed" (+sym_close) +event_close)

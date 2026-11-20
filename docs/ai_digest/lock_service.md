@@ -139,7 +139,7 @@ custom modes or timeouts:
 	(update-records))
 
 ;; Tuple specification with custom mode and timeout
-(with-lock ("database/users" +lock_mode_read (task-timeout 2))
+(with-lock ("database/users" +lock_mode_read 2000000)
 	(query-users))
 
 ;; Explicit read lock (shared)
@@ -147,7 +147,7 @@ custom modes or timeouts:
 	(load-font))
 
 ;; Explicit write lock (exclusive) with timeout
-(with-write-lock ("output/build.bin" (task-timeout 5))
+(with-write-lock ("output/build.bin" 5000000)
 	(emit-binary))
 ```
 

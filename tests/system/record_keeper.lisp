@@ -13,7 +13,7 @@
 	(defq stop :nil)
 	(until (or stop (notevery (const storage-there?) svcs))
 		(each (# (storage-send %0 +storage_type_record (hex-encode box))) svcs)
-		(setq stop (mail-read-timeout (task-mbox) (task-timeout 1))))
+		(setq stop (mail-read-timeout (task-mbox) 1000000)))
 	(when stop
 		(each (# (storage-record-ask %0 box :t)) svcs)
 		(mail-send said "stopped")))

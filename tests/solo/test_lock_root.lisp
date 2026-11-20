@@ -7,7 +7,7 @@
 ;when no other module is, and a claim of it is made till it is granted, a
 ;second at a time, for what a test waits on is what it tests, not a time
 (defun lr-claim (key)
-	(until (lock-claim-rpc key +lock_mode_write (task-timeout 1)))
+	(until (lock-claim-rpc key +lock_mode_write 1000000))
 	:t)
 
 (defun lr-blocked (key)

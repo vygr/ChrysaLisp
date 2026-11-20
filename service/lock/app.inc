@@ -27,12 +27,12 @@
 	;the service, waited for if it is not yet heard of, as it may not be
 	;in the first moments of a session. For two seconds, it was half of
 	;one, which a slow machine with a lot to do ran past now and then
-	(mail-await lock-service :nil :nil (task-timeout 2)))
+	(mail-await lock-service :nil :nil 2000000))
 
 (defun lock-claim-rpc (key &optional mode timeout)
 	; (lock-claim-rpc key [mode timeout_us]) -> :t | :nil
 	(defq svc (ensure-lock-service) mbox (mail-mbox))
-	(setd mode +lock_mode_write timeout (task-timeout 10))
+	(setd mode +lock_mode_write timeout 10000000)
 	(cond
 		((not svc)
 			;there is no lock to have, and what was to be done under it is not
@@ -65,7 +65,7 @@
 			(mail-send svc (setf-> (cat (str-alloc +lock_release_size) key)
 					(+lock_rpc_reply_id mbox)
 					(+lock_rpc_type +lock_type_release)))
-			(mail-read-timeout mbox (ifn timeout (task-timeout 5))))
+			(mail-read-timeout mbox (ifn timeout 5000000)))
 		:t :nil))
 
 (defun lock-history-rpc (&optional timeout)
@@ -75,7 +75,7 @@
 			(mail-send svc (setf-> (str-alloc +lock_history_size)
 					(+lock_rpc_reply_id mbox)
 					(+lock_rpc_type +lock_type_history)))
-			(defq reply (mail-read-timeout mbox (ifn timeout (task-timeout 5)))))
+			(defq reply (mail-read-timeout mbox (ifn timeout 5000000))))
 		(if (empty? reply) (list) (split reply "\n"))
 		:nil))
 

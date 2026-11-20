@@ -51,10 +51,10 @@
 		(slice (second (first (sort jobs (lambda ((ta na) (tb nb))
 				(if (= ta tb) (cmp na nb) (- ta tb)))))) (length "chrysalisp_rack_job_") -1)))
 
-(mail-await (# (mail-first "@Net")) "service/net/app.lisp" +kn_call_run (task-timeout 2))
+(mail-await (# (mail-first "@Net")) "service/net/app.lisp" +kn_call_run 2000000)
 ;and a lock, as any session has: a kernel a child sent here builds is
 ;made under one, two children building it at once would collide
-(mail-await lock-service "service/lock/app.lisp" +kn_call_run (task-timeout 2))
+(mail-await lock-service "service/lock/app.lisp" +kn_call_run 2000000)
 (net-quiet 300000 4)
 (save (str (pii-pid)) "/tmp/chrysalisp_rack.pid")
 ;the Net service joins the mesh by itself, if this is the first session

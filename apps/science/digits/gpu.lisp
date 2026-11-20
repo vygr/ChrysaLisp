@@ -92,5 +92,5 @@
 				(if confusion (apply (const cat) (map (# (char %0 +int_size)) confusion)) ""))))))
 
 (defun main ()
-	(job-child (task-timeout +digits_gpu_idle) (const job))
+	(job-child (* +digits_gpu_idle 1000000) (const job))
 	(if gpu (nn-gpu-free gpu)))

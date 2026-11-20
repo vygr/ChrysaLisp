@@ -10,7 +10,7 @@
 			(unless (find node lv_before)
 				(open-task (str `(mail-send (hex-decode ,(hex-encode lv_reply)) (str (pii-pid))))
 					node +kn_call_pin 0 (mail-mbox))
-				(if (eql (mail-read-timeout lv_reply (task-timeout 1)) (str lv_pid)) node)))
+				(if (eql (mail-read-timeout lv_reply 1000000) (str lv_pid)) node)))
 		(lisp-nodes :t)))
 
 ;a host with no GUI, no SDL3 here, never has a Gui to wait for: it says so

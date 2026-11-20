@@ -194,7 +194,7 @@
 		(defq units (partition jobs 4))
 		(jobs-farm "lib/cwb/diagram_child.lisp"
 			(map (# (cat (const (str-alloc +job_size)) (str %0))) units)
-			(list (length units) 1 1) (task-timeout 60)
+			(list (length units) 1 1) 10000000
 			(lambda (msg herd)
 				(if (nempty? (defq said (slice msg +job_reply_size -1))) (print said))
 				(. herd :answered msg))

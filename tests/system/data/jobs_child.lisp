@@ -11,7 +11,7 @@
 (defun main ()
 	(defq running :t)
 	(while running
-		(defq msg (mail-read-timeout (task-mbox) (task-timeout 10)))
+		(defq msg (mail-read-timeout (task-mbox) 10000000))
 		(cond
 			((or (not msg) (eql msg "")) (setq running :nil))
 			((/= (getf msg +work_die) 0) (setq running :nil))

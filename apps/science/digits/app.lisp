@@ -483,8 +483,8 @@
 	(setq select (task-mboxes +select_size)
 		render (Render-work :nil (cat *app_root* "child.lisp") (cat *app_root* "gpu.lisp")))
 	(def render :reply_fn (lambda (msg) (setq heard msg)) :launched_fn (const farm-launched)
-		:herd (list +max_int 2 2) :idle :nil :patience (task-timeout 30)
-		:gpu_patience (task-timeout +digits_gpu_patience))
+		:herd (list +max_int 2 2) :idle :nil :patience 30000000
+		:gpu_patience (* +digits_gpu_patience 1000000))
 	(tooltips)
 	(config-load)
 	(config-apply)

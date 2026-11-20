@@ -14,7 +14,7 @@
 (pipe-run (cat "link -s 127.0.0.1:" (str tp_port)) (# (push tp_said %0) (prin %0)))
 (defq tp_t0 (pii-time) tp_linked :nil)
 (save (cat "link said: " (join tp_said "") ";") tp_log)
-(while (and (< (- (pii-time) tp_t0) (task-timeout 60))
+(while (and (< (- (pii-time) tp_t0) 60000000)
 		(or (not tp_linked) (nempty? (net-links))))
 	(if (nempty? (net-links)) (setq tp_linked :t))
 	(task-sleep 200000))

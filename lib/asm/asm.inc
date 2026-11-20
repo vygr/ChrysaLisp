@@ -64,12 +64,13 @@
 		(defq job (# (cat (const (str-alloc +job_size))
 				(str (list (first %0) (second %0) *abi* *cpu* plats *build_mode* *build_emit* *build_verb*
 						(vp-dir *build_mode*))))))
-		;a job is started again if its node goes. The timeout is only for a
-		;worker that dies and its node does not, so it is long, a slow job
-		;must not be taken for a dead one.
+		;a job is started again if its node goes. The timeout is for a
+		;worker that dies and its node does not: the patience to start with,
+		;many times a job of the slowest machine, and a job given again is
+		;given twice as long, so a slow job is not taken for a dead one.
 		(jobs-farm "lib/asm/asm.lisp" (map job units)
 			(list (min (max (length units) (ifn herd 0))
-					(max (length (lisp-nodes :t)) +herd_most)) 1 3) (task-timeout 60)
+					(max (length (lisp-nodes :t)) +herd_most)) 1 3) 10000000
 			(lambda (msg jobs)
 				;the key it was given, then what it said. A job with an
 				;error is not tried again.
@@ -372,7 +373,7 @@
 		(setq scanned :t)
 		(defq units (map (# (cat (const (str-alloc +job_size)) (str %0))) (partition todo 8)))
 		(jobs-farm "lib/asm/scan.lisp" units
-			(list (length units) 1 1) (task-timeout 60)
+			(list (length units) 1 1) 10000000
 			(lambda (msg jobs)
 				(when (. jobs :job msg)
 					(each (lambda ((f scan h))

@@ -3,9 +3,9 @@
 (enums +select 0
 	(enum main timer))
 
-(defq +check_rate 1000000 +lock_default_lease (task-timeout 60)
+(defq +check_rate 1000000 +lock_default_lease 60000000
 	;how long a node can be missing from the routes before it has died
-	+lock_node_grace (task-timeout 5))
+	+lock_node_grace 5000000)
 
 (defun conflict? (key_path locks)
 	(some (# (every (const eql) key_path (pfind %0 :path))) locks))

@@ -116,9 +116,12 @@ All of this, from cold, on each machine there is, each CPU and each OS.
   the cross built boot images, a self hosted `make all boot` must give the
   same image to the byte, and `tests -a` must pass.
 
-A test that waits for another task asks `(task-timeout seconds)` how long,
-which is ten times as long on the emulator. A wait of a set number of
-microseconds is a test that fails on a slow enough machine.
+A test waits for the event it tests, never on a time. Where it must have a
+patience, a reply that may never come, it is a set time sized for the
+slowest machine, the emulator: the same time on every machine, so a slow one
+is not given more and does not hide a wait that is too short. A farm's
+patience slides, `lib/task/jobs.inc`: a child started again for its time
+being up makes the next wait twice as long.
 
 ## Three Machines
 

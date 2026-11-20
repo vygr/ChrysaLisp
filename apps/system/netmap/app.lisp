@@ -33,7 +33,7 @@
 ;The number as it is written is a fixed, and one smaller than this is 0
 (defq +tiny (n2d 0.0001))
 (defq +size 640 +min_size 320 +scale 1 +frame_rate (/ 1000000 20) +poll_rate (/ 1000000 4)
-	+retry_timeout (task-timeout 5)
+	+retry_timeout 5000000
 	+focal_dist +double_2 +near +focal_dist +far (+ +near +double_4)
 	+top (* +focal_dist +double_1/2) +bottom (* +focal_dist +double_-1/2)
 	+left (* +focal_dist +double_-1/2) +right (* +focal_dist +double_1/2)

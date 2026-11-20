@@ -68,7 +68,7 @@
 ;opened on another node of this machine, if there is one, a process of its
 ;own, where it is mapped at an address of its own
 (defq here (task-nodeid) there (some (# (if (nql %0 here) %0)) (lisp-nodes :t))
-	reply (mail-mbox) long (task-timeout 30))
+	reply (mail-mbox) long 30000000)
 (cond
 	(there
 		;it reads what this one wrote, and writes back for this one to read

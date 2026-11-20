@@ -49,14 +49,14 @@
 			;A child with nothing to do for 5s goes, and a strip given to it as
 			;it went is lost, so the farm is looked at each second, as an app does.
 			;A child is only slow, never wrong: on a busy machine a strip may
-			;wait seconds for its node, so one is given to another only after a
-			;minute
+			;wait seconds for its node, so one is given to another after 10s,
+			;and given again it is given twice as long
 			(defq out 1 drawn :t start (pii-time))
 			(. tf_canvas :fill 0)
 			(. tf_jobs :add (map! (# (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
 							(canvas-key tf_canvas) tf_size tf_size (/ (* (!) tf_size) strips) (/ (* (inc (!)) tf_size) strips)
 							:t tf_draws)) '() 0 strips))
-			(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0)
+			(mail-timeout (elem-get tf_select +tf_timer) 1000000 0)
 			(while (> out 0)
 				(defq msg (mail-read (elem-get tf_select (defq idx (mail-select tf_select)))))
 				(case idx
@@ -66,8 +66,8 @@
 							(setq out o)))
 					(+tf_ask (setq tf_asked (inc tf_asked))
 						(shader-mesh-send msg (elem-get tf_packed (getf msg +strip_ask_mesh))))
-					(:t (. tf_jobs :refresh (task-timeout 60))
-						(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0))))
+					(:t (. tf_jobs :refresh 10000000)
+						(mail-timeout (elem-get tf_select +tf_timer) 1000000 0))))
 			(mail-timeout (elem-get tf_select +tf_timer) 0 0)
 			;what is said of a frame if a check of it fails
 			(push tf_said (str strips " strips " (/ (- (pii-time) start) 1000) "ms, meshes asked "

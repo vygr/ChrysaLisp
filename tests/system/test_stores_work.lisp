@@ -20,7 +20,7 @@
 	(defq reply (mail-mbox) task (open-child "apps/system/stores/work.lisp" +kn_call_run) said (list) going :t)
 	(mail-send task (str (list (hex-encode reply) what from to rule names (ifn copies 0))))
 	(if stop (mail-send task "stop"))
-	(while (and going (defq msg (mail-read-timeout reply (task-timeout 30))))
+	(while (and going (defq msg (mail-read-timeout reply 30000000)))
 		(push said (defq it (first (read (string-stream msg)))))
 		(if (eql (first it) :done) (setq going :nil)))
 	said)

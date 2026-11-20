@@ -44,4 +44,4 @@
 
 (defun main ()
 	;who started it may be gone before it says what is wanted
-	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))
+	(if (defq said (mail-read-timeout (task-mbox) 10000000)) (child-run said)))

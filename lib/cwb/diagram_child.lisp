@@ -8,7 +8,7 @@
 (import "./diagram.inc")
 
 (defun main ()
-	(job-child (task-timeout 10) (lambda (msg mbox)
+	(job-child 10000000 (lambda (msg mbox)
 			(defq said (list))
 			(each (lambda ((kind file &rest args))
 					(catch (case kind

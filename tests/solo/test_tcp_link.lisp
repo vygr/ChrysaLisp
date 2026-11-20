@@ -75,7 +75,7 @@
 		(assert-true "and the same" (eql tl_big tl_back)))
 	;the link stays up, a ping goes each way every second. Were they not
 	;taken, the node would be dropped
-	(task-sleep (task-timeout 4))
+	(task-sleep 4000000)
 	(assert-true "four seconds on it is still seen" (find tl_new (lisp-nodes :t)))
 	;the links over the network are dropped, as the Net service does when
 	;the key of the machine is another. A link is told it is closed till

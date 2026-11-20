@@ -25,7 +25,7 @@
 		(when (get '*rack_gui*)
 			;its own, on this node, not another desktop's of the machine
 			(open-child "service/gui/app.lisp" +kn_call_pin)
-			(mail-await (# (mail-here "@Gui")) :nil :nil (task-timeout 20)))
+			(mail-await (# (mail-here "@Gui")) :nil :nil 20000000))
 		(each (lambda (cmdline)
 				(when (nempty? cmdline)
 					(pipe-run cmdline (const said))))

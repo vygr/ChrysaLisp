@@ -323,7 +323,7 @@
 	;what runs is stopped, and waited for a moment, so a note is saved
 	(when *running_pipe*
 		(pipe-stop)
-		(mail-read-timeout (elem-get select +select_done) (task-timeout 3))
+		(mail-read-timeout (elem-get select +select_done) 3000000)
 		(if *tap* (pipe-done)))
 	;the call is left, unless another app shows it as its own, a Whiteboard
 	;in its session's call: a live microphone is never with nothing on the

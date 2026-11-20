@@ -3,9 +3,10 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 ;a worker with no job for this long ends, its farm has gone and did not
-;say. It must be long, the farm's node may be busy, and a job sent to a
-;worker that has ended is lost.
-(defq +_timeout (task-timeout 60))
+;say. Many times the longest job, the biggest file is 0.4s on the emulator,
+;as the farm's node may be busy, and a job sent to a worker that has ended
+;is given to another when its time is up.
+(defq +_timeout 10000000)
 
 (enums +_select 0
 	(enum main timeout))

@@ -11,7 +11,7 @@
 (defq +task_scale_size 10 +mem_scale_size 4 +task_align 10 +stack_scale_size 4
 	+mem_align (* 1024 16) +stack_align 1024 +poll_rate (/ 1000000 4)
 	+bars ''(:task_bar :alloc_bar :used_bar :stack_bar)
-	+retry_timeout (task-timeout 5))
+	+retry_timeout 5000000)
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Monitor" (+sym_close) +event_close)

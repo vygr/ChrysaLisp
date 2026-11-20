@@ -138,7 +138,7 @@
 					(+gui_rpc_owner_id (task-mbox))
 					(+gui_rpc_weak_view 0)) (if area (str area) (ifn title ""))))
 		(cond
-			((not (defq reply (mail-read-timeout mbox (task-timeout 10)))) "no answer from the GUI")
+			((not (defq reply (mail-read-timeout mbox 10000000))) "no answer from the GUI")
 			((starts-with "not read" reply) reply)
 			((> (length reply) 8) (list (get-uint reply 0) (get-uint reply 4) (slice reply 8 -1)))
 			("no window of that title"))))
@@ -154,7 +154,7 @@
 				(+gui_rpc_reply_id mbox)
 				(+gui_rpc_owner_id (task-mbox))
 				(+gui_rpc_weak_view 0)))
-		(if (defq reply (mail-read-timeout mbox (task-timeout 10)))
+		(if (defq reply (mail-read-timeout mbox 10000000))
 			(first (read (string-stream reply))))))
 
 (defun gui-tree-rpc (&optional title key value depth keys)
@@ -171,7 +171,7 @@
 					(+gui_rpc_owner_id (task-mbox))
 					(+gui_rpc_weak_view 0))
 				(str (list (ifn title "") (ifn key "") (ifn value "") (ifn depth -1) (ifn keys (list))))))
-		(ifn (mail-read-timeout mbox (task-timeout 10)) "no answer from the GUI")))
+		(ifn (mail-read-timeout mbox 10000000) "no answer from the GUI")))
 
 (defun gui-input-rpc (events)
 	; (gui-input-rpc events) -> :nil | :t
@@ -184,7 +184,7 @@
 					(+gui_rpc_reply_id mbox)
 					(+gui_rpc_owner_id (task-mbox))
 					(+gui_rpc_weak_view 0)) events))
-		(if (mail-read-timeout mbox (task-timeout 10)) :t)))
+		(if (mail-read-timeout mbox 10000000) :t)))
 
 (defun gui-locate-rpc (&optional title key value front)
 	; (gui-locate-rpc [title key value front]) -> :nil | why | (x y w h sx sy sw sh)
@@ -201,7 +201,7 @@
 					(+gui_rpc_weak_view 0))
 				(str (list (ifn title "") (ifn key "") (ifn value "") (if front :t :nil)))))
 		(cond
-			((not (defq reply (mail-read-timeout mbox (task-timeout 10)))) "no answer from the GUI")
+			((not (defq reply (mail-read-timeout mbox 10000000))) "no answer from the GUI")
 			((starts-with "(" reply) (first (read (string-stream reply))))
 			(reply))))
 
@@ -217,7 +217,7 @@
 					(+gui_rpc_owner_id (task-mbox))
 					(+gui_rpc_weak_view 0))
 				(str (list x y))))
-		(mail-read-timeout mbox (task-timeout 10))))
+		(mail-read-timeout mbox 10000000)))
 
 (defun gui-wait (ask secs)
 	; (gui-wait ask secs) -> answer

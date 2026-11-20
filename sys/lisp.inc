@@ -102,10 +102,6 @@
 		(if (= 0 (get-long tail 0)) (setq tail (task-mbox))))
 	ids)
 
-(defun task-timeout (time)
-	; (task-timeout s) -> ns
-	(if (starts-with "obj/vp64" (load-path)) (* time 10000000) (* time 1000000)))
-
 (defun mail-await (lookup &optional path mode wait)
 	; (mail-await lookup [path mode wait]) -> :nil | net_id
 	; (lookup) -> :nil | net_id
@@ -218,7 +214,7 @@
 	;wait till that many nodes are seen, so what is started next can
 	;spread over them, and not for ever
 	(defq t0 (pii-time))
-	(while (and (< (length (lisp-nodes)) want) (< (- (pii-time) t0) (task-timeout 10)))
+	(while (and (< (length (lisp-nodes)) want) (< (- (pii-time) t0) 10000000))
 		(task-sleep 10000)))
 
 (defun node-shape (shape &optional cnt)
@@ -302,7 +298,7 @@
 
 (defun mail-read-timeout (mbox &optional timeout)
 	; (mail-read-timeout mbox [timeout_us]) -> msg | :nil
-	(defq timer (mail-timeout (mail-mbox) (ifn timeout (task-timeout 1)) 0))
+	(defq timer (mail-timeout (mail-mbox) (ifn timeout 1000000) 0))
 	(when (= (mail-select (list mbox timer)) 0)
 		;mail came first, so cancel the timer
 		(mail-timeout timer 0 0)
@@ -384,8 +380,8 @@
 			;than this: it is their going that is waited for, not a time.
 			;The desktop's window is still up and its mouse still, so a
 			;wait of the whole time each quit was a window that hung about,
-			;half a second, and ten times that on the emulator
-			(defq until_t (+ (pii-time) (/ (task-timeout 1) 2)))
+			;half a second
+			(defq until_t (+ (pii-time) 500000))
 			(while (and (< (pii-time) until_t) (some (# (pii-alive %0)) pids))
 				(task-sleep 1000))
 			(each (# (if (pii-alive %0) (pii-kill %0))) pids)
@@ -476,7 +472,7 @@
 					;cuts off those the mail went through it to reach, the far side of
 					;a ring was left running. None is asked which it is and waited on,
 					;a node that has just gone is still known of, and never answers
-					(defq wait (/ (task-timeout 1) 2))
+					(defq wait 500000)
 					(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (progn (task-sleep ,wait) (pii-exit))))
 								%0 +kn_call_pin 0 (mail-mbox))) (cat (lisp-nodes :t) (if sid (lisp-nodes sid) (list))))
 					;one that could not be told, it is cut off or it is stuck, is

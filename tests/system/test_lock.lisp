@@ -154,7 +154,7 @@
 ;back as soon as it is granted: le_long is longer than the suite waits for a
 ;module, so one that never comes is the suite's to report, not a check that
 ;fails. A claim that can not be granted waits only le_wait, then gives :nil.
-(defq le_wait 30000 le_long (task-timeout 600))
+(defq le_wait 30000 le_long 30000000)
 
 (defun le-claim (key &optional mode)
 	; claim a lock that should be free
