@@ -104,9 +104,12 @@
 	(sort (map (# (first (split (second %0) "\n"))) farmed)))
 (assert-eq "pipe farm, nothing to do" 0 (length (pipe-farm (list))))
 ;the slow one is given out three times, then the farm stops, with the
-;result of the quick one and none for the slow
+;result of the quick one and none for the slow. Given again it is given
+;twice as long, 1, 2 and 4 s, so the slow one sleeps far longer than all
+;three: a busy machine is late to look, and its answer must not come first.
+;The farm does not wait for it, it is over at about 7 s
 (defq farmed (pipe-farm (list "echo quick"
-			(cat "lisp -r (task-sleep " (str (* 10 1000000)) ")")) 1000000))
+			(cat "lisp -r (task-sleep " (str 60000000) ")")) 1000000))
 (assert-list-eq "pipe farm, a command that is too slow is given up on" '("echo quick")
 	(map (const first) farmed))
 
