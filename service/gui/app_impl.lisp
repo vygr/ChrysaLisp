@@ -9,7 +9,7 @@
 
 ;proceed as normal now we have the root or GUI env loaded up
 (import "sys/pii/lisp.inc")
-(import "service/net/app.inc")
+(import "././net/app.inc")
 (import "usr/env.inc")
 (import (get :keyboard_map *env*))
 (import "./actions.inc")

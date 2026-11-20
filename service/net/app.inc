@@ -248,12 +248,13 @@
 ;seen for 30 s, lib/rack/rack.inc
 (defq +mesh_take_port 3335)
 
-(defun mesh-hand-back ()
-	; (mesh-hand-back) -> :t
+(defun mesh-hand-back (&optional port)
+	; (mesh-hand-back [port]) -> :t
 	;said by a desktop as it goes: the session that gave it the port is to
 	;take it back. Nothing is waiting if none gave it, and nothing is said
-	;to the others, the port is not this one's to give if it has it not
+	;to the others, the port is not this one's to give if it has it not.
+	;port is where it is said, +mesh_take_port if not given
 	(when (> (defq ask ((ffi "service/net/lisp_udp_bind") 0)) 0)
-		((ffi "service/net/lisp_udp_send") ask "127.0.0.1" +mesh_take_port "TAKE")
+		((ffi "service/net/lisp_udp_send") ask "127.0.0.1" (ifn port +mesh_take_port) "TAKE")
 		((ffi "service/net/lisp_close") ask))
 	:t)
