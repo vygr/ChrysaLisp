@@ -28,7 +28,7 @@
 	;the player, the song shown and its number, its bytes, how long it is,
 	;and what the player last said: heard, where, played, held or stopped,
 	;and the samples that sound
-	*engine* :nil *song* :nil *serial* 0 *data* :nil *length* 0
+	*engine* :nil *song* :nil *serial* 0 *seek_id* 0 *seek_at* 0 *data* :nil *length* 0
 	*heard* 0 *place* :nil *state* "s" *playing* (list) *shown* :nil
 	;what plays now, (title url), and the list it is of, and in what order,
 	;and what was playing when last closed, (title url seconds state), to go on
@@ -288,18 +288,22 @@
 				(status (cat (first *current*) ": not a module it can read")))
 			((eql kind "T")
 				;the row and the samples shown again only when they change
-				(bind '(& heard order row state &rest playing) words)
-				(setq *heard* (str-as-num heard) *state* state)
-				(unless (eql *shown* (defq place (cat order " " row)))
-					(setq *shown* place *place* (list (str-as-num order) (str-as-num row)))
-					(rows-show (first *place*) (second *place*)))
-				(unless (eql (join *playing* " ") (join playing " "))
-					(setq *playing* playing)
-					(samples-show))
-				(bars-show (map (const str-as-num) (split (slice msg (inc (find "|" msg)) -1) " ")))
-				(unless (= (get :value *seek*) (defq second (/ (min *heard* *length*) +rate)))
-					(def (. *seek* :dirty) :value second))
-				(song-status))
+				;of a seek before the last asked for, not shown
+				(bind '(& id heard order row state &rest playing) words)
+				(when (= (str-as-num id) *seek_id*)
+					(setq *heard* (str-as-num heard) *state* state)
+					(unless (eql *shown* (defq place (cat order " " row)))
+						(setq *shown* place *place* (list (str-as-num order) (str-as-num row)))
+						(rows-show (first *place*) (second *place*)))
+					(unless (eql (join *playing* " ") (join playing " "))
+						(setq *playing* playing)
+						(samples-show))
+					(bars-show (map (const str-as-num) (split (slice msg (inc (find "|" msg)) -1) " ")))
+					;the bar left to the hand that drags it, a second after the last
+					(and (> (- (pii-time) *seek_at*) 1000000)
+						(/= (get :value *seek*) (defq at (/ (min *heard* *length*) +rate)))
+						(def (. *seek* :dirty) :value at))
+					(song-status)))
 			((eql kind "E")
 				;all of it heard: the next of the jukebox, or stopped
 				(if *jukebox* (queue-step 1) (engine-send "S" *serial*))))))
@@ -513,10 +517,11 @@
 			((= id +event_filter) (list-show))
 			((= id +event_list) (list-at (get :value *list_slider*)))
 			((= id +event_seek)
+				(setq *seek_at* (pii-time))
 				;a drag sends many, only the last is played from: more of the
 				;window's waiting, this is not it
 				(and *song* (not (mail-poll (list (elem-get *select* +select_main))))
-					(engine-send "G" *serial* " " (get :value *seek*))))
+					(engine-send "G" *serial* " " (setq *seek_id* (inc *seek_id*)) " " (get :value *seek*))))
 			((and (= (getf msg +ev_msg_type) +ev_type_action)
 					(<= +event_item id (+ +event_item +list_rows -1))
 					(< (+ *top* (- id +event_item)) (length *entries*)))

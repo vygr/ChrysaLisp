@@ -671,12 +671,12 @@
 				(elem-set voices (+ at 1) pos)))
 		'() 0 (/ (length voices) +mix_size)))
 
-(defun tracker-seek (player frames)
-	; (tracker-seek player frames) -> frames
-	;a player from its start played on to the first tick at or past so many
-	;frames, its rows as they are played and its voices moved on, nothing
-	;mixed, and where that is
-	(defq at 0)
+(defun tracker-seek (player frames &optional from)
+	; (tracker-seek player frames [from]) -> frames
+	;a player played on to the first tick at or past so many frames, from
+	;its start, or from where it has got to, from, its rows as they are
+	;played and its voices moved on, nothing mixed, and where that is
+	(defq at (ifn from 0))
 	(while (and (< at frames) (not (. player :find :ended)))
 		(defq n (tracker-tick player))
 		(tracker-skip player n)

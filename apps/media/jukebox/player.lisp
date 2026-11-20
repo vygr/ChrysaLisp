@@ -14,13 +14,13 @@
 ;	P serial		played, from its start if stopped
 ;	H serial		held, or played on if held
 ;	S serial		stopped, to play from its start
-;	G serial seconds	played from there
+;	G serial id seconds	played from there, the id said back after
 ;	K			the window is there
 ;	Q			go
 ;It tells the window:
 ;	I serial frames		the song is so long
 ;	! serial		not a module it can read
-;	T serial heard order row state samples... | bands...
+;	T serial id heard order row state samples... | bands...
 ;	E serial		all of the song heard
 ;and it goes if it hears nothing of the window for a while
 
@@ -31,7 +31,9 @@
 	+recent_max (+ +ahead +fft 4096) +orphan 5000000
 	*app* :nil *serial* -1 *song* :nil *player* :nil *handle* :nil *written* 0
 	*marks* (list) *recent* "" *recent_at* 0 *length* 0 *state* "s" *ended* :nil
-	*spectrum* (spectrum-make +fft +rate +bars) *heard* 0 *told* :nil)
+	*spectrum* (spectrum-make +fft +rate +bars) *heard* 0 *told* :nil
+	;the last seek asked for, (id seconds), done when no more is waiting
+	*seek_id* 0 *seek_to* :nil)
 
 (defun sound-stop ()
 	(when *handle*
@@ -46,10 +48,17 @@
 
 (defun seek (seconds)
 	;from so many seconds in, its rows played to there and its voices moved
-	;on, nothing mixed
-	(rewind)
-	(setq *written* (tracker-seek *player* (* seconds +rate)) *recent_at* *written*
-		*heard* *written* *ended* (. *player* :find :ended)))
+	;on, nothing mixed: on from where it has got to if that is before it,
+	;else from its start
+	(defq target (* seconds +rate))
+	(cond
+		((and (>= target *written*) (not *ended*))
+			(sound-stop)
+			(setq *written* (tracker-seek *player* target *written*)))
+		(:t (rewind)
+			(setq *written* (tracker-seek *player* target))))
+	(setq *marks* (list) *recent* "" *recent_at* *written* *heard* *written*
+		*ended* (. *player* :find :ended)))
 
 (defun feed ()
 	; (feed) -> heard
@@ -88,7 +97,7 @@
 			(and (>= s 0) (> (elem-get voices (+ (* (!) +mix_size) 3)) 0) (not (find s playing))
 				(push playing s)))
 		'() 0 (/ (length voices) +mix_size))
-	(mail-send *app* (cat "T" (join (map (const str) (cat (list *serial* heard order row) )) " ")
+	(mail-send *app* (cat "T" (join (map (const str) (list *serial* *seek_id* heard order row)) " ")
 		" " *state* " " (join (map (const str) playing) " ") " | " (join (map (const str) bands) " "))))
 
 (defun load-song (serial state seconds data)
@@ -131,11 +140,18 @@
 			(setq *state* "s" *told* :nil)
 			(report))
 		((eql kind "G")
-			(defq state *state* seconds (str-as-num (second words)))
-			(seek seconds)
-			(setq *state* (if (eql state "s") "p" state) *told* :nil
-				*handle* (audio-stream-open-rpc +rate 2))
-			(report))))
+			;only the last of a drag is done, (seek-now)
+			(setq *seek_to* (list (str-as-num (second words)) (str-as-num (third words)))))))
+
+(defun seek-now ()
+	;the last seek asked for, now no more is waiting
+	(bind '(id seconds) *seek_to*)
+	(defq state *state*)
+	(setq *seek_to* :nil *seek_id* id)
+	(seek seconds)
+	(setq *state* (if (eql state "s") "p" state) *told* :nil
+		*handle* (audio-stream-open-rpc +rate 2))
+	(report))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t heard_at (pii-time))
@@ -157,5 +173,8 @@
 						(when (and *ended* (>= *heard* *written*) (not *told*))
 							(setq *told* :t)
 							(mail-send *app* (cat "E" (str *serial*))))))
-				(:t (setq heard_at (pii-time) running (command msg))))))
+				(:t (setq heard_at (pii-time) running (command msg))))
+			;a seek when no more is waiting
+			(and *seek_to* *song* (not (mail-poll (list (elem-get select +select_main))))
+				(seek-now))))
 	(sound-stop))
