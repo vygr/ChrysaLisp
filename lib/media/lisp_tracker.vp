@@ -1,0 +1,302 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/nums/class.inc")
+(include "class/doubles/class.inc")
+(include "class/str/class.inc")
+(include "class/lisp/class.inc")
+
+;the voices of a tracker's song, lib/media/tracker.inc, mixed. A voice is
+;+mix_size longs of a nums: its sample, -1 none, where it is in it and its
+;step a frame, 16.16, its weights left and right, its loop's start, -1
+;none, and its end, in samples
+(defcvar '+mix_size 7)
+
+(def-func (path-to-absolute "./media_mix"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(media-mix out acc samples state) -> out, the voices of state mixed into
+	;out, a str of frames of two 16 bit samples, left first, low byte first,
+	;as many frames as it is long. acc is nums of two a frame or more, what
+	;is summed. samples is the list of the samples, a str each of 8 bit
+	;signed. Each sample of a voice is times its weights, the sum of them
+	;moved down 8 and held to 16 bits. A voice past its end with no loop is
+	;put to -1, where each is is kept in state
+
+	(structure slot 0
+		(ptr this out acc samples state)
+		(long frames))
+
+	(vp-rdef (dptr pos step wl wr ls endq a n s x llen st stend)
+		'(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
+	(entry '(:r0 :r1))
+
+	(gotoif-lisp-args-sig 'error :r1 4)
+
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :obj :obj))
+	(save-fields :rsp '(slot_out slot_acc slot_samples slot_state) '(:r2 :r3 :r4 :r5))
+
+	;the frames, and the sums all 0
+	(assign '((:r2 +str_length)) `(,n))
+	(vp-shr-cr 2 n)
+	(assign `(,n) '((:rsp slot_frames)))
+	(vpif `(,n /= 0))
+		(assign '((:r3 +array_begin)) `(,a))
+		(vp-shl-cr 1 n)
+		(vp-xor-rr x x)
+		(loop-start)
+			(vp-store-rrc x a 0)
+			(vp-add-cr +long_size a)
+			(vp-sub-cr 1 n)
+		(loop-until `(,n = 0))
+
+		;each voice
+		(assign '((:r5 +array_begin) (:r5 +array_length ui)) `(,st ,stend))
+		(vp-shl-cr (log2 +long_size) stend)
+		(vp-add-rr st stend)
+		(vpif `(,st /= ,stend))
+			(loop-start)
+				(assign `((,st 0)) `(,s))
+				(vpif `(,s >= 0))
+					;its sample's bytes, and where it is, how it goes, and its loop
+					(assign '((:rsp slot_samples)) `(,x))
+					(assign `((,x +array_begin)) `(,x))
+					(vp-shl-cr (log2 +long_size) s)
+					(vp-load-rrr x s dptr)
+					(vp-lea-rcr dptr +str_data dptr)
+					(load-fields st '(8 16 24 32 40 48) `(,pos ,step ,wl ,wr ,ls ,endq))
+					(vp-shl-cr 16 endq)
+					(vp-cpy-rr ls llen)
+					(vp-shl-cr 16 llen)
+					(vp-cpy-rr endq x)
+					(vp-sub-rr llen x)
+					(vp-cpy-rr x llen)
+					(assign '((:rsp slot_acc) (:rsp slot_frames)) `(,a ,n))
+					(assign `((,a +array_begin)) `(,a))
+					(loop-start 'frames)
+						(vpif `(,pos >= ,endq))
+							;past its end: round its loop, or it has ended
+							(vpif `(,ls < 0))
+								(vp-cpy-cr -1 x)
+								(vp-store-rrc x st 0)
+								(break 'frames)
+							(endif)
+							(loop-start)
+								(vp-sub-rr llen pos)
+							(loop-until `(,pos < ,endq))
+						(endif)
+						(vp-cpy-rr pos x)
+						(vp-asr-cr 16 x)
+						(vp-load-rrr-b dptr x s)
+						(vp-cpy-rr s x)
+						(vp-mul-rr wl x)
+						(vp-mul-rr wr s)
+						(vp-load-rcr a 0 :r0)
+						(vp-add-rr x :r0)
+						(vp-store-rrc :r0 a 0)
+						(vp-load-rcr a 8 :r0)
+						(vp-add-rr s :r0)
+						(vp-store-rrc :r0 a 8)
+						(vp-add-cr (* 2 +long_size) a)
+						(vp-add-rr step pos)
+						(vp-sub-cr 1 n)
+					(loop-until `(,n = 0))
+					(vp-store-rrc pos st 8)
+				(endif)
+				(vp-add-cr (* +mix_size +long_size) st)
+			(loop-until `(,st = ,stend))
+		(endif)
+
+		;the sums, moved down and held to 16 bits
+		(assign '((:rsp slot_acc) (:rsp slot_out) (:rsp slot_frames)) `(,a ,dptr ,n))
+		(assign `((,a +array_begin)) `(,a))
+		(vp-lea-rcr dptr +str_data dptr)
+		(vp-shl-cr 1 n)
+		(vp-cpy-cr 32767 wl)
+		(vp-cpy-cr -32768 wr)
+		(loop-start)
+			(vp-load-rcr a 0 x)
+			(vp-asr-cr 8 x)
+			(vpif `(,x > ,wl))
+				(vp-cpy-rr wl x)
+			(elseif `(,x < ,wr))
+				(vp-cpy-rr wr x)
+			(endif)
+			(vp-store-rrc-s x dptr 0)
+			(vp-add-cr +long_size a)
+			(vp-add-cr 2 dptr)
+			(vp-sub-cr 1 n)
+		(loop-until `(,n = 0))
+	(endif)
+
+	(assign '((:rsp slot_out) (:rsp slot_this)) '(:r1 :r0))
+	(vp-free slot_size)
+	(class/obj/ref :r1 :r2)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-mix out acc samples state)" +error_msg_wrong_types))
+	(signature '(:str :nums :list :nums))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_spectrum"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d9
+	;info
+	;(media-spectrum pcm from x tw rev win pow) -> pow, the power of each of
+	;the first n/2 frequencies of n frames of pcm from frame from, its two
+	;channels added, times the window win. n is the length of rev, the bit
+	;reversal of n, and of win; x is 2n doubles, worked in; tw the twiddles
+	;of an FFT of n, e^(-2 pi i k/n) as cos and sin, n/2 of them; pow n/2
+	;doubles. pcm is frames of two 16 bit samples, as many as from + n
+
+	(vp-rdef (src g x tw rev f pw n j a b c d e)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r1))
+
+	(entry '(:r0 :r1))
+
+	(gotoif-lisp-args-sig 'error :r1 7)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,src ,g ,x ,tw ,rev ,f ,pw) '(:obj :num :obj :obj :obj :obj :obj))
+	(vp-push pw)
+	(assign `((,rev +array_length ui)) `(,n))
+	(assign `((,x +array_begin) (,tw +array_begin) (,rev +array_begin) (,f +array_begin) (,pw +array_begin))
+		`(,x ,tw ,rev ,f ,pw))
+	(vp-lea-rcr src +str_data src)
+	(vp-shl-cr 2 g)
+	(vp-add-rr g src)
+
+	;each frame its two channels added, by its window, to its place bit
+	;reversed, a complex of no imaginary part
+	(vp-xor-rr j j)
+	(loop-start)
+		(vp-load-rcr-s src 0 a)
+		(vp-load-rcr-s src 2 b)
+		(vp-add-rr b a)
+		(vp-cvt-rd a :d0)
+		(vp-cpy-rr j a)
+		(vp-shl-cr 3 a)
+		(vp-load-rrd f a :d1)
+		(vp-mul-dd :d1 :d0)
+		(vp-load-rrr rev a b)
+		(vp-shl-cr 4 b)
+		(vp-store-drr :d0 x b)
+		(vp-add-cr 8 b)
+		(vp-xor-rr a a)
+		(vp-cvt-rd a :d1)
+		(vp-store-drr :d1 x b)
+		(vp-add-cr 4 src)
+		(vp-add-cr 1 j)
+	(loop-until `(,j = ,n))
+
+	;the FFT, in place, stages of 2, 4 ... n, a twiddle every so many of
+	;the table: c is the length of a stage, d half of it in bytes, e the
+	;step through the table in bytes
+	(vp-cpy-cr 2 c)
+	(vp-cpy-rr n e)
+	(vp-shl-cr 3 e)
+	(loop-start)
+		(vp-cpy-rr c d)
+		(vp-shl-cr 3 d)
+		;each group, from a, its first in bytes
+		(vp-xor-rr a a)
+		(loop-start)
+			;each pair of the group, b from 0 to half, f through the table
+			(vp-xor-rr b b)
+			(vp-xor-rr f f)
+			(loop-start)
+				;i at a + b, j half after it, in bytes of complexes
+				(vp-cpy-rr a j)
+				(vp-add-rr b j)
+				(vp-add-rr x j)
+				;the twiddle
+				(vp-load-rrd tw f :d2)
+				(vp-add-cr 8 f)
+				(vp-load-rrd tw f :d3)
+				(vp-sub-cr 8 f)
+				;x[j] by it, j at g
+				(vp-cpy-rr j g)
+				(vp-add-rr d g)
+				(vp-load-rcd g 0 :d0)
+				(vp-load-rcd g 8 :d1)
+				(vp-cpy-dd :d0 :d4)
+				(vp-mul-dd :d2 :d4)
+				(vp-cpy-dd :d1 :d5)
+				(vp-mul-dd :d3 :d5)
+				(vp-sub-dd :d5 :d4)
+				(vp-mul-dd :d3 :d0)
+				(vp-mul-dd :d2 :d1)
+				(vp-add-dd :d1 :d0)
+				;x[j] = x[i] - t, x[i] = x[i] + t
+				(vp-load-rcd j 0 :d6)
+				(vp-load-rcd j 8 :d7)
+				(vp-cpy-dd :d6 :d8)
+				(vp-sub-dd :d4 :d8)
+				(vp-cpy-dd :d7 :d9)
+				(vp-sub-dd :d0 :d9)
+				(vp-add-dd :d4 :d6)
+				(vp-add-dd :d0 :d7)
+				(vp-store-drc :d6 j 0)
+				(vp-store-drc :d7 j 8)
+				(vp-store-drc :d8 g 0)
+				(vp-store-drc :d9 g 8)
+				(vp-add-cr 16 b)
+				(vp-add-rr e f)
+			(loop-until `(,b = ,d))
+			(vp-add-rr d a)
+			(vp-add-rr d a)
+			(vp-cpy-rr n j)
+			(vp-shl-cr 4 j)
+		(loop-until `(,a = ,j))
+		(vp-shr-cr 1 e)
+		(vp-shl-cr 1 c)
+	(loop-until `(,c > ,n))
+
+	;the power of each of the first half
+	(vp-cpy-rr n b)
+	(vp-shr-cr 1 b)
+	(vp-xor-rr j j)
+	(loop-start)
+		(vp-cpy-rr j a)
+		(vp-shl-cr 4 a)
+		(vp-load-rrd x a :d0)
+		(vp-add-cr 8 a)
+		(vp-load-rrd x a :d1)
+		(vp-mul-dd :d0 :d0)
+		(vp-mul-dd :d1 :d1)
+		(vp-add-dd :d1 :d0)
+		(vp-cpy-rr j a)
+		(vp-shl-cr 3 a)
+		(vp-store-drr :d0 pw a)
+		(vp-add-cr 1 j)
+	(loop-until `(,j = ,b))
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-spectrum pcm from x tw rev win pow)" +error_msg_wrong_types))
+	(signature '(:str :num :DOUBLES :DOUBLES :nums :DOUBLES :DOUBLES))
+
+(def-func-end)
