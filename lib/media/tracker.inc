@@ -278,3 +278,32 @@
 	(defq player (tracker-player song rate) frames 0)
 	(until (. player :find :ended) (setq frames (+ frames (tracker-tick player))))
 	frames)
+
+(defun tracker-skip (player frames)
+	; (tracker-skip player frames)
+	;each voice moved on so many frames, as the mixer would, nothing mixed:
+	;round its loop, or ended
+	(defq voices (. player :find :voices))
+	(each! (lambda ()
+			(defq at (* (!) +mix_size))
+			(when (>= (elem-get voices at) 0)
+				(defq pos (+ (elem-get voices (+ at 1)) (* (elem-get voices (+ at 2)) frames))
+					ls (elem-get voices (+ at 5)) endq (<< (elem-get voices (+ at 6)) 16))
+				(cond
+					((< pos endq))
+					((>= ls 0) (setq pos (+ (<< ls 16) (% (- pos endq) (- endq (<< ls 16))))))
+					((elem-set voices at -1)))
+				(elem-set voices (+ at 1) pos)))
+		'() 0 (. player :find :channels)))
+
+(defun tracker-seek (player frames)
+	; (tracker-seek player frames) -> frames
+	;a player from its start played on to the first tick at or past so many
+	;frames, its rows as they are played and its voices moved on, nothing
+	;mixed, and where that is
+	(defq at 0)
+	(while (and (< at frames) (not (. player :find :ended)))
+		(defq n (tracker-tick player))
+		(tracker-skip player n)
+		(setq at (+ at n)))
+	at)

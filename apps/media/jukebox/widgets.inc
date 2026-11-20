@@ -1,7 +1,7 @@
 (enums +event +event_user
 	(enum prev play pause stop next)
-	(enum pin unpin open)
-	(enum mode shuffle tab up filter)
+	(enum pin open)
+	(enum mode shuffle tab up filter seek)
 	;the rows of the list, an event each from here on
 	(enum item))
 
@@ -15,10 +15,12 @@
 			(ui-tool-bar *controls* ()
 				(ui-buttons (+sym_media_start +sym_media_play +sym_media_pause +sym_media_stop +sym_media_end) +event_prev))
 			(ui-tool-bar *favourite* ()
-				(ui-buttons (+sym_pin +sym_unpin +sym_open) +event_pin))
+				(ui-buttons (+sym_pin +sym_open) +event_pin))
 			(. (ui-radio-bar *mode* ("Player" "Jukebox") (:font :font_body)) :connect +event_mode)
 			(. (ui-toggle-bar *shuffle* ("Shuffle") (:font :font_body)) :connect +event_shuffle)
 			(ui-backdrop _ (:paper :paper_toolbar)))
+		;where the song is, dragged to seek
+		(. (ui-slider *seek* (:value 0 :maximum 0 :portion 1 :min_height 14)) :connect +event_seek)
 		(ui-label *status* (:text "Nothing playing" :font :font_body))
 		;the song's samples, lit as they play, and its rows as a tracker shows
 		;them, the row heard in the middle
@@ -52,5 +54,5 @@
 				(ui-backdrop _ (:style :plain :paper +argb_black))))))
 
 (ui-tool-tips *controls* '("prev" "play" "pause" "stop" "next"))
-(ui-tool-tips *favourite* '("a favourite, kept to play offline" "no longer a favourite" "open a module"))
+(ui-tool-tips *favourite* '("a favourite, kept to play offline, or not" "open a module"))
 (ui-tool-tips *places* '("up a folder"))

@@ -7,6 +7,7 @@
 (import "lib/media/mod.inc")
 (import "lib/media/tracker.inc")
 (import "lib/media/spectrum.inc")
+(import "lib/text/searching.inc")
 (import "./library.inc")
 (import "./widgets.inc")
 
@@ -59,14 +60,6 @@
 
 (defun favourite? (url)
 	(some (# (eql (second %0) url)) *favourites*))
-
-(defun find-text (needle hay)
-	; (find-text needle hay) -> :nil | :t
-	;is needle somewhere in hay
-	(defq n (length needle) end (- (length hay) n) at 0 found :nil)
-	(while (and (not found) (<= at end))
-		(if (eql (slice hay at (+ at n)) needle) (setq found :t) (setq at (inc at))))
-	found)
 
 ;;;;;;;;;;;;;;;;;
 ; what is shown
@@ -135,11 +128,11 @@
 	(. *bars* :swap +swap_write))
 
 (defun favourite-show ()
-	;the pin lit while what plays is a favourite, the other not
-	(defq on (and *current* (favourite? (second *current*))))
-	(each (lambda (btn lit)
-			(if lit (def (. btn :dirty) :paper (get :paper_highlight *env*)) (undef (. btn :dirty) :paper)))
-		(slice (. *favourite* :children) 0 2) (list on (not on))))
+	;the pin lit while what plays is a favourite
+	(defq btn (first (. *favourite* :children)))
+	(if (and *current* (favourite? (second *current*)))
+		(def (. btn :dirty) :paper (get :paper_highlight *env*))
+		(undef (. btn :dirty) :paper)))
 
 ;;;;;;;;;;;;;;;;;
 ; the sound of it
@@ -161,6 +154,7 @@
 	;a module's bytes played from its start, if they are one
 	(when (defq song (mod-read data))
 		(setq *song* song *data* data *current* (list title url) *length* (tracker-length song +rate))
+		(def *seek* :maximum (/ *length* +rate) :value 0)
 		(song-rewind)
 		(setq *handle* (audio-stream-open-rpc +rate 2))
 		;as many columns as it has channels
@@ -175,6 +169,15 @@
 (defun song-stop ()
 	;stopped, to play from its start
 	(if *song* (song-rewind)))
+
+(defun song-seek (seconds)
+	;played from so many seconds in: the song from its start to there, its
+	;rows played and its voices moved on, nothing mixed, lib/media/tracker.inc
+	(defq paused *paused*)
+	(song-rewind)
+	(setq *written* (tracker-seek *player* (* seconds +rate)) *recent_at* *written*
+		*ended* (. *player* :find :ended) *paused* paused
+		*handle* (audio-stream-open-rpc +rate 2)))
 
 (defun feed ()
 	; (feed) -> :nil | heard
@@ -249,6 +252,8 @@
 				(rows-show order row)
 				(samples-show)))
 		(bars-show heard)
+		(unless (= (get :value *seek*) (defq second (/ (min heard *length*) +rate)))
+			(def (. *seek* :dirty) :value second))
 		(status (cat (. *song* :find :title) ", " (. *song* :find :kind) " of "
 			(str (. *song* :find :channels)) " channels, "
 			(if *shown* (cat "order " (str (inc (first *shown*))) " of " (str (length (. *song* :find :orders))) ", ") "")
@@ -303,8 +308,11 @@
 
 (defun list-show ()
 	;a button a row, as many as the filter leaves, to so many
-	(defq filter_text (to-lower (get :clear_text *filter*)))
-	(setq *entries* (filter (# (or (eql filter_text "") (find-text filter_text (to-lower (first %0)))))
+	;the filter a regexp, ignoring case, or plain text if it is not one
+	(defq pattern (get :clear_text *filter*) found (query pattern :nil :t :t))
+	(unless (second found) (setq found (query pattern :nil :nil :t)))
+	(bind '(engine meta &ignore) found)
+	(setq *entries* (filter (# (or (eql pattern "") (. engine :match? (to-lower (first %0)) meta)))
 		(list-entries)))
 	(each (# (. %0 :sub)) (. *list* :children))
 	(each! (lambda ((title url folder))
@@ -394,8 +402,9 @@
 			((= id +event_stop) (song-stop))
 			((= id +event_next) (queue-step 1))
 			((= id +event_prev) (queue-step -1))
-			((= id +event_pin) (favourite-add))
-			((= id +event_unpin) (favourite-remove))
+			((= id +event_pin)
+				;a favourite no longer, or one now
+				(if (and *current* (favourite? (second *current*))) (favourite-remove) (favourite-add)))
 			((= id +event_open)
 				(if *picker* (mail-send *picker* ""))
 				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod" :nil "mods" :t (list))))
@@ -414,6 +423,11 @@
 			((= id +event_up)
 				(when (nempty? *browse*) (pop *browse*) (config-save) (list-show)))
 			((= id +event_filter) (list-show))
+			((= id +event_seek)
+				;a drag sends many, only the last is played from: more of the
+				;window's waiting, this is not it
+				(and *song* (not (mail-poll (list (elem-get *select* +select_main))))
+					(song-seek (get :value *seek*))))
 			((and (= (getf msg +ev_msg_type) +ev_type_action)
 					(<= +event_item id (+ +event_item (dec (length *entries*)))))
 				(item-pressed (- id +event_item)))
