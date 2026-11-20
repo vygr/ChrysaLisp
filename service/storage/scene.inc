@@ -7,9 +7,9 @@
 ; checks what came of it. Then it stops its members and its store is gone.
 ;
 ; It is started by (scene-run), from `storage -t name` or an app, and is
-; mailed, a line each, who to tell and the group its members are to be of,
-; so that what started it can record them from the first, `storage -t name
-; -r file`. It tells, each a mail: "say " and a line, as it goes, and at the
+; mailed, a line each, who to tell, the group its members are to be of, and
+; the mailbox of what records them, or -, so that it can record them from
+; the first, `storage -t name -r file`. It tells, each a mail: "say " and a line, as it goes, and at the
 ; end "done " and how many of its checks held and how many did not, and
 ; "gone" once its members are stopped and their stores removed.
 ;
@@ -34,11 +34,12 @@
 
 (defun scene-begin (what)
 	; (scene-begin what) -> scene
-	;who to tell and the group, as it was mailed, and what the scene is for,
-	;said first
-	(bind '(reply group) (split (mail-read (task-mbox)) +storage_lf))
+	;who to tell, the group and the recorder, - for none, as it was mailed,
+	;and what the scene is for, said first
+	(bind '(reply group record) (split (mail-read (task-mbox)) +storage_lf))
 	(defq scene (Emap))
 	(scatter scene :reply (hex-decode reply) :group group :tag (cat (str (pii-pid)) "_" (str (random 1000000)))
+		:record (unless (eql record "-") (hex-decode record))
 		:svcs (list) :images (list) :passed 0 :failed 0 :starts 0 :big :nil :near :nil :cut (list))
 	(scene-say scene what)
 	scene)
@@ -70,6 +71,10 @@
 			:group (. scene :find :group) :member id :tick 0 :grace 0))
 	(unless (find image (. scene :find :images)) (push (. scene :find :images) image))
 	(when svc
+		;told of the recorder now: one on another node knows of it only when
+		;its name has come by in a ping, and would not record what is done
+		;to it till then
+		(if (defq record (. scene :find :record)) (storage-record-ask svc record))
 		(. scene :insert :svcs (cat (filter (# (nql (first %0) id)) (. scene :find :svcs)) (list (list id svc)))))
 	svc)
 
@@ -252,7 +257,7 @@
 			scene_child (open-child scene_file +kn_call_run) scene_result :nil scene_going :t scene_next 0
 			scene_until (if (nql wait :t) (+ (pii-time) (task-timeout (ifn wait 600)))) scene_heard_at (pii-time))
 		(when (/= 0 (get-long scene_child 0))
-			(mail-send scene_child (join (list (hex-encode scene_said) scene_group) +storage_lf))
+			(mail-send scene_child (join (list (hex-encode scene_said) scene_group (if record (hex-encode scene_heard) "-")) +storage_lf))
 			;and not for ever: a scene that has gone, it threw, says nothing more,
 			;and is given up on when it and its members have been quiet a minute
 			(while (and scene_going (or (not scene_until)
