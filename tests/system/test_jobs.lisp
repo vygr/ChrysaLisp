@@ -18,6 +18,18 @@
 (defun jt-work (num &optional die)
 	(setf-> (str-alloc +work_size) (+work_num num) (+work_die (if die 1 0))))
 
+(defun jt-state ()
+	; (jt-state) -> str
+	;what the farm holds: the jobs out and queued, and each child, its key,
+	;if it has said it is up, if it has a job, and for how long
+	(defq now (pii-time) lines (list (cat "out " (str (. jobs :out))
+			" queued " (str (length (get :queue jobs))))))
+	(. (get :farm jobs) :each (lambda (key val)
+			(push lines (cat "child " (str key) (if (get :child val) " up" " not up")
+				(if (get :job val) " has a job" " no job") " "
+				(str (/ (- now (ifn (get :timestamp val) now)) 1000000)) "s"))))
+	(join lines ", "))
+
 (defun jt-run (work &optional done patience)
 	;add the work and take the answers till none are out, or done says
 	;so, as long as that takes. The numbers that came back, sorted.
@@ -25,19 +37,30 @@
 	;dead, and the job put back. It is as long as the suite waits for a
 	;module, a child that is only slow, on a small machine with every test
 	;running at once, is not a dead one. The run that has a job kill its
-	;child gives its own, short
-	(defq got (list) left :t patience (ifn patience (task-timeout 600)))
+	;child gives its own, short. A wait that goes on past 10 s says, every
+	;10 s, what it has heard, the last few, and what the farm holds: one
+	;stuck in a full run on the emulator, the nodes idle, waited out its
+	;patience and said nothing of why
+	(defq got (list) left :t patience (ifn patience (task-timeout 600))
+		heard (list) began (pii-time) noted (pii-time))
 	(. jobs :add work)
 	(while (and left (not (and done (done))))
 		(mail-timeout (elem-get jt_select +jt_timer) 200000 0)
 		(defq msg (mail-read (elem-get jt_select (defq idx (mail-select jt_select)))))
 		(case idx
-			(+jt_task (. jobs :launched msg))
+			(+jt_task
+				(push heard (cat "up " (str (getf msg +kn_msg_key))))
+				(. jobs :launched msg))
 			(+jt_reply
+				(push heard (cat "reply " (str (getf msg +job_reply_key))))
 				(when (defq out (. jobs :answered msg))
 					(push got (getf msg +work_reply_num))
 					(if (= out 0) (setq left :nil))))
-			(:t (. jobs :refresh patience))))
+			(:t (. jobs :refresh patience)
+				(when (> (- (pii-time) noted) 10000000)
+					(setq noted (pii-time))
+					(test-note (cat "waiting " (str (/ (- noted began) 1000000)) "s, "
+						(jt-state) ", heard " (join (slice heard (max 0 (- (length heard) 6)) -1) " ")))))))
 	(mail-timeout (elem-get jt_select +jt_timer) 0 0)
 	(sort got (const -)))
 
