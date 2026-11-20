@@ -24,7 +24,8 @@
 ; test of a while or an until and the body of a lambda, a call of
 ; (gopher-tick) is put in: it gives way to the other tasks of the node,
 ; and once the function has had its time for the one block, a second by
-; the clock, it says no, and every loop of the function ends, and every
+; the clock, less the time the apps of the node had while it rested, it
+; says no, and every loop of the function ends, and every
 ; function of it given to a map or an each does nothing more. So the
 ; function comes back by itself, soon, and is done with, who asked is
 ; told none. Nothing is thrown, it is told to stop and comes back by
@@ -71,15 +72,16 @@
 	;that is due, and say no if the block's second is up
 	(defq now (pii-time))
 	(bot-breathe now)
-	;in the slow lane, while the quick runner has blocks to do, it waits,
-	;and the time it waits is not of its second
+	;in the slow lane, while the quick runner has blocks to do, it waits
 	(when *gopher_hold*
 		(while (mail-poll (list *gopher_hold*)) (setq *gopher_held* (eql (mail-read *gopher_hold*) "1")))
-		(when *gopher_held*
-			(while *gopher_held*
-				(setq *gopher_held* (eql (mail-read *gopher_hold*) "1"))
-				(while (mail-poll (list *gopher_hold*)) (setq *gopher_held* (eql (mail-read *gopher_hold*) "1"))))
-			(setq *gopher_until* (+ *gopher_until* (- (pii-time) now)) now (pii-time))))
+		(while *gopher_held*
+			(setq *gopher_held* (eql (mail-read *gopher_hold*) "1"))
+			(while (mail-poll (list *gopher_hold*)) (setq *gopher_held* (eql (mail-read *gopher_hold*) "1")))))
+	;the time it rested, while the apps of the node had their turn, or
+	;waited, is not of its second: an app may hold the node a second
+	;itself
+	(setq *gopher_until* (+ *gopher_until* (- (pii-time) now)) now (pii-time))
 	(cond
 		(*gopher_late* :nil)
 		((> now *gopher_until*) (setq *gopher_late* :t) :nil)
