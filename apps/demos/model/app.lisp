@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "apps/system/files/picker.inc")
 (import "lib/math/matrix.inc")
 (import "lib/math/obj.inc")
@@ -39,6 +40,9 @@
 	parts (list) name "" triangles 0 mesh_ids 0
 	;what draws the frames, and how many it has in the second
 	render :nil frames 0 since (pii-time)
+	;which of the models, and CPU or GPU, as they were when last closed,
+	;(config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "model.tre")
 	;models to show it can, the cube of its own, and others fetched from
 	;the internet as they are picked, over https, by lib/net/tls.inc, and
 	;kept in downloads/models/ for the next time, fetch.lisp, each
@@ -247,6 +251,29 @@
 	;with none
 	(. *mode* :set_selected (if (eql (. render :mode) :gpu) 1 0)))
 
+(defun cube-load ()
+	(if (model-load (cat *app_root* "data/cube.obj"))
+		(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials. Drag to turn, the wheel for nearer."))))
+
+(defun model-pick ()
+	;one of the models it knows, the cube here, the rest fetched
+	(bind '(pick address &optional picture) (elem-get *models* (. *model* :get_selected)))
+	(if address (fetch-start pick address picture) (cube-load)))
+
+(defun config-load ()
+	;as it was when last closed, or as it is the first time: the cube, on
+	;the GPU if there is one
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version :model 0 :gpu :t)))
+	(. *model* :set_selected (max 0 (min (dec (length *models*)) (. *config* :find :model)))))
+
+(defun config-save ()
+	(scatter *config* :model (. *model* :get_selected) :gpu (= (. *mode* :get_selected) 1))
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
+
 (defun picker-open ()
 	;the Files app's picker, for the model to open
 	(if picker (mail-send picker ""))
@@ -256,10 +283,13 @@
 	(setq select (task-mboxes +select_size)
 		render (Render-tris *canvas* (cat *app_root* "model_vertex.shader") (cat *app_root* "model_lit.shader")))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
+	(config-load)
+	;it comes up on the GPU if there is one and it was last time
+	(unless (. *config* :find :gpu) (. render :mode :cpu))
 	(mode-show)
-	(. *model* :set_selected 0)
-	(if (model-load (cat *app_root* "data/cube.obj"))
-		(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials. Drag to turn, the wheel for nearer.")))
+	;the cube while the model of last time is fetched
+	(cube-load)
+	(if (> (. *model* :get_selected) 0) (model-pick))
 	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
@@ -280,14 +310,7 @@
 					((= id +event_mode)
 						(. render :mode (if (= (. *mode* :get_selected) 1) :gpu :cpu))
 						(mode-show))
-					((= id +event_model)
-						;one of the models it knows, the cube here, the rest fetched
-						(bind '(pick address &optional picture) (elem-get *models* (. *model* :get_selected)))
-						(cond
-							((not address)
-								(if (model-load (cat *app_root* "data/cube.obj"))
-									(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials."))))
-							((fetch-start pick address picture))))
+					((= id +event_model) (model-pick))
 					((= (getf msg +ev_msg_type) +ev_type_wheel)
 						;nearer or further
 						(setq away (max (n2d 1.5) (min (n2d 12) (+ away (* (n2d 0.2) (n2d (getf msg +ev_msg_wheel_y))))))))
@@ -328,6 +351,7 @@
 					(. *rate* :set_text (cat (str (/ (* frames 1000000) (- now since))) " frames a second, "
 							(. render :how)))
 					(setq frames 0 since now)))))
+	(config-save)
 	(. render :close)
 	(if picker (mail-send picker ""))
 	(. *window* :close))

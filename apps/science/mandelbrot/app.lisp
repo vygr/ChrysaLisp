@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "./app.inc")
 (import "service/source/app.inc")
 (import "lib/gpu/render_farm.inc")
@@ -57,7 +58,9 @@
 	select :nil render :nil dirty :nil out :nil
 	last_t 0 last_show 0 changed :t
 	;how long the last whole picture took, and when the farm's was started
-	took 0 farm_t 0)
+	took 0 farm_t 0
+	;CPU or GPU, and the palette, as they were when last closed, (config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "mandelbrot.tre"))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Mandelbrot" (+sym_close) +event_close)
@@ -248,6 +251,21 @@
 		(setq dirty :nil last_show now)
 		(. *canvas* :swap +swap_write)))
 
+(defun config-load ()
+	;as it was when last closed, or as it is the first time: the GPU if
+	;there is one, the first palette
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version :pal 0 :gpu :t)))
+	(setq pal (max 0 (min (dec (length +mandel_palettes)) (. *config* :find :pal))))
+	(. *pal_toolbar* :set_selected pal))
+
+(defun config-save ()
+	(scatter *config* :pal pal :gpu (= (. *mode_toolbar* :get_selected) 1))
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
+
 (defun main ()
 	;the children are this app's: the GPU's one task, kept off this node,
 	;which is the window's, and the CPU's two on each node of this machine,
@@ -258,6 +276,9 @@
 		render (Render-work *canvas* (source-task (cat *app_root* "child.lisp")) (cat *app_root* "gpu.lisp")))
 	(def render :jobs_fn (const frame-jobs) :reply_fn (const square-done) :cannot_fn (const square-cannot)
 		:herd (list +max_int 2 2) :send_back :t :patience +retry_timeout :part "square")
+	(config-load)
+	;it comes up on the GPU if there is one and it was last time
+	(unless (. *config* :find :gpu) (. render :mode :cpu))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *window* :open)
 	(tooltips)
@@ -313,5 +334,6 @@
 				(tick)
 				(mail-timeout (elem-get select +select_timer)
 					(max 1000 (- +frame_rate (- (pii-time) start))) 0))))
+	(config-save)
 	(. render :close)
 	(. *window* :close))

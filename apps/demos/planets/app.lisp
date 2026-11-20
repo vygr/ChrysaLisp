@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/math/matrix.inc")
 (import "lib/gpu/render_farm.inc")
 
@@ -29,7 +30,9 @@
 	lens (mat4x4-frustum (n2d -0.5) (n2d 0.5) (n2d 0.5) (n2d -0.5) +near +far)
 	select :nil id :t which 0 turn +double_0
 	;what draws the frames, and how many it has in the second
-	render :nil frames 0 since (pii-time))
+	render :nil frames 0 since (pii-time)
+	;the globe, and CPU or GPU, as they were when last closed, (config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "planets.tre"))
 
 ;the maps, a canvas each, loaded when first wanted. Not in the (defq) of
 ;+planets: there the name is not yet a constant, and its value is the
@@ -94,12 +97,29 @@
 	;with none
 	(. *mode* :set_selected (if (eql (. render :mode) :gpu) 1 0)))
 
+(defun config-load ()
+	;as it was when last closed, or as it is the first time: the Earth, on
+	;the GPU if there is one
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version :planet 0 :gpu :t)))
+	(setq which (max 0 (min (dec (length +planets)) (. *config* :find :planet)))))
+
+(defun config-save ()
+	(scatter *config* :planet which :gpu (= (. *mode* :get_selected) 1))
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
+
 (defun main ()
 	(setq select (task-mboxes +select_size)
 		render (Render-tris *canvas* (cat *app_root* "globe_vertex.shader") (cat *app_root* "globe_lit.shader") :t))
 	(. render :mesh 0 (globe-verts +segs +rings))
+	(config-load)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(. *planet* :set_selected 0)
+	(. *planet* :set_selected which)
+	;it comes up on the GPU if there is one and it was last time
+	(unless (. *config* :find :gpu) (. render :mode :cpu))
 	(mode-show)
 	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
@@ -140,5 +160,6 @@
 							(str (/ (* frames 1000000) (- now since))) " frames a second, "
 							(. render :how)))
 					(setq frames 0 since now)))))
+	(config-save)
 	(. render :close)
 	(. *window* :close))

@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/gpu/render_farm.inc")
 (import "./scene.inc")
 
@@ -19,7 +20,10 @@
 	;what draws the frames, a (Render-work), lib/gpu/render_farm.inc: a
 	;farm of child.lisp on the nodes, All nodes, or this task, One task
 	select :nil render :nil
-	start_time (pii-time) frame_time 0 frame_shapes 0 frames 0 frames_us 0)
+	start_time (pii-time) frame_time 0 frame_shapes 0 frames 0 frames_us 0
+	;One task or All nodes, and how many shapes, as they were when last
+	;closed, (config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "canvas.tre"))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Canvas" (+sym_close) +event_close)
@@ -70,16 +74,34 @@
 	(if (. render :frame)
 		(frame-done (if (eql (. render :mode) :here) "one task" "one task, while the nodes get ready"))))
 
+(defun config-load ()
+	;as it was when last closed, or as it is the first time: all the nodes,
+	;the slider where the window has it
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version :nodes :t
+			:shapes (get :value *shapes*))))
+	(set *shapes* :value (max 0 (min (get :maximum *shapes*) (. *config* :find :shapes)))))
+
+(defun config-save ()
+	(scatter *config* :nodes (= (. *mode* :get_selected) 1) :shapes (get :value *shapes*))
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
+
 (defun main ()
 	(setq select (task-mboxes +select_size) render (Render-work *canvas* (cat *app_root* "child.lisp")))
 	(def render :jobs_fn (const frame-jobs)
 		:here_fn (lambda (canvas) (scene-draw canvas (scene-angle) (shape-count) 0 +scene_height))
 		:reply_fn (lambda (msg) (setq frame_shapes (+ frame_shapes (max 0 (getf msg +slice_reply_drawn))))))
+	(config-load)
 	(.-> *canvas* (:set_canvas_flags +canvas_flag_antialias) (:fill +argb_black) (:swap +swap_write))
 	(. *window* :open)
-	;it comes up on all the nodes, if their pixels can be shared
-	(. render :mode (if shared_canvas :cpu :here))
-	(. *mode* :set_selected (if shared_canvas 1 0))
+	;it comes up on all the nodes if it was last time, and their pixels can
+	;be shared
+	(defq nodes (and shared_canvas (. *config* :find :nodes)))
+	(. render :mode (if nodes :cpu :here))
+	(. *mode* :set_selected (if nodes 1 0))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(defq id :t out :nil)
 	(while id
@@ -111,5 +133,6 @@
 					(next-frame)
 					(setq out (. render :busy)))
 				(. render :tick))))
+	(config-save)
 	(. render :close)
 	(. *window* :close))

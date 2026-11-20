@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "service/lock/app.inc")
 (import "lib/gpu/render_farm.inc")
 (import "./scene.inc")
 
@@ -26,7 +27,10 @@
 	seed (logand (pii-time) 0xffffff) scene_seed -1 scene_count -1 scene :nil
 	start_time (pii-time) frame_time 0 frame_drawn 0 frames 0 frames_us 0
 	;which way the light is, the mouse on the canvas moves it
-	light_x -0.2357 light_y -0.2357)
+	light_x -0.2357 light_y -0.2357
+	;the style, One task or All nodes, and how many bubbles, as they were
+	;when last closed, (config-save)
+	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "bubbles.tre"))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Bubbles" (+sym_close +sym_max +sym_min) +event_close)
@@ -103,19 +107,43 @@
 	(ui-tool-tips *style_toolbar*
 		'("plain" "grid" "axis")))
 
+(defun style-show ()
+	(def (. *backdrop* :dirty) :style
+		(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))
+
+(defun config-load ()
+	;as it was when last closed, or as it is the first time: plain, all
+	;the nodes, the slider where the window has it
+	(setq *config* (with-read-lock +config_file
+			(tree-load (file-stream +config_file))))
+	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
+		(setq *config* (scatter (Emap) :version +config_version :style 0 :nodes :t
+			:count (get :value *count*))))
+	(. *style_toolbar* :set_selected (. *config* :find :style))
+	(set *count* :value (max 0 (min (get :maximum *count*) (. *config* :find :count)))))
+
+(defun config-save ()
+	(scatter *config* :style (. *style_toolbar* :get_selected)
+		:nodes (= (. *mode* :get_selected) 1) :count (get :value *count*))
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write) *config*)))
+
 (defun main ()
 	;ui tree initial setup
 	(setq select (task-mboxes +select_size) render (Render-work *canvas* (cat *app_root* "child.lisp")))
 	(def render :jobs_fn (const frame-jobs) :here_fn (const frame-here)
 		:reply_fn (lambda (msg) (setq frame_drawn (+ frame_drawn (max 0 (getf msg +slice_reply_drawn))))))
 	(tooltips)
+	(config-load)
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *backdrop* :set_size +width +height)
-	(. *style_toolbar* :set_selected 0)
+	(style-show)
 	(. *window* :open)
-	;it comes up on all the nodes, if their pixels can be shared
-	(. render :mode (if shared_canvas :cpu :here))
-	(. *mode* :set_selected (if shared_canvas 1 0))
+	;it comes up on all the nodes if it was last time, and their pixels can
+	;be shared
+	(defq nodes (and shared_canvas (. *config* :find :nodes)))
+	(. render :mode (if nodes :cpu :here))
+	(. *mode* :set_selected (if nodes 1 0))
 
 	;main event loop
 	(defq id :t out :nil)
@@ -166,8 +194,7 @@
 					((. render :mode :cpu))))
 			((= id +event_style)
 				;styles
-				(def (. *backdrop* :dirty) :style
-						(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))
+				(style-show))
 			((and (= id (. *canvas* :get_id))
 					(= (getf *msg* +ev_msg_type) +ev_type_mouse)
 					(/= (getf *msg* +ev_msg_mouse_buttons) 0))
@@ -179,6 +206,7 @@
 					len (sqrt (+ (* lx lx) (* ly ly) (* lz lz))))
 				(setq light_x (/ lx len) light_y (/ ly len)))
 			((. *window* :event *msg*))))
+	(config-save)
 	;close window and children
 	(. render :close)
 	(. *window* :close))
