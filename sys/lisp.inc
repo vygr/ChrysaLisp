@@ -44,8 +44,8 @@
 (defun mail-here (name)
 	; (mail-here name) -> :nil | net_id
 	;one said as name, (mail-declare), on this node, whose task is still
-	;there: one that died without (mail-forget) is still said, its mailbox
-	;is gone. Each desktop is a node, so this is the one of this desktop,
+	;there: one said by another node, or a task gone that had not let go
+	;of its entry, is not had. Each desktop is a node, so this is the one of this desktop,
 	;the guard of a service or an app there is to be one of
 	(defq node (task-nodeid))
 	(some (lambda (entry)

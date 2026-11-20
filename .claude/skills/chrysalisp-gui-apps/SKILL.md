@@ -309,9 +309,12 @@ Key points:
 		(import "./app_impl.lisp"))
 
 *	**Services and RPC.** Declare a service in `main` with
-	`(mail-declare mbox "Name" "info")`, add a `remote` select slot for
-	its mailbox, handle remote messages in the loop, and `(mail-forget
-	key)` on exit (see `apps/tools/edit/app_impl.lisp`). The name's first
+	`(mail-declare mbox "Name" "info")`, kept in a `defq` of `main`, add a
+	`remote` select slot for its mailbox, and handle remote messages in the
+	loop (see `apps/tools/edit/app_impl.lisp`). What `(mail-declare)` gives
+	is an entry: the service is there as long as it is held, and goes when
+	it is let go of, at the task's end, as an error goes up past it, or by
+	`(setq entry :nil)`. There is no `mail-forget`. The name's first
 	character sets its scope: `@Name` is seen across the whole machine,
 	`*Name` across every linked machine, and a plain `Name` only on its
 	own node.

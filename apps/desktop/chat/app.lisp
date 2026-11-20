@@ -425,9 +425,7 @@
 	(when (eql my_name "") (setq my_name (or (get :user *env*) "guest")))
 	(def *chat_name* :clear_text my_name)
 	; if name changed while connected, forget old service entry
-	(when (and *connected* *chat_entry*)
-		(mail-forget *chat_entry*)
-		(setq *chat_entry* :nil))
+	(if *connected* (setq *chat_entry* :nil))
 	(setq *chat_entry* (mail-declare (elem-get select +select_chat) "*Chat" my_name)
 		*connected* :t)
 	; register presence and channel bucket immediately
@@ -469,7 +467,6 @@
 			(.-> *chat_scroll* :layout :dirty_all)
 			(. *chat_scroll* :visible md))
 		(broadcast leave_msg)
-		(mail-forget *chat_entry*)
 		(. *presence* :erase (presence-key *my_sys_id_hex* my_name))
 		(setq *chat_entry* :nil *connected* :nil)
 		(config-save)
@@ -648,6 +645,6 @@
 	(when *connected*
 		(defq my_name (get :clear_text *chat_name*))
 		(broadcast (cat "<" my_name "> Has left the chat !"))
-		(mail-forget *chat_entry*))
+		(setq *chat_entry* :nil))
 	(config-save)
 	(. *window* :close))

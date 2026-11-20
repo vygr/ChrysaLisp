@@ -397,8 +397,7 @@
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
 		(unless winner
 			(when (setq winner (mail-single "@Source" (task-mbox)))
-				(mail-forget service)
-				(setq heard (pii-time))))
+				(setq service :nil heard (pii-time))))
 		(cond
 			((= idx 2)
 				(mail-timeout (third select) 1000000 0)

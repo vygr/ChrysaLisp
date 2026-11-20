@@ -19,7 +19,7 @@
 					(defq key (mail-declare (task-mbox) "*ServiceEdge" "a test"))
 					(mail-send (hex-decode ,(hex-encode sv_reply)) "declared")
 					(mail-read (task-mbox))
-					(mail-forget key)
+					(setq key :nil)
 					(mail-send (hex-decode ,(hex-encode sv_reply)) "forgotten")
 					(task-sleep 200000))))
 		(assert-eq "not there to start with" 0 (length (mail-enquire "*ServiceEdge")))

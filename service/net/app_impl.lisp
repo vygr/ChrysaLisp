@@ -133,7 +133,6 @@
 		(each (# (mail-send %0 "")) gates)
 		(when (> beacon_socket 0) (net-close beacon_socket))
 		(when (> disco_socket 0) (net-close disco_socket))
-		(if mesh_service (mail-forget mesh_service))
 		(when store_auto (mail-send store_auto "") (setq store_auto :nil))
 		(setq gates (list) beacon_socket 0 beacon_ports (Fset 7) disco_socket 0
 			mesh :nil mesh_service :nil mesh_peers (Fmap 31)
@@ -447,6 +446,4 @@
 	(when (> beacon_socket 0) (net-close beacon_socket))
 	(when (> disco_socket 0) (net-close disco_socket))
 	(when (> take_socket 0) (net-close take_socket))
-	(if mesh_service (mail-forget mesh_service))
-	(mail-forget service)
 	(net-deinit))

@@ -181,5 +181,4 @@
 					(setq lock_granted (filter (# (< (- now (second %0)) +lock_default_lease)) lock_granted)
 						lock_cancelled (filter (# (< (- now (second %0)) +lock_default_lease)) lock_cancelled))
 					(when (or purged (nempty? lock_pending))
-						(setq lock_pending (merge-locks lock_writes lock_reads lock_pending nodes lock_known now lock_history lock_granted)))))))
-	(mail-forget lock_service))
+						(setq lock_pending (merge-locks lock_writes lock_reads lock_pending nodes lock_known now lock_history lock_granted))))))))

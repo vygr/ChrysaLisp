@@ -97,7 +97,12 @@ Location-transparent inter-process communication built on ephemeral, disposable
 
 *	**`mail-declare`**: Advertises a named service endpoint across the cluster.
 
-	*	`(mail-declare mbox name info) -> service_key`
+	*	`(mail-declare mbox name info) -> entry`
+
+	The entry is a str of the service's key, of the class `:entry`. The
+	service is there as long as the entry is held, and is forgotten when
+	it is let go of: at its task's end, as an error goes up past it, or by
+	`(setq entry :nil)`.
 
 *	**`mail-nodes`**: Returns all active node IDs discovered on the network.
 
@@ -107,10 +112,6 @@ Location-transparent inter-process communication built on ephemeral, disposable
 	prefix.
 
 	*	`(mail-enquire prefix) -> (service_entry ...)`
-
-*	**`mail-forget`**: Withdraws a service advertisement from the network.
-
-	*	`(mail-forget service_key)`
 
 *	**`mail-poll`**: Non-blocking inspection of mailboxes for pending messages.
 

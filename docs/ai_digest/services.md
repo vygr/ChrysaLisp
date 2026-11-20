@@ -7,8 +7,10 @@ to be one stays one when it is started twice at once.
 
 ## A name and how far it reaches
 
-`(mail-declare mbox name info)` says the name, and gives back the entry to
-forget it by, `(mail-forget entry)`. `(mail-enquire prefix)` lists the
+`(mail-declare mbox name info)` says the name, and gives back its entry,
+of the class `:entry`: the service is there as long as the entry is held,
+and is forgotten when it is let go of, at its task's end, as an error goes
+up past it, or by `(setq entry :nil)`. `(mail-enquire prefix)` lists the
 entries there are, each `name,mailbox,system,info`. The first letter of the
 name says how far it goes:
 

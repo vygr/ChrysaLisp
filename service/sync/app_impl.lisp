@@ -153,8 +153,7 @@
 					(progn (setq status -4 back (str _) out :nil out_path "") :t))
 				(mail-send reply_id (cat (setf-> (str-alloc +sync_reply_size)
 							(+sync_reply_status status)) back))))
-		(mail-send spread "")
-		(mail-forget service)))
+		(mail-send spread "")))
 
 (defun main ()
 	;who started it may be gone before it says what is wanted

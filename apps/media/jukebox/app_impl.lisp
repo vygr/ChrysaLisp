@@ -549,5 +549,5 @@
 	(if *picker* (mail-send *picker* ""))
 	(engine-send "Q")
 	(mail-send *fetcher* "Q")
-	(mail-forget service)
+	(setq service :nil)
 	(. *window* :close))

@@ -1,0 +1,60 @@
+(include "lib/asm/func.inc")
+(include "sys/mail/class.inc")
+(include "./class.inc")
+
+;An entry is what (mail-declare) gives: the key of a service, a str of its
+;characters, that forgets the service when it is let go of. Whatever holds
+;it, a task's main, a global, the locals an error goes up through, the
+;service lasts as long as it does, and no (mail-forget) is needed. A
+;(mail-forget) of it as well does no harm: the second finds nothing.
+
+(gen-vtable :entry)
+(gen-type :entry)
+	;inputs
+	;:r0 = entry object (ptr)
+	;outputs
+	;:r0 = entry object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r3, :d0-:d15
+
+(def-method :entry :create)
+	;inputs
+	;:r0 = service key str object (ptr)
+	;outputs
+	;:r0 = entry object (ptr)
+	;trashes
+	;:r0-:r5, :d0-:d15
+	;info
+	;an entry of the key's characters. Not the key itself, the service map
+	;holds that, so it would never be let go of
+
+	(entry :entry :create '(:r0))
+
+	(call :str :create_from_buffer '((& :r0 +str_data) (:r0 +str_length)) '(:r0))
+	(assign `((@ ,(f-path :entry :vtable))) '(:r1))
+	(assign '(:r1) '((:r0 +obj_vtable)))
+
+	(exit :entry :create '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :entry :deinit)
+	;inputs
+	;:r0 = entry object (ptr)
+	;outputs
+	;:r0 = entry object (ptr)
+	;trashes
+	;:r1-:r14, :d0-:d15
+	;info
+	;the service forgotten, if it is still there
+
+	(entry :entry :deinit '(:r0))
+
+	(vp-push :r0)
+	(call :sys_mail :forget '(:r0))
+	(vp-pop :r0)
+	(s-jump :entry :deinit '(:r0))
+
+(def-func-end)

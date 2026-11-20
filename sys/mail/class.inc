@@ -52,7 +52,6 @@
 	(dec-method :lisp_send sys/mail/lisp_send :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_declare sys/mail/lisp_declare :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_enquire sys/mail/lisp_enquire :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_forget sys/mail/lisp_forget :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_devices sys/mail/lisp_devices :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_netid sys/mail/lisp_netid :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_alloc_mbox sys/mail/lisp_alloc_mbox :static (:r0 :r1) (:r0 :r1))

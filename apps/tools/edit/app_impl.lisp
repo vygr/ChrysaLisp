@@ -246,5 +246,4 @@
 		(update-meta-data))
 	(action-save-all)
 	(clear-matches)
-	(. *window* :close)
-	(mail-forget edit_service))
+	(. *window* :close))

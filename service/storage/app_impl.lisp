@@ -531,8 +531,7 @@
 			(each (# (work-stop %0 store)) works)
 			(if (/= 0 (get-long tender 0)) (mail-send tender "stop"))
 			(if (/= 0 (get-long runner 0)) (mail-send runner "stop"))
-			(mail-forget service)
-			(mail-forget known)
+			(setq service :nil known :nil)
 			;and let go of, its file is closed as the store is freed
 			(store-close store)
 			(setq store :nil)

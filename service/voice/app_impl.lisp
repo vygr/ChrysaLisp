@@ -79,7 +79,6 @@
 
 (defun call-drop ()
 	;in no call, nothing said or heard
-	(if entry (mail-forget entry))
 	(if voice (voice-stop voice))
 	(. members :empty)
 	(setq voice :nil call_id :nil call_name "" keeper :nil entry :nil roster (list))
@@ -221,5 +220,4 @@
 		(talking-look now)
 		(when (> (- now beat) +call_beat)
 			(setq beat now)
-			(tick now)))
-	(mail-forget service))
+			(tick now))))

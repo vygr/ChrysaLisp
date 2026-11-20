@@ -302,7 +302,7 @@
 					(defq took (- (pii-time) frame_start))
 					(mail-timeout (elem-get select +select_timer)
 						(max +min_gap took (- +rate took)) 0)))))
-	(mail-forget service)
+	(setq service :nil)
 	(mail-timeout (elem-get select +select_timer) 0 0)
 	(each (# (. %0 :sub)) (screen-children))
 	(setq *mouse* :nil *screen* :nil)

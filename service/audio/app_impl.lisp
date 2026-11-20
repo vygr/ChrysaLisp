@@ -119,6 +119,4 @@
 									(audio-raw stream_close handle))
 								(-1)))))))
 		(audio-raw mic_close)
-		((ffi "service/audio/lisp_deinit"))
-		; Forget the audio service
-		(mail-forget audio_service)))
+		((ffi "service/audio/lisp_deinit"))))

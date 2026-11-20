@@ -510,14 +510,15 @@
 (ffi "sys/mail/lisp_netid" mail-mbox)
 ; (mail-mbox) -> netid
 (ffi "sys/mail/lisp_declare" mail-declare)
-; (mail-declare mbox name info) -> key
+; (mail-declare mbox name info) -> entry
+;the service is there as long as the entry is held: let go of, by its
+;task's end, an error that goes up through it, or (setq e :nil), and it is
+;forgotten
 (ffi "sys/mail/lisp_devices" mail-nodes)
 ; (mail-nodes) -> (str ...)
 ;each is the node id, then the id of the machine the node is on
 (ffi "sys/mail/lisp_enquire" mail-enquire)
 ; (mail-enquire prefix) -> netids
-(ffi "sys/mail/lisp_forget" mail-forget)
-; (mail-forget key)
 (ffi "sys/mail/lisp_poll" mail-poll)
 ; (mail-poll mboxs) -> :nil | idx
 (ffi "sys/mail/lisp_validate" mail-validate)

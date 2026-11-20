@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "class/num/class.inc")
 (include "class/netid/class.inc")
+(include "class/entry/class.inc")
 (include "class/lisp/class.inc")
 
 (def-method :sys_mail :lisp_validate)
@@ -198,7 +199,15 @@
 	(vp-push :r0)
 	(defq in (method-input :sys_mail :declare))
 	(array-bind-args :r1 in)
-	(call :sys_mail :declare in '(:r1))
+	(call :sys_mail :declare in '(:r0))
+	;an entry of the key, the service forgotten when it is let go of; the
+	;service map holds the key itself
+	(vp-push :r0)
+	(call :entry :create '(:r0) '(:r1))
+	(vp-pop :r0)
+	(vp-push :r1)
+	(call :obj :deref '(:r0))
+	(vp-pop :r1)
 	(vp-pop :r0)
 
 	(exit :sys_mail :lisp_declare '(:r0 :r1))
@@ -235,38 +244,6 @@
 
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(mail-enquire prefix)" +error_msg_wrong_types))
-	(signature '(:str))
-
-(def-func-end)
-
-(def-method :sys_mail :lisp_forget)
-	;inputs
-	;:r0 = lisp object (ptr)
-	;:r1 = args list object (ptr)
-	;outputs
-	;:r0 = lisp object (ptr)
-	;:r1 = return value object (ptr)
-	;trashes
-	;:r1-:r14, :d0-:d15
-
-	(entry :sys_mail :lisp_forget '(:r0 :r1))
-
-	(gotoif-lisp-args-sig 'error :r1 1)
-
-	(vp-push :r0)
-	(defq in (method-input :sys_mail :forget))
-	(array-bind-args :r1 in)
-	(vp-push (first in))
-	(call :sys_mail :forget in)
-	(vp-pop :r1)
-	(class/obj/ref :r1 :r2)
-	(vp-pop :r0)
-
-	(exit :sys_mail :lisp_forget '(:r0 :r1))
-	(vp-ret)
-
-(vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(mail-forget key)" +error_msg_wrong_types))
 	(signature '(:str))
 
 (def-func-end)

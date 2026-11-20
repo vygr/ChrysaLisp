@@ -225,6 +225,6 @@
 	(demo-restore-settings)
 	(campaign-snapshot)
 	(config-save)
-	(mail-forget game_service)
+	(setq game_service :nil)
 	(unload-wav-assets)
 	(. *window* :close))

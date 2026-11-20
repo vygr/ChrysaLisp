@@ -1366,7 +1366,8 @@ Location-transparent messaging using ephemeral `netid` addresses.
 
 *	**`mail-declare`**: Advertises a named service endpoint to the cluster.
 
-	*	`(mail-declare mbox name info) -> key`
+	*	`(mail-declare mbox name info) -> entry`, the service there while
+		the entry is held, forgotten when it is let go of
 
 *	**`mail-nodes`**: Returns all active node IDs discovered on the network.
 
@@ -1375,10 +1376,6 @@ Location-transparent messaging using ephemeral `netid` addresses.
 *	**`mail-enquire`**: Queries network nodes for services matching a prefix.
 
 	*	`(mail-enquire prefix) -> netids`
-
-*	**`mail-forget`**: Withdraws a service advertisement from the network.
-
-	*	`(mail-forget key)`
 
 *	**`mail-poll`**: Polls a list of mailboxes for pending messages without
 	blocking.

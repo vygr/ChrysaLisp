@@ -19,5 +19,4 @@
 				(+clip_type_get
 					;get string from clipboard
 					(if (defq host_clip (clip-get)) (setq clipboard host_clip))
-					(mail-send reply_id clipboard)))))
-	(mail-forget clip_service))
+					(mail-send reply_id clipboard))))))

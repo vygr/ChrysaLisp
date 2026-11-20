@@ -684,19 +684,31 @@
 	;:r0 = service key str object (ptr)
 	;trashes
 	;:r0-:r14, :d0-:d15
+	;info
+	;a key not found changes nothing, and no full ping is made of it
 
-	(entry :sys_mail :forget '(:r0))
+	(structure slot 0
+		(ptr key)
+		(long found))
+
+	(vp-alloc slot_size)
+	(entry :sys_mail :forget '((:rsp slot_key)))
 
 	;find in service map and erase
-	(fn-bind 'sys/statics/statics :r1)
-	(call :hmap :each '((:r1 statics_sys_mail_node_map) ($ callback) :r0))
-	;a full ping is now due
+	(vp-xor-rr :r1 :r1)
+	(assign '(:r1) '((:rsp slot_found)))
 	(fn-bind 'sys/statics/statics :r0)
-	(vp-cpy-cr 1 :r1)
-	(vp-xor-rr :r2 :r2)
-	(save-fields :r0 '(statics_sys_mail_ping_full statics_sys_mail_ping_next) '(:r1 :r2))
+	(call :hmap :each '((:r0 statics_sys_mail_node_map) ($ callback) :rsp))
+	;a full ping is now due, if one was
+	(assign '((:rsp slot_found)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(fn-bind 'sys/statics/statics :r0)
+		(vp-xor-rr :r2 :r2)
+		(save-fields :r0 '(statics_sys_mail_ping_full statics_sys_mail_ping_next) '(:r1 :r2))
+	(endif)
 
 	(exit :sys_mail :forget '())
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -708,10 +720,14 @@
 	(entry :hmap :each_callback '(:r0 :r1 :r2))
 
 	(vp-swp-rr :r0 :r1)
-	(assign '((:r0 +ptr_size) 0) '(:r2 :r0))
+	(vp-push :r1)
+	(assign '((:r0 +ptr_size) 0 (:r1 slot_key)) '(:r2 :r0 :r1))
 	(class/array/get_elem :r2 :r0 :r0 :r2)
 	(call :hset :cfind `(:r0 :r1 (@ ,(f-path :sym :eql_str))) '(:r0 :r1 :r2))
+	(vp-pop :r3)
 	(vpif '(:r1 /= 0))
+		(vp-cpy-cr 1 :r4)
+		(assign '(:r4) '((:r3 slot_found)))
 		(jump :list :erase '(:r2 :r1) :r2)
 	(endif)
 

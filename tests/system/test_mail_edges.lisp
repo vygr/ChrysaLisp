@@ -66,28 +66,38 @@
 (assert-list-eq "enquire a service that is not there" '() (mail-enquire "MailEdgeNoSuchService"))
 (defq me_key (mail-declare me_a "MailEdgeService" "info"))
 (assert-eq "declared service is found" 1 (length (mail-enquire "MailEdgeService")))
-(mail-forget me_key)
-(assert-eq "forgotten service is gone" 0 (length (mail-enquire "MailEdgeService")))
+(setq me_key :nil)
+(assert-eq "an entry let go of, the service is gone" 0 (length (mail-enquire "MailEdgeService")))
+(defq me_key (mail-declare me_a "MailEdgeService" "info"))
+(assert-true "an entry is a str, by the subclass test" (str? me_key))
+(assert-eq "and not a plain one" :nil (str?? me_key))
+(undef (env) 'me_key)
+(assert-eq "and gone when its name goes" 0 (length (mail-enquire "MailEdgeService")))
+(defun me-throws ()
+	(defq key (mail-declare (task-mbox) "MailEdgeThrow" "info"))
+	(throw "me-throws, a test" 0))
+(catch (me-throws) :t)
+(assert-eq "and when an error goes up past it" 0 (length (mail-enquire "MailEdgeThrow")))
 
 ;a message is a string, not a list
 (assert-error "send a list" (mail-send me_a (list 1 2)))
 
-;one said as a name on this node whose task is still there, (mail-here): a
-;task that ends without (mail-forget) is still said, its mailbox is gone,
-;and it is no guard of one to be the only one
+;one said as a name on this node whose task is still there, (mail-here)
 (defq me_said (mail-declare (task-mbox) "ZzHere" "a test"))
 (assert-eq "one said here that is here is had" (hex-encode (task-mbox)) (hex-encode (mail-here "ZzHere")))
 (assert-eq "and is the service to use" (hex-encode (task-mbox)) (hex-encode (mail-service "ZzHere")))
-(mail-forget me_said)
-(save "(mail-declare (task-mbox) \qZzGone\q \qa test\q)" "tests/scratch/zz_gone.lisp")
-(open-child "tests/scratch/zz_gone.lisp" +kn_call_pin)
+(undef (env) 'me_said)
+;a task that ends lets go of its entry, and the service is forgotten, no
+;(mail-forget) needed: it is seen while the task is there, and is gone after
+(save "(defq e (mail-declare (task-mbox) \qZzGone\q \qa test\q)) (mail-read (task-mbox))" "tests/scratch/zz_gone.lisp")
+(defq me_gone (open-child "tests/scratch/zz_gone.lisp" +kn_call_pin))
 (while (empty? (mail-enquire "ZzGone,")) (task-sleep 20000))
-;and then has ended, its mailbox no longer here
-(while (mail-here "ZzGone") (task-sleep 20000))
-(assert-list-eq "one that ended without (mail-forget) is still said, and is not here, nor a service to use" '(:t :nil :nil)
+(mail-send me_gone "")
+(while (nempty? (mail-enquire "ZzGone,")) (task-sleep 20000))
+(assert-list-eq "one whose task has ended is not said, here, nor a service to use" '(:nil :nil :nil)
 	(list (nempty? (mail-enquire "ZzGone,")) (mail-here "ZzGone") (mail-service "ZzGone")))
 (pii-remove "tests/scratch/zz_gone.lisp")
-(undef (env) 'me_said)
+(undef (env) 'me_gone)
 
 ; --- what a task can ask of its node ---
 (assert-true "load-path" (str? (load-path)))

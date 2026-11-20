@@ -56,9 +56,7 @@
 	(mail-send (hex-decode to) (cat kind (share-own) "," (ifn payload ""))))
 
 (defun share-forget ()
-	(when *share_entry*
-		(mail-forget *share_entry*)
-		(setq *share_entry* :nil)))
+	(setq *share_entry* :nil))
 
 (defun share-declare (host)
 	;every board says it is there, to be invited, the host that it is shared

@@ -68,5 +68,4 @@
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
 	(config-save)
-	(. *window* :close)
-	(mail-forget todo_service))
+	(. *window* :close))

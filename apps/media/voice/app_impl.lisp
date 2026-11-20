@@ -330,5 +330,5 @@
 	;screen to say so
 	(call-unwatch (elem-get select +select_call))
 	(if (call-in?) (call-put-away))
-	(mail-forget entry)
+	(setq entry :nil)
 	(. *window* :close))
