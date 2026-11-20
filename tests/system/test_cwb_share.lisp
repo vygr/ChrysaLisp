@@ -192,8 +192,10 @@
 	sh_a (share-start (Board (cwb-doc 400 300))) sh_b (share-start (Board (cwb-doc 400 300))))
 (share-add sh_t :a) (share-add sh_t :b) (share-add sh_a :t) (share-add sh_b :t)
 (share-id-base sh_a 1000000) (share-id-base sh_b 2000000) (def sh_a :user_base 100) (def sh_b :user_base 200)
-(. sh_a :pointers (list (ptr-event 0 :mouse 0 120 130)))
-(sh-round) (sh-round)
+;the mouse is where it is again before each round, as a mouse that is in
+;use is: one still for 3s is shown no more, and on a slow machine two
+;rounds of three boards can take longer than that
+(times 2 (. sh_a :pointers (list (ptr-event 0 :mouse 0 120 130))) (sh-round))
 (defun sh-pointers (board)
 	(defq out (list))
 	(. (get :remote_pointers board) :each (lambda (k (from x y kind down who)) (push out (list (n2i x) (n2i y) kind who))))
