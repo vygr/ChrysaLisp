@@ -37,6 +37,8 @@
 	;marked, and the title of the folder gone up from, and what is being
 	;fetched
 	*entries* (list) *top* 0 *marked* :nil *left* :nil *fetching* :nil *picker* :nil *select* :nil
+	;the fetcher, ./fetch.lisp, and the number of the last fetch asked of it
+	*fetcher* :nil *fetch_id* 0
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
 (defun hex (n width)
@@ -172,12 +174,20 @@
 ; the player, ./player.lisp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun away-task (file mbox)
+	; (away-task file mbox) -> mailbox
+	;a task of the app's on a node of this machine not this one, if there is
+	;another, told the mailbox it tells the window by
+	(defq me (task-nodeid) others (filter (# (not (eql %0 me))) (lisp-nodes :t))
+		task (open-remote (cat *app_root* file)
+			(if (nempty? others) (elem-get others (random (length others))) me) +kn_call_pin))
+	(mail-send task mbox)
+	task)
+
 (defun engine-start ()
-	;the player on a node of this machine not this one, if there is another
-	(defq me (task-nodeid) others (filter (# (not (eql %0 me))) (lisp-nodes :t)))
-	(setq *engine* (open-remote (cat *app_root* "player.lisp")
-		(if (nempty? others) (elem-get others (random (length others))) me) +kn_call_pin))
-	(mail-send *engine* (elem-get *select* +select_engine)))
+	;the player and the fetcher
+	(setq *engine* (away-task "player.lisp" (elem-get *select* +select_engine))
+		*fetcher* (away-task "fetch.lisp" (elem-get *select* +select_fetch))))
 
 (defun song-start (data title url)
 	; (song-start data title url) -> :nil | :t
@@ -217,13 +227,12 @@
 		((. (. *seek* :dirty) :to_front))))
 
 (defun fetch-start (kind url &optional title)
-	;a module or a listing fetched by a task of its own, the window drawn
-	;meanwhile. A new mailbox each time, what was asked before is not heard
-	(elem-set *select* +select_fetch (defq reply (mail-mbox)))
-	(setq *fetching* (list kind url title))
+	;a module or a listing fetched by the fetcher, the window drawn
+	;meanwhile. Each has a number, what is said of one before is not heard
+	(setq *fetching* (list kind url title) *fetch_id* (inc *fetch_id*))
 	(loading 0)
 	(status (cat "Fetching " (ifn title "the folder") " ..."))
-	(mail-send (open-child (cat *app_root* "fetch.lisp") +kn_call_pin) (cat reply url)))
+	(mail-send *fetcher* (cat "F" (str *fetch_id*) " " url)))
 
 (defun list-mark ()
 	; (list-mark)
@@ -411,16 +420,18 @@
 		((not (song-start msg title url)) (status (cat title ": not a module it can read")))))
 
 (defun fetch-done (msg)
+	;what the fetcher said, of the last fetch asked of it only
+	(defq kind (first msg) gap (ifn (find " " msg) (length msg)) rest (slice msg (min (length msg) (inc gap)) -1))
 	(cond
 		;mail is unordered, how far it got may come after it has come
-		((not *fetching*))
-		((starts-with "%" msg)
+		((or (not *fetching*) (/= (str-as-num (slice msg 1 gap)) *fetch_id*)))
+		((eql kind "%")
 			;how far it has got, of how many, or of a megabyte if it is not
 			;said
-			(bind '(got total) (map (const str-as-num) (split (slice msg 1 -1) " ")))
+			(bind '(got total) (map (const str-as-num) (split rest " ")))
 			(loading (min 1000 (/ (* got 1000) (if (> total 0) total (max got 1048576))))))
 		(:t (loading :nil)
-			(fetch-ended msg))))
+			(fetch-ended (cat kind rest)))))
 
 (defun player-mode (url)
 	; (player-mode url)
@@ -480,9 +491,10 @@
 		(defq msg (mail-read (elem-get *select* (defq idx (mail-select *select*)))))
 		(cond
 			((= idx +select_timer)
-				;the player told the window is still here
+				;the player and the fetcher told the window is still here
 				(mail-timeout (elem-get *select* +select_timer) +alive 0)
-				(engine-send "K"))
+				(engine-send "K")
+				(mail-send *fetcher* "K"))
 			((= idx +select_engine) (engine-said msg))
 			((= idx +select_tip) (. *window* :tip msg))
 			((= idx +select_fetch) (fetch-done msg))
@@ -536,5 +548,6 @@
 	(config-save)
 	(if *picker* (mail-send *picker* ""))
 	(engine-send "Q")
+	(mail-send *fetcher* "Q")
 	(mail-forget service)
 	(. *window* :close))

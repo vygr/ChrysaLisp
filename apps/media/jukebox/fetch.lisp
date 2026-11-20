@@ -1,29 +1,49 @@
 (import "service/net/app.inc")
 (import "lib/net/http.inc")
 
-;The fetching of a module or of a folder's listing, over https by
-;lib/net/tls.inc, a task of its own, so the window goes on being drawn
-;while it comes. Asked for an address it says how far it has got as it
-;comes, % and the bytes had and how many there are to be, 0 if the reply
-;does not say, and then = and its bytes, or ! and why it could not have
-;them. What is kept the app keeps
+;The fetcher of the Jukebox, a task of its own on a node not the window's,
+;so the window goes on being drawn while a module or a folder's listing
+;comes, over https by lib/net/tls.inc. It lasts as long as the window, and
+;its connection to a host is kept from one fetch to the next,
+;lib/net/http.inc: a new one's handshake, and the check of who the server
+;is, is most of the time of a fetch, seconds on a slow machine.
+;
+;Told by the window, the first word its mailbox:
+;	F id url		fetch it; of those waiting, only the last
+;	K			the window is there
+;	Q			go
+;It tells the window, of the fetch of that id:
+;	% id got total		how far it has got, total 0 if not said
+;	= id bytes		its bytes
+;	! id why		it could not have them
+;and it goes if it hears nothing of the window for a while
 
-(defq +report_every 32768)
+(defq +report_every 32768 +orphan 5000000)
 
-(defun child-run (said)
-	(defq reply (slice said 0 +net_id_size) url (slice said +net_id_size -1)
-		told 0)
-	(ensure-net-service)
-	(mail-send reply (cond
+(defun fetch (app id url)
+	(defq told 0)
+	(mail-send app (cond
 		((not (defq resp (http-get url :nil :nil (lambda (got total)
 					(when (>= (- got told) +report_every)
 						(setq told got)
-						(mail-send reply (cat "%" (str got) " " (str (ifn total 0)))))))))
-			(cat "!" (ifn (tls-why) "no connection")))
+						(mail-send app (cat "%" id " " (str got) " " (str (ifn total 0)))))))))
+			(cat "!" id " " (ifn (tls-why) "no connection")))
 		((/= (pfind resp :status) 200)
-			(cat "!" (str (pfind resp :status)) " " (ifn (pfind resp :reason) "")))
-		((cat "=" (http-body-str resp))))))
+			(cat "!" id " " (str (pfind resp :status)) " " (ifn (pfind resp :reason) "")))
+		((cat "=" id " " (http-body-str resp))))))
 
 (defun main ()
-	;who started it may be gone before it says what is wanted
-	(if (defq said (mail-read-timeout (task-mbox) 10000000)) (child-run said)))
+	(when (defq app (mail-read-timeout (task-mbox) +orphan))
+		(ensure-net-service)
+		(defq running :t)
+		(while (and running (defq msg (mail-read-timeout (task-mbox) +orphan)))
+			;of what is waiting, only the last fetch asked for
+			(defq want :nil)
+			(while msg
+				(cond
+					((eql (first msg) "F") (setq want msg))
+					((eql (first msg) "Q") (setq running :nil want :nil)))
+				(setq msg (if (mail-poll (list (task-mbox))) (mail-read (task-mbox)))))
+			(when want
+				(defq gap (find " " want))
+				(fetch app (slice want 1 gap) (slice want (inc gap) -1))))))

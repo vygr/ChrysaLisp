@@ -10,34 +10,52 @@
 (env-push)
 
 (defq +crlf "\r\n" +http_buf_size 4096
-	; Private connection pool: host:port -> list of idle (in out) connections
+	; Private connection pool: [https:]host:port -> list of idle connections,
+	; (in out) of http, (in out state) of https, lib/net/tls.inc
 	+http_pool (Fmap 31))
 
-(defun http-pool-checkout (host port)
-	; (http-pool-checkout host port) -> ((in out) is_pooled) | :nil
-	(defq key (cat host ":" (str port)) conns (. +http_pool :find key) live_conn :nil)
+(defun http-raw-in (conn)
+	; (http-raw-in conn) -> stream
+	;the stream the Net service writes to of a connection, under its TLS
+	;if it is one of https
+	(if (> (length conn) 2) (. (third conn) :find :rin) (first conn)))
+
+(defun http-close (conn)
+	; (http-close conn)
+	(if (> (length conn) 2) (tls-close conn) (net-close-rpc conn)))
+
+(defun http-pool-checkout (host port https)
+	; (http-pool-checkout host port https) -> (conn is_pooled) | :nil
+	;an idle connection to the host kept from before, else a new one. Of
+	;https, kept, its handshake and the check of who the server is are not
+	;done again, which is most of the time of a new one
+	(defq key (cat (if https "https:" "") host ":" (str port))
+		conns (. +http_pool :find key) live_conn :nil)
 	(while (and conns (nempty? conns) (not live_conn))
-		(defq conn (pop conns) in (first conn))
+		(defq conn (pop conns) in (http-raw-in conn))
 		; An idle connection's mailbox must be empty and valid. If mail-poll
 		; returns 0, the remote server has sent FIN/RST or unexpected data.
-		(if (and (mail-validate (in-mbox in)) (not (mail-poll (list (in-mbox in)))))
+		(if (and (mail-validate (in-mbox in)) (not (mail-poll (list (in-mbox in))))
+				(not (and https (. (third conn) :find :closed))))
 			(setq live_conn conn)
-			(net-close-rpc conn)))
+			(http-close conn)))
 	(cond
 		(live_conn
 			;read from again, it is in use
-			(in-set-state (first live_conn) +stream_mail_state_started)
+			(in-set-state (http-raw-in live_conn) +stream_mail_state_started)
 			(list live_conn :t))
-		((defq new_conn (net-open-rpc host port))
+		((defq new_conn (if https (tls-open host port) (net-open-rpc host port)))
 			(list new_conn :nil))))
 
-(defun http-pool-checkin (host port conn headers)
-	; (http-pool-checkin host port conn headers)
-	(defq key (cat host ":" (str port)) conn_hdr (to-lower (or (pfind headers :connection) "")))
+(defun http-pool-checkin (host port https conn headers)
+	; (http-pool-checkin host port https conn headers)
+	(defq key (cat (if https "https:" "") host ":" (str port))
+		conn_hdr (to-lower (or (pfind headers :connection) "")))
 	(cond
 		((and conn
 				(not (found? conn_hdr "close"))
-				(= (in-get-state (first conn)) +stream_mail_state_started)
+				(= (in-get-state (http-raw-in conn)) +stream_mail_state_started)
+				(not (and https (. (third conn) :find :closed)))
 				(or (pfind headers :content-length)
 					(found? (or (pfind headers :transfer-encoding) "") "chunked")))
 			; Connection is reusable and framed properly; return to pool.
@@ -45,16 +63,16 @@
 			; its sender to stop, and the Net service stops this one only
 			; when the server or its idle time closes it, a minute. The
 			; task that pooled it may end at any time, and not wait
-			(in-set-state (first conn) +stream_mail_state_aborted)
+			(in-set-state (http-raw-in conn) +stream_mail_state_aborted)
 			(. +http_pool :update key (# (if %0 (push %0 conn) (list conn)))))
 		(conn
 			; Connection: close or unverified framing; close socket
-			(net-close-rpc conn))))
+			(http-close conn))))
 
 (defun http-pool-clear ()
 	; (http-pool-clear)
 	; Close and flush all idle pooled sockets
-	(. +http_pool :each (lambda (k conns) (each (const net-close-rpc) conns)))
+	(. +http_pool :each (lambda (k conns) (each (const http-close) conns)))
 	(. +http_pool :empty))
 
 (defun http-read-headers (in)
@@ -143,16 +161,15 @@
 	(setd headers (pmap))
 	(defq u (if (str? url) (url-parse url) url)
 		host (pfind u :host) port (pfind u :port)
-		;https is over TLS, lib/net/tls.inc, a connection each time, not
-		;kept. Who the server is is checked there, (tls-why) says why one
-		;was not talked to
+		;https is over TLS, lib/net/tls.inc, its connections kept for the
+		;next as http's are. Who the server is is checked there, (tls-why)
+		;says why one was not talked to
 		https (eql (pfind u :scheme) "https")
 		path_query (url-path-query u) res :nil attempts 0)
 	(while (and (not res) (< attempts 2))
 		(++ attempts)
 		(and host (> (length host) 0)
-			(when (defq pooled (if https (if (defq secure (tls-open host port)) (list secure :nil))
-						(http-pool-checkout host port)))
+			(when (defq pooled (http-pool-checkout host port https))
 				(bind '(conn from_pool) pooled)
 				(defq in (first conn) out (second conn))
 				; 1. Assemble Request Headers
@@ -199,12 +216,11 @@
 						(setq res (pmap
 								:status status :reason reason :proto proto
 								:headers resp_headers :body resp_body))
-						(if https (tls-close conn) (http-pool-checkin host port conn
-								(pfind res :headers))))
+						(http-pool-checkin host port https conn (pfind res :headers)))
 					; If pooled connection dropped on first read, close and retry once
 					(from_pool
-						(net-close-rpc conn))
-					(:t (if https (tls-close conn) (net-close-rpc conn))
+						(http-close conn))
+					(:t (http-close conn)
 						(setq attempts 2))))))
 	res)
 
