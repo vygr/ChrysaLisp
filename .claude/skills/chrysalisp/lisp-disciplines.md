@@ -883,6 +883,17 @@ that leaves its node holding more.
 	list or `(. jobs :reply_to mbox)`, and let the old one go: mail to it
 	goes nowhere.
 
+*	A str sent is the receiver's. Mail to a task on the same node is not
+	copied, what arrives is the str that was sent, so the sender does not
+	write into it after. One made for the send, `(str-alloc)` and `setf->`,
+	needs nothing more. One kept to be sent again, a job a farm may give
+	out twice, is sent as a fresh `(cat msg)` each time, and the one kept
+	is never sent. `Jobs :give` wrote the key of
+	the next child into a job it had already mailed, a child on the farm's
+	node still at work on it read the new key, and its answer was taken for
+	another job's. Only a child on the one node can see it, so a farm of
+	many nodes seldom shows it and one of few does.
+
 ## Messages Drive, Inactivity Dissolves
 
 Read this before designing anything two tasks do together, an app and its

@@ -101,3 +101,52 @@
 (assert-eq "three children that can be started are" 3 (fm-replies fm 3))
 (assert-eq "none refused" 0 (length (. fm :refused)))
 (. fm :close)
+
+;a task started again for its time being up makes the next of that node wait
+;twice as long, so a slow node is never started again for ever. The entries'
+;times are set here, a patience to start with of 100ms: 150ms is not up the
+;once, it is after, 250ms is up the twice
+(setq gl_made (list) gl_gone (list) gl_task "(task-sleep 1)")
+(defq gl (Global gl-create gl-destroy))
+(. gl :refresh)
+(gl-replies gl (length gl_made))
+(defun gl-age (us)
+	(defq now (pii-time))
+	(. gl :each (lambda (key val) (def val :timestamp (- now us)))))
+(gl-age 150000) (setq gl_made (list))
+(. gl :refresh 100000)
+(assert-eq "one whose time is up is started again" gl_nodes (length gl_made))
+(gl-replies gl (length gl_made))
+(gl-age 150000) (setq gl_made (list))
+(. gl :refresh 100000)
+(assert-eq "and the next is given twice the time" 0 (length gl_made))
+(gl-age 250000)
+(. gl :refresh 100000)
+(assert-eq "and started again when that is up" gl_nodes (length gl_made))
+(gl-replies gl (length gl_made))
+(. gl :close)
+
+;a farm the same: a child started again before it was up makes the next wait
+;twice as long, and one started again when it was, for its time being up,
+;makes the next that is up wait twice as long
+(setq fm_asked (list) fm_task "(task-sleep 1)")
+(defq fm (Farm fm-create fm-destroy 1))
+(defun fm-age (us)
+	(defq now (pii-time))
+	(. fm :each (lambda (key val) (def val :timestamp (- now us)))))
+(fm-age 150000)
+(. fm :refresh 100000)
+(assert-eq "a child not up whose time is up is started again, and counted" 1 (get :up_misses fm))
+(fm-age 150000)
+(. fm :refresh 100000)
+(assert-eq "the next, not up, is given twice the time" 1 (get :up_misses fm))
+;the answers taken, and the child said to be up, as a user of a farm says it
+(fm-replies fm (length fm_asked))
+(. fm :each (lambda (key val) (def val :child (task-mbox))))
+(fm-age 150000)
+(. fm :refresh 100000)
+(assert-eq "one up is given the time to start with, and started again when it is up" 1 (get :late fm))
+(fm-age 150000)
+(. fm :refresh 100000)
+(assert-eq "the next that is up is given twice the time" 1 (get :late fm))
+(. fm :close)

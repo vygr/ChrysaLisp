@@ -12,6 +12,9 @@ docs/reference/classes/Global.cwb
 the nodes that were asked for a task and could not start it. They are
 not asked again: a node need not be one that runs what it is sent, see
 docs/ai_digest/alien_nodes.md
+and how many times the task of each node has been started again for
+its time being up: each doubles how long the next is given, so a slow
+node is given the time it needs, never started again for ever
 ```
 
 ### :close
@@ -28,7 +31,9 @@ close tasks
 (. global :refresh [timeout]) -> :t | :nil
 
 scan known nodes and update node map
-merge local node to bypass eventual consistency UI lag
+merge local node to bypass eventual consistency UI lag. The
+timeout is the patience to start with, doubled for each time the
+task of that node has been started again for its time being up
 ```
 
 ### :refused

@@ -407,6 +407,9 @@ each rule and worked examples of the right and wrong way. In short:
 *	**Mail Is Unordered:** streams give order; a new mailbox drops late
 	mail.
 
+*	**A Str Sent Is the Receiver's:** on the one node mail is not copied,
+	so never write into one sent; one kept to send again goes as `(cat msg)`.
+
 *	**Messages Drive, Inactivity Dissolves:** messages drive an app's
 	states, acks, stops and exits are courtesies that make a change quick,
 	and inactivity ends the rest: every task has a time it goes by, a

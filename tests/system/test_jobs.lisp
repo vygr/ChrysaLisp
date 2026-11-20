@@ -3,7 +3,7 @@
 (import "lib/task/jobs.inc")
 
 (structure +work +job_size
-	(long num die))
+	(long num die wait))
 
 (structure +work_reply +job_reply_size
 	(long num))
@@ -15,8 +15,8 @@
 	jobs (Jobs "tests/system/data/jobs_child.lisp"
 		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 4))
 
-(defun jt-work (num &optional die)
-	(setf-> (str-alloc +work_size) (+work_num num) (+work_die (if die 1 0))))
+(defun jt-work (num &optional die wait)
+	(setf-> (str-alloc +work_size) (+work_num num) (+work_die (if die 1 0)) (+work_wait (ifn wait 0))))
 
 (defun jt-state ()
 	; (jt-state) -> str
@@ -193,4 +193,71 @@
 (assert-eq "its job is still out" 1 (. jobs :out))
 (assert-list-eq "and is done by the one started after it" '(16) (jt-run (list)))
 (assert-eq "the job of the child that could not was not counted as tried" 0 (. jobs :tries))
+(. jobs :close)
+
+;the patience slides: a job slower than the patience to start with is given
+;again, each time with twice the time, till it has enough; it is done, and
+;given again only a few times, never for ever. A farm of one child, a
+;patience to start with of 200ms, a job of 1s: 200, 400 and 800ms are short,
+;1600ms is not, so three times, more if the machine is slow to start the
+;child again
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
+(defq jobs (Jobs "tests/system/data/jobs_child.lisp"
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
+(assert-list-eq "a job slower than the patience to start with is done" '(18)
+	(jt-run (list (jt-work 9 :nil 1000000)) :nil 200000))
+(bind '(jt_again &ignore) (. jobs :again))
+(test-note (cat "given again " (str (. jobs :again))))
+(assert-true "and was given again, but a few times only" (<= 1 jt_again 8))
+(. jobs :close)
+
+;jobs that all take longer than it, each slides by itself, and all are done
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
+(defq jobs (Jobs "tests/system/data/jobs_child.lisp"
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 2))
+(assert-list-eq "jobs all slower than the patience to start with are all done" '(20 22 24)
+	(jt-run (map (# (jt-work %0 :nil 600000)) '(10 11 12)) :nil 100000))
+(bind '(jt_again &ignore) (. jobs :again))
+(test-note (cat "given again " (str (. jobs :again))))
+(assert-true "each given again a few times at most" (<= jt_again 24))
+(. jobs :close)
+
+;the same with the children on this node, where a job mailed is the str
+;itself: a job given again while the child it was given to first is still
+;at work on it is a copy, so that child's answer is to the key it was
+;given, and is let be, not taken for the answer of the next job
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
+(defq jobs (Jobs "tests/system/data/jobs_child.lisp"
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 2 :here))
+(assert-list-eq "jobs given again on this node are each answered once, by their own" '(20 22 24)
+	(jt-run (map (# (jt-work %0 :nil 600000)) '(10 11 12)) :nil 100000))
+(. jobs :close)
+
+;a patience to start with shorter than a child takes to come up, the farm
+;looked at each 1ms with a patience of 1ms: a child started again before
+;it was up gives the next twice the time, so one comes up in the end, and
+;does the work. Those started again come up later to a farm that has
+;forgotten them, and go when they have had nothing for their idle time.
+;How many are started again is not held to more than none: on a busy
+;machine this task may not run till the word that the child is up has
+;come, and that is read before the timer. test_global counts them, by
+;times it sets
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
+(defq jobs (Jobs "tests/system/data/jobs_child.lisp"
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1)
+	jt_got :nil)
+(. jobs :add (list (jt-work 13)))
+(until jt_got
+	(mail-timeout (elem-get jt_select +jt_timer) 1000 0)
+	(defq msg (mail-read (elem-get jt_select (defq idx (mail-select jt_select)))))
+	(case idx
+		(+jt_task (. jobs :launched msg))
+		(+jt_reply (if (. jobs :answered msg) (setq jt_got (getf msg +work_reply_num))))
+		(:t (. jobs :refresh 1000))))
+(mail-timeout (elem-get jt_select +jt_timer) 0 0)
+(assert-eq "a child slow to come up is not started again for ever" 26 jt_got)
+(bind '(& jt_misses) (. jobs :again))
+(test-note (cat "given again " (str (. jobs :again))))
+(assert-eq "it was started again only till it had time" :t
+	(or (<= jt_misses 20) (. jobs :again)))
 (. jobs :close)

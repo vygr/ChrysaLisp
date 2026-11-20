@@ -5,7 +5,7 @@
 (import "lib/task/jobs.inc")
 
 (structure +work +job_size
-	(long num die))
+	(long num die wait))
 
 (structure +work_reply +job_reply_size
 	(long num))

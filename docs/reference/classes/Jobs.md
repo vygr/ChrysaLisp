@@ -32,6 +32,16 @@ node shows it, lib/gpu/tris.inc.
 more jobs for the queue, the last of them is the first to go
 ```
 
+### :again
+
+```code
+(. jobs :again) -> (given_again up_misses)
+
+how much this farm has had to do again: the jobs given out again,
+and the children started again before they were up. Each is a
+patience to start with that was too short for this machine
+```
+
 ### :answered
 
 ```code
@@ -134,7 +144,8 @@ how many jobs are not yet answered
 (. jobs :refresh [timeout]) -> :t | :nil
 
 start again any child that has gone, or has had its job for
-longer than the timeout
+longer than its patience: the timeout is the patience to start
+with, and it slides from there, see the top of this file
 ```
 
 ### :reply_to

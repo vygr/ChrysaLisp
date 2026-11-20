@@ -12,6 +12,8 @@ docs/reference/classes/Farm.cwb
 the nodes that were asked for a task and could not start it. They are
 not asked again while this farm lasts: a node need not be one that
 runs what it is sent, see docs/ai_digest/alien_nodes.md
+the children started again before they were up, and when they were,
+each doubles how long the next of its kind is given
 ```
 
 ### :close
@@ -61,7 +63,12 @@ where the child of key is asked for, any of them
 
 scan known nodes and update map, merge local node here as well
 a child on a node that refused is not there to be found, it is
-all the nodes there are that a child is looked for in
+all the nodes there are that a child is looked for in. The
+timeout is the patience to start with, and slides: one not up yet
+is given it doubled for each child started again before it was up,
+one that is up for each started again while it was, or for the
+:returns of its own entry if it has them, (Jobs) gives each job its
+own. It is worked out now, of the timeout given now
 ```
 
 ### :refuse

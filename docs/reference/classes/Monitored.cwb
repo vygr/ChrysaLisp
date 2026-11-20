@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 37
+	:next_id 38
 	:items
 	((:list 1)
 		((:list 7)
@@ -164,7 +164,7 @@
 							:id
 							10
 							:items
-							((:list 22)
+							((:list 23)
 								((:list 11)
 									:shape
 									:id
@@ -321,7 +321,7 @@
 									:stroke
 									0
 									:text
-									"[:out]"
+									"[:given_again]"
 									:font_size
 									12
 									:pos
@@ -341,7 +341,7 @@
 									:stroke
 									0
 									:text
-									"[:path]"
+									"[:out]"
 									:font_size
 									12
 									:pos
@@ -361,7 +361,7 @@
 									:stroke
 									0
 									:text
-									"[:queue]"
+									"[:path]"
 									:font_size
 									12
 									:pos
@@ -381,12 +381,12 @@
 									:stroke
 									0
 									:text
-									"[:reply_mbox]"
+									"[:queue]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										68.04443
+										97.20654
 										85.00000
 									)
 								)
@@ -401,12 +401,12 @@
 									:stroke
 									0
 									:text
-									"[:task_mbox]"
+									"[:reply_mbox]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										68.04443
+										97.20654
 										102.00000
 									)
 								)
@@ -421,12 +421,12 @@
 									:stroke
 									0
 									:text
-									"[:tried]"
+									"[:task_mbox]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										68.04443
+										97.20654
 										119.00000
 									)
 								)
@@ -441,19 +441,39 @@
 									:stroke
 									0
 									:text
+									"[:tried]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										97.20654
+										136.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
 									"[:tries]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										68.04443
-										136.00000
+										97.20654
+										153.00000
 									)
 								)
 								((:list 13)
 									:shape
 									:id
-									30
+									31
 									:d
 									"[M 0 167 L 329.50512 167]"
 									:stroke
@@ -468,7 +488,7 @@
 								((:list 17)
 									:shape
 									:id
-									31
+									32
 									:kind
 									:text
 									:fill
@@ -490,7 +510,7 @@
 								((:list 15)
 									:shape
 									:id
-									32
+									33
 									:kind
 									:text
 									:fill
@@ -510,7 +530,7 @@
 								((:list 13)
 									:shape
 									:id
-									33
+									34
 									:d
 									"[M 0 216 L 329.50512 216]"
 									:stroke
@@ -525,7 +545,7 @@
 								((:list 17)
 									:shape
 									:id
-									34
+									35
 									:kind
 									:text
 									:fill
@@ -547,7 +567,7 @@
 								((:list 15)
 									:shape
 									:id
-									35
+									36
 									:kind
 									:text
 									:fill
@@ -567,7 +587,7 @@
 								((:list 15)
 									:shape
 									:id
-									36
+									37
 									:kind
 									:text
 									:fill

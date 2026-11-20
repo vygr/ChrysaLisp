@@ -14,6 +14,13 @@
 ; its own accord, (job-child), says so on the reply mailbox, and a job
 ; given it as it went goes back on the queue at once.
 ;
+; How long is too long slides. The timeout (:refresh) is given is the
+; patience to start with, a few times a job of the slowest machine. A job
+; is given that, doubled for each time that job has come back, and a child
+; coming up that, doubled for each child of the farm started again before
+; it was up, lib/task/farm.inc. A patience too short costs a try or two,
+; never a loop.
+;
 ; A farm lasts while its work goes on. When the work stops, a pause, a
 ; reset, another way of doing it taking over, the app lets the farm go,
 ; (jobs-end), and makes a new one for the next work.
@@ -81,6 +88,7 @@
 	;a child is told to go, the job it had goes back on the queue
 	(when (defq child (get :child val)) (mail-send child ""))
 	(when (defq job (get :job val))
+		(def this :given_again (inc (get :given_again this)))
 		;and it is counted, a job that keeps coming back is one no
 		;child can do
 		(defq tried (get :tried this) body (slice job +job_size -1)
@@ -126,7 +134,9 @@
 	;child that has the GPU do its work, and draws where the GUI of this
 	;node shows it, lib/gpu/tris.inc.
 	(def this :path path :task_mbox task_mbox :reply_mbox reply_mbox
-		:queue (list) :out 0 :tried (Fmap) :tries 0 :away away)
+		:queue (list) :out 0 :tried (Fmap) :tries 0 :away away
+		;the jobs given out again
+		:given_again 0)
 	(def this :farm (if (list? size)
 			(apply (const Local) (cat (list (const create) (const destroy)) size))
 			(Farm (const create) (const destroy) (ifn size (max 1 (length (lisp-nodes)))))))
@@ -136,9 +146,17 @@
 		;the next job on the queue to that child, if there is one
 		(cond
 			((defq job (pop (get :queue this)))
-				(def val :job job :timestamp (pii-time))
+				;given longer for each time this job has come back, the farm
+				;doubles the timeout of each (:refresh) that many times
+				(def val :job job :timestamp (pii-time)
+					:returns (if (= (get :tries this) 0) 0
+						(ifn (. (get :tried this) :find (slice job +job_size -1)) 0)))
+				;a copy is sent: a str mailed on the one node is the str itself,
+				;and is the child's from then on. The job is kept to be given
+				;again, and the key written into it for the next child would be
+				;read by one still at work on it, its answer taken as another's
 				(mail-send (get :child val)
-					(setf-> job
+					(setf-> (cat job)
 						(+job_key key)
 						(+job_reply (get :reply_mbox this)))))
 			(:t (undef val :job :timestamp)))
@@ -249,8 +267,16 @@
 	(defmethod :refresh (&optional timeout)
 		; (. jobs :refresh [timeout]) -> :t | :nil
 		;start again any child that has gone, or has had its job for
-		;longer than the timeout
+		;longer than its patience: the timeout is the patience to start
+		;with, and it slides from there, see the top of this file
 		(. (get :farm this) :refresh timeout))
+
+	(defmethod :again ()
+		; (. jobs :again) -> (given_again up_misses)
+		;how much this farm has had to do again: the jobs given out again,
+		;and the children started again before they were up. Each is a
+		;patience to start with that was too short for this machine
+		(list (get :given_again this) (get :up_misses (get :farm this))))
 
 	(defmethod :heard (job)
 		; (. jobs :heard job) -> jobs

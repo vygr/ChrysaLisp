@@ -7,17 +7,22 @@
 	;the nodes that were asked for a task and could not start it. They are
 	;not asked again: a node need not be one that runs what it is sent, see
 	;docs/ai_digest/alien_nodes.md
-	(def this :create fnc_create :destroy fnc_destroy :refused (list))
+	;and how many times the task of each node has been started again for
+	;its time being up: each doubles how long the next is given, so a slow
+	;node is given the time it needs, never started again for ever
+	(def this :create fnc_create :destroy fnc_destroy :refused (list) :timed_out (Fmap))
 
 	(defmethod :refresh (&optional timeout)
 		; (. global :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update node map
-		;merge local node to bypass eventual consistency UI lag
+		;merge local node to bypass eventual consistency UI lag. The
+		;timeout is the patience to start with, doubled for each time the
+		;task of that node has been started again for its time being up
 		(defq refused (get :refused this)
 			network_nodes (filter (# (not (find %0 refused))) (lisp-nodes))
 			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
-			mutated :nil now (pii-time) e (penv))
+			mutated :nil now (pii-time) e (penv) timed_out (get :timed_out this))
 		(. this :each (lambda (key val) (push old_keys key) (push old_vals val)))
 		;test for vanished and timeout nodes
 		(each (lambda (key val)
@@ -26,9 +31,10 @@
 						;found, so check timestamp
 						(and timeout
 							(defq then (get :timestamp val))
-							(> (- now then) timeout)
+							(> (- now then) (* timeout (<< 1 (min (defq n (ifn (. timed_out :find key) 0)) 20))))
 							(progn
 								(setq mutated :t)
+								(. timed_out :insert key (inc n))
 								(callback destroy e key val)
 								(. this :insert key (create key now)))))
 					(:t ;not found

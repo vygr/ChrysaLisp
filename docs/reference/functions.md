@@ -11940,6 +11940,16 @@ v, the low bits of a number of two's complement, as that number
 (slices list) -> ((s0 e0) (s1 e1) ...)
 ```
 
+### slid
+
+```code
+(slid timeout n) -> us
+
+a timeout doubled n times, and no end to the doubling short of a time
+no child takes, so a timeout too short for any machine still comes to
+enough, and a child is never started again for ever
+```
+
 ### sort
 
 ```code
@@ -16009,6 +16019,16 @@ one time, the longest total first, then they are all forgotten
 
 us added to the heading's total, one to how many times, and the
 longest one time kept
+```
+
+### timed-out
+
+```code
+a child whose time was up is started again, and counted, one that was
+
+not up yet and one that was: each makes the next of its kind wait
+twice as long. Only the time, a child that went or a node that went
+is no sign that the time was short
 ```
 
 ### timezone-init
