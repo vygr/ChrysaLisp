@@ -101,7 +101,7 @@
 	(def *window* :tip_mbox (elem-get *select* +select_tip))
 	(.-> *window* (:connect +event_layout) :open)
 	(window-resize)
-	(action-insert (cat "ChrysaLisp Terminal" "\n" (get :terminal_prompt *env*)))
+	(action-insert (cat "ChrysaLisp Terminal" "\n" (kept-code-note) (get :terminal_prompt *env*)))
 	(defq *margin_x* *cursor_x*)
 	(while *running*
 		(and *needs_refresh* (not (input-poll)) (refresh))

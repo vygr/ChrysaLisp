@@ -350,20 +350,38 @@
 		(vp-ret)
 	(endif)
 
+	;are the functions kept in the folder of the image of its translator,
+	;looked at the first time, before the name buffer has a name in it
+	(assign '((:r7 statics_sys_load_trust)) '(:r0))
+	(vpif '(:r0 = 0))
+		(vp-push :r6)
+		(vp-call 'trust)
+		(vp-pop :r6)
+		(fn-bind 'sys/statics/statics :r7)
+	(endif)
+
 	;create filename, after the folder of the image the buffer starts with
 	(load-fields :r7 '(statics_sys_load_name_buffer statics_sys_load_name_prefix) '(:r1 :r0))
 	(vp-add-rr :r0 :r1)
 	(call :sys_str :copy '(:r6 :r1))
-	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
+	(fn-bind 'sys/statics/statics :r7)
 
+	;kept by another translator, it is made from its VP first, and the one
+	;kept is loaded only if it has none, a shader's, named for its maker
+	(assign '((:r7 statics_sys_load_trust)) '(:r0))
+	(gotoif '(:r0 < 0) 'from_vp)
+
+(vp-label 'from_file)
 	;get length of function on disk, none, or not a file, and it is made
 	;from its VP
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
 	(call :host_os :pii_stat '(:r6 (:r7 statics_sys_load_stat_buffer)) '(:r0))
-	(gotoif '(:r0 /= 0) 'from_vp)
+	(gotoif '(:r0 /= 0) 'no_file)
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r0))
 	(assign '((:r0 +stat_mode)) '(:r0))
 	(vp-and-cr s_ifmt :r0)
-	(gotoif '(:r0 /= s_ifreg) 'from_vp)
+	(gotoif '(:r0 /= s_ifreg) 'no_file)
 
 	;ensure space for new function
 	(vp-call 'space)
@@ -383,7 +401,7 @@
 	(fn-bind 'sys/statics/statics :r7)
 	(load-fields :r7 '(statics_sys_load_block_start statics_sys_load_stat_buffer) '(:r3 :r2))
 	(assign '((:r3 +fn_header_length) (:r2 +stat_fsize)) '(:r0 :r1))
-	(gotoif '(:r0 /= :r1) 'from_vp)
+	(gotoif '(:r0 /= :r1) 'no_file)
 	(call :host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
 	(fn-bind 'sys/statics/statics :r7)
 	(assign '((:r7 statics_sys_load_block_start)) '(:r3))
@@ -502,15 +520,23 @@
 	(endif)
 	(vp-pop :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	(vpif '(:r0 = 0))
+		;no VP: what is kept is all there is, if it was not looked at
+		(fn-bind 'sys/statics/statics :r7)
+		(assign '((:r7 statics_sys_load_trust)) '(:r1))
+		(gotoif '(:r1 < 0) 'from_file)
 		(exit :sys_load :load '(:r0))
 		(vp-ret)
 	(endif)
 	(vp-push :r0)
-	;kept, the same bytes whoever makes it
+	;kept, the same bytes whoever makes it, where what is kept is of this
+	;translator: not over those of another, a make puts them right
 	(fn-bind 'sys/statics/statics :r7)
-	(assign '((:r0 +str_length)) '(:r2))
-	(vp-lea-rcr :r0 +str_data :r1)
-	(call :host_os :pii_save '((:r7 statics_sys_load_name_buffer) :r1 :r2) '(&))
+	(assign '((:r7 statics_sys_load_trust)) '(:r1))
+	(vpif '(:r1 > 0))
+		(assign '((:r0 +str_length)) '(:r2))
+		(vp-lea-rcr :r0 +str_data :r1)
+		(call :host_os :pii_save '((:r7 statics_sys_load_name_buffer) :r1 :r2) '(&))
+	(endif)
 	;into the block as from its file
 	(fn-bind 'sys/statics/statics :r7)
 	(assign '((:rsp 0) (:r7 statics_sys_load_stat_buffer)) '(:r0 :r1))
@@ -528,6 +554,84 @@
 	(fn-bind 'sys/statics/statics :r7)
 	(assign '((:r7 statics_sys_load_block_start)) '(:r3))
 	(vp-jmp 'loaded)
+
+(vp-label 'no_file)
+	;no file kept: made from its VP, if that was not tried first
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_trust)) '(:r0))
+	(gotoif '(:r0 > 0) 'from_vp)
+	(vp-xor-rr :r0 :r0)
+	(exit :sys_load :load '(:r0))
+	(vp-ret)
+
+(vp-label 'trust)
+	;the functions kept in the folder of the image are of its translator
+	;if the id of the one that made them, sys/natives_trans, which a make
+	;writes, is the id of the image's, sys/trans_id, written as it was
+	;made. 1 in statics_sys_load_trust if they are, -1 if not, or either
+	;is not there. Trashes :r0-:r7
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_reloc_stack)) '(:r1))
+	(vp-push :r1)
+	(assign '(($ trans_id)) '(:r0))
+	(vp-call 'read_id)
+	(vp-push :r0)
+	(assign '((:rsp +ptr_size)) '(:r1))
+	(vp-add-cr ld_id_size :r1)
+	(assign '(($ natives_trans)) '(:r0))
+	(vp-call 'read_id)
+	;the length of the first, and where they were read to
+	(vp-pop :r5 :r1)
+	(vp-cpy-cr -1 :r2)
+	(vpif '(:r0 = :r1) '(:r0 > 0))
+		;the same bytes
+		(vp-lea-rcr :r5 ld_id_size :r3)
+		(vp-add-rr :r5 :r0)
+		(loop-start)
+			(vp-load-rcr-ub :r5 0 :r4)
+			(vp-load-rcr-ub :r3 0 :r6)
+			(breakif '(:r4 /= :r6))
+			(vp-add-cr +byte_size :r5)
+			(vp-add-cr +byte_size :r3)
+		(loop-until '(:r5 = :r0))
+		(vpif '(:r5 = :r0))
+			(vp-cpy-cr 1 :r2)
+		(endif)
+	(endif)
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '(:r2) '((:r7 statics_sys_load_trust)))
+	(vp-ret)
+
+(vp-label 'read_id)
+	;:r0 = c string, a name in the folder of the image (pubyte), :r1 = where
+	;to read it to, ld_id_size bytes (pubyte). :r0 = its length, -1 if it
+	;is not there or longer. Trashes :r0-:r7
+	(vp-push :r1)
+	(fn-bind 'sys/statics/statics :r7)
+	(load-fields :r7 '(statics_sys_load_name_buffer statics_sys_load_name_prefix) '(:r1 :r2))
+	(vp-add-rr :r2 :r1)
+	(call :sys_str :copy '(:r0 :r1))
+	(fn-bind 'sys/statics/statics :r7)
+	(call :host_os :pii_stat '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_stat_buffer)) '(:r0))
+	(vp-cpy-cr -1 :r5)
+	(vpif '(:r0 = 0))
+		(fn-bind 'sys/statics/statics :r7)
+		(assign '((:r7 statics_sys_load_stat_buffer)) '(:r0))
+		(assign '((:r0 +stat_fsize)) '(:r5))
+		(vpif '(:r5 > 0) `(:r5 <= ,ld_id_size))
+			(vp-push :r5)
+			(call :host_os :pii_open '((:r7 statics_sys_load_name_buffer) +file_open_read) '(:r6))
+			(assign '((:rsp 0) (:rsp +ptr_size)) '(:r2 :r1))
+			(call :host_os :pii_read '(:r6 :r1 :r2))
+			(call :host_os :pii_close '(:r6))
+			(vp-pop :r5)
+		(else)
+			(vp-cpy-cr -1 :r5)
+		(endif)
+	(endif)
+	(vp-pop :r1)
+	(vp-cpy-rr :r5 :r0)
+	(vp-ret)
 
 (vp-label 'space)
 	;room in the block for the length in the stat buffer, a new block if not,
@@ -551,6 +655,11 @@
 		(assign '(:r0) '((:r7 statics_sys_load_block_end)))
 	(endif)
 	(vp-ret)
+
+(vp-label 'trans_id)
+	(vp-cstr "sys/trans_id")
+(vp-label 'natives_trans)
+	(vp-cstr "sys/natives_trans")
 
 (def-func-end)
 

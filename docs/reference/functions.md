@@ -6250,6 +6250,18 @@ would the includes command, reading a line that starts with the node,
 a list, take it for a form it looks for. A word alone names nothing
 ```
 
+### kept-code-note
+
+```code
+(kept-code-note) -> str
+
+a line for a terminal as it starts, "" if there is nothing to say: the
+code kept beside this node's boot image is not of the translator the
+image holds, sys/natives_trans not sys/trans_id, so the loader trusts
+none of it and makes each function again from its VP as it is bound,
+sys/load/class.vp. A make of the system and the apps puts it right
+```
+
 ### kid-done
 
 ```code
@@ -6754,11 +6766,12 @@ from corner to corner and a ball of faces is round
 ### mesh-hand-back
 
 ```code
-(mesh-hand-back) -> :t
+(mesh-hand-back [port]) -> :t
 
 said by a desktop as it goes: the session that gave it the port is to
 take it back. Nothing is waiting if none gave it, and nothing is said
-to the others, the port is not this one's to give if it has it not
+to the others, the port is not this one's to give if it has it not.
+port is where it is said, +mesh_take_port if not given
 ```
 
 ### mesh-of

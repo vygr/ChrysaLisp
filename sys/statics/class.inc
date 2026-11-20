@@ -98,4 +98,11 @@
 	;sym statics
 	(ptr sym_intern)
 	(struct static_syms (* (length *static_syms*) +ptr_size))
+	(align)
+
+	;are the functions kept in the folder of the image of the translator of
+	;this image, 0 not yet looked at, 1 they are, -1 they are not,
+	;sys/load/class.vp (:load). Last, so no field before it moves: code kept
+	;from before it knows them where they were
+	(long sys_load_trust)
 	(align))

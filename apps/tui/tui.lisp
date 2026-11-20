@@ -189,7 +189,7 @@
 	(open-child "service/lock/app.lisp" +kn_call_run)
 	(open-child "service/source/app.lisp" +kn_call_run)
 	(open-child "service/net/app.lisp" +kn_call_run)
-	(print "ChrysaLisp Terminal" +LF (get :terminal_prompt *env*))
+	(print "ChrysaLisp Terminal" +LF (kept-code-note) (get :terminal_prompt *env*))
 	;create child and send args
 	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_pin) (task-mbox))
 	(defq cmd :nil buffer "" cursor 0 esc_state 0 last_input 0 prompted :t

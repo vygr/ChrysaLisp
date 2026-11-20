@@ -144,6 +144,19 @@ Since 2026-11-07 VP text has replaced VP binary as the one form: the loader
 reads a function's entry from its bundle in `obj/vp/`, and the translator
 parses the text, `lib/trans/vp_parse.vp`, [vp_translation.md](vp_translation.md).
 
+A native is kept only while it is of the translator the image holds. The
+folder of a boot image has, beside it, `sys/trans_id`, the id of the
+translator in the image, written as the image is made, and
+`sys/natives_trans`, the id of the translator the code kept there is of,
+written by a make when all of it, the system's and the apps', is of the one
+there is now, and taken away when it is not. The loader reads the two the
+first time it binds, and if they are not the same it trusts nothing kept: it
+makes each function from its VP as it binds it, and keeps none of those, and
+only a function with no VP, a shader's, named for its translator already, is
+loaded from what is kept. The terminal says so as it starts. So an image
+replaced under code kept by another, a snapshot unpacked, or code made
+again under an old image, is never run together; a make puts it right.
+
 What can never miss. The loader, the kernel, the translator of the node's
 CPU, and each with everything it calls: a miss in those could never be
 filled, as what would fill it is what is missing. That is what the native

@@ -687,8 +687,12 @@
 				image (and (not force) was (eql (second was) of) (> (length was) 2)
 					(= (third was) (age (cat "obj/" cpu "/" abi "/sys/boot_image")))))
 			(unless (and image (eql (first was) id))
-				;what the image is built from, as one number, beside it
+				;what the image is built from, as one number, beside it, and
+				;the id of the translator it holds: the loader trusts the
+				;functions kept beside it only if they are of that one,
+				;sys/load/class.vp
 				(save id (boot-id-file cpu abi))
+				(if (defq tid (trans-id cpu)) (save tid (cat "obj/" cpu "/" abi "/sys/trans_id")))
 				(save (join (sort (cat (get 'f_all facts))) "\n") (boot-files-file cpu abi))
 				(cond
 					(image (def bootman k (list id of (third was))) (setq boot_dirty :t))
@@ -820,8 +824,17 @@
 				(said-vp said)
 				(said-code said)
 				(if vp_made (manifest-save vpman (vp-manifest)))
+				;and the translator the code of each platform is of, if it is
+				;all of the one there is now: the apps' code is in the folder
+				;too, and a make of the system leaves it as it was. Not, and
+				;the loader trusts none of it, sys/load/class.vp
 				(each (lambda ((k (cpu abi)))
-						(manifest-save (get k mans) (platform-manifest cpu abi))) (tolist dirty))))
+						(manifest-save (defq man (get k mans)) (platform-manifest cpu abi))
+						(defq tid (trans-id cpu) file (cat "obj/" cpu "/" abi "/sys/natives_trans"))
+						(if (and tid (every (lambda ((& n)) (eql (second n) tid)) (tolist man)))
+							(save tid file)
+							(if (/= (age file) 0) (pii-remove file))))
+					(tolist dirty))))
 		said (farm-jobs units asm_abi asm_cpu targets
 			(if boot (lambda (said) (note said) (boot-units targets force)))
 			(if boot (length targets))))

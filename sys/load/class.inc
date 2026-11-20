@@ -26,6 +26,8 @@
 (defcvar 'ld_block_size (* ld_page_size 32))
 (defcvar 'ld_reloc_buf_size (* ld_page_size 2))
 (defcvar 'ld_name_size 128)
+;the most an id read by the loader is, sys/trans_id, two hashes in hex
+(defcvar 'ld_id_size 160)
 (defcvar 'ld_reloc_size (- ld_reloc_buf_size (align ld_name_size +long_size) (align +stat_size +long_size)))
 (defcvar 'ld_prefix_size 64)
 

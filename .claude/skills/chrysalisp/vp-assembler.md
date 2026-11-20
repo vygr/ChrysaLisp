@@ -512,6 +512,12 @@ last.
 	fails, as a GPU has it. Of whole numbers it is the opposite branch, as
 	it always was.
 
+*	Data in a function, a `(vp-cstr)` string, goes after all its code, at its
+	end before `(def-func-end)`. In the middle, a string of a length that is
+	not a whole number of instructions leaves the code after it out of line:
+	arm64 then runs the tail of the string as an instruction, a SIGILL at
+	boot, where x86 and the emulator, which do not care, run it fine.
+
 *	A `vpif` is a switch of its own: a `break`, `breakif` or `continue`
 	inside one inside a loop goes to the end of the `vpif`. Name the loop,
 	`(loop-start 'name)`, and `(break 'name)`, `(breakif c 'name)`,

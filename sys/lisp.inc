@@ -102,6 +102,18 @@
 		(if (= 0 (get-long tail 0)) (setq tail (task-mbox))))
 	ids)
 
+(defun kept-code-note ()
+	; (kept-code-note) -> str
+	;a line for a terminal as it starts, "" if there is nothing to say: the
+	;code kept beside this node's boot image is not of the translator the
+	;image holds, sys/natives_trans not sys/trans_id, so the loader trusts
+	;none of it and makes each function again from its VP as it is bound,
+	;sys/load/class.vp. A make of the system and the apps puts it right
+	(defq kept (load (cat (load-path) "sys/natives_trans")))
+	(if (and kept (nempty? kept) (eql kept (load (cat (load-path) "sys/trans_id")))) ""
+		(cat "The code kept for this boot image is of another translator, and is made again as it is used:"
+			" make all boot, then make apps, keep it again\n")))
+
 (defun mail-await (lookup &optional path mode wait)
 	; (mail-await lookup [path mode wait]) -> :nil | net_id
 	; (lookup) -> :nil | net_id
