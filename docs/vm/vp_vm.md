@@ -100,6 +100,8 @@ same of a single. `vp-cpy-rd` and `vp-cpy-dr` copy the bits as they are, all
 64 of a double; `vp-cpy-rf` the low 32 of a word to a single and `vp-cpy-fr`
 the 32 of a single to a word, its top 32 bits 0. `vp-min-dd` and `vp-max-dd` of a NaN are not defined. Of the float
 branches, as IEEE has it, every compare with a NaN is false but `vp-bne-dd`.
+So the `vpif` of `lib/asm/code.inc` of reals, and the forms that go by
+`gotoifnot`, go past a jump by the test's own branch, not by the opposite one.
 `(vp-sync c)` is a full barrier of memory, whatever `c`.
 
 A call leaves one word on the stack under the callee, and what is in it is not

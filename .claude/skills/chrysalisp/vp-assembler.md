@@ -505,6 +505,13 @@ last.
 	`continueif`: any holds; `breakifnot`, `continueifnot`: any fails.
 	`loop-until`: ends when all hold. `gotoif` and `gotoifnot` take one.
 
+*	Of reals, `:d` or `:f` registers, a test that fails is not the opposite
+	test holding: a NaN is neither `<` nor `>=`. So `gotoifnot` of reals,
+	and every form above that goes by it, is the test's own branch past a
+	jump to its label, one more instruction, and a NaN goes as a test that
+	fails, as a GPU has it. Of whole numbers it is the opposite branch, as
+	it always was.
+
 *	A `vpif` is a switch of its own: a `break`, `breakif` or `continue`
 	inside one inside a loop goes to the end of the `vpif`. Name the loop,
 	`(loop-start 'name)`, and `(break 'name)`, `(breakif c 'name)`,

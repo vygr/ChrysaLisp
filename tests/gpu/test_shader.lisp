@@ -174,6 +174,15 @@
 		"(if (not (and (= 1 1) (= 1 2))) (setq c 1.0))"
 		"(if (= (< 1 2) :t) (setq d 1.0))"
 		"(return (vec4 a b c d))"))
+;an if of a NaN is as a GPU has it: a NaN is not <, >= nor = anything,
+;itself too, and is /= all of them
+(assert-pixel "an if of a NaN" '(0.0 0.0 1.0 0.0)
+	(sh-main "(defq a 0.0 b 0.0 c 0.0 d 0.0 z 0.0 n (/ z z))"
+		"(if (< n 1.0) (setq a 1.0))"
+		"(if (>= n 1.0) (setq b 1.0))"
+		"(if (/= n n) (setq c 1.0))"
+		"(if (= n n) (setq d 1.0))"
+		"(return (vec4 a b c d))"))
 
 ;vectors
 (assert-pixel "vector with vector" '(4.0 10.0 -3.0 0.25)

@@ -71,6 +71,27 @@
 (assert-eq "of a NaN, only bne is taken" 2 (vs_ff 999 1))
 (assert-eq "of a NaN and 0, only bne too" 2 (vs_ff 999 0))
 
+;a vpif of reals is as its test, of a NaN too: it goes past by the branch
+;of its own test, not of the opposite one, which a NaN does not take
+;either. Of doubles and of singles, a 999 made a NaN as above
+(defun vs-ifs (name reg cvt div)
+	(vs-native name (cat (vs-head name)
+			"(" cvt " :r2 :" reg "0)" vs_lf "(" cvt " :r3 :" reg "1)" vs_lf
+			"(vp-bne-cr 999 :r2 'real)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(" cvt " :r5 :" reg "0)" vs_lf
+			"(" div " :" reg "0 :" reg "0)" vs_lf "(vp-label 'real)" vs_lf
+			(apply (const cat) (map! (lambda (op)
+						(cat "(vpif '(:" reg "0 " op " :" reg "1))" vs_lf "(vp-or-cr " (str (<< 1 (!))) " :r4)" vs_lf "(endif)" vs_lf))
+					(list '("=" "/=" "<" "<=" ">" ">="))))
+			(vs-tail))))
+(defq vs_ifd (vs-ifs "tests/vp_spec_ifd" "d" "vp-cvt-rd" "vp-div-dd")
+	vs_iff (vs-ifs "tests/vp_spec_iff" "f" "vp-cvt-rf" "vp-div-ff"))
+(each (lambda ((a b))
+		(assert-eq (cat "a vpif of doubles " (str a) " and " (str b)) (vs-long-want a b) (vs_ifd a b))
+		(assert-eq (cat "a vpif of singles " (str a) " and " (str b)) (vs-long-want a b) (vs_iff a b)))
+	'((3 3) (2 7) (7 2) (-4 -4) (-4 1)))
+(assert-eq "a vpif of a NaN of doubles is only of /=" 2 (vs_ifd 999 1))
+(assert-eq "a vpif of a NaN of singles is only of /=" 2 (vs_iff 999 0))
+
 ;constants of any size: what does not fit an instruction of a target is made
 ;another way, docs/vm/vp_vm.md. Each op of a and a constant past 32 bits,
 ;and a load and a store at an offset of 2^33, from a base 2^33 below a word

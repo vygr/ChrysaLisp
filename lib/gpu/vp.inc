@@ -603,9 +603,17 @@
 	(bind '(type tag a &optional b) node)
 	(cond
 		((and (eql tag :op) (defq i (find a '(< <= > >= = /=))))
-			(list (list :expr (first b)) (list :expr (second b))
-				(list :br_cmp (if sense i (elem-get '(3 2 1 0 5 4) i))
-					(eql (first (first b)) :float) cell)))
+			(defq real (eql (first (first b)) :float))
+			(cond
+				(sense (list (list :expr (first b)) (list :expr (second b)) (list :br_cmp i real cell)))
+				((not real) (list (list :expr (first b)) (list :expr (second b))
+					(list :br_cmp (elem-get '(3 2 1 0 5 4) i) real cell)))
+				;of floats the opposite compare is not the test not taken, a
+				;NaN takes neither, as a GPU has it: the test's own branch
+				;goes past a jump to the label
+				(:t (defq skip (list :nil))
+					(list (list :expr (first b)) (list :expr (second b)) (list :new_label skip)
+						(list :br_cmp i real skip) (list :jmp cell) (list :label skip)))))
 		((and (eql tag :op) (eql a 'not))
 			(list (list :branch (first b) cell (not sense))))
 		((and (eql tag :op) (find a '(and or)))
@@ -714,6 +722,7 @@
 					(sv-emit (if p0 'vp-bne-cr 'vp-beq-cr) 0 (first r) (sv-q (first p1)))
 					(sv-puts r))
 				(:new_label (elem-set p0 0 (sv-new-label)))
+				(:jmp (sv-emit 'vp-jmp (sv-q (first p0))))
 				(:label (sv-emit 'vp-label (sv-q (first p0))))))
 		steps)
 	vs)

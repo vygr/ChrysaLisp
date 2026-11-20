@@ -35,20 +35,20 @@
 
 (defun gotoifnot (e l)
 	(bind '(d o s) e)
-	(defq e (find o '(/= = > < <= >=)))
+	(defq i (find o '(/= = > < <= >=)))
 	(case (assign-src-type s)
-		(:c (if e ((eval (elem-get '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr) e)) s d l)
+		(:c (if i ((eval (elem-get '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr) i)) s d l)
 				(throw "No such comparator" o)))
-		(:r (if e ((eval (elem-get '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr) e)) s d l)
+		(:r (if i ((eval (elem-get '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr) i)) s d l)
 				(throw "No such comparator" o)))
-		(:f (cond
-				((not e) (throw "No such comparator" o))
-				;two singles by the 32 bit compares, two doubles by the 64. By
-				;the map vp-freg? reads, as the macro is of regs.inc, after this
-				((nql (not (pfind +vp_fregs_map s)) (not (pfind +vp_fregs_map d)))
-					(throw "A single compared with a double !" (list s d)))
-				((pfind +vp_fregs_map s) ((eval (elem-get '(vp-beq-ff vp-bne-ff vp-ble-ff vp-bge-ff vp-bgt-ff vp-blt-ff) e)) s d l))
-				(((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l))))
+		;of reals the opposite compare is not the test not taken: a NaN is
+		;neither < nor >=, and would go the way of a test that holds. So the
+		;test's own branch goes past a jump to the label, a NaN to the label
+		(:f (unless i (throw "No such comparator" o))
+			(switch)
+			(gotoif e (end-sym))
+			(goto l)
+			(endswitch))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
 (defun switch (&optional %0)
