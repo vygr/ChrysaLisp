@@ -290,6 +290,11 @@
 (assert-eq "with-lock body not run" :nil le_ran)
 (lock-release-rpc "le/m3")
 
+;an error in the body lets the lock go, and goes on up
+(assert-eq "with-lock passes an error on" :t
+	(catch (with-write-lock ("le/m4" le_long) (throw "le/m4, a test" 0)) :t))
+(assert-eq "with-lock lets go as an error passes" 42 (with-write-lock ("le/m4" le_wait) 42))
+
 ; --- the history holds only the last +lock_max_history entries ---
 (times 100 (le-claim "le/h") (lock-release-rpc "le/h"))
 (le-claim "le/h_last")

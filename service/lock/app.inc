@@ -82,11 +82,12 @@
 (defmacro with-lock (spec &rest body)
 	; (with-lock key body ...)
 	; (with-lock (key [mode timeout]) body ...)
+	;an error in the body lets the lock go, then goes on up
 	(defq k (gensym) r (gensym))
 	(bind '(key &optional mode timeout) (if (list?? spec) spec (list spec)))
 	(static-qqp (when (defq ,k ,key)
 			(when (lock-claim-rpc ,k ,mode ,timeout)
-				(defq ,r (progn ~body))
+				(defq ,r (catch (progn ~body) (progn (lock-release-rpc ,k) :nil)))
 				(lock-release-rpc ,k)
 				,r))))
 
