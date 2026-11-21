@@ -80,11 +80,31 @@
 	(setq name (url-decode name))
 	(to-lower (trim-end (if (defq at (rfind "." name)) (slice name 0 (dec at)) name) ".")))
 
+(defun name-ending (name)
+	; (name-ending name) -> str
+	;a module's ending, in lower case, "" if none
+	(to-lower (if (defq at (rfind "." name)) (slice name at -1) "")))
+
+(defun stem-within? (short long)
+	; (stem-within? short long) -> :t | :nil
+	;are the letters of short in long, in order, the first of each the
+	;same: a DOS name of 8 made from a longer, millpwr of millenium powerup
+	(defq i 0 n (length short))
+	(each (# (and (< i n) (eql %0 (elem-get short i)) (setq i (inc i)))) long)
+	(and (> n 0) (= i n) (eql (first short) (first long))))
+
 (defun entry-renamed (html name)
 	; (entry-renamed html name) -> :nil | name
-	;the module of a folder's listing that one not there now is under: the
-	;same name but for its ending. Modland has renamed some that playlists
-	;still name, supernova.ft is supernova.mod now
-	(defq stem (name-stem name))
-	(some (lambda ((entry folder)) (and (not folder) (eql (name-stem entry) stem) entry))
-		(listing-read html)))
+	;the module of a folder's listing that one not there now is under.
+	;Modland has renamed some that playlists still name: the same name but
+	;for its ending, supernova.ft is supernova.mod now; or a DOS name of 8
+	;or fewer made from the name it has now, of the same ending, the only
+	;one there it could be, millpwr.xm is millenium powerup.xm
+	(defq stem (name-stem name) ending (name-ending (url-decode name))
+		modules (filter (lambda ((& folder)) (not folder)) (listing-read html)))
+	(or (some (lambda ((entry &ignore)) (if (eql (name-stem entry) stem) entry)) modules)
+		(and (<= (length stem) 8)
+			(= (length (defq like (filter (lambda ((entry &ignore))
+					(and (eql (name-ending (url-decode entry)) ending) (stem-within? stem (name-stem entry))))
+				modules))) 1)
+			(first (first like)))))

@@ -191,3 +191,8 @@
 (assert-eq "an XM instrument of no samples, a map of 96 keys" 96
 	(length (. (first (. xm_song :find :instruments)) :find :map)))
 (assert-true "a note on it, the song measured" (num? (tracker-length xm_song 44100)))
+(defq listing (cat "<a href=\qmillenium%20powerup.xm\q>x</a>\n<a href=\qjazzfunk.xm\q>x</a>\n"
+	"<a href=\qmill%20power.mod\q>x</a>\n<a href=\qmuddy%20pools.xm\q>x</a>\n<a href=\qmud%20pool.xm\q>x</a>\n"))
+(assert-eq "entry-renamed, a DOS name of the name it has now" "millenium%20powerup.xm" (entry-renamed listing "millpwr.xm"))
+(assert-eq "entry-renamed, not when two could be it" :nil (entry-renamed listing "mudpool.xm"))
+(assert-eq "entry-renamed, not a long name" :nil (entry-renamed listing "jazzfunkier.xm"))
