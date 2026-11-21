@@ -18,7 +18,7 @@
 
 (ffi "lib/media/media_mix" media-mix)
 
-(defq +mix_size 8 +mix_pingpong 1 +mix_back 2
+(defq +mix_size 13 +mix_pingpong 1 +mix_back 2
 	+amiga_clock 3546895 +st3_clock 14317056 +period_lo 113 +period_hi 856 +st3_period_lo 64
 	;the half of a sine of vibrato and tremolo
 	+tracker_sine ''(0 24 49 74 97 120 141 161 180 197 212 224 235 244 250 253
@@ -38,7 +38,7 @@
 	;and of Impulse Tracker
 	+fx_fvslide2 4096 +fx_tempo 8192 +fx_tvslide 16384 +fx_tfvslide 32768 +fx_panbrello 65536
 	+fx_new_vol 131072 +fx_new_ins 262144 +fx_new_note 524288 +fx_key_off 1048576
-	+fx_offset 2097152
+	+fx_offset 2097152 +fx_macro 4194304
 	;what an IT channel's note is doing, :notes bits, and what is paused, :pers
 	+itn_fade 1 +itn_env_release 2 +itn_end 4 +itn_cut 8 +itn_env_end 16 +itn_sample_end 32
 	+itn_set 64 +itn_susexit 128 +itn_key_cut 256 +itn_gliss 512 +itn_sample_release 1024
@@ -46,7 +46,9 @@
 	;the volume column's slides to a note, by its number
 	+it_gporta ''(0 1 4 8 16 32 64 96 128 255)
 	;the voices of an IT's mixer, its channels' and its past notes'
-	+it_voices 128)
+	+it_voices 128
+	;the filter's coefficients are of 22 bits, as libxmp's
+	+filter_shift 22)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the voices of the mixer
@@ -72,7 +74,10 @@
 			(defq at (* (if (< (!) n) (!) (. chan :find :slot)) +mix_size) sample (. chan :find :sample))
 			(when (. chan :find :stop)
 				(scatter chan :stop :nil :trigger :nil)
-				(elem-set voices at -1))
+				(elem-set voices at -1)
+				;a voice let go of, its filter from nothing when next it is
+				(elem-set voices (+ at 11) 0)
+				(elem-set voices (+ at 12) 0))
 			(when (and (. chan :find :trigger) (>= sample 0))
 				;a note played: its sample from the start, or the offset, and
 				;its loop
@@ -107,7 +112,12 @@
 				(linear (ft2-step player period))
 				((/ clock (* period rate)))))
 			(elem-set voices (+ at 3) (/ (* weight (- 256 pan)) 256))
-			(elem-set voices (+ at 4) (/ (* weight pan) 256)))
+			(elem-set voices (+ at 4) (/ (* weight pan) 256))
+			;an IT's filter, a0 0 none
+			(when stepped
+				(elem-set voices (+ at 8) (. chan :find :fa0))
+				(elem-set voices (+ at 9) (. chan :find :fb0))
+				(elem-set voices (+ at 10) (. chan :find :fb1))))
 		(if (defq past (. player :find :past)) (cat chans past) chans)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1072,7 +1082,9 @@
 		:delay 0 :delayed :nil :delayed_ins 0 :rvv 0 :rpv 0 :loop_row 0 :loop_count 0
 		:voice :nil :released :nil :loop :nil :loop_change :nil
 		:period_out 0 :volume_out 0 :pan_out pan :trigger :nil :start 0 :stop :nil
-		:act 0 :v_ins -1 :v_smp -1 :v_key -1))
+		:act 0 :v_ins -1 :v_smp -1 :v_key -1
+		:f_cutoff 255 :f_res 0 :f_env 256 :f_can :nil :fa0 0 :fb0 0 :fb1 0
+		:m_active 0 :m_val 0 :m_slide 0 :m_target 0))
 
 (defun it-flag (chan key bits)
 	; (it-flag chan key bits)
@@ -1284,6 +1296,9 @@
 		(defq past (. chan :deep_copy) slot (pop free) voices (. player :find :voices)
 			from (* (. chan :find :index) +mix_size) to (* slot +mix_size))
 		(each! (# (elem-set voices (+ to (!)) (elem-get voices (+ from (!))))) '() 0 +mix_size)
+		;the channel's new voice, its filter from nothing
+		(elem-set voices (+ from 11) 0)
+		(elem-set voices (+ from 12) 0)
 		(scatter past :slot slot :fx 0)
 		(push (. player :find :past) past)))
 
@@ -1298,6 +1313,106 @@
 					(2 (it-flag c :notes +itn_release))
 					(3 (it-flag c :notes +itn_fade)))))
 		(cat (. player :find :past))))
+
+(defun it-filter (player chan cutoff res)
+	; (it-filter player chan cutoff res)
+	;the coefficients of the channel's filter, libxmp's libxmp_filter_setup:
+	;of two poles, cutoff 0 to 255 110 Hz to 7040 Hz, resonance 0 to 255 up
+	;to 24 dB. None, a0 0, at 254 and more with no resonance. Kept by the
+	;player, each pair once
+	(defq cache (. player :find :filters) key (+ (* cutoff 256) res))
+	(unless (defq coeffs (. cache :find key))
+		(. cache :insert key (setq coeffs (if (and (>= cutoff 254) (= res 0)) '(0 0 0)
+				(defq fs (n2d (. player :find :rate))
+					fc (min (/ fs (const (n2d 2)))
+						(* (const (n2d 110)) (pow (const (n2d 2))
+							(+ (/ (* (n2d cutoff) (const (n2d 128))) (const (n2d 6144))) (const (n2d 0.25))))))
+					r (/ fs (* (const (/ (n2d 314159265358979) (n2d 50000000000000))) fc))
+					d (- (* (pow (const (n2d 10)) (/ (n2d (* -3 (>> res 1))) (const (n2d 320))))
+						(+ r (const (n2d 1)))) (const (n2d 1)))
+					e (* r r) g (/ (const (n2d 1)) (+ (const (n2d 1)) d e))
+					one (const (n2d (<< 1 +filter_shift))))
+				(list (n2i (* g one)) (n2i (* (* (+ d e e) g) one)) (n2i (* (* (neg e) g) one)))))))
+	(bind '(a0 b0 b1) coeffs)
+	(scatter chan :fa0 a0 :fb0 b0 :fb1 b1))
+
+(defun it-midi-nibble (player chan text param at)
+	; (it-midi-nibble player chan text param at) -> (nibble at low)
+	;the next half byte of a MIDI macro's text, -1 none, libxmp's
+	;midi_nibble: hex, and its letters for what the channel has, a byte
+	;whose low half is had next, low, -1 if none
+	(defq out -1 byte -1)
+	(while (and (< out 0) (< byte 0) (< at (length text)))
+		(defq c (elem-get text at) at (inc at))
+		(cond
+			((<= (const (code "0")) (code c) (const (code "9"))) (setq out (- (code c) (const (code "0")))))
+			((<= (const (code "A")) (code c) (const (code "F"))) (setq out (+ 10 (- (code c) (const (code "A"))))))
+			((eql c "z") (setq byte param))
+			((eql c "n") (setq byte (logand (. chan :find :key) 127)))
+			((eql c "h") (setq byte (. chan :find :index)))
+			((eql c "o") (setq byte (. chan :find :offset_mem)))
+			((eql c "v") (setq byte (max 1 (min 127 (>> (* (. player :find :gvol) (. chan :find :volume)
+				(. chan :find :mastervol) (. chan :find :gvl)
+				(if (defq i (it-ins (. player :find :song) (. chan :find :ins))) (. i :find :vol) 64)) 24)))))
+			((eql c "u") (setq byte (max 1 (min 127 (>> (. chan :find :volume_out) 3)))))
+			((eql c "x") (setq byte (max 0 (min 127 (>> (. chan :find :pan) 1)))))
+			((eql c "y") (setq byte (max 0 (min 127 (>> (. chan :find :pan_out) 1)))))
+			((find c "abpsm") (setq byte 0))
+			((eql c "c") (setq out 0))))
+	(if (>= byte 0) (list (logand (>> byte 4) 15) at (logand byte 15)) (list out at -1)))
+
+(defun it-midi-byte (player chan text param at buffer)
+	; (it-midi-byte player chan text param at buffer) -> (byte at buffer)
+	;two half bytes of a macro, -1 if not two, the half a letter's byte
+	;leaves over kept for the next
+	(defq a -1 b -1)
+	(if (>= buffer 0) (setq a buffer buffer -1)
+		(bind '(a at buffer) (it-midi-nibble player chan text param at)))
+	(if (>= buffer 0) (setq b buffer buffer -1)
+		(bind '(b at buffer) (it-midi-nibble player chan text param at)))
+	(list (if (and (>= a 0) (>= b 0)) (logior (<< a 4) b) -1) at buffer))
+
+(defun it-macro (player chan text param)
+	; (it-macro player chan text param)
+	;a MIDI macro run, libxmp's execute_midi_macro: of its messages only IT's
+	;own, F0 F0 or F0 F1 and what and how much, 0 the cutoff, 1 the
+	;resonance; FA, FC and FF put both back
+	(defq at 0 buffer -1)
+	(while (< at (length text))
+		(bind '(byte at buffer) (it-midi-byte player chan text param at buffer))
+		(defq cmd -1)
+		(when (= byte 0xf0)
+			(bind '(byte at buffer) (it-midi-byte player chan text param at buffer))
+			(if (or (= byte 0xf0) (= byte 0xf1)) (setq cmd (logand byte 15))))
+		(cond
+			((< cmd 0)
+				(when (find byte '(0xfa 0xfc 0xff))
+					(scatter chan :f_cutoff 254 :f_res 0)))
+			(:t (bind '(c at buffer) (it-midi-byte player chan text param at buffer))
+				(bind '(val at buffer) (it-midi-byte player chan text param at buffer))
+				(and (<= 0 c 127) (<= 0 val 127) (<= (setq cmd (logior c (<< cmd 8))) 127)
+					(. chan :insert (if (= cmd 0) :f_cutoff :f_res) (<< val 1)))))))
+
+(defun it-macro-tick (player chan frame)
+	; (it-macro-tick player chan frame)
+	;a Zxx at a row's first tick, or a smooth one each tick on to its
+	;target, libxmp's update_midi_macro: with no macros of the song's own
+	;Z00 to Z7F the cutoff, Z80 to Z8F the resonance
+	(when (bits? (. chan :find :fx) +fx_macro)
+		(defq slide (. chan :find :m_slide) val (+ (. chan :find :m_val) slide) target (. chan :find :m_target))
+		(cond
+			((> slide 0) (if (> val target) (setq val target slide 0)))
+			((< slide 0) (if (< val target) (setq val target slide 0))))
+		(scatter chan :m_val val :m_slide slide)
+		(when (or (/= slide 0) (= frame 0))
+			(defq v (>> val 16) macros (. (. player :find :song) :find :macros))
+			(cond
+				((>= v 128)
+					(cond
+						(macros (it-macro player chan (elem-get (second macros) (- v 128)) v))
+						((< v 144) (. chan :insert :f_res (<< (- v 128) 4)))))
+				(macros (it-macro player chan (elem-get (first macros) (. chan :find :m_active)) v))
+				((= (. chan :find :m_active) 0) (. chan :insert :f_cutoff (<< v 1)))))))
 
 (defun it-volfx (vol)
 	; (it-volfx vol) -> (volume effect param)
@@ -1397,6 +1512,7 @@
 		(12 (chan-fx chan +fx_retrig)
 			(it-flag chan :notes +itn_cut)
 			(scatter chan :retrig_val (inc (max y 1)) :retrig_count (inc (max y 1)) :retrig_type 16))
+		(15 (. chan :insert :m_active y))
 		(14 (if (= (. player :find :rowdelay_set) 0)
 			(scatter player :rowdelay y :rowdelay_set (const (+ +rowdelay_on +rowdelay_first)))))))
 
@@ -1468,6 +1584,11 @@
 					((and (= x 15) (/= y 0)) (scatter chan :gslide 0 :gfslide (neg y)))
 					((scatter chan :gslide (if (/= x 0) x (neg y)) :gfslide 0)))))
 		(24 (scatter chan :pan param :rpv 0))
+		(26 (chan-fx chan +fx_macro) (scatter chan :m_val (<< param 16) :m_slide 0))
+		(31 (when (and (> (defq speed (. player :find :speed)) 0) (< (>> (. chan :find :m_val) 16) 128))
+			(chan-fx chan +fx_macro)
+			(scatter chan :m_target (<< param 16)
+				:m_slide (/ (- (<< param 16) (. chan :find :m_val)) speed))))
 		(25 (chan-fx chan +fx_panbrello)
 			(it-lfo-set (. chan :find :panbrello) (<< (logand param 15) 4) (>> param 4)))
 		((27 28) (if (= param 0) (setq param (. chan :find :vol_mem2)) (. chan :insert :vol_mem2 param))
@@ -1634,6 +1755,12 @@
 	(when (and (>= s 0) (>= out 0))
 		(defq smp (elem-get samples s) ivib (. chan :find :ivib))
 		(scatter chan :finetune (. smp :find :fin) :gvl (. smp :find :gvl) :ivib_sweep (. smp :find :vib_sweep))
+		;the instrument's filter, a cutoff of 127 and no resonance none if not
+		;slid to
+		(defq inst (elem-get (. song :find :instruments) (. chan :find :ins)) ifc (. inst :find :ifc) ifr (. inst :find :ifr))
+		(if (bits? ifc 128) (. chan :insert :f_cutoff (* 2 (- ifc 128))))
+		(if (bits? ifr 128) (. chan :insert :f_res (* 2 (- ifr 128))))
+		(scatter chan :f_env 256 :f_can (not is_porta))
 		(elem-set ivib 1 (>> (+ (. smp :find :vib_rate) 2) 2))
 		(elem-set ivib 2 (. smp :find :vib_depth))
 		(elem-set ivib 3 (. smp :find :vib_wave))
@@ -1737,6 +1864,8 @@
 		(when (= (. chan :find :delay) 0)
 			(it-read-event player chan (. chan :find :delayed))
 			(setq fx (. chan :find :fx))))
+	;a MIDI macro, the filter's cutoff or resonance
+	(it-macro-tick player chan frame)
 	(cond
 		((not (. chan :find :voice))
 			(it-volumes player chan first_frame)
@@ -1830,6 +1959,15 @@
 				(defq bend (- pitch (* note 12800)))
 				(setq pitch (+ (* note 12800) (* 12800 (/ (+ bend (if (>= bend 0) 6400 -6400)) 12800)))))
 			(and (>= (. chan :find :fenv) 0) (not (. fenv :find :filter)) (setq pitch (+ pitch (<< fe 7))))
+			;the filter, its cutoff the envelope's share of it if it is a
+			;filter's
+			(defq cutoff (. chan :find :f_cutoff) res (. chan :find :f_res))
+			(when (and (>= (. chan :find :fenv) 0) (. fenv :find :filter))
+				(if (< fe 254) (. chan :insert :f_env fe))
+				(setq cutoff (>> (* cutoff (. chan :find :f_env)) 8)))
+			(when (or (< (setq cutoff (min cutoff 255)) 254) (> res 0) (. chan :find :f_can))
+				(it-filter player chan cutoff res)
+				(. chan :insert :f_can :nil))
 			(setq pitch (+ pitch (* 12800 up)))
 			;the pan envelope, and a panbrello
 			(unless (bits? pers +itp_penv)
@@ -1935,10 +2073,10 @@
 				(map (# (it-channel %0 %1 %2 (!))) (. song :find :pans) (. song :find :chvols) (. song :find :mutes))
 				(map (case mode (:st3 (const st3-channel)) (:ft2 (const ft2-channel)) (:t (const pt-channel)))
 					(. song :find :pans)))
-			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0))
+			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0 0 0 0 0 0))
 				'() 0 (+ channels (defq extra (if (and (eql mode :it) (not (. song :find :sample_mode))) +it_voices 0))))))
 			;an IT's past notes, and the voices free for them
-			:past (list) :free (map! (# (+ channels (!))) '() 0 extra)
+			:past (list) :free (map! (# (+ channels (!))) '() 0 extra) :filters (Fmap 101)
 			:samples (map (# (. %0 :find :data)) (. song :find :samples))
 			:pitch (. song :find :pitch)
 			:clock (case mode (:st3 +st3_clock) (:ft2 +ft2_clock) (:t +amiga_clock))

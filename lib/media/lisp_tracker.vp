@@ -9,8 +9,9 @@
 ;+mix_size longs of a nums: its sample, -1 none, where it is in it and its
 ;step a frame, 16.16, its weights left and right, its loop's start, -1
 ;none, its end, in samples, and its flags: +mix_pingpong a loop that goes
-;back and forth, +mix_back going back now
-(defcvar '+mix_size 8 '+mix_pingpong 1 '+mix_back 2)
+;back and forth, +mix_back going back now. Then its filter, an IT's, as
+;libxmp's: a0 b0 b1 of 22 bits, a0 0 none, and its last two outputs
+(defcvar '+mix_size 13 '+mix_pingpong 1 '+mix_back 2)
 
 (def-func (path-to-absolute "./media_mix"))
 	;inputs
@@ -33,7 +34,7 @@
 
 	(structure slot 0
 		(ptr this out acc samples state)
-		(long frames))
+		(long frames stend))
 
 	(vp-rdef (dptr pos step wl wr lsq endq a n s x llen st stend)
 		'(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -65,6 +66,8 @@
 		(assign '((:r5 +array_begin) (:r5 +array_length ui)) `(,st ,stend))
 		(vp-shl-cr (log2 +long_size) stend)
 		(vp-add-rr st stend)
+		;kept, its register a filter's in the frames
+		(assign `(,stend) '((:rsp slot_stend)))
 		(vpif `(,st /= ,stend))
 			(loop-start)
 				(assign `((,st 0)) `(,s))
@@ -132,6 +135,31 @@
 						(vp-asr-cr 16 x)
 						(vp-shl-cr 1 x)
 						(vp-load-rrr-s dptr x s)
+						;filtered, a0 not 0: two poles, as libxmp's, of the
+						;sample 15 bits up, held to 17 bits, and down again
+						(assign `((,st 64)) '(:r0))
+						(vpif '(:r0 /= 0))
+							(vp-shl-cr 15 s)
+							(vp-mul-rr :r0 s)
+							(assign `((,st 72) (,st 88)) `(:r0 ,stend))
+							(vp-mul-rr stend :r0)
+							(vp-add-rr :r0 s)
+							(assign `((,st 80) (,st 96)) `(:r0 ,stend))
+							(vp-mul-rr stend :r0)
+							(vp-add-rr :r0 s)
+							(vp-asr-cr 22 s)
+							(vp-cpy-cr (* -65536 32768) :r0)
+							(vpif `(,s < :r0))
+								(vp-cpy-rr :r0 s)
+							(endif)
+							(vp-cpy-cr (* 65535 32768) :r0)
+							(vpif `(,s > :r0))
+								(vp-cpy-rr :r0 s)
+							(endif)
+							(assign `((,st 88)) '(:r0))
+							(assign `(:r0 ,s) `((,st 96) (,st 88)))
+							(vp-asr-cr 15 s)
+						(endif)
 						(vp-cpy-rr s x)
 						(vp-mul-rr wl x)
 						(vp-mul-rr wr s)
@@ -155,6 +183,7 @@
 					(vp-store-rrc x st 56)
 				(endif)
 				(vp-add-cr (* +mix_size +long_size) st)
+				(assign '((:rsp slot_stend)) `(,stend))
 			(loop-until `(,st = ,stend))
 		(endif)
 

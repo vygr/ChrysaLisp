@@ -13,7 +13,10 @@
 
 (ffi "lib/media/media_itunpack" media-itunpack)
 
-(defq +note_fade 253 +itunpack_16 1 +itunpack_215 2 +itunpack_unsigned 4)
+(defq +note_fade 253 +itunpack_16 1 +itunpack_215 2 +itunpack_unsigned 4
+	;the mix volume of a ModPlug Tracker 1.16 file is turned down by 96 over
+	;this, by its channels, as libxmp and OpenMPT have it
+	+mpt_preamp ''(0x60 0x60 0x60 0x70 0x80 0x88 0x90 0x98 0xA0 0xA4 0xA8 0xB0 0xB4 0xB8 0xBC 0xC0))
 
 (defun it-signed (data at)
 	; (it-signed data at) -> num
@@ -150,6 +153,9 @@
 						(when (bits? mask 8)
 							(defq fx (code data 1 at) param (code data 1 (inc at)) at (+ at 2))
 							(cond
+								;OpenMPT's smooth Zxx, \\, kept as 31, past the volume
+								;column's of the player
+								((= fx 28) (setq fx 31))
 								((> fx 26) (setq fx 0 param 0))
 								((= fx 19)
 									;S00 the channel's last S of the pattern
@@ -168,13 +174,38 @@
 		(if (> rows 1024) (setq rows 64)))
 	rows)
 
+(defun it-macros (data flags special at)
+	; (it-macros data flags special at) -> :nil | (params fixed)
+	;the MIDI macros of the song's own, if it has them, after its offsets
+	;and its edit history: those of SFx, 16, and of Z80 to ZFF, 128, a
+	;text each to its first nul, of 31 at most
+	(when (or (bits? flags 128) (bits? special 8))
+		(if (bits? special 2) (setq at (+ at 2 (* 8 (code data 2 at)))))
+		(setq at (+ at (* 9 32)))
+		(when (<= (+ at (* 144 32)) (length data))
+			(defq texts (map! (lambda ()
+					(defq text (slice data (+ at (* 32 (!))) (+ at (* 32 (!)) 31)))
+					(if (defq n (find "\x00" text)) (slice text 0 n) text))
+				'() 0 144))
+			(list (slice texts 0 16) (slice texts 16 144)))))
+
+(defun it-modplug? (data cwt cmwt at insnum smpnum patnum)
+	; (it-modplug? data cwt cmwt at insnum smpnum patnum) -> :t | :nil
+	;made by ModPlug Tracker, 1.16 or before, or OpenMPT 1.17, as libxmp
+	;tells them: a 1.16 says it is IT 2.17 of format 2.00, one before it
+	;IT 2.02 of 2.00 with its patterns before its samples
+	(or (= cwt 0x888) (and (= cmwt 0x200) (= cwt 0x217))
+		(and (= cmwt 0x200) (= cwt 0x202) (> smpnum 0) (> patnum 0)
+			(< 0 (code data 4 (+ at (* 4 (+ insnum smpnum)))) (code data 4 (+ at (* 4 insnum)))))))
+
 (defun it-read (data &optional bare)
 	; (it-read data [bare]) -> :nil | song
 	;the song of an IT's bytes, :nil if they are not one; bare, its
 	;samples' bytes not had
 	(when (and (>= (length data) 192) (eql (slice data 0 4) "IMPM"))
 		(defq ordnum (code data 2 32) insnum (code data 2 34) smpnum (code data 2 36)
-			patnum (code data 2 38) cmwt (code data 2 42) flags (code data 2 44) gv (code data 1 48)
+			patnum (code data 2 38) cwt (code data 2 40) cmwt (code data 2 42) flags (code data 2 44) gv (code data 1 48)
+			special (code data 2 46)
 			at (+ 192 ordnum) sample_mode (not (bits? flags 4)))
 		(when (and (<= gv 128) (<= insnum 255) (<= smpnum 255) (<= patnum 255)
 				(<= (+ at (* 4 (+ insnum smpnum patnum))) (length data)))
@@ -213,7 +244,10 @@
 				:sample_mode sample_mode :old_fx (bits? flags 16) :link_gxx (bits? flags 32)
 				:speed (if (> (code data 1 50) 0) (code data 1 50) 6)
 				:tempo (if (>= (code data 1 51) 32) (code data 1 51) 125)
-				:global gv :mix (code data 1 49)
+				:macros (it-macros data flags special (+ at (* 4 (+ insnum smpnum patnum))))
+				:global gv :mix (if (it-modplug? data cwt cmwt at insnum smpnum patnum)
+					(/ (* (code data 1 49) 96) (elem-get +mpt_preamp (>> (max 1 (min 31 channels)) 1)))
+					(code data 1 49))
 				:pans (map! (lambda ()
 						(defq p (logand (code data 1 (+ 64 (!))) 127))
 						(cond ((not (bits? flags 1)) 128) ((= p 100) 128) ((min 255 (* 4 (logand p 127))))))
