@@ -25,3 +25,21 @@
 		" (print (gather *config* :scene :seed :step :playing :x :y :width :height))"
 		" (pii-remove *config_file*)")) "\n"))
 (assert-eq "saved and loaded, it is as it was" "(2 12345 300 :nil 40 50 800 600)" (first mp_cfg))
+
+;the scene is its child's, ./child.lisp, and the child's is a cache: a seek
+;forward from where it is, and one back from an I-frame, give the scene that
+;plain steps from its seed give, every figure where it is
+(defq mc_out (split (test-output (cat
+		"(catch (import {apps/demos/motion/child.lisp}) :t)"
+		" (defun mc-sum () (defq s 0) (. stage :each_node (lambda (n)"
+		" (setq s (+ s (n2i (* 100.0 (ifn (get :fig_x n) 0.0))) (n2i (* 100.0 (ifn (get :fig_y n) 0.0)))))))"
+		" (list (get :ros_ticks stage) s (length (. stage :children))))"
+		" (defq mbox (mail-mbox))"
+		" (scene-have 2 12345 :t) (seek-to 900 mbox) (defq ahead (mc-sum) copies (length iframes))"
+		" (seek-to 450 mbox) (defq back (mc-sum))"
+		" (scene-make 2 12345) (times 450 (. stage :tick +ros_step)) (defq plain_back (mc-sum))"
+		" (times 450 (. stage :tick +ros_step))"
+		" (print ahead) (print (mc-sum)) (print back) (print plain_back) (print copies)")) "\n"))
+(assert-eq "a seek forward is the scene its steps make" (second mc_out) (first mc_out))
+(assert-eq "and one back, from an I-frame" (elem-get mc_out 3) (third mc_out))
+(assert-true "the seek forward kept I-frames" (> (str-to-num (elem-get mc_out 4)) 1))

@@ -192,13 +192,22 @@ It shares what is never changed in place, code, paths and outlines. A
 weak link a component keeps, Tie's, is still to what it was. The Build
 scene, 307 figures at its most, copies in 17 ms on an M4.
 
-The Motion app seeks so. As a scene starts it runs it again with no
-picture, a little each frame, till it ends, which gives its length, and
-keeps a copy every 5 seconds of it, an I-frame. A seek goes on from where
-it is if that is between the I-frame before the point and the point, else
-from a copy of that I-frame, a step at a time and drawn as it goes. The
-whole Build scene, near 3 minutes, steps through in 1.6 s on an M4, about 10
-ms a second of it, so no seek is more than about 50 ms of steps.
+The Motion app seeks so, in a child, `apps/demos/motion/child.lisp`, a farm
+of one on another node of the machine that holds the scene and draws each
+frame on the app's canvas, whose pixels are shared, as
+`docs/ai_digest/render_farm.md` has it. The child keeps a copy of the scene
+every 5 seconds of it, as it first comes to them, playing or seeking, an
+I-frame. A seek is a frame with
+a step to go to: the child goes on from where it is if that is between the
+I-frame before the point and the point, else from a copy of that I-frame, a
+step at a time, the node's other tasks having a turn every few ms, and
+draws where it lands. It leaves a seek when another job comes, the bar
+dragged on. The scene and its I-frames are a cache: a child started again
+makes them anew from the seed, the same scene. Another child, on the node
+the kernel finds least busy, runs the scene from its seed to its end with no
+picture for its length, which the bar takes when it is known. The whole
+Build scene, near 3 minutes, steps through in 0.5 s on an M4, and in about
+11 s on the emulator.
 
 ## How fast
 
