@@ -303,7 +303,10 @@ From the machine the work is on:
 	each CPU. `-b` for any change under `sys/`, `class/`, `gui/`,
 	`service/` or to a `lisp.vp`: without it the others test new source on
 	their old boot image. A machine given VP source by hand runs `make`
-	before its tests.
+	before its tests, and before the user's desktop starts there:
+	`cl_sync.sh` and a rack's sync copy sources, they build nothing, and an
+	`ffi` of a native not built yet throws as the app that wants it opens,
+	`bn-montmul` on the x64 on 2026-11-21.
 
 4.	A change under everything, the boot image, `class/lisp/root.inc`, the
 	launch path of a command, is tried on the emulator as well, after a
