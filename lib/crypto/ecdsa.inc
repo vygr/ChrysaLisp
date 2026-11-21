@@ -18,22 +18,33 @@
 ; the doubling is the one for that -3, dbl-2001-b of the Explicit-Formulas
 ; Database, the adding add-2007-bl.
 ;
-; It is the big numbers of lib/math/bignum.inc, Lisp but for the dots.
+; It is the big numbers of lib/math/bignum.inc, the points worked in
+; Montgomery's form, lib/math/montgomery.inc, whose multiply is native and
+; does no division: the coordinates of a point are in the form while it is
+; doubled and added, and taken out of it at the end.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././math/bignum.inc")
+(import "././math/montgomery.inc")
 
 ;module
 (env-push)
 
+(defun ec-to-mont (pt fm)
+	; (ec-to-mont pt fm) -> pt
+	;a point's coordinates in Montgomery's form
+	(map (# (bn-to-mont %0 fm)) pt))
+
 (defun ecdsa-curve (p n b x y len)
 	; (ecdsa-curve p n b x y len) -> curve
 	;a curve from its numbers in hex: the prime, the order of the base
-	;point, b, the base point, and how many bytes a number of it is
-	(list (bn-modulus (bn-from-bytes (hex-decode p))) (bn-modulus (bn-from-bytes (hex-decode n)))
-		(bn-from-bytes (hex-decode b))
-		(list (bn-from-bytes (hex-decode x)) (bn-from-bytes (hex-decode y)) (bn-from-num 1))
-		len))
+	;point, b, the base point, and how many bytes a number of it is, and
+	;the prime and the order for Montgomery's forms, and the base point in
+	;them
+	(defq fm (bn-modulus (bn-from-bytes (hex-decode p))) nm (bn-modulus (bn-from-bytes (hex-decode n)))
+		g (list (bn-from-bytes (hex-decode x)) (bn-from-bytes (hex-decode y)) (bn-from-num 1))
+		fmont (bn-mont (first fm)))
+	(list fm nm (bn-from-bytes (hex-decode b)) g len fmont (bn-mont (first nm)) (ec-to-mont g fmont)))
 
 ;from SEC 2 and FIPS 186-4, checked on the curve and of order n by Python
 (defq *ecdsa_p256* (ecdsa-curve
@@ -51,22 +62,27 @@
 
 (defun ec-small (a k fm)
 	; (ec-small a k fm) -> nums
-	;a times a small number, mod
-	(bn-mod (bn-norm (nums-scale a k)) fm))
+	;a times a small number, mod, by doubling and adding
+	(defq out a n 1)
+	(while (< n k)
+		(if (<= (* n 2) k)
+			(setq out (bn-addmod out out fm) n (* n 2))
+			(setq out (bn-addmod out a fm) n (inc n))))
+	out)
 
 (defun ec-dbl (pt fm)
 	; (ec-dbl pt fm) -> :nil | pt
-	;twice a point, :nil the point at infinity
+	;twice a point, :nil the point at infinity, in Montgomery's form
 	(when pt
 		(bind '(x y z) pt)
 		(unless (bn-zero? y)
-			(defq delta (bn-mulmod z z fm) gamma (bn-mulmod y y fm) beta (bn-mulmod x gamma fm)
-				alpha (ec-small (bn-mulmod (bn-submod x delta fm) (bn-addmod x delta fm) fm) 3 fm)
-				x3 (bn-submod (bn-mulmod alpha alpha fm) (ec-small beta 8 fm) fm)
+			(defq delta (bn-mul-mont z z fm) gamma (bn-mul-mont y y fm) beta (bn-mul-mont x gamma fm)
+				alpha (ec-small (bn-mul-mont (bn-submod x delta fm) (bn-addmod x delta fm) fm) 3 fm)
+				x3 (bn-submod (bn-mul-mont alpha alpha fm) (ec-small beta 8 fm) fm)
 				yz (bn-addmod y z fm)
-				z3 (bn-submod (bn-submod (bn-mulmod yz yz fm) gamma fm) delta fm)
-				y3 (bn-submod (bn-mulmod alpha (bn-submod (ec-small beta 4 fm) x3 fm) fm)
-					(ec-small (bn-mulmod gamma gamma fm) 8 fm) fm))
+				z3 (bn-submod (bn-submod (bn-mul-mont yz yz fm) gamma fm) delta fm)
+				y3 (bn-submod (bn-mul-mont alpha (bn-submod (ec-small beta 4 fm) x3 fm) fm)
+					(ec-small (bn-mul-mont gamma gamma fm) 8 fm) fm))
 			(list x3 y3 z3))))
 
 (defun ec-add (p1 p2 fm)
@@ -76,17 +92,17 @@
 		((not p2) p1)
 		(:t (bind '(x1 y1 z1) p1)
 			(bind '(x2 y2 z2) p2)
-			(defq z1z1 (bn-mulmod z1 z1 fm) z2z2 (bn-mulmod z2 z2 fm)
-				u1 (bn-mulmod x1 z2z2 fm) u2 (bn-mulmod x2 z1z1 fm)
-				s1 (bn-mulmod y1 (bn-mulmod z2 z2z2 fm) fm) s2 (bn-mulmod y2 (bn-mulmod z1 z1z1 fm) fm)
+			(defq z1z1 (bn-mul-mont z1 z1 fm) z2z2 (bn-mul-mont z2 z2 fm)
+				u1 (bn-mul-mont x1 z2z2 fm) u2 (bn-mul-mont x2 z1z1 fm)
+				s1 (bn-mul-mont y1 (bn-mul-mont z2 z2z2 fm) fm) s2 (bn-mul-mont y2 (bn-mul-mont z1 z1z1 fm) fm)
 				h (bn-submod u2 u1 fm) r (ec-small (bn-submod s2 s1 fm) 2 fm))
 			(cond
 				((not (bn-zero? h))
-					(defq h2 (ec-small h 2 fm) i (bn-mulmod h2 h2 fm) j (bn-mulmod h i fm) v (bn-mulmod u1 i fm)
-						x3 (bn-submod (bn-submod (bn-mulmod r r fm) j fm) (ec-small v 2 fm) fm)
-						y3 (bn-submod (bn-mulmod r (bn-submod v x3 fm) fm) (ec-small (bn-mulmod s1 j fm) 2 fm) fm)
+					(defq h2 (ec-small h 2 fm) i (bn-mul-mont h2 h2 fm) j (bn-mul-mont h i fm) v (bn-mul-mont u1 i fm)
+						x3 (bn-submod (bn-submod (bn-mul-mont r r fm) j fm) (ec-small v 2 fm) fm)
+						y3 (bn-submod (bn-mul-mont r (bn-submod v x3 fm) fm) (ec-small (bn-mul-mont s1 j fm) 2 fm) fm)
 						zz (bn-addmod z1 z2 fm)
-						z3 (bn-mulmod (bn-submod (bn-submod (bn-mulmod zz zz fm) z1z1 fm) z2z2 fm) h fm))
+						z3 (bn-mul-mont (bn-submod (bn-submod (bn-mul-mont zz zz fm) z1z1 fm) z2z2 fm) h fm))
 					(list x3 y3 z3))
 				;the same x: the same point, or one the other's negative
 				((bn-zero? r) (ec-dbl p1 fm))))))
@@ -97,11 +113,11 @@
 	(defq fm (first curve) b (third curve))
 	(and (< (bn-cmp x (first fm)) 0) (< (bn-cmp y (first fm)) 0)
 		(= (bn-cmp (bn-mulmod y y fm)
-				(bn-addmod (bn-submod (bn-mulmod (bn-mulmod x x fm) x fm) (ec-small x 3 fm) fm) b fm)) 0)))
+				(bn-addmod (bn-submod (bn-mulmod (bn-mulmod x x fm) x fm) (bn-mod (bn-norm (nums-scale x 3)) fm) fm) b fm)) 0)))
 
 (defun ecdsa-verify (curve public digest r s)
 	; (ecdsa-verify curve public digest r s) -> :t | :nil
-	(bind '(fm nm & g len) curve)
+	(bind '(& nm & & len fm nmont g) curve)
 	(defq r (bn-from-bytes r) s (bn-from-bytes s) n (first nm))
 	(when (and (= (length public) (inc (* 2 len))) (= (code public 1 0) 4)
 			(not (bn-zero? r)) (< (bn-cmp r n) 0) (not (bn-zero? s)) (< (bn-cmp s n) 0))
@@ -109,8 +125,9 @@
 		(when (ec-on-curve? qx qy curve)
 			;the digest, its leftmost bits as many as n has
 			(defq e (bn-mod (bn-from-bytes (slice digest 0 (min (length digest) len))) nm)
-				w (bn-invmod s nm) u1 (bn-mulmod e w nm) u2 (bn-mulmod r w nm)
-				q (list qx qy (bn-from-num 1)) gq (ec-add g q fm) acc :nil
+				w (bn-from-mont (bn-inv-mont (bn-to-mont s nmont) nmont) nmont)
+				u1 (bn-mulmod e w nm) u2 (bn-mulmod r w nm)
+				q (ec-to-mont (list qx qy (bn-from-num 1)) fm) gq (ec-add g q fm) acc :nil
 				i (max (bn-bits u1) (bn-bits u2)))
 			;u1 G + u2 Q, both at once, a bit of each at a time, each giving
 			;way to the other tasks of the node, a verify of P-384 on a Pi
@@ -127,16 +144,18 @@
 			(when acc
 				(bind '(x & z) acc)
 				(unless (bn-zero? z)
-					(defq zi (bn-invmod z fm) x (bn-mulmod x (bn-mulmod zi zi fm) fm))
+					(defq zi (bn-inv-mont z fm) x (bn-from-mont (bn-mul-mont x (bn-mul-mont zi zi fm) fm) fm))
 					(= (bn-cmp (bn-mod x nm) r) 0))))))
 
 (defun ec-affine (pt fm)
 	; (ec-affine pt fm) -> :nil | (x y)
+	;a point of Montgomery's forms as x and y
 	(when pt
 		(bind '(x y z) pt)
 		(unless (bn-zero? z)
-			(defq zi (bn-invmod z fm) zi2 (bn-mulmod zi zi fm))
-			(list (bn-mulmod x zi2 fm) (bn-mulmod y (bn-mulmod zi2 zi fm) fm)))))
+			(defq zi (bn-inv-mont z fm) zi2 (bn-mul-mont zi zi fm))
+			(list (bn-from-mont (bn-mul-mont x zi2 fm) fm)
+				(bn-from-mont (bn-mul-mont y (bn-mul-mont zi2 zi fm) fm) fm)))))
 
 (defun ec-mul (k pt fm)
 	; (ec-mul k pt fm) -> :nil | pt
@@ -159,17 +178,17 @@
 
 (defun ecdh-public (curve secret)
 	; (ecdh-public curve secret) -> str
-	(bind '(fm & & g len) curve)
+	(bind '(& & & & len fm & g) curve)
 	(bind '(x y) (ec-affine (ec-mul (ec-secret curve secret) g fm) fm))
 	(cat (char 4) (bn-bytes x len) (bn-bytes y len)))
 
 (defun ecdh-shared (curve secret public)
 	; (ecdh-shared curve secret public) -> :nil | str
-	(bind '(fm & & & len) curve)
+	(bind '(& & & & len fm &ignore) curve)
 	(when (and (= (length public) (inc (* 2 len))) (= (code public 1 0) 4))
 		(defq qx (bn-from-bytes (slice public 1 (inc len))) qy (bn-from-bytes (slice public (inc len) -1)))
 		(and (ec-on-curve? qx qy curve)
-			(defq xy (ec-affine (ec-mul (ec-secret curve secret) (list qx qy (bn-from-num 1)) fm) fm))
+			(defq xy (ec-affine (ec-mul (ec-secret curve secret) (ec-to-mont (list qx qy (bn-from-num 1)) fm) fm) fm))
 			(bn-bytes (first xy) len))))
 
 ;module

@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 268
-	:height 412
+	:height 395
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 49
+	:next_id 48
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 46)
+					((:list 45)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 233.77441 0 A 8 8 0 0 1 241.77441 8 L 241.77441 378 A 8 8 0 0 1 233.77441 386 L 8 386 A 8 8 0 0 1 0 378 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 233.77441 0 A 8 8 0 0 1 241.77441 8 L 241.77441 361 A 8 8 0 0 1 233.77441 369 L 8 369 A 8 8 0 0 1 0 361 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -753,7 +753,7 @@
 							:stroke
 							0
 							:text
-							"[mail-forget]"
+							"[mail-mbox]"
 							:font_size
 							12
 							:pos
@@ -773,7 +773,7 @@
 							:stroke
 							0
 							:text
-							"[mail-mbox]"
+							"[mail-nodes]"
 							:font_size
 							12
 							:pos
@@ -793,26 +793,6 @@
 							:stroke
 							0
 							:text
-							"[mail-nodes]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								372.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							43
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
 							"[mail-poll]"
 							:font_size
 							12
@@ -825,7 +805,7 @@
 						((:list 15)
 							:shape
 							:id
-							44
+							43
 							:kind
 							:text
 							:fill
@@ -845,7 +825,7 @@
 						((:list 15)
 							:shape
 							:id
-							45
+							44
 							:kind
 							:text
 							:fill
@@ -865,7 +845,7 @@
 						((:list 15)
 							:shape
 							:id
-							46
+							45
 							:kind
 							:text
 							:fill
@@ -885,7 +865,7 @@
 						((:list 15)
 							:shape
 							:id
-							47
+							46
 							:kind
 							:text
 							:fill
@@ -905,7 +885,7 @@
 						((:list 15)
 							:shape
 							:id
-							48
+							47
 							:kind
 							:text
 							:fill

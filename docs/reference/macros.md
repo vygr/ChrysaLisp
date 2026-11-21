@@ -941,6 +941,7 @@ screen, which draws itself by its own
 (with-lock key body ...)
 
 (with-lock (key [mode timeout]) body ...)
+an error in the body lets the lock go, then goes on up
 ```
 
 ### with-read-lock

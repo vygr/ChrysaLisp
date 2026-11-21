@@ -1,0 +1,155 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/nums/class.inc")
+(include "class/lisp/class.inc")
+
+;Montgomery's multiply of the big numbers of lib/math/bignum.inc: nums of
+;limbs of 26 bits, the lowest first. A product of two limbs is 52 bits, so
+;the sums of a row are let run, a limb of them to 64 bits, and the carries
+;put right once at the end
+
+(def-func (path-to-absolute "./bn_montmul"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(bn-montmul out a b m minv) -> out, a times b over R, mod m, R 2 to the
+	;26 times as many limbs as m has. a and b of as many limbs as m at
+	;least, each less than m, minv -1 over m mod 2 to the 26. out of a limb
+	;more than m: the product, less than m, its top limb 0
+
+	(structure slot 0
+		(long minv aend c))
+
+	(vp-rdef (tb ap bb mb n ai u x y tp bp mp tend c)
+		'(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
+	(entry '(:r0 :r1))
+
+	(gotoif-lisp-args-sig 'error :r1 5)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,tb ,ap ,bb ,mb ,u) '(:obj :obj :obj :obj :num))
+	(vp-push tb)
+	(vp-alloc slot_size)
+	(assign `(,u) '((:rsp slot_minv)))
+	(assign `((,mb +array_length ui)) `(,n))
+	(vp-shl-cr (log2 +long_size) n)
+	(assign `((,tb +array_begin) (,ap +array_begin) (,bb +array_begin) (,mb +array_begin))
+		`(,tb ,ap ,bb ,mb))
+
+	;the sums 0, a limb more than m
+	(vp-cpy-rr tb tp)
+	(vp-lea-rrr tb n tend)
+	(vp-xor-rr x x)
+	(loop-start)
+		(vp-store-rrc x tp 0)
+		(vp-add-cr +long_size tp)
+	(loop-until `(,tp > ,tend))
+
+	;a limb of a at a time: its row of b, and so many of m that the bottom
+	;limb is 0, then all down a limb
+	(vp-lea-rrr ap n x)
+	(assign `(,x) '((:rsp slot_aend)))
+	(loop-start)
+		(assign `((,ap 0) (,tb 0) (,bb 0)) `(,ai ,x ,y))
+		(vp-mul-rr ai y)
+		(vp-add-rr y x)
+		(vp-cpy-rr x u)
+		(vp-and-cr (dec (<< 1 26)) u)
+		(assign '((:rsp slot_minv)) `(,y))
+		(vp-mul-rr y u)
+		(vp-and-cr (dec (<< 1 26)) u)
+		(assign `((,mb 0)) `(,y))
+		(vp-mul-rr u y)
+		(vp-add-rr y x)
+		(vp-asr-cr 26 x)
+		(assign `(,x) '((:rsp slot_c)))
+		(vp-lea-rrr tb n tend)
+		(vp-lea-rcr tb +long_size tp)
+		(vpif `(,tp /= ,tend))
+			(vp-lea-rcr bb +long_size bp)
+			(vp-lea-rcr mb +long_size mp)
+			(loop-start)
+				(assign `((,tp 0) (,bp 0) (,mp 0)) `(,x ,y ,c))
+				(vp-mul-rr ai y)
+				(vp-add-rr y x)
+				(vp-mul-rr u c)
+				(vp-add-rr c x)
+				(vp-store-rrc x tp (neg +long_size))
+				(vp-add-cr +long_size tp)
+				(vp-add-cr +long_size bp)
+				(vp-add-cr +long_size mp)
+			(loop-until `(,tp = ,tend))
+		(endif)
+		(vp-xor-rr x x)
+		(vp-store-rrc x tend (neg +long_size))
+		(assign `((,tb 0) (:rsp slot_c)) `(,x ,y))
+		(vp-add-rr y x)
+		(assign `(,x) `((,tb 0)))
+		(vp-add-cr +long_size ap)
+		(assign '((:rsp slot_aend)) `(,x))
+	(loop-until `(,ap = ,x))
+
+	;the carries put right, what is over to the top limb
+	(vp-cpy-rr tb tp)
+	(vp-lea-rrr tb n tend)
+	(vp-xor-rr y y)
+	(loop-start)
+		(assign `((,tp 0)) `(,x))
+		(vp-add-rr y x)
+		(vp-cpy-rr x y)
+		(vp-and-cr (dec (<< 1 26)) x)
+		(vp-asr-cr 26 y)
+		(vp-store-rrc x tp 0)
+		(vp-add-cr +long_size tp)
+	(loop-until `(,tp = ,tend))
+	(vp-store-rrc y tend 0)
+
+	;less than twice m: take m away if it is not less than it
+	(vpif `(,y = 0))
+		(vp-cpy-rr n x)
+		(loop-start)
+			(vp-sub-cr +long_size x)
+			(vp-load-rrr tb x y)
+			(vp-load-rrr mb x u)
+			(breakif `(,y /= ,u))
+		(loop-until `(,x = 0))
+		(gotoif `(,y < ,u) 'done)
+	(endif)
+	(vp-cpy-rr tb tp)
+	(vp-cpy-rr mb mp)
+	(vp-xor-rr y y)
+	(loop-start)
+		(assign `((,tp 0) (,mp 0)) `(,x ,u))
+		(vp-sub-rr u x)
+		(vp-add-rr y x)
+		(vp-cpy-rr x y)
+		(vp-and-cr (dec (<< 1 26)) x)
+		(vp-asr-cr 26 y)
+		(vp-store-rrc x tp 0)
+		(vp-add-cr +long_size tp)
+		(vp-add-cr +long_size mp)
+	(loop-until `(,tp = ,tend))
+	(assign `((,tend 0)) `(,x))
+	(vp-add-rr y x)
+	(assign `(,x) `((,tend 0)))
+
+(vp-label 'done)
+	(vp-free slot_size)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(bn-montmul out a b m minv)" +error_msg_wrong_types))
+	(signature '(:nums :nums :nums :nums :num))
+
+(def-func-end)

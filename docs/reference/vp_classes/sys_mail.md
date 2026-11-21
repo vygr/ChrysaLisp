@@ -6,13 +6,11 @@ docs/reference/vp_classes/sys_mail.cwb
 
 ## Lisp Bindings
 
-### (mail-declare mbox name info) -> key
+### (mail-declare mbox name info) -> entry
 
 ### (mail-nodes) -> (str ...)
 
 ### (mail-enquire prefix) -> netids
-
-### (mail-forget key)
 
 ### (mail-mbox) -> netid
 
@@ -107,6 +105,8 @@ inputs
 :r0 = service key str object (ptr)
 trashes
 :r0-:r14, :d0-:d15
+info
+a key not found changes nothing, and no full ping is made of it
 ```
 
 ### :free -> sys/mail/free
