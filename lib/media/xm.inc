@@ -79,8 +79,10 @@
 			(push patterns (apply (const nums) (apply (const cat) (map! (# '(0 0 0 0 0)) '() 0 (* 64 channels)))))
 			;the instruments, each its samples' headers then their bytes
 			(times insnum
+				;one of no samples has a map of no sample for each of its 96
+				;keys too, a note on it plays nothing
 				(defq size (code data 4 at) nsamples (code data 2 (+ at 27))
-					ins (scatter (Emap) :name (mod-text data (+ at 4) 22) :map (list) :fade 0
+					ins (scatter (Emap) :name (mod-text data (+ at 4) 22) :map (map! (lambda () -1) '() 0 96) :fade 0
 						:volume (scatter (Emap) :on :nil) :pan (scatter (Emap) :on :nil)
 						:vib_wave 0 :vib_sweep 0 :vib_depth 0 :vib_rate 0 :first -1))
 				(cond

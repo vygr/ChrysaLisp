@@ -64,9 +64,27 @@
 						(eql (elem-get parts (dec (!))) "pub") (!))) parts))
 				(< (+ at 2) (length parts))
 				(find (url-decode (elem-get parts (inc at))) +modland_kinds)
+				;each part escaped again: a playlist escapes its spaces
+				;and not a #, which would end the address there
 				(push out (list (entry-title (last parts))
-					(cat +modland (join (slice parts (inc at) -1) "/")))))
+					(cat +modland (join (map! (# (url-encode (url-decode %0))) (list parts) (inc at) (length parts)) "/")))))
 			;on to the next line
 			:nil)
 		(string-stream text))
 	out)
+
+(defun name-stem (name)
+	; (name-stem name) -> str
+	;a module's name as two are compared: its escapes undone, its ending
+	;and the dots before it gone, in lower case
+	(setq name (url-decode name))
+	(to-lower (trim-end (if (defq at (rfind "." name)) (slice name 0 (dec at)) name) ".")))
+
+(defun entry-renamed (html name)
+	; (entry-renamed html name) -> :nil | name
+	;the module of a folder's listing that one not there now is under: the
+	;same name but for its ending. Modland has renamed some that playlists
+	;still name, supernova.ft is supernova.mod now
+	(defq stem (name-stem name))
+	(some (lambda ((entry folder)) (and (not folder) (eql (name-stem entry) stem) entry))
+		(listing-read html)))

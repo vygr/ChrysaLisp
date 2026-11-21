@@ -39,6 +39,10 @@
 	;what plays now, (title url), and the list it is of, and in what order,
 	;and what was playing when last closed, (title url seconds state), to go on
 	*current* :nil *queue* (list) *order* (list) *queue_at* 0 *resume* :nil
+	;which way through the queue what plays was come to, :nil if it was
+	;picked, how many have failed in a row since one last played, and is
+	;the next to be played for one that failed
+	*skip_by* :nil *failed* 0 *skip_due* :nil
 	;the entries of the list shown, the url of the one played or fetched,
 	;marked, and the title of the folder gone up from, and what is being
 	;fetched
@@ -241,10 +245,11 @@
 			(. *loading* :to_front))
 		((. (. *seek* :dirty) :to_front))))
 
-(defun fetch-start (kind url &optional title)
+(defun fetch-start (kind url &optional title missing)
 	;a module or a listing fetched by the fetcher, the window drawn
-	;meanwhile. Each has a number, what is said of one before is not heard
-	(setq *fetching* (list kind url title) *fetch_id* (inc *fetch_id*))
+	;meanwhile, and of a folder looked in for a module not found, its
+	;name. Each has a number, what is said of one before is not heard
+	(setq *fetching* (list kind url title missing) *fetch_id* (inc *fetch_id*))
 	(loading 0)
 	(status (cat "Fetching " (ifn title "the folder") " ..."))
 	(mail-send *fetcher* (cat "F" (str *fetch_id*) " " url)))
@@ -297,8 +302,8 @@
 	(list-visible)
 	(cond
 		((defq data (module-load (if (local? url) url (kept-path url))))
-			(unless (song-start data title url) (status (cat title ": not a module it can read"))))
-		((local? url) (status (cat url ": not there")))
+			(unless (song-start data title url) (song-failed (cat title ": not a module it can read"))))
+		((local? url) (song-failed (cat url ": not there")))
 		(:t ;what played stops, and the window says what is coming, till it
 			;has come
 			(engine-send "S" *serial*)
@@ -354,7 +359,29 @@
 (defun queue-step (by)
 	;the next or the previous, round from the end, of the queue, on from what
 	;plays, or its first or last if what plays is not in it
+	(setq *skip_by* by)
 	(if (queue-align by) (queue-move by) (queue-play)))
+
+(defun song-failed (why)
+	;a song that could not be played, and why. Come to by going through
+	;the queue, the next that way is played, as far as once round it, and
+	;in Player mode not past its last, as at a song's end; picked, it
+	;stops there
+	(status why)
+	(setq *failed* (inc *failed*))
+	(setq *skip_due* (cond
+		((not (and *skip_by* (nempty? *queue*))) :nil)
+		((>= *failed* (length *queue*)) :nil)
+		((and (not *jukebox*) (> *skip_by* 0) (= *queue_at* (dec (length *order*)))) :nil)
+		(:t))))
+
+(defun skip-on ()
+	;the next of the queue after one that failed, from the main loop: one
+	;that fails at once has the next played by this loop, not by a call
+	;in a call
+	(while *skip_due*
+		(setq *skip_due* :nil)
+		(queue-move *skip_by*)))
 
 (defun engine-said (msg)
 	;what the player said, of this song only
@@ -368,11 +395,12 @@
 				(song-status))
 			((eql kind "!")
 				(setq *song* :nil)
-				(status (cat (first *current*) ": not a module it can read")))
+				(song-failed (cat (first *current*) ": not a module it can read")))
 			((eql kind "T")
 				;the row and the samples shown again only when they change
 				;of a seek before the last asked for, not shown
 				(bind '(& id heard order row state &rest playing) words)
+				(setq *failed* 0)
 				(when (= (str-as-num id) *seek_id*)
 					(setq *heard* (str-as-num heard) *state* state)
 					(unless (eql *shown* (defq place (cat order " " row)))
@@ -390,6 +418,7 @@
 			((eql kind "E")
 				;all of it heard: the next of the favourites in Jukebox mode,
 				;round them, else of the list shown, stopped after its last
+				(setq *skip_by* 1)
 				(cond
 					(*jukebox* (queue-step 1))
 					((empty? (queue-modules)) (engine-send "S" *serial*))
@@ -514,7 +543,7 @@
 
 (defun fetch-ended (msg)
 	;= and its bytes, or ! and why not
-	(bind '(kind url title) *fetching*)
+	(bind '(kind url title missing) *fetching*)
 	(defq ok (starts-with "=" msg))
 	(setq *fetching* :nil msg (slice msg 1 -1))
 	(cond
@@ -527,13 +556,23 @@
 			(when (and ok (nql msg (load (kept-path url))))
 				(save msg (kept-path url))
 				(and (/= *list_at* +tab_favourites) (eql url (path-url (list-path))) (list-show :t))))
+		((and (not ok) (eql kind :module) (starts-with "404" msg) (starts-with +modland url))
+			;not at Modland: its folder looked in for it under another ending
+			(defq at (rfind "/" url))
+			(fetch-start :renamed (slice url 0 at) title (slice url at -1)))
+		((and (not ok) (find kind '(:module :renamed))) (song-failed (cat "Could not fetch it: " msg)))
 		((not ok) (status (cat "Could not fetch it: " msg)))
+		((eql kind :renamed)
+			(save msg (kept-path url))
+			(if (defq name (entry-renamed msg missing))
+				(fetch-start :module (cat url name) title)
+				(song-failed (cat title ": Modland has it no more"))))
 		((eql kind :listing)
 			(save msg (kept-path url))
 			(push *fresh* url)
 			(unless *song* (status "Nothing playing"))
 			(list-show))
-		((not (song-start msg title url)) (status (cat title ": not a module it can read")))))
+		((not (song-start msg title url)) (song-failed (cat title ": not a module it can read")))))
 
 (defun fetch-done (msg)
 	;what the fetcher said, of the last fetch asked of it only
@@ -565,6 +604,7 @@
 	(cond
 		(folder (setq *left* :nil) (push (list-path) folder) (config-save) (list-show))
 		(:t (player-mode url)
+			(setq *skip_by* :nil)
 			(defq modules (filter (# (not (third %0))) *entries*))
 			(queue-start (map (# (list (first %0) (second %0))) modules)
 				(ifn (find title (map (const first) modules)) 0)))))
@@ -618,6 +658,7 @@
 				(setq *picker* :nil)
 				(unless (eql (defq file (trim msg)) "")
 					(player-mode file)
+					(setq *skip_by* :nil)
 					(entry-play (list (last (split file "/")) file))))
 			((= (setq id (getf msg +ev_msg_target_id)) +event_close) (setq id :nil))
 			((= id +event_play) (engine-send "P" *serial*))
@@ -635,6 +676,7 @@
 				;the jukebox plays the favourites
 				(setq *jukebox* (= (. *mode* :get_selected) 1))
 				(config-save)
+				(setq *skip_by* 1)
 				(and *jukebox* (nempty? *favourites*) (queue-start *favourites* 0)))
 			((= id +event_shuffle)
 				(setq *shuffled* (first (. *shuffle* :get_states)))
@@ -658,7 +700,8 @@
 			((and (= id +event_item) (= (getf msg +ev_msg_type) +ev_type_action)
 					(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id))))
 				(item-pressed (get :entry_at button)))
-			((. *window* :event msg))))
+			((. *window* :event msg)))
+		(skip-on))
 	(config-save)
 	(if *picker* (mail-send *picker* ""))
 	(engine-send "Q")

@@ -162,3 +162,32 @@
 (assert-list-eq "playlist-read, those played here, at Modland"
 	'(("a song.mod" "https://modland.com/pub/modules/Protracker/Someone/a%20song.mod"))
 	(playlist-read m3u))
+(assert-list-eq "playlist-read, a # escaped, it would end the address"
+	'(("nordic report #3.mod" "https://modland.com/pub/modules/Protracker/Someone/nordic%20report%20%233.mod"))
+	(playlist-read (cat "#EXTM3U\r\n"
+		"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/Protracker/Someone/nordic%20report%20#3.mod\r\n")))
+
+;a module a playlist names that Modland has renamed, found in its folder by
+;the same name but for its ending
+(defq listing (cat "<a href=\q../\q>Parent</a>\n<a href=\qsupernova.mod\q>supernova.mod</a>\n"
+	"<a href=\qnearly%20there.mod\q>nearly there.mod</a>\n<a href=\qsupernova/\q>supernova/</a>\n"))
+(assert-eq "entry-renamed, another ending" "supernova.mod" (entry-renamed listing "supernova.ft"))
+(assert-eq "entry-renamed, dots before the ending" "nearly%20there.mod" (entry-renamed listing "nearly%20there...mod"))
+(assert-eq "entry-renamed, none" :nil (entry-renamed listing "nothing.mod"))
+
+;an XM whose instrument has no samples, and a note on it: the map of such
+;an instrument is of no sample for each key, as libxmp has it, where it
+;was empty and the note's look in it failed, sweet flavour.xm
+(defq xm_bytes (cat "Extended Module: " (str-alloc 20) (char 0x1a) (str-alloc 20) (char 0x104 2)
+	;its header: 276 bytes, a song of 1 order, 1 channel, 1 pattern and 1
+	;instrument, linear, speed 6, tempo 125, its orders
+	(char 276 4) (char 1 2) (char 0 2) (char 1 2) (char 1 2) (char 1 2) (char 1 2) (char 6 2)
+	(char 125 2) (str-alloc 256)
+	;a pattern of 1 row, its cell note 55 of instrument 1
+	(char 9 4) (char 0) (char 1 2) (char 5 2) (char 55) (char 1) (char 0) (char 0) (char 0)
+	;the instrument, its 29 bytes, no samples
+	(char 29 4) (str-alloc 22) (char 0) (char 0 2)))
+(defq xm_song (module-read xm_bytes))
+(assert-eq "an XM instrument of no samples, a map of 96 keys" 96
+	(length (. (first (. xm_song :find :instruments)) :find :map)))
+(assert-true "a note on it, the song measured" (num? (tracker-length xm_song 44100)))
