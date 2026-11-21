@@ -242,10 +242,41 @@
 	'(64 32) (list (. (first chans) :find :volume) (. (second chans) :find :volume)))
 (assert-eq "MED C-1 an octave below C-2" (* 2 (. (second chans) :find :period)) (. (first chans) :find :period))
 
+; --- AHX ---
+(defun tt-ahx (steps)
+	; (tt-ahx steps) -> str
+	;an AHX of one position of 4 rows, voice 0 on track 1, the others on
+	;track 0, none; one instrument, a saw; its steps ((row note ins fx param) ...)
+	(defq trk (map! (# 0) '() 0 12))
+	(each (lambda ((row note ins fx param))
+			(defq at (* row 3))
+			(elem-set trk at (logior (<< note 2) (>> ins 4)))
+			(elem-set trk (inc at) (logior (<< (logand ins 15) 4) fx))
+			(elem-set trk (+ at 2) param))
+		steps)
+	(cat "THX" (tt-bytes '(0 0 60 0x80 1 0 0 4 1 1 0 1 0 0 0 0 0 0 0)) (tt-bytes trk)
+		(tt-bytes '(64 3 1 64 1 64 10 1 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0)) "t\x00i\x00"))
+
+(defq song (module-read (tt-ahx '((0 25 1 0 0)))))
+(assert-list-eq "AHX read, its kind, mode, voices and title" '("AHX" :ahx 4 "t")
+	(list (. song :find :kind) (. song :find :mode) (. song :find :channels) (. song :find :title)))
+(assert-eq "AHX read, its instrument's name" "i" (. (first (. song :find :samples)) :find :name))
+;the lengths HivelyTracker's replayer gives these, a frame 882 at 50 a second
+(assert-eq "AHX length, 4 rows of 6 frames" 21168 (tracker-length song 44100))
+(assert-eq "AHX F03, a speed of 3" 10584 (tracker-length (module-read (tt-ahx '((0 0 0 15 3)))) 44100))
+(assert-eq "AHX D00 at row 1, the position's end" 10584 (tracker-length (module-read (tt-ahx '((1 0 0 13 0)))) 44100))
+(each (lambda ((what steps))
+		(defq ahx_song (module-read (tt-ahx steps)))
+		(assert-eq (cat "AHX measured as played, " what) (tt-played ahx_song) (tracker-length ahx_song 44100)))
+	'(("a note" ((0 25 1 0 0))) ("a speed" ((0 25 1 15 3))) ("a break" ((1 0 0 13 0)))))
+(defq chans (. (tt-ticks (tracker-player song 44100) 2) :find :chans))
+(assert-list-eq "AHX the note's voice sounds, the others not" '(:t :nil)
+	(list (> (. (first chans) :find :volume_out) 0) (> (. (second chans) :find :volume_out) 0)))
+
 ; --- the Jukebox's playlists ---
 (defq m3u (cat "#EXTM3U\r\n"
 	"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/Protracker/Someone/a%20song.mod\r\n"
-	"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/AHX/Someone/b.ahx\r\n"))
+	"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/HivelyTracker/Someone/b.hvl\r\n"))
 (assert-list-eq "playlist-read, those played here, at Modland"
 	'(("a song.mod" "https://modland.com/pub/modules/Protracker/Someone/a%20song.mod"))
 	(playlist-read m3u))
@@ -313,7 +344,7 @@
 (defq allmods (cat "100\tProtracker/Mel O'Dee/whales forever.mod\n"
 	"100\tProtracker/Virgill/coop-Poldi/hard sun.mod\n100\tProtracker/Marc/funky dog.mod\n"
 	"100\tProtracker/Spoon/coop-Jam/funky dog.mod\n100\tProtracker/Cool Col J/majestic.mod\n"
-	"100\tProtracker/Projex/majestic.mod\n100\tAHX/Someone/whales forever.ahx\n")
+	"100\tProtracker/Projex/majestic.mod\n100\tHivelyTracker/Someone/whales forever.hvl\n")
 	played (allmods-played allmods) index (allmods-index played))
 (assert-eq "allmods-played, the trackers played here" 6 (length (split played "\n")))
 (assert-eq "allmods-find, its artist's folder of another case" "Protracker/Mel O'Dee/whales forever.mod"

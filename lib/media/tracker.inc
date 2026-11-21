@@ -16,6 +16,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/media/mod.inc")
+(import "lib/media/ahx.inc")
 
 (ffi "lib/media/media_mix" media-mix)
 
@@ -2716,6 +2717,47 @@
 	(n2i (/ (/ (* (* (n2d (. player :find :rate)) (. player :find :tf)) (const (n2d 250)))
 		(n2d (max 1 (. player :find :bpm)))) (const (n2d 1000)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; AHX, its replayer's voices given the mixer, lib/media/ahx.inc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun ahx-player (player song)
+	; (ahx-player player song) -> player
+	;a player of an AHX: its four voices, a buffer each of the mixer's
+	(defq pans (. song :find :pans))
+	(scatter player :chans (map (# (ahx-voice (!) (if (< %0 128) +ahx_pan_left +ahx_pan_right))) pans)
+		:samples (map! (# (pad "" 1280 "\x00")) '() 0 4)
+		:pan_tables (ahx-pans) :order 0 :row 0 :speed 6 :wait 0 :get_new :t :pos_jump 0 :pos_jump_note 0
+		:pattern_break :nil :end_reached :nil :frames_done 0)
+	;each voice on its buffer from the start, the one it is at
+	(defq voices (. player :find :voices))
+	(each! (lambda ()
+			(defq at (* (!) +mix_size))
+			(elem-set voices at (!))
+			(elem-set voices (+ at 1) 0)
+			(elem-set voices (+ at 5) 0)
+			(elem-set voices (+ at 6) 640)
+			(elem-set voices (+ at 7) 0)
+			(elem-set voices (+ at 13) 0))
+		'() 0 4)
+	player)
+
+(defun ahx-voices (player)
+	; (ahx-voices player)
+	;each voice's place in the mixer: its buffer round and round, from its
+	;start when an instrument began it, its step, and its share each side
+	(defq voices (. player :find :voices) pans (. player :find :pan_tables))
+	(each (lambda (voice)
+			(defq at (* (!) +mix_size) vol (. voice :find :voice_volume) pan (. voice :find :pan))
+			(when (. voice :find :restart)
+				(. voice :insert :restart :nil)
+				(elem-set voices (+ at 1) 0))
+			(elem-set voices (+ at 2) (. voice :find :delta))
+			(elem-set voices (+ at 3) (/ (* vol (elem-get (first pans) pan) +ahx_gain) 128))
+			(elem-set voices (+ at 4) (/ (* vol (elem-get (second pans) pan) +ahx_gain) 128))
+			(scatter voice :volume_out vol :period_out (. voice :find :delta) :pan_out pan))
+		(. player :find :chans)))
+
 ;;;;;;;;;;;;;;;;;;;;
 ; the song, played
 ;;;;;;;;;;;;;;;;;;;;
@@ -2757,7 +2799,7 @@
 		(. player :insert :exp2 (apply (const nums) (map! (# (n2i (* (const (n2d 65536))
 			(pow (const (n2d 2)) (/ (n2d (!)) (const (n2d 768))))))) '() 0 769))))
 	(if (eql mode :mod) (. player :insert :tables (pt-tables)))
-	player)
+	(if (eql mode :ahx) (ahx-player player song) player))
 
 (defun tracker-tick (player)
 	; (tracker-tick player) -> frames
@@ -2772,6 +2814,10 @@
 			(. player :insert :carry (% n bpm))
 			(/ n bpm))
 		((eql mode :med) (med-tick player) (med-frames player))
+		((eql mode :ahx)
+			(ahx-tick player)
+			(unless (. player :find :measure) (ahx-voices player))
+			(ahx-frames player))
 		(:t (case mode (:st3 (st3-tick player)) (:it (it-tick player)) (:t (ft2-tick player)))
 			(/ (* 5 (. player :find :rate)) (* 2 (. player :find :bpm))))))
 
