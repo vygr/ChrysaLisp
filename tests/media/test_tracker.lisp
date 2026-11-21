@@ -86,6 +86,14 @@
 	(times n (tracker-tick player))
 	player)
 
+(defun tt-played (song)
+	; (tt-played song) -> frames
+	;how long a song is played, every tick of every channel, as (tracker-length)
+	;finds it with only the ticks that move the song on
+	(defq player (tracker-player song 44100) frames 0)
+	(until (. player :find :ended) (setq frames (+ frames (tracker-tick player))))
+	frames)
+
 ; --- MOD ---
 (defq song (module-read (tt-mod '())))
 (assert-eq "MOD read, its title" "test" (. song :find :title))
@@ -94,6 +102,10 @@
 (assert-eq "MOD length, 64 rows of 6 ticks of 882 frames" 338688 (tracker-length song 44100))
 (assert-eq "MOD length, F03 speed 3" 169344 (tracker-length (module-read (tt-mod '((0 0 0 0 15 3)))) 44100))
 (assert-eq "MOD length, D00 at row 15" 84672 (tracker-length (module-read (tt-mod '((15 0 0 0 13 0)))) 44100))
+(each (lambda (cells)
+		(defq mod_song (module-read (tt-mod cells)))
+		(assert-eq "MOD measured as played" (tt-played mod_song) (tracker-length mod_song 44100)))
+	'(() ((0 0 428 1 15 3) (1 1 428 1 4 0x44)) ((15 0 428 1 13 0) (3 1 428 1 14 0xe2))))
 (assert-eq "MOD A01, a row's 5 slides down"
 	59 (. (first (. (tt-ticks (tracker-player (module-read (tt-mod '((0 0 428 1 10 1)))) 44100) 6)
 		:find :chans)) :find :volume))
@@ -103,6 +115,13 @@
 (setq song (module-read (tt-it notes)))
 (assert-eq "IT read, its mode" :it (. song :find :mode))
 (assert-eq "IT length, 4 rows of 6 ticks" 21168 (tracker-length song 44100))
+(each (lambda ((what events))
+		(defq it_song (module-read (tt-it events)))
+		(assert-eq (cat "IT measured as played, " what) (tt-played it_song) (tracker-length it_song 44100)))
+	(list (list "notes" notes) (list "a tempo slide, T18" '((0 0 60 1 20 0x18) (1 1 62 1 0 0)))
+		(list "a break, C00 at row 1" '((0 0 60 1 0 0) (1 1 62 1 3 0)))
+		(list "a speed, A03 beside notes" '((0 0 60 1 1 3) (0 1 62 1 8 0x44) (2 1 64 1 0 0)))
+		(list "a note delay, SD3" '((1 0 60 1 19 0xd3) (2 1 62 1 20 0x12)))))
 (assert-eq "IT NNA cut, no past notes"
 	0 (length (. (tt-ticks (tracker-player song 44100) 13) :find :past)))
 (defq player (tt-ticks (tracker-player (module-read (tt-it notes 1)) 44100) 7))
@@ -209,3 +228,8 @@
 (assert-eq "entry-renamed, a word after" "polish%20xmas%20v2.mod" (entry-renamed listing "polish%20xmas.mod"))
 (assert-eq "entry-renamed, not when two have words after" :nil (entry-renamed listing "duck%20season.mod"))
 (assert-eq "entry-renamed, a word after, not more of one" "polish%20xmas%20v2.mod" (entry-renamed listing "polish.mod"))
+(assert-eq "coop-parent, the artist's own folder" "https://modland.com/pub/modules/Impulsetracker/Siren/"
+	(coop-parent "https://modland.com/pub/modules/Impulsetracker/Siren/coop-Sirrus/"))
+(assert-eq "coop-parent, none of the artist's own" :nil
+	(coop-parent "https://modland.com/pub/modules/Impulsetracker/Siren/"))
+

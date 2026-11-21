@@ -14,8 +14,11 @@
 (defq +rate 44100 +part 10000 +orphan 5000000)
 
 (defun main ()
+	;the line ends after the mailbox, which is bytes, a newline among them
+	;now and then: the first newline of all left a window with no song's
+	;length, one in ten or so
 	(when (and (defq msg (mail-read-timeout (task-mbox) +orphan))
-			(defq end (find "\n" msg))
+			(defq end (find "\n" msg +net_id_size))
 			(defq song (module-read (slice msg (inc end) -1))))
 		(defq app (slice msg 0 +net_id_size) serial (slice msg +net_id_size end)
 			measure (tracker-measure song +rate) frames :nil)

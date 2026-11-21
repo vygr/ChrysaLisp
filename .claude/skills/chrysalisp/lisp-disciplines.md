@@ -826,6 +826,12 @@ new trap there with its test. Others to know:
 *	A structure's name is its fields' prefix: name an app's structures for
 	the app, `+pcb_job`, or two files clash.
 
+*	A mailbox at the head of a mail is bytes, `+net_id_size` of them, any
+	of which can be a newline or a space. A separator of the text after it
+	is found from there, `(find "\n" msg +net_id_size)`: the Jukebox's
+	measure child found the first of all, and a window whose mailbox had a
+	newline in it never had a song's length.
+
 ## Use What Is There, and Grow the Tools
 
 *	Before a new part, a watcher, a registry, a check, a tool, ask what

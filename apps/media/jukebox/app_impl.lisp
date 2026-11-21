@@ -564,9 +564,14 @@
 		((not ok) (status (cat "Could not fetch it: " msg)))
 		((eql kind :renamed)
 			(save msg (kept-path url))
-			(if (defq name (entry-renamed msg missing))
-				(fetch-start :module (cat url name) title)
-				(song-failed (cat title ": Modland has it no more"))))
+			(cond
+				((defq name (entry-renamed msg missing))
+					(fetch-start :module (cat url name) title))
+				;not in a folder of work with another, looked for in the
+				;artist's own, the folder it is in
+				((defq up (coop-parent url))
+					(fetch-start :renamed up title missing))
+				((song-failed (cat title ": Modland has it no more")))))
 		((eql kind :listing)
 			(save msg (kept-path url))
 			(push *fresh* url)

@@ -143,3 +143,12 @@
 		(and (<= (length stem) 8)
 			(only-one modules (lambda ((entry &ignore))
 				(and (eql (name-ending (url-decode entry)) ending) (stem-within? stem (name-stem entry))))))))
+
+(defun coop-parent (url)
+	; (coop-parent url) -> :nil | url
+	;the folder a folder of work with another artist, coop-, is in, the
+	;artist's own: Modland has moved some up out of one, two steps.it of
+	;Siren/coop-Sirrus/ is in Siren/
+	(defq at (rfind "/" (slice url 0 -2)))
+	(and at (starts-with "coop-" (slice url at -2)) (slice url 0 at)))
+
