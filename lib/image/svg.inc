@@ -167,8 +167,12 @@
 											stroke_linejoin stroke_linecap stroke_linecap)))))
 						paths (list)))))))
 
-(defun SVG-load (stream &optional scale)
-	; (SVG-load stream [scale]) -> :nil | canvas
+(defun SVG-load (stream &optional scale most_w most_h)
+	; (SVG-load stream [scale most_w most_h]) -> :nil | canvas
+	;the picture drawn at scale times its pixels and made its own size, or
+	;given most_w, and most_h, drawn straight at the size that fits, no
+	;larger than its own, as a preview wants it: no pixels made to be
+	;thrown away
 	(setq scale (n2q (ifn scale 1)))
 	(defq canvas :nil stack
 			(list (scatter (Lmap)
@@ -196,8 +200,14 @@
 							"width" "height" "viewBox"))
 					(defq x 0.0 y 0.0) (setd w 256.0 h 256.0)
 					(if vb (bind '(x y w h) vb))
-					(. (setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))
-						:set_canvas_flags +canvas_flag_antialias)
+					(cond
+						(most_w
+							;the size that fits, the picture's shape kept
+							(defq k (min 1.0 (/ (n2q most_w) w)))
+							(if most_h (setq k (min k (/ (n2q most_h) h))))
+							(setq scale k canvas (Canvas (max 1 (n2i (+ (* w k) 0.5))) (max 1 (n2i (+ (* h k) 0.5))) 1)))
+						((setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))))
+					(. canvas :set_canvas_flags +canvas_flag_antialias)
 					(. entry :insert "transform" (mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
 				("circle"
 					(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
@@ -263,9 +273,11 @@
 									(mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
 						(font-glyph-paths font text)))
 				(path-fill-and-stroke canvas entry d))))
-	;resize to final output
-	(bind '(w h) (. canvas :pref_size))
-	(. (Canvas w h 1) :resize canvas))
+	;made its own size, if drawn at more than its pixels
+	(cond
+		((or most_w (<= scale 1.0)) canvas)
+		(:t (bind '(w h) (. canvas :pref_size))
+			(. (Canvas w h 1) :resize canvas))))
 
 (defun SVG-info (stream)
 	; (SVG-info stream) -> (width height type) | (-1 -1 -1)

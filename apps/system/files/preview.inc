@@ -45,9 +45,14 @@
 	;by (. canvas :resize) to be no wider than most_w, nor higher than most_h
 	;if given, as a preview or a picture in a chat shows it
 	;loaded with its pixels kept, not sent on to be drawn yet, so that a
-	;smaller one can be made from them: what is sent on is the one shown
-	(and (canvas-loader-of path) (defq canvas (canvas-load path +load_flag_noswap :nil (name-whole-stream path)))
-		(. (canvas-fit canvas most_w most_h) :swap 0)))
+	;smaller one can be made from them: what is sent on is the one shown.
+	;An SVG is drawn straight at that size, not drawn whole and made smaller
+	(cond
+		((ends-with ".svg" (to-lower path))
+			(and (defq stream (name-whole-stream path)) (defq canvas (SVG-load stream 1 most_w most_h))
+				(. canvas :swap 0)))
+		((and (canvas-loader-of path) (defq canvas (canvas-load path +load_flag_noswap :nil (name-whole-stream path))))
+			(. (canvas-fit canvas most_w most_h) :swap 0))))
 
 (defun file-lines (path &optional n)
 	; (file-lines path [n]) -> :nil | (line ...)

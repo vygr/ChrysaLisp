@@ -45,3 +45,14 @@
 					" (list {apps/demos/boing/data/taoball_1.cpm} {apps/media/films/data/captive.flm} {apps/media/images/data/wallpaper.tga}"
 					" {apps/media/images/data/burger.svg} {apps/media/whiteboard/data/palette.cwb} {tests/system/data/png_rgba8.png} {tests/system/data/jpg_420.jpg})))"))))
 	'("gui/canvas/lisp.inc" "lib/image/cpm.inc" "lib/image/tga.inc" "lib/image/svg.inc" "lib/image/cwb.inc" "lib/image/png.inc" "lib/image/jpg.inc"))
+
+;an SVG drawn straight at the size that fits, as a preview wants it, its
+;shape kept, no larger than its own: burger.svg is 332 by 263
+(defq gl_fit (test-output (cat
+	"(import {gui/lisp.inc}) (import {lib/image/svg.inc})"
+	" (print (. (SVG-load (file-stream {apps/media/images/data/burger.svg}) 1 220) :pref_size)"
+	" (. (SVG-load (file-stream {apps/media/images/data/burger.svg}) 1 220 100) :pref_size)"
+	" (. (SVG-load (file-stream {apps/media/images/data/burger.svg}) 1 2000) :pref_size)"
+	" (. (SVG-load (file-stream {apps/media/images/data/burger.svg})) :pref_size))")))
+(assert-eq "SVG-load at a size that fits: its width, its height, no larger, at its own"
+	"(220 174)(126 100)(332 263)(332 263)\n" gl_fit)
