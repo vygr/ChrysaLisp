@@ -1,23 +1,11 @@
 (enums +event +event_user
 	(enum prev play pause stop next)
 	(enum pin open)
-	(enum mode shuffle tab up filter seek list)
-	;the rows of the list, an event each from here on
+	(enum mode shuffle tab up filter seek)
+	;a row of the list
 	(enum item))
 
 (defq +bars 32 +bars_width 512 +bars_height 96 +rows_shown 25 +list_rows 14)
-
-(defclass Rows () (Flow)
-	; (Rows) -> rows
-	;the rows of the list seen, as many as fit, however long the list: the
-	;wheel over them moves the slider along all of it, :slider
-	(defmethod :mouse_wheel (event)
-		; (. rows :mouse_wheel event) -> rows
-		(defq slider (get :slider this))
-		(def slider :value (max 0 (min (get :maximum slider)
-			(- (get :value slider) (getf event +ev_msg_wheel_y)))))
-		(.-> slider :emit :dirty)
-		this))
 
 (defclass Filter () (Textfield)
 	; (Filter) -> filter
@@ -73,13 +61,9 @@
 					:border :border_textfield :paper +argb_white :clear_text "" :hint_text "filter" :min_width 160))
 				:connect +event_filter))
 		(ui-label *where* (:text "" :font :font_small))
-		;the rows seen, on black, and a slider along all of the list
-		(ui-flow _ (:flow_flags +flow_left_fill)
-			(. (ui-slider *list_slider* (:value 0 :maximum 0 :portion +list_rows :min_width 12))
-				:connect +event_list)
-			(ui-flow _ (:flow_flags +flow_stack_fill)
-				(ui-element *list* (Rows) (:flow_flags +flow_down))
-				(ui-backdrop _ (:style :plain :paper +argb_black))))))
+		;the list, on black, the rows only of what is seen
+		(ui-scroll *list_scroll* +scroll_flag_vertical (:child_fill +scroll_flag_both)
+			(ui-items *list* (:paper +argb_black)))))
 
 (ui-tool-tips *controls* '("prev" "play" "pause" "stop" "next"))
 (ui-tool-tips *favourite* '("a favourite, kept to play offline, or not" "open a module"))

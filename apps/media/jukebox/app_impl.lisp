@@ -42,7 +42,7 @@
 	;the entries of the list shown, the url of the one played or fetched,
 	;marked, and the title of the folder gone up from, and what is being
 	;fetched
-	*entries* (list) *top* 0 *marked* :nil *left* :nil *fetching* :nil *picker* :nil *select* :nil
+	*entries* (list) *marked* :nil *left* :nil *fetching* :nil *picker* :nil *select* :nil
 	;the fetcher, ./fetch.lisp, and the number of the last fetch asked of it
 	*fetcher* :nil *fetch_id* 0
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
@@ -248,38 +248,46 @@
 	(status (cat "Fetching " (ifn title "the folder") " ..."))
 	(mail-send *fetcher* (cat "F" (str *fetch_id*) " " url)))
 
-(defun list-mark ()
-	; (list-mark)
-	;the rows seen, from the entry at the top: what is played or fetched,
-	;and the folder gone up from, on dark grey, the rest on black
-	(each (lambda (button)
-			;a row past the list's end a space, so it keeps its height
-			(defq paper +argb_black text " " at (+ *top* (!)))
-			(when (< at (length *entries*))
-				(bind '(title url folder) (elem-get *entries* at))
-				(setq text (if folder (cat title "/") title))
-				(if (or (eql url *marked*) (and folder (eql folder *left*))) (setq paper +argb_grey4)))
-			(. button :set_text text)
-			(unless (= (get :paper button) paper) (def (. button :dirty) :paper paper)))
-		(. *list* :children)))
+(defun list-button (text paper)
+	; (list-button text paper) -> button
+	;a row of the list, the letters of the tracker's rows a size up
+	(def (defq button (Button)) :text text :border 0 :paper paper :ink +argb_white
+		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))
+	(view-variant button :font :font_medium_terminal)
+	button)
 
-(defun list-at (top)
-	; (list-at top)
-	;the list seen from an entry, the slider with it
-	(setq *top* (max 0 (min top (- (length *entries*) +list_rows))))
-	(def (. *list_slider* :dirty) :value *top* :maximum (max 0 (- (length *entries*) +list_rows)))
-	(list-mark))
+(defun list-item (at)
+	; (list-item index) -> button
+	;the row of an entry, asked for by the list as it comes into sight:
+	;what is played or fetched, and the folder gone up from, on dark grey,
+	;the rest on black
+	(bind '(title url folder) (elem-get *entries* at))
+	(def (defq button (list-button (if folder (cat title "/") title)
+			(if (or (eql url *marked*) (and folder (eql folder *left*))) +argb_grey4 +argb_black)))
+		:entry_at at)
+	(. button :connect +event_item))
+
+(defun list-init ()
+	; (list-init)
+	;the list's rows asked for of (list-item), each the height of one, and
+	;the list so many of them high
+	(def *list* :item_fn (const list-item) :item_h (second (. (list-button " " +argb_black) :pref_size)))
+	(def *list_scroll* :min_height (* +list_rows (get :item_h *list*))))
 
 (defun list-visible ()
 	; (list-visible)
-	;the list moved as little as it takes for what is marked to be seen, as a
-	;scroll's :visible: the rows are relabelled, so there is no view to ask
-	(if (defq at (some (# (if (eql (second %0) *marked*) (!))) *entries*))
-		(list-at (cond
-			((< at *top*) at)
-			((>= at (+ *top* +list_rows)) (- at +list_rows -1))
-			(*top*)))
-		(list-mark)))
+	;the rows seen made again, and what is marked brought into sight: by
+	;the scroll's :visible if its row is made, else the list moved to the
+	;edge it is nearer
+	(. *list* :refresh)
+	(when (defq at (some (# (if (eql (second %0) *marked*) (!))) *entries*))
+		(cond
+			((defq button (some (# (if (eql (get :entry_at %0) at) %0)) (. *list* :children)))
+				(. *list_scroll* :visible button))
+			(:t (defq slider (get :vslider *list_scroll*) item_h (get :item_h *list*) y (* at item_h))
+				(bind '(& h) (. *list_scroll* :view_size))
+				(def slider :value (if (< y (get :value slider)) y (- (+ y item_h) h)))
+				(.-> *list_scroll* :place :dirty_all)))))
 
 (defun entry-play (entry)
 	;an entry played, (title url): a file, a favourite kept, or fetched
@@ -453,20 +461,11 @@
 			(join (map (# (if (ends-with ".m3u" %0) (slice %0 0 -5) %0)) path) " / ") ", "
 			(str (length *entries*)) " here"))))
 	;from the top, or with the folder gone up from in the middle
-	(list-at (if (defq at (and *left* (some (# (and (third %0) (eql (third %0) *left*) (!))) *entries*)))
-		(- at (/ +list_rows 2)) 0)))
-
-(defun list-rows ()
-	; (list-rows)
-	;the buttons of the rows seen, made the once, an event each
-	(def *list* :slider *list_slider*)
-	(times +list_rows
-		(def (defq button (Button)) :text " " :border 0 :paper +argb_black :ink +argb_white
-			:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))
-		;the letters of the tracker's rows, a size up
-		(view-variant button :font :font_medium_terminal)
-		(. button :connect (+ +event_item (length (. *list* :children))))
-		(. *list* :add_child button)))
+	(. *list* :set_count (length *entries*))
+	(def (get :vslider *list_scroll*) :value
+		(if (defq at (and *left* (some (# (and (third %0) (eql (third %0) *left*) (!))) *entries*)))
+			(* (max 0 (- at (/ +list_rows 2))) (get :item_h *list*)) 0))
+	(.-> *list_scroll* :layout :dirty_all))
 
 (defun fetch-ended (msg)
 	;= and its bytes, or ! and why not
@@ -504,10 +503,10 @@
 		(. *mode* :set_selected 0)
 		(config-save)))
 
-(defun item-pressed (i)
+(defun item-pressed (at)
 	;a favourite played, a folder opened, or a module of Modland played,
 	;the modules of the list what next and prev go through
-	(bind '(title url folder) (elem-get *entries* (+ *top* i)))
+	(bind '(title url folder) (elem-get *entries* at))
 	(cond
 		(folder (setq *left* :nil) (push (list-path) folder) (config-save) (list-show))
 		(:t (player-mode url)
@@ -542,7 +541,7 @@
 	(.-> *bars* (:fill +argb_black) (:swap +swap_write))
 	(. *samples* :load (list "" "  open a module, or" "  pick one below") 0 0 -1 -1)
 	(. *rows* :load (list) 0 0 -1 -1)
-	(list-rows)
+	(list-init)
 	(list-show)
 	(. *window* :open)
 	;what was playing when last closed, on again
@@ -595,17 +594,15 @@
 					(setq *left* (pop path))
 					(config-save) (list-show)))
 			((= id +event_filter) (list-show))
-			((= id +event_list) (list-at (get :value *list_slider*)))
 			((= id +event_seek)
 				(setq *seek_at* (pii-time))
 				;a drag sends many, only the last is played from: more of the
 				;window's waiting, this is not it
 				(and *song* (not (mail-poll (list (elem-get *select* +select_main))))
 					(engine-send "G" *serial* " " (setq *seek_id* (inc *seek_id*)) " " (get :value *seek*))))
-			((and (= (getf msg +ev_msg_type) +ev_type_action)
-					(<= +event_item id (+ +event_item +list_rows -1))
-					(< (+ *top* (- id +event_item)) (length *entries*)))
-				(item-pressed (- id +event_item)))
+			((and (= id +event_item) (= (getf msg +ev_msg_type) +ev_type_action)
+					(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id))))
+				(item-pressed (get :entry_at button)))
 			((. *window* :event msg))))
 	(config-save)
 	(if *picker* (mail-send *picker* ""))

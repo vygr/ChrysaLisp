@@ -645,6 +645,65 @@ are made available via `gui/lisp.inc`.
 
 ---
 
+### `Items`
+
+* **Inherits:** `View`
+
+* **Lisp Class:** `(Items)` (from `gui/items/lisp.inc`)
+
+* **UI Macro:** `(ui-items name [props])`, put in a `ui-scroll`.
+
+* **Description:** A list of items one under another, as a flow down of all
+  of them, of which only those seen are views. It is the size of the whole
+  list, so a Scroll it is in sizes it and moves it as it would any child,
+  and as it is moved it has the views of the items in the part its parent
+  shows: those that come into sight asked for of `:item_fn`, those that
+  leave let go of. A list of thousands costs a screen of views.
+
+* **Key Properties:**
+
+    * `:item_fn`: A function of an index that gives the view of that item,
+      a new one or one the app keeps. It is called in the app's task, as
+      the list is moved, inside the list's methods: it must not wait, no
+      mail, sleep or fetch, so the list is never seen part made, and must
+      not `setq` a name of theirs.
+
+    * `:item_count`: How many items there are, set by `(:set_count)`.
+
+    * `:item_h`: The height of every item, that of the first if not given.
+
+* **Key Methods (from [`Items.md`](../reference/classes/Items.md) and
+  `gui/items/lisp.inc`):**
+
+    * `(:set_count count)`: The length of the list, the views it holds let
+      go of. Its owner then lays out the Scroll, `(.-> scroll :layout
+      :dirty_all)`.
+
+    * `(:refresh)`: The items seen asked for again, the list the same
+      length, say a mark that moved.
+
+    * `(:set_bounds x y w h)`: Moved by its parent, what is now seen of it
+      shown, `(:show)`. Only its parent's moves are heard: an Items is the
+      child of what moves it, a Scroll, never inside another view in one.
+
+* **Handling:** It has no events of its own: an item is the app's own view,
+  which connects its own event and carries what the app needs, its index
+  say. The Scroll's `(:visible item)` works on an item that is a view now,
+  as on any descendant; to bring one into sight that is not, set the
+  Scroll's slider to its index times `:item_h` and `:place` it.
+
+*Example:*
+
+```vdu
+(ui-scroll *list_scroll* +scroll_flag_vertical (:min_height 224 :child_fill +scroll_flag_both)
+    (ui-items *list* (:paper +argb_black)))
+(def *list* :item_fn (# (list-item %0)))
+(. *list* :set_count (length *entries*))
+(.-> *list_scroll* :layout :dirty_all)
+```
+
+---
+
 ### `Label`
 
 * **Inherits:** `View`

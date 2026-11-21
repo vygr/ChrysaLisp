@@ -300,6 +300,18 @@ Key points:
 	sliders. Add the child first, then change what it holds, then
 	`(.-> scroll :layout :dirty_all)` or the window's `:fit`.
 
+*	A long list is an `Items` in a scroll, `(ui-items name props)`,
+	`gui/items/`: the size of all of it, the views only of what is seen,
+	each asked for of its `:item_fn` by index as it comes into sight, let
+	go of as it leaves, all the height of the first. Not a flow of a view
+	an entry, nor rows relabelled by hand. `(:set_count n)` then the
+	scroll's `:layout`; `(:refresh)` for a change of how the items seen
+	look; an item is the app's own view with its own event and index, and
+	the scroll's `:visible` brings one in sight that is a view now. The
+	`:item_fn` must not wait, mail or sleep, so the list is never drawn
+	part made, and it is heard of only through its own `:set_bounds`, so
+	it is the scroll's child, not in a view in it. The Jukebox's list.
+
 ## Advanced Patterns
 
 *	**Single instance per node.** Guard the import in `app.lisp` (see

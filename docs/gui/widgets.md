@@ -726,6 +726,52 @@ Useful scroll combos:
 +scroll_flag_both
 ```
 
+### (ui-items name [props]) -> items
+
+```file
+gui/lisp.inc "macro ui-items" ""
+```
+
+```lisp
+(ui-window *ui_items*
+	(:min_width 0
+	:min_height 0)
+	(ui-scroll _ +scroll_flag_vertical
+		(:min_width 192
+		:min_height 192
+		:child_fill +scroll_flag_both)
+		(ui-items items
+			(:paper +argb_white))))
+
+(def items :item_fn (lambda (index)
+	(def (defq button (Button)) :text (cat "Item " (str index)) :border 0
+		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))
+	button))
+(. items :set_count 10000)
+(. (penv items) :layout)
+
+*ui_items*
+```
+
+Creates an Items instance, a list of items one under another of which only
+those seen are views, with name and optional property list. Put it in a
+Scroll: it is the size of the whole list, and as the Scroll moves it the
+views of the items that come into sight are asked for of `:item_fn`, and
+those that leave are let go of. Every item is the height of the first, or
+of `:item_h`. A list of 10000 is a screen of views.
+
+`(. items :set_count count)` gives the length, then the Scroll is laid out.
+`(. items :refresh)` asks again for the items seen. An item is the app's
+own view, its events its own; the Scroll's `:visible` brings one in sight.
+
+`:item_fn` runs in the app's task as the list is moved: it must not wait,
+so the list is never drawn part made. Only its parent's moves are heard, so
+an Items is the child of the Scroll, not inside another view in one.
+
+#### Properties
+
+`:item_fn :item_count :item_h :paper :min_width`
+
 ### (ui-backdrop name [props] [body]) -> backdrop
 
 ```file

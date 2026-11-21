@@ -10,6 +10,7 @@
 (import "./slider/lisp.inc")
 (import "./progress/lisp.inc")
 (import "./scroll/lisp.inc")
+(import "./items/lisp.inc")
 (import "./sheet/lisp.inc")
 (import "./textfield/lisp.inc")
 (import "./text/lisp.inc")
@@ -340,6 +341,12 @@
 	(ui-props p
 		:paper :paper_slider)
 	(static-qqp (ui-element ,n (Scroll ,f) ,p ~x)))
+
+(defmacro ui-items (n &optional p)
+	; (ui-items name [props]) -> items
+	;a list of items, of which only those seen are views, made as they
+	;are by :item_fn, put in a ui-scroll
+	(static-qqp (ui-element ,n (Items) ,p)))
 
 (defmacro ui-sheet (n &optional p &rest x)
 	; (ui-sheet name [props] [body]) -> sheet

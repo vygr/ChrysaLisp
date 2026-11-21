@@ -791,6 +791,15 @@ a bar of buttons, one of them selected, or with mode each on or off
 (ui-hchart name title num_marks [props]) -> hchart
 ```
 
+### ui-items
+
+```code
+(ui-items name [props]) -> items
+
+a list of items, of which only those seen are views, made as they
+are by :item_fn, put in a ui-scroll
+```
+
 ### ui-label
 
 ```code
