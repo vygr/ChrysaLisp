@@ -39,7 +39,7 @@
 (assert-eq "the certificates of a Certificate" 2 (length tt_certs))
 (assert-eq "each read" "(\qtest.example\q \q*.wild.example\q)" (str (. (first tt_certs) :find :names)))
 (assert-eq "and they go up to the root" :nil
-	(x509-chain-check tt_certs "test.example" (list (x509-parse (tt-der "root"))) 1893456000))
+	(x509-chain-check tt_certs "test.example" (list (x509-parse (tt-der "root"))) 1893456000 (Fset 11)))
 
 ;TLS 1.2. The PRF of RFC 5246 5, worked out by Python's hmac
 (assert-eq "the PRF of 1.2, a key block"

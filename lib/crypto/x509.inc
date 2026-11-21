@@ -10,6 +10,8 @@
 ; (x509-chain-check certs host [roots now]) -> :nil | why not
 ; (x509-sig-check kind key scheme hash_name data signature) -> :t | :nil
 ; (x509-roots) -> the roots the host keeps, read once a task
+; (x509-issued? cert issuer [checked]) -> :t | :nil
+; (x509-checked) -> the pairs whose signatures were found good, kept
 ;
 ; A certificate is DER: each thing a tag, a length, and what is in it,
 ; which may be more such things. Only what is needed is read: the names,
@@ -18,6 +20,12 @@
 ; lib/crypto/rsa.inc or lib/crypto/ed25519.inc. What a server sends is
 ; not to be trusted till it is checked, so no index is taken past what is
 ; there.
+;
+; Whether an issuer signed a certificate does not change, so a pair of
+; them found signed is remembered, by the hash of the two, here and in a
+; file kept, lib/crypto/x509_checked: a server met again is checked by its
+; names and dates, and its handshake's signature, not again by those of
+; its chain. That file is as much to be trusted as the tree's code.
 ;
 ; NOT DONE: whether a certificate has been revoked, the constraints on the
 ; names an issuer may issue for, the uses a key is limited to, and the
@@ -36,7 +44,9 @@
 ;where the hosts keep their roots, the first found is read
 (defq +x509_root_files ''("/etc/ssl/cert.pem" "/etc/ssl/certs/ca-certificates.crt"
 		"/etc/pki/tls/certs/ca-bundle.crt")
-	*x509_roots* :nil)
+	*x509_roots* :nil
+	;the pairs found signed, kept, and how many before the file starts again
+	+x509_checked_file "lib/crypto/x509_checked" +x509_checked_max 4096 *x509_checked* :nil)
 
 (defun der-at (data at)
 	; (der-at data at) -> :nil | (tag start end head)
@@ -241,6 +251,39 @@
 		(x509-sig-check (. issuer :find :key_kind) (. issuer :find :key) (first alg) (second alg)
 			(. cert :find :tbs) (. cert :find :sig))))
 
+(defun x509-checked ()
+	; (x509-checked) -> Fset
+	;the pairs of a certificate and its issuer found signed, read from the
+	;file kept the first time they are wanted in a task. One of too many
+	;starts again
+	(unless *x509_checked*
+		(setq *x509_checked* (Fset 101))
+		(when (defq in (file-stream +x509_checked_file))
+			(defq n 0)
+			(lines! (lambda (line)
+					(when (= (length line) 44) (. *x509_checked* :insert line) (++ n))
+					:nil)
+				in)
+			(when (> n +x509_checked_max)
+				(setq *x509_checked* (Fset 101))
+				(file-stream +x509_checked_file +file_open_write))))
+	*x509_checked*)
+
+(defun x509-issued? (cert issuer &optional checked)
+	; (x509-issued? cert issuer [checked]) -> :t | :nil
+	;(x509-signed?) of a pair checked once: found signed it is put in
+	;checked, an Fset, or if none is given the ones kept, (x509-checked),
+	;and their file
+	(and (eql (. cert :find :issuer) (. issuer :find :subject))
+		(defq key (base64-encode (sha256 (cat (. cert :find :der) (. issuer :find :der))))
+			seen (ifn checked (x509-checked)))
+		(or (. seen :find key)
+			(when (x509-signed? cert issuer)
+				(. seen :insert key)
+				(and (not checked) (defq out (file-stream +x509_checked_file +file_open_append))
+					(write-line out key) (stream-flush out))
+				:t))))
+
 (defun x509-host? (cert host)
 	; (x509-host? cert host) -> :t | :nil
 	;is the certificate for the host, by one of its names, a name that
@@ -253,10 +296,12 @@
 					(eql (slice host dot -1) (slice name 1 -1)))))
 		(. cert :find :names)))
 
-(defun x509-chain-check (certs host &optional roots now)
-	; (x509-chain-check certs host [roots now]) -> :nil | why not
+(defun x509-chain-check (certs host &optional roots now checked)
+	; (x509-chain-check certs host [roots now checked]) -> :nil | why not
 	;:nil if the first of certs is for the host, each is issued by the
-	;next, up to one issued by a root, or a root, and each is in date
+	;next, up to one issued by a root, or a root, and each is in date.
+	;The signatures of pairs found signed before, in checked or those kept,
+	;are not checked again
 	(setd roots (x509-roots) now (/ (pii-time) 1000000))
 	(defq why :nil done :nil at 0)
 	(cond
@@ -273,14 +318,14 @@
 				(setq why "issued by one that may not issue"))
 			((some (# (eql (. %0 :find :der) (. cert :find :der))) roots)
 				(setq done :t))
-			((some (# (and (<= (. %0 :find :from) now (. %0 :find :until)) (x509-signed? cert %0))) roots)
+			((some (# (and (<= (. %0 :find :from) now (. %0 :find :until)) (x509-issued? cert %0 checked))) roots)
 				(setq done :t))
-			((and (< (inc at) (length certs)) (x509-signed? cert (elem-get certs (inc at))))
+			((and (< (inc at) (length certs)) (x509-issued? cert (elem-get certs (inc at)) checked))
 				(++ at))
 			(:t (setq why "not issued by a root, nor by the next sent"))))
 	why)
 
 ;module
-(export-symbols '(x509-parse x509-pem x509-roots x509-sig-check x509-signed? x509-host?
-		x509-chain-check der-at der-in der-bytes der-oid *x509_roots*))
+(export-symbols '(x509-parse x509-pem x509-roots x509-sig-check x509-signed? x509-issued? x509-checked x509-host?
+		x509-chain-check der-at der-in der-bytes der-oid *x509_roots* *x509_checked*))
 (env-pop)

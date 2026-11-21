@@ -27,22 +27,24 @@
 (assert-true "P-256 by RSA and SHA-256" (x509-signed? tx_leaf tx_issuer))
 (assert-true "not by the root" (not (x509-signed? tx_leaf tx_root)))
 
-(defq tx_roots (list tx_root))
-(assert-eq "a chain up to the root" :nil (x509-chain-check (list tx_leaf tx_issuer) "test.example" tx_roots tx_2030))
-(assert-eq "and with the root sent too" :nil (x509-chain-check (list tx_leaf tx_issuer tx_root) "test.example" tx_roots tx_2030))
-(assert-eq "a name of the wildcard" :nil (x509-chain-check (list tx_leaf tx_issuer) "Any.Wild.Example" tx_roots tx_2030))
-(assert-true "but one name, not two" (x509-chain-check (list tx_leaf tx_issuer) "a.b.wild.example" tx_roots tx_2030))
-(assert-true "nor none" (x509-chain-check (list tx_leaf tx_issuer) "wild.example" tx_roots tx_2030))
-(assert-true "nor another host" (x509-chain-check (list tx_leaf tx_issuer) "example.com" tx_roots tx_2030))
-(assert-true "not without the one between" (x509-chain-check (list tx_leaf) "test.example" tx_roots tx_2030))
-(assert-true "nor with no root" (x509-chain-check (list tx_leaf tx_issuer) "test.example" (list tx_old) tx_2030))
-(assert-true "nor before it was made" (x509-chain-check (list tx_leaf tx_issuer) "test.example" tx_roots 1700000000))
-(assert-true "nor out of date" (x509-chain-check (list tx_old tx_issuer) "test.example" tx_roots tx_2030))
-(assert-true "nor in 2020 when it was, its issuer was not yet" (x509-chain-check (list tx_old tx_issuer) "test.example" tx_roots 1590000000))
+(defq tx_roots (list tx_root)
+	;the pairs found signed, this file's own, not those the tree keeps
+	tx_checked (Fset 11))
+(assert-eq "a chain up to the root" :nil (x509-chain-check (list tx_leaf tx_issuer) "test.example" tx_roots tx_2030 tx_checked))
+(assert-eq "and with the root sent too" :nil (x509-chain-check (list tx_leaf tx_issuer tx_root) "test.example" tx_roots tx_2030 tx_checked))
+(assert-eq "a name of the wildcard" :nil (x509-chain-check (list tx_leaf tx_issuer) "Any.Wild.Example" tx_roots tx_2030 tx_checked))
+(assert-true "but one name, not two" (x509-chain-check (list tx_leaf tx_issuer) "a.b.wild.example" tx_roots tx_2030 tx_checked))
+(assert-true "nor none" (x509-chain-check (list tx_leaf tx_issuer) "wild.example" tx_roots tx_2030 tx_checked))
+(assert-true "nor another host" (x509-chain-check (list tx_leaf tx_issuer) "example.com" tx_roots tx_2030 tx_checked))
+(assert-true "not without the one between" (x509-chain-check (list tx_leaf) "test.example" tx_roots tx_2030 tx_checked))
+(assert-true "nor with no root" (x509-chain-check (list tx_leaf tx_issuer) "test.example" (list tx_old) tx_2030 tx_checked))
+(assert-true "nor before it was made" (x509-chain-check (list tx_leaf tx_issuer) "test.example" tx_roots 1700000000 tx_checked))
+(assert-true "nor out of date" (x509-chain-check (list tx_old tx_issuer) "test.example" tx_roots tx_2030 tx_checked))
+(assert-true "nor in 2020 when it was, its issuer was not yet" (x509-chain-check (list tx_old tx_issuer) "test.example" tx_roots 1590000000 tx_checked))
 (defq tx_noca (tx-cert "issuer"))
 (. tx_noca :insert :ca :nil)
 (assert-eq "nor one whose issuer may not issue" "issued by one that may not issue"
-	(x509-chain-check (list tx_leaf tx_noca) "test.example" tx_roots tx_2030))
+	(x509-chain-check (list tx_leaf tx_noca) "test.example" tx_roots tx_2030 tx_checked))
 
 ;a byte of what was signed changed, and it is no longer signed
 (defq tx_der (. tx_leaf :find :der) tx_at (- (length tx_der) 300)
@@ -50,6 +52,21 @@
 (assert-true "a byte changed, it still reads" tx_bad)
 (assert-true "and is not signed" (not (x509-signed? tx_bad tx_issuer)))
 (assert-true "nor does what is not DER read" (not (x509-parse "not a certificate")))
+
+;a pair found signed is remembered, and not checked again: a certificate
+;whose signature is spoilt, but whose bytes are the same, is taken as
+;signed by a set that has its pair, and not by one that has not
+(defq tx_two (Fset 11))
+(assert-eq "a chain checked" :nil (x509-chain-check (list tx_leaf tx_issuer) "test.example" tx_roots tx_2030 tx_two))
+(assert-eq "its two pairs remembered" 2 (. tx_two :size))
+(defq tx_spoilt (x509-parse (. tx_leaf :find :der)))
+(. tx_spoilt :insert :sig (cat "x" (slice (. tx_leaf :find :sig) 1 -1)))
+(assert-eq "a pair remembered is not checked again" :nil
+	(x509-chain-check (list tx_spoilt tx_issuer) "test.example" tx_roots tx_2030 tx_two))
+(assert-true "one not remembered is" (x509-chain-check (list tx_spoilt tx_issuer) "test.example" tx_roots tx_2030 (Fset 11)))
+(assert-true "nor a pair not signed remembered" (not (x509-issued? tx_bad tx_issuer (defq tx_none (Fset 11)))))
+(assert-eq "so none put there" 0 (. tx_none :size))
+(assert-true "nor one named for another issuer" (not (x509-issued? tx_leaf tx_root tx_two)))
 
 ;the host's own roots, where it keeps them
 (when (some (# (/= (age %0) 0)) '("/etc/ssl/cert.pem" "/etc/ssl/certs/ca-certificates.crt" "/etc/pki/tls/certs/ca-bundle.crt"))

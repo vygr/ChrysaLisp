@@ -10,6 +10,7 @@ deps/
 /usr/*/voice_notes/
 /usr/*/whiteboard_kept.*
 /lib/files/*.tre
+/lib/crypto/x509_checked
 /downloads/
 /tests/scratch/
 os
