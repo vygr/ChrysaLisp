@@ -951,6 +951,14 @@ not arrive; an answer may not come back.
 	over one: give the next on the answer when the last took a tick or
 	more, and leave a faster child to the timer.
 
+*	Long work is a child's job, not a slice of the app's loop. An app that
+	does a part of something in each frame, so many ms of it, to keep its
+	loop free (Motion's dry run and seek, Molecule's build) is to give it
+	to a child as a farmed job instead, the child calling `(task-slice)`
+	as it goes, its answer the result (Chris, 2026-11-21). What the child
+	makes that the app shows goes in a `:buf` by its key, a shared canvas
+	for pixels, never a pointer handed by `weak-ref`.
+
 *	Use what is there: `Jobs`, `Farm` and `Local` of `lib/task/` are this
 	protocol, the start by message, the queue, the patience, the reply
 	mailbox. A task of one is a farm of one. Do not write it by hand.
