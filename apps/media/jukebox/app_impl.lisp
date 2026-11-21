@@ -309,18 +309,38 @@
 			(favourite-show)
 			(fetch-start :module url title))))
 
-(defun queue-start (entries at)
-	;a list played from one of it, in its order, or shuffled with that first
+(defun queue-set (entries at)
+	;the list next and prev go through, in its order, or shuffled with the
+	;one at at first, there now
 	(setq *queue* entries *order* (map! (lambda () (!)) '() 0 (length entries)))
 	(if *shuffled* (setq *order* (cat (list at) (shuffle (filter (# (/= %0 at)) *order*)))))
-	(setq *queue_at* (ifn (find at *order*) 0))
+	(setq *queue_at* (ifn (find at *order*) 0)))
+
+(defun queue-start (entries at)
+	;a list played from one of it
+	(queue-set entries at)
 	(if (nempty? *queue*) (entry-play (elem-get *queue* (elem-get *order* *queue_at*)))))
 
-(defun queue-step (by)
-	;the next or the previous of the list, round from the end
+(defun queue-move (by)
+	;the next or the previous of the queue, round from the end
 	(when (nempty? *queue*)
 		(setq *queue_at* (% (+ *queue_at* by (length *order*)) (length *order*)))
 		(entry-play (elem-get *queue* (elem-get *order* *queue_at*)))))
+
+(defun queue-step (by)
+	;the next or the previous, round from the end: of the favourites in
+	;Jukebox mode, else of the modules of the list shown, on from what plays
+	;if it is in it, else from its first, or its last going back
+	(defq modules (map (# (list (first %0) (second %0))) (filter (# (not (third %0))) *entries*)))
+	(cond
+		((or *jukebox* (empty? modules)
+				(and (= (length modules) (length *queue*))
+					(not (some (# (nql (second %0) (second %1))) modules *queue*))))
+			(queue-move by))
+		((defq at (some (# (if (eql (second %0) *marked*) (!))) modules))
+			(queue-set modules at)
+			(queue-move by))
+		(:t (queue-start modules (if (> by 0) 0 (dec (length modules)))))))
 
 (defun engine-said (msg)
 	;what the player said, of this song only
