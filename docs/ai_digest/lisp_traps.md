@@ -413,6 +413,18 @@ function has the new list from then on. A gopher runner lost its cache of
 objects so, and every gopher answered "none". Give a loop's names their
 own spelling. `check` says so, `again`.
 
+### `lines!` stops at the first line its function gives other than `:nil`
+
+```vdu
+(lines! (# (push out %0)) stream) ; one line, push gives the list
+(lines! (# (push out %0) :nil) stream) ; all of them
+```
+
+`(lines! fn stream)` is `some` of the lines, not `each`: it gives what the
+function gave, and reads no more. A function that ends in a `push`, or an
+`(and ...)` that pushes, takes the first line it keeps and no other. End it
+with `:nil`. A playlist reader of the Jukebox kept one song of 29 so.
+
 ### `sort` needs to be told how, for anything but strs
 
 `(sort (list 3 1 2))` is an error. `(sort lst (const -))` for numbers. It
