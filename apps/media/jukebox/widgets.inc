@@ -57,13 +57,16 @@
 			(. (ui-radio-bar *tab* ("Favourites" "Charts" "All" "Search") (:font :font_body)) :connect +event_tab)
 			(ui-tool-bar *places* ()
 				(ui-buttons (+sym_up) +event_up))
-			;all of Modland, by the start of a name, ./index.lisp
-			(. (ui-element *search* (Filter) (:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
-					:border :border_textfield :paper +argb_white :clear_text "" :hint_text "search" :min_width 160))
-				:connect +event_search)
-			(. (ui-element *filter* (Filter) (:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
-					:border :border_textfield :paper +argb_white :clear_text "" :hint_text "filter" :min_width 160))
-				:connect +event_filter))
+			;the search of all of Modland, by the start of a name, ./index.lisp,
+			;and the filter, side by side, the last of the row so it has the
+			;rest of the width, each the same share of it
+			(ui-grid _ (:grid_width 0 :grid_height 1)
+				(. (ui-element *search* (Filter) (:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
+						:border :border_textfield :paper +argb_white :clear_text "" :hint_text "search" :min_width 160))
+					:connect +event_search)
+				(. (ui-element *filter* (Filter) (:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
+						:border :border_textfield :paper +argb_white :clear_text "" :hint_text "filter" :min_width 160))
+					:connect +event_filter)))
 		(ui-label *where* (:text "" :font :font_small))
 		;the list, on black, the rows only of what is seen
 		(ui-scroll *list_scroll* +scroll_flag_vertical (:child_fill +scroll_flag_both)

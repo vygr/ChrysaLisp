@@ -543,8 +543,7 @@
 		((= *list_at* +tab_favourites) (cat (str (length *favourites*)) " favourites"))
 		((= *list_at* +tab_search)
 			(cat "Search of all of Modland, " (str (length *entries*))
-				(if (> *found_total* (length *found*)) (cat " of the first " (str (length *found*)) ", "
-					(str *found_total*) " in all") " found")))
+				(if (> *found_total* (length *found*)) (cat " shown of " (str *found_total*) " found") " found")))
 		((empty? (defq path (list-path)))
 			(if (= *list_at* +tab_all) "All of Modland played here, by tracker" "Charts, Modland's favourites and playlists"))
 		((cat (if (= *list_at* +tab_all) "All / " "Charts / ")
