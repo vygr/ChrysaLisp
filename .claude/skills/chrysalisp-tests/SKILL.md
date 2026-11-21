@@ -130,7 +130,11 @@ Which boot image the suite runs on matters:
 
 *	**Emulated VP64, `./run_tui.sh -e -f`:** the same image, with the same
 	checks, run by the emulator. Run this when a change touches the VM or
-	any VP level code.
+	any VP level code. Build it first with `make it`: a plain `make` builds
+	the host's objects only, and the emulator then runs the VP64 object of
+	the function as it was. A layout changed, say a nums of 13 longs a
+	voice to 14, it reads past what it was given, and a loop can run for
+	ever.
 
 *	**Full system, `./run.sh -f`:** the same suite with the GUI service up,
 	and a TUI attached to the host.
