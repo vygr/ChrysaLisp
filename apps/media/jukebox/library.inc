@@ -85,26 +85,61 @@
 	;a module's ending, in lower case, "" if none
 	(to-lower (if (defq at (rfind "." name)) (slice name at -1) "")))
 
+(defun stem-in-order? (short long from)
+	; (stem-in-order? short long from) -> :t | :nil
+	;are the letters of short in long, in order, from that place of it
+	(defq i 0 n (length short))
+	(each! (# (and (< i n) (eql %0 (elem-get short i)) (setq i (inc i)))) (list long) from (length long))
+	(= i n))
+
 (defun stem-within? (short long)
 	; (stem-within? short long) -> :t | :nil
-	;are the letters of short in long, in order, the first of each the
-	;same: a DOS name of 8 made from a longer, millpwr of millenium powerup
-	(defq i 0 n (length short))
-	(each (# (and (< i n) (eql %0 (elem-get short i)) (setq i (inc i)))) long)
-	(and (> n 0) (= i n) (eql (first short) (first long))))
+	;are the letters of short in long, in order, from the start of one of
+	;its words: a DOS name of 8 made from a longer, millpwr of millenium
+	;powerup, nostal of sid nostalgica
+	(and (nempty? short)
+		(some! (lambda (c)
+				(and (eql c (first short))
+					(or (= (!) 0) (found? " _-" (elem-get long (dec (!)))))
+					(stem-in-order? short long (!))))
+			(list long) :nil 0 (length long))))
+
+(defun name-plain (name)
+	; (name-plain name) -> str
+	;a module's name as its letters and digits only, as two are compared
+	;that differ by their marks, everythings good of everything's good
+	(apply (const cat) (map (# (if (bfind %0 (const (char-class "a-z0-9"))) %0 "")) (name-stem name))))
+
+(defun word-after? (short long)
+	; (word-after? short long) -> :t | :nil
+	;is long short and a word or more after it, polish xmas v2 of polish
+	;xmas
+	(and (> (length long) (length short)) (starts-with short long)
+		(not (bfind (elem-get long (length short)) (const (char-class "a-z0-9"))))))
+
+(defun only-one (entries fn)
+	; (only-one entries fn) -> :nil | name
+	;the name of the only module of a listing's entries fn says :t of
+	(and (= (length (defq like (filter fn entries))) 1) (first (first like))))
 
 (defun entry-renamed (html name)
 	; (entry-renamed html name) -> :nil | name
 	;the module of a folder's listing that one not there now is under.
 	;Modland has renamed some that playlists still name: the same name but
-	;for its ending, supernova.ft is supernova.mod now; or a DOS name of 8
-	;or fewer made from the name it has now, of the same ending, the only
-	;one there it could be, millpwr.xm is millenium powerup.xm
-	(defq stem (name-stem name) ending (name-ending (url-decode name))
+	;for its ending, supernova.ft is supernova.mod now; the same letters
+	;and digits, of marks added or taken, the only one there it could be,
+	;bubble toast win.mod is bubble toast (win).mod; the same name and a
+	;word or more after it, of the same ending, the only one there it could
+	;be, polish xmas.mod is polish xmas v2.mod; or a DOS name of 8 or fewer
+	;made from the name it has now, of the same ending, the only one there
+	;it could be, millpwr.xm is millenium powerup.xm and nostal.xm sid
+	;nostalgica.xm
+	(defq stem (name-stem name) plain (name-plain name) ending (name-ending (url-decode name))
 		modules (filter (lambda ((& folder)) (not folder)) (listing-read html)))
 	(or (some (lambda ((entry &ignore)) (if (eql (name-stem entry) stem) entry)) modules)
+		(and (nempty? plain) (only-one modules (lambda ((entry &ignore)) (eql (name-plain entry) plain))))
+		(and (nempty? stem) (only-one modules (lambda ((entry &ignore))
+			(and (eql (name-ending (url-decode entry)) ending) (word-after? stem (name-stem entry))))))
 		(and (<= (length stem) 8)
-			(= (length (defq like (filter (lambda ((entry &ignore))
-					(and (eql (name-ending (url-decode entry)) ending) (stem-within? stem (name-stem entry))))
-				modules))) 1)
-			(first (first like)))))
+			(only-one modules (lambda ((entry &ignore))
+				(and (eql (name-ending (url-decode entry)) ending) (stem-within? stem (name-stem entry))))))))

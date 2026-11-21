@@ -194,5 +194,18 @@
 (defq listing (cat "<a href=\qmillenium%20powerup.xm\q>x</a>\n<a href=\qjazzfunk.xm\q>x</a>\n"
 	"<a href=\qmill%20power.mod\q>x</a>\n<a href=\qmuddy%20pools.xm\q>x</a>\n<a href=\qmud%20pool.xm\q>x</a>\n"))
 (assert-eq "entry-renamed, a DOS name of the name it has now" "millenium%20powerup.xm" (entry-renamed listing "millpwr.xm"))
-(assert-eq "entry-renamed, not when two could be it" :nil (entry-renamed listing "mudpool.xm"))
+(assert-eq "entry-renamed, not when two could be it" :nil (entry-renamed listing "mdpool.xm"))
 (assert-eq "entry-renamed, not a long name" :nil (entry-renamed listing "jazzfunkier.xm"))
+(defq listing (cat "<a href=\q20%20z%200i.xm\q>x</a>\n<a href=\qsid%20nostalgica.xm\q>x</a>\n"
+	"<a href=\qnot%20stale.mod\q>x</a>\n"))
+(assert-eq "entry-renamed, from a word of the name it has now" "sid%20nostalgica.xm" (entry-renamed listing "nostal.xm"))
+(assert-eq "entry-renamed, not from inside a word" :nil (entry-renamed listing "ostal.xm"))
+(defq listing (cat "<a href=\qbubble%20toast%20%28win%29.mod\q>x</a>\n<a href=\qeverything%27s%20good.xm\q>x</a>\n"
+	"<a href=\qbubble%20toast%20%28title%29.mod\q>x</a>\n"))
+(assert-eq "entry-renamed, marks added" "bubble%20toast%20%28win%29.mod" (entry-renamed listing "bubble%20toast%20win.mod"))
+(assert-eq "entry-renamed, a mark taken" "everything%27s%20good.xm" (entry-renamed listing "everythings%20good.xm"))
+(defq listing (cat "<a href=\qpolish%20xmas%20v2.mod\q>x</a>\n<a href=\qpolishing.mod\q>x</a>\n"
+	"<a href=\qduck%20season%20v1.mod\q>x</a>\n<a href=\qduck%20season%20v2.mod\q>x</a>\n"))
+(assert-eq "entry-renamed, a word after" "polish%20xmas%20v2.mod" (entry-renamed listing "polish%20xmas.mod"))
+(assert-eq "entry-renamed, not when two have words after" :nil (entry-renamed listing "duck%20season.mod"))
+(assert-eq "entry-renamed, a word after, not more of one" "polish%20xmas%20v2.mod" (entry-renamed listing "polish.mod"))
