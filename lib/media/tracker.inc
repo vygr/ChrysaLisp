@@ -18,7 +18,7 @@
 
 (ffi "lib/media/media_mix" media-mix)
 
-(defq +mix_size 13 +mix_pingpong 1 +mix_back 2
+(defq +mix_size 14 +mix_pingpong 1 +mix_back 2
 	+amiga_clock 3546895 +st3_clock 14317056 +period_lo 113 +period_hi 856 +st3_period_lo 64
 	;the half of a sine of vibrato and tremolo
 	+tracker_sine ''(0 24 49 74 97 120 141 161 180 197 212 224 235 244 250 253
@@ -68,7 +68,8 @@
 	(defq voices (. player :find :voices) song (. player :find :song) rate (. player :find :rate)
 		gain (. player :find :gain) scale (. player :find :scale) clock (<< (. player :find :clock) 16)
 		linear (eql (. player :find :pitch) :linear) stepped (. player :find :stepped)
-		chans (. player :find :chans) n (length chans))
+		chans (. player :find :chans) n (length chans)
+		round (if (eql (. player :find :mode) :mod) 0 0x8000))
 	;a channel's voice is its place, an IT's past note's its :slot
 	(each (lambda (chan)
 			(defq at (* (if (< (!) n) (!) (. chan :find :slot)) +mix_size) sample (. chan :find :sample))
@@ -94,7 +95,9 @@
 				(elem-set voices (+ at 1) (<< start 16))
 				(elem-set voices (+ at 5) ls)
 				(elem-set voices (+ at 6) (if (>= ls 0) le len))
-				(elem-set voices (+ at 7) (if (and (>= ls 0) pingpong) +mix_pingpong 0)))
+				(elem-set voices (+ at 7) (if (and (>= ls 0) pingpong) +mix_pingpong 0))
+				;the nearest sample, but of a MOD the one it is at
+				(elem-set voices (+ at 13) round))
 			(when (. chan :find :loop_change)
 				;a sustain loop let go, the voice on round the loop
 				(. chan :insert :loop_change :nil)
@@ -2073,7 +2076,7 @@
 				(map (# (it-channel %0 %1 %2 (!))) (. song :find :pans) (. song :find :chvols) (. song :find :mutes))
 				(map (case mode (:st3 (const st3-channel)) (:ft2 (const ft2-channel)) (:t (const pt-channel)))
 					(. song :find :pans)))
-			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0 0 0 0 0 0))
+			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0 0 0 0 0 0 0))
 				'() 0 (+ channels (defq extra (if (and (eql mode :it) (not (. song :find :sample_mode))) +it_voices 0))))))
 			;an IT's past notes, and the voices free for them
 			:past (list) :free (map! (# (+ channels (!))) '() 0 extra) :filters (Fmap 101)

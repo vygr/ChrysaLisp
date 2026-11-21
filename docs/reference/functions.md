@@ -6271,6 +6271,17 @@ first, and of the effect column Fx fine and Ex extra fine at its first
 (it-channel pan vol mute index) -> channel
 ```
 
+### it-dct
+
+```code
+(it-dct player chan ins smp key nna dct dca)
+
+a new note's duplicate check, libxmp's check_dct: each voice of the
+channel's, its own and its past notes', of the instrument, given the
+new note's action, and one of the same note, sample or instrument as
+the check is of, the duplicate's action, or cut
+```
+
 ### it-env-end
 
 ```code
@@ -6345,6 +6356,17 @@ as Impulse Tracker has them, after libxmp's read_event_it
 the S effects, by their high half
 ```
 
+### it-filter
+
+```code
+(it-filter player chan cutoff res)
+
+the coefficients of the channel's filter, libxmp's libxmp_filter_setup:
+of two poles, cutoff 0 to 255 110 Hz to 7040 Hz, resonance 0 to 255 up
+to 24 dB. None, a0 0, at 254 and more with no resonance. Kept by the
+player, each pair once
+```
+
 ### it-flag
 
 ```code
@@ -6416,12 +6438,97 @@ the loop the voice plays: its sample's sustain loop till let go, then
 its loop, none if it has no sustain loop
 ```
 
+### it-macro
+
+```code
+(it-macro player chan text param)
+
+a MIDI macro run, libxmp's execute_midi_macro: of its messages only IT's
+own, F0 F0 or F0 F1 and what and how much, 0 the cutoff, 1 the
+resonance; FA, FC and FF put both back
+```
+
+### it-macro-tick
+
+```code
+(it-macro-tick player chan frame)
+
+a Zxx at a row's first tick, or a smooth one each tick on to its
+target, libxmp's update_midi_macro: with no macros of the song's own
+Z00 to Z7F the cutoff, Z80 to Z8F the resonance
+```
+
+### it-macros
+
+```code
+(it-macros data flags special at) -> :nil | (params fixed)
+
+the MIDI macros of the song's own, if it has them, after its offsets
+and its edit history: those of SFx, 16, and of Z80 to ZFF, 128, a
+text each to its first nul, of 31 at most
+```
+
 ### it-mapped
 
 ```code
 (it-mapped song ins key) -> -1 | sample
 
 the sample an instrument's map has for a key, as it is
+```
+
+### it-midi-byte
+
+```code
+(it-midi-byte player chan text param at buffer) -> (byte at buffer)
+
+two half bytes of a macro, -1 if not two, the half a letter's byte
+leaves over kept for the next
+```
+
+### it-midi-nibble
+
+```code
+(it-midi-nibble player chan text param at) -> (nibble at low)
+
+the next half byte of a MIDI macro's text, -1 none, libxmp's
+midi_nibble: hex, and its letters for what the channel has, a byte
+whose low half is had next, low, -1 if none
+```
+
+### it-modplug?
+
+```code
+(it-modplug? data cwt cmwt at insnum smpnum patnum) -> :t | :nil
+
+made by ModPlug Tracker, 1.16 or before, or OpenMPT 1.17, as libxmp
+tells them: a 1.16 says it is IT 2.17 of format 2.00, one before it
+IT 2.02 of 2.00 with its patterns before its samples
+```
+
+### it-nna
+
+```code
+(it-nna player chan)
+
+the voice of a note a new one does not cut, a past note's: a copy of
+the channel that plays on, its voice and action its own, and none of
+its effects, libxmp's virtual channel
+```
+
+### it-past-act
+
+```code
+(it-past-act player chan act)
+
+the channel's past notes cut, let go or faded, S70 to S72
+```
+
+### it-past-drop
+
+```code
+(it-past-drop player past)
+
+a past note let go of, its voice stopped and its slot free
 ```
 
 ### it-patch
@@ -6462,10 +6569,11 @@ the pitch of a period, in 12800ths of a semitone over C-0
 ### it-play
 
 ```code
-(it-play player chan frame)
+(it-play player chan frame [act])
 
 a tick of a channel: its volume, pitch and pan as its effects, its
-instrument's envelopes and its fade move them
+instrument's envelopes and its fade move them. A past note's act, 2
+let go, 3 faded, is as its note's own
 ```
 
 ### it-read
@@ -6573,6 +6681,23 @@ a slide of the channel's own volume, as a volume slide
 
 ```code
 (it-unflag chan key bits)
+```
+
+### it-voice-cut
+
+```code
+(it-voice-cut player chan)
+
+a voice stopped, a channel's own or a past note's
+```
+
+### it-voice-room
+
+```code
+(it-voice-room player)
+
+room for one more voice of the mixer's: the quietest past note let go
+if all are playing
 ```
 
 ### it-voicepos

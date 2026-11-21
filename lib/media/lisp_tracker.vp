@@ -10,8 +10,10 @@
 ;step a frame, 16.16, its weights left and right, its loop's start, -1
 ;none, its end, in samples, and its flags: +mix_pingpong a loop that goes
 ;back and forth, +mix_back going back now. Then its filter, an IT's, as
-;libxmp's: a0 b0 b1 of 22 bits, a0 0 none, and its last two outputs
-(defcvar '+mix_size 13 '+mix_pingpong 1 '+mix_back 2)
+;libxmp's: a0 b0 b1 of 22 bits, a0 0 none, and its last two outputs. And
+;what is added to where it is for the sample it plays: 0 the one it is
+;at, an Amiga's, half a sample the nearest, as a PC's tracker
+(defcvar '+mix_size 14 '+mix_pingpong 1 '+mix_back 2)
 
 (def-func (path-to-absolute "./media_mix"))
 	;inputs
@@ -131,7 +133,19 @@
 								(vp-mul-cr -1 step)
 							(endif)
 						(endif)
+						;the sample it is at, or the nearest, round its loop or
+						;the last if that is past the end
 						(vp-cpy-rr pos x)
+						(assign `((,st 104)) '(:r0))
+						(vp-add-rr :r0 x)
+						(vpif `(,x >= ,endq))
+							(vpif `(,lsq >= 0))
+								(vp-sub-rr llen x)
+							(else)
+								(vp-cpy-rr endq x)
+								(vp-sub-cr 0x10000 x)
+							(endif)
+						(endif)
 						(vp-asr-cr 16 x)
 						(vp-shl-cr 1 x)
 						(vp-load-rrr-s dptr x s)

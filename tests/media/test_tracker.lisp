@@ -140,9 +140,20 @@
 ;libxmp's sums of it
 (defq smp (apply (const cat) (map! (# (char (logand (if (< (% (!) 16) 8) 8000 -8000) 0xffff) 2)) '() 0 64))
 	out (media-mix (str-alloc (* 4 8)) (fill (nums) 16 0) (list smp)
-		(nums 0 0 65536 65536 65536 -1 64 0 9098 8310578 -4125373 0 0)))
+		(nums 0 0 65536 65536 65536 -1 64 0 9098 8310578 -4125373 0 0 0)))
 (assert-list-eq "media-mix filtered, as libxmp"
 	'(17 51 102 170 253 352 465 593) (map! (# (code out 2 (* 4 (!)))) '() 0 8))
+
+;the sample it is at, a MOD's, or the nearest, the others', at half speed
+;round a loop of four
+(defun tt-mix-round (round)
+	; (tt-mix-round round) -> (left ...)
+	(defq out (media-mix (str-alloc (* 4 8)) (fill (nums) 16 0)
+		(list (apply (const cat) (map (# (char %0 2)) '(100 200 300 400))))
+		(nums 0 0 32768 65536 65536 0 4 0 0 0 0 0 0 round)))
+	(map! (# (code out 2 (* 4 (!)))) '() 0 8))
+(assert-list-eq "media-mix the sample it is at" '(100 100 200 200 300 300 400 400) (tt-mix-round 0))
+(assert-list-eq "media-mix the nearest sample" '(100 200 200 300 300 400 400 100) (tt-mix-round 0x8000))
 
 ; --- the Jukebox's playlists ---
 (defq m3u (cat "#EXTM3U\r\n"
