@@ -44,7 +44,9 @@
 	+itn_set 64 +itn_susexit 128 +itn_key_cut 256 +itn_gliss 512 +itn_sample_release 1024
 	+itn_release 1026 +itp_venv 1 +itp_penv 2 +itp_fenv 4 +rowdelay_on 1 +rowdelay_first 2
 	;the volume column's slides to a note, by its number
-	+it_gporta ''(0 1 4 8 16 32 64 96 128 255))
+	+it_gporta ''(0 1 4 8 16 32 64 96 128 255)
+	;the voices of an IT's mixer, its channels' and its past notes'
+	+it_voices 128)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the voices of the mixer
@@ -63,9 +65,11 @@
 	;each channel's voice for the mixer, as the channel is now
 	(defq voices (. player :find :voices) song (. player :find :song) rate (. player :find :rate)
 		gain (. player :find :gain) scale (. player :find :scale) clock (<< (. player :find :clock) 16)
-		linear (eql (. player :find :pitch) :linear) stepped (. player :find :stepped))
+		linear (eql (. player :find :pitch) :linear) stepped (. player :find :stepped)
+		chans (. player :find :chans) n (length chans))
+	;a channel's voice is its place, an IT's past note's its :slot
 	(each (lambda (chan)
-			(defq at (* (!) +mix_size) sample (. chan :find :sample))
+			(defq at (* (if (< (!) n) (!) (. chan :find :slot)) +mix_size) sample (. chan :find :sample))
 			(when (. chan :find :stop)
 				(scatter chan :stop :nil :trigger :nil)
 				(elem-set voices at -1))
@@ -104,7 +108,7 @@
 				((/ clock (* period rate)))))
 			(elem-set voices (+ at 3) (/ (* weight (- 256 pan)) 256))
 			(elem-set voices (+ at 4) (/ (* weight pan) 256)))
-		(. player :find :chans)))
+		(if (defq past (. player :find :past)) (cat chans past) chans)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; ProTracker, the effects of a MOD
@@ -1067,7 +1071,8 @@
 		:offset 0 :offset_mem 0 :arp (list 0) :arp_at 0 :arp_mem 0
 		:delay 0 :delayed :nil :delayed_ins 0 :rvv 0 :rpv 0 :loop_row 0 :loop_count 0
 		:voice :nil :released :nil :loop :nil :loop_change :nil
-		:period_out 0 :volume_out 0 :pan_out pan :trigger :nil :start 0 :stop :nil))
+		:period_out 0 :volume_out 0 :pan_out pan :trigger :nil :start 0 :stop :nil
+		:act 0 :v_ins -1 :v_smp -1 :v_key -1))
 
 (defun it-flag (chan key bits)
 	; (it-flag chan key bits)
@@ -1228,6 +1233,72 @@
 			(it-unflag chan :notes +itn_sample_end)
 			(it-loop player chan))))
 
+(defun it-past-drop (player past)
+	; (it-past-drop player past)
+	;a past note let go of, its voice stopped and its slot free
+	(elem-set (. player :find :voices) (* (. past :find :slot) +mix_size) -1)
+	(push (. player :find :free) (. past :find :slot))
+	(. player :insert :past (filter (# (not (eql %0 past))) (. player :find :past))))
+
+(defun it-voice-cut (player chan)
+	; (it-voice-cut player chan)
+	;a voice stopped, a channel's own or a past note's
+	(if (. chan :find :slot) (it-past-drop player chan) (scatter chan :voice :nil :stop :t :trigger :nil)))
+
+(defun it-voice-room (player)
+	; (it-voice-room player)
+	;room for one more voice of the mixer's: the quietest past note let go
+	;if all are playing
+	(defq past (. player :find :past))
+	(and (nempty? past)
+		(>= (reduce (lambda (n c) (if (. c :find :voice) (inc n) n)) (. player :find :chans) (length past))
+			+it_voices)
+		(it-past-drop player (reduce (lambda (q c) (if (< (. c :find :volume_out) (. q :find :volume_out)) c q))
+			past (first past)))))
+
+(defun it-dct (player chan ins smp key nna dct dca)
+	; (it-dct player chan ins smp key nna dct dca)
+	;a new note's duplicate check, libxmp's check_dct: each voice of the
+	;channel's, its own and its past notes', of the instrument, given the
+	;new note's action, and one of the same note, sample or instrument as
+	;the check is of, the duplicate's action, or cut
+	(defq index (. chan :find :index))
+	(each (lambda (c)
+			(and (. c :find :voice) (= (. c :find :index) index) (= (. c :find :v_ins) ins)
+				(cond
+					((= nna 0) (it-voice-cut player c))
+					(:t (. c :insert :act nna)
+						(when (case dct (3 :t) (2 (= (. c :find :v_smp) smp)) (1 (= (. c :find :v_key) key)))
+							(cond
+								((and (= nna 2) (= dca 3)) (. c :insert :act 2))
+								((> dca 0) (. c :insert :act dca))
+								((it-voice-cut player c))))))))
+		(cat (list chan) (. player :find :past))))
+
+(defun it-nna (player chan)
+	; (it-nna player chan)
+	;the voice of a note a new one does not cut, a past note's: a copy of
+	;the channel that plays on, its voice and action its own, and none of
+	;its effects, libxmp's virtual channel
+	(when (and (. chan :find :voice) (/= (. chan :find :act) 0) (nempty? (defq free (. player :find :free))))
+		(defq past (. chan :deep_copy) slot (pop free) voices (. player :find :voices)
+			from (* (. chan :find :index) +mix_size) to (* slot +mix_size))
+		(each! (# (elem-set voices (+ to (!)) (elem-get voices (+ from (!))))) '() 0 +mix_size)
+		(scatter past :slot slot :fx 0)
+		(push (. player :find :past) past)))
+
+(defun it-past-act (player chan act)
+	; (it-past-act player chan act)
+	;the channel's past notes cut, let go or faded, S70 to S72
+	(defq index (. chan :find :index))
+	(each (lambda (c)
+			(when (= (. c :find :index) index)
+				(case act
+					(0 (it-past-drop player c))
+					(2 (it-flag c :notes +itn_release))
+					(3 (it-flag c :notes +itn_fade)))))
+		(cat (. player :find :past))))
+
 (defun it-volfx (vol)
 	; (it-volfx vol) -> (volume effect param)
 	;the volume column as libxmp has it: a volume and 1, 0 none, or an
@@ -1299,6 +1370,9 @@
 		(5 (if (<= y 3) (elem-set (. chan :find :panbrello) 3 y)))
 		(6 (. player :insert :pdelay y))
 		(7 (case y
+			((0 1 2) (it-past-act player chan (elem-get '(0 2 3) y)))
+			((3 4 5 6) (and (not (. (. player :find :song) :find :sample_mode)) (. chan :find :voice)
+				(. chan :insert :act (- y 3))))
 			(7 (it-flag chan :pers +itp_venv))
 			(8 (it-unflag chan :pers +itp_venv))
 			(9 (it-flag chan :pers +itp_penv))
@@ -1515,10 +1589,20 @@
 				(. chan :insert :delay 0)
 				(setq out (+ key (. smp :find :xpo) (it-xpo song candidate key)))
 				;a slide to another sample of a note that carries on
-				(and not_same_smp (= (. inst :find :nna) 1)
+				(defq nna (. inst :find :nna) dct (. inst :find :dct) vsmp (if (> (. smp :find :length) 0) s -1))
+				(and not_same_smp (= nna 1)
 					(. chan :insert :period (it-period player (+ key (. smp :find :xpo)
 						(it-xpo song candidate (. chan :find :key_porta))) (. chan :find :finetune))))
-				(it-patch player chan (if (> (. smp :find :length) 0) s -1))
+				;a slide to a note, done or not, cuts the note it slides from
+				(when not_same_smp (. chan :insert :act 0) (setq dct 0))
+				;the note it cuts, or that plays on as a past note, and a past
+				;note of the same cut, let go or faded, libxmp's virt_setpatch
+				(unless sample_mode
+					(if (> dct 0) (it-dct player chan candidate vsmp key nna dct (. inst :find :dca)))
+					(unless (and (. chan :find :voice) (= (. chan :find :act) 0)) (it-voice-room player))
+					(it-nna player chan))
+				(it-patch player chan vsmp)
+				(scatter chan :act nna :v_ins candidate :v_smp vsmp :v_key key)
 				(scatter chan :rvv (if (> rv 0) (random (inc rv)) 0)
 					:rpv (if (> rp 0) (- (random (inc rp)) (/ rp 2)) 0))
 				(if (> (. smp :find :length) 0) (. chan :insert :smp s)))
@@ -1638,10 +1722,11 @@
 	(scatter chan :volume (max 0 (min 64 volume)) :mastervol (max 0 (min 64 master)))
 	(. player :insert :gvol (max 0 (min 128 gvol))))
 
-(defun it-play (player chan frame)
-	; (it-play player chan frame)
+(defun it-play (player chan frame &optional act)
+	; (it-play player chan frame [act])
 	;a tick of a channel: its volume, pitch and pan as its effects, its
-	;instrument's envelopes and its fade move them
+	;instrument's envelopes and its fade move them. A past note's act, 2
+	;let go, 3 faded, is as its note's own
 	(defq song (. player :find :song) first_frame (= (% frame (. player :find :speed)) 0)
 		old_fx (. song :find :old_fx) fx (. chan :find :fx))
 	(and (not first_frame) (bits? fx +fx_tempo)
@@ -1690,7 +1775,7 @@
 					(if first_frame (. chan :find :pfslide) (. chan :find :pslide)))))))
 			;the volume envelope, and the fade once let go or at its end
 			(defq notes (. chan :find :notes) pers (. chan :find :pers) venv (. ins :find :volume) fade :nil
-				release (bits? notes +itn_env_release) key_off (bits? fx +fx_key_off))
+				release (or (bits? notes +itn_env_release) (eql act 2)) key_off (bits? fx +fx_key_off))
 			(and release (or (not (. venv :find :on)) (. venv :find :loop)) (setq fade :t))
 			(unless (bits? pers +itp_venv)
 				(. chan :insert :venv (it-env-step venv (. chan :find :venv) release key_off)))
@@ -1701,7 +1786,7 @@
 			(case (it-env-fade venv vx)
 				(-1 (it-flag chan :notes +itn_end))
 				(1 (it-flag chan :notes +itn_fade)))
-			(if (bits? (. chan :find :notes) +itn_fade) (setq fade :t))
+			(if (or (bits? (. chan :find :notes) +itn_fade) (eql act 3)) (setq fade :t))
 			(when fade
 				(cond
 					((> (. chan :find :fadeout) (defq rate (. chan :find :ins_fade)))
@@ -1813,10 +1898,25 @@
 				(it-flag chan :notes +itn_sample_end)
 				(if instrument_mode (. chan :insert :voice :nil))))
 		chans)
-	(defq frame (. player :find :frame))
+	(each (lambda (past)
+			(and (not (. past :find :trigger)) (< (elem-get voices (* (. past :find :slot) +mix_size)) 0)
+				(it-past-drop player past)))
+		(cat (. player :find :past)))
+	(defq frame (. player :find :frame) song (. player :find :song))
 	(each (# (it-unflag %0 :fx +fx_key_off)) chans)
 	(if (= frame 0) (it-row player))
 	(each (# (it-play player %0 frame)) chans)
+	;the past notes, as they are let go of or fade, let go of at the next
+	;row if cut, at their note's end, or once not heard
+	(each (lambda (past)
+			(defq act (. past :find :act))
+			(cond
+				((and (= frame 0) (or (= act 0) (not (it-ins song (. past :find :ins)))))
+					(it-past-drop player past))
+				(:t (it-play player past frame act)
+					(if (or (bits? (. past :find :notes) +itn_end) (= (. past :find :volume_out) 0))
+						(it-past-drop player past)))))
+		(cat (. player :find :past)))
 	(. player :insert :rowdelay_set (logand (. player :find :rowdelay_set) (lognot +rowdelay_first)))
 	(tracker-voices player)
 	(. player :insert :frame (setq frame (inc frame)))
@@ -1835,7 +1935,10 @@
 				(map (# (it-channel %0 %1 %2 (!))) (. song :find :pans) (. song :find :chvols) (. song :find :mutes))
 				(map (case mode (:st3 (const st3-channel)) (:ft2 (const ft2-channel)) (:t (const pt-channel)))
 					(. song :find :pans)))
-			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0)) '() 0 channels)))
+			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0))
+				'() 0 (+ channels (defq extra (if (and (eql mode :it) (not (. song :find :sample_mode))) +it_voices 0))))))
+			;an IT's past notes, and the voices free for them
+			:past (list) :free (map! (# (+ channels (!))) '() 0 extra)
 			:samples (map (# (. %0 :find :data)) (. song :find :samples))
 			:pitch (. song :find :pitch)
 			:clock (case mode (:st3 +st3_clock) (:ft2 +ft2_clock) (:t +amiga_clock))
