@@ -20,12 +20,17 @@
 (enums +select 0
 	(enum main timer tip fetch picker engine))
 
+;the lists, by their tabs
+(enums +tab 0
+	(enum favourites charts all))
+
 (defq +rate 44100 +alive 1000000 +rows_wide 136
 	+names ''("C-" "C#" "D-" "D#" "E-" "F-" "F#" "G-" "G#" "A-" "A#" "B-")
 	;the favourites, Player or Jukebox, shuffle, which list and the folder
-	;of Modland, as they were when last closed, (config-save)
+	;of Modland and of the charts, as they were when last closed,
+	;(config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "jukebox.tre")
-	*favourites* (list) *jukebox* :nil *shuffled* :nil *list_at* 1 *browse* (list)
+	*favourites* (list) *jukebox* :nil *shuffled* :nil *list_at* +tab_all *browse* (list) *charts* (list)
 	;the player, the song shown and its number, its bytes, how long it is,
 	;and what the player last said: heard, where, played, held or stopped,
 	;and the samples that sound
@@ -253,7 +258,7 @@
 			(when (< at (length *entries*))
 				(bind '(title url folder) (elem-get *entries* at))
 				(setq text (if folder (cat title "/") title))
-				(if (or (eql url *marked*) (and folder (eql title *left*))) (setq paper +argb_grey4)))
+				(if (or (eql url *marked*) (and folder (eql folder *left*))) (setq paper +argb_grey4)))
 			(. button :set_text text)
 			(unless (= (get :paper button) paper) (def (. button :dirty) :paper paper)))
 		(. *list* :children)))
@@ -354,11 +359,13 @@
 			(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
 		(setq *config* (scatter (Emap) :version +config_version :favourites (list)
-			:jukebox :nil :shuffled :nil :list_at 1 :browse (list))))
+			:jukebox :nil :shuffled :nil :list_at +tab_all :browse (list) :charts (list))))
 	(setq *favourites* (. *config* :find :favourites) *jukebox* (. *config* :find :jukebox)
 		*shuffled* (. *config* :find :shuffled) *list_at* (. *config* :find :list_at)
 		*browse* (. *config* :find :browse)
-		;what was playing, none in a config kept before it was
+		;the charts' folder, and what was playing, none in a config kept
+		;before they were
+		*charts* (ifn (. *config* :find :charts) (list))
 		*queue* (ifn (. *config* :find :queue) (list)) *order* (ifn (. *config* :find :order) (list))
 		*queue_at* (ifn (. *config* :find :queue_at) 0))
 	(setq *resume* (. *config* :find :playing))
@@ -373,7 +380,7 @@
 		((and *fetching* (eql (first *fetching*) :module)) (list (third *fetching*) (second *fetching*))))
 		state (cond ((not *current*) "playing") ((eql *state* "h") "paused") ((eql *state* "s") "stopped") ("playing")))
 	(scatter *config* :favourites *favourites* :jukebox *jukebox* :shuffled *shuffled*
-		:list_at *list_at* :browse *browse* :queue *queue* :order *order* :queue_at *queue_at*
+		:list_at *list_at* :browse *browse* :charts *charts* :queue *queue* :order *order* :queue_at *queue_at*
 		:playing (if entry (list (first entry) (second entry) (if *current* (/ *heard* +rate) 0) state)))
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
@@ -382,20 +389,52 @@
 ; the list, and fetching
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun browse-url ()
-	(apply (const cat) (cat (list +modland) (map (# (cat (url-encode %0) "/")) *browse*))))
+(defun list-path ()
+	; (list-path) -> path
+	;the folders gone into of the list shown, Modland's or the charts'
+	(if (= *list_at* +tab_charts) *charts* *browse*))
+
+(defun list-base ()
+	(if (= *list_at* +tab_charts) +modland_pub +modland))
+
+(defun path-url (path)
+	; (path-url path) -> url
+	;the address of the folder of the list shown, or of its playlist, which
+	;has no / after it
+	(defq url (apply (const cat) (cat (list (list-base)) (map (# (cat (url-encode %0) "/")) path))))
+	(if (and (nempty? path) (ends-with ".m3u" (last path))) (slice url 0 -2) url))
+
+(defun listing-entries (html url path)
+	; (listing-entries html url path) -> ((title url folder) ...)
+	;the entries of a folder's listing, a folder's the name it is gone into
+	;by: Startrekker AM's instruments, kept beside its modules, not shown,
+	;the charts' favourites only of the trackers played here, and a
+	;playlist a folder
+	(reduce (lambda (out (name folder))
+			(defq title (entry-title name))
+			(cond
+				((ends-with ".nt" name))
+				((and (= (length path) 1) (eql (first path) "favourites")
+					(not (find title +modland_kinds))))
+				((ends-with ".m3u" name) (push out (list (slice title 0 -5) (cat url name) title)))
+				((push out (list title (cat url name) (if folder title)))))
+			out)
+		(listing-read html) (list)))
 
 (defun list-entries ()
-	; (list-entries) -> ((title url folder?) ...)
-	;the favourites, or the folder of Modland shown, its listing kept once
-	;fetched, the trackers' folders at its top
+	; (list-entries) -> ((title url folder) ...)
+	;the favourites, or the folder of Modland or of the charts shown, its
+	;listing or playlist kept once fetched, the trackers' folders or the
+	;charts' at the top
 	(cond
-		((= *list_at* 0) (map (# (list (first %0) (second %0) :nil)) *favourites*))
-		((empty? *browse*) (map (# (list %0 (cat +modland (url-encode %0) "/") :t)) +modland_kinds))
-		((defq html (load (kept-path (defq url (browse-url)))))
-			;Startrekker AM's instruments, kept beside its modules, are not shown
-			(map (# (list (entry-title (first %0)) (cat url (first %0)) (second %0)))
-				(filter (# (not (ends-with ".nt" (first %0)))) (listing-read html))))
+		((= *list_at* +tab_favourites) (map (# (list (first %0) (second %0) :nil)) *favourites*))
+		((empty? (defq path (list-path)))
+			(map (# (list %0 (cat (list-base) (url-encode %0) "/") %0))
+				(if (= *list_at* +tab_all) +modland_kinds +chart_places)))
+		((defq text (load (kept-path (defq url (path-url path)))))
+			(if (ends-with ".m3u" url)
+				(map (# (list (first %0) (second %0) :nil)) (playlist-read text))
+				(listing-entries text url path)))
 		(:t (fetch-start :listing url) (list))))
 
 (defun list-show ()
@@ -407,11 +446,14 @@
 	(setq *entries* (filter (# (or (eql pattern "") (. engine :match? (to-lower (first %0)) meta)))
 		(list-entries)))
 	(. *where* :set_text (cond
-		((= *list_at* 0) (cat (str (length *favourites*)) " favourites"))
-		((empty? *browse*) "Modland, the trackers played here")
-		((cat "Modland / " (join *browse* " / ") ", " (str (length *entries*)) " here"))))
+		((= *list_at* +tab_favourites) (cat (str (length *favourites*)) " favourites"))
+		((empty? (defq path (list-path)))
+			(if (= *list_at* +tab_all) "All of Modland played here, by tracker" "Charts, Modland's favourites and playlists"))
+		((cat (if (= *list_at* +tab_all) "All / " "Charts / ")
+			(join (map (# (if (ends-with ".m3u" %0) (slice %0 0 -5) %0)) path) " / ") ", "
+			(str (length *entries*)) " here"))))
 	;from the top, or with the folder gone up from in the middle
-	(list-at (if (defq at (and *left* (some (# (and (third %0) (eql (first %0) *left*) (!))) *entries*)))
+	(list-at (if (defq at (and *left* (some (# (and (third %0) (eql (third %0) *left*) (!))) *entries*)))
 		(- at (/ +list_rows 2)) 0)))
 
 (defun list-rows ()
@@ -467,7 +509,7 @@
 	;the modules of the list what next and prev go through
 	(bind '(title url folder) (elem-get *entries* (+ *top* i)))
 	(cond
-		(folder (setq *left* :nil) (push *browse* title) (config-save) (list-show))
+		(folder (setq *left* :nil) (push (list-path) folder) (config-save) (list-show))
 		(:t (player-mode url)
 			(defq modules (filter (# (not (third %0))) *entries*))
 			(queue-start (map (# (list (first %0) (second %0))) modules)
@@ -480,7 +522,7 @@
 		(unless (local? (second *current*)) (save *data* (kept-path (second *current*))))
 		(config-save)
 		(favourite-show)
-		(if (= *list_at* 0) (list-show))))
+		(if (= *list_at* +tab_favourites) (list-show))))
 
 (defun favourite-remove ()
 	(when (and *current* (favourite? (defq url (second *current*))))
@@ -488,7 +530,7 @@
 		(unless (local? url) (pii-remove (kept-path url)))
 		(config-save)
 		(favourite-show)
-		(if (= *list_at* 0) (list-show))))
+		(if (= *list_at* +tab_favourites) (list-show))))
 
 (defun main ()
 	(setq *select* (task-mboxes +select_size))
@@ -549,8 +591,8 @@
 				(list-show))
 			((= id +event_up)
 				;the folder gone up from marked, and in view
-				(when (nempty? *browse*)
-					(setq *left* (pop *browse*))
+				(when (nempty? (defq path (list-path)))
+					(setq *left* (pop path))
 					(config-save) (list-show)))
 			((= id +event_filter) (list-show))
 			((= id +event_list) (list-at (get :value *list_slider*)))

@@ -1,15 +1,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; where the modules come from: the user's favourites, kept in the tree's
 ; downloads/mods/ to play offline, and Modland's archive, a folder of each
-; tracker, an artist's folder in each, read from the listing it gives
+; tracker, an artist's folder in each, read from the listing it gives. And
+; its charts: the favourites of those who keep it, folders as of its
+; modules, and its playlists, of compos, music disks and mags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/url.inc")
 
-(defq +modland "https://modland.com/pub/modules/"
+(defq +modland "https://modland.com/pub/modules/" +modland_pub "https://modland.com/pub/"
 	;the folders of the trackers whose modules play here
 	+modland_kinds ''("Protracker" "Noisetracker" "Soundtracker" "Startrekker AM" "Fasttracker"
-		"Screamtracker 3" "Fasttracker 2" "Impulsetracker"))
+		"Screamtracker 3" "Fasttracker 2" "Impulsetracker")
+	;the folders of the charts, of pub/
+	+chart_places ''("favourites" "playlists"))
 
 (defun kept-path (url)
 	; (kept-path url) -> path
@@ -47,3 +51,22 @@
 	; (entry-title name) -> str
 	;a name as it is shown, its escapes undone and a folder's / gone
 	(url-decode (if (ends-with "/" name) (slice name 0 -2) name)))
+
+(defun playlist-read (text)
+	; (playlist-read text) -> ((title url) ...)
+	;the modules of an m3u playlist that play here, a line each, the
+	;address of one of Modland's at a mirror of it: what comes after its
+	;pub/modules/, of a tracker played here, at Modland itself
+	(defq out (list))
+	(lines! (lambda (line)
+			(defq parts (split line (const (char-class "/\r"))))
+			(and (defq at (some (# (and (eql %0 "modules") (> (!) 0)
+						(eql (elem-get parts (dec (!))) "pub") (!))) parts))
+				(< (+ at 2) (length parts))
+				(find (url-decode (elem-get parts (inc at))) +modland_kinds)
+				(push out (list (entry-title (last parts))
+					(cat +modland (join (slice parts (inc at) -1) "/")))))
+			;on to the next line
+			:nil)
+		(string-stream text))
+	out)

@@ -63,9 +63,10 @@
 			(ui-flow _ (:flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter))
 				(ui-canvas *bars* +bars_width +bars_height 1))
 			(ui-backdrop _ (:style :plain :paper +argb_black)))
-		;the favourites, or the modules of Modland, folder by folder
+		;the favourites, or Modland's charts, or all its modules played here,
+		;folder by folder
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(. (ui-radio-bar *tab* ("Favourites" "Modland") (:font :font_body)) :connect +event_tab)
+			(. (ui-radio-bar *tab* ("Favourites" "Charts" "All") (:font :font_body)) :connect +event_tab)
 			(ui-tool-bar *places* ()
 				(ui-buttons (+sym_up) +event_up))
 			(. (ui-element *filter* (Filter) (:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
