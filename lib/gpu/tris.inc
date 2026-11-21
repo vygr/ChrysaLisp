@@ -45,11 +45,13 @@
 ;a strip for a child to draw. Where it asks for a mesh, the key of the
 ;shared pixels, the texture of the app's canvas as the GUI of the app's
 ;node has it, 0 if there is none, the size of the frame, the rows, the
-;cull, 0, 1 or 2, then the paths of the vertex and pixel shader files,
-;then the draws
+;cull, 0, 1 or 2, the color its rows are filled with before it is drawn,
+;-1 for none, then the paths of the vertex and pixel shader files, then
+;the draws. A strip filled first is drawn the same however often it is
+;drawn: one given again to another child, its own slow to answer, is
 (structure +strip +job_size
 	(netid ask)
-	(long shared target)
+	(long shared target fill)
 	(uint width height y y1 cull vfile_length pfile_length draws)
 	(offset files))
 
@@ -79,8 +81,8 @@
 	(netid reply)
 	(long mesh))
 
-(defun shader-strip (vfile pfile ask shared width height y y1 cull draws &optional target)
-	; (shader-strip vfile pfile ask shared width height y y1 cull draws [target]) -> job
+(defun shader-strip (vfile pfile ask shared width height y y1 cull draws &optional target fill_argb)
+	; (shader-strip vfile pfile ask shared width height y y1 cull draws [target fill_argb]) -> job
 	;the job for rows y to y1 of a frame of that width and height. ask
 	;is the mailbox a child asks for a mesh at, shared the key of the
 	;pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1
@@ -92,8 +94,11 @@
 	;of its own, a list of the two, for a thing that is not drawn with
 	;vfile and pfile: they have the inputs those have. target is of (canvas-target), for the GPU's
 	;child: it draws there if it is on the node the ask mailbox is of.
+	;fill_argb is the color a child of the CPU fills the rows with first, the
+	;color the frame is cleared to: a translucent thing drawn twice over a
+	;strip not filled first is laid over itself
 	(apply (const cat) (cat (list (setf-> (str-alloc +strip_size)
-					(+strip_ask ask) (+strip_shared shared) (+strip_target (ifn target 0))
+					(+strip_ask ask) (+strip_shared shared) (+strip_target (ifn target 0)) (+strip_fill (ifn fill_argb -1))
 					(+strip_width width) (+strip_height height) (+strip_y y) (+strip_y1 y1)
 					(+strip_cull (cond ((not cull) 0) ((eql cull :front) 2) (1)))
 					(+strip_vfile_length (length vfile)) (+strip_pfile_length (length pfile))

@@ -356,7 +356,11 @@ From the machine the work is on:
 	its old boot image has no such function and a session can not start
 	to build. Build the native and boot first, then add the ffi. A new
 	native is bound in its library's `.inc`; into `root.inc` only at a
-	release, with a new snapshot. If it has been done, the others' sessions
+	release, with a new snapshot. A library a node reads as it boots, the
+	GUI's `gui/*/lisp.inc` say, is the same: its `(ffi ...)` of a new native
+	at load stops `make all boot` on this machine too. Look it up when it
+	is called, `((ffi "gui/pixmap/lisp_clear") pixmap ...)` in a `defun`,
+	as `(pixmap-clear)` and the canvas's `:clear` do (2026-11-21). If it has been done, the others' sessions
 	end at their start, `(ffi path [sym flags]) wrong_types` in
 	`/tmp/chrysalisp_rack.log`, and `rack -b` can not help, its build is a
 	session too. `make it` on the machine the work is on makes the natives

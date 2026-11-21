@@ -347,14 +347,17 @@ draws, each a mesh by its number, the inputs of the vertex and the pixel
 shader, and its textures:
 
 ```vdu
-(shader-strip vfile pfile ask shared width height y y1 cull draws)
+(shader-strip vfile pfile ask shared width height y y1 cull draws [target fill_argb])
 ```
 
 A job does not carry the meshes. A child that has not got one asks the app
 for it, the once, at a mailbox the app gives, and the app answers with
 `(shader-mesh-send msg verts)`. So a frame is a few small messages however
 big the meshes are. Each child has a depth buffer of its own, for just its
-rows.
+rows, and fills its rows first with `fill_argb`, the color the frame is
+cleared to, `:clear` of the render. A strip slow to answer is given to
+another child, and its own may have drawn it already: filled first, a strip
+drawn twice is the same, where a translucent thing was laid over itself.
 
 A draw can have a pair of shader files of its own, for a scene whose
 things are not all drawn alike. A job with no rows is how an app has its

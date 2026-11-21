@@ -21,6 +21,7 @@
 	(dec-method :flm_delta gui/pixmap/flm_delta :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :from_argb32 gui/pixmap/from_argb32 :static (:r1 :r2) (:r1))
 	(dec-method :lisp_as_argb gui/pixmap/lisp_as_argb :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_clear gui/pixmap/lisp_clear :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_to_argb32 gui/pixmap/lisp_to_argb32 :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_from_argb32 gui/pixmap/lisp_from_argb32 :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_read gui/pixmap/lisp_read :static (:r0 :r1) (:r0 :r1))

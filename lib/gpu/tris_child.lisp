@@ -61,8 +61,8 @@
 	;as it sees that, before its next mesh, and says nothing, so it does
 	;not draw into a frame that is no longer its own. A child has one strip
 	;at a time, so all that can come to its mailbox meanwhile is that
-	(bind '(key reply ask pixels_key width height y y1 cull vfile_length pfile_length draws)
-		(getf-> msg +job_key +job_reply +strip_ask +strip_shared +strip_width +strip_height
+	(bind '(key reply ask pixels_key fill_argb width height y y1 cull vfile_length pfile_length draws)
+		(getf-> msg +job_key +job_reply +strip_ask +strip_shared +strip_fill +strip_width +strip_height
 			+strip_y +strip_y1 +strip_cull +strip_vfile_length +strip_pfile_length +strip_draws))
 	(defq at (+ +strip_files vfile_length pfile_length)
 		;the pair of the strip, what a draw with none of its own is drawn with
@@ -70,7 +70,11 @@
 			(slice msg (+ +strip_files vfile_length) at))
 		pixmap (pixmap-attach held width height pixels_key)
 		depth (and pixmap (> y1 y) (shader-vp-depth width (- y1 y)))
-		gone :nil)
+		gone (mail-poll (list main)))
+	;its rows filled first, unless it was told to go as it came, so a
+	;strip drawn again is drawn the same, not a translucent thing laid
+	;over itself
+	(and depth (not gone) (>= fill_argb 0) (pixmap-clear pixmap fill_argb 0 y width (- y1 y)))
 	(times draws
 		(setq gone (or gone (mail-poll (list main))))
 		(bind '(id vlen plen dy dy1 tlen slen) (getf-> (slice msg at (+ at +strip_draw_size))

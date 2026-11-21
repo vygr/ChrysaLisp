@@ -30,6 +30,14 @@
 	;the key of the buf its pixels are the block of, 0 if they are its own
 	(if (defq b (pixmap-buf pixmap)) (buf-key b) 0))
 
+(defun pixmap-clear (pixmap argb x y w h)
+	; (pixmap-clear pixmap argb x y w h) -> pixmap
+	;a box of it, as much as is on it, made the color: set, not laid over
+	;what is there, so 0 makes it clear, to be drawn in again. The function
+	;is looked for when this is called, so a boot image from before it was
+	;written can still load this, and build it
+	((ffi "gui/pixmap/lisp_clear") pixmap argb x y w h))
+
 (defun pixmap-attach (held width height key)
 	; (pixmap-attach held width height key) -> :nil | pixmap
 	;the pixmap of the shared pixels of a key, (pixmap-shared), kept in

@@ -152,7 +152,7 @@
 	(. jobs :add (map! (lambda () (shader-strip (get :vfile this) (get :pfile this)
 					(elem-get (get :mboxes this) +rt_mbox_ask) (canvas-key (get :canvas this)) w h
 					(if rows (/ (* (!) h) count) 0) (if rows (/ (* (inc (!)) h) count) 0)
-					(get :cull this) draws)) '() 0 count)))
+					(get :cull this) draws :nil (get :clear this))) '() 0 count)))
 
 (defclass Render (canvas) :nil
 	; (Render canvas) -> render

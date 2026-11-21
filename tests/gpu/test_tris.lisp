@@ -44,18 +44,21 @@
 			;three children, whatever the nodes, so the frame is three strips
 			tf_jobs (Jobs +shader_tris_child (elem-get tf_select +tf_task) (elem-get tf_select +tf_reply) '(3 3 0))
 			tf_asked 0 tf_launched 0 tf_said (list))
-		(defun tf-frame (strips)
+		(defun tf-frame (strips &optional over)
 			;a frame, till every strip is answered, however long that takes.
 			;A child with nothing to do for 5s goes, and a strip given to it as
 			;it went is lost, so the farm is looked at each second, as an app does.
 			;A child is only slow, never wrong: on a busy machine a strip may
 			;wait seconds for its node, so one is given to another after 10s,
 			;and given again it is given twice as long
+			;over, drawn over the frame there, as a strip given again to
+			;another child, its own slow to answer, is drawn twice
 			(defq out 1 drawn :t start (pii-time))
-			(. tf_canvas :fill 0)
+			(unless over (. tf_canvas :fill 0))
+			;each strip filled first with the frame's color, 0
 			(. tf_jobs :add (map! (# (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
 							(canvas-key tf_canvas) tf_size tf_size (/ (* (!) tf_size) strips) (/ (* (inc (!)) tf_size) strips)
-							:t tf_draws)) '() 0 strips))
+							:t tf_draws :nil 0)) '() 0 strips))
 			(mail-timeout (elem-get tf_select +tf_timer) 1000000 0)
 			(while (> out 0)
 				(defq msg (mail-read (elem-get tf_select (defq idx (mail-select tf_select)))))
@@ -96,6 +99,11 @@
 		(assert-true "and it is a picture"
 			(> (reduce! (# (if (/= (get-uint tf_farmed (<< (!) 2)) 0) (inc %0) %0)) '() 0 0 (>> (length tf_farmed) 2)) 2000))
 		(assert-true "a second frame, of seven strips" (tf-frame 7))
+		(assert-eq "is the same frame" tf_farmed (tf-pixels tf_pixmap tf_size))
+		;a strip drawn twice, its translucent thing laid over itself, was
+		;not the frame: the Pi of one node under the whole suite drew some
+		;twice, a strip given again as its child's answer came (2026-11-21)
+		(assert-true "a frame of every strip drawn again, over it" (tf-frame 3 :t))
 		(assert-eq "is the same frame" tf_farmed (tf-pixels tf_pixmap tf_size))
 		;the children are kept while there is work, but one with none for 5s
 		;goes: on a busy machine the frame drawn by one task above took longer,
