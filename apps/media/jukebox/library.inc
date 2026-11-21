@@ -261,3 +261,14 @@
 				(and (> best 0) (= (length (filter (# (= %0 best)) scores)) 1)
 					(elem-get near (find best scores)))))))
 
+(defun modland-url (path)
+	; (modland-url path) -> url
+	;the address of a path of Modland's pub/modules/, each part escaped
+	(cat +modland (join (map (const url-encode) (split path "/")) "/")))
+
+
+(defun modland-path (url)
+	; (modland-path url) -> path
+	;the path of pub/modules/ of an address of Modland's, unescaped
+	(join (map (const url-decode) (split (slice url (length +modland) -1) "/")) "/"))
+

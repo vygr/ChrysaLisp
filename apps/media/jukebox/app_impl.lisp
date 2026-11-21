@@ -53,6 +53,8 @@
 	;the index of where Modland has each module now, ./index.lisp, and of
 	;each playlist where its modules are now, (url now ...), and those asked
 	*indexer* :nil *resolved* (Fmap 31) *resolving* (list)
+	;the playlists and folders of them with nothing played here, of the index
+	*empty* (list)
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
 (defun hex (n width)
@@ -497,6 +499,8 @@
 			(defq title (entry-title name))
 			(cond
 				((ends-with ".nt" name))
+				;a playlist, or a folder of them, of nothing played here
+				((find (cat url name) *empty*))
 				((and (= (length path) 1) (eql (first path) "favourites")
 					(not (find title +modland_kinds))))
 				((ends-with ".m3u" name) (push out (list (slice title 0 -5) (cat url name) title)))
@@ -593,16 +597,6 @@
 			(list-show))
 		((not (song-start msg title url)) (song-failed (cat title ": not a module it can read")))))
 
-(defun modland-url (path)
-	; (modland-url path) -> url
-	;the address of a path of Modland's pub/modules/, each part escaped
-	(cat +modland (join (map (const url-encode) (split path "/")) "/")))
-
-(defun modland-path (url)
-	; (modland-path url) -> path
-	;the path of pub/modules/ of an address of Modland's, unescaped
-	(join (map (const url-decode) (split (slice url (length +modland) -1) "/")) "/"))
-
 (defun playlist-entries (url entries)
 	; (playlist-entries url entries) -> ((title url folder) ...)
 	;the modules of a playlist Modland has, where it has them now, as the
@@ -641,6 +635,10 @@
 	(cond
 		;where a playlist's modules are now, of the index, not a fetch
 		((eql kind "R") (playlist-resolved (slice msg 1 -1)))
+		;the playlists and their folders with nothing to play, of the index
+		((eql kind "E")
+			(setq *empty* (rest (split msg "\n")))
+			(and (= *list_at* +tab_charts) (nempty? (list-path)) (list-show :t)))
 		;mail is unordered, how far it got may come after it has come
 		((or (not *fetching*) (/= (str-as-num (slice msg 1 gap)) *fetch_id*)))
 		((eql kind "%")
