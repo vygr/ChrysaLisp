@@ -22,7 +22,7 @@
 
 ;the lists, by their tabs
 (enums +tab 0
-	(enum favourites charts all))
+	(enum favourites charts all search))
 
 (defq +rate 44100 +alive 1000000 +rows_wide 136
 	+names ''("C-" "C#" "D-" "D#" "E-" "F-" "F#" "G-" "G#" "A-" "A#" "B-")
@@ -55,6 +55,9 @@
 	*indexer* :nil *resolved* (Fmap 31) *resolving* (list)
 	;the playlists and folders of them with nothing played here, of the index
 	*empty* (list)
+	;the search of all of Modland, ./index.lisp: the number of the last
+	;asked, what it found, and how many there are of which those are the first
+	*search_id* 0 *found* (list) *found_total* 0
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
 (defun hex (n width)
@@ -477,7 +480,7 @@
 (defun list-path ()
 	; (list-path) -> path
 	;the folders gone into of the list shown, Modland's or the charts'
-	(if (= *list_at* +tab_charts) *charts* *browse*))
+	(case *list_at* (+tab_charts *charts*) (+tab_all *browse*) (:t (list))))
 
 (defun list-base ()
 	(if (= *list_at* +tab_charts) +modland_pub +modland))
@@ -516,6 +519,7 @@
 	;first time since the app was opened, if nothing else is coming
 	(cond
 		((= *list_at* +tab_favourites) (map (# (list (first %0) (second %0) :nil)) *favourites*))
+		((= *list_at* +tab_search) *found*)
 		((empty? (defq path (list-path)))
 			(map (# (list %0 (cat (list-base) (url-encode %0) "/") %0))
 				(if (= *list_at* +tab_all) +modland_kinds +chart_places)))
@@ -537,6 +541,10 @@
 		(list-entries)))
 	(. *where* :set_text (cond
 		((= *list_at* +tab_favourites) (cat (str (length *favourites*)) " favourites"))
+		((= *list_at* +tab_search)
+			(cat "Search of all of Modland, " (str (length *entries*))
+				(if (> *found_total* (length *found*)) (cat " of the first " (str (length *found*)) ", "
+					(str *found_total*) " in all") " found")))
 		((empty? (defq path (list-path)))
 			(if (= *list_at* +tab_all) "All of Modland played here, by tracker" "Charts, Modland's favourites and playlists"))
 		((cat (if (= *list_at* +tab_all) "All / " "Charts / ")
@@ -622,6 +630,21 @@
 	(setq *resolving* (filter (# (nql %0 url)) *resolving*))
 	(and (= *list_at* +tab_charts) (eql url (path-url (list-path))) (list-show :t)))
 
+(defun search-ask ()
+	;all of Modland searched by the index, ./index.lisp, the names that
+	;start with the search's text, as the filter leaves them: of those
+	;asked, only the last is answered
+	(setq *search_id* (inc *search_id*))
+	(mail-send *indexer* (cat "S" (str *search_id*) "\n:" (get :clear_text *search*) "\n:" (get :clear_text *filter*))))
+
+(defun search-found (msg)
+	;what the last search found, shown if the search is
+	(defq lines (split msg "\n") head (split (first lines) " "))
+	(when (= (str-as-num (slice (first head) 1 -1)) *search_id*)
+		(setq *found_total* (str-as-num (second head))
+			*found* (map! (# (list %0 (modland-url %0) :nil)) (list lines) 1 (length lines)))
+		(if (= *list_at* +tab_search) (list-show))))
+
 (defun index-ask (url title)
 	;where a module not where it was is now, asked of the index, ./index.lisp,
 	;which answers on the fetcher's mailbox, as a fetch of its own
@@ -635,6 +658,8 @@
 	(cond
 		;where a playlist's modules are now, of the index, not a fetch
 		((eql kind "R") (playlist-resolved (slice msg 1 -1)))
+		;what a search of all of Modland found, of the index
+		((eql kind "S") (search-found msg))
 		;the playlists and their folders with nothing to play, of the index
 		((eql kind "E")
 			(setq *empty* (rest (split msg "\n")))
@@ -698,6 +723,7 @@
 	(. *samples* :load (list "" "  open a module, or" "  pick one below") 0 0 -1 -1)
 	(. *rows* :load (list) 0 0 -1 -1)
 	(list-init)
+	(if (= *list_at* +tab_search) (search-ask))
 	(list-show)
 	(. *window* :open)
 	;what was playing when last closed, on again
@@ -746,13 +772,26 @@
 			((= id +event_tab)
 				(setq *list_at* (. *tab* :get_selected))
 				(config-save)
+				(if (= *list_at* +tab_search) (search-ask))
+				(list-show))
+			((= id +event_search)
+				;what is typed searched, on the search's tab
+				(unless (= *list_at* +tab_search)
+					(setq *list_at* +tab_search)
+					(. *tab* :set_selected *list_at*)
+					(config-save))
+				(search-ask)
 				(list-show))
 			((= id +event_up)
 				;the folder gone up from marked, and in view
 				(when (nempty? (defq path (list-path)))
 					(setq *left* (pop path))
 					(config-save) (list-show)))
-			((= id +event_filter) (list-show))
+			;on the search's tab what it found is filtered by the index, of all
+			;there are, not only the first shown
+			((= id +event_filter)
+				(if (= *list_at* +tab_search) (search-ask))
+				(list-show))
 			((= id +event_seek)
 				(setq *seek_at* (pii-time))
 				;a drag sends many, only the last is played from: more of the

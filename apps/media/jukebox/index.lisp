@@ -1,6 +1,7 @@
 (import "service/net/app.inc")
 (import "lib/net/http.inc")
 (import "lib/files/zip.inc")
+(import "lib/text/dictionary.inc")
 (import "./library.inc")
 
 ;The index of the Jukebox, a task of its own on a node not the window's,
@@ -14,6 +15,9 @@
 ;Told by the window, the first word its mailbox:
 ;	L id path	where is the module of this path of pub/modules/ now
 ;	R key \n path \n ...	where are these, a playlist's, now
+;	S id \n :prefix \n :filter	the modules whose names start so, of all
+;				Modland has, as the filter, a regexp or plain text,
+;				leaves them, of what is waiting only the last
 ;	K			the window is there
 ;	Q			go
 ;It tells the window, as the fetcher does, on its mailbox:
@@ -22,12 +26,16 @@
 ;				as asked if there is no list to look in
 ;	E \n url \n ...	the playlists, and folders of them, of nothing it
 ;				has played here, once it has looked at them all
+;	S id total \n path \n ...	the first so many found of all there are
 ;and it goes if it hears nothing of the window for a while
 
 (defq +orphan 5000000 +zip (kept-path +allmods)
 	+date (cat +zip ".date") +played (cat +zip ".played")
 	;the window's mailbox, the index, and is it to go on
-	*app* :nil *index* :nil *running* :t)
+	*app* :nil *index* :nil *running* :t
+	;the names of all, (Dictionary), a search asked for, and the most of
+	;what it finds that is sent
+	*names* :nil *search* :nil +search_max 2000)
 
 (defun allmods-fresh ()
 	; (allmods-fresh) -> :nil | str
@@ -84,6 +92,7 @@
 		("L" (defq gap (ifn (find " " msg) (length msg)) id (slice msg 1 gap)
 				path (if *index* (allmods-resolve *index* (slice msg (min (length msg) (inc gap)) -1))))
 			(mail-send *app* (cat "L" id (if path (cat " " path) ""))))
+		("S" (setq *search* msg))
 		("R" (defq lines (split (slice msg 1 -1) "\n"))
 			(mail-send *app* (cat "R" (join (map! (# (if *index* (ifn (allmods-resolve *index* %0) "-") %0))
 				(list lines) 1 (length lines) (list (first lines))) "\n")))))
@@ -91,15 +100,43 @@
 
 (defun answer-waiting ()
 	; (answer-waiting) -> :t | :nil
-	;what the window has asked meanwhile answered, :nil once told to go
+	;what the window has asked meanwhile answered, the last search of it
+	;once none is waiting, :nil once told to go
 	(while (and *running* (mail-poll (list (task-mbox))))
 		(answer (mail-read (task-mbox))))
+	(and *running* *search* (search-run))
 	*running*)
+
+(defun search-run ()
+	;the search asked for last: the names of all that start with its
+	;prefix, in lower case, each of their paths the filter leaves, a regexp
+	;ignoring case or plain text if it is not one, the first +search_max
+	;sent and how many there are. Left for the next if another is asked
+	(bind '(head prefix pattern) (split (slice *search* 1 -1) "\n"))
+	(setq *search* :nil prefix (to-lower (rest prefix)) pattern (to-lower (rest pattern)))
+	(defq found (query pattern :nil :t :t) total 0 seen 0 out (list)
+		words (if *names* (. *names* :find_matches prefix) (list)))
+	(unless (second found) (setq found (query pattern :nil :nil :t)))
+	(bind '(engine meta &ignore) found)
+	(when (every (lambda (word)
+				(each (lambda (path)
+						(when (or (eql pattern "") (. engine :match? (to-lower path) meta))
+							(setq total (inc total))
+							(if (<= total +search_max) (push out path))))
+					(. (first *index*) :find word))
+				;a newer search waiting, this one left
+				(or (/= 0 (% (setq seen (inc seen)) 4096)) (not (mail-poll (list (task-mbox))))))
+			words)
+		(mail-send *app* (cat "S" head " " (str total) "\n" (join out "\n")))))
 
 (defun main ()
 	(when (setq *app* (mail-read-timeout (task-mbox) +orphan))
-		(if (defq played (allmods-fresh)) (setq *index* (allmods-index played)))
+		(when (defq played (allmods-fresh))
+			(setq *index* (allmods-index played) *names* (Dictionary 16381))
+			(. (first *index*) :each (lambda (name &ignore) (. *names* :insert_word name)))
+			(. *names* :sort))
 		(defq empty (playlists-empty *index*))
 		(if *running* (mail-send *app* (cat "E\n" (join empty "\n"))))
 		(while (and *running* (defq msg (mail-read-timeout (task-mbox) +orphan)))
-			(answer msg))))
+			(answer msg)
+			(answer-waiting))))

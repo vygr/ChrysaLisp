@@ -1,7 +1,7 @@
 (enums +event +event_user
 	(enum prev play pause stop next)
 	(enum pin open)
-	(enum mode shuffle tab up filter seek)
+	(enum mode shuffle tab up filter search seek)
 	;a row of the list
 	(enum item))
 
@@ -54,9 +54,13 @@
 		;the favourites, or Modland's charts, or all its modules played here,
 		;folder by folder
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(. (ui-radio-bar *tab* ("Favourites" "Charts" "All") (:font :font_body)) :connect +event_tab)
+			(. (ui-radio-bar *tab* ("Favourites" "Charts" "All" "Search") (:font :font_body)) :connect +event_tab)
 			(ui-tool-bar *places* ()
 				(ui-buttons (+sym_up) +event_up))
+			;all of Modland, by the start of a name, ./index.lisp
+			(. (ui-element *search* (Filter) (:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
+					:border :border_textfield :paper +argb_white :clear_text "" :hint_text "search" :min_width 160))
+				:connect +event_search)
 			(. (ui-element *filter* (Filter) (:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
 					:border :border_textfield :paper +argb_white :clear_text "" :hint_text "filter" :min_width 160))
 				:connect +event_filter))
