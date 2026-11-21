@@ -1448,8 +1448,13 @@
 (defun work (file)
 	;The file is read as a tree, and every form of it looked at, those
 	;inside others too. A list of the lists of nodes still to look at, no
-	;function here calls itself
-	(with-read-lock file
+	;function here calls itself. Read under its lock, waited for as long as a
+	;busy node may take to give it, and a file it is not had for is said,
+	;not passed over as if nothing were wrong with it (2026-11-21: a Pi of
+	;one node under the whole suite said nothing of three files)
+	(defq locked :nil)
+	(with-read-lock (file 60000000)
+		(setq locked :t)
 		(when (defq in (file-stream file))
 			(defq whole (tree-read in) top (first whole) todo (list top) *found* (list) off (Fset 11)
 				;a shader is asked only what holds of its language
@@ -1562,7 +1567,8 @@
 					nodes))
 			;in the order of the lines they are on
 			(each (lambda ((line text)) (unless (. off :find line) (print text)))
-				(sort *found* (# (- (first %0) (first %1))))))))
+				(sort *found* (# (- (first %0) (first %1)))))))
+	(unless locked (print file " (0) lock: not checked, its read lock was not had in a minute")))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

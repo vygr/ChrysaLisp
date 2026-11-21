@@ -61,6 +61,17 @@
 	;str of a stream gives what was written, not what there is to read
 	(str (string-stream "abc")) "")
 
+;what is neither a num nor a list of them is an error that is told, not a
+;crash: the check of the arguments had lost them (2026-11-21)
+(defun se-bad (arg)
+	(catch (progn (write-char (string-stream (cat "")) arg 1) :wrote) :error))
+(test-cases
+	(se-bad "ab") :error
+	(se-bad (nums 65 66)) :error
+	(se-bad (list)) :error
+	(se-bad (list 65 "b")) :error
+	(se-bad (list 65 66)) :wrote)
+
 ; --- binary values round trip, signed and unsigned ---
 (defq se_m (memory-stream))
 (write-long se_m -1) (write-int se_m -1)
