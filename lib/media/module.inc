@@ -8,8 +8,9 @@
 (import "lib/media/s3m.inc")
 (import "lib/media/xm.inc")
 (import "lib/media/it.inc")
+(import "lib/media/med.inc")
 
 (defun module-read (data &optional bare)
 	; (module-read data [bare]) -> :nil | song
 	;bare, its samples' bytes not had, for what only shows it
-	(or (s3m-read data bare) (xm-read data bare) (it-read data bare) (mod-read data bare)))
+	(or (s3m-read data bare) (xm-read data bare) (it-read data bare) (med-read data bare) (mod-read data bare)))

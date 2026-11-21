@@ -839,6 +839,18 @@ new trap there with its test. Others to know:
 	measure child found the first of all, and a window whose mailbox had a
 	newline in it never had a song's length.
 
+*	`>>` is a logical shift, `>>>` the arithmetic one: `(>> -100 2)` is a
+	number near 2^62, `(>>> -100 2)` is -25. A port of C's `x >> n` of a
+	signed value is `>>>`. And `/` rounds toward 0, `(/ -7 2)` is -3, as C.
+
+*	`(str-alloc n)` is not cleared, it holds what the memory last had: a
+	run of zero bytes is `(pad "" n "\x00")`.
+
+*	A tracker's voices are the mixer's, `+mix_size` numbers each, and a
+	stepped player (IT, MED) gives each its filter, `:fa0 :fb0 :fb1`, 0
+	none: a channel without them gave the mixer `:nil`, a pointer, and a
+	MED played clipped flat out.
+
 ## Use What Is There, and Grow the Tools
 
 *	Before a new part, a watcher, a registry, a check, a tool, ask what

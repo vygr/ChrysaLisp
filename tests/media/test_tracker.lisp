@@ -184,6 +184,64 @@
 (assert-list-eq "media-mix the sample it is at" '(100 100 200 200 300 300 400 400) (tt-mix-round 0))
 (assert-list-eq "media-mix the nearest sample" '(100 200 200 300 300 400 400 100) (tt-mix-round 0x8000))
 
+; --- MED ---
+(defun tt-be32 (n)
+	; (tt-be32 n) -> str
+	(tt-bytes (list (>> n 24) (>> n 16) (>> n 8) n)))
+
+(defun tt-med (cells &optional rows tempo)
+	; (tt-med cells [rows tempo]) -> str
+	;an MMD1 of 4 tracks, one block of so many rows, one sample of 64 bytes
+	;looped, its cells ((row track note ins cmd param) ...), speed 6
+	(setd rows 4 tempo 125)
+	(defq block (map! (# 0) '() 0 (* rows 16)) blocks 840 block_at 848 smpl_at (+ 860 (* rows 16)))
+	(each (lambda ((row tr note ins cmd param))
+			(defq at (* 4 (+ (* row 4) tr)))
+			(elem-set block at note)
+			(elem-set block (+ at 1) ins)
+			(elem-set block (+ at 2) cmd)
+			(elem-set block (+ at 3) param))
+		cells)
+	(cat "MMD1" (tt-be32 0) (tt-be32 52) (tt-zeros 4) (tt-be32 blocks) (tt-zeros 4) (tt-be32 (- smpl_at 4))
+		(tt-zeros 4) (tt-be32 0) (tt-zeros 16)
+		;the song: its one sample, looped and at 64, the rest none
+		(tt-be16 0) (tt-be16 32) (tt-bytes '(0 0 64 0)) (tt-zeros (* 62 8))
+		(tt-be16 1) (tt-be16 1) (tt-zeros 256) (tt-be16 tempo) (tt-bytes '(0 0 0 6))
+		(tt-bytes (map! (# 64) '() 0 16)) (tt-bytes '(64 1))
+		(tt-be32 block_at) (tt-zeros 4)
+		(tt-be16 4) (tt-be16 (dec rows)) (tt-zeros 4) (tt-bytes block)
+		(tt-be32 smpl_at) (tt-be32 64) (tt-be16 0) (tt-bytes (map! (# (if (< (!) 32) 64 -64)) '() 0 64))))
+
+(defq song (module-read (tt-med '((0 0 13 1 0 0)))))
+(assert-list-eq "MED read, its kind, mode and tracks" '("MMD1" :med 4) (list (. song :find :kind) (. song :find :mode) (. song :find :channels)))
+(bind '(tt_s & tt_v &ignore) (first (. (first (. song :find :instruments)) :find :subs)))
+(defq tt_smp (elem-get (. song :find :samples) tt_s))
+(assert-list-eq "MED read, its sample looped, at 64" '(64 0 64 64)
+	(list (. tt_smp :find :length) (. tt_smp :find :loop_start) (. tt_smp :find :loop_end) tt_v))
+;a tick is the rate times 2.64 times 250 over the bpm and 1000, in doubles
+;as libxmp has it, whole frames: 232 at 125, 882 at 33
+(assert-eq "MED length, 4 rows of 6 ticks of 232 frames" 5568 (tracker-length song 44100))
+(assert-eq "MED 0F21, a tempo of 33" (* 24 882) (tracker-length (module-read (tt-med '((0 0 0 0 15 0x21)))) 44100))
+(assert-eq "MED 09, a speed of 3" (* 12 232) (tracker-length (module-read (tt-med '((0 0 0 0 9 3)))) 44100))
+(assert-eq "MED F00 at row 1, the block's end" (* 12 232) (tracker-length (module-read (tt-med '((1 0 0 0 15 0)))) 44100))
+(assert-eq "MED 1E02 at row 0, the row three times" (* 36 232) (tracker-length (module-read (tt-med '((0 0 0 0 0x1e 2)))) 44100))
+(assert-eq "MED FFF a cut of the note" +note_cut (elem-get (first (. (module-read (tt-med '((1 0 0 0 15 255)))) :find :patterns)) 20))
+(each (lambda ((what cells))
+		(defq med_song (module-read (tt-med cells 8)))
+		(assert-eq (cat "MED measured as played, " what) (tt-played med_song) (tracker-length med_song 44100)))
+	'(("a note" ((0 0 13 1 0 0)))
+		("a loop of a row twice" ((2 1 0 0 0x16 0) (3 1 0 0 0x16 2)))
+		("a jump on to the end" ((1 2 0 0 11 0)))
+		("a tempo and a delay" ((0 0 13 1 15 0x40) (2 1 13 1 15 0xf2) (4 3 0 0 0x1e 1)))))
+(assert-list-eq "MED commands as libxmp has them: 0D a volume slide, 15FF finetune -1, 0F10 a BPM of 16, 1F with no note none"
+	'((10 0x12) (17 0x70) (23 16) (-1 0))
+	(list (med-xlat 13 13 0x12 song) (med-xlat 13 0x15 0xff song) (med-xlat 13 15 0x10 song) (med-xlat 0 0x1f 0x12 song)))
+(defq player (tt-ticks (tracker-player (module-read (tt-med '((0 0 13 1 0 0) (0 1 25 1 0x0c 0x20)))) 44100) 1)
+	chans (. player :find :chans))
+(assert-list-eq "MED a note's volume, its sample's, and 0C20 its own"
+	'(64 32) (list (. (first chans) :find :volume) (. (second chans) :find :volume)))
+(assert-eq "MED C-1 an octave below C-2" (* 2 (. (second chans) :find :period)) (. (first chans) :find :period))
+
 ; --- the Jukebox's playlists ---
 (defq m3u (cat "#EXTM3U\r\n"
 	"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/Protracker/Someone/a%20song.mod\r\n"

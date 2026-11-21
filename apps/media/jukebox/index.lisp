@@ -31,29 +31,42 @@
 
 (defq +orphan 5000000 +zip (kept-path +allmods)
 	+date (cat +zip ".date") +played (cat +zip ".played")
+	;the trackers the paths kept are of: others played here now, they are
+	;made again from the list kept
+	+kinds (cat +zip ".kinds") +kinds_now (join +modland_kinds ",")
 	;the window's mailbox, the index, and is it to go on
 	*app* :nil *index* :nil *running* :t
 	;the names of all, (Dictionary), a search asked for, and the most of
 	;what it finds that is sent
 	*names* :nil *search* :nil +search_max 2000)
 
+(defun allmods-zip-played (data)
+	; (allmods-zip-played data) -> :nil | str
+	;the paths of the trackers played here of the bytes of allmods.zip
+	(and (defq entry (zip-find (zip-list data) "allmods.txt"))
+		(zip-read data entry (defq out (string-stream (str-alloc 1048576))))
+		(allmods-played (str out))))
+
 (defun allmods-fresh ()
 	; (allmods-fresh) -> :nil | str
 	;the paths of the list of the trackers played here: fetched again if
 	;Modland's is newer than the one kept, or there is none, else the one
-	;kept, and :nil if there is none to be had
+	;kept, and :nil if there is none to be had. The paths kept made again
+	;from the list kept if they are of other trackers than those now
 	(ensure-net-service)
-	(defq date (load +date) played (load +played)
-		resp (http-get +allmods (if (and date played) (pmap :if-modified-since date) (pmap))))
+	(defq date (load +date) played (if (eql (load +kinds) +kinds_now) (load +played)))
+	(when (and (not played) (defq data (load +zip)) (setq played (allmods-zip-played data)))
+		(save played +played)
+		(save +kinds_now +kinds))
+	(defq resp (http-get +allmods (if (and date played) (pmap :if-modified-since date) (pmap))))
 	(cond
 		((and resp (= (pfind resp :status) 200)
-				(defq data (http-body-str resp)) (defq entry (zip-find (zip-list data) "allmods.txt"))
-				(zip-read data entry (defq out (string-stream (str-alloc 1048576)))))
-			(setq played (allmods-played (str out)))
+				(defq data (http-body-str resp)) (defq fresh (allmods-zip-played data)))
 			(save data +zip)
-			(save played +played)
+			(save fresh +played)
+			(save +kinds_now +kinds)
 			(save (ifn (pfind (pfind resp :headers) :last-modified) "") +date)
-			played)
+			fresh)
 		(played)))
 
 (defun playlist-has? (index url)

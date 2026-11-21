@@ -12,7 +12,8 @@
 (defq +modland "https://modland.com/pub/modules/" +modland_pub "https://modland.com/pub/"
 	;the folders of the trackers whose modules play here
 	+modland_kinds ''("Protracker" "Noisetracker" "Soundtracker" "Startrekker AM" "Fasttracker"
-		"Screamtracker 3" "Fasttracker 2" "Impulsetracker")
+		"Screamtracker 3" "Fasttracker 2" "Impulsetracker"
+		"OctaMED MMD0" "OctaMED MMD1" "OctaMED MMD2" "OctaMED MMD3" "OctaMED MMDC")
 	;the folders of the charts, of pub/
 	+chart_places ''("favourites" "playlists"))
 

@@ -11,7 +11,8 @@
 ; the next: of the Amiga's clock for :mod, of four times as fine for :st3
 ; and for an XM's Amiga periods, or an XM's linear period, 64 a semitone.
 ; Those of Impulse Tracker, :it, the it- functions, are as libxmp 4.7
-; plays them, a period 64 times its, and a channel gives the mixer its step
+; plays them, a period 64 times its, and a channel gives the mixer its step,
+; and so are those of MED and OctaMED, :med, the med- functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/media/mod.inc")
@@ -98,6 +99,21 @@
 				(elem-set voices (+ at 7) (if (and (>= ls 0) pingpong) +mix_pingpong 0))
 				;the nearest sample, but of a MOD the one it is at
 				(elem-set voices (+ at 13) round))
+			(when (and (. chan :find :switch) (not (. chan :find :trigger)))
+				;another sample where the voice is along, a MED synth sound's
+				;next waveform: round its loop if past its end
+				(. chan :insert :switch :nil)
+				(when (and (>= sample 0) (>= (elem-get voices at) 0))
+					(defq s (elem-get (. song :find :samples) sample) len (. s :find :length)
+						ls (. s :find :loop_start) le (if (>= ls 0) (. s :find :loop_end) len)
+						pos (elem-get voices (+ at 1)))
+					(and (>= (>> pos 16) le) (>= ls 0)
+						(setq pos (+ (<< ls 16) (% (- pos (<< ls 16)) (<< (- le ls) 16)))))
+					(elem-set voices at sample)
+					(elem-set voices (+ at 1) pos)
+					(elem-set voices (+ at 5) ls)
+					(elem-set voices (+ at 6) le)
+					(elem-set voices (+ at 7) (if (and (>= ls 0) (. s :find :pingpong)) +mix_pingpong 0))))
 			(when (. chan :find :loop_change)
 				;a sustain loop let go, the voice on round the loop
 				(. chan :insert :loop_change :nil)
@@ -2133,6 +2149,573 @@
 	;tick, every channel played, and on to the next row at the end of its
 	;last
 	(if (. player :find :measure) (it-measure-tick player) (it-play-tick player)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MED and OctaMED, the effects of an MMD, as libxmp 4.7
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;a MED command as libxmp has it, of its own effects or those of the
+;ProTracker's, by number: the ProTracker's 0 to 15, and these
+(defq +medfx_vib2 16 +medfx_finetune 17 +medfx_fvup 18 +medfx_fvdn 19 +medfx_fpup 20 +medfx_fpdn 21
+	+medfx_pdelay 22 +medfx_bpm 23 +medfx_retrig 24 +medfx_hold 25 +medfx_setpan 26
+	;the half sine of a synth sound's vibrato
+	+med_sine ''(0 49 97 141 180 212 235 250 255 250 235 212 180 141 97 49
+		0 -49 -97 -141 -180 -212 -235 -250 -255 -250 -235 -212 -180 -141 -97 -49))
+
+(defun med-channel (pan vol index)
+	; (med-channel pan vol index) -> channel
+	(scatter (Emap) :index index :ins -1 :key -1 :note 0 :smp -1 :sample -1 :voice :nil :period 0 :per_adj 1
+		:finetune 0 :volume 64 :mastervol vol :pan pan :fx 0 :notes 0
+		:delay 0 :delayed :nil :vslide 0 :fvslide 0 :vol_mem 0 :fvol_mem 0
+		:bend 0 :fbend 0 :freq_mem 0 :porta 0 :porta_mem 0 :target 0 :pdir 0
+		:vib (nums 0 0 0 0) :vib_mem 0 :trem (nums 0 0 0 0) :trem_mem 0
+		:retrig_val 0 :retrig_count 0 :retrig_type 0 :retrig_limit 0
+		:offset 0 :offset_mem 0 :arp (list 0) :arp_at 0 :loop_row 0 :loop_count 0
+		;a note's hold and decay
+		:hold_count 0 :hold_active :nil :hold_sustained :nil :decay_value 0
+		;a synth sound's tables as they play, the volume it gives, its
+		;arpeggio and vibrato
+		:s_volume 0 :vp 0 :vc 0 :vw 0 :vs 0 :vv 0 :wp 0 :wc 0 :ww 0 :ws 0 :wv 0 :s_period 0
+		:s_arp 0 :s_aidx 0 :vib_depth 0 :vib_speed 0 :vib_idx 0 :env_wav 0 :env_idx 0 :env_loop :nil
+		;no filter, a0 of 0 off
+		:fa0 0 :fb0 0 :fb1 0
+		:period_out 0 :volume_out 0 :pan_out pan :trigger :nil :switch :nil :start 0 :stop :nil))
+
+(defun med-xlat (note cmd param song)
+	; (med-xlat note cmd param song) -> (fx param)
+	;a MED command as libxmp has it, mmd_xlat_fx
+	(defq none '(-1 0))
+	(case cmd
+		((0 3 5 6 7 10 11 12) (list cmd param))
+		((1 2) (if (= param 0) none (list cmd param)))
+		(4 (list +medfx_vib2 param))
+		(8 (list +medfx_hold param))
+		(9 (if (<= 1 param 0x20) (list 15 param) none))
+		(13 (list 10 param))
+		(15 (cond
+			((= param 0) '(13 0))
+			((<= param 0xf0) (list +medfx_bpm (med-tempo param (. song :find :bpm_on) (. song :find :med_8ch))))
+			((= param 0xf1) '(14 0x93))
+			((= param 0xf2) '(14 0xd3))
+			((= param 0xf3) (list +medfx_retrig 2))
+			(none)))
+		(0x11 (list +medfx_fpup param))
+		(0x12 (list +medfx_fpdn param))
+		(0x14 (list 4 param))
+		(0x15 (list +medfx_finetune (logand (<< (+ param 8) 4) 0xff)))
+		(0x16 (list 14 (logior 0x60 (min param 15))))
+		(0x18 (list 14 (logior 0xc0 (min param 15))))
+		(0x19 (list 9 param))
+		(0x1a (if (= param 0) none (list +medfx_fvup param)))
+		(0x1b (if (= param 0) none (list +medfx_fvdn param)))
+		(0x1d (list 13 param))
+		(0x1e (list +medfx_pdelay param))
+		(0x1f (if (and (/= param 0) (> note 0)) (list +medfx_retrig param) none))
+		(0x2e (if (or (>= param 0xf0) (<= param 0x10))
+			(list +medfx_setpan (min 255 (<< (+ (if (> param 127) (- param 256) param) 16) 3))) none))
+		(:t none)))
+
+(defun med-valid (song ins)
+	; (med-valid song ins) -> :nil | instrument
+	;an instrument that has something to play
+	(defq instruments (. song :find :instruments))
+	(and (<= 0 ins) (< ins (length instruments))
+		(> (. (defq i (elem-get instruments ins)) :find :nsm) 0) i))
+
+(defun med-sub (song ins key)
+	; (med-sub song ins key) -> :nil | (sample transpose volume finetune)
+	;the sub an instrument plays for a key, its first if no key
+	(when (defq i (med-valid song ins))
+		(defq subs (. i :find :subs))
+		(if (<= 0 key 120)
+			(if (< (defq m (first (elem-get (. i :find :map) key))) (length subs)) (elem-get subs m))
+			(first subs))))
+
+(defun med-period (note fin adj)
+	; (med-period note fin adj) -> period
+	;the period of a note, 0 C-0 and on, and so many 128ths more, 64 times
+	;libxmp's, as an instrument of octaves has it twice
+	(* adj (n2i (* (const (n2d 876544)) (pow (const (n2d 2)) (/ (n2d (neg (+ (* note 128) fin))) (const (n2d 1536))))))))
+
+(defun med-hold-decay (chan hold decay)
+	; (med-hold-decay chan hold decay)
+	(if (<= hold 0) (setq hold -1 decay -1))
+	(scatter chan :hold_active (> hold 0) :hold_count hold :decay_value decay))
+
+(defun med-toneporta (player chan note)
+	; (med-toneporta player chan note)
+	;a note, if there is one, to slide to, and which way
+	(defq song (. player :find :song) inst (elem-get (. song :find :instruments) (. chan :find :ins))
+		key (. chan :find :key) subs (. inst :find :subs)
+		m (if (<= 0 key 120) (first (elem-get (. inst :find :map) key)) 0)
+		sub (elem-get subs (if (< m (length subs)) m 0)))
+	(when (<= 1 note 121)
+		(. chan :insert :target (med-period (+ (dec note) (second sub) (if (<= 0 key 120) (second (elem-get (. inst :find :map) key)) 0))
+			(. chan :find :finetune) (. chan :find :per_adj))))
+	(. chan :insert :pdir (if (< (. chan :find :period) (. chan :find :target)) 1 -1)))
+
+(defun med-vslide (chan param)
+	; (med-vslide chan param)
+	;a volume slide, its last if 0: up if it has one, else down
+	(if (= param 0) (setq param (. chan :find :vol_mem)))
+	(when (/= param 0)
+		(chan-fx chan +fx_vslide)
+		(defq x (>> param 4) y (logand param 15))
+		(scatter chan :vol_mem param :vslide (if (/= x 0) x (neg y)))))
+
+(defun med-loop (player chan param)
+	; (med-loop player chan param)
+	;a pattern's loop: 0 where it starts, else so many times back to it
+	(cond
+		((= param 0) (. chan :insert :loop_row (. player :find :row)))
+		((> (defq count (. chan :find :loop_count)) 0)
+			(. chan :insert :loop_count (setq count (dec count)))
+			(if (> count 0) (. player :insert :loop_dest (. chan :find :loop_row))))
+		(:t (. chan :insert :loop_count param)
+			(. player :insert :loop_dest (. chan :find :loop_row)))))
+
+(defun med-fx (player chan fx param note ins)
+	; (med-fx player chan fx param note ins)
+	;what an effect does at once, and sets going for its ticks
+	(defq song (. player :find :song) x (>> param 4) y (logand param 15))
+	(case fx
+		(0 (. chan :insert :arp (list 0 x y)))
+		((1 2) (. chan :insert :freq_mem param)
+			(chan-fx chan +fx_bend)
+			(. chan :insert :bend (* 64 (if (= fx 1) (neg param) param))))
+		(3 (if (= param 0) (setq param (. chan :find :porta_mem)) (. chan :insert :porta_mem param))
+			(if (/= param 0) (. chan :insert :porta (+ (. chan :find :porta) (* 64 param))))
+			(when (med-valid song (. chan :find :ins))
+				(med-toneporta player chan note)
+				(chan-fx chan +fx_porta)))
+		(4 (if (= param 0) (setq param (. chan :find :vib_mem)) (. chan :insert :vib_mem param))
+			(chan-fx chan +fx_vib)
+			(it-lfo-set (. chan :find :vib) (<< (logand param 15) 2) (>> param 4)))
+		(16 (chan-fx chan +fx_vib)
+			(it-lfo-set (. chan :find :vib) (<< y 3) x))
+		(5 (. chan :insert :porta (+ (. chan :find :porta) (* 64 (. chan :find :porta_mem))))
+			(when (med-valid song (. chan :find :ins))
+				(med-toneporta player chan note)
+				(chan-fx chan +fx_porta)
+				(med-vslide chan param)))
+		(6 (chan-fx chan +fx_vib) (med-vslide chan param))
+		(7 (if (= param 0) (setq param (. chan :find :trem_mem)) (. chan :insert :trem_mem param))
+			(chan-fx chan +fx_trem)
+			(it-lfo-set (. chan :find :trem) (logand param 15) (>> param 4)))
+		(26 (. chan :insert :pan param))
+		(9 (if (= param 0) (setq param (. chan :find :offset_mem)) (. chan :insert :offset_mem param))
+			(chan-fx chan +fx_offset)
+			(if (> note 0) (. chan :insert :offset (<< param 8))))
+		(10 (med-vslide chan param))
+		(11 (scatter player :pbreak :t :jump_to param :jumpline 0))
+		(12 (chan-fx chan +fx_new_vol) (. chan :insert :volume param))
+		(13 (scatter player :pbreak :t :jumpline (+ (* 10 x) y)))
+		(14 (case x
+			(9 (chan-fx chan +fx_retrig)
+				(scatter chan :retrig_val y :retrig_count (inc y) :retrig_type 0 :retrig_limit 1))
+			(6 (med-loop player chan y))
+			(12 (chan-fx chan +fx_retrig)
+				(scatter chan :retrig_val (inc y) :retrig_count (inc y) :retrig_type 16))))
+		(15 (cond
+			((< param 0x20) (if (> param 0) (. player :insert :speed param)))
+			((. player :insert :bpm (max (. player :find :min_bpm) param)))))
+		(17 (. chan :insert :finetune (- param 0x80)))
+		((18 19) (. chan :insert :fvol_mem param)
+			(chan-fx chan +fx_fvslide)
+			(. chan :insert :fvslide (if (= fx 18) param (neg param))))
+		((20 21) (when (/= param 0)
+			(chan-fx chan +fx_fbend)
+			(. chan :insert :fbend (* 64 (if (= fx 20) (neg param) param)))))
+		(22 (. player :insert :pdelay param))
+		(23 (. player :insert :bpm (max (. player :find :min_bpm) param)))
+		(24 (chan-fx chan +fx_retrig)
+			(scatter chan :retrig_val y :retrig_count (inc y) :retrig_type 0 :retrig_limit 0))
+		(25 (and (<= 1 note 121) (med-valid song (dec ins)) (med-hold-decay chan y x)))))
+
+(defun med-next-cell (player chan_at)
+	; (med-next-cell player chan_at) -> :nil | (note ins vol cmd param)
+	;the channel's cell of the next row of the pattern, if it has one
+	(defq song (. player :find :song) pattern (elem-get (. song :find :orders) (. player :find :order))
+		row (inc (. player :find :row)) channels (. player :find :channels))
+	(when (< row (elem-get (. song :find :rows) pattern))
+		(defq c (* (+ (* row channels) chan_at) +cell_size))
+		(slice (elem-get (. song :find :patterns) pattern) c (+ c +cell_size))))
+
+(defun med-event (player chan cell)
+	; (med-event player chan cell)
+	;a channel's cell read, its note, instrument and command, as libxmp's
+	;read_event_med
+	(bind '(note ins vol cmd param) cell)
+	(bind '(fx fxp) (med-xlat note cmd param (defq song (. player :find :song))))
+	(defq out -1 new_invalid :nil is_porta (or (= fx 3) (= fx 5)) version (. song :find :version))
+	(. chan :insert :fx 0)
+	(when (and (> ins 0) (> note 0))
+		(chan-fx chan +fx_new_ins)
+		(. chan :insert :offset 0)
+		(cond
+			((defq i (med-valid song (dec ins)))
+				(unless is_porta
+					(. chan :insert :ins (dec ins))
+					(med-hold-decay chan (. i :find :hold) (. i :find :decay))))
+			(:t (setq new_invalid :t)
+				(scatter chan :voice :nil :stop :t :trigger :nil)))
+		(scatter chan :s_arp 0 :s_aidx 0))
+	;an instrument's volume, of a note or from OctaMED 3 a hold too
+	(and (> ins 0) (or (<= 1 note 121) (>= version +med_ver_octamed_300))
+		(defq sub (med-sub song (dec ins) (dec note)))
+		(progn (. chan :insert :volume (third sub)) (chan-fx chan +fx_new_vol)))
+	(when (> note 0)
+		(chan-fx chan +fx_new_note)
+		(cond
+			((= note +note_cut)
+				(it-flag chan :notes +itn_end)
+				(. chan :insert :period 0)
+				(scatter chan :voice :nil :stop :t :trigger :nil))
+			((and (not is_porta) (defq i (med-valid song (. chan :find :ins))) (<= 1 note 121))
+				(defq key (dec note))
+				(. chan :insert :key key)
+				(it-unflag chan :notes +itn_end)
+				;a sample of octaves, and a synth sound of no speeds, at half the
+				;rate, as libxmp has them
+				(. chan :insert :per_adj (if (and (> (. i :find :nsm) 1) (= (. i :find :vts) 0) (= (. i :find :wts) 0)) 2 1))
+				(when (and (not new_invalid) (defq sub (med-sub song (. chan :find :ins) key)))
+					(setq out (+ key (second sub) (second (elem-get (. i :find :map) key))))
+					(when (> (. (elem-get (. song :find :samples) (first sub)) :find :length) 0)
+						(scatter chan :sample (first sub) :voice :t :trigger :t :start 0 :smp (first sub)))))))
+	;the sub now played, which a slide to a note may have kept
+	(defq sub (med-sub song (. chan :find :ins) (. chan :find :key)) finetune (. chan :find :finetune))
+	(when (and sub (>= out 0))
+		(. chan :insert :finetune (elem-get sub 3))
+		(elem-set (. chan :find :vib) 0 0)
+		(elem-set (. chan :find :trem) 0 0))
+	(scatter chan :delay 0 :arp (list 0) :arp_at 0)
+	(if is_porta (. chan :insert :porta 0))
+	(if (= ins 0) (. chan :insert :finetune finetune))
+	(if (>= fx 0) (med-fx player chan fx fxp note ins))
+	;the period of the note played, or slid to
+	(when (and sub (>= out 0))
+		(defq per (med-period out (. chan :find :finetune) (. chan :find :per_adj)))
+		(. chan :insert :target per)
+		(if (or (< (. chan :find :period) 64) (not is_porta)) (. chan :insert :period per)))
+	;a hold kept on by an instrument with no note on the next row, or a
+	;slide to a note there
+	(. chan :insert :hold_sustained :nil)
+	(and (>= version +med_ver_300) (> (. chan :find :hold_count) 0)
+		(defq next (med-next-cell player (. chan :find :index)))
+		(bind '(n_note n_ins & n_cmd &ignore) next)
+		(if (<= 1 n_note 121) (= n_cmd 3) (> n_ins 0))
+		(. chan :insert :hold_sustained :t))
+	(when (and sub (>= out 0))
+		(. chan :insert :note out)
+		(if (. chan :find :voice) (scatter chan :trigger :t :start (. chan :find :offset)))))
+
+(defun med-row (player)
+	; (med-row player)
+	;the first tick of a row: each channel's cell, or held back by a note
+	;delay to a later tick of it. For a length only, the cells of the
+	;commands that move the song on
+	(defq song (. player :find :song) channels (. player :find :channels)
+		cells (elem-get (. song :find :patterns) (elem-get (. song :find :orders) (. player :find :order)))
+		at (* (. player :find :row) channels +cell_size) measure (. player :find :measure))
+	(each (lambda (chan)
+			(defq c (+ at (* (!) +cell_size)) cell (slice cells c (+ c +cell_size)))
+			(bind '(note ins vol cmd param) cell)
+			(bind '(fx fxp) (med-xlat note cmd param song))
+			;a speed is had first, a delay is of it
+			(and (= fx 15) (< 0 fxp 0x20) (. player :insert :speed fxp))
+			(cond
+				((and (= fx 14) (= (>> fxp 4) 13) (> (logand fxp 15) 0))
+					(scatter chan :delay (inc (logand fxp 15)) :delayed cell))
+				((and (= fx +medfx_retrig) (> (>> fxp 4) 0))
+					(scatter chan :delay (inc (>> fxp 4)) :delayed cell
+						:fx (logand (. chan :find :fx) (lognot +fx_retrig))))
+				((not measure) (med-event player chan cell))
+				((or (find fx '(11 13 15 22 23)) (and (= fx 14) (= (>> fxp 4) 6)))
+					(med-fx player chan fx fxp note ins))))
+		(. player :find :chans)))
+
+(defun med-vt (chan vtbl)
+	; (med-vt chan vtbl) -> num
+	;the next of a synth sound's volume table, 255 its end past it
+	(defq vp (. chan :find :vp))
+	(cond ((and (>= vp 0) (< vp (length vtbl))) (. chan :insert :vp (inc vp)) (code vtbl 1 vp)) (255)))
+
+(defun med-wt (chan wtbl)
+	; (med-wt chan wtbl) -> num
+	;the next of its waveform table
+	(defq wp (. chan :find :wp))
+	(cond ((and (>= wp 0) (< wp (length wtbl))) (. chan :insert :wp (inc wp)) (code wtbl 1 wp)) (255)))
+
+(defun med-synth (player chan inst)
+	; (med-synth player chan inst)
+	;a tick of a synth sound's tables, its volume's and its waveform's:
+	;each a list of commands and values played at its speed, after
+	;libxmp's med_extras
+	(bind '(vtbl wtbl) (. inst :find :synth))
+	(defq frame (. player :find :frame) fx (. chan :find :fx) subs (. inst :find :subs)
+		samples (. (. player :find :song) :find :samples) jws 0 jvs 0)
+	(when (and (= frame 0) (bits? fx +fx_new_note))
+		(. chan :insert :s_period (. chan :find :period))
+		(if (bits? fx +fx_new_ins)
+			(scatter chan :s_arp 0 :s_aidx 0 :vp 0 :vc 0 :vw 0 :wp 0 :wc 0 :ww 0 :env_wav -1 :env_idx 0
+				:env_loop :nil :vv 0 :wv 0 :vs (. inst :find :vts) :ws (. inst :find :wts))))
+	;a table's count only goes down while it has a speed
+	(when (and (> (. chan :find :vs) 0) (= (defq vc (. chan :find :vc)) (progn (. chan :insert :vc (dec vc)) 0)))
+		(. chan :insert :vc (dec (. chan :find :vs)))
+		(cond
+			((> (. chan :find :vw) 0) (. chan :insert :vw (dec (. chan :find :vw))))
+			(:t (defq again :t looped :nil)
+				(while again
+					(setq again :nil)
+					(case (defq b (med-vt chan vtbl))
+						((255 251) (. chan :insert :vp (dec (. chan :find :vp))))
+						(254 (unless looped
+							(. chan :insert :vp (med-vt chan vtbl))
+							(setq looped :t again :t)))
+						(250 (setq jws (med-vt chan vtbl)))
+						(245 (scatter chan :env_wav (med-vt chan vtbl) :env_loop :t))
+						(244 (. chan :insert :env_wav (med-vt chan vtbl)))
+						(243 (. chan :insert :vv (med-vt chan vtbl)))
+						(242 (. chan :insert :vv (neg (med-vt chan vtbl))))
+						(241 (. chan :insert :vw (med-vt chan vtbl)))
+						(240 (. chan :insert :vs (med-vt chan vtbl)))
+						(:t (if (<= b 64) (. chan :insert :s_volume b)))))))
+		;a volume's envelope, a waveform of 128 played as one
+		(when (< -1 (defq ew (. chan :find :env_wav)) (length subs))
+			(defq s (elem-get samples (first (elem-get subs ew))))
+			(when (= (. s :find :length) 128)
+				(defq ei (. chan :find :env_idx) v (code (. s :find :data) 1 (inc (* 2 ei))))
+				(. chan :insert :s_volume (>> (+ (if (> v 127) (- v 256) v) 128) 2))
+				(. chan :insert :env_idx (setq ei (inc ei)))
+				(when (>= ei 128)
+					(unless (. chan :find :env_loop) (. chan :insert :env_wav -1))
+					(. chan :insert :env_idx 0))))
+		(. chan :insert :s_volume (max 0 (min 64 (+ (. chan :find :s_volume) (. chan :find :vv))))))
+	(when (and (> (. chan :find :ws) 0) (= (defq wc (. chan :find :wc)) (progn (. chan :insert :wc (dec wc)) 0)))
+		(. chan :insert :wc (dec (. chan :find :ws)))
+		(cond
+			((> (. chan :find :ww) 0) (. chan :insert :ww (dec (. chan :find :ww))))
+			(:t (defq again :t looped :nil)
+				(while again
+					(setq again :nil)
+					(case (defq b (med-wt chan wtbl))
+						((255 251) (. chan :insert :wp (dec (. chan :find :wp))))
+						(254 (unless looped
+							(cond
+								((= (defq to (med-wt chan wtbl)) 255) (. chan :insert :wp (dec (. chan :find :wp))))
+								(:t (. chan :insert :wp to)
+									(setq looped :t again :t)))))
+						(253)
+						(252 (defq at (. chan :find :wp))
+							(scatter chan :s_arp at :s_aidx at :wp (inc at))
+							(while (not (find b '(253 255))) (setq b (med-wt chan wtbl))))
+						(250 (setq jvs (med-wt chan wtbl)))
+						(247 (med-wt chan wtbl))
+						(246 (. chan :insert :period (. chan :find :s_period)))
+						(245 (. chan :insert :vib_speed (med-wt chan wtbl)))
+						(244 (. chan :insert :vib_depth (med-wt chan wtbl)))
+						(243 (. chan :insert :wv (neg (med-wt chan wtbl))))
+						(242 (. chan :insert :wv (med-wt chan wtbl)))
+						(241 (. chan :insert :ww (med-wt chan wtbl)))
+						(240 (. chan :insert :ws (med-wt chan wtbl)))
+						(:t ;another waveform, the voice where it was along
+							(and (< b (length subs)) (/= (defq s (first (elem-get subs b))) (. chan :find :smp))
+								(scatter chan :smp s :sample s :switch :t)))))))
+		(. chan :insert :period (+ (. chan :find :period) (* 64 (. chan :find :wv)))))
+	(if (/= jws 0) (. chan :insert :wp jws))
+	(if (/= jvs 0) (. chan :insert :vp jvs)))
+
+(defun med-extras (player chan inst)
+	; (med-extras player chan inst)
+	;a tick of a note's hold and decay, and of a synth sound
+	(defq song (. player :find :song))
+	(when (= (. chan :find :hold_count) 0)
+		;its decay, at once if 0
+		(defq decay (. chan :find :decay_value) vol (. chan :find :volume))
+		(. chan :insert :volume (setq vol (max 0 (min 64 (- vol (if (/= decay 0) decay vol))))))
+		(if (= vol 0) (scatter chan :hold_count -1 :decay_value -1))
+		(. chan :insert :hold_active :nil))
+	(and (. chan :find :hold_sustained) (< (. song :find :version) +med_ver_ss_2)
+		(>= (. player :find :frame) (. player :find :speed))
+		(. chan :insert :hold_sustained :nil))
+	(and (> (. chan :find :hold_count) 0) (not (. chan :find :hold_sustained))
+		(. chan :insert :hold_count (dec (. chan :find :hold_count))))
+	(if (. inst :find :synth) (med-synth player chan inst) (. chan :insert :s_volume 64)))
+
+(defun med-arp-at (inst i)
+	; (med-arp-at inst i) -> num
+	;the waveform table's at i, 253 the end of an arpeggio past it
+	(defq wtbl (second (. inst :find :synth)))
+	(if (< i (length wtbl)) (code wtbl 1 i) 253))
+
+(defun med-synth-arp (chan inst)
+	; (med-synth-arp chan inst) -> semitones
+	;the note a synth sound's arpeggio moves it this tick
+	(defq at (. chan :find :s_arp))
+	(cond
+		((not (. inst :find :synth)) 0)
+		((= at 0) 0)
+		((= (med-arp-at inst at) 253) 0)
+		(:t (defq i (. chan :find :s_aidx) v (med-arp-at inst i))
+			(when (= v 253) (setq i at v (med-arp-at inst i)))
+			(. chan :insert :s_aidx (inc i))
+			v)))
+
+(defun med-play (player chan)
+	; (med-play player chan)
+	;a tick of a channel, libxmp's play_channel: a delayed note, the hold,
+	;a retrig, the slides, and its volume, pitch and pan heard
+	(defq song (. player :find :song) frame (. player :find :frame))
+	(when (> (. chan :find :delay) 0)
+		(. chan :insert :delay (dec (. chan :find :delay)))
+		(if (= (. chan :find :delay) 0) (med-event player chan (. chan :find :delayed))))
+	(defq fx (. chan :find :fx) first_row (= (% frame (. player :find :speed)) 0)
+		all (. song :find :slides_all))
+	;the slides of the volume: each tick but a row's first, or each of
+	;them all, and fine at the first
+	(defq volume (. chan :find :volume))
+	(cond
+		((not (. chan :find :voice))
+			(and (or (not first_row) all) (bits? fx +fx_vslide) (setq volume (+ volume (. chan :find :vslide))))
+			(and first_row (bits? fx +fx_fvslide) (setq volume (+ volume (. chan :find :fvslide))))
+			(scatter chan :volume (max 0 (min 64 volume)) :volume_out 0 :period_out 0))
+		((defq inst (med-valid song (. chan :find :ins)))
+			(med-extras player chan inst)
+			(setq volume (. chan :find :volume))
+			(when (bits? fx +fx_retrig)
+				(. chan :insert :retrig_count (defq count (dec (. chan :find :retrig_count))))
+				(when (= count 0)
+					(defq kind (. chan :find :retrig_type))
+					(cond
+						((< kind 16)
+							(scatter chan :trigger :t :start 0)
+							(and (>= (. song :find :version) +med_ver_octamed_300) (. chan :find :hold_active)
+								(. chan :insert :hold_count (+ (. chan :find :hold_count) frame))))
+						((it-flag chan :notes +itn_end)))
+					(bind '(add mult by) (elem-get +st3_retrig kind))
+					(setq volume (/ (* (+ volume add) mult) by))
+					(. chan :insert :retrig_count (. chan :find :retrig_val))
+					(when (> (defq limit (. chan :find :retrig_limit)) 0)
+						(. chan :insert :retrig_limit (setq limit (dec limit)))
+						(if (= limit 0) (. chan :insert :fx (setq fx (logand fx (lognot +fx_retrig))))))))
+			(and (or (not first_row) all) (bits? fx +fx_vslide) (setq volume (+ volume (. chan :find :vslide))))
+			(and first_row (bits? fx +fx_fvslide) (setq volume (+ volume (. chan :find :fvslide))))
+			(. chan :insert :volume (setq volume (max 0 (min 64 volume))))
+			;the slides of the pitch
+			(defq period (. chan :find :period))
+			(when (or (/= frame 0) all)
+				(if (bits? fx +fx_bend) (setq period (+ period (. chan :find :bend))))
+				(when (and (bits? fx +fx_porta) (> (defq to (. chan :find :target)) 0))
+					(defq by (. chan :find :porta))
+					(when (if (> (. chan :find :pdir) 0) (>= (setq period (+ period by)) to)
+							(<= (setq period (- period by)) to))
+						(setq period to)
+						(scatter chan :pdir 0 :fx (setq fx (logand fx (lognot +fx_porta)))))))
+			(and (= frame 0) (bits? fx +fx_fbend) (setq period (+ period (. chan :find :fbend))))
+			(. chan :insert :period period)
+			;the volume heard: the synth's share, a tremolo, the channel's
+			(defq vol (/ (* (. chan :find :s_volume) volume) 64))
+			(when (bits? fx +fx_trem)
+				(setq vol (+ vol (/ (pt-lfo (defq lfo (. chan :find :trem))) 64)))
+				(if (/= frame 0) (it-lfo-step lfo)))
+			(setq vol (>> (* (/ (* 64 (. player :find :gvol) (. chan :find :mastervol)) 64) (<< (max 0 (min 64 vol)) 10)) 18))
+			;the pitch heard: a vibrato, the synth's, an arpeggio
+			(defq vibrato 0)
+			(when (bits? fx +fx_vib)
+				(setq vibrato (* 64 (/ (pt-lfo (defq lfo (. chan :find :vib))) 512)))
+				(if (/= frame 0) (it-lfo-step lfo)))
+			(defq vi (. chan :find :vib_idx) svib (>>> (* (elem-get +med_sine (>> vi 5)) (. chan :find :vib_depth)) 10))
+			(. chan :insert :vib_idx (% (+ vi (. chan :find :vib_speed)) 1024))
+			(defq arp (. chan :find :arp) up (elem-get arp (. chan :find :arp_at))
+				p (max 6 (+ period (* 64 svib) vibrato)) adj (. chan :find :per_adj)
+				pitch (+ (it-pitch player (/ p adj)) (* 12800 (+ up (med-synth-arp chan inst)))))
+			(. chan :insert :arp_at (% (inc (. chan :find :arp_at)) (length arp)))
+			(scatter chan :volume_out vol :period_out (it-step player (min pitch (const (* 149 12800))))
+				:pan_out (. chan :find :pan)))
+		((scatter chan :volume_out 0))))
+
+(defun pt-lfo (lfo)
+	; (pt-lfo lfo) -> num
+	;an lfo of (phase rate depth wave) now, ProTracker's waves times its
+	;depth, as libxmp's: sine, a ramp down, a square of 255 and -255, or
+	;random, 0 if it does not move
+	(cond
+		((= (elem-get lfo 1) 0) 0)
+		(:t (defq pos (elem-get lfo 0))
+			(* (elem-get lfo 2) (case (logand (elem-get lfo 3) 3)
+				(1 (- 255 (<< pos 3)))
+				(2 (if (< pos 32) 255 -255))
+				(3 (- (random 512) 256))
+				(:t (if (< pos 32) (elem-get +tracker_sine pos) (neg (elem-get +tracker_sine (- pos 32))))))))))
+
+(defun med-advance (player)
+	; (med-advance player)
+	;on to the next row, or where a jump or break says, as libxmp's
+	;next_row: past the orders of no block. A row played before, not by a
+	;loop, means it has gone round: it has ended
+	(defq song (. player :find :song) orders (. song :find :orders) order (. player :find :order)
+		row (. player :find :row) next :nil npat (length (. song :find :patterns)))
+	(scatter player :frame 0 :pdelay 0)
+	(cond
+		((. player :find :pbreak)
+			(. player :insert :loop_dest -1)
+			(if (>= (defq to (. player :find :jump_to)) 0) (setq order (dec to)))
+			(setq next :t))
+		(:t (setq row (inc row))
+			(when (>= (defq to (. player :find :loop_dest)) 0)
+				(setq row to)
+				(. player :insert :loop_dest -1)
+				(defq visited (. player :find :visited))
+				(each! (# (. visited :erase (+ (* order 16384) (!)))) '() row (elem-get (. song :find :rows) (elem-get orders order))))
+			(if (>= row (elem-get (. song :find :rows) (elem-get orders order))) (setq next :t))))
+	(when next
+		(setq order (inc order))
+		(while (and (< order (length orders)) (>= (elem-get orders order) npat)) (setq order (inc order)))
+		(when (>= order (length orders))
+			(. player :insert :ended :t)
+			(setq order 0)
+			(while (and (< order (length orders)) (>= (elem-get orders order) npat)) (setq order (inc order))))
+		(setq row (. player :find :jumpline))
+		(if (>= row (elem-get (. song :find :rows) (elem-get orders order))) (setq row 0)))
+	(defq visited (. player :find :visited))
+	(if (. visited :find (defq key (+ (* order 16384) row))) (. player :insert :ended :t) (. visited :insert key))
+	(scatter player :order order :row row :pbreak :nil :jump_to -1 :jumpline 0))
+
+(defun med-start (player)
+	; (med-start player)
+	;the first order of the song that is a block
+	(defq song (. player :find :song) orders (. song :find :orders) order 0 npat (length (. song :find :patterns)))
+	(while (and (< order (length orders)) (>= (elem-get orders order) npat)) (setq order (inc order)))
+	(if (>= order (length orders))
+		(. player :insert :ended :t)
+		(. (. player :find :visited) :insert (* order 16384)))
+	(. player :insert :order order))
+
+(defun med-tick (player)
+	; (med-tick player)
+	;one tick of a MED song, as libxmp plays one: a row's cells read at its
+	;first tick, every channel played, and on to the next row at the end
+	;of its last. For a length only, no channel is played
+	(defq chans (. player :find :chans) voices (. player :find :voices) frame (. player :find :frame))
+	(unless (. player :find :measure)
+		;a sample come to its end in the mixer, its voice let go of
+		(each (lambda (chan)
+				(and (. chan :find :voice) (not (. chan :find :trigger)) (< (elem-get voices (* (!) +mix_size)) 0)
+					(. chan :insert :voice :nil)))
+			chans))
+	(if (= frame 0) (med-row player))
+	(unless (. player :find :measure)
+		(each (# (med-play player %0)) chans)
+		(tracker-voices player))
+	(. player :insert :frame (setq frame (inc frame)))
+	(if (>= frame (* (. player :find :speed) (inc (. player :find :pdelay)))) (med-advance player)))
+
+(defun med-frames (player)
+	; (med-frames player) -> frames
+	;how long a tick is, as libxmp works it out in doubles: the rate, times
+	;the song's time factor and 250, over the bpm and 1000
+	(n2i (/ (/ (* (* (n2d (. player :find :rate)) (. player :find :tf)) (const (n2d 250)))
+		(n2d (max 1 (. player :find :bpm)))) (const (n2d 1000)))))
+
 ;;;;;;;;;;;;;;;;;;;;
 ; the song, played
 ;;;;;;;;;;;;;;;;;;;;
@@ -2142,10 +2725,11 @@
 	;a player of a song at a rate of frames a second
 	(defq channels (. song :find :channels) mode (. song :find :mode)
 		player (scatter (Emap) :song song :rate rate :mode mode :channels channels
-			:chans (if (eql mode :it)
-				(map (# (it-channel %0 %1 %2 (!))) (. song :find :pans) (. song :find :chvols) (. song :find :mutes))
-				(map (case mode (:st3 (const st3-channel)) (:ft2 (const ft2-channel)) (:t (const pt-channel)))
-					(. song :find :pans)))
+			:chans (case mode
+				(:it (map (# (it-channel %0 %1 %2 (!))) (. song :find :pans) (. song :find :chvols) (. song :find :mutes)))
+				(:med (map (# (med-channel %0 %1 (!))) (. song :find :pans) (. song :find :chvols)))
+				(:t (map (case mode (:st3 (const st3-channel)) (:ft2 (const ft2-channel)) (:t (const pt-channel)))
+					(. song :find :pans))))
 			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0 0 0 0 0 0 0))
 				'() 0 (+ channels (defq extra (if (and (eql mode :it) (not (. song :find :sample_mode))) +it_voices 0))))))
 			;an IT's past notes, and the voices free for them
@@ -2153,15 +2737,23 @@
 			:samples (map (# (. %0 :find :data)) (. song :find :samples))
 			:pitch (. song :find :pitch)
 			:clock (case mode (:st3 +st3_clock) (:ft2 +ft2_clock) (:t +amiga_clock))
-			:scale (case mode (:mod 1) (:it 16) (:t 64)) :stepped (eql mode :it)
+			:scale (case mode (:mod 1) ((:it :med) 16) (:t 64)) :stepped (find mode '(:it :med))
 			:speed (. song :find :speed) :bpm (. song :find :tempo) :gvol (. song :find :global)
 			:tick 0 :frame 0 :row 0 :order 0 :jump :nil :jump_order 0 :jump_row 0 :delay 0
 			:repeat :nil :pbreak :nil :jump_to -1 :jumpline 0 :loop_to -1 :pdelay 0
 			:rowdelay 0 :rowdelay_set 0 :loop_dest -1 :carry 0 :visited (Fset 101) :ended :nil :acc (nums)
 			:gain (/ (* 512 (ifn (. song :find :mix) 48)) 48)))
-	(if (eql mode :mod) (. (. player :find :visited) :insert 0) (flow-start player))
+	(case mode
+		(:mod (. (. player :find :visited) :insert 0))
+		(:med (med-start player)
+			;a MED's tick by its time factor, in doubles as libxmp has it, and
+			;the slowest tempo that allows
+			(bind '(num den) (. song :find :time_factor))
+			(defq tf (/ (n2d num) (n2d den)))
+			(scatter player :tf tf :min_bpm (n2i (+ (const (n2d 0.5)) (/ (* tf (const (n2d 20))) (const (n2d 10)))))))
+		(:t (flow-start player)))
 	;2^(n/768) of 16.16, to 2, for linear periods and the steps of an IT
-	(if (or (eql (. song :find :pitch) :linear) (eql mode :it))
+	(if (or (eql (. song :find :pitch) :linear) (find mode '(:it :med)))
 		(. player :insert :exp2 (apply (const nums) (map! (# (n2i (* (const (n2d 65536))
 			(pow (const (n2d 2)) (/ (n2d (!)) (const (n2d 768))))))) '() 0 769))))
 	(if (eql mode :mod) (. player :insert :tables (pt-tables)))
@@ -2179,6 +2771,7 @@
 				n (+ rate (. player :find :carry)))
 			(. player :insert :carry (% n bpm))
 			(/ n bpm))
+		((eql mode :med) (med-tick player) (med-frames player))
 		(:t (case mode (:st3 (st3-tick player)) (:it (it-tick player)) (:t (ft2-tick player)))
 			(/ (* 5 (. player :find :rate)) (* 2 (. player :find :bpm))))))
 
@@ -2213,7 +2806,7 @@
 	(defq player (tracker-player song rate))
 	(scatter player :order order :row row :speed speed :bpm bpm :gvol gvol :carry carry
 		:visited (Fset 101))
-	(. (. player :find :visited) :insert (+ (* order (if (eql (. player :find :mode) :mod) 256 1024)) row))
+	(. (. player :find :visited) :insert (+ (* order (case (. player :find :mode) (:mod 256) (:med 16384) (:t 1024))) row))
 	player)
 
 (defun tracker-measure (song rate)

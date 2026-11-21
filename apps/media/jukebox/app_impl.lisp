@@ -9,7 +9,7 @@
 (import "./library.inc")
 (import "./widgets.inc")
 
-;A player of the modules of the trackers, the Amiga's MODs, Scream
+;A player of the modules of the trackers, the Amiga's MODs and MEDs, Scream
 ;Tracker's S3Ms, FastTracker's XMs and Impulse Tracker's ITs, and a jukebox
 ;of the user's favourites. A song is played by ./player.lisp, a task on
 ;another node, so what draws the screen is not slowed by it; it says what
@@ -109,7 +109,7 @@
 	;letter, A 1; an XM's volume column, a volume or an effect of a sign
 	;and a digit, and its effects by number then letter, G 16; an IT's
 	;volume column, a volume or an effect of a letter and a digit, and
-	;its effects by letter; a MOD's effects by number
+	;its effects by letter; a MOD's effects by number, and a MED's by two
 	(defq mode (. *song* :find :mode))
 	(cat (note-name note) " " (if (> ins 0) (hex ins 2) "..")
 		(case mode
@@ -126,13 +126,14 @@
 				(" ..")))
 			(:t ""))
 		" " (cond
-			((and (= effect 0) (= param 0)) "...")
+			((and (= effect 0) (= param 0)) (if (eql mode :med) "...." "..."))
 			((find mode '(:st3 :it)) (cat (char (+ 64 effect)) (hex param 2)))
+			((eql mode :med) (cat (hex effect 2) (hex param 2)))
 			((< effect 16) (cat (hex effect 1) (hex param 2)))
 			((cat (char (+ 55 effect)) (hex param 2))))))
 
 (defun cell-width ()
-	(if (eql (. *song* :find :mode) :mod) 11 14))
+	(case (. *song* :find :mode) (:mod 11) (:med 12) (:t 14)))
 
 (defun rows-show (order row)
 	;the rows of the pattern about the one heard, it in the middle, as many
@@ -758,7 +759,7 @@
 				(if (and *current* (favourite? (second *current*))) (favourite-remove) (favourite-add)))
 			((= id +event_open)
 				(if *picker* (mail-send *picker* ""))
-				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m .xm .it" :nil "mods" :t (list))))
+				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m .xm .it .med .mmd0 .mmd1 .mmd2 .mmd3 .mmdc" :nil "mods" :t (list))))
 			((= id +event_mode)
 				;the jukebox plays the favourites
 				(setq *jukebox* (= (. *mode* :get_selected) 1))
