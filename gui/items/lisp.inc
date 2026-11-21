@@ -41,7 +41,7 @@
 		;others asked for, and those it has that are out of sight let go
 		(defq parent (penv this) held (get :items_held this) item_h (ifn (def? :item_h this) 1)
 			count (get :item_count this) kept (list))
-		(bind '(& y w &) (. this :get_bounds))
+		(bind '(& y w &ignore) (. this :get_bounds))
 		(bind '(& ph) (if parent (. parent :get_size) '(0 0)))
 		;the items of the part of it its parent shows
 		(defq top (max 0 (/ (neg y) item_h))
