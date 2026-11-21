@@ -970,7 +970,12 @@ not arrive; an answer may not come back.
 	to a child as a farmed job instead, the child calling `(task-slice)`
 	as it goes, its answer the result (Chris, 2026-11-21). What the child
 	makes that the app shows goes in a `:buf` by its key, a shared canvas
-	for pixels, never a pointer handed by `weak-ref`.
+	for pixels, never a pointer handed by `weak-ref`. But a `:buf` is a
+	host handle for as long as it is held: one canvas a frame is fine,
+	one per small thing kept is not. Many small results, images of a
+	cache, come back as bytes in the answer, `(pixmap-write)`: Molecule's
+	atoms, one shared canvas each, used up the node's handles and no file
+	could be opened.
 
 *	Use what is there: `Jobs`, `Farm` and `Local` of `lib/task/` are this
 	protocol, the start by message, the queue, the patience, the reply
