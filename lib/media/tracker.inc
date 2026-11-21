@@ -337,9 +337,11 @@
 (defun st3-period (note c2spd)
 	; (st3-period note c2spd) -> period
 	;the period of a note, 1 C-0 and on, of a sample of so many frames a
-	;second at C-4, as Scream Tracker has it
+	;second at C-4, as Scream Tracker has it, its table 32 times as fine
+	;before it is moved down an octave a time, as OpenMPT has it: else the
+	;bits lost are 15 cents
 	(defq n (dec note))
-	(if (> c2spd 0) (/ (* 8363 16 (>> (elem-get +st3_periods (% n 12)) (/ n 12))) c2spd) 0))
+	(if (> c2spd 0) (/ (* 8363 (>> (<< (elem-get +st3_periods (% n 12)) 5) (/ n 12))) (* 2 c2spd)) 0))
 
 (defun st3-wave (wave pos)
 	; (st3-wave wave pos) -> num
