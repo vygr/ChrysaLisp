@@ -826,6 +826,13 @@ new trap there with its test. Others to know:
 *	A structure's name is its fields' prefix: name an app's structures for
 	the app, `+pcb_job`, or two files clash.
 
+*	`(reduce f seq :nil)` is `(reduce f seq)`: a start of `:nil` is no
+	start, the first element is, and an empty seq is an error,
+	`not_valid_index`. A search for the last that fits, `:nil` if none, is
+	a walk that keeps it, `(each (# (if (fits %0) (setq found %0))) seq)`,
+	or `reduce!` given its `:nil` and span. The Jukebox's seek met it with
+	no order starts known yet.
+
 *	A mailbox at the head of a mail is bytes, `+net_id_size` of them, any
 	of which can be a newline or a space. A separator of the text after it
 	is found from there, `(find "\n" msg +net_id_size)`: the Jukebox's

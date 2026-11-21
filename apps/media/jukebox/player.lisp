@@ -18,6 +18,8 @@
 ;	G serial id seconds	played from there, the id said back after
 ;	K			the window is there
 ;	Q			go
+;and by its child, ./measure.lisp:
+;	W serial frames start...	the song's length and where its orders start
 ;It tells the window:
 ;	I serial frames		the song is so long, by its child, ./measure.lisp
 ;	! serial		not a module it can read
@@ -34,7 +36,10 @@
 	*marks* (list) *recent* "" *recent_at* 0 *measurer* :nil *state* "s" *ended* :nil
 	*spectrum* (spectrum-make +fft +rate +bars) *heard* 0 *told* :nil
 	;the last seek asked for, (id seconds), done when no more is waiting
-	*seek_id* 0 *seek_to* :nil)
+	*seek_id* 0 *seek_to* :nil
+	;the song's length once its child has found it, and where its orders
+	;start, (tracker-start) each, which a seek goes from
+	*length* :nil *starts* (list))
 
 (defun sound-stop ()
 	(when *handle*
@@ -49,17 +54,29 @@
 
 (defun seek (seconds)
 	;from so many seconds in, its rows played to there and its voices moved
-	;on, nothing mixed: on from where it has got to if that is before it,
-	;else from its start
-	(defq target (* seconds +rate))
+	;on, nothing mixed: on from where it has got to if no order starts
+	;between, else from where the last order before it starts, as libxmp
+	;seeks, (tracker-at), or from its start if those are not known yet
+	(defq target (* seconds +rate) start :nil)
+	;none known till its child has found them, a song resumed seeks first
+	(each (# (if (<= (first %0) target) (setq start %0))) *starts*)
 	(cond
-		((and (>= target *written*) (not *ended*))
+		((and (>= target *written*) (not *ended*) (or (not start) (<= (first start) *written*)))
 			(sound-stop)
 			(setq *written* (tracker-seek *player* target *written*)))
+		(start (rewind)
+			(setq *player* (tracker-at *song* +rate start)
+				*written* (tracker-seek *player* target (first start))))
 		(:t (rewind)
 			(setq *written* (tracker-seek *player* target))))
 	(setq *marks* (list) *recent* "" *recent_at* *written* *heard* *written*
-		*ended* (. *player* :find :ended)))
+		*ended* (song-ended)))
+
+(defun song-ended ()
+	; (song-ended) -> :t | :nil
+	;at its end: a player knows it by a row come to again, or once it has
+	;played as long as the song is, as one from where an order starts must
+	(or (. *player* :find :ended) (and *length* (>= *written* *length*))))
 
 (defun feed ()
 	; (feed) -> heard
@@ -74,7 +91,7 @@
 					(defq pcm (tracker-next *player*) n (/ (length pcm) 4))
 					(audio-stream-write-rpc *handle* pcm)
 					(setq *recent* (cat *recent* pcm) *written* (+ *written* n) left (+ left n)
-						*ended* (. *player* :find :ended))
+						*ended* (song-ended))
 					(when (> (defq over (- (/ (length *recent*) 4) +recent_max)) 0)
 						(setq *recent* (slice *recent* (* 4 over) -1) *recent_at* (+ *recent_at* over)))
 					(task-slice)))
@@ -112,13 +129,13 @@
 	;song is told to go
 	(measure-stop)
 	(setq *measurer* (open-child (cat *app_root* "measure.lisp") +kn_call_run))
-	(mail-send *measurer* (cat *app* (str serial) "\n" data)))
+	(mail-send *measurer* (cat *app* (task-mbox) (str serial) "\n" data)))
 
 (defun load-song (serial state seconds data)
 	;a module played, held or stopped at so many seconds, at once, how long
 	;it is found as it plays
 	(sound-stop)
-	(setq *serial* serial *song* (module-read data) *told* :nil)
+	(setq *serial* serial *song* (module-read data) *told* :nil *length* :nil *starts* (list))
 	(cond
 		(*song*
 			(measure serial data)
@@ -141,6 +158,9 @@
 		((eql kind "M")
 			(load-song serial (second words) (str-as-num (third words)) (slice msg (inc end) -1)))
 		((or (/= serial *serial*) (not *song*)))
+		((eql kind "W")
+			(defq nums (map! (const str-as-num) (list words) 1 (length words)))
+			(setq *length* (first nums) *starts* (partition (rest nums) 7)))
 		((eql kind "P")
 			(cond
 				((eql *state* "s") (rewind) (setq *state* "p" *handle* (audio-stream-open-rpc +rate 2)))

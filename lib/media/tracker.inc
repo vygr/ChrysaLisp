@@ -640,10 +640,12 @@
 	;a tick of each channel, (fn chan), and the voices as they are then.
 	;For a length only, of an S3M or an XM, what moves the song on is of
 	;its rows, but for a note delayed to a later tick, whose cell, its
-	;jump say, is read then: the channels with one are played, no others,
-	;and no voices
+	;jump say, is read then, and a global volume slide, the volume an order
+	;starts with: the channels with one are played, no others, and no
+	;voices
 	(if (. of_player :find :measure)
-		(each (# (if (> (. %0 :find :delay) 0) (fn %0))) (. of_player :find :chans))
+		(each (# (if (or (> (. %0 :find :delay) 0) (bits? (. %0 :find :fx) +fx_gslide)) (fn %0)))
+			(. of_player :find :chans))
 		(each fn (. of_player :find :chans))
 		(tracker-voices of_player)))
 
@@ -944,6 +946,18 @@
 	(and use_volume (not (. chan :find :new_vol)) (>= (defq s (ft2-sample player chan (. chan :find :key))) 0)
 		(. chan :insert :volume (. (elem-get samples s) :find :volume))))
 
+(defun ft2-skip-event (player chan cell)
+	; (ft2-skip-event player chan cell)
+	;a cell not read, for a song's length only, as far as one that is read
+	;later needs it: the channel's instrument, without which its global
+	;volume slide is not had, as (ft2-event) gives it, and its effects
+	;are of it alone
+	(bind '(note ins vol effect &ignore) cell)
+	(and (<= 1 ins (length (. (. player :find :song) :find :instruments))) (/= note +note_off)
+		(not (find effect '(3 5))) (/= (>> vol 4) 15)
+		(. chan :insert :ins (dec ins)))
+	(. chan :insert :fx 0))
+
 (defun ft2-row (player)
 	; (ft2-row player)
 	;the first tick of a row: each channel's cell, or held back by a note
@@ -963,10 +977,11 @@
 					(if (= note 0) (setq note (. chan :find :key)))
 					(if (= ins 0) (setq ins (inc (. chan :find :ins))))
 					(scatter chan :delay (inc (logand param 15)) :delayed (list note ins vol effect param)))
-				;for a length only a cell of an effect that moves the song on is
-				;read, B D E F: a cell's effect is had whatever its note
-				((or (not measure) (find effect '(11 13 14 15))) (ft2-event player chan cell row))
-				((. chan :insert :fx 0))))
+				;for a length only a cell of an effect that moves the song on, or
+				;sets the global volume an order starts with, is read, B D E F G
+				;H: a cell's effect is had whatever its note
+				((or (not measure) (find effect '(11 13 14 15 16 17))) (ft2-event player chan cell row))
+				((ft2-skip-event player chan cell))))
 		(. player :find :chans)))
 
 (defun ft2-play (player chan frame)
@@ -1857,8 +1872,9 @@
 					(if (> ins 0) (. chan :insert :delayed_ins ins)))
 				((not (or (= rs 0) (and (bits? rs +rowdelay_first) (> (. player :find :rowdelay) 0)))))
 				;for a length only a cell of an effect that moves the song on,
-				;or keeps a memory one may use, is read, A B C S T
-				((or (not measure) (find fx '(1 2 3 19 20)))
+				;or keeps a memory one may use, is read, A B C S T, and the
+				;global volume's an order starts with, V W
+				((or (not measure) (find fx '(1 2 3 19 20 22 23)))
 					(it-read-event player chan (list note ins vol fx param)))
 				((it-skip-event chan note ins))))
 		(. player :find :chans)))
@@ -2060,12 +2076,14 @@
 	; (it-measure-tick player)
 	;one tick of an IT for its length only: a row's cells read at its first
 	;tick, and of the channels only those with a tempo slide, which moves
-	;the song on by its ticks, or a note delayed to a later tick, whose
-	;cell, its jump say, is read then. No past notes, no voices
+	;the song on by its ticks, a note delayed to a later tick, whose cell,
+	;its jump say, is read then, or a global volume slide, the volume an
+	;order starts with. No past notes, no voices
 	(defq chans (. player :find :chans) frame (. player :find :frame))
 	(each (# (it-unflag %0 :fx +fx_key_off)) chans)
 	(if (= frame 0) (it-row player))
-	(each (# (if (or (bits? (. %0 :find :fx) +fx_tempo) (> (. %0 :find :delay) 0)) (it-play player %0 frame)))
+	(each (# (if (or (bits? (. %0 :find :fx) (const (+ +fx_tempo +fx_gslide))) (> (. %0 :find :delay) 0))
+			(it-play player %0 frame)))
 		chans)
 	(. player :insert :rowdelay_set (logand (. player :find :rowdelay_set) (lognot +rowdelay_first)))
 	(. player :insert :frame (setq frame (inc frame)))
@@ -2176,20 +2194,48 @@
 	;the frames of the song's next tick
 	(tracker-mix player (tracker-tick player)))
 
+(defun tracker-start (player frames)
+	; (tracker-start player frames) -> start
+	;where an order starts, as a player comes to it: its first frame, the
+	;order and row, the speed, tempo and global volume, and a MOD's frames
+	;carried over, (frames order row speed bpm gvol carry)
+	(list frames (. player :find :order) (. player :find :row) (. player :find :speed)
+		(. player :find :bpm) (. player :find :gvol) (. player :find :carry)))
+
+(defun tracker-at (song rate start)
+	; (tracker-at song rate start) -> player
+	;a player of a song from where an order starts, (tracker-start), as
+	;libxmp seeks: its speed, tempo and global volume as they were there,
+	;its channels as at the song's start, a note already sounding then
+	;not heard. The rows come to before are not known to it, so its end is
+	;known by the song's length
+	(bind '(& order row speed bpm gvol carry) start)
+	(defq player (tracker-player song rate))
+	(scatter player :order order :row row :speed speed :bpm bpm :gvol gvol :carry carry
+		:visited (Fset 101))
+	(. (. player :find :visited) :insert (+ (* order (if (eql (. player :find :mode) :mod) 256 1024)) row))
+	player)
+
 (defun tracker-measure (song rate)
 	; (tracker-measure song rate) -> measure
 	;a player of a song that only finds how long it is: no past notes, as
 	;voices are not what that is of, so they do not pile up unmixed. And
 	;no channel's ticks but those that move the song on, a delayed note's
 	;and an IT's tempo slide, (tracker-chans-play) and (it-measure-tick)
-	(scatter (tracker-player song rate) :free (list) :measured 0 :measure :t))
+	;and where each order starts as it plays, (tracker-start)
+	(defq measure (scatter (tracker-player song rate) :free (list) :measured 0 :measure :t))
+	(. measure :insert :starts (list (tracker-start measure 0)))
+	measure)
 
 (defun tracker-measure-step (measure time)
 	; (tracker-measure-step measure time) -> :nil | frames
 	;its ticks played for so long, and how long the song is once ended
-	(defq at (pii-time) frames (. measure :find :measured))
+	(defq at (pii-time) frames (. measure :find :measured) starts (. measure :find :starts))
 	(while (and (not (. measure :find :ended)) (< (- (pii-time) at) time))
-		(setq frames (+ frames (tracker-tick measure))))
+		(setq frames (+ frames (tracker-tick measure)))
+		;another order come to, not the one it goes round to at its end
+		(and (not (. measure :find :ended)) (/= (. measure :find :order) (second (last starts)))
+			(push starts (tracker-start measure frames))))
 	(. measure :insert :measured frames)
 	(if (. measure :find :ended) frames))
 

@@ -102,6 +102,16 @@
 (assert-eq "MOD length, 64 rows of 6 ticks of 882 frames" 338688 (tracker-length song 44100))
 (assert-eq "MOD length, F03 speed 3" 169344 (tracker-length (module-read (tt-mod '((0 0 0 0 15 3)))) 44100))
 (assert-eq "MOD length, D00 at row 15" 84672 (tracker-length (module-read (tt-mod '((15 0 0 0 13 0)))) 44100))
+(defun tt-from (player frames)
+	; (tt-from player frames) -> frames
+	;how long a player goes on from so many frames in, to its end
+	(until (. player :find :ended) (setq frames (+ frames (tracker-tick player))))
+	frames)
+(defq mod_song (module-read (tt-mod '((0 0 428 1 15 3)))) measure (tracker-measure mod_song 44100))
+(until (tracker-measure-step measure 1000000))
+(assert-eq "MOD order starts, the one order, before its row sets speed 3" "((0 0 0 6 125 64 0))" (str (. measure :find :starts)))
+(assert-eq "MOD from an order start, as long" (tracker-length mod_song 44100)
+	(tt-from (tracker-at mod_song 44100 (first (. measure :find :starts))) 0))
 (each (lambda (cells)
 		(defq mod_song (module-read (tt-mod cells)))
 		(assert-eq "MOD measured as played" (tt-played mod_song) (tracker-length mod_song 44100)))
@@ -228,8 +238,31 @@
 (assert-eq "entry-renamed, a word after" "polish%20xmas%20v2.mod" (entry-renamed listing "polish%20xmas.mod"))
 (assert-eq "entry-renamed, not when two have words after" :nil (entry-renamed listing "duck%20season.mod"))
 (assert-eq "entry-renamed, a word after, not more of one" "polish%20xmas%20v2.mod" (entry-renamed listing "polish.mod"))
+(defq listing (cat "<a href=\qrom-theme.mod\q>x</a>\n<a href=\qbrainfood-%232.mod\q>x</a>\n"
+	"<a href=\qbrainfood-%233.mod\q>x</a>\n<a href=\qpep.mod\q>x</a>\n"))
+(assert-eq "entry-renamed, letters taken out" "rom-theme.mod" (entry-renamed listing "rom-1-theme.mod"))
+(assert-eq "entry-renamed, not one of letters of its own" :nil (entry-renamed listing "brainfood-%234.mod"))
+(assert-eq "entry-renamed, not when two could be it" :nil (entry-renamed listing "brainfood-%2323.mod"))
+(assert-eq "entry-renamed, not a short one of a long name" :nil (entry-renamed listing "pepsi%20party.mod"))
 (assert-eq "coop-parent, the artist's own folder" "https://modland.com/pub/modules/Impulsetracker/Siren/"
 	(coop-parent "https://modland.com/pub/modules/Impulsetracker/Siren/coop-Sirrus/"))
 (assert-eq "coop-parent, none of the artist's own" :nil
 	(coop-parent "https://modland.com/pub/modules/Impulsetracker/Siren/"))
 
+
+;where Modland has a module now, by its list of all it has, allmods.txt: a
+;size and a path a line, of trackers played here and not
+(defq allmods (cat "100\tProtracker/Mel O'Dee/whales forever.mod\n"
+	"100\tProtracker/Virgill/coop-Poldi/hard sun.mod\n100\tProtracker/Marc/funky dog.mod\n"
+	"100\tProtracker/Spoon/coop-Jam/funky dog.mod\n100\tProtracker/Cool Col J/majestic.mod\n"
+	"100\tProtracker/Projex/majestic.mod\n100\tAHX/Someone/whales forever.ahx\n")
+	played (allmods-played allmods) index (allmods-index played))
+(assert-eq "allmods-played, the trackers played here" 6 (length (split played "\n")))
+(assert-eq "allmods-find, its artist's folder of another case" "Protracker/Mel O'Dee/whales forever.mod"
+	(allmods-find index "Protracker/Mel o'Dee/whales forever.mod"))
+(assert-eq "allmods-find, moved into a folder with another" "Protracker/Virgill/coop-Poldi/hard sun.mod"
+	(allmods-find index "Protracker/Virgill/hard sun.mod"))
+(assert-eq "allmods-find, of two the one whose folders share its words" "Protracker/Spoon/coop-Jam/funky dog.mod"
+	(allmods-find index "Protracker/Jam & Spoon/funky dog.mod"))
+(assert-eq "allmods-find, not when two could be it" :nil (allmods-find index "Protracker/TJM/majestic.mod"))
+(assert-eq "allmods-find, none of that name" :nil (allmods-find index "Protracker/Anyone/nothing.mod"))

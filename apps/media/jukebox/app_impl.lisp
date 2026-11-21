@@ -50,6 +50,9 @@
 	;the fetcher, ./fetch.lisp, and the number of the last fetch asked of it,
 	;and the listings fetched again since it was opened
 	*fetcher* :nil *fetch_id* 0 *fresh* (list)
+	;the index of where Modland has each module now, ./index.lisp, and of
+	;each playlist where its modules are now, (url now ...), and those asked
+	*indexer* :nil *resolved* (Fmap 31) *resolving* (list)
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
 (defun hex (n width)
@@ -109,7 +112,7 @@
 			(:ft2 (cond
 				((< vol 0x10) " ..")
 				((<= vol 0x50) (cat " " (hex (- vol 0x10) 2)))
-				((cat " " (elem-get "------+DUSVPLRM" (>> vol 4)) (hex vol 1)))))
+				((cat " " (elem-get "-------+DUSVPLRM" (>> vol 4)) (hex vol 1)))))
 			(:it (cond
 				((<= vol 64) (cat " " (hex vol 2)))
 				((< vol 125) (defq at (/ (- vol 65) 10)) (cat " " (elem-get "ABCDEF" at) (str (- vol 65 (* at 10)))))
@@ -206,7 +209,9 @@
 (defun engine-start ()
 	;the player and the fetcher
 	(setq *engine* (away-task "player.lisp" (elem-get *select* +select_engine))
-		*fetcher* (away-task "fetch.lisp" (elem-get *select* +select_fetch))))
+		*fetcher* (away-task "fetch.lisp" (elem-get *select* +select_fetch))
+		;where Modland has each module now, it answers as the fetcher does
+		*indexer* (away-task "index.lisp" (elem-get *select* +select_fetch))))
 
 (defun song-start (data title url)
 	; (song-start data title url) -> :nil | :t
@@ -513,7 +518,7 @@
 		((defq text (load (kept-path (defq url (path-url path)))))
 			(unless (or *fetching* (find url *fresh*)) (fetch-start :refresh url "the folder again"))
 			(if (ends-with ".m3u" url)
-				(map (# (list (first %0) (second %0) :nil)) (playlist-read text))
+				(playlist-entries url (playlist-read text))
 				(listing-entries text url path)))
 		(:t (fetch-start :listing url) (list))))
 
@@ -557,9 +562,18 @@
 				(save msg (kept-path url))
 				(and (/= *list_at* +tab_favourites) (eql url (path-url (list-path))) (list-show :t))))
 		((and (not ok) (eql kind :module) (starts-with "404" msg) (starts-with +modland url))
-			;not at Modland: its folder looked in for it under another ending
+			;not at Modland where it was: the index asked where it is now
+			(index-ask url title))
+		((eql kind :index)
+			;where the index has it now, or its folder looked in for it
+			;under another name, if it has none or that is where it was
 			(defq at (rfind "/" url))
-			(fetch-start :renamed (slice url 0 at) title (slice url at -1)))
+			(if (and (nempty? msg) (nql (defq now (modland-url msg)) url))
+				(fetch-start :module now title)
+				(fetch-start :renamed (slice url 0 at) title (slice url at -1))))
+		;its folder gone too, the artist's renamed say, tanker!!!.mod of RAW #1
+		((and (not ok) (eql kind :renamed) (starts-with "404" msg))
+			(song-failed (cat title ": Modland has it no more")))
 		((and (not ok) (find kind '(:module :renamed))) (song-failed (cat "Could not fetch it: " msg)))
 		((not ok) (status (cat "Could not fetch it: " msg)))
 		((eql kind :renamed)
@@ -579,10 +593,54 @@
 			(list-show))
 		((not (song-start msg title url)) (song-failed (cat title ": not a module it can read")))))
 
+(defun modland-url (path)
+	; (modland-url path) -> url
+	;the address of a path of Modland's pub/modules/, each part escaped
+	(cat +modland (join (map (const url-encode) (split path "/")) "/")))
+
+(defun modland-path (url)
+	; (modland-path url) -> path
+	;the path of pub/modules/ of an address of Modland's, unescaped
+	(join (map (const url-decode) (split (slice url (length +modland) -1) "/")) "/"))
+
+(defun playlist-entries (url entries)
+	; (playlist-entries url entries) -> ((title url folder) ...)
+	;the modules of a playlist Modland has, where it has them now, as the
+	;index, ./index.lisp, says: all of them, as the playlist has them, till
+	;it has said, which it is asked once
+	(defq now (. *resolved* :find url))
+	(cond
+		((and now (= (length now) (length entries)))
+			(defq out (list))
+			(each (lambda (& path) (if (nql path "-") (push out (list (path-name path) (modland-url path) :nil))))
+				entries now)
+			out)
+		(:t (unless (find url *resolving*)
+				(push *resolving* url)
+				(mail-send *indexer* (cat "R" url "\n" (join (map (# (modland-path (second %0))) entries) "\n"))))
+			(map (# (list (first %0) (second %0) :nil)) entries))))
+
+(defun playlist-resolved (text)
+	;where the modules of a playlist are now, as the index has said, kept,
+	;and shown if that playlist is
+	(defq lines (split text "\n") url (first lines))
+	(. *resolved* :insert url (rest lines))
+	(setq *resolving* (filter (# (nql %0 url)) *resolving*))
+	(and (= *list_at* +tab_charts) (eql url (path-url (list-path))) (list-show :t)))
+
+(defun index-ask (url title)
+	;where a module not where it was is now, asked of the index, ./index.lisp,
+	;which answers on the fetcher's mailbox, as a fetch of its own
+	(setq *fetching* (list :index url title :nil) *fetch_id* (inc *fetch_id*))
+	(status (cat "Looking for " title " ..."))
+	(mail-send *indexer* (cat "L" (str *fetch_id*) " " (modland-path url))))
+
 (defun fetch-done (msg)
 	;what the fetcher said, of the last fetch asked of it only
 	(defq kind (first msg) gap (ifn (find " " msg) (length msg)) rest (slice msg (min (length msg) (inc gap)) -1))
 	(cond
+		;where a playlist's modules are now, of the index, not a fetch
+		((eql kind "R") (playlist-resolved (slice msg 1 -1)))
 		;mail is unordered, how far it got may come after it has come
 		((or (not *fetching*) (/= (str-as-num (slice msg 1 gap)) *fetch_id*)))
 		((eql kind "%")
@@ -655,7 +713,8 @@
 				;the player and the fetcher told the window is still here
 				(mail-timeout (elem-get *select* +select_timer) +alive 0)
 				(engine-send "K")
-				(mail-send *fetcher* "K"))
+				(mail-send *fetcher* "K")
+				(mail-send *indexer* "K"))
 			((= idx +select_engine) (engine-said msg))
 			((= idx +select_tip) (. *window* :tip msg))
 			((= idx +select_fetch) (fetch-done msg))
@@ -711,5 +770,6 @@
 	(if *picker* (mail-send *picker* ""))
 	(engine-send "Q")
 	(mail-send *fetcher* "Q")
+	(mail-send *indexer* "Q")
 	(setq service :nil)
 	(. *window* :close))
