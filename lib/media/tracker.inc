@@ -2124,11 +2124,26 @@
 	;the frames of the song's next tick
 	(tracker-mix player (tracker-tick player)))
 
+(defun tracker-measure (song rate)
+	; (tracker-measure song rate) -> measure
+	;a player of a song that only finds how long it is: no past notes, as
+	;voices are not what that is of, so they do not pile up unmixed
+	(scatter (tracker-player song rate) :free (list) :measured 0))
+
+(defun tracker-measure-step (measure time)
+	; (tracker-measure-step measure time) -> :nil | frames
+	;its ticks played for so long, and how long the song is once ended
+	(defq at (pii-time) frames (. measure :find :measured))
+	(while (and (not (. measure :find :ended)) (< (- (pii-time) at) time))
+		(setq frames (+ frames (tracker-tick measure))))
+	(. measure :insert :measured frames)
+	(if (. measure :find :ended) frames))
+
 (defun tracker-length (song rate)
 	; (tracker-length song rate) -> frames
 	;how long a song plays for, to its end, its ticks played and not mixed
-	(defq player (tracker-player song rate) frames 0)
-	(until (. player :find :ended) (setq frames (+ frames (tracker-tick player))))
+	(defq measure (tracker-measure song rate) frames :nil)
+	(until (setq frames (tracker-measure-step measure 1000000)) (task-slice))
 	frames)
 
 (defun tracker-skip (player frames)

@@ -1,3 +1,4 @@
+(defq *app_root* (path-to-file))
 (import "service/audio/app.inc")
 (import "lib/media/module.inc")
 (import "lib/media/tracker.inc")
@@ -18,7 +19,7 @@
 ;	K			the window is there
 ;	Q			go
 ;It tells the window:
-;	I serial frames		the song is so long
+;	I serial frames		the song is so long, by its child, ./measure.lisp
 ;	! serial		not a module it can read
 ;	T serial id heard order row state samples... | bands...
 ;	E serial		all of the song heard
@@ -30,7 +31,7 @@
 (defq +rate 44100 +ahead 11025 +frame_time (/ 1000000 30) +fft 1024 +bars 32
 	+recent_max (+ +ahead +fft 4096) +orphan 5000000
 	*app* :nil *serial* -1 *song* :nil *player* :nil *handle* :nil *written* 0
-	*marks* (list) *recent* "" *recent_at* 0 *length* 0 *state* "s" *ended* :nil
+	*marks* (list) *recent* "" *recent_at* 0 *measurer* :nil *state* "s" *ended* :nil
 	*spectrum* (spectrum-make +fft +rate +bars) *heard* 0 *told* :nil
 	;the last seek asked for, (id seconds), done when no more is waiting
 	*seek_id* 0 *seek_to* :nil)
@@ -100,14 +101,27 @@
 	(mail-send *app* (cat "T" (join (map (const str) (list *serial* *seek_id* heard order row)) " ")
 		" " *state* " " (join (map (const str) playing) " ") " | " (join (map (const str) bands) " "))))
 
+(defun measure-stop ()
+	(when *measurer*
+		(mail-send *measurer* "Q")
+		(setq *measurer* :nil)))
+
+(defun measure (serial data)
+	;how long the song is found by a child, where the kernel puts it, as a
+	;long song takes seconds: it tells the window, and the child of the last
+	;song is told to go
+	(measure-stop)
+	(setq *measurer* (open-child (cat *app_root* "measure.lisp") +kn_call_run))
+	(mail-send *measurer* (cat *app* (str serial) "\n" data)))
+
 (defun load-song (serial state seconds data)
-	;a module played, held or stopped at so many seconds, and how long it is
+	;a module played, held or stopped at so many seconds, at once, how long
+	;it is found as it plays
 	(sound-stop)
 	(setq *serial* serial *song* (module-read data) *told* :nil)
 	(cond
 		(*song*
-			(setq *length* (tracker-length *song* +rate))
-			(mail-send *app* (cat "I" (str serial) " " (str *length*)))
+			(measure serial data)
 			(rewind)
 			(setq *state* state)
 			(if (> seconds 0) (seek seconds))
@@ -177,4 +191,5 @@
 			;a seek when no more is waiting
 			(and *seek_to* *song* (not (mail-poll (list (elem-get select +select_main))))
 				(seek-now))))
+	(measure-stop)
 	(sound-stop))
