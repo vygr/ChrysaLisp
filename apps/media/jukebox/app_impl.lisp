@@ -43,8 +43,9 @@
 	;marked, and the title of the folder gone up from, and what is being
 	;fetched
 	*entries* (list) *marked* :nil *left* :nil *fetching* :nil *picker* :nil *select* :nil
-	;the fetcher, ./fetch.lisp, and the number of the last fetch asked of it
-	*fetcher* :nil *fetch_id* 0
+	;the fetcher, ./fetch.lisp, and the number of the last fetch asked of it,
+	;and the listings fetched again since it was opened
+	*fetcher* :nil *fetch_id* 0 *fresh* (list)
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
 (defun hex (n width)
@@ -433,21 +434,24 @@
 	; (list-entries) -> ((title url folder) ...)
 	;the favourites, or the folder of Modland or of the charts shown, its
 	;listing or playlist kept once fetched, the trackers' folders or the
-	;charts' at the top
+	;charts' at the top. One kept is shown, and fetched again behind it the
+	;first time since the app was opened, if nothing else is coming
 	(cond
 		((= *list_at* +tab_favourites) (map (# (list (first %0) (second %0) :nil)) *favourites*))
 		((empty? (defq path (list-path)))
 			(map (# (list %0 (cat (list-base) (url-encode %0) "/") %0))
 				(if (= *list_at* +tab_all) +modland_kinds +chart_places)))
 		((defq text (load (kept-path (defq url (path-url path)))))
+			(unless (or *fetching* (find url *fresh*)) (fetch-start :refresh url "the folder again"))
 			(if (ends-with ".m3u" url)
 				(map (# (list (first %0) (second %0) :nil)) (playlist-read text))
 				(listing-entries text url path)))
 		(:t (fetch-start :listing url) (list))))
 
-(defun list-show ()
+(defun list-show (&optional keep)
 	;a button a row, as many as the filter leaves, to so many
-	;the filter a regexp, ignoring case, or plain text if it is not one
+	;the filter a regexp, ignoring case, or plain text if it is not one.
+	;Kept, where the list was seen from stays
 	(defq pattern (get :clear_text *filter*) found (query pattern :nil :t :t))
 	(unless (second found) (setq found (query pattern :nil :nil :t)))
 	(bind '(engine meta &ignore) found)
@@ -462,9 +466,10 @@
 			(str (length *entries*)) " here"))))
 	;from the top, or with the folder gone up from in the middle
 	(. *list* :set_count (length *entries*))
-	(def (get :vslider *list_scroll*) :value
-		(if (defq at (and *left* (some (# (and (third %0) (eql (third %0) *left*) (!))) *entries*)))
-			(* (max 0 (- at (/ +list_rows 2))) (get :item_h *list*)) 0))
+	(unless keep
+		(def (get :vslider *list_scroll*) :value
+			(if (defq at (and *left* (some (# (and (third %0) (eql (third %0) *left*) (!))) *entries*)))
+				(* (max 0 (- at (/ +list_rows 2))) (get :item_h *list*)) 0)))
 	(.-> *list_scroll* :layout :dirty_all))
 
 (defun fetch-ended (msg)
@@ -473,9 +478,19 @@
 	(defq ok (starts-with "=" msg))
 	(setq *fetching* :nil msg (slice msg 1 -1))
 	(cond
+		((eql kind :refresh)
+			;a listing fetched again: shown again only if it changed and is
+			;still what is shown, and not tried again till the app is
+			;opened again, if it could not be had
+			(push *fresh* url)
+			(unless *song* (status "Nothing playing"))
+			(when (and ok (nql msg (load (kept-path url))))
+				(save msg (kept-path url))
+				(and (/= *list_at* +tab_favourites) (eql url (path-url (list-path))) (list-show :t))))
 		((not ok) (status (cat "Could not fetch it: " msg)))
 		((eql kind :listing)
 			(save msg (kept-path url))
+			(push *fresh* url)
 			(unless *song* (status "Nothing playing"))
 			(list-show))
 		((not (song-start msg title url)) (status (cat title ": not a module it can read")))))
