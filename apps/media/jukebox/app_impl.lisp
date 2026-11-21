@@ -316,10 +316,14 @@
 	(if *shuffled* (setq *order* (cat (list at) (shuffle (filter (# (/= %0 at)) *order*)))))
 	(setq *queue_at* (ifn (find at *order*) 0)))
 
+(defun queue-play ()
+	;the queue's entry it is at played
+	(if (nempty? *queue*) (entry-play (elem-get *queue* (elem-get *order* *queue_at*)))))
+
 (defun queue-start (entries at)
 	;a list played from one of it
 	(queue-set entries at)
-	(if (nempty? *queue*) (entry-play (elem-get *queue* (elem-get *order* *queue_at*)))))
+	(queue-play))
 
 (defun queue-move (by)
 	;the next or the previous of the queue, round from the end
@@ -327,20 +331,30 @@
 		(setq *queue_at* (% (+ *queue_at* by (length *order*)) (length *order*)))
 		(entry-play (elem-get *queue* (elem-get *order* *queue_at*)))))
 
-(defun queue-step (by)
-	;the next or the previous, round from the end: of the favourites in
-	;Jukebox mode, else of the modules of the list shown, on from what plays
-	;if it is in it, else from its first, or its last going back
-	(defq modules (map (# (list (first %0) (second %0))) (filter (# (not (third %0))) *entries*)))
+(defun queue-modules ()
+	; (queue-modules) -> ((title url) ...)
+	;the modules of the list shown
+	(map (# (list (first %0) (second %0))) (filter (# (not (third %0))) *entries*)))
+
+(defun queue-align (by)
+	; (queue-align by) -> :nil | :t
+	;the queue next and prev go through: in Jukebox mode the favourites, as
+	;it is, else the modules of the list shown, if any, made it if it is not
+	;already. :t if what plays is in it, else :nil and it is at its first,
+	;or its last going back
+	(defq modules (queue-modules))
 	(cond
 		((or *jukebox* (empty? modules)
-				(and (= (length modules) (length *queue*))
-					(not (some (# (nql (second %0) (second %1))) modules *queue*))))
-			(queue-move by))
+			(and (= (length modules) (length *queue*))
+				(not (some (# (nql (second %0) (second %1))) modules *queue*)))))
 		((defq at (some (# (if (eql (second %0) *marked*) (!))) modules))
-			(queue-set modules at)
-			(queue-move by))
-		(:t (queue-start modules (if (> by 0) 0 (dec (length modules)))))))
+			(queue-set modules at) :t)
+		(:t (queue-set modules (if (> by 0) 0 (dec (length modules)))) :nil)))
+
+(defun queue-step (by)
+	;the next or the previous, round from the end, of the queue, on from what
+	;plays, or its first or last if what plays is not in it
+	(if (queue-align by) (queue-move by) (queue-play)))
 
 (defun engine-said (msg)
 	;what the player said, of this song only
@@ -374,8 +388,14 @@
 						(def (. *seek* :dirty) :value at))
 					(song-status)))
 			((eql kind "E")
-				;all of it heard: the next of the jukebox, or stopped
-				(if *jukebox* (queue-step 1) (engine-send "S" *serial*))))))
+				;all of it heard: the next of the favourites in Jukebox mode,
+				;round them, else of the list shown, stopped after its last
+				(cond
+					(*jukebox* (queue-step 1))
+					((empty? (queue-modules)) (engine-send "S" *serial*))
+					((not (queue-align 1)) (queue-play))
+					((= *queue_at* (dec (length *order*))) (engine-send "S" *serial*))
+					((queue-move 1)))))))
 
 ;;;;;;;;;
 ; config
