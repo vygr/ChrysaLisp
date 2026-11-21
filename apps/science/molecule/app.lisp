@@ -5,6 +5,7 @@
 (import "lib/math/matrix.inc")
 (import "lib/files/files.inc")
 (import "lib/gpu/vp.inc")
+(import "./atom.inc")
 
 (enums +event +event_user
 	(enum prev next auto)
@@ -12,7 +13,7 @@
 	(enum style))
 
 (enums +select 0
-	(enum main tip timer))
+	(enum main tip task reply timer))
 
 (enums +ball 0
 	(enum vertex radius col))
@@ -24,9 +25,10 @@
 	+left (* +focal_dist +double_-1/3) +right (* +focal_dist +double_1/3)
 	*verts* (doubles) *radii* (doubles) *colors* (list) *num_atoms* 0
 	atom_draw_list (list) atom_cache (Fmap 31) canvas_size +min_size
-	;images asked for and not made yet, each made between frames, a few
-	;milliseconds of them a tick, and the nearest made shown till it is
-	atom_waiting (Fmap 31) atom_queue (list) +make_budget (/ timer_rate 3)
+	;images asked for and not made yet, made by the farm of ./child.lisp on
+	;the nodes of this machine, their pixels sent, the nearest made shown
+	;till they come, and the farm while any are out
+	atom_waiting (Fmap 31) jobs :nil +patience 10000000
 	;the atoms in view by depth, near to far, a bucket for each 1024th of it,
 	;kept from frame to frame
 	depth_buckets (map! (lambda () (list)) '() 0 1024)
@@ -46,15 +48,7 @@
 	;as 9
 	place_program (shader-load (cat *app_root* "place.shader"))
 	place_native (shader-vp-vertex place_program)
-	*atoms* (doubles) +placed_size 9
-	+palette (push `(,quote) (map (lambda (%0) (Vec3-q
-					(/ (n2q (logand (>> %0 16) 0xff)) 255.0)
-					(/ (n2q (logand (>> %0 8) 0xff)) 255.0)
-					(/ (n2q (logand %0 0xff)) 255.0)))
-			;the first was black, and a black ball shows only its highlight, a
-			;dark grey shows it is a ball
-			(list 0xff505050 +argb_white +argb_red +argb_green
-				+argb_cyan +argb_blue +argb_yellow +argb_magenta))))
+	*atoms* (doubles) +placed_size 9)
 
 (defclass Molecule-backdrop () (Backdrop)
 	(def this :atom_draw_list (list))
@@ -117,6 +111,11 @@
 (defun atom-key (size kind level)
 	(+ (* size 128) (* level 16) kind))
 
+(defun atom-name (size kind level)
+	; (atom-name size kind level) -> str
+	;the name of an atom's image in the node's shared pixmap cache
+	(cat "molecule/ball_" (str kind) "_" (str level) "_" (str size)))
+
 (defun make-atom (size kind level)
 	; (make-atom size kind level) -> canvas
 	;the image of an atom this big, of this color, which of the palette,
@@ -124,7 +123,7 @@
 	;pixels of a canvas. It goes in the shared pixmap cache of the node, so
 	;every Molecule that is open has the one image of a color, a size and a
 	;light, and one another made is only wrapped
-	(defq name (cat "molecule/ball_" (str kind) "_" (str level) "_" (str size)))
+	(defq name (atom-name size kind level))
 	(cond
 		((defq pixmap (. *pixmap_cache* :find name))
 			(defq canvas (Canvas-pixmap pixmap)))
@@ -166,23 +165,35 @@
 	(cond
 		((<= size 0) (list :nil 0 0))
 		(:t (unless (defq canvas (. atom_cache :find key))
-				(unless (. atom_waiting :find key)
-					(. atom_waiting :insert key :t)
-					(push atom_queue (list size kind level)))
+				(unless (. atom_waiting :find key) (atom-ask size kind level))
 				(setq canvas (ifn (near-atom size kind level) (make-atom size kind level))))
 			(texture-sized (getf canvas +canvas_texture 0)))))
 
-(defun make-waiting ()
-	; (make-waiting) -> :t | :nil
-	;the images waiting made, for as long as a tick allows, :t if any were
-	(defq start (pii-time) made :nil)
-	(while (and (nempty? atom_queue) (< (- (pii-time) start) +make_budget))
-		(bind '(size kind level) (pop atom_queue))
-		(. atom_waiting :erase (atom-key size kind level))
-		(unless (. atom_cache :find (atom-key size kind level))
-			(make-atom size kind level)
-			(setq made :t)))
-	made)
+(defun atom-ask (size kind level)
+	;an atom's image asked of the farm, made if there is none: one of the
+	;node's cache, another Molecule's, at once
+	(cond
+		((. *pixmap_cache* :find (atom-name size kind level)) (make-atom size kind level))
+		(:t (. atom_waiting :insert (atom-key size kind level) :t)
+			(unless jobs (setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
+				(elem-get select +select_reply) (list 8 1 1) :t)))
+			(. jobs :add (list (setf-> (str-alloc +atom_job_size)
+				(+atom_job_pixels size) (+atom_job_kind kind) (+atom_job_level level)))))))
+
+(defun atom-made (msg)
+	;the farm has drawn an atom's image: its pixels on a canvas, shown, and
+	;kept in the node's cache. The farm let go of when none is out
+	(when (and jobs (. jobs :answered msg))
+		(bind '(size kind level) (getf-> msg +atom_reply_pixels +atom_reply_kind +atom_reply_level))
+		(defq key (atom-key size kind level) canvas (Canvas size size 1))
+		(. atom_waiting :erase key)
+		(pixmap-read (getf canvas +canvas_pixmap 0) (string-stream (slice msg +atom_reply_size -1)) 32)
+		(. canvas :swap +swap_write)
+		(. *pixmap_cache* :insert (atom-name size kind level) (getf canvas +canvas_pixmap 0))
+		(. atom_cache :insert key canvas)
+		(setq *dirty* :t))
+	(and jobs (= (. jobs :out) 0)
+		(setq jobs (jobs-end jobs select +select_task +select_reply))))
 
 (defun render ()
 	;the atoms are placed by the vertex shader, all of them in one call of
@@ -283,6 +294,9 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
 	(. *window* :connect +event_layout)
+	;atoms' images are shared by every Molecule of the node, from a cache:
+	;those no Molecule is showing are let go of, and drawn again as wanted
+	(canvas-flush)
 	;the toolbar as it was
 	(config-load)
 	(bind '(name auto style) (gather *config* :molecule :auto :style))
@@ -313,8 +327,10 @@
 				(when *dirty*
 					(setq *dirty* :nil)
 					(render))
-				;the images the frame wanted, drawn by the next
-				(if (make-waiting) (setq *dirty* :t)))
+				;a child of the farm gone, or too long, started again
+				(if jobs (. jobs :refresh +patience)))
+			((= idx +select_task) (if jobs (. jobs :launched *msg*)))
+			((= idx +select_reply) (atom-made *msg*))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
 	(config-save)
