@@ -15,7 +15,8 @@
 ; A stream of an object is read by the functions of the task that made
 ; it, so it is read only by that task. What hands a stream to another
 ; task to read, a picture's loader to the stages of its pipeline, is
-; given (name-whole-stream): all of it, read first.
+; given (name-whole-stream): all of it, read first. And all its bytes at
+; once are (name-load).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "service/storage/app.inc")
@@ -52,12 +53,20 @@
 		(mode (file-stream name mode))
 		((file-stream name))))
 
+(defun name-load (name)
+	; (name-load name) -> :nil | str
+	;all the bytes of the thing named, a file's as (load) has them, or an
+	;object's of a store
+	(if (defq path (name-in-store name))
+		(and (defq svc (name-service name)) (storage-get path svc))
+		(load name)))
+
 (defun name-whole-stream (name)
 	; (name-whole-stream name) -> :nil | stream
 	;the thing named as a stream any task of this node can read: a file's
 	;own, or all of an object, read now, as a string stream
-	(if (defq path (name-in-store name))
-		(and (defq svc (name-service name)) (defq data (storage-get path svc)) (string-stream data))
+	(if (name-in-store name)
+		(and (defq data (name-load name)) (string-stream data))
 		(file-stream name)))
 
 (defun name-size (name)

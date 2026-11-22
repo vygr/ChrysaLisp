@@ -55,8 +55,7 @@
 ;canvas is freed once it is a texture. A file, or an object of the store,
 ;lib/files/names.inc
 (defun win-load (file)
-	(defq stream (name-whole-stream file))
-	(setq pcb_data (read-blk stream (ifn (name-size file) 0)) pcb (pcb-read pcb_data) *file* file)
+	(setq pcb_data (name-load file) pcb (pcb-read pcb_data) *file* file)
 	(defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale))
 	(. *window_title* :set_text (cat "Pcb -> " (path-name file)))
 	(. pcb_scroll :add_child (. canvas :swap +swap_flag_free))

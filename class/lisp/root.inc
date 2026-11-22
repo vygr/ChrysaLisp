@@ -1476,6 +1476,29 @@
 	; (get-int str idx) -> num
 	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_int)))
 
+(defmacro get-ushort-be (obj idx)
+	; (get-ushort-be str idx) -> num
+	;a short of a file's or the net's bytes, the high byte first, at any
+	;place of them, not only an aligned one, (code-be)
+	(static-qq (code-be ,obj 2 ,idx)))
+
+(defmacro get-uint-be (obj idx)
+	; (get-uint-be str idx) -> num
+	(static-qq (code-be ,obj 4 ,idx)))
+
+(defmacro get-short-be (obj idx)
+	; (get-short-be str idx) -> num
+	;and signed
+	(static-qq (sign-extend (code-be ,obj 2 ,idx) 16)))
+
+(defmacro get-int-be (obj idx)
+	; (get-int-be str idx) -> num
+	(static-qq (sign-extend (code-be ,obj 4 ,idx) 32)))
+
+(defmacro get-long-be (obj idx)
+	; (get-long-be str idx) -> num
+	(static-qq (code-be ,obj 8 ,idx)))
+
 (defmacro get-str (obj idx bytes)
 	; (get-str str idx bytes) -> str
 	(static-qq (obj-get ,obj (+ +str_data ,idx) ,bytes)))

@@ -969,6 +969,13 @@ High-performance vector operations executed across packed numeric vectors.
 
 	*	`(get-ubyte obj idx) -> num`
 
+*	**`get-ushort-be` / `get-uint-be` / `get-short-be` / `get-int-be` / `get-long-be`**:
+	The same of a file's or the net's bytes, the high byte first, at any
+	place of them: the typed getters above are of memory at its natural
+	alignment, these read by `(code-be)`.
+
+	*	`(get-short-be str idx) -> num`
+
 *	**`get-str` / `get-cstr`**: Substring and null-terminated string getters.
 
 	*	`(get-str obj idx bytes) -> str`

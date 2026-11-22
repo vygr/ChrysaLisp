@@ -491,9 +491,7 @@
 (defun send-file (path)
 	;to the channel that is shown, as a message is sent
 	;a file, or an object of the store, lib/files/names.inc
-	(and (> (length path) 0) (defq data (if (name-in-store path)
-				(and (defq stream (name-whole-stream path)) (read-blk stream (ifn (name-size path) 0)))
-				(load path)))
+	(and (> (length path) 0) (defq data (name-load path))
 		(cond
 			((> (length data) +max_file)
 				(add-chat-message (cat "<System> " path " is more than " (str (/ +max_file 1048576)) "MB, not sent")))

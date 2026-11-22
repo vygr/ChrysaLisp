@@ -48,5 +48,7 @@
 (assert-eq "a name of a store that is not there has no service" :nil (name-service "store://no_such_store_here/a"))
 (assert-eq "no stream" :nil (name-stream "store://no_such_store_here/a"))
 (assert-eq "no size" :nil (name-size "store://no_such_store_here/a"))
+(assert-eq "none of its bytes" :nil (name-load "store://no_such_store_here/a"))
+(assert-eq "all the bytes of a file, as (load) has them" (load "tests/system/test_names.lisp") (name-load "tests/system/test_names.lisp"))
 (assert-list-eq "nothing in it" '(() ()) (name-list "store://no_such_store_here/"))
 (assert-eq "and no folder of it but its top" :nil (name-folder? "store://no_such_store_here/films"))
