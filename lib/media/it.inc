@@ -126,34 +126,35 @@
 	;byte of which channel and if a mask follows, the mask of what follows
 	;and of what is as the channel's last
 	(defq rows 64)
-	(when (> at 0)
-		(defq size (code data 2 at) rows (code data 2 (+ at 2)) at (+ at 8)
+	;what is past the file's end reads as nothing, (mod-u8)
+	(when (< 0 at (length data))
+		(defq size (mod-u16 data at) rows (mod-u16 data (+ at 2)) at (+ at 8)
 			end (min (length data) (+ at size)) row 0 masks (nums) lasts (list) last_s (nums))
 		(times 64 (push masks 0) (push lasts (list 0 0 +no_volume 0 0)) (push last_s 0))
 		(when (<= 1 rows 1024)
 			(while (and (< row rows) (< at end))
-				(defq b (code data 1 at) at (inc at))
+				(defq b (mod-u8 data at) at (inc at))
 				(cond
 					((= b 0) (setq row (inc row)))
 					(:t (defq c (logand (dec b) 63) cell (list 0 0 +no_volume 0 0) prev (elem-get lasts c))
 						(when (bits? b 128)
-							(elem-set masks c (code data 1 at))
+							(elem-set masks c (mod-u8 data at))
 							(setq at (inc at)))
 						(defq mask (elem-get masks c))
 						(when (bits? mask 1)
-							(defq n (code data 1 at) at (inc at))
+							(defq n (mod-u8 data at) at (inc at))
 							(elem-set cell 0 (cond ((= n 255) +note_off) ((= n 254) +note_cut) ((> n 119) +note_fade) ((inc n))))
 							(elem-set prev 0 (first cell)))
 						(when (bits? mask 2)
-							(elem-set cell 1 (code data 1 at))
+							(elem-set cell 1 (mod-u8 data at))
 							(elem-set prev 1 (second cell))
 							(setq at (inc at)))
 						(when (bits? mask 4)
-							(elem-set cell 2 (code data 1 at))
+							(elem-set cell 2 (mod-u8 data at))
 							(elem-set prev 2 (third cell))
 							(setq at (inc at)))
 						(when (bits? mask 8)
-							(defq fx (code data 1 at) param (code data 1 (inc at)) at (+ at 2))
+							(defq fx (mod-u8 data at) param (mod-u8 data (inc at)) at (+ at 2))
 							(cond
 								;OpenMPT's smooth Zxx, \\, kept as 31, past the volume
 								;column's of the player
@@ -182,7 +183,7 @@
 	;and its edit history: those of SFx, 16, and of Z80 to ZFF, 128, a
 	;text each to its first nul, of 31 at most
 	(when (or (bits? flags 128) (bits? special 8))
-		(if (bits? special 2) (setq at (+ at 2 (* 8 (code data 2 at)))))
+		(if (bits? special 2) (setq at (+ at 2 (* 8 (mod-u16 data at)))))
 		(setq at (+ at (* 9 32)))
 		(when (<= (+ at (* 144 32)) (length data))
 			(defq texts (map! (lambda ()

@@ -189,7 +189,21 @@
 	(if (nql fragment "") (push parts "#" fragment))
 	(apply (const cat) parts))
 
+(defun url-kept-path (root url &optional decode)
+	; (url-kept-path root url [decode]) -> path
+	;where what is fetched from an address is kept, under a folder of the
+	;tree: the host and its folders, each a plain name, what is not a
+	;letter, a digit or . _ - made _, so none climbs out of the folder;
+	;their escapes undone first if decode
+	(defq parts (filter (# (and (nempty? %0) (nql %0 ".") (nql %0 "..")))
+			(split (slice url (length "https://") -1) "/")))
+	(apply (const cat) (cat (list root)
+		(map (lambda (part)
+				(cat "/" (apply (const cat) (map (# (if (bfind %0 (const (char-class "A-Za-z0-9._-"))) %0 "_"))
+					(if decode (url-decode part) part)))))
+			parts))))
+
 ;module
 (export-symbols '(url-scheme-port url-encode url-decode url-query-parse
-		url-query-format url-parse url-path-query url-format))
+		url-query-format url-parse url-path-query url-format url-kept-path))
 (env-pop)

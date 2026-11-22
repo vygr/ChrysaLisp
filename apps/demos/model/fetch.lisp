@@ -13,26 +13,13 @@
 ;why the last fetch had nothing
 (defq *why* "")
 
-(defun kept-path (url)
-	; (kept-path url) -> path
-	;where a file fetched is kept, of the tree's downloads/, by its address:
-	;the host and the folders of it, each a plain name, so none climbs out
-	(defq parts (filter (# (and (nempty? %0) (nql %0 ".") (nql %0 "..")))
-			(split (slice url (length "https://") -1) "/")))
-	(apply (const cat) (cat (list "downloads/models")
-		(map (lambda (part)
-				(cat "/" (apply (const cat) (map (# (if (bfind %0 (const (char-class "A-Za-z0-9._-"))) %0 "_")) part))))
-			parts))))
-
 (defun fetch (url)
 	; (fetch url) -> :nil | str
 	;kept from a fetch before, or fetched and kept
-	(defq path (kept-path url))
+	(defq path (url-kept-path "downloads/models" url))
 	(cond
 		((defq data (load path)) data)
-		((not (defq resp (http-get url))) (setq *why* (ifn (tls-why) "no connection")) :nil)
-		((/= (pfind resp :status) 200)
-			(setq *why* (cat (str (pfind resp :status)) " " (ifn (pfind resp :reason) ""))) :nil)
+		((defq why (http-why (defq resp (http-get url)))) (setq *why* why) :nil)
 		((defq data (http-body-str resp)) (save data path) data)))
 
 (defun child-run (said)

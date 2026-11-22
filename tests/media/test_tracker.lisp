@@ -148,7 +148,7 @@
 (assert-true "IT filter, the instrument's cutoff 128" (tt-near (. chan :find :fa0) 51874))
 (assert-true "IT filter, its b0 and b1"
 	(and (tt-near (. chan :find :fb0) 7846511) (tt-near (. chan :find :fb1) -3704081)))
-(assert-eq "IT filter, given the voice" (. chan :find :fa0) (elem-get (. player :find :voices) 8))
+(assert-eq "IT filter, given the voice" (. chan :find :fa0) (elem-get (. player :find :voices) +mix_fa0))
 (assert-eq "IT no filter, a0 0"
 	0 (. (first (. (tt-ticks (tracker-player song 44100) 1) :find :chans)) :find :fa0))
 (setq chan (first (. (tt-ticks (tracker-player (module-read (tt-it '((0 0 60 1 26 0x40)))) 44100) 1) :find :chans)))
@@ -307,7 +307,7 @@
 (assert-list-eq "HVL its voices' places, left right right left" '(0 255 255 0 0 255) (. song :find :pans))
 (assert-list-eq "HVL and of a stereo of 0, the middle" '(128 128 128 128)
 	(. (module-read (tt-hvl 4 0 '((0 25 1 0 0 0 0)))) :find :pans))
-(assert-eq "HVL its gain, 100 of 256" 256 (. song :find :gain))
+(assert-eq "HVL its gain, 100 of 256" 256 (. song :find :mixgain))
 (assert-eq "HVL length, 4 rows of 6 frames" 21168 (tracker-length song 44100))
 (assert-eq "HVL F03 the second effect, a speed of 3" 10584
 	(tracker-length (module-read (tt-hvl 6 4 '((0 25 1 0 0 15 3)))) 44100))
@@ -318,12 +318,12 @@
 (defq player (tt-ticks (tracker-player song 44100) 2) chans (. player :find :chans))
 (assert-list-eq "HVL the note's voice sounds, the others not" '(:t :nil)
 	(list (> (. (first chans) :find :volume_out) 0) (> (. (second chans) :find :volume_out) 0)))
-(assert-eq "HVL no ring" -1 (elem-get (. player :find :voices) 14))
+(assert-eq "HVL no ring" -1 (elem-get (. player :find :voices) +mix_ring))
 ;a ring of a sawtooth a fifth up from the track's note, 8 and 0x87
 (defq player (tt-ticks (tracker-player (module-read (tt-hvl 6 4 '((0 25 1 0 0 0 0)) '(8 0 0x87 0))) 44100) 2))
-(assert-eq "HVL a ring, its buffer after the voices'" 6 (elem-get (. player :find :voices) 14))
+(assert-eq "HVL a ring, its buffer after the voices'" 6 (elem-get (. player :find :voices) +mix_ring))
 (assert-true "HVL the ring's step, a fifth over the voice's, periods 906 and 604"
-	(<= (abs (- (* 2 (elem-get (. player :find :voices) 16)) (* 3 (elem-get (. player :find :voices) 2)))) 2))
+	(<= (abs (- (* 2 (elem-get (. player :find :voices) +mix_ring_step)) (* 3 (elem-get (. player :find :voices) +mix_step)))) 2))
 
 ;a seek moves a ring on as the mixer does: a song played three ticks and one
 ;sought to there have its voice and its ring at the same places
@@ -331,10 +331,10 @@
 	played (tracker-player ring_song 44100) sought (tracker-player ring_song 44100))
 (times 3 (tracker-next played))
 (tracker-seek sought (* 3 882))
-(assert-true "HVL the ring has moved" (> (elem-get (. played :find :voices) 15) 0))
+(assert-true "HVL the ring has moved" (> (elem-get (. played :find :voices) +mix_ring_pos) 0))
 (assert-list-eq "HVL a seek, its voice and its ring where the mixer has them"
-	(list (elem-get (. played :find :voices) 1) (elem-get (. played :find :voices) 15))
-	(list (elem-get (. sought :find :voices) 1) (elem-get (. sought :find :voices) 15)))
+	(list (elem-get (. played :find :voices) +mix_pos) (elem-get (. played :find :voices) +mix_ring_pos))
+	(list (elem-get (. sought :find :voices) +mix_pos) (elem-get (. sought :find :voices) +mix_ring_pos)))
 ;an instrument's name past the file's end is none, one with no 0 after it its letters
 (assert-eq "AHX an instrument's name with no 0 after it" "i"
 	(. (first (. (module-read (slice (tt-ahx '((0 25 1 0 0))) 0 -2)) :find :samples)) :find :name))
@@ -353,6 +353,38 @@
 (assert-list-eq "mod-frames, a sample cut short by the file's end" '(4 3 1 0)
 	(list (mod-frames "0123456789" 2 4 1) (mod-frames "0123456789" 4 5 2) (mod-frames "0123456789" 9 5 1) (mod-frames "0123456789" 12 5 1)))
 (assert-list-eq "mod-nearest, the note of a period" '(0 12 35) (list (mod-nearest 856) (mod-nearest 430) (mod-nearest 100)))
+;a file cut short, at any place, is read as far as it goes or not at
+;all, and is no error: each of these at every length it could be cut to
+(each (lambda ((what data))
+		(defq read 0)
+		(each! (# (module-read (slice data 0 (!)) :t) (setq read (inc read))) '() 0 (length data))
+		(assert-eq (cat "a " what " cut short at any place is no error") (length data) read))
+	(list (list "MOD" (tt-mod '((0 1 428 1 0 0)))) (list "IT" (tt-it notes))
+		(list "MED" (tt-med '((0 0 13 1 0 0)))) (list "AHX" (tt-ahx '((0 25 1 0 0))))
+		(list "HVL" (tt-hvl 6 4 '((0 25 1 0 0 0 0)) '(8 0 0x87 0)))))
+(assert-list-eq "mod-u8, mod-u16 and mod-u32, nothing past the file's end" '(0x34 0 0x3412 0 0x78563412 0 0)
+	(list (mod-u8 "\x12\x34\x56\x78" 1) (mod-u8 "\x12\x34\x56\x78" 4) (mod-u16 "\x12\x34\x56\x78" 0) (mod-u16 "\x12\x34\x56\x78" 3)
+		(mod-u32 "\x12\x34\x56\x78" 0) (mod-u32 "\x12\x34\x56\x78" 1) (mod-u8 "\x12" -1)))
+(assert-list-eq "mod-bytes, fewer or none past the file's end" '("bc" "c" "" "")
+	(list (mod-bytes "abc" 1 2) (mod-bytes "abc" 2 5) (mod-bytes "abc" 3 2) (mod-bytes "abc" 9 2)))
+;the mixer's samples of the Amiga's: 16 bits high byte first, and a stereo
+;sample, all its left then all its right, made one channel, half their sum
+(defun tt-widen (src n kind)
+	; (tt-widen src n kind) -> (num ...)
+	(defq out (media-widen (str-alloc (* 2 n)) (tt-bytes src) 0 kind))
+	(map! (# (get-short out (* 2 (!)))) '() 0 n))
+(assert-list-eq "media-widen, 16 bits high byte first" '(0x1234 -2 -32768) (tt-widen '(0x12 0x34 0xff 0xfe 0x80 0x00) 3 +widen_s16be))
+(assert-list-eq "media-widen, a stereo sample of 8 bits" (list (<< 30 7) (<< -70 7)) (tt-widen '(10 -100 20 30) 2 +widen_s8x2))
+(assert-list-eq "media-widen, and of 16 high byte first" '(0x0180 -3) (tt-widen '(0x01 0x00 0xff 0xfe 0x02 0x00 0xff 0xfc) 2 +widen_s16bex2))
+;a cell as its tracker shows it, and how wide: a MOD's, an IT's volume
+;and effect by letter, a MED's effect of two digits
+(defq mod_song (module-read (tt-mod '())) it_song (module-read (tt-it notes)) med_song (module-read (tt-med '((0 0 13 1 0 0)))))
+(assert-list-eq "module-cell-text, of a MOD, an IT and a MED" '("C-1 01 C20" "--- .. ..." "D-2 0A 20 H81" "^^^ .. .. ..." "C-1 01 0C20")
+	(list (module-cell-text mod_song '(13 1 255 12 0x20)) (module-cell-text mod_song '(0 0 255 0 0))
+		(module-cell-text it_song '(27 10 32 8 0x81)) (module-cell-text it_song (list +note_cut 0 255 0 0))
+		(module-cell-text med_song '(13 1 255 12 0x20))))
+(assert-list-eq "module-cell-width, with the space after" '(11 14 12)
+	(list (module-cell-width mod_song) (module-cell-width it_song) (module-cell-width med_song)))
 ;the samples that sound: a MOD's on its right channel too
 (defq player (tt-ticks (tracker-player (module-read (tt-mod '((0 1 428 1 0 0)))) 44100) 1))
 (assert-list-eq "tracker-playing, a MOD's sample on a right channel" '(0) (tracker-playing player))

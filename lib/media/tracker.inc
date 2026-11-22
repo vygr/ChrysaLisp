@@ -29,7 +29,16 @@
 
 (ffi "lib/media/media_mix" media-mix)
 
-(defq +mix_size 17 +mix_pingpong 1 +mix_back 2
+;a voice of the mixer, media_mix, so many numbers of the player's :voices,
+;as lib/media/lisp_tracker.vp has them: its sample, -1 none, where it is in
+;it and its step a frame, 16.16, its weights left and right, its loop's
+;start, -1 none, its end, its flags, its filter's a0 b0 b1 and last two
+;outputs, what is added to where it is for the sample played, and its
+;ring, a sample it is times, where that is and its step
+(enums +mix 0
+	(enum sample pos step left right loop end flags fa0 fb0 fb1 fy1 fy2 round ring ring_pos ring_step))
+
+(defq +mix_pingpong 1 +mix_back 2
 	+amiga_clock 3546895 +st3_clock 14317056 +period_lo 113 +period_hi 856 +st3_period_lo 64
 	;the half of a sine of vibrato and tremolo
 	+tracker_sine ''(0 24 49 74 97 120 141 161 180 197 212 224 235 244 250 253
@@ -77,9 +86,9 @@
 	; (voice-loop voices at ls le len pingpong)
 	;a voice's loop, from ls to le, back and forth if so, or none, ls less
 	;than 0, and its end the sample's
-	(elem-set voices (+ at 5) ls)
-	(elem-set voices (+ at 6) (if (>= ls 0) le len))
-	(elem-set voices (+ at 7) (if (and (>= ls 0) pingpong) +mix_pingpong 0)))
+	(elem-set voices (+ at +mix_loop) ls)
+	(elem-set voices (+ at +mix_end) (if (>= ls 0) le len))
+	(elem-set voices (+ at +mix_flags) (if (and (>= ls 0) pingpong) +mix_pingpong 0)))
 
 (defun tracker-voices (player)
 	; (tracker-voices player)
@@ -96,8 +105,8 @@
 				(scatter chan :stop :nil :trigger :nil)
 				(elem-set voices at -1)
 				;a voice let go of, its filter from nothing when next it is
-				(elem-set voices (+ at 11) 0)
-				(elem-set voices (+ at 12) 0))
+				(elem-set voices (+ at +mix_fy1) 0)
+				(elem-set voices (+ at +mix_fy2) 0))
 			(when (and (. chan :find :trigger) (>= sample 0))
 				;a note played: its sample from the start, or the offset, and
 				;its loop
@@ -111,10 +120,10 @@
 					((>= ls 0) (setq start ls))
 					((setq sample -1)))
 				(elem-set voices at sample)
-				(elem-set voices (+ at 1) (<< start 16))
+				(elem-set voices (+ at +mix_pos) (<< start 16))
 				(voice-loop voices at ls le len pingpong)
 				;the nearest sample, but of a MOD the one it is at
-				(elem-set voices (+ at 13) round))
+				(elem-set voices (+ at +mix_round) round))
 			(when (and (. chan :find :switch) (not (. chan :find :trigger)))
 				;another sample where the voice is along, a MED synth sound's
 				;next waveform: round its loop if past its end
@@ -122,11 +131,11 @@
 				(when (and (>= sample 0) (>= (elem-get voices at) 0))
 					(defq s (elem-get (. song :find :samples) sample) len (. s :find :length)
 						ls (. s :find :loop_start) le (if (>= ls 0) (. s :find :loop_end) len)
-						pos (elem-get voices (+ at 1)))
+						pos (elem-get voices (+ at +mix_pos)))
 					(and (>= (>> pos 16) le) (>= ls 0)
 						(setq pos (+ (<< ls 16) (% (- pos (<< ls 16)) (<< (- le ls) 16)))))
 					(elem-set voices at sample)
-					(elem-set voices (+ at 1) pos)
+					(elem-set voices (+ at +mix_pos) pos)
 					(voice-loop voices at ls le len (. s :find :pingpong))))
 			(when (. chan :find :loop_change)
 				;a sustain loop let go, the voice on round the loop
@@ -137,18 +146,18 @@
 			(. chan :insert :trigger :nil)
 			(defq period (. chan :find :period_out) pan (ifn (. chan :find :pan_out) (. chan :find :pan))
 				weight (/ (* (. chan :find :volume_out) gain) scale))
-			(elem-set voices (+ at 2) (cond
+			(elem-set voices (+ at +mix_step) (cond
 				((<= period 0) 0)
 				(stepped period)
 				(linear (ft2-step player period))
 				((/ clock (* period rate)))))
-			(elem-set voices (+ at 3) (/ (* weight (- 256 pan)) 256))
-			(elem-set voices (+ at 4) (/ (* weight pan) 256))
+			(elem-set voices (+ at +mix_left) (/ (* weight (- 256 pan)) 256))
+			(elem-set voices (+ at +mix_right) (/ (* weight pan) 256))
 			;a stepped player's filter, an IT's, a0 0 none
 			(when stepped
-				(elem-set voices (+ at 8) (. chan :find :fa0))
-				(elem-set voices (+ at 9) (. chan :find :fb0))
-				(elem-set voices (+ at 10) (. chan :find :fb1))))
+				(elem-set voices (+ at +mix_fa0) (. chan :find :fa0))
+				(elem-set voices (+ at +mix_fb0) (. chan :find :fb0))
+				(elem-set voices (+ at +mix_fb1) (. chan :find :fb1))))
 		(if (nempty? (defq past (. player :find :past))) (cat chans past) chans)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1410,8 +1419,8 @@
 			from (* (. chan :find :index) +mix_size) to (* slot +mix_size))
 		(each! (# (elem-set voices (+ to (!)) (elem-get voices (+ from (!))))) '() 0 +mix_size)
 		;the channel's new voice, its filter from nothing
-		(elem-set voices (+ from 11) 0)
-		(elem-set voices (+ from 12) 0)
+		(elem-set voices (+ from +mix_fy1) 0)
+		(elem-set voices (+ from +mix_fy2) 0)
 		(scatter past :slot slot :fx 0)
 		(push (. player :find :past) past)))
 
@@ -2673,12 +2682,12 @@
 	(each! (lambda ()
 			(defq at (* (!) +mix_size))
 			(elem-set voices at (!))
-			(elem-set voices (+ at 1) 0)
-			(elem-set voices (+ at 5) 0)
-			(elem-set voices (+ at 6) +ahx_buffer)
-			(elem-set voices (+ at 7) 0)
-			(elem-set voices (+ at 13) 0)
-			(elem-set voices (+ at 14) -1))
+			(elem-set voices (+ at +mix_pos) 0)
+			(elem-set voices (+ at +mix_loop) 0)
+			(elem-set voices (+ at +mix_end) +ahx_buffer)
+			(elem-set voices (+ at +mix_flags) 0)
+			(elem-set voices (+ at +mix_round) 0)
+			(elem-set voices (+ at +mix_ring) -1))
 		'() 0 n)
 	player)
 
@@ -2688,20 +2697,20 @@
 	;start when an instrument began it, its step, its share each side of
 	;the song's gain, and its ring if it has one
 	(defq voices (. player :find :voices) pans (. player :find :pan_tables)
-		chans (. player :find :chans) n (length chans) gain (. (. player :find :song) :find :gain))
+		chans (. player :find :chans) n (length chans) gain (. (. player :find :song) :find :mixgain))
 	(each (lambda (voice)
 			(defq at (* (!) +mix_size) vol (. voice :find :voice_volume) pan (. voice :find :pan))
 			(when (. voice :find :restart)
 				(. voice :insert :restart :nil)
-				(elem-set voices (+ at 1) 0))
+				(elem-set voices (+ at +mix_pos) 0))
 			(when (. voice :find :ring_restart)
 				(. voice :insert :ring_restart :nil)
-				(elem-set voices (+ at 15) 0))
-			(elem-set voices (+ at 2) (. voice :find :delta))
-			(elem-set voices (+ at 3) (/ (* vol (elem-get (first pans) pan) gain) 128))
-			(elem-set voices (+ at 4) (/ (* vol (elem-get (second pans) pan) gain) 128))
-			(elem-set voices (+ at 14) (if (. voice :find :ring_mix) (+ n (!)) -1))
-			(elem-set voices (+ at 16) (. voice :find :ring_delta))
+				(elem-set voices (+ at +mix_ring_pos) 0))
+			(elem-set voices (+ at +mix_step) (. voice :find :delta))
+			(elem-set voices (+ at +mix_left) (/ (* vol (elem-get (first pans) pan) gain) 128))
+			(elem-set voices (+ at +mix_right) (/ (* vol (elem-get (second pans) pan) gain) 128))
+			(elem-set voices (+ at +mix_ring) (if (. voice :find :ring_mix) (+ n (!)) -1))
+			(elem-set voices (+ at +mix_ring_step) (. voice :find :ring_delta))
 			(scatter voice :volume_out vol :period_out (. voice :find :delta) :pan_out pan))
 		chans))
 
@@ -2721,7 +2730,7 @@
 				(:ahx (list))
 				(:t (map (case mode (:st3 (const st3-channel)) (:ft2 (const ft2-channel)) (:t (const pt-channel)))
 					(. song :find :pans))))
-			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0 0 0 0 0 0 0 -1 0 0))
+			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0 0 0 0 0 0 0 -1 0 0)) ;+mix_sample, +mix_loop and +mix_ring none
 				'() 0 (+ channels (defq extra (if (and (eql mode :it) (not (. song :find :sample_mode))) +it_voices 0))))))
 			;an IT's past notes, and the voices free for them
 			:past (list) :free (map! (# (+ channels (!))) '() 0 extra) :filters (Fmap 101)
@@ -2798,7 +2807,7 @@
 		(:t (defq voices (. player :find :voices))
 			(each! (lambda ()
 					(defq at (* (!) +mix_size) s (elem-get voices at))
-					(and (>= s 0) (or (> (elem-get voices (+ at 3)) 0) (> (elem-get voices (+ at 4)) 0))
+					(and (>= s 0) (or (> (elem-get voices (+ at +mix_left)) 0) (> (elem-get voices (+ at +mix_right)) 0))
 						(not (find s playing)) (push playing s)))
 				'() 0 (/ (length voices) +mix_size))))
 	playing)
@@ -2863,9 +2872,9 @@
 	(each! (lambda ()
 			(defq at (* (!) +mix_size))
 			(when (>= (elem-get voices at) 0)
-				(defq pos (elem-get voices (+ at 1)) by (* (elem-get voices (+ at 2)) frames)
-					ls (elem-get voices (+ at 5)) endq (<< (elem-get voices (+ at 6)) 16)
-					flags (elem-get voices (+ at 7)) back (bits? flags +mix_back))
+				(defq pos (elem-get voices (+ at +mix_pos)) by (* (elem-get voices (+ at +mix_step)) frames)
+					ls (elem-get voices (+ at +mix_loop)) endq (<< (elem-get voices (+ at +mix_end)) 16)
+					flags (elem-get voices (+ at +mix_flags)) back (bits? flags +mix_back))
 				(cond
 					((and (not back) (< (+ pos by) endq)) (setq pos (+ pos by)))
 					((< ls 0) (elem-set voices at -1))
@@ -2877,12 +2886,12 @@
 						(if (< along len)
 							(setq pos (+ lsq along) flags (logand flags (const (lognot +mix_back))))
 							(setq pos (+ lsq (- (* 2 len) along)) flags (logior flags +mix_back)))
-						(elem-set voices (+ at 7) flags)))
-				(elem-set voices (+ at 1) pos)
+						(elem-set voices (+ at +mix_flags) flags)))
+				(elem-set voices (+ at +mix_pos) pos)
 				;its ring, a HivelyTracker's, on round the loop as the mixer has it
-				(when (and (>= (elem-get voices (+ at 14)) 0) (>= ls 0))
-					(defq lsq (<< ls 16) ring (+ (elem-get voices (+ at 15)) (* (elem-get voices (+ at 16)) frames)))
-					(elem-set voices (+ at 15) (if (>= ring endq) (+ lsq (% (- ring lsq) (- endq lsq))) ring)))))
+				(when (and (>= (elem-get voices (+ at +mix_ring)) 0) (>= ls 0))
+					(defq lsq (<< ls 16) ring (+ (elem-get voices (+ at +mix_ring_pos)) (* (elem-get voices (+ at +mix_ring_step)) frames)))
+					(elem-set voices (+ at +mix_ring_pos) (if (>= ring endq) (+ lsq (% (- ring lsq) (- endq lsq))) ring)))))
 		'() 0 (/ (length voices) +mix_size)))
 
 (defun tracker-seek (player frames &optional from)

@@ -33,28 +33,29 @@
 	;the cells of a pattern unpacked, a row of channels after another: a
 	;byte of which channel and what follows of it, 0 the row's end
 	(defq cells (mod-cells 64 channels) row 0)
-	(when (> at 0)
-		(defq end (min (length data) (+ at (code data 2 at))) at (+ at 2))
+	;what is past the file's end reads as nothing, (mod-u8)
+	(when (< 0 at (length data))
+		(defq end (min (length data) (+ at (mod-u16 data at))) at (+ at 2))
 		(while (and (< row 64) (< at end))
-			(defq b (code data 1 at) c (logand b 31) cell (* (+ (* row channels) c) +cell_size)
+			(defq b (mod-u8 data at) c (logand b 31) cell (* (+ (* row channels) c) +cell_size)
 				keep (< c channels))
 			(setq at (inc at))
 			(cond
 				((= b 0) (setq row (inc row)))
 				(:t (when (bits? b 32)
-						(defq n (code data 1 at))
+						(defq n (mod-u8 data at))
 						(when keep
 							(elem-set cells cell (cond ((= n 255) 0) ((= n 254) +note_cut)
 								((+ 1 (* 12 (>> n 4)) (logand n 15)))))
-							(elem-set cells (inc cell) (code data 1 (inc at))))
+							(elem-set cells (inc cell) (mod-u8 data (inc at))))
 						(setq at (+ at 2)))
 					(when (bits? b 64)
-						(if keep (elem-set cells (+ cell 2) (code data 1 at)))
+						(if keep (elem-set cells (+ cell 2) (mod-u8 data at)))
 						(setq at (inc at)))
 					(when (bits? b 128)
 						(when keep
-							(elem-set cells (+ cell 3) (code data 1 at))
-							(elem-set cells (+ cell 4) (code data 1 (inc at))))
+							(elem-set cells (+ cell 3) (mod-u8 data at))
+							(elem-set cells (+ cell 4) (mod-u8 data (inc at))))
 						(setq at (+ at 2)))))))
 	cells)
 
@@ -68,7 +69,7 @@
 			flags (code data 2 38) version (code data 2 40) mv (code data 1 51)
 			;as many channels as the last of the 32 that is one
 			channels (inc (reduce! (# (if (/= (code data 1 (+ 64 (!))) 255) (!) %0)) '() -1 0 32))
-			orders (map! (# (code data 1 (+ 96 (!)))) '() 0 ordnum)
+			orders (map! (# (mod-u8 data (+ 96 (!)))) '() 0 ordnum)
 			patterns (min patnum (inc (reduce (lambda (top o) (if (< o 254) (max top o) top)) orders -1)))
 			at (+ 96 ordnum) pans_at (+ at (* 2 insnum) (* 2 patnum)))
 		;the mix's volume, and stereo or not, as each version of it says
@@ -82,8 +83,8 @@
 		(and (> channels 0) (> patterns 0) (<= pans_at (length data))
 			(scatter (Emap) :kind "S3M" :mode :st3 :pitch :st3 :title (mod-text data 0 28)
 				:channels channels :orders orders :restart 0
-				:samples (map! (# (s3m-sample data (* 16 (code data 2 (+ at (* 2 (!))))) (= sign_kind 1) bare)) '() 0 insnum)
-				:patterns (map! (# (s3m-pattern data (* 16 (code data 2 (+ at (* 2 insnum) (* 2 (!))))) channels))
+				:samples (map! (# (s3m-sample data (* 16 (mod-u16 data (+ at (* 2 (!))))) (= sign_kind 1) bare)) '() 0 insnum)
+				:patterns (map! (# (s3m-pattern data (* 16 (mod-u16 data (+ at (* 2 insnum) (* 2 (!))))) channels))
 					'() 0 patterns)
 				:rows (map! (# 64) '() 0 patterns)
 				:speed (mod-speed (code data 1 49)) :tempo (mod-tempo (code data 1 50))

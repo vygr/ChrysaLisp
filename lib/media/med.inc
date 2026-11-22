@@ -38,10 +38,6 @@
 	; (med-u16 data at) -> num
 	(if (<= (+ at 2) (length data)) (code-be data 2 at) 0))
 
-(defun med-u8 (data at)
-	; (med-u8 data at) -> num
-	(if (< at (length data)) (code data 1 at) 0))
-
 (defun med-tempo (tempo bpm_on med_8ch)
 	; (med-tempo tempo bpm_on med_8ch) -> bpm
 	;a tempo as libxmp has it: of an 8 channel song 1 to 10 by a table,
@@ -68,26 +64,6 @@
 		((>= exp_size 0) (if med_8ch 0x1000 +med_ver_300))
 		(0x0210)))
 
-(defun med-wave (data at n kind)
-	; (med-wave data at n kind) -> str
-	;so many frames of a sample's bytes at at, as the mixer has them:
-	;8 bit, or 16 bit high byte first, of one channel, or two one after
-	;the other made one, kind :8 :16 :8s :16s
-	(defq n (max 0 n))
-	(case kind
-		(:8 (mod-widen data at n +widen_s8 :nil))
-		(:16 (apply (const cat) (map! (lambda ()
-				(defq p (+ at (* 2 (!))))
-				(cat (slice data (inc p) (+ p 2)) (slice data p (inc p))))
-			'() 0 n)))
-		(:t ;the left and the right of a stereo sample, the two halved
-			(defq left (med-wave data at n (if (eql kind :8s) :8 :16))
-				right (med-wave data (+ at (if (eql kind :8s) n (* 2 n))) n (if (eql kind :8s) :8 :16)))
-			(apply (const cat) (map! (lambda ()
-					(defq i (* 2 (!)))
-					(char (>> (+ (get-short left i) (get-short right i)) 1) 2))
-				'() 0 n)))))
-
 (defun med-sample (data at n loop_start loop_len looped pingpong bare kind)
 	; (med-sample data at n loop_start loop_len looped pingpong bare kind) -> sample
 	;a sample of so many frames, its loop as libxmp makes it good: past
@@ -96,7 +72,10 @@
 		ls (max 0 loop_start) le (min n (+ loop_start loop_len)))
 	(if (or (not looped) (>= ls n) (>= ls le)) (setq ls -1 le n))
 	(scatter (Emap) :name "" :length n :loop_start ls :loop_end le :pingpong (and (>= ls 0) pingpong)
-		:data (if (or bare (= n 0)) "" (med-wave data at n kind))))
+		;8 bit, or 16 bit high byte first, of one channel, or two one after
+		;the other made one, (media-widen)
+		:data (mod-widen data at n (case kind (:8 +widen_s8) (:16 +widen_s16be) (:8s +widen_s8x2) (:t +widen_s16bex2))
+			(or bare (= n 0)))))
 
 (defun med-map (xpo_of)
 	; (med-map xpo_of) -> map
@@ -134,8 +113,8 @@
 			(when (and (/= wforms 0xffff) (<= 1 wforms 64))
 				(defq vtlen (min 128 (med-u16 data (+ at 14))) wtlen (min 128 (med-u16 data (+ at 16)))
 					offs (map! (# (med-u32 data (+ at 278 (* 4 (!))))) '() 0 wforms))
-				(scatter ins :hold -1 :decay -1 :vts (med-u8 data (+ at 18)) :wts (med-u8 data (+ at 19)) :nsm wforms
-					:synth (list (slice data (+ at 22) (+ at 22 vtlen)) (slice data (+ at 150) (+ at 150 wtlen))))
+				(scatter ins :hold -1 :decay -1 :vts (mod-u8 data (+ at 18)) :wts (mod-u8 data (+ at 19)) :nsm wforms
+					:synth (list (mod-bytes data (+ at 22) vtlen) (mod-bytes data (+ at 150) wtlen)))
 				(each (lambda (off)
 						(defq w (+ at off))
 						(cond
@@ -199,11 +178,11 @@
 					(defq k (!))
 					(if (< k tracks)
 						(progn
-							(defq b (+ from (* (+ (* row tracks) k) step)) b0 (med-u8 src b) b1 (med-u8 src (inc b))
+							(defq b (+ from (* (+ (* row tracks) k) step)) b0 (mod-u8 src b) b1 (mod-u8 src (inc b))
 								note (if (> mmd 0) (logand b0 0x7f) (logand b0 0x3f))
 								ins (if (> mmd 0) (logand b1 0x3f) (logior (>> b1 4) (>> (logand b0 0x80) 3) (>> (logand b0 0x40) 1)))
-								cmd (if (> mmd 0) (med-u8 src (+ b 2)) (logand b1 15))
-								param (med-u8 src (+ b (if (> mmd 0) 3 2))))
+								cmd (if (> mmd 0) (mod-u8 src (+ b 2)) (logand b1 15))
+								param (mod-u8 src (+ b (if (> mmd 0) 3 2))))
 							(when (> note 0)
 								(setq note (+ note 12 transpose))
 								(if (or (< note 0) (>= note 121)) (setq note 0)))
@@ -223,9 +202,9 @@
 		(defq id (elem-get data 3) mmdc (eql id "C") mmd (if mmdc 0 (- (code id) (ascii-code "0")))
 			song (med-u32 data 8) blockarr (med-u32 data 16) smplarr (med-u32 data 24) expdata (med-u32 data 32)
 			numblocks (med-u16 data (+ song 504)) songlen (med-u16 data (+ song 506))
-			deftempo (med-u16 data (+ song 764)) transpose (get-byte data (+ song 766))
-			flags (med-u8 data (+ song 767)) flags2 (med-u8 data (+ song 768)) tempo2 (med-u8 data (+ song 769))
-			numsamples (med-u8 data (+ song 787))
+			deftempo (med-u16 data (+ song 764)) transpose (mod-s8 data (+ song 766))
+			flags (mod-u8 data (+ song 767)) flags2 (mod-u8 data (+ song 768)) tempo2 (mod-u8 data (+ song 769))
+			numsamples (mod-u8 data (+ song 787))
 			med_8ch (bits? flags 0x40) bpm_on (bits? flags2 0x20) bpmlen (inc (logand flags2 0x1f)))
 		(when (and (<= numblocks 255) (<= numsamples 63) (< (+ song 788) (length data)))
 			;the order the blocks play in: MMD2 and on, the first play
@@ -250,10 +229,10 @@
 				(when (> esmp 0)
 					(setq exps (map! (lambda ()
 							(defq e (+ esmp (* (!) exp_size)))
-							(list (if (>= exp_size 2) (med-u8 data e) 0) (if (>= exp_size 2) (med-u8 data (inc e)) 0)
-								(if (>= exp_size 4) (med-u8 data (+ e 3)) 0)
-								(and (>= mmd 2) (>= exp_size 8) (med-u8 data (+ e 4)))
-								(and (>= mmd 2) (>= exp_size 8) (med-u8 data (+ e 5)))
+							(list (if (>= exp_size 2) (mod-u8 data e) 0) (if (>= exp_size 2) (mod-u8 data (inc e)) 0)
+								(if (>= exp_size 4) (mod-u8 data (+ e 3)) 0)
+								(and (>= mmd 2) (>= exp_size 8) (mod-u8 data (+ e 4)))
+								(and (>= mmd 2) (>= exp_size 8) (mod-u8 data (+ e 5)))
 								(and (>= mmd 2) (>= exp_size 18) (med-u32 data (+ e 10)))
 								(and (>= mmd 2) (>= exp_size 18) (med-u32 data (+ e 14)))))
 						'() 0 (min numsamples entries)))))
@@ -263,14 +242,14 @@
 					(cond
 						((= b 0) (list 0 0 0))
 						((> mmd 0) (list b (med-u16 data b) (inc (med-u16 data (+ b 2)))))
-						((list b (med-u8 data b) (inc (med-u8 data (inc b)))))))
+						((list b (mod-u8 data b) (inc (mod-u8 data (inc b)))))))
 				'() 0 numblocks)
 				chans (reduce (# (max %0 (second %1))) heads 0))
 			(when (<= 1 chans (if (> mmd 1) 64 16))
 				(defq version (med-version mmd mmdc med_8ch exp_size name_len) samples (list)
 					instruments (map! (lambda ()
 							(defq i (!) at (med-u32 data (+ smplarr (* 4 i))) h (+ song (* 8 i))
-								hdr (list (med-u16 data h) (med-u16 data (+ h 2)) (med-u8 data (+ h 6)) (get-byte data (+ h 7)))
+								hdr (list (med-u16 data h) (med-u16 data (+ h 2)) (mod-u8 data (+ h 6)) (mod-s8 data (+ h 7)))
 								ext (if (< i (length exps)) (elem-get exps i) '(0 0 0 :nil :nil :nil :nil)))
 							(if (> at 0) (med-instrument data at hdr ext mmd samples bare)
 								(scatter (Emap) :subs (list) :map :nil :nsm 0)))
@@ -283,11 +262,11 @@
 					pans (cond
 						((< mmd 2) (mod-pans chans 0 255))
 						(:t (defq tp (med-u32 data (+ song 524)))
-							(map! (# (if (> tp 0) (+ 128 (min 127 (* 8 (get-byte data (+ tp (!)))))) 128)) '() 0 chans)))
+							(map! (# (if (> tp 0) (+ 128 (min 127 (* 8 (mod-s8 data (+ tp (!)))))) 128)) '() 0 chans)))
 					chvols (cond
-						((< mmd 2) (map! (# (med-u8 data (+ song 770 (!)))) '() 0 chans))
+						((< mmd 2) (map! (# (mod-u8 data (+ song 770 (!)))) '() 0 chans))
 						(:t (defq tv (med-u32 data (+ song 516)))
-							(map! (# (med-u8 data (+ tv (!)))) '() 0 chans))))
+							(map! (# (mod-u8 data (+ tv (!)))) '() 0 chans))))
 				(scatter (Emap) :kind (cat "MMD" (if mmdc "C" (str mmd))) :mode :med :pitch :amiga :title title
 					:channels chans :samples samples :instruments instruments :orders orders :restart 0
 					:patterns (map (lambda (head)

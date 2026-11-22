@@ -30,9 +30,7 @@
 	(some (lambda (mirror)
 			(defq gz (memory-stream) resp (http-get (cat mirror name ".gz") (pmap) gz))
 			(cond
-				((not resp) (setq why (ifn (tls-why) "no connection")) :nil)
-				((/= (pfind resp :status) 200)
-					(setq why (cat (str (pfind resp :status)) " " (ifn (pfind resp :reason) ""))) :nil)
+				((defq bad (http-why resp)) (setq why bad) :nil)
 				(:t (stream-seek gz 0 0)
 					(defq path (mnist-cache name) out (file-stream path +file_open_write)
 						ok (inflate-gzip gz out))

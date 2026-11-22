@@ -26,7 +26,6 @@
 	(enum favourites charts all search))
 
 (defq +alive 1000000 +rows_wide 136
-	+names ''("C-" "C#" "D-" "D#" "E-" "F-" "F#" "G-" "G#" "A-" "A#" "B-")
 	;the favourites, Player or Jukebox, shuffle, which list and the folder
 	;of Modland and of the charts, as they were when last closed,
 	;(config-save)
@@ -63,17 +62,6 @@
 	*search_id* 0 *found* (list) *found_total* 0
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
-(defun hex-digit (n)
-	; (hex-digit n) -> str
-	;the low 4 bits of a number, as a tracker shows them; two digits are
-	;the core's, (byte-to-hex-str)
-	(elem-get "0123456789ABCDEF" (logand n 15)))
-
-(defun clock (frames)
-	; (clock frames) -> str
-	(defq s (/ frames +rate))
-	(cat (str (/ s 60)) ":" (if (< (% s 60) 10) "0" "") (str (% s 60))))
-
 (defun status (text)
 	(. *status* :set_text text))
 
@@ -91,44 +79,11 @@
 ; what is shown
 ;;;;;;;;;;;;;;;;;
 
-(defun note-name (note)
-	(cond
-		((= note 0) "---")
-		((= note +note_cut) "^^^")
-		((= note +note_off) "===")
-		((= note +note_fade) "~~~")
-		((cat (elem-get +names (% (dec note) 12)) (str (/ (dec note) 12))))))
-
-(defun cell-text (note ins vol effect param)
-	;a cell as its tracker shows it: an S3M's volume and its effects by
-	;letter, A 1; an XM's volume column, a volume or an effect of a sign
-	;and a digit, and its effects by number then letter, G 16; an IT's
-	;volume column, a volume or an effect of a letter and a digit, and
-	;its effects by letter; a MOD's and an AHX's effects by number, and a MED's by two
-	(defq mode (. *song* :find :mode))
-	(cat (note-name note) " " (if (> ins 0) (byte-to-hex-str ins) "..")
-		(case mode
-			(:st3 (if (= vol +no_volume) " .." (cat " " (byte-to-hex-str vol))))
-			(:ft2 (cond
-				((< vol 0x10) " ..")
-				((<= vol 0x50) (cat " " (byte-to-hex-str (- vol 0x10))))
-				((cat " " (elem-get "-------+DUSVPLRM" (>> vol 4)) (hex-digit vol)))))
-			(:it (cond
-				((<= vol 64) (cat " " (byte-to-hex-str vol)))
-				((< vol 125) (defq at (/ (- vol 65) 10)) (cat " " (elem-get "ABCDEF" at) (str (- vol 65 (* at 10)))))
-				((<= 128 vol 192) (cat " P" (hex-digit (min 15 (/ (- vol 128) 4)))))
-				((<= 193 vol 212) (defq at (/ (- vol 193) 10)) (cat " " (elem-get "GH" at) (str (- vol 193 (* at 10)))))
-				(" ..")))
-			(:t ""))
-		" " (cond
-			((and (= effect 0) (= param 0)) (if (eql mode :med) "...." "..."))
-			((find mode '(:st3 :it)) (cat (char (+ 64 effect)) (byte-to-hex-str param)))
-			((eql mode :med) (cat (byte-to-hex-str effect) (byte-to-hex-str param)))
-			((< effect 16) (cat (hex-digit effect) (byte-to-hex-str param)))
-			((cat (char (+ 55 effect)) (byte-to-hex-str param))))))
-
-(defun cell-width ()
-	(case (. *song* :find :mode) ((:mod :ahx) 11) (:med 12) (:t 14)))
+(defun rows-channels ()
+	; (rows-channels) -> num
+	;as many of the song's channels as fit across its rows, each a cell as
+	;its tracker shows one, lib/media/module.inc
+	(min (. *song* :find :channels) (/ (- +rows_wide 4) (module-cell-width *song*))))
 
 (defun rows-show (order row)
 	;the rows of the pattern about the one heard, it in the middle, as many
@@ -136,14 +91,14 @@
 	(defq channels (. *song* :find :channels) half (/ +rows_shown 2)
 		pattern (elem-get (. *song* :find :orders) order)
 		cells (elem-get (. *song* :find :patterns) pattern) rows (elem-get (. *song* :find :rows) pattern)
-		shown (min channels (/ (- +rows_wide 4) (cell-width))) lines (list))
+		shown (rows-channels) lines (list))
 	(each! (lambda ()
 			(defq r (+ row (- (!) half)))
 			(push lines (if (<= 0 r (dec rows))
 				(apply (const cat) (cat (list (byte-to-hex-str r) (if (= r row) "> " "  "))
 					(map! (lambda ()
 							(defq c (* (+ (* r channels) (!)) +cell_size))
-							(cat (apply (const cell-text) (slice cells c (+ c +cell_size))) " "))
+							(cat (module-cell-text *song* (slice cells c (+ c +cell_size))) " "))
 						'() 0 shown)))
 				"")))
 		'() 0 +rows_shown)
@@ -190,7 +145,7 @@
 	(status (cat (if (eql title "") (first *current*) title) ", " (. *song* :find :kind) " of "
 		(str (. *song* :find :channels)) " channels, "
 		(if *place* (cat "order " (str (inc (first *place*))) " of " (str (length (. *song* :find :orders))) ", ") "")
-		(clock (min *heard* *length*)) " of " (if (> *length* 0) (clock *length*) "?")
+		(time-clock (/ (min *heard* *length*) +rate)) " of " (if (> *length* 0) (time-clock (/ *length* +rate)) "?")
 		(cond ((eql *state* "h") ", paused") ((eql *state* "s") ", stopped") ("")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -228,8 +183,7 @@
 		(def (. *seek* :dirty) :maximum 0 :value seconds)
 		(engine-send "M" *serial* " " state " " seconds "\n" data)
 		;as many columns as it has channels, as fit
-		(def *rows* :vdu_width (+ 4 (* (cell-width) (min (. song :find :channels)
-			(/ (- +rows_wide 4) (cell-width))))))
+		(def *rows* :vdu_width (+ 4 (* (module-cell-width song) (rows-channels))))
 		(samples-show)
 		(rows-show 0 0)
 		(. *title* :set_text (cat "Jukebox -> " title))

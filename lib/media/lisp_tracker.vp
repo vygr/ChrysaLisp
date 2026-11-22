@@ -14,8 +14,12 @@
 ;what is added to where it is for the sample it plays: 0 the one it is
 ;at, an Amiga's, half a sample the nearest, as a PC's tracker. Last its
 ;ring, a sample it is times, -1 none, round its loop as it is, where it is
-;in it and its step, an AHX's of HivelyTracker
-(defcvar '+mix_size 17 '+mix_pingpong 1 '+mix_back 2)
+;in it and its step, an AHX's of HivelyTracker. lib/media/tracker.inc has
+;the same fields by number, +mix_sample and on
+(defcvar '+mix_pingpong 1 '+mix_back 2)
+
+(structure voice 0
+	(long sample pos step left right loop end flags fa0 fb0 fb1 fy1 fy2 round ring ring_pos ring_step))
 
 (def-func (path-to-absolute "./media_mix"))
 	;inputs
@@ -74,7 +78,7 @@
 		(assign `(,stend) '((:rsp slot_stend)))
 		(vpif `(,st /= ,stend))
 			(loop-start)
-				(assign `((,st 0)) `(,s))
+				(assign `((,st voice_sample)) `(,s))
 				(vpif `(,s >= 0))
 					;its sample's bytes, and where it is, how it goes, which
 					;way, and its loop, lsq less than 0 none
@@ -84,7 +88,7 @@
 					(vp-load-rrr x s dptr)
 					(vp-lea-rcr dptr +str_data dptr)
 					;its ring's bytes, 0 none
-					(assign `((,st 112)) `(,s))
+					(assign `((,st voice_ring)) `(,s))
 					(vp-xor-rr x x)
 					(vpif `(,s >= 0))
 						(assign '((:rsp slot_samples)) `(,x))
@@ -94,7 +98,7 @@
 						(vp-lea-rcr x +str_data x)
 					(endif)
 					(assign `(,x) '((:rsp slot_ring)))
-					(load-fields st '(8 16 24 32 40 48 56) `(,pos ,step ,wl ,wr ,lsq ,endq ,x))
+					(load-fields st `(,voice_pos ,voice_step ,voice_left ,voice_right ,voice_loop ,voice_end ,voice_flags) `(,pos ,step ,wl ,wr ,lsq ,endq ,x))
 					(vp-and-cr +mix_back x)
 					(vpif `(,x /= 0))
 						(vp-mul-cr -1 step)
@@ -113,10 +117,10 @@
 							;it has ended
 							(vpif `(,lsq < 0))
 								(vp-cpy-cr -1 x)
-								(vp-store-rrc x st 0)
+								(vp-store-rrc x st voice_sample)
 								(break 'frames)
 							(endif)
-							(assign `((,st 56)) `(,x))
+							(assign `((,st voice_flags)) `(,x))
 							(vp-and-cr +mix_pingpong x)
 							(vpif `(,x /= 0))
 								(vp-cpy-rr endq x)
@@ -149,7 +153,7 @@
 						;the sample it is at, or the nearest, round its loop or
 						;the last if that is past the end
 						(vp-cpy-rr pos x)
-						(assign `((,st 104)) '(:r0))
+						(assign `((,st voice_round)) '(:r0))
 						(vp-add-rr :r0 x)
 						(vpif `(,x >= ,endq))
 							(vpif `(,lsq >= 0))
@@ -164,14 +168,14 @@
 						(vp-load-rrr-s dptr x s)
 						;filtered, a0 not 0: two poles, as libxmp's, of the
 						;sample 15 bits up, held to 17 bits, and down again
-						(assign `((,st 64)) '(:r0))
+						(assign `((,st voice_fa0)) '(:r0))
 						(vpif '(:r0 /= 0))
 							(vp-shl-cr 15 s)
 							(vp-mul-rr :r0 s)
-							(assign `((,st 72) (,st 88)) `(:r0 ,stend))
+							(assign `((,st voice_fb0) (,st voice_fy1)) `(:r0 ,stend))
 							(vp-mul-rr stend :r0)
 							(vp-add-rr :r0 s)
-							(assign `((,st 80) (,st 96)) `(:r0 ,stend))
+							(assign `((,st voice_fb1) (,st voice_fy2)) `(:r0 ,stend))
 							(vp-mul-rr stend :r0)
 							(vp-add-rr :r0 s)
 							(vp-asr-cr 22 s)
@@ -183,15 +187,15 @@
 							(vpif `(,s > :r0))
 								(vp-cpy-rr :r0 s)
 							(endif)
-							(assign `((,st 88)) '(:r0))
-							(assign `(:r0 ,s) `((,st 96) (,st 88)))
+							(assign `((,st voice_fy1)) '(:r0))
+							(assign `(:r0 ,s) `((,st voice_fy2) (,st voice_fy1)))
 							(vp-asr-cr 15 s)
 						(endif)
 						;rung: the byte of each, times, down 7, as HivelyTracker's,
 						;and the ring on round the loop
 						(assign '((:rsp slot_ring)) '(:r0))
 						(vpif '(:r0 /= 0))
-							(assign `((,st 120)) `(,x))
+							(assign `((,st voice_ring_pos)) `(,x))
 							(vpif `(,x >= ,endq))
 								(vp-sub-rr llen x)
 							(endif)
@@ -204,9 +208,9 @@
 							(vp-mul-rr :r0 s)
 							(vp-asr-cr 7 s)
 							(vp-shl-cr 8 s)
-							(assign `((,st 128)) `(,stend))
+							(assign `((,st voice_ring_step)) `(,stend))
 							(vp-add-rr stend x)
-							(vp-store-rrc x st 120)
+							(vp-store-rrc x st voice_ring_pos)
 						(endif)
 						(vp-cpy-rr s x)
 						(vp-mul-rr wl x)
@@ -222,15 +226,15 @@
 						(vp-sub-cr 1 n)
 					(loop-until `(,n = 0))
 					;where it is, and which way it goes
-					(vp-store-rrc pos st 8)
-					(assign `((,st 56)) `(,x))
+					(vp-store-rrc pos st voice_pos)
+					(assign `((,st voice_flags)) `(,x))
 					(vp-and-cr +mix_pingpong x)
 					(vpif `(,step < 0))
 						(vp-or-cr +mix_back x)
 					(endif)
-					(vp-store-rrc x st 56)
+					(vp-store-rrc x st voice_flags)
 				(endif)
-				(vp-add-cr (* +mix_size +long_size) st)
+				(vp-add-cr voice_size st)
 				(assign '((:rsp slot_stend)) `(,stend))
 			(loop-until `(,st = ,stend))
 		(endif)
@@ -270,7 +274,8 @@
 (def-func-end)
 
 ;the samples of a module made the mixer's: 16 bit signed, low byte first
-(defcvar '+widen_s8 0 '+widen_u8 1 '+widen_s16 2 '+widen_u16 3 '+widen_d8 4 '+widen_d16 5)
+(defcvar '+widen_s8 0 '+widen_u8 1 '+widen_s16 2 '+widen_u16 3 '+widen_d8 4 '+widen_d16 5
+	'+widen_s16be 6 '+widen_s8x2 7 '+widen_s16bex2 8)
 
 (def-func (path-to-absolute "./media_widen"))
 	;inputs
@@ -280,16 +285,19 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r7
+	;:r1-:r8
 	;info
 	;(media-widen out src from kind) -> out, as many samples as out holds,
 	;two bytes each, from the bytes of src at from, of a kind: +widen_s8 8
 	;bit signed, +widen_u8 unsigned, +widen_s16 and +widen_u16 16 bit low
 	;byte first, +widen_d8 and +widen_d16 each the change from the last, as
-	;Fasttracker keeps them. src holds them all
+	;Fasttracker keeps them, +widen_s16be 16 bit signed high byte first, as
+	;the Amiga's, and +widen_s8x2 and +widen_s16bex2 a stereo sample of 8
+	;bits or of 16 high byte first, all its left then all its right, as
+	;OctaMED keeps one, made one channel, half their sum. src holds them all
 
-	(vp-rdef (out src kind n v acc)
-		'(:r2 :r3 :r4 :r5 :r6 :r7))
+	(vp-rdef (out src kind n v acc src2)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8))
 
 	(entry '(:r0 :r1))
 
@@ -354,7 +362,7 @@
 				(vp-add-cr 2 out)
 				(vp-sub-cr 1 n)
 			(loop-until `(,n = 0))
-		(else)
+		(elseif `(,kind = +widen_d16))
 			(loop-start)
 				(vp-load-rcr-s src 0 v)
 				(vp-add-rr v acc)
@@ -362,6 +370,55 @@
 				(vp-asr-cr 48 acc)
 				(vp-store-rrc-s acc out 0)
 				(vp-add-cr 2 src)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(elseif `(,kind = +widen_s16be))
+			;a byte at a time, the high one signed
+			(loop-start)
+				(vp-load-rcr-b src 0 v)
+				(vp-shl-cr 8 v)
+				(vp-load-rcr-ub src 1 acc)
+				(vp-add-rr acc v)
+				(vp-store-rrc-s v out 0)
+				(vp-add-cr 2 src)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(elseif `(,kind = +widen_s8x2))
+			;the right is as many bytes on as there are samples
+			(vp-cpy-rr src src2)
+			(vp-add-rr n src2)
+			(loop-start)
+				(vp-load-rcr-b src 0 v)
+				(vp-load-rcr-b src2 0 acc)
+				(vp-add-rr acc v)
+				(vp-shl-cr 7 v)
+				(vp-store-rrc-s v out 0)
+				(vp-add-cr 1 src)
+				(vp-add-cr 1 src2)
+				(vp-add-cr 2 out)
+				(vp-sub-cr 1 n)
+			(loop-until `(,n = 0))
+		(elseif `(,kind = +widen_s16bex2))
+			;and of 16 bits twice as many; kind is free for the low bytes
+			(vp-cpy-rr n src2)
+			(vp-shl-cr 1 src2)
+			(vp-add-rr src src2)
+			(loop-start)
+				(vp-load-rcr-b src 0 v)
+				(vp-shl-cr 8 v)
+				(vp-load-rcr-ub src 1 kind)
+				(vp-add-rr kind v)
+				(vp-load-rcr-b src2 0 acc)
+				(vp-shl-cr 8 acc)
+				(vp-load-rcr-ub src2 1 kind)
+				(vp-add-rr kind acc)
+				(vp-add-rr acc v)
+				(vp-asr-cr 1 v)
+				(vp-store-rrc-s v out 0)
+				(vp-add-cr 2 src)
+				(vp-add-cr 2 src2)
 				(vp-add-cr 2 out)
 				(vp-sub-cr 1 n)
 			(loop-until `(,n = 0))

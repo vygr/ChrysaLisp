@@ -34,16 +34,8 @@
 (defun kept-path (url)
 	; (kept-path url) -> path
 	;where a module or a listing fetched is kept, of the tree's downloads/,
-	;by its address: the host and its folders, each a plain name, so none
-	;climbs out. A folder's listing is its .listing
-	(defq parts (filter (# (and (nempty? %0) (nql %0 ".") (nql %0 "..")))
-			(split (slice url (length "https://") -1) "/")))
-	(apply (const cat) (cat (list "downloads/mods")
-		(map (lambda (part)
-				(cat "/" (apply (const cat) (map (# (if (bfind %0 (const (char-class "A-Za-z0-9._-"))) %0 "_"))
-					(url-decode part)))))
-			parts)
-		(if (ends-with "/" url) (list "/.listing") (list)))))
+	;by its address, (url-kept-path). A folder's listing is its .listing
+	(cat (url-kept-path "downloads/mods" url :t) (if (ends-with "/" url) "/.listing" "")))
 
 (defun listing-read (html)
 	; (listing-read html) -> ((name folder?) ...)

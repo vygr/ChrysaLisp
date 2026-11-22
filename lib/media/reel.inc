@@ -13,7 +13,6 @@
 ; bytes, high first, as the containers hold a rate of sound.
 ; (reel-pcm chans [scale]) is the channels of a frame of sound, nums, as
 ; doubles times scale, the first two, the one of one on both.
-; (reel-clock seconds) is a time as h:mm:ss.
 ; Frames are counted in the order they are shown, packets in the order
 ; they are decoded, and with B-frames those differ: the codec reads the
 ; packets it needs, from a key where it must, so a player only says
@@ -42,11 +41,6 @@
 	(defq ints (ffi "lib/media/media_flac_ints") scale (ifn scale (n2d 1))
 		pcm (map! (lambda (ch) (ints (fill (doubles) (length ch) (n2d 0)) ch scale)) (list chans) 0 (min 2 (length chans))))
 	(if (= (length pcm) 1) (list (first pcm) (first pcm)) pcm))
-
-(defun reel-clock (time)
-	; (reel-clock seconds) -> str
-	(defq s (n2i time))
-	(cat (str (/ s 3600)) ":" (pad (str (% (/ s 60) 60)) 2 "0") ":" (pad (str (% s 60)) 2 "0")))
 
 (defun reel-kind (ext open packet codec frame &optional close)
 	; (reel-kind ext open packet codec frame [close])
@@ -125,5 +119,5 @@
 	(if (defq close (elem-get (. codec :find :kind) 5)) (close codec)))
 
 ;module
-(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-rescale reel-close reel-wave reel-whole reel-pcm reel-clock))
+(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-rescale reel-close reel-wave reel-whole reel-pcm))
 (env-pop)

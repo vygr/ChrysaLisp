@@ -16,26 +16,58 @@
 ; none; its effect and that effect's number. A sample's :data is 16 bit
 ; signed, low byte first, (media-widen)
 ;
-; What every reader does is here once: a text to its 0, a pattern of
-; nothing, the Amiga's pans, the first speed and tempo, and a sample's
-; bytes made the mixer's. A signed byte is the core's, (get-byte)
+; What every reader does is here once: a byte or a number of a file that
+; may be cut short, a text to its 0, a pattern of nothing, the Amiga's
+; pans, the first speed and tempo, and a sample's bytes made the mixer's.
+; A signed byte is the core's, (get-byte). A pan of 255 is as far right as
+; libxmp has one, and an IT's and a MED's are its: they are left so
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (ffi "lib/media/media_widen" media-widen)
 
 (defq +mod_rows 64 +cell_size 5 +no_volume 255 +note_fade 253 +note_cut 254 +note_off 255
 	+widen_s8 0 +widen_u8 1 +widen_s16 2 +widen_u16 3 +widen_d8 4 +widen_d16 5
+	+widen_s16be 6 +widen_s8x2 7 +widen_s16bex2 8
 	;the periods of the notes of finetune 0, C-1 to B-3, as ProTracker has
 	;them, the others are worked out from these
 	+mod_periods ''(856 808 762 720 678 640 604 570 538 508 480 453
 		428 404 381 360 339 320 302 285 269 254 240 226
 		214 202 190 180 170 160 151 143 135 127 120 113))
 
+(defun mod-u8 (data at)
+	; (mod-u8 data at) -> num
+	;a byte of a file, 0 past its end: a file cut short, or one that points
+	;where it has nothing, reads as nothing there, and is no error
+	(if (< -1 at (length data)) (code data 1 at) 0))
+
+(defun mod-s8 (data at)
+	; (mod-s8 data at) -> num
+	;a byte of -128 to 127, 0 past the file's end; of bytes known to be
+	;there it is the core's (get-byte)
+	(sign-extend (mod-u8 data at) 8))
+
+(defun mod-u16 (data at)
+	; (mod-u16 data at) -> num
+	;two bytes, low first, 0 past the file's end
+	(if (and (>= at 0) (<= (+ at 2) (length data))) (code data 2 at) 0))
+
+(defun mod-u32 (data at)
+	; (mod-u32 data at) -> num
+	;four bytes, low first, 0 past the file's end
+	(if (and (>= at 0) (<= (+ at 4) (length data))) (code data 4 at) 0))
+
+(defun mod-bytes (data at n)
+	; (mod-bytes data at n) -> str
+	;so many bytes of a file, fewer or none past its end
+	(defq end (length data))
+	(slice data (max 0 (min at end)) (max 0 (min (+ at n) end))))
+
 (defun mod-cstr (data at n)
 	; (mod-cstr data at n) -> str
-	;the bytes of a text of n at most, to its first byte of 0
-	(defq text (slice data at (+ at n)))
-	(slice text 0 (ifn (find "\x00" text) n)))
+	;the bytes of a text of n at most, to its first byte of 0, or the
+	;file's end
+	(defq text (mod-bytes data at n))
+	(slice text 0 (ifn (find "\x00" text) (length text))))
 
 (defun mod-text (data at n)
 	; (mod-text data at n) -> str

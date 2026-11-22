@@ -44,15 +44,12 @@
 	(cat (str yr) "-" (pad (inc mo) 2 "0") "-" (pad dy 2 "0") "_"
 		(pad h 2 "0") "-" (pad m 2 "0") "-" (pad s 2 "0") ".wav"))
 
-(defun clock-text (secs)
-	(cat (str (/ secs 60)) ":" (pad (% secs 60) 2 "0")))
-
 (defun note-text (file)
 	; (note-text file) -> str
 	;as the list shows it, 2026-10-18 10:02:31  0:05
 	(defq name (path-stem file))
 	(cat (slice name 0 10) " " (join (split (slice name 11 -1) "-") ":")
-		"  " (clock-text (sound-seconds file))))
+		"  " (time-clock (sound-seconds file))))
 
 (defun level (value)
 	;how loud, green while it runs, a grey trough when it does not
@@ -277,7 +274,7 @@
 					(. *status* :set_text "Ready"))
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(if (eql *running_pipe* :record)
-					(. *status* :set_text (cat (if *tap* "Recording the call " "Recording ") (clock-text (/ (- (pii-time) *started*) 1000000)))))
+					(. *status* :set_text (cat (if *tap* "Recording the call " "Recording ") (time-clock (/ (- (pii-time) *started*) 1000000)))))
 				;the call watched again within its lease, and the calls of the
 				;mesh looked at again
 				(when (> (- (pii-time) *beat*) +call_beat)

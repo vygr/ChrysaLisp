@@ -15,21 +15,21 @@
 	;a pattern's cells unpacked and where the next pattern is: a byte
 	;with its top bit set says which of the five follow, else it is the
 	;note and the other four do
-	(defq head (code data 4 at) rows (code data 2 (+ at 5)) size (code data 2 (+ at 7))
+	(defq head (mod-u32 data at) rows (mod-u16 data (+ at 5)) size (mod-u16 data (+ at 7))
 		rows (if (= rows 0) 256 rows) cells (mod-cells rows channels 0) at (+ at head) end (+ at size))
 	(when (> size 0)
 		(defq c 0)
 		(while (and (< at end) (< c (* rows channels)))
-			(defq b (code data 1 at) cell (* c +cell_size) fields (list 0 0 0 0 0))
+			(defq b (mod-u8 data at) cell (* c +cell_size) fields (list 0 0 0 0 0))
 			(cond
 				((bits? b 128)
 					(setq at (inc at))
 					(each! (lambda ()
 							(when (bits? b (<< 1 (!)))
-								(elem-set fields (!) (code data 1 at))
+								(elem-set fields (!) (mod-u8 data at))
 								(setq at (inc at))))
 						'() 0 5))
-				(:t (setq fields (map! (# (code data 1 (+ at (!)))) '() 0 5) at (+ at 5))))
+				(:t (setq fields (map! (# (mod-u8 data (+ at (!)))) '() 0 5) at (+ at 5))))
 			(bind '(note ins vol effect param) fields)
 			;key off 97, the effects of no meaning to it left out
 			(if (find effect '(18 19 22 23 24 26 28 30 31 32)) (setq effect 0 param 0))
@@ -49,7 +49,7 @@
 	(defq n (min points 12))
 	(scatter (Emap) :on (and (bits? flags 1) (> n 0))
 		:sustain (if (bits? flags 2) sus -1) :loop (if (bits? flags 4) (list ls le) :nil)
-		:points (map! (# (list (code data 2 (+ at (* 4 (!)))) (code data 2 (+ at (* 4 (!)) 2))))
+		:points (map! (# (list (mod-u16 data (+ at (* 4 (!)))) (mod-u16 data (+ at (* 4 (!)) 2))))
 			'() 0 n)))
 
 (defun xm-read (data &optional bare)
@@ -57,12 +57,14 @@
 	;the song of an XM's bytes, :nil if they are not one; bare, its
 	;samples' bytes not had
 	(when (and (>= (length data) 80) (eql (slice data 0 17) "Extended Module: ")
-			(>= (code data 2 58) 0x104))
-		(defq headsz (code data 4 60) songlen (code data 2 64) restart (code data 2 66)
-			channels (code data 2 68) count (code data 2 70) insnum (code data 2 72)
-			flags (code data 2 74) at (+ 60 headsz) patterns (list) rows (list)
+			(>= (mod-u16 data 58) 0x104))
+		(defq headsz (mod-u32 data 60) songlen (mod-u16 data 64) restart (mod-u16 data 66)
+			channels (mod-u16 data 68) count (mod-u16 data 70) insnum (mod-u16 data 72)
+			flags (mod-u16 data 74) at (+ 60 headsz) patterns (list) rows (list)
 			samples (list) instruments (list))
-		(when (and (<= 1 channels 32) (<= songlen 256) (<= count 256))
+		;what is past the file's end reads as nothing, (mod-u8): a file cut
+		;short is the song as far as it goes
+		(when (and (<= 1 channels 32) (<= songlen 256) (<= count 256) (<= insnum 256))
 			;the patterns, and one empty one for the orders past them
 			(times count
 				(bind '(n cells next) (xm-pattern data at channels))
@@ -75,7 +77,7 @@
 			(times insnum
 				;one of no samples has a map of no sample for each of its 96
 				;keys too, a note on it plays nothing
-				(defq size (code data 4 at) nsamples (code data 2 (+ at 27))
+				(defq size (mod-u32 data at) nsamples (mod-u16 data (+ at 27)) nsamples (if (> nsamples 255) 0 nsamples)
 					ins (scatter (Emap) :name (mod-text data (+ at 4) 22) :map (map! (lambda () -1) '() 0 96) :fade 0
 						:volume (scatter (Emap) :on :nil) :pan (scatter (Emap) :on :nil)
 						:vib_wave 0 :vib_sweep 0 :vib_depth 0 :vib_rate 0 :first -1))
@@ -83,26 +85,26 @@
 					((and (> nsamples 0) (>= size 243))
 						(defq first_sample (length samples))
 						(scatter ins :first first_sample
-							:map (map! (# (if (< (defq s (code data 1 (+ at 33 (!)))) nsamples) (+ first_sample s) -1))
+							:map (map! (# (if (< (defq s (mod-u8 data (+ at 33 (!)))) nsamples) (+ first_sample s) -1))
 								'() 0 96)
-							:volume (xm-envelope data (+ at 129) (code data 1 (+ at 225)) (code data 1 (+ at 233))
-								(code data 1 (+ at 227)) (code data 1 (+ at 228)) (code data 1 (+ at 229)))
-							:pan (xm-envelope data (+ at 177) (code data 1 (+ at 226)) (code data 1 (+ at 234))
-								(code data 1 (+ at 230)) (code data 1 (+ at 231)) (code data 1 (+ at 232)))
-							:vib_wave (code data 1 (+ at 235)) :vib_sweep (code data 1 (+ at 236))
-							:vib_depth (code data 1 (+ at 237)) :vib_rate (code data 1 (+ at 238))
-							:fade (* 2 (code data 2 (+ at 239))))
-						(defq shsize (code data 4 (+ at 29)) heads (+ at size) from (+ heads (* shsize nsamples)))
+							:volume (xm-envelope data (+ at 129) (mod-u8 data (+ at 225)) (mod-u8 data (+ at 233))
+								(mod-u8 data (+ at 227)) (mod-u8 data (+ at 228)) (mod-u8 data (+ at 229)))
+							:pan (xm-envelope data (+ at 177) (mod-u8 data (+ at 226)) (mod-u8 data (+ at 234))
+								(mod-u8 data (+ at 230)) (mod-u8 data (+ at 231)) (mod-u8 data (+ at 232)))
+							:vib_wave (mod-u8 data (+ at 235)) :vib_sweep (mod-u8 data (+ at 236))
+							:vib_depth (mod-u8 data (+ at 237)) :vib_rate (mod-u8 data (+ at 238))
+							:fade (* 2 (mod-u16 data (+ at 239))))
+						(defq shsize (mod-u32 data (+ at 29)) heads (+ at size) from (+ heads (* shsize nsamples)))
 						(times nsamples
 							(defq h (+ heads (* shsize (- (length samples) first_sample)))
-								bytes (code data 4 h) kind (code data 1 (+ h 14)) wide (bits? kind 16)
+								bytes (mod-u32 data h) kind (mod-u8 data (+ h 14)) wide (bits? kind 16)
 								unit (if wide 2 1) n (/ bytes unit)
-								ls (/ (code data 4 (+ h 4)) unit) ll (/ (code data 4 (+ h 8)) unit)
+								ls (/ (mod-u32 data (+ h 4)) unit) ll (/ (mod-u32 data (+ h 8)) unit)
 								have (mod-frames data from n unit)
 								sample (scatter (Emap) :name (mod-text data (+ h 18) 22) :length have
-									:volume (min 64 (code data 1 (+ h 12)))
-									:finetune (get-byte data (+ h 13)) :pan (code data 1 (+ h 15))
-									:relative (get-byte data (+ h 16))
+									:volume (min 64 (mod-u8 data (+ h 12)))
+									:finetune (mod-s8 data (+ h 13)) :pan (mod-u8 data (+ h 15))
+									:relative (mod-s8 data (+ h 16))
 									:loop_start -1 :loop_end have :pingpong :nil
 									:data (mod-widen data from have (if wide +widen_d16 +widen_d8) bare)))
 							;a stereo sample's left half only
@@ -117,9 +119,9 @@
 				(push instruments ins))
 			(scatter (Emap) :kind "XM" :mode :ft2 :pitch (if (bits? flags 1) :linear :amiga)
 				:title (mod-text data 17 20) :channels channels :restart restart
-				:orders (map! (# (min count (code data 1 (+ 80 (!))))) '() 0 songlen)
+				:orders (map! (# (min count (mod-u8 data (+ 80 (!))))) '() 0 songlen)
 				:patterns patterns :rows rows :samples samples :instruments instruments
-				:speed (mod-speed (code data 2 76)) :tempo (mod-tempo (code data 2 78))
+				:speed (mod-speed (mod-u16 data 76)) :tempo (mod-tempo (mod-u16 data 78))
 				:global 64 :pans (map! (# 128) '() 0 channels)
 				;FastTracker's own bugs, as those that made it with it
 				:ft2bugs (or (eql (slice data 38 55) "FastTracker v2.00") (eql (slice data 38 46) "OpenMPT "))))))

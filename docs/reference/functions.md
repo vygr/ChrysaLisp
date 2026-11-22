@@ -6360,6 +6360,16 @@ far and how many there are to be, :nil if the reply does not say
 (http-request method url [headers body dest_stream progress]) -> pmap | :nil
 ```
 
+### http-why
+
+```code
+(http-why resp) -> :nil | str
+
+why what a get gave is not the file asked for: nothing came, the
+connection's reason, (tls-why), or its status if that is not 200. :nil
+if it is the file
+```
+
 ### huff-table
 
 ```code
@@ -8038,12 +8048,6 @@ a note, if there is one, to slide to, and which way
 four bytes high first, 0 past the file's end
 ```
 
-### med-u8
-
-```code
-(med-u8 data at) -> num
-```
-
 ### med-valid
 
 ```code
@@ -8073,16 +8077,6 @@ a volume slide, its last if 0: up if it has one, else down
 
 ```code
 (med-vt chan vtbl) -> num
-```
-
-### med-wave
-
-```code
-(med-wave data at n kind) -> str
-
-so many frames of a sample's bytes at at, as the mixer has them:
-8 bit, or 16 bit high byte first, of one channel, or two one after
-the other made one, kind :8 :16 :8s :16s
 ```
 
 ### med-wt
@@ -8375,6 +8369,14 @@ than its bytes: its value without the length bit, how long it is, and
 its value with it, as an id is. All ones is a size not known, -1
 ```
 
+### mod-bytes
+
+```code
+(mod-bytes data at n) -> str
+
+so many bytes of a file, fewer or none past its end
+```
+
 ### mod-cells
 
 ```code
@@ -8397,7 +8399,8 @@ how many channels the tag at 1080 says, :nil if it is not one
 ```code
 (mod-cstr data at n) -> str
 
-the bytes of a text of n at most, to its first byte of 0
+the bytes of a text of n at most, to its first byte of 0, or the
+file's end
 ```
 
 ### mod-frames
@@ -8450,6 +8453,15 @@ the song of a module's bytes, :nil if they are not one; bare, its
 samples' bytes not had, for what only shows it
 ```
 
+### mod-s8
+
+```code
+(mod-s8 data at) -> num
+
+a byte of -128 to 127, 0 past the file's end; of bytes known to be
+there it is the core's (get-byte)
+```
+
 ### mod-sample
 
 ```code
@@ -8484,6 +8496,31 @@ a song's first tempo as its header has it, 125 if it has none that is one
 a name, to its first byte of 0, what is not to be shown a space
 ```
 
+### mod-u16
+
+```code
+(mod-u16 data at) -> num
+
+two bytes, low first, 0 past the file's end
+```
+
+### mod-u32
+
+```code
+(mod-u32 data at) -> num
+
+four bytes, low first, 0 past the file's end
+```
+
+### mod-u8
+
+```code
+(mod-u8 data at) -> num
+
+a byte of a file, 0 past its end: a file cut short, or one that points
+where it has nothing, reads as nothing there, and is no error
+```
+
 ### mod-widen
 
 ```code
@@ -8499,6 +8536,44 @@ so many frames of a sample's bytes at at made the mixer's, of that kind,
 (mod-widen-kind wide signed) -> kind
 
 the kind of a sample's bytes, (media-widen): 8 or 16 bits, signed or not
+```
+
+### module-cell-text
+
+```code
+(module-cell-text song cell) -> str
+
+a cell of a song's pattern, (note sample volume effect number), as its
+tracker shows it: an S3M's volume and its effects by letter, A 1; an
+XM's volume column, a volume or an effect of a sign and a digit, and
+its effects by number then letter, G 16; an IT's volume column, a
+volume or an effect of a letter and a digit, and its effects by
+letter; a MOD's and an AHX's effects by number, and a MED's by two
+```
+
+### module-cell-width
+
+```code
+(module-cell-width song) -> num
+
+how many letters a cell of a song is shown in, (module-cell-text), and
+the space after it
+```
+
+### module-hex-digit
+
+```code
+(module-hex-digit n) -> str
+
+the low 4 bits of a number, as a tracker shows them
+```
+
+### module-note-text
+
+```code
+(module-note-text note) -> str
+
+a cell's note as a tracker shows it, three letters
 ```
 
 ### module-read
@@ -11464,12 +11539,6 @@ does not call itself
 
 the tree of the source: the forms, each with the comment after it on
 its line, the comments on lines of their own, and where a blank line was
-```
-
-### reel-clock
-
-```code
-(reel-clock seconds) -> str
 ```
 
 ### reel-close
@@ -17778,6 +17847,14 @@ the font of a theme, that of the first if there is none of that name
 the theme a user has from now on
 ```
 
+### time-clock
+
+```code
+(time-clock seconds [hours]) -> str
+
+a time as a player shows it, m:ss, or h:mm:ss with hours
+```
+
 ### time-from-date
 
 ```code
@@ -18524,6 +18601,17 @@ of nodes it is part way through, each (nodes at)
 
 ```code
 (url-format u) -> str
+```
+
+### url-kept-path
+
+```code
+(url-kept-path root url [decode]) -> path
+
+where what is fetched from an address is kept, under a folder of the
+tree: the host and its folders, each a plain name, what is not a
+letter, a digit or . _ - made _, so none climbs out of the folder;
+their escapes undone first if decode
 ```
 
 ### url-parse

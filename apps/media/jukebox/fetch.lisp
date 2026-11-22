@@ -23,15 +23,11 @@
 
 (defun fetch (app id url)
 	(defq told 0)
-	(mail-send app (cond
-		((not (defq resp (http-get url :nil :nil (lambda (got total)
-					(when (>= (- got told) +report_every)
-						(setq told got)
-						(mail-send app (cat "%" id " " (str got) " " (str (ifn total 0)))))))))
-			(cat "!" id " " (ifn (tls-why) "no connection")))
-		((/= (pfind resp :status) 200)
-			(cat "!" id " " (str (pfind resp :status)) " " (ifn (pfind resp :reason) "")))
-		((cat "=" id " " (http-body-str resp))))))
+	(defq resp (http-get url :nil :nil (lambda (got total)
+			(when (>= (- got told) +report_every)
+				(setq told got)
+				(mail-send app (cat "%" id " " (str got) " " (str (ifn total 0))))))))
+	(mail-send app (if (defq why (http-why resp)) (cat "!" id " " why) (cat "=" id " " (http-body-str resp)))))
 
 (defun main ()
 	(when (defq app (mail-read-timeout (task-mbox) +orphan))

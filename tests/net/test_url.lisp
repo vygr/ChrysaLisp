@@ -109,3 +109,13 @@
 (assert-eq "url-scheme-port https" 443 (url-scheme-port "https"))
 (assert-eq "url-scheme-port gemini" 1965 (url-scheme-port "gemini"))
 (assert-eq "url-scheme-port default" 80 (url-scheme-port "unknown"))
+
+;where what is fetched from an address is kept: plain names, none that climbs out
+(assert-eq "url-kept-path, the host and its folders" "downloads/x/host.com/a/b.mod"
+	(url-kept-path "downloads/x" "https://host.com/a/b.mod"))
+(assert-eq "url-kept-path, what is not plain made _" "downloads/x/host/a_20b_"
+	(url-kept-path "downloads/x" "https://host/a%20b!"))
+(assert-eq "url-kept-path, escapes undone first" "downloads/x/host/a_b_"
+	(url-kept-path "downloads/x" "https://host/a%20b!" :t))
+(assert-eq "url-kept-path, none climbs out" "downloads/x/host/etc"
+	(url-kept-path "downloads/x" "https://host/../.././etc"))

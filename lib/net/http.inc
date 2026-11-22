@@ -229,6 +229,15 @@
 	;progress, if given, is called as the body comes, (http-read-body)
 	(http-request "GET" url headers :nil dest_stream progress))
 
+(defun http-why (resp)
+	; (http-why resp) -> :nil | str
+	;why what a get gave is not the file asked for: nothing came, the
+	;connection's reason, (tls-why), or its status if that is not 200. :nil
+	;if it is the file
+	(cond
+		((not resp) (ifn (tls-why) "no connection"))
+		((/= (pfind resp :status) 200) (cat (str (pfind resp :status)) " " (ifn (pfind resp :reason) "")))))
+
 (defun http-post (url body &optional headers dest_stream)
 	; (http-post url body [headers dest_stream]) -> pmap | :nil
 	(http-request "POST" url headers body dest_stream))
@@ -239,5 +248,5 @@
 
 ;module
 (export-symbols '(http-request http-get http-post http-head
-		http-read-headers http-read-body http-body-str http-pool-clear))
+		http-read-headers http-read-body http-body-str http-pool-clear http-why))
 (env-pop)

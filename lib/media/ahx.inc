@@ -338,8 +338,8 @@
 			;the positions, a track and a transpose of each voice
 			(defq positions (map! (lambda ()
 					(defq p (+ at (* 2 channels (!))))
-					(list (map! (# (code data 1 (+ p (* 2 (!))))) '() 0 channels)
-						(map! (# (get-byte data (+ p (* 2 (!)) 1))) '() 0 channels)))
+					(list (map! (# (mod-u8 data (+ p (* 2 (!))))) '() 0 channels)
+						(map! (# (mod-s8 data (+ p (* 2 (!)) 1))) '() 0 channels)))
 				'() 0 posn))
 			(setq at (+ at (* 2 channels posn)))
 			;the tracks, a step a row of note, instrument and two effects and
@@ -349,14 +349,14 @@
 						((and (bits? b6 0x80) (= (!) 0)) (fill (nums) (* 6 trkl) 0))
 						(:t (defq t (nums))
 							(times trkl
-								(defq b0 (code data 1 at) b1 (code data 1 (inc at)) b2 (code data 1 (+ at 2)))
+								(defq b0 (mod-u8 data at) b1 (mod-u8 data (inc at)) b2 (mod-u8 data (+ at 2)))
 								(cond
 									((not hvl)
 										(push t (logand (>> b0 2) 0x3f) (logior (<< (logand b0 3) 4) (>> b1 4))
 											(logand b1 15) b2 0 0)
 										(setq at (+ at 3)))
 									((= b0 0x3f) (push t 0 0 0 0 0 0) (setq at (inc at)))
-									(:t (push t b0 b1 (>> b2 4) (code data 1 (+ at 3)) (logand b2 15) (code data 1 (+ at 4)))
+									(:t (push t b0 b1 (>> b2 4) (mod-u8 data (+ at 3)) (logand b2 15) (mod-u8 data (+ at 4)))
 										(setq at (+ at 5)))))
 							t)))
 				'() 0 (inc trkn)))
@@ -364,14 +364,12 @@
 			;or of HivelyTracker's 5
 			(defq name_at names instruments (list (scatter (Emap) :name "" :volume 0)) line (if hvl 5 4))
 			(times insn
-				(when (> (+ at 22) (length data)) (setq at (- (length data) 22)))
 				(bind '(name next) (ahx-text data name_at))
 				(setq name_at next)
-				(defq b (map! (# (code data 1 (+ at (!)))) '() 0 22) len (elem-get b 21) plist (list))
+				(defq b (map! (# (mod-u8 data (+ at (!)))) '() 0 22) len (elem-get b 21) plist (list))
 				(setq at (+ at 22))
 				(times len
-					(defq e (map! (# (code data 1 (+ at (!)))) '() 0 (max 0 (min line (- (length data) at)))))
-					(while (< (length e) line) (push e 0))
+					(defq e (map! (# (mod-u8 data (+ at (!)))) '() 0 line))
 					(defq e0 (first e) e1 (second e) e2 (third e) e3 (elem-get e 3))
 					(cond
 						(hvl (push plist (list (logand e2 0x3f) (logand e1 7) (logand (>> e2 6) 1)
@@ -401,7 +399,7 @@
 				:channels channels
 				:samples (map! (# (scatter (Emap) :name (. %0 :find :name) :data "" :length 0)) (list instruments) 1 -1)
 				:instruments instruments :positions positions :tracks tracks :restart restart :mult mult
-				:track_len trkl :version version :gain gain
+				:track_len trkl :version version :mixgain gain
 				:orders (map! (# (!)) '() 0 posn) :rows (map! (# trkl) '() 0 posn)
 				:patterns (map (lambda (pos)
 						(defq cells (nums) tr (first pos))

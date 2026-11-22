@@ -1376,6 +1376,14 @@
 	; (time-in-seconds time) -> str
 	(str (/ %0 1000000) "." (pad (% %0 1000000) 6 "00000")))
 
+(defun time-clock (seconds &optional hours)
+	; (time-clock seconds [hours]) -> str
+	;a time as a player shows it, m:ss, or h:mm:ss with hours
+	(defq s (n2i seconds))
+	(if hours
+		(cat (str (/ s 3600)) ":" (pad (% (/ s 60) 60) 2 "0") ":" (pad (% s 60) 2 "0"))
+		(cat (str (/ s 60)) ":" (pad (% s 60) 2 "0"))))
+
 (defq *time_it* "")
 (defmacro time-it (heading &rest body)
 	; (time-it heading body)
