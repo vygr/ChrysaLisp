@@ -169,7 +169,7 @@
 ;libxmp's sums of it
 (defq smp (apply (const cat) (map! (# (char (logand (if (< (% (!) 16) 8) 8000 -8000) 0xffff) 2)) '() 0 64))
 	out (media-mix (str-alloc (* 4 8)) (fill (nums) 16 0) (list smp)
-		(nums 0 0 65536 65536 65536 -1 64 0 9098 8310578 -4125373 0 0 0)))
+		(nums 0 0 65536 65536 65536 -1 64 0 9098 8310578 -4125373 0 0 0 -1 0 0)))
 (assert-list-eq "media-mix filtered, as libxmp"
 	'(17 51 102 170 253 352 465 593) (map! (# (code out 2 (* 4 (!)))) '() 0 8))
 
@@ -179,10 +179,19 @@
 	; (tt-mix-round round) -> (left ...)
 	(defq out (media-mix (str-alloc (* 4 8)) (fill (nums) 16 0)
 		(list (apply (const cat) (map (# (char %0 2)) '(100 200 300 400))))
-		(nums 0 0 32768 65536 65536 0 4 0 0 0 0 0 0 round)))
+		(nums 0 0 32768 65536 65536 0 4 0 0 0 0 0 0 round -1 0 0)))
 	(map! (# (code out 2 (* 4 (!)))) '() 0 8))
 (assert-list-eq "media-mix the sample it is at" '(100 100 200 200 300 300 400 400) (tt-mix-round 0))
 (assert-list-eq "media-mix the nearest sample" '(100 200 200 300 300 400 400 100) (tt-mix-round 0x8000))
+
+;a ring, HivelyTracker's: a sample of 64 times a ring of 127 -128 64 0 at
+;three steps a frame round the loop of four, a byte each, down 7
+(defq out (media-mix (str-alloc (* 4 8)) (fill (nums) 16 0)
+	(list (apply (const cat) (map (# (char (<< %0 8) 2)) '(64 64 64 64)))
+		(apply (const cat) (map (# (char (logand (<< %0 8) 0xffff) 2)) '(127 -128 64 0))))
+	(nums 0 0 65536 65536 65536 0 4 0 0 0 0 0 0 0 1 0 196608)))
+(assert-list-eq "media-mix rung" '(16128 0 8192 -16384 16128 0 8192 -16384)
+	(map! (# (defq v (code out 2 (* 4 (!)))) (if (> v 32767) (- v 65536) v)) '() 0 8))
 
 ; --- MED ---
 (defun tt-be32 (n)
@@ -273,10 +282,53 @@
 (assert-list-eq "AHX the note's voice sounds, the others not" '(:t :nil)
 	(list (> (. (first chans) :find :volume_out) 0) (> (. (second chans) :find :volume_out) 0)))
 
+; --- HivelyTracker ---
+(defun tt-hvl (channels stereo steps &optional line)
+	; (tt-hvl channels stereo steps [line]) -> str
+	;a HivelyTracker module of one position of 4 rows, voice 0 on track 1,
+	;the others on track 0, none; one instrument, a saw, its list's line
+	;(fx0 fx1 param0 param1), and its steps ((row note ins fx param fxb paramb) ...),
+	;a row of none a byte
+	(defq rows (map! (# '(0x3f)) '() 0 4))
+	(each (lambda ((row note ins fx param fxb paramb))
+			(elem-set rows row (list note ins (logior (<< fx 4) fxb) param paramb)))
+		steps)
+	(bind '(f0 f1 p0 p1) (ifn line '(0 0 0 0)))
+	(defq trk (apply (const cat) rows)
+		pos (cat '(1 0) (map! (# 0) '() 0 (* 2 (dec channels))))
+		body (cat pos trk '(64 3 1 64 1 64 10 1 0 0 0 0 0 0 0 0 0 0 0 0 1 1) (list f0 (logior (<< f1 3) 2) 0 p0 p1)))
+	(cat "HVL" (tt-bytes (list 0 0 (+ 16 (length body)) 0x80 1 (<< (- channels 4) 2) 0 4 1 1 0 100 stereo))
+		(tt-bytes body) "h\x00i\x00"))
+
+(defq song (module-read (tt-hvl 6 4 '((0 25 1 0 0 0 0)))))
+(assert-list-eq "HVL read, its kind, mode, voices and title" '("HivelyTracker" :ahx 6 "h")
+	(list (. song :find :kind) (. song :find :mode) (. song :find :channels) (. song :find :title)))
+(assert-eq "HVL read, a row of none a byte" 0 (elem-get (elem-get (. song :find :tracks) 1) 6))
+(assert-list-eq "HVL its voices' places, left right right left" '(0 255 255 0 0 255) (. song :find :pans))
+(assert-list-eq "HVL and of a stereo of 0, the middle" '(128 128 128 128)
+	(. (module-read (tt-hvl 4 0 '((0 25 1 0 0 0 0)))) :find :pans))
+(assert-eq "HVL its gain, 100 of 256" 256 (. song :find :gain))
+(assert-eq "HVL length, 4 rows of 6 frames" 21168 (tracker-length song 44100))
+(assert-eq "HVL F03 the second effect, a speed of 3" 10584
+	(tracker-length (module-read (tt-hvl 6 4 '((0 25 1 0 0 15 3)))) 44100))
+(each (lambda ((what steps))
+		(defq hvl_song (module-read (tt-hvl 6 4 steps)))
+		(assert-eq (cat "HVL measured as played, " what) (tt-played hvl_song) (tracker-length hvl_song 44100)))
+	'(("a note" ((0 25 1 0 0 0 0))) ("a speed second" ((0 25 1 0 0 15 3))) ("a break" ((1 0 0 13 0 0 0)))))
+(defq player (tt-ticks (tracker-player song 44100) 2) chans (. player :find :chans))
+(assert-list-eq "HVL the note's voice sounds, the others not" '(:t :nil)
+	(list (> (. (first chans) :find :volume_out) 0) (> (. (second chans) :find :volume_out) 0)))
+(assert-eq "HVL no ring" -1 (elem-get (. player :find :voices) 14))
+;a ring of a sawtooth a fifth up from the track's note, 8 and 0x87
+(defq player (tt-ticks (tracker-player (module-read (tt-hvl 6 4 '((0 25 1 0 0 0 0)) '(8 0 0x87 0))) 44100) 2))
+(assert-eq "HVL a ring, its buffer after the voices'" 6 (elem-get (. player :find :voices) 14))
+(assert-true "HVL the ring's step, a fifth over the voice's, periods 906 and 604"
+	(<= (abs (- (* 2 (elem-get (. player :find :voices) 16)) (* 3 (elem-get (. player :find :voices) 2)))) 2))
+
 ; --- the Jukebox's playlists ---
 (defq m3u (cat "#EXTM3U\r\n"
 	"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/Protracker/Someone/a%20song.mod\r\n"
-	"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/HivelyTracker/Someone/b.hvl\r\n"))
+	"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/Future%20Composer%201.4/Someone/b.fc\r\n"))
 (assert-list-eq "playlist-read, those played here, at Modland"
 	'(("a song.mod" "https://modland.com/pub/modules/Protracker/Someone/a%20song.mod"))
 	(playlist-read m3u))
@@ -344,7 +396,7 @@
 (defq allmods (cat "100\tProtracker/Mel O'Dee/whales forever.mod\n"
 	"100\tProtracker/Virgill/coop-Poldi/hard sun.mod\n100\tProtracker/Marc/funky dog.mod\n"
 	"100\tProtracker/Spoon/coop-Jam/funky dog.mod\n100\tProtracker/Cool Col J/majestic.mod\n"
-	"100\tProtracker/Projex/majestic.mod\n100\tHivelyTracker/Someone/whales forever.hvl\n")
+	"100\tProtracker/Projex/majestic.mod\n100\tFuture Composer 1.4/Someone/whales forever.fc\n")
 	played (allmods-played allmods) index (allmods-index played))
 (assert-eq "allmods-played, the trackers played here" 6 (length (split played "\n")))
 (assert-eq "allmods-find, its artist's folder of another case" "Protracker/Mel O'Dee/whales forever.mod"

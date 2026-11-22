@@ -12,8 +12,10 @@
 ;back and forth, +mix_back going back now. Then its filter, an IT's, as
 ;libxmp's: a0 b0 b1 of 22 bits, a0 0 none, and its last two outputs. And
 ;what is added to where it is for the sample it plays: 0 the one it is
-;at, an Amiga's, half a sample the nearest, as a PC's tracker
-(defcvar '+mix_size 14 '+mix_pingpong 1 '+mix_back 2)
+;at, an Amiga's, half a sample the nearest, as a PC's tracker. Last its
+;ring, a sample it is times, -1 none, round its loop as it is, where it is
+;in it and its step, an AHX's of HivelyTracker
+(defcvar '+mix_size 17 '+mix_pingpong 1 '+mix_back 2)
 
 (def-func (path-to-absolute "./media_mix"))
 	;inputs
@@ -35,7 +37,7 @@
 	;in state. Going back, its step is made less than 0 while it is mixed
 
 	(structure slot 0
-		(ptr this out acc samples state)
+		(ptr this out acc samples state ring)
 		(long frames stend))
 
 	(vp-rdef (dptr pos step wl wr lsq endq a n s x llen st stend)
@@ -81,6 +83,17 @@
 					(vp-shl-cr (log2 +long_size) s)
 					(vp-load-rrr x s dptr)
 					(vp-lea-rcr dptr +str_data dptr)
+					;its ring's bytes, 0 none
+					(assign `((,st 112)) `(,s))
+					(vp-xor-rr x x)
+					(vpif `(,s >= 0))
+						(assign '((:rsp slot_samples)) `(,x))
+						(assign `((,x +array_begin)) `(,x))
+						(vp-shl-cr (log2 +long_size) s)
+						(vp-load-rrr x s x)
+						(vp-lea-rcr x +str_data x)
+					(endif)
+					(assign `(,x) '((:rsp slot_ring)))
 					(load-fields st '(8 16 24 32 40 48 56) `(,pos ,step ,wl ,wr ,lsq ,endq ,x))
 					(vp-and-cr +mix_back x)
 					(vpif `(,x /= 0))
@@ -173,6 +186,27 @@
 							(assign `((,st 88)) '(:r0))
 							(assign `(:r0 ,s) `((,st 96) (,st 88)))
 							(vp-asr-cr 15 s)
+						(endif)
+						;rung: the byte of each, times, down 7, as HivelyTracker's,
+						;and the ring on round the loop
+						(assign '((:rsp slot_ring)) '(:r0))
+						(vpif '(:r0 /= 0))
+							(assign `((,st 120)) `(,x))
+							(vpif `(,x >= ,endq))
+								(vp-sub-rr llen x)
+							(endif)
+							(vp-cpy-rr x stend)
+							(vp-asr-cr 16 stend)
+							(vp-shl-cr 1 stend)
+							(vp-load-rrr-s :r0 stend :r0)
+							(vp-asr-cr 8 :r0)
+							(vp-asr-cr 8 s)
+							(vp-mul-rr :r0 s)
+							(vp-asr-cr 7 s)
+							(vp-shl-cr 8 s)
+							(assign `((,st 128)) `(,stend))
+							(vp-add-rr stend x)
+							(vp-store-rrc x st 120)
 						(endif)
 						(vp-cpy-rr s x)
 						(vp-mul-rr wl x)

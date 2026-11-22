@@ -20,7 +20,7 @@
 
 (ffi "lib/media/media_mix" media-mix)
 
-(defq +mix_size 14 +mix_pingpong 1 +mix_back 2
+(defq +mix_size 17 +mix_pingpong 1 +mix_back 2
 	+amiga_clock 3546895 +st3_clock 14317056 +period_lo 113 +period_hi 856 +st3_period_lo 64
 	;the half of a sine of vibrato and tremolo
 	+tracker_sine ''(0 24 49 74 97 120 141 161 180 197 212 224 235 244 250 253
@@ -2723,13 +2723,14 @@
 
 (defun ahx-player (player song)
 	; (ahx-player player song) -> player
-	;a player of an AHX: its four voices, a buffer each of the mixer's
-	(defq pans (. song :find :pans))
-	(scatter player :chans (map (# (ahx-voice (!) (if (< %0 128) +ahx_pan_left +ahx_pan_right))) pans)
-		:samples (map! (# (pad "" 1280 "\x00")) '() 0 4)
+	;a player of an AHX or a HivelyTracker's: a voice each of its channels, a
+	;buffer each of the mixer's, and one each for their rings after them
+	(defq n (. song :find :channels))
+	(scatter player :chans (map (# (ahx-voice (!) %0)) (. song :find :pans))
+		:samples (map! (# (pad "" 1280 "\x00")) '() 0 (* 2 n))
 		:pan_tables (ahx-pans) :order 0 :row 0 :speed 6 :wait 0 :get_new :t :pos_jump 0 :pos_jump_note 0
 		:pattern_break :nil :end_reached :nil :frames_done 0)
-	;each voice on its buffer from the start, the one it is at
+	;each voice on its buffer from the start, the one it is at, no ring
 	(defq voices (. player :find :voices))
 	(each! (lambda ()
 			(defq at (* (!) +mix_size))
@@ -2738,25 +2739,33 @@
 			(elem-set voices (+ at 5) 0)
 			(elem-set voices (+ at 6) 640)
 			(elem-set voices (+ at 7) 0)
-			(elem-set voices (+ at 13) 0))
-		'() 0 4)
+			(elem-set voices (+ at 13) 0)
+			(elem-set voices (+ at 14) -1))
+		'() 0 n)
 	player)
 
 (defun ahx-voices (player)
 	; (ahx-voices player)
 	;each voice's place in the mixer: its buffer round and round, from its
-	;start when an instrument began it, its step, and its share each side
-	(defq voices (. player :find :voices) pans (. player :find :pan_tables))
+	;start when an instrument began it, its step, its share each side of
+	;the song's gain, and its ring if it has one
+	(defq voices (. player :find :voices) pans (. player :find :pan_tables)
+		chans (. player :find :chans) n (length chans) gain (. (. player :find :song) :find :gain))
 	(each (lambda (voice)
 			(defq at (* (!) +mix_size) vol (. voice :find :voice_volume) pan (. voice :find :pan))
 			(when (. voice :find :restart)
 				(. voice :insert :restart :nil)
 				(elem-set voices (+ at 1) 0))
+			(when (. voice :find :ring_restart)
+				(. voice :insert :ring_restart :nil)
+				(elem-set voices (+ at 15) 0))
 			(elem-set voices (+ at 2) (. voice :find :delta))
-			(elem-set voices (+ at 3) (/ (* vol (elem-get (first pans) pan) +ahx_gain) 128))
-			(elem-set voices (+ at 4) (/ (* vol (elem-get (second pans) pan) +ahx_gain) 128))
+			(elem-set voices (+ at 3) (/ (* vol (elem-get (first pans) pan) gain) 128))
+			(elem-set voices (+ at 4) (/ (* vol (elem-get (second pans) pan) gain) 128))
+			(elem-set voices (+ at 14) (if (. voice :find :ring_mix) (+ n (!)) -1))
+			(elem-set voices (+ at 16) (. voice :find :ring_delta))
 			(scatter voice :volume_out vol :period_out (. voice :find :delta) :pan_out pan))
-		(. player :find :chans)))
+		chans))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; the song, played
@@ -2772,7 +2781,7 @@
 				(:med (map (# (med-channel %0 %1 (!))) (. song :find :pans) (. song :find :chvols)))
 				(:t (map (case mode (:st3 (const st3-channel)) (:ft2 (const ft2-channel)) (:t (const pt-channel)))
 					(. song :find :pans))))
-			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0 0 0 0 0 0 0))
+			:voices (apply (const nums) (apply (const cat) (map! (lambda () '(-1 0 0 0 0 -1 0 0 0 0 0 0 0 0 -1 0 0))
 				'() 0 (+ channels (defq extra (if (and (eql mode :it) (not (. song :find :sample_mode))) +it_voices 0))))))
 			;an IT's past notes, and the voices free for them
 			:past (list) :free (map! (# (+ channels (!))) '() 0 extra) :filters (Fmap 101)

@@ -9,7 +9,7 @@
 (import "./library.inc")
 (import "./widgets.inc")
 
-;A player of the modules of the trackers, the Amiga's MODs, MEDs and AHXs, Scream
+;A player of the modules of the trackers, the Amiga's MODs, MEDs, AHXs and HVLs, Scream
 ;Tracker's S3Ms, FastTracker's XMs and Impulse Tracker's ITs, and a jukebox
 ;of the user's favourites. A song is played by ./player.lisp, a task on
 ;another node, so what draws the screen is not slowed by it; it says what
@@ -759,7 +759,7 @@
 				(if (and *current* (favourite? (second *current*))) (favourite-remove) (favourite-add)))
 			((= id +event_open)
 				(if *picker* (mail-send *picker* ""))
-				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m .xm .it .med .mmd0 .mmd1 .mmd2 .mmd3 .mmdc .ahx" :nil "mods" :t (list))))
+				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m .xm .it .med .mmd0 .mmd1 .mmd2 .mmd3 .mmdc .ahx .hvl" :nil "mods" :t (list))))
 			((= id +event_mode)
 				;the jukebox plays the favourites
 				(setq *jukebox* (= (. *mode* :get_selected) 1))
