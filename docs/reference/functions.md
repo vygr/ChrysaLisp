@@ -17847,10 +17847,10 @@ the font of a theme, that of the first if there is none of that name
 the theme a user has from now on
 ```
 
-### time-clock
+### time-as-clock
 
 ```code
-(time-clock seconds [hours]) -> str
+(time-as-clock seconds [hours]) -> str
 
 a time as a player shows it, m:ss, or h:mm:ss with hours
 ```

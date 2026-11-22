@@ -71,6 +71,14 @@
 (ascii-code "-") action-minimise
 ```
 
+## apps/media/jukebox/actions.inc
+
+### *key_map*
+
+```code
+(ascii-code " ") action-toggle
+```
+
 ## apps/media/whiteboard/actions.inc
 
 ### *key_map*

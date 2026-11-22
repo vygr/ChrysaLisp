@@ -228,7 +228,7 @@
 		(status (cat (if (eql title "") (first *current*) title) ", " (. *song* :find :kind) " of "
 			(str (. *song* :find :channels)) " channels, "
 			(if *place* (cat "order " (str (inc (first *place*))) " of " (str (length (. *song* :find :orders))) ", ") "")
-			(time-clock (/ (min *heard* *length*) +rate)) " of " (if (> *length* 0) (time-clock (/ *length* +rate)) "?")
+			(time-as-clock (/ (min *heard* *length*) +rate)) " of " (if (> *length* 0) (time-as-clock (/ *length* +rate)) "?")
 			(cond ((eql *state* "h") ", paused") ((eql *state* "s") ", stopped") (""))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

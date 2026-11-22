@@ -93,7 +93,7 @@
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
 	(status-say (if *counter* (cat (if (. *reel* :find :audio)
-					(cat (time-clock (frame-time *at*) :t) " of " (time-clock (frame-time (. *reel* :find :frames)) :t))
+					(cat (time-as-clock (frame-time *at*) :t) " of " (time-as-clock (frame-time (. *reel* :find :frames)) :t))
 					(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
 						", " (str (n2i (. *reel* :find :rate))) " a second"))
 				(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")

@@ -96,5 +96,5 @@
 (assert-eq "get-cstr" "ABC" (get-cstr cs 0))
 
 ;a time as a player shows it
-(assert-list-eq "time-clock, m:ss and h:mm:ss" '("0:00" "1:05" "61:01" "1:01:01" "0:00:09")
-	(list (time-clock 0) (time-clock 65) (time-clock 3661) (time-clock 3661 :t) (time-clock 9 :t)))
+(assert-list-eq "time-as-clock, m:ss and h:mm:ss" '("0:00" "1:05" "61:01" "1:01:01" "0:00:09")
+	(list (time-as-clock 0) (time-as-clock 65) (time-as-clock 3661) (time-as-clock 3661 :t) (time-as-clock 9 :t)))

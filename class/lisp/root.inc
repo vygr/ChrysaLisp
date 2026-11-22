@@ -1376,8 +1376,8 @@
 	; (time-in-seconds time) -> str
 	(str (/ %0 1000000) "." (pad (% %0 1000000) 6 "00000")))
 
-(defun time-clock (seconds &optional hours)
-	; (time-clock seconds [hours]) -> str
+(defun time-as-clock (seconds &optional hours)
+	; (time-as-clock seconds [hours]) -> str
 	;a time as a player shows it, m:ss, or h:mm:ss with hours
 	(defq s (n2i seconds))
 	(if hours
