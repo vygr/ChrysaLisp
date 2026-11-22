@@ -18,23 +18,47 @@
 ;spectrum. The modules come from a file, a store, the favourites, kept to
 ;play offline, or Modland, ./library.inc
 
+;the mailboxes it reads: the window's, a timer, a tip, the file picker's,
+;the word that a task of its own has started, and what its tasks say:
+;the player of the song, the fetcher of what is being fetched, the index
+;of a search, and of what it was not asked. The player's, the fetcher's
+;and the search's are new ones for each song and seek, each fetch and
+;each search, so what is said of one no longer wanted goes nowhere
 (enums +select 0
-	(enum main timer tip fetch picker engine))
+	(enum main timer tip picker task engine fetch search index))
+
+;its tasks, each on a node of this machine not this one, if there is
+;another: the player, ./player.lisp, the fetcher, ./fetch.lisp, and the
+;index, ./index.lisp
+(enums +task 0
+	(enum engine fetcher indexer))
 
 ;the lists, by their tabs
 (enums +tab 0
 	(enum favourites charts all search))
 
 (defq +alive 1000000 +rows_wide 136
+	+task_files ''("player.lisp" "fetch.lisp" "index.lisp")
+	;how long a task may say nothing of what it is owed before it is taken
+	;to have gone, to start with: the player says 30 times a second, a fetch
+	;as it comes, the index makes itself of all of Modland's names first.
+	;Doubled for each time it is started again and has still said nothing
+	+task_patience ''(8000000 20000000 60000000)
+	;each task's mailbox, :nil till it says it has started, what is for it
+	;kept till then, since when it has owed an answer, :nil if it owes
+	;none, its patience now, and when the window last said it was there
+	*tasks* (list :nil :nil :nil) *waiting* (list (list) (list) (list)) *owed* (list :nil :nil :nil)
+	*patience* (list 8000000 20000000 60000000) *alive_at* 0
 	;the favourites, Player or Jukebox, shuffle, which list and the folder
 	;of Modland and of the charts, as they were when last closed,
 	;(config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "jukebox.tre")
 	*favourites* (list) *jukebox* :nil *shuffled* :nil *list_at* +tab_all *browse* (list) *charts* (list)
-	;the player, the song shown and its number, its bytes, how long it is,
-	;and what the player last said: heard, where, played, held or stopped,
-	;and the samples that sound
-	*engine* :nil *song* :nil *serial* 0 *seek_id* 0 *seek_at* 0 *data* :nil *length* 0
+	;the song shown, the mailbox that is its name to the player, when the
+	;seek bar was last dragged, its bytes, how long it is, and what the
+	;player last said: heard, where, played, held or stopped, and the
+	;samples that sound
+	*song* :nil *song_mbox* :nil *seek_at* 0 *data* :nil *length* 0
 	*heard* 0 *place* :nil *state* "s" *playing* (list) *shown* :nil
 	;what plays now, (title url), and the list it is of, and in what order,
 	;and what was playing when last closed, (title url seconds state), to go on
@@ -49,17 +73,17 @@
 	*entries* (list) *marked* :nil *left* :nil *fetching* :nil *picker* :nil *select* :nil
 	;the list shown is to be shown again once what is being fetched has come
 	*list_due* :nil
-	;the fetcher, ./fetch.lisp, and the number of the last fetch asked of it,
-	;and the listings fetched again since it was opened
-	*fetcher* :nil *fetch_id* 0 *fresh* (list)
-	;the index of where Modland has each module now, ./index.lisp, and of
-	;each playlist where its modules are now, (url now ...), and those asked
-	*indexer* :nil *resolved* (Fmap 31) *resolving* (list)
+	;how many times what is being fetched has been asked for again, its
+	;fetcher gone, and the listings fetched again since the app was opened
+	*fetch_tries* 0 *fresh* (list)
+	;of each playlist where its modules are now, as the index says,
+	;./index.lisp, (url now ...), and those asked
+	*resolved* (Fmap 31) *resolving* (list)
 	;the playlists and folders of them with nothing played here, of the index
 	*empty* (list)
-	;the search of all of Modland, ./index.lisp: the number of the last
-	;asked, what it found, and how many there are of which those are the first
-	*search_id* 0 *found* (list) *found_total* 0
+	;the search of all of Modland, ./index.lisp: what it found, and how many
+	;there are of which those are the first
+	*found* (list) *found_total* 0
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
 (defun status (text)
@@ -71,9 +95,58 @@
 (defun favourite? (url)
 	(some (# (eql (second %0) url)) *favourites*))
 
-(defun engine-send (&rest words)
-	;the player told, of this song
-	(if *engine* (mail-send *engine* (apply (const cat) (map (const str) words)))))
+(defun task-start (which)
+	; (task-start which)
+	;a task of the app's started, on a node of this machine not this one if
+	;there is another. It is started by a message: the word that it has
+	;comes to the select list, (task-launched), and what is for it is kept
+	;till then, (task-send)
+	(defq me (task-nodeid) others (filter (# (not (eql %0 me))) (lisp-nodes :t)))
+	(elem-set *tasks* which :nil)
+	(open-task (cat *app_root* (elem-get +task_files which))
+		(if (nempty? others) (elem-get others (random (length others))) me)
+		+kn_call_pin which (elem-get *select* +select_task)))
+
+(defun task-launched (msg)
+	; (task-launched msg)
+	;a task has said it has started: what was kept for it is sent. One that
+	;a node could not start is asked of this one
+	(defq which (getf msg +kn_msg_key) id (getf msg +kn_msg_reply_id))
+	(cond
+		((/= (get-long id 0) 0)
+			(elem-set *tasks* which id)
+			(each (# (mail-send id %0)) (elem-get *waiting* which))
+			(elem-set *waiting* which (list)))
+		((not (and (>= (length msg) +kn_msg_reply_size) (eql (getf msg +kn_msg_reply_node) (task-nodeid))))
+			(open-task (cat *app_root* (elem-get +task_files which)) (task-nodeid)
+				+kn_call_pin which (elem-get *select* +select_task)))))
+
+(defun task-send (which reply &rest words)
+	; (task-send which reply word ...)
+	;a task told: the mailbox it is to answer on, then the words, sent, or
+	;kept till it says it has started
+	(defq msg (apply (const cat) (cat (list reply) (map (# (if (num? %0) (str %0) %0)) words))))
+	(cond
+		((defq id (elem-get *tasks* which)) (mail-send id msg))
+		;that the window is there is not kept for one not yet started
+		((nql (first words) "K") (push (elem-get *waiting* which) msg))))
+
+(defun task-asked (which)
+	; (task-asked which)
+	;a task owes the window an answer from now
+	(elem-set *owed* which (pii-time)))
+
+(defun task-heard (which &optional more)
+	; (task-heard which [more])
+	;a task has been heard from: its patience is as it was to start with,
+	;and it owes nothing, or more from now
+	(elem-set *owed* which (if more (pii-time)))
+	(elem-set *patience* which (elem-get +task_patience which)))
+
+(defun engine-send (kind)
+	; (engine-send kind)
+	;the player told, of the song shown
+	(if *song_mbox* (task-send +task_engine *song_mbox* kind)))
 
 ;;;;;;;;;;;;;;;;;
 ; what is shown
@@ -152,22 +225,26 @@
 ; the player, ./player.lisp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun away-task (file mbox)
-	; (away-task file mbox) -> mailbox
-	;a task of the app's on a node of this machine not this one, if there is
-	;another, told the mailbox it tells the window by
-	(defq me (task-nodeid) others (filter (# (not (eql %0 me))) (lisp-nodes :t))
-		task (open-remote (cat *app_root* file)
-			(if (nempty? others) (elem-get others (random (length others))) me) +kn_call_pin))
-	(mail-send task mbox)
-	task)
+(defun song-send (state seconds)
+	; (song-send state seconds)
+	;the song shown given the player, to play, hold or stop at so many
+	;seconds, under a mailbox new for it: its name to the player, and where
+	;the player tells of it, so what it says of the song before goes nowhere
+	(elem-set *select* +select_engine (setq *song_mbox* (mail-mbox)))
+	(if (eql state "p") (task-asked +task_engine) (task-heard +task_engine))
+	(task-send +task_engine *song_mbox* "M" state " " seconds "\n" *data*))
 
-(defun engine-start ()
-	;the player and the fetcher
-	(setq *engine* (away-task "player.lisp" (elem-get *select* +select_engine))
-		*fetcher* (away-task "fetch.lisp" (elem-get *select* +select_fetch))
-		;where Modland has each module now, it answers as the fetcher does
-		*indexer* (away-task "index.lisp" (elem-get *select* +select_fetch))))
+(defun song-seek (seconds)
+	; (song-seek seconds)
+	;the song played from there, the player to tell of it on a new mailbox
+	;from then: what it said before the seek goes nowhere, and is not taken
+	;for where the song is after it
+	(elem-set *select* +select_engine (defq reply (mail-mbox)))
+	(task-asked +task_engine)
+	;where it is heard from now, as the window has it till the player says:
+	;a player started again plays from there
+	(setq *heard* (* seconds +rate) *state* "p")
+	(task-send +task_engine *song_mbox* "G" reply seconds))
 
 (defun song-start (data title url)
 	; (song-start data title url) -> :nil | :t
@@ -179,9 +256,9 @@
 			(bind '(& & at was) *resume*)
 			(setq *resume* :nil seconds at state (cond ((eql was "paused") "h") ((eql was "stopped") "s") ("p"))))
 		(setq *song* song *data* data *current* (list title url) *length* 0 *heard* (* seconds +rate)
-			*place* :nil *shown* :nil *playing* (list) *state* state *serial* (inc *serial*))
+			*place* :nil *shown* :nil *playing* (list) *state* state)
 		(def (. *seek* :dirty) :maximum 0 :value seconds)
-		(engine-send "M" *serial* " " state " " seconds "\n" data)
+		(song-send state seconds)
 		;as many columns as it has channels, as fit
 		(def *rows* :vdu_width (+ 4 (* (module-cell-width song) (rows-channels))))
 		(samples-show)
@@ -205,16 +282,30 @@
 			(. *loading* :to_front))
 		((. (. *seek* :dirty) :to_front))))
 
+(defun fetch-send ()
+	; (fetch-send)
+	;what is being fetched asked of the fetcher, or of the index where a
+	;module is now, to answer on a mailbox new for it: what is said of a
+	;fetch before goes nowhere
+	(elem-set *select* +select_fetch (defq reply (mail-mbox)))
+	(bind '(kind url &ignore) *fetching*)
+	(cond
+		((eql kind :index)
+			(task-asked +task_indexer)
+			(task-send +task_indexer reply "L" (modland-path url)))
+		(:t (task-asked +task_fetcher)
+			(task-send +task_fetcher reply "F" url))))
+
 (defun fetch-start (kind url &optional title missing)
 	;a module or a listing fetched by the fetcher, the window drawn
 	;meanwhile, and of a folder looked in for a module not found, its
 	;name. Each has a number, what is said of one before is not heard
 	;a listing still coming is put off by it, and is asked for again after, (list-due)
 	(and *fetching* (eql (first *fetching*) :listing) (nql (second *fetching*) url) (setq *list_due* :t))
-	(setq *fetching* (list kind url title missing) *fetch_id* (inc *fetch_id*))
+	(setq *fetching* (list kind url title missing) *fetch_tries* 0)
 	(loading 0)
 	(status (cat "Fetching " (ifn title "the folder") " ..."))
-	(mail-send *fetcher* (cat "F" (str *fetch_id*) " " url)))
+	(fetch-send))
 
 (defun list-button (text paper)
 	; (list-button text paper) -> button
@@ -269,7 +360,7 @@
 		((local? url) (song-failed (cat url ": not there")))
 		(:t ;what played stops, and the window says what is coming, till it
 			;has come
-			(engine-send "S" *serial*)
+			(engine-send "S")
 			(setq *song* :nil *current* :nil)
 			(. *title* :set_text (cat "Jukebox -> " title))
 			(. *samples* :load (list "" "  fetching ...") 0 0 -1 -1)
@@ -347,46 +438,47 @@
 		(queue-move *skip_by*)))
 
 (defun engine-said (msg)
-	;what the player said, of this song only
-	(defq kind (first msg) words (split (slice msg 1 (ifn (find "|" msg) (length msg))) " ")
-		serial (str-as-num (first words)))
-	(and *song* (= serial *serial*)
+	;what the player said of the song, on the song's mailbox or that of its
+	;last seek: of no other song, and of no time before that seek
+	(defq kind (first msg) words (split (slice msg 1 (ifn (find "|" msg) (length msg))) " "))
+	(when *song*
 		(cond
 			((eql kind "I")
-				(setq *length* (str-as-num (second words)))
+				(setq *length* (str-as-num (first words)))
 				(def (. *seek* :dirty) :maximum (/ *length* +rate))
 				(song-status))
 			((eql kind "!")
+				(task-heard +task_engine)
 				(setq *song* :nil)
 				(song-failed (cat (first *current*) ": not a module it can read")))
 			((eql kind "T")
 				;the row and the samples shown again only when they change
-				;of a seek before the last asked for, not shown
-				(bind '(& id heard order row state &rest playing) words)
-				(setq *failed* 0)
-				(when (= (str-as-num id) *seek_id*)
-					(setq *heard* (str-as-num heard) *state* state)
-					(unless (eql *shown* (defq place (cat order " " row)))
-						(setq *shown* place *place* (list (str-as-num order) (str-as-num row)))
-						(rows-show (first *place*) (second *place*)))
-					(unless (eql (join *playing* " ") (join playing " "))
-						(setq *playing* playing)
-						(samples-show))
-					(bars-show (map (const str-as-num) (split (slice msg (inc (find "|" msg)) -1) " ")))
-					;the bar left to the hand that drags it, a second after the last
-					(and (> (- (pii-time) *seek_at*) 1000000)
-						(/= (get :value *seek*) (defq at (/ (min *heard* *length*) +rate)))
-						(def (. *seek* :dirty) :value at))
-					(song-status)))
+				(bind '(heard order row state &rest playing) words)
+				(setq *failed* 0 *heard* (str-as-num heard) *state* state)
+				;while it plays it is owed the next of these
+				(task-heard +task_engine (eql state "p"))
+				(unless (eql *shown* (defq place (cat order " " row)))
+					(setq *shown* place *place* (list (str-as-num order) (str-as-num row)))
+					(rows-show (first *place*) (second *place*)))
+				(unless (eql (join *playing* " ") (join playing " "))
+					(setq *playing* playing)
+					(samples-show))
+				(bars-show (map (const str-as-num) (split (slice msg (inc (find "|" msg)) -1) " ")))
+				;the bar left to the hand that drags it, a second after the last
+				(and (> (- (pii-time) *seek_at*) 1000000)
+					(/= (get :value *seek*) (defq at (/ (min *heard* *length*) +rate)))
+					(def (. *seek* :dirty) :value at))
+				(song-status))
 			((eql kind "E")
 				;all of it heard: the next of the favourites in Jukebox mode,
 				;round them, else of the list shown, stopped after its last
+				(task-heard +task_engine)
 				(setq *skip_by* 1)
 				(cond
 					(*jukebox* (queue-step 1))
-					((empty? (queue-modules)) (engine-send "S" *serial*))
+					((empty? (queue-modules)) (engine-send "S"))
 					((not (queue-align 1)) (queue-play))
-					((= *queue_at* (dec (length *order*))) (engine-send "S" *serial*))
+					((= *queue_at* (dec (length *order*))) (engine-send "S"))
 					((queue-move 1)))))))
 
 ;;;;;;;;;
@@ -580,7 +672,10 @@
 			out)
 		(:t (unless (find url *resolving*)
 				(push *resolving* url)
-				(mail-send *indexer* (cat "R" url "\n" (join (map (# (modland-path (second %0))) entries) "\n"))))
+				;it answers on the mailbox of what it is not asked a fetch or a
+				;search of, with the playlist's address: nothing of it goes stale
+				(task-send +task_indexer (elem-get *select* +select_index)
+					"R" url "\n" (join (map (# (modland-path (second %0))) entries) "\n")))
 			(map (# (list (first %0) (second %0) :nil)) entries))))
 
 (defun playlist-resolved (text)
@@ -593,47 +688,53 @@
 
 (defun search-ask ()
 	;all of Modland searched by the index, ./index.lisp, the names that
-	;start with the search's text, as the filter leaves them: of those
-	;asked, only the last is answered
-	(setq *search_id* (inc *search_id*))
-	(mail-send *indexer* (cat "S" (str *search_id*) "\n:" (get :clear_text *search*) "\n:" (get :clear_text *filter*))))
+	;start with the search's text, as the filter leaves them, to answer on
+	;a mailbox new for it: what an earlier search found goes nowhere
+	(elem-set *select* +select_search (defq reply (mail-mbox)))
+	(task-asked +task_indexer)
+	(task-send +task_indexer reply "S" "\n:" (get :clear_text *search*) "\n:" (get :clear_text *filter*)))
 
 (defun search-found (msg)
-	;what the last search found, shown if the search is
-	(defq lines (split msg "\n") head (split (first lines) " "))
-	(when (= (str-as-num (slice (first head) 1 -1)) *search_id*)
-		(setq *found_total* (str-as-num (second head))
-			*found* (map! (# (list %0 (modland-url %0) :nil)) (list lines) 1 (length lines)))
-		(if (= *list_at* +tab_search) (list-show))))
+	;what the search found, S and how many, then a path a line, shown if
+	;the search is
+	(defq lines (split msg "\n"))
+	(task-heard +task_indexer)
+	(setq *found_total* (str-as-num (slice (first lines) 1 -1))
+		*found* (map! (# (list %0 (modland-url %0) :nil)) (list lines) 1 (length lines)))
+	(if (= *list_at* +tab_search) (list-show)))
 
 (defun index-ask (url title)
 	;where a module not where it was is now, asked of the index, ./index.lisp,
-	;which answers on the fetcher's mailbox, as a fetch of its own
-	(setq *fetching* (list :index url title :nil) *fetch_id* (inc *fetch_id*))
+	;as a fetch of its own
+	(setq *fetching* (list :index url title :nil) *fetch_tries* 0)
 	(status (cat "Looking for " title " ..."))
-	(mail-send *indexer* (cat "L" (str *fetch_id*) " " (modland-path url))))
+	(fetch-send))
 
-(defun fetch-done (msg)
-	;what the fetcher said, of the last fetch asked of it only
-	(defq kind (first msg) gap (ifn (find " " msg) (length msg)) said (slice msg (min (length msg) (inc gap)) -1))
-	(cond
-		;where a playlist's modules are now, of the index, not a fetch
-		((eql kind "R") (playlist-resolved (slice msg 1 -1)))
-		;what a search of all of Modland found, of the index
-		((eql kind "S") (search-found msg))
-		;the playlists and their folders with nothing to play, of the index
-		((eql kind "E")
-			(setq *empty* (rest (split msg "\n")))
-			(and (= *list_at* +tab_charts) (nempty? (list-path)) (list-show :t)))
-		;mail is unordered, how far it got may come after it has come
-		((or (not *fetching*) (/= (str-as-num (slice msg 1 gap)) *fetch_id*)))
-		((eql kind "%")
-			;how far it has got, of how many, or of a megabyte if it is not
-			;said
-			(bind '(got total) (map (const str-as-num) (split said " ")))
-			(loading (min 1000 (/ (* got 1000) (if (> total 0) total (max got 1048576))))))
-		(:t (loading :nil)
-			(fetch-ended (cat kind said)))))
+(defun index-said (msg)
+	;what the index says that is of no fetch or search: where a playlist's
+	;modules are now, R, and the playlists and their folders with nothing
+	;to play, E
+	(case (first msg)
+		("R" (playlist-resolved (slice msg 1 -1)))
+		("E" (setq *empty* (rest (split msg "\n")))
+			(and (= *list_at* +tab_charts) (nempty? (list-path)) (list-show :t)))))
+
+(defun fetch-said (msg)
+	;what the fetcher said of what is being fetched, or the index of where
+	;a module is now: how far it has got, %, its bytes, =, why not, !, or
+	;where, L
+	(defq kind (first msg) said (slice msg 1 -1) which (if (eql kind "L") +task_indexer +task_fetcher))
+	(when *fetching*
+		(cond
+			((eql kind "%")
+				;how far it has got, of how many, or of a megabyte if it is
+				;not said: and it is owed the rest from now
+				(task-heard which :t)
+				(bind '(got total) (map (const str-as-num) (split said " ")))
+				(loading (min 1000 (/ (* got 1000) (if (> total 0) total (max got 1048576))))))
+			(:t (task-heard which)
+				(loading :nil)
+				(fetch-ended (cat kind said))))))
 
 (defun player-mode (url)
 	; (player-mode url)
@@ -673,13 +774,159 @@
 		(favourite-show)
 		(if (= *list_at* +tab_favourites) (list-show))))
 
+;;;;;;;;;;;;
+; its tasks
+;;;;;;;;;;;;
+
+(defun task-again (which)
+	; (task-again which)
+	;a task taken to have gone: it is started again, twice as patient, and
+	;given again what it owed. A courtesy to the one before, if it is there
+	;after all: it is told to go
+	(if (defq id (elem-get *tasks* which)) (mail-send id (cat (elem-get *select* +select_main) "Q")))
+	(elem-set *waiting* which (list))
+	(elem-set *owed* which :nil)
+	(elem-set *patience* which (* 2 (elem-get *patience* which)))
+	(task-start which)
+	(case which
+		(+task_engine
+			;the song from where it was heard to
+			(if *song* (song-send *state* (/ *heard* +rate))))
+		(+task_fetcher
+			;what was being fetched asked for again, three times at most
+			(and *fetching* (nql (first *fetching*) :index)
+				(cond
+					((< (setq *fetch_tries* (inc *fetch_tries*)) 3) (fetch-send))
+					(:t (loading :nil)
+						(fetch-ended "!no answer")))))
+		(+task_indexer
+			(and *fetching* (eql (first *fetching*) :index) (fetch-send))
+			(if (= *list_at* +tab_search) (search-ask)))))
+
+(defun tasks-alive ()
+	; (tasks-alive)
+	;each second the tasks are told the window is there, a task that hears
+	;nothing for a while goes, ./app.inc. One that has said nothing of what
+	;it owes for its patience is taken to have gone, and is started again;
+	;and all of them if the window itself was not here to say so in time,
+	;as they will have gone
+	(defq now (pii-time) late (and (> *alive_at* 0) (> (- now *alive_at*) +orphan)))
+	(each (lambda (since patience)
+			(if (or late (and since (> (- now since) patience))) (task-again (!))))
+		*owed* *patience*)
+	(setq *alive_at* now)
+	;and where to tell it what it did not ask for
+	(each! (# (task-send (!) (elem-get *select* +select_index) "K")) '() 0 +task_size))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the actions, ./actions.inc has which event and key each is of
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun action-close ()
+	(setq *running* :nil))
+
+(defun action-play ()
+	;played, as the window has it till the player says: a player that has
+	;gone is started again to play it
+	(when *song*
+		(setq *state* "p")
+		(task-asked +task_engine))
+	(engine-send "P"))
+
+(defun action-pause ()
+	(engine-send "H"))
+
+(defun action-toggle ()
+	;played if stopped, else held, or played on if held
+	(if (eql *state* "s") (action-play) (action-pause)))
+
+(defun action-stop ()
+	(engine-send "S"))
+
+(defun action-next ()
+	(queue-step 1))
+
+(defun action-prev ()
+	(queue-step -1))
+
+(defun action-pin ()
+	;a favourite no longer, or one now
+	(if (and *current* (favourite? (second *current*))) (favourite-remove) (favourite-add)))
+
+(defun action-open ()
+	(if *picker* (mail-send *picker* ""))
+	(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." +module_exts :nil "mods" :t (list))))
+
+(defun action-picked (file)
+	;a file picked, or none: played by hand
+	(setq *picker* :nil)
+	(unless (eql (setq file (trim file)) "")
+		(player-mode file)
+		(setq *skip_by* :nil)
+		(entry-play (list (path-name file) file))))
+
+(defun action-mode ()
+	;the jukebox plays the favourites
+	(setq *jukebox* (= (. *mode* :get_selected) 1))
+	(config-save)
+	(setq *skip_by* 1)
+	(and *jukebox* (nempty? *favourites*) (queue-start *favourites* 0)))
+
+(defun action-shuffle ()
+	(setq *shuffled* (first (. *shuffle* :get_states)))
+	(config-save))
+
+(defun action-tab ()
+	(setq *list_at* (. *tab* :get_selected))
+	(config-save)
+	(if (= *list_at* +tab_search) (search-ask))
+	(list-show))
+
+(defun action-search ()
+	;what is typed searched, on the search's tab
+	(unless (= *list_at* +tab_search)
+		(setq *list_at* +tab_search)
+		(. *tab* :set_selected *list_at*)
+		(config-save))
+	(search-ask)
+	(list-show))
+
+(defun action-up ()
+	;the folder gone up from marked, and in view
+	(when (nempty? (defq path (list-path)))
+		(setq *left* (pop path))
+		(config-save)
+		(list-show)))
+
+(defun action-filter ()
+	;on the search's tab what it found is filtered by the index, of all
+	;there are, not only the first shown
+	(if (= *list_at* +tab_search) (search-ask))
+	(list-show))
+
+(defun action-seek ()
+	;a drag sends many, only the last is played from: more of the window's
+	;waiting, this is not it
+	(setq *seek_at* (pii-time))
+	(and *song* (not (mail-poll (list (elem-get *select* +select_main))))
+		(song-seek (get :value *seek*))))
+
+(defun action-item ()
+	;a row of the list pressed
+	(and (= (getf *msg* +ev_msg_type) +ev_type_action)
+		(defq button (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
+		(item-pressed (get :entry_at button))))
+
+(import "./actions.inc")
+
 (defun main ()
 	(setq *select* (task-mboxes +select_size))
 	;one of it on this machine, ./app.lisp: what is sent to it is not read
-	(defq service (mail-declare (mail-mbox) "@Jukebox" "Jukebox Service 1.0"))
+	(defq service (mail-declare (mail-mbox) "@Jukebox" "Jukebox Service 1.0") *running* :t)
 	(def *window* :tip_mbox (elem-get *select* +select_tip))
 	(config-load)
-	(engine-start)
+	;the player, the fetcher and the index, each by a message
+	(each! (# (task-start (!))) '() 0 +task_size)
 	(.-> *bars* (:fill +argb_black) (:swap +swap_write))
 	(. *samples* :load (list "" "  open a module, or" "  pick one below") 0 0 -1 -1)
 	(. *rows* :load (list) 0 0 -1 -1)
@@ -690,85 +937,27 @@
 	;what was playing when last closed, on again
 	(if *resume* (entry-play (slice *resume* 0 2)))
 	(mail-timeout (elem-get *select* +select_timer) +alive 0)
-	(defq id :t)
-	(while id
-		(defq msg (mail-read (elem-get *select* (defq idx (mail-select *select*)))))
+	(while *running*
+		(defq *msg* (mail-read (elem-get *select* (defq idx (mail-select *select*)))))
 		(cond
 			((= idx +select_timer)
-				;the player and the fetcher told the window is still here
 				(mail-timeout (elem-get *select* +select_timer) +alive 0)
-				(engine-send "K")
-				(mail-send *fetcher* "K")
-				(mail-send *indexer* "K"))
-			((= idx +select_engine) (engine-said msg))
-			((= idx +select_tip) (. *window* :tip msg))
-			((= idx +select_fetch) (fetch-done msg))
-			((= idx +select_picker)
-				(setq *picker* :nil)
-				(unless (eql (defq file (trim msg)) "")
-					(player-mode file)
-					(setq *skip_by* :nil)
-					(entry-play (list (path-name file) file))))
-			((= (setq id (getf msg +ev_msg_target_id)) +event_close) (setq id :nil))
-			((= id +event_play) (engine-send "P" *serial*))
-			((= id +event_pause) (engine-send "H" *serial*))
-			((= id +event_stop) (engine-send "S" *serial*))
-			((= id +event_next) (queue-step 1))
-			((= id +event_prev) (queue-step -1))
-			((= id +event_pin)
-				;a favourite no longer, or one now
-				(if (and *current* (favourite? (second *current*))) (favourite-remove) (favourite-add)))
-			((= id +event_open)
-				(if *picker* (mail-send *picker* ""))
-				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." +module_exts :nil "mods" :t (list))))
-			((= id +event_mode)
-				;the jukebox plays the favourites
-				(setq *jukebox* (= (. *mode* :get_selected) 1))
-				(config-save)
-				(setq *skip_by* 1)
-				(and *jukebox* (nempty? *favourites*) (queue-start *favourites* 0)))
-			((= id +event_shuffle)
-				(setq *shuffled* (first (. *shuffle* :get_states)))
-				(config-save))
-			((= id +event_tab)
-				(setq *list_at* (. *tab* :get_selected))
-				(config-save)
-				(if (= *list_at* +tab_search) (search-ask))
-				(list-show))
-			((= id +event_search)
-				;what is typed searched, on the search's tab
-				(unless (= *list_at* +tab_search)
-					(setq *list_at* +tab_search)
-					(. *tab* :set_selected *list_at*)
-					(config-save))
-				(search-ask)
-				(list-show))
-			((= id +event_up)
-				;the folder gone up from marked, and in view
-				(when (nempty? (defq path (list-path)))
-					(setq *left* (pop path))
-					(config-save) (list-show)))
-			;on the search's tab what it found is filtered by the index, of all
-			;there are, not only the first shown
-			((= id +event_filter)
-				(if (= *list_at* +tab_search) (search-ask))
-				(list-show))
-			((= id +event_seek)
-				(setq *seek_at* (pii-time))
-				;a drag sends many, only the last is played from: more of the
-				;window's waiting, this is not it
-				(and *song* (not (mail-poll (list (elem-get *select* +select_main))))
-					(engine-send "G" *serial* " " (setq *seek_id* (inc *seek_id*)) " " (get :value *seek*))))
-			((and (= id +event_item) (= (getf msg +ev_msg_type) +ev_type_action)
-					(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id))))
-				(item-pressed (get :entry_at button)))
-			((. *window* :event msg)))
+				(tasks-alive))
+			((= idx +select_task) (task-launched *msg*))
+			((= idx +select_engine) (engine-said *msg*))
+			((= idx +select_tip) (. *window* :tip *msg*))
+			((= idx +select_fetch) (fetch-said *msg*))
+			((= idx +select_search) (search-found *msg*))
+			((= idx +select_index) (index-said *msg*))
+			((= idx +select_picker) (action-picked *msg*))
+			;must be +select_main
+			((. *window* :dispatch *msg*))
+			((. *window* :event *msg*)))
 		(skip-on)
 		(list-due))
 	(config-save)
 	(if *picker* (mail-send *picker* ""))
-	(engine-send "Q")
-	(mail-send *fetcher* "Q")
-	(mail-send *indexer* "Q")
+	;a courtesy, each would go of itself
+	(each! (# (task-send (!) (elem-get *select* +select_main) "Q")) '() 0 +task_size)
 	(setq service :nil)
 	(. *window* :close))

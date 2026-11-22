@@ -1010,7 +1010,12 @@ not arrive; an answer may not come back.
 *	So a design is three lists: the messages of the ideal path, the
 	courtesies, and the time each side dissolves by. One with no time on
 	a side is not done. `lib/task/jobs.inc` is a farm's,
-	`apps/science/digits/gpu.lisp` a task's that holds state.
+	`apps/science/digits/gpu.lisp` a task's that holds state, and
+	`apps/media/jukebox/app_impl.lisp`, "its tasks", an app's whose tasks
+	last as long as it does: started by `open-task`, what is for one kept
+	till it says it has started, a mailbox to answer on in every message
+	and a new one for each thing asked, told each second the window is
+	there, and started again when they say nothing of what they owe.
 
 ## A Matrix Is Made from Its Raw Variables
 

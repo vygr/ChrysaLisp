@@ -13,30 +13,34 @@
 ;with its date and its lines of the trackers played here, and fetched
 ;again only when Modland has a newer one. It lasts as long as the window.
 ;
-;Told by the window, the first word its mailbox:
-;	L id path	where is the module of this path of pub/modules/ now
+;Told by the window, each message the mailbox to answer on, then:
+;	L path		where is the module of this path of pub/modules/ now
 ;	R key \n path \n ...	where are these, a playlist's, now
-;	S id \n :prefix \n :filter	the modules whose names start so, of all
+;	S \n :prefix \n :filter	the modules whose names start so, of all
 ;				Modland has, as the filter, a regexp or plain text,
 ;				leaves them, of what is waiting only the last
-;	K			the window is there
+;	K			the window is there, and this is its mailbox for
+;				what it did not ask for
 ;	Q			go
-;It tells the window, as the fetcher does, on its mailbox:
-;	L id path	it is there now, or L id and no path if not known
+;It answers on the mailbox each came with, a new one for each lookup and
+;each search, so what is said of one no longer wanted goes nowhere:
+;	L path		it is there now, or L and no path if not known
 ;	R key \n path \n ...	each there now, - if not known, or
 ;				as asked if there is no list to look in
+;	S total \n path \n ...	the first so many found of all there are
+;and tells the window, on the mailbox of its K:
 ;	E \n url \n ...	the playlists, and folders of them, of nothing it
 ;				has played here, once it has looked at them all
-;	S id total \n path \n ...	the first so many found of all there are
-;and it goes if it hears nothing of the window for a while
+;and it goes if it hears nothing of the window for a while, ./app.inc
 
 (defq +zip (kept-path +allmods)
 	+date (cat +zip ".date") +played (cat +zip ".played")
 	;the trackers the paths kept are of: others played here now, they are
 	;made again from the list kept
 	+kinds (cat +zip ".kinds") +kinds_now (join +modland_kinds ",")
-	;the window's mailbox, the index, and is it to go on
-	*app* :nil *index* :nil *running* :t
+	;the window's mailbox for what it did not ask for, the index, is it to go
+	;on, and the playlists of nothing played here, once known and once told
+	*app* :nil *index* :nil *running* :t *empty* :nil *empty_told* :nil
 	;the names of all, (Dictionary), a search asked for, and the most of
 	;what it finds that is sent
 	*names* :nil *search* :nil +search_max 2000)
@@ -99,17 +103,27 @@
 			(not (some (# (and (starts-with folder %0) (not (find %0 empty)))) lists)))
 		folders)))
 
+(defun empty-tell ()
+	;the playlists of nothing played here told the window, once they are
+	;known and it has said where
+	(when (and *app* *empty* (not *empty_told*))
+		(setq *empty_told* :t)
+		(mail-send *app* (cat "E\n" (join *empty* "\n")))))
+
 (defun answer (msg)
-	;what the window asked, answered; :nil once it is told to go
-	(case (first msg)
-		("Q" (setq *running* :nil))
-		("L" (defq gap (ifn (find " " msg) (length msg)) id (slice msg 1 gap)
-				path (if *index* (allmods-resolve *index* (slice msg (min (length msg) (inc gap)) -1))))
-			(mail-send *app* (cat "L" id (if path (cat " " path) ""))))
-		("S" (setq *search* msg))
-		("R" (defq lines (split (slice msg 1 -1) "\n"))
-			(mail-send *app* (cat "R" (join (map! (# (if *index* (ifn (allmods-resolve *index* %0) "-") %0))
-				(list lines) 1 (length lines) (list (first lines))) "\n")))))
+	;what the window asked, answered on the mailbox it came with; :nil once
+	;it is told to go
+	(when (> (length msg) +net_id_size)
+		(defq reply (slice msg 0 +net_id_size) body (slice msg (inc +net_id_size) -1))
+		(case (elem-get msg +net_id_size)
+			("Q" (setq *running* :nil))
+			("K" (setq *app* reply) (empty-tell))
+			("L" (defq path (if *index* (allmods-resolve *index* body)))
+				(mail-send reply (cat "L" (ifn path ""))))
+			("S" (setq *search* msg))
+			("R" (defq lines (split body "\n"))
+				(mail-send reply (cat "R" (join (map! (# (if *index* (ifn (allmods-resolve *index* %0) "-") %0))
+					(list lines) 1 (length lines) (list (first lines))) "\n"))))))
 	*running*)
 
 (defun answer-waiting ()
@@ -126,7 +140,10 @@
 	;prefix, in lower case, each of their paths the filter leaves, a regexp
 	;ignoring case or plain text if it is not one, the first +search_max
 	;sent and how many there are. Left for the next if another is asked
-	(bind '(head prefix pattern) (split (slice *search* 1 -1) "\n"))
+	;its lines are after the mailbox, which is bytes, a newline among them
+	;now and then
+	(defq reply (slice *search* 0 +net_id_size))
+	(bind '(prefix pattern) (split (slice *search* (inc +net_id_size) -1) "\n"))
 	(setq *search* :nil prefix (to-lower (rest prefix)) pattern (to-lower (rest pattern)))
 	(defq leaves (name-filter pattern) total 0 seen 0 out (list)
 		words (if *names* (. *names* :find_matches prefix) (list)))
@@ -139,16 +156,19 @@
 				;a newer search waiting, this one left
 				(or (/= 0 (% (setq seen (inc seen)) 4096)) (not (mail-poll (list (task-mbox))))))
 			words)
-		(mail-send *app* (cat "S" head " " (str total) "\n" (join out "\n")))))
+		(mail-send reply (cat "S" (str total) "\n" (join out "\n")))))
 
 (defun main ()
-	(when (setq *app* (mail-read-timeout (task-mbox) +orphan))
+	;the first that comes is kept till there is an index to answer it by
+	(when (defq msg (mail-read-timeout (task-mbox) +orphan))
 		(when (defq played (allmods-fresh))
 			(setq *index* (allmods-index played) *names* (Dictionary 16381))
 			(. (first *index*) :each (lambda (name &ignore) (. *names* :insert_word name)))
 			(. *names* :sort))
-		(defq empty (playlists-empty *index*))
-		(if *running* (mail-send *app* (cat "E\n" (join empty "\n"))))
+		(answer msg)
+		(answer-waiting)
+		(setq *empty* (playlists-empty *index*))
+		(if *running* (empty-tell))
 		(while (and *running* (defq msg (mail-read-timeout (task-mbox) +orphan)))
 			(answer msg)
 			(answer-waiting))))

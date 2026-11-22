@@ -10,34 +10,43 @@
 ;a song a tick at a time into a stream of the Audio service, a little
 ;ahead of what is heard, and tells the window what is heard.
 ;
-;Told by the window, each with the number of the song it is of, as mail
-;is unordered and what is of another song is not heard:
-;	M serial state seconds \n bytes	a module, played, held or stopped there
-;	P serial		played, from its start if stopped
-;	H serial		held, or played on if held
-;	S serial		stopped, to play from its start
-;	G serial id seconds	played from there, the id said back after
+;Told by the window, each message a mailbox, then a letter. The mailbox a
+;song came with is that song's name from then on, and where it is told of:
+;what is said of a song with another's is not heard, and what this says
+;of a song no longer wanted goes to a mailbox let go of, nowhere:
+;	M state seconds \n bytes	a module, played, held or stopped there
+;	P			played, from its start if stopped
+;	H			held, or played on if held
+;	S			stopped, to play from its start
+;	G mailbox seconds	played from there, and told of on that mailbox
+;				from then, so what was said before the seek is not
+;				taken for after it
 ;	K			the window is there
 ;	Q			go
-;and by its child, ./measure.lisp:
-;	W serial frames start...	the song's length and where its orders start
+;and by its child, ./measure.lisp, on a mailbox of that song's alone:
+;	W frames start...	the song's length and where its orders start
 ;It tells the window:
-;	I serial frames		the song is so long, by its child, ./measure.lisp
-;	! serial		not a module it can read
-;	T serial id heard order row state samples... | bands...
-;	E serial		all of the song heard
-;and it goes if it hears nothing of the window for a while
+;	I frames		the song is so long
+;	!			not a module it can read
+;	T heard order row state samples... | bands...
+;	E			all of the song heard
+;and it goes if it hears nothing of the window for a while, ./app.inc
 
 (enums +select 0
-	(enum main timer))
+	(enum main timer measure task))
 
 (defq +ahead 11025 +frame_time (/ 1000000 30) +fft 1024
 	+recent_max (+ +ahead +fft 4096)
-	*app* :nil *serial* -1 *song* :nil *player* :nil *handle* :nil *written* 0
-	*marks* (list) *recent* "" *recent_at* 0 *measurer* :nil *state* "s" *ended* :nil
+	;the mailboxes it reads, the song's name, the mailbox of the window it
+	;is told of on, the song and its player
+	*select* :nil *song_id* :nil *app* :nil *song* :nil *player* :nil *handle* :nil *written* 0
+	*marks* (list) *recent* "" *recent_at* 0 *state* "s" *ended* :nil
 	*spectrum* (spectrum-make +fft +rate +bars) *heard* 0 *told* :nil
-	;the last seek asked for, (id seconds), done when no more is waiting
-	*seek_id* 0 *seek_to* :nil
+	;its child that measures the song, once it has started, and the song's
+	;bytes kept for it till then
+	*measurer* :nil *measure_data* :nil
+	;the last seek asked for, (mailbox seconds), done when no more is waiting
+	*seek_to* :nil
 	;the song's length once its child has found it, and where its orders
 	;start, (tracker-start) each, which a seek goes from
 	*length* :nil *starts* (list))
@@ -115,7 +124,7 @@
 		bands (if (and (eql *state* "p") (>= from 0) (<= (+ from +fft) (/ (length *recent*) 4)))
 			(map (# (n2i %0)) (spectrum-bands *spectrum* *recent* from))
 			(map! (lambda () 0) '() 0 +bars)))
-	(mail-send *app* (cat "T" (join (map (const str) (list *serial* *seek_id* heard order row)) " ")
+	(mail-send *app* (cat "T" (join (map (const str) (list heard order row)) " ")
 		" " *state* " " (join (map (const str) playing) " ") " | " (join (map (const str) bands) " "))))
 
 (defun measure-stop ()
@@ -123,45 +132,67 @@
 		(mail-send *measurer* "Q")
 		(setq *measurer* :nil)))
 
-(defun measure (serial data)
+(defun measure (data)
 	;how long the song is found by a child, where the kernel puts it, as a
-	;long song takes seconds: it tells the window, and the child of the last
-	;song is told to go
+	;long song takes seconds. It is started by a message, the word that it
+	;has comes to a mailbox of the select list, (measure-launched), and it
+	;answers on another: both new for each song, so what the child of the
+	;song before says, or the word that it started, goes nowhere. That
+	;child is told to go
 	(measure-stop)
-	(setq *measurer* (open-child (cat *app_root* "measure.lisp") +kn_call_run))
-	(mail-send *measurer* (cat *app* (task-mbox) (str serial) "\n" data)))
+	(elem-set *select* +select_measure (mail-mbox))
+	(elem-set *select* +select_task (mail-mbox))
+	(setq *measure_data* data)
+	(open-task (cat *app_root* "measure.lisp") (task-nodeid) +kn_call_run 0 (elem-get *select* +select_task)))
 
-(defun load-song (serial state seconds data)
+(defun measure-launched (msg)
+	;the measurer has started: it is given the song, and where to answer
+	(when (and *measure_data* (/= (get-long (defq id (getf msg +kn_msg_reply_id)) 0) 0))
+		(setq *measurer* id)
+		(mail-send id (cat (elem-get *select* +select_measure) *measure_data*))
+		(setq *measure_data* :nil)))
+
+(defun measured (msg)
+	;what the measurer found: the song's length, told the window, and where
+	;its orders start, which a seek goes from
+	(defq vals (map (const str-as-num) (split (slice msg 1 -1) " ")))
+	(setq *length* (first vals) *starts* (partition (rest vals) 7))
+	(mail-send *app* (cat "I" (str *length*))))
+
+(defun load-song (id state seconds data)
 	;a module played, held or stopped at so many seconds, at once, how long
-	;it is found as it plays
+	;it is found as it plays. The mailbox it came with is its name, and
+	;where the window is told of it. A seek asked of the song before is not
+	;this one's
 	(sound-stop)
-	;a seek asked of the song before is not this one's
-	(setq *serial* serial *song* (module-read data) *told* :nil *length* :nil *starts* (list) *seek_to* :nil)
+	(setq *song_id* id *app* id *song* (module-read data) *told* :nil *length* :nil *starts* (list)
+		*seek_to* :nil)
 	(cond
 		(*song*
-			(measure serial data)
+			(measure data)
 			(rewind)
 			(setq *state* state)
 			(if (> seconds 0) (seek seconds))
 			(unless (eql state "s") (setq *handle* (audio-stream-open-rpc +rate 2)))
 			(report))
 		(:t (setq *state* "s")
-			(mail-send *app* (cat "!" (str serial))))))
+			(mail-send *app* "!"))))
 
 (defun command (msg)
 	; (command msg) -> :nil if to go
-	;the words of the line, a module's bytes after it
-	(defq kind (first msg) end (ifn (find "\n" msg) (length msg))
-		words (split (slice msg 1 end) " ") serial (if (nempty? words) (str-as-num (first words)) -1))
+	;a mailbox, a letter, and what the letter is of
+	(defq id (slice msg 0 +net_id_size) at (inc +net_id_size)
+		kind (if (> (length msg) +net_id_size) (elem-get msg +net_id_size) "K"))
 	(cond
 		((eql kind "Q") :nil)
 		((eql kind "K"))
 		((eql kind "M")
-			(load-song serial (second words) (str-as-num (third words)) (slice msg (inc end) -1)))
-		((or (/= serial *serial*) (not *song*)))
-		((eql kind "W")
-			(defq vals (map! (const str-as-num) (list words) 1 (length words)))
-			(setq *length* (first vals) *starts* (partition (rest vals) 7)))
+			;its line ends after the mailbox, which is bytes, a newline
+			;among them now and then
+			(defq end (ifn (find "\n" msg at) (length msg)) words (split (slice msg at end) " "))
+			(load-song id (first words) (str-as-num (second words)) (slice msg (min (length msg) (inc end)) -1)))
+		;of a song that is not the one played, not heard
+		((or (not *song*) (nql id *song_id*)))
 		((eql kind "P")
 			(cond
 				((eql *state* "s") (rewind) (setq *state* "p" *handle* (audio-stream-open-rpc +rate 2)))
@@ -176,41 +207,43 @@
 			(report))
 		((eql kind "G")
 			;only the last of a drag is done, (seek-now)
-			(setq *seek_to* (list (str-as-num (second words)) (str-as-num (third words)))))))
+			(setq *seek_to* (list (slice msg at (+ at +net_id_size)) (str-as-num (slice msg (+ at +net_id_size) -1)))))))
 
 (defun seek-now ()
-	;the last seek asked for, now no more is waiting
-	(bind '(id seconds) *seek_to*)
+	;the last seek asked for, now no more is waiting: the window is told of
+	;the song on the seek's mailbox from now, its length again with it
+	(bind '(reply seconds) *seek_to*)
 	(defq state *state*)
-	(setq *seek_to* :nil *seek_id* id)
+	(setq *seek_to* :nil *app* reply)
 	(seek seconds)
 	(setq *state* (if (eql state "s") "p" state) *told* :nil
 		*handle* (audio-stream-open-rpc +rate 2))
+	(if *length* (mail-send *app* (cat "I" (str *length*))))
 	(report))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) running :t heard_at (pii-time))
-	;the first word is the window's mailbox
-	(when (defq msg (mail-read-timeout (elem-get select +select_main) +orphan))
-		(setq *app* msg)
-		(mail-timeout (elem-get select +select_timer) +frame_time 0)
-		(while running
-			(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
-			(cond
-				((= idx +select_timer)
-					(mail-timeout (elem-get select +select_timer) +frame_time 0)
-					;the window gone, so is the player
-					(if (> (- (pii-time) heard_at) +orphan) (setq running :nil))
-					(when (and *song* (eql *state* "p"))
-						(feed)
-						(report)
-						;all of it heard
-						(when (and *ended* (>= *heard* *written*) (not *told*))
-							(setq *told* :t)
-							(mail-send *app* (cat "E" (str *serial*))))))
-				(:t (setq heard_at (pii-time) running (command msg))))
-			;a seek when no more is waiting
-			(and *seek_to* *song* (not (mail-poll (list (elem-get select +select_main))))
-				(seek-now))))
+	(setq *select* (task-mboxes +select_size))
+	(defq running :t heard_at (pii-time))
+	(mail-timeout (elem-get *select* +select_timer) +frame_time 0)
+	(while running
+		(defq idx (mail-select *select*) msg (mail-read (elem-get *select* idx)))
+		(cond
+			((= idx +select_timer)
+				(mail-timeout (elem-get *select* +select_timer) +frame_time 0)
+				;the window gone, so is the player
+				(if (> (- (pii-time) heard_at) +orphan) (setq running :nil))
+				(when (and *song* (eql *state* "p"))
+					(feed)
+					(report)
+					;all of it heard
+					(when (and *ended* (>= *heard* *written*) (not *told*))
+						(setq *told* :t)
+						(mail-send *app* "E"))))
+			((= idx +select_task) (measure-launched msg))
+			((= idx +select_measure) (if *song* (measured msg)))
+			(:t (setq heard_at (pii-time) running (command msg))))
+		;a seek when no more is waiting
+		(and *seek_to* *song* (not (mail-poll (list (elem-get *select* +select_main))))
+			(seek-now)))
 	(measure-stop)
 	(sound-stop))
