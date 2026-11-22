@@ -36,6 +36,10 @@
 	;of: after that it is of the length last found, kept with the config
 	+scene_steps ''(6824 0 10566) lengths :nil
 	id :t select :nil render :nil scout :nil answer :nil playing :t
+	;the size of the canvas on show; and the canvas of a new size the child
+	;is to draw on, not on show till a frame on it is whole, its size, and
+	;has a frame for it been given
+	shown_size (list +width +height) next :nil next_size :nil next_out :nil
 	;the frames' child has started, where a scout's I-frames are to go, the
 	;mailbox that child says, and a scout is to be started when both are
 	frames_up :nil player_box :nil scout_due :nil
@@ -71,20 +75,46 @@
 			:min_width (/ +width 2) :min_height (/ +height 2) :want_width +width :want_height +height)
 		(ui-element *canvas* (make-canvas +width +height))))
 
+(defun canvas-want ()
+	;a canvas of the size the picture is now, for the child to draw on
+	;from the next frame, if the one it draws on is another size. It is not
+	;shown yet. And not made while a frame is out on one that is not shown
+	;yet: that frame is shown when it comes, whatever size the window has
+	;gone to since, and the size is looked at again then, (canvas-next). A
+	;window dragged to a size asks at each move, and one made at each move
+	;would never have a frame finished on it
+	(bind '(w h) (. *picture* :get_size))
+	(bind '(dw dh) (ifn next_size shown_size))
+	(when (and (> w 0) (> h 0) (not next_out) (not (and (= w dw) (= h dh))))
+		(setq next (make-canvas w h) next_size (list w h))
+		(def next :paper 0)
+		(. next :change 0 0 w h)
+		(if render (. render :canvas next))))
+
 (defun action-layout ()
-	;the window is a new size, the canvas is made to fill the picture, and
-	;the child draws on it from the next frame. What is round the canvas,
-	;as the window grows, is the colour of the picture
+	;the window is a new size. The canvas on show stays, in the middle of
+	;the picture, the size it is, till a frame of a new size is whole: the
+	;child draws straight on a canvas's pixels, so a new one put on show
+	;at once is a colour till a frame lands on it. What is round the
+	;canvas, as the window grows, is the colour of the picture
 	(bind '(w h) (. *picture* :get_size))
 	(when (and (> w 0) (> h 0))
+		(. *canvas* :change 0 0 w h)
+		(. *window* :layout)
+		(canvas-want)))
+
+(defun canvas-next ()
+	;a frame has been answered: if it was drawn on a canvas not shown yet,
+	;that is whole, and is the one on show from now. Then one of the size
+	;the picture has now, if that has changed again
+	(when (and next next_out)
 		(. *canvas* :sub)
-		(setq *canvas* (make-canvas w h))
-		(def *canvas* :paper 0)
-		(.-> *canvas* (:fill (get :paper *picture*)) (:swap +swap_write))
+		(setq *canvas* next shown_size next_size next :nil next_size :nil next_out :nil)
+		(bind '(w h) (. *picture* :get_size))
 		(. *picture* :add_child *canvas*)
 		(. *canvas* :change 0 0 w h)
 		(. *window* :layout)
-		(if render (. render :canvas *canvas*))))
+		(canvas-want)))
 
 (defun picture-next (now most way)
 	; (picture-next now most way) -> k
@@ -132,11 +162,14 @@
 		(setq last_t now)
 		(bind '(mx my &ignore) (gui-info))
 		(bind '(px py &ignore) (. (penv *window*) :get_relative *canvas*))
-		(bind '(w h) (. *canvas* :get_size))
+		;drawn on the canvas of the new size if there is one, (action-layout)
+		(defq on (ifn next *canvas*))
+		(if next (setq next_out :t))
+		(bind '(w h) (ifn next_size shown_size))
 		(defq k (/ (n2q +width) (n2q (max w 1))))
 		(list (setf-> job
 			(+motion_job_step at) (+motion_job_target (ifn target -1))
-			(+motion_job_shared (canvas-key *canvas*)) (+motion_job_width w) (+motion_job_height h)
+			(+motion_job_shared (canvas-key on)) (+motion_job_width w) (+motion_job_height h)
 			(+motion_job_px (* k (n2q (- mx px)))) (+motion_job_py (* k (n2q (- my py))))
 			(+motion_job_dt dt) (+motion_job_playing (if playing 1 0))))))
 
@@ -157,6 +190,7 @@
 	;again, with none of them, and a scout is started for it
 	(bind '(step figures paper tick draw box) (getf-> msg +motion_reply_step +motion_reply_figures
 		+motion_reply_paper +motion_reply_tick +motion_reply_draw +motion_reply_iframes))
+	(canvas-next)
 	(unless (eql box player_box)
 		(setq player_box box scout_due (/= scene +scene_balls))
 		(scout-end))
