@@ -60,6 +60,8 @@
 	;samples that sound
 	*song* :nil *song_mbox* :nil *seek_at* 0 *data* :nil *length* 0
 	*heard* 0 *place* :nil *state* "s" *playing* (list) *shown* :nil
+	;till when what went wrong is left in the status line, (notice)
+	*notice_until* 0
 	;what plays now, (title url), and the list it is of, and in what order,
 	;and what was playing when last closed, (title url seconds state), to go on
 	*current* :nil *queue* (list) *order* (list) *queue_at* 0 *resume* :nil
@@ -88,6 +90,13 @@
 
 (defun status (text)
 	(. *status* :set_text text))
+
+(defun notice (text)
+	; (notice text)
+	;what went wrong, shown for a few seconds: a song that plays says where
+	;it is 30 times a second, and would be over it at once
+	(status text)
+	(setq *notice_until* (+ (pii-time) 4000000)))
 
 (defun local? (url)
 	(not (starts-with "https://" url)))
@@ -208,18 +217,19 @@
 (defun favourite-show ()
 	;the pin lit while what plays is a favourite
 	(defq btn (first (. *favourite* :children)))
-	(if (and *current* (favourite? (second *current*)))
-		(def (. btn :dirty) :paper (get :paper_highlight *env*))
-		(undef (. btn :dirty) :paper)))
+	(. (view-variant btn :paper (if (and *current* (favourite? (second *current*))) :paper_highlight :paper_toolbar))
+		:dirty))
 
 (defun song-status ()
-	;a song with no title of its own by the name of its file
+	;a song with no title of its own by the name of its file. Not over what
+	;went wrong, till that has been shown a while
 	(defq title (trim (. *song* :find :title)))
-	(status (cat (if (eql title "") (first *current*) title) ", " (. *song* :find :kind) " of "
-		(str (. *song* :find :channels)) " channels, "
-		(if *place* (cat "order " (str (inc (first *place*))) " of " (str (length (. *song* :find :orders))) ", ") "")
-		(time-clock (/ (min *heard* *length*) +rate)) " of " (if (> *length* 0) (time-clock (/ *length* +rate)) "?")
-		(cond ((eql *state* "h") ", paused") ((eql *state* "s") ", stopped") ("")))))
+	(if (>= (pii-time) *notice_until*)
+		(status (cat (if (eql title "") (first *current*) title) ", " (. *song* :find :kind) " of "
+			(str (. *song* :find :channels)) " channels, "
+			(if *place* (cat "order " (str (inc (first *place*))) " of " (str (length (. *song* :find :orders))) ", ") "")
+			(time-clock (/ (min *heard* *length*) +rate)) " of " (if (> *length* 0) (time-clock (/ *length* +rate)) "?")
+			(cond ((eql *state* "h") ", paused") ((eql *state* "s") ", stopped") (""))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the player, ./player.lisp
@@ -421,7 +431,7 @@
 	;the queue, the next that way is played, as far as once round it, and
 	;in Player mode not past its last, as at a song's end; picked, it
 	;stops there
-	(status why)
+	(notice why)
 	(setq *failed* (inc *failed*))
 	(setq *skip_due* (cond
 		((not (and *skip_by* (nempty? *queue*))) :nil)
@@ -622,7 +632,7 @@
 			;still what is shown, and not tried again till the app is
 			;opened again, if it could not be had
 			(push *fresh* url)
-			(unless *song* (status "Nothing playing"))
+			(if *song* (song-status) (status "Nothing playing"))
 			(when (and ok (nql msg (load (kept-path url))))
 				(save msg (kept-path url))
 				(and (/= *list_at* +tab_favourites) (eql url (path-url (list-path))) (list-show :t))))
@@ -640,7 +650,7 @@
 		((and (not ok) (eql kind :renamed) (starts-with "404" msg))
 			(song-failed (cat title ": Modland has it no more")))
 		((and (not ok) (find kind '(:module :renamed))) (song-failed (cat "Could not fetch it: " msg)))
-		((not ok) (status (cat "Could not fetch it: " msg)))
+		((not ok) (notice (cat "Could not fetch it: " msg)))
 		((eql kind :renamed)
 			(save msg (kept-path url))
 			(cond
@@ -654,7 +664,7 @@
 		((eql kind :listing)
 			(save msg (kept-path url))
 			(push *fresh* url)
-			(unless *song* (status "Nothing playing"))
+			(if *song* (song-status) (status "Nothing playing"))
 			(list-show))
 		((not (song-start msg title url)) (song-failed (cat title ": not a module it can read")))))
 

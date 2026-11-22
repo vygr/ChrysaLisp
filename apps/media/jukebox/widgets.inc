@@ -73,5 +73,5 @@
 			(ui-items *list* (:paper +argb_black)))))
 
 (ui-tool-tips *controls* '("prev" "play" "pause" "stop" "next"))
-(ui-tool-tips *favourite* '("a favourite, kept to play offline, or not" "open a module"))
+(ui-tool-tips *favourite* '("favourite" "open"))
 (ui-tool-tips *places* '("up a folder"))
