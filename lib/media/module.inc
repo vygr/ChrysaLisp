@@ -69,7 +69,20 @@
 	;the space after it
 	(inc (length (module-cell-text song '(0 0 0 0 0)))))
 
+(defun module-tagged? (data)
+	; (module-tagged? data) -> :t | :nil
+	;bytes that begin as a module of a tracker that tags its own: an S3M,
+	;an XM, an IT, a MED, an AHX or a HivelyTracker's
+	(or (starts-with "IMPM" data) (starts-with "Extended Module: " data)
+		(and (>= (length data) 48) (eql (slice data 44 48) "SCRM"))
+		(and (> (length data) 3)
+			(or (and (starts-with "MMD" data) (find (elem-get data 3) "0123C") :t)
+				(and (or (starts-with "THX" data) (starts-with "HVL" data)) (<= (code data 1 3) 1))))))
+
 (defun module-read (data &optional bare)
 	; (module-read data [bare]) -> :nil | song
 	;bare, its samples' bytes not had, for what only shows it
-	(or (s3m-read data bare) (xm-read data bare) (it-read data bare) (med-read data bare) (ahx-read data bare) (mod-read data bare)))
+	(or (s3m-read data bare) (xm-read data bare) (it-read data bare) (med-read data bare) (ahx-read data bare)
+		;a Soundtracker's MOD has no tag, so any bytes may be taken for one:
+		;not those of another tracker's that its own reader would not take
+		(if (or (mod-tagged data) (not (module-tagged? data))) (mod-read data bare))))

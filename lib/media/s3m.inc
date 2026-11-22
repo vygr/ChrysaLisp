@@ -66,7 +66,7 @@
 	(when (and (>= (length data) 96) (eql (slice data 44 48) "SCRM") (= (code data 1 29) 16)
 			(<= 1 (defq sign_kind (code data 2 42)) 2))
 		(defq ordnum (code data 2 32) insnum (code data 2 34) patnum (code data 2 36)
-			flags (code data 2 38) version (code data 2 40) mv (code data 1 51)
+			flags (code data 2 38) version (code data 2 40) gv (code data 1 48) mv (code data 1 51)
 			;as many channels as the last of the 32 that is one
 			channels (inc (reduce! (# (if (/= (code data 1 (+ 64 (!))) 255) (!) %0)) '() -1 0 32))
 			orders (map! (# (mod-u8 data (+ 96 (!)))) '() 0 ordnum)
@@ -88,7 +88,9 @@
 					'() 0 patterns)
 				:rows (map! (# 64) '() 0 patterns)
 				:speed (mod-speed (code data 1 49)) :tempo (mod-tempo (code data 1 50))
-				:global 64 :mix mix :markers :t :fast (or (bits? flags 64) (= version 0x1300))
+				;the volume the song starts at, as Scream Tracker has it: none
+				;said by one before 3.20 is all of it
+				:global (if (and (= gv 0) (< version 0x1320)) 64 (min 64 gv)) :mix mix :markers :t :fast (or (bits? flags 64) (= version 0x1300))
 				:pans (map! (lambda ()
 						(defq x (logand (code data 1 (+ 64 (!))) 31)
 							pan (if (and stereo (< x 16)) (if (< x 8) 0x30 0xc0) 128))

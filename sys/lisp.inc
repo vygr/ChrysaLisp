@@ -308,6 +308,13 @@
 	(node-wait (+ before (length (filter (lambda (pid) (> pid 0)) pids))))
 	pids)
 
+(defun mail-waiting? (mbox)
+	; (mail-waiting? mbox) -> :t | :nil
+	;mail is waiting in a mailbox now. A task that is sent more than it
+	;need do, each seek of a drag, each search as it is typed, does only the
+	;last: what it is asked is kept, and done once none is waiting
+	(if (mail-poll (list mbox)) :t))
+
 (defun mail-read-timeout (mbox &optional timeout)
 	; (mail-read-timeout mbox [timeout_us]) -> msg | :nil
 	(defq timer (mail-timeout (mail-mbox) (ifn timeout 1000000) 0))

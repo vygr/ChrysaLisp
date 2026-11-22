@@ -44,5 +44,4 @@
 (defun sound-sample (data i)
 	; (sound-sample data index) -> num
 	;the 16 bit sample at index of samples, signed
-	(defq v (code data 2 (* i 2)))
-	(if (> v 32767) (- v 65536) v))
+	(get-short data (* i 2)))

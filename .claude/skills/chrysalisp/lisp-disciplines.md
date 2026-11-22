@@ -922,6 +922,12 @@ that leaves its node holding more.
 	list or `(. jobs :reply_to mbox)`, and let the old one go: mail to it
 	goes nowhere.
 
+*	A task sent more than it need do, each seek of a drag, each search as
+	it is typed, does only the last: what is asked is kept as it is read,
+	and done once `(mail-waiting? mbox)`, `sys/lisp.inc`, says none is
+	waiting. Long work looks at it too, and leaves off for what is newer.
+	Not `(mail-poll (list mbox))` written out.
+
 *	A str sent is the receiver's. Mail to a task on the same node is not
 	copied, what arrives is the str that was sent, so the sender does not
 	write into it after. One made for the send, `(str-alloc)` and `setf->`,

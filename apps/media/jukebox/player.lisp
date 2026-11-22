@@ -242,7 +242,7 @@
 			((= idx +select_measure_reply) (measured msg))
 			(:t (setq heard_at (pii-time) running (command msg))))
 		;a seek when no more is waiting
-		(and *seek_to* *song* (not (mail-poll (list (elem-get *select* +select_main))))
+		(and *seek_to* *song* (not (mail-waiting? (elem-get *select* +select_main)))
 			(seek-now)))
 	(measure-end)
 	(sound-stop))

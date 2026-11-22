@@ -174,7 +174,8 @@
 							(elem-set cell 3 (elem-get prev 3))
 							(elem-set cell 4 (elem-get prev 4)))
 						(push events (list row c cell))))))
-		(if (> rows 1024) (setq rows 64)))
+		;one of no rows, or of more than any tracker's, is an empty one
+		(unless (<= 1 rows 1024) (setq rows 64)))
 	rows)
 
 (defun it-macros (data flags special at)

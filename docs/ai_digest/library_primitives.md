@@ -148,6 +148,12 @@ Location-transparent inter-process communication built on ephemeral, disposable
 
 	*	`(mail-timeout-read mbox [timeout_us]) -> msg | :nil`
 
+*	**`mail-waiting?`**: Mail is waiting in a mailbox now, nothing read. A
+	task sent more than it need do keeps what it is asked and does the last
+	once none is waiting.
+
+	*	`(mail-waiting? mbox) -> :t | :nil`
+
 ## Platform Implementation Interface (PII)
 
 Direct primitives bridging ChrysaLisp to host operating system drivers.

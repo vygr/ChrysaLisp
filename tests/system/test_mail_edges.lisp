@@ -27,6 +27,10 @@
 (assert-eq "select second" 1 (mail-select (list me_a me_b)))
 (assert-eq "read after select" "x" (mail-read me_b))
 (assert-eq "poll after read" :nil (mail-poll (list me_a me_b)))
+(mail-send me_b "x")
+(assert-list-eq "mail-waiting?, of a mailbox with mail and one with none" '(:nil :t) (list (mail-waiting? me_a) (mail-waiting? me_b)))
+(mail-read me_b)
+(assert-eq "mail-waiting?, none once it is read" :nil (mail-waiting? me_b))
 
 ; --- timeouts ---
 (assert-eq "read timeout on an empty mailbox" :nil (mail-read-timeout me_a 1000))

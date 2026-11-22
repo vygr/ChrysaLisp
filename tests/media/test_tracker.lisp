@@ -426,19 +426,71 @@
 ;an XM whose instrument has no samples, and a note on it: the map of such
 ;an instrument is of no sample for each key, as libxmp has it, where it
 ;was empty and the note's look in it failed, sweet flavour.xm
-(defq xm_bytes (cat "Extended Module: " (str-alloc 20) (char 0x1a) (str-alloc 20) (char 0x104 2)
-	;its header: 276 bytes, a song of 1 order, 1 channel, 1 pattern and 1
-	;instrument, linear, speed 6, tempo 125, its orders
-	(char 276 4) (char 1 2) (char 0 2) (char 1 2) (char 1 2) (char 1 2) (char 1 2) (char 6 2)
-	(char 125 2) (str-alloc 256)
-	;a pattern of 1 row, its cell note 55 of instrument 1
-	(char 9 4) (char 0) (char 1 2) (char 5 2) (char 55) (char 1) (char 0) (char 0) (char 0)
-	;the instrument, its 29 bytes, no samples
-	(char 29 4) (str-alloc 22) (char 0) (char 0 2)))
-(defq xm_song (module-read xm_bytes))
+(defun tt-xm (insnum instruments)
+	; (tt-xm insnum instruments) -> str
+	;an XM of so many instruments, their bytes
+	(cat "Extended Module: " (tt-zeros 20) (char 0x1a) (tt-zeros 20) (char 0x104 2)
+		;its header: 276 bytes, a song of 1 order, 1 channel, 1 pattern and
+		;its instruments, linear, speed 6, tempo 125, its orders
+		(char 276 4) (char 1 2) (char 0 2) (char 1 2) (char 1 2) (char insnum 2) (char 1 2) (char 6 2)
+		(char 125 2) (tt-zeros 256)
+		;a pattern of 1 row, its cell note 55 of instrument 1
+		(char 9 4) (char 0) (char 1 2) (char 5 2) (char 55) (char 1) (char 0) (char 0) (char 0)
+		instruments))
+;the instrument, its 29 bytes, no samples
+(defq xm_song (module-read (tt-xm 1 (cat (char 29 4) (tt-zeros 22) (char 0) (char 0 2)))))
 (assert-eq "an XM instrument of no samples, a map of 96 keys" 96
 	(length (. (first (. xm_song :find :instruments)) :find :map)))
 (assert-true "a note on it, the song measured" (num? (tracker-length xm_song 44100)))
+;an XM instrument a packer has cut the map and the envelopes from, its
+;header 33 bytes and a sample after it: each key plays that sample, and
+;what is after it is read from the right place, the next instrument's name
+(defq xm_song (module-read (tt-xm 2 (cat
+		(char 33 4) (tt-text "cut" 22) (char 0) (char 1 2) (char 40 4)
+		;the sample's header, of 4 bytes, volume 64, and its bytes
+		(char 4 4) (char 0 4) (char 0 4) (char 64) (char 0) (char 0) (char 128) (char 0) (char 0) (tt-text "smp" 22)
+		(tt-bytes '(1 2 3 4))
+		(char 29 4) (tt-text "second" 22) (char 0) (char 0 2))))
+	xm_cut (first (. xm_song :find :instruments)))
+(assert-list-eq "an XM instrument of a short header, its sample had" '(1 4 0)
+	(list (length (. xm_song :find :samples)) (. (first (. xm_song :find :samples)) :find :length) (. xm_cut :find :first)))
+(assert-list-eq "each of its keys that sample" (map! (# 0) '() 0 96) (. xm_cut :find :map))
+(assert-eq "and the instrument after it read from its place" "second"
+	(. (second (. xm_song :find :instruments)) :find :name))
+(assert-true "a note on it, the song measured" (num? (tracker-length xm_song 44100)))
+;an IT's pattern that says it has no rows is an empty one of 64, as one of
+;no place in the file is: the rows of the pattern of (tt-it) are at 842
+(defq it_bytes (tt-it notes) it_song (module-read (cat (slice it_bytes 0 842) (tt-le 0 2) (slice it_bytes 844 -1))))
+(assert-list-eq "an IT pattern of no rows is one of 64" '(64) (. it_song :find :rows))
+(assert-true "and the song is measured" (num? (tracker-length it_song 44100)))
+;an S3M's volume, the byte of its header the song starts at: none said by
+;a Scream Tracker before 3.20 is all of it, and more than 64 is 64
+(defun tt-s3m (gv version)
+	; (tt-s3m gv version) -> str
+	;an S3M of one channel, one order, no instruments, an empty pattern
+	(cat (tt-text "test" 28) (tt-bytes '(0x1a 16 0 0))
+		(tt-le 1 2) (tt-le 0 2) (tt-le 1 2) (tt-le 0 2) (tt-le version 2) (tt-le 2 2) "SCRM"
+		(tt-bytes (list gv 6 125 48 0 0)) (tt-zeros 10)
+		(tt-bytes (cat '(0) (map! (# 255) '() 0 31)))
+		;its order, where its pattern is, in 16s, and the pattern at 112
+		(tt-bytes '(0)) (tt-le 7 2) (tt-zeros 13)
+		(tt-le 66 2) (tt-zeros 64)))
+(assert-list-eq "an S3M's volume, of its header" '("S3M" 32 64 0 64)
+	(cat (list (. (module-read (tt-s3m 32 0x1320)) :find :kind))
+		(map (# (. (module-read (tt-s3m (first %0) (second %0))) :find :global))
+			'((32 0x1320) (0 0x1300) (0 0x1320) (100 0x1320)))))
+(assert-eq "and the song starts at it" 32 (. (tracker-player (module-read (tt-s3m 32 0x1320)) 44100) :find :gvol))
+;bytes of no tag are a Soundtracker's MOD if they could be one; those with
+;another tracker's tag that its own reader would not take are damaged, no
+;module: an S3M's tag on what is not one
+(defq st_bytes (cat (tt-zeros 470) (tt-bytes '(1)) (tt-zeros 1153)))
+(assert-eq "bytes of no tag that could be a Soundtracker's MOD are one" "MOD" (. (module-read st_bytes) :find :kind))
+(assert-eq "not those with an S3M's tag" :nil (module-read (cat (slice st_bytes 0 44) "SCRM" (slice st_bytes 48 -1))))
+(assert-eq "nor an IT's, its volume more than any" :nil
+	(module-read (cat "IMPM" (slice st_bytes 4 48) (tt-bytes '(200)) (slice st_bytes 49 -1))))
+(assert-list-eq "module-tagged?, each tracker's that has one" '(:t :t :t :t :t :t :nil :nil :nil)
+	(map (const module-tagged?) (list "IMPM" "Extended Module: " (cat (tt-zeros 44) "SCRM") "MMD1" "THX\x00" "HVL\x01"
+		"MMDx" "THX sound" (tt-mod '()))))
 (defq listing (cat "<a href=\qmillenium%20powerup.xm\q>x</a>\n<a href=\qjazzfunk.xm\q>x</a>\n"
 	"<a href=\qmill%20power.mod\q>x</a>\n<a href=\qmuddy%20pools.xm\q>x</a>\n<a href=\qmud%20pool.xm\q>x</a>\n"))
 (assert-eq "entry-renamed, a DOS name of the name it has now" "millenium%20powerup.xm" (entry-renamed listing "millpwr.xm"))

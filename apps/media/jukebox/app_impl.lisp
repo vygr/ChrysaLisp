@@ -169,10 +169,14 @@
 
 (defun rows-show (order row)
 	;the rows of the pattern about the one heard, it in the middle, as many
-	;channels as fit
+	;channels as fit. An order that is no pattern, a marker a song starts
+	;with or none at all, has no rows
 	(defq channels (. *song* :find :channels) half (/ +rows_shown 2)
-		pattern (elem-get (. *song* :find :orders) order)
-		cells (elem-get (. *song* :find :patterns) pattern) rows (elem-get (. *song* :find :rows) pattern)
+		orders (. *song* :find :orders) patterns (. *song* :find :patterns)
+		pattern (if (< order (length orders)) (elem-get orders order) -1)
+		there (<= 0 pattern (dec (length patterns)))
+		cells (if there (elem-get patterns pattern))
+		rows (if there (elem-get (. *song* :find :rows) pattern) 0)
 		shown (rows-channels) lines (list))
 	(each! (lambda ()
 			(defq r (+ row (- (!) half)))
@@ -923,7 +927,7 @@
 	;a drag sends many, only the last is played from: more of the window's
 	;waiting, this is not it
 	(setq *seek_at* (pii-time))
-	(and *song* (not (mail-poll (list (elem-get *select* +select_main))))
+	(and *song* (not (mail-waiting? (elem-get *select* +select_main)))
 		(song-seek (get :value *seek*))))
 
 (defun action-item ()

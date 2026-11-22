@@ -21,7 +21,7 @@
 (defun job (msg mbox)
 	(when (defq song (module-read (slice msg +job_size -1)))
 		(defq measure (tracker-measure song +rate) frames :nil)
-		(while (and (not frames) (not (mail-poll (list mbox))))
+		(while (and (not frames) (not (mail-waiting? mbox)))
 			(setq frames (tracker-measure-step measure +part))
 			(task-slice))
 		(if frames

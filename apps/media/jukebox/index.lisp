@@ -130,7 +130,7 @@
 	; (answer-waiting) -> :t | :nil
 	;what the window has asked meanwhile answered, the last search of it
 	;once none is waiting, :nil once told to go
-	(while (and *running* (mail-poll (list (task-mbox))))
+	(while (and *running* (mail-waiting? (task-mbox)))
 		(answer (mail-read (task-mbox))))
 	(and *running* *search* (search-run))
 	*running*)
@@ -154,7 +154,7 @@
 							(if (<= total +search_max) (push out path))))
 					(. (first *index*) :find word))
 				;a newer search waiting, this one left
-				(or (/= 0 (% (setq seen (inc seen)) 4096)) (not (mail-poll (list (task-mbox))))))
+				(or (/= 0 (% (setq seen (inc seen)) 4096)) (not (mail-waiting? (task-mbox)))))
 			words)
 		(mail-send reply (cat "S" (str total) "\n" (join out "\n")))))
 

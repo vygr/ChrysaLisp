@@ -40,5 +40,5 @@
 			(cond
 				((eql kind "F") (setq want msg))
 				((eql kind "Q") (setq running :nil want :nil)))
-			(setq msg (if (mail-poll (list (task-mbox))) (mail-read (task-mbox)))))
+			(setq msg (if (mail-waiting? (task-mbox)) (mail-read (task-mbox)))))
 		(if want (fetch (slice want 0 +net_id_size) (slice want (inc +net_id_size) -1)))))

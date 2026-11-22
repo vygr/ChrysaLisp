@@ -7637,6 +7637,16 @@ goes. Only for a service a task may use any one of: two networks on
 one machine each have a Net service of their own
 ```
 
+### mail-waiting?
+
+```code
+(mail-waiting? mbox) -> :t | :nil
+
+mail is waiting in a mailbox now. A task that is sent more than it
+need do, each seek of a drag, each search as it is typed, does only the
+last: what it is asked is kept, and done once none is waiting
+```
+
 ### mark-alone
 
 ```code
@@ -8480,6 +8490,15 @@ less none
 a song's first speed as its header has it, 6 if it has none
 ```
 
+### mod-tagged
+
+```code
+(mod-tagged data) -> :nil | channels
+
+how many channels the tag of a module's bytes says, :nil if they have
+none, as a Soundtracker's of 15 samples has not
+```
+
 ### mod-tempo
 
 ```code
@@ -8582,6 +8601,15 @@ a cell's note as a tracker shows it, three letters
 (module-read data [bare]) -> :nil | song
 
 bare, its samples' bytes not had, for what only shows it
+```
+
+### module-tagged?
+
+```code
+(module-tagged? data) -> :t | :nil
+
+bytes that begin as a module of a tracker that tags its own: an S3M,
+an XM, an IT, a MED, an AHX or a HivelyTracker's
 ```
 
 ### month-of-the-year

@@ -127,6 +127,12 @@
 				(find (slice tag 2 4) '("CH" "CN")))
 			(str-as-num (slice tag 0 2)))))
 
+(defun mod-tagged (data)
+	; (mod-tagged data) -> :nil | channels
+	;how many channels the tag of a module's bytes says, :nil if they have
+	;none, as a Soundtracker's of 15 samples has not
+	(if (>= (length data) 1084) (mod-channels (slice data 1080 1084))))
+
 (defun mod-nearest (period)
 	; (mod-nearest period) -> num
 	;the note nearest a period, 0 to 35, of finetune 0
@@ -166,7 +172,7 @@
 	;the song of a module's bytes, :nil if they are not one; bare, its
 	;samples' bytes not had, for what only shows it
 	(when (>= (length data) 600)
-		(defq channels (if (>= (length data) 1084) (mod-channels (slice data 1080 1084)))
+		(defq channels (mod-tagged data)
 			count (if channels 31 15) base (+ 20 (* 30 count))
 			head (if channels 1084 (+ base 130)) channels (ifn channels 4)
 			songlen (code data 1 base)

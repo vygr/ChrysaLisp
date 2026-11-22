@@ -82,18 +82,23 @@
 						:volume (scatter (Emap) :on :nil) :pan (scatter (Emap) :on :nil)
 						:vib_wave 0 :vib_sweep 0 :vib_depth 0 :vib_rate 0 :first -1))
 				(cond
-					((and (> nsamples 0) (>= size 243))
+					((> nsamples 0)
 						(defq first_sample (length samples))
-						(scatter ins :first first_sample
-							:map (map! (# (if (< (defq s (mod-u8 data (+ at 33 (!)))) nsamples) (+ first_sample s) -1))
-								'() 0 96)
-							:volume (xm-envelope data (+ at 129) (mod-u8 data (+ at 225)) (mod-u8 data (+ at 233))
-								(mod-u8 data (+ at 227)) (mod-u8 data (+ at 228)) (mod-u8 data (+ at 229)))
-							:pan (xm-envelope data (+ at 177) (mod-u8 data (+ at 226)) (mod-u8 data (+ at 234))
-								(mod-u8 data (+ at 230)) (mod-u8 data (+ at 231)) (mod-u8 data (+ at 232)))
-							:vib_wave (mod-u8 data (+ at 235)) :vib_sweep (mod-u8 data (+ at 236))
-							:vib_depth (mod-u8 data (+ at 237)) :vib_rate (mod-u8 data (+ at 238))
-							:fade (* 2 (mod-u16 data (+ at 239))))
+						;its map, envelopes, vibrato and fade, if its header is long
+						;enough to have them: one a packer has cut them from plays its
+						;first sample for each key, as libxmp has it
+						(if (>= size 241)
+							(scatter ins :first first_sample
+								:map (map! (# (if (< (defq s (mod-u8 data (+ at 33 (!)))) nsamples) (+ first_sample s) -1))
+									'() 0 96)
+								:volume (xm-envelope data (+ at 129) (mod-u8 data (+ at 225)) (mod-u8 data (+ at 233))
+									(mod-u8 data (+ at 227)) (mod-u8 data (+ at 228)) (mod-u8 data (+ at 229)))
+								:pan (xm-envelope data (+ at 177) (mod-u8 data (+ at 226)) (mod-u8 data (+ at 234))
+									(mod-u8 data (+ at 230)) (mod-u8 data (+ at 231)) (mod-u8 data (+ at 232)))
+								:vib_wave (mod-u8 data (+ at 235)) :vib_sweep (mod-u8 data (+ at 236))
+								:vib_depth (mod-u8 data (+ at 237)) :vib_rate (mod-u8 data (+ at 238))
+								:fade (* 2 (mod-u16 data (+ at 239))))
+							(scatter ins :first first_sample :map (map! (lambda () first_sample) '() 0 96)))
 						(defq shsize (mod-u32 data (+ at 29)) heads (+ at size) from (+ heads (* shsize nsamples)))
 						(times nsamples
 							(defq h (+ heads (* shsize (- (length samples) first_sample)))
