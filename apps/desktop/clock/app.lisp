@@ -32,9 +32,10 @@
 		(setq ampm (if (>= h 12) " PM" " AM")
 			h (cond ((= h 0) 12) ((> h 12) (- h 12)) (h))))
 	(cat (if (get :clock_dotw *env*) (cat (day-of-the-week wk) " ") "")
-		(if (get :clock_pad_hour *env*) (pad h 2 "0") (str h))
-		":" (pad mn 2 "0")
-		(if (get :clock_seconds *env*) (cat ":" (pad sc 2 "0")) "")
+		;with its seconds, or the minutes of the day alone
+		(if (get :clock_seconds *env*)
+			(time-as-clock (+ (* h 3600) (* mn 60) sc) :t (get :clock_pad_hour *env*))
+			(time-as-clock (+ (* h 60) mn) :nil (get :clock_pad_hour *env*)))
 		ampm))
 
 (defun transform (%0 a s &optional x y)

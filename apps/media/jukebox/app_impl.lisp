@@ -220,6 +220,11 @@
 	(. (view-variant btn :paper (if (and *current* (favourite? (second *current*))) :paper_highlight :paper_toolbar))
 		:dirty))
 
+(defun song-heard ()
+	; (song-heard) -> frames
+	;where the song is heard, no further than its length once that is known
+	(if (> *length* 0) (min *heard* *length*) *heard*))
+
 (defun song-status ()
 	;a song with no title of its own by the name of its file. Not over what
 	;went wrong, till that has been shown a while
@@ -228,7 +233,7 @@
 		(status (cat (if (eql title "") (first *current*) title) ", " (. *song* :find :kind) " of "
 			(str (. *song* :find :channels)) " channels, "
 			(if *place* (cat "order " (str (inc (first *place*))) " of " (str (length (. *song* :find :orders))) ", ") "")
-			(time-as-clock (/ (min *heard* *length*) +rate)) " of " (if (> *length* 0) (time-as-clock (/ *length* +rate)) "?")
+			(time-as-clock (/ (song-heard) +rate)) " of " (if (> *length* 0) (time-as-clock (/ *length* +rate)) "?")
 			(cond ((eql *state* "h") ", paused") ((eql *state* "s") ", stopped") (""))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -476,7 +481,7 @@
 				(bars-show (map (const str-as-num) (split (slice msg (inc (find "|" msg)) -1) " ")))
 				;the bar left to the hand that drags it, a second after the last
 				(and (> (- (pii-time) *seek_at*) 1000000)
-					(/= (get :value *seek*) (defq at (/ (min *heard* *length*) +rate)))
+					(/= (get :value *seek*) (defq at (/ (song-heard) +rate)))
 					(def (. *seek* :dirty) :value at))
 				(song-status))
 			((eql kind "E")

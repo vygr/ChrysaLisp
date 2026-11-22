@@ -150,7 +150,7 @@
 	(when (check-date td)
 		(bind '(s m h dy mo yr wk) td)
 		(cat (day-of-the-week wk) " " (month-of-the-year mo) " "
-			(pad dy 2 " ") " " (pad h 2 "0") ":" (pad m 2 "0") ":" (pad s 2 "0") " "
+			(pad dy 2 " ") " " (time-as-clock (+ (* h 3600) (* m 60) s) :t :t) " "
 			(elem-get *local_timezone* +tz_abbreviation) " " (str yr))))
 
 (defun decode-date (dts)

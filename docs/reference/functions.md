@@ -17850,9 +17850,12 @@ the theme a user has from now on
 ### time-as-clock
 
 ```code
-(time-as-clock seconds [hours]) -> str
+(time-as-clock seconds [hours padded]) -> str
 
-a time as a player shows it, m:ss, or h:mm:ss with hours
+a time as a clock shows it: of seconds m:ss, or h:mm:ss with hours, as
+a player has where it is; of the minutes of a day h:mm, a clock's with
+no seconds. Its first part is of two digits as the rest are if padded,
+09:05, as a clock of the day has it
 ```
 
 ### time-from-date

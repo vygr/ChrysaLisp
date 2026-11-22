@@ -55,7 +55,7 @@
 		im (n2i (floor (+ rem_m 0.5))))
 	(if (>= im 60)
 		(setq im 0 ih (% (inc ih) 24)))
-	(cat (pad ih 2 "0") ":" (pad im 2 "0")))
+	(time-as-clock (+ (* ih 60) im) :nil :t))
 
 (defun format-duration (h)
 	(defq total_m (n2i (floor (+ (* h 60.0) 0.5)))
@@ -242,7 +242,7 @@
 		utc_date (date now_sec))
 	(bind '(sec min hr mday mo yr wk) utc_date)
 	(defq utc_str (cat "UTC: " (day-of-the-week wk) " " (month-of-the-year mo) " " (pad mday 2 "0") " "
-			(pad hr 2 "0") ":" (pad min 2 "0") ":" (pad sec 2 "0"))
+			(time-as-clock (+ (* hr 3600) (* min 60) sec) :t :t))
 		sim_note (cond
 			((= *sim_offset_sec* 0) "")
 			((> *sim_offset_sec* 0) (cat " [+" (str (/ *sim_offset_sec* 3600)) "h]"))
@@ -260,7 +260,7 @@
 	(bind '(cname ccountry clat clon coff) (elem-get *cities* *selected_city_id*))
 	(defq city_sec (+ now_sec (n2i (* coff 3600.0))))
 	(bind '(& cmin chr &ignore) (date city_sec))
-	(defq local_time_str (cat (pad chr 2 "0") ":" (pad cmin 2 "0"))
+	(defq local_time_str (time-as-clock (+ (* chr 60) cmin) :nil :t)
 		elev (solar-elevation clat clon sun_lat_deg sun_lon_deg)
 		is_day (> elev 0.0)
 		elev_int (n2i (floor (+ (abs elev) 0.5)))
@@ -304,7 +304,7 @@
 			(defq day? (daylight? la lo sun_lat_deg sun_lon_deg)
 				badge (if day? "Day " "Night ")
 				btn e)
-			(. btn :set_text (cat badge cn " " (pad h 2 "0") ":" (pad m 2 "0")))) (list *cities* btns) 0 6))
+			(. btn :set_text (cat badge cn " " (time-as-clock (+ (* h 60) m) :nil :t)))) (list *cities* btns) 0 6))
 
 (defun main ()
 	(config-load)

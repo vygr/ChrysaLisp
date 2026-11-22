@@ -3,6 +3,7 @@
 (import "lib/media/module.inc")
 (import "lib/media/tracker.inc")
 (import "lib/media/spectrum.inc")
+(import "lib/task/jobs.inc")
 (import "./app.inc")
 
 ;The player of the Jukebox, a task of its own on a node not the window's,
@@ -23,8 +24,8 @@
 ;				taken for after it
 ;	K			the window is there
 ;	Q			go
-;and by its child, ./measure.lisp, on a mailbox of that song's alone:
-;	W frames start...	the song's length and where its orders start
+;Its child, ./measure.lisp, a farm of one, lib/task/jobs.inc, finds the
+;song's length and where its orders start, a job for each song.
 ;It tells the window:
 ;	I frames		the song is so long
 ;	!			not a module it can read
@@ -33,18 +34,20 @@
 ;and it goes if it hears nothing of the window for a while, ./app.inc
 
 (enums +select 0
-	(enum main timer measure task))
+	(enum main timer measure_task measure_reply))
 
 (defq +ahead 11025 +frame_time (/ 1000000 30) +fft 1024
+	;how long the measurer may take over a song before it is taken to have
+	;gone, to start with, lib/task/jobs.inc
+	+measure_patience 30000000
 	+recent_max (+ +ahead +fft 4096)
 	;the mailboxes it reads, the song's name, the mailbox of the window it
 	;is told of on, the song and its player
 	*select* :nil *song_id* :nil *app* :nil *song* :nil *player* :nil *handle* :nil *written* 0
 	*marks* (list) *recent* "" *recent_at* 0 *state* "s" *ended* :nil
 	*spectrum* (spectrum-make +fft +rate +bars) *heard* 0 *told* :nil
-	;its child that measures the song, once it has started, and the song's
-	;bytes kept for it till then
-	*measurer* :nil *measure_data* :nil
+	;the farm of one that measures the song, while it does
+	*measurer* :nil
 	;the last seek asked for, (mailbox seconds), done when no more is waiting
 	*seek_to* :nil
 	;the song's length once its child has found it, and where its orders
@@ -127,37 +130,29 @@
 	(mail-send *app* (cat "T" (join (map (const str) (list heard order row)) " ")
 		" " *state* " " (join (map (const str) playing) " ") " | " (join (map (const str) bands) " "))))
 
-(defun measure-stop ()
-	(when *measurer*
-		(mail-send *measurer* "Q")
-		(setq *measurer* :nil)))
+(defun measure-end ()
+	;the farm that measures let go of: its child is told to go, and
+	;nothing late of it comes in, lib/task/jobs.inc
+	(setq *measurer* (jobs-end *measurer* *select* +select_measure_task +select_measure_reply)))
 
 (defun measure (data)
-	;how long the song is found by a child, where the kernel puts it, as a
-	;long song takes seconds. It is started by a message, the word that it
-	;has comes to a mailbox of the select list, (measure-launched), and it
-	;answers on another: both new for each song, so what the child of the
-	;song before says, or the word that it started, goes nowhere. That
-	;child is told to go
-	(measure-stop)
-	(elem-set *select* +select_measure (mail-mbox))
-	(elem-set *select* +select_task (mail-mbox))
-	(setq *measure_data* data)
-	(open-task (cat *app_root* "measure.lisp") (task-nodeid) +kn_call_run 0 (elem-get *select* +select_task)))
-
-(defun measure-launched (msg)
-	;the measurer has started: it is given the song, and where to answer
-	(when (and *measure_data* (/= (get-long (defq id (getf msg +kn_msg_reply_id)) 0) 0))
-		(setq *measurer* id)
-		(mail-send id (cat (elem-get *select* +select_measure) *measure_data*))
-		(setq *measure_data* :nil)))
+	;how long the song is found by a child, a farm of one where the kernel
+	;puts it, as a long song takes seconds: the song is its job. The farm of
+	;the song before is let go of. A child that goes, or takes too long, is
+	;started again by the farm, (:refresh)
+	(measure-end)
+	(setq *measurer* (Jobs (cat *app_root* "measure.lisp")
+		(elem-get *select* +select_measure_task) (elem-get *select* +select_measure_reply) (list 1)))
+	(. *measurer* :add (list (cat (pad "" +job_size "\x00") data))))
 
 (defun measured (msg)
 	;what the measurer found: the song's length, told the window, and where
-	;its orders start, which a seek goes from
-	(defq vals (map (const str-as-num) (split (slice msg 1 -1) " ")))
-	(setq *length* (first vals) *starts* (partition (rest vals) 7))
-	(mail-send *app* (cat "I" (str *length*))))
+	;its orders start, which a seek goes from. Its farm has no more to do
+	(when (and *measurer* (. *measurer* :answered msg))
+		(defq vals (map (const str-as-num) (split (slice msg +job_reply_size -1) " ")))
+		(setq *length* (first vals) *starts* (partition (rest vals) 7))
+		(mail-send *app* (cat "I" (str *length*)))
+		(measure-end)))
 
 (defun load-song (id state seconds data)
 	;a module played, held or stopped at so many seconds, at once, how long
@@ -223,7 +218,7 @@
 
 (defun main ()
 	(setq *select* (task-mboxes +select_size))
-	(defq running :t heard_at (pii-time))
+	(defq running :t heard_at (pii-time) refreshed (pii-time))
 	(mail-timeout (elem-get *select* +select_timer) +frame_time 0)
 	(while running
 		(defq idx (mail-select *select*) msg (mail-read (elem-get *select* idx)))
@@ -232,6 +227,10 @@
 				(mail-timeout (elem-get *select* +select_timer) +frame_time 0)
 				;the window gone, so is the player
 				(if (> (- (pii-time) heard_at) +orphan) (setq running :nil))
+				;the measurer's patience, each second
+				(when (and *measurer* (> (- (pii-time) refreshed) 1000000))
+					(setq refreshed (pii-time))
+					(. *measurer* :refresh +measure_patience))
 				(when (and *song* (eql *state* "p"))
 					(feed)
 					(report)
@@ -239,11 +238,11 @@
 					(when (and *ended* (>= *heard* *written*) (not *told*))
 						(setq *told* :t)
 						(mail-send *app* "E"))))
-			((= idx +select_task) (measure-launched msg))
-			((= idx +select_measure) (if *song* (measured msg)))
+			((= idx +select_measure_task) (if *measurer* (. *measurer* :launched msg)))
+			((= idx +select_measure_reply) (measured msg))
 			(:t (setq heard_at (pii-time) running (command msg))))
 		;a seek when no more is waiting
 		(and *seek_to* *song* (not (mail-poll (list (elem-get *select* +select_main))))
 			(seek-now)))
-	(measure-stop)
+	(measure-end)
 	(sound-stop))

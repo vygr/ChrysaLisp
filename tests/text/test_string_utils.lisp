@@ -95,6 +95,9 @@
 (defq cs "ABC\x00DEF")
 (assert-eq "get-cstr" "ABC" (get-cstr cs 0))
 
-;a time as a player shows it
+;a time as a player shows it, and as a clock of the day does
 (assert-list-eq "time-as-clock, m:ss and h:mm:ss" '("0:00" "1:05" "61:01" "1:01:01" "0:00:09")
 	(list (time-as-clock 0) (time-as-clock 65) (time-as-clock 3661) (time-as-clock 3661 :t) (time-as-clock 9 :t)))
+(assert-list-eq "time-as-clock, padded, and of the minutes of a day" '("09:05:30" "23:59:59" "09:05" "9:05" "00:00")
+	(list (time-as-clock (+ (* 9 3600) (* 5 60) 30) :t :t) (time-as-clock 86399 :t :t)
+		(time-as-clock (+ (* 9 60) 5) :nil :t) (time-as-clock (+ (* 9 60) 5)) (time-as-clock 0 :nil :t)))
