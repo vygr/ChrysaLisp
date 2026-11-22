@@ -18,7 +18,15 @@
 
 ;the fewest points a line of a morph is made of, a short line morphing to a
 ;long one still needs some to bend with, and the most
-(defq +morph_min 24 +morph_max 512 +morph_far 1000000.0)
+(defq +morph_min 24 +morph_max 512 +morph_far 1000000.0
+	;matrices that keep of each point its x, its y, the two the other way
+	;round, and both added as its x: with them the sums over a line's
+	;points are done in native code, not a point at a time
+	+morph_xs (fixeds 1.0 0.0 0.0 0.0 0.0 0.0) +morph_ys (fixeds 0.0 0.0 0.0 0.0 1.0 0.0)
+	+morph_swap (fixeds 0.0 1.0 0.0 1.0 0.0 0.0) +morph_both (fixeds 1.0 1.0 0.0 0.0 0.0 0.0)
+	;which points of a line of so many are looked at to line it up with
+	;another, 1.0 for both of a point's, 0.0 for the rest, by how many
+	*morph_masks* (Fmap 31))
 
 (defun outline-svg (d)
 	; (outline-svg d) -> outline
@@ -56,18 +64,25 @@
 		text)
 	out)
 
+(defun outline-fold (p fnc)
+	; (outline-fold p fnc) -> (x y)
+	;the least or the most x and y of a path's points, fnc (nums-min) or
+	;(nums-max): one half of its points against the other, over and over,
+	;each a call of native code, till one point is left
+	(while (> (defq n (/ (length p) 2)) 1)
+		(defq h (* 2 (/ n 2)))
+		(setq p (cat (fnc (slice p 0 h) (slice p h (* 2 h))) (slice p (* 2 h) -1))))
+	p)
+
 (defun outline-box (outline)
 	; (outline-box outline) -> :nil | (x y x1 y1)
-	;the box round all of its lines
+	;the box round all of its lines: all their points as one path, folded
+	;to its least and its most
 	(when (nempty? outline)
-		(defq x +morph_far y +morph_far x1 (neg +morph_far) y1 (neg +morph_far))
-		(each (lambda ((closed p))
-				(defq i 0 n (length p))
-				(while (< i n)
-					(defq px (elem-get p i) py (elem-get p (inc i)))
-					(setq x (min x px) y (min y py) x1 (max x1 px) y1 (max y1 py) i (+ i 2))))
-			outline)
-		(if (<= x x1) (list x y x1 y1))))
+		(defq all (apply (const cat) (cat (list (path)) (map (const second) outline))))
+		(when (nempty? all)
+			(cat (map (# %0) (outline-fold all (const nums-min)))
+				(map (# %0) (outline-fold all (const nums-max)))))))
 
 (defun outline-centred (outline)
 	; (outline-centred outline) -> outline
@@ -79,20 +94,25 @@
 			(map (lambda ((closed p)) (list closed (mat3x2-vec2-mul m p (cat p)))) outline))
 		(outline)))
 
+(defun morph-steps (p closed)
+	; (morph-steps p closed) -> fixeds
+	;how long each part of a line is, from each point to the next, with the
+	;way back to its start if it is closed: x y of p, the lengths at x. The
+	;differences, their squares and the squares' sums over all of it at
+	;once, then a root for each part
+	(defq n (length p) next (if closed (cat (slice p 2 -1) (slice p 0 2)) (slice p 2 -1))
+		from (if closed p (slice p 0 (- n 2)))
+		d (nums-sub next from (cat from))
+		sq (mat3x2-vec2-mul +morph_both (nums-mul d d d) (cat d)) i 0 m (length sq))
+	(while (< i m)
+		(elem-set sq i (sqrt (elem-get sq i)))
+		(setq i (+ i 2)))
+	sq)
+
 (defun morph-length (p closed)
 	; (morph-length p closed) -> fixed
 	;how long a line is, with the way back to its start if it is closed
-	(defq n (length p) i 2 len 0.0)
-	(when (>= n 4)
-		(while (< i n)
-			(defq dx (- (elem-get p i) (elem-get p (- i 2)))
-				dy (- (elem-get p (inc i)) (elem-get p (dec i))))
-			(setq len (+ len (sqrt (+ (* dx dx) (* dy dy)))) i (+ i 2)))
-		(when closed
-			(defq dx (- (elem-get p 0) (elem-get p (- n 2)))
-				dy (- (elem-get p 1) (elem-get p (dec n))))
-			(setq len (+ len (sqrt (+ (* dx dx) (* dy dy)))))))
-	len)
+	(if (>= (length p) 4) (nums-sum (morph-steps p closed)) 0.0))
 
 (defun morph-trim (p closed u)
 	; (morph-trim p closed u) -> path
@@ -191,29 +211,35 @@
 (defun morph-area (p)
 	; (morph-area p) -> fixed
 	;the area inside a closed line, by the way it goes round, one way
-	;round less than 0, the other more
-	(defq n (length p) i 0 sum 0.0)
-	(while (< i n)
-		(defq j (if (>= (+ i 2) n) 0 (+ i 2)))
-		(setq sum (+ sum (- (* (/ (elem-get p i) 16.0) (elem-get p (inc j)))
-					(* (/ (elem-get p j) 16.0) (elem-get p (inc i)))))
-			i (+ i 2)))
-	(* sum 8.0))
+	;round less than 0, the other more. Each point's x a sixteenth, times
+	;the next's y, less the next's x a sixteenth times its y, summed
+	(defq n (length p))
+	(cond
+		((< n 4) 0.0)
+		(:t (defq q (cat (slice p 2 -1) (slice p 0 2)) by (fill (path) n 16.0)
+				px (mat3x2-vec2-mul +morph_xs (nums-div p by (cat p)) (cat p))
+				qx (mat3x2-vec2-mul +morph_xs (nums-div q by (cat q)) (cat q))
+				qs (mat3x2-vec2-mul +morph_swap q (cat q))
+				ps (mat3x2-vec2-mul +morph_swap p (cat p)))
+			(* (- (nums-sum (nums-mul px qs px)) (nums-sum (nums-mul qx ps qx))) 8.0))))
 
 (defun morph-centre (p)
 	; (morph-centre p) -> (x y)
-	;the mean of its points, near enough the middle of a line
-	(defq n (/ (length p) 2) sx 0.0 sy 0.0 i 0)
-	(while (< i (* n 2))
-		(setq sx (+ sx (/ (elem-get p i) (n2q (max n 1))))
-			sy (+ sy (/ (elem-get p (inc i)) (n2q (max n 1)))) i (+ i 2)))
-	(list sx sy))
+	;the mean of its points, near enough the middle of a line: each point
+	;over how many there are, summed
+	(defq n (length p))
+	(cond
+		((< n 2) (list 0.0 0.0))
+		(:t (defq d (nums-div p (fill (path) n (n2q (/ n 2))) (cat p)))
+			(list (nums-sum (mat3x2-vec2-mul +morph_xs d (cat d)))
+				(nums-sum (mat3x2-vec2-mul +morph_ys d (cat d)))))))
 
 (defun morph-resample (p closed count)
 	; (morph-resample p closed count) -> path
 	;count points, evenly along the line. A closed line's come back round
 	;to one step short of the first, an open line's end on its last
-	(defq n (length p) out (path) total (morph-length p closed))
+	(defq n (length p) out (path) steps (if (>= n 4) (morph-steps p closed))
+		total (if steps (nums-sum steps) 0.0))
 	(cond
 		((or (< n 4) (<= total 0.0))
 			;a point, or nothing
@@ -227,13 +253,11 @@
 				(task-slice)
 				;on along the line till the next point lies on this part of it
 				(while (and (>= want (+ gone seg)) (or (< at n) (and closed (= at n))))
-					(setq gone (+ gone seg) x nx y ny)
+					(setq gone (+ gone seg) x nx y ny seg (elem-get steps (- at 2)))
 					(if (< at n)
 						(setq nx (elem-get p at) ny (elem-get p (inc at)))
 						(setq nx (elem-get p 0) ny (elem-get p 1)))
-					(setq at (+ at 2))
-					(defq dx (- nx x) dy (- ny y))
-					(setq seg (sqrt (+ (* dx dx) (* dy dy)))))
+					(setq at (+ at 2)))
 				(defq f (if (> seg 0.0) (min 1.0 (/ (- want gone) seg)) 0.0))
 				(push out (+ x (* f (- nx x))) (+ y (* f (- ny y))))
 				(setq want (+ want step) made (inc made)))))
@@ -248,30 +272,35 @@
 		(setq i (- i 2)))
 	out)
 
+(defun morph-mask (n stride)
+	; (morph-mask n stride) -> path
+	;for a line of n points, 1.0 at each stride'th point's x and y, 0.0 at
+	;the rest. Made once for each n
+	(unless (defq mask (. *morph_masks* :find n))
+		(setq mask (path))
+		(each! (lambda ()
+				(defq v (if (= 0 (% (!) stride)) 1.0 0.0))
+				(push mask v v))
+			'() 0 n)
+		(. *morph_masks* :insert n mask))
+	mask)
+
 (defun morph-align (a b)
 	; (morph-align a b) -> path
 	;b, a closed line of as many points as a, turned to start where it lies
-	;closest to a, looked for by a few of its points at a few starts
+	;closest to a, looked for by a few of its points at a few starts. b
+	;twice over has each turn of it as a slice, and how far a turn is from
+	;a is a sum over arrays
 	(defq n (/ (length a) 2) stride (max 1 (/ n 32)) tries (max 1 (/ n 64))
-		best 0 best_sum +morph_far s 0)
+		best 0 best_sum +morph_far s 0 n2 (* n 2) twice (cat b b) gap (cat a)
+		mask (if (> stride 1) (morph-mask n stride)))
 	(while (< s n)
 		(task-slice)
-		(defq sum 0.0 i 0)
-		(while (< i n)
-			(defq j (* 2 (% (+ i s) n))
-				dx (- (elem-get a (* i 2)) (elem-get b j))
-				dy (- (elem-get a (inc (* i 2))) (elem-get b (inc j))))
-			(setq sum (+ sum (abs dx) (abs dy)) i (+ i stride)))
-		(if (< sum best_sum) (setq best_sum sum best s))
+		(nums-abs (nums-sub a (slice twice (* s 2) (+ (* s 2) n2)) gap) gap)
+		(if mask (nums-mul gap mask gap))
+		(if (< (defq sum (nums-sum gap)) best_sum) (setq best_sum sum best s))
 		(setq s (+ s tries)))
-	(cond
-		((= best 0) b)
-		(:t (defq out (path) i 0)
-			(while (< i n)
-				(defq j (* 2 (% (+ i best) n)))
-				(push out (elem-get b j) (elem-get b (inc j)))
-				(setq i (inc i)))
-			out)))
+	(if (= best 0) b (slice twice (* best 2) (+ (* best 2) n2))))
 
 (defun morph-marks (outline)
 	; (morph-marks outline) -> ((closed path x y sign) ...)
