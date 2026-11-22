@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 198
-	:height 701
+	:height 718
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 62
+	:next_id 63
 	:items
 	((:list 1)
 		((:list 7)
@@ -164,13 +164,13 @@
 							:id
 							10
 							:items
-							((:list 47)
+							((:list 48)
 								((:list 11)
 									:shape
 									:id
 									15
 									:d
-									"[M 8 0 L 163.33349 0 A 8 8 0 0 1 171.33349 8 L 171.33349 627 A 8 8 0 0 1 163.33349 635 L 8 635 A 8 8 0 0 1 0 627 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 163.33349 0 A 8 8 0 0 1 171.33349 8 L 171.33349 644 A 8 8 0 0 1 163.33349 652 L 8 652 A 8 8 0 0 1 0 644 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -969,7 +969,7 @@
 									:stroke
 									0
 									:text
-									"[pixmap-flm-delta]"
+									"[pixmap-clear]"
 									:font_size
 									12
 									:pos
@@ -989,7 +989,7 @@
 									:stroke
 									0
 									:text
-									"[pixmap-from-argb32]"
+									"[pixmap-flm-delta]"
 									:font_size
 									12
 									:pos
@@ -1009,7 +1009,7 @@
 									:stroke
 									0
 									:text
-									"[pixmap-read]"
+									"[pixmap-from-argb32]"
 									:font_size
 									12
 									:pos
@@ -1029,7 +1029,7 @@
 									:stroke
 									0
 									:text
-									"[pixmap-shared]"
+									"[pixmap-read]"
 									:font_size
 									12
 									:pos
@@ -1049,7 +1049,7 @@
 									:stroke
 									0
 									:text
-									"[pixmap-to-argb32]"
+									"[pixmap-shared]"
 									:font_size
 									12
 									:pos
@@ -1069,13 +1069,33 @@
 									:stroke
 									0
 									:text
-									"[pixmap-write]"
+									"[pixmap-to-argb32]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
 										621.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									62
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pixmap-write]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										638.00000
 									)
 								)
 							)

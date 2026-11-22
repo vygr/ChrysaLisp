@@ -11,6 +11,9 @@
 (import "lib/media/med.inc")
 (import "lib/media/ahx.inc")
 
+;the endings of the files it reads, as a file picker is given them
+(defq +module_exts ".mod .s3m .xm .it .med .mmd0 .mmd1 .mmd2 .mmd3 .mmdc .ahx .hvl")
+
 (defun module-read (data &optional bare)
 	; (module-read data [bare]) -> :nil | song
 	;bare, its samples' bytes not had, for what only shows it

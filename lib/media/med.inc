@@ -29,11 +29,6 @@
 	+med_oct_xpo ''((12 12 12 0 0 0 0 0 0) (12 12 12 12 12 12 0 0 -12) (12 12 12 0 0 0 -12 -12 -24)
 		(24 24 24 12 0 0 -12 -24 -36) (12 12 12 12 0 -12 -24 -36 -48) (12 12 12 12 0 -12 -24 -36 -48)))
 
-(defun med-signed (data at)
-	; (med-signed data at) -> num
-	;a byte of -128 to 127
-	(if (> (defq b (code data 1 at)) 127) (- b 256) b))
-
 (defun med-u32 (data at)
 	; (med-u32 data at) -> num
 	;four bytes high first, 0 past the file's end
@@ -80,7 +75,7 @@
 	;the other made one, kind :8 :16 :8s :16s
 	(defq n (max 0 n))
 	(case kind
-		(:8 (media-widen (str-alloc (* 2 n)) data at +widen_s8))
+		(:8 (mod-widen data at n +widen_s8 :nil))
 		(:16 (apply (const cat) (map! (lambda ()
 				(defq p (+ at (* 2 (!))))
 				(cat (slice data (inc p) (+ p 2)) (slice data p (inc p))))
@@ -89,16 +84,15 @@
 			(defq left (med-wave data at n (if (eql kind :8s) :8 :16))
 				right (med-wave data (+ at (if (eql kind :8s) n (* 2 n))) n (if (eql kind :8s) :8 :16)))
 			(apply (const cat) (map! (lambda ()
-					(defq i (* 2 (!)) l (code left 2 i) r (code right 2 i))
-					(char (>> (+ (if (> l 32767) (- l 65536) l) (if (> r 32767) (- r 65536) r)) 1) 2))
+					(defq i (* 2 (!)))
+					(char (>> (+ (get-short left i) (get-short right i)) 1) 2))
 				'() 0 n)))))
 
 (defun med-sample (data at n loop_start loop_len looped pingpong bare kind)
 	; (med-sample data at n loop_start loop_len looped pingpong bare kind) -> sample
 	;a sample of so many frames, its loop as libxmp makes it good: past
 	;the end cut back, none if it starts past where it ends
-	(defq n (max 0 (min n (/ (- (length data) at) (if (find kind '(:16 :16s)) 2 1)
-			(if (find kind '(:8s :16s)) 2 1))))
+	(defq n (mod-frames data at n (* (if (find kind '(:16 :16s)) 2 1) (if (find kind '(:8s :16s)) 2 1)))
 		ls (max 0 loop_start) le (min n (+ loop_start loop_len)))
 	(if (or (not looped) (>= ls n) (>= ls le)) (setq ls -1 le n))
 	(scatter (Emap) :name "" :length n :loop_start ls :loop_end le :pingpong (and (>= ls 0) pingpong)
@@ -109,33 +103,31 @@
 	;the 121 keys each of the first sub, moved (xpo_of key)
 	(map! (# (list 0 (xpo_of (!)))) '() 0 121))
 
-(defun med-instrument (data at hdr exp ver samples bare)
+(defun med-instrument (data at hdr ext ver samples bare)
 	; (med-instrument data at hdr exp ver samples bare) -> instrument
 	;the instrument at, of the song's sample header hdr, (rep replen svol
 	;strans), and of its expansion's, (hold decay finetune pitch flags
 	;long_rep long_replen) or :nil each, its samples pushed on samples
 	(bind '(rep replen svol strans) hdr)
-	(bind '(hold decay fine pitch flags long_rep long_len) exp)
-	(defq len (med-u32 data at) type (med-u16 data (+ at 4))
-		type (if (> type 32767) (- type 65536) type) kind (logand type (lognot 0x38))
-		fin (if (> fine 127) (- (<< fine 4) 4096) (<< fine 4))
+	(bind '(hold decay fine pitch flags long_rep long_len) ext)
+	(defq len (med-u32 data at) stype (sign-extend (med-u16 data (+ at 4)) 16)
+		kind (logand stype (lognot 0x38)) fin (<< (sign-extend fine 8) 4)
 		;the flags of an OctaMED 5 instrument, a loop or not by its length
 		;before
 		looped (if (and (>= ver 2) flags) (bits? flags 1) (> replen 1))
 		pingpong (and (>= ver 2) flags (bits? flags 8)) enable (not (and (>= ver 2) flags (bits? flags 4)))
 		sampletrans (+ 36 strans) synthtrans (+ 12 strans)
-		ins (scatter (Emap) :subs (list) :map :nil :hold 0 :decay 0 :synth :nil :vts 0 :wts 0 :nsm 0)
-		first (length samples))
+		ins (scatter (Emap) :subs (list) :map :nil :hold 0 :decay 0 :synth :nil :vts 0 :wts 0 :nsm 0))
 	;a sample of mix mode is two octaves down, not those of several
 	(if (or (and (>= ver 3) (= kind 0)) (= kind 7)) (setq sampletrans (- sampletrans 24)))
 	(defq lrep (if (and (>= ver 3) long_rep) long_rep (<< rep 1))
 		llen (if (and (>= ver 3) long_rep) long_len (<< replen 1))
-		bits16 (bits? type 0x10) stereo (bits? type 0x20) frames (if bits16 (>> len 1) len)
+		bits16 (bits? stype 0x10) stereo (bits? stype 0x20) frames (if bits16 (>> len 1) len)
 		skind (cond ((and bits16 stereo) :16s) (bits16 :16) (stereo :8s) (:8))
 		;mix mode plays key 12, note 1, as its instrument's default pitch
 		def_note (if (and pitch (> pitch 0)) (dec pitch) 53))
 	(cond
-		((or (= type -1) (= type -2))
+		((or (= stype -1) (= stype -2))
 			;a synth sound, or a hybrid: its tables, and its waveforms
 			;its fields from its start, its waveforms by where they are from it
 			(defq wforms (med-u16 data (+ at 20)))
@@ -147,7 +139,7 @@
 				(each (lambda (off)
 						(defq w (+ at off))
 						(cond
-							((and (= (!) 0) (= type -2))
+							((and (= (!) 0) (= stype -2))
 								;a hybrid's first is a sample
 								(push samples (med-sample data (+ w 6) (med-u32 data w) lrep llen looped :nil bare :8))
 								(push (. ins :find :subs) (list (dec (length samples)) sampletrans (if enable svol 0) fin)))
@@ -156,9 +148,9 @@
 								(push (. ins :find :subs) (list (dec (length samples)) synthtrans (if enable 64 0) fin)))))
 					offs)
 				(. ins :insert :map (med-map (# (if (and (>= ver 3) (= %0 12)) def_note 0))))))
-		((<= 1 type 6)
+		((<= 1 stype 6)
 			;a sample of several octaves, each twice the one before
-			(defq oct (elem-get +med_octaves (dec type)) size (/ len (dec (<< 1 oct)))
+			(defq oct (elem-get +med_octaves (dec stype)) size (/ len (dec (<< 1 oct)))
 				p (+ at 6) osub (elem-get +med_oct_sub (- oct 2)) oxpo (elem-get +med_oct_xpo (- oct 2)))
 			(times oct
 				(push samples (med-sample data p size lrep llen looped pingpong bare :8))
@@ -231,7 +223,7 @@
 		(defq id (elem-get data 3) mmdc (eql id "C") mmd (if mmdc 0 (- (code id) (ascii-code "0")))
 			song (med-u32 data 8) blockarr (med-u32 data 16) smplarr (med-u32 data 24) expdata (med-u32 data 32)
 			numblocks (med-u16 data (+ song 504)) songlen (med-u16 data (+ song 506))
-			deftempo (med-u16 data (+ song 764)) transpose (med-signed data (+ song 766))
+			deftempo (med-u16 data (+ song 764)) transpose (get-byte data (+ song 766))
 			flags (med-u8 data (+ song 767)) flags2 (med-u8 data (+ song 768)) tempo2 (med-u8 data (+ song 769))
 			numsamples (med-u8 data (+ song 787))
 			med_8ch (bits? flags 0x40) bpm_on (bits? flags2 0x20) bpmlen (inc (logand flags2 0x1f)))
@@ -278,9 +270,9 @@
 				(defq version (med-version mmd mmdc med_8ch exp_size name_len) samples (list)
 					instruments (map! (lambda ()
 							(defq i (!) at (med-u32 data (+ smplarr (* 4 i))) h (+ song (* 8 i))
-								hdr (list (med-u16 data h) (med-u16 data (+ h 2)) (med-u8 data (+ h 6)) (med-signed data (+ h 7)))
-								exp (if (< i (length exps)) (elem-get exps i) '(0 0 0 :nil :nil :nil :nil)))
-							(if (> at 0) (med-instrument data at hdr exp mmd samples bare)
+								hdr (list (med-u16 data h) (med-u16 data (+ h 2)) (med-u8 data (+ h 6)) (get-byte data (+ h 7)))
+								ext (if (< i (length exps)) (elem-get exps i) '(0 0 0 :nil :nil :nil :nil)))
+							(if (> at 0) (med-instrument data at hdr ext mmd samples bare)
 								(scatter (Emap) :subs (list) :map :nil :nsm 0)))
 						'() 0 numsamples)
 					;an instrument's name is its first sample's, the one shown
@@ -289,9 +281,9 @@
 								(. (elem-get samples (first (first subs))) :insert :name (elem-get names (!)))))
 						instruments)
 					pans (cond
-						((< mmd 2) (map! (# (if (= (% (/ (inc (!)) 2) 2) 1) 255 0)) '() 0 chans))
+						((< mmd 2) (mod-pans chans 0 255))
 						(:t (defq tp (med-u32 data (+ song 524)))
-							(map! (# (if (> tp 0) (+ 128 (min 127 (* 8 (med-signed data (+ tp (!)))))) 128)) '() 0 chans)))
+							(map! (# (if (> tp 0) (+ 128 (min 127 (* 8 (get-byte data (+ tp (!)))))) 128)) '() 0 chans)))
 					chvols (cond
 						((< mmd 2) (map! (# (med-u8 data (+ song 770 (!)))) '() 0 chans))
 						(:t (defq tv (med-u32 data (+ song 516)))
@@ -300,7 +292,7 @@
 					:channels chans :samples samples :instruments instruments :orders orders :restart 0
 					:patterns (map (lambda (head)
 							(bind '(b tracks rows) head)
-							(if (= b 0) (fill (nums) (* 64 chans +cell_size) 0)
+							(if (= b 0) (mod-cells 64 chans)
 								(med-cells data (+ b (if (> mmd 0) 8 2)) tracks rows chans mmd mmdc transpose)))
 						heads)
 					:rows (map (# (if (= (first %0) 0) 64 (third %0))) heads)
@@ -309,5 +301,4 @@
 					:bpm_on bpm_on :med_8ch med_8ch
 					;a tick is 0.66 / bpm of a second, as libxmp has MED's, a
 					;whole song of 8 channels 2.5, and in BPM mode by its beat
-					:time_factor (cond (med_8ch '(10 1)) (bpm_on (list 40 bpmlen)) ('(264 100)))
-					:mmd mmd)))))
+					:time_factor (cond (med_8ch '(10 1)) (bpm_on (list 40 bpmlen)) ('(264 100))))))))

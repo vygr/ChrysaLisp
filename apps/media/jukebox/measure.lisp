@@ -1,5 +1,6 @@
 (import "lib/media/module.inc")
 (import "lib/media/tracker.inc")
+(import "./app.inc")
 
 ;The measurer of the Jukebox's player, a child of it the kernel puts where
 ;it will, that finds how long a song is, and where each of its orders
@@ -15,7 +16,7 @@
 ;								each, (tracker-start)
 ;and it goes when told anything more, the player on to another song
 
-(defq +rate 44100 +part 10000 +orphan 5000000)
+(defq +part 10000)
 
 (defun main ()
 	;the line ends after the mailboxes, which are bytes, a newline among

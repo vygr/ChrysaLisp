@@ -2,6 +2,7 @@
 (import "lib/net/http.inc")
 (import "lib/files/zip.inc")
 (import "lib/text/dictionary.inc")
+(import "./app.inc")
 (import "./library.inc")
 
 ;The index of the Jukebox, a task of its own on a node not the window's,
@@ -29,7 +30,7 @@
 ;	S id total \n path \n ...	the first so many found of all there are
 ;and it goes if it hears nothing of the window for a while
 
-(defq +orphan 5000000 +zip (kept-path +allmods)
+(defq +zip (kept-path +allmods)
 	+date (cat +zip ".date") +played (cat +zip ".played")
 	;the trackers the paths kept are of: others played here now, they are
 	;made again from the list kept
@@ -127,13 +128,11 @@
 	;sent and how many there are. Left for the next if another is asked
 	(bind '(head prefix pattern) (split (slice *search* 1 -1) "\n"))
 	(setq *search* :nil prefix (to-lower (rest prefix)) pattern (to-lower (rest pattern)))
-	(defq found (query pattern :nil :t :t) total 0 seen 0 out (list)
+	(defq leaves (name-filter pattern) total 0 seen 0 out (list)
 		words (if *names* (. *names* :find_matches prefix) (list)))
-	(unless (second found) (setq found (query pattern :nil :nil :t)))
-	(bind '(engine meta &ignore) found)
 	(when (every (lambda (word)
 				(each (lambda (path)
-						(when (or (eql pattern "") (. engine :match? (to-lower path) meta))
+						(when (name-filter? leaves path)
 							(setq total (inc total))
 							(if (<= total +search_max) (push out path))))
 					(. (first *index*) :find word))

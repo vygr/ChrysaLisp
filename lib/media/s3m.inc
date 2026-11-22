@@ -8,20 +8,21 @@
 
 (import "lib/media/mod.inc")
 
-(defun s3m-sample (data at ffi bare)
-	; (s3m-sample data at ffi bare) -> sample
-	;an instrument's header and its sample's bytes, signed if ffi is 1,
-	;else unsigned: one not of a sample, an Adlib's, is of none
-	(defq sample (scatter (Emap) :name (mod-text data (+ at 48) 28) :data "" :length 0
-		:loop_start -1 :loop_end 0 :pingpong :nil :volume 0 :c2spd 8363))
-	(when (and (<= (+ at 80) (length data)) (= (code data 1 at) 1))
+(defun s3m-sample (data at signed bare)
+	; (s3m-sample data at signed bare) -> sample
+	;an instrument's header and its sample's bytes, signed or not: one not
+	;of a sample, an Adlib's, is of none, and one past the file's end has
+	;no name either
+	(defq there (<= (+ at 80) (length data))
+		sample (scatter (Emap) :name (if there (mod-text data (+ at 48) 28) "") :data "" :length 0
+			:loop_start -1 :loop_end 0 :pingpong :nil :volume 0 :c2spd 8363))
+	(when (and there (= (code data 1 at) 1))
 		(defq flags (code data 1 (+ at 31)) wide (bits? flags 4)
 			from (* 16 (logior (<< (code data 1 (+ at 13)) 16) (code data 2 (+ at 14))))
-			n (max 0 (min (code data 4 (+ at 16)) (/ (- (length data) from) (if wide 2 1))))
+			n (mod-frames data from (code data 4 (+ at 16)) (if wide 2 1))
 			ls (code data 4 (+ at 20)) le (min n (code data 4 (+ at 24))))
 		(scatter sample :length n :volume (min 64 (code data 1 (+ at 28))) :c2spd (code data 2 (+ at 32))
-			:data (if bare "" (media-widen (str-alloc (* 2 n)) data from
-				(if wide (if (= ffi 1) +widen_s16 +widen_u16) (if (= ffi 1) +widen_s8 +widen_u8)))))
+			:data (mod-widen data from n (mod-widen-kind wide signed) bare))
 		(if (and (bits? flags 1) (> le (inc ls)))
 			(scatter sample :loop_start ls :loop_end le)
 			(. sample :insert :loop_end n)))
@@ -31,8 +32,7 @@
 	; (s3m-pattern data at channels) -> nums
 	;the cells of a pattern unpacked, a row of channels after another: a
 	;byte of which channel and what follows of it, 0 the row's end
-	(defq cells (nums) row 0)
-	(times (* 64 channels) (push cells 0 0 +no_volume 0 0))
+	(defq cells (mod-cells 64 channels) row 0)
 	(when (> at 0)
 		(defq end (min (length data) (+ at (code data 2 at))) at (+ at 2))
 		(while (and (< row 64) (< at end))
@@ -63,18 +63,18 @@
 	;the song of an S3M's bytes, :nil if they are not one; bare, its
 	;samples' bytes not had
 	(when (and (>= (length data) 96) (eql (slice data 44 48) "SCRM") (= (code data 1 29) 16)
-			(<= 1 (defq ffi (code data 2 42)) 2))
+			(<= 1 (defq sign_kind (code data 2 42)) 2))
 		(defq ordnum (code data 2 32) insnum (code data 2 34) patnum (code data 2 36)
 			flags (code data 2 38) version (code data 2 40) mv (code data 1 51)
-			channels (inc (reduce (lambda (last i) (if (/= (code data 1 (+ 64 i)) 255) i last))
-				(map! (# (!)) '() 0 32) -1))
+			;as many channels as the last of the 32 that is one
+			channels (inc (reduce! (# (if (/= (code data 1 (+ 64 (!))) 255) (!) %0)) '() -1 0 32))
 			orders (map! (# (code data 1 (+ 96 (!)))) '() 0 ordnum)
 			patterns (min patnum (inc (reduce (lambda (top o) (if (< o 254) (max top o) top)) orders -1)))
 			at (+ 96 ordnum) pans_at (+ at (* 2 insnum) (* 2 patnum)))
 		;the mix's volume, and stereo or not, as each version of it says
 		(defq stereo (bits? mv 128) mix (logand mv 127))
 		(cond
-			((= ffi 1) (setq mix (max 16 (min 127 (* 16 (inc (logand mv 15))))) stereo (bits? mv 16)))
+			((= sign_kind 1) (setq mix (max 16 (min 127 (* 16 (inc (logand mv 15))))) stereo (bits? mv 16)))
 			((find mv '(2 18)) (setq mix 32 stereo (bits? mv 16)))
 			((= mix 0) (setq mix 48))
 			((< mix 16) (setq mix 16)))
@@ -82,15 +82,14 @@
 		(and (> channels 0) (> patterns 0) (<= pans_at (length data))
 			(scatter (Emap) :kind "S3M" :mode :st3 :pitch :st3 :title (mod-text data 0 28)
 				:channels channels :orders orders :restart 0
-				:samples (map! (# (s3m-sample data (* 16 (code data 2 (+ at (* 2 (!))))) ffi bare)) '() 0 insnum)
+				:samples (map! (# (s3m-sample data (* 16 (code data 2 (+ at (* 2 (!))))) (= sign_kind 1) bare)) '() 0 insnum)
 				:patterns (map! (# (s3m-pattern data (* 16 (code data 2 (+ at (* 2 insnum) (* 2 (!))))) channels))
 					'() 0 patterns)
 				:rows (map! (# 64) '() 0 patterns)
-				:speed (if (> (code data 1 49) 0) (code data 1 49) 6)
-				:tempo (if (>= (code data 1 50) 32) (code data 1 50) 125)
+				:speed (mod-speed (code data 1 49)) :tempo (mod-tempo (code data 1 50))
 				:global 64 :mix mix :markers :t :fast (or (bits? flags 64) (= version 0x1300))
 				:pans (map! (lambda ()
-						(defq set (code data 1 (+ 64 (!))) x (logand set 31)
+						(defq x (logand (code data 1 (+ 64 (!))) 31)
 							pan (if (and stereo (< x 16)) (if (< x 8) 0x30 0xc0) 128))
 						;its own of the table after the pointers, if there is one
 						(and (= (code data 1 53) 252) (< (+ pans_at (!)) (length data))

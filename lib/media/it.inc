@@ -13,15 +13,10 @@
 
 (ffi "lib/media/media_itunpack" media-itunpack)
 
-(defq +note_fade 253 +itunpack_16 1 +itunpack_215 2 +itunpack_unsigned 4
+(defq +itunpack_16 1 +itunpack_215 2 +itunpack_unsigned 4
 	;the mix volume of a ModPlug Tracker 1.16 file is turned down by 96 over
 	;this, by its channels, as libxmp and OpenMPT have it
 	+mpt_preamp ''(0x60 0x60 0x60 0x70 0x80 0x88 0x90 0x98 0xA0 0xA4 0xA8 0xB0 0xB4 0xB8 0xBC 0xC0))
-
-(defun it-signed (data at)
-	; (it-signed data at) -> num
-	;a byte of -128 to 127
-	(if (> (defq b (code data 1 at)) 127) (- b 256) b))
 
 (defun it-envelope (data at)
 	; (it-envelope data at) -> envelope
@@ -31,7 +26,7 @@
 	(scatter (Emap) :on (and (bits? flags 1) (> n 0)) :carry (bits? flags 8) :filter (bits? flags 128)
 		:loop (if (bits? flags 2) (list (code data 1 (+ at 2)) (code data 1 (+ at 3))))
 		:sustain (if (bits? flags 4) (list (code data 1 (+ at 4)) (code data 1 (+ at 5))))
-		:points (map! (# (list (code data 2 (+ at 7 (* 3 (!)))) (it-signed data (+ at 6 (* 3 (!))))))
+		:points (map! (# (list (code data 2 (+ at 7 (* 3 (!)))) (get-byte data (+ at 6 (* 3 (!))))))
 			'() 0 n)))
 
 (defun it-envelope-off ()
@@ -46,13 +41,21 @@
 			(if (>= s 0) (list s (- (code data 1 (+ at (* 2 (!)))) (!))) (list -1 0)))
 		'() 0 120))
 
-(defun it-instrument (data at new)
-	; (it-instrument data at new) -> instrument
-	;an instrument of the format of IT 2, new, or of IT 1
-	(defq ins (scatter (Emap) :name (mod-text data (+ at 32) 26) :nna 0 :dct 0 :dca 0 :fade 0 :vol 64
+(defun it-instrument-none (name)
+	; (it-instrument-none name) -> instrument
+	;an instrument of nothing: no map, no envelopes, what a new note does
+	;to the one before the least
+	(scatter (Emap) :name name :nna 0 :dct 0 :dca 0 :fade 0 :vol 64
 		:pan -1 :ifc 0 :ifr 0 :rv 0 :rp 0 :map (list) :volume (it-envelope-off)
 		:panning (it-envelope-off) :pitch (it-envelope-off)))
-	(when (eql (slice data at (+ at 4)) "IMPI")
+
+(defun it-instrument (data at new)
+	; (it-instrument data at new) -> instrument
+	;an instrument of the format of IT 2, new, or of IT 1, each 554 bytes:
+	;one the file has not all of is of nothing
+	(defq there (<= (+ at 554) (length data))
+		ins (it-instrument-none (if there (mod-text data (+ at 32) 26) "")))
+	(and there (eql (slice data at (+ at 4)) "IMPI")
 		(cond
 			(new
 				(defq dfp (code data 1 (+ at 25)) volume (it-envelope data (+ at 304))
@@ -108,9 +111,8 @@
 					(unless bare (. sample :insert :data (media-itunpack (str-alloc (* 2 n)) data from
 						(logior (if wide +itunpack_16 0) (if (bits? cvt 4) +itunpack_215 0)
 							(if (bits? cvt 1) 0 +itunpack_unsigned))))))
-				(:t (setq n (min n (/ (- (length data) from) (if wide 2 1))))
-					(unless bare (. sample :insert :data (media-widen (str-alloc (* 2 n)) data from
-						(if wide (if (bits? cvt 1) +widen_s16 +widen_u16) (if (bits? cvt 1) +widen_s8 +widen_u8)))))))
+				(:t (setq n (mod-frames data from n (if wide 2 1)))
+					(. sample :insert :data (mod-widen data from n (mod-widen-kind wide (bits? cvt 1)) bare))))
 			(. sample :insert :length n)
 			(and (bits? flags 16) (< ls (setq le (min le n)))
 				(scatter sample :loop_start ls :loop_end le :pingpong (bits? flags 64)))
@@ -133,7 +135,7 @@
 				(defq b (code data 1 at) at (inc at))
 				(cond
 					((= b 0) (setq row (inc row)))
-					(:t (defq c (logand (dec b) 63) cell (list 0 0 +no_volume 0 0) last (elem-get lasts c))
+					(:t (defq c (logand (dec b) 63) cell (list 0 0 +no_volume 0 0) prev (elem-get lasts c))
 						(when (bits? b 128)
 							(elem-set masks c (code data 1 at))
 							(setq at (inc at)))
@@ -141,14 +143,14 @@
 						(when (bits? mask 1)
 							(defq n (code data 1 at) at (inc at))
 							(elem-set cell 0 (cond ((= n 255) +note_off) ((= n 254) +note_cut) ((> n 119) +note_fade) ((inc n))))
-							(elem-set last 0 (first cell)))
+							(elem-set prev 0 (first cell)))
 						(when (bits? mask 2)
 							(elem-set cell 1 (code data 1 at))
-							(elem-set last 1 (second cell))
+							(elem-set prev 1 (second cell))
 							(setq at (inc at)))
 						(when (bits? mask 4)
 							(elem-set cell 2 (code data 1 at))
-							(elem-set last 2 (third cell))
+							(elem-set prev 2 (third cell))
 							(setq at (inc at)))
 						(when (bits? mask 8)
 							(defq fx (code data 1 at) param (code data 1 (inc at)) at (+ at 2))
@@ -162,14 +164,14 @@
 									(if (= param 0) (setq param (elem-get last_s c)) (elem-set last_s c param))))
 							(elem-set cell 3 fx)
 							(elem-set cell 4 param)
-							(elem-set last 3 fx)
-							(elem-set last 4 param))
-						(if (bits? mask 16) (elem-set cell 0 (elem-get last 0)))
-						(if (bits? mask 32) (elem-set cell 1 (elem-get last 1)))
-						(if (bits? mask 64) (elem-set cell 2 (elem-get last 2)))
+							(elem-set prev 3 fx)
+							(elem-set prev 4 param))
+						(if (bits? mask 16) (elem-set cell 0 (elem-get prev 0)))
+						(if (bits? mask 32) (elem-set cell 1 (elem-get prev 1)))
+						(if (bits? mask 64) (elem-set cell 2 (elem-get prev 2)))
 						(when (bits? mask 128)
-							(elem-set cell 3 (elem-get last 3))
-							(elem-set cell 4 (elem-get last 4)))
+							(elem-set cell 3 (elem-get prev 3))
+							(elem-set cell 4 (elem-get prev 4)))
 						(push events (list row c cell))))))
 		(if (> rows 1024) (setq rows 64)))
 	rows)
@@ -184,8 +186,7 @@
 		(setq at (+ at (* 9 32)))
 		(when (<= (+ at (* 144 32)) (length data))
 			(defq texts (map! (lambda ()
-					(defq text (slice data (+ at (* 32 (!))) (+ at (* 32 (!)) 31)))
-					(if (defq n (find "\x00" text)) (slice text 0 n) text))
+					(mod-cstr data (+ at (* 32 (!))) 31))
 				'() 0 144))
 			(list (slice texts 0 16) (slice texts 16 144)))))
 
@@ -214,23 +215,20 @@
 					;a song of samples, each its own instrument
 					(map (lambda (sample)
 							(defq s (!))
-							(scatter (Emap) :name (. sample :find :name) :nna 0 :dct 0 :dca 0
-								:fade 0 :vol 64 :pan -1 :ifc 0 :ifr 0 :rv 0 :rp 0
+							(scatter (it-instrument-none (. sample :find :name))
 								:first (if (> (. sample :find :length) 0) s -1)
-								:map (map! (# (list s 0)) '() 0 120) :volume (it-envelope-off)
-								:panning (it-envelope-off) :pitch (it-envelope-off)))
+								:map (map! (# (list s 0)) '() 0 120)))
 						samples)
 					(map! (# (it-instrument data (code data 4 (+ at (* 4 (!)))) (>= cmwt 0x200))) '() 0 insnum))
 				events (list) channels 1 rows (list) patterns (list))
-			;each pattern's events, then as many channels as the songs uses
+			;each pattern's events, then as many channels as the song uses
 			(each! (lambda ()
 					(push rows (it-pattern data (code data 4 (+ at (* 4 (+ insnum smpnum (!))))) (defq e (list))))
 					(each (# (setq channels (max channels (inc (second %0))))) e)
 					(push events e))
 				'() 0 patnum)
 			(each (lambda (e n)
-					(defq cells (nums))
-					(times (* n channels) (push cells 0 0 +no_volume 0 0))
+					(defq cells (mod-cells n channels))
 					(each (lambda ((row c cell))
 							(defq i (* (+ (* row channels) c) +cell_size))
 							(each (# (elem-set cells (+ i (!)) %0)) cell))
@@ -242,8 +240,7 @@
 				:orders (map! (# (code data 1 (+ 192 (!)))) '() 0 ordnum)
 				:patterns patterns :rows rows :samples samples :instruments instruments
 				:sample_mode sample_mode :old_fx (bits? flags 16) :link_gxx (bits? flags 32)
-				:speed (if (> (code data 1 50) 0) (code data 1 50) 6)
-				:tempo (if (>= (code data 1 51) 32) (code data 1 51) 125)
+				:speed (mod-speed (code data 1 50)) :tempo (mod-tempo (code data 1 51))
 				:macros (it-macros data flags special (+ at (* 4 (+ insnum smpnum patnum))))
 				:global gv :mix (if (it-modplug? data cwt cmwt at insnum smpnum patnum)
 					(/ (* (code data 1 49) 96) (elem-get +mpt_preamp (>> (max 1 (min 31 channels)) 1)))

@@ -152,7 +152,12 @@ a single it gave to a double
 ### SVG-load
 
 ```code
-(SVG-load stream [scale]) -> :nil | canvas
+(SVG-load stream [scale most_w most_h]) -> :nil | canvas
+
+the picture drawn at scale times its pixels and made its own size, or
+given most_w, and most_h, drawn straight at the size that fits, no
+larger than its own, as a preview wants it: no pixels made to be
+thrown away
 ```
 
 ### Shake
@@ -907,10 +912,266 @@ b times x in the field of AES
 (age path) -> 0 | time ns
 ```
 
+### ahx-audio
+
+```code
+(ahx-audio player voice)
+
+what a voice gives the mixer, hvl_set_audio: its volume, its step if its
+period changed, and its buffer if its waveform did, the waveform
+repeated to 640, and so its ring's
+```
+
+### ahx-clip
+
+```code
+(ahx-clip v) -> num
+
+a filter's value, 8.16, held to a byte's range
+```
+
+### ahx-delayed
+
+```code
+(ahx-delayed player voice)
+
+a frame of a note delay: its step read once its wait is over
+```
+
+### ahx-delta
+
+```code
+(ahx-delta player period) -> num
+
+the step a frame, 16.16, round a buffer of 640, of an Amiga's period
+```
+
+### ahx-filter-block
+
+```code
+(ahx-filter-block wave freq mids lows) -> (low high)
+
+a block of the waveforms filtered by one of the filters, low and high
+passed, each wave from where its filter was left, (mids lows)
+```
+
+### ahx-frame
+
+```code
+(ahx-frame player voice)
+
+a frame of a voice, hvl_process_frame: a delayed note, a cut, its
+envelope, slides, vibrato, its instrument's list, the square and the
+filter moved, and the waveform and the period it plays at
+```
+
+### ahx-frames
+
+```code
+(ahx-frames player) -> frames
+
+how long a frame of the replayer is, 50 a second times the song's
+speed, whole frames of the rate
+```
+
+### ahx-fx1
+
+```code
+(ahx-fx1 player voice fx param)
+
+a step's effects of the song and the volume, the first of three passes
+```
+
+### ahx-fx2
+
+```code
+(ahx-fx2 voice fx param note) -> note
+
+a step's slides to a note, the second pass, and the note left to play
+```
+
+### ahx-fx3
+
+```code
+(ahx-fx3 player voice fx param)
+
+a step's other effects, the third pass
+```
+
+### ahx-instrument
+
+```code
+(ahx-instrument voice ins)
+
+a voice set going by an instrument: its envelope, waveform, vibrato,
+square and filter from it, and its list from the start
+```
+
+### ahx-note-delay
+
+```code
+(ahx-note-delay player voice fx param) -> :go | :held | :done
+
+an effect's note delay, EDx: :held, the step left to a later frame of
+the row, :done, come to again now its wait is over, else :go
+```
+
+### ahx-pans
+
+```code
+(ahx-pans) -> (left right)
+
+the 256 of each side's share of a pan, a quarter of a sine, as the
+replayer works them out
+```
+
+### ahx-period
+
+```code
+(ahx-period voice note fixed) -> period
+
+the period a voice plays a note of its own at: on the track's note and
+its transpose, or fixed, not, and with the slides and the vibrato
+```
+
+### ahx-player
+
+```code
+(ahx-player player song) -> player
+
+a player of an AHX or a HivelyTracker's: a voice each of its channels, a
+buffer each of the mixer's, and one each for their rings after them
+```
+
+### ahx-plist-fx
+
+```code
+(ahx-plist-fx voice fx param)
+
+a command of an instrument's list
+```
+
+### ahx-read
+
+```code
+(ahx-read data [bare]) -> :nil | song
+
+the song of an AHX or a HivelyTracker module's bytes, :nil if they are
+not one. HivelyTracker's, HVL, has 4 to 16 voices, a second effect a
+step, a step of none a byte, each voice's place left to right, a gain,
+and lines of 5 bytes in an instrument's list, of more commands
+```
+
+### ahx-repeat
+
+```code
+(ahx-repeat bytes) -> str
+
+a waveform repeated to 640, the mixer's 16 bits
+```
+
+### ahx-s32
+
+```code
+(ahx-s32 v) -> num
+
+the low 32 bits of a number, signed
+```
+
+### ahx-s8
+
+```code
+(ahx-s8 v) -> num
+
+the low byte of a number, -128 to 127
+```
+
+### ahx-step
+
+```code
+(ahx-step player voice)
+
+a voice's step of its track this row, hvl_process_step: a note delay
+held back to a later frame of the row, by either effect, and each pass
+of the effects of the first then the second
+```
+
+### ahx-step-at
+
+```code
+(ahx-step-at player voice row) -> (note ins fx param fxb paramb)
+
+a voice's step of its track at a row
+```
+
+### ahx-text
+
+```code
+(ahx-text data at) -> (str next)
+
+a name to its 0, of 128 at most, and where the one after it starts:
+past the file's end there is none, and none after it
+```
+
+### ahx-tick
+
+```code
+(ahx-tick player)
+
+one frame of the replayer, hvl_play_irq: a row's steps at its first,
+every voice's frame, on to the next row at the end of its last, and
+what each voice gives the mixer, (ahx-voices) of lib/media/tracker.inc
+puts it there. For a length only, the steps and the delayed ones
+alone, no frames, no mixer
+```
+
+### ahx-voice
+
+```code
+(ahx-voice index pan) -> voice
+```
+
+### ahx-voices
+
+```code
+(ahx-voices player)
+
+each voice's place in the mixer: its buffer round and round, from its
+start when an instrument began it, its step, its share each side of
+the song's gain, and its ring if it has one
+```
+
+### ahx-wave-make
+
+```code
+(ahx-wave-make) -> str
+
+the 63 blocks of waveforms, the 31 low passed, the plain, the 31 high
+passed: in a block the triangles and sawtooths of 4 to 128, the 32
+squares of 128 each wider, and 1920 of white noise
+```
+
+### ahx-waves
+
+```code
+(ahx-waves) -> str
+
+the waveforms, made the first time they are needed by this task
+```
+
 ### align
 
 ```code
 (align num div) -> num
+```
+
+### amiga-period
+
+```code
+(amiga-period note fin) -> period
+
+the Amiga's period of a note, 0 C-0 and on, and so many 128ths more, 64
+times libxmp's, 13696 at C-0
 ```
 
 ### array?
@@ -2315,10 +2576,69 @@ on to the next after cols of them, from 0 0
 (chacha20 key nonce counter data) -> str
 ```
 
+### chan-delay-due
+
+```code
+(chan-delay-due chan) -> :t | :nil
+
+a tick of a note delay: :t at the tick its cell is to be read
+```
+
+### chan-flag
+
+```code
+(chan-flag chan key bits)
+
+bits of a key of a channel, or of the player, set
+```
+
 ### chan-fx
 
 ```code
 (chan-fx chan bit)
+
+what a channel does this row, a bit of its :fx
+```
+
+### chan-gslide
+
+```code
+(chan-gslide chan param)
+
+a slide of the global volume, by its number: x0 up and 0y down each
+tick, xF up and Fy down at a row's first
+```
+
+### chan-mem
+
+```code
+(chan-mem chan key param) -> param
+
+an effect's memory of its number, under a key of the channel: 0 is the
+last that was not
+```
+
+### chan-porta-way
+
+```code
+(chan-porta-way chan)
+
+which way a slide to a note goes, from its :period to its :target
+```
+
+### chan-tremor-off
+
+```code
+(chan-tremor-off chan) -> :t | :nil
+
+a tick of a tremor, so many ticks on then so many off, Scream Tracker's
+and Impulse Tracker's: :t while it is off
+```
+
+### chan-unflag
+
+```code
+(chan-unflag chan key bits)
 ```
 
 ### char-be
@@ -5181,9 +5501,18 @@ film, and says how many frames there were
 ```code
 (flow-advance player)
 
-on to the next row, or where a jump or break says, past the orders
-that mark, 254, to the song's end, 255. A row played before, not by a
-loop, means it has gone round: it has ended
+on to the next row, or where a jump or break says, or the row again for
+an IT's row delay, past the orders of no pattern, and, of a song that
+has them, its :markers, to its end at an order of 255. A row played
+before, not by a loop, means it has gone round: it has ended
+```
+
+### flow-key
+
+```code
+(flow-key order row) -> key
+
+a row of an order as the rows played are kept, the player's :visited
 ```
 
 ### flow-start
@@ -5192,6 +5521,15 @@ loop, means it has gone round: it has ended
 (flow-start player)
 
 the first order of the song that is a pattern
+```
+
+### flow-tick-end
+
+```code
+(flow-tick-end player)
+
+a tick of a row done: on to the next row after its last, the speed's
+ticks times a pattern delay
 ```
 
 ### flush-bits
@@ -5297,14 +5635,6 @@ a channel's cell read: its note, its instrument, its volume column and
 effect, as FastTracker 2 has them
 ```
 
-### ft2-mem
-
-```code
-(ft2-mem chan key param) -> param
-
-an effect's own memory of its number: 0 the last that was not
-```
-
 ### ft2-period
 
 ```code
@@ -5339,6 +5669,17 @@ delay, that plays the last note again if it has none
 
 which sample of the channel's instrument plays a note, 1 to 96, its
 first if no note
+```
+
+### ft2-skip-event
+
+```code
+(ft2-skip-event player chan cell)
+
+a cell not read, for a song's length only, as far as one that is read
+later needs it: the channel's instrument, without which its global
+volume slide is not had, as (ft2-event) gives it, and its effects
+are of it alone
 ```
 
 ### ft2-step
@@ -6246,16 +6587,6 @@ determine the index into the edge table which
 tells us which vertices are inside the surface
 ```
 
-### it-advance
-
-```code
-(it-advance player)
-
-on to the next row, or where a jump or break says, or the row again for
-a row delay, past the orders that mark, 254, to the song's end, 255. A
-row played before, not by a loop, means it has gone round: it has ended
-```
-
 ### it-bend
 
 ```code
@@ -6367,12 +6698,6 @@ to 24 dB. None, a0 0, at 254 and more with no resonance. Kept by the
 player, each pair once
 ```
 
-### it-flag
-
-```code
-(it-flag chan key bits)
-```
-
 ### it-fx
 
 ```code
@@ -6395,7 +6720,17 @@ an instrument that has a sample to play
 ```code
 (it-instrument data at new) -> instrument
 
-an instrument of the format of IT 2, new, or of IT 1
+an instrument of the format of IT 2, new, or of IT 1, each 554 bytes:
+one the file has not all of is of nothing
+```
+
+### it-instrument-none
+
+```code
+(it-instrument-none name) -> instrument
+
+an instrument of nothing: no map, no envelopes, what a new note does
+to the one before the least
 ```
 
 ### it-keys
@@ -6474,6 +6809,18 @@ text each to its first nul, of 31 at most
 (it-mapped song ins key) -> -1 | sample
 
 the sample an instrument's map has for a key, as it is
+```
+
+### it-measure-tick
+
+```code
+(it-measure-tick player)
+
+one tick of an IT for its length only: a row's cells read at its first
+tick, and of the channels only those with a tempo slide, which moves
+the song on by its ticks, a note delayed to a later tick, whose cell,
+its jump say, is read then, or a global volume slide, the volume an
+order starts with. No past notes, no voices
 ```
 
 ### it-midi-byte
@@ -6555,7 +6902,7 @@ and of what is as the channel's last
 (it-period player note fin) -> period
 
 the period of a note, 0 C-0 and on, and so many 128ths more, 64 times
-libxmp's: linear, 1024 a semitone, or the Amiga's, 13696 at C-0
+libxmp's: linear, 1024 a semitone, or the Amiga's
 ```
 
 ### it-pitch
@@ -6574,6 +6921,14 @@ the pitch of a period, in 12800ths of a semitone over C-0
 a tick of a channel: its volume, pitch and pan as its effects, its
 instrument's envelopes and its fade move them. A past note's act, 2
 let go, 3 faded, is as its note's own
+```
+
+### it-play-tick
+
+```code
+(it-play-tick player)
+
+one tick of an IT played
 ```
 
 ### it-read
@@ -6617,12 +6972,15 @@ a sample's header and its bytes: 8 or 16 bits, signed or not, packed
 or not; bare, not its bytes
 ```
 
-### it-signed
+### it-skip-event
 
 ```code
-(it-signed data at) -> num
+(it-skip-event chan note ins)
 
-a byte of -128 to 127
+a cell not read, for a song's length only, as far as one that is read
+later needs it: whether its note has a sample, and so its effect is
+had, is of the instrument last given and the one Impulse Tracker
+holds over from a note delay, and its effects are of it alone
 ```
 
 ### it-step
@@ -6675,12 +7033,6 @@ a note, if there is one, to slide to, and which way
 (it-tvslide chan param)
 
 a slide of the channel's own volume, as a volume slide
-```
-
-### it-unflag
-
-```code
-(it-unflag chan key bits)
 ```
 
 ### it-voice-cut
@@ -7459,6 +7811,294 @@ e^(-i pi (4j+1)/4n), after, e^(-i pi k/n), of the FFT of m, n/2,
 e^(-2 pi i k/m), each cos and sin, and the bit reversal of m
 ```
 
+### med-arp-at
+
+```code
+(med-arp-at inst i) -> num
+
+the waveform table's at i, 253 the end of an arpeggio past it
+```
+
+### med-cells
+
+```code
+(med-cells data at tracks rows chans mmd mmdc transpose) -> nums
+
+the cells of a block, of so many tracks, as the song's channels, the
+tracks it has not empty
+```
+
+### med-channel
+
+```code
+(med-channel pan vol index) -> channel
+```
+
+### med-event
+
+```code
+(med-event player chan cell)
+
+a channel's cell read, its note, instrument and command, as libxmp's
+read_event_med
+```
+
+### med-extras
+
+```code
+(med-extras player chan inst)
+
+a tick of a note's hold and decay, and of a synth sound
+```
+
+### med-frames
+
+```code
+(med-frames player) -> frames
+
+how long a tick is, as libxmp works it out in doubles: the rate, times
+the song's time factor and 250, over the bpm and 1000
+```
+
+### med-fx
+
+```code
+(med-fx player chan fx param note ins)
+
+what an effect does at once, and sets going for its ticks
+```
+
+### med-hold-decay
+
+```code
+(med-hold-decay chan hold decay)
+```
+
+### med-instrument
+
+```code
+(med-instrument data at hdr exp ver samples bare) -> instrument
+
+the instrument at, of the song's sample header hdr, (rep replen svol
+strans), and of its expansion's, (hold decay finetune pitch flags
+long_rep long_replen) or :nil each, its samples pushed on samples
+```
+
+### med-lfo
+
+```code
+(med-lfo lfo) -> num
+
+an lfo of (phase rate depth wave) now, as libxmp's: FastTracker's waves
+of a tremolo, (ft2-wave), times its depth, 0 if it does not move
+```
+
+### med-loop
+
+```code
+(med-loop player chan param)
+
+a pattern's loop: 0 where it starts, else so many times back to it
+```
+
+### med-map
+
+```code
+(med-map xpo_of) -> map
+
+the 121 keys each of the first sub, moved (xpo_of key)
+```
+
+### med-next-cell
+
+```code
+(med-next-cell player chan_at) -> :nil | (note ins vol cmd param)
+
+the channel's cell of the next row of the pattern, if it has one
+```
+
+### med-period
+
+```code
+(med-period note fin adj) -> period
+
+the Amiga's period of a note, as an instrument of octaves has it twice
+```
+
+### med-play
+
+```code
+(med-play player chan)
+
+a tick of a channel, libxmp's play_channel: a delayed note, the hold,
+a retrig, the slides, and its volume, pitch and pan heard
+```
+
+### med-read
+
+```code
+(med-read data [bare]) -> :nil | song
+
+the song of a MED module's bytes, :nil if they are not one; bare, its
+samples' bytes not had, for what only shows it
+```
+
+### med-row
+
+```code
+(med-row player)
+
+the first tick of a row: each channel's cell, or held back by a note
+delay to a later tick of it. For a length only, the cells of the
+commands that move the song on
+```
+
+### med-sample
+
+```code
+(med-sample data at n loop_start loop_len looped pingpong bare kind) -> sample
+
+a sample of so many frames, its loop as libxmp makes it good: past
+the end cut back, none if it starts past where it ends
+```
+
+### med-sub
+
+```code
+(med-sub song ins key) -> :nil | (sample transpose volume finetune)
+
+the sub an instrument plays for a key, its first if no key
+```
+
+### med-synth
+
+```code
+(med-synth player chan inst)
+
+a tick of a synth sound's tables, its volume's and its waveform's:
+each a list of commands and values played at its speed, after
+libxmp's med_extras
+```
+
+### med-synth-arp
+
+```code
+(med-synth-arp chan inst) -> semitones
+
+the note a synth sound's arpeggio moves it this tick
+```
+
+### med-table-next
+
+```code
+(med-table-next chan key table) -> num
+
+the next of a synth sound's table, its volumes' or its waveforms', where
+the channel is in it under key, 255 its end past it
+```
+
+### med-tempo
+
+```code
+(med-tempo tempo bpm_on med_8ch) -> bpm
+
+a tempo as libxmp has it: of an 8 channel song 1 to 10 by a table,
+and 1 to 10 when not in BPM mode the Soundtracker's speeds
+```
+
+### med-tick
+
+```code
+(med-tick player)
+
+one tick of a MED song, as libxmp plays one: a row's cells read at its
+first tick, every channel played, and on to the next row at the end
+of its last. For a length only, no channel is played
+```
+
+### med-toneporta
+
+```code
+(med-toneporta player chan note)
+
+a note, if there is one, to slide to, and which way
+```
+
+### med-u16
+
+```code
+(med-u16 data at) -> num
+```
+
+### med-u32
+
+```code
+(med-u32 data at) -> num
+
+four bytes high first, 0 past the file's end
+```
+
+### med-u8
+
+```code
+(med-u8 data at) -> num
+```
+
+### med-valid
+
+```code
+(med-valid song ins) -> :nil | instrument
+
+an instrument that has something to play
+```
+
+### med-version
+
+```code
+(med-version mmd mmdc med_8ch exp_size song_name) -> version
+
+the tracker a song is likely of, as libxmp guesses it, exp_size -1 if
+it has no expansion data
+```
+
+### med-vslide
+
+```code
+(med-vslide chan param)
+
+a volume slide, its last if 0: up if it has one, else down
+```
+
+### med-vt
+
+```code
+(med-vt chan vtbl) -> num
+```
+
+### med-wave
+
+```code
+(med-wave data at n kind) -> str
+
+so many frames of a sample's bytes at at, as the mixer has them:
+8 bit, or 16 bit high byte first, of one channel, or two one after
+the other made one, kind :8 :16 :8s :16s
+```
+
+### med-wt
+
+```code
+(med-wt chan wtbl) -> num
+```
+
+### med-xlat
+
+```code
+(med-xlat note cmd param song) -> (fx param)
+
+a MED command as libxmp has it, mmd_xlat_fx
+```
+
 ### mesh-ball
 
 ```code
@@ -7735,6 +8375,15 @@ than its bytes: its value without the length bit, how long it is, and
 its value with it, as an id is. All ones is a size not known, -1
 ```
 
+### mod-cells
+
+```code
+(mod-cells rows channels [volume]) -> nums
+
+the cells of a pattern of nothing: no note, sample or effect, and a
+volume of none, +no_volume, or the one a tracker has for none
+```
+
 ### mod-channels
 
 ```code
@@ -7743,12 +8392,45 @@ its value with it, as an id is. All ones is a size not known, -1
 how many channels the tag at 1080 says, :nil if it is not one
 ```
 
+### mod-cstr
+
+```code
+(mod-cstr data at n) -> str
+
+the bytes of a text of n at most, to its first byte of 0
+```
+
+### mod-frames
+
+```code
+(mod-frames data at n unit) -> num
+
+how many of a sample's n frames, of unit bytes each, the file has from
+at: one cut short by the file's end is as long as what is there
+```
+
+### mod-nearest
+
+```code
+(mod-nearest period) -> num
+
+the note nearest a period, 0 to 35, of finetune 0
+```
+
 ### mod-note
 
 ```code
 (mod-note period) -> num
 
 the note of a period, 13 C-1 to 48 B-3, the nearest, 0 none
+```
+
+### mod-pans
+
+```code
+(mod-pans channels left right) -> (pan ...)
+
+the Amiga's places of its channels: left right right left, and round
 ```
 
 ### mod-pattern
@@ -7778,12 +8460,45 @@ the 30 bytes of a sample's header: its name, how long, its finetune,
 less none
 ```
 
+### mod-speed
+
+```code
+(mod-speed n) -> speed
+
+a song's first speed as its header has it, 6 if it has none
+```
+
+### mod-tempo
+
+```code
+(mod-tempo n) -> tempo
+
+a song's first tempo as its header has it, 125 if it has none that is one
+```
+
 ### mod-text
 
 ```code
 (mod-text data at n) -> str
 
 a name, to its first byte of 0, what is not to be shown a space
+```
+
+### mod-widen
+
+```code
+(mod-widen data at n kind bare) -> str
+
+so many frames of a sample's bytes at at made the mixer's, of that kind,
+(media-widen), which reads as many as it is told: none of them if bare
+```
+
+### mod-widen-kind
+
+```code
+(mod-widen-kind wide signed) -> kind
+
+the kind of a sample's bytes, (media-widen): 8 or 16 bits, signed or not
 ```
 
 ### module-read
@@ -8475,6 +9190,15 @@ the path in the store of a name of it, "" for its top
 
 what is in a folder, as (pii-dirlist) says it, unzipped: each name, and
 its type, "d" a folder, "f" a file
+```
+
+### name-load
+
+```code
+(name-load name) -> :nil | str
+
+all the bytes of the thing named, a file's as (load) has them, or an
+object's of a store
 ```
 
 ### name-service
@@ -9909,6 +10633,17 @@ key is 0 or the pixels can not be reached, from another machine say
 the buf its pixels are the block of, :nil if they are its own
 ```
 
+### pixmap-clear
+
+```code
+(pixmap-clear pixmap argb x y w h) -> pixmap
+
+a box of it, as much as is on it, made the color: set, not laid over
+what is there, so 0 makes it clear, to be drawn in again. The function
+is looked for when this is called, so a boot image from before it was
+written can still load this, and build it
+```
+
 ### pixmap-key
 
 ```code
@@ -10490,14 +11225,6 @@ its effect does at once
 a tick after a row's first: what the channel's effect does over time
 ```
 
-### pt-note
-
-```code
-(pt-note period) -> num
-
-the note nearest a period, 0 to 35, of finetune 0
-```
-
 ### pt-period
 
 ```code
@@ -10899,6 +11626,14 @@ this works perfectly with $0 in replace-matches
 
 ```code
 restart a child
+```
+
+### retrig-volume
+
+```code
+(retrig-volume volume kind) -> volume
+
+a volume as a retrig of that kind changes it, +st3_retrig
 ```
 
 ### rle-compress
@@ -11303,10 +12038,11 @@ samples' bytes not had
 ### s3m-sample
 
 ```code
-(s3m-sample data at ffi bare) -> sample
+(s3m-sample data at signed bare) -> sample
 
-an instrument's header and its sample's bytes, signed if ffi is 1,
-else unsigned: one not of a sample, an Adlib's, is of none
+an instrument's header and its sample's bytes, signed or not: one not
+of a sample, an Adlib's, is of none, and one past the file's end has
+no name either
 ```
 
 ### sbr-analysis
@@ -12441,7 +13177,7 @@ entry point is vertex_main.
 ### shader-strip
 
 ```code
-(shader-strip vfile pfile ask shared width height y y1 cull draws [target]) -> job
+(shader-strip vfile pfile ask shared width height y y1 cull draws [target fill_argb]) -> job
 
 the job for rows y to y1 of a frame of that width and height. ask
 is the mailbox a child asks for a mesh at, shared the key of the
@@ -12454,6 +13190,9 @@ shader, if it has any, in the order it has them, each of
 of its own, a list of the two, for a thing that is not drawn with
 vfile and pfile: they have the inputs those have. target is of (canvas-target), for the GPU's
 child: it draws there if it is on the node the ask mailbox is of.
+fill_argb is the color a child of the CPU fills the rows with first, the
+color the frame is cleared to: a translucent thing drawn twice over a
+strip not filled first is laid over itself
 ```
 
 ### shader-strip-picture
@@ -13607,22 +14346,15 @@ what an effect of a row does at once, and sets going for its ticks
 a channel's cell read: its note, its sample, its volume and effect
 ```
 
-### st3-mem
-
-```code
-(st3-mem chan param) -> param
-
-Scream Tracker's one memory of an effect's number, for most of them:
-0 is the last that was not
-```
-
 ### st3-period
 
 ```code
 (st3-period note c2spd) -> period
 
 the period of a note, 1 C-0 and on, of a sample of so many frames a
-second at C-4, as Scream Tracker has it
+second at C-4, as Scream Tracker has it, its table 32 times as fine
+before it is moved down an octave a time, as OpenMPT has it: else the
+bits lost are 15 cents
 ```
 
 ### st3-play
@@ -17388,12 +18120,57 @@ every tenth longer still
 each button of a toolbar lit, or not, by its state in a list
 ```
 
+### tracker-at
+
+```code
+(tracker-at song rate start) -> player
+
+a player of a song from where an order starts, (tracker-start), as
+libxmp seeks: its speed, tempo and global volume as they were there,
+its channels as at the song's start, a note already sounding then
+not heard. The rows come to before are not known to it, so its end is
+known by the song's length
+```
+
+### tracker-chans-play
+
+```code
+(tracker-chans-play player fn)
+
+a tick of each channel, (fn chan), and the voices as they are then.
+For a length only, of an S3M or an XM, what moves the song on is of
+its rows, but for a note delayed to a later tick, whose cell, its
+jump say, is read then, and a global volume slide, the volume an order
+starts with: the channels with one are played, no others, and no
+voices
+```
+
 ### tracker-length
 
 ```code
 (tracker-length song rate) -> frames
 
 how long a song plays for, to its end, its ticks played and not mixed
+```
+
+### tracker-measure
+
+```code
+(tracker-measure song rate) -> measure
+
+a player of a song that only finds how long it is: no past notes, as
+voices are not what that is of, so they do not pile up unmixed. And
+no channel's ticks but those that move the song on, a delayed note's
+and an IT's tempo slide, (tracker-chans-play) and (it-measure-tick)
+and where each order starts as it plays, (tracker-start)
+```
+
+### tracker-measure-step
+
+```code
+(tracker-measure-step measure time) -> :nil | frames
+
+its ticks played for so long, and how long the song is once ended
 ```
 
 ### tracker-mix
@@ -17420,6 +18197,24 @@ the frames of the song's next tick
 a player of a song at a rate of frames a second
 ```
 
+### tracker-playing
+
+```code
+(tracker-playing player) -> (sample ...)
+
+the samples of the song that sound now, each once: those of the voices
+the mixer plays to either side, or an AHX's voices' instruments
+```
+
+### tracker-row
+
+```code
+(tracker-row player [row]) -> (cells at)
+
+the cells of the pattern the player is at, and where in them its row
+starts, or that row of it: a channel's cell is +cell_size on from the last
+```
+
 ### tracker-seek
 
 ```code
@@ -17428,6 +18223,14 @@ a player of a song at a rate of frames a second
 a player played on to the first tick at or past so many frames, from
 its start, or from where it has got to, from, its rows as they are
 played and its voices moved on, nothing mixed, and where that is
+```
+
+### tracker-sine
+
+```code
+(tracker-sine pos) -> num
+
+the sine of a vibrato or a tremolo at pos, 0 to 63, -255 to 255
 ```
 
 ### tracker-skip
@@ -17439,12 +18242,23 @@ each voice moved on so many frames, as the mixer would, nothing mixed:
 round its loop, back and forth along it, or ended
 ```
 
+### tracker-start
+
+```code
+(tracker-start player frames) -> start
+
+where an order starts, as a player comes to it: its first frame, the
+order and row, the speed, tempo and global volume, and a MOD's frames
+carried over, (frames order row speed bpm gvol carry)
+```
+
 ### tracker-tick
 
 ```code
 (tracker-tick player) -> frames
 
 one tick of the song, and how many frames it lasts
+an AHX's a frame of its replayer, a MED's by its time factor, else
 2.5 / bpm seconds: for a MOD what is over a whole frame carried to the
 next, as the Amiga's timer, the others whole frames, as their trackers
 ```
@@ -17911,6 +18725,15 @@ talk, if not :nil, is told T and who, hex, as each is heard
 where what is to be heard here is sent, to tell the others
 ```
 
+### voice-loop
+
+```code
+(voice-loop voices at ls le len pingpong)
+
+a voice's loop, from ls to le, back and forth if so, or none, ls less
+than 0, and its end the sample's
+```
+
 ### voice-mix
 
 ```code
@@ -18142,10 +18965,22 @@ what a BIT STRING has, after the byte of how many bits are not used
 ### x509-chain-check
 
 ```code
-(x509-chain-check certs host [roots now]) -> :nil | why not
+(x509-chain-check certs host [roots now checked]) -> :nil | why not
 
 :nil if the first of certs is for the host, each is issued by the
-next, up to one issued by a root, or a root, and each is in date
+next, up to one issued by a root, or a root, and each is in date.
+The signatures of pairs found signed before, in checked or those kept,
+are not checked again
+```
+
+### x509-checked
+
+```code
+(x509-checked) -> Fset
+
+the pairs of a certificate and its issuer found signed, read from the
+file kept the first time they are wanted in a task. One of too many
+starts again
 ```
 
 ### x509-digits
@@ -18169,6 +19004,16 @@ the names it is for, and whether it may issue others
 
 is the certificate for the host, by one of its names, a name that
 starts *. for any one name more in front of the rest
+```
+
+### x509-issued?
+
+```code
+(x509-issued? cert issuer [checked]) -> :t | :nil
+
+(x509-signed?) of a pair checked once: found signed it is put in
+checked, an Fset, or if none is given the ones kept, (x509-checked),
+and their file
 ```
 
 ### x509-key
@@ -18259,14 +19104,6 @@ note and the other four do
 
 the song of an XM's bytes, :nil if they are not one; bare, its
 samples' bytes not had
-```
-
-### xm-signed
-
-```code
-(xm-signed data at) -> num
-
-a byte of -128 to 127
 ```
 
 ### zip

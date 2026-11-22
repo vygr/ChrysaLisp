@@ -253,16 +253,36 @@ the checksum of an 8 and 3 name, each part of a long name has it
 (get-int str idx) -> num
 ```
 
+### get-int-be
+
+```code
+(get-int-be str idx) -> num
+```
+
 ### get-long
 
 ```code
 (get-long str idx) -> num
 ```
 
+### get-long-be
+
+```code
+(get-long-be str idx) -> num
+```
+
 ### get-short
 
 ```code
 (get-short str idx) -> num
+```
+
+### get-short-be
+
+```code
+(get-short-be str idx) -> num
+
+and signed
 ```
 
 ### get-str
@@ -283,10 +303,25 @@ the checksum of an 8 and 3 name, each part of a long name has it
 (get-uint str idx) -> num
 ```
 
+### get-uint-be
+
+```code
+(get-uint-be str idx) -> num
+```
+
 ### get-ushort
 
 ```code
 (get-ushort str idx) -> num
+```
+
+### get-ushort-be
+
+```code
+(get-ushort-be str idx) -> num
+
+a short of a file's or the net's bytes, the high byte first, at any
+place of them, not only an aligned one, (code-be)
 ```
 
 ### getf
@@ -727,6 +762,16 @@ a number as so many bytes, the high first, as TLS has its numbers
 
 ```code
 (tls-num data at bytes) -> num
+```
+
+### tracker-porta
+
+```code
+(tracker-porta chan period fx)
+
+a tick of a slide to a note: the period moved by the channel's :porta,
+the way of its :pdir, to its :target and no further, and the slide
+over once there. period and fx are the caller's own, and are set
 ```
 
 ### ui-backdrop

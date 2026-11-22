@@ -846,6 +846,20 @@ new trap there with its test. Others to know:
 *	`(str-alloc n)` is not cleared, it holds what the memory last had: a
 	run of zero bytes is `(pad "" n "\x00")`.
 
+*	`get-short`, `get-int` and the other typed getters read memory at its
+	natural alignment, the VM's rule: a field of a file is at any place,
+	read it by `(code str width idx)`, `(code-be)` or `get-short-be` and
+	its like, signed by `(sign-extend v bits)`. `get-byte` is a signed
+	byte anywhere. A reader does not write its own.
+
+*	`(lines! fn stream)` stops at the first line `fn` gives other than
+	`:nil` for: end the lambda `:nil` to read them all.
+
+*	An IT plays with `(random)`, its instruments' random volume and pan
+	and the random waves: two renders of one are not the same. To compare
+	players by what they play, `(redefun random (n) ...)` a fixed sequence
+	before the players are imported, and start it again for each song.
+
 *	A tracker's voices are the mixer's, `+mix_size` numbers each, and a
 	stepped player (IT, MED) gives each its filter, `:fa0 :fb0 :fb1`, 0
 	none: a channel without them gave the mixer `:nil`, a pointer, and a

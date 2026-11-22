@@ -8,16 +8,22 @@
 ; A song, of whatever tracker, is the same: its :kind, :title, :channels,
 ; :samples, :orders, :restart, :patterns and the :rows of each, its first
 ; :speed and :tempo, its :global volume, the :pans of its channels, 0 left
-; to 256 right, and the :mode its effects are of, :mod or :st3, and its
-; :pitch, :amiga or :st3. A cell of a pattern is 5 numbers: its note, 0
-; none, 1 C-0 and on, or +note_cut or +note_off; its sample, 0 none; its
-; volume, +no_volume none; its effect and that effect's number. A sample's
-; :data is 16 bit signed, low byte first, (media-widen)
+; to 256 right, and the :mode its effects are of, which player of
+; lib/media/tracker.inc plays it, :mod :st3 :ft2 :it :med or :ahx, and its
+; :pitch, :linear if its periods are, an XM's or an IT's. A cell of a
+; pattern is 5 numbers: its note, 0 none, 1 C-0 and on, or +note_cut,
+; +note_off or +note_fade; its sample, 0 none; its volume, +no_volume
+; none; its effect and that effect's number. A sample's :data is 16 bit
+; signed, low byte first, (media-widen)
+;
+; What every reader does is here once: a text to its 0, a pattern of
+; nothing, the Amiga's pans, the first speed and tempo, and a sample's
+; bytes made the mixer's. A signed byte is the core's, (get-byte)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (ffi "lib/media/media_widen" media-widen)
 
-(defq +mod_rows 64 +cell_size 5 +no_volume 255 +note_cut 254 +note_off 255
+(defq +mod_rows 64 +cell_size 5 +no_volume 255 +note_fade 253 +note_cut 254 +note_off 255
 	+widen_s8 0 +widen_u8 1 +widen_s16 2 +widen_u16 3 +widen_d8 4 +widen_d16 5
 	;the periods of the notes of finetune 0, C-1 to B-3, as ProTracker has
 	;them, the others are worked out from these
@@ -25,12 +31,56 @@
 		428 404 381 360 339 320 302 285 269 254 240 226
 		214 202 190 180 170 160 151 143 135 127 120 113))
 
+(defun mod-cstr (data at n)
+	; (mod-cstr data at n) -> str
+	;the bytes of a text of n at most, to its first byte of 0
+	(defq text (slice data at (+ at n)))
+	(slice text 0 (ifn (find "\x00" text) n)))
+
 (defun mod-text (data at n)
 	; (mod-text data at n) -> str
 	;a name, to its first byte of 0, what is not to be shown a space
-	(defq text (slice data at (+ at n)))
-	(reduce! (# (cat %0 (if (<= 32 (code %1) 126) %1 " ")))
-		(list text) "" 0 (ifn (find "\x00" text) n)))
+	(reduce (# (cat %0 (if (<= 32 (code %1) 126) %1 " "))) (mod-cstr data at n) ""))
+
+(defun mod-cells (rows channels &optional volume)
+	; (mod-cells rows channels [volume]) -> nums
+	;the cells of a pattern of nothing: no note, sample or effect, and a
+	;volume of none, +no_volume, or the one a tracker has for none
+	(defq cells (fill (nums) (* rows channels +cell_size) 0) volume (ifn volume +no_volume))
+	(if (/= volume 0) (each! (# (elem-set cells (+ (* (!) +cell_size) 2) volume)) '() 0 (* rows channels)))
+	cells)
+
+(defun mod-pans (channels left right)
+	; (mod-pans channels left right) -> (pan ...)
+	;the Amiga's places of its channels: left right right left, and round
+	(map! (# (if (find (% (!) 4) '(0 3)) left right)) '() 0 channels))
+
+(defun mod-speed (n)
+	; (mod-speed n) -> speed
+	;a song's first speed as its header has it, 6 if it has none
+	(if (> n 0) n 6))
+
+(defun mod-tempo (n)
+	; (mod-tempo n) -> tempo
+	;a song's first tempo as its header has it, 125 if it has none that is one
+	(if (>= n 32) n 125))
+
+(defun mod-frames (data at n unit)
+	; (mod-frames data at n unit) -> num
+	;how many of a sample's n frames, of unit bytes each, the file has from
+	;at: one cut short by the file's end is as long as what is there
+	(max 0 (min n (/ (- (length data) at) unit))))
+
+(defun mod-widen-kind (wide signed)
+	; (mod-widen-kind wide signed) -> kind
+	;the kind of a sample's bytes, (media-widen): 8 or 16 bits, signed or not
+	(if wide (if signed +widen_s16 +widen_u16) (if signed +widen_s8 +widen_u8)))
+
+(defun mod-widen (data at n kind bare)
+	; (mod-widen data at n kind bare) -> str
+	;so many frames of a sample's bytes at at made the mixer's, of that kind,
+	;(media-widen), which reads as many as it is told: none of them if bare
+	(if bare "" (media-widen (str-alloc (* 2 n)) data at kind)))
 
 (defun mod-channels (tag)
 	; (mod-channels tag) -> :nil | num
@@ -45,24 +95,27 @@
 				(find (slice tag 2 4) '("CH" "CN")))
 			(str-as-num (slice tag 0 2)))))
 
+(defun mod-nearest (period)
+	; (mod-nearest period) -> num
+	;the note nearest a period, 0 to 35, of finetune 0
+	(defq best 0 gap +max_int)
+	(each (lambda (p)
+			(when (< (defq d (abs (- p period))) gap) (setq gap d best (!))))
+		+mod_periods)
+	best)
+
 (defun mod-note (period)
 	; (mod-note period) -> num
 	;the note of a period, 13 C-1 to 48 B-3, the nearest, 0 none
-	(if (= period 0) 0
-		(defq best 0 gap +max_int)
-		(each (lambda (p)
-				(when (< (defq d (abs (- p period))) gap) (setq gap d best (!))))
-			+mod_periods)
-		(+ 13 best)))
+	(if (= period 0) 0 (+ 13 (mod-nearest period))))
 
 (defun mod-sample (data at)
 	; (mod-sample data at) -> sample
 	;the 30 bytes of a sample's header: its name, how long, its finetune,
 	;-8 to 7, its volume, 0 to 64, and its loop, in samples, a loop of 2 or
 	;less none
-	(defq tune (logand (code data 1 (+ at 24)) 15))
 	(scatter (Emap) :name (mod-text data at 22) :length (* 2 (code-be data 2 (+ at 22)))
-		:finetune (if (> tune 7) (- tune 16) tune) :volume (min 64 (code data 1 (+ at 25)))
+		:finetune (sign-extend (logand (code data 1 (+ at 24)) 15) 4) :volume (min 64 (code data 1 (+ at 25)))
 		:loop_start (* 2 (code-be data 2 (+ at 26))) :loop_length (* 2 (code-be data 2 (+ at 28)))))
 
 (defun mod-pattern (data at channels)
@@ -95,10 +148,10 @@
 			;may be cut short by the file's end
 			(each! (lambda ()
 					(defq sample (mod-sample data (+ 20 (* 30 (!))))
-						n (max 0 (min (. sample :find :length) (- (length data) at)))
+						n (mod-frames data at (. sample :find :length) 1)
 						start (. sample :find :loop_start) len (. sample :find :loop_length))
-					(. sample :insert :data (if bare "" (media-widen (str-alloc (* 2 n)) data at +widen_s8)))
-					(. sample :insert :length n)
+					(. sample :erase :loop_length)
+					(scatter sample :data (mod-widen data at n +widen_s8 bare) :length n)
 					;a loop past the end cut back to it, one of 2 or less none
 					(setq len (min len (- n start)))
 					(if (<= len 2) (scatter sample :loop_start -1 :loop_end n)
@@ -112,4 +165,4 @@
 				:patterns (map! (# (mod-pattern data (+ head (* (!) size)) channels)) '() 0 patterns)
 				:rows (map! (# +mod_rows) '() 0 patterns)
 				:speed 6 :tempo 125 :global 64
-				:pans (map! (# (if (find (% (!) 4) '(0 3)) 0 256)) '() 0 channels)))))
+				:pans (mod-pans channels 0 256)))))

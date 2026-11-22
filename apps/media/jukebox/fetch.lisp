@@ -1,5 +1,6 @@
 (import "service/net/app.inc")
 (import "lib/net/http.inc")
+(import "./app.inc")
 
 ;The fetcher of the Jukebox, a task of its own on a node not the window's,
 ;so the window goes on being drawn while a module or a folder's listing
@@ -18,7 +19,7 @@
 ;	! id why		it could not have them
 ;and it goes if it hears nothing of the window for a while
 
-(defq +report_every 32768 +orphan 5000000)
+(defq +report_every 32768)
 
 (defun fetch (app id url)
 	(defq told 0)

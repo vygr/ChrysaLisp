@@ -325,6 +325,52 @@
 (assert-true "HVL the ring's step, a fifth over the voice's, periods 906 and 604"
 	(<= (abs (- (* 2 (elem-get (. player :find :voices) 16)) (* 3 (elem-get (. player :find :voices) 2)))) 2))
 
+;a seek moves a ring on as the mixer does: a song played three ticks and one
+;sought to there have its voice and its ring at the same places
+(defq ring_song (module-read (tt-hvl 6 4 '((0 25 1 0 0 0 0)) '(8 0 0x87 0)))
+	played (tracker-player ring_song 44100) sought (tracker-player ring_song 44100))
+(times 3 (tracker-next played))
+(tracker-seek sought (* 3 882))
+(assert-true "HVL the ring has moved" (> (elem-get (. played :find :voices) 15) 0))
+(assert-list-eq "HVL a seek, its voice and its ring where the mixer has them"
+	(list (elem-get (. played :find :voices) 1) (elem-get (. played :find :voices) 15))
+	(list (elem-get (. sought :find :voices) 1) (elem-get (. sought :find :voices) 15)))
+;an instrument's name past the file's end is none, one with no 0 after it its letters
+(assert-eq "AHX an instrument's name with no 0 after it" "i"
+	(. (first (. (module-read (slice (tt-ahx '((0 25 1 0 0))) 0 -2)) :find :samples)) :find :name))
+(assert-eq "AHX and none past the file's end" ""
+	(. (first (. (module-read (slice (tt-ahx '((0 25 1 0 0))) 0 -3)) :find :samples)) :find :name))
+
+; --- what the readers and the players share ---
+(assert-eq "mod-cstr, a text to its 0" "ab" (mod-cstr "xab\x00cd" 1 5))
+(assert-eq "mod-cstr, of n at most" "abc" (mod-cstr "xabcd" 1 3))
+(assert-eq "mod-text, what is not shown a space" "a b" (mod-text "a\x01b\x00c" 0 5))
+(assert-list-eq "mod-cells, a pattern of nothing" (list 0 0 +no_volume 0 0 0 0 +no_volume 0 0) (map (# %0) (mod-cells 1 2)))
+(assert-list-eq "mod-cells, of a tracker whose volume of none is 0" '(0 0 0 0 0) (map (# %0) (mod-cells 1 1 0)))
+(assert-list-eq "mod-pans, left right right left and round" '(0 256 256 0 0 256) (mod-pans 6 0 256))
+(assert-list-eq "mod-speed and mod-tempo, a header's or the usual" '(6 3 125 125 140)
+	(list (mod-speed 0) (mod-speed 3) (mod-tempo 0) (mod-tempo 31) (mod-tempo 140)))
+(assert-list-eq "mod-frames, a sample cut short by the file's end" '(4 3 1 0)
+	(list (mod-frames "0123456789" 2 4 1) (mod-frames "0123456789" 4 5 2) (mod-frames "0123456789" 9 5 1) (mod-frames "0123456789" 12 5 1)))
+(assert-list-eq "mod-nearest, the note of a period" '(0 12 35) (list (mod-nearest 856) (mod-nearest 430) (mod-nearest 100)))
+;the samples that sound: a MOD's on its right channel too
+(defq player (tt-ticks (tracker-player (module-read (tt-mod '((0 1 428 1 0 0)))) 44100) 1))
+(assert-list-eq "tracker-playing, a MOD's sample on a right channel" '(0) (tracker-playing player))
+(assert-list-eq "tracker-playing, an AHX's instrument" '(0)
+	(tracker-playing (tt-ticks (tracker-player (module-read (tt-hvl 6 4 '((0 25 1 0 0 0 0)))) 44100) 2)))
+(assert-list-eq "tracker-playing, none before a note" '() (tracker-playing (tracker-player (module-read (tt-mod '())) 44100)))
+;an order of 255 ends a song of a tracker that marks its end so, an S3M
+;or an IT, :markers, and is a pattern of one that does not, an XM of 256
+;patterns: three orders, the second 255, are one pattern long or three
+(defun tt-orders (markers)
+	; (tt-orders markers) -> frames
+	(defq it_song (module-read (tt-it notes)) pattern (first (. it_song :find :patterns)))
+	(scatter it_song :orders (list 0 255 0) :markers markers
+		:patterns (map! (# pattern) '() 0 256) :rows (map! (# 4) '() 0 256))
+	(tracker-length it_song 44100))
+(assert-eq "an order of 255 ends a song that marks its end" 21168 (tt-orders :t))
+(assert-eq "and is a pattern of one that does not" (* 3 21168) (tt-orders :nil))
+
 ; --- the Jukebox's playlists ---
 (defq m3u (cat "#EXTM3U\r\n"
 	"http://ftp.example.org/mirrors/ftp.modland.com/pub/modules/Protracker/Someone/a%20song.mod\r\n"

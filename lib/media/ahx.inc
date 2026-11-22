@@ -188,22 +188,31 @@
 (defun ahx-s8 (v)
 	; (ahx-s8 v) -> num
 	;the low byte of a number, -128 to 127
-	(if (> (setq v (logand v 0xff)) 127) (- v 256) v))
+	(sign-extend (logand v 0xff) 8))
 
 (defun ahx-s32 (v)
 	; (ahx-s32 v) -> num
 	;the low 32 bits of a number, signed
-	(if (> (setq v (logand v 0xffffffff)) 0x7fffffff) (- v 0x100000000) v))
+	(sign-extend (logand v 0xffffffff) 32))
 
 (defun ahx-text (data at)
 	; (ahx-text data at) -> (str next)
-	;a name to its 0, and where the one after it starts
-	(defq end (ifn (find "\x00" (slice data at (min (length data) (+ at 128)))) 0))
-	(list (mod-text data at end) (+ at end 1)))
+	;a name to its 0, of 128 at most, and where the one after it starts:
+	;past the file's end there is none, and none after it
+	(cond
+		((>= at (length data)) (list "" at))
+		(:t (defq span (slice data at (min (length data) (+ at 128))) end (ifn (find "\x00" span) (length span)))
+			(list (mod-text data at end) (+ at end 1)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the waveforms, made once, and the pan's tables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun ahx-clip (v)
+	; (ahx-clip v) -> num
+	;a filter's value, 8.16, held to a byte's range
+	(defq top (>>> v 16))
+	(cond ((> top 127) (const (<< 127 16))) ((< top -128) (const (neg (<< 128 16)))) (v)))
 
 (defun ahx-filter-block (wave freq mids lows)
 	; (ahx-filter-block wave freq mids lows) -> (low high)
@@ -223,12 +232,6 @@
 			(setq at (+ at len 1)))
 		+ahx_lentab mids lows)
 	(list low_out high_out))
-
-(defun ahx-clip (v)
-	; (ahx-clip v) -> num
-	;a filter's value, 8.16, held to a byte's range
-	(defq top (>>> v 16))
-	(cond ((> top 127) (const (<< 127 16))) ((< top -128) (const (neg (<< 128 16)))) (v)))
 
 (defun ahx-wave-make ()
 	; (ahx-wave-make) -> str
@@ -336,7 +339,7 @@
 			(defq positions (map! (lambda ()
 					(defq p (+ at (* 2 channels (!))))
 					(list (map! (# (code data 1 (+ p (* 2 (!))))) '() 0 channels)
-						(map! (# (ahx-s8 (code data 1 (+ p (* 2 (!)) 1)))) '() 0 channels)))
+						(map! (# (get-byte data (+ p (* 2 (!)) 1))) '() 0 channels)))
 				'() 0 posn))
 			(setq at (+ at (* 2 channels posn)))
 			;the tracks, a step a row of note, instrument and two effects and
@@ -362,7 +365,7 @@
 			(defq name_at names instruments (list (scatter (Emap) :name "" :volume 0)) line (if hvl 5 4))
 			(times insn
 				(when (> (+ at 22) (length data)) (setq at (- (length data) 22)))
-				(bind '(name next) (if (< name_at (length data)) (ahx-text data name_at) '("" 0)))
+				(bind '(name next) (ahx-text data name_at))
 				(setq name_at next)
 				(defq b (map! (# (code data 1 (+ at (!)))) '() 0 22) len (elem-get b 21) plist (list))
 				(setq at (+ at 22))
@@ -395,7 +398,7 @@
 			(defq none (fill (nums) (* 6 trkl) 0)
 				left (elem-get +ahx_stereo_left stereo) right (elem-get +ahx_stereo_right stereo))
 			(scatter (Emap) :kind (if hvl "HivelyTracker" "AHX") :mode :ahx :pitch :amiga :title title
-				:channels channels :hvl hvl
+				:channels channels
 				:samples (map! (# (scatter (Emap) :name (. %0 :find :name) :data "" :length 0)) (list instruments) 1 -1)
 				:instruments instruments :positions positions :tracks tracks :restart restart :mult mult
 				:track_len trkl :version version :gain gain
@@ -414,7 +417,7 @@
 						cells)
 					positions)
 				;the place of each voice, left right right left, as the Amiga's
-				:pans (map! (# (if (find (% (!) 4) '(0 3)) left right)) '() 0 channels)
+				:pans (mod-pans channels left right)
 				:speed 6 :tempo 125 :global 64))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -423,8 +426,8 @@
 
 (defun ahx-voice (index pan)
 	; (ahx-voice index pan) -> voice
-	(scatter (Emap) :index index :track 0 :next_track 0 :transpose 0 :next_transpose 0 :override 1000
-		:adsr_volume 0 :adsr (nums 0 0 0 0 0 0 0) :ins :nil :sample_pos 0 :delta 1
+	(scatter (Emap) :index index :next_track 0 :transpose 0 :override 1000
+		:adsr_volume 0 :adsr (nums 0 0 0 0 0 0 0) :ins :nil :delta 1
 		:instr_period 0 :track_period 0 :vib_period 0 :wave_length 0 :max_volume 0 :perf_sub 0
 		:new_wave :nil :waveform 0 :plant_period :nil :voice_volume 0 :plant_square :nil :ignore_square :nil
 		:fixed :nil :slide_up 0 :slide_down 0 :hard_cut 0 :hard_cut_release :nil :hard_cut_release_f 0
@@ -435,7 +438,7 @@
 		:f_on :nil :f_init :nil :f_wait 0 :f_speed 0 :f_upper 0 :f_lower 0 :f_pos 0 :f_sign 0 :f_sliding :nil :f_ignore 0
 		:perf_current 0 :perf_speed 0 :perf_wait 0 :plist :nil :source :nil :square :nil
 		:delay_on :nil :cut_on :nil :delay_wait 0 :cut_wait 0 :audio_period 0 :audio_volume 0
-		:ins_at 0 :wn_random 0x280 :master 64 :pan pan :set_pan pan :voice_period 0 :buffer_key :nil
+		:ins_at 0 :wn_random 0x280 :master 64 :pan pan :set_pan pan :buffer_key :nil
 		:volume_out 0 :period_out 0 :pan_out pan
 		;its ring, HivelyTracker's: on in the mixer, its waveform made again,
 		;its step, from the start, where in the waves, its note, fixed or of
@@ -515,9 +518,9 @@
 	;a voice set going by an instrument: its envelope, waveform, vibrato,
 	;square and filter from it, and its list from the start
 	(defq wl (. ins :find :wave_length) env (. ins :find :env))
-	(bind '(af av df dv sf rf rv) (map (# %0) env))
+	(bind '(af av df dv sf rf rv) env)
 	(scatter voice :pan (. voice :find :set_pan) :ps_speed 0 :ps_period 0 :ps_limit 0 :perf_sub 64
-		:adsr_volume 0 :ins ins :sample_pos 0 :restart :t
+		:adsr_volume 0 :ins ins :restart :t
 		:adsr (nums af (if (> af 0) (/ (* av 256) af) (* av 256))
 			df (if (> df 0) (/ (* (- dv av) 256) df) (* dv 256)) sf
 			rf (if (> rf 0) (/ (* (- rv dv) 256) rf) (* rv 256)))
@@ -534,6 +537,19 @@
 		;no ring, till its list says, and from its start when it does
 		:ring_mix :nil :ring_restart :t :ring_plant :nil :ring_new :nil))
 
+(defun ahx-note-delay (player voice fx param)
+	; (ahx-note-delay player voice fx param) -> :go | :held | :done
+	;an effect's note delay, EDx: :held, the step left to a later frame of
+	;the row, :done, come to again now its wait is over, else :go
+	(cond
+		((not (and (= fx 14) (= (logand param 0xf0) 0xd0))) :go)
+		((. voice :find :delay_on) (. voice :insert :delay_on :nil) :done)
+		((< 0 (logand param 15) (. player :find :speed))
+			(scatter voice :delay_wait (logand param 15) :delay_on :t)
+			:held)
+		((< (logand param 15) (. player :find :speed)) (. voice :insert :delay_wait 0) :go)
+		(:go)))
+
 (defun ahx-step (player voice)
 	; (ahx-step player voice)
 	;a voice's step of its track this row, hvl_process_step: a note delay
@@ -541,20 +557,11 @@
 	;of the effects of the first then the second
 	(scatter voice :slide_up 0 :slide_down 0)
 	(bind '(note ins fx param fxb paramb) (ahx-step-at player voice (. player :find :row)))
-	(defq go :t done :nil)
-	(and (= fx 14) (= (logand param 0xf0) 0xd0)
-		(cond
-			((. voice :find :delay_on) (scatter voice :delay_on :nil) (setq done :t))
-			((< (logand param 15) (. player :find :speed))
-				(. voice :insert :delay_wait (logand param 15))
-				(when (> (logand param 15) 0) (. voice :insert :delay_on :t) (setq go :nil)))))
-	(and go (not done) (= fxb 14) (= (logand paramb 0xf0) 0xd0)
-		(cond
-			((. voice :find :delay_on) (. voice :insert :delay_on :nil))
-			((< (logand paramb 15) (. player :find :speed))
-				(. voice :insert :delay_wait (logand paramb 15))
-				(when (> (logand paramb 15) 0) (. voice :insert :delay_on :t) (setq go :nil)))))
-	(when go
+	;:go, :held to a later frame, or :done, a delay's wait over: a delay
+	;of the second effect only if the first had none
+	(defq go (ahx-note-delay player voice fx param))
+	(if (eql go :go) (setq go (ahx-note-delay player voice fxb paramb)))
+	(unless (eql go :held)
 		(if (> note 0) (. voice :insert :override 1000))
 		(ahx-fx1 player voice fx param)
 		(ahx-fx1 player voice fxb paramb)
@@ -611,15 +618,31 @@
 			((<= param 0x40) (. voice :insert :master param))))
 		(15 (scatter voice :perf_speed param :perf_wait param))))
 
+(defun ahx-period (voice note fixed)
+	; (ahx-period voice note fixed) -> period
+	;the period a voice plays a note of its own at: on the track's note and
+	;its transpose, or fixed, not, and with the slides and the vibrato
+	(unless fixed
+		(setq note (+ note (if (/= (. voice :find :override) 1000) (. voice :find :override) (. voice :find :transpose))
+			(. voice :find :track_period) -1)))
+	(defq period (elem-get +ahx_periods (max 0 (min 60 note))))
+	(unless fixed (setq period (+ period (. voice :find :ps_period))))
+	(max 0x71 (min 0xd60 (+ period (. voice :find :pps_period) (. voice :find :vib_period)))))
+
+(defun ahx-delayed (player voice)
+	; (ahx-delayed player voice)
+	;a frame of a note delay: its step read once its wait is over
+	(when (. voice :find :delay_on)
+		(if (<= (. voice :find :delay_wait) 0) (ahx-step player voice)
+			(. voice :insert :delay_wait (dec (. voice :find :delay_wait))))))
+
 (defun ahx-frame (player voice)
 	; (ahx-frame player voice)
 	;a frame of a voice, hvl_process_frame: a delayed note, a cut, its
 	;envelope, slides, vibrato, its instrument's list, the square and the
 	;filter moved, and the waveform and the period it plays at
 	(defq song (. player :find :song) speed (. player :find :speed))
-	(when (. voice :find :delay_on)
-		(if (<= (. voice :find :delay_wait) 0) (ahx-step player voice)
-			(. voice :insert :delay_wait (dec (. voice :find :delay_wait)))))
+	(ahx-delayed player voice)
 	;a hard cut, if the next row has an instrument
 	(when (/= (. voice :find :hard_cut) 0)
 		(defq row (inc (. player :find :row)) next_ins (cond
@@ -763,25 +786,10 @@
 				(. voice :insert :wn_random r)
 				at)
 			((+ (* (dec (. voice :find :f_pos)) +ahx_block) (* wf 252) (elem-get +ahx_offsets wl))))))
-	;a ring's period, as the voice's of its own note
-	(when (. voice :find :ring_source)
-		(defq period (. voice :find :ring_base) fixed (. voice :find :ring_fixed))
-		(unless fixed
-			(setq period (+ period (if (/= (. voice :find :override) 1000) (. voice :find :override) (. voice :find :transpose))
-				(. voice :find :track_period) -1)))
-		(setq period (elem-get +ahx_periods (max 0 (min 60 period))))
-		(unless fixed (setq period (+ period (. voice :find :ps_period))))
-		(. voice :insert :ring_period (max 0x71 (min 0xd60 (+ period (. voice :find :pps_period) (. voice :find :vib_period))))))
-	;the period: the instrument's note and the track's, or a fixed note,
-	;and the slides and the vibrato
-	(defq period (. voice :find :instr_period))
-	(unless (. voice :find :fixed)
-		(setq period (+ period (if (/= (. voice :find :override) 1000) (. voice :find :override) (. voice :find :transpose))
-			(. voice :find :track_period) -1)))
-	(setq period (elem-get +ahx_periods (max 0 (min 60 period))))
-	(unless (. voice :find :fixed) (setq period (+ period (. voice :find :ps_period))))
-	(setq period (max 0x71 (min 0xd60 (+ period (. voice :find :pps_period) (. voice :find :vib_period)))))
-	(scatter voice :audio_period period
+	;a ring's period, as the voice's of its own note, then the voice's
+	(if (. voice :find :ring_source)
+		(. voice :insert :ring_period (ahx-period voice (. voice :find :ring_base) (. voice :find :ring_fixed))))
+	(scatter voice :audio_period (ahx-period voice (. voice :find :instr_period) (. voice :find :fixed))
 		:audio_volume (>>> (* (>>> (* (>>> (* (>>> (. voice :find :adsr_volume) 8) (. voice :find :max_volume)) 6)
 			(. voice :find :perf_sub)) 6) (. voice :find :master)) 6)))
 
@@ -789,14 +797,14 @@
 	; (ahx-delta player period) -> num
 	;the step a frame, 16.16, round a buffer of 640, of an Amiga's period
 	(defq delta (n2i (/ (n2d (/ (const (n2f 232449720320)) (n2f period))) (n2d (. player :find :rate)))))
-	(if (> delta (const (<< 640 16))) (setq delta (- delta (const (<< 640 16)))))
+	(if (> delta (const (<< +ahx_buffer 16))) (setq delta (- delta (const (<< +ahx_buffer 16)))))
 	(max 1 delta))
 
 (defun ahx-repeat (bytes)
 	; (ahx-repeat bytes) -> str
 	;a waveform repeated to 640, the mixer's 16 bits
-	(media-widen (str-alloc 1280) (if (= (length bytes) 640) bytes
-		(apply (const cat) (map! (# bytes) '() 0 (/ 640 (length bytes))))) 0 +widen_s8))
+	(mod-widen (if (= (length bytes) +ahx_buffer) bytes
+		(apply (const cat) (map! (# bytes) '() 0 (/ +ahx_buffer (length bytes))))) 0 +ahx_buffer +widen_s8 :nil))
 
 (defun ahx-audio (player voice)
 	; (ahx-audio player voice)
@@ -805,8 +813,7 @@
 	;repeated to 640, and so its ring's
 	(scatter voice :voice_volume (. voice :find :audio_volume))
 	(when (. voice :find :plant_period)
-		(scatter voice :plant_period :nil :voice_period (. voice :find :audio_period)
-			:delta (ahx-delta player (. voice :find :audio_period))))
+		(scatter voice :plant_period :nil :delta (ahx-delta player (. voice :find :audio_period))))
 	(when (. voice :find :new_wave)
 		(defq src (. voice :find :source) wl (. voice :find :wave_length)
 			key (if (eql src :square) (cat "s" (. voice :find :square)) src))
@@ -816,7 +823,7 @@
 			(defq waves (ahx-waves)
 				bytes (cond
 					((eql src :square) (. voice :find :square))
-					((= (. voice :find :waveform) 3) (slice waves src (+ src 640)))
+					((= (. voice :find :waveform) 3) (slice waves src (+ src +ahx_buffer)))
 					((slice waves src (+ src (* 4 (<< 1 wl)))))))
 			(elem-set (. player :find :samples) (. voice :find :index) (ahx-repeat bytes))))
 	(when (. voice :find :ring_plant)
@@ -845,18 +852,13 @@
 				next (elem-get positions (if (= (inc order) (length positions)) 0 (inc order))))
 			(each (lambda (voice)
 					(defq i (!))
-					(scatter voice :track (elem-get (first pos) i) :transpose (elem-get (second pos) i)
-						:next_track (elem-get (first next) i) :next_transpose (elem-get (second next) i)))
+					(scatter voice :transpose (elem-get (second pos) i) :next_track (elem-get (first next) i)))
 				chans)
 			(. player :insert :get_new :nil))
 		(each (# (ahx-step player %0)) chans)
 		(. player :insert :wait (. player :find :speed)))
 	(if measure
-		(each (lambda (voice)
-				(when (. voice :find :delay_on)
-					(if (<= (. voice :find :delay_wait) 0) (ahx-step player voice)
-						(. voice :insert :delay_wait (dec (. voice :find :delay_wait))))))
-			chans)
+		(each (# (ahx-delayed player %0)) chans)
 		(each (# (ahx-frame player %0)) chans))
 	(. player :insert :frames_done (inc (. player :find :frames_done)))
 	(. player :insert :wait (dec (. player :find :wait)))

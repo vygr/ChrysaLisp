@@ -3,6 +3,7 @@
 (import "lib/media/module.inc")
 (import "lib/media/tracker.inc")
 (import "lib/media/spectrum.inc")
+(import "./app.inc")
 
 ;The player of the Jukebox, a task of its own on a node not the window's,
 ;so a heavy song takes none of the time of what draws the screen. It plays
@@ -30,8 +31,8 @@
 (enums +select 0
 	(enum main timer))
 
-(defq +rate 44100 +ahead 11025 +frame_time (/ 1000000 30) +fft 1024 +bars 32
-	+recent_max (+ +ahead +fft 4096) +orphan 5000000
+(defq +ahead 11025 +frame_time (/ 1000000 30) +fft 1024
+	+recent_max (+ +ahead +fft 4096)
 	*app* :nil *serial* -1 *song* :nil *player* :nil *handle* :nil *written* 0
 	*marks* (list) *recent* "" *recent_at* 0 *measurer* :nil *state* "s" *ended* :nil
 	*spectrum* (spectrum-make +fft +rate +bars) *heard* 0 *told* :nil
@@ -81,10 +82,14 @@
 (defun feed ()
 	; (feed) -> heard
 	;ticks of the song written till the stream is far enough ahead of what is
-	;heard, and each tick's place kept, to say it as it is heard
+	;heard, and each tick's place kept, to say it as it is heard. A stream
+	;not written to for a while, a pause of 5 seconds, is closed by the
+	;Audio service: it is opened again, nothing of it still to be heard,
+	;where written to one that is gone the song ran on unheard
+	(defq left (and *handle* (audio-stream-left-rpc *handle*)))
+	(unless left (setq *handle* (audio-stream-open-rpc +rate 2) left 0))
 	(cond
 		(*handle*
-			(defq left (ifn (audio-stream-left-rpc *handle*) 0))
 			(when (eql *state* "p")
 				(while (and (< left +ahead) (not *ended*))
 					(push *marks* (list *written* (. *player* :find :order) (. *player* :find :row)))
@@ -105,16 +110,11 @@
 	(while (and (> (length *marks*) 1) (<= (first (second *marks*)) heard))
 		(setq *marks* (slice *marks* 1 -1)))
 	(bind '(& order row) (ifn (first *marks*) (list 0 (. *player* :find :order) (. *player* :find :row))))
-	(defq voices (. *player* :find :voices) playing (list)
+	(defq playing (tracker-playing *player*)
 		from (- heard +fft *recent_at*)
 		bands (if (and (eql *state* "p") (>= from 0) (<= (+ from +fft) (/ (length *recent*) 4)))
 			(map (# (n2i %0)) (spectrum-bands *spectrum* *recent* from))
 			(map! (lambda () 0) '() 0 +bars)))
-	(each! (lambda ()
-			(defq s (elem-get voices (* (!) +mix_size)))
-			(and (>= s 0) (> (elem-get voices (+ (* (!) +mix_size) 3)) 0) (not (find s playing))
-				(push playing s)))
-		'() 0 (/ (length voices) +mix_size))
 	(mail-send *app* (cat "T" (join (map (const str) (list *serial* *seek_id* heard order row)) " ")
 		" " *state* " " (join (map (const str) playing) " ") " | " (join (map (const str) bands) " "))))
 
@@ -135,7 +135,8 @@
 	;a module played, held or stopped at so many seconds, at once, how long
 	;it is found as it plays
 	(sound-stop)
-	(setq *serial* serial *song* (module-read data) *told* :nil *length* :nil *starts* (list))
+	;a seek asked of the song before is not this one's
+	(setq *serial* serial *song* (module-read data) *told* :nil *length* :nil *starts* (list) *seek_to* :nil)
 	(cond
 		(*song*
 			(measure serial data)
@@ -159,8 +160,8 @@
 			(load-song serial (second words) (str-as-num (third words)) (slice msg (inc end) -1)))
 		((or (/= serial *serial*) (not *song*)))
 		((eql kind "W")
-			(defq nums (map! (const str-as-num) (list words) 1 (length words)))
-			(setq *length* (first nums) *starts* (partition (rest nums) 7)))
+			(defq vals (map! (const str-as-num) (list words) 1 (length words)))
+			(setq *length* (first vals) *starts* (partition (rest vals) 7)))
 		((eql kind "P")
 			(cond
 				((eql *state* "s") (rewind) (setq *state* "p" *handle* (audio-stream-open-rpc +rate 2)))

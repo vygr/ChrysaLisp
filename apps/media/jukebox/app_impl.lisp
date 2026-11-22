@@ -6,6 +6,7 @@
 (import "lib/files/names.inc")
 (import "lib/media/module.inc")
 (import "lib/text/searching.inc")
+(import "./app.inc")
 (import "./library.inc")
 (import "./widgets.inc")
 
@@ -24,7 +25,7 @@
 (enums +tab 0
 	(enum favourites charts all search))
 
-(defq +rate 44100 +alive 1000000 +rows_wide 136
+(defq +alive 1000000 +rows_wide 136
 	+names ''("C-" "C#" "D-" "D#" "E-" "F-" "F#" "G-" "G#" "A-" "A#" "B-")
 	;the favourites, Player or Jukebox, shuffle, which list and the folder
 	;of Modland and of the charts, as they were when last closed,
@@ -47,6 +48,8 @@
 	;marked, and the title of the folder gone up from, and what is being
 	;fetched
 	*entries* (list) *marked* :nil *left* :nil *fetching* :nil *picker* :nil *select* :nil
+	;the list shown is to be shown again once what is being fetched has come
+	*list_due* :nil
 	;the fetcher, ./fetch.lisp, and the number of the last fetch asked of it,
 	;and the listings fetched again since it was opened
 	*fetcher* :nil *fetch_id* 0 *fresh* (list)
@@ -60,11 +63,11 @@
 	*search_id* 0 *found* (list) *found_total* 0
 	*levels* (map! (lambda () 0) '() 0 +bars) *peaks* (map! (lambda () 0) '() 0 +bars))
 
-(defun hex (n width)
-	; (hex n width) -> str
-	(defq out "")
-	(times width (setq out (cat (elem-get "0123456789ABCDEF" (logand n 15)) out) n (>> n 4)))
-	out)
+(defun hex-digit (n)
+	; (hex-digit n) -> str
+	;the low 4 bits of a number, as a tracker shows them; two digits are
+	;the core's, (byte-to-hex-str)
+	(elem-get "0123456789ABCDEF" (logand n 15)))
 
 (defun clock (frames)
 	; (clock frames) -> str
@@ -76,14 +79,6 @@
 
 (defun local? (url)
 	(not (starts-with "https://" url)))
-
-(defun module-load (name)
-	; (module-load name) -> :nil | str
-	;the bytes of a module of a file, or of an object of a store, store:path,
-	;lib/files/names.inc
-	(if (name-in-store name)
-		(and (defq stream (name-whole-stream name)) (read-blk stream (ifn (name-size name) 0)))
-		(load name)))
 
 (defun favourite? (url)
 	(some (# (eql (second %0) url)) *favourites*))
@@ -111,26 +106,26 @@
 	;volume column, a volume or an effect of a letter and a digit, and
 	;its effects by letter; a MOD's and an AHX's effects by number, and a MED's by two
 	(defq mode (. *song* :find :mode))
-	(cat (note-name note) " " (if (> ins 0) (hex ins 2) "..")
+	(cat (note-name note) " " (if (> ins 0) (byte-to-hex-str ins) "..")
 		(case mode
-			(:st3 (if (= vol +no_volume) " .." (cat " " (hex vol 2))))
+			(:st3 (if (= vol +no_volume) " .." (cat " " (byte-to-hex-str vol))))
 			(:ft2 (cond
 				((< vol 0x10) " ..")
-				((<= vol 0x50) (cat " " (hex (- vol 0x10) 2)))
-				((cat " " (elem-get "-------+DUSVPLRM" (>> vol 4)) (hex vol 1)))))
+				((<= vol 0x50) (cat " " (byte-to-hex-str (- vol 0x10))))
+				((cat " " (elem-get "-------+DUSVPLRM" (>> vol 4)) (hex-digit vol)))))
 			(:it (cond
-				((<= vol 64) (cat " " (hex vol 2)))
+				((<= vol 64) (cat " " (byte-to-hex-str vol)))
 				((< vol 125) (defq at (/ (- vol 65) 10)) (cat " " (elem-get "ABCDEF" at) (str (- vol 65 (* at 10)))))
-				((<= 128 vol 192) (cat " P" (hex (min 15 (/ (- vol 128) 4)) 1)))
+				((<= 128 vol 192) (cat " P" (hex-digit (min 15 (/ (- vol 128) 4)))))
 				((<= 193 vol 212) (defq at (/ (- vol 193) 10)) (cat " " (elem-get "GH" at) (str (- vol 193 (* at 10)))))
 				(" ..")))
 			(:t ""))
 		" " (cond
 			((and (= effect 0) (= param 0)) (if (eql mode :med) "...." "..."))
-			((find mode '(:st3 :it)) (cat (char (+ 64 effect)) (hex param 2)))
-			((eql mode :med) (cat (hex effect 2) (hex param 2)))
-			((< effect 16) (cat (hex effect 1) (hex param 2)))
-			((cat (char (+ 55 effect)) (hex param 2))))))
+			((find mode '(:st3 :it)) (cat (char (+ 64 effect)) (byte-to-hex-str param)))
+			((eql mode :med) (cat (byte-to-hex-str effect) (byte-to-hex-str param)))
+			((< effect 16) (cat (hex-digit effect) (byte-to-hex-str param)))
+			((cat (char (+ 55 effect)) (byte-to-hex-str param))))))
 
 (defun cell-width ()
 	(case (. *song* :find :mode) ((:mod :ahx) 11) (:med 12) (:t 14)))
@@ -145,7 +140,7 @@
 	(each! (lambda ()
 			(defq r (+ row (- (!) half)))
 			(push lines (if (<= 0 r (dec rows))
-				(apply (const cat) (cat (list (hex r 2) (if (= r row) "> " "  "))
+				(apply (const cat) (cat (list (byte-to-hex-str r) (if (= r row) "> " "  "))
 					(map! (lambda ()
 							(defq c (* (+ (* r channels) (!)) +cell_size))
 							(cat (apply (const cell-text) (slice cells c (+ c +cell_size))) " "))
@@ -157,7 +152,7 @@
 (defun samples-show ()
 	;the samples of the song, a line each, those a channel plays now marked
 	(. *samples* :load (map (lambda (sample)
-			(cat (if (find (str (!)) *playing*) "*" " ") (hex (inc (!)) 2) " " (. sample :find :name)))
+			(cat (if (find (str (!)) *playing*) "*" " ") (byte-to-hex-str (inc (!))) " " (. sample :find :name)))
 		(. *song* :find :samples)) 0 0 -1 -1))
 
 (defun bars-show (bands)
@@ -260,6 +255,8 @@
 	;a module or a listing fetched by the fetcher, the window drawn
 	;meanwhile, and of a folder looked in for a module not found, its
 	;name. Each has a number, what is said of one before is not heard
+	;a listing still coming is put off by it, and is asked for again after, (list-due)
+	(and *fetching* (eql (first *fetching*) :listing) (nql (second *fetching*) url) (setq *list_due* :t))
 	(setq *fetching* (list kind url title missing) *fetch_id* (inc *fetch_id*))
 	(loading 0)
 	(status (cat "Fetching " (ifn title "the folder") " ..."))
@@ -312,7 +309,8 @@
 	(setq *marked* url)
 	(list-visible)
 	(cond
-		((defq data (module-load (if (local? url) url (kept-path url))))
+		;a file, or an object of a store, store:path, lib/files/names.inc
+		((defq data (name-load (if (local? url) url (kept-path url))))
 			(unless (song-start data title url) (song-failed (cat title ": not a module it can read"))))
 		((local? url) (song-failed (cat url ": not there")))
 		(:t ;what played stops, and the window says what is coming, till it
@@ -529,17 +527,19 @@
 			(if (ends-with ".m3u" url)
 				(playlist-entries url (playlist-read text))
 				(listing-entries text url path)))
-		(:t (fetch-start :listing url) (list))))
+		;its listing fetched: one already coming is not asked for again, and
+		;behind a module that is coming it waits its turn, (list-due)
+		(:t (cond
+				((or (not *fetching*) (eql (first *fetching*) :refresh)) (fetch-start :listing url))
+				((not (and (eql (first *fetching*) :listing) (eql (second *fetching*) url))) (setq *list_due* :t)))
+			(list))))
 
 (defun list-show (&optional keep)
 	;a button a row, as many as the filter leaves, to so many
 	;the filter a regexp, ignoring case, or plain text if it is not one.
 	;Kept, where the list was seen from stays
-	(defq pattern (get :clear_text *filter*) found (query pattern :nil :t :t))
-	(unless (second found) (setq found (query pattern :nil :nil :t)))
-	(bind '(engine meta &ignore) found)
-	(setq *entries* (filter (# (or (eql pattern "") (. engine :match? (to-lower (first %0)) meta)))
-		(list-entries)))
+	(defq leaves (name-filter (get :clear_text *filter*)))
+	(setq *entries* (filter (# (name-filter? leaves (first %0))) (list-entries)))
 	(. *where* :set_text (cond
 		((= *list_at* +tab_favourites) (cat (str (length *favourites*)) " favourites"))
 		((= *list_at* +tab_search)
@@ -557,6 +557,13 @@
 			(if (defq at (and *left* (some (# (and (third %0) (eql (third %0) *left*) (!))) *entries*)))
 				(* (max 0 (- at (/ +list_rows 2))) (get :item_h *list*)) 0)))
 	(.-> *list_scroll* :layout :dirty_all))
+
+(defun list-due ()
+	;the list shown again, and so its listing fetched, once what was coming
+	;has come, if it had to wait for it or was put off by it
+	(when (and *list_due* (not *fetching*))
+		(setq *list_due* :nil)
+		(list-show :t)))
 
 (defun fetch-ended (msg)
 	;= and its bytes, or ! and why not
@@ -654,7 +661,7 @@
 
 (defun fetch-done (msg)
 	;what the fetcher said, of the last fetch asked of it only
-	(defq kind (first msg) gap (ifn (find " " msg) (length msg)) rest (slice msg (min (length msg) (inc gap)) -1))
+	(defq kind (first msg) gap (ifn (find " " msg) (length msg)) said (slice msg (min (length msg) (inc gap)) -1))
 	(cond
 		;where a playlist's modules are now, of the index, not a fetch
 		((eql kind "R") (playlist-resolved (slice msg 1 -1)))
@@ -669,10 +676,10 @@
 		((eql kind "%")
 			;how far it has got, of how many, or of a megabyte if it is not
 			;said
-			(bind '(got total) (map (const str-as-num) (split rest " ")))
+			(bind '(got total) (map (const str-as-num) (split said " ")))
 			(loading (min 1000 (/ (* got 1000) (if (> total 0) total (max got 1048576))))))
 		(:t (loading :nil)
-			(fetch-ended (cat kind rest)))))
+			(fetch-ended (cat kind said)))))
 
 (defun player-mode (url)
 	; (player-mode url)
@@ -691,9 +698,9 @@
 		(folder (setq *left* :nil) (push (list-path) folder) (config-save) (list-show))
 		(:t (player-mode url)
 			(setq *skip_by* :nil)
-			(defq modules (filter (# (not (third %0))) *entries*))
-			(queue-start (map (# (list (first %0) (second %0))) modules)
-				(ifn (find title (map (const first) modules)) 0)))))
+			;the row picked by its address: two of a list may have one name
+			(defq modules (queue-modules))
+			(queue-start modules (ifn (some (# (if (eql (second %0) url) (!))) modules) 0)))))
 
 (defun favourite-add ()
 	;what plays now a favourite, its bytes kept to play offline
@@ -747,7 +754,7 @@
 				(unless (eql (defq file (trim msg)) "")
 					(player-mode file)
 					(setq *skip_by* :nil)
-					(entry-play (list (last (split file "/")) file))))
+					(entry-play (list (path-name file) file))))
 			((= (setq id (getf msg +ev_msg_target_id)) +event_close) (setq id :nil))
 			((= id +event_play) (engine-send "P" *serial*))
 			((= id +event_pause) (engine-send "H" *serial*))
@@ -759,7 +766,7 @@
 				(if (and *current* (favourite? (second *current*))) (favourite-remove) (favourite-add)))
 			((= id +event_open)
 				(if *picker* (mail-send *picker* ""))
-				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." ".mod .s3m .xm .it .med .mmd0 .mmd1 .mmd2 .mmd3 .mmdc .ahx .hvl" :nil "mods" :t (list))))
+				(setq *picker* (file-pick (elem-get *select* +select_picker) "Open module..." "." +module_exts :nil "mods" :t (list))))
 			((= id +event_mode)
 				;the jukebox plays the favourites
 				(setq *jukebox* (= (. *mode* :get_selected) 1))
@@ -802,7 +809,8 @@
 					(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id))))
 				(item-pressed (get :entry_at button)))
 			((. *window* :event msg)))
-		(skip-on))
+		(skip-on)
+		(list-due))
 	(config-save)
 	(if *picker* (mail-send *picker* ""))
 	(engine-send "Q")

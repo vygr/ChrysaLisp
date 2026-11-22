@@ -5,7 +5,7 @@
 	;a row of the list
 	(enum item))
 
-(defq +bars 32 +bars_width 512 +bars_height 96 +rows_shown 25 +list_rows 14)
+(defq +bars_width 512 +bars_height 96 +rows_shown 25 +list_rows 14)
 
 (defclass Filter () (Textfield)
 	; (Filter) -> filter

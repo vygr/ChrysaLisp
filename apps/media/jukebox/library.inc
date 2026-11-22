@@ -17,6 +17,20 @@
 	;the folders of the charts, of pub/
 	+chart_places ''("favourites" "playlists"))
 
+(defun name-filter (pattern)
+	; (name-filter pattern) -> filter
+	;what a filter's text leaves of names: a regexp, ignoring case, or plain
+	;text if it is not one, (pattern engine meta)
+	(defq found (query pattern :nil :t :t))
+	(unless (second found) (setq found (query pattern :nil :nil :t)))
+	(list pattern (first found) (second found)))
+
+(defun name-filter? (leaves name)
+	; (name-filter? leaves name) -> :t | :nil
+	;does a filter leave a name: any, if its text is none
+	(bind '(pattern engine meta) leaves)
+	(or (eql pattern "") (. engine :match? (to-lower name) meta)))
+
 (defun kept-path (url)
 	; (kept-path url) -> path
 	;where a module or a listing fetched is kept, of the tree's downloads/,
@@ -201,8 +215,7 @@
 	;folder, each in lower case
 	(defq by_name (Fmap 16381) by_folder (Fmap 4093))
 	(lines! (lambda (path)
-			(defq at (ifn (rfind "/" path) 0)
-				key (to-lower (slice path at -1)) folder (to-lower (slice path 0 (max 0 (dec at)))))
+			(defq key (to-lower (path-name path)) folder (to-lower (path-dir path)))
 			(if (defq paths (. by_name :find key)) (push paths path) (. by_name :insert key (list path)))
 			(if (defq paths (. by_folder :find folder)) (push paths path) (. by_folder :insert folder (list path)))
 			:nil)
@@ -227,7 +240,7 @@
 	;where a module a playlist names is now, :nil if Modland has it no
 	;more: (allmods-find), else by the rules of a name renamed in its
 	;folder, or in the artist's own above a folder of work with another
-	(defq at (ifn (rfind "/" path) 0) folder (slice path 0 (max 0 (dec at))) name (slice path at -1))
+	(defq folder (path-dir path) name (path-name path))
 	(or (allmods-find index path)
 		(folder-renamed index folder name)
 		(and (defq up (folder-coop-up folder)) (folder-renamed index up name))))

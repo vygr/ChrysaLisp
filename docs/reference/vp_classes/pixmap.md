@@ -10,6 +10,8 @@ docs/reference/vp_classes/pixmap.cwb
 
 ### (pixmap-as-argb pixmap) -> pixmap
 
+### (pixmap-clear pixmap argb x y w h)
+
 ### (pixmap-flm-delta pixmap stream type)
 
 ### (pixmap-from-argb32 pixel type) -> pixel
