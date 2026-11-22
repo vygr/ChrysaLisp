@@ -43,3 +43,47 @@
 (assert-eq "a seek forward is the scene its steps make" (second mc_out) (first mc_out))
 (assert-eq "and one back, from an I-frame" (elem-get mc_out 3) (third mc_out))
 (assert-true "the seek forward kept I-frames" (> (str-to-num (elem-get mc_out 4)) 1))
+
+;how long each scene was last found to be is kept with the config, what the
+;bar of the next scan of it is of: a config kept before there was one has
+;about what each was, and the bar shows the steps run of that, no more than all
+(defq mp_len (split (test-output (cat
+		"(catch (import {apps/demos/motion/app.lisp}) :t)"
+		" (setq *config_file* {tests/scratch/test_motion_len.tre}) (config-load)"
+		" (print lengths)"
+		" (elem-set lengths 2 777) (config-save) (setq *config* :nil lengths :nil) (config-load)"
+		" (print lengths)"
+		" (setq scene 2) (scan-show 300) (print (list (get :value *scan*) (get :maximum *scan*)))"
+		" (scan-show 5000) (print (list (get :value *scan*) (get :maximum *scan*)))"
+		" (pii-remove *config_file*)")) "\n"))
+(assert-eq "no length kept yet, about what each scene was" "(6824 0 10566)" (first mp_len))
+(assert-eq "a length found is kept" "(6824 0 777)" (second mp_len))
+(assert-eq "the scan's bar, the steps run of the length last found" "(300 777)" (third mp_len))
+(assert-eq "and no more than all of it" "(777 777)" (elem-get mp_len 3))
+
+;a scout's I-frames, sent to the child that draws: the scene written at
+;two steps, mailed the later first. Mail comes in any order, and the later
+;may speak of outlines the earlier brought, so it is sought from only when
+;the earlier is here. A seek from it is the scene plain steps give
+(defq ms_out (split (test-output (cat
+		"(catch (import {apps/demos/motion/child.lisp}) :t)"
+		" (defun mc-sum () (defq s 0) (. stage :each_node (lambda (n)"
+		" (setq s (+ s (n2i (* 100.0 (ifn (get :fig_x n) 0.0))) (n2i (* 100.0 (ifn (get :fig_y n) 0.0)))))))"
+		" (list (get :ros_ticks stage) s (length (. stage :children))))"
+		" (defq mbox (mail-mbox) got (mail-mbox) sent (iframe-sent) msgs (list))"
+		" (scene-make 2 12345)"
+		" (each (lambda (which) (times 300 (. stage :tick +ros_step))"
+		" (scout-send got 2 12345 which sent) (push msgs (mail-read got))) '(0 1))"
+		" (times 50 (. stage :tick +ros_step)) (defq plain (mc-sum))"
+		" (setq have :nil) (scene-have 2 12345 :t)"
+		" (mail-send ibox (second msgs)) (sent-take) (print sent_whole)"
+		" (mail-send ibox (first msgs)) (sent-take) (print sent_whole)"
+		" (mail-send ibox (cat (char 0 8) (char 999 8) (char 2 8) (char 900 8))) (sent-take) (print sent_whole)"
+		" (seek-to 650 mbox) (print (mc-sum)) (print plain)"
+		" (print (list (length iframes) (first (first iframes))))")) "\n"))
+(assert-eq "the later I-frame alone is not sought from" "0" (first ms_out))
+(assert-eq "with the earlier here both are" "2" (second ms_out))
+(assert-eq "one of another scene is left" "2" (third ms_out))
+(assert-eq "a seek from a scout's I-frame is the scene its steps make" (elem-get ms_out 4) (elem-get ms_out 3))
+;it went on from step 600: the one copy of its own it kept on the way is of 601
+(assert-eq "and was from it, not from the scene's start" "(1 601)" (elem-get ms_out 5))

@@ -595,3 +595,45 @@
 (def mo_rate 'rate -50.0)
 (. stage :tick 0.033)
 (assert-true "and turns again still in it" (> (get 'rate mo_rate) 0.0))
+
+; --- a scene written to a stream and read from one, lib/motion/iframe.inc:
+;it goes on as the one written does, what it fires fired, a figure tied to
+;another tied to the one read, and an outline written once ---
+(import "lib/motion/iframe.inc")
+(defq mo_fired 0)
+(defun mo-if-scene ()
+	; (mo-if-scene) -> rostrum
+	;two figures, one tied to the other, which has a tween that waits and
+	;then fires, and keeps a list of its own
+	(defq top (Rostrum 640 480 :nil 7) a (Figure "a") b (Figure "b"))
+	(. a :set_outline (list (list :t (path 0.0 0.0 10.0 0.0 10.0 10.0))))
+	(def a :fig_fill 0xffffffff :kept_here (list 1 2.5 "three" :four))
+	(. a :add (Tween :fig_x 100.0 1.0 (const ease-in-out) (lambda (f c) (setq mo_fired (inc mo_fired))) 0.25)
+		(Rate :fig_y 3.0))
+	(. b :add (Tie a '(:fig_x) 5.0))
+	(. top :add_node a)
+	(. top :add_node b)
+	top)
+(defun mo-if-places (top)
+	; (mo-if-places rostrum) -> (x y x y)
+	(reduce (# (push %0 (get :fig_x %1) (get :fig_y %1))) (. top :children) (list)))
+(defq mo_top (mo-if-scene) mo_sent (iframe-sent) mo_ss (string-stream (cat "")))
+(times 20 (. mo_top :tick +ros_step))
+(iframe-write mo_ss mo_top mo_sent)
+(defq mo_bytes (str mo_ss) mo_ss (string-stream (cat "")))
+(iframe-write mo_ss mo_top mo_sent)
+(assert-true "an outline is written once, the scene written again is fewer bytes" (< (length (str mo_ss)) (length mo_bytes)))
+(defq mo_outlines (list) mo_rs (string-stream mo_bytes))
+(iframe-outlines mo_rs mo_outlines)
+(defq mo_read (iframe-read mo_rs mo_outlines) mo_a (first (. mo_read :children)))
+(assert-list-eq "read back, it is at the step it was written at, of as many figures" '(20 2)
+	(list (get :ros_ticks mo_read) (length (. mo_read :children))))
+(assert-list-eq "what a figure keeps is kept" '(1 2.5 "three" :four) (get :kept_here mo_a))
+(assert-true "its outline is the same lines"
+	(eql (second (first (get :fig_outline mo_a))) (path 0.0 0.0 10.0 0.0 10.0 10.0)))
+(assert-eq "a child's link up is to the scene read" :t (eql (. mo_a :get_parent) mo_read))
+(times 100 (. mo_top :tick +ros_step) (. mo_read :tick +ros_step))
+(assert-list-eq "gone on 100 steps, each figure is where the one written is" (mo-if-places mo_top) (mo-if-places mo_read))
+(assert-eq "what a tween fires is fired, once by each" 2 mo_fired)
+(assert-eq "the figure tied is tied to the one read, 5 on from it" (+ 5.0 (get :fig_x mo_a))
+	(get :fig_x (second (. mo_read :children))))

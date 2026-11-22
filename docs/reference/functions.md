@@ -2762,8 +2762,8 @@ what it was told to do when it is over
 a child is started, the word that it has comes to the task mailbox.
 
 If the children are to be away from this node, and there is another,
-it is on one of the others, each in turn; if they are to be here, it
-is on this one
+it is on one of the others, each in turn, and off the nodes named too
+if there are others still; if they are to be here, it is on this one
 ```
 
 ### create-word
@@ -6488,6 +6488,193 @@ the order of their codes
 
 ```code
 every child that is up and has no job is given one
+```
+
+### iframe-as-made?
+
+```code
+(iframe-as-made? new k v) -> :t | :nil
+
+is what a figure has for a key what a new one has: nothing, the same
+number or symbol, or a list with nothing in it, the new one's own
+```
+
+### iframe-functions
+
+```code
+(iframe-functions) -> (map table)
+
+every function of Lisp a scene of this task can hold, and its number:
+those with a name in the task's env, in the order of their names,
+each followed by those written inside it, in the order they are come
+to. One named in another's code is that one, and is not gone into.
+map is from a function, (weak-ref), to its number, table is them by
+number. Made once
+```
+
+### iframe-in
+
+```code
+(iframe-in stream array) -> array
+
+an array (iframe-out) wrote, onto the end of the one given
+```
+
+### iframe-int
+
+```code
+(iframe-int) -> num
+```
+
+### iframe-join
+
+```code
+(iframe-join parts empty) -> array
+
+arrays of one kind made one
+```
+
+### iframe-kept
+
+```code
+(iframe-kept env) -> ((key val) ...)
+
+what of a figure or a component is written: not what is made again or
+found by the reader, and not what a new figure has as it is made
+```
+
+### iframe-kind
+
+```code
+(iframe-kind x) -> +iframe_kind
+
+what a thing a scene holds is made as
+```
+
+### iframe-lambda?
+
+```code
+(iframe-lambda? form) -> :t | :nil
+
+a function of Lisp, a list that begins lambda
+```
+
+### iframe-look
+
+```code
+(iframe-look outline) -> num
+
+a number that two outlines of the same lines have the same, from how
+many lines and points it has and where it begins and ends
+```
+
+### iframe-morphs?
+
+```code
+(iframe-morphs? env) -> :t | :nil
+
+a component that takes an outline to another: its 'to and 'from are
+outlines
+```
+
+### iframe-news
+
+```code
+(iframe-news) -> (rostrum figure)
+
+one of each as it is made, to know what of a scene's is as it was
+made and need not be written: a reader makes them so
+```
+
+### iframe-out
+
+```code
+an array, how many elements then the elements
+```
+
+### iframe-outlines
+
+```code
+(iframe-outlines stream outlines) -> outlines
+
+the outlines new with the I-frame the stream is at, each put in the
+list at its number. The stream is left at its scene, (iframe-read)
+```
+
+### iframe-put
+
+```code
+a value: nothing, a number, a symbol, a str, an array of numbers, a
+
+function, or one of the things of the scene by its number
+```
+
+### iframe-put-env
+
+```code
+a figure's or a component's keys and what each is. An outline by its
+
+number, a component's weak link to a figure by the figure's
+```
+
+### iframe-put-outline
+
+```code
+an outline, (closed path) each line: all of it the first time it is
+
+met, in any I-frame of this writer, its number after. One made again
+of the same lines, the same words said twice, is the one written
+```
+
+### iframe-put-sym
+
+```code
+a symbol, its name the first time, its number after
+```
+
+### iframe-read
+
+```code
+(iframe-read stream outlines) -> rostrum
+
+the scene of the I-frame the stream is at, its outlines read already,
+(iframe-outlines), and those of every I-frame before it
+```
+
+### iframe-same?
+
+```code
+(iframe-same? outline outline) -> :t | :nil
+
+the same lines, each closed or not as the other and of the same points
+```
+
+### iframe-sent
+
+```code
+(iframe-sent) -> sent
+
+what a writer has written of a scene's outlines, none yet: each by
+which it is, (weak-ref), those written, by number, those of a like
+look, to find one of the same lines made again, and all that have been
+met, held so that none is let go of and its place taken by another
+```
+
+### iframe-take
+
+```code
+(iframe-take) -> value
+
+the next value, as (iframe-put) wrote it
+```
+
+### iframe-write
+
+```code
+(iframe-write stream rostrum sent) -> stream
+
+the scene as it is now, on the stream, with the outlines no I-frame of
+this writer has had, sent, before it
 ```
 
 ### image-funcs
@@ -11558,6 +11745,15 @@ that started nodes of its own left one, a test that starts a node which
 starts six more, and nothing else clears it away. The files of the
 links they name go with them. A list of those still to look at, this
 does not call itself
+```
+
+### read-nums
+
+```code
+(read-nums stream bytes nums) -> :nil | nums
+
+so many bytes read onto the end of an array of numbers, as its
+elements, the array says of what kind. :nil at the stream's end
 ```
 
 ### read-source
@@ -19040,6 +19236,14 @@ with the app, the login app's of a session of a user say
 a word too long for a line, a file path or a link, as the parts that
 do fit. It is cut after a / _ - . or ) where it can be, and where a
 run between two of those is still too long, after any character
+```
+
+### write-nums
+
+```code
+(write-nums stream nums) -> bytes
+
+the elements of an array of numbers, as bytes. Of none, nothing
 ```
 
 ### x25519

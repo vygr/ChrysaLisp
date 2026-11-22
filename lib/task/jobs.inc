@@ -69,14 +69,16 @@
 (defun create (key val nodes)
 	;a child is started, the word that it has comes to the task mailbox.
 	;If the children are to be away from this node, and there is another,
-	;it is on one of the others, each in turn; if they are to be here, it
-	;is on this one
-	(defq mode +kn_call_run)
-	(when (eql (get :away this) :here)
+	;it is on one of the others, each in turn, and off the nodes named too
+	;if there are others still; if they are to be here, it is on this one
+	(defq mode +kn_call_run away (get :away this))
+	(when (eql away :here)
 		(setq mode +kn_call_pin nodes (list (task-nodeid))))
-	(when (eql (get :away this) :t)
+	(when (or (eql away :t) (list? away))
 		(defq me (task-nodeid)
-			others (filter (# (not (eql %0 me))) (lisp-nodes :t)))
+			others (filter (# (not (eql %0 me))) (lisp-nodes :t))
+			clear (if (list? away) (filter (# (not (find %0 away))) others) others))
+		(if (nempty? clear) (setq others clear))
 		;it is pinned there, a task that is only run on a node may be
 		;moved on by the kernel, to this one as likely as not
 		(if (nempty? others)
@@ -129,6 +131,10 @@
 	;task switch in it, holds up everything else on its node while it
 	;runs, and on the node of the app that is the app itself, its mail to
 	;the other children and from them, and the GUI if it is there.
+	;
+	;With an away that is a list of nodes they are kept off those too, if
+	;this machine has others still: a child that works flat out, kept off
+	;the node of another child that must be quick, the Motion demo's scout.
 	;
 	;With an away of :here they are kept on this node, and no other: a
 	;child that has the GPU do its work, and draws where the GUI of this

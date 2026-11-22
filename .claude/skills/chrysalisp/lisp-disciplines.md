@@ -846,6 +846,23 @@ new trap there with its test. Others to know:
 *	`(str-alloc n)` is not cleared, it holds what the memory last had: a
 	run of zero bytes is `(pad "" n "\x00")`.
 
+*	An array of numbers crosses a stream whole, never a number at a time:
+	`(write-nums stream array)` and `(read-nums stream bytes array)`,
+	`lib/streams/nums.inc`. Each number read by `read-long` and pushed is
+	boxed, 25 to 50 times slower. The parts they are made of: `(obj-set
+	(str-alloc n) +str_data n array)` is an array's elements as a str,
+	`obj-set` takes an array of numbers as its value, and `(push array
+	str)` takes a str's bytes as elements. `obj-get` and `obj-set` of an
+	array itself reach its own cell, its header, not its elements.
+
+*	An env kept in one of its own variables, `(defq *e* (env))`, is a
+	circle: it is never let go of and its task does not end, a `lisp`
+	script hangs at its last line. Keep `(weak-ref (env))` and `(obj-ref)`
+	it when it is wanted, `lib/motion/iframe.inc`.
+
+*	`(stream-seek stream offset whence)` gives the new place, a number,
+	not the stream: seek it as a step of its own, then read it.
+
 *	`get-short`, `get-int` and the other typed getters read memory at its
 	natural alignment, the VM's rule: a field of a file is at any place,
 	read it by `(code str width idx)`, `(code-be)` or `get-short-be` and

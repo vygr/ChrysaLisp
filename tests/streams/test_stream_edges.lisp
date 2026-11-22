@@ -142,3 +142,17 @@
 	(long-to-hex-str -1) "FFFFFFFFFFFFFFFF"
 	(length (num-to-utf8 0x20ac)) 3
 	(length (num-to-utf8 0x1f600)) 4)
+
+; --- an array of numbers written to a stream and read from one ---
+(import "lib/streams/nums.inc")
+(defq se_path (path 1.5 2.5 -3.25 1000000.125) se_ss (string-stream (cat "")))
+(write-long se_ss 77)
+(assert-eq "write-nums, the bytes of a path's elements" 32 (write-nums se_ss se_path))
+(assert-eq "of an array of none, nothing" 0 (write-nums se_ss (path)))
+(assert-eq "a floats is 4 bytes an element" 8 (write-nums se_ss (floats 1.5 2.5)))
+(defq se_rs (string-stream (str se_ss)))
+(assert-eq "a number before it" 77 (read-long se_rs))
+(assert-true "read-nums, the path again" (eql se_path (read-nums se_rs 32 (path))))
+(assert-eq "no bytes is the array as it was" 1 (length (read-nums se_rs 0 (path 9.0))))
+(assert-eq "onto the end of what an array has, a floats" 3 (length (read-nums se_rs 8 (floats 0.5))))
+(assert-eq "at the stream's end, none" :nil (read-nums se_rs 8 (path)))

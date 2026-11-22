@@ -13,23 +13,32 @@
 ;The scene is not here: it goes on in a child, ./child.lisp, a farm of one
 ;on another node of this machine, which draws each frame on the canvas,
 ;its pixels shared, and is given the next when it answers. Another child,
-;a farm of its own, runs the scene to its end to find its length. So
-;nothing of a scene, a seek or its length, holds up the window
+;a farm of its own, is a scout: it runs the scene ahead to its end, to find
+;its length, and every so many steps sends the child that draws the scene
+;as it is there, an I-frame, a place a seek starts from. It says how far it
+;has got as it goes: a bar of that is in front of the timeline till it is
+;done, the length known and the places to seek from made, and the scene
+;can be sought. So nothing of a scene, a seek or its length, holds up the
+;window
 
 (enums +event +event_user
 	(enum play pause home scene timeline))
 
 (enums +select 0
-	(enum main tip measure_task measure_reply timer))
+	(enum main tip scout_task scout_reply timer))
 
 (defq +width 640 +height 480 +rate (/ 1000000 60)
 	;the scenes, Balls the one with no end, played with and not sought
 	+scene_balls 1
-	;how long a child that finds a length is waited for
-	+measure_patience 60000000
-	id :t select :nil render :nil measurer :nil answer :nil playing :t
-	;the frames' child has started, and a length is to be found when it has
-	frames_up :nil measure_due :nil
+	;how long a scout may say nothing
+	+scout_patience 60000000
+	;about how many steps each scene is, what the bar of its first scan is
+	;of: after that it is of the length last found, kept with the config
+	+scene_steps ''(6824 0 10566) lengths :nil
+	id :t select :nil render :nil scout :nil answer :nil playing :t
+	;the frames' child has started, where a scout's I-frames are to go, the
+	;mailbox that child says, and a scout is to be started when both are
+	frames_up :nil player_box :nil scout_due :nil
 	;the scene: its number, its seed, how many steps long it is once that is
 	;known, the step the child last said it was at, and the step a seek is
 	;going to
@@ -53,7 +62,11 @@
 		(ui-label *status* (:text " 400 figures  100.0 tick  100.0 draw " :font :font_body
 				:flow_flags +flow_flag_align_vcenter))
 		(ui-backdrop _ (:paper :paper_toolbar)))
-	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 14)) :connect +event_timeline)
+	;where the scene is, dragged to seek; in front of it, till the scene's
+	;length is found, how far the child that finds it has got
+	(ui-flow _ (:flow_flags +flow_stack_fill)
+		(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 14)) :connect +event_timeline)
+		(ui-progress *scan* (:value 0 :maximum 1 :min_height 14)))
 	(ui-backdrop *picture* (:style :plain :paper +argb_black :ink +argb_black
 			:min_width (/ +width 2) :min_height (/ +height 2) :want_width +width :want_height +height)
 		(ui-element *canvas* (make-canvas +width +height))))
@@ -101,10 +114,12 @@
 
 (defun motion-job (kind)
 	; (motion-job kind) -> job
-	;a job for a child, of this scene: a frame of it, or its length
+	;a job for a child, of this scene: a frame of it, or a scout of it,
+	;with where its I-frames are to go
 	(setf-> (str-alloc +motion_job_size)
 		(+motion_job_kind kind) (+motion_job_scene scene) (+motion_job_seed seed)
-		(+motion_job_film (if (= scene +scene_balls) 0 1))))
+		(+motion_job_film (if (= scene +scene_balls) 0 1))
+		(+motion_job_iframes (ifn player_box (task-mbox)))))
 
 (defun frame-jobs (& & ready)
 	; (frame-jobs kind count ready) -> :nil | jobs
@@ -130,12 +145,21 @@
 	(setq given (pii-time))
 	(. render :frame))
 
+(defun scout-end ()
+	;the scout let go of
+	(setq scout (jobs-end scout select +select_scout_task +select_scout_reply)))
+
 (defun frame-answered (msg)
 	;the child has drawn a frame, the render has shown it: where the scene
 	;is now, on the bar unless the bar is being held, and the colour round
-	;the picture. A seek that has landed is over
-	(bind '(step figures paper tick draw) (getf-> msg +motion_reply_step +motion_reply_figures
-		+motion_reply_paper +motion_reply_tick +motion_reply_draw))
+	;the picture. A seek that has landed is over. And where it has a
+	;scout's I-frames sent: a mailbox not the one known is a child started
+	;again, with none of them, and a scout is started for it
+	(bind '(step figures paper tick draw box) (getf-> msg +motion_reply_step +motion_reply_figures
+		+motion_reply_paper +motion_reply_tick +motion_reply_draw +motion_reply_iframes))
+	(unless (eql box player_box)
+		(setq player_box box scout_due (/= scene +scene_balls))
+		(scout-end))
 	(setq at step)
 	(if (eql target step) (setq target :nil))
 	(def *picture* :paper paper)
@@ -155,52 +179,83 @@
 	(setq target step)
 	(if (. render :busy) (. render :drop)))
 
-(defun measure-end ()
-	;the child that finds a length let go of
-	(setq measurer (jobs-end measurer select +select_measure_task +select_measure_reply)))
+(defun scout-start ()
+	;a scout of the scene, once the frames' child is up and has said where
+	;I-frames are to go. It works flat out, so it is kept off this node,
+	;the window's, and off that child's, if the machine has another: on
+	;either it would be felt in the picture
+	(when (and scout_due frames_up player_box)
+		(setq scout_due :nil scout (Jobs (cat *app_root* "child.lisp")
+			(elem-get select +select_scout_task) (elem-get select +select_scout_reply) (list 1)
+			(list (task-nodeid player_box))))
+		(. scout :add (list (motion-job +motion_kind_scout)))))
 
-(defun measure-start ()
-	;a child that finds the scene's length, once the frames' child is up:
-	;then the kernel puts this one on the node of this machine with least
-	;to do, not that one's, which its farm has away from this node
-	(when (and measure_due frames_up)
-		(setq measure_due :nil measurer (Jobs (cat *app_root* "child.lisp")
-			(elem-get select +select_measure_task) (elem-get select +select_measure_reply) (list 1)))
-		(. measurer :add (list (motion-job +motion_kind_length)))))
+(defun scan-show (step)
+	; (scan-show step)
+	;how far the scout has got, on the bar in front of the timeline, of
+	;the length the scene last had; :nil, it is done, or the scene has no
+	;length, and the timeline is in front
+	(cond
+		(step (defq most (max 1 (elem-get lengths scene)))
+			(def (. *scan* :dirty) :maximum most :value (min step most))
+			(. *scan* :to_front))
+		((. (. *timeline* :dirty) :to_front))))
 
-(defun measured (msg)
-	;the child has found the scene's length, the bar is that long now and
-	;can be sought, and goes to where the scene is
-	(when (and measurer (. measurer :answered msg))
-		(setq steps (getf msg +motion_reply_step))
-		(def *timeline* :maximum (dec steps) :value (min (dec steps) at))
-		(. *timeline* :dirty_all)
-		(measure-end)))
+(defun scouted (msg)
+	;the scout has said how far it has got, and it is heard from, slow not
+	;gone: the bar in front shows it, while the scene's length is not
+	;known. Or it is done: the length is kept for the bar of the next scan,
+	;the timeline is that long now and can be sought, and goes to where the
+	;scene is. One started again for a child that draws started again has
+	;the same length to tell, and the timeline is left as it is
+	(cond
+		((not scout))
+		((/= 0 (getf msg +motion_reply_more))
+			(when (defq job (. scout :job msg))
+				(. scout :heard (slice job +job_size -1))
+				(unless steps (scan-show (getf msg +motion_reply_step)))))
+		((. scout :answered msg)
+			(unless steps
+				(setq steps (getf msg +motion_reply_step))
+				(elem-set lengths scene steps)
+				(def *timeline* :maximum (dec steps) :value (min (dec steps) at))
+				(scan-show :nil))
+			(scout-end))))
 
 (defun scene-new (&optional with_seed)
 	;a scene, a new seed for it or the one given, from its start, and a
-	;child that finds its length. Balls is played with, it has no end and
-	;is not sought
+	;scout of it. Balls is played with, it has no end and is not sought
 	(setq scene (. *scene_toolbar* :get_selected) seed (ifn with_seed (inc (random 1000000000)))
 		steps :nil at 0 target :nil)
-	;till the scene's length is known the bar has none, and its elevator
-	;is all of it: it can not be sought yet
+	;till the scene's length is known the timeline has none, its elevator
+	;is all of it and it can not be sought: the bar of the scan is in
+	;front of it, but for Balls, which has no length to find
 	(def *timeline* :value 0 :maximum 0)
-	(. *timeline* :dirty_all)
+	(scan-show (if (/= scene +scene_balls) 0))
 	(when select
-		(measure-end)
+		(scout-end)
 		(if (. render :busy) (. render :drop))
-		(setq measure_due (/= scene +scene_balls))
-		(measure-start)))
+		(setq scout_due (/= scene +scene_balls))
+		(scout-start)))
+
+(defun config-default ()
+	;the first time: :x :nil, the window put where the screen puts a new
+	;one, and each scene about as long as it was when this was written
+	(scatter (Emap) :version +config_version :x :nil :y :nil
+		:width +width :height +height :scene 0 :seed :nil :step 0 :playing :t
+		:lengths (cat +scene_steps)))
 
 (defun config-load ()
-	;as it was when last closed, or as it is the first time: :x :nil, the
-	;window put where the screen puts a new one
-	(setq *config* (with-read-lock *config_file*
-			(tree-load (file-stream *config_file*))))
-	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
-		(setq *config* (scatter (Emap) :version +config_version :x :nil :y :nil
-			:width +width :height +height :scene 0 :seed :nil :step 0 :playing :t))))
+	;as it was when last closed: the defaults with what was kept laid over
+	;them, so a key added since has its default. A file of a later version
+	;than this, or none, gives the defaults
+	(setq *config* (config-default))
+	(and (defq old (with-read-lock *config_file*
+				(tree-load (file-stream *config_file*))))
+		(<= (ifn (. old :find :version) 0) +config_version)
+		(. old :each (lambda (key val)
+			(unless (eql key :version) (. *config* :insert key val)))))
+	(setq lengths (. *config* :find :lengths)))
 
 (defun config-save ()
 	;the scene, its seed and the step it is at, or is being sought to,
@@ -209,7 +264,7 @@
 	(bind '(w h) (. *picture* :get_size))
 	(scatter *config* :x x :y y :width w :height h
 		:scene (. *scene_toolbar* :get_selected) :seed seed
-		:step (ifn target at) :playing playing)
+		:step (ifn target at) :playing playing :lengths lengths)
 	(with-write-lock *config_file*
 		(tree-save (file-stream *config_file* +file_open_write) *config*)))
 
@@ -260,7 +315,7 @@
 				(when answer
 					(frame-answered answer)
 					(setq answer :nil))
-				(measure-start)
+				(scout-start)
 				(and (not (. render :busy)) (>= (- (pii-time) given) +rate) (frame-give)))
 			((= idx +select_main)
 				(cond
@@ -288,17 +343,17 @@
 					((. *window* :event msg))))
 			((= idx +select_tip)
 				(. *window* :tip msg))
-			((= idx +select_measure_task)
-				(if measurer (. measurer :launched msg)))
-			((= idx +select_measure_reply)
-				(measured msg))
+			((= idx +select_scout_task)
+				(if scout (. scout :launched msg)))
+			((= idx +select_scout_reply)
+				(scouted msg))
 			(:t ;the timer, a frame a tick if the last is drawn, and the
 				;children's patience
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(unless (. render :busy) (frame-give))
 				(. render :tick)
-				(if measurer (. measurer :refresh +measure_patience)))))
+				(if scout (. scout :refresh +scout_patience)))))
 	(config-save)
-	(measure-end)
+	(scout-end)
 	(. render :close)
 	(. *window* :close))

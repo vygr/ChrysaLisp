@@ -105,6 +105,24 @@
 (assert-list-eq "a herd does the work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3))))
 (. jobs :close)
 
+;a child kept off this node and off the nodes named too, if this machine
+;has others still: one child, away from this node and the first of the
+;others
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox))
+	jt_others (filter (# (not (eql %0 (task-nodeid)))) (lisp-nodes :t))
+	jt_off (if (nempty? jt_others) (list (first jt_others)) (list)))
+(defq jobs (Jobs "tests/system/data/jobs_child.lisp"
+		(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(1) jt_off)
+	jt_msg (mail-read (elem-get jt_select +jt_task))
+	jt_node (task-nodeid (getf jt_msg +kn_msg_reply_id)))
+(. jobs :launched jt_msg)
+(assert-true "a child kept off this node and a node named, if there are others"
+	(or (< (length jt_others) 2) (not (or (eql jt_node (task-nodeid)) (find jt_node jt_off)))))
+(assert-true "on the node named if that is the only other, not on this one"
+	(or (/= (length jt_others) 1) (eql jt_node (first jt_others))))
+(assert-list-eq "and it works" '(2) (jt-run (map (const jt-work) '(1))))
+(. jobs :close)
+
 ;children kept away from this node, if this machine has another. New
 ;mailboxes, so that no word of a child of the farms before is taken for
 ;one of these
@@ -120,7 +138,6 @@
 (assert-true "none of them on this node, if there is another"
 	(or (<= (length (lisp-nodes :t)) 1) (notany (# (eql %0 (task-nodeid))) jt_nodes)))
 (assert-list-eq "and they work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3))))
-
 ;answers moved to another mailbox, and the old one let go of: work that is
 ;out is forgotten, and what it answers, late, comes nowhere
 (. jobs :add (map (const jt-work) '(20 21 22 23 24 25)))

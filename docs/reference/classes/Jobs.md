@@ -19,6 +19,10 @@ task switch in it, holds up everything else on its node while it
 runs, and on the node of the app that is the app itself, its mail to
 the other children and from them, and the GUI if it is there.
 
+With an away that is a list of nodes they are kept off those too, if
+this machine has others still: a child that works flat out, kept off
+the node of another child that must be quick, the Motion demo's scout.
+
 With an away of :here they are kept on this node, and no other: a
 child that has the GPU do its work, and draws where the GUI of this
 node shows it, lib/gpu/tris.inc.

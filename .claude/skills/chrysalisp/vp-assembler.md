@@ -414,6 +414,20 @@ the vtable may trash what any class called so does.
 	check runs: check before the args are moved, with the entry
 	`'(:r0 :r1)`, and move them after.
 
+*	`-sig`, `-match` and `-type` leave their answer in the name `tmp`,
+	which they bind to the register it comes back in, `:r2`, whatever
+	`vp-rdef` gave `tmp`: `(call ... '(& tmp))`. A value kept in `tmp`
+	after one is lost at the next call that loads `:r2` with an argument,
+	and a node dies as it starts with nothing said. Keep it in a name of
+	its own. Found by reading `obj/vp/class/obj/lisp.vp`, the VP the
+	function was made into, beside the last good one.
+
+*	A change to a core native is built and tried in a clone of the tree,
+	and a boot image that will not start is mended on the emulator, `echo
+	"make all boot" | ./run_tui.sh -e -n 4 -f`, which remakes this
+	machine's native code alone: the emulator's `(cpu)` and `(abi)` are
+	the host's.
+
 *	An entry or exit change is proved by the binary: build the old and new
 	trees each with `make all platforms boot` and `diff -rq` every
 	`obj/<cpu>`; only `sys/boot_id`, a hash of the VP source, may differ.
