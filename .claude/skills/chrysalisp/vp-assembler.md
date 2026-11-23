@@ -719,6 +719,12 @@ validate` with no `boot` gives a system that works.
 	and `(third :nil)` is "i", both true. Test a thing is there before
 	taking a part of it.
 
+*	`ascii-code` is a macro, `(num (code %0))` of the form as written:
+	`(ascii-code "m")` is 109, but in `(# (gotoif (list r '= (ascii-code
+	%0)) 'l))` it is the code of the symbol `%0`, 37 for `%`, every
+	compare the same. Of a value, use `(code %0)`. To see what a form
+	really emits, read the function's VP in `obj/vp/<path>.vp`.
+
 *	`(# ...)` with no `%0` in it takes no arguments. Given to `each`, `some`
 	or `sort` it fails. Use `(lambda (x) ...)`.
 
