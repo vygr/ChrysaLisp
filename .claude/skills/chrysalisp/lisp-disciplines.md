@@ -277,6 +277,12 @@ core language primitives. Shadowing them breaks lexical/global lookups and
 introduces subtle bugs. Always use descriptive names (e.g. `coin_sym`,
 `item_name`, `val_str`).
 
+What every task has with no import is `class/lisp/root.inc` and what it
+imports, `lib/text/searching.inc` among them, so `found?` and the other
+searching functions need none. A function not found by a grep of
+`root.inc` for its `defun` may still be there: `(lambda-func? name)` or
+`(func? name)` in a node is the answer, not a grep.
+
 ## Sensible Line Wrapping for `defq`, `setq`, and `bind`
 
 Keep code readable within ~80-100 columns. Avoid both extreme vertical
