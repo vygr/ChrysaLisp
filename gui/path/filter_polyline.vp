@@ -31,6 +31,10 @@
 
 	;the end and the begin of the source, as two on the stack of vectors
 	(class/array/get_both :r4 :r1 :r0)
+	;whole points only, a lone last number is left out
+	(vp-sub-rr :r1 :r0)
+	(vp-and-cr (- 0 (* +long_size 2)) :r0)
+	(vp-add-rr :r1 :r0)
 	(vec-set 2)
 	(vec-dup 2)
 	(vec-dif 2)

@@ -29,3 +29,12 @@
 (bind '((bx by) (bx1 by1)) (vector-bounds-2d (path-stroke-polygons (list) 10.0 +join_miter box)))
 (assert-true "a mitred square" (every (# (< (abs (- %0 %1)) 0.05))
 		'(-10.0 -10.0 110.0 110.0) (list bx by bx1 by1)))
+
+;a path of an odd number of numbers is stroked as the path without its
+;lone last, where the stroke read past its end and took the node down
+(assert-eq "a polygon of an odd path, stroked as the even"
+	(str (path-stroke-polygon (path 0.0 0.0 30.0 0.0 0.0 30.0) 2.0 +join_miter))
+	(str (path-stroke-polygon (path 0.0 0.0 30.0 0.0 0.0 30.0 99.0) 2.0 +join_miter)))
+(assert-eq "a polyline of one"
+	(str (path-stroke-polyline (path 0.0 0.0 30.0 0.0 0.0 30.0) 2.0 +join_miter +cap_butt +cap_butt))
+	(str (path-stroke-polyline (path 0.0 0.0 30.0 0.0 0.0 30.0 99.0) 2.0 +join_miter +cap_butt +cap_butt)))

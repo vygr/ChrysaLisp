@@ -17,6 +17,10 @@
 	(entry :path :mat3x2_v2_mul `(,this ,iter_begin ,m00))
 
 	(class/array/get_both iter_begin iter_begin iter_end)
+	;whole points only, a lone last number is left out
+	(vp-sub-rr iter_begin iter_end)
+	(vp-and-cr (- 0 (* +long_size 2)) iter_end)
+	(vp-add-rr iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(assign `((,this +array_begin)) `(,iter_this))
 		(array-bind-args m00 `(,m00 ,m01 ,m02 ,m10 ,m11 ,m12))

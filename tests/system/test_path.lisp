@@ -55,3 +55,16 @@
 (assert-eq "a square closed, 40 round, is two dashes of 10 and two gaps" 2 (length pa_square))
 (assert-list-eq "and the last side is dashed too" '(10 10 0 10) (map (# (n2i (+ %0 0.5))) (second pa_square)))
 (assert-eq "a single point is no dashes" 0 (length (path-dash (path 1.0 1.0) 4.0 4.0)))
+
+;what took a node down, 2026-11-23: an arc of a radius less than 0 divided
+;without end, and an odd number of numbers read or wrote past the path's
+;end. An arc of one adds nothing, and the lone last number is left out
+(assert-eq "an arc of a radius less than 0 adds nothing" 2
+	(length (path-gen-arc 10.0 10.0 0.0 +fp_2pi -4.0 (path 1.0 2.0))))
+(assert-true "and of 0, a point, something" (> (length (path-gen-arc 10.0 10.0 0.0 +fp_2pi 0.0 (path))) 0))
+(assert-list-eq "a matrix over an odd path, its lone last as it was" '(11.0 22.0 13.0 24.0 5.0)
+	(mat3x2-vec2-mul (mat3x2 1.0 0.0 10.0 0.0 1.0 20.0) (path 1.0 2.0 3.0 4.0 5.0) (path 1.0 2.0 3.0 4.0 5.0)))
+(assert-list-eq "simplify of an odd path, the even" '(0.0 0.0 1.0 3.0 2.0 0.0 3.0 3.0 4.0 0.0)
+	(path-simplify 0.1 (path 0.0 0.0 1.0 3.0 2.0 0.0 3.0 3.0 4.0 0.0 9.0) (path)))
+(assert-list-eq "a filter of an odd path, the even" '(0.0 0.0 1.0 3.0 2.0 0.0)
+	(path-filter 0.1 (path 0.0 0.0 1.0 3.0 2.0 0.0 9.0) (path)))

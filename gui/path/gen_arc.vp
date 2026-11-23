@@ -24,8 +24,13 @@
 			(int a1 a2 ah))
 		(int radius))
 
-	(vp-alloc slot_size)
 	(entry :path :gen_arc '(:r0 :r1 :r2 :r3 :r4 :r5))
+	;a radius less than 0 is no arc, nothing added
+	(vpif '(:r5 < 0))
+		(exit :path :gen_arc '(:r0))
+		(vp-ret)
+	(endif)
+	(vp-alloc slot_size)
 	(save-fields :rsp '(slot_this slot_cx slot_cy slot_a1 slot_a2 slot_radius) '(:r0 :r1 :r2 :r3 :r4 :r5))
 
 	(vec-set 0)

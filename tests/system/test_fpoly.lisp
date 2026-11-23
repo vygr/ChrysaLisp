@@ -164,3 +164,23 @@
 (def fp_label :font fp_font :text fp_long)
 (assert-true "so it wants no more width than that much of it has"
 	(= (first (. fp_label :constraint)) (first (font-glyph-bounds fp_font (slice fp_long 0 512)))))
+
+;a path of an odd number of numbers, its lone last left out, fills what
+;the path without it does, where the fill read past its end; and a canvas
+;of a size less than 0 is refused, where it took the node down
+(defun fp-odd (flags)
+	(defq canvas (Canvas 20 20 1) stream (memory-stream))
+	(. canvas :set_canvas_flags flags)
+	(.-> canvas (:set_color +argb_white)
+		(:fpoly 0.0 0.0 +winding_odd_even (list (path 5.0 5.0 15.0 5.0 15.0 15.0 5.0 15.0 99.0))))
+	(pixmap-write (getf canvas +canvas_pixmap 0) stream 32)
+	(stream-seek stream 0 0)
+	(defq d (read-blk stream 1000000))
+	(list (map! (# (logand (get-uint d (+ (- (length d) 1600) (* 4 (+ 200 (!))))) 0xff)) '() 0 20)))
+(assert-eq "an odd path fills as the path without its last number, hard edges"
+	(str (first (fp-draw 0 5.0 5.0 15.0 15.0))) (str (first (fp-odd 0))))
+(assert-eq "and soft" (str (first (fp-draw 1 5.0 5.0 15.0 15.0))) (str (first (fp-odd 1))))
+(assert-true "a canvas of a width less than 0 is refused" (catch (progn (Canvas -50 10 1) :nil) :t))
+(assert-true "of a height less than 0" (catch (progn (Canvas 10 -100 1) :nil) :t))
+(assert-true "of a scale less than 1" (catch (progn (Canvas 10 10 0) :nil) :t))
+(assert-true "but of no size it is made" (Canvas 0 0 1))

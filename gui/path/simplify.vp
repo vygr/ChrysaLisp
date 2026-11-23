@@ -32,6 +32,8 @@
 
 	;any point doing anything ?
 	(d-call :path :get_length '(:r1) '(& :r1))
+	;whole points only, a lone last number is left out
+	(vp-and-cr -2 :r1)
 	(vpif '(:r1 <= 4))
 		;just append to output
 		(d-call :path :append '((:rsp slot_this) (:rsp slot_that) 0 :r1))

@@ -19,15 +19,22 @@
 
 	(gotoif-lisp-args-sig 'error :r1 3)
 
-	(vp-push :r0)
+	(vp-push :r0 :r1)
 	(defq in (method-input :canvas :create))
 	(list-bind-args :r1 in '(:num :num :num))
+	;no size less than 0, no scale less than 1
+	(bind '(w h s) in)
+	(gotoif `(,w < 0) 'error1)
+	(gotoif `(,h < 0) 'error1)
+	(gotoif `(,s < 1) 'error1)
 	(call :canvas :create in '(:r1))
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit :canvas :lisp_create '(:r0 :r1))
 	(vp-ret)
 
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(create-canvas width height scale)" +error_msg_wrong_types))
 	(signature '(:NUM :NUM :NUM))
