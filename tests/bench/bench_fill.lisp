@@ -35,3 +35,41 @@
 		(bench (cat "a box of 400 across, " name ", odd even") 500
 			(times 500 (.-> bf_canvas (:set_color +argb_white) (:fpoly 0.0 0.0 +winding_odd_even bf_box)))))
 	'("hard" "soft") (list 0 +canvas_flag_antialias))
+
+;the box fill, :fbox, a row at a time to the span with no :fpoly: one
+;big box, and many small ones, where the span is called for few pixels
+(. bf_canvas :set_canvas_flags 0)
+(bench "a box of 400 across, :fbox" 500
+	(times 500 (.-> bf_canvas (:set_color +argb_white) (:fbox 56 56 400 400))))
+(bench "boxes of 4 across, :fbox, each box" (* 50 1024)
+	(times 50 (. bf_canvas :set_color +argb_white)
+		(each! (# (. bf_canvas :fbox (* 16 (logand (!) 31)) (* 16 (>> (!) 5)) 4 4)) '() 0 1024)))
+
+;a field of small soft discs, nearly all edge: a run of one pixel to the
+;span for most of what is drawn, what costs most for a call each run
+(defq bf_dots (map! (# (path-gen-arc (n2q (+ 8 (* 16 (logand (!) 31)))) (n2q (+ 8 (* 16 (>> (!) 5))))
+		0.0 +fp_2pi 4.0 (path))) '() 0 1024))
+(. bf_canvas :set_canvas_flags +canvas_flag_antialias)
+(bench "discs of 8 across, soft, each disc" (* 20 1024)
+	(times 20 (.-> bf_canvas (:set_color +argb_white) (:fpoly 0.0 0.0 +winding_odd_even bf_dots))))
+
+;a paint against the solid color, the same disc: the cost of the paint
+;span, a row of colors made then blended, over the one color. The paint
+;is set the once, its table of colors made in Lisp, timed on its own
+(defq bf_stops '((0.0 0xffff4040) (0.5 0xffffff40) (1.0 0xff4040ff)))
+(bench "a linear gradient set, its 256 colors made" 50
+	(times 50 (. bf_canvas :set_linear 56.0 56.0 456.0 456.0 bf_stops)))
+(bench "a radial gradient set, its 256 colors made" 50
+	(times 50 (. bf_canvas :set_radial 256.0 256.0 200.0 bf_stops)))
+(each (lambda (name flags)
+		(. bf_canvas :set_canvas_flags flags)
+		(. bf_canvas :set_linear 56.0 56.0 456.0 456.0 bf_stops)
+		(bench (cat "a disc of 400 across, " name ", a linear gradient") 500
+			(times 500 (. bf_canvas :fpoly 0.0 0.0 +winding_odd_even bf_disc)))
+		(bench (cat "a box of 400 across, " name ", :fbox, a linear gradient") 500
+			(times 500 (. bf_canvas :fbox 56 56 400 400)))
+		(. bf_canvas :set_radial 256.0 256.0 200.0 bf_stops)
+		(bench (cat "a disc of 400 across, " name ", a radial gradient") 500
+			(times 500 (. bf_canvas :fpoly 0.0 0.0 +winding_odd_even bf_disc))))
+	'("hard" "soft") (list 0 +canvas_flag_antialias))
+(. bf_canvas :set_color +argb_white)
