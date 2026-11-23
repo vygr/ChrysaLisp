@@ -372,16 +372,27 @@
 
 	(gotoif-lisp-args-sig 'error :r1 5)
 
-	(vp-push :r0)
+	(vp-push :r0 :r1)
 	(defq in (method-input :canvas :fpoly))
 	(list-bind-args :r1 in '(:canvas :fixed :fixed :num :list))
+	;each path of whole points, x and y
+	(class/array/get_both :r4 :r5 :r6)
+	(loop-while '(:r5 /= :r6))
+		(assign '((:r5 0)) '(:r7))
+		(assign '((:r7 +array_length)) '(:r7))
+		(vp-and-cr 1 :r7)
+		(gotoif '(:r7 /= 0) 'error1)
+		(vp-add-cr +ptr_size :r5)
+	(loop-end)
 	(call :canvas :fpoly in '(:r0))
 	(call :obj :ref '(:r0) '(:r1))
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit :canvas :lisp_fpoly '(:r0 :r1))
 	(vp-ret)
 
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(canvas-fpoly canvas x y mode list)" +error_msg_wrong_types))
 	(signature '(:CANVAS :FIXED :FIXED :NUM :LIST))

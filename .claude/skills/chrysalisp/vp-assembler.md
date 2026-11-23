@@ -653,6 +653,13 @@ file at once.
 	on one, take the line out, let the node's timeout end it, build, put it
 	back.
 
+*	**Errors are checked in the binding, never in the method:** the policy
+	of `docs/ai_digest/exceptions.md`, read before guarding anything. The
+	inner core checks nothing; the `lisp_*` function an `ffi` names checks
+	what Lisp gave it, a type, a size, a path of whole points, and raises
+	the error by `:lisp :repl_error`. A crash found from Lisp is mended in
+	the binding, never by a test in the method.
+
 *	**Kept natives are not stamped.** The loader translates a function
 	that has no native and keeps the result at `obj/<cpu>/<abi>/<path>`,
 	loaded as found by the next node. `make` retranslates when the

@@ -69,6 +69,11 @@
 	(list-bind-args :r1 `(,m3x2 ,sp ,dst) '(:fixeds :path :path))
 	(assign `((,m3x2 +array_length)) '(:r14))
 	(gotoif '(:r14 < 6) 'error1)
+	;a src of whole points, and a dst as long
+	(assign `((,sp +array_length) (,dst +array_length)) '(:r13 :r14))
+	(gotoif '(:r14 < :r13) 'error1)
+	(vp-and-cr 1 :r13)
+	(gotoif '(:r13 /= 0) 'error1)
 	(call :path :mat3x2_v2_mul `(,dst ,sp ,m3x2) '(:r0))
 	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0 :r2)
@@ -98,16 +103,22 @@
 
 	(gotoif-lisp-args-sig 'error :r1 3)
 
-	(vp-push :r0)
+	(vp-push :r0 :r1)
 	(bind '(dst src tol) (method-input :path :simplify))
 	(list-bind-args :r1 `(,tol ,src ,dst) '(:fixed :path :path))
+	;a src of whole points
+	(assign `((,src +array_length)) '(:r3))
+	(vp-and-cr 1 :r3)
+	(gotoif '(:r3 /= 0) 'error1)
 	(call :path :simplify `(,dst ,src ,tol) '(:r0))
 	(call :obj :ref '(:r0) '(:r1))
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit :path :lisp_simplify '(:r0 :r1))
 	(vp-ret)
 
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-simplify tol src dst)" +error_msg_wrong_types))
 	(signature '(:FIXED :PATH :PATH))
@@ -128,16 +139,22 @@
 
 	(gotoif-lisp-args-sig 'error :r1 3)
 
-	(vp-push :r0)
+	(vp-push :r0 :r1)
 	(bind '(dst sp tol) (method-input :path :filter_polyline))
 	(list-bind-args :r1 `(,tol ,sp ,dst) '(:fixed :path :path))
+	;a src of whole points
+	(assign `((,sp +array_length)) '(:r3))
+	(vp-and-cr 1 :r3)
+	(gotoif '(:r3 /= 0) 'error1)
 	(call :path :filter_polyline `(,dst ,sp ,tol) '(:r0))
 	(call :obj :ref '(:r0) '(:r1))
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit :path :lisp_filter '(:r0 :r1))
 	(vp-ret)
 
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-filter tol src dst)" +error_msg_wrong_types))
 	(signature '(:FIXED :PATH :PATH))
@@ -220,17 +237,21 @@
 
 	(gotoif-lisp-args-sig 'error :r1 6)
 
-	(vp-push :r0)
+	(vp-push :r0 :r1)
 	(bind '(dst cx cy start end radius) (method-input :path :gen_arc))
 	(list-bind-args :r1 `(,cx ,cy ,start ,end ,radius ,dst)
 		'(:fixed :fixed :fixed :fixed :fixed :path))
+	;a radius not less than 0
+	(gotoif `(,radius < 0) 'error1)
 	(call :path :gen_arc `(,dst ,cx ,cy ,start ,end ,radius) '(:r0))
 	(call :obj :ref '(:r0) '(:r1))
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit :path :lisp_gen_arc '(:r0 :r1))
 	(vp-ret)
 
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-gen-arc cx cy start end radius dst)" +error_msg_wrong_types))
 	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :PATH))
@@ -251,15 +272,21 @@
 
 	(gotoif-lisp-args-sig 'error :r1 5)
 
-	(vp-push :r0)
+	(vp-push :r0 :r1)
 	(defq in (method-input :path :stroke_polyline))
 	(list-bind-args :r1 in '(:path :fixed :num :num :num))
+	;a path of whole points
+	(assign '((:r0 +array_length)) '(:r5))
+	(vp-and-cr 1 :r5)
+	(gotoif '(:r5 /= 0) 'error1)
 	(call :path :stroke_polyline in '(& :r1))
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit :path :lisp_stroke_polyline '(:r0 :r1))
 	(vp-ret)
 
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-stroke-polyline path radius join cap1 cap2)" +error_msg_wrong_types))
 	(signature '(:PATH :FIXED :NUM :NUM :NUM))
@@ -280,17 +307,23 @@
 
 	(gotoif-lisp-args-sig 'error :r1 3)
 
-	(vp-push :r0)
+	(vp-push :r0 :r1)
 	(defq in (method-input :path :stroke_polygon))
 	(list-bind-args :r1 in '(:path :fixed :num))
+	;a path of whole points
+	(assign '((:r0 +array_length)) '(:r5))
+	(vp-and-cr 1 :r5)
+	(gotoif '(:r5 /= 0) 'error1)
 	(call :path :stroke_polygon in '(& :r12 :r13))
 	(call :list :create :nil '(:r0))
 	(call :list :push_back2 '(:r0 :r12 :r13) '(:r1 & & & &))
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit :path :lisp_stroke_polygon '(:r0 :r1))
 	(vp-ret)
 
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-stroke-polygon path radius join)" +error_msg_wrong_types))
 	(signature '(:PATH :FIXED :NUM))

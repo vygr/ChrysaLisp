@@ -53,10 +53,6 @@
 	(loop-while '(:r1 /= :r2))
 		(assign '(:r1 (:r1 0)) '((:rsp slot_iter_begin_polygons) :r1))
 		(class/array/get_both :r1 :r1 :r2)
-		;whole points only, a lone last number is left out
-		(vp-sub-rr :r1 :r2)
-		(vp-and-cr (- 0 (* +long_size 2)) :r2)
-		(vp-add-rr :r1 :r2)
 		(save-fields :rsp '(slot_iter_begin_polygon slot_iter_end_polygon) '(:r1 :r2))
 		(vp-sub-rr :r1 :r2)
 		(load-fields :rsp '(slot_this slot_length) '(:r0 :r1))
