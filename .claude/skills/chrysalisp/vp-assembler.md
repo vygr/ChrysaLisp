@@ -37,6 +37,7 @@ Part of the `chrysalisp` skill. Read this in full before writing or changing a
 
 *	[A Slot Is Memory, And No Passes](#a-slot-is-memory-and-no-passes)
 
+*	[Every Load And Store Naturally Aligned](#every-load-and-store-naturally-aligned)
 *	[Boot Image Functions Run From The Image](#boot-image-functions-run-from-the-image)
 
 *	[A New Native And Its `ffi`](#a-new-native-and-its-ffi)
@@ -579,6 +580,32 @@ wanted after a call.
 	`make` writes what it compiles to `obj/`, and wrong natives there stop
 	every session. Only sources whose VP comes out the same, or was read
 	and understood, come back.
+
+## Every Load And Store Naturally Aligned
+
+The VP's rule, the user's, 2026-11-22 and again 2026-11-23: a load or a
+store of 2, 4 or 8 bytes is at an address of 2, 4 or 8. Of a file's, a
+packet's or a caller's bytes at any place, it is bytes one at a time, or
+a copy to the stack first (`sys/crypto/aead_open`), or bytes up to a
+place of 8 and then 8 at a time (`gui/canvas/fpoly`). A table of the code
+of a function is put on its place by `(vp-align +int_size)` before its
+label.
+
+*	Why, as the CPUs are: x86-64 never faults; arm64 does not for an
+	ordinary load or store of user code, only for its atomics. A RISC-V
+	core may fault, the ISA lets it, and on Linux firmware or the kernel
+	then does it in software, hundreds of times slower; a LoongArch core
+	without it in hardware raises an address error, that the kernel
+	does the same for. A misaligned atomic fails on all of them. So
+	broken, it is slow on real RISC-V, not wrong, and on the M4 and the
+	x64 nothing shows.
+
+*	Nothing of ours shows it but `./run_tui.sh -V`, the VP64 emulator
+	validating: QEMU's user mode, as the RISC-V and LoongArch suites run,
+	does a misaligned access without a word, and so does the emulator
+	without `-V`. Prove a change both ways, the dev-cycle skill's point
+	6: the code as it was says `VP64 UNALIGNED` with the place, as it is
+	says nothing.
 
 ## Boot Image Functions Run From The Image
 

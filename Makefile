@@ -222,13 +222,17 @@ endif
 #the snapshot carries the Windows host program, which Windows does not
 #build. snapshot_host is the hash of the host source it was built from,
 #a line a file, its path and its sha256, and tests/system/test_snapshot.lisp
-#fails while src/host is other than that
+#fails while src/host is other than that. And beside the VP64 image the
+#id of the translator it holds, sys/trans_id, which only a make of the
+#image writes: an install unzips the image and makes no other, and with
+#no id an emulated node trusts none of the code the install kept for it
 snapshot:
 	@rm -f snapshot.zip
 	@for f in `ls src/host | LC_ALL=C sort`; do echo "src/host/$$f `shasum -a 256 < src/host/$$f | cut -d' ' -f1`"; done \
 		| shasum -a 256 | cut -d' ' -f1 > snapshot_host
 	@zip -9q snapshot.zip \
 		obj/vp64/VP64/sys/boot_image \
+		obj/vp64/VP64/sys/trans_id \
 		`find obj -name "chrysalisp.exe"`
 
 inst:

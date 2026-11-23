@@ -20,4 +20,19 @@
 ;passed is a growth to look at, and only then raised
 (defq sn_size (length (load "snapshot.zip")))
 (assert-true (cat "snapshot.zip is under 192KB, it is " (str (/ sn_size 1024)) "KB, look at what grew") (< sn_size (* 192 1024)))
-(undef (env) 'sn_files 'sn_lines 'sn_now 'sn_made 'sn_size)
+
+;the id of the translator its VP64 image holds is beside it, so the code
+;an install keeps for an emulated node is trusted: the tree's own, when
+;its image is the tree's and this machine made that image itself. One
+;installed from a snapshot of before has the image and no id of it
+(import "lib/files/zip.inc")
+(defq sn_zip (load "snapshot.zip") sn_list (zip-list sn_zip)
+	sn_get (lambda (name)
+		(defq ss (string-stream (cat "")))
+		(and sn_list (defq e (zip-find sn_list name)) (zip-read sn_zip e ss) (str ss))))
+(defq sn_tid (sn_get "obj/vp64/VP64/sys/trans_id"))
+(assert-true "the snapshot has the id of the translator of its VP64 image" (and sn_tid (> (length sn_tid) 0)))
+(and (load "obj/vp64/VP64/sys/trans_id")
+	(eql (sn_get "obj/vp64/VP64/sys/boot_image") (load "obj/vp64/VP64/sys/boot_image"))
+	(assert-eq "and of the tree's, its image being the tree's" (load "obj/vp64/VP64/sys/trans_id") sn_tid))
+(undef (env) 'sn_files 'sn_lines 'sn_now 'sn_made 'sn_size 'sn_zip 'sn_list 'sn_get 'sn_tid)
