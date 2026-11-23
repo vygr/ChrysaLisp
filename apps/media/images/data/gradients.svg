@@ -28,7 +28,13 @@
 		</linearGradient>
 		<linearGradient id="band_pad" xlink:href="#band" spreadMethod="pad"/>
 		<linearGradient id="band_reflect" xlink:href="#band" spreadMethod="reflect"/>
-		<linearGradient id="band_repeat" xlink:href="#band" spreadMethod="repeat"/>
+		<!-- a repeat of stops that come back round, so it has no step -->
+		<linearGradient id="band_repeat" xlink:href="#band" spreadMethod="repeat">
+			<stop offset="0" stop-color="#ff3d6e"/>
+			<stop offset="0.35" stop-color="#ffd23f"/>
+			<stop offset="0.7" stop-color="#3ec1ff"/>
+			<stop offset="1" stop-color="#ff3d6e"/>
+		</linearGradient>
 		<!-- rings, and the three spreads of them -->
 		<radialGradient id="ring" r="0.2">
 			<stop offset="0" stop-color="#2af5c4"/>
@@ -37,7 +43,12 @@
 		</radialGradient>
 		<radialGradient id="ring_pad" xlink:href="#ring" spreadMethod="pad"/>
 		<radialGradient id="ring_reflect" xlink:href="#ring" spreadMethod="reflect"/>
-		<radialGradient id="ring_repeat" xlink:href="#ring" spreadMethod="repeat"/>
+		<radialGradient id="ring_repeat" xlink:href="#ring" spreadMethod="repeat">
+			<stop offset="0" stop-color="#2af5c4"/>
+			<stop offset="0.4" stop-color="#2058ff"/>
+			<stop offset="0.7" stop-color="#1a1240"/>
+			<stop offset="1" stop-color="#2af5c4"/>
+		</radialGradient>
 		<!-- balls, a light off centre and a shadow, over a color of their own -->
 		<radialGradient id="ball_red" cx="0.38" cy="0.35" r="0.7">
 			<stop offset="0" stop-color="#ffb0a0"/>
@@ -71,9 +82,8 @@
 		<linearGradient id="stripes" x1="0" y1="0" x2="0.125" y2="0" spreadMethod="repeat"
 			gradientTransform="rotate(35 0.5 0.5)">
 			<stop offset="0" stop-color="#ffffff"/>
-			<stop offset="0.5" stop-color="#ffffff"/>
 			<stop offset="0.5" stop-color="#e83a5a"/>
-			<stop offset="1" stop-color="#e83a5a"/>
+			<stop offset="1" stop-color="#ffffff"/>
 		</linearGradient>
 		<!-- glass, a sheen of white that fades -->
 		<linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
