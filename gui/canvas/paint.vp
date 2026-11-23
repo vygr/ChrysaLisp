@@ -79,11 +79,10 @@
 
 (def-func-end)
 
-;what a span carries along its run, and how: the table step of each pixel
-;of a linear, and the u of a radial, as a line is drawn, a quotient and a
-;remainder, each worked out again for the first pixel of every run from
-;integers of the fixed inputs, so nothing is rounded and nothing drifts,
-;as :ftri did its edges
+;what a gradient's span carries along its run: where each pixel is in the
+;gradient's own space, u and v, of a matrix of the pixel, 32 bits of
+;fraction, worked out again for the first pixel of every run, so nothing
+;is carried from run to run, and stepped along it
 
 (defun paint-index (i spread tmp)
 	;a table step, any integer, made one of the 256 by the spread: pad keeps
@@ -102,26 +101,21 @@
 		(vp-and-cr 255 i)
 	(endif))
 
-(defun paint-floor (n d q r)
-	;q and r the floor quotient and remainder of n by d, d more than 0, r
-	;from 0 to below d
-	(vp-cpy-rr n q)
-	(vp-div-rr d q)
-	(vp-cpy-rr q r)
-	(vp-mul-rr d r)
-	(vp-sub-rr n r)
-	(vp-mul-cr -1 r)
-	(vpif `(,r < 0))
-		(vp-sub-cr 1 q)
-		(vp-add-rr d r)
-	(endif))
-
 (defun paint-row (out x x1 paint)
 	;out the row of the paint, x to x1, x1 made its end
 	(vp-sub-rr x x1)
 	(vp-shl-cr (log2 +int_size) x1)
 	(vp-lea-rcr paint +paint_row out)
 	(vp-add-rr out x1))
+
+(defun paint-at (row x y out)
+	;out a row of the matrix, r0 + rx x + ry y, of the pixel x y, :r0 to
+	;:r1 its scratch
+	(assign `((:r2 ,(first row)) (:r2 ,(second row)) (:r2 ,(third row))) `(,out :r0 :r1))
+	(vp-mul-rr x :r0)
+	(vp-mul-rr y :r1)
+	(vp-add-rr :r0 out)
+	(vp-add-rr :r1 out))
 
 (def-method :canvas :span_linear)
 	;inputs
@@ -133,10 +127,10 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r9
 	;info
-	;of the paint, a0 + ax x + ay y is 256 t times b0, exactly, and the
-	;step of a pixel is that by ax: b0 into ax is bx, by over
+	;t is u, a0 + ax x + ay y of the paint, and the step of the 256 its
+	;top 8 bits of fraction
 
 	(entry :canvas :span_linear '(:r0 :r1 :r7 :r8 :r9))
 
@@ -144,30 +138,19 @@
 		(vp-push :r0 :r1 :r7 :r8 :r9)
 		(assign '((:r0 +canvas_span_data)) '(:r2))
 		(vp-add-cr +str_data :r2)
-		;:r3 the numerator of the first pixel, :r6 its denominator
-		(assign '((:r2 +paint_a0) (:r2 +paint_ax) (:r2 +paint_ay) (:r2 +paint_b0)) '(:r3 :r4 :r5 :r6))
-		(vp-mul-rr :r7 :r4)
-		(vp-mul-rr :r8 :r5)
-		(vp-add-rr :r4 :r3)
-		(vp-add-rr :r5 :r3)
-		;:r10 the step and :r11 what is over, :r12 and :r13 what a pixel adds
-		(paint-floor :r3 :r6 :r10 :r11)
-		(assign '((:r2 +paint_bx) (:r2 +paint_by) (:r2 +paint_spread)) '(:r12 :r13 :r14))
+		(paint-at '(+paint_a0 +paint_ax +paint_ay) :r7 :r8 :r3)
+		(assign '((:r2 +paint_ax) (:r2 +paint_spread)) '(:r4 :r6))
 		(paint-row :r7 :r7 :r9 :r2)
 		(loop-start)
-			(vp-cpy-rr :r10 :r1)
-			(paint-index :r1 :r14 :r8)
+			(vp-cpy-rr :r3 :r1)
+			(vp-asr-cr 24 :r1)
+			(paint-index :r1 :r6 :r8)
 			(vp-shl-cr (log2 +int_size) :r1)
 			(vp-add-rr :r2 :r1)
 			(vp-load-rcr-ui :r1 +paint_lut :r5)
 			(vp-store-rrc-i :r5 :r7 0)
 			(vp-add-cr +int_size :r7)
-			(vp-add-rr :r12 :r10)
-			(vp-add-rr :r13 :r11)
-			(vpif '(:r11 >= :r6))
-				(vp-add-cr 1 :r10)
-				(vp-sub-rr :r6 :r11)
-			(endif)
+			(vp-add-rr :r4 :r3)
 		(loop-until '(:r7 = :r9))
 		(vp-pop :r0 :r1 :r7 :r8 :r9)
 		(assign '((:r0 +canvas_span_data)) '(:r2))
@@ -190,12 +173,9 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r12, :d0-:d1
+	;:r1-:r9, :r12, :d0-:d1
 	;info
-	;of the paint, a0 and ax the centre and ay the radius, in 256ths of a
-	;pixel; u and v, fixed, are a pixel's centre from it by the radius, u
-	;carried along the run, the radius into 2^24 bx, by over, and t is their
-	;length, :sys_math :q_sqrt
+	;t is the length of u and v, the root of :sys_math :q_sqrt
 
 	(entry :canvas :span_radial '(:r0 :r1 :r7 :r8 :r9))
 
@@ -203,30 +183,24 @@
 		(vp-push :r0 :r1 :r7 :r8 :r9)
 		(assign '((:r0 +canvas_span_data)) '(:r2))
 		(vp-add-cr +str_data :r2)
-		(assign '((:r2 +paint_a0) (:r2 +paint_ax) (:r2 +paint_ay)) '(:r3 :r4 :r5))
-		;v of the row, its square in :r11
-		(vp-shl-cr 8 :r8)
-		(vp-add-cr 128 :r8)
-		(vp-sub-rr :r4 :r8)
-		(vp-shl-cr +fp_shift :r8)
-		(paint-floor :r8 :r5 :r11 :r12)
-		(vp-mul-rr :r11 :r11)
-		;u of the first pixel in :r3, what is over in :r4
-		(vp-cpy-rr :r7 :r1)
-		(vp-shl-cr 8 :r1)
-		(vp-add-cr 128 :r1)
-		(vp-sub-rr :r3 :r1)
-		(vp-shl-cr +fp_shift :r1)
-		(paint-floor :r1 :r5 :r3 :r4)
-		(assign '((:r2 +paint_bx) (:r2 +paint_by) (:r2 +paint_spread)) '(:r6 :r10 :r12))
+		(paint-at '(+paint_a0 +paint_ax +paint_ay) :r7 :r8 :r3)
+		(paint-at '(+paint_b0 +paint_bx +paint_by) :r7 :r8 :r5)
+		(assign '((:r2 +paint_ax) (:r2 +paint_bx) (:r2 +paint_spread)) '(:r4 :r6 :r12))
 		(paint-row :r7 :r7 :r9 :r2)
 		(loop-start)
-			;the root of u u + v v, u kept to where its square has room
+			;u and v to 16 bits of fraction, kept to where their squares
+			;have room, the root of the sum fixed, its top 8 bits of fraction
 			(vp-cpy-rr :r3 :r0)
+			(vp-cpy-rr :r5 :r1)
+			(vp-asr-cr 16 :r0)
+			(vp-asr-cr 16 :r1)
 			(vp-max-cr (neg (<< 1 30)) :r0)
 			(vp-min-cr (<< 1 30) :r0)
+			(vp-max-cr (neg (<< 1 30)) :r1)
+			(vp-min-cr (<< 1 30) :r1)
 			(vp-mul-rr :r0 :r0)
-			(vp-add-rr :r11 :r0)
+			(vp-mul-rr :r1 :r1)
+			(vp-add-rr :r1 :r0)
 			(vp-shr-cr +fp_shift :r0)
 			(call :sys_math :q_sqrt '(:r0) '(:r0))
 			(vp-asr-cr 8 :r0)
@@ -237,12 +211,8 @@
 			(vp-load-rcr-ui :r1 +paint_lut :r8)
 			(vp-store-rrc-i :r8 :r7 0)
 			(vp-add-cr +int_size :r7)
-			(vp-add-rr :r6 :r3)
-			(vp-add-rr :r10 :r4)
-			(vpif '(:r4 >= :r5))
-				(vp-add-cr 1 :r3)
-				(vp-sub-rr :r5 :r4)
-			(endif)
+			(vp-add-rr :r4 :r3)
+			(vp-add-rr :r6 :r5)
 		(loop-until '(:r7 = :r9))
 		(vp-pop :r0 :r1 :r7 :r8 :r9)
 		(assign '((:r0 +canvas_span_data)) '(:r2))

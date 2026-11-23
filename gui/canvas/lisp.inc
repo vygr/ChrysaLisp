@@ -55,11 +55,6 @@
 	;program that never paints loads none of the paints
 	((ffi "gui/canvas/lisp_paint") canvas kind data))
 
-(defun canvas-units (n)
-	; (canvas-units num) -> int
-	;a coordinate in 256ths of a pixel, the nearest, by fixed
-	(n2i (floor (+ (* (n2q n) 256.0) 0.5))))
-
 (defun canvas-floor (n d)
 	; (canvas-floor n d) -> (q r)
 	;the floor quotient of n by d, more than 0, and what is over, 0 to d
@@ -89,6 +84,26 @@
 							(+ argb (<< (first (canvas-floor (+ (* 2 (+ (* a w) (* (- b a) f))) w) (* 2 w))) shift)))
 						'(24 16 8 0) 0))))
 		'() 0 +paint_lut_size))
+
+(defun canvas-gradient-matrix (canvas kind spread stops g m)
+	; (canvas-gradient-matrix canvas kind spread stops g m) -> :nil | canvas
+	;a gradient whose own space, u along its line or out from its centre, v
+	;across, g takes to the space m takes to the pixels, both (a b tx c d
+	;ty), m none or a mat3x2. Of the two together the one back from a pixel
+	;to u and v, in doubles, then two rows of 32 bits of fraction of the
+	;pixel's centre, (canvas-gradient). :nil if it flattens all to a line
+	(bind '(g0 g1 g2 g3 g4 g5) g)
+	(bind '(m0 m1 m2 m3 m4 m5) (map (const n2d) (ifn m '(1.0 0.0 0.0 0.0 1.0 0.0))))
+	(defq c0 (+ (* m0 g0) (* m1 g3)) c1 (+ (* m0 g1) (* m1 g4)) c2 (+ (* m0 g2) (* m1 g5) m2)
+		c3 (+ (* m3 g0) (* m4 g3)) c4 (+ (* m3 g1) (* m4 g4)) c5 (+ (* m3 g2) (* m4 g5) m5)
+		det (- (* c0 c4) (* c1 c3)))
+	(unless (< (abs det) (const (/ (n2d 1) (n2d 10000000000))))
+		(defq i0 (/ c4 det) i1 (/ (neg c1) det) i2 (/ (- (* c1 c5) (* c4 c2)) det)
+			i3 (/ (neg c3) det) i4 (/ c0 det) i5 (/ (- (* c3 c2) (* c0 c5)) det)
+			h (const (n2d 0.5)) k (const (n2d (<< 1 32))))
+		(canvas-gradient canvas kind spread stops
+			(map (# (n2i (* %0 k))) (list (+ (* i0 h) (* i1 h) i2) i0 i1))
+			(map (# (n2i (* %0 k))) (list (+ (* i3 h) (* i4 h) i5) i3 i4)))))
 
 (defun canvas-gradient (canvas kind spread stops a b)
 	; (canvas-gradient canvas kind spread stops (a0 ax ay) (b0 bx by)) -> canvas
@@ -177,29 +192,28 @@
 		(if (getf this +canvas_span_data 0) (canvas-paint this 0 :nil))
 		(setf this +canvas_color argb 0))
 
-	(defmethod :set_linear (x y x1 y1 stops &optional spread)
-		; (. canvas :set_linear x y x1 y1 stops [spread]) -> canvas
+	(defmethod :set_linear (x y x1 y1 stops &optional spread m)
+		; (. canvas :set_linear x y x1 y1 stops [spread m]) -> canvas
 		;what is drawn from here is a linear gradient, t 0 at x y and 1 at x1
-		;y1, in the pixels :fpoly draws in, a pixel by its centre. stops are
+		;y1, its bands across that line; m, default none, the matrix from the
+		;space they are in to the pixels :fpoly draws in, as an SVG's is,
+		;under which the bands may lie at a slant to the line. stops are
 		;((offset argb) ...), offsets 0 to 1, spread +spread_pad, the
 		;default, +spread_reflect or +spread_repeat. Of no length it is the
-		;color of the last stop. Each pixel's step of the 256 colors is exact:
-		;of the ends in 256ths of a pixel, 256 t is the integer m0 + mx x + my
-		;y over d, (canvas-span_linear)
-		(bind '(x y x1 y1) (map (const canvas-units) (list x y x1 y1)))
-		(defq dx (- x1 x) dy (- y1 y) d (+ (* dx dx) (* dy dy)))
-		(if (= d 0) (. this :set_color (second (last stops)))
-			(defq mx (* 65536 dx) my (* 65536 dy) m0 (* 256 (+ (* (- 128 x) dx) (* (- 128 y) dy))))
-			(canvas-gradient this 1 spread stops (list m0 mx my) (cat (list d) (canvas-floor mx d)))))
+		;color of the last stop
+		(bind '(x y x1 y1) (map (const n2d) (list x y x1 y1)))
+		(defq dx (- x1 x) dy (- y1 y))
+		(if (canvas-gradient-matrix this 1 spread stops (list dx (neg dy) x dy dx y) m) this
+			(. this :set_color (second (last stops)))))
 
-	(defmethod :set_radial (cx cy r stops &optional spread)
-		; (. canvas :set_radial cx cy r stops [spread]) -> canvas
+	(defmethod :set_radial (cx cy r stops &optional spread m)
+		; (. canvas :set_radial cx cy r stops [spread m]) -> canvas
 		;what is drawn from here is a radial gradient, t 0 at cx cy and 1 at r
-		;from it, in the pixels :fpoly draws in, as (:set_linear). Of no
+		;from it, as (:set_linear): under m it may be an ellipse. Of no
 		;radius it is the color of the last stop
-		(bind '(cx cy r) (map (const canvas-units) (list cx cy r)))
-		(if (<= r 0) (. this :set_color (second (last stops)))
-			(canvas-gradient this 2 spread stops (list cx cy r) (cat '(0) (canvas-floor (<< 1 24) r)))))
+		(bind '(cx cy r) (map (const n2d) (list cx cy r)))
+		(if (canvas-gradient-matrix this 2 spread stops (list r (const (n2d 0)) cx (const (n2d 0)) r cy) m) this
+			(. this :set_color (second (last stops)))))
 
 	(defmethod :get_color ()
 		; (. canvas :get_color) -> argb

@@ -13,13 +13,13 @@
 	(ptr span span_data))
 
 ;a gradient paint, the str a canvas's span_data is when its span is
-;:span_linear or :span_radial. Of a pixel x y: a linear's t is a0 + ax x +
-;ay y, 24 bits of fraction, a radial's is the length of (a0 + ax x + ay y,
-;b0 + bx x + by y), 16 bits of fraction, made 24. Its top 8 bits of
-;fraction are where in the lut it is, 256 colors not premultiplied, and
-;spread says what is past 0 and 1: pad, reflect or repeat. After the lut
-;is a row, the width of the canvas's pixmap, a span's colors made there
-;and then blended, :span_row
+;:span_linear or :span_radial: two rows of a matrix from a pixel to the
+;gradient's own space, u a0 + ax x + ay y and v b0 + bx x + by y, 32 bits
+;of fraction, the pixel's centre in them. A linear's t is u, a radial's
+;the length of u and v; the top 8 bits of t's fraction are where in the
+;lut it is, 256 colors not premultiplied, and spread says what is past 0
+;and 1: pad, reflect or repeat. After the lut is a row, the width of the
+;canvas's pixmap, a run's colors made there and then blended, :span_row
 (structure +paint 0
 	(long spread a0 ax ay b0 bx by)
 	(uint lut))

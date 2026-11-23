@@ -60,15 +60,18 @@
 (assert-eq "a ramp of 256, each pixel its own step" '()
 	(filter (# (/= (pt-pixel pt_px %0 1) (+ 0xff000000 (* %0 0x010101)))) (map! (# (!)) '() 0 256)))
 
-(defun pt-off (canvas expect most)
-	; (pt-off canvas expect most) -> (x y got want) | :nil
-	;the first pixel whose blue is more than most from what (expect x y) says
+(defun pt-off (canvas expect most &optional wrap)
+	; (pt-off canvas expect most [wrap]) -> (x y got want) | :nil
+	;the first pixel whose blue is more than most from what (expect x y)
+	;says; wrap, the steps a circle, 255 one from 0, as repeat has them
 	(defq px (pt-pixels canvas) w (third px) h (/ (- (length (first px)) (second px)) (* w +int_size)) bad :nil y 0)
 	(while (and (not bad) (< y h))
 		(defq x 0)
 		(while (and (not bad) (< x w))
 			(defq got (logand (pt-pixel px x y) 0xff) want (expect x y))
-			(if (> (abs (- got want)) most) (setq bad (list x y got want)))
+			(defq off (abs (- got want)))
+			(if wrap (setq off (min off (- 256 off))))
+			(if (> off most) (setq bad (list x y got want)))
 			(++ x))
 		(++ y))
 	bad)
@@ -85,25 +88,57 @@
 		(1 (setq i (logand i 511)) (if (> i 255) (- 511 i) i))
 		(:t (logand i 255))))
 
-;every pixel against the gradient worked out here: t at a pixel's centre,
-;its step of the 256 the floor of 256 t. A linear exactly, t of a pixel
-;x + 1/2 and y + 1/2 from 10 50 along 30 -30 by its length squared, 1800,
-;in halves so all of it is integers; a radial within one, its root of a
-;double here and of fixed there
+;every pixel against the gradient worked out here in doubles: t at a
+;pixel's centre, its step of the 256 the floor of 256 t, within one, the
+;span's matrix of 32 bits of fraction, the radial's root of fixed
 (defq pt_bw '((0.0 0xff000000) (1.0 0xffffffff)))
+(defun pt-d (n) (n2d n))
+(defun pt-centre (x y m)
+	; (pt-centre x y m) -> (x y)
+	;a pixel's centre taken back by m, (a b tx c d ty) of doubles, to the
+	;space the gradient is given in
+	(bind '(a b tx c d ty) m)
+	(defq det (- (* a d) (* b c)) px (- (+ (pt-d x) (const (n2d 0.5))) tx) py (- (+ (pt-d y) (const (n2d 0.5))) ty))
+	(list (/ (- (* d px) (* b py)) det) (/ (- (* a py) (* c px)) det)))
+(defq pt_none (map (const n2d) '(1 0 0 0 1 0)))
 (each (lambda (spread name)
 		(defq c (Canvas 64 64 1))
 		(.-> c (:fill 0) (:set_linear 10.0 50.0 40.0 20.0 pt_bw spread) (:fbox 0 0 64 64))
-		(assert-eq (cat "a linear gradient, every pixel exactly, " name) :nil
+		(assert-eq (cat "a linear gradient, every pixel, " name) :nil
 			(pt-off c (lambda (x y)
-				(pt-step (pt-floor (* 256 (+ (* (- (inc (* 2 x)) 20) 30) (* (- (inc (* 2 y)) 100) -30))) 3600) spread)) 0))
+				(bind '(ux uy) (pt-centre x y pt_none))
+				(pt-step (n2i (floor (n2q (* (/ (+ (* (- ux (const (n2d 10))) (const (n2d 30))) (* (- uy (const (n2d 50))) (const (n2d -30))))
+					(const (n2d 1800))) (const (n2d 256)))))) spread)) 1 (= spread +spread_repeat)))
 		(defq c (Canvas 64 64 1))
 		(.-> c (:fill 0) (:set_radial 30.0 34.0 13.0 pt_bw spread) (:fbox 0 0 64 64))
 		(assert-eq (cat "a radial gradient, every pixel, " name) :nil
 			(pt-off c (lambda (x y)
-				(defq dx (- (+ (n2d x) (const (n2d 0.5))) (const (n2d 30))) dy (- (+ (n2d y) (const (n2d 0.5))) (const (n2d 34))))
-				(pt-step (n2i (* (/ (sqrt (+ (* dx dx) (* dy dy))) (const (n2d 13))) (const (n2d 256)))) spread)) 1)))
+				(bind '(ux uy) (pt-centre x y pt_none))
+				(defq dx (- ux (const (n2d 30))) dy (- uy (const (n2d 34))))
+				(pt-step (n2i (* (/ (sqrt (+ (* dx dx) (* dy dy))) (const (n2d 13))) (const (n2d 256)))) spread)) 1 (= spread +spread_repeat))))
 	(list +spread_pad +spread_reflect +spread_repeat) '("pad" "reflect" "repeat"))
+
+;under a matrix, as an SVG gives one: a linear's bands at a slant to its
+;line under a shear, a radial an ellipse under a scale of x alone, and
+;turned, each against the same worked out here
+(each (lambda (m name)
+		(defq md (map (const n2d) m))
+		(defq c (Canvas 64 64 1))
+		(.-> c (:fill 0) (:set_linear 0.0 0.0 20.0 10.0 pt_bw +spread_reflect m) (:fbox 0 0 64 64))
+		(assert-eq (cat "a linear gradient under " name) :nil
+			(pt-off c (lambda (x y)
+				(bind '(ux uy) (pt-centre x y md))
+				(pt-step (n2i (floor (n2q (* (/ (+ (* ux (const (n2d 20))) (* uy (const (n2d 10)))) (const (n2d 500))) (const (n2d 256))))))
+					+spread_reflect)) 1))
+		(defq c (Canvas 64 64 1))
+		(.-> c (:fill 0) (:set_radial 10.0 8.0 9.0 pt_bw +spread_repeat m) (:fbox 0 0 64 64))
+		(assert-eq (cat "a radial gradient under " name) :nil
+			(pt-off c (lambda (x y)
+				(bind '(ux uy) (pt-centre x y md))
+				(defq dx (- ux (const (n2d 10))) dy (- uy (const (n2d 8))))
+				(pt-step (n2i (* (/ (sqrt (+ (* dx dx) (* dy dy))) (const (n2d 9))) (const (n2d 256)))) +spread_repeat)) 1 :t)))
+	(list (mat3x2 1.0 0.5 6.0 0.0 1.0 4.0) (mat3x2 2.5 0.0 3.0 0.0 1.0 5.0) (mat3x2-rot 0.6 32.0 32.0))
+	'("a shear" "a scale of x alone" "a turn"))
 
 ;a gradient far from the canvas's corner is as exact as one at it: the
 ;step of a pixel is worked out from the integers for every run

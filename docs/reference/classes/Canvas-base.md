@@ -125,24 +125,24 @@ what is drawn from here is this color, a paint let go of
 ### :set_linear
 
 ```code
-(. canvas :set_linear x y x1 y1 stops [spread]) -> canvas
+(. canvas :set_linear x y x1 y1 stops [spread m]) -> canvas
 
 what is drawn from here is a linear gradient, t 0 at x y and 1 at x1
-y1, in the pixels :fpoly draws in, a pixel by its centre. stops are
+y1, its bands across that line; m, default none, the matrix from the
+space they are in to the pixels :fpoly draws in, as an SVG's is,
+under which the bands may lie at a slant to the line. stops are
 ((offset argb) ...), offsets 0 to 1, spread +spread_pad, the
 default, +spread_reflect or +spread_repeat. Of no length it is the
-color of the last stop. Each pixel's step of the 256 colors is exact:
-of the ends in 256ths of a pixel, 256 t is the integer m0 + mx x + my
-y over d, (canvas-span_linear)
+color of the last stop
 ```
 
 ### :set_radial
 
 ```code
-(. canvas :set_radial cx cy r stops [spread]) -> canvas
+(. canvas :set_radial cx cy r stops [spread m]) -> canvas
 
 what is drawn from here is a radial gradient, t 0 at cx cy and 1 at r
-from it, in the pixels :fpoly draws in, as (:set_linear). Of no
+from it, as (:set_linear): under m it may be an ellipse. Of no
 radius it is the color of the last stop
 ```
 

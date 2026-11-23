@@ -329,7 +329,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :d0-:d1
+	;:r1-:r10, :r12, :d0-:d1
 
 	(entry :canvas :lisp_fbox '(:r0 :r1))
 

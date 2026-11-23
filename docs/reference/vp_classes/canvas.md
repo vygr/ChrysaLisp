@@ -83,7 +83,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14, :d0-:d1
+:r1-:r9, :r12, :d0-:d1
 ```
 
 ### :fpoly -> gui/canvas/fpoly
@@ -219,7 +219,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14, :d0-:d1
+:r1-:r9, :r12, :d0-:d1
 info
 coverage is 0x0 to 0x80
 ```
@@ -236,10 +236,10 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r14
+:r1-:r9
 info
-of the paint, a0 + ax x + ay y is 256 t times b0, exactly, and the
-step of a pixel is that by ax: b0 into ax is bx, by over
+t is u, a0 + ax x + ay y of the paint, and the step of the 256 its
+top 8 bits of fraction
 ```
 
 ### :span_noclip -> gui/canvas/span_noclip
@@ -276,12 +276,9 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r12, :d0-:d1
+:r1-:r9, :r12, :d0-:d1
 info
-of the paint, a0 and ax the centre and ay the radius, in 256ths of a
-pixel; u and v, fixed, are a pixel's centre from it by the radius, u
-carried along the run, the radius into 2^24 bx, by over, and t is their
-length, :sys_math :q_sqrt
+t is the length of u and v, the root of :sys_math :q_sqrt
 ```
 
 ### :span_row -> gui/canvas/span_row

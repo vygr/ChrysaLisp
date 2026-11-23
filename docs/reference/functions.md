@@ -2499,6 +2499,18 @@ less than the one before, as SVG has it, and before the first and after
 the last is their color. All in integers, an offset in 255 by 65536ths
 ```
 
+### canvas-gradient-matrix
+
+```code
+(canvas-gradient-matrix canvas kind spread stops g m) -> :nil | canvas
+
+a gradient whose own space, u along its line or out from its centre, v
+across, g takes to the space m takes to the pixels, both (a b tx c d
+ty), m none or a mat3x2. Of the two together the one back from a pixel
+to u and v, in doubles, then two rows of 32 bits of fraction of the
+pixel's centre, (canvas-gradient). :nil if it flattens all to a line
+```
+
 ### canvas-info
 
 ```code
@@ -2596,14 +2608,6 @@ each frame, an (:exchange) or a (:swap) gives a canvas another texture
 
 a little brighter, a quarter of the way to white, the edge of a thing
 that the light is on
-```
-
-### canvas-units
-
-```code
-(canvas-units num) -> int
-
-a coordinate in 256ths of a pixel, the nearest, by fixed
 ```
 
 ### cell-rows
@@ -10789,6 +10793,18 @@ length
 a point on the end of a dash, unless it is the one already there
 ```
 
+### path-dashes
+
+```code
+(path-dashes src pattern offset [closed]) -> (path ...)
+
+a line as dashes of a pattern, (dash gap dash gap ...), each dash its
+own path to stroke, as (path-dash) has one dash and one gap. offset is
+how far into the pattern the line starts, as SVG's stroke-dashoffset,
+less than 0 from the end of it. Closed, the line goes round back to its
+start too. A pattern of no length is the line as it is
+```
+
 ### path-dir
 
 ```code
@@ -11723,6 +11739,15 @@ what the thing shows
 the buttons of the rules of a device a press is, :nil for a finger
 ```
 
+### push-attributes
+
+```code
+a copy of the parent's, its attributes and its style's over it. A key
+
+that is there already keeps its place: the defaults block that is in
+order, (SVG-load), stays so
+```
+
 ### put
 
 ```code
@@ -11833,6 +11858,39 @@ links they name go with them. A list of those still to look at, this
 does not call itself
 ```
 
+### read-attribute
+
+```code
+(read-attribute entry key val) -> :inherit | val
+
+:inherit for one that is to be its parent's: inherit, or a value not known
+```
+
+### read-color
+
+```code
+(read-color entry str) -> :inherit | argb
+
+a color as SVG and CSS write it, 0 for none, :inherit for one not known
+```
+
+### read-length
+
+```code
+(read-length str) -> :nil | :percent | fixed
+
+a length in pixels, of its unit; :percent for a %, :nil for a unit not
+known
+```
+
+### read-num
+
+```code
+(read-num str) -> num
+
+a number as it is written, an exponent too, which (str-to-num) stops at
+```
+
 ### read-nums
 
 ```code
@@ -11840,6 +11898,20 @@ does not call itself
 
 so many bytes read onto the end of an array of numbers, as its
 elements, the array says of what kind. :nil at the stream's end
+```
+
+### read-opacity
+
+```code
+(read-opacity str) -> fixed
+
+0 to 1, or a %
+```
+
+### read-rgb
+
+```code
+rgb() and rgba(), each of 0 to 255 or a %, the alpha 0 to 1
 ```
 
 ### read-source
@@ -17705,6 +17777,33 @@ the frame offset of a variable, the last one of that name declared
 -> (text frame_size attr_slots out_slots)
 
 the VP source of the native function that places vertices
+```
+
+### svg-alpha
+
+```code
+(svg-alpha argb opacity) -> argb
+
+the color's alpha by the opacity, a color of full alpha as it was
+```
+
+### svg-attr
+
+```code
+(svg-attr keys vals key) -> :nil | str
+
+an attribute, or a property of the style attribute
+```
+
+### svg-fit
+
+```code
+(svg-fit w h vw vh par) -> (sx sy tx ty)
+
+a viewBox of vw by vh into a viewport of w by h as preserveAspectRatio
+says, by default xMidYMid meet: none stretches it, meet fits all of it
+in, slice fills the viewport with it, and the align places what is
+left over
 ```
 
 ### swap
