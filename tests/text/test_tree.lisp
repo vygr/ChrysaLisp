@@ -77,8 +77,18 @@
 ;it, when check had known of it all along. Not what tests leave in
 ;tests/scratch, some of that is wrong on purpose
 ;stands on the whole tree
-(defq tt_said (list))
-(pipe-run "files | check -j 40" (# (push tt_said %0)))
+;a part of the tree at a time, and how far it has got said between: all
+;of it at once says nothing till it is done, more than five minutes on
+;one emulated node, and the suite takes a batch that quiet for one whose
+;node has gone and starts it again beside itself, (test-farm-told). The
+;paths as the files command prints them, with no ./ before: check knows
+;what a file is given by another from its path
+(defq tt_said (list) tt_parts (partition (map (# (if (starts-with "./" %0) (slice %0 2 -1) %0))
+	(files-all "." '(".vp" ".inc" ".lisp" ".shader"))) 150))
+(each (lambda (part)
+		(pipe-run (cat "check -j 40 " (join part " ")) (# (push tt_said %0)))
+		(test-note (cat "check, part " (str (inc (!))) " of " (str (length tt_parts)))))
+	tt_parts)
 (assert-list-eq "check finds nothing wrong in any source file of the tree" '()
 	;nor the files this test makes further down, wrong on purpose, which a
 	;run that was stopped part way leaves behind

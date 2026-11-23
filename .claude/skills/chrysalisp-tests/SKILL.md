@@ -100,6 +100,17 @@ Options:
 	module's last check, `late` for one well past its usual time, `lost` for
 	a batch with no result, and end. Watch those, not the summary.
 
+*	A batch that says nothing for 300 seconds, `+test_retry`, is taken
+	for one whose node has gone and started again, beside the first if
+	that is only slow; after three every module of it is `lost`. Each
+	check a module makes starts the time again, so does a `(test-note
+	text)`. A step of a module that is quiet for long on a slow machine,
+	a command over the whole tree, is done a part at a time with a note
+	between: `text/test_tree` ran `files | check` in one, over 300
+	seconds on one node under QEMU, and the suite of 183 modules ran two
+	and three times at once there, 2026-11-23. Seen as a second block of
+	`=p= start` lines after `=p= late` ones.
+
 *	`tests -w` says the longest a task was kept from running on each node.
 	A module that holds its node a second or more is why a test elsewhere
 	fails now and then: its long loops need a `(task-slice)`.

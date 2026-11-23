@@ -812,7 +812,12 @@ are not there, make them again from this.
 
 *	**release**: all a tag is tested with, on every machine from cold,
 	`make install`, `tests -a`, `make it`, the emulator, the lint. Not run
-	unless the user asks for a release.
+	unless the user asks for a release. By the cores each takes: a QEMU
+	suite is one node, `-n 1`, one core of the VM's 6, so RISC-V and
+	LoongArch may run side by side, 2 of the M4's 16. The M4's own suite
+	on VP64 is 19 nodes, the whole machine, and has it to itself: run
+	with the two QEMU suites beside it, 2026-11-23, a test of 300
+	gophers failed that passes alone. A rerun by hand keeps to that too.
 
 An `ssh` control socket to each machine keeps these quick. `ssh` is for
 starting a member, building a host program, and recovery. Moving files and
