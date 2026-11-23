@@ -217,14 +217,18 @@
 				(map (# (trim %0 +svg_space)) (split langs ","))))))
 
 (defun svg-text-lists (keys vals)
-	; (svg-text-lists keys vals) -> ((x ...) (y ...) (dx ...) (dy ...))
-	;the lists of lengths of a text's or a tspan's x y dx and dy, one for
-	;each character in turn, each last first to be popped
+	; (svg-text-lists keys vals) -> ((x ...) (y ...) (dx ...) (dy ...) (rotate ...))
+	;the lists of a text's or a tspan's x y dx dy and rotate, one for each
+	;character in turn, each last first to be popped
 	(map (lambda (name)
-			(reverse (map (# (if (num? (defq l (read-length %0))) l 0.0))
-				(filter (const nempty?) (split (ifn (svg-attr keys vals name) "")
-					(const (char-class ", \t\r\n")))))))
-		'("x" "y" "dx" "dy")))
+			(defq items (filter (const nempty?) (split (ifn (svg-attr keys vals name) "")
+				(const (char-class ", \t\r\n")))))
+			;rotate a list of numbers, one with a unit none of it
+			(and (eql name "rotate")
+				(some (# (some (# (not (find %0 "+-.0123456789eE"))) %0)) items)
+				(setq items (list)))
+			(reverse (map (# (if (num? (defq l (read-length %0))) l 0.0)) items)))
+		'("x" "y" "dx" "dy" "rotate")))
 
 (defun svg-text-decos (val)
 	; (svg-text-decos val) -> (kind ...)
@@ -593,7 +597,7 @@
 	;chosen), the elements open and the uses being drawn, by where in the log
 	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport)
 		viewports (list) switches (list) open (list) drawing (list) use_size :nil symbol :nil
-		texts 0 text_pos (list) text_decos (list) text_y_deco 0.0 text_runs (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
+		texts 0 text_pos (list) text_decos (list) text_y_deco 0.0 text_rot 0.0 text_runs (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
 		text_start :t text_space :nil
 		replaying 0 stack
 			(list (scatter (Lmap)
@@ -888,9 +892,14 @@
 			;a character's x y dx and dy, each of the innermost text or tspan
 			;that has one left, and one of each taken from all: a new x or
 			;y begins a chunk
-			(bind '(x y dx dy) (map (lambda (i)
-					(rsome (# (last (elem-get %0 i))) text_pos)) '(0 1 2 3)))
-			(each (# (each (# (pop %0)) %0)) text_pos)
+			(bind '(x y dx dy r) (map (lambda (i)
+					(rsome (# (last (elem-get %0 i))) text_pos)) '(0 1 2 3 4)))
+			;a rotate's last goes on for all the characters after it
+			(each (lambda ((xs ys dxs dys rs))
+					(each (# (pop %0)) (list xs ys dxs dys))
+					(if (> (length rs) 1) (pop rs)))
+				text_pos)
+			(setq text_rot (if r (* r (const (/ +fp_pi 180.0))) 0.0))
 			(when (or x y)
 				(text-flush)
 				(if x (setq text_x x))
@@ -940,6 +949,8 @@
 					("mathematical" 0.367) (("text-before-edge" "text-top") 0.785)
 					(("text-after-edge" "text-bottom" "ideographic") -0.215) (:t 0.0)))
 				y (+ text_y oy) m (mat3x2 (* u 0.5) 0.0 text_x 0.0 (* u 0.5) y)
+				;a character of a rotate turned about its place, once
+				m (if (= text_rot 0.0) m (mat3x2-mul (mat3x2-rot text_rot text_x y) m))
 				mono (eql family "Hack") layers (apply (const cat) text_decos))
 			(cond
 				((or mono (/= ls 0.0) (/= ws 0.0))
@@ -964,7 +975,7 @@
 			(text-deco layers text_x x1 y :nil)
 			(push text_runs (list entry paths))
 			(text-deco layers text_x x1 y :t)
-			(setq text_x x1 text_y_deco y)))
+			(setq text_x x1 text_y_deco y text_rot 0.0)))
 	(defq on-text (lambda (text)
 			(if (= replaying 0) (push log (list :text text)))
 			(when (and (> texts 0) (= skip 0) (get 'create-font))

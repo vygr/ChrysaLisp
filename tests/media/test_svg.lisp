@@ -306,6 +306,17 @@
 	(sv-close (- (third (sv-ink "<text x=\q20\q y=\q100\q font-size=\q20\q word-spacing=\q20\q>H H</text>"))
 		(third (sv-ink "<text x=\q20\q y=\q100\q font-size=\q20\q>H H</text>"))) 20 2))
 
+;rotate, a character turned about its place, the last angle going on
+(bind '(lx ly lx1 ly1) (sv-ink "<text x=\q60\q y=\q100\q font-size=\q60\q>l</text>"))
+(bind '(rx ry rx1 ry1) (sv-ink "<text x=\q60\q y=\q100\q font-size=\q60\q rotate=\q90\q>l</text>"))
+(assert-true "an l is tall, turned by 90 it lies on its side"
+	(and (> (- ly1 ly) (* 4 (- lx1 lx))) (> (- rx1 rx) (* 4 (- ry1 ry)))))
+(assert-true "clockwise, its top to the right of its place, along the baseline" (and (>= rx 60) (> rx1 100) (> ry 100)))
+(assert-eq "the last angle goes on: all three turned as each one is" (str (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q rotate=\q90 90 90\q>lll</text>"))
+	(str (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q rotate=\q90\q>lll</text>")))
+(assert-eq "a rotate with a unit is none" (str (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q>Text</text>"))
+	(str (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q rotate=\q5mm\q>Text</text>")))
+
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")

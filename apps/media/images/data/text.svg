@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768" viewBox="0 0 480 360">
 	<title>Text</title>
 	<desc>The text of the SVG reader: faces and sizes, runs of their own color,
-		anchors, decorations, spacing, letters placed each, turns, outlines,
+		anchors, decorations, spacing, letters placed and turned each, turns, outlines,
 		gradients and shadows</desc>
 	<defs>
 		<linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
@@ -61,9 +61,11 @@
 		<text x="262" y="190"><tspan font-size="x-small">Aa </tspan><tspan font-size="small">Aa </tspan><tspan font-size="medium">Aa </tspan><tspan font-size="large">Aa </tspan><tspan font-size="x-large">Aa </tspan><tspan font-size="xx-large">Aa</tspan></text>
 	</g>
 
-	<!-- a wave, each letter a step of dy from the one before -->
-	<text x="20" y="236" font-size="26" font-weight="bold" fill="url(#rainbow)"
-		dy="0 -6 -4 -1 1 4 6 6 4 1 -1 -4 -6 -6 -4 -1">Waves of letters</text>
+	<!-- a wave, each letter a step of dy from the one before, and turned
+		to its slope by a list of rotate -->
+	<text x="18" y="236" font-size="26" font-weight="bold" fill="url(#rainbow)" letter-spacing="1.5"
+		dy="0 -6 -4 -1 1 4 6 6 4 1 -1 -4 -6 -6 -4 -1"
+		rotate="-8 -14 -7 0 7 14 16 14 7 0 -7 -14 -16 -14 -7 0">Waves of letters</text>
 
 	<!-- a word of letters each placed and turned -->
 	<g transform="translate(340 236)">
