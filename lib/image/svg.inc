@@ -149,9 +149,11 @@
 		((eql align "none") (list sx sy 0.0 0.0))
 		(:t (defq k (if (eql (second words) "slice") (max sx sy) (min sx sy))
 				dx (- w (* vw k)) dy (- h (* vh k)))
+			;an align is x then Y, each of Min, Mid or Max, xMinYMax
+			(defq ax (slice align 1 4) ay (slice align 5 8))
 			(list k k
-				(cond ((found? align "xMin") 0.0) ((found? align "xMax") dx) ((* dx 0.5)))
-				(cond ((found? align "YMin") 0.0) ((found? align "YMax") dy) ((* dy 0.5)))))))
+				(cond ((eql ax "Min") 0.0) ((eql ax "Max") dx) ((* dx 0.5)))
+				(cond ((eql ay "Min") 0.0) ((eql ay "Max") dy) ((* dy 0.5)))))))
 
 (defun svg-attr (keys vals key)
 	; (svg-attr keys vals key) -> :nil | str
