@@ -427,6 +427,7 @@ int64_t pii_gettime()
 }
 
 bool run_emu = false;
+extern bool vp64_validate;
 
 int64_t pii_mprotect(void *addr, size_t len, uint64_t mode)
 {
@@ -572,7 +573,9 @@ int64_t pii_spawn(const char *args)
 	argv[argc++] = (char*)host;
 	argv[argc++] = host_argv[1];
 	for (char *tok = strtok(pii_spawn_buf, " "); tok && argc < 64; tok = strtok(NULL, " ")) argv[argc++] = tok;
-	if (run_emu) argv[argc++] = (char*)"-e";
+	//on the emulator as this node is, and validating if this one is: a
+	//session started -V validates on every node of it, not only its first
+	if (run_emu) argv[argc++] = (char*)(vp64_validate ? "-V" : "-e");
 	argv[argc] = NULL;
 	//no zombies when it exits, and it does not share the terminal input
 	signal(SIGCHLD, SIG_IGN);

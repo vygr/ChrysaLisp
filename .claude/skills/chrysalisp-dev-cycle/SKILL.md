@@ -329,12 +329,13 @@ From the machine the work is on:
 6.	`./run_tui.sh -V` is the emulator in validation mode: each load or store
 	not at its natural alignment is said on stderr, `VP64 UNALIGNED`, the
 	function and where in it, once a place. It costs nothing when not
-	asked for, the interpreter is built twice. Only the session's first
-	node validates: a node it starts is given `-e`, never `-V`,
-	`pii_spawn` of `src/host/`, so with `-n 4` three of the four check
-	nothing. And `tests` with no `-a` runs nothing the cache has, a module
-	that passed natively is not run again. So a category at a time on one
-	node, every module: `echo "tests -a -m tests/media/" | ./run_tui.sh -V
+	asked for, the interpreter is built twice. Every node of the session
+	validates, with a host built since 2026-11-23: before it a node the
+	host started was given `-e`, `pii_spawn` of `src/host/`, and with `-n
+	4` three of the four checked nothing; `ps` shows what each was given.
+	And `tests` with no `-a` runs nothing the cache has, a module
+	that passed natively is not run again. On one node a category at a
+	time, every module: `echo "tests -a -m tests/media/" | ./run_tui.sh -V
 	-n 1 -f -u Test -a`, its output to a file, grep it for UNALIGNED. All
 	but `solo`, `net`, `release` and `gpu` take 35 minutes on the M4, 23 of
 	them `text/test_tree`, whose own commands run out of time there and

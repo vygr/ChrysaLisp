@@ -381,6 +381,7 @@ int64_t pii_gettime()
 }
 
 bool run_emu = false;
+extern bool vp64_validate;
 
 int64_t pii_mprotect(void *addr, size_t len, uint64_t mode)
 {
@@ -555,7 +556,7 @@ int64_t pii_spawn(const char *args)
 	if (!host_argv) return -1;
 	const char *host = host_argv[0];
 	int n = snprintf(pii_spawn_buf, sizeof(pii_spawn_buf), "\"%s\" %s %s%s",
-		host, host_argv[1], args, run_emu ? " -e" : "");
+		host, host_argv[1], args, run_emu ? (vp64_validate ? " -V" : " -e") : "");
 	if (n < 0 || n >= (int)sizeof(pii_spawn_buf)) return -1;
 	//it does not share the console input
 	SECURITY_ATTRIBUTES sa;
