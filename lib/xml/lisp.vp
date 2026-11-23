@@ -173,6 +173,12 @@
 	(vp-free slot_size)
 	(vp-ret)
 
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(xml-parse stream)" +error_msg_wrong_types))
+	(signature '(:stream))
+
+	;the names of the states after all the code: of 43 bytes, the code that
+	;was after them was 3 past a place of 4, and an arm64 faulted on it
 (vp-label 'states)
 	(vp-cstr ":text")
 	(vp-cstr ":open")
@@ -180,9 +186,5 @@
 	(vp-cstr ":assign")
 	(vp-cstr ":string")
 	(vp-cstr ":symbol")
-
-(vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(xml-parse stream)" +error_msg_wrong_types))
-	(signature '(:stream))
 
 (def-func-end)

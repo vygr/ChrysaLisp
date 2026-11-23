@@ -600,10 +600,22 @@ label.
 	broken, it is slow on real RISC-V, not wrong, and on the M4 and the
 	x64 nothing shows.
 
-*	Nothing of ours shows it but `./run_tui.sh -V`, the VP64 emulator
-	validating: QEMU's user mode, as the RISC-V and LoongArch suites run,
-	does a misaligned access without a word, and so does the emulator
-	without `-V`. Prove a change both ways, the dev-cycle skill's point
+*	Code is placed too. No translator moves an instruction that comes
+	after data, a table or the strings of a function: it is where the
+	data's bytes leave it, and off a place of 4 an arm64, RISC-V or
+	LoongArch instruction faults as it runs, a VP64 one off 2 breaks the
+	rule. Put the data after the function's last instruction, or `(vp-align
+	+int_size)` before the code. `lib/xml/parse` had its error path after 43
+	bytes of strings: a wrong argument took an M4 node down, `Illegal
+	instruction`, and every VP64 node that translated it said `VP64
+	UNALIGNED lib/trans/vp64 +858`, 2026-11-23.
+	`tests/system/test_code_place.lisp` looks at every function of
+	`obj/vp/` for it.
+
+*	Nothing of ours shows a misaligned load or store but `./run_tui.sh
+	-V`, the VP64 emulator validating: QEMU's user mode, as the RISC-V and
+	LoongArch suites run, does one without a word, and so does the
+	emulator without `-V`. A misplaced instruction QEMU does catch. Prove a change both ways, the dev-cycle skill's point
 	6: the code as it was says `VP64 UNALIGNED` with the place, as it is
 	says nothing.
 
