@@ -204,18 +204,25 @@
 (defun path-gen-paths (d)
 	; (path-gen-paths svg_d) -> ((:nil|:t path) ...)
 	; :t closed, :nil open
-	(defq i 0 paths (list) d (path-svg (cat d " "))
+	;drawn up to its first error, as SVG has it: (path-svg) gives the whole
+	;sets of each command's numbers up to it; a path not begun by a move is
+	;nothing
+	(defq i 0 paths (list) d (path-svg (cat d " ")) p :nil
 		cx 0.0 cy 0.0 cpx 0.0 cpy 0.0 last_cmd " ")
+	(unless (find (first d) '("M" "m")) (setq d '("x")))
 	(until (eql (defq cmd (elem-get d i)) "x")
 		(++ i)
+		;after a close, a new path from where it began
+		(and (not p) (not (find cmd "MmZz"))
+			(push paths (list :nil (setq p (path cpx cpy)))))
 		(case cmd
 			("M"
-				(push paths (list :nil (defq p (path))))
+				(push paths (list :nil (setq p (path))))
 				(while (num? (elem-get d i))
 					(bind '(cpx cpy) (slice d i (++ i 2)))
 					(push p cpx cpy)))
 			("m"
-				(push paths (list :nil (defq p (path))))
+				(push paths (list :nil (setq p (path))))
 				(while (num? (elem-get d i))
 					(bind '(x y) (slice d i (++ i 2)))
 					(setq cpx (+ cpx x) cpy (+ cpy y))
@@ -324,9 +331,11 @@
 						large_arc_flag sweep_flag x y p)
 					(setq cpx x cpy y)))
 			(("Z" "z")
-				(bind '(cpx cpy) (slice p 0 2))
-				(push p cpx cpy)
-				(elem-set (last paths) 0 :t)))
+				(when p
+					(bind '(cpx cpy) (slice p 0 2))
+					(push p cpx cpy)
+					(elem-set (last paths) 0 :t)
+					(setq p :nil))))
 		(setq last_cmd cmd))
 	paths)
 

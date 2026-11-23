@@ -69,3 +69,25 @@
 (assert-true "simplify of an odd path is refused"
 	(catch (progn (path-simplify 0.1 (path 0.0 0.0 1.0 3.0 2.0 0.0 3.0 3.0 4.0 0.0 9.0) (path)) :nil) :t))
 (assert-true "a filter of one" (catch (progn (path-filter 0.1 (path 0.0 0.0 1.0 3.0 2.0 0.0 9.0) (path)) :nil) :t))
+
+;an SVG path's d as SVG has it, 2026-11-23: its numbers of every form, an
+;arc's flags of one character each, and drawn up to its first error
+(defun pa-d (d) (str (path-svg d)))
+(assert-eq "a number from a point" (str '("M" 0.5 0.5 "x")) (pa-d "M.5.5"))
+(assert-eq "a second point begins the next" (pa-d "M 5.5 .3") (pa-d "M5.5.3"))
+(assert-eq "a sign begins the next" (pa-d "M 10 -20") (pa-d "M10-20"))
+(assert-eq "a plus" (pa-d "M 3 4") (pa-d "M+3 4"))
+(assert-eq "an exponent" (pa-d "M 100 -25 0.1") (pa-d "M1e2-2.5E+1 1e-1"))
+(assert-eq "arc flags written together" (pa-d "a 25 25 0 1 1 25 25") (pa-d "a25 25 0 1125 25"))
+(assert-eq "an arc of all of them" (pa-d "M 10 -20 A 5.5 .3 -4 0 1 0 -.1") (pa-d "M10-20A5.5.3-4 010-.1"))
+(assert-eq "a flag not 0 or 1 ends it" (pa-d "a 25 25 0") (pa-d "a 25 25 0 6 0 -25 25"))
+(assert-eq "as does a character not of a path" (pa-d "M 0 0 L 5") (pa-d "M 0 0 L 5 # 7"))
+(defun pa-paths (d) (str (path-gen-paths d)))
+(assert-eq "a set that is not whole is not drawn, nor what is after it"
+	(pa-paths "M 10 10 L 20 20") (pa-paths "M 10 10 L 20 20 30 L 40 40"))
+(assert-eq "nor a command of no set" (pa-paths "M 10 10 L 20 20") (pa-paths "M 10 10 L 20 20 L"))
+(assert-eq "a path not begun by a move is nothing" "()" (pa-paths "L 5 5"))
+(assert-eq "numbers after a close end it" (pa-paths "M 0 0 L 9 9 Z") (pa-paths "M 0 0 L 9 9 Z 4 4 L 1 1"))
+(assert-eq "after a close, a new path from where it began"
+	(str (list (list :t (path 0.0 0.0 10.0 0.0 0.0 0.0)) (list :nil (path 0.0 0.0 0.0 10.0))))
+	(pa-paths "M 0 0 L 10 0 Z L 0 10"))
