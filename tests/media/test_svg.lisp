@@ -284,7 +284,8 @@
 	(sv-ink (cat "<text x=\q20\q y=\q100\q font-size=\q40\q " deco ">H" (ifn inner "") "</text>")))
 (assert-true "an underline is below the baseline"
 	(> (elem-get (sv-deco "text-decoration=\qunderline\q") 3) 102))
-(assert-true "an overline over the H" (< (second (sv-deco "text-decoration=\qoverline\q")) 65))
+(assert-true "an overline just over the H, whose top is at 71"
+	(<= 65 (second (sv-deco "text-decoration=\qoverline\q")) 69))
 (defun sv-gaps (svg y)
 	; (sv-gaps svg y) -> (x ...)
 	;the empty pixels of row y between its first and last that are not

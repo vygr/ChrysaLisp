@@ -916,13 +916,15 @@
 			;the decorations of each element that names them, under the
 			;text, or of line-through over it, from x0 to x1 of a baseline
 			;at y, of that element's paint and font size, by Open Sans's
-			;proportions
+			;proportions: an overline just over the capitals, 0.714 of the
+			;size, where at the ascent it was more the underline of a line
+			;above
 			(each (lambda ((entry kinds))
 					(defq size (. entry :find "font-size"))
 					(each (lambda (kind)
 							(when (eql through (eql kind "line-through"))
 								(defq y0 (+ y (* size (case kind
-										("underline" 0.075) ("overline" -1.069) (:t -0.258))))
+										("underline" 0.075) ("overline" -0.82) (:t -0.258))))
 									y1 (+ y0 (* size 0.05)))
 								(push text_runs (list entry (list (path x0 y0 x1 y0 x1 y1 x0 y1))))))
 						kinds))
