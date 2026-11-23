@@ -72,11 +72,16 @@
 	"white" 0xffffffff "whitesmoke" 0xfff5f5f5 "yellow" 0xffffff00
 	"yellowgreen" 0xff9acd32))
 
+;white space, as XML has it
+(defq +svg_space (char-class " \t\r\n"))
+
 ;what a length is in pixels by its unit, and what SVG passes over
 (defq +svg_units (scatter (Fmap 11) "" 1.0 "px" 1.0 "pt" 1.33333 "pc" 16.0 "mm" 3.77953
 		"cm" 37.79528 "in" 96.0 "em" 16.0)
 	+svg_skip ''("defs" "symbol" "clipPath" "mask" "marker" "pattern" "linearGradient"
-		"radialGradient" "title" "desc" "metadata" "style" "script" "filter" "font"))
+		"radialGradient" "title" "desc" "metadata" "style" "script" "filter" "font")
+	;what holds nothing: what is in one is not drawn
+	+svg_shapes ''("circle" "ellipse" "line" "rect" "polygon" "polyline" "path"))
 
 (defun read-num (val)
 	; (read-num str) -> num
@@ -100,13 +105,17 @@
 			(if (eql unit "") (n2q (read-num val)) (* (n2q (read-num (slice val 0 at))) k)))))
 
 (defun read-opacity (val)
-	; (read-opacity str) -> fixed
-	;0 to 1, or a %
-	(defq n (n2q (read-num val)))
-	(if (ends-with "%" val) (setq n (/ n 100.0)))
-	(max 0.0 (min 1.0 n)))
+	; (read-opacity str) -> :inherit | fixed
+	;0 to 1, or a %; with anything else after it, not known
+	(defq at (bskip (const (char-class "+-.0123456789eE")) val 0) unit (trim (slice val at -1) +svg_space))
+	(cond
+		((eql unit "") (max 0.0 (min 1.0 (n2q (read-num val)))))
+		((eql unit "%") (max 0.0 (min 1.0 (/ (n2q (read-num (slice val 0 at))) 100.0))))
+		(:inherit)))
 
 (defun read-col (val)
+	;#rgb or #rrggbb, of hex digits only
+	(and (some! (# (not (find %0 "0123456789abcdefABCDEF"))) (list val) :nil 1 -1) (setq val ""))
 	(case (length val)
 		(4 (pixmap-to-argb32 (str-to-num (cat "0xf" (rest val))) 12))
 		(7 (pixmap-to-argb32 (str-to-num (cat "0x" (rest val))) 24))))
@@ -117,25 +126,27 @@
 	(bind '(r g b) (map (lambda (v)
 			(if (ends-with "%" v) (n2i (/ (* (n2q (read-num v)) 255.0) 100.0)) (read-num v)))
 		(list r g b)))
-	(defq alpha (if a (n2i (* (read-opacity a) 255.0)) 0xff))
+	(defq alpha (if (and a (num? (defq o (read-opacity a)))) (n2i (* o 255.0)) 0xff))
 	(apply (const +) (map (# (<< (max 0 (min 255 (n2i %0))) %1)) (list alpha r g b) '(24 16 8 0))))
 
 (defun read-plain-color (entry val)
 	; (read-plain-color entry str) -> :inherit | argb
 	;a color as SVG and CSS write it, 0 for none, :inherit for one not known
+	;names and functions of no case, as CSS has them
+	(defq low (to-lower val))
 	(cond
-		((find val '("none" "transparent")) 0)
-		((eql val "currentColor") (. entry :find "color"))
+		((find low '("none" "transparent")) 0)
+		((eql low "currentcolor") (. entry :find "color"))
 		((starts-with "#" val) (ifn (read-col val) :inherit))
-		((or (starts-with "rgb(" val) (starts-with "rgba(" val)) (read-rgb val))
-		((. +svg_colors :find (to-lower val)))
+		((or (starts-with "rgb(" low) (starts-with "rgba(" low)) (read-rgb low))
+		((. +svg_colors :find low))
 		(:inherit)))
 
 (defun read-color (entry val)
 	; (read-color entry str) -> :inherit | argb | (:url id fall)
 	;a color, (read-plain-color), or a paint server, a gradient, by its id,
 	;with the color after it if there is one, to fall back on, (svg-paint)
-	(setq val (trim val))
+	(setq val (trim val +svg_space))
 	(cond
 		((starts-with "url(" val)
 			(defq at (find ")" val) id (trim (slice val 4 (ifn at -1)) (const (char-class " '\q")))
@@ -172,16 +183,41 @@
 					(and (= (length kv) 2) (eql (trim (first kv)) key) (trim (second kv))))
 				(split (elem-get vals at) ";")))))
 
+(defun svg-geom (keys vals names viewport)
+	; (svg-geom keys vals names viewport) -> (fixed | :nil ...)
+	;a shape's own geometry, never its parent's, SVG does not inherit it: a
+	;size not given or not known none, a place 0, a % of the viewport's
+	;width, its height, or of a radius its diagonal over root 2
+	(bind '(vw vh) viewport)
+	(map (lambda (name)
+			(defq size (find name '("width" "height" "r" "rx" "ry")))
+			(cond
+				((not (defq v (svg-attr keys vals name))) (if size :nil 0.0))
+				((eql (defq l (read-length (setq v (trim v +svg_space)))) :percent)
+					(* (/ (n2q (read-num v)) 100.0)
+						(cond
+							((find name '("x" "width" "cx" "rx" "x1" "x2")) vw)
+							((find name '("y" "height" "cy" "ry" "y1" "y2")) vh)
+							((n2q (sqrt (/ (+ (* (n2d vw) (n2d vw)) (* (n2d vh) (n2d vh))) (const (n2d 2)))))))))
+				((num? l) l)
+				(size :nil)
+				(0.0)))
+		names))
+
 (defun svg-alpha (argb opacity)
 	; (svg-alpha argb opacity) -> argb
 	;the color's alpha by the opacity, a color of full alpha as it was
 	(if (/= (>> argb 24) 0xff) (setq opacity (* opacity (/ (n2q (>> argb 24)) 255.0))))
 	(+ (<< (n2i (* opacity 0xff.0)) 24) (logand argb 0xffffff)))
 
-(defun svg-coord (val)
-	; (svg-coord str) -> fixed
-	;a coordinate of a gradient, a % of 1
-	(if (ends-with "%" val) (/ (n2q (read-num val)) 100.0) (ifn (read-length val) 0.0)))
+(defun svg-coord (val size)
+	; (svg-coord str size) -> fixed
+	;a coordinate of a gradient, a % of the size, 1 of a box, the
+	;viewport's of the user's space
+	(cond
+		((ends-with "%" val) (* (/ (n2q (read-num val)) 100.0) size))
+		((num? (defq l (read-length val))) l)
+		(0.0)))
 
 (defun read-transform (entry val)
 	(defq stack (reverse (split val ")")) ma (. entry :find "transform"))
@@ -231,15 +267,16 @@
 
 (defun svg-offset (val)
 	; (svg-offset str) -> fixed
-	;0 to 1, or a %
-	(read-opacity val))
+	;0 to 1, or a %; one not known 0
+	(if (num? (defq o (read-opacity val))) o 0.0))
 
 (defun svg-stop (keys vals)
 	; (svg-stop keys vals) -> (offset argb)
 	;a stop of a gradient, its color with its stop-opacity
 	(defq argb (read-color (Lmap) (ifn (svg-attr keys vals "stop-color") "black")))
 	(unless (num? argb) (setq argb +argb_black))
-	(if (defq op (svg-attr keys vals "stop-opacity")) (setq argb (svg-alpha argb (read-opacity op))))
+	(and (defq op (svg-attr keys vals "stop-opacity")) (num? (setq op (read-opacity op)))
+		(setq argb (svg-alpha argb op)))
 	(list (svg-offset (ifn (svg-attr keys vals "offset") "0")) argb))
 
 (defun svg-gradient (id log ids)
@@ -275,7 +312,7 @@
 	;:nil if not. Of the gradient's box, objectBoundingBox by default, the
 	;box of the paths, its gradientTransform, then m, the element's
 	(bind '(& id fall) val)
-	(bind '(log ids) defs)
+	(bind '(log ids (vw vh)) defs)
 	(cond
 		((not (defq g (svg-gradient id log ids)))
 			(when (and (num? fall) (/= fall 0))
@@ -288,10 +325,20 @@
 				frame (if tr (read-transform (scatter (Lmap) "transform" +mat3x2_unity) tr) +mat3x2_unity)
 				spread (case (. attrs :find "spreadMethod")
 					("reflect" +spread_reflect) ("repeat" +spread_repeat) (:t +spread_pad))
-				at (lambda (key default)
-					(if (defq v (. attrs :find key)) (svg-coord v) default)))
+				user (eql units "userSpaceOnUse")
+				;a % of 1 of a box, of the viewport of the user's space, its
+				;width, its height, or for a radius its diagonal over root 2
+				sizes (if user
+					(list vw vh (n2q (sqrt (/ (+ (* (n2d vw) (n2d vw)) (* (n2d vh) (n2d vh))) (const (n2d 2))))))
+					'(1.0 1.0 1.0))
+				at (lambda (key default size)
+					(svg-coord (ifn (. attrs :find key) default) (elem-get sizes size))))
 			(cond
-				((empty? stops) :nil)
+				;of no stops, its fallback, or nothing
+				((empty? stops)
+					(when (and (num? fall) (/= fall 0))
+						(. canvas :set_color (svg-alpha fall opacity))
+						:t))
 				((= (length stops) 1)
 					(. canvas :set_color (second (first stops)))
 					:t)
@@ -304,14 +351,14 @@
 						(setq frame (mat3x2-mul (mat3x2 bw 0.0 bx 0.0 bh by) frame)))
 					(setq frame (mat3x2-mul m frame))
 					(if (eql kind "linearGradient")
-						(. canvas :set_linear (at "x1" 0.0) (at "y1" 0.0) (at "x2" 1.0) (at "y2" 0.0) stops spread frame)
-						(. canvas :set_radial (at "cx" 0.5) (at "cy" 0.5) (at "r" 0.5) stops spread frame))
+						(. canvas :set_linear (at "x1" "0%" 0) (at "y1" "0%" 1) (at "x2" "100%" 0) (at "y2" "0%" 1) stops spread frame)
+						(. canvas :set_radial (at "cx" "50%" 0) (at "cy" "50%" 1) (at "r" "50%" 2) stops spread frame))
 					:t)))))
 
 (defun read-attribute (entry key val)
 	; (read-attribute entry key val) -> :inherit | val
 	;:inherit for one that is to be its parent's: inherit, or a value not known
-	(if (eql (setq val (trim val)) "inherit") (setq key :inherit))
+	(if (eql (setq val (trim val +svg_space)) "inherit") (setq key :inherit))
 	(case key
 		(:inherit :inherit)
 		(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r" "width" "height")
@@ -326,7 +373,11 @@
 		("viewBox"
 			(map (# (n2q (str-to-num %0))) (split val (const (char-class ", ")))))
 		("points"
-			(reduce (# (push %0 (n2q (str-to-num %1)))) (split val (const (char-class ", "))) (path)))
+			;pairs of numbers, a last one alone left out: a path of an odd
+			;length takes the fill and the stroke past its end
+			(defq p (reduce (# (push %0 (n2q (read-num %1))))
+				(filter (# (nempty? %0)) (split val (const (char-class "\t\n\r ,")))) (path)))
+			(if (odd? (length p)) (slice p 0 -2) p))
 		("transform"
 			(read-transform entry val))
 		(("stroke" "fill" "color")
@@ -388,7 +439,8 @@
 				("hanging" "hanging")
 				(:t :inherit)))
 		("d"
-			(path-gen-paths val))
+			;one that can not be read draws nothing, not the picture
+			(catch (path-gen-paths val) (list)))
 		(:t val)))
 
 (defun push-attributes (stack keys vals)
@@ -396,6 +448,10 @@
 	;that is there already keeps its place: the defaults block that is in
 	;order, (SVG-load), stays so
 	(push stack (defq entry (. (last stack) :copy)))
+	;color first, what a currentColor of the same element is
+	(and (defq at (find "color" keys))
+		(nql (defq c (read-attribute entry "color" (elem-get vals at))) :inherit)
+		(. entry :insert "color" c))
 	(each (lambda (key val)
 			(cond
 				((eql key "style")
@@ -453,7 +509,7 @@
 	;larger than its own, as a preview wants it: no pixels made to be
 	;thrown away
 	(setq scale (n2q (ifn scale 1)))
-	(defq canvas :nil skip 0 log (list) ids (Fmap 31) defs (list log ids) replaying 0 stack
+	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport) replaying 0 stack
 			(list (scatter (Lmap)
 					;this block of defaults are in order !
 					"stroke" 0
@@ -479,6 +535,8 @@
 	;each element as it came is kept, and where each with an id is, for a
 	;use of it to draw it again, (replay)
 	(defq on-in (lambda (command keys vals)
+			;of the SVG namespace by a prefix, the element itself
+			(if (starts-with "svg:" command) (setq command (slice command 4 -1)))
 			(when (= replaying 0)
 				(push log (list :in command (cat keys) (cat vals)))
 				(if (defq at (find "id" keys)) (. ids :insert (elem-get vals at) (dec (length log)))))
@@ -494,6 +552,14 @@
 						("svg"
 							(bind '(w h vb par) (gather (defq entry (push-attributes stack keys vals))
 									"width" "height" "viewBox" "preserveAspectRatio"))
+							;a size not more than 0 is none given, and a viewBox
+							;of no area none
+							(or (num? w) (setq w :nil))
+							(or (num? h) (setq h :nil))
+							(and w (<= w 0.0) (setq w :nil))
+							(and h (<= h 0.0) (setq h :nil))
+							(and vb (or (/= (length vb) 4) (<= (elem-get vb 2) 0.0) (<= (elem-get vb 3) 0.0))
+								(setq vb :nil))
 							;the viewBox fitted to the width and height if they
 							;are other than it, else they are its
 							(defq x 0.0 y 0.0 fit :nil)
@@ -504,6 +570,9 @@
 									(setq fit (svg-fit w h vw vh par))
 									(setq w vw h vh)))
 							(setd w 256.0 h 256.0)
+							;the user's space a % of a gradient's is of
+							(elem-set viewport 0 (if vb (elem-get vb 2) w))
+							(elem-set viewport 1 (if vb (elem-get vb 3) h))
 							(cond
 								(most_w
 									;the size that fits, the picture's shape kept
@@ -519,28 +588,37 @@
 											0.0 (* scale sy) (* scale (- ty (* sy y)))))
 									((mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))))
 						("circle"
-							(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
-									"cx" "cy" "r"))
-							(defq d (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
-							(path-fill-and-stroke canvas entry (list (list :t d)) defs))
+							(defq entry (push-attributes stack keys vals))
+							(bind '(cx cy r) (svg-geom keys vals '("cx" "cy" "r") viewport))
+							;a radius not more than 0 draws nothing
+							(and (num? r) (> r 0.0)
+								(path-fill-and-stroke canvas entry
+									(list (list :t (path-gen-arc cx cy 0.0 +fp_2pi r (path)))) defs)))
 						("ellipse"
-							(bind '(cx cy rx ry) (gather (defq entry (push-attributes stack keys vals))
-									"cx" "cy" "rx" "ry"))
+							(defq entry (push-attributes stack keys vals))
+							(bind '(cx cy rx ry) (svg-geom keys vals '("cx" "cy" "rx" "ry") viewport))
 							(setd rx ry ry rx)
-							(defq d (path-gen-ellipse cx cy rx ry (path)))
-							(path-fill-and-stroke canvas entry (list (list :t d)) defs))
+							(and (num? rx) (num? ry) (> rx 0.0) (> ry 0.0)
+								(path-fill-and-stroke canvas entry
+									(list (list :t (path-gen-ellipse cx cy rx ry (path)))) defs)))
 						("line"
-							(bind '(x1 y1 x2 y2) (gather (defq entry (push-attributes stack keys vals))
-									"x1" "y1" "x2" "y2"))
+							(defq entry (push-attributes stack keys vals))
+							(bind '(x1 y1 x2 y2) (svg-geom keys vals '("x1" "y1" "x2" "y2") viewport))
 							(defq d (path x1 y1 x2 y2))
 							(path-fill-and-stroke canvas entry (list (list :nil d)) defs))
 						("rect"
-							(bind '(x y rx ry x1 y1) (gather (defq entry (push-attributes stack keys vals))
-									"x" "y" "rx" "ry" "width" "height"))
-							(setq x1 (+ x x1) y1 (+ y y1))
-							(setd rx ry ry rx)
-							(defq d (path-gen-rect x y x1 y1 rx ry (path)))
-							(path-fill-and-stroke canvas entry (list (list :t d)) defs))
+							(defq entry (push-attributes stack keys vals))
+							(bind '(x y rx ry x1 y1) (svg-geom keys vals '("x" "y" "rx" "ry" "width" "height") viewport))
+							;a size not more than 0 draws nothing, a corner less than 0
+							;is none, one more than half a side half of it
+							(when (and (num? x1) (num? y1) (> x1 0.0) (> y1 0.0))
+								(and (num? rx) (< rx 0.0) (setq rx :nil))
+								(and (num? ry) (< ry 0.0) (setq ry :nil))
+								(setd rx ry ry rx)
+								(if rx (setq rx (min rx (* x1 0.5)) ry (min ry (* y1 0.5))))
+								(setq x1 (+ x x1) y1 (+ y y1))
+								(path-fill-and-stroke canvas entry
+									(list (list :t (path-gen-rect x y x1 y1 rx ry (path)))) defs)))
 						("polygon"
 							(defq entry (push-attributes stack keys vals)
 								d (. entry :find "points"))
@@ -572,12 +650,18 @@
 								(replay at)
 								(-- replaying)))
 						(("text" "g" "a" "switch")
-							(push-attributes stack keys vals)))))))
+							(push-attributes stack keys vals)))
+					;a shape is drawn, its attributes let go of, and what
+					;is in it passed over with its end, by skip
+					(when (find command +svg_shapes)
+						(pop stack)
+						(setq skip 1))))))
 	(defq on-out (lambda (command)
+			(if (starts-with "svg:" command) (setq command (slice command 4 -1)))
 			(if (= replaying 0) (push log (list :out command)))
 			(if (> skip 0) (-- skip)
 				(case command
-					(("svg" "g" "a" "switch" "use" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect" "text")
+					(("svg" "g" "a" "switch" "use" "text")
 						(pop stack))))))
 	(defq on-text (lambda (text)
 			(if (= replaying 0) (push log (list :text text)))

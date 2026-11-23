@@ -156,6 +156,37 @@
 (assert-eq "a transform not known is no change, nothing thrown" 0xffff0000
 	(sv-at "<rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q fill=\qred\q transform=\qwobble(3)\q/>" 20 20))
 
+;what took a node down, or threw, found by resvg's tests, 2026-11-23: each
+;drawn, the rest of the picture with it
+(defq sv_red (cat sv_box " fill=\qred\q/>"))
+(assert-eq "a circle of a radius less than 0 draws nothing, the rest is drawn" (str '(0 0xffff0000))
+	(str (map (# (sv-at (cat sv_red "<circle cx=\q5\q cy=\q5\q r=\q-4\q fill=\qblue\q/>") %0 %0)) '(4 20))))
+(assert-eq "nor an ellipse of one, nor a rect of no height or a width less than 0" "(0 0 0)"
+	(str (map (# (sv-at %0 4 4)) (list "<ellipse cx=\q5\q cy=\q5\q rx=\q-4\q ry=\q3\q/>"
+		"<rect width=\q10\q/>" "<rect width=\q-10\q height=\q10\q/>"))))
+(assert-eq "a polygon of an odd number of numbers, the last left out" 0xff00ff00
+	(sv-at "<polygon points=\q0 0 40 0 0 40 99\q fill=\qlime\q/>" 5 5))
+(assert-true "an svg of a size less than 0, the default size"
+	(SVG-load (string-stream "<svg width=\q-50\q height=\q-100\q><rect width=\q10\q height=\q10\q/></svg>")))
+(assert-eq "a path that can not be read draws nothing, the rest is drawn" 0xffff0000
+	(sv-at (cat "<path d=\qM 0 0 L 40 0 L\q fill=\qblue\q/><path d=\qA 5 5 0 0 1 50 50\q/>" sv_red) 20 20))
+(assert-eq "RGB() in capitals" 0xff00ff00 (sv-at (cat sv_box " fill=\qRGB(0, 255, 0)\q/>") 20 20))
+(assert-eq "currentColor of a color on the same element" 0xff00ff00
+	(sv-at (cat sv_box " fill=\qcurrentColor\q color=\qlime\q/>") 20 20))
+(assert-eq "what is in a shape is not drawn" 0xff00ff00
+	(sv-at (cat sv_box " fill=\qlime\q><rect width=\q40\q height=\q40\q fill=\qred\q/></rect>") 20 20))
+(assert-eq "#qqq is no color, the parent's" 0xff0000ff
+	(sv-at (cat "<g fill=\qblue\q>" sv_box " fill=\q#qqq\q/></g>") 20 20))
+(assert-eq "white space of any kind about a value" 0xff00ff00
+	(sv-at (cat sv_box " fill=\q\n\t lime \n\q/>") 20 20))
+(assert-eq "an opacity with a unit is none given" 0xffff0000
+	(sv-at (cat sv_box " fill=\qred\q opacity=\q0.1mm\q/>") 20 20))
+(assert-eq "a gradient of no stops, its fallback" 0xff00ff00
+	(sv-at (cat "<linearGradient id=\qn\q/>" sv_box " fill=\qurl(#n) lime\q/>") 20 20))
+(assert-true "of the user's space, x2 100% of the viewport by default"
+	(every (const sv-near) '(67 188)
+		(map (# (sv-grad (cat "<linearGradient id=\qg\q gradientUnits=\quserSpaceOnUse\q>" sv_bw "</linearGradient>") "url(#g)" %0 20)) '(10 29))))
+
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")
