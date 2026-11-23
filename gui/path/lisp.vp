@@ -394,16 +394,7 @@
 		;a command
 		(vp-cpy-rr c lc)
 		(vp-or-cr 0x20 lc)
-		(gotoif (list lc '= (ascii-code "m")) 'command)
-		(gotoif (list lc '= (ascii-code "l")) 'command)
-		(gotoif (list lc '= (ascii-code "h")) 'command)
-		(gotoif (list lc '= (ascii-code "v")) 'command)
-		(gotoif (list lc '= (ascii-code "c")) 'command)
-		(gotoif (list lc '= (ascii-code "s")) 'command)
-		(gotoif (list lc '= (ascii-code "q")) 'command)
-		(gotoif (list lc '= (ascii-code "t")) 'command)
-		(gotoif (list lc '= (ascii-code "a")) 'command)
-		(gotoif (list lc '= (ascii-code "z")) 'command)
+		(each (# (gotoif (list lc '= (code %0)) 'command)) "mlhvcsqtaz")
 		;a number, of a command that takes them, its sign
 		(assign '((:rsp slot_n)) `(,e))
 		(breakif `(,e = 0) 'scan)
