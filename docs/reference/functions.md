@@ -8811,7 +8811,9 @@ an XM, an IT, a MED, an AHX or a HivelyTracker's
 (morph-align a b) -> path
 
 b, a closed line of as many points as a, turned to start where it lies
-closest to a, looked for by a few of its points at a few starts
+closest to a, looked for by a few of its points at a few starts. b
+twice over has each turn of it as a slice, and how far a turn is from
+a is a sum over arrays
 ```
 
 ### morph-area
@@ -8820,7 +8822,8 @@ closest to a, looked for by a few of its points at a few starts
 (morph-area p) -> fixed
 
 the area inside a closed line, by the way it goes round, one way
-round less than 0, the other more
+round less than 0, the other more. Each point's x a sixteenth, times
+the next's y, less the next's x a sixteenth times its y, summed
 ```
 
 ### morph-at
@@ -8837,7 +8840,8 @@ can go past either, for an ease that does
 ```code
 (morph-centre p) -> (x y)
 
-the mean of its points, near enough the middle of a line
+the mean of its points, near enough the middle of a line: each point
+over how many there are, summed
 ```
 
 ### morph-length
@@ -8855,6 +8859,15 @@ how long a line is, with the way back to its start if it is closed
 
 each line, its centre as far across and down the box of all of them,
 and which way round it goes, so a hole looks for a hole
+```
+
+### morph-mask
+
+```code
+(morph-mask n stride) -> path
+
+for a line of n points, 1.0 at each stride'th point's x and y, 0.0 at
+the rest. Made once for each n
 ```
 
 ### morph-pair
@@ -8898,6 +8911,17 @@ to one step short of the first, an open line's end on its last
 (morph-reverse p) -> path
 
 the line going the other way round
+```
+
+### morph-steps
+
+```code
+(morph-steps p closed) -> fixeds
+
+how long each part of a line is, from each point to the next, with the
+way back to its start if it is closed: x y of p, the lengths at x. The
+differences, their squares and the squares' sums over all of it at
+once, then a root for each part
 ```
 
 ### morph-trim
@@ -10505,7 +10529,8 @@ names here are long, fn is called with them about it
 ```code
 (outline-box outline) -> :nil | (x y x1 y1)
 
-the box round all of its lines
+the box round all of its lines: all their points as one path, folded
+to its least and its most
 ```
 
 ### outline-centred
@@ -10538,6 +10563,16 @@ whose points are all the one point as a dot. trim, under 1.0, is how
 much of each line is stroked, from its start. A stroke too short to
 have a width, the first hair of a line being drawn, is left out. dash,
 (on off phase), strokes each line as dashes, (outline-dashes)
+```
+
+### outline-fold
+
+```code
+(outline-fold p fnc) -> (x y)
+
+the least or the most x and y of a path's points, fnc (nums-min) or
+(nums-max): one half of its points against the other, over and over,
+each a call of native code, till one point is left
 ```
 
 ### outline-mono

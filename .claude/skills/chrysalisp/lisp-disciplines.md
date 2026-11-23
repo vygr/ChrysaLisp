@@ -867,7 +867,10 @@ new trap there with its test. Others to know:
 	natural alignment, the VM's rule: a field of a file is at any place,
 	read it by `(code str width idx)`, `(code-be)` or `get-short-be` and
 	its like, signed by `(sign-extend v bits)`. `get-byte` is a signed
-	byte anywhere. A reader does not write its own.
+	byte anywhere. A reader does not write its own. A native given a
+	file's bytes is held to the same: its 16 bits are two loads of a
+	byte, as `media_widen` of `lib/media/lisp_tracker.vp` has them, and
+	`./run_tui.sh -V` says each load that is not at its alignment.
 
 *	`(lines! fn stream)` stops at the first line `fn` gives other than
 	`:nil` for: end the lambda `:nil` to read them all.

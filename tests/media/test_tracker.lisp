@@ -369,10 +369,19 @@
 	(list (mod-bytes "abc" 1 2) (mod-bytes "abc" 2 5) (mod-bytes "abc" 3 2) (mod-bytes "abc" 9 2)))
 ;the mixer's samples of the Amiga's: 16 bits high byte first, and a stereo
 ;sample, all its left then all its right, made one channel, half their sum
-(defun tt-widen (src n kind)
-	; (tt-widen src n kind) -> (num ...)
-	(defq out (media-widen (str-alloc (* 2 n)) (tt-bytes src) 0 kind))
+(defun tt-widen (src n kind &optional from)
+	; (tt-widen src n kind [from]) -> (num ...)
+	(defq out (media-widen (str-alloc (* 2 n)) (tt-bytes src) (ifn from 0) kind))
 	(map! (# (get-short out (* 2 (!)))) '() 0 n))
+;16 bits low byte first, at an odd place of the file as at an even: read a
+;byte at a time, a load of 16 bits is of an even address
+(each (lambda (from)
+		(defq src (cat (slice '(0 0 0) 0 from) '(0x34 0x12 0xfe 0xff 0x00 0x80)))
+		(assert-list-eq "media-widen, 16 bits signed" '(0x1234 -2 -32768) (tt-widen src 3 +widen_s16 from))
+		(assert-list-eq "media-widen, 16 bits unsigned" (list (- 0x1234 32768) 32766 0) (tt-widen src 3 +widen_u16 from))
+		(assert-list-eq "media-widen, 16 bits each the change from the last" (list 0x1234 0x1232 (- 0x1232 32768))
+			(tt-widen src 3 +widen_d16 from)))
+	'(0 1 3))
 (assert-list-eq "media-widen, 16 bits high byte first" '(0x1234 -2 -32768) (tt-widen '(0x12 0x34 0xff 0xfe 0x80 0x00) 3 +widen_s16be))
 (assert-list-eq "media-widen, a stereo sample of 8 bits" (list (<< 30 7) (<< -70 7)) (tt-widen '(10 -100 20 30) 2 +widen_s8x2))
 (assert-list-eq "media-widen, and of 16 high byte first" '(0x0180 -3) (tt-widen '(0x01 0x00 0xff 0xfe 0x02 0x00 0xff 0xfc) 2 +widen_s16bex2))
