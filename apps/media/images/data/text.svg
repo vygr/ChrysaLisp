@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768" viewBox="0 0 480 360">
+	<title>Text</title>
+	<desc>The text of the SVG reader: faces and sizes, runs of their own color,
+		anchors, letters placed each, turns, outlines, gradients and shadows</desc>
+	<defs>
+		<linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#101830"/>
+			<stop offset="1" stop-color="#2a1840"/>
+		</linearGradient>
+		<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#fff6c0"/>
+			<stop offset="0.45" stop-color="#ffc840"/>
+			<stop offset="0.55" stop-color="#e08a10"/>
+			<stop offset="1" stop-color="#ffd870"/>
+		</linearGradient>
+		<linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0" stop-color="#ff3060"/>
+			<stop offset="0.25" stop-color="#ffb020"/>
+			<stop offset="0.5" stop-color="#40e060"/>
+			<stop offset="0.75" stop-color="#30a0ff"/>
+			<stop offset="1" stop-color="#c050ff"/>
+		</linearGradient>
+		<radialGradient id="glow" r="0.6">
+			<stop offset="0" stop-color="#ffffff"/>
+			<stop offset="0.5" stop-color="#80e0ff"/>
+			<stop offset="1" stop-color="#2060ff"/>
+		</radialGradient>
+	</defs>
+
+	<rect width="480" height="360" fill="url(#night)"/>
+
+	<!-- a title of gold, outlined, over its shadow -->
+	<g font-size="54" font-weight="bold" text-anchor="middle">
+		<text x="243" y="69" fill="#000000" opacity="0.5">ChrysaLisp</text>
+		<text x="240" y="66" fill="url(#gold)" stroke="#5a3000" stroke-width="1.2">ChrysaLisp</text>
+	</g>
+	<text x="240" y="90" font-size="16" font-style="italic" fill="#c8c0e8" text-anchor="middle">text drawn by the SVG reader</text>
+
+	<!-- runs of their own face and color in one line -->
+	<text x="20" y="124" font-size="17" fill="#e8e8f0">Runs of <tspan font-weight="bold" fill="#ffb020">bold</tspan>, <tspan font-style="italic" fill="#40e0a0">italic</tspan>, <tspan font-weight="bold" font-style="italic" fill="#ff6090">both</tspan> and <tspan font-family="monospace" fill="#80c0ff">mono</tspan>.</text>
+
+	<!-- the three anchors on one line -->
+	<line x1="120" y1="136" x2="120" y2="196" stroke="#ffffff" stroke-opacity="0.3"/>
+	<g font-size="15" fill="#ffffff">
+		<text x="120" y="152" text-anchor="start">start</text>
+		<text x="120" y="172" text-anchor="middle">middle</text>
+		<text x="120" y="192" text-anchor="end">end</text>
+	</g>
+
+	<!-- sizes, by keyword -->
+	<g fill="#d0d8ff" font-weight="bold">
+		<text x="250" y="190"><tspan font-size="x-small">Aa </tspan><tspan font-size="small">Aa </tspan><tspan font-size="medium">Aa </tspan><tspan font-size="large">Aa </tspan><tspan font-size="x-large">Aa </tspan><tspan font-size="xx-large">Aa</tspan></text>
+	</g>
+
+	<!-- a wave, each letter a step of dy from the one before -->
+	<text x="20" y="236" font-size="26" font-weight="bold" fill="url(#rainbow)"
+		dy="0 -6 -4 -1 1 4 6 6 4 1 -1 -4 -6 -6 -4 -1">Waves of letters</text>
+
+	<!-- a word of letters each placed and turned -->
+	<g transform="translate(340 236)">
+		<text font-size="24" font-weight="bold" fill="url(#glow)" text-anchor="middle" transform="rotate(-12)">Turned</text>
+	</g>
+
+	<!-- outlines only, and a code line in mono -->
+	<text x="20" y="292" font-size="40" font-weight="bold" fill="none" stroke="url(#rainbow)" stroke-width="1.5">Outline</text>
+	<text x="225" y="270" font-size="14" font-family="monospace" fill="#a0ffa0">(print "hello world")</text>
+
+	<!-- a ring of letters, each placed by a list of x and y -->
+	<g font-size="13" font-weight="bold" fill="#ffd870" text-anchor="middle">
+		<text x="404 418 428 431 428 418 404 390 380 377 380 390"
+			y="300 304 314 328 342 352 356 352 342 328 314 304">ChrysaLisp!!</text>
+	</g>
+
+	<!-- baselines against a line -->
+	<line x1="20" y1="334" x2="300" y2="334" stroke="#ff6090" stroke-opacity="0.6"/>
+	<g font-size="13" fill="#e8e8f0">
+		<text x="20" y="334">alphabetic</text>
+		<text x="100" y="334" dominant-baseline="middle">middle</text>
+		<text x="160" y="334" dominant-baseline="central">central</text>
+		<text x="225" y="334" dominant-baseline="hanging">hanging</text>
+	</g>
+</svg>

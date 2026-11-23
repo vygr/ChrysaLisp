@@ -216,8 +216,71 @@
 	(sv-at (cat "<g id=\qa\q><rect width=\q40\q height=\q40\q fill=\qlime\q/><use href=\q#b\q/></g>"
 		"<g id=\qb\q><use href=\q#a\q/></g>") 20 20))
 
+;text, 2026-11-23: of its size, as much as a browser draws it, where its
+;glyphs were twice that; runs one after another, a chunk placed by its
+;anchor whole; faces of the .ctf fonts there are
+(defq sv_head "<svg width=\q200\q height=\q200\q>")
+(defun sv-ink (svg &optional head)
+	; (sv-ink svg [head]) -> (x y x1 y1) | :nil
+	;the box of what is drawn more than half covered
+	(bind '(d off w) (sv-pixels svg (ifn head sv_head)))
+	(defq x0 w y0 w x1 -1 y1 -1 i 0 n (/ (- (length d) off) +int_size))
+	(while (< i n)
+		(when (> (get-uint d (+ off (* i +int_size))) 0x80ffffff)
+			(defq x (% i w) y (/ i w))
+			(setq x0 (min x0 x) y0 (min y0 y) x1 (max x1 x) y1 (max y1 y)))
+		(++ i))
+	(if (>= x1 0) (list x0 y0 x1 y1)))
+(defun sv-close (a b most) (<= (abs (- a b)) most))
+(defun sv-text (body &optional attrs)
+	(cat "<text x=\q20\q y=\q150\q font-size=\q100\q " (ifn attrs "") ">" body "</text>"))
+(bind '(& hy & hy1) (sv-ink (sv-text "H")))
+(assert-true "an H of size 100 is 71 tall, its cap height" (sv-close (- hy1 hy) 71 2))
+(bind '(& sy & sy1) (sv-ink "<text x=\q0.2\q y=\q1.5\q font-size=\q1\q>H</text>"
+	"<svg width=\q200\q height=\q200\q viewBox=\q0 0 2 2\q>"))
+(assert-true "and of size 1 in a viewBox of 2 drawn at 200, the same" (sv-close (- sy1 sy) 71 2))
+(defun sv-same (a b &optional most)
+	;the same within a pixel for each place runs meet, a run's width a
+	;whole number of the font's pixels
+	(every (# (sv-close %0 %1 (ifn most 1))) a b))
+(assert-true "a tspan goes on from where the run before it ends, within a pixel"
+	(sv-same (sv-ink "<text x=\q10\q y=\q150\q font-size=\q40\q>Hello</text>")
+		(sv-ink "<text x=\q10\q y=\q150\q font-size=\q40\q>He<tspan>llo</tspan></text>")))
+(bind '(mx & mx1 &ignore) (sv-ink "<text x=\q100\q y=\q150\q font-size=\q40\q text-anchor=\qmiddle\q>He<tspan>llo</tspan></text>"))
+(assert-true "a chunk of runs placed by its anchor whole" (sv-close (+ mx mx1) 200 4))
+(assert-true "a space between runs is kept, once"
+	(sv-same (sv-ink "<text x=\q10\q y=\q150\q font-size=\q20\q>Hello wide world</text>")
+		(sv-ink "<text x=\q10\q y=\q150\q font-size=\q20\q>Hello <tspan> wide </tspan> world</text>") 2))
+(assert-true "and kept as it is where xml:space is preserve"
+	(> (third (sv-ink "<text x=\q10\q y=\q150\q font-size=\q20\q xml:space=\qpreserve\q>A     B</text>"))
+		(third (sv-ink "<text x=\q10\q y=\q150\q font-size=\q20\q>A     B</text>"))))
+(bind '(tx & & ty1) (sv-ink "<text x=\q10\q y=\q100\q font-size=\q40\q><tspan x=\q100\q y=\q180\q>H</tspan></text>"))
+(assert-true "a tspan's own x and y begin a chunk there, after the font's gap"
+	(and (<= 100 tx 106) (= (inc ty1) 180)))
+(assert-true "a list of x, one for each character"
+	(>= (third (sv-ink "<text x=\q20 120\q y=\q150\q font-size=\q40\q>HH</text>")) 140))
+(assert-eq "a dy of a list moves the second down" 30
+	(- (elem-get (sv-ink "<text x=\q20 120\q y=\q150\q dy=\q0 30\q font-size=\q40\q>HH</text>") 3)
+		(elem-get (sv-ink "<text x=\q20 120\q y=\q150\q font-size=\q40\q>HH</text>") 3)))
+(assert-true "italic is a face of its own"
+	(nql (str (sv-pixels (sv-text "H" "font-style=\qitalic\q") sv_head)) (str (sv-pixels (sv-text "H") sv_head))))
+(assert-eq "a weight of 700 is bold" (str (sv-pixels (sv-text "H" "font-weight=\qbold\q") sv_head))
+	(str (sv-pixels (sv-text "H" "font-weight=\q700\q") sv_head)))
+(assert-true "a mono family is Hack, its i as wide as its m"
+	(> (third (sv-ink (sv-text "iiii" "font-family=\qmonospace\q font-size=\q20\q")))
+		(third (sv-ink (sv-text "iiii" "font-family=\qsans-serif\q font-size=\q20\q")))))
+(each (lambda (size name)
+		(bind '(& y & y1) (sv-ink (cat "<g font-size=\q50\q><text x=\q20\q y=\q150\q font-size=\q" size "\q>H</text></g>")))
+		(assert-true (cat "a font-size of " name) (sv-close (- y1 y) 71 2)))
+	'("2em" "200%") '("2em" "200%"))
+(bind '(& ky & ky1) (sv-ink (sv-text "H" "font-size=\qxx-large\q")))
+(assert-true "of xx-large, 32" (sv-close (- ky1 ky) 23 2))
+(assert-eq "a text in a text is not drawn" :nil (sv-ink "<text x=\q10\q y=\q150\q><text>H</text></text>"))
+(bind '(& cy & cy1) (sv-ink (sv-text "H" "dominant-baseline=\qcentral\q")))
+(assert-true "a central baseline lowers it" (> cy (+ hy 20)))
+
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")
 			(SVG-load (file-stream (cat "apps/media/images/data/" name ".svg")))))
-	'("burger" "chrysalisp" "clock" "dial" "golfer" "gradients" "kennedy" "sticker" "tiger"))
+	'("burger" "chrysalisp" "clock" "dial" "golfer" "gradients" "kennedy" "sticker" "text" "tiger"))

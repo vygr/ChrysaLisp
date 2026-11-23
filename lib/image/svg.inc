@@ -216,6 +216,40 @@
 			(some (# (or (eql %0 "en") (starts-with "en-" %0)))
 				(map (# (trim %0 +svg_space)) (split langs ","))))))
 
+(defun svg-text-lists (keys vals)
+	; (svg-text-lists keys vals) -> ((x ...) (y ...) (dx ...) (dy ...))
+	;the lists of lengths of a text's or a tspan's x y dx and dy, one for
+	;each character in turn, each last first to be popped
+	(map (lambda (name)
+			(reverse (map (# (if (num? (defq l (read-length %0))) l 0.0))
+				(filter (const nempty?) (split (ifn (svg-attr keys vals name) "")
+					(const (char-class ", \t\r\n")))))))
+		'("x" "y" "dx" "dy")))
+
+(defun svg-char-len (text)
+	; (svg-char-len text) -> bytes
+	;the length of the first character of a UTF-8 string
+	(defq c (code text 1))
+	(cond ((< c 0xc0) 1) ((< c 0xe0) 2) ((< c 0xf0) 3) (4)))
+
+(defun svg-chars (text)
+	; (svg-chars text) -> (str ...)
+	;the characters of a UTF-8 string
+	(defq out (list))
+	(while (nempty? text)
+		(push out (slice text 0 (defq n (svg-char-len text))))
+		(setq text (slice text n -1)))
+	out)
+
+(defun svg-font (family weight style px)
+	; (svg-font family weight style px) -> font
+	;the face nearest of the .ctf fonts there are
+	(defq face (if (eql style "Italic") (if (eql weight "Bold") "BoldItalic" "Italic") weight))
+	(or (create-font (cat "fonts/" family "-" face ".ctf") px)
+		(create-font (cat "fonts/" family "-Regular.ctf") px)
+		(create-font (cat "fonts/OpenSans-" face ".ctf") px)
+		(create-font "fonts/OpenSans-Regular.ctf" px)))
+
 (defun svg-alpha (argb opacity)
 	; (svg-alpha argb opacity) -> argb
 	;the color's alpha by the opacity, a color of full alpha as it was
@@ -427,17 +461,38 @@
 				("evenodd" +winding_odd_even)
 				(:t :inherit)))
 		("font-weight"
+			;of the faces there are, regular or bold
+			(cond
+				((find val '("normal" "lighter")) "Regular")
+				((find val '("bold" "bolder")) "Bold")
+				((and (nempty? val) (every (# (find %0 "0123456789")) val))
+					(if (>= (str-to-num val) 600) "Bold" "Regular"))
+				(:inherit)))
+		("font-style"
 			(case val
-				("normal" "Regular")
-				("bold" "Bold")
-				("bolder" "Bolder")
-				("lighter" "Lighter")
+				("normal" "Normal")
+				(("italic" "oblique") "Italic")
 				(:t :inherit)))
-		(("font-size" "stroke-width")
+		("font-size"
+			;of the parent's for a % or an em, or by a keyword
+			(defq parent (. entry :find "font-size"))
+			(cond
+				((defq at (find val '("xx-small" "x-small" "small" "medium" "large" "x-large" "xx-large")))
+					(elem-get '(9.0 10.0 13.0 16.0 18.0 24.0 32.0) at))
+				((eql val "larger") (* parent 1.2))
+				((eql val "smaller") (/ parent 1.2))
+				((ends-with "em" val) (* parent (n2q (read-num val))))
+				((eql (defq l (read-length val)) :percent) (* parent (/ (n2q (read-num val)) 100.0)))
+				((and (num? l) (> l 0.0)) l)
+				(:inherit)))
+		("stroke-width"
 			;inherited: one that can not be read is the parent's
 			(if (num? (defq l (read-length val))) l :inherit))
 		("font-family"
-			"OpenSans")
+			;the faces there are, .ctf fonts: a mono one Hack, the rest
+			;Open Sans
+			(if (some (# (found? (to-lower val) %0)) '("mono" "courier" "consol" "hack"))
+				"Hack" "OpenSans"))
 		("text-anchor"
 			(case val
 				("start" "start")
@@ -445,11 +500,11 @@
 				("end" "end")
 				(:t :inherit)))
 		("dominant-baseline"
-			(case val
-				("auto" "auto")
-				("middle" "middle")
-				("hanging" "hanging")
-				(:t :inherit)))
+			(cond
+				((find val '("auto" "alphabetic")) "auto")
+				((find val '("middle" "central" "hanging" "mathematical" "ideographic"
+					"text-before-edge" "text-after-edge" "text-top" "text-bottom")) val)
+				(:inherit)))
 		("d"
 			;one that can not be read draws nothing, not the picture
 			(catch (path-gen-paths val) (list)))
@@ -524,7 +579,10 @@
 	;the viewports of the svgs in svgs, the switches being drawn as (depth
 	;chosen), the elements open and the uses being drawn, by where in the log
 	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport)
-		viewports (list) switches (list) open (list) drawing (list) use_size :nil symbol :nil replaying 0 stack
+		viewports (list) switches (list) open (list) drawing (list) use_size :nil symbol :nil
+		texts 0 text_pos (list) text_runs (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
+		text_start :t text_space :nil
+		replaying 0 stack
 			(list (scatter (Lmap)
 					;this block of defaults are in order !
 					"stroke" 0
@@ -546,7 +604,8 @@
 					"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
 					"cx" 0.0 "cy" 0.0 "r" 0.0
 					"text-anchor" "start" "dominant-baseline" "auto"
-					"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular")))
+					"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular"
+					"font-style" "Normal" "xml:space" "default")))
 	;the outermost svg: the canvas, of its size, or of most_w and most_h, its
 	;viewBox fitted to it
 	(defq svg-root (lambda (keys vals)
@@ -655,7 +714,9 @@
 							(not (elem-set (last switches) 1 :t))))
 					(setq skip 1))
 				((or (find command +svg_skip) (find ":" command)
-						(eql (svg-attr keys vals "display") "none"))
+						(eql (svg-attr keys vals "display") "none")
+						;a text in a text is not drawn
+						(and (eql command "text") (> texts 0)))
 					(setq skip 1))
 				(:t
 					(case command
@@ -735,7 +796,18 @@
 								(pop drawing)
 								(-- replaying)
 								(setq use_size :nil)))
-						(("text" "g" "a")
+						("text"
+							;a new text, at 0 0 unless its x and y say
+							(push-attributes stack keys vals)
+							(text-flush)
+							(++ texts)
+							(setq text_x 0.0 text_y 0.0 text_x0 0.0 text_start :t text_space :nil
+								text_anchor (. (last stack) :find "text-anchor"))
+							(push text_pos (svg-text-lists keys vals)))
+						("tspan"
+							(push-attributes stack keys vals)
+							(push text_pos (svg-text-lists keys vals)))
+						(("g" "a")
 							(push-attributes stack keys vals)))
 					;a shape is drawn, its attributes let go of, and what
 					;is in it passed over with its end, by skip
@@ -759,36 +831,133 @@
 					("switch"
 						(pop switches)
 						(pop stack))
-					(("g" "a" "use" "text")
+					("text"
+						(text-flush)
+						(-- texts)
+						(pop text_pos)
+						(pop stack))
+					("tspan"
+						(pop text_pos)
+						(pop stack))
+					(("g" "a" "use")
 						(pop stack))))))
+	;text: a chunk of runs, each drawn as it comes but held, to be moved
+	;by its text-anchor as one when the chunk ends, at a new x or y or the
+	;end of the text
+	(defq text-flush (lambda ()
+			(when (nempty? text_runs)
+				(defq w (- text_x text_x0)
+					shift (case text_anchor ("middle" (* w -0.5)) ("end" (- 0.0 w)) (:t 0.0)))
+				;the runs of one element drawn as one, a gradient over them all
+				(defq last_entry :nil group (list))
+				(each (lambda ((entry paths))
+						(if (/= shift 0.0)
+							(each (# (mat3x2-vec2-mul (mat3x2-translate shift 0.0) %0 %0)) paths))
+						(unless (eql entry last_entry)
+							(if last_entry (path-fill-and-stroke canvas last_entry group defs))
+							(setq last_entry entry group (list)))
+						(each (# (push group (list :t %0))) paths))
+					text_runs)
+				(path-fill-and-stroke canvas last_entry group defs)
+				(clear text_runs))))
+	(defq text-place (lambda ()
+			;a character's x y dx and dy, each of the innermost text or tspan
+			;that has one left, and one of each taken from all: a new x or
+			;y begins a chunk
+			(bind '(x y dx dy) (map (lambda (i)
+					(rsome (# (last (elem-get %0 i))) text_pos)) '(0 1 2 3)))
+			(each (# (each (# (pop %0)) %0)) text_pos)
+			(when (or x y)
+				(text-flush)
+				(if x (setq text_x x))
+				(if y (setq text_y y))
+				(setq text_x0 text_x text_anchor (. (last stack) :find "text-anchor")))
+			(if dx (setq text_x (+ text_x dx)))
+			(if dy (setq text_y (+ text_y dy)))))
+	(defq text-font (lambda (entry)
+			; (text-font entry) -> (font u)
+			;a font of the size in pixels, never less than 1, and the user's
+			;units of its pixels
+			(bind '(size family weight style (a b & c d &ignore))
+				(gather entry "font-size" "font-family" "font-weight" "font-style" "transform"))
+			(defq px (max 1 (min 1024 (n2i (+ (* size (sqrt (abs (- (* a d) (* b c))))) 0.5)))))
+			(list (svg-font family weight style px) (/ size (n2q px)))))
+	(defq text-width (lambda (font text)
+			; (text-width font text) -> (w h)
+			;its advance in pixels: the bounds are a gap, each glyph's ink
+			;and a gap after it, and 2, so less those of no glyph
+			(bind '(w h) (font-glyph-bounds font text))
+			(list (- w (first (font-glyph-bounds font ""))) h)))
+	(defq text-run (lambda (entry text)
+			;a run of one font, drawn at the text's place, which it moves on;
+			;its paths, at twice the font's size, scaled back to the user's
+			(bind '(font u) (text-font entry))
+			(bind '(w h) (text-width font text))
+			(defq oy (* (n2q h) u (case (. entry :find "dominant-baseline")
+					("middle" 0.196) ("central" 0.285) ("hanging" 0.587)
+					("mathematical" 0.367) (("text-before-edge" "text-top") 0.785)
+					(("text-after-edge" "text-bottom" "ideographic") -0.215) (:t 0.0)))
+				m (mat3x2 (* u 0.5) 0.0 text_x 0.0 (* u 0.5) (+ text_y oy)))
+			(cond
+				((eql (. entry :find "font-family") "Hack")
+					;a mono face in a grid as the :vdu has it, a cell 9/16 of
+					;the font's height, each glyph's bounds in the middle of
+					;its own
+					(defq cell (/ (* (n2q h) 9.0) 16.0) paths (list) at 0.0)
+					(each (lambda (ch)
+							(defq gw (n2q (first (font-glyph-bounds font ch)))
+								k (mat3x2-translate (* 2.0 (+ at (* 0.5 (- cell gw)))) 0.0))
+							(each (# (push paths (mat3x2-vec2-mul m (mat3x2-vec2-mul k %0 %0) %0)))
+								(font-glyph-paths font ch))
+							(setq at (+ at cell)))
+						(svg-chars text))
+					(push text_runs (list entry paths))
+					(setq text_x (+ text_x (* at u))))
+				(:t (push text_runs (list entry (map (# (mat3x2-vec2-mul m %0 %0)) (font-glyph-paths font text))))
+					(setq text_x (+ text_x (* (n2q w) u)))))))
 	(defq on-text (lambda (text)
 			(if (= replaying 0) (push log (list :text text)))
-			;render text (skip in TUI mode where fonts unavailable), its
-			;white space as SVG has it by default: each run one space, none
-			;at either end
-			(setq text (join (split text (const (char-class " \t\r\n"))) " "))
-			(when (and (= skip 0) (get 'create-font) (nempty? text)
-					(eql (. (last stack) :find "visibility") "visible"))
-				(bind '(x y family weight size anchor baseline)
-					(gather (defq entry (last stack))
-						"x" "y" "font-family" "font-weight" "font-size"
-						"text-anchor" "dominant-baseline"))
-				(defq font (create-font (cat "fonts/" family "-" weight ".ctf") (n2i size)))
-				(setd font (create-font (cat "fonts/" family "-Regular.ctf") (n2i size)))
-				(setd font (create-font "fonts/OpenSans-Regular.ctf" (n2i size)))
-				(bind '(w h) (font-glyph-bounds font text))
-				(defq ox (case anchor
-						("middle" (* (n2q w) -1.0))
-						("end" (* (n2q w) -2.0))
-						(:t 0.0))
-					oy (case baseline
-						("middle" (* (n2q h) 0.5))
-						("hanging" (n2q h))
-						(:t 0.0))
-					d (map (# (list :t (mat3x2-vec2-mul
-									(mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
-						(font-glyph-paths font text)))
-				(path-fill-and-stroke canvas entry d defs))))
+			(when (and (> texts 0) (= skip 0) (get 'create-font))
+				(defq entry (last stack)
+					;a place to come, a new x or y: a space before it is the
+					;end of the chunk before, so not drawn
+					placed (some (# (or (last (first %0)) (last (second %0)))) text_pos))
+				;its white space as SVG has it: by default each run of it one
+				;space, none at the ends of a text; preserved, each a space
+				(cond
+					((eql (. entry :find "xml:space") "preserve")
+						(setq text (apply (const cat) (map (# (if (find %0 "\t\n\r") " " %0)) text))
+							text_start :nil))
+					(:t (defq words (filter (const nempty?) (split text +svg_space))
+							lead (and (nempty? text) (find (first text) +svg_space))
+							trail (and (nempty? text) (find (last text) +svg_space)))
+						;a space between runs is of the face it was written in, so
+						;held as its width, and given if more is drawn after it
+						(defq space (lambda ()
+								(bind '(font u) (text-font entry))
+								(* (n2q (first (text-width font " "))) u)))
+						(cond
+							((empty? words)
+								(and lead (not text_start) (not text_space) (setq text_space (space)))
+								(setq text ""))
+							(:t (setq text (join words " "))
+								(and lead (not text_start) (not text_space) (setq text_space (space)))
+								(and text_space (not text_start) (not placed)
+									(setq text_x (+ text_x text_space)))
+								(setq text_start :nil text_space (if trail (space)))))))
+				;a character at a time while there are places for those after
+				;it, the rest a whole run, kerned
+				(defq pending (# (some (# (some (const nempty?) %0)) text_pos)))
+				(while (and (nempty? text) (pending))
+					(text-place)
+					(cond
+						((pending)
+									(defq n (svg-char-len text))
+							(text-run entry (slice text 0 n))
+							(setq text (slice text n -1)))
+						(:t (text-run entry text)
+							(setq text ""))))
+				(if (nempty? text) (text-run entry text)))))
 	(defq replay (lambda (at)
 			;what was kept from at, it and all in it, drawn again; a symbol,
 			;or another of what draws nothing, as a group
