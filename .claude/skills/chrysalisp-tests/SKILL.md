@@ -75,6 +75,12 @@ Options:
 
 *	`tests -m str` runs only the modules with `str` in their path, so
 	`tests -m math` runs `tests/math/`, and `tests -m test_flow` one module.
+	One `-m` only: of several the last is kept, so `-m tests/media/ -m
+	tests/system/` ran system alone, and a last one that matches nothing
+	ran no module and said SUCCESS, 2026-11-23. Read the `Modules:` count.
+	For several folders give the files, `tests -a $(ls tests/media/*.lisp
+	tests/core/*.lisp)` from the shell, the `test_` ones: a helper file
+	named there is run as a module and fails.
 
 *	`tests -l` lists the modules, without running them. Add `-m` to filter.
 
