@@ -226,6 +226,12 @@
 					(const (char-class ", \t\r\n")))))))
 		'("x" "y" "dx" "dy")))
 
+(defun svg-text-decos (val)
+	; (svg-text-decos val) -> (kind ...)
+	;the decorations a text-decoration names, those that are drawn
+	(filter (# (find %0 '("underline" "overline" "line-through")))
+		(split (ifn val "") +svg_space)))
+
 (defun svg-char-len (text)
 	; (svg-char-len text) -> bytes
 	;the length of the first character of a UTF-8 string
@@ -485,6 +491,13 @@
 				((eql (defq l (read-length val)) :percent) (* parent (/ (n2q (read-num val)) 100.0)))
 				((and (num? l) (> l 0.0)) l)
 				(:inherit)))
+		(("letter-spacing" "word-spacing")
+			;normal none, an em of the font's size
+			(cond
+				((eql val "normal") 0.0)
+				((ends-with "em" val) (* (. entry :find "font-size") (n2q (read-num val))))
+				((num? (defq l (read-length val))) l)
+				(:inherit)))
 		("stroke-width"
 			;inherited: one that can not be read is the parent's
 			(if (num? (defq l (read-length val))) l :inherit))
@@ -580,7 +593,7 @@
 	;chosen), the elements open and the uses being drawn, by where in the log
 	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport)
 		viewports (list) switches (list) open (list) drawing (list) use_size :nil symbol :nil
-		texts 0 text_pos (list) text_runs (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
+		texts 0 text_pos (list) text_decos (list) text_y_deco 0.0 text_runs (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
 		text_start :t text_space :nil
 		replaying 0 stack
 			(list (scatter (Lmap)
@@ -605,7 +618,8 @@
 					"cx" 0.0 "cy" 0.0 "r" 0.0
 					"text-anchor" "start" "dominant-baseline" "auto"
 					"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular"
-					"font-style" "Normal" "xml:space" "default")))
+					"font-style" "Normal" "xml:space" "default"
+					"letter-spacing" 0.0 "word-spacing" 0.0)))
 	;the outermost svg: the canvas, of its size, or of most_w and most_h, its
 	;viewBox fitted to it
 	(defq svg-root (lambda (keys vals)
@@ -803,10 +817,18 @@
 							(++ texts)
 							(setq text_x 0.0 text_y 0.0 text_x0 0.0 text_start :t text_space :nil
 								text_anchor (. (last stack) :find "text-anchor"))
-							(push text_pos (svg-text-lists keys vals)))
+							(push text_pos (svg-text-lists keys vals))
+							;its decorations, and those of what it is in, as the
+							;parent's paint
+							(push text_decos (filter (const second)
+								(list (list (elem-get stack -3)
+										(svg-text-decos (. (elem-get stack -3) :find "text-decoration")))
+									(list (last stack) (svg-text-decos (svg-attr keys vals "text-decoration")))))))
 						("tspan"
 							(push-attributes stack keys vals)
-							(push text_pos (svg-text-lists keys vals)))
+							(push text_pos (svg-text-lists keys vals))
+							(push text_decos (filter (const second)
+								(list (list (last stack) (svg-text-decos (svg-attr keys vals "text-decoration")))))))
 						(("g" "a")
 							(push-attributes stack keys vals)))
 					;a shape is drawn, its attributes let go of, and what
@@ -835,9 +857,11 @@
 						(text-flush)
 						(-- texts)
 						(pop text_pos)
+						(pop text_decos)
 						(pop stack))
 					("tspan"
 						(pop text_pos)
+						(pop text_decos)
 						(pop stack))
 					(("g" "a" "use")
 						(pop stack))))))
@@ -888,33 +912,57 @@
 			;and a gap after it, and 2, so less those of no glyph
 			(bind '(w h) (font-glyph-bounds font text))
 			(list (- w (first (font-glyph-bounds font ""))) h)))
+	(defq text-deco (lambda (layers x0 x1 y through)
+			;the decorations of each element that names them, under the
+			;text, or of line-through over it, from x0 to x1 of a baseline
+			;at y, of that element's paint and font size, by Open Sans's
+			;proportions
+			(each (lambda ((entry kinds))
+					(defq size (. entry :find "font-size"))
+					(each (lambda (kind)
+							(when (eql through (eql kind "line-through"))
+								(defq y0 (+ y (* size (case kind
+										("underline" 0.075) ("overline" -1.069) (:t -0.258))))
+									y1 (+ y0 (* size 0.05)))
+								(push text_runs (list entry (list (path x0 y0 x1 y0 x1 y1 x0 y1))))))
+						kinds))
+				layers)))
 	(defq text-run (lambda (entry text)
 			;a run of one font, drawn at the text's place, which it moves on;
 			;its paths, at twice the font's size, scaled back to the user's
 			(bind '(font u) (text-font entry))
 			(bind '(w h) (text-width font text))
+			(bind '(family ls ws) (gather entry "font-family" "letter-spacing" "word-spacing"))
 			(defq oy (* (n2q h) u (case (. entry :find "dominant-baseline")
 					("middle" 0.196) ("central" 0.285) ("hanging" 0.587)
 					("mathematical" 0.367) (("text-before-edge" "text-top") 0.785)
 					(("text-after-edge" "text-bottom" "ideographic") -0.215) (:t 0.0)))
-				m (mat3x2 (* u 0.5) 0.0 text_x 0.0 (* u 0.5) (+ text_y oy)))
+				y (+ text_y oy) m (mat3x2 (* u 0.5) 0.0 text_x 0.0 (* u 0.5) y)
+				mono (eql family "Hack") layers (apply (const cat) text_decos))
 			(cond
-				((eql (. entry :find "font-family") "Hack")
-					;a mono face in a grid as the :vdu has it, a cell 9/16 of
-					;the font's height, each glyph's bounds in the middle of
-					;its own
+				((or mono (/= ls 0.0) (/= ws 0.0))
+					;a character at a time: a mono face in a grid as the :vdu
+					;has it, a cell 9/16 of the font's height, each glyph's
+					;bounds in the middle of its own; and letter and word
+					;spacing after each, in the user's units
 					(defq cell (/ (* (n2q h) 9.0) 16.0) paths (list) at 0.0)
 					(each (lambda (ch)
-							(defq gw (n2q (first (font-glyph-bounds font ch)))
-								k (mat3x2-translate (* 2.0 (+ at (* 0.5 (- cell gw)))) 0.0))
+							(defq k (if mono
+									(mat3x2-translate (* 2.0 (+ at (* 0.5 (- cell (n2q (first (font-glyph-bounds font ch))))))) 0.0)
+									(mat3x2-translate (* 2.0 at) 0.0)))
 							(each (# (push paths (mat3x2-vec2-mul m (mat3x2-vec2-mul k %0 %0) %0)))
 								(font-glyph-paths font ch))
-							(setq at (+ at cell)))
+							(setq at (+ at (if mono cell (n2q (first (text-width font ch))))
+								(/ (+ ls (if (eql ch " ") ws 0.0)) u))))
 						(svg-chars text))
-					(push text_runs (list entry paths))
-					(setq text_x (+ text_x (* at u))))
-				(:t (push text_runs (list entry (map (# (mat3x2-vec2-mul m %0 %0)) (font-glyph-paths font text))))
-					(setq text_x (+ text_x (* (n2q w) u)))))))
+					(setq w at))
+				(:t (defq paths (map (# (mat3x2-vec2-mul m %0 %0)) (font-glyph-paths font text)))
+					(setq w (n2q w))))
+			(defq x1 (+ text_x (* w u)))
+			(text-deco layers text_x x1 y :nil)
+			(push text_runs (list entry paths))
+			(text-deco layers text_x x1 y :t)
+			(setq text_x x1 text_y_deco y)))
 	(defq on-text (lambda (text)
 			(if (= replaying 0) (push log (list :text text)))
 			(when (and (> texts 0) (= skip 0) (get 'create-font))
@@ -935,15 +983,21 @@
 						;held as its width, and given if more is drawn after it
 						(defq space (lambda ()
 								(bind '(font u) (text-font entry))
-								(* (n2q (first (text-width font " "))) u)))
+								(list (+ (* (n2q (first (text-width font " "))) u)
+										(. entry :find "letter-spacing") (. entry :find "word-spacing"))
+									(apply (const cat) text_decos))))
 						(cond
 							((empty? words)
 								(and lead (not text_start) (not text_space) (setq text_space (space)))
 								(setq text ""))
 							(:t (setq text (join words " "))
 								(and lead (not text_start) (not text_space) (setq text_space (space)))
-								(and text_space (not text_start) (not placed)
-									(setq text_x (+ text_x text_space)))
+								(when (and text_space (not text_start) (not placed))
+									;under it the decorations of where it was written
+									(bind '(sw layers) text_space)
+									(text-deco layers text_x (+ text_x sw) text_y_deco :nil)
+									(text-deco layers text_x (+ text_x sw) text_y_deco :t)
+									(setq text_x (+ text_x sw)))
 								(setq text_start :nil text_space (if trail (space)))))))
 				;a character at a time while there are places for those after
 				;it, the rest a whole run, kerned
@@ -952,7 +1006,7 @@
 					(text-place)
 					(cond
 						((pending)
-									(defq n (svg-char-len text))
+							(defq n (svg-char-len text))
 							(text-run entry (slice text 0 n))
 							(setq text (slice text n -1)))
 						(:t (text-run entry text)

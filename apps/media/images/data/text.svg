@@ -2,7 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768" viewBox="0 0 480 360">
 	<title>Text</title>
 	<desc>The text of the SVG reader: faces and sizes, runs of their own color,
-		anchors, letters placed each, turns, outlines, gradients and shadows</desc>
+		anchors, decorations, spacing, letters placed each, turns, outlines,
+		gradients and shadows</desc>
 	<defs>
 		<linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
 			<stop offset="0" stop-color="#101830"/>
@@ -35,7 +36,7 @@
 		<text x="243" y="69" fill="#000000" opacity="0.5">ChrysaLisp</text>
 		<text x="240" y="66" fill="url(#gold)" stroke="#5a3000" stroke-width="1.2">ChrysaLisp</text>
 	</g>
-	<text x="240" y="90" font-size="16" font-style="italic" fill="#c8c0e8" text-anchor="middle">text drawn by the SVG reader</text>
+	<text x="240" y="90" font-size="15" font-style="italic" fill="#c8c0e8" text-anchor="middle" letter-spacing="2" word-spacing="4">text drawn by the SVG reader</text>
 
 	<!-- runs of their own face and color in one line -->
 	<text x="20" y="124" font-size="17" fill="#e8e8f0">Runs of <tspan font-weight="bold" fill="#ffb020">bold</tspan>, <tspan font-style="italic" fill="#40e0a0">italic</tspan>, <tspan font-weight="bold" font-style="italic" fill="#ff6090">both</tspan> and <tspan font-family="monospace" fill="#80c0ff">mono</tspan>.</text>
@@ -48,9 +49,16 @@
 		<text x="120" y="192" text-anchor="end">end</text>
 	</g>
 
+	<!-- decorations, each of its own color, under and over -->
+	<g font-size="14">
+		<text x="172" y="149" fill="#80e0ff" text-decoration="underline">underline</text>
+		<text x="172" y="177" fill="#ffd870" text-decoration="overline">overline</text>
+		<text x="172" y="197" fill="#ff8090" text-decoration="line-through">line-through</text>
+	</g>
+
 	<!-- sizes, by keyword -->
 	<g fill="#d0d8ff" font-weight="bold">
-		<text x="250" y="190"><tspan font-size="x-small">Aa </tspan><tspan font-size="small">Aa </tspan><tspan font-size="medium">Aa </tspan><tspan font-size="large">Aa </tspan><tspan font-size="x-large">Aa </tspan><tspan font-size="xx-large">Aa</tspan></text>
+		<text x="262" y="190"><tspan font-size="x-small">Aa </tspan><tspan font-size="small">Aa </tspan><tspan font-size="medium">Aa </tspan><tspan font-size="large">Aa </tspan><tspan font-size="x-large">Aa </tspan><tspan font-size="xx-large">Aa</tspan></text>
 	</g>
 
 	<!-- a wave, each letter a step of dy from the one before -->

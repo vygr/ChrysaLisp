@@ -279,6 +279,32 @@
 (bind '(& cy & cy1) (sv-ink (sv-text "H" "dominant-baseline=\qcentral\q")))
 (assert-true "a central baseline lowers it" (> cy (+ hy 20)))
 
+;decorations, of the element that names them, and letter and word spacing
+(defun sv-deco (deco &optional inner)
+	(sv-ink (cat "<text x=\q20\q y=\q100\q font-size=\q40\q " deco ">H" (ifn inner "") "</text>")))
+(assert-true "an underline is below the baseline"
+	(> (elem-get (sv-deco "text-decoration=\qunderline\q") 3) 102))
+(assert-true "an overline over the H" (< (second (sv-deco "text-decoration=\qoverline\q")) 65))
+(defun sv-gaps (svg y)
+	; (sv-gaps svg y) -> (x ...)
+	;the empty pixels of row y between its first and last that are not
+	(bind '(d off w) (sv-pixels svg sv_head))
+	(defq row (map! (# (>> (get-uint d (+ off (* +int_size (+ (* y w) (!))))) 24)) '() 0 w)
+		inked (filter (# (> (elem-get row %0) 0)) (map! (# (!)) '() 0 w)))
+	(filter (# (= (elem-get row %0) 0)) (map! (# (!)) '() (first inked) (last inked))))
+(defq sv_gaps (sv-gaps "<text x=\q20\q y=\q100\q font-size=\q40\q>HH</text>" 90))
+(assert-true "two H's have a gap between them" (nempty? sv_gaps))
+(assert-eq "a line-through fills it" '()
+	(filter (# (/= (sv-at "<text x=\q20\q y=\q100\q font-size=\q40\q text-decoration=\qline-through\q>HH</text>" %0 90 sv_head) 0xff000000)) sv_gaps))
+(assert-eq "an underline of a group is of the group's paint and size, under a tspan of its own" 0xff00ff00
+	(sv-at "<g text-decoration=\qunderline\q fill=\qlime\q font-size=\q40\q><text x=\q20\q y=\q100\q><tspan fill=\qred\q>HH</tspan></text></g>" 40 104 sv_head))
+(defq sv_hhhh (sv-ink "<text x=\q20\q y=\q100\q font-size=\q20\q>HHHH</text>"))
+(assert-true "letter-spacing of 10 widens four letters by 30, within a pixel each"
+	(sv-close (- (third (sv-ink "<text x=\q20\q y=\q100\q font-size=\q20\q letter-spacing=\q10\q>HHHH</text>")) (third sv_hhhh)) 30 4))
+(assert-true "word-spacing of 20 widens a space by 20"
+	(sv-close (- (third (sv-ink "<text x=\q20\q y=\q100\q font-size=\q20\q word-spacing=\q20\q>H H</text>"))
+		(third (sv-ink "<text x=\q20\q y=\q100\q font-size=\q20\q>H H</text>"))) 20 2))
+
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")
