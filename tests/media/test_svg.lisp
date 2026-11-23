@@ -114,6 +114,48 @@
 (assert-eq "xMaxYMax meet, at the right" "0000000000000000000011111111111111111111" (sv-fitted "xMaxYMax meet"))
 (assert-eq "none, stretched" "1111111111111111111111111111111111111111" (sv-fitted "none"))
 
+;gradients: of the shape's box by default, or of the user's space, with
+;their transform, a radial, by href, stops and their opacity, the spread
+(defun sv-grad (defs fill x y)
+	; (sv-grad defs fill x y) -> blue
+	;the blue of a pixel of a box 10 to 30 filled so, defs before it
+	(logand 0xff (sv-at (cat "<defs>" defs "</defs><rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q fill=\q" fill "\q/>") x y)))
+(defun sv-near (want got) (<= (abs (- want got)) 8))
+(defq sv_bw "<stop offset=\q0\q stop-color=\qblack\q/><stop offset=\q1\q stop-color=\qwhite\q/>")
+(assert-true "a linear gradient across the box, black at its left, white at its right, grey between"
+	(every (const sv-near) '(6 128 249)
+		(map (# (sv-grad (cat "<linearGradient id=\qg\q>" sv_bw "</linearGradient>") "url(#g)" %0 20)) '(10 20 29))))
+(assert-true "of the user's space, from 10 to 30, the same"
+	(every (const sv-near) '(6 128 249)
+		(map (# (sv-grad (cat "<linearGradient id=\qg\q gradientUnits=\quserSpaceOnUse\q x1=\q10\q x2=\q30\q>" sv_bw "</linearGradient>") "url(#g)" %0 20)) '(10 20 29))))
+(assert-true "turned by its transform, down the box"
+	(every (const sv-near) '(6 128 249)
+		(map (# (sv-grad (cat "<linearGradient id=\qg\q gradientTransform=\qrotate(90)\q>" sv_bw "</linearGradient>") "url(#g)" 20 %0)) '(10 20 29))))
+;a pixel's centre is half a pixel on: of a radial of 10 about 20 20, the
+;pixel 20 is 0.07 out, 15 0.45, 25 0.55, 10 0.95
+(assert-true "a radial, black at its centre to white at its edge"
+	(every (const sv-near) '(18 115 141 243)
+		(map (# (sv-grad (cat "<radialGradient id=\qg\q>" sv_bw "</radialGradient>") "url(#g)" %0 20)) '(20 15 25 10))))
+(assert-true "its stops by href from another"
+	(sv-near 128 (sv-grad (cat "<linearGradient id=\qa\q>" sv_bw "</linearGradient><linearGradient id=\qg\q href=\q#a\q/>") "url(#g)" 20 20)))
+;of a line half the box, pixels 14, 15 and 19 at t 0.45, 0.55 and 0.95,
+;25 at 1.55, 0.45 reflected
+(assert-true "reflected past a line half the box"
+	(every (const sv-near) '(115 140 243 115)
+		(map (# (sv-grad (cat "<linearGradient id=\qg\q x2=\q0.5\q spreadMethod=\qreflect\q>" sv_bw "</linearGradient>") "url(#g)" %0 20)) '(14 15 19 25))))
+(assert-eq "a stop's color in its style" 0xffff0000
+	(sv-at "<defs><linearGradient id=\qg\q><stop offset=\q0\q style=\qstop-color: red\q/></linearGradient></defs><rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q fill=\qurl(#g)\q/>" 20 20))
+(assert-true "stop-opacity and fill-opacity, half and half, a quarter"
+	(<= 60 (>> (sv-at "<defs><linearGradient id=\qg\q><stop offset=\q0\q stop-color=\qwhite\q stop-opacity=\q0.5\q/><stop offset=\q1\q stop-color=\qwhite\q stop-opacity=\q0.5\q/></linearGradient></defs><rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q fill=\qurl(#g)\q fill-opacity=\q0.5\q/>" 20 20) 24) 68))
+(assert-eq "one not there, its fallback color" 0xffff0000
+	(sv-at "<rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q fill=\qurl(#none) red\q/>" 20 20))
+(assert-eq "one not there and none to fall back on, nothing" 0
+	(sv-at "<rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q fill=\qurl(#none)\q/>" 20 20))
+(assert-true "a stroke of a gradient"
+	(sv-near 128 (logand 0xff (sv-at (cat "<defs><linearGradient id=\qg\q gradientUnits=\quserSpaceOnUse\q x1=\q0\q x2=\q40\q>" sv_bw "</linearGradient></defs><line x1=\q0\q y1=\q20.5\q x2=\q40\q y2=\q20.5\q stroke=\qurl(#g)\q stroke-width=\q4\q/>") 20 20))))
+(assert-eq "a transform not known is no change, nothing thrown" 0xffff0000
+	(sv-at "<rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q fill=\qred\q transform=\qwobble(3)\q/>" 20 20))
+
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")

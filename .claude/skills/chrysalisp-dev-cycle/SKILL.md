@@ -800,6 +800,11 @@ are not there, make them again from this.
 	a different build", and is the first place to look when a job is not
 	run on every machine.
 
+*	A `./rack.sh run 'rack ...'` of its own runs on the members it sees
+	then, and says nothing of one it does not: count the `RAN` lines, one
+	for each machine. 2026-11-23 one went without the x64's, its member
+	up, and a run of it alone, the others left out with `-l`, saw it.
+
 *	**test**, `[-b] [tests args]`: works out which machines have nodes up
 	that are not the member, those are left out with `-l`, lists files
 	deleted here for `-d`, then `./rack.sh run 'rack ... "tests args"'` on

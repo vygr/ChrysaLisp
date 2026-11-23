@@ -120,23 +120,29 @@
 	(defq alpha (if a (n2i (* (read-opacity a) 255.0)) 0xff))
 	(apply (const +) (map (# (<< (max 0 (min 255 (n2i %0))) %1)) (list alpha r g b) '(24 16 8 0))))
 
-(defun read-color (entry val)
-	; (read-color entry str) -> :inherit | argb
+(defun read-plain-color (entry val)
+	; (read-plain-color entry str) -> :inherit | argb
 	;a color as SVG and CSS write it, 0 for none, :inherit for one not known
-	(setq val (trim val))
 	(cond
 		((find val '("none" "transparent")) 0)
 		((eql val "currentColor") (. entry :find "color"))
 		((starts-with "#" val) (ifn (read-col val) :inherit))
 		((or (starts-with "rgb(" val) (starts-with "rgba(" val)) (read-rgb val))
-		((starts-with "url(" val)
-			;a paint server, not yet: its fallback color, else none
-			(defq at (find ")" val))
-			(if (and at (nempty? (defq fall (trim (slice val (inc at) -1)))))
-				(read-color entry fall) 0))
 		((. +svg_colors :find (to-lower val)))
 		(:inherit)))
 
+(defun read-color (entry val)
+	; (read-color entry str) -> :inherit | argb | (:url id fall)
+	;a color, (read-plain-color), or a paint server, a gradient, by its id,
+	;with the color after it if there is one, to fall back on, (svg-paint)
+	(setq val (trim val))
+	(cond
+		((starts-with "url(" val)
+			(defq at (find ")" val) id (trim (slice val 4 (ifn at -1)) (const (char-class " '\q")))
+				fall (if at (trim (slice val (inc at) -1))))
+			(if (starts-with "#" id) (setq id (slice id 1 -1)))
+			(list :url id (if (nempty? fall) (read-plain-color entry fall))))
+		((read-plain-color entry val))))
 (defun svg-fit (w h vw vh par)
 	; (svg-fit w h vw vh par) -> (sx sy tx ty)
 	;a viewBox of vw by vh into a viewport of w by h as preserveAspectRatio
@@ -166,6 +172,17 @@
 					(and (= (length kv) 2) (eql (trim (first kv)) key) (trim (second kv))))
 				(split (elem-get vals at) ";")))))
 
+(defun svg-alpha (argb opacity)
+	; (svg-alpha argb opacity) -> argb
+	;the color's alpha by the opacity, a color of full alpha as it was
+	(if (/= (>> argb 24) 0xff) (setq opacity (* opacity (/ (n2q (>> argb 24)) 255.0))))
+	(+ (<< (n2i (* opacity 0xff.0)) 24) (logand argb 0xffffff)))
+
+(defun svg-coord (val)
+	; (svg-coord str) -> fixed
+	;a coordinate of a gradient, a % of 1
+	(if (ends-with "%" val) (/ (n2q (read-num val)) 100.0) (ifn (read-length val) 0.0)))
+
 (defun read-transform (entry val)
 	(defq stack (reverse (split val ")")) ma (. entry :find "transform"))
 	(while (defq transform (pop stack))
@@ -194,9 +211,102 @@
 				("skewY"
 					(bind '(a) vals)
 					(mat3x2-skew 0.0 (deg-to-rad a)))
-				(:t (throw "Unknown transform !" key))))
+				;one not known is no change
+				(:t +mat3x2_unity)))
 		(setq ma (mat3x2-mul ma mb)))
 	ma)
+
+
+(defun svg-bounds (paths)
+	; (svg-bounds paths) -> (x y w h)
+	;the box of what the paths, ((closed path) ...), cover, of their points
+	(defq x0 32767.0 y0 32767.0 x1 -32767.0 y1 -32767.0)
+	(each (lambda ((& p))
+			(defq i 0 n (length p))
+			(while (< i n)
+				(defq x (elem-get p i) y (elem-get p (inc i)))
+				(setq x0 (min x0 x) x1 (max x1 x) y0 (min y0 y) y1 (max y1 y) i (+ i 2))))
+		paths)
+	(if (> x1 x0) (list x0 y0 (- x1 x0) (- y1 y0)) (list 0.0 0.0 0.0 0.0)))
+
+(defun svg-offset (val)
+	; (svg-offset str) -> fixed
+	;0 to 1, or a %
+	(read-opacity val))
+
+(defun svg-stop (keys vals)
+	; (svg-stop keys vals) -> (offset argb)
+	;a stop of a gradient, its color with its stop-opacity
+	(defq argb (read-color (Lmap) (ifn (svg-attr keys vals "stop-color") "black")))
+	(unless (num? argb) (setq argb +argb_black))
+	(if (defq op (svg-attr keys vals "stop-opacity")) (setq argb (svg-alpha argb (read-opacity op))))
+	(list (svg-offset (ifn (svg-attr keys vals "offset") "0")) argb))
+
+(defun svg-gradient (id log ids)
+	; (svg-gradient id log ids) -> :nil | (kind attrs stops)
+	;a linearGradient or a radialGradient kept in the log, (SVG-load), its
+	;attributes over those of the one its href names, and so on, eight at
+	;most, and its stops, or those of the nearest of them that has any
+	(defq chain (list) attrs (Fmap 11) stops (list))
+	(while (and id (< (length chain) 8) (defq at (. ids :find id)) (defq e (elem-get log at))
+			(find (second e) '("linearGradient" "radialGradient")))
+		(push chain at)
+		(bind '(& & keys vals) e)
+		(setq id (and (defq href (or (svg-attr keys vals "href") (svg-attr keys vals "xlink:href")))
+			(starts-with "#" href) (slice href 1 -1))))
+	(when (nempty? chain)
+		(reach (lambda (at)
+				(bind '(& & keys vals) (elem-get log at))
+				(each (# (. attrs :insert %0 %1)) keys vals)
+				(defq own (list) i (inc at) d 1)
+				(while (and (< i (length log)) (> d 0))
+					(bind '(ek &optional ea eb ec) (elem-get log i))
+					(case ek
+						(:in (and (= d 1) (eql ea "stop") (push own (svg-stop eb ec))) (++ d))
+						(:out (-- d)))
+					(++ i))
+				(if (nempty? own) (setq stops own)))
+			chain)
+		(list (second (elem-get log (first chain))) attrs stops)))
+(defun svg-paint (canvas val opacity paths m defs)
+	; (svg-paint canvas val opacity paths m defs) -> :nil | :t
+	;the canvas told to draw with a gradient, (:url id fall), defs the log
+	;and the ids, (SVG-load): :t if it is to be drawn, a gradient or a color,
+	;:nil if not. Of the gradient's box, objectBoundingBox by default, the
+	;box of the paths, its gradientTransform, then m, the element's
+	(bind '(& id fall) val)
+	(bind '(log ids) defs)
+	(cond
+		((not (defq g (svg-gradient id log ids)))
+			(when (and (num? fall) (/= fall 0))
+				(. canvas :set_color (svg-alpha fall opacity))
+				:t))
+		(:t (bind '(kind attrs stops) g)
+			(defq stops (map (lambda ((o c)) (list o (svg-alpha c opacity))) stops)
+				units (ifn (. attrs :find "gradientUnits") "objectBoundingBox")
+				tr (. attrs :find "gradientTransform")
+				frame (if tr (read-transform (scatter (Lmap) "transform" +mat3x2_unity) tr) +mat3x2_unity)
+				spread (case (. attrs :find "spreadMethod")
+					("reflect" +spread_reflect) ("repeat" +spread_repeat) (:t +spread_pad))
+				at (lambda (key default)
+					(if (defq v (. attrs :find key)) (svg-coord v) default)))
+			(cond
+				((empty? stops) :nil)
+				((= (length stops) 1)
+					(. canvas :set_color (second (first stops)))
+					:t)
+				((and (nql units "userSpaceOnUse")
+						(bind '(bx by bw bh) (svg-bounds paths))
+						(or (<= bw 0.0) (<= bh 0.0)))
+					;a box of no width or height, nothing drawn
+					:nil)
+				(:t (if (nql units "userSpaceOnUse")
+						(setq frame (mat3x2-mul (mat3x2 bw 0.0 bx 0.0 bh by) frame)))
+					(setq frame (mat3x2-mul m frame))
+					(if (eql kind "linearGradient")
+						(. canvas :set_linear (at "x1" 0.0) (at "y1" 0.0) (at "x2" 1.0) (at "y2" 0.0) stops spread frame)
+						(. canvas :set_radial (at "cx" 0.5) (at "cy" 0.5) (at "r" 0.5) stops spread frame))
+					:t)))))
 
 (defun read-attribute (entry key val)
 	; (read-attribute entry key val) -> :inherit | val
@@ -298,13 +408,7 @@
 					(. entry :insert key val)))) keys vals)
 	entry)
 
-(defun svg-alpha (argb opacity)
-	; (svg-alpha argb opacity) -> argb
-	;the color's alpha by the opacity, a color of full alpha as it was
-	(if (/= (>> argb 24) 0xff) (setq opacity (* opacity (/ (n2q (>> argb 24)) 255.0))))
-	(+ (<< (n2i (* opacity 0xff.0)) 24) (logand argb 0xffffff)))
-
-(defun path-fill-and-stroke (canvas entry paths)
+(defun path-fill-and-stroke (canvas entry paths &optional defs)
 	(bind '(& stroke & fill & stroke_width & stroke_linecap & stroke_linejoin
 			& fill_rule & fill_opacity & stroke_opacity & transform & opacity & visibility
 			& dasharray & dashoffset &ignore)
@@ -312,14 +416,17 @@
 	;cheaky bind of the front of the Pmap :bucket !
 	(unless (eql visibility "visible") (setq fill 0 stroke 0))
 	(setq fill_opacity (* fill_opacity opacity) stroke_opacity (* stroke_opacity opacity))
-	(and (/= fill 0) (/= fill_opacity 0.0)
+	;a gradient's or a color's, :t if there is any to draw
+	(defq paint (lambda (val alpha)
+			(cond
+				((list? val) (and defs (svg-paint canvas val alpha paths transform defs)))
+				(:t (. canvas :set_color (svg-alpha val alpha)) :t))))
+	(and (nql fill 0) (/= fill_opacity 0.0) (paint fill fill_opacity)
 		(.-> canvas
-			(:set_color (svg-alpha fill fill_opacity))
 			(:fpoly 0.0 0.0 fill_rule
 				(map (lambda ((f p)) (mat3x2-vec2-mul transform p (cat p))) paths))))
-	(and (/= stroke 0) (/= stroke_opacity 0.0)
+	(and (nql stroke 0) (/= stroke_opacity 0.0) (paint stroke stroke_opacity)
 		(.-> canvas
-			(:set_color (svg-alpha stroke stroke_opacity))
 			(:fpoly 0.0 0.0 fill_rule
 				(map (lambda (p) (mat3x2-vec2-mul transform p p))
 					(reduce (lambda (l (f p))
@@ -346,7 +453,7 @@
 	;larger than its own, as a preview wants it: no pixels made to be
 	;thrown away
 	(setq scale (n2q (ifn scale 1)))
-	(defq canvas :nil skip 0 log (list) ids (Fmap 31) replaying 0 stack
+	(defq canvas :nil skip 0 log (list) ids (Fmap 31) defs (list log ids) replaying 0 stack
 			(list (scatter (Lmap)
 					;this block of defaults are in order !
 					"stroke" 0
@@ -415,37 +522,37 @@
 							(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
 									"cx" "cy" "r"))
 							(defq d (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
-							(path-fill-and-stroke canvas entry (list (list :t d))))
+							(path-fill-and-stroke canvas entry (list (list :t d)) defs))
 						("ellipse"
 							(bind '(cx cy rx ry) (gather (defq entry (push-attributes stack keys vals))
 									"cx" "cy" "rx" "ry"))
 							(setd rx ry ry rx)
 							(defq d (path-gen-ellipse cx cy rx ry (path)))
-							(path-fill-and-stroke canvas entry (list (list :t d))))
+							(path-fill-and-stroke canvas entry (list (list :t d)) defs))
 						("line"
 							(bind '(x1 y1 x2 y2) (gather (defq entry (push-attributes stack keys vals))
 									"x1" "y1" "x2" "y2"))
 							(defq d (path x1 y1 x2 y2))
-							(path-fill-and-stroke canvas entry (list (list :nil d))))
+							(path-fill-and-stroke canvas entry (list (list :nil d)) defs))
 						("rect"
 							(bind '(x y rx ry x1 y1) (gather (defq entry (push-attributes stack keys vals))
 									"x" "y" "rx" "ry" "width" "height"))
 							(setq x1 (+ x x1) y1 (+ y y1))
 							(setd rx ry ry rx)
 							(defq d (path-gen-rect x y x1 y1 rx ry (path)))
-							(path-fill-and-stroke canvas entry (list (list :t d))))
+							(path-fill-and-stroke canvas entry (list (list :t d)) defs))
 						("polygon"
 							(defq entry (push-attributes stack keys vals)
 								d (. entry :find "points"))
-							(path-fill-and-stroke canvas entry (list (list :t d))))
+							(path-fill-and-stroke canvas entry (list (list :t d)) defs))
 						("polyline"
 							(defq entry (push-attributes stack keys vals)
 								d (. entry :find "points"))
-							(path-fill-and-stroke canvas entry (list (list :nil d))))
+							(path-fill-and-stroke canvas entry (list (list :nil d)) defs))
 						("path"
 							(defq entry (push-attributes stack keys vals)
 								d (. entry :find "d"))
-							(path-fill-and-stroke canvas entry d))
+							(path-fill-and-stroke canvas entry d defs))
 						("use"
 							;its own attributes over what it uses, but x and y,
 							;which are a move after its transform
@@ -499,7 +606,7 @@
 					d (map (# (list :t (mat3x2-vec2-mul
 									(mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
 						(font-glyph-paths font text)))
-				(path-fill-and-stroke canvas entry d))))
+				(path-fill-and-stroke canvas entry d defs))))
 	(defq replay (lambda (at)
 			;what was kept from at, it and all in it, drawn again; a symbol,
 			;or another of what draws nothing, as a group
