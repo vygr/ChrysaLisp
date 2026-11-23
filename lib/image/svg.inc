@@ -236,6 +236,51 @@
 	(filter (# (find %0 '("underline" "overline" "line-through")))
 		(split (ifn val "") +svg_space)))
 
+(defun svg-path-segs (paths m)
+	; (svg-path-segs paths m) -> ((x0 y0 x1 y1 len) ...)
+	;the segments of a path's paths, by its own matrix if it has one, a
+	;closed one closed, a move between them none
+	(defq segs (list))
+	(each (lambda ((closed p))
+			(if m (setq p (mat3x2-vec2-mul m p (cat p))))
+			(when (>= (length p) 4)
+				(and closed (or (/= (first p) (elem-get p -3)) (/= (second p) (elem-get p -2)))
+					(setq p (cat p (slice p 0 2))))
+				(defq i 2)
+				(while (< i (length p))
+					(bind '(x0 y0 x1 y1) (slice p (- i 2) (+ i 2)))
+					(defq dx (- x1 x0) dy (- y1 y0) l (sqrt (+ (* dx dx) (* dy dy))))
+					(if (> l 0.0) (push segs (list x0 y0 x1 y1 l)))
+					(setq i (+ i 2)))))
+		paths)
+	segs)
+
+(defun svg-path-at (segs d)
+	; (svg-path-at segs d) -> (x y ux uy) | :nil
+	;the point a distance d along segments, and the unit way it goes there
+	(some (lambda ((x0 y0 x1 y1 l))
+			(cond
+				((<= d l)
+					(list (+ x0 (* (- x1 x0) (/ d l))) (+ y0 (* (- y1 y0) (/ d l)))
+						(/ (- x1 x0) l) (/ (- y1 y0) l)))
+				(:t (setq d (- d l)) :nil)))
+		segs))
+
+(defun svg-shift (keys vals entry)
+	; (svg-shift keys vals entry) -> fixed
+	;a tspan's or a textPath's baseline as its parent's moved up by its
+	;own baseline-shift: a length, a % of its font's size, or
+	;sub and super by Open Sans's offsets for them
+	(defq size (. entry :find "font-size") v (svg-attr keys vals "baseline-shift"))
+	(+ (. entry :find "-shift")
+		(cond
+			((not v) 0.0)
+			((eql v "sub") (* size -0.14))
+			((eql v "super") (* size 0.48))
+			((eql (defq l (read-length v)) :percent) (* size (/ (n2q (read-num v)) 100.0)))
+			((num? l) l)
+			(0.0))))
+
 (defun svg-char-len (text)
 	; (svg-char-len text) -> bytes
 	;the length of the first character of a UTF-8 string
@@ -597,7 +642,8 @@
 	;chosen), the elements open and the uses being drawn, by where in the log
 	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport)
 		viewports (list) switches (list) open (list) drawing (list) use_size :nil symbol :nil
-		texts 0 text_pos (list) text_decos (list) text_y_deco 0.0 text_rot 0.0 text_runs (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
+		texts 0 text_pos (list) text_decos (list) text_y_deco 0.0 text_rot 0.0 text_runs (list)
+		text_path :nil text_glyphs (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
 		text_start :t text_space :nil
 		replaying 0 stack
 			(list (scatter (Lmap)
@@ -623,7 +669,7 @@
 					"text-anchor" "start" "dominant-baseline" "auto"
 					"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular"
 					"font-style" "Normal" "xml:space" "default"
-					"letter-spacing" 0.0 "word-spacing" 0.0)))
+					"letter-spacing" 0.0 "word-spacing" 0.0 "-shift" 0.0)))
 	;the outermost svg: the canvas, of its size, or of most_w and most_h, its
 	;viewBox fitted to it
 	(defq svg-root (lambda (keys vals)
@@ -815,7 +861,8 @@
 								(-- replaying)
 								(setq use_size :nil)))
 						("text"
-							;a new text, at 0 0 unless its x and y say
+							;a new text, at 0 0 unless its x and y say; a
+							;baseline-shift is of its tspans and textPaths, not it
 							(push-attributes stack keys vals)
 							(text-flush)
 							(++ texts)
@@ -828,8 +875,34 @@
 								(list (list (elem-get stack -3)
 										(svg-text-decos (. (elem-get stack -3) :find "text-decoration")))
 									(list (last stack) (svg-text-decos (svg-attr keys vals "text-decoration")))))))
+						("textPath"
+							;along a path, or not at all
+							(cond
+								((and (> texts 0)
+										(defq href (or (svg-attr keys vals "href") (svg-attr keys vals "xlink:href")))
+										(starts-with "#" href) (defq at (. ids :find (slice href 1 -1)))
+										(eql (second (elem-get log at)) "path"))
+									(bind '(& & pkeys pvals) (elem-get log at))
+									(defq tr (svg-attr pkeys pvals "transform")
+										segs (svg-path-segs (catch (path-gen-paths (ifn (svg-attr pkeys pvals "d") "")) (list))
+											(if tr (read-transform (scatter (Lmap) "transform" +mat3x2_unity) tr))))
+									(push-attributes stack keys vals)
+									(. (last stack) :insert "-shift" (svg-shift keys vals (last stack)))
+									(push text_pos (svg-text-lists keys vals))
+									(push text_decos (list))
+									(text-flush)
+									(defq total (reduce (# (+ %0 (elem-get %1 4))) segs 0.0)
+										start (ifn (svg-attr keys vals "startOffset") "0"))
+									(setq text_path (list segs total text_x text_y)
+										text_x (if (eql (read-length start) :percent)
+											(* total (/ (n2q (read-num start)) 100.0))
+											(if (num? (defq l (read-length start))) l 0.0))
+										text_y 0.0 text_x0 text_x
+										text_anchor (. (last stack) :find "text-anchor")))
+								((setq skip 1))))
 						("tspan"
 							(push-attributes stack keys vals)
+							(. (last stack) :insert "-shift" (svg-shift keys vals (last stack)))
 							(push text_pos (svg-text-lists keys vals))
 							(push text_decos (filter (const second)
 								(list (list (last stack) (svg-text-decos (svg-attr keys vals "text-decoration")))))))
@@ -864,6 +937,11 @@
 						(pop text_decos)
 						(pop stack))
 					("tspan"
+						(pop text_pos)
+						(pop text_decos)
+						(pop stack))
+					("textPath"
+						(text-path-end)
 						(pop text_pos)
 						(pop text_decos)
 						(pop stack))
@@ -921,6 +999,28 @@
 			;and a gap after it, and 2, so less those of no glyph
 			(bind '(w h) (font-glyph-bounds font text))
 			(list (- w (first (font-glyph-bounds font ""))) h)))
+	(defq text-path-end (lambda ()
+			;each character held placed along the path by the anchor, its
+			;middle at its distance, its baseline on the path and turned to
+			;its way; one off either end not drawn
+			(when text_path
+				(bind '(segs total ox oy) text_path)
+				(defq w (- text_x text_x0)
+					shift (case text_anchor ("middle" (* w -0.5)) ("end" (- 0.0 w)) (:t 0.0)))
+				(each (lambda ((entry paths d r))
+						(when (and (>= (setq d (+ d shift)) 0.0) (<= d total)
+								(defq at (svg-path-at segs d)))
+							(bind '(x y ux uy) at)
+							(defq m (mat3x2 ux (- 0.0 uy) x uy ux y))
+							(if (/= r 0.0) (setq m (mat3x2-mul m (mat3x2-rot r))))
+							(push text_runs (list entry (map (# (mat3x2-vec2-mul m %0 %0)) paths)))))
+					text_glyphs)
+				(clear text_glyphs)
+				;the text goes on from where the path's left off
+				(setq text_anchor "start" text_x0 text_x)
+				(text-flush)
+				(bind '(x y &ignore) (ifn (svg-path-at segs (min total (+ text_x shift))) (list ox oy)))
+				(setq text_path :nil text_x x text_y y text_x0 x))))
 	(defq text-deco (lambda (layers x0 x1 y through)
 			;the decorations of each element that names them, under the
 			;text, or of line-through over it, from x0 to x1 of a baseline
@@ -948,11 +1048,23 @@
 					("middle" 0.196) ("central" 0.285) ("hanging" 0.587)
 					("mathematical" 0.367) (("text-before-edge" "text-top") 0.785)
 					(("text-after-edge" "text-bottom" "ideographic") -0.215) (:t 0.0)))
+				oy (- oy (. entry :find "-shift"))
 				y (+ text_y oy) m (mat3x2 (* u 0.5) 0.0 text_x 0.0 (* u 0.5) y)
 				;a character of a rotate turned about its place, once
 				m (if (= text_rot 0.0) m (mat3x2-mul (mat3x2-rot text_rot text_x y) m))
 				mono (eql family "Hack") layers (apply (const cat) text_decos))
 			(cond
+				(text_path
+					;along a path, each character held with its middle's
+					;distance, to be placed by the anchor at the end
+					(each (lambda (ch)
+							(defq a (+ (* (n2q (first (text-width font ch))) u) ls (if (eql ch " ") ws 0.0))
+								k (mat3x2 (* u 0.5) 0.0 (* a -0.5) 0.0 (* u 0.5) (+ text_y oy)))
+							(push text_glyphs (list entry (map (# (mat3x2-vec2-mul k %0 %0)) (font-glyph-paths font ch))
+								(+ text_x (* a 0.5)) text_rot))
+							(setq text_x (+ text_x a) text_rot 0.0))
+						(svg-chars text))
+					(defq paths (list)))
 				((or mono (/= ls 0.0) (/= ws 0.0))
 					;a character at a time: a mono face in a grid as the :vdu
 					;has it, a cell 9/16 of the font's height, each glyph's
@@ -971,6 +1083,8 @@
 					(setq w at))
 				(:t (defq paths (map (# (mat3x2-vec2-mul m %0 %0)) (font-glyph-paths font text)))
 					(setq w (n2q w))))
+			(unless text_path (text-run-push entry paths w u layers y))))
+	(defq text-run-push (lambda (entry paths w u layers y)
 			(defq x1 (+ text_x (* w u)))
 			(text-deco layers text_x x1 y :nil)
 			(push text_runs (list entry paths))

@@ -317,6 +317,31 @@
 (assert-eq "a rotate with a unit is none" (str (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q>Text</text>"))
 	(str (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q rotate=\q5mm\q>Text</text>")))
 
+;textPath: each character's middle at its distance along the path, its
+;baseline on it and turned to it, off either end not drawn
+(defun sv-tp (d text &optional attrs)
+	(sv-ink (cat "<defs><path id=\qp\q d=\q" d "\q/></defs><text font-size=\q40\q><textPath href=\q#p\q "
+		(ifn attrs "") ">" text "</textPath></text>")))
+(assert-true "along a level path as it would be on that baseline, within a pixel for each letter"
+	(sv-same (sv-tp "M 20 100 L 190 100" "HHH") (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q>HHH</text>") 3))
+(bind '(vx vy vx1 vy1) (sv-tp "M 100 20 L 100 190" "HHH"))
+(assert-true "down a path the letters go down it, on their sides" (> (- vy1 vy) (* 2 (- vx1 vx))))
+(bind '(cx & cx1 &ignore) (sv-tp "M 20 100 L 180 100" "HHH" "startOffset=\q50%\q text-anchor=\qmiddle\q"))
+(assert-true "a startOffset of 50% and an anchor of middle centre it" (sv-close (+ cx cx1) 200 4))
+(assert-true "a letter whose middle is past the end is not drawn: two H's of six on 40"
+	(<= 65 (third (sv-tp "M 20 100 L 60 100" "HHHHHH")) 76))
+(assert-eq "nor what has no path" :nil (sv-tp "" "HHH" "href=\q#none\q"))
+;baseline-shift, of a tspan, up by its length, sub and super by the font's
+(bind '(& py &ignore) (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q>H</text>"))
+(bind '(& sy &ignore) (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q><tspan baseline-shift=\qsuper\q>H</tspan></text>"))
+(bind '(& by &ignore) (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q><tspan baseline-shift=\qsub\q>H</tspan></text>"))
+(bind '(& ly &ignore) (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q><tspan baseline-shift=\q10\q>H</tspan></text>"))
+(assert-true "a super raises it, by 0.48 of its size" (sv-close (- py sy) 19 1))
+(assert-true "a sub lowers it, by 0.14" (sv-close (- by py) 6 1))
+(assert-true "a length raises it by that" (sv-close (- py ly) 10 1))
+(assert-eq "on a text it is nothing" py
+	(second (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q baseline-shift=\qsuper\q>H</text>")))
+
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")

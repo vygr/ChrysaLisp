@@ -2,7 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768" viewBox="0 0 480 360">
 	<title>Text</title>
 	<desc>The text of the SVG reader: faces and sizes, runs of their own color,
-		anchors, decorations, spacing, letters placed and turned each, turns, outlines,
+		anchors, decorations, spacing, letters placed and turned each, text on
+		a path, sub and super, turns, outlines,
 		gradients and shadows</desc>
 	<defs>
 		<linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
@@ -22,6 +23,7 @@
 			<stop offset="0.75" stop-color="#30a0ff"/>
 			<stop offset="1" stop-color="#c050ff"/>
 		</linearGradient>
+		<path id="ring" d="M 392 316 a 28 28 0 1 1 56 0 a 28 28 0 1 1 -56 0"/>
 		<radialGradient id="glow" r="0.6">
 			<stop offset="0" stop-color="#ffffff"/>
 			<stop offset="0.5" stop-color="#80e0ff"/>
@@ -76,11 +78,14 @@
 	<text x="20" y="292" font-size="40" font-weight="bold" fill="none" stroke="url(#rainbow)" stroke-width="1.5">Outline</text>
 	<text x="225" y="270" font-size="14" font-family="monospace" fill="#a0ffa0">(print "hello world")</text>
 
-	<!-- a ring of letters, each placed by a list of x and y -->
-	<g font-size="13" font-weight="bold" fill="#ffd870" text-anchor="middle">
-		<text x="404 418 428 431 428 418 404 390 380 377 380 390"
-			y="300 304 314 328 342 352 356 352 342 328 314 304">ChrysaLisp!!</text>
-	</g>
+	<!-- text round a circle, along a path -->
+	<text font-size="11" font-weight="bold" fill="url(#gold)" letter-spacing="0.6">
+		<textPath href="#ring">ChrysaLisp - text on a path -</textPath>
+	</text>
+	<text x="420" y="320" font-size="11" fill="#ffd870" text-anchor="middle">SVG</text>
+
+	<!-- sub and super, by baseline-shift -->
+	<text x="225" y="300" font-size="16" fill="#e8e8f0">H<tspan baseline-shift="sub" font-size="11">2</tspan>O and E = mc<tspan baseline-shift="super" font-size="11">2</tspan></text>
 
 	<!-- baselines against a line -->
 	<line x1="20" y1="334" x2="300" y2="334" stroke="#ff6090" stroke-opacity="0.6"/>
