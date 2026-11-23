@@ -84,7 +84,7 @@
 	+svg_shapes ''("circle" "ellipse" "line" "rect" "polygon" "polyline" "path")
 	;what a switch may choose
 	+svg_drawn ''("svg" "g" "a" "switch" "use" "circle" "ellipse" "line" "rect" "polygon"
-		"polyline" "path" "text" "image"))
+		"polyline" "path" "text" "textArea" "image"))
 
 (defun read-num (val)
 	; (read-num str) -> num
@@ -643,7 +643,7 @@
 	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport)
 		viewports (list) switches (list) open (list) drawing (list) use_size :nil symbol :nil
 		texts 0 text_pos (list) text_decos (list) text_y_deco 0.0 text_rot 0.0 text_runs (list)
-		text_path :nil text_glyphs (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
+		text_path :nil text_glyphs (list) text_area :nil text_words (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
 		text_start :t text_space :nil
 		replaying 0 stack
 			(list (scatter (Lmap)
@@ -875,6 +875,20 @@
 								(list (list (elem-get stack -3)
 										(svg-text-decos (. (elem-get stack -3) :find "text-decoration")))
 									(list (last stack) (svg-text-decos (svg-attr keys vals "text-decoration")))))))
+						("textArea"
+							;SVG Tiny's text wrapped in an area: its words held,
+							;and laid out in lines at its end
+							(push-attributes stack keys vals)
+							(text-flush)
+							(++ texts)
+							(bind '(x y w h) (svg-geom keys vals '("x" "y" "width" "height") viewport))
+							(setq text_area (list x y w h) text_start :t text_space :nil)
+							(clear text_words)
+							(push text_pos (list (list) (list) (list) (list) (list)))
+							(push text_decos (filter (const second)
+								(list (list (last stack) (svg-text-decos (svg-attr keys vals "text-decoration")))))))
+						("tbreak"
+							(if text_area (push text_words :break)))
 						("textPath"
 							;along a path, or not at all
 							(cond
@@ -940,6 +954,12 @@
 						(pop text_pos)
 						(pop text_decos)
 						(pop stack))
+					("textArea"
+						(text-area-end)
+						(-- texts)
+						(pop text_pos)
+						(pop text_decos)
+						(pop stack))
 					("textPath"
 						(text-path-end)
 						(pop text_pos)
@@ -999,6 +1019,67 @@
 			;and a gap after it, and 2, so less those of no glyph
 			(bind '(w h) (font-glyph-bounds font text))
 			(list (- w (first (font-glyph-bounds font ""))) h)))
+	(defq text-area-words (lambda (text)
+			(defq words (filter (const nempty?) (split text +svg_space))
+				lead (and (nempty? text) (find (first text) +svg_space))
+				trail (and (nempty? text) (find (last text) +svg_space)))
+			(each (lambda (word)
+					(push text_words (list (last stack) word
+						(and (= (!) 0) (not lead) (not text_space)
+							(nempty? text_words) (nql (last text_words) :break)))))
+				words)
+			(setq text_space (if (nempty? words) trail (or text_space lead)))
+			:t))
+	(defq text-area-end (lambda ()
+			;the words held, in lines no wider than the area, a tbreak one
+			;of its own, each line placed across by text-align and the
+			;lines down by display-align, those below its height not drawn
+			(when text_area
+				(bind '(ax ay aw ah) text_area)
+				(setq text_area :nil)
+				(defq area (last stack) lines (list) line (list) lw 0.0 big 0.0
+					inc (. area :find "line-increment") align (. area :find "text-align")
+					close (lambda ()
+						(push lines (list line lw (max big (. area :find "font-size"))))
+						(setq line (list) lw 0.0 big 0.0)))
+				(each (lambda (item)
+						(cond
+							((eql item :break) (close))
+							(:t (bind '(entry word joined) item)
+								(bind '(font u) (text-font entry))
+								(defq ww (* (n2q (first (text-width font word))) u)
+									sw (if (and (nempty? line) (not joined)) (* (n2q (first (text-width font " "))) u) 0.0))
+								(when (and (nempty? line) (num? aw) (> (+ lw sw ww) aw))
+									(close)
+									(setq sw 0.0))
+								(push line (list entry word (and joined (nempty? line))))
+								(setq lw (+ lw sw ww) big (max big (. entry :find "font-size"))))))
+					text_words)
+				(if (nempty? line) (close))
+				(clear text_words)
+				(defq step (lambda (size) (if (num? (defq l (read-length (str inc)))) l (* size 1.2)))
+					hh (reduce (lambda (a (& & size)) (+ a (step size))) lines 0.0)
+					top (+ ay (if (num? ah)
+						(case (. area :find "display-align")
+							("center" (* (- ah hh) 0.5)) ("after" (- ah hh)) (:t 0.0))
+						0.0)))
+				(each (lambda ((words w size))
+						(defq base (+ top size))
+						;a line whose height goes below the area's is not drawn
+						(unless (and (num? ah) (> (+ top (step size)) (+ ay ah 0.01)))
+							(setq text_space :nil text_x (+ ax (if (num? aw)
+									(case align ("center" (* (- aw w) 0.5)) ("end" (- aw w)) (:t 0.0))
+									0.0))
+								text_y base text_x0 text_x text_anchor "start")
+							(each (lambda ((entry word joined))
+									(when (and (> (!) 0) (not joined))
+										(bind '(font u) (text-font entry))
+										(setq text_x (+ text_x (* (n2q (first (text-width font " "))) u))))
+									(text-run entry word))
+								words)
+							(text-flush))
+						(setq top (+ top (step size))))
+					lines))))
 	(defq text-path-end (lambda ()
 			;each character held placed along the path by the anchor, its
 			;middle at its distance, its baseline on the path and turned to
@@ -1092,7 +1173,10 @@
 			(setq text_x x1 text_y_deco y text_rot 0.0)))
 	(defq on-text (lambda (text)
 			(if (= replaying 0) (push log (list :text text)))
-			(when (and (> texts 0) (= skip 0) (get 'create-font))
+			(when (and (> texts 0) (= skip 0) (get 'create-font)
+					;in a textArea its words are held, of their element, and
+					;joined to the word before where no white space is between
+					(not (and text_area (text-area-words text))))
 				(defq entry (last stack)
 					;a place to come, a new x or y: a space before it is the
 					;end of the chunk before, so not drawn

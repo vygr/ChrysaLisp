@@ -342,6 +342,26 @@
 (assert-eq "on a text it is nothing" py
 	(second (sv-ink "<text x=\q20\q y=\q100\q font-size=\q40\q baseline-shift=\qsuper\q>H</text>")))
 
+;textArea, SVG Tiny's: words in lines no wider than it, a tbreak a line,
+;placed across and down, what is below its height not drawn
+(defun sv-ta (attrs text)
+	(sv-ink (cat "<textArea x=\q20\q y=\q20\q font-size=\q20\q " attrs ">" text "</textArea>")))
+(defq sv_words "one two three four five six seven eight nine ten")
+(bind '(wx wy wx1 wy1) (sv-ta "width=\q100\q" sv_words))
+(assert-true "it wraps, no wider than its width, in lines" (and (<= wx1 120) (> (- wy1 wy) 60)))
+(bind '(& oy & oy1) (sv-ta "" sv_words))
+(assert-true "of no width, one line" (< (- oy1 oy) 30))
+(bind '(& by & by1) (sv-ta "width=\q160\q" "one<tbreak/>two"))
+(assert-true "a tbreak begins a line" (> (- by1 by) 30))
+(assert-true "text-align end, against its right"
+	(sv-close (third (sv-ta "width=\q160\q text-align=\qend\q" "end")) 180 2))
+(assert-true "display-align after, against its foot"
+	(sv-close (elem-get (sv-ta "width=\q160\q height=\q100\q display-align=\qafter\q" "foot") 3) 115 6))
+(assert-true "what is below its height is not drawn"
+	(<= (elem-get (sv-ta "width=\q100\q height=\q50\q" sv_words) 3) 70))
+(assert-true "a word in two elements with no space between is one word"
+	(sv-same (sv-ta "width=\q160\q" "abc") (sv-ta "width=\q160\q" "ab<tspan>c</tspan>") 2))
+
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")
