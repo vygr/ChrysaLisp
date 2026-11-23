@@ -95,6 +95,13 @@
 	(filter (# (and (nempty? %0) (not (starts-with "tests/scratch/" %0)) (not (starts-with "./tests/scratch/" %0))))
 		(split (join tt_said "") "\n")))
 
+;a file given by another its names is known by its path from the root,
+;./ before it or not: service/gui's are given the system's and the GUI's
+(defq tt_dot (list))
+(pipe-run "check -c unbound ./service/gui/app_impl.lisp" (# (push tt_dot %0)))
+(assert-eq "check of a path with ./ before it knows what the file is given" ""
+	(join tt_dot ""))
+
 ;the check command, cmd/check.lisp, reads the tree: what can be seen to be wrong from the source
 (defq tt_file "tests/scratch/tmp_check_test.lisp" tt_lf "\n")
 (defun tt-check (checks &rest lines)

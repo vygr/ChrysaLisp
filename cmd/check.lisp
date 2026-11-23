@@ -1331,7 +1331,9 @@
 	;(f ...) where f is no function, macro or name of the system, nor named
 	;by this file or anything it imports at any depth: a call of nothing,
 	;the app would not start. Only for a file that stands by itself
-	(defq context (some (# (if (starts-with (first %0) file) (rest %0))) +unbound_context)
+	;the context by the path from the root, ./ or not as it was given
+	(defq at (if (starts-with "./" file) (slice file 2 -1) file)
+		context (some (# (if (starts-with (first %0) at) (rest %0))) +unbound_context)
 		known (names-from (cat (list file "class/lisp/root.inc") (ifn context (list)))) todo (list top)
 		prefixes (list))
 	(. known :each (# (if (starts-with "prefix " %0) (push prefixes (slice %0 7 -1)))))
