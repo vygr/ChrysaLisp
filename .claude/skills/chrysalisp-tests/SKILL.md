@@ -598,6 +598,14 @@ load or network it runs in.
 	:t)` or by the ids it got, the services and desktop of the node it
 	started, files and names of its own. Never the first of a system wide
 	name, never another machine, session, sound or display device.
+	A node it added is waited for by its id, `(while (some (# (not (find
+	%0 before))) (lisp-nodes :t)) ...)`, never by the count coming back to
+	what it was. The node that kills a node lets it go at once, every
+	other node at its purge, some 4 seconds on, native or emulated: a
+	module before it, on another node, can leave its own gone node in
+	what this one saw at its start, and after the purge the count is one
+	short for ever. `release/test_audio_mic` hung so after
+	`release/test_app_leaks`, on RISC-V on 14 nodes, 2026-11-23.
 
 *	**Give way.** Scheduling is cooperative: a long loop of Lisp in a test
 	or a farmed child, formatting whole files, reading thousands of shapes,

@@ -201,5 +201,10 @@
 	(while (and (pii-alive al_pid) (< (- (pii-time) al_t0) 5000000))
 		(task-sleep 10000))
 	(if (pii-alive al_pid) (pii-kill al_pid))
-	(while (/= (length (lisp-nodes :t)) (length al_before))
+	;till no node it added is listed. Not till the count is as it was: the
+	;node that kills one lets it go at once, every other at its purge,
+	;some 4 seconds on, so a module before this one on another node can
+	;leave its own in what this one saw at its start, and the count is
+	;then never as it was again
+	(while (some (# (not (find %0 al_before))) (lisp-nodes :t))
 		(task-sleep 10000)))
