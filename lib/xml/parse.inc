@@ -5,100 +5,50 @@
 ;module
 (env-push)
 
+(defq +xml_entities (scatter (Fmap 11) "lt" "<" "gt" ">" "amp" "&" "quot" "\q" "apos" "'"))
+
+(defun xml-entities (text)
+	; (xml-entities str) -> str
+	;the text with each entity what it stands for: &lt; &gt; &amp; &quot;
+	;&apos; and &#n; &#xh; as UTF-8. One it does not know is left as it is
+	(defq at (find "&" text) out (if at (list)) from 0)
+	(while at
+		(push out (slice text from at))
+		(defq end (find ";" text at) name (if end (slice text (inc at) end)) got :nil)
+		(cond
+			((not name))
+			((setq got (. +xml_entities :find name)))
+			((and (> (length name) 2) (eql (first name) "#") (or (eql (second name) "x") (eql (second name) "X")))
+				(if (defq n (str-to-num (cat "0x" (slice name 2 -1)))) (setq got (num-to-utf8 n))))
+			((and (> (length name) 1) (eql (first name) "#"))
+				(if (defq n (str-to-num (slice name 1 -1))) (setq got (num-to-utf8 n)))))
+		(cond
+			(got (push out got) (setq from (inc end)))
+			(:t (push out "&") (setq from (inc at))))
+		(setq at (find "&" text from)))
+	(if out (apply (const cat) (push out (slice text from -1))) text))
+
 (defun XML-parse (stream fnc_in fnc_out fnc_text)
 	; (XML-parse stream fnc_in fnc_out fnc_text)
-	;break the stream into svg tokens, symbols, strings etc
-	;parse the commands and attributes calling back to the user functions
-	(defq stack (list) keys (list) vals (list) state :text e (penv))
-	(each! (lambda (type token)
-			(while type
-				(case state
-					(:text
-						(case type
-							((:symbol)
-								(callback fnc_text e token)
-								(setq type :nil))
-							(:t (setq state :open))))
-					(:open
-						(case type
-							(:open
-								(case token
-									("<!" (setq state :line_comment1)
-										(push stack token))
-									("<?" (setq state :line_comment2)
-										(push stack token))
-									("<!--" (setq state :block_comment)
-										(push stack token))
-									("<" (setq state :command))
-									("</" (setq state :command))
-									(:t (throw "Unknown open token !" token))))
-							(:t (throw "Unknown open type !" type)))
-						(push stack token)
-						(setq type :nil))
-					(:line_comment1
-						(case type
-							(:close
-								(case token
-									(">" (setq state :close))))
-							(:t (setq type :nil))))
-					(:line_comment2
-						(case type
-							(:close
-								(case token
-									("?>" (setq state :close))))
-							(:t (setq type :nil))))
-					(:block_comment
-						(case type
-							(:close
-								(case token
-									("-->" (setq state :close))))
-							(:t (setq type :nil))))
-					(:command
-						(case type
-							(:symbol
-								(push stack token)
-								(clear keys vals)
-								(setq state :symbol))
-							(:t (throw "Unknown command type !" type)))
-						(setq type :nil))
-					(:symbol
-						(case type
-							(:close
-								(when (eql (elem-get stack -3) "<")
-									(task-slice)
-									(callback fnc_in e (last stack) keys vals))
-								(setq state :close))
-							(:symbol
-								(push keys token)
-								(setq state :assign type :nil))
-							(:t (throw "Unknown symbol type !" type))))
-					(:assign
-						(case type
-							(:assign
-								(setq state :string))
-							(:t (throw "Unknown assign type !" type)))
-						(setq type :nil))
-					(:string
-						(case type
-							(:string
-								(push vals token)
-								(setq state :symbol))
-							(:t (throw "Unknown string type !" type)))
-						(setq type :nil))
-					(:close
-						(case type
-							(:close
-								(case token
-									(("-->" "?>" ">" "/>"))
-									(:t (throw "Unknown close token !" token))))
-							(:t (throw "Unknown close type !" type)))
-						(if (or (eql token "/>") (eql (elem-get stack -3) "</"))
-							(callback fnc_out e (last stack)))
-						(pop stack)
-						(pop stack)
-						(setq type :nil state :text)))))
-		((const (ffi (path-to-absolute "./parse"))) stream)))
+	;each element to (fnc_in name keys vals) as it opens, its attributes,
+	;and to (fnc_out name) as it closes, and each run of text to (fnc_text
+	;text), in the order they are in the stream. keys and vals are the
+	;parser's own, cleared for the next element, a callback that keeps
+	;them keeps a copy. Values and text with their entities made what they
+	;stand for, (xml-entities); the tokens are of lib/xml/lisp.vp
+	(bind '(kinds tokens) ((const (ffi (path-to-absolute "./parse"))) stream))
+	(defq e (penv) name "" keys (list) vals (list))
+	(each (lambda (kind token)
+			(case kind
+				(:in (setq name token) (clear keys vals))
+				(:key (push keys token))
+				(:val (push vals (xml-entities token)))
+				(:open (task-slice) (callback fnc_in e name keys vals))
+				(:empty (task-slice) (callback fnc_in e name keys vals) (callback fnc_out e name))
+				(:out (callback fnc_out e token))
+				(:text (callback fnc_text e (xml-entities token)))))
+		kinds tokens))
 
 ;module
-(export-symbols '(XML-parse))
+(export-symbols '(XML-parse xml-entities))
 (env-pop)

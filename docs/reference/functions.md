@@ -257,8 +257,12 @@ seconds. For ever, or for so many seconds and then back where it was
 ```code
 (XML-parse stream fnc_in fnc_out fnc_text)
 
-break the stream into svg tokens, symbols, strings etc
-parse the commands and attributes calling back to the user functions
+each element to (fnc_in name keys vals) as it opens, its attributes,
+and to (fnc_out name) as it closes, and each run of text to (fnc_text
+text), in the order they are in the stream. keys and vals are the
+parser's own, cleared for the next element, a callback that keeps
+them keeps a copy. Values and text with their entities made what they
+stand for, (xml-entities); the tokens are of lib/xml/lisp.vp
 ```
 
 ### _structure
@@ -19509,6 +19513,15 @@ note and the other four do
 
 the song of an XM's bytes, :nil if they are not one; bare, its
 samples' bytes not had
+```
+
+### xml-entities
+
+```code
+(xml-entities str) -> str
+
+the text with each entity what it stands for: &lt; &gt; &amp; &quot;
+&apos; and &#n; &#xh; as UTF-8. One it does not know is left as it is
 ```
 
 ### zip

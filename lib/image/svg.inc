@@ -251,8 +251,11 @@
 				(("svg" "g" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect" "text")
 					(pop stack))))
 		(lambda (text)
-			;render text (skip in TUI mode where fonts unavailable)
-			(when (get 'create-font)
+			;render text (skip in TUI mode where fonts unavailable), its
+			;white space as SVG has it by default: each run one space, none
+			;at either end
+			(setq text (join (split text (const (char-class " \t\r\n"))) " "))
+			(when (and (get 'create-font) (nempty? text))
 				(bind '(x y family weight size anchor baseline)
 					(gather (defq entry (last stack))
 						"x" "y" "font-family" "font-weight" "font-size"
