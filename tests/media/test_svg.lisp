@@ -220,4 +220,4 @@
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")
 			(SVG-load (file-stream (cat "apps/media/images/data/" name ".svg")))))
-	'("burger" "chrysalisp" "clock" "dial" "golfer" "kennedy" "sticker" "tiger"))
+	'("burger" "chrysalisp" "clock" "dial" "golfer" "gradients" "kennedy" "sticker" "tiger"))
