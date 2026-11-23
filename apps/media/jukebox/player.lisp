@@ -65,6 +65,12 @@
 	(setq *player* (tracker-player *song* +rate) *written* 0 *marks* (list)
 		*recent* "" *recent_at* 0 *ended* :nil *heard* 0))
 
+(defun song-ended ()
+	; (song-ended) -> :t | :nil
+	;at its end: a player knows it by a row come to again, or once it has
+	;played as long as the song is, as one from where an order starts must
+	(or (. *player* :find :ended) (and *length* (>= *written* *length*))))
+
 (defun seek (seconds)
 	;from so many seconds in, its rows played to there and its voices moved
 	;on, nothing mixed: on from where it has got to if no order starts
@@ -84,12 +90,6 @@
 			(setq *written* (tracker-seek *player* target))))
 	(setq *marks* (list) *recent* "" *recent_at* *written* *heard* *written*
 		*ended* (song-ended)))
-
-(defun song-ended ()
-	; (song-ended) -> :t | :nil
-	;at its end: a player knows it by a row come to again, or once it has
-	;played as long as the song is, as one from where an order starts must
-	(or (. *player* :find :ended) (and *length* (>= *written* *length*))))
 
 (defun feed ()
 	; (feed) -> heard

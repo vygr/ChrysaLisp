@@ -1487,6 +1487,11 @@
 	; (get-int str idx) -> num
 	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_int)))
 
+(defun sign-extend (v bits)
+	; (sign-extend v bits) -> num
+	;v, the low bits of a number of two's complement, as that number
+	(if (and (> bits 0) (>= v (<< 1 (dec bits)))) (- v (<< 1 bits)) v))
+
 (defmacro get-ushort-be (obj idx)
 	; (get-ushort-be str idx) -> num
 	;a short of a file's or the net's bytes, the high byte first, at any
@@ -1589,11 +1594,6 @@
 			(if (> i (length c_parts)) (throw "No relative path !" target))
 			(join (cat (slice c_parts 0 (- -1 i)) (slice p_parts i -1)) "/"))
 		(target)))
-
-(defun sign-extend (v bits)
-	; (sign-extend v bits) -> num
-	;v, the low bits of a number of two's complement, as that number
-	(if (and (> bits 0) (>= v (<< 1 (dec bits)))) (- v (<< 1 bits)) v))
 
 (defun folder-mode? (mode)
 	; (folder-mode? mode) -> :nil | :t

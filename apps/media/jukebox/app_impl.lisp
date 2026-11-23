@@ -367,6 +367,19 @@
 				(def slider :value (if (< y (get :value slider)) y (- (+ y item_h) h)))
 				(.-> *list_scroll* :place :dirty_all)))))
 
+(defun song-failed (why)
+	;a song that could not be played, and why. Come to by going through
+	;the queue, the next that way is played, as far as once round it, and
+	;in Player mode not past its last, as at a song's end; picked, it
+	;stops there
+	(notice why)
+	(setq *failed* (inc *failed*))
+	(setq *skip_due* (cond
+		((not (and *skip_by* (nempty? *queue*))) :nil)
+		((>= *failed* (length *queue*)) :nil)
+		((and (not *jukebox*) (> *skip_by* 0) (= *queue_at* (dec (length *order*)))) :nil)
+		(:t))))
+
 (defun entry-play (entry)
 	;an entry played, (title url): a file, a favourite kept, or fetched
 	(bind '(title url) entry)
@@ -434,19 +447,6 @@
 	;plays, or its first or last if what plays is not in it
 	(setq *skip_by* by)
 	(if (queue-align by) (queue-move by) (queue-play)))
-
-(defun song-failed (why)
-	;a song that could not be played, and why. Come to by going through
-	;the queue, the next that way is played, as far as once round it, and
-	;in Player mode not past its last, as at a song's end; picked, it
-	;stops there
-	(notice why)
-	(setq *failed* (inc *failed*))
-	(setq *skip_due* (cond
-		((not (and *skip_by* (nempty? *queue*))) :nil)
-		((>= *failed* (length *queue*)) :nil)
-		((and (not *jukebox*) (> *skip_by* 0) (= *queue_at* (dec (length *order*)))) :nil)
-		(:t))))
 
 (defun skip-on ()
 	;the next of the queue after one that failed, from the main loop: one
@@ -575,6 +575,26 @@
 			out)
 		(listing-read html) (list)))
 
+(defun playlist-entries (url entries)
+	; (playlist-entries url entries) -> ((title url folder) ...)
+	;the modules of a playlist Modland has, where it has them now, as the
+	;index, ./index.lisp, says: all of them, as the playlist has them, till
+	;it has said, which it is asked once
+	(defq now (. *resolved* :find url))
+	(cond
+		((and now (= (length now) (length entries)))
+			(defq out (list))
+			(each (lambda (& path) (if (nql path "-") (push out (list (path-name path) (modland-url path) :nil))))
+				entries now)
+			out)
+		(:t (unless (find url *resolving*)
+				(push *resolving* url)
+				;it answers on the mailbox of what it is not asked a fetch or a
+				;search of, with the playlist's address: nothing of it goes stale
+				(task-send +task_indexer (elem-get *select* +select_index)
+					"R" url "\n" (join (map (# (modland-path (second %0))) entries) "\n")))
+			(map (# (list (first %0) (second %0) :nil)) entries))))
+
 (defun list-entries ()
 	; (list-entries) -> ((title url folder) ...)
 	;the favourites, or the folder of Modland or of the charts shown, its
@@ -630,6 +650,13 @@
 		(setq *list_due* :nil)
 		(list-show :t)))
 
+(defun index-ask (url title)
+	;where a module not where it was is now, asked of the index, ./index.lisp,
+	;as a fetch of its own
+	(setq *fetching* (list :index url title :nil) *fetch_tries* 0)
+	(status (cat "Looking for " title " ..."))
+	(fetch-send))
+
 (defun fetch-ended (msg)
 	;= and its bytes, or ! and why not
 	(bind '(kind url title missing) *fetching*)
@@ -677,26 +704,6 @@
 			(list-show))
 		((not (song-start msg title url)) (song-failed (cat title ": not a module it can read")))))
 
-(defun playlist-entries (url entries)
-	; (playlist-entries url entries) -> ((title url folder) ...)
-	;the modules of a playlist Modland has, where it has them now, as the
-	;index, ./index.lisp, says: all of them, as the playlist has them, till
-	;it has said, which it is asked once
-	(defq now (. *resolved* :find url))
-	(cond
-		((and now (= (length now) (length entries)))
-			(defq out (list))
-			(each (lambda (& path) (if (nql path "-") (push out (list (path-name path) (modland-url path) :nil))))
-				entries now)
-			out)
-		(:t (unless (find url *resolving*)
-				(push *resolving* url)
-				;it answers on the mailbox of what it is not asked a fetch or a
-				;search of, with the playlist's address: nothing of it goes stale
-				(task-send +task_indexer (elem-get *select* +select_index)
-					"R" url "\n" (join (map (# (modland-path (second %0))) entries) "\n")))
-			(map (# (list (first %0) (second %0) :nil)) entries))))
-
 (defun playlist-resolved (text)
 	;where the modules of a playlist are now, as the index has said, kept,
 	;and shown if that playlist is
@@ -721,13 +728,6 @@
 	(setq *found_total* (str-as-num (slice (first lines) 1 -1))
 		*found* (map! (# (list %0 (modland-url %0) :nil)) (list lines) 1 (length lines)))
 	(if (= *list_at* +tab_search) (list-show)))
-
-(defun index-ask (url title)
-	;where a module not where it was is now, asked of the index, ./index.lisp,
-	;as a fetch of its own
-	(setq *fetching* (list :index url title :nil) *fetch_tries* 0)
-	(status (cat "Looking for " title " ..."))
-	(fetch-send))
 
 (defun index-said (msg)
 	;what the index says that is of no fetch or search: where a playlist's

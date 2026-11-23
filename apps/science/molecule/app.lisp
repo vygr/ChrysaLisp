@@ -155,6 +155,17 @@
 			(list (map! (const !) '() 0 6))))
 	canvas)
 
+(defun atom-ask (size kind level)
+	;an atom's image asked of the farm, made if there is none: one of the
+	;node's cache, another Molecule's, at once
+	(cond
+		((. *pixmap_cache* :find (atom-name size kind level)) (make-atom size kind level))
+		(:t (. atom_waiting :insert (atom-key size kind level) :t)
+			(unless jobs (setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
+				(elem-get select +select_reply) (list 8 1 1) :t)))
+			(. jobs :add (list (setf-> (str-alloc +atom_job_size)
+				(+atom_job_pixels size) (+atom_job_kind kind) (+atom_job_level level)))))))
+
 (defun get-atom-texture (radius kind level)
 	; (get-atom-texture radius kind level) -> (tid tw th) | (:nil 0 0)
 	;the image of an atom, made between frames, (make-waiting): till then
@@ -168,17 +179,6 @@
 				(unless (. atom_waiting :find key) (atom-ask size kind level))
 				(setq canvas (ifn (near-atom size kind level) (make-atom size kind level))))
 			(texture-sized (getf canvas +canvas_texture 0)))))
-
-(defun atom-ask (size kind level)
-	;an atom's image asked of the farm, made if there is none: one of the
-	;node's cache, another Molecule's, at once
-	(cond
-		((. *pixmap_cache* :find (atom-name size kind level)) (make-atom size kind level))
-		(:t (. atom_waiting :insert (atom-key size kind level) :t)
-			(unless jobs (setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
-				(elem-get select +select_reply) (list 8 1 1) :t)))
-			(. jobs :add (list (setf-> (str-alloc +atom_job_size)
-				(+atom_job_pixels size) (+atom_job_kind kind) (+atom_job_level level)))))))
 
 (defun atom-made (msg)
 	;the farm has drawn an atom's image: its pixels on a canvas, shown, and

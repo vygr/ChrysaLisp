@@ -83,25 +83,28 @@
 			(save (setq text (http-body-str resp)) (kept-path url))))
 	(and text (some (# (if index (allmods-resolve index (modland-path (second %0))) :t)) (playlist-read text))))
 
-(defun playlists-empty (index)
-	; (playlists-empty index) -> (url ...)
-	;the playlists of Modland's with nothing played here, and the folders of
-	;them with none that has: each folder's listing read, each playlist's
-	;copy kept, (playlist-has?)
-	(defq top (cat +modland_pub "playlists/") todo (list top) folders (list) lists (list))
-	(while (and (answer-waiting) (defq folder (pop todo)))
-		(and (defq resp (http-get folder)) (= (pfind resp :status) 200)
-			(each (lambda ((name sub))
-					(cond
-						(sub (push todo (cat folder name)) (push folders (cat folder name)))
-						((ends-with ".m3u" name) (push lists (cat folder name)))))
-				(listing-read (http-body-str resp)))))
-	;what the window asks meanwhile answered between each, a lookup is
-	;not held up by them, the first time 59 fetched
-	(defq empty (filter (# (and (answer-waiting) (not (playlist-has? index %0)))) lists))
-	(cat empty (filter (lambda (folder)
-			(not (some (# (and (starts-with folder %0) (not (find %0 empty)))) lists)))
-		folders)))
+(defun search-run ()
+	;the search asked for last: the names of all that start with its
+	;prefix, in lower case, each of their paths the filter leaves, a regexp
+	;ignoring case or plain text if it is not one, the first +search_max
+	;sent and how many there are. Left for the next if another is asked
+	;its lines are after the mailbox, which is bytes, a newline among them
+	;now and then
+	(defq reply (slice *search* 0 +net_id_size))
+	(bind '(prefix pattern) (split (slice *search* (inc +net_id_size) -1) "\n"))
+	(setq *search* :nil prefix (to-lower (rest prefix)) pattern (to-lower (rest pattern)))
+	(defq leaves (name-filter pattern) total 0 seen 0 out (list)
+		words (if *names* (. *names* :find_matches prefix) (list)))
+	(when (every (lambda (word)
+				(each (lambda (path)
+						(when (name-filter? leaves path)
+							(setq total (inc total))
+							(if (<= total +search_max) (push out path))))
+					(. (first *index*) :find word))
+				;a newer search waiting, this one left
+				(or (/= 0 (% (setq seen (inc seen)) 4096)) (not (mail-waiting? (task-mbox)))))
+			words)
+		(mail-send reply (cat "S" (str total) "\n" (join out "\n")))))
 
 (defun empty-tell ()
 	;the playlists of nothing played here told the window, once they are
@@ -135,28 +138,25 @@
 	(and *running* *search* (search-run))
 	*running*)
 
-(defun search-run ()
-	;the search asked for last: the names of all that start with its
-	;prefix, in lower case, each of their paths the filter leaves, a regexp
-	;ignoring case or plain text if it is not one, the first +search_max
-	;sent and how many there are. Left for the next if another is asked
-	;its lines are after the mailbox, which is bytes, a newline among them
-	;now and then
-	(defq reply (slice *search* 0 +net_id_size))
-	(bind '(prefix pattern) (split (slice *search* (inc +net_id_size) -1) "\n"))
-	(setq *search* :nil prefix (to-lower (rest prefix)) pattern (to-lower (rest pattern)))
-	(defq leaves (name-filter pattern) total 0 seen 0 out (list)
-		words (if *names* (. *names* :find_matches prefix) (list)))
-	(when (every (lambda (word)
-				(each (lambda (path)
-						(when (name-filter? leaves path)
-							(setq total (inc total))
-							(if (<= total +search_max) (push out path))))
-					(. (first *index*) :find word))
-				;a newer search waiting, this one left
-				(or (/= 0 (% (setq seen (inc seen)) 4096)) (not (mail-waiting? (task-mbox)))))
-			words)
-		(mail-send reply (cat "S" (str total) "\n" (join out "\n")))))
+(defun playlists-empty (index)
+	; (playlists-empty index) -> (url ...)
+	;the playlists of Modland's with nothing played here, and the folders of
+	;them with none that has: each folder's listing read, each playlist's
+	;copy kept, (playlist-has?)
+	(defq top (cat +modland_pub "playlists/") todo (list top) folders (list) lists (list))
+	(while (and (answer-waiting) (defq folder (pop todo)))
+		(and (defq resp (http-get folder)) (= (pfind resp :status) 200)
+			(each (lambda ((name sub))
+					(cond
+						(sub (push todo (cat folder name)) (push folders (cat folder name)))
+						((ends-with ".m3u" name) (push lists (cat folder name)))))
+				(listing-read (http-body-str resp)))))
+	;what the window asks meanwhile answered between each, a lookup is
+	;not held up by them, the first time 59 fetched
+	(defq empty (filter (# (and (answer-waiting) (not (playlist-has? index %0)))) lists))
+	(cat empty (filter (lambda (folder)
+			(not (some (# (and (starts-with folder %0) (not (find %0 empty)))) lists)))
+		folders)))
 
 (defun main ()
 	;the first that comes is kept till there is an index to answer it by

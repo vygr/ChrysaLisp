@@ -8,7 +8,7 @@
 ; and FastTracker's, G 16 to X 33
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/media/mod.inc")
+(import "./mod.inc")
 
 (defun xm-pattern (data at channels)
 	; (xm-pattern data at channels) -> (rows cells next)

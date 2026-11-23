@@ -9,7 +9,7 @@
 ; column as it is, +no_volume none, and its effects are by letter, A 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/media/mod.inc")
+(import "./mod.inc")
 
 (ffi "lib/media/media_itunpack" media-itunpack)
 

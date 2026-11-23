@@ -33,6 +33,21 @@
 				(((eval (elem-get '(vp-beq-dd vp-bne-dd vp-ble-dd vp-bge-dd vp-bgt-dd vp-blt-dd) e)) s d l))))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
+(defun switch (&optional %0)
+	(push *switch_stk* *switch*)
+	(setq *switch* *switch_nxt* *switch_nxt* (inc *switch_nxt*))
+	(when %0 (deffvar (llb-sym %0) (beg-sym) (lle-sym %0) (end-sym)))
+	(deffvar (cnt-sym) 0))
+
+(defun default ()
+(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
+	(set (penv) s (inc c)))
+
+(defun endswitch ()
+(vp-label (end-sym))
+(default)
+	(setq *switch* (pop *switch_stk*)))
+
 (defun gotoifnot (e l)
 	(bind '(d o s) e)
 	(defq i (find o '(/= = > < <= >=)))
@@ -50,21 +65,6 @@
 			(goto l)
 			(endswitch))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
-
-(defun switch (&optional %0)
-	(push *switch_stk* *switch*)
-	(setq *switch* *switch_nxt* *switch_nxt* (inc *switch_nxt*))
-	(when %0 (deffvar (llb-sym %0) (beg-sym) (lle-sym %0) (end-sym)))
-	(deffvar (cnt-sym) 0))
-
-(defun default ()
-(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
-	(set (penv) s (inc c)))
-
-(defun endswitch ()
-(vp-label (end-sym))
-(default)
-	(setq *switch* (pop *switch_stk*)))
 
 (defun nextcaseif (e)
 	(gotoif e (loc-sym (eval (cnt-sym)))))

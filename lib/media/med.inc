@@ -13,7 +13,7 @@
 ; fast it decays after, are the instrument's
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/media/mod.inc")
+(import "./mod.inc")
 
 (defq
 	;the trackers whose rules a song is played by, as libxmp tells them

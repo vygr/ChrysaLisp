@@ -22,10 +22,10 @@
 ; step through a song's rows by the one (flow-advance)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/media/mod.inc")
-(import "lib/media/it.inc")
-(import "lib/media/med.inc")
-(import "lib/media/ahx.inc")
+(import "./mod.inc")
+(import "./it.inc")
+(import "./med.inc")
+(import "./ahx.inc")
 
 (ffi "lib/media/media_mix" media-mix)
 

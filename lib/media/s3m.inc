@@ -6,7 +6,7 @@
 ; by letter, A 1 to Z 26
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/media/mod.inc")
+(import "./mod.inc")
 
 (defun s3m-sample (data at signed bare)
 	; (s3m-sample data at signed bare) -> sample

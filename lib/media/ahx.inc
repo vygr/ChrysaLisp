@@ -17,7 +17,7 @@
 ; (note instrument effect number effect number), and its :instruments
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/media/mod.inc")
+(import "./mod.inc")
 
 (defq +ahx_buffer 640 +ahx_block 6520
 	;the period of each note, 0 none, 1 C-1 to 60 B-5

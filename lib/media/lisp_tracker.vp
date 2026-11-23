@@ -1,9 +1,7 @@
 (include "lib/asm/func.inc")
 (include "class/num/class.inc")
-(include "class/nums/class.inc")
-(include "class/doubles/class.inc")
-(include "class/str/class.inc")
 (include "class/lisp/class.inc")
+(include "class/doubles/class.inc")
 
 ;the voices of a tracker's song, lib/media/tracker.inc, mixed. A voice is
 ;+mix_size longs of a nums: its sample, -1 none, where it is in it and its

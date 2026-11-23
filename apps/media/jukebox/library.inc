@@ -137,12 +137,6 @@
 	;the name of the only module of a listing's entries fn says :t of
 	(and (= (length (defq like (filter fn entries))) 1) (first (first like))))
 
-(defun entry-renamed (html name)
-	; (entry-renamed html name) -> :nil | name
-	;the module of a folder's listing that one not there now is under,
-	;(entry-renamed-names)
-	(entry-renamed-names (map (const first) (filter (lambda ((& folder)) (not folder)) (listing-read html))) name))
-
 (defun entry-renamed-names (names name)
 	; (entry-renamed-names names name) -> :nil | name
 	;the module of a folder's names that one not there now is under.
@@ -170,6 +164,12 @@
 		(and (<= (length stem) 8)
 			(only-one modules (lambda ((entry &ignore))
 				(and (eql (name-ending (url-decode entry)) ending) (stem-within? stem (name-stem entry))))))))
+
+(defun entry-renamed (html name)
+	; (entry-renamed html name) -> :nil | name
+	;the module of a folder's listing that one not there now is under,
+	;(entry-renamed-names)
+	(entry-renamed-names (map (const first) (filter (lambda ((& folder)) (not folder)) (listing-read html))) name))
 
 (defun coop-parent (url)
 	; (coop-parent url) -> :nil | url
@@ -227,16 +227,6 @@
 	;the folder a folder of work with another artist, coop-, is in
 	(and (defq at (rfind "/" folder)) (starts-with "coop-" (slice folder at -1)) (slice folder 0 (dec at))))
 
-(defun allmods-resolve (index path)
-	; (allmods-resolve index path) -> :nil | path
-	;where a module a playlist names is now, :nil if Modland has it no
-	;more: (allmods-find), else by the rules of a name renamed in its
-	;folder, or in the artist's own above a folder of work with another
-	(defq folder (path-dir path) name (path-name path))
-	(or (allmods-find index path)
-		(folder-renamed index folder name)
-		(and (defq up (folder-coop-up folder)) (folder-renamed index up name))))
-
 (defun path-words (path)
 	; (path-words path) -> (word ...)
 	;the words of a path's folders, in lower case, letters and digits
@@ -266,6 +256,16 @@
 					best (reduce (const max) scores 0))
 				(and (> best 0) (= (length (filter (# (= %0 best)) scores)) 1)
 					(elem-get near (find best scores)))))))
+
+(defun allmods-resolve (index path)
+	; (allmods-resolve index path) -> :nil | path
+	;where a module a playlist names is now, :nil if Modland has it no
+	;more: (allmods-find), else by the rules of a name renamed in its
+	;folder, or in the artist's own above a folder of work with another
+	(defq folder (path-dir path) name (path-name path))
+	(or (allmods-find index path)
+		(folder-renamed index folder name)
+		(and (defq up (folder-coop-up folder)) (folder-renamed index up name))))
 
 (defun modland-url (path)
 	; (modland-url path) -> url

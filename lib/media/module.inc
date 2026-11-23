@@ -4,12 +4,12 @@
 ; last, as one of the Soundtracker's has none
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/media/mod.inc")
-(import "lib/media/s3m.inc")
-(import "lib/media/xm.inc")
-(import "lib/media/it.inc")
-(import "lib/media/med.inc")
-(import "lib/media/ahx.inc")
+(import "./mod.inc")
+(import "./s3m.inc")
+(import "./xm.inc")
+(import "./it.inc")
+(import "./med.inc")
+(import "./ahx.inc")
 
 ;the endings of the files it reads, as a file picker is given them
 (defq +module_exts ".mod .s3m .xm .it .med .mmd0 .mmd1 .mmd2 .mmd3 .mmdc .ahx .hvl")

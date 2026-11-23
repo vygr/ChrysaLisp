@@ -11,7 +11,7 @@
 ; m is its first. What the curves of ECDSA are worked with.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "././math/bignum.inc")
+(import "./bignum.inc")
 
 (ffi "lib/math/bn_montmul" bn-montmul)
 ; (bn-montmul out a b m minv) -> out
