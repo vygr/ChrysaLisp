@@ -14,15 +14,139 @@
 (defun deg-to-rad (d)
 	(/ (* d +fp_pi) 180.0))
 
+;the CSS colors by name, which SVG has
+(defq +svg_colors (scatter (Fmap 101)
+	"aliceblue" 0xfff0f8ff "antiquewhite" 0xfffaebd7 "aqua" 0xff00ffff
+	"aquamarine" 0xff7fffd4 "azure" 0xfff0ffff "beige" 0xfff5f5dc
+	"bisque" 0xffffe4c4 "black" 0xff000000 "blanchedalmond" 0xffffebcd
+	"blue" 0xff0000ff "blueviolet" 0xff8a2be2 "brown" 0xffa52a2a
+	"burlywood" 0xffdeb887 "cadetblue" 0xff5f9ea0 "chartreuse" 0xff7fff00
+	"chocolate" 0xffd2691e "coral" 0xffff7f50 "cornflowerblue" 0xff6495ed
+	"cornsilk" 0xfffff8dc "crimson" 0xffdc143c "cyan" 0xff00ffff
+	"darkblue" 0xff00008b "darkcyan" 0xff008b8b "darkgoldenrod" 0xffb8860b
+	"darkgray" 0xffa9a9a9 "darkgreen" 0xff006400 "darkgrey" 0xffa9a9a9
+	"darkkhaki" 0xffbdb76b "darkmagenta" 0xff8b008b
+	"darkolivegreen" 0xff556b2f "darkorange" 0xffff8c00
+	"darkorchid" 0xff9932cc "darkred" 0xff8b0000 "darksalmon" 0xffe9967a
+	"darkseagreen" 0xff8fbc8f "darkslateblue" 0xff483d8b
+	"darkslategray" 0xff2f4f4f "darkslategrey" 0xff2f4f4f
+	"darkturquoise" 0xff00ced1 "darkviolet" 0xff9400d3 "deeppink" 0xffff1493
+	"deepskyblue" 0xff00bfff "dimgray" 0xff696969 "dimgrey" 0xff696969
+	"dodgerblue" 0xff1e90ff "firebrick" 0xffb22222 "floralwhite" 0xfffffaf0
+	"forestgreen" 0xff228b22 "fuchsia" 0xffff00ff "gainsboro" 0xffdcdcdc
+	"ghostwhite" 0xfff8f8ff "gold" 0xffffd700 "goldenrod" 0xffdaa520
+	"gray" 0xff808080 "green" 0xff008000 "greenyellow" 0xffadff2f
+	"grey" 0xff808080 "honeydew" 0xfff0fff0 "hotpink" 0xffff69b4
+	"indianred" 0xffcd5c5c "indigo" 0xff4b0082 "ivory" 0xfffffff0
+	"khaki" 0xfff0e68c "lavender" 0xffe6e6fa "lavenderblush" 0xfffff0f5
+	"lawngreen" 0xff7cfc00 "lemonchiffon" 0xfffffacd "lightblue" 0xffadd8e6
+	"lightcoral" 0xfff08080 "lightcyan" 0xffe0ffff
+	"lightgoldenrodyellow" 0xfffafad2 "lightgray" 0xffd3d3d3
+	"lightgreen" 0xff90ee90 "lightgrey" 0xffd3d3d3 "lightpink" 0xffffb6c1
+	"lightsalmon" 0xffffa07a "lightseagreen" 0xff20b2aa
+	"lightskyblue" 0xff87cefa "lightslategray" 0xff778899
+	"lightslategrey" 0xff778899 "lightsteelblue" 0xffb0c4de
+	"lightyellow" 0xffffffe0 "lime" 0xff00ff00 "limegreen" 0xff32cd32
+	"linen" 0xfffaf0e6 "magenta" 0xffff00ff "maroon" 0xff800000
+	"mediumaquamarine" 0xff66cdaa "mediumblue" 0xff0000cd
+	"mediumorchid" 0xffba55d3 "mediumpurple" 0xff9370db
+	"mediumseagreen" 0xff3cb371 "mediumslateblue" 0xff7b68ee
+	"mediumspringgreen" 0xff00fa9a "mediumturquoise" 0xff48d1cc
+	"mediumvioletred" 0xffc71585 "midnightblue" 0xff191970
+	"mintcream" 0xfff5fffa "mistyrose" 0xffffe4e1 "moccasin" 0xffffe4b5
+	"navajowhite" 0xffffdead "navy" 0xff000080 "oldlace" 0xfffdf5e6
+	"olive" 0xff808000 "olivedrab" 0xff6b8e23 "orange" 0xffffa500
+	"orangered" 0xffff4500 "orchid" 0xffda70d6 "palegoldenrod" 0xffeee8aa
+	"palegreen" 0xff98fb98 "paleturquoise" 0xffafeeee
+	"palevioletred" 0xffdb7093 "papayawhip" 0xffffefd5 "peachpuff" 0xffffdab9
+	"peru" 0xffcd853f "pink" 0xffffc0cb "plum" 0xffdda0dd
+	"powderblue" 0xffb0e0e6 "purple" 0xff800080 "rebeccapurple" 0xff663399
+	"red" 0xffff0000 "rosybrown" 0xffbc8f8f "royalblue" 0xff4169e1
+	"saddlebrown" 0xff8b4513 "salmon" 0xfffa8072 "sandybrown" 0xfff4a460
+	"seagreen" 0xff2e8b57 "seashell" 0xfffff5ee "sienna" 0xffa0522d
+	"silver" 0xffc0c0c0 "skyblue" 0xff87ceeb "slateblue" 0xff6a5acd
+	"slategray" 0xff708090 "slategrey" 0xff708090 "snow" 0xfffffafa
+	"springgreen" 0xff00ff7f "steelblue" 0xff4682b4 "tan" 0xffd2b48c
+	"teal" 0xff008080 "thistle" 0xffd8bfd8 "tomato" 0xffff6347
+	"turquoise" 0xff40e0d0 "violet" 0xffee82ee "wheat" 0xfff5deb3
+	"white" 0xffffffff "whitesmoke" 0xfff5f5f5 "yellow" 0xffffff00
+	"yellowgreen" 0xff9acd32))
+
+;what a length is in pixels by its unit, and what SVG passes over
+(defq +svg_units (scatter (Fmap 11) "" 1.0 "px" 1.0 "pt" 1.33333 "pc" 16.0 "mm" 3.77953
+		"cm" 37.79528 "in" 96.0 "em" 16.0)
+	+svg_skip ''("defs" "symbol" "clipPath" "mask" "marker" "pattern" "linearGradient"
+		"radialGradient" "title" "desc" "metadata" "style" "script" "filter" "font"))
+
+(defun read-num (val)
+	; (read-num str) -> num
+	;a number as it is written, an exponent too, which (str-to-num) stops at
+	(cond
+		((and (defq e (or (find "e" val) (find "E" val)))
+				(defq x (str-to-num (slice val (inc e) -1))) (/= x 0))
+			(defq m (n2d (str-to-num (slice val 0 e))))
+			(times (abs x) (setq m (if (> x 0) (* m (const (n2d 10))) (/ m (const (n2d 10))))))
+			m)
+		((str-to-num val))))
+
+(defun read-length (val)
+	; (read-length str) -> :nil | :percent | fixed
+	;a length in pixels, of its unit; :percent for a %, :nil for a unit not
+	;known
+	(defq at (bskip (const (char-class "+-.0123456789eE")) val 0) unit (trim (slice val at -1)))
+	(cond
+		((eql unit "%") :percent)
+		((defq k (. +svg_units :find unit))
+			(if (eql unit "") (n2q (read-num val)) (* (n2q (read-num (slice val 0 at))) k)))))
+
+(defun read-opacity (val)
+	; (read-opacity str) -> fixed
+	;0 to 1, or a %
+	(defq n (n2q (read-num val)))
+	(if (ends-with "%" val) (setq n (/ n 100.0)))
+	(max 0.0 (min 1.0 n)))
+
 (defun read-col (val)
 	(case (length val)
 		(4 (pixmap-to-argb32 (str-to-num (cat "0xf" (rest val))) 12))
-		(7 (pixmap-to-argb32 (str-to-num (cat "0x" (rest val))) 24))
-		(:t (throw "Unknown # val !" val))))
+		(7 (pixmap-to-argb32 (str-to-num (cat "0x" (rest val))) 24))))
 
 (defun read-rgb (val)
-	(bind '(r g b) (map! (const str-to-num) (list (split val (const (char-class "(), ")))) 1 4))
-	(+ +argb_black (<< r 16) (<< g 8) b))
+	;rgb() and rgba(), each of 0 to 255 or a %, the alpha 0 to 1
+	(bind '(r g b &optional a) (filter! (# (nempty? %0)) (split val (const (char-class "(), \t"))) 1 -1))
+	(bind '(r g b) (map (lambda (v)
+			(if (ends-with "%" v) (n2i (/ (* (n2q (read-num v)) 255.0) 100.0)) (read-num v)))
+		(list r g b)))
+	(defq alpha (if a (n2i (* (read-opacity a) 255.0)) 0xff))
+	(apply (const +) (map (# (<< (max 0 (min 255 (n2i %0))) %1)) (list alpha r g b) '(24 16 8 0))))
+
+(defun read-color (entry val)
+	; (read-color entry str) -> :inherit | argb
+	;a color as SVG and CSS write it, 0 for none, :inherit for one not known
+	(setq val (trim val))
+	(cond
+		((find val '("none" "transparent")) 0)
+		((eql val "currentColor") (. entry :find "color"))
+		((starts-with "#" val) (ifn (read-col val) :inherit))
+		((or (starts-with "rgb(" val) (starts-with "rgba(" val)) (read-rgb val))
+		((starts-with "url(" val)
+			;a paint server, not yet: its fallback color, else none
+			(defq at (find ")" val))
+			(if (and at (nempty? (defq fall (trim (slice val (inc at) -1)))))
+				(read-color entry fall) 0))
+		((. +svg_colors :find (to-lower val)))
+		(:inherit)))
+
+(defun svg-attr (keys vals key)
+	; (svg-attr keys vals key) -> :nil | str
+	;an attribute, or a property of the style attribute
+	(cond
+		((defq at (find key keys)) (elem-get vals at))
+		((defq at (find "style" keys))
+			(some (lambda (p)
+					(defq kv (split p ":"))
+					(and (= (length kv) 2) (eql (trim (first kv)) key) (trim (second kv))))
+				(split (elem-get vals at) ";")))))
 
 (defun read-transform (entry val)
 	(defq stack (reverse (split val ")")) ma (. entry :find "transform"))
@@ -57,38 +181,36 @@
 	ma)
 
 (defun read-attribute (entry key val)
+	; (read-attribute entry key val) -> :inherit | val
+	;:inherit for one that is to be its parent's: inherit, or a value not known
+	(if (eql (setq val (trim val)) "inherit") (setq key :inherit))
 	(case key
-		(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r"
-				"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
-			(n2q (str-to-num val)))
+		(:inherit :inherit)
+		(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r" "width" "height")
+			;not inherited in SVG: one that can not be read is none, 0, but
+			;a % is left as it was, an svg of 100% is its default size
+			(cond
+				((eql (defq l (read-length val)) :percent) :inherit)
+				((num? l) l)
+				(0.0)))
+		(("fill-opacity" "stroke-opacity" "opacity")
+			(read-opacity val))
 		("viewBox"
 			(map (# (n2q (str-to-num %0))) (split val (const (char-class ", ")))))
 		("points"
 			(reduce (# (push %0 (n2q (str-to-num %1)))) (split val (const (char-class ", "))) (path)))
 		("transform"
 			(read-transform entry val))
-		(("stroke" "fill")
-			(case val
-				("none" 0)
-				("transparent" 0)
-				("black" +argb_black)
-				("white" +argb_white)
-				("red" +argb_red)
-				("green" +argb_green)
-				("blue" +argb_blue)
-				("yellow" +argb_yellow)
-				("magenta" +argb_magenta)
-				("cyan" +argb_cyan)
-				(:t (cond
-						((starts-with "#" val) (read-col val))
-						((starts-with "rgb(" val) (read-rgb val))
-						((throw "Unknown stroke/fill style !" val))))))
+		(("stroke" "fill" "color")
+			(read-color entry val))
+		("visibility"
+			(if (find val '("visible" "hidden" "collapse")) val :inherit))
 		("stroke-linecap"
 			(case val
 				("butt" +cap_butt)
 				("round" +cap_round)
 				("square" +cap_square)
-				((throw "Unknown stroke-linecap style !" val))))
+				(:t :inherit)))
 		("stroke-linejoin"
 			(case val
 				("miter" +join_miter)
@@ -96,21 +218,22 @@
 				("round" +join_round)
 				("miter-clip" +join_miter)
 				("arcs" +join_miter)
-				((throw "Unknown stroke-linejoin style !" val))))
+				(:t :inherit)))
 		("fill-rule"
 			(case val
 				("nonzero" +winding_none_zero)
 				("evenodd" +winding_odd_even)
-				((throw "Unknown fill-rule !" val))))
+				(:t :inherit)))
 		("font-weight"
 			(case val
 				("normal" "Regular")
 				("bold" "Bold")
 				("bolder" "Bolder")
 				("lighter" "Lighter")
-				((throw "Unknown font-weight !" val))))
-		("font-size"
-			(n2q (str-to-num (pop (split val "pt")))))
+				(:t :inherit)))
+		(("font-size" "stroke-width")
+			;inherited: one that can not be read is the parent's
+			(if (num? (defq l (read-length val))) l :inherit))
 		("font-family"
 			"OpenSans")
 		("text-anchor"
@@ -118,42 +241,55 @@
 				("start" "start")
 				("middle" "middle")
 				("end" "end")
-				((throw "Unknown text-anchor !" val))))
+				(:t :inherit)))
 		("dominant-baseline"
 			(case val
 				("auto" "auto")
 				("middle" "middle")
 				("hanging" "hanging")
-				((throw "Unknown dominant-baseline !" val))))
+				(:t :inherit)))
 		("d"
 			(path-gen-paths val))
 		(:t val)))
 
 (defun push-attributes (stack keys vals)
+	;a copy of the parent's, its attributes and its style's over it. A key
+	;that is there already keeps its place: the defaults block that is in
+	;order, (SVG-load), stays so
 	(push stack (defq entry (. (last stack) :copy)))
 	(each (lambda (key val)
 			(cond
 				((eql key "style")
-					(each (lambda ((k v))
-							(. entry :insert k (read-attribute entry k v)))
-						(map (# (split %0 ":")) (split val ";"))))
-				(:t (setq val (read-attribute entry key val))))
-			(. entry :insert key val)) keys vals)
+					(each (lambda (p)
+							(when (= (length (defq kv (split p ":"))) 2)
+								(defq k (trim (first kv)) v (read-attribute entry k (second kv)))
+								(unless (eql v :inherit) (. entry :insert k v))))
+						(split val ";")))
+				((nql (setq val (read-attribute entry key val)) :inherit)
+					(. entry :insert key val)))) keys vals)
 	entry)
+
+(defun svg-alpha (argb opacity)
+	; (svg-alpha argb opacity) -> argb
+	;the color's alpha by the opacity, a color of full alpha as it was
+	(if (/= (>> argb 24) 0xff) (setq opacity (* opacity (/ (n2q (>> argb 24)) 255.0))))
+	(+ (<< (n2i (* opacity 0xff.0)) 24) (logand argb 0xffffff)))
 
 (defun path-fill-and-stroke (canvas entry paths)
 	(bind '(& stroke & fill & stroke_width & stroke_linecap & stroke_linejoin
-			& fill_rule & fill_opacity & stroke_opacity & transform &ignore)
+			& fill_rule & fill_opacity & stroke_opacity & transform & opacity & visibility &ignore)
 		(get :bucket entry))
 	;cheaky bind of the front of the Pmap :bucket !
+	(unless (eql visibility "visible") (setq fill 0 stroke 0))
+	(setq fill_opacity (* fill_opacity opacity) stroke_opacity (* stroke_opacity opacity))
 	(and (/= fill 0) (/= fill_opacity 0.0)
 		(.-> canvas
-			(:set_color (+ (<< (n2i (* fill_opacity 0xff.0)) 24) (logand fill 0xffffff)))
+			(:set_color (svg-alpha fill fill_opacity))
 			(:fpoly 0.0 0.0 fill_rule
 				(map (lambda ((f p)) (mat3x2-vec2-mul transform p (cat p))) paths))))
 	(and (/= stroke 0) (/= stroke_opacity 0.0)
 		(.-> canvas
-			(:set_color (+ (<< (n2i (* stroke_opacity 0xff.0)) 24) (logand stroke 0xffffff)))
+			(:set_color (svg-alpha stroke stroke_opacity))
 			(:fpoly 0.0 0.0 fill_rule
 				(map (lambda (p) (mat3x2-vec2-mul transform p p))
 					(reduce (lambda (l (f p))
@@ -174,7 +310,7 @@
 	;larger than its own, as a preview wants it: no pixels made to be
 	;thrown away
 	(setq scale (n2q (ifn scale 1)))
-	(defq canvas :nil stack
+	(defq canvas :nil skip 0 stack
 			(list (scatter (Lmap)
 					;this block of defaults are in order !
 					"stroke" 0
@@ -186,7 +322,10 @@
 					"fill-opacity" 1.0
 					"stroke-opacity" 1.0
 					"transform" (mat3x2-scale scale)
+					"opacity" 1.0
+					"visibility" "visible"
 					;this block can be any order
+					"color" +argb_black
 					"d" (path) "points" (path)
 					"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
 					"cx" 0.0 "cy" 0.0 "r" 0.0
@@ -194,68 +333,78 @@
 					"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular")))
 	(XML-parse stream
 		(lambda (command keys vals)
-			(case command
-				("svg"
-					(bind '(w h vb) (gather (defq entry (push-attributes stack keys vals))
-							"width" "height" "viewBox"))
-					(defq x 0.0 y 0.0) (setd w 256.0 h 256.0)
-					(if vb (bind '(x y w h) vb))
-					(cond
-						(most_w
-							;the size that fits, the picture's shape kept
-							(defq k (min 1.0 (/ (n2q most_w) w)))
-							(if most_h (setq k (min k (/ (n2q most_h) h))))
-							(setq scale k canvas (Canvas (max 1 (n2i (+ (* w k) 0.5))) (max 1 (n2i (+ (* h k) 0.5))) 1)))
-						((setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))))
-					(. canvas :set_canvas_flags +canvas_flag_antialias)
-					(. entry :insert "transform" (mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
-				("circle"
-					(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
-							"cx" "cy" "r"))
-					(defq d (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
-					(path-fill-and-stroke canvas entry (list (list :t d))))
-				("ellipse"
-					(bind '(cx cy rx ry) (gather (defq entry (push-attributes stack keys vals))
-							"cx" "cy" "rx" "ry"))
-					(setd rx ry ry rx)
-					(defq d (path-gen-ellipse cx cy rx ry (path)))
-					(path-fill-and-stroke canvas entry (list (list :t d))))
-				("line"
-					(bind '(x1 y1 x2 y2) (gather (defq entry (push-attributes stack keys vals))
-							"x1" "y1" "x2" "y2"))
-					(defq d (path x1 y1 x2 y2))
-					(path-fill-and-stroke canvas entry (list (list :nil d))))
-				("rect"
-					(bind '(x y rx ry x1 y1) (gather (defq entry (push-attributes stack keys vals))
-							"x" "y" "rx" "ry" "width" "height"))
-					(setq x1 (+ x x1) y1 (+ y y1))
-					(setd rx ry ry rx)
-					(defq d (path-gen-rect x y x1 y1 rx ry (path)))
-					(path-fill-and-stroke canvas entry (list (list :t d))))
-				("polygon"
-					(defq entry (push-attributes stack keys vals)
-						d (. entry :find "points"))
-					(path-fill-and-stroke canvas entry (list (list :t d))))
-				("polyline"
-					(defq entry (push-attributes stack keys vals)
-						d (. entry :find "points"))
-					(path-fill-and-stroke canvas entry (list (list :nil d))))
-				("path"
-					(defq entry (push-attributes stack keys vals)
-						d (. entry :find "d"))
-					(path-fill-and-stroke canvas entry d))
-				(("text" "g")
-					(push-attributes stack keys vals))))
+			;what draws nothing is passed over with all that is in it, so
+			;is what is not shown: skip counts the depth in it
+			(cond
+				((> skip 0) (++ skip))
+				((or (find command +svg_skip) (find ":" command)
+						(eql (svg-attr keys vals "display") "none"))
+					(setq skip 1))
+				(:t
+					(case command
+						("svg"
+							(bind '(w h vb) (gather (defq entry (push-attributes stack keys vals))
+									"width" "height" "viewBox"))
+							(defq x 0.0 y 0.0) (setd w 256.0 h 256.0)
+							(if vb (bind '(x y w h) vb))
+							(cond
+								(most_w
+									;the size that fits, the picture's shape kept
+									(defq k (min 1.0 (/ (n2q most_w) w)))
+									(if most_h (setq k (min k (/ (n2q most_h) h))))
+									(setq scale k canvas (Canvas (max 1 (n2i (+ (* w k) 0.5))) (max 1 (n2i (+ (* h k) 0.5))) 1)))
+								((setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))))
+							(. canvas :set_canvas_flags +canvas_flag_antialias)
+							(. entry :insert "transform" (mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
+						("circle"
+							(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
+									"cx" "cy" "r"))
+							(defq d (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
+							(path-fill-and-stroke canvas entry (list (list :t d))))
+						("ellipse"
+							(bind '(cx cy rx ry) (gather (defq entry (push-attributes stack keys vals))
+									"cx" "cy" "rx" "ry"))
+							(setd rx ry ry rx)
+							(defq d (path-gen-ellipse cx cy rx ry (path)))
+							(path-fill-and-stroke canvas entry (list (list :t d))))
+						("line"
+							(bind '(x1 y1 x2 y2) (gather (defq entry (push-attributes stack keys vals))
+									"x1" "y1" "x2" "y2"))
+							(defq d (path x1 y1 x2 y2))
+							(path-fill-and-stroke canvas entry (list (list :nil d))))
+						("rect"
+							(bind '(x y rx ry x1 y1) (gather (defq entry (push-attributes stack keys vals))
+									"x" "y" "rx" "ry" "width" "height"))
+							(setq x1 (+ x x1) y1 (+ y y1))
+							(setd rx ry ry rx)
+							(defq d (path-gen-rect x y x1 y1 rx ry (path)))
+							(path-fill-and-stroke canvas entry (list (list :t d))))
+						("polygon"
+							(defq entry (push-attributes stack keys vals)
+								d (. entry :find "points"))
+							(path-fill-and-stroke canvas entry (list (list :t d))))
+						("polyline"
+							(defq entry (push-attributes stack keys vals)
+								d (. entry :find "points"))
+							(path-fill-and-stroke canvas entry (list (list :nil d))))
+						("path"
+							(defq entry (push-attributes stack keys vals)
+								d (. entry :find "d"))
+							(path-fill-and-stroke canvas entry d))
+						(("text" "g" "a" "switch")
+							(push-attributes stack keys vals))))))
 		(lambda (command)
-			(case command
-				(("svg" "g" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect" "text")
-					(pop stack))))
+			(if (> skip 0) (-- skip)
+				(case command
+					(("svg" "g" "a" "switch" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect" "text")
+						(pop stack)))))
 		(lambda (text)
 			;render text (skip in TUI mode where fonts unavailable), its
 			;white space as SVG has it by default: each run one space, none
 			;at either end
 			(setq text (join (split text (const (char-class " \t\r\n"))) " "))
-			(when (and (get 'create-font) (nempty? text))
+			(when (and (= skip 0) (get 'create-font) (nempty? text)
+					(eql (. (last stack) :find "visibility") "visible"))
 				(bind '(x y family weight size anchor baseline)
 					(gather (defq entry (last stack))
 						"x" "y" "font-family" "font-weight" "font-size"
