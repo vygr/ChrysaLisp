@@ -2457,6 +2457,14 @@ found by. :nil if the key is 0 or the pixels can not be reached
 (canvas-darker col) -> col
 ```
 
+### canvas-floor
+
+```code
+(canvas-floor n d) -> (q r)
+
+the floor quotient of n by d, more than 0, and what is over, 0 to d
+```
+
 ### canvas-flush
 
 ```code
@@ -2464,6 +2472,27 @@ found by. :nil if the key is 0 or the pixels can not be reached
 
 flush any shared pixmaps that have no users.
 4 refs are held by the cache Lmap and this loop !
+```
+
+### canvas-gradient
+
+```code
+(canvas-gradient canvas kind spread stops (a0 ax ay) (b0 bx by)) -> canvas
+
+a gradient's +paint, its lut and a row as wide as the canvas's pixmap,
+and the canvas told to draw with it, (canvas-paint)
+```
+
+### canvas-gradient-lut
+
+```code
+(canvas-gradient-lut stops) -> (argb ...)
+
+the 256 colors of a gradient's stops, ((offset argb) ...), step i at t
+i over 255, each channel mixed straight between the stops either side,
+not premultiplied, to the nearest. An offset is kept to 0 to 1 and to no
+less than the one before, as SVG has it, and before the first and after
+the last is their color. All in integers, an offset in 255 by 65536ths
 ```
 
 ### canvas-info
@@ -2503,6 +2532,16 @@ files whose names end ext are read by these, (info stream) and
 
 ```code
 (canvas-loader-of file) -> :nil | (ext info load save)
+```
+
+### canvas-paint
+
+```code
+(canvas-paint canvas kind data) -> canvas
+
+the canvas's span made a paint's, gui/canvas/paint.vp. Bound as it is
+first called, not as this is imported, as a (const (ffi)) would be: a
+program that never paints loads none of the paints
 ```
 
 ### canvas-save
@@ -2553,6 +2592,14 @@ each frame, an (:exchange) or a (:swap) gives a canvas another texture
 
 a little brighter, a quarter of the way to white, the edge of a thing
 that the light is on
+```
+
+### canvas-units
+
+```code
+(canvas-units num) -> int
+
+a coordinate in 256ths of a pixel, the nearest, by fixed
 ```
 
 ### cell-rows

@@ -534,6 +534,14 @@ Key points:
 	changed regions with `:add_dirty` and widgets with `:dirty` (see
 	`apps/demos/boing/app.lisp`).
 
+*	**Gradients.** `(. canvas :set_linear x y x1 y1 stops [spread])` and
+	`(. canvas :set_radial cx cy r stops [spread])`, stops `((offset argb)
+	...)`, spread `+spread_pad` `+spread_reflect` `+spread_repeat`, in the
+	canvas's pixels as `:fpoly` has them. Every `:fpoly` and `:fbox` after
+	is of it till `:set_color`. It is the canvas's, so a strip farm's child
+	sets it on its own canvas; send a child the gradient's numbers, never
+	a paint, its native's address is of its own process.
+
 ## Design Rules (Mandatory)
 
 *	**No master program.** Each object acts by its own rules and the app's

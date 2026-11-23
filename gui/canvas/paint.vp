@@ -1,0 +1,321 @@
+(include "lib/asm/func.inc")
+(include "sys/math/class.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+(include "./class.inc")
+(include "././pixmap/class.inc")
+
+;Gradient paints, spans a canvas's span field can be, with :span_noclip's
+;inputs and outputs, trashing what they will but :r0; a new one is added to
+;the family of cmd/trace.lisp +pointer_families, so what a call through the
+;field trashes is known: each makes the colors of a run in the row of
+;its +paint, its str in span_data, and :span_row blends them. Nothing of
+;them is of :fpoly or :fbox, which give each run to the span as before.
+
+(def-method :canvas :span_row)
+	;inputs
+	;:r0 = canvas object (ptr)
+	;:r1 = coverage (long)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = x1 (pixels)
+	;:r2 = the colors of x to x1, argb not premultiplied (puint)
+	;outputs
+	;:r0 = canvas object (ptr)
+	;trashes
+	;:r1-:r9
+	;info
+	;coverage is 0x0 to 0x80. Each pixel as :span_noclip does its one color,
+	;the alpha by the coverage, premultiplied, then blended, so a row of one
+	;color is what :span_noclip draws of it to the byte
+
+	(entry :canvas :span_row '(:r0 :r1 :r7 :r8 :r9 :r2))
+
+	;the coverage in :r4 and the colors in :r5, as :pixmap :to_premul has
+	;:r1 to :r3
+	(vp-cpy-rr :r1 :r4)
+	(vp-cpy-rr :r2 :r5)
+	(assign '((:r0 +canvas_pixmap)) '(:r3))
+	(assign '((:r3 +pixmap_stride) (:r3 +pixmap_data)) '(:r6 :r3))
+	(vp-mul-rr :r6 :r8)
+	(vp-add-rr :r3 :r8)
+	(vp-simd vp-shl-cr `(,(log2 +int_size)) '(:r7 :r9))
+	(vp-simd vp-add-rr '(:r8) '(:r7 :r9))
+	(loop-start)
+		(vp-load-rcr-ui :r5 0 :r1)
+		(vp-cpy-rr :r1 :r2)
+		(vp-shr-cr 24 :r2)
+		(vp-and-cr 0xffffff :r1)
+		(vp-mul-rr :r4 :r2)
+		(vp-shr-cr 7 :r2)
+		(vp-shl-cr 24 :r2)
+		(vp-add-rr :r2 :r1)
+		(call :pixmap :to_premul '(:r1) '(:r1))
+		(vp-cpy-rr :r1 :r2)
+		(vp-shr-cr 24 :r2)
+		(vpif '(:r2 = 0xff))
+			(vp-store-rrc-i :r1 :r7 0)
+		(elseif '(:r2 /= 0))
+			(vp-cpy-cr 0xff :r6)
+			(vp-sub-rr :r2 :r6)
+			(vp-load-rcr-ui :r7 0 :r2)
+			(vp-cpy-rr :r2 :r3)
+			(vp-and-cr 0x00ff00ff :r2)
+			(vp-and-cr 0xff00ff00 :r3)
+			(vp-simd vp-mul-rr '(:r6) '(:r2 :r3))
+			(vp-simd vp-shr-cr '(8) '(:r2 :r3))
+			(vp-and-cr 0x00ff00ff :r2)
+			(vp-and-cr 0xff00ff00 :r3)
+			(vp-add-rr :r3 :r2)
+			(vp-add-rr :r1 :r2)
+			(vp-store-rrc-i :r2 :r7 0)
+		(endif)
+		(vp-add-cr +int_size :r5)
+		(vp-add-cr +int_size :r7)
+	(loop-until '(:r7 = :r9))
+
+	(exit :canvas :span_row '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+;what a span carries along its run, and how: the table step of each pixel
+;of a linear, and the u of a radial, as a line is drawn, a quotient and a
+;remainder, each worked out again for the first pixel of every run from
+;integers of the fixed inputs, so nothing is rounded and nothing drifts,
+;as :ftri did its edges
+
+(defun paint-index (i spread tmp)
+	;a table step, any integer, made one of the 256 by the spread: pad keeps
+	;to the ends, reflect goes back and forth, repeat starts again
+	(vpif `(,spread = ,+spread_pad))
+		(vp-max-cr 0 i)
+		(vp-min-cr 255 i)
+	(elseif `(,spread = ,+spread_reflect))
+		(vp-and-cr 511 i)
+		(vpif `(,i > 255))
+			(vp-cpy-cr 511 tmp)
+			(vp-sub-rr i tmp)
+			(vp-cpy-rr tmp i)
+		(endif)
+	(else)
+		(vp-and-cr 255 i)
+	(endif))
+
+(defun paint-floor (n d q r)
+	;q and r the floor quotient and remainder of n by d, d more than 0, r
+	;from 0 to below d
+	(vp-cpy-rr n q)
+	(vp-div-rr d q)
+	(vp-cpy-rr q r)
+	(vp-mul-rr d r)
+	(vp-sub-rr n r)
+	(vp-mul-cr -1 r)
+	(vpif `(,r < 0))
+		(vp-sub-cr 1 q)
+		(vp-add-rr d r)
+	(endif))
+
+(defun paint-row (out x x1 paint)
+	;out the row of the paint, x to x1, x1 made its end
+	(vp-sub-rr x x1)
+	(vp-shl-cr (log2 +int_size) x1)
+	(vp-lea-rcr paint +paint_row out)
+	(vp-add-rr out x1))
+
+(def-method :canvas :span_linear)
+	;inputs
+	;:r0 = canvas object (ptr)
+	;:r1 = coverage (long)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = x1 (pixels)
+	;outputs
+	;:r0 = canvas object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;of the paint, a0 + ax x + ay y is 256 t times b0, exactly, and the
+	;step of a pixel is that by ax: b0 into ax is bx, by over
+
+	(entry :canvas :span_linear '(:r0 :r1 :r7 :r8 :r9))
+
+	(vpif '(:r1 /= 0))
+		(vp-push :r0 :r1 :r7 :r8 :r9)
+		(assign '((:r0 +canvas_span_data)) '(:r2))
+		(vp-add-cr +str_data :r2)
+		;:r3 the numerator of the first pixel, :r6 its denominator
+		(assign '((:r2 +paint_a0) (:r2 +paint_ax) (:r2 +paint_ay) (:r2 +paint_b0)) '(:r3 :r4 :r5 :r6))
+		(vp-mul-rr :r7 :r4)
+		(vp-mul-rr :r8 :r5)
+		(vp-add-rr :r4 :r3)
+		(vp-add-rr :r5 :r3)
+		;:r10 the step and :r11 what is over, :r12 and :r13 what a pixel adds
+		(paint-floor :r3 :r6 :r10 :r11)
+		(assign '((:r2 +paint_bx) (:r2 +paint_by) (:r2 +paint_spread)) '(:r12 :r13 :r14))
+		(paint-row :r7 :r7 :r9 :r2)
+		(loop-start)
+			(vp-cpy-rr :r10 :r1)
+			(paint-index :r1 :r14 :r8)
+			(vp-shl-cr (log2 +int_size) :r1)
+			(vp-add-rr :r2 :r1)
+			(vp-load-rcr-ui :r1 +paint_lut :r5)
+			(vp-store-rrc-i :r5 :r7 0)
+			(vp-add-cr +int_size :r7)
+			(vp-add-rr :r12 :r10)
+			(vp-add-rr :r13 :r11)
+			(vpif '(:r11 >= :r6))
+				(vp-add-cr 1 :r10)
+				(vp-sub-rr :r6 :r11)
+			(endif)
+		(loop-until '(:r7 = :r9))
+		(vp-pop :r0 :r1 :r7 :r8 :r9)
+		(assign '((:r0 +canvas_span_data)) '(:r2))
+		(vp-add-cr (+ +str_data +paint_row) :r2)
+		(jump :canvas :span_row '(:r0 :r1 :r7 :r8 :r9 :r2))
+	(endif)
+
+	(exit :canvas :span_linear '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :canvas :span_radial)
+	;inputs
+	;:r0 = canvas object (ptr)
+	;:r1 = coverage (long)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = x1 (pixels)
+	;outputs
+	;:r0 = canvas object (ptr)
+	;trashes
+	;:r1-:r12, :d0-:d1
+	;info
+	;of the paint, a0 and ax the centre and ay the radius, in 256ths of a
+	;pixel; u and v, fixed, are a pixel's centre from it by the radius, u
+	;carried along the run, the radius into 2^24 bx, by over, and t is their
+	;length, :sys_math :q_sqrt
+
+	(entry :canvas :span_radial '(:r0 :r1 :r7 :r8 :r9))
+
+	(vpif '(:r1 /= 0))
+		(vp-push :r0 :r1 :r7 :r8 :r9)
+		(assign '((:r0 +canvas_span_data)) '(:r2))
+		(vp-add-cr +str_data :r2)
+		(assign '((:r2 +paint_a0) (:r2 +paint_ax) (:r2 +paint_ay)) '(:r3 :r4 :r5))
+		;v of the row, its square in :r11
+		(vp-shl-cr 8 :r8)
+		(vp-add-cr 128 :r8)
+		(vp-sub-rr :r4 :r8)
+		(vp-shl-cr +fp_shift :r8)
+		(paint-floor :r8 :r5 :r11 :r12)
+		(vp-mul-rr :r11 :r11)
+		;u of the first pixel in :r3, what is over in :r4
+		(vp-cpy-rr :r7 :r1)
+		(vp-shl-cr 8 :r1)
+		(vp-add-cr 128 :r1)
+		(vp-sub-rr :r3 :r1)
+		(vp-shl-cr +fp_shift :r1)
+		(paint-floor :r1 :r5 :r3 :r4)
+		(assign '((:r2 +paint_bx) (:r2 +paint_by) (:r2 +paint_spread)) '(:r6 :r10 :r12))
+		(paint-row :r7 :r7 :r9 :r2)
+		(loop-start)
+			;the root of u u + v v, u kept to where its square has room
+			(vp-cpy-rr :r3 :r0)
+			(vp-max-cr (neg (<< 1 30)) :r0)
+			(vp-min-cr (<< 1 30) :r0)
+			(vp-mul-rr :r0 :r0)
+			(vp-add-rr :r11 :r0)
+			(vp-shr-cr +fp_shift :r0)
+			(call :sys_math :q_sqrt '(:r0) '(:r0))
+			(vp-asr-cr 8 :r0)
+			(vp-cpy-rr :r0 :r1)
+			(paint-index :r1 :r12 :r8)
+			(vp-shl-cr (log2 +int_size) :r1)
+			(vp-add-rr :r2 :r1)
+			(vp-load-rcr-ui :r1 +paint_lut :r8)
+			(vp-store-rrc-i :r8 :r7 0)
+			(vp-add-cr +int_size :r7)
+			(vp-add-rr :r6 :r3)
+			(vp-add-rr :r10 :r4)
+			(vpif '(:r4 >= :r5))
+				(vp-add-cr 1 :r3)
+				(vp-sub-rr :r5 :r4)
+			(endif)
+		(loop-until '(:r7 = :r9))
+		(vp-pop :r0 :r1 :r7 :r8 :r9)
+		(assign '((:r0 +canvas_span_data)) '(:r2))
+		(vp-add-cr (+ +str_data +paint_row) :r2)
+		(jump :canvas :span_row '(:r0 :r1 :r7 :r8 :r9 :r2))
+	(endif)
+
+	(exit :canvas :span_radial '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :canvas :lisp_paint)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :d0-:d15
+	;info
+	;(canvas-paint canvas kind data) -> canvas
+	;kind 0 the solid color, data :nil, 1 a linear gradient and 2 a radial,
+	;data the str of its +paint, a row as wide as the canvas's pixmap after
+	;its lut. The canvas holds the data till another paint or its end
+
+	(entry :canvas :lisp_paint '(:r0 :r1))
+
+	(gotoif-lisp-args-sig 'error :r1 3)
+
+	(vp-push :r0 :r1)
+	(list-bind-args :r1 '(:r0 :r1 :r2) '(:canvas :num :obj))
+	;a gradient's str holds a row as wide as the pixmap, or a span would go
+	;past its end
+	(vpif '(:r1 /= 0))
+		(assign '((:r0 +canvas_pixmap)) '(:r3))
+		(gotoif '(:r3 = 0) 'too_short)
+		(assign '((:r3 +pixmap_width)) '(:r3))
+		(vp-shl-cr (log2 +int_size) :r3)
+		(vp-add-cr +paint_row :r3)
+		(f-bind :str :vtable :r4)
+		(assign '((:r2 +obj_vtable)) '(:r5))
+		(gotoif '(:r4 /= :r5) 'too_short)
+		(assign '((:r2 +str_length)) '(:r4))
+		(gotoif '(:r4 < :r3) 'too_short)
+	(endif)
+	(vpif '(:r1 = 1))
+		(fn-bind (f-path :canvas :span_linear) :r3)
+	(elseif '(:r1 = 2))
+		(fn-bind (f-path :canvas :span_radial) :r3)
+	(else)
+		(fn-bind (f-path :canvas :span_noclip) :r3)
+		(vp-xor-rr :r2 :r2)
+	(endif)
+	(vpif '(:r2 /= 0))
+		(class/obj/ref :r2 :r1)
+	(endif)
+	(assign '((:r0 +canvas_span_data)) '(:r4))
+	(assign '(:r3 :r2) '((:r0 +canvas_span) (:r0 +canvas_span_data)))
+	(vp-push :r0)
+	(call :obj :deref_if '(:r4))
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0 :r2)
+
+	(exit :canvas :lisp_paint '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'too_short)
+	(vp-pop :r0 :r1)
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(canvas-paint canvas kind data)" +error_msg_wrong_types))
+	(signature '(:CANVAS :NUM :obj))
+
+(def-func-end)

@@ -48,6 +48,13 @@
 	;it trashes all, which its own instructions do not show
 	+all_clobber_funcs ''("sys/task/defer"))
 
+;a call through a pointer that names a method whose function may be any of a
+;family: what it may call is them all, and what it trashes their union, as a
+;virtual method's is of its overrides. The span of a canvas, its field
+;+canvas_span, gui/canvas/struct.inc, is any of its spans
+(defq +pointer_families ''(
+	("gui/canvas/span_noclip" ("gui/canvas/span_linear" "gui/canvas/span_radial"))))
+
 (defun format-trashes (func_map)
 	(defq r_indices (list) f_indices (list))
 	(each (# (if (nql %0 :rsp) (if (starts-with ":r" %0)
@@ -82,11 +89,16 @@
 
 (defun resolve-virtual-methods (c m)
 	;find function that implements this virtual method
-	;and all subclass overrides !
-	(map! (# (resolve-virtual-method %0 m))
+	;and all subclass overrides ! And of a pointer's method, all of its
+	;family, +pointer_families
+	(defq fns (map! (# (resolve-virtual-method %0 m))
 		(list (. (defq m_entry (.-> (. *class_db* :find c)
 						(:find :methods) (:find m))) :find :overrides))
 		0 -1 (list (. m_entry :find :function))))
+	(each (lambda ((head family))
+			(if (some (# (eql %0 head)) fns) (setq fns (cat fns family))))
+		+pointer_families)
+	fns)
 
 (defq +inst_specs (scatter (Fmap 31)
 		; integer rr

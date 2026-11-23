@@ -22,6 +22,8 @@ docs/reference/vp_classes/canvas.cwb
 
 ### (canvas-fpoly canvas x y mode list)
 
+### (canvas-paint canvas kind data)
+
 ### (canvas-plot canvas x y)
 
 ### (canvas-resize canvas canvas)
@@ -81,7 +83,7 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r9
+:r1-:r14, :d0-:d1
 ```
 
 ### :fpoly -> gui/canvas/fpoly
@@ -217,9 +219,27 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 trashes
-:r1-:r9
+:r1-:r14, :d0-:d1
 info
 coverage is 0x0 to 0x80
+```
+
+### :span_linear -> gui/canvas/span_linear
+
+```code
+inputs
+:r0 = canvas object (ptr)
+:r1 = coverage (long)
+:r7 = x (pixels)
+:r8 = y (pixels)
+:r9 = x1 (pixels)
+outputs
+:r0 = canvas object (ptr)
+trashes
+:r1-:r14
+info
+of the paint, a0 + ax x + ay y is 256 t times b0, exactly, and the
+step of a pixel is that by ax: b0 into ax is bx, by over
 ```
 
 ### :span_noclip -> gui/canvas/span_noclip
@@ -236,7 +256,52 @@ outputs
 trashes
 :r1-:r9
 info
-coverage is 0x0 to 0x80
+coverage is 0x0 to 0x80. The canvas's span field, which :fpoly, :fbox
+and :span call, may be this or any of the spans of gui/canvas/paint.vp:
+what a call through it trashes is the union of theirs, as a virtual
+method's is of its overrides, cmd/trace.lisp +pointer_families. :fpoly
+and :fbox keep nothing in a register over it but :r0, they load all
+they want again from their frames, so a span may trash all but :r0
+```
+
+### :span_radial -> gui/canvas/span_radial
+
+```code
+inputs
+:r0 = canvas object (ptr)
+:r1 = coverage (long)
+:r7 = x (pixels)
+:r8 = y (pixels)
+:r9 = x1 (pixels)
+outputs
+:r0 = canvas object (ptr)
+trashes
+:r1-:r12, :d0-:d1
+info
+of the paint, a0 and ax the centre and ay the radius, in 256ths of a
+pixel; u and v, fixed, are a pixel's centre from it by the radius, u
+carried along the run, the radius into 2^24 bx, by over, and t is their
+length, :sys_math :q_sqrt
+```
+
+### :span_row -> gui/canvas/span_row
+
+```code
+inputs
+:r0 = canvas object (ptr)
+:r1 = coverage (long)
+:r7 = x (pixels)
+:r8 = y (pixels)
+:r9 = x1 (pixels)
+:r2 = the colors of x to x1, argb not premultiplied (puint)
+outputs
+:r0 = canvas object (ptr)
+trashes
+:r1-:r9
+info
+coverage is 0x0 to 0x80. Each pixel as :span_noclip does its one color,
+the alpha by the coverage, premultiplied, then blended, so a row of one
+color is what :span_noclip draws of it to the byte
 ```
 
 ### :swap -> gui/canvas/swap

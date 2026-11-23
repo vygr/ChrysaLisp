@@ -38,6 +38,7 @@ Part of the `chrysalisp` skill. Read this in full before writing or changing a
 *	[A Slot Is Memory, And No Passes](#a-slot-is-memory-and-no-passes)
 
 *	[Every Load And Store Naturally Aligned](#every-load-and-store-naturally-aligned)
+*	[Calls Through A Pointer](#calls-through-a-pointer)
 *	[Boot Image Functions Run From The Image](#boot-image-functions-run-from-the-image)
 
 *	[A New Native And Its `ffi`](#a-new-native-and-its-ffi)
@@ -618,6 +619,18 @@ label.
 	emulator without `-V`. A misplaced instruction QEMU does catch. Prove a change both ways, the dev-cycle skill's point
 	6: the code as it was says `VP64 UNALIGNED` with the place, as it is
 	says nothing.
+
+## Calls Through A Pointer
+
+A function held in a field and called through it, as a canvas's span,
+`+canvas_span`, is called with `(r-call class method inputs outputs reg)`
+naming a method whose inputs and outputs it keeps, or `r-jump`. The
+caller loads all it wants again after the call but `:r0`, so what is put
+there may trash the rest. `trace -l`, and `lint`, can only follow the
+method named; `+pointer_families` in `cmd/trace.lisp` says what else may
+be there, and it takes the union, as of a virtual method's overrides. A
+new span is a line there, or the lint says its callers' trashes are less
+than they are. The documented trashes of the callers are that union.
 
 ## Boot Image Functions Run From The Image
 

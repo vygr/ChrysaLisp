@@ -484,7 +484,7 @@
 					;after its last, where nothing is drawn
 					(assign (list (list this '+canvas_cx1)) (list v))
 					(vpif `(,c /= 0) `(,x < ,v))
-						(call :canvas :span_noclip (list this c x y x1) (list this))
+						(r-call :canvas :span_noclip (list this c x y x1 (list this '+canvas_span)) (list this) v)
 					(endif)
 					(assign '((:rsp slot_this) (:rsp slot_x) (:rsp slot_max_x) (:rsp slot_y) (:rsp slot_om)) (list this x max_x y om))
 				(loop-until `(,x >= ,max_x))

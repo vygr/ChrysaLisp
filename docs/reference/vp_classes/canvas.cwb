@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 520
-	:height 1035
+	:height 1103
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 137
+	:next_id 143
 	:items
 	((:list 1)
 		((:list 7)
@@ -604,13 +604,13 @@
 							:id
 							35
 							:items
-							((:list 87)
+							((:list 93)
 								((:list 11)
 									:shape
 									:id
 									50
 									:d
-									"[M 8 0 L 222.1748 0 A 8 8 0 0 1 230.1748 8 L 230.1748 961 A 8 8 0 0 1 222.1748 969 L 8 969 A 8 8 0 0 1 0 961 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 222.1748 0 A 8 8 0 0 1 230.1748 8 L 230.1748 1029 A 8 8 0 0 1 222.1748 1037 L 8 1037 A 8 8 0 0 1 0 1029 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -1554,8 +1554,8 @@
 									12
 									:pos
 									((:list 2)
-										121.78955
-										536.00000
+										12.00000
+										638.00000
 									)
 								)
 								((:list 15)
@@ -1575,7 +1575,7 @@
 									:pos
 									((:list 2)
 										121.78955
-										553.00000
+										536.00000
 									)
 								)
 								((:list 15)
@@ -1595,7 +1595,7 @@
 									:pos
 									((:list 2)
 										121.78955
-										570.00000
+										553.00000
 									)
 								)
 								((:list 15)
@@ -1615,7 +1615,7 @@
 									:pos
 									((:list 2)
 										121.78955
-										587.00000
+										570.00000
 									)
 								)
 								((:list 15)
@@ -1635,7 +1635,7 @@
 									:pos
 									((:list 2)
 										121.78955
-										604.00000
+										587.00000
 									)
 								)
 								((:list 15)
@@ -1655,15 +1655,55 @@
 									:pos
 									((:list 2)
 										121.78955
+										604.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									104
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ptr span]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										121.78955
 										621.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									105
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ptr span_data]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										121.78955
+										638.00000
 									)
 								)
 								((:list 13)
 									:shape
 									:id
-									104
+									106
 									:d
-									"[M 0 635 L 230.1748 635]"
+									"[M 0 652 L 230.1748 652]"
 									:stroke
 									4282140240
 									:width
@@ -1676,7 +1716,7 @@
 								((:list 17)
 									:shape
 									:id
-									105
+									107
 									:kind
 									:text
 									:fill
@@ -1692,13 +1732,13 @@
 									:pos
 									((:list 2)
 										12.00000
-										651.00000
+										668.00000
 									)
 								)
 								((:list 15)
 									:shape
 									:id
-									106
+									108
 									:kind
 									:text
 									:fill
@@ -1712,15 +1752,15 @@
 									:pos
 									((:list 2)
 										12.00000
-										670.00000
+										687.00000
 									)
 								)
 								((:list 13)
 									:shape
 									:id
-									107
+									109
 									:d
-									"[M 0 684 L 230.1748 684]"
+									"[M 0 701 L 230.1748 701]"
 									:stroke
 									4282140240
 									:width
@@ -1733,7 +1773,7 @@
 								((:list 17)
 									:shape
 									:id
-									108
+									110
 									:kind
 									:text
 									:fill
@@ -1749,47 +1789,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										700.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									109
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:create]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										719.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									110
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:create_pixmap]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										736.00000
+										717.00000
 									)
 								)
 								((:list 15)
@@ -1803,13 +1803,13 @@
 									:stroke
 									0
 									:text
-									"[:fbox]"
+									"[:create]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
-										753.00000
+										736.00000
 									)
 								)
 								((:list 15)
@@ -1823,13 +1823,13 @@
 									:stroke
 									0
 									:text
-									"[:fpoly]"
+									"[:create_pixmap]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
-										770.00000
+										753.00000
 									)
 								)
 								((:list 15)
@@ -1843,13 +1843,13 @@
 									:stroke
 									0
 									:text
-									"[:init]"
+									"[:fbox]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
-										787.00000
+										770.00000
 									)
 								)
 								((:list 15)
@@ -1863,13 +1863,13 @@
 									:stroke
 									0
 									:text
-									"[:init_pixmap]"
+									"[:fpoly]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
-										804.00000
+										787.00000
 									)
 								)
 								((:list 15)
@@ -1883,13 +1883,13 @@
 									:stroke
 									0
 									:text
-									"[:pick]"
+									"[:init]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
-										821.00000
+										804.00000
 									)
 								)
 								((:list 15)
@@ -1903,13 +1903,13 @@
 									:stroke
 									0
 									:text
-									"[:plot]"
+									"[:init_pixmap]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										114.22363
-										719.00000
+										12.00000
+										821.00000
 									)
 								)
 								((:list 15)
@@ -1923,13 +1923,13 @@
 									:stroke
 									0
 									:text
-									"[:read]"
+									"[:pick]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										114.22363
-										736.00000
+										12.00000
+										838.00000
 									)
 								)
 								((:list 15)
@@ -1943,13 +1943,13 @@
 									:stroke
 									0
 									:text
-									"[:set_clip]"
+									"[:plot]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										114.22363
-										753.00000
+										12.00000
+										855.00000
 									)
 								)
 								((:list 15)
@@ -1963,13 +1963,13 @@
 									:stroke
 									0
 									:text
-									"[:set_edges]"
+									"[:read]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										114.22363
-										770.00000
+										12.00000
+										872.00000
 									)
 								)
 								((:list 15)
@@ -1983,7 +1983,67 @@
 									:stroke
 									0
 									:text
+									"[:set_clip]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										114.22363
+										736.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									121
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:set_edges]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										114.22363
+										753.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									122
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
 									"[:span]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										114.22363
+										770.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									123
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:span_linear]"
 									:font_size
 									12
 									:pos
@@ -1995,7 +2055,7 @@
 								((:list 15)
 									:shape
 									:id
-									121
+									124
 									:kind
 									:text
 									:fill
@@ -2015,7 +2075,47 @@
 								((:list 15)
 									:shape
 									:id
-									122
+									125
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:span_radial]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										114.22363
+										821.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									126
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:span_row]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										114.22363
+										838.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									127
 									:kind
 									:text
 									:fill
@@ -2029,15 +2129,15 @@
 									:pos
 									((:list 2)
 										114.22363
-										821.00000
+										855.00000
 									)
 								)
 								((:list 13)
 									:shape
 									:id
-									123
+									128
 									:d
-									"[M 0 835 L 230.1748 835]"
+									"[M 0 886 L 230.1748 886]"
 									:stroke
 									4282140240
 									:width
@@ -2050,7 +2150,7 @@
 								((:list 17)
 									:shape
 									:id
-									124
+									129
 									:kind
 									:text
 									:fill
@@ -2066,107 +2166,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										851.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									125
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[canvas-clear]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										870.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									126
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[canvas-fbox]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										887.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									127
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[canvas-fill]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										904.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									128
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[canvas-flip-x]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										921.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									129
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[canvas-fpoly]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										938.00000
+										902.00000
 									)
 								)
 								((:list 15)
@@ -2180,13 +2180,13 @@
 									:stroke
 									0
 									:text
-									"[canvas-plot]"
+									"[canvas-clear]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
-										955.00000
+										921.00000
 									)
 								)
 								((:list 15)
@@ -2200,13 +2200,13 @@
 									:stroke
 									0
 									:text
-									"[canvas-resize]"
+									"[canvas-fbox]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										101.01660
-										870.00000
+										12.00000
+										938.00000
 									)
 								)
 								((:list 15)
@@ -2220,13 +2220,13 @@
 									:stroke
 									0
 									:text
-									"[canvas-swap]"
+									"[canvas-fill]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										101.01660
-										887.00000
+										12.00000
+										955.00000
 									)
 								)
 								((:list 15)
@@ -2240,13 +2240,13 @@
 									:stroke
 									0
 									:text
-									"[canvas-target]"
+									"[canvas-flip-x]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										101.01660
-										904.00000
+										12.00000
+										972.00000
 									)
 								)
 								((:list 15)
@@ -2260,13 +2260,13 @@
 									:stroke
 									0
 									:text
-									"[canvas-tile]"
+									"[canvas-fpoly]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										101.01660
-										921.00000
+										12.00000
+										989.00000
 									)
 								)
 								((:list 15)
@@ -2280,13 +2280,13 @@
 									:stroke
 									0
 									:text
-									"[create-canvas]"
+									"[canvas-paint]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										101.01660
-										938.00000
+										12.00000
+										1006.00000
 									)
 								)
 								((:list 15)
@@ -2300,13 +2300,133 @@
 									:stroke
 									0
 									:text
-									"[create-canvas-pixmap]"
+									"[canvas-plot]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										1023.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									137
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[canvas-resize]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										101.01660
+										921.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									138
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[canvas-swap]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										101.01660
+										938.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									139
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[canvas-target]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										101.01660
 										955.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									140
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[canvas-tile]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										101.01660
+										972.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									141
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[create-canvas]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										101.01660
+										989.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									142
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[create-canvas-pixmap]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										101.01660
+										1006.00000
 									)
 								)
 							)

@@ -326,7 +326,10 @@ From the machine the work is on:
 	`docs/vm/vp_vm.md`, the sets, the float branches, constants of any size,
 	the long branches.
 
-6.	`./run_tui.sh -V` is the emulator in validation mode: each load or store
+6.	`./run_tui.sh -V` is the emulator in validation mode, on the code `make
+	vp` makes: after a change of a structure, `make all boot` makes this
+	machine's code and not the emulator's, and kept VP64 code of the old
+	offsets runs on the new objects, a wild load, 2026-11-23. Each load or store
 	not at its natural alignment is said on stderr, `VP64 UNALIGNED`, the
 	function and where in it, once a place. It costs nothing when not
 	asked for, the interpreter is built twice. Every node of the session

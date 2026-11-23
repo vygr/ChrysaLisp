@@ -5,7 +5,27 @@
 	(ptr pixmap edges texture)
 	(pptr edges_start)
 	(pubyte coverage)
-	(uint scale cx cy cx1 cy1 color flags))
+	(uint scale cx cy cx1 cy1 color flags)
+	;span, the function every run of a fill ends in, :span_noclip unless
+	;something else is put there; span_data is its own, what it wants of the
+	;canvas's, which :fpoly and :fbox never look at. At the end, so no field
+	;before them moves
+	(ptr span span_data))
+
+;a gradient paint, the str a canvas's span_data is when its span is
+;:span_linear or :span_radial. Of a pixel x y: a linear's t is a0 + ax x +
+;ay y, 24 bits of fraction, a radial's is the length of (a0 + ax x + ay y,
+;b0 + bx x + by y), 16 bits of fraction, made 24. Its top 8 bits of
+;fraction are where in the lut it is, 256 colors not premultiplied, and
+;spread says what is past 0 and 1: pad, reflect or repeat. After the lut
+;is a row, the width of the canvas's pixmap, a span's colors made there
+;and then blended, :span_row
+(structure +paint 0
+	(long spread a0 ax ay b0 bx by)
+	(uint lut))
+(defq +paint_lut_size 256 +paint_row (+ +paint_lut (* 256 +int_size)))
+(enums +spread 0
+	(enum pad reflect repeat))
 
 (structure +edge +ln_fnode_size
 	(int x ys ye w dda)

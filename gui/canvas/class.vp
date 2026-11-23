@@ -50,6 +50,10 @@
 		(save-fields :r3 '(+view_w +view_h) '(:r0 :r1))
 		(vp-simd vp-mul-rr '(:r2) '(:r0 :r1))
 		(save-fields :r3 '(+canvas_cx1 +canvas_cy1) '(:r0 :r1))
+		;each run of a fill to the solid color, :r0 and :r1 the pixmap's size
+		(fn-bind (f-path :canvas :span_noclip) :r4)
+		(vp-xor-rr :r5 :r5)
+		(assign '(:r4 :r5) '((:r3 +canvas_span) (:r3 +canvas_span_data)))
 
 		;alloc pixmap, type premul 32bit !
 		(call :pixmap :create '(:r0 :r1 -32) '(:r0))
@@ -89,6 +93,9 @@
 			'((:r0 +canvas_cx) (:r0 +canvas_cy) (:r0 +canvas_flags)
 				(:r0 +canvas_edges_start) (:r0 +canvas_coverage)
 				(:r0 +canvas_scale) (:r0 +canvas_color)))
+		;each run of a fill to the solid color, :r1 is 0
+		(fn-bind (f-path :canvas :span_noclip) :r2)
+		(assign '(:r2 :r1) '((:r0 +canvas_span) (:r0 +canvas_span_data)))
 		(assign '((:r0 +canvas_pixmap)) '(:r1))
 		(assign '((:r1 +pixmap_width) (:r1 +pixmap_height) (:r1 +pixmap_texture)) '(:r1 :r2 :r3))
 		(assign '(:r1 :r2 :r1 :r2 :r3) '((:r0 +view_w) (:r0 +view_h) (:r0 +canvas_cx1) (:r0 +canvas_cy1)
@@ -133,6 +140,10 @@
 	;free alias buffers
 	(assign '((:rsp 0)) '(:r0))
 	(call :sys_mem :free '((:r0 +canvas_coverage)))
+
+	;let go of any span's own
+	(assign '((:rsp 0)) '(:r0))
+	(call :obj :deref_if '((:r0 +canvas_span_data)))
 
 	;free any canvas texture
 	(assign '((:rsp 0)) '(:r0))
@@ -356,7 +367,12 @@
 	;trashes
 	;:r1-:r9
 	;info
-	;coverage is 0x0 to 0x80
+	;coverage is 0x0 to 0x80. The canvas's span field, which :fpoly, :fbox
+	;and :span call, may be this or any of the spans of gui/canvas/paint.vp:
+	;what a call through it trashes is the union of theirs, as a virtual
+	;method's is of its overrides, cmd/trace.lisp +pointer_families. :fpoly
+	;and :fbox keep nothing in a register over it but :r0, they load all
+	;they want again from their frames, so a span may trash all but :r0
 
 	(entry :canvas :span_noclip '(:r0 :r1 :r7 :r8 :r9))
 
@@ -427,7 +443,7 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r14, :d0-:d1
 	;info
 	;coverage is 0x0 to 0x80
 
@@ -438,7 +454,8 @@
 	(vpif '(:r9 > :r7) '(:r9 > :r2) '(:r8 >= :r3) '(:r7 < :r4) '(:r8 < :r5))
 		(vp-max-rr :r2 :r7)
 		(vp-min-rr :r4 :r9)
-		(jump :canvas :span_noclip '(:r0 :r1 :r7 :r8 :r9))
+		(assign '((:r0 +canvas_span)) '(:r2))
+		(r-jump :canvas :span_noclip '(:r0 :r1 :r7 :r8 :r9) :r2)
 	(endif)
 
 	(exit :canvas :span '(:r0))
@@ -549,7 +566,7 @@
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r14, :d0-:d1
 
 	(structure slot 0
 		(int x y x1 y1))
@@ -570,7 +587,7 @@
 	(vp-min-rr :r4 :r6)
 	(save-fields :rsp '(slot_x slot_y slot_x1 slot_y1) '(:r7 :r8 :r9 :r6))
 	(loop-start)
-		(call :canvas :span_noclip '(:r0 0x80 :r7 :r8 :r9))
+		(r-call :canvas :span_noclip '(:r0 0x80 :r7 :r8 :r9 (:r0 +canvas_span)) :nil :r2)
 		(load-fields :rsp '(slot_x slot_y slot_x1 slot_y1) '(:r7 :r8 :r9 :r6))
 		(vp-add-cr 1 :r8)
 		(assign '(:r8) '((:rsp slot_y)))
