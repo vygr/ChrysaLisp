@@ -73,6 +73,42 @@
 		(and on (>= (length cur) 4) (push out cur)))
 	out)
 
+(defun path-dashes (src pattern offset &optional closed)
+	; (path-dashes src pattern offset [closed]) -> (path ...)
+	;a line as dashes of a pattern, (dash gap dash gap ...), each dash its
+	;own path to stroke, as (path-dash) has one dash and one gap. offset is
+	;how far into the pattern the line starts, as SVG's stroke-dashoffset,
+	;less than 0 from the end of it. Closed, the line goes round back to its
+	;start too. A pattern of no length is the line as it is
+	(defq out (list) n (length src) np (length pattern)
+		plen (reduce (# (+ %0 (max 0.0 %1))) pattern 0.0))
+	(cond
+		((< n 4))
+		((<= plen 0.0) (push out (if closed (cat src (slice src 0 2)) src)))
+		(:t	;where in the pattern the line starts
+			(defq o (% offset plen) k 0 on :t)
+			(if (< o 0.0) (setq o (+ o plen)))
+			(defq left (max 0.0 (first pattern)))
+			(while (>= o left)
+				(setq o (- o left) k (% (inc k) np) on (not on) left (max 0.0 (elem-get pattern k))))
+			(setq left (- left o))
+			(defq x (elem-get src 0) y (elem-get src 1) cur (path x y) i 0
+				end (if closed (+ n 2) n))
+			(while (< (setq i (+ i 2)) end)
+				(defq j (% i n) x1 (elem-get src j) y1 (elem-get src (inc j))
+					dx (- x1 x) dy (- y1 y) len (sqrt (+ (* dx dx) (* dy dy))) at 0.0)
+				(while (and (> len 0.0) (>= (- len at) left))
+					(setq at (+ at left))
+					(defq px (+ x (* dx (/ at len))) py (+ y (* dy (/ at len))))
+					(cond
+						(on (path-dash-to cur px py) (if (>= (length cur) 4) (push out cur)))
+						(:t (setq cur (path px py))))
+					(setq k (% (inc k) np) on (not on) left (max 0.0 (elem-get pattern k))))
+				(setq left (- left (- len at)) x x1 y y1)
+				(if on (path-dash-to cur x1 y1)))
+			(and on (>= (length cur) 4) (push out cur))))
+	out)
+
 (defun path-gen-rect (x y x1 y1 rx ry dst)
 	; (path-gen-rect x y x1 y1 rx ry dst) -> dst
 	(cond

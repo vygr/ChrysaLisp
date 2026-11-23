@@ -2,19 +2,20 @@
 
 (import "gui/lisp.inc")
 
-(defun sv-pixels (svg)
-	; (sv-pixels svg) -> (data offset width)
-	;an SVG of the body given, 40 by 40, drawn, its 32 bit pixels
-	(defq canvas (SVG-load (string-stream (cat "<svg width=\q40\q height=\q40\q>" svg "</svg>")))
+(defun sv-pixels (svg &optional head)
+	; (sv-pixels svg [head]) -> (data offset width)
+	;an SVG of the body given drawn, 40 by 40 unless head is its <svg ...>,
+	;its 32 bit pixels
+	(defq canvas (SVG-load (string-stream (cat (ifn head "<svg width=\q40\q height=\q40\q>") svg "</svg>")))
 		stream (memory-stream) pixmap (getf canvas +canvas_pixmap 0))
 	(pixmap-write pixmap stream 32)
 	(stream-seek stream 0 0)
-	(defq d (read-blk stream 1000000))
-	(list d (- (length d) (* 40 40 +int_size)) 40))
+	(defq d (read-blk stream 1000000) w (getf pixmap +pixmap_width 0))
+	(list d (- (length d) (* w (getf pixmap +pixmap_height 0) +int_size)) w))
 
-(defun sv-at (svg x y)
-	; (sv-at svg x y) -> argb
-	(bind '(d off w) (sv-pixels svg))
+(defun sv-at (svg x y &optional head)
+	; (sv-at svg x y [head]) -> argb
+	(bind '(d off w) (sv-pixels svg head))
 	(get-uint d (+ off (* +int_size (+ (* y w) x)))))
 
 (defq sv_box "<rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q")
@@ -67,6 +68,51 @@
 (assert-eq "with an exponent" 19 (sv-right "<rect x=\q0\q y=\q0\q width=\q2e1\q height=\q40\q fill=\qred\q/>"))
 (assert-eq "a value with a unit not known, the default" -1
 	(sv-right "<rect x=\q0\q y=\q0\q width=\q20furlongs\q height=\q40\q fill=\qred\q/>"))
+
+;use: what it names drawn again, moved by its x and y, its own attributes
+;over it, a symbol as a group, whether what it names is in a defs or not
+(defq sv_def "<defs><rect id=\qr\q width=\q10\q height=\q10\q fill=\qred\q/></defs>")
+(assert-eq "use of what is in a defs, moved" (str '(0 0xffff0000))
+	(str (map (# (sv-at (cat sv_def "<use href=\q#r\q x=\q20\q y=\q20\q/>") %0 %0)) '(5 25))))
+(assert-eq "by xlink:href, of what is drawn already, so it is twice" (str '(0xff0000ff 0xff0000ff))
+	(str (map (# (sv-at (cat "<rect id=\qa\q width=\q10\q height=\q10\q fill=\qblue\q/><use xlink:href=\q#a\q x=\q20\q/>") %0 5)) '(5 25))))
+(assert-eq "its own fill given what it uses, which has none" 0xff00ff00
+	(sv-at "<defs><rect id=\qb\q width=\q10\q height=\q10\q/></defs><use href=\q#b\q fill=\qlime\q x=\q20\q y=\q20\q/>" 25 25))
+(assert-eq "a symbol, as a group" 0xffff0000
+	(sv-at "<symbol id=\qs\q><rect width=\q10\q height=\q10\q fill=\qred\q/></symbol><use href=\q#s\q x=\q20\q y=\q20\q/>" 25 25))
+(assert-eq "after its transform" 0xffff0000
+	(sv-at (cat sv_def "<use href=\q#r\q transform=\qtranslate(20 0)\q y=\q20\q/>") 25 25))
+(assert-eq "of an id that is not there, nothing, nothing thrown" 0
+	(sv-at "<use href=\q#none\q x=\q20\q y=\q20\q/>" 25 25))
+(assert-true "of itself, an end to it" (sv-pixels "<g id=\qg\q><use href=\q#g\q x=\q1\q/></g>"))
+
+;dashes: on and off along a line, from an offset into the pattern
+(defun sv-row (svg)
+	;which of the pixels 0 to 39 of row 20 have anything, a str of 1 and 0
+	(bind '(d off w) (sv-pixels svg))
+	(apply (const cat) (map! (# (if (= 0 (get-uint d (+ off (* +int_size (+ (* 20 w) (!)))))) "0" "1")) '() 0 40)))
+(defq sv_line "<line x1=\q0\q y1=\q20.5\q x2=\q40\q y2=\q20.5\q stroke=\qred\q stroke-width=\q2\q")
+(assert-eq "dashes 10 on 10 off" "1111111111000000000011111111110000000000"
+	(sv-row (cat sv_line " stroke-dasharray=\q10 10\q/>")))
+(assert-eq "an offset of 5 into them" "1111100000000001111111111000000000011111"
+	(sv-row (cat sv_line " stroke-dasharray=\q10,10\q stroke-dashoffset=\q5\q/>")))
+(assert-eq "an odd number said twice, 5 is 5 5" "1111100000111110000011111000001111100000"
+	(sv-row (cat sv_line " stroke-dasharray=\q5\q/>")))
+(assert-eq "none, and one less than 0, is the line whole" "(40 40)"
+	(str (map (# (length (filter (# (eql %0 "1")) (sv-row (cat sv_line " stroke-dasharray=\q" %0 "\q/>")))))
+		'("none" "5 -1"))))
+
+;a viewBox fitted to the width and height, as preserveAspectRatio says
+(defun sv-fitted (par)
+	;a box of 10 filling a viewBox of 10 in an svg of 40 by 20, its row 10
+	(bind '(d off w) (sv-pixels "<rect width=\q10\q height=\q10\q fill=\qred\q/>"
+		(cat "<svg width=\q40\q height=\q20\q viewBox=\q0 0 10 10\q" (if par (cat " preserveAspectRatio=\q" par "\q") "") ">")))
+	(apply (const cat) (map! (# (if (= 0 (get-uint d (+ off (* +int_size (+ (* 10 w) (!)))))) "0" "1")) '() 0 w)))
+(assert-eq "xMidYMid meet, the default, fitted in and in the middle"
+	"0000000000111111111111111111110000000000" (sv-fitted :nil))
+(assert-eq "xMinYMid, at the left" "1111111111111111111100000000000000000000" (sv-fitted "xMinYMid"))
+(assert-eq "xMaxYMax meet, at the right" "0000000000000000000011111111111111111111" (sv-fitted "xMaxYMax meet"))
+(assert-eq "none, stretched" "1111111111111111111111111111111111111111" (sv-fitted "none"))
 
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)

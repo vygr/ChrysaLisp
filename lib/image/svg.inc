@@ -137,6 +137,22 @@
 		((. +svg_colors :find (to-lower val)))
 		(:inherit)))
 
+(defun svg-fit (w h vw vh par)
+	; (svg-fit w h vw vh par) -> (sx sy tx ty)
+	;a viewBox of vw by vh into a viewport of w by h as preserveAspectRatio
+	;says, by default xMidYMid meet: none stretches it, meet fits all of it
+	;in, slice fills the viewport with it, and the align places what is
+	;left over
+	(defq words (split (ifn par "xMidYMid meet") (const (char-class " \t,")))
+		align (ifn (first words) "xMidYMid") sx (/ w vw) sy (/ h vh))
+	(cond
+		((eql align "none") (list sx sy 0.0 0.0))
+		(:t (defq k (if (eql (second words) "slice") (max sx sy) (min sx sy))
+				dx (- w (* vw k)) dy (- h (* vh k)))
+			(list k k
+				(cond ((found? align "xMin") 0.0) ((found? align "xMax") dx) ((* dx 0.5)))
+				(cond ((found? align "YMin") 0.0) ((found? align "YMax") dy) ((* dy 0.5)))))))
+
 (defun svg-attr (keys vals key)
 	; (svg-attr keys vals key) -> :nil | str
 	;an attribute, or a property of the style attribute
@@ -205,6 +221,17 @@
 			(read-color entry val))
 		("visibility"
 			(if (find val '("visible" "hidden" "collapse")) val :inherit))
+		("stroke-dasharray"
+			;none, or lengths, an odd number of them said twice; one less
+			;than 0 or one not known is none, as is a pattern of no length
+			(defq l (map (const read-length) (filter (# (nempty? %0)) (split val (const (char-class "\t ,"))))))
+			(cond
+				((or (eql val "none") (empty? l) (some (# (or (not (num? %0)) (< %0 0.0))) l)) :nil)
+				((= 0.0 (reduce (const +) l 0.0)) :nil)
+				((odd? (length l)) (cat l l))
+				(l)))
+		("stroke-dashoffset"
+			(if (num? (defq l (read-length val))) l :inherit))
 		("stroke-linecap"
 			(case val
 				("butt" +cap_butt)
@@ -277,7 +304,8 @@
 
 (defun path-fill-and-stroke (canvas entry paths)
 	(bind '(& stroke & fill & stroke_width & stroke_linecap & stroke_linejoin
-			& fill_rule & fill_opacity & stroke_opacity & transform & opacity & visibility &ignore)
+			& fill_rule & fill_opacity & stroke_opacity & transform & opacity & visibility
+			& dasharray & dashoffset &ignore)
 		(get :bucket entry))
 	;cheaky bind of the front of the Pmap :bucket !
 	(unless (eql visibility "visible") (setq fill 0 stroke 0))
@@ -294,6 +322,12 @@
 				(map (lambda (p) (mat3x2-vec2-mul transform p p))
 					(reduce (lambda (l (f p))
 							(cond
+								(dasharray
+									;each dash a line of its own, with its caps
+									(each (# (push l (path-stroke-polyline %0 (* 0.5 stroke_width)
+											stroke_linejoin stroke_linecap stroke_linecap)))
+										(path-dashes p dasharray dashoffset f))
+									l)
 								(f	;closed
 									(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width)
 											stroke_linejoin))
@@ -310,7 +344,7 @@
 	;larger than its own, as a preview wants it: no pixels made to be
 	;thrown away
 	(setq scale (n2q (ifn scale 1)))
-	(defq canvas :nil skip 0 stack
+	(defq canvas :nil skip 0 log (list) ids (Fmap 31) replaying 0 stack
 			(list (scatter (Lmap)
 					;this block of defaults are in order !
 					"stroke" 0
@@ -324,6 +358,8 @@
 					"transform" (mat3x2-scale scale)
 					"opacity" 1.0
 					"visibility" "visible"
+					"stroke-dasharray" :nil
+					"stroke-dashoffset" 0.0
 					;this block can be any order
 					"color" +argb_black
 					"d" (path) "points" (path)
@@ -331,8 +367,12 @@
 					"cx" 0.0 "cy" 0.0 "r" 0.0
 					"text-anchor" "start" "dominant-baseline" "auto"
 					"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular")))
-	(XML-parse stream
-		(lambda (command keys vals)
+	;each element as it came is kept, and where each with an id is, for a
+	;use of it to draw it again, (replay)
+	(defq on-in (lambda (command keys vals)
+			(when (= replaying 0)
+				(push log (list :in command (cat keys) (cat vals)))
+				(if (defq at (find "id" keys)) (. ids :insert (elem-get vals at) (dec (length log)))))
 			;what draws nothing is passed over with all that is in it, so
 			;is what is not shown: skip counts the depth in it
 			(cond
@@ -343,10 +383,18 @@
 				(:t
 					(case command
 						("svg"
-							(bind '(w h vb) (gather (defq entry (push-attributes stack keys vals))
-									"width" "height" "viewBox"))
-							(defq x 0.0 y 0.0) (setd w 256.0 h 256.0)
-							(if vb (bind '(x y w h) vb))
+							(bind '(w h vb par) (gather (defq entry (push-attributes stack keys vals))
+									"width" "height" "viewBox" "preserveAspectRatio"))
+							;the viewBox fitted to the width and height if they
+							;are other than it, else they are its
+							(defq x 0.0 y 0.0 fit :nil)
+							(when vb
+								(bind '(vx vy vw vh) vb)
+								(setq x vx y vy)
+								(if (and w h (> vw 0.0) (> vh 0.0) (or (/= w vw) (/= h vh)))
+									(setq fit (svg-fit w h vw vh par))
+									(setq w vw h vh)))
+							(setd w 256.0 h 256.0)
 							(cond
 								(most_w
 									;the size that fits, the picture's shape kept
@@ -355,7 +403,12 @@
 									(setq scale k canvas (Canvas (max 1 (n2i (+ (* w k) 0.5))) (max 1 (n2i (+ (* h k) 0.5))) 1)))
 								((setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))))
 							(. canvas :set_canvas_flags +canvas_flag_antialias)
-							(. entry :insert "transform" (mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
+							(. entry :insert "transform"
+								(cond
+									(fit (bind '(sx sy tx ty) fit)
+										(mat3x2 (* scale sx) 0.0 (* scale (- tx (* sx x)))
+											0.0 (* scale sy) (* scale (- ty (* sy y)))))
+									((mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))))
 						("circle"
 							(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
 									"cx" "cy" "r"))
@@ -391,14 +444,34 @@
 							(defq entry (push-attributes stack keys vals)
 								d (. entry :find "d"))
 							(path-fill-and-stroke canvas entry d))
+						("use"
+							;its own attributes over what it uses, but x and y,
+							;which are a move after its transform
+							(defq href (or (svg-attr keys vals "href") (svg-attr keys vals "xlink:href"))
+								k (list) v (list))
+							(each (lambda (key val)
+									(unless (find key '("x" "y" "width" "height" "href" "xlink:href" "transform"))
+										(push k key) (push v val)))
+								keys vals)
+							(push k "transform")
+							(push v (cat (ifn (svg-attr keys vals "transform") "")
+								" translate(" (ifn (svg-attr keys vals "x") "0") "," (ifn (svg-attr keys vals "y") "0") ")"))
+							(push-attributes stack k v)
+							(when (and href (starts-with "#" href) (< replaying 8)
+									(defq at (. ids :find (slice href 1 -1))))
+								(++ replaying)
+								(replay at)
+								(-- replaying)))
 						(("text" "g" "a" "switch")
-							(push-attributes stack keys vals))))))
-		(lambda (command)
+							(push-attributes stack keys vals)))))))
+	(defq on-out (lambda (command)
+			(if (= replaying 0) (push log (list :out command)))
 			(if (> skip 0) (-- skip)
 				(case command
-					(("svg" "g" "a" "switch" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect" "text")
-						(pop stack)))))
-		(lambda (text)
+					(("svg" "g" "a" "switch" "use" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect" "text")
+						(pop stack))))))
+	(defq on-text (lambda (text)
+			(if (= replaying 0) (push log (list :text text)))
 			;render text (skip in TUI mode where fonts unavailable), its
 			;white space as SVG has it by default: each run one space, none
 			;at either end
@@ -425,6 +498,19 @@
 									(mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
 						(font-glyph-paths font text)))
 				(path-fill-and-stroke canvas entry d))))
+	(defq replay (lambda (at)
+			;what was kept from at, it and all in it, drawn again; a symbol,
+			;or another of what draws nothing, as a group
+			(defq root (second (elem-get log at)) i at depth 0)
+			(if (find root +svg_skip) (setq root "g"))
+			(while (and (< i (length log)) (or (= i at) (> depth 0)))
+				(bind '(kind &optional a b c) (elem-get log i))
+				(case kind
+					(:in (on-in (if (= i at) root a) b c) (++ depth))
+					(:out (-- depth) (on-out (if (= depth 0) root a)))
+					(:text (on-text a)))
+				(++ i))))
+	(XML-parse stream on-in on-out on-text)
 	;made its own size, if drawn at more than its pixels
 	(cond
 		((or most_w (<= scale 1.0)) canvas)
