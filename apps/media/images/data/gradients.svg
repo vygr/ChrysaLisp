@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-	width="480" height="360" viewBox="0 0 480 360">
+	width="1024" height="768" viewBox="0 0 480 360">
 	<title>Gradients</title>
 	<desc>The gradients of the SVG reader: linear and radial, pad, reflect and
 		repeat, stops with opacity, a gradient's matrix, the user's space and
