@@ -292,7 +292,8 @@
 		(each (lambda (h g) (vp-cpy-rr g h)) (list h0 h1 h2 h3 h4) (list g0 g1 g2 g3 g4))
 	(endif)
 	;as four numbers of 32 bits, to which s is added, what is over 128 bits
-	;let go
+	;let go. Written a byte at a time: the tag goes after what it is the
+	;tag of, at any address, and a store of 32 bits is of an address of 4
 	(vp-shl-cr 26 h1) (vp-or-rr h1 h0) (vp-shr-cr 26 h1)
 	(vp-shr-cr 6 h1) (vp-cpy-rr h2 tm) (vp-shl-cr 20 tm) (vp-or-rr tm h1)
 	(vp-shr-cr 12 h2) (vp-cpy-rr h3 tm) (vp-shl-cr 14 tm) (vp-or-rr tm h2)
@@ -304,7 +305,14 @@
 			(vp-add-rr w c)
 			(vp-load-rcr-ui s (* i 4) tm)
 			(vp-add-rr tm c)
-			(vp-store-rrc-i c out (* i 4)))
+			(vp-cpy-rr c tm)
+			(vp-store-rrc-b tm out (* i 4))
+			(vp-shr-cr 8 tm)
+			(vp-store-rrc-b tm out (+ (* i 4) 1))
+			(vp-shr-cr 8 tm)
+			(vp-store-rrc-b tm out (+ (* i 4) 2))
+			(vp-shr-cr 8 tm)
+			(vp-store-rrc-b tm out (+ (* i 4) 3)))
 		(list h0 h1 h2 h3) '(0 1 2 3))
 
 	(exit :sys_crypto :poly1305_finish '())
@@ -408,10 +416,13 @@
 	(vp-lea-rcr :rsp +aead_tag :r0)
 	(vp-store-rrc :r0 :rsp +aead_ok)
 	(aead-tag +aead_in +aead_ok)
+	;the tag it came with is after the data, at any address: copied to the
+	;block of the stack, to be looked at 8 bytes at a time
 	(assign `((:rsp ,+aead_in) (:rsp ,+aead_len)) '(:r0 :r1))
 	(vp-add-rr :r1 :r0)
-	(vp-load-rcr :r0 0 :r1)
-	(vp-load-rcr :r0 8 :r2)
+	(call :sys_mem :copy `(:r0 (& :rsp ,+aead_blk) 16))
+	(vp-load-rcr :rsp +aead_blk :r1)
+	(vp-load-rcr :rsp (+ +aead_blk 8) :r2)
 	(vp-load-rcr :rsp +aead_tag :r3)
 	(vp-load-rcr :rsp (+ +aead_tag 8) :r4)
 	(vp-xor-rr :r3 :r1)

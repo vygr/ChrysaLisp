@@ -181,7 +181,13 @@
 		(vp-xor-rr :r6 :r6)
 		(vpif `(:r0 = ,(ascii-code "r")))
 			(vpif '(:r5 = 4))
-				(vp-load-rcr-us :r4 2 :r1)
+				;the two letters after :r, a byte each: a name is at any
+				;address of the text. :r0 is free here, the letter it had
+				;has been looked at
+				(vp-load-rcr-ub :r4 3 :r1)
+				(vp-shl-cr 8 :r1)
+				(vp-load-rcr-ub :r4 2 :r0)
+				(vp-add-rr :r0 :r1)
 				(vpif `(:r1 = ,(+ (ascii-code "s") (<< (ascii-code "p") 8))))
 					(vp-cpy-cr +rsp :r1)
 					(vp-jmp 'p_reg)

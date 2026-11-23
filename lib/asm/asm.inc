@@ -829,8 +829,17 @@
 				;too, and a make of the system leaves it as it was. Not, and
 				;the loader trusts none of it, sys/load/class.vp
 				(each (lambda ((k (cpu abi)))
-						(manifest-save (defq man (get k mans)) (platform-manifest cpu abi))
-						(defq tid (trans-id cpu) file (cat "obj/" cpu "/" abi "/sys/natives_trans"))
+						(defq man (get k mans) tid (trans-id cpu) file (cat "obj/" cpu "/" abi "/sys/natives_trans"))
+						;what is noted of a source file there is no more is never
+						;made again, so it is of the translator that made it for
+						;ever: it is taken away, as (bundles-gone) takes its
+						;bundle. Left, and after a change to a translator the
+						;code was never all of the one there is, and the loader
+						;trusted none of it again
+						(each (lambda ((f n))
+								(and (nql (second n) tid) (= (age (str f)) 0) (undef man f)))
+							(tolist man))
+						(manifest-save man (platform-manifest cpu abi))
 						(if (and tid (every (lambda ((& n)) (eql (second n) tid)) (tolist man)))
 							(save tid file)
 							(if (/= (age file) 0) (pii-remove file))))

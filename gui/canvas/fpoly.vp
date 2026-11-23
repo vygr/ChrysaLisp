@@ -445,17 +445,31 @@
 					(vp-xor-rr c om)
 					(vp-xor-rr c c)
 					(vp-store-rrr-b c mask x)
-					;to the next edge: eight bytes at a time while eight are in the
-					;row and all 0, then a byte at a time
+					;to the next edge: a byte at a time to a place of 8 in the row,
+					;a load of 8 bytes is of such an address, then eight bytes at a
+					;time while eight are in the row and all 0, then a byte at a
+					;time
 					(vp-lea-rcr x 1 x1)
-					(vp-lea-rcr x1 8 m)
-					(vpif `(,m <= ,max_x))
-						(loop-start)
-							(vp-load-rrr mask x1 c)
-							(breakif `(,c /= 0))
-							(vp-cpy-rr m x1)
-							(vp-add-cr 8 m)
-						(loop-until `(,m > ,max_x))
+					(loop-while `(,x1 < ,max_x))
+						(vp-cpy-rr x1 m)
+						(vp-and-cr 7 m)
+						(breakif `(,m = 0))
+						(vp-load-rrr-ub mask x1 c)
+						(breakif `(,c /= 0))
+						(vp-add-cr 1 x1)
+					(loop-end)
+					(vp-cpy-rr x1 m)
+					(vp-and-cr 7 m)
+					(vpif `(,m = 0))
+						(vp-lea-rcr x1 8 m)
+						(vpif `(,m <= ,max_x))
+							(loop-start)
+								(vp-load-rrr mask x1 c)
+								(breakif `(,c /= 0))
+								(vp-cpy-rr m x1)
+								(vp-add-cr 8 m)
+							(loop-until `(,m > ,max_x))
+						(endif)
 					(endif)
 					(vpif `(,x1 < ,max_x))
 						(loop-start)
@@ -541,6 +555,8 @@
 	(vp-free slot_size)
 	(vp-ret)
 
+	;a table of numbers of 32 bits is at an address of 4
+	(vp-align +int_size)
 (vp-label 'sample_offsets)
 	;where across a pixel each of its 8 scan lines is sampled, less the
 	;half that (:set_edges) put on. They are the middles of eighths, the

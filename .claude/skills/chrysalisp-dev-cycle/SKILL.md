@@ -312,6 +312,14 @@ From the machine the work is on:
 	launch path of a command, is tried on the emulator as well, after a
 	`make it`: `echo "echo hi" | ./run_tui.sh -e -n 1 -f`.
 
+	A change to a translator or to `lib/trans/vp_parse.vp` changes the
+	id every native is noted by, so after it: `make all boot`, then `make
+	apps`, on each machine, and `obj/<cpu>/<abi>/sys/natives_trans` is
+	there again. Till it is the loader trusts no native kept, a node says
+	"The code kept for this boot image is of another translator" at each
+	start, and `tests/system/test_bind_translate.lisp` fails two checks.
+	`rack -b` does both.
+
 5.	A change to a translator, `lib/trans/`, or to what the VP means, runs
 	`tests/system/test_vp_spec.lisp` natively, on `-e` and on `-V`, and on
 	every other CPU before it is done: it holds each target to
