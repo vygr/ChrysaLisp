@@ -187,6 +187,35 @@
 	(every (const sv-near) '(67 188)
 		(map (# (sv-grad (cat "<linearGradient id=\qg\q gradientUnits=\quserSpaceOnUse\q>" sv_bw "</linearGradient>") "url(#g)" %0 20)) '(10 29))))
 
+;an svg in another: a viewport of its own, its viewBox fitted in it, what
+;is in it kept to it unless overflow is visible
+(assert-eq "a nested svg, its viewBox of 10 fitted to its 20 at 10 10" "(0 4278255360 4278255360 0)"
+	(str (map (# (sv-at "<svg x=\q10\q y=\q10\q width=\q20\q height=\q20\q viewBox=\q0 0 10 10\q><rect width=\q10\q height=\q10\q fill=\qlime\q/></svg>" %0 %0))
+		'(5 15 29 35))))
+(assert-eq "what is in it kept to it" "(4278255360 0)"
+	(str (map (# (sv-at "<svg x=\q10\q y=\q10\q width=\q10\q height=\q10\q><rect width=\q40\q height=\q40\q fill=\qlime\q/></svg>" %0 %0))
+		'(15 25))))
+(assert-eq "unless its overflow is visible, and the clip it was in back after it" "(4278255360 4278190335)"
+	(str (map (# (sv-at "<svg x=\q10\q y=\q10\q width=\q10\q height=\q10\q overflow=\qvisible\q><rect width=\q40\q height=\q40\q fill=\qlime\q/></svg><rect x=\q34\q y=\q34\q width=\q6\q height=\q6\q fill=\qblue\q/>" %0 %0))
+		'(25 37))))
+(assert-eq "a symbol by a use, the use's size its viewport" "(0 4278255360 0)"
+	(str (map (# (sv-at "<symbol id=\qs\q viewBox=\q0 0 10 10\q><rect width=\q10\q height=\q10\q fill=\qlime\q/></symbol><use href=\q#s\q x=\q10\q y=\q10\q width=\q20\q height=\q20\q/>" %0 %0))
+		'(5 25 35))))
+
+;a switch: the first child that may be drawn, and one not shown is chosen
+(assert-eq "a switch draws the first that passes" 0xff00ff00
+	(sv-at (cat "<switch><rect systemLanguage=\qru\q width=\q40\q height=\q40\q fill=\qred\q/>"
+		"<rect width=\q40\q height=\q40\q fill=\qlime\q/><rect width=\q40\q height=\q40\q fill=\qblue\q/></switch>") 20 20))
+(assert-eq "of English" 0xff00ff00
+	(sv-at "<switch><rect systemLanguage=\qru, en-GB\q width=\q40\q height=\q40\q fill=\qlime\q/><rect width=\q40\q height=\q40\q fill=\qred\q/></switch>" 20 20))
+(assert-eq "a first not shown is chosen, nothing drawn" 0
+	(sv-at "<switch><rect display=\qnone\q width=\q40\q height=\q40\q fill=\qred\q/><rect width=\q40\q height=\q40\q fill=\qred\q/></switch>" 20 20))
+
+;a use of what is open, or of a use being drawn, is not drawn
+(assert-eq "a use round to itself through another, drawn the once" 0xff00ff00
+	(sv-at (cat "<g id=\qa\q><rect width=\q40\q height=\q40\q fill=\qlime\q/><use href=\q#b\q/></g>"
+		"<g id=\qb\q><use href=\q#a\q/></g>") 20 20))
+
 ;the SVGs of the Images app, each drawn, nothing thrown
 (each (lambda (name)
 		(assert-true (cat name ".svg drawn")

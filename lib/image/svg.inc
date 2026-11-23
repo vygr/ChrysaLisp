@@ -81,7 +81,10 @@
 	+svg_skip ''("defs" "symbol" "clipPath" "mask" "marker" "pattern" "linearGradient"
 		"radialGradient" "title" "desc" "metadata" "style" "script" "filter" "font")
 	;what holds nothing: what is in one is not drawn
-	+svg_shapes ''("circle" "ellipse" "line" "rect" "polygon" "polyline" "path"))
+	+svg_shapes ''("circle" "ellipse" "line" "rect" "polygon" "polyline" "path")
+	;what a switch may choose
+	+svg_drawn ''("svg" "g" "a" "switch" "use" "circle" "ellipse" "line" "rect" "polygon"
+		"polyline" "path" "text" "image"))
 
 (defun read-num (val)
 	; (read-num str) -> num
@@ -203,6 +206,15 @@
 				(size :nil)
 				(0.0)))
 		names))
+
+(defun svg-passes? (keys vals)
+	; (svg-passes? keys vals) -> :t | :nil
+	;the tests of an element as a switch has them: no requiredExtensions,
+	;and a systemLanguage, if given, of English, en or en-
+	(and (not (svg-attr keys vals "requiredExtensions"))
+		(or (not (defq langs (svg-attr keys vals "systemLanguage")))
+			(some (# (or (eql %0 "en") (starts-with "en-" %0)))
+				(map (# (trim %0 +svg_space)) (split langs ","))))))
 
 (defun svg-alpha (argb opacity)
 	; (svg-alpha argb opacity) -> argb
@@ -509,7 +521,10 @@
 	;larger than its own, as a preview wants it: no pixels made to be
 	;thrown away
 	(setq scale (n2q (ifn scale 1)))
-	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport) replaying 0 stack
+	;the viewports of the svgs in svgs, the switches being drawn as (depth
+	;chosen), the elements open and the uses being drawn, by where in the log
+	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport)
+		viewports (list) switches (list) open (list) drawing (list) use_size :nil symbol :nil replaying 0 stack
 			(list (scatter (Lmap)
 					;this block of defaults are in order !
 					"stroke" 0
@@ -532,6 +547,93 @@
 					"cx" 0.0 "cy" 0.0 "r" 0.0
 					"text-anchor" "start" "dominant-baseline" "auto"
 					"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular")))
+	;the outermost svg: the canvas, of its size, or of most_w and most_h, its
+	;viewBox fitted to it
+	(defq svg-root (lambda (keys vals)
+			(bind '(w h vb par) (gather (defq entry (push-attributes stack keys vals))
+					"width" "height" "viewBox" "preserveAspectRatio"))
+			;a size not more than 0 is none given, and a viewBox
+			;of no area none
+			(or (num? w) (setq w :nil))
+			(or (num? h) (setq h :nil))
+			(and w (<= w 0.0) (setq w :nil))
+			(and h (<= h 0.0) (setq h :nil))
+			(and vb (or (/= (length vb) 4) (<= (elem-get vb 2) 0.0) (<= (elem-get vb 3) 0.0))
+				(setq vb :nil))
+			;the viewBox fitted to the width and height if they
+			;are other than it, else they are its
+			(defq x 0.0 y 0.0 fit :nil)
+			(when vb
+				(bind '(vx vy vw vh) vb)
+				(setq x vx y vy)
+				(if (and w h (> vw 0.0) (> vh 0.0) (or (/= w vw) (/= h vh)))
+					(setq fit (svg-fit w h vw vh par))
+					(setq w vw h vh)))
+			(setd w 256.0 h 256.0)
+			;the user's space a % of a gradient's is of
+			(elem-set viewport 0 (if vb (elem-get vb 2) w))
+			(elem-set viewport 1 (if vb (elem-get vb 3) h))
+			(cond
+				(most_w
+					;the size that fits, the picture's shape kept
+					(defq k (min 1.0 (/ (n2q most_w) w)))
+					(if most_h (setq k (min k (/ (n2q most_h) h))))
+					(setq scale k canvas (Canvas (max 1 (n2i (+ (* w k) 0.5))) (max 1 (n2i (+ (* h k) 0.5))) 1)))
+				((setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))))
+			(. canvas :set_canvas_flags +canvas_flag_antialias)
+			(. entry :insert "transform"
+				(cond
+					(fit (bind '(sx sy tx ty) fit)
+						(mat3x2 (* scale sx) 0.0 (* scale (- tx (* sx x)))
+							0.0 (* scale sy) (* scale (- ty (* sy y)))))
+					((mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0)))))))
+	;an svg in another, or a symbol or an svg a use draws: a group with a
+	;viewport of its own, its x y width and height, 100% of the one it is in
+	;by default, or the use's, its viewBox fitted into it; of no size, as
+	;what is in it, nothing drawn
+	(defq svg-nested (lambda (keys vals)
+			(bind '(x y w h) (svg-geom keys vals '("x" "y" "width" "height") viewport))
+			(when use_size
+				(bind '(uw uh) use_size)
+				(if uw (setq w uw))
+				(if uh (setq h uh))
+				(setq use_size :nil))
+			(setd w (first viewport) h (second viewport))
+			(defq vb (if (defq v (svg-attr keys vals "viewBox")) (read-attribute (last stack) "viewBox" v)))
+			(and vb (or (not (list? vb)) (/= (length vb) 4) (<= (elem-get vb 2) 0.0) (<= (elem-get vb 3) 0.0))
+				(setq vb :nil))
+			(cond
+				((or (<= w 0.0) (<= h 0.0)) (setq skip 1))
+				(:t ;a symbol has no transform, as SVG 1.1 has it, an svg has
+					(defq at (and symbol (find "transform" keys)))
+					(setq symbol :nil)
+					(when at
+						(setq keys (cat keys) vals (cat vals))
+						(elem-set keys at "-transform"))
+					(defq entry (push-attributes stack keys vals) m (mat3x2-translate x y)
+						p (. entry :find "transform") clip :nil)
+					(when vb
+						(bind '(vx vy vw vh) vb)
+						(bind '(sx sy tx ty) (svg-fit w h vw vh (svg-attr keys vals "preserveAspectRatio")))
+						(setq m (mat3x2-mul m (mat3x2 sx 0.0 (- tx (* sx vx)) 0.0 sy (- ty (* sy vy))))))
+					(. entry :insert "transform" (mat3x2-mul p m))
+					;what is in it kept to its viewport, unless overflow is
+					;visible or auto, and the matrix to the pixels is of no
+					;turn: the clip it was in back at its end
+					(bind '(a b & c d &ignore) p)
+					(unless (or (find (svg-attr keys vals "overflow") '("visible" "auto")) (/= b 0.0) (/= c 0.0))
+						(setq clip (. canvas :get_clip))
+						(bind '(cx cy cx1 cy1) clip)
+						(defq p0 (mat3x2-vec2-mul p (path x y) (path 0.0 0.0))
+							p1 (mat3x2-vec2-mul p (path (+ x w) (+ y h)) (path 0.0 0.0)))
+						(. canvas :set_clip
+							(max cx (n2i (+ (min (first p0) (first p1)) 0.5)))
+							(max cy (n2i (+ (min (second p0) (second p1)) 0.5)))
+							(min cx1 (n2i (+ (max (first p0) (first p1)) 0.5)))
+							(min cy1 (n2i (+ (max (second p0) (second p1)) 0.5)))))
+					(push viewports (list (first viewport) (second viewport) clip))
+					(elem-set viewport 0 (if vb (elem-get vb 2) w))
+					(elem-set viewport 1 (if vb (elem-get vb 3) h))))))
 	;each element as it came is kept, and where each with an id is, for a
 	;use of it to draw it again, (replay)
 	(defq on-in (lambda (command keys vals)
@@ -539,54 +641,30 @@
 			(if (starts-with "svg:" command) (setq command (slice command 4 -1)))
 			(when (= replaying 0)
 				(push log (list :in command (cat keys) (cat vals)))
+				(push open (dec (length log)))
 				(if (defq at (find "id" keys)) (. ids :insert (elem-get vals at) (dec (length log)))))
 			;what draws nothing is passed over with all that is in it, so
 			;is what is not shown: skip counts the depth in it
 			(cond
 				((> skip 0) (++ skip))
+				;a child of a switch, the first that may be drawn is chosen,
+				;the rest are not, and one not shown is chosen as any
+				((and (nempty? switches) (= (length stack) (first (last switches)))
+						(or (second (last switches)) (not (find command +svg_drawn))
+							(not (svg-passes? keys vals))
+							(not (elem-set (last switches) 1 :t))))
+					(setq skip 1))
 				((or (find command +svg_skip) (find ":" command)
 						(eql (svg-attr keys vals "display") "none"))
 					(setq skip 1))
 				(:t
 					(case command
 						("svg"
-							(bind '(w h vb par) (gather (defq entry (push-attributes stack keys vals))
-									"width" "height" "viewBox" "preserveAspectRatio"))
-							;a size not more than 0 is none given, and a viewBox
-							;of no area none
-							(or (num? w) (setq w :nil))
-							(or (num? h) (setq h :nil))
-							(and w (<= w 0.0) (setq w :nil))
-							(and h (<= h 0.0) (setq h :nil))
-							(and vb (or (/= (length vb) 4) (<= (elem-get vb 2) 0.0) (<= (elem-get vb 3) 0.0))
-								(setq vb :nil))
-							;the viewBox fitted to the width and height if they
-							;are other than it, else they are its
-							(defq x 0.0 y 0.0 fit :nil)
-							(when vb
-								(bind '(vx vy vw vh) vb)
-								(setq x vx y vy)
-								(if (and w h (> vw 0.0) (> vh 0.0) (or (/= w vw) (/= h vh)))
-									(setq fit (svg-fit w h vw vh par))
-									(setq w vw h vh)))
-							(setd w 256.0 h 256.0)
-							;the user's space a % of a gradient's is of
-							(elem-set viewport 0 (if vb (elem-get vb 2) w))
-							(elem-set viewport 1 (if vb (elem-get vb 3) h))
-							(cond
-								(most_w
-									;the size that fits, the picture's shape kept
-									(defq k (min 1.0 (/ (n2q most_w) w)))
-									(if most_h (setq k (min k (/ (n2q most_h) h))))
-									(setq scale k canvas (Canvas (max 1 (n2i (+ (* w k) 0.5))) (max 1 (n2i (+ (* h k) 0.5))) 1)))
-								((setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))))
-							(. canvas :set_canvas_flags +canvas_flag_antialias)
-							(. entry :insert "transform"
-								(cond
-									(fit (bind '(sx sy tx ty) fit)
-										(mat3x2 (* scale sx) 0.0 (* scale (- tx (* sx x)))
-											0.0 (* scale sy) (* scale (- ty (* sy y)))))
-									((mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))))
+							(if canvas (svg-nested keys vals)
+								(svg-root keys vals)))
+						("switch"
+							(push-attributes stack keys vals)
+							(push switches (list (length stack) :nil)))
 						("circle"
 							(defq entry (push-attributes stack keys vals))
 							(bind '(cx cy r) (svg-geom keys vals '("cx" "cy" "r") viewport))
@@ -644,12 +722,20 @@
 							(push v (cat (ifn (svg-attr keys vals "transform") "")
 								" translate(" (ifn (svg-attr keys vals "x") "0") "," (ifn (svg-attr keys vals "y") "0") ")"))
 							(push-attributes stack k v)
+							;not of itself, nor of what it is in, nor of a use
+							;being drawn: that is never done
 							(when (and href (starts-with "#" href) (< replaying 8)
-									(defq at (. ids :find (slice href 1 -1))))
+									(defq at (. ids :find (slice href 1 -1)))
+									(not (find at open)) (not (find at drawing)))
+								;its width and height a symbol's or an svg's
+								(setq use_size (svg-geom keys vals '("width" "height") viewport))
 								(++ replaying)
+								(push drawing at)
 								(replay at)
-								(-- replaying)))
-						(("text" "g" "a" "switch")
+								(pop drawing)
+								(-- replaying)
+								(setq use_size :nil)))
+						(("text" "g" "a")
 							(push-attributes stack keys vals)))
 					;a shape is drawn, its attributes let go of, and what
 					;is in it passed over with its end, by skip
@@ -658,10 +744,22 @@
 						(setq skip 1))))))
 	(defq on-out (lambda (command)
 			(if (starts-with "svg:" command) (setq command (slice command 4 -1)))
-			(if (= replaying 0) (push log (list :out command)))
+			(when (= replaying 0)
+				(push log (list :out command))
+				(pop open))
 			(if (> skip 0) (-- skip)
 				(case command
-					(("svg" "g" "a" "switch" "use" "text")
+					("svg"
+						(when (nempty? viewports)
+							(bind '(vw vh clip) (pop viewports))
+							(elem-set viewport 0 vw)
+							(elem-set viewport 1 vh)
+							(if clip (apply (const .) (cat (list canvas :set_clip) clip))))
+						(pop stack))
+					("switch"
+						(pop switches)
+						(pop stack))
+					(("g" "a" "use" "text")
 						(pop stack))))))
 	(defq on-text (lambda (text)
 			(if (= replaying 0) (push log (list :text text)))
@@ -695,7 +793,9 @@
 			;what was kept from at, it and all in it, drawn again; a symbol,
 			;or another of what draws nothing, as a group
 			(defq root (second (elem-get log at)) i at depth 0)
-			(if (find root +svg_skip) (setq root "g"))
+			(cond
+				((eql root "symbol") (setq root "svg" symbol :t))
+				((find root +svg_skip) (setq root "g")))
 			(while (and (< i (length log)) (or (= i at) (> depth 0)))
 				(bind '(kind &optional a b c) (elem-get log i))
 				(case kind
