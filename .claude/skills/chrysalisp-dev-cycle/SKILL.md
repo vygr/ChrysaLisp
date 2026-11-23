@@ -812,12 +812,19 @@ are not there, make them again from this.
 
 *	**release**: all a tag is tested with, on every machine from cold,
 	`make install`, `tests -a`, `make it`, the emulator, the lint. Not run
-	unless the user asks for a release. By the cores each takes: a QEMU
-	suite is one node, `-n 1`, one core of the VM's 6, so RISC-V and
-	LoongArch may run side by side, 2 of the M4's 16. The M4's own suite
-	on VP64 is 19 nodes, the whole machine, and has it to itself: run
-	with the two QEMU suites beside it, 2026-11-23, a test of 300
-	gophers failed that passes alone. A rerun by hand keeps to that too.
+	unless the user asks for a release. The emulated suites, RISC-V and
+	LoongArch under QEMU, Windows under Wine and the M4's own on VP64,
+	are run one after another, each with the whole M4: the user,
+	2026-11-23, "serially, BUT with a higher used core count". Two QEMU
+	suites and the VP64 one at once had a test of 300 gophers fail that
+	passes alone. A QEMU suite is `-n 0`, a node for each CPU of the
+	Colima VM, 14 of them and 16GB, `~/.colima/default/colima.yaml`,
+	the modules in batches at once: RISC-V 718s on one node, 342s on 4,
+	about 260s on 14, LoongArch 580s and 237s. `text/test_tree` is 110s
+	of that on any count, and the solo modules 50s, so more nodes gain
+	little past there; Wine is 80s on 8 nodes and 78s on 16. On several
+	nodes they run 30 checks one node skips. A rerun by hand keeps to
+	one at a time too.
 
 An `ssh` control socket to each machine keeps these quick. `ssh` is for
 starting a member, building a host program, and recovery. Moving files and
