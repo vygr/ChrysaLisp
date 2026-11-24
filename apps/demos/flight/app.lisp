@@ -46,13 +46,22 @@
 	;climb and come down, a second, and how slowly it comes to that
 	+ahead (n2d 120) +aside (n2d 0.45) +steer (n2d 0.004) +turn_most (n2d 0.25) +turn_ease (n2d 0.5)
 	+clearance (n2d 24) +pitch_valley (n2d 0.1) +climb (n2d 16) +sink (n2d 8) +rise_ease (n2d 0.8)
+	;flown by the pointer: the middle of the picture it does nothing in, how
+	;fast at most it turns and climbs or dives for the pointer at an edge,
+	;how near the land it may go whatever the pointer says, and how high
+	+dead (n2d 0.12) +stick_turn (n2d 0.5) +stick_climb (n2d 24) +floor (n2d 14) +ceiling (n2d 260)
 	;how high the frame is at a distance of 1, its width of its shape, and
 	;how near and far it sees
 	+spread_y (n2d 0.5) +near (n2d 1) +far (n2d 520)
 	+land_vertex (cat *app_root* "land_vertex.shader") +land_lit (cat *app_root* "land_lit.shader")
 	sky_files (list (cat *app_root* "sky_vertex.shader") (cat *app_root* "sky_lit.shader"))
+	moon_files (list (cat *app_root* "moon_vertex.shader") (cat *app_root* "moon_lit.shader"))
 	;the meshes, by their numbers
-	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2
+	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2 +mesh_moon 3
+	;the moon: the way to it, how far, in front of the sky and behind the
+	;land near by, how big, how it leans and how fast it turns, a second
+	moon_way (doubles (n2d -0.646) (n2d 0.188) (n2d 0.74)) +moon_far (n2d 470) +moon_size (n2d 36)
+	+moon_lean (n2d 0.12) +moon_turn (n2d 0.02) moon_map :nil
 	;the sun, and the haze at the horizon and the blue above
 	sun (doubles (n2d 0.55) (n2d 0.42) (n2d -0.72)) haze (doubles (n2d 0.74) (n2d 0.80) (n2d 0.86))
 	above (doubles (n2d 0.28) (n2d 0.46) (n2d 0.78))
@@ -66,6 +75,9 @@
 	;level, how high, how fast it turns, and the middle of the eight
 	path :eight place (doubles +double_0 +double_0) way (doubles +double_0 +double_1)
 	height +altitude rising +double_0 turning +double_0 middle (doubles +double_0 +double_0)
+	;where the pointer is over the picture, -1 to 1 across and up, or :nil
+	;when it is not
+	stick :nil
 	;the height of the land at a place, of land.shader, the shaders' own
 	land_height :nil
 	;CPU or GPU, the flight and the size, as they were when last closed,
@@ -82,7 +94,7 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Flight" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-radio-bar *path* ("Eight" "Valleys") (:font :font_body)) :connect +event_path)
+		(. (ui-radio-bar *path* ("Eight" "Valleys" "Mouse") (:font :font_body)) :connect +event_path)
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
 		(ui-label *status* (:text "..." :font :font_body)))
 	(ui-backdrop *backdrop* (:style :plain :paper +argb_black :min_width (first +small) :min_height (second +small))
@@ -103,6 +115,23 @@
 	;two triangles over all of the frame, by its corners
 	(doubles +double_-1 +double_-1 +double_1 +double_-1 +double_1 +double_1
 		+double_-1 +double_-1 +double_1 +double_1 +double_-1 +double_1))
+
+(defun globe-verts (segs rings)
+	; (globe-verts segs rings) -> doubles
+	;a ball of radius 1 as triangles, three vertices each, a vertex its
+	;place, 3 numbers, and where on the map that is, 2. North is up, and
+	;east goes round to the right as seen from outside, as a map has it.
+	;A triangle goes round counter clockwise as seen from outside
+	(defq out (list) rows (map! (lambda () (defq r (!)) (defq theta (/ (* +double_pi (n2d r)) (n2d rings)) st (sin theta) ct (cos theta))
+				(map! (lambda () (defq phi (/ (* +double_2pi (n2d (!))) (n2d segs)))
+						(list (* st (sin phi)) ct (* st (cos phi))
+							(/ (n2d (!)) (n2d segs)) (/ (n2d r) (n2d rings)))) '() 0 (inc segs))) '() 0 (inc rings)))
+	(each! (lambda () (defq r (!)) (each! (lambda () (defq s (!)) (defq a (elem-get (elem-get rows r) s) b (elem-get (elem-get rows (inc r)) s)
+						c (elem-get (elem-get rows (inc r)) (inc s)) d (elem-get (elem-get rows r) (inc s)))
+					;at a pole a quad is a triangle, the other has no area
+					(if (< r (dec rings)) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a b c)))
+					(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d)))) '() 0 segs)) '() 0 rings)
+	(apply (const doubles) out))
 
 (defun mode-show ()
 	;the button as the render has it: the GPU is not to be had on a host
@@ -130,13 +159,23 @@
 	;where on the eight, across and along, for its middle at 0 0
 	(doubles (* +reach_x (sin at)) (* +reach_z (sin (* (n2d 2) at)))))
 
-(defun ease-height (target dt)
-	;the height on by how fast it rises, which is eased toward what would
-	;bring it to the target, no faster up or down than it may: a climb and a
-	;dive in a curve, not at a corner
-	(defq want (max (neg +sink) (min +climb (* (- target height) (n2d 0.6)))))
+(defun rise-toward (want dt)
+	;the height on by how fast it rises, eased toward how fast it would: a
+	;climb and a dive in a curve, not at a corner
 	(setq rising (+ rising (* (- want rising) (min +double_1 (* dt +rise_ease))))
 		height (+ height (* rising dt))))
+
+(defun ease-height (target dt)
+	;toward a height, no faster up or down than it may
+	(rise-toward (max (neg +sink) (min +climb (* (- target height) (n2d 0.6)))) dt))
+
+(defun beyond-dead (x)
+	; (beyond-dead x) -> double
+	;how far past the dead middle the pointer is, -1 to 1
+	(cond
+		((> x +dead) (/ (- x +dead) (- +double_1 +dead)))
+		((< x (neg +dead)) (/ (+ x +dead) (- +double_1 +dead)))
+		(+double_0)))
 
 (defun eight-pose (dt)
 	; (eight-pose dt) -> (fx fz lean)
@@ -191,6 +230,34 @@
 			(land-at (+ px (* nx (n2d 240))) (+ pz (* nz (n2d 240)))))) dt)
 	(list nx nz (neg (/ (* +speed turning) +pull))))
 
+(defun mouse-pose (dt)
+	; (mouse-pose dt) -> (fx fz lean)
+	;flown by the pointer: across it turns, up and down it climbs and dives,
+	;both eased as the valleys' are, straight and level when it is not over
+	;the picture. But never nearer the land under it and ahead than the
+	;floor, whatever the pointer says: into a hill it pulls up of itself;
+	;and never over the ceiling
+	(bind '(px pz) place)
+	(bind '(fx fz) way)
+	(bind '(sx sy) (ifn stick (list +double_0 +double_0) stick))
+	(setq turning (+ turning (* (- (* (neg (beyond-dead sx)) +stick_turn) turning) (min +double_1 (* dt +turn_ease (n2d 2))))))
+	(defq a (* turning dt) ca (cos a) sa (sin a)
+		nx (+ (* fx ca) (* fz sa)) nz (- (* fz ca) (* fx sa)))
+	(setq way (doubles nx nz)
+		place (doubles (+ px (* nx +speed dt)) (+ pz (* nz +speed dt))))
+	(bind '(px pz) place)
+	(defq low (+ +floor (max (land-at px pz) (land-at (+ px (* nx (n2d 40))) (+ pz (* nz (n2d 40))))
+			(land-at (+ px (* nx (n2d 90))) (+ pz (* nz (n2d 90))))
+			(land-at (+ px (* nx (n2d 180))) (+ pz (* nz (n2d 180))))))
+		want (* (beyond-dead sy) +stick_climb))
+	(cond
+		((< height (+ low (n2d 12))) (setq want (max want (* (- (+ low (n2d 12)) height) (n2d 0.9)))))
+		((> height +ceiling) (setq want (min want (* (- +ceiling height) (n2d 0.5))))))
+	(rise-toward want dt)
+	;the floor itself is never gone under, an easing can not be late for it
+	(setq height (max height low))
+	(list nx nz (neg (/ (* +speed turning) +pull))))
+
 (defun path-set (to)
 	;the flight to the eight or along the valleys, from where it is: the
 	;valleys go on from here, the eight is moved so that it is here
@@ -205,7 +272,7 @@
 	;the tangent of the angle, made of its cosine and sine, no angle
 	(defq now (pii-time) dt (/ (n2d (- now moved)) (n2d 1000000)))
 	(setq moved now)
-	(bind '(fx fz lean) (if (eql path :eight) (eight-pose dt) (valley-pose dt)))
+	(bind '(fx fz lean) (case path (:eight (eight-pose dt)) (:valleys (valley-pose dt)) (:t (mouse-pose dt))))
 	;the nose up a little as it climbs and down as it comes down
 	(defq pitch (- (if (eql path :eight) +pitch_eight +pitch_valley) (* (n2d 0.5) (/ rising +speed)))
 		pitch_cos (cos pitch) pitch_sin (sin pitch)
@@ -232,6 +299,16 @@
 			(list (list 'forward forward) (list 'right right) (list 'up up)
 				(list 'spread (doubles spread_x +spread_y)) (list 'sun sun) (list 'haze haze) (list 'above above))
 			'() sky_files)
+		;the moon, the eye's way to it the same however far the eye goes, as
+		;anything in the sky, turning slowly on its leaning axis
+		(list +mesh_moon (list (list 'model (mat4x4-mul (mat4x4-translate
+						(+ (first eye) (* (first moon_way) +moon_far)) (+ (second eye) (* (second moon_way) +moon_far))
+						(+ (third eye) (* (third moon_way) +moon_far)))
+					(mat4x4-mul (mat4x4-scale +moon_size +moon_size +moon_size) (defq spin (mat4x4-mul (mat4x4-rotz +moon_lean)
+						(mat4x4-roty (* seconds +moon_turn)))))))
+				(list 'spin spin) (list 'lens view))
+			(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'rise (second moon_way)))
+			(list moon_map) moon_files)
 		(list (if gpu +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
 			(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
 				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12)))))
@@ -293,12 +370,16 @@
 	(def render :clear (argb haze))
 	(. render :mesh +mesh_land (land-verts +cells +cell))
 	(. render :mesh +mesh_land_cpu (land-verts +cells_cpu +cell_cpu))
+	(. render :mesh +mesh_moon (globe-verts 48 24) (first moon_files))
+	;the moon's map, its pixels in shared memory if the host has it, so the
+	;nodes that draw a strip each all read the one copy of it
+	(setq moon_map (. (shader-strip-picture (canvas-load (cat *app_root* "data/moon.cpm") +load_flag_noswap)) :swap +swap_write))
 	(. render :mesh +mesh_sky (sky-verts) (first sky_files))
 	(config-load)
 	(setq land_height (shader-vp-func (shader-load (cat *app_root* "land.shader")) 'ground)
 		place (eight-point round_at) way (doubles +double_1 +double_0))
 	(path-set (. *config* :find :path))
-	(. *path* :set_selected (if (eql path :eight) 0 1))
+	(. *path* :set_selected (find path '(:eight :valleys :mouse)))
 	;the size it was closed at
 	(if (. *config* :find :large) (set-size +large))
 	(.-> *canvas* (:fill (argb haze)) (:swap +swap_write))
@@ -321,7 +402,18 @@
 					((= id +event_max) (set-size +large))
 					((= id +event_min) (set-size +small))
 					((= id +event_path)
-						(path-set (if (= (. *path* :get_selected) 0) :eight :valleys)))
+						(path-set (elem-get '(:eight :valleys :mouse) (. *path* :get_selected))))
+					;the pointer over the picture is the stick, and off it, none
+					((and (= (getf msg +ev_msg_target_id) (. *canvas* :get_id))
+							(= (getf msg +ev_msg_type) +ev_type_mouse))
+						(bind '(w h) size)
+						(setq stick (list (- (/ (n2d (* 2 (getf msg +ev_msg_mouse_rx))) (n2d w)) +double_1)
+							(- +double_1 (/ (n2d (* 2 (getf msg +ev_msg_mouse_ry))) (n2d h)))))
+						(. *window* :event msg))
+					((and (= (getf msg +ev_msg_target_id) (. *canvas* :get_id))
+							(= (getf msg +ev_msg_type) +ev_type_exit))
+						(setq stick :nil)
+						(. *window* :event msg))
 					((= id +event_mode)
 						(. render :mode (if (= (. *mode* :get_selected) 1) :gpu :cpu))
 						(mode-show))
