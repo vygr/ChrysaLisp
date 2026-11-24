@@ -63,8 +63,9 @@
 	moon_files (list (cat *app_root* "moon_vertex.shader") (cat *app_root* "moon_lit.shader"))
 	craft_files (list (cat *app_root* "craft_vertex.shader") (cat *app_root* "craft_lit.shader"))
 	beam_files (list (cat *app_root* "beam_vertex.shader") (cat *app_root* "beam_lit.shader"))
+	cloud_files (list (cat *app_root* "cloud_vertex.shader") (cat *app_root* "cloud_lit.shader"))
 	;the meshes, by their numbers, the craft's parts from the last on
-	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2 +mesh_moon 3 +mesh_beam 30 +mesh_craft 4
+	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2 +mesh_moon 3 +mesh_beam 30 +mesh_cloud 31 +mesh_craft 4
 	;the farm that makes the craft's parts, which of them have come, and
 	;the craft, fleet.inc
 	jobs :nil parts_had (map (const (lambda (_) :nil)) craft_parts) crafts (list)
@@ -470,8 +471,13 @@
 				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12))
 				;the craft about, their shadows and their lights on the land
 				(fleet-lights seconds))))
-		;the craft about, fleet.inc, and last their beams, added to all else
+		;the craft about, fleet.inc, the clouds over them, seen through, and
+		;last the craft's beams, added to all else
 		(fleet-draws view eye seconds)
+		(list (list +mesh_cloud (list (list 'lens view) (list 'eye eye))
+			(list (list 'sun sun) (list 'haze haze) (list 'daylight daylight) (list 'shine shine)
+				(list 'eye eye) (list 'time seconds))
+			'() cloud_files))
 		(fleet-beams view eye seconds)))
 	(++ frames))
 
@@ -542,6 +548,7 @@
 	(setq moon_map (. (shader-strip-picture (canvas-load (cat *app_root* "data/moon.cpm") +load_flag_noswap)) :swap +swap_write))
 	(. render :mesh +mesh_sky (sky-verts) (first sky_files))
 	(. render :mesh +mesh_beam (tube-verts 24) (first beam_files))
+	(. render :mesh +mesh_cloud (sky-verts) (first cloud_files))
 	;the craft's parts, made by a farm of children on this machine's
 	;nodes, off this one, and each put in its craft as it comes
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
