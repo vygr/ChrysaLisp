@@ -35,19 +35,22 @@
 	;text), in the order they are in the stream. keys and vals are the
 	;parser's own, cleared for the next element, a callback that keeps
 	;them keeps a copy. Values and text with their entities made what they
-	;stand for, (xml-entities); the tokens are of lib/xml/lisp.vp
+	;stand for, (xml-entities); the tokens are of lib/xml/lisp.vp. An element
+	;still open at the end of the stream, a file cut short, is closed there,
+	;the last opened first, as near as it can be taken
 	(bind '(kinds tokens) ((const (ffi (path-to-absolute "./parse"))) stream))
-	(defq e (penv) name "" keys (list) vals (list))
+	(defq e (penv) name "" keys (list) vals (list) open (list))
 	(each (lambda (kind token)
 			(case kind
 				(:in (setq name token) (clear keys vals))
 				(:key (push keys token))
 				(:val (push vals (xml-entities token)))
-				(:open (task-slice) (callback fnc_in e name keys vals))
+				(:open (task-slice) (push open name) (callback fnc_in e name keys vals))
 				(:empty (task-slice) (callback fnc_in e name keys vals) (callback fnc_out e name))
-				(:out (callback fnc_out e token))
+				(:out (pop open) (callback fnc_out e token))
 				(:text (callback fnc_text e (xml-entities token)))))
-		kinds tokens))
+		kinds tokens)
+	(while (defq left (pop open)) (callback fnc_out e left)))
 
 ;module
 (export-symbols '(XML-parse xml-entities))

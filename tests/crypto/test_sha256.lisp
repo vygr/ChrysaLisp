@@ -66,6 +66,7 @@
 (assert-error "more blocks than there are" (sha256-blocks (str-alloc 32) sha_text 0 4) {(sha256-blocks state data offset count) wrong_types})
 (assert-error "an offset past the end" (sha256-blocks (str-alloc 32) sha_text 192 1) {(sha256-blocks state data offset count) wrong_types})
 (assert-error "a count below 0" (sha256-blocks (str-alloc 32) sha_text 0 -1) {(sha256-blocks state data offset count) wrong_types})
+(assert-error "an offset that is not on 4, the native's loads of 4 bytes" (sha256-blocks (str-alloc 32) sha_text 2 1) {(sha256-blocks state data offset count) wrong_types})
 
 (report-header "Crypto: HMAC with SHA-256")
 

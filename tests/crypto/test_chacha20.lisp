@@ -75,5 +75,6 @@
 (assert-error "a key of the wrong size" (chacha20 "short" cc_nonce 0 cc_text) {(chacha20-xor key nonce counter data out offset length) wrong_types})
 (assert-error "a nonce of the wrong size" (chacha20 cc_key "short" 0 cc_text) {(chacha20-xor key nonce counter data out offset length) wrong_types})
 (assert-error "past the end of the data" (chacha20-xor cc_key cc_nonce 0 cc_text cc_out 200 101) {(chacha20-xor key nonce counter data out offset length) wrong_types})
+(assert-error "an offset that is not on 4, the native's loads of 4 bytes" (chacha20-xor cc_key cc_nonce 0 cc_text (cat cc_text) 2 10) {(chacha20-xor key nonce counter data out offset length) wrong_types})
 (assert-error "past the end of where it goes" (chacha20-xor cc_key cc_nonce 0 cc_text (str-alloc 10) 0 11) {(chacha20-xor key nonce counter data out offset length) wrong_types})
 (assert-error "an offset below 0" (chacha20-xor cc_key cc_nonce 0 cc_text cc_out -1 10) {(chacha20-xor key nonce counter data out offset length) wrong_types})

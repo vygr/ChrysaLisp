@@ -53,6 +53,7 @@
 (assert-error "a state that is not 64 bytes" (sha512-blocks "short" (s5-data 128) 0 1) {(sha512-blocks state data offset count) wrong_types})
 (assert-error "blocks that are not all in the data" (sha512-blocks (cat s5_state) (s5-data 128) 1 1) {(sha512-blocks state data offset count) wrong_types})
 (assert-error "a count below 0" (sha512-blocks (cat s5_state) (s5-data 128) 0 -1) {(sha512-blocks state data offset count) wrong_types})
+(assert-error "an offset that is not on 8, the native's loads of 8 bytes" (sha512-blocks (cat s5_state) (s5-data 256) 4 1) {(sha512-blocks state data offset count) wrong_types})
 (assert-eq "no blocks is no change" s5_state (sha512-blocks (cat s5_state) (s5-data 128) 0 0))
 
 (undef (env) 's5_whole 's5_want 's5_state)

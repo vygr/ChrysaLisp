@@ -64,6 +64,11 @@
 	(vp-shl-cr 6 :r6)
 	(vp-add-rr :r4 :r6)
 	(gotoif '(:r6 > :r7) 'error)
+	;the native loads 4 bytes at a time, so the offset is a multiple of 4,
+	;the data of a str being on 8
+	(vp-cpy-rr :r4 :r6)
+	(vp-and-cr 3 :r6)
+	(gotoif '(:r6 /= 0) 'error)
 
 	;the stack has the 64 words of a block's schedule, then where the
 	;state is, where the next block is, how many are left, the lisp
@@ -227,6 +232,11 @@
 	(vp-shl-cr 7 :r6)
 	(vp-add-rr :r4 :r6)
 	(gotoif '(:r6 > :r7) 'error)
+	;the native loads 8 bytes at a time, so the offset is a multiple of 8,
+	;the data of a str being on 8
+	(vp-cpy-rr :r4 :r6)
+	(vp-and-cr 7 :r6)
+	(gotoif '(:r6 /= 0) 'error)
 
 	;the stack has the 80 words of a block's schedule, then where the
 	;state is, where the next block is, how many are left, the lisp
@@ -372,6 +382,11 @@
 	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r10 :r11))
 	(gotoif '(:r9 > :r10) 'error)
 	(gotoif '(:r9 > :r11) 'error)
+	;the native loads 4 bytes at a time, so the offset is a multiple of 4,
+	;the data of a str being on 8
+	(vp-cpy-rr :r7 :r9)
+	(vp-and-cr 3 :r9)
+	(gotoif '(:r9 /= 0) 'error)
 
 	(vp-push :r0 :r6)
 	(vp-add-cr +str_data :r2)
@@ -424,6 +439,11 @@
 	(vp-shl-cr 4 :r7)
 	(vp-add-rr :r4 :r7)
 	(gotoif '(:r7 > :r8) 'error)
+	;the native loads 8 bytes at a time, so the offset is a multiple of 8,
+	;the data of a str being on 8
+	(vp-cpy-rr :r4 :r7)
+	(vp-and-cr 7 :r7)
+	(gotoif '(:r7 /= 0) 'error)
 
 	(vp-push :r0 :r2)
 	(vp-add-cr +str_data :r2)

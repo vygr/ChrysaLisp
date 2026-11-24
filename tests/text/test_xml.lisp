@@ -20,6 +20,12 @@
 (assert-eq "either quote, and an element closed by /> with no space before it"
 	"((:in \qa\q (\qx\q \qy\q) (\q1\q \q2\q)) (:in \qb\q () ()) (:out \qb\q) (:text \qhi\q) (:out \qa\q))"
 	(xm-said "<a x=\q1\q y='2'><b/>hi</a>"))
+(assert-eq "an element still open at the end, a file cut short, is closed there"
+	"((:in \qa\q () ()) (:text \qtext\q) (:out \qa\q))"
+	(xm-said "<a>text"))
+(assert-eq "those still open closed the last opened first, one closed in the file once"
+	"((:in \qa\q () ()) (:in \qb\q () ()) (:text \qx\q) (:out \qb\q) (:in \qc\q () ()) (:out \qc\q) (:out \qa\q))"
+	(xm-said "<a><b>x</b><c>"))
 (assert-eq "text whole, what is markup elsewhere only text in it"
 	"((:in \qp\q () ()) (:text \qa-b 1/2 x = 'y' don't?\q) (:out \qp\q))"
 	(xm-said "<p>a-b 1/2 x = 'y' don't?</p>"))
@@ -35,8 +41,8 @@
 (assert-eq "entities in values and text, by name and by number, one not known left"
 	(cat "((:in \qt\q (\qa\q) (\q<&A" (num-to-utf8 0x263a) "&bogus;\q)) (:text \q\\qcaf" (num-to-utf8 233) "\\q\q) (:out \qt\q))")
 	(xm-said "<?xml version=\q1.0\q?><t a=\q&lt;&amp;&#65;&#x263a;&bogus;\q>&quot;caf&#233;&quot;</t>"))
-(assert-eq "an element not closed in the document is not closed, the last that is is"
-	"((:in \qa\q () ()) (:in \qb\q () ()) (:out \qb\q))"
+(assert-eq "an element not closed in the document is closed at its end, after the last that is"
+	"((:in \qa\q () ()) (:in \qb\q () ()) (:out \qb\q) (:out \qa\q))"
 	(xm-said "<a><b></b>"))
 (assert-eq "not well formed taken as near as can be: a key of no value, a value not quoted"
 	"((:in \qa\q (\qk\q) (\q\q)) (:text \qv\q) (:out \qa\q) (:in \qb\q (\qk\q) (\qbare\q)) (:out \qb\q))"

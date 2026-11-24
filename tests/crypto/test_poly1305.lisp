@@ -65,3 +65,4 @@
 (assert-error "a state of the wrong size" (poly1305-blocks "short" pl_text 0 1 1) {(poly1305-blocks state data offset count top) wrong_types})
 (assert-error "more blocks than there are" (poly1305-blocks (str-alloc 120) pl_text 0 13 1) {(poly1305-blocks state data offset count top) wrong_types})
 (assert-error "a top that is not 0 or 1" (poly1305-blocks (str-alloc 120) pl_text 0 1 2) {(poly1305-blocks state data offset count top) wrong_types})
+(assert-error "an offset that is not on 8, the native's loads of 8 bytes" (poly1305-blocks (str-alloc 120) pl_text 4 1 1) {(poly1305-blocks state data offset count top) wrong_types})
