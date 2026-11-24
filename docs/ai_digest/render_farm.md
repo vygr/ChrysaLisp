@@ -134,6 +134,20 @@ given it is the farm again, and the CPU's is let go of; one that says it
 has no GPU leaves the frames the CPU's. `Render-shade` and `Render-tris` do
 it, `Render-work`'s answers are the app's and it does not.
 
+The other way, from the GPU to the CPU, the CPU's farm is made and its
+children have to build their shaders and fetch the meshes, seconds, and
+till then the frames were drawn here, in the app's own task, one node and
+slow. `Render-tris` has the GPU's farm, if it has drawn, set aside on the
+same mailboxes as above and go on drawing them till the CPU's children say
+they are ready, then let go of, `:standbys`. Its frame is `:standby_out`,
+not `:out`, which is the CPU's farm's alone: their word that they are ready
+comes to the same mailbox as their answers, and is told from them by there
+being none of theirs out. Back to the GPU before then and it is the farm
+again at once, its child warm. Chris, 2026-11-24, of Flight: "That is much
+better switching ! Seams allmost faster". A mailbox set aside is the same
+mailbox: the farm and its children are not touched, only the slot of the
+render's list it is read from.
+
 A child goes of its own accord when it has had nothing to do for a while, 5
 seconds in the library's children, `(job-child timeout fn)`. It says so as it
 goes, and a job that was sent to it as it went is put back on the queue, not
@@ -360,7 +374,8 @@ another child, and its own may have drawn it already: filled first, a strip
 drawn twice is the same, where a translucent thing was laid over itself.
 
 A draw can have a pair of shader files of its own, for a scene whose
-things are not all drawn alike. A job with no rows is how an app has its
+things are not all drawn alike, the last of a draw, `sfiles`. Both children
+build each pair the once and keep it. A job with no rows is how an app has its
 children fetch their meshes before the first frame, and it draws the frames
 itself till they have answered.
 
@@ -552,6 +567,14 @@ small picture drawn now and then that is not worth a child a node: Eyes.
 `(Render-tris canvas vfile pfile [cull])`, section 4 has its use: the meshes
 told to it, a frame a list of draws. Planets is the whole of one, Mesh one
 whose scene is another library's.
+
+A draw is `(id vvals pvals [pictures [vfile pfile]])`, the last its own
+pair if it is not drawn with the render's, its inputs packed by that pair's
+shaders, by the GPU, the farm and here alike, each pair read the once,
+`(:pair)`. A mesh drawn by another vertex shader is told with it, `(. render
+:mesh id verts vfile)`, as its vertices are counted by that shader's attrs.
+Flight's frame is a sky, two triangles of corners by a pair of its own at
+the back of the depth, and the land by the render's.
 
 ### Children of the app's own
 

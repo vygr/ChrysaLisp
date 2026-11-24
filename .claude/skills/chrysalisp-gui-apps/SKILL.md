@@ -439,6 +439,13 @@ Key points:
 		second, the GPU is set aside and goes on building, 20 s on the
 		Pi the first time, and its first answer has it take over. An app
 		does nothing for it; its line of status says how each was drawn.
+		The other way, a `Render-tris` that switches to the CPU has its
+		GPU go on drawing till the CPU's children are ready, so no frame
+		is drawn in the app's own task meanwhile, `:standbys`.
+	*	A draw of a `Render-tris` may name a shader pair of its own,
+		`(id vvals pvals [pictures [vfile pfile]])`, and a mesh of
+		another vertex shader is told with it, `(:mesh id verts vfile)`:
+		a sky behind and the land, as Flight.
 	*	A line of status that says how the frames are drawn, by how many
 		nodes, and how long one took, as Planets and Model have: it is
 		how the user, and a hidden desktop's `widgets`, see which way it

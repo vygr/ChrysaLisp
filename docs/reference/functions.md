@@ -6068,6 +6068,16 @@ pixmap that is shared. They must fit, or it throws
 (gpu-dispatch) and wait for it to be over
 ```
 
+### gpu-standby
+
+```code
+the frames are to be the CPU's, but its farm is not yet made, nor its
+
+children ready, which can take seconds: the GPU's farm, that draws, is
+set aside as (gpu-park) has it, and goes on drawing them till they are,
+(standby-end). A frame it has out is still its own
+```
+
 ### gpu-take
 
 ```code
@@ -14946,6 +14956,14 @@ by itself, done, if given, is sent :t when the sink has finished
 (stages-save pixmap type stream stages) -> :t
 ```
 
+### standby-end
+
+```code
+the CPU's children are ready: the GPU that stood in for them is let go
+
+of, and a frame it had out is not waited for
+```
+
 ### start
 
 ```code
@@ -19172,6 +19190,14 @@ of nodes it is part way through, each (nodes at)
 
 ```code
 (unique seq) -> seq
+```
+
+### unpark
+
+```code
+the GPU's farm that was set aside is the farm again, on its mailboxes,
+
+the CPU's let go of, not it, (farm-end) would end both
 ```
 
 ### unzip

@@ -18,7 +18,8 @@ if this node has one
 ```code
 (. render :busy) -> :nil | :t
 
-a frame is out with a farm, the next is not to be given yet
+a frame is out with a farm, or with the GPU that stands in for the
+CPU's, the next is not to be given yet
 ```
 
 ### :canvas

@@ -66,7 +66,7 @@
 	(defq mboxes (get :mboxes this))
 	(def this :jobs (jobs-end (get :jobs this) mboxes +rt_mbox_task +rt_mbox_reply)
 		:parked (jobs-end (get :parked this) mboxes +rt_mbox_parked_task +rt_mbox_parked_reply)
-		:kind :nil :ready :nil :out :nil))
+		:kind :nil :ready :nil :out :nil :standby :nil :standby_out :nil))
 
 (defun gpu-park ()
 	;the GPU's first frame is still out after a while: its child is getting
@@ -79,30 +79,34 @@
 	(elem-set mboxes +rt_mbox_reply (mail-mbox))
 	(def this :parked (get :jobs this) :jobs :nil :kind :nil :ready :nil :out :nil))
 
-(defun parked-mail (idx msg drawn none)
-	; (parked-mail idx msg drawn none) -> :nil | :t
-	;mail of the GPU's farm that was set aside, drawn the offset of the uint
-	;of its answer that says how, and none the word that it has no GPU. When its
-	;frame is answered the GPU is ready: the CPU's farm is let go of, the
-	;GPU's is the farm again, and the next frame is its. :t then, the app
-	;may give it. A GPU that has none after all leaves the frames the CPU's
-	(defq parked (get :parked this) mboxes (get :mboxes this))
-	(cond
-		((not parked) :nil)
-		((= idx +rt_mbox_parked_task) (. parked :launched msg) :nil)
-		((not (. parked :answered msg)) :nil)
-		((= (get-uint msg drawn) none)
-			(jobs-end parked mboxes +rt_mbox_parked_task +rt_mbox_parked_reply)
-			(def this :parked :nil :no_gpu :t :mode :cpu)
-			:nil)
-		(:t ;the CPU's farm let go of, not this one, (farm-end) would end both
-			(jobs-end (get :jobs this) mboxes +rt_mbox_task +rt_mbox_reply)
-			(elem-set mboxes +rt_mbox_task (elem-get mboxes +rt_mbox_parked_task))
-			(elem-set mboxes +rt_mbox_reply (elem-get mboxes +rt_mbox_parked_reply))
-			(elem-set mboxes +rt_mbox_parked_task (mail-mbox))
-			(elem-set mboxes +rt_mbox_parked_reply (mail-mbox))
-			(def this :jobs parked :kind :gpu :ready :t :out :nil :parked :nil :gpu_ready :t)
-			:t)))
+(defun gpu-standby ()
+	;the frames are to be the CPU's, but its farm is not yet made, nor its
+	;children ready, which can take seconds: the GPU's farm, that draws, is
+	;set aside as (gpu-park) has it, and goes on drawing them till they are,
+	;(standby-end). A frame it has out is still its own
+	(defq out (get :out this))
+	(gpu-park)
+	(def this :standby :t :standby_out out))
+
+(defun unpark ()
+	;the GPU's farm that was set aside is the farm again, on its mailboxes,
+	;the CPU's let go of, not it, (farm-end) would end both
+	(defq mboxes (get :mboxes this))
+	(jobs-end (get :jobs this) mboxes +rt_mbox_task +rt_mbox_reply)
+	(elem-set mboxes +rt_mbox_task (elem-get mboxes +rt_mbox_parked_task))
+	(elem-set mboxes +rt_mbox_reply (elem-get mboxes +rt_mbox_parked_reply))
+	(elem-set mboxes +rt_mbox_parked_task (mail-mbox))
+	(elem-set mboxes +rt_mbox_parked_reply (mail-mbox))
+	(def this :jobs (get :parked this) :kind :gpu :ready :t :parked :nil :standby :nil :gpu_ready :t
+		:out (get :standby_out this) :standby_out :nil))
+
+(defun standby-end ()
+	;the CPU's children are ready: the GPU that stood in for them is let go
+	;of, and a frame it had out is not waited for
+	(when (get :standby this)
+		(defq mboxes (get :mboxes this))
+		(jobs-end (get :parked this) mboxes +rt_mbox_parked_task +rt_mbox_parked_reply)
+		(def this :parked :nil :standby :nil :standby_out :nil)))
 
 (defun frame-forget ()
 	;a frame that is out is not waited for, and the farm is kept: what its
@@ -115,7 +119,7 @@
 		((and (eql (get :kind this) :cpu) (not (get :ready this))) (farm-end))
 		(:t (elem-set mboxes +rt_mbox_reply (mail-mbox))
 			(. jobs :reply_to (elem-get mboxes +rt_mbox_reply))))
-	(def this :out :nil))
+	(def this :out :nil :standby_out :nil))
 
 (defun back ()
 	; (back) -> canvas
@@ -142,6 +146,31 @@
 		:how (cond ((= how +strip_texture) :gpu) ((eql (get :kind this) :gpu) :gpu_copy) (:t :farm)))
 	(if (eql (get :kind this) :gpu) (def this :gpu_ready :t))
 	:t)
+
+(defun parked-mail (idx msg drawn none)
+	; (parked-mail idx msg drawn none) -> :nil | :t
+	;mail of the GPU's farm that was set aside, drawn the offset of the uint
+	;of its answer that says how, and none the word that it has no GPU. When its
+	;frame is answered the GPU is ready: the CPU's farm is let go of, the
+	;GPU's is the farm again, and the next frame is its. :t then, the app
+	;may give it. A GPU that has none after all leaves the frames the CPU's
+	(defq parked (get :parked this) mboxes (get :mboxes this))
+	(cond
+		((not parked) :nil)
+		((= idx +rt_mbox_parked_task) (. parked :launched msg) :nil)
+		((not (. parked :answered msg)) :nil)
+		((= (get-uint msg drawn) none)
+			(jobs-end parked mboxes +rt_mbox_parked_task +rt_mbox_parked_reply)
+			(def this :parked :nil :standby :nil :standby_out :nil :no_gpu :t :mode :cpu)
+			:nil)
+		;a frame of the GPU that stands in for the CPU's farm: shown as a
+		;frame of the GPU is, and the CPU's still to come. Its frame is
+		;:standby_out, not :out, which is the CPU's farm's
+		((get :standby this)
+			(whole (get-uint msg drawn))
+			(def this :standby_out :nil :how :gpu)
+			:t)
+		(:t (unpark) (def this :out :nil) :t)))
 
 (defun strips (draws rows)
 	;a job for each child of the CPU's farm, a strip of the frame, or with
@@ -178,6 +207,9 @@
 		;long its first frame is waited for first, the GPU's farm so set
 		;aside, and has the GPU drawn a frame yet
 		:parks :nil :gpu_warm +gpu_warm :parked :nil :gpu_ready :nil
+		;a kind whose GPU stands in for the CPU's farm till its children are
+		;ready, (gpu-standby), and does it now
+		:standbys :nil :standby :nil :standby_out :nil
 		:began 0 :took 0 :last 0 :how :here :ticks 0)
 
 	(defmethod :read (select before)
@@ -205,7 +237,15 @@
 		;to be from the next. The GPU is not to be had on a node with none,
 		;or once its child has said it can not
 		(when (and mode (nql mode (get :mode this)) (or (nql mode :gpu) (not (get :no_gpu this))))
-			(farm-end)
+			(cond
+				;to the CPU from a GPU that draws, for a kind that may: the GPU
+				;goes on drawing till the CPU's farm is ready, no frames drawn
+				;here meanwhile, slow, (gpu-standby)
+				((and (eql mode :cpu) (get :standbys this) (eql (get :kind this) :gpu) (get :gpu_ready this))
+					(gpu-standby))
+				;back to the GPU while it stands in: it is the farm again
+				((and (eql mode :gpu) (get :standby this)) (unpark))
+				((farm-end)))
 			(def this :mode mode))
 		(get :mode this))
 
@@ -221,8 +261,9 @@
 
 	(defmethod :busy ()
 		; (. render :busy) -> :nil | :t
-		;a frame is out with a farm, the next is not to be given yet
-		(get :out this))
+		;a frame is out with a farm, or with the GPU that stands in for the
+		;CPU's, the next is not to be given yet
+		(or (get :out this) (get :standby_out this)))
 
 	(defmethod :drop ()
 		; (. render :drop) -> render
@@ -292,24 +333,44 @@
 	;away is left out, :front those that face us. For the nodes to draw,
 	;and for the GPU on a node with no GUI, the canvas is one whose pixels
 	;are shared, (canvas-shared). It starts on the GPU if this node has
-	;one
+	;one. A draw may name a pair of shader files of its own, for a scene
+	;whose things are not all drawn alike, the sky and the land, (:frame)
 	(defq vertex (shader-load vfile))
 	(def this :canvas canvas :vfile vfile :pfile pfile :cull cull
 		:vertex vertex :pixel (shader-load pfile) :pipeline :nil
 		;how many numbers a vertex is, of the attrs of the vertex shader
 		:stride (reduce (# (+ %0 (shader-size (second %1)))) (shader-attrs vertex) 0)
+		;the pairs of the draws that have their own, by their two files
+		:pairs (Fmap 7)
 		;the frame that is out, and the meshes, by their numbers
 		:draws :nil :meshes (Fmap 31) :mesh_fn :nil :here_fn :nil
-		;the CPU has the frames while the GPU gets its pair ready
-		:parks :t)
+		;the CPU has the frames while the GPU gets its pair ready, and the GPU
+		;while the CPU's children get ready
+		:parks :t :standbys :t)
 
-	(defmethod :mesh (id verts)
-		; (. render :mesh id verts) -> render
+	(defmethod :pair (files)
+		; (. render :pair files) -> (vertex pixel [pipeline])
+		;the shaders a draw is drawn with: the render's own if it names none,
+		;else those of its two files, (vfile pfile), read the once, and
+		;with them the pipeline it is drawn with here, made when first wanted
+		(cond
+			((not files) (list (get :vertex this) (get :pixel this)))
+			((. (get :pairs this) :find (defq key (sym (join files "\n")))))
+			(:t (. (get :pairs this) :insert key
+					(defq pair (list (shader-load (first files)) (shader-load (second files)) :nil)))
+				pair)))
+
+	(defmethod :mesh (id verts &optional vfile)
+		; (. render :mesh id verts [vfile]) -> render
 		;a mesh frames are drawn of, by a number of the app's, never given
 		;to another while this render lasts: verts a doubles, the numbers
-		;of a vertex one after another as the vertex shader has its attrs
+		;of a vertex one after another as the vertex shader has its attrs,
+		;the render's, or that of vfile for a mesh drawn with a pair of its
+		;own
+		(defq stride (if vfile (reduce (# (+ %0 (shader-size (second %1)))) (shader-attrs (shader-load vfile)) 0)
+				(get :stride this)))
 		(. (get :meshes this) :insert id (list verts
-				(reduce! (# (push %0 (!))) '() (nums) 0 (/ (length verts) (get :stride this))) :nil))
+				(reduce! (# (push %0 (!))) '() (nums) 0 (/ (length verts) stride)) :nil))
 		this)
 
 	(defmethod :forget ()
@@ -324,20 +385,24 @@
 		; (. render :here draws) -> :t
 		;a frame by native code in this task, a thing after another into the
 		;one depth buffer, and shown
-		(defq canvas (get :canvas this) pixmap (getf canvas +canvas_pixmap 0)
-			vertex (get :vertex this) pixel (get :pixel this))
+		(defq canvas (get :canvas this) pixmap (getf canvas +canvas_pixmap 0))
 		(cond
 			((defq fn (get :here_fn this)) (fn canvas draws))
 			(:t (defq depth (shader-vp-depth (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0)))
 				(unless (get :pipeline this)
-					(def this :pipeline (shader-vp-pipeline vertex pixel)))
+					(def this :pipeline (shader-vp-pipeline (get :vertex this) (get :pixel this))))
 				(. canvas :fill (get :clear this))
-				(each (lambda ((id vvals pvals &optional pictures))
-						(and (list? vvals) (defq m (mesh-of id))
-							(shader-vp-draw-tris (get :pipeline this) (first m) (second m) pixmap depth vvals
+				(each (lambda ((id vvals pvals &optional pictures files))
+						(when (and (list? vvals) (defq m (mesh-of id)))
+							;the pipeline of the draw's pair, the render's own if it
+							;names none, each made the once
+							(defq pair (. this :pair files) pipeline (if files (third pair) (get :pipeline this)))
+							(unless pipeline
+								(elem-set pair 2 (setq pipeline (shader-vp-pipeline (first pair) (second pair)))))
+							(shader-vp-draw-tris pipeline (first m) (second m) pixmap depth vvals
 								;each picture under the name the pixel shader has it by
 								(cat pvals (map (lambda ((name) picture) (list name (getf picture +canvas_pixmap 0)))
-										(shader-textures pixel) (ifn pictures '())))
+										(shader-textures (second pair)) (ifn pictures '())))
 								(get :cull this))))
 					draws)))
 		(. canvas :swap +swap_write)
@@ -346,16 +411,17 @@
 
 	(defmethod :frame (draws)
 		; (. render :frame draws) -> :nil | :t
-		;a frame, a list of (id vvals pvals [pictures]): the number of a
-		;mesh, the inputs of the vertex shader and of the pixel shader for
-		;it, each a list of (name value), and the pictures the pixel shader
-		;reads from, canvases, in the order it has them. Or each as
-		;(shader-strip) takes it, (id vblock pblock [y y1 pictures]), the
-		;blocks made, by an app with a :here_fn. :t if it is whole and
+		;a frame, a list of (id vvals pvals [pictures files]): the number of
+		;a mesh, the inputs of the vertex shader and of the pixel shader for
+		;it, each a list of (name value), the pictures the pixel shader
+		;reads from, canvases, in the order it has them, and the two files
+		;of a pair of its own, (vfile pfile), if it is not drawn with the
+		;render's. Or each as (shader-strip) takes it, (id vblock pblock [y
+		;y1 pictures files]), the blocks made, by an app with a :here_fn. :t if it is whole and
 		;shown, it was drawn here. :nil if it is out with a farm, and
 		;(:busy) says when it no longer is; no more is given till then
 		(defq canvas (get :canvas this) pixmap (getf canvas +canvas_pixmap 0)
-			vertex (get :vertex this) pixel (get :pixel this) key (canvas-key canvas)
+			key (canvas-key canvas)
 			gpu (and (eql (get :mode this) :gpu) (not (get :no_gpu this)) (not (get :parked this)))
 			;can the nodes draw it: the pixels and every picture shared,
 			;and a node besides this one
@@ -367,12 +433,15 @@
 		(and (get :jobs this) (nql (get :kind this) (cond (gpu :gpu) (farm :cpu))) (farm-end))
 		(defq packed (if (or gpu farm)
 				(map (lambda (draw)
-						(bind '(id vvals pvals &optional pictures &rest _) draw)
-						;one whose blocks are made is as a strip takes it
+						(bind '(id vvals pvals &optional pictures files &rest _) draw)
+						;one whose blocks are made is as a strip takes it, the rest
+						;packed by the shaders of their pair
 						(if (str? vvals) draw
-							(list id (shader-pack vertex vvals) (shader-pack pixel pvals)
-								0 (getf pixmap +pixmap_height 0)
-								(map (# (ifn (shader-strip-texture %0) "")) (ifn pictures '()))))) draws)))
+							(bind '(v p &ignore) (. this :pair files))
+							(cat (list id (shader-pack v vvals) (shader-pack p pvals)
+									0 (getf pixmap +pixmap_height 0)
+									(map (# (ifn (shader-strip-texture %0) "")) (ifn pictures '())))
+								(if files (list files) '())))) draws)))
 		(cond
 			(gpu ;the one job, all of the frame, to a child on this node
 				(unless (get :jobs this)
@@ -400,6 +469,14 @@
 						(. canvas :fill (get :clear this))
 						(strips packed :t)
 						(def this :out :t)
+						:nil)
+					;the GPU stands in till they are, (gpu-standby)
+					((get :standby this)
+						(. (get :parked this) :add (list (shader-strip (get :vfile this) (get :pfile this)
+								(elem-get (get :mboxes this) +rt_mbox_ask) key
+								(getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0) 0 (getf pixmap +pixmap_height 0)
+								(get :cull this) packed (canvas-target (back)))))
+						(def this :standby_out :t)
 						:nil)
 					((. this :here draws))))
 			((. this :here draws))))
@@ -442,8 +519,9 @@
 						(and was_out (. this :here draws)))
 					((/= out 0) :nil)
 					(was_out (whole how))
-					;the children of the CPU's farm are ready
-					(:t (def this :ready :t) :nil))))))
+					;the children of the CPU's farm are ready, and a GPU that stood
+					;in for them is let go of
+					(:t (def this :ready :t) (standby-end) :nil))))))
 
 (defclass Render-shade (canvas file &optional lines) (Render canvas)
 	; (Render-shade canvas file [lines]) -> render
