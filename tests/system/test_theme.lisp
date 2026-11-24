@@ -123,7 +123,7 @@
 ;With nothing above it to find one, a Text says so, it does not take up no room
 (defq th_alone (Text))
 (def th_alone :text "words")
-(assert-error "a Text with no font and nothing above it is a fault" (. th_alone :pref_size))
+(assert-error "a Text with no font and nothing above it is a fault" (. th_alone :pref_size) {(font-glyph-bounds font str) wrong_types})
 (defq th_quiet (Text))
 (assert-list-eq "and one with no text has nothing to measure" '(0 0) (. th_quiet :pref_size))
 ;a default erased, it finds what is above it

@@ -22,7 +22,7 @@
 (assert-eq "one far bigger than was made is not opened" :nil (buf (* 4096 1024) key))
 (assert-eq "no size is none" :nil (buf 0))
 (assert-eq "less than none is none" :nil (buf -1))
-(assert-error "a size that is not a number" (buf "4096"))
+(assert-error "a size that is not a number" (buf "4096") {(buf size [key]) wrong_types})
 
 ;its bytes, written and read as (obj-set) and (obj-get) do an object's
 ;fields, but from the start of the block
@@ -49,21 +49,21 @@
 (assert-eq "a nums in whole" bn (push (nums) (buf-get b 232 (* 3 +long_size))))
 (assert-eq "an element of it" -8 (buf-get b 240 +type_long))
 (assert-eq "part of a vector" 1000 (n2i (buf-get (buf-set b 256 +long_size (doubles (n2d 1000))) 256 +type_double)))
-(assert-error "a vector with fewer bytes than asked" (buf-set b 200 (* 4 +long_size) bv))
-(assert-error "a str with fewer bytes than asked" (buf-set b 100 20 "hello"))
-(assert-error "not a list, its elements are objects" (buf-set b 0 8 (list 1)))
-(assert-error "not a map" (buf-set b 0 8 (pmap :a 1)))
+(assert-error "a vector with fewer bytes than asked" (buf-set b 200 (* 4 +long_size) bv) {(buf-set buf offset type val) wrong_types})
+(assert-error "a str with fewer bytes than asked" (buf-set b 100 20 "hello") {(buf-set buf offset type val) wrong_types})
+(assert-error "not a list, its elements are objects" (buf-set b 0 8 (list 1)) {(buf-set buf offset type val) wrong_types})
+(assert-error "not a map" (buf-set b 0 8 (pmap :a 1)) {(buf-set buf offset type val) wrong_types})
 
-(assert-error "past the end" (buf-get b 4089 +type_long))
-(assert-error "bytes past the end" (buf-get b 4090 8))
-(assert-error "not at its alignment" (buf-get b 4 +type_long))
-(assert-error "before the start" (buf-get b -8 +type_long))
-(assert-error "no object references" (buf-get b 0 0))
-(assert-error "no object references set" (buf-set b 0 0 b))
+(assert-error "past the end" (buf-get b 4089 +type_long) {(buf-get buf offset type) not_valid_index})
+(assert-error "bytes past the end" (buf-get b 4090 8) {(buf-get buf offset type) not_valid_index})
+(assert-error "not at its alignment" (buf-get b 4 +type_long) {(buf-get buf offset type) not_valid_index})
+(assert-error "before the start" (buf-get b -8 +type_long) {(buf-get buf offset type) not_valid_index})
+(assert-error "no object references" (buf-get b 0 0) {(buf-get buf offset type) wrong_types})
+(assert-error "no object references set" (buf-set b 0 0 b) {(buf-set buf offset type val) wrong_types})
 ;the type past the last, +type_float
-(assert-error "not a type" (buf-get b 0 (dec +type_float)))
+(assert-error "not a type" (buf-get b 0 (dec +type_float)) {(buf-get buf offset type) wrong_types})
 (assert-eq "a float" (n2f -2.5) (buf-get (buf-set b 8 +type_float (n2f -2.5)) 8 +type_float))
-(assert-error "not a buf" (buf-get "abcdefgh" 0 +type_long))
+(assert-error "not a buf" (buf-get "abcdefgh" 0 +type_long) {(buf-get buf offset type) wrong_types})
 
 ;opened on another node of this machine, if there is one, a process of its
 ;own, where it is mapped at an address of its own

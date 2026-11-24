@@ -84,7 +84,7 @@
 (assert-eq "and when an error goes up past it" 0 (length (mail-enquire "MailEdgeThrow")))
 
 ;a message is a string, not a list
-(assert-error "send a list" (mail-send me_a (list 1 2)))
+(assert-error "send a list" (mail-send me_a (list 1 2)) {(mail-send mbox str) wrong_types})
 
 ;one said as a name on this node whose task is still there, (mail-here)
 (defq me_said (mail-declare (task-mbox) "ZzHere" "a test"))

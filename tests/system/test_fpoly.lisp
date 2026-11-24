@@ -169,12 +169,11 @@
 ;canvas of a size less than 0, each of which took the node down: the
 ;methods check nothing, as docs/ai_digest/exceptions.md has it
 (defq fp_c (Canvas 20 20 1))
-(assert-true "a fill of a path of an odd number of numbers is refused"
-	(catch (progn (. fp_c :fpoly 0.0 0.0 +winding_odd_even (list (path 5.0 5.0 15.0 5.0 15.0 15.0 99.0))) :nil) :t))
-(assert-true "of one among others" (catch (progn (. fp_c :fpoly 0.0 0.0 +winding_odd_even
-	(list (path 5.0 5.0 15.0 5.0 15.0 15.0) (path 1.0))) :nil) :t))
+(assert-error "a fill of a path of an odd number of numbers is refused" (. fp_c :fpoly 0.0 0.0 +winding_odd_even (list (path 5.0 5.0 15.0 5.0 15.0 15.0 99.0))) {(canvas-fpoly canvas x y mode list) wrong_types})
+(assert-error "of one among others" (. fp_c :fpoly 0.0 0.0 +winding_odd_even
+	(list (path 5.0 5.0 15.0 5.0 15.0 15.0) (path 1.0))) {(canvas-fpoly canvas x y mode list) wrong_types})
 (assert-true "a fill of whole points still fills" (. fp_c :fpoly 0.0 0.0 +winding_odd_even (list (path 5.0 5.0 15.0 5.0 15.0 15.0) (path))))
-(assert-true "a canvas of a width less than 0 is refused" (catch (progn (Canvas -50 10 1) :nil) :t))
-(assert-true "of a height less than 0" (catch (progn (Canvas 10 -100 1) :nil) :t))
-(assert-true "of a scale less than 1" (catch (progn (Canvas 10 10 0) :nil) :t))
+(assert-error "a canvas of a width less than 0 is refused" (Canvas -50 10 1) {(create-canvas width height scale) wrong_types})
+(assert-error "of a height less than 0" (Canvas 10 -100 1) {(create-canvas width height scale) wrong_types})
+(assert-error "of a scale less than 1" (Canvas 10 10 0) {(create-canvas width height scale) wrong_types})
 (assert-true "but of no size it is made" (Canvas 0 0 1))

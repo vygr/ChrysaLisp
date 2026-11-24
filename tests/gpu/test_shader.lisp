@@ -77,39 +77,39 @@
 	(sh-local-type (sh-main "(defq a (vec3 1 frag))" "(return (vec4 a 1.0))")) :vec3)
 
 ;what the checker must refuse
-(assert-error "unknown name" (sh-main "(return (vec4 nope))"))
-(assert-error "unknown function" (sh-main "(return (nope 1.0))"))
-(assert-error "unknown statement" (sh-main "(print 1.0)" "(return (vec4 1.0))"))
-(assert-error "int with float" (sh-main "(return (vec4 (+ 1 2.0)))"))
-(assert-error "vec2 with vec3" (sh-main "(return (vec4 (+ (vec2 1.0) (vec3 1.0)) 1.0))"))
-(assert-error "test is not a bool" (sh-main "(if 1.0 (return (vec4 1.0)))" "(return (vec4 0.0))"))
-(assert-error "wrong return type" (sh-main "(return 1.0)"))
-(assert-error "no return" (sh-main "(defq a 1.0)"))
-(assert-error "no return on one path" (sh-main "(if (> (:x frag) 1.0) (return (vec4 1.0)))"))
-(assert-error "local hides a parameter" (sh-main "(defq frag 1.0)" "(return (vec4 1.0))"))
-(assert-error "local hides a local" (sh-main "(defq a 1.0)" "(when (> a 0.0) (defq a 2.0))" "(return (vec4 a))"))
-(assert-error "local out of scope" (sh-main "(when (> (:x frag) 0.0) (defq a 2.0))" "(return (vec4 a))"))
-(assert-error "local is a reserved word" (sh-main "(defq sin 1.0)" "(return (vec4 1.0))"))
-(assert-error "setq changes the type" (sh-main "(defq a 1.0)" "(setq a 1)" "(return (vec4 a))"))
-(assert-error "setq of a loop counter" (sh-main "(for (i 0 4) (setq i 2))" "(return (vec4 1.0))"))
-(assert-error "setq of a const" (sh-src "(defconst c 1.0)" "(defun main :vec4 ((frag :vec2)) (setq c 2.0) (return (vec4 c)))"))
-(assert-error "setq of an input" (sh-src "(definput k :float)" "(defun main :vec4 ((frag :vec2)) (setq k 2.0) (return (vec4 k)))"))
-(assert-error "component out of range" (sh-main "(return (vec4 (:z frag)))"))
-(assert-error "component set twice" (sh-main "(defq a (vec2 1.0))" "(setq (:xx a) (vec2 1.0))" "(return (vec4 a a))"))
-(assert-error "break outside a loop" (sh-main "(break)" "(return (vec4 1.0))"))
-(assert-error "loop bound is not a constant" (sh-src "(definput n :int)" "(defun main :vec4 ((frag :vec2)) (for (i 0 n)) (return (vec4 1.0)))"))
-(assert-error "const from an input" (sh-src "(definput k :float)" "(defconst c (* k 2.0))" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
-(assert-error "wrong args to function" (sh-src "(defun f :float ((a :float)) (return a))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1))))"))
-(assert-error "recursion" (sh-src "(defun f :float ((a :float)) (return (f a)))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1.0))))"))
-(assert-error "a main that is neither kind" (sh-src "(defun main :float ((a :float)) (return a))"))
-(assert-error "wrong main" (sh-src "(defun main :vec3 ((frag :vec2)) (return (vec3 1.0)))"))
-(assert-error "vector input with a default" (sh-src "(definput v :vec2 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
-(assert-error "float input with an int default" (sh-src "(definput k :float 1)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))"))
-(assert-error "not a number" (sh-main {(return (vec4 "1.0e3"))}))
+(assert-error "unknown name" (sh-main "(return (vec4 nope))") {Shader, unknown name !})
+(assert-error "unknown function" (sh-main "(return (nope 1.0))") {Shader, unknown function !})
+(assert-error "unknown statement" (sh-main "(print 1.0)" "(return (vec4 1.0))") {Shader, unknown statement !})
+(assert-error "int with float" (sh-main "(return (vec4 (+ 1 2.0)))") {Shader, wrong types !})
+(assert-error "vec2 with vec3" (sh-main "(return (vec4 (+ (vec2 1.0) (vec3 1.0)) 1.0))") {Shader, wrong types !})
+(assert-error "test is not a bool" (sh-main "(if 1.0 (return (vec4 1.0)))" "(return (vec4 0.0))") {Shader, test is not a bool !})
+(assert-error "wrong return type" (sh-main "(return 1.0)") {Shader, wrong return type !})
+(assert-error "no return" (sh-main "(defq a 1.0)") {Shader, function does not return !})
+(assert-error "no return on one path" (sh-main "(if (> (:x frag) 1.0) (return (vec4 1.0)))") {Shader, function does not return !})
+(assert-error "local hides a parameter" (sh-main "(defq frag 1.0)" "(return (vec4 1.0))") {Shader, name is already in use !})
+(assert-error "local hides a local" (sh-main "(defq a 1.0)" "(when (> a 0.0) (defq a 2.0))" "(return (vec4 a))") {Shader, name is already in use !})
+(assert-error "local out of scope" (sh-main "(when (> (:x frag) 0.0) (defq a 2.0))" "(return (vec4 a))") {Shader, unknown name !})
+(assert-error "local is a reserved word" (sh-main "(defq sin 1.0)" "(return (vec4 1.0))") {Shader, name is a reserved word !})
+(assert-error "setq changes the type" (sh-main "(defq a 1.0)" "(setq a 1)" "(return (vec4 a))") {Shader, wrong types !})
+(assert-error "setq of a loop counter" (sh-main "(for (i 0 4) (setq i 2))" "(return (vec4 1.0))") {Shader, can only set a local, a parameter or a varying !})
+(assert-error "setq of a const" (sh-src "(defconst c 1.0)" "(defun main :vec4 ((frag :vec2)) (setq c 2.0) (return (vec4 c)))") {Shader, can only set a local, a parameter or a varying !})
+(assert-error "setq of an input" (sh-src "(definput k :float)" "(defun main :vec4 ((frag :vec2)) (setq k 2.0) (return (vec4 k)))") {Shader, can only set a local, a parameter or a varying !})
+(assert-error "component out of range" (sh-main "(return (vec4 (:z frag)))") {Shader, component out of range !})
+(assert-error "component set twice" (sh-main "(defq a (vec2 1.0))" "(setq (:xx a) (vec2 1.0))" "(return (vec4 a a))") {Shader, wrong types !})
+(assert-error "break outside a loop" (sh-main "(break)" "(return (vec4 1.0))") {Shader, break outside a loop !})
+(assert-error "loop bound is not a constant" (sh-src "(definput n :int)" "(defun main :vec4 ((frag :vec2)) (for (i 0 n)) (return (vec4 1.0)))") {Shader, loop bound is not a constant int !})
+(assert-error "const from an input" (sh-src "(definput k :float)" "(defconst c (* k 2.0))" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))") {Shader, not a constant !})
+(assert-error "wrong args to function" (sh-src "(defun f :float ((a :float)) (return a))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1))))") {Shader, wrong args to function !})
+(assert-error "recursion" (sh-src "(defun f :float ((a :float)) (return (f a)))" "(defun main :vec4 ((frag :vec2)) (return (vec4 (f 1.0))))") {Shader, unknown function !})
+(assert-error "a main that is neither kind" (sh-src "(defun main :float ((a :float)) (return a))") {Shader, no (defun main :vec4 ((frag :vec2)) ...), or (defun main :vec4 () ...) for a vertex shader !})
+(assert-error "wrong main" (sh-src "(defun main :vec3 ((frag :vec2)) (return (vec3 1.0)))") {Shader, no (defun main :vec4 ((frag :vec2)) ...), or (defun main :vec4 () ...) for a vertex shader !})
+(assert-error "vector input with a default" (sh-src "(definput v :vec2 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))") {Shader, a vector or matrix input has no default !})
+(assert-error "float input with an int default" (sh-src "(definput k :float 1)" "(defun main :vec4 ((frag :vec2)) (return (vec4 1.0)))") {Shader, wrong input value !})
+(assert-error "not a number" (sh-main {(return (vec4 "1.0e3"))}) {Shader, not a number !})
 ;the declarations were once input, const and global
-(assert-error "input is not a declaration" (sh-src "(input k :float)" "(defun main :vec4 ((frag :vec2)) (return (vec4 k)))"))
-(assert-error "const is not a declaration" (sh-src "(const c 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))"))
-(assert-error "global is not a declaration" (sh-src "(global g 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 g)))"))
+(assert-error "input is not a declaration" (sh-src "(input k :float)" "(defun main :vec4 ((frag :vec2)) (return (vec4 k)))") {Shader, unknown declaration !})
+(assert-error "const is not a declaration" (sh-src "(const c 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 c)))") {Shader, unknown declaration !})
+(assert-error "global is not a declaration" (sh-src "(global g 1.0)" "(defun main :vec4 ((frag :vec2)) (return (vec4 g)))") {Shader, unknown declaration !})
 
 ;a cond is the ifs it is, as the value of a function and as a statement
 (assert-list-eq "a cond as the value is its ifs"
@@ -118,10 +118,10 @@
 (assert-list-eq "a cond as a statement, no :t, is its ifs"
 	(last (sh-main "(defq a 0.0)" "(if (> (:x frag) 1.0) (setq a 1.0) (if (> (:x frag) 0.5) (progn (setq a 0.5) (setq a (* a 2.0)))))" "(vec4 a)"))
 	(last (sh-main "(defq a 0.0)" "(cond ((> (:x frag) 1.0) (setq a 1.0)) ((> (:x frag) 0.5) (setq a 0.5) (setq a (* a 2.0))))" "(vec4 a)")))
-(assert-error "a cond with no clauses" (sh-main "(cond)" "(return (vec4 1.0))"))
-(assert-error "a cond clause with no forms" (sh-main "(cond ((> (:x frag) 1.0)))" "(return (vec4 1.0))"))
-(assert-error "a :t clause before the last" (sh-main "(cond (:t (vec4 1.0)) ((> (:x frag) 1.0) (vec4 0.5)))"))
-(assert-error "a cond not returning on every path" (sh-main "(cond ((> (:x frag) 1.0) (vec4 1.0)))"))
+(assert-error "a cond with no clauses" (sh-main "(cond)" "(return (vec4 1.0))") {Shader, a cond with no clauses !})
+(assert-error "a cond clause with no forms" (sh-main "(cond ((> (:x frag) 1.0)))" "(return (vec4 1.0))") {Shader, a cond clause is (test form ...) !})
+(assert-error "a :t clause before the last" (sh-main "(cond (:t (vec4 1.0)) ((> (:x frag) 1.0) (vec4 0.5)))") {Shader, the :t clause of a cond is its last !})
+(assert-error "a cond not returning on every path" (sh-main "(cond ((> (:x frag) 1.0) (vec4 1.0)))") {Shader, function does not return !})
 
 ;the last form of a function is its value
 (assert-list-eq "last form is the value"
@@ -139,11 +139,11 @@
 (assert-list-eq "a return can still be said"
 	(last (sh-main "(if (> (:x frag) 1.0) (return (vec4 1.0)))" "(return (vec4 0.0))"))
 	(last (sh-main "(if (> (:x frag) 1.0) (return (vec4 1.0)))" "(vec4 0.0)")))
-(assert-error "value of the wrong type" (sh-main "1.0"))
-(assert-error "a value that is not last" (sh-main "(vec4 1.0)" "(vec4 0.0)"))
-(assert-error "an if with one arm is no value" (sh-main "(if (> (:x frag) 1.0) (vec4 1.0))"))
-(assert-error "a when is no value" (sh-main "(when (> (:x frag) 1.0) (vec4 1.0))"))
-(assert-error "a loop is no value" (sh-main "(for (i 0 4) (vec4 1.0))"))
+(assert-error "value of the wrong type" (sh-main "1.0") {Shader, wrong return type !})
+(assert-error "a value that is not last" (sh-main "(vec4 1.0)" "(vec4 0.0)") {Shader, unknown statement !})
+(assert-error "an if with one arm is no value" (sh-main "(if (> (:x frag) 1.0) (vec4 1.0))") {Shader, function does not return !})
+(assert-error "a when is no value" (sh-main "(when (> (:x frag) 1.0) (vec4 1.0))") {Shader, unknown statement !})
+(assert-error "a loop is no value" (sh-main "(for (i 0 4) (vec4 1.0))") {Shader, unknown statement !})
 
 (report-header "GPU: shader language, what native code gives")
 
@@ -532,7 +532,7 @@
 (assert-eq "unpacked float" (n2d 0.75) (second (first vals)))
 (assert-list-eq "unpacked vector" (doubles (n2d 1.0) (n2d -2.5) (n2d 16777216)) (second (second vals)))
 (assert-pixel "block to the CPU back end" '(0.75 0.2 0.3 16777216.0) prog vals)
-(assert-error "wrong size of vector" (shader-pack prog '((d (1.0 2.0 3.0)))))
+(assert-error "wrong size of vector" (shader-pack prog '((d (1.0 2.0 3.0)))) {Shader, wrong size of vector input !})
 
 (report-header "GPU: shader language, VP back end")
 
@@ -568,7 +568,7 @@
 		"(defun main :vec4 ((frag :vec2))"
 		"(defq a (vec4 1.0 2.0 3.0 4.0))"
 		"(return (+ a (+ (f a) (+ (f (f a)) (+ a (f (+ a (f (f a))))))))))"))
-(assert-error "deep expression, VP back end" (shader-vp prog))
+(assert-error "deep expression, VP back end" (shader-vp prog) {Shader, expression needs too many registers !})
 (assert-pixel "sin and pow in the middle of a vector" '(1.8415 4.5403 11.0 0.0)
 	(sh-main "(defq a (vec4 1.0 2.0 3.0 4.0))"
 		"(return (vec4 (+ (:x a) (sin (:x a))) (+ (* (:y a) 2.0) (cos (:x a)))"
@@ -654,30 +654,30 @@
 	(sh-vert-type "(defq a (* m m m v))" "a") :vec4
 	(sh-vert-type "(defq a (* m (:xyz v)))" "v") :vec3
 	(sh-vert-type "(defq a (* m m (:xyz v)))" "v") :vec3)
-(assert-error "a vector times a matrix" (sh-vert-type "(defq a (* v m))" "v"))
-(assert-error "a matrix times a vec2" (sh-vert-type "(defq a (* m (:xy v)))" "v"))
-(assert-error "a matrix times a float" (sh-vert-type "(defq a (* m 2.0))" "v"))
-(assert-error "a matrix added" (sh-vert-type "(defq a (+ m m))" "v"))
-(assert-error "a matrix has no components" (sh-vert-type "(defq a (:x m))" "v"))
-(assert-error "a matrix input has no default" (sh-src "(definput m :mat4 1.0)" "(defun main :vec4 () (vec4 0.0))"))
+(assert-error "a vector times a matrix" (sh-vert-type "(defq a (* v m))" "v") {Shader, wrong types !})
+(assert-error "a matrix times a vec2" (sh-vert-type "(defq a (* m (:xy v)))" "v") {Shader, wrong types !})
+(assert-error "a matrix times a float" (sh-vert-type "(defq a (* m 2.0))" "v") {Shader, wrong types !})
+(assert-error "a matrix added" (sh-vert-type "(defq a (+ m m))" "v") {Shader, wrong types !})
+(assert-error "a matrix has no components" (sh-vert-type "(defq a (:x m))" "v") {Shader, components of a value that is not a vector !})
+(assert-error "a matrix input has no default" (sh-src "(definput m :mat4 1.0)" "(defun main :vec4 () (vec4 0.0))") {Shader, a vector or matrix input has no default !})
 
 ;what is not allowed
 (assert-error "an attr can not be set"
-	(sh-src "(defattr p :vec3)" "(defun main :vec4 () (setq p (vec3 0.0)) (vec4 p 1.0))"))
+	(sh-src "(defattr p :vec3)" "(defun main :vec4 () (setq p (vec3 0.0)) (vec4 p 1.0))") {Shader, can only set a local, a parameter or a varying !})
 (assert-error "an attr of a matrix"
-	(sh-src "(defattr p :mat4)" "(defun main :vec4 () (vec4 0.0))"))
+	(sh-src "(defattr p :mat4)" "(defun main :vec4 () (vec4 0.0))") {Shader, wrong type, a float or a vector !})
 (assert-error "a varying of an int"
-	(sh-src "(defvarying p :int)" "(defun main :vec4 () (vec4 0.0))"))
+	(sh-src "(defvarying p :int)" "(defun main :vec4 () (vec4 0.0))") {Shader, wrong type, a float or a vector !})
 (assert-error "a pixel shader with an attr"
-	(sh-src "(defattr p :vec3)" "(defun main :vec4 ((frag :vec2)) (vec4 p 1.0))"))
+	(sh-src "(defattr p :vec3)" "(defun main :vec4 ((frag :vec2)) (vec4 p 1.0))") {Shader, a pixel shader has no attrs !})
 (assert-error "a pixel shader that sets a varying"
-	(sh-src "(defvarying c :vec3)" "(defun main :vec4 ((frag :vec2)) (setq c (vec3 0.0)) (vec4 c 1.0))"))
+	(sh-src "(defvarying c :vec3)" "(defun main :vec4 ((frag :vec2)) (setq c (vec3 0.0)) (vec4 c 1.0))") {Shader, a pixel shader can not set a varying !})
 (assert-error "a varying set to the wrong type"
-	(sh-src "(defvarying c :vec3)" "(defun main :vec4 () (setq c 1.0) (vec4 0.0))"))
+	(sh-src "(defvarying c :vec3)" "(defun main :vec4 () (setq c 1.0) (vec4 0.0))") {Shader, wrong types !})
 (assert-error "a varying can not be a constant"
-	(sh-src "(defvarying c :float)" "(defconst k (* c 2.0))" "(defun main :vec4 () (vec4 0.0))"))
+	(sh-src "(defvarying c :float)" "(defconst k (* c 2.0))" "(defun main :vec4 () (vec4 0.0))") {Shader, not a constant !})
 (assert-error "main with the wrong parameters"
-	(sh-src "(defun main :vec4 ((a :float)) (vec4 a))"))
+	(sh-src "(defun main :vec4 ((a :float)) (vec4 a))") {Shader, no (defun main :vec4 ((frag :vec2)) ...), or (defun main :vec4 () ...) for a vertex shader !})
 
 ;the inputs block, a matrix is its 4 columns, on a 16 byte boundary, and
 ;is given a row at a time
@@ -690,7 +690,7 @@
 	(map (const sh-double-to-float) '(1 5 9 13 2 6 10 14 3 7 11 15 4 8 12 16))
 	(map! (# (get-uint blk (* (!) 4))) '() 0 16))
 (assert-list-eq "and comes back a row at a time" rows (second (first (shader-unpack vert blk))))
-(assert-error "wrong size of matrix" (shader-pack vert '((model (1.0 2.0 3.0)))))
+(assert-error "wrong size of matrix" (shader-pack vert '((model (1.0 2.0 3.0)))) {Shader, wrong size of vector input !})
 
 ;native code places vertices. A vertex goes in as its attrs one after
 ;another, and comes out as where it is, then its varyings. The matrices
@@ -738,11 +738,11 @@
 (assert-true "a pixel shader with no varyings goes with any vertex shader"
 	(shader-pair vert film))
 (assert-error "a varying the vertex shader has not got"
-	(shader-pair vert (sh-src "(defvarying glow :float)" "(defun main :vec4 ((frag :vec2)) (vec4 glow))")))
+	(shader-pair vert (sh-src "(defvarying glow :float)" "(defun main :vec4 ((frag :vec2)) (vec4 glow))")) {Shader, the vertex shader has no such varying !})
 (assert-error "a varying of another type"
-	(shader-pair vert (sh-src "(defvarying shade :vec2)" "(defun main :vec4 ((frag :vec2)) (vec4 shade shade))")))
-(assert-error "two pixel shaders are not a pair" (shader-pair pix pix))
-(assert-error "two vertex shaders are not a pair" (shader-pair vert vert))
+	(shader-pair vert (sh-src "(defvarying shade :vec2)" "(defun main :vec4 ((frag :vec2)) (vec4 shade shade))")) {Shader, the vertex shader has no such varying !})
+(assert-error "two pixel shaders are not a pair" (shader-pair pix pix) {Shader, not a vertex shader !})
+(assert-error "two vertex shaders are not a pair" (shader-pair vert vert) {Shader, not a pixel shader !})
 
 ;matrices kept in locals and globals, set, and multiplied together
 (defq vert2 (sh-src
@@ -806,9 +806,9 @@
 				(map! (const n2q) (list out3) (* (!) 7) (* (inc (!)) 7)))))
 	pts3)
 (assert-error "a function can not take a matrix"
-	(sh-src "(defun f :vec4 ((m :mat4)) (vec4 0.0))" "(defun main :vec4 () (vec4 0.0))"))
+	(sh-src "(defun f :vec4 ((m :mat4)) (vec4 0.0))" "(defun main :vec4 () (vec4 0.0))") {Shader, a function can not take a matrix !})
 (assert-error "a function can not give a matrix"
-	(sh-src "(definput m :mat4)" "(defun f :mat4 () m)" "(defun main :vec4 () (vec4 0.0))"))
+	(sh-src "(definput m :mat4)" "(defun f :mat4 () m)" "(defun main :vec4 () (vec4 0.0))") {Shader, a function can not give a matrix !})
 
 (report-header "GPU: shader language, triangles drawn by a pair of shaders")
 
@@ -975,7 +975,7 @@
 			(if (= (get-uint solid (* (!) 4)) 0) (/= p 0) (/= p 0xff4080bf))) '() :nil 0 400)))
 (assert-list-eq "the one vertex function for both pairs" (first (third pipe)) (first (third pipe2)))
 (assert-error "a pair that does not go together" (shader-vp-pipeline tvert
-		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
+		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")) {Shader, the vertex shader has no such varying !})
 
 ;the Metal text for a pair, a vertex function and a fragment function
 (bind '(mv mf) (shader-msl-pair vert pix))
@@ -994,7 +994,7 @@
 				"\treturn float4(c.xyz * c.w, c.w);"))))
 (assert-true "MSL pair, a matrix times a vec3" (found? mv "sh_mul3(model_, normal_)"))
 (assert-error "MSL pair, two that do not go together" (shader-msl-pair vert
-		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
+		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")) {Shader, the vertex shader has no such varying !})
 
 ;the GLSL text for a pair, a vertex shader and a fragment shader
 (bind '(gv gf) (shader-glsl-pair vert pix))
@@ -1015,8 +1015,8 @@
 (assert-true "GLSL pair, the fragment shader has no attribute" (not (found? gf "attribute")))
 (assert-true "GLSL pair, a varying the pixel shader does not read is not in it" (not (found? gf "unset")))
 (assert-error "GLSL pair, two that do not go together" (shader-glsl-pair vert
-		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
-(assert-error "GLSL pair, the wrong way round" (shader-glsl-pair pix vert))
+		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")) {Shader, the vertex shader has no such varying !})
+(assert-error "GLSL pair, the wrong way round" (shader-glsl-pair pix vert) {Shader, not a vertex shader !})
 ;the two of the Mesh demo, which a GLSL compiler has taken and linked
 (bind '(gv gf) (shader-glsl-pair (shader-load "lib/gpu/shaders/mesh_vertex.shader")
 		(shader-load "lib/gpu/shaders/mesh_lit.shader")))
@@ -1052,14 +1052,14 @@
 				("its blocks in set 3" 71 :nil 34 3)
 				("the size of the target at binding 1" 71 :nil 33 1)))))
 (assert-error "SPIR-V pair, two that do not go together" (shader-spirv-pair vert
-		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")))
+		(sh-src "(defvarying nope :float)" "(defun main :vec4 ((frag :vec2)) (vec4 nope))")) {Shader, the vertex shader has no such varying !})
 
 ;a vertex shader, or a pixel shader with varyings, is half of a pair
-(assert-error "GLSL, a vertex shader is half of a pair" (shader-glsl vert))
-(assert-error "MSL, a pixel shader with varyings is half of a pair" (shader-msl pix))
-(assert-error "SPIR-V, a vertex shader is half of a pair" (shader-spirv vert))
-(assert-error "VP, a pixel shader with varyings shades no tile" (shader-vp pix))
-(assert-error "VP, a vertex shader is not a pixel shader" (shader-vp vert))
+(assert-error "GLSL, a vertex shader is half of a pair" (shader-glsl vert) {Shader, the GLSL back end has no vertex stage, varyings or matrix yet !})
+(assert-error "MSL, a pixel shader with varyings is half of a pair" (shader-msl pix) {Shader, the MSL back end has no vertex stage, varyings or matrix yet !})
+(assert-error "SPIR-V, a vertex shader is half of a pair" (shader-spirv vert) {Shader, the SPIR-V back end has no vertex stage, varyings or matrix yet !})
+(assert-error "VP, a pixel shader with varyings shades no tile" (shader-vp pix) {Shader, the VP back end has no vertex stage, varyings or matrix yet !})
+(assert-error "VP, a vertex shader is not a pixel shader" (shader-vp vert) {Shader, the VP back end has no vertex stage, varyings or matrix yet !})
 
 (report-header "GPU: shader language, functions for Lisp to call")
 
@@ -1162,25 +1162,25 @@
 	(sh-near? (fn-nums (mat4x4-mul fn_a fn_a)) (fn-nums ((shader-vp-func fn_prog 'mul) fn_a fn_a))))
 
 ;what is refused, by the language
-(assert-error "no functions at all" (sh-src "(defconst a 1.0)"))
+(assert-error "no functions at all" (sh-src "(defconst a 1.0)") {Shader, no functions !})
 (assert-error "functions have args, not inputs"
-	(sh-src "(definput a :float 1.0)" "(defun f :float () a)"))
-(assert-error "functions have no attrs" (sh-src "(defattr p :vec3)" "(defun f :float () 1.0)"))
+	(sh-src "(definput a :float 1.0)" "(defun f :float () a)") {Shader, functions for Lisp have no inputs, attrs or varyings, they have args !})
+(assert-error "functions have no attrs" (sh-src "(defattr p :vec3)" "(defun f :float () 1.0)") {Shader, functions for Lisp have no inputs, attrs or varyings, they have args !})
 (assert-error "a function with a matrix is not called by another"
 	(sh-src "(defun f :vec4 ((m :mat4) (p :vec4)) (* m p))"
-		"(defun g :vec4 ((m :mat4) (p :vec4)) (f m p))"))
-(assert-error "no such function" (shader-vp-func fn_prog 'nope))
-(assert-error "a shader is not functions" (shader-vp-func (sh-main "(vec4 1.0)") 'main))
-(assert-error "functions are not a pixel shader" (shader-vp fn_prog))
-(assert-error "functions are not a vertex shader" (shader-vp-vertex fn_prog))
-(assert-error "GLSL, not yet" (shader-glsl fn_prog))
-(assert-error "MSL, not yet" (shader-msl fn_prog))
-(assert-error "SPIR-V, not yet" (shader-spirv fn_prog))
+		"(defun g :vec4 ((m :mat4) (p :vec4)) (f m p))") {Shader, a function with a matrix is for Lisp to call !})
+(assert-error "no such function" (shader-vp-func fn_prog 'nope) {Shader, no such function !})
+(assert-error "a shader is not functions" (shader-vp-func (sh-main "(vec4 1.0)") 'main) {Shader, not functions for Lisp, it has a main !})
+(assert-error "functions are not a pixel shader" (shader-vp fn_prog) {Shader, the VP back end has no functions for Lisp yet !})
+(assert-error "functions are not a vertex shader" (shader-vp-vertex fn_prog) {Shader, not a vertex shader !})
+(assert-error "GLSL, not yet" (shader-glsl fn_prog) {Shader, the GLSL back end has no functions for Lisp yet !})
+(assert-error "MSL, not yet" (shader-msl fn_prog) {Shader, the MSL back end has no functions for Lisp yet !})
+(assert-error "SPIR-V, not yet" (shader-spirv fn_prog) {Shader, the SPIR-V back end has no functions for Lisp yet !})
 ;and by the native code
-(assert-error "too few args" (fn_mul fn_a))
-(assert-error "a doubles of the wrong length" (fn_place fn_b fn_n))
-(assert-error "a number where a doubles should be" (fn_place fn_b (n2d 1)))
-(assert-error "a fixed where a double should be" ((shader-vp-func fn_prog 'bend) 0.5))
+(assert-error "too few args" (fn_mul fn_a) {(mul a b) wrong_types})
+(assert-error "a doubles of the wrong length" (fn_place fn_b fn_n) {(place m p) wrong_types})
+(assert-error "a number where a doubles should be" (fn_place fn_b (n2d 1)) {(place m p) wrong_types})
+(assert-error "a fixed where a double should be" ((shader-vp-func fn_prog 'bend) 0.5) {(bend x) wrong_types})
 
 (report-header "GPU: shader language, a file is known by a hash of it")
 
@@ -1282,10 +1282,10 @@
 (assert-true "a path with ./ is from the folder of the file" (shader-load si_dot))
 (save (cat (si-imp si_b) "(defun fa :float ((x :float)) x)") si_a)
 (save (cat (si-imp si_a) "(defun fb :float ((x :float)) x)") si_b)
-(assert-error "a loop of imports" (shader-load si_a))
+(assert-error "a loop of imports" (shader-load si_a) {Shader, a loop of imports !})
 (save "(definput level :float)" si_bad)
 (save (cat (si-imp si_bad) si_body) si_use_bad)
-(assert-error "an imported file has no inputs" (shader-load si_use_bad))
+(assert-error "an imported file has no inputs" (shader-load si_use_bad) {Shader, an imported file has only functions, consts and globals !})
 (save (cat si_twice sh_lf (si-imp si_lib2) si_body) si_late)
-(assert-error "an import comes first" (shader-load si_late))
+(assert-error "an import comes first" (shader-load si_late) {Shader, an import comes before any other declaration !})
 (each (const pii-remove) (list si_lib si_lib2 si_main si_dot si_a si_b si_bad si_late si_use_bad))

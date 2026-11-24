@@ -79,7 +79,7 @@
 			(ng-near ng_gl (nn-loss ng_out 3) (n2d 0.001)))
 		;the buffers are for a batch of capacity, 64 here
 		(assert-error "a batch bigger than the model was made for is refused"
-			(nn-gpu-forward ng_gpu (map! (# (% (!) ng_n)) '() 0 65) 0 ng_labels))
+			(nn-gpu-forward ng_gpu (map! (# (% (!) ng_n)) '() 0 65) 0 ng_labels) {A batch bigger than the GPU model was made for !})
 		(nn-gpu-free ng_gpu)))
 
 ;a model the kernels can sum, and one past what a loop of them goes to, a

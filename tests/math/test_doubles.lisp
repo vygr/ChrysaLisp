@@ -25,7 +25,7 @@
 (assert-eq "Double Pow root" (n2d 2.0) (pow (n2d 4.0) (n2d 0.5)))
 (assert-eq "Double Pow less than 0" (n2d 0.5) (pow (n2d 2.0) (n2d -1.0)))
 (assert-eq "Double Pow of 0" (n2d 0.0) (pow (n2d 0.0) (n2d 2.0)))
-(assert-error "Double Pow of another type" (pow (n2d 2.0) 3))
+(assert-error "Double Pow of another type" (pow (n2d 2.0) 3) {(pow num power) wrong_types})
 
 ; Exp and Log, each within a bit or so of the nearest double
 (defq e_near (lambda (a b) (<= (abs (- a b)) (* (abs b) (str-to-double "4e-16")))))
@@ -42,7 +42,7 @@
 (assert-true "Double Log subnormal" (e_near (log (str-to-double "5e-324")) (str-to-double "-744.4400719213812")))
 (assert-true "Double Log of Exp" (e_near (log (exp (n2d 5.5))) (n2d 5.5)))
 (assert-true "Double Log 0" (< (log (n2d 0.0)) (str-to-double "-1e308")))
-(assert-error "Double Exp of another type" (exp 3))
+(assert-error "Double Exp of another type" (exp 3) {(exp double) wrong_types})
 
 ;the compares are the CPU's, as IEEE has them: -0.0 is = 0.0, though eql
 ;is of the bits and tells them apart, and a NaN is not =, <, <=, > nor >=
@@ -95,7 +95,7 @@
 	("9007199254740993" 0x4340000000000000) ("1e23" 0x44B52D02C7E14AF6)
 	("3.141592653589793238462643383279" 0x400921FB54442D18) ("-0.5" 0xBFE0000000000000)
 	("1e400" 0x7FF0000000000000) ("1e-400" 0x0)))
-(assert-error "Fixed Exp, of a double only" (exp 1.0))
+(assert-error "Fixed Exp, of a double only" (exp 1.0) {(exp double) wrong_types})
 
 ; Trig (Scalar)
 (assert-eq "Double Sin 0" 0.0 (n2q (sin (n2d 0.0))))

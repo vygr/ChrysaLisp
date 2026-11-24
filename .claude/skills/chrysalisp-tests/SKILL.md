@@ -510,8 +510,20 @@ Assertions, each takes a short name first:
 *	`(assert-list-eq name expected form)` — the two print the same, so a
 	list matches a `nums` vector with the same elements.
 
-*	`(assert-error name form)` — the form must throw an error. This is how
-	the argument checks at the VP to Lisp boundary are tested.
+*	`(assert-error name form expected)` — the form must throw the error
+	expected, a part of its text: the words a `throw` gave, or a native's,
+	`{(elem-get seq idx) not_valid_index}`. Any other error is not caught:
+	the module stops with it and it is seen. This is how the argument
+	checks at the VP to Lisp boundary are tested. Chris, 2026-11-24: a
+	test that expects an error catches it, checks it is the right one and
+	goes on, else lets it go; an error expected never surfaces, and one
+	not expected never passes. So never `(assert-true name (catch (progn
+	form :nil) :t))` by hand, nor a helper that catches for several cases
+	in one `every` or `and`: one `assert-error` a case, each with its
+	error. What a module surfaces that it did not catch is a fault: the
+	whole suite surfaces no `Error:` line. A behaviour that tells of an
+	error, a window's `action-failed`, is given one of the test's own
+	(`redefun`, local to the module) that keeps what it is told.
 
 *	`(test-skip name why)` — count a test that can not run here.
 
@@ -637,8 +649,9 @@ tool inside another test is not a repeat.
 What the runner itself stands on needs no plain check, if it breaks no
 module runs. What the runner judges by does, with a negative case, as a
 broken one makes the run lie: `eql` for `assert-eq`, `str` for
-`assert-list-eq`, `catch` giving `:t` for `assert-error`, `str-as-num` for
-the counts.
+`assert-list-eq`, `catch` and `found?` for `assert-error`, with a case of
+another error let go on in `test_error_checks`, `str-as-num` for the
+counts.
 
 ## Writing Standalone Test Scripts
 

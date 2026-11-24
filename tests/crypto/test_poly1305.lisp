@@ -61,7 +61,7 @@
 	(not (eql (poly1305 pl_key pl_text) (poly1305 pl_key (cat (slice pl_text 0 199) "!")))))
 
 ;what is refused
-(assert-error "a key of the wrong size" (poly1305 "short" pl_text))
-(assert-error "a state of the wrong size" (poly1305-blocks "short" pl_text 0 1 1))
-(assert-error "more blocks than there are" (poly1305-blocks (str-alloc 120) pl_text 0 13 1))
-(assert-error "a top that is not 0 or 1" (poly1305-blocks (str-alloc 120) pl_text 0 1 2))
+(assert-error "a key of the wrong size" (poly1305 "short" pl_text) {Poly1305, the key is 32 bytes !})
+(assert-error "a state of the wrong size" (poly1305-blocks "short" pl_text 0 1 1) {(poly1305-blocks state data offset count top) wrong_types})
+(assert-error "more blocks than there are" (poly1305-blocks (str-alloc 120) pl_text 0 13 1) {(poly1305-blocks state data offset count top) wrong_types})
+(assert-error "a top that is not 0 or 1" (poly1305-blocks (str-alloc 120) pl_text 0 1 2) {(poly1305-blocks state data offset count top) wrong_types})

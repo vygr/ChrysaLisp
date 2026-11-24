@@ -160,7 +160,5 @@
 
 ;the paint's str holds a row as wide as the pixmap, or it is refused
 (ffi "gui/canvas/lisp_paint" pt-paint)
-(assert-true "a paint too short for the pixmap is refused"
-	(catch (progn (pt-paint (Canvas 64 4 1) 1 (str-alloc 100)) :nil) :t))
-(assert-true "and a paint that is not a str"
-	(catch (progn (pt-paint (Canvas 64 4 1) 1 '(1 2 3)) :nil) :t))
+(assert-error "a paint too short for the pixmap is refused" (pt-paint (Canvas 64 4 1) 1 (str-alloc 100)) {(canvas-paint canvas kind data) wrong_types})
+(assert-error "and a paint that is not a str" (pt-paint (Canvas 64 4 1) 1 '(1 2 3)) {(canvas-paint canvas kind data) wrong_types})

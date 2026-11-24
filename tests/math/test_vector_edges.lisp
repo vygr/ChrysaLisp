@@ -31,15 +31,15 @@
 
 
 ;an empty vector has no sum or dot, and can not be added
-(assert-error "nums-sum empty" (nums-sum (nums)))
-(assert-error "nums-sum empty fixeds" (nums-sum (fixeds)))
-(assert-error "nums-dot empty" (nums-dot (nums) (nums)))
-(assert-error "nums-add empty" (nums-add (nums) (nums)))
-(assert-error "nums-add-scaled empty" (nums-add-scaled (nums) (nums) 2))
-(assert-error "nums-add-scaled second short" (nums-add-scaled (nums 1 2) (nums 1) 2))
-(assert-error "nums-add-scaled output short" (nums-add-scaled (nums 1 2) (nums 1 2) 2 (nums 0)))
-(assert-error "nums-add-scaled output of another kind" (nums-add-scaled (nums 1 2) (nums 1 2) 2 (fixeds 0.0 0.0)))
-(assert-error "nums-scale output of another kind" (nums-scale (nums 1 2) 2 (fixeds 0.0 0.0)))
+(assert-error "nums-sum empty" (nums-sum (nums)) {(nums-sum nums) wrong_types})
+(assert-error "nums-sum empty fixeds" (nums-sum (fixeds)) {(nums-sum nums) wrong_types})
+(assert-error "nums-dot empty" (nums-dot (nums) (nums)) {(nums-dot nums nums) wrong_types})
+(assert-error "nums-add empty" (nums-add (nums) (nums)) {(nums-add nums nums [nums]) wrong_types})
+(assert-error "nums-add-scaled empty" (nums-add-scaled (nums) (nums) 2) {(nums-add-scaled nums nums scale [nums]) wrong_types})
+(assert-error "nums-add-scaled second short" (nums-add-scaled (nums 1 2) (nums 1) 2) {(nums-add-scaled nums nums scale [nums]) wrong_types})
+(assert-error "nums-add-scaled output short" (nums-add-scaled (nums 1 2) (nums 1 2) 2 (nums 0)) {(nums-add-scaled nums nums scale [nums]) wrong_types})
+(assert-error "nums-add-scaled output of another kind" (nums-add-scaled (nums 1 2) (nums 1 2) 2 (fixeds 0.0 0.0)) {(nums-add-scaled nums nums scale [nums]) wrong_types})
+(assert-error "nums-scale output of another kind" (nums-scale (nums 1 2) 2 (fixeds 0.0 0.0)) {(nums-scale nums scale [nums]) wrong_types})
 
 ; --- fixeds ---
 (test-cases
@@ -169,4 +169,4 @@
 	(ve-shown (nums-convert (elem-get ve_kinds 2) (floats))) '(-2.5 -1.0 0.0 0.75 3.0))
 (assert-eq "nums-convert into a longer, made the source's length" 2
 	(length (nums-convert (floats (n2f 1) (n2f 2)) (doubles (n2d 9) (n2d 9) (n2d 9)))))
-(assert-error "nums-convert of a list" (nums-convert (list 1) (nums)))
+(assert-error "nums-convert of a list" (nums-convert (list 1) (nums)) {(nums-convert src dst) wrong_types})

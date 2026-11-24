@@ -59,16 +59,12 @@
 ;what took a node down, 2026-11-23, now refused by the bindings: an arc of
 ;a radius less than 0 divided without end, and an odd number of numbers
 ;read or wrote past the path's end
-(assert-true "an arc of a radius less than 0 is refused"
-	(catch (progn (path-gen-arc 10.0 10.0 0.0 +fp_2pi -4.0 (path)) :nil) :t))
+(assert-error "an arc of a radius less than 0 is refused" (path-gen-arc 10.0 10.0 0.0 +fp_2pi -4.0 (path)) {(path-gen-arc cx cy start end radius dst) wrong_types})
 (assert-true "and of 0, a point, is made" (> (length (path-gen-arc 10.0 10.0 0.0 +fp_2pi 0.0 (path))) 0))
-(assert-true "a matrix over an odd path is refused"
-	(catch (progn (mat3x2-vec2-mul (mat3x2 1.0 0.0 10.0 0.0 1.0 20.0) (path 1.0 2.0 3.0) (path 1.0 2.0 3.0)) :nil) :t))
-(assert-true "and into a dst shorter than its src"
-	(catch (progn (mat3x2-vec2-mul (mat3x2 1.0 0.0 10.0 0.0 1.0 20.0) (path 1.0 2.0 3.0 4.0) (path 1.0 2.0)) :nil) :t))
-(assert-true "simplify of an odd path is refused"
-	(catch (progn (path-simplify 0.1 (path 0.0 0.0 1.0 3.0 2.0 0.0 3.0 3.0 4.0 0.0 9.0) (path)) :nil) :t))
-(assert-true "a filter of one" (catch (progn (path-filter 0.1 (path 0.0 0.0 1.0 3.0 2.0 0.0 9.0) (path)) :nil) :t))
+(assert-error "a matrix over an odd path is refused" (mat3x2-vec2-mul (mat3x2 1.0 0.0 10.0 0.0 1.0 20.0) (path 1.0 2.0 3.0) (path 1.0 2.0 3.0)) {(mat3x2-vec2-mul m3x2 src dst) wrong_types})
+(assert-error "and into a dst shorter than its src" (mat3x2-vec2-mul (mat3x2 1.0 0.0 10.0 0.0 1.0 20.0) (path 1.0 2.0 3.0 4.0) (path 1.0 2.0)) {(mat3x2-vec2-mul m3x2 src dst) wrong_types})
+(assert-error "simplify of an odd path is refused" (path-simplify 0.1 (path 0.0 0.0 1.0 3.0 2.0 0.0 3.0 3.0 4.0 0.0 9.0) (path)) {(path-simplify tol src dst) wrong_types})
+(assert-error "a filter of one" (path-filter 0.1 (path 0.0 0.0 1.0 3.0 2.0 0.0 9.0) (path)) {(path-filter tol src dst) wrong_types})
 
 ;an SVG path's d as SVG has it, 2026-11-23: its numbers of every form, an
 ;arc's flags of one character each, and drawn up to its first error

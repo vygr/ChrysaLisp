@@ -77,8 +77,8 @@
 (assert-eq "float tanh 20" (n2f 1) (tanh (n2f 20.0)))
 (assert-eq "float tanh -20" (n2f -1) (tanh (n2f -20.0)))
 
-(assert-error "float divide by zero" (/ tf_a (n2f 0)))
-(assert-error "float mod by zero" (% tf_a (n2f 0)))
+(assert-error "float divide by zero" (/ tf_a (n2f 0)) {(/ num num ...) wrong_types})
+(assert-error "float mod by zero" (% tf_a (n2f 0)) {(% num num ...) wrong_types})
 
 ;compares across the sign, where the order of the raw bits is not the
 ;order of the floats
@@ -144,17 +144,17 @@
 	(n2d (elem-get (fixeds-frac (tf-floats -1.5 2.25)) 0)) (n2d 0.5)
 	(nums-sum tf_v) (n2f 15)
 	(nums-dot tf_v tf_w) (n2f 550))
-(assert-error "floats divide by zero" (nums-div tf_v (tf-floats 1 0 1 1 1)))
+(assert-error "floats divide by zero" (nums-div tf_v (tf-floats 1 0 1 1 1)) {(nums-div nums nums [nums]) wrong_types})
 
 ;every vector of an op is of the one kind, a scaled one too: a floats'
 ;numbers are half the size of the others', so one among doubles would be
 ;read, or written, past its end. The floats written to has room for them
 (defq tf_d (doubles (n2d 1) (n2d 2) (n2d 3) (n2d 4) (n2d 5)) tf_room (cap 16 (cat tf_v)))
-(assert-error "doubles and floats added, scaled" (nums-add-scaled tf_d tf_v (n2d 1)))
-(assert-error "floats and doubles added, scaled" (nums-add-scaled tf_v tf_d (n2f 1)))
-(assert-error "doubles added, scaled, into floats" (nums-add-scaled tf_d tf_d (n2d 1) tf_room))
-(assert-error "doubles scaled into floats" (nums-scale tf_d (n2d 2) tf_room))
-(assert-error "floats scaled into doubles" (nums-scale tf_v (n2f 2) (cat tf_d)))
+(assert-error "doubles and floats added, scaled" (nums-add-scaled tf_d tf_v (n2d 1)) {(nums-add-scaled nums nums scale [nums]) wrong_types})
+(assert-error "floats and doubles added, scaled" (nums-add-scaled tf_v tf_d (n2f 1)) {(nums-add-scaled nums nums scale [nums]) wrong_types})
+(assert-error "doubles added, scaled, into floats" (nums-add-scaled tf_d tf_d (n2d 1) tf_room) {(nums-add-scaled nums nums scale [nums]) wrong_types})
+(assert-error "doubles scaled into floats" (nums-scale tf_d (n2d 2) tf_room) {(nums-scale nums scale [nums]) wrong_types})
+(assert-error "floats scaled into doubles" (nums-scale tf_v (n2f 2) (cat tf_d)) {(nums-scale nums scale [nums]) wrong_types})
 (assert-list-eq "and the floats are as they were" '(1 2 3 4 5) (tf-ints tf_room))
 
 ;into a buf whole, 4 bytes an element

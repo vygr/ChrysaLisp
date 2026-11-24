@@ -33,8 +33,8 @@
 (defq ed_alias (ed-copy *ed_x*))
 (ed-mul ed_alias ed_alias ed_alias)
 (assert-eq "a number times itself, into itself" (str (ed-mul-ref (ed-copy *ed_zero*) *ed_x* *ed_x*)) (str ed_alias))
-(assert-error "a nums too short" (ed-mul (nums 1 2 3) *ed_x* *ed_y*))
-(assert-error "not a nums" (ed-mul (list 1 2) *ed_x* *ed_y*))
+(assert-error "a nums too short" (ed-mul (nums 1 2 3) *ed_x* *ed_y*) {(gf25519-mul o a b) wrong_types})
+(assert-error "not a nums" (ed-mul (list 1 2) *ed_x* *ed_y*) {(gf25519-mul o a b) wrong_types})
 
 ;the test cases of RFC 8032, and two more, the answers from a Python of the
 ;RFC written for the job, which gives the RFC's own
@@ -89,7 +89,7 @@
 (assert-eq "a second half that is not the least way to write it" :nil
 	(ed25519-verify ed_pub ed_msg (cat (slice ed_sig 0 32) ed_more)))
 (assert-eq "signed again it is the same, there is no chance in it" ed_sig (ed25519-sign ed_seed ed_msg))
-(assert-error "a seed that is not 32 bytes" (ed25519-public "short"))
-(assert-error "nor to sign with" (ed25519-sign "short" ed_msg))
+(assert-error "a seed that is not 32 bytes" (ed25519-public "short") {ed25519-public, a seed of 32 bytes !})
+(assert-error "nor to sign with" (ed25519-sign "short" ed_msg) {ed25519-sign, a seed of 32 bytes and a message !})
 
 (undef (env) 'ed_rnd 'ed_same 'ed_alias 'ed_seed 'ed_msg 'ed_pub 'ed_sig 'ed_carry 'ed_more)

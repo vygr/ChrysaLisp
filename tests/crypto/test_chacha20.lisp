@@ -72,8 +72,8 @@
 (assert-true "another counter" (not (eql cc_one (chacha20 cc_key cc_nonce 1 cc_text))))
 
 ;what the native code refuses
-(assert-error "a key of the wrong size" (chacha20 "short" cc_nonce 0 cc_text))
-(assert-error "a nonce of the wrong size" (chacha20 cc_key "short" 0 cc_text))
-(assert-error "past the end of the data" (chacha20-xor cc_key cc_nonce 0 cc_text cc_out 200 101))
-(assert-error "past the end of where it goes" (chacha20-xor cc_key cc_nonce 0 cc_text (str-alloc 10) 0 11))
-(assert-error "an offset below 0" (chacha20-xor cc_key cc_nonce 0 cc_text cc_out -1 10))
+(assert-error "a key of the wrong size" (chacha20 "short" cc_nonce 0 cc_text) {(chacha20-xor key nonce counter data out offset length) wrong_types})
+(assert-error "a nonce of the wrong size" (chacha20 cc_key "short" 0 cc_text) {(chacha20-xor key nonce counter data out offset length) wrong_types})
+(assert-error "past the end of the data" (chacha20-xor cc_key cc_nonce 0 cc_text cc_out 200 101) {(chacha20-xor key nonce counter data out offset length) wrong_types})
+(assert-error "past the end of where it goes" (chacha20-xor cc_key cc_nonce 0 cc_text (str-alloc 10) 0 11) {(chacha20-xor key nonce counter data out offset length) wrong_types})
+(assert-error "an offset below 0" (chacha20-xor cc_key cc_nonce 0 cc_text cc_out -1 10) {(chacha20-xor key nonce counter data out offset length) wrong_types})

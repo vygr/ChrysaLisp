@@ -29,11 +29,17 @@
 	(if (bits? mode 2) (setq y (- y1 h)))
 	(list x y (+ x w) (+ y h)))
 
+(defun action-failed (err)
+	; (action-failed err)
+	;an action's error, told of: printed. An app or a test may have its own,
+	;it is looked up as it is called
+	(prin err) (print))
+
 (defun window-action (&rest action)
 	; (window-action func [arg ...]) -> val | :t
 	;an action of an app that says nothing of its own, (dispatch-action): an
-	;error is printed, and the app goes on
-	(catch (eval action) (progn (prin _) (print) :t)))
+	;error is told of by (action-failed), and the app goes on
+	(catch (eval action) (progn ((get 'action-failed) _) :t)))
 
 (defclass Window () (View)
 	; (Window) -> window

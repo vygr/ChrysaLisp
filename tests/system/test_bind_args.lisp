@@ -29,6 +29,6 @@
 (assert-true "there is VP to compare" (> (length ba_macro) 40))
 (assert-eq "& passes an argument over: the first and the third, as by hand" ba_hand ba_macro)
 (assert-error "&& is refused, a register not loaded is left out of the list"
-	(ba-vp "(list-bind-args :r1 '(:r3 :r0) '(&& :num))"))
+	(ba-vp "(list-bind-args :r1 '(:r3 :r0) '(&& :num))") {A register not loaded is left out of the list, there is no && !})
 (assert-error "and registers that are not as many as the arguments wanted"
-	(ba-vp "(list-bind-args :r1 '(:r0 :r2) '(:num & :num :num))"))
+	(ba-vp "(list-bind-args :r1 '(:r0 :r2) '(:num & :num :num))") {Mismatched bind specs !})

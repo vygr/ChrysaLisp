@@ -21,4 +21,4 @@
 (assert-list-eq "with :nil" '(:nil :nil) (fill (list) 2 :nil))
 
 ;not a map or a set, their elements are their own
-(assert-error "not a map" (fill (env 1) 2 1))
+(assert-error "not a map" (fill (env 1) 2 1) {(fill array length value) wrong_types})

@@ -64,7 +64,7 @@
 (assert-eq "bytes times a scale into floats" (apply (const floats) (map! (# (n2f (* (n2d (* (!) 17)) nn_k))) '() 0 15))
 	(slice nn_fout 0 15))
 (assert-eq "no further than there are bytes, floats" (n2f -1) (elem-get nn_fout 15))
-(assert-true "nothing else that comes of a doubles" (catch (progn (nn-scale-bytes nn_bytes nn_k (nums 1 2)) :nil) :t))
+(assert-error "nothing else that comes of a doubles" (nn-scale-bytes nn_bytes nn_k (nums 1 2)) {(nn-scale-bytes bytes scale out) wrong_types})
 
 ;a model of floats does the sums of one of doubles, to a float's precision
 (defq nn_fsmall (nn-model '((:input 5) (:dense 4 :tanh) (:dense 4 :sigmoid) (:dense 3 :relu) (:dense 3 :softmax)) :floats)
@@ -122,14 +122,16 @@
 		(eql (nn-gemm (doubles (n2d 9)) (doubles +double_1 +double_1 +double_1) (doubles) 1 0 3 0) (doubles (n2d 9)))))
 (assert-eq "and of no k, c is the bias" (doubles +double_2 +double_3)
 	(nn-gemm (doubles +double_0 +double_0) (doubles) (doubles) 2 1 0 0 (doubles +double_2 +double_3)))
-(defun nn-gemm-refused (&rest args) (catch (progn (apply (const nn-gemm) args) :nil) :t))
-(assert-true "a gemm of one kind, no less than its shape"
-	(every (const identity) (list
-		(nn-gemm-refused (doubles +double_0) (floats (n2f 1)) (doubles +double_1) 1 1 1 0)
-		(nn-gemm-refused (fill (doubles) 4 +double_0) (doubles +double_1) (doubles +double_1) 2 2 1 0)
-		(nn-gemm-refused (doubles +double_0) (doubles +double_1) (doubles +double_1) 1 1 1 0 (floats (n2f 1)))
-		(nn-gemm-refused (nums 0) (nums 1) (nums 1) 1 1 1 0)
-		(nn-gemm-refused (doubles +double_0) (doubles +double_1) (doubles +double_1) 1 1 -1 0))))
+(assert-error "a gemm of one kind: its b not of its out's"
+	(nn-gemm (doubles +double_0) (floats (n2f 1)) (doubles +double_1) 1 1 1 0) {(nn-gemm c a b m n k flags [bias]) wrong_types})
+(assert-error "no less than its shape: an out of 4 with a b of 1 for 2 by 2"
+	(nn-gemm (fill (doubles) 4 +double_0) (doubles +double_1) (doubles +double_1) 2 2 1 0) {(nn-gemm c a b m n k flags [bias]) wrong_types})
+(assert-error "its bias of its kind too"
+	(nn-gemm (doubles +double_0) (doubles +double_1) (doubles +double_1) 1 1 1 0 (floats (n2f 1))) {(nn-gemm c a b m n k flags [bias]) wrong_types})
+(assert-error "and that a doubles or a floats, not a nums"
+	(nn-gemm (nums 0) (nums 1) (nums 1) 1 1 1 0) {(nn-gemm c a b m n k flags [bias]) wrong_types})
+(assert-error "a size less than 0"
+	(nn-gemm (doubles +double_0) (doubles +double_1) (doubles +double_1) 1 1 -1 0) {(nn-gemm c a b m n k flags [bias]) wrong_types})
 
 ;patches of planes, native, as Lisp's, and back, and the averages of
 ;blocks and back, to the bit: of strides, pads, edges left over, of doubles
@@ -232,17 +234,16 @@
 	(map (# (elem-get %0 +nn_layer_outs)) (nn-layers nn_lenet)))
 (assert-list-eq "a conv layer, its shape" '(:conv 784 4704 :tanh "0" 0 150 (1 28 28 5 1 2 6 28 28))
 	(first (nn-layers nn_lenet)))
-(assert-true "a filter bigger than its planes refused"
-	(catch (progn (nn-model '((:input 1 4 4) (:conv 2 5))) :nil) :t))
+(assert-error "a filter bigger than its planes refused" (nn-model '((:input 1 4 4) (:conv 2 5))) {A filter bigger than its planes !})
 ;a description is held to what there is: an activation that is one, softmax
 ;the last layer's and no other's, a block no wider than its planes
-(assert-error "no such activation" (nn-model '((:input 4) (:dense 3 :rleu) (:dense 2 :softmax))))
-(assert-error "a name where the activation is" (nn-model '((:input 4) (:dense 3 "fc1") (:dense 2 :softmax))))
-(assert-error "softmax before the last layer" (nn-model '((:input 4) (:dense 3 :softmax) (:dense 2 :softmax))))
-(assert-error "a last layer that is not softmax" (nn-model '((:input 4) (:dense 3 :relu) (:dense 2))))
-(assert-error "a block wider than its planes" (nn-model '((:input 1 4 1) (:pool 2) (:dense 2 :softmax))))
-(assert-error "a stride of none" (nn-model '((:input 1 4 4) (:conv 2 3 :tanh :stride 0) (:dense 2 :softmax))))
-(assert-error "no layers" (nn-model '((:input 4))))
+(assert-error "no such activation" (nn-model '((:input 4) (:dense 3 :rleu) (:dense 2 :softmax))) {No such activation !})
+(assert-error "a name where the activation is" (nn-model '((:input 4) (:dense 3 "fc1") (:dense 2 :softmax))) {No such activation !})
+(assert-error "softmax before the last layer" (nn-model '((:input 4) (:dense 3 :softmax) (:dense 2 :softmax))) {Softmax is of the last layer, and only of it !})
+(assert-error "a last layer that is not softmax" (nn-model '((:input 4) (:dense 3 :relu) (:dense 2))) {Softmax is of the last layer, and only of it !})
+(assert-error "a block wider than its planes" (nn-model '((:input 1 4 1) (:pool 2) (:dense 2 :softmax))) {A block bigger than its planes !})
+(assert-error "a stride of none" (nn-model '((:input 1 4 4) (:conv 2 3 :tanh :stride 0) (:dense 2 :softmax))) {A filter of no size, stride or padding !})
+(assert-error "no layers" (nn-model '((:input 4))) {No layers !})
 
 ;the gradients of conv and pool layers against the slope of the loss:
 ;padding, a pool, a conv of what a pool gave, and a dense after; then a
@@ -308,8 +309,7 @@
 			'(:relu :sigmoid :tanh))
 		(assert-eq (cat "activations and slopes native, of " kind) '() bad))
 	'(:doubles :floats))
-(assert-true "an activation of one kind only"
-	(catch (progn (nn-act-slope 3 (doubles +double_1) (floats +float_1)) :nil) :t))
+(assert-error "an activation of one kind only" (nn-act-slope 3 (doubles +double_1) (floats +float_1)) {(nn-act-slope code a d) wrong_types})
 
 ;a net's gradients made 0 again, a pool layer's empty vectors passed by
 (defq nn_cg (nn-zeros nn_conv))

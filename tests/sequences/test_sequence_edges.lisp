@@ -140,8 +140,8 @@
 (clear -3 edge_long edge_short)
 (assert-list-eq "clear of the last 2, each by its own length" '(1 2) edge_long)
 (assert-list-eq "clear of the last 2 of one shorter" '() edge_short)
-(assert-error "clear of an index, and not an array" (clear 1 (list 1) 2))
-(assert-error "clear of an index alone" (clear 1))
+(assert-error "clear of an index, and not an array" (clear 1 (list 1) 2) {(clear [idx] array ...) wrong_types})
+(assert-error "clear of an index alone" (clear 1) {(clear [idx] array ...) wrong_types})
 
 (defq edge_list (list 1 2 3))
 (pop edge_list) (pop edge_list) (pop edge_list)

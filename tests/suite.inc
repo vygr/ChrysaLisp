@@ -31,6 +31,7 @@
 (import "lib/task/pipe.inc")
 (import "lib/task/cmd.inc")
 (import "lib/crypto/sha256.inc")
+(import "lib/text/searching.inc")
 
 (defq *test_passes* 0 *test_failures* 0 *test_skips* 0
 	*test_verbose* :nil *test_frames* :nil *test_module* ""
@@ -205,13 +206,16 @@
 			(test-pass ,name ,where)
 			(test-fail ,name ,exp ,res ,where))))
 
-(defmacro assert-error (name form)
-	; (assert-error name form)
-	;the form must throw an error
+(defmacro assert-error (name form expected)
+	; (assert-error name form expected)
+	;the form must throw the error expected, a part of the error's text: the
+	;words a throw gave, or a native's, {(elem-get seq idx) not_valid_index}.
+	;Any other error is not caught, the module stops with it and it is seen:
+	;an error expected never surfaces, and one not expected never passes
 	(defq where (test-where))
-	`(if (catch (progn ,form :nil) :t)
+	`(if (catch (progn ,form :nil) (found? (str _) ,expected))
 		(test-pass ,name ,where)
-		(test-fail ,name "an error" "no error" ,where)))
+		(test-fail ,name ,expected "no error" ,where)))
 
 (defmacro test-cases (&rest cases)
 	; (test-cases form expected form expected ...)

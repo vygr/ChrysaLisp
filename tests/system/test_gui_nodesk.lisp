@@ -60,8 +60,10 @@
 (assert-true "and its cursor is in the text it has" (<= (get :cursor nd_field) 7))
 
 ;an app with no dispatch-action of its own has its actions called, and one that
-;fails is told of and the app goes on
-(defq nd_acted 0 *event_map* (scatter (Fmap)
+;fails is told of, by action-failed, and the app goes on. Told here, so the
+;error expected never reaches the terminal
+(redefun action-failed (err) (push nd_told (str err)))
+(defq nd_told (list) nd_acted 0 *event_map* (scatter (Fmap)
 		7001 (lambda () (setq nd_acted (inc nd_acted)))
 		7002 (lambda () (setq nd_acted (inc nd_acted)) (throw "this action fails, as it is meant to" 0)))
 	nd_event (# (setf-> (str-alloc +ev_msg_mouse_size) (+ev_msg_type +ev_type_action) (+ev_msg_target_id %0))))
@@ -69,6 +71,8 @@
 (assert-eq "it was called" 1 nd_acted)
 (assert-eq "one that fails is dealt with too" :t (. nd_form :dispatch (nd_event 7002)))
 (assert-eq "it was called, and here we are" 2 nd_acted)
+(assert-list-eq "and told of, once, in its own words" '(:t 1)
+	(list (if (found? (first nd_told) "this action fails, as it is meant to") :t) (length nd_told)))
 (assert-eq "no action of that id is not" :nil (. nd_form :dispatch (nd_event 7003)))
 
 ;a view says the least it may be and what it would like. A window opens at what is

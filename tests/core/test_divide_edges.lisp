@@ -24,10 +24,10 @@
 	(% 7.5 2.0) 1.5
 	(/ -3.0 -1.0) 3.0)
 ;a divide by nothing is an error where errors are checked, not an answer
-(assert-error "a number by 0" (/ 1 0))
-(assert-error "what is left of a number by 0" (% 1 0))
-(assert-error "a fixed by 0" (/ 1.5 0.0))
-(assert-error "a nums by a nums with a 0 in it" (nums-div (nums 1 2) (nums 1 0)))
+(assert-error "a number by 0" (/ 1 0) {(/ num num ...) wrong_types})
+(assert-error "what is left of a number by 0" (% 1 0) {(% num num ...) wrong_types})
+(assert-error "a fixed by 0" (/ 1.5 0.0) {(/ num num ...) wrong_types})
+(assert-error "a nums by a nums with a 0 in it" (nums-div (nums 1 2) (nums 1 0)) {(nums-div nums nums [nums]) wrong_types})
 
 ;a divide in native code, with no check in front of it, means the one thing
 ;on every CPU. By 0 the answer is 0, and what is left over is the number.

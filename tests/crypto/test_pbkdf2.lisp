@@ -41,5 +41,5 @@
 (pbkdf2-sha256 pk_pw pk_salt 3 32)
 (assert-eq "the password is as it was" "password" pk_pw)
 (assert-eq "the salt is as it was" "salt" pk_salt)
-(assert-error "a count of 0" (pbkdf2-sha256 "password" "salt" 0 32))
-(assert-error "a size below 0" (pbkdf2-sha256 "password" "salt" 1 -1))
+(assert-error "a count of 0" (pbkdf2-sha256 "password" "salt" 0 32) {pbkdf2-sha256, a password, a salt, a count over 0 and a size !})
+(assert-error "a size below 0" (pbkdf2-sha256 "password" "salt" 1 -1) {pbkdf2-sha256, a password, a salt, a count over 0 and a size !})

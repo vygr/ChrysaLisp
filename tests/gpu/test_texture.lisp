@@ -34,16 +34,16 @@
 (assert-list-eq "they are known from the head of a file alone" '((pic))
 	(shader-textures (shader-compile (shader-read (string-stream
 					"(deftexture pic) (defun main :vec4 ((frag :vec2)) (texture pic frag))")) :t)))
-(assert-error "a texture is read at a vec2" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (texture pic 1.0))"))
-(assert-error "what is read is a texture" (tx-src "(defun main :vec4 ((frag :vec2)) (texture frag frag))"))
-(assert-error "a texture is no value for a local" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (defq a pic) (vec4 1.0))"))
-(assert-error "nor for sums" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (vec4 (+ pic 1.0)))"))
+(assert-error "a texture is read at a vec2" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (texture pic 1.0))") {Shader, wrong types !})
+(assert-error "what is read is a texture" (tx-src "(defun main :vec4 ((frag :vec2)) (texture frag frag))") {Shader, wrong types !})
+(assert-error "a texture is no value for a local" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (defq a pic) (vec4 1.0))") {Shader, a texture is only for (texture name uv) !})
+(assert-error "nor for sums" (tx-src "(deftexture pic)" "(defun main :vec4 ((frag :vec2)) (vec4 (+ pic 1.0)))") {Shader, wrong types !})
 (assert-error "nor to hand to a function" (tx-src "(deftexture pic)" "(defun f :float ((a :float)) a)"
-		"(defun main :vec4 ((frag :vec2)) (vec4 (f pic)))"))
-(assert-error "its name is its own" (tx-src "(deftexture pic)" "(definput pic :float)" "(defun main :vec4 ((frag :vec2)) (vec4 1.0))"))
-(assert-error "texture is a word of the language" (tx-src "(defun main :vec4 ((frag :vec2)) (defq texture 1.0) (vec4 1.0))"))
-(assert-error "a vertex shader has none" (tx-src "(deftexture pic)" "(defun main :vec4 () (vec4 1.0))"))
-(assert-error "nor do functions for Lisp" (tx-src "(deftexture pic)" "(defun f :float ((a :float)) a)"))
+		"(defun main :vec4 ((frag :vec2)) (vec4 (f pic)))") {Shader, wrong args to function !})
+(assert-error "its name is its own" (tx-src "(deftexture pic)" "(definput pic :float)" "(defun main :vec4 ((frag :vec2)) (vec4 1.0))") {Shader, name is already in use !})
+(assert-error "texture is a word of the language" (tx-src "(defun main :vec4 ((frag :vec2)) (defq texture 1.0) (vec4 1.0))") {Shader, name is a reserved word !})
+(assert-error "a vertex shader has none" (tx-src "(deftexture pic)" "(defun main :vec4 () (vec4 1.0))") {Shader, only a pixel shader has textures !})
+(assert-error "nor do functions for Lisp" (tx-src "(deftexture pic)" "(defun f :float ((a :float)) a)") {Shader, only a pixel shader has textures !})
 
 ;native code shades a tile. Each pixel is the one pixel of the picture its
 ;place is in, every place is a sum of halves and quarters, so which it is

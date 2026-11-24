@@ -32,7 +32,5 @@
 
 ;a path of an odd number of numbers is refused by the binding, where the
 ;stroke read past its end and took the node down
-(assert-true "a polygon of an odd path is refused"
-	(catch (progn (path-stroke-polygon (path 0.0 0.0 30.0 0.0 0.0 30.0 99.0) 2.0 +join_miter) :nil) :t))
-(assert-true "a polyline of one"
-	(catch (progn (path-stroke-polyline (path 0.0 0.0 30.0 0.0 0.0 30.0 99.0) 2.0 +join_miter +cap_butt +cap_butt) :nil) :t))
+(assert-error "a polygon of an odd path is refused" (path-stroke-polygon (path 0.0 0.0 30.0 0.0 0.0 30.0 99.0) 2.0 +join_miter) {(path-stroke-polygon path radius join) wrong_types})
+(assert-error "a polyline of one" (path-stroke-polyline (path 0.0 0.0 30.0 0.0 0.0 30.0 99.0) 2.0 +join_miter +cap_butt +cap_butt) {(path-stroke-polyline path radius join cap1 cap2) wrong_types})

@@ -14,7 +14,7 @@
 (assert-eq "a point is where it was" "(3.00000 4.00000)" (str (mat3x2-point mx_u 3 4)))
 (defq mx_b (list 1.0 2.0 3.0 4.0))
 (assert-eq "a box is the same box" (str mx_b) (str (mat3x2-box mx_b mx_u)))
-(assert-true ":nil is not a matrix" (catch (progn (mat3x2-mul :nil mx_t) :nil) :t))
+(assert-error ":nil is not a matrix" (mat3x2-mul :nil mx_t) {(mat3x2-mul ma mb [out]) wrong_types})
 
 ;each kind
 (assert-eq "with nothing given it is 1 0 0 0 1 0" "(1.00000 0.00000 0.00000 0.00000 1.00000 0.00000)" (str (mat3x2)))

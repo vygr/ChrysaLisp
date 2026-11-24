@@ -50,7 +50,6 @@
 ;names of its states, 3 past a place of 4, and an arm64 faulted on it,
 ;Illegal instruction, 2026-11-23
 (ffi "lib/xml/parse" xm-tokens)
-(assert-true "the tokenizer given a number is an error, and this node goes on"
-	(catch (progn (xm-tokens 42) :nil) :t))
+(assert-error "the tokenizer given a number is an error, and this node goes on" (xm-tokens 42) {(xml-parse stream) wrong_types})
 
 (undef (env) 'xm-said)

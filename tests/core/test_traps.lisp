@@ -5,7 +5,7 @@
 ;check off, the trap itself
 (defq +tr_list (list 1 2 3) +tr_quoted ''(1 2 3))
 (assert-error "a + constant that is a list is run as a form"
-	(progn (defun tr-f1 () (first +tr_list)) (tr-f1)))
+	(progn (defun tr-f1 () (first +tr_list)) (tr-f1)) {(lambda ([arg ...]) body) not_a_function !})
 (assert-eq "quoted twice it is a list" 1 (progn (defun tr-f2 () (first +tr_quoted)) (tr-f2)))
 (assert-eq "and so is a static-q" 1 (progn (defun tr-f3 () (first (static-q (1 2 3)))) (tr-f3)))
 
@@ -14,15 +14,15 @@
 (assert-eq "one of - is" :minus (tr-case '-))
 
 (assert-error "a parameter with the name of a macro"
-	(eval (read (string-stream "(progn (defun tr-f4 (bits) bits) (tr-f4 5))"))))
+	(eval (read (string-stream "(progn (defun tr-f4 (bits) bits) (tr-f4 5))"))) {(eval form [env]) symbol_not_bound})
 
 (defun tr-and-fn (&optional num) (and num (> num 0))) ;check off, the trap itself
 (defun tr-and-ok (&optional cnt) (and cnt (> cnt 0)))
-(assert-error "a local with the name of a function, alone in an and, is called" (tr-and-fn))
+(assert-error "a local with the name of a function, alone in an and, is called" (tr-and-fn) {(> num num ...) wrong_types})
 (assert-eq "with another name it is looked at" :nil (tr-and-ok))
 
 ;check off, it is the trap, here to be fallen into
-(assert-error "a # with no %0 in it takes no arguments" (map (# (!)) (list 1 2 3)))
+(assert-error "a # with no %0 in it takes no arguments" (map (# (!)) (list 1 2 3)) {(bind (param ...) seq) wrong_num_of_args !})
 (assert-list-eq "a lambda that ignores what it is given does" '(0 1 2) (map (lambda (&) (!)) (list 1 2 3)))
 (assert-list-eq "and one that ignores all it is given, however many" '(0 1 2)
 	(map (lambda (&ignore) (!)) (list 1 2 3) (list 4 5 6)))
@@ -36,8 +36,8 @@
 (assert-eq "of a call given as many" 1 (tt-first 1))
 (assert-eq "and given more, the rest let go of" 1 (tt-first 1 2 3))
 (assert-eq "of none" 7 ((lambda (&ignore) 7)))
-(assert-true "too few for the names before it an error"
-	(and (catch (progn (tt-first) :nil) :t) (catch (progn (map (lambda (a b &ignore) a) (list 1)) :nil) :t)))
+(assert-error "too few for the names before it an error" (tt-first) {(bind (param ...) seq) wrong_num_of_args !})
+(assert-error "and so of a map's lambda" (map (lambda (a b &ignore) a) (list 1)) {(bind (param ...) seq) wrong_num_of_args !})
 (assert-list-eq "and nothing bound by it" '(:nil :nil)
 	(map (lambda (&ignore) (def? '&ignore (env))) (list 1 2)))
 (undef (env) 'tt-first)
@@ -59,10 +59,10 @@
 (defun tr-mod-outer (n) (tr-mod-inner n))
 (export-symbols '(tr-mod-self tr-mod-first tr-mod-outer))
 (env-pop)
-(assert-error "one that is not exported can not" (tr-mod-outer 3))
+(assert-error "one that is not exported can not" (tr-mod-outer 3) {(eval form [env]) symbol_not_bound})
 (assert-eq "though it can be called, if it does not" :bottom (tr-mod-outer 0))
 (assert-eq "an exported function of a module can call itself" :bottom (tr-mod-self 3))
-(assert-error "a function of a module can not call one below it" (tr-mod-first 3))
+(assert-error "a function of a module can not call one below it" (tr-mod-first 3) {(eval form [env]) symbol_not_bound})
 
 (assert-eq "an empty list is true" :yes (if (list) :yes :no))
 (assert-eq "0 is true" :yes (if 0 :yes :no))
@@ -123,8 +123,8 @@
 (set-long (mail-read tr_mbox) 0 5)
 (assert-eq "a str mailed on the one node is the str itself" 5 (get-long tr_sent 0))
 
-(assert-error "an integer and a fixed do not add" (+ 1 1.5))
-(assert-error "a double and a fixed do not add" (+ (n2d 1.5) 1.5))
+(assert-error "an integer and a fixed do not add" (+ 1 1.5) {(+ num num ...) wrong_types})
+(assert-error "a double and a fixed do not add" (+ (n2d 1.5) 1.5) {(+ num num ...) wrong_types})
 (assert-true "an integer is not equal to a fixed of the same worth" (not (= 1 1.0)))
 (assert-eq "changed to a fixed it adds" 2.5 (+ (n2q 1) 1.5))
 (assert-eq "a fixed is cut as it is read" "0.00099" (str 0.001))
@@ -140,14 +140,14 @@
 
 (assert-eq "trim with characters not in order trims nothing" 6 (length (trim "  ab \n" " \t\r\n"))) ;check off, the trap itself
 (assert-eq "with a class of them it does" "ab" (trim "  ab \n" (char-class " \t\r\n")))
-(assert-error "find of a str of more than one character in a str is an error" (find "elx" "hello"))
+(assert-error "find of a str of more than one character in a str is an error" (find "elx" "hello") {(find elem seq [idx]) wrong_types})
 (assert-list-eq "substr is the one for a str in a str" '(2 4) (first (first (substr "hello" "ll"))))
-(assert-error "sort of numbers with nothing said" (sort (list 3 1 2)))
+(assert-error "sort of numbers with nothing said" (sort (list 3 1 2)) {(cmp str str) wrong_types})
 (defq tr_sort (list 3 1 2))
 (sort tr_sort (const -))
 (assert-list-eq "sort told how, and it is the list given that is sorted" '(1 2 3) tr_sort)
 
-(assert-error "a wrong number of args is an error" ((lambda (a) a) 1 2))
+(assert-error "a wrong number of args is an error" ((lambda (a) a) 1 2) {(bind (param ...) seq) wrong_num_of_args !})
 (assert-eq "a handler that gives :nil passes the error on" :outer
 	(catch (catch (throw "inner" 1) :nil) :outer))
 (assert-eq "one that gives :t ends it" :t (catch (throw "inner" 1) :t))
@@ -159,7 +159,7 @@
 (defun tr-shows () tr_shown)
 (export-symbols '(tr-keeps tr-shows tr_shown))
 (env-pop)
-(assert-error "a thing a module keeps and does not export is not bound when its function is called" (tr-keeps))
+(assert-error "a thing a module keeps and does not export is not bound when its function is called" (tr-keeps) {(eval form [env]) symbol_not_bound})
 (assert-eq "exported with the function, it is" 9 (tr-shows))
 
 ;a function of a module given as a value, not called, is looked for when it is given
@@ -169,10 +169,10 @@
 (defun tr-gives-const () (list (const tr-picked)))
 (export-symbols '(tr-gives tr-gives-const))
 (env-pop)
-(assert-error "a function of a module named as a value, not called, is not bound when the giver runs" (tr-gives))
+(assert-error "a function of a module named as a value, not called, is not bound when the giver runs" (tr-gives) {(eval form [env]) symbol_not_bound})
 (assert-eq "(const f) has it as it was made" 6 ((first (tr-gives-const)) 3))
 (assert-error "a chain breaks at a method that does not give the object back"
-	(.-> (Fmap 1) (:insert 1 2) (:find 1) (:insert 3 4)))
+	(.-> (Fmap 1) (:insert 1 2) (:find 1) (:insert 3 4)) {(. env sym [...]) wrong_types})
 
 ;an index from the end counts the place after the last as -1
 (assert-eq "the last element is at -2" 3 (elem-get (list 1 2 3) -2))

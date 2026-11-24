@@ -36,7 +36,7 @@
 (assert-eq "Fixed Cos PI/2" 0.0 (cos 1.570796))
 ;exp, log and tanh are of the real numbers, a double and a float, not of
 ;fixed point, what drawing works in
-(assert-error "Fixed Exp" (exp 1.0))
-(assert-error "Fixed Log" (log 2.0))
-(assert-error "Fixed Tanh" (tanh 0.5))
+(assert-error "Fixed Exp" (exp 1.0) {(exp double) wrong_types})
+(assert-error "Fixed Log" (log 2.0) {(log double) wrong_types})
+(assert-error "Fixed Tanh" (tanh 0.5) {(tanh double) wrong_types})
 

@@ -133,9 +133,9 @@
 ;an outfun that goes wrong is an error the caller has, and not a task that
 ;waits for ever on the pipe it let go of
 (defq pipe_err :nil)
-(assert-error "an outfun of the wrong number of args is an error" (pipe-run "echo one two" (# :nil)))
+(assert-error "an outfun of the wrong number of args is an error" (pipe-run "echo one two" (# :nil)) {(bind (param ...) seq) wrong_num_of_args !})
 (setq pipe_out (list))
-(assert-error "an outfun that throws is an error" (pipe-run "files cmd/ .lisp" (# (throw "mine" %0))))
+(assert-error "an outfun that throws is an error" (pipe-run "files cmd/ .lisp" (# (throw "mine" %0))) {mine})
 (pipe-run "echo one two" (# (push pipe_out %0)))
 (assert-true "and a pipe run after it is as ever" (nempty? pipe_out))
 

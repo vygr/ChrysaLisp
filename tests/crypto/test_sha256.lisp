@@ -62,10 +62,10 @@
 (assert-eq "32 bytes" 32 (length (sha256 "")))
 
 ;what the native code refuses
-(assert-error "a state of the wrong size" (sha256-blocks "short" sha_text 0 1))
-(assert-error "more blocks than there are" (sha256-blocks (str-alloc 32) sha_text 0 4))
-(assert-error "an offset past the end" (sha256-blocks (str-alloc 32) sha_text 192 1))
-(assert-error "a count below 0" (sha256-blocks (str-alloc 32) sha_text 0 -1))
+(assert-error "a state of the wrong size" (sha256-blocks "short" sha_text 0 1) {(sha256-blocks state data offset count) wrong_types})
+(assert-error "more blocks than there are" (sha256-blocks (str-alloc 32) sha_text 0 4) {(sha256-blocks state data offset count) wrong_types})
+(assert-error "an offset past the end" (sha256-blocks (str-alloc 32) sha_text 192 1) {(sha256-blocks state data offset count) wrong_types})
+(assert-error "a count below 0" (sha256-blocks (str-alloc 32) sha_text 0 -1) {(sha256-blocks state data offset count) wrong_types})
 
 (report-header "Crypto: HMAC with SHA-256")
 

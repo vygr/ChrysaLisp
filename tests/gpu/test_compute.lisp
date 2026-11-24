@@ -27,7 +27,7 @@
 		(assert-eq "nor after" 0 (buf-get gc_blk 132 +type_ubyte))
 		(gpu-read gc_b 0 256 gc_blk 256)
 		(assert-eq "up to the end of it" gc_bytes (buf-get gc_blk 256 256))
-		(assert-error "a read past the end of a buf is refused" (gpu-read gc_b 0 256 gc_blk 257))
+		(assert-error "a read past the end of a buf is refused" (gpu-read gc_b 0 256 gc_blk 257) {A read past the end of a buf !})
 		(assert-eq "and wrote nothing" gc_bytes (buf-get gc_blk 256 256))
 		(gpu-buffer-free gc_b)
 

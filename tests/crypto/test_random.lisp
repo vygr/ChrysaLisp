@@ -17,5 +17,5 @@
 (assert-eq "every value of a byte turns up" 256 (length (filter (# (> %0 0)) rb_counts)))
 (assert-true "and none far more than its share" (< (reduce (const max) rb_counts 0) 400))
 (assert-true "nor far less" (> (reduce (const min) rb_counts 65536) 150))
-(assert-error "a size below 0" (random-bytes -1))
-(assert-error "a size that is not a number" (random-bytes "32"))
+(assert-error "a size below 0" (random-bytes -1) {(random-bytes size) wrong_types})
+(assert-error "a size that is not a number" (random-bytes "32") {(random-bytes size) wrong_types})

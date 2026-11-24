@@ -6,22 +6,19 @@
 (defun kt-src (&rest lines)
 	(shader-compile (shader-read (string-stream (join lines "\n")))))
 
-(defun kt-refused (text)
-	(catch (progn (kt-src text) :nil) :t))
-
 ;a kernel is a file with buffers, its main takes an index and gives nothing
-(assert-true "a kernel writes no buffer it reads"
-	(kt-refused "(defbuffer b :float :read) (defun main :void ((i :int)) (elem-set b i 1.0))"))
-(assert-true "its main gives nothing"
-	(kt-refused "(defbuffer b :float :write) (defun main :float ((i :int)) 1.0)"))
-(assert-true "a main that gives nothing has buffers"
-	(kt-refused "(defun main :void ((i :int)) (defq x 1))"))
-(assert-true "an element is of the buffer's type"
-	(kt-refused "(defbuffer b :float :write) (defun main :void ((i :int)) (elem-set b i 1))"))
-(assert-true "a buffer is not a value"
-	(kt-refused "(defbuffer b :float :read) (defbuffer c :float :write) (defun main :void ((i :int)) (defq x b))"))
-(assert-true "a shift takes two"
-	(kt-refused "(defbuffer b :int :write) (defun main :void ((i :int)) (elem-set b i (<< i 1 2)))"))
+(assert-error "a kernel writes no buffer it reads"
+	(kt-src "(defbuffer b :float :read) (defun main :void ((i :int)) (elem-set b i 1.0))") {Shader, a buffer the kernel only reads !})
+(assert-error "its main gives nothing"
+	(kt-src "(defbuffer b :float :write) (defun main :float ((i :int)) 1.0)") {Shader, no (defun main :void ((i :int)) ...) of a kernel !})
+(assert-error "a main that gives nothing has buffers"
+	(kt-src "(defun main :void ((i :int)) (defq x 1))") {Shader, only a kernel's main is :void, it has buffers !})
+(assert-error "an element is of the buffer's type"
+	(kt-src "(defbuffer b :float :write) (defun main :void ((i :int)) (elem-set b i 1))") {Shader, wrong types !})
+(assert-error "a buffer is not a value"
+	(kt-src "(defbuffer b :float :read) (defbuffer c :float :write) (defun main :void ((i :int)) (defq x b))") {Shader, a buffer is only for (elem-get buf i) !})
+(assert-error "a shift takes two"
+	(kt-src "(defbuffer b :int :write) (defun main :void ((i :int)) (elem-set b i (<< i 1 2)))") {Shader, wrong types !})
 
 ;the buffers are given in an order that is not reads then writes, a GPU
 ;binds them that way round, and it is sorted out
