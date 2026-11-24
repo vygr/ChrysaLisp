@@ -5,11 +5,13 @@
 (import "lib/math/matrix.inc")
 (import "lib/gpu/render_farm.inc")
 (import "lib/gpu/vp.inc")
+(import "lib/math/scene.inc")
+(import "./craft.inc")
 
 ;A flight over a land that is made as it goes, drawn by a (Render-tris),
-;lib/gpu/render_farm.inc, which has the GPU draw it, or with none the
-;nodes of this machine, a strip of the frame each, or this task if there
-;is only the one. A frame is two draws, each by its own pair of shaders:
+;lib/gpu/render_farm.inc, which has the GPU draw it, or on a host with
+;none the nodes of this machine, a strip of the frame each, or this task
+;if there is only the one. A frame is two draws, each by its own pair of shaders:
 ;the sky, at the back, and the land, a grid that is moved under the eye
 ;and raised to the hills of a noise in its vertex shader, so the land
 ;rolls by and nothing of it is made again. The flight goes round a figure
@@ -18,21 +20,23 @@
 ;land the shaders have, land.shader, which Lisp asks too, (shader-vp-func)
 
 (enums +event +event_user
-	(enum path mode))
+	(enum path))
 
 ;the timer is last, what is first in the list is what is read first, and
 ;a frame can take longer than a tick
 (enums +select 0
-	(enum main timer))
+	(enum main task reply timer))
 
 ;the frame's two sizes, the min and max buttons
 (defq +small ''(640 480) +large ''(1024 768))
 
 (defq +timer_rate (/ 1000000 30)
 	;the grid, cells each way and how big a cell is, the GPU's, and the
-	;CPU's of cells twice as big over the same ground: a quarter of the
-	;vertices, each of which is five samples of the land's height. The rest
-	;of the frame is the same, the shaders and all they are given
+	;CPU's of cells twice as big over the same ground, for a host with no
+	;GPU: a quarter of the vertices, each of which is five samples of the
+	;land's height. The rest of the frame is the same, the shaders and all
+	;they are given. There is no CPU button: Flight is a show of the GPU,
+	;and on the CPU it crawls
 	+cells 128 +cell (n2d 6.5) +cells_cpu 64 +cell_cpu (n2d 13)
 	;the flight, a figure of eight: how far it reaches across and along,
 	;how fast, how high, how it looks down, and how hard it leans into a
@@ -56,8 +60,12 @@
 	+land_vertex (cat *app_root* "land_vertex.shader") +land_lit (cat *app_root* "land_lit.shader")
 	sky_files (list (cat *app_root* "sky_vertex.shader") (cat *app_root* "sky_lit.shader"))
 	moon_files (list (cat *app_root* "moon_vertex.shader") (cat *app_root* "moon_lit.shader"))
-	;the meshes, by their numbers
-	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2 +mesh_moon 3
+	craft_files (list (cat *app_root* "craft_vertex.shader") (cat *app_root* "craft_lit.shader"))
+	;the meshes, by their numbers, the craft's parts from the last on
+	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2 +mesh_moon 3 +mesh_craft 4
+	;the farm that makes the craft's parts, which of them have come, and
+	;the craft, scenes of lib/math/scene.inc, a part a node
+	jobs :nil parts_had (map (const (lambda (_) :nil)) craft_parts) crafts (list)
 	;the moon: the way to it, how far, in front of the sky and behind the
 	;land near by, how big, how it leans and how fast it turns, a second
 	moon_way (doubles (n2d -0.646) (n2d 0.188) (n2d 0.74)) +moon_far (n2d 470) +moon_size (n2d 36)
@@ -80,8 +88,7 @@
 	stick :nil
 	;the height of the land at a place, of land.shader, the shaders' own
 	land_height :nil
-	;CPU or GPU, the flight and the size, as they were when last closed,
-	;(config-save)
+	;the flight and the size, as they were when last closed, (config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "flight.tre"))
 
 (defun make-canvas (size)
@@ -95,7 +102,6 @@
 	(ui-title-bar _ "Flight" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *path* ("Eight" "Valleys" "Mouse") (:font :font_body)) :connect +event_path)
-		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
 		(ui-label *status* (:text "..." :font :font_body)))
 	(ui-backdrop *backdrop* (:style :plain :paper +argb_black :min_width (first +small) :min_height (second +small))
 		(ui-element *canvas* (make-canvas +small))))
@@ -132,11 +138,6 @@
 					(if (< r (dec rings)) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a b c)))
 					(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d)))) '() 0 segs)) '() 0 rings)
 	(apply (const doubles) out))
-
-(defun mode-show ()
-	;the button as the render has it: the GPU is not to be had on a host
-	;with none
-	(. *mode* :set_selected (if (eql (. render :mode) :gpu) 1 0)))
 
 (defun argb (rgb)
 	; (argb rgb) -> argb
@@ -258,6 +259,56 @@
 	(setq height (max height low))
 	(list nx nz (neg (/ (* +speed turning) +pull))))
 
+(defun part-node (part tint glow film &optional panels lamps)
+	; (part-node part tint glow film [panels lamps]) -> scene_node
+	;a part of a craft: the farm's mesh of it, the colour of its metal,
+	;the light it gives, how much of the film it has, how many panels
+	;across, and the colour of the lamps round its rim
+	(def (defq node (Scene-node)) :part part :tint tint :glow glow :film film
+		:panels (ifn panels +double_0) :lamps (ifn lamps (doubles +double_0 +double_0 +double_0)))
+	node)
+
+(defun make-scout ()
+	; (make-scout) -> scene_node
+	;a scout: a saucer, a ring that turns round it, and four lights under
+	;its rim
+	(defq scout (Scene-node "scout") dark (doubles +double_0 +double_0 +double_0))
+	(. scout :add_node (part-node +craft_saucer (doubles (n2d 0.55) (n2d 0.58) (n2d 0.62)) dark (n2d 0.5)
+		(n2d 4) (doubles (n2d 1.0) (n2d 0.55) (n2d 0.2))))
+	(def (defq ring (part-node +craft_ring (doubles (n2d 0.3) (n2d 0.32) (n2d 0.36))
+		(doubles (n2d 0.05) (n2d 0.15) (n2d 0.2)) (n2d 0.9) (n2d 6) (doubles (n2d 1.0) (n2d 0.55) (n2d 0.2)))) :spin (n2d 1.5))
+	(. scout :add_node (. ring :set_scale (n2d 1.25) (n2d 1.25) (n2d 1.25)))
+	(each (lambda ((x z))
+			(. scout :add_node (.-> (part-node +craft_ball (doubles (n2d 0.2) (n2d 0.2) (n2d 0.2))
+					(doubles (n2d 0.45) (n2d 1.0) (n2d 0.8)) +double_0)
+				(:set_scale (n2d 0.09) (n2d 0.09) (n2d 0.09))
+				(:set_translation x (n2d -0.12) z))))
+		(list (list (n2d 0.6) +double_0) (list (n2d -0.6) +double_0)
+			(list +double_0 (n2d 0.6)) (list +double_0 (n2d -0.6))))
+	scout)
+
+(defun craft-draws (craft view eye seconds)
+	; (craft-draws craft view eye seconds) -> draws
+	;a draw for each part of a craft whose mesh has come, by the matrix of
+	;it and of the parts it is in. A part that spins is turned by its spin
+	(defq mats (list (mat4x4-unity)) out (list))
+	(. craft :walk_nodes
+		(lambda (node _)
+			(if (def? :spin node)
+				(. node :set_rotation +double_0 (* seconds (get :spin node)) +double_0))
+			(push mats (defq m (mat4x4-mul (last mats) (. node :get_matrix))))
+			(and (def? :part node) (elem-get parts_had (defq part (get :part node)))
+				(push out (list (+ +mesh_craft part)
+					(list (list 'model m) (list 'lens view) (list 'eye eye))
+					(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
+						(list 'time seconds) (list 'tint (get :tint node)) (list 'glow (get :glow node))
+						(list 'film (get :film node)) (list 'panels (get :panels node))
+						(list 'lamps (get :lamps node)))
+					'() craft_files)))
+			:nil)
+		(lambda (node _) (pop mats)))
+	out)
+
 (defun path-set (to)
 	;the flight to the eight or along the valleys, from where it is: the
 	;valleys go on from here, the eight is moved so that it is here
@@ -294,7 +345,7 @@
 		;whole cells of it
 		gpu (eql (. render :mode) :gpu) cell (if gpu +cell +cell_cpu)
 		shift (doubles (* (n2d (n2i (/ (first eye) cell))) cell) (* (n2d (n2i (/ (third eye) cell))) cell)))
-	(. render :frame (list
+	(. render :frame (cat (list
 		(list +mesh_sky '()
 			(list (list 'forward forward) (list 'right right) (list 'up up)
 				(list 'spread (doubles spread_x +spread_y)) (list 'sun sun) (list 'haze haze) (list 'above above))
@@ -311,7 +362,16 @@
 			(list moon_map) moon_files)
 		(list (if gpu +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
 			(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
-				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12)))))
+				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12))))
+		;for now, a scout that keeps ahead of the eye, to see its parts come
+		;and how it looks
+		(reduce (lambda (draws craft)
+				(.-> craft
+					(:set_translation (+ (first eye) (* fx (n2d 45))) (- (second eye) (n2d 2)) (+ (third eye) (* fz (n2d 45))))
+					(:set_rotation (n2d 0.25) (* seconds (n2d 0.3)) +double_0)
+					(:set_scale (n2d 8) (n2d 8) (n2d 8)))
+				(cat draws (craft-draws craft view eye seconds)))
+			crafts '())))
 	(++ frames))
 
 (defun set-size (wanted)
@@ -346,8 +406,8 @@
 	(setq shown :nil))
 
 (defun config-default ()
-	;the first time: on the GPU if there is one
-	(scatter (Emap) :version +config_version :gpu :t :path :eight :large :nil))
+	;the first time
+	(scatter (Emap) :version +config_version :path :eight :large :nil))
 
 (defun config-load ()
 	;the defaults with what was kept laid over them,
@@ -360,7 +420,7 @@
 			(unless (eql key :version) (. *config* :insert key val))))))
 
 (defun config-save ()
-	(scatter *config* :gpu (= (. *mode* :get_selected) 1) :path path :large (eql want +large))
+	(scatter *config* :path path :large (eql want +large))
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
@@ -375,6 +435,13 @@
 	;nodes that draw a strip each all read the one copy of it
 	(setq moon_map (. (shader-strip-picture (canvas-load (cat *app_root* "data/moon.cpm") +load_flag_noswap)) :swap +swap_write))
 	(. render :mesh +mesh_sky (sky-verts) (first sky_files))
+	;the craft's parts, made by a farm of children on this machine's
+	;nodes, off this one, and each put in its craft as it comes
+	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
+			(elem-get select +select_reply) '(4 2) :t)
+		crafts (list (make-scout)))
+	(. jobs :add (map (lambda (command)
+			(cat (setf-> (str-alloc +part_size) (+part_num (!))) command)) craft_parts))
 	(config-load)
 	(setq land_height (shader-vp-func (shader-load (cat *app_root* "land.shader")) 'ground)
 		place (eight-point round_at) way (doubles +double_1 +double_0))
@@ -383,9 +450,6 @@
 	;the size it was closed at
 	(if (. *config* :find :large) (set-size +large))
 	(.-> *canvas* (:fill (argb haze)) (:swap +swap_write))
-	;it comes up on the GPU if there is one and it was last time
-	(unless (. *config* :find :gpu) (. render :mode :cpu))
-	(mode-show)
 	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
@@ -395,6 +459,19 @@
 		(bind '(idx msg) (. render :read select +select_timer))
 		(cond
 			((not idx))
+			((= idx +select_task)
+				;a child of the farm has started, unless the farm has gone
+				(if jobs (. jobs :launched msg)))
+			((= idx +select_reply)
+				;a part made, its mesh given to the render and the part
+				;drawn from the next frame; when all have come the farm goes,
+				;and what its children send after that is for no one
+				(when (and jobs (defq out (. jobs :answered msg)))
+					(defq part (getf msg +part_reply_num))
+					(. render :mesh (+ +mesh_craft part) (push (doubles) (slice msg +part_reply_data -1))
+						(first craft_files))
+					(elem-set parts_had part :t)
+					(when (= out 0) (. jobs :close) (setq jobs :nil))))
 			((= idx +select_main)
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
@@ -414,9 +491,6 @@
 							(= (getf msg +ev_msg_type) +ev_type_exit))
 						(setq stick :nil)
 						(. *window* :event msg))
-					((= id +event_mode)
-						(. render :mode (if (= (. *mode* :get_selected) 1) :gpu :cpu))
-						(mode-show))
 					((. *window* :event msg))))
 			(:t ;the timer, the flight goes on and is drawn, if the last frame
 				;is not still out with a farm
@@ -433,10 +507,13 @@
 					(- (max +timer_rate (* took 4)) took) 0)
 				(. render :tick)
 				(when (>= (- (defq now (pii-time)) since) 1000000)
-					(mode-show)
 					(. *status* :set_text (cat (str (/ (* frames 1000000) (- now since))) " frames a second, "
 							(. render :how)))
-					(setq frames 0 since now)))))
+					(setq frames 0 since now)
+					;a child of the farm that has died or is too slow is
+					;started again, and its part made again
+					(if jobs (. jobs :refresh 30000000))))))
 	(config-save)
+	(if jobs (. jobs :close))
 	(. render :close)
 	(. *window* :close))

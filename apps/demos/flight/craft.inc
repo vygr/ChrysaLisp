@@ -1,0 +1,129 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; The craft, the parts they are made of and the farm that makes them.
+;
+; A part is a field, a near distance to its surface in the cube -1 to
+; 1, less than 0 inside, made a mesh by (Mesh-iso) at 0, its corners
+; smooth, as the shaders want it, (mesh-corners-smooth). The app gives
+; a child of its farm a part to make, its number and the form that
+; makes it, and the child sends back the mesh. Fields are joined by a
+; smooth least, so a dome grows out of a hull and does not sit on it.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import "lib/task/jobs.inc")
+(import "lib/math/surface.inc")
+
+;a part for a child to make, its number and the form that makes it
+(structure +part +job_size
+	(uint num)
+	(offset command))
+
+;its answer, the mesh as the shaders want it
+(structure +part_reply +job_reply_size
+	(uint num)
+	(offset data))
+
+(defun smooth-min (a b k)
+	; (smooth-min a b k) -> double
+	;the least of two distances, a and b, blended over k where they meet
+	(defq h (max +double_0 (min +double_1 (+ +double_1/2 (/ (* +double_1/2 (- b a)) k)))))
+	(- (+ b (* (- a b) h)) (* k h (- +double_1 h))))
+
+(defun len2 (a b)
+	; (len2 a b) -> double
+	(sqrt (+ (* a a) (* b b))))
+
+(defun len3 (a b c)
+	; (len3 a b c) -> double
+	(sqrt (+ (* a a) (* b b) (* c c))))
+
+(defclass Iso-part (size) (Iso size size size)
+	; (Iso-part size) -> iso
+	;a field of size cubed samples, each the place it is at in the cube
+	;-1 to 1, which the field of a part is had of, (:field x y z)
+	(defq k (/ +double_2 (n2d size)) c (* (n2d (dec size)) +double_1/2))
+	(def this :points (map! (# (* (- (n2d (!)) c) k)) '() 0 size))
+
+	(defabstractmethod :field (this x y z))
+	; (. iso :field x y z) -> double
+
+	(defmethod :get_scalar (x y z)
+		; (. iso :get_scalar x y z) -> scalar
+		(raise :points)
+		(. this :field (elem-get points x) (elem-get points y) (elem-get points z))))
+
+(defclass Iso-saucer (size) (Iso-part size)
+	; (Iso-saucer size) -> iso
+	;a hull flat and round, a rim round its edge, and a dome on top
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		(defq r (len2 x z)
+			hull (* (- (len3 (/ x (const (n2d 0.92))) (/ y (const (n2d 0.17))) (/ z (const (n2d 0.92))))
+				+double_1) (const (n2d 0.17)))
+			rim (- (len2 (- r (const (n2d 0.8))) (+ y (const (n2d 0.02)))) (const (n2d 0.09)))
+			dome (- (len3 x (- y (const (n2d 0.1))) z) (const (n2d 0.33))))
+		(smooth-min (smooth-min hull rim (const (n2d 0.08))) dome (const (n2d 0.14)))))
+
+(defclass Iso-ring (size) (Iso-part size)
+	; (Iso-ring size) -> iso
+	;a ring, thick in eight places round it, blobs, with the rim of what it
+	;is round seen between them
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		;the cosine of eight times the angle round, of the cosine of it
+		(defq r (+ (len2 x z) (const (/ +double_1 (n2d 1000000)))) c (/ x r) c2 (* c c)
+			lobes (+ +double_1 (* c2 (+ (const (n2d -32)) (* c2 (+ (const (n2d 160))
+				(* c2 (+ (const (n2d -256)) (* c2 (const (n2d 128))))))))))
+			lobe (max +double_0 lobes)
+			thick (+ (const (n2d 0.04)) (* (const (n2d 0.08)) lobe lobe)))
+		(- (len2 (- r (const (n2d 0.86))) y) thick)))
+
+(defclass Iso-lattice (size) (Iso-part size)
+	; (Iso-lattice size) -> iso
+	;a shell of a ball, cut through by a gyroid, so it is a lattice that
+	;is seen into
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		(defq shell (- (abs (- (len3 x y z) (const (n2d 0.78)))) (const (n2d 0.07)))
+			kx (* x (const (n2d 7))) ky (* y (const (n2d 7))) kz (* z (const (n2d 7)))
+			g (+ (* (sin kx) (cos ky)) (* (sin ky) (cos kz)) (* (sin kz) (cos kx))))
+		(max shell (* (- (abs g) (const (n2d 0.55))) (const (n2d 0.1))))))
+
+(defclass Iso-ball (size) (Iso-part size)
+	; (Iso-ball size) -> iso
+	;a ball, flattened to an egg, a light or a core
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		(* (- (len3 x (/ y (const (n2d 0.6))) z) (const (n2d 0.9))) (const (n2d 0.6)))))
+
+;the balls of a blob, where each is and how big
+(defq blob_balls (list
+	(list (n2d 0.55) (n2d 0.1) (n2d 0.0) (n2d 0.3))
+	(list (n2d -0.3) (n2d 0.05) (n2d 0.5) (n2d 0.28))
+	(list (n2d -0.3) (n2d -0.1) (n2d -0.5) (n2d 0.3))
+	(list (n2d 0.0) (n2d 0.45) (n2d 0.0) (n2d 0.22))))
+
+(defclass Iso-blob (size) (Iso-part size)
+	; (Iso-blob size) -> iso
+	;balls that have run into each other, a craft that is grown, not made
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		(defq d (- (len3 x (* y (const (n2d 1.3))) z) (const (n2d 0.5))))
+		(each (lambda ((bx by bz br))
+				(setq d (smooth-min d (- (len3 (- x bx) (- y by) (- z bz)) br) (const (n2d 0.25)))))
+			blob_balls)
+		d))
+
+;the parts, each the form that makes it
+(defq craft_parts '(
+	"(Mesh-iso (Iso-saucer 24) +double_0)"
+	"(Mesh-iso (Iso-ring 32) +double_0)"
+	"(Mesh-iso (Iso-lattice 28) +double_0)"
+	"(Mesh-iso (Iso-ball 8) +double_0)"
+	"(Mesh-iso (Iso-blob 20) +double_0)"))
+(enums +craft 0
+	(enum saucer ring lattice ball blob))

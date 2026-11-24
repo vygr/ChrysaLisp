@@ -333,5 +333,6 @@
 		this))
 
 ;module
+(export-symbols '(mesh-corners mesh-corners-smooth))
 (export-classes '(Scene-node Scene-object Scene))
 (env-pop)
