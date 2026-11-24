@@ -364,7 +364,7 @@
 					(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
 						(list 'time seconds) (list 'tint (get :tint node)) (list 'glow (get :glow node))
 						(list 'film (get :film node)) (list 'panels (get :panels node))
-						(list 'lamps (get :lamps node)))
+						(list 'lamps (get :lamps node)) (list 'daylight daylight) (list 'shine shine))
 					'() craft_files)))
 			:nil)
 		(lambda (node _) (pop mats)))

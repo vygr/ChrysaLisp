@@ -21,6 +21,10 @@
 (definput above :vec3)
 (definput eye :vec3)
 (definput time :float)
+;the colour of the light of the sun or the moon, as the day is, on it and
+;off it
+(definput daylight :vec3)
+(definput shine :vec3)
 ;the part: the colour of its metal, the light it gives, how much of
 ;the film it has, how many panels across it, 0 for none, and the colour
 ;of the lamps round its rim, black for none
@@ -63,8 +67,8 @@
 		metal (* (+ tint (* oil film)) (- 1.0 (* 0.55 seams)))
 		spot (pow (max (dot r sun) 0.0) 80.0)
 		pulse (+ 0.7 (* 0.3 (cos (* time 4.0))))
-		colour (+ (mix (* tint (+ 0.2 (* 0.6 lit))) (* (seen r) metal) (+ 0.35 (* 0.6 edge)))
-			(vec3 (* spot 1.4))))
+		colour (+ (* (mix (* tint (+ 0.2 (* 0.6 lit))) (* (seen r) metal) (+ 0.35 (* 0.6 edge))) daylight)
+			(* shine spot 1.4)))
 	;the lamps, flecks on the rim, each lit as a wave goes over
 	(defq spots (pow (max (* (cos (* (:x local) 22.0)) (cos (* (:z local) 22.0))) 0.0) 4.0)
 		rim (* (ease 0.62 0.72 round) (- 1.0 (ease 0.04 0.14 (abs (:y local)))))

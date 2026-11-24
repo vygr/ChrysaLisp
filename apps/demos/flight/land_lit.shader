@@ -45,7 +45,12 @@
 (defconst rock (vec3 0.42 0.38 0.34))
 (defconst snow (vec3 0.95 0.96 1.0))
 (defconst deep (vec3 0.05 0.16 0.24))
-(defconst sun_colour (vec3 1.0 0.94 0.80))
+;the colour of the light of the sun or the moon, as the day is, on the
+;land, and off the water
+(definput daylight :vec3)
+(definput shine :vec3)
+;how much it is night: the moon's glitter on the water wider and brighter
+(definput night :float)
 (defconst eps 0.15)
 
 ;the fine noise the face is made rough by
@@ -132,16 +137,16 @@
 			;the water, the sky in it more side on, the sun off it, and the
 			;sand showing through where it is shallow
 			(defq w (ripple place (- 1.0 fade)) side (pow (- 1.0 (max (dot to_eye w) 0.0)) 3.0)
-				glint (pow (max (dot (reflect (- sun) w) to_eye) 0.0) 90.0))
-			(setq colour (+ (mix (mix deep (sky_in (reflect (- to_eye) w)) (+ 0.2 (* 0.75 side)))
-					(* sand 0.85) (* 0.6 (ease (- water 1.8) water h)))
-				(* sun_colour glint lit 2.0))))
+				glint (* (pow (max (dot (reflect (- sun) w) to_eye) 0.0) (mix 90.0 22.0 night)) (+ 1.0 (* 2.5 night))))
+			(setq colour (+ (* (mix (mix deep (sky_in (reflect (- to_eye) w)) (+ 0.2 (* 0.75 side)))
+					(* sand 0.85) (* 0.6 (ease (- water 1.8) water h))) daylight)
+				(* shine glint lit 2.0))))
 		(:t ;the land, of how high and how steep, rough, and lit
 			(defq up (:y n) b (bumped place n (* rough (+ 0.3 (* 1.4 (- 1.0 up))))))
 			(setq colour (mix sand (mix grass moss (noise3 (* place 0.05))) (ease (+ water 0.5) (+ water 3.5) h))
 				colour (mix colour rock (ease 0.86 0.72 up))
 				colour (mix colour snow (* (ease 34.0 42.0 h) (ease 0.7 0.85 up)))
-				colour (* colour (+ 0.28 (* 0.95 lit (max (dot b sun) 0.0)))))))
+				colour (* colour daylight (+ 0.28 (* 0.95 lit (max (dot b sun) 0.0)))))))
 	;the craft's shadows dim the water too, and their lights light both
 	(if (<= h water) (setq colour (* colour (+ 0.55 (* 0.45 crafts)))))
 	(vec4 (mix (+ colour glow) haze fade) 1.0))

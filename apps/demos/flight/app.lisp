@@ -21,7 +21,7 @@
 ;land the shaders have, land.shader, which Lisp asks too, (shader-vp-func)
 
 (enums +event +event_user
-	(enum path prev music next))
+	(enum path prev music next day))
 
 ;the timer is last, what is first in the list is what is read first, and
 ;a frame can take longer than a tick
@@ -74,6 +74,13 @@
 	;the sun, and the haze at the horizon and the blue above
 	sun (doubles (n2d 0.55) (n2d 0.42) (n2d -0.72)) haze (doubles (n2d 0.74) (n2d 0.80) (n2d 0.86))
 	above (doubles (n2d 0.28) (n2d 0.46) (n2d 0.78))
+	;the day: where the sun is, the light that lights the land, the sun's by
+	;day and the moon's by night, its colour, and how it shines off water;
+	;and where in the day it starts, by chance, (day-state)
+	sun_at sun daylight (doubles +double_1 +double_1 +double_1) shine (doubles +double_1 +double_1 +double_1)
+	day_start +double_0 day_at +double_0 day_dragged 0 night +double_0 moon_lit sun
+	;how long the day, dusk, night and dawn are, seconds
+	+day_long (n2d 300) +dusk_long (n2d 60) +night_long (n2d 240) +dawn_long (n2d 60)
 	select :nil id :t render :nil frames 0 since (pii-time) began (pii-time)
 	;the size wanted, the size of the canvas drawn on, and the canvas still
 	;on show till a frame of a new one is whole
@@ -119,6 +126,8 @@
 		(ui-tool-bar *music* ()
 			(ui-buttons (+sym_media_start +sym_media_play +sym_media_end) +event_prev))
 		(ui-label *status* (:text "..." :font :font_body)))
+	;the time of day, which goes on, and is dragged to another
+	(. (ui-slider *day* (:value 0 :maximum 1000 :portion 1 :min_height 12)) :connect +event_day)
 	(ui-backdrop *backdrop* (:style :plain :paper +argb_black :min_width (first +small) :min_height (second +small))
 		(ui-element *canvas* (make-canvas +small))))
 
@@ -182,6 +191,60 @@
 	; (eight-point at) -> doubles
 	;where on the eight, across and along, for its middle at 0 0
 	(apply (const doubles) (eight-lie (* +reach_x (sin at)) (* +reach_z (sin (* (n2d 2) at))))))
+
+(defun mix3 (a b k)
+	; (mix3 a b k) -> doubles
+	;a colour or a way, from a at 0 to b at 1
+	(blend a b (- +double_1 k) k))
+
+(defun day-state (seconds)
+	; (day-state seconds)
+	;the day as it is: by day the sun high, then dusk, its colours and the
+	;sun going down, night, the moon's light, and dawn. The light the land
+	;and the craft are lit by and cast shadows from goes from the sun to
+	;the moon and back across dusk and dawn, so the craft's shadows are of
+	;the moon by night, and its colour is warm by day, red at the ends and
+	;cool white by night; the sky's sun and the moon's phase are the sun's
+	(defq total (+ +day_long +dusk_long +night_long +dawn_long)
+		at (+ seconds day_start) at (- at (* total (n2d (n2i (/ at total)))))
+		d +double_0 g +double_0 e +double_0)
+	(setq day_at at)
+	;the slider where the day is, unless a hand has had it in the last second
+	(and (> (- (pii-time) day_dragged) 1000000)
+		(/= (get :value *day*) (defq v (n2i (/ (* at (n2d 1000)) total))))
+		(def (. *day* :dirty) :value v))
+	(cond
+		((< at +day_long)
+			(setq e (+ (n2d 0.12) (* (n2d 0.38) (sin (/ (* +double_pi at) +day_long))))))
+		((< at (+ +day_long +dusk_long))
+			(defq r (/ (- at +day_long) +dusk_long))
+			(setq d (* r r (- (n2d 3) (* (n2d 2) r))) g (* (n2d 4) r (- +double_1 r)) e (- (n2d 0.12) (* (n2d 0.37) r))))
+		((< at (+ +day_long +dusk_long +night_long))
+			(setq d +double_1 e (n2d -0.25)))
+		(:t (defq r (/ (- at +day_long +dusk_long +night_long) +dawn_long))
+			(setq d (- +double_1 (* r r (- (n2d 3) (* (n2d 2) r)))) g (* (n2d 4) r (- +double_1 r))
+				e (+ (n2d -0.25) (* (n2d 0.37) r)))))
+	(defq az (+ (n2d 0.9) (/ (* +double_2pi at) total)) ce (cos e)
+		k (* g (n2d 0.85)))
+	(setq sun_at (doubles (* ce (cos az)) (sin e) (* ce (sin az)))
+		sun (blend sun_at moon_way (- +double_1 d) d)
+		haze (mix3 (mix3 (doubles (n2d 0.74) (n2d 0.80) (n2d 0.86)) (doubles (n2d 0.05) (n2d 0.07) (n2d 0.13)) d)
+			(doubles (n2d 0.95) (n2d 0.60) (n2d 0.38)) k)
+		above (mix3 (mix3 (doubles (n2d 0.28) (n2d 0.46) (n2d 0.78)) (doubles (n2d 0.01) (n2d 0.02) (n2d 0.07)) d)
+			(doubles (n2d 0.30) (n2d 0.30) (n2d 0.55)) k)
+		daylight (mix3 (mix3 (doubles +double_1 +double_1 +double_1) (doubles (n2d 0.24) (n2d 0.29) (n2d 0.44)) d)
+			(doubles +double_1 (n2d 0.68) (n2d 0.48)) k)
+		shine (mix3 (mix3 (doubles +double_1 (n2d 0.94) (n2d 0.80)) (doubles (n2d 0.80) (n2d 0.90) (n2d 1.15)) d)
+			(doubles (n2d 1.25) (n2d 0.60) (n2d 0.30)) k))
+	(bind '(sx sy sz) sun)
+	(defq n (sqrt (+ (* sx sx) (* sy sy) (* sz sz))))
+	(setq sun (doubles (/ sx n) (/ sy n) (/ sz n)) night d
+		;the moon lit by the sun by day, and full by night, lit from behind
+		;the eye, the way to it turned round
+		moon_lit (blend sun_at moon_way (- +double_1 d) (neg d)))
+	(bind '(sx sy sz) moon_lit)
+	(defq n (sqrt (+ (* sx sx) (* sy sy) (* sz sz))))
+	(setq moon_lit (doubles (/ sx n) (/ sy n) (/ sz n))))
 
 (defun spring (x v to dt)
 	; (spring x v to dt) -> (x v)
@@ -368,10 +431,13 @@
 		;whole cells of it
 		gpu (eql (. render :mode) :gpu) cell (if gpu +cell +cell_cpu)
 		shift (doubles (* (n2d (n2i (/ (first eye) cell))) cell) (* (n2d (n2i (/ (third eye) cell))) cell)))
+	;the day as it is now, the sun, the sky and the light
+	(day-state seconds)
 	(. render :frame (cat (list
 		(list +mesh_sky '()
 			(list (list 'forward forward) (list 'right right) (list 'up up)
-				(list 'spread (doubles spread_x +spread_y)) (list 'sun sun) (list 'haze haze) (list 'above above))
+				(list 'spread (doubles spread_x +spread_y)) (list 'sun sun_at) (list 'haze haze) (list 'above above)
+				(list 'moon moon_way) (list 'night night))
 			'() sky_files)
 		;the moon, the eye's way to it the same however far the eye goes, as
 		;anything in the sky, turning slowly on its leaning axis
@@ -381,10 +447,12 @@
 					(mat4x4-mul (mat4x4-scale +moon_size +moon_size +moon_size) (defq spin (mat4x4-mul (mat4x4-rotz +moon_lean)
 						(mat4x4-roty (* seconds +moon_turn)))))))
 				(list 'spin spin) (list 'lens view))
-			(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'rise (second moon_way)))
+			(list (list 'sun moon_lit) (list 'haze haze) (list 'above above) (list 'rise (second moon_way))
+				(list 'bright (+ (n2d 1.5) (* (n2d 4.5) night))))
 			(list moon_map) moon_files)
 		(list (if gpu +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
 			(cat (list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
+				(list 'daylight daylight) (list 'shine shine) (list 'night night)
 				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12))
 				;the craft about, their shadows and their lights on the land
 				(fleet-lights seconds))))
@@ -466,6 +534,8 @@
 	(. jobs :add (map (lambda ((command flat))
 			(cat (setf-> (str-alloc +part_size) (+part_num (!)) (+part_flat (if flat 1 0))) command)) craft_parts))
 	(config-load)
+	;the day starts where it will, so each time is another time of it
+	(setq day_start (n2d (random (n2i (+ +day_long +dusk_long +night_long +dawn_long)))))
 	(setq land_height (shader-vp-func (shader-load (cat *app_root* "land.shader")) 'ground)
 		place (eight-point round_at) way (doubles +double_1 +double_0))
 	(path-set (. *config* :find :path))
@@ -516,6 +586,12 @@
 					;the music: the song before, on or off, the next
 					((= id +event_prev) (. music :move -1))
 					((= id +event_next) (. music :move 1))
+					;the day dragged to another time of it
+					((= id +event_day)
+						(defq total (+ +day_long +dusk_long +night_long +dawn_long))
+						(setq day_dragged (pii-time)
+							day_start (- (/ (* (n2d (get :value *day*)) total) (n2d 1000))
+								(/ (n2d (- (pii-time) began)) (n2d 1000000)))))
 					((= id +event_music)
 						(setq music_on (not (. music :title)))
 						(if music_on (and (> (. music :load) 0) (. music :start)) (. music :stop))

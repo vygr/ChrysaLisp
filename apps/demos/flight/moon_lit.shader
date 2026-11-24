@@ -17,11 +17,12 @@
 (definput haze :vec3)
 (definput above :vec3)
 (definput rise :float)
+;how bright its light is, more by night
+(definput bright :float)
 
 (defvarying uv :vec2)
 (defvarying facing :vec3)
 
-(defconst bright 1.5)
 
 (defun main :vec4 ((frag :vec2))
 	(defq sky (mix haze above (pow rise 0.6))
