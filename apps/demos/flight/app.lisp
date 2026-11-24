@@ -30,7 +30,7 @@
 ;the frame's two sizes, the min and max buttons
 (defq +small ''(640 480) +large ''(1024 768))
 
-(defq +timer_rate (/ 1000000 30)
+(defq +timer_rate (/ 1000000 60)
 	;the grid, cells each way and how big a cell is, the GPU's, and the
 	;CPU's of cells twice as big over the same ground, for a host with no
 	;GPU: a quarter of the vertices, each of which is five samples of the
