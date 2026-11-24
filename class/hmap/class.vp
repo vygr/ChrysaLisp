@@ -33,31 +33,19 @@
 
 	(entry :hmap :init `(,this ,vtable (,this +array_num_buckets)))
 
-	;init parent
-	(s-call :hmap :init `(,this ,vtable) `(,this ,vtable))
+	;init the list, by the hset's parent: the hset's own init makes its
+	;buckets in the array's short storage, this massages that layout first
+	(s-call :hset :init `(,this ,vtable) `(,this ,vtable))
 	(vpif `(,vtable /= 0))
-		;init myself, massage the :array element layout
+		;massage the :array element layout
 		(assign `(,(>> (- +hmap_size +hmap_elems) (log2 +long_size)) (& ,this +hmap_elems) 0)
 			`(,vtable ,num_buckets ,iter_begin))
 		(save-fields this '(+array_capacity +array_begin +hmap_parent)
 			`(,vtable ,num_buckets ,iter_begin))
-		;now the buckets
-		(assign `((,this +array_num_buckets)) `(,vtable))
-		(vpif `(,vtable /= 1))
-			(assign `(,vtable) `((,this +array_length)))
-			(call :hmap :set_cap `(,this ,vtable) `(,this) :r2)
-			(class/array/get_both this iter_begin iter_end)
-			(vp-cpy-rr this saved_this)
-			(loop-start)
-				(call :list :create :nil `((,iter_begin 0)))
-				(vp-add-cr +ptr_size iter_begin)
-			(loop-until `(,iter_begin = ,iter_end))
-			(vp-cpy-rr saved_this this)
-			;it went well: said here, and not left as whatever the last
-			;create of a list had in the register
-			(vp-cpy-rr this vtable)
-		(endif)
+		(vp-cpy-cr 1 vtable)
 	(endif)
+	;then the buckets, as the hset's are made
+	(hset-buckets this vtable iter_begin iter_end saved_this)
 
 	(exit :hmap :init `(,this ,vtable))
 	(vp-ret)

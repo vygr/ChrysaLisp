@@ -57,7 +57,9 @@ indirection through **embedded inline storage**.
 docs/diagrams/hot_cell.cwb
 ```
 
-*	The `:hmap` class inherits from `:list` and `:array`.
+*	The `:hmap` class inherits from `:hset`, `:list` and `:array`: its
+	buckets are an hset's, of `[key value]` pairs where the hset's are of
+	keys, as a `:pmap` is a `:pset`'s.
 
 *	The object header reserves a dedicated section (`+hmap_elems`) mapping
 	directly into the remainder of the cell allocated from the heap.

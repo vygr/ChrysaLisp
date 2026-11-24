@@ -1,7 +1,9 @@
-(import "././list/struct.inc")
+(import "././hset/struct.inc")
 
-;:hmap inherits from :list, BUT we want to massage the layout
-;of the underlying :array/:list structure...
+;:hmap inherits from :hset, its buckets an hset's of [key value] pairs where
+;the hset's are of keys, as a pmap's are a pset's, BUT we want to massage
+;the layout of the underlying :array/:list structure: the hset adds no
+;fields, so this is laid over the array's...
 
 (structure +hmap +array_elems
 	(plong parent)

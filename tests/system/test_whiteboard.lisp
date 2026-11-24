@@ -104,7 +104,7 @@
 (assert-eq "what is not a board kept, or one of another version, changes nothing" "(:nil :nil :nil (1 2))" (elem-get wa_cfg 4))
 
 (defq wa_out (wa-run (cat
-			"(print (list (View? *window*) (Board? *board*) (Board-view? *board_view*)))"
+			"(print (map (# (if %0 :t :nil)) (list (View? *window*) (Board? *board*) (Board-view? *board_view*))))"
 			"(print (. *window* :pref_size))"
 			"(print (list (canvas-size) (wa-draw)))"
 			;the pen, the left button
@@ -147,7 +147,7 @@
 			"(print (list (length bite_was) (length bite_is) (eql (str bite_was) (str bite_is)) bite_hit bite_kept (eql (str bite_was) (str (wa-ids))) (get :rub_mode *board*)))")))
 (assert-eq "the eraser bites, in the app: the box is another thing with the middle gone, no mode is kept, undo has the box back, and a mode that was kept once is not taken"
 	"(1 1 :nil :nil :nil :t :bite)" (last wa_out))
-(assert-eq "the app's file loads, and it has a window, a board and a view of it" "(4 4 5)" (elem-get wa_out 0))
+(assert-eq "the app's file loads, and it has a window, a board and a view of it" "(:t :t :t)" (elem-get wa_out 0))
 (assert-true "the window has a size it wants, no wider than a small screen"
 	(progn (defq wa_size (first (read (string-stream (elem-get wa_out 1))))) (and (> (first wa_size) 400) (< (first wa_size) 1000))))
 (assert-eq "the board is 1024 by 768 and draws, with nothing on it" "((1024 768) 0)" (elem-get wa_out 2))

@@ -33,26 +33,9 @@
 
 	(entry :hset :init `(,this ,vtable (,this +array_num_buckets)))
 
-	;init parent
+	;init parent, then the buckets
 	(s-call :hset :init `(,this ,vtable) `(,this ,vtable))
-	(vpif `(,vtable /= 0))
-		;init myself
-		(assign `((,this +array_num_buckets)) `(,vtable))
-		(vpif `(,vtable /= 1))
-			(assign `(,vtable) `((,this +array_length)))
-			(call :hset :set_cap `(,this ,vtable) `(,this) :r2)
-			(class/array/get_both this iter_begin iter_end)
-			(vp-cpy-rr this saved_this)
-			(loop-start)
-				(call :list :create :nil `((,iter_begin 0)))
-				(vp-add-cr +ptr_size iter_begin)
-			(loop-until `(,iter_begin = ,iter_end))
-			(vp-cpy-rr saved_this this)
-			;it went well: said here, and not left as whatever the last
-			;create of a list had in the register
-			(vp-cpy-rr this vtable)
-		(endif)
-	(endif)
+	(hset-buckets this vtable iter_begin iter_end saved_this)
 
 	(exit :hset :init `(,this ,vtable))
 	(vp-ret)

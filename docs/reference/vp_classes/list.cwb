@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 98
+	:next_id 94
 	:items
 	((:list 1)
 		((:list 7)
@@ -1411,7 +1411,7 @@
 					:stroke
 					0
 					:text
-					"[3 classes come of it]"
+					"[2 classes come of it]"
 					:font
 					"[fonts/OpenSans-Bold.ctf]"
 					:font_size
@@ -1433,7 +1433,7 @@
 							:id
 							23
 							:items
-							((:list 3)
+							((:list 2)
 								((:list 5)
 									:group
 									:id
@@ -1443,15 +1443,15 @@
 										((:list 5)
 											:group
 											:id
-											89
+											88
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													92
+													90
 													:d
-													"[M 6 0 L 45.40625 0 A 6 6 0 0 1 51.40625 6 L 51.40625 18 A 6 6 0 0 1 45.40625 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+													"[M 6 0 L 38.78076 0 A 6 6 0 0 1 44.78076 6 L 44.78076 18 A 6 6 0 0 1 38.78076 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
 													4294112502
 													:stroke
@@ -1462,7 +1462,7 @@
 												((:list 15)
 													:shape
 													:id
-													93
+													91
 													:kind
 													:text
 													:fill
@@ -1470,7 +1470,7 @@
 													:stroke
 													0
 													:text
-													"[:hmap]"
+													"[:hset]"
 													:font_size
 													12
 													:pos
@@ -1492,67 +1492,13 @@
 										((:list 5)
 											:group
 											:id
-											90
+											89
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													94
-													:d
-													"[M 6 0 L 38.78076 0 A 6 6 0 0 1 44.78076 6 L 44.78076 18 A 6 6 0 0 1 38.78076 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
-													:fill
-													4294112502
-													:stroke
-													4282140240
-													:width
-													1.19999
-												)
-												((:list 15)
-													:shape
-													:id
-													95
-													:kind
-													:text
-													:fill
-													4280296488
-													:stroke
-													0
-													:text
-													"[:hset]"
-													:font_size
-													12
-													:pos
-													((:list 2)
-														10.00000
-														16.00000
-													)
-												)
-											)
-										)
-									)
-									:pos
-									((:list 2)
-										59.40625
-										0.00000
-									)
-								)
-								((:list 7)
-									:group
-									:id
-									88
-									:items
-									((:list 1)
-										((:list 5)
-											:group
-											:id
-											91
-											:items
-											((:list 2)
-												((:list 11)
-													:shape
-													:id
-													96
+													92
 													:d
 													"[M 6 0 L 39.06787 0 A 6 6 0 0 1 45.06787 6 L 45.06787 18 A 6 6 0 0 1 39.06787 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1565,7 +1511,7 @@
 												((:list 15)
 													:shape
 													:id
-													97
+													93
 													:kind
 													:text
 													:fill
@@ -1587,7 +1533,7 @@
 									)
 									:pos
 									((:list 2)
-										112.18701
+										52.78076
 										0.00000
 									)
 								)

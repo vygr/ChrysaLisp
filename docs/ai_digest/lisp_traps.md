@@ -333,7 +333,7 @@ and its own last. A double is a fixed, and a fixed is a num.
 (type-of 1.5)         ; -> (:num :fixed)
 (type-of (n2d 1.5))   ; -> (:num :fixed :double)
 (type-of (list))      ; -> (:seq :array :list)
-(type-of (Fmap))      ; -> (:seq :array :list :hmap)
+(type-of (Fmap))      ; -> (:seq :array :list :hset :hmap)
 ```
 
 A predicate with one `?` asks if a thing is of a class or of any class
@@ -366,7 +366,7 @@ So to tell a double from a fixed from a num, ask `double?` first, then
 `fixed?`, then `num?`. And where a list is to be told from the things that
 are built on one, a map, a class of your own, it is `list??` that is
 wanted. `(. obj :type_of)` is the chain with the Lisp classes on the end
-as well, `(:seq :array :list :hmap :View :Label :Button)`.
+as well, `(:seq :array :list :hset :hmap :View :Label :Button)`.
 [`docs/ai_digest/type_system.md`](type_system.md) has the whole of it.
 
 ### `trim` wants its characters in order

@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "class/nodeid/class.inc")
 (include "class/hset/class.inc")
+(include "class/nums/class.inc")
 (include "class/lisp/class.inc")
 (include "gui/font/class.inc")
 (include "./class.inc")
