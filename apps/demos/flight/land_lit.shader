@@ -73,11 +73,17 @@
 	(* way (* high fine (cos (+ (* fine (dot way p)) (* fast time))))))
 
 ;ripples, four trains of waves that move with time, as the Surface demo's
-;sines, each its own way, fine, and fast, the fine ones the lower. Less of
-;them the further off, where they would be finer than a pixel
+;sines, each its own way, fine, and fast, the fine ones the lower. Read
+;where a slow noise has moved them to, so their crests bend and never line
+;up into a lattice, and as high as a drifting noise says, patches calm and
+;patches choppy, as the wind lies on water. Less of them the further off,
+;where they would be finer than a pixel
 (defun ripple :vec3 ((p :vec3) (far :float))
-	(defq q (:xz p) slope (+ (wave q (vec2 0.96 0.28) 1.1 1.6 0.06) (wave q (vec2 -0.37 0.93) 1.7 2.1 0.04)
-		(wave q (vec2 0.71 -0.71) 2.9 3.0 0.025) (wave q (vec2 -0.95 -0.31) 4.3 3.7 0.015)))
+	(defq q (:xz p)
+		w (+ q (* 7.0 (vec2 (noise2 (* q 0.06)) (noise2 (+ (* q 0.06) (vec2 31.0 17.0))))))
+		patch (+ 0.35 (* 1.3 (noise2 (+ (* q 0.025) (vec2 (* time 0.04) (* time 0.03))))))
+		slope (* patch (+ (wave w (vec2 0.96 0.28) 1.1 1.6 0.06) (wave w (vec2 -0.37 0.93) 1.7 2.1 0.04)
+			(wave w (vec2 0.71 -0.71) 2.9 3.0 0.025) (wave w (vec2 -0.95 -0.31) 4.3 3.7 0.015))))
 	(normalize (vec3 (- (:x (* slope far))) 1.0 (- (:y (* slope far))))))
 
 ;the sky in a way, as sky_lit.shader has it, the haze at the horizon to
