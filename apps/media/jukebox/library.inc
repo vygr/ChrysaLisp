@@ -154,7 +154,7 @@
 	;it could be, millpwr.xm is millenium powerup.xm and nostal.xm sid
 	;nostalgica.xm
 	(defq stem (name-stem name) plain (name-plain name) ending (name-ending (url-decode name))
-		modules (map (# (list %0)) names))
+		modules (map (const list) names))
 	(or (some (lambda ((entry &ignore)) (if (eql (name-stem entry) stem) entry)) modules)
 		(and (nempty? plain) (only-one modules (lambda ((entry &ignore)) (eql (name-plain entry) plain))))
 		(and (nempty? stem) (only-one modules (lambda ((entry &ignore))
@@ -230,7 +230,7 @@
 (defun path-words (path)
 	; (path-words path) -> (word ...)
 	;the words of a path's folders, in lower case, letters and digits
-	(filter (# (nempty? %0))
+	(filter (const nempty?)
 		(split (to-lower (slice path 0 (ifn (rfind "/" path) 0))) (const (char-class " -/:-@[-`{-~")))))
 
 (defun allmods-find (index path)

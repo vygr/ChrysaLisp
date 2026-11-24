@@ -282,7 +282,7 @@
 (defq pf (palette-float pf_board 200 200))
 (. pf_board :tick 3000000)
 (assert-eq "a floating menu shows the mouse's two buttons from the start, as the bars do, the main and the second of its column"
-	"(0 6)" (str (sort (map (const third) (. pf :devices)) (# (- %0 %1)))))
+	"(0 6)" (str (sort (map (const third) (. pf :devices)) (const -))))
 (assert-eq "what each shows is what it uses, the board's till it binds its own: its mode, its pen, its width"
 	(str (list :mode (get :mode pf_board) :pen (get :pen pf_board) :width (get :width pf_board)))
 	(str (slice (second (first (filter (# (= (third %0) 0)) (. pf :devices)))) 0 6)))
@@ -345,7 +345,7 @@
 (pl-drag pp_board 0 :mouse +pev_right 150 20 250 120)
 (assert-eq "a rect is the main pen's outline and no fill; a filled rect the main pen's outline and the second's fill, whichever button drew it"
 	(str (list 0xffff0000 0 0xffff0000 0x6000ff00 0xffff0000 0x6000ff00))
-	(str (map (# (cwb-get %0 %1)) (list pp_rect pp_rect pp_frect pp_frect (pp-last) (pp-last)) '(:stroke :fill :stroke :fill :stroke :fill))))
+	(str (map (const cwb-get) (list pp_rect pp_rect pp_frect pp_frect (pp-last) (pp-last)) '(:stroke :fill :stroke :fill :stroke :fill))))
 (. pp_b :set :mouse 0 +pev_middle :color 0x600000ff)
 (. pp_b :set :mouse 0 +pev_left :mode :frect)
 (pl-drag pp_board 0 :mouse +pev_left 20 200 120 300)

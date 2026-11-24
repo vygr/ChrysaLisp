@@ -9,17 +9,17 @@
 	(filter (# (> %0 1)) (list 1 2 3)) '(2 3)
 	(filter (lambda (x) :nil) (list 1 2 3)) '()
 	(filter (# (eql %0 "a")) "banana") '("a" "a" "a")
-	(reduce (# (+ %0 %1)) (list) 0) 0
-	(reduce (# (+ %0 %1)) (list 5) 0) 5
+	(reduce (const +) (list) 0) 0
+	(reduce (const +) (list 5) 0) 5
 	;with no initial value the first element is used
-	(reduce (# (+ %0 %1)) (list 1 2 3)) 6
-	(reduce (# (cat %0 %1)) "abc" "") "abc"
+	(reduce (const +) (list 1 2 3)) 6
+	(reduce (const cat) "abc" "") "abc"
 	(reduce max (list 3 9 2) 0) 9
 	(reduce (lambda (acc x) (if (> x acc) x acc)) (nums 3 9 2) 0) 9
-	(reduce (# (push %0 %1)) "abc" (list)) '("a" "b" "c")
+	(reduce (const push) "abc" (list)) '("a" "b" "c")
 	(rreduce (# (cat %0 (str %1))) (list 1 2 3) "") "321"
 	(rmap (# %0) (list)) '()
-	(rfilter (# (even? %0)) (list 1 2 3 4)) '(4 2)
+	(rfilter (const even?) (list 1 2 3 4)) '(4 2)
 	(map (const str) (list 1 :a "b")) '("1" ":a" "b"))
 
 ; --- some, every and friends, and what they give on an empty sequence ---
@@ -95,9 +95,9 @@
 	(some! (# (if (> %0 2) %0)) (list (list 1 2 3 4)) :nil 0 2) :nil
 	(some! (# (if (> %0 2) %0)) (list (list 1 2 3 4)) :nil 4 0) 4
 	(some! (# (if (> %0 9) %0)) (list (list 1 2 3 4))) :nil
-	(reduce! (# (+ %0 %1)) (list (list 1 2 3 4)) 0 1 3) 5
-	(reduce! (# (+ %0 %1)) (list (list 1 2 3 4)) 0 3 1) 5
-	(reduce! (# (+ %0 %1)) (list (list 1 2 3 4)) 0 2 2) 0
+	(reduce! (const +) (list (list 1 2 3 4)) 0 1 3) 5
+	(reduce! (const +) (list (list 1 2 3 4)) 0 3 1) 5
+	(reduce! (const +) (list (list 1 2 3 4)) 0 2 2) 0
 	;reduce! over two sequences, the lambda takes the accumulator and one of each
 	(reduce! (lambda (acc x y) (push acc (list x y))) (list '(a b) (nums 10 20)) (list)) '((a 10) (b 20))
 	(filter! (# (> %0 2)) (list 1 2 3 4)) '(3 4))
@@ -106,31 +106,31 @@
 ; is made. It counts from the start to the end, the end not done, and a
 ; start past the end counts down, as a seq's do ---
 (test-cases
-	(map! (# (!)) '() 0 5) '(0 1 2 3 4)
+	(map! (const !) '() 0 5) '(0 1 2 3 4)
 	;! is a function of no args, the index: the numbers themselves
 	(map! (const !) '() 3 7) '(3 4 5 6)
 	;and it takes any args it is given, the elements of seqs
 	(map! (const !) '((a b c) (d e f))) '(0 1 2)
 	(map! (const !) '((a b c d)) 1 3) '(1 2)
-	(map! (# (!)) '() 5 0) '(4 3 2 1 0)
+	(map! (const !) '() 5 0) '(4 3 2 1 0)
 	(map! ! '() 10 0) '(9 8 7 6 5 4 3 2 1 0)
-	(map! (# (!)) '() -10 -5) '(-10 -9 -8 -7 -6)
-	(map! (# (!)) '() -3 -1) '(-3 -2)
-	(map! (# (!)) '() -1 0) '(-1)
-	(map! (# (!)) '() -1 3) '(-1 0 1 2)
-	(map! (# (!)) '() 0 -1) '(-1)
-	(map! (# (!)) '() 2 -3) '(1 0 -1 -2 -3)
-	(map! (# (!)) '() 3 3) '()
-	(map! (# (!)) '() -3 2) '(-3 -2 -1 0 1)
+	(map! (const !) '() -10 -5) '(-10 -9 -8 -7 -6)
+	(map! (const !) '() -3 -1) '(-3 -2)
+	(map! (const !) '() -1 0) '(-1)
+	(map! (const !) '() -1 3) '(-1 0 1 2)
+	(map! (const !) '() 0 -1) '(-1)
+	(map! (const !) '() 2 -3) '(1 0 -1 -2 -3)
+	(map! (const !) '() 3 3) '()
+	(map! (const !) '() -3 2) '(-3 -2 -1 0 1)
 	;with no seqs the bounds not given are 0 and 0
-	(map! (# (!)) '()) '()
-	(map! (# (!)) '() 5) '(4 3 2 1 0)
-	(map! (# (!)) '() -3) '(-3 -2 -1)
+	(map! (const !) '()) '()
+	(map! (const !) '() 5) '(4 3 2 1 0)
+	(map! (const !) '() -3) '(-3 -2 -1)
 	(reduce! (# (+ %0 (!))) '() 0 -10 10) -10
 	(some! (# (if (= (!) -4) (!))) '() :nil -9 9) -4
 	(some! (# (< (!) 9)) '() :t -9 9) :t
 	;one inside another, each with its own (!)
-	(map! (# (map! (# (!)) '() (!) 3)) '() 0 3) '((0 1 2) (1 2) (2))
+	(map! (# (map! (const !) '() (!) 3)) '() 0 3) '((0 1 2) (1 2) (2))
 	;a step is a count of them
 	(map! (# (* (!) 4)) '() 0 3) '(0 4 8))
 (clear it_out)
@@ -174,16 +174,16 @@
 	(sort (list 1)) '(1)
 	(sort (list "b" "a" "c")) '("a" "b" "c")
 	(sort (list "b" "a" "b" "a")) '("a" "a" "b" "b")
-	(sort (list 3 1 2) (# (- %0 %1))) '(1 2 3)
+	(sort (list 3 1 2) (const -)) '(1 2 3)
 	(sort (list 3 1 2) (# (- %1 %0))) '(3 2 1)
-	(sort (list 2 1 2 1 2) (# (- %0 %1))) '(1 1 2 2 2)
-	(sort (list 1 1 1) (# (- %0 %1))) '(1 1 1)
-	(sort (list 5 1 4 1 5 9 2 6 5 3 5) (# (- %0 %1))) '(1 1 2 3 4 5 5 5 5 6 9)
+	(sort (list 2 1 2 1 2) (const -)) '(1 1 2 2 2)
+	(sort (list 1 1 1) (const -)) '(1 1 1)
+	(sort (list 5 1 4 1 5 9 2 6 5 3 5) (const -)) '(1 1 2 3 4 5 5 5 5 6 9)
 	;just a range of the list
 	(sort (list 5 4 3 2 1) (const -) 1 4) '(5 2 3 4 1)
-	(usort (list 3 1 3 2 1) (# (- %0 %1))) '(1 2 3)
+	(usort (list 3 1 3 2 1) (const -)) '(1 2 3)
 	(usort (list)) '()
-	(pivot (# (- %0 %1)) (list 1) 0 1) 0
+	(pivot (const -) (list 1) 0 1) 0
 	(shuffle (list)) '()
 	(shuffle (list 1)) '(1))
 

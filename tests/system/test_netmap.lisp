@@ -73,7 +73,7 @@
 (defq nm_sent 1500 nm_heats (list))
 (times 6 (setq nm_sent (+ nm_sent 100000)) (nm-says 1 (list 2 nm_sent)) (nm-says 2 '(1 0))
 	(links-gather) (push nm_heats (get :heat (nm-link 1 2))))
-(assert-true "a flow that lasts, the heat climbs each poll" (every (# (< %0 %1)) nm_heats (rest nm_heats)))
+(assert-true "a flow that lasts, the heat climbs each poll" (every (const <) nm_heats (rest nm_heats)))
 (assert-true "it does not jump to hot at once" (< (first nm_heats) (const (n2d 0.5))))
 (assert-true "and is most of the way there after six" (> (last nm_heats) (const (n2d 0.7))))
 (assert-true "it is never more than all" (<= (last nm_heats) +double_1))

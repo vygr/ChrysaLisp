@@ -29,4 +29,4 @@
 (assert-eq "a normal for each face" 32 (/ (length (. lk_cyl :get_norms)) 3))
 (assert-true "it stands on y, from -1 to 1"
 	(every (# (or (= %0 +double_1) (= %0 +double_-1)))
-		(map (# (second %0)) (partition (. lk_cyl :get_verts) 4))))
+		(map (const second) (partition (. lk_cyl :get_verts) 4))))

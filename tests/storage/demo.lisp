@@ -20,7 +20,7 @@
 		(bind '(path data) (first objects))
 		(defq back (storage-walk path 0 +scene_gopher :nil 30 (scene-svc sc "m-e")))
 		(scene-say sc "A gopher sent from m-e to " path " to add up its bytes went by way of "
-			(join (map (# (first %0)) (ifn (second back) (list))) " "))
+			(join (map (const first) (ifn (second back) (list))) " "))
 		(scene-check sc "it came back with what they add up to" (and back (= (first back) (scene-sum data))))
 		(scene-check sc "having been to more than one member"
 			(> (length (reduce (lambda (all (who &ignore)) (if (find who all) all (push all who))) (ifn (second back) (list)) (list))) 1)))

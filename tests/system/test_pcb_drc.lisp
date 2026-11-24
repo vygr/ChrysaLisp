@@ -28,7 +28,7 @@
 (assert-list-eq "and each net joined" '() u)
 (bind '(s &ignore) (pd-check (pd-track 1 5 5 0 0) (pd-track 2 5.3 5.3 0 0)))
 (assert-true "0.3 apart, a short" (> (length s) 0))
-(assert-list-eq "between the two nets" '(1 2) (sort (slice (first s) 0 2) (# (- %0 %1))))
+(assert-list-eq "between the two nets" '(1 2) (sort (slice (first s) 0 2) (const -)))
 (bind '(s &ignore) (pd-check (pd-track 1 5 15 1 1) (pd-track 2 15 5 0 0)))
 (assert-eq "crossing on two layers, clear" 0 (length s))
 (bind '(s &ignore) (pd-check (pd-track 1 5 15 0 0) (pd-track 2 15 5 0 0)))

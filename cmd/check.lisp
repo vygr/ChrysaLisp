@@ -429,7 +429,7 @@
 			(filter (# (and (eql (first %0) :symbol) (. *root_names* :find (third %0)))) (forms-of params))
 			(list)))
 	(when (nempty? names)
-		(defq names (map (# (third %0)) names) todo (map (const tree-form?) (filter! (const tree-form?) forms (inc at) -1)))
+		(defq names (map (const third) names) todo (map (const tree-form?) (filter! (const tree-form?) forms (inc at) -1)))
 		(while (defq kids (pop todo))
 			(defq in (forms-of kids))
 			(each (# (if (defq more (tree-form? %0)) (push todo more))) in)
@@ -761,7 +761,7 @@
 				(cat "(" before name " f " (if (eql head "filter") names (cat "(list " names ")")) after " " range
 					(if (eql before "") ")" "))")))
 			", (!) is then the index in the whole"
-			(if (some (# (third %0)) parts) ", and if it can be empty it is an error" ""))))
+			(if (some (const third) parts) ", and if it can be empty it is an error" ""))))
 
 ;the iterators that take a function first, and its sequences after
 (defq +iterators ''("each" "map" "some" "every" "notany" "notevery" "reach" "rmap" "rsome"
@@ -791,7 +791,7 @@
 				((and (eql head "elem-get") (= (length forms) 3)
 						(defq at (tree-form? (third forms) "!")) (= (length (forms-of at)) 1))
 					(push out node))
-				((reduce (# (push %0 %1)) forms todo)))))
+				((reduce (const push) forms todo)))))
 	out)
 
 (defun names-in (node names)
@@ -801,7 +801,7 @@
 	(while (defq node (pop todo))
 		(cond
 			((eql (first node) :symbol) (. names :insert (third node)))
-			((defq kids (tree-form? node)) (reduce (# (push %0 %1)) (forms-of kids) todo))))
+			((defq kids (tree-form? node)) (reduce (const push) (forms-of kids) todo))))
 	names)
 
 (defun bound-in (node)
@@ -818,8 +818,8 @@
 					(each! (# (if (odd? (!)) (names-in %0 names) (push todo %0))) (list forms) 1 -1))
 				((find head '("lambda" "bind"))
 					(if (> (length forms) 1) (names-in (second forms) names))
-					(reduce! (# (push %0 %1)) (list forms) todo 2 -1))
-				((reduce (# (push %0 %1)) forms todo)))))
+					(reduce! (const push) (list forms) todo 2 -1))
+				((reduce (const push) forms todo)))))
 	names)
 
 (defun check-index (file forms head)
@@ -881,7 +881,26 @@
 		((and (find head '("when" "if")) (= (length forms) 3) (tree-form? (second forms) "and"))
 			(found file node "style" "(" head " (and ...) form) is an (and ... form)"))
 		((and (find head '("cond" "condn")) (= (length forms) 2) (eql (first (second forms)) :form))
-			(found file node "style" "a (" head ") of one clause"))))
+			(found file node "style" "a (" head ") of one clause"))
+		;a lambda that gives a function its args as it has them, each in
+		;order, is that function, called for each element once more, and a
+		;function of any number of args held to that number. Only of one of
+		;the system, a native or a Lisp function, bound as this is read: not
+		;a macro or a special form, which are no function to be given, nor
+		;one defined later, where the lambda's late look up is wanted
+		((and (eql head "#") (= (length forms) 2) (defq body (tree-form? (second forms)))
+				(nempty? body) (eql (first (first body)) :symbol)
+				(or (= (length body) 1)
+					(some! (lambda (arg) (and (eql (first arg) :symbol) (eql (third arg) (cat "%" (str (dec (!)))))))
+						(list body) :t 1 -1))
+				(defq f (third (first body)))
+				(not (find f '("if" "cond" "condn" "while" "until" "case" "progn" "quote" "catch"
+					"setq" "defq" "bind" "lambda" "macro" "!")))
+				(defq v (get (sym f)))
+				(or (func? v) (and (list? v) (nempty? v) (eql (first v) (first (get 'swap))))))
+			(found file node "style" "(# (" f
+				(if (> (length body) 1) (apply (const cat) (map! (lambda (_) (cat " %" (str (dec (!))))) (list body) 1 -1)) "")
+				")) is (const " f "), or " f " where it is a local"))))
 
 (defun doc-words (text)
 	; (doc-words text) -> (word ...)

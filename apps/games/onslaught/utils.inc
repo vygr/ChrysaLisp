@@ -60,7 +60,7 @@
 	; remove all active sprites from all 7 sprite layers, without death hooks,
 	; and put the camera, which sounds pan about, back to the origin
 	(setq *cam_x* 0 *cam_y* 0)
-	(each (# (clear-layer %0)) +sprite_layers))
+	(each (const clear-layer) +sprite_layers))
 
 (defun set-world-layers-pos (x y)
 	; position all children of *world_layers*

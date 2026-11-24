@@ -125,7 +125,7 @@
 
 (defun read-rgb (val)
 	;rgb() and rgba(), each of 0 to 255 or a %, the alpha 0 to 1
-	(bind '(r g b &optional a) (filter! (# (nempty? %0)) (split val (const (char-class "(), \t"))) 1 -1))
+	(bind '(r g b &optional a) (filter! (const nempty?) (split val (const (char-class "(), \t"))) 1 -1))
 	(bind '(r g b) (map (lambda (v)
 			(if (ends-with "%" v) (n2i (/ (* (n2q (read-num v)) 255.0) 100.0)) (read-num v)))
 		(list r g b)))
@@ -477,7 +477,7 @@
 			;pairs of numbers, a last one alone left out: a path of an odd
 			;length takes the fill and the stroke past its end
 			(defq p (reduce (# (push %0 (n2q (read-num %1))))
-				(filter (# (nempty? %0)) (split val (const (char-class "\t\n\r ,")))) (path)))
+				(filter (const nempty?) (split val (const (char-class "\t\n\r ,")))) (path)))
 			(if (odd? (length p)) (slice p 0 -2) p))
 		("transform"
 			(read-transform entry val))
@@ -488,7 +488,7 @@
 		("stroke-dasharray"
 			;none, or lengths, an odd number of them said twice; one less
 			;than 0 or one not known is none, as is a pattern of no length
-			(defq l (map (const read-length) (filter (# (nempty? %0)) (split val (const (char-class "\t ,"))))))
+			(defq l (map (const read-length) (filter (const nempty?) (split val (const (char-class "\t ,"))))))
 			(cond
 				((or (eql val "none") (empty? l) (some (# (or (not (num? %0)) (< %0 0.0))) l)) :nil)
 				((= 0.0 (reduce (const +) l 0.0)) :nil)
@@ -994,7 +994,7 @@
 					(rsome (# (last (elem-get %0 i))) text_pos)) '(0 1 2 3 4)))
 			;a rotate's last goes on for all the characters after it
 			(each (lambda ((xs ys dxs dys rs))
-					(each (# (pop %0)) (list xs ys dxs dys))
+					(each (const pop) (list xs ys dxs dys))
 					(if (> (length rs) 1) (pop rs)))
 				text_pos)
 			(setq text_rot (if r (* r (const (/ +fp_pi 180.0))) 0.0))

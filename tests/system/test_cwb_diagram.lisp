@@ -20,7 +20,7 @@
 (assert-true "twenty rows are set in two columns, a little taller than eight and not twice" (and (> dg_mw dg_fw) (< dg_mh (* 1.3 dg_fh))))
 
 ;a row goes onto another line when it is too wide
-(bind '(dg_row dg_rw dg_rh) (dia-row (map (# (dia-pill %0)) '("one" "two" "three" "four" "five" "six")) 8.0 120.0))
+(bind '(dg_row dg_rw dg_rh) (dia-row (map (const dia-pill) '("one" "two" "three" "four" "five" "six")) 8.0 120.0))
 (assert-true "six pills in a row no wider than 120 are on more than one line" (and (<= dg_rw 120.0) (> dg_rh 50.0)))
 
 ;a tree: each thing to the right of what it comes of, and what things come of half way between them

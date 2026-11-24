@@ -116,7 +116,7 @@
 
 ;the levels of each code of bap 1, 2 and 4, at 0, 96 and 480, and of bap
 ;3 and 5, at 736 and 744, for the native reader of the mantissas
-(defq +ac3_levels (reduce (# (push %0 %1)) (cat (ac3-grouped 32 3 3) (ac3-grouped 128 3 5) (ac3-grouped 128 2 11)
+(defq +ac3_levels (reduce (const push) (cat (ac3-grouped 32 3 3) (ac3-grouped 128 3 5) (ac3-grouped 128 2 11)
 			(map! (# (/ (n2d (- (* 2 (!)) 6)) (n2d 7))) '() 0 8) (map! (# (/ (n2d (- (* 2 (!)) 14)) (n2d 15))) '() 0 16))
 		(cap 760 (doubles))))
 
@@ -136,7 +136,7 @@
 ;bits of each bap, then the offset of each bap's vectors
 (defq +ac3_aht_vq (reduce! (lambda (out vq) (reduce (# (push %0 (/ (n2d %1) (n2d 32768)))) vq out))
 		(list *ac3_aht_vq*) (cap 5736 (doubles)) 1 -1)
-	+ac3_aht_consts (reduce (# (push %0 %1)) (cat
+	+ac3_aht_consts (reduce (const push) (cat
 			(map (# (/ (n2d %0) (n2d 32768))) (. +ac3 :find :gaq_remap))
 			(map (# (/ (n2d %0) (n2d 32768))) (apply (const cat) (. +ac3 :find :gaq_remap_a)))
 			(map (# (/ (n2d %0) (n2d 32768))) (apply (const cat) (. +ac3 :find :gaq_remap_b)))

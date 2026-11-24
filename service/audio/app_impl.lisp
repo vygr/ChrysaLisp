@@ -75,7 +75,7 @@
 						; Remove sound effect
 						(defq handle (getf msg +audio_remove_handle))
 						(audio-reply (cond
-								((<= (. refs_map :update handle (# (dec %0))) 0)
+								((<= (. refs_map :update handle (const dec)) 0)
 									;last ref has gone, and with it all that is kept of it
 									(. file_map :erase (. handle_map :find handle))
 									(. handle_map :erase handle)

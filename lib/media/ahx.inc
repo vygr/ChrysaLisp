@@ -400,7 +400,7 @@
 				:samples (map! (# (scatter (Emap) :name (. %0 :find :name) :data "" :length 0)) (list instruments) 1 -1)
 				:instruments instruments :positions positions :tracks tracks :restart restart :mult mult
 				:track_len trkl :version version :mixgain gain
-				:orders (map! (# (!)) '() 0 posn) :rows (map! (# trkl) '() 0 posn)
+				:orders (map! (const !) '() 0 posn) :rows (map! (# trkl) '() 0 posn)
 				:patterns (map (lambda (pos)
 						(defq cells (nums) tr (first pos))
 						(each! (lambda ()

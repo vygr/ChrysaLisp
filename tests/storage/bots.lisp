@@ -40,7 +40,7 @@
 		;a good one is waited for till it comes, a bad one has its tick
 		back (map (lambda ((o j bad mbox)) (list o j bad (storage-walk-answer mbox :t))) (filter (# (not (third %0))) sent))
 		good_ms (/ (- (pii-time) t0) 1000)
-		back (cat back (map (lambda ((o j bad mbox)) (list o j bad (storage-walk-answer mbox 120))) (filter (# (third %0)) sent))))
+		back (cat back (map (lambda ((o j bad mbox)) (list o j bad (storage-walk-answer mbox 120))) (filter (const third) sent))))
 	(list (length (filter (lambda ((o j bad answer)) (and (not bad) answer
 						(eql (str (first answer)) (str (elem-get (elem-get want o) j))))) back))
 		(length (filter (lambda ((o j bad answer)) (and bad (not answer))) back))

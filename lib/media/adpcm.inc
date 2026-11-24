@@ -45,7 +45,7 @@
 		deltas (map! (# (get-short s (+ at (* 2 (!))))) '() 0 channels) at (+ at (* 2 channels))
 		s1 (map! (# (get-short s (+ at (* 2 (!))))) '() 0 channels) at (+ at (* 2 channels))
 		s2 (map! (# (get-short s (+ at (* 2 (!))))) '() 0 channels) at (+ at (* 2 channels))
-		chans (map! (# (nums %0 %1)) (list s2 s1) 0 channels) c 0)
+		chans (map! (const nums) (list s2 s1) 0 channels) c 0)
 	(defun nibble (n)
 		(defq p (* 2 (elem-get preds c))
 			;a signed shift, >>>, the prediction may be less than 0
@@ -70,7 +70,7 @@
 	(defq steps (. +adpcm :find :ima_steps) index_table (. +adpcm :find :ima_index)
 		samples (map! (# (get-short s (* 4 (!)))) '() 0 channels)
 		indexes (map! (# (clamp (code s 1 (+ 2 (* 4 (!)))) 0 88)) '() 0 channels)
-		chans (map! (# (nums %0)) (list samples) 0 channels) at (* 4 channels))
+		chans (map! (const nums) (list samples) 0 channels) at (* 4 channels))
 	(defun nibble (c n)
 		(defq step (elem-get steps (elem-get indexes c)) diff (>> step 3))
 		(if (/= 0 (logand n 4)) (setq diff (+ diff step)))

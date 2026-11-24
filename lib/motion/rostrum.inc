@@ -494,7 +494,7 @@
 				(rostrum-place-one node (get :fig_world up) (get :fig_world_alpha up)))
 			ros_order)
 		(when ros_by_depth
-			(setq ros_order (map (# (second %0))
+			(setq ros_order (map (const second)
 					(sort (map (# (list (elem-get (get :fig_world %0) 11) %0)) ros_order)
 						(lambda (a b) (cond ((> (first a) (first b)) -1) ((< (first a) (first b)) 1) (0)))))))
 		(each (lambda (node)

@@ -133,20 +133,20 @@
 	(ee-multi "a b a" "a" (# (edit-insert "XYZ"))) "XYZ b XYZ"
 	;typing replaces the selection, even with nothing
 	(ee-multi "a b a" "a" (# (edit-insert ""))) " b "
-	(ee-multi "a b a" "a" (# (edit-delete))) " b "
-	(ee-multi "a b a" "a" (# (edit-backspace))) " b "
-	(ee-multi "ab cd ab" "ab" (# (edit-upper))) "AB cd AB"
-	(ee-multi "AB cd AB" "AB" (# (edit-lower))) "ab cd ab"
-	(ee-multi "a b a" "a" (# (edit-cut))) " b "
+	(ee-multi "a b a" "a" (const edit-delete)) " b "
+	(ee-multi "a b a" "a" (const edit-backspace)) " b "
+	(ee-multi "ab cd ab" "ab" (const edit-upper)) "AB cd AB"
+	(ee-multi "AB cd AB" "AB" (const edit-lower)) "ab cd ab"
+	(ee-multi "a b a" "a" (const edit-cut)) " b "
 	;matches that touch each other
 	(ee-multi "aaa" "a" (# (edit-insert "bb"))) "bbbbbb"
-	(ee-multi "aaa" "a" (# (edit-delete))) ""
+	(ee-multi "aaa" "a" (const edit-delete)) ""
 	;matches on several lines
 	(ee-multi "x\nx\nx" "x" (# (edit-insert "yy"))) "yy\nyy\nyy"
-	(ee-multi "x1\nx2\nx3" "x" (# (edit-delete))) "1\n2\n3"
+	(ee-multi "x1\nx2\nx3" "x" (const edit-delete)) "1\n2\n3"
 	;text with a line break in it, at every cursor
 	(ee-multi "a,a" "a" (# (edit-insert "1\n2"))) "1\n2,1\n2"
-	(ee-multi "a,a" "," (# (edit-break))) "a\na")
+	(ee-multi "a,a" "," (const edit-break)) "a\na")
 
 ;copy_parts gives each selection, in a list
 (defq ee_parts (list))

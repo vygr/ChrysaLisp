@@ -2,7 +2,7 @@
 ;file with no 0 bytes in its start, so asked only after all those for a
 ;kind
 (file-previewer
-	(# (name-size %0))
+	(const name-size)
 	(lambda (file most_w most_h)
 		(when (defq lines (file-lines file 24))
 			(defq font (create-font "fonts/Hack-Regular.ctf" 10) view (Flow))

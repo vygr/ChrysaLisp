@@ -401,7 +401,7 @@
 			;wait of the whole time each quit was a window that hung about,
 			;half a second
 			(defq until_t (+ (pii-time) 500000))
-			(while (and (< (pii-time) until_t) (some (# (pii-alive %0)) pids))
+			(while (and (< (pii-time) until_t) (some (const pii-alive) pids))
 				(task-sleep 1000))
 			(each (# (if (pii-alive %0) (pii-kill %0))) pids)
 			(each (# (pii-remove (cat "/tmp/" %0))) links)

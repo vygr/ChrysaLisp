@@ -121,10 +121,10 @@
 	;worked out here, the once, so that applying a rule is only a matter of
 	;looking. own is how many twelfths of the limit the form may be wide and
 	;still be one line
-	(defq nums (filter (# (num? %0)) ws)
-		made (list ws (if (nempty? nums) (reduce (# (min %0 %1)) nums)) (if (find :one flags) :t)
-			(if (find :fill flags) :t) (if (find :pairs flags) :t) (if (find :clauses flags) :t)
-			(if (find :flat flags) :t) (if (find :all flags) :t)
+	(defq nums (filter (const num?) ws)
+		made (list ws (if (nempty? nums) (reduce (const min) nums)) (if (find :one flags) :t) (if (find :fill flags) :t)
+			(if (find :pairs flags) :t) (if (find :clauses flags) :t) (if (find :flat flags) :t)
+			(if (find :all flags) :t)
 			(cond
 				((find :half flags) 6)
 				((find :two3 flags) 8)

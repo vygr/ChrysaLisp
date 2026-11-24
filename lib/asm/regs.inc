@@ -7,7 +7,7 @@
 	+vp_rregs_0_14 `'(~(most (last +vp_rregs)))
 	+vp_rregs_map (reduce (# (pinsert %0 %1 (num (!)))) +vp_rregs (pmap))
 	+vp_fpregs_map (reduce (# (pinsert %0 %1 (num (logand (!) 15)))) (cat +vp_dregs +vp_fregs) (pmap))
-	+vp_fregs_map (reduce! (# (pinsert %0 %1 %2)) (list +vp_fregs +vp_dregs) (pmap))
+	+vp_fregs_map (reduce! (const pinsert) (list +vp_fregs +vp_dregs) (pmap))
 	+vp_regs_map (cat +vp_rregs_map +vp_fpregs_map))
 
 ; query and index

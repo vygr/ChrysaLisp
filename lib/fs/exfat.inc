@@ -615,7 +615,7 @@
 				(defq entry (if (second (last found))
 						(. (second (exfat-dir-read vol (last found))) :find (exfat-key vol part))))
 				(if entry (push found entry) (setq found :nil))))
-		(filter (# (nempty? %0)) (split path "/")))
+		(filter (const nempty?) (split path "/")))
 	found)
 
 (defun exfat-find (vol path)
@@ -889,7 +889,7 @@
 
 (defun exfat-split (path)
 	; (exfat-split path) -> (parent name)
-	(defq parts (filter (# (nempty? %0)) (split path "/")))
+	(defq parts (filter (const nempty?) (split path "/")))
 	(list (join (slice parts 0 -2) "/") (ifn (last parts) "")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

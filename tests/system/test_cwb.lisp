@@ -513,14 +513,14 @@
 (. wb_board :select (list wb_sa wb_sb))
 (wb-drag 0 :mouse 1 '((320 320) (330 325)))
 (assert-true "a press on one of them moves them all"
-	(and (wb-near? (wb-of wb_sa) (map (# (+ %0 %1)) wb_a0 '(10.0 5.0 10.0 5.0)) 0.01) (wb-near? (wb-of wb_sb) (map (# (+ %0 %1)) wb_b0 '(10.0 5.0 10.0 5.0)) 0.01)))
+	(and (wb-near? (wb-of wb_sa) (map (const +) wb_a0 '(10.0 5.0 10.0 5.0)) 0.01) (wb-near? (wb-of wb_sb) (map (const +) wb_b0 '(10.0 5.0 10.0 5.0)) 0.01)))
 (defq wb_a0 (wb-of wb_sa) wb_b0 (wb-of wb_sb))
 (. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 320 320)))
 (. wb_board :pointers (list (ptr-event 0x1000008 :touch 1 380 330)))
 (. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 300 310) (ptr-event 0x1000008 :touch 1 420 360)))
 (. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 300 310) (ptr-event 0x1000008 :touch 0 420 360)))
 (assert-true "two fingers on them that move apart and turn only move them, by their middle"
-	(and (wb-near? (wb-of wb_sa) (map (# (+ %0 %1)) wb_a0 '(10.0 10.0 10.0 10.0)) 0.01) (wb-near? (wb-of wb_sb) (map (# (+ %0 %1)) wb_b0 '(10.0 10.0 10.0 10.0)) 0.01)))
+	(and (wb-near? (wb-of wb_sa) (map (const +) wb_a0 '(10.0 10.0 10.0 10.0)) 0.01) (wb-near? (wb-of wb_sb) (map (const +) wb_b0 '(10.0 10.0 10.0 10.0)) 0.01)))
 (. wb_board :undo) (. wb_board :undo) (. wb_board :undo)
 (assert-eq "an undo puts down what was selected" 0 (length (. wb_board :get_selected)))
 (. wb_board :undo) (. wb_board :undo)

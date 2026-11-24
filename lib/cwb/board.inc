@@ -1721,7 +1721,7 @@
 								:pen (ifn (own :pen) (get :pen this)))))))
 			(cat (list (list :mouse 0 +pev_left) (list :mouse 0 +pev_right))
 				(map (lambda ((kind id buttons &ignore)) (list kind id buttons))
-					(filter (# (second %0)) (get :rules bindings)))
+					(filter (const second) (get :rules bindings)))
 				(. this :devices_seen)))
 		out)
 

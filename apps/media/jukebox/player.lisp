@@ -125,7 +125,7 @@
 	(defq playing (tracker-playing *player*)
 		from (- heard +fft *recent_at*)
 		bands (if (and (eql *state* "p") (>= from 0) (<= (+ from +fft) (/ (length *recent*) 4)))
-			(map (# (n2i %0)) (spectrum-bands *spectrum* *recent* from))
+			(map (const n2i) (spectrum-bands *spectrum* *recent* from))
 			(map! (lambda () 0) '() 0 +bars)))
 	(mail-send *app* (cat "T" (join (map (const str) (list heard order row)) " ")
 		" " *state* " " (join (map (const str) playing) " ") " | " (join (map (const str) bands) " "))))

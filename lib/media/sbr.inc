@@ -717,7 +717,7 @@
 				(:t (defq res (elem-get (. ch :find :freq_res) (inc e)) table (if (= res 1) (. sbr :find :high) (. sbr :find :low))
 						energies out out (fill (doubles) 48 zero))
 					(each! (lambda () (defq p (!)) (defq lo (elem-get table p) hi (elem-get table (inc p))
-								sum (/ (reduce! (# (+ %0 %1)) (list energies) zero (- lo kx) (- hi kx)) (n2d (* (- b a) (- hi lo)))))
+								sum (/ (reduce! (const +) (list energies) zero (- lo kx) (- hi kx)) (n2d (* (- b a) (- hi lo)))))
 							(each! (# (elem-set out (- (!) kx) sum)) '() lo hi)) '() 0 (elem-get n res))
 					out))) '() 0 (. ch :find :num_env)))
 

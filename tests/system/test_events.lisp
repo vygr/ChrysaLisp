@@ -15,7 +15,7 @@
 (ui-window ev_window ()
 	(ui-title-bar ev_title "Events" (+sym_close +sym_max +sym_min) +event_close))
 (assert-list-eq "the buttons of a title bar are close, max and min" (list +event_close +event_max +event_min)
-	(map (# (first (get :targets %0))) (filter (# (Button? %0)) (. ev_window :flatten))))
+	(map (# (first (get :targets %0))) (filter (const Button?) (. ev_window :flatten))))
 
 ;the Logout app has a row of four, and they went on from close, 0 1 2 3,
 ;when the three after it were its own. Its window as the app makes it

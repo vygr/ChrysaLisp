@@ -13,7 +13,7 @@
 		(scene-settle sc)
 		(scene-check sc "m-b has every block of it" (empty? (storage-pins-missing (scene-svc sc "m-b"))))
 		(defq back (storage-walk "big" 0 +scene_gopher :nil 30 (scene-svc sc "m-d")))
-		(scene-say sc "A gopher from m-d went by way of " (join (map (# (first %0)) (ifn (second back) (list))) " "))
+		(scene-say sc "A gopher from m-d went by way of " (join (map (const first) (ifn (second back) (list))) " "))
 		(scene-check sc "it came back right" (and back (= (first back) (scene-sum data))))
 		(scene-check sc "and stayed at m-b once it got there"
 			(some! (# (eql (first %0) "m-b")) (list (ifn (second back) (list :nil))) :t 1 -1))

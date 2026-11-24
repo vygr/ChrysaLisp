@@ -32,7 +32,7 @@
 			;no member goes, so every one comes back: each is waited for till it does
 			back (map (lambda ((o j mbox)) (list o j (storage-walk-answer mbox :t))) sent)
 			ms (/ (- (pii-time) t0) 1000)
-			came (filter (# (third %0)) back)
+			came (filter (const third) back)
 			right (filter (lambda ((o j answer)) (eql (str (first answer)) (str (elem-get (elem-get want o) j)))) came)
 			moves (reduce (# (+ %0 (dec (length (second (third %1)))))) came 0))
 		(scene-say sc (length came) " of " +out " came back in " ms " ms, " moves " moves between members in all")

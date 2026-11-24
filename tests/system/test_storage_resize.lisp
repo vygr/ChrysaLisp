@@ -71,4 +71,4 @@
 
 (storage-stop rz_svc)
 (task-sleep 200000)
-(each (# (pii-remove %0)) (list rz_image rz_small rz_full (cat rz_full ".member")))
+(each (const pii-remove) (list rz_image rz_small rz_full (cat rz_full ".member")))

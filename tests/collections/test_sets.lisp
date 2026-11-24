@@ -184,7 +184,7 @@
 
 (test-set-variety "Fset" (# (Fset 11)))
 (test-set-variety "Xset" (# (Xset 11)))
-(test-set-variety "Lset" (# (Lset)))
+(test-set-variety "Lset" (const Lset))
 
 (report-header "Custom Xset")
 (defun my-hash (s) (hash (to-lower s)))

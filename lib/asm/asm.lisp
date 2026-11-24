@@ -98,7 +98,7 @@
 								(:bundle
 									(defq file (first *unit*)
 										text (apply (const cat) (cat (list "")
-											(map (# (vp-entry-text %0)) (vp-compile file)))))
+											(map vp-entry-text (vp-compile file)))))
 									(save text (cat *build_vp* file))
 									(print "=key= " file " " (hex-encode (sha256 text))))
 								(:t ;what it includes is in before anything here is named,
@@ -110,7 +110,7 @@
 									(defq of :nil text :nil funcs
 										(cond
 											(assemble
-												(defq entries (vp-compile file) bundle (map (# (vp-entry-text %0)) entries))
+												(defq entries (vp-compile file) bundle (map vp-entry-text entries))
 												(setq text (apply (const cat) (cat (list "") bundle))
 													of (hex-encode (sha256 text)))
 												(map (# (list (first %0) %1)) entries bundle))

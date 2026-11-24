@@ -99,7 +99,7 @@
 (test-map-variety "Fmap" (# (Fmap 11)))
 (test-map-variety "Emap" (# (Emap 11)))
 (test-map-variety "Xmap" (# (Xmap 11)))
-(test-map-variety "Lmap" (# (Lmap)))
+(test-map-variety "Lmap" (const Lmap))
 
 (report-header "Custom Xmap")
 ; Custom case-insensitive string hash/cmp
@@ -118,4 +118,4 @@
 		(assert-eq (cat name " memoize nil return") :nil (. m :memoize 'd nil_gen))
 		(assert-eq (cat name " memoize nil 2nd return") :nil (. m :memoize 'd nil_gen))
 		(assert-eq (cat name " memoize nil count") 1 nil_count))
-	'("Lmap" "Fmap") (list (# (Lmap)) (# (Fmap 11))))
+	'("Lmap" "Fmap") (list (const Lmap) (# (Fmap 11))))

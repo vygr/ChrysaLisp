@@ -128,7 +128,7 @@
 (setq sy_res (sync-push sy_svc sy_src sy_text))
 (assert-eq "it is sent" "deeper" (load (cat sy_dst "/a/b/c/deep.txt")))
 (assert-eq "and no other" 1 (first sy_res))
-(each (# (pii-remove %0)) (list (cat sy_src "/a/b/c/deep.txt") (cat sy_dst "/a/b/c/deep.txt")
+(each (const pii-remove) (list (cat sy_src "/a/b/c/deep.txt") (cat sy_dst "/a/b/c/deep.txt")
 		(cat sy_dst "/a/b/side.txt") (cat sy_dst "/there/only/x.txt")))
 (setq sy_res (sync-push sy_svc sy_src sy_text :t))
 (assert-eq "taken away again, nothing differs" 0 (length (elem-get sy_res 4)))

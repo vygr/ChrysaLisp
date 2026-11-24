@@ -12,7 +12,7 @@
 (defun md-texts (view)
 	;the text of every Text of a view, in order, those of no text left out
 	(filter (const nempty?) (map (# (if (def? :text %0) (str (get :text %0)) ""))
-			(filter (# (Text? %0)) (. view :flatten)))))
+			(filter (const Text?) (. view :flatten)))))
 
 ;the table of docs/history/press/README.md is where this was seen, a
 ;file with a long name made the Docs app page many times its width
@@ -30,7 +30,7 @@
 (assert-true "it is cut after a _ - . or /" (some (# (find (last (trim %0)) "_-./")) md_all))
 
 ;a cell with nothing in it is a cell
-(defq md_rows (filter (# (Grid? %0)) (. md_md :flatten)) md_last (. (last md_rows) :children))
+(defq md_rows (filter (const Grid?) (. md_md :flatten)) md_last (. (last md_rows) :children))
 (assert-eq "a row has its five cells" 5 (length md_last))
 (assert-list-eq "what follows an empty cell stays in its own column" '("[pdf](a.pdf) ")
 	(md-texts (last md_last)))
@@ -49,17 +49,17 @@
 (defq md_cols (map! (# (cat "col" (str (!)))) '() 0 16))
 (bind '(md_md md_w) (md-make (list (cat "| " (join md_cols " | ") " |")
 			(cat "|" (join (map (lambda (&ignore) "---") md_cols) "|") "|") (cat "| " (join md_cols " | ") " |"))))
-(assert-true "a table of 16 columns is put in a scroll" (some (# (Scroll? %0)) (. md_md :flatten)))
+(assert-true "a table of 16 columns is put in a scroll" (some (const Scroll?) (. md_md :flatten)))
 (assert-true "and the page is no wider for it" (<= md_w 660))
 (bind '(md_md md_w) (md-make md_lines))
-(assert-eq "one of 5 is not" :nil (some (# (Scroll? %0)) (. md_md :flatten)))
+(assert-eq "one of 5 is not" :nil (some (const Scroll?) (. md_md :flatten)))
 
 ;a link is its text, as a Link, which knows where it goes, in an Md that
 ;was given an event for a Link to send
 (defq md_line "see [More power](a/b.md) and ![a pic](x.png), not [this] (that) nor `[code](x)`")
 (def (defq md_md (Md)) :page_width 640 :link_event 99)
 (. md_md :populate_lines (list md_line))
-(defq md_links (filter (# (Link? %0)) (. md_md :flatten)))
+(defq md_links (filter (const Link?) (. md_md :flatten)))
 (assert-list-eq "the text of a link is what is shown, each word of it" '("More " "power " "a " "pic")
 	(map (# (str (get :text %0))) md_links))
 (assert-list-eq "and each word knows where the link goes" '("a/b.md" "a/b.md" "x.png" "x.png")
@@ -73,12 +73,12 @@
 (def (defq md_md (Md)) :page_width 640 :link_event 99)
 (. md_md :populate_lines (list "# A title with [a link](t.md)"))
 (assert-list-eq "a link in a heading is one too" '("t.md" "t.md")
-	(map (# (get :link %0)) (filter (# (Link? %0)) (. md_md :flatten))))
+	(map (# (get :link %0)) (filter (const Link?) (. md_md :flatten))))
 
 ;the documents name each other in code quotes, and the name is the link
 (def (defq md_md (Md)) :page_width 640 :link_event 99)
 (. md_md :populate_lines (list "As stated in its own documentation ([`lisp.md`](../lisp/lisp.md)), and **in bold ([`a b.md`](c.md))**."))
-(defq md_links (filter (# (Link? %0)) (. md_md :flatten)))
+(defq md_links (filter (const Link?) (. md_md :flatten)))
 (assert-list-eq "a link whose text is quoted as code is a link" '("lisp.md" "a" "b.md")
 	(map (# (trim (str (get :text %0)))) md_links))
 (assert-list-eq "to where it says" '("../lisp/lisp.md" "c.md" "c.md") (map (# (get :link %0)) md_links))
@@ -89,7 +89,7 @@
 ;an Md that was given none, the News app's say, has nothing to follow a
 ;link with, and shows it as it is written, where it goes can be read
 (bind '(md_md md_w) (md-make (list md_line)))
-(assert-eq "with no event there are no Links" :nil (some (# (Link? %0)) (. md_md :flatten)))
+(assert-eq "with no event there are no Links" :nil (some (const Link?) (. md_md :flatten)))
 (assert-true "and a link is as it is written" (find "power](a/b.md) " (md-texts md_md)))
 
 ;where a link of a document goes
@@ -125,7 +125,7 @@
 (assert-true "docs/test.md has a section of links" (find "### Links" md_page))
 (def (defq md_md (Md)) :page_width 640 :link_event 99)
 (. md_md :populate_lines md_page)
-(defq md_links (filter (# (Link? %0)) (. md_md :flatten))
+(defq md_links (filter (const Link?) (. md_md :flatten))
 	md_targets (reduce (# (if (find (get :link %1) %0) %0 (push %0 (get :link %1)))) md_links (list))
 	md_places (filter (# (starts-with "#" %0)) md_targets)
 	md_targets (filter (# (not (starts-with "#" %0))) md_targets))

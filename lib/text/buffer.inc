@@ -21,7 +21,7 @@
 ;;;;;;;;;;;;;;
 
 (defun push-line (line)
-	(each (# (push %0 %1))
+	(each (const push)
 		(list buffer_lines buffer_syntax buffer_states
 			buffer_found buffer_brackets buffer_buckets)
 		`(,line ,line :nil :nil :nil ,(list))))

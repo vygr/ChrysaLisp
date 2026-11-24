@@ -497,6 +497,20 @@ states from ever occurring, rather than catching errors after the fact.
 *	Use `(lambda ...)` when destructuring arguments or when explicit
 	naming clarifies complex logic.
 
+*	A lambda that only gives a function its args, each in order, is that
+	function: `(map! (const !) '() 0 n)`, not `(map! (# (!)) '() 0 n)`;
+	`(map (const +) as bs)`, not `(map (# (+ %0 %1)) as bs)`; a local
+	holding a function given as itself, `f`. The wrapper is a call more for
+	each element, 2 to 2.6 times as long, measured 2026-11-24, and it
+	narrows the function: `(# (+ %0 %1))` is a `+` of two, where `+`, as
+	most of the system's functions, takes any number, so `(const +)` walks
+	as many sequences as it is given. Not of a
+	macro, `inc` or `not`, nor a special form, `if`: they are no function to
+	give. Nor of a function defined later than where the wrapper is made:
+	`(def *board* :on_pens (# (pens-shown)))` as an app loads looks
+	`pens-shown` up when it is called, a bare `pens-shown` there and then,
+	before it is defined. `check` says it of a function of the system only.
+
 *	**NEVER** use `(bind ...)` inside an anaphoric `#` lambda
 	(anti-pattern: `(# (bind '(k v) %0) ...)`). Doing so introduces
 	local symbols that destroy the cache benefits of `%0` while adding

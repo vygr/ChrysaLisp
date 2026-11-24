@@ -234,7 +234,7 @@
 	;the waypoint a tree was last at, as its file waypoint says: the commit,
 	;when it was made, and the top of the tree of hashes it had then
 	(when (defq text (load (cat root "/waypoint")))
-		(defq lines (map (# (trim %0)) (split text "\n")))
+		(defq lines (map (const trim) (split text "\n")))
 		(if (>= (length lines) 3)
 			(list (first lines) (str-as-num (second lines)) (third lines)))))
 
@@ -304,7 +304,7 @@
 	(cond
 		((and (not herd_only) (sync-of? node (cat (list me) (ifn named (sync-named))))) :rig)
 		((and (nempty? said) (not (pii-fstat (cat root "/.git")))
-				(defq there (map (# (trim %0)) (split said "\n")))
+				(defq there (map (const trim) (split said "\n")))
 				(>= (length there) 3)
 				(defq top (sync-top root kept))
 				;not one it is at already

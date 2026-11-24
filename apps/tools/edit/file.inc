@@ -17,7 +17,7 @@
 	(config-save))
 
 (defun action-save-all ()
-	(each (# (save-file %0)) *open_files*)
+	(each (const save-file) *open_files*)
 	(config-save))
 
 (defun action-new ()
@@ -67,7 +67,7 @@
 	(switch-file file))
 
 (defun action-close-all ()
-	(each (# (close-file %0)) (cat *open_files*))
+	(each (const close-file) (cat *open_files*))
 	(populate-file-trees)
 	(switch-file :nil))
 

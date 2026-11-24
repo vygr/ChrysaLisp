@@ -89,7 +89,7 @@
 		;part at a time, and as good as ever meanwhile
 		(cond
 			(count (buckets-empty this count 1 1))
-			(:t (each (# (clear %0)) (get :buckets this))
+			(:t (each (const clear) (get :buckets this))
 				this)))
 
 	(defmethod :move ()

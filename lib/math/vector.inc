@@ -44,11 +44,11 @@
 (defmacro def_nums_consts (c s e f)
 	`(bind (map! (# (sym (str ,c (!)))) '() ,s ,e) (map! (# (,f (!))) '() ,s ,e)))
 ;[0:10]
-(def_nums_consts "+double_" 0 11 (# (n2d %0)))
-(def_nums_consts "+float_" 0 11 (# (n2f %0)))
+(def_nums_consts "+double_" 0 11 (const n2d))
+(def_nums_consts "+float_" 0 11 (const n2f))
 ;[-1:-10]
-(def_nums_consts "+double_" -10 0 (# (n2d %0)))
-(def_nums_consts "+float_" -10 0 (# (n2f %0)))
+(def_nums_consts "+double_" -10 0 (const n2d))
+(def_nums_consts "+float_" -10 0 (const n2f))
 ;[1/2:1/20]
 (def_nums_consts "+double_1/" 2 21 (# (/ (const (n2d 1)) (n2d %0))))
 (def_nums_consts "+float_1/" 2 21 (# (n2f (/ (const (n2d 1)) (n2d %0)))))

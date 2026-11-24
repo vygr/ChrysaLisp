@@ -291,8 +291,8 @@
 	;the empty pixels of row y between its first and last that are not
 	(bind '(d off w) (sv-pixels svg sv_head))
 	(defq row (map! (# (>> (get-uint d (+ off (* +int_size (+ (* y w) (!))))) 24)) '() 0 w)
-		inked (filter (# (> (elem-get row %0) 0)) (map! (# (!)) '() 0 w)))
-	(filter (# (= (elem-get row %0) 0)) (map! (# (!)) '() (first inked) (last inked))))
+		inked (filter (# (> (elem-get row %0) 0)) (map! (const !) '() 0 w)))
+	(filter (# (= (elem-get row %0) 0)) (map! (const !) '() (first inked) (last inked))))
 (defq sv_gaps (sv-gaps "<text x=\q20\q y=\q100\q font-size=\q40\q>HH</text>" 90))
 (assert-true "two H's have a gap between them" (nempty? sv_gaps))
 (assert-eq "a line-through fills it" '()

@@ -58,7 +58,7 @@
 (.-> pt_ramp (:fill 0) (:set_linear 0.0 0.0 256.0 0.0 '((0.0 0xff000000) (1.0 0xffffffff))) (:fbox 0 0 256 2))
 (defq pt_px (pt-pixels pt_ramp))
 (assert-eq "a ramp of 256, each pixel its own step" '()
-	(filter (# (/= (pt-pixel pt_px %0 1) (+ 0xff000000 (* %0 0x010101)))) (map! (# (!)) '() 0 256)))
+	(filter (# (/= (pt-pixel pt_px %0 1) (+ 0xff000000 (* %0 0x010101)))) (map! (const !) '() 0 256)))
 
 (defun pt-off (canvas expect most &optional wrap)
 	; (pt-off canvas expect most [wrap]) -> (x y got want) | :nil

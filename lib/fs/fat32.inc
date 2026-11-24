@@ -244,7 +244,7 @@
 						(some (# (if (exfat-same? vol (first %0) part) %0))
 							(fat32-dir vol (last found)))))
 				(if entry (push found entry) (setq found :nil))))
-		(filter (# (nempty? %0)) (split path "/")))
+		(filter (const nempty?) (split path "/")))
 	found)
 
 (defun fat32-find (vol path)

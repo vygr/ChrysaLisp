@@ -98,7 +98,7 @@
 							;offers it on
 							(setq held :nil)
 							(when (defq said (. said_at :find node))
-								(defq lines (map (# (trim %0)) (split said "\n")))
+								(defq lines (map (const trim) (split said "\n")))
 								(cond
 									((eql (sync-top root kept) (third lines))
 										;one new to it is offered on

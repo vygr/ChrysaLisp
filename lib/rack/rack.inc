@@ -162,7 +162,7 @@
 	(defq out (list) t0 (pii-time) me (hex-encode (system-id))
 		rules_text (sync-rules-text (setd tree "."))
 		reply_mbox (mail-mbox) asked 0 ran (list (list me (cat (cpu) "/" (os))))
-		cmdlines (map (# (trim %0)) (split cmdline ";"))
+		cmdlines (map (const trim) (split cmdline ";"))
 		phases (if make_first (list (list "make" "make all boot" "make apps") cmdlines) (list cmdlines)))
 	(setd leave_out (list) gone (list) skip (list))
 	(defq skipped? (lambda (id machine)
