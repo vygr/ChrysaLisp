@@ -105,7 +105,7 @@
 (defun make-triangle ()
 	; (make-triangle) -> scene_node
 	;a triangle of gunmetal, its nose ahead, ridged, a ring of light that
-	;turns under its middle and a shard of light at each corner. It glides,
+	;turns under its middle and a ball of light at each corner. It glides,
 	;tipping slowly one way and the other to show itself, leans hard into
 	;its turns, and goes as no aircraft can
 	(defq tri (craft-node :triangle 11 25000000))
@@ -116,9 +116,8 @@
 		:spin (n2d -2.5))
 	(. tri :add_node (.-> ring (:set_scale (n2d 0.32) (n2d 0.5) (n2d 0.32)) (:set_translation +double_0 (n2d -0.06) +double_0)))
 	(each (lambda ((x z))
-			(def (defq shard (part-node +craft_shard (rgb 0.3 0.3 0.3) (rgb 1.8 1.8 1.6) (n2d 0.8)))
-				:spin (n2d 2.7) :tumble (n2d 1.9))
-			(. tri :add_node (.-> shard (:set_scale (n2d 0.1) (n2d 0.1) (n2d 0.1))
+			(. tri :add_node (.-> (part-node +craft_ball (rgb 0.3 0.3 0.3) (rgb 1.8 1.8 1.6) +double_0)
+				(:set_scale (n2d 0.08) (n2d 0.08) (n2d 0.08))
 				(:set_translation x (n2d 0.02) z))))
 		(list (list +double_0 (n2d 0.8)) (list (n2d 0.7) (n2d -0.4)) (list (n2d -0.7) (n2d -0.4))))
 	tri)
