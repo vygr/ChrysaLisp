@@ -67,8 +67,9 @@
 	;the farm that makes the craft's parts, which of them have come, and
 	;the craft, fleet.inc
 	jobs :nil parts_had (map (const (lambda (_) :nil)) craft_parts) crafts (list)
-	;the moon: the way to it, how far, in front of the sky and behind the
-	;land near by, how big, how it leans and how fast it turns, a second
+	;the moon: the way to it, opposite the sun, (day-state), how far, in
+	;front of the sky and behind the land near by, how big, how it leans and
+	;how fast it turns, a second
 	moon_way (doubles (n2d -0.646) (n2d 0.188) (n2d 0.74)) +moon_far (n2d 470) +moon_size (n2d 36)
 	+moon_lean (n2d 0.12) +moon_turn (n2d 0.02) moon_map :nil
 	;the sun, and the haze at the horizon and the blue above
@@ -78,7 +79,7 @@
 	;day and the moon's by night, its colour, and how it shines off water;
 	;and where in the day it starts, by chance, (day-state)
 	sun_at sun daylight (doubles +double_1 +double_1 +double_1) shine (doubles +double_1 +double_1 +double_1)
-	day_start +double_0 day_at +double_0 day_dragged 0 night +double_0 moon_lit sun
+	day_start +double_0 day_at +double_0 day_dragged 0 night +double_0
 	;how long the day, dusk, night and dawn are, seconds
 	+day_long (n2d 300) +dusk_long (n2d 60) +night_long (n2d 240) +dawn_long (n2d 60)
 	select :nil id :t render :nil frames 0 since (pii-time) began (pii-time)
@@ -226,7 +227,11 @@
 				e (+ (n2d -0.25) (* (n2d 0.37) r)))))
 	(defq az (+ (n2d 0.9) (/ (* +double_2pi at) total)) ce (cos e)
 		k (* g (n2d 0.85)))
-	(setq sun_at (doubles (* ce (cos az)) (sin e) (* ce (sin az)))
+	;the moon opposite the sun, full, up by night as the sun is down; by
+	;day low in the sky, not set, the moon by day
+	(defq me (max (neg e) (n2d 0.14)) mce (cos me))
+	(setq moon_way (doubles (* mce (cos (+ az +double_pi))) (sin me) (* mce (sin (+ az +double_pi))))
+		sun_at (doubles (* ce (cos az)) (sin e) (* ce (sin az)))
 		sun (blend sun_at moon_way (- +double_1 d) d)
 		haze (mix3 (mix3 (doubles (n2d 0.74) (n2d 0.80) (n2d 0.86)) (doubles (n2d 0.05) (n2d 0.07) (n2d 0.13)) d)
 			(doubles (n2d 0.95) (n2d 0.60) (n2d 0.38)) k)
@@ -238,13 +243,7 @@
 			(doubles (n2d 1.25) (n2d 0.60) (n2d 0.30)) k))
 	(bind '(sx sy sz) sun)
 	(defq n (sqrt (+ (* sx sx) (* sy sy) (* sz sz))))
-	(setq sun (doubles (/ sx n) (/ sy n) (/ sz n)) night d
-		;the moon lit by the sun by day, and full by night, lit from behind
-		;the eye, the way to it turned round
-		moon_lit (blend sun_at moon_way (- +double_1 d) (neg d)))
-	(bind '(sx sy sz) moon_lit)
-	(defq n (sqrt (+ (* sx sx) (* sy sy) (* sz sz))))
-	(setq moon_lit (doubles (/ sx n) (/ sy n) (/ sz n))))
+	(setq sun (doubles (/ sx n) (/ sy n) (/ sz n)) night d))
 
 (defun spring (x v to dt)
 	; (spring x v to dt) -> (x v)
@@ -447,7 +446,7 @@
 					(mat4x4-mul (mat4x4-scale +moon_size +moon_size +moon_size) (defq spin (mat4x4-mul (mat4x4-rotz +moon_lean)
 						(mat4x4-roty (* seconds +moon_turn)))))))
 				(list 'spin spin) (list 'lens view))
-			(list (list 'sun moon_lit) (list 'haze haze) (list 'above above) (list 'rise (second moon_way))
+			(list (list 'sun sun_at) (list 'haze haze) (list 'above above) (list 'rise (second moon_way))
 				(list 'bright (+ (n2d 1.5) (* (n2d 4.5) night))))
 			(list moon_map) moon_files)
 		(list (if gpu +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
