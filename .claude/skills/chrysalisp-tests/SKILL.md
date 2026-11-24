@@ -484,6 +484,13 @@ Keep any test scripts and associated files in the `tests/` folder. Never place
 temporary test scripts, scratch directories, or test output in the project root;
 use `tests/scratch/` and always clean it up after being done with it.
 
+A module removes what it made at its end, so a run stopped partway leaves
+it: `test_storage_copy`'s `tmp_store_copy_*_<pid>.img`, 8 MB each. Whoever
+stops a run clears what it left, by its pid; a module never clears another
+run's. The make's walk of the tree skips `tests/scratch`, so nothing there
+is ever taken as source. On 2026-11-24 it held 2,394 files, 498 MB, of
+earlier sessions, cleared.
+
 ## Writing Suite Modules
 
 A suite module is top-level code, not a function. It starts with a

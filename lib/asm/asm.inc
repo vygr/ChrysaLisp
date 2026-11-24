@@ -196,11 +196,13 @@
 	;is found by the next make, with nothing to be told. A folder listed in
 	;the second it was last changed is not kept, more may come in that
 	;second. With force every folder is listed. Not what is built, nor this
-	;machine's store, nor a folder whose name begins with a dot
+	;machine's store, nor tests/scratch, whose files are never source and
+	;whose age moves at every test run, nor a folder whose name begins
+	;with a dot
 	(defq kept (if force (env 1) (manifest-load +make_walk)) seen (env 401)
 		now (/ (pii-time) 1000000) stack (list ".") paths (list) dirty :nil)
 	(while (defq dir (pop stack))
-		(unless (or (starts-with "./obj" dir) (starts-with "./storage" dir))
+		(unless (or (starts-with "./obj" dir) (starts-with "./storage" dir) (starts-with "./tests/scratch" dir))
 			(defq k (sym dir) a (age dir) was (get k kept))
 			(unless (and was (= (first was) a))
 				(defq subs (list) fs (list))
