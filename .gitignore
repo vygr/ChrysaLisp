@@ -20,6 +20,12 @@ main.sln
 main.vcxproj
 main.vcxproj.filters
 main.vcxproj.user
+# what Xcode builds and keeps of a user, big, and not to be hashed or synced
+build/
+DerivedData/
+xcuserdata/
+*.xcarchive/
+*.ipa
 *.DS_Store
 *.o
 *.d
