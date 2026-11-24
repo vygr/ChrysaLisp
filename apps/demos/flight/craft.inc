@@ -12,9 +12,10 @@
 (import "lib/task/jobs.inc")
 (import "lib/math/surface.inc")
 
-;a part for a child to make, its number and the form that makes it
+;a part for a child to make, its number, whether its faces are lit flat,
+;and the form that makes it
 (structure +part +job_size
-	(uint num)
+	(uint num flat)
 	(offset command))
 
 ;its answer, the mesh as the shaders want it
@@ -99,6 +100,16 @@
 		; (. iso :field x y z) -> double
 		(* (- (len3 x (/ y (const (n2d 0.6))) z) (const (n2d 0.9))) (const (n2d 0.6)))))
 
+(defclass Mesh-shard () (Mesh)
+	; (Mesh-shard) -> mesh
+	;a tetrahedron, four faces and no more, not of a field: what makes it is
+	;its shader. Its corners a cube's every other one, each face's in the
+	;order that has its normal point out
+	(defq k (const (n2d 0.6)) n (const (n2d -0.6)))
+	(def this :verts (doubles k k k +double_1 k n n +double_1 n k n +double_1 n n k +double_1)
+		:tris (nums 1 3 2 0 0 2 3 0 0 3 1 0 0 1 2 0))
+	(. this :normals))
+
 ;the balls of a blob, where each is and how big
 (defq blob_balls (list
 	(list (n2d 0.55) (n2d 0.1) (n2d 0.0) (n2d 0.3))
@@ -118,12 +129,14 @@
 			blob_balls)
 		d))
 
-;the parts, each the form that makes it
+;the parts, each the form that makes it and whether its faces are lit
+;flat, a shard's, or smooth
 (defq craft_parts '(
-	"(Mesh-iso (Iso-saucer 24) +double_0)"
-	"(Mesh-iso (Iso-ring 32) +double_0)"
-	"(Mesh-iso (Iso-lattice 28) +double_0)"
-	"(Mesh-iso (Iso-ball 8) +double_0)"
-	"(Mesh-iso (Iso-blob 20) +double_0)"))
+	("(Mesh-iso (Iso-saucer 24) +double_0)" :nil)
+	("(Mesh-iso (Iso-ring 32) +double_0)" :nil)
+	("(Mesh-iso (Iso-lattice 28) +double_0)" :nil)
+	("(Mesh-iso (Iso-ball 8) +double_0)" :nil)
+	("(Mesh-iso (Iso-blob 20) +double_0)" :nil)
+	("(Mesh-shard)" :t)))
 (enums +craft 0
-	(enum saucer ring lattice ball blob))
+	(enum saucer ring lattice ball blob shard))

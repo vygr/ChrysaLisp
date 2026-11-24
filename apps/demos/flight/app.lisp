@@ -64,7 +64,7 @@
 	;the meshes, by their numbers, the craft's parts from the last on
 	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2 +mesh_moon 3 +mesh_craft 4
 	;the farm that makes the craft's parts, which of them have come, and
-	;the craft, scenes of lib/math/scene.inc, a part a node
+	;the craft, fleet.inc
 	jobs :nil parts_had (map (const (lambda (_) :nil)) craft_parts) crafts (list)
 	;the moon: the way to it, how far, in front of the sky and behind the
 	;land near by, how big, how it leans and how fast it turns, a second
@@ -259,55 +259,7 @@
 	(setq height (max height low))
 	(list nx nz (neg (/ (* +speed turning) +pull))))
 
-(defun part-node (part tint glow film &optional panels lamps)
-	; (part-node part tint glow film [panels lamps]) -> scene_node
-	;a part of a craft: the farm's mesh of it, the colour of its metal,
-	;the light it gives, how much of the film it has, how many panels
-	;across, and the colour of the lamps round its rim
-	(def (defq node (Scene-node)) :part part :tint tint :glow glow :film film
-		:panels (ifn panels +double_0) :lamps (ifn lamps (doubles +double_0 +double_0 +double_0)))
-	node)
-
-(defun make-scout ()
-	; (make-scout) -> scene_node
-	;a scout: a saucer, a ring that turns round it, and four lights under
-	;its rim
-	(defq scout (Scene-node "scout") dark (doubles +double_0 +double_0 +double_0))
-	(. scout :add_node (part-node +craft_saucer (doubles (n2d 0.55) (n2d 0.58) (n2d 0.62)) dark (n2d 0.5)
-		(n2d 4) (doubles (n2d 1.0) (n2d 0.55) (n2d 0.2))))
-	(def (defq ring (part-node +craft_ring (doubles (n2d 0.3) (n2d 0.32) (n2d 0.36))
-		(doubles (n2d 0.05) (n2d 0.15) (n2d 0.2)) (n2d 0.9) (n2d 6) (doubles (n2d 1.0) (n2d 0.55) (n2d 0.2)))) :spin (n2d 1.5))
-	(. scout :add_node (. ring :set_scale (n2d 1.25) (n2d 1.25) (n2d 1.25)))
-	(each (lambda ((x z))
-			(. scout :add_node (.-> (part-node +craft_ball (doubles (n2d 0.2) (n2d 0.2) (n2d 0.2))
-					(doubles (n2d 0.45) (n2d 1.0) (n2d 0.8)) +double_0)
-				(:set_scale (n2d 0.09) (n2d 0.09) (n2d 0.09))
-				(:set_translation x (n2d -0.12) z))))
-		(list (list (n2d 0.6) +double_0) (list (n2d -0.6) +double_0)
-			(list +double_0 (n2d 0.6)) (list +double_0 (n2d -0.6))))
-	scout)
-
-(defun craft-draws (craft view eye seconds)
-	; (craft-draws craft view eye seconds) -> draws
-	;a draw for each part of a craft whose mesh has come, by the matrix of
-	;it and of the parts it is in. A part that spins is turned by its spin
-	(defq mats (list (mat4x4-unity)) out (list))
-	(. craft :walk_nodes
-		(lambda (node _)
-			(if (def? :spin node)
-				(. node :set_rotation +double_0 (* seconds (get :spin node)) +double_0))
-			(push mats (defq m (mat4x4-mul (last mats) (. node :get_matrix))))
-			(and (def? :part node) (elem-get parts_had (defq part (get :part node)))
-				(push out (list (+ +mesh_craft part)
-					(list (list 'model m) (list 'lens view) (list 'eye eye))
-					(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
-						(list 'time seconds) (list 'tint (get :tint node)) (list 'glow (get :glow node))
-						(list 'film (get :film node)) (list 'panels (get :panels node))
-						(list 'lamps (get :lamps node)))
-					'() craft_files)))
-			:nil)
-		(lambda (node _) (pop mats)))
-	out)
+(import "./fleet.inc")
 
 (defun path-set (to)
 	;the flight to the eight or along the valleys, from where it is: the
@@ -324,6 +276,8 @@
 	(defq now (pii-time) dt (/ (n2d (- now moved)) (n2d 1000000)))
 	(setq moved now)
 	(bind '(fx fz lean) (case path (:eight (eight-pose dt)) (:valleys (valley-pose dt)) (:t (mouse-pose dt))))
+	;the craft about fly, each by its own rules
+	(fleet-fly dt)
 	;the nose up a little as it climbs and down as it comes down
 	(defq pitch (- (if (eql path :eight) +pitch_eight +pitch_valley) (* (n2d 0.5) (/ rising +speed)))
 		pitch_cos (cos pitch) pitch_sin (sin pitch)
@@ -363,15 +317,8 @@
 		(list (if gpu +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
 			(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
 				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12))))
-		;for now, a scout that keeps ahead of the eye, to see its parts come
-		;and how it looks
-		(reduce (lambda (draws craft)
-				(.-> craft
-					(:set_translation (+ (first eye) (* fx (n2d 45))) (- (second eye) (n2d 2)) (+ (third eye) (* fz (n2d 45))))
-					(:set_rotation (n2d 0.25) (* seconds (n2d 0.3)) +double_0)
-					(:set_scale (n2d 8) (n2d 8) (n2d 8)))
-				(cat draws (craft-draws craft view eye seconds)))
-			crafts '())))
+		;the craft about, fleet.inc
+		(fleet-draws view eye seconds)))
 	(++ frames))
 
 (defun set-size (wanted)
@@ -439,9 +386,9 @@
 	;nodes, off this one, and each put in its craft as it comes
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
 			(elem-get select +select_reply) '(4 2) :t)
-		crafts (list (make-scout)))
-	(. jobs :add (map (lambda (command)
-			(cat (setf-> (str-alloc +part_size) (+part_num (!))) command)) craft_parts))
+		crafts (list (make-scout) (make-orb) (make-blob)))
+	(. jobs :add (map (lambda ((command flat))
+			(cat (setf-> (str-alloc +part_size) (+part_num (!)) (+part_flat (if flat 1 0))) command)) craft_parts))
 	(config-load)
 	(setq land_height (shader-vp-func (shader-load (cat *app_root* "land.shader")) 'ground)
 		place (eight-point round_at) way (doubles +double_1 +double_0))
