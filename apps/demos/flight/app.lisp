@@ -322,8 +322,10 @@
 			(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'rise (second moon_way)))
 			(list moon_map) moon_files)
 		(list (if gpu +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
-			(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
-				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12))))
+			(cat (list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
+				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12))
+				;the craft about, their shadows and their lights on the land
+				(fleet-lights seconds))))
 		;the craft about, fleet.inc
 		(fleet-draws view eye seconds)))
 	(++ frames))

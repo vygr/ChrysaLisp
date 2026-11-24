@@ -9,7 +9,9 @@
 ; sun is higher than the line to the sun, softly, as the Surface
 ; demo's shadow. The water is the sky's colour, more of it the more
 ; it is seen side on, with ripples that move with time and the sun
-; shining off them. And far off, all of it goes into the haze.
+; shining off them. The craft about, each a ball, cast their shadows on
+; it, softly, and their lights light it under them, the nearer the more,
+; each its own colour. And far off, all of it goes into the haze.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "apps/demos/flight/land.shader")
@@ -24,6 +26,14 @@
 (definput time :float)
 (definput rough :float 0.0 0.0 1.0)
 (definput shadows :int 0 0 24)
+;the craft about, each where it is and how big, a radius of 0 for none,
+;and the colour of its light
+(definput craft_a :vec4)
+(definput craft_b :vec4)
+(definput craft_c :vec4)
+(definput light_a :vec3)
+(definput light_b :vec3)
+(definput light_c :vec3)
 
 (defvarying place :vec3)
 (defvarying facing :vec3)
@@ -67,6 +77,20 @@
 		(if (< shade 0.05) (break)))
 	(clamp shade 0.0 1.0))
 
+;how much of the sun a craft leaves here: the way to the sun passes the
+;ball by so far, inside it none, softly at its edge
+(defun craft_shade :float ((p :vec3) (c :vec4))
+	(defq v (- (:xyz c) p) t (dot v sun) r (:w c))
+	(if (or (<= r 0.0) (<= t 0.0)) (return 1.0))
+	(ease (* r 0.45) (* r 1.05) (length (- v (* sun t)))))
+
+;the light a craft gives here, the nearer it the more, on a face turned
+;to it, nothing past a few times its size
+(defun craft_glow :vec3 ((p :vec3) (n :vec3) (c :vec4) (col :vec3))
+	(defq v (- (:xyz c) p) d (length v) r (:w c))
+	(if (<= r 0.0) (return (vec3 0.0)))
+	(* col (/ (* 1.5 (max (dot n (/ v d)) 0.0)) (+ 1.0 (* (/ d (* r 1.6)) (/ d (* r 1.6)))))))
+
 ;one train of waves, its slope across and along: which way it goes, how
 ;fine, how fast and how high
 (defun wave :vec2 ((p :vec2) (way :vec2) (fine :float) (fast :float) (high :float))
@@ -99,6 +123,10 @@
 		lit 1.0 colour (vec3 0.0))
 	(if (< h (+ water 4.0)) (setq h (ground (:xz place))))
 	(if (> shadows 0) (setq lit (sunlit place)))
+	(defq crafts (* (craft_shade place craft_a) (craft_shade place craft_b) (craft_shade place craft_c))
+		glow (+ (craft_glow place n craft_a light_a) (craft_glow place n craft_b light_b)
+			(craft_glow place n craft_c light_c)))
+	(setq lit (* lit crafts))
 	(cond
 		((<= h water)
 			;the water, the sky in it more side on, the sun off it, and the
@@ -114,4 +142,6 @@
 				colour (mix colour rock (ease 0.86 0.72 up))
 				colour (mix colour snow (* (ease 34.0 42.0 h) (ease 0.7 0.85 up)))
 				colour (* colour (+ 0.28 (* 0.95 lit (max (dot b sun) 0.0)))))))
-	(vec4 (mix colour haze fade) 1.0))
+	;the craft's shadows dim the water too, and their lights light both
+	(if (<= h water) (setq colour (* colour (+ 0.55 (* 0.45 crafts)))))
+	(vec4 (mix (+ colour glow) haze fade) 1.0))

@@ -51,7 +51,8 @@
 	;a saucer, a ring of blobs that turns round it, and four lights under it,
 	;the whole of it turning slowly
 	(defq scout (craft-node :scout 8 1000000) dark (rgb 0 0 0))
-	(def scout :spin (n2d 0.6) :cruise (n2d 55) :dash (n2d 130) :turn_most (n2d 1.1) :pull (n2d 30))
+	(def scout :spin (n2d 0.6) :cruise (n2d 55) :dash (n2d 130) :turn_most (n2d 1.1) :pull (n2d 30)
+		:light (rgb 1.0 0.6 0.25))
 	(. scout :add_node (part-node +craft_saucer (rgb 0.55 0.58 0.62) dark (n2d 0.5)
 		(n2d 4) (rgb 1.0 0.55 0.2)))
 	(def (defq ring (part-node +craft_ring (rgb 0.3 0.32 0.36) (rgb 0.05 0.15 0.2) (n2d 0.9)
@@ -70,7 +71,8 @@
 	;a lattice ball that tumbles, a core in it of every colour in turn, and
 	;three shards of light that go round it, each tumbling
 	(defq orb (craft-node :orb 7 9000000) dark (rgb 0 0 0) lights (Scene-node))
-	(def orb :flies :dart :ease (n2d 3) :wait_lo (n2d 1300000) :wait_hi (n2d 2400000) :hops_most 5)
+	(def orb :flies :dart :ease (n2d 3) :wait_lo (n2d 1300000) :wait_hi (n2d 2400000) :hops_most 5
+		:light_hues (n2d 1.3))
 	(def (defq shell (part-node +craft_lattice (rgb 0.32 0.27 0.2) dark (n2d 1.3)))
 		:spin (n2d 0.4) :tumble (n2d 0.25))
 	(def (defq core (part-node +craft_ball (rgb 0.1 0.1 0.1) dark +double_0)) :hues (n2d 1.3))
@@ -91,7 +93,8 @@
 	; (make-blob) -> scene_node
 	;a craft that is grown, not made: it breathes, and its film is thick
 	(defq blob (craft-node :blob 9 17000000))
-	(def blob :spin (n2d 0.25) :cruise (n2d 38) :dash (n2d 90) :turn_most (n2d 0.7) :pull (n2d 18))
+	(def blob :spin (n2d 0.25) :cruise (n2d 38) :dash (n2d 90) :turn_most (n2d 0.7) :pull (n2d 18)
+		:light (rgb 0.5 1.0 0.3))
 	(def (defq body (part-node +craft_blob (rgb 0.2 0.42 0.3) (rgb 0.04 0.22 0.1) (n2d 1.6)))
 		:breathe (n2d 0.07))
 	(. blob :add_node body)
@@ -109,7 +112,8 @@
 	;tipping slowly one way and the other to show itself, leans hard into
 	;its turns, and goes as no aircraft can
 	(defq tri (craft-node :triangle 11 25000000))
-	(def tri :cruise (n2d 28) :dash (n2d 170) :turn_most (n2d 0.6) :pull (n2d 14) :show (n2d 0.7))
+	(def tri :cruise (n2d 28) :dash (n2d 170) :turn_most (n2d 0.6) :pull (n2d 14) :show (n2d 0.7)
+		:light (rgb 0.35 0.9 1.3))
 	(. tri :add_node (part-node +craft_delta (rgb 0.34 0.36 0.4) (rgb 0 0 0) (n2d 1.0)
 		(n2d 7) (rgb 0.3 0.9 1.4)))
 	(def (defq ring (part-node +craft_ring (rgb 0.1 0.1 0.12) (rgb 0.2 0.9 1.3) (n2d 0.6)))
@@ -129,7 +133,7 @@
 	;the one above it, each swaying, so the chain bends and whips
 	(defq jelly (craft-node :jelly 9 33000000))
 	(def jelly :flies :dart :ease (n2d 0.6) :wait_lo (n2d 2500000) :wait_hi (n2d 4000000) :hops_most 4
-		:spin (n2d 0.2))
+		:spin (n2d 0.2) :light (rgb 1.3 0.35 1.0))
 	(. jelly :add_node (part-node +craft_bell (rgb 0.45 0.55 0.7) (rgb 0.06 0.12 0.2) (n2d 1.5)))
 	(def (defq core (part-node +craft_ball (rgb 0.1 0.1 0.1) (rgb 0 0 0) +double_0)) :hues (n2d 0.8))
 	(. jelly :add_node (.-> core (:set_scale (n2d 0.3) (n2d 0.3) (n2d 0.3)) (:set_translation +double_0 (n2d 0.25) +double_0)))
@@ -154,7 +158,8 @@
 	;two cones point to point, spinning fast and leaning as they spin, so
 	;they wobble as a top does; it zigzags in quick darts
 	(defq top (craft-node :top 6 41000000))
-	(def top :flies :dart :ease (n2d 6) :wait_lo (n2d 500000) :wait_hi (n2d 1000000) :hops_most 9)
+	(def top :flies :dart :ease (n2d 6) :wait_lo (n2d 500000) :wait_hi (n2d 1000000) :hops_most 9
+		:light (rgb 0.4 1.1 0.6))
 	(def (defq body (part-node +craft_top (rgb 0.7 0.55 0.25) (rgb 0.05 0.03 0) (n2d 0.8)
 			(n2d 3) (rgb 0.3 1.0 0.6)))
 		:spin (n2d 7) :tilt (n2d 0.2))
@@ -188,18 +193,25 @@
 	(bind '(fx fz) way)
 	(list (+ px (* fx ahead) (* (neg fz) aside)) (+ height up) (+ pz (* fz ahead) (* fx aside))))
 
+(defun near-land (ahead aside up)
+	; (near-land ahead aside up) -> (x y z)
+	;a place by the flight, so far along its way and to its right, and so
+	;far over the land there: low, for its light to fall on the land
+	(bind '(x & z) (near-flight ahead aside +double_0))
+	(list x (+ (land-at x z) up) z))
+
 (defun swoop-goal (craft t)
 	; (swoop-goal craft t) -> (x y z)
 	;where a craft that swoops makes for, by what it is about, t seconds
-	;since it came: a place ahead of the flight that weaves, then past the
-	;flight close on a side, then away up and behind
+	;since it came: a place ahead of the flight that weaves, low over the
+	;land, then past the flight close on a side, then away up and behind
 	(defq side (get :side craft))
 	(case (get :phase craft)
 		(:out (near-flight (n2d -300) (* side (n2d 420)) (n2d 150)))
 		(:pass (near-flight (n2d -80) (* side (n2d 14)) (n2d 3)))
-		(:t (near-flight (+ (n2d 85) (* (n2d 25) (sin (* t (n2d 0.4)))))
+		(:t (near-land (+ (n2d 85) (* (n2d 25) (sin (* t (n2d 0.4)))))
 			(* (n2d 45) (sin (+ (* t (n2d 0.6)) side)))
-			(+ (n2d 9) (* (n2d 7) (sin (* t (n2d 0.9)))))))))
+			(+ (n2d 14) (* (n2d 4) (sin (* t (n2d 0.9)))))))))
 
 (defun swoop-fly (craft dt)
 	; (swoop-fly craft dt)
@@ -253,7 +265,7 @@
 		(def craft :next (+ now (n2i (if (= hops most) (n2d 1200000) (rand-d (get :wait_lo craft) (get :wait_hi craft)))))
 			:hops (inc hops)
 			:goal (cond
-				((< hops most) (near-flight (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d -4) (n2d 30))))
+				((< hops most) (near-land (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d 9) (n2d 20))))
 				((= hops most) (near-flight (n2d -90) (* (get :side craft) (n2d 10)) (n2d 4)))
 				((near-flight (n2d -60) +double_0 (n2d 900))))))
 	(bind '(cx cy cz) (get :at craft))
@@ -332,6 +344,36 @@
 					(craft-start craft)
 					(++ about))))
 		crafts))
+
+(defun craft-light (craft seconds)
+	; (craft-light craft seconds) -> doubles
+	;the colour of the light a craft casts on the land: its :light, or
+	;for one of every colour in turn, as its core is now
+	(if (def? :light_hues craft)
+		(doubles
+			(+ (n2d 0.55) (* (n2d 0.45) (cos (* seconds (get :light_hues craft)))))
+			(+ (n2d 0.55) (* (n2d 0.45) (cos (+ (* seconds (get :light_hues craft)) (n2d 2.094)))))
+			(+ (n2d 0.55) (* (n2d 0.45) (cos (+ (* seconds (get :light_hues craft)) (n2d 4.189))))))
+		(get :light craft)))
+
+(defun fleet-lights (seconds)
+	; (fleet-lights seconds) -> ((name val) ...)
+	;the craft about for the land's shader, three, each a ball where it is
+	;and as big as it, and its light; none, a ball of no size
+	(defq out (list) names '((craft_a light_a) (craft_b light_b) (craft_c light_c)) i 0)
+	(each (lambda (craft)
+			(when (and (get :live craft) (< i 3))
+				(bind '(x y z) (get :at craft))
+				(bind '(cn ln) (elem-get names i))
+				(push out (list cn (doubles x y z (* (get :size craft) (n2d 0.85))))
+					(list ln (craft-light craft seconds)))
+				(++ i)))
+		crafts)
+	(while (< i 3)
+		(bind '(cn ln) (elem-get names i))
+		(push out (list cn (doubles +double_0 +double_0 +double_0 +double_0)) (list ln (rgb 0 0 0)))
+		(++ i))
+	out)
 
 (defun fleet-draws (view eye seconds)
 	; (fleet-draws view eye seconds) -> draws
