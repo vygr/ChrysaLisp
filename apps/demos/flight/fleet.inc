@@ -191,7 +191,7 @@
 	(def craft :live :t :phase :in :side side :hops 0 :next (pii-time) :born (pii-time)
 		;a beam on the land, now and then, from one that comes in low to stop
 		;and use it, whatever the height of the flight
-		:beam (defq beam (and (find (get :kind craft) '(:scout :triangle :blob)) (< (random 10) 6)))
+		:beam (defq beam (and (find (get :kind craft) '(:scout :triangle :blob)) (< (random 6) 5)))
 		:skim (or beam (skim?)) :up (rand-d (n2d -12) (n2d 45))
 		:until (+ (pii-time) (n2i (rand-d (n2d 9000000) (n2d 15000000))))
 		:at (doubles x (+ (max height (land-at x z)) (rand-d (n2d 5) (n2d 40))) z)
@@ -200,8 +200,9 @@
 
 (defun craft-gone (craft)
 	; (craft-gone craft)
-	;gone into the haze, and back after a while
-	(def craft :live :nil :wait (+ (pii-time) (n2i (rand-d (n2d 3000000) (n2d 9000000))))))
+	;gone into the haze, and back after a while, sooner after a snatch
+	(def craft :live :nil :wait (+ (pii-time) (n2i (if (get :beam craft)
+		(rand-d (n2d 2000000) (n2d 5000000)) (rand-d (n2d 3000000) (n2d 9000000)))))))
 
 (defun near-flight (ahead aside up)
 	; (near-flight ahead aside up) -> (x y z)
