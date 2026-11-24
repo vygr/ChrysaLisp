@@ -294,7 +294,8 @@
 	; (hover-fly craft dt)
 	;stopping at its place over the land, and still there: eased to it, its
 	;way kept, its turn and lean let go; there, its beam on, snapped, for a
-	;second or two, then off and away, from nothing to its dash
+	;second or two, then off, and away with its cow, or on as before if it
+	;had none
 	(bind '(cx cy cz) (get :at craft))
 	(bind '(gx gy gz) (get :stop craft))
 	(defq k (min +double_1 (* dt (n2d 2.2))) now (pii-time)
@@ -310,7 +311,13 @@
 					:until (+ now (n2i (if (get :wet craft) (rand-d (n2d 1000000) (n2d 1300000))
 						(rand-d (n2d 2400000) (n2d 3200000))))))))
 		(:beam
-			(if (> now (get :until craft)) (def craft :phase :out :speed (n2d 20))))))
+			;a cow had, it is away at speed; nothing had, over the water, it
+			;flies on as it would have, ahead a while, then past and away
+			(when (> now (get :until craft))
+				(if (get :wet craft)
+					(def craft :phase :pace :beam :nil :speed (n2d 15)
+						:until (+ now (n2i (rand-d (n2d 6000000) (n2d 10000000)))))
+					(def craft :phase :out :speed (n2d 45)))))))
 
 (defun swoop-move (craft dt)
 	; (swoop-move craft dt)
