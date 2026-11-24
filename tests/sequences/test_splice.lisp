@@ -15,12 +15,12 @@
 (assert-eq "Splice String: Dual Mixed" "A2C321" (splice s1 s2 idxs1))
 
 ; --- Arrays ---
-(defq a1 (array 10 20 30) a2 (array 1 2 3))
+(defq a1 (nums 10 20 30) a2 (nums 1 2 3))
 ; a1[0,2] -> (10 20)
 ; a2[2,0] -> (2 1)
 ; a1[2,3] -> (30)
 (defq idxs2 (nums 0 2 2 0 2 3))
-(assert-true "Splice Array: Dual Mixed" (equal? (array 10 20 2 1 30) (splice a1 a2 idxs2)))
+(assert-true "Splice Array: Dual Mixed" (equal? (nums 10 20 2 1 30) (splice a1 a2 idxs2)))
 
 ; --- Lists ---
 (defq l1 (list 'a 'b 'c) l2 (list 'x 'y 'z))
@@ -67,5 +67,5 @@
 (report-header "Sequence Splice Macros: insert, erase, replace, rotate")
 
 ; insert (seq pos ins_seq)
-(defq ins_arr (array 1 3))
-(assert-true "insert array" (equal? (array 1 2 3) (insert ins_arr 1 (array 2))))
+(defq ins_arr (nums 1 3))
+(assert-true "insert array" (equal? (nums 1 2 3) (insert ins_arr 1 (nums 2))))

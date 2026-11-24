@@ -18,7 +18,7 @@
 
 ; Sequence Predicates
 (assert-true "seq? list"   (seq? (list 1)))
-(assert-true "seq? array"  (seq? (array 1)))
+(assert-true "seq? nums"  (seq? (nums 1)))
 (assert-true "seq? string" (seq? "abc"))
 (assert-true "seq? nums"   (seq? (nums 1)))
 
@@ -114,24 +114,22 @@
 (undef (env) 'old_env 'e1 'e2 'e3 'inner_ok 'nest_ok)
 
 ; --- A predicate with two ?, the class itself and not what is built on it ---
-(defq pq_things (list 3 1.5 (n2d 1.5) "a" 'a (list) (array) (nums 1) (fixeds 1.0) (doubles (n2d 1)) (path) (env 1)))
+(defq pq_things (list 3 1.5 (n2d 1.5) "a" 'a (list) (nums 1) (fixeds 1.0) (doubles (n2d 1)) (path) (env 1)))
 (defun pq-which (pred) (map (# (if (pred %0) :t :nil)) pq_things))
 (assert-list-eq "num?? is a num that is not a fixed or a double"
-	'(:t :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num??)))
+	'(:t :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num??)))
 (assert-list-eq "fixed?? is a fixed that is not a double"
-	'(:nil :t :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const fixed??)))
+	'(:nil :t :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const fixed??)))
 (assert-list-eq "str?? is a str that is not a symbol"
-	'(:nil :nil :nil :t :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const str??)))
+	'(:nil :nil :nil :t :nil :nil :nil :nil :nil :nil :nil) (pq-which (const str??)))
 (assert-list-eq "list?? is a list that is not a map"
-	'(:nil :nil :nil :nil :nil :t :nil :nil :nil :nil :nil :nil) (pq-which (const list??)))
-(assert-list-eq "array?? is an array that is not a list or a vector of numbers"
-	'(:nil :nil :nil :nil :nil :nil :t :nil :nil :nil :nil :nil) (pq-which (const array??)))
+	'(:nil :nil :nil :nil :nil :t :nil :nil :nil :nil :nil) (pq-which (const list??)))
 (assert-list-eq "nums?? is a nums that is not a fixeds, a doubles or a path"
-	'(:nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil :nil) (pq-which (const nums??)))
+	'(:nil :nil :nil :nil :nil :nil :t :nil :nil :nil :nil) (pq-which (const nums??)))
 (assert-list-eq "fixeds?? is a fixeds that is not a doubles or a path"
-	'(:nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil) (pq-which (const fixeds??)))
+	'(:nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil) (pq-which (const fixeds??)))
 (assert-list-eq "doubles?? is a doubles"
-	'(:nil :nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil) (pq-which (const doubles??)))
+	'(:nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil) (pq-which (const doubles??)))
 ;a float is a double, what a double does it does at its own width, and so a
 ;fixed too; ?? tells it from a double
 (defq pq_float (n2f 1.5))
@@ -153,9 +151,9 @@
 (assert-true "nums? list" (not (nums? (list))))
 (assert-true "fixeds? nums" (not (fixeds? (nums 1))))
 (assert-list-eq "where one ? is true of all that are built on the class, a num here"
-	'(:t :t :t :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num?)))
-(assert-list-eq "an array here, all seven kinds of one"
-	'(:nil :nil :nil :nil :nil :t :t :t :t :t :t :t) (pq-which (const array?)))
+	'(:t :t :t :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num?)))
+(assert-list-eq "an array here, all six kinds of one"
+	'(:nil :nil :nil :nil :nil :t :t :t :t :t :t) (pq-which (const array?)))
 (assert-true "a symbol is a str" (str? 'a))
 (assert-eq ":nil is a symbol, so not a str itself" :nil (str?? :nil))
 
@@ -177,5 +175,5 @@
 (defq pr_str "a")
 (assert-eq "two lists that hold the very same things are the same" :t (eql (list pr_str 'b) (list pr_str 'b)))
 (assert-eq "two that hold things that are only alike are not" :nil (eql (list "a") (list "a")))
-(assert-eq "and two arrays" :t (eql (array 1 2 3) (array 1 2 3)))
-(assert-eq "a list and an array of the same are not" :nil (eql (list 1 2 3) (array 1 2 3)))
+(assert-eq "and two nums" :t (eql (nums 1 2 3) (nums 1 2 3)))
+(assert-eq "a list and a nums of the same are not" :nil (eql (list 1 2 3) (nums 1 2 3)))

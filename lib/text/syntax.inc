@@ -101,8 +101,8 @@
 				(each (lambda (token ink)
 						(each (# (push state_list (+ (code %0) ink))) token))
 					token_list state)
-				(apply (const array) state_list))
-			((array))))
+				(apply (const nums) state_list))
+			((nums))))
 
 	(defmethod :line_expand (line tab_width)
 		; (. syntax :line_expand line tab_width) -> line

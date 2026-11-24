@@ -653,6 +653,13 @@ file at once.
 	on one, take the line out, let the node's timeout end it, build, put it
 	back.
 
+*	**A signature's case is a class's reach.** In `(signature '(...))`
+	a type in capitals, `:NUMS`, is that class exactly; in lower case,
+	`:stream`, that class or any built on it. A binding may also test a
+	class exactly in its code, `(f-path :nums :vtable)` against an
+	argument's vtable: when a class an argument may be changes, look for
+	both. `:inst_of` is the test of any built on it.
+
 *	**Errors are checked in the binding, never in the method:** the policy
 	of `docs/ai_digest/exceptions.md`, read before guarding anything. The
 	inner core checks nothing; the `lisp_*` function an `ffi` names checks

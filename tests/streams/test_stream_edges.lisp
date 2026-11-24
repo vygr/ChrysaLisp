@@ -93,7 +93,7 @@
 	(list (read-line se_m) (read-line se_m) (read-line se_m)))
 
 ;bits written through a pool and flushed read back through another
-(defq se_m (memory-stream) se_wpool (array 0 0) se_rpool (array 0 0))
+(defq se_m (memory-stream) se_wpool (nums 0 0) se_rpool (nums 0 0))
 (write-bits se_m se_wpool 0xA 4)
 (write-bits se_m se_wpool 0x5 4)
 (flush-bits se_m se_wpool)

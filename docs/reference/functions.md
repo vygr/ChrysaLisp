@@ -1184,12 +1184,6 @@ times libxmp's, 13696 at C-0
 (array? form) -> :t | :nil
 ```
 
-### array??
-
-```code
-(array?? form) -> :t | :nil
-```
-
 ### ascii-lower
 
 ```code
@@ -5590,7 +5584,7 @@ ticks times a pattern delay
 ### flush-bits
 
 ```code
-(flush-bits stream (array bit_pool bit_pool_size))
+(flush-bits stream (nums bit_pool bit_pool_size))
 ```
 
 ### folder-mode?
@@ -10848,6 +10842,9 @@ distance to go, it is a line
 (path-gen-paths svg_d) -> ((:nil|:t path) ...)
 
 :t closed, :nil open
+drawn up to its first error, as SVG has it: (path-svg) gives the whole
+sets of each command's numbers up to it; a path not begun by a move is
+nothing
 ```
 
 ### path-gen-rect
@@ -11866,12 +11863,19 @@ does not call itself
 :inherit for one that is to be its parent's: inherit, or a value not known
 ```
 
+### read-col
+
+```code
+#rgb or #rrggbb, of hex digits only
+```
+
 ### read-color
 
 ```code
-(read-color entry str) -> :inherit | argb
+(read-color entry str) -> :inherit | argb | (:url id fall)
 
-a color as SVG and CSS write it, 0 for none, :inherit for one not known
+a color, (read-plain-color), or a paint server, a gradient, by its id,
+with the color after it if there is one, to fall back on, (svg-paint)
 ```
 
 ### read-length
@@ -11903,9 +11907,18 @@ elements, the array says of what kind. :nil at the stream's end
 ### read-opacity
 
 ```code
-(read-opacity str) -> fixed
+(read-opacity str) -> :inherit | fixed
 
-0 to 1, or a %
+0 to 1, or a %; with anything else after it, not known
+```
+
+### read-plain-color
+
+```code
+(read-plain-color entry str) -> :inherit | argb
+
+a color as SVG and CSS write it, 0 for none, :inherit for one not known
+names and functions of no case, as CSS has them
 ```
 
 ### read-rgb
@@ -17795,6 +17808,39 @@ the color's alpha by the opacity, a color of full alpha as it was
 an attribute, or a property of the style attribute
 ```
 
+### svg-bounds
+
+```code
+(svg-bounds paths) -> (x y w h)
+
+the box of what the paths, ((closed path) ...), cover, of their points
+```
+
+### svg-char-len
+
+```code
+(svg-char-len text) -> bytes
+
+the length of the first character of a UTF-8 string
+```
+
+### svg-chars
+
+```code
+(svg-chars text) -> (str ...)
+
+the characters of a UTF-8 string
+```
+
+### svg-coord
+
+```code
+(svg-coord str size) -> fixed
+
+a coordinate of a gradient, a % of the size, 1 of a box, the
+viewport's of the user's space
+```
+
 ### svg-fit
 
 ```code
@@ -17804,6 +17850,114 @@ a viewBox of vw by vh into a viewport of w by h as preserveAspectRatio
 says, by default xMidYMid meet: none stretches it, meet fits all of it
 in, slice fills the viewport with it, and the align places what is
 left over
+```
+
+### svg-font
+
+```code
+(svg-font family weight style px) -> font
+
+the face nearest of the .ctf fonts there are
+```
+
+### svg-geom
+
+```code
+(svg-geom keys vals names viewport) -> (fixed | :nil ...)
+
+a shape's own geometry, never its parent's, SVG does not inherit it: a
+size not given or not known none, a place 0, a % of the viewport's
+width, its height, or of a radius its diagonal over root 2
+```
+
+### svg-gradient
+
+```code
+(svg-gradient id log ids) -> :nil | (kind attrs stops)
+
+a linearGradient or a radialGradient kept in the log, (SVG-load), its
+attributes over those of the one its href names, and so on, eight at
+most, and its stops, or those of the nearest of them that has any
+```
+
+### svg-offset
+
+```code
+(svg-offset str) -> fixed
+
+0 to 1, or a %; one not known 0
+```
+
+### svg-paint
+
+```code
+(svg-paint canvas val opacity paths m defs) -> :nil | :t
+
+the canvas told to draw with a gradient, (:url id fall), defs the log
+and the ids, (SVG-load): :t if it is to be drawn, a gradient or a color,
+:nil if not. Of the gradient's box, objectBoundingBox by default, the
+box of the paths, its gradientTransform, then m, the element's
+```
+
+### svg-passes?
+
+```code
+(svg-passes? keys vals) -> :t | :nil
+
+the tests of an element as a switch has them: no requiredExtensions,
+and a systemLanguage, if given, of English, en or en-
+```
+
+### svg-path-at
+
+```code
+(svg-path-at segs d) -> (x y ux uy) | :nil
+
+the point a distance d along segments, and the unit way it goes there
+```
+
+### svg-path-segs
+
+```code
+(svg-path-segs paths m) -> ((x0 y0 x1 y1 len) ...)
+
+the segments of a path's paths, by its own matrix if it has one, a
+closed one closed, a move between them none
+```
+
+### svg-shift
+
+```code
+(svg-shift keys vals entry) -> fixed
+
+a tspan's or a textPath's baseline as its parent's moved up by its
+own baseline-shift: a length, a % of its font's size, or
+sub and super by Open Sans's offsets for them
+```
+
+### svg-stop
+
+```code
+(svg-stop keys vals) -> (offset argb)
+
+a stop of a gradient, its color with its stop-opacity
+```
+
+### svg-text-decos
+
+```code
+(svg-text-decos val) -> (kind ...)
+
+the decorations a text-decoration names, those that are drawn
+```
+
+### svg-text-lists
+
+```code
+(svg-text-lists keys vals) -> ((x ...) (y ...) (dx ...) (dy ...) (rotate ...))
+
+the lists of a text's or a tspan's x y dx dy and rotate, one for each
+character in turn, each last first to be popped
 ```
 
 ### swap

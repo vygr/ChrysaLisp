@@ -33,7 +33,7 @@ Classes that inherit from `class/seq`:
 ```vdu
 (list 1 2 3 4)
 (list "a" "b")
-(array 5 6 7 8)
+(nums 5 6 7 8)
 "ABCDEFabcdef"
 'qwerty
 ```
@@ -60,7 +60,7 @@ docs/diagrams/seq_index.cwb
 ```
 
 ```lisp
-(elem-get (array 9 8 7) -2)
+(elem-get (nums 9 8 7) -2)
 ```
 
 Note that negative indexes start at -1 representing the element that would be 1
@@ -107,7 +107,7 @@ Search for an element with `(find elem seq [idx])` and `(rfind elem seq
 ```
 
 ```lisp
-(find 5 (array 1 2 3 4 5))
+(find 5 (nums 1 2 3 4 5))
 ```
 
 ```lisp
@@ -145,7 +145,7 @@ The function being called can access the current index value by use of the
 '(!)' function ! Very useful !
 
 ```vdu
-(each! print (list '(1 2 3) "ABC" (array 7 8 9 0)))
+(each! print (list '(1 2 3) "ABC" (nums 7 8 9 0)))
 ```
 
 ```vdu
@@ -213,15 +213,15 @@ The function being called can access the current index value by use of the
 ```
 
 ```lisp
-(some > (array 1 2 3) (array 5 6 7))
+(some > (nums 1 2 3) (nums 5 6 7))
 ```
 
 ```lisp
-(some < (array 1 2 3) (array 5 6 7))
+(some < (nums 1 2 3) (nums 5 6 7))
 ```
 
 ```lisp
-(every < (array 1 2 3) (array 5 6 7))
+(every < (nums 1 2 3) (nums 5 6 7))
 ```
 
 ## Map, Reduce and Filter
@@ -327,7 +327,7 @@ a
 ```
 
 ```lisp
-(defq a (array 9 8 7))
+(defq a (nums 9 8 7))
 (elem-set a -2 10)
 a
 ```

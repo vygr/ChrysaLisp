@@ -200,9 +200,9 @@
 (defun firstelem (meta current)
 	(if (first (defq elem (first meta)))
 		;not a split
-		(push current (array 0))
+		(push current (nums 0))
 		;a split
-		(insertelem meta current (list) (array 0) elem)
+		(insertelem meta current (list) (nums 0) elem)
 		current))
 
 (defun firstelem-no-trace (meta current)
@@ -215,7 +215,7 @@
 
 (defun search (text meta start)
 	; (search text meta start) -> (list submatches {-1 | end})
-	(defq end -1 end_trace (array 0) tl (length text)
+	(defq end -1 end_trace (nums 0) tl (length text)
 		si start s (if (<= si 0) " " (elem-get text (dec si)))
 		current (firstelem meta (list)) seen (list) next (list))
 	(some! (lambda (s) (defq si (inc (!)))
@@ -239,7 +239,7 @@
 
 (defun match (text meta start)
 	; (match text meta start) -> -1 | end
-	(defq end -1 tl (length text) trace (array 0)
+	(defq end -1 tl (length text) trace (nums 0)
 		si start s (if (<= si 0) " " (elem-get text (dec si)))
 		current (firstelem-no-trace meta (list)) next (list))
 	(some! (lambda (s) (defq si (inc (!)))

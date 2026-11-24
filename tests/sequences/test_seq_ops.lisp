@@ -21,7 +21,7 @@
 (defq inner_list (list 1 2))
 (defq inner_pmap (pmap 'a 10))
 (defq inner_pset (pset 'x 'y))
-(defq inner_arr (array 100 200))
+(defq inner_arr (nums 100 200))
 (defq list_orig (list inner_list inner_pmap inner_pset inner_arr))
 (defq list_copy (copy list_orig))
 

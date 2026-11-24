@@ -75,7 +75,7 @@
 			(stream-seek next 0 0)
 			(pixmap-write (pixmap-as-argb pixmap) next format)
 			(stream-seek next 0 0)
-			(defq p_state (array 0 0) c_state (array 0 0) w_state (array 0 0)
+			(defq p_state (nums 0 0) c_state (nums 0 0) w_state (nums 0 0)
 				mode :none count 0 draw_buf (list) at 0)
 			(times pixels
 				;the encoder is on the node of what makes the film, the GUI's

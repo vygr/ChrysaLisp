@@ -248,7 +248,7 @@
 
 	(entry :font :glyph_ranges `(,this))
 
-	(call :array :create :nil `(,info))
+	(call :nums :create :nil `(,info))
 	(assign `((,this +font_data)) `(,data))
 	(vp-add-cr (+ +str_data +font_data_size) data)
 	(loop-start)

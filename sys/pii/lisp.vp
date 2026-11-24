@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
 (include "class/num/class.inc")
+(include "class/nums/class.inc")
 (include "class/lisp/class.inc")
 
 (def-method :host_os :lisp_readchar)
@@ -146,7 +147,7 @@
 	(call :host_os :pii_stat '((& :r0 +str_data) :r1) '(:r0))
 	(vpif '(:r0 = 0))
 		(vp-cpy-rr :r1 :r13)
-		(call :array :create :nil '(:r0))
+		(call :nums :create :nil '(:r0))
 		(call :array :push_back2 '(:r0 (:r13 +stat_mtime) (:r13 +stat_fsize)) '(:r0 & & & &))
 		(call :array :push_back '(:r0 (:r13 +stat_mode)) '(:r1 & & &))
 	(else)

@@ -47,7 +47,6 @@
 	(dec-method :get_end class/array/get_end :static (:r0) (:r0 :r1))
 	(dec-method :get_both class/array/get_both :static (:r0) (:r0 :r1 :r2))
 	(dec-method :sort_callback class/obj/null :static (:r0 :r1 :r2) (:r0))
-	(dec-method :lisp_array class/array/lisp_array :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_nums class/array/lisp_nums :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_fixeds class/array/lisp_fixeds :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_doubles class/array/lisp_doubles :static (:r0 :r1) (:r0 :r1))

@@ -350,8 +350,9 @@ answer to test, not a value to read.
 
 A predicate with two, `list??`, asks if it is that class itself, the last
 of the chain, and no other. There is one for each class that others are
-built on, `array??`, `list??`, `num??`, `fixed??`, `nums??`, `fixeds??`
-and `str??`.
+built on and that is made itself, `list??`, `num??`, `fixed??`,
+`nums??`, `fixeds??` and `str??`. `:array` is not made itself, only
+`:list` and `:nums` on it, so there is no `array??`.
 
 ```vdu
 (list?? (list))       ; -> :t

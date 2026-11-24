@@ -25,23 +25,6 @@
 	(exit :array (sym (cat :lisp_ (rest %0))) '(:r6 :r7))
 	(vp-ret))
 
-(def-method :array :lisp_array)
-	;inputs
-	;:r0 = lisp object (ptr)
-	;:r1 = args list object (ptr)
-	;outputs
-	;:r0 = lisp object (ptr)
-	;:r1 = return value object (ptr)
-	;trashes
-	;:r1-:r8, :d0-:d15
-
-	(to-array :array)
-
-(vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(array [num ...])" +error_msg_wrong_types))
-
-(def-func-end)
-
 (def-method :array :lisp_nums)
 	;inputs
 	;:r0 = lisp object (ptr)

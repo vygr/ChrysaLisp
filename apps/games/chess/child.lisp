@@ -36,22 +36,22 @@
 
 ;piece move vectors and capture actions
 (defq black_pawn_moves (list
-		(array 0 1 0 +no_capture) (array -1 1 1 +must_capture) (array 1 1 1 +must_capture))
+		(nums 0 1 0 +no_capture) (nums -1 1 1 +must_capture) (nums 1 1 1 +must_capture))
 	white_pawn_moves (list
-		(array 0 -1 0 +no_capture) (array -1 -1 1 +must_capture) (array 1 -1 1 +must_capture))
+		(nums 0 -1 0 +no_capture) (nums -1 -1 1 +must_capture) (nums 1 -1 1 +must_capture))
 	rook_moves (list
-		(array 0 -1 7 +may_capture) (array -1 0 7 +may_capture) (array 0 1 7 +may_capture) (array 1 0 7 +may_capture))
+		(nums 0 -1 7 +may_capture) (nums -1 0 7 +may_capture) (nums 0 1 7 +may_capture) (nums 1 0 7 +may_capture))
 	bishop_moves (list
-		(array -1 -1 7 +may_capture) (array 1 1 7 +may_capture) (array -1 1 7 +may_capture) (array 1 -1 7 +may_capture))
+		(nums -1 -1 7 +may_capture) (nums 1 1 7 +may_capture) (nums -1 1 7 +may_capture) (nums 1 -1 7 +may_capture))
 	knight_moves (list
-		(array -2 1 1 +may_capture) (array 2 -1 1 +may_capture) (array 2 1 1 +may_capture) (array -2 -1 1 +may_capture)
-		(array -1 -2 1 +may_capture) (array -1 2 1 +may_capture) (array 1 -2 1 +may_capture) (array 1 2 1 +may_capture))
+		(nums -2 1 1 +may_capture) (nums 2 -1 1 +may_capture) (nums 2 1 1 +may_capture) (nums -2 -1 1 +may_capture)
+		(nums -1 -2 1 +may_capture) (nums -1 2 1 +may_capture) (nums 1 -2 1 +may_capture) (nums 1 2 1 +may_capture))
 	queen_moves (list
-		(array 0 -1 7 +may_capture) (array -1 0 7 +may_capture) (array 0 1 7 +may_capture) (array 1 0 7 +may_capture)
-		(array -1 -1 7 +may_capture) (array 1 1 7 +may_capture) (array -1 1 7 +may_capture) (array 1 -1 7 +may_capture))
+		(nums 0 -1 7 +may_capture) (nums -1 0 7 +may_capture) (nums 0 1 7 +may_capture) (nums 1 0 7 +may_capture)
+		(nums -1 -1 7 +may_capture) (nums 1 1 7 +may_capture) (nums -1 1 7 +may_capture) (nums 1 -1 7 +may_capture))
 	king_moves (list
-		(array 0 -1 1 +may_capture) (array -1 0 1 +may_capture) (array 0 1 1 +may_capture) (array 1 0 1 +may_capture)
-		(array -1 -1 1 +may_capture) (array 1 1 1 +may_capture) (array -1 1 1 +may_capture) (array 1 -1 1 +may_capture)))
+		(nums 0 -1 1 +may_capture) (nums -1 0 1 +may_capture) (nums 0 1 1 +may_capture) (nums 1 0 1 +may_capture)
+		(nums -1 -1 1 +may_capture) (nums 1 1 1 +may_capture) (nums -1 1 1 +may_capture) (nums 1 -1 1 +may_capture)))
 
 ;map piece to its movement possibilities
 (defq moves_map (list "PpRrBbNnQqKk"
@@ -59,16 +59,16 @@
 			knight_moves knight_moves queen_moves queen_moves king_moves king_moves)))
 
 ;piece check vectors, king is tested for being on these vectors for check tests
-(defq black_pawn_vectors (list (array -1 1 1) (array 1 1 1))
-	white_pawn_vectors (list (array -1 -1 1) (array 1 -1 1))
-	bishop_vectors (list (array -1 -1 7) (array 1 1 7) (array -1 1 7) (array 1 -1 7))
-	rook_vectors (list (array 0 -1 7) (array -1 0 7) (array 0 1 7) (array 1 0 7))
-	knight_vectors (list (array -1 -2 1) (array -1 2 1) (array -2 -1 1) (array -2 1 1)
-		(array 1 -2 1) (array 1 2 1) (array 2 -1 1) (array 2 1 1))
-	queen_vectors (list (array -1 -1 7) (array 1 1 7) (array -1 1 7) (array 1 -1 7)
-		(array 0 -1 7) (array -1 0 7) (array 0 1 7) (array 1 0 7))
-	king_vectors (list (array -1 -1 1) (array 1 1 1) (array -1 1 1) (array 1 -1 1)
-		(array 0 -1 1) (array -1 0 1) (array 0 1 1) (array 1 0 1)))
+(defq black_pawn_vectors (list (nums -1 1 1) (nums 1 1 1))
+	white_pawn_vectors (list (nums -1 -1 1) (nums 1 -1 1))
+	bishop_vectors (list (nums -1 -1 7) (nums 1 1 7) (nums -1 1 7) (nums 1 -1 7))
+	rook_vectors (list (nums 0 -1 7) (nums -1 0 7) (nums 0 1 7) (nums 1 0 7))
+	knight_vectors (list (nums -1 -2 1) (nums -1 2 1) (nums -2 -1 1) (nums -2 1 1)
+		(nums 1 -2 1) (nums 1 2 1) (nums 2 -1 1) (nums 2 1 1))
+	queen_vectors (list (nums -1 -1 7) (nums 1 1 7) (nums -1 1 7) (nums 1 -1 7)
+		(nums 0 -1 7) (nums -1 0 7) (nums 0 1 7) (nums 1 0 7))
+	king_vectors (list (nums -1 -1 1) (nums 1 1 1) (nums -1 1 1) (nums 1 -1 1)
+		(nums 0 -1 1) (nums -1 0 1) (nums 0 1 1) (nums 1 0 1)))
 
 ;check tests, piece types given can not be on the vectors given
 (defq black_tests (list
@@ -79,7 +79,7 @@
 		(list "K" king_vectors) (list "P" white_pawn_vectors)))
 
 ;pawn values for board evaluation
-(defq white_pawn_eval_values (array
+(defq white_pawn_eval_values (nums
 		0 0 0 0 0 0 0 0
 		50 50 50 50 50 50 50 50
 		10 10 20 30 30 20 10 10
@@ -88,7 +88,7 @@
 		5 -5 -10 0 0 -10 -5 5
 		5 10 10 -20 -20 10 10 5
 		0 0 0 0 0 0 0 0 +pawn_value)
-	black_pawn_eval_values (array
+	black_pawn_eval_values (nums
 		0 0 0 0 0 0 0 0
 		5 10 10 -20 -20 10 10 5
 		5 -5 -10 0 0 -10 -5 5
@@ -99,7 +99,7 @@
 		0 0 0 0 0 0 0 0 +pawn_value))
 
 ;knight values for board evaluation
-(defq white_knight_eval_values (array
+(defq white_knight_eval_values (nums
 		-50 -40 -30 -30 -30 -30 -40 -50
 		-40 -20 0 0 0 0 -20 -40
 		-30 0 10 15 15 10 0 -30
@@ -108,7 +108,7 @@
 		-30 5 10 15 15 10 5 -30
 		-40 -20 0 5 5 0 -20 -40
 		-50 -40 -30 -30 -30 -30 -40 -50 +knight_value)
-	black_knight_eval_values (array
+	black_knight_eval_values (nums
 		-50 -40 -30 -30 -30 -30 -40 -50
 		-40 -20 0 5 5 0 -20 -40
 		-30 5 10 15 15 10 5 -30
@@ -119,7 +119,7 @@
 		-50 -40 -30 -30 -30 -30 -40 -50 +knight_value))
 
 ;bishop values for board evaluation
-(defq white_bishop_eval_values (array
+(defq white_bishop_eval_values (nums
 		-20 -10 -10 -10 -10 -10 -10 -20
 		-10 0 0 0 0 0 0 -10
 		-10 0 5 10 10 5 0 -10
@@ -128,7 +128,7 @@
 		-10 10 10 10 10 10 10 -10
 		-10 5 0 0 0 0 5 -10
 		-20 -10 -10 -10 -10 -10 -10 -20 +bishop_value)
-	black_bishop_eval_values (array
+	black_bishop_eval_values (nums
 		-20 -10 -10 -10 -10 -10 -10 -20
 		-10 5 0 0 0 0 5 -10
 		-10 10 10 10 10 10 10 -10
@@ -139,7 +139,7 @@
 		-20 -10 -10 -10 -10 -10 -10 -20 +bishop_value))
 
 ;rook values for board evaluation
-(defq white_rook_eval_values (array
+(defq white_rook_eval_values (nums
 		0 0 0 0 0 0 0 0
 		5 10 10 10 10 10 10 5
 		-5 0 0 0 0 0 0 -5
@@ -148,7 +148,7 @@
 		-5 0 0 0 0 0 0 -5
 		-5 0 0 0 0 0 0 -5
 		0 0 0 5 5 0 0 0 +rook_value)
-	black_rook_eval_values (array
+	black_rook_eval_values (nums
 		0 0 0 5 5 0 0 0
 		-5 0 0 0 0 0 0 -5
 		-5 0 0 0 0 0 0 -5
@@ -159,7 +159,7 @@
 		0 0 0 0 0 0 0 0 +rook_value))
 
 ;queen values for board evaluation
-(defq white_queen_eval_values (array
+(defq white_queen_eval_values (nums
 		-20 -10 -10 -5 -5 -10 -10 -20
 		-10 0 0 0 0 0 0 -10
 		-10 0 5 5 5 5 0 -10
@@ -168,7 +168,7 @@
 		-10 5 5 5 5 5 0 -10
 		-10 0 5 0 0 0 0 -10
 		-20 -10 -10 -5 -5 -10 -10 -20 +queen_value)
-	black_queen_eval_values (array
+	black_queen_eval_values (nums
 		-20 -10 -10 -5 -5 -10 -10 -20
 		-10 0 5 0 0 0 0 -10
 		-10 5 5 5 5 5 0 -10
@@ -179,7 +179,7 @@
 		-20 -10 -10 -5 -5 -10 -10 -20 +queen_value))
 
 ;king values for board evaluation
-(defq white_king_eval_values (array
+(defq white_king_eval_values (nums
 		-30 -40 -40 -50 -50 -40 -40 -30
 		-30 -40 -40 -50 -50 -40 -40 -30
 		-30 -40 -40 -50 -50 -40 -40 -30
@@ -188,7 +188,7 @@
 		-10 -20 -20 -20 -20 -20 -20 -10
 		20 20 0 0 0 0 20 20
 		20 30 10 0 0 10 30 20 +king_value)
-	black_king_eval_values (array
+	black_king_eval_values (nums
 		20 30 10 0 0 10 30 20
 		20 20 0 0 0 0 20 20
 		-10 -20 -20 -20 -20 -20 -20 -10

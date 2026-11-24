@@ -75,5 +75,9 @@
 	(tree-load (string-stream "  \n")) :nil
 	(tree-load (string-stream "; just a comment")) :nil)
 
-;a nums vector is not a tree value
-(assert-error "nums value" (tree-save (memory-stream) (te-value (nums 1 2))))
+;a nums and a fixeds are tree values, as a path is, their numbers what the
+;reader reads back; a doubles is not, the reader reading no double
+(defq te_nums (te-value (nums 1 -2 3)) te_fixeds (te-value (fixeds 1.5 -2.25)))
+(assert-true "a nums value, a nums back" (and (nums?? te_nums) (equal? te_nums (nums 1 -2 3))))
+(assert-true "a fixeds value, a fixeds back" (and (fixeds?? te_fixeds) (equal? te_fixeds (fixeds 1.5 -2.25))))
+(assert-error "a doubles value" (tree-save (memory-stream) (te-value (doubles (n2d 1) (n2d 2)))))

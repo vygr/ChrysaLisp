@@ -34,7 +34,7 @@
 	(call :sys_mem :avail :nil '(:r10))
 	(call :sys_task :stacks :nil '(:r11))
 	(call :sys_mem :inuse :nil '(:r12))
-	(call :array :create :nil '(:r0))
+	(call :nums :create :nil '(:r0))
 	(fn-bind 'sys/statics/statics :r1)
 	(call :array :push_back2
 		'(:r0 (:r1 statics_sys_task_task_count) (:r1 statics_sys_mem_total))

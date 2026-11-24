@@ -31,11 +31,11 @@
 ;the codes are canonical, as RFC 1951 3.2.2 has them, each the other way
 ;round to write: A 2, B 1, C 3, D 3, is B 0, A 10, C 110, D 111
 (assert-list-eq "canonical codes" '(1 0 3 7) (huffman-codes (nums 2 1 3 3)))
-(defq hf_bits (array 0 0) hf_ms (memory-stream) hf_lens (nums 2 1 3 3) hf_codes (huffman-codes hf_lens))
+(defq hf_bits (nums 0 0) hf_ms (memory-stream) hf_lens (nums 2 1 3 3) hf_codes (huffman-codes hf_lens))
 (each (# (write-bits hf_ms hf_bits (elem-get hf_codes %0) (elem-get hf_lens %0))) '(3 0 1 2 1))
 (flush-bits hf_ms hf_bits)
 (stream-seek hf_ms 0 0)
-(setq hf_bits (array 0 0))
+(setq hf_bits (nums 0 0))
 (defq hf_table (huffman-table hf_lens))
 (assert-list-eq "and read back" '(3 0 1 2 1) (map! (lambda () (huffman-symbol hf_ms hf_bits hf_table)) '() 0 5))
 

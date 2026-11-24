@@ -13,7 +13,7 @@
 	(assert-eq (cat name ": read-long") :nil (read-long ms))
 
 	; read-bits returns -1 on EOF
-	(defq r_bit_pool (array 0 0))
+	(defq r_bit_pool (nums 0 0))
 	(assert-eq (cat name ": read-bits") -1 (read-bits ms r_bit_pool 8)))
 
 ; Test on empty memory stream

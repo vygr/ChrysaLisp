@@ -184,8 +184,9 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
 	* **Arrays (`:array` and its typed variants `:nums`, `:fixeds`, `:doubles`,
 	  `:path`):**
 
-		* A Lisp `(array 1 2 3)` or `(nums 10 20)` is an instance of the `:array` or
-		  `:nums` VP class.
+		* `:array` is the base only, never made itself: `:list` on it for
+		  counted references, `:nums` and those on it for raw numbers. A Lisp
+		  `(nums 10 20)` is an instance of the `:nums` VP class.
 
 		* These classes store a `begin` pointer to a dynamically allocated (or small
 		  internal) buffer, along with `length` and `capacity`.

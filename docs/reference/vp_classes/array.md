@@ -8,8 +8,6 @@ docs/reference/vp_classes/array.cwb
 
 ## Lisp Bindings
 
-### (array [num ...]) -> array
-
 ### (cap len array ...) -> array
 
 ### (clear [idx] array ...) -> array

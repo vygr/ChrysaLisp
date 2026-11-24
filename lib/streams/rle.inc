@@ -15,8 +15,8 @@
 (defun rle-compress (in_stream out_stream &optional token_bits run_bits)
 	; (rle-compress in_stream out_stream [token_bits run_bits])
 	(setd token_bits 8 run_bits 8)
-	(defq read_pool_state (array 0 0)	; State for the input stream
-		write_pool_state (array 0 0)  ; State for the output stream
+	(defq read_pool_state (nums 0 0)	; State for the input stream
+		write_pool_state (nums 0 0)  ; State for the output stream
 		sign_bit_mask (<< 1 (dec run_bits))
 		length_mask (dec sign_bit_mask)
 		max_run_length (inc length_mask)
@@ -51,8 +51,8 @@
 (defun rle-decompress (in_stream out_stream &optional token_bits run_bits max_tokens)
 	; (rle-decompress in_stream out_stream [token_bits run_bits max_tokens])
 	(setd token_bits 8 run_bits 8 max_tokens +max_long)
-	(defq read_pool_state (array 0 0)	; State for the input stream
-		write_pool_state (array 0 0)  ; State for the output stream
+	(defq read_pool_state (nums 0 0)	; State for the input stream
+		write_pool_state (nums 0 0)  ; State for the output stream
 		sign_bit_mask (<< 1 (dec run_bits))
 		length_mask (dec sign_bit_mask))
 	; Read breaking gracefully on -1 (EOF) or hitting token limit

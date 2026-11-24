@@ -74,7 +74,7 @@
 	;it. :nil if it is not one, or stops before its end, what was got by
 	;then is written. A block of codes is read by native code, and what it
 	;makes kept in a ring of the last 32KB, at is how many bytes have been
-	(defq bits (array 0 0) ring (str-alloc +inflate_window) at 0 ok :t last_block :nil fixed :nil)
+	(defq bits (nums 0 0) ring (str-alloc +inflate_window) at 0 ok :t last_block :nil fixed :nil)
 	;zlib: a method of 8, deflate, and a check that the head is one
 	(when zlib
 		(defq cmf (read-bits in_stream bits 8) flg (read-bits in_stream bits 8))
@@ -141,7 +141,7 @@
 	;the bytes of in as DEFLATE, raw, or with zlib's head and sum round it.
 	;32KB a block, of the fixed codes, a match looked for by native code at
 	;the place the 3 bytes from each were last, as far back as 32KB
-	(defq bits (array 0 0) ring (str-alloc 65536) hash (fill (nums) 8192 -65536) pos 0 adler 1
+	(defq bits (nums 0 0) ring (str-alloc 65536) hash (fill (nums) 8192 -65536) pos 0 adler 1
 		chunk (read-blk in_stream 32768))
 	;zlib: deflate of a window of 32KB, the fastest, a head that is a whole
 	;number of 31

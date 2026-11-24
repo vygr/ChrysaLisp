@@ -561,14 +561,14 @@ Type inspection and structural verification predicates.
 
 	*	`(quasi-quote? form) -> :t | :nil`
 
-*	**`array?` / `list?` / `array??` / `list??`**: Type hierarchy tests for
+*	**`array?` / `list?` / `list??`**: Type hierarchy tests for
 	collections. One `?` is true of the class and of every class built on
 	it, a list is an array, a map is a list. Two is true of that class
-	itself and no other.
+	itself and no other. `:array` is only a base, of `:list`, the containers
+	of counted references, and of `:nums`, raw numbers: none is made of it
+	alone, so it has no `array??`.
 
 	*	`(array? form) -> :t | :nil`
-
-	*	`(array?? form) -> :t | :nil`
 
 	*	`(list? form) -> :t | :nil`
 
@@ -1093,10 +1093,6 @@ Lexical environment creation and variable manipulation.
 
 ## Data Structure Constructors
 
-*	**`array`**: Constructs an untyped 64-bit array.
-
-	*	`(array [num ...]) -> array`
-
 *	**`list`**: Constructs a general Lisp list.
 
 	*	`(list [elem ...]) -> list`
@@ -1184,21 +1180,22 @@ Stream interfaces for files, memory buffers, pipes, and standard I/O.
 
 	*	`(stream-seek stream offset whence) -> stream`
 
-*	**`read-bits` / `write-bits`**: Bitfield stream I/O using a state tuple.
+*	**`read-bits` / `write-bits`**: Bitfield stream I/O using a state tuple,
+	a nums of two.
 
-	*	`(read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)`
+	*	`(read-bits stream (nums bit_pool bit_pool_size) num_bits) -> (data|-1)`
 
-	*	`(write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream`
+	*	`(write-bits stream (nums bit_pool bit_pool_size) data num_bits) -> stream`
 
 *	**`fill-bits` / `copy-bits`**: Batch bitstream replication primitives.
 
-	*	`(fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) -> stream`
+	*	`(fill-bits stream (nums bit_pool bit_pool_size) data num_bits cnt) -> stream`
 
-	*	`(copy-bits wstream rstream (array wbit_pool wbit_pool_size) (array rbit_pool rbit_pool_size) num_bits cnt) -> wstream`
+	*	`(copy-bits wstream rstream (nums wbit_pool wbit_pool_size) (nums rbit_pool rbit_pool_size) num_bits cnt) -> wstream`
 
 *	**`flush-bits`**: Flushes partial bytes remaining in a bit pool to a stream.
 
-	*	`(flush-bits stream (array bit_pool bit_pool_size))`
+	*	`(flush-bits stream (nums bit_pool bit_pool_size))`
 
 *	**`load-stream`**: Reads a file directly into an active string-stream.
 

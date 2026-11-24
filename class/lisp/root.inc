@@ -376,13 +376,13 @@
 (ffi "class/stream/lisp_seek" stream-seek)
 ; (stream-seek stream offset whence) -> stream
 (ffi "class/stream/lisp_read_bits" read-bits)
-; (read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)
+; (read-bits stream (nums bit_pool bit_pool_size) num_bits) -> (data|-1)
 (ffi "class/stream/lisp_write_bits" write-bits)
-; (write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream
+; (write-bits stream (nums bit_pool bit_pool_size) data num_bits) -> stream
 (ffi "class/stream/lisp_fill_bits" fill-bits)
-; (fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) -> stream
+; (fill-bits stream (nums bit_pool bit_pool_size) data num_bits cnt) -> stream
 (ffi "class/stream/lisp_copy_bits" copy-bits)
-; (copy-bits wstream rstream (array bit_pool bit_pool_size) (array bit_pool bit_pool_size) num_bits cnt) -> wstream
+; (copy-bits wstream rstream (nums bit_pool bit_pool_size) (nums bit_pool bit_pool_size) num_bits cnt) -> wstream
 (ffi "class/stream/lisp_mstream" memory-stream)
 ; (memory-stream) -> stream
 (ffi "class/out/lisp_create" out-stream)
@@ -405,8 +405,6 @@
 ; (pset [key] ...) -> pset
 (ffi "class/pmap/lisp_pmap" pmap)
 ; (pmap [key val] ...) -> pmap
-(ffi "class/array/lisp_array" array)
-; (array [num ...]) -> array
 (ffi "class/array/lisp_nums" nums)
 ; (nums [num ...]) -> nums
 (ffi "class/array/lisp_fixeds" fixeds)
@@ -625,10 +623,6 @@
 (defun array? (%0)
 	; (array? form) -> :t | :nil
 	(find :array (type-of %0)))
-
-(defun array?? (%0)
-	; (array?? form) -> :t | :nil
-	(eql :array (pop (type-of %0))))
 
 (defun list? (%0)
 	; (list? form) -> :t | :nil

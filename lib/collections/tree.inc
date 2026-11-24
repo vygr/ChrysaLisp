@@ -18,7 +18,7 @@
 (defun tree-collection? (type)
 	; (tree-collection? type) -> :nil | type
 	(some (# (if (eql %0 type) %0))
-		'(:list :pset :pmap :array :path :Emap :Lmap :Fmap :Lset :Fset)))
+		'(:list :pset :pmap :nums :fixeds :path :Emap :Lmap :Fmap :Lset :Fset)))
 
 (defq +tree_chunk_size 512)
 
@@ -60,7 +60,7 @@
 
 (defun tree-buckets (collection type)
 	; (tree-buckets collection type) -> num
-	(if (find type '(:list :pset :pmap :array :path))
+	(if (find type '(:list :pset :pmap :nums :fixeds :path))
 		(length collection)
 		(if (find type '(:Lmap :Lset)) 1
 			(get :num_buckets collection))))
@@ -74,7 +74,9 @@
 		(:Emap (Emap buckets))
 		(:Fmap (Fmap buckets))
 		(:Fset (Fset buckets))
-		(:array (cap buckets (array)))
+		;numbers the reader reads back: no doubles or floats
+		(:nums (cap buckets (nums)))
+		(:fixeds (cap buckets (fixeds)))
 		(:path (cap buckets (path)))
 		(:pset (cap buckets (pset)))
 		(:pmap (cap buckets (pmap)))
@@ -127,7 +129,7 @@
 									(write-line stream (str p k))
 									(write-line stream (str p "(" (first v))))
 								(:t (write-line stream (str p k " " (tree-encode v))))))
-						((:array :path)
+						((:nums :fixeds :path)
 							(defq k (elem-get l i))
 							(cond
 								((list?? k)

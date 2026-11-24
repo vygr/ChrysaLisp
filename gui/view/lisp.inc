@@ -347,7 +347,7 @@
 	(defmethod :connect (id)
 		; (. view :connect id) -> view
 		(unless (defq targets (def? :targets this))
-			(def this :targets (setq targets (array))))
+			(def this :targets (setq targets (nums))))
 		(push targets id)
 		this)
 

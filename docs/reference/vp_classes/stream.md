@@ -10,13 +10,13 @@ docs/reference/vp_classes/stream.cwb
 
 ### (stream-avail stream) -> num
 
-### (copy-bits wstream rstream (array bit_pool bit_pool_size) (array bit_pool bit_pool_size) num_bits cnt) -> wstream
+### (copy-bits wstream rstream (nums bit_pool bit_pool_size) (nums bit_pool bit_pool_size) num_bits cnt) -> wstream
 
 ### (lines! lambda stream [start end]) -> :nil | val
 
 ### (stream-fault stream) -> :nil | fault
 
-### (fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) -> stream
+### (fill-bits stream (nums bit_pool bit_pool_size) data num_bits cnt) -> stream
 
 ### (stream-flush stream) -> stream
 
@@ -26,7 +26,7 @@ docs/reference/vp_classes/stream.cwb
 
 ### (memory-stream) -> stream
 
-### (read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)
+### (read-bits stream (nums bit_pool bit_pool_size) num_bits) -> (data|-1)
 
 ### (read-avail stream) -> :nil | num
 
@@ -40,7 +40,7 @@ docs/reference/vp_classes/stream.cwb
 
 ### (string-stream str) -> stream
 
-### (write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream
+### (write-bits stream (nums bit_pool bit_pool_size) data num_bits) -> stream
 
 ### (write-blk stream str) -> bytes
 

@@ -28,7 +28,7 @@
 	(elem-get "abc" -2) "c"
 	(elem-get "abc" -4) "a"
 	(elem-get (list 1 2 3) -4) 1
-	(elem-get (array 10 20 30 40) -2) 40
+	(elem-get (nums 10 20 30 40) -2) 40
 	(elem-set (list 1 2 3) -2 9) '(1 2 9)
 	(elem-set (list 1 2 3) 0 9) '(9 2 3))
 
@@ -111,7 +111,7 @@
 	(lists 0) '()
 	(push (list) 1 2 3) '(1 2 3)
 	;cap gives back its last array, the length is not changed
-	(length (cap 10 (array 1 2 3))) 3
+	(length (cap 10 (nums 1 2 3))) 3
 	;merge appends what the first list does not have, and gives it back
 	(merge (list 1 2) (list 3 4)) '(1 2 3 4)
 	(clear (list 1 2) (list 3)) '()

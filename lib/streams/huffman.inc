@@ -163,7 +163,7 @@
 	;of its own. Each block a bit of 1, its code's lengths, its tokens and
 	;the end of it, and the stream a bit of 0 after the last
 	(setd token_bits 8 block +huffman_block)
-	(defq rbits (array 0 0) wbits (array 0 0) eob (<< 1 token_bits)
+	(defq rbits (nums 0 0) wbits (nums 0 0) eob (<< 1 token_bits)
 		symbol_bits (inc token_bits) limit (huffman-limit (inc eob)) going :t)
 	(write-bits out_stream wbits token_bits 8)
 	(while going
@@ -190,7 +190,7 @@
 	; (huffman-decompress in_stream out_stream) -> :t | :nil
 	;:nil if the stream stops before its end, or is not one, what was got
 	;by then is written
-	(defq rbits (array 0 0) wbits (array 0 0) token_bits (read-bits in_stream rbits 8)
+	(defq rbits (nums 0 0) wbits (nums 0 0) token_bits (read-bits in_stream rbits 8)
 		ok (<= 1 token_bits 24) going ok)
 	(when ok
 		(defq eob (<< 1 token_bits) symbol_bits (inc token_bits)))
@@ -218,7 +218,7 @@
 	;how often each token is in the stream, added to freqs if given, a
 	;nums of 2^token_bits
 	(setd token_bits 8 freqs (fill (nums) (<< 1 token_bits) 0))
-	(defq rbits (array 0 0) n 0)
+	(defq rbits (nums 0 0) n 0)
 	(while (>= (defq token (read-bits in_stream rbits token_bits)) 0)
 		(elem-set freqs token (inc (elem-get freqs token)))
 		(if (= (logand (++ n) 0xfff) 0) (task-slice)))
@@ -233,14 +233,14 @@
 (defun huffman-write-book (out_stream book)
 	; (huffman-write-book out_stream book)
 	(bind '(token_bits lengths) book)
-	(defq wbits (array 0 0))
+	(defq wbits (nums 0 0))
 	(write-bits out_stream wbits token_bits 8)
 	(huffman-write-lengths out_stream wbits lengths (inc token_bits))
 	(flush-bits out_stream wbits))
 
 (defun huffman-read-book (in_stream)
 	; (huffman-read-book in_stream) -> :nil | book
-	(defq rbits (array 0 0) token_bits (read-bits in_stream rbits 8))
+	(defq rbits (nums 0 0) token_bits (read-bits in_stream rbits 8))
 	(and (<= 1 token_bits 24)
 		(defq lengths (huffman-read-lengths in_stream rbits (inc (<< 1 token_bits)) (inc token_bits)))
 		(list token_bits lengths)))
@@ -249,7 +249,7 @@
 	; (huffman-compress-static in_stream out_stream book) -> :t | :nil
 	;:nil if a token has no code in the book, the stream is coded up to it
 	(bind '(token_bits lengths) book)
-	(defq rbits (array 0 0) wbits (array 0 0) eob (<< 1 token_bits)
+	(defq rbits (nums 0 0) wbits (nums 0 0) eob (<< 1 token_bits)
 		codes (huffman-codes lengths) ok (> (elem-get lengths eob) 0) n 0)
 	(while (and ok (>= (defq token (read-bits in_stream rbits token_bits)) 0))
 		(if (= (logand (++ n) 0xfff) 0) (task-slice))
@@ -263,7 +263,7 @@
 (defun huffman-decompress-static (in_stream out_stream book)
 	; (huffman-decompress-static in_stream out_stream book) -> :t | :nil
 	(bind '(token_bits lengths) book)
-	(defq rbits (array 0 0) wbits (array 0 0) eob (<< 1 token_bits)
+	(defq rbits (nums 0 0) wbits (nums 0 0) eob (<< 1 token_bits)
 		table (huffman-table lengths) sym 0 n 0)
 	(while (and (>= (setq sym (huffman-symbol in_stream rbits table)) 0) (/= sym eob))
 		(if (= (logand (++ n) 0xfff) 0) (task-slice))

@@ -69,7 +69,7 @@
 	(slice (md-texts md_md) 0 7))
 (assert-true "what is not a link, and what is quoted as code, is left"
 	(and (find "[this] " (md-texts md_md)) (find "[code](x) " (md-texts md_md))))
-(assert-true "each Link is connected to the event" (every (# (eql (get :targets %0) (array 99))) md_links))
+(assert-true "each Link is connected to the event" (every (# (eql (get :targets %0) (nums 99))) md_links))
 (def (defq md_md (Md)) :page_width 640 :link_event 99)
 (. md_md :populate_lines (list "# A title with [a link](t.md)"))
 (assert-list-eq "a link in a heading is one too" '("t.md" "t.md")

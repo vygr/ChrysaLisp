@@ -114,7 +114,7 @@
 
 		; copy (shallow copy verification)
 		(defq shallow_list (list 1 2))
-		(defq shallow_arr (array 10 20))
+		(defq shallow_arr (nums 10 20))
 		(. s :insert shallow_list)
 		(. s :insert shallow_arr)
 		(defq s2 (. s :copy))
@@ -125,7 +125,7 @@
 
 		; deep_copy verification
 		(defq complex_item (list 1 2))
-		(defq arr_item (array 3 4))
+		(defq arr_item (nums 3 4))
 		(. s :insert complex_item)
 		(. s :insert arr_item)
 		(defq s_dc (. s :deep_copy))

@@ -2,6 +2,7 @@
 (include "sys/str/class.inc")
 (include "././sstream/class.inc")
 (include "././num/class.inc")
+(include "././nums/class.inc")
 (include "././mstream/class.inc")
 (include "././lisp/class.inc")
 (include "././fstream/class.inc")
@@ -657,7 +658,7 @@
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r3 :r1) '(:stream :array :num))
 
-	(assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
+	(assign `((:r3 +obj_vtable) (@ ,(f-path :nums :vtable))) '(:r4 :r5))
 	(gotoif '(:r4 /= :r5) 'error1)
 	(assign '((:r3 +array_length)) '(:r4))
 	(gotoif '(:r4 < 2) 'error1)
@@ -679,7 +680,7 @@
 (vp-label 'error)
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(read-bits stream parray num_bits" +error_msg_wrong_types))
-	(signature '(:stream :ARRAY :NUM))
+	(signature '(:stream :NUMS :NUM))
 
 (def-func-end)
 
@@ -704,7 +705,7 @@
 	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 	(list-bind-args :r1 '(:r0 :r3 :r1 :r2) '(:stream :array :num :num))
 
-	(assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
+	(assign `((:r3 +obj_vtable) (@ ,(f-path :nums :vtable))) '(:r4 :r5))
 	(gotoif '(:r4 /= :r5) 'error1)
 	(assign '((:r3 +array_length)) '(:r4))
 	(gotoif '(:r4 < 2) 'error1)
@@ -726,7 +727,7 @@
 (vp-label 'error)
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(write-bits stream parray data num_bits)" +error_msg_wrong_types))
-	(signature '(:stream :ARRAY :NUM :NUM))
+	(signature '(:stream :NUMS :NUM :NUM))
 
 (def-func-end)
 
@@ -793,7 +794,7 @@
 	(assign '((:rsp slot_args)) '(:r1))
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(fill-bits stream parray data num_bits cnt)" +error_msg_wrong_types))
-	(signature '(:stream :ARRAY :NUM :NUM :NUM))
+	(signature '(:stream :NUMS :NUM :NUM :NUM))
 
 (def-func-end)
 
@@ -867,7 +868,7 @@
 	(assign '((:rsp slot_args)) '(:r1))
 	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(copy-bits wstream rstream parray parray num_bits cnt)" +error_msg_wrong_types))
-	(signature '(:stream :stream :ARRAY :ARRAY :NUM :NUM))
+	(signature '(:stream :stream :NUMS :NUMS :NUM :NUM))
 
 (def-func-end)
 

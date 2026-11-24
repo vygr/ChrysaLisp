@@ -161,7 +161,7 @@ If you wish to cleanly, ignore remaining arguments, you can use `&ignore`.
 Again, you can use bind directly to access this mechanism yourself.
 
 ```vdu
-(bind '(x &optional y &rest z) (array 1 2 3 4 5 6 7 8 9))
+(bind '(x &optional y &rest z) (nums 1 2 3 4 5 6 7 8 9))
 x
 1
 y
