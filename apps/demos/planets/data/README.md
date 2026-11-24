@@ -27,3 +27,8 @@ government, NASA and the USGS, and are in the public domain.
 
 To make one: resample the source to 1024 by 512, save it as a TGA that
 is not packed, 24 bits a pixel, and `tocpm -f 16 -l file.tga`.
+
+The 1024 samples of the Moon and Mars have columns at their edges that are
+not of the map, the Moon's first and its last two, Mars' first, so the
+globe had a seam where they meet. They are made again, row by row, a blend
+across the seam from the good column on one side to that on the other.
