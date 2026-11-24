@@ -112,7 +112,8 @@
 	;the rows taken lit, the others not
 	(defq side (elem-get *sides* s) taken (. side :find :taken))
 	(each (lambda (button (name &ignore))
-			(def (. button :dirty) :paper (if (find name taken) (get :paper_highlight *env*) +argb_white)))
+			(if (find name taken) (view-variant button :paper :paper_highlight) (def button :paper +argb_white))
+			(. button :dirty))
 		(. side :find :buttons) (. side :find :rows))
 	(side-note s))
 

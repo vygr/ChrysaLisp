@@ -504,23 +504,29 @@
 ; config
 ;;;;;;;;;
 
+(defun config-default ()
+	;the first time: no favourites, the player, the top of All, nothing in
+	;the queue and nothing playing
+	(scatter (Emap) :version +config_version :favourites (list) :jukebox :nil :shuffled :nil
+		:list_at +tab_all :browse (list) :charts (list) :queue (list) :order (list) :queue_at 0
+		:playing :nil))
+
 (defun config-load ()
-	;as it was when last closed, or as it is the first time: no favourites,
-	;the player, Modland's top
-	(setq *config* (with-read-lock +config_file
-			(tree-load (file-stream +config_file))))
-	(if (or (not *config*) (nql (. *config* :find :version) +config_version))
-		(setq *config* (scatter (Emap) :version +config_version :favourites (list)
-			:jukebox :nil :shuffled :nil :list_at +tab_all :browse (list) :charts (list))))
+	;the defaults with what was kept laid over them, so a key added since it
+	;was kept has its default, and one no longer used is passed over. A file
+	;of a later version than this, or none, gives the defaults,
+	;docs/ai_digest/app_configuration.md
+	(setq *config* (config-default))
+	(and (defq old (with-read-lock +config_file
+				(tree-load (file-stream +config_file))))
+		(<= (ifn (. old :find :version) 0) +config_version)
+		(. old :each (lambda (key val)
+			(unless (eql key :version) (. *config* :insert key val)))))
 	(setq *favourites* (. *config* :find :favourites) *jukebox* (. *config* :find :jukebox)
 		*shuffled* (. *config* :find :shuffled) *list_at* (. *config* :find :list_at)
-		*browse* (. *config* :find :browse)
-		;the charts' folder, and what was playing, none in a config kept
-		;before they were
-		*charts* (ifn (. *config* :find :charts) (list))
-		*queue* (ifn (. *config* :find :queue) (list)) *order* (ifn (. *config* :find :order) (list))
-		*queue_at* (ifn (. *config* :find :queue_at) 0))
-	(setq *resume* (. *config* :find :playing))
+		*browse* (. *config* :find :browse) *charts* (. *config* :find :charts)
+		*queue* (. *config* :find :queue) *order* (. *config* :find :order)
+		*queue_at* (. *config* :find :queue_at) *resume* (. *config* :find :playing))
 	(. *mode* :set_selected (if *jukebox* 1 0))
 	(. *shuffle* :set_states (list *shuffled*))
 	(. *tab* :set_selected *list_at*))

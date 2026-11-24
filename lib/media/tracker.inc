@@ -2171,8 +2171,8 @@
 	; (med-channel pan vol index) -> channel
 	(scatter (Emap) :index index :ins -1 :key -1 :note 0 :smp -1 :sample -1 :voice :nil :period 0 :per_adj 1
 		:finetune 0 :volume 64 :mastervol vol :pan pan :fx 0 :notes 0
-		:delay 0 :delayed :nil :vslide 0 :fvslide 0 :vol_mem 0 :fvol_mem 0
-		:bend 0 :fbend 0 :freq_mem 0 :porta 0 :porta_mem 0 :target 0 :pdir 0
+		:delay 0 :delayed :nil :vslide 0 :fvslide 0 :vol_mem 0
+		:bend 0 :fbend 0 :porta 0 :porta_mem 0 :target 0 :pdir 0
 		:vib (nums 0 0 0 0) :vib_mem 0 :trem (nums 0 0 0 0) :trem_mem 0
 		:retrig_val 0 :retrig_count 0 :retrig_type 0 :retrig_limit 0
 		:offset 0 :offset_mem 0 :arp (list 0) :arp_at 0 :loop_row 0 :loop_count 0
@@ -2284,8 +2284,7 @@
 	(defq song (. player :find :song) x (>> param 4) y (logand param 15))
 	(case fx
 		(0 (. chan :insert :arp (list 0 x y)))
-		((1 2) (. chan :insert :freq_mem param)
-			(chan-fx chan +fx_bend)
+		((1 2) (chan-fx chan +fx_bend)
 			(. chan :insert :bend (* 64 (if (= fx 1) (neg param) param))))
 		(3 (setq param (chan-mem chan :porta_mem param))
 			(if (/= param 0) (. chan :insert :porta (+ (. chan :find :porta) (* 64 param))))
@@ -2324,8 +2323,7 @@
 			((< param 0x20) (if (> param 0) (. player :insert :speed param)))
 			((. player :insert :bpm (max (. player :find :min_bpm) param)))))
 		(17 (. chan :insert :finetune (- param 0x80)))
-		((18 19) (. chan :insert :fvol_mem param)
-			(chan-fx chan +fx_fvslide)
+		((18 19) (chan-fx chan +fx_fvslide)
 			(. chan :insert :fvslide (if (= fx 18) param (neg param))))
 		((20 21) (when (/= param 0)
 			(chan-fx chan +fx_fbend)
