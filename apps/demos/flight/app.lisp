@@ -94,6 +94,8 @@
 	lean_v +double_0 pitch_v +double_0 +spring_k (n2d 3.5)
 	;the lean the way of flying wanted last, what turn it was in
 	lean_want +double_0
+	;how the eight lies, the cosine and sine of its turn on the land
+	eight_lie (doubles +double_1 +double_0)
 	;the height of the land at a place, of land.shader, the shaders' own
 	land_height :nil
 	;the music, the user's Jukebox favourites, apps/media/jukebox/favourites.inc,
@@ -169,10 +171,17 @@
 	(defq dx (* +reach_x (cos at)) dz (* (n2d 2) +reach_z (cos (* (n2d 2) at))))
 	(sqrt (+ (* dx dx) (* dz dz))))
 
+(defun eight-lie (x z)
+	; (eight-lie x z) -> (x z)
+	;a place or a way on the eight, turned as the eight lies, its cosine and
+	;sine, no angle
+	(bind '(c s) eight_lie)
+	(list (- (* c x) (* s z)) (+ (* s x) (* c z))))
+
 (defun eight-point (at)
 	; (eight-point at) -> doubles
 	;where on the eight, across and along, for its middle at 0 0
-	(doubles (* +reach_x (sin at)) (* +reach_z (sin (* (n2d 2) at)))))
+	(apply (const doubles) (eight-lie (* +reach_x (sin at)) (* +reach_z (sin (* (n2d 2) at))))))
 
 (defun spring (x v to dt)
 	; (spring x v to dt) -> (x v)
@@ -213,8 +222,9 @@
 	(defq at round_at two (* (n2d 2) at)
 		dx (* +reach_x (cos at)) dz (* (n2d 2) +reach_z (cos two))
 		ddx (neg (* +reach_x (sin at))) ddz (neg (* (n2d 4) +reach_z (sin two)))
-		pace (sqrt (+ (* dx dx) (* dz dz))) ex (/ dx pace) ez (/ dz pace)
+		pace (sqrt (+ (* dx dx) (* dz dz)))
 		bend (/ (- (* dx ddz) (* dz ddx)) (* pace pace pace)))
+	(bind '(ex ez) (eight-lie (/ dx pace) (/ dz pace)))
 	(ease-height +altitude dt)
 	(cond
 		((> eight_in +double_0)
@@ -307,22 +317,19 @@
 	;going, so one smooths into the next: the valleys and the pointer go on
 	;from here, turning as it was, by the lean the way of flying wanted,
 	;not the one sprung to it, which is behind; the eight is taken up where
-	;it goes most the way the flight does, bending the way it is turning,
-	;and moved so that it is here, so the flight turns onto it
+	;it crosses itself, straight, turned to lie along the flight's way and
+	;moved so that it is here, so the flight goes on ahead onto it
 	(defq turn (neg (/ (* lean_want +pull) +speed)))
 	(when (eql to :eight)
+		;where it crosses itself, straight, the one whose first bend is the
+		;way the flight turns, and the eight turned to lie along the flight's
+		;way there: the first thing is on, straight ahead
 		(bind '(wx wz) way)
-		(defq best (n2d -2) at +double_0)
-		(each! (lambda ()
-				(defq t (/ (* +double_2pi (n2d (!))) (n2d 360)) two (* (n2d 2) t)
-					dx (* +reach_x (cos t)) dz (* (n2d 2) +reach_z (cos two))
-					ddx (neg (* +reach_x (sin t))) ddz (neg (* (n2d 4) +reach_z (sin two)))
-					d (+ (/ (+ (* dx wx) (* dz wz)) (sqrt (+ (* dx dx) (* dz dz))))
-						;a little more for a bend the same way as the turn
-						(if (>= (* (- (* dx ddz) (* dz ddx)) turn) +double_0) (n2d 0.2) +double_0)))
-				(when (> d best) (setq best d at t)))
-			'() 0 360)
-		(setq round_at at middle (blend place (eight-point round_at) +double_1 +double_-1) eight_in +eight_onto))
+		(defq at (if (>= turn +double_0) +double_0 +double_pi)
+			tx (* +reach_x (cos at)) tz (* (n2d 2) +reach_z (cos (* (n2d 2) at)))
+			tn (sqrt (+ (* tx tx) (* tz tz))) tx (/ tx tn) tz (/ tz tn))
+		(setq eight_lie (doubles (+ (* wx tx) (* wz tz)) (- (* wz tx) (* wx tz)))
+			round_at at middle (blend place (eight-point at) +double_1 +double_-1) eight_in +eight_onto))
 	(setq path to turning turn))
 
 (defun draw-frame ()
