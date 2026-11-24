@@ -77,7 +77,7 @@
 	above (doubles (n2d 0.28) (n2d 0.46) (n2d 0.78))
 	;the day: where the sun is, the light that lights the land, the sun's by
 	;day and the moon's by night, its colour, and how it shines off water;
-	;and where in the day it starts, by chance, (day-state)
+	;and where in the day it starts, where it was last, (day-state)
 	sun_at sun daylight (doubles +double_1 +double_1 +double_1) shine (doubles +double_1 +double_1 +double_1)
 	day_start +double_0 day_at +double_0 day_dragged 0 night +double_0
 	;how long the day, dusk, night and dawn are, seconds
@@ -109,8 +109,8 @@
 	;the music, the user's Jukebox favourites, apps/media/jukebox/favourites.inc,
 	;and whether the user wants it, kept whether or not there is any to play
 	music :nil music_on :t
-	;the flight, the size and the music, as they were when last closed,
-	;(config-save)
+	;the flight, the size, the music and the time of day, as they were
+	;when last closed, (config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "flight.tre"))
 
 (defun make-canvas (size)
@@ -497,7 +497,7 @@
 
 (defun config-default ()
 	;the first time
-	(scatter (Emap) :version +config_version :path :eight :large :nil :music :t))
+	(scatter (Emap) :version +config_version :path :eight :large :nil :music :t :day 60))
 
 (defun config-load ()
 	;the defaults with what was kept laid over them,
@@ -510,7 +510,7 @@
 			(unless (eql key :version) (. *config* :insert key val))))))
 
 (defun config-save ()
-	(scatter *config* :path path :large (eql want +large) :music music_on)
+	(scatter *config* :path path :large (eql want +large) :music music_on :day (n2i day_at))
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
@@ -533,8 +533,8 @@
 	(. jobs :add (map (lambda ((command flat))
 			(cat (setf-> (str-alloc +part_size) (+part_num (!)) (+part_flat (if flat 1 0))) command)) craft_parts))
 	(config-load)
-	;the day starts where it will, so each time is another time of it
-	(setq day_start (n2d (random (n2i (+ +day_long +dusk_long +night_long +dawn_long)))))
+	;the day goes on from where it was when last closed, seconds into it
+	(setq day_start (n2d (. *config* :find :day)))
 	(setq land_height (shader-vp-func (shader-load (cat *app_root* "land.shader")) 'ground)
 		place (eight-point round_at) way (doubles +double_1 +double_0))
 	(path-set (. *config* :find :path))
