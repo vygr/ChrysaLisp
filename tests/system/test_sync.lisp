@@ -58,6 +58,15 @@
 	(sync-inside? "tests/scratch/sync_fence" "double/file.txt" (Fset 3)) :t)
 (pii-remove "tests/scratch/sync_fence/double/file.txt")
 
+;a file bigger than is read whole is hashed a piece at a time, so a file
+;bigger than a string may be is had, and the hash is the same
+(defq sy_piece (apply (const cat) (map! (# (cat "piece " (str (!)) "\n")) '() 0 200000)))
+(save sy_piece "tests/scratch/sync_piece.bin")
+(assert-true "the file is bigger than a piece" (> (length sy_piece) +sync_piece))
+(assert-eq "hashed in pieces, the same as whole"
+	(sha256 sy_piece) (sync-file-hash "tests/scratch/sync_piece.bin" (length sy_piece)))
+(pii-remove "tests/scratch/sync_piece.bin")
+
 ;a tree, a service with a root of its own, and a push from one to the other
 (defq sy_src "tests/scratch/sync_src" sy_dst "tests/scratch/sync_dst" sy_name "*SyncTest"
 	sy_big (apply (const cat) (map! (# (cat "line " (str (!)) "\n")) '() 0 30000)))

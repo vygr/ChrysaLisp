@@ -183,6 +183,24 @@
 			(dir-list (if (eql folder "") root (cat root "/" folder)))))
 	(sort out))
 
+;what of a file is read at a time to hash it, and the most of one read whole
+(defq +sync_piece 1048576)
+
+(defun sync-file-hash (path size)
+	; (sync-file-hash path size) -> str
+	;the SHA-256 of a file, 32 bytes: read whole if small, the most of them,
+	;else a piece at a time, so a file of any size is had, one bigger than
+	;a string may be among them
+	(cond
+		((<= size +sync_piece) (sha256 (ifn (load path) "")))
+		((defq stream (file-stream path))
+			(defq ctx (sha256-start))
+			(while (defq data (read-blk stream +sync_piece))
+				(setq ctx (sha256-add ctx data))
+				(task-slice))
+			(sha256-end ctx))
+		((sha256 ""))))
+
 (defun sync-list (root rules &optional kept live)
 	; (sync-list root rules [kept live]) -> ((path size hash mode) ...)
 	;the files of a tree, with the size and the SHA-256 of each. With a
@@ -207,7 +225,7 @@
 				(defq mtime (first info) size (second info) hit (. cache :find path))
 				(unless (and hit (= (first hit) mtime) (= (second hit) size))
 					(setq hit (list (if (> (- now mtime) 2) mtime -1) size
-							(hex-encode (sha256 (ifn (load (cat root "/" path)) "")))) dirty :t)
+							(hex-encode (sync-file-hash (cat root "/" path) size))) dirty :t)
 					(. cache :insert path hit)
 					(task-slice))
 				(push lines (cat (str (first hit)) " " (str size) " " (third hit) " " path))
