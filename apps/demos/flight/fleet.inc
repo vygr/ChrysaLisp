@@ -18,8 +18,9 @@
 	;where a craft comes from, how far ahead and how far to a side, and how
 	;far off it is gone
 	+come_far (n2d 360) +come_aside (n2d 110) +gone_far (n2d 470)
-	;how near the land a craft may go
-	+craft_floor (n2d 8))
+	;how far over the land a craft keeps, what it climbs to clear ahead of
+	;it, and how near it may ever be, should that not be in time
+	+craft_floor (n2d 8) +craft_last (n2d 3))
 
 (defun rand-d (lo hi)
 	; (rand-d lo hi) -> double
@@ -166,6 +167,16 @@
 	(. top :add_node body)
 	top)
 
+(defun skim? ()
+	; (skim? ) -> :t | :nil
+	;whether a craft keeps low over the land or up with the flight, by how
+	;high the flight is over the land: low, most skim; high, most are up
+	;with it, where it is; but always a quarter or more of each, so the land
+	;has its craft seen from high and the sky its seen from low
+	(defq over (- height (land-at (first place) (second place)))
+		chance (max (n2d 0.25) (min (n2d 0.75) (- (n2d 1.1) (/ over (n2d 80))))))
+	(< (rand-d +double_0 +double_1) chance))
+
 (defun craft-start (craft)
 	; (craft-start craft)
 	;a craft comes: far ahead in the haze, off to a side, coming this way
@@ -175,9 +186,10 @@
 		far (rand-d (- +come_far (n2d 30)) (+ +come_far (n2d 40)))
 		off (* side (rand-d (* +come_aside (n2d 0.5)) (* +come_aside (n2d 1.4))))
 		x (+ px (* fx far) (* (neg fz) off)) z (+ pz (* fz far) (* fx off)))
-	;low over the land this time, its light on it, or high in the sky
+	;low over the land this time, its light on it, or up with the flight,
+	;the more of them up the higher the flight is
 	(def craft :live :t :phase :in :side side :hops 0 :next (pii-time) :born (pii-time)
-		:skim (= (random 2) 0) :up (rand-d (n2d 20) (n2d 60))
+		:skim (skim?) :up (rand-d (n2d -12) (n2d 45))
 		:until (+ (pii-time) (n2i (rand-d (n2d 9000000) (n2d 15000000))))
 		:at (doubles x (+ (max height (land-at x z)) (rand-d (n2d 5) (n2d 40))) z)
 		:head (doubles (neg fx) (neg fz)) :speed (ifn (get :cruise craft) +double_0)
@@ -195,6 +207,17 @@
 	(bind '(fx fz) way)
 	(list (+ px (* fx ahead) (* (neg fz) aside)) (+ height up) (+ pz (* fz ahead) (* fx aside))))
 
+(defun land-along (x z tx tz)
+	; (land-along x z tx tz) -> double
+	;the highest of the land from here to there, at a quarter of the way at
+	;a time: what a craft going that way has to clear
+	(defq dx (- tx x) dz (- tz z))
+	(max (land-at x z)
+		(land-at (+ x (* dx (n2d 0.25))) (+ z (* dz (n2d 0.25))))
+		(land-at (+ x (* dx +double_1/2)) (+ z (* dz +double_1/2)))
+		(land-at (+ x (* dx (n2d 0.75))) (+ z (* dz (n2d 0.75))))
+		(land-at tx tz)))
+
 (defun near-land (ahead aside up)
 	; (near-land ahead aside up) -> (x y z)
 	;a place by the flight, so far along its way and to its right, and so
@@ -206,7 +229,7 @@
 	; (swoop-goal craft t) -> (x y z)
 	;where a craft that swoops makes for, by what it is about, t seconds
 	;since it came: a place ahead of the flight that weaves, low over the
-	;land or high over the flight, as it came, then past the flight close
+	;land or up with the flight, as it came, then past the flight close
 	;on a side, then away up and behind
 	(defq side (get :side craft))
 	(case (get :phase craft)
@@ -243,10 +266,15 @@
 			(:pace (max (n2d 10) (min (get :cruise craft) (+ +speed (* along (n2d 0.9))))))
 			(:t (get :dash craft)))
 		speed (+ (get :speed craft) (* (- pace (get :speed craft)) (min +double_1 (* dt (n2d 0.8)))))
-		climb (+ (get :climb craft) (* (- (max (n2d -15) (min (n2d 25) (* (- gy cy) (n2d 0.8)))) (get :climb craft))
+		;what it makes for, but over the land it will be over in a while, so
+		;it climbs to clear a hill in a curve before it is there, as the
+		;flight does
+		reach (max (n2d 30) (* speed (n2d 1.8)))
+		over (max gy (+ (land-along cx cz (+ cx (* nx reach)) (+ cz (* nz reach))) +craft_floor))
+		climb (+ (get :climb craft) (* (- (max (n2d -15) (min (n2d 30) (* (- over cy) (n2d 0.9)))) (get :climb craft))
 			(min +double_1 (* dt (n2d 1.5)))))
 		x (+ cx (* nx speed dt)) z (+ cz (* nz speed dt))
-		y (max (+ cy (* climb dt)) (+ (land-at x z) +craft_floor)))
+		y (max (+ cy (* climb dt)) (+ (land-at x z) +craft_last)))
 	(def craft :at (doubles x y z) :head (doubles nx nz) :turn turn :speed speed :climb climb
 		:lean (max (n2d -2) (min (n2d 2) (+ (neg (/ (* speed turn) (get :pull craft)))
 			(* (ifn (get :show craft) +double_0) (sin (* t (n2d 0.7))))))))
@@ -272,16 +300,18 @@
 			:goal (cond
 				;each hop low over the land or high in the sky
 				((< hops most)
-					(if (= (random 2) 0)
+					(if (skim?)
 						(near-land (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d 9) (n2d 20)))
-						(near-flight (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d 15) (n2d 60)))))
+						(near-flight (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d -12) (n2d 45)))))
 				((= hops most) (near-flight (n2d -90) (* (get :side craft) (n2d 10)) (n2d 4)))
 				((near-flight (n2d -60) +double_0 (n2d 900))))))
 	(bind '(cx cy cz) (get :at craft))
 	(bind '(gx gy gz) (get :goal craft))
 	(defq k (min +double_1 (* dt (if (>= hops most) (n2d 3) (get :ease craft))))
+		;over the land between here and there, risen to as it goes
+		over (max gy (+ (land-along cx cz gx gz) +craft_floor))
 		x (+ cx (* (- gx cx) k)) z (+ cz (* (- gz cz) k))
-		y (max (+ cy (* (- gy cy) k)) (+ (land-at x z) +craft_floor)))
+		y (max (+ cy (* (- over cy) k)) (+ (land-at x z) +craft_last)))
 	(def craft :at (doubles x y z))
 	(if (> (- y height) (n2d 400)) (craft-gone craft)))
 
