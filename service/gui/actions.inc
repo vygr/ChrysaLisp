@@ -130,8 +130,15 @@
 ;is a new push, not what runs on: the other way, or bigger by +wheel_push
 ;than the turn before. What runs on only dies away, by a step of 1 or so;
 ;a Magic Mouse's own turns over the other view, logged, came the other way
-;or jumped from 1 to 4 and up. Queued turns are the same size, and dropped
-(defq +wheel_gap 350000 +wheel_push 3 *wheel_id* :nil *wheel_time* 0 *wheel_turn* '(0 0))
+;or jumped from 1 to 4 and up. Queued turns are the same size, and dropped.
+;Over another view with the mouse where it was when the run began, no
+;further than +wheel_still, it is not the mouse that moved but what is under
+;it, scrolled by the run itself, a page's code or picture of its own coming
+;up under the pointer: the run goes on with the view it began on. Chris: "I
+;can no longer smoothly scroll a document vertically with the mouse wheel
+;unless i take my finger off and start a new mouse wheel interaction"
+(defq +wheel_gap 350000 +wheel_push 3 +wheel_still 2 *wheel_id* :nil *wheel_time* 0 *wheel_turn* '(0 0)
+	*wheel_at* '(0 0))
 
 (defun wheel-push? (dx dy)
 	; (wheel-push? dx dy) -> :t | :nil
@@ -155,16 +162,23 @@
 		dx (getf msg +gui_event_x) dy (getf msg +gui_event_y)
 		running (and (< (- now *wheel_time*) +wheel_gap) (not (wheel-push? dx dy))))
 	(setq *wheel_time* now *wheel_turn* (list dx dy))
-	(unless (and running *wheel_id* (/= to *wheel_id*))
-		(setq *wheel_id* to)
-		(if (defq owner (. view :find_owner))
-			(mail-send owner (setf-> (str-alloc +ev_msg_wheel_size)
-					(+ev_msg_type +ev_type_wheel)
-					(+ev_msg_target_id id)
-					;the way round the user has it, usr/Guest/env.inc
-					(+ev_msg_wheel_x (* (get :wheel_x *env*) (getf msg +gui_event_x)))
-					(+ev_msg_wheel_y (* (get :wheel_y *env*) (getf msg +gui_event_y)))
-					(+ev_msg_wheel_direction (getf msg +gui_event_direction)))))))
+	(bind '(ax ay) *wheel_at*)
+	(cond
+		((not (and running *wheel_id* (/= to *wheel_id*)))
+			(setq *wheel_id* to *wheel_at* (list *mouse_x* *mouse_y*)))
+		((and (<= (abs (- *mouse_x* ax)) +wheel_still) (<= (abs (- *mouse_y* ay)) +wheel_still)
+				(defq began (. *screen* :find_id *wheel_id*)))
+			;the mouse still, the run's own view moved another under it
+			(setq view began id *wheel_id*))
+		(:t (setq view :nil)))
+	(and view (defq owner (. view :find_owner))
+		(mail-send owner (setf-> (str-alloc +ev_msg_wheel_size)
+				(+ev_msg_type +ev_type_wheel)
+				(+ev_msg_target_id id)
+				;the way round the user has it, usr/Guest/env.inc
+				(+ev_msg_wheel_x (* (get :wheel_x *env*) (getf msg +gui_event_x)))
+				(+ev_msg_wheel_y (* (get :wheel_y *env*) (getf msg +gui_event_y)))
+				(+ev_msg_wheel_direction (getf msg +gui_event_direction))))))
 
 (defun action-mouse-motion ()
 	(setq *mouse_x* (getf msg +gui_event_x)
@@ -303,5 +317,5 @@
 ;as this was read. A thing kept here was not, and the first pen or finger
 ;there ever was on a desktop stopped the GUI, it was not bound
 (export-symbols
-	'(*event_map* *pointer_views* *wheel_id* *wheel_time* *wheel_turn* screen-children))
+	'(*event_map* *pointer_views* *wheel_id* *wheel_time* *wheel_turn* *wheel_at* screen-children))
 (env-pop)

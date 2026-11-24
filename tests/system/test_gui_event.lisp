@@ -172,6 +172,28 @@
 (task-sleep 500000)
 (assert-list-eq "after a pause back over the first, the first's" '(:first) (ga-wheel 150 80))
 (task-sleep 500000)
+;the mouse still and another view come up under it, as a page's code or
+;picture of its own does as the page scrolls: it is not the mouse that moved
+;but what is under it, and the run goes on with its view. Chris: "I can no
+;longer smoothly scroll a document vertically with the mouse wheel unless i
+;take my finger off and start a new mouse wheel interaction"
+(ga-wheel 150 80)
+(setq ga_t (pii-time))
+(. ga_view :set_bounds 100 180 200 100)
+(. ga_other :set_bounds 100 50 200 100)
+(setq ga_got (ga-wheel 150 80))
+(if (< (- (pii-time) ga_t) 300000)
+	(assert-list-eq "another view comes under a still mouse at once: the run goes on with its own" '(:first) ga_got)
+	(test-skip "another view comes under a still mouse at once" ga_slow))
+(setq ga_t (pii-time) ga_got (ga-wheel 160 80))
+(if (< (- (pii-time) ga_t) 300000)
+	(assert-list-eq "but the mouse moved onto it, it is nobody's, it ran on" '() ga_got)
+	(test-skip "but the mouse moved onto it" ga_slow))
+(task-sleep 500000)
+(assert-list-eq "and it was the other that was under the mouse, a new turn is its" '(:second) (ga-wheel 150 80))
+(. ga_view :set_bounds 100 50 200 100)
+(. ga_other :set_bounds 100 180 200 100)
+(task-sleep 500000)
 (def *env* :wheel_y -1)
 (setq *mouse_x* 150 *mouse_y* 80)
 (defq msg (setf-> (str-alloc +gui_event_size) (+gui_event_type +gui_ev_mouse_wheel) (+gui_event_x 0) (+gui_event_y 1)))
