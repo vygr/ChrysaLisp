@@ -87,6 +87,13 @@
 	;where the pointer is over the picture, -1 to 1 across and up, or :nil
 	;when it is not
 	stick :nil
+	;the lean and the pitch, as eased to what the way of flying wants, and
+	;how long yet the flight is coming onto the eight, and how long it takes
+	lean +double_0 pitch +double_0 eight_in +double_0 +eight_onto (n2d 2.5)
+	;how fast the lean and the pitch move, and how stiff their spring is
+	lean_v +double_0 pitch_v +double_0 +spring_k (n2d 3.5)
+	;the lean the way of flying wanted last, what turn it was in
+	lean_want +double_0
 	;the height of the land at a place, of land.shader, the shaders' own
 	land_height :nil
 	;the music, the user's Jukebox favourites, apps/media/jukebox/favourites.inc,
@@ -167,6 +174,15 @@
 	;where on the eight, across and along, for its middle at 0 0
 	(doubles (* +reach_x (sin at)) (* +reach_z (sin (* (n2d 2) at)))))
 
+(defun spring (x v to dt)
+	; (spring x v to dt) -> (x v)
+	;x moved toward to by a spring that is damped just enough not to go
+	;past it, v how fast it moves: a change starts slowly and gathers, no
+	;kick, and stops as slowly. A step of no more than a tenth of a second
+	(defq dt (min dt (n2d 0.1))
+		v (+ v (* (- (* +spring_k +spring_k (- to x)) (* (n2d 2) +spring_k v)) dt)))
+	(list (+ x (* v dt)) v))
+
 (defun rise-toward (want dt)
 	;the height on by how fast it rises, eased toward how fast it would: a
 	;climb and a dive in a curve, not at a corner
@@ -189,16 +205,34 @@
 	; (eight-pose dt) -> (fx fz lean)
 	;moved on round the eight by its speed, as fast round the ends as
 	;through the middle: its way, level, and its lean into the turn, whose
-	;tangent is speed squared times the bend over the pull
+	;tangent is speed squared times the bend over the pull. Coming onto it,
+	;for a while, the flight goes on its own way, turning as it was eased
+	;to the eight's bend, and its way drawn more and more to the eight's,
+	;the eight moved along with it: it flies onto the eight, no kick
 	(setq round_at (+ round_at (/ (* +speed dt) (path-pace round_at))))
 	(defq at round_at two (* (n2d 2) at)
 		dx (* +reach_x (cos at)) dz (* (n2d 2) +reach_z (cos two))
 		ddx (neg (* +reach_x (sin at))) ddz (neg (* (n2d 4) +reach_z (sin two)))
-		pace (sqrt (+ (* dx dx) (* dz dz))))
-	(setq place (blend middle (eight-point at) +double_1 +double_1)
-		way (doubles (/ dx pace) (/ dz pace)))
+		pace (sqrt (+ (* dx dx) (* dz dz))) ex (/ dx pace) ez (/ dz pace)
+		bend (/ (- (* dx ddz) (* dz ddx)) (* pace pace pace)))
 	(ease-height +altitude dt)
-	(list (/ dx pace) (/ dz pace) (/ (* +speed +speed (/ (- (* dx ddz) (* dz ddx)) (* pace pace pace))) +pull)))
+	(cond
+		((> eight_in +double_0)
+			(setq eight_in (max +double_0 (- eight_in dt))
+				turning (+ turning (* (- (neg (* +speed bend)) turning) (min +double_1 (* dt (n2d 2))))))
+			(bind '(fx fz) way)
+			(defq t (- +double_1 (/ eight_in +eight_onto)) s (* t t (- (n2d 3) (* (n2d 2) t)))
+				a (* turning dt) ca (cos a) sa (sin a)
+				nx (+ (* (+ (* fx ca) (* fz sa)) (- +double_1 s)) (* ex s))
+				nz (+ (* (- (* fz ca) (* fx sa)) (- +double_1 s)) (* ez s))
+				n (sqrt (+ (* nx nx) (* nz nz))) nx (/ nx n) nz (/ nz n))
+			(bind '(px pz) place)
+			(setq way (doubles nx nz) place (doubles (+ px (* nx +speed dt)) (+ pz (* nz +speed dt)))
+				middle (blend place (eight-point at) +double_1 +double_-1))
+			(list nx nz (+ (* (neg (/ (* +speed turning) +pull)) (- +double_1 s))
+				(* (/ (* +speed +speed bend) +pull) s))))
+		(:t (setq place (blend middle (eight-point at) +double_1 +double_1) way (doubles ex ez))
+			(list ex ez (/ (* +speed +speed bend) +pull)))))
 
 (defun land-at (x z)
 	; (land-at x z) -> double
@@ -269,11 +303,27 @@
 (import "./fleet.inc")
 
 (defun path-set (to)
-	;the flight to the eight or along the valleys, from where it is: the
-	;valleys go on from here, the eight is moved so that it is here
+	;the flight to another way of flying, from where it is and as it is
+	;going, so one smooths into the next: the valleys and the pointer go on
+	;from here, turning as it was, by the lean the way of flying wanted,
+	;not the one sprung to it, which is behind; the eight is taken up where
+	;it goes most the way the flight does, bending the way it is turning,
+	;and moved so that it is here, so the flight turns onto it
+	(defq turn (neg (/ (* lean_want +pull) +speed)))
 	(when (eql to :eight)
-		(setq middle (blend place (eight-point round_at) +double_1 +double_-1)))
-	(setq path to turning +double_0))
+		(bind '(wx wz) way)
+		(defq best (n2d -2) at +double_0)
+		(each! (lambda ()
+				(defq t (/ (* +double_2pi (n2d (!))) (n2d 360)) two (* (n2d 2) t)
+					dx (* +reach_x (cos t)) dz (* (n2d 2) +reach_z (cos two))
+					ddx (neg (* +reach_x (sin t))) ddz (neg (* (n2d 4) +reach_z (sin two)))
+					d (+ (/ (+ (* dx wx) (* dz wz)) (sqrt (+ (* dx dx) (* dz dz))))
+						;a little more for a bend the same way as the turn
+						(if (>= (* (- (* dx ddz) (* dz ddx)) turn) +double_0) (n2d 0.2) +double_0)))
+				(when (> d best) (setq best d at t)))
+			'() 0 360)
+		(setq round_at at middle (blend place (eight-point round_at) +double_1 +double_-1) eight_in +eight_onto))
+	(setq path to turning turn))
 
 (defun draw-frame ()
 	;where the flight is, the way it looks, and the frame: the sky, then the
@@ -282,12 +332,17 @@
 	;the tangent of the angle, made of its cosine and sine, no angle
 	(defq now (pii-time) dt (/ (n2d (- now moved)) (n2d 1000000)))
 	(setq moved now)
-	(bind '(fx fz lean) (case path (:eight (eight-pose dt)) (:valleys (valley-pose dt)) (:t (mouse-pose dt))))
+	(bind '(fx fz lean_to) (case path (:eight (eight-pose dt)) (:valleys (valley-pose dt)) (:t (mouse-pose dt))))
+	;the lean, and how the nose is, sprung to what the way of flying wants,
+	;so a change of it is a roll and a pitch that gathers, not a kick
+	(bind '(l lv) (spring lean lean_v lean_to dt))
+	(setq lean l lean_v lv lean_want lean_to)
 	;the craft about fly, each by its own rules
 	(fleet-fly dt)
 	;the nose up a little as it climbs and down as it comes down
-	(defq pitch (- (if (eql path :eight) +pitch_eight +pitch_valley) (* (n2d 0.5) (/ rising +speed)))
-		pitch_cos (cos pitch) pitch_sin (sin pitch)
+	(bind '(p pv) (spring pitch pitch_v (- (if (eql path :eight) +pitch_eight +pitch_valley) (* (n2d 0.5) (/ rising +speed))) dt))
+	(setq pitch p pitch_v pv)
+	(defq pitch_cos (cos pitch) pitch_sin (sin pitch)
 		lean_cos (recip (sqrt (+ +double_1 (* lean lean)))) lean_sin (* lean lean_cos)
 		level (doubles (neg fz) +double_0 fx)
 		forward (doubles (* fx pitch_cos) (neg pitch_sin) (* fz pitch_cos))
