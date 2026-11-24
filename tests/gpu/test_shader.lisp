@@ -1192,7 +1192,7 @@
 (assert-eq "a key of 32 hex digits" 32 (length (elem-get kf_prog 5)))
 (assert-eq "the key is the hash of the source, the file and what it imports" (shader-key (shader-text kf_file)) (elem-get kf_prog 5))
 (assert-eq "of a file that imports nothing, the hash of the file"
-	(shader-key (load "apps/demos/planets/globe_lit.shader")) (elem-get (shader-load "apps/demos/planets/globe_lit.shader") 5))
+	(shader-key (load "apps/demos/flight/moon_lit.shader")) (elem-get (shader-load "apps/demos/flight/moon_lit.shader") 5))
 (assert-eq "the same file, the same key" (elem-get kf_prog 5) (elem-get (shader-load kf_file) 5))
 (assert-true "another file, another key"
 	(not (eql (elem-get kf_prog 5) (elem-get (shader-load "apps/demos/raymarch/film.shader") 5))))

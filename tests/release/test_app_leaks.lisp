@@ -111,7 +111,7 @@
 (defun al-settled ()
 	; (al-settled) -> num
 	;what the node holds once it has stopped letting go of things: what an
-	;app shared with tasks on other nodes, the maps of Planets, is let go
+	;app shared with tasks on other nodes, the moon's map of Flight, is let go
 	;of as they end, later when the machine is busy
 	(defq was (al-used) now (progn (task-sleep 300000) (al-used)))
 	(while (< (- now was) -4096)

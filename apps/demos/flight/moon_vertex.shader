@@ -5,8 +5,7 @@
 ; of the moon that place is. It is placed by the matrix of the moon,
 ; how it is turned, how big and where in the sky, and then by that of
 ; the view. A ball's normal at a place is the place, so the pixel
-; shader is handed which way the surface is turned from it. As the
-; Planets demo's globe.
+; shader is handed which way the surface is turned from it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;how the moon is turned and where it is, and how the world is seen

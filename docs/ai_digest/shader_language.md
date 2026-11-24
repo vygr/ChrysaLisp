@@ -536,19 +536,23 @@ its GPU button.
 
 A pixel shader that draws triangles can read pictures.
 
-This is `apps/demos/planets/globe_lit.shader`, less its comments.
+This is `apps/demos/flight/moon_lit.shader`, less its comments.
 
 ```vdu
 (deftexture surface)
 (definput sun :vec3)
+(definput haze :vec3)
+(definput above :vec3)
+(definput rise :float)
 (defvarying uv :vec2)
 (defvarying facing :vec3)
-(defconst ambient 0.06)
-(defconst diffuse 1.1)
+(defconst bright 1.5)
 (defun main :vec4 ((frag :vec2))
-	(defq tint (:xyz (texture surface uv))
-		lit (max (dot (normalize facing) sun) 0.0))
-	(vec4 (min (* tint (+ ambient (* diffuse lit))) (vec3 1.0)) 1.0))
+	(defq sky (mix haze above (pow rise 0.6))
+		tint (:xyz (texture surface uv))
+		lit (max (dot (normalize facing) sun) 0.0)
+		thin (- 0.85 (* 0.5 (- 1.0 rise))))
+	(vec4 (min (+ sky (* tint bright lit thin)) (vec3 1.0)) 1.0))
 ```
 
 `(texture name uv)` is the pixel at `uv`, a `:vec4`, each channel 0.0 to 1.0.
@@ -592,20 +596,16 @@ can have 8.
 
 `tests/gpu/test_texture.lisp` holds the back ends to each other.
 
-### The Planets demo
+### The moon of the Flight demo
 
-`apps/demos/planets` is a globe that turns, with a map on it: Earth, the
-Moon, Mars, Jupiter and Pluto, maps of NASA and the USGS made small, 1024 by
-512, `apps/demos/planets/data/README.md` says where each came from. The
-ball is a mesh with a `uv` at each vertex, the vertex shader turns it and the
-pixel shader above lights it. On the GPU it is the one draw a frame. With the
-CPU button it is a strip of the frame by each node of the machine, the map
-in shared memory, or all of it here if there is only the one node. A change
-of mode gives the farm a new mailbox for its answers, so a frame that is out
-with it is not waited for.
-
-On a Raspberry Pi 4 it is 29 frames a second on the GPU, the timer of the
-app, and 24ms a frame by three nodes with none.
+`apps/demos/flight` has a moon by day in its sky, a globe that turns with
+the Moon's map on it, NASA's, made 512 by 256, `apps/demos/flight/data/README.md`
+says where it came from. The ball is a mesh with a `uv` at each vertex, the
+vertex shader turns it and the pixel shader above lights it, seen through the
+sky: the sky's colour where it is and the map's light where the sun is on it
+added. It is one draw of a frame, a pair of its own, with the sky's, the
+land's and the craft's. With no GPU it is a strip of the frame by each node
+of the machine, the map in shared memory.
 
 ## Functions For Lisp To Call
 

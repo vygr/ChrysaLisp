@@ -409,7 +409,7 @@ Key points:
 	child mailbox or GPU call of its own: `:frame`, `:busy`, `:read`,
 	`:tick`, `:mode`, `:how`, `:close`. `(Render-shade canvas file)` for a
 	pixel shader over a frame, as Surface; `(Render-tris canvas vfile
-	pfile)` for triangles, `:mesh` as Planets has it, or `:mesh_fn` and
+	pfile)` for triangles, `:mesh` as Flight has it, or `:mesh_fn` and
 	`:here_fn` for a scene of `lib/math/scene.inc`, as Mesh;
 	`(Render-work canvas child [gpu_child])` for children and jobs of the
 	app's own, as Canvas and Mandelbrot, and with no canvas for work that
@@ -447,7 +447,7 @@ Key points:
 		another vertex shader is told with it, `(:mesh id verts vfile)`:
 		a sky behind and the land, as Flight.
 	*	A line of status that says how the frames are drawn, by how many
-		nodes, and how long one took, as Planets and Model have: it is
+		nodes, and how long one took, as Flight and Mesh have: it is
 		how the user, and a hidden desktop's `widgets`, see which way it
 		went.
 	*	A window that is sized says so many times a second. Keep the
@@ -591,9 +591,9 @@ Key points:
 
 *	**Downloads** go in `downloads/<data>/` at the top of the tree, which git
 	leaves out, a folder named for the data, not the app, so apps share it:
-	MNIST in `downloads/mnist/`, the Model demo's in `downloads/models/` by
-	address, plain names only. A data set another app fetches is read from
-	where that one keeps it.
+	MNIST in `downloads/mnist/`, the Jukebox's in `downloads/`, plain names
+	only. A data set another app fetches is read from where that one keeps
+	it.
 
 ## Running GUI Code & Inspecting View Trees
 

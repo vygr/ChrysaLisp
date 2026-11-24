@@ -4,9 +4,9 @@ An app that draws a picture, or works out a lot of numbers, can do it on the
 nodes of the CPU or on the GPU, and has a button to say which. There is one
 way to do that, and this is it. Sections 1 to 3 are the model, section 4 the
 kinds of job, and section 5 the library that has it all, which an app holds:
-no app writes a farm of its own. Twelve apps are on it: Surface, Raymarch,
-Eyes, Mandelbrot, Digits, Canvas, Bubbles, Opcodes, Planets, Mesh, Model and
-the Network Map.
+no app writes a farm of its own. Eleven apps are on it: Surface, Raymarch,
+Eyes, Mandelbrot, Digits, Canvas, Bubbles, Opcodes, Mesh, Flight and the
+Network Map.
 
 What it stands on is in other documents, and they are worth having read:
 
@@ -386,7 +386,7 @@ as above.
 
 An app has none of this in it. It holds a `(Render-tris canvas vfile
 pfile)`, `lib/gpu/render_farm.inc`, tells it its meshes, and gives it a
-frame; Planets, Model, Mesh and the Network Map do:
+frame; Flight, Mesh and the Network Map do:
 
 ```vdu
 (defq render (Render-tris *canvas* vfile pfile :t))
@@ -565,8 +565,8 @@ small picture drawn now and then that is not worth a child a node: Eyes.
 ### Triangles
 
 `(Render-tris canvas vfile pfile [cull])`, section 4 has its use: the meshes
-told to it, a frame a list of draws. Planets is the whole of one, Mesh one
-whose scene is another library's.
+told to it, a frame a list of draws. Flight is the whole of one, a draw a
+pair of its own, Mesh one whose scene is another library's.
 
 A draw is `(id vvals pvals [pictures [vfile pfile]])`, the last its own
 pair if it is not drawn with the render's, its inputs packed by that pair's
