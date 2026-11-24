@@ -78,6 +78,8 @@ Featured videos include:
 
 * **Shader Language and GPU**: Shaders are written as s-expressions and type checked in Lisp. One source goes to GLSL, to Metal, to SPIR-V for Vulkan, to native VP code that needs no GPU, and to a Lisp lambda the others are checked against. The SDL3 host draws shaders and lit meshes on the GPU, through Metal on a Mac and Vulkan on a Raspberry Pi. See `docs/ai_digest/shader_language.md` and `docs/intro/sdl3.md`.
 
+* **Flight**: A demo of the shaders on the GPU: a flight over a land made as it goes, a day and a night with a full moon, stars and clouds, and craft not of this world that come out of the haze, light the land in their colours, and now and then snatch a cow with a beam. Its detail goes to what the GPU keeps up with. See `docs/apps/flight.md`.
+
 * **Parallel Rendering**: With no GPU, a shader compiled to native code is drawn by the nodes of the network, a tile each. A canvas can keep its pixels in shared memory, and the Whiteboard has the nodes of a machine each draw a stripe of the same picture.
 
 * **Whiteboard**: A board of shapes, not pixels, for many pointers at once, with instruments such as a ruler and a protractor that a pen runs along. A board is a `.cwb` text file that loads anywhere a picture does, and can be drawn by a hand, a script or an AI with the `cwb` command. The diagrams in the documentation are boards. See `docs/apps/whiteboard.md`.
