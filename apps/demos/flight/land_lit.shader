@@ -54,6 +54,9 @@
 (definput shine :vec3)
 ;how much it is night: the moon's glitter on the water wider and brighter
 (definput night :float)
+;1 for plain, for a GPU that can not keep up: water with no ripples, the
+;land's colour with no noise in it
+(definput plain :float)
 (defconst eps 0.15)
 
 ;the fine noise the face is made rough by
@@ -143,7 +146,9 @@
 		((<= h water)
 			;the water, the sky in it more side on, the sun off it, and the
 			;sand showing through where it is shallow
-			(defq w (ripple place (- 1.0 fade)) side (pow (- 1.0 (max (dot to_eye w) 0.0)) 3.0)
+			(defq w (vec3 0.0 1.0 0.0))
+			(if (< plain 0.5) (setq w (ripple place (- 1.0 fade))))
+			(defq side (pow (- 1.0 (max (dot to_eye w) 0.0)) 3.0)
 				glint (* (pow (max (dot (reflect (- sun) w) to_eye) 0.0) (mix 90.0 22.0 night)) (+ 1.0 (* 2.5 night))))
 			(setq colour (+ (* (mix (mix deep (sky_in (reflect (- to_eye) w)) (+ 0.2 (* 0.75 side)))
 					(* sand 0.85) (* 0.6 (ease (- water 1.8) water h))) daylight)
@@ -152,7 +157,9 @@
 			;rough by a bump, unless there is none to be had, not worked out
 			(defq up (:y n) b n)
 			(if (> rough 0.0) (setq b (bumped place n (* rough (+ 0.3 (* 1.4 (- 1.0 up)))))))
-			(setq colour (mix sand (mix grass moss (noise3 (* place 0.05))) (ease (+ water 0.5) (+ water 3.5) h))
+			(defq mottle 0.5)
+			(if (< plain 0.5) (setq mottle (noise3 (* place 0.05))))
+			(setq colour (mix sand (mix grass moss mottle) (ease (+ water 0.5) (+ water 3.5) h))
 				colour (mix colour rock (ease 0.86 0.72 up))
 				colour (mix colour snow (* (ease 34.0 42.0 h) (ease 0.7 0.85 up)))
 				colour (* colour daylight (+ 0.28 (* 0.95 lit (max (dot b sun) 0.0)))))))

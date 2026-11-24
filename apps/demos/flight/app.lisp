@@ -104,11 +104,11 @@
 	lean_v +double_0 pitch_v +double_0 +spring_k (n2d 3.5)
 	;the lean the way of flying wanted last, what turn it was in
 	lean_want +double_0
-	;how much less detail it draws, 0 all of it to 3 least, for a GPU too
+	;how much less detail it draws, 0 all of it to 4 least, for a GPU too
 	;slow for all of it: how many seconds running it has been slow, or fast,
 	;what is slow and fast, and when it last went down, not to go up again
 	;for a while after
-	detail 3 slow 0 fast 0 +rate_least 28 +rate_most 50 detail_down 0
+	detail 4 slow 0 fast 0 +rate_least 28 +rate_most 50 detail_down 0
 	;how the eight lies, the cosine and sine of its turn on the land
 	eight_lie (doubles +double_1 +double_0)
 	;the height of the land at a place, of land.shader, the shaders' own
@@ -457,7 +457,8 @@
 		(list +mesh_sky '()
 			(list (list 'forward forward) (list 'right right) (list 'up up)
 				(list 'spread (doubles spread_x +spread_y)) (list 'sun sun_at) (list 'haze haze) (list 'above above)
-				(list 'moon moon_way) (list 'night night) (list 'time seconds))
+				(list 'moon moon_way) (list 'night night) (list 'time seconds)
+				(list 'starry (if (< detail 4) +double_1 +double_0)))
 			'() sky_files)
 		;the moon, the eye's way to it the same however far the eye goes, as
 		;anything in the sky, turning slowly on its leaning axis
@@ -470,11 +471,13 @@
 			(list (list 'sun sun_at) (list 'haze haze) (list 'above above) (list 'rise (second moon_way))
 				(list 'bright (+ (n2d 1.5) (* (n2d 4.5) night))))
 			(list moon_map) moon_files)
-		(list (if fine +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
+		(list (if fine +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye)
+				(list 'quick (if fine +double_0 +double_1)))
 			(cat (list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
 				(list 'daylight daylight) (list 'shine shine) (list 'night night)
 				(list 'time seconds) (list 'rough (if (< detail 2) +double_1 +double_0))
-				(list 'shadows (elem-get '(12 6 0 0) detail)))
+				(list 'shadows (elem-get '(12 6 0 0 0) detail))
+				(list 'plain (if (< detail 4) +double_0 +double_1)))
 				;the craft about, their shadows and their lights on the land
 				(fleet-lights seconds))))
 		;the craft about, fleet.inc, the clouds over them, seen through, and
@@ -525,7 +528,7 @@
 
 (defun config-default ()
 	;the first time
-	(scatter (Emap) :version +config_version :path :eight :large :nil :music :t :day 60 :detail 3))
+	(scatter (Emap) :version +config_version :path :eight :large :nil :music :t :day 60 :detail 4))
 
 (defun config-load ()
 	;the defaults with what was kept laid over them,
@@ -657,13 +660,14 @@
 					(defq rate (/ (* frames 1000000) (- now since)))
 					;the detail to what the GPU keeps up with: less, two seconds
 					;running slow, a coarser land, fewer steps to the sun, no bump,
-					;no clouds; more, three seconds running fast, not for half a
-					;minute after it was less; a step at a time, after the first few
+					;no clouds, plain water and land and no stars; more, three
+					;seconds running fast, not for half a minute after it was
+					;less; a step at a time, after the first few
 					(cond
 						((< (- now began) 3000000) (setq slow 0 fast 0))
 						((< rate +rate_least)
 							(setq fast 0)
-							(and (< detail 3) (>= (++ slow) 2)
+							(and (< detail 4) (>= (++ slow) 2)
 								(setq detail (inc detail) slow 0 detail_down now)))
 						((>= rate +rate_most)
 							(setq slow 0)

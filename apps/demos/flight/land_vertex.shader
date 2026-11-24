@@ -17,6 +17,9 @@
 (definput lens :mat4)
 (definput shift :vec2)
 (definput eye :vec3)
+;1 for a slope of three samples of the height, not five, for a GPU that
+;can not keep up
+(definput quick :float)
 
 (defattr position :vec2)
 
@@ -30,9 +33,13 @@
 (defconst haze_far 560.0)
 
 (defun main :vec4 ()
-	(defq p (+ position shift) h (ground p)
-		dx (- (ground (+ p (vec2 slope 0.0))) (ground (- p (vec2 slope 0.0))))
-		dz (- (ground (+ p (vec2 0.0 slope))) (ground (- p (vec2 0.0 slope)))))
+	(defq p (+ position shift) h (ground p) dx 0.0 dz 0.0)
+	(if (> quick 0.5)
+		;one way from here, each twice as far, the height here had already
+		(setq dx (* 2.0 (- (ground (+ p (vec2 slope 0.0))) h))
+			dz (* 2.0 (- (ground (+ p (vec2 0.0 slope))) h)))
+		(setq dx (- (ground (+ p (vec2 slope 0.0))) (ground (- p (vec2 slope 0.0))))
+			dz (- (ground (+ p (vec2 0.0 slope))) (ground (- p (vec2 0.0 slope))))))
 	(setq facing (normalize (vec3 (- dx) (* 2.0 slope) (- dz))))
 	(when (< h water)
 		(setq h water facing (vec3 0.0 1.0 0.0)))
