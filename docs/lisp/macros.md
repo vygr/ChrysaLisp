@@ -307,7 +307,7 @@ In the recent Netspeed application, that times blocks of VP code instructions
 to give a benchmark, we need to generate a basic block. And we need maybe
 thousands of lines of actual code, not a loop, and we really don't want to type
 this all in, and we want to be able to add instructions to the block with no
-effort later on etc etc.
+effort later on etc.
 
 If you look in `apps/system/netspeed/lisp.vp` you will see this macro:
 
