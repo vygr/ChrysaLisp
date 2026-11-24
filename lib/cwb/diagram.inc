@@ -145,7 +145,7 @@
 	;right of it. nodes is ((name parent) ...), parent :nil or a name not
 	;among them for a root. here, a name, is marked. Top left at 0 0
 	(defq kids (Fmap 31) known (Fmap 31) roots (list) order (list) depth (Fmap 31)
-		place (Fmap 31) pitch 30.0 gap 46.0 slot 0 items (list))
+		place (Fmap 31) pitch 30.0 gap 30.0 slot 0 items (list))
 	(each (lambda ((name parent)) (. known :insert name :t) (. kids :insert name (list))) nodes)
 	(each (lambda ((name parent))
 			(if (and parent (. known :find parent))
