@@ -170,6 +170,28 @@
 				(- (len2 (- r (const (n2d 0.8))) y) (const (n2d 0.05))) (const (n2d 0.05)))
 			(- (len3 x (- y (const (n2d 0.64))) z) (const (n2d 0.09))) (const (n2d 0.05)))))
 
+;where a cow's legs are, across and along
+(defq cow_legs (list
+	(list (n2d 0.32) (n2d 0.15)) (list (n2d 0.32) (n2d -0.15))
+	(list (n2d -0.32) (n2d 0.15)) (list (n2d -0.32) (n2d -0.15))))
+
+(defclass Iso-cow (size) (Iso-part size)
+	; (Iso-cow size) -> iso
+	;a cow: a body, a head ahead of it, and four legs, run together, for a
+	;craft to take up in its beam
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		(defq body (* (- (len3 (/ x (const (n2d 0.55))) (/ (- y (const (n2d 0.05))) (const (n2d 0.3)))
+					(/ z (const (n2d 0.27)))) +double_1) (const (n2d 0.27)))
+			head (- (len3 (- x (const (n2d 0.62))) (- y (const (n2d 0.16))) z) (const (n2d 0.15)))
+			d (smooth-min body head (const (n2d 0.08))))
+		(each (lambda ((lx lz))
+				(setq d (smooth-min d (- (to-segment x y z lx (const (n2d -0.05)) lz lx (const (n2d -0.62)) lz)
+					(const (n2d 0.06))) (const (n2d 0.05)))))
+			cow_legs)
+		d))
+
 ;the balls of a blob, where each is and how big
 (defq blob_balls (list
 	(list (n2d 0.55) (n2d 0.1) (n2d 0.0) (n2d 0.3))
@@ -200,6 +222,7 @@
 	("(Mesh-shard)" :t)
 	("(Mesh-iso (Iso-delta 32) +double_0)" :nil)
 	("(Mesh-iso (Iso-bell 22) +double_0)" :nil)
-	("(Mesh-iso (Iso-top 20) +double_0)" :nil)))
+	("(Mesh-iso (Iso-top 20) +double_0)" :nil)
+	("(Mesh-iso (Iso-cow 24) +double_0)" :nil)))
 (enums +craft 0
-	(enum saucer ring lattice ball blob shard delta bell top))
+	(enum saucer ring lattice ball blob shard delta bell top cow))

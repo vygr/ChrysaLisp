@@ -33,6 +33,8 @@
 (definput film :float)
 (definput panels :float)
 (definput lamps :vec3)
+;a cow's black patches, 1 for them, 0 for none
+(definput patches :float)
 
 (defvarying place :vec3)
 (defvarying facing :vec3)
@@ -64,10 +66,12 @@
 		;the panels, rings round it and lines across, darker at their seams
 		round (length (:xz local))
 		seams (* (min panels 1.0) (max (seam round panels) (max (seam (:x local) panels) (seam (:z local) panels))))
-		metal (* (+ tint (* oil film)) (- 1.0 (* 0.55 seams)))
+		metal (* (+ tint (* oil film)) (- 1.0 (* 0.55 seams))
+			(- 1.0 (* patches 0.9 (ease 0.5 0.56 (noise3 (* local 2.6))))))
 		spot (pow (max (dot r sun) 0.0) 80.0)
 		pulse (+ 0.7 (* 0.3 (cos (* time 4.0))))
-		colour (+ (* (mix (* tint (+ 0.2 (* 0.6 lit))) (* (seen r) metal) (+ 0.35 (* 0.6 edge))) daylight)
+		hide (* tint (- 1.0 (* patches 0.9 (ease 0.5 0.56 (noise3 (* local 2.6))))))
+		colour (+ (* (mix (* hide (+ 0.2 (* 0.6 lit))) (* (seen r) metal) (* (+ 0.35 (* 0.6 edge)) (- 1.0 patches))) daylight)
 			(* shine spot 1.4)))
 	;the lamps, flecks on the rim, each lit as a wave goes over
 	(defq spots (pow (max (* (cos (* (:x local) 22.0)) (cos (* (:z local) 22.0))) 0.0) 4.0)

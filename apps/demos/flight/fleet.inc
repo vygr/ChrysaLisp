@@ -279,6 +279,7 @@
 			(list (n2d 200) +double_0) (list (n2d 150) (n2d 40)) (list (n2d 150) (n2d -40))))
 	(when at
 		(bind '(x z) at)
+		(defq water (<= (land_height (doubles x z)) (n2d -2.5)))
 		(defq low (+ (land-at x z) (n2d 14)) y low)
 		(each (lambda (f)
 				(defq lx (+ ex (* (- x ex) f)) lz (+ ez (* (- z ez) f))
@@ -286,7 +287,7 @@
 				;the line from the eye to the craft clears the land here
 				(setq y (max y (+ height (/ (- over height) f)))))
 			(list (n2d 0.3) (n2d 0.5) (n2d 0.7) (n2d 0.85) (n2d 0.95)))
-		(list x (min y (+ low (n2d 46))) z)))
+		(list x (min y (+ low (n2d 46))) z water)))
 
 (defun hover-fly (craft dt)
 	; (hover-fly craft dt)
@@ -302,7 +303,11 @@
 	(case (get :phase craft)
 		(:stopping
 			(when (< (+ (* (- gx x) (- gx x)) (* (- gy y) (- gy y)) (* (- gz z) (- gz z))) (n2d 6))
-				(def craft :phase :beam :until (+ now (n2i (rand-d (n2d 2000000) (n2d 3000000)))))))
+				;over land a cow comes up the beam; over water nothing does, and
+				;it gives up the sooner
+				(def craft :phase :beam :beamed now
+					:until (+ now (n2i (if (get :wet craft) (rand-d (n2d 1000000) (n2d 1300000))
+						(rand-d (n2d 2400000) (n2d 3200000))))))))
 		(:beam
 			(if (> now (get :until craft)) (def craft :phase :out :speed (n2d 20))))))
 
@@ -353,7 +358,7 @@
 			;as the flight comes on; the others keep station ahead
 			;with no land in front for it, no snatch this time
 			(if (and (get :beam craft) (defq stop (stop-place)))
-				(def craft :phase :stopping :stop stop)
+				(def craft :phase :stopping :stop (slice stop 0 3) :wet (elem-get stop 3))
 				(def craft :phase :pace :beam :nil))))
 		(:pace (if (> now (get :until craft)) (def craft :phase :pass)))
 		(:pass (if (< (+ (* rx fx) (* rz fz)) (n2d -10)) (def craft :phase :out)))
@@ -441,7 +446,8 @@
 					(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
 						(list 'time seconds) (list 'tint (get :tint node)) (list 'glow (get :glow node))
 						(list 'film (get :film node)) (list 'panels (get :panels node))
-						(list 'lamps (get :lamps node)) (list 'daylight daylight) (list 'shine shine))
+						(list 'lamps (get :lamps node)) (list 'daylight daylight) (list 'shine shine)
+						(list 'patches +double_0))
 					'() craft_files)))
 			:nil)
 		(lambda (node _) (pop mats)))
@@ -535,8 +541,33 @@
 			draws)
 		crafts (list)))
 
+(defun cow-draws (view eye seconds)
+	; (cow-draws view eye seconds) -> draws
+	;a cow coming up the beam of a craft at a snatch over land: from the
+	;land to the craft as the beam is on, slow at first and at the last,
+	;turning as it goes, and gone into the craft as the beam goes off
+	(reduce (lambda (draws craft)
+			(when (and (beaming? craft) (not (get :wet craft)) (elem-get parts_had +craft_cow))
+				(bind '(x y z) (get :at craft))
+				(defq from (get :beamed craft) t (/ (n2d (- (pii-time) from)) (n2d (- (get :until craft) from)))
+					t (min +double_1 t) t (* t t (- (n2d 3) (* (n2d 2) t)))
+					ground (+ (land-at x z) (n2d 1.2)) top (- y (* (get :size craft) (n2d 0.25)))
+					s (* (n2d 1.6) (- +double_1 (* (n2d 0.5) (max +double_0 (- t (n2d 0.8))) (n2d 5)))))
+				(push draws (list (+ +mesh_craft +craft_cow)
+					(list (list 'model (mat4x4-mul (mat4x4-translate x (+ ground (* (- top ground) t)) z)
+							(mat4x4-mul (mat4x4-roty (* seconds (n2d 1.3))) (mat4x4-mul (mat4x4-rotx (* t (n2d 0.6)))
+								(mat4x4-scale s s s)))))
+						(list 'lens view) (list 'eye eye))
+					(list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
+						(list 'time seconds) (list 'tint (rgb 0.92 0.9 0.86)) (list 'glow (rgb 0 0 0))
+						(list 'film +double_0) (list 'panels +double_0) (list 'lamps (rgb 0 0 0))
+						(list 'daylight daylight) (list 'shine shine) (list 'patches +double_1))
+					'() craft_files)))
+			draws)
+		crafts (list)))
+
 (defun fleet-draws (view eye seconds)
 	; (fleet-draws view eye seconds) -> draws
-	(reduce (lambda (draws craft)
+	(cat (reduce (lambda (draws craft)
 			(if (get :live craft) (cat draws (craft-draws craft view eye seconds)) draws))
-		crafts '()))
+		crafts '()) (cow-draws view eye seconds)))
