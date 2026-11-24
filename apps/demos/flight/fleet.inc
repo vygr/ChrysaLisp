@@ -246,12 +246,11 @@
 				(near-land ahead aside (+ (n2d 14) (* (n2d 4) (sin (* t (n2d 0.9))))))
 				(near-flight ahead aside (+ (get :up craft) (* (n2d 7) (sin (* t (n2d 0.9))))))))))
 
-(defun flight-ahead (secs ahead)
-	; (flight-ahead secs ahead) -> (x z ex ez)
-	;a place on the line the flight will be on in so many seconds, so far
-	;ahead of where it will be then, and where it will be: its turn now
-	;carried on, in steps, so what is put there is in front of the eye then,
-	;turning or not
+(defun flight-ahead (secs)
+	; (flight-ahead secs) -> (x z fx fz)
+	;where the flight will be in so many seconds, and its way then: its turn
+	;now carried on, in steps, so what is put ahead of that is in front of
+	;the eye then, turning or not
 	(bind '(px pz) place)
 	(bind '(fx fz) way)
 	(defq turn (neg (/ (* lean_want +pull) +speed)) dt (/ secs (n2d 10))
@@ -261,22 +260,33 @@
 			(defq nx (+ (* fx ca) (* fz sa)) nz (- (* fz ca) (* fx sa)))
 			(setq fx nx fz nz))
 		'() 0 10)
-	(list (+ px (* fx ahead)) (+ pz (* fz ahead)) px pz))
+	(list px pz fx fz))
 
 (defun stop-place ()
-	; (stop-place) -> (x y z)
+	; (stop-place) -> :nil | (x y z)
 	;where a craft stops to use its beam: in front of the eye as the snatch
-	;ends, over the land there, and high enough to be seen over the land
-	;between, a hill in the way along the valleys, its beam the longer
-	(bind '(x z ex ez) (flight-ahead (n2d 3.5) (n2d 150)))
-	(defq low (+ (land-at x z) (n2d 14)) y low)
-	(each (lambda (f)
-			(defq lx (+ ex (* (- x ex) f)) lz (+ ez (* (- z ez) f))
-				over (+ (land-at lx lz) (n2d 3)))
-			;the line from the eye to the craft clears the land here
-			(setq y (max y (+ height (/ (- over height) f)))))
-		(list (n2d 0.3) (n2d 0.5) (n2d 0.7) (n2d 0.85) (n2d 0.95)))
-	(list x (min y (+ low (n2d 46))) z))
+	;ends, over land, cows do not live in water, but now and then over the
+	;water, manatees do; and high enough to be seen over the land between,
+	;a hill in the way along the valleys, its beam the longer. :nil if
+	;there is no land in front to be had
+	(bind '(ex ez fx fz) (flight-ahead (n2d 3.5)))
+	(defq wet (= (random 8) 0) at :nil)
+	(some (lambda ((ahead aside))
+			(defq x (+ ex (* fx ahead) (* (neg fz) aside)) z (+ ez (* fz ahead) (* fx aside)))
+			(if (or wet (> (land_height (doubles x z)) (n2d -2.5))) (setq at (list x z))))
+		(list (list (n2d 150) +double_0) (list (n2d 130) (n2d 20)) (list (n2d 130) (n2d -20))
+			(list (n2d 175) (n2d 25)) (list (n2d 175) (n2d -25)) (list (n2d 120) +double_0)
+			(list (n2d 200) +double_0) (list (n2d 150) (n2d 40)) (list (n2d 150) (n2d -40))))
+	(when at
+		(bind '(x z) at)
+		(defq low (+ (land-at x z) (n2d 14)) y low)
+		(each (lambda (f)
+				(defq lx (+ ex (* (- x ex) f)) lz (+ ez (* (- z ez) f))
+					over (+ (land-at lx lz) (n2d 3)))
+				;the line from the eye to the craft clears the land here
+				(setq y (max y (+ height (/ (- over height) f)))))
+			(list (n2d 0.3) (n2d 0.5) (n2d 0.7) (n2d 0.85) (n2d 0.95)))
+		(list x (min y (+ low (n2d 46))) z)))
 
 (defun hover-fly (craft dt)
 	; (hover-fly craft dt)
@@ -341,9 +351,10 @@
 		(:in (when (< (+ (* dx dx) (* dz dz) (* (- gy y) (- gy y))) (n2d 3600))
 			;one with a beam stops where it is making for, still on the land
 			;as the flight comes on; the others keep station ahead
-			(if (get :beam craft)
-				(def craft :phase :stopping :stop (stop-place))
-				(def craft :phase :pace))))
+			;with no land in front for it, no snatch this time
+			(if (and (get :beam craft) (defq stop (stop-place)))
+				(def craft :phase :stopping :stop stop)
+				(def craft :phase :pace :beam :nil))))
 		(:pace (if (> now (get :until craft)) (def craft :phase :pass)))
 		(:pass (if (< (+ (* rx fx) (* rz fz)) (n2d -10)) (def craft :phase :out)))
 		(:out (if (> (+ (* rx rx) (* rz rz)) (* +gone_far +gone_far)) (craft-gone craft)))))

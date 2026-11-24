@@ -138,7 +138,7 @@
 	;the beam's pool, white, as wide as the column's foot, its edge soft
 	(if (> (:z beam) 0.0)
 		(setq glow (+ glow (* (vec3 1.0 1.0 1.05) (* (:w beam) 1.7
-			(- 1.0 (ease (* (:z beam) 0.8) (* (:z beam) 1.15) (length (- (:xz place) (:xy beam))))))))))
+			(- 1.0 (ease (* (:z beam) 0.45) (* (:z beam) 1.35) (length (- (:xz place) (:xy beam))))))))))
 	(cond
 		((<= h water)
 			;the water, the sky in it more side on, the sun off it, and the
