@@ -753,6 +753,25 @@ Usage: gui [node ...]
     If none present on command line then
     will read from stdin.
 ```
+## hash
+```code
+Usage: hash [options] [path] ...
+
+    options:
+        -h --help: this help info.
+        -a --algorithm name: sha256, the default, sha384,
+            sha512, crc32 or adler32.
+        -j --jobs num: max jobs per batch, default 4.
+
+    The hash of each file, a line each, its path then
+    the hash in hex, the path first so the lines can be
+    sorted and compared. sha256 is what shasum -a 256
+    gives, crc32 as zip and gzip, adler32 as zlib. A file
+    that can not be read is said, and has no hash.
+
+    If no paths given on command line
+    then will take paths from stdin.
+```
 ## hbook
 ```code
 Usage: hbook [options] [path] ...

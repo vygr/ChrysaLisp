@@ -98,7 +98,7 @@ Copy `cmd/template.lisp` as the starting point:
 			;from args ?
 			(if (empty? (defq jobs (rest args)))
 				;no, so from stdin
-				(lines! (# (push jobs %0)) (io-stream 'stdin)))
+				(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 			(if (<= (length jobs) opt_j)
 				;do the work when batch size ok !
 				(each (const work) jobs)
@@ -121,7 +121,11 @@ Copy `cmd/template.lisp` as the starting point:
 
 *	**Args and stdin:** `(options stdio usage)` returns the remaining
 	args; `args`[0] is the program name, so jobs are `(rest args)`.
-	When no paths are given, read them from stdin line by line.
+	When no paths are given, read them from stdin line by line. `lines!`
+	stops at the first line its function gives other than `:nil`, as
+	`some!` does, and `push` gives its list: so `(# (push jobs %0) :nil)`.
+	Without the `:nil` only the first path is read; this page had it so
+	till 2026-11-24, and the `hash` command made from it read one path.
 
 *	**Self-invocation for parallelism:** When the job batch exceeds
 	`opt_j`, farm it out by calling *yourself*: build each child's

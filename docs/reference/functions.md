@@ -262,7 +262,9 @@ and to (fnc_out name) as it closes, and each run of text to (fnc_text
 text), in the order they are in the stream. keys and vals are the
 parser's own, cleared for the next element, a callback that keeps
 them keeps a copy. Values and text with their entities made what they
-stand for, (xml-entities); the tokens are of lib/xml/lisp.vp
+stand for, (xml-entities); the tokens are of lib/xml/lisp.vp. An element
+still open at the end of the stream, a file cut short, is closed there,
+the last opened first, as near as it can be taken
 ```
 
 ### _structure
