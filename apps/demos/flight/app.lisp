@@ -7,6 +7,7 @@
 (import "lib/gpu/vp.inc")
 (import "lib/math/scene.inc")
 (import "./craft.inc")
+(import "apps/media/jukebox/favourites.inc")
 
 ;A flight over a land that is made as it goes, drawn by a (Render-tris),
 ;lib/gpu/render_farm.inc, which has the GPU draw it, or on a host with
@@ -20,12 +21,12 @@
 ;land the shaders have, land.shader, which Lisp asks too, (shader-vp-func)
 
 (enums +event +event_user
-	(enum path))
+	(enum path prev music next))
 
 ;the timer is last, what is first in the list is what is read first, and
 ;a frame can take longer than a tick
 (enums +select 0
-	(enum main task reply timer))
+	(enum main task reply player song timer))
 
 ;the frame's two sizes, the min and max buttons
 (defq +small ''(640 480) +large ''(1024 768))
@@ -88,7 +89,11 @@
 	stick :nil
 	;the height of the land at a place, of land.shader, the shaders' own
 	land_height :nil
-	;the flight and the size, as they were when last closed, (config-save)
+	;the music, the user's Jukebox favourites, apps/media/jukebox/favourites.inc,
+	;and whether the user wants it, kept whether or not there is any to play
+	music :nil music_on :t
+	;the flight, the size and the music, as they were when last closed,
+	;(config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "flight.tre"))
 
 (defun make-canvas (size)
@@ -102,6 +107,8 @@
 	(ui-title-bar _ "Flight" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *path* ("Eight" "Valleys" "Mouse") (:font :font_body)) :connect +event_path)
+		(ui-tool-bar *music* ()
+			(ui-buttons (+sym_media_start +sym_media_play +sym_media_end) +event_prev))
 		(ui-label *status* (:text "..." :font :font_body)))
 	(ui-backdrop *backdrop* (:style :plain :paper +argb_black :min_width (first +small) :min_height (second +small))
 		(ui-element *canvas* (make-canvas +small))))
@@ -352,9 +359,14 @@
 	(. *window* :layout)
 	(setq shown :nil))
 
+(defun music-show ()
+	;the play button a pause while the music is on, to stop it
+	(. (second (. *music* :children)) :set_text
+		(num-to-utf8 (if (. music :title) +sym_media_pause +sym_media_play))))
+
 (defun config-default ()
 	;the first time
-	(scatter (Emap) :version +config_version :path :eight :large :nil))
+	(scatter (Emap) :version +config_version :path :eight :large :nil :music :t))
 
 (defun config-load ()
 	;the defaults with what was kept laid over them,
@@ -367,7 +379,7 @@
 			(unless (eql key :version) (. *config* :insert key val))))))
 
 (defun config-save ()
-	(scatter *config* :path path :large (eql want +large))
+	(scatter *config* :path path :large (eql want +large) :music music_on)
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
@@ -396,6 +408,10 @@
 	(. *path* :set_selected (find path '(:eight :valleys :mouse)))
 	;the size it was closed at
 	(if (. *config* :find :large) (set-size +large))
+	;the user's Jukebox favourites behind it, if it had them on
+	(setq music (Favourites select +select_player +select_song) music_on (. *config* :find :music))
+	(and music_on (> (. music :load) 0) (. music :start))
+	(music-show)
 	(.-> *canvas* (:fill (argb haze)) (:swap +swap_write))
 	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
@@ -406,6 +422,12 @@
 		(bind '(idx msg) (. render :read select +select_timer))
 		(cond
 			((not idx))
+			((= idx +select_player)
+				;the player of the music has started
+				(. music :launched msg))
+			((= idx +select_song)
+				;what the player says of the song
+				(. music :heard msg))
 			((= idx +select_task)
 				;a child of the farm has started, unless the farm has gone
 				(if jobs (. jobs :launched msg)))
@@ -427,6 +449,13 @@
 					((= id +event_min) (set-size +small))
 					((= id +event_path)
 						(path-set (elem-get '(:eight :valleys :mouse) (. *path* :get_selected))))
+					;the music: the song before, on or off, the next
+					((= id +event_prev) (. music :move -1))
+					((= id +event_next) (. music :move 1))
+					((= id +event_music)
+						(setq music_on (not (. music :title)))
+						(if music_on (and (> (. music :load) 0) (. music :start)) (. music :stop))
+						(music-show))
 					;the pointer over the picture is the stick, and off it, none
 					((and (= (getf msg +ev_msg_target_id) (. *canvas* :get_id))
 							(= (getf msg +ev_msg_type) +ev_type_mouse))
@@ -455,12 +484,14 @@
 				(. render :tick)
 				(when (>= (- (defq now (pii-time)) since) 1000000)
 					(. *status* :set_text (cat (str (/ (* frames 1000000) (- now since))) " frames a second, "
-							(. render :how)))
+							(. render :how) (if (defq song (. music :title)) (cat ", " song) "")))
+					(. music :tick)
 					(setq frames 0 since now)
 					;a child of the farm that has died or is too slow is
 					;started again, and its part made again
 					(if jobs (. jobs :refresh 30000000))))))
 	(config-save)
+	(. music :stop)
 	(if jobs (. jobs :close))
 	(. render :close)
 	(. *window* :close))
