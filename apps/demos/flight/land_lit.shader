@@ -34,6 +34,9 @@
 (definput light_a :vec3)
 (definput light_b :vec3)
 (definput light_c :vec3)
+;a craft's beam where it meets the land, across and along, its radius,
+;and how far it is on, a radius of 0 for none
+(definput beam :vec4)
 
 (defvarying place :vec3)
 (defvarying facing :vec3)
@@ -132,6 +135,10 @@
 		glow (+ (craft_glow place n craft_a light_a) (craft_glow place n craft_b light_b)
 			(craft_glow place n craft_c light_c)))
 	(setq lit (* lit crafts))
+	;the beam's pool, white, as wide as the column's foot, its edge soft
+	(if (> (:z beam) 0.0)
+		(setq glow (+ glow (* (vec3 1.0 1.0 1.05) (* (:w beam) 1.7
+			(- 1.0 (ease (* (:z beam) 0.8) (* (:z beam) 1.15) (length (- (:xz place) (:xy beam))))))))))
 	(cond
 		((<= h water)
 			;the water, the sky in it more side on, the sun off it, and the

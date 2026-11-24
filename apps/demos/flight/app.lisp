@@ -62,8 +62,9 @@
 	sky_files (list (cat *app_root* "sky_vertex.shader") (cat *app_root* "sky_lit.shader"))
 	moon_files (list (cat *app_root* "moon_vertex.shader") (cat *app_root* "moon_lit.shader"))
 	craft_files (list (cat *app_root* "craft_vertex.shader") (cat *app_root* "craft_lit.shader"))
+	beam_files (list (cat *app_root* "beam_vertex.shader") (cat *app_root* "beam_lit.shader"))
 	;the meshes, by their numbers, the craft's parts from the last on
-	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2 +mesh_moon 3 +mesh_craft 4
+	+mesh_land 0 +mesh_sky 1 +mesh_land_cpu 2 +mesh_moon 3 +mesh_beam 30 +mesh_craft 4
 	;the farm that makes the craft's parts, which of them have come, and
 	;the craft, fleet.inc
 	jobs :nil parts_had (map (const (lambda (_) :nil)) craft_parts) crafts (list)
@@ -163,6 +164,20 @@
 					;at a pole a quad is a triangle, the other has no area
 					(if (< r (dec rings)) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a b c)))
 					(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d)))) '() 0 segs)) '() 0 rings)
+	(apply (const doubles) out))
+
+(defun tube-verts (segs)
+	; (tube-verts segs) -> doubles
+	;an open tube of segs sides, a column, its top of radius 1 at 0 and its
+	;foot a little wider at -1, a vertex its place, 3 numbers, three to a
+	;triangle
+	(defq out (list) flare (n2d 1.2))
+	(each! (lambda ()
+			(defq a (/ (* +double_2pi (n2d (!))) (n2d segs)) b (/ (* +double_2pi (n2d (inc (!)))) (n2d segs))
+				ca (cos a) sa (sin a) cb (cos b) sb (sin b))
+			(push out ca +double_0 sa (* ca flare) +double_-1 (* sa flare) (* cb flare) +double_-1 (* sb flare)
+				ca +double_0 sa (* cb flare) +double_-1 (* sb flare) cb +double_0 sb))
+		'() 0 segs)
 	(apply (const doubles) out))
 
 (defun argb (rgb)
@@ -455,8 +470,9 @@
 				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12))
 				;the craft about, their shadows and their lights on the land
 				(fleet-lights seconds))))
-		;the craft about, fleet.inc
-		(fleet-draws view eye seconds)))
+		;the craft about, fleet.inc, and last their beams, added to all else
+		(fleet-draws view eye seconds)
+		(fleet-beams view eye seconds)))
 	(++ frames))
 
 (defun set-size (wanted)
@@ -525,6 +541,7 @@
 	;nodes that draw a strip each all read the one copy of it
 	(setq moon_map (. (shader-strip-picture (canvas-load (cat *app_root* "data/moon.cpm") +load_flag_noswap)) :swap +swap_write))
 	(. render :mesh +mesh_sky (sky-verts) (first sky_files))
+	(. render :mesh +mesh_beam (tube-verts 24) (first beam_files))
 	;the craft's parts, made by a farm of children on this machine's
 	;nodes, off this one, and each put in its craft as it comes
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)

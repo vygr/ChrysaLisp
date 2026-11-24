@@ -789,6 +789,11 @@ new trap there with its test. Others to know:
 	`+name` used in the `defq` that makes it is not yet the constant; use
 	it in a later `defq`. `check` has `early`.
 
+*	Lisp has no `(return)`: the shader language does, Lisp does not, and
+	neither `check` nor `forward` says so, it is an unbound symbol when
+	run. A function that would leave early is two, one a dispatch:
+	`(if (stopped? x) (stand x) (move x))`.
+
 *	`(def obj :k v ...)` gives the last value it set, not obj. Name what
 	is made, `(def (defq node (Scene-node)) :spin s)`, then use `node`:
 	passed straight on, `(. parent :add_node (def (Scene-node) ...))`, or

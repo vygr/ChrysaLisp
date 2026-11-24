@@ -189,7 +189,10 @@
 	;low over the land this time, its light on it, or up with the flight,
 	;the more of them up the higher the flight is
 	(def craft :live :t :phase :in :side side :hops 0 :next (pii-time) :born (pii-time)
-		:skim (skim?) :up (rand-d (n2d -12) (n2d 45))
+		;a beam on the land, now and then, from one that comes in low to stop
+		;and use it, whatever the height of the flight
+		:beam (defq beam (and (find (get :kind craft) '(:scout :triangle :blob)) (< (random 10) 6)))
+		:skim (or beam (skim?)) :up (rand-d (n2d -12) (n2d 45))
 		:until (+ (pii-time) (n2i (rand-d (n2d 9000000) (n2d 15000000))))
 		:at (doubles x (+ (max height (land-at x z)) (rand-d (n2d 5) (n2d 40))) z)
 		:head (doubles (neg fx) (neg fz)) :speed (ifn (get :cruise craft) +double_0)
@@ -232,17 +235,69 @@
 	;land or up with the flight, as it came, then past the flight close
 	;on a side, then away up and behind
 	(defq side (get :side craft))
-	(case (get :phase craft)
-		(:out (near-flight (n2d -300) (* side (n2d 420)) (n2d 150)))
-		(:pass (near-flight (n2d -80) (* side (n2d 14)) (n2d 3)))
+	(cond
+		((eql (get :phase craft) :out) (near-flight (n2d -300) (* side (n2d 420)) (n2d 150)))
+		((eql (get :phase craft) :pass) (near-flight (n2d -80) (* side (n2d 14)) (n2d 3)))
+		;one with a beam makes for a place over the land well ahead, to stop
+		((get :beam craft) (near-land (n2d 230) (* side (n2d 10)) (n2d 14)))
 		(:t (defq ahead (+ (n2d 85) (* (n2d 25) (sin (* t (n2d 0.4)))))
 				aside (* (n2d 45) (sin (+ (* t (n2d 0.6)) side))))
 			(if (get :skim craft)
 				(near-land ahead aside (+ (n2d 14) (* (n2d 4) (sin (* t (n2d 0.9))))))
 				(near-flight ahead aside (+ (get :up craft) (* (n2d 7) (sin (* t (n2d 0.9))))))))))
 
-(defun swoop-fly (craft dt)
-	; (swoop-fly craft dt)
+(defun flight-ahead (secs ahead)
+	; (flight-ahead secs ahead) -> (x z ex ez)
+	;a place on the line the flight will be on in so many seconds, so far
+	;ahead of where it will be then, and where it will be: its turn now
+	;carried on, in steps, so what is put there is in front of the eye then,
+	;turning or not
+	(bind '(px pz) place)
+	(bind '(fx fz) way)
+	(defq turn (neg (/ (* lean_want +pull) +speed)) dt (/ secs (n2d 10))
+		a (* turn dt) ca (cos a) sa (sin a))
+	(each! (lambda ()
+			(setq px (+ px (* fx +speed dt)) pz (+ pz (* fz +speed dt)))
+			(defq nx (+ (* fx ca) (* fz sa)) nz (- (* fz ca) (* fx sa)))
+			(setq fx nx fz nz))
+		'() 0 10)
+	(list (+ px (* fx ahead)) (+ pz (* fz ahead)) px pz))
+
+(defun stop-place ()
+	; (stop-place) -> (x y z)
+	;where a craft stops to use its beam: in front of the eye as the snatch
+	;ends, over the land there, and high enough to be seen over the land
+	;between, a hill in the way along the valleys, its beam the longer
+	(bind '(x z ex ez) (flight-ahead (n2d 3.5) (n2d 150)))
+	(defq low (+ (land-at x z) (n2d 14)) y low)
+	(each (lambda (f)
+			(defq lx (+ ex (* (- x ex) f)) lz (+ ez (* (- z ez) f))
+				over (+ (land-at lx lz) (n2d 3)))
+			;the line from the eye to the craft clears the land here
+			(setq y (max y (+ height (/ (- over height) f)))))
+		(list (n2d 0.3) (n2d 0.5) (n2d 0.7) (n2d 0.85) (n2d 0.95)))
+	(list x (min y (+ low (n2d 46))) z))
+
+(defun hover-fly (craft dt)
+	; (hover-fly craft dt)
+	;stopping at its place over the land, and still there: eased to it, its
+	;way kept, its turn and lean let go; there, its beam on, snapped, for a
+	;second or two, then off and away, from nothing to its dash
+	(bind '(cx cy cz) (get :at craft))
+	(bind '(gx gy gz) (get :stop craft))
+	(defq k (min +double_1 (* dt (n2d 2.2))) now (pii-time)
+		x (+ cx (* (- gx cx) k)) y (+ cy (* (- gy cy) k)) z (+ cz (* (- gz cz) k)))
+	(def craft :at (doubles x y z) :speed +double_0 :climb +double_0
+		:turn (* (get :turn craft) (- +double_1 k)) :lean (* (get :lean craft) (- +double_1 k)))
+	(case (get :phase craft)
+		(:stopping
+			(when (< (+ (* (- gx x) (- gx x)) (* (- gy y) (- gy y)) (* (- gz z) (- gz z))) (n2d 6))
+				(def craft :phase :beam :until (+ now (n2i (rand-d (n2d 2000000) (n2d 3000000)))))))
+		(:beam
+			(if (> now (get :until craft)) (def craft :phase :out :speed (n2d 20))))))
+
+(defun swoop-move (craft dt)
+	; (swoop-move craft dt)
 	;in out of the haze, then ahead of the flight, weaving, at its pace,
 	;till its time is up; then round and at the flight, past it close and
 	;away, faster. It turns no faster than it may, eases into a turn, turns
@@ -265,7 +320,8 @@
 			(:in (get :cruise craft))
 			(:pace (max (n2d 10) (min (get :cruise craft) (+ +speed (* along (n2d 0.9))))))
 			(:t (get :dash craft)))
-		speed (+ (get :speed craft) (* (- pace (get :speed craft)) (min +double_1 (* dt (n2d 0.8)))))
+		;away from a stop it zooms, quicker to its dash
+		speed (+ (get :speed craft) (* (- pace (get :speed craft)) (min +double_1 (* dt (if (get :beam craft) (n2d 1.8) (n2d 0.8))))))
 		;what it makes for, but over the land it will be over in a while, so
 		;it climbs to clear a hill in a curve before it is there, as the
 		;flight does
@@ -282,11 +338,21 @@
 	(bind '(fx fz) way)
 	(defq rx (- x (first place)) rz (- z (second place)))
 	(case phase
-		(:in (if (< (+ (* dx dx) (* dz dz) (* (- gy y) (- gy y))) (n2d 3600)) (def craft :phase :pace)))
+		(:in (when (< (+ (* dx dx) (* dz dz) (* (- gy y) (- gy y))) (n2d 3600))
+			;one with a beam stops where it is making for, still on the land
+			;as the flight comes on; the others keep station ahead
+			(if (get :beam craft)
+				(def craft :phase :stopping :stop (stop-place))
+				(def craft :phase :pace))))
 		(:pace (if (> now (get :until craft)) (def craft :phase :pass)))
 		(:pass (if (< (+ (* rx fx) (* rz fz)) (n2d -10)) (def craft :phase :out)))
 		(:out (if (> (+ (* rx rx) (* rz rz)) (* +gone_far +gone_far)) (craft-gone craft)))))
 
+
+(defun swoop-fly (craft dt)
+	; (swoop-fly craft dt)
+	;a craft that swoops, stopped for its beam or on the move
+	(if (find (get :phase craft) '(:stopping :beam)) (hover-fly craft dt) (swoop-move craft dt)))
 (defun dart-fly (craft dt)
 	; (dart-fly craft dt)
 	;from place to place ahead of the flight, each reached by easing to it,
@@ -370,6 +436,19 @@
 		(lambda (node _) (pop mats)))
 	out)
 
+(defun beaming? (craft)
+	; (beaming? craft) -> :t | :nil
+	;a craft with its beam on: one that has one, stopped
+	(and (get :live craft) (eql (get :phase craft) :beam)))
+
+(defun beam-ease (craft dt)
+	; (beam-ease craft dt)
+	;how far its beam is on, 0 to 1, eased to whether it is, quickly: it
+	;snaps on, and off
+	(defq power (ifn (get :beam_power craft) +double_0))
+	(def craft :beam_power (+ power (* (- (if (beaming? craft) +double_1 +double_0) power)
+		(min +double_1 (* dt (n2d 14)))))))
+
 (defun fleet-fly (dt)
 	; (fleet-fly dt)
 	;each craft that is about flies by its kind; one gone comes again when
@@ -378,7 +457,8 @@
 	(each (lambda (craft)
 			(cond
 				((get :live craft)
-					(if (eql (get :flies craft) :dart) (dart-fly craft dt) (swoop-fly craft dt)))
+					(if (eql (get :flies craft) :dart) (dart-fly craft dt) (swoop-fly craft dt))
+					(beam-ease craft dt))
 				((and (> now (get :wait craft)) (< about +fleet_most))
 					(craft-start craft)
 					(++ about))))
@@ -404,15 +484,45 @@
 			(when (and (get :live craft) (< i 3))
 				(bind '(x y z) (get :at craft))
 				(bind '(cn ln) (elem-get names i))
+				;a beam's pool of light on the land, white and bright
+				;its own light at half while its beam is on, the beam's draw
 				(push out (list cn (doubles x y z (* (get :size craft) (n2d 0.85))))
-					(list ln (craft-light craft seconds)))
+					(list ln (nums-scale (cat (craft-light craft seconds))
+						(- +double_1 (* +double_1/2 (ifn (get :beam_power craft) +double_0))))))
 				(++ i)))
 		crafts)
 	(while (< i 3)
 		(bind '(cn ln) (elem-get names i))
 		(push out (list cn (doubles +double_0 +double_0 +double_0 +double_0)) (list ln (rgb 0 0 0)))
 		(++ i))
-	out)
+	;the pool of the brightest beam on, where its column meets the land
+	(defq pool (doubles +double_0 +double_0 +double_0 +double_0))
+	(each (lambda (craft)
+			(when (and (get :live craft) (> (defq power (ifn (get :beam_power craft) +double_0)) (elem-get pool 3)))
+				(bind '(x & z) (get :at craft))
+				(setq pool (doubles x z (* (get :size craft) (n2d 0.4)) power))))
+		crafts)
+	(push out (list 'beam pool)))
+
+(defun fleet-beams (view eye seconds)
+	; (fleet-beams view eye seconds) -> draws
+	;the beams of the craft that have them on: a column from under the craft
+	;down to the land, as wide as a third of the craft, white,
+	;not the colour of the craft's own light; drawn after all else, added
+	(reduce (lambda (draws craft)
+			(when (and (get :live craft) (> (defq power (ifn (get :beam_power craft) +double_0)) (n2d 0.02)))
+				;as far down and as bright as it is on
+				(bind '(x y z) (get :at craft))
+				(defq top (- y (* (get :size craft) (n2d 0.12))) long (* (- top (land-at x z)) power))
+				(when (> long (n2d 1))
+					(defq wide (* (get :size craft) (n2d 0.33)))
+					(push draws (list +mesh_beam
+						(list (list 'model (mat4x4-mul (mat4x4-translate x top z) (mat4x4-scale wide long wide)))
+							(list 'lens view) (list 'eye eye))
+						(list (list 'colour (nums-scale (rgb 0.95 0.97 1.0) power)) (list 'eye eye) (list 'time seconds))
+						'() beam_files))))
+			draws)
+		crafts (list)))
 
 (defun fleet-draws (view eye seconds)
 	; (fleet-draws view eye seconds) -> draws
