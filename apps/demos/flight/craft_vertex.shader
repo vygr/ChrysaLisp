@@ -25,8 +25,8 @@
 (defvarying fade :float)
 (defvarying local :vec3)
 
-(defconst haze_near 150.0)
-(defconst haze_far 400.0)
+(defconst haze_near 200.0)
+(defconst haze_far 560.0)
 
 (defun main :vec4 ()
 	(defq at (* model position))

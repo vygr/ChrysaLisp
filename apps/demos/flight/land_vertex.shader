@@ -26,8 +26,8 @@
 
 ;how far the slope is measured, and where the haze begins and is whole
 (defconst slope 1.5)
-(defconst haze_near 150.0)
-(defconst haze_far 400.0)
+(defconst haze_near 200.0)
+(defconst haze_far 560.0)
 
 (defun main :vec4 ()
 	(defq p (+ position shift) h (ground p)

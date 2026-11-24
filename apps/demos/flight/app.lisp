@@ -38,7 +38,7 @@
 	;land's height. The rest of the frame is the same, the shaders and all
 	;they are given. There is no CPU button: Flight is a show of the GPU,
 	;and on the CPU it crawls
-	+cells 128 +cell (n2d 6.5) +cells_cpu 64 +cell_cpu (n2d 13)
+	+cells 192 +cell (n2d 6.5) +cells_cpu 96 +cell_cpu (n2d 13)
 	;the flight, a figure of eight: how far it reaches across and along,
 	;how fast, how high, how it looks down, and how hard it leans into a
 	;turn, as a plane does for a pull of so much
@@ -57,7 +57,7 @@
 	+dead (n2d 0.12) +stick_turn (n2d 0.5) +stick_climb (n2d 24) +floor (n2d 14) +ceiling (n2d 260)
 	;how high the frame is at a distance of 1, its width of its shape, and
 	;how near and far it sees
-	+spread_y (n2d 0.5) +near (n2d 1) +far (n2d 520)
+	+spread_y (n2d 0.5) +near (n2d 1) +far (n2d 700)
 	+land_vertex (cat *app_root* "land_vertex.shader") +land_lit (cat *app_root* "land_lit.shader")
 	sky_files (list (cat *app_root* "sky_vertex.shader") (cat *app_root* "sky_lit.shader"))
 	moon_files (list (cat *app_root* "moon_vertex.shader") (cat *app_root* "moon_lit.shader"))
@@ -70,7 +70,7 @@
 	;the moon: the way to it, opposite the sun, (day-state), how far, in
 	;front of the sky and behind the land near by, how big, how it leans and
 	;how fast it turns, a second
-	moon_way (doubles (n2d -0.646) (n2d 0.188) (n2d 0.74)) +moon_far (n2d 470) +moon_size (n2d 36)
+	moon_way (doubles (n2d -0.646) (n2d 0.188) (n2d 0.74)) +moon_far (n2d 680) +moon_size (n2d 52)
 	+moon_lean (n2d 0.12) +moon_turn (n2d 0.02) moon_map :nil
 	;the sun, and the haze at the horizon and the blue above
 	sun (doubles (n2d 0.55) (n2d 0.42) (n2d -0.72)) haze (doubles (n2d 0.74) (n2d 0.80) (n2d 0.86))
@@ -436,7 +436,7 @@
 		(list +mesh_sky '()
 			(list (list 'forward forward) (list 'right right) (list 'up up)
 				(list 'spread (doubles spread_x +spread_y)) (list 'sun sun_at) (list 'haze haze) (list 'above above)
-				(list 'moon moon_way) (list 'night night))
+				(list 'moon moon_way) (list 'night night) (list 'time seconds))
 			'() sky_files)
 		;the moon, the eye's way to it the same however far the eye goes, as
 		;anything in the sky, turning slowly on its leaning axis

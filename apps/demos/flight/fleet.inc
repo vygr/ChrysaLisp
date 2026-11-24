@@ -17,7 +17,7 @@
 (defq +fleet_most 3
 	;where a craft comes from, how far ahead and how far to a side, and how
 	;far off it is gone
-	+come_far (n2d 360) +come_aside (n2d 110) +gone_far (n2d 470)
+	+come_far (n2d 470) +come_aside (n2d 110) +gone_far (n2d 620)
 	;how far over the land a craft keeps, what it climbs to clear ahead of
 	;it, and how near it may ever be, should that not be in time
 	+craft_floor (n2d 8) +craft_last (n2d 3))
