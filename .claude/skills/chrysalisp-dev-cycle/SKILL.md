@@ -126,6 +126,16 @@ marked mandatory apply to every session.
 	figure that moves, build times, image sizes, counts. Its shape: each
 	test's figures of today on each machine and a line of evidence, one
 	progression table, a row a date, and a paragraph for each record.
+	The figures of it and of the README's Numbers are taken by
+	`~/.ssh/cl_bench.sh [tree] [log_dir] [stages]` on each machine, its
+	tree synced first and its boot image made: it takes the member down
+	and up, every session alone, `-a`, three runs of each, and the
+	install from a copy of the tree with only the host program and the
+	snapshot under `obj/`. Copy it to the x64 and the Pi, `~/cl_bench.sh`.
+	A session that is not alone joins the mesh and links to the other
+	machines' members, 0.02 s of a make on the M4. The function counts:
+	`obj/make_prods` lists them; an image's are what it is given and what
+	those call, as `boot-image` gathers them.
 	Every figure in it is today's, an old one only in the table, so grep
 	the whole file for old counts after an update. The README's The
 	Numbers has the headline figures and changes when one moves. Count
