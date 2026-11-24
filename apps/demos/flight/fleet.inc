@@ -14,7 +14,7 @@
 ; and its lean, no angles, as the flight's own view is.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq +fleet_most 2
+(defq +fleet_most 3
 	;where a craft comes from, how far ahead and how far to a side, and how
 	;far off it is gone
 	+come_far (n2d 360) +come_aside (n2d 110) +gone_far (n2d 470)
@@ -70,6 +70,7 @@
 	;a lattice ball that tumbles, a core in it of every colour in turn, and
 	;three shards of light that go round it, each tumbling
 	(defq orb (craft-node :orb 7 9000000) dark (rgb 0 0 0) lights (Scene-node))
+	(def orb :flies :dart :ease (n2d 3) :wait_lo (n2d 1300000) :wait_hi (n2d 2400000) :hops_most 5)
 	(def (defq shell (part-node +craft_lattice (rgb 0.32 0.27 0.2) dark (n2d 1.3)))
 		:spin (n2d 0.4) :tumble (n2d 0.25))
 	(def (defq core (part-node +craft_ball (rgb 0.1 0.1 0.1) dark +double_0)) :hues (n2d 1.3))
@@ -100,6 +101,66 @@
 				(:set_translation x y z))))
 		(list (list (n2d 0.75) (n2d 0.15) +double_0) (list (n2d -0.4) (n2d 0.1) (n2d 0.65))))
 	blob)
+
+(defun make-triangle ()
+	; (make-triangle) -> scene_node
+	;a triangle of gunmetal, its nose ahead, ridged, a ring of light that
+	;turns under its middle and a shard of light at each corner. It glides,
+	;tipping slowly one way and the other to show itself, leans hard into
+	;its turns, and goes as no aircraft can
+	(defq tri (craft-node :triangle 11 25000000))
+	(def tri :cruise (n2d 28) :dash (n2d 170) :turn_most (n2d 0.6) :pull (n2d 14) :show (n2d 0.7))
+	(. tri :add_node (part-node +craft_delta (rgb 0.34 0.36 0.4) (rgb 0 0 0) (n2d 1.0)
+		(n2d 7) (rgb 0.3 0.9 1.4)))
+	(def (defq ring (part-node +craft_ring (rgb 0.1 0.1 0.12) (rgb 0.2 0.9 1.3) (n2d 0.6)))
+		:spin (n2d -2.5))
+	(. tri :add_node (.-> ring (:set_scale (n2d 0.32) (n2d 0.5) (n2d 0.32)) (:set_translation +double_0 (n2d -0.06) +double_0)))
+	(each (lambda ((x z))
+			(def (defq shard (part-node +craft_shard (rgb 0.3 0.3 0.3) (rgb 1.8 1.8 1.6) (n2d 0.8)))
+				:spin (n2d 2.7) :tumble (n2d 1.9))
+			(. tri :add_node (.-> shard (:set_scale (n2d 0.1) (n2d 0.1) (n2d 0.1))
+				(:set_translation x (n2d 0.02) z))))
+		(list (list +double_0 (n2d 0.8)) (list (n2d 0.7) (n2d -0.4)) (list (n2d -0.7) (n2d -0.4))))
+	tri)
+
+(defun make-jelly ()
+	; (make-jelly) -> scene_node
+	;a jellyfish: a glassy bell with a hem of waves, a core of every colour
+	;in turn, and six tentacles, each a chain of shards, a link a node of
+	;the one above it, each swaying, so the chain bends and whips
+	(defq jelly (craft-node :jelly 9 33000000))
+	(def jelly :flies :dart :ease (n2d 0.6) :wait_lo (n2d 2500000) :wait_hi (n2d 4000000) :hops_most 4
+		:spin (n2d 0.2))
+	(. jelly :add_node (part-node +craft_bell (rgb 0.45 0.55 0.7) (rgb 0.06 0.12 0.2) (n2d 1.5)))
+	(def (defq core (part-node +craft_ball (rgb 0.1 0.1 0.1) (rgb 0 0 0) +double_0)) :hues (n2d 0.8))
+	(. jelly :add_node (.-> core (:set_scale (n2d 0.3) (n2d 0.3) (n2d 0.3)) (:set_translation +double_0 (n2d 0.25) +double_0)))
+	(each (lambda ((x z))
+			(defq up (. (Scene-node) :set_translation x (n2d -0.12) z) at up)
+			(. jelly :add_node up)
+			(each (lambda (k)
+					(def (defq link (. (Scene-node) :set_translation +double_0 (n2d -0.2) +double_0))
+						:sway (list (n2d 0.35) (n2d 1.7) (+ (* (n2d k) (n2d 0.7)) x z)))
+					(. link :add_node (. (part-node +craft_shard (rgb 0.3 0.2 0.3)
+							(nums-scale (rgb 1.4 0.35 1.0) (- +double_1 (* (n2d 0.15) (n2d k)))) (n2d 1.0))
+						:set_scale (n2d 0.07) (n2d 0.07) (n2d 0.07)))
+					(. at :add_node link)
+					(setq at link))
+				'(0 1 2 3 4)))
+		(list (list (n2d 0.5) +double_0) (list (n2d 0.25) (n2d 0.433)) (list (n2d -0.25) (n2d 0.433))
+			(list (n2d -0.5) +double_0) (list (n2d -0.25) (n2d -0.433)) (list (n2d 0.25) (n2d -0.433))))
+	jelly)
+
+(defun make-top ()
+	; (make-top) -> scene_node
+	;two cones point to point, spinning fast and leaning as they spin, so
+	;they wobble as a top does; it zigzags in quick darts
+	(defq top (craft-node :top 6 41000000))
+	(def top :flies :dart :ease (n2d 6) :wait_lo (n2d 500000) :wait_hi (n2d 1000000) :hops_most 9)
+	(def (defq body (part-node +craft_top (rgb 0.7 0.55 0.25) (rgb 0.05 0.03 0) (n2d 0.8)
+			(n2d 3) (rgb 0.3 1.0 0.6)))
+		:spin (n2d 7) :tilt (n2d 0.2))
+	(. top :add_node body)
+	top)
 
 (defun craft-start (craft)
 	; (craft-start craft)
@@ -146,11 +207,12 @@
 	;in out of the haze, then ahead of the flight, weaving, at its pace,
 	;till its time is up; then round and at the flight, past it close and
 	;away, faster. It turns no faster than it may, eases into a turn, turns
-	;the shorter way round to what is behind it, and leans into a turn
+	;the shorter way round to what is behind it, and leans into a turn, and
+	;one that shows itself, :show, tips slowly one way and the other too
 	(bind '(cx cy cz) (get :at craft))
 	(bind '(hx hz) (get :head craft))
-	(defq now (pii-time) phase (get :phase craft)
-		goal (swoop-goal craft (/ (n2d (- now (get :born craft))) (n2d 1000000))))
+	(defq now (pii-time) phase (get :phase craft) t (/ (n2d (- now (get :born craft))) (n2d 1000000))
+		goal (swoop-goal craft t))
 	(bind '(gx gy gz) goal)
 	(defq dx (- gx cx) dz (- gz cz) d (+ (sqrt (+ (* dx dx) (* dz dz))) (n2d 0.001))
 		cross (/ (- (* hx dz) (* hz dx)) d) along (+ (* hx dx) (* hz dz))
@@ -170,7 +232,8 @@
 		x (+ cx (* nx speed dt)) z (+ cz (* nz speed dt))
 		y (max (+ cy (* climb dt)) (+ (land-at x z) +craft_floor)))
 	(def craft :at (doubles x y z) :head (doubles nx nz) :turn turn :speed speed :climb climb
-		:lean (max (n2d -2) (min (n2d 2) (neg (/ (* speed turn) (get :pull craft))))))
+		:lean (max (n2d -2) (min (n2d 2) (+ (neg (/ (* speed turn) (get :pull craft)))
+			(* (ifn (get :show craft) +double_0) (sin (* t (n2d 0.7))))))))
 	;what it is about next
 	(bind '(fx fz) way)
 	(defq rx (- x (first place)) rz (- z (second place)))
@@ -180,22 +243,23 @@
 		(:pass (if (< (+ (* rx fx) (* rz fz)) (n2d -10)) (def craft :phase :out)))
 		(:out (if (> (+ (* rx rx) (* rz rz)) (* +gone_far +gone_far)) (craft-gone craft)))))
 
-(defun orb-fly (craft dt)
-	; (orb-fly craft dt)
-	;from place to place ahead of the flight, each reached in a dart that
-	;slows to a stop, a hover, then another; after a few, a dart at the
-	;flight and past it close, then straight up and gone
-	(defq now (pii-time) hops (get :hops craft))
+(defun dart-fly (craft dt)
+	; (dart-fly craft dt)
+	;from place to place ahead of the flight, each reached by easing to it,
+	;a dart that slows to a stop, or a drift, as quick as the craft's :ease,
+	;a hover, then another; after its :hops, at the flight and past it
+	;close, then straight up and gone
+	(defq now (pii-time) hops (get :hops craft) most (get :hops_most craft))
 	(when (> now (get :next craft))
-		(def craft :next (+ now (n2i (if (= hops 5) (n2d 1200000) (rand-d (n2d 1300000) (n2d 2400000)))))
+		(def craft :next (+ now (n2i (if (= hops most) (n2d 1200000) (rand-d (get :wait_lo craft) (get :wait_hi craft)))))
 			:hops (inc hops)
 			:goal (cond
-				((< hops 5) (near-flight (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d -4) (n2d 30))))
-				((= hops 5) (near-flight (n2d -90) (* (get :side craft) (n2d 10)) (n2d 4)))
+				((< hops most) (near-flight (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d -4) (n2d 30))))
+				((= hops most) (near-flight (n2d -90) (* (get :side craft) (n2d 10)) (n2d 4)))
 				((near-flight (n2d -60) +double_0 (n2d 900))))))
 	(bind '(cx cy cz) (get :at craft))
 	(bind '(gx gy gz) (get :goal craft))
-	(defq k (min +double_1 (* dt (n2d 3)))
+	(defq k (min +double_1 (* dt (if (>= hops most) (n2d 3) (get :ease craft))))
 		x (+ cx (* (- gx cx) k)) z (+ cz (* (- gz cz) k))
 		y (max (+ cy (* (- gy cy) k)) (+ (land-at x z) +craft_floor)))
 	(def craft :at (doubles x y z))
@@ -220,14 +284,21 @@
 (defun craft-draws (craft view eye seconds)
 	; (craft-draws craft view eye seconds) -> draws
 	;a draw for each part of a craft whose mesh has come, by the matrix of
-	;it and of the parts it is in. A part spins and tumbles, breathes, and
-	;has a light of every colour in turn, as it says
+	;it and of the parts it is in. A part spins, tumbles or leans as it
+	;spins, so it wobbles; sways, (amount speed phase); breathes; and has a
+	;light of every colour in turn, as it says
 	(defq mats (list (craft-matrix craft seconds)) out (list))
 	(. craft :walk_nodes
 		(lambda (node _)
-			(if (or (def? :spin node) (def? :tumble node))
-				(. node :set_rotation (* seconds (ifn (get :tumble node) +double_0))
-					(* seconds (ifn (get :spin node) +double_0)) +double_0))
+			(cond
+				((def? :sway node)
+					(bind '(amount speed phase) (get :sway node))
+					(defq at (+ (* seconds speed) phase))
+					(. node :set_rotation (* amount (sin at)) +double_0
+						(* amount (n2d 0.7) (cos (* at (n2d 0.8))))))
+				((or (def? :spin node) (def? :tumble node) (def? :tilt node))
+					(. node :set_rotation (+ (ifn (get :tilt node) +double_0) (* seconds (ifn (get :tumble node) +double_0)))
+						(* seconds (ifn (get :spin node) +double_0)) +double_0)))
 			(when (def? :breathe node)
 				(defq b (+ +double_1 (* (get :breathe node) (sin (* seconds (n2d 2.3))))))
 				(. node :set_scale b (/ +double_1 b) b))
@@ -257,7 +328,7 @@
 	(each (lambda (craft)
 			(cond
 				((get :live craft)
-					(if (eql (get :kind craft) :orb) (orb-fly craft dt) (swoop-fly craft dt)))
+					(if (eql (get :flies craft) :dart) (dart-fly craft dt) (swoop-fly craft dt)))
 				((and (> now (get :wait craft)) (< about +fleet_most))
 					(craft-start craft)
 					(++ about))))

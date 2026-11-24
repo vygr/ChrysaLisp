@@ -789,6 +789,12 @@ new trap there with its test. Others to know:
 	`+name` used in the `defq` that makes it is not yet the constant; use
 	it in a later `defq`. `check` has `early`.
 
+*	`(def obj :k v ...)` gives the last value it set, not obj. Name what
+	is made, `(def (defq node (Scene-node)) :spin s)`, then use `node`:
+	passed straight on, `(. parent :add_node (def (Scene-node) ...))`, or
+	given back by a maker, the value goes where the object was meant to.
+	`check` has `(. (def ...) :method)`, not an argument or a result.
+
 *	A function given as a value, a callback or an entry of data, is looked
 	up when used unless written `(const f)`, and defined above. A local
 	bound to a lambda, `(defq f (lambda ...))` then `(f ...)`, is a lookup

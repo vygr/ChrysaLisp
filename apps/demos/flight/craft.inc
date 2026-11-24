@@ -110,6 +110,66 @@
 		:tris (nums 1 3 2 0 0 2 3 0 0 3 1 0 0 1 2 0))
 	(. this :normals))
 
+(defun lobes8 (x z)
+	; (lobes8 x z) -> double
+	;the cosine of eight times the angle round, of the cosine of it, no angle
+	(defq c (/ x (+ (len2 x z) (const (/ +double_1 (n2d 1000000))))) c2 (* c c))
+	(+ +double_1 (* c2 (+ (const (n2d -32)) (* c2 (+ (const (n2d 160))
+		(* c2 (+ (const (n2d -256)) (* c2 (const (n2d 128)))))))))))
+
+(defun to-segment (x y z ax ay az bx by bz)
+	; (to-segment x y z ax ay az bx by bz) -> double
+	;how far a place is from the line from a to b
+	(defq ux (- bx ax) uy (- by ay) uz (- bz az) px (- x ax) py (- y ay) pz (- z az)
+		t (max +double_0 (min +double_1 (/ (+ (* px ux) (* py uy) (* pz uz)) (+ (* ux ux) (* uy uy) (* uz uz))))))
+	(len3 (- px (* ux t)) (- py (* uy t)) (- pz (* uz t))))
+
+;the corners of a triangle, its nose ahead
+(defq delta_corners (list
+	(list (n2d 0.0) (n2d 0.76))
+	(list (n2d 0.66) (n2d -0.38))
+	(list (n2d -0.66) (n2d -0.38))))
+
+(defclass Iso-delta (size) (Iso-part size)
+	; (Iso-delta size) -> iso
+	;a triangle, its nose ahead, thicker to its middle, a step round its
+	;edge, a dome, and a ridge from the dome to each corner
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		(defq edge (- (max (neg z) (+ (* x (const (n2d -0.866))) (* z +double_1/2))
+				(+ (* x (const (n2d 0.866))) (* z +double_1/2))) (const (n2d 0.42)))
+			in (max +double_0 (min +double_1 (/ (neg edge) (const (n2d 0.42)))))
+			;the hull, and a deck on it a step in from the edge
+			hull (max edge (- (abs y) (+ (const (n2d 0.05)) (* (const (n2d 0.08)) in))))
+			deck (max (+ edge (const (n2d 0.09))) (- (abs (- y (const (n2d 0.04)))) (+ (const (n2d 0.06)) (* (const (n2d 0.1)) in))))
+			d (min hull deck))
+		(each (lambda ((cx cz))
+				(setq d (smooth-min d (- (to-segment x y z +double_0 (const (n2d 0.12)) +double_0 cx (const (n2d 0.03)) cz)
+					(const (n2d 0.035))) (const (n2d 0.03)))))
+			delta_corners)
+		(smooth-min d (- (len3 x (* (- y (const (n2d 0.1))) (const (n2d 1.4))) z) (const (n2d 0.2))) (const (n2d 0.05)))))
+
+(defclass Iso-bell (size) (Iso-part size)
+	; (Iso-bell size) -> iso
+	;the bell of a jellyfish, a shell of a dome, its hem in eight waves
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		(max (- (abs (- (len3 x (/ y (const (n2d 0.85))) z) (const (n2d 0.72)))) (const (n2d 0.07)))
+			(neg (+ y (const (n2d 0.1)) (* (const (n2d 0.05)) (lobes8 x z)))))))
+
+(defclass Iso-top (size) (Iso-part size)
+	; (Iso-top size) -> iso
+	;two cones point to point, a band round where they meet, and a knob
+
+	(defmethod :field (x y z)
+		; (. iso :field x y z) -> double
+		(defq r (len2 x z))
+		(smooth-min (smooth-min (* (- (+ r (* (abs y) (const (n2d 1.25)))) (const (n2d 0.82))) (const (n2d 0.62)))
+				(- (len2 (- r (const (n2d 0.8))) y) (const (n2d 0.05))) (const (n2d 0.05)))
+			(- (len3 x (- y (const (n2d 0.64))) z) (const (n2d 0.09))) (const (n2d 0.05)))))
+
 ;the balls of a blob, where each is and how big
 (defq blob_balls (list
 	(list (n2d 0.55) (n2d 0.1) (n2d 0.0) (n2d 0.3))
@@ -137,6 +197,9 @@
 	("(Mesh-iso (Iso-lattice 28) +double_0)" :nil)
 	("(Mesh-iso (Iso-ball 8) +double_0)" :nil)
 	("(Mesh-iso (Iso-blob 20) +double_0)" :nil)
-	("(Mesh-shard)" :t)))
+	("(Mesh-shard)" :t)
+	("(Mesh-iso (Iso-delta 32) +double_0)" :nil)
+	("(Mesh-iso (Iso-bell 22) +double_0)" :nil)
+	("(Mesh-iso (Iso-top 20) +double_0)" :nil)))
 (enums +craft 0
-	(enum saucer ring lattice ball blob shard))
+	(enum saucer ring lattice ball blob shard delta bell top))

@@ -386,7 +386,7 @@
 	;nodes, off this one, and each put in its craft as it comes
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
 			(elem-get select +select_reply) '(4 2) :t)
-		crafts (list (make-scout) (make-orb) (make-blob)))
+		crafts (list (make-scout) (make-orb) (make-blob) (make-triangle) (make-jelly) (make-top)))
 	(. jobs :add (map (lambda ((command flat))
 			(cat (setf-> (str-alloc +part_size) (+part_num (!)) (+part_flat (if flat 1 0))) command)) craft_parts))
 	(config-load)
