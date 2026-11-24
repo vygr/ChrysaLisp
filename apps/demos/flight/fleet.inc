@@ -175,7 +175,9 @@
 		far (rand-d (- +come_far (n2d 30)) (+ +come_far (n2d 40)))
 		off (* side (rand-d (* +come_aside (n2d 0.5)) (* +come_aside (n2d 1.4))))
 		x (+ px (* fx far) (* (neg fz) off)) z (+ pz (* fz far) (* fx off)))
+	;low over the land this time, its light on it, or high in the sky
 	(def craft :live :t :phase :in :side side :hops 0 :next (pii-time) :born (pii-time)
+		:skim (= (random 2) 0) :up (rand-d (n2d 20) (n2d 60))
 		:until (+ (pii-time) (n2i (rand-d (n2d 9000000) (n2d 15000000))))
 		:at (doubles x (+ (max height (land-at x z)) (rand-d (n2d 5) (n2d 40))) z)
 		:head (doubles (neg fx) (neg fz)) :speed (ifn (get :cruise craft) +double_0)
@@ -204,14 +206,17 @@
 	; (swoop-goal craft t) -> (x y z)
 	;where a craft that swoops makes for, by what it is about, t seconds
 	;since it came: a place ahead of the flight that weaves, low over the
-	;land, then past the flight close on a side, then away up and behind
+	;land or high over the flight, as it came, then past the flight close
+	;on a side, then away up and behind
 	(defq side (get :side craft))
 	(case (get :phase craft)
 		(:out (near-flight (n2d -300) (* side (n2d 420)) (n2d 150)))
 		(:pass (near-flight (n2d -80) (* side (n2d 14)) (n2d 3)))
-		(:t (near-land (+ (n2d 85) (* (n2d 25) (sin (* t (n2d 0.4)))))
-			(* (n2d 45) (sin (+ (* t (n2d 0.6)) side)))
-			(+ (n2d 14) (* (n2d 4) (sin (* t (n2d 0.9)))))))))
+		(:t (defq ahead (+ (n2d 85) (* (n2d 25) (sin (* t (n2d 0.4)))))
+				aside (* (n2d 45) (sin (+ (* t (n2d 0.6)) side))))
+			(if (get :skim craft)
+				(near-land ahead aside (+ (n2d 14) (* (n2d 4) (sin (* t (n2d 0.9))))))
+				(near-flight ahead aside (+ (get :up craft) (* (n2d 7) (sin (* t (n2d 0.9))))))))))
 
 (defun swoop-fly (craft dt)
 	; (swoop-fly craft dt)
@@ -265,7 +270,11 @@
 		(def craft :next (+ now (n2i (if (= hops most) (n2d 1200000) (rand-d (get :wait_lo craft) (get :wait_hi craft)))))
 			:hops (inc hops)
 			:goal (cond
-				((< hops most) (near-land (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d 9) (n2d 20))))
+				;each hop low over the land or high in the sky
+				((< hops most)
+					(if (= (random 2) 0)
+						(near-land (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d 9) (n2d 20)))
+						(near-flight (rand-d (n2d 50) (n2d 140)) (rand-d (n2d -60) (n2d 60)) (rand-d (n2d 15) (n2d 60)))))
 				((= hops most) (near-flight (n2d -90) (* (get :side craft) (n2d 10)) (n2d 4)))
 				((near-flight (n2d -60) +double_0 (n2d 900))))))
 	(bind '(cx cy cz) (get :at craft))
