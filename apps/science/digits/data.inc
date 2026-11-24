@@ -11,21 +11,21 @@
 	(cat "downloads/mnist/" name))
 
 (defun mnist-have? (file)
-	; (mnist-have? (name bytes head)) -> :t | :nil
+	; (mnist-have? (name byte_count head)) -> :t | :nil
 	;kept already, all of it
-	(bind '(name bytes &ignore) file)
-	(and (defq info (pii-fstat (mnist-cache name))) (= (second info) bytes)))
+	(bind '(name byte_count &ignore) file)
+	(and (defq info (pii-fstat (mnist-cache name))) (= (second info) byte_count)))
 
 (defun mnist-missing ()
-	; (mnist-missing) -> ((name bytes head) ...)
+	; (mnist-missing) -> ((name byte_count head) ...)
 	;the files not yet kept
 	(filter (# (not (mnist-have? %0))) +mnist_files))
 
 (defun mnist-fetch (file)
-	; (mnist-fetch (name bytes head)) -> :nil | why
+	; (mnist-fetch (name byte_count head)) -> :nil | why
 	;the .gz of a file fetched, from each mirror in turn till one has it,
 	;inflated and kept. :nil if it is kept, else why it could not be
-	(bind '(name bytes &ignore) file)
+	(bind '(name byte_count &ignore) file)
 	(defq why "no mirror")
 	(some (lambda (mirror)
 			(defq gz (memory-stream) resp (http-get (cat mirror name ".gz") (pmap) gz))
@@ -45,7 +45,7 @@
 	; (mnist-load buf) -> buf
 	;the kept files into the data block, each at its place, their heads
 	;left out, a part at a time
-	(each (lambda ((name bytes head) at)
+	(each (lambda ((name byte_count head) at)
 			(defq stream (file-stream (mnist-cache name)) at at)
 			(stream-seek stream head 0)
 			(while (defq part (read-blk stream 1048576))

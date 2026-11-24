@@ -50,6 +50,7 @@ trashes
 inputs
 :r0 = fixeds object (ptr)
 :r1 = source nums object, of any kind (ptr)
+:r3 = 1 to read a raw source signed, else 0 (uint)
 outputs
 :r0 = fixeds object (ptr)
 trashes

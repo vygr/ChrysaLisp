@@ -234,9 +234,9 @@
 	;each machine, and the emulator, has its own
 	(cat (load-path) "tests/cache"))
 
-(defun test-hex (bytes)
+(defun test-hex (byte_data)
 	;the first 16 bytes, as hex
-	(apply (const cat) (map! (# (byte-to-hex-str (code %0))) (list bytes) 0 16)))
+	(apply (const cat) (map! (# (byte-to-hex-str (code %0))) (list byte_data) 0 16)))
 
 (defun test-vp-of (folder)
 	; (test-vp-of folder) -> paths

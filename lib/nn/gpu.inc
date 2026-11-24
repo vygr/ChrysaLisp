@@ -104,12 +104,12 @@
 	(if data (gpu-buffer-free data))
 	:nil)
 
-(defun nn-gpu-data (gpu bytes)
+(defun nn-gpu-data (gpu byte_data)
 	; (nn-gpu-data gpu str) -> gpu
 	;a data set's bytes onto the GPU, once
 	(if (defq old (elem-get gpu +nn_gpu_data)) (gpu-buffer-free old))
-	(defq data (gpu-buffer (length bytes)))
-	(gpu-write data 0 bytes)
+	(defq data (gpu-buffer (length byte_data)))
+	(gpu-write data 0 byte_data)
 	(elem-set gpu +nn_gpu_data data))
 
 (defun nn-gpu-params (gpu params)

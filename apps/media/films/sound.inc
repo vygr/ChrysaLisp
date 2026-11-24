@@ -31,7 +31,7 @@
 	;cut into packets of a size, each read where it is. PCM of 16 bits and two
 	;channels is written as it is, the rest made doubles. AC-3 its frames,
 	;each of the size its first says
-	(defq in (avi-track-stream reel track) bytes (stream-seek in 0 2) codec (. track :find :codec)
+	(defq in (avi-track-stream reel track) byte_count (stream-seek in 0 2) codec (. track :find :codec)
 		channels (max 1 (. track :find :channels)) align (max 1 (. track :find :block_align))
 		bits (. track :find :bits) extra (ifn (. track :find :extra) "")
 		;of a block, the samples a block it says, or worked out from its size
@@ -75,7 +75,7 @@
 	;how many packets, the last may be short
 	(when (. sound :find :make)
 		(. sound :insert :track (scatter (Emap) :kind "soun" :codec codec :start 0
-				:samples (/ (+ bytes (dec (. sound :find :packet))) (. sound :find :packet))))
+				:samples (/ (+ byte_count (dec (. sound :find :packet))) (. sound :find :packet))))
 		sound))
 
 (defun sound-of (reel)

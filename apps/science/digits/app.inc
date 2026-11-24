@@ -22,7 +22,7 @@
 (defq +digits_inputs (nn-ins (first *digits_models*)) +digits_outputs (nn-outs (first *digits_models*)))
 
 (defun digits-params-size (model)
-	; (digits-params-size model) -> bytes
+	; (digits-params-size model) -> byte_count
 	;its params' bytes, 4 a float
 	(nn-bytes-of model (nn-params model)))
 
@@ -38,10 +38,10 @@
 ;the same line; a page, 16384 on macOS, is the other to try
 (defq +digits_align 128)
 
-(defun digits-align (bytes)
-	; (digits-align bytes) -> bytes
+(defun digits-align (byte_count)
+	; (digits-align byte_count) -> byte_count
 	;up to a whole number of +digits_align
-	(* (/ (+ bytes (dec +digits_align)) +digits_align) +digits_align))
+	(* (/ (+ byte_count (dec +digits_align)) +digits_align) +digits_align))
 
 ;the params and each slice of gradients room for the biggest net
 (defq +digits_params_bytes (digits-align (reduce (# (max %0 (digits-params-size %1))) *digits_models* 0)))

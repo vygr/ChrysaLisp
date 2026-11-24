@@ -14,9 +14,9 @@
 			(cond
 				((starts-with "done " msg) (setq result (map! (const str-as-num) (list (split msg " ")) 1 -1)))
 				((find (first (split msg " ")) '("notput" "notread")) (scene-say sc "  " msg))))
-		(bind '(put same count bytes put_ms read_ms) result)
+		(bind '(put same count byte_count put_ms read_ms) result)
 		(scene-say sc put " of " count " files put in " (/ put_ms 1000) "." (/ (% put_ms 1000) 100) " s, "
-			same " read back the same, " (/ bytes 1048576) " MB, in " (/ read_ms 1000) "." (/ (% read_ms 1000) 100) " s")
+			same " read back the same, " (/ byte_count 1048576) " MB, in " (/ read_ms 1000) "." (/ (% read_ms 1000) 100) " s")
 		(scene-check sc "every file is put" (= put count))
 		(scene-check sc "and read back the same" (= same count)))
 	(scene-end sc))

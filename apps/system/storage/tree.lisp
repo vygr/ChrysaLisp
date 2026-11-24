@@ -45,7 +45,7 @@
 		files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "./tests/scratch/" %0)
 						(starts-with "." (last (split %0 "/"))))))
 			(files-all root '("")))
-		count (length files) going :t putting :t done 0 put 0 same 0 bytes 0 t0 (pii-time) t1 t0
+		count (length files) going :t putting :t done 0 put 0 same 0 byte_count 0 t0 (pii-time) t1 t0
 		want (max 2 (* 2 (length svcs)))
 		jobs (Jobs "apps/system/storage/tree_child.lisp" (elem-get select +select_launch)
 			(elem-get select +select_reply) (list want want 0)))
@@ -77,7 +77,7 @@
 												(third (split (slice job +job_size -1) +lf)) +lf (slice said 2 -1)))))
 								(putting (++ put))
 								(:t (++ same)
-									(setq bytes (+ bytes (str-as-num (slice said 2 -1))))))
+									(setq byte_count (+ byte_count (str-as-num (slice said 2 -1))))))
 							(and job (= 0 (% done 8))
 								(mail-send reply (cat (if putting "put " "read ") (str done) " " (str count) " "
 										(third (split (slice job +job_size -1) +lf)))))
@@ -86,7 +86,7 @@
 									(putting (setq putting :nil done 0 t1 (pii-time))
 										(work "v"))
 									(:t (mail-send reply (join (map (const str)
-													(list "done" put same count bytes (/ (- t1 t0) 1000) (/ (- (pii-time) t1) 1000))) " "))
+													(list "done" put same count byte_count (/ (- t1 t0) 1000) (/ (- (pii-time) t1) 1000))) " "))
 										(setq going :nil))))))
 					(:t ;one of the farm that has gone, or been too long, is started again
 						(mail-timeout (elem-get select +select_timer) +look_rate 0)

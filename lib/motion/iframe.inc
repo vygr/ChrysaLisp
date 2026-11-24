@@ -179,10 +179,10 @@
 (defun iframe-put-sym (k)
 	;a symbol, its name the first time, its number after
 	(cond
-		((defq n (. syms :find k)) (push ints +iframe_tag_symref n))
+		((defq n (. syms :find k)) (push int_vals +iframe_tag_symref n))
 		(:t (. syms :insert k (. syms :size))
 			(defq name (str k))
-			(push ints +iframe_tag_sym (length name))
+			(push int_vals +iframe_tag_sym (length name))
 			(push text name))))
 
 (defun iframe-put-outline (v)
@@ -202,44 +202,44 @@
 				v))
 		(. sent_map :insert key id)
 		(push sent_held v))
-	(push ints +iframe_tag_outline id))
+	(push int_vals +iframe_tag_outline id))
 
 (defun iframe-put (v)
 	;a value: nothing, a number, a symbol, a str, an array of numbers, a
 	;function, or one of the things of the scene by its number
 	(cond
-		((not v) (push ints +iframe_tag_nil))
-		((eql v :t) (push ints +iframe_tag_t))
-		((rostrum-kind v) (push ints +iframe_tag_obj (. ids :find (weak-ref v))))
+		((not v) (push int_vals +iframe_tag_nil))
+		((eql v :t) (push int_vals +iframe_tag_t))
+		((rostrum-kind v) (push int_vals +iframe_tag_obj (. ids :find (weak-ref v))))
 		((or (func? v) (list? v))
 			(unless (defq n (. funcs :find (weak-ref v)))
 				(throw "iframe-write: a function with no number !" v))
-			(push ints +iframe_tag_func n))
+			(push int_vals +iframe_tag_func n))
 		((sym? v) (iframe-put-sym v))
-		((str? v) (push ints +iframe_tag_str (length v)) (push text v))
+		((str? v) (push int_vals +iframe_tag_str (length v)) (push text v))
 		((array? v)
 			(cond
 				((or (doubles? v) (floats? v)) (throw "iframe-write: an array it has no kind for !" v))
-				((find :path (type-of v)) (push ints +iframe_tag_array +iframe_array_path (length v)) (push paths v))
-				((fixeds? v) (push ints +iframe_tag_array +iframe_array_fixeds (length v)) (push fixeds_all v))
-				(:t (push ints +iframe_tag_array +iframe_array_nums (length v)) (push nums_all v))))
+				((find :path (type-of v)) (push int_vals +iframe_tag_array +iframe_array_path (length v)) (push paths v))
+				((fixeds? v) (push int_vals +iframe_tag_array +iframe_array_fixeds (length v)) (push fixeds_all v))
+				(:t (push int_vals +iframe_tag_array +iframe_array_nums (length v)) (push nums_all v))))
 		((or (double? v) (float? v)) (throw "iframe-write: a number it has no kind for !" v))
-		((fixed? v) (push ints +iframe_tag_fixed) (push fixs v))
-		((num? v) (push ints +iframe_tag_int v))
+		((fixed? v) (push int_vals +iframe_tag_fixed) (push fixs v))
+		((num? v) (push int_vals +iframe_tag_int v))
 		((throw "iframe-write: a thing it can not write !" v))))
 
 (defun iframe-put-env (x kind)
 	;a figure's or a component's keys and what each is. An outline by its
 	;number, a component's weak link to a figure by the figure's
 	(defq pairs (iframe-kept x) morphs (iframe-morphs? x))
-	(push ints (length pairs))
+	(push int_vals (length pairs))
 	(each (lambda ((k v))
 			(iframe-put-sym k)
 			(cond
 				((and (list? v) (or (eql k :fig_outline) (and morphs (find k '(to from)))))
 					(iframe-put-outline v))
 				((and (= kind +iframe_kind_comp) (eql k 'other) (num? v))
-					(push ints +iframe_tag_weak (ifn (. ids :find v) -1)))
+					(push int_vals +iframe_tag_weak (ifn (. ids :find v) -1)))
 				((iframe-put v))))
 		pairs))
 
@@ -276,13 +276,13 @@
 				(:t (each (# (if (rostrum-kind %0) (push todo %0))) x)))
 			;a scene of many figures is long to go through
 			(task-slice)))
-	(defq ints (nums) fixs (fixeds) text (list) paths (list) fixeds_all (list) nums_all (list)
+	(defq int_vals (nums) fixs (fixeds) text (list) paths (list) fixeds_all (list) nums_all (list)
 		syms (Fmap 101) defs (nums) def_paths (list))
 	;how many things, what each is made as, a map with how many buckets
-	(push ints (length olds))
+	(push int_vals (length olds))
 	(each (lambda (x)
 			(defq kind (iframe-kind x))
-			(push ints kind (if (= kind +iframe_kind_fmap) (get :num_buckets x) 0)))
+			(push int_vals kind (if (= kind +iframe_kind_fmap) (get :num_buckets x) 0)))
 		olds)
 	;then what each holds
 	(each (lambda (x)
@@ -292,16 +292,16 @@
 				((= kind +iframe_kind_fmap)
 					(defq pairs (list))
 					(. x :each (lambda (k v) (push pairs k v)))
-					(push ints (/ (length pairs) 2))
+					(push int_vals (/ (length pairs) 2))
 					(each (const iframe-put) pairs))
-				(:t (push ints (length x))
+				(:t (push int_vals (length x))
 					(each (const iframe-put) x)))
 			(task-slice))
 		olds)
 	(defq all_text (apply (const cat) (cat (list "") text)))
 	(iframe-out stream defs)
 	(iframe-out stream (iframe-join def_paths (path)))
-	(iframe-out stream ints)
+	(iframe-out stream int_vals)
 	(iframe-out stream fixs)
 	(iframe-out stream (iframe-join paths (path)))
 	(iframe-out stream (iframe-join fixeds_all (fixeds)))
@@ -342,7 +342,7 @@
 (defun iframe-int ()
 	; (iframe-int) -> num
 	(setq i (inc i))
-	(elem-get ints (dec i)))
+	(elem-get int_vals (dec i)))
 
 (defun iframe-take ()
 	; (iframe-take) -> value
@@ -378,7 +378,7 @@
 	;the scene of the I-frame the stream is at, its outlines read already,
 	;(iframe-outlines), and those of every I-frame before it
 	(bind '(& funcs) (iframe-functions))
-	(defq ints (iframe-in stream (nums)) fixs (iframe-in stream (fixeds))
+	(defq int_vals (iframe-in stream (nums)) fixs (iframe-in stream (fixeds))
 		paths (iframe-in stream (path)) fixeds_all (iframe-in stream (fixeds))
 		nums_all (iframe-in stream (nums))
 		text (if (> (defq n (read-long stream)) 0) (read-blk stream n) "")

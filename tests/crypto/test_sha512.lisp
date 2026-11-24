@@ -1,8 +1,8 @@
 (report-header "Crypto: SHA-512")
 (import "lib/crypto/sha512.inc")
 
-(defun s5-hex (bytes)
-	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
+(defun s5-hex (byte_data)
+	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) byte_data))))
 
 ;the answers of the standard, from Python's hashlib
 (assert-eq "nothing" "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"

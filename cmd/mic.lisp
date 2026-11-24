@@ -61,10 +61,10 @@
 				(mail-send ctl "")
 				(mail-read-timeout done 5000000)
 				(while (defq msg (mail-read-timeout who 50000)) (push levels (str-as-num msg)))
-				(defq secs (sound-seconds opt_o) bytes (if (defq info (sound-info opt_o)) (elem-get info 3) 0))
+				(defq secs (sound-seconds opt_o) byte_count (if (defq info (sound-info opt_o)) (elem-get info 3) 0))
 				(cond
-					((= bytes 0) (print "mic: nothing was heard, no microphone, or it is not allowed"))
-					(:t (print "mic: " (/ (* bytes 500) +sound_rate) "ms in " opt_o ", "
+					((= byte_count 0) (print "mic: nothing was heard, no microphone, or it is not allowed"))
+					(:t (print "mic: " (/ (* byte_count 500) +sound_rate) "ms in " opt_o ", "
 							(length levels) " pieces, loudest " (reduce max levels 0)
 							", on the whole " (/ (reduce + levels 0) (max 1 (length levels))) " of 32767")
 						(when opt_p

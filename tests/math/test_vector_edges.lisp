@@ -169,4 +169,4 @@
 	(ve-shown (nums-convert (elem-get ve_kinds 2) (floats))) '(-2.5 -1.0 0.0 0.75 3.0))
 (assert-eq "nums-convert into a longer, made the source's length" 2
 	(length (nums-convert (floats (n2f 1) (n2f 2)) (doubles (n2d 9) (n2d 9) (n2d 9)))))
-(assert-error "nums-convert of a list" (nums-convert (list 1) (nums)) {(nums-convert src dst) wrong_types})
+(assert-error "nums-convert of a list" (nums-convert (list 1) (nums)) {(nums-convert src dst [signed]) wrong_types})

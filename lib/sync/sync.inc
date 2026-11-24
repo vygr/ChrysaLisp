@@ -405,7 +405,7 @@
 								(hash-tree-read (second reply))))
 						(:t (setq lost :t)))))
 			(sort send) (sort gone)
-			(defq sent 0 bytes 0 removed 0 failed (if lost 1 0) remoded 0)
+			(defq sent 0 byte_count 0 removed 0 failed (if lost 1 0) remoded 0)
 			(unless (or check lost)
 				(each (lambda (path)
 						(defq data (ifn (load (cat root "/" path)) "") total (length data) at 0 ok :t
@@ -417,7 +417,7 @@
 								(cat path "\n" (slice data at end)) at total mode)
 							(setq ok (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
 								at (if (= end at) (inc total) end)))
-						(if ok (setq sent (inc sent) bytes (+ bytes total)) (setq failed (inc failed))))
+						(if ok (setq sent (inc sent) byte_count (+ byte_count total)) (setq failed (inc failed))))
 					send)
 				(each (lambda ((path mode))
 						(sync-tell svc reply_mbox +sync_type_mode path 0 0 mode)
@@ -434,7 +434,7 @@
 				(when (and claim (= failed 0))
 					(sync-tell svc reply_mbox +sync_type_waypoint (apply (const sync-waypoint-text) claim))
 					(sync-hear reply_mbox)))
-			(list sent bytes removed failed send gone (if check (length remode) remoded)))))
+			(list sent byte_count removed failed send gone (if check (length remode) remoded)))))
 
 (defun sync-services (&optional name)
 	; (sync-services [name]) -> ((mbox system_id machine root) ...)

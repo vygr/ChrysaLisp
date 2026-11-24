@@ -57,33 +57,33 @@
 					(cond
 						((starts-with "." name))
 						((eql kind "d") (push folders (list name :t 0 "")))
-						((push files (list name :nil (defq bytes (host-bytes (host-path folder name))) (bytes-said bytes))))))
+						((push files (list name :nil (defq byte_count (host-bytes (host-path folder name))) (bytes-said byte_count))))))
 				names kinds))
 		(:t (defq svc (side-svc side) start (if (empty? folder) "" (cat folder "/"))
 				members (ifn (storage-members :nil svc) (list)) info (ifn (storage-info svc) (Emap))
 				dial (ifn (. info :find :copies) 0) pins (ifn (. info :find :pins) (list)) sums (Fmap))
 			(each (lambda (entry)
-					(defq rest (slice (first entry) (length start) -1) bytes (elem-get entry +store_entry_bytes))
+					(defq rest (slice (first entry) (length start) -1) byte_count (elem-get entry +store_entry_bytes))
 					(cond
 						((defq at (find "/" rest))
 							(defq name (slice rest 0 at))
 							(cond
 								((defq sum (. sums :find name))
 									(elem-set sum 0 (inc (first sum)))
-									(elem-set sum 1 (+ (second sum) bytes)))
-								(:t (. sums :insert name (list 1 bytes))
+									(elem-set sum 1 (+ (second sum) byte_count)))
+								(:t (. sums :insert name (list 1 byte_count))
 									(push folders name))))
 						(:t (defq copies (elem-get entry +store_entry_copies)
 								seen (length (filter (# (find %0 members)) (elem-get entry +store_entry_seen))))
-							(push files (list rest :nil bytes
-									(cat (bytes-said bytes) "  x" (str (if (> copies 0) copies dial)) (if (> copies 0) "" "*")
+							(push files (list rest :nil byte_count
+									(cat (bytes-said byte_count) "  x" (str (if (> copies 0) copies dial)) (if (> copies 0) "" "*")
 										"  " (str seen) "/" (str (length members))
 										(if (some (# (starts-with %0 (first entry))) pins) "  pinned" "")))))))
 				(ifn (storage-list start svc) (list)))
 			(setq folders (map (lambda (name)
-						(bind '(count bytes) (. sums :find name))
+						(bind '(count byte_count) (. sums :find name))
 						(defq path (cat start name "/"))
-						(list name :t bytes (cat (str count) (if (= count 1) " object, " " objects, ") (bytes-said bytes)
+						(list name :t byte_count (cat (str count) (if (= count 1) " object, " " objects, ") (bytes-said byte_count)
 								(cond
 									((some (# (starts-with %0 path)) pins) ", pinned")
 									((some (# (starts-with path %0)) pins) ", some pinned")
@@ -120,7 +120,7 @@
 	;the rows of a side made again, a row a thing, a line under it
 	(defq side (elem-get *sides* s) rows (. side :find :rows) rows_flow (. side :find :list) buttons (list))
 	(each (# (. %0 :sub)) (. rows_flow :children))
-	(each! (lambda ((name folder bytes info))
+	(each! (lambda ((name folder byte_count info))
 			(defq row (Flow) button (Button) label (Label) rule (Backdrop) n (!))
 			(def row :flow_flags +flow_left_fill)
 			;from the right: the button to open a folder, a blank as tall for a
@@ -257,16 +257,16 @@
 	(defq said (first (read (string-stream msg))))
 	(case (first said)
 		(:plan (setq *plan* (rest said)))
-		(:at (bind '(bytes count name) (rest said))
+		(:at (bind '(byte_count count name) (rest said))
 			(bind '(all total) *plan*)
-			(def *progress* :value (if (> total 0) (/ (* (min bytes total) 1000) total) 0))
+			(def *progress* :value (if (> total 0) (/ (* (min byte_count total) 1000) total) 0))
 			(.-> *progress* :dirty)
 			(. *status* :set_text (cat (str (inc count)) " of " (str all)
-					(if (eql *doing* :copy) (cat ", " (bytes-said bytes) " of " (bytes-said total)) "") ": " name)))
+					(if (eql *doing* :copy) (cat ", " (bytes-said byte_count) " of " (bytes-said total)) "") ": " name)))
 		(:not (++ *faults*)
 			(bind '(name why) (rest said))
 			(print "Stores: not done " name ", " why))
-		(:done (bind '(done skipped failed bytes ms stopped) (rest said))
+		(:done (bind '(done skipped failed byte_count ms stopped) (rest said))
 			(setq *work* :nil)
 			(def *progress* :value (if stopped 0 1000))
 			(.-> *progress* :dirty)
@@ -274,7 +274,7 @@
 			(. *status* :set_text (cat (if stopped "Stopped. " "Done. ") (str done) " done"
 					(if (> skipped 0) (cat ", " (str skipped) " there already, left") "")
 					(if (> failed 0) (cat ", " (str failed) " not done (the terminal says which)") "")
-					(if (eql *doing* :copy) (cat ", " (bytes-said bytes)) "") " in " (str (/ ms 1000)) " s.")))))
+					(if (eql *doing* :copy) (cat ", " (bytes-said byte_count)) "") " in " (str (/ ms 1000)) " s.")))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; the toolbar actions

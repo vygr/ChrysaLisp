@@ -84,6 +84,7 @@ each of the first plus each of the second times the scale, in one pass
 inputs
 :r0 = nums object (ptr)
 :r1 = source nums object, of any kind (ptr)
+:r3 = 1 to read a raw source signed, else 0 (uint)
 outputs
 :r0 = nums object (ptr)
 trashes
@@ -144,10 +145,11 @@ trashes
 
 ```code
 inputs
-:r0 = nums object (ptr)
+:r0 = nums object, or a bytes, shorts or ints (ptr)
 outputs
 :r0 = nums object (ptr)
-:r1 = 0 nums, 1 fixeds, 2 doubles, 3 floats (uint)
+:r1 = 0 nums, 1 fixeds, 2 doubles, 3 floats, 4 bytes, 6 shorts,
+8 ints (uint)
 trashes
 :r1-:r2
 info
@@ -208,6 +210,21 @@ outputs
 :r1 = 0 if error, else ok
 trashes
 :r1-:r7
+```
+
+### :narrow -> class/nums/narrow
+
+```code
+inputs
+:r0 = bytes, shorts or ints object (ptr)
+:r1 = source nums object, of any kind of number (ptr)
+outputs
+:r0 = bytes, shorts or ints object (ptr)
+trashes
+:r1-:r7, :d0-:d15
+info
+made the source's length, each element an integer as n2i makes it,
+its low bits
 ```
 
 ### :scale -> class/nums/scale

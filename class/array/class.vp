@@ -95,33 +95,7 @@
 	;trashes
 	;:r2-:r4
 
-	(vp-rdef (this elm idx base tmp))
-
-	(entry :array :find `(,this ,elm ,idx))
-
-	(assign `((,this +array_length) (,this +array_begin)) `(,tmp ,base))
-	(vp-simd vp-shl-cr `(,(log2 +long_size)) `(,idx ,tmp))
-	(vp-add-rr base idx)
-	(vp-add-rr tmp base)
-	(vpif `(,idx /= ,base))
-		(loop-start)
-			(assign `((,idx 0)) `(,tmp))
-			(vp-add-cr +long_size idx)
-			(gotoif `(,elm = ,tmp) 'found)
-		(loop-until `(,idx = ,base))
-	(endif)
-
-	(exit :array :find `(,this ,elm -1))
-	(vp-ret)
-
-(vp-label 'found)
-	(assign `((,this +array_begin)) `(,base))
-	(vp-sub-cr +long_size idx)
-	(vp-sub-rr base idx)
-	(vp-shr-cr (log2 +long_size) idx)
-
-	(exit :array :find `(,this ,elm ,idx))
-	(vp-ret)
+	(array-find :array +long_size)
 
 (def-func-end)
 
@@ -137,25 +111,7 @@
 	;trashes
 	;:r2-:r4
 
-	(vp-rdef (this elm idx base tmp))
-
-	(entry :array :rfind `(,this ,elm ,idx))
-
-	(assign `((,this +array_begin)) `(,base))
-	(vp-shl-cr (log2 +long_size) idx)
-	(vp-add-rr base idx)
-	(vpif `(,idx /= ,base))
-		(loop-start)
-			(assign `((,idx ,(neg +long_size))) `(,tmp))
-			(breakif `(,elm = ,tmp))
-			(vp-sub-cr +long_size idx)
-		(loop-until `(,idx = ,base))
-	(endif)
-	(vp-sub-rr base idx)
-	(vp-asr-cr (log2 +long_size) idx)
-
-	(exit :array :rfind `(,this ,elm ,idx))
-	(vp-ret)
+	(array-rfind :array +long_size)
 
 (def-func-end)
 
@@ -264,19 +220,7 @@
 	;trashes
 	;:r1-:r3, :r14, :d0-:d15
 
-	(vp-rdef (this len begin saved_this))
-
-	(entry :array :ref_back `(,this))
-
-	(assign `((,this +array_length) (,this +array_begin)) `(,len ,begin))
-	(vp-sub-cr 1 len)
-	(assign `(,len) `((,this +array_length)))
-	(vp-shl-cr (log2 +long_size) len)
-	(vp-cpy-rr this saved_this)
-	(v-call :array :velement `((,begin ,len)) `(,this) saved_this len)
-
-	(exit :array :ref_back `(,saved_this ,this))
-	(vp-ret)
+	(array-ref-back :array +long_size)
 
 (def-func-end)
 
@@ -290,16 +234,7 @@
 	;trashes
 	;:r1-:r3, :r14, :d0-:d15
 
-	(vp-rdef (saved_this this idx) '(:r3))
-
-	(entry :array :ref_elem `(,this ,idx))
-
-	(vp-cpy-rr this saved_this)
-	(class/array/get_elem this idx this this)
-	(v-call :array :velement `(,this) `(,this) saved_this idx)
-
-	(exit :array :ref_elem `(,saved_this ,this))
-	(vp-ret)
+	(array-ref-elem :array +long_size)
 
 (def-func-end)
 
@@ -360,12 +295,7 @@
 	;trashes
 	;:r2-:r3
 
-	(entry :array :set_elem '(:r0 :r1 :r2))
-
-	(class/array/set_elem)
-
-	(exit :array :set_elem '(:r0))
-	(vp-ret)
+	(array-set-elem :array +long_size)
 
 (def-func-end)
 
@@ -524,34 +454,7 @@
 	;trashes
 	;:r1-:r3, :r6-:r9, :d0-:d15
 
-	(vp-rdef (saved_that saved_si saved_ei di this that si ei)
-		'(:r6 :r7 :r8 :r9))
-
-	(entry :array :append `(,this ,that ,si ,ei))
-
-	(vpif `(,si /= ,ei))
-		;save inputs
-		(assign `(,that ,si ,ei) `(,saved_that ,saved_si ,saved_ei))
-
-		;extend array
-		(assign `((,this +array_length)) `(,di))
-		(vp-sub-rr si ei)
-		(assign `((& ,ei ,di)) `(,that))
-		(assign `(,that) `((,this +array_length)))
-		(call :array :set_cap `(,this ,that) `(,this) :r2)
-
-		;append elements
-		(class/array/get_iters saved_that saved_si saved_ei that)
-		(class/array/get_iter this di that)
-		(loop-start)
-			(vp-load-rcr saved_si 0 that)
-			(vp-simd vp-add-cr `(,+long_size) `(,saved_si ,di))
-			(vp-store-rrc that di (neg +long_size))
-		(loop-until `(,saved_si = ,saved_ei))
-	(endif)
-
-	(exit :array :append `(,this))
-	(vp-ret)
+	(array-append :array +long_size)
 
 (def-func-end)
 
@@ -609,23 +512,7 @@
 	;trashes
 	;:r2-:r3
 
-	(vp-rdef (this iter len begin))
-
-	(entry :array :erase `(,this ,iter))
-
-	;swap last entry for erased entry
-	(assign `((,this +array_length) (,this +array_begin)) `(,len ,begin))
-	(vp-sub-cr 1 len)
-	(assign `(,len) `((,this +array_length)))
-	(vp-shl-cr (log2 +long_size) len)
-	(vp-add-rr len begin)
-	(vpif `(,begin /= ,iter))
-		(assign `((,begin 0)) `(,len))
-		(assign `(,len) `((,iter 0)))
-	(endif)
-
-	(exit :array :erase `(,this ,iter))
-	(vp-ret)
+	(array-erase :array +long_size)
 
 (def-func-end)
 
@@ -639,23 +526,7 @@
 	;trashes
 	;:r2-:r3
 
-	(vp-rdef (this iter len begin))
-
-	(entry :array :erase2 `(,this ,iter))
-
-	;swap last entry for erased entry
-	(assign `((,this +array_length) (,this +array_begin)) `(,len ,begin))
-	(vp-sub-cr 2 len)
-	(assign `(,len) `((,this +array_length)))
-	(vp-shl-cr (log2 +long_size) len)
-	(vp-add-rr len begin)
-	(vpif `(,begin /= ,iter))
-		(assign `((,begin 0) (,begin +long_size)) `(,begin ,len))
-		(assign `(,begin ,len) `((,iter 0) (,iter +long_size)))
-	(endif)
-
-	(exit :array :erase2 `(,this ,iter))
-	(vp-ret)
+	(array-erase2 :array +long_size)
 
 (def-func-end)
 
@@ -669,32 +540,7 @@
 	;trashes
 	;:r1-:r5
 
-	(vp-rdef (this that len1 len2 itr1 itr2))
-
-	(entry :array :eql `(,this ,that))
-
-	(gotoif `(,this = ,that) 'same)
-	(assign `((,this +obj_vtable) (,that +obj_vtable)) `(,len1 ,len2))
-	(gotoif `(,len1 /= ,len2) 'not_same)
-	(assign `((,this +array_length) (,that +array_length)) `(,len1 ,len2))
-	(gotoif `(,len1 /= ,len2) 'not_same)
-	(gotoif `(,len1 = 0) 'same)
-	(assign `((,this +array_begin) (,that +array_begin)) `(,itr1 ,itr2))
-	(vp-shl-cr (log2 +ptr_size) len1)
-	(vp-add-rr itr1 len1)
-	(loop-start)
-		(vp-simd vp-load-rcr `(,itr1 ,itr2) '(0 0) `(,that ,len2))
-		(gotoif `(,that /= ,len2) 'not_same)
-		(vp-simd vp-add-cr `(,+ptr_size) `(,itr1 ,itr2))
-	(loop-until `(,itr1 = ,len1))
-
-(vp-label 'same)
-	(exit :array :eql `(,this 0))
-	(vp-ret)
-
-(vp-label 'not_same)
-	(exit :array :eql `(,this -1))
-	(vp-ret)
+	(array-eql :array +long_size)
 
 (def-func-end)
 
@@ -707,43 +553,7 @@
 	;trashes
 	;:r0-:r9, :d0-:d15
 
-	(vp-rdef (this seqs_begin di src si ei
-			len total seqs seqs_end))
-
-	(entry :array :cat `(,this ,seqs))
-
-	(call :array :vcreate `(,this) `(,this) :r1)
-	(class/array/get_both seqs seqs_begin seqs_end)
-	(vpif `(,seqs_begin /= ,seqs_end))
-		;first set the capacity/length
-		(vp-xor-rr total total)
-		(loop-start)
-			(assign `((,seqs_begin 0)) `(,src))
-			(vp-add-cr +ptr_size seqs_begin)
-			(assign `((,src +array_length)) `(,len))
-			(vp-add-rr len total)
-		(loop-until `(,seqs_begin = ,seqs_end))
-		(assign `(,total) `((,this +array_length)))
-		(call :array :set_cap `(,this ,total) `(,this) :r2)
-		;now transfer the sequences
-		(assign `((,this +array_begin) (,seqs +array_begin)) `(,di ,seqs_begin))
-		(loop-start)
-			(assign `((,seqs_begin 0)) `(,src))
-			(vp-add-cr +ptr_size seqs_begin)
-			(class/array/get_both src si ei)
-			(vpif `(,si /= ,ei))
-				;copy the sequence
-				(loop-start)
-					(vp-load-rcr si 0 len)
-					(vp-simd vp-add-cr `(,+long_size) `(,si ,di))
-					(vp-store-rrc len di (neg +long_size))
-				(loop-until `(,si = ,ei))
-			(endif)
-		(loop-until `(,seqs_begin = ,seqs_end))
-	(endif)
-
-	(exit :array :cat `(,this))
-	(vp-ret)
+	(array-cat :array +long_size)
 
 (def-func-end)
 
@@ -755,40 +565,9 @@
 	;outputs
 	;:r0 = slice array object (ptr)
 	;trashes
-	;:r0-:r3, :r6-:r8, :d0-:d15
+	;:r0-:r2, :r6-:r8, :d0-:d15
 
-	(vp-rdef (src si ei this di total) '(:r6 :r7 :r8))
-
-	(entry :array :slice `(,src ,si ,ei))
-
-	(call :array :vcreate `(,src) `(,this) :r1)
-	(vpif `(,si /= ,ei))
-		;first set the capacity/length
-		(vp-cpy-rr si total)
-		(vp-sub-rr ei total)
-		(vp-abs-rr total total)
-		(assign `(,total) `((,this +array_length)))
-		(call :array :set_cap `(,this ,total) `(,this) :r2)
-		;now transfer the slice, reversed if needed
-		(class/array/get_iters src si ei)
-		(assign `((,this +array_begin)) `(,di))
-		(vpif `(,si < ,ei))
-			(loop-start)
-				(vp-load-rcr si 0 total)
-				(vp-simd vp-add-cr `(,+long_size) `(,si ,di))
-				(vp-store-rrc total di (neg +long_size))
-			(loop-until `(,si = ,ei))
-		(else)
-			(loop-start)
-				(vp-load-rcr si (neg +long_size) total)
-				(vp-simd vp-add-cr `(,(neg +long_size) ,+long_size) `(,si ,di))
-				(vp-store-rrc total di (neg +long_size))
-			(loop-until `(,si = ,ei))
-		(endif)
-	(endif)
-
-	(exit :array :slice `(,this))
-	(vp-ret)
+	(array-slice :array +long_size)
 
 (def-func-end)
 
@@ -802,70 +581,7 @@
 	;trashes
 	;:r0-:r11, :d0-:d15
 
-	(vp-rdef (this idx_begin di si ei swp_xor len total
-			src1 src2 idxs idx_end))
-
-	(entry :array :splice `(,src1 ,src2 ,idxs))
-
-	(call :array :vcreate `(,src1) `(,this) :r1)
-	(class/array/get_both idxs idx_begin idx_end)
-	(vpif `(,idx_begin /= ,idx_end))
-		;first set the capacity/length
-		(assign `((,src1 +array_length) (,src2 +array_length)) `(,len ,ei))
-		(vp-cpy-rr len swp_xor)
-		(vp-xor-rr ei swp_xor)
-		(vp-xor-rr total total)
-		(loop-start)
-			;indices
-			(vp-simd vp-load-rcr `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
-			(vp-add-cr (* +long_size 2) idx_begin)
-			;the length this time
-			(seq-elem-index si len)
-			(seq-elem-index ei len)
-			(vp-xor-rr swp_xor len)
-			;sum the absolute val of index diff
-			(vp-sub-rr si ei)
-			(vp-abs-rr ei ei)
-			(vp-add-rr ei total)
-		(loop-until `(,idx_begin = ,idx_end))
-		(assign `(,total) `((,this +array_length)))
-		(call :array :set_cap `(,this ,total) `(,this) :r2)
-		;now transfer the slices
-		(assign `((,this +array_begin) (,idxs +array_begin)) `(,di ,idx_begin))
-		(vp-cpy-rr src1 swp_xor)
-		(vp-xor-rr src2 swp_xor)
-		(loop-start)
-			;indices
-			(vp-simd vp-load-rcr `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
-			(vp-add-cr (* +long_size 2) idx_begin)
-			;the source this time
-			(assign `((,src1 +array_length) (,src1 +array_begin)) `(,len ,src2))
-			(seq-elem-index si len)
-			(seq-elem-index ei len)
-			(vp-xor-rr swp_xor src1)
-			(vpif `(,si /= ,ei))
-				(vp-simd vp-shl-cr `(,(log2 +long_size)) `(,si ,ei))
-				(vp-simd vp-add-rr `(,src2) `(,si ,ei))
-				;copy the slice, reverse if required
-				(vpif `(,si < ,ei))
-					(loop-start)
-						(vp-load-rcr si 0 len)
-						(vp-simd vp-add-cr `(,+long_size) `(,si ,di))
-						(vp-store-rrc len di (neg +long_size))
-					(loop-until `(,si = ,ei))
-				(else)
-					(loop-start)
-						(vp-load-rcr si (neg +long_size) len)
-						(vp-simd vp-add-cr `(,(neg +long_size) ,+long_size) `(,si ,di))
-						(vp-store-rrc len di (neg +long_size))
-					(loop-until `(,si = ,ei))
-				(endif)
-			(endif)
-		(loop-until `(,idx_begin = ,idx_end))
-	(endif)
-
-	(exit :array :splice `(,this))
-	(vp-ret)
+	(array-splice :array +long_size)
 
 (def-func-end)
 
@@ -881,20 +597,7 @@
 	;info
 	;the array made length long, every element the one given
 
-	(entry :array :fill '(:r0 :r3 :r4))
-
-	(call :array :set_cap '(:r0 :r3) '(:r0) :r2)
-	(assign '(:r3) '((:r0 +array_length)))
-	(class/array/get_both :r0 :r1 :r2)
-	(vpif '(:r1 /= :r2))
-		(loop-start)
-			(vp-store-rrc :r4 :r1 0)
-			(vp-add-cr +long_size :r1)
-		(loop-until '(:r1 = :r2))
-	(endif)
-
-	(exit :array :fill '(:r0))
-	(vp-ret)
+	(array-fill :array +long_size)
 
 (def-func-end)
 

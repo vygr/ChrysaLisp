@@ -22,7 +22,7 @@
 		(defq args (options stdio usage))
 		(cond
 			((< (length args) 3) (print "zip: an archive and what to put in it"))
-			(:t (defq archive (second args) files (list) bytes 0)
+			(:t (defq archive (second args) files (list) byte_count 0)
 				;each file the once, a folder all it holds
 				(each! (lambda (path)
 						(defq path (if (starts-with "./" path) (slice path 2 -1) path))
@@ -35,10 +35,10 @@
 									(if (folder-mode? (elem-get info 2)) (files-all path) (list path))))
 							((print "zip: no " path))))
 					(list args) 2 -1)
-				(each (# (setq bytes (+ bytes (length (second %0))))) files)
+				(each (# (setq byte_count (+ byte_count (length (second %0))))) files)
 				(defq out (file-stream archive +file_open_write) count (zip-write out files))
 				(stream-flush out)
 				(setq out :nil)
 				(if count
-					(print "zip: " count " files, " bytes " bytes, to " archive " of " (length (load archive)))
+					(print "zip: " count " files, " byte_count " bytes, to " archive " of " (length (load archive)))
 					(print "zip: too many or too big for a zip"))))))

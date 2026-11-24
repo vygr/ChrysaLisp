@@ -1,0 +1,136 @@
+(include "lib/asm/func.inc")
+(include "lib/consts/chars.inc")
+(include "./class.inc")
+(include "././stream/class.inc")
+(include "././list/class.inc")
+(include "././floats/class.inc")
+(include "././bytes/class.inc")
+(include "././shorts/class.inc")
+(include "././ints/class.inc")
+
+(gen-create :bytes)
+	;outputs
+	;:r0 = 0 if error, else bytes object (ptr)
+	;trashes
+	;:r0-:r2, :d0-:d15
+(gen-vtable :bytes)
+(gen-type :bytes)
+
+(def-method :bytes :set_cap)
+	;the set_cap of :array at 1 byte
+
+	(array-set-cap :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :ref_elem)
+	;the ref_elem of :array at 1 byte
+
+	(array-ref-elem :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :ref_back)
+	;the ref_back of :array at 1 byte
+
+	(array-ref-back :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :set_elem)
+	;the set_elem of :array at 1 byte
+
+	(array-set-elem :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :fill)
+	;the fill of :array at 1 byte
+
+	(array-fill :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :find)
+	;the find of :array at 1 byte
+
+	(array-find :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :rfind)
+	;the rfind of :array at 1 byte
+
+	(array-rfind :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :slice)
+	;the slice of :array at 1 byte
+
+	(array-slice :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :cat)
+	;the cat of :array at 1 byte
+
+	(array-cat :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :splice)
+	;the splice of :array at 1 byte
+
+	(array-splice :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :append)
+	;the append of :array at 1 byte
+
+	(array-append :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :erase)
+	;the erase of :array at 1 byte
+
+	(array-erase :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :erase2)
+	;the erase2 of :array at 1 byte
+
+	(array-erase2 :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :eql)
+	;the eql of :array at 1 byte
+
+	(array-eql :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :hash)
+	;the hash of :array at 1 byte
+
+	(array-hash :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :print)
+	;the print of :array at 1 byte
+
+	(array-print :bytes 1)
+
+(def-func-end)
+
+(def-method :bytes :push)
+	;the push of :array at 1 byte
+
+	(array-push :bytes 1)
+
+(def-func-end)

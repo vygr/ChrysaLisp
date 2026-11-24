@@ -1111,6 +1111,15 @@ Lexical environment creation and variable manipulation.
 
 	*	`(floats [float ...]) -> floats`
 
+*	**`bytes`**, **`shorts`**, **`ints`**: Construct raw storage of 1, 2 and 4
+	byte elements, each a number's low bits, read back never sign extended.
+
+	*	`(bytes [num ...]) -> bytes`
+
+	*	`(shorts [num ...]) -> shorts`
+
+	*	`(ints [num ...]) -> ints`
+
 *	**`path`**: Constructs a 2D vector graphic path.
 
 	*	`(path [fixed ...]) -> path`

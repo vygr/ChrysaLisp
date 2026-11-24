@@ -64,10 +64,10 @@
 	(when (and (<= (+ at 30) (length data)) (= (code data 4 at) 0x04034b50))
 		(defq from (+ at 30 (code data 2 (+ at 26)) (code data 2 (+ at 28))))
 		(when (<= (+ from packed) (length data))
-			(defq bytes (slice data from (+ from packed)))
+			(defq byte_data (slice data from (+ from packed)))
 			(case method
-				(0 (write-blk out bytes) :t)
-				(8 (inflate-decompress (string-stream bytes) out))))))
+				(0 (write-blk out byte_data) :t)
+				(8 (inflate-decompress (string-stream byte_data) out))))))
 
 (defun zip-write (out files &optional stamp)
 	; (zip-write out files [stamp]) -> :nil | count

@@ -1,8 +1,8 @@
 (report-header "Crypto: a key from a password, PBKDF2 with HMAC SHA-256")
 (import "lib/crypto/pbkdf2.inc")
 
-(defun pk-hex (bytes)
-	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
+(defun pk-hex (byte_data)
+	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) byte_data))))
 
 ;the test cases that go round with RFC 6070, for SHA-256, the answers from
 ;Python's hashlib

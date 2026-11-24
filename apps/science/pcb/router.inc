@@ -858,12 +858,12 @@
 		;short, nothing off the board, and every net routed joined. What it
 		;finds is printed
 		(. this :print_pcb (defq ss (string-stream (cat ""))))
-		(bind '(shorts unjoined outside) (pcb-drc (pcb-read (str ss))))
+		(bind '(shorted unjoined outside) (pcb-drc (pcb-read (str ss))))
 		(defq routed (map (# (. %0 :get_id)) (filter (# (get :routed %0)) nets))
 			broken (filter (# (find %0 routed)) unjoined))
 		(cond
-			((and (empty? shorts) (empty? outside) (empty? broken)))
-			(:t (print "Pcb: the design rule check found shorts " shorts
+			((and (empty? shorted) (empty? outside) (empty? broken)))
+			(:t (print "Pcb: the design rule check found shorts " shorted
 					" routed nets not joined " broken " off the board " outside)
 				:nil)))
 

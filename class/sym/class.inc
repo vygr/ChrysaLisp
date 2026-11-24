@@ -28,4 +28,5 @@
 	'(:vtable :num :fixed :double :nums :fixeds :doubles :func :seq :str :sym :array
 		:list :pmap :pset :path :hmap :font :text :ink :vdu_width :vdu_height :draw
 		:stream :sstream :fstream :mstream :netid :nodeid :in :out :stdio :lisp :error
-		:hset :dim :lstream main :buf :float :floats :entry))
+		:hset :dim :lstream main :buf :float :floats :entry
+		:bytes :shorts :ints))

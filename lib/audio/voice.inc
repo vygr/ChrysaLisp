@@ -99,9 +99,9 @@
 						;a file of this rate, mono 16 bit, as the microphone is
 						(setq file :nil file_left 0)
 						(when (and (nempty? rest) (defq loader (sound-loader-of rest)) (defq stream (file-stream rest)))
-							(bind '(rate channels bits bytes) ((second loader) stream))
+							(bind '(rate channels bits byte_count) ((second loader) stream))
 							(and (= rate +sound_rate) (= channels 1) (= bits 16)
-								(setq file stream file_left bytes))))))
+								(setq file stream file_left byte_count))))))
 			;a file sent in place of the microphone, the last piece made up with
 			;silence, and then the microphone again
 			(when file

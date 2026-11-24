@@ -222,7 +222,7 @@ the head of a 16 bit mono file whose length is not known yet
 ### WAV-info
 
 ```code
-(WAV-info stream) -> (rate channels bits bytes) | (-1 -1 -1 -1)
+(WAV-info stream) -> (rate channels bits byte_count) | (-1 -1 -1 -1)
 
 the stream is left at the first sample
 ```
@@ -230,7 +230,7 @@ the stream is left at the first sample
 ### WAV-tail
 
 ```code
-(WAV-tail stream rate bytes) -> stream
+(WAV-tail stream rate byte_count) -> stream
 
 the length put in the head, once it is known
 ```
@@ -741,6 +741,15 @@ and of more than two the centre and the surrounds in
 each side at 0.707, the sum held to full scale; the LFE left out
 ```
 
+### action-failed
+
+```code
+(action-failed err)
+
+an action's error, told of: printed. An app or a test may have its own,
+it is looked up as it is called
+```
+
 ### action-maximise
 
 ```code
@@ -1069,7 +1078,7 @@ and lines of 5 bytes in an instrument's list, of more commands
 ### ahx-repeat
 
 ```code
-(ahx-repeat bytes) -> str
+(ahx-repeat byte_data) -> str
 
 a waveform repeated to 640, the mixer's 16 bits
 ```
@@ -2289,6 +2298,12 @@ of 2, 4 and 8 by shifts, of other widths a byte at a time
 
 ```code
 (byte-to-hex-str num) -> str
+```
+
+### bytes?
+
+```code
+(bytes? form) -> :t | :nil
 ```
 
 ### call-ask-up
@@ -3594,7 +3609,7 @@ the things one after the other from one place to another
 ### der-oid
 
 ```code
-(der-oid bytes) -> str
+(der-oid byte_data) -> str
 
 an object identifier as it is written, 1.2.840.10045.2.1
 ```
@@ -4083,7 +4098,7 @@ what is over the top coming back in at the bottom 38 times
 ### ed-decode-neg
 
 ```code
-(ed-decode-neg bytes) -> :nil | point
+(ed-decode-neg byte_data) -> :nil | point
 
 the point of 32 bytes, with its x the other way, which is what a
 check wants. :nil if they are not a point of the curve
@@ -4177,7 +4192,7 @@ the number a seed stands for, and the other half of its hash
 ### ed-unpack
 
 ```code
-(ed-unpack bytes) -> a number of the field, from its 32 bytes
+(ed-unpack byte_data) -> a number of the field, from its 32 byte_data
 ```
 
 ### ed25519-public
@@ -6824,6 +6839,12 @@ sum and length at its end are not read, what was written is not to hand
 (int-to-hex-str num) -> str
 ```
 
+### ints?
+
+```code
+(ints? form) -> :t | :nil
+```
+
 ### iso-surface
 
 ```code
@@ -9102,7 +9123,7 @@ the channels, granules and samples, and the bytes of the frame
 ### mp3-id3
 
 ```code
-(mp3-id3 str) -> bytes
+(mp3-id3 str) -> byte_count
 
 the bytes of an ID3v2 tag at the start, and its footer, 0 if none
 ```
@@ -9304,7 +9325,7 @@ the bytes of a frame of a constant bit rate, by the rate
 ### mp3-xing
 
 ```code
-(mp3-xing str at header) -> :nil | (frames bytes toc vbr)
+(mp3-xing str at header) -> :nil | (frames byte_count toc vbr)
 
 what a first frame of Xing or Info, of nothing heard, says of those
 after it: how many, their bytes, and where each hundredth of them
@@ -11898,7 +11919,7 @@ a number as it is written, an exponent too, which (str-to-num) stops at
 ### read-nums
 
 ```code
-(read-nums stream bytes nums) -> :nil | nums
+(read-nums stream byte_count nums) -> :nil | nums
 
 so many bytes read onto the end of an array of numbers, as its
 elements, the array says of what kind. :nil at the stream's end
@@ -12025,7 +12046,7 @@ the right, a column of two pixels a sample, joined to the one before
 ### reel-whole
 
 ```code
-(reel-whole str at bytes) -> num
+(reel-whole str at byte_count) -> num
 ```
 
 ### reflow
@@ -12786,7 +12807,7 @@ copied from, to the top of the high band
 ### sbr-read
 
 ```code
-(sbr-read sbr reader crc bytes kind) -> bits
+(sbr-read sbr reader crc byte_count kind) -> bits
 
 the SBR of a fill element of bytes, the reader past its 4 bits of
 type, of the element of a kind before it, 0 a channel, 1 a pair: its
@@ -14082,6 +14103,12 @@ in them one of these
 (short-to-hex-str num) -> str
 ```
 
+### shorts?
+
+```code
+(shorts? form) -> :t | :nil
+```
+
 ### shuffle
 
 ```code
@@ -14148,7 +14175,7 @@ louder or quieter, 100 as it is
 ### sound-info
 
 ```code
-(sound-info file) -> :nil | (rate channels bits bytes)
+(sound-info file) -> :nil | (rate channels bits byte_count)
 
 what a sound file is, and how many bytes of samples it has
 ```
@@ -15002,7 +15029,7 @@ written, the volume of the image not there, a stick taken out
 ### storage-commit
 
 ```code
-(storage-commit svc path from bytes names) -> (:ok entry) | (:stale entry) | (:missing names) | (:full :nil) | (:lost :nil)
+(storage-commit svc path from byte_count names) -> (:ok entry) | (:stale entry) | (:missing names) | (:full :nil) | (:lost :nil)
 
 a path set to the object of these blocks, all put already. The blocks
 of its manifest are put as blocks, (store-manifest-make), and only the
@@ -15035,7 +15062,7 @@ set at the new path as it was at the old
 ```code
 (storage-copy-object from to src dst [was tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil) | (:stopped :nil)
 
-(tick bytes) -> :nil | :t
+(tick byte_count) -> :nil | :t
 the object the path from is in the store of the service src, set at
 the path to in the store of dst, provided to is now was, as
 (storage-put-stream) has it, with its dial of how many keep it. The
@@ -15101,9 +15128,9 @@ a block at a time was a quarter of what the link could carry
 ### storage-get-file
 
 ```code
-(storage-get-file path file [svc tick]) -> (:ok bytes) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
+(storage-get-file path file [svc tick]) -> (:ok byte_count) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
 
-(tick bytes) -> :nil | :t
+(tick byte_count) -> :nil | :t
 what a path is, to a file of the host, read as a stream, so of any
 length. :none if there is no such object, :host if the host will not
 make the file, :lost if a block of it could not be had. tick as for
@@ -15393,7 +15420,7 @@ time, the rest are not waited for, only looked at
 ```code
 (storage-put-stream path stream [from svc tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:stopped :nil)
 
-(tick bytes) -> :nil | :t
+(tick byte_count) -> :nil | :t
 a path is set to an object of what is read from a stream, to its
 end, provided it is now the object from: its name, "" for none, and
 not given, not to say. :stale with what it is if it is not that. It
@@ -15590,7 +15617,7 @@ takes the start of a system id. Only if one member's id starts so:
 ### storage-same-file?
 
 ```code
-(storage-same-file? path file [svc]) -> :nil | bytes
+(storage-same-file? path file [svc]) -> :nil | byte_count
 
 an object, read as a stream, is what is in a file of the host, byte
 for byte and no longer. How long that is
@@ -19534,7 +19561,7 @@ the back canvas, which gives the app's what it has
 (window-action func [arg ...]) -> val | :t
 
 an action of an app that says nothing of its own, (dispatch-action): an
-error is printed, and the app goes on
+error is told of by (action-failed), and the app goes on
 ```
 
 ### window-aspect
@@ -19580,7 +19607,7 @@ run between two of those is still too long, after any character
 ### write-nums
 
 ```code
-(write-nums stream nums) -> bytes
+(write-nums stream nums) -> byte_count
 
 the elements of an array of numbers, as bytes. Of none, nothing
 ```

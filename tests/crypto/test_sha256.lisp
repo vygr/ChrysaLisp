@@ -1,9 +1,9 @@
 (report-header "Crypto: SHA-256")
 (import "lib/crypto/sha256.inc")
 
-(defun sha-hex (bytes)
+(defun sha-hex (byte_data)
 	;the bytes of a hash as hex
-	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
+	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) byte_data))))
 
 ;the answers of FIPS 180-4 and its examples
 (assert-eq "nothing" "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

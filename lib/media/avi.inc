@@ -275,8 +275,8 @@
 (defun avi-ts-fill (st)
 	; (avi-ts-fill st) -> :nil | str
 	;what is next, the rest of the chunk it is in, no more than 64KB
-	(bind '(stream offsets sizes starts at bytes) st)
-	(when (< at bytes)
+	(bind '(stream offsets sizes starts at byte_count) st)
+	(when (< at byte_count)
 		(defq i (avi-ts-piece st at) into (- at (elem-get starts i))
 			n (min 65536 (- (elem-get sizes i) into))
 			got (avi-read stream (+ (elem-get offsets i) into) n))
@@ -285,8 +285,8 @@
 
 (defun avi-ts-seek (st offset whence)
 	; (avi-ts-seek st offset whence) -> pos
-	(defq bytes (elem-get st +avi_ts_bytes) pos (max 0 (min bytes (cond
-					((= whence 0) offset) ((= whence 1) (+ offset (elem-get st +avi_ts_at))) ((+ bytes offset))))))
+	(defq byte_count (elem-get st +avi_ts_bytes) pos (max 0 (min byte_count (cond
+					((= whence 0) offset) ((= whence 1) (+ offset (elem-get st +avi_ts_at))) ((+ byte_count offset))))))
 	(elem-set st +avi_ts_at pos)
 	pos)
 

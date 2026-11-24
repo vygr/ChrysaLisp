@@ -2,8 +2,8 @@
 (import "lib/crypto/ed25519.inc")
 (import "lib/crypto/sha256.inc")
 
-(defun ed-hex (bytes)
-	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
+(defun ed-hex (byte_data)
+	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) byte_data))))
 (defun ed-bytes (hex)
 	(if (eql hex "-") "" (hex-decode (to-upper hex))))
 
@@ -63,8 +63,8 @@
 ;signature, or of the key, another message, another key, and what is cut short
 (defq ed_seed (ed-bytes "8f44d509e0492acec4fc109a030a5c751f063fb743cc388f0ed722bacc3bc66c") ed_msg "ChrysaLisp release 7.3"
 	ed_pub (ed25519-public ed_seed) ed_sig (ed25519-sign ed_seed ed_msg))
-(defun ed-flip (bytes at)
-	(cat (slice bytes 0 at) (char (logxor (code bytes 1 at) 1)) (slice bytes (inc at) -1)))
+(defun ed-flip (byte_data at)
+	(cat (slice byte_data 0 at) (char (logxor (code byte_data 1 at) 1)) (slice byte_data (inc at) -1)))
 (assert-eq "as it was made, it checks" :t (ed25519-verify ed_pub ed_msg ed_sig))
 (assert-eq "a bit of the message changed" :nil (ed25519-verify ed_pub (ed-flip ed_msg 3) ed_sig))
 (assert-eq "a message a byte longer" :nil (ed25519-verify ed_pub (cat ed_msg " ") ed_sig))

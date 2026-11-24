@@ -450,6 +450,10 @@ what each kind can do, a vector class beside each:
 	:num -> :fixed -> :double -> :float
 	:nums -> :fixeds -> :doubles -> :floats
 
+Beside them, raw storage with no maths, `(bytes ...)`, `(shorts ...)` and
+`(ints ...)`: an element its bits, read never sign extended, written its low
+bits; `(nums-convert src dst [signed])` to and from numbers.
+
 *	**`num`:** 64 bit signed integers.
 
 *	**`fixed`, `fixeds`:** 48.16 fixed point, what drawing works in, the

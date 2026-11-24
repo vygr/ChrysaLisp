@@ -85,17 +85,17 @@
 	;a thing with its head, as it was signed
 	(slice data (elem-get item 3) (third item)))
 
-(defun der-oid (bytes)
-	; (der-oid bytes) -> str
+(defun der-oid (byte_data)
+	; (der-oid byte_data) -> str
 	;an object identifier as it is written, 1.2.840.10045.2.1
 	(cond
-		((empty? bytes) "")
-		(:t (defq top (code bytes 1 0) parts (list (str (/ top 40)) (str (% top 40))) v 0)
+		((empty? byte_data) "")
+		(:t (defq top (code byte_data 1 0) parts (list (str (/ top 40)) (str (% top 40))) v 0)
 			(each! (lambda (c)
 					(setq v (logior (<< v 7) (logand (code c) 0x7f)))
 					(when (< (code c) 0x80)
 						(push parts (str v))
-						(setq v 0))) (list bytes) 1 -1)
+						(setq v 0))) (list byte_data) 1 -1)
 			(join parts "."))))
 
 (defun x509-digits (text from to)
@@ -132,9 +132,9 @@
 			param (and (> (length alg) 1) (= (first (second alg)) 0x06) (der-oid (der-bytes data (second alg)))))
 		(cond
 			((eql oid "1.2.840.113549.1.1.1")
-				(when (and (defq seq (der-at bits 0)) (= (length (defq ints (der-in bits seq))) 2))
+				(when (and (defq seq (der-at bits 0)) (= (length (defq der_ints (der-in bits seq))) 2))
 					(. cert :insert :key_kind :rsa)
-					(. cert :insert :key (list (der-bytes bits (first ints)) (der-bytes bits (second ints))))))
+					(. cert :insert :key (list (der-bytes bits (first der_ints)) (der-bytes bits (second der_ints))))))
 			((eql oid "1.2.840.10045.2.1")
 				(. cert :insert :key_kind (cond ((eql param "1.2.840.10045.3.1.7") :p256) ((eql param "1.3.132.0.34") :p384)))
 				(. cert :insert :key bits))
@@ -239,8 +239,8 @@
 			;two INTEGERs, r and s, in a SEQUENCE
 			(and (defq curve (cond ((eql kind :p256) *ecdsa_p256*) ((eql kind :p384) *ecdsa_p384*)))
 				(defq seq (der-at signature 0)) (= (first seq) 0x30)
-				(= (length (defq ints (der-in signature seq))) 2)
-				(ecdsa-verify curve key digest (der-bytes signature (first ints)) (der-bytes signature (second ints)))))))
+				(= (length (defq der_ints (der-in signature seq))) 2)
+				(ecdsa-verify curve key digest (der-bytes signature (first der_ints)) (der-bytes signature (second der_ints)))))))
 
 (defun x509-signed? (cert issuer)
 	; (x509-signed? cert issuer) -> :t | :nil

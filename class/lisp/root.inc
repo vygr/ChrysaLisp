@@ -413,6 +413,12 @@
 ; (doubles [double ...]) -> doubles
 (ffi "class/floats/lisp_floats" floats)
 ; (floats [float ...]) -> floats
+(ffi "class/bytes/lisp_bytes" bytes)
+; (bytes [num ...]) -> bytes
+(ffi "class/shorts/lisp_shorts" shorts)
+; (shorts [num ...]) -> shorts
+(ffi "class/ints/lisp_ints" ints)
+; (ints [num ...]) -> ints
 (ffi "class/array/lisp_path" path)
 ; (path [fixed ...]) -> path
 (ffi "class/dim/lisp_dim" dim)
@@ -703,6 +709,18 @@
 (defun floats?? (%0)
 	; (floats?? form) -> :t | :nil
 	(eql :floats (pop (type-of %0))))
+
+(defun bytes? (%0)
+	; (bytes? form) -> :t | :nil
+	(find :bytes (type-of %0)))
+
+(defun shorts? (%0)
+	; (shorts? form) -> :t | :nil
+	(find :shorts (type-of %0)))
+
+(defun ints? (%0)
+	; (ints? form) -> :t | :nil
+	(find :ints (type-of %0)))
 
 (defun func? (%0)
 	; (func? form) -> :t | :nil
@@ -1509,9 +1527,9 @@
 	; (get-long-be str idx) -> num
 	(static-qq (code-be ,obj 8 ,idx)))
 
-(defmacro get-str (obj idx bytes)
-	; (get-str str idx bytes) -> str
-	(static-qq (obj-get ,obj (+ +str_data ,idx) ,bytes)))
+(defmacro get-str (obj idx byte_count)
+	; (get-str str idx byte_count) -> str
+	(static-qq (obj-get ,obj (+ +str_data ,idx) ,byte_count)))
 
 (defun get-cstr (obj idx)
 	; (get-cstr str idx) -> str

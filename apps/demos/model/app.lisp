@@ -138,13 +138,13 @@
 			(list data (if remote `(lambda (name) (,model-fetch (cat ,folder name)))
 					`(lambda (name) (load (cat ,folder name)))) (list)))))
 
-(defun model-picture (name bytes)
-	; (model-picture name bytes) -> :nil | canvas
+(defun model-picture (name byte_data)
+	; (model-picture name byte_data) -> :nil | canvas
 	;a picture of a kind a canvas loads, from its bytes, its pixels in
 	;shared memory if the host has it, the nodes that draw a strip each
 	;all read the one copy of it
-	(and bytes (defq kind (canvas-loader-of (to-lower name)))
-		(defq canvas ((third kind) (string-stream bytes)))
+	(and byte_data (defq kind (canvas-loader-of (to-lower name)))
+		(defq canvas ((third kind) (string-stream byte_data)))
 		(. (shader-strip-picture canvas) :swap +swap_write)))
 
 (defun model-plain ()

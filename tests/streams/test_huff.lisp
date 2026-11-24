@@ -8,12 +8,12 @@
 (defun hf-code (n v shift)
 	;a code of n bits, v, shift bits in, the rest of the bytes 1s, and 32
 	;bytes more as lib/media/bits.inc puts after a str, of 1s here
-	(defq bits (+ shift n) bytes (/ (+ bits 7) 8)
+	(defq bits (+ shift n) byte_count (/ (+ bits 7) 8)
 		;the code high in the bits, 1s before and after it
-		word (logior (<< (dec (<< 1 shift)) (- (* bytes 8) shift))
-			(<< v (- (* bytes 8) bits))
-			(dec (<< 1 (- (* bytes 8) bits)))))
-	(cat (apply (const cat) (map! (# (char (logand (>> word (* 8 (- bytes 1 (!)))) 0xff))) '() 0 bytes))
+		word (logior (<< (dec (<< 1 shift)) (- (* byte_count 8) shift))
+			(<< v (- (* byte_count 8) bits))
+			(dec (<< 1 (- (* byte_count 8) bits)))))
+	(cat (apply (const cat) (map! (# (char (logand (>> word (* 8 (- byte_count 1 (!)))) 0xff))) '() 0 byte_count))
 		(const (cat (char -1 8) (char -1 8) (char -1 8) (char -1 8)))))
 
 ;every code of each of the books of AAC, at each of 8 places in a byte, reads

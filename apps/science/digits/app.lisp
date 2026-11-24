@@ -295,9 +295,9 @@
 
 (defun stepped ()
 	;the slices added up, and the params moved down them
-	(defq bytes params_size sum (push (nn-vector model) (buf-get grads_buf 0 bytes))
+	(defq byte_count params_size sum (push (nn-vector model) (buf-get grads_buf 0 byte_count))
 		total (* (elem-get +digits_batches batch) +digits_jobs))
-	(each! (lambda () (nums-add sum (push (nn-vector model) (buf-get grads_buf (digits-slice (!)) bytes)) sum))
+	(each! (lambda () (nums-add sum (push (nn-vector model) (buf-get grads_buf (digits-slice (!)) byte_count)) sum))
 		'() 1 +digits_jobs)
 	(nums-add params (nums-scale sum (nn-num model (/ (neg (rate-now)) (n2d total))) sum) params)
 	(setq net (nn-net model params) dirty_loss :t)

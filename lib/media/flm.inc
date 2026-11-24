@@ -329,7 +329,7 @@
 			(defq film (flm-encoder out format (ifn rate +flm_rate)))
 			(flm-encode-frame film first_frame)
 			;then each frame, its runs walked till they cover every pixel
-			(defq pixels (* width height) bytes (/ (flm-bits format) 8) at 0 frames 1)
+			(defq pixels (* width height) byte_count (/ (flm-bits format) 8) at 0 frames 1)
 			(while (< at (length rest))
 				(defq start at count 0)
 				(while (and (< count pixels) (< at (length rest)))
@@ -337,7 +337,7 @@
 					(setq at (inc at))
 					(cond
 						((>= run 128) (setq count (+ count (- 256 run))))
-						(:t (setq count (+ count run) at (+ at (* run bytes))))))
+						(:t (setq count (+ count run) at (+ at (* run byte_count))))))
 				(flm-packet-write out (slice rest start (min at (length rest))))
 				(setq frames (inc frames)))
 			(stream-flush out)

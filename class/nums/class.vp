@@ -1,6 +1,9 @@
 (include "lib/asm/func.inc")
 (include "././list/class.inc")
 (include "././floats/class.inc")
+(include "././bytes/class.inc")
+(include "././shorts/class.inc")
+(include "././ints/class.inc")
 
 (gen-create :nums)
 	;outputs
@@ -292,6 +295,7 @@
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source nums object, of any kind (ptr)
+	;:r3 = 1 to read a raw source signed, else 0 (uint)
 	;outputs
 	;:r0 = nums object (ptr)
 	;trashes
@@ -305,10 +309,11 @@
 
 (def-method :nums :kind)
 	;inputs
-	;:r0 = nums object (ptr)
+	;:r0 = nums object, or a bytes, shorts or ints (ptr)
 	;outputs
 	;:r0 = nums object (ptr)
-	;:r1 = 0 nums, 1 fixeds, 2 doubles, 3 floats (uint)
+	;:r1 = 0 nums, 1 fixeds, 2 doubles, 3 floats, 4 bytes, 6 shorts,
+	;8 ints (uint)
 	;trashes
 	;:r1-:r2
 	;info
@@ -316,7 +321,14 @@
 
 	(entry :nums :kind '(:r0))
 
-	(assign `((:r0 +obj_vtable) (@ ,(f-path :floats :vtable))) '(:r1 :r2))
+	(assign '((:r0 +obj_vtable)) '(:r1))
+	(f-bind :bytes :vtable :r2)
+	(gotoif '(:r1 = :r2) 'bytes)
+	(f-bind :shorts :vtable :r2)
+	(gotoif '(:r1 = :r2) 'shorts)
+	(f-bind :ints :vtable :r2)
+	(gotoif '(:r1 = :r2) 'ints)
+	(f-bind :floats :vtable :r2)
 	(vpif '(:r1 = :r2))
 		(vp-cpy-cr 3 :r1)
 	(else)
@@ -332,6 +344,70 @@
 	(endif)
 
 	(exit :nums :kind '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'bytes)
+	(vp-cpy-cr 4 :r1)
+	(exit :nums :kind '(:r0 :r1))
+	(vp-ret)
+(vp-label 'shorts)
+	(vp-cpy-cr 6 :r1)
+	(exit :nums :kind '(:r0 :r1))
+	(vp-ret)
+(vp-label 'ints)
+	(vp-cpy-cr 8 :r1)
+	(exit :nums :kind '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :nums :narrow)
+	;inputs
+	;:r0 = bytes, shorts or ints object (ptr)
+	;:r1 = source nums object, of any kind of number (ptr)
+	;outputs
+	;:r0 = bytes, shorts or ints object (ptr)
+	;trashes
+	;:r1-:r7, :d0-:d15
+	;info
+	;made the source's length, each element an integer as n2i makes it,
+	;its low bits
+
+	(vp-rdef (dst src s d len tmp kind w))
+	(entry :nums :narrow `(,dst ,src))
+	(assign `((,src +array_length)) `(,len))
+	(vp-push dst src len)
+	(call :array :set_cap `(,dst ,len) :nil :r2)
+	(vp-pop dst src len)
+	(assign `(,len) `((,dst +array_length)))
+	;the width, 0 1 2 for bytes shorts ints, in w, which :kind leaves
+	(assign `((,dst +obj_vtable)) `(,tmp))
+	(vp-xor-rr w w)
+	(f-bind :shorts :vtable kind)
+	(vpif `(,tmp = ,kind))
+		(vp-cpy-cr 1 w)
+	(endif)
+	(f-bind :ints :vtable kind)
+	(vpif `(,tmp = ,kind))
+		(vp-cpy-cr 2 w)
+	(endif)
+	(vp-push dst)
+	(call :nums :kind `(,src) `(,src ,kind))
+	(vp-pop dst)
+	(assign `((,dst +array_begin) (,src +array_begin)) `(,d ,s))
+	(vp-mul-cr 3 kind)
+	(vp-add-rr w kind)
+	(switch)
+	(each (lambda (from)
+			(defq fi (!))
+			(each (lambda (wb)
+					(vpcase `(,kind = ,(+ (* 3 fi) (!))))
+						(nums-narrow-pair from wb s d len tmp)
+						(break))
+				'(1 2 4)))
+		+nums_kinds)
+	(endswitch)
+	(exit :nums :narrow `(,dst))
 	(vp-ret)
 
 (def-func-end)

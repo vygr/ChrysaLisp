@@ -12,11 +12,11 @@
 ;module
 (env-push)
 
-(defun wav-le (data at bytes)
-	(code data bytes at))
+(defun wav-le (data at byte_count)
+	(code data byte_count at))
 
 (defun WAV-info (stream)
-	; (WAV-info stream) -> (rate channels bits bytes) | (-1 -1 -1 -1)
+	; (WAV-info stream) -> (rate channels bits byte_count) | (-1 -1 -1 -1)
 	;the stream is left at the first sample
 	(defq out '(-1 -1 -1 -1))
 	(when (and stream (defq riff (read-blk stream 12)) (= (length riff) 12)
@@ -36,22 +36,22 @@
 				((read-blk stream (+ size (logand size 1)))))))
 	out)
 
-(defun wav-head-text (rate bytes)
-	(cat "RIFF" (char (+ 36 bytes) 4) "WAVE"
+(defun wav-head-text (rate byte_count)
+	(cat "RIFF" (char (+ 36 byte_count) 4) "WAVE"
 		"fmt " (char 16 4) (char 1 2) (char 1 2) (char rate 4)
 		(char (* rate 2) 4) (char 2 2) (char 16 2)
-		"data" (char bytes 4)))
+		"data" (char byte_count 4)))
 
 (defun WAV-head (stream rate)
 	; (WAV-head stream rate) -> stream
 	;the head of a 16 bit mono file whose length is not known yet
 	(write-blk stream (wav-head-text rate 0)))
 
-(defun WAV-tail (stream rate bytes)
-	; (WAV-tail stream rate bytes) -> stream
+(defun WAV-tail (stream rate byte_count)
+	; (WAV-tail stream rate byte_count) -> stream
 	;the length put in the head, once it is known
 	(stream-seek stream 0 0)
-	(write-blk stream (wav-head-text rate bytes))
+	(write-blk stream (wav-head-text rate byte_count))
 	(stream-flush stream))
 
 ;the sound is told what this reads

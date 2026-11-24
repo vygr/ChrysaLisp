@@ -152,7 +152,7 @@
 				:samples (if lsf 576 1152) :kbps kbps :size (+ (/ (* (if lsf 72 144) kbps 1000) rate) (logand (>> h 9) 1))))))
 
 (defun mp3-id3 (s)
-	; (mp3-id3 str) -> bytes
+	; (mp3-id3 str) -> byte_count
 	;the bytes of an ID3v2 tag at the start, and its footer, 0 if none
 	(if (and (>= (length s) 10) (eql (slice s 0 3) "ID3"))
 		(+ 10 (if (/= 0 (logand (code s 1 5) 0x10)) 10 0)
@@ -501,7 +501,7 @@
 	(if (< at end) (list at h)))
 
 (defun mp3-xing (s at h)
-	; (mp3-xing str at header) -> :nil | (frames bytes toc vbr)
+	; (mp3-xing str at header) -> :nil | (frames byte_count toc vbr)
 	;what a first frame of Xing or Info, of nothing heard, says of those
 	;after it: how many, their bytes, and where each hundredth of them
 	;begins, by 1/256 of the bytes, :nil of each it does not say, and if
@@ -512,12 +512,12 @@
 				(if (= (. h :find :channels) 1) 9 17) (if (= (. h :find :channels) 1) 17 32)))
 		tag (slice s (min o (length s)) (min (+ o 4) (length s))))
 	(when (and (<= (+ o 120) (length s)) (or (eql tag "Xing") (eql tag "Info")))
-		(defq flags (code-be s 4 (+ o 4)) p (+ o 8) frames :nil bytes :nil toc :nil)
+		(defq flags (code-be s 4 (+ o 4)) p (+ o 8) frames :nil byte_count :nil toc :nil)
 		(when (/= 0 (logand flags 1)) (setq frames (code-be s 4 p) p (+ p 4)))
-		(when (/= 0 (logand flags 2)) (setq bytes (code-be s 4 p) p (+ p 4)))
+		(when (/= 0 (logand flags 2)) (setq byte_count (code-be s 4 p) p (+ p 4)))
 		(and (/= 0 (logand flags 4)) (eql tag "Xing") (> (code s 1 (+ p 99)) (code s 1 p))
 			(setq toc (slice s p (+ p 100))))
-		(list frames bytes toc (eql tag "Xing"))))
+		(list frames byte_count toc (eql tag "Xing"))))
 
 (defun mp3-unit (h)
 	;the bytes of a frame of a constant bit rate, by the rate
@@ -541,16 +541,16 @@
 	(stream-seek stream at 0)
 	(when (and (defq s (read-blk stream 16384)) (defq found (mp3-sync s 0)))
 		(bind '(i h) found)
-		(defq frames :nil bytes :nil toc :nil vbr :nil xing (mp3-xing s i h))
+		(defq frames :nil byte_count :nil toc :nil vbr :nil xing (mp3-xing s i h))
 		(setq at (+ at i))
 		;a Xing table's places are from the start of the Xing frame
 		(defq base at)
 		(when xing
-			(bind '(frames bytes toc vbr) xing)
+			(bind '(frames byte_count toc vbr) xing)
 			(setq at (+ at (. h :find :size))))
-		(setq bytes (ifn bytes (- end at))
-			frames (ifn frames (/ (+ (* bytes (. h :find :rate)) (/ (mp3-unit h) 2)) (mp3-unit h))))
-		(scatter (Emap) :stream stream :head h :start at :base base :end end :bytes bytes :toc toc :vbr vbr :known (list)
+		(setq byte_count (ifn byte_count (- end at))
+			frames (ifn frames (/ (+ (* byte_count (. h :find :rate)) (/ (mp3-unit h) 2)) (mp3-unit h))))
+		(scatter (Emap) :stream stream :head h :start at :base base :end end :bytes byte_count :toc toc :vbr vbr :known (list)
 			:frames frames :rate (/ (n2q (. h :find :rate)) (n2q (. h :find :samples)))
 			:width 512 :height 192 :codec "mp3" :audio :t
 			:tracks (list (scatter (Emap) :kind "soun" :codec "mp3" :samples frames :start 0)))))
@@ -559,12 +559,12 @@
 	;where frame n should begin: by the table of a first frame of Xing,
 	;between two of its hundredths, else of a varying bit rate by the
 	;bytes a frame of them all, else by the bit rate of the first
-	(defq frames (. reel :find :frames) bytes (. reel :find :bytes) h (. reel :find :head))
+	(defq frames (. reel :find :frames) byte_count (. reel :find :bytes) h (. reel :find :head))
 	(cond
 		((defq toc (. reel :find :toc))
 			(defq i (min 99 (/ (* n 100) frames)) a (code toc 1 i) b (if (< i 99) (code toc 1 (inc i)) 256))
-			(+ (. reel :find :base) (/ (* bytes (+ (* a frames) (* (- b a) (- (* n 100) (* i frames))))) (* 256 frames))))
-		((. reel :find :vbr) (+ (. reel :find :start) (/ (* n bytes) frames)))
+			(+ (. reel :find :base) (/ (* byte_count (+ (* a frames) (* (- b a) (- (* n 100) (* i frames))))) (* 256 frames))))
+		((. reel :find :vbr) (+ (. reel :find :start) (/ (* n byte_count) frames)))
 		((+ (. reel :find :start) (/ (* n (mp3-unit h)) (. h :find :rate))))))
 
 (defun mp3-packet (reel n)

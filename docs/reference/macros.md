@@ -288,7 +288,7 @@ and signed
 ### get-str
 
 ```code
-(get-str str idx bytes) -> str
+(get-str str idx byte_count) -> str
 ```
 
 ### get-ubyte
@@ -753,7 +753,7 @@ print the time for the body
 ### tls-be
 
 ```code
-(tls-be n bytes) -> str
+(tls-be n byte_count) -> str
 
 a number as so many bytes, the high first, as TLS has its numbers
 ```
@@ -761,7 +761,7 @@ a number as so many bytes, the high first, as TLS has its numbers
 ### tls-num
 
 ```code
-(tls-num data at bytes) -> num
+(tls-num data at byte_count) -> num
 ```
 
 ### tracker-porta

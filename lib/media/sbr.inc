@@ -501,8 +501,8 @@
 				(if (> bits_left 0) (bits-skip in bits_left)))
 			:t)))
 
-(defun sbr-read (sbr in crc bytes kind)
-	; (sbr-read sbr reader crc bytes kind) -> bits
+(defun sbr-read (sbr in crc byte_count kind)
+	; (sbr-read sbr reader crc byte_count kind) -> bits
 	;the SBR of a fill element of bytes, the reader past its 4 bits of
 	;type, of the element of a kind before it, 0 a channel, 1 a pair: its
 	;header if it has one, the tables made again if that says, and its
@@ -518,7 +518,7 @@
 	(when (. sbr :find :start)
 		(. sbr :insert :ready :t)
 		(unless (sbr-data sbr in kind) (sbr-off sbr)))
-	(if (> (- (bits-at in) from) (- (* 8 bytes) 4)) (sbr-off sbr))
+	(if (> (- (bits-at in) from) (- (* 8 byte_count) 4)) (sbr-off sbr))
 	(- (bits-at in) from))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

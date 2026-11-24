@@ -213,21 +213,21 @@
 		(setq at (+ at +store_manifest_names)))
 	(apply (const cat) out))
 
-(defun storage-commit (svc name from bytes names)
-	; (storage-commit svc path from bytes names) -> (:ok entry) | (:stale entry) | (:missing names) | (:full :nil) | (:lost :nil)
+(defun storage-commit (svc name from byte_count names)
+	; (storage-commit svc path from byte_count names) -> (:ok entry) | (:stale entry) | (:missing names) | (:full :nil) | (:lost :nil)
 	;a path set to the object of these blocks, all put already. The blocks
 	;of its manifest are put as blocks, (store-manifest-make), and only the
 	;name of its top is sent: no message is the whole of a big object. A
 	;block that was not answered is :lost, one there was no room for :full
 	(defq full :nil
-		top (store-manifest-make bytes names (lambda (data)
+		top (store-manifest-make byte_count names (lambda (data)
 				(defq hash (sha256 data) said (storage-ask svc +storage_type_block_put data))
 				(cond ((eql said hash) hash) (said (setq full :t) :nil)))))
 	(cond
 		(full (list :full :nil))
 		((not top) (list :lost :nil))
 		((storage-result (storage-ask svc +storage_type_commit
-					(join (list (storage-from from) (str bytes) name (hex-encode top)) +storage_lf))))))
+					(join (list (storage-from from) (str byte_count) name (hex-encode top)) +storage_lf))))))
 
 (defun storage-heard (mbox quiet)
 	;what a mailbox has been told: waited for, or if the service has been
@@ -291,7 +291,7 @@
 
 (defun storage-put-stream (name stream &optional from svc tick)
 	; (storage-put-stream path stream [from svc tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:stopped :nil)
-	; (tick bytes) -> :nil | :t
+	; (tick byte_count) -> :nil | :t
 	;a path is set to an object of what is read from a stream, to its
 	;end, provided it is now the object from: its name, "" for none, and
 	;not given, not to say. :stale with what it is if it is not that. It
@@ -308,7 +308,7 @@
 	(setd svc (storage-service))
 	(cond
 		((not (defq info (storage-info svc))) (list :lost :nil))
-		(:t (defq size (. info :find :block_size) names (list) bytes 0 how :ok flight (list) quiet :nil
+		(:t (defq size (. info :find :block_size) names (list) byte_count 0 how :ok flight (list) quiet :nil
 				next (storage-put-few svc stream size))
 			;which of the next few the service has is asked while these go,
 			;so the line is not idle a round trip each few
@@ -318,7 +318,7 @@
 				(defq has (ifn (mail-read-timeout mbox (* +storage_wait 1000000)) ""))
 				(if (/= (length has) (length blocks)) (setq has (pad "" (length blocks) "0")))
 				(each (lambda (block hash had)
-						(setq bytes (+ bytes (length block)))
+						(setq byte_count (+ byte_count (length block)))
 						(push names hash)
 						;no room is the service saying so, no answer is not
 						(when (and (nql had "1") (eql how :ok))
@@ -330,7 +330,7 @@
 					(setq how :stopped)))
 			;all of them answered before the path is set
 			(if (eql how :ok) (setq how (second (storage-put-land flight 0 how quiet))))
-			(if (eql how :ok) (storage-commit svc name from bytes names) (list how :nil)))))
+			(if (eql how :ok) (storage-commit svc name from byte_count names) (list how :nil)))))
 
 (defun storage-put (name data &optional from svc)
 	; (storage-put path data [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
@@ -352,13 +352,13 @@
 	;did not take, a full disk say, is :nil
 	(when (and (defq info (pii-fstat from)) (defq in (file-stream from))
 			(defq out (file-stream to +file_open_write)))
-		(defq bytes 0)
+		(defq byte_count 0)
 		(while (defq part (read-blk in 65536))
 			(write-blk out part)
-			(setq bytes (+ bytes (length part))))
+			(setq byte_count (+ byte_count (length part))))
 		(stream-flush out)
 		(setq out :nil)
-		(and (= bytes (second info)) (defq info (pii-fstat to)) (= bytes (second info)))))
+		(and (= byte_count (second info)) (defq info (pii-fstat to)) (= byte_count (second info)))))
 
 (defun storage-manifest (name &optional svc)
 	;the blocks of the object a path is, (bytes names tree), :nil if there
@@ -403,9 +403,9 @@
 	; (storage-pages hash block_size svc) -> :nil | pages
 	;the manifest of that name, its top had now, :nil if it can not be
 	(when (and (defq data (storage-block hash svc)) (defq top (store-manifest-read data)))
-		(bind '(bytes height names) top)
-		(list svc height names (if (= height 0) (length names) (/ (+ bytes (dec block)) block))
-			(list) (list) :nil bytes)))
+		(bind '(byte_count height names) top)
+		(list svc height names (if (= height 0) (length names) (/ (+ byte_count (dec block)) block))
+			(list) (list) :nil byte_count)))
 
 (defun storage-pages-node (pages hash height)
 	; (storage-pages-node pages hash height) -> :nil | names
@@ -533,7 +533,7 @@
 (defun storage-stream-next (st)
 	; (storage-stream-next st) -> :nil | data | (:lost hex)
 	;the next block, had of the service, (storage-stream-fill)
-	(bind '(svc pages size bytes at drop flight ahead retry &ignore) st)
+	(bind '(svc pages size byte_count at drop flight ahead retry &ignore) st)
 	(defq next (+ at (length flight)) count (elem-get pages +storage_pages_count) mbox :nil)
 	(while (and (< (length flight) ahead) (< next count) (setq mbox (storage-stream-ask st next)))
 		(push flight mbox)
@@ -563,7 +563,7 @@
 	;that dropped is made again in a few seconds. One that can not be had
 	;is the stream's fault, (:lost hex) with its name, so that a reader can
 	;know it is not the end of the object, (stream-fault)
-	(bind '(svc pages size bytes at drop flight ahead retry kept again) st)
+	(bind '(svc pages size byte_count at drop flight ahead retry kept again) st)
 	(cond
 		;a seek back into the block last read: it is read again from there,
 		;nothing asked for
@@ -579,18 +579,18 @@
 	;place is asked for at the next read. That read waits for a block,
 	;Chris: "a seek, pays the cost, but it allways does in any streaming
 	;object"
-	(bind '(svc pages size bytes at drop flight ahead retry kept &ignore) st)
-	(defq pos (max 0 (min bytes (cond
+	(bind '(svc pages size byte_count at drop flight ahead retry kept &ignore) st)
+	(defq pos (max 0 (min byte_count (cond
 					((= whence 0) offset)
-					((= whence 1) (+ offset (min bytes (+ (* at size) drop))))
-					((+ bytes offset)))))
+					((= whence 1) (+ offset (min byte_count (+ (* at size) drop))))
+					((+ byte_count offset)))))
 		block (/ pos size))
 	(elem-set st +storage_stream_again :nil)
 	(cond
 		;into the block last read: had again from it, and what is on its way
 		;is still what comes after. An MP3 seeks twice a frame of a few
 		;hundred bytes
-		((and (= block (first kept)) (< pos bytes))
+		((and (= block (first kept)) (< pos byte_count))
 			(elem-set st +storage_stream_again (% pos size)))
 		;to the next block: what is on its way is still wanted
 		((= block at)
@@ -656,11 +656,11 @@
 		(storage-stream-land st 0)
 		(setq dirty (elem-get st +storage_out_dirty)))
 	(when (and flush (eql dirty :t))
-		(defq all (cat names) bytes (+ (* (length names) size) (length part)))
+		(defq all (cat names) byte_count (+ (* (length names) size) (length part)))
 		(when (or (empty? part) (and (eql (storage-ask svc +storage_type_block_put part) (defq hash (sha256 part)))
 					(push all hash)))
 			(elem-set st +storage_out_dirty :nil)
-			(storage-commit svc name :nil bytes all))))
+			(storage-commit svc name :nil byte_count all))))
 
 (defun storage-stream (name &optional mode svc ahead)
 	; (storage-stream path [mode svc ahead]) -> :nil | stream
@@ -710,14 +710,14 @@
 				`(lambda (data flush) (,storage-stream-put ',st data flush))))))
 
 (defun storage-same-file? (name file &optional svc)
-	; (storage-same-file? path file [svc]) -> :nil | bytes
+	; (storage-same-file? path file [svc]) -> :nil | byte_count
 	;an object, read as a stream, is what is in a file of the host, byte
 	;for byte and no longer. How long that is
 	(when (and (defq object (storage-stream name +file_open_read svc)) (defq host (file-stream file)))
-		(defq bytes 0 same :t)
+		(defq byte_count 0 same :t)
 		(while (and same (defq part (read-blk object 65536)))
-			(setq same (eql part (read-blk host (length part))) bytes (+ bytes (length part))))
-		(and same (not (read-char host)) bytes)))
+			(setq same (eql part (read-blk host (length part))) byte_count (+ byte_count (length part))))
+		(and same (not (read-char host)) byte_count)))
 
 (defun storage-delete (name &optional from svc)
 	; (storage-delete path [from svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)
@@ -752,8 +752,8 @@
 				(and (defq info (storage-info svc)) (. info :find :copies))))))
 
 (defun storage-get-file (name file &optional svc tick)
-	; (storage-get-file path file [svc tick]) -> (:ok bytes) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
-	; (tick bytes) -> :nil | :t
+	; (storage-get-file path file [svc tick]) -> (:ok byte_count) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
+	; (tick byte_count) -> :nil | :t
 	;what a path is, to a file of the host, read as a stream, so of any
 	;length. :none if there is no such object, :host if the host will not
 	;make the file, :lost if a block of it could not be had. tick as for
@@ -767,10 +767,10 @@
 	(cond
 		((not (defq object (storage-stream name +file_open_read svc))) (list :none :nil))
 		((not (defq host (file-stream to +file_open_write))) (list :host :nil))
-		(:t (defq bytes 0 how :ok)
+		(:t (defq byte_count 0 how :ok)
 			(while (and (eql how :ok) (defq part (read-blk object 65536)))
 				(write-blk host part)
-				(setq bytes (+ bytes (length part)))
+				(setq byte_count (+ byte_count (length part)))
 				(and tick (not (tick (length part))) (setq how :stopped)))
 			(stream-flush host)
 			(setq host :nil)
@@ -780,14 +780,14 @@
 				((not (eql how :ok)) (pii-remove to))
 				((storage-file-copy to file) (pii-remove to))
 				((setq how :host)))
-			(if (eql how :ok) (list :ok bytes) (list how :nil)))))
+			(if (eql how :ok) (list :ok byte_count) (list how :nil)))))
 
 ;how many blocks a copy between stores has on their way at once
 (defq +storage_copy_ahead 8)
 
-(defun storage-copy-tick (stream tick bytes)
+(defun storage-copy-tick (stream tick byte_count)
 	;a copy read as a stream goes on while no block of it is lost
-	(if (stream-fault stream) :nil (tick bytes)))
+	(if (stream-fault stream) :nil (tick byte_count)))
 
 (defun storage-copy-dial (result entry svc)
 	;what a copy did, with the dial of how many keep it, if it was said,
@@ -799,7 +799,7 @@
 
 (defun storage-copy-object (from to src dst &optional was tick)
 	; (storage-copy-object from to src dst [was tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil) | (:stopped :nil)
-	; (tick bytes) -> :nil | :t
+	; (tick byte_count) -> :nil | :t
 	;the object the path from is in the store of the service src, set at
 	;the path to in the store of dst, provided to is now was, as
 	;(storage-put-stream) has it, with its dial of how many keep it. The
@@ -809,7 +809,7 @@
 	;that was stopped goes on from where it was. Stores of blocks of other
 	;sizes have it read as a stream and put. tick as for
 	;(storage-put-stream). :none if there is no object at from
-	(setd tick (lambda (bytes) :t))
+	(setd tick (lambda (byte_count) :t))
 	(cond
 		((not (and (defq info (storage-info src)) (defq there (storage-info dst)))) (list :lost :nil))
 		((not (defq entry (storage-stat from src))) (list :none :nil))
@@ -819,19 +819,19 @@
 			(cond
 				((not (defq stream (storage-stream from +file_open_read src))) (list :none :nil))
 				((eql (first (defq result (storage-put-stream to stream was dst
-									`(lambda (bytes) (,storage-copy-tick ',stream ',tick bytes))))) :stopped)
+									`(lambda (byte_count) (,storage-copy-tick ',stream ',tick byte_count))))) :stopped)
 					(list (if (stream-fault stream) :lost :stopped) :nil))
 				((storage-copy-dial result entry dst))))
 		((not (defq object (store-manifest-walk (elem-get entry +store_entry_hash) (# (storage-block %0 src)))))
 			(list :lost :nil))
-		(:t (bind '(bytes names &ignore) object)
+		(:t (bind '(byte_count names &ignore) object)
 			(defq how :ok at 0)
 			(while (and (eql how :ok) (< at (length names)))
 				(defq part (slice names at (min (length names) (+ at +store_manifest_names)))
 					has (storage-has dst part) want (list) done 0 i 0)
 				;the blocks it has are gone through at once, the rest a few at a time
 				(each (lambda (hash had)
-						(defq n (min size (- bytes (* (+ at (!)) size))))
+						(defq n (min size (- byte_count (* (+ at (!)) size))))
 						(if (eql had "1") (setq done (+ done n)) (push want (list hash n))))
 					part has)
 				(and (> done 0) (not (tick done)) (setq how :stopped))
@@ -843,7 +843,7 @@
 					(setq i (+ i +storage_copy_ahead)))
 				(setq at (+ at +store_manifest_names)))
 			(if (eql how :ok)
-				(storage-copy-dial (storage-commit dst to was bytes names) entry dst)
+				(storage-copy-dial (storage-commit dst to was byte_count names) entry dst)
 				(list how :nil)))))
 
 (defun storage-walk-send (name state visit &optional at svc)

@@ -1,0 +1,136 @@
+(include "lib/asm/func.inc")
+(include "lib/consts/chars.inc")
+(include "./class.inc")
+(include "././stream/class.inc")
+(include "././list/class.inc")
+(include "././floats/class.inc")
+(include "././bytes/class.inc")
+(include "././shorts/class.inc")
+(include "././ints/class.inc")
+
+(gen-create :shorts)
+	;outputs
+	;:r0 = 0 if error, else shorts object (ptr)
+	;trashes
+	;:r0-:r2, :d0-:d15
+(gen-vtable :shorts)
+(gen-type :shorts)
+
+(def-method :shorts :set_cap)
+	;the set_cap of :array at 2 bytes
+
+	(array-set-cap :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :ref_elem)
+	;the ref_elem of :array at 2 bytes
+
+	(array-ref-elem :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :ref_back)
+	;the ref_back of :array at 2 bytes
+
+	(array-ref-back :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :set_elem)
+	;the set_elem of :array at 2 bytes
+
+	(array-set-elem :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :fill)
+	;the fill of :array at 2 bytes
+
+	(array-fill :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :find)
+	;the find of :array at 2 bytes
+
+	(array-find :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :rfind)
+	;the rfind of :array at 2 bytes
+
+	(array-rfind :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :slice)
+	;the slice of :array at 2 bytes
+
+	(array-slice :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :cat)
+	;the cat of :array at 2 bytes
+
+	(array-cat :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :splice)
+	;the splice of :array at 2 bytes
+
+	(array-splice :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :append)
+	;the append of :array at 2 bytes
+
+	(array-append :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :erase)
+	;the erase of :array at 2 bytes
+
+	(array-erase :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :erase2)
+	;the erase2 of :array at 2 bytes
+
+	(array-erase2 :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :eql)
+	;the eql of :array at 2 bytes
+
+	(array-eql :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :hash)
+	;the hash of :array at 2 bytes
+
+	(array-hash :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :print)
+	;the print of :array at 2 bytes
+
+	(array-print :shorts 2)
+
+(def-func-end)
+
+(def-method :shorts :push)
+	;the push of :array at 2 bytes
+
+	(array-push :shorts 2)
+
+(def-func-end)

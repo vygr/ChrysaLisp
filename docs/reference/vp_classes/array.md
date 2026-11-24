@@ -283,6 +283,7 @@ outputs
 :r2 = end element iter (plong)
 trashes
 :r1-:r3
+w the width of an element, a long by default
 ```
 
 ### :get_length -> class/array/get_length
@@ -520,7 +521,7 @@ inputs
 outputs
 :r0 = slice array object (ptr)
 trashes
-:r0-:r3, :r6-:r8, :d0-:d15
+:r0-:r2, :r6-:r8, :d0-:d15
 ```
 
 ### :sort -> class/array/sort

@@ -92,10 +92,10 @@
 		(setq try (cat folder stem " (" (str (++ n)) ")" ext)))
 	try)
 
-(defun work-tick (bytes)
+(defun work-tick (byte_count)
 	;told of each part done: how it is going said every so often, and :nil
 	;once it has been told to stop
-	(setq *bytes* (+ *bytes* bytes))
+	(setq *bytes* (+ *bytes* byte_count))
 	(when (> (- (pii-time) *told*) +tell_rate)
 		(setq *told* (pii-time))
 		(tell :at *bytes* *count* *name*))
@@ -115,7 +115,7 @@
 		((= (elem-get entry +store_entry_bytes) (second was))
 			(storage-same-file? path to_path from_svc))))
 
-(defun copy-one (path name bytes)
+(defun copy-one (path name byte_count)
 	;one thing copied to its name in the folder of to, as the rule says if
 	;there is one there already
 	(defq to_path (side-path *to* name) was (side-there *to* to_path) start *bytes*
@@ -135,7 +135,7 @@
 				(:stopped)
 				(:t (++ *failed*) (tell :not name got)))))
 	;all of it gone past, whatever was told of it, unless it was stopped
-	(unless *stopped* (setq *bytes* (+ start bytes))))
+	(unless *stopped* (setq *bytes* (+ start byte_count))))
 
 (defun child-run (said)
 	(bind '(reply what from to rule names copies) (first (read (string-stream said))))
@@ -146,11 +146,11 @@
 		things (things-of *from* names) svc (side-svc *from*))
 	;a delete or a dial goes by how many, there are no bytes to go through
 	(tell :plan (length things) (if (eql what :copy) (reduce (# (+ %0 (third %1))) things 0) (length things)))
-	(each (lambda ((path name bytes))
+	(each (lambda ((path name byte_count))
 			(unless *stopped*
 				(setq *name* name)
 				(case what
-					(:copy (copy-one path name bytes))
+					(:copy (copy-one path name byte_count))
 					(:delete
 						(if (eql (defq got (first (storage-delete path :nil svc))) :ok)
 							(++ *done*) (++ *failed*) (tell :not name got)))

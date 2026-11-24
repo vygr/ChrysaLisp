@@ -1,8 +1,8 @@
 (report-header "Crypto: Poly1305")
 (import "lib/crypto/poly1305.inc")
 
-(defun cr-hex (bytes)
-	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
+(defun cr-hex (byte_data)
+	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) byte_data))))
 (defun cr-unhex (text)
 	;the bytes of a str of hex
 	(hex-decode text))

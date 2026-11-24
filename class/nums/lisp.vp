@@ -2,6 +2,9 @@
 (include "./class.inc")
 (include "././num/class.inc")
 (include "././lisp/class.inc")
+(include "././bytes/class.inc")
+(include "././shorts/class.inc")
+(include "././ints/class.inc")
 
 (def-method :nums :lisp_vecop1)
 	;inputs
@@ -427,28 +430,72 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :d0-:d15
+	;:r1-:r7, :d0-:d15
 	;info
-	;(nums-convert src dst) -> dst, dst made the length of src, each element
-	;converted to dst's kind, of nums, fixeds, doubles or floats
+	;(nums-convert src dst [signed]) -> dst, dst made the length of src, each
+	;element converted to dst's kind: of nums, fixeds, doubles or floats from
+	;any of those or a raw kind, bytes, shorts or ints, read signed if signed
+	;is given and not :nil; or of a raw kind from any of the four, each made
+	;an integer as n2i does, its low bits
 
 	(entry :nums :lisp_convert '(:r0 :r1))
 
-	(gotoif-lisp-args-sig 'error :r1 2)
+	(gotoif-lisp-args-sig 'error :r1 2 3)
 
-	(vp-push :r0)
-	(array-bind-args :r1 '(:r1 :r0))
-	(call :nums :convert '(:r0 :r1) '(:r0) :r2)
+	(vp-push :r0 :r1)
+	;the sign in :r3, a third that is not :nil
+	(assign '((:r1 +array_length) (:r1 +array_begin) (:r0 +lisp_sym_nil)) '(:r2 :r5 :r6))
+	(vp-xor-rr :r3 :r3)
+	(vpif '(:r2 = 3))
+		(assign `((:r5 ,(* 2 +ptr_size))) '(:r2))
+		(vpif '(:r2 /= :r6))
+			(vp-cpy-cr 1 :r3)
+		(endif)
+	(endif)
+	(assign '((:r5 0) (:r5 +ptr_size)) '(:r4 :r5))
+	;the kinds of each, :r4 source and :r5 destination: a raw kind or a
+	;number, or an error
+	(assign '((:r4 +obj_vtable)) '(:r1))
+	(f-bind :bytes :vtable :r2)
+	(gotoif '(:r1 = :r2) 'raw_source)
+	(f-bind :shorts :vtable :r2)
+	(gotoif '(:r1 = :r2) 'raw_source)
+	(f-bind :ints :vtable :r2)
+	(gotoif '(:r1 = :r2) 'raw_source)
+	(call :obj :inst_of `(:r4 (@ ,(f-path :nums :vtable))) '(& :r1))
+	(gotoif '(:r1 = 0) 'error1)
+	;a source of numbers, into numbers or a raw kind
+	(call :obj :inst_of `(:r5 (@ ,(f-path :nums :vtable))) '(& :r1))
+	(gotoif '(:r1 /= 0) 'numbers)
+	(assign '((:r5 +obj_vtable)) '(:r1))
+	(f-bind :bytes :vtable :r2)
+	(gotoif '(:r1 = :r2) 'narrow)
+	(f-bind :shorts :vtable :r2)
+	(gotoif '(:r1 = :r2) 'narrow)
+	(f-bind :ints :vtable :r2)
+	(gotoif '(:r1 /= :r2) 'error1)
+(vp-label 'narrow)
+	(call :nums :narrow '(:r5 :r4) '(:r0))
+	(goto 'done)
+(vp-label 'raw_source)
+	;a raw source, into numbers only
+	(call :obj :inst_of `(:r5 (@ ,(f-path :nums :vtable))) '(& :r1))
+	(gotoif '(:r1 = 0) 'error1)
+(vp-label 'numbers)
+	(call :nums :convert '(:r5 :r4 :r3) '(:r0) :r2)
+(vp-label 'done)
 	(class/obj/ref :r0 :r1)
 	(vp-cpy-rr :r0 :r1)
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit :nums :lisp_convert '(:r0 :r1))
 	(vp-ret)
 
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(nums-convert src dst)" +error_msg_wrong_types))
-	(signature '(:nums :nums))
+	(jump :lisp :repl_error '(:r1 "(nums-convert src dst [signed])" +error_msg_wrong_types))
+	(signature '(:array :array :obj))
 
 (def-func-end)
 

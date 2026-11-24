@@ -51,9 +51,9 @@
 							(:t (defq ss (string-stream (cat "")))
 								(cond
 									((not (zip-read data entry ss)) (print "unzip: can not read " name))
-									((/= (crc32 (defq bytes (str ss))) (elem-get entry +zip_entry_crc))
+									((/= (crc32 (defq byte_data (str ss))) (elem-get entry +zip_entry_crc))
 										(print "unzip: not as it was made: " name))
-									(:t (save bytes (cat folder "/" name))
+									(:t (save byte_data (cat folder "/" name))
 										(setq count (inc count)))))))
 					want)
 				(print "unzip: " count " files to " folder)))))

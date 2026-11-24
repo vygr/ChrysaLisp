@@ -2,8 +2,8 @@
 (import "lib/crypto/sha256.inc")
 (import "lib/crypto/aead.inc")
 
-(defun cr-hex (bytes)
-	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) bytes))))
+(defun cr-hex (byte_data)
+	(to-lower (apply (const cat) (map (# (byte-to-hex-str (code %0))) byte_data))))
 (defun cr-unhex (text)
 	;the bytes of a str of hex
 	(hex-decode text))

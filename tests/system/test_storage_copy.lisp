@@ -25,7 +25,7 @@
 	;a tick that adds up what it is told, and says stop once it has been
 	;told most bytes, if most is given
 	(setq sc_told 0)
-	`(lambda (bytes) (setq sc_told (+ sc_told bytes)) (< sc_told ,(ifn most 0x7fffffffffffffff))))
+	`(lambda (byte_count) (setq sc_told (+ sc_told byte_count)) (< sc_told ,(ifn most 0x7fffffffffffffff))))
 
 (defun sc-read (file)
 	;what is in a file, read as it is now

@@ -205,8 +205,8 @@
 (defun show (entry)
 	;a line of an object: how long, how many times written, how many of
 	;the members have it, who wrote it, its path
-	(bind '(name hash bytes vv writer seen deleted copies) entry)
-	(print (pad (str bytes) 12) " " (pad (str (store-vv-total vv)) 4) " "
+	(bind '(name hash byte_count vv writer seen deleted copies) entry)
+	(print (pad (str byte_count) 12) " " (pad (str (store-vv-total vv)) 4) " "
 		;? if who the members are was not answered
 		(pad (if members (cat (str (length (filter (# (find %0 members)) seen))) "/" (str (length members))) "?") 6) " "
 		(slice writer 0 8) " " (if (> copies 0) (cat "x" (str copies)) "  ") " " name))
@@ -326,9 +326,9 @@
 								(stream-flush (io-stream 'stdout))
 								(got-all object))
 							((print "No object " name))))
-					(:t (bind '(what bytes) (storage-get-file name opt_g svc))
+					(:t (bind '(what byte_count) (storage-get-file name opt_g svc))
 						(cond
-							((eql what :ok) (print bytes " bytes to " opt_g))
+							((eql what :ok) (print byte_count " bytes to " opt_g))
 							((eql what :none) (print "No object " name))
 							((eql what :host) (print "No file " opt_g " to write."))
 							((print "Error: not all of it, a block of it could not be had"))))))
@@ -336,7 +336,7 @@
 				;not the files of a folder of deps, nor one whose name begins with a dot
 				(defq files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "." (last (split %0 "/"))))))
 						(files-all (ifn opt_T opt_V) '("")))
-					put 0 same 0 bytes 0 t0 (pii-time))
+					put 0 same 0 byte_count 0 t0 (pii-time))
 				(defun at (file) (cat name (if (starts-with "./" file) (slice file 2 -1) file)))
 				(when opt_T
 					(store-to svc)
@@ -348,10 +348,10 @@
 				(defq t1 (pii-time))
 				(each (lambda (file)
 						(if (defq size (storage-same-file? (at file) file svc))
-							(setq same (inc same) bytes (+ bytes size))
+							(setq same (inc same) byte_count (+ byte_count size))
 							(print "Not the same: " file)))
 					files)
-				(print same " of " (length files) " read back the same, " bytes " bytes, in " (/ (- (pii-time) t1) 1000) "ms"))
+				(print same " of " (length files) " read back the same, " byte_count " bytes, in " (/ (- (pii-time) t1) 1000) "ms"))
 			(opt_d (print (first (storage-delete name :nil svc))))
 			(opt_q
 				;the function, written with or without a ' before it

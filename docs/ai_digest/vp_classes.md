@@ -9,6 +9,35 @@ page of its own with its fields and methods under `docs/reference/vp_classes/`.
 docs/reference/vp_hierarchy.cwb
 ```
 
+## A Method Is a Function, Named
+
+A class's `dec-method` names the function that is its method, and that
+function need not be the class's own. Inheritance says what a class is; its
+`dec-method` lines say whose code runs for each method. Three uses of it:
+
+* **Abstract methods.** `:seq` declares `:get_length`, `:ref_elem`,
+  `:slice` and the rest `:virtual`, each `class/obj/null`, a slot with no
+  code until a class built on it names a function of its own. An `s-call` to
+  a parent's method that is `class/obj/null` makes no call at all.
+
+* **Behaviour shared across the tree.** `:hset` and `:hmap` name
+  `class/obj/eql` for their `:eql`, the identity of `:obj`, where the
+  `:list` they come of compares by content.
+
+* **Code shared across branches.** `:floats` comes of `:doubles`, for the
+  maths and its place in the ladder of numbers, but its storage methods are
+  `:ints`', `class/ints/slice` and the rest, the same 4 byte code. A method
+  can be shared so when each call in it dispatches through the object, as
+  `call` of a `:virtual` method does, so it makes and boxes what the object
+  is: a function that names a class's vtable itself, as a `:push` that
+  appends one of its own class does, is that class's alone.
+
+The storage of the arrays is made this way by width, from one source in
+`class/array/class.inc`: generators, `array-slice`, `array-find` and the
+rest, each of a class and a width, that a class's `def-method` calls. The
+width is known there and nowhere else, not to `def-class`, the vtable or an
+instance, whose header and 8 slots of short storage are as they were.
+
 ## Class Descriptions
 
 ### 1. Root and Abstract Classes
@@ -88,10 +117,12 @@ docs/reference/vp_hierarchy.cwb
 
 * **Inherits From:** `:seq`
 
-* **Purpose:** A concrete, general-purpose dynamic array for storing raw `long`
-  values (which can be numbers or pointers). It implements the `:seq` interface
-  and manages its own capacity, reallocating memory as needed. It is the
-  foundation for more specialized collections like `:list` and `:nums`.
+* **Purpose:** The base of storage, never made itself: `:list` comes of it
+  for counted references, `:nums` and those of it for numbers with their
+  maths, and `:bytes`, `:shorts` and `:ints` for raw storage. It implements
+  the `:seq` interface and manages its own capacity, reallocating memory as
+  needed, its elements 8 bytes, its storage methods made by the generators
+  of `class/array/class.inc` at that width.
 
 * **Key Methods:**
 
@@ -335,8 +366,24 @@ is true of a double and a float, `(fixed?? x)` only of a fixed.
 
 * **Key Methods:**
 
-	* Overrides the storage of `:array` for its 4 byte elements, and each
-	  arithmetic method of `:doubles` with single ops.
+	* Its storage methods are `:ints`', named by its `dec-method` lines, the
+	  same 4 byte code; its `:push` its own, and each arithmetic method of
+	  `:doubles` overridden with single ops.
+
+**`:bytes`**, **`:shorts`**, **`:ints`**
+
+* **Inherit From:** `:array`
+
+* **Purpose:** Raw storage of 1, 2 and 4 byte elements, named after the
+  structure types. An element is its bits: read, a `:num` never sign
+  extended; written, its low bits. They have no maths: `(nums-convert)`
+  makes numbers of them, signed if asked, and them of numbers.
+
+* **Key Methods:**
+
+	* The storage methods of `:array`, made at their width by its generators;
+	  each its own `:push`, which takes a number's low bits, one of its own
+	  kind's elements, and any other array's or a str's bytes, raw.
 
 ### 5. I/O Stream Implementations
 

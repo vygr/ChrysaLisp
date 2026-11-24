@@ -1,0 +1,136 @@
+(include "lib/asm/func.inc")
+(include "lib/consts/chars.inc")
+(include "./class.inc")
+(include "././stream/class.inc")
+(include "././list/class.inc")
+(include "././floats/class.inc")
+(include "././bytes/class.inc")
+(include "././shorts/class.inc")
+(include "././ints/class.inc")
+
+(gen-create :ints)
+	;outputs
+	;:r0 = 0 if error, else ints object (ptr)
+	;trashes
+	;:r0-:r2, :d0-:d15
+(gen-vtable :ints)
+(gen-type :ints)
+
+(def-method :ints :set_cap)
+	;the set_cap of :array at 4 bytes
+
+	(array-set-cap :ints 4)
+
+(def-func-end)
+
+(def-method :ints :ref_elem)
+	;the ref_elem of :array at 4 bytes
+
+	(array-ref-elem :ints 4)
+
+(def-func-end)
+
+(def-method :ints :ref_back)
+	;the ref_back of :array at 4 bytes
+
+	(array-ref-back :ints 4)
+
+(def-func-end)
+
+(def-method :ints :set_elem)
+	;the set_elem of :array at 4 bytes
+
+	(array-set-elem :ints 4)
+
+(def-func-end)
+
+(def-method :ints :fill)
+	;the fill of :array at 4 bytes
+
+	(array-fill :ints 4)
+
+(def-func-end)
+
+(def-method :ints :find)
+	;the find of :array at 4 bytes
+
+	(array-find :ints 4)
+
+(def-func-end)
+
+(def-method :ints :rfind)
+	;the rfind of :array at 4 bytes
+
+	(array-rfind :ints 4)
+
+(def-func-end)
+
+(def-method :ints :slice)
+	;the slice of :array at 4 bytes
+
+	(array-slice :ints 4)
+
+(def-func-end)
+
+(def-method :ints :cat)
+	;the cat of :array at 4 bytes
+
+	(array-cat :ints 4)
+
+(def-func-end)
+
+(def-method :ints :splice)
+	;the splice of :array at 4 bytes
+
+	(array-splice :ints 4)
+
+(def-func-end)
+
+(def-method :ints :append)
+	;the append of :array at 4 bytes
+
+	(array-append :ints 4)
+
+(def-func-end)
+
+(def-method :ints :erase)
+	;the erase of :array at 4 bytes
+
+	(array-erase :ints 4)
+
+(def-func-end)
+
+(def-method :ints :erase2)
+	;the erase2 of :array at 4 bytes
+
+	(array-erase2 :ints 4)
+
+(def-func-end)
+
+(def-method :ints :eql)
+	;the eql of :array at 4 bytes
+
+	(array-eql :ints 4)
+
+(def-func-end)
+
+(def-method :ints :hash)
+	;the hash of :array at 4 bytes
+
+	(array-hash :ints 4)
+
+(def-func-end)
+
+(def-method :ints :print)
+	;the print of :array at 4 bytes
+
+	(array-print :ints 4)
+
+(def-func-end)
+
+(def-method :ints :push)
+	;the push of :array at 4 bytes
+
+	(array-push :ints 4)
+
+(def-func-end)

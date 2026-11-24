@@ -22,7 +22,7 @@
 ;a tone in place of the microphone, mailed to two that are to hear it, or
 ;none, muted or not, and to a tap or not
 (defun vc-run (to &optional muted tap level said)
-	; (vc-run to [muted tap level said]) -> ((seq from bytes peak) ...) of each that was sent to
+	; (vc-run to [muted tap level said]) -> ((seq from byte_count peak) ...) of each that was sent to
 	(defq done (mail-mbox) ctl (mail-mbox) from (mail-mbox) boxes (map (lambda (&ignore) (mail-mbox)) to))
 	(mail-send ctl (cat "t" (join (map (const hex-encode) (filter (const identity) (map (# (if %0 %1)) to boxes))) ",")))
 	(if muted (mail-send ctl "m1"))
@@ -40,14 +40,14 @@
 	(list (list) (vc-all :nil)) (vc-run '(:t) :t (mail-mbox)))
 (assert-list-eq "not muted, the tap has what is said" (list (vc-all :t) (vc-all :t)) (vc-run '(:t) :nil (mail-mbox)))
 ;the gate: what is quiet is not sent, the tap has it all
-(defun vc-quiet (got) (map (lambda ((seq from bytes peak)) (list seq from bytes)) got))
+(defun vc-quiet (got) (map (lambda ((seq from byte_count peak)) (list seq from byte_count)) got))
 (assert-list-eq "quiet, below the gate, nothing is sent, and the tap has each piece"
 	(list (list) (map! (# (list (!) :t +sound_piece)) '() 0 10)) (map (const vc-quiet) (vc-run '(:t) :nil (mail-mbox) 500)))
 ;half duplex: another heard of late is not spoken over. The sender is run
 ;here on pieces already made, with an h before the first of them: with
 ;half duplex off every one is sent
 (defun vc-held (said)
-	; (vc-held said) -> (((seq from bytes peak) ...)) of the one to hear it
+	; (vc-held said) -> (((seq from byte_count peak) ...)) of the one to hear it
 	(defq ctl (mail-mbox) from (mail-mbox) box (mail-mbox)
 		loud (sound-map (str-alloc +sound_piece) (lambda (&ignore) 6000)))
 	(mail-send ctl (cat "t" (hex-encode box)))

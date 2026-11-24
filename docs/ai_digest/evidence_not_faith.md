@@ -11,13 +11,14 @@ claims, derived directly from the system's own build and diagnostic tools.
 
 ## The Anatomy of a 40ms Build: What Actually Happens
 
-When a benchmark reports an entire operating system rebuild in **0.041 seconds
-(41 ms)** on an Apple Silicon M4 Max processor booted with 16 VP nodes, one
+When a benchmark reports an entire operating system rebuild in **0.043 seconds
+(43 ms)** on an Apple Silicon M4 Max processor booted with 16 VP nodes, one
 for each of its processors, which is what `./run_tui.sh -n 0` gives, it is
 natural to assume it is merely compiling a few differential modules using a
 pre-warmed, monolithic compiler cached in memory. That is the figure of
-2026-11-24, of 1,192 functions; it was 39 ms on 2026-11-11, of 1,067, and
-53 ms on 2026-10-06, and how it came down is below.
+the evening of 2026-11-24, of 1,240 functions; it was 41 ms that morning,
+of 1,192, 39 ms on 2026-11-11, of 1,067, and 53 ms on 2026-10-06, and how
+it came down is below.
 
 In ChrysaLisp, that is not what happens. Every build cycle executes a complete,
 cold, and hermetic lifecycle across a shared-nothing cluster:
@@ -110,15 +111,29 @@ As soon as all compilation jobs finish and each worker task exits:
 
 ## The Benchmarks: Multi-Platform Build Analysis
 
-The following benchmarks were last re-measured on 2026-11-24, at commit
-`c6a13dd14`, from the TUI, on three machines, each with one node for each
-processor, three runs of each, by `~/.ssh/cl_bench.sh`. Nothing else of
+The following benchmarks were last re-measured on the evening of
+2026-11-24, with the raw kinds in (`:bytes`, `:shorts`, `:ints`), from the TUI, on three machines, each with one node for each
+processor, three runs of each, by `cl_bench.sh` on each. Nothing else of
 ChrysaLisp was up: each machine's standing member of the mesh was closed
 for the runs, its links poll, and each session was alone,
 `./run_tui.sh -n 0 -u Test -a`, not joined to the mesh. A joined session
 links to the members of the other machines, and that is 0.02 seconds of a
 `make all platforms` on the M4. Till 2026-11-10 the member was left up and
 idle beside them.
+
+**The M4 moves between sessions, and its figures here are what it gave.**
+The same code, the raw kinds, gave 0.264 to 0.266 seconds for `make test`
+on one node in the afternoon of that day and 0.271 to 0.276 in the
+evening, the tree and a copy of it alternated giving the same; `make all
+platforms` is 0.063 to 0.066 in some sessions and 0.074 to 0.078 in
+others, whatever the code. Other programs running, and Spotlight indexing
+new files, `mds` at 121% of a core and six workers at 13 to 15% after a
+copy of the tree was made, were found to slow a run, and were out of the
+evening's: the tree is kept from Spotlight since. With those out, and on
+mains, with no thermal warning, no swap and the machine idle, the 3%
+between the afternoon and the evening was not found. So what a change
+costs is taken by A against B in the same hour, alternated, and not from
+two sessions: the raw kinds that way were 1 to 2% on `make test`.
 
 * An Apple MacBook Pro with an Apple M4 Max processor, 16 nodes.
 
@@ -142,11 +157,11 @@ down all compiler environments.
 
 | Machine | Nodes | Mean | Best | Worst | On one node, mean |
 |---|---|---|---|---|---|
-| Apple M4 Max | 16 | 0.041 | 0.038 to 0.039 | 0.044 to 0.046 | 0.260 to 0.261 |
-| Intel i9-8950HK | 12 | 0.149 to 0.157 | 0.131 to 0.139 | 0.155 to 0.177 | 0.574 to 0.582 |
-| Raspberry Pi 4 | 4 | 0.97 to 0.99 | 0.89 to 0.91 | 1.02 to 1.13 | 2.71 to 2.76 |
+| Apple M4 Max | 16 | 0.042 to 0.044 | 0.039 to 0.040 | 0.045 to 0.051 | 0.274 to 0.276 |
+| Intel i9-8950HK | 12 | 0.163 to 0.168 | 0.141 to 0.155 | 0.173 to 0.201 | 0.584 to 0.589 |
+| Raspberry Pi 4 | 4 | 1.00 to 1.01 | 0.90 to 0.92 | 1.05 to 1.08 | 2.75 to 2.88 |
 
-All times are seconds, of 1,192 functions in 161 files.
+All times are seconds, of 1,240 functions.
 
 * **Evidence:** On the M4 the best and worst cycle of a run are within 6 to
   8 ms of each other, with no GC pause spikes, allocator fragmentation, or
@@ -164,7 +179,8 @@ How the mean has come down, seconds:
 | 2026-10-22 | 0.052 to 0.054 | 0.362 to 0.373 | | | | | More source, 142 files; a worker a node, a translation that stops early, a save that does not truncate |
 | 2026-11-10 | 0.039 to 0.042 | 0.234 to 0.235 | 0.140 to 0.176 | 0.512 to 0.517 | 0.96 to 1.08 | 2.42 to 2.58 | vpx gone, no pass over a frame, functions written by hand |
 | 2026-11-11 | 0.038 to 0.040 | 0.241 to 0.243 | 0.143 to 0.147 | 0.519 to 0.523 | 0.93 to 0.94 | 2.51 to 2.80 | The make by content and as one farm; a herd of more workers than nodes where they are few |
-| 2026-11-24 | 0.041 | 0.260 to 0.261 | 0.149 to 0.157 | 0.574 to 0.582 | 0.97 to 0.99 | 2.71 to 2.76 | More source: 1,192 functions, 1,067 before |
+| 2026-11-24, morning | 0.041 | 0.260 to 0.261 | 0.149 to 0.157 | 0.574 to 0.582 | 0.97 to 0.99 | 2.71 to 2.76 | More source: 1,192 functions, 1,067 before |
+| 2026-11-24, evening | 0.042 to 0.044 | 0.274 to 0.276 | 0.163 to 0.168 | 0.584 to 0.589 | 1.00 to 1.01 | 2.75 to 2.88 | The raw kinds, 48 functions more; and the M4 of the evening, see above |
 
 What changed for each record:
 
@@ -212,10 +228,19 @@ What changed for each record:
   about 5% on many nodes and 5 to 11% on one: a function costs what it did
   or a little less.
 
-On 2026-11-24 each machine ran `tests -a` on its own build as its figures
-were taken: 201 modules and 9,318 tests on each, none failed, in 297
-seconds on the M4, 313 on the i9 and 514 on the Pi. On 2026-11-10 it was
-187 modules and 8,255 tests, in 286, 289 and 493.
+* **2026-11-24, evening, the raw kinds.** Arrays of 1, 2 and 4 bytes an
+  element, their storage made by width from the one source `:array`'s is,
+  48 functions more, 1,240. Taken against the tree in the same hour, the
+  two alternated on the M4, `make test` was 1 to 2% more, the work of the
+  three classes' files. Between that hour and the evening the M4 gave 3%
+  more for the same code, which is not the raw kinds; the i9 and the Pi,
+  taken in one session each, 1 to 7% and 1 to 4%.
+
+On the evening of 2026-11-24 each machine ran `tests -a` on its own build
+as its figures were taken: 202 modules and 9,422 tests on each, none
+failed, in 298 seconds on the M4, 315 on the i9 and 537 on the Pi. That
+morning it was 201 modules and 9,318 tests, in 297, 313 and 514; on
+2026-11-10, 187 modules and 8,255, in 286, 289 and 493.
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
@@ -224,9 +249,9 @@ six different target architectures at once.
 
 * **Command:** `make all platforms | time`
 
-* **Action:** Makes the code of every function, 1,192 of them, for
+* **Action:** Makes the code of every function, 1,240 of them, for
   `x86_64/AMD64`, `x86_64/WIN64`, `arm64/ARM64`, `riscv64/RISCV64`,
-  `la64/LA64`, and `vp64/VP64`: 7,152 files. Since 2026-11-11 it is made
+  `la64/LA64`, and `vp64/VP64`: 7,440 files. Since 2026-11-11 it is made
   from the VP that is kept. The VP of a function is the same for every
   platform, a source file is assembled to it only when the file or
   something it includes has changed, and `all` makes all the code again
@@ -235,22 +260,24 @@ six different target architectures at once.
 
 | Machine | Nodes | Result | With the six boot images, `make all platforms boot` |
 |---|---|---|---|
-| Apple M4 Max | 16 | 0.065 to 0.066 seconds | 0.085 to 0.098 |
-| Intel i9-8950HK | 12 | 0.149 to 0.157 seconds | 0.192 to 0.204 |
-| Raspberry Pi 4 | 4 | 0.43 to 0.46 seconds | 0.52 to 0.55 |
+| Apple M4 Max | 16 | 0.077 seconds | 0.091 to 0.105 |
+| Intel i9-8950HK | 12 | 0.159 to 0.161 seconds | 0.187 to 0.200 |
+| Raspberry Pi 4 | 4 | 0.44 to 0.49 seconds | 0.53 to 0.56 |
 
-The first run of each machine's three was slower: 0.196 on the M4, 0.216
-on the i9, 2.72 on the Pi. Some later runs are too, and by a step, not a
+The M4's 0.077 is its slow mode, see above: that morning it was 0.065 to
+0.066 with 1,192 functions, and in the afternoon the same code as the evening's
+gave 0.063 in one run of three. The first run of each machine's three was
+slower: 0.211 on the M4, 0.247 on the i9, 0.49 on the Pi; in the morning
+0.196, 0.216 and 2.72. Some later runs are too, and by a step, not a
 spread: of 43 runs of the M4's `make all platforms boot`, alone or joined,
 8 were 0.22 to 0.25 and the rest 0.085 to 0.145; of 10 of `make all
 platforms` alone, the first three after a pause were 0.16 to 0.25. One of
-the Pi's was 1.14.
-Spotlight, which was looked at for it, was busiest in fast runs; what it
-is was not found. `make test`, which keeps nothing, has none.
+the Pi's was 1.14 in the morning, one 2.38 in the evening. Spotlight was
+busiest in fast runs of these; what it is was not found. `make test`, which keeps nothing, has none.
 
 * **Evidence:** The code of the entire operating system is made for six
   architectures in under 70 ms on the M4, and in under half a second on a
-  Raspberry Pi 4. Two thirds of that is the saving of the 7,152 files.
+  Raspberry Pi 4. Two thirds of that is the saving of the 7,440 files.
 
 How it has come down, seconds:
 
@@ -260,7 +287,8 @@ How it has come down, seconds:
 | 2026-10-22 | 0.21 to 0.25, on 19 | | | The source compiled to VP once and translated six times |
 | 2026-11-10 | 0.17 to 0.21 | 0.43 to 0.51 | 1.48 to 1.57 | As Test 1 |
 | 2026-11-11 | 0.063 to 0.068 | 0.135 to 0.172 | 0.40 to 0.51 | The VP is kept and not assembled again; one farm, where each platform had a herd of its own, one after another, and each read the file again |
-| 2026-11-24 | 0.065 to 0.066 | 0.149 to 0.157 | 0.43 to 0.46 | 1,192 functions, 1,067 before |
+| 2026-11-24, morning | 0.065 to 0.066 | 0.149 to 0.157 | 0.43 to 0.46 | 1,192 functions, 1,067 before |
+| 2026-11-24, evening | 0.077 | 0.159 to 0.161 | 0.44 to 0.49 | The raw kinds, 1,240 functions; the M4 in its slow mode |
 
 ### Test 2a: A Make With Little To Do
 
@@ -272,11 +300,13 @@ content and all it includes, and makes only what is not as its key says.
 
 | Machine | Nodes | `make`, nothing to do | `make`, one function changed | `make platforms boot`, nothing to do | `make platforms boot`, one function changed |
 |---|---|---|---|---|---|
-| Apple M4 Max | 16 | 0.006 to 0.007 | 0.016 to 0.017 | 0.008 to 0.009 | 0.036 to 0.040 |
-| Intel i9-8950HK | 12 | 0.010 to 0.018 | 0.036 to 0.039 | 0.022 to 0.026 | 0.080 to 0.103 |
-| Raspberry Pi 4 | 4 | 0.033 to 0.034 | 0.102 to 0.110 | 0.062 to 0.095 | 0.216 to 0.237 |
+| Apple M4 Max | 16 | 0.005 to 0.007 | 0.016 to 0.018 | 0.008 to 0.009 | 0.039 to 0.041 |
+| Intel i9-8950HK | 12 | 0.014 to 0.016 | 0.032 to 0.041 | 0.014 to 0.028 | 0.076 to 0.103 |
+| Raspberry Pi 4 | 4 | 0.035 to 0.036 | 0.11 to 0.14 | 0.062 | 0.18 to 0.23 |
 
-All times are seconds, measured on 2026-11-24; on 2026-11-11 the M4's were
+All times are seconds, measured on the evening of 2026-11-24; that
+morning the M4's were 0.006 to 0.007, 0.016 to 0.017, 0.008 to 0.009 and
+0.036 to 0.040, and on 2026-11-11
 0.004 to 0.006, 0.015 to 0.018, 0.008 to 0.009 and 0.038 to 0.045. The
 change is `(vp-cpy-cr 0 tmp)` put into `:num :hash` before `tmp` is first
 written, so its VP and code are new and what it does is not. The file
@@ -300,14 +330,15 @@ while running entirely inside the portable C++ software emulator.
 
 | Machine | Nodes | `make all boot` | `make apps` |
 |---|---|---|---|
-| Apple M4 Max | 16 | 1.20 to 1.32 seconds | 0.32 to 0.33 |
-| Intel i9-8950HK | 12 | 3.94 to 4.10 seconds | 0.78 to 0.83 |
-| Raspberry Pi 4 | 4 | 30.2 to 30.6 seconds | 4.6 to 5.5 |
+| Apple M4 Max | 16 | 1.22 to 1.29 seconds | 0.31 to 0.33 |
+| Intel i9-8950HK | 12 | 4.22 to 4.32 seconds | 0.77 to 0.82 |
+| Raspberry Pi 4 | 4 | 30.6 to 32.6 seconds | 5.8 to 6.5 |
 
 Each run was from a copy of the tree with only the host program and the
 unpacked `snapshot.zip` under `obj/`. The native image each install built
-was the size of its tree's own every time, 72,900 bytes on the M4 and the
-Pi, 69,844 on the i9.
+was the size of its tree's own every time, 72,908 bytes on the M4 and the
+Pi, 69,852 on the i9. The snapshot is the one made with the raw kinds,
+170,785 bytes; an install from the one before stops at their natives.
 
 * **Evidence:** Even when executing inside a portable C++ software emulator,
   ChrysaLisp can compile and link its entire native environment in a little
@@ -324,6 +355,8 @@ How it has gone, seconds:
 | 2026-11-11, `make apps` | 0.61 to 0.65 | 1.50 to 1.64 | 6.4 to 10.3 | It makes the apps that have changed, where it made every one whatever |
 | 2026-11-24, `make all boot` | 1.20 to 1.32 | 3.94 to 4.10 | 30.2 to 30.6 | 1,192 functions, 1,067 before |
 | 2026-11-24, `make apps` | 0.32 to 0.33 | 0.78 to 0.83 | 4.6 to 5.5 | Half what it was, not looked into |
+| 2026-11-24, evening, `make all boot` | 1.22 to 1.29 | 4.22 to 4.32 | 30.6 to 32.6 | The raw kinds, a new snapshot |
+| 2026-11-24, evening, `make apps` | 0.31 to 0.33 | 0.77 to 0.82 | 5.8 to 6.5 | |
 
 **The rows till 2026-11-10 are of the second step, not the first.** The
 installer prints two times, and the last was the one read: `make apps`,
@@ -352,15 +385,19 @@ minimal `boot_image` binaries across all supported architectures. Bytes,
 on 2026-11-24 and before, the same to the byte on each of the three
 machines that made them:
 
-| Image | 2026-10-06 | 2026-10-11 | 2026-10-21 | 2026-10-21 | 2026-11-10 | 2026-11-24 |
-|---|---|---|---|---|---|---|
-| What it holds | Every function | Every function | Every function | What an install needs | See below | See below |
-| `vp64/VP64` | 160,764 | 178,004 | 217,308 | 129,844 | 243,372 | **261,940** |
-| `x86_64/AMD64` | 218,524 | 242,380 | 303,908 | 173,900 | 68,588 | **69,844** |
-| `x86_64/WIN64` | 219,076 | 242,956 | 304,532 | 174,108 | 68,172 | **69,428** |
-| `arm64/ARM64` | 233,164 | 255,868 | 312,732 | 187,940 | 71,444 | **72,900** |
-| `riscv64/RISCV64` | 270,540 | 298,036 | 360,684 | 218,556 | 76,756 | **78,500** |
-| `la64/LA64` | 270,108 | 297,156 | 359,460 | 218,052 | 76,300 | **78,044** |
+| Image | 2026-10-06 | 2026-10-11 | 2026-10-21 | 2026-10-21 | 2026-11-10 | 2026-11-24 | 2026-11-24, evening |
+|---|---|---|---|---|---|---|---|
+| What it holds | Every function | Every function | Every function | What an install needs | See below | See below | See below |
+| `vp64/VP64` | 160,764 | 178,004 | 217,308 | 129,844 | 243,372 | 261,940 | **270,780** |
+| `x86_64/AMD64` | 218,524 | 242,380 | 303,908 | 173,900 | 68,588 | 69,844 | **69,852** |
+| `x86_64/WIN64` | 219,076 | 242,956 | 304,532 | 174,108 | 68,172 | 69,428 | **69,436** |
+| `arm64/ARM64` | 233,164 | 255,868 | 312,732 | 187,940 | 71,444 | 72,900 | **72,908** |
+| `riscv64/RISCV64` | 270,540 | 298,036 | 360,684 | 218,556 | 76,756 | 78,500 | **78,508** |
+| `la64/LA64` | 270,108 | 297,156 | 359,460 | 218,052 | 76,300 | 78,044 | **78,052** |
+
+The evening's VP64 image is 8,840 bytes more, of the three raw kinds it
+holds as it holds every function of `class/`; a native one 8 bytes, the
+three new symbols.
 
 With every function in them the images grew as the system did: the
 network, the whiteboard's set logic of polygons and the crypto of the mesh
@@ -394,13 +431,14 @@ the same way in turn. It is how the functions of an application under
 `apps/` have always arrived, they are never in the image.
 
 So what is in an image is what was chosen to be bound ahead of time, and
-nothing more than that. On 2026-11-24, of the 1,192 functions there are
-outside `apps/`, 1,061 on 2026-11-10:
+nothing more than that. On the evening of 2026-11-24, of the 1,240
+functions there are outside `apps/`, 1,192 that morning, 1,061 on
+2026-11-10:
 
 | Image | Functions | Bytes | What it holds |
 |---|---|---|---|
-| A native one, `arm64/ARM64` | 243, 237 on 2026-11-10 | 72,900 | The loader, the kernel and what they call, the translator of its own CPU among them |
-| The VP64 one, as a make of it gives | 915, 797 on 2026-11-10 | 261,940 | What an install binds before it has built anything, and the translator of every CPU |
+| A native one, `arm64/ARM64` | 243, 237 on 2026-11-10 | 72,908 | The loader, the kernel and what they call, the translator of its own CPU among them |
+| The VP64 one, as a make of it gives | 963, 915 that morning, 797 on 2026-11-10 | 270,780 | What an install binds before it has built anything, and the translator of every CPU |
 
 **A native image holds only what starts the system.** It is made by an
 install, after the rest has been built, so the files are there to bind
@@ -408,11 +446,12 @@ from. The GUI, the services, the codecs and most of the class library are
 not in it.
 
 **It runs.** `tests -a` on 2026-11-24, on the native images of three
-machines: 201 modules and 9,318 tests on each, none failed, everything
+machines: 202 modules and 9,422 tests on each, none failed, everything
 they use bound as it was asked for. That includes the module that starts
 a hidden desktop and opens every application on it. A one node session on
-the M4, started, given `echo up` and ended, timed from outside: 35 to 37
-ms, five runs after the first, on 2026-11-24; 32 to 35 on 2026-11-10.
+the M4, started, given `echo up` and ended, timed from outside: 36 to 37
+ms, five runs after the first, on the evening of 2026-11-24; 32 to 35 on
+2026-11-10.
 
 **The VP64 image is what an install needs.** `snapshot.zip` holds it and
 no function files, so an install has nothing to bind from till it has
@@ -424,9 +463,9 @@ path functions Lisp's boot asks for, the crypto a machine's key is made
 with, the Net service's sockets, and the translators and the parser of VP
 text. A new function in `sys/` or `class/` is in it without anyone saying
 so. One elsewhere that an install binds too soon, and is not named, stops
-the install with `Bind error:` and its name. `snapshot.zip` is 167,752
-bytes, the VP64 image and the host program for Windows, as it was made
-for 7.8.
+the install with `Bind error:` and its name. `snapshot.zip` is 170,785
+bytes, the VP64 image and the host program for Windows, made again for
+the raw kinds.
 
 ## A Network Learnt On The GPU
 

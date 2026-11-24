@@ -169,7 +169,7 @@ are given ! They just pack the `num_value` fields of the input parameters into
 a typed array, a word an element. `(floats ...)` keeps each as a float, an element of 32
 bits, 4 bytes, as a GPU buffer has them, and gives each back as a
 `:float`. `(nums-convert)` makes a vector of one kind from one of another,
-converting each element. It is the only op that takes two kinds: every vector
+converting each element, a raw kind's too, below. It is the only op that takes two kinds: every vector
 given to any other, the one it writes to as well, is of the one class, and an
 op of two is an error, as a floats' elements are half the size of the others'.
 
@@ -200,6 +200,26 @@ an input vector !
 Temp vector constants are defined in the `lib/math/vector.inc` file, such as
 `+fixeds_tmp3`, `+fixeds_tmp4`, `+doubles_tmp3`, `+doubles_tmp4`, `+fixeds_zero3`,
 `+fixeds_zero4`, `+doubles_zero3` and `+doubles_zero4`.
+
+## Raw arrays
+
+```image
+docs/diagrams/array_kinds.cwb
+```
+
+`(bytes ...)`, `(shorts ...)` and `(ints ...)` are raw storage, of 1, 2 and
+4 byte elements, named after the structure types. An element is its bits:
+read, it is a `:num`, never sign extended; written, a number's low bits are
+kept, so `(shorts -1 70000)` is `(65535 4464)`. They have every operation of
+a sequence, `elem-get`, `slice`, `find`, `push`, `cat`, `splice` and the
+rest, and no maths. A `push` of another array into one, or of a str, takes
+its bytes raw, at the width of each.
+
+For maths, `(nums-convert src dst [signed])` converts. Of a raw kind into
+nums, fixeds, doubles or floats, each element is read signed if `signed` is
+given and not `:nil`, so `(nums-convert (shorts 65535) (nums) :t)` is `(-1)`.
+Of numbers into a raw kind, each element is made an integer as `n2i` makes
+it, and its low bits kept. A raw kind into another is an error.
 
 ## The maths beneath
 

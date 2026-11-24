@@ -44,14 +44,14 @@
 	+tls_zero32 (apply (const cat) (map! (lambda () (char 0)) '() 0 32))
 	+tls_empty_hash (sha256 ""))
 
-(defmacro tls-be (n bytes)
-	; (tls-be n bytes) -> str
+(defmacro tls-be (n byte_count)
+	; (tls-be n byte_count) -> str
 	;a number as so many bytes, the high first, as TLS has its numbers
-	(static-qq (char-be ,n ,bytes)))
+	(static-qq (char-be ,n ,byte_count)))
 
-(defmacro tls-num (data at bytes)
-	; (tls-num data at bytes) -> num
-	(static-qq (code-be ,data ,bytes ,at)))
+(defmacro tls-num (data at byte_count)
+	; (tls-num data at byte_count) -> num
+	(static-qq (code-be ,data ,byte_count ,at)))
 
 (defun tls-vec (len_bytes data)
 	; (tls-vec len_bytes data) -> str

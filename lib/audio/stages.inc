@@ -142,11 +142,11 @@
 	; (sound-from-file in out path [ctl])
 	;the samples of a sound file, by its format, or till ctl is sent anything
 	(when (and (defq kind (sound-loader-of path)) (defq stream (file-stream path)))
-		(bind '(rate & & bytes) ((second kind) stream))
-		(while (and (> bytes 0) (not (sound-stopped? ctl))
-				(defq data (read-blk stream (min bytes +sound_piece))) (nempty? data))
+		(bind '(rate & & byte_count) ((second kind) stream))
+		(while (and (> byte_count 0) (not (sound-stopped? ctl))
+				(defq data (read-blk stream (min byte_count +sound_piece))) (nempty? data))
 			(sound-write out data)
-			(setq bytes (- bytes (length data)))
+			(setq byte_count (- byte_count (length data)))
 			(task-slice))))
 
 ;filters
@@ -182,11 +182,11 @@
 	(when (and (defq kind (sound-loader-of path))
 			(defq stream (file-stream path +file_open_write)))
 		((third kind) stream +sound_rate)
-		(defq bytes 0)
+		(defq byte_count 0)
 		(sound-pieces in (lambda (data)
 				(write-blk stream data)
-				(setq bytes (+ bytes (length data)))))
-		((elem-get kind 3) stream +sound_rate bytes)))
+				(setq byte_count (+ byte_count (length data)))))
+		((elem-get kind 3) stream +sound_rate byte_count)))
 
 (defun sound-speaker (in out)
 	; (sound-speaker in out)

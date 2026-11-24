@@ -1,9 +1,12 @@
 (include "././doubles/class.inc")
 (include "././float/class.inc")
+(include "././ints/class.inc")
 (include "./struct.inc")
 
 ;a vector of floats, each element 32 bits, 4 bytes, as a GPU buffer has
 ;them, each given out and taken in as a :float of the same bits
+;its storage is :ints', 4 bytes an element, the same code: those methods
+;dispatch through the object, so are the floats' as they are the ints'
 (def-class :floats :doubles
 	(dec-method :vtable class/floats/vtable)
 	(dec-method :type class/floats/type :override)
@@ -11,22 +14,22 @@
 	(dec-method :vcreate class/floats/create :final)
 	(dec-method :velement class/float/create :final)
 	;the storage of 4 bytes an element
-	(dec-method :set_cap class/floats/set_cap :final)
-	(dec-method :ref_elem class/floats/ref_elem :final)
-	(dec-method :ref_back class/floats/ref_back :final)
-	(dec-method :set_elem class/floats/set_elem :final)
-	(dec-method :fill class/floats/fill :final)
-	(dec-method :find class/floats/find :final)
-	(dec-method :rfind class/floats/rfind :final)
-	(dec-method :slice class/floats/slice :final)
-	(dec-method :cat class/floats/cat :final)
-	(dec-method :splice class/floats/splice :final)
-	(dec-method :append class/floats/append :final)
-	(dec-method :erase class/floats/erase :final)
-	(dec-method :erase2 class/floats/erase2 :final)
-	(dec-method :eql class/floats/eql :final)
-	(dec-method :hash class/floats/hash :final)
-	(dec-method :print class/floats/print :final)
+	(dec-method :set_cap class/ints/set_cap :final)
+	(dec-method :ref_elem class/ints/ref_elem :final)
+	(dec-method :ref_back class/ints/ref_back :final)
+	(dec-method :set_elem class/ints/set_elem :final)
+	(dec-method :fill class/ints/fill :final)
+	(dec-method :find class/ints/find :final)
+	(dec-method :rfind class/ints/rfind :final)
+	(dec-method :slice class/ints/slice :final)
+	(dec-method :cat class/ints/cat :final)
+	(dec-method :splice class/ints/splice :final)
+	(dec-method :append class/ints/append :final)
+	(dec-method :erase class/ints/erase :final)
+	(dec-method :erase2 class/ints/erase2 :final)
+	(dec-method :eql class/ints/eql :final)
+	(dec-method :hash class/ints/hash :final)
+	(dec-method :print class/ints/print :final)
 	;the vector ops in 32 bits, the sum and dot summed as doubles
 	(dec-method :add class/floats/add :final)
 	(dec-method :sub class/floats/sub :final)

@@ -102,8 +102,8 @@
 						(defq shsize (mod-u32 data (+ at 29)) heads (+ at size) from (+ heads (* shsize nsamples)))
 						(times nsamples
 							(defq h (+ heads (* shsize (- (length samples) first_sample)))
-								bytes (mod-u32 data h) kind (mod-u8 data (+ h 14)) wide (bits? kind 16)
-								unit (if wide 2 1) n (/ bytes unit)
+								byte_count (mod-u32 data h) kind (mod-u8 data (+ h 14)) wide (bits? kind 16)
+								unit (if wide 2 1) n (/ byte_count unit)
 								ls (/ (mod-u32 data (+ h 4)) unit) ll (/ (mod-u32 data (+ h 8)) unit)
 								have (mod-frames data from n unit)
 								sample (scatter (Emap) :name (mod-text data (+ h 18) 22) :length have
@@ -118,7 +118,7 @@
 								(scatter sample :loop_start ls :loop_end (min have (+ ls ll))
 									:pingpong (bits? kind 2)))
 							(push samples sample)
-							(setq from (+ from bytes)))
+							(setq from (+ from byte_count)))
 						(setq at from))
 					(:t (setq at (+ at size))))
 				(push instruments ins))

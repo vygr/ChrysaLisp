@@ -27,9 +27,9 @@
 ;module
 (env-push)
 
-(defun mp4-n (s at bytes)
+(defun mp4-n (s at byte_count)
 	;a number of so many bytes, high first
-	(code-be s bytes at))
+	(code-be s byte_count at))
 
 (defun mp4-boxes (s at end)
 	; (mp4-boxes str at end) -> ((name body end) ...)

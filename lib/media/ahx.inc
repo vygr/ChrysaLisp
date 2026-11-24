@@ -798,11 +798,11 @@
 	(if (> delta (const (<< +ahx_buffer 16))) (setq delta (- delta (const (<< +ahx_buffer 16)))))
 	(max 1 delta))
 
-(defun ahx-repeat (bytes)
-	; (ahx-repeat bytes) -> str
+(defun ahx-repeat (byte_data)
+	; (ahx-repeat byte_data) -> str
 	;a waveform repeated to 640, the mixer's 16 bits
-	(mod-widen (if (= (length bytes) +ahx_buffer) bytes
-		(apply (const cat) (map! (# bytes) '() 0 (/ +ahx_buffer (length bytes))))) 0 +ahx_buffer +widen_s8 :nil))
+	(mod-widen (if (= (length byte_data) +ahx_buffer) byte_data
+		(apply (const cat) (map! (# byte_data) '() 0 (/ +ahx_buffer (length byte_data))))) 0 +ahx_buffer +widen_s8 :nil))
 
 (defun ahx-audio (player voice)
 	; (ahx-audio player voice)
@@ -819,11 +819,11 @@
 		(unless (eql key (. voice :find :buffer_key))
 			(. voice :insert :buffer_key key)
 			(defq waves (ahx-waves)
-				bytes (cond
+				byte_data (cond
 					((eql src :square) (. voice :find :square))
 					((= (. voice :find :waveform) 3) (slice waves src (+ src +ahx_buffer)))
 					((slice waves src (+ src (* 4 (<< 1 wl)))))))
-			(elem-set (. player :find :samples) (. voice :find :index) (ahx-repeat bytes))))
+			(elem-set (. player :find :samples) (. voice :find :index) (ahx-repeat byte_data))))
 	(when (. voice :find :ring_plant)
 		(scatter voice :ring_plant :nil :ring_delta (ahx-delta player (. voice :find :ring_period))))
 	;a ring's buffer, after the voices' in the mixer's samples

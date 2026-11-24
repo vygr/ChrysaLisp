@@ -28,7 +28,7 @@
 	(some (# (if (ends-with (first %0) file) %0)) *sound_loaders*))
 
 (defun sound-info (file)
-	; (sound-info file) -> :nil | (rate channels bits bytes)
+	; (sound-info file) -> :nil | (rate channels bits byte_count)
 	;what a sound file is, and how many bytes of samples it has
 	(and (defq kind (sound-loader-of file)) (defq stream (file-stream file))
 		(defq info ((second kind) stream)) (> (first info) 0) info))
@@ -37,8 +37,8 @@
 	; (sound-seconds file) -> num
 	;how long a sound file is, in whole seconds
 	(if (defq info (sound-info file))
-		(progn (bind '(rate channels bits bytes) info)
-			(/ bytes (* rate channels (/ bits 8))))
+		(progn (bind '(rate channels bits byte_count) info)
+			(/ byte_count (* rate channels (/ bits 8))))
 		0))
 
 (defun sound-sample (data i)

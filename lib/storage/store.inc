@@ -656,9 +656,9 @@
 
 (defun store-save-lines (saving entries)
 	;the lines of these entries to those of the file being made
-	(defq lines (elem-get saving +save_lines) bytes (elem-get saving +save_bytes))
-	(each (# (setq bytes (+ bytes (length (push lines (store-entry-line %0))) 1))) entries)
-	(elem-set saving +save_bytes bytes))
+	(defq lines (elem-get saving +save_lines) byte_count (elem-get saving +save_bytes))
+	(each (# (setq byte_count (+ byte_count (length (push lines (store-entry-line %0))) 1))) entries)
+	(elem-set saving +save_bytes byte_count))
 
 (defun store-save-step (store &optional until)
 	; (store-save-step store [until]) -> :nil | :t
@@ -784,15 +784,15 @@
 	;entries are more than one holds
 	(when (def? :journal store)
 		(defq lines (map (const store-entry-line) entries)
-			bytes (reduce (# (+ %0 (length %1) 10)) lines 0))
-		(when (> (+ (get :journal_at store) bytes) (get :journal_size store))
+			byte_count (reduce (# (+ %0 (length %1) 10)) lines 0))
+		(when (> (+ (get :journal_at store) byte_count) (get :journal_size store))
 			(store-save-finish store)
 			(store-save-begin store))
-		(when (<= (+ (defq at (get :journal_at store)) bytes) (get :journal_size store))
+		(when (<= (+ (defq at (get :journal_at store)) byte_count) (get :journal_size store))
 			(defq count (get :journal_count store))
 			(store-journal-write store at (apply (const cat) (cat (list "") (map (# (store-journal-mark count %0)) lines))))
 			(exfat-sync (get :vol store))
-			(def store :journal_at (+ at bytes) :digest :nil)
+			(def store :journal_at (+ at byte_count) :digest :nil)
 			(if (> (* 4 (get :journal_at store)) (* 3 (get :journal_size store))) (store-save-begin store))
 			:t)))
 
@@ -1711,12 +1711,12 @@
 		(cond
 			((defq entries (store-moment-next store moment))
 				(defq sets (list) sets_at (cat at prefix))
-				(each (lambda ((path hash bytes vv writer seen deleted copies))
+				(each (lambda ((path hash byte_count vv writer seen deleted copies))
 						(unless deleted
 							(cond
 								((eql kind :snapshot)
 									(and (starts-with prefix path) (not (starts-with +store_snapshots path))
-										(push sets (list (cat at path) hash bytes :nil copies))))
+										(push sets (list (cat at path) hash byte_count :nil copies))))
 								((eql kind :drop)
 									(and (starts-with at path) (store-stat store path)
 										(push sets (list path "" 0 :t copies))))
@@ -1724,7 +1724,7 @@
 									;a restore: the path as it was in the snapshot
 									(elem-set snap +snap_found :t)
 									(defq orig (slice path (length at) -1))
-									(unless (eql (store-now store orig) hash) (push sets (list orig hash bytes :nil copies))))
+									(unless (eql (store-now store orig) hash) (push sets (list orig hash byte_count :nil copies))))
 								;and one there is now that the snapshot has not
 								((and (starts-with prefix path) (not (starts-with +store_snapshots path))
 										(not (store-stat store (cat at path))))
@@ -1906,16 +1906,16 @@
 	(defq map (get :map store) me (get :member store) changed (list))
 	(each (lambda (theirs)
 			(task-breathe)
-			(bind '(name hash bytes vv writer seen deleted copies) theirs)
+			(bind '(name hash byte_count vv writer seen deleted copies) theirs)
 			;a path gone here is as its delete was
 			(defq mine (store-find store name) now :nil)
 			(cond
 				((not mine)
-					(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))
+					(setq now (list name hash byte_count vv writer (store-seen seen (list me)) deleted copies)))
 				(:t (defq how (store-vv-cmp vv (elem-get mine +store_entry_vv)) my_hash (elem-get mine +store_entry_hash))
 					(cond
 						((eql how :after)
-							(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))
+							(setq now (list name hash byte_count vv writer (store-seen seen (list me)) deleted copies)))
 						((eql how :before))
 						((and (eql how :same) (eql hash my_hash) (= copies (elem-get mine +store_entry_copies)))
 							;the one entry, and who has it is more than either knew

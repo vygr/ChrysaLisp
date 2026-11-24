@@ -23,8 +23,8 @@
 	(defq stream (memory-stream) n 0)
 	(pixmap-write (getf canvas +canvas_pixmap 0) stream 32)
 	(stream-seek stream 0 0)
-	(defq bytes (read-blk stream 100000000) want (char back 4))
-	(for 0 (>> (length bytes) 2) (defq at (<< (!) 2)) (unless (eql (slice bytes at (+ at 4)) want) (++ n)))
+	(defq byte_data (read-blk stream 100000000) want (char back 4))
+	(for 0 (>> (length byte_data) 2) (defq at (<< (!) 2)) (unless (eql (slice byte_data at (+ at 4)) want) (++ n)))
 	n)
 
 ;a board with no menu is as it was

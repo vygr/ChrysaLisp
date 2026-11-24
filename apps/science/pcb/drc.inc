@@ -155,14 +155,14 @@
 	i)
 
 (defun pcb-drc (pcb_list)
-	; (pcb-drc pcb_list) -> (shorts unjoined outside)
+	; (pcb-drc pcb_list) -> (shorted unjoined outside)
 	;shorts, (net_a net_b layer x y) each, two nets' copper nearer than
 	;their rules allow, at about there; unjoined, the ids of the nets whose
 	;pads are not all joined by their own copper; outside, the ids of the
 	;nets with copper off the board
 	(bind '(w h depth) (first pcb_list))
 	(bind '(pieces pads) (drc-pieces pcb_list))
-	(defq shorts (list) unjoined (list) outside (list)
+	(defq shorted (list) unjoined (list) outside (list)
 		set (map! (# (identity (!))) '() 0 (length pieces)) w (n2d w) h (n2d h) z (n2d 0))
 	;every pair that is near: a short between two nets, or one net joined
 	(each! (lambda (a)
@@ -178,7 +178,7 @@
 							(:t (defq need (- (+ (elem-get a +piece_radius) (elem-get b +piece_radius)
 											(max (elem-get a +piece_gap) (elem-get b +piece_gap))) +drc_eps))
 								(if (< d2 (* need need))
-									(push shorts (list (first a) (first b)
+									(push shorted (list (first a) (first b)
 											(max (elem-get a +piece_z1) (elem-get b +piece_z1))
 											(n2q (first (elem-get a +piece_geom)))
 											(n2q (second (elem-get a +piece_geom))))))))))
@@ -209,7 +209,7 @@
 				(not (find (first p) outside))
 				(push outside (first p))))
 		pieces)
-	(list shorts unjoined outside))
+	(list shorted unjoined outside))
 
 ;module
 (export-symbols '(pcb-drc))

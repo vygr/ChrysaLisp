@@ -116,11 +116,11 @@
 			(defq keep u) (setq u m m keep)))
 	(apply (const cat) (map (# (cat (char (logand %0 0xff)) (char (logand (>> %0 8) 0xff)))) u)))
 
-(defun ed-unpack (bytes)
-	; (ed-unpack bytes) -> a number of the field, from its 32 bytes
+(defun ed-unpack (byte_data)
+	; (ed-unpack byte_data) -> a number of the field, from its 32 byte_data
 	(defq o (ed-copy *ed_zero*))
 	(each (lambda (i)
-			(elem-set o i (+ (code bytes 1 (* i 2)) (<< (code bytes 1 (inc (* i 2))) 8))))
+			(elem-set o i (+ (code byte_data 1 (* i 2)) (<< (code byte_data 1 (inc (* i 2))) 8))))
 		*ed_16*)
 	(elem-set o 15 (logand (elem-get o 15) 0x7fff))
 	o)
@@ -174,11 +174,11 @@
 		y (ed-pack (ed-mul (ed-copy *ed_zero*) (second p) zi)))
 	(cat (slice y 0 31) (char (logxor (code y 1 31) (<< (ed-odd? x) 7)))))
 
-(defun ed-decode-neg (bytes)
-	; (ed-decode-neg bytes) -> :nil | point
+(defun ed-decode-neg (byte_data)
+	; (ed-decode-neg byte_data) -> :nil | point
 	;the point of 32 bytes, with its x the other way, which is what a
 	;check wants. :nil if they are not a point of the curve
-	(defq y (ed-unpack bytes) z (ed-copy *ed_one*) y2 (ed-mul (ed-copy *ed_zero*) y y)
+	(defq y (ed-unpack byte_data) z (ed-copy *ed_one*) y2 (ed-mul (ed-copy *ed_zero*) y y)
 		den (ed-mul (ed-copy *ed_zero*) y2 *ed_d*) num (nums-sub y2 z))
 	(nums-add z den den)
 	(defq den2 (ed-mul (ed-copy *ed_zero*) den den) den4 (ed-mul (ed-copy *ed_zero*) den2 den2)
@@ -193,7 +193,7 @@
 		(ed-mul chk x x)
 		(ed-mul chk chk den))
 	(when (eql (ed-pack chk) (ed-pack num))
-		(if (= (ed-odd? x) (>> (code bytes 1 31) 7)) (setq x (nums-sub *ed_zero* x)))
+		(if (= (ed-odd? x) (>> (code byte_data 1 31) 7)) (setq x (nums-sub *ed_zero* x)))
 		(list x y z (ed-mul (ed-copy *ed_zero*) x y))))
 
 (defun ed-mod-l (x)

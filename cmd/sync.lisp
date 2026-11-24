@@ -79,7 +79,7 @@
 									" has an older sync, it must be updated another way, and its sync started again"))
 							((eql result :refused) (print (slice id 0 8) " " machine
 									" refused it, it takes nothing from this machine, its sync_from"))
-							(:t (bind '(sent bytes removed failed send gone remoded) result)
+							(:t (bind '(sent byte_data removed failed send gone remoded) result)
 								(when (or opt_v opt_c)
 									(each (# (print "  " (if opt_c "differs " "sent ") %0)) send)
 									(each (# (print "  " (if opt_d (if opt_c "would remove " "removed ") "only there ") %0)) gone))
@@ -87,7 +87,7 @@
 									(if opt_c
 										(cat (str (length send)) " differ, " (str (length gone)) " only there"
 											(if (> remoded 0) (cat ", " (str remoded) " with another mode") ""))
-										(cat (str sent) " sent, " (str bytes) " bytes, " (str removed) " removed"
+										(cat (str sent) " sent, " (str byte_data) " bytes, " (str removed) " removed"
 											(if (> remoded 0) (cat ", " (str remoded) " given their mode") "")
 											(if (> failed 0) (cat ", " (str failed) " FAILED") "")
 											(if (and (not opt_d) (nempty? gone)) (cat ", " (str (length gone)) " only there") "")))

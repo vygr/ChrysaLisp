@@ -18,8 +18,9 @@
 	(dec-method :max class/nums/max :virtual (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :dot class/nums/dot :virtual (:r0 :r1) (:r0 :r1))
 	(dec-method :add_scaled class/nums/add_scaled :virtual (:r0 :r1 :r2 :r3) (:r0))
-	(dec-method :convert class/nums/convert :virtual (:r0 :r1) (:r0))
+	(dec-method :convert class/nums/convert :virtual (:r0 :r1 :r3) (:r0))
 	(dec-method :kind class/nums/kind :static (:r0) (:r0 :r1))
+	(dec-method :narrow class/nums/narrow :static (:r0 :r1) (:r0))
 	(dec-method :create class/nums/create)
 	(dec-method :lisp_vecop1 class/nums/lisp_vecop1 :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :lisp_vecop2 class/nums/lisp_vecop2 :static (:r0 :r1 :r2) (:r0 :r1))
@@ -106,7 +107,10 @@
 
 ;the kinds of vector, by the number :nums :kind gives
 ;quoted twice, as a + name is put in place where it is used
-(defq +nums_kinds ''(:nums :fixeds :doubles :floats))
+(defq +nums_kinds ''(:nums :fixeds :doubles :floats)
+	;a convert's sources: the kinds of number 0 to 3, then a raw kind of
+	;bytes, shorts or ints, 4 6 and 8, each unsigned, and signed one more
+	+nums_froms ''(:nums :fixeds :doubles :floats (1 :nil) (1 :t) (2 :nil) (2 :t) (4 :nil) (4 :t)))
 
 (defun nums-step (kind)
 	;the bytes of an element of a kind
@@ -137,6 +141,14 @@
 	(vpif `(,len /= 0))
 		(loop-start)
 			(cond
+				((list? from)
+					;a raw element, its bits read signed or not, an integer
+					(bind '(w signed) from)
+					(assign (list (list s 0 (elem-get (if signed '(:nil b s :nil i) '(:nil ub us :nil ui)) w))) `(,tmp))
+					(case to
+						(:nums (assign `(,tmp) `((,d 0))))
+						(:fixeds (vp-shl-cr +fp_shift tmp) (assign `(,tmp) `((,d 0))))
+						(:t (vp-cvt-rd tmp :d0) (nums-store to d tmp))))
 				((eql from to)
 					(if (eql to :floats)
 						(assign `((,s 0 ui)) `(,tmp))
@@ -154,7 +166,7 @@
 					(assign `(,tmp) `((,d 0))))
 				(:t (nums-load from s tmp)
 					(nums-store to d tmp)))
-			(vp-add-cr (nums-step from) s)
+			(vp-add-cr (if (list? from) (first from) (nums-step from)) s)
 			(vp-add-cr (nums-step to) d)
 			(vp-sub-cr 1 len)
 		(loop-until `(,len = 0))
@@ -164,8 +176,10 @@
 	;the body of the :convert of a class whose elements are of the kind to:
 	;made the length of the source, each of its elements converted from
 	;whichever kind the source is, chosen once
+	;the sign of a raw source in d, :r3, which the set_cap and :kind
+	;leave as it is, so it is not pushed
 	(vp-rdef (dst src s d len tmp kind))
-	(entry cls :convert `(,dst ,src))
+	(entry cls :convert `(,dst ,src ,d))
 	(assign `((,src +array_length)) `(,len))
 	(vp-push dst src len)
 	(call :nums :set_cap `(,dst ,len) :nil :r2)
@@ -174,6 +188,10 @@
 	(vp-push dst)
 	(call :nums :kind `(,src) `(,src ,kind))
 	(vp-pop dst)
+	;a raw kind, signed one more
+	(vpif `(,kind >= 4))
+		(vp-add-rr d kind)
+	(endif)
 	(assign `((,dst +array_begin) (,src +array_begin)) `(,d ,s))
 	(vp-lea-pr 'fn_consts tmp)
 	(load-fields tmp
@@ -184,7 +202,24 @@
 			(vpcase `(,kind = ,(!)))
 				(nums-convert-pair from to s d len tmp)
 				(break))
-		+nums_kinds)
+		+nums_froms)
 	(endswitch)
 	(exit cls :convert `(,dst))
 	(vp-ret))
+
+(defun nums-narrow-pair (from w s d len tmp)
+	;len elements of the kind from at s, each an integer as n2i makes it,
+	;its low w bytes at d
+	(vpif `(,len /= 0))
+		(loop-start)
+			(case from
+				(:nums (assign `((,s 0)) `(,tmp)))
+				(:fixeds (assign `((,s 0)) `(,tmp)) (vp-asr-cr +fp_shift tmp))
+				(:t (nums-load from s tmp) (vp-cvt-dr :d0 tmp)))
+			(assign `(,tmp) (list (list d 0 (elem-get '(:nil b s :nil i) w))))
+			(vp-add-cr (nums-step from) s)
+			(vp-add-cr w d)
+			(vp-sub-cr 1 len)
+		(loop-until `(,len = 0))
+	(endif))
+

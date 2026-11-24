@@ -653,6 +653,15 @@ file at once.
 	on one, take the line out, let the node's timeout end it, build, put it
 	back.
 
+*	**A method is a function, named.** A class's `dec-method` names any
+	function, its own or another class's: `class/obj/null` for an abstract
+	slot, `class/obj/eql` for identity, `class/ints/slice` for `:floats`,
+	which comes of `:doubles`. Shared so, a function's calls must dispatch
+	through the object; one that names a class's vtable itself is that
+	class's alone. The arrays' storage is made by width from the generators
+	of `class/array/class.inc`, `(array-slice :floats +int_size)` in a
+	`def-method`; the width is known there and nowhere else.
+
 *	**A signature's case is a class's reach.** In `(signature '(...))`
 	a type in capitals, `:NUMS`, is that class exactly; in lower case,
 	`:stream`, that class or any built on it. A binding may also test a

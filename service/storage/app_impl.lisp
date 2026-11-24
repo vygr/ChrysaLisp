@@ -368,7 +368,7 @@
 							(+storage_type_commit
 								;the name of the top of its manifest, whose blocks are
 								;all here, as the object's are, (store-commit-root)
-								(bind '(from bytes path top) (split body +storage_lf))
+								(bind '(from byte_count path top) (split body +storage_lf))
 								(defq got (store-commit-root store path (hex-decode (ifn top "")) (from-of from)))
 								;what an object is made of, so a recording can draw it
 								(and (eql (first got) :ok) (second got) (storage-recording? recorder)

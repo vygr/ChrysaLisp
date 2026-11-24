@@ -54,30 +54,16 @@ info
 each of the first plus each of the second times the scale, in one pass
 ```
 
-### :append -> class/floats/append
+### :append -> class/ints/append
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = source floats object (ptr)
-:r2 = element start index (uint)
-:r3 = element end index (uint)
-outputs
-:r0 = floats object (ptr)
-trashes
-:r1-:r3, :r6-:r9, :d0-:d15
+the append of :array at 4 bytes
 ```
 
-### :cat -> class/floats/cat
+### :cat -> class/ints/cat
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = list of floats objects (ptr)
-outputs
-:r0 = new floats object (ptr)
-trashes
-:r0-:r9, :d0-:d15
+the cat of :array at 4 bytes
 ```
 
 ### :ceil -> class/floats/ceil
@@ -98,6 +84,7 @@ trashes
 inputs
 :r0 = floats object (ptr)
 :r1 = source nums object, of any kind (ptr)
+:r3 = 1 to read a raw source signed, else 0 (uint)
 outputs
 :r0 = floats object (ptr)
 trashes
@@ -145,73 +132,34 @@ four running sums, as doubles, over blocks of four, the rest into the
 first, then the four added and rounded to the nearest float
 ```
 
-### :eql -> class/floats/eql
+### :eql -> class/ints/eql
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = obj object (ptr)
-outputs
-:r0 = floats object (ptr)
-:r1 = 0 if same, else not
-trashes
-:r1-:r5
+the eql of :array at 4 bytes
 ```
 
-### :erase -> class/floats/erase
+### :erase -> class/ints/erase
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = element iterator (pint)
-outputs
-:r0 = floats object (ptr)
-:r1 = element iterator (pint)
-trashes
-:r2-:r3
+the erase of :array at 4 bytes
 ```
 
-### :erase2 -> class/floats/erase2
+### :erase2 -> class/ints/erase2
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = element iterator (pint)
-outputs
-:r0 = floats object (ptr)
-:r1 = element iterator (pint)
-trashes
-:r2-:r3
+the erase2 of :array at 4 bytes
 ```
 
-### :fill -> class/floats/fill
+### :fill -> class/ints/fill
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = length (uint)
-:r2 = element (the 32 bits of a float)
-outputs
-:r0 = floats object (ptr)
-trashes
-:r1-:r4, :d0-:d15
-info
-the floats made length long, every element the one given
+the fill of :array at 4 bytes
 ```
 
-### :find -> class/floats/find
+### :find -> class/ints/find
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = element (the 32 bits of a float)
-:r2 = start index (uint)
-outputs
-:r0 = floats object (ptr)
-:r1 = element (the 32 bits of a float)
-:r2 = -1, else index (int)
-trashes
-:r2-:r4
+the find of :array at 4 bytes
 ```
 
 ### :floor -> class/floats/floor
@@ -238,16 +186,10 @@ trashes
 :r1-:r5, :d0-:d3
 ```
 
-### :hash -> class/floats/hash
+### :hash -> class/ints/hash
 
 ```code
-inputs
-:r0 = floats object (ptr)
-outputs
-:r0 = floats object (ptr)
-:r1 = hash code (long)
-trashes
-:r1-:r4
+the hash of :array at 4 bytes
 ```
 
 ### :max -> class/floats/max
@@ -306,16 +248,10 @@ trashes
 :r1-:r5, :d0-:d1
 ```
 
-### :print -> class/floats/print
+### :print -> class/ints/print
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = stream object (ptr)
-outputs
-:r0 = floats object (ptr)
-trashes
-:r1-:r5, :r14, :d0-:d15
+the print of :array at 4 bytes
 ```
 
 ### :push -> class/floats/push
@@ -335,44 +271,22 @@ for the other arrays: a number the low 32 bits of its value, a floats
 its elements, any other array or a str its bytes, 4 to an element
 ```
 
-### :ref_back -> class/floats/ref_back
+### :ref_back -> class/ints/ref_back
 
 ```code
-inputs
-:r0 = floats object (ptr)
-outputs
-:r0 = floats object (ptr)
-:r1 = float object (ptr)
-trashes
-:r1-:r3, :r14, :d0-:d15
+the ref_back of :array at 4 bytes
 ```
 
-### :ref_elem -> class/floats/ref_elem
+### :ref_elem -> class/ints/ref_elem
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = element index (uint)
-outputs
-:r0 = floats object (ptr)
-:r1 = float object (ptr)
-trashes
-:r1-:r3, :r14, :d0-:d15
+the ref_elem of :array at 4 bytes
 ```
 
-### :rfind -> class/floats/rfind
+### :rfind -> class/ints/rfind
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = element (the 32 bits of a float)
-:r2 = start index (uint)
-outputs
-:r0 = floats object (ptr)
-:r1 = element (the 32 bits of a float)
-:r2 = 0, else index (int)
-trashes
-:r2-:r4
+the rfind of :array at 4 bytes
 ```
 
 ### :scale -> class/floats/scale
@@ -388,57 +302,28 @@ trashes
 :r1-:r4, :d0-:d1
 ```
 
-### :set_cap -> class/floats/set_cap
+### :set_cap -> class/ints/set_cap
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = capacity (uint)
-outputs
-:r0 = floats object (ptr)
-trashes
-:r1-:r2, :d0-:d15
-info
-a capacity of floats, two to a slot of the array
+the set_cap of :array at 4 bytes
 ```
 
-### :set_elem -> class/floats/set_elem
+### :set_elem -> class/ints/set_elem
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = element (the 32 bits of a float)
-:r2 = element index (uint)
-outputs
-:r0 = floats object (ptr)
-trashes
-:r2-:r3
+the set_elem of :array at 4 bytes
 ```
 
-### :slice -> class/floats/slice
+### :slice -> class/ints/slice
 
 ```code
-inputs
-:r0 = floats object (ptr)
-:r1 = element start index (uint)
-:r2 = element end index (uint)
-outputs
-:r0 = slice floats object (ptr)
-trashes
-:r0-:r2, :r6-:r8, :d0-:d15
+the slice of :array at 4 bytes
 ```
 
-### :splice -> class/floats/splice
+### :splice -> class/ints/splice
 
 ```code
-inputs
-:r0 = src1 floats object (ptr)
-:r1 = src2 floats object (ptr)
-:r2 = nums object (ptr)
-outputs
-:r0 = new floats object (ptr)
-trashes
-:r0-:r11, :d0-:d15
+the splice of :array at 4 bytes
 ```
 
 ### :sub -> class/floats/sub

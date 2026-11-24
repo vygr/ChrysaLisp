@@ -24,11 +24,11 @@
 ;module
 (env-push)
 
-(defun reel-whole (s at bytes)
-	; (reel-whole str at bytes) -> num
-	(defq bits (code-be s bytes at))
+(defun reel-whole (s at byte_count)
+	; (reel-whole str at byte_count) -> num
+	(defq bits (code-be s byte_count at))
 	(cond
-		((= bytes 4)
+		((= byte_count 4)
 			(defq power (- (logand (>> bits 23) 0xff) 127))
 			(if (< power 0) 0 (>> (logior (logand bits 0x7fffff) 0x800000) (- 23 power))))
 		(:t (defq power (- (logand (>> bits 52) 0x7ff) 1023))
@@ -38,8 +38,8 @@
 	; (reel-pcm chans [scale]) -> (left right)
 	;the native taken as it is used: a system not yet built with it can
 	;still import this, the kinds are of a desktop's shared root
-	(defq ints (ffi "lib/media/media_flac_ints") scale (ifn scale (n2d 1))
-		pcm (map! (lambda (ch) (ints (fill (doubles) (length ch) (n2d 0)) ch scale)) (list chans) 0 (min 2 (length chans))))
+	(defq flac_ints (ffi "lib/media/media_flac_ints") scale (ifn scale (n2d 1))
+		pcm (map! (lambda (ch) (flac_ints (fill (doubles) (length ch) (n2d 0)) ch scale)) (list chans) 0 (min 2 (length chans))))
 	(if (= (length pcm) 1) (list (first pcm) (first pcm)) pcm))
 
 (defun reel-kind (ext open packet codec frame &optional close)

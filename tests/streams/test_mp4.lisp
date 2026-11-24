@@ -3,8 +3,8 @@
 (import "lib/media/mp4.inc")
 
 ;a box: its size, 4 bytes high first, its name, and what is in it
-(defun m4-be (n bytes)
-	(apply (const cat) (map! (# (char (logand (>> n (* 8 (- bytes 1 (!)))) 0xff))) '() 0 bytes)))
+(defun m4-be (n byte_count)
+	(apply (const cat) (map! (# (char (logand (>> n (* 8 (- byte_count 1 (!)))) 0xff))) '() 0 byte_count)))
 (defun m4-box (name &rest parts)
 	(defq body (apply (const cat) (cat (list "") parts)))
 	(cat (m4-be (+ 8 (length body)) 4) name body))
