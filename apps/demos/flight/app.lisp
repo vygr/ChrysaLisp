@@ -245,7 +245,7 @@
 		k (* g (n2d 0.85)))
 	;the moon opposite the sun, full, up by night as the sun is down; by
 	;day low in the sky, not set, the moon by day
-	(defq me (max (neg e) (n2d 0.14)) mce (cos me))
+	(defq me (max (neg e) (n2d 0.24)) mce (cos me))
 	(setq moon_way (doubles (* mce (cos (+ az +double_pi))) (sin me) (* mce (sin (+ az +double_pi))))
 		sun_at (doubles (* ce (cos az)) (sin e) (* ce (sin az)))
 		sun (blend sun_at moon_way (- +double_1 d) d)

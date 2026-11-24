@@ -36,5 +36,8 @@
 		s (max (dot (normalize (- place eye)) sun) 0.0)
 		colour (+ (* (vec3 0.97 0.97 1.0) daylight shade) (* shine (* (pow s 8.0) 0.45 (- 1.0 thick))))
 		hazed (mix colour haze fade)
-		alpha (* cover 0.9 (- 1.0 (* fade 0.6))))
+		;thinner into the haze, and none by the sheet's far edge, so it has no
+		;edge and the moon low beyond it is not in it
+		alpha (* cover 0.9 (- 1.0 (* fade 0.5))
+			(- 1.0 (ease 480.0 640.0 (length (- (:xz place) (:xz eye)))))))
 	(vec4 (* hazed alpha) alpha))
