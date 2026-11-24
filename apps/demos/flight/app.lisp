@@ -104,6 +104,11 @@
 	lean_v +double_0 pitch_v +double_0 +spring_k (n2d 3.5)
 	;the lean the way of flying wanted last, what turn it was in
 	lean_want +double_0
+	;how much less detail it draws, 0 all of it to 3 least, for a GPU too
+	;slow for all of it: how many seconds running it has been slow, or fast,
+	;what is slow and fast, and when it last went down, not to go up again
+	;for a while after
+	detail 3 slow 0 fast 0 +rate_least 28 +rate_most 50 detail_down 0
 	;how the eight lies, the cosine and sine of its turn on the land
 	eight_lie (doubles +double_1 +double_0)
 	;the height of the land at a place, of land.shader, the shaders' own
@@ -111,8 +116,8 @@
 	;the music, the user's Jukebox favourites, apps/media/jukebox/favourites.inc,
 	;and whether the user wants it, kept whether or not there is any to play
 	music :nil music_on :t
-	;the flight, the size, the music and the time of day, as they were
-	;when last closed, (config-save)
+	;the flight, the size, the music, the time of day and the detail, as
+	;they were when last closed, (config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "flight.tre"))
 
 (defun make-canvas (size)
@@ -444,7 +449,7 @@
 		seconds (/ (n2d (- moved began)) (n2d 1000000))
 		;the GPU's land, or the CPU's of bigger cells, moved under the eye by
 		;whole cells of it
-		gpu (eql (. render :mode) :gpu) cell (if gpu +cell +cell_cpu)
+		gpu (eql (. render :mode) :gpu) fine (and gpu (= detail 0)) cell (if fine +cell +cell_cpu)
 		shift (doubles (* (n2d (n2i (/ (first eye) cell))) cell) (* (n2d (n2i (/ (third eye) cell))) cell)))
 	;the day as it is now, the sun, the sky and the light
 	(day-state seconds)
@@ -465,19 +470,20 @@
 			(list (list 'sun sun_at) (list 'haze haze) (list 'above above) (list 'rise (second moon_way))
 				(list 'bright (+ (n2d 1.5) (* (n2d 4.5) night))))
 			(list moon_map) moon_files)
-		(list (if gpu +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
+		(list (if fine +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye))
 			(cat (list (list 'sun sun) (list 'haze haze) (list 'above above) (list 'eye eye)
 				(list 'daylight daylight) (list 'shine shine) (list 'night night)
-				(list 'time seconds) (list 'rough +double_1) (list 'shadows 12))
+				(list 'time seconds) (list 'rough (if (< detail 2) +double_1 +double_0))
+				(list 'shadows (elem-get '(12 6 0 0) detail)))
 				;the craft about, their shadows and their lights on the land
 				(fleet-lights seconds))))
 		;the craft about, fleet.inc, the clouds over them, seen through, and
 		;last the craft's beams, added to all else
 		(fleet-draws view eye seconds)
-		(list (list +mesh_cloud (list (list 'lens view) (list 'eye eye))
+		(if (< detail 3) (list (list +mesh_cloud (list (list 'lens view) (list 'eye eye))
 			(list (list 'sun sun) (list 'haze haze) (list 'daylight daylight) (list 'shine shine)
 				(list 'eye eye) (list 'time seconds))
-			'() cloud_files))
+			'() cloud_files)) '())
 		(fleet-beams view eye seconds)))
 	(++ frames))
 
@@ -519,7 +525,7 @@
 
 (defun config-default ()
 	;the first time
-	(scatter (Emap) :version +config_version :path :eight :large :nil :music :t :day 60))
+	(scatter (Emap) :version +config_version :path :eight :large :nil :music :t :day 60 :detail 3))
 
 (defun config-load ()
 	;the defaults with what was kept laid over them,
@@ -532,7 +538,7 @@
 			(unless (eql key :version) (. *config* :insert key val))))))
 
 (defun config-save ()
-	(scatter *config* :path path :large (eql want +large) :music music_on :day (n2i day_at))
+	(scatter *config* :path path :large (eql want +large) :music music_on :day (n2i day_at) :detail detail)
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
@@ -558,7 +564,9 @@
 			(cat (setf-> (str-alloc +part_size) (+part_num (!)) (+part_flat (if flat 1 0))) command)) craft_parts))
 	(config-load)
 	;the day goes on from where it was when last closed, seconds into it
-	(setq day_start (n2d (. *config* :find :day)))
+	(setq day_start (n2d (. *config* :find :day))
+		;the detail it had, the least the first time, to go up from
+		detail (. *config* :find :detail))
 	(setq land_height (shader-vp-func (shader-load (cat *app_root* "land.shader")) 'ground)
 		place (eight-point round_at) way (doubles +double_1 +double_0))
 	(path-set (. *config* :find :path))
@@ -646,8 +654,25 @@
 					(- (max +timer_rate (* took 4)) took) 0)
 				(. render :tick)
 				(when (>= (- (defq now (pii-time)) since) 1000000)
-					(. *status* :set_text (cat (str (/ (* frames 1000000) (- now since))) " frames a second, "
-							(. render :how) (if (defq song (. music :title)) (cat ", " song) "")))
+					(defq rate (/ (* frames 1000000) (- now since)))
+					;the detail to what the GPU keeps up with: less, two seconds
+					;running slow, a coarser land, fewer steps to the sun, no bump,
+					;no clouds; more, three seconds running fast, not for half a
+					;minute after it was less; a step at a time, after the first few
+					(cond
+						((< (- now began) 3000000) (setq slow 0 fast 0))
+						((< rate +rate_least)
+							(setq fast 0)
+							(and (< detail 3) (>= (++ slow) 2)
+								(setq detail (inc detail) slow 0 detail_down now)))
+						((>= rate +rate_most)
+							(setq slow 0)
+							(and (> detail 0) (> (- now detail_down) 30000000) (>= (++ fast) 3)
+								(setq detail (dec detail) fast 0)))
+						((setq slow 0 fast 0)))
+					(. *status* :set_text (cat (str rate) " frames a second, "
+							(. render :how) (if (> detail 0) (cat ", detail less " (str detail)) "")
+							(if (defq song (. music :title)) (cat ", " song) "")))
 					(. music :tick)
 					(setq frames 0 since now)
 					;a child of the farm that has died or is too slow is

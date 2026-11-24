@@ -149,7 +149,9 @@
 					(* sand 0.85) (* 0.6 (ease (- water 1.8) water h))) daylight)
 				(* shine glint lit 2.0))))
 		(:t ;the land, of how high and how steep, rough, and lit
-			(defq up (:y n) b (bumped place n (* rough (+ 0.3 (* 1.4 (- 1.0 up))))))
+			;rough by a bump, unless there is none to be had, not worked out
+			(defq up (:y n) b n)
+			(if (> rough 0.0) (setq b (bumped place n (* rough (+ 0.3 (* 1.4 (- 1.0 up)))))))
 			(setq colour (mix sand (mix grass moss (noise3 (* place 0.05))) (ease (+ water 0.5) (+ water 3.5) h))
 				colour (mix colour rock (ease 0.86 0.72 up))
 				colour (mix colour snow (* (ease 34.0 42.0 h) (ease 0.7 0.85 up)))
