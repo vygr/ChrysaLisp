@@ -27,8 +27,8 @@ behind it.
 * The field: the rocks in clusters, a big one with smaller ones orbiting it,
   all drifting and tumbling, pulled to one another by their weight. Where
   two meet they crunch, not bounce: little comes back, the smaller is thrown
-  the more, both are set spinning, and grains of rock spray from the place
-  they hit. A crunch is heard by how far off it is and from the side it is.
+  the more, their faces grip as they grind past and spin each other, and
+  grains of rock spray from the place they hit. A crunch is heard by how far off it is and from the side it is.
   A cluster out of sight is now and then sent off again, so the field stays
   alive.
 
@@ -36,10 +36,23 @@ behind it.
   and a few in the open between. A buoy reads the rocks round it and
   flashes green, yellow or red, and the faster the greater the hazard, red
   when a rock passes close; its flash lights the rocks round it in its
-  colour. Painted metal that mirrors the sky and the sun.
+  colour; and its glow round its lamp. Painted metal that mirrors the sky
+  and the sun. A buoy turns, slowly, when it must, to keep its lamp toward
+  the ship's side of it.
 
 * The ship: a short sharp ping of white light every second or so, that
   lights the rocks close to.
+
+* Missiles, to shepherd the rocks: a click fires one through where it is
+  clicked, a missile with a hot nozzle and a trail, that goes off at a rock
+  or at the end of its fuse. Its blast goes out as a front of pressure,
+  throwing each rock it passes out from it, as hard as the pressure on its
+  face, a small rock far and a big one little, and tumbling end over end
+  away from it; the rock it strikes spun by where it is struck, hard off
+  its middle and not at all through it. Nothing is broken: a cluster is
+  blown apart, and its rocks go, crunch into others, or are pulled together
+  again. The blast flashes, lights the rocks round it before any buoy's
+  light, throws out grains and is heard.
 
 * Two ways of flying, sharing what keeps clear of the rocks. Auto pilot is a
   tour guide: of the headings round the way it wants that are safe it takes
@@ -55,6 +68,8 @@ behind it.
 * The window's max and min buttons: 1024 by 768 and 640 by 480.
 * In Mouse mode the pointer is the stick: left and right of the middle to
   turn, above and below to climb and dive, off the picture to fly straight.
+* A click on the picture fires a missile through where it is clicked, in
+  either way of flying; three may be out at once.
 
 The way of flying, the size, the music and the detail are kept in the user's
 `space.tre`.

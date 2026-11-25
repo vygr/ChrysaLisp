@@ -7,7 +7,7 @@
 
 (defun make-rock (key mbox which command)
 	;a rock of the seed the command is, or the buoy if it says so
-	(defq verts (mesh-corners-smooth (if (eql command "buoy") (buoy-mesh) (rock-mesh (str-as-num command))))
+	(defq verts (mesh-corners-smooth (cond ((eql command "buoy") (buoy-mesh)) ((eql command "missile") (missile-mesh)) ((rock-mesh (str-as-num command)))))
 		reply (setf-> (str-alloc (+ +rock_reply_size (length verts)))
 			(+job_reply_key key)
 			(+rock_reply_num which)))

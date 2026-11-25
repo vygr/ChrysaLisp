@@ -60,10 +60,9 @@
 (defconst bump_far 260.0)
 (defconst fine_near 20.0)
 (defconst fine_far 120.0)
-;how far a lamp reaches, a buoy's or the ship's, half as bright there,
-;and past which it is not worked out
+;how far a lamp reaches, a buoy's, a blast's or the ship's, half as
+;bright there
 (defconst nav_reach 80.0)
-(defconst nav_far 250.0)
 ;how far off the rock starts to go into the sky and is gone into it: the
 ;app has it gone before a rock is far enough to be drawn where it is next
 ;as the field goes on, half its box away
@@ -150,7 +149,6 @@
 			(vec3 0.015 0.017 0.022))
 		colour (vec3 0.0))
 	;the buoy's lamp and the ship's ping, near to
-	(if (< far nav_far)
-		(setq light (+ light (lamp place n buoy_at buoy_light) (lamp place n ping_at ping))))
+	(setq light (+ light (lamp place n buoy_at buoy_light) (lamp place n ping_at ping)))
 	(setq colour (* (vec3 grey (* grey 0.97) (* grey 0.93)) light))
 	(vec4 (mix colour sky fade) 1.0))

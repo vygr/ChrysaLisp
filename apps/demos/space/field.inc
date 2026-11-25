@@ -34,11 +34,18 @@
 	;squared, how soft it is close to, how big one of a pair is for it,
 	;and in one round of meetings in how many it is, as much the more, it
 	;changing slowly, and the round it is; and how much of its speed a hit
-	;keeps, little, rock on rock is a crunch, how much of the sideways part
-	;of it is ground down, and how hard it jolts a tumble, a second for a
-	;speed of 1
+	;keeps, little, rock on rock is a crunch, and how much of the sideways
+	;part of it is ground down
 	+drift_most (n2d 3) +clusters 45 +meet_parts 12 +cells_side 8 +fine_side 16 +pull (n2d 0.025)
-	+small_reach (/ +field (n2d (* 2 +fine_side))) +pull_least (n2d 25) +pull_every 3 meet_round 0 +pull_reach2 (n2d 62500) +pull_soft (n2d 400) +bounce (n2d 0.15) +grind (n2d 0.4) +jolt (n2d 0.25)
+	+small_reach (/ +field (n2d (* 2 +fine_side))) +pull_least (n2d 25) +pull_every 3 meet_round 0 +pull_reach2 (n2d 62500) +pull_soft (n2d 400) +bounce (n2d 0.15) +grind (n2d 0.4)
+	;a blast: how far it reaches, how hard it throws, a rock of size 1 at
+	;its middle thrown so fast, one of size b a b'th of it, how fast its
+	;front of pressure goes out, a second, and how much of how hard a rock is
+	;thrown sets it tumbling; how fast a rock struck by a missile spins, at
+	;its edge and of size 1; how fast a rock tumbles at most; and how well
+	;two rocks' faces grip as they grind past
+	+blast_reach (n2d 140) +blast_strength (n2d 150) +blast_front (n2d 280) +blast_spin (n2d 0.15)
+	+strike_spin (n2d 25) +spin_most (n2d 6) +grip (n2d 0.5)
 	;the ship keeps clear of rocks: how far ahead it looks, each way, and
 	;how many seconds ahead
 	+look_far (n2d 380) +look_time (n2d 10)
@@ -87,12 +94,40 @@
 (defun make-rock (at drift bulk)
 	; (make-rock at drift bulk) -> rock
 	;a rock (at drift bulk kind spin patch) at a place, drifting, of a size:
-	;its kind, how fast it tumbles about two ways and how far it has, and the
-	;patch of the moon's map on it, where and how much, at random
-	(list at drift bulk (random +rock_kinds)
-		(doubles (* (- (rnd) +double_1/2) (const (n2d 0.6))) (* (- (rnd) +double_1/2) (const (n2d 0.6)))
-			(* (rnd) +double_2pi) (* (rnd) +double_2pi))
+	;its kind, its tumble, rock-tumble, and the patch of the moon's map on
+	;it, where and how much, at random
+	(list at drift bulk (random +rock_kinds) (rock-tumble)
 		(doubles (rnd) (rnd) (+ (const (n2d 0.06)) (* (const (n2d 0.12)) (rnd))))))
+
+(defun rock-tumble ()
+	; (rock-tumble) -> doubles
+	;a rock's tumble, (wx wy wz qw qx qy qz): how fast it turns, about which
+	;way, radians a second along it, and how it is turned now, a quaternion,
+	;both at random, slow
+	(defq way (nums-scale (rnd-way) (* (rnd) (const (n2d 0.35)))) axis (rnd-way) half (* (rnd) +double_pi)
+		s (sin half))
+	(cat way (doubles (cos half) (* s (first axis)) (* s (second axis)) (* s (third axis)))))
+
+(defun rock-spin (spin ax ay az)
+	;a rock's tumble turned faster about a way by so much, no faster than
+	;+spin_most in all
+	(defq wx (+ (elem-get spin 0) ax) wy (+ (elem-get spin 1) ay) wz (+ (elem-get spin 2) az)
+		w (sqrt (+ (* wx wx) (* wy wy) (* wz wz))) k (if (> w +spin_most) (/ +spin_most w) +double_1))
+	(elem-set spin 0 (* wx k))
+	(elem-set spin 1 (* wy k))
+	(elem-set spin 2 (* wz k)))
+
+(defun rock-turned (spin)
+	; (rock-turned spin) -> mat4x4
+	;how a rock is turned now, the matrix of its quaternion
+	(bind '(& & & w x y z) spin)
+	(doubles (- +double_1 (* +double_2 (+ (* y y) (* z z)))) (* +double_2 (- (* x y) (* w z)))
+			(* +double_2 (+ (* x z) (* w y))) +double_0
+		(* +double_2 (+ (* x y) (* w z))) (- +double_1 (* +double_2 (+ (* x x) (* z z))))
+			(* +double_2 (- (* y z) (* w x))) +double_0
+		(* +double_2 (- (* x z) (* w y))) (* +double_2 (+ (* y z) (* w x)))
+			(- +double_1 (* +double_2 (+ (* x x) (* y y)))) +double_0
+		+double_0 +double_0 +double_0 +double_1))
 
 (defun orbit-at (middle drift big small)
 	; (orbit-at middle drift big small) -> (at drift)
@@ -146,8 +181,7 @@
 			(bind '(new_at new_drift) (orbit-at at drift big small))
 			(each! (lambda (v) (elem-set rock_at (!) v)) (list new_at))
 			(each! (lambda (v) (elem-set rock_drift (!) v)) (list new_drift))
-			(elem-set spin 0 (* (- (rnd) +double_1/2) (const (n2d 0.6))))
-			(elem-set spin 1 (* (- (rnd) +double_1/2) (const (n2d 0.6)))))
+			(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) (const (n2d 0.35)))))))
 		(list members) 1))
 
 (defun buoy-again (cluster)
@@ -185,14 +219,24 @@
 
 (defun rocks-move (dt)
 	;each rock on by its drift, kept in the box of the field, and turned on
-	;as fast as it tumbles, which a knock may change
+	;as fast as it tumbles about the way it does, which a knock may change:
+	;its quaternion turned by its turn in the time, and kept of length 1
+	(defq h (* dt +double_1/2))
 	(each (lambda ((at drift & & spin &ignore))
 			(each! (lambda ()
 					(defq i (!) v (+ (elem-get at i) (* (elem-get drift i) dt)))
 					(elem-set at i (cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))))
 				'() 0 3)
-			(elem-set spin 2 (+ (elem-get spin 2) (* (elem-get spin 0) dt)))
-			(elem-set spin 3 (+ (elem-get spin 3) (* (elem-get spin 1) dt))))
+			(bind '(wx wy wz qw qx qy qz) spin)
+			(defq nw (- qw (* h (+ (* wx qx) (* wy qy) (* wz qz))))
+				nx (+ qx (* h (+ (* wx qw) (- (* wy qz) (* wz qy)))))
+				ny (+ qy (* h (+ (* wy qw) (- (* wz qx) (* wx qz)))))
+				nz (+ qz (* h (+ (* wz qw) (- (* wx qy) (* wy qx)))))
+				k (/ +double_1 (sqrt (+ (* nw nw) (* nx nx) (* ny ny) (* nz nz)))))
+			(elem-set spin 3 (* nw k))
+			(elem-set spin 4 (* nx k))
+			(elem-set spin 5 (* ny k))
+			(elem-set spin 6 (* nz k)))
 		rocks))
 
 
@@ -248,11 +292,6 @@
 			rocks))
 	(list cells at_cell smalls at_fine big_list))
 
-(defun rock-jolt (spin by)
-	;a tumble jolted by a knock, as hard as by, either way at random
-	(elem-set spin 0 (+ (elem-get spin 0) (* by (- (rnd) +double_1/2) +jolt)))
-	(elem-set spin 1 (+ (elem-get spin 1) (* by (- (rnd) +double_1/2) +jolt))))
-
 (defun rocks-touch (rock ri rock_j dx dy dz d2)
 	;two rocks, the first reaching ri, the second dx dy dz from it, d2 that
 	;squared: if they touch and are coming together, bounced apart, along
@@ -271,7 +310,9 @@
 			wi (/ mj (+ mi mj)) wj (/ mi (+ mi mj)))
 		(when (< closing +double_0)
 			;a crunch: little rebound, the sideways part of how they move
-			;ground down, and each tumble jolted, the smaller rock the more
+			;ground down, and each set turning by it as their faces grip,
+			;about the way across the touch and the slide, the smaller the
+			;faster, as a wheel rolls
 			(++ bumps)
 			(push hits (list (+ (elem-get at 0) (* nx ri)) (+ (elem-get at 1) (* ny ri))
 				(+ (elem-get at 2) (* nz ri)) (neg closing)))
@@ -283,8 +324,10 @@
 			(rock-push drift_j nx ny nz (neg (* kick wj)))
 			(rock-push drift tx ty tz (* +grind wi))
 			(rock-push drift_j tx ty tz (neg (* +grind wj)))
-			(rock-jolt spin (* closing wi))
-			(rock-jolt spin_j (* closing wj)))
+			(defq cx (- (* ny tz) (* nz ty)) cy (- (* nz tx) (* nx tz)) cz (- (* nx ty) (* ny tx))
+				gi (/ (* +grip wi) ri) gj (/ (* +grip wj) (- reach ri)))
+			(rock-spin spin (* cx gi) (* cy gi) (* cz gi))
+			(rock-spin spin_j (* cx gj) (* cy gj) (* cz gj)))
 		;and apart, the bigger moved the less
 		(defq over (- reach d))
 		(rock-push at nx ny nz (neg (* over wi)))
@@ -389,6 +432,51 @@
 							(elem-get cells (cell-at (+ cx sx) (+ cy sy) (+ cz sz)))))
 					cell_steps)))
 		'() 0 (/ (+ (- (length rocks) part) (dec +meet_parts)) +meet_parts)))
+
+(defun rocks-blast (x y z from to)
+	; (rocks-blast x y z from to) -> num
+	;a blast at x y z, its front of pressure gone on from from to to out
+	;from it: each rock the front has passed over in that thrown out from
+	;the middle, as hard as the pressure on its face, so the less the
+	;further and the bigger the rock, its face as its size squared and its
+	;weight cubed, a big one moved little and a small one far; and set
+	;tumbling end over end away from it, about a way across the way out,
+	;as an uneven face takes the pressure. How many it moved. Nothing is
+	;broken, the rocks only go
+	(defq moved 0)
+	(each (lambda ((at drift bulk & spin &ignore))
+			(defq dx (near-way (- (first at) x)) dy (near-way (- (second at) y)) dz (near-way (- (third at) z))
+				d (sqrt (+ (* dx dx) (* dy dy) (* dz dz) +double_1)))
+			(when (and (>= d from) (< d to) (< d +blast_reach))
+				(defq by (/ (* +blast_strength (- +double_1 (/ d +blast_reach))) bulk))
+				(rock-push drift dx dy dz (/ by d))
+				(bind '(ax ay az) (sky-unit (sky-cross (doubles dx dy dz) (rnd-way))))
+				(defq turn (* (min by (const (n2d 12))) +blast_spin))
+				(rock-spin spin (* ax turn) (* ay turn) (* az turn))
+				(++ moved)))
+		rocks)
+	moved)
+
+(defun rock-at (x y z)
+	; (rock-at x y z) -> :nil | rock
+	;the rock a place is in the reach of, if any
+	(some (lambda (rock)
+			(bind '(at & bulk kind &ignore) rock)
+			(defq dx (near-way (- (first at) x)) dy (near-way (- (second at) y)) dz (near-way (- (third at) z))
+				r (* bulk (elem-get kind_reach kind)))
+			(if (< (+ (* dx dx) (* dy dy) (* dz dz)) (* r r)) rock))
+		rocks))
+
+(defun rock-strike (rock x y z way)
+	;a rock struck at x y z by something going way, of length 1: spun
+	;about the way across from its middle to where it was struck and the
+	;way, as hard as it was struck off its middle, the smaller the faster;
+	;struck through its middle, not spun
+	(bind '(at & bulk kind spin &ignore) rock)
+	(defq rx (near-way (- x (first at))) ry (near-way (- y (second at))) rz (near-way (- z (third at)))
+		k (/ +strike_spin (* bulk bulk (elem-get kind_reach kind))))
+	(bind '(wx wy wz) way)
+	(rock-spin spin (* k (- (* ry wz) (* rz wy))) (* k (- (* rz wx) (* rx wz))) (* k (- (* rx wy) (* ry wx)))))
 
 (defun rocks-near (eye ahead)
 	; (rocks-near eye ahead) -> ((rx ry rz dx dy dz reach) ...)

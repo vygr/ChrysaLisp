@@ -63,6 +63,7 @@
 	rock_files (list (cat *app_root* "rock_vertex.shader") (cat *app_root* "rock_lit.shader"))
 	grain_files (list (cat *app_root* "grain_vertex.shader") (cat *app_root* "grain_lit.shader"))
 	buoy_files (list (cat *app_root* "rock_vertex.shader") (cat *app_root* "buoy_lit.shader"))
+	missile_files (list (cat *app_root* "rock_vertex.shader") (cat *app_root* "missile_lit.shader"))
 	glow_files (list (cat *app_root* "glow_vertex.shader") (cat *app_root* "glow_lit.shader"))
 	;the meshes, by their numbers, the rocks' kinds from +mesh_rock on
 	+mesh_sky 1 +mesh_glow 6 +mesh_rock 10
@@ -71,7 +72,7 @@
 	;least and at most, a second, how long a flash is, seconds, how
 	;bright between, how bright its lamp lights the rocks, and how far a
 	;rock looks for one to be lit by
-	+mesh_buoy 18 buoy_had :nil +buoy_size (n2d 7) buoy_next 0 +flash_least (n2d 0.25) +flash_most (n2d 1.1)
+	+mesh_buoy 18 +mesh_missile 19 missile_had :nil +missile_size (n2d 3) buoy_had :nil +buoy_size (n2d 7) buoy_next 0 +flash_least (n2d 0.25) +flash_most (n2d 1.1)
 	+flash_long (n2d 0.25) +flash_dim (n2d 0.12) +buoy_power (n2d 6) +buoy_light_far (n2d 170)
 	;how hard a hit is at least to throw grains, and how far off at most
 	+fx_least (n2d 1.5) +fx_far (n2d 450)
@@ -79,6 +80,20 @@
 	;meshes of them from +mesh_spray on, how many kinds, grains in each, how
 	;big a grain, how long a spray lasts, and how many at most
 	sprays (list) +mesh_spray 3 +spray_kinds 3 +spray_grains 64 +grain_size (n2d 0.35)
+	;bombs, a click fires one: each (at way born), where it is, how fast
+	;which way, and when it was fired; how fast it goes out from the ship,
+	;how long its fuse, how many may be out, and its light; blasts, each
+	;(at born front), how far its front has gone, how long its light lasts,
+	;its light at its brightest, and its glow's size at its least and most;
+	;the lights of both this frame, which light a rock before any buoy's,
+	;and their glows; and the mouse buttons as they were
+	bombs (list) +bomb_speed (n2d 160) +bomb_fuse 1600000 +bombs_most 3
+	+bomb_light (doubles (n2d 0.6) (n2d 0.5) (n2d 0.35))
+	;a bomb's glow, as much bigger as it is further, and its trail: how many
+	;glows behind it, seconds of its way apart, each the fainter
+	+bomb_glow_far (n2d 0.02) +trail_glows 6 +trail_step (n2d 0.012) +trail_fade (n2d 0.62)
+	blasts (list) +blast_life 900000 +blast_light (doubles (n2d 2.6) (n2d 1.8) (n2d 1.0))
+	+blast_glow_least (n2d 15) +blast_glow_most (n2d 150) +blast_light_far (n2d 260) blast_lamps (list) blast_glows (list) pressed 0
 	+spray_life 2500000 +spray_most 10
 	;the ship's speed, a second, the farm that makes the rocks and which
 	;kinds have come; the field is field.inc
@@ -135,6 +150,10 @@
 	ping_at :nil ping :nil +ping_flash (doubles (n2d 2.5) (n2d 2.5) (n2d 2.7)) +dark (doubles +double_0 +double_0 +double_0)
 	+ping_top (n2d 2.5) +ping_back (n2d 4) +ping_round 1100000 +ping_long 50000
 	lamps (list) lamps_near (list)
+	;each buoy's way up, from its lamp to its float, kept toward the ship's
+	;side: the least it may be toward the ship, the dot of the two, and how
+	;fast it turns when it must, a second
+	buoy_axes (list) +face_least (n2d 0.3) +face_rate (n2d 1.2)
 	;the heading chosen through the rocks, and the choice of the next one
 	;being made, a few headings a frame, field.inc
 	heading :nil thread :nil
@@ -323,13 +342,11 @@
 			(when (elem-get kinds_had kind)
 				(bind '(px py pz) at)
 				(defq rx (near-way (- px ex)) ry (near-way (- py ey)) rz (near-way (- pz ez)))
-				(when (and (< (- (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) bulk) rock_far)
-						(seen? rx ry rz (* bulk (elem-get kind_reach kind)) sides))
-					(bind '(& & turn_a turn_b) spin)
+				(and (< (- (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) bulk) rock_far)
+					(seen? rx ry rz (* bulk (elem-get kind_reach kind)) sides)
 					(push out (list (+ +mesh_rock kind)
 						(cat (list (list 'model (mat4x4-mul (mat4x4-translate (+ ex rx) (+ ey ry) (+ ez rz))
-								(mat4x4-mul (mat4x4-mul (mat4x4-roty turn_a) (mat4x4-rotx turn_b))
-									(mat4x4-scale bulk bulk bulk))))
+								(mat4x4-mul (rock-turned spin) (mat4x4-scale bulk bulk bulk))))
 							(list 'lens view) (list 'eye eye) (list 'rock_patch patch) (list 'rock_bulk bulk))
 							(rock-buoy (+ ex rx) (+ ey ry) (+ ez rz)))
 						pvals pictures rock_files)))))
@@ -435,40 +452,188 @@
 				(< (+ (* dx dx) (* dy dy) (* dz dz)) (* (+ rock_far +buoy_light_far) (+ rock_far +buoy_light_far))))
 			lamps)))
 
+(defun bomb-fire (sx sy)
+	;a bomb fired from the ship, through where the picture was clicked, sx
+	;and sy -1 to 1 across and up it, going with the ship as well
+	(bind '(w h) size)
+	(defq right (sky-cross forward up) spread_x (/ (* +spread_y (n2d w)) (n2d h))
+		way (sky-unit (nums-add forward (nums-add (nums-scale right (* sx spread_x)) (nums-scale up (* sy +spread_y))))))
+	(if (< (length bombs) +bombs_most)
+		(push bombs (list (nums-add eye (nums-scale way (const (n2d 4))))
+			(nums-add (nums-scale way +bomb_speed) (nums-scale forward +speed)) (pii-time)))))
+
+(defun bombs-move (dt)
+	;each bomb on, kept in the box of the field, gone off at the end of its
+	;fuse or in the reach of a rock: a blast, and hits at its middle, so it
+	;is heard and throws out grains as a hit does. Each blast's front on,
+	;the rocks it goes over thrown out, rocks-blast, till its light is gone
+	(defq now (pii-time))
+	(setq bombs (filter (lambda ((at way born))
+			(each! (lambda (p v)
+					(defq n (+ p (* v dt)))
+					(elem-set at (!) (cond ((< n +double_0) (+ n +field)) ((>= n +field) (- n +field)) (n))))
+				(list at way))
+			(cond
+				((or (> (- now born) +bomb_fuse)
+						(when (defq struck (apply (const rock-at) at))
+							;the rock it hits spun by where it is struck
+							(bind '(x y z) at)
+							(rock-strike struck x y z (sky-unit way))
+							:t))
+					(push blasts (list at now +double_0))
+					(bind '(x y z) at)
+					(times 3 (push hits (list x y z (const (n2d 8)))))
+					:nil)
+				(:t)))
+		bombs)
+		blasts (filter (lambda (blast)
+			(bind '(at born from) blast)
+			(bind '(x y z) at)
+			(defq to (* +blast_front (/ (n2d (- now born)) (const (n2d 1000000)))))
+			(if (< from +blast_reach) (rocks-blast x y z from to))
+			(elem-set blast 2 to)
+			(< (- now born) +blast_life))
+		blasts)))
+
+(defun bomb-lamps ()
+	;the lights of the bombs and blasts now, nearest the eye, which light a
+	;rock before a buoy's: a bomb's its own, a blast's as bright as it is,
+	;fading; and the glows of both, each (at colour size), a blast's the
+	;bigger as its front goes out
+	(defq now (pii-time) glows (list))
+	(bind '(ex ey ez) eye)
+	(setq blast_lamps (cat
+			(map (lambda ((at way &ignore))
+					(defq near (doubles (+ ex (near-way (- (first at) ex))) (+ ey (near-way (- (second at) ey)))
+							(+ ez (near-way (- (third at) ez))))
+						;its nozzle's glow, as big as a few pixels however far,
+						;and a trail behind along its way, fading
+						nozzle (nums-sub near (nums-scale (sky-unit way) (* +missile_size (const (n2d 0.8)))))
+						far (sqrt (nums-dot (nums-sub near eye) (nums-sub near eye)))
+						size (+ (const (n2d 1.5)) (* far +bomb_glow_far)) bright (nums-scale +bomb_light (const (n2d 5))))
+					(push glows (list nozzle bright size))
+					(each! (lambda ()
+							(defq back (n2d (inc (!))))
+							(push glows (list (nums-sub nozzle (nums-scale way (* back +trail_step)))
+								(nums-scale bright (pow +trail_fade back)) (* size (pow (const (n2d 0.85)) back)))))
+						'() 0 +trail_glows)
+					(list near +bomb_light))
+				bombs)
+			(map (lambda ((at born from))
+					(defq near (doubles (+ ex (near-way (- (first at) ex))) (+ ey (near-way (- (second at) ey)))
+							(+ ez (near-way (- (third at) ez))))
+						left (- +double_1 (/ (n2d (- now born)) (n2d +blast_life))) colour (nums-scale +blast_light (* left left)))
+					(push glows (list near (nums-scale colour (const (n2d 1.5)))
+						(+ +blast_glow_least (* (- +blast_glow_most +blast_glow_least) (- +double_1 left)))))
+					(list near colour))
+				blasts))
+		blast_glows glows))
+
 (defun rock-buoy (x y z)
 	; (rock-buoy x y z) -> ((rock_lamp_at place) (rock_lamp colour))
 	;the lamp of the buoy nearest a rock at x y z, near enough to light it,
 	;where it is and as bright as it is, or none: of the lamps near
 	;enough to the eye to light a rock it sees
-	(defq best :nil best_d +buoy_light_far)
+	;a bomb's or a blast's before any buoy's
+	(defq best :nil best_d +blast_light_far)
 	(each (lambda ((at colour))
 			(defq dx (- (first at) x) dy (- (second at) y) dz (- (third at) z)
 				d (sqrt (+ (* dx dx) (* dy dy) (* dz dz))))
 			(when (< d best_d) (setq best_d d best (list at colour))))
-		lamps_near)
+		blast_lamps)
+	(unless best
+		(setq best_d +buoy_light_far)
+		(each (lambda ((at colour))
+				(defq dx (- (first at) x) dy (- (second at) y) dz (- (third at) z)
+					d (sqrt (+ (* dx dx) (* dy dy) (* dz dz))))
+				(when (< d best_d) (setq best_d d best (list at colour))))
+			lamps_near))
 	(if best
 		(list (list 'rock_lamp_at (first best)) (list 'rock_lamp (nums-scale (second best) +buoy_power)))
 		(list (list 'rock_lamp_at eye) (list 'rock_lamp +dark))))
 
+(defun buoy-tilt (axis)
+	; (buoy-tilt axis) -> mat4x4
+	;the least turn that takes up, y, to axis, of length 1: about the way
+	;across both, so it goes smoothly as the axis does; turned over if it
+	;is all but straight down
+	(bind '(ax ay az) axis)
+	(if (< ay (const (n2d -0.999)))
+		(mat4x4-rotx +double_pi)
+		(defq k (/ +double_1 (+ +double_1 ay)))
+		(doubles (- +double_1 (* k ax ax)) ax (neg (* k ax az)) +double_0
+			(neg ax) (- +double_1 (* k (+ (* ax ax) (* az az)))) (neg az) +double_0
+			(neg (* k ax az)) az (- +double_1 (* k az az)) +double_0
+			+double_0 +double_0 +double_0 +double_1)))
+
+(defun buoys-face (dt)
+	;each buoy's lamp kept toward the ship's side of it: a buoy whose way up
+	;is turned from the ship past +face_least turns to it, slowly, dt
+	;seconds of it, so each turns when it must and not all as one
+	(each (lambda ((at &ignore) axis)
+			(defq to (sky-unit (nums-sub eye at)))
+			(when (< (nums-dot axis to) +face_least)
+				(defq turned (sky-unit (nums-add axis (nums-scale to (min +double_1 (* dt +face_rate))))))
+				(each! (lambda (v) (elem-set axis (!) v)) (list turned))))
+		lamps buoy_axes))
+
+(defun missile-draws (view sides)
+	; (missile-draws view sides) -> draws
+	;each bomb in flight in what the frame sees, a missile pointed the way
+	;it goes, its middle ahead of its nozzle's glow
+	(defq out (list))
+	(bind '(ex ey ez) eye)
+	(when missile_had
+		(each (lambda ((at way &ignore))
+				(defq near (doubles (+ ex (near-way (- (first at) ex))) (+ ey (near-way (- (second at) ey)))
+						(+ ez (near-way (- (third at) ez))))
+					rx (- (first near) ex) ry (- (second near) ey) rz (- (third near) ez))
+				(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) rock_far) (seen? rx ry rz +missile_size sides)
+					(push out (list +mesh_missile
+						(list (list 'model (mat4x4-mul (apply (const mat4x4-translate) (map (# %0) near))
+								(mat4x4-mul (buoy-tilt (sky-unit way)) (mat4x4-scale +missile_size +missile_size +missile_size))))
+							(list 'lens view) (list 'eye eye))
+						(list (list 'sun sun_at) (list 'eye eye) (list 'sun_light sun_light) (list 'pillars_at pillars_at)
+							(list 'pillars_light pillars_light) (list 'nebula_pixels nebula_pixels))
+						(list nebula_map) missile_files))))
+			bombs))
+	out)
+
 (defun buoy-draws (view sides)
 	; (buoy-draws view sides) -> draws
-	;the buoys near enough and in what the frame sees, each upright where
-	;its lamp is, turning slowly, its lamp as bright as it is now
+	;the buoys near enough and in what the frame sees, each hung from where
+	;its lamp is along its way up, turning slowly about it, its lamp as
+	;bright as it is now
 	(defq out (list) turn (/ (n2d (pii-time)) (const (n2d 4000000))))
 	(when buoy_had
-		(each (lambda ((at colour))
-				;its body's middle, below its lamp
-				(defq body_at (nums-sub at (doubles +double_0 (* +buoy_size (const (n2d 0.72))) +double_0))
+		(each (lambda ((at colour) axis)
+				;its body's middle, along its way up from its lamp
+				(defq body_at (nums-sub at (nums-scale axis (* +buoy_size (const (n2d 0.72)))))
 					rx (- (first body_at) (first eye)) ry (- (second body_at) (second eye)) rz (- (third body_at) (third eye)))
 				(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) rock_far) (seen? rx ry rz +buoy_size sides)
 					(push out (list +mesh_buoy
 						(list (list 'model (mat4x4-mul (apply (const mat4x4-translate) (map (# %0) body_at))
-								(mat4x4-mul (mat4x4-roty (+ turn (n2d (!)))) (mat4x4-scale +buoy_size +buoy_size +buoy_size))))
+								(mat4x4-mul (buoy-tilt axis)
+									(mat4x4-mul (mat4x4-roty (+ turn (n2d (!)))) (mat4x4-scale +buoy_size +buoy_size +buoy_size)))))
 							(list 'lens view) (list 'eye eye))
 						(list (list 'sun sun_at) (list 'eye eye) (list 'sun_light sun_light) (list 'pillars_at pillars_at)
 							(list 'pillars_light pillars_light) (list 'nebula_pixels nebula_pixels) (list 'lamp colour))
 						(list nebula_map) buoy_files))))
-			lamps))
+			lamps buoy_axes))
+	out)
+
+(defun bomb-glow-draws (view right up sides)
+	; (bomb-glow-draws view right up sides) -> draws
+	;the glow of each bomb and blast in what the frame sees, added to what
+	;is behind
+	(defq out (list))
+	(each (lambda ((at colour size))
+			(defq rx (- (first at) (first eye)) ry (- (second at) (second eye)) rz (- (third at) (third eye)))
+			(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) rock_far) (seen? rx ry rz size sides)
+				(push out (list +mesh_glow
+					(list (list 'middle at) (list 'size size) (list 'right right) (list 'up up) (list 'lens view))
+					(list (list 'lamp colour)) '() glow_files))))
+		blast_glows)
 	out)
 
 (defun glow-draws (view right up sides)
@@ -541,6 +706,8 @@
 	(when (>= (- (pii-time) refreshed) +refresh_every)
 		(setq refreshed (pii-time))
 		(clusters-refresh eye (+ +rock_far (const (n2d 60)))))
+	;the bombs on and the blasts, heard with the hits
+	(bombs-move dt)
 	(hear-hits)
 	(frame-mark 3)
 	(setq eye (apply (const doubles) (map (lambda (e f)
@@ -563,8 +730,10 @@
 	(buoy-look buoy_next)
 	(setq buoy_next (% (inc buoy_next) +buoys))
 	(buoy-lamps)
+	(buoys-face dt)
+	(bomb-lamps)
 	(frame-mark 4)
-	(defq rd (rock-draws view sides) bd (buoy-draws view sides))
+	(defq rd (rock-draws view sides) bd (cat (buoy-draws view sides) (missile-draws view sides)))
 	(if +frame_log (setq frame_rocks (+ frame_rocks (length rd))))
 	(frame-mark 5)
 	(. render :frame (cat rd bd (list
@@ -578,7 +747,7 @@
 			(list pillars_map nebula_map stars_map) sky_files))
 		;the buoys' lamps' glows and the grains hits throw out, over what is
 		;behind
-		(glow-draws view right up sides) (spray-draws view right up sides)))
+		(glow-draws view right up sides) (bomb-glow-draws view right up sides) (spray-draws view right up sides)))
 	(frame-mark 6)
 	(++ frames))
 
@@ -691,8 +860,10 @@
 			(cat (setf-> (str-alloc +rock_size) (+rock_num (!))) (str (+ 1000 (* (!) 7919)))))
 		'() 0 +rock_kinds)
 		;and the buoy, the kind after them
-		(cat (setf-> (str-alloc +rock_size) (+rock_num +rock_kinds)) "buoy")))
-	(setq buoys (make-buoys))
+		(cat (setf-> (str-alloc +rock_size) (+rock_num +rock_kinds)) "buoy")
+		;and the missile, the kind after that
+		(cat (setf-> (str-alloc +rock_size) (+rock_num (inc +rock_kinds))) "missile")))
+	(setq buoys (make-buoys) buoy_axes (map (lambda (&ignore) (doubles +double_0 +double_1 +double_0)) buoys))
 	(config-load)
 	(setq detail (min 4 (. *config* :find :detail)) view (elem-get +view_of detail) mode (. *config* :find :mode)
 		;the Pillars ahead, level, at first
@@ -736,6 +907,7 @@
 						(first rock_files))
 					(cond
 						((= kind +rock_kinds) (setq buoy_had :t))
+						((> kind +rock_kinds) (setq missile_had :t))
 						(:t (elem-set kinds_had kind :t)
 							;its bound, as far as it reaches from its middle as it turns
 							(bind '(middle radius) (vector-bounds-sphere (push (doubles) (slice msg +rock_reply_data -1)) 7))
@@ -764,10 +936,14 @@
 						(bind '(w h) size)
 						(setq stick (list (- (/ (n2d (* 2 (getf msg +ev_msg_mouse_rx))) (n2d w)) +double_1)
 							(- +double_1 (/ (n2d (* 2 (getf msg +ev_msg_mouse_ry))) (n2d h)))))
+						;a click fires a bomb through where it is
+						(defq buttons (getf msg +ev_msg_mouse_buttons))
+						(and (/= buttons 0) (= pressed 0) (apply (const bomb-fire) stick))
+						(setq pressed buttons)
 						(. *window* :event msg))
 					((and (= (getf msg +ev_msg_target_id) (. *canvas* :get_id))
 							(= (getf msg +ev_msg_type) +ev_type_exit))
-						(setq stick :nil)
+						(setq stick :nil pressed 0)
 						(. *window* :event msg))
 					((. *window* :event msg))))
 			(:t ;the timer, a frame a tick, if the last frame is not still out

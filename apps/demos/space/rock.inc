@@ -129,3 +129,29 @@
 (defun buoy-mesh ()
 	; (buoy-mesh) -> mesh
 	(Mesh-iso (Iso-buoy 20) +double_0))
+
+(defclass Iso-missile (size) (Iso size size size)
+	; (Iso-missile size) -> iso
+	;a missile: a round body along y, a pointed nose up, and four fins at
+	;its tail, run together
+	(defq k (/ +double_2 (n2d size)) c (* (n2d (dec size)) +double_1/2))
+	(def this :points (map! (# (* (- (n2d (!)) c) k)) '() 0 size))
+
+	(defmethod :get_scalar (x y z)
+		; (. iso :get_scalar x y z) -> scalar
+		(raise :points)
+		(defq px (elem-get points x) py (elem-get points y) pz (elem-get points z)
+			r (sqrt (+ (* px px) (* pz pz)))
+			body (max (- r (const (n2d 0.16))) (- (abs (+ py (const (n2d 0.2)))) (const (n2d 0.55))))
+			;the nose, a long half ball, near enough a distance
+			ny (/ (- py (const (n2d 0.35))) (const (n2d 0.55)))
+			nose (* (- (sqrt (+ (/ (* r r) (const (n2d 0.0256))) (* ny ny))) +double_1) (const (n2d 0.16)))
+			;the fins, two thin blades across each other at the tail
+			tail (- (abs (+ py (const (n2d 0.6)))) (const (n2d 0.16)))
+			fins (min (max (- (abs px) (const (n2d 0.05))) (- (abs pz) (const (n2d 0.4))) tail)
+				(max (- (abs pz) (const (n2d 0.05))) (- (abs px) (const (n2d 0.4))) tail)))
+		(buoy-smooth (buoy-smooth body nose (const (n2d 0.05))) fins (const (n2d 0.03)))))
+
+(defun missile-mesh ()
+	; (missile-mesh) -> mesh
+	(Mesh-iso (Iso-missile 28) +double_0))

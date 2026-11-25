@@ -6,7 +6,8 @@
 ;reach 0.9 of its size, as field.inc has it before its mesh comes
 (defun sf-rock (x y z vx vy vz bulk)
 	(list (doubles (n2d x) (n2d y) (n2d z)) (doubles (n2d vx) (n2d vy) (n2d vz)) (n2d bulk) 0
-		(doubles +double_0 +double_0 +double_0 +double_0) (doubles +double_0 +double_0 +double_0)))
+		(doubles +double_0 +double_0 +double_0 +double_1 +double_0 +double_0 +double_0)
+		(doubles +double_0 +double_0 +double_0)))
 
 ;the field moved on so many frames of a 60th, met a part a frame
 (defun sf-run (frames)
@@ -77,3 +78,31 @@
 (assert-true "a buoy by a rock reads danger" (> (third (first buoys)) (n2d 0.8)))
 (assert-true "and is moved out of it" (> (third (first (first buoys))) (n2d 112)))
 (assert-true "one in open space reads none" (= (third (second buoys)) +double_0))
+
+;a blast: its front throws the rocks it goes over out from it, a small
+;one faster than a big one, and leaves one out of its reach as it was
+(setq rocks (list (sf-rock 520 500 500 0 0 0 5) (sf-rock 480 500 500 0 0 0 40) (sf-rock 800 500 500 0 0 0 5)))
+(assert-eq "its front not yet at them, none moved" 0 (rocks-blast (n2d 500) (n2d 500) (n2d 500) +double_0 (n2d 10)))
+(assert-eq "its front gone over them, those in its reach moved" 2
+	(rocks-blast (n2d 500) (n2d 500) (n2d 500) (n2d 10) (n2d 400)))
+(assert-true "out from it" (and (> (sf-vx (first rocks)) +double_0) (< (sf-vx (second rocks)) +double_0)))
+(assert-true "a small one faster than a big one" (> (sf-vx (first rocks)) (* (n2d 4) (abs (sf-vx (second rocks))))))
+(assert-true "one out of its reach as it was" (= (sf-vx (third rocks)) +double_0))
+(assert-true "a place in a rock is in it" (eql (rock-at (n2d 522) (n2d 500) (n2d 500)) (first rocks)))
+(assert-true "and one between is not" (not (rock-at (n2d 650) (n2d 500) (n2d 500))))
+
+;tumbling: a rock struck off its middle spins about the way across where
+;it was struck and the way the strike went, one struck through its middle
+;not at all; and it turns, its quaternion staying of length 1
+(defun sf-spin (rock) (slice (elem-get rock 4) 0 3))
+(setq rocks (list (sf-rock 500 500 500 0 0 0 10) (sf-rock 700 500 500 0 0 0 10)))
+(rock-strike (first rocks) (n2d 500) (n2d 504) (n2d 491) (doubles +double_0 +double_0 +double_1))
+(bind '(wx wy wz) (sf-spin (first rocks)))
+(assert-true "struck above its middle going along z, it spins about x" (and (> wx (n2d 0.1)) (= wy +double_0) (= wz +double_0)))
+(rock-strike (second rocks) (n2d 700) (n2d 500) (n2d 491) (doubles +double_0 +double_0 +double_1))
+(assert-true "struck through its middle, not at all" (every (# (= %0 +double_0)) (sf-spin (second rocks))))
+(times 120 (rocks-move (n2d 0.0166)))
+(bind '(& & & qw qx qy qz) (elem-get (first rocks) 4))
+(assert-true "it has turned, about x" (and (< qw (n2d 0.99)) (> (abs qx) (n2d 0.1)) (< (abs qy) (n2d 0.001))))
+(assert-true "its quaternion of length 1" (< (abs (- (+ (* qw qw) (* qx qx) (* qy qy) (* qz qz)) +double_1)) (const (/ +double_1 (n2d 1000000)))))
+(assert-true "the matrix of it turns up about x" (< (abs (elem-get (rock-turned (elem-get (first rocks) 4)) 4)) (n2d 0.001)))
