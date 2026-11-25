@@ -95,12 +95,13 @@
 	+bomb_glow_far (n2d 0.02) +trail_glows 6 +trail_step (n2d 0.012) +trail_fade (n2d 0.62)
 	blasts (list) +blast_life 900000 +blast_light (doubles (n2d 2.6) (n2d 1.8) (n2d 1.0))
 	+blast_glow_least (n2d 15) +blast_glow_most (n2d 150) +blast_light_far (n2d 260)
-	;a buoy gone nuclear: how long it flashes white, armed, before, and how
+	;a buoy gone nuclear: the klaxon it sounds as it is armed, its handle
+	;of the audio service, how long it flashes white, armed, before, and how
 	;fast; its blast's reach, strength, how long its light lasts, its light
 	;at its brightest and its glow's size at its most; and how many of the
 	;rocks it shatters throw out grains
-	+nuke_fuse 3000000 +armed_beat 125000 +armed_flash (doubles (n2d 1.6) (n2d 1.6) (n2d 1.6))
-	+nuke_reach (n2d 320) +nuke_strength (n2d 400) +nuke_life 2500000
+	klaxon :nil +nuke_fuse 3000000 +armed_beat 125000 +armed_flash (doubles (n2d 1.6) (n2d 1.6) (n2d 1.6))
+	+nuke_reach (n2d 360) +nuke_strength (n2d 1200) +nuke_life 2500000
 	+nuke_light (doubles (n2d 7) (n2d 5.5) (n2d 4)) +nuke_glow (n2d 500) +nuke_sprays 6 blast_lamps (list) blast_glows (list) pressed 0
 	;the ship's speed eased to a boost's while the right button is held and
 	;back to cruising after: whether it is held, the boost's speed, and how
@@ -518,9 +519,27 @@
 					(setq thrust_at (% end long))
 					(audio-stream-write-rpc thrust_stream (obj-set (str-alloc bytes) +str_data bytes pcm)))))))
 
-(defun buoys-nuke ()
-	;a buoy too crowded for +nuke_looks looks running armed, and three
-	;seconds after, flashing white, gone nuclear: the small rocks round it
+(defun in-view? (at sides)
+	; (in-view? at sides) -> :t | :nil
+	;is a place near enough to be drawn, and in what the frame sees
+	(defq rx (near-way (- (first at) (first eye))) ry (near-way (- (second at) (second eye)))
+		rz (near-way (- (third at) (third eye))))
+	(and (< (+ (* rx rx) (* ry ry) (* rz rz)) (* rock_far rock_far)) (seen? rx ry rz +buoy_size sides)))
+
+(defun side-of (at)
+	; (side-of at) -> num
+	;the pan of a sound at a place, -255 full left to 255 full right, by
+	;the side of the eye it is on
+	(defq right (sky-cross forward up) rx (near-way (- (first at) (first eye))) ry (near-way (- (second at) (second eye)))
+		rz (near-way (- (third at) (third eye))) d (sqrt (+ (* rx rx) (* ry ry) (* rz rz) +double_1)))
+	(n2i (* (const (n2d 255)) (/ (+ (* rx (first right)) (* ry (second right)) (* rz (third right))) d))))
+
+(defun buoys-nuke (sides)
+	;a buoy too crowded for +nuke_looks looks running armed, if it is in
+	;view, near enough to be drawn and in what the frame sees, sides, as
+	;only a heap drawn slows the frames and it is a sight to see, the
+	;klaxon sounding; and three seconds after, flashing white, gone
+	;nuclear: the small rocks round it
 	;shattered and sent off out of sight, rocks-nuke, grains thrown out
 	;where those near the eye were, and a blast far bigger than a
 	;missile's, its light, glow and front, throwing the rest out, heard
@@ -528,7 +547,10 @@
 	(each (lambda (buoy)
 			(bind '(at & & & & & over armed) buoy)
 			(cond
-				((and (= armed 0) (>= over +nuke_looks)) (elem-set buoy 7 now))
+				((and (= armed 0) (>= over +nuke_looks) (in-view? at sides))
+					(elem-set buoy 7 now)
+					;the klaxon, once, from the side it is on, as loud wherever
+					(if (num? klaxon) (audio-play-rpc klaxon (side-of at))))
 				((and (> armed 0) (> (- now armed) +nuke_fuse))
 					(bind '(x y z) at)
 					(defq shattered (rocks-nuke x y z eye (+ +rock_far (const (n2d 60))))
@@ -829,7 +851,7 @@
 	(buoys-move dt)
 	(buoy-look buoy_next)
 	(setq buoy_next (% (inc buoy_next) +buoys))
-	(buoys-nuke)
+	(buoys-nuke sides)
 	(buoy-lamps)
 	(buoys-face dt)
 	(bomb-lamps)
@@ -952,7 +974,8 @@
 		rocks (make-rocks) eye (doubles +double_0 +double_0 +double_0)
 		;the crunches, the near ones and the far one, each at its loudnesses
 		crunches (map (lambda (n) (crunch-levels (cat "crunch_" (str n)) +near_levels)) '(1 2 3))
-		crunch_far (crunch-levels "crunch_far" +far_levels) thrust_pcm (thrust-load))
+		crunch_far (crunch-levels "crunch_far" +far_levels) thrust_pcm (thrust-load)
+		klaxon (if crunch_far (audio-add-rpc (cat *app_root* "data/klaxon.wav"))))
 	;the rocks' kinds, made by a farm of children on this machine's nodes,
 	;off this one, and each slotted in as it comes
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
@@ -1073,6 +1096,7 @@
 	(. music :stop)
 	(if jobs (. jobs :close))
 	(if thrust_stream (audio-stream-close-rpc thrust_stream))
+	(if (num? klaxon) (audio-remove-rpc klaxon))
 	(if crunch_far (each (lambda (levels) (each (const audio-remove-rpc) levels)) (push (cat crunches) crunch_far)))
 	(. render :close)
 	(. *window* :close))

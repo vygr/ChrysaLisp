@@ -41,8 +41,8 @@ behind it.
   the ship's side of it.
 
 * The field keeps itself in hand: a buoy in a heap too crowded, 18 rocks
-  or more round it look after look, arms, flashes white fast for three
-  seconds, and goes nuclear. Each small rock near it is shattered, grains
+  or more round it look after look, and in view, arms, sounds a klaxon,
+  flashes white fast for three seconds, and goes nuclear. Each small rock near it is shattered, grains
   thrown out, and sent off out of sight to drift back in alone, no more of
   its cluster; and its blast, far bigger than a missile's, throws the big
   ones out from it. So a heap that would slow the frames is broken up.
@@ -126,7 +126,8 @@ least, so the app has a third of its node and what is beside it the rest.
   and `glow_`, the light round a buoy's lamp.
 * `data/`: the pictures and sounds, and how each is made, its `README.md`.
   Each is made by a bake of its own, `bake_nebula.lisp`, `bake_stars.lisp`,
-  `bake_crunch.lisp`, `bake_levels.lisp` and `bake_thrust.lisp`. The roar of
+  `bake_crunch.lisp`, `bake_levels.lisp`, `bake_thrust.lisp` and
+  `bake_klaxon.lisp`. The roar of
   a boost is written to a stream of the audio service as the ship speeds
   up, a stretch of its loop each frame as loud as the boost is.
 
