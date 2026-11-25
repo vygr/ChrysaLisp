@@ -56,7 +56,8 @@ behind it.
   throwing each rock it passes out from it, as hard as the pressure on its
   face, a small rock far and a big one little, and tumbling end over end
   away from it; the rock it strikes spun by where it is struck, hard off
-  its middle and not at all through it. Nothing is broken: a cluster is
+  its middle and not at all through it, hit on hit spinning it up, a big
+  rock the slower, as it is the heavier. Nothing is broken: a cluster is
   blown apart, and its rocks go, crunch into others, or are pulled together
   again. The blast flashes, lights the rocks round it before any buoy's
   light, throws out grains and is heard.

@@ -151,3 +151,17 @@
 (assert-true "no more of their cluster" (eql (first clusters) '(0)))
 (assert-true "the big one where it was" (= (sf-x (first rocks)) (n2d 500)))
 (assert-true "the one outside its core where it was" (= (sf-x (elem-get rocks 3)) (n2d 800)))
+
+;spin held: a small rock no faster than +spin_most, a big one no faster
+;than its surface going round at +rim_most; a nuke's blast calms it
+(setq rocks (list (sf-rock 500 500 500 0 0 0 4) (sf-rock 700 500 500 0 0 0 48)))
+(defun sf-w (rock) (sqrt (nums-dot (slice (elem-get rock 4) 0 3) (slice (elem-get rock 4) 0 3))))
+(rock-spin (elem-get (first rocks) 4) (n2d 4) (n2d 50) +double_0 +double_0)
+(rock-spin (elem-get (second rocks) 4) (n2d 48) (n2d 50) +double_0 +double_0)
+(assert-true "a small rock's spin held to the most" (< (abs (- (sf-w (first rocks)) +spin_most)) (const (n2d 0.001))))
+(assert-true "a big one's to its surface's most" (< (abs (- (sf-w (second rocks)) (/ +rim_most (n2d 48)))) (const (n2d 0.001))))
+(defq sf_was (sf-w (first rocks)))
+(rocks-blast (n2d 900) (n2d 500) (n2d 500) +double_0 (n2d 1000) (n2d 100) (n2d 100) :t)
+(assert-true "a blast out of reach leaves it" (= (sf-w (first rocks)) sf_was))
+(rocks-blast (n2d 530) (n2d 500) (n2d 500) +double_0 (n2d 1000) (n2d 100) (n2d 1) :t)
+(assert-true "a nuke's blast in reach calms it" (< (sf-w (first rocks)) (* sf_was (const (n2d 0.5)))))

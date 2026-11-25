@@ -50,10 +50,12 @@
 	;its middle thrown so fast, one of size b a b'th of it, how fast its
 	;front of pressure goes out, a second, and how much of how hard a rock is
 	;thrown sets it tumbling; how fast a rock struck by a missile spins, at
-	;its edge and of size 1; how fast a rock tumbles at most; and how well
-	;two rocks' faces grip as they grind past
+	;its edge and of size 1; how fast a rock tumbles at most, and its surface
+	;goes round at most, so a big rock the slower; how well two rocks' faces
+	;grip as they grind past; and how much of a rock's spin a nuke's blast
+	;leaves it
 	+blast_reach (n2d 140) +blast_strength (n2d 150) +blast_front (n2d 280) +blast_spin (n2d 0.15)
-	+strike_spin (n2d 25) +spin_most (n2d 6) +grip (n2d 0.5)
+	+strike_spin (n2d 40) +spin_most (n2d 4) +rim_most (n2d 40) +grip (n2d 0.15) +blast_calm (n2d 0.2)
 	;the ship keeps clear of rocks: how far ahead it looks, each way, and
 	;how many seconds ahead
 	+look_far (n2d 380) +look_time (n2d 10)
@@ -116,11 +118,13 @@
 		s (sin half))
 	(cat way (doubles (cos half) (* s (first axis)) (* s (second axis)) (* s (third axis)))))
 
-(defun rock-spin (spin ax ay az)
+(defun rock-spin (spin bulk ax ay az)
 	;a rock's tumble turned faster about a way by so much, no faster than
-	;+spin_most in all
+	;its surface going round no faster than +rim_most, so a big rock, much
+	;the heavier, spins the slower, and none faster than +spin_most in all
 	(defq wx (+ (elem-get spin 0) ax) wy (+ (elem-get spin 1) ay) wz (+ (elem-get spin 2) az)
-		w (sqrt (+ (* wx wx) (* wy wy) (* wz wz))) k (if (> w +spin_most) (/ +spin_most w) +double_1))
+		w (sqrt (+ (* wx wx) (* wy wy) (* wz wz))) most (min +spin_most (/ +rim_most bulk))
+		k (if (> w most) (/ most w) +double_1))
 	(elem-set spin 0 (* wx k))
 	(elem-set spin 1 (* wy k))
 	(elem-set spin 2 (* wz k)))
@@ -338,8 +342,8 @@
 			(rock-push drift_j tx ty tz (neg (* +grind wj)))
 			(defq cx (- (* ny tz) (* nz ty)) cy (- (* nz tx) (* nx tz)) cz (- (* nx ty) (* ny tx))
 				gi (/ (* +grip wi) ri) gj (/ (* +grip wj) (- reach ri)))
-			(rock-spin spin (* cx gi) (* cy gi) (* cz gi))
-			(rock-spin spin_j (* cx gj) (* cy gj) (* cz gj)))
+			(rock-spin spin bulk (* cx gi) (* cy gi) (* cz gi))
+			(rock-spin spin_j bulk_j (* cx gj) (* cy gj) (* cz gj)))
 		;and apart, the bigger moved the less
 		(defq over (- reach d))
 		(rock-push at nx ny nz (neg (* over wi)))
@@ -445,17 +449,18 @@
 					cell_steps)))
 		'() 0 (/ (+ (- (length rocks) part) (dec +meet_parts)) +meet_parts)))
 
-(defun rocks-blast (x y z from to &optional reach strength)
-	; (rocks-blast x y z from to [reach strength]) -> num
+(defun rocks-blast (x y z from to &optional reach strength calm)
+	; (rocks-blast x y z from to [reach strength calm]) -> num
 	;a blast at x y z, its front of pressure gone on from from to to out
 	;from it: each rock the front has passed over in that thrown out from
 	;the middle, as hard as the pressure on its face, so the less the
 	;further and the bigger the rock, its face as its size squared and its
 	;weight cubed, a big one moved little and a small one far; and set
-	;tumbling end over end away from it, about a way across the way out,
-	;as an uneven face takes the pressure. How many it moved. Nothing is
+	;tumbling the faster, as an uneven face takes the pressure, along the
+	;spin it has, or about a way across the way out if it has none. How many it moved. Nothing is
 	;broken, the rocks only go. Of +blast_reach and +blast_strength if not
-	;said, a missile's
+	;said, a missile's. A calm blast, a nuke's, first takes each rock's
+	;spin down to +blast_calm of it, so a heap it breaks settles
 	(defq moved 0 reach (ifn reach +blast_reach) strength (ifn strength +blast_strength))
 	(each (lambda ((at drift bulk & spin &ignore))
 			(defq dx (near-way (- (first at) x)) dy (near-way (- (second at) y)) dz (near-way (- (third at) z))
@@ -463,9 +468,16 @@
 			(when (and (>= d from) (< d to) (< d reach))
 				(defq by (/ (* strength (- +double_1 (/ d reach))) bulk))
 				(rock-push drift dx dy dz (/ by d))
-				(bind '(ax ay az) (sky-unit (sky-cross (doubles dx dy dz) (rnd-way))))
+				(if calm (each! (lambda (v) (elem-set spin (!) (* v +blast_calm))) (list spin) 0 3))
+				;its tumble along the spin it has, so blast on blast spins it
+				;up, and only one all but still is set going about a way
+				;across the way out, at random
+				(defq w (sqrt (+ (* (first spin) (first spin)) (* (second spin) (second spin)) (* (third spin) (third spin)))))
+				(bind '(ax ay az) (if (> w (const (n2d 0.05)))
+					(doubles (/ (first spin) w) (/ (second spin) w) (/ (third spin) w))
+					(sky-unit (sky-cross (doubles dx dy dz) (rnd-way)))))
 				(defq turn (* (min by (const (n2d 12))) +blast_spin))
-				(rock-spin spin (* ax turn) (* ay turn) (* az turn))
+				(rock-spin spin bulk (* ax turn) (* ay turn) (* az turn))
 				(++ moved)))
 		rocks)
 	moved)
@@ -489,7 +501,7 @@
 	(defq rx (near-way (- x (first at))) ry (near-way (- y (second at))) rz (near-way (- z (third at)))
 		k (/ +strike_spin (* bulk bulk (elem-get kind_reach kind))))
 	(bind '(wx wy wz) way)
-	(rock-spin spin (* k (- (* ry wz) (* rz wy))) (* k (- (* rz wx) (* rx wz))) (* k (- (* rx wy) (* ry wx)))))
+	(rock-spin spin bulk (* k (- (* ry wz) (* rz wy))) (* k (- (* rz wx) (* rx wz))) (* k (- (* rx wy) (* ry wx)))))
 
 (defun rocks-near (eye ahead)
 	; (rocks-near eye ahead) -> ((rx ry rz dx dy dz reach) ...)
