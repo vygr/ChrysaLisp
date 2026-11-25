@@ -50,15 +50,22 @@
 (defun mesh-of (id)
 	; (mesh-of id) -> :nil | (verts tris packed)
 	;a mesh by its number: its vertices, a doubles or the bytes of one,
-	;the triangles of them taken three at a time, and its bytes if they
-	;have been made. One the app has not told of is asked of its :mesh_fn
+	;the triangles of them taken three at a time, how many vertices there
+	;are till they are wanted, (mesh-tris), and its bytes if they have
+	;been made. One the app has not told of is asked of its :mesh_fn
 	(defq meshes (get :meshes this))
 	(unless (defq m (. meshes :find id))
 		(and (defq fn (get :mesh_fn this)) (defq verts (fn id))
-			(. meshes :insert id (setq m (list verts
-					(reduce! (# (push %0 (!))) '() (nums) 0 (/ (length verts) +long_size (get :stride this)))
-					verts)))))
+			(. meshes :insert id (setq m (list verts (/ (length verts) +long_size (get :stride this)) verts)))))
 	m)
+
+(defun mesh-tris (m)
+	; (mesh-tris m) -> nums
+	;the triangles of a mesh, its vertices three at a time, made when first
+	;wanted: only a frame drawn in this task wants them, a child has its own
+	(if (num? (defq tris (second m)))
+		(elem-set m 1 (setq tris (reduce! (# (push %0 (!))) '() (cap tris (nums)) 0 tris))))
+	tris)
 
 (defun farm-end ()
 	;the farm let go of, its work has stopped, and the GPU's if it was set
@@ -369,8 +376,7 @@
 		;own
 		(defq stride (if vfile (reduce (# (+ %0 (shader-size (second %1)))) (shader-attrs (shader-load vfile)) 0)
 				(get :stride this)))
-		(. (get :meshes this) :insert id (list verts
-				(reduce! (# (push %0 (!))) '() (nums) 0 (/ (length verts) stride)) :nil))
+		(. (get :meshes this) :insert id (list verts (/ (length verts) stride) :nil))
 		this)
 
 	(defmethod :forget ()
@@ -399,7 +405,7 @@
 							(defq pair (. this :pair files) pipeline (if files (third pair) (get :pipeline this)))
 							(unless pipeline
 								(elem-set pair 2 (setq pipeline (shader-vp-pipeline (first pair) (second pair)))))
-							(shader-vp-draw-tris pipeline (first m) (second m) pixmap depth vvals
+							(shader-vp-draw-tris pipeline (first m) (mesh-tris m) pixmap depth vvals
 								;each picture under the name the pixel shader has it by
 								(cat pvals (map (lambda ((name) picture) (list name (getf picture +canvas_pixmap 0)))
 										(shader-textures (second pair)) (ifn pictures '())))
@@ -431,14 +437,22 @@
 		(def this :draws draws :began (pii-time) :last (pii-time))
 		;a farm of the other kind is let go of
 		(and (get :jobs this) (nql (get :kind this) (cond (gpu :gpu) (farm :cpu))) (farm-end))
-		(defq packed (if (or gpu farm)
+		;one whose blocks are made is as a strip takes it, the rest packed by
+		;the shaders of their pair. Draws one after another with the very
+		;lists of inputs of the one before, and its pair, the tiles of a
+		;land say, are packed the once
+		(defq had_v :nil had_p :nil had_files :nil pair :nil vblock :nil pblock :nil
+			packed (if (or gpu farm)
 				(map (lambda (draw)
 						(bind '(id vvals pvals &optional pictures files &rest _) draw)
-						;one whose blocks are made is as a strip takes it, the rest
-						;packed by the shaders of their pair
 						(if (str? vvals) draw
-							(bind '(v p &ignore) (. this :pair files))
-							(cat (list id (shader-pack v vvals) (shader-pack p pvals)
+							;the pair of the draw before, if it names the very same
+							(unless (and pair (eql files had_files))
+								(setq pair (. this :pair files) had_files files vblock :nil))
+							(unless (and vblock (eql vvals had_v) (eql pvals had_p))
+								(setq had_v vvals had_p pvals
+									vblock (shader-pack (first pair) vvals) pblock (shader-pack (second pair) pvals)))
+							(cat (list id vblock pblock
 									0 (getf pixmap +pixmap_height 0)
 									(map (# (ifn (shader-strip-texture %0) "")) (ifn pictures '())))
 								(if files (list files) '())))) draws)))

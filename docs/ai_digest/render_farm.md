@@ -573,8 +573,20 @@ pair if it is not drawn with the render's, its inputs packed by that pair's
 shaders, by the GPU, the farm and here alike, each pair read the once,
 `(:pair)`. A mesh drawn by another vertex shader is told with it, `(. render
 :mesh id verts vfile)`, as its vertices are counted by that shader's attrs.
-Flight's frame is a sky, two triangles of corners by a pair of its own at
-the back of the depth, and the land by the render's.
+Flight's frame is the land by the render's pair, and a sky, two triangles
+of corners by a pair of its own at the back of the depth, given after what
+hides it, so it is worked out only where it is seen.
+
+Draws one after another that have the very same lists of inputs, and pair,
+as the one before are packed the once: a thing in many meshes, the tiles of
+Flight's land, of which only those in sight are drawn, is given the one
+`vvals` and the one `pvals` for all of them. A draw is not free, though, the
+child gives the GPU each by itself: Flight's coarse land is the one mesh.
+
+An app gives its next frame when the last comes back, `(:read)` with no
+`idx`, if that took a tick of its timer or more, and leaves a faster one to
+the tick: one that gives a frame only on a tick draws every other tick when
+a frame takes a little over one.
 
 ### Children of the app's own
 
