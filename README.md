@@ -79,6 +79,7 @@ Featured videos include:
 * **Shader Language and GPU**: Shaders are written as s-expressions and type checked in Lisp. One source goes to GLSL, to Metal, to SPIR-V for Vulkan, to native VP code that needs no GPU, and to a Lisp lambda the others are checked against. The SDL3 host draws shaders and lit meshes on the GPU, through Metal on a Mac and Vulkan on a Raspberry Pi. See `docs/ai_digest/shader_language.md` and `docs/intro/sdl3.md`.
 
 * **Flight**: A demo of the shaders on the GPU: a flight over a land made as it goes, a day and a night with a full moon, stars and clouds, and craft not of this world that come out of the haze, light the land in their colours, and now and then snatch a cow with a beam. Its detail goes to what the GPU keeps up with. See `docs/apps/flight.md`.
+* **Space**: A flight through a field of rocks in deep space, the Pillars of Creation behind it: rocks that drift, pull on one another and crunch together throwing out grains, marker buoys that flash the hazard round them and light the rocks, and an auto pilot that threads the tightest gaps. See `docs/apps/space.md`.
 
 * **Parallel Rendering**: With no GPU, a shader compiled to native code is drawn by the nodes of the network, a tile each. A canvas can keep its pixels in shared memory, and the Whiteboard has the nodes of a machine each draw a stripe of the same picture.
 
