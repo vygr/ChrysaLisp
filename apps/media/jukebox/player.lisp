@@ -15,7 +15,8 @@
 ;song came with is that song's name from then on, and where it is told of:
 ;what is said of a song with another's is not heard, and what this says
 ;of a song no longer wanted goes to a mailbox let go of, nowhere:
-;	M state seconds \n bytes	a module, played, held or stopped there
+;	M state seconds [q] \n bytes	a module, played, held or stopped there;
+;				q, quiet, for an app with no window: told only E and !
 ;	P			played, from its start if stopped
 ;	H			held, or played on if held
 ;	S			stopped, to play from its start
@@ -31,6 +32,9 @@
 ;	!			not a module it can read
 ;	T heard order row state samples... | bands...
 ;	E			all of the song heard
+;a quiet song is told only ! and E, so neither its places nor its spectrum
+;are worked out, and an app that shows none of it has no mail 30 times a
+;second
 ;and it goes if it hears nothing of the window for a while, ./app.inc
 
 (enums +select 0
@@ -44,7 +48,7 @@
 	;the mailboxes it reads, the song's name, the mailbox of the window it
 	;is told of on, the song and its player
 	*select* :nil *song_id* :nil *app* :nil *song* :nil *player* :nil *handle* :nil *written* 0
-	*marks* (list) *recent* "" *recent_at* 0 *state* "s" *ended* :nil
+	*marks* (list) *recent* "" *recent_at* 0 *state* "s" *ended* :nil *quiet* :nil
 	*spectrum* (spectrum-make +fft +rate +bars) *heard* 0 *told* :nil
 	;the farm of one that measures the song, while it does
 	*measurer* :nil
@@ -104,31 +108,34 @@
 		(*handle*
 			(when (eql *state* "p")
 				(while (and (< left +ahead) (not *ended*))
-					(push *marks* (list *written* (. *player* :find :order) (. *player* :find :row)))
+					(unless *quiet* (push *marks* (list *written* (. *player* :find :order) (. *player* :find :row))))
 					(defq pcm (tracker-next *player*) n (/ (length pcm) 4))
 					(audio-stream-write-rpc *handle* pcm)
-					(setq *recent* (cat *recent* pcm) *written* (+ *written* n) left (+ left n)
-						*ended* (song-ended))
-					(when (> (defq over (- (/ (length *recent*) 4) +recent_max)) 0)
-						(setq *recent* (slice *recent* (* 4 over) -1) *recent_at* (+ *recent_at* over)))
+					(setq *written* (+ *written* n) left (+ left n) *ended* (song-ended))
+					;what was heard last, for the spectrum, not for a quiet song
+					(unless *quiet*
+						(setq *recent* (cat *recent* pcm))
+						(when (> (defq over (- (/ (length *recent*) 4) +recent_max)) 0)
+							(setq *recent* (slice *recent* (* 4 over) -1) *recent_at* (+ *recent_at* over))))
 					(task-slice)))
 			(setq *heard* (- *written* left)))
 		(*heard*)))
 
 (defun report ()
 	;what is heard told to the window: where, how, which samples sound and
-	;the bars of its spectrum
-	(defq heard *heard*)
-	(while (and (> (length *marks*) 1) (<= (first (second *marks*)) heard))
-		(setq *marks* (slice *marks* 1 -1)))
-	(bind '(& order row) (ifn (first *marks*) (list 0 (. *player* :find :order) (. *player* :find :row))))
-	(defq playing (tracker-playing *player*)
-		from (- heard +fft *recent_at*)
-		bands (if (and (eql *state* "p") (>= from 0) (<= (+ from +fft) (/ (length *recent*) 4)))
-			(map (const n2i) (spectrum-bands *spectrum* *recent* from))
-			(map! (lambda () 0) '() 0 +bars)))
-	(mail-send *app* (cat "T" (join (map (const str) (list heard order row)) " ")
-		" " *state* " " (join (map (const str) playing) " ") " | " (join (map (const str) bands) " "))))
+	;the bars of its spectrum; none of it of a quiet song
+	(unless *quiet*
+		(defq heard *heard*)
+		(while (and (> (length *marks*) 1) (<= (first (second *marks*)) heard))
+			(setq *marks* (slice *marks* 1 -1)))
+		(bind '(& order row) (ifn (first *marks*) (list 0 (. *player* :find :order) (. *player* :find :row))))
+		(defq playing (tracker-playing *player*)
+			from (- heard +fft *recent_at*)
+			bands (if (and (eql *state* "p") (>= from 0) (<= (+ from +fft) (/ (length *recent*) 4)))
+				(map (const n2i) (spectrum-bands *spectrum* *recent* from))
+				(map! (lambda () 0) '() 0 +bars)))
+		(mail-send *app* (cat "T" (join (map (const str) (list heard order row)) " ")
+			" " *state* " " (join (map (const str) playing) " ") " | " (join (map (const str) bands) " ")))))
 
 (defun measure-end ()
 	;the farm that measures let go of: its child is told to go, and
@@ -151,17 +158,17 @@
 	(when (and *measurer* (. *measurer* :answered msg))
 		(defq vals (map (const str-as-num) (split (slice msg +job_reply_size -1) " ")))
 		(setq *length* (first vals) *starts* (partition (rest vals) 7))
-		(mail-send *app* (cat "I" (str *length*)))
+		(unless *quiet* (mail-send *app* (cat "I" (str *length*))))
 		(measure-end)))
 
-(defun load-song (id state seconds data)
+(defun load-song (id state seconds quiet data)
 	;a module played, held or stopped at so many seconds, at once, how long
 	;it is found as it plays. The mailbox it came with is its name, and
-	;where the window is told of it. A seek asked of the song before is not
-	;this one's
+	;where the window is told of it, of a quiet song only its end. A seek
+	;asked of the song before is not this one's
 	(sound-stop)
 	(setq *song_id* id *app* id *song* (module-read data) *told* :nil *length* :nil *starts* (list)
-		*seek_to* :nil)
+		*seek_to* :nil *quiet* quiet)
 	(cond
 		(*song*
 			(measure data)
@@ -185,7 +192,8 @@
 			;its line ends after the mailbox, which is bytes, a newline
 			;among them now and then
 			(defq end (ifn (find "\n" msg at) (length msg)) words (split (slice msg at end) " "))
-			(load-song id (first words) (str-as-num (second words)) (slice msg (min (length msg) (inc end)) -1)))
+			(load-song id (first words) (str-as-num (second words)) (eql (third words) "q")
+				(slice msg (min (length msg) (inc end)) -1)))
 		;of a song that is not the one played, not heard
 		((or (not *song*) (nql id *song_id*)))
 		((eql kind "P")
@@ -213,7 +221,7 @@
 	(seek seconds)
 	(setq *state* (if (eql state "s") "p" state) *told* :nil
 		*handle* (audio-stream-open-rpc +rate 2))
-	(if *length* (mail-send *app* (cat "I" (str *length*))))
+	(and *length* (not *quiet*) (mail-send *app* (cat "I" (str *length*))))
 	(report))
 
 (defun main ()

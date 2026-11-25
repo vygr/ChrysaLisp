@@ -7,7 +7,7 @@
 (import "lib/gpu/vp.inc")
 (import "lib/math/scene.inc")
 (import "./craft.inc")
-(import "apps/media/jukebox/favourites.inc")
+(import "apps/media/jukebox/music.inc")
 
 ;A flight over a land that is made as it goes, drawn by a (Render-tris),
 ;lib/gpu/render_farm.inc, which has the GPU draw it, or on a host with
@@ -26,7 +26,7 @@
 ;the timer is last, what is first in the list is what is read first, and
 ;a frame can take longer than a tick
 (enums +select 0
-	(enum main task reply player song timer))
+	(enum main task reply music music_song music_tick timer))
 
 ;the frame's two sizes, the min and max buttons
 (defq +small ''(640 480) +large ''(1024 768))
@@ -113,7 +113,7 @@
 	eight_lie (doubles +double_1 +double_0)
 	;the height of the land at a place, of land.shader, the shaders' own
 	land_height :nil
-	;the music, the user's Jukebox favourites, apps/media/jukebox/favourites.inc,
+	;the music, the user's Jukebox favourites, apps/media/jukebox/music.inc,
 	;and whether the user wants it, kept whether or not there is any to play
 	music :nil music_on :t
 	;the flight, the size, the music, the time of day and the detail, as
@@ -469,7 +469,7 @@
 						(mat4x4-roty (* seconds +moon_turn)))))))
 				(list 'spin spin) (list 'lens view))
 			(list (list 'sun sun_at) (list 'haze haze) (list 'above above) (list 'rise (second moon_way))
-				(list 'bright (+ (n2d 1.5) (* (n2d 4.5) night))))
+				(list 'bright (+ (n2d 1.5) (* (n2d 3.0) night))))
 			(list moon_map) moon_files)
 		(list (if fine +mesh_land +mesh_land_cpu) (list (list 'lens view) (list 'shift shift) (list 'eye eye)
 				(list 'quick (if fine +double_0 +double_1)))
@@ -577,8 +577,8 @@
 	;the size it was closed at
 	(if (. *config* :find :large) (set-size +large))
 	;the user's Jukebox favourites behind it, if it had them on
-	(setq music (Favourites select +select_player +select_song) music_on (. *config* :find :music))
-	(and music_on (> (. music :load) 0) (. music :start))
+	(setq music (Music select +select_music) music_on (. *config* :find :music))
+	(if music_on (. music :start))
 	(music-show)
 	(.-> *canvas* (:fill (argb haze)) (:swap +swap_write))
 	(. *window* :open)
@@ -590,12 +590,8 @@
 		(bind '(idx msg) (. render :read select +select_timer))
 		(cond
 			((not idx))
-			((= idx +select_player)
-				;the player of the music has started
-				(. music :launched msg))
-			((= idx +select_song)
-				;what the player says of the song
-				(. music :heard msg))
+			;the music's
+			((. music :mail idx msg))
 			((= idx +select_task)
 				;a child of the farm has started, unless the farm has gone
 				(if jobs (. jobs :launched msg)))
@@ -628,7 +624,7 @@
 								(/ (n2d (- (pii-time) began)) (n2d 1000000)))))
 					((= id +event_music)
 						(setq music_on (not (. music :title)))
-						(if music_on (and (> (. music :load) 0) (. music :start)) (. music :stop))
+						(if music_on (. music :start) (. music :stop))
 						(music-show))
 					;the pointer over the picture is the stick, and off it, none
 					((and (= (getf msg +ev_msg_target_id) (. *canvas* :get_id))
@@ -677,7 +673,6 @@
 					(. *status* :set_text (cat (str rate) " frames a second, "
 							(. render :how) (if (> detail 0) (cat ", detail less " (str detail)) "")
 							(if (defq song (. music :title)) (cat ", " song) "")))
-					(. music :tick)
 					(setq frames 0 since now)
 					;a child of the farm that has died or is too slow is
 					;started again, and its part made again

@@ -400,6 +400,17 @@ Key points:
 		- `(get :font_display *env*)` (32 Bold): Hero metrics (temperatures, asset prices).
 		- `(get :font_terminal *env*)` / `(get :font_medium_terminal *env*)` / `(get :font_small_terminal *env*)`: Monospace code, terminals, hashes, hex values.
 
+*	**Music behind an app.** `(Music select slot)` of
+	`apps/media/jukebox/music.inc`, the Jukebox's player with no window:
+	three slots of the app's `+select` from `slot`, `(enum main music
+	music_song music_tick timer)`, and `((. music :mail idx msg))` first
+	in the loop's `cond`, which is all of its mail. `(:start [songs])` the
+	user's favourites or `((title path_or_url) ...)`, `:nil` if none;
+	`(:move 1)`, `(:title)` what plays, `:nil` when off, `(:stop)` at the
+	end. It keeps the player told the app is there, so the app has no
+	tick of its own to send, and the player goes a few seconds after the
+	app does. Flight has it.
+
 *	**Work on the CPU or the GPU, a CPU/GPU button.** Read
 	`docs/ai_digest/render_farm.md` first, it has the model and an app
 	to start from: a `Jobs` farm of many children for the CPU and of

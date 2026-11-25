@@ -83,5 +83,5 @@ A frame is a list of draws given to a `(Render-tris)`,
 `lib/gpu/render_farm.inc`, each draw with its own pair of shaders, see
 `docs/ai_digest/render_farm.md`; a see-through draw, the clouds, and one that
 adds light, a beam, come last. On a machine with no GPU the frame is drawn
-by the nodes, a strip each. The music is `apps/media/jukebox/favourites.inc`,
+by the nodes, a strip each. The music is a `Music` of `apps/media/jukebox/music.inc`,
 the Jukebox's own player driven with no window.
