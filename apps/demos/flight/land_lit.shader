@@ -62,6 +62,9 @@
 ;land's colour with no noise in it
 (definput plain :float)
 (defconst eps 0.15)
+;how far off the land's bump is whole, and how far it is gone
+(defconst bump_near 90.0)
+(defconst bump_far 320.0)
 
 ;the fine noise the face is made rough by
 (defun grain :float ((p :vec3))
@@ -174,12 +177,14 @@
 				(* shine glint lit 2.0))))
 		(:t ;the land, of how high and how steep, rough, and lit
 			;rough by a bump where it is grass or rock, sand and snow smooth,
-			;not worked out where there is none of it
+			;and less of it the further off, none where its grain would be
+			;finer than a pixel; not worked out where there is none of it
 			(defq up (:y n) b n
 				grassy (ease (+ water 0.5) (+ water 3.5) h)
 				rocky (ease 0.86 0.72 up)
 				snowy (* (ease 34.0 42.0 h) (ease 0.7 0.85 up))
-				bump (* rough (+ 0.3 (* 1.4 (- 1.0 up))) (- 1.0 snowy) (- 1.0 (* (- 1.0 grassy) (- 1.0 rocky)))))
+				bump (* rough (+ 0.3 (* 1.4 (- 1.0 up))) (- 1.0 snowy) (- 1.0 (* (- 1.0 grassy) (- 1.0 rocky)))
+					(ease bump_far bump_near (length (- eye place)))))
 			(if (> bump 0.0) (setq b (bumped place n bump)))
 			;the way to the sun is looked along, for a shadow, only by a face
 			;turned to it
