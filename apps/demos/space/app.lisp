@@ -77,9 +77,10 @@
 	+flash_long (n2d 0.25) +flash_dim (n2d 0.12) +buoy_power (n2d 6) +buoy_light_far (n2d 170)
 	;how hard a hit is at least to throw grains, and how far off at most
 	+fx_least (n2d 1.5) +fx_far (n2d 450)
-	;the sprays of grains hits throw out, each (at born throw kind), the
-	;meshes of them from +mesh_spray on, how many kinds, grains in each, how
-	;big a grain, how long a spray lasts, and how many at most
+	;the sprays of grains hits throw out, each (at born throw kind grain),
+	;how big its grains, a hit's or a shattered rock's debris; the meshes of
+	;them from +mesh_spray on, how many kinds, grains in each, how big a
+	;hit's grain, how long a spray lasts, and how many at most
 	sprays (list) +mesh_spray 3 +spray_kinds 3 +spray_grains 64 +grain_size (n2d 0.35)
 	;bombs, a click fires one: each (at way born), where it is, how fast
 	;which way, and when it was fired; how fast it goes out from the ship,
@@ -98,11 +99,13 @@
 	;a buoy gone nuclear: the klaxon it sounds as it is armed, its handle
 	;of the audio service, how long it flashes white, armed, before, and how
 	;fast; its blast's reach, strength, how long its light lasts, its light
-	;at its brightest and its glow's size at its most; and how many of the
-	;rocks it shatters throw out grains
+	;at its brightest and its glow's size at its most; how many of the rocks
+	;it shatters in view throw out debris, and how big its pieces are at
+	;least, and for how far off
 	klaxon :nil +nuke_fuse 3000000 +armed_beat 125000 +armed_flash (doubles (n2d 1.6) (n2d 1.6) (n2d 1.6))
 	+nuke_reach (n2d 360) +nuke_strength (n2d 1200) +nuke_life 2500000
-	+nuke_light (doubles (n2d 7) (n2d 5.5) (n2d 4)) +nuke_glow (n2d 500) +nuke_sprays 6 blast_lamps (list) blast_glows (list) pressed 0
+	+nuke_light (doubles (n2d 7) (n2d 5.5) (n2d 4)) +nuke_glow (n2d 500) +nuke_sprays 14
+	+debris_least (n2d 0.5) +debris_far (n2d 0.005) blast_lamps (list) blast_glows (list) pressed 0
 	;the ship's speed eased to a boost's while the right button is held and
 	;back to cruising after: whether it is held, the boost's speed, and how
 	;fast it eases up and down, a second; and the buttons' bits
@@ -115,7 +118,7 @@
 	+thrust_loud (n2d 0.8) thrust_gain +double_0 +thrust_up (n2d 6) +thrust_down (n2d 1.7)
 	boosting :nil +boost (n2d 60) +boost_up (n2d 1.2) +boost_down (n2d 0.8)
 	+left_button 1 +right_button 4
-	+spray_life 2500000 +spray_most 10
+	+spray_life 2500000 +spray_most 24
 	;the ship's cruising speed, a second, and its speed now, the farm that
 	;makes the rocks and which kinds have come; the field is field.inc
 	+cruise (n2d 24) ship_speed +cruise jobs :nil kinds_had (map! (lambda () :nil) '() 0 +rock_kinds)
@@ -407,7 +410,7 @@
 				(when (and (< d +fx_far) (> speed +fx_least)
 						(> (+ (* rx (first forward)) (* ry (second forward)) (* rz (third forward))) (const (n2d -10))))
 					(push sprays (list (doubles x y z) (pii-time) (+ (const (n2d 1.5)) (* +double_2 speed))
-						(random +spray_kinds)))
+						(random +spray_kinds) +grain_size))
 					(if (> (length sprays) +spray_most) (setq sprays (slice sprays 1 -1))))
 				(when (< d +hear_far)
 					(defq near (- +double_1 (/ d +hear_far))
@@ -447,13 +450,13 @@
 	(defq now (pii-time) out (list))
 	(setq sprays (filter (lambda ((& born &ignore)) (< (- now born) +spray_life)) sprays))
 	(bind '(ex ey ez) eye)
-	(each (lambda ((at born throw kind))
+	(each (lambda ((at born throw kind grain))
 			(defq since (/ (n2d (- now born)) (const (n2d 1000000)))
 				rx (near-way (- (first at) ex)) ry (near-way (- (second at) ey)) rz (near-way (- (third at) ez)))
 			(if (seen? rx ry rz (+ (* throw since) +double_1) sides)
 				(push out (list (+ +mesh_spray kind)
 					(list (list 'middle (doubles (+ ex rx) (+ ey ry) (+ ez rz)))
-						(list 'seconds since) (list 'throw throw) (list 'grain +grain_size)
+						(list 'seconds since) (list 'throw throw) (list 'grain grain)
 						(list 'right right) (list 'up up) (list 'lens view))
 					(list (list 'age (/ (* since (const (n2d 1000000))) (n2d +spray_life)))
 						(list 'sun_light sun_light) (list 'pillars_light pillars_light))
@@ -554,12 +557,14 @@
 				((and (> armed 0) (> (- now armed) +nuke_fuse))
 					(bind '(x y z) at)
 					(defq shattered (rocks-nuke x y z eye (+ +rock_far (const (n2d 60))))
-						ahead (filter (lambda ((sx sy sz))
-								(defq rx (near-way (- sx (first eye))) ry (near-way (- sy (second eye))) rz (near-way (- sz (third eye))))
-								(< (+ (* rx rx) (* ry ry) (* rz rz)) (const (* +fx_far +fx_far))))
-							shattered))
+						ahead (filter (# (in-view? %0 sides)) shattered))
+					;each shattered in view a shower of debris, its pieces as big
+					;as a few pixels however far off
 					(each! (lambda (p)
-							(push sprays (list p now (+ (const (n2d 6)) (* (const (n2d 10)) (rnd))) (random +spray_kinds))))
+							(defq rx (near-way (- (first p) (first eye))) ry (near-way (- (second p) (second eye)))
+								rz (near-way (- (third p) (third eye))))
+							(push sprays (list p now (+ (const (n2d 8)) (* (const (n2d 14)) (rnd))) (random +spray_kinds)
+								(max +debris_least (* (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) +debris_far)))))
 						(list ahead) 0 (min (length ahead) +nuke_sprays))
 					(if (> (length sprays) +spray_most) (setq sprays (slice sprays (- (length sprays) +spray_most) -1)))
 					(push blasts (list (cat at) now +double_0 +nuke_reach +nuke_strength +nuke_life +nuke_light +nuke_glow :t))
