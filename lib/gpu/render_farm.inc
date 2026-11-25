@@ -439,22 +439,25 @@
 		(and (get :jobs this) (nql (get :kind this) (cond (gpu :gpu) (farm :cpu))) (farm-end))
 		;one whose blocks are made is as a strip takes it, the rest packed by
 		;the shaders of their pair. Draws one after another with the very
-		;lists of inputs of the one before, and its pair, the tiles of a
-		;land say, are packed the once
-		(defq had_v :nil had_p :nil had_files :nil pair :nil vblock :nil pblock :nil
+		;list of inputs of the one before, and its pair, the tiles of a
+		;land say, or a shader's inputs the same for many draws, are packed
+		;the once, and the very list of pictures of the one before named the
+		;once
+		(defq had_v :nil had_p :nil had_files :nil pair :nil vblock :nil pblock :nil had_pics :nil named '()
 			packed (if (or gpu farm)
 				(map (lambda (draw)
 						(bind '(id vvals pvals &optional pictures files &rest _) draw)
 						(if (str? vvals) draw
 							;the pair of the draw before, if it names the very same
 							(unless (and pair (eql files had_files))
-								(setq pair (. this :pair files) had_files files vblock :nil))
-							(unless (and vblock (eql vvals had_v) (eql pvals had_p))
-								(setq had_v vvals had_p pvals
-									vblock (shader-pack (first pair) vvals) pblock (shader-pack (second pair) pvals)))
-							(cat (list id vblock pblock
-									0 (getf pixmap +pixmap_height 0)
-									(map (# (ifn (shader-strip-texture %0) "")) (ifn pictures '())))
+								(setq pair (. this :pair files) had_files files vblock :nil pblock :nil))
+							(unless (and vblock (eql vvals had_v))
+								(setq had_v vvals vblock (shader-pack (first pair) vvals)))
+							(unless (and pblock (eql pvals had_p))
+								(setq had_p pvals pblock (shader-pack (second pair) pvals)))
+							(unless (eql pictures had_pics)
+								(setq had_pics pictures named (map (# (ifn (shader-strip-texture %0) "")) (ifn pictures '()))))
+							(cat (list id vblock pblock 0 (getf pixmap +pixmap_height 0) named)
 								(if files (list files) '())))) draws)))
 		(cond
 			(gpu ;the one job, all of the frame, to a child on this node
