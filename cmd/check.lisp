@@ -105,6 +105,11 @@
             written as one, \q\\n\q, with the escape the reader
             has for it, \\r \\f \\v \\n \\t \\q \\b \\\\, the
             char itself, or \\x and its code.
+    conv    (n2d 60) in a function, (n2i), (n2q) or (n2f) the
+            same, of a number written there: it is made each
+            time the function runs. (const (n2d 60)) makes it
+            the once, as the file is read. What is in a
+            (const) already is not looked at.
     glyph   a number of the symbol font's, 0xe000 to 0xf8ff,
             in the buttons of a (ui-title-bar) or (ui-buttons):
             it is drawn as nothing if the font has no such
@@ -236,7 +241,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "def" "char" "glyph" "unbound" "scan" "override" "places")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "def" "char" "conv" "glyph" "unbound" "scan" "override" "places")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789")
 	+char_class_decimal (char-class "0123456789.")
 	;the source files, and what is asked of a shader, a language of its own
@@ -482,6 +487,36 @@
 					((eql (first (second forms)) :number) (catch (str-to-num text) :nil))
 					((starts-with "+char_" text) (. *char_codes* :find text)))))
 		(found file (second forms) "char" "(ascii-char " text ") is a char, write it " (char-literal code))))
+
+(defun check-conv (file top)
+	;(n2d 60) in a function: the number is made a double each time the
+	;function runs, (const (n2d 60)) makes it the once, as the file is read.
+	;Every form of the file with whether it is in a function, a (defun), a
+	;(defmethod), a (lambda) or a (#); what is in a (const), or has a quote
+	;before it, is not gone into. No function here calls itself
+	(defq todo (list (list top :nil)))
+	(while (defq item (pop todo))
+		(bind '(nodes inside) item)
+		(defq quoted :nil)
+		(each (lambda (node)
+				(defq was quoted)
+				(setq quoted (and (eql (first node) :symbol)
+						(= (bskip +char_class_quote (third node) 0) (length (third node)))))
+				(when (and (not was) (defq kids (tree-form? node)))
+					(defq forms (forms-of kids)
+						head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+					(cond
+						((eql head "const"))
+						((and inside (find head '("n2d" "n2i" "n2q" "n2f")) (= (length forms) 2)
+								(find (first (second forms)) '(:number :symbol))
+								(nempty? (defq text (third (second forms))))
+								(nempty? (defq digits (if (find (first text) "+-") (rest text) text)))
+								(find (first digits) "0123456789")
+								(= (bskip +char_class_decimal digits 0) (length digits)))
+							(found file node "conv" "(" head " " text ") in a function is made each time it runs, (const ("
+								head " " text "))"))
+						((push todo (list kids (or inside (find head '("defun" "defmethod" "lambda" "#")))))))))
+			nodes)))
 
 (defun check-glyph (file forms head)
 	;(ui-buttons (0xea19 ...)): a glyph of the symbol font by its number,
@@ -1500,6 +1535,7 @@
 				(check-unbound file top))
 			(and (pfind checks "self") (ends-with ".vp" file) (check-self file top))
 			(if (pfind checks "scan") (check-scan file top))
+			(and (pfind checks "conv") (not (ends-with ".vp" file)) (check-conv file top))
 			(if (pfind checks "override") (check-override file top))
 			(and (pfind checks "vpname") (ends-with ".vp" file) (check-vpname file top))
 			;brackets that do not pair: the file does not load at all, and

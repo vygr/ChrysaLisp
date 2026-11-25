@@ -160,7 +160,7 @@
 (defun sound-lowpass (in out hz)
 	; (sound-lowpass in out hz)
 	;what is above hz let through less, a pole of its own
-	(defq k (n2i (* (n2d 65536) (/ (* (const (n2d +fp_2pi)) (n2d hz)) (+ (n2d +sound_rate) (* (const (n2d +fp_2pi)) (n2d hz))))))
+	(defq k (n2i (* (const (n2d 65536)) (/ (* (const (n2d +fp_2pi)) (n2d hz)) (+ (n2d +sound_rate) (* (const (n2d +fp_2pi)) (n2d hz))))))
 		y 0)
 	(sound-pieces in (lambda (data)
 			(sound-write out (sound-map data (lambda (x)

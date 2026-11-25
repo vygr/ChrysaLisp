@@ -183,7 +183,7 @@
 	; (nn-gpu-answers gpu n tickets) -> (loss guesses labels)
 	;what the chain worked out, the wait for it, and its tickets let go of
 	(bind '(model capacity programs kernels (bidx x y loss guess) &ignore) gpu)
-	(defq losses (gpu-read loss 0 (fill (floats) n (n2f 0)))
+	(defq losses (gpu-read loss 0 (fill (floats) n (const (n2f 0))))
 		guesses (gpu-read guess 0 (* n +int_size)) labels (gpu-read y 0 (* n +int_size)))
 	(each (const gpu-take) tickets)
 	(list (n2d (nums-sum losses))

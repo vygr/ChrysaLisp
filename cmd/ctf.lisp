@@ -542,7 +542,7 @@
 				(push stack (n2d (get-short-be byte_data (inc idx))))
 				(++ idx 3))
 			((= b 255)
-				(push stack (/ (n2d (get-int-be byte_data (inc idx))) (n2d 65536)))
+				(push stack (/ (n2d (get-int-be byte_data (inc idx))) (const (n2d 65536))))
 				(++ idx 5))
 			((= b 12)
 				(++ idx 2))

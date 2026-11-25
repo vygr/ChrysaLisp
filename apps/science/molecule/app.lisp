@@ -171,7 +171,7 @@
 	;the image of an atom, made between frames, (make-waiting): till then
 	;the nearest made of its color. Only the first of a color is made at
 	;once, there is nothing near it
-	(defq size (n2i (+ (* (quant radius +radius_quant) (n2d 2.0)) (n2d 0.5)))
+	(defq size (n2i (+ (* (quant radius +radius_quant) (const (n2d 2.0))) (const (n2d 0.5))))
 		key (atom-key size kind level))
 	(cond
 		((<= size 0) (list :nil 0 0))
@@ -317,9 +317,9 @@
 				;timer event
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(when *auto_mode*
-					(setq *rotx* (% (+ *rotx* (n2d 0.01)) +double_2pi)
-						*roty* (% (+ *roty* (n2d 0.02)) +double_2pi)
-						*rotz* (% (+ *rotz* (n2d 0.03)) +double_2pi)
+					(setq *rotx* (% (+ *rotx* (const (n2d 0.01))) +double_2pi)
+						*roty* (% (+ *roty* (const (n2d 0.02))) +double_2pi)
+						*rotz* (% (+ *rotz* (const (n2d 0.03))) +double_2pi)
 						*dirty* :t)
 					(set-rot *xrot_slider* *rotx*)
 					(set-rot *yrot_slider* *roty*)

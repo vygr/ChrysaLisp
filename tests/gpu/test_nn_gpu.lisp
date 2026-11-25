@@ -24,7 +24,7 @@
 			;biases not 0, so a ReLU is not at its corner for every unit
 			(each (lambda (layer)
 					(defq b (elem-get layer +nn_layer_biases))
-					(each! (lambda () (elem-set params (+ b (!)) (n2d 0.05))) '() 0 (third (nn-layer-sizes layer))))
+					(each! (lambda () (elem-set params (+ b (!)) (const (n2d 0.05)))) '() 0 (third (nn-layer-sizes layer))))
 				(nn-layers model))
 			(nn-gpu-data gpu ng_data)
 			(nn-gpu-params gpu params)
@@ -39,17 +39,17 @@
 					(setq loss (+ loss (nn-backward model net grads x scratch label))))
 				ng_batch)
 			(bind '(gl gg gy) (nn-gpu-forward gpu ng_batch 0 ng_labels))
-			(assert-true (cat name ", the loss") (ng-near gl loss (n2d 0.001)))
+			(assert-true (cat name ", the loss") (ng-near gl loss (const (n2d 0.001))))
 			(assert-list-eq (cat name ", the guesses") guesses gg)
 			(assert-list-eq (cat name ", the labels") (map (# (code ng_data 1 (+ ng_labels %0))) ng_batch) gy)
 			;a step, the params as the Lisp model's moved down their gradients
-			(defq rate (n2d 0.5))
+			(defq rate (const (n2d 0.5)))
 			(bind '(sl &ignore) (nn-gpu-step gpu ng_batch 0 ng_labels rate))
-			(assert-true (cat name ", the loss of a step is the loss before it") (ng-near sl loss (n2d 0.001)))
+			(assert-true (cat name ", the loss of a step is the loss before it") (ng-near sl loss (const (n2d 0.001))))
 			(defq want (nums-add params (nums-scale (nn-flat grads) (/ (neg rate) (n2d (length ng_batch))))))
 			(assert-true (cat name ", each number moved down its gradient")
-				(every (# (ng-near %0 %1 (n2d 0.0001))) (nn-gpu-read gpu) want))
-			(assert-true (cat name ", and moved") (some (# (not (ng-near %0 %1 (n2d 0.0001)))) want params))
+				(every (# (ng-near %0 %1 (const (n2d 0.0001)))) (nn-gpu-read gpu) want))
+			(assert-true (cat name ", and moved") (some (# (not (ng-near %0 %1 (const (n2d 0.0001))))) want params))
 			(nn-gpu-free gpu))))
 
 ;dense layers of every activation; convolutions padded, pooled, and one

@@ -328,7 +328,7 @@
 	; (mkv-frame-time reel n) -> seconds
 	;when frame n is shown, of a reel read as it is played, by its number:
 	;its ms made a fixed, a film of more than 2^31 us is 36 minutes
-	(/ (n2q (/ (* n (. (. reel :find :video) :find :frame_ns)) 1000000)) (n2q 1000)))
+	(/ (n2q (/ (* n (. (. reel :find :video) :find :frame_ns)) 1000000)) (const (n2q 1000))))
 
 (defun mkv-before? (a b)
 	; (mkv-before? a b) -> :nil | :t
@@ -426,7 +426,7 @@
 				:start (first stamps) :delay 0)
 			;of a reel read as it is played, how many and how fast by its Duration
 			(if cues (scatter reel :frames (. video :find :samples)
-					:rate (/ (n2q 1000) (/ (n2q (/ (. video :find :frame_ns) 1000)) (n2q 1000))))))
+					:rate (/ (const (n2q 1000)) (/ (n2q (/ (. video :find :frame_ns) 1000)) (const (n2q 1000)))))))
 		reel))
 
 ;module

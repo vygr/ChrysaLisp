@@ -117,7 +117,7 @@
 ;the levels of each code of bap 1, 2 and 4, at 0, 96 and 480, and of bap
 ;3 and 5, at 736 and 744, for the native reader of the mantissas
 (defq +ac3_levels (reduce (const push) (cat (ac3-grouped 32 3 3) (ac3-grouped 128 3 5) (ac3-grouped 128 2 11)
-			(map! (# (/ (n2d (- (* 2 (!)) 6)) (n2d 7))) '() 0 8) (map! (# (/ (n2d (- (* 2 (!)) 14)) (n2d 15))) '() 0 16))
+			(map! (# (/ (n2d (- (* 2 (!)) 6)) (const (n2d 7)))) '() 0 8) (map! (# (/ (n2d (- (* 2 (!)) 14)) (const (n2d 15)))) '() 0 16))
 		(cap 760 (doubles))))
 
 (ffi (path-to-absolute "./media_ac3_mantissas") ac3-read-mantissas)
@@ -134,12 +134,12 @@
 ;a gain of 2 and of 4, then 2^-1, 2^-2, the DCT of 6's root 2 by the cos
 ;of 2, 0 and 5 twelfths of pi, 0.5 and the scale of noise of 0.5; and the
 ;bits of each bap, then the offset of each bap's vectors
-(defq +ac3_aht_vq (reduce! (lambda (out vq) (reduce (# (push %0 (/ (n2d %1) (n2d 32768)))) vq out))
+(defq +ac3_aht_vq (reduce! (lambda (out vq) (reduce (# (push %0 (/ (n2d %1) (const (n2d 32768))))) vq out))
 		(list *ac3_aht_vq*) (cap 5736 (doubles)) 1 -1)
 	+ac3_aht_consts (reduce (const push) (cat
-			(map (# (/ (n2d %0) (n2d 32768))) (. +ac3 :find :gaq_remap))
-			(map (# (/ (n2d %0) (n2d 32768))) (apply (const cat) (. +ac3 :find :gaq_remap_a)))
-			(map (# (/ (n2d %0) (n2d 32768))) (apply (const cat) (. +ac3 :find :gaq_remap_b)))
+			(map (# (/ (n2d %0) (const (n2d 32768)))) (. +ac3 :find :gaq_remap))
+			(map (# (/ (n2d %0) (const (n2d 32768)))) (apply (const cat) (. +ac3 :find :gaq_remap_a)))
+			(map (# (/ (n2d %0) (const (n2d 32768)))) (apply (const cat) (. +ac3 :find :gaq_remap_b)))
 			(list (n2d 0.5) (n2d 0.25) (n2d 1.2247449) (n2d 1.4142136) (n2d 0.3660254) (n2d 0.5)
 				(/ (n2d 0.5) (n2d 0x80000000)))) (cap 55 (doubles)))
 	+ac3_aht_itab (nums 0 2 3 4 5 7 8 9 3 4 5 6 7 8 9 10 11 12 14 16 0 0 24 72 168 360 1128 2664))
@@ -370,16 +370,16 @@
 		:spx_struct (list) :spx_sizes (list) :spx_dst 0 :spx_src 0 :spx_end 0
 		;the 6 blocks' mantissas of each channel of AHT, and the noise made
 		;for the bins of a channel that are dither or extension
-		:aht (map! (lambda () :nil) '() 0 n) :noise (fill (doubles) 256 (n2d 0))
+		:aht (map! (lambda () :nil) '() 0 n) :noise (fill (doubles) 256 (const (n2d 0)))
 		;the dynamic range gains, of one or a dual mono's two
-		:drc (list (n2d 1) (n2d 1))))
+		:drc (list (const (n2d 1)) (const (n2d 1)))))
 
 (defun ac3-drc (v)
 	; (ac3-drc code) -> double
 	;a gain of dynamic range, 2^x by 1 to 2 in 32nds, x signed of 3 bits
 	(defq x (>> v 5))
 	(if (>= x 4) (setq x (- x 8)))
-	(/ (n2d (<< (+ 32 (logand v 31)) (+ x 4))) (n2d 512)))
+	(/ (n2d (<< (+ 32 (logand v 31)) (+ x 4))) (const (n2d 512))))
 
 (defun ac3-groups (in strategy groups prev)
 	; (ac3-groups reader strategy groups prev) -> (exp ...)
@@ -418,7 +418,7 @@
 	;exponents the same in all 6: a doubles of 6 blocks of 256
 	(defq bap (elem-get (. d :find :bap) c) start (elem-get (. d :find :start) c) end (elem-get (. d :find :end) c)
 		gaq (bits-get in 2) top (if (< gaq 2) 12 17) gains (nums)
-		out (fill (doubles) 1536 (n2d 0)) state (nums (. d :find :seed)))
+		out (fill (doubles) 1536 (const (n2d 0))) state (nums (. d :find :seed)))
 	;the gains of the bins of bap 8 to the top, of 1 bit each, or 3 to a
 	;code of 5 bits
 	(case gaq
@@ -454,7 +454,7 @@
 	;the dither, of -0.707 to 0.707, made for all the bins at once
 	(if dither (. d :insert :seed (noise-fill noise start end (. d :find :seed) (const (/ (n2d 0.707) (n2d 0x80000000))))))
 	(ac3-read-mantissas in (elem-get (. d :find :bap) c) (elem-get (. d :find :exps) c) start end
-		(fill (doubles) 256 (n2d 0)) groups noise (if dither 1 0) +ac3_levels))
+		(fill (doubles) 256 (const (n2d 0))) groups noise (if dither 1 0) +ac3_levels))
 
 ;the default bit allocation of E-AC-3 without its syntax, and its codes
 (defun ac3-defaults (d)
@@ -500,7 +500,7 @@
 				;the notch, two bins either side of where a copy begins
 				(when (>= (defq code (elem-get (. h :find :spxatten) (dec c))) 0)
 					(defq at (- src 2)
-						atten (map (# (pow (n2d 2) (/ (n2d (* (inc %0) (inc code))) (n2d -15)))) '(0 1 2 1 0)))
+						atten (map (# (pow (const (n2d 2)) (/ (n2d (* (inc %0) (inc code))) (const (n2d -15))))) '(0 1 2 1 0)))
 					(each (lambda (size wrap)
 							(if (= 1 wrap)
 								(each (# (elem-set coeffs (+ at (!)) (* (elem-get coeffs (+ at (!))) %0))) atten))
@@ -535,7 +535,7 @@
 	;the first block has none, else kept
 	(each! (lambda () (cond
 				((= (bits-1 in) 1) (elem-set (. d :find :drc) (!) (ac3-drc (bits-get in 8))))
-				((= blk 0) (elem-set (. d :find :drc) (!) (n2d 1))))) '() 0 (if (= mode 0) 2 1))
+				((= blk 0) (elem-set (. d :find :drc) (!) (const (n2d 1)))))) '() 0 (if (= mode 0) 2 1))
 	;spectral extension, of E-AC-3: the high bins of a channel made from
 	;its lower ones, copied up and blended with noise to the energy each
 	;band is said to have. Which channels, from where to where, its bands
@@ -561,16 +561,16 @@
 					((= 0 (elem-get uses c)) (elem-set first c 1))
 					((or (= 1 (elem-get first c)) (= 1 (bits-1 in)))
 						(elem-set first c 0)
-						(defq blend (/ (n2d (bits-get in 5)) (n2d 32)) master (* 3 (bits-get in 2))
+						(defq blend (/ (n2d (bits-get in 5)) (const (n2d 32))) master (* 3 (bits-get in 2))
 							bin (. d :find :spx_src) top (n2d (. d :find :spx_end)))
 						(elem-set (. d :find :spx_blend) c (map (lambda (size)
 									;the higher the band, the more of it is noise
-									(defq ratio (max (n2d 0) (min (n2d 1) (- (/ (n2d (+ bin (>> size 1))) top) blend)))
+									(defq ratio (max (const (n2d 0)) (min (const (n2d 1)) (- (/ (n2d (+ bin (>> size 1))) top) blend)))
 										e (bits-get in 4) m (bits-get in 2)
 										coord (/ (n2d (<< (if (= e 15) (<< m 1) (+ m 4)) (- 25 e master))) (n2d 0x800000)))
 									(setq bin (+ bin size))
 									;noise of -1 to 1 by root 3 is of the power of the signal
-									(list (* (sqrt (* (n2d 3) ratio)) coord) (* (sqrt (- (n2d 1) ratio)) coord)))
+									(list (* (sqrt (* (const (n2d 3)) ratio)) coord) (* (sqrt (- (const (n2d 1)) ratio)) coord)))
 								(. d :find :spx_sizes)))))) '() 1 (inc fbw)))
 	;coupling: its strategy, given by the frame of E-AC-3, by each block of
 	;AC-3, which keeps that of the block before if it says none
@@ -740,7 +740,7 @@
 					(each (lambda (size k)
 							(times size
 								(elem-set coeffs bin (* (if (and (= 0 (elem-get (elem-get (. d :find :bap) 0) bin))
-												(= 0 (elem-get (. d :find :dither) c))) (n2d 0) (elem-get cpl bin)) k))
+												(= 0 (elem-get (. d :find :dither) c))) (const (n2d 0)) (elem-get cpl bin)) k))
 								(setq bin (inc bin))))
 						(. d :find :cpl_sizes) coords))
 				coeffs) '() 1 (inc channels)))
@@ -795,7 +795,7 @@
 			(slice (mdct-imdct dct4 tables lines n) (>> n 1) (+ n (>> n 1)))))
 	(each! (lambda () (defq blk (!)) (each (lambda (coeffs)
 					(defq c (!) delay (elem-get (. d :find :delay) c))
-					(unless delay (setq delay (nums-scale (slice rise 0 128) (n2d 0))))
+					(unless delay (setq delay (nums-scale (slice rise 0 128) (const (n2d 0)))))
 					(defq now :nil next :nil)
 					(cond
 						((and (< c fbw) (= 1 (elem-get blksw (inc c))))
@@ -805,8 +805,8 @@
 							(bind '(evens odds) (reduce (# (push (elem-get %0 (logand (!) 1)) %1) %0)
 									coeffs (list (cap 128 (doubles)) (cap 128 (doubles)))))
 							;each of 128 lines, by 1/128, half the scale of the long one
-							(setq now (nums-scale (half evens 128 (. d :find :short_tables)) (n2d 0.5))
-								next (nums-scale (half odds 128 (. d :find :short_tables)) (n2d 0.5)))
+							(setq now (nums-scale (half evens 128 (. d :find :short_tables)) (const (n2d 0.5)))
+								next (nums-scale (half odds 128 (. d :find :short_tables)) (const (n2d 0.5))))
 							(. d :insert :shorts (inc (. d :find :shorts))))
 						(:t (defq h (half coeffs 256 (. d :find :tables)))
 							(setq now (slice h 0 128) next (slice h 128 256))))
@@ -826,7 +826,7 @@
 	;through the IMDCT as 16 bit samples, matched to afconvert's decode;
 	;and of more than two the centre and the surrounds in
 	;each side at 0.707, the sum held to full scale; the LFE left out
-	(defq mode (. d :find :mode) k (n2d -16777216) mix (sqrt (/ (n2d 1) (n2d 2))))
+	(defq mode (. d :find :mode) k (const (n2d -16777216)) mix (sqrt (/ (const (n2d 1)) (const (n2d 2)))))
 	(bind '(l r) (case mode
 			(1 (list (first chans) (first chans)))
 			((0 2) (list (first chans) (second chans)))
@@ -835,14 +835,14 @@
 					centre (if (find mode '(3 5 7)) (elem-get chans 1) :nil)
 					front (if centre (list (elem-get chans 0) (elem-get chans 2)) (list (elem-get chans 0) (elem-get chans 1)))
 					surrounds (slice chans (if centre 3 2) (length order))
-					l (first front) r (second front) gain (n2d 1))
+					l (first front) r (second front) gain (const (n2d 1)))
 				(when centre
 					(setq l (nums-add l (nums-scale centre mix)) r (nums-add r (nums-scale centre mix)) gain (+ gain mix)))
 				(case (length surrounds)
 					(1 (setq l (nums-add l (nums-scale (first surrounds) mix)) r (nums-add r (nums-scale (first surrounds) mix))))
 					(2 (setq l (nums-add l (nums-scale (first surrounds) mix)) r (nums-add r (nums-scale (second surrounds) mix)))))
 				(if (nempty? surrounds) (setq gain (+ gain mix)))
-				(list (nums-scale l (/ (n2d 1) gain)) (nums-scale r (/ (n2d 1) gain))))))
+				(list (nums-scale l (/ (const (n2d 1)) gain)) (nums-scale r (/ (const (n2d 1)) gain))))))
 	(list (nums-scale l k) (nums-scale r k)))
 
 ;module

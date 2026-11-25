@@ -1961,7 +1961,7 @@
 
 (defun sv-doubles (n)
 	;a doubles of n numbers, all 0
-	(defq out (doubles (n2d 0) (n2d 0) (n2d 0) (n2d 0)))
+	(defq out (doubles (const (n2d 0)) (const (n2d 0)) (const (n2d 0)) (const (n2d 0))))
 	(while (< (length out) n) (setq out (cat out out)))
 	(slice out 0 n))
 

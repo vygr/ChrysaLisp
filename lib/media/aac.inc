@@ -378,7 +378,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun aac-power (x n)
-	(defq p (n2d 1))
+	(defq p (const (n2d 1)))
 	(times n (setq p (* p x)))
 	p)
 
@@ -387,7 +387,7 @@
 	;the nth root of a double of 1 or more, by Newton's steps, from above it,
 	;so each is less than the one before till it is there: a step that is
 	;not less ends it, as the last bit may go to and fro
-	(defq r (if (> x (n2d 1)) x (n2d 1)) last (+ r (n2d 1)))
+	(defq r (if (> x (const (n2d 1))) x (const (n2d 1))) last (+ r (const (n2d 1))))
 	(while (< r last)
 		(setq last r r (/ (+ (* (n2d (dec n)) r) (/ x (aac-power r (dec n)))) (n2d n))))
 	last)
@@ -401,7 +401,7 @@
 	; (aac-tables) -> tables
 	;made the once, as the first decoder is
 	(unless (. +aac :find :made)
-		(defq gain (cap 512 (doubles)) step (sqrt (sqrt (n2d 2))) g (n2d 1) pow (cap 8192 (doubles (n2d 0))))
+		(defq gain (cap 512 (doubles)) step (sqrt (sqrt (const (n2d 2)))) g (const (n2d 1)) pow (cap 8192 (doubles (const (n2d 0)))))
 		;2^(0.25 (i - 100)), i from 0 to 255, and 2^(0.25 i) from -100
 		(times 100 (setq g (/ g step)))
 		(times 512 (push gain g) (setq g (* g step)))
@@ -424,7 +424,7 @@
 	;the pulses added to them first; noise and intensity bands left 0
 	(defq info (. ch :find :info) q (. ch :find :spectrum) bands (. info :find :bands)
 		short (= (. info :find :sequence) +aac_eight_short) size (if short 128 1024)
-		pow (. tables :find :pow) gain (. tables :find :gain) out (fill (doubles) 1024 (n2d 0)) window 0)
+		pow (. tables :find :pow) gain (. tables :find :gain) out (fill (doubles) 1024 (const (n2d 0))) window 0)
 	(when (defq pulses (. ch :find :pulses))
 		(setq q (cat q))
 		(defq k (elem-get bands (first pulses)))
@@ -456,11 +456,11 @@
 							;the band's noise made once to know its energy, then again
 							;from the same seed into the lines, by the scale it gives
 							(defq from (+ (* w size) (elem-get bands sfb)) to (+ (* w size) (elem-get bands (inc sfb)))
-								values (fill (doubles) (- to from) (n2d 0)))
-							(noise-fill values 0 (- to from) seed (n2d 1))
+								values (fill (doubles) (- to from) (const (n2d 0))))
+							(noise-fill values 0 (- to from) seed (const (n2d 1)))
 							(defq energy (nums-sum (nums-mul values values)))
-							(setq seed (noise-fill out from to seed (if (> energy (n2d 0))
-										(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2d 0))))
+							(setq seed (noise-fill out from to seed (if (> energy (const (n2d 0)))
+										(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (const (n2d 0)))))
 							(setq w (inc w))))) '() 0 (. info :find :max_sfb))
 			(setq window (+ window count)))
 		(. info :find :lengths) (. ch :find :sections) (. ch :find :scales))
@@ -512,13 +512,13 @@
 						(when (> order 0)
 							;the coefficients, sign extended, to sines, to a filter
 							(defq bits (- (+ res 3) compress) half (<< 1 (- (+ res 3) 1))
-								iqm (/ (+ (n2d half) (n2d 0.5)) (/ (. +aac :find :pi) (n2d 2)))
-								iqp (/ (- (n2d half) (n2d 0.5)) (/ (. +aac :find :pi) (n2d 2)))
+								iqm (/ (+ (n2d half) (const (n2d 0.5))) (/ (. +aac :find :pi) (const (n2d 2))))
+								iqp (/ (- (n2d half) (const (n2d 0.5))) (/ (. +aac :find :pi) (const (n2d 2))))
 								parcor (map (lambda (c)
 										(if (>= c (<< 1 (dec bits))) (setq c (- c (<< 1 bits))))
 										(sin (/ (n2d c) (if (>= c 0) iqp iqm))))
 									coefs)
-								lpc (doubles (n2d 1)))
+								lpc (doubles (const (n2d 1))))
 							(each! (lambda () (defq k (!)) (defq b (cat lpc) p (elem-get parcor k))
 									(push lpc p)
 									(each! (# (elem-set lpc (!) (+ %0 (* p (elem-get b (- (inc k) (!))))))) (list b) 1 (inc k))) '() 0 order)
@@ -537,7 +537,7 @@
 	;what a channel carries from one block to the next: the half of its
 	;window that overlaps the next, and the shape of its window. The native
 	;of the DCT-IV is taken now, not as this is read
-	(defq tables (aac-tables) zeros (fill (doubles) 1024 (n2d 0)))
+	(defq tables (aac-tables) zeros (fill (doubles) 1024 (const (n2d 0))))
 	(scatter (Emap) :rate_index (second config) :rate (third config) :channels (elem-get config 3)
 		;SBR said, or a core of 24000 or less that may have it unsaid, which
 		;is taken from the first fill that holds it; PS said, or unless said
@@ -549,7 +549,7 @@
 			(or (eql (elem-get config 5) :t) (and (not (elem-get config 5)) (<= (elem-get config 3) 1))))
 		:tables tables :dct4 (ffi "lib/media/media_dct4") :seed 1
 		:overlap (map! (lambda () (cat zeros)) '() 0 8) :shape (map! (lambda () 0) '() 0 8)
-		:zeros zeros :ones (nums-add (nums-scale zeros (n2d 0)) (fill (doubles) 1024 (n2d 1)))))
+		:zeros zeros :ones (nums-add (nums-scale zeros (const (n2d 0))) (fill (doubles) 1024 (const (n2d 1))))))
 
 (defun aac-unfold (decoder lines n)
 	; (aac-unfold decoder lines n) -> doubles

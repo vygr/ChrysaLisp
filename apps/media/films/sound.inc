@@ -49,7 +49,7 @@
 				:make (lambda (sound) sound)
 				:decode (lambda (sound packet)
 					(cond
-						((not packet) (list (defq quiet (fill (doubles) 1024 (n2d 0))) quiet))
+						((not packet) (list (defq quiet (fill (doubles) 1024 (const (n2d 0)))) quiet))
 						((and (= (. sound :find :bits) 16) (= (. sound :find :channels) 2)) packet)
 						((adpcm-pcm packet (. sound :find :channels) (. sound :find :bits)))))))
 		((eql codec "adpcm_ms")
@@ -58,13 +58,13 @@
 				:make (lambda (sound) sound)
 				:decode (lambda (sound packet)
 					(if packet (adpcm-ms-block packet (. sound :find :channels) (. sound :find :coefs))
-						(list (defq quiet (fill (doubles) (. sound :find :size) (n2d 0))) quiet)))))
+						(list (defq quiet (fill (doubles) (. sound :find :size) (const (n2d 0)))) quiet)))))
 		((eql codec "adpcm_ima")
 			(scatter sound :size (if (> per 0) per (inc (/ (* 2 (- align (* 4 channels))) channels))) :packet align
 				:make (lambda (sound) sound)
 				:decode (lambda (sound packet)
 					(if packet (adpcm-ima-block packet (. sound :find :channels))
-						(list (defq quiet (fill (doubles) (. sound :find :size) (n2d 0))) quiet)))))
+						(list (defq quiet (fill (doubles) (. sound :find :size) (const (n2d 0)))) quiet)))))
 		((eql codec "ac-3")
 			(stream-seek in 0 0)
 			(when (defq head (ac3-header (bits-of (ifn (read-blk in 16) ""))))
@@ -125,7 +125,7 @@
 								;a frame not read is heard as nothing
 								:decode (lambda (decoder packet)
 									(defq pcm (if packet (catch (mp3-frame decoder packet) :t)))
-									(if (list? pcm) pcm (list (defq quiet (fill (doubles) (. decoder :find :samples) (n2d 0))) quiet))))))
+									(if (list? pcm) pcm (list (defq quiet (fill (doubles) (. decoder :find :samples) (const (n2d 0)))) quiet))))))
 					((eql (. track :find :codec) "flac")
 						;a FLAC's frames as they are heard, lossless, of a FLAC its reel's
 						;packets, of a film's track its own, its metadata the track's setup
@@ -137,7 +137,7 @@
 								:decode (lambda (info packet)
 									(defq got (if packet (catch (flac-frame info packet) :t)))
 									(if (list? got) (flac-pcm info (first got))
-										(list (defq quiet (fill (doubles) (. info :find :max_block) (n2d 0))) quiet))))))
+										(list (defq quiet (fill (doubles) (. info :find :max_block) (const (n2d 0)))) quiet))))))
 					((eql (. track :find :codec) "mp4a")
 						(and (defq config (aac-track-config track)) (= (first config) 2)
 							;HE-AAC's SBR at twice the rate of its core, packets of 2048 and

@@ -50,12 +50,12 @@
 ;is known to the bit. Its color is each byte over 255, the nearest 32 bit
 ;float to that, as a GPU has it
 (defun tx-byte (c)
-	(sh-float-to-double (sh-double-to-float (/ (n2d (logand c 0xff)) (n2d 255)))))
+	(sh-float-to-double (sh-double-to-float (/ (n2d (logand c 0xff)) (const (n2d 255))))))
 (defun tx-want (x y)
 	;the place, uv by 1.5 less a quarter across, gone round, of 8 by 4
-	(defq u (frac (- (* (/ (+ (n2d x) (n2d 0.5)) (n2d 16)) (n2d 1.5)) (n2d 0.25)))
-		v (frac (* (/ (+ (n2d y) (n2d 0.5)) (n2d 8)) (n2d 1.5)))
-		c (tx-color (+ (n2i (floor (* u (n2d 8)))) (* 8 (n2i (floor (* v (n2d 4))))))))
+	(defq u (frac (- (* (/ (+ (n2d x) (const (n2d 0.5))) (const (n2d 16))) (const (n2d 1.5))) (const (n2d 0.25))))
+		v (frac (* (/ (+ (n2d y) (const (n2d 0.5))) (const (n2d 8))) (const (n2d 1.5))))
+		c (tx-color (+ (n2i (floor (* u (const (n2d 8))))) (* 8 (n2i (floor (* v (const (n2d 4)))))))))
 	(doubles (tx-byte (>> c 16)) (tx-byte (>> c 8)) (tx-byte c) (tx-byte (>> c 24))))
 (defq tx_native (shader-vp tx_prog)
 	tx_got (shader-vp-pixels tx_native (shader-vp-frame tx_prog tx_native tx_vals) 0 0 16 8))

@@ -38,8 +38,8 @@
 	; (reel-pcm chans [scale]) -> (left right)
 	;the native taken as it is used: a system not yet built with it can
 	;still import this, the kinds are of a desktop's shared root
-	(defq flac_ints (ffi "lib/media/media_flac_ints") scale (ifn scale (n2d 1))
-		pcm (map! (lambda (ch) (flac_ints (fill (doubles) (length ch) (n2d 0)) ch scale)) (list chans) 0 (min 2 (length chans))))
+	(defq flac_ints (ffi "lib/media/media_flac_ints") scale (ifn scale (const (n2d 1)))
+		pcm (map! (lambda (ch) (flac_ints (fill (doubles) (length ch) (const (n2d 0))) ch scale)) (list chans) 0 (min 2 (length chans))))
 	(if (= (length pcm) 1) (list (first pcm) (first pcm)) pcm))
 
 (defun reel-kind (ext open packet codec frame &optional close)
@@ -95,7 +95,7 @@
 	(when pcm
 		(defq fbox (const (ffi "gui/canvas/lisp_fbox")))
 		(each (lambda (samples mid colour)
-				(defq len (length samples) y0 mid ys (nums-scale samples (/ (n2d (/ h 4)) (n2d 32768))))
+				(defq len (length samples) y0 mid ys (nums-scale samples (/ (n2d (/ h 4)) (const (n2d 32768)))))
 				(. canvas :set_color colour)
 				;every other x, a count of them
 				(each! (lambda ()

@@ -39,8 +39,8 @@
 (defq +jpg_zigzag (nums 0 1 8 16 9 2 3 10 17 24 32 25 18 11 4 5 12 19 26 33 40 48 41 34 27 20 13 6 7 14 21 28
 		35 42 49 56 57 50 43 36 29 22 15 23 30 37 44 51 58 59 52 45 38 31 39 46 53 60 61 54 47 55 62 63)
 	;the rows of the inverse DCT, K x u = C u cos((2x+1)u pi/16)/2, by 1024
-	*jpg_k* (map! (lambda () (defq x (!)) (reduce! (# (push %0 (n2i (* (n2d 1024) (/ (if (= (!) 0) (recip (sqrt (n2d 2))) +double_1) (n2d 2))
-								(cos (/ (* (n2d (inc (* 2 x))) (n2d (!)) +double_pi) (n2d 16))))))) '() (cap 8 (nums)) 0 8)) '() 0 8))
+	*jpg_k* (map! (lambda () (defq x (!)) (reduce! (# (push %0 (n2i (* (const (n2d 1024)) (/ (if (= (!) 0) (recip (sqrt (const (n2d 2)))) +double_1) (const (n2d 2)))
+								(cos (/ (* (n2d (inc (* 2 x))) (n2d (!)) +double_pi) (const (n2d 16)))))))) '() (cap 8 (nums)) 0 8)) '() 0 8))
 
 ;K as one nums of 64, its rows one after the other, for the native IDCT
 (defq *jpg_kflat* (apply (const cat) *jpg_k*))

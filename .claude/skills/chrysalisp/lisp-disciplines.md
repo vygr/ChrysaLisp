@@ -612,6 +612,12 @@ using `(const ...)`:
 
 	(* x (const (/ 180.0 +fp_pi)))
 
+A number written in a function and made another kind there, `(n2d 60)`,
+`(n2f 0.5)`, `(n2q 2)`, `(n2i 7)`, is made each time the function runs:
+write `(const (n2d 60))`, or a `+double_` or `+float_` name of
+`lib/math/vector.inc` where there is one. At the top of a file it is made
+the once anyway. `check` has `conv` for it.
+
 ## Top-Level `defun` Definitions (Prebinder Rule)
 
 **NEVER** nest `defun` inside another `defun`, `progn`, `catch`, or other expressions!

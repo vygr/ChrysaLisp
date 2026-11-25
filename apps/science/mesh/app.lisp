@@ -239,9 +239,9 @@
 				;frame timer event
 				(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
 				(when *auto_mode*
-					(setq *rotx* (% (+ *rotx* (n2d 0.01)) +double_2pi)
-						*roty* (% (+ *roty* (n2d 0.02)) +double_2pi)
-						*rotz* (% (+ *rotz* (n2d 0.03)) +double_2pi)
+					(setq *rotx* (% (+ *rotx* (const (n2d 0.01))) +double_2pi)
+						*roty* (% (+ *roty* (const (n2d 0.02))) +double_2pi)
+						*rotz* (% (+ *rotz* (const (n2d 0.03))) +double_2pi)
 						*dirty* :t)
 					(set-rot *xrot_slider* *rotx*)
 					(set-rot *yrot_slider* *roty*)

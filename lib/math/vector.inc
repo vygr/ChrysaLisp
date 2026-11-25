@@ -160,7 +160,7 @@
 				(vector-sub p1 p0 (const (cat +doubles_zero3)))
 				(vector-sub p2 p0 (const (cat +doubles_zero3)))))
 		d (vector-dot n n))
-	(if (= d (n2d 0)) none (vector-scale n (recip (sqrt d)))))
+	(if (= d (const (n2d 0))) none (vector-scale n (recip (sqrt d)))))
 
 (defun vector-intersect-2d (l1_p1 av l2_p1 bv)
 	(defq axb (vector-det av bv)

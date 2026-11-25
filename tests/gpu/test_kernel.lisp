@@ -42,14 +42,14 @@
 	(defq s (str-alloc (* kt_n 4)))
 	(for 0 (>> (inc kt_n) 1) (set-long s (<< (!) 3) 0))
 	s)
-(defun kt-fzeros () (fill (floats) kt_n (n2f 0)))
+(defun kt-fzeros () (fill (floats) kt_n (const (n2f 0))))
 
 ;what it writes, worked out: in the range and less than n, the src by the
 ;scale and the square of the index xor 3, every one a whole number or a
 ;half, so the 32 bit float is exact, and the bits of the int
 (defq kt_cdst (kt-fzeros) kt_cpk (kt-zeros))
 (each! (lambda ()
-		(elem-set kt_cdst (!) (n2f (+ (* (n2d (- (!) 3)) (n2d 1.5)) (n2d (* (logxor (!) 3) (logxor (!) 3))))))
+		(elem-set kt_cdst (!) (n2f (+ (* (n2d (- (!) 3)) (const (n2d 1.5))) (n2d (* (logxor (!) 3) (logxor (!) 3))))))
 		(defq c (- (* (!) 0x010307) 0x5000))
 		(set-int kt_cpk (* (!) 4) (logior (<< (logand (>> c 8) 255) 16) (logand c 255) (neg c))))
 	'() kt_from (min kt_to 280))
@@ -95,7 +95,7 @@
 			(cat "(defun main :void ((i :int)) (elem-set dst i (" op " (elem-get src i))))"))
 		n 64 src (apply (const floats) (map! (# (n2f (+ (n2d from) (* (n2d (!)) (n2d step))))) '() 0 n))
 		want (apply (const floats) (map (eval (sym op)) src))
-		native (shader-vp-kernel prog) got (fill (floats) n (n2f 0)))
+		native (shader-vp-kernel prog) got (fill (floats) n (const (n2f 0))))
 	(shader-vp-run prog native (shader-vp-frame prog native '()) 0 n (list got src))
 	(assert-eq (cat op " on the VP, as Lisp's of a float") want got)
 	(cond
@@ -105,7 +105,7 @@
 			(defq kernel (shader-gpu-kernel prog) bufs (map! (lambda () (gpu-buffer (* n 4))) '() 0 2))
 			(gpu-write (second bufs) 0 src)
 			(shader-gpu-run prog kernel (shader-pack prog '()) 0 n bufs)
-			(defq gpu (gpu-read (first bufs) 0 (fill (floats) n (n2f 0))))
+			(defq gpu (gpu-read (first bufs) 0 (fill (floats) n (const (n2f 0)))))
 			(assert-true (cat op " on the GPU, near the VP's")
 				(every (# (< (abs (- (n2d %0) (n2d %1))) (+ (* (abs (n2d %1)) (str-to-double "2e-6")) (str-to-double "2e-6"))))
 					gpu want))

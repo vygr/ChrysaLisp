@@ -33,7 +33,7 @@
 		twiddle (lambda (a) (push tw (cos a) (sin a))))
 	(each! (# (twiddle (/ (* (neg pi) (n2d (inc (* 4 (!))))) (n2d (* 4 n))))) '() 0 m)
 	(each! (# (twiddle (/ (* (neg pi) (n2d (!))) (n2d n)))) '() 0 m)
-	(each! (# (twiddle (/ (* (n2d -2) pi (n2d (!))) (n2d m)))) '() 0 (>> m 1))
+	(each! (# (twiddle (/ (* (const (n2d -2)) pi (n2d (!))) (n2d m)))) '() 0 (>> m 1))
 	(while (< (<< 1 bits) m) (setq bits (inc bits)))
 	(each! (lambda () (defq i (!)) (defq r 0)
 			(each! (# (if (/= 0 (logand i (<< 1 (!)))) (setq r (logior r (<< 1 (- bits 1 (!))))))) '() 0 bits)
@@ -44,15 +44,15 @@
 	; (mdct-imdct dct4 tables lines n) -> doubles
 	;the 2n samples of the IMDCT of n lines: their DCT-IV y, by 2/N, 1/n,
 	;as y from n/2, then -y backwards, then -y to n/2
-	(defq y (nums-scale (dct4 lines (first tables) (second tables) (cat lines)) (/ (n2d 1) (n2d n)))
-		neg (nums-scale y (n2d -1)))
+	(defq y (nums-scale (dct4 lines (first tables) (second tables) (cat lines)) (/ (const (n2d 1)) (n2d n)))
+		neg (nums-scale y (const (n2d -1))))
 	(cat (slice y (>> n 1) n) (reverse neg) (slice neg 0 (>> n 1))))
 
 (defun mdct-i0 (x)
 	; (mdct-i0 x) -> double
 	;the Bessel function I0, its series, the terms till they are nothing
-	(defq sum (n2d 1) term (n2d 1) k 1 q (/ (* x x) (n2d 4)))
-	(while (> (* term (n2d 100000000000000000)) sum)
+	(defq sum (const (n2d 1)) term (const (n2d 1)) k 1 q (/ (* x x) (const (n2d 4))))
+	(while (> (* term (const (n2d 100000000000000000))) sum)
 		(setq term (/ (* term q) (n2d (* k k))) sum (+ sum term) k (inc k)))
 	sum)
 
@@ -60,15 +60,15 @@
 	; (mdct-sine n) -> doubles
 	;the rising half, n, of the sine window of 2n
 	(defq pi (. +mdct :find :pi))
-	(reduce! (# (push %0 (sin (/ (* pi (+ (n2d (!)) (n2d 0.5))) (n2d (* 2 n)))))) '() (cap n (doubles)) 0 n))
+	(reduce! (# (push %0 (sin (/ (* pi (+ (n2d (!)) (const (n2d 0.5)))) (n2d (* 2 n)))))) '() (cap n (doubles)) 0 n))
 
 (defun mdct-kbd (n alpha)
 	; (mdct-kbd n alpha) -> doubles
 	;the rising half, n, of the Kaiser-Bessel derived window of 2n
-	(defq out (cap n (doubles)) sum (n2d 0) pi (. +mdct :find :pi)
-		kernel (map! (lambda () (defq t (- (/ (* (n2d 2) (n2d (!))) (n2d n)) (n2d 1)))
-				(mdct-i0 (* pi (n2d alpha) (sqrt (- (n2d 1) (* t t)))))) '() 0 (inc n)))
-	(defq total (reduce (const +) kernel (n2d 0)))
+	(defq out (cap n (doubles)) sum (const (n2d 0)) pi (. +mdct :find :pi)
+		kernel (map! (lambda () (defq t (- (/ (* (const (n2d 2)) (n2d (!))) (n2d n)) (const (n2d 1))))
+				(mdct-i0 (* pi (n2d alpha) (sqrt (- (const (n2d 1)) (* t t)))))) '() 0 (inc n)))
+	(defq total (reduce (const +) kernel (const (n2d 0))))
 	(each! (lambda (e) (setq sum (+ sum e))
 			(push out (sqrt (/ sum total)))) (list kernel) 0 n)
 	out)

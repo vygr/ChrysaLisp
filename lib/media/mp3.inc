@@ -77,7 +77,7 @@
 (defun mp3-pi ()
 	; (mp3-pi) -> double
 	;pi, by Newton from 3, sin(x) to 0
-	(defq x (n2d 3))
+	(defq x (const (n2d 3)))
 	(times 4 (setq x (- x (/ (sin x) (cos x)))))
 	x)
 
@@ -94,23 +94,23 @@
 	;of 36 and of 12, the windows of the 4 block types and of the short, the
 	;matrix of the filterbank and its window of 512
 	(unless (. +mp3 :find :made)
-		(defq pi (mp3-pi) third (/ (n2d 4) (n2d 3)))
+		(defq pi (mp3-pi) third (/ (const (n2d 4)) (const (n2d 3))))
 		(scatter +mp3 :made :t
 			:matvec (ffi "lib/media/media_matvec") :lines (ffi "lib/media/media_mp3_lines") :dequant (ffi "lib/media/media_dequant")
 			:window (ffi "lib/media/media_window") :alias_native (ffi "lib/media/media_mp3_alias")
-			:column (ffi "lib/media/media_gather") :none (fill (doubles) 18 (n2d 0))
+			:column (ffi "lib/media/media_gather") :none (fill (doubles) 18 (const (n2d 0)))
 			;2^(e/4) of the gains of a band, from -1024
-			:gains (reduce! (# (push %0 (pow (n2d 2) (/ (n2d (- (!) 1024)) (n2d 4))))) '() (cap 1280 (doubles)) 0 1280)
+			:gains (reduce! (# (push %0 (pow (const (n2d 2)) (/ (n2d (- (!) 1024)) (const (n2d 4)))))) '() (cap 1280 (doubles)) 0 1280)
 			:starts (map (lambda (widths) (reduce (# (push %0 (+ (last %0) %1))) widths (list 0))) (. +mp3 :find :long))
-			:pow (reduce! (# (push %0 (if (= (!) 0) (n2d 0) (pow (n2d (!)) third)))) '() (cap 8207 (doubles)) 0 8207)
-			:cs (reduce (# (push %0 (/ (n2d 1) (sqrt (+ (n2d 1) (* (str-to-double %1) (str-to-double %1))))))) (. +mp3 :find :alias) (doubles))
-			:ca (reduce (# (push %0 (/ (str-to-double %1) (sqrt (+ (n2d 1) (* (str-to-double %1) (str-to-double %1))))))) (. +mp3 :find :alias) (doubles))
-			:c36 (mp3-rows 36 18 (lambda (i k) (cos (/ (* pi (n2d (* (+ (* 2 i) 19) (inc (* 2 k))))) (n2d 72)))))
-			:c12 (mp3-rows 12 6 (lambda (i k) (cos (/ (* pi (n2d (* (+ (* 2 i) 7) (inc (* 2 k))))) (n2d 24)))))
-			:synth (mp3-rows 64 32 (lambda (i k) (cos (/ (* pi (n2d (* (+ 16 i) (inc (* 2 k))))) (n2d 64))))))
-		(defq sin36 (lambda (i) (sin (/ (* pi (+ (n2d i) (n2d 0.5))) (n2d 36))))
-			sin12 (lambda (i) (sin (/ (* pi (+ (n2d i) (n2d 0.5))) (n2d 12))))
-			zero (n2d 0) one (n2d 1))
+			:pow (reduce! (# (push %0 (if (= (!) 0) (const (n2d 0)) (pow (n2d (!)) third)))) '() (cap 8207 (doubles)) 0 8207)
+			:cs (reduce (# (push %0 (/ (const (n2d 1)) (sqrt (+ (const (n2d 1)) (* (str-to-double %1) (str-to-double %1))))))) (. +mp3 :find :alias) (doubles))
+			:ca (reduce (# (push %0 (/ (str-to-double %1) (sqrt (+ (const (n2d 1)) (* (str-to-double %1) (str-to-double %1))))))) (. +mp3 :find :alias) (doubles))
+			:c36 (mp3-rows 36 18 (lambda (i k) (cos (/ (* pi (n2d (* (+ (* 2 i) 19) (inc (* 2 k))))) (const (n2d 72))))))
+			:c12 (mp3-rows 12 6 (lambda (i k) (cos (/ (* pi (n2d (* (+ (* 2 i) 7) (inc (* 2 k))))) (const (n2d 24))))))
+			:synth (mp3-rows 64 32 (lambda (i k) (cos (/ (* pi (n2d (* (+ 16 i) (inc (* 2 k))))) (const (n2d 64)))))))
+		(defq sin36 (lambda (i) (sin (/ (* pi (+ (n2d i) (const (n2d 0.5)))) (const (n2d 36)))))
+			sin12 (lambda (i) (sin (/ (* pi (+ (n2d i) (const (n2d 0.5)))) (const (n2d 12)))))
+			zero (const (n2d 0)) one (const (n2d 1)))
 		(. +mp3 :insert :windows (defq windows (list
 					(reduce! (# (push %0 (sin36 (!)))) '() (doubles) 0 36)
 					(reduce! (# (push %0 (cond ((< (!) 18) (sin36 (!))) ((< (!) 24) one) ((< (!) 30) (sin12 (- (!) 18))) (zero)))) '() (doubles) 0 36)
@@ -120,7 +120,7 @@
 		;and the half left for the next both
 		(. +mp3 :insert :odd_windows (map (lambda (w) (reduce (# (push %0 (if (odd? (!)) (neg %1) %1))) w (cap (length w) (doubles)))) windows))
 		;D of the standard, the half given and its mirror
-		(defq d (fill (doubles) 512 (n2d 0)) k (n2d 65536))
+		(defq d (fill (doubles) 512 (const (n2d 0))) k (const (n2d 65536)))
 		(each (lambda (v)
 				(defq i (!))
 				(elem-set d i (/ (n2d v) k))
@@ -259,13 +259,13 @@
 	;MPEG-1 tan(pos pi/12) to 1, of MPEG-2 by 2^-1/4 or 2^-1/2 a step, the
 	;scalefac_compress's last bit, to the left at an odd position, the right
 	;at an even
-	(defq one (n2d 1))
+	(defq one (const (n2d 1)))
 	(if lsf
-		(map! (lambda () (defq f (pow (n2d 2) (/ (n2d (neg (* (inc sfc) (>> (inc (!)) 1)))) (n2d 4))))
+		(map! (lambda () (defq f (pow (const (n2d 2)) (/ (n2d (neg (* (inc sfc) (>> (inc (!)) 1)))) (const (n2d 4)))))
 				(if (odd? (!)) (list f one) (list one f))) '() 0 16)
 		(map! (lambda () (cond
-					((= (!) 6) (list one (n2d 0)))
-					(:t (defq x (/ (* (n2d (!)) (mp3-pi)) (n2d 12)) t (/ (sin x) (cos x)))
+					((= (!) 6) (list one (const (n2d 0))))
+					(:t (defq x (/ (* (n2d (!)) (mp3-pi)) (const (n2d 12))) t (/ (sin x) (cos x)))
 						(list (/ t (+ one t)) (/ one (+ one t)))))) '() 0 7)))
 
 (defun mp3-intensity (l r g sf h)
@@ -276,11 +276,11 @@
 	;block each window its own way, the last band by the scale factor of
 	;the band before
 	(defq lsf (. h :find :lsf) sri (. h :find :sri) ms (/= 0 (logand (. h :find :ext) 2))
-		bt (. g :find :bt) mixed (. g :find :mixed) at 576 k1 (sqrt (/ (n2d 1) (n2d 2)))
+		bt (. g :find :bt) mixed (. g :find :mixed) at 576 k1 (sqrt (/ (const (n2d 1)) (const (n2d 2))))
 		long_end (if (= bt 2) (if (= mixed 1) (if (<= sri 2) 8 6) 0) 22)
 		short_start (if (= bt 2) (if (= mixed 1) 3 0) 13)
 		sfmax (if lsf 16 7) tab (mp3-positions lsf (logand (. g :find :sfc) 1))
-		nonzero (lambda (from len) (some! (# (/= %0 (n2d 0))) (list r) :nil from (+ from len)))
+		nonzero (lambda (from len) (some! (# (/= %0 (const (n2d 0)))) (list r) :nil from (+ from len)))
 		ms-band (lambda (from len)
 			(if ms (each! (lambda (a b)
 						(elem-set l (!) (* (+ a b) k1))
@@ -342,7 +342,7 @@
 	; (mp3-requant granule lines sf sri) -> doubles
 	;each line by the gain of its band: the global gain, less its scale
 	;factor and the pretab by the scale, of a short window its gain too
-	(defq out (fill (doubles) 576 (n2d 0)) gain (- (. g :find :gain) 210) shift (inc (. g :find :sfscale))
+	(defq out (fill (doubles) 576 (const (n2d 0))) gain (- (. g :find :gain) 210) shift (inc (. g :find :sfscale))
 		pow (. +mp3 :find :pow) bt (. g :find :bt) mixed (. g :find :mixed) at 0
 		long_end (if (= bt 2) (if (= mixed 1) (if (<= sri 2) 8 6) 0) 22)
 		short_start (if (= bt 2) (if (= mixed 1) 3 0) 13)
@@ -385,7 +385,7 @@
 	;the first half on what the last left, the second half left for the
 	;next; of an odd subband the odd samples the other sign, by its windows
 	(defq c36 (. +mp3 :find :c36) c12 (. +mp3 :find :c12) evens (. +mp3 :find :windows) odds (. +mp3 :find :odd_windows)
-		bt (. g :find :bt) mixed (. g :find :mixed) zero (n2d 0) y36 (fill (doubles) 36 zero)
+		bt (. g :find :bt) mixed (. g :find :mixed) zero (const (n2d 0)) y36 (fill (doubles) 36 zero)
 		none (. +mp3 :find :none) top 32)
 	;the subbands above the highest with a line not 0, often a quarter,
 	;their IMDCT nothing: the half the last left heard as it is, none left
@@ -420,8 +420,8 @@
 	;samples into the 64 of the matrix, put in front of the 1024 of v, a
 	;ring from head, and of the window D over 16 of them 32 samples, into
 	;pcm from at
-	(defq rows (. +mp3 :find :synth) d (. +mp3 :find :d) k (n2d 32768) column (. +mp3 :find :column)
-		s (fill (doubles) 32 (n2d 0)) m (fill (doubles) 64 (n2d 0)))
+	(defq rows (. +mp3 :find :synth) d (. +mp3 :find :d) k (const (n2d 32768)) column (. +mp3 :find :column)
+		s (fill (doubles) 32 (const (n2d 0))) m (fill (doubles) 64 (const (n2d 0))))
 	(each! (lambda () (column s subbands (!))
 			(setq head ((. +mp3 :find :window) v ((. +mp3 :find :matvec) rows 64 32 s 0 m) head
 					d pcm (+ at (* 32 (!))) k 32 8 64 128 32 96))) '() 0 18)
@@ -435,8 +435,8 @@
 	;(mp3-tables)
 	(mp3-tables)
 	(scatter (Emap) :reservoir "" :scales (list (list) (list))
-		:overlap (map! (lambda () (map! (lambda () (fill (doubles) 18 (n2d 0))) '() 0 32)) '() 0 2)
-		:v (map! (lambda () (fill (doubles) 1024 (n2d 0))) '() 0 2) :vhead (list 0 0)
+		:overlap (map! (lambda () (map! (lambda () (fill (doubles) 18 (const (n2d 0)))) '() 0 32)) '() 0 2)
+		:v (map! (lambda () (fill (doubles) 1024 (const (n2d 0)))) '() 0 2) :vhead (list 0 0)
 		:books (. +mp3 :find :books) :quads (. +mp3 :find :quads)))
 
 (defun mp3-frame (d frame)
@@ -449,7 +449,7 @@
 	(bits-skip in (if (. h :find :crc) 48 32))
 	(bind '(mdb scfsi grans) (mp3-side in h))
 	(defq res (. d :find :reservoir) main (slice frame (>> (bits-at in) 3) (min (length frame) (. h :find :size)))
-		all (cat res main) pcm (map! (lambda () (fill (doubles) (. h :find :samples) (n2d 0))) '() 0 nch))
+		all (cat res main) pcm (map! (lambda () (fill (doubles) (. h :find :samples) (const (n2d 0)))) '() 0 nch))
 	(. d :insert :reservoir (slice all (max 0 (- (length all) 2048)) -1))
 	(cond
 		;nothing heard of a frame begun before the reservoir has
@@ -470,7 +470,7 @@
 							((/= 0 (logand (. h :find :ext) 1))
 								(mp3-intensity (first xs) (second xs) (second chans) (elem-get (. d :find :scales) 1) h))
 							((/= 0 (logand (. h :find :ext) 2))
-								(defq m (first xs) s (second xs) k (sqrt (/ (n2d 1) (n2d 2))))
+								(defq m (first xs) s (second xs) k (sqrt (/ (const (n2d 1)) (const (n2d 2)))))
 								(setq xs (list (nums-scale (nums-add m s) k) (nums-scale (nums-sub m s) k))))))
 					(each! (lambda (x g)
 							(defq ch (!))

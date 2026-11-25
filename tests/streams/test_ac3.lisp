@@ -24,10 +24,10 @@
 	;each channel against the tone it was, at the best of a few starts, a
 	;block of the decoder late and the coder's own before it; in from the
 	;ends, the signal to the error
-	(defq best (n2d 0) w (/ (* (n2d 2) (n2d 3.14159265) (n2d hz)) (n2d 48000)))
+	(defq best (const (n2d 0)) w (/ (* (const (n2d 2)) (const (n2d 3.14159265)) (n2d hz)) (const (n2d 48000))))
 	(each (lambda (start)
-			(defq sig (n2d 0) err (n2d 0))
-			(each! (lambda () (defq want (* (n2d 6000) (sin (* w (n2d (!))))) x (* (n2d -16777216) (elem-get got (+ (!) start))))
+			(defq sig (const (n2d 0)) err (const (n2d 0)))
+			(each! (lambda () (defq want (* (const (n2d 6000)) (sin (* w (n2d (!))))) x (* (const (n2d -16777216)) (elem-get got (+ (!) start))))
 					(setq sig (+ sig (* want want)) err (+ err (* (- x want) (- x want))))) '() 4800 19200)
 			(setq best (max best (/ sig err))))
 		'(256 512 1792 2048))
@@ -41,10 +41,10 @@
 		(assert-eq (cat what ": 1536 samples a frame a channel") (* frames 1536) (length (first chans)))
 		(each (lambda (hz ch)
 				(assert-true (cat what ": channel " (str (!)) " is the tone of " (str hz) " it was")
-					(> (a3-ratio ch hz) (n2d 1000))))
+					(> (a3-ratio ch hz) (const (n2d 1000)))))
 			a3_tones chans)
 		(assert-true (cat what ": made two channels, both heard")
-			(every (# (> (nums-sum (nums-mul %0 %0)) (n2d 0))) (ac3-stereo d (map (# (slice %0 4800 6336)) chans)))))
+			(every (# (> (nums-sum (nums-mul %0 %0)) (const (n2d 0)))) (ac3-stereo d (map (# (slice %0 4800 6336)) chans)))))
 	'(("tests/streams/data/six_eac3.mp4" 16 "E-AC-3") ("tests/streams/data/six_ac3.mp4" 8 "AC-3")))
 
 ;short_ac3.mp4 is half a second of stereo at 48000, AC-3 by Aften at 256
@@ -54,15 +54,15 @@
 ;is coded in short blocks
 (defun a3-click (ch i)
 	;what the signal was at sample i of channel ch, out of 16 bits
-	(defq at (+ i 19200 (if (= ch 0) 0 4800)) w (/ (* (n2d 2) (n2d 3.14159265)) (n2d 48000)))
-	(* (n2d 32767) (if (< (% at 12000) 96)
-			(* (n2d 0.9) (sin (* w (n2d (if (= ch 0) 3000 2000)) (n2d (+ i 19200)))))
-			(* (n2d 0.01) (sin (* w (n2d (if (= ch 0) 440 550)) (n2d (+ i 19200))))))))
+	(defq at (+ i 19200 (if (= ch 0) 0 4800)) w (/ (* (const (n2d 2)) (const (n2d 3.14159265))) (const (n2d 48000))))
+	(* (const (n2d 32767)) (if (< (% at 12000) 96)
+			(* (const (n2d 0.9)) (sin (* w (n2d (if (= ch 0) 3000 2000)) (n2d (+ i 19200)))))
+			(* (const (n2d 0.01)) (sin (* w (n2d (if (= ch 0) 440 550)) (n2d (+ i 19200))))))))
 
 (defun a3-click-ratio (got ch lo hi)
 	;the signal to the error, samples lo to hi, a block of the decoder late
-	(defq sig (n2d 0) err (n2d 0))
-	(each! (lambda () (defq want (a3-click ch (!)) x (* (n2d -16777216) (elem-get got (+ (!) 256))))
+	(defq sig (const (n2d 0)) err (const (n2d 0)))
+	(each! (lambda () (defq want (a3-click ch (!)) x (* (const (n2d -16777216)) (elem-get got (+ (!) 256))))
 			(setq sig (+ sig (* want want)) err (+ err (* (- x want) (- x want))))) '() lo hi)
 	(/ sig err))
 
@@ -70,6 +70,6 @@
 (assert-eq "short blocks: every frame decodes" 0 bad)
 (assert-true "short blocks: some were decoded" (> (. d :find :shorts) 0))
 (assert-true "short blocks: the tones between the clicks are as they were"
-	(every (# (> (a3-click-ratio (elem-get chans %0) %0 (* 5 1536) (* 7 1536)) (n2d 10000))) '(0 1)))
+	(every (# (> (a3-click-ratio (elem-get chans %0) %0 (* 5 1536) (* 7 1536)) (const (n2d 10000)))) '(0 1)))
 (assert-true "short blocks: the right's click in short blocks is the click it was"
 	(> (a3-click-ratio (second chans) 1 (* 7 1536) (* 8 1536)) (n2d 100)))

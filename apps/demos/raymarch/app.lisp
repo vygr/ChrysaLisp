@@ -44,7 +44,7 @@
 	(defq fraction (/ (n2d frame_idx) (const (n2d +num_frames))))
 	(list (list 'resolution (list +width +height))
 		(list 'cam_z (+ z_start (* z_dist fraction)))
-		(list 'light_x (+ (n2d -0.1) (* (sin (* fraction +double_2pi)) (n2d 0.15))))))
+		(list 'light_x (+ (const (n2d -0.1)) (* (sin (* fraction +double_2pi)) (const (n2d 0.15)))))))
 
 ;the film is made in a file of its own, and is the film only once it is
 ;whole: one stopped part way does not leave half a film in the tree,

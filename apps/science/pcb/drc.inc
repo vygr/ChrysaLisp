@@ -23,11 +23,11 @@
 	;the square of the distance from a point to a segment
 	(defq dx (- x2 x1) dy (- y2 y1) l (+ (drc-sq dx) (drc-sq dy)))
 	(cond
-		((= l (n2d 0)) (+ (drc-sq (- px x1)) (drc-sq (- py y1))))
+		((= l (const (n2d 0))) (+ (drc-sq (- px x1)) (drc-sq (- py y1))))
 		(:t (defq t (/ (+ (* (- px x1) dx) (* (- py y1) dy)) l))
 			(cond
-				((< t (n2d 0)) (setq t (n2d 0)))
-				((> t (n2d 1)) (setq t (n2d 1))))
+				((< t (const (n2d 0))) (setq t (const (n2d 0))))
+				((> t (const (n2d 1))) (setq t (const (n2d 1)))))
 			(+ (drc-sq (- px (+ x1 (* t dx)))) (drc-sq (- py (+ y1 (* t dy))))))))
 
 (defun drc-side (ax ay bx by cx cy)
@@ -37,7 +37,7 @@
 (defun drc-cross? (x1 y1 x2 y2 x3 y3 x4 y4)
 	;do two segments cross, each end of one on its own side of the other
 	(defq d1 (drc-side x3 y3 x4 y4 x1 y1) d2 (drc-side x3 y3 x4 y4 x2 y2)
-		d3 (drc-side x1 y1 x2 y2 x3 y3) d4 (drc-side x1 y1 x2 y2 x4 y4) z (n2d 0))
+		d3 (drc-side x1 y1 x2 y2 x3 y3) d4 (drc-side x1 y1 x2 y2 x4 y4) z (const (n2d 0)))
 	(and (or (and (> d1 z) (< d2 z)) (and (< d1 z) (> d2 z)))
 		(or (and (> d3 z) (< d4 z)) (and (< d3 z) (> d4 z)))))
 
@@ -45,7 +45,7 @@
 	;the square of the distance between two segments: 0 if they cross,
 	;else the nearest of an end of one to the other
 	(if (drc-cross? x1 y1 x2 y2 x3 y3 x4 y4)
-		(n2d 0)
+		(const (n2d 0))
 		(min (drc-pt-seg x1 y1 x3 y3 x4 y4) (drc-pt-seg x2 y2 x3 y3 x4 y4)
 			(drc-pt-seg x3 y3 x1 y1 x2 y2) (drc-pt-seg x4 y4 x1 y1 x2 y2))))
 
@@ -74,14 +74,14 @@
 (defun drc-seg-poly (x1 y1 x2 y2 pts)
 	;the square of the distance from a segment to a filled polygon
 	(if (or (drc-inside? x1 y1 pts) (drc-inside? x2 y2 pts))
-		(n2d 0)
+		(const (n2d 0))
 		(reduce (lambda (d (x3 y3 x4 y4)) (min d (drc-seg-seg x1 y1 x2 y2 x3 y3 x4 y4)))
 			(drc-edges pts) +drc_far)))
 
 (defun drc-poly-poly (a b)
 	;the square of the distance between two filled polygons
 	(if (or (drc-inside? (first a) (second a) b) (drc-inside? (first b) (second b) a))
-		(n2d 0)
+		(const (n2d 0))
 		(reduce (lambda (d (x1 y1 x2 y2)) (min d (drc-seg-poly x1 y1 x2 y2 b)))
 			(drc-edges a) +drc_far)))
 
@@ -163,7 +163,7 @@
 	(bind '(w h depth) (first pcb_list))
 	(bind '(pieces pads) (drc-pieces pcb_list))
 	(defq shorted (list) unjoined (list) outside (list)
-		set (map! (# (identity (!))) '() 0 (length pieces)) w (n2d w) h (n2d h) z (n2d 0))
+		set (map! (# (identity (!))) '() 0 (length pieces)) w (n2d w) h (n2d h) z (const (n2d 0)))
 	;every pair that is near: a short between two nets, or one net joined
 	(each! (lambda (a)
 			(defq i (!))

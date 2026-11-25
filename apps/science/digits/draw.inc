@@ -27,7 +27,7 @@
 	(bind '(w h) (. canvas :pref_size))
 	(defq x0 44 y0 34 x1 (- w 48) y1 (- h 30) shown (slice losses (max 0 (- (length losses) +chart_steps)) -1)
 		first_step (- (length losses) (length shown))
-		top (max (n2d 0.5) (reduce (const max) shown (n2d 0))))
+		top (max (const (n2d 0.5)) (reduce (const max) shown (const (n2d 0)))))
 	(.-> canvas (:fill +chart_back) (:set_color +chart_grid))
 	(each! (lambda () (defq y (+ y0 (/ (* (!) (- y1 y0)) 4))) (. canvas :fbox x0 y (- x1 x0) 1)) '() 0 5)
 	(draw-words canvas "loss" 6 16 11 +chart_loss)
@@ -104,7 +104,7 @@
 	;each digit it was, down, and each it was taken for, across, the share
 	;of that digit taken for each, green right and red wrong
 	(.-> canvas (:fill +chart_back))
-	(draw-words canvas (if confusion (cat "test " (double-to-str (/ (n2d right) (n2d 100)) 2) "% right")
+	(draw-words canvas (if confusion (cat "test " (double-to-str (/ (n2d right) (const (n2d 100))) 2) "% right")
 		"confusion") 6 16 11 +chart_text)
 	(when confusion
 		(each! (lambda ()

@@ -236,7 +236,7 @@
 
 (defun tick ()
 	;a frame: the time since the last, the picture moved, and drawn
-	(defq now (pii-time) dt (min (n2d 0.1) (/ (n2d (- now last_t)) (n2d 1000000))))
+	(defq now (pii-time) dt (min (const (n2d 0.1)) (/ (n2d (- now last_t)) (const (n2d 1000000)))))
 	(setq last_t now)
 	(fly dt)
 	(when (and changed (not (. render :busy)))

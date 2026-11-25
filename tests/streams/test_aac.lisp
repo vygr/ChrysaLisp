@@ -26,9 +26,9 @@
 ;a little in from either end: what was coded and what is heard, more than
 ;30dB apart
 (defun ac-ratio (got hz)
-	(defq start 2112 sig (n2d 0) err (n2d 0)
-		w (/ (* (n2d 2) (n2d 3.14159265) (n2d hz)) (n2d 48000)))
-	(each! (lambda () (defq want (* (n2d 8000) (sin (* w (n2d (!))))) x (elem-get got (+ (!) start)))
+	(defq start 2112 sig (const (n2d 0)) err (const (n2d 0))
+		w (/ (* (const (n2d 2)) (const (n2d 3.14159265)) (n2d hz)) (const (n2d 48000))))
+	(each! (lambda () (defq want (* (const (n2d 8000)) (sin (* w (n2d (!))))) x (elem-get got (+ (!) start)))
 			(setq sig (+ sig (* want want)) err (+ err (* (- x want) (- x want))))) '() 4800 19200)
 	(/ sig err))
 (assert-true "the left is the tone of 440 it was" (> (ac-ratio ac_left 440) (n2d 1000)))
@@ -59,16 +59,16 @@
 	;the rms of the second differences, from 6000 to 24000
 	(defq a (slice x 5999 23999) b (slice x 6000 24000) c (slice x 6001 24001)
 		d (nums-add (nums-sub c b) (nums-sub a b)))
-	(sqrt (/ (nums-dot d d) (n2d 18000))))
+	(sqrt (/ (nums-dot d d) (const (n2d 18000)))))
 (defun he-tone (x hz)
 	; (he-tone samples hz) -> double
 	;the level of a tone, from 6000 to 24000
-	(defq w (/ (* (n2d 2) (n2d 3.14159265) (n2d hz)) (n2d 44100)) c (n2d 0) s (n2d 0))
+	(defq w (/ (* (const (n2d 2)) (const (n2d 3.14159265)) (n2d hz)) (const (n2d 44100))) c (const (n2d 0)) s (const (n2d 0)))
 	(each! (lambda (v)
 			(defq a (* w (n2d (!))))
 			(setq c (+ c (* v (cos a))) s (+ s (* v (sin a)))))
 		(list x) 6000 24000)
-	(/ (* (n2d 2) (sqrt (+ (* c c) (* s s)))) (n2d 18000)))
+	(/ (* (const (n2d 2)) (sqrt (+ (* c c) (* s s)))) (const (n2d 18000))))
 (assert-true "HE-AAC: the left's 440 as it was coded" (< (n2d 7500) (he-tone he_left 440) (n2d 8800)))
 (assert-true "HE-AAC: the right's 660 as it was coded" (< (n2d 7500) (he-tone he_right 660) (n2d 8800)))
 (assert-true "HE-AAC: the left's band above the core made again, as ffmpeg makes it" (< (n2d 7500) (he-second he_left) (n2d 11300)))
@@ -117,9 +117,9 @@
 	; (wi-ratio samples hz bursts) -> double
 	;what was coded over what differs from it, the tone on in its bursts
 	;if bursts
-	(defq sig (n2d 0) err (n2d 0) w (/ (* (n2d 2) (n2d 3.14159265) (n2d hz)) (n2d 48000)))
-	(each! (lambda () (defq want (* (n2d 1024) (sin (* w (n2d (!))))) x (elem-get got (+ (!) 1024)))
-			(and bursts (>= (% (* (/ (!) 1024) 1024) 4800) 1440) (setq want (n2d 0)))
+	(defq sig (const (n2d 0)) err (const (n2d 0)) w (/ (* (const (n2d 2)) (const (n2d 3.14159265)) (n2d hz)) (const (n2d 48000))))
+	(each! (lambda () (defq want (* (const (n2d 1024)) (sin (* w (n2d (!))))) x (elem-get got (+ (!) 1024)))
+			(and bursts (>= (% (* (/ (!) 1024) 1024) 4800) 1440) (setq want (const (n2d 0))))
 			(setq sig (+ sig (* want want)) err (+ err (* (- x want) (- x want))))) '() 2048 22528)
 	(/ sig err))
 (assert-true "a pair without a common window: the left's 440 as it was" (> (wi-ratio wi_left 440 :nil) (n2d 1000)))
