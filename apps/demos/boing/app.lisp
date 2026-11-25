@@ -53,7 +53,9 @@
 				(setq x (+ x xv) y (+ y yv) yv (inc yv))
 				(when (> y (- backdrop_height h))
 					(setq y (- backdrop_height h) yv -22)
-					(audio-play-rpc handle))
+					;the bounce heard from where across the window it is, -255 at
+					;the left to 255 at the right
+					(audio-play-rpc handle (- (/ (* 510 (+ x (/ w 2))) backdrop_width) 255)))
 				(if (< x 0) (setq x 0 xv (abs xv)))
 				(if (> x (- backdrop_width w)) (setq x (- backdrop_width w) xv (neg (abs xv))))
 				(. frame :set_bounds x y w h)
