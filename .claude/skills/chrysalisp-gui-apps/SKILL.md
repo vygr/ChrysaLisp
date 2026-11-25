@@ -123,6 +123,15 @@ Key points:
 *	The current message is held in the global `*msg*`, so action
 	handlers can inspect it, e.g. `(getf *msg* +ev_msg_action_source_id)`.
 
+*	A raw mouse event's `+ev_msg_mouse_buttons` is two things: on the
+	first press, buttons up before, it is the number of the button, 1
+	left, 2 middle, 3 right; on a move with buttons down it is their bits,
+	1, 2 and 4; 0 when let go. The window turns the first into bits for its
+	views, `(case buttons (2 2) (3 4) (:t 1))`, `gui/window/lisp.inc`. An
+	app that reads the raw event before the window, a canvas taking the
+	pointer, does the same, or a right press reads as the left bit set,
+	3: Space's boost fired a missile so.
+
 *	`(. *window* :dispatch *msg*)` looks up the event's target widget
 	and its `:connect` event in `*event_map*`, then calls the action. An
 	app defines `dispatch-action` only to do more than that: without
