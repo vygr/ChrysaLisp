@@ -154,14 +154,19 @@
 					(* sand 0.85) (* 0.6 (ease (- water 1.8) water h))) daylight)
 				(* shine glint lit 2.0))))
 		(:t ;the land, of how high and how steep, rough, and lit
-			;rough by a bump, unless there is none to be had, not worked out
-			(defq up (:y n) b n)
-			(if (> rough 0.0) (setq b (bumped place n (* rough (+ 0.3 (* 1.4 (- 1.0 up)))))))
+			;rough by a bump where it is grass or rock, sand and snow smooth,
+			;unless there is none to be had, not worked out
+			(defq up (:y n) b n
+				grassy (ease (+ water 0.5) (+ water 3.5) h)
+				rocky (ease 0.86 0.72 up)
+				snowy (* (ease 34.0 42.0 h) (ease 0.7 0.85 up)))
+			(if (> rough 0.0) (setq b (bumped place n (* rough (+ 0.3 (* 1.4 (- 1.0 up)))
+				(- 1.0 snowy) (- 1.0 (* (- 1.0 grassy) (- 1.0 rocky)))))))
 			(defq mottle 0.5)
 			(if (< plain 0.5) (setq mottle (noise3 (* place 0.05))))
-			(setq colour (mix sand (mix grass moss mottle) (ease (+ water 0.5) (+ water 3.5) h))
-				colour (mix colour rock (ease 0.86 0.72 up))
-				colour (mix colour snow (* (ease 34.0 42.0 h) (ease 0.7 0.85 up)))
+			(setq colour (mix sand (mix grass moss mottle) grassy)
+				colour (mix colour rock rocky)
+				colour (mix colour snow snowy)
 				colour (* colour daylight (+ 0.28 (* 0.95 lit (max (dot b sun) 0.0)))))))
 	;the craft's shadows dim the water too, and their lights light both
 	(if (<= h water) (setq colour (* colour (+ 0.55 (* 0.45 crafts)))))
