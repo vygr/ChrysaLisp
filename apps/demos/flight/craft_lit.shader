@@ -56,6 +56,9 @@
 	(- 1.0 (ease 0.0 0.06 (abs (- (fract (+ (* v n) 0.5)) 0.5)))))
 
 (defun main :vec4 ((frag :vec2))
+	;a cow's patches, of a noise, worked out only for a cow
+	(defq blot 0.0)
+	(if (> patches 0.0) (setq blot (* patches 0.9 (ease 0.5 0.56 (noise3 (* local 2.6))))))
 	(defq n (normalize facing) to_eye (normalize (- eye place))
 		r (reflect (- to_eye) n)
 		lit (max (dot n sun) 0.0)
@@ -66,11 +69,10 @@
 		;the panels, rings round it and lines across, darker at their seams
 		round (length (:xz local))
 		seams (* (min panels 1.0) (max (seam round panels) (max (seam (:x local) panels) (seam (:z local) panels))))
-		metal (* (+ tint (* oil film)) (- 1.0 (* 0.55 seams))
-			(- 1.0 (* patches 0.9 (ease 0.5 0.56 (noise3 (* local 2.6))))))
+		metal (* (+ tint (* oil film)) (- 1.0 (* 0.55 seams)) (- 1.0 blot))
 		spot (pow (max (dot r sun) 0.0) 80.0)
 		pulse (+ 0.7 (* 0.3 (cos (* time 4.0))))
-		hide (* tint (- 1.0 (* patches 0.9 (ease 0.5 0.56 (noise3 (* local 2.6))))))
+		hide (* tint (- 1.0 blot))
 		colour (+ (* (mix (* hide (+ 0.2 (* 0.6 lit))) (* (seen r) metal) (* (+ 0.35 (* 0.6 edge)) (- 1.0 patches))) daylight)
 			(* shine spot 1.4)))
 	;the lamps, flecks on the rim, each lit as a wave goes over

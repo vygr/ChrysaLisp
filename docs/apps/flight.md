@@ -81,7 +81,12 @@ less than all of it.
 
 A frame is a list of draws given to a `(Render-tris)`,
 `lib/gpu/render_farm.inc`, each draw with its own pair of shaders, see
-`docs/ai_digest/render_farm.md`; a see-through draw, the clouds, and one that
-adds light, a beam, come last. On a machine with no GPU the frame is drawn
+`docs/ai_digest/render_farm.md`: the land, the moon, the craft, the sky
+after what hides it, and last a see-through draw, the clouds, and one that
+adds light, a beam. The land at full detail is 64 tiles, each a mesh, and
+only those the eye sees any of are drawn, `(land-seen)`; all of them have
+the one list of inputs, which the render packs the once. A frame is given
+when the last comes back, if that took a tick of the timer or more, and by
+the tick if not. On a machine with no GPU the frame is drawn
 by the nodes, a strip each. The music is a `Music` of `apps/media/jukebox/music.inc`,
 the Jukebox's own player driven with no window.

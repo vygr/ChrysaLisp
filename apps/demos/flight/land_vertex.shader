@@ -31,18 +31,24 @@
 (defconst slope 1.5)
 (defconst haze_near 200.0)
 (defconst haze_far 560.0)
+;past where the haze is whole by more than a cell of the grid is across,
+;every triangle a vertex is of is all haze, and its slope is not looked at
+(defconst haze_all 580.0)
 
 (defun main :vec4 ()
 	(defq p (+ position shift) h (ground p) dx 0.0 dz 0.0)
-	(if (> quick 0.5)
-		;one way from here, each twice as far, the height here had already
-		(setq dx (* 2.0 (- (ground (+ p (vec2 slope 0.0))) h))
-			dz (* 2.0 (- (ground (+ p (vec2 0.0 slope))) h)))
-		(setq dx (- (ground (+ p (vec2 slope 0.0))) (ground (- p (vec2 slope 0.0))))
-			dz (- (ground (+ p (vec2 0.0 slope))) (ground (- p (vec2 0.0 slope))))))
-	(setq facing (normalize (vec3 (- dx) (* 2.0 slope) (- dz))))
-	(when (< h water)
-		(setq h water facing (vec3 0.0 1.0 0.0)))
-	(setq place (vec3 (:x p) h (:y p))
-		fade (ease haze_near haze_far (length (- place eye))))
+	(setq facing (vec3 0.0 1.0 0.0))
+	(if (< h water) (setq h water))
+	(setq place (vec3 (:x p) h (:y p)))
+	(defq far (length (- place eye)))
+	(setq fade (ease haze_near haze_far far))
+	;the slope, of the land that is over the water and not all haze
+	(when (and (> h water) (< far haze_all))
+		(if (> quick 0.5)
+			;one way from here, each twice as far, the height here had already
+			(setq dx (* 2.0 (- (ground (+ p (vec2 slope 0.0))) h))
+				dz (* 2.0 (- (ground (+ p (vec2 0.0 slope))) h)))
+			(setq dx (- (ground (+ p (vec2 slope 0.0))) (ground (- p (vec2 slope 0.0))))
+				dz (- (ground (+ p (vec2 0.0 slope))) (ground (- p (vec2 0.0 slope))))))
+		(setq facing (normalize (vec3 (- dx) (* 2.0 slope) (- dz)))))
 	(* lens (vec4 place 1.0)))

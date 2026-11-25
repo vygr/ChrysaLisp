@@ -65,6 +65,13 @@
 			dome (- (len3 x (- y (const (n2d 0.1))) z) (const (n2d 0.33))))
 		(smooth-min (smooth-min hull rim (const (n2d 0.08))) dome (const (n2d 0.14)))))
 
+(defun lobes8 (x z)
+	; (lobes8 x z) -> double
+	;the cosine of eight times the angle round, of the cosine of it, no angle
+	(defq c (/ x (+ (len2 x z) (const (/ +double_1 (n2d 1000000))))) c2 (* c c))
+	(+ +double_1 (* c2 (+ (const (n2d -32)) (* c2 (+ (const (n2d 160))
+		(* c2 (+ (const (n2d -256)) (* c2 (const (n2d 128)))))))))))
+
 (defclass Iso-ring (size) (Iso-part size)
 	; (Iso-ring size) -> iso
 	;a ring, thick in eight places round it, blobs, with the rim of what it
@@ -72,13 +79,8 @@
 
 	(defmethod :field (x y z)
 		; (. iso :field x y z) -> double
-		;the cosine of eight times the angle round, of the cosine of it
-		(defq r (+ (len2 x z) (const (/ +double_1 (n2d 1000000)))) c (/ x r) c2 (* c c)
-			lobes (+ +double_1 (* c2 (+ (const (n2d -32)) (* c2 (+ (const (n2d 160))
-				(* c2 (+ (const (n2d -256)) (* c2 (const (n2d 128))))))))))
-			lobe (max +double_0 lobes)
-			thick (+ (const (n2d 0.04)) (* (const (n2d 0.08)) lobe lobe)))
-		(- (len2 (- r (const (n2d 0.86))) y) thick)))
+		(defq lobe (max +double_0 (lobes8 x z)))
+		(- (len2 (- (len2 x z) (const (n2d 0.86))) y) (+ (const (n2d 0.04)) (* (const (n2d 0.08)) lobe lobe)))))
 
 (defclass Iso-lattice (size) (Iso-part size)
 	; (Iso-lattice size) -> iso
@@ -88,7 +90,7 @@
 	(defmethod :field (x y z)
 		; (. iso :field x y z) -> double
 		(defq shell (- (abs (- (len3 x y z) (const (n2d 0.78)))) (const (n2d 0.07)))
-			kx (* x (const (n2d 7))) ky (* y (const (n2d 7))) kz (* z (const (n2d 7)))
+			kx (* x +double_7) ky (* y +double_7) kz (* z +double_7)
 			g (+ (* (sin kx) (cos ky)) (* (sin ky) (cos kz)) (* (sin kz) (cos kx))))
 		(max shell (* (- (abs g) (const (n2d 0.55))) (const (n2d 0.1))))))
 
@@ -109,13 +111,6 @@
 	(def this :verts (doubles k k k +double_1 k n n +double_1 n k n +double_1 n n k +double_1)
 		:tris (nums 1 3 2 0 0 2 3 0 0 3 1 0 0 1 2 0))
 	(. this :normals))
-
-(defun lobes8 (x z)
-	; (lobes8 x z) -> double
-	;the cosine of eight times the angle round, of the cosine of it, no angle
-	(defq c (/ x (+ (len2 x z) (const (/ +double_1 (n2d 1000000))))) c2 (* c c))
-	(+ +double_1 (* c2 (+ (const (n2d -32)) (* c2 (+ (const (n2d 160))
-		(* c2 (+ (const (n2d -256)) (* c2 (const (n2d 128)))))))))))
 
 (defun to-segment (x y z ax ay az bx by bz)
 	; (to-segment x y z ax ay az bx by bz) -> double
@@ -205,7 +200,7 @@
 
 	(defmethod :field (x y z)
 		; (. iso :field x y z) -> double
-		(defq d (- (len3 x (* y (const (n2d 1.3))) z) (const (n2d 0.5))))
+		(defq d (- (len3 x (* y (const (n2d 1.3))) z) +double_1/2))
 		(each (lambda ((bx by bz br))
 				(setq d (smooth-min d (- (len3 (- x bx) (- y by) (- z bz)) br) (const (n2d 0.25)))))
 			blob_balls)

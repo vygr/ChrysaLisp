@@ -144,14 +144,15 @@
 	;how high the land is here: near the water the land's own height at this
 	;pixel, not the grid's between its corners, so the shore follows the
 	;land and not the grid's triangles
-	(defq n (normalize facing) h (:y place) to_eye (normalize (- eye place))
-		lit 1.0 colour (vec3 0.0))
+	(defq to_eye (normalize (- eye place)))
+	;all of it haze: it is the sky that way, and nothing of the land is
+	;worked out
+	(if (> fade 0.998) (return (vec4 (far_sky (- to_eye)) 1.0)))
+	(defq n (normalize facing) h (:y place) lit 1.0 colour (vec3 0.0))
 	(if (< h (+ water 4.0)) (setq h (ground (:xz place))))
-	(if (> shadows 0) (setq lit (sunlit place)))
 	(defq crafts (* (craft_shade place craft_a) (craft_shade place craft_b) (craft_shade place craft_c))
 		glow (+ (craft_glow place n craft_a light_a) (craft_glow place n craft_b light_b)
 			(craft_glow place n craft_c light_c)))
-	(setq lit (* lit crafts))
 	;the beam's pool, white, as wide as the column's foot, its edge soft
 	(if (> (:z beam) 0.0)
 		(setq glow (+ glow (* (vec3 1.0 1.0 1.05) (* (:w beam) 1.7
@@ -164,24 +165,33 @@
 			(if (< plain 0.5) (setq w (ripple place (- 1.0 fade))))
 			(defq side (pow (- 1.0 (max (dot to_eye w) 0.0)) 3.0)
 				glint (* (pow (max (dot (reflect (- sun) w) to_eye) 0.0) (mix 90.0 22.0 night)) (+ 1.0 (* 2.5 night))))
+			;the way to the sun is looked along only where there is a glint
+			;for a shadow to take
+			(if (and (> shadows 0) (> glint 0.0)) (setq lit (sunlit place)))
+			(setq lit (* lit crafts))
 			(setq colour (+ (* (mix (mix deep (sky_in (reflect (- to_eye) w)) (+ 0.2 (* 0.75 side)))
 					(* sand 0.85) (* 0.6 (ease (- water 1.8) water h))) daylight)
 				(* shine glint lit 2.0))))
 		(:t ;the land, of how high and how steep, rough, and lit
 			;rough by a bump where it is grass or rock, sand and snow smooth,
-			;unless there is none to be had, not worked out
+			;not worked out where there is none of it
 			(defq up (:y n) b n
 				grassy (ease (+ water 0.5) (+ water 3.5) h)
 				rocky (ease 0.86 0.72 up)
-				snowy (* (ease 34.0 42.0 h) (ease 0.7 0.85 up)))
-			(if (> rough 0.0) (setq b (bumped place n (* rough (+ 0.3 (* 1.4 (- 1.0 up)))
-				(- 1.0 snowy) (- 1.0 (* (- 1.0 grassy) (- 1.0 rocky)))))))
+				snowy (* (ease 34.0 42.0 h) (ease 0.7 0.85 up))
+				bump (* rough (+ 0.3 (* 1.4 (- 1.0 up))) (- 1.0 snowy) (- 1.0 (* (- 1.0 grassy) (- 1.0 rocky)))))
+			(if (> bump 0.0) (setq b (bumped place n bump)))
+			;the way to the sun is looked along, for a shadow, only by a face
+			;turned to it
+			(defq light (max (dot b sun) 0.0))
+			(if (and (> shadows 0) (> light 0.0)) (setq lit (sunlit place)))
+			(setq lit (* lit crafts))
 			(defq mottle 0.5)
 			(if (< plain 0.5) (setq mottle (noise3 (* place 0.05))))
 			(setq colour (mix sand (mix grass moss mottle) grassy)
 				colour (mix colour rock rocky)
 				colour (mix colour snow snowy)
-				colour (* colour daylight (+ 0.28 (* 0.95 lit (max (dot b sun) 0.0)))))))
+				colour (* colour daylight (+ 0.28 (* 0.95 lit light))))))
 	;the craft's shadows dim the water too, and their lights light both
 	(if (<= h water) (setq colour (* colour (+ 0.55 (* 0.45 crafts)))))
 	(vec4 (mix (+ colour glow) (far_sky (- to_eye)) fade) 1.0))

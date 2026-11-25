@@ -49,9 +49,10 @@
 	(defq d (normalize (+ forward (* (:x screen) (:x spread) right) (* (:y screen) (:y spread) up)))
 		high (max (:y d) 0.0) s (max (dot d sun) 0.0) m (max (dot d moon) 0.0))
 ;the stars by night, many faint and a few bright, fading to the haze at
-	;the horizon and in the moon's light near it
+	;the horizon and in the moon's light near it: none are looked for
+	;where they have faded out, low down
 	(defq starlight (vec3 0.0))
-	(if (> (* starry night) 0.0)
+	(if (and (> (* starry night) 0.0) (> (:y d) 0.03))
 		(setq starlight (* (+ (stars d 150.0 0.965 0.24 0.8) (stars d 55.0 0.982 0.15 1.7))
 			night (ease 0.03 0.22 (:y d)) (- 1.0 (pow m 120.0)))))
 	(vec4 (min (+ (mix haze above (pow high 0.6)) starlight
