@@ -1299,7 +1299,12 @@ bits, a vector is 2, 3 or 4 floats, with a `vec2` on an 8 byte boundary and a
 
 * `(shader-layout program)` gives `(size (name type offset) ...)`.
 * `(shader-pack program [vals])` gives the block, a string, from `(name
-  value)` pairs, with the default for any input not named.
+  value)` pairs, with the default for any input not named. A vector or a
+  matrix given as a `doubles` or a `floats` is the quickest: it is made
+  floats by the one `(nums-convert)` and written into the block by one
+  call, where a list of numbers goes in a number at a time. What packs a
+  program, its defaults and where each input is, is made the first time
+  and kept in the program.
 * `(shader-unpack program block)` gives the `(name value)` pairs back.
 
 This is how the controls of an app reach a shader. Each frame the app reads

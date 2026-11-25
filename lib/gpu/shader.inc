@@ -743,8 +743,8 @@
 		(if (nempty? attrs) (sh-err "a pixel shader has no attrs" (first (first attrs))))
 		(if sets_varying (sh-err "a pixel shader can not set a varying" 'main)))
 	(if head_only
-		(list inputs :lazy :lazy funcs (list kind attrs varyings textures buffers) :nil :nil)
-		(list inputs consts globals funcs (list kind attrs varyings textures buffers) (shader-key (str forms)) :nil)))
+		(list inputs :lazy :lazy funcs (list kind attrs varyings textures buffers) :nil :nil :nil)
+		(list inputs consts globals funcs (list kind attrs varyings textures buffers) (shader-key (str forms)) :nil :nil)))
 
 (defun shader-read (stream)
 	; (shader-read stream) -> forms
@@ -937,28 +937,66 @@
 	;a double from the bits of a float
 	(n2d (get-float (set-int (str-alloc 4) 0 val) 0)))
 
+;the bytes of a matrix of noughts, a floats
+(defq +sh_zeros (fill (floats) 16 (const (n2f 0))))
+
+(defun sh-pack-val (block name type offset val)
+	;a value into a block, where its input is. A vector of doubles or of
+	;floats goes in whole, made floats by the one call, (nums-convert), and
+	;written by one; of any other kind a number at a time, a fixed rounded
+	;as a literal of the language is. A matrix is a row at a time, the block
+	;has it a column at a time
+	(cond
+		((eql type :int) (set-int block offset (n2i val)))
+		((eql type :float) (set-float block offset (sh-float val)))
+		((not (seq? val)))
+		((/= (length val) (shader-size type))
+			(sh-err "wrong size of vector input" name))
+		((eql type :mat4)
+			(cond
+				((or (defq whole (doubles?? val)) (floats?? val))
+					(bind '(a b c d e f g h i j k l m n o p) val)
+					(obj-set block (+ +str_data offset) 64 (if whole
+						(nums-convert (doubles a e i m b f j n c g k o d h l p) (floats))
+						(floats a e i m b f j n c g k o d h l p))))
+				((each (# (set-float block (+ offset (* (+ (* (% (!) 4) 4) (/ (!) 4)) 4))
+							(sh-float %0))) val))))
+		((floats?? val) (obj-set block (+ +str_data offset) (* (length val) 4) val))
+		((doubles?? val) (obj-set block (+ +str_data offset) (* (length val) 4) (nums-convert val (floats))))
+		((each (# (set-float block (+ offset (* (!) 4)) (sh-float %0))) val))))
+
+(defun sh-pack-plan (program)
+	; (sh-pack-plan program) -> (defaults fields)
+	;what packs the inputs of a program, made the first time and kept in
+	;it: a block with the default of each input in it, and where each is
+	;and of what type, by its name
+	(unless (defq plan (elem-get program 7))
+		(bind '(size &rest fields) (shader-layout program))
+		(defq block (pad "" size "\x00") names (Fmap 11))
+		(each (lambda ((name type offset) (& & val &ignore))
+				(. names :insert name (list type offset))
+				(sh-pack-val block name type offset val))
+			fields (first program))
+		(elem-set program 7 (setq plan (list block names))))
+	plan)
+
 (defun shader-pack (program &optional vals)
 	; (shader-pack program [((name val) ...)]) -> block
 	;a value not given is the default of the input. A float can be a
-	;double, a fixed or an int, a vector is a sequence of them.
-	(bind '(size &rest fields) (shader-layout program))
-	(defq block (str-alloc size))
-	(for 0 (>> (+ size 7) 3) (set-long block (<< (!) 3) 0))
-	(each (lambda ((name type offset) (& & val &ignore))
-			(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
-				(setq val (second v)))
-			(cond
-				((eql type :int) (set-int block offset (n2i val)))
-				((eql type :float) (set-float block offset (sh-float val)))
-				((not (seq? val)))
-				((/= (length val) (shader-size type))
-					(sh-err "wrong size of vector input" name))
-				((eql type :mat4)
-					;a row at a time to a column at a time
-					(each (# (set-float block (+ offset (* (+ (* (% (!) 4) 4) (/ (!) 4)) 4))
-								(sh-float %0))) val))
-				((each (# (set-float block (+ offset (* (!) 4)) (sh-float %0))) val))))
-		fields (first program))
+	;double, a fixed or an int, a vector is a sequence of them: a doubles
+	;or a floats is the quickest. A name given twice is its first, so
+	;they are gone through from the last; one the program has not is
+	;passed over
+	(bind '(defaults names) (sh-pack-plan program))
+	(defq block (cat defaults))
+	(if vals (each! (lambda ((name val &ignore))
+			(when (defq field (. names :find name))
+				(bind '(type offset) field)
+				;a vector given as no sequence is none, not its default
+				(and (not (seq? val)) (nql type :int) (nql type :float)
+					(obj-set block (+ +str_data offset) (* (shader-size type) 4) +sh_zeros))
+				(sh-pack-val block name type offset val)))
+		(list vals) (length vals) 0))
 	block)
 
 (defun shader-unpack (program block)
