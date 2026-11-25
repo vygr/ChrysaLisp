@@ -15,8 +15,23 @@
 	;:r0-:r2, :d0-:d15
 (gen-vtable :bytes)
 (gen-type :bytes)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r3, :d0-:d15
 
 (def-method :bytes :set_cap)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = capacity (uint)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;trashes
+	;:r1-:r2, :d0-:d15
+	;info
 	;the set_cap of :array at 1 byte
 
 	(array-set-cap :bytes 1)
@@ -24,6 +39,15 @@
 (def-func-end)
 
 (def-method :bytes :ref_elem)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element index (uint)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = num object (ptr)
+	;trashes
+	;:r1-:r3, :r14, :d0-:d15
+	;info
 	;the ref_elem of :array at 1 byte
 
 	(array-ref-elem :bytes 1)
@@ -31,6 +55,14 @@
 (def-func-end)
 
 (def-method :bytes :ref_back)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = num object (ptr)
+	;trashes
+	;:r1-:r3, :r14, :d0-:d15
+	;info
 	;the ref_back of :array at 1 byte
 
 	(array-ref-back :bytes 1)
@@ -38,6 +70,15 @@
 (def-func-end)
 
 (def-method :bytes :set_elem)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element object (ptr)
+	;:r2 = element index (uint)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;trashes
+	;:r2-:r3
+	;info
 	;the set_elem of :array at 1 byte
 
 	(array-set-elem :bytes 1)
@@ -45,6 +86,15 @@
 (def-func-end)
 
 (def-method :bytes :fill)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = length (uint)
+	;:r2 = element (long)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;trashes
+	;:r1-:r4, :d0-:d15
+	;info
 	;the fill of :array at 1 byte
 
 	(array-fill :bytes 1)
@@ -52,6 +102,17 @@
 (def-func-end)
 
 (def-method :bytes :find)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element (long)
+	;:r2 = start index (uint)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element (long)
+	;:r2 = -1, else index (int)
+	;trashes
+	;:r2-:r4
+	;info
 	;the find of :array at 1 byte
 
 	(array-find :bytes 1)
@@ -59,6 +120,17 @@
 (def-func-end)
 
 (def-method :bytes :rfind)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element (long)
+	;:r2 = start index (uint)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element (long)
+	;:r2 = 0, else index (int)
+	;trashes
+	;:r2-:r4
+	;info
 	;the rfind of :array at 1 byte
 
 	(array-rfind :bytes 1)
@@ -66,6 +138,15 @@
 (def-func-end)
 
 (def-method :bytes :slice)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = slice bytes object (ptr)
+	;trashes
+	;:r0-:r2, :r6-:r8, :d0-:d15
+	;info
 	;the slice of :array at 1 byte
 
 	(array-slice :bytes 1)
@@ -73,6 +154,14 @@
 (def-func-end)
 
 (def-method :bytes :cat)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = list of array objects (ptr)
+	;outputs
+	;:r0 = new bytes object (ptr)
+	;trashes
+	;:r0-:r9, :d0-:d15
+	;info
 	;the cat of :array at 1 byte
 
 	(array-cat :bytes 1)
@@ -80,6 +169,15 @@
 (def-func-end)
 
 (def-method :bytes :splice)
+	;inputs
+	;:r0 = src1 bytes object (ptr)
+	;:r1 = src2 array object (ptr)
+	;:r2 = nums object (ptr)
+	;outputs
+	;:r0 = new bytes object (ptr)
+	;trashes
+	;:r0-:r11, :d0-:d15
+	;info
 	;the splice of :array at 1 byte
 
 	(array-splice :bytes 1)
@@ -87,6 +185,16 @@
 (def-func-end)
 
 (def-method :bytes :append)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = source array object (ptr)
+	;:r2 = element start index (uint)
+	;:r3 = element end index (uint)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;trashes
+	;:r1-:r3, :r6-:r9, :d0-:d15
+	;info
 	;the append of :array at 1 byte
 
 	(array-append :bytes 1)
@@ -94,6 +202,15 @@
 (def-func-end)
 
 (def-method :bytes :erase)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element iterator (pptr)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element iterator (pptr)
+	;trashes
+	;:r2-:r3
+	;info
 	;the erase of :array at 1 byte
 
 	(array-erase :bytes 1)
@@ -101,6 +218,15 @@
 (def-func-end)
 
 (def-method :bytes :erase2)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element iterator (pptr)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = element iterator (pptr)
+	;trashes
+	;:r2-:r3
+	;info
 	;the erase2 of :array at 1 byte
 
 	(array-erase2 :bytes 1)
@@ -108,6 +234,15 @@
 (def-func-end)
 
 (def-method :bytes :eql)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = obj object (ptr)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = 0 if same, else not
+	;trashes
+	;:r1-:r5
+	;info
 	;the eql of :array at 1 byte
 
 	(array-eql :bytes 1)
@@ -115,6 +250,14 @@
 (def-func-end)
 
 (def-method :bytes :hash)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = hash code (long)
+	;trashes
+	;:r1-:r4
+	;info
 	;the hash of :array at 1 byte
 
 	(array-hash :bytes 1)
@@ -122,6 +265,14 @@
 (def-func-end)
 
 (def-method :bytes :print)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = stream object (ptr)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;trashes
+	;:r1-:r5, :r14, :d0-:d15
+	;info
 	;the print of :array at 1 byte
 
 	(array-print :bytes 1)
@@ -129,6 +280,15 @@
 (def-func-end)
 
 (def-method :bytes :push)
+	;inputs
+	;:r0 = bytes object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = bytes object (ptr)
+	;:r1 = 0 if error, else ok
+	;trashes
+	;:r1-:r3, :r6-:r9, :r11-:r13, :d0-:d15
+	;info
 	;the push of :array at 1 byte
 
 	(array-push :bytes 1)

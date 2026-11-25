@@ -368,7 +368,7 @@
 	;outputs
 	;:r0 = bytes, shorts or ints object (ptr)
 	;trashes
-	;:r1-:r7, :d0-:d15
+	;:r2-:r7, :d0-:d15
 	;info
 	;made the source's length, each element an integer as n2i makes it,
 	;its low bits

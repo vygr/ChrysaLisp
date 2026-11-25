@@ -96,9 +96,11 @@
 									(boot-image funcs abi cpu)
 									(print "=image= " cpu " " abi))
 								(:bundle
-									(defq file (first *unit*)
-										text (apply (const cat) (cat (list "")
-											(map vp-entry-text (vp-compile file)))))
+									;(vp-entry-text) is there only once (vp-compile) has run,
+									;which is after the arguments of a (map) are had: so
+									;what it compiled first, then the name
+									(defq file (first *unit*) entries (vp-compile file)
+										text (apply (const cat) (cat (list "") (map vp-entry-text entries))))
 									(save text (cat *build_vp* file))
 									(print "=key= " file " " (hex-encode (sha256 text))))
 								(:t ;what it includes is in before anything here is named,
