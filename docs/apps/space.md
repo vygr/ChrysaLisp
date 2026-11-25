@@ -35,7 +35,7 @@ behind it.
 * The buoys: markers in the field, most keeping station beside a cluster
   and a few in the open between. A buoy reads the rocks round it and
   flashes green, yellow or red, and the faster the greater the hazard, red
-  when a rock passes close; its flash lights the rocks round it in its
+  when a rock passes close; one in the open is ice blue when calm; its flash lights the rocks round it in its
   colour; and its glow round its lamp. Painted metal that mirrors the sky
   and the sun. A buoy turns, slowly, when it must, to keep its lamp toward
   the ship's side of it.

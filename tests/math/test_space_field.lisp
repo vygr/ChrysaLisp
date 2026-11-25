@@ -128,3 +128,14 @@
 (assert-true "the one by the eye where it was" (eql (first sf_near) sf_near_at))
 (assert-true "some of the others put in orbit again"
 	(some (lambda (was) (not (eql (first (elem-get rocks (elem-get sf_members (+ (!) 2)))) was))) sf_others))
+
+;a buoy's colour eased to its hazard's: calm at a swarm green, calm in open
+;space ice blue
+(setq buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 100)) (doubles +double_0 +double_0 +double_0)
+		+double_0 (cat +buoy_red) 0 0)
+	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
+		+double_0 (cat +buoy_red) :nil 0)))
+(times 300 (buoys-move (n2d 0.0166)))
+(defun sf-near (a b) (every (# (< (abs (- %0 %1)) (const (n2d 0.01)))) a b))
+(assert-true "calm at a swarm, green" (sf-near (elem-get (first buoys) 3) +buoy_green))
+(assert-true "calm in open space, ice blue" (sf-near (elem-get (second buoys) 3) +buoy_blue))

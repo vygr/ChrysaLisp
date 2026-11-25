@@ -19,14 +19,14 @@
 	;the marker buoys, make-buoys, how many, how many at swarms, how far
 	;round one it counts
 	;rocks, how soon its light follows its hazard, and its colours, safe,
-	;crowded and dangerous
-	buoys (list) +buoys 24 +buoys_at_swarms 20 +buoy_round (n2d 100) +buoy_close (n2d 24) +buoy_ease (n2d 1.5)
+	;crowded and dangerous, and safe in open space
+	buoys (list) +buoys 32 +buoys_at_swarms 20 +buoy_round (n2d 100) +buoy_close (n2d 24) +buoy_ease (n2d 1.5)
 	;a buoy at a swarm moved to another when its own has gone: under what
 	;hazard it is calm, for how many looks running, and how far round a big
 	;rock its cluster's rocks count as there
 	+buoy_calm (n2d 0.05) +calm_looks 50 +crowd_round (n2d 120)
 	+buoy_green (doubles (n2d 0.2) (n2d 1.0) (n2d 0.35)) +buoy_yellow (doubles (n2d 1.0) (n2d 0.82) (n2d 0.15))
-	+buoy_red (doubles (n2d 1.0) (n2d 0.15) (n2d 0.1))
+	+buoy_red (doubles (n2d 1.0) (n2d 0.15) (n2d 0.1)) +buoy_blue (doubles (n2d 0.25) (n2d 0.6) (n2d 1.0))
 	;how far out each kind of rock reaches from its middle, as it turns, of
 	;its size, its bound, near 1 till its mesh has come
 	kind_reach (fill (doubles) +rock_kinds (n2d 0.9))
@@ -581,19 +581,20 @@
 		(list clusters) 0 (min +buoys_at_swarms (length clusters)))
 	(while (< (length out) +buoys)
 		(push out (list (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))
-			(nums-scale (rnd-way) (+ (const (n2d 0.4)) (rnd))) +double_0 (cat +buoy_green) :nil 0)))
+			(nums-scale (rnd-way) (+ (const (n2d 0.4)) (rnd))) +double_0 (cat +buoy_blue) :nil 0)))
 	out)
 
 (defun buoys-move (dt)
 	;each buoy on by its drift, kept in the box, and its light's colour eased
-	;toward the colour of its hazard
-	(each (lambda ((at drift hazard colour &ignore))
+	;toward the colour of its hazard, calm green at a swarm, ice blue in
+	;open space
+	(each (lambda ((at drift hazard colour station &ignore))
 			(each! (lambda ()
 					(defq i (!) v (+ (elem-get at i) (* (elem-get drift i) dt)))
 					(elem-set at i (cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))))
 				'() 0 3)
 			(defq want (if (< hazard +double_1/2)
-					(rgb-mix +buoy_green +buoy_yellow (* hazard +double_2))
+					(rgb-mix (if station +buoy_green +buoy_blue) +buoy_yellow (* hazard +double_2))
 					(rgb-mix +buoy_yellow +buoy_red (* (- hazard +double_1/2) +double_2)))
 				k (min +double_1 (* dt +buoy_ease)))
 			(each! (lambda (w c) (elem-set colour (!) (+ c (* k (- w c))))) (list want colour)))
