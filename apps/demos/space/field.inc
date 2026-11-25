@@ -21,6 +21,10 @@
 	;rocks, how soon its light follows its hazard, and its colours, safe,
 	;crowded and dangerous
 	buoys (list) +buoys 24 +buoys_at_swarms 20 +buoy_round (n2d 100) +buoy_close (n2d 24) +buoy_ease (n2d 1.5)
+	;a buoy at a swarm moved to another when its own has gone: under what
+	;hazard it is calm, for how many looks running, and how far round a big
+	;rock its cluster's rocks count as there
+	+buoy_calm (n2d 0.05) +calm_looks 50 +crowd_round (n2d 120)
 	+buoy_green (doubles (n2d 0.2) (n2d 1.0) (n2d 0.35)) +buoy_yellow (doubles (n2d 1.0) (n2d 0.82) (n2d 0.15))
 	+buoy_red (doubles (n2d 1.0) (n2d 0.15) (n2d 0.1))
 	;how far out each kind of rock reaches from its middle, as it turns, of
@@ -171,23 +175,27 @@
 			(+ (const (n2d 5)) (* (const (n2d 55)) (rnd) (rnd))))))
 	out)
 
-(defun cluster-again (members)
+(defun cluster-again (members eye far)
 	;a cluster's small rocks put in orbit round its big one again, where
 	;the big one is now and going as it goes, their tumbles calmed: a
-	;cluster settled into a heap made lively again
+	;cluster settled into a heap made lively again. Only those out of
+	;sight, further from the eye than far, and to a place out of sight: one
+	;blown near the eye stays, not to be seen to go, nor one seen to come
 	(bind '((at drift big &ignore)) (list (elem-get rocks (first members))))
 	(each! (lambda (i)
 			(bind '(rock_at rock_drift small & spin &ignore) (elem-get rocks i))
 			(bind '(new_at new_drift) (orbit-at at drift big small))
-			(each! (lambda (v) (elem-set rock_at (!) v)) (list new_at))
-			(each! (lambda (v) (elem-set rock_drift (!) v)) (list new_drift))
-			(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) (const (n2d 0.35)))))))
+			(when (and (out-of-sight? rock_at eye far) (out-of-sight? new_at eye far))
+				(each! (lambda (v) (elem-set rock_at (!) v)) (list new_at))
+				(each! (lambda (v) (elem-set rock_drift (!) v)) (list new_drift))
+				(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) (const (n2d 0.35))))))))
 		(list members) 1))
 
-(defun buoy-again (cluster)
-	;the buoy of a cluster, if it has one, put back on station
+(defun buoy-again (cluster eye far)
+	;the buoy of a cluster, if it has one, put back on station, if it is
+	;out of sight, further from the eye than far
 	(each (lambda (buoy)
-			(when (eql (elem-get buoy 4) cluster)
+			(when (and (eql (elem-get buoy 4) cluster) (out-of-sight? (first buoy) eye far))
 				(bind '(at drift) (buoy-station (elem-get clusters cluster)))
 				(each! (lambda (v) (elem-set (first buoy) (!) v)) (list at))
 				(each! (lambda (v) (elem-set (second buoy) (!) v)) (list drift))))
@@ -205,7 +213,7 @@
 			rz (near-way (- (third at) (third eye))))
 		(cond
 			((> (+ (* rx rx) (* ry ry) (* rz rz)) (* far far))
-				(cluster-again members) (buoy-again cluster) (setq tries 0))
+				(cluster-again members eye far) (buoy-again cluster eye far) (setq tries 0))
 			((-- tries)))))
 
 (defun near-way (v)
@@ -560,7 +568,8 @@
 
 (defun make-buoys ()
 	; (make-buoys) -> buoys
-	;the marker buoys of the field, each (at drift hazard colour station):
+	;the marker buoys of the field, each (at drift hazard colour station
+	;calm), calm how many looks running it has read calm, buoy-look:
 	;most at the swarms, a buoy keeping station at each of the first
 	;clusters, station its number, buoy-station, and a few in open space
 	;between, marking the safe way, drifting slowly. Their hazard is 0 till
@@ -568,11 +577,11 @@
 	(defq out (list))
 	(each! (lambda (members)
 			(bind '(at drift) (buoy-station members))
-			(push out (list at drift +double_0 (cat +buoy_green) (!))))
+			(push out (list at drift +double_0 (cat +buoy_green) (!) 0)))
 		(list clusters) 0 (min +buoys_at_swarms (length clusters)))
 	(while (< (length out) +buoys)
 		(push out (list (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))
-			(nums-scale (rnd-way) (+ (const (n2d 0.4)) (rnd))) +double_0 (cat +buoy_green) :nil)))
+			(nums-scale (rnd-way) (+ (const (n2d 0.4)) (rnd))) +double_0 (cat +buoy_green) :nil 0)))
 	out)
 
 (defun buoys-move (dt)
@@ -612,7 +621,54 @@
 						(rock-push at (/ rx d) (/ ry d) (/ rz d) (- d (+ reach (const (n2d 4)))))))))
 		rocks)
 	;crowded, from one rock round it, at most yellow orange; red for a rock
-	;within +buoy_close, the redder the closer
-	(elem-set (elem-get buoys i) 2
-		(max (* (const (n2d 0.65)) (max +double_0 (min +double_1 (/ (n2d (- count 1)) (const (n2d 5))))))
-			(if (< nearest +buoy_close) (- +double_1 (/ nearest (const (n2d 100)))) +double_0))))
+	;within +buoy_close, the redder the closer; and how many looks running
+	;it has been calm
+	(defq buoy (elem-get buoys i)
+		hazard (max (* (const (n2d 0.65)) (max +double_0 (min +double_1 (/ (n2d (- count 1)) (const (n2d 5))))))
+			(if (< nearest +buoy_close) (- +double_1 (/ nearest (const (n2d 100)))) +double_0)))
+	(elem-set buoy 2 hazard)
+	(elem-set buoy 5 (if (< hazard +buoy_calm) (inc (elem-get buoy 5)) 0)))
+
+(defun cluster-crowd (members)
+	; (cluster-crowd members) -> num
+	;how many of a cluster's rocks are still round its big one, few when it
+	;has been blown apart or its rocks have gone
+	(bind '((at & big kind &ignore)) (list (elem-get rocks (first members))))
+	(defq round (+ (* big (elem-get kind_reach kind)) +crowd_round))
+	(reduce! (lambda (n i)
+			(bind '(rock_at &ignore) (elem-get rocks i))
+			(defq dx (near-way (- (first rock_at) (first at))) dy (near-way (- (second rock_at) (second at)))
+				dz (near-way (- (third rock_at) (third at))))
+			(if (< (+ (* dx dx) (* dy dy) (* dz dz)) (* round round)) (inc n) n))
+		(list members) 0 1 -1))
+
+(defun buoys-restation (eye far)
+	;a buoy at a swarm that has read calm for +calm_looks looks running,
+	;its swarm gone, put on station at the busiest cluster with no buoy,
+	;both out of sight, further from the eye than far, so it is never seen
+	;to go or come; one at a time. Those in open space stay, the safe way
+	(defq calm (some (lambda (buoy)
+			(and (elem-get buoy 4) (>= (elem-get buoy 5) +calm_looks) (out-of-sight? (first buoy) eye far) buoy))
+		buoys))
+	(when calm
+		(defq taken (map (# (elem-get %0 4)) buoys) best :nil best_crowd -1)
+		(each (lambda (members)
+				(and (not (find (!) taken))
+					(out-of-sight? (first (elem-get rocks (first members))) eye far)
+					(> (defq crowd (cluster-crowd members)) best_crowd)
+					(setq best (!) best_crowd crowd)))
+			clusters)
+		(when best
+			(bind '(at drift) (buoy-station (elem-get clusters best)))
+			(each! (lambda (v) (elem-set (first calm) (!) v)) (list at))
+			(each! (lambda (v) (elem-set (second calm) (!) v)) (list drift))
+			(elem-set calm 2 +double_0)
+			(elem-set calm 4 best)
+			(elem-set calm 5 0))))
+
+(defun out-of-sight? (at eye far)
+	; (out-of-sight? at eye far) -> :t | :nil
+	;is a place further from the eye than far
+	(defq rx (near-way (- (first at) (first eye))) ry (near-way (- (second at) (second eye)))
+		rz (near-way (- (third at) (third eye))))
+	(> (+ (* rx rx) (* ry ry) (* rz rz)) (* far far)))

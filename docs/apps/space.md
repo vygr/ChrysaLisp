@@ -70,6 +70,11 @@ behind it.
   turn, above and below to climb and dive, off the picture to fly straight.
 * A click on the picture fires a missile through where it is clicked, in
   either way of flying; three may be out at once.
+* The right button held over the picture is a boost: the ship speeds up to
+  two and a half times its cruise, and eases back when it is let go, a
+  roar rising and dying away with it. What
+  keeps clear of the rocks looks as far ahead in time at any speed, so it
+  takes wider gaps at a boost, the ship turning no faster.
 
 The way of flying, the size, the music and the detail are kept in the user's
 `space.tre`.
@@ -78,7 +83,9 @@ The way of flying, the size, the music and the detail are kept in the user's
 
 Each rock drawn is work for the app as well as the GPU, so less detail
 draws the rocks less far, their fade into the dark coming in with them, and
-the bump goes at the third level:
+the bump goes at the third level. A big rock is drawn the further, as it is
+the more of the frame, and one 40 across or more all the way, so a big rock
+in front never fades:
 
 0. All of it.
 1. The rocks drawn to 85% of the way.
@@ -111,7 +118,9 @@ least, so the app has a third of its node and what is beside it the rest.
   and `glow_`, the light round a buoy's lamp.
 * `data/`: the pictures and sounds, and how each is made, its `README.md`.
   Each is made by a bake of its own, `bake_nebula.lisp`, `bake_stars.lisp`,
-  `bake_crunch.lisp` and `bake_levels.lisp`.
+  `bake_crunch.lisp`, `bake_levels.lisp` and `bake_thrust.lisp`. The roar of
+  a boost is written to a stream of the audio service as the ship speeds
+  up, a stretch of its loop each frame as loud as the boost is.
 
 The rocks meet in twelve parts, a part a frame, so each pair is met once in
 twelve frames. Touches are found through a fine grid, a sixteenth of the

@@ -70,9 +70,9 @@
 ;a buoy: red with a rock close by, green with none
 (setq rocks (list (sf-rock 100 100 100 0 0 0 10)))
 (setq buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 108)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) :nil)
+		+double_0 (cat +buoy_green) :nil 0)
 	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) :nil)))
+		+double_0 (cat +buoy_green) :nil 0)))
 (buoy-look 0)
 (buoy-look 1)
 (assert-true "a buoy by a rock reads danger" (> (third (first buoys)) (n2d 0.8)))
@@ -106,3 +106,25 @@
 (assert-true "it has turned, about x" (and (< qw (n2d 0.99)) (> (abs qx) (n2d 0.1)) (< (abs qy) (n2d 0.001))))
 (assert-true "its quaternion of length 1" (< (abs (- (+ (* qw qw) (* qx qx) (* qy qy) (* qz qz)) +double_1)) (const (/ +double_1 (n2d 1000000)))))
 (assert-true "the matrix of it turns up about x" (< (abs (elem-get (rock-turned (elem-get (first rocks) 4)) 4)) (n2d 0.001)))
+
+;a buoy at a swarm calm long enough goes to a cluster with none, and one
+;in open space stays, however calm
+(setq rocks (make-rocks) buoys (make-buoys))
+(defq sf_taken (map (# (elem-get %0 4)) buoys) sf_open (last buoys) sf_open_at (cat (first sf_open)))
+(elem-set (first buoys) 5 +calm_looks)
+(elem-set sf_open 5 (* 2 +calm_looks))
+(buoys-restation (doubles +double_0 +double_0 +double_0) +double_0)
+(assert-true "the calm one at a cluster with none" (not (find (elem-get (first buoys) 4) sf_taken)))
+(assert-eq "its count of calm begun again" 0 (elem-get (first buoys) 5))
+(assert-true "the one in open space where it was" (eql (first sf_open) sf_open_at))
+
+;a cluster put in orbit again moves only its rocks out of sight: one by the
+;eye stays where it is, the others go, so none is seen to go or come
+(setq rocks (make-rocks) buoys (list))
+(defq sf_members (first clusters) sf_near (elem-get rocks (second sf_members))
+	sf_near_at (cat (first sf_near)) sf_eye (nums-add (first sf_near) (doubles (n2d 3) +double_0 +double_0))
+	sf_others (map! (# (cat (first (elem-get rocks %0)))) (list sf_members) 2 -1))
+(cluster-again sf_members sf_eye (n2d 60))
+(assert-true "the one by the eye where it was" (eql (first sf_near) sf_near_at))
+(assert-true "some of the others put in orbit again"
+	(some (lambda (was) (not (eql (first (elem-get rocks (elem-get sf_members (+ (!) 2)))) was))) sf_others))

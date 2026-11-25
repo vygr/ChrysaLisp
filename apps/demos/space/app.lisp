@@ -10,6 +10,7 @@
 (import "./field.inc")
 (import "apps/media/jukebox/music.inc")
 (import "service/audio/app.inc")
+(import "lib/audio/wav.inc")
 
 ;Space, a voyage in deep space, drawn by a (Render-tris),
 ;lib/gpu/render_farm.inc, which has the GPU draw it, or on a host with
@@ -94,10 +95,22 @@
 	+bomb_glow_far (n2d 0.02) +trail_glows 6 +trail_step (n2d 0.012) +trail_fade (n2d 0.62)
 	blasts (list) +blast_life 900000 +blast_light (doubles (n2d 2.6) (n2d 1.8) (n2d 1.0))
 	+blast_glow_least (n2d 15) +blast_glow_most (n2d 150) +blast_light_far (n2d 260) blast_lamps (list) blast_glows (list) pressed 0
+	;the ship's speed eased to a boost's while the right button is held and
+	;back to cruising after: whether it is held, the boost's speed, and how
+	;fast it eases up and down, a second; and the buttons' bits
+	;the boost's roar: its loop's samples, data/thrust.wav, the stream it
+	;is played on, where in the loop it is, its rate, how far ahead of what
+	;is heard it is kept, how loud at most, how loud now, eased up as the
+	;right button is held and dying away as it is let go, how fast up, a
+	;second, and how fast it dies, a share a second, as a sound does
+	thrust_pcm :nil thrust_stream :nil thrust_at 0 +thrust_rate 22050 +thrust_ahead 1100
+	+thrust_loud (n2d 0.8) thrust_gain +double_0 +thrust_up (n2d 6) +thrust_down (n2d 1.7)
+	boosting :nil +boost (n2d 60) +boost_up (n2d 1.2) +boost_down (n2d 0.8)
+	+left_button 1 +right_button 4
 	+spray_life 2500000 +spray_most 10
-	;the ship's speed, a second, the farm that makes the rocks and which
-	;kinds have come; the field is field.inc
-	+speed (n2d 24) jobs :nil kinds_had (map! (lambda () :nil) '() 0 +rock_kinds)
+	;the ship's cruising speed, a second, and its speed now, the farm that
+	;makes the rocks and which kinds have come; the field is field.inc
+	+cruise (n2d 24) ship_speed +cruise jobs :nil kinds_had (map! (lambda () :nil) '() 0 +rock_kinds)
 	;the part of the rocks met this frame, and the grid of this round
 	part 0 grid :nil
 	;the crunches of rocks hitting, near and far, each at the loudness it
@@ -126,10 +139,11 @@
 	;the less detail draws them less far: how far of all the way at each,
 	;and whether the bump; and how far it draws now, eased to the level's
 	;over seconds, its fade with it, so rocks go into the dark sooner, not
-	;at once, and the fade and the furthest now
+	;at once, and the furthest now. A big rock is drawn further, as it is
+	;more of the frame, rock-view, all the way from +bulk_full across
 	detail 4 slow 0 fast 0 +rate_least 50 +rate_most 58 detail_down 0
 	+view_of (doubles (n2d 1) (n2d 0.85) (n2d 0.85) (n2d 0.7) (n2d 0.55)) +bump_most 1
-	+view_ease (n2d 1.5) view (n2d 0.55) fade_near +fade_near fade_far +fade_far rock_far +rock_far
+	+view_ease (n2d 1.5) draw_share (n2d 0.55) rock_far +rock_far +bulk_full (n2d 40)
 	;the music, the user's Jukebox favourites, apps/media/jukebox/music.inc,
 	;and whether the user wants it, kept whether or not there is any to play
 	music :nil music_on :t
@@ -277,7 +291,7 @@
 	;or the auto pilot's, which threads the needle: a choice a few frames
 	;long, a few headings a frame, the next begun as one is made
 	(unless thread
-		(setq thread (thread-start eye +speed
+		(setq thread (thread-start eye ship_speed
 			(if (eql mode :mouse)
 				(if stick (sky-unit (nums-add forward (nums-add (nums-scale right (* (beyond-dead (first stick)) +stick_reach))
 						(nums-scale up (* (beyond-dead (second stick)) +stick_reach)))))
@@ -324,6 +338,13 @@
 	;sees, any of it
 	(every (lambda ((sx sy sz)) (> (+ (* rx sx) (* ry sy) (* rz sz)) (neg reach))) sides))
 
+(defun rock-view (bulk)
+	; (rock-view bulk) -> double
+	;how much of the way a rock of a size is drawn: with less detail,
+	;draw_share of it, but a big one more, as it is more of the frame, all
+	;of it from +bulk_full across, as the rocks' shader fades them
+	(min +double_1 (+ draw_share (* (- +double_1 draw_share) (/ bulk +bulk_full)))))
+
 (defun rock-draws (view sides)
 	; (rock-draws view sides) -> draws
 	;the rocks near enough and in what the frame sees, any of them, each
@@ -334,7 +355,7 @@
 	(defq out (list) pictures (list moon_map nebula_map) pvals (list (list 'sun sun_at) (list 'eye eye) (list 'rough (if (<= detail +bump_most) +double_1 +double_0))
 			(list 'sun_light sun_light) (list 'pillars_at pillars_at) (list 'pillars_light pillars_light)
 			(list 'far_at far_at) (list 'far_light far_light)
-			(list 'fade_near fade_near) (list 'fade_far fade_far)
+			(list 'fade_near +fade_near) (list 'fade_far +fade_far) (list 'draw_share draw_share)
 			(list 'ping_at ping_at) (list 'ping ping)
 			(list 'surface_pixels moon_pixels) (list 'nebula_pixels nebula_pixels)))
 	(bind '(ex ey ez) eye)
@@ -342,7 +363,7 @@
 			(when (elem-get kinds_had kind)
 				(bind '(px py pz) at)
 				(defq rx (near-way (- px ex)) ry (near-way (- py ey)) rz (near-way (- pz ez)))
-				(and (< (- (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) bulk) rock_far)
+				(and (< (- (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) bulk) (* +rock_far (rock-view bulk)))
 					(seen? rx ry rz (* bulk (elem-get kind_reach kind)) sides)
 					(push out (list (+ +mesh_rock kind)
 						(cat (list (list 'model (mat4x4-mul (mat4x4-translate (+ ex rx) (+ ey ry) (+ ez rz))
@@ -452,6 +473,41 @@
 				(< (+ (* dx dx) (* dy dy) (* dz dz)) (* (+ rock_far +buoy_light_far) (+ rock_far +buoy_light_far))))
 			lamps)))
 
+(defun thrust-load ()
+	; (thrust-load) -> :nil | doubles
+	;the boost's roar, its loop's samples read as numbers, :nil if not
+	(when (defq in (file-stream (cat *app_root* "data/thrust.wav")))
+		(bind '(rate channels bits bytes) (WAV-info in))
+		(and (= rate +thrust_rate) (= channels 1) (= bits 16) (defq data (read-blk in bytes))
+			(nums-convert (push (shorts) data) (doubles) :t))))
+
+(defun thrust-feed (dt)
+	;the roar as the right button is held, quickly up, and as it is let go
+	;dying away as a sound does, the less the quieter, a tail of a second
+	;or so, from a place at random in its loop each boost:
+	;written to its stream ahead of what is heard, between +thrust_ahead and
+	;twice that, none when it has died away. A stream not written to for a
+	;while is let go of by the audio service, and is opened again
+	(and boosting (< thrust_gain (const (n2d 0.01))) thrust_pcm
+		(setq thrust_at (random (length thrust_pcm))))
+	(setq thrust_gain (if boosting
+		(min +double_1 (+ thrust_gain (* dt +thrust_up)))
+		(* thrust_gain (- +double_1 (min +double_1 (* dt +thrust_down))))))
+	(defq loud thrust_gain)
+	(when (and thrust_pcm (> loud (const (n2d 0.01))))
+		(unless thrust_stream (setq thrust_stream (audio-stream-open-rpc +thrust_rate 1)))
+		(when thrust_stream
+			(cond
+				((not (defq left (audio-stream-left-rpc thrust_stream))) (setq thrust_stream :nil))
+				((< left +thrust_ahead)
+					(defq count (- (* 2 +thrust_ahead) left) long (length thrust_pcm) end (+ thrust_at count)
+						part (if (<= end long) (slice thrust_pcm thrust_at end)
+							(cat (slice thrust_pcm thrust_at -1) (slice thrust_pcm 0 (- end long))))
+						pcm (nums-convert (nums-scale part (* +thrust_loud loud loud)) (shorts))
+						bytes (* (length pcm) 2))
+					(setq thrust_at (% end long))
+					(audio-stream-write-rpc thrust_stream (obj-set (str-alloc bytes) +str_data bytes pcm)))))))
+
 (defun bomb-fire (sx sy)
 	;a bomb fired from the ship, through where the picture was clicked, sx
 	;and sy -1 to 1 across and up it, going with the ship as well
@@ -460,7 +516,7 @@
 		way (sky-unit (nums-add forward (nums-add (nums-scale right (* sx spread_x)) (nums-scale up (* sy +spread_y))))))
 	(if (< (length bombs) +bombs_most)
 		(push bombs (list (nums-add eye (nums-scale way (const (n2d 4))))
-			(nums-add (nums-scale way +bomb_speed) (nums-scale forward +speed)) (pii-time)))))
+			(nums-add (nums-scale way +bomb_speed) (nums-scale forward ship_speed)) (pii-time)))))
 
 (defun bombs-move (dt)
 	;each bomb on, kept in the box of the field, gone off at the end of its
@@ -690,9 +746,14 @@
 	;looks, and the frame of it, the rocks and the sky behind them
 	(if +frame_log (setq frame_at (pii-time)))
 	(defq dt (turn-eye))
+	;the speed eased to a boost's while the right button is held, back to
+	;cruising after
+	(setq ship_speed (+ ship_speed (* (- (if boosting +boost +cruise) ship_speed)
+		(min +double_1 (* dt (if boosting +boost_up +boost_down))))))
+	(thrust-feed dt)
 	;how far it draws, eased to the level's
-	(setq view (+ view (* (- (elem-get +view_of detail) view) (min +double_1 (/ dt +view_ease))))
-		fade_near (* +fade_near view) fade_far (* +fade_far view) rock_far (* +rock_far view))
+	(setq draw_share (+ draw_share (* (- (elem-get +view_of detail) draw_share) (min +double_1 (/ dt +view_ease))))
+		rock_far (* +rock_far draw_share))
 	(frame-mark 0)
 	;the rocks on, and a part of them moved by each other, a round of all
 	;the parts as many frames, the grid made at the start of each round
@@ -705,13 +766,14 @@
 	;now and then a cluster out of sight made lively again
 	(when (>= (- (pii-time) refreshed) +refresh_every)
 		(setq refreshed (pii-time))
-		(clusters-refresh eye (+ +rock_far (const (n2d 60)))))
+		(clusters-refresh eye (+ +rock_far (const (n2d 60))))
+		(buoys-restation eye (+ +rock_far (const (n2d 60)))))
 	;the bombs on and the blasts, heard with the hits
 	(bombs-move dt)
 	(hear-hits)
 	(frame-mark 3)
 	(setq eye (apply (const doubles) (map (lambda (e f)
-		(defq v (+ e (* f +speed dt)))
+		(defq v (+ e (* f ship_speed dt)))
 		(cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))) eye forward)))
 	(defq right (sky-cross forward up)
 		;the frame's width at a distance of 1, of the shape of the canvas
@@ -851,7 +913,7 @@
 		rocks (make-rocks) eye (doubles +double_0 +double_0 +double_0)
 		;the crunches, the near ones and the far one, each at its loudnesses
 		crunches (map (lambda (n) (crunch-levels (cat "crunch_" (str n)) +near_levels)) '(1 2 3))
-		crunch_far (crunch-levels "crunch_far" +far_levels))
+		crunch_far (crunch-levels "crunch_far" +far_levels) thrust_pcm (thrust-load))
 	;the rocks' kinds, made by a farm of children on this machine's nodes,
 	;off this one, and each slotted in as it comes
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
@@ -865,7 +927,7 @@
 		(cat (setf-> (str-alloc +rock_size) (+rock_num (inc +rock_kinds))) "missile")))
 	(setq buoys (make-buoys) buoy_axes (map (lambda (&ignore) (doubles +double_0 +double_1 +double_0)) buoys))
 	(config-load)
-	(setq detail (min 4 (. *config* :find :detail)) view (elem-get +view_of detail) mode (. *config* :find :mode)
+	(setq detail (min 4 (. *config* :find :detail)) draw_share (elem-get +view_of detail) mode (. *config* :find :mode)
 		;the Pillars ahead, level, at first
 		forward (sky-unit (doubles (first pillars_at) +double_0 (third pillars_at)))
 		up (doubles +double_0 +double_1 +double_0) turned (pii-time))
@@ -936,14 +998,19 @@
 						(bind '(w h) size)
 						(setq stick (list (- (/ (n2d (* 2 (getf msg +ev_msg_mouse_rx))) (n2d w)) +double_1)
 							(- +double_1 (/ (n2d (* 2 (getf msg +ev_msg_mouse_ry))) (n2d h)))))
-						;a click fires a bomb through where it is
+						;a click of the left button fires a bomb through where it
+						;is, the right held is a boost. A first press says which
+						;button by its number, 3 the right, and a move with them
+						;down says them as bits, as the window takes them
 						(defq buttons (getf msg +ev_msg_mouse_buttons))
-						(and (/= buttons 0) (= pressed 0) (apply (const bomb-fire) stick))
-						(setq pressed buttons)
+						(and (= pressed 0) (/= buttons 0)
+							(setq buttons (case buttons (2 2) (3 +right_button) (:t +left_button))))
+						(and (bits? buttons +left_button) (not (bits? pressed +left_button)) (apply (const bomb-fire) stick))
+						(setq pressed buttons boosting (bits? buttons +right_button))
 						(. *window* :event msg))
 					((and (= (getf msg +ev_msg_target_id) (. *canvas* :get_id))
 							(= (getf msg +ev_msg_type) +ev_type_exit))
-						(setq stick :nil pressed 0)
+						(setq stick :nil pressed 0 boosting :nil)
 						(. *window* :event msg))
 					((. *window* :event msg))))
 			(:t ;the timer, a frame a tick, if the last frame is not still out
@@ -966,6 +1033,7 @@
 	(config-save)
 	(. music :stop)
 	(if jobs (. jobs :close))
+	(if thrust_stream (audio-stream-close-rpc thrust_stream))
 	(if crunch_far (each (lambda (levels) (each (const audio-remove-rpc) levels)) (push (cat crunches) crunch_far)))
 	(. render :close)
 	(. *window* :close))

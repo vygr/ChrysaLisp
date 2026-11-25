@@ -35,6 +35,13 @@ leaves the others as they are, each run as
 	loudness a hit is heard at, made of the crunches there are, after
 	`bake_crunch.lisp`.
 
+*	`thrust.wav`, `bake_thrust.lisp`: the roar of the ship's boost, four
+	seconds of it that go round without a seam, its end faded into its
+	start, and nothing in it that beats in time, so it is not heard to go
+	round: a deep rumble, the hiss of the exhaust and a faint low hum. The
+	app writes it to a stream as the boost is held, from a place at random
+	each time. At random, so a bake is a new roar.
+
 To make `pillars.cpm`, with the tree's own loader and resize, the picture
 being some 190 MB of pixels:
 

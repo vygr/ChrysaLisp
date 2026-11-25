@@ -65,9 +65,17 @@
 (defconst nav_reach 80.0)
 ;how far off the rock starts to go into the sky and is gone into it: the
 ;app has it gone before a rock is far enough to be drawn where it is next
-;as the field goes on, half its box away
+;as the field goes on, half its box away. With less detail the app draws
+;rocks less far, draw_share of the way, but a big rock more of it, as it
+;is more of the frame, all of it from bulk_full across. A big rock fades
+;later and quicker, as it is still much of the frame far off, and seen
+;through as it fades it would look a ghost: from bulk_full across it
+;starts big_fade of the way from fade_near to fade_far
 (definput fade_near :float)
 (definput fade_far :float)
+(definput draw_share :float 1.0 0.0 1.0)
+(defconst bulk_full 40.0)
+(defconst big_fade 0.7)
 (defconst eps 0.06)
 
 ;a map's colour at a place, smooth: a texture is read the one pixel a
@@ -129,7 +137,9 @@
 
 (defun main :vec4 ((frag :vec2))
 	(defq to_eye (- place eye) way (normalize to_eye)
-		fade (ease fade_near fade_far far)
+		reach (min 1.0 (+ draw_share (* (- 1.0 draw_share) (/ bulk bulk_full))))
+		big (min 1.0 (/ bulk bulk_full))
+		fade (ease (* (+ fade_near (* (- fade_far fade_near) big_fade big)) reach) (* fade_far reach) far)
 		sky (smooth 1 (sphere_uv way) nebula_pixels))
 	;all sky: nothing of the rock is worked out
 	(if (> fade 0.998) (return (vec4 sky 1.0)))
