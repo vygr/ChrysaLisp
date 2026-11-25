@@ -42,6 +42,14 @@
 	(sv-at (cat "<g fill=\qblue\q>" sv_box " fill=\qinherit\q/></g>") 20 20))
 (assert-eq "a value in style over its attribute, with spaces" 0xff00ff00
 	(sv-at (cat sv_box " fill=\qred\q style=\q fill : lime ; \q/>") 20 20))
+(assert-eq "and over it whichever is written first, as CSS has it" 0xff00ff00
+	(sv-at (cat sv_box " style=\qfill:lime\q fill=\qred\q/>") 20 20))
+(assert-eq "a style's display over the attribute's, that says none" 0xffff0000
+	(sv-at (cat sv_box " display=\qnone\q style=\qdisplay:inline\q fill=\qred\q/>") 20 20))
+(assert-eq "and its none over the attribute's" 0
+	(sv-at (cat sv_box " display=\qinline\q style=\qdisplay:none\q fill=\qred\q/>") 20 20))
+(assert-eq "a rect's width in its style over its attribute" 0
+	(sv-at "<rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q style=\qwidth:5\q fill=\qred\q/>" 20 20))
 
 ;opacity, of an element and of a color, premultiplied in the pixmap
 (defun sv-alpha (svg) (>> (sv-at svg 20 20) 24))

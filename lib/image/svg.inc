@@ -175,16 +175,34 @@
 				(cond ((eql ax "Min") 0.0) ((eql ax "Max") dx) ((* dx 0.5)))
 				(cond ((eql ay "Min") 0.0) ((eql ay "Max") dy) ((* dy 0.5)))))))
 
+(defun svg-styled (keys vals)
+	; (svg-styled keys vals) -> (keys vals)
+	;an element's attributes with the properties of its style attribute
+	;over them, name: value; ..., as CSS has it: where both say a thing the
+	;style is the one. The lists themselves if it has no style, else new
+	;ones, the style gone from them, each of its properties in the place
+	;of the attribute of its name, or after them all
+	(cond
+		((defq at (find "style" keys))
+			(defq k (list) v (list))
+			(each (lambda (key val) (unless (= (!) at) (push k key) (push v val))) keys vals)
+			(each (lambda (p)
+					(when (defq colon (find ":" p))
+						(defq name (trim (slice p 0 colon) +svg_space)
+							val (trim (slice p (inc colon) -1) +svg_space))
+						(cond
+							((empty? name))
+							((defq i (find name k)) (elem-set v i val))
+							(:t (push k name) (push v val)))))
+				(split (elem-get vals at) ";"))
+			(list k v))
+		((list keys vals))))
+
 (defun svg-attr (keys vals key)
 	; (svg-attr keys vals key) -> :nil | str
-	;an attribute, or a property of the style attribute
-	(cond
-		((defq at (find key keys)) (elem-get vals at))
-		((defq at (find "style" keys))
-			(some (lambda (p)
-					(defq kv (split p ":"))
-					(and (= (length kv) 2) (eql (trim (first kv)) key) (trim (second kv))))
-				(split (elem-get vals at) ";")))))
+	;an attribute of an element, its style's properties among them,
+	;(svg-styled)
+	(if (defq at (find key keys)) (elem-get vals at)))
 
 (defun svg-geom (keys vals names viewport)
 	; (svg-geom keys vals names viewport) -> (fixed | :nil ...)
@@ -584,24 +602,17 @@
 		(:t val)))
 
 (defun push-attributes (stack keys vals)
-	;a copy of the parent's, its attributes and its style's over it. A key
-	;that is there already keeps its place: the defaults block that is in
-	;order, (SVG-load), stays so
+	;a copy of the parent's, its attributes over it, its style's among
+	;them, (svg-styled). A key that is there already keeps its place: the
+	;defaults block that is in order, (SVG-load), stays so
 	(push stack (defq entry (. (last stack) :copy)))
 	;color first, what a currentColor of the same element is
 	(and (defq at (find "color" keys))
 		(nql (defq c (read-attribute entry "color" (elem-get vals at))) :inherit)
 		(. entry :insert "color" c))
 	(each (lambda (key val)
-			(cond
-				((eql key "style")
-					(each (lambda (p)
-							(when (= (length (defq kv (split p ":"))) 2)
-								(defq k (trim (first kv)) v (read-attribute entry k (second kv)))
-								(unless (eql v :inherit) (. entry :insert k v))))
-						(split val ";")))
-				((nql (setq val (read-attribute entry key val)) :inherit)
-					(. entry :insert key val)))) keys vals)
+			(if (nql (setq val (read-attribute entry key val)) :inherit)
+				(. entry :insert key val))) keys vals)
 	entry)
 
 (defun svg-painted (canvas val alpha paths transform defs)
@@ -776,6 +787,9 @@
 	(defq on-in (lambda (command keys vals)
 			;of the SVG namespace by a prefix, the element itself
 			(if (starts-with "svg:" command) (setq command (slice command 4 -1)))
+			;its style's properties over its attributes, the once, for all
+			;that asks of them, and as it is kept
+			(bind '(keys vals) (svg-styled keys vals))
 			(when (= replaying 0)
 				(push log (list :in command (cat keys) (cat vals)))
 				;more of a gradient read, those found are found again
@@ -1266,6 +1280,7 @@
 	(XML-parse stream
 		(lambda (command keys vals)
 			(when (eql command "svg")
+				(bind '(keys vals) (svg-styled keys vals))
 				(bind '(w h vb) (gather (defq entry (push-attributes stack keys vals))
 						"width" "height" "viewBox"))
 				(setd w 256.0 h 256.0)
