@@ -268,16 +268,21 @@
 	;where a craft stops to use its beam: in front of the eye as the snatch
 	;ends, over land, cows do not live in water, but now and then over the
 	;water, manatees do; and high enough to be seen over the land between,
-	;a hill in the way along the valleys, its beam the longer. :nil if
-	;there is no land in front to be had
+	;a hill in the way along the valleys, its beam the longer. As far ahead
+	;as is seen well from how high the eye is over the land: low along the
+	;valleys near, up to twice as far from the eight's height, so it is not
+	;under the nose. :nil if there is no land in front to be had
 	(bind '(ex ez fx fz) (flight-ahead (n2d 3.5)))
-	(defq wet (= (random 8) 0) at :nil)
+	(defq wet (= (random 8) 0) at :nil
+		far (max +double_1 (min +double_2 (+ +double_1
+			(/ (- height (land-at (first place) (second place)) (n2d 24)) (n2d 60))))))
 	(some (lambda ((ahead aside))
+			(setq ahead (* ahead far) aside (* aside far))
 			(defq x (+ ex (* fx ahead) (* (neg fz) aside)) z (+ ez (* fz ahead) (* fx aside)))
 			(if (or wet (> (land_height (doubles x z)) (n2d -2.5))) (setq at (list x z))))
-		(list (list (n2d 150) +double_0) (list (n2d 130) (n2d 20)) (list (n2d 130) (n2d -20))
-			(list (n2d 175) (n2d 25)) (list (n2d 175) (n2d -25)) (list (n2d 120) +double_0)
-			(list (n2d 200) +double_0) (list (n2d 150) (n2d 40)) (list (n2d 150) (n2d -40))))
+		(list (list (n2d 90) +double_0) (list (n2d 76) (n2d 13)) (list (n2d 76) (n2d -13))
+			(list (n2d 106) (n2d 15)) (list (n2d 106) (n2d -15)) (list (n2d 72) +double_0)
+			(list (n2d 120) +double_0) (list (n2d 90) (n2d 24)) (list (n2d 90) (n2d -24))))
 	(when at
 		(bind '(x z) at)
 		(defq water (<= (land_height (doubles x z)) (n2d -2.5)))
