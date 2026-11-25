@@ -25,6 +25,10 @@
 	;hazard it is calm, for how many looks running, and how far round a big
 	;rock its cluster's rocks count as there
 	+buoy_calm (n2d 0.05) +calm_looks 50 +crowd_round (n2d 120)
+	;a buoy goes nuclear in a heap too crowded to draw: how many rocks round
+	;it, within +buoy_round, are too many, for how many looks running, and
+	;how far round it the small rocks are shattered
+	+nuke_crowd 18 +nuke_looks 3 +nuke_core (n2d 130)
 	+buoy_green (doubles (n2d 0.2) (n2d 1.0) (n2d 0.35)) +buoy_yellow (doubles (n2d 1.0) (n2d 0.82) (n2d 0.15))
 	+buoy_red (doubles (n2d 1.0) (n2d 0.15) (n2d 0.1)) +buoy_blue (doubles (n2d 0.25) (n2d 0.6) (n2d 1.0))
 	;how far out each kind of rock reaches from its middle, as it turns, of
@@ -441,8 +445,8 @@
 					cell_steps)))
 		'() 0 (/ (+ (- (length rocks) part) (dec +meet_parts)) +meet_parts)))
 
-(defun rocks-blast (x y z from to)
-	; (rocks-blast x y z from to) -> num
+(defun rocks-blast (x y z from to &optional reach strength)
+	; (rocks-blast x y z from to [reach strength]) -> num
 	;a blast at x y z, its front of pressure gone on from from to to out
 	;from it: each rock the front has passed over in that thrown out from
 	;the middle, as hard as the pressure on its face, so the less the
@@ -450,13 +454,14 @@
 	;weight cubed, a big one moved little and a small one far; and set
 	;tumbling end over end away from it, about a way across the way out,
 	;as an uneven face takes the pressure. How many it moved. Nothing is
-	;broken, the rocks only go
-	(defq moved 0)
+	;broken, the rocks only go. Of +blast_reach and +blast_strength if not
+	;said, a missile's
+	(defq moved 0 reach (ifn reach +blast_reach) strength (ifn strength +blast_strength))
 	(each (lambda ((at drift bulk & spin &ignore))
 			(defq dx (near-way (- (first at) x)) dy (near-way (- (second at) y)) dz (near-way (- (third at) z))
 				d (sqrt (+ (* dx dx) (* dy dy) (* dz dz) +double_1)))
-			(when (and (>= d from) (< d to) (< d +blast_reach))
-				(defq by (/ (* +blast_strength (- +double_1 (/ d +blast_reach))) bulk))
+			(when (and (>= d from) (< d to) (< d reach))
+				(defq by (/ (* strength (- +double_1 (/ d reach))) bulk))
 				(rock-push drift dx dy dz (/ by d))
 				(bind '(ax ay az) (sky-unit (sky-cross (doubles dx dy dz) (rnd-way))))
 				(defq turn (* (min by (const (n2d 12))) +blast_spin))
@@ -569,7 +574,9 @@
 (defun make-buoys ()
 	; (make-buoys) -> buoys
 	;the marker buoys of the field, each (at drift hazard colour station
-	;calm), calm how many looks running it has read calm, buoy-look:
+	;calm over armed), calm how many looks running it has read calm, over
+	;how many it has read too crowded, buoy-look, and armed when it was
+	;armed to go nuclear, 0 if not, the app's:
 	;most at the swarms, a buoy keeping station at each of the first
 	;clusters, station its number, buoy-station, and a few in open space
 	;between, marking the safe way, drifting slowly. Their hazard is 0 till
@@ -577,11 +584,11 @@
 	(defq out (list))
 	(each! (lambda (members)
 			(bind '(at drift) (buoy-station members))
-			(push out (list at drift +double_0 (cat +buoy_green) (!) 0)))
+			(push out (list at drift +double_0 (cat +buoy_green) (!) 0 0 0)))
 		(list clusters) 0 (min +buoys_at_swarms (length clusters)))
 	(while (< (length out) +buoys)
 		(push out (list (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))
-			(nums-scale (rnd-way) (+ (const (n2d 0.4)) (rnd))) +double_0 (cat +buoy_blue) :nil 0)))
+			(nums-scale (rnd-way) (+ (const (n2d 0.4)) (rnd))) +double_0 (cat +buoy_blue) :nil 0 0 0)))
 	out)
 
 (defun buoys-move (dt)
@@ -628,7 +635,32 @@
 		hazard (max (* (const (n2d 0.65)) (max +double_0 (min +double_1 (/ (n2d (- count 1)) (const (n2d 5))))))
 			(if (< nearest +buoy_close) (- +double_1 (/ nearest (const (n2d 100)))) +double_0)))
 	(elem-set buoy 2 hazard)
-	(elem-set buoy 5 (if (< hazard +buoy_calm) (inc (elem-get buoy 5)) 0)))
+	(elem-set buoy 5 (if (< hazard +buoy_calm) (inc (elem-get buoy 5)) 0))
+	(elem-set buoy 6 (if (>= count +nuke_crowd) (inc (elem-get buoy 6)) 0)))
+
+(defun rocks-nuke (x y z eye far)
+	; (rocks-nuke x y z eye far) -> ((x y z) ...)
+	;a buoy gone nuclear at x y z: each small rock in its core shattered,
+	;where it was kept to be seen, and sent off out of sight, further from
+	;the eye than far, drifting a way of its own and no more of its
+	;cluster, so a cluster put in orbit again does not gather it back. The
+	;big ones are left to its blast. Where those shattered were
+	(defq out (list) gone (list))
+	(each (lambda (rock)
+			(bind '(at drift bulk & spin &ignore) rock)
+			(defq dx (near-way (- (first at) x)) dy (near-way (- (second at) y)) dz (near-way (- (third at) z)))
+			(when (and (< bulk +pull_least) (< (+ (* dx dx) (* dy dy) (* dz dz)) (const (* +nuke_core +nuke_core))))
+				(push out (cat at))
+				(push gone (!))
+				(defq to (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field)) tries 10)
+				(while (and (> (-- tries) 0) (not (out-of-sight? to eye far)))
+					(setq to (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))))
+				(each! (lambda (v) (elem-set at (!) v)) (list to))
+				(each! (lambda (v) (elem-set drift (!) v)) (list (nums-scale (rnd-way) (* +drift_most (rnd)))))
+				(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) (const (n2d 0.35))))))))
+		rocks)
+	(setq clusters (map (lambda (members) (filter (# (not (find %0 gone))) members)) clusters))
+	out)
 
 (defun cluster-crowd (members)
 	; (cluster-crowd members) -> num

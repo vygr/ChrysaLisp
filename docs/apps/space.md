@@ -40,6 +40,13 @@ behind it.
   and the sun. A buoy turns, slowly, when it must, to keep its lamp toward
   the ship's side of it.
 
+* The field keeps itself in hand: a buoy in a heap too crowded, 18 rocks
+  or more round it look after look, arms, flashes white fast for three
+  seconds, and goes nuclear. Each small rock near it is shattered, grains
+  thrown out, and sent off out of sight to drift back in alone, no more of
+  its cluster; and its blast, far bigger than a missile's, throws the big
+  ones out from it. So a heap that would slow the frames is broken up.
+
 * The ship: a short sharp ping of white light every second or so, that
   lights the rocks close to.
 

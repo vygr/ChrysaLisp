@@ -70,9 +70,9 @@
 ;a buoy: red with a rock close by, green with none
 (setq rocks (list (sf-rock 100 100 100 0 0 0 10)))
 (setq buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 108)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) :nil 0)
+		+double_0 (cat +buoy_green) :nil 0 0 0)
 	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) :nil 0)))
+		+double_0 (cat +buoy_green) :nil 0 0 0)))
 (buoy-look 0)
 (buoy-look 1)
 (assert-true "a buoy by a rock reads danger" (> (third (first buoys)) (n2d 0.8)))
@@ -132,10 +132,22 @@
 ;a buoy's colour eased to its hazard's: calm at a swarm green, calm in open
 ;space ice blue
 (setq buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 100)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_red) 0 0)
+		+double_0 (cat +buoy_red) 0 0 0 0)
 	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_red) :nil 0)))
+		+double_0 (cat +buoy_red) :nil 0 0 0)))
 (times 300 (buoys-move (n2d 0.0166)))
 (defun sf-near (a b) (every (# (< (abs (- %0 %1)) (const (n2d 0.01)))) a b))
 (assert-true "calm at a swarm, green" (sf-near (elem-get (first buoys) 3) +buoy_green))
 (assert-true "calm in open space, ice blue" (sf-near (elem-get (second buoys) 3) +buoy_blue))
+
+;a buoy gone nuclear: the small rocks in its core shattered and sent out of
+;sight, no more of their cluster; a big one left; one outside as it was
+(setq rocks (list (sf-rock 500 500 500 0 0 0 40) (sf-rock 540 500 500 0 0 0 6) (sf-rock 500 560 500 0 0 0 8)
+		(sf-rock 800 500 500 0 0 0 6))
+	clusters (list (list 0 1 2)))
+(defq sf_eye (doubles (n2d 500) (n2d 500) (n2d 400)) sf_shattered (rocks-nuke (n2d 500) (n2d 500) (n2d 500) sf_eye (n2d 300)))
+(assert-eq "the two small ones in its core shattered" 2 (length sf_shattered))
+(assert-true "and gone out of sight" (every (# (out-of-sight? (first (elem-get rocks %0)) sf_eye (const (n2d 300)))) '(1 2)))
+(assert-true "no more of their cluster" (eql (first clusters) '(0)))
+(assert-true "the big one where it was" (= (sf-x (first rocks)) (n2d 500)))
+(assert-true "the one outside its core where it was" (= (sf-x (elem-get rocks 3)) (n2d 800)))

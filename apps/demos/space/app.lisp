@@ -94,7 +94,14 @@
 	;glows behind it, seconds of its way apart, each the fainter
 	+bomb_glow_far (n2d 0.02) +trail_glows 6 +trail_step (n2d 0.012) +trail_fade (n2d 0.62)
 	blasts (list) +blast_life 900000 +blast_light (doubles (n2d 2.6) (n2d 1.8) (n2d 1.0))
-	+blast_glow_least (n2d 15) +blast_glow_most (n2d 150) +blast_light_far (n2d 260) blast_lamps (list) blast_glows (list) pressed 0
+	+blast_glow_least (n2d 15) +blast_glow_most (n2d 150) +blast_light_far (n2d 260)
+	;a buoy gone nuclear: how long it flashes white, armed, before, and how
+	;fast; its blast's reach, strength, how long its light lasts, its light
+	;at its brightest and its glow's size at its most; and how many of the
+	;rocks it shatters throw out grains
+	+nuke_fuse 3000000 +armed_beat 125000 +armed_flash (doubles (n2d 1.6) (n2d 1.6) (n2d 1.6))
+	+nuke_reach (n2d 320) +nuke_strength (n2d 400) +nuke_life 2500000
+	+nuke_light (doubles (n2d 7) (n2d 5.5) (n2d 4)) +nuke_glow (n2d 500) +nuke_sprays 6 blast_lamps (list) blast_glows (list) pressed 0
 	;the ship's speed eased to a boost's while the right button is held and
 	;back to cruising after: whether it is held, the boost's speed, and how
 	;fast it eases up and down, a second; and the buttons' bits
@@ -459,13 +466,16 @@
 	;flashing the faster the greater its hazard, each in its own time
 	(defq now (/ (n2d (pii-time)) (const (n2d 1000000))))
 	(bind '(ex ey ez) eye)
-	(setq lamps (map (lambda ((at & hazard colour &ignore))
+	(setq lamps (map (lambda ((at & hazard colour & & & armed))
 			(defq rate (+ +flash_least (* hazard (- +flash_most +flash_least)))
 				beat (+ (* now rate) (* (n2d (!)) (const (n2d 0.37))))
 				on (< (- beat (floor beat)) (* rate +flash_long)))
 			(list (doubles (+ ex (near-way (- (first at) ex))) (+ ey (near-way (- (second at) ey)))
 					(+ ez (near-way (- (third at) ez))))
-				(nums-scale colour (if on +double_1 +flash_dim))))
+				;one armed to go nuclear flashes white, fast
+				(if (> armed 0)
+					(if (< (% (- (pii-time) armed) +armed_beat) (/ +armed_beat 2)) +armed_flash (nums-scale +armed_flash +flash_dim))
+					(nums-scale colour (if on +double_1 +flash_dim)))))
 		buoys)
 		;and those near enough to the eye to light a rock it sees
 		lamps_near (filter (lambda ((at &ignore))
@@ -508,6 +518,34 @@
 					(setq thrust_at (% end long))
 					(audio-stream-write-rpc thrust_stream (obj-set (str-alloc bytes) +str_data bytes pcm)))))))
 
+(defun buoys-nuke ()
+	;a buoy too crowded for +nuke_looks looks running armed, and three
+	;seconds after, flashing white, gone nuclear: the small rocks round it
+	;shattered and sent off out of sight, rocks-nuke, grains thrown out
+	;where those near the eye were, and a blast far bigger than a
+	;missile's, its light, glow and front, throwing the rest out, heard
+	(defq now (pii-time))
+	(each (lambda (buoy)
+			(bind '(at & & & & & over armed) buoy)
+			(cond
+				((and (= armed 0) (>= over +nuke_looks)) (elem-set buoy 7 now))
+				((and (> armed 0) (> (- now armed) +nuke_fuse))
+					(bind '(x y z) at)
+					(defq shattered (rocks-nuke x y z eye (+ +rock_far (const (n2d 60))))
+						ahead (filter (lambda ((sx sy sz))
+								(defq rx (near-way (- sx (first eye))) ry (near-way (- sy (second eye))) rz (near-way (- sz (third eye))))
+								(< (+ (* rx rx) (* ry ry) (* rz rz)) (const (* +fx_far +fx_far))))
+							shattered))
+					(each! (lambda (p)
+							(push sprays (list p now (+ (const (n2d 6)) (* (const (n2d 10)) (rnd))) (random +spray_kinds))))
+						(list ahead) 0 (min (length ahead) +nuke_sprays))
+					(if (> (length sprays) +spray_most) (setq sprays (slice sprays (- (length sprays) +spray_most) -1)))
+					(push blasts (list (cat at) now +double_0 +nuke_reach +nuke_strength +nuke_life +nuke_light +nuke_glow))
+					(times 4 (push hits (list x y z (const (n2d 8)))))
+					(elem-set buoy 6 0)
+					(elem-set buoy 7 0))))
+		buoys))
+
 (defun bomb-fire (sx sy)
 	;a bomb fired from the ship, through where the picture was clicked, sx
 	;and sy -1 to 1 across and up it, going with the ship as well
@@ -536,19 +574,19 @@
 							(bind '(x y z) at)
 							(rock-strike struck x y z (sky-unit way))
 							:t))
-					(push blasts (list at now +double_0))
+					(push blasts (list at now +double_0 +blast_reach +blast_strength +blast_life +blast_light +blast_glow_most))
 					(bind '(x y z) at)
 					(times 3 (push hits (list x y z (const (n2d 8)))))
 					:nil)
 				(:t)))
 		bombs)
 		blasts (filter (lambda (blast)
-			(bind '(at born from) blast)
+			(bind '(at born from reach strength life &ignore) blast)
 			(bind '(x y z) at)
 			(defq to (* +blast_front (/ (n2d (- now born)) (const (n2d 1000000)))))
-			(if (< from +blast_reach) (rocks-blast x y z from to))
+			(if (< from reach) (rocks-blast x y z from to reach strength))
 			(elem-set blast 2 to)
-			(< (- now born) +blast_life))
+			(< (- now born) life))
 		blasts)))
 
 (defun bomb-lamps ()
@@ -575,12 +613,12 @@
 						'() 0 +trail_glows)
 					(list near +bomb_light))
 				bombs)
-			(map (lambda ((at born from))
+			(map (lambda ((at born & & & life light glow_most))
 					(defq near (doubles (+ ex (near-way (- (first at) ex))) (+ ey (near-way (- (second at) ey)))
 							(+ ez (near-way (- (third at) ez))))
-						left (- +double_1 (/ (n2d (- now born)) (n2d +blast_life))) colour (nums-scale +blast_light (* left left)))
+						left (max +double_0 (- +double_1 (/ (n2d (- now born)) (n2d life)))) colour (nums-scale light (* left left)))
 					(push glows (list near (nums-scale colour (const (n2d 1.5)))
-						(+ +blast_glow_least (* (- +blast_glow_most +blast_glow_least) (- +double_1 left)))))
+						(+ +blast_glow_least (* (- glow_most +blast_glow_least) (- +double_1 left)))))
 					(list near colour))
 				blasts))
 		blast_glows glows))
@@ -791,6 +829,7 @@
 	(buoys-move dt)
 	(buoy-look buoy_next)
 	(setq buoy_next (% (inc buoy_next) +buoys))
+	(buoys-nuke)
 	(buoy-lamps)
 	(buoys-face dt)
 	(bomb-lamps)
