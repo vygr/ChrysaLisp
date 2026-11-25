@@ -241,7 +241,6 @@
 	;:r1 = args list object (ptr)
 	;outputs
 	;:r0 = list object (ptr)
-	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r3, :r6-:r9, :d0-:d15
 	;info
@@ -252,7 +251,7 @@
 	(assign '((:r1 +array_length)) '(:r3))
 	(d-call :list :append '(:r0 :r1 1 :r3) '(:r0))
 
-	(exit :list :push '(:r0 -1))
+	(exit :list :push '(:r0))
 	(vp-ret)
 
 (def-func-end)

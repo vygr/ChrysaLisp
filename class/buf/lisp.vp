@@ -104,8 +104,9 @@
 	(gotoif '(:r1 /= 0) 'error1)
 	(assign `((,buf +buf_data)) '(:r0))
 	(vp-add-rr :r0 offset)
-	(call :buf :set `(,this ,offset ,type ,val) `(,this :r1))
+	(call :buf :check_raw `(,this ,type ,val) `(,this :r1))
 	(gotoif '(:r1 /= 0) 'error)
+	(call :buf :set `(,this ,offset ,type ,val) `(,this))
 	(class/obj/ref buf :r0)
 
 	(exit :buf :lisp_set `(,this ,buf))

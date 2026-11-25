@@ -87,6 +87,19 @@
 (assert-error "obj-set of a long not on a word" (set-long (str-alloc 32) 7 0) {(obj-set obj offset type) not_valid_index})
 (assert-error "of an int not on 4" (set-int (str-alloc 32) 3 0) {(obj-set obj offset type) not_valid_index})
 (assert-error "of a short not on 2" (set-short (str-alloc 32) 1 0) {(obj-set obj offset type) not_valid_index})
+
+;a struct written is that many bytes of what has raw data, a str, an array
+;of numbers or a raw array, whole: fewer than that, or a list, is refused
+(defq raw_s (str-alloc 16))
+(test-cases
+	(map (# (get-uint (obj-set raw_s +str_data 16 (ints 1 2 3 4)) (* %0 4))) '(0 1 2 3)) '(1 2 3 4)
+	(get-uint (obj-set raw_s +str_data 4 (bytes 1 2 3 4)) 0) 67305985
+	(get-uint (obj-set raw_s +str_data 4 (shorts 1 2)) 0) 131073
+	(get-long (obj-set raw_s +str_data 8 (nums 77)) 0) 77
+	(get-uint (obj-set raw_s +str_data 4 (nums-convert (nums 1) (floats))) 0) 1065353216)
+(assert-error "obj-set of too few bytes" (obj-set raw_s +str_data 16 (ints 1 2)) {(obj-set obj offset type val) wrong_types})
+(assert-error "of a list" (obj-set raw_s +str_data 8 (list 1)) {(obj-set obj offset type val) wrong_types})
+(assert-error "of a number for a struct" (obj-set raw_s +str_data 8 77) {(obj-set obj offset type val) wrong_types})
 (assert-error "and obj-get of a long not on a word" (get-long (str-alloc 32) 4) {(obj-get obj offset type) not_valid_index})
 
 ; --- a macro that throws as it is expanded, in a body ---
@@ -107,3 +120,9 @@
 (assert-eq "an assert-error given another error lets it go on" :t
 	(catch (progn (assert-error "inner" (elem-get (list) 0) {not this one}) :nil)
 		(found? (str _) {(elem-get seq idx) not_valid_index})))
+
+;a splice's error of an index went with the args lost, what asked the
+;lengths had taken their register, and the node with it
+(assert-error "splice of an index past its sequence" (splice (nums 1 2 3 4) (nums 9 8 7) (nums 0 2 0 2 3 1 4 2)) {(splice seq1 seq2 idxs) not_valid_index})
+(assert-error "and before it" (splice "abcd" "xyz" (nums 0 2 -6 3)) {(splice seq1 seq2 idxs) not_valid_index})
+(assert-eq "and one inside it is taken" "(1 2 9 8 3 2 7 8)" (str (splice (nums 1 2 3 4) (nums 9 8 7) (nums 0 2 0 2 3 1 3 1))))

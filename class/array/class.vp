@@ -565,7 +565,7 @@
 	;outputs
 	;:r0 = slice array object (ptr)
 	;trashes
-	;:r0-:r2, :r6-:r8, :d0-:d15
+	;:r0-:r3, :r6-:r8, :d0-:d15
 
 	(array-slice :array +long_size)
 
@@ -601,90 +601,106 @@
 
 (def-func-end)
 
-(def-method :array :push)
+(def-method :array :get_raw)
 	;inputs
 	;:r0 = array object (ptr)
-	;:r1 = args list object (ptr)
 	;outputs
 	;:r0 = array object (ptr)
-	;:r1 = 0 if error, else ok
+	;:r1 = raw data (pubyte)
+	;:r2 = length (elements)
+	;:r3 = element size (bytes)
 	;trashes
-	;:r1-:r4, :r6-:r9, :r11-:r13, :d0-:d15
+	;:r1-:r3
 	;info
-	;each of the args after the first onto the end, flattened: a number
-	;its value, an array its elements, a str its bytes in whole longs
+	;an array of longs as raw data
 
-	(vp-rdef (vt1 _ _ argc obj _
-			src_begin args src_end dst this src len old_len))
+	(array-get-raw :array +long_size)
 
-	(entry :array :push `(,obj ,args))
+(def-func-end)
 
-	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,src))
-	;array, so append flattened objects
-	;first get total elements we will be appending
-	(vp-shl-cr (log2 +long_size) argc)
-	(vp-lea-rrr src argc src_end)
-	(vp-add-cr +ptr_size src)
-	(vp-cpy-rr src src_begin)
-	(vp-cpy-cr 0 argc)
-	(loop-start)
-		(vp-load-rcr src 0 vt1)
-		(vp-add-cr +ptr_size src)
+(def-method :array :push_raw)
+	;inputs
+	;:r0 = array object (ptr)
+	;:r1 = raw data (pubyte)
+	;:r2 = length (elements)
+	;:r3 = element size (bytes)
+	;outputs
+	;:r0 = array object (ptr)
+	;trashes
+	;:r1-:r3, :r6-:r9, :d0-:d15
+	;info
+	;raw data onto the end, the whole longs its bytes make
+
+	(array-push-raw :array +long_size)
+
+(def-func-end)
+
+(def-method :array :copy_raw)
+	;inputs
+	;:r0 = source address (pubyte)
+	;:r1 = destination address (pubyte)
+	;:r2 = length (bytes)
+	;:r3 = 0 forward, else the size of the elements to take last first
+	;outputs
+	;:r0 = source address end (ptr)
+	;:r1 = destination address end (ptr)
+	;trashes
+	;:r0-:r3
+	;info
+	;raw data from one place to another, the one copy of it all, to trash
+	;what :sys_mem :copy does and no more. Forward it is that copy, and
+	;what is given the bytes sees that they make whole elements of its own.
+	;Reversed, elements of 1, 2, 4 or 8 bytes from the last of them to the
+	;first, each as it is, the length a whole number of them: a load and a
+	;store of an element at its own alignment
+
+	(vp-rdef (src dst end size) '(:r0 :r1 :r2 :r3))
+
+	(entry :array :copy_raw `(,src ,dst ,end ,size))
+
+	(vpif `(,size = 0))
+		(jump :sys_mem :copy `(,src ,dst ,end))
+	(endif)
+	;from the end of the source down to its start, size then an element
+	(vp-add-rr src end)
+	(vpif `(,end /= ,src))
 		(switch)
-		(call :obj :inst_of `(,vt1 (@ ,(f-path :array :vtable))) '(o v))
-		(nextcaseif `(,v = 0))
-		(assign `((,o +array_length)) `(,len))
-		(else)
-			(call :obj :inst_of `(,vt1 (@ ,(f-path :str :vtable))) '(o v))
-			(nextcaseif `(,v = 0))
-			(assign `((,o +str_length)) `(,len))
-			(vp-shr-cr (log2 +long_size) len)
-		(else)
-			(vp-cpy-cr 1 len)
-		(endif)
-		(vp-add-rr len argc)
-	(loop-until `(,src = ,src_end))
-
-	;set the new capacity and length
-	(assign `((,obj +array_length)) `(,len))
-	(vp-cpy-rr len old_len)
-	(vp-add-rr argc len)
-	(call :array :set_cap `(,obj ,len) `(,obj) :r2)
-	(assign `(,len) `((,obj +array_length)))
-
-	;append the data
-	(assign `((,obj +array_begin)) `(,dst))
-	(vp-shl-cr (log2 +long_size) old_len)
-	(vp-add-rr old_len dst)
-	(loop-start)
-		(vp-load-rcr src_begin 0 vt1)
-		(switch)
-		(call :obj :inst_of `(,vt1 (@ ,(f-path :num :vtable))) '(o v))
-		(nextcaseif `(,v = 0))
-		(assign `((,o +num_value)) `(,vt1))
-		(goto 'single)
+		(vpcase `(,size = ,+long_size))
+			(loop-start)
+				(vp-sub-cr +long_size end)
+				(array-load +long_size end 0 size)
+				(vp-add-cr +long_size dst)
+				(array-store +long_size size dst (neg +long_size))
+			(loop-until `(,end = ,src))
+			(break)
+		(vpcase `(,size = ,+int_size))
+			(loop-start)
+				(vp-sub-cr +int_size end)
+				(array-load +int_size end 0 size)
+				(vp-add-cr +int_size dst)
+				(array-store +int_size size dst (neg +int_size))
+			(loop-until `(,end = ,src))
+			(break)
+		(vpcase `(,size = ,+short_size))
+			(loop-start)
+				(vp-sub-cr +short_size end)
+				(array-load +short_size end 0 size)
+				(vp-add-cr +short_size dst)
+				(array-store +short_size size dst (neg +short_size))
+			(loop-until `(,end = ,src))
+			(break)
 		(default)
-			(call :obj :inst_of `(,vt1 (@ ,(f-path :array :vtable))) '(o v))
-			(nextcaseif `(,v = 0))
-			(assign `((,o +array_begin) (,o +array_length)) `(,vt1 ,len))
-			(vp-shl-cr (log2 +long_size) len)
-			(goto 'multiple)
-		(default)
-			(call :obj :inst_of `(,vt1 (@ ,(f-path :str :vtable))) '(o v))
-			(nextcaseif `(,v = 0))
-			(assign `((& ,o +str_data) (,o +str_length)) `(,vt1 ,len))
-			(vp-and-cr (neg +long_size) len)
-		(vp-label 'multiple)
-			(call :sys_mem :copy `(,vt1 ,dst ,len) `(& ,dst))
-		(else)
-		(vp-label 'single)
-			(vp-store-rrc vt1 dst 0)
-			(vp-add-cr +long_size dst)
-		(endif)
-		(vp-add-cr +ptr_size src_begin)
-	(loop-until `(,src_begin = ,src_end))
+			(loop-start)
+				(vp-sub-cr +byte_size end)
+				(array-load +byte_size end 0 size)
+				(vp-add-cr +byte_size dst)
+				(array-store +byte_size size dst (neg +byte_size))
+			(loop-until `(,end = ,src))
+		(endswitch)
+	(endif)
 
-	(exit :array :push `(,obj -1))
+	(exit :array :copy_raw `(,src ,dst))
 	(vp-ret)
 
 (def-func-end)
+

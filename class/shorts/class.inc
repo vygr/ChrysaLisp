@@ -25,5 +25,6 @@
 	(dec-method :eql class/shorts/eql :final)
 	(dec-method :hash class/shorts/hash :final)
 	(dec-method :print class/shorts/print :final)
-	(dec-method :push class/shorts/push :final)
+	(dec-method :get_raw class/shorts/get_raw :final)
+	(dec-method :push_raw class/shorts/push_raw :final)
 	(dec-method :lisp_shorts class/shorts/lisp_shorts :static (:r0 :r1) (:r0 :r1)))

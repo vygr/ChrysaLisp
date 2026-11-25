@@ -141,8 +141,9 @@ A sample forward and back went from 81us to 64us.
 
 A picture is 784 bytes, 0 to 255, and the network wants doubles 0 to 1.
 `nn-scale-bytes` does the 784 in one native loop, 0.24us where the Lisp loop
-took 47us. And `buf-set` and `obj-set` take a vector of numbers whole, its
-elements' bytes in one native copy, where the params had gone in a
+took 47us. And `buf-set` and `obj-set` take a vector of numbers, or a raw
+array, whole, its elements' bytes in one native copy, where the params had
+gone in a
 `set-double` at a time: 5.6ms to 23us each step.
 
 ### Floats

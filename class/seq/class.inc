@@ -11,6 +11,7 @@
 	(dec-method :find class/obj/null :virtual (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :rfind class/obj/null :virtual (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :splice class/obj/null :virtual (:r0 :r1 :r2) (:r0))
+	(dec-method :get_raw class/seq/get_raw :virtual (:r0) (:r0 :r1 :r2 :r3))
 	(dec-method :lisp_length class/seq/lisp_length :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_elem class/seq/lisp_eget :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_first class/seq/lisp_first :static (:r0 :r1) (:r0 :r1))

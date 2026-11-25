@@ -212,8 +212,23 @@ docs/diagrams/array_kinds.cwb
 read, it is a `:num`, never sign extended; written, a number's low bits are
 kept, so `(shorts -1 70000)` is `(65535 4464)`. They have every operation of
 a sequence, `elem-get`, `slice`, `find`, `push`, `cat`, `splice` and the
-rest, and no maths. A `push` of another array into one, or of a str, takes
-its bytes raw, at the width of each.
+rest, and no maths.
+
+A `push` into any array of numbers or raw array takes a number, the low
+bytes of its value, as many as an element of the array is, or what has raw
+data: a str, an array of numbers or a raw array, of any width. Its bytes go
+in as they are, in whole elements of the array pushed to, so `(push (nums)
+(ints 1 2 3 4))` is two numbers, `(push (ints) (nums 1 2))` is `(1 0 2 0)`
+and `(push (floats) msg)` is the floats a message holds. Bytes that do not
+make a whole element are left. A list has no raw data, its elements are
+objects: pushed into an array of numbers or a raw array it is an error, as
+is anything else, and what came before it in the same `push` is pushed. To
+push a list's numbers, `(apply (const push) (cat (list array) lst))`, or
+make the array of them, `(apply (const nums) lst)`.
+
+`(obj-set obj offset n val)` and `(buf-set buf offset n val)`, n a count of
+bytes, take the same: n bytes of a str, an array of numbers or a raw array,
+which must have that many.
 
 For maths, `(nums-convert src dst [signed])` converts. Of a raw kind into
 nums, fixeds, doubles or floats, each element is read signed if `signed` is

@@ -888,8 +888,10 @@ new trap there with its test. Others to know:
 	`lib/streams/nums.inc`. Each number read by `read-long` and pushed is
 	boxed, 25 to 50 times slower. The parts they are made of: `(obj-set
 	(str-alloc n) +str_data n array)` is an array's elements as a str,
-	`obj-set` takes an array of numbers as its value, and `(push array
-	str)` takes a str's bytes as elements. `obj-get` and `obj-set` of an
+	`obj-set` takes an array of numbers or a raw array as its value, and
+	`(push array str)` takes a str's bytes as elements, as it does those
+	of any array of numbers or raw array, of any width, `(push (floats)
+	(ints ...))`. A list pushed into one is an error. `obj-get` and `obj-set` of an
 	array itself reach its own cell, its header, not its elements.
 
 *	An env kept in one of its own variables, `(defq *e* (env))`, is a

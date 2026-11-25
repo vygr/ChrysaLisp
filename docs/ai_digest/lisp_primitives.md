@@ -473,6 +473,11 @@ Primitives targeting mutable `:array` and `:list` data structures.
 
 	*	`(push array elem ...) -> array`
 
+	*	A list takes anything, a reference each. An array of numbers or a
+		raw array takes a number, or the raw bytes of a str, an array of
+		numbers or a raw array of any width, in whole elements of its own;
+		a list into one is an error. `docs/lisp/numerics.md`.
+
 *	**`pop`**: Removes and returns the final element.
 
 	*	`(pop array) -> elem | :nil`
@@ -1332,6 +1337,10 @@ Low-level memory offsets, structures, bitfields, and address references.
 *	**`obj-set`**: Writes raw typed memory at an offset within an object.
 
 	*	`(obj-set obj offset type val) -> obj`
+
+	*	A type of more than 0 is a count of bytes, and val what has that
+		many as raw data: a str, an array of numbers or a raw array, a
+		`bytes`, a `shorts` or an `ints`.
 
 *	**`weak-ref`**: Obtains the raw numeric memory address of an object.
 

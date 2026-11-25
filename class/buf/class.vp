@@ -252,6 +252,50 @@
 
 (def-func-end)
 
+(def-method :buf :check_raw)
+	;inputs
+	;:r0 = passed through (ptr)
+	;:r1 = type (long)
+	;:r2 = value object (ptr)
+	;outputs
+	;:r0 = as it was (ptr)
+	;:r1 = 0 if ok, 1 if a struct and the value is not raw data of that many bytes
+	;trashes
+	;:r1-:r5
+	;info
+	;what a binding asks before a (:set) of a struct, a type of more than
+	;0: that the value has raw data, (:get_raw), a str, an array of numbers
+	;or a raw array, not a list, a map or a set, whose elements are
+	;objects, and has that many bytes. Of a type that is no struct, ok
+
+	(vp-rdef (this type val keep want) '(:r0 :r1 :r2 :r4 :r5))
+
+	(entry :buf :check_raw `(,this ,type ,val))
+
+	(vpif `(,type > 0))
+		(assign `(,this ,type) `(,keep ,want))
+		(call :obj :inst_of `(,val (@ ,(f-path :seq :vtable))) '(:r0 :r1))
+		(gotoif '(:r1 = 0) 'bad)
+		(call :seq :get_raw '(:r0) '(& & :r2 :r3) :r1)
+		(gotoif '(:r3 = 0) 'bad)
+		(vp-mul-rr :r3 :r2)
+		(gotoif `(:r2 < ,want) 'bad)
+		(vp-cpy-rr keep this)
+	(endif)
+	(vp-xor-rr :r1 :r1)
+
+	(exit :buf :check_raw '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'bad)
+	(vp-cpy-rr keep :r0)
+	(vp-cpy-cr 1 :r1)
+
+	(exit :buf :check_raw '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :buf :set)
 	;inputs
 	;:r0 = passed through (ptr)
@@ -260,40 +304,22 @@
 	;:r3 = value object (ptr)
 	;outputs
 	;:r0 = as it was (ptr)
-	;:r1 = 0 if set, 1 if a struct and the value has not that many bytes
 	;trashes
 	;:r1-:r7
 	;info
 	;a number its value. A struct, a type of more than 0, that many bytes
-	;of a str, or of the elements of an array of numbers, a :nums, so a
-	;vector goes in whole. Not of a list, a map or a set, their elements
-	;are objects
+	;of what has raw data, (:get_raw): a str, an array of numbers or a raw
+	;array, so a vector goes in whole. Nothing is checked: a binding has
+	;asked (:check_raw) of the value first
 
-	(vp-rdef (this addr type val num keep src) '(:r0 :r4 :r5 :r3 :r6 :r7 :r2))
+	(vp-rdef (this addr type val num keep) '(:r0 :r4 :r5 :r3 :r6 :r7))
 
 	(entry :buf :set `(,this ,addr ,type ,val))
 
 	(vp-cpy-rr this keep)
 	(vpif `(,type > 0))
-		;where the bytes come from, and how many there are
-		(call :obj :inst_of `(,val (@ ,(f-path :str :vtable))) '(& :r1))
-		(vpif '(:r1 /= 0))
-			(vp-lea-rcr val +str_data src)
-			(assign `((,val +str_length)) `(,num))
-		(else)
-			(call :obj :inst_of `(,val (@ ,(f-path :nums :vtable))) '(& :r1))
-			(gotoif '(:r1 = 0) 'short)
-			;a floats is 4 bytes an element, the others 8
-			(call :obj :inst_of `(,val (@ ,(f-path :floats :vtable))) '(& :r1))
-			(assign `((,val +array_begin) (,val +array_length)) `(,src ,num))
-			(vpif '(:r1 = 0))
-				(vp-shl-cr (log2 +long_size) num)
-			(else)
-				(vp-shl-cr (log2 +int_size) num)
-			(endif)
-		(endif)
-		(gotoif `(,num < ,type) 'short)
-		(call :sys_mem :copy `(,src ,addr ,type))
+		(call :seq :get_raw `(,val) '(& :r1 & &) :r1)
+		(call :sys_mem :copy `(:r1 ,addr ,type))
 	(else)
 		(assign `((,val +num_value)) `(,num))
 		(switch)
@@ -323,16 +349,8 @@
 		(endswitch)
 	(endif)
 	(vp-cpy-rr keep :r0)
-	(vp-xor-rr :r1 :r1)
 
-	(exit :buf :set '(:r0 :r1))
-	(vp-ret)
-
-(vp-label 'short)
-	(vp-cpy-rr keep :r0)
-	(vp-cpy-cr 1 :r1)
-
-	(exit :buf :set '(:r0 :r1))
+	(exit :buf :set '(:r0))
 	(vp-ret)
 
 (def-func-end)

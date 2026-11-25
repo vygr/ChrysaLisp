@@ -72,3 +72,31 @@
 	(str (nums-convert (doubles (n2d 3) (n2d -4)) (shorts))) "(3 65532)")
 (assert-error "raw to raw is refused" (nums-convert (shorts 1) (bytes)) {(nums-convert src dst [signed]) wrong_types})
 (assert-error "and a list" (nums-convert (list 1 2) (nums)) {(nums-convert src dst [signed]) wrong_types})
+
+;what a push takes: a number, or what has raw data, a str, an array of
+;numbers or a raw array, its bytes in whole elements of what is pushed
+;to; into an array of numbers too, and of any width into any
+(test-cases
+	(str (push (nums) (ints 1 2 3 4))) "(8589934593 17179869187)"
+	(str (push (nums) (bytes 1 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0))) "(1 2)"
+	(str (push (nums 9) (nums 1 2 3))) "(9 1 2 3)"
+	(length (push (nums) (pad "" 17 "\x00"))) 2
+	(length (push (doubles) (nums-convert (nums 1 2 3 4) (floats)))) 2
+	(str (push (nums) (fixeds 1.0 2.0))) "(65536 131072)"
+	(str (push (ints) (nums 1 2))) "(1 0 2 0)"
+	(str (push (ints) (shorts 1 2 3 4))) "(131073 262147)"
+	(str (push (ints 9) (ints 1 2))) "(9 1 2)"
+	(length (push (bytes) (ints 1 2 3 4))) 16
+	(str (push (bytes) (shorts 1) 2 "A")) "(1 0 2 65)"
+	(str (push (nums-convert (nums 1) (floats)) (nums-convert (nums 2 3) (floats)))) (str (nums-convert (nums 1 2 3) (floats)))
+	(str (push (path 1.0 2.0) (path 3.0 4.0) 5.0)) (str (path 1.0 2.0 3.0 4.0 5.0))
+	(str (push (list 1) 2 (list 3) (nums 4))) "(1 2 (3) (4))")
+
+;a list has no raw data, its elements are objects: no array of numbers and
+;no raw array takes one, nor what is no number and no sequence
+(assert-error "a list into an array of numbers is refused" (push (nums) (list 1 2 3)) {(push array elem ...) wrong_types})
+(assert-error "and into a raw array" (push (ints) (list 1)) {(push array elem ...) wrong_types})
+(assert-error "and after what it does take" (push (bytes) 1 "A" (list 1)) {(push array elem ...) wrong_types})
+(assert-error "and what is neither" (push (nums) (string-stream "")) {(push array elem ...) wrong_types})
+(assert-error "and a push to what is no array" (push "abc" 1) {(push array elem ...) wrong_types})
+(assert-error "and a push of nothing" (push (nums)) {(push array elem ...) wrong_types})

@@ -39,6 +39,9 @@ Part of the `chrysalisp` skill. Read this in full before writing or changing a
 
 *	[Every Load And Store Naturally Aligned](#every-load-and-store-naturally-aligned)
 *	[Calls Through A Pointer](#calls-through-a-pointer)
+
+*	[A Walk Back Along The Classes](#a-walk-back-along-the-classes)
+
 *	[Boot Image Functions Run From The Image](#boot-image-functions-run-from-the-image)
 
 *	[A New Native And Its `ffi`](#a-new-native-and-its-ffi)
@@ -632,6 +635,46 @@ be there, and it takes the union, as of a virtual method's overrides. A
 new span is a line there, or the lint says its callers' trashes are less
 than they are. The documented trashes of the callers are that union.
 
+## A Walk Back Along The Classes
+
+A virtual call is the dispatch on what an object is, when what differs is
+a method of its class: `(call :seq :get_raw ...)` and `(call :array
+:push_raw ...)` ask nothing first. Where no virtual call does it, a
+binding that takes one of a few kinds and does a different thing for each,
+do not ask `:inst_of` of each kind in turn, a call and a walk of the whole
+chain each. Walk back along the classes once, by hand, and test each for
+the kinds wanted as it is passed: a vtable's first field is the vtable of
+the class it is built on, at the offset an object keeps its own, so the
+one load steps from the object to its class and on. The first kind met is
+the dispatch, and the end of the chain with none met is the error: the
+check and the dispatch are the one walk.
+
+	(f-bind :num :vtable :r2)
+	(f-bind :seq :vtable :r3)
+	(f-bind :list :vtable :r4)
+	(vp-cpy-rr :r0 :r1)
+	(loop-start)
+		(assign '((:r1 +obj_vtable)) '(:r1))
+		(breakif '(:r1 = :r2))
+		(gotoif '(:r1 = :r3) 'raw)
+		(gotoif '(:r1 = :r4) 'error)
+		(gotoif '(:r1 = 0) 'error)
+	(loop-end)
+	;a number
+
+*	The kind met most is tested first, so it costs a load and a compare: a
+	list in `(push)`, `class/array/lisp.vp`, is known by the first compare
+	and asked no more.
+
+*	A kind that is to be refused but is built on one that is taken, a list
+	under `:seq`, is tested before it: the walk meets it first.
+
+*	The vtables are loaded by `f-bind` before the walk, those of the most
+	basic classes wanted, not of every class under them.
+
+*	`:lisp :env_args_sig`, `class/lisp/env_args.vp`, is the same walk for a
+	signature.
+
 ## Boot Image Functions Run From The Image
 
 The loader, the statics, the kernel and all they call are in the boot
@@ -661,6 +704,18 @@ file at once.
 	class's alone. The arrays' storage is made by width from the generators
 	of `class/array/class.inc`, `(array-slice :floats +int_size)` in a
 	`def-method`; the width is known there and nowhere else.
+
+*	**Raw data is asked for, not known.** `(call :seq :get_raw ...)` gives
+	where a sequence's bytes are, how many elements and how wide, a width
+	of 0 for a list, which has none; `(call :array :push_raw ...)` puts
+	raw bytes on the end of an array in whole elements of its own. `(push)`,
+	`(obj-set)` and `(buf-set)` are these, so what takes a str takes any
+	array of numbers or raw array. A copy forward is `:sys_mem :copy`,
+	the generators' `(array-copy w ...)`, the loop itself at 8 bytes; one
+	that takes the elements last first is `:array :copy_raw`, the one
+	place that is done. A class's own virtual called from its own
+	generated code is `d-call`, not through the vtable: `trace` takes a
+	virtual call to trash what any override does.
 
 *	**A signature's case is a class's reach.** In `(signature '(...))`
 	a type in capitals, `:NUMS`, is that class exactly; in lower case,

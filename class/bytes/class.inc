@@ -25,5 +25,6 @@
 	(dec-method :eql class/bytes/eql :final)
 	(dec-method :hash class/bytes/hash :final)
 	(dec-method :print class/bytes/print :final)
-	(dec-method :push class/bytes/push :final)
+	(dec-method :get_raw class/bytes/get_raw :final)
+	(dec-method :push_raw class/bytes/push_raw :final)
 	(dec-method :lisp_bytes class/bytes/lisp_bytes :static (:r0 :r1) (:r0 :r1)))

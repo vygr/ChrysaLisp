@@ -10,3 +10,29 @@
 	;:r1 = type list object (ptr)
 	;trashes
 	;:r1-:r3, :d0-:d15
+
+(def-method :seq :get_raw)
+	;inputs
+	;:r0 = seq object (ptr)
+	;outputs
+	;:r0 = seq object (ptr)
+	;:r1 = raw data (pubyte)
+	;:r2 = length (elements)
+	;:r3 = element size (bytes), 0 if none
+	;trashes
+	;:r1-:r3
+	;info
+	;a sequence as raw data, where it is, how many elements and how wide
+	;each: a str and an array of numbers have it. One of objects, a list,
+	;has none, an element size of 0, and this is that
+
+	(entry :seq :get_raw '(:r0))
+
+	(vp-xor-rr :r1 :r1)
+	(vp-xor-rr :r2 :r2)
+	(vp-xor-rr :r3 :r3)
+
+	(exit :seq :get_raw '(:r0 :r1 :r2 :r3))
+	(vp-ret)
+
+(def-func-end)

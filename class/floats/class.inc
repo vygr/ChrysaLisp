@@ -25,6 +25,8 @@
 	(dec-method :cat class/ints/cat :final)
 	(dec-method :splice class/ints/splice :final)
 	(dec-method :append class/ints/append :final)
+	(dec-method :get_raw class/ints/get_raw :final)
+	(dec-method :push_raw class/ints/push_raw :final)
 	(dec-method :erase class/ints/erase :final)
 	(dec-method :erase2 class/ints/erase2 :final)
 	(dec-method :eql class/ints/eql :final)
@@ -47,7 +49,6 @@
 	(dec-method :frac class/floats/frac :final)
 	(dec-method :floor class/floats/floor :final)
 	(dec-method :ceil class/floats/ceil :final)
-	(dec-method :push class/floats/push :final)
 	(dec-method :lisp_floats class/floats/lisp_floats :static (:r0 :r1) (:r0 :r1)))
 
 (defun floats-map (sobs dobs elms sitrs ditrs idxs func &optional fpre)

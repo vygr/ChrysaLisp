@@ -145,7 +145,7 @@
 	;outputs
 	;:r0 = slice shorts object (ptr)
 	;trashes
-	;:r0-:r2, :r6-:r8, :d0-:d15
+	;:r0-:r3, :r6-:r8, :d0-:d15
 	;info
 	;the slice of :array at 2 bytes
 
@@ -279,18 +279,37 @@
 
 (def-func-end)
 
-(def-method :shorts :push)
+(def-method :shorts :get_raw)
 	;inputs
 	;:r0 = shorts object (ptr)
-	;:r1 = args list object (ptr)
 	;outputs
 	;:r0 = shorts object (ptr)
-	;:r1 = 0 if error, else ok
+	;:r1 = raw data (pubyte)
+	;:r2 = length (elements)
+	;:r3 = element size (bytes)
 	;trashes
-	;:r1-:r3, :r6-:r9, :r11-:r13, :d0-:d15
+	;:r1-:r3
 	;info
-	;the push of :array at 2 bytes
+	;the get_raw of :array at 2 bytes
 
-	(array-push :shorts 2)
+	(array-get-raw :shorts 2)
 
 (def-func-end)
+
+(def-method :shorts :push_raw)
+	;inputs
+	;:r0 = shorts object (ptr)
+	;:r1 = raw data (pubyte)
+	;:r2 = length (elements)
+	;:r3 = element size (bytes)
+	;outputs
+	;:r0 = shorts object (ptr)
+	;trashes
+	;:r1-:r3, :r6-:r9, :d0-:d15
+	;info
+	;the push_raw of :array at 2 bytes
+
+	(array-push-raw :shorts 2)
+
+(def-func-end)
+

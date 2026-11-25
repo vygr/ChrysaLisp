@@ -97,8 +97,9 @@
 		(endif)
 		(assign `(,val) `((,offset 0)))
 	(else)
-		(call :buf :set `(,this ,offset ,type ,val) `(,this :r1))
+		(call :buf :check_raw `(,this ,type ,val) `(,this :r1))
 		(gotoif '(:r1 /= 0) 'error)
+		(call :buf :set `(,this ,offset ,type ,val) `(,this))
 	(endif)
 	(class/obj/ref obj :r0)
 

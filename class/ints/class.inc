@@ -25,5 +25,6 @@
 	(dec-method :eql class/ints/eql :final)
 	(dec-method :hash class/ints/hash :final)
 	(dec-method :print class/ints/print :final)
-	(dec-method :push class/ints/push :final)
+	(dec-method :get_raw class/ints/get_raw :final)
+	(dec-method :push_raw class/ints/push_raw :final)
 	(dec-method :lisp_ints class/ints/lisp_ints :static (:r0 :r1) (:r0 :r1)))

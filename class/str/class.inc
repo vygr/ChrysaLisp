@@ -14,6 +14,7 @@
 	(dec-method :find class/str/find :final)
 	(dec-method :rfind class/str/rfind :final)
 	(dec-method :splice class/str/splice :final)
+	(dec-method :get_raw class/str/get_raw :final)
 	(dec-method :create_from_buffer class/str/create_from_buffer :static (:r0 :r1) (:r0))
 	(dec-method :create_from_cstr class/str/create_from_cstr :static (:r0) (:r0))
 	(dec-method :create_from_file class/str/create_from_file :static (:r0) (:r0))

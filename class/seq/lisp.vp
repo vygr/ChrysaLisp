@@ -115,8 +115,8 @@
 	;trashes
 	;:r1-:r12, :d0-:d15
 
-	(vp-rdef (this args src1 src2 idxs swp_xor si ei len idx_begin idx_end)
-		'(:r12 :r1 :r9 :r10 :r11))
+	(vp-rdef (this args src1 src2 idxs kept_args swp_xor si ei len idx_begin idx_end)
+		'(:r12 :r1 :r9 :r10 :r11 :r8))
 
 	(entry :seq :lisp_splice `(,this ,args))
 
@@ -130,6 +130,9 @@
 	(gotoif `(,si /= 0) 'error1)
 	(class/array/get_both idxs idx_begin idx_end)
 	(vpif `(,idx_begin /= ,idx_end))
+		;the args kept for an error of an index: what asks the lengths
+		;takes the register they came in
+		(vp-cpy-rr args kept_args)
 		(call :seq :get_length `(,src1) `(& ,len) :r1)
 		(call :seq :get_length `(,src2) `(& ,ei) :r1)
 		(vp-cpy-rr len swp_xor)
@@ -157,7 +160,7 @@
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(splice seq1 seq2 idxs)" +error_msg_wrong_types))
 (vp-label 'error2)
-	(jump :lisp :repl_error `(,args "(splice seq1 seq2 idxs)" +error_msg_not_valid_index))
+	(jump :lisp :repl_error `(,kept_args "(splice seq1 seq2 idxs)" +error_msg_not_valid_index))
 	(signature '(:seq :seq :NUMS))
 
 (def-func-end)

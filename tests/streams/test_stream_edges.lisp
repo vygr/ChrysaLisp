@@ -156,3 +156,12 @@
 (assert-eq "no bytes is the array as it was" 1 (length (read-nums se_rs 0 (path 9.0))))
 (assert-eq "onto the end of what an array has, a floats" 3 (length (read-nums se_rs 8 (floats 0.5))))
 (assert-eq "at the stream's end, none" :nil (read-nums se_rs 8 (path)))
+;a raw array the same, at its own width
+(defq se_ws (string-stream (cat "")))
+(assert-eq "write-nums of an ints, 4 bytes an element" 12 (write-nums se_ws (ints 1 2 3)))
+(assert-eq "of a shorts, 2" 4 (write-nums se_ws (shorts 4 5)))
+(assert-eq "of a bytes, 1" 3 (write-nums se_ws (bytes 6 7 8)))
+(defq se_ws (string-stream (str se_ws)))
+(assert-eq "read-nums, the ints again" "(1 2 3)" (str (read-nums se_ws 12 (ints))))
+(assert-eq "the shorts" "(9 4 5)" (str (read-nums se_ws 4 (shorts 9))))
+(assert-eq "and the bytes" "(6 7 8)" (str (read-nums se_ws 3 (bytes))))

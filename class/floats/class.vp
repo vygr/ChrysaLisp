@@ -26,24 +26,6 @@
 ; the storage
 ;;;;;;;;;;;;;
 
-(def-method :floats :push)
-	;inputs
-	;:r0 = floats object (ptr)
-	;:r1 = args list object (ptr)
-	;outputs
-	;:r0 = floats object (ptr)
-	;:r1 = 0 if error, else ok
-	;trashes
-	;:r1-:r3, :r6-:r9, :r11-:r13, :d0-:d15
-	;info
-	;each of the args after the first onto the end, raw as push has them
-	;for the other arrays: a number the low 32 bits of its value, a floats
-	;its elements, any other array or a str its bytes, 4 to an element
-
-	(array-push :floats +int_size)
-
-(def-func-end)
-
 ;;;;;;;;;;;;;;;;
 ; the vector ops
 ;;;;;;;;;;;;;;;;
