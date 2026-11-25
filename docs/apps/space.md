@@ -61,10 +61,24 @@ The way of flying, the size, the music and the detail are kept in the user's
 
 ## Detail
 
-Space starts with no bump on the rocks the first time, and puts it on while
-the GPU holds 50 frames a second or more, takes it off while it is under 28,
-and keeps what it was at. The status line says the rate, how frames are
-drawn, and if the detail is less than all of it.
+Each rock drawn is work for the app as well as the GPU, so less detail
+draws the rocks less far, their fade into the dark coming in with them, and
+the bump goes at the third level:
+
+0. All of it.
+1. The rocks drawn to 85% of the way.
+2. No bump.
+3. The rocks drawn to 70% of the way.
+4. The rocks drawn to 55% of the way.
+
+Space starts at the least the first time and goes up a level while it holds
+58 frames a second or more, down a level while it is under 50, and keeps the
+level it was at. A change of level eases the distance over a second or two,
+so rocks go into the dark sooner, not at once. The status line says the
+rate, how frames are drawn, and the detail if it is less than all of it.
+
+A frame waits three times as long as the app took over the last one, at
+least, so the app has a third of its node and what is beside it the rest.
 
 ## How it is made
 
@@ -84,10 +98,24 @@ drawn, and if the detail is less than all of it.
   Each is made by a bake of its own, `bake_nebula.lisp`, `bake_stars.lisp`,
   `bake_crunch.lisp` and `bake_levels.lisp`.
 
+The rocks meet in twelve parts, a part a frame, so each pair is met once in
+twelve frames. Touches are found through a fine grid, a sixteenth of the
+field each way: a small rock looks in the cells round its own for the small
+rocks it may touch, a big rock in the cells as far as its reach for the
+small ones, and the big rocks, a few, each other. Pulls are through a
+coarse grid, an eighth of the field each way, only of the rocks big enough
+for their pull to be seen, and in one round of three, three times as much,
+as a pull changes slowly. The rocks' pixel shader has one list of inputs for
+all of them, so it is packed the once a frame; what is a rock's own goes in
+its vertex shader's, and on to the pixel shader.
+
 A frame is a list of draws given to a `(Render-tris)`,
 `lib/gpu/render_farm.inc`, see `docs/ai_digest/render_farm.md`: the rocks
 and buoys the eye sees, the sky after what hides it, and last what adds
 light, the buoys' glows and the grains. A rock is drawn where it is nearest
-the eye of all the places it is, the field going on every way. The rocks
-meet in twelve parts, a part a frame, through a grid of where they are, and
-the auto pilot looks at seven headings a frame, so neither holds a frame up.
+the eye of all the places it is, the field going on every way. The auto
+pilot looks at seven headings a frame, so its looking holds no frame up.
+
+`+frame_log` in `app.lisp` logs each second its rate, its detail, the time a
+frame of each part of the app's work and the GPU's, and the rocks drawn, for
+tuning.

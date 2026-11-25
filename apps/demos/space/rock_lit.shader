@@ -31,19 +31,11 @@
 (definput pillars_light :vec3)
 (definput far_at :vec3)
 (definput far_light :vec3)
-;the lamp of the buoy nearest, where it is and its colour as bright as it
-;is now, black for none near; and the ship's ping, where and as bright,
-;black between pings
-(definput buoy_at :vec3)
-(definput buoy_light :vec3)
+;the ship's ping, where and as bright, black between pings
 (definput ping_at :vec3)
 (definput ping :vec3)
 (definput eye :vec3)
-(definput patch :vec3)
 (definput rough :float 0.0 0.0 1.0)
-;how big the rock is, across, so its fine detail is of a size in the
-;world, not of the rock
-(definput bulk :float)
 ;the sizes of the two maps, pixels
 (definput surface_pixels :vec2)
 (definput nebula_pixels :vec2)
@@ -52,6 +44,15 @@
 (defvarying facing :vec3)
 (defvarying local :vec3)
 (defvarying far :float)
+;what is the rock's own, from rock_vertex.shader, the same over all of it,
+;so all rocks have the one list of inputs here: where on the moon's map it
+;is, how big it is, across, so its fine detail is of a size in the world,
+;not of the rock, and the lamp of the buoy nearest, where it is and its
+;colour as bright as it is now, black for none near
+(defvarying patch :vec3)
+(defvarying bulk :float)
+(defvarying buoy_at :vec3)
+(defvarying buoy_light :vec3)
 
 ;how far off the bump is whole and gone, and the moon's map's fine
 ;detail, a second reading of it five times finer

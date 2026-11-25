@@ -36,6 +36,9 @@
 (defq +small ''(640 480) +large ''(1024 768))
 
 (defq +timer_rate (/ 1000000 60)
+	;how many times what this task took over a frame till the next, so it
+	;has a third of its node at most, the apps beside it the rest
+	+pace 3
 	;how high the frame is at a distance of 1, and how near and far it sees
 	+spread_y (n2d 0.5) +near (n2d 1) +far (n2d 2000)
 	;how fast the eye turns round of itself, a second, when the pointer is
@@ -101,11 +104,17 @@
 	;the size wanted, the size of the canvas drawn on, and the canvas still
 	;on show till a frame of a new one is whole
 	want +small size +small shown :nil
-	;how much less detail it draws, 0 all of it, 1 no bump, for a GPU too
-	;slow for all of it: how many seconds running it has been slow, or fast,
-	;what is slow and fast, and when it last went down, not to go up again
-	;for a while after
-	detail 1 slow 0 fast 0 +rate_least 28 +rate_most 50 detail_down 0
+	;how much less detail it draws, 0 all of it to 4 least, for a machine
+	;too slow for all of it: how many seconds running it has been slow, or
+	;fast, what is slow and fast, and when it last went down, not to go up
+	;again for a while after. Each rock drawn is work of this task's, so
+	;the less detail draws them less far: how far of all the way at each,
+	;and whether the bump; and how far it draws now, eased to the level's
+	;over seconds, its fade with it, so rocks go into the dark sooner, not
+	;at once, and the fade and the furthest now
+	detail 4 slow 0 fast 0 +rate_least 50 +rate_most 58 detail_down 0
+	+view_of (doubles (n2d 1) (n2d 0.85) (n2d 0.85) (n2d 0.7) (n2d 0.55)) +bump_most 1
+	+view_ease (n2d 1.5) view (n2d 0.55) fade_near +fade_near fade_far +fade_far rock_far +rock_far
 	;the music, the user's Jukebox favourites, apps/media/jukebox/music.inc,
 	;and whether the user wants it, kept whether or not there is any to play
 	music :nil music_on :t
@@ -125,7 +134,7 @@
 	;bright as it is
 	ping_at :nil ping :nil +ping_flash (doubles (n2d 2.5) (n2d 2.5) (n2d 2.7)) +dark (doubles +double_0 +double_0 +double_0)
 	+ping_top (n2d 2.5) +ping_back (n2d 4) +ping_round 1100000 +ping_long 50000
-	lamps (list)
+	lamps (list) lamps_near (list)
 	;the heading chosen through the rocks, and the choice of the next one
 	;being made, a few headings a frame, field.inc
 	heading :nil thread :nil
@@ -138,9 +147,14 @@
 (defun make-canvas (size)
 	; (make-canvas size) -> canvas
 	;its pixels are in shared memory if the host has it, the nodes of this
-	;machine then draw on them, a strip each
+	;machine then draw on them, a strip each. Every pixel of a frame is
+	;drawn, so it is opaque, and what is behind it is not drawn under each
+	;frame; black till the first
 	(bind '(w h) size)
-	(ifn (canvas-shared w h 1) (Canvas w h 1)))
+	(.-> (ifn (canvas-shared w h 1) (Canvas w h 1))
+		(:fill +argb_black)
+		(:set_flags +view_flag_opaque +view_flag_opaque)
+		(:swap +swap_write)))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Space" (+sym_close +sym_max +sym_min) +event_close)
@@ -296,29 +310,29 @@
 	;the rocks near enough and in what the frame sees, any of them, each
 	;where it is nearest the eye of all the places it is as the box goes on,
 	;turned as far as it has tumbled, as big as it is
-	(defq out (list) rough (if (= detail 0) +double_1 +double_0)
-		pvals_of (lambda (patch bulk) (list (list 'sun sun_at) (list 'eye eye) (list 'patch patch) (list 'rough rough)
-			(list 'bulk bulk)
+	;the pixel shader's inputs the one list for all of them, so packed the
+	;once; what is each rock's own goes to the vertex shader, and on
+	(defq out (list) pictures (list moon_map nebula_map) pvals (list (list 'sun sun_at) (list 'eye eye) (list 'rough (if (<= detail +bump_most) +double_1 +double_0))
 			(list 'sun_light sun_light) (list 'pillars_at pillars_at) (list 'pillars_light pillars_light)
 			(list 'far_at far_at) (list 'far_light far_light)
-			(list 'fade_near +fade_near) (list 'fade_far +fade_far)
+			(list 'fade_near fade_near) (list 'fade_far fade_far)
 			(list 'ping_at ping_at) (list 'ping ping)
-			(list 'surface_pixels moon_pixels) (list 'nebula_pixels nebula_pixels))))
+			(list 'surface_pixels moon_pixels) (list 'nebula_pixels nebula_pixels)))
 	(bind '(ex ey ez) eye)
 	(each (lambda ((at drift bulk kind spin patch))
 			(when (elem-get kinds_had kind)
 				(bind '(px py pz) at)
 				(defq rx (near-way (- px ex)) ry (near-way (- py ey)) rz (near-way (- pz ez)))
-				(when (and (< (- (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) bulk) +rock_far)
+				(when (and (< (- (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) bulk) rock_far)
 						(seen? rx ry rz (* bulk (elem-get kind_reach kind)) sides))
 					(bind '(& & turn_a turn_b) spin)
 					(push out (list (+ +mesh_rock kind)
-						(list (list 'model (mat4x4-mul (mat4x4-translate (+ ex rx) (+ ey ry) (+ ez rz))
+						(cat (list (list 'model (mat4x4-mul (mat4x4-translate (+ ex rx) (+ ey ry) (+ ez rz))
 								(mat4x4-mul (mat4x4-mul (mat4x4-roty turn_a) (mat4x4-rotx turn_b))
 									(mat4x4-scale bulk bulk bulk))))
-							(list 'lens view) (list 'eye eye))
-						(cat (pvals_of patch bulk) (rock-buoy (+ ex rx) (+ ey ry) (+ ez rz)))
-						(list moon_map nebula_map) rock_files)))))
+							(list 'lens view) (list 'eye eye) (list 'rock_patch patch) (list 'rock_bulk bulk))
+							(rock-buoy (+ ex rx) (+ ey ry) (+ ez rz)))
+						pvals pictures rock_files)))))
 		rocks)
 	out)
 
@@ -414,21 +428,27 @@
 			(list (doubles (+ ex (near-way (- (first at) ex))) (+ ey (near-way (- (second at) ey)))
 					(+ ez (near-way (- (third at) ez))))
 				(nums-scale colour (if on +double_1 +flash_dim))))
-		buoys)))
+		buoys)
+		;and those near enough to the eye to light a rock it sees
+		lamps_near (filter (lambda ((at &ignore))
+				(defq dx (- (first at) ex) dy (- (second at) ey) dz (- (third at) ez))
+				(< (+ (* dx dx) (* dy dy) (* dz dz)) (* (+ rock_far +buoy_light_far) (+ rock_far +buoy_light_far))))
+			lamps)))
 
 (defun rock-buoy (x y z)
-	; (rock-buoy x y z) -> ((buoy_at place) (buoy_light colour))
+	; (rock-buoy x y z) -> ((rock_lamp_at place) (rock_lamp colour))
 	;the lamp of the buoy nearest a rock at x y z, near enough to light it,
-	;where it is and as bright as it is, or none
+	;where it is and as bright as it is, or none: of the lamps near
+	;enough to the eye to light a rock it sees
 	(defq best :nil best_d +buoy_light_far)
 	(each (lambda ((at colour))
 			(defq dx (- (first at) x) dy (- (second at) y) dz (- (third at) z)
 				d (sqrt (+ (* dx dx) (* dy dy) (* dz dz))))
 			(when (< d best_d) (setq best_d d best (list at colour))))
-		lamps)
+		lamps_near)
 	(if best
-		(list (list 'buoy_at (first best)) (list 'buoy_light (nums-scale (second best) +buoy_power)))
-		(list (list 'buoy_at eye) (list 'buoy_light +dark))))
+		(list (list 'rock_lamp_at (first best)) (list 'rock_lamp (nums-scale (second best) +buoy_power)))
+		(list (list 'rock_lamp_at eye) (list 'rock_lamp +dark))))
 
 (defun buoy-draws (view sides)
 	; (buoy-draws view sides) -> draws
@@ -440,7 +460,7 @@
 				;its body's middle, below its lamp
 				(defq body_at (nums-sub at (doubles +double_0 (* +buoy_size (const (n2d 0.72))) +double_0))
 					rx (- (first body_at) (first eye)) ry (- (second body_at) (second eye)) rz (- (third body_at) (third eye)))
-				(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) +rock_far) (seen? rx ry rz +buoy_size sides)
+				(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) rock_far) (seen? rx ry rz +buoy_size sides)
 					(push out (list +mesh_buoy
 						(list (list 'model (mat4x4-mul (apply (const mat4x4-translate) (map (# %0) body_at))
 								(mat4x4-mul (mat4x4-roty (+ turn (n2d (!)))) (mat4x4-scale +buoy_size +buoy_size +buoy_size))))
@@ -459,28 +479,70 @@
 	(each (lambda ((at colour))
 			(defq rx (- (first at) (first eye)) ry (- (second at) (second eye)) rz (- (third at) (third eye))
 				size (* +buoy_size (+ (const (n2d 0.6)) (* (const (n2d 1.4)) (reduce (const max) colour +double_0)))))
-			(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) +rock_far) (seen? rx ry rz size sides)
+			(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) rock_far) (seen? rx ry rz size sides)
 				(push out (list +mesh_glow
 					(list (list 'middle at) (list 'size size) (list 'right right) (list 'up up) (list 'lens view))
 					(list (list 'lamp colour)) '() glow_files))))
 		lamps)
 	out)
 
+;the frame log, for tuning, on with +frame_log: each second its rate and
+;detail, the milliseconds a frame of each part of it and of the GPU, and
+;the rocks drawn, to tests/scratch/space/frames.log. For the Test user, a
+;session of a test's, the app quits once settled after its third second
+;under 50, to look at the log of it. The parts' times, when the last part
+;ended, the rocks drawn, the stream, when it began and the slow seconds
+(defq +frame_log :nil frame_parts (list 0 0 0 0 0 0 0) frame_at 0 frame_rocks 0
+	frame_stream :nil frame_began 0 frame_slow 0)
+
+(defun frame-mark (part)
+	;a part of the frame ended, for the frame log
+	(when +frame_log
+		(defq now (pii-time))
+		(elem-set frame_parts part (+ (elem-get frame_parts part) (- now frame_at)))
+		(setq frame_at now)))
+
+(defun frame-log (rate now)
+	; (frame-log rate now) -> :t | :nil
+	;a second's line of the frame log, the frames of it frames; :t to quit
+	(unless frame_stream
+		(setq frame_stream (file-stream "tests/scratch/space/frames.log" +file_open_write) frame_began now))
+	(defq ms (map (lambda (us) (defq a (/ us (max frames 1))) (cat (str (/ a 1000)) "." (str (/ (% a 1000) 100))))
+			(push (cat frame_parts) (get :took render))))
+	(write-line frame_stream (cat (str (/ (- now frame_began) 1000000)) "s " (str rate) " fps detail " (str detail)
+		" | eye " (elem-get ms 0) " move " (elem-get ms 1) " meet " (elem-get ms 2) " hits " (elem-get ms 3)
+		" buoys " (elem-get ms 4) " draws " (elem-get ms 5) " render " (elem-get ms 6)
+		" gpu " (elem-get ms 7) " rocks " (str (/ frame_rocks (max frames 1)))))
+	(setq frame_parts (list 0 0 0 0 0 0 0) frame_rocks 0)
+	(stream-flush frame_stream)
+	(when (and (eql (get '*env_node_user*) "Test") (> (- now frame_began) 20000000) (< rate 50) (>= (++ frame_slow) 3))
+		(write-line frame_stream "QUIT")
+		(stream-flush frame_stream)
+		:t))
+
 (defun draw-frame ()
 	;the eye turned and gone on, kept in the box of the field, the way it
 	;looks, and the frame of it, the rocks and the sky behind them
+	(if +frame_log (setq frame_at (pii-time)))
 	(defq dt (turn-eye))
+	;how far it draws, eased to the level's
+	(setq view (+ view (* (- (elem-get +view_of detail) view) (min +double_1 (/ dt +view_ease))))
+		fade_near (* +fade_near view) fade_far (* +fade_far view) rock_far (* +rock_far view))
+	(frame-mark 0)
 	;the rocks on, and a part of them moved by each other, a round of all
 	;the parts as many frames, the grid made at the start of each round
 	(rocks-move dt)
+	(frame-mark 1)
 	(if (= part 0) (setq grid (rocks-grid)))
 	(rocks-meet (* (min dt (const (n2d 0.05))) (n2d +meet_parts)) grid part)
+	(frame-mark 2)
 	(setq part (% (inc part) +meet_parts))
 	;now and then a cluster out of sight made lively again
 	(when (>= (- (pii-time) refreshed) +refresh_every)
 		(setq refreshed (pii-time))
 		(clusters-refresh eye (+ +rock_far (const (n2d 60)))))
 	(hear-hits)
+	(frame-mark 3)
 	(setq eye (apply (const doubles) (map (lambda (e f)
 		(defq v (+ e (* f +speed dt)))
 		(cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))) eye forward)))
@@ -501,7 +563,11 @@
 	(buoy-look buoy_next)
 	(setq buoy_next (% (inc buoy_next) +buoys))
 	(buoy-lamps)
-	(. render :frame (cat (rock-draws view sides) (buoy-draws view sides) (list
+	(frame-mark 4)
+	(defq rd (rock-draws view sides) bd (buoy-draws view sides))
+	(if +frame_log (setq frame_rocks (+ frame_rocks (length rd))))
+	(frame-mark 5)
+	(. render :frame (cat rd bd (list
 		(list +mesh_sky '()
 			(list (list 'forward forward) (list 'right right) (list 'up up)
 				(list 'spread (doubles spread_x +spread_y)) (list 'sun sun_at)
@@ -513,6 +579,7 @@
 		;the buoys' lamps' glows and the grains hits throw out, over what is
 		;behind
 		(glow-draws view right up sides) (spray-draws view right up sides)))
+	(frame-mark 6)
 	(++ frames))
 
 (defun set-size (wanted)
@@ -552,7 +619,7 @@
 
 (defun config-default ()
 	;the first time
-	(scatter (Emap) :version +config_version :mode :auto :large :nil :music :t :detail 1))
+	(scatter (Emap) :version +config_version :mode :auto :large :nil :music :t :detail 4))
 
 (defun config-load ()
 	;the defaults with what was kept laid over them,
@@ -589,7 +656,7 @@
 		((< (- now began) 3000000) (setq slow 0 fast 0))
 		((< rate +rate_least)
 			(setq fast 0)
-			(and (< detail 1) (>= (++ slow) 2)
+			(and (< detail 4) (>= (++ slow) 2)
 				(setq detail (inc detail) slow 0 detail_down now)))
 		((>= rate +rate_most)
 			(setq slow 0)
@@ -627,7 +694,7 @@
 		(cat (setf-> (str-alloc +rock_size) (+rock_num +rock_kinds)) "buoy")))
 	(setq buoys (make-buoys))
 	(config-load)
-	(setq detail (min 1 (. *config* :find :detail)) mode (. *config* :find :mode)
+	(setq detail (min 4 (. *config* :find :detail)) view (elem-get +view_of detail) mode (. *config* :find :mode)
 		;the Pillars ahead, level, at first
 		forward (sky-unit (doubles (first pillars_at) +double_0 (third pillars_at)))
 		up (doubles +double_0 +double_1 +double_0) turned (pii-time))
@@ -652,8 +719,8 @@
 		(cond
 			((not idx)
 				;a frame that was out is whole: the next at once if it took a
-				;tick or more, and four times what this task took over it
-				(and (not (. render :busy)) (>= (- (pii-time) given) (max +timer_rate (* frame_took 4)))
+				;tick or more, and +pace times what this task took over it
+				(and (not (. render :busy)) (>= (- (pii-time) given) (max +timer_rate (* frame_took +pace)))
 					(next-frame)))
 			;the music's
 			((. music :mail idx msg))
@@ -706,10 +773,10 @@
 			(:t ;the timer, a frame a tick, if the last frame is not still out
 				(defq start (pii-time))
 				(next-frame)
-				;the next tick is a tick on from when this one was due, or four
+				;the next tick is a tick on from when this one was due, or +pace
 				;times as long as this one took here if that is more
 				(defq took (- (pii-time) start))
-				(setq due (max (+ due (max +timer_rate (* took 4))) (pii-time)))
+				(setq due (max (+ due (max +timer_rate (* took +pace))) (pii-time)))
 				(mail-timeout (elem-get select +select_timer) (max 1 (- due (pii-time))) 0)
 				(. render :tick)
 				(when (>= (- (defq now (pii-time)) since) 1000000)
@@ -718,6 +785,7 @@
 					(. *status* :set_text (cat (str rate) " frames a second, "
 							(. render :how) (if (> detail 0) (cat ", detail less " (str detail)) "")
 							(if (defq song (. music :title)) (cat ", " song) "")))
+					(and +frame_log (frame-log rate now) (setq id :nil))
 					(setq frames 0 since now)))))
 	(config-save)
 	(. music :stop)
