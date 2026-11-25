@@ -43,6 +43,9 @@
 				(or (= (getf header +tga_depth) 24)
 					(= (getf header +tga_depth) 32)))
 			(bind '(w h type) (getf-> header +tga_width +tga_height +tga_depth))
+			;the id field, after the header and before the pixels, as long as
+			;its first byte says, words of the picture: they are not pixels
+			(if (> (defq id_len (getf header +tga_imagedata)) 0) (read-blk stream id_len))
 			(defq canvas (Canvas w h 1) pixmap (getf canvas +canvas_pixmap 0))
 			(setf pixmap +pixmap_type 32 0)
 			; loop and copy direct to the pixmap's pixel buffer
