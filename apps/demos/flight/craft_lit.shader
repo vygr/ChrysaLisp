@@ -56,9 +56,11 @@
 	(- 1.0 (ease 0.0 0.06 (abs (- (fract (+ (* v n) 0.5)) 0.5)))))
 
 (defun main :vec4 ((frag :vec2))
-	;a cow's patches, of a noise, worked out only for a cow
+	;a cow's patches, black on white, about half of it: of a noise, read
+	;well away from where the lattice starts, where it is low, and worked
+	;out only for a cow
 	(defq blot 0.0)
-	(if (> patches 0.0) (setq blot (* patches 0.9 (ease 0.5 0.56 (noise3 (* local 2.6))))))
+	(if (> patches 0.0) (setq blot (* patches 0.92 (ease 0.47 0.53 (noise3 (+ (* local 4.5) (vec3 71.0 23.0 57.0)))))))
 	(defq n (normalize facing) to_eye (normalize (- eye place))
 		r (reflect (- to_eye) n)
 		lit (max (dot n sun) 0.0)
@@ -73,8 +75,9 @@
 		spot (pow (max (dot r sun) 0.0) 80.0)
 		pulse (+ 0.7 (* 0.3 (cos (* time 4.0))))
 		hide (* tint (- 1.0 blot))
-		colour (+ (* (mix (* hide (+ 0.2 (* 0.6 lit))) (* (seen r) metal) (* (+ 0.35 (* 0.6 edge)) (- 1.0 patches))) daylight)
-			(* shine spot 1.4)))
+		;a cow is a hide, matt: lit by the day, no mirror and no spot of the sun
+		colour (+ (* (mix (* hide (+ 0.3 (* 0.7 lit))) (* (seen r) metal) (* (+ 0.35 (* 0.6 edge)) (- 1.0 patches))) daylight)
+			(* shine spot 1.4 (- 1.0 patches))))
 	;the lamps, flecks on the rim, each lit as a wave goes over
 	(defq spots (pow (max (* (cos (* (:x local) 22.0)) (cos (* (:z local) 22.0))) 0.0) 4.0)
 		rim (* (ease 0.62 0.72 round) (- 1.0 (ease 0.04 0.14 (abs (:y local)))))
