@@ -20,6 +20,10 @@
 ;time, how rough the land is, and how many steps to the sun a shadow
 ;looks, 0 for none: the app gives less of them to the CPU than the GPU
 (definput sun :vec3)
+;the ways to the sun and the moon themselves, of the glow round each in
+;the sky, which the haze far off is too
+(definput sun_way :vec3)
+(definput moon_way :vec3)
 (definput haze :vec3)
 (definput above :vec3)
 (definput eye :vec3)
@@ -126,6 +130,16 @@
 (defun sky_in :vec3 ((d :vec3))
 	(mix haze above (pow (max (:y d) 0.0) 0.6)))
 
+;the sky in a way with the glow round the sun and the moon, as sky_lit.shader
+;has it but for their discs and the stars: what the land far off goes into,
+;so the edge of it is the sky behind it whichever way it is looked at
+(defconst far_sun (vec3 1.0 0.92 0.75))
+(defconst far_moon (vec3 0.75 0.82 1.0))
+(defun far_sky :vec3 ((d :vec3))
+	(defq to_sun (max (dot d sun_way) 0.0) to_moon (max (dot d moon_way) 0.0))
+	(min (+ (sky_in d) (* far_sun (* 0.35 (pow to_sun 12.0)))
+		(* far_moon night (+ (* 0.12 (pow to_moon 40.0)) (* 0.08 (pow to_moon 6.0))))) (vec3 1.0)))
+
 (defun main :vec4 ((frag :vec2))
 	;how high the land is here: near the water the land's own height at this
 	;pixel, not the grid's between its corners, so the shore follows the
@@ -170,4 +184,4 @@
 				colour (* colour daylight (+ 0.28 (* 0.95 lit (max (dot b sun) 0.0)))))))
 	;the craft's shadows dim the water too, and their lights light both
 	(if (<= h water) (setq colour (* colour (+ 0.55 (* 0.45 crafts)))))
-	(vec4 (mix (+ colour glow) haze fade) 1.0))
+	(vec4 (mix (+ colour glow) (far_sky (- to_eye)) fade) 1.0))
