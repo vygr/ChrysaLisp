@@ -61,29 +61,52 @@
 	(defq q (/ n d) r (- n (* q d)))
 	(if (< r 0) (list (dec q) (+ r d)) (list q r)))
 
+;where each color of a gradient's lut is along it, i by 65536
+(defq +paint_lut_at (nums-scale (apply (const nums) (map! (const !) '() 0 +paint_lut_size)) 65536))
+
 (defun canvas-gradient-lut (stops)
-	; (canvas-gradient-lut stops) -> (argb ...)
+	; (canvas-gradient-lut stops) -> nums
 	;the 256 colors of a gradient's stops, ((offset argb) ...), step i at t
 	;i over 255, each channel mixed straight between the stops either side,
 	;not premultiplied, to the nearest. An offset is kept to 0 to 1 and to no
 	;less than the one before, as SVG has it, and before the first and after
-	;the last is their color. All in integers, an offset in 255 by 65536ths
+	;the last is their color. All in integers, an offset in 255 by 65536ths.
+	;The colors between two stops are a line, so they are made together, a
+	;vector a channel, not one at a time
 	(defq at 0 stops (map (lambda ((o c))
 			(setq at (max at (min 16711680 (max 0 (n2i (floor (+ (* (n2q o) 16711680.0) 0.5)))))))
-			(list at c)) stops) n (length stops))
-	(map! (lambda ()
-			(defq t (* (!) 65536) i 0)
-			(while (and (< i n) (<= (first (elem-get stops i)) t)) (++ i))
-			(cond
-				((= i 0) (second (first stops)))
-				((= i n) (second (last stops)))
-				(:t (bind '((o0 c0) (o1 c1)) (list (elem-get stops (dec i)) (elem-get stops i)))
-					(defq w (- o1 o0) f (- t o0))
-					(reduce (lambda (argb shift)
-							(defq a (logand (>> c0 shift) 0xff) b (logand (>> c1 shift) 0xff))
-							(+ argb (<< (first (canvas-floor (+ (* 2 (+ (* a w) (* (- b a) f))) w) (* 2 w))) shift)))
-						'(24 16 8 0) 0))))
-		'() 0 +paint_lut_size))
+			(list at c)) stops)
+		parts (list) lo 0 o0 0 c0 :nil)
+	(each (lambda ((o1 c1))
+			;the colors before this stop that are not before the last
+			(defq hi (min +paint_lut_size (/ (+ o1 65535) 65536)) n (- hi lo))
+			(when (> n 0)
+				(cond
+					((not c0) (push parts (fill (nums) n c1)))
+					(:t (defq w (- o1 o0) ones (fill (nums) n 1) by (nums-scale ones (* 2 w))
+							f (nums-add-scaled (slice +paint_lut_at lo hi) ones (neg o0)))
+						(push parts (reduce (lambda (argb shift)
+								(defq a (logand (>> c0 shift) 0xff) b (logand (>> c1 shift) 0xff))
+								(nums-add-scaled argb (nums-div (nums-add-scaled (nums-scale f (* 2 (- b a)))
+									ones (+ (* 2 a w) w)) by) (<< 1 shift)))
+							'(24 16 8 0) (fill (nums) n 0)))))
+				(setq lo hi))
+			(setq o0 o1 c0 c1))
+		stops)
+	(if (< lo +paint_lut_size) (push parts (fill (nums) (- +paint_lut_size lo) c0)))
+	(apply (const cat) parts))
+
+(defun canvas-gradient (canvas kind stops head)
+	; (canvas-gradient canvas kind stops head) -> canvas
+	;a gradient's +paint, and the canvas told to draw with it, (canvas-paint):
+	;its head, a nums, (spread a0 ax ay b0 bx by), its lut, each written
+	;whole by the one call, and after them a row as wide as the canvas's
+	;pixmap, for the span to work in, of whatever is there
+	(defq ss (string-stream (cat "")))
+	(write-blk ss (obj-set (str-alloc +paint_lut) +str_data +paint_lut head))
+	(write-char ss (apply (const list) (canvas-gradient-lut stops)) +int_size)
+	(write-blk ss (str-alloc (* +int_size (getf (getf canvas +canvas_pixmap 0) +pixmap_width 0))))
+	(canvas-paint canvas kind (str ss)))
 
 (defun canvas-gradient-matrix (canvas kind spread stops g m)
 	; (canvas-gradient-matrix canvas kind spread stops g m) -> :nil | canvas
@@ -91,7 +114,8 @@
 	;across, g takes to the space m takes to the pixels, both (a b tx c d
 	;ty), m none or a mat3x2. Of the two together the one back from a pixel
 	;to u and v, in doubles, then two rows of 32 bits of fraction of the
-	;pixel's centre, (canvas-gradient). :nil if it flattens all to a line
+	;pixel's centre, the head of its +paint, (canvas-gradient). :nil if it
+	;flattens all to a line
 	(bind '(g0 g1 g2 g3 g4 g5) g)
 	(bind '(m0 m1 m2 m3 m4 m5) (map (const n2d) (ifn m '(1.0 0.0 0.0 0.0 1.0 0.0))))
 	(defq c0 (+ (* m0 g0) (* m1 g3)) c1 (+ (* m0 g1) (* m1 g4)) c2 (+ (* m0 g2) (* m1 g5) m2)
@@ -101,19 +125,11 @@
 		(defq i0 (/ c4 det) i1 (/ (neg c1) det) i2 (/ (- (* c1 c5) (* c4 c2)) det)
 			i3 (/ (neg c3) det) i4 (/ c0 det) i5 (/ (- (* c3 c2) (* c0 c5)) det)
 			h (const (n2d 0.5)) k (const (n2d (<< 1 32))))
-		(canvas-gradient canvas kind spread stops
-			(map (# (n2i (* %0 k))) (list (+ (* i0 h) (* i1 h) i2) i0 i1))
-			(map (# (n2i (* %0 k))) (list (+ (* i3 h) (* i4 h) i5) i3 i4)))))
-
-(defun canvas-gradient (canvas kind spread stops a b)
-	; (canvas-gradient canvas kind spread stops (a0 ax ay) (b0 bx by)) -> canvas
-	;a gradient's +paint, its lut and a row as wide as the canvas's pixmap,
-	;and the canvas told to draw with it, (canvas-paint)
-	(defq ss (string-stream (cat "")))
-	(each (# (write-long ss %0)) (cat (list (ifn spread +spread_pad)) a b))
-	(each (# (write-int ss %0)) (canvas-gradient-lut stops))
-	(write-blk ss (str-alloc (* +int_size (getf (getf canvas +canvas_pixmap 0) +pixmap_width 0))))
-	(canvas-paint canvas kind (str ss)))
+		;straight into the nums that is its head, after its spread
+		(canvas-gradient canvas kind stops
+			(reduce (# (push %0 (n2i (* %1 k))))
+				(list (+ (* i0 h) (* i1 h) i2) i0 i1 (+ (* i3 h) (* i4 h) i5) i3 i4)
+				(nums (ifn spread +spread_pad))))))
 
 (defclass Canvas-base () (View)
 	(def this :paper 0)

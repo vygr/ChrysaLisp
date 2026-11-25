@@ -289,11 +289,12 @@
 
 (defun svg-chars (text)
 	; (svg-chars text) -> (str ...)
-	;the characters of a UTF-8 string
-	(defq out (list))
-	(while (nempty? text)
-		(push out (slice text 0 (defq n (svg-char-len text))))
-		(setq text (slice text n -1)))
+	;the characters of a UTF-8 string, each cut from it where it is
+	(defq out (list) at 0 end (length text))
+	(while (< at end)
+		(defq c (code text 1 at) n (cond ((< c 0xc0) 1) ((< c 0xe0) 2) ((< c 0xf0) 3) (4)))
+		(push out (slice text at (min end (+ at n))))
+		(setq at (+ at n)))
 	out)
 
 (defun svg-font (family weight style px)
@@ -406,6 +407,12 @@
 				(if (nempty? own) (setq stops own)))
 			chain)
 		(list (second (elem-get log (first chain))) attrs stops)))
+(defun svg-at (attrs sizes key default size)
+	; (svg-at attrs sizes key default size) -> fixed
+	;a coordinate of a gradient by its name, or its default, of the size it
+	;is a % of, (svg-coord)
+	(svg-coord (ifn (. attrs :find key) default) (elem-get sizes size)))
+
 (defun svg-paint (canvas val opacity paths m defs)
 	; (svg-paint canvas val opacity paths m defs) -> :nil | :t
 	;the canvas told to draw with a gradient, (:url id fall), defs the log
@@ -413,9 +420,13 @@
 	;:nil if not. Of the gradient's box, objectBoundingBox by default, the
 	;box of the paths, its gradientTransform, then m, the element's
 	(bind '(& id fall) val)
-	(bind '(log ids (vw vh)) defs)
+	(bind '(log ids (vw vh) found) defs)
+	;a gradient is found the once and kept, till more of one is read,
+	;(SVG-load)
+	(unless (defq g (. found :find id))
+		(if (setq g (svg-gradient id log ids)) (. found :insert id g)))
 	(cond
-		((not (defq g (svg-gradient id log ids)))
+		((not g)
 			(when (and (num? fall) (/= fall 0))
 				(. canvas :set_color (svg-alpha fall opacity))
 				:t))
@@ -431,9 +442,7 @@
 				;width, its height, or for a radius its diagonal over root 2
 				sizes (if user
 					(list vw vh (n2q (sqrt (/ (+ (* (n2d vw) (n2d vw)) (* (n2d vh) (n2d vh))) (const (n2d 2))))))
-					'(1.0 1.0 1.0))
-				at (lambda (key default size)
-					(svg-coord (ifn (. attrs :find key) default) (elem-get sizes size))))
+					'(1.0 1.0 1.0)))
 			(cond
 				;of no stops, its fallback, or nothing
 				((empty? stops)
@@ -452,8 +461,10 @@
 						(setq frame (mat3x2-mul (mat3x2 bw 0.0 bx 0.0 bh by) frame)))
 					(setq frame (mat3x2-mul m frame))
 					(if (eql kind "linearGradient")
-						(. canvas :set_linear (at "x1" "0%" 0) (at "y1" "0%" 1) (at "x2" "100%" 0) (at "y2" "0%" 1) stops spread frame)
-						(. canvas :set_radial (at "cx" "50%" 0) (at "cy" "50%" 1) (at "r" "50%" 2) stops spread frame))
+						(. canvas :set_linear (svg-at attrs sizes "x1" "0%" 0) (svg-at attrs sizes "y1" "0%" 1)
+							(svg-at attrs sizes "x2" "100%" 0) (svg-at attrs sizes "y2" "0%" 1) stops spread frame)
+						(. canvas :set_radial (svg-at attrs sizes "cx" "50%" 0) (svg-at attrs sizes "cy" "50%" 1)
+							(svg-at attrs sizes "r" "50%" 2) stops spread frame))
 					:t)))))
 
 (defun read-attribute (entry key val)
@@ -593,6 +604,14 @@
 					(. entry :insert key val)))) keys vals)
 	entry)
 
+(defun svg-painted (canvas val alpha paths transform defs)
+	; (svg-painted canvas val alpha paths transform defs) -> :nil | :t
+	;the canvas told to draw with a fill's or a stroke's paint, a gradient's
+	;or a color's: :t if there is any to draw
+	(cond
+		((list? val) (and defs (svg-paint canvas val alpha paths transform defs)))
+		(:t (. canvas :set_color (svg-alpha val alpha)) :t)))
+
 (defun path-fill-and-stroke (canvas entry paths &optional defs)
 	(bind '(& stroke & fill & stroke_width & stroke_linecap & stroke_linejoin
 			& fill_rule & fill_opacity & stroke_opacity & transform & opacity & visibility
@@ -601,16 +620,11 @@
 	;cheaky bind of the front of the Pmap :bucket !
 	(unless (eql visibility "visible") (setq fill 0 stroke 0))
 	(setq fill_opacity (* fill_opacity opacity) stroke_opacity (* stroke_opacity opacity))
-	;a gradient's or a color's, :t if there is any to draw
-	(defq paint (lambda (val alpha)
-			(cond
-				((list? val) (and defs (svg-paint canvas val alpha paths transform defs)))
-				(:t (. canvas :set_color (svg-alpha val alpha)) :t))))
-	(and (nql fill 0) (/= fill_opacity 0.0) (paint fill fill_opacity)
+	(and (nql fill 0) (/= fill_opacity 0.0) (svg-painted canvas fill fill_opacity paths transform defs)
 		(.-> canvas
 			(:fpoly 0.0 0.0 fill_rule
 				(map (lambda ((f p)) (mat3x2-vec2-mul transform p (cat p))) paths))))
-	(and (nql stroke 0) (/= stroke_opacity 0.0) (paint stroke stroke_opacity)
+	(and (nql stroke 0) (/= stroke_opacity 0.0) (svg-painted canvas stroke stroke_opacity paths transform defs)
 		(.-> canvas
 			(:fpoly 0.0 0.0 fill_rule
 				(map (lambda (p) (mat3x2-vec2-mul transform p p))
@@ -640,7 +654,7 @@
 	(setq scale (n2q (ifn scale 1)))
 	;the viewports of the svgs in svgs, the switches being drawn as (depth
 	;chosen), the elements open and the uses being drawn, by where in the log
-	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) defs (list log ids viewport)
+	(defq canvas :nil skip 0 log (list) ids (Fmap 31) viewport (list 100.0 100.0) found (Fmap 11) defs (list log ids viewport found)
 		viewports (list) switches (list) open (list) drawing (list) use_size :nil symbol :nil
 		texts 0 text_pos (list) text_decos (list) text_y_deco 0.0 text_rot 0.0 text_runs (list)
 		text_path :nil text_glyphs (list) text_area :nil text_words (list) text_x 0.0 text_y 0.0 text_x0 0.0 text_anchor "start"
@@ -764,6 +778,8 @@
 			(if (starts-with "svg:" command) (setq command (slice command 4 -1)))
 			(when (= replaying 0)
 				(push log (list :in command (cat keys) (cat vals)))
+				;more of a gradient read, those found are found again
+				(if (find command '("linearGradient" "radialGradient" "stop")) (. found :empty))
 				(push open (dec (length log)))
 				(if (defq at (find "id" keys)) (. ids :insert (elem-get vals at) (dec (length log)))))
 			;what draws nothing is passed over with all that is in it, so
@@ -975,10 +991,10 @@
 				(defq w (- text_x text_x0)
 					shift (case text_anchor ("middle" (* w -0.5)) ("end" (- 0.0 w)) (:t 0.0)))
 				;the runs of one element drawn as one, a gradient over them all
-				(defq last_entry :nil group (list))
+				(defq last_entry :nil group (list) move (mat3x2-translate shift 0.0))
 				(each (lambda ((entry paths))
 						(if (/= shift 0.0)
-							(each (# (mat3x2-vec2-mul (mat3x2-translate shift 0.0) %0 %0)) paths))
+							(each (# (mat3x2-vec2-mul move %0 %0)) paths))
 						(unless (eql entry last_entry)
 							(if last_entry (path-fill-and-stroke canvas last_entry group defs))
 							(setq last_entry entry group (list)))
@@ -1255,8 +1271,8 @@
 				(setd w 256.0 h 256.0)
 				(if vb (bind '(& & w h) vb))
 				(setq width w height h)))
-		(lambda (command))
-		(lambda (text)))
+		(lambda (&ignore))
+		(lambda (&ignore)))
 	(list width height 32))
 
 ;the canvas is told what this reads
