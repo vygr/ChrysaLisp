@@ -29,7 +29,25 @@
 		(push tm_titles tm_title)))
 (assert-eq "on to the next, and off when none is a module" "a b" (join tm_titles " "))
 
+;a song that is a module, a MOD of one silent pattern made here, played
+;quiet: the player says nothing of it, and is still there after it, told
+;of the next, which is not a module, and says so
+(defun tm-zeros (n) (pad "" n "\x00"))
+(defq tm_m (cat "tests/scratch/music_m_" (str (pii-pid)) ".mod"))
+(save (cat "test" (tm-zeros 16) (tm-zeros 22) "\x00\x10\x00\x40\x00\x00\x00\x01"
+	(tm-zeros (* 30 30)) "\x01\x7f" (tm-zeros 128) "M.K." (tm-zeros 1024) (pad "" 32 "\x40")) tm_m)
+(assert-eq "a module to play, the music on" :t
+	(. tm_music :start (list (list "m" tm_m) (list "a" tm_a))))
+(assert-eq "it plays" "m" (. tm_music :title))
+(. tm_music :move 1)
+(assert-eq "the next" "a" (. tm_music :title))
+(until (= (defq tm_idx (mail-select tm_select)) 2)
+	(. tm_music :mail tm_idx (mail-read (elem-get tm_select tm_idx))))
+(. tm_music :mail tm_idx (mail-read (elem-get tm_select tm_idx)))
+(assert-eq "the player there after a quiet song says the next is not a module, and the music is on to the one after" "m" (. tm_music :title))
+
 (pii-remove tm_a)
 (pii-remove tm_b)
+(pii-remove tm_m)
 (. tm_music :stop)
-(undef (env) 'tm_select 'tm_music 'tm_a 'tm_b 'tm_titles 'tm_idx 'tm_msg 'tm_title)
+(undef (env) 'tm_select 'tm_music 'tm_a 'tm_b 'tm_m 'tm_titles 'tm_idx 'tm_msg 'tm_title)

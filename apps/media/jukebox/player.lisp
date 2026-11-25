@@ -182,12 +182,12 @@
 
 (defun command (msg)
 	; (command msg) -> :nil if to go
-	;a mailbox, a letter, and what the letter is of
+	;a mailbox, a letter, and what the letter is of. Whether to go is the
+	;letter's alone, not what was done of it: a quiet song's (report) is :nil
 	(defq id (slice msg 0 +net_id_size) at (inc +net_id_size)
 		kind (if (> (length msg) +net_id_size) (elem-get msg +net_id_size) "K"))
 	(cond
-		((eql kind "Q") :nil)
-		((eql kind "K"))
+		((find kind '("Q" "K")))
 		((eql kind "M")
 			;its line ends after the mailbox, which is bytes, a newline
 			;among them now and then
@@ -210,7 +210,8 @@
 			(report))
 		((eql kind "G")
 			;only the last of a drag is done, (seek-now)
-			(setq *seek_to* (list (slice msg at (+ at +net_id_size)) (str-as-num (slice msg (+ at +net_id_size) -1)))))))
+			(setq *seek_to* (list (slice msg at (+ at +net_id_size)) (str-as-num (slice msg (+ at +net_id_size) -1))))))
+	(nql kind "Q"))
 
 (defun seek-now ()
 	;the last seek asked for, now no more is waiting: the window is told of
