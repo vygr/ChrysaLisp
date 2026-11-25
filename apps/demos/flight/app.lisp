@@ -158,9 +158,14 @@
 (defun make-canvas (size)
 	; (make-canvas size) -> canvas
 	;its pixels are in shared memory if the host has it, the nodes of this
-	;machine then draw on them, a strip each
+	;machine then draw on them, a strip each. Every pixel of a frame is
+	;drawn, so it is opaque, and what is behind it is not drawn under each
+	;frame; black till the first
 	(bind '(w h) size)
-	(ifn (canvas-shared w h 1) (Canvas w h 1)))
+	(.-> (ifn (canvas-shared w h 1) (Canvas w h 1))
+		(:fill +argb_black)
+		(:set_flags +view_flag_opaque +view_flag_opaque)
+		(:swap +swap_write)))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Flight" (+sym_close +sym_max +sym_min) +event_close)
