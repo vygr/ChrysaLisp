@@ -151,6 +151,10 @@
 (assert-true "reflected past a line half the box"
 	(every (const sv-near) '(115 140 243 115)
 		(map (# (sv-grad (cat "<linearGradient id=\qg\q x2=\q0.5\q spreadMethod=\qreflect\q>" sv_bw "</linearGradient>") "url(#g)" %0 20)) '(14 15 19 25))))
+;a radial gradient's focus, fx fy: its first color there, not at its centre
+(defq sv_focal "<defs><radialGradient id=\qg\q fx=\q75%\q><stop offset=\q0\q stop-color=\q#f00\q/><stop offset=\q1\q stop-color=\q#00f\q/></radialGradient></defs><rect width=\q40\q height=\q40\q fill=\qurl(#g)\q/>")
+(assert-true "a radialGradient's fx, its first color at the focus" (< (logand (sv-at sv_focal 30 20) 0xff) 16))
+(assert-true "and at its centre a third of the way to its last" (<= 70 (logand (sv-at sv_focal 20 20) 0xff) 100))
 (assert-eq "a stop's color in its style" 0xffff0000
 	(sv-at "<defs><linearGradient id=\qg\q><stop offset=\q0\q style=\qstop-color: red\q/></linearGradient></defs><rect x=\q10\q y=\q10\q width=\q20\q height=\q20\q fill=\qurl(#g)\q/>" 20 20))
 (assert-true "stop-opacity and fill-opacity, half and half, a quarter"

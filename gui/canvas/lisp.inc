@@ -99,7 +99,7 @@
 (defun canvas-gradient (canvas kind stops head)
 	; (canvas-gradient canvas kind stops head) -> canvas
 	;a gradient's +paint, and the canvas told to draw with it, (canvas-paint):
-	;its head, a nums, (spread a0 ax ay b0 bx by), its lut, each written
+	;its head, a nums, (spread a0 ax ay b0 bx by focus), its lut, each written
 	;whole by the one call, and after them a row as wide as the canvas's
 	;pixmap, for the span to work in, of whatever is there
 	(defq ss (string-stream (cat "")))
@@ -108,14 +108,15 @@
 	(write-blk ss (str-alloc (* +int_size (getf (getf canvas +canvas_pixmap 0) +pixmap_width 0))))
 	(canvas-paint canvas kind (str ss)))
 
-(defun canvas-gradient-matrix (canvas kind spread stops g m)
-	; (canvas-gradient-matrix canvas kind spread stops g m) -> :nil | canvas
+(defun canvas-gradient-matrix (canvas kind spread stops g m focus)
+	; (canvas-gradient-matrix canvas kind spread stops g m focus) -> :nil | canvas
 	;a gradient whose own space, u along its line or out from its centre, v
 	;across, g takes to the space m takes to the pixels, both (a b tx c d
 	;ty), m none or a mat3x2. Of the two together the one back from a pixel
 	;to u and v, in doubles, then two rows of 32 bits of fraction of the
-	;pixel's centre, the head of its +paint, (canvas-gradient). :nil if it
-	;flattens all to a line
+	;pixel's centre, the head of its +paint, (canvas-gradient), with a
+	;radial's focus after them, a double, 0 of one about its centre. :nil if
+	;it flattens all to a line
 	(bind '(g0 g1 g2 g3 g4 g5) g)
 	(bind '(m0 m1 m2 m3 m4 m5) (map (const n2d) (ifn m '(1.0 0.0 0.0 0.0 1.0 0.0))))
 	(defq c0 (+ (* m0 g0) (* m1 g3)) c1 (+ (* m0 g1) (* m1 g4)) c2 (+ (* m0 g2) (* m1 g5) m2)
@@ -127,9 +128,10 @@
 			h (const (n2d 0.5)) k (const (n2d (<< 1 32))))
 		;straight into the nums that is its head, after its spread
 		(canvas-gradient canvas kind stops
-			(reduce (# (push %0 (n2i (* %1 k))))
-				(list (+ (* i0 h) (* i1 h) i2) i0 i1 (+ (* i3 h) (* i4 h) i5) i3 i4)
-				(nums (ifn spread +spread_pad))))))
+			(push (reduce (# (push %0 (n2i (* %1 k))))
+					(list (+ (* i0 h) (* i1 h) i2) i0 i1 (+ (* i3 h) (* i4 h) i5) i3 i4)
+					(nums (ifn spread +spread_pad)))
+				(n2i (* focus (const (n2d 65536))))))))
 
 (defclass Canvas-base () (View)
 	(def this :paper 0)
@@ -219,16 +221,32 @@
 		;color of the last stop
 		(bind '(x y x1 y1) (map (const n2d) (list x y x1 y1)))
 		(defq dx (- x1 x) dy (- y1 y))
-		(if (canvas-gradient-matrix this 1 spread stops (list dx (neg dy) x dy dx y) m) this
+		(if (canvas-gradient-matrix this 1 spread stops (list dx (neg dy) x dy dx y) m (const (n2d 0))) this
 			(. this :set_color (second (last stops)))))
 
-	(defmethod :set_radial (cx cy r stops &optional spread m)
-		; (. canvas :set_radial cx cy r stops [spread m]) -> canvas
+	(defmethod :set_radial (cx cy r stops &optional spread m fx fy)
+		; (. canvas :set_radial cx cy r stops [spread m fx fy]) -> canvas
 		;what is drawn from here is a radial gradient, t 0 at cx cy and 1 at r
 		;from it, as (:set_linear): under m it may be an ellipse. Of no
-		;radius it is the color of the last stop
+		;radius it is the color of the last stop. With a focus, fx fy, t is 0
+		;there and 1 on the circle, the colors go out from it, nearer on the
+		;side it is to: one outside the circle is brought to just inside it.
+		;From the focus, f from the centre of a circle of radius 1, t is f
+		;times u, along the way to the centre, and the length of u and v, in
+		;a space turned to that way and made narrower by 1 less f squared
+		;along it and by its root across: so the span has the one number, f
 		(bind '(cx cy r) (map (const n2d) (list cx cy r)))
-		(if (canvas-gradient-matrix this 2 spread stops (list r (const (n2d 0)) cx (const (n2d 0)) r cy) m) this
+		(defq zero (const (n2d 0)) one (const (n2d 1)) most (const (n2d 0.99))
+			ux (if (and fx (/= r zero)) (/ (- (n2d fx) cx) r) zero)
+			uy (if (and fy (/= r zero)) (/ (- (n2d fy) cy) r) zero)
+			f (sqrt (+ (* ux ux) (* uy uy))) g (list r zero cx zero r cy))
+		(cond
+			((< f (const (/ (n2d 1) (n2d 100000)))) (setq f zero))
+			(:t (if (> f most) (setq ux (/ (* ux most) f) uy (/ (* uy most) f) f most))
+				(defq a (- one (* f f)) ra (sqrt a) c (/ ux f) s (/ uy f))
+				(setq g (list (* r c a) (neg (* r s ra)) (+ cx (* r ux))
+					(* r s a) (* r c ra) (+ cy (* r uy))))))
+		(if (canvas-gradient-matrix this 2 spread stops g m f) this
 			(. this :set_color (second (last stops)))))
 
 	(defmethod :get_color ()

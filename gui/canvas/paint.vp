@@ -175,7 +175,8 @@
 	;trashes
 	;:r1-:r9, :r12, :d0-:d1
 	;info
-	;t is the length of u and v, the root of :sys_math :q_sqrt
+	;t is the length of u and v, the root of :sys_math :q_sqrt, and of a
+	;gradient with a focus so much of u more, +paint_focus
 
 	(entry :canvas :span_radial '(:r0 :r1 :r7 :r8 :r9))
 
@@ -198,11 +199,17 @@
 			(vp-min-cr (<< 1 30) :r0)
 			(vp-max-cr (neg (<< 1 30)) :r1)
 			(vp-min-cr (<< 1 30) :r1)
+			;u kept, for the focus
+			(vp-cpy-rr :r0 :r8)
 			(vp-mul-rr :r0 :r0)
 			(vp-mul-rr :r1 :r1)
 			(vp-add-rr :r1 :r0)
 			(vp-shr-cr +fp_shift :r0)
 			(call :sys_math :q_sqrt '(:r0) '(:r0))
+			(assign '((:r2 +paint_focus)) '(:r1))
+			(vp-mul-rr :r8 :r1)
+			(vp-asr-cr +fp_shift :r1)
+			(vp-add-rr :r1 :r0)
 			(vp-asr-cr 8 :r0)
 			(vp-cpy-rr :r0 :r1)
 			(paint-index :r1 :r12 :r8)

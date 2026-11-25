@@ -481,8 +481,11 @@
 					(if (eql kind "linearGradient")
 						(. canvas :set_linear (svg-at attrs sizes "x1" "0%" 0) (svg-at attrs sizes "y1" "0%" 1)
 							(svg-at attrs sizes "x2" "100%" 0) (svg-at attrs sizes "y2" "0%" 1) stops spread frame)
+						;its focus, fx fy, where it is not its centre
 						(. canvas :set_radial (svg-at attrs sizes "cx" "50%" 0) (svg-at attrs sizes "cy" "50%" 1)
-							(svg-at attrs sizes "r" "50%" 2) stops spread frame))
+							(svg-at attrs sizes "r" "50%" 2) stops spread frame
+							(if (. attrs :find "fx") (svg-at attrs sizes "fx" "50%" 0))
+							(if (. attrs :find "fy") (svg-at attrs sizes "fy" "50%" 1))))
 					:t)))))
 
 (defun read-attribute (entry key val)

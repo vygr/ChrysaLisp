@@ -160,5 +160,32 @@
 
 ;the paint's str holds a row as wide as the pixmap, or it is refused
 (ffi "gui/canvas/lisp_paint" pt-paint)
+;a radial gradient with a focus: t is 0 at the focus and 1 all round the
+;circle, and between them by how far a place is along the line from the
+;focus through it to the circle. Red to blue, so the blue of a pixel is t
+(defun pt-focal (&rest focus)
+	; (pt-focal [fx fy]) -> pixels
+	;a circle of radius 80 about 100 100, with that focus, or none
+	(defq canvas (Canvas 200 200 1))
+	(. canvas :fill 0)
+	(apply (const .) (cat (list canvas :set_radial 100.0 100.0 80.0
+		(list (list 0.0 0xffff0000) (list 1.0 0xff0000ff)) +spread_pad :nil) focus))
+	(. canvas :fbox 0 0 200 200)
+	(pt-pixels canvas))
+(defun pt-blue (pixels x y)
+	(logand (pt-pixel pixels x y) 0xff))
+(defq pt_fp (pt-focal 140.0 100.0))
+(assert-true "a radial gradient with a focus, its first color at the focus" (< (pt-blue pt_fp 140 100) 8))
+(assert-true "its last all round the circle"
+	(every (lambda ((x y)) (> (pt-blue pt_fp x y) 247)) '((179 100) (21 100) (100 21) (100 179))))
+(assert-true "a third of the way at the centre, a third of the way from the focus to the far side"
+	(<= 80 (pt-blue pt_fp 100 100) 90))
+(assert-true "and half way half way from the focus to the circle, the near side and the far"
+	(and (<= 120 (pt-blue pt_fp 160 100) 136) (<= 120 (pt-blue pt_fp 80 100) 136)))
+(assert-eq "a focus at the centre is none, every pixel" (first (pt-focal)) (first (pt-focal 100.0 100.0)))
+(assert-true "a focus outside the circle is brought to just inside it"
+	(and (< (pt-blue (defq pt_fo (pt-focal 300.0 100.0)) 178 100) 8) (> (pt-blue pt_fo 22 100) 247)
+		(<= 120 (pt-blue pt_fo 100 100) 136)))
+
 (assert-error "a paint too short for the pixmap is refused" (pt-paint (Canvas 64 4 1) 1 (str-alloc 100)) {(canvas-paint canvas kind data) wrong_types})
 (assert-error "and a paint that is not a str" (pt-paint (Canvas 64 4 1) 1 '(1 2 3)) {(canvas-paint canvas kind data) wrong_types})

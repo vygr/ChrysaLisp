@@ -3,8 +3,9 @@
 	width="1024" height="768" viewBox="0 0 480 360">
 	<title>Gradients</title>
 	<desc>The gradients of the SVG reader: linear and radial, pad, reflect and
-		repeat, stops with opacity, a gradient's matrix, the user's space and
-		the bounding box, fills and strokes, and a gradient from another by href</desc>
+		repeat, stops with opacity, a radial's focus, a gradient's matrix, the
+		user's space and the bounding box, fills and strokes, and a gradient
+		from another by href</desc>
 	<defs>
 		<!-- the sky, of the user's space, the whole picture -->
 		<linearGradient id="sky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="360">
@@ -49,8 +50,9 @@
 			<stop offset="0.7" stop-color="#1a1240"/>
 			<stop offset="1" stop-color="#2af5c4"/>
 		</radialGradient>
-		<!-- balls, a light off centre and a shadow, over a color of their own -->
-		<radialGradient id="ball_red" cx="0.38" cy="0.35" r="0.7">
+		<!-- balls, a light at a focus off their centre, dark all round their
+			edge, and a shadow, over a color of their own -->
+		<radialGradient id="ball_red" fx="0.34" fy="0.3">
 			<stop offset="0" stop-color="#ffb0a0"/>
 			<stop offset="0.45" stop-color="#e0301e"/>
 			<stop offset="1" stop-color="#3a0500"/>

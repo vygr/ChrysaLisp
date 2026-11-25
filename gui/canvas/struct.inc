@@ -18,10 +18,13 @@
 ;of fraction, the pixel's centre in them. A linear's t is u, a radial's
 ;the length of u and v; the top 8 bits of t's fraction are where in the
 ;lut it is, 256 colors not premultiplied, and spread says what is past 0
-;and 1: pad, reflect or repeat. After the lut is a row, the width of the
-;canvas's pixmap, a run's colors made there and then blended, :span_row
+;and 1: pad, reflect or repeat. A radial's focus, where its t is 0, is
+;its own space's making, (:set_radial), and one number here: so much of u
+;added to that length, 16 bits of fraction, 0 for one about its centre.
+;After the lut is a row, the width of the canvas's pixmap, a run's colors
+;made there and then blended, :span_row
 (structure +paint 0
-	(long spread a0 ax ay b0 bx by)
+	(long spread a0 ax ay b0 bx by focus)
 	(uint lut))
 (defq +paint_lut_size 256 +paint_row (+ +paint_lut (* 256 +int_size)))
 (enums +spread 0
