@@ -6,6 +6,7 @@
 (import "lib/gpu/render_farm.inc")
 (import "lib/gpu/vp.inc")
 (import "lib/math/scene.inc")
+(import "lib/gpu/shapes.inc")
 (import "./craft.inc")
 (import "apps/media/jukebox/music.inc")
 
@@ -30,7 +31,7 @@
 ;the timer is last, what is first in the list is what is read first, and
 ;a frame can take longer than a tick
 (enums +select 0
-	(enum main task reply music music_song music_tick timer))
+	(enum main tip task reply music music_song music_tick timer))
 
 ;the frame's two sizes, the min and max buttons
 (defq +small ''(640 480) +large ''(1024 768))
@@ -70,7 +71,7 @@
 	;how near and far it sees
 	+spread_y (n2d 0.5) +near (n2d 1) +far (n2d 700)
 	+land_vertex (cat *app_root* "land_vertex.shader") +land_lit (cat *app_root* "land_lit.shader")
-	sky_files (list (cat *app_root* "sky_vertex.shader") (cat *app_root* "sky_lit.shader"))
+	sky_files (list "lib/gpu/shaders/sky_vertex.shader" (cat *app_root* "sky_lit.shader"))
 	moon_files (list (cat *app_root* "moon_vertex.shader") (cat *app_root* "moon_lit.shader"))
 	craft_files (list (cat *app_root* "craft_vertex.shader") (cat *app_root* "craft_lit.shader"))
 	beam_files (list (cat *app_root* "beam_vertex.shader") (cat *app_root* "beam_lit.shader"))
@@ -173,6 +174,9 @@
 	(ui-backdrop *backdrop* (:style :plain :paper +argb_black :min_width (first +small) :min_height (second +small))
 		(ui-element *canvas* (make-canvas +small))))
 
+(ui-tool-tips *path* '("eight" "valleys" "mouse"))
+(ui-tool-tips *music* '("prev" "play" "next"))
+
 (defun land-verts (cells cell tiles tx tz)
 	; (land-verts cells cell tiles tx tz) -> doubles
 	;a tile of the grid of cells each way, each cell big, the grid's middle
@@ -185,29 +189,6 @@
 					(push out x z x1 z x1 z1 x z x1 z1 x z1)) '() (* tx side) (* (inc tx) side)))
 		'() (* tz side) (* (inc tz) side))
 	out)
-
-(defun sky-verts ()
-	; (sky-verts) -> doubles
-	;two triangles over all of the frame, by its corners
-	(doubles +double_-1 +double_-1 +double_1 +double_-1 +double_1 +double_1
-		+double_-1 +double_-1 +double_1 +double_1 +double_-1 +double_1))
-
-(defun globe-verts (segs rings)
-	; (globe-verts segs rings) -> doubles
-	;a ball of radius 1 as triangles, three vertices each, a vertex its
-	;place, 3 numbers, and where on the map that is, 2. North is up, and
-	;east goes round to the right as seen from outside, as a map has it.
-	;A triangle goes round counter clockwise as seen from outside
-	(defq out (list) rows (map! (lambda () (defq r (!)) (defq theta (/ (* +double_pi (n2d r)) (n2d rings)) st (sin theta) ct (cos theta))
-				(map! (lambda () (defq phi (/ (* +double_2pi (n2d (!))) (n2d segs)))
-						(list (* st (sin phi)) ct (* st (cos phi))
-							(/ (n2d (!)) (n2d segs)) (/ (n2d r) (n2d rings)))) '() 0 (inc segs))) '() 0 (inc rings)))
-	(each! (lambda () (defq r (!)) (each! (lambda () (defq s (!)) (defq a (elem-get (elem-get rows r) s) b (elem-get (elem-get rows (inc r)) s)
-						c (elem-get (elem-get rows (inc r)) (inc s)) d (elem-get (elem-get rows r) (inc s)))
-					;at a pole a quad is a triangle, the other has no area
-					(if (< r (dec rings)) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a b c)))
-					(if (> r 0) (each (lambda (v) (each (lambda (n) (push out n)) v)) (list a c d)))) '() 0 segs)) '() 0 rings)
-	(apply (const doubles) out))
 
 (defun tube-verts (segs)
 	; (tube-verts segs) -> doubles
@@ -686,6 +667,8 @@
 	(if music_on (. music :start))
 	(music-show)
 	(.-> *canvas* (:fill (argb haze)) (:swap +swap_write))
+	;the tool tips come to a mailbox of their own
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *window* :open)
 	(setq due (+ (pii-time) +timer_rate))
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
@@ -717,6 +700,8 @@
 						(first craft_files))
 					(elem-set parts_had part :t)
 					(when (= out 0) (. jobs :close) (setq jobs :nil))))
+			;a tip of a button the pointer has stopped over
+			((= idx +select_tip) (. *window* :tip msg))
 			((= idx +select_main)
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
