@@ -204,7 +204,8 @@
 ;meeting; how far behind the eye a crunch is sprayed, how fast a meeting
 ;is heard as loud as it goes, how fast a blast is heard to crunch, the
 ;least throw of a shattered rock, how far ahead of the eye a missile is
-;fired from, and how bright a missile's glow is
+;fired from, how bright a missile's glow is, and how much of a buoy's own
+;lamp lights it
 (defq +second (n2d 1000000) +visit_bulk (n2d 30) +visit_ahead (n2d 80) +visit_side (n2d 12)
 	+bob +double_1/20 +bob_long (n2d 9000000) +dt_most +double_1/10 +spray_throw_least (n2d 1.5)
 	+percent (n2d 100) +pan_most (n2d 255) +grain_least +double_1/5 +grain_spread (n2d 0.8)
@@ -213,7 +214,8 @@
 	+blast_glow_bright (n2d 1.5) +tilt_flip (n2d -0.999) +buoy_turn_long (n2d 4000000)
 	+buoy_body (n2d 0.72) +glow_least (n2d 0.6) +glow_grow (n2d 1.4) +meet_dt_most +double_1/20
 	+behind_most +double_-10 +loud_speed +double_4 +blast_crunch +double_8
-	+shatter_throw_least +double_8 +missile_ahead +double_4 +bomb_bright +double_5)
+	+shatter_throw_least +double_8 +missile_ahead +double_4 +bomb_bright +double_5
+	+buoy_self (n2d 1.5))
 
 (defun make-canvas (size)
 	; (make-canvas size) -> canvas
@@ -753,7 +755,8 @@
 	;the buoys near enough and in what the frame sees, each hung from where
 	;its lamp is along its way up, turning slowly about it, its lamp as
 	;bright as it is now; lit as a rock is, by a blast's light before the
-	;nearest other buoy's lamp, and by the ship's ping
+	;nearest other buoy's lamp, and by the ship's ping; and by its own lamp,
+	;off its middle, as it flashes
 	(defq out (list) turn (/ (n2d (pii-time)) +buoy_turn_long))
 	(when buoy_had
 		(each (lambda ((at colour) axis)
@@ -769,6 +772,7 @@
 							(rock-buoy (first body_at) (second body_at) (third body_at) at))
 						(list (list 'sun sun_at) (list 'eye eye) (list 'sun_light sun_light)
 							(list 'ping_at ping_at) (list 'ping ping)
+							(list 'own_at at) (list 'own_light (nums-scale colour +buoy_self))
 							(list 'pillars_light pillars_light) (list 'pillars_at pillars_at)
 							(list 'pillars_across pillars_across) (list 'pillars_up pillars_up)
 							(list 'pillars_size pillars_size) (list 'pillars_pixels pillars_pixels)

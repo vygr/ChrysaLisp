@@ -12,7 +12,8 @@
 ; is now, a flash or the dim glow between, the hotter toward its middle
 ; as it faces the eye. Lit as a rock is by what is near: a missile's or
 ; a blast's light, else the nearest other buoy's lamp, and the ship's
-; ping, a glint of each in its metal.
+; ping, a glint of each in its metal; and by its own lamp, off its
+; middle at the top of its mast, lighting it from there as it flashes.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/gpu/shaders/noise.shader")
@@ -43,6 +44,9 @@
 ;the ship's ping, where and as bright as it is now
 (definput ping_at :vec3)
 (definput ping :vec3)
+;its own lamp, where it is and the light of it on the buoy
+(definput own_at :vec3)
+(definput own_light :vec3)
 
 (defvarying place :vec3)
 (defvarying facing :vec3)
@@ -115,11 +119,13 @@
 	(defq bounce (reflect (- to_eye) n)
 		;the world seen in it, the sky and the sun's glint
 		seen (+ (* (sky_in bounce) 1.6) (* sun_light (* 5.0 (pow (max (dot bounce sun) 0.0) 120.0)))
-			(glint place bounce buoy_at buoy_light) (glint place bounce ping_at ping))
+			(glint place bounce buoy_at buoy_light) (glint place bounce ping_at ping)
+			(glint place bounce own_at own_light))
 		;how much a glancing look sees, more at its edges
 		glance (pow (- 1.0 face) 5.0)
 		light (+ (* sun_light (max (dot n sun) 0.0)) (* pillars_light (max (dot n pillars_at) 0.0)) (vec3 0.03 0.03 0.04)
-			(near_light place n buoy_at buoy_light) (near_light place n ping_at ping))
+			(near_light place n buoy_at buoy_light) (near_light place n ping_at ping)
+			(near_light place n own_at own_light))
 		colour (vec3 0.0))
 	(cond
 		((< (abs (+ (:y local) 0.3)) 0.1)
