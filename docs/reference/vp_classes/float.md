@@ -19,6 +19,17 @@ trashes
 :r0-:r2, :r14, :d0-:d15
 ```
 
+### :acos -> class/float/acos
+
+```code
+inputs
+:r0 = float object (ptr)
+outputs
+:r0 = result float object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
 ### :add -> class/float/add
 
 ```code
@@ -29,6 +40,42 @@ outputs
 :r0 = result float object (ptr)
 trashes
 :r0-:r2, :r4, :r14, :d0-:d15
+```
+
+### :asin -> class/float/asin
+
+```code
+inputs
+:r0 = float object (ptr)
+outputs
+:r0 = result float object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
+### :atan -> class/float/atan
+
+```code
+inputs
+:r0 = float object (ptr)
+outputs
+:r0 = result float object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
+### :atan2 -> class/float/atan2
+
+```code
+inputs
+:r0 = y float object (ptr)
+:r1 = x float object (ptr)
+outputs
+:r0 = result float object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+info
+the angle of the point x y, -pi to pi, :sys_math :f_atan2
 ```
 
 ### :ceil -> class/float/ceil

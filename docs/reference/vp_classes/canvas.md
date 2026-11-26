@@ -278,7 +278,8 @@ outputs
 trashes
 :r1-:r9, :r12, :d0-:d1
 info
-t is the length of u and v, the root of :sys_math :q_sqrt
+t is the length of u and v, the root of :sys_math :q_sqrt, and of a
+gradient with a focus so much of u more, +paint_focus
 ```
 
 ### :span_row -> gui/canvas/span_row

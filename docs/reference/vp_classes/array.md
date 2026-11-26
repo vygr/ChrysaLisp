@@ -67,6 +67,28 @@ trashes
 :r1
 ```
 
+### :copy_raw -> class/array/copy_raw
+
+```code
+inputs
+:r0 = source address (pubyte)
+:r1 = destination address (pubyte)
+:r2 = length (bytes)
+:r3 = 0 forward, else the size of the elements to take last first
+outputs
+:r0 = source address end (ptr)
+:r1 = destination address end (ptr)
+trashes
+:r0-:r3
+info
+raw data from one place to another, the one copy of it all, to trash
+what :sys_mem :copy does and no more. Forward it is that copy, and
+what is given the bytes sees that they make whole elements of its own.
+Reversed, elements of 1, 2, 4 or 8 bytes from the last of them to the
+first, each as it is, the length a whole number of them: a load and a
+store of an element at its own alignment
+```
+
 ### :create -> class/array/create
 
 ```code
@@ -298,6 +320,22 @@ trashes
 :r1
 ```
 
+### :get_raw -> class/array/get_raw
+
+```code
+inputs
+:r0 = array object (ptr)
+outputs
+:r0 = array object (ptr)
+:r1 = raw data (pubyte)
+:r2 = length (elements)
+:r3 = element size (bytes)
+trashes
+:r1-:r3
+info
+an array of longs as raw data
+```
+
 ### :get_second -> class/array/get_second
 
 ```code
@@ -385,22 +423,6 @@ trashes
 :r1-:r5, :r14, :d0-:d15
 ```
 
-### :push -> class/array/push
-
-```code
-inputs
-:r0 = array object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = array object (ptr)
-:r1 = 0 if error, else ok
-trashes
-:r1-:r4, :r6-:r9, :r11-:r13, :d0-:d15
-info
-each of the args after the first onto the end, flattened: a number
-its value, an array its elements, a str its bytes in whole longs
-```
-
 ### :push_back -> class/array/push_back
 
 ```code
@@ -431,6 +453,22 @@ outputs
 :r4 = end element iter (plong)
 trashes
 :r3-:r4, :d0-:d15
+```
+
+### :push_raw -> class/array/push_raw
+
+```code
+inputs
+:r0 = array object (ptr)
+:r1 = raw data (pubyte)
+:r2 = length (elements)
+:r3 = element size (bytes)
+outputs
+:r0 = array object (ptr)
+trashes
+:r1-:r3, :r6-:r9, :d0-:d15
+info
+raw data onto the end, the whole longs its bytes make
 ```
 
 ### :ref_back -> class/array/ref_back
@@ -521,7 +559,7 @@ inputs
 outputs
 :r0 = slice array object (ptr)
 trashes
-:r0-:r2, :r6-:r8, :d0-:d15
+:r0-:r3, :r6-:r8, :d0-:d15
 ```
 
 ### :sort -> class/array/sort

@@ -16,6 +16,10 @@ docs/reference/vp_classes/doubles.cwb
 
 ### (doubles-quant doubles tol [doubles]) -> doubles
 
+### (quat-mul qa qb [out]) -> doubles
+
+### (quat-vec3-rot q v [out]) -> doubles
+
 ## VP methods
 
 ### :abs -> class/doubles/abs
@@ -258,6 +262,39 @@ outputs
 :r0 = doubles object (ptr)
 trashes
 :r1-:r4, :d0-:d4
+```
+
+### :quat_mul -> class/doubles/quat_mul
+
+```code
+inputs
+:r0 = output doubles object (ptr)
+:r1 = qa doubles object (ptr)
+:r2 = qb doubles object (ptr)
+outputs
+:r0 = output doubles object (ptr)
+trashes
+:r1-:r3, :d0-:d12
+info
+the quaternion qa qb, each w x y z, the turn of qb then qa; all read
+before any is written, so the output may be either
+```
+
+### :quat_v3_rot -> class/doubles/quat_v3_rot
+
+```code
+inputs
+:r0 = output doubles object (ptr)
+:r1 = q doubles object (ptr)
+:r2 = vector doubles object (ptr)
+outputs
+:r0 = output doubles object (ptr)
+trashes
+:r1-:r4, :d0-:d13
+info
+each vec3 turned by the quaternion q, of length 1, w x y z: t the
+cross of u, q's x y z, and v, twice; v + w t + the cross of u and t.
+Each read before it is written, so the output may be the vectors
 ```
 
 ### :scale -> class/doubles/scale

@@ -139,11 +139,17 @@ color of the last stop
 ### :set_radial
 
 ```code
-(. canvas :set_radial cx cy r stops [spread m]) -> canvas
+(. canvas :set_radial cx cy r stops [spread m fx fy]) -> canvas
 
 what is drawn from here is a radial gradient, t 0 at cx cy and 1 at r
 from it, as (:set_linear): under m it may be an ellipse. Of no
-radius it is the color of the last stop
+radius it is the color of the last stop. With a focus, fx fy, t is 0
+there and 1 on the circle, the colors go out from it, nearer on the
+side it is to: one outside the circle is brought to just inside it.
+From the focus, f from the centre of a circle of radius 1, t is f
+times u, along the way to the centre, and the length of u and v, in
+a space turned to that way and made narrower by 1 less f squared
+along it and by its root across: so the span has the one number, f
 ```
 
 ### :swap

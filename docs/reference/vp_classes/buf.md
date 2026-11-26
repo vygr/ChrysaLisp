@@ -36,6 +36,25 @@ docs/vm/vp_vm.md: what it is in starts on a word, so its offset is a
 whole number of its size
 ```
 
+### :check_raw -> class/buf/check_raw
+
+```code
+inputs
+:r0 = passed through (ptr)
+:r1 = type (long)
+:r2 = value object (ptr)
+outputs
+:r0 = as it was (ptr)
+:r1 = 0 if ok, 1 if a struct and the value is not raw data of that many bytes
+trashes
+:r1-:r5
+info
+what a binding asks before a (:set) of a struct, a type of more than
+0: that the value has raw data, (:get_raw), a str, an array of numbers
+or a raw array, not a list, a map or a set, whose elements are
+objects, and has that many bytes. Of a type that is no struct, ok
+```
+
 ### :create -> class/buf/create
 
 ```code
@@ -108,14 +127,13 @@ inputs
 :r3 = value object (ptr)
 outputs
 :r0 = as it was (ptr)
-:r1 = 0 if set, 1 if a struct and the value has not that many bytes
 trashes
 :r1-:r7
 info
 a number its value. A struct, a type of more than 0, that many bytes
-of a str, or of the elements of an array of numbers, a :nums, so a
-vector goes in whole. Not of a list, a map or a set, their elements
-are objects
+of what has raw data, (:get_raw): a str, an array of numbers or a raw
+array, so a vector goes in whole. Nothing is checked: a binding has
+asked (:check_raw) of the value first
 ```
 
 ### :type -> class/buf/type

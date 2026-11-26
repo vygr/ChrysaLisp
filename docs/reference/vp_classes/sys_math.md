@@ -6,6 +6,55 @@ docs/reference/vp_classes/sys_math.cwb
 
 ## VP methods
 
+### :d_acos -> sys/math/d_acos
+
+```code
+inputs
+:d0 = double (double)
+outputs
+:d0 = acos of the double (double)
+trashes
+:r0-:r2, :d0-:d3
+info
+atan2 of the root of 1 - x squared and x
+```
+
+### :d_asin -> sys/math/d_asin
+
+```code
+inputs
+:d0 = double (double)
+outputs
+:d0 = asin of the double (double)
+trashes
+:r0-:r2, :d0-:d3
+info
+atan2 of x and the root of 1 - x squared
+```
+
+### :d_atan -> sys/math/d_atan
+
+```code
+inputs
+:d0 = double (double)
+outputs
+:d0 = atan of the double (double)
+trashes
+:r0-:r2, :d0-:d3
+```
+
+### :d_atan2 -> sys/math/d_atan2
+
+```code
+inputs
+:d0 = y (double)
+:d1 = x (double)
+outputs
+:d0 = angle of the point x y (double)
+trashes
+:r0-:r2, :d0-:d3
+```
+
 ### :d_exp -> sys/math/d_exp
 
 ```code
@@ -87,6 +136,51 @@ it, and t / (t + 2). Between, 1 - 2 / (e to the twice of it + 1), by
 d_exp, from 0.55 on the 1 is never much more than what it takes. Of
 858 doubles from -25 to 25, 2 units of the last place from the true
 tanh at the most, 680 of them the nearest double
+```
+
+### :f_acos -> sys/math/f_acos
+
+```code
+inputs
+:f0 = single (single)
+outputs
+:f0 = acos of the single (single)
+trashes
+:r0-:r2, :d0-:d3
+```
+
+### :f_asin -> sys/math/f_asin
+
+```code
+inputs
+:f0 = single (single)
+outputs
+:f0 = asin of the single (single)
+trashes
+:r0-:r2, :d0-:d3
+```
+
+### :f_atan -> sys/math/f_atan
+
+```code
+inputs
+:f0 = single (single)
+outputs
+:f0 = atan of the single (single)
+trashes
+:r0-:r2, :d0-:d3
+```
+
+### :f_atan2 -> sys/math/f_atan2
+
+```code
+inputs
+:f0 = y (single)
+:f1 = x (single)
+outputs
+:f0 = angle of the point x y (single)
+trashes
+:r0-:r2, :d0-:d3
 ```
 
 ### :f_cos -> sys/math/f_cos

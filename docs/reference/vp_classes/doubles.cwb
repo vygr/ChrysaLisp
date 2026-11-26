@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 467
-	:height 774
+	:height 842
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 99
+	:next_id 103
 	:items
 	((:list 1)
 		((:list 7)
@@ -516,13 +516,13 @@
 							:id
 							32
 							:items
-							((:list 49)
+							((:list 53)
 								((:list 11)
 									:shape
 									:id
 									46
 									:d
-									"[M 8 0 L 149.72802 0 A 8 8 0 0 1 157.72802 8 L 157.72802 644 A 8 8 0 0 1 149.72802 652 L 8 652 A 8 8 0 0 1 0 644 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 149.72802 0 A 8 8 0 0 1 157.72802 8 L 157.72802 712 A 8 8 0 0 1 149.72802 720 L 8 720 A 8 8 0 0 1 0 712 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -1353,12 +1353,52 @@
 										538.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									89
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:quat_mul]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										555.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									90
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:quat_v3_rot]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										572.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									91
 									:d
-									"[M 0 552 L 157.72802 552]"
+									"[M 0 586 L 157.72802 586]"
 									:stroke
 									4282140240
 									:width
@@ -1371,7 +1411,7 @@
 								((:list 17)
 									:shape
 									:id
-									90
+									92
 									:kind
 									:text
 									:fill
@@ -1387,47 +1427,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										568.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									91
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[doubles-quant]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										587.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									92
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[mat4x4-mul]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										604.00000
+										602.00000
 									)
 								)
 								((:list 15)
@@ -1441,7 +1441,7 @@
 									:stroke
 									0
 									:text
-									"[mat4x4-vec3-mul]"
+									"[doubles-quant]"
 									:font_size
 									12
 									:pos
@@ -1461,13 +1461,93 @@
 									:stroke
 									0
 									:text
-									"[mat4x4-vec4-mul]"
+									"[mat4x4-mul]"
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
 										638.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									95
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[mat4x4-vec3-mul]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										655.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									96
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[mat4x4-vec4-mul]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										672.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									97
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[quat-mul]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										689.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									98
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[quat-vec3-rot]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										706.00000
 									)
 								)
 							)
@@ -1498,7 +1578,7 @@
 					:pos
 					((:list 2)
 						0.00000
-						716.00000
+						784.00000
 					)
 				)
 				((:list 7)
@@ -1516,19 +1596,19 @@
 								((:list 5)
 									:group
 									:id
-									95
+									99
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											96
+											100
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													97
+													101
 													:d
 													"[M 6 0 L 47.19921 0 A 6 6 0 0 1 53.19921 6 L 53.19921 18 A 6 6 0 0 1 47.19921 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1541,7 +1621,7 @@
 												((:list 15)
 													:shape
 													:id
-													98
+													102
 													:kind
 													:text
 													:fill
@@ -1568,7 +1648,7 @@
 					:pos
 					((:list 2)
 						0.00000
-						724.00000
+						792.00000
 					)
 				)
 			)

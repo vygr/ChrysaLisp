@@ -2492,34 +2492,40 @@ flush any shared pixmaps that have no users.
 ### canvas-gradient
 
 ```code
-(canvas-gradient canvas kind spread stops (a0 ax ay) (b0 bx by)) -> canvas
+(canvas-gradient canvas kind stops head) -> canvas
 
-a gradient's +paint, its lut and a row as wide as the canvas's pixmap,
-and the canvas told to draw with it, (canvas-paint)
+a gradient's +paint, and the canvas told to draw with it, (canvas-paint):
+its head, a nums, (spread a0 ax ay b0 bx by focus), its lut, each written
+whole by the one call, and after them a row as wide as the canvas's
+pixmap, for the span to work in, of whatever is there
 ```
 
 ### canvas-gradient-lut
 
 ```code
-(canvas-gradient-lut stops) -> (argb ...)
+(canvas-gradient-lut stops) -> nums
 
 the 256 colors of a gradient's stops, ((offset argb) ...), step i at t
 i over 255, each channel mixed straight between the stops either side,
 not premultiplied, to the nearest. An offset is kept to 0 to 1 and to no
 less than the one before, as SVG has it, and before the first and after
-the last is their color. All in integers, an offset in 255 by 65536ths
+the last is their color. All in integers, an offset in 255 by 65536ths.
+The colors between two stops are a line, so they are made together, a
+vector a channel, not one at a time
 ```
 
 ### canvas-gradient-matrix
 
 ```code
-(canvas-gradient-matrix canvas kind spread stops g m) -> :nil | canvas
+(canvas-gradient-matrix canvas kind spread stops g m focus) -> :nil | canvas
 
 a gradient whose own space, u along its line or out from its centre, v
 across, g takes to the space m takes to the pixels, both (a b tx c d
 ty), m none or a mat3x2. Of the two together the one back from a pixel
 to u and v, in doubles, then two rows of 32 bits of fraction of the
-pixel's centre, (canvas-gradient). :nil if it flattens all to a line
+pixel's centre, the head of its +paint, (canvas-gradient), with a
+radial's focus after them, a double, 0 of one about its centre. :nil if
+it flattens all to a line
 ```
 
 ### canvas-info
@@ -5875,6 +5881,17 @@ the data taken into the hash, the last block made up with zeros
 (get-cstr str idx) -> str
 ```
 
+### globe-verts
+
+```code
+(globe-verts segs rings) -> doubles
+
+a ball of radius 1 as triangles, three vertices each, a vertex its
+place, 3 numbers, and where on the map that is, 2. North is up, and
+east goes round to the right as seen from outside, as a map has it.
+A triangle goes round counter clockwise as seen from outside
+```
+
 ### glsl-decls
 
 ```code
@@ -8420,8 +8437,18 @@ port is where it is said, +mesh_take_port if not given
 (mesh-of id) -> :nil | (verts tris packed)
 
 a mesh by its number: its vertices, a doubles or the bytes of one,
-the triangles of them taken three at a time, and its bytes if they
-have been made. One the app has not told of is asked of its :mesh_fn
+the triangles of them taken three at a time, how many vertices there
+are till they are wanted, (mesh-tris), and its bytes if they have
+been made. One the app has not told of is asked of its :mesh_fn
+```
+
+### mesh-tris
+
+```code
+(mesh-tris m) -> nums
+
+the triangles of a mesh, its vertices three at a time, made when first
+wanted: only a frame drawn in this task wants them, a child has its own
 ```
 
 ### min-length
@@ -11772,10 +11799,10 @@ the buttons of the rules of a device a press is, :nil for a finger
 ### push-attributes
 
 ```code
-a copy of the parent's, its attributes and its style's over it. A key
+a copy of the parent's, its attributes over it, its style's among
 
-that is there already keeps its place: the defaults block that is in
-order, (SVG-load), stays so
+them, (svg-styled). A key that is there already keeps its place: the
+defaults block that is in order, (SVG-load), stays so
 ```
 
 ### put
@@ -11804,6 +11831,101 @@ text that may run over lines, as a string can, its lines as they are
 
 ```code
 (quasi-quote? form) -> :t | :nil
+```
+
+### quat-angle
+
+```code
+(quat-angle a b) -> double
+
+how far apart two turns are, radians, the shortest way
+```
+
+### quat-axes
+
+```code
+(quat-axes q) -> (x y z)
+
+the three axes of the turn, the turned x, y and z, each a vec3
+```
+
+### quat-axis-angle
+
+```code
+(quat-axis-angle axis angle) -> doubles
+
+a turn of angle radians about an axis, a vec3 of length 1, made of
+length 1 itself, as sin and cos are near, not exact
+```
+
+### quat-between
+
+```code
+(quat-between a b) -> doubles
+
+the shortest turn that takes the way a to the way b, each a vec3 of
+length 1; of ways opposite, a half turn about any axis across them
+```
+
+### quat-conj
+
+```code
+(quat-conj q) -> doubles
+
+the turn back, of a quaternion of length 1
+```
+
+### quat-frame
+
+```code
+(quat-frame forward up) -> doubles
+
+the turn whose -z is forward and whose y is up, near enough, as a
+view is held: the turn of -z to forward, then about forward to bring
+its y round to up across it
+```
+
+### quat-mat4x4
+
+```code
+(quat-mat4x4 q) -> doubles
+
+the matrix of the turn, as lib/math/matrix.inc has them, rows, the
+columns the turned axes
+```
+
+### quat-slerp
+
+```code
+(quat-slerp a b t) -> doubles
+
+the turn t of the way from a to b, 0 to 1, along the shortest arc, at
+an even rate; of turns nearly one, straight and made of length 1
+```
+
+### quat-toward
+
+```code
+(quat-toward q b most) -> doubles
+
+q turned toward b by no more than most radians, all the way if it is
+nearer; for a step a frame of a turn held to a rate
+```
+
+### quat-unit
+
+```code
+(quat-unit q) -> doubles
+
+q made of length 1 again, as sums drift
+```
+
+### quat-unity
+
+```code
+(quat-unity) -> doubles
+
+the turn that is none
 ```
 
 ### query
@@ -11933,8 +12055,9 @@ a number as it is written, an exponent too, which (str-to-num) stops at
 ```code
 (read-nums stream byte_count nums) -> :nil | nums
 
-so many bytes read onto the end of an array of numbers, as its
-elements, the array says of what kind. :nil at the stream's end
+so many bytes read onto the end of an array of numbers or a raw
+array, as its elements, the array says of what kind. :nil at the
+stream's end
 ```
 
 ### read-opacity
@@ -13106,6 +13229,27 @@ a new name must be a plain symbol, and must not hide anything
 result type of a built in op, or :nil if the types are wrong
 ```
 
+### sh-pack-plan
+
+```code
+(sh-pack-plan program) -> (defaults fields)
+
+what packs the inputs of a program, made the first time and kept in
+it: a block with the default of each input in it, and where each is
+and of what type, by its name
+```
+
+### sh-pack-val
+
+```code
+a value into a block, where its input is. A vector of doubles or of
+
+floats goes in whole, made floats by the one call, (nums-convert), and
+written by one; of any other kind a number at a time, a fixed rounded
+as a literal of the language is. A matrix is a row at a time, the block
+has it a column at a time
+```
+
 ### sh-pixel-only
 
 ```code
@@ -13553,7 +13697,10 @@ gives each pixel its frag coord, with y up. The entry point is vertex_main.
 (shader-pack program [((name val) ...)]) -> block
 
 a value not given is the default of the input. A float can be a
-double, a fixed or an int, a vector is a sequence of them.
+double, a fixed or an int, a vector is a sequence of them: a doubles
+or a floats is the quickest. A name given twice is its first, so
+they are gone through from the last; one the program has not is
+passed over
 ```
 
 ### shader-pair
@@ -14133,6 +14280,14 @@ in them one of these
 (sign-extend v bits) -> num
 
 v, the low bits of a number of two's complement, as that number
+```
+
+### sky-verts
+
+```code
+(sky-verts) -> doubles
+
+two triangles over all of the frame, by its corners
 ```
 
 ### slices
@@ -17480,6 +17635,15 @@ one step of + - * /, by the types of the two sides
 where a slot of the frame is
 ```
 
+### sv-atan2
+
+```code
+the angle of the point x y, both kept, to a new register, by the
+
+function of sys/math of the singles, the floats' own. Each to its place
+from where it was put by if it was, as sv-pow
+```
+
 ### sv-block
 
 ```code
@@ -17689,7 +17853,7 @@ vec3 is by the 3 by 3 of the matrix
 ### sv-math
 
 ```code
-sin, cos, exp, log or tanh of a register, which is given up, to a new
+sin, cos, exp, log, tanh, asin, acos or atan of a register, which is given up, to a new
 
 register, each by the function of sys/math of the single as it is,
 the float methods' own, so the two agree to the bit
@@ -17847,12 +18011,22 @@ the VP source of the native function that places vertices
 the color's alpha by the opacity, a color of full alpha as it was
 ```
 
+### svg-at
+
+```code
+(svg-at attrs sizes key default size) -> fixed
+
+a coordinate of a gradient by its name, or its default, of the size it
+is a % of, (svg-coord)
+```
+
 ### svg-attr
 
 ```code
 (svg-attr keys vals key) -> :nil | str
 
-an attribute, or a property of the style attribute
+an attribute of an element, its style's properties among them,
+(svg-styled)
 ```
 
 ### svg-bounds
@@ -17876,7 +18050,7 @@ the length of the first character of a UTF-8 string
 ```code
 (svg-chars text) -> (str ...)
 
-the characters of a UTF-8 string
+the characters of a UTF-8 string, each cut from it where it is
 ```
 
 ### svg-coord
@@ -17946,6 +18120,15 @@ and the ids, (SVG-load): :t if it is to be drawn, a gradient or a color,
 box of the paths, its gradientTransform, then m, the element's
 ```
 
+### svg-painted
+
+```code
+(svg-painted canvas val alpha paths transform defs) -> :nil | :t
+
+the canvas told to draw with a fill's or a stroke's paint, a gradient's
+or a color's: :t if there is any to draw
+```
+
 ### svg-passes?
 
 ```code
@@ -17988,6 +18171,18 @@ sub and super by Open Sans's offsets for them
 (svg-stop keys vals) -> (offset argb)
 
 a stop of a gradient, its color with its stop-opacity
+```
+
+### svg-styled
+
+```code
+(svg-styled keys vals) -> (keys vals)
+
+an element's attributes with the properties of its style attribute
+over them, name: value; ..., as CSS has it: where both say a thing the
+style is the one. The lists themselves if it has no style, else new
+ones, the style gone from them, each of its properties in the place
+of the attribute of its name, or after them all
 ```
 
 ### svg-text-decos
@@ -18101,6 +18296,16 @@ they overlap, a disc on the end of a stroke did
 
 the waypoint a tree is at, if it is exactly that and changed in
 nothing since, :nil if it has none or is not. top, if it is known
+```
+
+### sync-file-hash
+
+```code
+(sync-file-hash path size) -> str
+
+the SHA-256 of a file, 32 bytes: read whole if small, the most of them,
+else a piece at a time, so a file of any size is had, one bigger than
+a string may be among them
 ```
 
 ### sync-from
@@ -19637,7 +19842,8 @@ run between two of those is still too long, after any character
 ```code
 (write-nums stream nums) -> byte_count
 
-the elements of an array of numbers, as bytes. Of none, nothing
+the elements of an array of numbers or a raw array, as bytes, at the
+width of its kind. Of none, nothing
 ```
 
 ### x25519

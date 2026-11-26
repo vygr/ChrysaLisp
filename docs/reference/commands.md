@@ -159,6 +159,14 @@ Usage: check [options] [path] ...
             written as one, "\n", with the escape the reader
             has for it, \r \f \v \n \t \q \b \\, the
             char itself, or \x and its code.
+    conv    (n2d 60) in a function, or (const (n2d 60)), (n2f)
+            the same, of a number written there: made each time
+            it runs, or an instance of its own where it is. A
+            +name in a defq at the top of the file is the one
+            instance, prebound where it is used, and says what
+            it is; the library's, lib/consts/numbers.inc, where
+            it has the number, +double_3, +double_1/4. (n2i 60)
+            and (n2q 60) are 60 and 60.0, written so.
     glyph   a number of the symbol font's, 0xe000 to 0xf8ff,
             in the buttons of a (ui-title-bar) or (ui-buttons):
             it is drawn as nothing if the font has no such

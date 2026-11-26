@@ -8,6 +8,14 @@ docs/reference/vp_classes/double.cwb
 
 ## Lisp Bindings
 
+### (acos double) -> double
+
+### (asin double) -> double
+
+### (atan double) -> double
+
+### (atan2 y x) -> double
+
 ### (exp double) -> double
 
 ### (log double) -> double
@@ -29,6 +37,17 @@ trashes
 :r0-:r2, :r14, :d0-:d15
 ```
 
+### :acos -> class/double/acos
+
+```code
+inputs
+:r0 = double object (ptr)
+outputs
+:r0 = result double object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
 ### :add -> class/double/add
 
 ```code
@@ -39,6 +58,42 @@ outputs
 :r0 = result double object (ptr)
 trashes
 :r0-:r2, :r4, :r14, :d0-:d15
+```
+
+### :asin -> class/double/asin
+
+```code
+inputs
+:r0 = double object (ptr)
+outputs
+:r0 = result double object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
+### :atan -> class/double/atan
+
+```code
+inputs
+:r0 = double object (ptr)
+outputs
+:r0 = result double object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+```
+
+### :atan2 -> class/double/atan2
+
+```code
+inputs
+:r0 = y double object (ptr)
+:r1 = x double object (ptr)
+outputs
+:r0 = result double object (ptr)
+trashes
+:r0-:r2, :r14, :d0-:d15
+info
+the angle of the point x y, -pi to pi, :sys_math :d_atan2
 ```
 
 ### :ceil -> class/double/ceil

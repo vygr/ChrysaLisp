@@ -261,6 +261,22 @@ trashes
 :r1
 ```
 
+### :get_raw -> class/str/get_raw
+
+```code
+inputs
+:r0 = str object (ptr)
+outputs
+:r0 = str object (ptr)
+:r1 = raw data (pubyte)
+:r2 = length (bytes)
+:r3 = element size, 1
+trashes
+:r1-:r3
+info
+a str as raw data, its bytes
+```
+
 ### :hash -> class/str/hash
 
 ```code

@@ -67,10 +67,10 @@ is now whole and shown, the app may give the next
 (. render :mesh id verts [vfile]) -> render
 
 a mesh frames are drawn of, by a number of the app's, never given
-to another while this render lasts: verts a doubles, the numbers
-of a vertex one after another as the vertex shader has its attrs,
-the render's, or that of vfile for a mesh drawn with a pair of its
-own
+to another while this render lasts, even after (:unmesh): verts a
+doubles, the numbers of a vertex one after another as the vertex
+shader has its attrs, the render's, or that of vfile for a mesh
+drawn with a pair of its own
 ```
 
 ### :pair
@@ -81,5 +81,16 @@ own
 the shaders a draw is drawn with: the render's own if it names none,
 else those of its two files, (vfile pfile), read the once, and
 with them the pipeline it is drawn with here, made when first wanted
+```
+
+### :unmesh
+
+```code
+(. render :unmesh id) -> render
+
+a mesh no longer drawn, let go of here. The children let go of a
+mesh they have not drawn for a while of themselves, so an app whose
+meshes come and go, chunks of a world, has no more kept than it
+draws. The number is not given to another
 ```
 

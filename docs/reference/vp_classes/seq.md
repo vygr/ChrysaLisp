@@ -56,6 +56,24 @@ docs/reference/vp_classes/seq.cwb
 
 ### :get_length -> class/obj/null
 
+### :get_raw -> class/seq/get_raw
+
+```code
+inputs
+:r0 = seq object (ptr)
+outputs
+:r0 = seq object (ptr)
+:r1 = raw data (pubyte)
+:r2 = length (elements)
+:r3 = element size (bytes), 0 if none
+trashes
+:r1-:r3
+info
+a sequence as raw data, where it is, how many elements and how wide
+each: a str and an array of numbers have it. One of objects, a list,
+has none, an element size of 0, and this is that
+```
+
 ### :ref_elem -> class/obj/null
 
 ### :rfind -> class/obj/null
