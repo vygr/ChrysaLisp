@@ -1,6 +1,15 @@
 (report-header "Streams: mp3, MPEG audio layer III, our own decoder, against what was coded")
 
+(import "lib/consts/numbers.inc")
+
 (import "lib/media/mp3.inc")
+
+;the pcm's peak; a click, how long and its pitch; the tones, A 440, E
+;660 and A's third 1320, and one of 2000; how loud the left and right
+;tones are, the click and the hum
+(defq +pcm_peak (n2d 32767) +click_long (n2d 0.002) +click_hz (n2d 3000) +tone_a (n2d 440)
+	+tone_e (n2d 660) +tone_a3 (n2d 1320) +tone_b (n2d 2000) +left_loud (n2d 0.3) +right_loud (n2d 0.28)
+	+click_loud (n2d 0.8) +hum_loud (n2d 0.03))
 
 ;tone_mp3.mp3 is half a second of 440 a second on the left and 660 on the
 ;right, 0.25 high, at 44100, coded by LAME at 128 kbit/s, stereo.
@@ -24,42 +33,42 @@
 (defun m3-ratio (got want lo hi)
 	; (m3-ratio samples want lo hi) -> double
 	;the signal to the error, from lo to hi of the signal, want of a time
-	(defq sig (const (n2d 0)) err (const (n2d 0)))
-	(each! (lambda () (defq w (* (const (n2d 32767)) (want (/ (n2d (!)) (n2d m3_rate)))) x (elem-get got (+ (!) m3_late)))
+	(defq sig +double_0 err +double_0)
+	(each! (lambda () (defq w (* +pcm_peak (want (/ (n2d (!)) (n2d m3_rate)))) x (elem-get got (+ (!) m3_late)))
 			(setq sig (+ sig (* w w)) err (+ err (* (- x w) (- x w))))) '() lo hi)
 	(/ sig err))
 
 (defun m3-click (t)
 	;the click of every quarter second, 2ms of 3000
-	(if (< (- t (* (const (n2d 0.25)) (n2d (n2i (* t (const (n2d 4))))))) (const (n2d 0.002))) (sin (* m3_two_pi (const (n2d 3000)) t)) (const (n2d 0))))
+	(if (< (- t (* +double_1/4 (n2d (n2i (* t +double_4))))) +click_long) (sin (* m3_two_pi +click_hz t)) +double_0))
 
 (bind '(frames bad left right) (m3-decode "tests/streams/data/tone_mp3.mp3"))
 (assert-eq "tone: every frame decodes" 0 bad)
 (assert-eq "tone: 1152 samples a frame a side" (* frames 1152) (length left))
 (assert-true "tone: the left is the 440 it was"
-	(> (m3-ratio left (# (* (const (n2d 0.25)) (sin (* m3_two_pi (const (n2d 440)) %0)))) 4000 10000) (n2d 100)))
+	(> (m3-ratio left (# (* +double_1/4 (sin (* m3_two_pi +tone_a %0)))) 4000 10000) (n2d 100)))
 (assert-true "tone: the right is the 660 it was"
-	(> (m3-ratio right (# (* (const (n2d 0.25)) (sin (* m3_two_pi (const (n2d 660)) %0)))) 4000 10000) (n2d 100)))
+	(> (m3-ratio right (# (* +double_1/4 (sin (* m3_two_pi +tone_e %0)))) 4000 10000) (n2d 100)))
 
 (bind '(frames bad left right) (m3-decode "tests/streams/data/clicks_mp3.mp3"))
 (assert-eq "clicks: every frame decodes, middle and side and short blocks" 0 bad)
 (assert-true "clicks: the left between the clicks is as it was"
-	(> (m3-ratio left (# (+ (* (const (n2d 0.3)) (sin (* m3_two_pi (const (n2d 440)) %0))) (* (const (n2d 0.1)) (sin (* m3_two_pi (const (n2d 1320)) %0))))) 4000 10000) (n2d 100)))
+	(> (m3-ratio left (# (+ (* +left_loud (sin (* m3_two_pi +tone_a %0))) (* +double_1/10 (sin (* m3_two_pi +tone_a3 %0))))) 4000 10000) (n2d 100)))
 (assert-true "clicks: the left's click at a quarter second is the click it was"
-	(> (m3-ratio left (# (+ (* (const (n2d 0.3)) (sin (* m3_two_pi (const (n2d 440)) %0))) (* (const (n2d 0.1)) (sin (* m3_two_pi (const (n2d 1320)) %0)))
-					(* (const (n2d 0.8)) (m3-click %0)))) 10825 11425) (n2d 100)))
+	(> (m3-ratio left (# (+ (* +left_loud (sin (* m3_two_pi +tone_a %0))) (* +double_1/10 (sin (* m3_two_pi +tone_a3 %0)))
+					(* +click_loud (m3-click %0)))) 10825 11425) (n2d 100)))
 (assert-true "clicks: the right, of its own 2000 too, is as it was"
-	(> (m3-ratio right (# (+ (* (const (n2d 0.28)) (sin (* m3_two_pi (const (n2d 440)) %0))) (* (const (n2d 0.1)) (sin (* m3_two_pi (const (n2d 1320)) %0)))
-					(* (const (n2d 0.03)) (sin (* m3_two_pi (const (n2d 2000)) %0))))) 4000 10000) (n2d 100)))
+	(> (m3-ratio right (# (+ (* +right_loud (sin (* m3_two_pi +tone_a %0))) (* +double_1/10 (sin (* m3_two_pi +tone_a3 %0)))
+					(* +hum_loud (sin (* m3_two_pi +tone_b %0))))) 4000 10000) (n2d 100)))
 
 (setq m3_late 1105 m3_rate 22050)
 (bind '(frames bad left right) (m3-decode "tests/streams/data/tone22_mp3.mp3"))
 (assert-eq "MPEG-2: every frame decodes, its scale factors" 0 bad)
 (assert-eq "MPEG-2: 576 samples a frame a side" (* frames 576) (length left))
 (assert-true "MPEG-2: the left is the 440 it was"
-	(> (m3-ratio left (# (* (const (n2d 0.25)) (sin (* m3_two_pi (const (n2d 440)) %0)))) 2000 5000) (n2d 100)))
+	(> (m3-ratio left (# (* +double_1/4 (sin (* m3_two_pi +tone_a %0)))) 2000 5000) (n2d 100)))
 (assert-true "MPEG-2: the right is the 660 it was"
-	(> (m3-ratio right (# (* (const (n2d 0.25)) (sin (* m3_two_pi (const (n2d 660)) %0)))) 2000 5000) (n2d 100)))
+	(> (m3-ratio right (# (* +double_1/4 (sin (* m3_two_pi +tone_e %0)))) 2000 5000) (n2d 100)))
 
 ;a file as a reel, its frames found as they are wanted: each the frame
 ;mp3-frames finds, after LAME's of Info, in order and by a seek, and

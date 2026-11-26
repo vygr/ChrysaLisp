@@ -1,10 +1,15 @@
 (report-header "GPU: shader language, type checker")
 
+(import "lib/consts/numbers.inc")
+
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/msl.inc")
 (import "lib/gpu/spirv.inc")
 (import "lib/gpu/vp.inc")
 (import "lib/hash/sums.inc")
+
+;where the k of a test is split
+(defq +k_split (n2d 1.5))
 
 (defq sh_lf "\n")
 
@@ -714,7 +719,7 @@
 			color (slice out (+ at 5) (+ at 8)) unset (slice out (+ at 8) (+ at 10)))
 		(assert-true (cat "where vertex " (str (!)) " is, as the matrix library has it")
 			(sh-near? (map (const n2q) pos)
-				(map (const n2q) (mat4x4-vec4-mul both (cat position (doubles (const (n2d 1))))))))
+				(map (const n2q) (mat4x4-vec4-mul both (cat position (doubles +double_1))))))
 		(defq n (mat4x4-vec3-mul model normal)
 			want (max (n2q (third n)) 0.0))
 		(assert-true (cat "varying of vertex " (str (!)) ", a float")
@@ -799,7 +804,7 @@
 		(bind '(px py pz &ignore) p)
 		(defq bend (lambda (x) (+ (sin (* x k)) (* (abs py) (sqrt (abs py)))))
 			wx (bend px) wy (cos k) far (+ wx wy pz) q (mat4x4-vec4-mul model p)
-			pos (if (> k (const (n2d 1.5))) (doubles (third q) (second q) (first q) far)
+			pos (if (> k +k_split) (doubles (third q) (second q) (first q) far)
 				(nums-add q (doubles wy (bend k) (elem-get q 3) far))))
 		(assert-true (cat "sin, pow and a function that reads an attr, vertex " (str (!)))
 			(sh-near? (map (const n2q) (cat pos (doubles wx wy far)))
@@ -1091,7 +1096,7 @@
 	(map (const n2q) (if (doubles? v) v (list v))))
 (defun fn-wave (x k)
 	;a power of 1.5 is a number times its root
-	(+ (sin (* x k)) (* (abs x) (sqrt (abs x))) (const (n2d 0.5))))
+	(+ (sin (* x k)) (* (abs x) (sqrt (abs x))) +double_1/2))
 (each (lambda ((name args want))
 		(assert-true (cat "native code, " (str name))
 			(sh-near? (fn-nums want) (fn-nums (apply (shader-vp-func fn_prog name) args)))))

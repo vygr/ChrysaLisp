@@ -28,9 +28,9 @@
 		ball (Scene-object (Mesh-sphere +double_1 12) (fixeds 1.0 0.8 0.1 0.1)))
 	(if smooth (def ball :smooth :t))
 	(if files (def ball :shaders files))
-	(. ball :set_translation +double_0 +double_0 (const (n2d -4)))
+	(. ball :set_translation +double_0 +double_0 +double_-4)
 	(. scene :add_node ball)
-	(defq draws (. scene :draws (const (n2d -1)) +double_1 +double_1 (const (n2d -1)) +double_2 (const (n2d 6)) size))
+	(defq draws (. scene :draws +double_-1 +double_1 +double_1 +double_-1 +double_2 +double_6 size))
 	(. scene :draw canvas draws)
 	(list draws (sc-pixels canvas size)))
 

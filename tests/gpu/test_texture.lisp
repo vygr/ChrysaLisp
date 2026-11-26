@@ -1,10 +1,15 @@
 (report-header "GPU: shader language, a texture, the color of a picture at a place")
 
+(import "lib/consts/numbers.inc")
+
 (import "gui/lisp.inc")
 (import "lib/gpu/glsl.inc")
 (import "lib/gpu/msl.inc")
 (import "lib/gpu/spirv.inc")
 (import "lib/gpu/vp.inc")
+
+;the most of a channel, the width of the texture, and how often it repeats
+(defq +channel_most (n2d 255) +tex_width (n2d 16) +tex_repeat (n2d 1.5))
 
 (defq tx_lf "\n")
 
@@ -50,12 +55,12 @@
 ;is known to the bit. Its color is each byte over 255, the nearest 32 bit
 ;float to that, as a GPU has it
 (defun tx-byte (c)
-	(sh-float-to-double (sh-double-to-float (/ (n2d (logand c 0xff)) (const (n2d 255))))))
+	(sh-float-to-double (sh-double-to-float (/ (n2d (logand c 0xff)) +channel_most))))
 (defun tx-want (x y)
 	;the place, uv by 1.5 less a quarter across, gone round, of 8 by 4
-	(defq u (frac (- (* (/ (+ (n2d x) (const (n2d 0.5))) (const (n2d 16))) (const (n2d 1.5))) (const (n2d 0.25))))
-		v (frac (* (/ (+ (n2d y) (const (n2d 0.5))) (const (n2d 8))) (const (n2d 1.5))))
-		c (tx-color (+ (n2i (floor (* u (const (n2d 8))))) (* 8 (n2i (floor (* v (const (n2d 4)))))))))
+	(defq u (frac (- (* (/ (+ (n2d x) +double_1/2) +tex_width) +tex_repeat) +double_1/4))
+		v (frac (* (/ (+ (n2d y) +double_1/2) +double_8) +tex_repeat))
+		c (tx-color (+ (n2i (floor (* u +double_8))) (* 8 (n2i (floor (* v +double_4)))))))
 	(doubles (tx-byte (>> c 16)) (tx-byte (>> c 8)) (tx-byte c) (tx-byte (>> c 24))))
 (defq tx_native (shader-vp tx_prog)
 	tx_got (shader-vp-pixels tx_native (shader-vp-frame tx_prog tx_native tx_vals) 0 0 16 8))

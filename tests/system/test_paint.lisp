@@ -1,6 +1,14 @@
 (report-header "Paint: gradients drawn through the canvas's span, and a paint of one color the solid color to the byte")
 
+(import "lib/consts/numbers.inc")
+
 (import "gui/lisp.inc")
+
+;the linear gradient's way across and down, where it starts down, and
+;its length squared; the radial's middle and radius; the sheared linear's
+;way across and its length squared; and the steps of a gradient
+(defq +lin_dx (n2d 30) +lin_dy (n2d -30) +lin_y (n2d 50) +lin_len2 (n2d 1800) +rad_x (n2d 30)
+	+rad_y (n2d 34) +rad_r (n2d 13) +shear_dx (n2d 20) +shear_len2 (n2d 500) +steps (n2d 256))
 
 (defun pt-pixels (canvas)
 	; (pt-pixels canvas) -> (data offset width)
@@ -98,7 +106,7 @@
 	;a pixel's centre taken back by m, (a b tx c d ty) of doubles, to the
 	;space the gradient is given in
 	(bind '(a b tx c d ty) m)
-	(defq det (- (* a d) (* b c)) px (- (+ (pt-d x) (const (n2d 0.5))) tx) py (- (+ (pt-d y) (const (n2d 0.5))) ty))
+	(defq det (- (* a d) (* b c)) px (- (+ (pt-d x) +double_1/2) tx) py (- (+ (pt-d y) +double_1/2) ty))
 	(list (/ (- (* d px) (* b py)) det) (/ (- (* a py) (* c px)) det)))
 (defq pt_none (map (const n2d) '(1 0 0 0 1 0)))
 (each (lambda (spread name)
@@ -107,15 +115,15 @@
 		(assert-eq (cat "a linear gradient, every pixel, " name) :nil
 			(pt-off c (lambda (x y)
 				(bind '(ux uy) (pt-centre x y pt_none))
-				(pt-step (n2i (floor (n2q (* (/ (+ (* (- ux (const (n2d 10))) (const (n2d 30))) (* (- uy (const (n2d 50))) (const (n2d -30))))
-					(const (n2d 1800))) (const (n2d 256)))))) spread)) 1 (= spread +spread_repeat)))
+				(pt-step (n2i (floor (n2q (* (/ (+ (* (- ux +double_10) +lin_dx) (* (- uy +lin_y) +lin_dy))
+					+lin_len2) +steps)))) spread)) 1 (= spread +spread_repeat)))
 		(defq c (Canvas 64 64 1))
 		(.-> c (:fill 0) (:set_radial 30.0 34.0 13.0 pt_bw spread) (:fbox 0 0 64 64))
 		(assert-eq (cat "a radial gradient, every pixel, " name) :nil
 			(pt-off c (lambda (x y)
 				(bind '(ux uy) (pt-centre x y pt_none))
-				(defq dx (- ux (const (n2d 30))) dy (- uy (const (n2d 34))))
-				(pt-step (n2i (* (/ (sqrt (+ (* dx dx) (* dy dy))) (const (n2d 13))) (const (n2d 256)))) spread)) 1 (= spread +spread_repeat))))
+				(defq dx (- ux +rad_x) dy (- uy +rad_y))
+				(pt-step (n2i (* (/ (sqrt (+ (* dx dx) (* dy dy))) +rad_r) +steps)) spread)) 1 (= spread +spread_repeat))))
 	(list +spread_pad +spread_reflect +spread_repeat) '("pad" "reflect" "repeat"))
 
 ;under a matrix, as an SVG gives one: a linear's bands at a slant to its
@@ -128,15 +136,15 @@
 		(assert-eq (cat "a linear gradient under " name) :nil
 			(pt-off c (lambda (x y)
 				(bind '(ux uy) (pt-centre x y md))
-				(pt-step (n2i (floor (n2q (* (/ (+ (* ux (const (n2d 20))) (* uy (const (n2d 10)))) (const (n2d 500))) (const (n2d 256))))))
+				(pt-step (n2i (floor (n2q (* (/ (+ (* ux +shear_dx) (* uy +double_10)) +shear_len2) +steps))))
 					+spread_reflect)) 1))
 		(defq c (Canvas 64 64 1))
 		(.-> c (:fill 0) (:set_radial 10.0 8.0 9.0 pt_bw +spread_repeat m) (:fbox 0 0 64 64))
 		(assert-eq (cat "a radial gradient under " name) :nil
 			(pt-off c (lambda (x y)
 				(bind '(ux uy) (pt-centre x y md))
-				(defq dx (- ux (const (n2d 10))) dy (- uy (const (n2d 8))))
-				(pt-step (n2i (* (/ (sqrt (+ (* dx dx) (* dy dy))) (const (n2d 9))) (const (n2d 256)))) +spread_repeat)) 1 :t)))
+				(defq dx (- ux +double_10) dy (- uy +double_8))
+				(pt-step (n2i (* (/ (sqrt (+ (* dx dx) (* dy dy))) +double_9) +steps)) +spread_repeat)) 1 :t)))
 	(list (mat3x2 1.0 0.5 6.0 0.0 1.0 4.0) (mat3x2 2.5 0.0 3.0 0.0 1.0 5.0) (mat3x2-rot 0.6 32.0 32.0))
 	'("a shear" "a scale of x alone" "a turn"))
 

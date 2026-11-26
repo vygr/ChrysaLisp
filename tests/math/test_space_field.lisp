@@ -2,6 +2,11 @@
 
 (import "apps/demos/space/field.inc")
 
+;a frame, of seconds; the ship's speed; how straight is straight; how
+;near is near enough; and how far out of sight is
+(defq +frame_dt (n2d 0.0166) +speed (n2d 24) +straight_least (n2d 0.999) +near_enough (n2d 0.01)
+	+sight_far (n2d 300))
+
 ;a rock (at drift bulk kind spin patch shove) of numbers given, kind 0, its
 ;reach 0.9 of its size, as field.inc has it before its mesh comes
 (defun sf-rock (x y z vx vy vz bulk)
@@ -11,7 +16,7 @@
 
 ;the field moved on so many frames of a 60th, met a part a frame
 (defun sf-run (frames)
-	(defq part 0 grid :nil dt (const (n2d 0.0166)))
+	(defq part 0 grid :nil dt +frame_dt)
 	(times frames
 		(rocks-move dt)
 		(if (= part 0) (setq grid (rocks-grid)))
@@ -52,11 +57,11 @@
 
 ;the way through: of headings round the way wanted, a safe one
 (defun sf-way (thrill)
-	(defq t (thread-start (doubles +double_0 +double_0 +double_0) (const (n2d 24)) (doubles +double_0 +double_0 +double_-1)
+	(defq t (thread-start (doubles +double_0 +double_0 +double_0) +speed (doubles +double_0 +double_0 +double_-1)
 			(doubles +double_1 +double_0 +double_0) (doubles +double_0 +double_1 +double_0) thrill))
 	(while (not (nums? t)) (setq t (thread-step t 7)))
 	t)
-(defun sf-straight? (way) (> (third (map (const neg) way)) (const (n2d 0.999))))
+(defun sf-straight? (way) (> (third (map (const neg) way)) +straight_least))
 (setq rocks (list))
 (assert-true "nothing in the way, straight on" (sf-straight? (sf-way :t)))
 (setq rocks (list (sf-rock 0 0 -120 0 0 0 15)))
@@ -82,7 +87,7 @@
 ;a blast: its front throws the rocks it goes over out from it, a small
 ;one faster than a big one, and leaves one out of its reach as it was
 (setq rocks (list (sf-rock 520 500 500 0 0 0 5) (sf-rock 480 500 500 0 0 0 40) (sf-rock 800 500 500 0 0 0 5)))
-(assert-eq "its front not yet at them, none moved" 0 (rocks-blast (n2d 500) (n2d 500) (n2d 500) +double_0 (n2d 10)))
+(assert-eq "its front not yet at them, none moved" 0 (rocks-blast (n2d 500) (n2d 500) (n2d 500) +double_0 +double_10))
 (assert-eq "its front gone over them, those in its reach moved" 2
 	(rocks-blast (n2d 500) (n2d 500) (n2d 500) (n2d 10) (n2d 400)))
 (assert-true "out from it" (and (> (sf-vx (first rocks)) +double_0) (< (sf-vx (second rocks)) +double_0)))
@@ -136,7 +141,7 @@
 	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
 		+double_0 (cat +buoy_red) :nil 0 0 0)))
 (times 300 (buoys-move (n2d 0.0166)))
-(defun sf-near (a b) (every (# (< (abs (- %0 %1)) (const (n2d 0.01)))) a b))
+(defun sf-near (a b) (every (# (< (abs (- %0 %1)) +near_enough)) a b))
 (assert-true "calm at a swarm, green" (sf-near (elem-get (first buoys) 3) +buoy_green))
 (assert-true "calm in open space, ice blue" (sf-near (elem-get (second buoys) 3) +buoy_blue))
 
@@ -147,7 +152,7 @@
 	clusters (list (list 0 1 2)))
 (defq sf_eye (doubles (n2d 500) (n2d 500) (n2d 400)) sf_shattered (rocks-nuke (n2d 500) (n2d 500) (n2d 500) sf_eye (n2d 300)))
 (assert-eq "the two small ones in its core shattered" 2 (length sf_shattered))
-(assert-true "and gone out of sight" (every (# (out-of-sight? (first (elem-get rocks %0)) sf_eye (const (n2d 300)))) '(1 2)))
+(assert-true "and gone out of sight" (every (# (out-of-sight? (first (elem-get rocks %0)) sf_eye +sight_far)) '(1 2)))
 (assert-true "no more of their cluster" (eql (first clusters) '(0)))
 (assert-true "the big one where it was" (= (sf-x (first rocks)) (n2d 500)))
 (assert-true "the one outside its core where it was" (= (sf-x (elem-get rocks 3)) (n2d 800)))
@@ -164,4 +169,4 @@
 (rocks-blast (n2d 900) (n2d 500) (n2d 500) +double_0 (n2d 1000) (n2d 100) (n2d 100) :t)
 (assert-true "a blast out of reach leaves it" (= (sf-w (first rocks)) sf_was))
 (rocks-blast (n2d 530) (n2d 500) (n2d 500) +double_0 (n2d 1000) (n2d 100) (n2d 1) :t)
-(assert-true "a nuke's blast in reach calms it" (< (sf-w (first rocks)) (* sf_was (const (n2d 0.5)))))
+(assert-true "a nuke's blast in reach calms it" (< (sf-w (first rocks)) (* sf_was +double_1/2)))

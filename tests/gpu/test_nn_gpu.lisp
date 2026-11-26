@@ -2,6 +2,9 @@
 
 (import "lib/nn/gpu.inc")
 
+;how near a loss and a parameter are near enough
+(defq +loss_near (n2d 0.001) +param_near (n2d 0.0001))
+
 ;a data set of bytes, a picture of 16 a sample, 4 by 4, then a label each
 (defq ng_n 40 ng_labels (* ng_n 16)
 	ng_data (apply (const cat) (cat
@@ -24,7 +27,7 @@
 			;biases not 0, so a ReLU is not at its corner for every unit
 			(each (lambda (layer)
 					(defq b (elem-get layer +nn_layer_biases))
-					(each! (lambda () (elem-set params (+ b (!)) (const (n2d 0.05)))) '() 0 (third (nn-layer-sizes layer))))
+					(each! (lambda () (elem-set params (+ b (!)) +double_1/20)) '() 0 (third (nn-layer-sizes layer))))
 				(nn-layers model))
 			(nn-gpu-data gpu ng_data)
 			(nn-gpu-params gpu params)
@@ -39,17 +42,17 @@
 					(setq loss (+ loss (nn-backward model net grads x scratch label))))
 				ng_batch)
 			(bind '(gl gg gy) (nn-gpu-forward gpu ng_batch 0 ng_labels))
-			(assert-true (cat name ", the loss") (ng-near gl loss (const (n2d 0.001))))
+			(assert-true (cat name ", the loss") (ng-near gl loss +loss_near))
 			(assert-list-eq (cat name ", the guesses") guesses gg)
 			(assert-list-eq (cat name ", the labels") (map (# (code ng_data 1 (+ ng_labels %0))) ng_batch) gy)
 			;a step, the params as the Lisp model's moved down their gradients
-			(defq rate (const (n2d 0.5)))
+			(defq rate +double_1/2)
 			(bind '(sl &ignore) (nn-gpu-step gpu ng_batch 0 ng_labels rate))
-			(assert-true (cat name ", the loss of a step is the loss before it") (ng-near sl loss (const (n2d 0.001))))
+			(assert-true (cat name ", the loss of a step is the loss before it") (ng-near sl loss +loss_near))
 			(defq want (nums-add params (nums-scale (nn-flat grads) (/ (neg rate) (n2d (length ng_batch))))))
 			(assert-true (cat name ", each number moved down its gradient")
-				(every (# (ng-near %0 %1 (const (n2d 0.0001)))) (nn-gpu-read gpu) want))
-			(assert-true (cat name ", and moved") (some (# (not (ng-near %0 %1 (const (n2d 0.0001))))) want params))
+				(every (# (ng-near %0 %1 +param_near)) (nn-gpu-read gpu) want))
+			(assert-true (cat name ", and moved") (some (# (not (ng-near %0 %1 +param_near))) want params))
 			(nn-gpu-free gpu))))
 
 ;dense layers of every activation; convolutions padded, pooled, and one
