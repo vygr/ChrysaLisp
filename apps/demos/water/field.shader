@@ -44,6 +44,11 @@
 ;how far round the lip of a tunnel where it opens out of the rock is
 ;rounded, as the sea wears it
 (defconst lip_round 2.5)
+;how far across a spike stands from the side of a tunnel out of its
+;chamber at least, so none blocks one, and the chance of one in a square
+;of a chamber where one may stand
+(defconst spike_clear 0.0)
+(defconst spike_chance 0.7)
 
 ;the hash of a cell, a number from 0 to 1, and k another of the same cell
 (defun cell_hash :float ((c :vec3) (k :float))
@@ -169,14 +174,38 @@
 		h (- (:y p) (bed (:xz p))))
 	(min h (* 18.0 (- (+ 0.6 (* h 0.032)) n))))
 
+;how far across at is from the half of a tunnel nearest the junction j
+;of a chamber, the tunnel of the pair, pc the way of k, from a to b, one
+;of them j; far if the pair has none
+(defun from_way :float ((at :vec2) (pc :vec3) (k :float) (a :vec3) (b :vec3) (j :vec3))
+	(defq o 100.0)
+	(when (linked pc k)
+		(defq jj (:xz j) d (- (:xz (+ (* 0.5 (+ a b)) (bend pc k))) jj)
+			t (clamp (/ (dot (- at jj) d) (dot d d)) 0.0 1.0))
+		(setq o (length (- at (+ jj (* d t))))))
+	o)
+
+;how far across at is from the tunnels that leave the chamber of cell c,
+;its junction j, the eight ways
+(defun from_ways :float ((at :vec2) (c :vec3) (j :vec3))
+	(defq cxm (+ c (vec3 -1.0 0.0 0.0)) czm (+ c (vec3 0.0 0.0 -1.0))
+		cxp (+ c (vec3 1.0 0.0 0.0)) czp (+ c (vec3 0.0 0.0 1.0))
+		cmm (+ c (vec3 -1.0 0.0 -1.0)) cmp (+ c (vec3 -1.0 0.0 1.0))
+		cpp (+ c (vec3 1.0 0.0 1.0)) cpm (+ c (vec3 1.0 0.0 -1.0)))
+	(min (min (min (from_way at c 3.0 j (junction cxp) j) (from_way at c 4.0 j (junction czp) j))
+			(min (from_way at c 5.0 j (junction cpp) j) (from_way at c 6.0 j (junction cpm) j)))
+		(min (min (from_way at cxm 3.0 (junction cxm) j j) (from_way at czm 4.0 (junction czm) j j))
+			(min (from_way at cmm 5.0 (junction cmm) j j) (from_way at cmp 6.0 (junction cmp) j j)))))
+
 ;stalactites down from the roof of a chamber and stalagmites up from its
 ;floor, on a grid of 4.5 across, a spike where the hash says so: the least
 ;distance to one, of the chamber of p's own cell on the level nearest it.
 ;A spike is never so far from the middle of its square of the grid, nor so
 ;fat, that it reaches the next square, where it would be cut off flat.
-;None stands in the middle of a chamber, where its tunnels meet, so the way
-;through is open, and few are long enough to meet as a column
-(defun spikes :float ((p :vec3))
+;None stands in the middle of a chamber, where its tunnels meet, nor in a
+;tunnel out of it, so the way through is open, and few are long enough to
+;meet as a column
+(defun spikes :float ((p :vec3) (r :float))
 	(defq ly (clamp (floor (+ (/ (:y p) level) 0.5)) -2.0 -1.0)
 		c (vec3 (floor (/ (:x p) cell)) ly (floor (/ (:z p) cell))) o 100.0)
 	(when (< (cell_hash c 20.0) 0.6)
@@ -187,7 +216,7 @@
 				(+ 9.0 (* 5.0 (cell_hash c 23.0))))
 			e (/ (- at (:xz j)) (:xz size))
 			rr (dot e e))
-		(when (and (> rr 0.11) (< rr 0.8) (< (cell_hash s 32.0) 0.35))
+		(when (and (> rr 0.11) (< rr 0.8) (< (cell_hash s 32.0) spike_chance) (> (from_ways at c j) (+ r spike_clear)))
 			(defq half (* (:y size) (sqrt (- 1.0 rr)))
 				top (+ (:y j) half) floor_at (- (:y j) half)
 				hd (length (- (:xz p) at))
@@ -224,10 +253,11 @@
 
 ;how much water there is at p: the rock, the caves taken out of it, of
 ;the point moved, their width of noise too, the lips where they open
-;out of it rounded, and the spikes of the chambers put back
+;out of it rounded, and the spikes of the chambers put back, of the point
+;moved too, so they are in the chambers as the caves have them
 (defun water :float ((p :vec3))
-	(defq r (+ 2.8 (* 2.4 (noise3 (* p 0.0625)))))
-	(min (soft_max (rock p) (caves (+ p (warp p)) r) lip_round) (spikes p)))
+	(defq r (+ 2.8 (* 2.4 (noise3 (* p 0.0625)))) w (+ p (warp p)))
+	(min (soft_max (rock p) (caves w r) lip_round) (spikes w r)))
 
 ;how near the caves are, more than 0 in them, for nothing to block their
 ;ways in and out
