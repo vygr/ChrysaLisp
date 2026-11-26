@@ -21,11 +21,14 @@
 ;how far apart the places of a line are, how many steps a place takes to
 ;the middle and how far each at most, how far it looks across for the
 ;slope; how far over the rock a line over the reef keeps, how far it is
-;lifted a step and how many steps at most, the highest it may go, how far
+;lifted a step and how many steps at most, the highest it may go, how many
+;places either side a place is as high as and how often it is smoothed,
+;and lower than any line; how far
 ;into the open water it must be there for a leg not to be blocked, and how
 ;far apart the places it looks at for that are
 (defq +line_step +double_1 +centre_steps 8 +centre_most +double_1/2 +slope_across +double_1/5
-	+over_rock +double_4 +lift_step +double_2 +lift_steps 12 +line_top (n2d 25)
+	+over_rock +double_4 +lift_step +double_1/2 +lift_steps 48 +line_top (n2d 25)
+	+hold 4 +line_bottom (n2d -1000)
 	+top_clear +double_2 +block_step +double_2)
 
 (defun route-funcs ()
@@ -90,14 +93,22 @@
 					p)
 				line))
 			(apply (const cat) (smooth (smooth line))))
-		(:t ;over the reef, lifted over the rock, and never to the surface
-			(setq line (map (lambda (p)
+		(:t ;over the reef, lifted over the rock, and never to the surface;
+			;then each as high as the highest near it needs, and smoothed,
+			;so it holds its height over the bumps of the seabed and never
+			;dips under what it clears
+			(defq high (map (lambda (p)
 					(defq p (cat p))
 					(times +lift_steps (if (< (water p) +over_rock) (elem-set p 1 (+ (second p) +lift_step))))
-					(elem-set p 1 (min (second p) +line_top))
+					(min (second p) +line_top))
+				line) n (length line))
+			(setq line (map (lambda (p)
+					(defq i (!) p (cat p))
+					(elem-set p 1 (reduce! max (list high) +line_bottom (max 0 (- i +hold)) (min n (+ i +hold 1))))
 					p)
 				line))
-			(apply (const cat) (smooth (smooth line))))))
+			(times +hold (setq line (smooth line)))
+			(apply (const cat) line))))
 
 (defun route-blocked? (water pts)
 	; (route-blocked? water pts) -> :t | :nil

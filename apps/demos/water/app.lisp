@@ -140,6 +140,8 @@
 		(0.8 0.6 0.8 0 2) (0.8 0.6 0.8 0 2) (0.8 0.6 0.8 0 2) (0.8 0.6 0.8 0 2) (0.8 0.6 0.8 0 2)
 		(0.72 0.95 0.72 0 5) (0.72 0.95 0.72 0 5) (0.72 0.95 0.72 0 5))
 	+stone_reach (n2d 1.5) +stone_clear (n2d 0.5)
+	;how clear of a stone the auto pilot aims
+	+aim_clear (n2d 3)
 	;how much of the water's light reaches the eye, eased, the least, and
 	;how often it is looked at again
 	open +double_1 +open_least (n2d 0.04) +open_ease +double_2 open_at 0
@@ -565,7 +567,15 @@
 	(unless (or (third leg) (elem-get leg 3))
 		(times 8 (if (< (field_water p) +over_rock) (elem-set p 1 (+ (second p) +double_2))))
 		(elem-set p 1 (min (second p) (- +surface +under_surface))))
-	p)
+	;the lines know nothing of the stones: the first place on the way to the
+	;aim that is near one is moved clear of it, and aimed at, so the sub
+	;steers round or over it
+	(defq to (nums-sub p eye) aim p)
+	(some (lambda (along)
+			(bind '(q moved) (clear-of-stones (nums-add eye (nums-scale to (n2d along))) +aim_clear))
+			(if (> moved +double_0) (setq aim q)))
+		'(0.35 0.7 1))
+	aim)
 
 (defun far-from (p)
 	; (far-from p) -> double
@@ -614,11 +624,11 @@
 	(setq up (unit (cross (cross forward up) forward)))
 	dt)
 
-(defun clear-of-stones (p)
-	; (clear-of-stones p) -> (p moved)
-	;p moved out of the stones near it, each a rounded box of its kind, as
-	;it lies, turned and sized, and how far it was moved; weed it swims
-	;through
+(defun clear-of-stones (p clear)
+	; (clear-of-stones p clear) -> (p moved)
+	;p moved out of the stones near it, and as far clear of them as asked,
+	;each a rounded box of its kind, as it lies, turned and sized, and how
+	;far it was moved; weed it swims through
 	(defq moved +double_0 cx (n2i (floor (/ (first p) +chunk))) cy (n2i (floor (/ (second p) +chunk)))
 		cz (n2i (floor (/ (third p) +chunk))))
 	(each! (lambda ()
@@ -629,10 +639,10 @@
 							(and (defq known (. chunks :find (chunk-key (+ cx (!)) (+ cy dy) (+ cz dz))))
 								(eql (first known) :mesh)
 								(each (lambda ((& & & at bulk weed kind (a up b)))
-										(defq d (nums-sub p at) reach (+ (* bulk +stone_reach) +stone_clear))
+										(defq d (nums-sub p at) reach (+ (* bulk +stone_reach) clear))
 										(and (not weed) (< (nums-dot d d) (* reach reach))
 											(bind '(rx ry rz cy sq) (elem-get +stone_shapes kind))
-											(defq k (/ +stone_clear bulk) rx (+ (n2d rx) k) ry (+ (n2d ry) k) rz (+ (n2d rz) k) cy (n2d cy)
+											(defq k (/ clear bulk) rx (+ (n2d rx) k) ry (+ (n2d ry) k) rz (+ (n2d rz) k) cy (n2d cy)
 												sq (n2d sq) qx (/ (nums-dot d a) bulk) qy (- (/ (nums-dot d up) bulk) cy) qz (/ (nums-dot d b) bulk)
 												;how far out across, as square as the stone is, and up
 												across (pow (+ (pow (abs (/ qx rx)) sq) (pow (abs (/ qz rz)) sq)) (recip sq))
@@ -826,7 +836,7 @@
 		(++ touches)
 		(setq hit (- +clear h)))
 	(setq eye (clear-of-rock eye))
-	(bind '(p moved) (clear-of-stones eye))
+	(bind '(p moved) (clear-of-stones eye +stone_clear))
 	(setq eye p)
 	(when (> moved +double_0)
 		(++ touches)
@@ -844,6 +854,7 @@
 		((> (sqrt (nums-dot (defq d (nums-sub eye was)) d)) +headway) (setq was (cat eye) was_at now))
 		((> (- now was_at) +stuck_long)
 			;stuck a long while: a new line from where it is
+			(++ stucks)
 			(setq was (cat eye) was_at now)
 			(head-out))))
 
@@ -1025,7 +1036,17 @@
 ;to look at the log of it. The parts' times, when the last part ended, the
 ;frames of this second, the stream and when it began
 (defq +frame_log :nil frame_parts (list 0 0 0 0 0) frame_at 0 frame_count 0 frame_stream :nil frame_began 0
-	touches 0)
+	touches 0 stucks 0 nods 0 nod_was +double_0 nod_way +double_0 +nod_least (n2d 0.01))
+
+(defun frame-nod ()
+	; (frame-nod)
+	;for the frame log, a nod of the view each time it turns from pitching
+	;up to pitching down or back, more than a little
+	(when +frame_log
+		(defq d (- (second forward) nod_was))
+		(when (> (abs d) +nod_least)
+			(if (< (* d nod_way) +double_0) (++ nods))
+			(setq nod_way d nod_was (second forward)))))
 
 (defun frame-mark (part)
 	; (frame-mark part)
@@ -1048,9 +1069,9 @@
 		" | eye " (elem-get ms 0) " fish " (elem-get ms 1) " chunks " (elem-get ms 2) " draws " (elem-get ms 3)
 		" render " (elem-get ms 4) " gpu " (elem-get ms 5)
 		" | chunks " (str meshed) " out " (str out) " stones " (str stones_drawn) " fish " (str fish_drawn)
-		" echoes " (str echoes) " legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
+		" nods " (str nods) " stucks " (str stucks) " echoes " (str echoes) " legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
 		" touches " (str touches)))
-	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0)
+	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0 nods 0)
 	(stream-flush frame_stream)
 	(and (eql (get '*env_node_user*) "Test") (> (- now frame_began) 60000000)))
 
@@ -1062,6 +1083,7 @@
 	(swim dt)
 	(prop-feed dt)
 	(sonar-feed)
+	(frame-nod)
 	(frame-mark 0)
 	(setq schools (schools-move schools field_water eye forward view dt +surface prop_gain))
 	(frame-mark 1)
