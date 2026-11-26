@@ -409,6 +409,6 @@
 			(const (Vec3-d (n2d 0.5) (n2d 0.0) (n2d 0.0))))))
 
 ;module
-(export-symbols '(iso-surface))
+(export-symbols '(iso-surface +edge_table +tri_table))
 (export-classes '(Iso Iso-sphere Iso-tetra Iso-capsule Iso-cube))
 (env-pop)

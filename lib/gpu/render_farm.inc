@@ -370,13 +370,22 @@
 	(defmethod :mesh (id verts &optional vfile)
 		; (. render :mesh id verts [vfile]) -> render
 		;a mesh frames are drawn of, by a number of the app's, never given
-		;to another while this render lasts: verts a doubles, the numbers
-		;of a vertex one after another as the vertex shader has its attrs,
-		;the render's, or that of vfile for a mesh drawn with a pair of its
-		;own
+		;to another while this render lasts, even after (:unmesh): verts a
+		;doubles, the numbers of a vertex one after another as the vertex
+		;shader has its attrs, the render's, or that of vfile for a mesh
+		;drawn with a pair of its own
 		(defq stride (if vfile (reduce (# (+ %0 (shader-size (second %1)))) (shader-attrs (shader-load vfile)) 0)
 				(get :stride this)))
 		(. (get :meshes this) :insert id (list verts (/ (length verts) stride) :nil))
+		this)
+
+	(defmethod :unmesh (id)
+		; (. render :unmesh id) -> render
+		;a mesh no longer drawn, let go of here. The children let go of a
+		;mesh they have not drawn for a while of themselves, so an app whose
+		;meshes come and go, chunks of a world, has no more kept than it
+		;draws. The number is not given to another
+		(. (get :meshes this) :erase id)
 		this)
 
 	(defmethod :forget ()

@@ -18,8 +18,20 @@
 	with)
 
 ;the meshes it has been sent, by their numbers, and the triangles of a
-;mesh of that many vertices, which are just the vertices in order
-(defq meshes (Fmap 31) orders (Fmap 11))
+;mesh of that many vertices, which are just the vertices in order; when
+;each mesh was last drawn, and when they were last looked over. One not
+;drawn for a while is let go of, an app whose meshes come and go has them
+;asked for again if it draws them again
+(defq meshes (Fmap 31) orders (Fmap 11) drawn_at (Fmap 31) swept 0
+	+mesh_idle 10000000 +sweep_every 2000000)
+
+(defun sweep ()
+	;every mesh not drawn for +mesh_idle let go of
+	(when (> (- (defq now (pii-time)) swept) +sweep_every)
+		(setq swept now)
+		(defq old (list))
+		(. drawn_at :each (lambda (id at) (if (> (- now at) +mesh_idle) (push old id))))
+		(each (lambda (id) (. meshes :erase id) (. drawn_at :erase id)) old)))
 
 ;the pictures it has been named, each by what it was named as, kept for
 ;as long as the child is. One that could not be found is kept as that
@@ -45,6 +57,7 @@
 		(mail-send ask (setf-> (str-alloc +strip_ask_size)
 				(+strip_ask_reply mbox) (+strip_ask_mesh id)))
 		(. meshes :insert id (setq verts (mail-read mbox))))
+	(. drawn_at :insert id (pii-time))
 	verts)
 
 (defun order (count)
@@ -98,6 +111,7 @@
 						(split (slice msg tfiles sfiles) "\n")))
 				(elem-get '(:nil :t :front) cull) 3 0 y width y1 y))
 		(setq at (+ sfiles slen)))
+	(sweep)
 	(unless gone
 		(mail-send reply (setf-> (str-alloc +strip_reply_size)
 				(+job_reply_key key) (+strip_reply_y y) (+strip_reply_drawn (if pixmap 1 0))))))
