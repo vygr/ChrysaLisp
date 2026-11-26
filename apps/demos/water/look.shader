@@ -35,8 +35,11 @@
 ;bright in a web of soft lines where they meet, as the ripples overhead
 ;focus the sun; blurred to an even shimmer by soft, 0 to 1, the further
 ;and deeper. Their sizes are whole times round the world, field.shader
+;the size of the caustics' noise, too fine to write in 4 places
+(defconst caustic_size "0.34375")
+
 (defun caustic :float ((p :vec2) (t :float) (soft :float))
-	(defq q (* p 0.34375)
+	(defq q (* p caustic_size)
 		a (noise2 (+ q (vec2 (* t 0.21) (* t 0.13))))
 		b (noise2 (+ (* q 1.5) (vec2 (* t -0.17) (* t 0.19)) 3.0))
 		c (clamp (- 1.0 (* 2.4 (abs (- a b)))) 0.0 1.0)

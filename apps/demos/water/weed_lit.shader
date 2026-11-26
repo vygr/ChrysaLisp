@@ -27,6 +27,7 @@
 (defvarying far :float)
 (defvarying lit :vec2)
 (defvarying grain :vec2)
+(defvarying shown :float)
 
 (defconst kelp_foot (vec3 0.22 0.18 0.06))
 (defconst kelp_tip (vec3 0.55 0.5 0.18))
@@ -53,5 +54,7 @@
 		lamped (* lamp cone (max (dot n l) 0.0) (/ 1.0 (+ 1.0 (* 0.004 d d))))
 		light (+ round (* sun_light (+ (* 1.2 diffuse) through (* 1.4 caus))))
 		col (* base (+ light (* (vec3 1.0 0.95 0.85) lamped))))
-	(defq k (seen_through to murk))
+	;the water hides it with distance, and all of it far off, where it
+	;comes into sight
+	(defq k (* (seen_through to murk) shown))
 	(vec4 (+ (mix (water_seen eye (- l) time murk open) col k) (lamp_glow (- l) forward lamp (- 1.0 k))) 1.0))

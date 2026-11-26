@@ -7,8 +7,9 @@
 ; the tunnel there: up the slope of the field across the tunnel, as the
 ; field is near enough the distance to the rock, so the place is as far
 ; from the rock as it can be. Over the reef a place is lifted over the rock
-; it runs into. The line is smoothed, and the auto pilot swims along it and
-; looks along it.
+; it runs into, up to the highest a line may go; a leg with rock that high
+; on it is blocked, and the auto pilot goes another way. The line is
+; smoothed, and the auto pilot swims along it and looks along it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/consts/numbers.inc")
@@ -19,10 +20,13 @@
 
 ;how far apart the places of a line are, how many steps a place takes to
 ;the middle and how far each at most, how far it looks across for the
-;slope, how far over the rock a line over the reef keeps, how far it is
-;lifted a step, and the highest it may go
+;slope; how far over the rock a line over the reef keeps, how far it is
+;lifted a step and how many steps at most, the highest it may go, how far
+;into the open water it must be there for a leg not to be blocked, and how
+;far apart the places it looks at for that are
 (defq +line_step +double_1 +centre_steps 8 +centre_most +double_1/2 +slope_across +double_1/5
-	+over_rock +double_4 +lift_step +double_2 +line_top (n2d 25))
+	+over_rock +double_4 +lift_step +double_2 +lift_steps 12 +line_top (n2d 25)
+	+top_clear +double_2 +block_step +double_2)
 
 (defun route-funcs ()
 	; (route-funcs) -> funcs
@@ -56,6 +60,11 @@
 	(defq d (nums-sub b a) dd (nums-dot d d))
 	(if (> dd +double_0) (nums-scale d (recip (sqrt dd))) (doubles +double_0 +double_1 +double_0)))
 
+(defun along-at (line i)
+	; (along-at line i) -> doubles
+	;the way along a line at its place i
+	(unit-way (elem-get line (max 0 (dec i))) (elem-get line (min (dec (length line)) (inc i)))))
+
 (defun route-line (funcs pts cave)
 	; (route-line funcs pts cave) -> doubles
 	;the line along a tunnel through pts, a junction, the middle of its
@@ -69,7 +78,7 @@
 			;of the field across the line, the way along it taken out
 			(setq line (map (# (nums-sub %0 (warp %0))) line))
 			(setq line (map (lambda (p)
-					(defq i (!) along (unit-way (elem-get line (max 0 (dec i))) (elem-get line (min (dec (length line)) (inc i)))))
+					(defq along (along-at line (!)))
 					(times +centre_steps
 						(defq h (water p) e +slope_across
 							g (doubles (- (water (nums-add p (doubles e +double_0 +double_0))) h)
@@ -79,16 +88,33 @@
 						(if (> gg +double_0)
 							(setq p (nums-add p (nums-scale g (/ (min +centre_most (+ +double_1/10 (* (abs h) +double_1/2))) (sqrt gg)))))))
 					p)
-				line)))
+				line))
+			(apply (const cat) (smooth (smooth line))))
 		(:t ;over the reef, lifted over the rock, and never to the surface
 			(setq line (map (lambda (p)
 					(defq p (cat p))
-					(times 8 (if (< (water p) +over_rock) (elem-set p 1 (+ (second p) +lift_step))))
+					(times +lift_steps (if (< (water p) +over_rock) (elem-set p 1 (+ (second p) +lift_step))))
 					(elem-set p 1 (min (second p) +line_top))
 					p)
-				line))))
-	(apply (const cat) (smooth (smooth line))))
+				line))
+			(apply (const cat) (smooth (smooth line))))))
+
+(defun route-blocked? (water pts)
+	; (route-blocked? water pts) -> :t | :nil
+	;is a leg over the reef through pts blocked, rock as high as a line may
+	;go anywhere on it, so no line lifted over the rock gets by
+	(defq out :nil)
+	(each (lambda (a b)
+			(defq ab (nums-sub b a) n (max 1 (n2i (/ (sqrt (nums-dot ab ab)) +block_step))))
+			(each! (lambda ()
+					(unless out
+						(defq p (nums-add a (nums-scale ab (/ (n2d (!)) (n2d n)))))
+						(elem-set p 1 +line_top)
+						(if (< (water p) +top_clear) (setq out :t))))
+				'() 0 (inc n)))
+		(slice pts 0 -2) (slice pts 1 -1))
+	out)
 
 ;module
-(export-symbols '(route-funcs route-line resample))
+(export-symbols '(route-funcs route-line route-blocked? resample))
 (env-pop)

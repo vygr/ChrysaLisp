@@ -18,8 +18,9 @@
 ;the sun's and the sky's light where it lies, 0 sandstone or 1 basalt,
 ;and how high the floor is under it
 (definput stone :vec4)
-;how far off it is drawn at all: it rises out of the floor as it comes
-;nearer than that, all under the floor at it, so it never pops into sight
+;how far off it is drawn at all: it comes out of the water as it comes
+;nearer than that, all the water's colour at it, so it never pops into
+;sight and never moves
 (definput stone_reach :float)
 
 (defattr position :vec4)
@@ -31,11 +32,11 @@
 (defvarying lit :vec2)
 (defvarying grain :vec2)
 (defvarying bedding :float)
+(defvarying shown :float)
 
 (defun main :vec4 ()
 	(defq centre (:xyz (* model (vec4 0.0 0.0 0.0 1.0))) up_way (:xyz (* model (vec4 0.0 1.0 0.0 0.0)))
-		sunk (clamp (/ (- (length (- centre eye)) (* 0.9 stone_reach)) (* 0.1 stone_reach)) 0.0 1.0)
-		at (- (* model position) (vec4 (* up_way (* 2.2 sunk)) 0.0)))
+		at (* model position))
 	;how high in its beds, along its own up, so a level slab's beds are
 	;level and a tilted piece's tilt with it, from a bed of its own, so
 	;which bed is its top is its own too
@@ -44,5 +45,6 @@
 		place (:xyz at)
 		facing (:xyz (* model (vec4 normal 0.0)))
 		far (length (- place eye))
-		lit (:xy stone) grain (:zw stone))
+		lit (:xy stone) grain (:zw stone)
+		shown (- 1.0 (clamp (/ (- (length (- centre eye)) (* 0.8 stone_reach)) (* 0.2 stone_reach)) 0.0 1.0)))
 	(* lens at))

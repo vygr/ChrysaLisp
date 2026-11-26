@@ -36,6 +36,14 @@
 ;from each
 (defconst cave_link 0.68)
 (defconst shaft_link 0.4)
+;the sizes of noise too fine to write in 4 places, each a whole number of
+;times round the world: the bed's, the rock's and the warp's
+(defconst bed_size "0.015625")
+(defconst rock_size "0.03125")
+(defconst warp_size "0.09375")
+;how far round the lip of a tunnel where it opens out of the rock is
+;rounded, as the sea wears it
+(defconst lip_round 2.5)
 
 ;the hash of a cell, a number from 0 to 1, and k another of the same cell
 (defun cell_hash :float ((c :vec3) (k :float))
@@ -55,7 +63,7 @@
 ;how high the seabed is: rolling, and dunes on it, lifted in the shallows
 ;up to the surface and through it
 (defun bed :float ((p :vec2))
-	(defq q (* p 0.015625))
+	(defq q (* p bed_size))
 	(+ -6.0 (* 10.0 (noise2 q)) (* 4.0 (noise2 (* q 2.0))) (* 1.5 (noise2 (* q 4.0)))
 		(* 34.0 (ease 0.5 0.95 (region p)))))
 
@@ -156,7 +164,7 @@
 ;fewer the higher, quickly enough that none floats free of the bed, and
 ;the seabed under them
 (defun rock :float ((p :vec3))
-	(defq q (* p 0.03125)
+	(defq q (* p rock_size)
 		n (+ (* 0.6 (noise3 q)) (* 0.3 (noise3 (* q 2.0))) (* 0.1 (noise3 (* q 4.0))))
 		h (- (:y p) (bed (:xz p))))
 	(min h (* 18.0 (- (+ 0.6 (* h 0.032)) n))))
@@ -205,15 +213,21 @@
 ;a tunnel is open where a point moved so is near its curve, so the middle
 ;of it near a point of the curve is near that point less this
 (defun warp :vec3 ((p :vec3))
-	(defq q (* p 0.09375))
+	(defq q (* p warp_size))
 	(* (- (vec3 (noise3 q) (noise3 (+ q 31.0)) (noise3 (+ q 63.0))) 0.5) 7.0))
 
+;the more of a and b, rounded where they are near the same over k, so
+;where a tunnel opens out of the rock its lip is worn round, not sharp
+(defun soft_max :float ((a :float) (b :float) (k :float))
+	(defq h (/ (max (- k (abs (- a b))) 0.0) k))
+	(+ (max a b) (* h h k 0.25)))
+
 ;how much water there is at p: the rock, the caves taken out of it, of
-;the point moved, their width of noise too, and the spikes of the
-;chambers put back
+;the point moved, their width of noise too, the lips where they open
+;out of it rounded, and the spikes of the chambers put back
 (defun water :float ((p :vec3))
 	(defq r (+ 2.8 (* 2.4 (noise3 (* p 0.0625)))))
-	(min (max (rock p) (caves (+ p (warp p)) r)) (spikes p)))
+	(min (soft_max (rock p) (caves (+ p (warp p)) r) lip_round) (spikes p)))
 
 ;how near the caves are, more than 0 in them, for nothing to block their
 ;ways in and out

@@ -187,6 +187,8 @@
 	+circle_chance 35 +skim_chance 30 +skim_over +double_2 +pinnacle_reach 6 +pinnacle_step (n2d 8)
 	+ring_under +double_2 +edge_clear (n2d 6) +edge_step (n2d 5) +edge_steps 14 +edge_least 5
 	+ahead_least (n2d 0.2) +ahead_most (n2d 20) +ahead_near (n2d 15)
+	;how far into the open water a junction must be for it to go to it
+	+junction_clear +double_1
 	;the auto pilot on its line: how fast it turns on a leg of the caves or
 	;a shaft, the way it is aiming, how slow it may go for a sharp turn, how
 	;slow on a leg of the caves not yet lined, and further than anywhere
@@ -236,6 +238,24 @@
 (defun junction-of (c)
 	; (junction-of c) -> doubles
 	(field_junction (at-cell c)))
+
+(defun open-junction? (c)
+	; (open-junction? c) -> :t | :nil
+	;is the junction of a cell in the open water, not in the rock of an
+	;island that comes up through the surface
+	(> (field_water (junction-of c)) +junction_clear))
+
+(defun open-way? (here option)
+	; (open-way? here option) -> :t | :nil
+	;can the auto pilot go this way from a junction: to one in the open
+	;water, and over the reef not blocked by rock that comes up to the
+	;surface, as no line over it gets by
+	(bind '(to pair k) option)
+	(and (open-junction? to)
+		(or (< (second here) 0) (< (second to) 0)
+			(not (route-blocked? field_water (list (defq a (junction-of here))
+				(nums-add (nums-scale (nums-add a (defq b (junction-of to))) +double_1/2) (field_bend (at-cell pair) (n2d k)))
+				b))))))
 
 (defun links-of (c)
 	; (links-of c) -> ((cell pair k) ...)
@@ -359,8 +379,10 @@
 	;other. Over the reef a shaft down pulls hard, so it goes caving now and
 	;then; in the caves it follows the way out, (way-out). The way to it put
 	;on the route
-	(defq here going came_key (str came) options (filter (lambda ((to &ignore)) (nql (str to) came_key)) (links-of here)))
-	(if (empty? options) (setq options (links-of here)))
+	(defq here going came_key (str came) all (filter (lambda (option) (open-way? here option)) (links-of here)))
+	(if (empty? all) (setq all (links-of here)))
+	(defq options (filter (lambda ((to &ignore)) (nql (str to) came_key)) all))
+	(if (empty? options) (setq options all))
 	;in the caves it is always on its way out of them, not back the way it
 	;came in if there is another; and if the search goes too far, back the
 	;way it came through them, the junctions it has passed
@@ -472,13 +494,13 @@
 (defun junction-ahead ()
 	; (junction-ahead) -> cell
 	;the junction of the open water round the eye most nearly the way it is
-	;looking, not too near
+	;looking, not too near, and none with rock up to the surface on the way
 	(defq cx (n2i (floor (/ (first eye) +cell))) cz (n2i (floor (/ (third eye) +cell))) best :nil best_score +double_0)
 	(each! (lambda ()
 			(defq z (!))
 			(each! (lambda ()
 					(defq c (list (!) 0 z) d (nums-sub (junction-of c) eye) dd (sqrt (nums-dot d d)))
-					(when (> dd +ahead_near)
+					(when (and (> dd +ahead_near) (open-junction? c) (not (route-blocked? field_water (list eye (junction-of c)))))
 						(defq score (nums-dot (nums-scale d (recip dd)) forward))
 						(when (or (not best) (> score best_score)) (setq best c best_score score))))
 				'() (dec cx) (+ cx 2)))

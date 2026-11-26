@@ -6,9 +6,9 @@
 ; sized, and then by that of the view. It sways in the swell: the
 ; higher up a blade, the more, the square of how high, as a wave that
 ; travels over the seabed, so clumps near each other sway together a
-; little apart, a slower roll under it. As the stones do, it rises out
-; of the floor as it comes nearer than how far off it is drawn, all
-; under the floor at that, where the water hides it anyway.
+; little apart, a slower roll under it. As the stones do, it comes out
+; of the water as it comes nearer than how far off it is drawn, all the
+; water's colour at that, so it never pops into sight.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;the clump in the world, how the world is seen, and where from
@@ -30,6 +30,7 @@
 (defvarying far :float)
 (defvarying lit :vec2)
 (defvarying grain :vec2)
+(defvarying shown :float)
 
 ;the way the swell goes, across the seabed
 (defconst swell_way (vec3 0.8 0.0 0.6))
@@ -41,12 +42,11 @@
 		phase (- (* (dot centre swell_way) 0.12) (* time 0.9))
 		sway (* (+ (sin phase) (* 0.35 (sin (+ (* phase 2.3) 1.7)))) h h tall 0.22)
 		roll (* (sin (+ (* time 0.6) (* (:x centre) 0.3) (* (:z centre) 0.2))) h h tall 0.08)
-		sunk (clamp (/ (- (length (- centre eye)) (* 0.9 stone_reach)) (* 0.1 stone_reach)) 0.0 1.0)
 		at (+ (* model position)
-			(vec4 (- (+ (* swell_way sway) (vec3 (* roll (:z swell_way)) 0.0 (* roll (- (:x swell_way)))))
-				(* up_way (* 1.2 sunk))) 0.0)))
+			(vec4 (+ (* swell_way sway) (vec3 (* roll (:z swell_way)) 0.0 (* roll (- (:x swell_way))))) 0.0)))
 	(setq place (:xyz at)
 		facing (:xyz (* model (vec4 normal 0.0)))
 		far (length (- place eye))
-		lit (:xy stone) grain (vec2 (:z stone) h))
+		lit (:xy stone) grain (vec2 (:z stone) h)
+		shown (- 1.0 (clamp (/ (- (length (- centre eye)) (* 0.8 stone_reach)) (* 0.2 stone_reach)) 0.0 1.0)))
 	(* lens at))
