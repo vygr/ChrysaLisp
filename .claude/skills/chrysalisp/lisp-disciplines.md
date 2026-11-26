@@ -858,7 +858,13 @@ new trap there with its test. Others to know:
 	importers share with it, a `structure` and its `_t` names, an `enums`,
 	goes above the `(env-push)`, not into the export. A module can not have
 	a `+name` its importer has already: the name is read as its value, and
-	its `(defq)` fails `not_a_symbol`; use the importer's. A module run
+	its `(defq)` fails `not_a_symbol`; use the importer's. So a library's
+	module, imported anywhere, names its own with its prefix,
+	`+mp3_pcm_scale`, never a bare `+pcm_scale` an app may have. The
+	library's numbers, `+double_1`, `+double_1/4`, `+float_2`, `+double_pi`,
+	are `lib/consts/numbers.inc`: a file that names one imports that, or
+	`lib/math/vector.inc`, which does, else it runs only where something
+	else happened to. A module run
 	inside an app, calling the app's own functions, is given the app as its
 	context in `check`'s `+unbound_context`.
 
