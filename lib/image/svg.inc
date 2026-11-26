@@ -2,6 +2,7 @@
 ; svg loader
 ;;;;;;;;;;;;
 
+(import "lib/consts/numbers.inc")
 (import "././xml/parse.inc")
 (import "././consts/colors.inc")
 (import "gui/path/lisp.inc")
@@ -93,7 +94,7 @@
 		((and (defq e (or (find "e" val) (find "E" val)))
 				(defq x (str-to-num (slice val (inc e) -1))) (/= x 0))
 			(defq m (n2d (str-to-num (slice val 0 e))))
-			(times (abs x) (setq m (if (> x 0) (* m (const (n2d 10))) (/ m (const (n2d 10))))))
+			(times (abs x) (setq m (if (> x 0) (* m +double_10) (/ m +double_10))))
 			m)
 		((str-to-num val))))
 
@@ -219,7 +220,7 @@
 						(cond
 							((find name '("x" "width" "cx" "rx" "x1" "x2")) vw)
 							((find name '("y" "height" "cy" "ry" "y1" "y2")) vh)
-							((n2q (sqrt (/ (+ (* (n2d vw) (n2d vw)) (* (n2d vh) (n2d vh))) (const (n2d 2)))))))))
+							((n2q (sqrt (/ (+ (* (n2d vw) (n2d vw)) (* (n2d vh) (n2d vh))) +double_2)))))))
 				((num? l) l)
 				(size :nil)
 				(0.0)))
@@ -459,7 +460,7 @@
 				;a % of 1 of a box, of the viewport of the user's space, its
 				;width, its height, or for a radius its diagonal over root 2
 				sizes (if user
-					(list vw vh (n2q (sqrt (/ (+ (* (n2d vw) (n2d vw)) (* (n2d vh) (n2d vh))) (const (n2d 2))))))
+					(list vw vh (n2q (sqrt (/ (+ (* (n2d vw) (n2d vw)) (* (n2d vh) (n2d vh))) +double_2))))
 					'(1.0 1.0 1.0)))
 			(cond
 				;of no stops, its fallback, or nothing

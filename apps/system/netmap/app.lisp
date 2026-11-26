@@ -63,6 +63,13 @@
 				:want_width +size :want_height +size)
 			(ui-element *canvas* (Canvas +size +size +scale)))))
 
+;the steps of a turn's slider; the most tasks a node is shown loaded
+;by; a node's green and blue, cool and white; the turn it starts at, and
+;the turn of the auto spin a tick about each way
+(defq +rot_steps (n2d 1000) +load_most (n2d 40) +cool_green (n2d 0.35) +white_green (n2d 0.8)
+	+cool_blue (n2d 0.6) +white_blue (n2d 0.9) +start_rotx (n2d 0.4) +spin_x (n2d 0.003)
+	+spin_y (n2d 0.01) +spin_z (n2d 0.002))
+
 (defun tooltips (mbox)
 	(def *window* :tip_mbox mbox)
 	(ui-tool-tips *main_toolbar*
@@ -70,10 +77,10 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-			(n2i (/ (* angle (const (n2d 1000))) +double_2pi))))
+			(n2i (/ (* angle +rot_steps) +double_2pi))))
 
 (defun get-rot (slider)
-	(/ (* (n2d (get :value slider)) +double_2pi) (const (n2d 1000))))
+	(/ (* (n2d (get :value slider)) +double_2pi) +rot_steps))
 
 (defun set-auto (on)
 	;it turns by itself, or it is turned by the sliders. The button is
@@ -161,7 +168,7 @@
 	(. global_tasks :each (lambda (key node)
 			(defq ball (get :ball node) pos (get :pos node)
 				;as big on the screen however far out it is all drawn from
-				load (/ (n2d (min 40 (get :tasks node))) (const (n2d 40)))
+				load (/ (n2d (min 40 (get :tasks node))) +load_most)
 				busy (get :busy node)
 				size (/ (* +ball_size (+ +double_1 load)) zoom))
 			(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
@@ -204,9 +211,9 @@
 						(third u) (third d) (third v) (third mid)
 						+double_0 +double_0 +double_0 +double_1)
 					:color (fixeds 1.0
-						(n2q (+ (* cool (const (n2d 0.25))) red))
-						(n2q (+ (* cool (const (n2d 0.35))) (* red (const (n2d 0.2))) (* white (const (n2d 0.8)))))
-						(n2q (+ (* cool (const (n2d 0.6))) (* red (const (n2d 0.1))) (* white (const (n2d 0.9)))))))
+						(n2q (+ (* cool +double_1/4) red))
+						(n2q (+ (* cool +cool_green) (* red +double_1/5) (* white +white_green)))
+						(n2q (+ (* cool +cool_blue) (* red +double_1/10) (* white +white_blue)))))
 				(push objs bar))))
 	(. world :set_children objs)
 	(.-> world (:set_scale zoom zoom zoom) (:set_rotation rotx roty rotz)))
@@ -228,7 +235,7 @@
 	(defq child_task (source-task (cat *app_root* "child.lisp")))
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t canvas_size +size
 		machines (list) machine_hues (list) links (Fmap 31) top_rate (n2d +quiet) zoom +double_1
-		auto :nil rotx (const (n2d 0.4)) roty +double_0 rotz +double_0
+		auto :nil rotx +start_rotx roty +double_0 rotz +double_0
 		;what draws the frames, lib/gpu/render_farm.inc. The size of
 		;picture that is wanted, the last a window being sized said, and
 		;while a canvas of a new size has no whole frame yet, the one that
@@ -301,9 +308,9 @@
 			(:t ;frame timer
 				(mail-timeout (elem-get select +select_frame_timer) +frame_rate 0)
 				(when auto
-					(setq rotx (% (+ rotx (const (n2d 0.003))) +double_2pi)
-						roty (% (+ roty (const (n2d 0.01))) +double_2pi)
-						rotz (% (+ rotz (const (n2d 0.002))) +double_2pi))
+					(setq rotx (% (+ rotx +spin_x) +double_2pi)
+						roty (% (+ roty +spin_y) +double_2pi)
+						rotz (% (+ rotz +spin_z) +double_2pi))
 					(set-rot *xrot_slider* rotx)
 					(set-rot *yrot_slider* roty)
 					(set-rot *zrot_slider* rotz))

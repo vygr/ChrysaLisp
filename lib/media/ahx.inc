@@ -17,6 +17,7 @@
 ; (note instrument effect number effect number), and its :instruments
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/consts/numbers.inc")
 (import "./mod.inc")
 
 (defq +ahx_buffer 640 +ahx_block 6520
@@ -185,6 +186,11 @@
 	;where a waveform of each length starts in a block of them
 	+ahx_offsets ''(0 4 12 28 60 124))
 
+;the replayer's pi, its pans' steps round a quarter turn and their most,
+;and the Amiga's clock over a period, a float as the replayer has it
+(defq +ahx_pi (/ (n2d 314159265) (n2d 100000000)) +ahx_pan_steps (n2d 512) +ahx_pan_most (n2d 255)
+	+ahx_clock (n2f 232449720320))
+
 (defun ahx-s8 (v)
 	; (ahx-s8 v) -> num
 	;the low byte of a number, -128 to 127
@@ -302,12 +308,12 @@
 	; (ahx-pans) -> (left right)
 	;the 256 of each side's share of a pan, a quarter of a sine, as the
 	;replayer works them out
-	(defq step (/ (/ (const (n2d 314159265)) (const (n2d 100000000))) (const (n2d 512)))
-		aa (/ (n2d (n2f (/ (const (n2d 314159265)) (const (n2d 100000000))))) (const (n2d 2)))
-		ab (const (n2d 0)) left (list) right (list))
+	(defq step (/ +ahx_pi +ahx_pan_steps)
+		aa (/ (n2d (n2f +ahx_pi)) +double_2)
+		ab +double_0 left (list) right (list))
 	(times 256
-		(push left (n2i (* (sin aa) (const (n2d 255)))))
-		(push right (n2i (* (sin ab) (const (n2d 255)))))
+		(push left (n2i (* (sin aa) +ahx_pan_most)))
+		(push right (n2i (* (sin ab) +ahx_pan_most)))
 		(setq aa (+ aa step) ab (+ ab step)))
 	(elem-set left 255 0)
 	(elem-set right 0 0)
@@ -794,7 +800,7 @@
 (defun ahx-delta (player period)
 	; (ahx-delta player period) -> num
 	;the step a frame, 16.16, round a buffer of 640, of an Amiga's period
-	(defq delta (n2i (/ (n2d (/ (const (n2f 232449720320)) (n2f period))) (n2d (. player :find :rate)))))
+	(defq delta (n2i (/ (n2d (/ +ahx_clock (n2f period))) (n2d (. player :find :rate)))))
 	(if (> delta (const (<< +ahx_buffer 16))) (setq delta (- delta (const (<< +ahx_buffer 16)))))
 	(max 1 delta))
 

@@ -21,6 +21,9 @@
 
 (defq +num_poly_buckets 256)
 
+;how big a vertex's dot is drawn
+(defq +scene_dot (n2d 0.02))
+
 (defun circle (r)
 	; (circle r) -> path
 	;cached circle generation, quantised to 1/4 pixel
@@ -63,7 +66,7 @@
 			(defq rw (recip w) z (* z rw))
 			(when (<= +double_-1 z +double_1)
 				;y is up, as the faces are drawn
-				(defq x (* x rw) y (* y rw) at (recip (+ z +double_2)) r (* (const (n2d 0.02)) sp rw)
+				(defq x (* x rw) y (* y rw) at (recip (+ z +double_2)) r (* +scene_dot sp rw)
 					sx (* (+ x +double_1) sp) sy (* (- +double_1 y) sp))
 				(push (elem-get poly_buckets (n2i (* (+ z +double_1) (const (n2d (/ +num_poly_buckets 2))))))
 					(list (circle r) (lighting col at) (n2q sx) (n2q sy)))))

@@ -47,6 +47,9 @@
 	(ui-element *canvas* (if shared_pixmap (Canvas-pixmap shared_pixmap)
 			(Canvas +width +height +scale))))
 
+;a second, of (pii-time)
+(defq +second (n2d 1000000))
+
 (defun control-value ((name type lo hi slider label val init))
 	;the value of the input, from where its slider is, and the
 	;default to the last digit until the slider is moved
@@ -88,7 +91,7 @@
 (defun frame-values (now)
 	;the inputs of the shader for a frame, from the time and the controls
 	(defq vals (list
-			(list 'time (/ (n2d (- now start_time)) (const (n2d 1000000))))
+			(list 'time (/ (n2d (- now start_time)) +second))
 			(list 'resolution (list +width +height))))
 	(each (lambda (control)
 			(bind '(name type lo hi slider label &ignore) control)

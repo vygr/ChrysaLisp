@@ -2,6 +2,7 @@
 ; canvas widget
 ;;;;;;;;;;;;;;;
 
+(import "lib/consts/numbers.inc")
 (import "./struct.inc")
 (import "././view/lisp.inc")
 (import "././texture/lisp.inc")
@@ -17,6 +18,9 @@
 ;of all, so that whoever has a canvas can load a picture: whichever of
 ;the two is come to first, it works
 (defq *canvas_loaders* (list))
+
+;the scale of a 16.16, and the most of a radial's focus out to its edge
+(defq +canvas_q16 (n2d 65536) +canvas_radial_most (n2d 0.99))
 
 (defun canvas-loader (ext info load &optional save)
 	; (canvas-loader ext info load [save])
@@ -125,13 +129,13 @@
 	(unless (< (abs det) (const (/ (n2d 1) (n2d 10000000000))))
 		(defq i0 (/ c4 det) i1 (/ (neg c1) det) i2 (/ (- (* c1 c5) (* c4 c2)) det)
 			i3 (/ (neg c3) det) i4 (/ c0 det) i5 (/ (- (* c3 c2) (* c0 c5)) det)
-			h (const (n2d 0.5)) k (const (n2d (<< 1 32))))
+			h +double_1/2 k (const (n2d (<< 1 32))))
 		;straight into the nums that is its head, after its spread
 		(canvas-gradient canvas kind stops
 			(push (reduce (# (push %0 (n2i (* %1 k))))
 					(list (+ (* i0 h) (* i1 h) i2) i0 i1 (+ (* i3 h) (* i4 h) i5) i3 i4)
 					(nums (ifn spread +spread_pad)))
-				(n2i (* focus (const (n2d 65536))))))))
+				(n2i (* focus +canvas_q16))))))
 
 (defclass Canvas-base () (View)
 	(def this :paper 0)
@@ -221,7 +225,7 @@
 		;color of the last stop
 		(bind '(x y x1 y1) (map (const n2d) (list x y x1 y1)))
 		(defq dx (- x1 x) dy (- y1 y))
-		(if (canvas-gradient-matrix this 1 spread stops (list dx (neg dy) x dy dx y) m (const (n2d 0))) this
+		(if (canvas-gradient-matrix this 1 spread stops (list dx (neg dy) x dy dx y) m +double_0) this
 			(. this :set_color (second (last stops)))))
 
 	(defmethod :set_radial (cx cy r stops &optional spread m fx fy)
@@ -236,7 +240,7 @@
 		;a space turned to that way and made narrower by 1 less f squared
 		;along it and by its root across: so the span has the one number, f
 		(bind '(cx cy r) (map (const n2d) (list cx cy r)))
-		(defq zero (const (n2d 0)) one (const (n2d 1)) most (const (n2d 0.99))
+		(defq zero +double_0 one +double_1 most +canvas_radial_most
 			ux (if (and fx (/= r zero)) (/ (- (n2d fx) cx) r) zero)
 			uy (if (and fy (/= r zero)) (/ (- (n2d fy) cy) r) zero)
 			f (sqrt (+ (* ux ux) (* uy uy))) g (list r zero cx zero r cy))

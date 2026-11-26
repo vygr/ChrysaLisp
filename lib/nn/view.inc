@@ -31,6 +31,11 @@
 ;cell greys), places the (x y) of each tile, greys a nums of a byte each
 ;number, or :nil till shown
 
+;a weight's brightness, the least top of a map, the most of a grey, and
+;the least span a map is scaled by
+(defq +nn_view_bright (n2d 200) +nn_view_top_least (n2d 0.001) +nn_view_grey_most (n2d 255)
+	+nn_view_span_least (n2d 0.0001))
+
 (defun nn-view-rect (w h)
 	; (nn-view-rect w h) -> outline
 	(list (list :t (path 0.0 0.0 (n2q w) 0.0 (n2q w) (n2q h) 0.0 (n2q h)))))
@@ -160,7 +165,7 @@
 								(bind '(x y) (nn-view-unit (elem-get from i)))
 								(. fig :set_outline (list (list :nil (path (n2q x) (n2q y)
 									(get :fig_x bar) (+ (get :fig_y bar) 5.0)))))
-								(defq a (min 255 (n2i (* (/ (n2d (elem-get row i)) top) (const (n2d 200))))))
+								(defq a (min 255 (n2i (* (/ (n2d (elem-get row i)) top) +nn_view_bright))))
 								(def fig :fig_stroke (+ (<< a 24) (logand +nn_view_link 0xffffff))))
 							(:t (def fig :fig_stroke 0))))
 					best))
@@ -177,9 +182,9 @@
 	(each (lambda (layer a)
 			(task-slice)
 			(when layer
-				(defq top (max (reduce (# (max %0 (n2d %1))) a +double_0) (const (n2d 0.001))))
+				(defq top (max (reduce (# (max %0 (n2d %1))) a +double_0) +nn_view_top_least))
 				(each (lambda (fig v)
-						(defq k (n2i (* (/ (max (n2d v) +double_0) top) (const (n2d 255)))))
+						(defq k (n2i (* (/ (max (n2d v) +double_0) top) +nn_view_grey_most)))
 						(. fig :add (Tween :fig_fill (+ 0xff000000 (<< (+ 0x26 (/ (* k (- 0xff 0x26)) 255)) 16)
 							(<< (+ 0x2c (/ (* k (- 0xb0 0x2c)) 255)) 8) (+ 0x36 (/ (* k (- 0x40 0x36)) 255))) 0.25)))
 					layer a)))
@@ -193,8 +198,8 @@
 					(task-slice)
 					(defq lo (n2d (elem-get a (* (!) n))) hi lo)
 					(each! (lambda (v) (setq v (n2d v) lo (min lo v) hi (max hi v))) (list a) (* (!) n) (* (inc (!)) n))
-					(defq span (max (- hi lo) (const (n2d 0.0001))))
-					(each! (lambda (v) (push greys (n2i (* (/ (- (n2d v) lo) span) (const (n2d 255))))))
+					(defq span (max (- hi lo) +nn_view_span_least))
+					(each! (lambda (v) (push greys (n2i (* (/ (- (n2d v) lo) span) +nn_view_grey_most))))
 						(list a) (* (!) n) (* (inc (!)) n)))
 				'() 0 (length places))
 			(elem-set m 5 greys))

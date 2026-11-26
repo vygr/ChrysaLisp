@@ -10,6 +10,9 @@
 (defq atom_program (shader-load "apps/science/molecule/atom.shader")
 	atom_native (shader-vp atom_program))
 
+;the steps of the light, back to front
+(defq +light_steps (n2d 15))
+
 (defun draw (msg)
 	(bind '(pixels kind level) (getf-> msg +atom_job_pixels +atom_job_kind +atom_job_level))
 	(defq canvas (Canvas pixels pixels 1) pixmap (getf canvas +canvas_pixmap 0)
@@ -19,7 +22,7 @@
 				(list 'resolution (list pixels pixels))
 				(list 'color (map (const n2d) (elem-get +palette kind)))
 				;from two thirds of the light at the back to all of it at the front
-				(list 'light_level (/ (n2d (+ level 10)) (const (n2d 15))))))
+				(list 'light_level (/ (n2d (+ level 10)) +light_steps))))
 		pixmap 0 0 pixels pixels pixels :t)
 	(write-blk out (setf-> (str-alloc +atom_reply_size) (+job_reply_key (getf msg +job_key))
 		(+atom_reply_pixels pixels) (+atom_reply_kind kind) (+atom_reply_level level)))

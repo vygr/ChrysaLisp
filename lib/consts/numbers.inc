@@ -16,12 +16,14 @@
 (def_nums_consts "+double_" -10 0 (const n2d))
 (def_nums_consts "+float_" -10 0 (const n2f))
 ;[1/2:1/20]
-(def_nums_consts "+double_1/" 2 21 (# (/ (const (n2d 1)) (n2d %0))))
-(def_nums_consts "+float_1/" 2 21 (# (n2f (/ (const (n2d 1)) (n2d %0)))))
+(def_nums_consts "+double_1/" 2 21 (# (recip (n2d %0))))
+(def_nums_consts "+float_1/" 2 21 (# (n2f (recip (n2d %0)))))
 ;[-1/2:-1/20]
-(def_nums_consts "+double_-1/" 2 21 (# (/ (const (n2d -1)) (n2d %0))))
-(def_nums_consts "+float_-1/" 2 21 (# (n2f (/ (const (n2d -1)) (n2d %0)))))
-;pi, as near as each kind holds it
-(defq +double_pi (str-to-double "3.141592653589793") +double_hpi (str-to-double "1.5707963267948966")
-	+double_2pi (str-to-double "6.283185307179586")
-	+float_pi (n2f +double_pi) +float_hpi (n2f +double_hpi) +float_2pi (n2f +double_2pi))
+(def_nums_consts "+double_-1/" 2 21 (# (neg (recip (n2d %0)))))
+(def_nums_consts "+float_-1/" 2 21 (# (n2f (neg (recip (n2d %0))))))
+;pi, as near as each kind holds it: bound by its names quoted, as the
+;rest are, so the file may be read again where they are seen already, its
+;names not taken for their values
+(bind '(+double_pi +double_hpi +double_2pi)
+	(map (const str-to-double) '("3.141592653589793" "1.5707963267948966" "6.283185307179586")))
+(bind '(+float_pi +float_hpi +float_2pi) (map (const n2f) (list +double_pi +double_hpi +double_2pi)))

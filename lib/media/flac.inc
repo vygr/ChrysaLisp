@@ -13,6 +13,7 @@
 ; MP3 is, and Films plays it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/consts/numbers.inc")
 (import "gui/canvas/lisp.inc")
 (import "./reel.inc")
 (import "./bits.inc")
@@ -309,7 +310,7 @@
 	; (flac-pcm info chans) -> (left right)
 	;a frame's channels as doubles at the scale of 16 bits, the first two, the
 	;one of one on both
-	(reel-pcm chans (pow (const (n2d 2)) (n2d (- 16 (. info :find :bps))))))
+	(reel-pcm chans (pow +double_2 (n2d (- 16 (. info :find :bps))))))
 
 (defun flac-codec (reel &optional scale)
 	; (flac-codec reel [scale]) -> codec

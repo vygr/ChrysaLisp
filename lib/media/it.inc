@@ -18,6 +18,9 @@
 	;this, by its channels, as libxmp and OpenMPT have it
 	+mpt_preamp ''(0x60 0x60 0x60 0x70 0x80 0x88 0x90 0x98 0xA0 0xA4 0xA8 0xB0 0xB4 0xB8 0xBC 0xC0))
 
+;the 128ths of an octave, and the rate of C-5 an IT's tuning is from
+(defq +it_octave (n2d 1536) +it_c5 (n2d 8363))
+
 (defun it-envelope (data at)
 	; (it-envelope data at) -> envelope
 	;an envelope of 25 points, a tick of two bytes and a value of one each,
@@ -98,7 +101,7 @@
 			c5spd (code data 4 (+ at 60)) ss (code data 4 (+ at 64)) se (code data 4 (+ at 68))
 			from (code data 4 (+ at 72)) wide (bits? flags 2))
 		;its speed at C-5 a note and a 128th of one off 8363, as libxmp has it
-		(defq c (if (> c5spd 0) (n2i (* (const (n2d 1536)) (/ (log (/ (n2d c5spd) (const (n2d 8363)))) (const (log (n2d 2)))))) 0))
+		(defq c (if (> c5spd 0) (n2i (* +it_octave (/ (log (/ (n2d c5spd) +it_c5)) (const (log (n2d 2)))))) 0))
 		(scatter sample :name (mod-text data (+ at 20) 26) :volume (min 64 (code data 1 (+ at 19)))
 			:gvl (min 64 (code data 1 (+ at 17))) :pan (if (bits? dfp 128) (* 4 (logand dfp 127)) -1)
 			:xpo (/ c 128) :fin (% c 128) :vib_rate (code data 1 (+ at 76)) :vib_depth (<< (code data 1 (+ at 77)) 1)

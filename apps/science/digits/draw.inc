@@ -4,6 +4,9 @@
 (defq +chart_back 0xff12161c +chart_grid 0xff2a313c +chart_text 0xffc8d0dc
 	+chart_loss 0xffffb040 +chart_valid 0xff40c060 +chart_test 0xffffffff +chart_steps 400)
 
+;the most of a grey, the least top a row is scaled by, and a percent
+(defq +grey_most (n2d 255) +top_least (n2d 0.0001) +percent (n2d 100))
+
 (defun draw-words (canvas text x y size colour)
 	; (draw-words canvas text x y size colour)
 	;words with their left at x and their foot at y
@@ -27,7 +30,7 @@
 	(bind '(w h) (. canvas :pref_size))
 	(defq x0 44 y0 34 x1 (- w 48) y1 (- h 30) shown (slice losses (max 0 (- (length losses) +chart_steps)) -1)
 		first_step (- (length losses) (length shown))
-		top (max (const (n2d 0.5)) (reduce (const max) shown (const (n2d 0)))))
+		top (max +double_1/2 (reduce (const max) shown +double_0)))
 	(.-> canvas (:fill +chart_back) (:set_color +chart_grid))
 	(each! (lambda () (defq y (+ y0 (/ (* (!) (- y1 y0)) 4))) (. canvas :fbox x0 y (- x1 x0) 1)) '() 0 5)
 	(draw-words canvas "loss" 6 16 11 +chart_loss)
@@ -61,7 +64,7 @@
 (defun draw-weight (canvas v top x y cell)
 	; (draw-weight canvas v top x y cell)
 	;a weight's square, warm where it wants ink and blue where it wants none
-	(defq v (n2d v) k (min 255 (n2i (* (/ (abs v) top) (const (n2d 255))))))
+	(defq v (n2d v) k (min 255 (n2i (* (/ (abs v) top) +grey_most))))
 	(when (> k 24)
 		(.-> canvas (:set_color (if (> v +double_0)
 				(+ 0xff000000 (<< k 16) (<< (/ (* k 176) 255) 8) 0x30)
@@ -83,7 +86,7 @@
 			(each! (lambda ()
 					(task-slice)
 					(defq filter (!) row (slice params (* filter n) (* (inc filter) n))
-						top (max (const (n2d 0.0001)) (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
+						top (max +top_least (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
 						x0 (+ 6 (* (% filter 4) 58)) y0 (+ 26 (* (/ filter 4) 58)))
 					(each (# (draw-weight canvas %0 top (+ x0 (* (% (!) k) cell)) (+ y0 (* (/ (!) k) cell)) cell)) row))
 				'() 0 (min f 16)))
@@ -93,7 +96,7 @@
 						;16 squares of 784 weights, the GUI is let in at each
 						(task-slice)
 						(defq unit (!) row (slice params (* unit +digits_inputs) (* (inc unit) +digits_inputs))
-							top (max (const (n2d 0.0001)) (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
+							top (max +top_least (reduce (# (max %0 (abs (n2d %1)))) row +double_0))
 							x0 (+ 6 (* (% unit 4) 58)) y0 (+ 26 (* (/ unit 4) 58)))
 						(each (# (draw-weight canvas %0 top (+ x0 (* (% (!) 28) 2)) (+ y0 (* (/ (!) 28) 2)) 2)) row))
 					'() 0 16))))
@@ -104,7 +107,7 @@
 	;each digit it was, down, and each it was taken for, across, the share
 	;of that digit taken for each, green right and red wrong
 	(.-> canvas (:fill +chart_back))
-	(draw-words canvas (if confusion (cat "test " (double-to-str (/ (n2d right) (const (n2d 100))) 2) "% right")
+	(draw-words canvas (if confusion (cat "test " (double-to-str (/ (n2d right) +percent) 2) "% right")
 		"confusion") 6 16 11 +chart_text)
 	(when confusion
 		(each! (lambda ()

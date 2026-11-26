@@ -37,7 +37,7 @@
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	;the toolbar as it was when it was last closed, (config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "molecule.tre")
-	+radius_quant (n2d 1.0)
+	+radius_quant +double_1
 	;an atom is a shader, a polished ball of the atom's color, as native
 	;code. An image of it is made for each color and size that is drawn,
 	;and kept
@@ -83,6 +83,15 @@
 		(:style :grid :paper +argb_black :ink +argb_grey8
 			:min_width +min_size :min_height +min_size)))
 
+;the numbers of the functions: the steps of a turn's slider; of the
+;light, back to front; the scale of a file's places, 16.16; each atom's
+;radius by its element, and of one not known; and the turn of the auto
+;spin a tick about each way
+(defq +rot_steps (n2d 1000) +light_steps (n2d 15) +coord_scale (n2d 65536)
+	+radius_c (n2d 70) +radius_h (n2d 25) +radius_o (n2d 60) +radius_n (n2d 65) +radius_f (n2d 50)
+	+radius_s (n2d 88) +radius_si (n2d 111) +radius_p (n2d 98) +radius_other (n2d 100)
+	+spin_x (n2d 0.01) +spin_y (n2d 0.02) +spin_z (n2d 0.03))
+
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *main_toolbar*
@@ -92,10 +101,10 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-			(n2i (/ (* angle (const (n2d 1000))) +double_2pi))))
+			(n2i (/ (* angle +rot_steps) +double_2pi))))
 
 (defun get-rot (slider)
-	(/ (* (n2d (get :value slider)) +double_2pi) (const (n2d 1000))))
+	(/ (* (n2d (get :value slider)) +double_2pi) +rot_steps))
 
 (defun lighting (z)
 	; (lighting z) -> 0 to 5
@@ -133,7 +142,7 @@
 						(list 'resolution (list size size))
 						(list 'color (map (const n2d) (elem-get +palette kind)))
 						;from two thirds of the light at the back to all of it at the front
-						(list 'light_level (/ (n2d (+ level 10)) (const (n2d 15))))))
+						(list 'light_level (/ (n2d (+ level 10)) +light_steps))))
 				(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 size size size :t)
 			(. *pixmap_cache* :insert name pixmap)
 			(. canvas :swap +swap_write)))
@@ -171,7 +180,7 @@
 	;the image of an atom, made between frames, (make-waiting): till then
 	;the nearest made of its color. Only the first of a color is made at
 	;once, there is nothing near it
-	(defq size (n2i (+ (* (quant radius +radius_quant) (const (n2d 2.0))) (const (n2d 0.5))))
+	(defq size (n2i (+ (* (quant radius +radius_quant) +double_2) +double_1/2))
 		key (atom-key size kind level))
 	(cond
 		((<= size 0) (list :nil 0 0))
@@ -241,21 +250,21 @@
 		(times *num_atoms*
 			(defq line (split (read-line stream) +char_class_space))
 			(push *verts*
-				(/ (n2d (str-as-num (elem-get line 0))) (const (n2d 65536)))
-				(/ (n2d (str-as-num (elem-get line 1))) (const (n2d 65536)))
-				(/ (n2d (str-as-num (elem-get line 2))) (const (n2d 65536))))
+				(/ (n2d (str-as-num (elem-get line 0))) +coord_scale)
+				(/ (n2d (str-as-num (elem-get line 1))) +coord_scale)
+				(/ (n2d (str-as-num (elem-get line 2))) +coord_scale))
 			(case (elem-get line 3)
-				("C" (push *radii* (const (n2d 70))) (push *colors* 0))
-				("H" (push *radii* (const (n2d 25))) (push *colors* 1))
-				("O" (push *radii* (const (n2d 60))) (push *colors* 2))
-				("N" (push *radii* (const (n2d 65))) (push *colors* 3))
-				("F" (push *radii* (const (n2d 50))) (push *colors* 4))
-				("S" (push *radii* (const (n2d 88))) (push *colors* 6))
-				("Si" (push *radii* (const (n2d 111))) (push *colors* 6))
-				("P" (push *radii* (const (n2d 98))) (push *colors* 7))
-				(:t (push *radii* (const (n2d 100))) (push *colors* 6))))
+				("C" (push *radii* +radius_c) (push *colors* 0))
+				("H" (push *radii* +radius_h) (push *colors* 1))
+				("O" (push *radii* +radius_o) (push *colors* 2))
+				("N" (push *radii* +radius_n) (push *colors* 3))
+				("F" (push *radii* +radius_f) (push *colors* 4))
+				("S" (push *radii* +radius_s) (push *colors* 6))
+				("Si" (push *radii* +radius_si) (push *colors* 6))
+				("P" (push *radii* +radius_p) (push *colors* 7))
+				(:t (push *radii* +radius_other) (push *colors* 6))))
 		(bind '(center radius) (vector-bounds-sphere *verts* 3))
-		(defq scale_p (/ (const (n2d 2.0)) radius) scale_r (/ (const (n2d 0.0625)) radius)
+		(defq scale_p (/ +double_2 radius) scale_r (/ +double_1/16 radius)
 			new_verts (doubles))
 		(each (lambda (v)
 				(push new_verts (vector-scale (vector-sub v center v) scale_p v) +double_1))
@@ -317,9 +326,9 @@
 				;timer event
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(when *auto_mode*
-					(setq *rotx* (% (+ *rotx* (const (n2d 0.01))) +double_2pi)
-						*roty* (% (+ *roty* (const (n2d 0.02))) +double_2pi)
-						*rotz* (% (+ *rotz* (const (n2d 0.03))) +double_2pi)
+					(setq *rotx* (% (+ *rotx* +spin_x) +double_2pi)
+						*roty* (% (+ *roty* +spin_y) +double_2pi)
+						*rotz* (% (+ *rotz* +spin_z) +double_2pi)
 						*dirty* :t)
 					(set-rot *xrot_slider* *rotx*)
 					(set-rot *yrot_slider* *roty*)

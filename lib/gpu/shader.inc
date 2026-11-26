@@ -3,6 +3,7 @@
 ; The tree is what the back ends take, see glsl.inc and vp.inc.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/consts/numbers.inc")
 (import "././crypto/sha256.inc")
 (import "././collections/collections.inc")
 (import "gui/pixmap/struct.inc")
@@ -938,7 +939,7 @@
 	(n2d (get-float (set-int (str-alloc 4) 0 val) 0)))
 
 ;the bytes of a matrix of noughts, a floats
-(defq +sh_zeros (fill (floats) 16 (const (n2f 0))))
+(defq +sh_zeros (fill (floats) 16 +float_0))
 
 (defun sh-pack-val (block name type offset val)
 	;a value into a block, where its input is. A vector of doubles or of

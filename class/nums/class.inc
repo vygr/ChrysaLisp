@@ -195,7 +195,7 @@
 	(assign `((,dst +array_begin) (,src +array_begin)) `(,d ,s))
 	(vp-lea-pr 'fn_consts tmp)
 	(load-fields tmp
-		(fn-consts (/ (const (n2d 1)) (n2d (<< 1 +fp_shift))) (n2d (<< 1 +fp_shift)))
+		(fn-consts (recip (n2d (<< 1 +fp_shift))) (n2d (<< 1 +fp_shift)))
 		'(:d1 :d2))
 	(switch)
 	(each (lambda (from)

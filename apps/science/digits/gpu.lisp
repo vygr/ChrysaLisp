@@ -1,4 +1,5 @@
 (defq *app_root* (path-to-file))
+(import "lib/consts/numbers.inc")
 (import "./app.inc")
 (import "lib/nn/gpu.inc")
 
@@ -40,7 +41,7 @@
 	; (check kind count msg) -> (loss right confusion)
 	;samples through the network, a part at a time, how many right and the
 	;confusion of them
-	(defq test (= kind +digits_kind_test) loss (const (n2d 0)) right 0 confusion (fill (nums) 100 0) at 0)
+	(defq test (= kind +digits_kind_test) loss +double_0 right 0 confusion (fill (nums) 100 0) at 0)
 	(while (< at count)
 		(defq n (min +digits_gpu_batch (- count at))
 			idx (map! (# (code msg +int_size (+ +digits_gpu_job_size (* (!) +int_size)))) '() at (+ at n)))
@@ -60,7 +61,7 @@
 		(nn-gpu-params gpu (push (nn-vector model) (buf-get params 0 params_bytes)))
 		(setq loaded :t))
 	(defq out (cond
-		((= count 0) (list (const (n2d 0)) 0 :nil))
+		((= count 0) (list +double_0 0 :nil))
 		((= kind +digits_kind_train)
 			(bind '(loss guesses labels) (nn-gpu-step gpu
 				(map! (# (code msg +int_size (+ +digits_gpu_job_size (* (!) +int_size)))) '() 0 count)

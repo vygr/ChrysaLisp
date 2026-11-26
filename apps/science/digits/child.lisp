@@ -1,4 +1,5 @@
 (defq *app_root* (path-to-file))
+(import "lib/consts/numbers.inc")
 (import "./app.inc")
 
 ;A child of the farm. The bufs it is given the keys of are opened the
@@ -35,7 +36,7 @@
 	;the params of this step, read the once
 	(unless (= step step_had)
 		(setq step_had step net (nn-net model (push (nn-vector model) (buf-get params 0 size)))))
-	(defq train (= kind +digits_kind_train) right 0 loss (const (n2d 0)) confusion (fill (nums) 100 0)
+	(defq train (= kind +digits_kind_train) right 0 loss +double_0 confusion (fill (nums) 100 0)
 		test (= kind +digits_kind_test)
 		images (if test +mnist_test_images +mnist_train_images)
 		labels (if test +mnist_test_labels +mnist_train_labels))

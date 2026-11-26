@@ -37,6 +37,10 @@
 
 ;the pixels of the canvas are in shared memory if the host has it, and
 ;the faces can then be drawn on them by a child on each node, a strip each
+;the steps of a turn's slider, and the turn of the auto spin a tick
+;about each way
+(defq +rot_steps (n2d 1000) +spin_x (n2d 0.01) +spin_y (n2d 0.02) +spin_z (n2d 0.03))
+
 (defun make-canvas (size)
 	(ifn (canvas-shared size size canvas_scale) (Canvas size size canvas_scale)))
 
@@ -75,10 +79,10 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-			(n2i (/ (* angle (const (n2d 1000))) +double_2pi))))
+			(n2i (/ (* angle +rot_steps) +double_2pi))))
 
 (defun get-rot (slider)
-	(/ (* (n2d (get :value slider)) +double_2pi) (const (n2d 1000))))
+	(/ (* (n2d (get :value slider)) +double_2pi) +rot_steps))
 
 (defun create-scene (job_que)
 	; (create-scene job_que) -> scene_root
@@ -239,9 +243,9 @@
 				;frame timer event
 				(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
 				(when *auto_mode*
-					(setq *rotx* (% (+ *rotx* (const (n2d 0.01))) +double_2pi)
-						*roty* (% (+ *roty* (const (n2d 0.02))) +double_2pi)
-						*rotz* (% (+ *rotz* (const (n2d 0.03))) +double_2pi)
+					(setq *rotx* (% (+ *rotx* +spin_x) +double_2pi)
+						*roty* (% (+ *roty* +spin_y) +double_2pi)
+						*rotz* (% (+ *rotz* +spin_z) +double_2pi)
 						*dirty* :t)
 					(set-rot *xrot_slider* *rotx*)
 					(set-rot *yrot_slider* *roty*)

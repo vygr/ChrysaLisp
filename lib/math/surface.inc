@@ -304,12 +304,15 @@
 ;linearly interpolate the position where an isosurface cuts
 ;an edge between two vertices, each with their own scalar value
 
+;how near the isolevel is near enough
+(defq +surface_epsilon (n2d 0.0001))
+
 (defun vertex-interp (isolevel p1 p2 valp1 valp2)
 	; (vertex-interp isolevel p1 p2 valp1 valp2) -> p
 	(cond
-		((< (abs (- isolevel valp1)) (const (n2d 0.0001))) p1)
-		((< (abs (- isolevel valp2)) (const (n2d 0.0001))) p2)
-		((< (abs (- valp1 valp2)) (const (n2d 0.0001))) p1)
+		((< (abs (- isolevel valp1)) +surface_epsilon) p1)
+		((< (abs (- isolevel valp2)) +surface_epsilon) p2)
+		((< (abs (- valp1 valp2)) +surface_epsilon) p1)
 		(:t (vector-add p1 (vector-scale (vector-sub p2 p1 +doubles_tmp3)
 					(/ (- isolevel valp1) (- valp2 valp1)) +doubles_tmp3)))))
 

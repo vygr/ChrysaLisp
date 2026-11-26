@@ -37,6 +37,9 @@
 	+opt_threshold_divisor 80.0
 	+double_8192 (n2d 8192))
 
+;the scale of a CFF 16.16
+(defq +cff_fixed (n2d 65536))
+
 (defun format-double (val)
 	(str (n2q val)))
 
@@ -542,7 +545,7 @@
 				(push stack (n2d (get-short-be byte_data (inc idx))))
 				(++ idx 3))
 			((= b 255)
-				(push stack (/ (n2d (get-int-be byte_data (inc idx))) (const (n2d 65536))))
+				(push stack (/ (n2d (get-int-be byte_data (inc idx))) +cff_fixed))
 				(++ idx 5))
 			((= b 12)
 				(++ idx 2))
@@ -761,7 +764,7 @@
 		scale_factor (/ +double_1 units_per_em)
 		ascent (* (n2d ascender) scale_factor)
 		descent (neg (* (n2d descender) scale_factor))
-		xkern (* (+ ascent descent) (const (n2d 0.0625)))
+		xkern (* (+ ascent descent) +double_1/16)
 		is_cff (eql version 0x4f54544f)
 		index_to_loc_format (if is_cff 0 (get-ushort-be byte_data (+ (if head_tbl (first head_tbl) 0) 50))))
 	; if cff, locate the charstrings index

@@ -6,6 +6,7 @@
 ; under obj/.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/consts/numbers.inc")
 (import "./shader.inc")
 (import "sys/math/trashes.inc")
 (import "gui/pixmap/struct.inc")
@@ -32,7 +33,7 @@
 	;each as a double, the one register, for a float in memory
 	+sv_dregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15)
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
-	+sv_1 (n2d 1)
+	+sv_1 +double_1
 	;a byte of a pixel as a number of 0 to 1 is it over this, the nearest
 	;single to that, as a GPU has it, and the Lisp back end
 	+sv_255 (n2d 255)
@@ -1961,7 +1962,7 @@
 
 (defun sv-doubles (n)
 	;a doubles of n numbers, all 0
-	(defq out (doubles (const (n2d 0)) (const (n2d 0)) (const (n2d 0)) (const (n2d 0))))
+	(defq out (doubles +double_0 +double_0 +double_0 +double_0))
 	(while (< (length out) n) (setq out (cat out out)))
 	(slice out 0 n))
 

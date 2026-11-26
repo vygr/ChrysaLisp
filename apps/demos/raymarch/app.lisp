@@ -39,12 +39,15 @@
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))
 
+;how far the light swings across
+(defq +light_swing (n2d 0.15))
+
 (defun frame-values ()
 	;the inputs of the shader for the frame, where the camera and the light are
 	(defq fraction (/ (n2d frame_idx) (const (n2d +num_frames))))
 	(list (list 'resolution (list +width +height))
 		(list 'cam_z (+ z_start (* z_dist fraction)))
-		(list 'light_x (+ (const (n2d -0.1)) (* (sin (* fraction +double_2pi)) (const (n2d 0.15)))))))
+		(list 'light_x (+ +double_-1/10 (* (sin (* fraction +double_2pi)) +light_swing)))))
 
 ;the film is made in a file of its own, and is the film only once it is
 ;whole: one stopped part way does not leave half a film in the tree,

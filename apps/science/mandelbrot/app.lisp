@@ -41,7 +41,7 @@
 	;how fast it flies, octaves a second, and pans, halves of the picture
 	;a second, and the still part in the middle of it, and how soon a
 	;speed comes up to what it is to be, the less the softer
-	+fly_rate +double_1 +pan_rate (n2d 0.6) +still (n2d 0.1) +ease (n2d 4)
+	+fly_rate +double_1 +pan_rate (n2d 0.6) +still +double_1/10 +ease +double_4
 	+min_top 256 +level_top 64
 	;the patience of the CPU's farm, a square is quick
 	+retry_timeout 5000000
@@ -84,6 +84,9 @@
 	(. *pal_toolbar* :children) +mandel_palettes)
 (. *pal_toolbar* :set_selected 0)
 (. *mode_toolbar* :set_selected (if has_gpu 1 0))
+
+;a second, of (pii-time)
+(defq +second (n2d 1000000))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))
@@ -236,7 +239,7 @@
 
 (defun tick ()
 	;a frame: the time since the last, the picture moved, and drawn
-	(defq now (pii-time) dt (min (const (n2d 0.1)) (/ (n2d (- now last_t)) (const (n2d 1000000)))))
+	(defq now (pii-time) dt (min +double_1/10 (/ (n2d (- now last_t)) +second)))
 	(setq last_t now)
 	(fly dt)
 	(when (and changed (not (. render :busy)))

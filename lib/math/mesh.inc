@@ -23,11 +23,14 @@
 	;a triangle with no area adds nothing to a smooth normal
 	(static-qq (vector-face-normal ,p0 ,p1 ,p2 +doubles_zero3)))
 
+;what a vector of a mesh is rounded to, to find its like
+(defq +mesh_quant (n2d 0.0001))
+
 (defun opt-vector (vector part)
 	; (opt-vector vector part) -> (new_vector new_indices)
 	(defq vec_map (Fmap 101) vec_imap (nums) new_vecs (doubles) idx -1)
 	(each (#
-			(vector-quant %0 (const (n2d 0.0001)) %0)
+			(vector-quant %0 +mesh_quant %0)
 			(unless (defq i (. vec_map :find %0))
 				(. vec_map :insert %0 (setq idx (inc idx) i idx))
 				(push new_vecs %0))

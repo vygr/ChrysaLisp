@@ -1,4 +1,5 @@
 (defq *app_root* (path-to-file))
+(import "lib/consts/numbers.inc")
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "./app.inc")
@@ -108,7 +109,7 @@
 (defun percent (right)
 	; (percent right) -> str
 	;so many right of 10000 as a percentage
-	(cat (double-to-str (/ (n2d right) (const (n2d 100))) 2) "%"))
+	(cat (double-to-str (/ (n2d right) +percent) 2) "%"))
 
 (defun show-status (&optional text)
 	(. *status* :set_text (ifn text
@@ -303,7 +304,7 @@
 	(setq net (nn-net model params) dirty_loss :t)
 	;idle, the same digit again, to see what this step did to it
 	(unless training (show-sample))
-	(push losses (/ (reduce (# (+ %0 (getf %1 +digits_reply_loss))) answers (const (n2d 0))) (n2d total))))
+	(push losses (/ (reduce (# (+ %0 (getf %1 +digits_reply_loss))) answers +double_0) (n2d total))))
 
 (defun test-done ()
 	(push tests (list (length losses) right))
@@ -333,7 +334,7 @@
 				stopped (cat "  best epoch " (str best_epoch)))
 			(buttons)
 			(show-sample))
-		(:t (setq factor (* factor (const (n2d 0.5))))))
+		(:t (setq factor (* factor +double_1/2))))
 	(setq dirty_loss :t))
 
 (defun validated ()
@@ -426,7 +427,7 @@
 	(setq training :nil test_next :nil params (nn-init model) step 0 epoch 0 order :nil at 0
 		gpu_stale :t
 		losses (list) tests (list) confusion :nil right 0
-		valids (list) best_right -1 best_params :nil best_epoch 0 misses 0 factor (const (n2d 1)) stopped :nil
+		valids (list) best_right -1 best_params :nil best_epoch 0 misses 0 factor +double_1 stopped :nil
 		dirty_loss :t dirty_features :t dirty_confusion :t)
 	;the farm wanted, it is had now, the new params are here
 	(if to_farm (setq gpu_mode :nil to_farm :nil))

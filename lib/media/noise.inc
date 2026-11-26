@@ -9,6 +9,8 @@
 ; so a scale of k/2^31 is noise of -k to k.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/consts/numbers.inc")
+
 ;module
 (env-push)
 
@@ -21,7 +23,7 @@
 
 (defmacro noise-double (seed)
 	; (noise-double seed) -> double
-	`(- (/ (n2d ,seed) (const (n2d 0x80000000))) (const (n2d 1))))
+	`(- (/ (n2d ,seed) (const (n2d 0x80000000))) +double_1))
 
 ;module
 (export-symbols '(noise-next noise-double noise-fill))
