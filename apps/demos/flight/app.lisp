@@ -185,8 +185,8 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Flight" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-radio-bar *path* ("Eight" "Valleys" "Mouse") (:font :font_body)) :connect +event_path)
-		(ui-tool-bar *music* ()
+		(. (ui-radio-bar *path* (+sym_infinity +sym_auto +sym_select)) :connect +event_path)
+		(ui-tool-bar *music* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_media_start +sym_media_play +sym_media_end) +event_prev))
 		(ui-label *status* (:text "..." :font :font_body)))
 	;the time of day, which goes on, and is dragged to another

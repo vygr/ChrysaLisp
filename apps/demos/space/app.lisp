@@ -234,7 +234,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		;the way of flying, the auto pilot or the pointer
 		(. (ui-radio-bar *mode* (+sym_auto +sym_select)) :connect +event_mode)
-		(ui-tool-bar *music* ()
+		(ui-tool-bar *music* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_media_start +sym_media_play +sym_media_end) +event_prev))
 		(ui-label *status* (:text "..." :font :font_body)))
 	(ui-backdrop *backdrop* (:style :plain :paper +argb_black :min_width (first +small) :min_height (second +small))

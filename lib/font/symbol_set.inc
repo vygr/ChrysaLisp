@@ -50,7 +50,13 @@
 	s_centre (cat (s-line 12 3 12 21) (s-rrect 4 5 20 10 1) (s-rrect 7 14 17 19 1))
 	s_paren (cat (s-arc 14 12 9 125 235) (s-arrow 21 12 12 12))
 	s_lines (cat (s-line 4 5 20 5) (s-line 11 10 20 10) (s-line 11 14 20 14) (s-line 4 19 20 19))
-	s_slash (cat (s-line 5 19 19 5) (s-line 11 5 19 5 19 13)))
+	s_slash (cat (s-line 5 19 19 5) (s-line 11 5 19 5 19 13))
+	;a figure eight on its side, the lemniscate, a loop that crosses itself
+	;at its middle: 36 points round it, 20 across and 9 down
+	s_infinity (apply (const s-loop) (reduce! (lambda (out)
+			(defq t (* (n2q (!)) (const (/ +fp_2pi 36.0))) s (sin t) c (cos t) k (/ 1.0 (+ 1.0 (* s s))))
+			(push out (+ 12.0 (* 10.0 c k)) (+ 12.0 (* 13.0 s c k))))
+		'() (list) 0 36)))
 
 (defq *symbols* (list
 		;the window
@@ -263,7 +269,9 @@
 		;here, and the same moved over with a cross beside it, as mute, for not
 		(list "pin" (cat (s-loop 9 3 15 3 15 9 18 13 6 13 9 9) (s-line 12 13 12 21)))
 		(list "unpin" (cat (s-loop 5 3 11 3 11 9 14 13 2 13 5 9) (s-line 8 13 8 21)
-				(s-line 17.5 2.5 22 7) (s-line 22 2.5 17.5 7)))))
+				(s-line 17.5 2.5 22 7) (s-line 22 2.5 17.5 7)))
+		;a figure eight on its side, for what goes round it, Flight's eight
+		(list "infinity" s_infinity)))
 
 ;;;;;;;;;;;;
 ; the themes
