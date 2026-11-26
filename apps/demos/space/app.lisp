@@ -3,6 +3,7 @@
 (import "gui/lisp.inc")
 (import "service/lock/app.inc")
 (import "lib/math/matrix.inc")
+(import "lib/math/quaternion.inc")
 (import "lib/gpu/render_farm.inc")
 (import "lib/gpu/shapes.inc")
 (import "./sky.inc")
@@ -53,6 +54,9 @@
 	;far off a swarm it visits, how long it keeps to one, and how hard it
 	;turns for it
 	+turn_most (n2d 0.45) +turn_ease +double_1 +lean +double_1/2 +upright (n2d 0.4)
+	;how stiff the spring of the auto pilot's turn, a second, damped just
+	;enough not to go past its heading, and how small a turn is none
+	+auto_settle (n2d 1.0) +turn_tiny (/ +double_1 (n2d 1000000))
 	+visit_far (n2d 480) +visit_long 20000000
 	;how long before a big rock visited may be again, and how often a
 	;cluster out of sight is put in orbit again, and since when
@@ -165,6 +169,7 @@
 	;how fast it is turning across and up, a second, eased; the big rock it
 	;is visiting, and since when
 	yaw +double_0 pitch +double_0 visit :nil visit_since 0
+	turn_spin (doubles +double_0 +double_0 +double_0)
 	;the big rocks visited, by number, and when, so the tour moves on
 	visited (Fmap 31)
 	;the ship's ping, a short sharp flash of white light now and then: where
@@ -315,6 +320,70 @@
 		rz (near-way (- (third at) (third eye))))
 	(sqrt (+ (* rx rx) (* ry ry) (* rz rz))))
 
+(defun auto-turn (dt right)
+	; (auto-turn dt right)
+	;the auto pilot turned toward its heading: the way it faces and its up a
+	;turn, quaternions, and how fast it turns a way and a rate, spun up
+	;toward the turn that faces the heading by a spring damped just enough
+	;not to go past it, so the heading, chosen afresh every few frames, is
+	;smoothed as it comes, and no faster than a ship turns. Its up is that
+	;of a lean into the turn, as the turn it wants would be, upright of the
+	;sky's up, the less the nearer straight up or down it goes
+	(defq want_yaw (max (neg +turn_most) (min +turn_most (* (nums-dot heading right) +head_turn)))
+		level (nums-sub (const (doubles +double_0 +double_1 +double_0)) (nums-scale heading (second heading)))
+		level_by (sqrt (nums-dot level level)) up_to up)
+	(when (> level_by +double_1/2)
+		(setq level (nums-scale level (/ +double_1 level_by)))
+		(defq lean_to (* want_yaw +lean) across (sky-cross heading level)
+			want_up (nums-add (nums-scale level (cos lean_to)) (nums-scale across (sin lean_to))))
+		(setq up_to (sky-unit (nums-add up (nums-scale (nums-sub want_up up)
+			(min +double_1 (* +double_2 (- level_by +double_1/2))))))))
+	(defq now_turn (quat-frame forward up)
+		;the turn still to go, as a way about which and how far
+		apart (quat-mul (quat-frame heading up_to) (quat-conj now_turn)))
+	(if (< (first apart) +double_0) (setq apart (nums-scale apart +double_-1)))
+	(bind '(aw ax ay az) apart)
+	(defq half (acos (min +double_1 aw)) s (sin half)
+		go (if (> s +turn_tiny) (nums-scale (doubles ax ay az) (/ (* +double_2 half) s)) (doubles +double_0 +double_0 +double_0))
+		dt (min dt +double_1/10))
+	;the spring, and no faster than a ship turns
+	(setq turn_spin (nums-add turn_spin (nums-scale (nums-sub (nums-scale go (* +auto_settle +auto_settle))
+		(nums-scale turn_spin (* +double_2 +auto_settle))) dt)))
+	(defq rate (sqrt (nums-dot turn_spin turn_spin)))
+	(if (> rate +turn_most) (setq turn_spin (nums-scale turn_spin (/ +turn_most rate)) rate +turn_most))
+	(defq turn (if (> rate +turn_tiny)
+			(quat-mul (quat-axis-angle (nums-scale turn_spin (recip rate)) (* rate dt)) now_turn)
+			now_turn))
+	(setq forward (sky-unit (quat-vec3-rot turn (const (doubles +double_0 +double_0 +double_-1))))
+		up (sky-unit (quat-vec3-rot turn (const (doubles +double_0 +double_1 +double_0))))
+		yaw want_yaw pitch +double_0))
+
+(defun pointer-turn (dt right)
+	; (pointer-turn dt right)
+	;the eye turned toward the heading round the pointer's way, eased to
+	;what is wanted, and no faster than a ship turns, leaning into a turn
+	;and upright again of the sky's up
+	(defq want_yaw (* (nums-dot heading right) +head_turn) want_pitch (* (nums-dot heading up) +head_turn))
+	(defq k (min +double_1 (* dt +turn_ease)))
+	(setq yaw (+ yaw (* k (- (max (neg +turn_most) (min +turn_most want_yaw)) yaw)))
+		pitch (+ pitch (* k (- (max (neg +turn_most) (min +turn_most want_pitch)) pitch))))
+	(defq a (* yaw dt) b (* pitch dt)
+		f (nums-add (nums-scale forward (cos a)) (nums-scale right (sin a))))
+	(setq forward (sky-unit (nums-add (nums-scale f (cos b)) (nums-scale up (sin b))))
+		up (sky-unit (nums-sub (nums-scale up (cos b)) (nums-scale f (sin b)))))
+	;leaning into the turn, and coming upright of the sky's up, the less the
+	;nearer straight up or down it goes, where which way is upright swings
+	;round with the least turn, and not at all within 30 degrees of it
+	(defq level (nums-sub (const (doubles +double_0 +double_1 +double_0)) (nums-scale forward (second forward)))
+		level_by (sqrt (nums-dot level level)))
+	(when (> level_by +double_1/2)
+		(setq level (nums-scale level (/ +double_1 level_by)))
+		(defq lean_to (* yaw +lean) across (sky-cross forward level)
+			want_up (nums-add (nums-scale level (cos lean_to)) (nums-scale across (sin lean_to))))
+		(setq up (nums-add up (nums-scale (nums-sub want_up up)
+			(min +double_1 (* dt +upright +double_2 (- level_by +double_1/2)))))))
+	(setq up (sky-unit (sky-cross (sky-cross forward up) forward))))
+
 (defun turn-eye ()
 	; (turn-eye) -> dt
 	;the eye turned, across about its up and up and down about its across,
@@ -341,26 +410,7 @@
 	(defq step (thread-step thread +choose_count))
 	(if (nums? step) (setq heading step thread :nil) (setq thread step))
 	(unless heading (setq heading forward))
-	(defq want_yaw (* (nums-dot heading right) +head_turn) want_pitch (* (nums-dot heading up) +head_turn))
-	(defq k (min +double_1 (* dt +turn_ease)))
-	(setq yaw (+ yaw (* k (- (max (neg +turn_most) (min +turn_most want_yaw)) yaw)))
-		pitch (+ pitch (* k (- (max (neg +turn_most) (min +turn_most want_pitch)) pitch))))
-	(defq a (* yaw dt) b (* pitch dt)
-		f (nums-add (nums-scale forward (cos a)) (nums-scale right (sin a))))
-	(setq forward (sky-unit (nums-add (nums-scale f (cos b)) (nums-scale up (sin b))))
-		up (sky-unit (nums-sub (nums-scale up (cos b)) (nums-scale f (sin b)))))
-	;leaning into the turn, and coming upright of the sky's up, the less the
-	;nearer straight up or down it goes, where which way is upright swings
-	;round with the least turn, and not at all within 30 degrees of it
-	(defq level (nums-sub (const (doubles +double_0 +double_1 +double_0)) (nums-scale forward (second forward)))
-		level_by (sqrt (nums-dot level level)))
-	(when (> level_by +double_1/2)
-		(setq level (nums-scale level (/ +double_1 level_by)))
-		(defq lean_to (* yaw +lean) across (sky-cross forward level)
-			want_up (nums-add (nums-scale level (cos lean_to)) (nums-scale across (sin lean_to))))
-		(setq up (nums-add up (nums-scale (nums-sub want_up up)
-			(min +double_1 (* dt +upright +double_2 (- level_by +double_1/2)))))))
-	(setq up (sky-unit (sky-cross (sky-cross forward up) forward)))
+	(if (eql mode :auto) (auto-turn dt right) (pointer-turn dt right))
 	dt)
 
 (defun view-sides (right up spread_x)
@@ -817,7 +867,22 @@
 ;under 50, to look at the log of it. The parts' times, when the last part
 ;ended, the rocks drawn, the stream, when it began and the slow seconds
 (defq +frame_log :nil frame_parts (list 0 0 0 0 0 0 0) frame_at 0 frame_rocks 0
-	frame_stream :nil frame_began 0 frame_slow 0)
+	frame_stream :nil frame_began 0 frame_slow 0
+	;nods and sways of the view, turns from pitching up to down and from
+	;turning right to left or back, more than a little, and how it was
+	nods 0 sways 0 nod_way +double_0 sway_way +double_0 nod_was :nil +nod_least (n2d 0.01))
+
+(defun frame-nod ()
+	; (frame-nod)
+	;for the frame log, a nod or a sway each time the view turns back
+	(when +frame_log
+		(cond
+			((not nod_was) (setq nod_was (cat forward)))
+			((> (sqrt (nums-dot (defq d (nums-sub forward nod_was)) d)) +nod_least)
+				(defq right (sky-cross forward up) n (nums-dot d up) w (nums-dot d right))
+				(if (< (* n nod_way) +double_0) (++ nods))
+				(if (< (* w sway_way) +double_0) (++ sways))
+				(setq nod_way n sway_way w nod_was (cat forward))))))
 
 (defun frame-mark (part)
 	;a part of the frame ended, for the frame log
@@ -836,8 +901,9 @@
 	(write-line frame_stream (cat (str (/ (- now frame_began) 1000000)) "s " (str rate) " fps detail " (str detail)
 		" | eye " (elem-get ms 0) " move " (elem-get ms 1) " meet " (elem-get ms 2) " hits " (elem-get ms 3)
 		" buoys " (elem-get ms 4) " draws " (elem-get ms 5) " render " (elem-get ms 6)
-		" gpu " (elem-get ms 7) " rocks " (str (/ frame_rocks (max frames 1)))))
-	(setq frame_parts (list 0 0 0 0 0 0 0) frame_rocks 0)
+		" gpu " (elem-get ms 7) " rocks " (str (/ frame_rocks (max frames 1)))
+		" nods " (str nods) " sways " (str sways)))
+	(setq frame_parts (list 0 0 0 0 0 0 0) frame_rocks 0 nods 0 sways 0)
 	(stream-flush frame_stream)
 	(when (and (eql (get '*env_node_user*) "Test") (> (- now frame_began) 20000000) (< rate 50) (>= (++ frame_slow) 3))
 		(write-line frame_stream "QUIT")
@@ -849,6 +915,7 @@
 	;looks, and the frame of it, the rocks and the sky behind them
 	(if +frame_log (setq frame_at (pii-time)))
 	(defq dt (turn-eye))
+	(frame-nod)
 	;the speed eased to a boost's while the right button is held, back to
 	;cruising after
 	(setq ship_speed (+ ship_speed (* (- (if boosting +boost +cruise) ship_speed)

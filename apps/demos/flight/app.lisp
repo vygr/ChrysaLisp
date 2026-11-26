@@ -128,6 +128,8 @@
 	lean +double_0 pitch +double_0 eight_in +double_0 +eight_onto (n2d 2.5)
 	;how fast the lean and the pitch move, and how stiff their spring is
 	lean_v +double_0 pitch_v +double_0 +spring_k (n2d 3.5)
+	;how fast the valleys' turn moves, and how stiff its spring is
+	turning_v +double_0 +valley_spring (n2d 0.7)
 	;the lean the way of flying wanted last, what turn it was in
 	lean_want +double_0
 	;how much less detail it draws, 0 all of it to 4 least, for a GPU too
@@ -297,6 +299,15 @@
 		shine (mix3 (mix3 shine_day shine_night d) shine_dusk k)
 		night d))
 
+(defun spring-by (x v to dt k)
+	; (spring-by x v to dt k) -> (x v)
+	;x moved toward to by a spring of stiffness k, damped just enough not
+	;to go past it, v how fast it moves. A step of no more than a tenth of
+	;a second
+	(defq dt (min dt +double_1/10)
+		v (+ v (* (- (* k k (- to x)) (* +double_2 k v)) dt)))
+	(list (+ x (* v dt)) v))
+
 (defun spring (x v to dt)
 	; (spring x v to dt) -> (x v)
 	;x moved toward to by a spring that is damped just enough not to go
@@ -403,7 +414,10 @@
 	(bind '(lx lz) (turned fx fz +aside))
 	(bind '(rx rz) (turned fx fz (const (neg +aside))))
 	(defq target (max (neg +turn_most) (min +turn_most (* +steer (- (land-side rx rz) (land-side lx lz))))))
-	(setq turning (+ turning (* (- target turning) (min +double_1 (* dt +turn_ease)))))
+	;how fast it turns sprung to the turn the land wants, damped just
+	;enough not to go past it, so it does not weave from side to side
+	(bind '(tn tv) (spring-by turning turning_v target dt +valley_spring))
+	(setq turning tn turning_v tv)
 	(bind '(nx nz) (fly-on dt))
 	(ease-height (+ +clearance (land-ahead nx nz +valley_look_near +valley_look_mid +valley_look_far)) dt)
 	(list nx nz (neg (/ (* +speed turning) +pull))))
@@ -477,6 +491,30 @@
 	(defq seen (list))
 	(each (# (if (>= %0 +double_0) (push seen (!)))) least)
 	seen)
+
+;the frame log, for tuning, on with +frame_log: each second its rate and
+;the sways of the flight, turns from turning one way to the other, more
+;than a little, to tests/scratch/flight/frames.log; for the Test user the
+;app quits after a minute. The sways, the way it turned, the stream, when
+;it began and when the last line was
+(defq +frame_log :nil sways 0 sway_way +double_0 +sway_least (n2d 0.01) log_stream :nil log_began 0
+	log_at 0 log_frames 0 log_quit :nil)
+
+(defun flight-log (now)
+	; (flight-log now) -> :t | :nil
+	;a sway counted, a second's line written; :t to quit
+	(when +frame_log
+		(when (> (abs turning) +sway_least)
+			(if (< (* turning sway_way) +double_0) (++ sways))
+			(setq sway_way turning))
+		(++ log_frames)
+		(unless log_stream
+			(setq log_stream (file-stream "tests/scratch/flight/frames.log" +file_open_write) log_began now log_at now))
+		(when (> (- now log_at) 1000000)
+			(write-line log_stream (cat (str (/ (- now log_began) 1000000)) "s " (str log_frames) " fps sways " (str sways)))
+			(stream-flush log_stream)
+			(setq sways 0 log_frames 0 log_at now)
+			(and (eql (get '*env_node_user*) "Test") (> (- now log_began) 60000000)))))
 
 (defun draw-frame ()
 	;where the flight is, the way it looks, and the frame: the land, a grid
@@ -628,6 +666,7 @@
 		(if shown (show-canvas))
 		(new-canvas)
 		(draw-frame)
+		(if (flight-log (pii-time)) (setq log_quit :t))
 		(setq given start frame_took (- (pii-time) start))))
 
 (defun detail-fit (rate now)
@@ -704,7 +743,8 @@
 				;this task took over it, as the timer has it. A faster one is
 				;given its next by the timer, a frame a tick
 				(and (not (. render :busy)) (>= (- (pii-time) given) (max +timer_rate (* frame_took 4)))
-					(next-frame)))
+					(next-frame))
+				(if log_quit (setq id :nil)))
 			;the music's
 			((. music :mail idx msg))
 			((= idx +select_task)

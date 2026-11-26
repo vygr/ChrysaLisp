@@ -10,6 +10,7 @@
 (import "./chunk.inc")
 (import "./route.inc")
 (import "./fish.inc")
+(import "lib/math/quaternion.inc")
 
 ;Water, a dive through a reef that goes on every way, drawn by a
 ;(Render-tris), lib/gpu/render_farm.inc, which has the GPU draw it. The
@@ -89,6 +90,9 @@
 	;comes upright, how fast it swims, its lamp, and the pointer
 	eye :nil forward :nil up :nil turned 0 stick :nil yaw +double_0 pitch +double_0
 	+turn_most (n2d 0.3) +turn_ease +double_1 +upright (n2d 0.6) +swim +double_2
+	;the share of the way to its turn the auto pilot turns a second, as a
+	;rate, over the reef and in the caves: past it by none, water damps a turn
+	+auto_settle (n2d 1.2) +cave_settle (n2d 2.5)
 	;its speed now, eased up to a sprint while the right button is held and
 	;down again after, how fast either way, a second, and the buttons
 	speed +double_2 +sprint +double_6 +sprint_up +double_1 +sprint_down (n2d 0.7)
@@ -589,27 +593,36 @@
 		((< v (neg +dead)) (/ (+ v +dead) (const (- +double_1 +dead))))
 		(+double_0)))
 
-(defun turn-eye ()
-	; (turn-eye) -> dt
-	;the eye turned toward where it is going, the auto pilot's aim or the
-	;pointer's, eased, and no faster than it can; upright again of the
-	;world's up, the less the nearer straight up or down it looks. Its ways
-	;made square and of length 1 again. The seconds since last time
-	(defq now (pii-time) dt (min (/ (n2d (- now turned)) +second) +dt_most) right (cross forward up))
-	(setq turned now)
-	(defq heading (if (eql mode :auto)
-			;the line decides: straight at a place a little on along it
-			(setq aim_way (unit (nums-sub (route-ahead) eye)))
-			(if stick (unit (nums-add forward (nums-add (nums-scale right (* (beyond-dead (first stick)) +stick_reach))
-					(nums-scale up (* (beyond-dead (second stick)) +stick_reach)))))
-				forward))
+(defun auto-turn (dt)
+	; (auto-turn dt)
+	;the auto pilot turned toward the line, a place a little on along it:
+	;the way it faces and its up a turn, quaternions, turned a share of the
+	;way to the turn that looks at the place, its up eased to the world's,
+	;the share the more the longer the step, and no more than it can turn,
+	;the faster it swims the more, nimbly in the caves. It nears what it
+	;wants and never swings past it, as water damps a turn, and is the same
+	;looking up or down a shaft as level
+	(setq aim_way (unit (nums-sub (route-ahead) eye)) yaw +double_0 pitch +double_0)
+	(defq most (* dt (max +double_1 (/ speed +swim)) (if (elem-get (first legs) 3) +cave_turn +turn_most))
+		lean (min +double_1 (* dt +upright))
+		level (unit (nums-add (nums-scale up (- +double_1 lean)) (nums-scale (const (doubles +double_0 +double_1 +double_0)) lean)))
+		now_turn (quat-frame forward up) want_turn (quat-frame aim_way level)
+		share (- +double_1 (exp (neg (* dt (if (elem-get (first legs) 3) +cave_settle +auto_settle)))))
+		turn (quat-toward now_turn want_turn (min most (* share (quat-angle now_turn want_turn)))))
+	(setq forward (quat-vec3-rot turn (const (doubles +double_0 +double_0 +double_-1)))
+		up (quat-vec3-rot turn (const (doubles +double_0 +double_1 +double_0)))))
+
+(defun pointer-turn (dt right)
+	; (pointer-turn dt right)
+	;the eye turned toward the pointer, eased, a lean, no faster than it
+	;can; upright again of the world's up, the less the nearer straight up or
+	;down it looks
+	(defq heading (if stick (unit (nums-add forward (nums-add (nums-scale right (* (beyond-dead (first stick)) +stick_reach))
+				(nums-scale up (* (beyond-dead (second stick)) +stick_reach)))))
+			forward)
 		want_yaw (* (nums-dot heading right) +double_2) want_pitch (* (nums-dot heading up) +double_2)
 		k (min +double_1 (* dt +turn_ease))
-		;the pointer turns it gently, a lean, the auto pilot as it must, more
-		;nimbly on a leg of the caves or down a shaft
-		most (cond ((nql mode :auto) +stick_turn)
-			;the faster it swims, the faster it turns, to keep to its line
-			((* (max +double_1 (/ speed +swim)) (if (elem-get (first legs) 3) +cave_turn +turn_most)))))
+		most +stick_turn)
 	(setq yaw (+ yaw (* k (- (max (neg most) (min most want_yaw)) yaw)))
 		pitch (+ pitch (* k (- (max (neg most) (min most want_pitch)) pitch))))
 	(defq a (* yaw dt) b (* pitch dt)
@@ -621,7 +634,17 @@
 	(when (> level_by +double_1/2)
 		(setq up (nums-add up (nums-scale (nums-sub (nums-scale level (recip level_by)) up)
 			(min +double_1 (* dt +upright +double_2 (- level_by +double_1/2)))))))
-	(setq up (unit (cross (cross forward up) forward)))
+	(setq up (unit (cross (cross forward up) forward))))
+
+(defun turn-eye ()
+	; (turn-eye) -> dt
+	;the eye turned toward where it is going, the auto pilot's aim or the
+	;pointer's, eased, and no faster than it can; upright again of the
+	;world's up, the less the nearer straight up or down it looks. Its ways
+	;made square and of length 1 again. The seconds since last time
+	(defq now (pii-time) dt (min (/ (n2d (- now turned)) +second) +dt_most) right (cross forward up))
+	(setq turned now)
+	(if (eql mode :auto) (auto-turn dt) (pointer-turn dt right))
 	dt)
 
 (defun clear-of-stones (p clear)
