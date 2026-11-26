@@ -577,6 +577,16 @@ Flight's frame is the land by the render's pair, and a sky, two triangles
 of corners by a pair of its own at the back of the depth, given after what
 hides it, so it is worked out only where it is seen.
 
+Draws are drawn in the order given, and no more: the render sorts nothing,
+the app knows its layers. What hides first, the land, the rocks; then what
+is behind them all, the sky; last what is seen through or adds light, the
+clouds, the glows, which do not hide. It is worth it where the GPU is what
+limits: Flight on the Pi at the detail it runs, its sky first, 51 ms a
+frame, after the land, 45. A GPU of tiles does not leave out for us what
+is hidden: a pair that blends and throws a clear pixel away, every pair
+here, is shaded in the order it comes, and one made opaque, no blend and
+nothing thrown away, measured the same on the M4 and the Pi, so is not.
+
 Draws one after another that have the very same lists of inputs, and pair,
 as the one before are packed the once: a thing in many meshes, the tiles of
 Flight's land, of which only those in sight are drawn, is given the one
