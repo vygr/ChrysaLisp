@@ -613,10 +613,17 @@ using `(const ...)`:
 	(* x (const (/ 180.0 +fp_pi)))
 
 A number written in a function and made another kind there, `(n2d 60)`,
-`(n2f 0.5)`, `(n2q 2)`, `(n2i 7)`, is made each time the function runs:
-write `(const (n2d 60))`, or a `+double_` or `+float_` name of
-`lib/math/vector.inc` where there is one. At the top of a file it is made
-the once anyway. `check` has `conv` for it.
+is made each time the function runs; `(const (n2d 60))` the once, but an
+instance of its own in each place it is written. Name it: a `+name` in a
+`defq` at the top of the file, for what it is, `+cruise (n2d 24)`, is
+prebound into each place it is used, the one instance, and nothing is
+named at run time. Where `lib/consts/numbers.inc` has the number, use
+that, `+double_4`, `+double_1/2`, `+float_2`, or give it a name of the
+file's own bound to it, `(defq +missile_ahead +double_4)`, the same
+instance. A number parsed each call, `(str-to-double "0.6")`, is the same.
+`(n2i 7)` and `(n2q 2)` are `7` and `2.0`, written so. A file with many,
+a library above all, is a module, its numbers its own, see Manual Scope
+Control. `check` has `conv` for it.
 
 ## Top-Level `defun` Definitions (Prebinder Rule)
 

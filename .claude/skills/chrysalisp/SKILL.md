@@ -363,7 +363,9 @@ each rule and worked examples of the right and wrong way. In short:
 	Use `(# ...)` with `%0`, `%1`, and never write `(lambda (%0) ...)`.
 
 *	**Compile-Time Constants:**
-	Wrap arithmetic or lookups on constants in `(const ...)`.
+	Wrap arithmetic or lookups on constants in `(const ...)`. A number made
+	from one written there, `(n2d 60)`, is a `+name` at the top of the
+	file, the library's where it has it, the one instance.
 
 *	**Top-Level `defun` Definitions (Prebinder Rule):**
 	Never nest a `defun` inside another form, the prebinder only sees top-level

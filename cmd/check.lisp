@@ -105,11 +105,14 @@
             written as one, \q\\n\q, with the escape the reader
             has for it, \\r \\f \\v \\n \\t \\q \\b \\\\, the
             char itself, or \\x and its code.
-    conv    (n2d 60) in a function, (n2i), (n2q) or (n2f) the
-            same, of a number written there: it is made each
-            time the function runs. (const (n2d 60)) makes it
-            the once, as the file is read. What is in a
-            (const) already is not looked at.
+    conv    (n2d 60) in a function, or (const (n2d 60)), (n2f)
+            the same, of a number written there: made each time
+            it runs, or an instance of its own where it is. A
+            +name in a defq at the top of the file is the one
+            instance, prebound where it is used, and says what
+            it is; the library's, lib/consts/numbers.inc, where
+            it has the number, +double_3, +double_1/4. (n2i 60)
+            and (n2q 60) are 60 and 60.0, written so.
     glyph   a number of the symbol font's, 0xe000 to 0xf8ff,
             in the buttons of a (ui-title-bar) or (ui-buttons):
             it is drawn as nothing if the font has no such
@@ -488,12 +491,45 @@
 					((starts-with "+char_" text) (. *char_codes* :find text)))))
 		(found file (second forms) "char" "(ascii-char " text ") is a char, write it " (char-literal code))))
 
+(defun conv-of (forms)
+	; (conv-of forms) -> :nil | (head text)
+	;(n2d 60) and its kind, (n2i) (n2q) (n2f), of a number written there
+	(and (= (length forms) 2) (eql (first (first forms)) :symbol)
+		(find (defq head (third (first forms))) '("n2d" "n2i" "n2q" "n2f"))
+		(find (first (second forms)) '(:number :symbol))
+		(nempty? (defq text (third (second forms))))
+		(nempty? (defq digits (if (find (first text) "+-") (rest text) text)))
+		(find (first digits) "0123456789")
+		(= (bskip +char_class_decimal digits 0) (length digits))
+		(list head text)))
+
+(defun conv-lib (head text)
+	; (conv-lib head text) -> :nil | str
+	;the name lib/consts/numbers.inc has of the number (n2d text) or (n2f
+	;text) makes, if it has one: a whole number -10 to 10, written so or
+	;with only 0s after its point, or 1/N or -1/N written as its decimal
+	(when (find head '("n2d" "n2f"))
+		(defq kind (if (eql head "n2d") "+double_" "+float_")
+			sign (if (eql (first text) "-") "-" "") digits (if (find (first text) "+-") (rest text) text)
+			point (find "." digits) whole (if point (slice digits 0 point) digits)
+			after (if point (slice digits (inc point) -1) ""))
+		(if (eql whole "") (setq whole "0"))
+		(cond
+			((and (= (bskip "0" after 0) (length after)) (<= (str-as-num whole) 10))
+				(cat kind (if (eql (str-as-num whole) 0) "" sign) (str (str-as-num whole))))
+			((and (eql whole "0") (defq at (find after '("5" "25" "2" "125" "1" "0625" "05"))))
+				(cat kind sign "1/" (elem-get '("2" "4" "5" "8" "10" "16" "20") at))))))
+
 (defun check-conv (file top)
-	;(n2d 60) in a function: the number is made a double each time the
-	;function runs, (const (n2d 60)) makes it the once, as the file is read.
-	;Every form of the file with whether it is in a function, a (defun), a
-	;(defmethod), a (lambda) or a (#); what is in a (const), or has a quote
-	;before it, is not gone into. No function here calls itself
+	;(n2d 60) in a function, or (const (n2d 60)): made each time it runs,
+	;or made as the file is read but an instance of its own where it is
+	;written. A +name in a defq at the top of the file is prebound into
+	;each place it is used, the one instance, and says what it is: the
+	;library's where lib/consts/numbers.inc has the number. (n2i 60) and
+	;(n2q 60) are the numbers they are, written so. Every form of the file
+	;with whether it is in a function, a (defun), a (defmethod), a (lambda)
+	;or a (#); what has a quote before it is not gone into. No function
+	;here calls itself
 	(defq todo (list (list top :nil)))
 	(while (defq item (pop todo))
 		(bind '(nodes inside) item)
@@ -504,17 +540,23 @@
 						(= (bskip +char_class_quote (third node) 0) (length (third node)))))
 				(when (and (not was) (defq kids (tree-form? node)))
 					(defq forms (forms-of kids)
-						head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+						head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms)))
+						conv (if (eql head "const")
+							(and (= (length forms) 2) (defq inner (tree-form? (second forms))) (conv-of (forms-of inner)))
+							(conv-of forms)))
 					(cond
+						((and inside conv)
+							(bind '(kind text) conv)
+							(defq said (if (eql head "const") (cat "(const (" kind " " text "))") (cat "(" kind " " text ")")))
+							(cond
+								((eql kind "n2i")
+									(found file node "conv" said " is " (str (n2i (str-to-num text))) ", write it so"))
+								((eql kind "n2q")
+									(found file node "conv" said " is " (if (find "." text) text (cat text ".0")) ", write it so"))
+								((defq lib (conv-lib kind text))
+									(found file node "conv" said " in a function is the library's " lib ", lib/consts/numbers.inc"))
+								((found file node "conv" said " in a function: a +name in a defq at the top of the file, the one instance in each place it is used"))))
 						((eql head "const"))
-						((and inside (find head '("n2d" "n2i" "n2q" "n2f")) (= (length forms) 2)
-								(find (first (second forms)) '(:number :symbol))
-								(nempty? (defq text (third (second forms))))
-								(nempty? (defq digits (if (find (first text) "+-") (rest text) text)))
-								(find (first digits) "0123456789")
-								(= (bskip +char_class_decimal digits 0) (length digits)))
-							(found file node "conv" "(" head " " text ") in a function is made each time it runs, (const ("
-								head " " text "))"))
 						((push todo (list kids (or inside (find head '("defun" "defmethod" "lambda" "#")))))))))
 			nodes)))
 

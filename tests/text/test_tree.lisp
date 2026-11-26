@@ -307,12 +307,16 @@
 		"(3) char: (ascii-char 4) is a char, write it \q\\x04\q"
 		"(4) char: (ascii-char 65) is a char, write it \qA\q")
 	(tt-check "char" "(ascii-char 10)" "(ascii-char +char_tab)" "(ascii-char 4)" "(ascii-char 65)" "(ascii-char x)"))
-(assert-list-eq "conv: of a number written there, in a function, a lambda or a #; not at the top, in a const, quoted, nor of a variable"
-	'("(2) conv: (n2d 60) in a function is made each time it runs, (const (n2d 60))"
-		"(3) conv: (n2f -0.5) in a function is made each time it runs, (const (n2f -0.5))"
-		"(4) conv: (n2q 2) in a function is made each time it runs, (const (n2q 2))")
+(assert-list-eq "conv: of a number written there, in a function, a lambda or a #, in a const or not; the library's where it has it, written so for n2i and n2q; not at the top, quoted, nor of a variable"
+	'("(2) conv: (n2d 60) in a function: a +name in a defq at the top of the file, the one instance in each place it is used"
+		"(2) conv: (const (n2d 3)) in a function is the library's +double_3, lib/consts/numbers.inc"
+		"(3) conv: (n2f -0.5) in a function is the library's +float_-1/2, lib/consts/numbers.inc"
+		"(4) conv: (n2q 2) is 2.0, write it so"
+		"(5) conv: (n2i 7) is 7, write it so"
+		"(5) conv: (const (n2d 0.25)) in a function is the library's +double_1/4, lib/consts/numbers.inc")
 	(tt-check "conv" "(defq a (n2d 60))" "(defun f (x) (+ x (n2d 60) (const (n2d 3)) (const (/ (n2d 1) (n2d 3))) (n2d x)))"
-		"(each (lambda (v) (* v (n2f -0.5))) l)" "(map (# (* %0 (n2q 2))) l)" "(defun g () '((n2d 5)))"))
+		"(each (lambda (v) (* v (n2f -0.5))) l)" "(map (# (* %0 (n2q 2))) l)"
+		"(defun h (x) (* x (const (n2d 0.25)) (n2i 7)))" "(defun g () '((n2d 5)))"))
 ;(relies), where a function goes by more than is declared of what it calls:
 ;a function made up, as an assembled one is left. It calls :sys_mem :alloc,
 ;which takes :r0, gives :r0 and :r1 and is declared to trash :r0 to :r2,
