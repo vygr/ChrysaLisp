@@ -41,18 +41,18 @@
 	;has a third of its node at most, the apps beside it the rest
 	+pace 3
 	;how high the frame is at a distance of 1, and how near and far it sees
-	+spread_y (n2d 0.5) +near (n2d 1) +far (n2d 2000)
+	+spread_y +double_1/2 +near +double_1 +far (n2d 2000)
 	;how fast the eye turns round of itself, a second, when the pointer is
 	;not over the picture; and with it, the middle of the picture it does
 	;nothing in, and how fast at most it turns and pitches for the pointer
 	;at an edge, a second
-	+drift (n2d 0.04) +dead (n2d 0.1) +stick_rate (n2d 0.9)
+	+drift (n2d 0.04) +dead +double_1/10 +stick_rate (n2d 0.9)
 	;flying: how fast at most it turns, a second, how soon it comes to the
 	;turn it wants, how hard a rock in the way turns it, how far it leans
 	;into a turn, and how soon it comes upright again; the auto pilot, how
 	;far off a swarm it visits, how long it keeps to one, and how hard it
 	;turns for it
-	+turn_most (n2d 0.45) +turn_ease (n2d 1) +lean (n2d 0.5) +upright (n2d 0.4)
+	+turn_most (n2d 0.45) +turn_ease +double_1 +lean +double_1/2 +upright (n2d 0.4)
 	+visit_far (n2d 480) +visit_long 20000000
 	;how long before a big rock visited may be again, and how often a
 	;cluster out of sight is put in orbit again, and since when
@@ -73,8 +73,8 @@
 	;least and at most, a second, how long a flash is, seconds, how
 	;bright between, how bright its lamp lights the rocks, and how far a
 	;rock looks for one to be lit by
-	+mesh_buoy 18 +mesh_missile 19 missile_had :nil +missile_size (n2d 3) buoy_had :nil +buoy_size (n2d 7) buoy_next 0 +flash_least (n2d 0.25) +flash_most (n2d 1.1)
-	+flash_long (n2d 0.25) +flash_dim (n2d 0.12) +buoy_power (n2d 6) +buoy_light_far (n2d 170)
+	+mesh_buoy 18 +mesh_missile 19 missile_had :nil +missile_size +double_3 buoy_had :nil +buoy_size +double_7 buoy_next 0 +flash_least +double_1/4 +flash_most (n2d 1.1)
+	+flash_long +double_1/4 +flash_dim (n2d 0.12) +buoy_power +double_6 +buoy_light_far (n2d 170)
 	;how hard a hit is at least to throw grains, and how far off at most
 	+fx_least (n2d 1.5) +fx_far (n2d 450)
 	;the sprays of grains hits throw out, each (at born throw kind grain),
@@ -105,7 +105,7 @@
 	klaxon :nil +nuke_fuse 3000000 +armed_beat 125000 +armed_flash (doubles (n2d 1.6) (n2d 1.6) (n2d 1.6))
 	+nuke_reach (n2d 360) +nuke_strength (n2d 1200) +nuke_life 2500000
 	+nuke_light (doubles (n2d 7) (n2d 5.5) (n2d 4)) +nuke_glow (n2d 500) +nuke_sprays 14
-	+debris_least (n2d 0.5) +debris_far (n2d 0.005) blast_lamps (list) blast_glows (list) pressed 0
+	+debris_least +double_1/2 +debris_far (n2d 0.005) blast_lamps (list) blast_glows (list) pressed 0
 	;the ship's speed eased to a boost's while the right button is held and
 	;back to cruising after: whether it is held, the boost's speed, and how
 	;fast it eases up and down, a second; and the buttons' bits
@@ -115,7 +115,7 @@
 	;right button is held and dying away as it is let go, how fast up, a
 	;second, and how fast it dies, a share a second, as a sound does
 	thrust_pcm :nil thrust_stream :nil thrust_at 0 +thrust_rate 22050 +thrust_ahead 1100
-	+thrust_loud (n2d 0.8) thrust_gain +double_0 +thrust_up (n2d 6) +thrust_down (n2d 1.7)
+	+thrust_loud (n2d 0.8) thrust_gain +double_0 +thrust_up +double_6 +thrust_down (n2d 1.7)
 	boosting :nil +boost (n2d 60) +boost_up (n2d 1.2) +boost_down (n2d 0.8)
 	+left_button 1 +right_button 4
 	+spray_life 2500000 +spray_most 24
@@ -173,7 +173,7 @@
 	;and how long, microseconds; and each buoy's lamp this frame, where and as
 	;bright as it is
 	ping_at :nil ping :nil +ping_flash (doubles (n2d 2.5) (n2d 2.5) (n2d 2.7)) +dark (doubles +double_0 +double_0 +double_0)
-	+ping_top (n2d 2.5) +ping_back (n2d 4) +ping_round 1100000 +ping_long 50000
+	+ping_top (n2d 2.5) +ping_back +double_4 +ping_round 1100000 +ping_long 50000
 	lamps (list) lamps_near (list)
 	;each buoy's way up, from its lamp to its float, kept toward the ship's
 	;side: the least it may be toward the ship, the dot of the two, and how
@@ -187,6 +187,33 @@
 	;the size, the music and the detail, as they were when last closed,
 	;(config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "space.tre"))
+
+;the numbers of the functions below: a second, of (pii-time); the least
+;size of a rock the tour seeks out, the least it is ahead, and how far to
+;its side it is passed; the bob of the eye on the tour and how long it
+;takes; the longest step of time a frame; the least a crunch throws its
+;grains; a crunch's loudness as a percent; the most a sound is to one
+;side; a spray grain's least way out and the spread past it; how far
+;apart in their flashing the buoys are; the thrust's least loudness that
+;is heard; how far past the rocks drawn is out of sight; a shattered
+;rock's spread of throw; how far behind a missile its nozzle is, the least
+;size of its glow, how its trail's glows shrink, and how bright a blast's
+;glow is; the dot of a buoy's way up that is straight down; how long a
+;buoy takes to turn round; where its body is along it; the least size of
+;its glow and how it grows with its light; the longest step of the rocks'
+;meeting; how far behind the eye a crunch is sprayed, how fast a meeting
+;is heard as loud as it goes, how fast a blast is heard to crunch, the
+;least throw of a shattered rock, how far ahead of the eye a missile is
+;fired from, and how bright a missile's glow is
+(defq +second (n2d 1000000) +visit_bulk (n2d 30) +visit_ahead (n2d 80) +visit_side (n2d 12)
+	+bob +double_1/20 +bob_long (n2d 9000000) +dt_most +double_1/10 +spray_throw_least (n2d 1.5)
+	+percent (n2d 100) +pan_most (n2d 255) +grain_least +double_1/5 +grain_spread (n2d 0.8)
+	+beat_apart (n2d 0.37) +thrust_quiet (n2d 0.01) +out_of_sight (n2d 60) +shatter_throw (n2d 14)
+	+nozzle_back (n2d 0.8) +bomb_glow_least (n2d 1.5) +trail_shrink (n2d 0.85)
+	+blast_glow_bright (n2d 1.5) +tilt_flip (n2d -0.999) +buoy_turn_long (n2d 4000000)
+	+buoy_body (n2d 0.72) +glow_least (n2d 0.6) +glow_grow (n2d 1.4) +meet_dt_most +double_1/20
+	+behind_most +double_-10 +loud_speed +double_4 +blast_crunch +double_8
+	+shatter_throw_least +double_8 +missile_ahead +double_4 +bomb_bright +double_5)
 
 (defun make-canvas (size)
 	; (make-canvas size) -> canvas
@@ -252,7 +279,7 @@
 		(setq visit :nil visit_since now)
 		(each (lambda (rock)
 				(defq far (rock-distance rock) been (. visited :find (!)))
-				(and (> (third rock) (const (n2d 30))) (> (rock-ahead rock) (max (const (n2d 80)) (* far +double_1/2)))
+				(and (> (third rock) +visit_bulk) (> (rock-ahead rock) (max +visit_ahead (* far +double_1/2)))
 					(< far +visit_far) (or (not been) (> (- now been) +revisit))
 					(or (not visit) (< far (rock-distance (elem-get rocks visit))))
 					(setq visit (!))))
@@ -266,10 +293,10 @@
 			(defq rx (near-way (- (first at) ex)) ry (near-way (- (second at) ey)) rz (near-way (- (third at) ez))
 				side (if (>= (+ (* rx (first right)) (* ry (second right)) (* rz (third right))) +double_0) +double_-1 +double_1)
 				aim (sky-unit (nums-add (doubles rx ry rz)
-					(nums-scale right (* side (+ (* bulk (elem-get kind_reach kind)) (const (n2d 12))))))))
+					(nums-scale right (* side (+ (* bulk (elem-get kind_reach kind)) +visit_side))))))
 			aim)
 		((sky-unit (nums-add forward (nums-add (nums-scale right +drift)
-			(nums-scale up (* (const (n2d 0.05)) (sin (/ (n2d now) (const (n2d 9000000))))))))))))
+			(nums-scale up (* +bob (sin (/ (n2d now) +bob_long))))))))))
 
 (defun rock-ahead (rock)
 	; (rock-ahead rock) -> double
@@ -295,7 +322,7 @@
 	;turn, and comes upright again of the galaxy's up. Its ways are made
 	;square and of length 1 again, so they do not drift. The seconds since
 	;last time
-	(defq now (pii-time) dt (min (/ (n2d (- now turned)) (const (n2d 1000000))) (const (n2d 0.1)))
+	(defq now (pii-time) dt (min (/ (n2d (- now turned)) +second) +dt_most)
 		right (sky-cross forward up))
 	(setq turned now)
 	;a heading chosen through the rocks round the way wanted, the pointer's,
@@ -408,13 +435,13 @@
 				;near enough to see and ahead of the eye, and hard enough, a spray
 				;of grains thrown out, as fast as it was hard
 				(when (and (< d +fx_far) (> speed +fx_least)
-						(> (+ (* rx (first forward)) (* ry (second forward)) (* rz (third forward))) (const (n2d -10))))
-					(push sprays (list (doubles x y z) (pii-time) (+ (const (n2d 1.5)) (* +double_2 speed))
+						(> (+ (* rx (first forward)) (* ry (second forward)) (* rz (third forward))) +behind_most))
+					(push sprays (list (doubles x y z) (pii-time) (+ +spray_throw_least (* +double_2 speed))
 						(random +spray_kinds) +grain_size))
 					(if (> (length sprays) +spray_most) (setq sprays (slice sprays 1 -1))))
 				(when (< d +hear_far)
 					(defq near (- +double_1 (/ d +hear_far))
-						loud (* (min +double_1 (/ speed (const (n2d 4)))) near near))
+						loud (* (min +double_1 (/ speed +loud_speed)) near near))
 					(push heard (list loud d (/ (+ (* rx (first right)) (* ry (second right)) (* rz (third right))) d))))))
 		hits)
 	(setq hits (list))
@@ -424,9 +451,9 @@
 				;the copy as loud as the hit is heard, the near ones each of a
 				;crunch at random
 				(defq levels (if (< d +hear_near) (elem-get crunches (random (length crunches))) crunch_far)
-					percent (n2i (* loud (const (n2d 100))))
+					percent (n2i (* loud +percent))
 					at (some (lambda (level) (if (<= level (+ percent (/ level 4))) (!))) (if (< d +hear_near) +near_levels +far_levels)))
-				(if at (audio-play-rpc (elem-get levels at) (n2i (* side (const (n2d 255)))))))
+				(if at (audio-play-rpc (elem-get levels at) (n2i (* side +pan_most)))))
 			(list (sort heard (lambda (a b) (> (first a) (first b))))) 0 (min +hear_most (length heard)))))
 
 (defun spray-verts ()
@@ -436,7 +463,7 @@
 	;way, a few fast and most slower
 	(defq out (cap (* +spray_grains 30) (doubles)))
 	(times +spray_grains
-		(defq way (nums-scale (rnd-way) (+ (const (n2d 0.2)) (* (const (n2d 0.8)) (rnd) (rnd)))))
+		(defq way (nums-scale (rnd-way) (+ +grain_least (* +grain_spread (rnd) (rnd)))))
 		(bind '(wx wy wz) way)
 		(each (lambda ((cx cy)) (push out cx cy wx wy wz))
 			(const `'((,+double_-1 ,+double_-1) (,+double_1 ,+double_-1) (,+double_1 ,+double_1)
@@ -451,14 +478,14 @@
 	(setq sprays (filter (lambda ((& born &ignore)) (< (- now born) +spray_life)) sprays))
 	(bind '(ex ey ez) eye)
 	(each (lambda ((at born throw kind grain))
-			(defq since (/ (n2d (- now born)) (const (n2d 1000000)))
+			(defq since (/ (n2d (- now born)) +second)
 				rx (near-way (- (first at) ex)) ry (near-way (- (second at) ey)) rz (near-way (- (third at) ez)))
 			(if (seen? rx ry rz (+ (* throw since) +double_1) sides)
 				(push out (list (+ +mesh_spray kind)
 					(list (list 'middle (doubles (+ ex rx) (+ ey ry) (+ ez rz)))
 						(list 'seconds since) (list 'throw throw) (list 'grain grain)
 						(list 'right right) (list 'up up) (list 'lens view))
-					(list (list 'age (/ (* since (const (n2d 1000000))) (n2d +spray_life)))
+					(list (list 'age (/ (* since +second) (n2d +spray_life)))
 						(list 'sun_light sun_light) (list 'pillars_light pillars_light))
 					'() grain_files))))
 		sprays)
@@ -468,11 +495,11 @@
 	;each buoy's lamp now: where it is, nearest the eye, on top of the buoy,
 	;and as bright as it is, a flash of its colour or the dim glow between,
 	;flashing the faster the greater its hazard, each in its own time
-	(defq now (/ (n2d (pii-time)) (const (n2d 1000000))))
+	(defq now (/ (n2d (pii-time)) +second))
 	(bind '(ex ey ez) eye)
 	(setq lamps (map (lambda ((at & hazard colour & & & armed))
 			(defq rate (+ +flash_least (* hazard (- +flash_most +flash_least)))
-				beat (+ (* now rate) (* (n2d (!)) (const (n2d 0.37))))
+				beat (+ (* now rate) (* (n2d (!)) +beat_apart))
 				on (< (- beat (floor beat)) (* rate +flash_long)))
 			(list (doubles (+ ex (near-way (- (first at) ex))) (+ ey (near-way (- (second at) ey)))
 					(+ ez (near-way (- (third at) ez))))
@@ -502,13 +529,13 @@
 	;written to its stream ahead of what is heard, between +thrust_ahead and
 	;twice that, none when it has died away. A stream not written to for a
 	;while is let go of by the audio service, and is opened again
-	(and boosting (< thrust_gain (const (n2d 0.01))) thrust_pcm
+	(and boosting (< thrust_gain +thrust_quiet) thrust_pcm
 		(setq thrust_at (random (length thrust_pcm))))
 	(setq thrust_gain (if boosting
 		(min +double_1 (+ thrust_gain (* dt +thrust_up)))
 		(* thrust_gain (- +double_1 (min +double_1 (* dt +thrust_down))))))
 	(defq loud thrust_gain)
-	(when (and thrust_pcm (> loud (const (n2d 0.01))))
+	(when (and thrust_pcm (> loud +thrust_quiet))
 		(unless thrust_stream (setq thrust_stream (audio-stream-open-rpc +thrust_rate 1)))
 		(when thrust_stream
 			(cond
@@ -535,7 +562,7 @@
 	;the side of the eye it is on
 	(defq right (sky-cross forward up) rx (near-way (- (first at) (first eye))) ry (near-way (- (second at) (second eye)))
 		rz (near-way (- (third at) (third eye))) d (sqrt (+ (* rx rx) (* ry ry) (* rz rz) +double_1)))
-	(n2i (* (const (n2d 255)) (/ (+ (* rx (first right)) (* ry (second right)) (* rz (third right))) d))))
+	(n2i (* +pan_most (/ (+ (* rx (first right)) (* ry (second right)) (* rz (third right))) d))))
 
 (defun buoys-nuke (sides)
 	;a buoy too crowded for +nuke_looks looks running armed, if it is in
@@ -556,19 +583,19 @@
 					(if (num? klaxon) (audio-play-rpc klaxon (side-of at))))
 				((and (> armed 0) (> (- now armed) +nuke_fuse))
 					(bind '(x y z) at)
-					(defq shattered (rocks-nuke x y z eye (+ +rock_far (const (n2d 60))))
+					(defq shattered (rocks-nuke x y z eye (+ +rock_far +out_of_sight))
 						ahead (filter (# (in-view? %0 sides)) shattered))
 					;each shattered in view a shower of debris, its pieces as big
 					;as a few pixels however far off
 					(each! (lambda (p)
 							(defq rx (near-way (- (first p) (first eye))) ry (near-way (- (second p) (second eye)))
 								rz (near-way (- (third p) (third eye))))
-							(push sprays (list p now (+ (const (n2d 8)) (* (const (n2d 14)) (rnd))) (random +spray_kinds)
+							(push sprays (list p now (+ +shatter_throw_least (* +shatter_throw (rnd))) (random +spray_kinds)
 								(max +debris_least (* (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) +debris_far)))))
 						(list ahead) 0 (min (length ahead) +nuke_sprays))
 					(if (> (length sprays) +spray_most) (setq sprays (slice sprays (- (length sprays) +spray_most) -1)))
 					(push blasts (list (cat at) now +double_0 +nuke_reach +nuke_strength +nuke_life +nuke_light +nuke_glow :t))
-					(times 4 (push hits (list x y z (const (n2d 8)))))
+					(times 4 (push hits (list x y z +blast_crunch)))
 					(elem-set buoy 6 0)
 					(elem-set buoy 7 0))))
 		buoys))
@@ -580,7 +607,7 @@
 	(defq right (sky-cross forward up) spread_x (/ (* +spread_y (n2d w)) (n2d h))
 		way (sky-unit (nums-add forward (nums-add (nums-scale right (* sx spread_x)) (nums-scale up (* sy +spread_y))))))
 	(if (< (length bombs) +bombs_most)
-		(push bombs (list (nums-add eye (nums-scale way (const (n2d 4))))
+		(push bombs (list (nums-add eye (nums-scale way +missile_ahead))
 			(nums-add (nums-scale way +bomb_speed) (nums-scale forward ship_speed)) (pii-time)))))
 
 (defun bombs-move (dt)
@@ -603,14 +630,14 @@
 							:t))
 					(push blasts (list at now +double_0 +blast_reach +blast_strength +blast_life +blast_light +blast_glow_most :nil))
 					(bind '(x y z) at)
-					(times 3 (push hits (list x y z (const (n2d 8)))))
+					(times 3 (push hits (list x y z +blast_crunch)))
 					:nil)
 				(:t)))
 		bombs)
 		blasts (filter (lambda (blast)
 			(bind '(at born from reach strength life & & calm) blast)
 			(bind '(x y z) at)
-			(defq to (* +blast_front (/ (n2d (- now born)) (const (n2d 1000000)))))
+			(defq to (* +blast_front (/ (n2d (- now born)) +second)))
 			(if (< from reach) (rocks-blast x y z from to reach strength calm))
 			(elem-set blast 2 to)
 			(< (- now born) life))
@@ -629,14 +656,14 @@
 							(+ ez (near-way (- (third at) ez))))
 						;its nozzle's glow, as big as a few pixels however far,
 						;and a trail behind along its way, fading
-						nozzle (nums-sub near (nums-scale (sky-unit way) (* +missile_size (const (n2d 0.8)))))
+						nozzle (nums-sub near (nums-scale (sky-unit way) (* +missile_size +nozzle_back)))
 						far (sqrt (nums-dot (nums-sub near eye) (nums-sub near eye)))
-						size (+ (const (n2d 1.5)) (* far +bomb_glow_far)) bright (nums-scale +bomb_light (const (n2d 5))))
+						size (+ +bomb_glow_least (* far +bomb_glow_far)) bright (nums-scale +bomb_light +bomb_bright))
 					(push glows (list nozzle bright size))
 					(each! (lambda ()
 							(defq back (n2d (inc (!))))
 							(push glows (list (nums-sub nozzle (nums-scale way (* back +trail_step)))
-								(nums-scale bright (pow +trail_fade back)) (* size (pow (const (n2d 0.85)) back)))))
+								(nums-scale bright (pow +trail_fade back)) (* size (pow +trail_shrink back)))))
 						'() 0 +trail_glows)
 					(list near +bomb_light))
 				bombs)
@@ -644,7 +671,7 @@
 					(defq near (doubles (+ ex (near-way (- (first at) ex))) (+ ey (near-way (- (second at) ey)))
 							(+ ez (near-way (- (third at) ez))))
 						left (max +double_0 (- +double_1 (/ (n2d (- now born)) (n2d life)))) colour (nums-scale light (* left left)))
-					(push glows (list near (nums-scale colour (const (n2d 1.5)))
+					(push glows (list near (nums-scale colour +blast_glow_bright)
 						(+ +blast_glow_least (* (- glow_most +blast_glow_least) (- +double_1 left)))))
 					(list near colour))
 				blasts))
@@ -679,7 +706,7 @@
 	;across both, so it goes smoothly as the axis does; turned over if it
 	;is all but straight down
 	(bind '(ax ay az) axis)
-	(if (< ay (const (n2d -0.999)))
+	(if (< ay +tilt_flip)
 		(mat4x4-rotx +double_pi)
 		(defq k (/ +double_1 (+ +double_1 ay)))
 		(doubles (- +double_1 (* k ax ax)) ax (neg (* k ax az)) +double_0
@@ -725,11 +752,11 @@
 	;the buoys near enough and in what the frame sees, each hung from where
 	;its lamp is along its way up, turning slowly about it, its lamp as
 	;bright as it is now
-	(defq out (list) turn (/ (n2d (pii-time)) (const (n2d 4000000))))
+	(defq out (list) turn (/ (n2d (pii-time)) +buoy_turn_long))
 	(when buoy_had
 		(each (lambda ((at colour) axis)
 				;its body's middle, along its way up from its lamp
-				(defq body_at (nums-sub at (nums-scale axis (* +buoy_size (const (n2d 0.72)))))
+				(defq body_at (nums-sub at (nums-scale axis (* +buoy_size +buoy_body)))
 					rx (- (first body_at) (first eye)) ry (- (second body_at) (second eye)) rz (- (third body_at) (third eye)))
 				(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) rock_far) (seen? rx ry rz +buoy_size sides)
 					(push out (list +mesh_buoy
@@ -764,7 +791,7 @@
 	(defq out (list))
 	(each (lambda ((at colour))
 			(defq rx (- (first at) (first eye)) ry (- (second at) (second eye)) rz (- (third at) (third eye))
-				size (* +buoy_size (+ (const (n2d 0.6)) (* (const (n2d 1.4)) (reduce (const max) colour +double_0)))))
+				size (* +buoy_size (+ +glow_least (* +glow_grow (reduce (const max) colour +double_0)))))
 			(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) rock_far) (seen? rx ry rz size sides)
 				(push out (list +mesh_glow
 					(list (list 'middle at) (list 'size size) (list 'right right) (list 'up up) (list 'lens view))
@@ -825,14 +852,14 @@
 	(rocks-move dt)
 	(frame-mark 1)
 	(if (= part 0) (setq grid (rocks-grid)))
-	(rocks-meet (* (min dt (const (n2d 0.05))) (n2d +meet_parts)) grid part)
+	(rocks-meet (* (min dt +meet_dt_most) (n2d +meet_parts)) grid part)
 	(frame-mark 2)
 	(setq part (% (inc part) +meet_parts))
 	;now and then a cluster out of sight made lively again
 	(when (>= (- (pii-time) refreshed) +refresh_every)
 		(setq refreshed (pii-time))
-		(clusters-refresh eye (+ +rock_far (const (n2d 60))))
-		(buoys-restation eye (+ +rock_far (const (n2d 60)))))
+		(clusters-refresh eye (+ +rock_far +out_of_sight))
+		(buoys-restation eye (+ +rock_far +out_of_sight)))
 	;the bombs on and the blasts, heard with the hits
 	(bombs-move dt)
 	(hear-hits)

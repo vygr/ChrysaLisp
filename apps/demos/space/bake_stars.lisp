@@ -21,14 +21,29 @@
 (defq +stars_w 4096 +stars_h 2048 +stars_out "apps/demos/space/data/stars.cpm"
 	+stars_faint 26000 +stars_middling 1600 +stars_bright 170)
 
+;the steps of (rnd); the most of a colour's channel; how wide the
+;galaxy's band is, and how many stars off it and in it; a faint star's
+;least size and its brightness; a middling one's glow, how bright and its
+;size, and the star, how bright, the least and the spread, and its size;
+;a bright one's spikes, how long, the least and the spread, of the least
+;and the spread of a part, its halo, glow, ring and core, the least of its
+;ring, its spikes' width and their brightness
+(defq +rnd_steps (n2d 1000000) +channel_most (n2d 255) +band_wide (n2d 0.3) +off_band (n2d 0.45)
+	+in_band (n2d 0.55) +faint_least (n2d 0.4) +faint_bright (n2d 0.75) +middling_glow (n2d 0.12)
+	+middling_glow_size (n2d 2.6) +middling_least (n2d 0.6) +middling_spread (n2d 0.4)
+	+middling_size (n2d 1.1) +spike_least +double_8 +spike_spread (n2d 34)
+	+spike_least_part (n2d 0.35) +spike_spread_part (n2d 0.65) +bright_halo +double_9
+	+bright_glow +double_5 +bright_ring (n2d 2.6) +bright_ring_least (n2d 0.6)
+	+bright_core (n2d 1.4) +spike_wide (n2d 0.7) +spike_bright (n2d 0.45))
+
 (defun rnd ()
 	; (rnd) -> double
 	;0 to 1
-	(/ (n2d (random 1000000)) (const (n2d 1000000))))
+	(/ (n2d (random 1000000)) +rnd_steps))
 
 
 ;the corners of an eight sided ellipse of radius 1, sine and cosine
-(defq star_corners (map (lambda (i) (defq a (/ (* +double_2pi (n2d i)) (const (n2d 8)))) (list (sin a) (cos a)))
+(defq star_corners (map (lambda (i) (defq a (/ (* +double_2pi (n2d i)) +double_8)) (list (sin a) (cos a)))
 	'(0 1 2 3 4 5 6 7)))
 
 (defun star-shape (cx cy rx ry)
@@ -40,8 +55,8 @@
 
 (defun star-argb (rgb a)
 	; (star-argb (r g b) a) -> argb
-	(+ (<< (max 0 (min 255 (n2i (* a (const (n2d 255)))))) 24)
-		(reduce (lambda (v c) (+ (<< v 8) (max 0 (min 255 (n2i (* c (const (n2d 255)))))))) rgb 0)))
+	(+ (<< (max 0 (min 255 (n2i (* a +channel_most)))) 24)
+		(reduce (lambda (v c) (+ (<< v 8) (max 0 (min 255 (n2i (* c +channel_most)))))) rgb 0)))
 
 (defun star-mix (a b t)
 	(map (lambda (x y) (+ x (* t (- y x)))) a b))
@@ -64,12 +79,12 @@
 		(defq y (- (* +double_2 (rnd)) +double_1) cl (sqrt (- +double_1 (* y y)))
 			lon (* +double_2pi (- (rnd) +double_1/2))
 			way (doubles (* cl (sin lon)) y (* (neg cl) (cos lon)))
-			band (- +double_1 (min +double_1 (/ (abs (nums-dot way band_pole)) (const (n2d 0.3))))))
-		(if (or (not bright_band) (< (rnd) (+ (const (n2d 0.45)) (* (const (n2d 0.55)) band))))
+			band (- +double_1 (min +double_1 (/ (abs (nums-dot way band_pole)) +band_wide))))
+		(if (or (not bright_band) (< (rnd) (+ +off_band (* +in_band band))))
 			(setq found (list (n2d (path-angle (n2q cl) (n2q y))) lon way cl))))
 	(bind '(lat lon way cl) found)
-	(list (* pu (+ lon +double_pi)) (* pv (- (const (n2d 1.5707963)) lat))
-		(/ +double_1 (max cl (const (n2d 0.05)))) way lon lat))
+	(list (* pu (+ lon +double_pi)) (* pv (- +double_hpi lat))
+		(/ +double_1 (max cl +double_1/20)) way lon lat))
 
 (defun bake-stars ()
 	; (bake-stars) -> :t
@@ -80,9 +95,9 @@
 	;the faint, many, a pixel or so, blue white to warm
 	(times +stars_faint
 		(bind '(x y stretch &ignore) (star-at pu pv :t))
-		(defq k (rnd) r (+ (const (n2d 0.4)) (* (const (n2d 0.5)) k))
+		(defq k (rnd) r (+ +faint_least (* +double_1/2 k))
 			colour (star-mix (const `'(,(n2d 0.72) ,(n2d 0.82) ,(n2d 1.0))) (const `'(,+double_1 ,(n2d 0.86) ,(n2d 0.68))) (rnd)))
-		(. canvas :set_color (star-argb colour (+ (const (n2d 0.25)) (* (const (n2d 0.75)) k k))))
+		(. canvas :set_color (star-argb colour (+ +double_1/4 (* +faint_bright k k))))
 		(star-draw (lambda (x) (. canvas :fpoly 0.0 0.0 +winding_none_zero (list (star-shape x y (* r stretch) r))))
 			x (* r stretch)))
 	;the middling, a little bigger and a glow round them
@@ -90,18 +105,18 @@
 		(bind '(x y stretch &ignore) (star-at pu pv :t))
 		(defq k (rnd) colour (star-mix (const `'(,(n2d 0.8) ,(n2d 0.87) ,+double_1)) (const `'(,+double_1 ,(n2d 0.84) ,(n2d 0.66))) (rnd)))
 		(star-draw (lambda (x)
-				(. canvas :set_color (star-argb colour (const (n2d 0.12))))
-				(. canvas :fpoly 0.0 0.0 +winding_none_zero (list (star-shape x y (* (const (n2d 2.6)) stretch) (const (n2d 2.6)))))
-				(. canvas :set_color (star-argb colour (+ (const (n2d 0.6)) (* (const (n2d 0.4)) k))))
-				(. canvas :fpoly 0.0 0.0 +winding_none_zero (list (star-shape x y (* (const (n2d 1.1)) stretch) (const (n2d 1.1))))))
-			x (* (const (n2d 2.6)) stretch)))
+				(. canvas :set_color (star-argb colour +middling_glow))
+				(. canvas :fpoly 0.0 0.0 +winding_none_zero (list (star-shape x y (* +middling_glow_size stretch) +middling_glow_size)))
+				(. canvas :set_color (star-argb colour (+ +middling_least (* +middling_spread k))))
+				(. canvas :fpoly 0.0 0.0 +winding_none_zero (list (star-shape x y (* +middling_size stretch) +middling_size))))
+			x (* +middling_glow_size stretch)))
 	;the bright, Hubble's: a core, rings of glow, and four spikes that thin
 	;to nothing, on the Pillars' diagonals laid on the sky where each is,
 	;of many lengths
 	(times +stars_bright
 		(bind '(x y stretch way lon lat) (star-at pu pv :nil))
 		(defq k (rnd) colour (star-mix (const `'(,+double_1 ,(n2d 0.93) ,(n2d 0.82))) (const `'(,+double_1 ,(n2d 0.72) ,(n2d 0.55))) (rnd))
-			long (* (+ (const (n2d 8)) (* (const (n2d 34)) k)) (+ (const (n2d 0.35)) (* (const (n2d 0.65)) (rnd))))
+			long (* (+ +spike_least (* +spike_spread k)) (+ +spike_least_part (* +spike_spread_part (rnd))))
 			t1 (sky-unit (nums-sub diagonal (nums-scale way (nums-dot diagonal way))))
 			t2 (sky-cross way t1)
 			east (doubles (cos lon) +double_0 (sin lon))
@@ -113,15 +128,15 @@
 				(each (lambda ((r a))
 						(. canvas :set_color (star-argb colour a))
 						(. canvas :fpoly 0.0 0.0 +winding_none_zero (list (star-shape x y (* r stretch) r))))
-					(list (list (* (const (n2d 9)) (+ (const (n2d 0.5)) k)) (const (n2d 0.05)))
-						(list (* (const (n2d 5)) (+ (const (n2d 0.5)) k)) (const (n2d 0.1)))
-						(list (* (const (n2d 2.6)) (+ (const (n2d 0.6)) k)) (const (n2d 0.25)))
-						(list (const (n2d 1.4)) +double_1)))
+					(list (list (* +bright_halo (+ +double_1/2 k)) +double_1/20)
+						(list (* +bright_glow (+ +double_1/2 k)) +double_1/10)
+						(list (* +bright_ring (+ +bright_ring_least k)) +double_1/4)
+						(list +bright_core +double_1)))
 				(each (lambda ((dx dy))
 						(defq tx (+ x (* dx long)) ty (+ y (* dy long))
-							wide (const (n2d 0.7)) nx (* (neg dy) wide) ny (* dx wide (/ +double_1 stretch)))
+							wide +spike_wide nx (* (neg dy) wide) ny (* dx wide (/ +double_1 stretch)))
 						(. canvas :set_linear (n2q x) (n2q y) (n2q tx) (n2q ty)
-							(list (list 0.0 (star-argb colour (+ (const (n2d 0.45)) (* (const (n2d 0.5)) k))))
+							(list (list 0.0 (star-argb colour (+ +spike_bright (* +double_1/2 k))))
 								(list 1.0 (star-argb colour +double_0))))
 						(. canvas :fpoly 0.0 0.0 +winding_none_zero (list (path (n2q (+ x nx)) (n2q (+ y ny))
 							(n2q tx) (n2q ty) (n2q (- x nx)) (n2q (- y ny))))))

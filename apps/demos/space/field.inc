@@ -11,6 +11,9 @@
 (import "lib/math/vector.inc")
 (import "apps/demos/space/sky.inc")
 
+;module
+(env-push)
+
 ;how many kinds of rock, how many rocks, and how big the box of them
 (defq +rock_kinds 8 +rock_count 450 +field (n2d 1000)
 	;the rocks, each (at drift bulk kind spin patch), make-rocks, and the
@@ -24,7 +27,7 @@
 	;a buoy at a swarm moved to another when its own has gone: under what
 	;hazard it is calm, for how many looks running, and how far round a big
 	;rock its cluster's rocks count as there
-	+buoy_calm (n2d 0.05) +calm_looks 50 +crowd_round (n2d 120)
+	+buoy_calm +double_1/20 +calm_looks 50 +crowd_round (n2d 120)
 	;a buoy goes nuclear in a heap too crowded to draw: how many rocks round
 	;it, within +buoy_round, are too many, for how many looks running, and
 	;how far round it the small rocks are shattered
@@ -44,7 +47,7 @@
 	;changing slowly, and the round it is; and how much of its speed a hit
 	;keeps, little, rock on rock is a crunch, and how much of the sideways
 	;part of it is ground down
-	+drift_most (n2d 3) +clusters 45 +meet_parts 12 +cells_side 8 +fine_side 16 +pull (n2d 0.025)
+	+drift_most +double_3 +clusters 45 +meet_parts 12 +cells_side 8 +fine_side 16 +pull (n2d 0.025)
 	+small_reach (/ +field (n2d (* 2 +fine_side))) +pull_least (n2d 25) +pull_every 3 meet_round 0 +pull_reach2 (n2d 62500) +pull_soft (n2d 400) +bounce (n2d 0.15) +grind (n2d 0.4)
 	;a blast: how far it reaches, how hard it throws, a rock of size 1 at
 	;its middle thrown so fast, one of size b a b'th of it, how fast its
@@ -55,10 +58,10 @@
 	;grip as they grind past; and how much of a rock's spin a nuke's blast
 	;leaves it
 	+blast_reach (n2d 140) +blast_strength (n2d 150) +blast_front (n2d 280) +blast_spin (n2d 0.15)
-	+strike_spin (n2d 40) +spin_most (n2d 4) +rim_most (n2d 40) +grip (n2d 0.15) +blast_calm (n2d 0.2)
+	+strike_spin (n2d 40) +spin_most +double_4 +rim_most (n2d 40) +grip (n2d 0.15) +blast_calm +double_1/5
 	;the ship keeps clear of rocks: how far ahead it looks, each way, and
 	;how many seconds ahead
-	+look_far (n2d 380) +look_time (n2d 10)
+	+look_far (n2d 380) +look_time +double_10
 	;threading: how far a heading tried is from the way wanted, at most, a
 	;tangent, and how far past a rock's reach is clear
 	+thread_cone (n2d 0.9) +thread_safe (n2d 1.5)
@@ -68,8 +71,8 @@
 	;five rings of eight round it
 	thread_offsets (cat (list (list +double_0 +double_0))
 		(reduce (lambda (out ring)
-				(defq r (* +thread_cone (/ (n2d ring) (const (n2d 5)))))
-				(each! (lambda () (defq a (/ (* +double_2pi (n2d (!))) (const (n2d 8))))
+				(defq r (* +thread_cone (/ (n2d ring) +double_5)))
+				(each! (lambda () (defq a (/ (* +double_2pi (n2d (!))) +double_8))
 						(push out (list (* r (cos a)) (* r (sin a))))) '() 0 8)
 				out)
 			'(1 2 3 4 5) (list)))
@@ -89,10 +92,30 @@
 	;on, and would come from nowhere
 	+fade_near (* +field (n2d 0.30)) +fade_far (* +field (n2d 0.47)) +rock_far (* +field (n2d 0.48)))
 
+;the numbers of the functions below: the steps of (rnd); a rock's patch
+;of the surface, the least and the spread past it; the most a rock
+;tumbles; the gap round a cluster's big rock its small ones orbit in and
+;its spread, how much of an orbit's speed they hold and its spread, and
+;how far off it they wander; the size of a big rock, of a small one, and
+;of a loner, and a loner's drift; the most a blast turns a rock; how far
+;behind the eye, in its sizes, a rock is still near; the weight of a
+;heading's way off on the tour; the gap off a cluster a buoy keeps
+;station at and its spread, and its least drift; how near past a rock's
+;reach a buoy pushes it off; the hazard of a crowd, how many is the most
+;of it, and the hazard of a rock close
+(defq +rnd_steps (n2d 1000000) +patch_least (n2d 0.06) +patch_spread (n2d 0.12)
+	+tumble_most (n2d 0.35) +orbit_gap (n2d 15) +orbit_spread (n2d 90) +orbit_hold_least (n2d 0.75)
+	+orbit_hold_spread (n2d 0.35) +orbit_wander (n2d 0.8) +big_least (n2d 35) +big_spread (n2d 25)
+	+small_least +double_4 +small_spread (n2d 16) +loner_least +double_5 +loner_spread (n2d 55)
+	+loner_drift_least (n2d 0.15) +loner_drift_spread (n2d 0.85) +blast_turn_most (n2d 12)
+	+behind_bulks (n2d 1.5) +thrill_weight +double_8 +station_gap (n2d 45) +station_spread (n2d 40)
+	+buoy_drift_least (n2d 0.4) +buoy_near +double_4 +crowd_hazard (n2d 0.65) +crowd_full +double_5
+	+close_hazard (n2d 100))
+
 (defun rnd ()
 	; (rnd) -> double
 	;0 to 1
-	(/ (n2d (random 1000000)) (const (n2d 1000000))))
+	(/ (n2d (random 1000000)) +rnd_steps))
 
 
 (defun rnd-way ()
@@ -101,22 +124,22 @@
 	(defq y (- (* +double_2 (rnd)) +double_1) c (sqrt (- +double_1 (* y y))) a (* +double_2pi (rnd)))
 	(doubles (* c (cos a)) y (* c (sin a))))
 
+(defun rock-tumble ()
+	; (rock-tumble) -> doubles
+	;a rock's tumble, (wx wy wz qw qx qy qz): how fast it turns, about which
+	;way, radians a second along it, and how it is turned now, a quaternion,
+	;both at random, slow
+	(defq way (nums-scale (rnd-way) (* (rnd) +tumble_most)) axis (rnd-way) half (* (rnd) +double_pi)
+		s (sin half))
+	(cat way (doubles (cos half) (* s (first axis)) (* s (second axis)) (* s (third axis)))))
+
 (defun make-rock (at drift bulk)
 	; (make-rock at drift bulk) -> rock
 	;a rock (at drift bulk kind spin patch) at a place, drifting, of a size:
 	;its kind, its tumble, rock-tumble, and the patch of the moon's map on
 	;it, where and how much, at random
 	(list at drift bulk (random +rock_kinds) (rock-tumble)
-		(doubles (rnd) (rnd) (+ (const (n2d 0.06)) (* (const (n2d 0.12)) (rnd))))))
-
-(defun rock-tumble ()
-	; (rock-tumble) -> doubles
-	;a rock's tumble, (wx wy wz qw qx qy qz): how fast it turns, about which
-	;way, radians a second along it, and how it is turned now, a quaternion,
-	;both at random, slow
-	(defq way (nums-scale (rnd-way) (* (rnd) (const (n2d 0.35)))) axis (rnd-way) half (* (rnd) +double_pi)
-		s (sin half))
-	(cat way (doubles (cos half) (* s (first axis)) (* s (second axis)) (* s (third axis)))))
+		(doubles (rnd) (rnd) (+ +patch_least (* +patch_spread (rnd))))))
 
 (defun rock-spin (spin bulk ax ay az)
 	;a rock's tumble turned faster about a way by so much, no faster than
@@ -148,14 +171,14 @@
 	;the speed the big one's pull holds it there, with its softness, a
 	;little more or less, so its orbit is an ellipse, some of them dipping
 	;close, and their orbits crossing, so they meet and crunch
-	(defq way (rnd-way) out_by (+ big small (const (n2d 15)) (* (const (n2d 90)) (rnd)))
+	(defq way (rnd-way) out_by (+ big small +orbit_gap (* +orbit_spread (rnd)))
 		round (sky-unit (sky-cross way (rnd-way)))
 		hold (sqrt (/ (* +pull big big big out_by) (+ (* out_by out_by) +pull_soft))))
 	(list (apply (const doubles) (map (lambda (m w)
 				(defq v (+ m (* w out_by)))
 				(cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))) middle way))
-		(nums-add (nums-add drift (nums-scale round (* hold (+ (const (n2d 0.75)) (* (const (n2d 0.35)) (rnd))))))
-			(nums-scale way (* (- (rnd) +double_1/2) (const (n2d 0.8)))))))
+		(nums-add (nums-add drift (nums-scale round (* hold (+ +orbit_hold_least (* +orbit_hold_spread (rnd))))))
+			(nums-scale way (* (- (rnd) +double_1/2) +orbit_wander)))))
 
 (defun make-rocks ()
 	; (make-rocks) -> rocks
@@ -169,19 +192,34 @@
 	(times +clusters
 		(defq middle (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))
 			drift (nums-scale (rnd-way) (* +drift_most (rnd)))
-			big (+ (const (n2d 35)) (* (const (n2d 25)) (rnd))) members (list (length out)))
+			big (+ +big_least (* +big_spread (rnd))) members (list (length out)))
 		(push out (make-rock middle (cat drift) big))
 		(times (+ 5 (random 7))
-			(defq small (+ (const (n2d 4)) (* (const (n2d 16)) (rnd) (rnd))))
+			(defq small (+ +small_least (* +small_spread (rnd) (rnd))))
 			(bind '(at go) (orbit-at middle drift big small))
 			(push members (length out))
 			(push out (make-rock at go small)))
 		(push clusters members))
 	(while (< (length out) +rock_count)
 		(push out (make-rock (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))
-			(nums-scale (rnd-way) (* +drift_most (+ (const (n2d 0.15)) (* (const (n2d 0.85)) (rnd)))))
-			(+ (const (n2d 5)) (* (const (n2d 55)) (rnd) (rnd))))))
+			(nums-scale (rnd-way) (* +drift_most (+ +loner_drift_least (* +loner_drift_spread (rnd)))))
+			(+ +loner_least (* +loner_spread (rnd) (rnd))))))
 	out)
+
+(defun near-way (v)
+	; (near-way v) -> double
+	;of a way across the box, the shortest, as the box goes on every way
+	(cond
+		((> v (const (* +field +double_1/2))) (- v +field))
+		((< v (const (* +field +double_-1/2))) (+ v +field))
+		(v)))
+
+(defun out-of-sight? (at eye far)
+	; (out-of-sight? at eye far) -> :t | :nil
+	;is a place further from the eye than far
+	(defq rx (near-way (- (first at) (first eye))) ry (near-way (- (second at) (second eye)))
+		rz (near-way (- (third at) (third eye))))
+	(> (+ (* rx rx) (* ry ry) (* rz rz)) (* far far)))
 
 (defun cluster-again (members eye far)
 	;a cluster's small rocks put in orbit round its big one again, where
@@ -196,8 +234,20 @@
 			(when (and (out-of-sight? rock_at eye far) (out-of-sight? new_at eye far))
 				(each! (lambda (v) (elem-set rock_at (!) v)) (list new_at))
 				(each! (lambda (v) (elem-set rock_drift (!) v)) (list new_drift))
-				(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) (const (n2d 0.35))))))))
+				(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) +tumble_most))))))
 		(list members) 1))
+
+(defun buoy-station (members)
+	; (buoy-station members) -> (at drift)
+	;where a buoy keeps station at a cluster, just outside its big rock and
+	;the swarm round it, and its drift, the big one's, so it goes along with
+	;the cluster
+	(bind '((at drift big kind &ignore)) (list (elem-get rocks (first members))))
+	(defq way (rnd-way) out_by (+ (* big (elem-get kind_reach kind)) +station_gap (* +station_spread (rnd))))
+	(list (apply (const doubles) (map (lambda (m w)
+				(defq v (+ m (* w out_by)))
+				(cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))) at way))
+		(cat drift)))
 
 (defun buoy-again (cluster eye far)
 	;the buoy of a cluster, if it has one, put back on station, if it is
@@ -223,15 +273,6 @@
 			((> (+ (* rx rx) (* ry ry) (* rz rz)) (* far far))
 				(cluster-again members eye far) (buoy-again cluster eye far) (setq tries 0))
 			((-- tries)))))
-
-(defun near-way (v)
-	; (near-way v) -> double
-	;of a way across the box, the shortest, as the box goes on every way
-	(cond
-		((> v (const (* +field +double_1/2))) (- v +field))
-		((< v (const (* +field (n2d -0.5)))) (+ v +field))
-		(v)))
-
 
 (defun rocks-move (dt)
 	;each rock on by its drift, kept in the box of the field, and turned on
@@ -473,10 +514,10 @@
 				;up, and only one all but still is set going about a way
 				;across the way out, at random
 				(defq w (sqrt (+ (* (first spin) (first spin)) (* (second spin) (second spin)) (* (third spin) (third spin)))))
-				(bind '(ax ay az) (if (> w (const (n2d 0.05)))
+				(bind '(ax ay az) (if (> w +double_1/20)
 					(doubles (/ (first spin) w) (/ (second spin) w) (/ (third spin) w))
 					(sky-unit (sky-cross (doubles dx dy dz) (rnd-way)))))
-				(defq turn (* (min by (const (n2d 12))) +blast_spin))
+				(defq turn (* (min by +blast_turn_most) +blast_spin))
 				(rock-spin spin bulk (* ax turn) (* ay turn) (* az turn))
 				(++ moved)))
 		rocks)
@@ -514,7 +555,7 @@
 	(each (lambda ((at drift bulk kind &ignore))
 			(defq rx (near-way (- (first at) ex)) ry (near-way (- (second at) ey)) rz (near-way (- (third at) ez)))
 			(and (< (abs rx) +look_far) (< (abs ry) +look_far) (< (abs rz) +look_far)
-				(> (+ (* rx ax) (* ry ay) (* rz az)) (neg (* bulk (const (n2d 1.5)))))
+				(> (+ (* rx ax) (* ry ay) (* rz az)) (neg (* bulk +behind_bulks)))
 				(push out (list rx ry rz (first drift) (second drift) (third drift) (* bulk (elem-get kind_reach kind))))))
 		rocks)
 	out)
@@ -561,7 +602,7 @@
 			(bind '(least next) (way-clear near (* speed (first way)) (* speed (second way)) (* speed (third way))))
 			(when (> least most) (setq most least most_way way))
 			(when (>= least +thread_safe)
-				(defq score (if thrill (+ (min next +gap_most) (* off (const (n2d 8)))) off))
+				(defq score (if thrill (+ (min next +gap_most) (* off +thrill_weight)) off))
 				(when (or (not best_score) (< score best_score)) (setq best way best_score score))))
 		(list thread_offsets) at (min (length thread_offsets) (+ at count)))
 	(setq at (+ at count))
@@ -570,18 +611,6 @@
 			(list near speed want right up thrill at best best_score most most_way))
 		(best_score best)
 		(most_way)))
-
-(defun buoy-station (members)
-	; (buoy-station members) -> (at drift)
-	;where a buoy keeps station at a cluster, just outside its big rock and
-	;the swarm round it, and its drift, the big one's, so it goes along with
-	;the cluster
-	(bind '((at drift big kind &ignore)) (list (elem-get rocks (first members))))
-	(defq way (rnd-way) out_by (+ (* big (elem-get kind_reach kind)) (const (n2d 45)) (* (const (n2d 40)) (rnd))))
-	(list (apply (const doubles) (map (lambda (m w)
-				(defq v (+ m (* w out_by)))
-				(cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))) at way))
-		(cat drift)))
 
 (defun make-buoys ()
 	; (make-buoys) -> buoys
@@ -600,8 +629,12 @@
 		(list clusters) 0 (min +buoys_at_swarms (length clusters)))
 	(while (< (length out) +buoys)
 		(push out (list (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))
-			(nums-scale (rnd-way) (+ (const (n2d 0.4)) (rnd))) +double_0 (cat +buoy_blue) :nil 0 0 0)))
+			(nums-scale (rnd-way) (+ +buoy_drift_least (rnd))) +double_0 (cat +buoy_blue) :nil 0 0 0)))
 	out)
+
+(defun rgb-mix (a b t)
+	; (rgb-mix a b t) -> doubles
+	(nums-add a (nums-scale (nums-sub b a) t)))
 
 (defun buoys-move (dt)
 	;each buoy on by its drift, kept in the box, and its light's colour eased
@@ -619,10 +652,6 @@
 			(each! (lambda (w c) (elem-set colour (!) (+ c (* k (- w c))))) (list want colour)))
 		buoys))
 
-(defun rgb-mix (a b t)
-	; (rgb-mix a b t) -> doubles
-	(nums-add a (nums-scale (nums-sub b a) t)))
-
 (defun buoy-look (i)
 	;a buoy's hazard, 0 to 1, of the rocks round it, how many within
 	;+buoy_round and how near the nearest, green to red; and if it is in a
@@ -637,15 +666,15 @@
 				(when (< d +buoy_round)
 					(++ count)
 					(setq nearest (min nearest (- d reach)))
-					(if (< d (+ reach (const (n2d 4))))
-						(rock-push at (/ rx d) (/ ry d) (/ rz d) (- d (+ reach (const (n2d 4)))))))))
+					(if (< d (+ reach +buoy_near))
+						(rock-push at (/ rx d) (/ ry d) (/ rz d) (- d (+ reach +buoy_near)))))))
 		rocks)
 	;crowded, from one rock round it, at most yellow orange; red for a rock
 	;within +buoy_close, the redder the closer; and how many looks running
 	;it has been calm
 	(defq buoy (elem-get buoys i)
-		hazard (max (* (const (n2d 0.65)) (max +double_0 (min +double_1 (/ (n2d (- count 1)) (const (n2d 5))))))
-			(if (< nearest +buoy_close) (- +double_1 (/ nearest (const (n2d 100)))) +double_0)))
+		hazard (max (* +crowd_hazard (max +double_0 (min +double_1 (/ (n2d (- count 1)) +crowd_full))))
+			(if (< nearest +buoy_close) (- +double_1 (/ nearest +close_hazard)) +double_0)))
 	(elem-set buoy 2 hazard)
 	(elem-set buoy 5 (if (< hazard +buoy_calm) (inc (elem-get buoy 5)) 0))
 	(elem-set buoy 6 (if (>= count +nuke_crowd) (inc (elem-get buoy 6)) 0)))
@@ -669,7 +698,7 @@
 					(setq to (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))))
 				(each! (lambda (v) (elem-set at (!) v)) (list to))
 				(each! (lambda (v) (elem-set drift (!) v)) (list (nums-scale (rnd-way) (* +drift_most (rnd)))))
-				(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) (const (n2d 0.35))))))))
+				(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) +tumble_most))))))
 		rocks)
 	(setq clusters (map (lambda (members) (filter (# (not (find %0 gone))) members)) clusters))
 	out)
@@ -711,9 +740,14 @@
 			(elem-set calm 4 best)
 			(elem-set calm 5 0))))
 
-(defun out-of-sight? (at eye far)
-	; (out-of-sight? at eye far) -> :t | :nil
-	;is a place further from the eye than far
-	(defq rx (near-way (- (first at) (first eye))) ry (near-way (- (second at) (second eye)))
-		rz (near-way (- (third at) (third eye))))
-	(> (+ (* rx rx) (* ry ry) (* rz rz)) (* far far)))
+;module, what the app and the tests use: its own numbers, prebound into
+;its functions as they are made, go with it
+(export-symbols
+	'(rocks clusters buoys hits bumps kind_reach meet_round thread_offsets cell_steps fine_steps
+	+rock_kinds +rock_count +field +clusters +meet_parts +rock_far +fade_near +fade_far
+	+buoys +buoy_red +buoy_green +buoy_blue +calm_looks +nuke_looks +rim_most +spin_most
+	+blast_front +blast_reach +blast_strength
+	rnd rnd-way near-way out-of-sight? make-rocks make-buoys rock-at rock-spin rock-strike
+	rock-turned rocks-blast rocks-grid rocks-meet rocks-move rocks-nuke clusters-refresh
+	cluster-again buoy-look buoys-move buoys-restation thread-start thread-step))
+(env-pop)

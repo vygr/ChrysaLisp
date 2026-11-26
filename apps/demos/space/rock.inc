@@ -30,6 +30,32 @@
 	(uint num)
 	(offset data))
 
+;module
+(env-push)
+
+;the numbers of the shapes: a rock's ridges, the scale of their noise
+;and their height, and its lumps, how far out they are and the scales of
+;their big and small noise; the range of (rock-rnd); how far apart in the
+;noise rocks' lumps are; how a rock is squashed, the least of its x and z
+;and their spread and the spread of its y; how far out its bites are and
+;their least size, and how far out its cuts are and their spread. The
+;buoy: how far down its float is and its size, its ring's thickness, its
+;mast's thickness, middle and half height, where its lamp is and its size,
+;and how they are run together. The missile: its radius and half length,
+;where its nose starts and how long it is, the square of its radius over
+;the nose's, where its tail is and its half length, the span of its fins
+;and how they are run on
+(defq +ridge_scale (n2d 3.1) +ridge_height (n2d 0.12) +lumps_mid (n2d 0.55) +lumps_big (n2d 1.7)
+	+lumps_small (n2d 4.3) +rnd_range (n2d 8388608) +lumps_spread (n2d 50)
+	+squash_x_least (n2d 0.75) +squash_z_least (n2d 0.7) +squash_spread (n2d 0.4)
+	+squash_y_spread (n2d 0.35) +bite_out (n2d 0.85) +bite_least (n2d 0.15) +cut_least (n2d 0.32)
+	+cut_spread (n2d 0.28) +buoy_drop (n2d 0.3) +buoy_float (n2d 0.42) +buoy_ring (n2d 0.08)
+	+buoy_mast (n2d 0.06) +buoy_mast_mid (n2d 0.35) +buoy_mast_half (n2d 0.3)
+	+buoy_lamp_at (n2d 0.72) +buoy_lamp (n2d 0.16) +buoy_ring_blend (n2d 0.06)
+	+buoy_mast_blend (n2d 0.08) +missile_radius (n2d 0.16) +missile_half (n2d 0.55)
+	+nose_at (n2d 0.35) +nose_long (n2d 0.55) +nose_r2 (n2d 0.0256) +tail_at (n2d 0.6)
+	+tail_half (n2d 0.16) +fin_span (n2d 0.4) +fin_blend (n2d 0.03))
+
 (defclass Iso-rock (size seed squash cuts bites) (Iso size size size)
 	; (Iso-rock size seed squash cuts bites) -> iso
 	;a field of size cubed samples of a rock: seed where in the noise its
@@ -52,9 +78,9 @@
 			;the way out from the middle, its lumps big and small
 			way (nums-add (doubles (/ qx r) (/ qy r) (/ qz r)) seed)
 			;and ridges, noise folded at its middle, sharp where it folds
-			ridge (- +double_1 (abs (- (* +double_2 (noise (nums-scale way (const (n2d 3.1))))) +double_1)))
-			lumps (+ (const (n2d 0.55)) (* (const (n2d 0.25)) (noise (nums-scale way (const (n2d 1.7)))))
-				(* (const (n2d 0.1)) (noise (nums-scale way (const (n2d 4.3))))) (* (const (n2d 0.12)) ridge ridge))
+			ridge (- +double_1 (abs (- (* +double_2 (noise (nums-scale way +ridge_scale))) +double_1)))
+			lumps (+ +lumps_mid (* +double_1/4 (noise (nums-scale way +lumps_big)))
+				(* +double_1/10 (noise (nums-scale way +lumps_small))) (* +ridge_height ridge ridge))
 			d (- r lumps))
 		;each cut, all past a plane broken off
 		(each (lambda ((nx ny nz cd))
@@ -72,7 +98,7 @@
 	;a number from 0 to 1 of a state, and the next state: the same numbers
 	;of the same seed, every time and on every node
 	(setq state (logand (+ (* state 1103515245) 12345) 0x7fffffff))
-	(list (/ (n2d (>> state 8)) (const (n2d 8388608))) state))
+	(list (/ (n2d (>> state 8)) +rnd_range) state))
 
 (defun rock-mesh (seed)
 	; (rock-mesh seed) -> mesh
@@ -83,21 +109,21 @@
 			(bind '(n s) (rock-rnd state))
 			(setq state s)
 			n) '() 0 26)
-		lumps_at (doubles (* (elem-get picks 0) (const (n2d 50))) (* (elem-get picks 1) (const (n2d 50)))
-			(* (elem-get picks 2) (const (n2d 50))))
-		squash (list (+ (const (n2d 0.75)) (* (elem-get picks 3) (const (n2d 0.4))))
-			(+ (const (n2d 0.5)) (* (elem-get picks 4) (const (n2d 0.35))))
-			(+ (const (n2d 0.7)) (* (elem-get picks 5) (const (n2d 0.4)))))
+		lumps_at (doubles (* (elem-get picks 0) +lumps_spread) (* (elem-get picks 1) +lumps_spread)
+			(* (elem-get picks 2) +lumps_spread))
+		squash (list (+ +squash_x_least (* (elem-get picks 3) +squash_spread))
+			(+ +double_1/2 (* (elem-get picks 4) +squash_y_spread))
+			(+ +squash_z_least (* (elem-get picks 5) +squash_spread)))
 		bites (map (lambda (at)
 				(defq a (* (elem-get picks at) +double_2pi) b (- (* (elem-get picks (inc at)) +double_2) +double_1)
-					c (sqrt (- +double_1 (* b b))) out (const (n2d 0.85)))
+					c (sqrt (- +double_1 (* b b))) out +bite_out)
 				(list (* out c (cos a)) (* out b) (* out c (sin a))
-					(+ (const (n2d 0.15)) (* (elem-get picks (+ at 2)) (const (n2d 0.2))))))
+					(+ +bite_least (* (elem-get picks (+ at 2)) +double_1/5))))
 			'(6 9))
 		cuts (map (lambda (at)
 				(defq a (* (elem-get picks at) +double_2pi) b (- (* (elem-get picks (inc at)) +double_2) +double_1)
 					c (sqrt (- +double_1 (* b b))))
-				(list (* c (cos a)) b (* c (sin a)) (+ (const (n2d 0.32)) (* (elem-get picks (+ at 2)) (const (n2d 0.28))))))
+				(list (* c (cos a)) b (* c (sin a)) (+ +cut_least (* (elem-get picks (+ at 2)) +cut_spread))))
 			'(12 15 18 21)))
 	(Mesh-iso (Iso-rock 22 lumps_at squash cuts bites) +double_0))
 
@@ -119,12 +145,12 @@
 		(raise :points)
 		(defq px (elem-get points x) py (elem-get points y) pz (elem-get points z)
 			r (sqrt (+ (* px px) (* pz pz)))
-			float (- (sqrt (+ (* px px) (* (+ py (const (n2d 0.3))) (+ py (const (n2d 0.3)))) (* pz pz))) (const (n2d 0.42)))
-			ring (- (sqrt (+ (* (- r (const (n2d 0.5))) (- r (const (n2d 0.5)))) (* (+ py (const (n2d 0.3))) (+ py (const (n2d 0.3))))))
-				(const (n2d 0.08)))
-			mast (max (- r (const (n2d 0.06))) (- (abs (- py (const (n2d 0.35)))) (const (n2d 0.3))))
-			lamp (- (sqrt (+ (* px px) (* (- py (const (n2d 0.72))) (- py (const (n2d 0.72)))) (* pz pz))) (const (n2d 0.16))))
-		(buoy-smooth (buoy-smooth (buoy-smooth float ring (const (n2d 0.06))) mast (const (n2d 0.08))) lamp (const (n2d 0.05)))))
+			float (- (sqrt (+ (* px px) (* (+ py +buoy_drop) (+ py +buoy_drop)) (* pz pz))) +buoy_float)
+			ring (- (sqrt (+ (* (- r +double_1/2) (- r +double_1/2)) (* (+ py +buoy_drop) (+ py +buoy_drop))))
+				+buoy_ring)
+			mast (max (- r +buoy_mast) (- (abs (- py +buoy_mast_mid)) +buoy_mast_half))
+			lamp (- (sqrt (+ (* px px) (* (- py +buoy_lamp_at) (- py +buoy_lamp_at)) (* pz pz))) +buoy_lamp))
+		(buoy-smooth (buoy-smooth (buoy-smooth float ring +buoy_ring_blend) mast +buoy_mast_blend) lamp +double_1/20)))
 
 (defun buoy-mesh ()
 	; (buoy-mesh) -> mesh
@@ -142,16 +168,23 @@
 		(raise :points)
 		(defq px (elem-get points x) py (elem-get points y) pz (elem-get points z)
 			r (sqrt (+ (* px px) (* pz pz)))
-			body (max (- r (const (n2d 0.16))) (- (abs (+ py (const (n2d 0.2)))) (const (n2d 0.55))))
+			body (max (- r +missile_radius) (- (abs (+ py +double_1/5)) +missile_half))
 			;the nose, a long half ball, near enough a distance
-			ny (/ (- py (const (n2d 0.35))) (const (n2d 0.55)))
-			nose (* (- (sqrt (+ (/ (* r r) (const (n2d 0.0256))) (* ny ny))) +double_1) (const (n2d 0.16)))
+			ny (/ (- py +nose_at) +nose_long)
+			nose (* (- (sqrt (+ (/ (* r r) +nose_r2) (* ny ny))) +double_1) +missile_radius)
 			;the fins, two thin blades across each other at the tail
-			tail (- (abs (+ py (const (n2d 0.6)))) (const (n2d 0.16)))
-			fins (min (max (- (abs px) (const (n2d 0.05))) (- (abs pz) (const (n2d 0.4))) tail)
-				(max (- (abs pz) (const (n2d 0.05))) (- (abs px) (const (n2d 0.4))) tail)))
-		(buoy-smooth (buoy-smooth body nose (const (n2d 0.05))) fins (const (n2d 0.03)))))
+			tail (- (abs (+ py +tail_at)) +tail_half)
+			fins (min (max (- (abs px) +double_1/20) (- (abs pz) +fin_span) tail)
+				(max (- (abs pz) +double_1/20) (- (abs px) +fin_span) tail)))
+		(buoy-smooth (buoy-smooth body nose +double_1/20) fins +fin_blend)))
 
 (defun missile-mesh ()
 	; (missile-mesh) -> mesh
 	(Mesh-iso (Iso-missile 28) +double_0))
+
+;module, the meshes and their classes: the numbers of the shapes,
+;prebound into them as they are made, go with it
+(export-symbols
+	'(rock-mesh buoy-mesh missile-mesh))
+(export-classes '(Iso-rock Iso-buoy Iso-missile))
+(env-pop)

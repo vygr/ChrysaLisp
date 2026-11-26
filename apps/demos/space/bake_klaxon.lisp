@@ -13,8 +13,17 @@
 ;of the a-oo, and drops to for the gah, and when; and the two pitches its
 ;horn rings at, and how sharply
 (defq +klaxon_rate 22050 +klaxon_long (n2d 0.9)
-	+klaxon_from (n2d 130) +klaxon_top (n2d 390) +klaxon_end (n2d 270) +klaxon_oo (n2d 0.5)
-	+klaxon_ring_1 (n2d 650) +klaxon_ring_2 (n2d 1700) +klaxon_sharp (n2d 5))
+	+klaxon_from (n2d 130) +klaxon_top (n2d 390) +klaxon_end (n2d 270) +klaxon_oo +double_1/2
+	+klaxon_ring_1 (n2d 650) +klaxon_ring_2 (n2d 1700) +klaxon_sharp +double_5
+	;how long the drop to the gah takes; the buzz's pulse, how much of its
+	;cycle it is and its high and low; how long it takes to come on, how
+	;loud the a-oo is to the gah, and how long it takes to cut off; how
+	;hard it is clipped, how much of the second ring and of the buzz is in
+	;it; and the least peak it is made as loud as, and how loud that is
+	+klaxon_drop (n2d 0.12) +klaxon_pulse +double_1/4 +klaxon_pulse_high (n2d 0.75)
+	+klaxon_pulse_low +double_-1/4 +klaxon_on (n2d 0.02) +klaxon_oo_loud (n2d 0.8)
+	+klaxon_off (n2d 0.06) +klaxon_drive +double_3 +klaxon_ring_2_mix (n2d 0.7)
+	+klaxon_buzz_mix (n2d 0.15) +least_peak (n2d 0.0001) +klaxon_peak (n2d 28000))
 
 (defun ring (hz)
 	; (ring hz) -> (b0 b2 a1 a2)
@@ -22,7 +31,7 @@
 	;filter, a band pass of two poles, its peak as loud as what goes in
 	(defq w (/ (* +double_2pi hz) (n2d +klaxon_rate)) alpha (/ (sin w) (* +double_2 +klaxon_sharp))
 		a0 (+ +double_1 alpha))
-	(list (/ alpha a0) (/ (neg alpha) a0) (/ (* (const (n2d -2)) (cos w)) a0) (/ (- +double_1 alpha) a0)))
+	(list (/ alpha a0) (/ (neg alpha) a0) (/ (* +double_-2 (cos w)) a0) (/ (- +double_1 alpha) a0)))
 
 (defun klaxon ()
 	; (klaxon) -> doubles
@@ -42,17 +51,17 @@
 				hz (if (< t +klaxon_oo)
 					(+ +klaxon_from (* (- +klaxon_top +klaxon_from) (- +double_1 (* (- +double_1 up) (- +double_1 up)))))
 					(- +klaxon_top (* (- +klaxon_top +klaxon_end)
-						(min +double_1 (/ (- t +klaxon_oo) (const (n2d 0.12))))))))
+						(min +double_1 (/ (- t +klaxon_oo) +klaxon_drop))))))
 			(setq phase (+ phase (/ hz rate)) phase (- phase (floor phase)))
 			;the buzz, a pulse a quarter of its cycle, its middle taken off
-			(defq x (if (< phase (const (n2d 0.25))) (const (n2d 0.75)) (const (n2d -0.25)))
+			(defq x (if (< phase +klaxon_pulse) +klaxon_pulse_high +klaxon_pulse_low)
 				p (- (+ (* b0 x) (* b2 x2)) (+ (* a1 p1) (* a2 p2)))
 				q (- (+ (* c0 x) (* c2 x2)) (+ (* e1 q1) (* e2 q2)))
-				env (* (min +double_1 (/ t (const (n2d 0.02))))
-					(if (< t +klaxon_oo) (const (n2d 0.8)) +double_1)
-					(min +double_1 (/ (- +klaxon_long t) (const (n2d 0.06))))))
+				env (* (min +double_1 (/ t +klaxon_on))
+					(if (< t +klaxon_oo) +klaxon_oo_loud +double_1)
+					(min +double_1 (/ (- +klaxon_long t) +klaxon_off))))
 			(setq x2 x1 x1 x p2 p1 p1 p q2 q1 q1 q)
-			(elem-set out (!) (* env (tanh (* (const (n2d 3)) (+ p (* (const (n2d 0.7)) q) (* (const (n2d 0.15)) x)))))))
+			(elem-set out (!) (* env (tanh (* +klaxon_drive (+ p (* +klaxon_ring_2_mix q) (* +klaxon_buzz_mix x)))))))
 		'() 0 count)
 	out)
 
@@ -60,8 +69,8 @@
 	; (klaxon-save samples file)
 	;the samples made as loud as they go, a little under, and written as a
 	;16 bit mono WAV
-	(defq most (reduce (lambda (m v) (max m (abs v))) samples (const (n2d 0.0001)))
-		pcm (reduce (lambda (out v) (push out (n2i (* (const (n2d 28000)) (/ v most))))) samples (shorts))
+	(defq most (reduce (lambda (m v) (max m (abs v))) samples +least_peak)
+		pcm (reduce (lambda (out v) (push out (n2i (* +klaxon_peak (/ v most))))) samples (shorts))
 		bytes (* (length pcm) 2) stream (file-stream file +file_open_write))
 	(WAV-head stream +klaxon_rate)
 	(write-blk stream (obj-set (str-alloc bytes) +str_data bytes pcm))

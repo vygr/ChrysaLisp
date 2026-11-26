@@ -32,6 +32,30 @@
 (defq +map_w 512 +map_h 256
 	+source "apps/demos/space/data/pillars.cpm" +out "apps/demos/space/data/nebula.cpm")
 
+;the numbers of the bake: the most of a colour's channel; how much
+;brighter a vivid colour is; where on the coarse blur the far nebula's
+;amber and teal are; how many pixels the coarse blur has; the least of a
+;way toward the picture, and how far toward it a way is in its edge; how
+;far out a way is, of the box, of its roundness and of the nebula's
+;thickness, and of a way not toward it at all; where outside the picture
+;is, how far it spreads, and how it thickens; how much it is outside and
+;of its thickness; the glow over the sky, of the thickness and toward the
+;picture; the galaxy's band, how wide, its core how bright and wide, its
+;lanes of dust, how uneven along it, and the scale of its noise; the far
+;nebula's cloud, the scale of its noise, how thick, where its edge is and
+;how uneven; where its colour is all teal, the scale of the noise of it
+;and where in it; and the galaxy's colour
+(defq +channel_most (n2d 255) +vivid_bright (n2d 1.2) +amber_v (n2d 0.88) +teal_u (n2d 0.78)
+	+teal_v (n2d 0.22) +coarse_pixels (n2d 160) +toward_least (n2d 0.001) +toward_edge (n2d 0.02)
+	+out_box (n2d 0.55) +out_round (n2d 0.45) +out_wisp (n2d 0.9) +out_none (n2d 100)
+	+outside_from (n2d 0.8) +outside_to (n2d 1.1) +spread_from (n2d 1.05) +spread_to (n2d 1.9)
+	+spread_wisp (n2d 1.2) +far_least (n2d 0.55) +far_wisp (n2d 0.6) +glow_wisp (n2d 0.12)
+	+glow_toward (n2d 0.75) +band_wide (n2d 0.3) +core_bright (n2d 0.08) +core_wide (n2d 0.09)
+	+lanes_least (n2d 0.3) +lanes_deep (n2d 0.7) +band_uneven_least (n2d 0.6) +band_uneven (n2d 0.8)
+	+band_scale (n2d 1.9) +cloud_scale (n2d 1.3) +cloud_wisp (n2d 0.9) +cloud_from (n2d 0.42)
+	+cloud_to (n2d 0.92) +cloud_edge_wisp (n2d 0.35) +hue_to (n2d 0.75) +hue_scale (n2d 2.2)
+	+hue_off_y (n2d 11) +galaxy_red (n2d 0.95) +galaxy_green (n2d 0.88) +galaxy_blue (n2d 0.8))
+
 (defun ease (lo hi x)
 	; (ease lo hi x) -> double
 	;0 below lo, 1 above hi, and smooth between, as the shaders' ease
@@ -50,9 +74,9 @@
 	(each! (lambda () (defq y (!))
 			(each! (lambda ()
 					(defq c (obj-get pixmap (+ +pixmap_pixels (* (!) 4) (* y stride)) +type_uint))
-					(push reds (/ (n2d (logand (>> c 16) 0xff)) (const (n2d 255))))
-					(push greens (/ (n2d (logand (>> c 8) 0xff)) (const (n2d 255))))
-					(push blues (/ (n2d (logand c 0xff)) (const (n2d 255))))) '() 0 w)) '() 0 h)
+					(push reds (/ (n2d (logand (>> c 16) 0xff)) +channel_most))
+					(push greens (/ (n2d (logand (>> c 8) 0xff)) +channel_most))
+					(push blues (/ (n2d (logand c 0xff)) +channel_most))) '() 0 w)) '() 0 h)
 	(list w h reds greens blues))
 
 (defun blur-at (blur u v)
@@ -75,11 +99,11 @@
 	; (vivid (r g b)) -> (r g b)
 	;a colour made twice as far from its grey, and a little brighter
 	(defq grey (/ (reduce (const +) rgb +double_0) +double_3))
-	(map (# (max +double_0 (* (const (n2d 1.2)) (+ grey (* +double_2 (- %0 grey)))))) rgb))
+	(map (# (max +double_0 (* +vivid_bright (+ grey (* +double_2 (- %0 grey)))))) rgb))
 
 (defun channel (v)
 	; (channel v) -> num
-	(max 0 (min 255 (n2i (* v (const (n2d 255)))))))
+	(max 0 (min 255 (n2i (* v +channel_most)))))
 
 (defun bake ()
 	; (bake) -> :t
@@ -89,10 +113,10 @@
 		wisp (shader-vp-func program 'wisp) dust (shader-vp-func program 'dust)
 		;the far nebula's two colours, the picture's amber and its teal, their
 		;colour made stronger, a blur greys it
-		amber (vivid (blur-at coarse (const (n2d 0.2)) (const (n2d 0.88))))
-		teal (vivid (blur-at coarse (const (n2d 0.78)) (const (n2d 0.22))))
+		amber (vivid (blur-at coarse +double_1/5 +amber_v))
+		teal (vivid (blur-at coarse +teal_u +teal_v))
 		;the mean of the picture's colours, the glow over all of the sky
-		mean (map! (# (/ (nums-sum %0) (const (n2d 160)))) (list coarse) 2 -1)
+		mean (map! (# (/ (nums-sum %0) +coarse_pixels)) (list coarse) 2 -1)
 		out (Canvas +map_w +map_h 1) pixmap (getf out +canvas_pixmap 0) stride (getf pixmap +pixmap_stride 0))
 	(bind '(px py pz) pillars_at)
 	(bind '(ax ay az) pillars_across)
@@ -111,41 +135,41 @@
 						;across and up on the picture, its edge at 1; a way not toward
 						;it is far outside it, its colour that of the edge it is
 						;nearest
-						near (max toward (const (n2d 0.001)))
+						near (max toward +toward_least)
 						x (/ across (* near sx)) y (/ up (* near sy))
 						box (max (abs x) (abs y))
 						w (wisp (doubles dx dy dz))
 						;how far out, rounder than the picture's box the further out, and
 						;moved in and out by the nebula's thickness, so its edge is uneven
-						out_by (if (> toward (const (n2d 0.02)))
-							(+ (* box (const (n2d 0.55))) (* (const (n2d 0.45)) (sqrt (+ (* x x) (* y y))))
-								(* (const (n2d 0.9)) (- w +double_1/2)))
-							(const (n2d 100)))
+						out_by (if (> toward +toward_edge)
+							(+ (* box +out_box) (* +out_round (sqrt (+ (* x x) (* y y))))
+								(* +out_wisp (- w +double_1/2)))
+							+out_none)
 						;outside it the nebula goes on as the edge has it, then thins out,
 						;less far than it is wide, and further in thick ways
-						outside (ease (const (n2d 0.8)) (const (n2d 1.1)) box)
-						spread (- +double_1 (ease (const (n2d 1.05)) (+ (const (n2d 1.9)) (* (const (n2d 1.2)) w)) out_by))
-						far (* spread spread (+ (const (n2d 0.55)) (* (const (n2d 0.6)) w)))
-						glow (* (const (n2d 0.12)) w (+ (const (n2d 0.25)) (* (const (n2d 0.75)) (max toward +double_0))))
+						outside (ease +outside_from +outside_to box)
+						spread (- +double_1 (ease +spread_from (+ +spread_to (* +spread_wisp w)) out_by))
+						far (* spread spread (+ +far_least (* +far_wisp w)))
+						glow (* +glow_wisp w (+ +double_1/4 (* +glow_toward (max toward +double_0))))
 						u (+ +double_1/2 (* +double_1/2 x)) v (- +double_1/2 (* +double_1/2 y))
 						;the galaxy's band, wide and faint with a brighter core, dark
 						;lanes of dust in it, uneven along it
 						from_band (abs (+ (* dx bx) (* dy by) (* dz bz)))
 						lanes (dust (doubles dx dy dz))
-						galaxy (* (+ (* (const (n2d 0.05)) (- +double_1 (ease +double_0 (const (n2d 0.30)) from_band)))
-								(* (const (n2d 0.08)) (- +double_1 (ease +double_0 (const (n2d 0.09)) from_band))))
-							(+ (const (n2d 0.3)) (* (const (n2d 0.7)) lanes))
-							(+ (const (n2d 0.6)) (* (const (n2d 0.8)) (wisp (doubles (+ (* dx (const (n2d 1.9))) (const (n2d 4)))
-								(+ (* dy (const (n2d 1.9))) (const (n2d 1))) (+ (* dz (const (n2d 1.9))) (const (n2d 7))))))))
+						galaxy (* (+ (* +double_1/20 (- +double_1 (ease +double_0 +band_wide from_band)))
+								(* +core_bright (- +double_1 (ease +double_0 +core_wide from_band))))
+							(+ +lanes_least (* +lanes_deep lanes))
+							(+ +band_uneven_least (* +band_uneven (wisp (doubles (+ (* dx +band_scale) +double_4)
+								(+ (* dy +band_scale) +double_1) (+ (* dz +band_scale) +double_7))))))
 						;the far nebula, a cloud round its way, its edge and its body
 						;moved by noise of their own, amber into teal
-						w3 (wisp (doubles (+ (* dx (const (n2d 1.3))) (const (n2d 7))) (+ (* dy (const (n2d 1.3))) (const (n2d 3)))
-							(+ (* dz (const (n2d 1.3))) (const (n2d 9)))))
-						cloud (* (const (n2d 0.5)) (+ (const (n2d 0.25)) (* (const (n2d 0.9)) w3))
-							(ease (const (n2d 0.42)) (const (n2d 0.92))
-								(+ (* dx fx) (* dy fy) (* dz fz) (* (const (n2d 0.35)) (- w3 +double_1/2)))))
-						hue (ease (const (n2d 0.25)) (const (n2d 0.75)) (wisp (doubles (+ (* dx (const (n2d 2.2))) +double_1)
-							(+ (* dy (const (n2d 2.2))) (const (n2d 11))) (+ (* dz (const (n2d 2.2))) (const (n2d 4)))))))
+						w3 (wisp (doubles (+ (* dx +cloud_scale) +double_7) (+ (* dy +cloud_scale) +double_3)
+							(+ (* dz +cloud_scale) +double_9)))
+						cloud (* +double_1/2 (+ +double_1/4 (* +cloud_wisp w3))
+							(ease +cloud_from +cloud_to
+								(+ (* dx fx) (* dy fy) (* dz fz) (* +cloud_edge_wisp (- w3 +double_1/2)))))
+						hue (ease +double_1/4 +hue_to (wisp (doubles (+ (* dx +hue_scale) +double_1)
+							(+ (* dy +hue_scale) +hue_off_y) (+ (* dz +hue_scale) +double_4)))))
 					;the fine blur within the picture, the coarse one past it, and
 					;between them the one into the other
 					(bind '(r g b) (map (lambda (in out) (+ in (* outside (- (* out far) in))))
@@ -154,9 +178,9 @@
 					(bind '(cr cg cb) (map (lambda (a t) (* cloud (+ a (* hue (- t a))))) amber teal))
 					(obj-set pixmap (+ +pixmap_pixels (* col 4) (* row stride)) +type_uint
 						(+ 0xff000000
-							(<< (channel (+ r (* mr glow) cr (* galaxy (const (n2d 0.95))))) 16)
-							(<< (channel (+ g (* mg glow) cg (* galaxy (const (n2d 0.88))))) 8)
-							(channel (+ b (* mb glow) cb (* galaxy (const (n2d 0.80))))))))
+							(<< (channel (+ r (* mr glow) cr (* galaxy +galaxy_red))) 16)
+							(<< (channel (+ g (* mg glow) cg (* galaxy +galaxy_green))) 8)
+							(channel (+ b (* mb glow) cb (* galaxy +galaxy_blue))))))
 				'() 0 +map_w))
 		'() 0 +map_h)
 	(defq stream (file-stream +out +file_open_write))

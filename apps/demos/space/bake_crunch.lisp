@@ -9,10 +9,31 @@
 
 (import "lib/audio/wav.inc")
 
+;the steps of (rnd). The thump, its low pitch, how far above it it starts
+;and how fast it falls, how long it takes to come on and to die away, how
+;loud it is and how much less with grit; the rumble, how hard its noise is
+;smoothed, how loud it is and how long; the bursts, how late in it they
+;come past its grit, their least length and spread, the least and the
+;most of how each follows its pitch, the spread of their loudness and
+;their fading; the grains, how many to a grit, how late they come, how
+;loud and the least and the spread of it; the far one, how hard it is
+;smoothed and clipped; the least peak a crunch is made as loud as, and
+;how loud that is; and the grit of a near one, and how hard the far one
+;is driven as it is kept
+(defq +rnd_steps (n2d 1000000) +thump_low (n2d 38) +thump_fall (n2d 32) +thump_fall_rate (n2d 14)
+	+thump_on (n2d 0.004) +thump_long (n2d 0.12) +thump_loud (n2d 1.1) +thump_grit (n2d 0.3)
+	+rumble_smooth (n2d 0.02) +rumble_loud (n2d 2.2) +rumble_long (n2d 0.3) +burst_late (n2d 0.4)
+	+burst_least (n2d 0.004) +burst_spread (n2d 0.02) +follow_least (n2d 0.08)
+	+follow_most (n2d 0.95) +burst_loud_spread (n2d 0.8) +burst_fade (n2d 0.15)
+	+grains_per_grit (n2d 14) +grains_late (n2d 0.3) +grain_loud (n2d 1.6)
+	+grain_loud_least (n2d 0.4) +grain_loud_spread (n2d 0.6) +far_smooth (n2d 0.3)
+	+far_drive (n2d 2.5) +least_peak (n2d 0.0001) +crunch_peak (n2d 30000) +near_grit (n2d 2.2)
+	+far_drive_save (n2d 1.3))
+
 (defun rnd ()
 	; (rnd) -> double
 	;0 to 1
-	(/ (n2d (random 1000000)) (const (n2d 1000000))))
+	(/ (n2d (random 1000000)) +rnd_steps))
 
 ;the crunch of rock on rock, as a hit is heard, made: a thump, a low tone
 ;falling as it dies away; the crunch, short bursts of noise, each filtered
@@ -38,23 +59,23 @@
 	;the thump
 	(each! (lambda ()
 			(defq t (/ (n2d (!)) rate)
-				hz (+ (const (n2d 38)) (* (const (n2d 32)) (exp (neg (* t (const (n2d 14)))))))
-				env (* (min +double_1 (/ t (const (n2d 0.004)))) (exp (neg (/ t (const (n2d 0.12)))))))
+				hz (+ +thump_low (* +thump_fall (exp (neg (* t +thump_fall_rate)))))
+				env (* (min +double_1 (/ t +thump_on)) (exp (neg (/ t +thump_long)))))
 			(setq phase (+ phase (/ (* +double_2pi hz) rate)))
-			(elem-set out (!) (* (- (const (n2d 1.1)) (* (const (n2d 0.3)) grit)) env (sin phase))))
+			(elem-set out (!) (* (- +thump_loud (* +thump_grit grit)) env (sin phase))))
 		'() 0 count)
 	;the rumble, noise made deep by a slow follower, fading
 	(each! (lambda (thump)
 			(defq t (/ (n2d (!)) rate))
-			(setq low (+ low (* (const (n2d 0.02)) (- (noise) low))))
-			(elem-set out (!) (+ thump (* (const (n2d 2.2)) low (exp (neg (/ t (const (n2d 0.3)))))))))
+			(setq low (+ low (* +rumble_smooth (- (noise) low))))
+			(elem-set out (!) (+ thump (* +rumble_loud low (exp (neg (/ t +rumble_long)))))))
 		(list out))
 	;the crunch, bursts of filtered noise, more of them early
 	(times (n2i (* grit (n2d (+ 15 (random 11)))))
-		(defq at (n2i (* rate (* (const (n2d 0.25)) (+ grit (const (n2d 0.4)))) (rnd) (rnd)))
-			long (n2i (* rate (+ (const (n2d 0.004)) (* (const (n2d 0.02)) (rnd)))))
-			follow (min (const (n2d 0.95)) (* (+ (const (n2d 0.08)) (* (const (n2d 0.5)) (rnd))) grit))
-			loud (* grit (+ (const (n2d 0.2)) (* (const (n2d 0.8)) (rnd))) (exp (neg (/ (n2d at) (* rate (const (n2d 0.15)))))))
+		(defq at (n2i (* rate (* +double_1/4 (+ grit +burst_late)) (rnd) (rnd)))
+			long (n2i (* rate (+ +burst_least (* +burst_spread (rnd)))))
+			follow (min +follow_most (* (+ +follow_least (* +double_1/2 (rnd))) grit))
+			loud (* grit (+ +double_1/5 (* +burst_loud_spread (rnd))) (exp (neg (/ (n2d at) (* rate +burst_fade)))))
 			v +double_0)
 		(each! (lambda ()
 				(defq i (+ at (!)))
@@ -64,9 +85,9 @@
 			'() 0 long))
 	;the cracks, a grit of more than 1 has, clicks of bright noise a
 	;millisecond or two long
-	(times (n2i (* (- grit +double_1) (const (n2d 14))))
-		(defq at (n2i (* rate (const (n2d 0.3)) (rnd) (rnd))) long (+ 10 (random 35))
-			loud (* (const (n2d 1.6)) (+ (const (n2d 0.4)) (* (const (n2d 0.6)) (rnd)))))
+	(times (n2i (* (- grit +double_1) +grains_per_grit))
+		(defq at (n2i (* rate +grains_late (rnd) (rnd))) long (+ 10 (random 35))
+			loud (* +grain_loud (+ +grain_loud_least (* +grain_loud_spread (rnd)))))
 		(each! (lambda ()
 				(defq i (+ at (!)))
 				(if (< i count) (elem-set out i (+ (elem-get out i) (* loud (noise) (- +double_1 (/ (n2d (!)) (n2d long))))))))
@@ -80,17 +101,17 @@
 	(defq out (cat near) v +double_0)
 	(times 2
 		(setq v +double_0)
-		(each! (lambda (e) (setq v (+ v (* (const (n2d 0.3)) (- e v)))) (elem-set out (!) v))
+		(each! (lambda (e) (setq v (+ v (* +far_smooth (- e v)))) (elem-set out (!) v))
 			(list out)))
-	(map (# (tanh (* %0 (const (n2d 2.5))))) out))
+	(map (# (tanh (* %0 +far_drive))) out))
 
 (defun crunch-save (samples file drive)
 	; (crunch-save samples file drive)
 	;the samples made as loud as they go, a little under, clipped softly,
 	;as hard as drive, and written as a 16 bit mono WAV
-	(defq most (reduce (lambda (m v) (max m (abs v))) samples (const (n2d 0.0001)))
+	(defq most (reduce (lambda (m v) (max m (abs v))) samples +least_peak)
 		pcm (reduce (lambda (out v)
-				(push out (n2i (* (const (n2d 30000)) (/ (tanh (* drive (/ v most))) (tanh drive))))))
+				(push out (n2i (* +crunch_peak (/ (tanh (* drive (/ v most))) (tanh drive))))))
 			samples (shorts))
 		bytes (* (length pcm) 2) stream (file-stream file +file_open_write))
 	(WAV-head stream +crunch_rate)
@@ -100,10 +121,10 @@
 (defun bake-crunches ()
 	; (bake-crunches) -> :t
 	;near, crunchy and driven hard; far, of a crunch of less grit, as it was
-	(each! (lambda () (crunch-save (crunch (const (n2d 2.2)))
-			(cat "apps/demos/space/data/crunch_" (str (inc (!))) ".wav") (const (n2d 2.0))))
+	(each! (lambda () (crunch-save (crunch +near_grit)
+			(cat "apps/demos/space/data/crunch_" (str (inc (!))) ".wav") +double_2))
 		'() 0 +crunch_count)
-	(crunch-save (crunch-far (crunch +double_1)) "apps/demos/space/data/crunch_far.wav" (const (n2d 1.3)))
+	(crunch-save (crunch-far (crunch +double_1)) "apps/demos/space/data/crunch_far.wav" +far_drive_save)
 	:t)
 
 (time-it "space crunches baked" (bake-crunches))
