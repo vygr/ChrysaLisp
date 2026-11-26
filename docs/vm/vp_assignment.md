@@ -244,16 +244,16 @@ For example the `:array :append` method.
 (label '_7)
 ```
 
-`*build_mode*` setting in the `class/lisp/root.inc` file lets you set the
-compile option for the system. The various mode are:
+`*build_validate*` in the `class/lisp/root.inc` file says which build the
+system is compiled as:
 
-* 1 normal, with error checking, the default
+* `:nil` normal, with error checking, the default
 
-* 2 validate, normal plus heap patterns, guard words and dead object checks.
-	Functions of the two modes mix, see `errors.md`
+* `:t` validate, normal plus heap patterns, guard words and dead object checks.
+	Functions of the two builds mix, see `errors.md`
 
 The `(validatecase)` macro allows you to conditionally include source code
-only if the `*build_mode*` is 2 or more. Error checks themselves are plain
+only if `*build_validate*` is `:t`. Error checks themselves are plain
 code, a `(gotoif)` or `(gotoifnot)` to an error label, and are in every build.
 
 For example type checking of input parameters. The `(signature)` macro drops

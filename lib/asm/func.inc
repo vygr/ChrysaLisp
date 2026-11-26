@@ -115,7 +115,6 @@
 	(vp-pop :r1 :r13 :r14))
 
 (defun assert (b &optional d)
-	(when (> *build_mode* 0)
-		(vpifnot b)
-			(abort (ifn d "Assert Failure !"))
-		(endif)))
+	(vpifnot b)
+		(abort (ifn d "Assert Failure !"))
+	(endif))

@@ -36,17 +36,17 @@ normal flow of a program: validate input instead.
 
 ## Build Modes and VP Assembler Macros
 
-How much runtime validation there is, is set by the global `*build_mode*`
-variable during OS and library compilation.
+How much runtime validation there is, is set by the global
+`*build_validate*` during OS and library compilation.
 
-There are two build modes:
+There are two builds:
 
-* **`*build_mode* 1` (Normal):** The default. FFI functions validate argument
+* **`*build_validate* :nil` (Normal):** The default. FFI functions validate argument
   counts, types, and sequence bounds before passing data to the inner core. If
   a violation occurs, an error object is thrown. The reader's "missing )" and
   "unexpected )" checks are in, and an abort signal wakes a blocked task.
 
-* **`*build_mode* 2` (Validate):** Normal, plus aggressive, deep-level runtime
+* **`*build_validate* :t` (Validate):** Normal, plus aggressive, deep-level runtime
   validation. This includes heap patterns, guard words, dead object checks,
   and expensive checks like verifying stack pointer boundaries via
   `(call :sys_task :stack)` upon entry to functions, ensuring no stack
@@ -64,7 +64,7 @@ At the VP assembler level an error check is plain code: a test and a `gotoif`
 or `gotoifnot` to an error label. `lib/asm/code.inc` adds:
 
 * `(validatecase ...)`: Emits the enclosed code block only if
-  `*build_mode* >= 2`.
+  `*build_validate*`.
 
 * `(gotoif-lisp-args-sig ...)`, `-len`, `-match`, `-type`: A check call on
   the args list, then a `gotoif` to the error label. The args list is given

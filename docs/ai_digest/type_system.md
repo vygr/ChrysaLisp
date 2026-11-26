@@ -87,14 +87,16 @@ Functions validate their arguments against declared signatures (e.g., `(signatur
 ## Checks Always In, `validatecase` For More
 
 There is no build that strips the type checks. The normal build,
-`*build_mode* 1`, is the default, and signature arrays and argument checks are
-always compiled in. A check is plain VP code: a call such as
-`:lisp :env_args_sig`, then a `gotoif` to the error label.
+`*build_validate* :nil`, is the default, and signature arrays and argument
+checks are always compiled in. A check is plain VP code: a call such as
+`:lisp :env_args_sig`, then a `gotoif` to the error label; or, where a binding
+dispatches on what an argument is, one walk back along its classes that is
+the check and the dispatch at once, as `(elem-set)` and `(n2d)` do.
 
-* **Normal (`*build_mode* 1`):** Signature checks at the Lisp/VP boundary,
+* **Normal (`*build_validate* :nil`):** Signature checks at the Lisp/VP boundary,
   reader checks and the rest are in.
 
-* **Validate (`*build_mode* 2`):** The `validatecase` macro adds deeper runtime
+* **Validate (`*build_validate* :t`):** The `validatecase` macro adds deeper runtime
   checks on top: heap patterns, guard words and dead object checks.
 
 Leaving the checks out was measured. Natively there was no speed difference

@@ -660,8 +660,8 @@ sessions, developers and LLMs have direct access to the standard ChrysaLisp
 	in the normal mode. Also regenerates reference documentation under
 	`docs/reference/`.
 
-*	There are two build modes. Normal, `*build_mode*` 1, the default, has
-	every error check. `validate`, `*build_mode*` 2, adds more checks as it
+*	There are two builds, `*build_validate*` says which. Normal, `:nil`, the
+	default, has every error check. `validate`, `:t`, adds more checks as it
 	runs, heap patterns, guard words, dead objects; `make it validate`, `make
 	all boot validate`. Functions of the two modes mix: `make validate` with no
 	`boot` works, but the heap's checks are the boot image's, so want `boot`.

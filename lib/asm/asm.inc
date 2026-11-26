@@ -12,12 +12,12 @@
 
 ;the build modes, 1 normal and 2 validate, a normal build and more checks
 ;as it runs
-(defun vp-dir (mode)
-	; (vp-dir mode) -> path
-	;where a build mode's VP is kept, obj/vp/, or obj/vp_validate/ beside
-	;it, a bundle for each source file of the VP of its functions, under the
-	;file's own name
-	(if (= mode 2) "obj/vp_validate/" "obj/vp/"))
+(defun vp-dir ()
+	; (vp-dir) -> path
+	;where the build's VP is kept, obj/vp/, or obj/vp_validate/ beside it
+	;for a validate build, a bundle for each source file of the VP of its
+	;functions, under the file's own name
+	(if *build_validate* "obj/vp_validate/" "obj/vp/"))
 
 (defun biggest-first (units sizes)
 	;the units in the order the queue gives them out, the biggest first,
@@ -62,8 +62,8 @@
 	(and more (empty? units) (setq units (more said) more :nil))
 	(when (nempty? units)
 		(defq job (# (cat (const (str-alloc +job_size))
-				(str (list (first %0) (second %0) *abi* *cpu* plats *build_mode* *build_emit* *build_verb*
-						(vp-dir *build_mode*))))))
+				(str (list (first %0) (second %0) *abi* *cpu* plats *build_validate* *build_emit* *build_verb*
+						(vp-dir))))))
 		;a job is started again if its node goes. The timeout is for a
 		;worker that dies and its node does not: the patience to start with,
 		;many times a job of the slowest machine, and a job given again is
@@ -130,7 +130,7 @@
 	; (vp-manifest) -> path
 	;of the bundles of the build mode: a source file to the key it was
 	;assembled from, and the hash of its bundle
-	(if (= *build_mode* 2) "obj/make_vp_validate" "obj/make_vp"))
+	(if *build_validate* "obj/make_vp_validate" "obj/make_vp"))
 
 (defun platform-manifest (cpu abi)
 	; (platform-manifest cpu abi) -> path
@@ -159,7 +159,7 @@
 				;it wrote the bundle, so the file is not the one noted: one
 				;that came out the same is noted as the file it is now
 				(if (eql (second v) hash)
-					(def vpman k (list (first v) hash (age (cat (vp-dir *build_mode*) file))))
+					(def vpman k (list (first v) hash (age (cat (vp-dir) file))))
 					(undef vpman k))
 				(setq vp_dirty :t))
 			(when (and (defq n (get k platman)) (nql (first n) hash))
@@ -510,7 +510,7 @@
 		all (copy files) vps (tree-walk all) vpman (manifest-load (vp-manifest)))
 	(keys-fresh vps all)
 	(if scanned (scans-save scans keys))
-	(if (bundles-gone vpman (vp-dir *build_mode*)) (manifest-save vpman (vp-manifest)))
+	(if (bundles-gone vpman (vp-dir)) (manifest-save vpman (vp-manifest)))
 	(defq facts (env 11))
 	(def facts 'f_vps vps 'f_all all 'f_info info 'f_keys keys 'f_classes classes
 		'f_vpman vpman 'f_scans scans 'f_read (length changed))
@@ -534,7 +534,7 @@
 	;guard here and no more, the key says what a bundle is of. Of the
 	;caller's vpman and keys
 	(not (and (defq v (get (defq k (sym f)) vpman)) (eql (first v) (get k keys))
-			(> (length v) 2) (= (third v) (age (cat (vp-dir *build_mode*) f))))))
+			(> (length v) 2) (= (third v) (age (cat (vp-dir) f))))))
 
 (defun native-stale? (f man id)
 	;is a platform's code of the file, by its manifest, not of the file's
@@ -548,7 +548,7 @@
 	;hash of its bundle and the age of the file it is
 	(each (lambda ((file hash &ignore))
 			(def vpman (defq k (sym file))
-				(list (get k keys) hash (age (cat (vp-dir *build_mode*) file))))) made))
+				(list (get k keys) hash (age (cat (vp-dir) file))))) made))
 
 (defun note-native (made man id cpu abi)
 	;the code a stage made, into a platform's manifest: each file to the
@@ -645,7 +645,7 @@
 				key (hex-encode (sha256 (apply (const cat) (reduce (lambda (l f)
 						(push l f " " (str (second (get (sym f) info)))
 							(if (ends-with "class.inc" f) (file-hash f) "") "\n"))
-					all (list (str *build_mode*))))))
+					all (list (str *build_validate*))))))
 				kept (manifest-load +make_prods) was (get 'prods kept) prods (list))
 			(cond
 				((and was (eql (first was) key)) (setq prods (rest was)))
@@ -756,7 +756,7 @@
 		;their ages: written by other than this make, (vp-stale?)
 		foreign (filter (lambda (f)
 				(and (defq v (get (defq k (sym f)) vpman)) (> (length v) 2) (eql (first v) (get k keys))
-					(/= (third v) (age (cat (vp-dir *build_mode*) f))))) files))
+					(/= (third v) (age (cat (vp-dir) f))))) files))
 	;what wrote them wrote the code of them too, of whatever platforms it
 	;made, and none of that is what is noted either: it is forgotten, of
 	;every platform, so each makes its code of them again when it is made
@@ -867,12 +867,12 @@
 			(tolist did)))
 	(print "Done") :nil)
 
-(defun make-bundles (&optional mode)
-	; (make-bundles [mode])
-	;the VP alone of every file, the apps' too, whose bundle in (vp-dir) of
-	;the mode is not of its key, no platform's code of it: what trace
-	;reads of a mode the platforms here are not built in
-	(if mode (defq *build_mode* mode))
+(defun make-bundles (&optional validate)
+	; (make-bundles [validate])
+	;the VP alone of every file, the apps' too, whose bundle in (vp-dir) is
+	;not of its key, no platform's code of it: what trace reads of a build
+	;the platforms here are not built as
+	(if validate (defq *build_validate* :t))
 	(bind '(vps classes) (all-build-files))
 	(defq facts (tree-facts (cat vps (all-app-files)) classes)
 		keys (get 'f_keys facts) vpman (get 'f_vpman facts) errors (list)
@@ -906,32 +906,32 @@
 (defun remake-all (&optional files *abi* *cpu*)
 	(build files (this-target *abi* *cpu*) :t :t))
 
-(defun make-platforms (&optional mode)
-	;every platform, in the mode given or the one there is
-	(if mode (defq *build_mode* mode))
+(defun make-platforms (&optional validate)
+	;every platform, a validate build if validate, else the build there is
+	(if validate (defq *build_validate* :t))
 	(build :nil (all-targets)))
 
-(defun make-all-platforms (&optional mode)
-	(if mode (defq *build_mode* mode))
+(defun make-all-platforms (&optional validate)
+	(if validate (defq *build_validate* :t))
 	(build :nil (all-targets) :nil :t))
 
-(defun remake-platforms (&optional mode)
-	(if mode (defq *build_mode* mode))
+(defun remake-platforms (&optional validate)
+	(if validate (defq *build_validate* :t))
 	(build :nil (all-targets) :t))
 
-(defun remake-all-platforms (&optional mode)
-	(if mode (defq *build_mode* mode))
+(defun remake-all-platforms (&optional validate)
+	(if validate (defq *build_validate* :t))
 	(build :nil (all-targets) :t :t))
 
-(defun remake-all-vp (&optional mode)
-	;only the VP64, in the mode given or the one there is
-	(if mode (defq *build_mode* mode))
+(defun remake-all-vp (&optional validate)
+	;only the VP64, a validate build if validate, else the build there is
+	(if validate (defq *build_validate* :t))
 	(build :nil '((vp64 VP64)) :t :t))
 
-(defun make-app-platforms (&optional mode force)
+(defun make-app-platforms (&optional validate force)
 	;the apps alone, for every platform: those that have changed, or all of
 	;them with force
-	(if mode (defq *build_mode* mode))
+	(if validate (defq *build_validate* :t))
 	(build (all-app-files) (all-targets) :nil force))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1739,13 +1739,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;compilation options
-;build_mode 1, normal, with error checking
-;build_mode 2, validate, with extra runtime validation checking
+;build_validate, :nil the normal build, every binding's checks, :t a
+;validate build, with more checks as it runs
 ;build_vp, a build's VP stage, the folder each source file's bundle of the
 ;VP of its functions is kept in, obj/vp/ or obj/vp_validate/, see
 ;lib/asm/asm.inc, and
 ;build_entries the functions' VP as (vp-compile) gathers it
-(defq *build_mode* 1 *build_emit* :nil *build_verb* 0 *build_vp* :nil *build_entries* :nil)
+(defq *build_validate* :nil *build_emit* :nil *build_verb* 0 *build_vp* :nil *build_entries* :nil)
 
 ;what this machine is, the names the build and the object folders have,
 ;obj/<cpu>/<abi>/<os>. The host program says, it was built for them. They

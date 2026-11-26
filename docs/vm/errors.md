@@ -78,8 +78,8 @@ We should try to type check everything we can at the Lisp interpreter level.
 Front load all the type checking and stupid input checking on the Lisp binding
 `lisp_xxx` functions to test for types and just plane crap input, and provide
 some almost sensible error throws. These checks are in every build. The
-normal build, `*build_mode*` 1, is the default. The validate build,
-`*build_mode*` 2, adds heap patterns, guard words and dead object checks on
+normal build, `*build_validate*` `:nil`, is the default. The validate build,
+`*build_validate*` `:t`, adds heap patterns, guard words and dead object checks on
 top.
 
 The two mix. A function of a validate build runs on a normal system, and one
@@ -115,11 +115,11 @@ docs/diagrams/error_checks.cwb
 
 A check is plain code: test, and `(gotoif)` or `(gotoifnot)` to the error
 label. Code wanted only in a validate build is wrapped in `(validatecase)`.
-This macro simply tests the value of `*build_mode*`, and if 2 or more, includes
-the wrapped code.
+This macro simply tests `*build_validate*`, and if it is `:t`, includes the
+wrapped code.
 
 ```vdu
-(defmacro validatecase (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
+(defmacro validatecase (&rest e) (if *build_validate* `(progn ~e)))
 ```
 
 There are also specialist argument testing helpers to ease the validation of

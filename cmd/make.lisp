@@ -457,24 +457,24 @@
 		(each (# (def (penv) (sym %0) (find %0 args)))
 			'("all" "platforms" "boot" "docs" "it" "apps"
 				"validate" "test" "ai" "vp" "trace" "fmt"))
-		(defq mode (if validate 2)
-			*build_verb* opt_v)
-		;a mode that was given is the mode of all that is built, for those
-		;below that do not take one themselves
-		(if mode (defq *build_mode* mode))
+		(setq validate (if validate :t))
+		(defq *build_verb* opt_v)
+		;validate given, all that is built is a validate build, for those
+		;below that do not take it themselves
+		(if validate (defq *build_validate* :t))
 		(cond
 			(fmt (make-fmt))
 			(test (make-test))
-			(vp (remake-all-vp mode))
-			(trace (make-bundles mode))
-			(it (remake-all-platforms mode) (make-docs) (make-check))
-			(apps (make-app-platforms mode all))
-			((and boot all platforms) (remake-all-platforms mode))
+			(vp (remake-all-vp validate))
+			(trace (make-bundles validate))
+			(it (remake-all-platforms validate) (make-docs) (make-check))
+			(apps (make-app-platforms validate all))
+			((and boot all platforms) (remake-all-platforms validate))
 			((and boot all) (remake-all))
-			((and boot platforms) (remake-platforms mode))
-			((and all platforms) (make-all-platforms mode))
+			((and boot platforms) (remake-platforms validate))
+			((and all platforms) (make-all-platforms validate))
 			(all (make-all))
-			(platforms (make-platforms mode))
+			(platforms (make-platforms validate))
 			(boot (remake))
 			(docs (make-docs))
 			(ai (make-ai))

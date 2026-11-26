@@ -694,7 +694,7 @@
 	(assign '(:r0) '((:rsp slot_path)))
 	;the folder, obj/vp/ and the name up to its last /
 	(vp-cpy-rr :r0 :r1)
-	(call :sys_str :copy `(,(if (= *build_mode* 2) "obj/vp_validate/" "obj/vp/") :r1) '(& :r1))
+	(call :sys_str :copy `(,(if *build_validate* "obj/vp_validate/" "obj/vp/") :r1) '(& :r1))
 	(vp-sub-cr +byte_size :r1)
 	(call :sys_str :copy '((:rsp slot_name) :r1) '(& :r1))
 	(loop-start)

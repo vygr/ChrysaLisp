@@ -44,7 +44,7 @@ understand the nature of a symbol at a glance.
 	* This warns that the variable is a dynamic global or special variable
 	  that might be rebound and have wide-ranging side effects.
 
-	* Examples: `*root_env*`, `*build_mode*`.
+	* Examples: `*root_env*`, `*build_validate*`.
 
 *   **`Class` has an uppercase first letter**.
 

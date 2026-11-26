@@ -72,7 +72,7 @@
 						;read job
 						(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply))
 						(each (# (def *compile_env* %0 %1))
-							'(*kind* *unit* *abi* *cpu* *plats* *build_mode* *build_emit* *build_verb* *build_vp*)
+							'(*kind* *unit* *abi* *cpu* *plats* *build_validate* *build_emit* *build_verb* *build_vp*)
 							(first (read (string-stream (slice *msg* +_job_params -1)))))
 						(unless *placed* (setq *placed* :t) (place-translators *plats*))
 						;a file job is a source file, if it is to be assembled, and

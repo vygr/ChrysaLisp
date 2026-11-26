@@ -856,9 +856,9 @@ new trap there with its test. Others to know:
 	move it up instead), and a `defclass`'s `*class_Name*`, by
 	`(export-classes '(Name ...))`, or its constructor fails.
 
-*	There is no build without the checks: `*build_mode*` 1, the normal
-	build, checks the arguments of every binding, and 2, validate, adds
-	more, `root.inc`. So a wrong argument is always an error, and the
+*	There is no build without the checks: the normal build,
+	`*build_validate*` `:nil`, checks the arguments of every binding, and a
+	validate build, `:t`, adds more, `root.inc`. So a wrong argument is always an error, and the
 	check is on the hot path of every call: make it the dispatch, the
 	`vp-assembler.md` walk back along the classes. Run a new stream or
 	service on the `-e` emulator.

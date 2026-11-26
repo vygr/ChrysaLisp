@@ -187,7 +187,7 @@
 ;function: one a validate build alone made is not there for a validate
 ;function on a normal system to be bound to, and the node that binds it
 ;stops. What a check jumps to is made in every build, and called in one
-(defmacro validatecase (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
+(defmacro validatecase (&rest e) (if *build_validate* `(progn ~e)))
 
 (defmacro gotoif-lisp-args-len (l args cnd len)
 	;args is the register the list of args is in, or a symbol of one, as

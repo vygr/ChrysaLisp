@@ -205,8 +205,8 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 	;info
-	;the frame is the two iterators over the clauses, and in a build with
-	;error checks the args, to report. The lisp object stays in :r0, each
+	;the frame is the two iterators over the clauses, and the args, to
+	;report an error. The lisp object stays in :r0, each
 	;eval gives it back. The body of the clause chosen is a jump, with
 	;nothing left on the stack.
 
@@ -214,13 +214,11 @@
 		(pptr iter_begin iter_end)
 		(ptr args))
 
-	(defq frame (if (>= *build_mode* 1) slot_size slot_args))
-
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(entry :lisp :lisp_cond `(,this ,value))
 
-	(vp-alloc frame)
+	(vp-alloc slot_size)
 	(assign `(,value) '((:rsp slot_args)))
 	(class/array/get_both value iter_begin iter_end)
 	(assign `(,iter_end) '((:rsp slot_iter_end)))
@@ -240,7 +238,7 @@
 			(assign '((:rsp slot_iter_begin)) `(,tmp))
 			(assign `((,tmp 0)) `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
-			(vp-free frame)
+			(vp-free slot_size)
 			(jump :lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
 		(class/obj/ref value tmp -1)
@@ -250,7 +248,7 @@
 	(class/obj/ref value tmp)
 
 	(exit :lisp :lisp_cond `(,this ,value))
-	(vp-free frame)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'error1)
@@ -259,7 +257,7 @@
 (vp-label 'error2)
 	(assign '((:rsp slot_args) +error_msg_not_a_list) '(:r1 :r3))
 (vp-label 'error)
-	(vp-free frame)
+	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(cond [(tst [body])] ...)" :r3))
 
 (def-func-end)
@@ -274,8 +272,8 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 	;info
-	;the frame is the two iterators over the clauses, and in a build with
-	;error checks the args, to report. The lisp object stays in :r0, each
+	;the frame is the two iterators over the clauses, and the args, to
+	;report an error. The lisp object stays in :r0, each
 	;eval gives it back. The body of the clause chosen is a jump, with
 	;nothing left on the stack.
 
@@ -283,13 +281,11 @@
 		(pptr iter_begin iter_end)
 		(ptr args))
 
-	(defq frame (if (>= *build_mode* 1) slot_size slot_args))
-
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(entry :lisp :lisp_condn `(,this ,value))
 
-	(vp-alloc frame)
+	(vp-alloc slot_size)
 	(assign `(,value) '((:rsp slot_args)))
 	(class/array/get_both value iter_begin iter_end)
 	(assign `(,iter_end (,this +lisp_sym_t)) `((:rsp slot_iter_end) ,value))
@@ -312,7 +308,7 @@
 			(assign '((:rsp slot_iter_begin)) `(,tmp))
 			(assign `((,tmp 0)) `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
-			(vp-free frame)
+			(vp-free slot_size)
 			(jump :lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
 		(assign `((,value +obj_vtable) (,this +lisp_error)) `(,vtable ,tmp))
@@ -321,7 +317,7 @@
 	(loop-end)
 
 	(exit :lisp :lisp_condn `(,this ,value))
-	(vp-free frame)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'last_ref)
@@ -337,7 +333,7 @@
 (vp-label 'error2)
 	(assign '((:rsp slot_args) +error_msg_not_a_list) '(:r1 :r3))
 (vp-label 'error)
-	(vp-free frame)
+	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(condn [(tst [body])] ...)" :r3))
 
 (def-func-end)

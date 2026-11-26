@@ -421,7 +421,7 @@ identically for builds as they do for tests:
 	```
 
 	Recompiles all supported target platforms (`AMD64`, `WIN64`, `ARM64`,
-	`RISCV64`, `LA64`, `VP64`), all in the normal mode (`*build_mode* = 1`),
+	`RISCV64`, `LA64`, `VP64`), all in the normal build (`*build_validate*` `:nil`),
 	and regenerates the Markdown documentation in `docs/reference/`.
 
 *	**Register Analysis:**

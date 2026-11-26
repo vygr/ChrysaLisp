@@ -15,4 +15,4 @@
 ;and the guard word it keeps after each cell, outside the cell size
 (defq +hp_cell_fill 0xa5a5a5a5a5a5a5a5 +hp_cell_free_fill 0x5a5a5a5a5a5a5a5a
 	+hp_cell_guard 0x0bad0bad0bad0bad
-	+hp_cell_guard_size (if (>= *build_mode* 2) +long_size 0))
+	+hp_cell_guard_size (if *build_validate* +long_size 0))

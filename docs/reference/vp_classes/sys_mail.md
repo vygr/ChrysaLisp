@@ -235,7 +235,6 @@ outputs
 trashes
 :r0-:r2, :d0-:d15
 info
-in *build_mode* > 0
 a signal to a Lisp task can return 0 here !
 :lisp_read method is aware and returns :nil.
 a VP level task should never see this happen !

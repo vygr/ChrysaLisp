@@ -39,7 +39,7 @@
 	;checks are, and a function of either build runs on a system of the
 	;other.
 	(cond
-		((< *build_mode* 2)
+		((not *build_validate*)
 			(ln-add-fnode %0 +hp_heap_free_flist %1 %2))
 		(:t (vp-push :r0 :r1 :r2)
 			(vp-push %0 %1)
