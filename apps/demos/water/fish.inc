@@ -22,10 +22,10 @@
 (import "lib/gpu/vp.inc")
 
 ;the kinds of fish: silver schooling fish, striped reef fish, and now and
-;then a shark, and each kind's schools at most, how many fish in each at
+;then a shark or a ray, and each kind's schools at most, how many fish in each at
 ;least and more, how long a fish is, how fast it swims at least and most,
 ;and how deep and wide it is of its length
-(defq +fish_kinds 3)
+(defq +fish_kinds 4)
 
 ;module
 (env-push)
@@ -34,10 +34,17 @@
 		;schools fish more long slow fast deep wide
 		(3 15 10 0.5 1.6 3.4 0.24 0.12)
 		(2 4 4 0.9 1.2 2.6 0.34 0.13)
-		(1 1 0 3.0 0.8 1.5 0.19 0.17))
-	;the shark, how seldom one comes, one frame in so many, and how near it
-	;the others flee
-	+shark 2 +shark_seldom 2400 +shark_near (n2d 9)
+		(1 1 0 3.0 0.8 1.5 0.19 0.17)
+		(1 1 0 2.2 0.6 1.1 0.06 1.0))
+	;the shark and the ray, how seldom one comes, one frame in so many, how
+	;near the shark the others flee, how far over the floor a ray keeps and
+	;how hard it makes for it
+	+shark 2 +ray 3 +shark_seldom 2400 +shark_near (n2d 9) +ray_over +double_2 +ray_dive (n2d 0.6)
+	;a ray's mesh: steps along and across it, how broad it is at most, how
+	;far back its broadest, how high its back, its tail, a thin blade, and
+	;how far its wings flap, of its length
+	+ray_along 8 +ray_across 8 +ray_span (n2d 0.62) +ray_chord (n2d 0.8) +ray_e (n2d 0.01) +ray_broadest (n2d 0.8) +ray_back (n2d 0.06)
+	+ray_tail ''((-0.3 0 0.01) (-0.95 0 0) (-0.3 0 -0.01)) +ray_flap (n2d 0.14)
 	;the mesh: rings along the body, sides round each, how long the body is
 	;to the root of the tail, where it is deepest, how much it narrows to
 	;the tail, how much its normals lean to the nose
@@ -95,12 +102,42 @@
 		tris)
 	out)
 
-(defun fish-mesh (kind)
-	; (fish-mesh kind) -> str
-	;the mesh of a kind of fish as the shaders want it, a vertex where it is
-	;and its normal: the body, rings round x, deepest a third back from the
-	;nose; the tail, forked, a shark's upper blade the longer; the fin on its
-	;back, a shark's tall; and a shark's fins out each side
+(defun ray-at (s t)
+	; (ray-at s t) -> doubles
+	;a place on a ray, s nose to rear, t one wing tip to the other, a
+	;diamond, broadest well back, its back raised along the middle
+	(defq along (- +double_1/2 (* s +ray_chord)) broad (* +ray_span (sin (* +double_pi (pow s +ray_broadest)))))
+	(doubles along (* +ray_back (- +double_1 (* t t)) (- +double_1 s)) (* t broad)))
+
+(defun ray-corner (s t e)
+	; (ray-corner s t e) -> doubles
+	;a corner of a ray's sheet, its normal of the slope there
+	(defq p (ray-at s t) a (nums-sub (ray-at (+ s e) t) p) b (nums-sub (ray-at s (+ t e)) p))
+	(bind '(ax ay az) a)
+	(bind '(bx by bz) b)
+	(defq n (fish-unit (doubles (- (* ay bz) (* az by)) (- (* az bx) (* ax bz)) (- (* ax by) (* ay bx)))))
+	(if (< (second n) +double_0) (setq n (nums-scale n +double_-1)))
+	(fish-corner p n))
+
+(defun ray-mesh ()
+	; (ray-mesh) -> str
+	;a ray as the shaders want it: its body a sheet, its normals of its
+	;slope, and its tail
+	(defq out (list) e +ray_e)
+	(each! (lambda ()
+			(defq i (!) s0 (/ (n2d i) (n2d +ray_along)) s1 (/ (n2d (inc i)) (n2d +ray_along)))
+			(each! (lambda ()
+					(defq j (!) t0 (- (/ (* +double_2 (n2d j)) (n2d +ray_across)) +double_1)
+						t1 (- (/ (* +double_2 (n2d (inc j))) (n2d +ray_across)) +double_1))
+					(push out (ray-corner s0 t0 e) (ray-corner s0 t1 e) (ray-corner s1 t1 e)
+						(ray-corner s0 t0 e) (ray-corner s1 t1 e) (ray-corner s1 t0 e)))
+				'() 0 +ray_across))
+		'() 0 +ray_along)
+	(fish-fins out +ray_tail +double_1 +double_1 (const (doubles +double_0 +double_1 +double_0)))
+	(shader-verts-str (apply (const cat) out)))
+
+(defun body-mesh (kind)
+	; (body-mesh kind) -> str
 	(bind '(& & & & & & deep wide) (elem-get +kinds kind))
 	(defq deep (n2d deep) wide (n2d wide) out (list) shark (= kind +shark)
 		rings (map! (lambda ()
@@ -129,6 +166,14 @@
 	(fish-fins out (if shark +shark_fin +fin) deep wide side)
 	(if shark (fish-fins out +pectorals deep wide (const (doubles +double_0 +double_1 +double_0))))
 	(shader-verts-str (apply (const cat) out)))
+
+(defun fish-mesh (kind)
+	; (fish-mesh kind) -> str
+	;the mesh of a kind of fish as the shaders want it, a vertex where it is
+	;and its normal: the body, rings round x, deepest a third back from the
+	;nose; the tail, forked, a shark's upper blade the longer; the fin on its
+	;back, a shark's tall; and a shark's fins out each side
+	(if (= kind +ray) (ray-mesh) (body-mesh kind)))
 
 (defun fish-spot (water eye forward far)
 	; (fish-spot water eye forward far) -> :nil | doubles
@@ -159,8 +204,8 @@
 						heading (+ (n2d slow) (* (fish-rnd) (- (n2d fast) (n2d slow)))) (* (fish-rnd) +double_2pi)))
 				'() 0 (+ n (random (inc more)))))))
 
-(defun fish-steer (water eye fish mates long dt sharks)
-	; (fish-steer water eye fish mates long dt sharks)
+(defun fish-steer (water eye fish mates long dt sharks low)
+	; (fish-steer water eye fish mates long dt sharks low)
 	;one fish turned toward where its school and the water would have it go,
 	;and moved on
 	(bind '(at way speed &ignore) fish)
@@ -179,8 +224,11 @@
 			(nums-add (nums-scale (fish-unit mean_way) +same)
 				(nums-scale (fish-unit (nums-sub (nums-scale mean_at (recip (n2d n))) at)) +middle))))))
 	(setq want (nums-add want (nums-scale (fish-unit (nums-sub (elem-get fish 4) at)) +goal)))
+	;a ray down to keep near the floor
+	(defq h (water at))
+	(and low (> h +ray_over) (setq want (nums-add want (doubles +double_0 (neg +ray_dive) +double_0))))
 	;from the rock, along the slope of the field, and from the surface
-	(when (< (defq h (water at)) +rock_near)
+	(when (< h +rock_near)
 		(defq e +double_1/2 g (doubles (- (water (nums-add at (doubles e +double_0 +double_0))) h)
 				(- (water (nums-add at (doubles +double_0 e +double_0))) h)
 				(- (water (nums-add at (doubles +double_0 +double_0 e))) h)))
@@ -228,7 +276,7 @@
 					(elem-set school 2 goal_at))
 				(each (lambda (f)
 						(push f goal surface)
-						(fish-steer water eye f fish long dt (if (= kind +shark) '() sharks))
+						(fish-steer water eye f fish long dt (if (= kind +shark) '() sharks) (= kind +ray))
 						(pop f)
 						(pop f)
 						(defq at (first f))
@@ -240,7 +288,7 @@
 	(each! (lambda ()
 			(defq kind (!) have (reduce (lambda (n s) (if (= (first s) kind) (inc n) n)) out 0))
 			(times (- (first (elem-get +kinds kind)) have)
-				(and (or (/= kind +shark) (= (random +shark_seldom) 0))
+				(and (or (< kind +shark) (= (random +shark_seldom) 0))
 					;at first round the diver, after out where the water hides them
 					(defq s (school-new water eye forward
 						(* view (if (empty? schools) (+ +first_least (* (fish-rnd) +first_more)) +comes)) kind))
@@ -270,7 +318,8 @@
 	(defq out (list) time_val (list 'time seconds))
 	(each (lambda ((kind & & fish))
 			(when (elem-get had kind)
-				(defq long (n2d (elem-get (elem-get +kinds kind) 3)) swing (if (= kind +shark) +shark_swing +swing))
+				(defq long (n2d (elem-get (elem-get +kinds kind) 3))
+					swing (cond ((= kind +shark) +shark_swing) ((= kind +ray) +ray_flap) (+swing)))
 				(each (lambda ((at way speed phase))
 						(defq d (nums-sub at eye) far (sqrt (nums-dot d d)))
 						(and (< far view) (> (nums-dot d forward) (neg long))

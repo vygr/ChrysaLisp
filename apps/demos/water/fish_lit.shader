@@ -4,7 +4,7 @@
 ; Dark on the back and pale on the belly, as fish are, so seen from
 ; below it is lost in the light and from above in the deep: silver
 ; fish blue grey over silver, reef fish yellow banded black, a shark
-; slate over white. Its fins thin, seen from either side. Lit by the
+; slate over white, a ray spotted brown, white under. Its fins thin, seen from either side. Lit by the
 ; water round it, as open as the water is where the eye is, the sun
 ; from above, a glint of it off the scales, and the diver's lamp; the
 ; water between hiding it with distance.
@@ -31,21 +31,29 @@
 (defconst reef_belly (vec3 0.95 0.82 0.25))
 (defconst shark_back (vec3 0.24 0.27 0.31))
 (defconst shark_belly (vec3 0.78 0.8 0.8))
+(defconst ray_back (vec3 0.27 0.23 0.19))
+(defconst ray_spot (vec3 0.62 0.58 0.5))
+(defconst ray_belly (vec3 0.86 0.86 0.83))
 
 (defun main :vec4 ((frag :vec2))
 	(defq to (- eye place) d (length to) l (/ to d) n (normalize facing)
 		depth (clamp (/ (- surface (:y place)) 100.0) 0.0 1.0)
 		;the back to the belly, by how high on the fish
 		belly (ease 0.03 -0.04 (:y local))
-		reef (- 1.0 (abs (- kind 1.0))) shark (clamp (- kind 1.0) 0.0 1.0) silver (clamp (- 1.0 kind) 0.0 1.0)
+		silver (clamp (- 1.0 kind) 0.0 1.0) reef (clamp (- 1.0 (abs (- kind 1.0))) 0.0 1.0)
+		shark (clamp (- 1.0 (abs (- kind 2.0))) 0.0 1.0) ray (clamp (- kind 2.0) 0.0 1.0)
+		;a ray's back spotted, its belly seen from under it
+		spots (ease 0.62 0.7 (noise3 (* local 9.0)))
+		under (ease 0.05 -0.1 (:y l))
 		;a reef fish's bands
 		band (* reef (ease 0.4 0.5 (fract (* (+ (:x local) 0.3) 4.0))) (- 1.0 (ease 0.62 0.72 (fract (* (+ (:x local) 0.3) 4.0)))))
 		base (* (+ (* silver (mix silver_back silver_belly belly)) (* reef (mix reef_back reef_belly belly))
-			(* shark (mix shark_back shark_belly belly))) (- 1.0 (* 0.8 band))))
+			(* shark (mix shark_back shark_belly belly))
+			(* ray (mix (mix ray_back ray_spot spots) ray_belly under))) (- 1.0 (* 0.8 band))))
 	(if (< (dot n l) 0.0) (setq n (- n)))
 	(defq down (* open (exp (* -2.2 depth)))
 		diffuse (* (max (dot n sun_way) 0.0) down)
-		glint (* (+ (* silver 0.9) (* reef 0.4) (* shark 0.15)) down
+		glint (* (+ (* silver 0.9) (* reef 0.4) (* shark 0.15) (* ray 0.1)) down
 			(pow (max (dot (- (* n (* 2.0 (dot n l))) l) sun_way) 0.0) 24.0))
 		fill (mix 0.55 0.12 (ease 0.0 0.35 depth))
 		round (* (water_colour (:y place) 1.0) (+ fill (* 0.8 open)) 1.7)
