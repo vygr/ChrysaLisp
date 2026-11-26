@@ -22,6 +22,7 @@
 ; step through a song's rows by the one (flow-advance)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/consts/numbers.inc")
 (import "./mod.inc")
 (import "./it.inc")
 (import "./med.inc")
@@ -73,6 +74,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the voices of the mixer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;the numbers of the functions, a tracker's own, it is no module: the
+;finetunes of a ProTracker octave; the FT2 period of C-0, and the 128ths
+;of an octave; the Amiga period of C-0, 64 times libxmp's; the scale of
+;an IT period; the IT filter's cutoff, its base, scale and octave, and its
+;resonance's steps; a MED tick, libxmp's 250 and 1000; the least bpm of a
+;time factor; and the exp2 table's scale and steps
+(defq +tracker_tune_steps (n2d 96) +tracker_ft2_c0 (n2d 27392) +tracker_octave (n2d 1536)
+	+tracker_amiga_c0 (n2d 876544) +tracker_it_period (n2d 153600) +tracker_filter_base (n2d 110)
+	+tracker_cutoff_scale (n2d 128) +tracker_cutoff_octave (n2d 6144) +tracker_res_steps (n2d 320)
+	+tracker_med_tick (n2d 250) +tracker_med_ms (n2d 1000) +tracker_min_bpm (n2d 20)
+	+tracker_exp2_scale (n2d 65536) +tracker_exp2_steps (n2d 768))
 
 (defun ft2-step (player period)
 	; (ft2-step player period) -> step
@@ -264,7 +277,7 @@
 	;each a 96th of a semitone less
 	(map! (lambda ()
 			(defq tune (- (!) 8))
-			(map (# (n2i (+ (* (n2d %0) (pow (const (n2d 2)) (/ (n2d (neg tune)) (const (n2d 96))))) (const (n2d 0.5)))))
+			(map (# (n2i (+ (* (n2d %0) (pow +double_2 (/ (n2d (neg tune)) +tracker_tune_steps))) +double_1/2)))
 				+mod_periods))
 		'() 0 16))
 
@@ -796,8 +809,8 @@
 	;64 a semitone, or the Amiga's, 1712 at C-4
 	(if (eql (. player :find :pitch) :linear)
 		(- 7680 (* note 64) (/ finetune 2))
-		(n2i (* (const (n2d 27392)) (pow (const (n2d 2))
-			(/ (n2d (neg (+ (* note 128) finetune))) (const (n2d 1536))))))))
+		(n2i (* +tracker_ft2_c0 (pow +double_2
+			(/ (n2d (neg (+ (* note 128) finetune))) +tracker_octave))))))
 
 (defun ft2-wave (wave pos vibrato)
 	; (ft2-wave wave pos vibrato) -> num
@@ -1261,7 +1274,7 @@
 	; (amiga-period note fin) -> period
 	;the Amiga's period of a note, 0 C-0 and on, and so many 128ths more, 64
 	;times libxmp's, 13696 at C-0
-	(n2i (* (const (n2d 876544)) (pow (const (n2d 2)) (/ (n2d (neg (+ (* note 128) fin))) (const (n2d 1536)))))))
+	(n2i (* +tracker_amiga_c0 (pow +double_2 (/ (n2d (neg (+ (* note 128) fin))) +tracker_octave)))))
 
 (defun it-period (player note fin)
 	; (it-period player note fin) -> period
@@ -1276,7 +1289,7 @@
 	;the pitch of a period, in 12800ths of a semitone over C-0
 	(if (eql (. player :find :pitch) :linear)
 		(- 3072000 (/ (* 25 period) 2))
-		(n2i (* (const (n2d 153600)) (/ (log (/ (const (n2d 876544)) (n2d period))) (const (log (n2d 2))))))))
+		(n2i (* +tracker_it_period (/ (log (/ +tracker_amiga_c0 (n2d period))) (const (log (n2d 2))))))))
 
 (defun it-step (player pitch)
 	; (it-step player pitch) -> step
@@ -1446,13 +1459,13 @@
 	(unless (defq coeffs (. cache :find key))
 		(. cache :insert key (setq coeffs (if (and (>= cutoff 254) (= res 0)) '(0 0 0)
 				(defq fs (n2d (. player :find :rate))
-					fc (min (/ fs (const (n2d 2)))
-						(* (const (n2d 110)) (pow (const (n2d 2))
-							(+ (/ (* (n2d cutoff) (const (n2d 128))) (const (n2d 6144))) (const (n2d 0.25))))))
+					fc (min (/ fs +double_2)
+						(* +tracker_filter_base (pow +double_2
+							(+ (/ (* (n2d cutoff) +tracker_cutoff_scale) +tracker_cutoff_octave) +double_1/4))))
 					r (/ fs (* (const (/ (n2d 314159265358979) (n2d 50000000000000))) fc))
-					d (- (* (pow (const (n2d 10)) (/ (n2d (* -3 (>> res 1))) (const (n2d 320))))
-						(+ r (const (n2d 1)))) (const (n2d 1)))
-					e (* r r) g (/ (const (n2d 1)) (+ (const (n2d 1)) d e))
+					d (- (* (pow +double_10 (/ (n2d (* -3 (>> res 1))) +tracker_res_steps))
+						(+ r +double_1)) +double_1)
+					e (* r r) g (/ +double_1 (+ +double_1 d e))
 					one (const (n2d (<< 1 +filter_shift))))
 				(list (n2i (* g one)) (n2i (* (* (+ d e e) g) one)) (n2i (* (* (neg e) g) one)))))))
 	(bind '(a0 b0 b1) coeffs)
@@ -2659,8 +2672,8 @@
 	; (med-frames player) -> frames
 	;how long a tick is, as libxmp works it out in doubles: the rate, times
 	;the song's time factor and 250, over the bpm and 1000
-	(n2i (/ (/ (* (* (n2d (. player :find :rate)) (. player :find :tf)) (const (n2d 250)))
-		(n2d (max 1 (. player :find :bpm)))) (const (n2d 1000)))))
+	(n2i (/ (/ (* (* (n2d (. player :find :rate)) (. player :find :tf)) +tracker_med_tick)
+		(n2d (max 1 (. player :find :bpm)))) +tracker_med_ms)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; AHX, its replayer's voices given the mixer, lib/media/ahx.inc
@@ -2749,12 +2762,12 @@
 			;the slowest tempo that allows
 			(bind '(num den) (. song :find :time_factor))
 			(defq tf (/ (n2d num) (n2d den)))
-			(scatter player :tf tf :min_bpm (n2i (+ (const (n2d 0.5)) (/ (* tf (const (n2d 20))) (const (n2d 10)))))))
+			(scatter player :tf tf :min_bpm (n2i (+ +double_1/2 (/ (* tf +tracker_min_bpm) +double_10)))))
 		(:t (flow-start player)))
 	;2^(n/768) of 16.16, to 2, for linear periods and the steps of an IT or a MED
 	(if (or (eql (. song :find :pitch) :linear) (find mode '(:it :med)))
-		(. player :insert :exp2 (apply (const nums) (map! (# (n2i (* (const (n2d 65536))
-			(pow (const (n2d 2)) (/ (n2d (!)) (const (n2d 768))))))) '() 0 769))))
+		(. player :insert :exp2 (apply (const nums) (map! (# (n2i (* +tracker_exp2_scale
+			(pow +double_2 (/ (n2d (!)) +tracker_exp2_steps))))) '() 0 769))))
 	(if (eql mode :mod) (. player :insert :tables (pt-tables)))
 	(if (eql mode :ahx) (ahx-player player song) player))
 
