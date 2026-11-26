@@ -36,8 +36,9 @@ behind it.
   and a few in the open between. A buoy reads the rocks round it and
   flashes green, yellow or red, and the faster the greater the hazard, red
   when a rock passes close; one in the open is ice blue when calm; its flash lights the rocks round it in its
-  colour; and its glow round its lamp. Painted metal that mirrors the sky
-  and the sun. A buoy turns, slowly, when it must, to keep its lamp toward
+  colour; and its glow round its lamp. Polished metal that mirrors the sky
+  round it as it is drawn, the nebula, the Pillars and the stars, and the
+  sun. A buoy turns, slowly, when it must, to keep its lamp toward
   the ship's side of it.
 
 * The field keeps itself in hand: a buoy in a heap too crowded, 18 rocks
@@ -132,7 +133,9 @@ least, so the app has a third of its node and what is beside it the rest.
   up, a stretch of its loop each frame as loud as the boost is.
 
 The rocks meet in twelve parts, a part a frame, so each pair is met once in
-twelve frames. Touches are found through a fine grid, a sixteenth of the
+twelve frames. A rock that has sunk into another by then is not jumped out
+of it: its shove out is eased in over the frames till the pair meets again,
+so a small rock resting on a big one does not judder. Touches are found through a fine grid, a sixteenth of the
 field each way: a small rock looks in the cells round its own for the small
 rocks it may touch, a big rock in the cells as far as its reach for the
 small ones, and the big rocks, a few, each other. Pulls are through a

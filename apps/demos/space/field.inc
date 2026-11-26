@@ -16,7 +16,7 @@
 
 ;how many kinds of rock, how many rocks, and how big the box of them
 (defq +rock_kinds 8 +rock_count 450 +field (n2d 1000)
-	;the rocks, each (at drift bulk kind spin patch), make-rocks, and the
+	;the rocks, each (at drift bulk kind spin patch shove), make-rocks, and the
 	;clusters, each the numbers of its rocks, its big one first
 	rocks (list) clusters (list)
 	;the marker buoys, make-buoys, how many, how many at swarms, how far
@@ -24,6 +24,9 @@
 	;rocks, how soon its light follows its hazard, and its colours, safe,
 	;crowded and dangerous, and safe in open space
 	buoys (list) +buoys 32 +buoys_at_swarms 20 +buoy_round (n2d 100) +buoy_close (n2d 24) +buoy_ease (n2d 1.5)
+	;how fast a rock's shove out of another is eased in, of what is left of
+	;it a second, so most of it in the frames before the pair meets again
+	+shove_rate (n2d 10)
 	;a buoy at a swarm moved to another when its own has gone: under what
 	;hazard it is calm, for how many looks running, and how far round a big
 	;rock its cluster's rocks count as there
@@ -135,11 +138,13 @@
 
 (defun make-rock (at drift bulk)
 	; (make-rock at drift bulk) -> rock
-	;a rock (at drift bulk kind spin patch) at a place, drifting, of a size:
-	;its kind, its tumble, rock-tumble, and the patch of the moon's map on
-	;it, where and how much, at random
+	;a rock (at drift bulk kind spin patch shove) at a place, drifting, of
+	;a size: its kind, its tumble, rock-tumble, the patch of the moon's map
+	;on it, where and how much, at random, and the shove that is still to
+	;move it out of another it has sunk into, none
 	(list at drift bulk (random +rock_kinds) (rock-tumble)
-		(doubles (rnd) (rnd) (+ +patch_least (* +patch_spread (rnd))))))
+		(doubles (rnd) (rnd) (+ +patch_least (* +patch_spread (rnd))))
+		(doubles +double_0 +double_0 +double_0)))
 
 (defun rock-spin (spin bulk ax ay az)
 	;a rock's tumble turned faster about a way by so much, no faster than
@@ -275,13 +280,15 @@
 			((-- tries)))))
 
 (defun rocks-move (dt)
-	;each rock on by its drift, kept in the box of the field, and turned on
-	;as fast as it tumbles about the way it does, which a knock may change:
-	;its quaternion turned by its turn in the time, and kept of length 1
-	(defq h (* dt +double_1/2))
-	(each (lambda ((at drift & & spin &ignore))
+	;each rock on by its drift, and by as much of its shove as is eased in
+	;in the time, kept in the box of the field, and turned on as fast as it
+	;tumbles about the way it does, which a knock may change: its
+	;quaternion turned by its turn in the time, and kept of length 1
+	(defq h (* dt +double_1/2) k (min +double_1 (* dt +shove_rate)))
+	(each (lambda ((at drift & & spin & shove))
 			(each! (lambda ()
-					(defq i (!) v (+ (elem-get at i) (* (elem-get drift i) dt)))
+					(defq i (!) s (* (elem-get shove i) k) v (+ (elem-get at i) (* (elem-get drift i) dt) s))
+					(elem-set shove i (- (elem-get shove i) s))
 					(elem-set at i (cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))))
 				'() 0 3)
 			(bind '(wx wy wz qw qx qy qz) spin)
@@ -353,12 +360,14 @@
 	;two rocks, the first reaching ri, the second dx dy dz from it, d2 that
 	;squared: if they touch and are coming together, bounced apart, along
 	;the way between them, the bigger moved the less, losing some of their
-	;speed, and pushed apart so they do not sink into each other
+	;speed, and shoved apart so they do not sink into each other: a pair is
+	;met once in +meet_parts frames, so the shove is eased in over the
+	;frames till the next, rocks-move, not a jump
 	(bind '(& & bulk_j kind_j &ignore) rock_j)
 	(defq reach (+ ri (* bulk_j (elem-get kind_reach kind_j))))
 	(when (< d2 (* reach reach))
-		(bind '(at drift bulk & spin &ignore) rock)
-		(bind '(at_j drift_j & & spin_j &ignore) rock_j)
+		(bind '(at drift bulk & spin & shove) rock)
+		(bind '(& drift_j & & spin_j & shove_j) rock_j)
 		(defq d (sqrt (+ d2 (const (/ +double_1 (n2d 1000000)))))
 			nx (/ dx d) ny (/ dy d) nz (/ dz d) mi (* bulk bulk bulk) mj (* bulk_j bulk_j bulk_j)
 			closing (+ (* (- (elem-get drift_j 0) (elem-get drift 0)) nx)
@@ -387,8 +396,8 @@
 			(rock-spin spin_j bulk_j (* cx gj) (* cy gj) (* cz gj)))
 		;and apart, the bigger moved the less
 		(defq over (- reach d))
-		(rock-push at nx ny nz (neg (* over wi)))
-		(rock-push at_j nx ny nz (* over wj))))
+		(rock-push shove nx ny nz (neg (* over wi)))
+		(rock-push shove_j nx ny nz (* over wj))))
 
 (defun rocks-pull (rock rock_j dx dy dz d2 pull_dt)
 	;two rocks, the second dx dy dz from the first, d2 that squared, pulled

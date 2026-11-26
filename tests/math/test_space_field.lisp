@@ -2,12 +2,12 @@
 
 (import "apps/demos/space/field.inc")
 
-;a rock (at drift bulk kind spin patch) of numbers given, kind 0, its
+;a rock (at drift bulk kind spin patch shove) of numbers given, kind 0, its
 ;reach 0.9 of its size, as field.inc has it before its mesh comes
 (defun sf-rock (x y z vx vy vz bulk)
 	(list (doubles (n2d x) (n2d y) (n2d z)) (doubles (n2d vx) (n2d vy) (n2d vz)) (n2d bulk) 0
 		(doubles +double_0 +double_0 +double_0 +double_1 +double_0 +double_0 +double_0)
-		(doubles +double_0 +double_0 +double_0)))
+		(doubles +double_0 +double_0 +double_0) (doubles +double_0 +double_0 +double_0)))
 
 ;the field moved on so many frames of a 60th, met a part a frame
 (defun sf-run (frames)
