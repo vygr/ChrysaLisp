@@ -1236,41 +1236,47 @@
 	(defq b (bskip (setd cls " ") s 0))
 	(slice s b (max b (rbskip cls s -1))))
 
+;module, a double as text: its numbers, prebound into it as it is made,
+;go with it, so no task has their names
+(env-push)
+(defq +dts_zero (n2d 0) +dts_one (n2d 1) +dts_ten (n2d 10) +dts_half (n2d 0.5)
+	+dts_big (n2d 1000000000000) +dts_small (/ (n2d 1) (n2d 10000)))
+
 (defun double-to-str (r &optional precision)
 	; (double-to-str double [precision]) -> str
 	(ifn (double?? r) (setq r (n2d r)))
 	;one that is less than 0 is that of what it is without its sign, with
 	;a - before it
 	(defq sign "")
-	(when (< r (const (n2d 0))) (setq r (neg r) sign "-"))
+	(when (< r +dts_zero) (setq r (neg r) sign "-"))
 	(cond
 		;an infinity or a NaN has no digits to give, and is the only double
 		;that less itself is not 0
-		((/= (- r r) (const (n2d 0))) "nan")
+		((/= (- r r) +dts_zero) "nan")
 		;a 0 with its sign set, what the neg of a 0 is, is a 0, and has no
 		;digit to find
-		((<= r (const (n2d 0))) "0.0")
+		((<= r +dts_zero) "0.0")
 		(:t
 			(setd precision 8)
 			(setq precision (min 14 (max 1 precision)))
 			(defq exp 0 is_exp :nil)
-			(when (or (>= r (const (n2d 1000000000000)))
-					(< r (const (/ (n2d 1) (n2d 10000)))))
+			(when (or (>= r +dts_big)
+					(< r +dts_small))
 				(setq is_exp :t)
 				(cond
-					((>= r (const (n2d 10)))
-						(while (>= r (const (n2d 10)))
-							(setq r (/ r (const (n2d 10))))
+					((>= r +dts_ten)
+						(while (>= r +dts_ten)
+							(setq r (/ r +dts_ten))
 							(++ exp)))
-					((< r (const (n2d 1)))
-						(while (< r (const (n2d 1)))
-							(setq r (* r (const (n2d 10))))
+					((< r +dts_one)
+						(while (< r +dts_one)
+							(setq r (* r +dts_ten))
 							(-- exp)))))
 			(defq int_part (n2i r)
 				frac (- r (n2d int_part))
 				max_scaled (pow 10 precision)
 				pow10 (n2d max_scaled)
-				scaled (n2i (+ (* frac pow10) (const (n2d 0.5)))))
+				scaled (n2i (+ (* frac pow10) +dts_half)))
 			(when (>= scaled max_scaled)
 				(++ int_part)
 				(setq scaled 0)
@@ -1285,6 +1291,9 @@
 					(if (< exp 0) "-" "+")
 					(pad (str (abs exp)) 2 "0"))
 				(cat sign (str int_part) "." frac_clean)))))
+
+(export-symbols '(double-to-str))
+(env-pop)
 
 (defun str-as-num (%0)
 	; (str-as-num str) -> num
@@ -1792,6 +1801,11 @@
 (import "lib/collections/collections.inc")
 (import "lib/text/searching.inc")
 (import "lib/math/bignum.inc")
+;module, a double from text: its numbers, prebound into it as it is
+;made, go with it
+(env-push)
+(defq +std_zero (n2d 0) +std_one (n2d 1) +std_ten (n2d 10) +std_e300 (pow (n2d 10) (n2d 300)))
+
 (defun str-to-double (%0)
 	; (str-to-double str) -> double
 	;the nearest double to a number in decimal, 1.5, -2.5e-3, 9.97231e-09, a
@@ -1816,20 +1830,20 @@
 	(defq n (length digits) word (str-alloc 8)
 		m (reduce! (# (+ (* %0 10) %1)) (list digits) 0 0 (min n 18))
 		r (cond
-			((= n 0) (const (n2d 0)))
+			((= n 0) +std_zero)
 			((> (+ n e) 310) (get-double (set-long word 0 0x7ff0000000000000) 0))
-			((< (+ n e) -325) (const (n2d 0)))
+			((< (+ n e) -325) +std_zero)
 			((and (<= n 16) (<= m 0x20000000000000) (<= -22 e 22))
-				(defq p (const (n2d 1)))
-				(times (abs e) (setq p (* p (const (n2d 10)))))
+				(defq p +std_one)
+				(times (abs e) (setq p (* p +std_ten)))
 				(if (< e 0) (/ (n2d m) p) (* (n2d m) p)))
 			(:t ;near enough, from the first 18 digits, a power below -300 in
 				;two, so neither is out of range
 				(defq e18 (+ e (max 0 (- n 18))) z (n2d m))
 				(if (< e18 -300)
-					(setq z (/ (* z (pow (const (n2d 10)) (n2d (+ e18 300))))
-						(const (pow (n2d 10) (n2d 300)))))
-					(setq z (* z (pow (const (n2d 10)) (n2d e18)))))
+					(setq z (/ (* z (pow +std_ten (n2d (+ e18 300))))
+						+std_e300))
+					(setq z (* z (pow +std_ten (n2d e18)))))
 				;m and the power of 10 as whole numbers, lib/math/bignum.inc, m on
 				;the left if the power is up, the power on the right if down, each
 				;against a halfway point, a whole number times 2 to a power
@@ -1856,6 +1870,9 @@
 								(setq running :nil)))))
 				(get-double (set-long word 0 b) 0))))
 	(if (eql (first %0) "-") (neg r) r))
+
+(export-symbols '(str-to-double))
+(env-pop)
 
 (import "sys/lisp.inc")
 (import "././lisp.inc")
