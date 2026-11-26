@@ -24,8 +24,9 @@ the ladder says is what it can do:
 * `:fixed` adds the fractions, what drawing works in: `(frac)` `(floor)`
 `(ceil)` `(recip)` `(sin)` `(cos)`, as the Canvas, fonts and paths need.
 
-* `:double` adds the real numbers beyond that: `(exp)` `(log)` `(tanh)`, and
-`(quant)`. It is Lisp's general real number.
+* `:double` adds the real numbers beyond that: `(exp)` `(log)` `(tanh)`, the
+inverse turns `(atan)` `(asin)` `(acos)` `(atan2)`, and `(quant)`. It is Lisp's
+general real number.
 
 * `:float` does what a double does, at 32 bits, the width of a GPU. Every
 float is exactly a double, so a float can go wherever a double is asked for.
@@ -130,6 +131,10 @@ These operate on a double or a float, and return the same type. Of a fixed
 they are an error, fixed point is what drawing works in.
 
 `(exp) (log) (tanh)`
+
+`(atan) (asin) (acos)`, and `(atan2 y x)`, the angle of the point x y from
+-pi to pi, of two doubles or two floats, by `(import "lib/math/trig.inc")`.
+Past 1 asin and acos are not a number.
 
 `(quant double tolerance)` rounds a double to the nearest whole number of the
 tolerance, for comparisons of doubles.

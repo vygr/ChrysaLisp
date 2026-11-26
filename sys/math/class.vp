@@ -1004,3 +1004,308 @@
 
 (def-func-end)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the inverse of the turn: atan, and of it atan2, asin and acos, of
+; doubles, the singles' made doubles and back to the nearest single
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun d-atan-body ()
+	;:d0 = x, :r0 = the constants, to :d0 = atan x, -pi/2 to pi/2.
+	;Of |x|, made t below tan pi/8: past tan 3pi/8 it is pi/2 less atan
+	;of 1/x, past 0.66 pi/4 and atan of (x - 1) / (x + 1); then t and t
+	;z P(z) / Q(z), z t squared, as Cephes has it, to the last bit; the
+	;sign put back. :r1 has the sign, bit 0, and the case, 2 or 4; t waits
+	;in a long of the stack
+	(vp-cpy-cr 0 :r1)
+	(vp-load-rcd :r0 (fn-const 0x0000000000000000) :d1)
+	(vp-bge-dd :d1 :d0 'at_pos)
+	(vp-neg-dd :d0 :d0)
+	(vp-cpy-cr 1 :r1)
+(vp-label 'at_pos)
+	(vp-load-rcd :r0 (fn-const 0x4003504f333f9de6) :d1)
+	(vp-bgt-dd :d1 :d0 'at_big)
+	(vp-load-rcd :r0 (fn-const 0x3fe51eb851eb851f) :d1)
+	(vp-bgt-dd :d1 :d0 'at_mid)
+	(vp-jmp 'at_poly)
+(vp-label 'at_big)
+	;-1 / x
+	(vp-load-rcd :r0 (fn-const 0xbff0000000000000) :d1)
+	(vp-div-dd :d0 :d1)
+	(vp-cpy-dd :d1 :d0)
+	(vp-add-cr 4 :r1)
+	(vp-jmp 'at_poly)
+(vp-label 'at_mid)
+	;(x - 1) / (x + 1)
+	(vp-load-rcd :r0 (fn-const 0x3ff0000000000000) :d2)
+	(vp-cpy-dd :d0 :d1)
+	(vp-sub-dd :d2 :d1)
+	(vp-add-dd :d2 :d0)
+	(vp-div-dd :d0 :d1)
+	(vp-cpy-dd :d1 :d0)
+	(vp-add-cr 2 :r1)
+(vp-label 'at_poly)
+	(vp-alloc +long_size)
+	(vp-store-drc :d0 :rsp 0)
+	(vp-cpy-dd :d0 :d1)
+	(vp-mul-dd :d0 :d1)
+	;Q(z) = ((((z + q0) z + q1) z + q2) z + q3) z + q4
+	(vp-load-rcd :r0 (fn-const 0x4038dbc45b14603c) :d2)
+	(vp-add-dd :d1 :d2)
+	(each (lambda (q)
+			(vp-mul-dd :d1 :d2)
+			(vp-load-rcd :r0 (fn-const q) :d3)
+			(vp-add-dd :d3 :d2))
+		'(0x4064a0dd43b8fa25 0x407b0e18d2e2be3b 0x407e563f13b049ea 0x4068519efbbd62ec))
+	;P(z) = (((p0 z + p1) z + p2) z + p3) z + p4
+	(vp-load-rcd :r0 (fn-const 0xbfec007fa1f72594) :d0)
+	(each (lambda (p)
+			(vp-mul-dd :d1 :d0)
+			(vp-load-rcd :r0 (fn-const p) :d3)
+			(vp-add-dd :d3 :d0))
+		'(0xc03028545b6b807a 0xc052c08c36880273 0xc05eb8bf2d05ba25 0xc0503669fd28ec8e))
+	;t + t z P / Q
+	(vp-mul-dd :d1 :d0)
+	(vp-div-dd :d2 :d0)
+	(vp-load-rcd :rsp 0 :d1)
+	(vp-mul-dd :d1 :d0)
+	(vp-add-dd :d1 :d0)
+	(vp-free +long_size)
+	;and pi/2 or pi/4 of the case, each with the bits a double misses of it
+	(vp-cpy-rr :r1 :r2)
+	(vp-and-cr 6 :r2)
+	(vp-beq-cr 0 :r2 'at_sign)
+	(vp-beq-cr 2 :r2 'at_quarter)
+	(vp-load-rcd :r0 (fn-const 0x3c91a62633145c07) :d1)
+	(vp-add-dd :d1 :d0)
+	(vp-load-rcd :r0 (fn-const 0x3ff921fb54442d18) :d1)
+	(vp-add-dd :d1 :d0)
+	(vp-jmp 'at_sign)
+(vp-label 'at_quarter)
+	(vp-load-rcd :r0 (fn-const 0x3c81a62633145c07) :d1)
+	(vp-add-dd :d1 :d0)
+	(vp-load-rcd :r0 (fn-const 0x3fe921fb54442d18) :d1)
+	(vp-add-dd :d1 :d0)
+(vp-label 'at_sign)
+	(vp-and-cr 1 :r1)
+	(vp-beq-cr 0 :r1 'at_done)
+	(vp-neg-dd :d0 :d0)
+(vp-label 'at_done))
+
+(defun d-atan2-body ()
+	;:d0 = y, :d1 = x, :r0 = the constants, to :d0 = the angle of the
+	;point x y, -pi to pi: atan of y / x, and of x below 0 pi more or less
+	;by the side y is on; of x 0 a quarter turn by the sign of y, or y; not
+	;a number if x is not. y and x wait in two longs of the stack while the
+	;atan, emitted the once, is worked out
+	(vp-load-rcd :r0 (fn-const 0x0000000000000000) :d2)
+	(vp-bne-dd :d2 :d1 'a2_xsome)
+	(vp-bgt-dd :d2 :d0 'a2_up)
+	(vp-blt-dd :d2 :d0 'a2_down)
+	(vp-jmp 'a2_done)
+(vp-label 'a2_up)
+	(vp-load-rcd :r0 (fn-const 0x3ff921fb54442d18) :d0)
+	(vp-jmp 'a2_done)
+(vp-label 'a2_down)
+	(vp-load-rcd :r0 (fn-const 0xbff921fb54442d18) :d0)
+	(vp-jmp 'a2_done)
+(vp-label 'a2_xsome)
+	(vp-alloc (* 2 +long_size))
+	(vp-store-drc :d0 :rsp 0)
+	(vp-store-drc :d1 :rsp +long_size)
+	(vp-div-dd :d1 :d0)
+	(d-atan-body)
+	(vp-load-rcd :rsp 0 :d1)
+	(vp-load-rcd :rsp +long_size :d2)
+	(vp-free (* 2 +long_size))
+	;of x below 0, pi more or less by the side y is on
+	(vp-load-rcd :r0 (fn-const 0x0000000000000000) :d3)
+	(vp-bgt-dd :d3 :d2 'a2_done)
+	(vp-load-rcd :r0 (fn-const 0x400921fb54442d18) :d3)
+	(vp-load-rcd :r0 (fn-const 0x0000000000000000) :d2)
+	(vp-bge-dd :d2 :d1 'a2_plus)
+	(vp-sub-dd :d3 :d0)
+	(vp-jmp 'a2_done)
+(vp-label 'a2_plus)
+	(vp-add-dd :d3 :d0)
+(vp-label 'a2_done))
+
+(defun d-across-body ()
+	;:d0 = x, :r0 = the constants, to :d1 = the root of (1 - x) (1 + x),
+	;the other side of the turn of x, without the loss of 1 - x squared
+	;near 1, not a number past 1
+	(vp-load-rcd :r0 (fn-const 0x3ff0000000000000) :d2)
+	(vp-cpy-dd :d2 :d3)
+	(vp-sub-dd :d0 :d2)
+	(vp-add-dd :d0 :d3)
+	(vp-mul-dd :d3 :d2)
+	(vp-sqrt-dd :d2 :d1))
+
+(def-method :sys_math :d_atan)
+	;inputs
+	;:d0 = double (double)
+	;outputs
+	;:d0 = atan of the double (double)
+	;trashes
+	;:r0-:r2, :d0-:d3
+
+	(entry :sys_math :d_atan '(:d0))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(d-atan-body)
+
+	(exit :sys_math :d_atan '(:d0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :d_atan2)
+	;inputs
+	;:d0 = y (double)
+	;:d1 = x (double)
+	;outputs
+	;:d0 = angle of the point x y (double)
+	;trashes
+	;:r0-:r2, :d0-:d3
+
+	(entry :sys_math :d_atan2 '(:d0 :d1))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(d-atan2-body)
+
+	(exit :sys_math :d_atan2 '(:d0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :d_asin)
+	;inputs
+	;:d0 = double (double)
+	;outputs
+	;:d0 = asin of the double (double)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;atan2 of x and the root of 1 - x squared
+
+	(entry :sys_math :d_asin '(:d0))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(d-across-body)
+	(d-atan2-body)
+
+	(exit :sys_math :d_asin '(:d0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :d_acos)
+	;inputs
+	;:d0 = double (double)
+	;outputs
+	;:d0 = acos of the double (double)
+	;trashes
+	;:r0-:r2, :d0-:d3
+	;info
+	;atan2 of the root of 1 - x squared and x
+
+	(entry :sys_math :d_acos '(:d0))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(d-across-body)
+	(vp-cpy-dd :d0 :d2)
+	(vp-cpy-dd :d1 :d0)
+	(vp-cpy-dd :d2 :d1)
+	(d-atan2-body)
+
+	(exit :sys_math :d_acos '(:d0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :f_atan)
+	;inputs
+	;:f0 = single (single)
+	;outputs
+	;:f0 = atan of the single (single)
+	;trashes
+	;:r0-:r2, :d0-:d3
+
+	(entry :sys_math :f_atan '(:f0))
+
+	(vp-cvt-fd :f0 :d0)
+	(vp-lea-pr 'fn_consts :r0)
+	(d-atan-body)
+	(vp-cvt-df :d0 :f0)
+
+	(exit :sys_math :f_atan '(:f0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :f_atan2)
+	;inputs
+	;:f0 = y (single)
+	;:f1 = x (single)
+	;outputs
+	;:f0 = angle of the point x y (single)
+	;trashes
+	;:r0-:r2, :d0-:d3
+
+	(entry :sys_math :f_atan2 '(:f0 :f1))
+
+	(vp-cvt-fd :f0 :d0)
+	(vp-cvt-fd :f1 :d1)
+	(vp-lea-pr 'fn_consts :r0)
+	(d-atan2-body)
+	(vp-cvt-df :d0 :f0)
+
+	(exit :sys_math :f_atan2 '(:f0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :f_asin)
+	;inputs
+	;:f0 = single (single)
+	;outputs
+	;:f0 = asin of the single (single)
+	;trashes
+	;:r0-:r2, :d0-:d3
+
+	(entry :sys_math :f_asin '(:f0))
+
+	(vp-cvt-fd :f0 :d0)
+	(vp-lea-pr 'fn_consts :r0)
+	(d-across-body)
+	(d-atan2-body)
+	(vp-cvt-df :d0 :f0)
+
+	(exit :sys_math :f_asin '(:f0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_math :f_acos)
+	;inputs
+	;:f0 = single (single)
+	;outputs
+	;:f0 = acos of the single (single)
+	;trashes
+	;:r0-:r2, :d0-:d3
+
+	(entry :sys_math :f_acos '(:f0))
+
+	(vp-cvt-fd :f0 :d0)
+	(vp-lea-pr 'fn_consts :r0)
+	(d-across-body)
+	(vp-cpy-dd :d0 :d2)
+	(vp-cpy-dd :d1 :d0)
+	(vp-cpy-dd :d2 :d1)
+	(d-atan2-body)
+	(vp-cvt-df :d0 :f0)
+
+	(exit :sys_math :f_acos '(:f0))
+	(vp-ret)
+
+(def-func-end)

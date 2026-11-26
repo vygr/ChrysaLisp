@@ -463,8 +463,12 @@ bits; `(nums-convert src dst [signed])` to and from numbers.
 	`+fp_shift` is 16.
 
 *	**`double`, `doubles`:** 64 bit IEEE doubles, Lisp's general real
-	number, adding `exp` `log` `tanh` and `quant`. Of a fixed these are an
-	error.
+	number, adding `exp` `log` `tanh`, the inverse turns `atan` `asin` `acos`
+	`atan2` (`lib/math/trig.inc`, till a release puts them in root.inc),
+	and `quant`. Of a fixed these are an error, so a fixed made a
+	double for one, as Sunclock does. `sys/math` has each as `:d_` and `:f_`,
+	and holds to the shader compiler's contract: only `:r0`-`:r2` and
+	`:d0`-`:d3` trashed, a value kept across a step in a stack slot.
 
 *	**`float`, `floats`:** 32 bit IEEE singles, a double's protocol at the
 	width of a GPU, worked in 32 bits. A `floats` element is 4 bytes.

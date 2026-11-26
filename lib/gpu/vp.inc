@@ -276,13 +276,14 @@
 	(sv-puts (list ri rf one)))
 
 (defun sv-math (r op)
-	;sin, cos, exp, log or tanh of a register, which is given up, to a new
+	;sin, cos, exp, log, tanh, asin, acos or atan of a register, which is given up, to a new
 	;register, each by the function of sys/math of the single as it is,
 	;the float methods' own, so the two agree to the bit
 	(sv-put r)
 	(defq saved (sv-spill *sv_math_trash*))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff r :f0))
-	(sv-emit 'call :sys_math (elem-get '(:f_sin :f_cos :f_exp :f_log :f_tanh) (find op '(sin cos exp log tanh)))
+	(sv-emit 'call :sys_math (elem-get '(:f_sin :f_cos :f_exp :f_log :f_tanh :f_asin :f_acos :f_atan)
+			(find op '(sin cos exp log tanh asin acos atan)))
 		(sv-q '(:f0)) (sv-q '(:f0)))
 	(defq r (sv-getf))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
@@ -304,6 +305,22 @@
 	(sv-emit 'vp-cvt-fd :f1 :d1)
 	(sv-emit 'call :sys_math :d_pow (sv-q '(:d0 :d1)) (sv-q '(:d0)))
 	(sv-emit 'vp-cvt-df :d0 :f0)
+	(defq r (sv-getf))
+	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
+	(sv-unspill saved)
+	r)
+
+(defun sv-atan2 (y x)
+	;the angle of the point x y, both kept, to a new register, by the
+	;function of sys/math of the singles, the floats' own. Each to its place
+	;from where it was put by if it was, as sv-pow
+	(defq saved (sv-spill *sv_math_trash*))
+	(each (lambda (r to)
+			(if (defq i (find r saved))
+				(sv-emit 'vp-load-rcf :rsp (* i 8) to)
+				(sv-emit 'vp-cpy-ff r to)))
+		(list y x) '(:f0 :f1))
+	(sv-emit 'call :sys_math :f_atan2 (sv-q '(:f0 :f1)) (sv-q '(:f0)))
 	(defq r (sv-getf))
 	(unless (eql r :f0) (sv-emit 'vp-cpy-ff :f0 r))
 	(sv-unspill saved)
@@ -467,9 +484,9 @@
 					(sv-emit 'vp-cvt-fr (first a) (defq r (sv-getr)))
 					(sv-puts a) (list r))
 				(a)))
-		((defq i (find op '(sin cos sqrt abs floor fract exp log tanh)))
+		((defq i (find op '(sin cos sqrt abs floor fract exp log tanh asin acos atan)))
 			(case i
-				((0 1 6 7 8) (defq n (length a))
+				((0 1 6 7 8 9 10 11) (defq n (length a))
 					(times n (push a (sv-math (first a) op))
 						(setq a (rest a)))
 					a)
@@ -495,6 +512,9 @@
 			(sv-puts b) a)
 		((eql op 'pow)
 			(defq regs (map (const sv-pow) a b))
+			(sv-puts a) (sv-puts b) regs)
+		((eql op 'atan2)
+			(defq regs (map (const sv-atan2) a b))
 			(sv-puts a) (sv-puts b) regs)
 		((eql op 'clamp)
 			(each (# (sv-emit 'vp-max-ff (sv-src b (!)) %0)
@@ -592,7 +612,7 @@
 					(push items (list :vec_end type)))
 				(:t ;the args, as many as the op has, and then the op
 					(defq n (cond
-							((find op '(float int sin cos sqrt abs floor fract exp log tanh length normalize)) 1)
+							((find op '(float int sin cos sqrt abs floor fract exp log tanh asin acos atan length normalize)) 1)
 							((find op '(clamp mix)) 3)
 							(2))
 						items (map! (# (list :expr %0)) (list args) 0 n))

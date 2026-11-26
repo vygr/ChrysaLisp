@@ -1,5 +1,7 @@
 (report-header "Doubles (Floating Point)")
 
+(import "lib/math/trig.inc")
+
 (import "lib/consts/numbers.inc")
 
 ;three quarters
@@ -82,6 +84,31 @@
 (assert-true "Double Tanh -0.75" (t_near (tanh (str-to-double "-0.75")) (str-to-double "-0.6351489523872873")))
 (assert-true "Double Tanh -2" (t_near (tanh (n2d -2.0)) (str-to-double "-0.9640275800758169")))
 (assert-eq "Double Tanh -30" (n2d -1.0) (tanh (n2d -30.0)))
+;the inverse turns, within two of the last bits of the true ones: atan,
+;and of it atan2 in each quarter and on the axes, asin and acos; past 1
+;not a number, and of a fixed an error
+(assert-eq "Double Atan 0" (n2d 0.0) (atan (n2d 0.0)))
+(assert-eq "Double Atan 1" (/ +double_pi +double_4) (atan (n2d 1.0)))
+(assert-true "Double Atan 0.5" (t_near (atan (str-to-double "0.5")) (str-to-double "0.46364760900080615")))
+(assert-true "Double Atan -3" (t_near (atan (n2d -3.0)) (str-to-double "-1.2490457723982544")))
+(assert-true "Double Atan 20" (t_near (atan (n2d 20.0)) (str-to-double "1.5208379310729538")))
+(assert-eq "Double Atan2 1 0" (/ +double_pi +double_2) (atan2 (n2d 1.0) (n2d 0.0)))
+(assert-eq "Double Atan2 -1 0" (neg (/ +double_pi +double_2)) (atan2 (n2d -1.0) (n2d 0.0)))
+(assert-eq "Double Atan2 0 -1" +double_pi (atan2 (n2d 0.0) (n2d -1.0)))
+(assert-eq "Double Atan2 0 0" (n2d 0.0) (atan2 (n2d 0.0) (n2d 0.0)))
+(assert-true "Double Atan2 1 -1" (t_near (atan2 (n2d 1.0) (n2d -1.0)) (str-to-double "2.356194490192345")))
+(assert-true "Double Atan2 -1 -1" (t_near (atan2 (n2d -1.0) (n2d -1.0)) (str-to-double "-2.356194490192345")))
+(assert-true "Double Atan2 -0.5 2" (t_near (atan2 (str-to-double "-0.5") (n2d 2.0)) (str-to-double "-0.24497866312686414")))
+(assert-eq "Double Asin 1" (/ +double_pi +double_2) (asin (n2d 1.0)))
+(assert-true "Double Asin 0.5" (t_near (asin (str-to-double "0.5")) (str-to-double "0.5235987755982988")))
+(assert-true "Double Asin -0.25" (t_near (asin (str-to-double "-0.25")) (str-to-double "-0.25268025514207865")))
+(assert-eq "Double Acos 1" (n2d 0.0) (acos (n2d 1.0)))
+(assert-eq "Double Acos -1" +double_pi (acos (n2d -1.0)))
+(assert-true "Double Acos 0.5" (t_near (acos (str-to-double "0.5")) (str-to-double "1.0471975511965976")))
+(assert-true "Double Acos -0.75" (t_near (acos (str-to-double "-0.75")) (str-to-double "2.4188584057763776")))
+(assert-true "Double Asin 2, not a number" (defq t_nan (asin (n2d 2.0)) t_nan (/= t_nan t_nan)))
+(assert-error "Double Atan of another type" (atan 3) {(atan double) wrong_types})
+(assert-error "Double Atan2 of two types" (atan2 (n2d 1.0) (n2f 1.0)) {(atan2 y x) wrong_types})
 
 ; random, a double from 0 to it, not only whole numbers
 (defq dr_got (map! (lambda () (random +double_1)) '() 0 200))

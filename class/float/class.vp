@@ -456,6 +456,66 @@
 
 (def-func-end)
 
+(def-method :float :atan)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(singleop :atan
+		'(call :sys_math :f_atan '(:f1) '(:f0)))
+
+(def-func-end)
+
+(def-method :float :asin)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(singleop :asin
+		'(call :sys_math :f_asin '(:f1) '(:f0)))
+
+(def-func-end)
+
+(def-method :float :acos)
+	;inputs
+	;:r0 = float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(singleop :acos
+		'(call :sys_math :f_acos '(:f1) '(:f0)))
+
+(def-func-end)
+
+(def-method :float :atan2)
+	;inputs
+	;:r0 = y float object (ptr)
+	;:r1 = x float object (ptr)
+	;outputs
+	;:r0 = result float object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+	;info
+	;the angle of the point x y, -pi to pi, :sys_math :f_atan2
+
+	(entry :float :atan2 '(:r0 :r1))
+
+	(vp-load-rcf :r0 +num_value :f0)
+	(vp-load-rcf :r1 +num_value :f1)
+	(call :sys_math :f_atan2 '(:f0 :f1) '(:f0))
+	(float-bits :f0 :r0)
+	(jump :float :create '(:r0))
+
+(def-func-end)
+
 (def-method :float :frac)
 	;inputs
 	;:r0 = float object (ptr)

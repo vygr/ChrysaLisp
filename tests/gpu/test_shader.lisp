@@ -169,6 +169,11 @@
 	(sh-main "(return (vec4 (exp 0.0) (exp 1.0) (log 1.0) (log 2.0)))"))
 (assert-pixel "tanh" '(0.0 0.7616 -0.964 1.0)
 	(sh-main "(return (vec4 (tanh 0.0) (tanh 1.0) (tanh -2.0) (tanh 20.0)))"))
+(assert-pixel "asin acos atan atan2" '(0.5236 2.0944 1.1071 2.3562)
+	(sh-main "(return (vec4 (asin 0.5) (acos -0.5) (atan 2.0) (atan2 1.0 -1.0)))"))
+(assert-pixel "atan of a vector, asin acos" '(-0.7854 0.4636 -1.5708 0.0)
+	(sh-main "(defq a (vec2 -1.0 0.5) b (vec2 -1.0 1.0))"
+		"(return (vec4 (atan a) (asin (:x b)) (acos (:y b))))"))
 (assert-pixel "exp log of a vector" '(0.3679 7.3891 -0.6931 2.3026)
 	(sh-main "(defq a (vec2 -1.0 2.0) b (vec2 0.5 10.0))"
 		"(return (vec4 (exp a) (log b)))"))

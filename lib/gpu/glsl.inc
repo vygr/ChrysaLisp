@@ -41,6 +41,8 @@
 						((eql a 'not) (cat "(!" (first args) ")"))
 						;a picture is a sampler of its name
 						((eql a 'texture) (cat "texture2D(" (first args) ", " (second args) ")"))
+						;atan of two is atan2
+						((eql a 'atan2) (cat "atan(" (join args ", ") ")"))
 						((cat (str a) "(" (join args ", ") ")"))))))))
 
 (defun glsl-decls (program)

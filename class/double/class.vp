@@ -424,6 +424,64 @@
 
 (def-func-end)
 
+(def-method :double :atan)
+	;inputs
+	;:r0 = double object (ptr)
+	;outputs
+	;:r0 = result double object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :atan
+		'(call :sys_math :d_atan '(:d1) '(:d0)))
+
+(def-func-end)
+
+(def-method :double :asin)
+	;inputs
+	;:r0 = double object (ptr)
+	;outputs
+	;:r0 = result double object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :asin
+		'(call :sys_math :d_asin '(:d1) '(:d0)))
+
+(def-func-end)
+
+(def-method :double :acos)
+	;inputs
+	;:r0 = double object (ptr)
+	;outputs
+	;:r0 = result double object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+
+	(mathop :acos
+		'(call :sys_math :d_acos '(:d1) '(:d0)))
+
+(def-func-end)
+
+(def-method :double :atan2)
+	;inputs
+	;:r0 = y double object (ptr)
+	;:r1 = x double object (ptr)
+	;outputs
+	;:r0 = result double object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :d0-:d15
+	;info
+	;the angle of the point x y, -pi to pi, :sys_math :d_atan2
+
+	(entry :double :atan2 '(:r0 :r1))
+
+	(assign '((:r0 +num_value) (:r1 +num_value)) '(:d0 :d1))
+	(call :sys_math :d_atan2 '(:d0 :d1) '(:d0))
+	(jump :double :create '(:d0))
+
+(def-func-end)
+
 (def-method :double :frac)
 	;inputs
 	;:r0 = double object (ptr)

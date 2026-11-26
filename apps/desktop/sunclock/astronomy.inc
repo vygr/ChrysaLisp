@@ -1,6 +1,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/math/vector.inc")
+(import "lib/math/trig.inc")
 
 ; Fixed-point trigonometric helper constants
 (defq +geo_deg_to_rad+ (/ +fp_pi 180.0)
@@ -32,48 +33,8 @@
 	(defq wrapped (norm-angle-360 deg))
 	(if (>= wrapped 180.0) (- wrapped 360.0) wrapped))
 
-(defun atan (x)
-	; High-accuracy arctangent approximation (Abramowitz & Stegun 4.4.49)
-	; Error < 0.0001 degrees
-	;the series is for 0 to 1. One below 0 is that of the number without
-	;its sign, and one above 1 is a quarter turn less that of 1 over it
-	(defq minus (< x 0.0) x (abs x) over (> x 1.0) x (if over (/ 1.0 x) x)
-		x2 (* x x)
-		r (* x (+ 0.99997726
-				(* x2 (+ -0.33262347
-						(* x2 (+ 0.19354346
-								(* x2 (+ -0.11643287
-										(* x2 (- 0.05265332 (* 0.01172120 x2)))))))))))
-		r (if over (- +fp_hpi r) r))
-	(if minus (neg r) r))
-
-(defun atan2 (y x)
-	; Two-argument arctangent returning angle in [-pi, +pi)
-	(cond
-		((and (= x 0.0) (= y 0.0)) 0.0)
-		((> x 0.0) (atan (/ y x)))
-		((< x 0.0)
-			(if (>= y 0.0)
-				(+ (atan (/ y x)) +fp_pi)
-				(- (atan (/ y x)) +fp_pi)))
-		((> y 0.0) +fp_hpi)
-		((< y 0.0) (neg +fp_hpi))
-		(:t 0.0)))
-
-(defun asin (x)
-	; Arcsine returning angle in [-pi/2, +pi/2]
-	(cond
-		((>= x 0.9999) +fp_hpi)
-		((<= x -0.9999) (neg +fp_hpi))
-		(:t
-			(defq clamped (clamp x -1.0 1.0)
-				om_x2 (- 1.0 (* clamped clamped))
-				denom (sqrt (max 0.0 om_x2)))
-			(atan2 clamped denom))))
-
-(defun acos (x)
-	; Arccosine returning angle in [0, pi]
-	(- +fp_hpi (asin x)))
+;the inverse turns are of doubles, lib/math/trig.inc: a fixed made a
+;double for one, and its answer the fixed again
 
 (defun tan (x)
 	; Tangent of angle in radians
@@ -104,7 +65,7 @@
 		eps_rad (geo-deg-to-rad eps_deg)
 		; Solar declination delta
 		sin_delta (* (sin eps_rad) (sin lambda_rad))
-		delta_rad (asin sin_delta)
+		delta_rad (n2q (asin (n2d sin_delta)))
 		delta_deg (geo-rad-to-deg delta_rad)
 		; Equation of time in minutes
 		y_val (* (tan (/ eps_rad 2.0)) (tan (/ eps_rad 2.0)))
@@ -146,7 +107,7 @@
 		cos_zenith (+ (* (sin phi) (sin delta))
 			(* (* (cos phi) (cos delta)) (cos d_lon)))
 		clamped (clamp cos_zenith -1.0 1.0)
-		elev_rad (asin clamped))
+		elev_rad (n2q (asin (n2d clamped))))
 	(geo-rad-to-deg elev_rad))
 
 (defun daylight? (lat_deg lon_deg sun_lat_deg sun_lon_deg)
@@ -177,7 +138,7 @@
 			; Midnight sun: Sun never sets
 			(list :nil noon_utc :nil 24.0 :polar_day))
 		(:t
-			(defq h0_rad (acos (clamp cos_h0 -1.0 1.0))
+			(defq h0_rad (n2q (acos (n2d (clamp cos_h0 -1.0 1.0))))
 				h0_hours (* (/ h0_rad +fp_pi) 12.0)
 				sunrise_utc (% (+ (- noon_utc h0_hours) 24.0) 24.0)
 				sunset_utc (% (+ (+ noon_utc h0_hours) 24.0) 24.0)
@@ -195,4 +156,4 @@
 		(setq tan_delta (if (>= tan_delta 0.0) 0.0001 -0.0001)))
 	(defq d_lon (- lon_rad sun_lon_rad)
 		tan_phi (/ (neg (cos d_lon)) tan_delta))
-	(atan tan_phi))
+	(n2q (atan (n2d tan_phi))))

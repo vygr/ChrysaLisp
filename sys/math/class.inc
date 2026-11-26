@@ -20,7 +20,15 @@
 	(dec-method :f_tanh sys/math/f_tanh :static (:f0) (:f0))
 	(dec-method :f_sin sys/math/f_sin :static (:f0) (:f0))
 	(dec-method :f_cos sys/math/f_cos :static (:f0) (:f0))
-	(dec-method :f_log sys/math/f_log :static (:f0) (:f0)))
+	(dec-method :f_log sys/math/f_log :static (:f0) (:f0))
+	(dec-method :d_atan sys/math/d_atan :static (:d0) (:d0))
+	(dec-method :d_atan2 sys/math/d_atan2 :static (:d0 :d1) (:d0))
+	(dec-method :d_asin sys/math/d_asin :static (:d0) (:d0))
+	(dec-method :d_acos sys/math/d_acos :static (:d0) (:d0))
+	(dec-method :f_atan sys/math/f_atan :static (:f0) (:f0))
+	(dec-method :f_atan2 sys/math/f_atan2 :static (:f0 :f1) (:f0))
+	(dec-method :f_asin sys/math/f_asin :static (:f0) (:f0))
+	(dec-method :f_acos sys/math/f_acos :static (:f0) (:f0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fixed point vector math codegen

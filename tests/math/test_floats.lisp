@@ -1,5 +1,7 @@
 (report-header "Floats (32 bit Floating Point)")
 
+(import "lib/math/trig.inc")
+
 ;a float holds the 32 bits of an IEEE single, the upper half of its value
 ;clear, so the same float is always the same value
 (defq tf_a (n2f 1.5) tf_b (n2f (n2d 0.25)) tf_c (n2f 3) tf_m (n2f -2.5))
@@ -75,6 +77,15 @@
 (assert-true "float tanh 0.5" (tf_near (tanh (n2f 0.5)) (str-to-double "0.46211715726000974")))
 (assert-true "float tanh -2" (tf_near (tanh (n2f -2.0)) (str-to-double "-0.9640275800758169")))
 (assert-eq "float tanh 20" (n2f 1) (tanh (n2f 20.0)))
+;the inverse turns by f_atan and those of it, in 32 bits, near the
+;nearest single
+(assert-eq "float atan of 0" (n2f 0) (atan (n2f 0)))
+(assert-true "float atan 0.5" (tf_near (atan (n2f 0.5)) (str-to-double "0.46364760900080615")))
+(assert-true "float atan -3" (tf_near (atan (n2f -3.0)) (str-to-double "-1.2490457723982544")))
+(assert-true "float atan2 1 -1" (tf_near (atan2 (n2f 1.0) (n2f -1.0)) (str-to-double "2.356194490192345")))
+(assert-true "float atan2 -0.5 2" (tf_near (atan2 (n2f -0.5) (n2f 2.0)) (str-to-double "-0.24497866312686414")))
+(assert-true "float asin 0.5" (tf_near (asin (n2f 0.5)) (str-to-double "0.5235987755982988")))
+(assert-true "float acos -0.75" (tf_near (acos (n2f -0.75)) (str-to-double "2.4188584057763776")))
 (assert-eq "float tanh -20" (n2f -1) (tanh (n2f -20.0)))
 
 (assert-error "float divide by zero" (/ tf_a (n2f 0)) {(/ num num ...) wrong_types})

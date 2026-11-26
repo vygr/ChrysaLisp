@@ -213,9 +213,11 @@ name.
 * `(vec2 ...)`, `(vec3 ...)` and `(vec4 ...)` build a vector from floats, ints
   and smaller vectors, or from a single number for every component.
 * `(:x v)`, `(:xy v)`, `(:zyx v)` pick components, `xyzw` or `rgba`.
-* `sin cos sqrt floor fract abs exp log tanh`, of a float, or of each component.
+* `sin cos sqrt floor fract abs exp log tanh asin acos atan`, of a float, or of
+  each component.
 * `min max mod`, of two the same, or of a vector and a float.
-* `(pow x y)`, `(clamp x lo hi)`, `(mix a b t)`.
+* `(pow x y)`, `(atan2 y x)`, `(clamp x lo hi)`, `(mix a b t)`. GLSL has
+  `atan2` as `atan` of two.
 * `(dot a b)`, `(cross a b)`, `(length v)`, `(normalize v)`, `(reflect i n)`.
 
 * `(texture name uv)`, the pixel of a texture at a `:vec2`, as a `:vec4`.
@@ -1196,7 +1198,8 @@ How the code is laid out.
 * `sin` and `cos` call `:sys_math :d_sin`, `exp` and `log` `:d_exp` and
   `:d_log`, and `pow` `:sys_math :d_pow`, of the double of the single, and
   the answer is made the nearest single. `tanh` calls `:sys_math :f_tanh`,
-  of the single as it is.
+  of the single as it is, and `asin` `acos` `atan` and `atan2` their own
+  `:f_` functions, the floats' own, so the two agree to the bit.
   `floor`, `fract` and `mod` are built from a convert to int and back.
 
 It has one limit the others do not. An expression that holds more than 16
