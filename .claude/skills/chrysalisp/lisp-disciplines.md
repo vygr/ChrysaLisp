@@ -848,13 +848,20 @@ new trap there with its test. Others to know:
 	list, silently. In a task's text put the import a form apart.
 
 *	A module's own `defq` globals are gone once it pops: a function of it
-	that names one at run time fails.
+	that names one at run time fails. What is prebound is not named at run
+	time: a `+name`, and a function defined before the one that calls it,
+	are put into the code as it is made, the one instance, so they may stay
+	the module's own. What is looked up as it runs must be exported: its
+	state, a function called before it is defined (`forward` lists them;
+	move it up instead), and a `defclass`'s `*class_Name*`, by
+	`(export-classes '(Name ...))`, or its constructor fails.
 
-*	A release build has no checks: an error is a value that the next form
-	walks over, and a `catch` sees only the very form it is round. A fault
-	a caller must see goes in a value or the object's state, never a
-	throw. Run a new stream or service on the `-e` emulator. A test of
-	what is wrong on purpose is skipped unless `*test_checked*`.
+*	There is no build without the checks: `*build_mode*` 1, the normal
+	build, checks the arguments of every binding, and 2, validate, adds
+	more, `root.inc`. So a wrong argument is always an error, and the
+	check is on the hot path of every call: make it the dispatch, the
+	`vp-assembler.md` walk back along the classes. Run a new stream or
+	service on the `-e` emulator.
 
 *	`(print ...)` is buffered: a second `(print)` flushes it to the host.
 	`stream-flush` of a `string-stream` sends it to stdout; capture what a

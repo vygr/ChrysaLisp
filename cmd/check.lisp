@@ -1363,8 +1363,17 @@
 									(str? (defq to (catch (first (read (string-stream (third (second inner))))) :nil)))
 									(str? (setq to (catch (path-to-absolute to path) :nil))) (/= 0 (age to)))
 								(push more to))
-							((and (eql head "raise") (> n 2) (defq binds (tree-form? (third inner))))
-								(each! (# (and (even? (!)) (eql (first %0) :symbol) (push names (third %0)))) (list (forms-of binds)))))))
+							;(raise :field (sym val) ...), a name for each, the field's
+							;without its colon, the sym of a pair
+							((eql head "raise")
+								(each! (lambda (arg)
+										(cond
+											((eql (first arg) :keysym)
+												(push names (rest (third arg))))
+											((and (defq pair (tree-form? arg)) (nempty? (defq pair (forms-of pair)))
+													(eql (first (first pair)) :symbol))
+												(push names (third (first pair))))))
+									(list inner) 1)))))
 				nodes))
 		(. *names_of* :insert path (setq got (list names more))))
 	got)

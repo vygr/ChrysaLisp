@@ -286,6 +286,10 @@
 	(tt-check "unbound" "(defun f (x fn) (no-such x) (later x) (fn x))" "(defun later (x) x)"
 		"(defun g (x) (cond (x (nor-this x)) ((> x 1) 2)))" "(defun h (x) (let ((a 1)) (nor-that a)))"
 		"(defmacro gen (n) `(defun ,(sym (cat \qmade-\q n)) () 1))" "(defun k () (made-one))"))
+(assert-list-eq "unbound: what a raise names, a field and a pair, called in a method; not a call of nothing beside it"
+	'("(3) unbound: nor-this is called, and is no function or macro of the system, of this file, or of what it imports")
+	(tt-check "unbound" "(defun f (this)" "	(raise :noise (fold (get :f this)))"
+		"	(noise (fold (nor-this 1))))"))
 (assert-list-eq "past: an inc of an rfind, as it is and in an ifn; not an inc of a find"
 	'("(1) past: (inc) of an (rfind), which gives the place after what it found already"
 		"(2) past: (inc) of an (rfind), which gives the place after what it found already")
