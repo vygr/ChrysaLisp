@@ -854,7 +854,13 @@ new trap there with its test. Others to know:
 	the module's own. What is looked up as it runs must be exported: its
 	state, a function called before it is defined (`forward` lists them;
 	move it up instead), and a `defclass`'s `*class_Name*`, by
-	`(export-classes '(Name ...))`, or its constructor fails.
+	`(export-classes '(Name ...))`, or its constructor fails. What its
+	importers share with it, a `structure` and its `_t` names, an `enums`,
+	goes above the `(env-push)`, not into the export. A module can not have
+	a `+name` its importer has already: the name is read as its value, and
+	its `(defq)` fails `not_a_symbol`; use the importer's. A module run
+	inside an app, calling the app's own functions, is given the app as its
+	context in `check`'s `+unbound_context`.
 
 *	There is no build without the checks: the normal build,
 	`*build_validate*` `:nil`, checks the arguments of every binding, and a

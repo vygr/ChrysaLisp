@@ -1309,7 +1309,8 @@
 		("cmd/make.lisp" "lib/asm/class.inc")
 		("lib/asm/" "lib/asm/func.inc" "lib/asm/class.inc" "lib/boot/image.inc")
 		("lib/trans/" "lib/asm/func.inc" "lib/asm/class.inc")
-		("apps/desktop/docs/handlers/" "apps/desktop/docs/app.lisp"))
+		("apps/desktop/docs/handlers/" "apps/desktop/docs/app.lisp")
+		("apps/demos/flight/fleet.inc" "apps/demos/flight/app.lisp"))
 	+unbound_skip ''("tests/scratch/")
 	+unbound_methods ''("defmethod" "defabstractmethod" "deffimethod" "defgetmethod" "defsetmethod" "defproxymethod"))
 

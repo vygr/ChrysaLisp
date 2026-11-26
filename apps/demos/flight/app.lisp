@@ -54,22 +54,22 @@
 	;the flight, a figure of eight: how far it reaches across and along,
 	;how fast, how high, how it looks down, and how hard it leans into a
 	;turn, as a plane does for a pull of so much
-	+reach_x (n2d 640) +reach_z (n2d 320) +speed (n2d 24) +altitude (n2d 85) +pull (n2d 9)
+	+reach_x (n2d 640) +reach_z (n2d 320) +speed (n2d 24) +altitude (n2d 85) +pull +double_9
 	+pitch_eight (n2d 0.18)
 	;the flight along the valleys, as a jet low down: how far ahead and how
 	;far round it looks at the land, how hard it turns to the lower side,
 	;how fast at most it turns, a second, and how slowly it comes to that,
 	;how far over the land it keeps, how it looks down, how fast it may
 	;climb and come down, a second, and how slowly it comes to that
-	+ahead (n2d 120) +aside (n2d 0.45) +steer (n2d 0.004) +turn_most (n2d 0.25) +turn_ease (n2d 0.5)
-	+clearance (n2d 24) +pitch_valley (n2d 0.1) +climb (n2d 16) +sink (n2d 8) +rise_ease (n2d 0.8)
+	+ahead (n2d 120) +aside (n2d 0.45) +steer (n2d 0.004) +turn_most +double_1/4 +turn_ease +double_1/2
+	+clearance (n2d 24) +pitch_valley +double_1/10 +climb (n2d 16) +sink +double_8 +rise_ease (n2d 0.8)
 	;flown by the pointer: the middle of the picture it does nothing in, how
 	;fast at most it turns and climbs or dives for the pointer at an edge,
 	;how near the land it may go whatever the pointer says, and how high
-	+dead (n2d 0.12) +stick_turn (n2d 0.5) +stick_climb (n2d 24) +floor (n2d 14) +ceiling (n2d 260)
+	+dead (n2d 0.12) +stick_turn +double_1/2 +stick_climb (n2d 24) +floor (n2d 14) +ceiling (n2d 260)
 	;how high the frame is at a distance of 1, its width of its shape, and
 	;how near and far it sees
-	+spread_y (n2d 0.5) +near (n2d 1) +far (n2d 700)
+	+spread_y +double_1/2 +near +double_1 +far (n2d 700)
 	+land_vertex (cat *app_root* "land_vertex.shader") +land_lit (cat *app_root* "land_lit.shader")
 	sky_files (list "lib/gpu/shaders/sky_vertex.shader" (cat *app_root* "sky_lit.shader"))
 	moon_files (list (cat *app_root* "moon_vertex.shader") (cat *app_root* "moon_lit.shader"))
@@ -155,6 +155,21 @@
 	tiles_z (apply (const doubles) (map! (lambda () (n2d (/ (!) +tiles))) '() 0 (* +tiles +tiles)))
 	tiles_one (fill (doubles) (* +tiles +tiles) +double_1))
 
+;the numbers of the functions below: a second, of (pii-time); how a beam's
+;tube flares; the most of a colour's channel; the steps of the day's
+;slider; the sun's height at day's ends and how high its arc, how far it
+;falls at dusk and rises at dawn, where round it starts, how much of the
+;dusk's glow is its own, and the least height of the moon by day; how
+;quickly the height eases; how far ahead the land is looked at, along the
+;valleys and by the mouse; how far over it the flight is kept and how
+;hard it climbs to it; and the sky's brightness by day
+(defq +second (n2d 1000000) +tube_flare (n2d 1.2) +channel_most (n2d 255) +day_steps (n2d 1000)
+	+sun_low (n2d 0.12) +sun_arc (n2d 0.38) +sun_dusk (n2d 0.37) +sun_az_start (n2d 0.9)
+	+dusk_glow (n2d 0.85) +moon_least (n2d 0.24) +height_ease (n2d 0.6) +valley_look_near (n2d 60)
+	+valley_look_mid (n2d 120) +valley_look_far (n2d 240) +mouse_look_near (n2d 40)
+	+mouse_look_mid (n2d 90) +mouse_look_far (n2d 180) +floor_margin (n2d 12) +floor_climb (n2d 0.9)
+	+sky_bright (n2d 1.5))
+
 (defun make-canvas (size)
 	; (make-canvas size) -> canvas
 	;its pixels are in shared memory if the host has it, the nodes of this
@@ -200,7 +215,7 @@
 	;an open tube of segs sides, a column, its top of radius 1 at 0 and its
 	;foot a little wider at -1, a vertex its place, 3 numbers, three to a
 	;triangle
-	(defq out (list) flare (const (n2d 1.2)))
+	(defq out (list) flare +tube_flare)
 	(each! (lambda ()
 			(defq a (/ (* +double_2pi (n2d (!))) (n2d segs)) b (/ (* +double_2pi (n2d (inc (!)))) (n2d segs))
 				ca (cos a) sa (sin a) cb (cos b) sb (sin b))
@@ -211,7 +226,7 @@
 
 (defun argb (rgb)
 	; (argb rgb) -> argb
-	(+ 0xff000000 (reduce (lambda (a c) (+ (<< a 8) (n2i (* c (const (n2d 255)))))) rgb 0)))
+	(+ 0xff000000 (reduce (lambda (a c) (+ (<< a 8) (n2i (* c +channel_most)))) rgb 0)))
 
 (defun blend (a b ka kb)
 	; (blend a b ka kb) -> doubles
@@ -255,24 +270,24 @@
 	(setq day_at at)
 	;the slider where the day is, unless a hand has had it in the last second
 	(and (> (- (pii-time) day_dragged) 1000000)
-		(/= (get :value *day*) (defq v (n2i (/ (* at (const (n2d 1000))) +day_total))))
+		(/= (get :value *day*) (defq v (n2i (/ (* at +day_steps) +day_total))))
 		(def (. *day* :dirty) :value v))
 	(cond
 		((< at +day_long)
-			(setq e (+ (const (n2d 0.12)) (* (const (n2d 0.38)) (sin (/ (* +double_pi at) +day_long))))))
+			(setq e (+ +sun_low (* +sun_arc (sin (/ (* +double_pi at) +day_long))))))
 		((< at (+ +day_long +dusk_long))
 			(defq r (/ (- at +day_long) +dusk_long))
-			(setq d (* r r (- +double_3 (* +double_2 r))) g (* +double_4 r (- +double_1 r)) e (- (const (n2d 0.12)) (* (const (n2d 0.37)) r))))
+			(setq d (* r r (- +double_3 (* +double_2 r))) g (* +double_4 r (- +double_1 r)) e (- +sun_low (* +sun_dusk r))))
 		((< at (+ +day_long +dusk_long +night_long))
-			(setq d +double_1 e (const (n2d -0.25))))
+			(setq d +double_1 e +double_-1/4))
 		(:t (defq r (/ (- at +day_long +dusk_long +night_long) +dawn_long))
 			(setq d (- +double_1 (* r r (- +double_3 (* +double_2 r)))) g (* +double_4 r (- +double_1 r))
-				e (+ (const (n2d -0.25)) (* (const (n2d 0.37)) r)))))
-	(defq az (+ (const (n2d 0.9)) (/ (* +double_2pi at) +day_total)) ce (cos e)
-		k (* g (const (n2d 0.85))))
+				e (+ +double_-1/4 (* +sun_dusk r)))))
+	(defq az (+ +sun_az_start (/ (* +double_2pi at) +day_total)) ce (cos e)
+		k (* g +dusk_glow))
 	;the moon opposite the sun, full, up by night as the sun is down; by
 	;day low in the sky, not set, the moon by day
-	(defq me (max (neg e) (const (n2d 0.24))) mce (cos me))
+	(defq me (max (neg e) +moon_least) mce (cos me))
 	(setq moon_way (doubles (* mce (cos (+ az +double_pi))) (sin me) (* mce (sin (+ az +double_pi))))
 		sun_at (doubles (* ce (cos az)) (sin e) (* ce (sin az)))
 		sun (vector-norm (blend sun_at moon_way (- +double_1 d) d))
@@ -287,7 +302,7 @@
 	;x moved toward to by a spring that is damped just enough not to go
 	;past it, v how fast it moves: a change starts slowly and gathers, no
 	;kick, and stops as slowly. A step of no more than a tenth of a second
-	(defq dt (min dt (const (n2d 0.1)))
+	(defq dt (min dt +double_1/10)
 		v (+ v (* (- (* +spring_k +spring_k (- to x)) (* +double_2 +spring_k v)) dt)))
 	(list (+ x (* v dt)) v))
 
@@ -299,7 +314,7 @@
 
 (defun ease-height (target dt)
 	;toward a height, no faster up or down than it may
-	(rise-toward (max (neg +sink) (min +climb (* (- target height) (const (n2d 0.6))))) dt))
+	(rise-toward (max (neg +sink) (min +climb (* (- target height) +height_ease))) dt))
 
 (defun beyond-dead (x)
 	; (beyond-dead x) -> double
@@ -390,7 +405,7 @@
 	(defq target (max (neg +turn_most) (min +turn_most (* +steer (- (land-side rx rz) (land-side lx lz))))))
 	(setq turning (+ turning (* (- target turning) (min +double_1 (* dt +turn_ease)))))
 	(bind '(nx nz) (fly-on dt))
-	(ease-height (+ +clearance (land-ahead nx nz (const (n2d 60)) (const (n2d 120)) (const (n2d 240)))) dt)
+	(ease-height (+ +clearance (land-ahead nx nz +valley_look_near +valley_look_mid +valley_look_far)) dt)
 	(list nx nz (neg (/ (* +speed turning) +pull))))
 
 (defun mouse-pose (dt)
@@ -403,10 +418,10 @@
 	(bind '(sx sy) (ifn stick (list +double_0 +double_0) stick))
 	(setq turning (+ turning (* (- (* (neg (beyond-dead sx)) +stick_turn) turning) (min +double_1 (* dt +turn_ease +double_2)))))
 	(bind '(nx nz) (fly-on dt))
-	(defq low (+ +floor (land-ahead nx nz (const (n2d 40)) (const (n2d 90)) (const (n2d 180))))
+	(defq low (+ +floor (land-ahead nx nz +mouse_look_near +mouse_look_mid +mouse_look_far))
 		want (* (beyond-dead sy) +stick_climb))
 	(cond
-		((< height (+ low (const (n2d 12)))) (setq want (max want (* (- (+ low (const (n2d 12))) height) (const (n2d 0.9))))))
+		((< height (+ low +floor_margin)) (setq want (max want (* (- (+ low +floor_margin) height) +floor_climb))))
 		((> height +ceiling) (setq want (min want (* (- +ceiling height) +double_1/2)))))
 	(rise-toward want dt)
 	;the floor itself is never gone under, an easing can not be late for it
@@ -470,7 +485,7 @@
 	;where they are, the clouds, and the beams. Forward is along its way,
 	;looking down a little, and it leans into a turn by its lean, the
 	;tangent of the angle, made of its cosine and sine, no angle
-	(defq now (pii-time) dt (/ (n2d (- now moved)) (const (n2d 1000000))))
+	(defq now (pii-time) dt (/ (n2d (- now moved)) +second))
 	(setq moved now)
 	(bind '(fx fz lean_to) (case path (:eight (eight-pose dt)) (:valleys (valley-pose dt)) (:t (mouse-pose dt))))
 	;the lean, and how the nose is, sprung to what the way of flying wants,
@@ -496,7 +511,7 @@
 		spread_x (/ (* +spread_y (n2d (first size))) (n2d (second size)))
 		lens (mat4x4-frustum (neg spread_x) spread_x +spread_y (neg +spread_y) +near +far)
 		view (mat4x4-mul lens (mat4x4-mul look (mat4x4-translate (neg (first eye)) (neg (second eye)) (neg (third eye)))))
-		seconds (/ (n2d (- moved began)) (const (n2d 1000000)))
+		seconds (/ (n2d (- moved began)) +second)
 		;the GPU's land, or the CPU's of bigger cells, moved under the eye by
 		;whole cells of it
 		gpu (eql (. render :mode) :gpu) fine (and gpu (= detail 0)) cell (if fine +cell +cell_cpu)
@@ -528,7 +543,7 @@
 						(mat4x4-roty (* seconds +moon_turn)))))))
 				(list 'spin spin) (list 'lens view))
 			(list (list 'sun sun_at) (list 'haze haze) (list 'above above) (list 'rise (second moon_way))
-				(list 'bright (+ (const (n2d 1.5)) (* +double_3 night))))
+				(list 'bright (+ +sky_bright (* +double_3 night))))
 			(list moon_map) moon_files))
 		;the craft about, fleet.inc
 		(fleet-draws view eye forward seconds)
@@ -721,8 +736,8 @@
 					;the day dragged to another time of it
 					((= id +event_day)
 						(setq day_dragged (pii-time)
-							day_start (- (/ (* (n2d (get :value *day*)) +day_total) (const (n2d 1000)))
-								(/ (n2d (- (pii-time) began)) (const (n2d 1000000))))))
+							day_start (- (/ (* (n2d (get :value *day*)) +day_total) +day_steps)
+								(/ (n2d (- (pii-time) began)) +second))))
 					((= id +event_music)
 						(setq music_on (not (. music :title)))
 						(if music_on (. music :start) (. music :stop))
