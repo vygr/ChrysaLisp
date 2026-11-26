@@ -819,3 +819,100 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :doubles :quat_mul)
+	;inputs
+	;:r0 = output doubles object (ptr)
+	;:r1 = qa doubles object (ptr)
+	;:r2 = qb doubles object (ptr)
+	;outputs
+	;:r0 = output doubles object (ptr)
+	;trashes
+	;:r1-:r3, :d0-:d12
+	;info
+	;the quaternion qa qb, each w x y z, the turn of qb then qa; all read
+	;before any is written, so the output may be either
+
+	(vp-rdef (this ptr_a ptr_b ptr_o))
+	(vp-ddef (aw ax ay az bw bx by bz ow ox oy oz t))
+
+	(entry :doubles :quat_mul `(,this ,ptr_a ,ptr_b))
+
+	(vp-simd vp-load-rcr `(,ptr_a ,ptr_b ,this) `(,+array_begin) `(,ptr_a ,ptr_b ,ptr_o))
+	(vp-simd vp-load-rcd `(,ptr_a) `(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size)) `(,aw ,ax ,ay ,az))
+	(vp-simd vp-load-rcd `(,ptr_b) `(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size)) `(,bw ,bx ,by ,bz))
+	;w = aw bw - ax bx - ay by - az bz
+	(vp-cpy-dd aw ow) (vp-mul-dd bw ow)
+	(vp-cpy-dd ax t) (vp-mul-dd bx t) (vp-sub-dd t ow)
+	(vp-cpy-dd ay t) (vp-mul-dd by t) (vp-sub-dd t ow)
+	(vp-cpy-dd az t) (vp-mul-dd bz t) (vp-sub-dd t ow)
+	;x = aw bx + ax bw + ay bz - az by
+	(vp-cpy-dd aw ox) (vp-mul-dd bx ox)
+	(vp-cpy-dd ax t) (vp-mul-dd bw t) (vp-add-dd t ox)
+	(vp-cpy-dd ay t) (vp-mul-dd bz t) (vp-add-dd t ox)
+	(vp-cpy-dd az t) (vp-mul-dd by t) (vp-sub-dd t ox)
+	;y = aw by - ax bz + ay bw + az bx
+	(vp-cpy-dd aw oy) (vp-mul-dd by oy)
+	(vp-cpy-dd ax t) (vp-mul-dd bz t) (vp-sub-dd t oy)
+	(vp-cpy-dd ay t) (vp-mul-dd bw t) (vp-add-dd t oy)
+	(vp-cpy-dd az t) (vp-mul-dd bx t) (vp-add-dd t oy)
+	;z = aw bz + ax by - ay bx + az bw
+	(vp-cpy-dd aw oz) (vp-mul-dd bz oz)
+	(vp-cpy-dd ax t) (vp-mul-dd by t) (vp-add-dd t oz)
+	(vp-cpy-dd ay t) (vp-mul-dd bx t) (vp-sub-dd t oz)
+	(vp-cpy-dd az t) (vp-mul-dd bw t) (vp-add-dd t oz)
+	(vp-simd vp-store-drc `(,ow ,ox ,oy ,oz) `(,ptr_o) `(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size)))
+
+	(exit :doubles :quat_mul `(,this))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :doubles :quat_v3_rot)
+	;inputs
+	;:r0 = output doubles object (ptr)
+	;:r1 = q doubles object (ptr)
+	;:r2 = vector doubles object (ptr)
+	;outputs
+	;:r0 = output doubles object (ptr)
+	;trashes
+	;:r1-:r4, :d0-:d13
+	;info
+	;each vec3 turned by the quaternion q, of length 1, w x y z: t the
+	;cross of u, q's x y z, and v, twice; v + w t + the cross of u and t.
+	;Each read before it is written, so the output may be the vectors
+
+	(vp-rdef (this ptr_q ptr_v ptr_o ptr_ve))
+	(vp-ddef (qw qx qy qz v0 v1 v2 t0 t1 t2 c0 c1 c2 s))
+
+	(entry :doubles :quat_v3_rot `(,this ,ptr_q ,ptr_v))
+
+	(assign `((,ptr_v +array_length)) `(,ptr_ve))
+	(vp-simd vp-load-rcr `(,ptr_q ,ptr_v ,this) `(,+array_begin) `(,ptr_q ,ptr_v ,ptr_o))
+	(vp-shl-cr (log2 +long_size) ptr_ve)
+	(vp-add-rr ptr_v ptr_ve)
+	(vp-simd vp-load-rcd `(,ptr_q) `(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size)) `(,qw ,qx ,qy ,qz))
+
+	(loop-start)
+		(vp-simd vp-load-rcd `(,ptr_v) `(0 ,+long_size ,(* 2 +long_size)) `(,v0 ,v1 ,v2))
+		;t = 2 (u x v)
+		(vp-cpy-dd qy t0) (vp-mul-dd v2 t0) (vp-cpy-dd qz s) (vp-mul-dd v1 s) (vp-sub-dd s t0)
+		(vp-cpy-dd qz t1) (vp-mul-dd v0 t1) (vp-cpy-dd qx s) (vp-mul-dd v2 s) (vp-sub-dd s t1)
+		(vp-cpy-dd qx t2) (vp-mul-dd v1 t2) (vp-cpy-dd qy s) (vp-mul-dd v0 s) (vp-sub-dd s t2)
+		(vp-simd vp-add-dd `(,t0 ,t1 ,t2) `(,t0 ,t1 ,t2))
+		;c = u x t
+		(vp-cpy-dd qy c0) (vp-mul-dd t2 c0) (vp-cpy-dd qz s) (vp-mul-dd t1 s) (vp-sub-dd s c0)
+		(vp-cpy-dd qz c1) (vp-mul-dd t0 c1) (vp-cpy-dd qx s) (vp-mul-dd t2 s) (vp-sub-dd s c1)
+		(vp-cpy-dd qx c2) (vp-mul-dd t1 c2) (vp-cpy-dd qy s) (vp-mul-dd t0 s) (vp-sub-dd s c2)
+		;v + w t + c
+		(vp-simd vp-mul-dd `(,qw) `(,t0 ,t1 ,t2))
+		(vp-simd vp-add-dd `(,t0 ,t1 ,t2) `(,v0 ,v1 ,v2))
+		(vp-simd vp-add-dd `(,c0 ,c1 ,c2) `(,v0 ,v1 ,v2))
+		(vp-simd vp-store-drc `(,v0 ,v1 ,v2) `(,ptr_o) `(0 ,+long_size ,(* 2 +long_size)))
+		(vp-simd vp-add-cr `(,(* 3 +long_size)) `(,ptr_v ,ptr_o))
+	(loop-until `(,ptr_v >= ,ptr_ve))
+
+	(exit :doubles :quat_v3_rot `(,this))
+	(vp-ret)
+
+(def-func-end)
