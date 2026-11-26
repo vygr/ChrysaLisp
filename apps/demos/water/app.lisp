@@ -59,6 +59,9 @@
 	;the water hides them all, whatever their size, so none is seen to come;
 	;and how near the finest mesh of one is drawn, and the next, for size 1
 	+stone_hidden (n2d 0.8) +stone_fine (n2d 20) +stone_coarse (n2d 45) stones_drawn 0
+	;how far the biggest stone reaches out of its chunk, its bulk 7 and its
+	;mesh 1.2 of that
+	+stone_over (n2d 9)
 	;the world: how far round it goes, how big a chunk is, how many go
 	;round, the levels of chunks there are, and how big a cell of the
 	;lattice is and how far apart its levels are, field.shader
@@ -114,6 +117,20 @@
 	+thud_long 8820 +thud_deep (n2d 70) +thud_die (n2d 14) +thud_knock (n2d 0.5) +thud_knock_die (n2d 90)
 	;how loud the softest bump is, of the loudest, and the least step of time
 	+thud_soft (n2d 0.3) +dt_least (n2d 0.001)
+	;the sub's sonar, in stereo: its ping's samples, its echo's in the left
+	;and in the right, silence to place the echoes in, made at the start,
+	;the stream it is played on, when the last went out, how often, the
+	;first how soon; the ping's note, how fast it sounds and dies, how long,
+	;and how loud, of the scooter's; the echo's, higher and short; how far
+	;it hears the rock, how many samples later an echo is for a unit
+	;further, how loud the nearest is, the ways across the front it looks,
+	;how far round the widest is, how near the rock the search must come
+	;and its least step
+	ping_pcm :nil echo_left :nil echo_right :nil ping_quiet :nil sonar_stream :nil ping_at 0 echoes 0
+	+ping_every 4000000 +ping_first 2000000 +ping_note (n2d 1800) +ping_rise (n2d 300) +ping_die (n2d 4.4)
+	+ping_long 16538 +ping_loud (n2d 0.3) +echo_note (n2d 2700) +echo_rise (n2d 400) +echo_die (n2d 22)
+	+echo_long 4410 +ping_reach (n2d 80) +ping_unit (n2d 300) +echo_most (n2d 0.7)
+	+ping_ways ''(-1 -0.5 0 0.5 1) +ping_wide (n2d 0.6) +ping_near +double_1/2 +ping_step +double_1/2
 	;the stones as the diver bumps into them: each kind a rounded box, how
 	;far each way, of its size, how far up its middle, and how square across,
 	;2 round to more square; how far round a stone to look, of its size, and
@@ -701,6 +718,73 @@
 			(ifn (audio-stream-left-rpc thud_stream) (setq thud_stream :nil)
 				(audio-stream-write-rpc thud_stream (obj-set (str-alloc bytes) +str_data bytes pcm))))))
 
+(defun ring (note rise die long loud)
+	; (ring note rise die long loud) -> doubles
+	;a note rung, quickly up, ringing away
+	(defq k (* +double_2pi note (recip (n2d +prop_rate))))
+	(apply (const doubles) (map! (lambda ()
+			(defq t (/ (n2d (!)) (n2d +prop_rate)))
+			(* +prop_scale loud (- +double_1 (exp (* (neg rise) t))) (exp (* (neg die) t)) (sin (* k (n2d (!))))))
+		'() 0 long)))
+
+(defun stereo (l r)
+	; (stereo l r) -> doubles
+	;two channels as a stream takes them, a frame each, left first
+	(apply (const doubles) (reduce! (lambda (out a b) (push out a b)) (list l r) (list))))
+
+(defun ping-make ()
+	; (ping-make) -> (ping echo_left echo_right quiet)
+	;the sonar's ping, long and high, both sides alike; its echo, higher
+	;and short, on the left and on the right, so an echo is placed between
+	;by how much of each; and silence as long as all of them
+	(defq ping (ring +ping_note +ping_rise +ping_die +ping_long +ping_loud)
+		echo (ring +echo_note +echo_rise +echo_die +echo_long +double_1)
+		none (nums-scale echo +double_0)
+		frames (+ +ping_long +echo_long (n2i (* +ping_reach +ping_unit))))
+	(list (stereo ping ping) (stereo echo none) (stereo none echo)
+		(nums-scale (stereo (defq all (apply (const doubles) (map! (# +double_0) '() 0 frames))) all) +double_0)))
+
+(defun ping-range (way)
+	; (ping-range way) -> :nil | double
+	;how far the rock is from the sub the way given, if it is in reach:
+	;stepped along by how far the water says the rock is at least
+	(defq d +double_1 hit :nil)
+	(while (and (not hit) (< d +ping_reach))
+		(if (< (defq h (field_water (nums-add eye (nums-scale way d)))) +ping_near)
+			(setq hit d)
+			(setq d (+ d (max +ping_step h)))))
+	hit)
+
+(defun sonar-feed ()
+	; (sonar-feed)
+	;the sonar's ping now and then, and the echoes off the rock across the
+	;front of the sub, each later and fainter the further its rock is, and
+	;from the side its rock is on; none where no rock is in reach, the ping
+	;ringing away into the open water
+	(defq now (pii-time))
+	(when (and ping_pcm (> (- now ping_at) +ping_every))
+		(setq ping_at now)
+		(unless sonar_stream (setq sonar_stream (audio-stream-open-rpc +prop_rate 2)))
+		(when sonar_stream
+			(setq echoes 0)
+			(defq all (length ping_quiet) echo_n (length echo_left) right (cross forward up)
+				out (cat ping_pcm (slice ping_quiet 0 (- all (length ping_pcm)))))
+			(each (lambda (side)
+					(defq a (* (n2d side) +ping_wide)
+						way (nums-add (nums-scale forward (cos a)) (nums-scale right (sin a))))
+					(when (defq d (ping-range way))
+						(++ echoes)
+						(defq at (* 2 (n2i (* d +ping_unit))) near (- +double_1 (/ d +ping_reach))
+							loud (* +echo_most near near (cos a))
+							pan (* (+ (n2d side) +double_1) (const (/ +double_pi +double_4))))
+						(setq out (nums-add out (cat (slice ping_quiet 0 at)
+							(nums-add (nums-scale echo_left (* loud (cos pan))) (nums-scale echo_right (* loud (sin pan))))
+							(slice ping_quiet 0 (- all at echo_n)))))))
+				+ping_ways)
+			(defq pcm (nums-convert out (shorts)) bytes (* (length pcm) 2))
+			(ifn (audio-stream-left-rpc sonar_stream) (setq sonar_stream :nil)
+				(audio-stream-write-rpc sonar_stream (obj-set (str-alloc bytes) +str_data bytes pcm))))))
+
 (defun prop-feed (dt)
 	; (prop-feed dt)
 	;the scooter's whine as the right button is held, quickly up, and dying
@@ -908,9 +992,13 @@
 	(. chunks :each (lambda (key (state mid cx cy cz & & lying))
 			(when (eql state :mesh)
 				(bind '(rx ry rz) (nums-sub (chunk-centre cx cy cz) eye))
-				(when (every (lambda ((sx sy sz)) (> (+ (* rx sx) (* ry sy) (* rz sz)) (neg +chunk_reach))) sides)
+				;its own surface if it is in view, its stones if it is near
+				;enough that one of them, reaching out over the next, may be
+				(defq inside (reduce (lambda (most (sx sy sz)) (min most (+ (* rx sx) (* ry sy) (* rz sz)))) sides +far_clear))
+				(if (> inside (neg +chunk_reach))
 					(push out (list mid (list (list 'model (mat4x4-translate (* (n2d cx) +chunk) (* (n2d cy) +chunk)
-							(* (n2d cz) +chunk))) lens vvals_eye) pvals))
+							(* (n2d cz) +chunk))) lens vvals_eye) pvals)))
+				(when (> inside (neg (+ +chunk_reach +stone_over)))
 					(each (lambda ((mesh model stone at bulk weed &ignore))
 							(bind '(sx sy sz) (defq d (nums-sub at eye)))
 							(defq far (sqrt (nums-dot d d)) near_by (* far (recip (+ +double_1 bulk)))
@@ -960,7 +1048,7 @@
 		" | eye " (elem-get ms 0) " fish " (elem-get ms 1) " chunks " (elem-get ms 2) " draws " (elem-get ms 3)
 		" render " (elem-get ms 4) " gpu " (elem-get ms 5)
 		" | chunks " (str meshed) " out " (str out) " stones " (str stones_drawn) " fish " (str fish_drawn)
-		" legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
+		" echoes " (str echoes) " legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
 		" touches " (str touches)))
 	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0)
 	(stream-flush frame_stream)
@@ -973,6 +1061,7 @@
 	(defq dt (turn-eye))
 	(swim dt)
 	(prop-feed dt)
+	(sonar-feed)
 	(frame-mark 0)
 	(setq schools (schools-move schools field_water eye forward view dt +surface prop_gain))
 	(frame-mark 1)
@@ -1103,7 +1192,9 @@
 		(elem-get select +select_reply) (list (max 1 (dec (length (lisp-nodes :t))))) :t))
 	(stones-ask)
 	(fishes-ask)
-	(setq prop_pcm (prop-make) thud_pcm (thud-make))
+	(setq prop_pcm (prop-make) thud_pcm (thud-make) ping_at (- (pii-time) (- +ping_every +ping_first)))
+	(bind '(ping echo_l echo_r quiet) (ping-make))
+	(setq ping_pcm ping echo_left echo_l echo_right echo_r ping_quiet quiet)
 	(config-load)
 	(setq detail (min 4 (. *config* :find :detail)) view (elem-get +view_of detail) mode (. *config* :find :mode)
 		;at a junction over the reef, to go on from
