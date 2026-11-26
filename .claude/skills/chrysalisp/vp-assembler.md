@@ -657,7 +657,9 @@ the kinds wanted as it is passed: a vtable's first field is the vtable of
 the class it is built on, at the offset an object keeps its own, so the
 one load steps from the object to its class and on. The first kind met is
 the dispatch, and the end of the chain with none met is the error: the
-check and the dispatch are the one walk.
+check and the dispatch are the one walk. A binding checks its arguments in
+every build, there is no build without the checks, so the check is always
+on its hot path, and making it the dispatch is paid back on every call.
 
 	(f-bind :num :vtable :r2)
 	(f-bind :seq :vtable :r3)

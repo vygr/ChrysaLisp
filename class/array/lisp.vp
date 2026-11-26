@@ -357,45 +357,61 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :d0-:d15
+	;:r1-:r9, :d0-:d15
+	;info
+	;the array is checked as it is dispatched on, one walk back along its
+	;classes: a :list holds refs, any other :array raw, a number as its
+	;value. The index is a :num exactly
 
-	(vp-rdef (a v i len this args) '(:r3 :r4 :r5 :r6))
+	(vp-rdef (a args i len v this vt1 vt2 vt3 vt4))
 
-	(entry :array :lisp_set `(,this ,args))
+	(entry :array :lisp_set '(:r0 :r1))
 
-	(gotoif-lisp-args-sig 'error1 args 3)
+	(gotoif-lisp-args-len 'error1 args /= 3)
 
-	(vp-push this args)
-	(list-bind-args args `(,a ,i ,v) '(:array :num :obj))
-	(assign `((,a +array_length)) `(,len))
+	(vp-cpy-rr :r0 this)
+	(list-bind-args args `(,a ,i ,v) '(:obj :obj :obj))
+	(f-bind :num :vtable vt2)
+	(assign `((,i +obj_vtable) (,a +obj_vtable)) `(,vt1 ,vt3))
+	(gotoif `(,vt1 /= ,vt2) 'error1)
+	(f-bind :list :vtable vt1)
+	(f-bind :array :vtable vt4)
+	(loop-start)
+		(gotoif `(,vt3 = ,vt1) 'walked)
+		(gotoif `(,vt3 = ,vt4) 'walked)
+		(assign `((,vt3 +obj_vtable)) `(,vt3))
+	(loop-until `(,vt3 = 0))
+	(goto 'error1)
+(vp-label 'walked)
+	(assign `((,i +num_value) (,a +array_length)) `(,i ,len))
 	(seq-elem-index i len)
-
 	(gotoif `(,i < 0) 'error2)
 	(gotoif `(,i >= ,len) 'error2)
-
-	;:list and its subclasses (:pset, :pmap, :hset, :hmap) store object references
-	(call :obj :inst_of `(,a (@ ,(f-path :list :vtable))) '(& tmp))
-	(vpif `(,tmp /= 0))
-		(class/obj/ref v tmp)
+	(vpif `(,vt3 = ,vt1))
+		;a list holds a ref of it
+		(class/obj/ref v vt1)
 	(else)
-		(call :obj :inst_of `(,v (@ ,(f-path :num :vtable))) '(& tmp))
-		(vpif `(,tmp /= 0))
-			(assign `((,v +num_value)) `(,v))
-		(endif)
+		;raw, a number its value, else what it is
+		(assign `((,v +obj_vtable)) `(,vt1))
+		(loop-start)
+			(gotoif `(,vt1 = ,vt2) 'number)
+			(assign `((,vt1 +obj_vtable)) `(,vt1))
+		(loop-until `(,vt1 = 0))
+		(goto 'set)
+	(vp-label 'number)
+		(assign `((,v +num_value)) `(,v))
 	(endif)
-	(call :array :set_elem `(,a ,v ,i) `(,args) :r3)
-	(class/obj/ref args len)
-	(vp-pop this len)
+(vp-label 'set)
+	(call :array :set_elem `(,a ,v ,i) `(,a) len)
+	(class/obj/ref a vt1)
 
-	(exit :array :lisp_set `(,this ,args))
+	(exit :array :lisp_set `(,this ,a))
 	(vp-ret)
 
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(elem-set array idx elem)" +error_msg_wrong_types))
 (vp-label 'error2)
-	(vp-pop this args)
 	(jump :lisp :repl_error `(,args "(elem-set array idx elem)" +error_msg_not_valid_index))
-	(signature '(:array :NUM :obj))
 
 (def-func-end)
 
