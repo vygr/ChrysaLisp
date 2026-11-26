@@ -870,12 +870,13 @@
 	frame_stream :nil frame_began 0 frame_slow 0
 	;nods and sways of the view, turns from pitching up to down and from
 	;turning right to left or back, more than a little, and how it was
-	nods 0 sways 0 nod_way +double_0 sway_way +double_0 nod_was :nil +nod_least (n2d 0.01))
+	nods 0 sways 0 nod_way +double_0 sway_way +double_0 nod_was :nil +nod_least (n2d 0.01) upsides 0)
 
 (defun frame-nod ()
 	; (frame-nod)
 	;for the frame log, a nod or a sway each time the view turns back
 	(when +frame_log
+		(if (< (second up) +double_0) (++ upsides))
 		(cond
 			((not nod_was) (setq nod_was (cat forward)))
 			((> (sqrt (nums-dot (defq d (nums-sub forward nod_was)) d)) +nod_least)
@@ -902,8 +903,8 @@
 		" | eye " (elem-get ms 0) " move " (elem-get ms 1) " meet " (elem-get ms 2) " hits " (elem-get ms 3)
 		" buoys " (elem-get ms 4) " draws " (elem-get ms 5) " render " (elem-get ms 6)
 		" gpu " (elem-get ms 7) " rocks " (str (/ frame_rocks (max frames 1)))
-		" nods " (str nods) " sways " (str sways)))
-	(setq frame_parts (list 0 0 0 0 0 0 0) frame_rocks 0 nods 0 sways 0)
+		" nods " (str nods) " sways " (str sways) " upsides " (str upsides)))
+	(setq frame_parts (list 0 0 0 0 0 0 0) frame_rocks 0 nods 0 sways 0 upsides 0)
 	(stream-flush frame_stream)
 	(when (and (eql (get '*env_node_user*) "Test") (> (- now frame_began) 20000000) (< rate 50) (>= (++ frame_slow) 3))
 		(write-line frame_stream "QUIT")

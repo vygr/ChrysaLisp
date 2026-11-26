@@ -93,6 +93,9 @@
 	;the share of the way to its turn the auto pilot turns a second, as a
 	;rate, over the reef and in the caves: past it by none, water damps a turn
 	+auto_settle (n2d 1.2) +cave_settle (n2d 2.5)
+	;how far from straight up or down, across, the auto pilot's up is still
+	;all its own, and over how much more it comes to be the world's
+	+upright_from (n2d 0.2) +upright_over (n2d 0.3)
 	;its speed now, eased up to a sprint while the right button is held and
 	;down again after, how fast either way, a second, and the buttons
 	speed +double_2 +sprint +double_6 +sprint_up +double_1 +sprint_down (n2d 0.7)
@@ -597,20 +600,25 @@
 	; (auto-turn dt)
 	;the auto pilot turned toward the line, a place a little on along it:
 	;the way it faces and its up a turn, quaternions, turned a share of the
-	;way to the turn that looks at the place, its up eased to the world's,
-	;the share the more the longer the step, and no more than it can turn,
-	;the faster it swims the more, nimbly in the caves. It nears what it
-	;wants and never swings past it, as water damps a turn, and is the same
-	;looking up or down a shaft as level
+	;way to the turn that looks at the place upright, the world's up its
+	;up, the share the more the longer the step, and no more than it can
+	;turn, the faster it swims the more, nimbly in the caves. It nears
+	;what it wants and never swings past it, as water damps a turn. Looking
+	;near straight up or down, where the world's up says no roll, its own
+	;up is kept instead, the more the nearer, so it is the same down a
+	;shaft as level, and is never left upside down
 	(setq aim_way (unit (nums-sub (route-ahead) eye)) yaw +double_0 pitch +double_0)
 	(defq most (* dt (max +double_1 (/ speed +swim)) (if (elem-get (first legs) 3) +cave_turn +turn_most))
-		lean (min +double_1 (* dt +upright))
-		level (unit (nums-add (nums-scale up (- +double_1 lean)) (nums-scale (const (doubles +double_0 +double_1 +double_0)) lean)))
+		;how far from straight up or down it would look, 0 to 1
+		across (sqrt (max +double_0 (- +double_1 (* (second aim_way) (second aim_way)))))
+		world (max +double_0 (min +double_1 (/ (- across +upright_from) +upright_over)))
+		level (unit (nums-add (nums-scale up (- +double_1 world)) (nums-scale (const (doubles +double_0 +double_1 +double_0)) world)))
 		now_turn (quat-frame forward up) want_turn (quat-frame aim_way level)
 		share (- +double_1 (exp (neg (* dt (if (elem-get (first legs) 3) +cave_settle +auto_settle)))))
 		turn (quat-toward now_turn want_turn (min most (* share (quat-angle now_turn want_turn)))))
 	(setq forward (quat-vec3-rot turn (const (doubles +double_0 +double_0 +double_-1)))
 		up (quat-vec3-rot turn (const (doubles +double_0 +double_1 +double_0)))))
+
 
 (defun pointer-turn (dt right)
 	; (pointer-turn dt right)
@@ -1059,13 +1067,14 @@
 ;to look at the log of it. The parts' times, when the last part ended, the
 ;frames of this second, the stream and when it began
 (defq +frame_log :nil frame_parts (list 0 0 0 0 0) frame_at 0 frame_count 0 frame_stream :nil frame_began 0
-	touches 0 stucks 0 nods 0 nod_was +double_0 nod_way +double_0 +nod_least (n2d 0.01))
+	touches 0 stucks 0 nods 0 nod_was +double_0 nod_way +double_0 +nod_least (n2d 0.01) upsides 0)
 
 (defun frame-nod ()
 	; (frame-nod)
 	;for the frame log, a nod of the view each time it turns from pitching
 	;up to pitching down or back, more than a little
 	(when +frame_log
+		(if (< (second up) +double_0) (++ upsides))
 		(defq d (- (second forward) nod_was))
 		(when (> (abs d) +nod_least)
 			(if (< (* d nod_way) +double_0) (++ nods))
@@ -1092,9 +1101,9 @@
 		" | eye " (elem-get ms 0) " fish " (elem-get ms 1) " chunks " (elem-get ms 2) " draws " (elem-get ms 3)
 		" render " (elem-get ms 4) " gpu " (elem-get ms 5)
 		" | chunks " (str meshed) " out " (str out) " stones " (str stones_drawn) " fish " (str fish_drawn)
-		" nods " (str nods) " stucks " (str stucks) " echoes " (str echoes) " legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
+		" upsides " (str upsides) " nods " (str nods) " stucks " (str stucks) " echoes " (str echoes) " legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
 		" touches " (str touches)))
-	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0 nods 0)
+	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0 nods 0 upsides 0)
 	(stream-flush frame_stream)
 	(and (eql (get '*env_node_user*) "Test") (> (- now frame_began) 60000000)))
 
