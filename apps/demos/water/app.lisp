@@ -6,6 +6,7 @@
 (import "lib/gpu/render_farm.inc")
 (import "lib/gpu/shapes.inc")
 (import "apps/media/jukebox/music.inc")
+(import "service/audio/app.inc")
 (import "./chunk.inc")
 (import "./route.inc")
 (import "./fish.inc")
@@ -89,6 +90,39 @@
 	;down again after, how fast either way, a second, and the buttons
 	speed +double_2 +sprint +double_6 +sprint_up +double_1 +sprint_down (n2d 0.7)
 	sprinting :nil pressed 0 +right_button 4 +lamp (n2d 2.4)
+	;the scooter's whine as the right button is held: its loop's samples,
+	;made at the start, the stream it is played on, where in the loop it
+	;is, its rate, how far ahead of what is heard it is kept, how loud at
+	;most and now, eased up as the button is held and dying away after,
+	;how fast up, a second, and how fast it dies, a share a second; and
+	;the loop: the motor's hum and its overtones, the chop of the blades,
+	;and how muffled the churn of the water
+	prop_pcm :nil prop_stream :nil prop_at 0 +prop_rate 22050 +prop_ahead 1100
+	+prop_loud (n2d 0.7) prop_gain +double_0 +prop_up +double_4 +prop_down (n2d 1.5) +prop_quiet (n2d 0.01)
+	+prop_hum (n2d 120) +prop_chop (n2d 24) +prop_muffle (n2d 0.06) +prop_scale (n2d 14000)
+	;the hum's overtones, each how many times the hum, how loud and its
+	;phase; how much the chop beats the hum and the churn; the noise's range
+	+prop_tones ''((1 0.45 0) (2 0.22 0.7) (3 0.1 1.3)) +beat_least (n2d 0.6) +beat_more (n2d 0.4)
+	+churn_least (n2d 0.7) +churn_more (n2d 0.3) +prop_noise 65536 +prop_noise_half (n2d 32768)
+	;how long the noise's start is faded from what follows its end
+	+prop_fade 2205
+	;a bump into the rock: its thud's samples, made at the start, the stream
+	;it is played on, whether the diver is against the rock or a stone now,
+	;how hard a bump is softest, units a second into it, and loudest;
+	;the thud, how long, how deep, how fast it dies, and how much knock
+	thud_pcm :nil thud_stream :nil touching :nil +thud_least (n2d 1.5) +thud_most (n2d 5)
+	+thud_long 8820 +thud_deep (n2d 70) +thud_die (n2d 14) +thud_knock (n2d 0.5) +thud_knock_die (n2d 90)
+	;how loud the softest bump is, of the loudest, and the least step of time
+	+thud_soft (n2d 0.3) +dt_least (n2d 0.001)
+	;the stones as the diver bumps into them: each kind a rounded box, how
+	;far each way, of its size, how far up its middle, and how square across,
+	;2 round to more square; how far round a stone to look, of its size, and
+	;how clear of one the eye keeps
+	+stone_shapes ''((1.0 0.36 0.95 0 2.8) (1.0 0.36 0.95 0 2.8) (1.0 0.36 0.95 0 2.8)
+		(0.85 0.55 0.75 0 3) (0.85 0.55 0.75 0 3) (0.85 0.55 0.75 0 3)
+		(0.8 0.6 0.8 0 2) (0.8 0.6 0.8 0 2) (0.8 0.6 0.8 0 2) (0.8 0.6 0.8 0 2) (0.8 0.6 0.8 0 2)
+		(0.72 0.95 0.72 0 5) (0.72 0.95 0.72 0 5) (0.72 0.95 0.72 0 5))
+	+stone_reach (n2d 1.5) +stone_clear (n2d 0.5)
 	;how much of the water's light reaches the eye, eased, the least, and
 	;how often it is looked at again
 	open +double_1 +open_least (n2d 0.04) +open_ease +double_2 open_at 0
@@ -481,13 +515,14 @@
 			(bind '(& pts & & at) leg)
 			(defq n (length pts) near (far-from (elem-get pts at)))
 			(each! (lambda (p) (when (< (defq d (far-from p)) near) (setq near d at (!))))
-				(list pts) (inc at) (min n (+ at +look_on)))
+				(list pts) (inc at) (min n (+ at (n2i (* (n2d +look_on) (max +double_1 (/ speed +swim)))))))
 			(elem-set leg 4 at)
 			(and (>= at (- n 2)) (< (far-from (last pts)) +lead)))
 		(setq legs (slice legs 1 -1))
 		(if (< (length legs) 2) (choose-next))
 		(setq leg (first legs)))
-	(defq p (cat (elem-get pts (min (dec n) (+ at +aim_on)))))
+	;as far on as it would swim in the same time, faster or slower
+	(defq p (cat (elem-get pts (min (dec n) (+ at (n2i (* (n2d +aim_on) (max +double_1 (/ speed +swim)))))))))
 	(unless (or (third leg) (elem-get leg 3))
 		(times 8 (if (< (field_water p) +over_rock) (elem-set p 1 (+ (second p) +double_2))))
 		(elem-set p 1 (min (second p) (- +surface +under_surface))))
@@ -523,7 +558,9 @@
 		k (min +double_1 (* dt +turn_ease))
 		;the pointer turns it gently, a lean, the auto pilot as it must, more
 		;nimbly on a leg of the caves or down a shaft
-		most (cond ((nql mode :auto) +stick_turn) ((elem-get (first legs) 3) +cave_turn) (+turn_most)))
+		most (cond ((nql mode :auto) +stick_turn)
+			;the faster it swims, the faster it turns, to keep to its line
+			((* (max +double_1 (/ speed +swim)) (if (elem-get (first legs) 3) +cave_turn +turn_most)))))
 	(setq yaw (+ yaw (* k (- (max (neg most) (min most want_yaw)) yaw)))
 		pitch (+ pitch (* k (- (max (neg most) (min most want_pitch)) pitch))))
 	(defq a (* yaw dt) b (* pitch dt)
@@ -537,6 +574,43 @@
 			(min +double_1 (* dt +upright +double_2 (- level_by +double_1/2)))))))
 	(setq up (unit (cross (cross forward up) forward)))
 	dt)
+
+(defun clear-of-stones (p)
+	; (clear-of-stones p) -> (p moved)
+	;p moved out of the stones near it, each a rounded box of its kind, as
+	;it lies, turned and sized, and how far it was moved; weed it swims
+	;through
+	(defq moved +double_0 cx (n2i (floor (/ (first p) +chunk))) cy (n2i (floor (/ (second p) +chunk)))
+		cz (n2i (floor (/ (third p) +chunk))))
+	(each! (lambda ()
+			(defq dz (!))
+			(each! (lambda ()
+					(defq dy (!))
+					(each! (lambda ()
+							(and (defq known (. chunks :find (chunk-key (+ cx (!)) (+ cy dy) (+ cz dz))))
+								(eql (first known) :mesh)
+								(each (lambda ((& & & at bulk weed kind (a up b)))
+										(defq d (nums-sub p at) reach (+ (* bulk +stone_reach) +stone_clear))
+										(and (not weed) (< (nums-dot d d) (* reach reach))
+											(bind '(rx ry rz cy sq) (elem-get +stone_shapes kind))
+											(defq k (/ +stone_clear bulk) rx (+ (n2d rx) k) ry (+ (n2d ry) k) rz (+ (n2d rz) k) cy (n2d cy)
+												sq (n2d sq) qx (/ (nums-dot d a) bulk) qy (- (/ (nums-dot d up) bulk) cy) qz (/ (nums-dot d b) bulk)
+												;how far out across, as square as the stone is, and up
+												across (pow (+ (pow (abs (/ qx rx)) sq) (pow (abs (/ qz rz)) sq)) (recip sq))
+												high (abs (/ qy ry)))
+											(< (max across high) +double_1)
+											;out the nearer way, through its top or bottom, or its side
+											(defq to (if (> high across)
+													(nums-add at (nums-scale (nums-add (nums-add (nums-scale a qx)
+														(nums-scale up (+ cy (if (< qy +double_0) (neg ry) ry)))) (nums-scale b qz)) bulk))
+													(nums-add at (nums-scale (nums-add (nums-add (nums-scale a (/ qx (max across +dt_least)))
+														(nums-scale up (+ cy qy))) (nums-scale b (/ qz (max across +dt_least)))) bulk))))
+											(setq moved (+ moved (sqrt (nums-dot (defq m (nums-sub to p)) m))) p to)))
+									(elem-get known 7))))
+						'() -1 2))
+				'() -1 2))
+		'() -1 2)
+	(list p moved))
 
 (defun clear-of-rock (p)
 	; (clear-of-rock p) -> doubles
@@ -553,6 +627,80 @@
 				(setq p (nums-add p (nums-scale g (/ (* (- +clear h) e) gg)))))))
 	p)
 
+(defun prop-make ()
+	; (prop-make) -> doubles
+	;a second of the scooter, a loop: the motor's hum, 120 a second and
+	;its overtones, beating with the chop of the blades, and the churn of
+	;the water, noise muffled round the loop so it joins with no click,
+	;all of whole cycles a second so the loop does too
+	(defq n +prop_rate m +prop_fade y +double_0 k (/ +double_2pi (n2d n))
+		tones (map (lambda (tone) (map (const n2d) tone)) +prop_tones)
+		;the noise muffled, twice over, a little longer than the loop
+		long (map! (lambda ()
+				(setq y (+ y (* +prop_muffle (- (- (/ (n2d (random +prop_noise)) +prop_noise_half) +double_1) y)))))
+			'() 0 (+ n m))
+		long (progn (setq y +double_0) (map (lambda (x) (setq y (+ y (* +prop_muffle (- x y))))) long))
+		;and its start faded from what came after its end, so the end runs
+		;into the start with no step
+		churn (map! (lambda ()
+				(defq i (!) x (elem-get long i))
+				(if (< i m)
+					(+ (* x (/ (n2d i) (n2d m))) (* (elem-get long (+ n i)) (- +double_1 (/ (n2d i) (n2d m)))))
+					x))
+			'() 0 n))
+	(apply (const doubles) (map (lambda (c)
+			(defq t (* k (n2d (!))) beat (+ +beat_least (* +beat_more (sin (* t +prop_chop)))))
+			(* +prop_scale (+ (* beat (reduce (lambda (sum (over loud phase)) (+ sum (* loud (sin (+ (* t +prop_hum over) phase)))))
+					tones +double_0))
+				(* +double_3 c (+ +churn_least (* +churn_more beat))))))
+		churn)))
+
+(defun thud-make ()
+	; (thud-make) -> doubles
+	;a bump into the rock, muffled by the water: a low thump falling away,
+	;a little lower as it goes, and a knock of muffled noise at the start
+	(defq y +double_0 k (/ +double_2pi (n2d +prop_rate)))
+	(apply (const doubles) (map! (lambda ()
+			(defq t (/ (n2d (!)) (n2d +prop_rate))
+				x (- (/ (n2d (random +prop_noise)) +prop_noise_half) +double_1))
+			(setq y (+ y (* +prop_muffle (- x y))))
+			(* +prop_scale (+ (* (exp (* (neg +thud_die) t)) (sin (* k (n2d (!)) +thud_deep (- +double_1 (* t +double_1/2)))))
+				(* +thud_knock (exp (* (neg +thud_knock_die) t)) y +double_3))))
+		'() 0 +thud_long)))
+
+(defun thud-play (hard)
+	; (thud-play hard)
+	;a thud as loud as the bump was hard, the softest the least loud
+	(when thud_pcm
+		(unless thud_stream (setq thud_stream (audio-stream-open-rpc +prop_rate 1)))
+		(when thud_stream
+			(defq loud (max +double_0 (min +double_1 (/ (- hard +thud_least) (- +thud_most +thud_least))))
+				pcm (nums-convert (nums-scale thud_pcm (+ +thud_soft (* (- +double_1 +thud_soft) loud))) (shorts)) bytes (* (length pcm) 2))
+			(ifn (audio-stream-left-rpc thud_stream) (setq thud_stream :nil)
+				(audio-stream-write-rpc thud_stream (obj-set (str-alloc bytes) +str_data bytes pcm))))))
+
+(defun prop-feed (dt)
+	; (prop-feed dt)
+	;the scooter's whine as the right button is held, quickly up, and dying
+	;away as it is let go: written to its stream ahead of what is heard,
+	;none when it has died away, as Space's boost
+	(setq prop_gain (if sprinting
+		(min +double_1 (+ prop_gain (* dt +prop_up)))
+		(* prop_gain (- +double_1 (min +double_1 (* dt +prop_down))))))
+	(when (and prop_pcm (> prop_gain +prop_quiet))
+		(unless prop_stream (setq prop_stream (audio-stream-open-rpc +prop_rate 1)))
+		(when prop_stream
+			(cond
+				((not (defq left (audio-stream-left-rpc prop_stream))) (setq prop_stream :nil))
+				((< left +prop_ahead)
+					(defq count (- (* 2 +prop_ahead) left) long (length prop_pcm) end (+ prop_at count)
+						part (if (<= end long) (slice prop_pcm prop_at end)
+							(cat (slice prop_pcm prop_at -1) (slice prop_pcm 0 (- end long))))
+						pcm (nums-convert (nums-scale part (* +prop_loud prop_gain prop_gain)) (shorts))
+						bytes (* (length pcm) 2))
+					(setq prop_at (% end long))
+					(audio-stream-write-rpc prop_stream (obj-set (str-alloc bytes) +str_data bytes pcm)))))))
+
 (defun swim (dt)
 	; (swim dt)
 	;the eye on along its way, kept off the rock, and under the surface.
@@ -564,7 +712,24 @@
 					(if (and (elem-get (first legs) 3) (not (elem-get (first legs) 2))) +unlined_speed +double_1))
 				+swim)) speed)
 			(min +double_1 (* dt (if sprinting +sprint_up +sprint_down)))))
-		eye (clear-of-rock (nums-add eye (nums-scale forward (* speed dt)))))
+		eye (nums-add eye (nums-scale forward (* speed dt))))
+	;touching the rock, pushed off it, and out of the stones: a thud the
+	;once as it hits, as loud as it hit, none again till it is clear
+	(defq hit +double_0)
+	(when (< (defq h (field_water eye)) +clear)
+		(++ touches)
+		(setq hit (- +clear h)))
+	(setq eye (clear-of-rock eye))
+	(bind '(p moved) (clear-of-stones eye))
+	(setq eye p)
+	(when (> moved +double_0)
+		(++ touches)
+		(setq hit (+ hit moved)))
+	(cond
+		((= hit +double_0) (setq touching :nil))
+		((not touching)
+			(setq touching :t)
+			(thud-play (/ hit (max dt +dt_least)))))
 	(defq top (- +surface +under_surface))
 	(if (> (second eye) top) (elem-set eye 1 top))
 	(defq now (pii-time))
@@ -660,9 +825,10 @@
 		'() 0 +fish_kinds))
 
 (defun stones-of (data n)
-	; (stones-of data n) -> ((mesh model stone at bulk) ...)
+	; (stones-of data n) -> ((mesh model stone at bulk weed kind axes) ...)
 	;the stones of a chunk, each its mesh's first number, its matrix, laid
-	;on its floor, turned and sized, and what of it the shaders want
+	;on its floor, turned and sized, what of it the shaders want, and for
+	;the diver to bump into it, its kind and its own three ways
 	(map! (lambda ()
 			(defq i (!))
 			(bind '(x y z ux uy uz yaw bulk kind sun sky basalt floor)
@@ -674,7 +840,7 @@
 			(bind '(bx by bz) (nums-scale b bulk))
 			(list (+ +mesh_stone (* (n2i kind) +stone_fines))
 				(doubles ax vx bx x ay vy by y az vz bz z +double_0 +double_0 +double_0 +double_1)
-				(doubles sun sky basalt floor) (doubles x y z) bulk (>= (n2i kind) +stone_kinds)))
+				(doubles sun sky basalt floor) (doubles x y z) bulk (>= (n2i kind) +stone_kinds) (n2i kind) (list a up b)))
 		'() 0 n))
 
 (defun chunk-came (msg)
@@ -696,7 +862,6 @@
 	(when (defq key (. outs :find mid))
 		(. outs :erase mid)
 		(when (defq known (. chunks :find key))
-			(++ made)
 			(defq n (getf msg +chunk_reply_stones) at (* n +stone_size 8))
 			(cond
 				((= (length data) at) (elem-set known 0 :none))
@@ -724,7 +889,7 @@
 				(when (every (lambda ((sx sy sz)) (> (+ (* rx sx) (* ry sy) (* rz sz)) (neg +chunk_reach))) sides)
 					(push out (list mid (list (list 'model (mat4x4-translate (* (n2d cx) +chunk) (* (n2d cy) +chunk)
 							(* (n2d cz) +chunk))) lens vvals_eye) pvals))
-					(each (lambda ((mesh model stone at bulk weed))
+					(each (lambda ((mesh model stone at bulk weed &ignore))
 							(bind '(sx sy sz) (defq d (nums-sub at eye)))
 							(defq far (sqrt (nums-dot d d)) near_by (* far (recip (+ +double_1 bulk)))
 								fine (cond ((< near_by +stone_fine) 0) ((< near_by +stone_coarse) 1) (2))
@@ -743,50 +908,60 @@
 	(setq stones_drawn (length stones))
 	(cat out stones))
 
-;the frame log, for a machine to read how it goes: a line a second, to
-;tests/scratch/water/frames.log; a Test user's run is a minute long
-(defq +frame_log :nil frame_stream :nil frame_began 0 +log_near (n2d 600) +log_round (n2d 900) made 0 want_took 0)
+;the frame log, for tuning, on with +frame_log: each second its rate and
+;detail, the milliseconds a frame of each part of it and of the GPU, and
+;what was drawn and where the eye is, to tests/scratch/water/frames.log.
+;For the Test user, a session of a test's, the app quits after a minute,
+;to look at the log of it. The parts' times, when the last part ended, the
+;frames of this second, the stream and when it began
+(defq +frame_log :nil frame_parts (list 0 0 0 0 0) frame_at 0 frame_count 0 frame_stream :nil frame_began 0
+	touches 0)
+
+(defun frame-mark (part)
+	; (frame-mark part)
+	;a part of the frame ended, for the frame log
+	(when +frame_log
+		(defq now (pii-time))
+		(elem-set frame_parts part (+ (elem-get frame_parts part) (- now frame_at)))
+		(setq frame_at now)))
 
 (defun frame-log (rate now)
 	; (frame-log rate now) -> :t | :nil
-	;:t to quit
+	;a second's line of the frame log; :t to quit
 	(unless frame_stream
 		(setq frame_stream (file-stream "tests/scratch/water/frames.log" +file_open_write) frame_began now))
-	(defq meshed 0 none 0 out 0 near_out 0 near_none 0 stuck 0)
-	(. chunks :each (lambda (key (state mid cx cy cz &ignore))
-		(defq d (nums-sub (chunk-centre cx cy cz) eye) near (< (nums-dot d d) +log_near))
-		(case state (:mesh (++ meshed)) (:none (++ none) (if near (++ near_none)))
-			(:t (++ out) (if near (++ near_out)) (if (> (- now (elem-get (. chunks :find key) 6)) 10000000) (++ stuck))))))
+	(defq ms (map (lambda (us) (defq a (/ us (max frame_count 1))) (cat (str (/ a 1000)) "." (str (/ (% a 1000) 100))))
+			(push (cat frame_parts) (* (ifn (get :took render) 0) (max frame_count 1))))
+		meshed 0 out 0)
+	(. chunks :each (lambda (key (state &ignore)) (case state (:mesh (++ meshed)) (:out (++ out)))))
 	(write-line frame_stream (cat (str (/ (- now frame_began) 1000000)) "s " (str rate) " fps detail " (str detail)
-		" chunks " (str meshed) " none " (str none) " out " (str out) " eye " (str (map (const n2i) eye))
-		" stuck " (str stuck) " jobs out " (str (. jobs :out)) " queue " (str (length (get :queue jobs)))
-		" busy " (str (progn (defq busy 0) (. (get :farm jobs) :each (lambda (k v) (if (get :job v) (++ busy)))) busy))
-		" size " (str (. jobs :size)) " made " (str made) " want " (str (/ want_took 1000)) "ms" " water " (str (n2i (* +double_10 (field_water eye)))) " near out " (str near_out) " near none " (str near_none) " tries " (str (. jobs :tries)) " junction " (str going) " escape " (str (length escape)) " legs " (str (length legs)) " took " (str (/ (ifn (get :took render) 0) 1000)) " stones " (str stones_drawn) " fish " (str fish_drawn)))
-	(when (< (- now frame_began) 13000000)
-		(. chunks :each (lambda (key (state mid cx cy cz cubes &ignore))
-			(defq d (nums-sub (chunk-centre cx cy cz) eye))
-			(if (< (nums-dot d d) +log_round)
-				(write-line frame_stream (cat "  " (str (list cx cy cz)) " " (str state) " " (str mid) " cubes " (str cubes)
-					" at " (str (map (const n2i) d)) (if (. (get :meshes render) :find mid) " has" " NOT")))))))
+		" | eye " (elem-get ms 0) " fish " (elem-get ms 1) " chunks " (elem-get ms 2) " draws " (elem-get ms 3)
+		" render " (elem-get ms 4) " gpu " (elem-get ms 5)
+		" | chunks " (str meshed) " out " (str out) " stones " (str stones_drawn) " fish " (str fish_drawn)
+		" legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
+		" touches " (str touches)))
+	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0)
 	(stream-flush frame_stream)
-	(setq made 0 want_took 0)
 	(and (eql (get '*env_node_user*) "Test") (> (- now frame_began) 60000000)))
 
 (defun draw-frame ()
 	;the eye turned and on, the chunks it wants asked for, and the frame of
 	;it, the reef and the water behind it
+	(if +frame_log (setq frame_at (pii-time)))
 	(defq dt (turn-eye))
 	(swim dt)
-	(setq schools (schools-move schools field_water eye forward view dt +surface))
+	(prop-feed dt)
+	(frame-mark 0)
+	(setq schools (schools-move schools field_water eye forward view dt +surface prop_gain))
+	(frame-mark 1)
 	(setq view (+ view (* (- (elem-get +view_of detail) view) (min +double_1 dt)))
 		murk (/ +murk_gone view)
 		;as open as the water straight up from the eye, eased, so it goes
 		;dark in the caves and light again out of them
 		open (+ open (* (- (+ +open_least (* (- +double_1 +open_least)
 			(field_lit eye (const (doubles +double_0 +double_1 +double_0)) +double_2))) open) (min +double_1 (* dt +open_ease)))))
-	(defq want_at (pii-time))
 	(if (= (% frames +want_every) 0) (chunks-want))
-	(setq want_took (+ want_took (- (pii-time) want_at)))
+	(frame-mark 2)
 	(defq right (cross forward up) seconds (/ (n2d (- (pii-time) began)) +second)
 		spread_x (/ (* +spread_y (n2d (first size))) (n2d (second size)))
 		look (cat right (const (doubles +double_0)) up (const (doubles +double_0))
@@ -800,14 +975,18 @@
 	(defq fish (fish-draws schools fish_had +mesh_fish (list 'lens view_mat) (list 'eye eye) pvals fish_files
 		seconds eye forward view))
 	(setq fish_drawn (length fish))
-	(. render :frame (cat (chunk-draws view_mat (view-sides right up spread_x) pvals) fish
+	(defq draws (cat (chunk-draws view_mat (view-sides right up spread_x) pvals) fish
 		;the water, behind all the reef, after it
 		(list (list +mesh_water '()
 			(list (list 'forward forward) (list 'right right) (list 'up up)
 				(list 'spread (doubles spread_x +spread_y)) (list 'eye eye) (list 'time seconds) (list 'murk murk)
 				(list 'open open) (list 'lamp +lamp))
 			'() water_files))))
-	(++ frames))
+	(frame-mark 3)
+	(. render :frame draws)
+	(frame-mark 4)
+	(++ frames)
+	(++ frame_count))
 
 (defun set-size (wanted)
 	;the window the size of the frame wanted, now; the canvas of it is made
@@ -902,6 +1081,7 @@
 		(elem-get select +select_reply) (list (max 1 (dec (length (lisp-nodes :t))))) :t))
 	(stones-ask)
 	(fishes-ask)
+	(setq prop_pcm (prop-make) thud_pcm (thud-make))
 	(config-load)
 	(setq detail (min 4 (. *config* :find :detail)) view (elem-get +view_of detail) mode (. *config* :find :mode)
 		;at a junction over the reef, to go on from

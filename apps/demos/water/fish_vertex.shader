@@ -20,12 +20,15 @@
 
 (defattr position :vec4)
 (defattr normal :vec3)
+;1 for an eye
+(defattr paint :float)
 
 (defvarying place :vec3)
 (defvarying facing :vec3)
 (defvarying far :float)
 (defvarying local :vec3)
 (defvarying kind :float)
+(defvarying eyeball :float)
 
 (defun main :vec4 ()
 	(defq back (clamp (/ (- 0.3 (:x position)) 0.8) 0.0 1.0) ray (clamp (- (:x fish) 2.0) 0.0 1.0)
@@ -35,7 +38,7 @@
 		flap (* (sin (- (+ (* time (:z fish)) (:y fish)) (* wing 4.0))) (:w fish) wing wing 4.0)
 		bent (vec4 (:x position) (+ (:y position) (* ray flap)) (+ (:z position) (* (- 1.0 ray) swing)) 1.0)
 		at (* model bent))
-	(setq place (:xyz at) local (:xyz position) kind (:x fish)
+	(setq place (:xyz at) local (:xyz position) kind (:x fish) eyeball paint
 		facing (:xyz (* model (vec4 normal 0.0)))
 		far (length (- place eye)))
 	(* lens at))

@@ -4,7 +4,8 @@
 ; Dark on the back and pale on the belly, as fish are, so seen from
 ; below it is lost in the light and from above in the deep: silver
 ; fish blue grey over silver, reef fish yellow banded black, a shark
-; slate over white, a ray spotted brown, white under. Its fins thin, seen from either side. Lit by the
+; slate over white, a ray spotted brown, white under. Their eyes black,
+; a hard glint of the sun off them. Its fins thin, seen from either side. Lit by the
 ; water round it, as open as the water is where the eye is, the sun
 ; from above, a glint of it off the scales, and the diver's lamp; the
 ; water between hiding it with distance.
@@ -24,6 +25,7 @@
 (defvarying far :float)
 (defvarying local :vec3)
 (defvarying kind :float)
+(defvarying eyeball :float)
 
 (defconst silver_back (vec3 0.18 0.28 0.36))
 (defconst silver_belly (vec3 0.7 0.74 0.78))
@@ -51,14 +53,17 @@
 			(* shark (mix shark_back shark_belly belly))
 			(* ray (mix (mix ray_back ray_spot spots) ray_belly under))) (- 1.0 (* 0.8 band))))
 	(if (< (dot n l) 0.0) (setq n (- n)))
+	;the sun bounced off it to the eye
 	(defq down (* open (exp (* -2.2 depth)))
 		diffuse (* (max (dot n sun_way) 0.0) down)
-		glint (* (+ (* silver 0.9) (* reef 0.4) (* shark 0.15) (* ray 0.1)) down
-			(pow (max (dot (- (* n (* 2.0 (dot n l))) l) sun_way) 0.0) 24.0))
+		bounce (max (dot (- (* n (* 2.0 (dot n l))) l) sun_way) 0.0)
+		glint (* (+ (* silver 0.9) (* reef 0.4) (* shark 0.15) (* ray 0.1)) down (pow bounce 24.0))
 		fill (mix 0.55 0.12 (ease 0.0 0.35 depth))
 		round (* (water_colour (:y place) 1.0) (+ fill (* 0.8 open)) 1.7)
 		cone (ease 0.35 0.87 (dot (- l) forward))
 		lamped (* lamp cone (max (dot n l) 0.0) (/ 1.0 (+ 1.0 (* 0.004 d d))))
 		col (+ (* base (+ round (* sun_light (* 1.2 diffuse)) (* (vec3 1.0 0.95 0.85) lamped))) (* sun_light glint)))
+	;an eye, black, the sun glinting hard off it
+	(setq col (mix col (* sun_light (* 1.6 down (pow bounce 60.0))) eyeball))
 	(defq k (seen_through to murk))
 	(vec4 (+ (mix (water_seen eye (- l) time murk open) col k) (lamp_glow (- l) forward lamp (- 1.0 k))) 1.0))

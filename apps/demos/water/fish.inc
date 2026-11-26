@@ -39,7 +39,7 @@
 	;the shark and the ray, how seldom one comes, one frame in so many, how
 	;near the shark the others flee, how far over the floor a ray keeps and
 	;how hard it makes for it
-	+shark 2 +ray 3 +shark_seldom 2400 +shark_near (n2d 9) +ray_over +double_2 +ray_dive (n2d 0.6)
+	+shark 2 +ray 3 +shark_seldom 1200 +shark_near (n2d 9) +ray_over +double_2 +ray_dive (n2d 0.6)
 	;a ray's mesh: steps along and across it, how broad it is at most, how
 	;far back its broadest, how high its back, its tail, a thin blade, and
 	;how far its wings flap, of its length
@@ -50,16 +50,25 @@
 	;the tail, how much its normals lean to the nose
 	+rings 10 +sides 8 +body_long (n2d 0.86) +deepest (n2d 2.89) +taper (n2d 0.55) +nose_lean (n2d 0.4)
 	;the fins, triangles of corners x, y of how deep, z of how wide: the
-	;tail, forked, and a shark's; the fin on the back, and a shark's; a
-	;shark's fins out each side
+	;tail, forked, and a shark's; the fin on the back, and a shark's, its
+	;foot just inside the back as the body narrows; a shark's fins out each
+	;side
 	+tail ''((-0.36 0 0) (-0.5 0.75 0) (-0.44 0 0) (-0.36 0 0) (-0.44 0 0) (-0.5 -0.75 0))
 	+shark_tail ''((-0.36 0 0) (-0.5 1.3 0) (-0.44 0 0) (-0.36 0 0) (-0.44 0 0) (-0.5 -0.6 0))
-	+fin ''((0.12 0.45 0) (-0.1 0.75 0) (-0.2 0.4 0))
-	+shark_fin ''((0.12 0.45 0) (-0.1 1.25 0) (-0.2 0.4 0))
-	+pectorals ''((0.2 -0.25 0) (-0.02 -0.4 2.4) (0.06 -0.25 0) (0.2 -0.25 0) (-0.02 -0.4 -2.4) (0.06 -0.25 0))
+	+fin ''((0.15 0.36 0) (-0.1 0.75 0) (-0.2 0.14 0))
+	+shark_fin ''((0.15 0.36 0) (-0.1 1.25 0) (-0.2 0.14 0))
+	+pectorals ''((0.2 -0.25 0) (-0.06 -0.5 1.1) (0.06 -0.25 0) (0.2 -0.25 0) (-0.06 -0.5 -1.1) (0.06 -0.25 0))
 	;the range of a random number, how far up or down a school comes, how
 	;clear the water must be there, and where it wanders to, how much it
 	;keeps level
+	;an eye: rows and round of its ball, how far back on the body, how far
+	;up, of the head there, how far in it, of how big, how big of how deep
+	;the fish is, a shark's; a ray's, how far back and out on it, how big,
+	;and how far its middle is over its back, of how big, and how far over
+	;its back the dome's foot is
+	+eye_rows 4 +eye_round 6 +eye_x (n2d 0.36) +eye_up (n2d 0.25) +eye_in (n2d 0.33) +eye_size (n2d 0.12)
+	+shark_eye (n2d 0.087) +ray_eye_s (n2d 0.28) +ray_eye_t (n2d 0.14) +ray_eye (n2d 0.022) +ray_eye_up (n2d 0.33)
+	+ray_eye_clear (n2d 0.003)
 	;how fast a tail beats, of how fast it swims a length, and how far it
 	;swings, of its length, a shark's
 	+beat (n2d 4.5) +swing (n2d 0.1) +shark_swing (n2d 0.07)
@@ -73,6 +82,8 @@
 	;fast it turns, a second, how far a school wanders to next and how long
 	;it takes, and where it comes and goes, of how far the frame sees
 	+rock_near (n2d 3.5) +surface_near (n2d 4) +diver_near (n2d 5) +turn_rate (n2d 2.5)
+	;how much further off they flee the diver's scooter at its loudest
+	+noise_shy (n2d 1.5)
 	+wander_most (n2d 25) +wander_long 6000000 +comes (n2d 0.85) +goes (n2d 0.95)
 	;how far ahead of the diver schools wander to, and where the first come,
 	;of how far the frame sees, at least and more
@@ -89,9 +100,32 @@
 	(defq vv (nums-dot v v))
 	(if (> vv +double_0) (nums-scale v (recip (sqrt vv))) (doubles +double_1 +double_0 +double_0)))
 
-(defun fish-corner (p n)
-	; (fish-corner p n) -> doubles
-	(cat p (const (doubles +double_1)) n))
+(defun fish-corner (p n &optional paint)
+	; (fish-corner p n [paint]) -> doubles
+	;a corner, where it is, its normal, and 1 if of an eye
+	(cat p (const (doubles +double_1)) n (doubles (ifn paint +double_0))))
+
+(defun fish-eye (out c r &optional least_y)
+	; (fish-eye out c r [least_y]) -> out
+	;an eye, a ball at c of radius r, its corners marked as of an eye; with
+	;a least_y, none of it lower than that, a dome on a ray's thin back
+	(defq rows (map! (lambda ()
+			(defq th (* +double_pi (/ (n2d (!)) (n2d +eye_rows))) y (cos th) w (sin th))
+			(map! (lambda ()
+					(defq ph (* +double_2pi (/ (n2d (!)) (n2d +eye_round))) d (doubles (* w (cos ph)) y (* w (sin ph)))
+						p (nums-add c (nums-scale d r)))
+					(and least_y (< (second p) least_y) (elem-set p 1 least_y))
+					(fish-corner p d +double_1))
+				'() 0 +eye_round))
+		'() 0 (inc +eye_rows)))
+	(each (lambda (r0 r1)
+			(each! (lambda ()
+					(defq i (!) j (% (inc i) +eye_round))
+					(push out (elem-get r0 i) (elem-get r0 j) (elem-get r1 j)
+						(elem-get r0 i) (elem-get r1 j) (elem-get r1 i)))
+				'() 0 +eye_round))
+		(slice rows 0 -2) (slice rows 1 -1))
+	out)
 
 (defun fish-fins (out tris deep wide n)
 	; (fish-fins out tris deep wide n) -> out
@@ -134,6 +168,12 @@
 				'() 0 +ray_across))
 		'() 0 +ray_along)
 	(fish-fins out +ray_tail +double_1 +double_1 (const (doubles +double_0 +double_1 +double_0)))
+	;its eyes on top of its head
+	(each (lambda (t)
+			(defq at (ray-at +ray_eye_s t) back (+ (second at) +ray_eye_clear))
+			(elem-set at 1 (+ (second at) (* +ray_eye +ray_eye_up)))
+			(fish-eye out at +ray_eye back))
+		(list +ray_eye_t (neg +ray_eye_t)))
 	(shader-verts-str (apply (const cat) out)))
 
 (defun body-mesh (kind)
@@ -165,6 +205,13 @@
 	(fish-fins out (if shark +shark_tail +tail) deep wide side)
 	(fish-fins out (if shark +shark_fin +fin) deep wide side)
 	(if shark (fish-fins out +pectorals deep wide (const (doubles +double_0 +double_1 +double_0))))
+	;its eyes, each side of its head, set into it; a shark's small
+	(defq t (/ (- +double_1/2 +eye_x) +body_long) k (* (sin (* +deepest (sqrt t))) (- +double_1 (* +taper t t)))
+		r (* deep (if shark +shark_eye +eye_size)) y (* deep k +eye_up)
+		;the side of the head at that height, and the eye a little in it
+		z (- (* wide k +double_1/2 (sqrt (- +double_1 (* +double_4 +eye_up +eye_up)))) (* r +eye_in)))
+	(fish-eye out (doubles +eye_x y z) r)
+	(fish-eye out (doubles +eye_x y (neg z)) r)
 	(shader-verts-str (apply (const cat) out)))
 
 (defun fish-mesh (kind)
@@ -204,8 +251,8 @@
 						heading (+ (n2d slow) (* (fish-rnd) (- (n2d fast) (n2d slow)))) (* (fish-rnd) +double_2pi)))
 				'() 0 (+ n (random (inc more)))))))
 
-(defun fish-steer (water eye fish mates long dt sharks low)
-	; (fish-steer water eye fish mates long dt sharks low)
+(defun fish-steer (water eye fish mates long dt sharks low shy)
+	; (fish-steer water eye fish mates long dt sharks low shy)
 	;one fish turned toward where its school and the water would have it go,
 	;and moved on
 	(bind '(at way speed &ignore) fish)
@@ -234,7 +281,7 @@
 				(- (water (nums-add at (doubles +double_0 +double_0 e))) h)))
 		(setq want (nums-add want (nums-scale (fish-unit g) (* +from_rock (- +double_1 (/ h +rock_near)))))))
 	;from the diver, and from a shark
-	(when (< (defq dd (nums-dot (defq d (nums-sub at eye)) d)) (* +diver_near +diver_near))
+	(when (< (defq dd (nums-dot (defq d (nums-sub at eye)) d)) (* shy shy))
 		(setq want (nums-add want (nums-scale (fish-unit d) +from_diver))))
 	(each (lambda (shark_at)
 			(when (< (nums-dot (defq d (nums-sub at shark_at)) d) (* +shark_near +shark_near))
@@ -250,11 +297,12 @@
 	(elem-set fish 1 way)
 	(elem-set fish 0 (nums-add at (nums-scale way (* speed dt)))))
 
-(defun schools-move (schools water eye forward view dt surface)
-	; (schools-move schools water eye forward view dt surface) -> schools
+(defun schools-move (schools water eye forward view dt surface noise)
+	; (schools-move schools water eye forward view dt surface noise) -> schools
 	;the schools moved on a step, those gone far off let go of and new ones
-	;come in their place ahead, as many of each kind as there should be
-	(defq out (list) now (pii-time) sharks (list))
+	;come in their place ahead, as many of each kind as there should be. The
+	;louder the diver's scooter, noise 0 to 1, the further off they flee it
+	(defq out (list) now (pii-time) sharks (list) shy (* +diver_near (+ +double_1 (* noise +noise_shy))))
 	(each (lambda ((kind & & fish))
 			(if (= kind +shark) (push sharks (first (first fish)))))
 		schools)
@@ -276,7 +324,7 @@
 					(elem-set school 2 goal_at))
 				(each (lambda (f)
 						(push f goal surface)
-						(fish-steer water eye f fish long dt (if (= kind +shark) '() sharks) (= kind +ray))
+						(fish-steer water eye f fish long dt (if (= kind +shark) '() sharks) (= kind +ray) shy)
 						(pop f)
 						(pop f)
 						(defq at (first f))
