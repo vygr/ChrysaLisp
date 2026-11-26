@@ -15,8 +15,10 @@
 ;song came with is that song's name from then on, and where it is told of:
 ;what is said of a song with another's is not heard, and what this says
 ;of a song no longer wanted goes to a mailbox let go of, nowhere:
-;	M state seconds [q] \n bytes	a module, played, held or stopped there;
-;				q, quiet, for an app with no window: told only E and !
+;	M state seconds [qm] \n bytes	a module, played, held or stopped there;
+;				q, quiet, for an app with no window: told only E and !;
+;				m, measured, for one that shows its length or seeks:
+;				its length found, and where its orders start
 ;	P			played, from its start if stopped
 ;	H			held, or played on if held
 ;	S			stopped, to play from its start
@@ -26,7 +28,7 @@
 ;	K			the window is there
 ;	Q			go
 ;Its child, ./measure.lisp, a farm of one, lib/task/jobs.inc, finds the
-;song's length and where its orders start, a job for each song.
+;song's length and where its orders start, a job for each song measured.
 ;It tells the window:
 ;	I frames		the song is so long
 ;	!			not a module it can read
@@ -161,17 +163,20 @@
 		(unless *quiet* (mail-send *app* (cat "I" (str *length*))))
 		(measure-end)))
 
-(defun load-song (id state seconds quiet data)
+(defun load-song (id state seconds quiet measured data)
 	;a module played, held or stopped at so many seconds, at once, how long
-	;it is found as it plays. The mailbox it came with is its name, and
-	;where the window is told of it, of a quiet song only its end. A seek
-	;asked of the song before is not this one's
+	;it is found as it plays, if it is to be measured: one that is not, the
+	;music of an app, has no use of its length or a seek, and played from
+	;its start the player knows its end by a row come to again. The mailbox
+	;it came with is its name, and where the window is told of it, of a
+	;quiet song only its end. A seek asked of the song before is not this
+	;one's
 	(sound-stop)
 	(setq *song_id* id *app* id *song* (module-read data) *told* :nil *length* :nil *starts* (list)
 		*seek_to* :nil *quiet* quiet)
 	(cond
 		(*song*
-			(measure data)
+			(if measured (measure data) (measure-end))
 			(rewind)
 			(setq *state* state)
 			(if (> seconds 0) (seek seconds))
@@ -191,8 +196,9 @@
 		((eql kind "M")
 			;its line ends after the mailbox, which is bytes, a newline
 			;among them now and then
-			(defq end (ifn (find "\n" msg at) (length msg)) words (split (slice msg at end) " "))
-			(load-song id (first words) (str-as-num (second words)) (eql (third words) "q")
+			(defq end (ifn (find "\n" msg at) (length msg)) words (split (slice msg at end) " ")
+				flags (ifn (third words) ""))
+			(load-song id (first words) (str-as-num (second words)) (find "q" flags) (find "m" flags)
 				(slice msg (min (length msg) (inc end)) -1)))
 		;of a song that is not the one played, not heard
 		((or (not *song*) (nql id *song_id*)))

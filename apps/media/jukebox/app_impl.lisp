@@ -251,7 +251,7 @@
 	;the player tells of it, so what it says of the song before goes nowhere
 	(elem-set *select* +select_engine (setq *song_mbox* (mail-mbox)))
 	(if (eql state "p") (task-asked +task_engine) (task-heard +task_engine))
-	(task-send +task_engine *song_mbox* "M" state " " seconds "\n" *data*))
+	(task-send +task_engine *song_mbox* "M" state " " seconds " m\n" *data*))
 
 (defun song-seek (seconds)
 	; (song-seek seconds)
