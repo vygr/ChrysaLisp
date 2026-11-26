@@ -121,6 +121,12 @@ Each begins with `def`, as `defun` and `defq` do in ChrysaLisp.
 * `(deftexture name)`. A picture a pixel shader reads from, see Textures
   below. A vertex shader has none.
 
+All of them share one set of names, the shader's and its imports': a
+function can not be called what an input, a constant or a varying is, nor
+the other way, `name is already in use`. In a render's GPU child that error
+stops the child, and the frames stop with it: the app's rate goes to 0, the
+error in the log of the node it runs on.
+
 ## Imports
 
 `(import path)` reads the functions, consts and globals of another file in
