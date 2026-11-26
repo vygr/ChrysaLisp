@@ -572,6 +572,11 @@
 
 (def-func-end)
 
+;the conversions check the arg's class as they dispatch on it: from the
+;bottom of the ladder, :float, up through :double and :fixed to :num, a
+;case a rung, each stepping the vtable to its parent and comparing; past
+;:num it is not a number
+
 (def-method :num :lisp_n2i)
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -580,45 +585,52 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :d0-:d15
+	;:r1-:r5, :r14, :d0-:d15
 
-	(vp-rdef (this args vt1 vt2 saved_this vt3))
+	(vp-rdef (this argl vt1 vt2 saved_this args))
 	(defq in (method-input :num :create))
 
-	(entry :num :lisp_n2i `(,this ,args))
+	(entry :num :lisp_n2i `(,this ,argl))
 
-	(gotoif-lisp-args-sig 'error args 1)
+	(gotoif-lisp-args-len 'error argl /= 1)
 
 	(assign `(,this) `(,saved_this))
-	(array-bind-args args `(,args))
-	(assign `((,args +obj_vtable) (@ ,(f-path :double :vtable)) (@ ,(f-path :float :vtable))) `(,vt1 ,vt2 ,vt3))
+	(array-bind-args argl `(,args))
+	(assign `((,args +obj_vtable)) `(,vt1))
+	(f-bind :float :vtable vt2)
 	(switch)
-	(vpcase `(,vt1 = ,vt3))
+	(vpcase `(,vt1 = ,vt2))
 		(vp-load-rcf args +num_value :f0)
 		(vp-cvt-fd :f0 :d0)
 		(vp-cvt-dr :d0 (first in))
 		(goto 'new_num)
-	(vpcase `(,vt1 = ,vt2))
+	(default)
+		(assign `((,vt2 +obj_vtable)) `(,vt2))
+		(nextcaseif `(,vt1 /= ,vt2))
 		(assign `((,args +num_value)) '(:d0))
 		(vp-cvt-dr :d0 (first in))
 		(goto 'new_num)
 	(default)
 		(assign `((,vt2 +obj_vtable)) `(,vt2))
-		(nextcaseif `(,vt1 = ,vt2))
-		(class/obj/ref args vt1)
-	(else)
+		(nextcaseif `(,vt1 /= ,vt2))
 		(assign `((,args +num_value)) in)
 		(vp-asr-cr +fp_shift (first in))
+		(goto 'new_num)
+	(default)
+		(assign `((,vt2 +obj_vtable)) `(,vt2))
+		(gotoif `(,vt1 /= ,vt2) 'error)
+		(class/obj/ref args vt1)
+		(exit :num :lisp_n2i `(,this ,args))
+		(vp-ret)
 	(vp-label 'new_num)
-		(call :num :create in `(,args))
+		(call :num :create in `(,argl))
 	(endswitch)
 
-	(exit :num :lisp_n2i `(,saved_this ,args))
+	(exit :num :lisp_n2i `(,saved_this ,argl))
 	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(n2i num)" +error_msg_wrong_types))
-	(signature '(:num))
+	(jump :lisp :repl_error `(,argl "(n2i num)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -630,24 +642,27 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :d0-:d15
+	;:r1-:r5, :r14, :d0-:d15
 
-	(vp-rdef (this args vt1 vt2 saved_this vt3))
+	(vp-rdef (this argl vt1 vt2 saved_this args))
 	(defq in (method-input :fixed :create))
 
-	(entry :num :lisp_n2q `(,this ,args))
+	(entry :num :lisp_n2q `(,this ,argl))
 
-	(gotoif-lisp-args-sig 'error args 1)
+	(gotoif-lisp-args-len 'error argl /= 1)
 
 	(assign `(,this) `(,saved_this))
-	(array-bind-args args `(,args))
-	(assign `((,args +obj_vtable) (@ ,(f-path :double :vtable)) (@ ,(f-path :float :vtable))) `(,vt1 ,vt2 ,vt3))
+	(array-bind-args argl `(,args))
+	(assign `((,args +obj_vtable)) `(,vt1))
+	(f-bind :float :vtable vt2)
 	(switch)
-	(vpcase `(,vt1 = ,vt3))
+	(vpcase `(,vt1 = ,vt2))
 		(vp-load-rcf args +num_value :f0)
 		(vp-cvt-fd :f0 :d0)
 		(goto 'from_double)
-	(vpcase `(,vt1 = ,vt2))
+	(default)
+		(assign `((,vt2 +obj_vtable)) `(,vt2))
+		(nextcaseif `(,vt1 /= ,vt2))
 		(assign `((,args +num_value)) '(:d0))
 	(vp-label 'from_double)
 		(vp-lea-pr 'fn_consts args)
@@ -659,19 +674,22 @@
 		(assign `((,vt2 +obj_vtable)) `(,vt2))
 		(nextcaseif `(,vt1 /= ,vt2))
 		(class/obj/ref args vt1)
-	(else)
+		(exit :num :lisp_n2q `(,this ,args))
+		(vp-ret)
+	(default)
+		(assign `((,vt2 +obj_vtable)) `(,vt2))
+		(gotoif `(,vt1 /= ,vt2) 'error)
 		(assign `((,args +num_value)) in)
 		(vp-shl-cr +fp_shift (first in))
 	(vp-label 'new_fixed)
-		(call :fixed :create in `(,args))
+		(call :fixed :create in `(,argl))
 	(endswitch)
 
-	(exit :num :lisp_n2q `(,saved_this ,args))
+	(exit :num :lisp_n2q `(,saved_this ,argl))
 	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(n2q num)" +error_msg_wrong_types))
-	(signature '(:num))
+	(jump :lisp :repl_error `(,argl "(n2q num)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -683,25 +701,29 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :d0-:d15
+	;:r1-:r5, :r14, :d0-:d15
 
-	(vp-rdef (this args vt1 vt2 saved_this vt3))
+	(vp-rdef (this argl vt1 vt2 saved_this args))
 
-	(entry :num :lisp_n2d `(,this ,args))
+	(entry :num :lisp_n2d `(,this ,argl))
 
-	(gotoif-lisp-args-sig 'error args 1)
+	(gotoif-lisp-args-len 'error argl /= 1)
 
-	(assign `(,this) `(,saved_this))
-	(array-bind-args args `(,args))
-	(assign `((,args +obj_vtable) (@ ,(f-path :double :vtable)) (@ ,(f-path :float :vtable))) `(,vt1 ,vt2 ,vt3))
+	(array-bind-args argl `(,args))
+	(assign `((,args +obj_vtable)) `(,vt1))
+	(f-bind :float :vtable vt2)
 	(switch)
-	(vpcase `(,vt1 = ,vt3))
+	(vpcase `(,vt1 = ,vt2))
 		(vp-load-rcf args +num_value :f0)
 		(vp-cvt-fd :f0 :d0)
 		(goto 'new_double)
-	(vpcase `(,vt1 = ,vt2))
+	(default)
+		(assign `((,vt2 +obj_vtable)) `(,vt2))
+		(nextcaseif `(,vt1 /= ,vt2))
 		(class/obj/ref args vt1)
-	(else)
+		(exit :num :lisp_n2d `(,this ,args))
+		(vp-ret)
+	(default)
 		(assign `((,vt2 +obj_vtable)) `(,vt2))
 		(nextcaseif `(,vt1 /= ,vt2))
 		(assign `((,args +num_value)) `(,vt1))
@@ -711,18 +733,20 @@
 		(vp-mul-dd :d1 :d0)
 		(goto 'new_double)
 	(default)
+		(assign `((,vt2 +obj_vtable)) `(,vt2))
+		(gotoif `(,vt1 /= ,vt2) 'error)
 		(assign `((,args +num_value)) `(,args))
 		(vp-cvt-rd args :d0)
 	(vp-label 'new_double)
-		(call :double :create '(:d0) `(,args))
+		(assign `(,this) `(,saved_this))
+		(call :double :create '(:d0) `(,argl))
 	(endswitch)
 
-	(exit :num :lisp_n2d `(,saved_this ,args))
+	(exit :num :lisp_n2d `(,saved_this ,argl))
 	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(n2d num)" +error_msg_wrong_types))
-	(signature '(:num))
+	(jump :lisp :repl_error `(,argl "(n2d num)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -734,23 +758,27 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r14, :d0-:d15
+	;:r1-:r5, :r14, :d0-:d15
 	;info
 	;(n2f num) -> float, the float nearest the number
 
-	(vp-rdef (this args vt1 vt2 saved_this vt3))
+	(vp-rdef (this argl vt1 vt2 saved_this args))
+	(defq in (method-input :float :create))
 
-	(entry :num :lisp_n2f `(,this ,args))
+	(entry :num :lisp_n2f `(,this ,argl))
 
-	(gotoif-lisp-args-sig 'error args 1)
+	(gotoif-lisp-args-len 'error argl /= 1)
 
-	(assign `(,this) `(,saved_this))
-	(array-bind-args args `(,args))
-	(assign `((,args +obj_vtable) (@ ,(f-path :double :vtable)) (@ ,(f-path :float :vtable))) `(,vt1 ,vt2 ,vt3))
+	(array-bind-args argl `(,args))
+	(assign `((,args +obj_vtable)) `(,vt1))
+	(f-bind :float :vtable vt2)
 	(switch)
-	(vpcase `(,vt1 = ,vt3))
+	(vpcase `(,vt1 = ,vt2))
 		(class/obj/ref args vt1)
-	(else)
+		(exit :num :lisp_n2f `(,this ,args))
+		(vp-ret)
+	(default)
+		(assign `((,vt2 +obj_vtable)) `(,vt2))
 		(nextcaseif `(,vt1 /= ,vt2))
 		(assign `((,args +num_value)) '(:d0))
 		(goto 'new_float)
@@ -764,19 +792,21 @@
 		(vp-mul-dd :d1 :d0)
 		(goto 'new_float)
 	(default)
+		(assign `((,vt2 +obj_vtable)) `(,vt2))
+		(gotoif `(,vt1 /= ,vt2) 'error)
 		(assign `((,args +num_value)) `(,args))
 		(vp-cvt-rd args :d0)
 	(vp-label 'new_float)
+		(assign `(,this) `(,saved_this))
 		(vp-cvt-df :d0 :f0)
-		(float-bits :f0 args)
-		(call :float :create `(,args) `(,args))
+		(float-bits :f0 (first in))
+		(call :float :create in `(,argl))
 	(endswitch)
 
-	(exit :num :lisp_n2f `(,saved_this ,args))
+	(exit :num :lisp_n2f `(,saved_this ,argl))
 	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(n2f num)" +error_msg_wrong_types))
-	(signature '(:num))
+	(jump :lisp :repl_error `(,argl "(n2f num)" +error_msg_wrong_types))
 
 (def-func-end)

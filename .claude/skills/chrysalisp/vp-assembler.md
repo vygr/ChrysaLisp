@@ -453,6 +453,16 @@ between, as `docs/vm/vp_vm.md` says under Push, Pop.
 	as found, allocs whole words. `trace` checks the first and last along
 	each path, and `lint` prints them.
 
+*	A value kept across a call goes, best first: in a register the call
+	does not trash, a copy each way; fetched again after it, as the lisp
+	object of a binding is by `(lisp-this r)`, `class/lisp/class.inc`,
+	from the TCB, three loads; and only last a push and pop. Keep it only
+	on the paths that make the call: a path that returns with the register
+	still holding it exits with it as it is. Read `obj/vp/` of the file
+	for copies a value takes on its way to the exit: a `:create`'s answer
+	goes straight to the return register, `(call ... `(,argl))`, not by
+	one of the function's own.
+
 ## `sys/math` And Its Contract
 
 `sys/math` holds the unboxed functions of a number, `q_` fixed, `d_`
@@ -674,6 +684,39 @@ check and the dispatch are the one walk.
 
 *	`:lisp :env_args_sig`, `class/lisp/env_args.vp`, is the same walk for a
 	signature.
+
+*	Where the kinds are a ladder of exact classes, each built on the one
+	before, and nothing else is built on them, the numbers, `:num ->
+	:fixed -> :double -> :float`, walk the ladder, not the object: the
+	object's vtable loaded once, one `f-bind`, of the class at the bottom,
+	and a case a rung, each stepping the ladder's vtable to its parent and
+	comparing, past the top the error. `(n2i)` and its kind,
+	`class/num/lisp.vp`:
+
+		(assign `((,args +obj_vtable)) `(,vt1))
+		(f-bind :float :vtable vt2)
+		(switch)
+		(vpcase `(,vt1 = ,vt2))
+			...a float
+			(goto 'new_num)
+		(default)
+			(assign `((,vt2 +obj_vtable)) `(,vt2))
+			(nextcaseif `(,vt1 /= ,vt2))
+			...a double
+		...
+		(default)
+			(assign `((,vt2 +obj_vtable)) `(,vt2))
+			(gotoif `(,vt1 /= ,vt2) 'error)
+			...a num
+		(endswitch)
+
+	Each case falling into its own work and jumping over it to the next
+	rung, or the walk a run of compares each jumping to its work, measure
+	the same: the branches are lost in the call and the `:create`.
+
+*	A `switch` is C's: a case falls through into the next, `(vpcase)` or
+	`(default)`, unless it ends in a `(break)`, a `goto`, or an exit and
+	`vp-ret` of its own; `(else)` is a `(break)` and a `(default)`.
 
 ## Boot Image Functions Run From The Image
 
