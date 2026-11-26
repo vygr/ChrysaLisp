@@ -677,12 +677,13 @@
 				blasts))
 		blast_glows glows))
 
-(defun rock-buoy (x y z)
-	; (rock-buoy x y z) -> ((rock_lamp_at place) (rock_lamp colour))
+(defun rock-buoy (x y z &optional own)
+	; (rock-buoy x y z [own]) -> ((rock_lamp_at place) (rock_lamp colour))
 	;the lamp of the buoy nearest a rock at x y z, near enough to light it,
 	;where it is and as bright as it is, or none: of the lamps near
 	;enough to the eye to light a rock it sees
-	;a bomb's or a blast's before any buoy's
+	;a bomb's or a blast's before any buoy's; a buoy lit so, the lamp at
+	;own its own, not one that lights it
 	(defq best :nil best_d +blast_light_far)
 	(each (lambda ((at colour))
 			(defq dx (- (first at) x) dy (- (second at) y) dz (- (third at) z)
@@ -694,7 +695,7 @@
 		(each (lambda ((at colour))
 				(defq dx (- (first at) x) dy (- (second at) y) dz (- (third at) z)
 					d (sqrt (+ (* dx dx) (* dy dy) (* dz dz))))
-				(when (< d best_d) (setq best_d d best (list at colour))))
+				(and (< d best_d) (not (eql at own)) (setq best_d d best (list at colour))))
 			lamps_near))
 	(if best
 		(list (list 'rock_lamp_at (first best)) (list 'rock_lamp (nums-scale (second best) +buoy_power)))
@@ -751,7 +752,8 @@
 	; (buoy-draws view sides) -> draws
 	;the buoys near enough and in what the frame sees, each hung from where
 	;its lamp is along its way up, turning slowly about it, its lamp as
-	;bright as it is now
+	;bright as it is now; lit as a rock is, by a blast's light before the
+	;nearest other buoy's lamp, and by the ship's ping
 	(defq out (list) turn (/ (n2d (pii-time)) +buoy_turn_long))
 	(when buoy_had
 		(each (lambda ((at colour) axis)
@@ -760,11 +762,13 @@
 					rx (- (first body_at) (first eye)) ry (- (second body_at) (second eye)) rz (- (third body_at) (third eye)))
 				(and (< (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) rock_far) (seen? rx ry rz +buoy_size sides)
 					(push out (list +mesh_buoy
-						(list (list 'model (mat4x4-mul (apply (const mat4x4-translate) (map (# %0) body_at))
+						(cat (list (list 'model (mat4x4-mul (apply (const mat4x4-translate) (map (# %0) body_at))
 								(mat4x4-mul (buoy-tilt axis)
 									(mat4x4-mul (mat4x4-roty (+ turn (n2d (!)))) (mat4x4-scale +buoy_size +buoy_size +buoy_size)))))
 							(list 'lens view) (list 'eye eye))
+							(rock-buoy (first body_at) (second body_at) (third body_at) at))
 						(list (list 'sun sun_at) (list 'eye eye) (list 'sun_light sun_light)
+							(list 'ping_at ping_at) (list 'ping ping)
 							(list 'pillars_light pillars_light) (list 'pillars_at pillars_at)
 							(list 'pillars_across pillars_across) (list 'pillars_up pillars_up)
 							(list 'pillars_size pillars_size) (list 'pillars_pixels pillars_pixels)
