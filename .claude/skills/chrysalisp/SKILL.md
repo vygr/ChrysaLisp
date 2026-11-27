@@ -486,6 +486,16 @@ bits; `(nums-convert src dst [signed])` to and from numbers.
 	parts plugins, `docs/lisp/nav.md`. A pilot, a fish, a craft is a Nav,
 	not its own steering code.
 
+*	**Physics utilities,** `lib/physics/`, each of use on its own, an
+	engine of them one day. `collide.inc` finds what touches,
+	`docs/lisp/collide.md`. `move.inc`, `Mover`, is the one way a thing
+	moves: its velocity, kicks taken up at a rate, shoves eased in, drag
+	toward still or a flow, a steady acceleration, a top speed, following
+	another, aligning to where it faces, hits between two by their masses,
+	a step of all of them, `docs/lisp/move.md`. A Nav or an app steers, a
+	Mover moves; no app moves a thing its own way, nor jumps it out of
+	another.
+
 *	**`float`, `floats`:** 32 bit IEEE singles, a double's protocol at the
 	width of a GPU, worked in 32 bits. A `floats` element is 4 bytes.
 
