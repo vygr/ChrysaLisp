@@ -112,13 +112,14 @@
 	+bomb_glow_far (n2d 0.02) +trail_glows 6 +trail_step (n2d 0.012) +trail_fade (n2d 0.62)
 	blasts (list) +blast_life 900000 +blast_light (doubles (n2d 2.6) (n2d 1.8) (n2d 1.0))
 	+blast_glow_least (n2d 15) +blast_glow_most (n2d 150) +blast_light_far (n2d 260)
-	;a buoy gone nuclear: the klaxon it sounds as it is armed, its handle
-	;of the audio service, how long it flashes white, armed, before, and how
+	;a buoy gone nuclear: the klaxon it sounds as it is armed, and the boom
+	;as it goes, their handles of the audio service, how long it flashes
+	;white, armed, before, and how
 	;fast; its blast's reach, strength, how long its light lasts, its light
 	;at its brightest and its glow's size at its most; how many of the rocks
 	;it shatters in view throw out debris, and how big its pieces are at
 	;least, and for how far off
-	klaxon :nil +nuke_fuse 3000000 +armed_beat 125000 +armed_flash (doubles (n2d 1.6) (n2d 1.6) (n2d 1.6))
+	klaxon :nil boom :nil +nuke_fuse 3000000 +armed_beat 125000 +armed_flash (doubles (n2d 1.6) (n2d 1.6) (n2d 1.6))
 	+nuke_reach (n2d 360) +nuke_strength (n2d 1200) +nuke_life 2500000
 	+nuke_light (doubles (n2d 7) (n2d 5.5) (n2d 4)) +nuke_glow (n2d 500) +nuke_sprays 14
 	+debris_least +double_1/2 +debris_far (n2d 0.005) blast_lamps (list) blast_glows (list) pressed 0
@@ -709,6 +710,9 @@
 						(list ahead) 0 (min (length ahead) +nuke_sprays))
 					(if (> (length sprays) +spray_most) (setq sprays (slice sprays (- (length sprays) +spray_most) -1)))
 					(push blasts (list (cat at) now +double_0 +nuke_reach +nuke_strength +nuke_life +nuke_light +nuke_glow :t))
+					;its boom, from the side it is on, as loud wherever, and the rocks
+					;crunching
+					(if (num? boom) (audio-play-rpc boom (side-of at)))
 					(times 4 (push hits (list x y z +blast_crunch)))
 					(elem-set buoy 6 0)
 					(elem-set buoy 7 0))))
@@ -1189,7 +1193,8 @@
 		;the crunches, the near ones and the far one, each at its loudnesses
 		crunches (map (lambda (n) (crunch-levels (cat "crunch_" (str n)) +near_levels)) '(1 2 3))
 		crunch_far (crunch-levels "crunch_far" +far_levels) thrust_pcm (thrust-load)
-		klaxon (if crunch_far (audio-add-rpc (cat *app_root* "data/klaxon.wav"))))
+		klaxon (if crunch_far (audio-add-rpc (cat *app_root* "data/klaxon.wav")))
+		boom (if crunch_far (audio-add-rpc (cat *app_root* "data/boom.wav"))))
 	;the rocks' kinds, made by a farm of children on this machine's nodes,
 	;off this one, and each slotted in as it comes
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
@@ -1318,6 +1323,7 @@
 	(if jobs (. jobs :close))
 	(if thrust_stream (audio-stream-close-rpc thrust_stream))
 	(if (num? klaxon) (audio-remove-rpc klaxon))
+	(if (num? boom) (audio-remove-rpc boom))
 	(if crunch_far (each (lambda (levels) (each (const audio-remove-rpc) levels)) (push (cat crunches) crunch_far)))
 	(. render :close)
 	(. *window* :close))

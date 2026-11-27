@@ -35,16 +35,22 @@ leaves the others as they are, each run as
 	loudness a hit is heard at, made of the crunches there are, after
 	`bake_crunch.lisp`.
 
-*	`thrust.wav`, `bake_thrust.lisp`: the roar of the ship's boost, four
+*	`thrust.wav`, `bake_thrust.lisp`: the roar of the ship's thrust, four
 	seconds of it that go round without a seam, its end faded into its
 	start, and nothing in it that beats in time, so it is not heard to go
 	round: a deep rumble, the hiss of the exhaust and a faint low hum. The
-	app writes it to a stream as the boost is held, from a place at random
+	app writes it to a stream as the ship thrusts, from a place at random
 	each time. At random, so a bake is a new roar.
 
 *	`klaxon.wav`, `bake_klaxon.lisp`: the warning of a buoy armed to go
 	nuclear, one a-oo-gah of an old horn: a buzzing diaphragm swooping up
 	and dropping, rung by the horn at two pitches, clipped hard.
+
+*	`boom.wav`, `bake_boom.lisp`: a buoy going nuclear, three and a half
+	seconds: a crack of noise, a deep thump falling from 90 Hz to under
+	30, and a rumble of noise below 160 Hz rolling off over seconds, its
+	loudness wobbling slowly so it rolls, clipped softly. At random, so a
+	bake is a new boom.
 
 To make `pillars.cpm`, with the tree's own loader and resize, the picture
 being some 190 MB of pixels:
