@@ -580,6 +580,16 @@ Key points:
 	needs no change anywhere else. The canvas of a drawing app is only the
 	backmost object.
 
+*	**Libraries do the hard work, the app scripts it.** What is heavy and
+	the same in every app, each body or each frame, goes to a library made
+	for it, and from there to VP natives where it pays: `lib/collide/` for
+	what is near and what touches, `lib/nav/` for routes and following and
+	turning, `lib/math/quaternion.inc`, `lib/gpu/render_farm.inc` for the
+	frame. The app is the script: what is made and where, how it moves and
+	what a touch does, its assets, its sound and music. That is light work
+	and Lisp is at home in it. An app with its own grid, steering or ray
+	cast has a library missing, or one it is not using.
+
 *	**The real thing first.** Before a design, say what it is in the world,
 	who holds what, what they do with it, what it remembers, the pens and
 	inks of a whiteboard, people with notepads, and check that model with
