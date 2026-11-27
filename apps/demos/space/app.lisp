@@ -126,8 +126,9 @@
 	;the ship's cruising speed, a second, and its speed now, the farm that
 	;makes the rocks and which kinds have come; the field is field.inc
 	+cruise (n2d 24) ship_speed +cruise jobs :nil kinds_had (map! (lambda () :nil) '() 0 +rock_kinds)
-	;the part of the rocks met this frame, and the grid of this round
-	part 0 grid :nil
+	;the part of the rocks met this frame, and their world of collide,
+	;lib/collide, refiled each round
+	part 0 world :nil
 	;the crunches of rocks hitting, near and far, each at the loudness it
 	;was made at, bake_levels.lisp, loudest first, as the audio service has
 	;no loudness of its own; the hits that are heard, how hard at least, how
@@ -930,8 +931,8 @@
 	;the parts as many frames, the grid made at the start of each round
 	(rocks-move dt)
 	(frame-mark 1)
-	(if (= part 0) (setq grid (rocks-grid)))
-	(rocks-meet (* (min dt +meet_dt_most) (n2d +meet_parts)) grid part)
+	(if (= part 0) (. world :refile))
+	(rocks-collide (min dt +meet_dt_most) world)
 	(frame-mark 2)
 	(setq part (% (inc part) +meet_parts))
 	;now and then a cluster out of sight made lively again
@@ -1082,7 +1083,7 @@
 		;the moon's map, Flight's, for the rocks' faces
 		moon_map (. (shader-strip-picture (canvas-load "apps/demos/flight/data/moon.cpm" +load_flag_noswap)) :swap +swap_write)
 		moon_pixels (apply (const doubles) (map (const n2d) (. moon_map :pref_size)))
-		rocks (make-rocks) eye (doubles +double_0 +double_0 +double_0)
+		rocks (make-rocks) world (rocks-world) eye (doubles +double_0 +double_0 +double_0)
 		;the crunches, the near ones and the far one, each at its loudnesses
 		crunches (map (lambda (n) (crunch-levels (cat "crunch_" (str n)) +near_levels)) '(1 2 3))
 		crunch_far (crunch-levels "crunch_far" +far_levels) thrust_pcm (thrust-load)

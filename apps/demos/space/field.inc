@@ -9,6 +9,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/math/vector.inc")
+(import "lib/collide/collide.inc")
 (import "apps/demos/space/sky.inc")
 
 ;module
@@ -51,7 +52,7 @@
 	;keeps, little, rock on rock is a crunch, and how much of the sideways
 	;part of it is ground down
 	+drift_most +double_3 +clusters 45 +meet_parts 12 +cells_side 8 +fine_side 16 +pull (n2d 0.025)
-	+small_reach (/ +field (n2d (* 2 +fine_side))) +pull_least (n2d 25) +pull_every 3 meet_round 0 +pull_reach2 (n2d 62500) +pull_soft (n2d 400) +bounce (n2d 0.15) +grind (n2d 0.4)
+	+small_reach (/ +field (n2d (* 2 +fine_side))) +pull_least (n2d 25) +pull_every 3 meet_round 0 +pull_reach2 (n2d 62500) +pull_reach (n2d 250) +pull_soft (n2d 400) +bounce (n2d 0.15) +grind (n2d 0.4)
 	;a blast: how far it reaches, how hard it throws, a rock of size 1 at
 	;its middle thrown so fast, one of size b a b'th of it, how fast its
 	;front of pressure goes out, a second, and how much of how hard a rock is
@@ -749,6 +750,55 @@
 			(elem-set calm 4 best)
 			(elem-set calm 5 0))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the rocks meeting by lib/collide: what touches and what pulls is the
+; world's to say, a part of them each frame; what it does is the field's
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun rocks-world ()
+	; (rocks-world) -> collide
+	;the rocks in a world of collide, round as the field is, cells of the
+	;fine grid's size: each rock a ball as far as it reaches, its centre
+	;held, met with those near it every +meet_parts frames; and each rock
+	;big enough to pull, a sensor round it as far as it pulls, its own, met
+	;every +pull_every rounds
+	(defq world (Collide (/ +field (n2d +fine_side)) (doubles +field +field +field)))
+	(. world :every_new +meet_parts)
+	(each (lambda ((at & bulk kind &ignore))
+			(defq i (!))
+			(. world :attach i at :nil (list :sphere (* bulk (elem-get kind_reach kind))))
+			(if (>= bulk +pull_least)
+				(. world :every (. world :attach i at :nil (list :sphere +pull_reach) 1 :t)
+					(* +meet_parts +pull_every))))
+		rocks)
+	world)
+
+(defun rocks-pulled (i j way far stands dt)
+	; (rocks-pulled i j way far stands dt)
+	;rock j in the pull of big rock i, far from it along way: pulled, once
+	;a pair of two big ones, and only as far as a pull reaches
+	(defq rock (elem-get rocks i) rock_j (elem-get rocks j))
+	(and (or (> j i) (< (third rock_j) +pull_least)) (< far +pull_reach)
+		(bind '(dx dy dz) (nums-scale way far))
+		(rocks-pull rock rock_j dx dy dz (* far far) (* +pull dt (n2d stands)))))
+
+(defun rocks-collide (dt world)
+	; (rocks-collide dt world)
+	;the rocks the world says touch this frame bounced, rocks-touch, and
+	;those a big one's sensor has in it pulled, rocks-pull, dt the frame's
+	;seconds and each pair's for as many frames as its test stands for; a
+	;pull of two big ones the once
+	(defq owners (get :owners world) bounds (get :bounds world) sensors (get :sensors world))
+	(each (lambda ((a b depth way stands))
+			(defq ia (elem-get owners a) ib (elem-get owners b) ra (second (elem-get bounds a))
+				rb (second (elem-get bounds b)) far (- (+ ra rb) depth))
+			(cond
+				((elem-get sensors a) (rocks-pulled ia ib way far stands dt))
+				((elem-get sensors b) (rocks-pulled ib ia (nums-scale way +double_-1) far stands dt))
+				(:t (bind '(dx dy dz) (nums-scale way far))
+					(rocks-touch (elem-get rocks ia) ra (elem-get rocks ib) dx dy dz (* far far)))))
+		(. world :pairs)))
+
 ;module, what the app and the tests use: its own numbers, prebound into
 ;its functions as they are made, go with it
 (export-symbols
@@ -757,6 +807,6 @@
 	+buoys +buoy_red +buoy_green +buoy_blue +calm_looks +nuke_looks +rim_most +spin_most
 	+blast_front +blast_reach +blast_strength
 	rnd rnd-way near-way out-of-sight? make-rocks make-buoys rock-at rock-spin rock-strike
-	rock-turned rocks-blast rocks-grid rocks-meet rocks-move rocks-nuke clusters-refresh
+	rock-turned rocks-blast rocks-grid rocks-meet rocks-world rocks-collide rocks-move rocks-nuke clusters-refresh
 	cluster-again buoy-look buoys-move buoys-restation thread-start thread-step))
 (env-pop)
