@@ -10,7 +10,7 @@
 (import "./chunk.inc")
 (import "./route.inc")
 (import "./fish.inc")
-(import "lib/math/quaternion.inc")
+(import "lib/nav/nav.inc")
 
 ;Water, a dive through a reef that goes on every way, drawn by a
 ;(Render-tris), lib/gpu/render_farm.inc, which has the GPU draw it. The
@@ -90,9 +90,10 @@
 	;comes upright, how fast it swims, its lamp, and the pointer
 	eye :nil forward :nil up :nil turned 0 stick :nil yaw +double_0 pitch +double_0
 	+turn_most (n2d 0.3) +turn_ease +double_1 +upright (n2d 0.6) +swim +double_2
-	;the share of the way to its turn the auto pilot turns a second, as a
-	;rate, over the reef and in the caves: past it by none, water damps a turn
-	+auto_settle (n2d 1.2) +cave_settle (n2d 2.5)
+	;the auto pilot, a Nav, lib/nav: the stiffness of its turn over the
+	;reef and in the caves, a spring, and how much it is damped, more than
+	;just never past it, as water damps a turn
+	pilot :nil +auto_settle (n2d 1.2) +cave_settle (n2d 2.5) +pilot_zeta (n2d 1.2)
 	;how far from straight up or down, across, the auto pilot's up is still
 	;all its own, and over how much more it comes to be the world's
 	+upright_from (n2d 0.2) +upright_over (n2d 0.3)
@@ -202,7 +203,14 @@
 	+choose_chance (n2d 0.0008) +dive_pull +double_4 +seek_pull (n2d 0.7)
 	;how long it cruises over the reef after a cave before the next, and
 	;since when
-	+cave_rest 40000000 cave_left 0
+	+cave_rest 120000000 cave_left 0
+	;a launch: of how many ways round it faces one, how clear of the rock
+	;its junction is, of how many ways it takes the clearest, and how far it
+	;looks along each
+	+launch_turns (n2d 3600)
+	;a stone's own number of where it is, a hash of the shaders' own
+	+seed_x (/ (n2d 129898) (n2d 10000)) +seed_y (/ (n2d 78233) (n2d 1000)) +seed_z (/ (n2d 37719) (n2d 1000))
+	+seed_k (/ (n2d 437585453) (n2d 10000)) +launch_clear (n2d 8) +launch_ways 16 +launch_look (n2d 40)
 	;its outings over the open water, of a hundred, along a formation and
 	;over the seabed, the rest on to the next junction; how far over the
 	;seabed it skims; how far round a junction it looks for a formation, in
@@ -322,6 +330,30 @@
 	;has the junction of a cell of the open water a shaft down under it
 	(bind '(x l z) c)
 	(> (field_link (at-cell (list x (dec l) z)) +double_7) +double_0))
+
+(defun launch-cell ()
+	; (launch-cell) -> cell
+	;a junction over the reef anywhere round the world, by chance, with
+	;clear water well round it, not by the rock of an island nor over the
+	;mouth of a shaft down to the caves
+	(defq c :nil)
+	(until (and c (> (field_water (junction-of c)) +launch_clear) (not (has-shaft c)))
+		(setq c (list (random (const (n2i (/ +world +cell)))) 0 (random (const (n2i (/ +world +cell)))))))
+	c)
+
+(defun launch-way (at)
+	; (launch-way at) -> doubles
+	;the way across, level, of a few round, from a place by chance, with the
+	;most clear water ahead of it
+	(defq best :nil best_far +double_-1 a0 (* +double_2pi (/ (n2d (random 3600)) +launch_turns)))
+	(each! (lambda ()
+			(defq a (+ a0 (/ (* +double_2pi (n2d (!))) (n2d +launch_ways)))
+				way (doubles (sin a) +double_0 (cos a)) far +double_0)
+			(while (and (< far +launch_look) (> (field_water (nums-add at (nums-scale way far))) +double_2))
+				(setq far (+ far +sight_step)))
+			(if (> far best_far) (setq best way best_far far)))
+		'() 0 +launch_ways)
+	best)
 
 (defun nearest-junction ()
 	; (nearest-junction) -> cell
@@ -541,6 +573,7 @@
 	;first leg from the eye on the way it is looking, so it never turns
 	;about when it takes over
 	(setq came :nil escape (list) was :nil legs (list))
+	(if pilot (def pilot :spin (doubles +double_0 +double_0 +double_0)))
 	(cond
 		((in-caves?)
 			(setq going (nearest-junction)
@@ -550,39 +583,46 @@
 			(defq j (junction-of going))
 			(leg-ask (cat eye) (nums-add eye (nums-scale forward (min +ahead_most (* (far-from j) +double_1/2)))) j :nil))))
 
-(defun route-ahead ()
-	; (route-ahead) -> doubles
-	;the place the auto pilot aims at: a few places on along its leg from
-	;where the eye is along it, which only goes on, the nearest of the next
-	;few places to the eye; the next leg once one is done, more legs as they
-	;are used. Over the reef a leg not yet lined is lifted over the rock
-	;here, as the ways of the open water carve nothing
+(defun pilot-aim (nav dt)
+	; (pilot-aim nav dt) -> doubles
+	;the place the auto pilot aims at: its first two legs laid end to end
+	;as the Nav's path, and nav-aim-follow's aim along it, from where the
+	;eye will be when its turn has caught up, sliding on as it goes, never a
+	;place at a time; its place on its legs only goes on, into the next
+	;leg, which is then the first. More legs as they are used. Over the reef a leg not
+	;yet lined is lifted over the rock here, as the ways of the open water
+	;carve nothing
 	(while (< (length legs) 2) (choose-next))
-	(defq leg (first legs))
-	(while (progn
-			(bind '(& pts & & at) leg)
-			(defq n (length pts) near (far-from (elem-get pts at)))
-			(each! (lambda (p) (when (< (defq d (far-from p)) near) (setq near d at (!))))
-				(list pts) (inc at) (min n (+ at (n2i (* (n2d +look_on) (max +double_1 (/ speed +swim)))))))
-			(elem-set leg 4 at)
-			(and (>= at (- n 2)) (< (far-from (last pts)) +lead)))
+	(defq leg (first legs) pts (second leg) n (length pts))
+	(while (and (>= (elem-get leg 4) (- n 2)) (< (far-from (last pts)) +lead))
 		(setq legs (slice legs 1 -1))
 		(if (< (length legs) 2) (choose-next))
-		(setq leg (first legs)))
-	;as far on as it would swim in the same time, faster or slower
-	(defq p (cat (elem-get pts (min (dec n) (+ at (n2i (* (n2d +aim_on) (max +double_1 (/ speed +swim)))))))))
+		(setq leg (first legs) pts (second leg) n (length pts)))
+	(def nav :path (cat pts (second (second legs))) :cursor (elem-get leg 4)
+		:look (n2i (* (n2d +look_on) (max +double_1 (/ speed +swim)))))
+	(defq p (nav-aim-follow nav dt) cursor (get :cursor nav))
+	;its place gone on into the next leg: this one done, the next from there
+	(cond
+		((>= cursor n)
+			(setq legs (slice legs 1 -1))
+			(elem-set (first legs) 4 (- cursor n))
+			(if (< (length legs) 2) (choose-next)))
+		((elem-set leg 4 cursor)))
 	(unless (or (third leg) (elem-get leg 3))
 		(times 8 (if (< (field_water p) +over_rock) (elem-set p 1 (+ (second p) +double_2))))
 		(elem-set p 1 (min (second p) (- +surface +under_surface))))
+	p)
+
+(defun pilot-avoid (nav aim)
+	; (pilot-avoid nav aim) -> doubles
 	;the lines know nothing of the stones: the first place on the way to the
 	;aim that is near one is moved clear of it, and aimed at, so the sub
 	;steers round or over it
-	(defq to (nums-sub p eye) aim p)
-	(some (lambda (along)
+	(defq to (nums-sub aim eye))
+	(ifn (some (lambda (along)
 			(bind '(q moved) (clear-of-stones (nums-add eye (nums-scale to (n2d along))) +aim_clear))
-			(if (> moved +double_0) (setq aim q)))
-		'(0.35 0.7 1))
-	aim)
+			(if (> moved +double_0) q))
+		'(0.35 0.7 1)) aim))
 
 (defun far-from (p)
 	; (far-from p) -> double
@@ -598,27 +638,28 @@
 
 (defun auto-turn (dt)
 	; (auto-turn dt)
-	;the auto pilot turned toward the line, a place a little on along it:
-	;the way it faces and its up a turn, quaternions, turned a share of the
-	;way to the turn that looks at the place upright, the world's up its
-	;up, the share the more the longer the step, and no more than it can
-	;turn, the faster it swims the more, nimbly in the caves. It nears
-	;what it wants and never swings past it, as water damps a turn. Looking
-	;near straight up or down, where the world's up says no roll, its own
-	;up is kept instead, the more the nearer, so it is the same down a
-	;shaft as level, and is never left upside down
-	(setq aim_way (unit (nums-sub (route-ahead) eye)) yaw +double_0 pitch +double_0)
-	(defq most (* dt (max +double_1 (/ speed +swim)) (if (elem-get (first legs) 3) +cave_turn +turn_most))
-		;how far from straight up or down it would look, 0 to 1
-		across (sqrt (max +double_0 (- +double_1 (* (second aim_way) (second aim_way)))))
-		world (max +double_0 (min +double_1 (/ (- across +upright_from) +upright_over)))
-		level (unit (nums-add (nums-scale up (- +double_1 world)) (nums-scale (const (doubles +double_0 +double_1 +double_0)) world)))
-		now_turn (quat-frame forward up) want_turn (quat-frame aim_way level)
-		share (- +double_1 (exp (neg (* dt (if (elem-get (first legs) 3) +cave_settle +auto_settle)))))
-		turn (quat-toward now_turn want_turn (min most (* share (quat-angle now_turn want_turn)))))
-	(setq forward (quat-vec3-rot turn (const (doubles +double_0 +double_0 +double_-1)))
-		up (quat-vec3-rot turn (const (doubles +double_0 +double_1 +double_0)))))
-
+	;the auto pilot turned toward its line, a Nav's turn: the way it faces
+	;and its up a quaternion, how fast it turns sprung toward the turn that
+	;looks at its aim upright, damped more than just enough never to go
+	;past it, as water damps a turn, stiffer in the caves, and no faster
+	;than it can, both the more the faster it swims. Its up the world's, but near
+	;straight up or down its own kept, the more the nearer, so it is the
+	;same down a shaft as level, and never left upside down. The eye is
+	;where the Nav is, it swims as it did, swim
+	(unless pilot
+		(setq pilot (Nav eye forward up))
+		(def pilot :zeta +pilot_zeta :lead (/ (n2d +aim_on) +swim) :lead_least (n2d +aim_on)
+			:upright_from +upright_from :upright_over +upright_over :aim_fn pilot-aim :avoid_fn pilot-avoid))
+	(def pilot :at eye :speed speed :way forward :up up :turn (quat-frame forward up))
+	(defq aim (pilot-avoid pilot (pilot-aim pilot dt)) cave (elem-get (first legs) 3))
+	(setq aim_way (unit (nums-sub aim eye)) yaw +double_0 pitch +double_0)
+	;as nimble the faster it goes, so it follows a curve as well at speed:
+	;stiffer and no less fast to turn, by how much faster than it swims
+	(defq faster (max +double_1 (/ speed +swim)))
+	(def pilot :k (* faster (if cave +cave_settle +auto_settle))
+		:turn_most (* faster (if cave +cave_turn +turn_most)))
+	(nav-turn-to pilot (quat-frame aim_way (nav-up-level pilot aim_way dt)) dt)
+	(setq forward (get :way pilot) up (get :up pilot)))
 
 (defun pointer-turn (dt right)
 	; (pointer-turn dt right)
@@ -1024,6 +1065,23 @@
 		(list (list spread_x (nums-scale right +double_-1)) (list spread_x right)
 			(list +spread_y (nums-scale up +double_-1)) (list +spread_y up))))
 
+(defun stone-seed (at)
+	; (stone-seed at) -> double
+	;a stone's own number, 0 to 1, of where it is, in doubles, so the same
+	;each frame wherever it is round the world
+	(bind '(x y z) at)
+	(defq s (* (sin (+ (* x +seed_x) (* y +seed_y) (* z +seed_z))) +seed_k))
+	(- s (floor s)))
+
+(defun eye-model (m)
+	; (eye-model m) -> mat4x4
+	;a model's matrix moved from the world's middle to the eye's
+	(defq m (cat m))
+	(elem-set m 3 (- (elem-get m 3) (first eye)))
+	(elem-set m 7 (- (elem-get m 7) (second eye)))
+	(elem-set m 11 (- (elem-get m 11) (third eye)))
+	m)
+
 (defun chunk-draws (view_mat sides pvals)
 	; (chunk-draws view_mat sides pvals) -> draws
 	;the chunks with a surface in what the frame sees, each where it is,
@@ -1038,8 +1096,8 @@
 				;enough that one of them, reaching out over the next, may be
 				(defq inside (reduce (lambda (most (sx sy sz)) (min most (+ (* rx sx) (* ry sy) (* rz sz)))) sides +far_clear))
 				(if (> inside (neg +chunk_reach))
-					(push out (list mid (list (list 'model (mat4x4-translate (* (n2d cx) +chunk) (* (n2d cy) +chunk)
-							(* (n2d cz) +chunk))) lens vvals_eye) pvals)))
+					(push out (list mid (list (list 'model (mat4x4-translate (- (* (n2d cx) +chunk) (first eye))
+							(- (* (n2d cy) +chunk) (second eye)) (- (* (n2d cz) +chunk) (third eye)))) lens vvals_eye) pvals)))
 				(when (> inside (neg (+ +chunk_reach +stone_over)))
 					(each (lambda ((mesh model stone at bulk weed &ignore))
 							(bind '(sx sy sz) (defq d (nums-sub at eye)))
@@ -1049,12 +1107,14 @@
 							(and (< far reach)
 								(elem-get stones_had (+ (- mesh +mesh_stone) fine))
 								(every (lambda ((wx wy wz)) (> (+ (* sx wx) (* sy wy) (* sz wz)) (neg (* bulk +double_2)))) sides)
+								;its matrix from the eye, (eye-model)
+								(defq model (eye-model model))
 								(push stones (if weed
 									(list (+ mesh fine) (list (list 'model model) lens vvals_eye (list 'stone stone)
 											(list 'stone_reach reach) (list 'time seconds))
 										pvals '() weed_files)
 									(list (+ mesh fine) (list (list 'model model) lens vvals_eye (list 'stone stone)
-											(list 'stone_reach reach))
+											(list 'stone_reach reach) (list 'seed (stone-seed at)))
 										pvals '() stone_files)))))
 						lying)))))
 	(setq stones_drawn (length stones))
@@ -1067,7 +1127,7 @@
 ;to look at the log of it. The parts' times, when the last part ended, the
 ;frames of this second, the stream and when it began
 (defq +frame_log :nil frame_parts (list 0 0 0 0 0) frame_at 0 frame_count 0 frame_stream :nil frame_began 0
-	touches 0 stucks 0 nods 0 nod_was +double_0 nod_way +double_0 +nod_least (n2d 0.01) upsides 0)
+	touches 0 stucks 0 nods 0 nod_was +double_0 nod_way +double_0 +nod_least (n2d 0.01) upsides 0 caves 0)
 
 (defun frame-nod ()
 	; (frame-nod)
@@ -1075,6 +1135,7 @@
 	;up to pitching down or back, more than a little
 	(when +frame_log
 		(if (< (second up) +double_0) (++ upsides))
+		(if (in-caves?) (++ caves))
 		(defq d (- (second forward) nod_was))
 		(when (> (abs d) +nod_least)
 			(if (< (* d nod_way) +double_0) (++ nods))
@@ -1101,9 +1162,9 @@
 		" | eye " (elem-get ms 0) " fish " (elem-get ms 1) " chunks " (elem-get ms 2) " draws " (elem-get ms 3)
 		" render " (elem-get ms 4) " gpu " (elem-get ms 5)
 		" | chunks " (str meshed) " out " (str out) " stones " (str stones_drawn) " fish " (str fish_drawn)
-		" upsides " (str upsides) " nods " (str nods) " stucks " (str stucks) " echoes " (str echoes) " legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
+		" upsides " (str upsides) " caves " (str caves) " nods " (str nods) " stucks " (str stucks) " echoes " (str echoes) " legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
 		" touches " (str touches)))
-	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0 nods 0 upsides 0)
+	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0 nods 0 upsides 0 caves 0)
 	(stream-flush frame_stream)
 	(and (eql (get '*env_node_user*) "Test") (> (- now frame_began) 60000000)))
 
@@ -1134,7 +1195,10 @@
 		;the frustum's sides are at the near plane, the frame's at a distance of 1
 		lens (mat4x4-frustum (neg (* spread_x +near)) (* spread_x +near) (const (* +spread_y +near))
 			(const (neg (* +spread_y +near))) +near (+ view +chunk_reach))
-		view_mat (mat4x4-mul lens (mat4x4-mul look (mat4x4-translate (neg (first eye)) (neg (second eye)) (neg (third eye)))))
+		;the view's turn only: what is drawn is placed from the eye, in doubles,
+		;so the GPU's singles have small numbers anywhere round the world, the
+		;depth of a stone and the sand under it kept apart
+		view_mat (mat4x4-mul lens look)
 		pvals (list (list 'eye eye) (list 'forward forward) (list 'time seconds) (list 'lamp +lamp) (list 'murk murk)
 			(list 'open open)))
 	(defq fish (fish-draws schools fish_had +mesh_fish (list 'lens view_mat) (list 'eye eye) pvals fish_files
@@ -1251,9 +1315,10 @@
 	(setq ping_pcm ping echo_left echo_l echo_right echo_r ping_quiet quiet)
 	(config-load)
 	(setq detail (min 4 (. *config* :find :detail)) view (elem-get +view_of detail) mode (. *config* :find :mode)
-		;at a junction over the reef, to go on from
-		going (list 10 0 10) eye (clear-of-rock (nums-sub (defq j (junction-of going)) (field_warp j)))
-		forward (doubles +double_0 +double_0 +double_1) up (doubles +double_0 +double_1 +double_0)
+		;at a junction over the reef somewhere by chance, to go on from,
+		;facing any way
+		going (launch-cell) eye (clear-of-rock (junction-of going))
+		forward (launch-way eye) up (doubles +double_0 +double_1 +double_0)
 		turned (pii-time) cave_left (pii-time))
 	(. *mode* :set_selected (find mode '(:auto :mouse)))
 	(head-out)

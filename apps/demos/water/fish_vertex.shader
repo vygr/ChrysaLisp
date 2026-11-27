@@ -38,7 +38,8 @@
 		flap (* (sin (- (+ (* time (:z fish)) (:y fish)) (* wing 4.0))) (:w fish) wing wing 4.0)
 		bent (vec4 (:x position) (+ (:y position) (* ray flap)) (+ (:z position) (* (- 1.0 ray) swing)) 1.0)
 		at (* model bent))
-	(setq place (:xyz at) local (:xyz position) kind (:x fish) eyeball paint
+	;the model from the eye, small numbers, the world's place from it
+	(setq place (+ (:xyz at) eye) local (:xyz position) kind (:x fish) eyeball paint
 		facing (:xyz (* model (vec4 normal 0.0)))
-		far (length (- place eye)))
+		far (length (:xyz at)))
 	(* lens at))

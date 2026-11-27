@@ -3,8 +3,10 @@
 ;
 ; A vertex where it is in its chunk, its normal and its light, the
 ; sun's and the sky's, chunk.inc, placed by where the chunk is nearest
-; the eye, and then by the view. A chunk is only moved, never turned,
-; so its normals are the world's.
+; the eye, from the eye, and then by the view's turn: small numbers, so
+; singles keep the depth exact anywhere round the world, the place the
+; world's again for the pixel shader. A chunk is only moved, never
+; turned, so its normals are the world's.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (definput model :mat4)
@@ -22,5 +24,5 @@
 
 (defun main :vec4 ()
 	(defq at (* model position))
-	(setq place (:xyz at) facing normal far (length (- place eye)) lit light)
+	(setq place (+ (:xyz at) eye) facing normal far (length (:xyz at)) lit light)
 	(* lens at))

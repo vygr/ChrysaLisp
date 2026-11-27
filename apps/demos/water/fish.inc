@@ -84,6 +84,11 @@
 	+rock_near (n2d 3.5) +surface_near (n2d 4) +diver_near (n2d 5) +turn_rate (n2d 2.5)
 	;how much further off they flee the diver's scooter at its loudest
 	+noise_shy (n2d 1.5)
+	;a shark's curiosity: how far off it notices the diver, how much further
+	;at the scooter's loudest, how near it comes, how hard it is drawn and
+	;how hard it circles there
+	+shark_curious (n2d 35) +noise_curious +double_2 +shark_keep (n2d 9) +curious_pull (n2d 3)
+	+curious_round (n2d 1.5)
 	+wander_most (n2d 25) +wander_long 6000000 +comes (n2d 0.85) +goes (n2d 0.95)
 	;how far ahead of the diver schools wander to, and where the first come,
 	;of how far the frame sees, at least and more
@@ -251,8 +256,8 @@
 						heading (+ (n2d slow) (* (fish-rnd) (- (n2d fast) (n2d slow)))) (* (fish-rnd) +double_2pi)))
 				'() 0 (+ n (random (inc more)))))))
 
-(defun fish-steer (water eye fish mates long dt sharks low shy)
-	; (fish-steer water eye fish mates long dt sharks low shy)
+(defun fish-steer (water eye fish mates long dt sharks low shy curious)
+	; (fish-steer water eye fish mates long dt sharks low shy curious)
 	;one fish turned toward where its school and the water would have it go,
 	;and moved on
 	(bind '(at way speed &ignore) fish)
@@ -280,9 +285,16 @@
 				(- (water (nums-add at (doubles +double_0 e +double_0))) h)
 				(- (water (nums-add at (doubles +double_0 +double_0 e))) h)))
 		(setq want (nums-add want (nums-scale (fish-unit g) (* +from_rock (- +double_1 (/ h +rock_near)))))))
-	;from the diver, and from a shark
+	;from the diver, shy as far as shy, and from a shark
 	(when (< (defq dd (nums-dot (defq d (nums-sub at eye)) d)) (* shy shy))
 		(setq want (nums-add want (nums-scale (fish-unit d) +from_diver))))
+	;a shark curious of the diver as far off as curious: drawn in to as near
+	;as it keeps, pushed off nearer, and circling there
+	(when (and curious (< dd (* curious curious)))
+		(defq dist (sqrt dd) to (nums-scale d (recip (max dist +double_1)))
+			by (max +double_-1 (min +double_1 (/ (- dist +shark_keep) +shark_keep))))
+		(setq want (nums-add want (nums-add (nums-scale to (* (neg by) +curious_pull))
+			(nums-scale (fish-unit (doubles (neg (third d)) +double_0 (first d))) +curious_round)))))
 	(each (lambda (shark_at)
 			(when (< (nums-dot (defq d (nums-sub at shark_at)) d) (* +shark_near +shark_near))
 				(setq want (nums-add want (nums-scale (fish-unit d) +from_diver)))))
@@ -324,7 +336,11 @@
 					(elem-set school 2 goal_at))
 				(each (lambda (f)
 						(push f goal surface)
-						(fish-steer water eye f fish long dt (if (= kind +shark) '() sharks) (= kind +ray) shy)
+						;a shark curious of the diver, more of a louder scooter, a ray
+						;minding it not at all, the rest shy of it
+						(fish-steer water eye f fish long dt (if (= kind +shark) '() sharks) (= kind +ray)
+							(if (or (= kind +shark) (= kind +ray)) +double_0 shy)
+							(if (= kind +shark) (* +shark_curious (+ +double_1 (* noise +noise_curious)))))
 						(pop f)
 						(pop f)
 						(defq at (first f))
@@ -372,7 +388,7 @@
 						(defq d (nums-sub at eye) far (sqrt (nums-dot d d)))
 						(and (< far view) (> (nums-dot d forward) (neg long))
 							(push out (list (+ mesh_base kind)
-								(list (list 'model (fish-matrix at way long)) lens eye_val
+								(list (list 'model (fish-matrix (nums-sub at eye) way long)) lens eye_val
 									(list 'fish (doubles (n2d kind) phase (* +beat (/ speed long)) swing)) time_val)
 								pvals '() files))))
 					fish)))

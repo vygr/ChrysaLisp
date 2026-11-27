@@ -78,7 +78,9 @@
 	;far a clump is sunk, of its height
 	+weed_scale (n2d 0.035) +weed_from (n2d 0.5) +weed_edge (n2d 0.15) +weed_sky (n2d 0.3) +weed_sink (n2d 0.03)
 	;how much thicker a patch of weed grows than one of stones, more of 1
-	+weed_thicker +double_1/2)
+	+weed_thicker +double_1/2
+	;how far from a stone's middle a clump of weed keeps, of its bulk
+	+weed_off_stone (n2d 1.5))
 
 (defun chunk-kernels ()
 	; (chunk-kernels) -> kernels
@@ -248,10 +250,14 @@
 							(floors-in water x z oy top))))
 				'() ci (+ ci +slabs_across)))
 		'() cj (+ cj +slabs_across))
+	;each place of the fine grid of the chunk, and of a place round it, whose
+	;stones keep the weed of this one off them as theirs do, the same hash
+	(defq weeds (list) stones (list))
 	(each! (lambda ()
 			(defq gz (!) wz (wrap-of (+ (* cz +stone_grid) gz) +grid_round))
 			(each! (lambda ()
 					(defq gx (!) wx (wrap-of (+ (* cx +stone_grid) gx) +grid_round)
+						inside (and (< -1 gx +stone_grid) (< -1 gz +stone_grid))
 						h (hash-of wx wz 0) px (+ ox (* +stone_d (+ (n2d gx) (hash-unit h))))
 						h (hash-on h) pz (+ oz (* +stone_d (+ (n2d gz) (hash-unit h)))))
 					(each (lambda ((py n))
@@ -266,14 +272,23 @@
 									;in a patch of weed, where the sky reaches, a clump
 									((and (> sky +weed_sky) (< (hash-unit h) (weedy noise px pz)))
 										(bind '(kind bulk grass) (weed-pick pick (hash-on h) r))
-										(if (clear-of-caves? cave p n bulk)
-											(push out (weed-at water light light_k p n (+ +stone_kinds kind) bulk h grass ox oy oz))))
+										(and inside (clear-of-caves? cave p n bulk)
+											(push weeds (weed-at water light light_k p n (+ +stone_kinds kind) bulk h grass ox oy oz))))
 									(:t (bind '(kind bulk) (stone-pick basalt pick h r))
-										(if (clear-of-caves? cave p n bulk)
-											(push out (stone-at water light light_k p n kind bulk h basalt ox oy oz)))))))
+										(when (clear-of-caves? cave p n bulk)
+											(push stones (list p bulk))
+											(if inside (push out (stone-at water light light_k p n kind bulk h basalt ox oy oz))))))))
 						(floors-in water px pz oy top)))
-				'() 0 +stone_grid))
-		'() 0 +stone_grid)
+				'() -1 (inc +stone_grid)))
+		'() -1 (inc +stone_grid))
+	;no weed in a stone: a clump as far from each as the stone reaches
+	(each (lambda (w)
+			(defq at (slice w 0 3))
+			(if (every (lambda ((sp bulk))
+						(> (nums-dot (defq d (nums-sub at sp)) d) (* bulk bulk +weed_off_stone +weed_off_stone)))
+					stones)
+				(push out w)))
+		weeds)
 	(apply (const cat) out))
 
 (defun chunk-mesh (kernels cx cy cz cubes)

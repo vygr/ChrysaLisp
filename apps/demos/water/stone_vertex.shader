@@ -22,6 +22,9 @@
 ;nearer than that, all the water's colour at it, so it never pops into
 ;sight and never moves
 (definput stone_reach :float)
+;its own number, 0 to 1, for which of its beds is on top, made of where it
+;is in doubles, the same every frame wherever it is round the world
+(definput seed :float)
 
 (defattr position :vec4)
 (defattr normal :vec3)
@@ -35,16 +38,16 @@
 (defvarying shown :float)
 
 (defun main :vec4 ()
-	(defq centre (:xyz (* model (vec4 0.0 0.0 0.0 1.0))) up_way (:xyz (* model (vec4 0.0 1.0 0.0 0.0)))
-		at (* model position))
+	;the model from the eye, small numbers, the world's places from it
+	(defq here (:xyz (* model (vec4 0.0 0.0 0.0 1.0)))
+		up_way (:xyz (* model (vec4 0.0 1.0 0.0 0.0))) at (* model position))
 	;how high in its beds, along its own up, so a level slab's beds are
 	;level and a tilted piece's tilt with it, from a bed of its own, so
 	;which bed is its top is its own too
-	(setq bedding (+ (* (fract (* (sin (dot centre (vec3 12.9898 78.233 37.719))) 43758.5453)) 1.1)
-			(* (:y position) (length up_way)))
-		place (:xyz at)
+	(setq bedding (+ (* seed 1.1) (* (:y position) (length up_way)))
+		place (+ (:xyz at) eye)
 		facing (:xyz (* model (vec4 normal 0.0)))
-		far (length (- place eye))
+		far (length (:xyz at))
 		lit (:xy stone) grain (:zw stone)
-		shown (- 1.0 (clamp (/ (- (length (- centre eye)) (* 0.8 stone_reach)) (* 0.2 stone_reach)) 0.0 1.0)))
+		shown (- 1.0 (clamp (/ (- (length here) (* 0.8 stone_reach)) (* 0.2 stone_reach)) 0.0 1.0)))
 	(* lens at))

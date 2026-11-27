@@ -36,7 +36,9 @@
 (defconst swell_way (vec3 0.8 0.0 0.6))
 
 (defun main :vec4 ()
-	(defq centre (:xyz (* model (vec4 0.0 0.0 0.0 1.0))) up_way (:xyz (* model (vec4 0.0 1.0 0.0 0.0)))
+	;the model from the eye, small numbers, the world's places from it
+	(defq here (:xyz (* model (vec4 0.0 0.0 0.0 1.0))) centre (+ here eye)
+		up_way (:xyz (* model (vec4 0.0 1.0 0.0 0.0)))
 		tall (length up_way) h (:y position)
 		;the swell where the clump is, and the roll under it
 		phase (- (* (dot centre swell_way) 0.12) (* time 0.9))
@@ -44,9 +46,9 @@
 		roll (* (sin (+ (* time 0.6) (* (:x centre) 0.3) (* (:z centre) 0.2))) h h tall 0.08)
 		at (+ (* model position)
 			(vec4 (+ (* swell_way sway) (vec3 (* roll (:z swell_way)) 0.0 (* roll (- (:x swell_way))))) 0.0)))
-	(setq place (:xyz at)
+	(setq place (+ (:xyz at) eye)
 		facing (:xyz (* model (vec4 normal 0.0)))
-		far (length (- place eye))
+		far (length (:xyz at))
 		lit (:xy stone) grain (vec2 (:z stone) h)
-		shown (- 1.0 (clamp (/ (- (length (- centre eye)) (* 0.8 stone_reach)) (* 0.2 stone_reach)) 0.0 1.0)))
+		shown (- 1.0 (clamp (/ (- (length here) (* 0.8 stone_reach)) (* 0.2 stone_reach)) 0.0 1.0)))
 	(* lens at))
