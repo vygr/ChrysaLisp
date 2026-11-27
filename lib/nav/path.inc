@@ -11,15 +11,15 @@
 ;module
 (env-push)
 
-(defun path-unit (v)
-	; (path-unit v) -> doubles
+(defun nav-path-unit (v)
+	; (nav-path-unit v) -> doubles
 	;a way of length 1; up, of none
 	(if (> (defq vv (nums-dot v v)) +double_0)
 		(nums-scale v (recip (sqrt vv)))
 		(doubles +double_0 +double_1 +double_0)))
 
-(defun path-resample (pts step)
-	; (path-resample pts step) -> (doubles ...)
+(defun nav-path-resample (pts step)
+	; (nav-path-resample pts step) -> (doubles ...)
 	;places along the path through pts, no further apart than step, its
 	;first and its last kept
 	(defq out (list (first pts)))
@@ -29,8 +29,8 @@
 		(slice pts 0 -2) (slice pts 1 -1))
 	out)
 
-(defun path-smooth (pts &optional times_of)
-	; (path-smooth pts [times_of]) -> (doubles ...)
+(defun nav-path-smooth (pts &optional times_of)
+	; (nav-path-smooth pts [times_of]) -> (doubles ...)
 	;each place the mean of itself twice and its neighbours, the ends kept,
 	;so many times, once if not said
 	(times (ifn times_of 1)
@@ -42,18 +42,18 @@
 			(setq pts (push out (last pts)))))
 	pts)
 
-(defun path-way-at (pts i)
-	; (path-way-at pts i) -> doubles
+(defun nav-path-way-at (pts i)
+	; (nav-path-way-at pts i) -> doubles
 	;the way along a path at its place i, of length 1
-	(path-unit (nums-sub (elem-get pts (min (dec (length pts)) (inc i))) (elem-get pts (max 0 (dec i))))))
+	(nav-path-unit (nums-sub (elem-get pts (min (dec (length pts)) (inc i))) (elem-get pts (max 0 (dec i))))))
 
-(defun path-length (pts)
-	; (path-length pts) -> double
+(defun nav-path-length (pts)
+	; (nav-path-length pts) -> double
 	(reduce! (lambda (n a b) (+ n (sqrt (nums-dot (defq d (nums-sub b a)) d))))
 		(list (slice pts 0 -2) (slice pts 1 -1)) +double_0))
 
-(defun path-on (pts at cursor look)
-	; (path-on pts at cursor look) -> cursor
+(defun nav-path-on (pts at cursor look)
+	; (nav-path-on pts at cursor look) -> cursor
 	;how far along a path a thing at a place is: of the places from the
 	;cursor on, no more than look of them, the nearest, or the one before
 	;it if it is not there yet, so the place it is past; the cursor never
@@ -66,10 +66,10 @@
 			(< (nums-dot (nums-sub at (elem-get pts out)) (nums-sub (elem-get pts (inc out)) (elem-get pts out))) +double_0))
 		(dec out) out))
 
-(defun path-past (pts cursor at)
-	; (path-past pts cursor at) -> double
+(defun nav-path-past (pts cursor at)
+	; (nav-path-past pts cursor at) -> double
 	;how far past its place cursor, along the way to the next, a place is,
-	;0 to that length: with path-ahead an aim that slides on as the place
+	;0 to that length: with nav-path-ahead an aim that slides on as the place
 	;does, not one that jumps as the cursor does
 	(cond
 		((< (inc cursor) (length pts))
@@ -79,8 +79,8 @@
 				+double_0))
 		(+double_0)))
 
-(defun path-ahead (pts cursor far)
-	; (path-ahead pts cursor far) -> doubles
+(defun nav-path-ahead (pts cursor far)
+	; (nav-path-ahead pts cursor far) -> doubles
 	;the place so far on along a path from its place cursor, the last if it
 	;is not that long
 	(defq i cursor n (length pts) out :nil)
@@ -93,5 +93,5 @@
 
 ;module
 (export-symbols
-	'(path-unit path-resample path-smooth path-way-at path-length path-on path-past path-ahead))
+	'(nav-path-unit nav-path-resample nav-path-smooth nav-path-way-at nav-path-length nav-path-on nav-path-past nav-path-ahead))
 (env-pop)

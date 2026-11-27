@@ -50,23 +50,23 @@
 ; path
 ;;;;;;
 
-(defq n_line (path-resample (list (n_at 0 0 0) (n_at 10 0 0)) +double_1))
+(defq n_line (nav-path-resample (list (n_at 0 0 0) (n_at 10 0 0)) +double_1))
 (assert-eq "resampled a unit apart" 11 (length n_line))
 (assert-true "its ends kept" (and (n_near (first n_line) (n_at 0 0 0) +n_eps) (n_near (last n_line) (n_at 10 0 0) +n_eps)))
-(assert-true "its length" (< (abs (- (path-length n_line) (n2d 10))) +n_eps))
+(assert-true "its length" (< (abs (- (nav-path-length n_line) (n2d 10))) +n_eps))
 (assert-true "a straight line smoothed is as it was"
-	(every (lambda (a b) (n_near a b +n_eps)) n_line (path-smooth n_line 3)))
+	(every (lambda (a b) (n_near a b +n_eps)) n_line (nav-path-smooth n_line 3)))
 (assert-true "a corner smoothed is rounded, its ends kept"
-	(progn (bind '(a b c) (path-smooth (list (n_at 0 0 0) (n_at 4 0 0) (n_at 4 0 4))))
+	(progn (bind '(a b c) (nav-path-smooth (list (n_at 0 0 0) (n_at 4 0 0) (n_at 4 0 4))))
 	(and (n_near a (n_at 0 0 0) +n_eps) (n_near c (n_at 4 0 4) +n_eps) (n_near b (n_at 3 0 1) +n_eps))))
-(assert-true "the way along it" (n_near (path-way-at n_line 4) (n_at 1 0 0) +n_eps))
-(assert-eq "on it, the place passed" 3 (path-on n_line (doubles (n_d 34 10) +double_1 +double_0) 0 8))
-(assert-eq "nearer the next, still the place passed" 3 (path-on n_line (doubles (n_d 36 10) +double_0 +double_0) 0 8))
-(assert-eq "never back" 5 (path-on n_line (n_at 1 0 0) 5 8))
-(assert-eq "no further on than it looks" 2 (path-on n_line (n_at 9 0 0) 0 2))
-(assert-true "how far past" (< (abs (- (path-past n_line 3 (doubles (n_d 34 10) +double_1 +double_0)) (n_d 4 10))) +n_eps))
-(assert-true "so far ahead" (n_near (path-ahead n_line 3 (n_d 24 10)) (doubles (n_d 54 10) +double_0 +double_0) +n_eps))
-(assert-true "ahead past the end, the end" (n_near (path-ahead n_line 3 (n2d 50)) (n_at 10 0 0) +n_eps))
+(assert-true "the way along it" (n_near (nav-path-way-at n_line 4) (n_at 1 0 0) +n_eps))
+(assert-eq "on it, the place passed" 3 (nav-path-on n_line (doubles (n_d 34 10) +double_1 +double_0) 0 8))
+(assert-eq "nearer the next, still the place passed" 3 (nav-path-on n_line (doubles (n_d 36 10) +double_0 +double_0) 0 8))
+(assert-eq "never back" 5 (nav-path-on n_line (n_at 1 0 0) 5 8))
+(assert-eq "no further on than it looks" 2 (nav-path-on n_line (n_at 9 0 0) 0 2))
+(assert-true "how far past" (< (abs (- (nav-path-past n_line 3 (doubles (n_d 34 10) +double_1 +double_0)) (n_d 4 10))) +n_eps))
+(assert-true "so far ahead" (n_near (nav-path-ahead n_line 3 (n_d 24 10)) (doubles (n_d 54 10) +double_0 +double_0) +n_eps))
+(assert-true "ahead past the end, the end" (n_near (nav-path-ahead n_line 3 (n2d 50)) (n_at 10 0 0) +n_eps))
 
 ;;;;;;;;
 ; spring
@@ -89,7 +89,7 @@
 ;along a path from off it: on it and level, its path on along -z
 (defq n_nav (Nav (n_at 3 0 0) (n_at 0 0 -1)) n_least +double_0)
 (def n_nav :cruise (n2d 4))
-(. n_nav :routed (path-resample (list (n_at 0 0 0) (n_at 0 0 -200)) +double_1))
+(. n_nav :routed (nav-path-resample (list (n_at 0 0 0) (n_at 0 0 -200)) +double_1))
 (times 450 (. n_nav :step +n_dt) (setq n_least (min n_least (first (get :at n_nav)))))
 (assert-true "follows onto its path" (< (abs (first (get :at n_nav))) (n_d 5 100)))
 (assert-true "and never far past it" (> n_least (neg (n_d 15 100))))
@@ -101,7 +101,7 @@
 ;a turn eased, :lerp, the same
 (defq n_nav (Nav (n_at 3 0 0) (n_at 1 0 0)))
 (def n_nav :steer :lerp :rate (n2d 3) :cruise (n2d 4))
-(. n_nav :routed (path-resample (list (n_at 0 0 0) (n_at 0 0 -200)) +double_1))
+(. n_nav :routed (nav-path-resample (list (n_at 0 0 0) (n_at 0 0 -200)) +double_1))
 (times 450 (. n_nav :step +n_dt))
 (assert-true "eased onto its path from across it" (< (abs (first (get :at n_nav))) (n_d 1 10)))
 

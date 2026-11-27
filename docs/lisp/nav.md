@@ -46,16 +46,16 @@ never less than the distance finds the least route.
 
 A path is a list of places, vec3 doubles, one after another.
 
-*	`(path-resample pts step)`, places along it no further apart than step.
+*	`(nav-path-resample pts step)`, places along it no further apart than step.
 
-*	`(path-smooth pts [times])`, each place the mean of itself twice and its
+*	`(nav-path-smooth pts [times])`, each place the mean of itself twice and its
 	neighbours, the ends kept.
 
-*	`(path-on pts at cursor look)`, how far along it a thing at a place is, a
+*	`(nav-path-on pts at cursor look)`, how far along it a thing at a place is, a
 	cursor that never goes back: of the next `look` places, the one it is
 	past.
 
-*	`(path-past pts cursor at)` and `(path-ahead pts cursor far)`, how far
+*	`(nav-path-past pts cursor at)` and `(nav-path-ahead pts cursor far)`, how far
 	past its cursor place it is, and the place so far on from there. Together
 	they give an aim that slides on as the thing goes, not one that jumps a
 	place at a time.

@@ -67,7 +67,7 @@
 (defun nav-route-line (nav from to via)
 	; (nav-route-line nav from to via) -> path
 	;straight, through the places by the way, its places :step apart
-	(path-resample (cat (list from) via (list to)) (get :step nav)))
+	(nav-path-resample (cat (list from) via (list to)) (get :step nav)))
 
 (defun nav-route-graph (nav from to via)
 	; (nav-route-graph nav from to via) -> path
@@ -84,7 +84,7 @@
 				(if (defq r (graph-route g a b cost_fn)) (setq nodes (cat nodes (rest r))) (setq nodes :nil))))
 		(slice stops 0 -2) (slice stops 1 -1))
 	(if nodes
-		(path-smooth (path-resample (cat (list from) (graph-places g nodes) (list to)) (get :step nav)) (get :smooth nav))
+		(nav-path-smooth (nav-path-resample (cat (list from) (graph-places g nodes) (list to)) (get :step nav)) (get :smooth nav))
 		(list (cat from))))
 
 (defun nav-next-tour (nav)
@@ -124,10 +124,10 @@
 			;there to the aim, put where it is: so it does not swing across its
 			;path, its turn behind its aim
 			(defq at (get :at nav) from (nums-add at (nums-scale (get :way nav) (* (get :speed nav) (nav-settle nav))))
-				cursor (path-on pts from (get :cursor nav) (get :look nav)))
+				cursor (nav-path-on pts from (get :cursor nav) (get :look nav)))
 			(def nav :cursor cursor)
 			(defq lead (max (get :lead_least nav) (* (get :speed nav) (get :lead nav)))
-				aim (path-ahead pts cursor (+ (path-past pts cursor from) lead)))
+				aim (nav-path-ahead pts cursor (+ (nav-path-past pts cursor from) lead)))
 			;near the end, the end itself
 			(if (< (nav-far from aim) (* lead +nav_most_of)) aim (nums-add at (nums-sub aim from))))
 		((get :goal nav))))
@@ -157,7 +157,7 @@
 	; (nav-field-slope field p e) -> doubles
 	;the way a field grows at a place, of length 1
 	(defq h (field p))
-	(path-unit (doubles (- (field (nums-add p (doubles e +double_0 +double_0))) h)
+	(nav-path-unit (doubles (- (field (nums-add p (doubles e +double_0 +double_0))) h)
 		(- (field (nums-add p (doubles +double_0 e +double_0))) h)
 		(- (field (nums-add p (doubles +double_0 +double_0 e))) h))))
 
@@ -186,7 +186,7 @@
 (defun nav-side (want way)
 	; (nav-side want way) -> way
 	;which side of want a way is, across it, of length 1
-	(path-unit (nums-sub way (nums-scale want (nums-dot way want)))))
+	(nav-path-unit (nums-sub way (nums-scale want (nums-dot way want)))))
 
 (defun nav-avoid-cone (nav aim)
 	; (nav-avoid-cone nav aim) -> place
@@ -197,18 +197,18 @@
 	;so it keeps to one side, not sliding round nor flipping from side to
 	;side; with none that do, the one that clears it the most, less as
 	;much again for its side
-	(defq at (get :at nav) to (nums-sub aim at) far (sqrt (nums-dot to to)) want (path-unit to)
+	(defq at (get :at nav) to (nums-sub aim at) far (sqrt (nums-dot to to)) want (nav-path-unit to)
 		clear_fn (get :clear_fn nav) clear_by (get :clear nav))
 	(cond
 		((>= (clear_fn nav want) clear_by) (def nav :cone_side :nil) aim)
-		(:t (defq across (path-unit (nav-cross want (get :up nav))) up (nav-cross across want)
+		(:t (defq across (nav-path-unit (nav-cross want (get :up nav))) up (nav-cross across want)
 				last_side (get :cone_side nav) keep (get :cone_keep nav)
 				best :nil best_score :nil top :nil most_way want rings (get :cone_rings nav) count (get :cone_count nav))
 			(each! (lambda ()
 					(defq off (* (get :cone nav) (/ (n2d (inc (!))) (n2d rings))))
 					(each! (lambda ()
 							(defq a (/ (* +double_2pi (n2d (!))) (n2d count))
-								way (path-unit (nums-add want (nums-add (nums-scale across (* off (cos a)))
+								way (nav-path-unit (nums-add want (nums-add (nums-scale across (* off (cos a)))
 									(nums-scale up (* off (sin a))))))
 								c (clear_fn nav way))
 							(defq turned (if last_side (* keep (- +double_1 (nums-dot (nav-side want way) last_side))) +double_0))
@@ -249,7 +249,7 @@
 	(defq world_up (get :world_up nav) along (nums-dot way world_up)
 		across (sqrt (max +double_0 (- +double_1 (* along along))))
 		world (max +double_0 (min +double_1 (/ (- across (get :upright_from nav)) (get :upright_over nav)))))
-	(path-unit (nums-add (nums-scale (get :up nav) (- +double_1 world)) (nums-scale world_up world))))
+	(nav-path-unit (nums-add (nums-scale (get :up nav) (- +double_1 world)) (nums-scale world_up world))))
 
 (defun nav-up-lean (nav way dt)
 	; (nav-up-lean nav way dt) -> way
@@ -259,7 +259,7 @@
 	(defq level (nav-up-level nav way dt) across (nav-cross way level)
 		lean (max (neg (get :lean_most nav)) (min (get :lean_most nav)
 			(* (get :lean nav) (nums-dot way (nav-cross (get :way nav) (get :up nav)))))))
-	(path-unit (nums-add (nums-scale level (cos lean)) (nums-scale across (sin lean)))))
+	(nav-path-unit (nums-add (nums-scale level (cos lean)) (nums-scale across (sin lean)))))
 
 (defun nav-move-field (nav to dt)
 	; (nav-move-field nav to dt) -> place
@@ -304,8 +304,8 @@
 (defclass Nav (at way &optional up) :nil
 	; (Nav at way [up]) -> nav
 	;at a place, facing a way, its up the world's if not said
-	(defq up (path-unit (ifn up +nav_y)) way (path-unit way)
-		up (path-unit (nav-cross (nav-cross way up) way)))
+	(defq up (nav-path-unit (ifn up +nav_y)) way (nav-path-unit way)
+		up (nav-path-unit (nav-cross (nav-cross way up) way)))
 	(def this :at (cat at) :way way :up up :turn (quat-frame way up) :spin +nav_none
 		:speed +double_0 :speed_v +double_0
 		;where it is going, by where, its path and how far along it, waiting
@@ -370,7 +370,7 @@
 		;it would go, and on; there, or stuck, told so
 		(defq at (get :at this) aim ((get :aim_fn this) this dt))
 		(and aim (defq fn (get :avoid_fn this)) (setq aim (fn this aim)))
-		(defq way (if (and aim (> (nav-far at aim) +nav_tiny)) (path-unit (nums-sub aim at)) (get :way this)))
+		(defq way (if (and aim (> (nav-far at aim) +nav_tiny)) (nav-path-unit (nums-sub aim at)) (get :way this)))
 		(nav-turn-to this (quat-frame way ((get :up_fn this) this way dt)) dt)
 		(bind '(speed speed_v) (nav-spring (get :speed this) (get :speed_v this) ((get :speed_fn this) this dt)
 			dt (get :speed_k this) +double_1))
