@@ -57,12 +57,11 @@
 	;turn, as a plane does for a pull of so much
 	+reach_x (n2d 640) +reach_z (n2d 320) +speed (n2d 24) +altitude (n2d 85) +pull +double_9
 	+pitch_eight (n2d 0.18)
-	;the flight along the valleys, as a jet low down: how far ahead and how
-	;far round it looks at the land, how hard it turns to the lower side,
-	;how fast at most it turns, a second, and how slowly it comes to that,
-	;how far over the land it keeps, how it looks down, how fast it may
-	;climb and come down, a second, and how slowly it comes to that
-	+ahead (n2d 120) +aside (n2d 0.45) +steer (n2d 0.004) +turn_most +double_1/4 +turn_ease +double_1/2
+	;the flight along the valleys, as a jet low down: how fast at most it
+	;turns, a second, and how slowly the pointer's turn comes to what it
+	;wants, how far over the land it keeps, how it looks down, how fast it
+	;may climb and come down, a second, and how slowly it comes to that
+	+turn_most +double_1/4 +turn_ease +double_1/2
 	+clearance (n2d 24) +pitch_valley +double_1/10 +climb (n2d 16) +sink +double_8 +rise_ease (n2d 0.8)
 	;flown by the pointer: the middle of the picture it does nothing in, how
 	;fast at most it turns and climbs or dives for the pointer at an edge,
@@ -132,8 +131,12 @@
 	lean +double_0 pitch +double_0 eight_in +double_0 +eight_onto (n2d 2.5)
 	;how fast the lean and the pitch move, and how stiff their spring is
 	lean_v +double_0 pitch_v +double_0 +spring_k (n2d 3.5)
-	;how fast the valleys' turn moves, and how stiff its spring is
-	turning_v +double_0 +valley_spring (n2d 0.7)
+	;the valleys' route, lib/nav: its Nav, a grid of so many rows and so
+	;many across laid over the land ahead, so far apart, how much more a
+	;way costs for each so much higher its end is than the lowest, and how
+	;stiff its turn is, how far ahead it aims, seconds and at least
+	valley_nav :nil +route_n 9 +route_step (n2d 60) +route_rise (n2d 10) +valley_k (n2d 0.8)
+	+valley_lead (n2d 2.5) +valley_lead_least (n2d 40) +valley_up (doubles +double_0 +double_1 +double_0)
 	;the lean the way of flying wanted last, what turn it was in
 	lean_want +double_0
 	;how much less detail it draws, 0 all of it to 4 least, for a GPU too
@@ -303,15 +306,6 @@
 		shine (mix3 (mix3 shine_day shine_night d) shine_dusk k)
 		night d))
 
-(defun spring-by (x v to dt k)
-	; (spring-by x v to dt k) -> (x v)
-	;x moved toward to by a spring of stiffness k, damped just enough not
-	;to go past it, v how fast it moves. A step of no more than a tenth of
-	;a second
-	(defq dt (min dt +double_1/10)
-		v (+ v (* (- (* k k (- to x)) (* +double_2 k v)) dt)))
-	(list (+ x (* v dt)) v))
-
 (defun spring (x v to dt)
 	; (spring x v to dt) -> (x v)
 	;x moved toward to by a spring that is damped just enough not to go
@@ -407,15 +401,6 @@
 	(setq way (doubles nx nz) place (doubles (+ px (* nx +speed dt)) (+ pz (* nz +speed dt))))
 	(list nx nz))
 
-(defun land-side (dx dz)
-	; (land-side dx dz) -> double
-	;how high the land is along a way from the flight, at three distances,
-	;the nearer the more
-	(bind '(px pz) place)
-	(+ (* +double_2 (land-at (+ px (* dx +ahead)) (+ pz (* dz +ahead))))
-		(land-at (+ px (* dx +ahead +double_2)) (+ pz (* dz +ahead +double_2)))
-		(* +double_1/2 (land-at (+ px (* dx +ahead +double_3)) (+ pz (* dz +ahead +double_3))))))
-
 (defun land-ahead (nx nz near mid far)
 	; (land-ahead nx nz near mid far) -> double
 	;the highest of the land under the flight and at three distances ahead
@@ -424,22 +409,69 @@
 	(max (land-at px pz) (land-at (+ px (* nx near)) (+ pz (* nz near)))
 		(land-at (+ px (* nx mid)) (+ pz (* nz mid))) (land-at (+ px (* nx far)) (+ pz (* nz far)))))
 
+(defun valley-route ()
+	; (valley-route) -> path
+	;the way along the valleys ahead: a grid laid over the land, its first
+	;row across the flight, rows ahead along its way, each node as high as
+	;the land; linked on and across, never back; a way costing its length
+	;times how much higher its end is than the lowest of the grid. The
+	;route of least cost by A* to the lowest of the far row, the valley
+	;ahead, its places level, made even and smooth
+	(bind '(px pz) place)
+	(bind '(fx fz) way)
+	(defq g (graph) n +route_n half (/ +route_n 2) low :nil)
+	(each! (lambda ()
+			(defq r (!))
+			(each! (lambda ()
+					(defq c (- (!) half) x (+ px (* fx (n2d r) +route_step) (* (neg fz) (n2d c) +route_step))
+						z (+ pz (* fz (n2d r) +route_step) (* fx (n2d c) +route_step)) h (land-at x z))
+					(setq low (if low (min low h) h))
+					(graph-node g (doubles x h z)))
+				'() 0 n))
+		'() 0 n)
+	(each! (lambda ()
+			(defq i (!) r (/ i n) c (% i n))
+			(if (< c (dec n)) (graph-link g i (inc i)))
+			(when (< r (dec n))
+				(each (lambda (dc)
+						(if (< -1 (+ c dc) n) (graph-link g i (+ i n dc) :t)))
+					'(-1 0 1))))
+		'() 0 (* n n))
+	(defq far_row (* n (dec n)) goal far_row)
+	(each! (lambda (p) (if (< (second p) (second (graph-place g goal))) (setq goal (+ far_row (!)))))
+		(list (slice (first g) far_row -1)))
+	(defq nodes (graph-route g half goal (lambda (g a b)
+			(* (graph-distance (graph-place g a) (graph-place g b))
+				(+ +double_1 (/ (- (second (graph-place g b)) low) +route_rise))))))
+	(nav-path-smooth (nav-path-resample
+		(map (lambda (p) (doubles (first p) +double_0 (third p))) (cat (list (doubles px +double_0 pz)) (graph-places g (rest nodes))))
+		+double_10) 2))
+
 (defun valley-pose (dt)
 	; (valley-pose dt) -> (fx fz lean)
-	;on along its way, turning to the lower land ahead, a little left or a
-	;little right, by how much lower, no faster than it may, and easing
-	;into a turn as a plane does; kept over the highest land under it and
-	;ahead, so it climbs before a ridge. Its lean is speed times how fast
-	;it turns. To the left is positive, toward the lower
+	;on along the valleys, a Nav following the route of least height
+	;ahead, valley-route, routed again from where it is once half along
+	;it: its turn sprung and damped, level, no faster than it may, aimed
+	;from where it will be when its turn has caught up; kept over the
+	;highest land under it and ahead, so it climbs before a ridge. Its
+	;lean is speed times how fast it turns. To the left is positive
 	(bind '(fx fz) way)
-	(bind '(lx lz) (turned fx fz +aside))
-	(bind '(rx rz) (turned fx fz (const (neg +aside))))
-	(defq target (max (neg +turn_most) (min +turn_most (* +steer (- (land-side rx rz) (land-side lx lz))))))
-	;how fast it turns sprung to the turn the land wants, damped just
-	;enough not to go past it, so it does not weave from side to side
-	(bind '(tn tv) (spring-by turning turning_v target dt +valley_spring))
-	(setq turning tn turning_v tv)
-	(bind '(nx nz) (fly-on dt))
+	(bind '(px pz) place)
+	(unless valley_nav
+		(setq valley_nav (Nav (doubles px +double_0 pz) (doubles fx +double_0 fz)))
+		(def valley_nav :k +valley_k :turn_most +turn_most :lead +valley_lead :lead_least +valley_lead_least))
+	(def valley_nav :at (doubles px +double_0 pz) :speed +speed
+		:turn (quat-frame (doubles fx +double_0 fz) +valley_up))
+	(defq pts (get :path valley_nav))
+	(if (or (not pts) (> (get :cursor valley_nav) (/ (length pts) 2)))
+		(. valley_nav :routed (valley-route)))
+	(defq aim (nav-aim-follow valley_nav dt) to (nums-sub aim (get :at valley_nav)))
+	(elem-set to 1 +double_0)
+	(nav-turn-to valley_nav (quat-frame (nav-path-unit to) +valley_up) dt)
+	(bind '(wx & wz) (get :way valley_nav))
+	(defq wl (sqrt (+ (* wx wx) (* wz wz))) nx (/ wx wl) nz (/ wz wl))
+	(setq turning (second (get :spin valley_nav)) way (doubles nx nz)
+		place (doubles (+ px (* nx +speed dt)) (+ pz (* nz +speed dt))))
 	(ease-height (+ +clearance (land-ahead nx nz +valley_look_near +valley_look_mid +valley_look_far)) dt)
 	(list nx nz (neg (/ (* +speed turning) +pull))))
 
@@ -483,6 +515,8 @@
 			tn (sqrt (+ (* tx tx) (* tz tz))) tx (/ tx tn) tz (/ tz tn))
 		(setq eight_lie (doubles (+ (* wx tx) (* wz tz)) (- (* wz tx) (* wx tz)))
 			round_at at middle (blend place (eight-point at) +double_1 +double_-1) eight_in +eight_onto))
+	;the valleys route again from here
+	(if valley_nav (def valley_nav :path :nil :spin (doubles +double_0 +double_0 +double_0)))
 	(setq path to turning turn))
 
 (defun land-seen (eye forward right up spread_x shift)
