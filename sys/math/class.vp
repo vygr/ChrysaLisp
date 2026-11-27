@@ -118,115 +118,121 @@
 
 (def-func-end)
 
+;the sine of the double in :d0, a quarter turn on by q, 0 sine, 1 cosine,
+;:r0 the function's constants, to :d0; :r1 and :d1-:d3 trashed, no more,
+;as q_sin keeps its constants in :r2 over f_sin. Brought to within an
+;eighth of a turn of the nearest quarter, k of them, by pi/2 in three
+;parts, the first two whole in 33 bits so k of them come exact; then the
+;sine or the cosine of what is left by its own series, fdlibm's, which
+;quarter, k + q of them, saying which and its sign. Within 2 ulps of
+;libm's, cos 0 and sin pi/2 exactly 1, sin 0 0, and the more bits the
+;nearer a zero
+(defun d-sin-body (q)
+	;k, x 2/pi to the nearest whole
+	(vp-load-rcd :r0 (fn-const 0x3fe45f306dc9c883) :d1)
+	(vp-mul-dd :d0 :d1)
+	(vp-load-rcd :r0 (fn-const 0x0) :d3)
+	(vp-load-rcd :r0 (fn-const 0x3fe0000000000000) :d2)
+	(vp-bge-dd :d3 :d1 'up)
+	(vp-neg-dd :d2 :d2)
+(vp-label 'up)
+	(vp-add-dd :d2 :d1)
+	(vp-cvt-dr :d1 :r1)
+	(vp-cvt-rd :r1 :d1)
+	(if (/= q 0) (vp-add-cr q :r1))
+	(vp-and-cr 3 :r1)
+	;r = x - k pi/2, by its three parts
+	(vp-load-rcd :r0 (fn-const 0x3ff921fb54400000) :d2)
+	(vp-mul-dd :d1 :d2)
+	(vp-sub-dd :d2 :d0)
+	(vp-load-rcd :r0 (fn-const 0x3dd0b4611a600000) :d2)
+	(vp-mul-dd :d1 :d2)
+	(vp-sub-dd :d2 :d0)
+	(vp-load-rcd :r0 (fn-const 0x3ba3198a2e037073) :d2)
+	(vp-mul-dd :d2 :d1)
+	(vp-sub-dd :d1 :d0)
+	;z = r^2, an odd quarter the cosine
+	(vp-cpy-dd :d0 :d1)
+	(vp-mul-dd :d0 :d1)
+	(vp-beq-cr 1 :r1 'cosine)
+	(vp-beq-cr 3 :r1 'cosine)
+	;r + r z (s1 + z (s2 ... + z s6))
+	(vp-load-rcd :r0 (fn-const 0x3de5d93a5acfd57c) :d2)
+	(each (lambda (c)
+			(vp-mul-dd :d1 :d2)
+			(vp-load-rcd :r0 (fn-const c) :d3)
+			(vp-add-dd :d3 :d2))
+		'(0xbe5ae5e68a2b9ceb 0x3ec71de357b1fe7d 0xbf2a01a019c161d5 0x3f8111111110f8a6
+		0xbfc5555555555549))
+	(vp-mul-dd :d1 :d2)
+	(vp-mul-dd :d0 :d2)
+	(vp-add-dd :d2 :d0)
+	(vp-jmp 'sign)
+	;1 - z/2 + z^2 (c1 + z (c2 ... + z c6)), the 1 - z/2 kept whole as w
+	;and what it lost
+(vp-label 'cosine)
+	(vp-load-rcd :r0 (fn-const 0xbda8fae9be8838d4) :d2)
+	(each (lambda (c)
+			(vp-mul-dd :d1 :d2)
+			(vp-load-rcd :r0 (fn-const c) :d3)
+			(vp-add-dd :d3 :d2))
+		'(0x3e21ee9ebdb4b1c4 0xbe927e4f809c52ad 0x3efa01a019cb1590 0xbf56c16c16c15177
+		0x3fa555555555554c))
+	(vp-mul-dd :d1 :d2)
+	(vp-mul-dd :d1 :d2)
+	(vp-load-rcd :r0 (fn-const 0x3fe0000000000000) :d0)
+	(vp-mul-dd :d0 :d1)
+	(vp-load-rcd :r0 (fn-const 0x3ff0000000000000) :d0)
+	(vp-sub-dd :d1 :d0)
+	(vp-load-rcd :r0 (fn-const 0x3ff0000000000000) :d3)
+	(vp-sub-dd :d0 :d3)
+	(vp-sub-dd :d1 :d3)
+	(vp-add-dd :d2 :d3)
+	(vp-add-dd :d3 :d0)
+	;the third and fourth quarters negative
+(vp-label 'sign)
+	(vp-blt-cr 2 :r1 'done)
+	(vp-neg-dd :d0 :d0)
+(vp-label 'done))
+
 (def-method :sys_math :d_sin)
 	;inputs
 	;:d0 = double (double)
 	;outputs
-	;:d0 = double (double)
+	;:d0 = sin of the double (double)
 	;trashes
 	;:r0-:r1, :d0-:d3
+	;info
+	;within 2 ulps, sin 0 0 and sin pi/2 1 exactly, to about 2^20 turns
 
 	(entry :sys_math :d_sin '(:d0))
 
-	(vp-lea-pr 'constants :r0)
-
-	; --- Range Reduction: fmod(x, 2pi) ---
-	(vp-load-rcd :r0 0 :d2)		; Load 1/2pi
-	(vp-cpy-dd :d0 :d1)			; f0 = x
-	(vp-mul-dd :d2 :d0)			; f0 = x / 2pi
-	(vp-cvt-dr :d0 :r1)			; r1 = (int)(x / 2pi)
-	(vp-cvt-rd :r1 :d2)			; f2 = (double)k
-	(vp-load-rcd :r0 8 :d3)		; Load 2pi
-	(vp-mul-dd :d3 :d2)			; f2 = k * 2pi
-	(vp-sub-dd :d2 :d1)			; f1 = x - k*2pi
-
-	; --- Symmetry to [-pi, pi] ---
-	(vp-load-rcd :r0 16 :d2)		; Load pi
-	(vp-cpy-dd :d2 :d3)			; f3 = pi
-	(vp-neg-dd :d2 :d2)			; f2 = -pi
-
-	(vp-bgt-dd :d3 :d1 'sub_2pi)
-	(vp-blt-dd :d2 :d1 'add_2pi)
-	(vp-jmp 'check_hpi)
-
-(vp-label 'sub_2pi)
-	(vp-load-rcd :r0 8 :d2)		; Load 2pi
-	(vp-sub-dd :d2 :d1)			; x -= 2pi
-	(vp-jmp 'check_hpi)
-
-(vp-label 'add_2pi)
-	(vp-load-rcd :r0 8 :d2)		; Load 2pi
-	(vp-add-dd :d2 :d1)			; x += 2pi
-
-	; --- Symmetry to [-pi/2, pi/2] ---
-(vp-label 'check_hpi)
-	(vp-load-rcd :r0 24 :d2)		; Load pi/2
-	(vp-cpy-dd :d2 :d3)			; f3 = pi/2
-	(vp-neg-dd :d2 :d2)			; f2 = -pi/2
-
-	(vp-bgt-dd :d3 :d1 'fold_pos)
-	(vp-blt-dd :d2 :d1 'fold_neg)
-	(vp-jmp 'poly)
-
-(vp-label 'fold_pos)
-	(vp-load-rcd :r0 16 :d2)		; Load pi
-	(vp-sub-dd :d1 :d2)			; f2 = pi - x
-	(vp-cpy-dd :d2 :d1)
-	(vp-jmp 'poly)
-
-(vp-label 'fold_neg)
-	(vp-load-rcd :r0 16 :d2)		; Load pi
-	(vp-neg-dd :d2 :d2)			; f2 = -pi
-	(vp-sub-dd :d1 :d2)			; f2 = -pi - x
-	(vp-cpy-dd :d2 :d1)
-
-	; --- Polynomial Approximation (Taylor) ---
-(vp-label 'poly)
-	(vp-cpy-dd :d1 :d3)
-	(vp-mul-dd :d1 :d3)			; f3 = x^2
-
-	; Horner's Method
-	(vp-load-rcd :r0 80 :d0)		; Load c7
-	(vp-mul-dd :d3 :d0)
-	(vp-load-rcd :r0 72 :d2)		; Load c6
-	(vp-add-dd :d2 :d0)
-	(vp-mul-dd :d3 :d0)
-	(vp-load-rcd :r0 64 :d2)		; Load c5
-	(vp-add-dd :d2 :d0)
-	(vp-mul-dd :d3 :d0)
-	(vp-load-rcd :r0 56 :d2)		; Load c4
-	(vp-add-dd :d2 :d0)
-	(vp-mul-dd :d3 :d0)
-	(vp-load-rcd :r0 48 :d2)		; Load c3
-	(vp-add-dd :d2 :d0)
-	(vp-mul-dd :d3 :d0)
-	(vp-load-rcd :r0 40 :d2)		; Load c2
-	(vp-add-dd :d2 :d0)
-	(vp-mul-dd :d3 :d0)
-	(vp-load-rcd :r0 32 :d2)		; Load c1
-	(vp-add-dd :d2 :d0)
-	(vp-mul-dd :d3 :d0)
-	(vp-load-rcd :r0 88 :d2)		; Load 1.0
-	(vp-add-dd :d2 :d0)
-	(vp-mul-dd :d1 :d0)
+	(vp-lea-pr 'fn_consts :r0)
+	(d-sin-body 0)
 
 	(exit :sys_math :d_sin '(:d0))
 	(vp-ret)
 
-	(vp-align 8)
-(vp-label 'constants)
-	(vp-long 0x3fc45f306dc9c883) ;	0: 1 / 2pi
-	(vp-long 0x401921fb54442d18) ;	8: 2pi
-	(vp-long 0x400921fb54442d18) ; 16: pi
-	(vp-long 0x3ff921fb54442d18) ; 24: pi / 2
-	(vp-long 0xbfc5555555555555) ; 32: c1 (-1/6)
-	(vp-long 0x3f81111111111111) ; 40: c2 (1/120)
-	(vp-long 0xbf2a01a01a01a01a) ; 48: c3 (-1/5040)
-	(vp-long 0x3ec71de3a556c734) ; 56: c4 (1/362880)
-	(vp-long 0xbe5ae64567f544e4) ; 64: c5 (-1/39916800)
-	(vp-long 0x3de6124613a86d09) ; 72: c6 (1/6227020800)
-	(vp-long 0xbceae73673322e72) ; 80: c7 (-1/1.307e12)
-	(vp-long 0x3ff0000000000000) ; 88: 1.0
+(def-func-end)
+
+(def-method :sys_math :d_cos)
+	;inputs
+	;:d0 = double (double)
+	;outputs
+	;:d0 = cos of the double (double)
+	;trashes
+	;:r0-:r1, :d0-:d3
+	;info
+	;its own series, not the sine of a quarter turn on, so cos 0 is 1
+	;exactly and near its zeros it keeps its bits
+
+	(entry :sys_math :d_cos '(:d0))
+
+	(vp-lea-pr 'fn_consts :r0)
+	(d-sin-body 1)
+
+	(exit :sys_math :d_cos '(:d0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -807,66 +813,6 @@
 
 (def-func-end)
 
-;the sine of the double in :d0, :r0 the function's constants, to the single
-;in :f0. Brought to the turn in doubles, as d_sin is, so a single of any
-;size keeps its bits, and the series to the 13th power, all a single holds
-;over a half turn, in doubles too and rounded once: summed in singles it
-;was 2 bits out where it comes to 1, cos 0 not 1
-(defun f-sin-body ()
-	(vp-load-rcd :r0 (fn-const 0x3fc45f306dc9c883) :d2)
-	(vp-cpy-dd :d0 :d1)
-	(vp-mul-dd :d2 :d0)
-	(vp-cvt-dr :d0 :r1)
-	(vp-cvt-rd :r1 :d2)
-	(vp-load-rcd :r0 (fn-const 0x401921fb54442d18) :d3)
-	(vp-mul-dd :d3 :d2)
-	(vp-sub-dd :d2 :d1)
-	;to -pi to pi
-	(vp-load-rcd :r0 (fn-const 0x400921fb54442d18) :d3)
-	(vp-cpy-dd :d3 :d2)
-	(vp-neg-dd :d2 :d2)
-	(vp-bgt-dd :d3 :d1 'sub_2pi)
-	(vp-blt-dd :d2 :d1 'add_2pi)
-	(vp-jmp 'check_hpi)
-(vp-label 'sub_2pi)
-	(vp-load-rcd :r0 (fn-const 0x401921fb54442d18) :d2)
-	(vp-sub-dd :d2 :d1)
-	(vp-jmp 'check_hpi)
-(vp-label 'add_2pi)
-	(vp-load-rcd :r0 (fn-const 0x401921fb54442d18) :d2)
-	(vp-add-dd :d2 :d1)
-	;to -pi/2 to pi/2
-(vp-label 'check_hpi)
-	(vp-load-rcd :r0 (fn-const 0x3ff921fb54442d18) :d3)
-	(vp-cpy-dd :d3 :d2)
-	(vp-neg-dd :d2 :d2)
-	(vp-bgt-dd :d3 :d1 'fold_pos)
-	(vp-blt-dd :d2 :d1 'fold_neg)
-	(vp-jmp 'poly)
-(vp-label 'fold_pos)
-	(vp-load-rcd :r0 (fn-const 0x400921fb54442d18) :d2)
-	(vp-sub-dd :d1 :d2)
-	(vp-cpy-dd :d2 :d1)
-	(vp-jmp 'poly)
-(vp-label 'fold_neg)
-	(vp-load-rcd :r0 (fn-const 0x400921fb54442d18) :d2)
-	(vp-neg-dd :d2 :d2)
-	(vp-sub-dd :d1 :d2)
-	(vp-cpy-dd :d2 :d1)
-	;x (1 + c1 x^2 + c2 x^4 ... + c6 x^12), and the nearest single
-(vp-label 'poly)
-	(vp-cpy-dd :d1 :d3)
-	(vp-mul-dd :d1 :d3)
-	(vp-load-rcd :r0 (fn-const 0x3de6124613a86d09) :d0)
-	(each (lambda (c)
-			(vp-mul-dd :d3 :d0)
-			(vp-load-rcd :r0 (fn-const c) :d2)
-			(vp-add-dd :d2 :d0))
-		'(0xbe5ae64567f544e4 0x3ec71de3a556c734 0xbf2a01a01a01a01a 0x3f81111111111111
-		0xbfc5555555555555 0x3ff0000000000000))
-	(vp-mul-dd :d1 :d0)
-	(vp-cvt-df :d0 :f0))
-
 (def-method :sys_math :f_sin)
 	;inputs
 	;:f0 = single (single)
@@ -875,14 +821,14 @@
 	;trashes
 	;:r0-:r1, :d0-:d3
 	;info
-	;the single made a double and brought to the turn, and the series, in
-	;doubles, as d_sin does, to the nearest single
+	;the single made a double, d_sin's way, rounded once to a single
 
 	(entry :sys_math :f_sin '(:f0))
 
 	(vp-cvt-fd :f0 :d0)
 	(vp-lea-pr 'fn_consts :r0)
-	(f-sin-body)
+	(d-sin-body 0)
+	(vp-cvt-df :d0 :f0)
 
 	(exit :sys_math :f_sin '(:f0))
 	(vp-ret)
@@ -897,16 +843,14 @@
 	;trashes
 	;:r0-:r1, :d0-:d3
 	;info
-	;the sine of a quarter turn on, the quarter turn added in doubles, so
-	;near where it is 0 it has all the bits a single can
+	;the single made a double, d_cos's way, rounded once to a single
 
 	(entry :sys_math :f_cos '(:f0))
 
 	(vp-cvt-fd :f0 :d0)
 	(vp-lea-pr 'fn_consts :r0)
-	(vp-load-rcd :r0 (fn-const 0x3ff921fb54442d18) :d1)
-	(vp-add-dd :d1 :d0)
-	(f-sin-body)
+	(d-sin-body 1)
+	(vp-cvt-df :d0 :f0)
 
 	(exit :sys_math :f_cos '(:f0))
 	(vp-ret)

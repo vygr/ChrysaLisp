@@ -12,6 +12,7 @@
 	(dec-method :q_intersect sys/math/q_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1))
 	(dec-method :q_dist_sqd sys/math/q_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
 	(dec-method :d_sin sys/math/d_sin :static (:d0) (:d0))
+	(dec-method :d_cos sys/math/d_cos :static (:d0) (:d0))
 	(dec-method :d_pow sys/math/d_pow :static (:d0 :d1) (:d0))
 	(dec-method :d_exp sys/math/d_exp :static (:d0) (:d0))
 	(dec-method :d_log sys/math/d_log :static (:d0) (:d0))

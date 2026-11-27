@@ -132,8 +132,8 @@
 ; Trig (Scalar)
 (assert-eq "Double Sin 0" 0.0 (n2q (sin (n2d 0.0))))
 (assert-eq "Double Cos 0" 1.0 (n2q (cos (n2d 0.0))))
-; pi/2 is approx 1.57079632679
-(assert-eq "Double Sin PI/2" 1.0 (n2q (sin (n2d 1.57079632679))))
+; pi/2 itself, a double: a fixed 1.57079632679 is 1.5707855, its sine short of 1
+(assert-eq "Double Sin PI/2" 1.0 (n2q (sin (/ +double_pi +double_2))))
 (assert-eq "Double Cos PI/2" 0.0 (n2q (cos (n2d 1.57079632679))))
 
 ; Quantization is round(v / tol) * tol
