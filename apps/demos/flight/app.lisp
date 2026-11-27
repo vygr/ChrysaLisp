@@ -115,7 +115,8 @@
 	;the size wanted, the size of the canvas drawn on, and the canvas still
 	;on show till a frame of a new one is whole
 	want +small size +small shown :nil
-	;how far round the eight the flight is, and when it was last moved on
+	;where round the eight it was taken up, and when the flight was last
+	;moved on
 	round_at +double_0 moved (pii-time)
 	;the flight, the eight or along the valleys: where it is and its way,
 	;level, how high, how fast it turns, and the middle of the eight
@@ -129,14 +130,15 @@
 	stick :nil
 	;the lean and the pitch, as eased to what the way of flying wants, and
 	;how long yet the flight is coming onto the eight, and how long it takes
-	lean +double_0 pitch +double_0 eight_in +double_0 +eight_onto (n2d 2.5)
+	lean +double_0 pitch +double_0
 	;how fast the lean and the pitch move, and how stiff their spring is
 	lean_v +double_0 pitch_v +double_0 +spring_k (n2d 3.5)
-	;the valleys' route, lib/nav: its Nav, a grid of so many rows and so
+	;the eight and the valleys a path a Nav follows, lib/nav: how many places
+	;a turn of the eight is; the valleys' route, a grid of so many rows and so
 	;many across laid over the land ahead, so far apart, how much more a
 	;way costs for each so much higher its end is than the lowest, and how
 	;stiff its turn is, how far ahead it aims, seconds and at least
-	valley_nav :nil +route_n 9 +route_step (n2d 60) +route_rise (n2d 10) +valley_k (n2d 0.8)
+	path_nav :nil +eight_steps 96 +route_n 9 +route_step (n2d 60) +route_rise (n2d 10) +valley_k (n2d 0.8)
 	+valley_lead (n2d 2.5) +valley_lead_least (n2d 40) +valley_up (doubles +double_0 +double_1 +double_0)
 	;the lean the way of flying wanted last, what turn it was in
 	lean_want +double_0
@@ -243,13 +245,6 @@
 	;a times ka and b times kb, two ways in the world added
 	(nums-add-scaled (nums-scale a ka) b kb))
 
-(defun path-pace (at)
-	; (path-pace at) -> double
-	;how far the eight goes for a step of at there, so the flight is moved
-	;on by its speed, as fast round the ends as through the middle
-	(defq dx (* +reach_x (cos at)) dz (* +double_2 +reach_z (cos (* +double_2 at))))
-	(sqrt (+ (* dx dx) (* dz dz))))
-
 (defun eight-lie (x z)
 	; (eight-lie x z) -> (x z)
 	;a place or a way on the eight, turned as the eight lies, its cosine and
@@ -340,38 +335,6 @@
 	(defq ca (cos a) sa (sin a))
 	(list (+ (* fx ca) (* fz sa)) (- (* fz ca) (* fx sa))))
 
-(defun eight-pose (dt)
-	; (eight-pose dt) -> (fx fz lean)
-	;moved on round the eight by its speed, as fast round the ends as
-	;through the middle: its way, level, and its lean into the turn, whose
-	;tangent is speed squared times the bend over the pull. Coming onto it,
-	;for a while, the flight goes on its own way, turning as it was eased
-	;to the eight's bend, and its way drawn more and more to the eight's,
-	;the eight moved along with it: it flies onto the eight, no kick
-	(setq round_at (+ round_at (/ (* +speed dt) (path-pace round_at))))
-	(defq at round_at two (* +double_2 at)
-		dx (* +reach_x (cos at)) dz (* +double_2 +reach_z (cos two))
-		ddx (neg (* +reach_x (sin at))) ddz (neg (* +double_4 +reach_z (sin two)))
-		pace (sqrt (+ (* dx dx) (* dz dz)))
-		bend (/ (- (* dx ddz) (* dz ddx)) (* pace pace pace)))
-	(bind '(ex ez) (eight-lie (/ dx pace) (/ dz pace)))
-	(ease-height +altitude dt)
-	(cond
-		((> eight_in +double_0)
-			(setq eight_in (max +double_0 (- eight_in dt))
-				turning (+ turning (* (- (neg (* +speed bend)) turning) (min +double_1 (* dt +double_2)))))
-			(bind '(tx tz) (turned (first way) (second way) (* turning dt)))
-			(defq t (- +double_1 (/ eight_in +eight_onto)) s (* t t (- +double_3 (* +double_2 t)))
-				nx (+ (* tx (- +double_1 s)) (* ex s)) nz (+ (* tz (- +double_1 s)) (* ez s))
-				n (sqrt (+ (* nx nx) (* nz nz))) nx (/ nx n) nz (/ nz n))
-			(bind '(px pz) place)
-			(setq way (doubles nx nz) place (doubles (+ px (* nx +speed dt)) (+ pz (* nz +speed dt)))
-				middle (blend place (eight-point at) +double_1 +double_-1))
-			(list nx nz (+ (* (neg (/ (* +speed turning) +pull)) (- +double_1 s))
-				(* (/ (* +speed +speed bend) +pull) s))))
-		(:t (setq place (blend middle (eight-point at) +double_1 +double_1) way (doubles ex ez))
-			(list ex ez (/ (* +speed +speed bend) +pull)))))
-
 (defun land-at (x z)
 	; (land-at x z) -> double
 	;the land's height there, or the water's where it is under
@@ -448,33 +411,66 @@
 		(map (lambda (p) (doubles (first p) +double_0 (third p))) (cat (list (doubles px +double_0 pz)) (graph-places g (rest nodes))))
 		+double_10) 2))
 
-(defun valley-pose (dt)
-	; (valley-pose dt) -> (fx fz lean)
-	;on along the valleys, a Nav following the route of least height
-	;ahead, valley-route, routed again from where it is once half along
-	;it: its turn sprung and damped, level, no faster than it may, aimed
-	;from where it will be when its turn has caught up; kept over the
-	;highest land under it and ahead, so it climbs before a ridge. Its
-	;lean is speed times how fast it turns. To the left is positive
+(defun path-steer (dt)
+	; (path-steer dt) -> (fx fz lean)
+	;on along the Nav's path, path_nav: its turn sprung and damped, level, no
+	;faster than it may, aimed from where the flight will be when its turn
+	;has caught up. Its lean is speed times how fast it turns. To the left
+	;is positive
 	(bind '(fx fz) way)
 	(bind '(px pz) place)
-	(unless valley_nav
-		(setq valley_nav (Nav (doubles px +double_0 pz) (doubles fx +double_0 fz)))
-		(def valley_nav :k +valley_k :turn_most +turn_most :lead +valley_lead :lead_least +valley_lead_least))
-	(def valley_nav :at (doubles px +double_0 pz) :speed +speed
+	(def path_nav :at (doubles px +double_0 pz) :speed +speed
 		:turn (quat-frame (doubles fx +double_0 fz) +valley_up))
-	(defq pts (get :path valley_nav))
-	(if (or (not pts) (> (get :cursor valley_nav) (/ (length pts) 2)))
-		(. valley_nav :routed (valley-route)))
-	(defq aim (nav-aim-follow valley_nav dt) to (nums-sub aim (get :at valley_nav)))
+	(defq aim (nav-aim-follow path_nav dt) to (nums-sub aim (get :at path_nav)))
 	(elem-set to 1 +double_0)
-	(nav-turn-to valley_nav (quat-frame (nav-path-unit to) +valley_up) dt)
-	(bind '(wx & wz) (get :way valley_nav))
+	(nav-turn-to path_nav (quat-frame (nav-path-unit to) +valley_up) dt)
+	(bind '(wx & wz) (get :way path_nav))
 	(defq wl (sqrt (+ (* wx wx) (* wz wz))) nx (/ wx wl) nz (/ wz wl))
-	(setq turning (second (get :spin valley_nav)) way (doubles nx nz)
+	(setq turning (second (get :spin path_nav)) way (doubles nx nz)
 		place (doubles (+ px (* nx +speed dt)) (+ pz (* nz +speed dt))))
-	(ease-height (+ +clearance (land-ahead nx nz +valley_look_near +valley_look_mid +valley_look_far)) dt)
 	(list nx nz (neg (/ (* +speed turning) +pull))))
+
+(defun path-nav ()
+	; (path-nav) -> nav
+	;the Nav of the eight and the valleys, made the once
+	(unless path_nav
+		(bind '(fx fz) way)
+		(bind '(px pz) place)
+		(setq path_nav (Nav (doubles px +double_0 pz) (doubles fx +double_0 fz)))
+		(def path_nav :k +valley_k :turn_most +turn_most :lead +valley_lead :lead_least +valley_lead_least))
+	path_nav)
+
+(defun eight-loop ()
+	; (eight-loop) -> path
+	;a turn of the eight as places, level, from where it crosses itself
+	(map! (lambda ()
+			(bind '(ex ez) (eight-point (+ round_at (/ (* +double_2pi (n2d (!))) (n2d +eight_steps)))))
+			(doubles (+ (first middle) ex) +double_0 (+ (second middle) ez)))
+		'() 0 (inc +eight_steps)))
+
+(defun eight-pose (dt)
+	; (eight-pose dt) -> (fx fz lean)
+	;round the eight, a turn of it after another as the Nav goes round,
+	;path-steer, at its height
+	(defq nav (path-nav) pts (get :path nav))
+	(if (or (not pts) (> (get :cursor nav) (- (length pts) (/ +eight_steps 2))))
+		(. nav :routed (eight-loop) :t))
+	(defq out (path-steer dt))
+	(ease-height +altitude dt)
+	out)
+
+(defun valley-pose (dt)
+	; (valley-pose dt) -> (fx fz lean)
+	;on along the valleys, the route of least height ahead, valley-route,
+	;routed again from where it is once half along it, path-steer; kept
+	;over the highest land under it and ahead, so it climbs before a ridge
+	(defq nav (path-nav) pts (get :path nav))
+	(if (or (not pts) (> (get :cursor nav) (/ (length pts) 2)))
+		(. nav :routed (valley-route)))
+	(defq out (path-steer dt))
+	(bind '(nx nz &ignore) out)
+	(ease-height (+ +clearance (land-ahead nx nz +valley_look_near +valley_look_mid +valley_look_far)) dt)
+	out)
 
 (defun mouse-pose (dt)
 	; (mouse-pose dt) -> (fx fz lean)
@@ -515,9 +511,9 @@
 			tx (* +reach_x (cos at)) tz (* +double_2 +reach_z (cos (* +double_2 at)))
 			tn (sqrt (+ (* tx tx) (* tz tz))) tx (/ tx tn) tz (/ tz tn))
 		(setq eight_lie (doubles (+ (* wx tx) (* wz tz)) (- (* wz tx) (* wx tz)))
-			round_at at middle (blend place (eight-point at) +double_1 +double_-1) eight_in +eight_onto))
-	;the valleys route again from here
-	(if valley_nav (def valley_nav :path :nil :spin (doubles +double_0 +double_0 +double_0)))
+			round_at at middle (blend place (eight-point at) +double_1 +double_-1)))
+	;the eight and the valleys a path again from here
+	(if path_nav (def path_nav :path :nil :cursor 0 :spin (doubles +double_0 +double_0 +double_0)))
 	(setq path to turning turn))
 
 (defun land-seen (eye forward right up spread_x shift)
