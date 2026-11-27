@@ -126,12 +126,13 @@
 	sprays (list) +mesh_spray 3 +spray_kinds 3 +spray_grains 64 +grain_size (n2d 0.35)
 	;bombs, a click fires one: each (at way born), where it is, how fast
 	;which way, and when it was fired; how fast it goes out from the ship,
-	;how long its fuse, how many may be out, and its light; blasts, each
+	;how long its fuse, as long as it takes to go as far as a rock is seen,
+	;how many may be out, and its light; blasts, each
 	;(at born front), how far its front has gone, how long its light lasts,
 	;its light at its brightest, and its glow's size at its least and most;
 	;the lights of both this frame, which light a rock before any buoy's,
 	;and their glows; and the mouse buttons as they were
-	bombs (list) +bomb_speed (n2d 160) +bomb_fuse 1600000 +bombs_most 3
+	bombs (list) +bomb_speed (n2d 160) +bomb_fuse (n2i (* (n2d 1000000) (/ +rock_far +bomb_speed))) +bombs_most 5
 	+bomb_light (doubles (n2d 0.6) (n2d 0.5) (n2d 0.35))
 	;a bomb's glow, as much bigger as it is further, and its trail: how many
 	;glows behind it, seconds of its way apart, each the fainter
@@ -702,25 +703,33 @@
 		(if (num? launch) (audio-play-rpc launch 0 +launch_loud))))
 
 (defun bombs-move (dt)
-	;each bomb, on by the field's mover, gone off at the end of its fuse or
-	;in the reach of a rock: a blast, and hits at its middle, so it is heard
+	;each bomb, on by the field's mover, gone at the end of its fuse, as far
+	;as a rock is seen, unseen and unheard, or gone off in the reach of a
+	;rock or the visitor: a blast, and hits at its middle, so it is heard
 	;and throws out grains as a hit does, its body let go of. Each blast's
 	;front on, the rocks it goes over thrown out, rocks-blast, till its light
 	;is gone
 	(defq now (pii-time))
 	(setq bombs (filter (lambda ((at way born id))
 			(cond
-				((or (> (- now born) +bomb_fuse)
+				((> (- now born) +bomb_fuse)
+					(. mover :remove id)
+					:nil)
+				((or
 						;the visitor hit: debris thrown off it, and it bolts
 						(when (visitor-hit? at)
 							(push sprays (list (cat at) now (+ +shatter_throw_least (* +shatter_throw (rnd))) (random +spray_kinds)
 								+debris_least))
 							:t)
 						(when (defq struck (apply (const rock-at) at))
-							;the rock it hits spun by where it is struck, and after
-							;enough hits broken, or the smallest shattered, rocks-hit
+							;the rock it hits spun by where it is struck, debris thrown
+							;off it there, and after enough hits broken, or the
+							;smallest shattered, rocks-hit
 							(bind '(x y z) at)
 							(rock-strike struck x y z (sky-unit way))
+							(defq rx (near-way (- x (first eye))) ry (near-way (- y (second eye))) rz (near-way (- z (third eye))))
+							(push sprays (list (cat at) now (+ +shatter_throw_least (* +shatter_throw (rnd))) (random +spray_kinds)
+								(max +debris_least (* (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) +debris_far))))
 							(defq middle (cat (first struck))
 								broke (rocks-hit struck world eye (+ +rock_far +out_of_sight)))
 							;broken or shattered, heard, and a shower of debris born where

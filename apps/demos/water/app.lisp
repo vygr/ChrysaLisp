@@ -28,10 +28,18 @@
 ;the tunnels and out over the reef; or the pointer steers. The diver is
 ;always under the water. The user's Jukebox favourites play behind it
 ;
-;The sub's sonar, data/ping.wav and echo.wav, is cut from "Submarine
-;Sonar" by DRAGON-STUDIO,
-;pixabay.com/sound-effects/film-special-effects-submarine-sonar-386154/,
-;under the Pixabay Content License, data/README.md.
+;The sub's sonar: its ping, data/ping.wav, from "Submarine Sonar" by
+;DRAGON-STUDIO,
+;pixabay.com/sound-effects/film-special-effects-submarine-sonar-386154/;
+;its echo, data/echo.wav, from "Sonar" by VoiceBosch,
+;pixabay.com/sound-effects/film-special-effects-sonar-183436/.
+;The scooter's whine, data/prop.wav, from "submarine prop whooshing" by
+;rexen_devar (Freesound), via freesound_community on Pixabay,
+;pixabay.com/sound-effects/film-special-effects-submarine-prop-whooshing-45861/.
+;A bump into the rock, data/thud.wav, from "Dramatic Thud Stinger" by
+;DRAGON-STUDIO,
+;pixabay.com/sound-effects/film-special-effects-dramatic-thud-stinger-631487/.
+;All under the Pixabay Content License, data/README.md.
 
 (enums +event +event_user
 	(enum mode prev music next))
@@ -119,27 +127,23 @@
 	sub :nil +sub_align (n2d 8) +sub_shove (n2d 30)
 	sprinting :nil pressed 0 +right_button 4 +lamp (n2d 2.4)
 	;the scooter's whine as the right button is held: its loop's samples,
-	;made at the start, the stream it is played on, where in the loop it
-	;is, its rate, how far ahead of what is heard it is kept, how loud at
-	;most and now, eased up as the button is held and dying away after,
-	;how fast up, a second, and how fast it dies, a share a second; and
-	;the loop: the motor's hum and its overtones, the chop of the blades,
-	;and how muffled the churn of the water
+	;loaded at the start, data/prop.wav, the stream it is played on, where
+	;in the loop it is, its rate, how far ahead of what is heard it is kept,
+	;how loud at most and now, eased up as the button is held and dying
+	;away after, how fast up, a second, and how fast it dies, a share a
+	;second; how loud the loop is made as it loads, and the loudness of the
+	;sounds loaded, the thud's and the sonar's
 	prop_pcm :nil prop_stream :nil prop_at 0 +prop_rate 22050 +prop_ahead 1100
 	+prop_loud (n2d 0.7) prop_gain +double_0 +prop_up +double_4 +prop_down (n2d 1.5) +prop_quiet (n2d 0.01)
-	+prop_hum (n2d 120) +prop_chop (n2d 24) +prop_muffle (n2d 0.06) +prop_scale (n2d 14000)
-	;the hum's overtones, each how many times the hum, how loud and its
-	;phase; how much the chop beats the hum and the churn; the noise's range
-	+prop_tones ''((1 0.45 0) (2 0.22 0.7) (3 0.1 1.3)) +beat_least (n2d 0.6) +beat_more (n2d 0.4)
-	+churn_least (n2d 0.7) +churn_more (n2d 0.3) +prop_noise 65536 +prop_noise_half (n2d 32768)
-	;how long the noise's start is faded from what follows its end
-	+prop_fade 2205
-	;a bump into the rock: its thud's samples, made at the start, the stream
-	;it is played on, whether the diver is against the rock or a stone now,
-	;how hard a bump is softest, units a second into it, and loudest;
-	;the thud, how long, how deep, how fast it dies, and how much knock
-	thud_pcm :nil thud_stream :nil touching :nil +thud_least (n2d 1.5) +thud_most (n2d 5)
-	+thud_long 8820 +thud_deep (n2d 70) +thud_die (n2d 14) +thud_knock (n2d 0.5) +thud_knock_die (n2d 90)
+	+prop_peak (n2d 21000) +prop_scale (n2d 14000)
+	;a bump into the rock: its thud's samples, loaded at the start,
+	;data/thud.wav, the stream it is played on, how hard a bump is softest,
+	;its speed into what it hit, and loudest; what it touched lately, the
+	;rock and the stones, each when last and the way it faced, how long off
+	;a thing it is touching it anew, and how far round the rock must face
+	;to be anew, the cosine
+	thud_pcm :nil thud_stream :nil +thud_least (n2d 0.2) +thud_most +double_4
+	touches (list) +thud_again 300000 +thud_turn (n2d 0.7)
 	;how loud the softest bump is, of the loudest, and the least step of time
 	+thud_soft (n2d 0.3) +dt_least (n2d 0.001)
 	;the sub's sonar, in stereo: its ping's samples, its echo's in the left
@@ -149,10 +153,10 @@
 	;how far it hears the rock, how many samples later an echo is for a
 	;unit further, how loud the nearest is, the ways across the front it
 	;looks, how far round the widest is, how near the rock the search must
-	;come and its least step
+	;come and its least step; and the loudest a sample of it may be
 	ping_pcm :nil echo_left :nil echo_right :nil ping_quiet :nil sonar_stream :nil ping_at 0 echoes 0
 	+ping_every 4000000 +ping_first 2000000 +ping_loud (n2d 0.3)
-	+ping_reach (n2d 80) +ping_unit (n2d 300) +echo_most (n2d 0.7)
+	+ping_reach (n2d 80) +ping_unit (n2d 300) +echo_most +double_1/2 +sonar_most (n2d 30000)
 	+ping_ways ''(-1 -0.5 0 0.5 1) +ping_wide (n2d 0.6) +ping_near +double_1/2 +ping_step +double_1/2
 	;the stones as the diver bumps into them: each kind a rounded box, how
 	;far each way, of its size, how far up its middle, and how square across,
@@ -735,46 +739,29 @@
 				(setq p (nums-add p (nums-scale g (/ (* (- +clear h) e) gg)))))))
 	p)
 
-(defun prop-make ()
-	; (prop-make) -> doubles
-	;a second of the scooter, a loop: the motor's hum, 120 a second and
-	;its overtones, beating with the chop of the blades, and the churn of
-	;the water, noise muffled round the loop so it joins with no click,
-	;all of whole cycles a second so the loop does too
-	(defq n +prop_rate m +prop_fade y +double_0 k (/ +double_2pi (n2d n))
-		tones (map (lambda (tone) (map (const n2d) tone)) +prop_tones)
-		;the noise muffled, twice over, a little longer than the loop
-		long (map! (lambda ()
-				(setq y (+ y (* +prop_muffle (- (- (/ (n2d (random +prop_noise)) +prop_noise_half) +double_1) y)))))
-			'() 0 (+ n m))
-		long (progn (setq y +double_0) (map (lambda (x) (setq y (+ y (* +prop_muffle (- x y))))) long))
-		;and its start faded from what came after its end, so the end runs
-		;into the start with no step
-		churn (map! (lambda ()
-				(defq i (!) x (elem-get long i))
-				(if (< i m)
-					(+ (* x (/ (n2d i) (n2d m))) (* (elem-get long (+ n i)) (- +double_1 (/ (n2d i) (n2d m)))))
-					x))
-			'() 0 n))
-	(apply (const doubles) (map (lambda (c)
-			(defq t (* k (n2d (!))) beat (+ +beat_least (* +beat_more (sin (* t +prop_chop)))))
-			(* +prop_scale (+ (* beat (reduce (lambda (sum (over loud phase)) (+ sum (* loud (sin (+ (* t +prop_hum over) phase)))))
-					tones +double_0))
-				(* +double_3 c (+ +churn_least (* +churn_more beat))))))
-		churn)))
+(defun rock-way (p)
+	; (rock-way p) -> doubles
+	;the way the rock faces at p, out of it, of length 1
+	(defq h (field_water p) e +double_1/5)
+	(nums-scale (defq g (doubles
+			(- (field_water (nums-add p (doubles e +double_0 +double_0))) h)
+			(- (field_water (nums-add p (doubles +double_0 e +double_0))) h)
+			(- (field_water (nums-add p (doubles +double_0 +double_0 e))) h)))
+		(recip (max (sqrt (nums-dot g g)) +dt_least))))
 
-(defun thud-make ()
-	; (thud-make) -> doubles
-	;a bump into the rock, muffled by the water: a low thump falling away,
-	;a little lower as it goes, and a knock of muffled noise at the start
-	(defq y +double_0 k (/ +double_2pi (n2d +prop_rate)))
-	(apply (const doubles) (map! (lambda ()
-			(defq t (/ (n2d (!)) (n2d +prop_rate))
-				x (- (/ (n2d (random +prop_noise)) +prop_noise_half) +double_1))
-			(setq y (+ y (* +prop_muffle (- x y))))
-			(* +prop_scale (+ (* (exp (* (neg +thud_die) t)) (sin (* k (n2d (!)) +thud_deep (- +double_1 (* t +double_1/2)))))
-				(* +thud_knock (exp (* (neg +thud_knock_die) t)) y +double_3))))
-		'() 0 +thud_long)))
+(defun touch-new? (key way now)
+	; (touch-new? key way now) -> :t | :nil
+	;is a touch of a thing, the rock :rock or the stones :stones, anew: not
+	;touched lately, or the rock facing well round from the way it did, way
+	;:nil for the stones, which push every way as they lie together; it is
+	;remembered as touched now, facing this way
+	(cond
+		((defq t (some (# (if (eql (first %0) key) %0)) touches))
+			(defq fresh (or (> (- now (second t)) +thud_again) (and way (< (nums-dot way (third t)) +thud_turn))))
+			(elem-set t 1 now)
+			(elem-set t 2 way)
+			fresh)
+		((push touches (list key now way)) :t)))
 
 (defun thud-play (hard)
 	; (thud-play hard)
@@ -857,6 +844,10 @@
 							(nums-add (nums-scale echo_left (* loud (cos pan))) (nums-scale echo_right (* loud (sin pan))))
 							(slice ping_quiet 0 (- all at echo_n)))))))
 				+ping_ways)
+			;never past what a sample holds, all of it made quieter if the
+			;echoes together would be, not wrapped round to a crackle
+			(defq most (reduce (lambda (m v) (max m (abs v))) out +double_1))
+			(if (> most +sonar_most) (setq out (nums-scale out (/ +sonar_most most))))
 			(defq pcm (nums-convert out (shorts)) bytes (* (length pcm) 2))
 			(ifn (audio-stream-left-rpc sonar_stream) (setq sonar_stream :nil)
 				(audio-stream-write-rpc sonar_stream (obj-set (str-alloc bytes) +str_data bytes pcm))))))
@@ -898,22 +889,26 @@
 	(. mover :face sub forward)
 	(. mover :set sub :flow (nums-scale forward want) :drag (if sprinting +sprint_up +sprint_down))
 	(setq speed (sqrt (nums-dot (defq v (. mover :velocity sub)) v)))
-	;touching the rock, shoved off it, and out of the stones: a thud the
-	;once as it hits, as loud as it hit, none again till it is clear
-	(defq hit +double_0)
-	(when (< (defq h (field_water eye)) +clear)
+	;touching the rock, shoved off it, and out of the stones: a thud as it
+	;touches the rock or the stones anew, as loud as it hit, its speed into
+	;what it hit; none for what it goes on touching, a while after, or
+	;facing much the same
+	(defq hard +double_0 fresh :nil touch_at (pii-time))
+	(when (< (field_water eye) +clear)
 		(if frame_log (. frame_log :add :touches))
-		(setq hit (- +clear h)))
-	(bind '(p moved) (clear-of-stones (clear-of-rock eye) +stone_clear))
+		(setq hard (max +double_0 (neg (nums-dot v (defq way (rock-way eye)))))
+			fresh (touch-new? :rock way touch_at)))
+	(bind '(p moved) (clear-of-stones (defq q (clear-of-rock eye)) +stone_clear))
 	(. mover :shove sub (nums-sub p eye) :t)
 	(when (> moved +double_0)
 		(if frame_log (. frame_log :add :touches))
-		(setq hit (+ hit moved)))
-	(cond
-		((= hit +double_0) (setq touching :nil))
-		((not touching)
-			(setq touching :t)
-			(thud-play (/ hit (max dt +dt_least)))))
+		(defq way (nums-scale (defq d (nums-sub p q)) (recip (max (sqrt (nums-dot d d)) +dt_least))))
+		(setq hard (max hard (neg (nums-dot v way))))
+		(if (touch-new? :stones :nil touch_at) (setq fresh :t)))
+	(setq touches (filter (# (<= (- touch_at (second %0)) +thud_again)) touches))
+	(when fresh
+		(if frame_log (. frame_log :add :thuds))
+		(thud-play hard))
 	(defq now (pii-time))
 	(cond
 		((or (not was) (nql mode :auto)) (setq was (cat eye) was_at now))
@@ -1148,7 +1143,7 @@
 					(list "chunks" meshed) (list "out" out) (list "stones" stones_drawn) (list "fish" fish_drawn)
 					(list "upsides" (. log :got :upsides)) (list "caves" (. log :got :caves)) (list "nods" (. log :got :nods))
 					(list "stucks" stucks) (list "echoes" echoes) (list "legs" (length legs)) (list "junction" going)
-					(list "eye" (map (const n2i) eye)) (list "touches" (. log :got :touches))))
+					(list "eye" (map (const n2i) eye)) (list "touches" (. log :got :touches)) (list "thuds" (. log :got :thuds))))
 			60)
 		(eql (get '*env_node_user*) "Test")))
 
@@ -1301,7 +1296,7 @@
 		(elem-get select +select_reply) (list (max 1 (dec (length (lisp-nodes :t))))) :t))
 	(stones-ask)
 	(fishes-ask)
-	(setq prop_pcm (prop-make) thud_pcm (thud-make) ping_at (- (pii-time) (- +ping_every +ping_first)))
+	(setq prop_pcm (sound-load "prop.wav" +prop_peak) thud_pcm (sound-load "thud.wav" +prop_scale) ping_at (- (pii-time) (- +ping_every +ping_first)))
 	(when (defq sonar (ping-make))
 		(bind '(ping echo_l echo_r quiet) sonar)
 		(setq ping_pcm ping echo_left echo_l echo_right echo_r ping_quiet quiet))
