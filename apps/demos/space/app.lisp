@@ -697,9 +697,20 @@
 			(cond
 				((or (> (- now born) +bomb_fuse)
 						(when (defq struck (apply (const rock-at) at))
-							;the rock it hits spun by where it is struck
+							;the rock it hits spun by where it is struck, and after
+							;enough hits broken, or the smallest shattered, rocks-hit
 							(bind '(x y z) at)
 							(rock-strike struck x y z (sky-unit way))
+							(defq middle (cat (first struck))
+								broke (rocks-hit struck world eye (+ +rock_far +out_of_sight)))
+							;broken or shattered, heard, and a shower of debris born where
+							;it broke, between its pieces
+							(when broke
+								(times 4 (push hits (list x y z +blast_crunch)))
+								(defq rx (near-way (- (first middle) (first eye))) ry (near-way (- (second middle) (second eye)))
+									rz (near-way (- (third middle) (third eye))))
+								(push sprays (list middle now (+ +shatter_throw_least (* +shatter_throw (rnd))) (random +spray_kinds)
+									(max +debris_least (* (sqrt (+ (* rx rx) (* ry ry) (* rz rz))) +debris_far)))))
 							:t))
 					(push blasts (list at now +double_0 +blast_reach +blast_strength +blast_life +blast_light +blast_glow_most :nil))
 					(bind '(x y z) at)

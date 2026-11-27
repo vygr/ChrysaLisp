@@ -85,6 +85,18 @@
 	;them, each (x y z speed), where they touched and how hard, for it to
 	;hear and see
 	bumps 0 hits (list)
+	;how many direct hits of a missile each rock has taken; a rock breaks at
+	;one for each so much of its size, into two or three of the next size
+	;down, its volume kept; one whose pieces would be smaller than the least
+	;shatters; a cluster's big rock breaks no smaller than its least, so a
+	;cluster keeps its middle; how hard the pieces drift apart, a second,
+	;and how far out from where it broke they start, of their reach, half
+	;in each other, the shove of their meeting easing them apart
+	rock_hits :nil +hit_bulk (n2d 12) +piece_least +double_4 +core_least (n2d 20) +split_kick +double_2 +split_off (n2d 0.3)
+	+third (/ +double_1 +double_3)
+	;when each rock's pieces stop parting, and for how long after a break
+	;they part, shoved apart but so little of the way each time
+	rock_parting :nil +part_long 3000000 +part_ease (n2d 0.08)
 	;how far off a rock starts to go into the sky behind it and is gone into
 	;it, and is drawn: all of it inside half the box, as past that a rock is
 	;drawn on the other side of the eye, where it is next as the field goes
@@ -201,6 +213,7 @@
 			(push members (length out))
 			(push out (make-rock at go small)))
 		(push clusters members))
+	(setq rock_hits (fill (nums) +rock_count 0) rock_parting (fill (nums) +rock_count 0))
 	(while (< (length out) +rock_count)
 		(push out (make-rock (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))
 			(nums-scale (rnd-way) (* +drift_most (+ +loner_drift_least (* +loner_drift_spread (rnd)))))
@@ -307,7 +320,7 @@
 	(elem-set v 2 (+ (elem-get v 2) (* nz by))))
 
 
-(defun rocks-touch (rock ri rock_j dx dy dz d2)
+(defun rocks-touch (rock ri rock_j dx dy dz d2 &optional ease)
 	;two rocks, the first reaching ri, the second dx dy dz from it, d2 that
 	;squared: if they touch and are coming together, bounced apart, along
 	;the way between them, the bigger moved the less, losing some of their
@@ -347,8 +360,9 @@
 			(rock-spin spin_j bulk_j (* cx gj) (* cy gj) (* cz gj)))
 		;and apart, the bigger moved the less
 		(defq over (- reach d))
-		(rock-push shove nx ny nz (neg (* over wi)))
-		(rock-push shove_j nx ny nz (* over wj))))
+		(defq ease (ifn ease +double_1))
+		(rock-push shove nx ny nz (neg (* over wi ease)))
+		(rock-push shove_j nx ny nz (* over wj ease))))
 
 (defun rocks-pull (rock rock_j dx dy dz d2 pull_dt)
 	;two rocks, the second dx dy dz from the first, d2 that squared, pulled
@@ -623,6 +637,114 @@
 			(elem-set calm 5 0))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a rock hit by a missile: knocked, and after enough hits broken into
+; pieces, the pieces rocks borrowed from out of sight, so the field keeps
+; as many as it has; the smallest shattered and sent out of sight
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun rock-resize (world i bulk)
+	; (rock-resize world i bulk)
+	;rock i made so big, its ball in the world as big, its pull let go of
+	;when it is too small to pull
+	(defq rock (elem-get rocks i))
+	(elem-set rock 2 bulk)
+	(each (lambda (id)
+			(if (. world :sensor? id)
+				(. world :mask id (if (< bulk +pull_least) 0 1))
+				(. world :reshape id (list :sphere (* bulk (elem-get kind_reach (elem-get rock 3)))))))
+		(cat (. world :bodies i))))
+
+(defun rock-cluster (i)
+	; (rock-cluster i) -> :nil | members
+	;the cluster a rock is of, if any
+	(some (# (if (find i %0) %0)) clusters))
+
+(defun rock-leave (i)
+	; (rock-leave i)
+	;a rock no more of its cluster
+	(setq clusters (map (lambda (members) (filter (# (/= %0 i)) members)) clusters)))
+
+(defun rock-away (i eye far)
+	; (rock-away i eye far)
+	;rock i out of sight, further from the eye than far, drifting and
+	;tumbling a way of its own, no hits taken, its shove gone
+	(bind '(at drift & & spin & shove) (elem-get rocks i))
+	(defq to (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field)) tries 10)
+	(while (and (> (-- tries) 0) (not (out-of-sight? to eye far)))
+		(setq to (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))))
+	(each! (lambda (v) (elem-set at (!) v)) (list to))
+	(each! (lambda (v) (elem-set drift (!) v)) (list (nums-scale (rnd-way) (* +drift_most (rnd)))))
+	(each! (lambda (v) (elem-set spin (!) v)) (list (nums-scale (rnd-way) (* (rnd) +tumble_most))))
+	(each! (lambda () (elem-set shove (!) +double_0)) '() 0 3)
+	(elem-set rock_hits i 0))
+
+(defun rock-donors (n eye far)
+	; (rock-donors n eye far) -> (i ...)
+	;up to n rocks to borrow, all out of sight, none near: loners, of no
+	;cluster, first, then those of a swarm, never a cluster's big rock;
+	;from a place in the field by chance
+	(defq of (fill (nums) (length rocks) 0) loners (list) swarm (list) from (random (length rocks)))
+	(each (lambda (members)
+			(each (lambda (m) (elem-set of m 1)) members)
+			(if (nempty? members) (elem-set of (first members) 2)))
+		clusters)
+	(each! (lambda ()
+			(defq i (% (+ from (!)) (length rocks)))
+			(and (< (elem-get of i) 2) (out-of-sight? (first (elem-get rocks i)) eye far)
+				(push (if (= (elem-get of i) 0) loners swarm) i)))
+		'() 0 (length rocks))
+	(slice (cat loners swarm) 0 (min n (+ (length loners) (length swarm)))))
+
+(defun rocks-hit (rock world eye far)
+	; (rocks-hit rock world eye far) -> :nil | :split | :shatter
+	;a rock a missile has hit straight on: one hit more, and if it has
+	;taken as many as one for each +hit_bulk of its size, broken: into two
+	;or three of the next size down, rocks borrowed from out of sight,
+	;loners of no cluster first, (rock-donors), of its kind, flying apart from where it was and
+	;of its cluster, it sent away out of sight as it is; but a cluster's
+	;big rock one of the pieces itself, no smaller than its least, so its
+	;cluster keeps its middle, only knocked about after; with none to
+	;borrow, it only made smaller. One whose pieces would be smaller than
+	;the least shattered, sent out of sight and made a small rock again
+	(defq i (find rock rocks) hits (inc (elem-get rock_hits i)) bulk (third rock)
+		need (max 1 (n2i (ceil (/ bulk +hit_bulk)))) k (+ 2 (random 2))
+		piece (* bulk (pow (recip (n2d k)) +third)) members (rock-cluster i))
+	(cond
+		((< hits need) (elem-set rock_hits i hits) :nil)
+		((and members (= (first members) i) (< piece +core_least)) (elem-set rock_hits i 0) :nil)
+		((< piece +piece_least)
+			(rock-leave i)
+			(rock-away i eye far)
+			(rock-resize world i (+ +small_least (* +small_spread (rnd) (rnd))))
+			:shatter)
+		(:t (elem-set rock_hits i 0)
+			;where it was and how it went, kept, as it may be sent away
+			(bind '(at drift & kind &ignore) rock)
+			(defq at (cat at) drift (cat drift) core (and members (= (first members) i))
+				donors (rock-donors (if core (dec k) k) eye far))
+			(cond
+				((empty? donors) (rock-resize world i piece))
+				(core (rock-resize world i piece) (elem-set rock_parting i (+ (pii-time) +part_long)))
+				(:t (rock-leave i) (rock-away i eye far)))
+			(each (lambda (j)
+					(bind '(at_j drift_j & & spin_j & shove_j) (elem-get rocks j))
+					(defq way (rnd-way) off (* piece (elem-get kind_reach kind) +split_off))
+					(rock-leave j)
+					(elem-set (elem-get rocks j) 3 kind)
+					(rock-resize world j piece)
+					(each! (lambda (c w) (elem-set at_j (!) (+ c (* w off)))) (list at way))
+					(each! (lambda (d w) (elem-set drift_j (!) (+ d (* w +split_kick)))) (list drift way))
+					(each! (lambda (v) (elem-set spin_j (!) v)) (list (nums-scale (rnd-way) (* (rnd) +tumble_most))))
+					(each! (lambda () (elem-set shove_j (!) +double_0)) '() 0 3)
+					(elem-set rock_hits j 0)
+					(elem-set rock_parting j (+ (pii-time) +part_long))
+					;of the cluster it broke in, as the clusters are now
+					(and members (defq mine (some (# (if (find (first members) %0) %0)) clusters))
+						(push mine j)))
+				donors)
+			:split)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the rocks meeting by lib/collide: what touches and what pulls is the
 ; world's to say, a part of them each frame; what it does is the field's
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -660,6 +782,7 @@
 	;those a big one's sensor has in it pulled, rocks-pull, dt the frame's
 	;seconds and each pair's for as many frames as its test stands for; a
 	;pull of two big ones the once
+	(defq now (pii-time))
 	(defq owners (get :owners world) bounds (get :bounds world) sensors (get :sensors world))
 	(each (lambda ((a b depth way stands))
 			(defq ia (elem-get owners a) ib (elem-get owners b) ra (second (elem-get bounds a))
@@ -668,17 +791,20 @@
 				((elem-get sensors a) (rocks-pulled ia ib way far stands dt))
 				((elem-get sensors b) (rocks-pulled ib ia (nums-scale way +double_-1) far stands dt))
 				(:t (bind '(dx dy dz) (nums-scale way far))
-					(rocks-touch (elem-get rocks ia) ra (elem-get rocks ib) dx dy dz (* far far)))))
+					;the pieces of a rock just broken parting, slowly, shoved apart
+					;but a little each time
+					(rocks-touch (elem-get rocks ia) ra (elem-get rocks ib) dx dy dz (* far far)
+						(if (or (> (elem-get rock_parting ia) now) (> (elem-get rock_parting ib) now)) +part_ease)))))
 		(. world :pairs)))
 
 ;module, what the app and the tests use: its own numbers, prebound into
 ;its functions as they are made, go with it
 (export-symbols
-	'(rocks clusters buoys hits bumps kind_reach thread_offsets
+	'(rocks clusters buoys hits bumps kind_reach rock_hits rock_parting thread_offsets
 	+rock_kinds +rock_count +field +clusters +meet_parts +rock_far +fade_near +fade_far
 	+buoys +buoy_red +buoy_green +buoy_blue +calm_looks +nuke_looks +rim_most +spin_most
 	+blast_front +blast_reach +blast_strength
 	rnd rnd-way near-way out-of-sight? make-rocks make-buoys rock-at rock-spin rock-strike
-	rock-turned rocks-blast rocks-world rocks-collide rocks-move rocks-nuke clusters-refresh
+	rock-turned rocks-blast rocks-hit rocks-world rocks-collide rocks-move rocks-nuke clusters-refresh
 	cluster-again buoy-look buoys-move buoys-restation thread-start thread-step))
 (env-pop)

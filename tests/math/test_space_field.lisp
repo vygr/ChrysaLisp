@@ -171,3 +171,26 @@
 (assert-true "a blast out of reach leaves it" (= (sf-w (first rocks)) sf_was))
 (rocks-blast (n2d 530) (n2d 500) (n2d 500) +double_0 (n2d 1000) (n2d 100) (n2d 1) :t)
 (assert-true "a nuke's blast in reach calms it" (< (sf-w (first rocks)) (* sf_was +double_1/2)))
+
+;broken by missiles: a rock after as many hits as its size says, into
+;pieces of the next size down, rocks brought from out of sight for them,
+;the count kept; the smallest shattered and sent out of sight; a
+;cluster's big rock never broken smaller than its least
+(defq sf_eye (doubles (n2d 500) (n2d 500) (n2d 500)) sf_far (n2d 300) sf_beside (n2d 40) sf_was (n2d 20)
+	sf_near (lambda (a b) (sqrt (+ (* (near-way (- (first a) (first b))) (near-way (- (first a) (first b))))
+		(* (near-way (- (second a) (second b))) (near-way (- (second a) (second b))))
+		(* (near-way (- (third a) (third b))) (near-way (- (third a) (third b))))))))
+(setq rocks (list (sf-rock 500 500 500 0 0 0 20) (sf-rock 100 100 100 0 0 0 6) (sf-rock 900 900 100 0 0 0 7)
+		(sf-rock 150 900 900 0 0 0 4.5) (sf-rock 520 500 500 0 0 0 30))
+	clusters (list (list 4)) rock_hits (fill (nums) 5 0) rock_parting (fill (nums) 5 0))
+(defq sf_world (rocks-world))
+(assert-eq "the smallest shattered at a hit" :shatter (rocks-hit (elem-get rocks 3) sf_world sf_eye sf_far))
+(assert-true "and sent out of sight" (> (sf_near (first (elem-get rocks 3)) sf_eye) sf_far))
+(assert-eq "one hit of two, not broken" :nil (rocks-hit (first rocks) sf_world sf_eye sf_far))
+(assert-eq "the second, broken" :split (rocks-hit (first rocks) sf_world sf_eye sf_far))
+(assert-eq "as many rocks as before" 5 (length rocks))
+(assert-true "it sent out of sight" (> (sf_near (first (first rocks)) sf_eye) sf_far))
+(assert-true "its pieces brought from out of sight to where it was, the next size down"
+	(some (lambda (r) (and (< (sf_near (first r) sf_eye) sf_beside) (< (third r) sf_was))) rocks))
+(times 12 (rocks-hit (elem-get rocks 4) sf_world sf_eye sf_far))
+(assert-true "a cluster's big rock no smaller than its least" (>= (third (elem-get rocks 4)) (n2d 20)))
