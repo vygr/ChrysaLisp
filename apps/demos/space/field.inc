@@ -67,6 +67,9 @@
 	;threading: how far a heading tried is from the way wanted, at most, a
 	;tangent, and how far past a rock's reach is clear
 	+thread_cone (n2d 0.9) +thread_safe (n2d 1.5)
+	;how much better a new heading must score than the last, still clear,
+	;to be taken for it, of a way's turn and of a tour guide's gap
+	+thread_keep (n2d 0.06) +thread_keep_gap +double_4
 	;the widest a gap is that is a gap, past it all are as dull
 	+gap_most (n2d 80)
 	;the headings tried, as far across and up from the way wanted: it, and
@@ -445,13 +448,13 @@
 		near)
 	(list least next))
 
-(defun thread-start (eye speed want right up thrill)
-	; (thread-start eye speed want right up thrill) -> thread
+(defun thread-start (eye speed want right up thrill &optional last)
+	; (thread-start eye speed want right up thrill [last]) -> thread
 	;a choice of the way to go begun, made a few headings at a time,
 	;(thread-step), so no frame has all of it: the rocks near, the speed,
 	;the way wanted and its across and up, whether a tour guide's, the
 	;heading tried next, the best yet and its score, and the clearest
-	(list (rocks-near eye want) speed want right up thrill 0 want :nil +double_0 want))
+	(list (rocks-near eye want) speed want right up thrill 0 want :nil +double_0 want last))
 
 (defun thread-step (thread count)
 	; (thread-step thread count) -> thread | doubles
@@ -461,8 +464,10 @@
 	;gap, the two rocks it passes nearest the nearer each other, the way
 	;wanted only to choose between those alike, threading the needle; else
 	;the nearest the way wanted. With none that clear them, the one that
-	;clears them the most. The thread, or with all tried, the way chosen
-	(bind '(near speed want right up thrill at best best_score most most_way) thread)
+	;clears them the most; but the last heading chosen, last, if it still
+	;clears them and the best is not clearly better. The thread, or with all
+	;tried, the way chosen
+	(bind '(near speed want right up thrill at best best_score most most_way last) thread)
 	(each! (lambda ((across upward))
 			(defq way (sky-unit (nums-add want (nums-add (nums-scale right across) (nums-scale up upward))))
 				off (+ (abs across) (abs upward)))
@@ -475,8 +480,18 @@
 	(setq at (+ at count))
 	(cond
 		((< at (length thread_offsets))
-			(list near speed want right up thrill at best best_score most most_way))
-		(best_score best)
+			(list near speed want right up thrill at best best_score most most_way last))
+		(best_score
+			;the last heading kept if it still clears them and the best is not
+			;clearly better, so two as good do not swap from choice to choice
+			(defq keep :nil)
+			(when last
+				(bind '(least next) (way-clear near (* speed (first last)) (* speed (second last)) (* speed (third last))))
+				(when (>= least +thread_safe)
+					(defq d (nums-sub last want) off (+ (abs (nums-dot d right)) (abs (nums-dot d up)))
+						score (if thrill (+ (min next +gap_most) (* off +thrill_weight)) off))
+					(if (<= score (+ best_score (if thrill +thread_keep_gap +thread_keep))) (setq keep last))))
+			(ifn keep best))
 		(most_way)))
 
 (defun make-buoys ()

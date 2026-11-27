@@ -61,6 +61,8 @@
 	;of how many choices of a rock to visit one is wide, a tour guide's turn
 	;round to the biggest cluster near, wherever it is
 	+visit_wide_one 3
+	;and with none to visit, how long it wanders before it looks again
+	+visit_retry 4000000
 	;how long before a big rock visited may be again, and how often a
 	;cluster out of sight is put in orbit again, and since when
 	+revisit 90000000 +refresh_every 1000000 refreshed 0
@@ -283,12 +285,13 @@
 	;degrees of its way, near enough, and not visited lately, so the tour
 	;moves on and does not go round the one swarm; now and then, a wide one,
 	;the biggest cluster near enough wherever it is, a tour guide's turn
-	;round to go through it. A new one now and then, or when one not wide is behind; with
-	;none, a slow wander
+	;round to go through it. A new one now and then, or when one not wide
+	;is behind; with none, a slow wander, a while before it looks again, so
+	;a choice is made the once, not each frame
 	(defq now (pii-time))
 	(bind '(ex ey ez) eye)
-	(when (or (not visit) (> (- now visit_since) +visit_long)
-			(and (not visit_wide) (<= (rock-ahead (elem-get rocks visit)) +double_0)))
+	(when (or (> (- now visit_since) (if visit +visit_long +visit_retry))
+			(and visit (not visit_wide) (<= (rock-ahead (elem-get rocks visit)) +double_0)))
 		(setq visit :nil visit_since now visit_wide (= (random +visit_wide_one) 0))
 		(cond
 			(visit_wide
@@ -424,7 +427,7 @@
 						(nums-scale up (* (beyond-dead (second stick)) +stick_reach)))))
 					forward)
 				(visit-want right))
-			right up (eql mode :auto))))
+			right up (eql mode :auto) heading)))
 	(defq step (thread-step thread +choose_count))
 	(if (nums? step) (setq heading step thread :nil) (setq thread step))
 	(unless heading (setq heading forward))
