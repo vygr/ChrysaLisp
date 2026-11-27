@@ -119,6 +119,9 @@
 	;the flight, the eight or along the valleys: where it is and its way,
 	;level, how high, how fast it turns, and the middle of the eight
 	path :eight place (doubles +double_0 +double_0) way (doubles +double_0 +double_1)
+	;how far out a flight may start, and how high over the water the land
+	;must be there
+	+launch_reach (n2d 4000) +launch_over +double_2 +launch_steps (n2d 10000) +launch_turns (n2d 3600)
 	height +altitude rising +double_0 turning +double_0 middle (doubles +double_0 +double_0)
 	;where the pointer is over the picture, -1 to 1 across and up, or :nil
 	;when it is not
@@ -377,6 +380,23 @@
 	; (land-at x z) -> double
 	;the land's height there, or the water's where it is under
 	(max +double_-4 (land_height (doubles x z))))
+
+(defun launch-place ()
+	; (launch-place) -> doubles
+	;a place over the land, not the water, by chance, no further out than
+	;the land's noise keeps its detail in singles
+	(defq out :nil)
+	(until out
+		(defq x (* (- (/ (n2d (random 20000)) +launch_steps) +double_1) +launch_reach)
+			z (* (- (/ (n2d (random 20000)) +launch_steps) +double_1) +launch_reach))
+		(if (> (land-at x z) +launch_over) (setq out (doubles x z))))
+	out)
+
+(defun launch-way ()
+	; (launch-way) -> doubles
+	;a way, level, by chance
+	(defq a (* +double_2pi (/ (n2d (random 3600)) +launch_turns)))
+	(doubles (cos a) (sin a)))
 
 (defun fly-on (dt)
 	; (fly-on dt) -> (nx nz)
@@ -715,8 +735,9 @@
 	(setq day_start (n2d (. *config* :find :day))
 		;the detail it had, the least the first time, to go up from
 		detail (. *config* :find :detail))
+	;somewhere over the land by chance, any way, the eight taken up there
 	(setq land_height (shader-vp-func (shader-load (cat *app_root* "land.shader")) 'ground)
-		place (eight-point round_at) way (doubles +double_1 +double_0))
+		place (launch-place) way (launch-way))
 	(path-set (. *config* :find :path))
 	(. *path* :set_selected (find path '(:eight :valleys :mouse)))
 	;the size it was closed at
