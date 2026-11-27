@@ -95,6 +95,12 @@ Sections of this file:
 *	Always wrap ChrysaLisp `.md` documentation at 80 columns (do not wrap
 	source code blocks).
 
+*	A ```` ```lisp ```` block of a document is run, by the Docs app as its
+	page is drawn and by `tests/system/test_apps.lisp`, each in an
+	environment of its own: it imports what it uses and runs as it stands.
+	Code only to be read, an API's `(name args) -> result`, goes in
+	```` ```vdu ````.
+
 ## Documentation Index & AI Digest
 
 For comprehensive architectural guides, design rationale, and system
@@ -468,7 +474,17 @@ bits; `(nums-convert src dst [signed])` to and from numbers.
 	and `quant`. Of a fixed these are an error, so a fixed made a
 	double for one, as Sunclock does. `sys/math` has each as `:d_` and `:f_`,
 	and holds to the shader compiler's contract: only `:r0`-`:r2` and
-	`:d0`-`:d3` trashed, a value kept across a step in a stack slot.
+	`:d0`-`:d3` trashed, a value kept across a step in a stack slot. A
+	routine says what it trashes and keeps to it, its callers keep a value
+	in the rest: `q_sin` holds its constants in `:r2` over `f_sin`.
+	`d_sin` and `d_cos` are fdlibm's, brought to an eighth of a turn,
+	within an ulp or two, `cos 0` exactly 1.
+
+*	**Turns and going places:** `lib/math/quaternion.inc`, quaternions,
+	their product and turn of vec3s natives; `lib/nav/`, a graph and its
+	routes by A*, paths, and `Nav`, a thing that routes and follows, its
+	parts plugins, `docs/lisp/nav.md`. A pilot, a fish, a craft is a Nav,
+	not its own steering code.
 
 *	**`float`, `floats`:** 32 bit IEEE singles, a double's protocol at the
 	width of a GPU, worked in 32 bits. A `floats` element is 4 bytes.
