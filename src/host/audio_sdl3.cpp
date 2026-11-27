@@ -134,12 +134,13 @@ uint32_t host_audio_add_sfx(const char *filePath)
 	return handle;
 }
 
-int host_audio_play_sfx(uint32_t handle, int pan)
+int host_audio_play_sfx(uint32_t handle, int pan, int volume)
 {
-	// pan is -255 (full left) to 255 (full right), 0 is centre
+	// pan is -255 (full left) to 255 (full right), 0 is centre, volume 0
+	// (none) to 255 (all of it)
 	if (!stream) return -1;
 	SDL_LockAudioStream(stream);
-	int result = mixer_play(handle, pan);
+	int result = mixer_play(handle, pan, volume);
 	SDL_UnlockAudioStream(stream);
 	if (result == -1) fprintf(stderr, "Invalid handle\n");
 	return result;

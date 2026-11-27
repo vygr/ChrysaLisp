@@ -8,7 +8,7 @@
 	(dec-method :init :nil :virtual () (:r0))
 	(dec-method :deinit :nil :virtual ())
 	(dec-method :add :nil :virtual (:r0) (:r0))
-	(dec-method :play :nil :virtual (:r0 :r1) (:r0))
+	(dec-method :play :nil :virtual (:r0 :r1 :r2) (:r0))
 	(dec-method :change :nil :virtual (:r0 :r1) (:r0))
 	(dec-method :remove :nil :virtual (:r0) (:r0))
 	(dec-method :mic_open :nil :virtual () (:r0))

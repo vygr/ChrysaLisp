@@ -281,10 +281,12 @@ static uint32_t mixer_add(float *samples, int frames)
 	return handle;
 }
 
-// play a sound, pan is -255 (full left) to 255 (full right), 0 is centre.
-// Returns 0, or -1 for a handle that is not a sound.
+// play a sound, pan is -255 (full left) to 255 (full right), 0 is centre,
+// volume 0 (none) to 255 (all of it): the gains of its two sides, the pan
+// the share of each, the volume of both. Returns 0, or -1 for a handle that
+// is not a sound.
 
-static int mixer_play(uint32_t handle, int pan)
+static int mixer_play(uint32_t handle, int pan, int volume)
 {
 	const MixerSound *sfx = mixer_find(handle);
 	if (!sfx) return -1;
@@ -301,10 +303,13 @@ static int mixer_play(uint32_t handle, int pan)
 	}
 	if (pan < -255) pan = -255;
 	if (pan > 255) pan = 255;
+	if (volume < 0) volume = 0;
+	if (volume > 255) volume = 255;
+	float gain = volume / (255.0f * 255.0f);
 	voice->sfx = sfx;
 	voice->position = 0;
-	voice->left = (pan > 0 ? 255 - pan : 255) / 255.0f;
-	voice->right = (pan < 0 ? 255 + pan : 255) / 255.0f;
+	voice->left = (pan > 0 ? 255 - pan : 255) * gain;
+	voice->right = (pan < 0 ? 255 + pan : 255) * gain;
 	voice->paused = false;
 	voice->started = ++mixer_play_count;
 	return 0;

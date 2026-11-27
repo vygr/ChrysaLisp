@@ -313,21 +313,21 @@
 
 	(structure slot 0
 		(ptr this)
-		(long c_handle c_pan c_ret))
+		(long c_handle c_pan c_volume c_ret))
 
 	(entry :host_audio :lisp_play '(:r0 :r1))
 
-	;check 2 args with given types
-	(gotoif-lisp-args-sig 'error :r1 2)
+	;check 3 args with given types
+	(gotoif-lisp-args-sig 'error :r1 3)
 
 	;allocate stack for locals
 	(vp-alloc slot_size)
 	;save lisp `this`
 	(assign '(:r0) '((:rsp slot_this)))
 	;cast input numeric args
-	(list-bind-args :r1 '(:r1 :r2) '(:num :num))
+	(list-bind-args :r1 '(:r1 :r2 :r3) '(:num :num :num))
 	;save them so kernel callback can see them
-	(save-fields :rsp '(slot_c_handle slot_c_pan) '(:r1 :r2))
+	(save-fields :rsp '(slot_c_handle slot_c_pan slot_c_volume) '(:r1 :r2 :r3))
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
@@ -346,15 +346,15 @@
 	;kernel callback
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :play '((:r0 slot_c_handle) (:r0 slot_c_pan)) '(:r0))
+	(host-audio-call :host_audio :play '((:r0 slot_c_handle) (:r0 slot_c_pan) (:r0 slot_c_volume)) '(:r0))
 	(vp-pop :r1)
 	(assign '(:r0) '((:r1 slot_c_ret)))
 	(exit :sys_task :task_callback '())
 	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(audio-play handle pan)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM))
+	(jump :lisp :repl_error '(:r1 "(audio-play handle pan volume)" +error_msg_wrong_types))
+	(signature '(:NUM :NUM :NUM))
 
 (def-func-end)
 

@@ -91,8 +91,9 @@ uint32_t host_audio_add_sfx(const char* filePath) {
     return handle;
 }
 
-int host_audio_play_sfx(uint32_t handle, int pan) {
-    // pan is -255 (full left) to 255 (full right), 0 is centre
+int host_audio_play_sfx(uint32_t handle, int pan, int volume) {
+    // pan is -255 (full left) to 255 (full right), 0 is centre, volume 0
+    // (none) to 255 (all of it)
     for (int i = 0; i < sfxCount; ++i) {
         if (soundEffects[i].handle == handle) {
             int channel = Mix_PlayChannel(-1, soundEffects[i].chunk, 0); // Play on any available channel
@@ -101,6 +102,9 @@ int host_audio_play_sfx(uint32_t handle, int pan) {
                 if (pan > 255) pan = 255;
                 // 255, 255 also clears any pan left on a reused channel
                 Mix_SetPanning(channel, pan > 0 ? 255 - pan : 255, pan < 0 ? 255 + pan : 255);
+                if (volume < 0) volume = 0;
+                if (volume > 255) volume = 255;
+                Mix_Volume(channel, volume * MIX_MAX_VOLUME / 255);
             }
             return 0;
         }

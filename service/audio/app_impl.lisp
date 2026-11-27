@@ -65,8 +65,10 @@
 						(audio-reply handle))
 					(+audio_type_play
 						; Play sound effect
-						(audio-call play (getf msg +audio_play_handle)
-							(getf msg +audio_play_pan)))
+						;as loud as asked, all of it from an app of before that
+						;did not say
+						(audio-call play (getf msg +audio_play_handle) (getf msg +audio_play_pan)
+							(if (>= (length msg) +audio_play_size) (getf msg +audio_play_volume) +audio_loudest)))
 					(+audio_type_change
 						; Change playing state
 						(audio-call change (getf msg +audio_change_handle)

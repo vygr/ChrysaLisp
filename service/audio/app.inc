@@ -16,10 +16,13 @@
 	(uint retval))
 
 ; audio_play - params
-; pan is -255 (full left) to 255 (full right), 0 is centre
+; pan is -255 (full left) to 255 (full right), 0 is centre, volume 0 (none)
+; to 255 (all of it), at the end, so a message of before, without it, is
+; still read, played as loud as it is
 (structure +audio_play +audio_rpc_size
 	(uint handle)
-	(int pan))
+	(int pan)
+	(uint volume))
 
 ; audio_change - params
 (structure +audio_change +audio_rpc_size
@@ -37,7 +40,9 @@
 ;listen again before +audio_lease is out, or is let go, and a stream not
 ;written to for that long is closed: what is on another node can not be
 ;asked if it is still there, so it has to say so
-(defq +audio_rate 16000 +audio_lease 5000000)
+(defq +audio_rate 16000 +audio_lease 5000000
+	;the loudest a sound is played, all of it
+	+audio_loudest 255)
 
 ; audio_listen, audio_hush - params, who is to be sent what is heard
 (structure +audio_listen +audio_rpc_size
@@ -79,15 +84,20 @@
 			(setq handle (getf reply +audio_ret_retval))))
 	handle)
 
-(defun audio-play-rpc (handle &optional pan)
-	; (audio-play-rpc handle [pan])
+(defun audio-play-rpc (handle &optional pan volume)
+	; (audio-play-rpc handle [pan volume])
+	;a sound played, from a side, pan -255 full left to 255 full right, 0
+	;the middle if not said, and as loud as volume, 0 none to 1 all of it,
+	;all if not said
 	(when (defq service (audio-service))
 		(defq mbox (mail-mbox))
 		(mail-send service (setf-> (str-alloc +audio_play_size)
 				(+audio_rpc_reply_id mbox)
 				(+audio_rpc_type +audio_type_play)
 				(+audio_play_handle handle)
-				(+audio_play_pan (ifn pan 0))))
+				(+audio_play_pan (ifn pan 0))
+				(+audio_play_volume (if volume (max 0 (min +audio_loudest (n2i (* volume (const (n2d +audio_loudest))))))
+					+audio_loudest))))
 		(mail-read-timeout mbox)))
 
 (defun audio-change-rpc (handle state)
