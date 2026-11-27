@@ -30,8 +30,11 @@
 	+shove_rate (n2d 10)
 	;a buoy at a swarm moved to another when its own has gone: under what
 	;hazard it is calm, for how many looks running, and how far round a big
-	;rock its cluster's rocks count as there
+	;rock its cluster's rocks count as there; one brought to a cluster in
+	;sight with none, how far past where buoys are drawn it starts, and how
+	;fast it comes, a second
 	+buoy_calm +double_1/20 +calm_looks 50 +crowd_round (n2d 120)
+	+bring_beyond (n2d 10) +bring_speed (n2d 45)
 	;a buoy goes nuclear in a heap too crowded to draw: how many rocks round
 	;it, within +buoy_round, are too many, for how many looks running, and
 	;how far round it the small rocks are shattered
@@ -92,7 +95,7 @@
 	;cluster keeps its middle; how hard the pieces drift apart, a second,
 	;and how far out from where it broke they start, of their reach, half
 	;in each other, the shove of their meeting easing them apart
-	rock_hits :nil +hit_bulk (n2d 12) +piece_least +double_4 +core_least (n2d 20) +split_kick +double_2 +split_off (n2d 0.3)
+	rock_hits :nil +hit_bulk (n2d 12) +piece_least +double_8 +core_least (n2d 20) +split_kick +double_2 +split_off (n2d 0.3)
 	+third (/ +double_1 +double_3)
 	;when each rock's pieces stop parting, and for how long after a break
 	;they part, shoved apart but so little of the way each time
@@ -103,18 +106,18 @@
 	;on, and would come from nowhere
 	+fade_near (* +field (n2d 0.30)) +fade_far (* +field (n2d 0.47)) +rock_far (* +field (n2d 0.48)))
 
-;the numbers of the functions below: the steps of (rnd); a rock's patch
-;of the surface, the least and the spread past it; the most a rock
-;tumbles; the gap round a cluster's big rock its small ones orbit in and
-;its spread, how much of an orbit's speed they hold and its spread, and
-;how far off it they wander; the size of a big rock, of a small one, and
+;the numbers of the functions below: the steps of (rnd), and of a second,
+;microseconds; a rock's patch of the surface, the least and the spread
+;past it; the most a rock tumbles; the gap round a cluster's big rock its
+;small ones orbit in and its spread, how much of an orbit's speed they
+;hold and its spread, and how far off it they wander; the size of a big rock, of a small one, and
 ;of a loner, and a loner's drift; the most a blast turns a rock; how far
 ;behind the eye, in its sizes, a rock is still near; the weight of a
 ;heading's way off on the tour; the gap off a cluster a buoy keeps
 ;station at and its spread, and its least drift; how near past a rock's
 ;reach a buoy pushes it off; the hazard of a crowd, how many is the most
 ;of it, and the hazard of a rock close
-(defq +rnd_steps (n2d 1000000) +patch_least (n2d 0.06) +patch_spread (n2d 0.12)
+(defq +rnd_steps (n2d 1000000) +micro (n2d 1000000) +patch_least (n2d 0.06) +patch_spread (n2d 0.12)
 	+tumble_most (n2d 0.35) +orbit_gap (n2d 15) +orbit_spread (n2d 90) +orbit_hold_least (n2d 0.75)
 	+orbit_hold_spread (n2d 0.35) +orbit_wander (n2d 0.8) +big_least (n2d 35) +big_spread (n2d 25)
 	+small_least +double_4 +small_spread (n2d 16) +loner_least +double_5 +loner_spread (n2d 55)
@@ -227,6 +230,13 @@
 		((> v (const (* +field +double_1/2))) (- v +field))
 		((< v (const (* +field +double_-1/2))) (+ v +field))
 		(v)))
+
+(defun way-from-eye (at eye)
+	; (way-from-eye at eye) -> doubles
+	;the way from the eye to a place, the shortest, as the box goes on every
+	;way
+	(doubles (near-way (- (first at) (first eye))) (near-way (- (second at) (second eye)))
+		(near-way (- (third at) (third eye)))))
 
 (defun out-of-sight? (at eye far)
 	; (out-of-sight? at eye far) -> :t | :nil
@@ -374,6 +384,11 @@
 	(rock-push drift dx dy dz (* by bulk_j bulk_j bulk_j))
 	(rock-push drift_j dx dy dz (neg (* by bulk bulk bulk))))
 
+(defun rock-parting? (i now)
+	; (rock-parting? i now) -> :t | :nil
+	;is rock i a piece of a rock just broken, still parting
+	(and rock_parting (< i (length rock_parting)) (> (elem-get rock_parting i) now)))
+
 (defun rocks-blast (x y z from to &optional reach strength calm)
 	; (rocks-blast x y z from to [reach strength calm]) -> num
 	;a blast at x y z, its front of pressure gone on from from to to out
@@ -385,12 +400,14 @@
 	;spin it has, or about a way across the way out if it has none. How many it moved. Nothing is
 	;broken, the rocks only go. Of +blast_reach and +blast_strength if not
 	;said, a missile's. A calm blast, a nuke's, first takes each rock's
-	;spin down to +blast_calm of it, so a heap it breaks settles
-	(defq moved 0 reach (ifn reach +blast_reach) strength (ifn strength +blast_strength))
+	;spin down to +blast_calm of it, so a heap it breaks settles. The pieces
+	;of a rock just broken, parting, it passes over
+	(defq moved 0 reach (ifn reach +blast_reach) strength (ifn strength +blast_strength) now (pii-time))
 	(each (lambda ((at drift bulk & spin &ignore))
 			(defq dx (near-way (- (first at) x)) dy (near-way (- (second at) y)) dz (near-way (- (third at) z))
 				d (sqrt (+ (* dx dx) (* dy dy) (* dz dz) +double_1)))
-			(when (and (>= d from) (< d to) (< d reach))
+			;the pieces of a rock just broken left where they are, to be hit again
+			(when (and (>= d from) (< d to) (< d reach) (not (rock-parting? (!) now)))
 				(defq by (/ (* strength (- +double_1 (/ d reach))) bulk))
 				(rock-push drift dx dy dz (/ by d))
 				(if calm (each! (lambda (v) (elem-set spin (!) (* v +blast_calm))) (list spin) 0 3))
@@ -511,9 +528,10 @@
 (defun make-buoys ()
 	; (make-buoys) -> buoys
 	;the marker buoys of the field, each (at drift hazard colour station
-	;calm over armed), calm how many looks running it has read calm, over
-	;how many it has read too crowded, buoy-look, and armed when it was
-	;armed to go nuclear, 0 if not, the app's:
+	;calm over armed coming), calm how many looks running it has read calm,
+	;over how many it has read too crowded, buoy-look, armed when it was
+	;armed to go nuclear, 0 if not, the app's, and coming when it comes to
+	;its station, buoys-bring, 0 if it is not coming:
 	;most at the swarms, a buoy keeping station at each of the first
 	;clusters, station its number, buoy-station, and a few in open space
 	;between, marking the safe way, drifting slowly. Their hazard is 0 till
@@ -521,11 +539,11 @@
 	(defq out (list))
 	(each! (lambda (members)
 			(bind '(at drift) (buoy-station members))
-			(push out (list at drift +double_0 (cat +buoy_green) (!) 0 0 0)))
+			(push out (list at drift +double_0 (cat +buoy_green) (!) 0 0 0 0)))
 		(list clusters) 0 (min +buoys_at_swarms (length clusters)))
 	(while (< (length out) +buoys)
 		(push out (list (doubles (* (rnd) +field) (* (rnd) +field) (* (rnd) +field))
-			(nums-scale (rnd-way) (+ +buoy_drift_least (rnd))) +double_0 (cat +buoy_blue) :nil 0 0 0)))
+			(nums-scale (rnd-way) (+ +buoy_drift_least (rnd))) +double_0 (cat +buoy_blue) :nil 0 0 0 0)))
 	out)
 
 (defun rgb-mix (a b t)
@@ -535,8 +553,13 @@
 (defun buoys-move (dt)
 	;each buoy on by its drift, kept in the box, and its light's colour eased
 	;toward the colour of its hazard, calm green at a swarm, ice blue in
-	;open space
-	(each (lambda ((at drift hazard colour station &ignore))
+	;open space; one come to its station, buoys-bring, drifting with its
+	;cluster's big rock from then
+	(defq now (pii-time))
+	(each (lambda ((at drift hazard colour station & & & coming) buoy)
+			(when (and (/= coming 0) (> now coming))
+				(elem-set buoy 8 0)
+				(each! (lambda (v) (elem-set drift (!) v)) (list (second (elem-get rocks (first (elem-get clusters station)))))))
 			(each! (lambda ()
 					(defq i (!) v (+ (elem-get at i) (* (elem-get drift i) dt)))
 					(elem-set at i (cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))))
@@ -546,7 +569,7 @@
 					(rgb-mix +buoy_yellow +buoy_red (* (- hazard +double_1/2) +double_2)))
 				k (min +double_1 (* dt +buoy_ease)))
 			(each! (lambda (w c) (elem-set colour (!) (+ c (* k (- w c))))) (list want colour)))
-		buoys))
+		buoys buoys))
 
 (defun buoy-look (i)
 	;a buoy's hazard, 0 to 1, of the rocks round it, how many within
@@ -611,6 +634,39 @@
 				dz (near-way (- (third rock_at) (third at))))
 			(if (< (+ (* dx dx) (* dy dy) (* dz dz)) (* round round)) (inc n) n))
 		(list members) 0 1 -1))
+
+(defun buoys-bring (eye far)
+	; (buoys-bring eye far)
+	;the nearest cluster in sight with no buoy given one, from out of sight,
+	;further from the eye than far: one at a swarm gone calm, else one in
+	;open space; put out past where buoys are drawn, beyond the cluster from
+	;the eye, and flown in to its station, as fast as +bring_speed, so it is
+	;seen to come; one at a time
+	(unless (some (# (/= (elem-get %0 8) 0)) buoys)
+		(defq taken (map (# (elem-get %0 4)) buoys) best :nil best_far +rock_far)
+		(each (lambda (members)
+				(defq to (way-from-eye (first (elem-get rocks (first members))) eye) by (sqrt (nums-dot to to)))
+				(and (not (find (!) taken)) (< by best_far) (setq best (!) best_far by)))
+			clusters)
+		(defq gone (some (lambda (buoy)
+				(and (elem-get buoy 4) (>= (elem-get buoy 5) +calm_looks) (out-of-sight? (first buoy) eye far) buoy))
+			buoys))
+		(unless gone
+			(setq gone (some (lambda (buoy) (and (not (elem-get buoy 4)) (out-of-sight? (first buoy) eye far) buoy))
+				buoys)))
+		(when (and best gone)
+			(bind '(at drift) (buoy-station (elem-get clusters best)))
+			(defq to (way-from-eye at eye) by (sqrt (nums-dot to to))
+				from (nums-add eye (nums-scale to (/ (+ +rock_far +bring_beyond) (max by +double_1))))
+				long (/ (- (+ +rock_far +bring_beyond) by) +bring_speed))
+			(each! (lambda (v) (elem-set (first gone) (!) (cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))))
+				(list from))
+			(each! (lambda (v) (elem-set (second gone) (!) v))
+				(list (nums-add drift (nums-scale (nums-sub to (nums-sub from eye)) (recip long)))))
+			(elem-set gone 2 +double_0)
+			(elem-set gone 4 best)
+			(elem-set gone 5 0)
+			(elem-set gone 8 (+ (pii-time) (n2i (* long +micro)))))))
 
 (defun buoys-restation (eye far)
 	;a buoy at a swarm that has read calm for +calm_looks looks running,
@@ -700,8 +756,10 @@
 	;a rock a missile has hit straight on: one hit more, and if it has
 	;taken as many as one for each +hit_bulk of its size, broken: into two
 	;or three of the next size down, rocks borrowed from out of sight,
-	;loners of no cluster first, (rock-donors), of its kind, flying apart from where it was and
-	;of its cluster, it sent away out of sight as it is; but a cluster's
+	;loners of no cluster first, (rock-donors), of its kind, flying apart
+	;from where it was and of its cluster, it sent away out of sight and
+	;made a small rock, so the field keeps its sizes, its big rock's bulk
+	;in the pieces and a small rock for those borrowed; but a cluster's
 	;big rock one of the pieces itself, no smaller than its least, so its
 	;cluster keeps its middle, only knocked about after; with none to
 	;borrow, it only made smaller. One whose pieces would be smaller than
@@ -725,7 +783,8 @@
 			(cond
 				((empty? donors) (rock-resize world i piece))
 				(core (rock-resize world i piece) (elem-set rock_parting i (+ (pii-time) +part_long)))
-				(:t (rock-leave i) (rock-away i eye far)))
+				(:t (rock-leave i) (rock-away i eye far)
+					(rock-resize world i (+ +small_least (* +small_spread (rnd) (rnd))))))
 			(each (lambda (j)
 					(bind '(at_j drift_j & & spin_j & shove_j) (elem-get rocks j))
 					(defq way (rnd-way) off (* piece (elem-get kind_reach kind) +split_off))
@@ -804,7 +863,7 @@
 	+rock_kinds +rock_count +field +clusters +meet_parts +rock_far +fade_near +fade_far
 	+buoys +buoy_red +buoy_green +buoy_blue +calm_looks +nuke_looks +rim_most +spin_most
 	+blast_front +blast_reach +blast_strength
-	rnd rnd-way near-way out-of-sight? make-rocks make-buoys rock-at rock-spin rock-strike
+	rnd rnd-way near-way way-from-eye out-of-sight? make-rocks make-buoys rock-at rock-spin rock-strike
 	rock-turned rocks-blast rocks-hit rocks-world rocks-collide rocks-move rocks-nuke clusters-refresh
-	cluster-again buoy-look buoys-move buoys-restation thread-start thread-step))
+	cluster-again buoy-look buoys-move buoys-bring buoys-restation thread-start thread-step))
 (env-pop)

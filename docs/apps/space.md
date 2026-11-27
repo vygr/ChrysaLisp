@@ -39,7 +39,8 @@ behind it.
   colour; and its glow round its lamp. Polished metal that mirrors the sky
   round it as it is drawn, the nebula, the Pillars and the stars, and the
   sun. A buoy turns, slowly, when it must, to keep its lamp toward
-  the ship's side of it.
+  the ship's side of it. A cluster in sight with no buoy has one flown in
+  to it from out of sight.
 
 * The field keeps itself in hand: a buoy in a heap too crowded, 18 rocks
   or more round it look after look, and in view, arms, sounds a klaxon,
@@ -58,17 +59,25 @@ behind it.
   face, a small rock far and a big one little, and tumbling end over end
   away from it; the rock it strikes spun by where it is struck, hard off
   its middle and not at all through it, hit on hit spinning it up, a big
-  rock the slower, as it is the heavier. Nothing is broken: a cluster is
-  blown apart, and its rocks go, crunch into others, or are pulled together
-  again. The blast flashes, lights the rocks round it before any buoy's
-  light, throws out grains and is heard.
+  rock the slower, as it is the heavier. A rock struck straight on enough
+  times for its size breaks into two or three of the next size down, the
+  pieces half in each other as they start and parting slowly, a spray of
+  grains between them; the smallest shatter at the first hit. The pieces
+  are rocks borrowed from out of sight, and the rock broken is sent off out
+  of sight as a small one, so the field keeps its count and its sizes, and
+  its frames. The blast flashes, lights the rocks round it before any
+  buoy's light, throws out grains and is heard.
 
-* Two ways of flying, sharing what keeps clear of the rocks. Auto pilot is a
-  tour guide: of the headings round the way it wants that are safe it takes
-  the one through the tightest gap, and it seeks out the big rocks ahead,
-  one after another, not coming back to one it has been to for a while.
-  Mouse is steered by the pointer, the safe heading nearest the way it
-  points taken.
+* The ship goes by thrust: thrust pushes it on, and drag slows it to a stop
+  without, so it can stand and look. A rock blocks it, and it slides off.
+
+* Two ways of flying. Auto pilot is a tour guide: of the headings round the
+  way it wants that are safe it takes the one through the tightest gap,
+  and it seeks out the big rocks ahead, one after another, not coming back
+  to one it has been to for a while, and now and then turns round for the
+  biggest cluster near. It burns as it needs, coasting between, turns
+  before it goes, and bumped head on, turns away and goes for another.
+  Mouse is steered by the pointer, straight where it points.
 
 ## Using it
 
@@ -76,14 +85,13 @@ behind it.
   song after, of the user's Jukebox favourites, the ones it has kept.
 * The window's max and min buttons: 1024 by 768 and 640 by 480.
 * In Mouse mode the pointer is the stick: left and right of the middle to
-  turn, above and below to climb and dive, off the picture to fly straight.
+  turn, above and below to climb and dive, gently near the middle and hard
+  at the edge, off the picture to fly straight.
 * A click on the picture fires a missile through where it is clicked, in
   either way of flying; three may be out at once.
-* The right button held over the picture is a boost: the ship speeds up to
-  two and a half times its cruise, and eases back when it is let go, a
-  roar rising and dying away with it. What
-  keeps clear of the rocks looks as far ahead in time at any speed, so it
-  takes wider gaps at a boost, the ship turning no faster.
+* The right button held over the picture is thrust, in either way of
+  flying: the ship speeds up, a roar rising with it, and when it is let go
+  drag slows it, the roar dying away.
 
 The way of flying, the size, the music and the detail are kept in the user's
 `space.tre`.
@@ -128,9 +136,9 @@ least, so the app has a third of its node and what is beside it the rest.
 * `data/`: the pictures and sounds, and how each is made, its `README.md`.
   Each is made by a bake of its own, `bake_nebula.lisp`, `bake_stars.lisp`,
   `bake_crunch.lisp`, `bake_levels.lisp`, `bake_thrust.lisp` and
-  `bake_klaxon.lisp`. The roar of
-  a boost is written to a stream of the audio service as the ship speeds
-  up, a stretch of its loop each frame as loud as the boost is.
+  `bake_klaxon.lisp`. The roar of thrust is written to a stream of the
+  audio service as the ship thrusts, a stretch of its loop each frame as
+  loud as the thrust is.
 
 The rocks meet in twelve parts, a part a frame, so each pair is met once in
 twelve frames. A rock that has sunk into another by then is not jumped out

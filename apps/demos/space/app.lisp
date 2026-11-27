@@ -9,6 +9,7 @@
 (import "./sky.inc")
 (import "./rock.inc")
 (import "./field.inc")
+(import "./visitor.inc")
 (import "apps/media/jukebox/music.inc")
 (import "service/audio/app.inc")
 (import "lib/audio/wav.inc")
@@ -45,19 +46,18 @@
 	+spread_y +double_1/2 +near +double_1 +far (n2d 2000)
 	;how fast the eye turns round of itself, a second, when the pointer is
 	;not over the picture; and with it, the middle of the picture it does
-	;nothing in, and how fast at most it turns and pitches for the pointer
-	;at an edge, a second
-	+drift (n2d 0.04) +dead +double_1/10 +stick_rate (n2d 0.9)
-	;flying: how fast at most it turns, a second, how soon it comes to the
-	;turn it wants, how hard a rock in the way turns it, how far it leans
-	;into a turn, and how soon it comes upright again; the auto pilot, how
-	;far off a swarm it visits, how long it keeps to one, and how hard it
-	;turns for it
-	+turn_most (n2d 0.45) +turn_ease +double_1 +lean +double_1/2 +upright (n2d 0.4)
+	;nothing in, and how soon its turn comes to what the pointer asks, a
+	;second, quick so it does not go on past it
+	+drift (n2d 0.04) +dead +double_1/10 +stick_ease +double_4
+	;flying: how fast at most it turns, a second, how hard a rock in the way
+	;turns it, how far it leans into a turn, and how soon it comes upright
+	;again; the auto pilot, how far off a swarm it visits, how long it keeps
+	;to one, and how hard it turns for it
+	+turn_most (n2d 0.45) +lean +double_1/2 +upright (n2d 0.4)
 	;how stiff the spring of the auto pilot's turn, a second, damped just
 	;enough not to go past its heading, and how small a turn is none
 	+auto_settle (n2d 1.0) +turn_tiny (/ +double_1 (n2d 1000000))
-	+visit_far (n2d 480) +visit_long 20000000
+	+visit_far (n2d 480) +visit_long 40000000
 	;of how many choices of a rock to visit one is wide, a tour guide's turn
 	;round to the biggest cluster near, wherever it is
 	+visit_wide_one 3
@@ -75,6 +75,13 @@
 	buoy_files (list (cat *app_root* "rock_vertex.shader") (cat *app_root* "buoy_lit.shader"))
 	missile_files (list (cat *app_root* "rock_vertex.shader") (cat *app_root* "missile_lit.shader"))
 	glow_files (list (cat *app_root* "glow_vertex.shader") (cat *app_root* "glow_lit.shader"))
+	;the visitor, visitor.inc: Flight's craft's vertex shader and Space's own
+	;metal, and Flight's beam
+	visitor_files (list "apps/demos/flight/craft_vertex.shader" (cat *app_root* "visitor_lit.shader"))
+	beam_files (list (cat *app_root* "beam_vertex.shader") (cat *app_root* "beam_lit.shader"))
+	;its parts' meshes from +mesh_visitor on, by their numbers of Flight's,
+	;which have come, the beam's, and what its parts are asked of the farm by
+	+mesh_visitor 40 visitor_had (list :nil :nil :nil :nil) +mesh_beam 39 +visitor_ask 100
 	;the meshes, by their numbers, the rocks' kinds from +mesh_rock on
 	+mesh_sky 1 +mesh_glow 6 +mesh_rock 10
 	;the marker buoys: their mesh, after the rocks', whether it has come,
@@ -115,9 +122,11 @@
 	+nuke_reach (n2d 360) +nuke_strength (n2d 1200) +nuke_life 2500000
 	+nuke_light (doubles (n2d 7) (n2d 5.5) (n2d 4)) +nuke_glow (n2d 500) +nuke_sprays 14
 	+debris_least +double_1/2 +debris_far (n2d 0.005) blast_lamps (list) blast_glows (list) pressed 0
-	;the ship's speed eased to a boost's while the right button is held and
-	;back to cruising after: whether it is held, the boost's speed, and how
-	;fast it eases up and down, a second; and the buttons' bits
+	;the ship's thrust and drag: whether the right button is held, whether
+	;the auto pilot burns, how hard thrust pushes, a second a second, and
+	;how much of its speed drag takes, a second, so it slows by itself, its
+	;speed under thrust held at most the push over the drag; and the
+	;buttons' bits
 	;the boost's roar: its loop's samples, data/thrust.wav, the stream it
 	;is played on, where in the loop it is, its rate, how far ahead of what
 	;is heard it is kept, how loud at most, how loud now, eased up as the
@@ -125,12 +134,19 @@
 	;second, and how fast it dies, a share a second, as a sound does
 	thrust_pcm :nil thrust_stream :nil thrust_at 0 +thrust_rate 22050 +thrust_ahead 1100
 	+thrust_loud (n2d 0.8) thrust_gain +double_0 +thrust_up +double_6 +thrust_down (n2d 1.7)
-	boosting :nil +boost (n2d 60) +boost_up (n2d 1.2) +boost_down (n2d 0.8)
+	boosting :nil burning :nil +thrust_push (n2d 24) +drag (n2d 0.4)
 	+left_button 1 +right_button 4
 	+spray_life 2500000 +spray_most 24
-	;the ship's cruising speed, a second, and its speed now, the farm that
-	;makes the rocks and which kinds have come; the field is field.inc
-	+cruise (n2d 24) ship_speed +cruise jobs :nil kinds_had (map! (lambda () :nil) '() 0 +rock_kinds)
+	;the auto pilot's speed, a second, its speed as a visitor is watched,
+	;the share of it it lets the ship slow to before it burns again, and the
+	;least speed the way through the rocks is looked for at; how near a rock
+	;the ship may come, how square to it a bump is head on, and how long and
+	;how hard the auto pilot turns away after; the ship's speed now, the
+	;farm that makes the rocks and which kinds have come; the field is
+	;field.inc
+	+cruise (n2d 24) +watch_speed (n2d 3) +burn_from (n2d 0.4) +thread_least (n2d 12)
+	+ship_reach (n2d 4) +bump_head_on +double_1/2 +bump_long 2000000 +bump_back (n2d 1.5)
+	ship_speed +cruise jobs :nil kinds_had (map! (lambda () :nil) '() 0 +rock_kinds)
 	;the part of the rocks met this frame, and their world of collide,
 	;lib/collide, refiled each round
 	part 0 world :nil
@@ -173,8 +189,9 @@
 	;and up, or :nil when it is not
 	forward :nil up :nil turned 0 stick :nil
 	;how fast it is turning across and up, a second, eased; the big rock it
-	;is visiting, and since when
-	yaw +double_0 pitch +double_0 visit :nil visit_since 0 visit_wide :nil
+	;is visiting, and since when; when the ship last bumped a rock head on,
+	;and the way to it
+	yaw +double_0 pitch +double_0 visit :nil visit_since 0 visit_wide :nil bumped 0 bump_way :nil
 	turn_spin (doubles +double_0 +double_0 +double_0)
 	;the big rocks visited, by number, and when, so the tour moves on
 	visited (Fmap 31)
@@ -270,6 +287,11 @@
 		(setq canvas square))
 	(. (shader-strip-picture canvas) :swap +swap_write))
 
+(defun stick-bend (v)
+	; (stick-bend v) -> double
+	;how hard a stick turns, past the dead middle, squared, its sign kept
+	(* (setq v (beyond-dead v)) (abs v)))
+
 (defun beyond-dead (v)
 	; (beyond-dead v) -> double
 	;how far past the dead middle a stick is, -1 to 1, 0 in it
@@ -314,6 +336,9 @@
 				rocks)))
 		(if visit (. visited :insert visit now)))
 	(cond
+		((< (- now bumped) +bump_long)
+			;bumped a rock head on: away from it, back and aside, a while
+			(sky-unit (nums-sub forward (nums-scale bump_way +bump_back))))
 		(visit
 			;toward a place just beside it, out from it across the ship's way,
 			;so the ship goes through the swarm round it
@@ -385,7 +410,7 @@
 	;what is wanted, and no faster than a ship turns, leaning into a turn
 	;and upright again of the sky's up
 	(defq want_yaw (* (nums-dot heading right) +head_turn) want_pitch (* (nums-dot heading up) +head_turn))
-	(defq k (min +double_1 (* dt +turn_ease)))
+	(defq k (min +double_1 (* dt +stick_ease)))
 	(setq yaw (+ yaw (* k (- (max (neg +turn_most) (min +turn_most want_yaw)) yaw)))
 		pitch (+ pitch (* k (- (max (neg +turn_most) (min +turn_most want_pitch)) pitch))))
 	(defq a (* yaw dt) b (* pitch dt)
@@ -405,33 +430,48 @@
 			(min +double_1 (* dt +upright +double_2 (- level_by +double_1/2)))))))
 	(setq up (sky-unit (sky-cross (sky-cross forward up) forward))))
 
+(defun ship-burn (dt)
+	; (ship-burn dt)
+	;the auto pilot's thrust: a burn up to the speed it wants, then coasting
+	;as drag slows the ship, until it is down to a share of it and it burns
+	;again. It wants its speed the more the ship faces its heading, so it
+	;turns first and goes after, and hardly any as it watches a visitor, the
+	;time it keeps to the rock it visits held as it does
+	(defq watching (find visit_phase '(:come :pace :probe :startled))
+		want (if watching +watch_speed (* +cruise (max +double_0 (nums-dot forward heading)))))
+	(if watching (setq visit_since (+ visit_since (n2i (* dt +second)))))
+	(setq burning (and (eql mode :auto)
+		(if burning (< ship_speed want) (< ship_speed (* want +burn_from))))))
+
 (defun turn-eye ()
 	; (turn-eye) -> dt
 	;the eye turned, across about its up and up and down about its across,
 	;toward a heading chosen through the rocks, rocks-thread, round the way
-	;the pointer or the auto pilot wants, whichever steers. The turn is eased
-	;to what is wanted, and no faster than a ship turns. It leans into a
+	;the auto pilot wants, or straight where the pointer is, which steers.
+	;The turn is eased to what is wanted, and no faster than a ship turns. It leans into a
 	;turn, and comes upright again of the galaxy's up. Its ways are made
 	;square and of length 1 again, so they do not drift. The seconds since
 	;last time
 	(defq now (pii-time) dt (min (/ (n2d (- now turned)) +second) +dt_most)
 		right (sky-cross forward up))
 	(setq turned now)
-	;a heading chosen through the rocks round the way wanted, the pointer's,
-	;or the auto pilot's, which threads the needle: a choice a few frames
-	;long, a few headings a frame, the next begun as one is made
-	(unless thread
-		(setq thread (thread-start eye ship_speed
-			(if (eql mode :mouse)
-				(if stick (sky-unit (nums-add forward (nums-add (nums-scale right (* (beyond-dead (first stick)) +stick_reach))
-						(nums-scale up (* (beyond-dead (second stick)) +stick_reach)))))
-					forward)
-				(visit-want right))
-			right up (eql mode :auto) heading)))
-	(defq step (thread-step thread +choose_count))
-	(if (nums? step) (setq heading step thread :nil) (setq thread step))
-	(unless heading (setq heading forward))
-	(if (eql mode :auto) (auto-turn dt right) (pointer-turn dt right))
+	;the pointer's way, as far off the middle as it is, squared, so a
+	;little is gentle and the edge is the most; or a heading chosen through
+	;the rocks round the auto pilot's way, threading the needle: a choice a
+	;few frames long, a few headings a frame, the next begun as one is made
+	(cond
+		((eql mode :mouse)
+			(setq thread :nil heading (if stick
+				(sky-unit (nums-add forward (nums-add (nums-scale right (* (stick-bend (first stick)) +stick_reach))
+					(nums-scale up (* (stick-bend (second stick)) +stick_reach)))))
+				forward))
+			(pointer-turn dt right))
+		(:t (unless thread
+				(setq thread (thread-start eye (max ship_speed +thread_least) (visit-want right) right up :t heading)))
+			(defq step (thread-step thread +choose_count))
+			(if (nums? step) (setq heading step thread :nil) (setq thread step))
+			(unless heading (setq heading forward))
+			(auto-turn dt right)))
 	dt)
 
 (defun view-sides (right up spread_x)
@@ -570,7 +610,7 @@
 	;flashing the faster the greater its hazard, each in its own time
 	(defq now (/ (n2d (pii-time)) +second))
 	(bind '(ex ey ez) eye)
-	(setq lamps (map (lambda ((at & hazard colour & & & armed))
+	(setq lamps (map (lambda ((at & hazard colour & & & armed &ignore))
 			(defq rate (+ +flash_least (* hazard (- +flash_most +flash_least)))
 				beat (+ (* now rate) (* (n2d (!)) +beat_apart))
 				on (< (- beat (floor beat)) (* rate +flash_long)))
@@ -602,9 +642,10 @@
 	;written to its stream ahead of what is heard, between +thrust_ahead and
 	;twice that, none when it has died away. A stream not written to for a
 	;while is let go of by the audio service, and is opened again
-	(and boosting (< thrust_gain +thrust_quiet) thrust_pcm
+	(defq thrusting (or boosting burning))
+	(and thrusting (< thrust_gain +thrust_quiet) thrust_pcm
 		(setq thrust_at (random (length thrust_pcm))))
-	(setq thrust_gain (if boosting
+	(setq thrust_gain (if thrusting
 		(min +double_1 (+ thrust_gain (* dt +thrust_up)))
 		(* thrust_gain (- +double_1 (min +double_1 (* dt +thrust_down))))))
 	(defq loud thrust_gain)
@@ -648,7 +689,7 @@
 	;missile's, its light, glow and front, throwing the rest out, heard
 	(defq now (pii-time))
 	(each (lambda (buoy)
-			(bind '(at & & & & & over armed) buoy)
+			(bind '(at & & & & & over armed &ignore) buoy)
 			(cond
 				((and (= armed 0) (>= over +nuke_looks) (in-view? at sides))
 					(elem-set buoy 7 now)
@@ -696,6 +737,11 @@
 				(list at way))
 			(cond
 				((or (> (- now born) +bomb_fuse)
+						;the visitor hit: debris thrown off it, and it bolts
+						(when (visitor-hit? at)
+							(push sprays (list (cat at) now (+ +shatter_throw_least (* +shatter_throw (rnd))) (random +spray_kinds)
+								+debris_least))
+							:t)
 						(when (defq struck (apply (const rock-at) at))
 							;the rock it hits spun by where it is struck, and after
 							;enough hits broken, or the smallest shattered, rocks-hit
@@ -949,10 +995,10 @@
 	(if +frame_log (setq frame_at (pii-time)))
 	(defq dt (turn-eye))
 	(frame-nod)
-	;the speed eased to a boost's while the right button is held, back to
-	;cruising after
-	(setq ship_speed (+ ship_speed (* (- (if boosting +boost +cruise) ship_speed)
-		(min +double_1 (* dt (if boosting +boost_up +boost_down))))))
+	;the auto pilot burns as it needs, thrust pushes, drag slows
+	(ship-burn dt)
+	(setq ship_speed (max +double_0 (+ ship_speed
+		(* dt (- (if (or boosting burning) +thrust_push +double_0) (* +drag ship_speed))))))
 	(thrust-feed dt)
 	;how far it draws, eased to the level's
 	(setq draw_share (+ draw_share (* (- (elem-get +view_of detail) draw_share) (min +double_1 (/ dt +view_ease))))
@@ -970,7 +1016,8 @@
 	(when (>= (- (pii-time) refreshed) +refresh_every)
 		(setq refreshed (pii-time))
 		(clusters-refresh eye (+ +rock_far +out_of_sight))
-		(buoys-restation eye (+ +rock_far +out_of_sight)))
+		(buoys-restation eye (+ +rock_far +out_of_sight))
+		(buoys-bring eye (+ +rock_far +out_of_sight)))
 	;the bombs on and the blasts, heard with the hits
 	(bombs-move dt)
 	(hear-hits)
@@ -978,6 +1025,16 @@
 	(setq eye (apply (const doubles) (map (lambda (e f)
 		(defq v (+ e (* f ship_speed dt)))
 		(cond ((< v +double_0) (+ v +field)) ((>= v +field) (- v +field)) (v))) eye forward)))
+	;never into a rock: out of each it would be in, as far as it is in it,
+	;and the speed it had into it lost, a bump. The auto pilot, bumped head
+	;on, turns away, and gives up the rock it visits for another
+	(each (lambda ((id depth way &ignore))
+			(setq eye (nums-sub eye (nums-scale way depth)))
+			(when (> (defq into (nums-dot forward way)) +double_0)
+				(setq ship_speed (* ship_speed (- +double_1 into)))
+				(and (eql mode :auto) (> into +bump_head_on)
+					(setq bumped (pii-time) bump_way way visit :nil visit_since 0 thread :nil))))
+		(. world :near eye +ship_reach))
 	(defq right (sky-cross forward up)
 		;the frame's width at a distance of 1, of the shape of the canvas
 		spread_x (/ (* +spread_y (n2d (first size))) (n2d (second size)))
@@ -998,11 +1055,22 @@
 	(buoy-lamps)
 	(buoys-face dt)
 	(bomb-lamps)
+	;the visitor, now and then
+	(visitor-step dt eye forward right up world spread_x +spread_y)
 	(frame-mark 4)
-	(defq rd (rock-draws view sides) bd (cat (buoy-draws view sides) (missile-draws view sides)))
+	(defq rd (rock-draws view sides) bd (cat (buoy-draws view sides) (missile-draws view sides))
+		seconds (/ (n2d (- (pii-time) began)) +second)
+		vd (visitor-draws +mesh_visitor visitor_had visitor_files (list pillars_map nebula_map stars_map) view eye up
+			(list (list 'eye eye))
+			(list (list 'sun sun_at) (list 'eye eye) (list 'sun_light sun_light) (list 'time seconds)
+				(list 'ping_at ping_at) (list 'ping ping) (list 'pillars_light pillars_light)
+				(list 'pillars_at pillars_at) (list 'pillars_across pillars_across) (list 'pillars_up pillars_up)
+				(list 'pillars_size pillars_size) (list 'pillars_pixels pillars_pixels)
+				(list 'nebula_pixels nebula_pixels) (list 'stars_pixels stars_pixels))
+			seconds))
 	(if +frame_log (setq frame_rocks (+ frame_rocks (length rd))))
 	(frame-mark 5)
-	(. render :frame (cat rd bd (list
+	(. render :frame (cat rd bd vd (list
 		(list +mesh_sky '()
 			(list (list 'forward forward) (list 'right right) (list 'up up)
 				(list 'spread (doubles spread_x +spread_y)) (list 'sun sun_at)
@@ -1013,7 +1081,9 @@
 			(list pillars_map nebula_map stars_map) sky_files))
 		;the buoys' lamps' glows and the grains hits throw out, over what is
 		;behind
-		(glow-draws view right up sides) (bomb-glow-draws view right up sides) (spray-draws view right up sides)))
+		(glow-draws view right up sides) (bomb-glow-draws view right up sides) (spray-draws view right up sides)
+		;the visitor's beam, added to all else, last
+		(visitor-beam +mesh_beam view eye beam_files seconds)))
 	(frame-mark 6)
 	(++ frames))
 
@@ -1105,6 +1175,7 @@
 	(def render :clear +argb_black)
 	(. render :mesh +mesh_sky (sky-verts) (first sky_files))
 	(. render :mesh +mesh_glow (sky-verts) (first glow_files))
+	(. render :mesh +mesh_beam (tube-verts 24) (first beam_files))
 	(each! (lambda () (. render :mesh (+ +mesh_spray (!)) (spray-verts) (first grain_files))) '() 0 +spray_kinds)
 	(setq pillars_map (picture "pillars.cpm") nebula_map (picture "nebula.cpm")
 		pillars_pixels (apply (const doubles) (map (const n2d) (. pillars_map :pref_size)))
@@ -1123,13 +1194,16 @@
 	;off this one, and each slotted in as it comes
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
 		(elem-get select +select_reply) '(4 2) :t))
-	(. jobs :add (push (map! (lambda ()
+	(. jobs :add (cat (push (map! (lambda ()
 			(cat (setf-> (str-alloc +rock_size) (+rock_num (!))) (str (+ 1000 (* (!) 7919)))))
 		'() 0 +rock_kinds)
 		;and the buoy, the kind after them
 		(cat (setf-> (str-alloc +rock_size) (+rock_num +rock_kinds)) "buoy")
 		;and the missile, the kind after that
-		(cat (setf-> (str-alloc +rock_size) (+rock_num (inc +rock_kinds))) "missile")))
+		(cat (setf-> (str-alloc +rock_size) (+rock_num (inc +rock_kinds))) "missile"))
+		;and the visitor's parts, Flight's, by their forms
+		(map (lambda (part) (cat (setf-> (str-alloc +rock_size) (+rock_num (+ +visitor_ask part))) (first (elem-get craft_parts part))))
+			visitor_parts)))
 	(setq buoys (make-buoys) buoy_axes (map (lambda (&ignore) (doubles +double_0 +double_1 +double_0)) buoys))
 	(config-load)
 	(setq detail (min 4 (. *config* :find :detail)) draw_share (elem-get +view_of detail) mode (. *config* :find :mode)
@@ -1170,9 +1244,13 @@
 				;drawn from the next frame; when all have come the farm goes
 				(when (and jobs (defq out (. jobs :answered msg)))
 					(defq kind (getf msg +rock_reply_num))
-					(. render :mesh (+ +mesh_rock kind) (push (doubles) (slice msg +rock_reply_data -1))
-						(first rock_files))
+					(if (>= kind +visitor_ask)
+						(. render :mesh (+ +mesh_visitor (- kind +visitor_ask)) (push (doubles) (slice msg +rock_reply_data -1))
+							(first visitor_files))
+						(. render :mesh (+ +mesh_rock kind) (push (doubles) (slice msg +rock_reply_data -1))
+							(first rock_files)))
 					(cond
+						((>= kind +visitor_ask) (elem-set visitor_had (find (- kind +visitor_ask) visitor_parts) :t))
 						((= kind +rock_kinds) (setq buoy_had :t))
 						((> kind +rock_kinds) (setq missile_had :t))
 						(:t (elem-set kinds_had kind :t)

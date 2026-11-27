@@ -76,9 +76,9 @@
 ;a buoy: red with a rock close by, green with none
 (setq rocks (list (sf-rock 100 100 100 0 0 0 10)))
 (setq buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 108)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) :nil 0 0 0)
+		+double_0 (cat +buoy_green) :nil 0 0 0 0)
 	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) :nil 0 0 0)))
+		+double_0 (cat +buoy_green) :nil 0 0 0 0)))
 (buoy-look 0)
 (buoy-look 1)
 (assert-true "a buoy by a rock reads danger" (> (third (first buoys)) (n2d 0.8)))
@@ -138,13 +138,26 @@
 ;a buoy's colour eased to its hazard's: calm at a swarm green, calm in open
 ;space ice blue
 (setq buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 100)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_red) 0 0 0 0)
+		+double_0 (cat +buoy_red) 0 0 0 0 0)
 	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_red) :nil 0 0 0)))
+		+double_0 (cat +buoy_red) :nil 0 0 0 0)))
 (times 300 (buoys-move (n2d 0.0166)))
 (defun sf-near (a b) (every (# (< (abs (- %0 %1)) +near_enough)) a b))
 (assert-true "calm at a swarm, green" (sf-near (elem-get (first buoys) 3) +buoy_green))
 (assert-true "calm in open space, ice blue" (sf-near (elem-get (second buoys) 3) +buoy_blue))
+;a cluster in sight with no buoy brought one, from a swarm gone calm out of
+;sight: put out past where buoys are drawn, and on its way in to it
+(setq rocks (list (sf-rock 500 500 200 0 0 0 30)) clusters (list (list 0))
+	buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 900)) (doubles +double_0 +double_0 +double_0)
+		+double_0 (cat +buoy_green) 7 +calm_looks 0 0 0)))
+(defq sf_eye (doubles (n2d 500) (n2d 500) (n2d 500)))
+(buoys-bring sf_eye (n2d 540))
+(bind '((sf_at sf_drift & & sf_station & & & sf_coming)) buoys)
+(assert-eq "it is the cluster's" 0 sf_station)
+(assert-true "it is coming" (> sf_coming 0))
+(assert-true "past where buoys are drawn" (out-of-sight? sf_at sf_eye +rock_far))
+(assert-true "on its way to the cluster"
+	(> (nums-dot sf_drift (way-from-eye (first (first rocks)) sf_at)) +double_0))
 
 ;a buoy gone nuclear: the small rocks in its core shattered and sent out of
 ;sight, no more of their cluster; a big one left; one outside as it was
@@ -174,7 +187,8 @@
 
 ;broken by missiles: a rock after as many hits as its size says, into
 ;pieces of the next size down, rocks brought from out of sight for them,
-;the count kept; the smallest shattered and sent out of sight; a
+;the count kept, it sent out of sight a small rock; the smallest shattered
+;and sent out of sight; a
 ;cluster's big rock never broken smaller than its least
 (defq sf_eye (doubles (n2d 500) (n2d 500) (n2d 500)) sf_far (n2d 300) sf_beside (n2d 40) sf_was (n2d 20)
 	sf_near (lambda (a b) (sqrt (+ (* (near-way (- (first a) (first b))) (near-way (- (first a) (first b))))
@@ -190,6 +204,7 @@
 (assert-eq "the second, broken" :split (rocks-hit (first rocks) sf_world sf_eye sf_far))
 (assert-eq "as many rocks as before" 5 (length rocks))
 (assert-true "it sent out of sight" (> (sf_near (first (first rocks)) sf_eye) sf_far))
+(assert-true "and made a small rock, so the field keeps its sizes" (<= (third (first rocks)) (n2d 20)))
 (assert-true "its pieces brought from out of sight to where it was, the next size down"
 	(some (lambda (r) (and (< (sf_near (first r) sf_eye) sf_beside) (< (third r) sf_was))) rocks))
 (times 12 (rocks-hit (elem-get rocks 4) sf_world sf_eye sf_far))
