@@ -916,3 +916,95 @@
 	(vp-ret)
 
 (def-func-end)
+
+;one way of box-near: the way of the other body from it, d, round the
+;world if it wraps that way, to the nearest; s the two half sizes that way;
+;to next if their boxes do not meet that way
+(defun box-near-way (c e w off wrap_l lo_l done_l)
+	(vp-load-rcd ptr_c off d)
+	(vp-sub-dd c d)
+	(vp-load-rcd ptr_e off s)
+	(vp-add-dd e s)
+	(vp-ble-dd zero w done_l)
+	(vp-cpy-dd d t)
+	(vp-div-dd w t)
+	(vp-blt-dd zero t lo_l)
+	(vp-add-dd half t)
+	(vp-jmp wrap_l)
+(vp-label lo_l)
+	(vp-sub-dd half t)
+(vp-label wrap_l)
+	(vp-cvt-dr t k)
+	(vp-cvt-rd k t)
+	(vp-mul-dd w t)
+	(vp-sub-dd t d)
+(vp-label done_l)
+	(vp-bge-dd s d 'next)
+	(vp-neg-dd s s)
+	(vp-ble-dd s d 'next))
+
+(def-method :doubles :box_near)
+	;inputs
+	;:r0 = output nums object (ptr), its capacity at least the bodies
+	;:r1 = centres doubles object (ptr), x y z a body
+	;:r2 = half sizes doubles object (ptr), x y z a body
+	;:r3 = wrap doubles object (ptr), x y z, 0 a way that does not wrap
+	;:r4 = the body (uint)
+	;outputs
+	;:r0 = output nums object (ptr)
+	;trashes
+	;:r1-:r9, :d0-:d13
+	;info
+	;the bodies whose boxes square to the world meet the box of the body,
+	;each its number, round the world where it wraps, the body itself not.
+	;Every body, one after another: so many, so few tests a body, that it
+	;is quicker than to look in the cells of a grid
+
+	(vp-rdef (this ptr_c ptr_e ptr_w i ptr_ce ptr_o self j k))
+	(vp-ddef (cx cy cz ex ey ez wx wy wz d s t half zero))
+
+	(entry :doubles :box_near `(,this ,ptr_c ,ptr_e ,ptr_w ,i))
+
+	(assign `((,ptr_c +array_length)) `(,ptr_ce))
+	(assign `((,ptr_c +array_begin)) `(,ptr_c))
+	(assign `((,ptr_e +array_begin)) `(,ptr_e))
+	(assign `((,ptr_w +array_begin)) `(,ptr_w))
+	(assign `((,this +array_begin)) `(,ptr_o))
+	(vp-shl-cr (log2 +long_size) ptr_ce)
+	(vp-add-rr ptr_c ptr_ce)
+	;the body's own, and the wrap
+	(vp-mul-cr (* 3 +long_size) i)
+	(vp-cpy-rr ptr_c self)
+	(vp-add-rr i self)
+	(vp-simd vp-load-rcd `(,self) `(0 ,+long_size ,(* 2 +long_size)) `(,cx ,cy ,cz))
+	(vp-cpy-rr ptr_e k)
+	(vp-add-rr i k)
+	(vp-simd vp-load-rcd `(,k) `(0 ,+long_size ,(* 2 +long_size)) `(,ex ,ey ,ez))
+	(vp-simd vp-load-rcd `(,ptr_w) `(0 ,+long_size ,(* 2 +long_size)) `(,wx ,wy ,wz))
+	(vp-lea-pr 'fn_consts k)
+	(vp-load-rcd k (fn-const 0x3fe0000000000000) half)
+	(vp-load-rcd k (fn-const 0) zero)
+	(vp-cpy-cr 0 j)
+
+	(loop-start)
+		(gotoif `(,ptr_c = ,self) 'next)
+		(box-near-way cx ex wx 0 'x_wrap 'x_lo 'x_done)
+		(box-near-way cy ey wy +long_size 'y_wrap 'y_lo 'y_done)
+		(box-near-way cz ez wz (* 2 +long_size) 'z_wrap 'z_lo 'z_done)
+		(vp-store-rrc j ptr_o 0)
+		(vp-add-cr +long_size ptr_o)
+	(vp-label 'next)
+		(vp-simd vp-add-cr `(,(* 3 +long_size)) `(,ptr_c ,ptr_e))
+		(vp-add-cr 1 j)
+	(loop-until `(,ptr_c >= ,ptr_ce))
+
+	;as many as were found
+	(assign `((,this +array_begin)) `(,k))
+	(vp-sub-rr k ptr_o)
+	(vp-shr-cr (log2 +long_size) ptr_o)
+	(assign `(,ptr_o) `((,this +array_length)))
+
+	(exit :doubles :box_near `(,this))
+	(vp-ret)
+
+(def-func-end)

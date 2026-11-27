@@ -47,11 +47,16 @@
 (import "lib/math/quaternion.inc")
 (import "lib/collections/fmap.inc")
 
+(ffi "class/doubles/lisp_box_near" collide-box-near)
+; (collide-box-near centres sizes wrap body [out]) -> nums
+
 ;module
 (env-push)
 
 (defq +collide_none (doubles +double_0 +double_0 +double_0) +collide_bits 0x1fffff
 	+collide_tiny (/ +double_1 (n2d 1000000000))
+	;the half sizes of a body gone, so no box meets it
+	+collide_gone (neg (n2d 1000000000))
 	+collide_x (doubles +double_1 +double_0 +double_0) +collide_y (doubles +double_0 +double_1 +double_0)
 	+collide_z (doubles +double_0 +double_0 +double_1))
 
@@ -233,16 +238,47 @@
 		:centres (list) :bounds (list) :turns (list) :extents (list) :masks (list) :keys (list)
 		:owners (list) :offsets (list) :sensors (list) :narrows (list) :shapes (list) :everys (list)
 		;how many calls apart a new body is tested, and the calls so far
-		:every 1 :call 0)
+		:every 1 :call 0
+		;how many cells round the world is each way, 0 a way it does not wrap
+		:counts (map (lambda (w) (if (> w +double_0) (n2i (/ w cell)) 0)) (ifn wrap +collide_none))
+		;for the native sweep, collide-box-near: each body's centre, held, and
+		;its half sizes, flat, three a body
+		:flat_centres (list) :flat_sizes (doubles))
+	;a world that wraps every way has so many cells, a list of each, by
+	;number; else they are in the map by key
+	(bind '(nx ny nz) (get :counts this))
+	(def this :cells_of (and (> nx 0) (> ny 0) (> nz 0) (lists (* nx ny nz))))
 
 	(defmethod :cell_of (p)
 		; (. collide :cell_of p) -> (cx cy cz)
 		;the cell of a place, round the world if it wraps
 		(defq cell (get :cell this))
-		(map (lambda (v round_by)
+		(map (lambda (v n)
 				(defq c (n2i (floor (/ v cell))))
-				(if (> round_by +double_0) (% (+ (% c (defq n (n2i (/ round_by cell)))) n) n) c))
-			p (get :wrap this)))
+				(if (> n 0) (% (+ (% c n) n) n) c))
+			p (get :counts this)))
+
+	(defmethod :reflat (id)
+		; (. collide :reflat id) -> collide
+		;a body's centre and half sizes for the native sweep as they are now,
+		;one gone no box meets
+		(defq src (get :flat_centres this) sizes (get :flat_sizes this)
+			c (elem-get (get :centres this) id) e (elem-get (get :extents this) id))
+		(while (<= (length src) id)
+			(push src +collide_none)
+			(push sizes +collide_gone +collide_gone +collide_gone))
+		(elem-set src id (ifn c +collide_none))
+		(each! (lambda (v) (elem-set sizes (+ (* id 3) (!)) (if c v +collide_gone))) (list (ifn e +collide_none)))
+		this)
+
+	(defmethod :key_of (p)
+		; (. collide :key_of p) -> num
+		;the key of the cell of a place, its number in a world that wraps
+		;every way
+		(bind '(x y z) (. this :cell_of p))
+		(if (get :cells_of this)
+			(+ x (* (first (get :counts this)) (+ y (* (second (get :counts this)) z))))
+			(collide-key x y z)))
 
 	(defmethod :file (id)
 		; (. collide :file id) -> collide
@@ -251,16 +287,19 @@
 			((> (collide-reach (elem-get (get :bounds this) id)) (* (get :cell this) +double_1/2))
 				(push (get :big this) id)
 				(elem-set (get :keys this) id :big))
-			(:t (defq key (apply (const collide-key) (. this :cell_of (elem-get (get :centres this) id)))
-					grid (get :grid this))
-				(push (. grid :memoize key (const list)) id)
+			(:t (defq key (. this :key_of (elem-get (get :centres this) id)))
+				(push (if (defq cells (get :cells_of this)) (elem-get cells key)
+					(. (get :grid this) :memoize key (const list))) id)
 				(elem-set (get :keys this) id key)))
 		this)
 
 	(defmethod :unfile (id)
 		; (. collide :unfile id) -> collide
 		(defq key (elem-get (get :keys this) id)
-			l (if (eql key :big) (get :big this) (. (get :grid this) :find key)))
+			l (cond
+				((eql key :big) (get :big this))
+				((defq cells (get :cells_of this)) (elem-get cells key))
+				((. (get :grid this) :find key))))
 		(when (defq i (find id l))
 			(elem-set l i (last l))
 			(pop l))
@@ -271,12 +310,13 @@
 		;a body, its centre, its bound, (:sphere r) or (:box hx hy hz), its
 		;mask, 1 if not said: two bodies meet if their masks share a bit; is
 		;it a sensor, and a box's turn, a quaternion, square to the world if
-		;not said
+		;not said. The centre is held, not copied: an app may move it in
+		;place, then (:refile)
 		(defq id (if (nempty? (get :free this)) (pop (get :free this))
 				(each (# (push (get %0 this) :nil))
 					'(:centres :bounds :turns :extents :masks :keys :owners :offsets :sensors :narrows :shapes :everys))
 				(dec (length (get :centres this)))))
-		(elem-set (get :centres this) id (cat centre))
+		(elem-set (get :centres this) id centre)
 		(elem-set (get :bounds this) id bound)
 		(elem-set (get :turns this) id turn)
 		(elem-set (get :extents this) id (collide-extent bound turn))
@@ -285,17 +325,18 @@
 		(elem-set (get :narrows this) id :nil)
 		(elem-set (get :shapes this) id :nil)
 		(elem-set (get :everys this) id (get :every this))
-		(. this :file id)
+		(. (. this :file id) :reflat id)
 		id)
 
 	(defmethod :attach (owner centre offset bound &optional mask sensor turn)
 		; (. collide :attach owner centre offset bound [mask sensor turn]) -> id
 		;a body of an owner, the app's, whose centre is centre and turn turn,
 		;so far from it, turned with it; moved with it, (:move_owner), never
-		;meeting its others
-		(defq id (. this :add (nums-add centre (collide-world turn offset)) bound mask sensor turn))
+		;meeting its others. Of no offset, :nil, its centre is the owner's,
+		;held as it is
+		(defq id (. this :add (if offset (nums-add centre (collide-world turn offset)) centre) bound mask sensor turn))
 		(elem-set (get :owners this) id owner)
-		(elem-set (get :offsets this) id (cat offset))
+		(elem-set (get :offsets this) id (if offset (cat offset)))
 		(defq owned (get :owned this))
 		(push (. owned :memoize owner (const list)) id)
 		id)
@@ -309,6 +350,7 @@
 			(pop l)
 			(if (empty? l) (. (get :owned this) :erase owner)))
 		(each (# (elem-set (get %0 this) id :nil)) '(:centres :turns :extents :keys :owners :offsets :sensors :narrows :shapes :everys))
+		(. this :reflat id)
 		(push (get :free this) id)
 		this)
 
@@ -332,12 +374,23 @@
 
 	(defmethod :move (id centre)
 		; (. collide :move id centre) -> collide
-		;a body moved, to another cell only if it has changed cell
-		(elem-set (get :centres this) id (cat centre))
+		;a body moved, its centre now that one, held, to another cell only if
+		;it has changed cell
+		(elem-set (get :centres this) id centre)
+		(. this :reflat id)
 		(defq key (elem-get (get :keys this) id))
-		(unless (or (eql key :big) (= key (apply (const collide-key) (. this :cell_of centre))))
+		(unless (or (eql key :big) (= key (. this :key_of centre)))
 			(. this :unfile id)
 			(. this :file id))
+		this)
+
+	(defmethod :refile ()
+		; (. collide :refile) -> collide
+		;each body to the cell its centre is in now, those moved in place
+		(each! (lambda (c key)
+				(and c (nql key :big) (/= key (. this :key_of c))
+					(. (. this :unfile (!)) :file (!))))
+			(list (get :centres this) (get :keys this)))
 		this)
 
 	(defmethod :turn (id turn)
@@ -345,7 +398,7 @@
 		;a body turned, a quaternion, or square to the world, :nil
 		(elem-set (get :turns this) id turn)
 		(elem-set (get :extents this) id (collide-extent (elem-get (get :bounds this) id) turn))
-		this)
+		(. this :reflat id))
 
 	(defmethod :move_owner (owner centre &optional turn)
 		; (. collide :move_owner owner centre [turn]) -> collide
@@ -354,7 +407,8 @@
 		(defq offsets (get :offsets this))
 		(each (lambda (id)
 				(when turn (. this :turn id turn))
-				(. this :move id (nums-add centre (collide-world (elem-get (get :turns this) id) (elem-get offsets id)))))
+				(. this :move id (if (defq offset (elem-get offsets id))
+					(nums-add centre (collide-world (elem-get (get :turns this) id) offset)) centre)))
 			(. this :bodies owner))
 		this)
 
@@ -383,13 +437,25 @@
 		;is a body tested this call, staggered by its id
 		(= (% (+ (get :call this) id) (elem-get (get :everys this) id)) 0))
 
+	(defmethod :leads? (a b)
+		; (. collide :leads? a b) -> :t | :nil
+		;does a lead a pair with b, its being due testing it: a sensor, as
+		;often as it asks; else the one tested more often; else a big one,
+		;so a small one need not look at the big ones it is tested as often
+		;as; else the less
+		(defq sa (elem-get (get :sensors this) a) sb (elem-get (get :sensors this) b)
+			ea (elem-get (get :everys this) a) eb (elem-get (get :everys this) b)
+			ba (eql (elem-get (get :keys this) a) :big) bb (eql (elem-get (get :keys this) b) :big))
+		(cond
+			((nql sa sb) sa)
+			((/= ea eb) (< ea eb))
+			((nql ba bb) ba)
+			((< a b))))
+
 	(defmethod :leader (a b)
 		; (. collide :leader a b) -> id
-		;of a pair, the one whose being due tests it: the one tested more
-		;often, or the less of two as often, so a pair is tested once each
-		;time the more often of the two is
-		(defq everys (get :everys this) ea (elem-get everys a) eb (elem-get everys b))
-		(cond ((< ea eb) a) ((< eb ea) b) ((min a b))))
+		;of a pair, the one whose being due tests it, (:leads?)
+		(if (. this :leads? a b) a b))
 
 	(defmethod :shape (id)
 		; (. collide :shape id) -> :nil | shape
@@ -409,7 +475,7 @@
 		(. this :unfile id)
 		(elem-set (get :bounds this) id bound)
 		(elem-set (get :extents this) id (collide-extent bound (elem-get (get :turns this) id)))
-		(. this :file id))
+		(. (. this :file id) :reflat id))
 
 	(defmethod :centre (id)
 		; (. collide :centre id) -> :nil | doubles
@@ -452,28 +518,52 @@
 			(not (and (elem-get owners a) (eql (elem-get owners a) (elem-get owners b))))
 			(not (and (elem-get sensors a) (elem-get sensors b)))))
 
+	(defmethod :cells (p reach fnc)
+		; (. collide :cells p reach fnc) -> collide
+		;(fnc id) of each small body in the cells round a place, as far as
+		;reach and the most a small body reaches, each cell once round a
+		;world that wraps, by their numbers
+		(defq cell (get :cell this) grid (get :grid this)
+			n (n2i (ceil (/ (+ reach (* cell +double_1/2)) cell)))
+			spans (map (lambda (c count)
+					(cond
+						((and (> count 0) (>= (inc (* 2 n)) count)) (map! (# (!)) '() 0 count))
+						((> count 0) (map! (# (% (+ c (!) count) count)) '() (neg n) (inc n)))
+						((map! (# (+ c (!))) '() (neg n) (inc n)))))
+				(. this :cell_of p) (get :counts this)))
+		(bind '(xs ys zs) spans)
+		(cond
+			((defq cells (get :cells_of this))
+				;a world that wraps every way, its cells by number
+				(bind '(nx ny &ignore) (get :counts this))
+				(defq nxy (* nx ny))
+				(each (lambda (z)
+						(defq z (* z nxy))
+						(each (lambda (y)
+								(defq y (+ z (* y nx)))
+								(each (lambda (x) (each fnc (elem-get cells (+ y x)))) xs))
+							ys))
+					zs))
+			(:t (each (lambda (z)
+					(each (lambda (y)
+							(each (lambda (x)
+									(if (defq l (. grid :find (collide-key x y z))) (each fnc l)))
+								xs))
+						ys))
+				zs)))
+		this)
+
 	(defmethod :round (p reach fnc)
 		; (. collide :round p reach fnc) -> collide
-		;(fnc id) of each body that may be within reach of a place: those of
-		;the cells round it, as far as reach and the most a small body
-		;reaches, and the big ones
-		(defq cell (get :cell this) grid (get :grid this)
-			n (n2i (ceil (/ (+ reach (* cell +double_1/2)) cell))) seen (Fmap 31))
-		(bind '(cx cy cz) (map (lambda (v) (n2i (floor (/ v cell)))) p))
-		(each! (lambda ()
-				(defq z (+ cz (!)))
-				(each! (lambda ()
-						(defq y (+ cy (!)))
-						(each! (lambda ()
-								(defq key (apply (const collide-key)
-									(. this :cell_of (doubles (* (n2d (+ cx (!))) cell) (* (n2d y) cell) (* (n2d z) cell)))))
-								(unless (. seen :find key)
-									(. seen :insert key :t)
-									(if (defq l (. grid :find key)) (each fnc l))))
-							'() (neg n) (inc n)))
-					'() (neg n) (inc n)))
-			'() (neg n) (inc n))
-		(each fnc (get :big this))
+		;(fnc id) of each body that may be within reach of a place: the small
+		;ones of the cells round it, (:cells), and the big ones; or every body,
+		;if that is fewer than the cells
+		(defq cell (get :cell this) n (inc (* 2 (n2i (ceil (/ (+ reach (* cell +double_1/2)) cell))))))
+		(cond
+			((> (* n n n) (length (get :centres this)))
+				(each! (lambda (c) (if c (fnc (!)))) (list (get :centres this))))
+			(:t (. this :cells p reach fnc)
+				(each fnc (get :big this))))
 		this)
 
 	(defmethod :within (region p &optional mask sensors turn)
@@ -520,34 +610,46 @@
 	(defmethod :pairs (&optional narrow_fn)
 		; (. collide :pairs [narrow_fn]) -> ((a b depth way stands) ...)
 		;the bodies that touch, of the pairs whose leader is due this call,
-		;(:leader), each pair once, a the less, how deep, the way from a to b, and how many calls
-		;its test stands for, the fewer of their :every; of those that may
-		;meet, (:may?). Their boxes square to the world first, then their
-		;bounds, then their narrow tests, (:exact?); and (narrow_fn collide a
-		;b depth way) -> :nil | (depth way), of all pairs, if given. The next
-		;call after
-		(defq out (list) centres (get :centres this) bounds (get :bounds this) turns (get :turns this)
-			extents (get :extents this) wrap (get :wrap this) keys (get :keys this) everys (get :everys this))
-		(defq meet (lambda (a b)
-			(and (. this :may? a b)
-				(defq d (collide-near-of (nums-sub (elem-get centres b) (elem-get centres a)) wrap))
-				(every (# (< (abs %0) (+ %1 %2))) d (elem-get extents a) (elem-get extents b))
-				(defq m (collide-meet (elem-get bounds a) (elem-get turns a) (elem-get bounds b) (elem-get turns b) d))
-				(. this :exact? a b)
-				(or (not narrow_fn) (setq m (narrow_fn this a b (first m) (second m))))
-				(push out (cat (list a b) m (list (min (elem-get everys a) (elem-get everys b))))))))
-		;each body due with those near it, a big one with all, the pairs it
-		;leads, (:leader)
-		(defq due (map (lambda (c) (if c (. this :due? (!)))) centres))
-		(each! (lambda (c)
-				(when (elem-get due (defq a (!)))
-					(defq with (lambda (b)
-						(and (/= a b) (= (. this :leader a b) a) (meet (min a b) (max a b)))))
-					(if (eql (elem-get keys a) :big)
-						(each! (lambda (c) (if c (with (!)))) (list centres))
-						(. this :round c +double_0 with))))
-			(list centres))
-		(def this :call (inc (get :call this)))
+		;(:leads?), each pair once, a the less, how deep, the way from a to b,
+		;and how many calls its test stands for, its leader's :every; of
+		;those that may meet, (:may?). Each body due, the boxes of all the
+		;bodies square to the world that meet its, by the native sweep,
+		;collide-box-near, then their bounds, then their narrow tests,
+		;(:exact?); and (narrow_fn collide a b depth way) -> :nil | (depth
+		;way), of all pairs, if given. The next call after
+		(defq out (list) call (get :call this) centres (get :centres this) bounds (get :bounds this)
+			turns (get :turns this) wrap (get :wrap this) keys (get :keys this)
+			everys (get :everys this) sensors (get :sensors this) masks (get :masks this)
+			owners (get :owners this) narrows (get :narrows this)
+			flat (apply (const cat) (get :flat_centres this)) sizes (get :flat_sizes this) hits (nums))
+		(bind '(wx wy wz) wrap)
+		(defq leads (lambda (a b)
+				(defq sa (elem-get sensors a) sb (elem-get sensors b) ea (elem-get everys a) eb (elem-get everys b)
+					ba (eql (elem-get keys a) :big) bb (eql (elem-get keys b) :big))
+				(cond ((nql sa sb) sa) ((/= ea eb) (< ea eb)) ((nql ba bb) ba) ((< a b))))
+			meet (lambda (a b)
+				(and (/= 0 (logand (elem-get masks a) (elem-get masks b)))
+					(not (and (defq oa (elem-get owners a)) (eql oa (elem-get owners b))))
+					(not (and (elem-get sensors a) (elem-get sensors b)))
+					;their boxes meet, the way between them round the world
+					(defq ca (elem-get centres a) cb (elem-get centres b)
+						dx (- (elem-get cb 0) (elem-get ca 0)) dy (- (elem-get cb 1) (elem-get ca 1))
+						dz (- (elem-get cb 2) (elem-get ca 2))
+						d (doubles (if (> wx +double_0) (- dx (* wx (floor (+ (/ dx wx) +double_1/2)))) dx)
+							(if (> wy +double_0) (- dy (* wy (floor (+ (/ dy wy) +double_1/2)))) dy)
+							(if (> wz +double_0) (- dz (* wz (floor (+ (/ dz wz) +double_1/2)))) dz))
+						m (collide-meet (elem-get bounds a) (elem-get turns a) (elem-get bounds b) (elem-get turns b) d))
+					(or (not (or (elem-get narrows a) (elem-get narrows b))) (. this :exact? a b))
+					(or (not narrow_fn) (setq m (narrow_fn this a b (first m) (second m))))
+					(push out (cat (list a b) m (list (elem-get everys (if (leads a b) a b))))))))
+		;each body due with the bodies whose boxes meet its, the pairs it leads
+		(each! (lambda (c e)
+				(when (and c (= 0 (% (+ call (!)) e)))
+					(defq a (!))
+					(each (lambda (b) (and (leads a b) (meet (min a b) (max a b))))
+						(collide-box-near flat sizes wrap a hits))))
+			(list centres everys))
+		(def this :call (inc call))
 		out)
 
 	(defmethod :touches (&optional narrow_fn)

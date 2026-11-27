@@ -229,3 +229,27 @@
 (. c_w :move c_r2 (c_at 9 0 0))
 (defq c_seen (map (lambda (_) (map (const length) (. c_w :touches))) (list 0 1 2 3)))
 (assert-eq "ended once, when tested" 1 (reduce (lambda (n s) (+ n (third s))) c_seen 0))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; centres held, moved in place, and a sensor's rate
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq c_w (Collide (n2d 4)) c_p1 (c_at 0 0 0) c_p2 (c_at 30 0 0)
+	c_a (. c_w :add c_p1 (c_ball 1)) c_b (. c_w :add c_p2 (c_ball 1)))
+(elem-set c_p2 0 (c_d 3 2))
+(assert-eq "moved in place, its pairs at once" 1 (length (. c_w :pairs)))
+(. c_w :refile)
+(assert-list-eq "refiled, a region finds it" (list c_b) (c_ids (. c_w :near (c_at 2 0 0) (c_d 1 10))))
+(assert-true "the centre held, not a copy" (eql (. c_w :centre c_b) c_p2))
+
+;a rock and its pull, a wide sensor of the same owner on its centre, every
+;6 calls, the rocks every 2: the sensor's pairs at its own rate
+(defq c_w (Collide (n2d 4)) c_at1 (c_at 0 0 0))
+(. c_w :every_new 2)
+(defq c_rock (. c_w :attach 0 c_at1 :nil (c_ball 1)) c_zone (. c_w :attach 0 c_at1 :nil (c_ball 20) 1 :t)
+	c_other (. c_w :add (c_at 10 0 0) (c_ball 1)))
+(. c_w :every c_zone 6)
+(defq c_calls (map (lambda (_) (. c_w :pairs)) (list 0 1 2 3 4 5)))
+(assert-eq "the zone met once in its 6" 1 (reduce (lambda (n ps) (+ n (length ps))) c_calls 0))
+(assert-eq "standing for 6" 6 (elem-get (some (# (if (nempty? %0) (first %0))) c_calls) 4))
+(assert-true "its centre the rock's" (eql (. c_w :centre c_zone) (. c_w :centre c_rock)))

@@ -85,9 +85,18 @@ of its centre, and meets only those in the cells round it. A bigger one is
 on a list of its own and is met with all. The grid is a map of cells by
 their place, so it has no edge, and only cells with bodies in them exist.
 
-A pair is tested by its boxes square to the world first, the cheapest test,
-then by its bounds: balls by their distance, a ball and a box in the box's
-own frame, boxes by the fifteen ways that could part them.
+The pairs are found by a native, `(collide-box-near centres sizes wrap
+body)`: each body due, the boxes square to the world of all the bodies that
+meet its, one after another, round the world where it wraps. In VP that is
+quicker than looking in the cells of a grid, for a world of hundreds of
+bodies; the library keeps each body's half sizes flat for it, and takes the
+centres as they are each call, so a body moved in place is seen at once. A
+region and a ray still look in the grid, so after moving bodies in place an
+app calls `(. world :refile)`.
+
+A pair whose boxes meet is tested by its bounds: balls by their distance, a
+ball and a box in the box's own frame, boxes by the fifteen ways that could
+part them.
 
 ## Exact Shapes
 

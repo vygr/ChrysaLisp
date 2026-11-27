@@ -284,3 +284,63 @@
 	(signature '(:DOUBLES :DOUBLES :DOUBLES))
 
 (def-func-end)
+
+(def-method :doubles :lisp_box_near)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r12, :d0-:d15
+
+	(vp-rdef (dst iter_begin centres sizes this args argc len three tmp)
+		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12 :r10 :r2))
+
+	(entry :doubles :lisp_box_near `(,this ,args))
+
+	(gotoif-lisp-args-sig 'error args 4 5)
+
+	(assign `((,args +array_length) (,args +array_begin)) `(,argc ,iter_begin))
+	(array-get-args iter_begin `(,centres ,sizes))
+	;a wrap of three
+	(vp-load-rcr iter_begin (* +ptr_size 2) tmp)
+	(assign `((,tmp +array_length)) `(,tmp))
+	(gotoif `(,tmp /= 3) 'error)
+	;whole vec3s, as many half sizes as centres
+	(assign `((,centres +array_length)) `(,len))
+	(assign `((,sizes +array_length)) `(,tmp))
+	(gotoif `(,len /= ,tmp) 'error)
+	(vp-cpy-cr 3 three)
+	(vp-cpy-rr len tmp)
+	(vp-rem-rr-u three tmp)
+	(gotoif `(,tmp /= 0) 'error)
+	(vp-div-rr-u three len)
+	;a body of them
+	(vp-load-rcr iter_begin (* +ptr_size 3) tmp)
+	(assign `((,tmp +num_value)) `(,tmp))
+	(gotoif `(,tmp < 0) 'error)
+	(gotoif `(,tmp >= ,len) 'error)
+
+	(vpif `(,argc = 4))
+		(call :nums :create :nil `(,dst))
+	(else)
+		(vp-load-rcr iter_begin (* +ptr_size 4) dst)
+		(call :obj :ref `(,dst) `(,dst))
+	(endif)
+	(call :nums :set_cap `(,dst ,len) `(,dst) :r2)
+	;the wrap and the body again, the calls have had the low registers
+	(vp-load-rcr iter_begin (* +ptr_size 2) :r3)
+	(vp-load-rcr iter_begin (* +ptr_size 3) :r4)
+	(assign '((:r4 +num_value)) '(:r4))
+	(call :doubles :box_near `(,dst ,centres ,sizes :r3 :r4) `(,dst))
+
+	(exit :doubles :lisp_box_near `(,this ,dst))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error `(,args "(collide-box-near centres sizes wrap body [out])" +error_msg_wrong_types))
+	(signature '(:DOUBLES :DOUBLES :DOUBLES :NUM :NUMS))
+
+(def-func-end)
