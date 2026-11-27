@@ -14,6 +14,7 @@
 
 (import "lib/consts/numbers.inc")
 (import "lib/gpu/vp.inc")
+(import "lib/nav/path.inc")
 
 ;module
 (env-push)
@@ -37,51 +38,20 @@
 	(defq field (shader-load "apps/demos/water/field.shader"))
 	(list (shader-vp-func field 'water) (shader-vp-func field 'warp)))
 
-(defun resample (pts)
-	; (resample pts) -> (doubles ...)
-	;places along the line through pts, +line_step apart, and its last
-	(defq out (list (first pts)))
-	(each (lambda (a b)
-			(defq ab (nums-sub b a) len (sqrt (nums-dot ab ab)) n (max 1 (n2i (/ len +line_step))))
-			(each! (lambda () (push out (nums-add a (nums-scale ab (/ (n2d (inc (!))) (n2d n)))))) '() 0 n))
-		(slice pts 0 -2) (slice pts 1 -1))
-	out)
-
-(defun smooth (pts)
-	; (smooth pts) -> (doubles ...)
-	;each place the mean of itself twice and its neighbours, the ends kept
-	(defq out (list (first pts)))
-	(each (lambda (a p b)
-			(push out (nums-scale (nums-add (nums-add a b) (nums-scale p +double_2)) +double_1/4)))
-		(slice pts 0 -3) (slice pts 1 -2) (slice pts 2 -1))
-	(if (> (length pts) 1) (push out (last pts)))
-	out)
-
-(defun unit-way (a b)
-	; (unit-way a b) -> doubles
-	;the way from a to b, of length 1
-	(defq d (nums-sub b a) dd (nums-dot d d))
-	(if (> dd +double_0) (nums-scale d (recip (sqrt dd))) (doubles +double_0 +double_1 +double_0)))
-
-(defun along-at (line i)
-	; (along-at line i) -> doubles
-	;the way along a line at its place i
-	(unit-way (elem-get line (max 0 (dec i))) (elem-get line (min (dec (length line)) (inc i)))))
-
 (defun route-line (funcs pts cave)
 	; (route-line funcs pts cave) -> doubles
 	;the line along a tunnel through pts, a junction, the middle of its
 	;curve and the next junction, moved to the middle of the open water; or
 	;over the reef, lifted over the rock; its places one after another
 	(bind '(water warp) funcs)
-	(defq line (resample pts))
+	(defq line (nav-path-resample pts +line_step))
 	(cond
 		(cave
 			;each place where the warp puts the open water, then up the slope
 			;of the field across the line, the way along it taken out
 			(setq line (map (# (nums-sub %0 (warp %0))) line))
 			(setq line (map (lambda (p)
-					(defq along (along-at line (!)))
+					(defq along (nav-path-way-at line (!)))
 					(times +centre_steps
 						(defq h (water p) e +slope_across
 							g (doubles (- (water (nums-add p (doubles e +double_0 +double_0))) h)
@@ -92,7 +62,7 @@
 							(setq p (nums-add p (nums-scale g (/ (min +centre_most (+ +double_1/10 (* (abs h) +double_1/2))) (sqrt gg)))))))
 					p)
 				line))
-			(apply (const cat) (smooth (smooth line))))
+			(apply (const cat) (nav-path-smooth line 2)))
 		(:t ;over the reef, lifted over the rock, and never to the surface;
 			;then each as high as the highest near it needs, and smoothed,
 			;so it holds its height over the bumps of the seabed and never
@@ -107,7 +77,7 @@
 					(elem-set p 1 (reduce! max (list high) +line_bottom (max 0 (- i +hold)) (min n (+ i +hold 1))))
 					p)
 				line))
-			(times +hold (setq line (smooth line)))
+			(setq line (nav-path-smooth line +hold))
 			(apply (const cat) line))))
 
 (defun route-blocked? (water pts)
@@ -127,5 +97,5 @@
 	out)
 
 ;module
-(export-symbols '(route-funcs route-line route-blocked? resample))
+(export-symbols '(route-funcs route-line route-blocked?))
 (env-pop)

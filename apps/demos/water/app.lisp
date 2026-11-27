@@ -415,7 +415,7 @@
 	;a leg of the way ahead, the rough curve of it till a child sends the
 	;line down its middle; the jobs of the farm are given the last first, so
 	;it is made before the chunks asked for with it
-	(defq id mesh_next rough (resample (list a mid b))
+	(defq id mesh_next rough (nav-path-resample (list a mid b) +double_1)
 		rough (if cave (map (# (nums-sub %0 (field_warp %0))) rough) rough)
 		leg (list id rough :nil cave 0))
 	(setq mesh_next (inc mesh_next))
