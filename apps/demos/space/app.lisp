@@ -58,6 +58,9 @@
 	;enough not to go past its heading, and how small a turn is none
 	+auto_settle (n2d 1.0) +turn_tiny (/ +double_1 (n2d 1000000))
 	+visit_far (n2d 480) +visit_long 20000000
+	;of how many choices of a rock to visit one is wide, a tour guide's turn
+	;round to the biggest cluster near, wherever it is
+	+visit_wide_one 3
 	;how long before a big rock visited may be again, and how often a
 	;cluster out of sight is put in orbit again, and since when
 	+revisit 90000000 +refresh_every 1000000 refreshed 0
@@ -169,7 +172,7 @@
 	forward :nil up :nil turned 0 stick :nil
 	;how fast it is turning across and up, a second, eased; the big rock it
 	;is visiting, and since when
-	yaw +double_0 pitch +double_0 visit :nil visit_since 0
+	yaw +double_0 pitch +double_0 visit :nil visit_since 0 visit_wide :nil
 	turn_spin (doubles +double_0 +double_0 +double_0)
 	;the big rocks visited, by number, and when, so the tour moves on
 	visited (Fmap 31)
@@ -278,20 +281,34 @@
 	;the way the auto pilot wants to go: toward a big rock it visits, to go
 	;just past it, through its swarm, the nearest that is ahead, within 60
 	;degrees of its way, near enough, and not visited lately, so the tour
-	;moves on and does not go round the one swarm; a new one now and then or
-	;when it is behind; with none, a slow wander
+	;moves on and does not go round the one swarm; now and then, a wide one,
+	;the biggest cluster near enough wherever it is, a tour guide's turn
+	;round to go through it. A new one now and then, or when one not wide is behind; with
+	;none, a slow wander
 	(defq now (pii-time))
 	(bind '(ex ey ez) eye)
 	(when (or (not visit) (> (- now visit_since) +visit_long)
-			(<= (rock-ahead (elem-get rocks visit)) +double_0))
-		(setq visit :nil visit_since now)
-		(each (lambda (rock)
-				(defq far (rock-distance rock) been (. visited :find (!)))
-				(and (> (third rock) +visit_bulk) (> (rock-ahead rock) (max +visit_ahead (* far +double_1/2)))
-					(< far +visit_far) (or (not been) (> (- now been) +revisit))
-					(or (not visit) (< far (rock-distance (elem-get rocks visit))))
-					(setq visit (!))))
-			rocks)
+			(and (not visit_wide) (<= (rock-ahead (elem-get rocks visit)) +double_0)))
+		(setq visit :nil visit_since now visit_wide (= (random +visit_wide_one) 0))
+		(cond
+			(visit_wide
+				;the biggest cluster near enough, the most rocks round its big one,
+				;wherever it is, behind too, the nearer of two as big
+				(defq most 0)
+				(each (lambda (members)
+						(defq i (first members) far (rock-distance (elem-get rocks i)) been (. visited :find i)
+							n (length members))
+						(and (< far +visit_far) (or (not been) (> (- now been) +revisit))
+							(or (> n most) (and (= n most) visit (< far (rock-distance (elem-get rocks visit)))))
+							(setq visit i most n)))
+					clusters))
+			(:t (each (lambda (rock)
+					(defq far (rock-distance rock) been (. visited :find (!)))
+					(and (> (third rock) +visit_bulk) (> (rock-ahead rock) (max +visit_ahead (* far +double_1/2)))
+						(< far +visit_far) (or (not been) (> (- now been) +revisit))
+						(or (not visit) (< far (rock-distance (elem-get rocks visit))))
+						(setq visit (!))))
+				rocks)))
 		(if visit (. visited :insert visit now)))
 	(cond
 		(visit
