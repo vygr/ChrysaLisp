@@ -14,13 +14,14 @@
 		(doubles +double_0 +double_0 +double_0 +double_1 +double_0 +double_0 +double_0)
 		(doubles +double_0 +double_0 +double_0) (doubles +double_0 +double_0 +double_0)))
 
-;the field moved on so many frames of a 60th, met a part a frame
+;the field moved on so many frames of a 60th, met a part a frame, by its
+;world of lib/collide as the app has it
 (defun sf-run (frames)
-	(defq part 0 grid :nil dt +frame_dt)
+	(defq part 0 world (rocks-world) dt +frame_dt)
 	(times frames
 		(rocks-move dt)
-		(if (= part 0) (setq grid (rocks-grid)))
-		(rocks-meet (* dt (n2d +meet_parts)) grid part)
+		(if (= part 0) (. world :refile))
+		(rocks-collide dt world)
 		(setq part (% (inc part) +meet_parts))))
 
 (defun sf-x (rock) (elem-get (first rock) 0))

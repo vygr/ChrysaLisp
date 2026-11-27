@@ -43,16 +43,14 @@
 	kind_reach (fill (doubles) +rock_kinds (n2d 0.9))
 	;how fast at most they drift at first, a second; how many clusters of
 	;them; in how many parts, a part a frame, they are moved by each other;
-	;cells each way of the box, of the coarse grid and the fine, and how
-	;far a small rock reaches at most, half a fine cell, so two small ones
-	;that touch are in cells side by side; how strong the pull, how far it reaches,
-	;squared, how soft it is close to, how big one of a pair is for it,
-	;and in one round of meetings in how many it is, as much the more, it
-	;changing slowly, and the round it is; and how much of its speed a hit
-	;keeps, little, rock on rock is a crunch, and how much of the sideways
-	;part of it is ground down
-	+drift_most +double_3 +clusters 45 +meet_parts 12 +cells_side 8 +fine_side 16 +pull (n2d 0.025)
-	+small_reach (/ +field (n2d (* 2 +fine_side))) +pull_least (n2d 25) +pull_every 3 meet_round 0 +pull_reach2 (n2d 62500) +pull_reach (n2d 250) +pull_soft (n2d 400) +bounce (n2d 0.15) +grind (n2d 0.4)
+	;cells each way of the box of their world, lib/collide, for its regions
+	;and rays; how strong the pull, how far it reaches, how soft it is close
+	;to, how big one of a pair is for it, and in how many rounds of meetings
+	;it is, as much the more, it changing slowly; and how much of its speed
+	;a hit keeps, little, rock on rock is a crunch, and how much of the
+	;sideways part of it is ground down
+	+drift_most +double_3 +clusters 45 +meet_parts 12 +fine_side 16 +pull (n2d 0.025)
+	+pull_least (n2d 25) +pull_every 3 +pull_reach (n2d 250) +pull_soft (n2d 400) +bounce (n2d 0.15) +grind (n2d 0.4)
 	;a blast: how far it reaches, how hard it throws, a rock of size 1 at
 	;its middle thrown so fast, one of size b a b'th of it, how fast its
 	;front of pressure goes out, a second, and how much of how hard a rock is
@@ -84,12 +82,6 @@
 	;them, each (x y z speed), where they touched and how hard, for it to
 	;hear and see
 	bumps 0 hits (list)
-	;the cells round a cell, its own among them, each a step across, up and
-	;along
-	cell_steps (reduce (lambda (out i) (push out (list (dec (% i 3)) (dec (% (/ i 3) 3)) (dec (/ i 9)))))
-		(map! (const !) '() 0 27) (list))
-	;and in the fine grid, inside the box, how many cells on each is
-	fine_steps (map (lambda ((sx sy sz)) (+ sx (* +fine_side (+ sy (* +fine_side sz))))) cell_steps)
 	;how far off a rock starts to go into the sky behind it and is gone into
 	;it, and is drawn: all of it inside half the box, as past that a rock is
 	;drawn on the other side of the eye, where it is next as the field goes
@@ -305,57 +297,12 @@
 		rocks))
 
 
-(defun cell-at (x y z)
-	; (cell-at x y z) -> num
-	;the cell of the grid of a place, a place a cell over an edge the cell
-	;on the other side, as the field goes on
-	(+ (% (+ x +cells_side) +cells_side) (* +cells_side (+ (% (+ y +cells_side) +cells_side)
-		(* +cells_side (% (+ z +cells_side) +cells_side))))))
-
-
 (defun rock-push (v nx ny nz by)
 	;v moved along the way n by so much
 	(elem-set v 0 (+ (elem-get v 0) (* nx by)))
 	(elem-set v 1 (+ (elem-get v 1) (* ny by)))
 	(elem-set v 2 (+ (elem-get v 2) (* nz by))))
 
-
-(defun cell-wrap (c side)
-	; (cell-wrap c side) -> double
-	;the way across the box to a cell c across, up or along of a grid of
-	;side cells each way: minus the box past its low edge, the box past its
-	;high edge, and 0 in it
-	(cond ((< c 0) (neg +field)) ((>= c side) +field) (+double_0)))
-
-(defun fine-at (x y z)
-	; (fine-at x y z) -> num
-	;the cell of the fine grid of a place, a place over an edge the cell on
-	;the other side, as the field goes on
-	(+ (% (+ x +fine_side) +fine_side) (* +fine_side (+ (% (+ y +fine_side) +fine_side)
-		(* +fine_side (% (+ z +fine_side) +fine_side))))))
-
-(defun rocks-grid ()
-	; (rocks-grid) -> (cells at_cell smalls at_fine big_list)
-	;each rock put in the cells of the two grids it is in, made once for a
-	;round of meetings, a rock moves little in it. The coarse grid, for the
-	;pulls: its cells, each a list of the rocks in it, and each rock's cell
-	;across, up and along. The fine one, for touches: the small rocks in
-	;the cell they are in, and each rock's cell across, up and along, and
-	;if it is big; and the big ones
-	(defq side (/ +field (n2d +cells_side)) fine (/ +field (n2d +fine_side))
-		cells (lists (* +cells_side +cells_side +cells_side))
-		smalls (lists (* +fine_side +fine_side +fine_side))
-		at_fine (list) big_list (list)
-		at_cell (map (lambda ((at & bulk kind &ignore))
-				(defq i (!) reach (* bulk (elem-get kind_reach kind)) big (>= reach +small_reach))
-				(bind '(x y z) (map (lambda (v) (min (dec +cells_side) (n2i (/ v side)))) at))
-				(push (elem-get cells (cell-at x y z)) i)
-				(bind '(fx fy fz) (map (lambda (v) (min (dec +fine_side) (n2i (/ v fine)))) at))
-				(push at_fine (list fx fy fz big))
-				(if big (push big_list i) (push (elem-get smalls (fine-at fx fy fz)) i))
-				(list x y z))
-			rocks))
-	(list cells at_cell smalls at_fine big_list))
 
 (defun rocks-touch (rock ri rock_j dx dy dz d2)
 	;two rocks, the first reaching ri, the second dx dy dz from it, d2 that
@@ -409,96 +356,6 @@
 	(defq by (/ pull_dt (* (+ d2 +pull_soft) (sqrt (+ d2 (const (/ +double_1 (n2d 1000000))))))))
 	(rock-push drift dx dy dz (* by bulk_j bulk_j bulk_j))
 	(rock-push drift_j dx dy dz (neg (* by bulk bulk bulk))))
-
-(defun meet-cell (i rock ri xi yi zi members ox oy oz)
-	;a rock, i, reaching ri and at xi yi zi, with each rock after it of
-	;the members of a cell, ox oy oz the way across the box to the cell
-	(each (lambda (j)
-			(when (> j i)
-				(defq rock_j (elem-get rocks j) at_j (first rock_j)
-					dx (+ (- (elem-get at_j 0) xi) ox) dy (+ (- (elem-get at_j 1) yi) oy)
-					dz (+ (- (elem-get at_j 2) zi) oz))
-				(rocks-touch rock ri rock_j dx dy dz (+ (* dx dx) (* dy dy) (* dz dz)))))
-		members))
-
-(defun rocks-meet (dt grid part)
-	;the rocks of a part moved by those near them, dt seconds of it, a part
-	;every +meet_parts rock from part on, so each part has as many of the
-	;rocks after it as another. A round is all the parts, a part a frame,
-	;so no frame has it all.
-	;Touches, rocks-touch, each pair once: a small rock with each small one
-	;after it in its cell of the fine grid and those round it; a big rock
-	;with each big one after it, and with each small one in the cells it
-	;may touch one in. Pulls, rocks-pull, in one round of +pull_every,
-	;+pull_every times as much, as it changes slowly: a rock as big as
-	;+pull_least with each rock round it in the coarse grid in reach of a
-	;pull, but one as big after it only, so once a pair; two small rocks'
-	;pull on each other is too small to be seen, and most of the pairs
-	(bind '(cells at_cell smalls at_fine big_list) grid)
-	(if (= part 0) (setq meet_round (inc meet_round)))
-	(defq pulling (= (% meet_round +pull_every) 0) pull_dt (* +pull dt (n2d +pull_every)))
-	(each! (lambda ()
-			(defq i (+ (* (!) +meet_parts) part) rock (elem-get rocks i))
-			(bind '(at & bulk kind &ignore) rock)
-			(bind '(xi yi zi) at)
-			(bind '(fx fy fz big) (elem-get at_fine i))
-			(defq ri (* bulk (elem-get kind_reach kind)))
-			(cond
-				(big
-					(each (lambda (j)
-							(when (> j i)
-								(defq rock_j (elem-get rocks j) at_j (first rock_j)
-									dx (near-way (- (elem-get at_j 0) xi)) dy (near-way (- (elem-get at_j 1) yi))
-									dz (near-way (- (elem-get at_j 2) zi)))
-								(rocks-touch rock ri rock_j dx dy dz (+ (* dx dx) (* dy dy) (* dz dz)))))
-						big_list)
-					;the small ones, each in one cell, in the cells it may
-					;touch one in, as far as its reach and a small one's
-					(defq out (+ ri +small_reach) fine (/ +field (n2d +fine_side))
-						lo (map (lambda (v) (n2i (floor (/ (- v out) fine)))) at)
-						hi (map (lambda (v) (n2i (floor (/ (+ v out) fine)))) at))
-					(each! (lambda ()
-							(defq cx (!) ox (cell-wrap cx +fine_side))
-							(each! (lambda ()
-									(defq cy (!) oy (cell-wrap cy +fine_side))
-									(each! (lambda ()
-											(defq cz (!))
-											(each (lambda (j)
-													(defq rock_j (elem-get rocks j) at_j (first rock_j)
-														dx (+ (- (elem-get at_j 0) xi) ox) dy (+ (- (elem-get at_j 1) yi) oy)
-														dz (+ (- (elem-get at_j 2) zi) (cell-wrap cz +fine_side)))
-													(rocks-touch rock ri rock_j dx dy dz (+ (* dx dx) (* dy dy) (* dz dz))))
-												(elem-get smalls (fine-at cx cy cz))))
-										'() (third lo) (inc (third hi))))
-								'() (second lo) (inc (second hi))))
-						'() (first lo) (inc (first hi))))
-				((and (< 0 fx (dec +fine_side)) (< 0 fy (dec +fine_side)) (< 0 fz (dec +fine_side)))
-					;inside the box, the cells round it its own and steps on,
-					;none over an edge
-					(defq c (fine-at fx fy fz))
-					(each (lambda (step) (meet-cell i rock ri xi yi zi (elem-get smalls (+ c step))
-							+double_0 +double_0 +double_0))
-						fine_steps))
-				(:t (each (lambda ((sx sy sz))
-						(defq cx (+ fx sx) cy (+ fy sy) cz (+ fz sz))
-						(meet-cell i rock ri xi yi zi (elem-get smalls (fine-at cx cy cz))
-							(cell-wrap cx +fine_side) (cell-wrap cy +fine_side) (cell-wrap cz +fine_side)))
-					cell_steps)))
-			(when (and pulling (>= bulk +pull_least))
-				(bind '(cx cy cz) (elem-get at_cell i))
-				(each (lambda ((sx sy sz))
-						(defq ox (cell-wrap (+ cx sx) +cells_side) oy (cell-wrap (+ cy sy) +cells_side)
-							oz (cell-wrap (+ cz sz) +cells_side))
-						(each (lambda (j)
-								(defq rock_j (elem-get rocks j))
-								(when (and (/= j i) (or (> j i) (< (third rock_j) +pull_least)))
-									(defq at_j (first rock_j) dx (+ (- (elem-get at_j 0) xi) ox)
-										dy (+ (- (elem-get at_j 1) yi) oy) dz (+ (- (elem-get at_j 2) zi) oz)
-										d2 (+ (* dx dx) (* dy dy) (* dz dz)))
-									(if (< d2 +pull_reach2) (rocks-pull rock rock_j dx dy dz d2 pull_dt))))
-							(elem-get cells (cell-at (+ cx sx) (+ cy sy) (+ cz sz)))))
-					cell_steps)))
-		'() 0 (/ (+ (- (length rocks) part) (dec +meet_parts)) +meet_parts)))
 
 (defun rocks-blast (x y z from to &optional reach strength calm)
 	; (rocks-blast x y z from to [reach strength calm]) -> num
@@ -802,11 +659,11 @@
 ;module, what the app and the tests use: its own numbers, prebound into
 ;its functions as they are made, go with it
 (export-symbols
-	'(rocks clusters buoys hits bumps kind_reach meet_round thread_offsets cell_steps fine_steps
+	'(rocks clusters buoys hits bumps kind_reach thread_offsets
 	+rock_kinds +rock_count +field +clusters +meet_parts +rock_far +fade_near +fade_far
 	+buoys +buoy_red +buoy_green +buoy_blue +calm_looks +nuke_looks +rim_most +spin_most
 	+blast_front +blast_reach +blast_strength
 	rnd rnd-way near-way out-of-sight? make-rocks make-buoys rock-at rock-spin rock-strike
-	rock-turned rocks-blast rocks-grid rocks-meet rocks-world rocks-collide rocks-move rocks-nuke clusters-refresh
+	rock-turned rocks-blast rocks-world rocks-collide rocks-move rocks-nuke clusters-refresh
 	cluster-again buoy-look buoys-move buoys-restation thread-start thread-step))
 (env-pop)
