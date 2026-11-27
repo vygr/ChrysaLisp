@@ -7,6 +7,7 @@
 (import "lib/gpu/vp.inc")
 (import "lib/math/scene.inc")
 (import "lib/nav/nav.inc")
+(import "lib/collide/collide.inc")
 (import "lib/gpu/shapes.inc")
 (import "./craft.inc")
 (import "apps/media/jukebox/music.inc")

@@ -420,6 +420,12 @@
 		(elem-set (get :shapes this) id shape)
 		this)
 
+	(defmethod :mask (id mask)
+		; (. collide :mask id mask) -> collide
+		;what a body may meet now, 0 nothing, a body put by for a while
+		(elem-set (get :masks this) id mask)
+		this)
+
 	(defmethod :every (id n)
 		; (. collide :every id n) -> collide
 		;a body tested every n calls of :pairs or :touches, 1 each call

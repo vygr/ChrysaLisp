@@ -110,6 +110,10 @@
 	+climb_least (n2d -15) +climb_most (n2d 30) +climb_pull (n2d 0.9) +climb_ease (n2d 1.5)
 	;a craft's turn a Nav's, lib/nav: how stiff, level about the world's up
 	+craft_k (n2d 1.6) +craft_up (doubles +double_0 +double_1 +double_0)
+	;the craft kept apart, lib/collide: the world of them and of the flight,
+	;its cells so big, the flight's body, how big it is, and a craft's, of
+	;its size
+	fleet_world :nil +fleet_cell (n2d 64) flight_body :nil +flight_room +double_4 +craft_room (n2d 0.7)
 	+show_rate (n2d 0.7) +near_enough (n2d 3600) +last_wait (n2d 1200000) +dart_ahead_least (n2d 50)
 	+dart_ahead_most (n2d 140) +dart_aside_least (n2d -60) +dart_aside_most (n2d 60)
 	+dart_low_least +double_9 +dart_low_most (n2d 20) +dart_pass_ahead (n2d -90)
@@ -602,6 +606,28 @@
 	(def craft :beam_power (+ power (* (- (if (beaming? craft) +double_1 +double_0) power)
 		(min +double_1 (* dt +beam_snap))))))
 
+(defun fleet-apart (eye)
+	; (fleet-apart eye)
+	;the craft about, and the flight at the eye, each a ball of a world of
+	;lib/collide, a craft as big as most of its size: two that touch pushed
+	;apart along the way between them, half each, a craft all of it from
+	;the flight, so none passes through another nor through the eye. A
+	;craft not about meets nothing
+	(unless fleet_world
+		(setq fleet_world (Collide +fleet_cell) flight_body (. fleet_world :add (cat eye) (list :sphere +flight_room)))
+		(each (lambda (craft)
+				(def craft :body (. fleet_world :add (get :at craft) (list :sphere (* (get :size craft) +craft_room)) 0)))
+			crafts))
+	(. fleet_world :move flight_body (cat eye))
+	(each (lambda (craft)
+			(. (. fleet_world :move (get :body craft) (get :at craft)) :mask (get :body craft) (if (get :live craft) 1 0)))
+		crafts)
+	(each (lambda ((a b depth way &ignore))
+			(defq ca (some (# (if (= (get :body %0) a) %0)) crafts) cb (some (# (if (= (get :body %0) b) %0)) crafts))
+			(if ca (def ca :at (nums-sub (get :at ca) (nums-scale way (if cb (* depth +double_1/2) depth)))))
+			(if cb (def cb :at (nums-add (get :at cb) (nums-scale way (if ca (* depth +double_1/2) depth))))))
+		(. fleet_world :pairs)))
+
 (defun fleet-fly (dt)
 	; (fleet-fly dt)
 	;each craft that is about flies by its kind; one gone comes again when
@@ -615,7 +641,8 @@
 				((and (> now (get :wait craft)) (< about +fleet_most))
 					(craft-start craft)
 					(++ about))))
-		crafts))
+		crafts)
+	(fleet-apart (doubles (first place) height (second place))))
 
 (defun craft-light (craft seconds)
 	; (craft-light craft seconds) -> doubles
@@ -727,6 +754,6 @@
 
 ;module, the crafts and how they fly and are drawn: their numbers,
 ;prebound, go with it
-(export-symbols '(make-scout make-orb make-blob make-triangle make-jelly make-top
-	fleet-fly fleet-lights fleet-beams fleet-draws))
+(export-symbols '(fleet_world flight_body make-scout make-orb make-blob make-triangle make-jelly make-top
+	fleet-apart fleet-fly fleet-lights fleet-beams fleet-draws))
 (env-pop)
