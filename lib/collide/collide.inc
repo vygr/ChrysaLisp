@@ -231,7 +231,7 @@
 (defclass Collide (cell &optional wrap) :nil
 	; (Collide cell [wrap]) -> collide
 	;a world with a grid of cells so big, round so far each way if it wraps
-	(def this :cell cell :wrap (ifn wrap +collide_none) :free (list) :grid (Fmap 101) :big (list)
+	(def this :cell cell :wrap (ifn wrap +collide_none) :free (list) :grid (Fmap 1009) :big (list)
 		:touching (Fmap 31) :owned (Fmap 31)
 		;each body's centre, bound, turn, the half sizes of its box square to
 		;the world, mask, cell, owner, offset from it, and is it a sensor

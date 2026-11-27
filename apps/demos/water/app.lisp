@@ -11,6 +11,7 @@
 (import "./route.inc")
 (import "./fish.inc")
 (import "lib/nav/nav.inc")
+(import "lib/collide/collide.inc")
 
 ;Water, a dive through a reef that goes on every way, drawn by a
 ;(Render-tris), lib/gpu/render_farm.inc, which has the GPU draw it. The
@@ -93,6 +94,10 @@
 	;the auto pilot, a Nav, lib/nav: the stiffness of its turn over the
 	;reef and in the caves, a spring, and how much it is damped, more than
 	;just never past it, as water damps a turn
+	;the stones lying on the seabed, each a ball as far as it reaches, of
+	;lib/collide, its chunk's, round the world as it wraps across, its
+	;cells so big
+	stone_world :nil +stone_cell (n2d 16)
 	pilot :nil +auto_settle (n2d 1.2) +cave_settle (n2d 2.5) +pilot_zeta (n2d 1.2)
 	;how far from straight up or down, across, the auto pilot's up is still
 	;all its own, and over how much more it comes to be the world's
@@ -700,37 +705,28 @@
 	; (clear-of-stones p clear) -> (p moved)
 	;p moved out of the stones near it, and as far clear of them as asked,
 	;each a rounded box of its kind, as it lies, turned and sized, and how
-	;far it was moved; weed it swims through
-	(defq moved +double_0 cx (n2i (floor (/ (first p) +chunk))) cy (n2i (floor (/ (second p) +chunk)))
-		cz (n2i (floor (/ (third p) +chunk))))
-	(each! (lambda ()
-			(defq dz (!))
-			(each! (lambda ()
-					(defq dy (!))
-					(each! (lambda ()
-							(and (defq known (. chunks :find (chunk-key (+ cx (!)) (+ cy dy) (+ cz dz))))
-								(eql (first known) :mesh)
-								(each (lambda ((& & & at bulk weed kind (a up b)))
-										(defq d (nums-sub p at) reach (+ (* bulk +stone_reach) clear))
-										(and (not weed) (< (nums-dot d d) (* reach reach))
-											(bind '(rx ry rz cy sq) (elem-get +stone_shapes kind))
-											(defq k (/ clear bulk) rx (+ (n2d rx) k) ry (+ (n2d ry) k) rz (+ (n2d rz) k) cy (n2d cy)
-												sq (n2d sq) qx (/ (nums-dot d a) bulk) qy (- (/ (nums-dot d up) bulk) cy) qz (/ (nums-dot d b) bulk)
-												;how far out across, as square as the stone is, and up
-												across (pow (+ (pow (abs (/ qx rx)) sq) (pow (abs (/ qz rz)) sq)) (recip sq))
-												high (abs (/ qy ry)))
-											(< (max across high) +double_1)
-											;out the nearer way, through its top or bottom, or its side
-											(defq to (if (> high across)
-													(nums-add at (nums-scale (nums-add (nums-add (nums-scale a qx)
-														(nums-scale up (+ cy (if (< qy +double_0) (neg ry) ry)))) (nums-scale b qz)) bulk))
-													(nums-add at (nums-scale (nums-add (nums-add (nums-scale a (/ qx (max across +dt_least)))
-														(nums-scale up (+ cy qy))) (nums-scale b (/ qz (max across +dt_least)))) bulk))))
-											(setq moved (+ moved (sqrt (nums-dot (defq m (nums-sub to p)) m))) p to)))
-									(elem-get known 7))))
-						'() -1 2))
-				'() -1 2))
-		'() -1 2)
+	;far it was moved: those near it as the world of them, lib/collide, has
+	;them, a ball as far as each reaches; weed it swims through, it is not
+	;in the world
+	(defq moved +double_0)
+	(each (lambda ((id &ignore))
+			(bind '(& & & at bulk & kind (a up b)) (. stone_world :shape id))
+			(defq d (nums-sub p at))
+			(bind '(rx ry rz cy sq) (elem-get +stone_shapes kind))
+			(defq k (/ clear bulk) rx (+ (n2d rx) k) ry (+ (n2d ry) k) rz (+ (n2d rz) k) cy (n2d cy)
+				sq (n2d sq) qx (/ (nums-dot d a) bulk) qy (- (/ (nums-dot d up) bulk) cy) qz (/ (nums-dot d b) bulk)
+				;how far out across, as square as the stone is, and up
+				across (pow (+ (pow (abs (/ qx rx)) sq) (pow (abs (/ qz rz)) sq)) (recip sq))
+				high (abs (/ qy ry)))
+			(when (< (max across high) +double_1)
+				;out the nearer way, through its top or bottom, or its side
+				(defq to (if (> high across)
+						(nums-add at (nums-scale (nums-add (nums-add (nums-scale a qx)
+							(nums-scale up (+ cy (if (< qy +double_0) (neg ry) ry)))) (nums-scale b qz)) bulk))
+						(nums-add at (nums-scale (nums-add (nums-add (nums-scale a (/ qx (max across +dt_least)))
+							(nums-scale up (+ cy qy))) (nums-scale b (/ qz (max across +dt_least)))) bulk))))
+				(setq moved (+ moved (sqrt (nums-dot (defq m (nums-sub to p)) m))) p to)))
+		(. stone_world :near p clear))
 	(list p moved))
 
 (defun clear-of-rock (p)
@@ -829,13 +825,16 @@
 (defun ping-range (way)
 	; (ping-range way) -> :nil | double
 	;how far the rock is from the sub the way given, if it is in reach:
-	;stepped along by how far the water says the rock is at least
+	;stepped along by how far the water says the rock is at least; or a
+	;stone, if one is nearer
 	(defq d +double_1 hit :nil)
 	(while (and (not hit) (< d +ping_reach))
 		(if (< (defq h (field_water (nums-add eye (nums-scale way d)))) +ping_near)
 			(setq hit d)
 			(setq d (+ d (max +ping_step h)))))
-	hit)
+	;and a stone in the way first, the world of them's ray
+	(if (defq stone (. stone_world :cast eye way (ifn hit +ping_reach)))
+		(second stone) hit))
 
 (defun sonar-feed ()
 	; (sonar-feed)
@@ -992,7 +991,9 @@
 			(defq d (nums-sub (chunk-centre cx cy cz) eye))
 			(when (> (nums-dot d d) (* out_of out_of))
 				(push gone key)
-				(if (eql state :mesh) (. render :unmesh mid)))))
+				(when (eql state :mesh)
+					(. render :unmesh mid)
+					(. stone_world :detach key)))))
 	(each (# (. chunks :erase %0)) gone))
 
 (defun stones-ask ()
@@ -1056,7 +1057,14 @@
 				((= (length data) at) (elem-set known 0 :none))
 				(:t (. render :mesh mid (push (doubles) (slice data at -1)) (first reef_files))
 					(elem-set known 0 :mesh)
-					(elem-set known 7 (stones-of (push (doubles) (slice data 0 at)) n)))))))
+					(elem-set known 7 (defq lying (stones-of (push (doubles) (slice data 0 at)) n)))
+					;its stones in the world of them, weed swum through
+					(each (lambda (stone)
+							(bind '(& & & at bulk weed &ignore) stone)
+							(unless weed
+								(. stone_world :narrow
+									(. stone_world :attach key at :nil (list :sphere (* bulk +stone_reach))) :nil stone)))
+						lying))))))
 
 (defun view-sides (right up spread_x)
 	; (view-sides right up spread_x) -> (side ...)
@@ -1306,6 +1314,7 @@
 		field_bed (shader-vp-func field 'bed))
 	;the chunks, made by a farm of children on this machine's nodes, off
 	;this one, each slotted in as it comes
+	(setq stone_world (Collide +stone_cell (doubles +world +double_0 +world)))
 	(setq jobs (Jobs (cat *app_root* "child.lisp") (elem-get select +select_task)
 		(elem-get select +select_reply) (list (max 1 (dec (length (lisp-nodes :t))))) :t))
 	(stones-ask)
