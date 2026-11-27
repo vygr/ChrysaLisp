@@ -526,13 +526,15 @@
 	(setq hits (list))
 	;none with no audio service on this node, its sounds have no handles
 	(when crunch_far
+		(defq first_crunch (random (length crunches)))
 		(each! (lambda ((loud d side))
-				;a crunch at random near, the far one further off, played as loud
-				;as the hit is heard, none too quiet to hear, the far one at most
-				;half
+				;a crunch near, each heard together a different one, from one at
+				;random on, as the same played together adds to many times as
+				;loud; the far one further off; played as loud as the hit is
+				;heard, none too quiet to hear, the far one at most half
 				(defq near (< d +hear_near))
 				(if (> loud (if near +near_least +far_least))
-					(audio-play-rpc (if near (elem-get crunches (random (length crunches))) crunch_far)
+					(audio-play-rpc (if near (elem-get crunches (% (+ first_crunch (!)) (length crunches))) crunch_far)
 						(n2i (* side +pan_most)) (if near loud (min loud +far_most)))))
 			(list (sort heard (lambda (a b) (> (first a) (first b))))) 0 (min +hear_most (length heard)))))
 

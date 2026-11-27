@@ -4,7 +4,7 @@
 // The sound mixer of the host AUDIO drivers. Nothing here knows of SDL, or
 // of any other library. Sounds are held as float stereo at the mix rate,
 // up to 32 of them play at once, each with its pan, and the mix is limited,
-// not clipped.
+// looking a little ahead, not clipped.
 //
 // A driver gives three things. It opens a device that plays float stereo at
 // MIXER_RATE, and when the device wants more it calls mixer_mix, most likely
@@ -77,21 +77,81 @@ struct MixerStream
 static MixerStream mixer_streams[MIXER_MAX_STREAMS];
 static uint32_t mixer_next_stream = 0x100000;
 
-// the limiter. Up to the knee, 90% of full scale, the mix is left as it
-// is. Over the knee it is eased in under full scale, the further over
-// the harder, and never reaches it. The gain of the whole mix is brought
-// down at once for a peak, and is then let back up slowly, so a loud
-// moment is turned down, not clipped.
-#define MIXER_LIMIT_KNEE 0.9f
+// the limiter. The mix is held back a little, MIXER_LIMIT_AHEAD frames,
+// under 6ms, so a peak is seen before it is heard. The gain of the whole
+// mix is brought down, smoothly in that time, to what takes the loudest
+// frame held under the ceiling, then let back up slowly. A loud moment is
+// only ever turned down, never bent: the gain does not follow the wave,
+// so a sound is not clipped at its front, the hardest of it. What it
+// wants of each frame held is kept, and the least of them, till it goes.
+#define MIXER_LIMIT_AHEAD 256
+#define MIXER_LIMIT_CEILING 0.95f
+#define MIXER_LIMIT_ATTACK (5.0f / MIXER_LIMIT_AHEAD)
 #define MIXER_LIMIT_RELEASE (1.0f / (0.25f * MIXER_RATE))
+static float mixer_limit_held[MIXER_LIMIT_AHEAD * MIXER_CHANNELS];
+static float mixer_limit_wants[MIXER_LIMIT_AHEAD];
+static int mixer_limit_at = 0, mixer_limit_hold = 0;
+static float mixer_limit_least = 1.0f;
 static float mixer_limiter_gain = 1.0f;
 
-static float mixer_limiter_want(float peak)
+static void mixer_limit_reset()
 {
-	// the gain that takes a peak to where it should be
-	if (peak <= MIXER_LIMIT_KNEE) return 1.0f;
-	const float room = 1.0f - MIXER_LIMIT_KNEE;
-	return (MIXER_LIMIT_KNEE + room * (1.0f - expf((MIXER_LIMIT_KNEE - peak) / room))) / peak;
+	memset(mixer_limit_held, 0, sizeof(mixer_limit_held));
+	for (int i = 0; i < MIXER_LIMIT_AHEAD; ++i) mixer_limit_wants[i] = 1.0f;
+	mixer_limit_at = 0;
+	mixer_limit_hold = 0;
+	mixer_limit_least = 1.0f;
+	mixer_limiter_gain = 1.0f;
+}
+
+static void mixer_limit(float *mix, int frames)
+{
+	for (int i = 0; i < frames; ++i)
+	{
+		// this frame in, and what it wants, the one held longest out
+		float l = mix[i * 2], r = mix[i * 2 + 1];
+		float peak = fabsf(l) > fabsf(r) ? fabsf(l) : fabsf(r);
+		float want = peak > MIXER_LIMIT_CEILING ? MIXER_LIMIT_CEILING / peak : 1.0f;
+		const int at = mixer_limit_at;
+		float out_l = mixer_limit_held[at * 2], out_r = mixer_limit_held[at * 2 + 1];
+		float out_want = mixer_limit_wants[at];
+		mixer_limit_held[at * 2] = l;
+		mixer_limit_held[at * 2 + 1] = r;
+		mixer_limit_wants[at] = want;
+		mixer_limit_at = (at + 1) % MIXER_LIMIT_AHEAD;
+		// the least gain of those held: this one's if less, else the least
+		// till it goes out, then the least of what is left, the latest of
+		// them, so it stands the longest
+		if (want <= mixer_limit_least)
+		{
+			mixer_limit_least = want;
+			mixer_limit_hold = MIXER_LIMIT_AHEAD;
+		}
+		else if (--mixer_limit_hold <= 0)
+		{
+			float least = 1.0f;
+			int age = 0;
+			for (int k = 0; k < MIXER_LIMIT_AHEAD; ++k)
+			{
+				float w = mixer_limit_wants[(mixer_limit_at + k) % MIXER_LIMIT_AHEAD];
+				if (w <= least)
+				{
+					least = w;
+					age = k;
+				}
+			}
+			mixer_limit_least = least;
+			mixer_limit_hold = age + 1;
+		}
+		// down to it in the time it is held, up slowly
+		float rate = mixer_limit_least < mixer_limiter_gain ? MIXER_LIMIT_ATTACK : MIXER_LIMIT_RELEASE;
+		mixer_limiter_gain += (mixer_limit_least - mixer_limiter_gain) * rate;
+		// and never more than the frame going out wants, should it not be
+		// down all the way yet
+		float g = mixer_limiter_gain < out_want ? mixer_limiter_gain : out_want;
+		mix[i * 2] = out_l * g;
+		mix[i * 2 + 1] = out_r * g;
+	}
 }
 
 static const MixerSound *mixer_find(uint32_t handle)
@@ -111,7 +171,7 @@ static void mixer_reset()
 	memset(mixer_streams, 0, sizeof(mixer_streams));
 	mixer_sound_count = 0;
 	mixer_next_handle = 0x1000;
-	mixer_limiter_gain = 1.0f;
+	mixer_limit_reset();
 }
 
 static MixerStream *mixer_stream_find(uint32_t handle)
@@ -252,18 +312,7 @@ static void mixer_mix(float *mix, int frames)
 	{
 		if (mixer_streams[i].handle) mixer_stream_mix(&mixer_streams[i], mix, frames);
 	}
-	for (int i = 0; i < frames; ++i)
-	{
-		float l = mix[i * 2], r = mix[i * 2 + 1];
-		float peak = l < 0.0f ? -l : l;
-		float peak_r = r < 0.0f ? -r : r;
-		if (peak_r > peak) peak = peak_r;
-		float want = mixer_limiter_want(peak);
-		if (want < mixer_limiter_gain) mixer_limiter_gain = want;
-		else mixer_limiter_gain += (want - mixer_limiter_gain) * MIXER_LIMIT_RELEASE;
-		mix[i * 2] = l * mixer_limiter_gain;
-		mix[i * 2 + 1] = r * mixer_limiter_gain;
-	}
+	mixer_limit(mix, frames);
 }
 
 // a sound, float stereo at the mix rate. The mixer keeps the samples till

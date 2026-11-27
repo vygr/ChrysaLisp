@@ -153,8 +153,12 @@
 	;how far it hears the rock, how many samples later an echo is for a
 	;unit further, how loud the nearest is, the ways across the front it
 	;looks, how far round the widest is, how near the rock the search must
-	;come and its least step; and the loudest a sample of it may be
+	;come and its least step; and the loudest a sample of it may be; the
+	;ping going out with its echoes, still to be written to its stream, and
+	;how far it is written, a little ahead of what is heard, as a stream
+	;holds less than all of it
 	ping_pcm :nil echo_left :nil echo_right :nil ping_quiet :nil sonar_stream :nil ping_at 0 echoes 0
+	sonar_pcm :nil sonar_at 0 +sonar_ahead 4410
 	+ping_every 4000000 +ping_first 2000000 +ping_loud (n2d 0.3)
 	+ping_reach (n2d 80) +ping_unit (n2d 300) +echo_most +double_1/2 +sonar_most (n2d 30000)
 	+ping_ways ''(-1 -0.5 0 0.5 1) +ping_wide (n2d 0.6) +ping_near +double_1/2 +ping_step +double_1/2
@@ -823,7 +827,8 @@
 	;the sonar's ping now and then, and the echoes off the rock across the
 	;front of the sub, each later and fainter the further its rock is, and
 	;from the side its rock is on; none where no rock is in reach, the ping
-	;ringing away into the open water
+	;ringing away into the open water. Written to its stream a little ahead of what is
+	;heard, as all of it is more than a stream holds
 	(defq now (pii-time))
 	(when (and ping_pcm (> (- now ping_at) +ping_every))
 		(setq ping_at now)
@@ -848,8 +853,16 @@
 			;echoes together would be, not wrapped round to a crackle
 			(defq most (reduce (lambda (m v) (max m (abs v))) out +double_1))
 			(if (> most +sonar_most) (setq out (nums-scale out (/ +sonar_most most))))
-			(defq pcm (nums-convert out (shorts)) bytes (* (length pcm) 2))
-			(ifn (audio-stream-left-rpc sonar_stream) (setq sonar_stream :nil)
+			(setq sonar_pcm (nums-convert out (shorts)) sonar_at 0)))
+	;what is made written on, ahead of what is heard, frames of two samples
+	(and sonar_pcm sonar_stream
+		(cond
+			((not (defq left (audio-stream-left-rpc sonar_stream))) (setq sonar_stream :nil sonar_pcm :nil))
+			((< left +sonar_ahead)
+				(defq end (min (length sonar_pcm) (+ sonar_at (* 2 (- (* 2 +sonar_ahead) left))))
+					pcm (slice sonar_pcm sonar_at end) bytes (* (length pcm) 2))
+				(setq sonar_at end)
+				(if (>= end (length sonar_pcm)) (setq sonar_pcm :nil))
 				(audio-stream-write-rpc sonar_stream (obj-set (str-alloc bytes) +str_data bytes pcm))))))
 
 (defun prop-feed (dt)
