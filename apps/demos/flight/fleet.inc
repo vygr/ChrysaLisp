@@ -108,6 +108,8 @@
 	+away_speed (n2d 45) +d_least (n2d 0.001) +pace_along (n2d 0.9)
 	+zoom_ease (n2d 1.8) +speed_ease (n2d 0.8) +reach_least (n2d 30) +reach_secs (n2d 1.8)
 	+climb_least (n2d -15) +climb_most (n2d 30) +climb_pull (n2d 0.9) +climb_ease (n2d 1.5)
+	;a craft's turn a Nav's, lib/nav: how stiff, level about the world's up
+	+craft_k (n2d 1.6) +craft_up (doubles +double_0 +double_1 +double_0)
 	+show_rate (n2d 0.7) +near_enough (n2d 3600) +last_wait (n2d 1200000) +dart_ahead_least (n2d 50)
 	+dart_ahead_most (n2d 140) +dart_aside_least (n2d -60) +dart_aside_most (n2d 60)
 	+dart_low_least +double_9 +dart_low_most (n2d 20) +dart_pass_ahead (n2d -90)
@@ -301,7 +303,12 @@
 		:until (+ (pii-time) (n2i (rand-d +ahead_least +ahead_most)))
 		:at (doubles x (+ (max height (land-at x z)) (rand-d +come_over_least +come_over_most)) z)
 		:head (doubles (neg fx) (neg fz)) :speed (ifn (get :cruise craft) +double_0)
-		:lean +double_0 :turn +double_0 :climb +double_0))
+		:lean +double_0 :turn +double_0 :climb +double_0)
+	;how it turns, a Nav's spring, damped just enough never to swing past
+	(unless (get :nav craft)
+		(def craft :nav (defq nav (Nav (get :at craft) (doubles (neg fx) +double_0 (neg fz)))))
+		(def nav :k +craft_k :zeta +double_1))
+	(def (get :nav craft) :spin (doubles +double_0 +double_0 +double_0)))
 
 (defun craft-gone (craft)
 	; (craft-gone craft)
@@ -413,6 +420,7 @@
 		x (+ cx (* (- gx cx) k)) y (+ cy (* (- gy cy) k)) z (+ cz (* (- gz cz) k)))
 	(def craft :at (doubles x y z) :speed +double_0 :climb +double_0
 		:turn (* (get :turn craft) (- +double_1 k)) :lean (* (get :lean craft) (- +double_1 k)))
+	(def (get :nav craft) :spin (doubles +double_0 +double_0 +double_0))
 	(case (get :phase craft)
 		(:stopping
 			(when (< (+ (* (- gx x) (- gx x)) (* (- gy y) (- gy y)) (* (- gz z) (- gz z))) +double_6)
@@ -434,22 +442,24 @@
 	; (swoop-move craft dt)
 	;in out of the haze, then ahead of the flight, weaving, at its pace,
 	;till its time is up; then round and at the flight, past it close and
-	;away, faster. It turns no faster than it may, eases into a turn, turns
-	;the shorter way round to what is behind it, and leans into a turn, and
-	;one that shows itself, :show, tips slowly one way and the other too
+	;away, faster. Its turn a Nav's, level toward what it makes for, sprung
+	;and damped, so it eases into a turn and out of it, never swinging past,
+	;no faster than it may, the shorter way round to what is behind it; and
+	;it leans into a turn, and one that shows itself, :show, tips slowly
+	;one way and the other too
 	(bind '(cx cy cz) (get :at craft))
 	(bind '(hx hz) (get :head craft))
 	(defq now (pii-time) phase (get :phase craft) t (/ (n2d (- now (get :born craft))) +second)
 		goal (swoop-goal craft t))
 	(bind '(gx gy gz) goal)
 	(defq dx (- gx cx) dz (- gz cz) d (+ (sqrt (+ (* dx dx) (* dz dz))) +d_least)
-		cross (/ (- (* hx dz) (* hz dx)) d) along (+ (* hx dx) (* hz dz))
-		most (get :turn_most craft)
-		want (if (< along +double_0) (if (< cross +double_0) most (neg most))
-			(max (neg most) (min most (* (neg cross) +double_3))))
-		turn (+ (get :turn craft) (* (- want (get :turn craft)) (min +double_1 (* dt +double_2))))
-		a (* turn dt) ca (cos a) sa (sin a)
-		nx (+ (* hx ca) (* hz sa)) nz (- (* hz ca) (* hx sa))
+		along (+ (* hx dx) (* hz dz)) nav (get :nav craft))
+	(def nav :turn_most (get :turn_most craft) :turn (quat-frame (doubles hx +double_0 hz) +craft_up))
+	(nav-turn-to nav (quat-frame (doubles (/ dx d) +double_0 (/ dz d)) +craft_up) dt)
+	;its way level, and how fast it turns about up, to the left more
+	(bind '(wx & wz) (get :way nav))
+	(defq wl (+ (sqrt (+ (* wx wx) (* wz wz))) +d_least) nx (/ wx wl) nz (/ wz wl)
+		turn (second (get :spin nav))
 		pace (case phase
 			(:in (get :cruise craft))
 			(:pace (max +double_10 (min (get :cruise craft) (+ +speed (* along +pace_along)))))

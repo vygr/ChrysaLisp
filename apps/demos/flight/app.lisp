@@ -6,6 +6,7 @@
 (import "lib/gpu/render_farm.inc")
 (import "lib/gpu/vp.inc")
 (import "lib/math/scene.inc")
+(import "lib/nav/nav.inc")
 (import "lib/gpu/shapes.inc")
 (import "./craft.inc")
 (import "apps/media/jukebox/music.inc")
