@@ -7,10 +7,13 @@
 (import "lib/gpu/vp.inc")
 (import "lib/math/scene.inc")
 (import "lib/nav/nav.inc")
-(import "lib/collide/collide.inc")
+(import "lib/debug/frame_log.inc")
+(import "lib/physics/collide.inc")
+(import "lib/physics/move.inc")
 (import "lib/gpu/shapes.inc")
 (import "./craft.inc")
 (import "apps/media/jukebox/music.inc")
+(import "service/audio/app.inc")
 
 ;A flight over a land that is made as it goes, drawn by a (Render-tris),
 ;lib/gpu/render_farm.inc, which has the GPU draw it, or on a host with
@@ -26,6 +29,10 @@
 ;land.shader, which Lisp asks too, (shader-vp-func); or is flown by the
 ;pointer. The day goes round, (day-state), and the detail drawn is what
 ;the GPU keeps up with
+;
+;A cow's moos, data/moo1.wav to moo4.wav, are cut from "Cow Moo" by
+;DRAGON-STUDIO, pixabay.com/sound-effects/nature-cow-moo-339729/, under the
+;Pixabay Content License.
 
 (enums +event +event_user
 	(enum path prev music next day))
@@ -154,6 +161,10 @@
 	;the music, the user's Jukebox favourites, apps/media/jukebox/music.inc,
 	;and whether the user wants it, kept whether or not there is any to play
 	music :nil music_on :t
+	;the moos of a cow, data/moo1.wav to moo4.wav, their handles of the
+	;audio service, :nil with none; how far a sound pans either way; and how
+	;near a moo is heard all of it, fading further off
+	moo_sounds :nil +pan_most (n2d 255) +moo_near (n2d 60)
 	;the flight, the size, the music, the time of day and the detail, as
 	;they were when last closed, (config-save)
 	*config* :nil +config_version 1 +config_file (cat (get :home *env*) "flight.tre"))
@@ -544,29 +555,39 @@
 	(each (# (if (>= %0 +double_0) (push seen (!)))) least)
 	seen)
 
-;the frame log, for tuning, on with +frame_log: each second its rate and
-;the sways of the flight, turns from turning one way to the other, more
-;than a little, to tests/scratch/flight/frames.log; for the Test user the
-;app quits after a minute. The sways, the way it turned, the stream, when
-;it began and when the last line was
-(defq +frame_log :nil sways 0 sway_way +double_0 +sway_least (n2d 0.01) log_stream :nil log_began 0
-	log_at 0 log_frames 0 log_quit :nil)
+;the frame log, for tuning, on with +frame_log, lib/debug/frame_log.inc:
+;each second its rate and the sways of the flight, turns from turning one
+;way to the other, more than a little, to tests/scratch/flight/frames.log;
+;for the Test user the app quits after a minute. The log, the way it
+;turned, when the last line was, and whether to quit
+(defq +frame_log :nil frame_log (if +frame_log (FrameLog "tests/scratch/flight/frames.log" '()))
+	sway_way +double_0 +sway_least (n2d 0.01) log_at 0 log_quit :nil)
 
 (defun flight-log (now)
 	; (flight-log now) -> :t | :nil
 	;a sway counted, a second's line written; :t to quit
-	(when +frame_log
+	(when frame_log
 		(when (> (abs turning) +sway_least)
-			(if (< (* turning sway_way) +double_0) (++ sways))
+			(if (< (* turning sway_way) +double_0) (. frame_log :add :sways))
 			(setq sway_way turning))
-		(++ log_frames)
-		(unless log_stream
-			(setq log_stream (file-stream "tests/scratch/flight/frames.log" +file_open_write) log_began now log_at now))
+		(. frame_log :frame)
+		(if (= log_at 0) (setq log_at now))
 		(when (> (- now log_at) 1000000)
-			(write-line log_stream (cat (str (/ (- now log_began) 1000000)) "s " (str log_frames) " fps sways " (str sways)))
-			(stream-flush log_stream)
-			(setq sways 0 log_frames 0 log_at now)
-			(and (eql (get '*env_node_user*) "Test") (> (- now log_began) 60000000)))))
+			(setq log_at now)
+			(and (> (. frame_log :line now (get :frames frame_log) (list (list "sways" (. frame_log :got :sways))) '()) 60)
+				(eql (get '*env_node_user*) "Test")))))
+
+(defun moos-play (eye right)
+	; (moos-play eye right)
+	;a moo for each cow just lifted off the ground, one of them at random,
+	;from the side it is on, all of it near, fading as it is further off
+	(when moo_sounds
+		(each (lambda (at)
+				(defq d (nums-sub at eye) far (sqrt (+ (nums-dot d d) +double_1)))
+				(audio-play-rpc (elem-get moo_sounds (random (length moo_sounds)))
+					(n2i (* +pan_most (/ (nums-dot d right) far))) (min +double_1 (/ +moo_near far))))
+			moos))
+	(clear moos))
 
 (defun draw-frame ()
 	;where the flight is, the way it looks, and the frame: the land, a grid
@@ -608,6 +629,7 @@
 		shift (doubles (* (n2d (n2i (/ (first eye) cell))) cell) (* (n2d (n2i (/ (third eye) cell))) cell)))
 	;the day as it is now, the sun, the sky and the light
 	(day-state seconds)
+	(moos-play eye right)
 	;what the land's shaders are given, the one list of each for every tile
 	;of it, which the render then packs the once. The GPU's land is its
 	;tiles that are seen, the other all of it
@@ -775,7 +797,10 @@
 	;the size it was closed at
 	(if (. *config* :find :large) (set-size +large))
 	;the user's Jukebox favourites behind it, if it had them on
-	(setq music (Music select +select_music) music_on (. *config* :find :music))
+	(setq music (Music select +select_music) music_on (. *config* :find :music)
+		;the moos of a cow, handles of the audio service, none with no service
+		moo_sounds (map (# (audio-add-rpc (cat *app_root* "data/moo" (str %0) ".wav"))) '(1 2 3 4)))
+	(unless (every (const num?) moo_sounds) (setq moo_sounds :nil))
 	(if music_on (. music :start))
 	(music-show)
 	(.-> *canvas* (:fill (argb haze)) (:swap +swap_write))
@@ -872,5 +897,6 @@
 	(config-save)
 	(. music :stop)
 	(if jobs (. jobs :close))
+	(if moo_sounds (each (const audio-remove-rpc) moo_sounds))
 	(. render :close)
 	(. *window* :close))

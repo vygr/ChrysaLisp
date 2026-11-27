@@ -179,6 +179,25 @@
 (assert-true "turned right" (> (first (get :way n_nav)) +double_0))
 (assert-true "leaning into it" (> (first (get :up n_nav)) +double_0))
 
+;a stick: nothing in its dead middle, bent past it, its sign kept, full at
+;the edge
+(assert-true "dead in the middle" (= (nav-stick (n2d 0.05) +double_1/10 +double_2) +double_0))
+(assert-true "bent, gentle near the middle" (< (nav-stick (n2d 0.55) +double_1/10 +double_2) (n2d 0.3)))
+(assert-true "its sign kept" (< (nav-stick (n2d -0.55) +double_1/10 +double_2) +double_0))
+(assert-true "full at the edge" (n_near (list (nav-stick +double_-1 +double_1/10 +double_2)) (list +double_-1) +n_eps))
+
+;a player's turn: toward the stick, and still the step the stick is let
+;go, upright
+(defq n_nav (Nav (n_at 0 0 0) (n_at 0 0 -1)))
+(def n_nav :stick (list +double_1 +double_0))
+(times 15 (nav-turn-pointer n_nav +n_dt))
+(assert-true "a player's turn right" (> (first (get :way n_nav)) +double_0))
+(def n_nav :stick :nil)
+(defq n_way (cat (get :way n_nav)))
+(nav-turn-pointer n_nav +n_dt)
+(assert-true "still as the stick is let go" (n_near (get :way n_nav) n_way (n2d 0.001)))
+(assert-true "upright, leant no more than it may" (> (second (get :up n_nav)) (n2d 0.5)))
+
 ;its state, kept and set again
 (defq n_state (. n_nav :state) n_other (Nav (n_at 5 5 5) (n_at 1 0 0)))
 (. n_other :state n_state)

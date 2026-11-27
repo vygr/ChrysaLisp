@@ -143,15 +143,25 @@
 	;straight at its goal, no path
 	(get :goal nav))
 
+(defun nav-stick (v dead bend)
+	; (nav-stick v dead bend) -> double
+	;how hard a stick, -1 to 1, pushes: nothing in its dead middle, and past
+	;it to the power bend, its sign kept, 1 straight, 2 gentle near the
+	;middle and full at the edge
+	(defq a (max +double_0 (/ (- (abs v) dead) (- +double_1 dead))))
+	(if (< v +double_0) (neg (pow a bend)) (pow a bend)))
+
 (defun nav-aim-pointer (nav dt)
 	; (nav-aim-pointer nav dt) -> place
 	;a player's: ahead, and across and up by its :stick, (x y) -1 to 1, as
-	;far as :stick_reach, :nil the stick let go
+	;far as :stick_reach, past its :stick_dead middle and bent by
+	;:stick_bend, nav-stick; :nil the stick let go
 	(defq way (get :way nav) at (nums-add (get :at nav) way))
 	(if (defq stick (get :stick nav))
-		(nums-add at (nums-add (nums-scale (nav-cross way (get :up nav)) (* (first stick) (get :stick_reach nav)))
-			(nums-scale (get :up nav) (* (second stick) (get :stick_reach nav)))))
-		at))
+		(defq dead (get :stick_dead nav) bend (get :stick_bend nav) reach (get :stick_reach nav)
+			at (nums-add at (nums-add (nums-scale (nav-cross way (get :up nav)) (* (nav-stick (first stick) dead bend) reach))
+				(nums-scale (get :up nav) (* (nav-stick (second stick) dead bend) reach))))))
+	at)
 
 (defun nav-field-slope (field p e)
 	; (nav-field-slope field p e) -> doubles
@@ -297,6 +307,19 @@
 	(setq turn (quat-unit turn))
 	(def nav :turn turn :way (quat-vec3-rot turn +nav_back) :up (quat-vec3-rot turn +nav_y)))
 
+(defun nav-turn-pointer (nav dt)
+	; (nav-turn-pointer nav dt)
+	;a player's turn, toward its pointer's aim, nav-aim-pointer: a share of
+	;the way there a step, :point_rate a second, no faster than :point_most,
+	;so it stops as the stick is let go and never swings past; its up level
+	;and leant into the turn, nav-up-lean. Its spring's spin let go, so the
+	;auto pilot's turn starts from rest
+	(defq way (nav-path-unit (nums-sub (nav-aim-pointer nav dt) (get :at nav)))
+		now (get :turn nav) want (quat-frame way (nav-up-lean nav way dt)) dt (min dt +nav_dt_most)
+		turn (quat-unit (quat-toward now want (min (* (get :point_most nav) dt)
+			(* (- +double_1 (exp (neg (* dt (get :point_rate nav))))) (quat-angle now want))))))
+	(def nav :turn turn :spin +nav_none :way (quat-vec3-rot turn +nav_back) :up (quat-vec3-rot turn +nav_y)))
+
 ;;;;;
 ; Nav
 ;;;;;
@@ -328,8 +351,11 @@
 		;to keep to the side it went round last, and that side
 		:field_fn :nil :clear +double_2 :body +double_1 :field_step +double_1/2
 		:clear_fn :nil :cone +double_2 :cone_rings 4 :cone_count 8 :cone_keep +double_2 :cone_side :nil
-		;a tour, a wander, a pointer's stick
+		;a tour, a wander, a pointer's stick, how far it reaches, its dead
+		;middle and its bend, and the share a second a player's turn goes, and
+		;how fast at most
 		:tour (list) :tour_at -1 :home (cat at) :wander (n2d 20) :wander_ok :nil :stick :nil :stick_reach +double_1
+		:stick_dead +double_0 :stick_bend +double_1 :point_rate +double_4 :point_most +double_1
 		;stuck: gone less in so many seconds than so much of its cruise
 		:stuck_secs +double_2 :stuck_least +double_1/4 :stuck_at (cat at) :stuck_for +double_0
 		;the plugins
@@ -428,7 +454,7 @@
 (export-symbols
 	'(nav-spring nav-cross nav-far nav-rnd nav-turn-to
 	nav-settle nav-route-line nav-route-graph nav-next-tour nav-next-wander
-	nav-aim-follow nav-aim-seek nav-aim-pointer
+	nav-aim-follow nav-aim-seek nav-stick nav-aim-pointer nav-turn-pointer
 	nav-field-slope nav-field-clear nav-avoid-field nav-side nav-avoid-cone
 	nav-speed-cruise nav-up-free nav-up-level nav-up-lean nav-move-field))
 (env-pop)

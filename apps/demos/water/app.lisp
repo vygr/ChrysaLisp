@@ -7,11 +7,14 @@
 (import "lib/gpu/shapes.inc")
 (import "apps/media/jukebox/music.inc")
 (import "service/audio/app.inc")
+(import "lib/audio/wav.inc")
 (import "./chunk.inc")
 (import "./route.inc")
 (import "./fish.inc")
 (import "lib/nav/nav.inc")
-(import "lib/collide/collide.inc")
+(import "lib/debug/frame_log.inc")
+(import "lib/physics/move.inc")
+(import "lib/physics/collide.inc")
 
 ;Water, a dive through a reef that goes on every way, drawn by a
 ;(Render-tris), lib/gpu/render_farm.inc, which has the GPU draw it. The
@@ -24,6 +27,11 @@
 ;same every time. The auto pilot goes from junction to junction, along
 ;the tunnels and out over the reef; or the pointer steers. The diver is
 ;always under the water. The user's Jukebox favourites play behind it
+;
+;The sub's sonar, data/ping.wav and echo.wav, is cut from "Submarine
+;Sonar" by DRAGON-STUDIO,
+;pixabay.com/sound-effects/film-special-effects-submarine-sonar-386154/,
+;under the Pixabay Content License, data/README.md.
 
 (enums +event +event_user
 	(enum mode prev music next))
@@ -52,6 +60,8 @@
 	;render has, and the schools swimming round
 	fish_files (list (cat *app_root* "fish_vertex.shader") (cat *app_root* "fish_lit.shader"))
 	+mesh_fish 80 fish_had (map! (lambda () :nil) '() 0 +fish_kinds) schools (list) fish_drawn 0
+	;how the fish move, lib/physics: each a body
+	mover (Mover)
 	;the meshes, the water round and over, the stones from +mesh_stone on,
 	;each kind near to and further off, and the chunks from +mesh_chunk on;
 	;which stones' meshes the render has
@@ -86,16 +96,15 @@
 	detail 0 slow 0 fast 0 +rate_least 50 +rate_most 58 detail_down 0
 	+view_of (doubles (n2d 90) (n2d 80) (n2d 70) (n2d 60) (n2d 50)) +cubes_of ''(26 26 22 17 13)
 	view (n2d 90) murk (n2d 0.05) +murk_gone (n2d 4.6)
-	;the diver: where the eye is, the way it looks and its up, how fast it
-	;turns at most, how soon it comes to the turn it wants, how soon it
-	;comes upright, how fast it swims, its lamp, and the pointer
-	eye :nil forward :nil up :nil turned 0 stick :nil yaw +double_0 pitch +double_0
-	+turn_most (n2d 0.3) +turn_ease +double_1 +upright (n2d 0.6) +swim +double_2
+	;the diver: where the eye is, the way it looks and its up, the pointer,
+	;how fast it turns at most and how fast it swims
+	eye :nil forward :nil up :nil turned 0 stick :nil
+	+turn_most (n2d 0.3) +swim +double_2
 	;the auto pilot, a Nav, lib/nav: the stiffness of its turn over the
 	;reef and in the caves, a spring, and how much it is damped, more than
 	;just never past it, as water damps a turn
 	;the stones lying on the seabed, each a ball as far as it reaches, of
-	;lib/collide, its chunk's, round the world as it wraps across, its
+	;lib/physics, its chunk's, round the world as it wraps across, its
 	;cells so big
 	stone_world :nil +stone_cell (n2d 16)
 	pilot :nil +auto_settle (n2d 1.2) +cave_settle (n2d 2.5) +pilot_zeta (n2d 1.2)
@@ -103,8 +112,11 @@
 	;all its own, and over how much more it comes to be the world's
 	+upright_from (n2d 0.2) +upright_over (n2d 0.3)
 	;its speed now, eased up to a sprint while the right button is held and
-	;down again after, how fast either way, a second, and the buttons
+	;down again after, how fast either way, a second, and the buttons; its
+	;body of the mover, how fast its going turns to where it faces, a share a
+	;second, and how fast it is shoved off the rock
 	speed +double_2 +sprint +double_6 +sprint_up +double_1 +sprint_down (n2d 0.7)
+	sub :nil +sub_align (n2d 8) +sub_shove (n2d 30)
 	sprinting :nil pressed 0 +right_button 4 +lamp (n2d 2.4)
 	;the scooter's whine as the right button is held: its loop's samples,
 	;made at the start, the stream it is played on, where in the loop it
@@ -131,18 +143,16 @@
 	;how loud the softest bump is, of the loudest, and the least step of time
 	+thud_soft (n2d 0.3) +dt_least (n2d 0.001)
 	;the sub's sonar, in stereo: its ping's samples, its echo's in the left
-	;and in the right, silence to place the echoes in, made at the start,
-	;the stream it is played on, when the last went out, how often, the
-	;first how soon; the ping's note, how fast it sounds and dies, how long,
-	;and how loud, of the scooter's; the echo's, higher and short; how far
-	;it hears the rock, how many samples later an echo is for a unit
-	;further, how loud the nearest is, the ways across the front it looks,
-	;how far round the widest is, how near the rock the search must come
-	;and its least step
+	;and in the right, silence to place the echoes in, loaded at the start,
+	;data/README.md, the stream it is played on, when the last went out,
+	;how often, the first how soon; how loud the ping is, of the scooter's;
+	;how far it hears the rock, how many samples later an echo is for a
+	;unit further, how loud the nearest is, the ways across the front it
+	;looks, how far round the widest is, how near the rock the search must
+	;come and its least step
 	ping_pcm :nil echo_left :nil echo_right :nil ping_quiet :nil sonar_stream :nil ping_at 0 echoes 0
-	+ping_every 4000000 +ping_first 2000000 +ping_note (n2d 1800) +ping_rise (n2d 300) +ping_die (n2d 4.4)
-	+ping_long 16538 +ping_loud (n2d 0.3) +echo_note (n2d 2700) +echo_rise (n2d 400) +echo_die (n2d 22)
-	+echo_long 4410 +ping_reach (n2d 80) +ping_unit (n2d 300) +echo_most (n2d 0.7)
+	+ping_every 4000000 +ping_first 2000000 +ping_loud (n2d 0.3)
+	+ping_reach (n2d 80) +ping_unit (n2d 300) +echo_most (n2d 0.7)
 	+ping_ways ''(-1 -0.5 0 0.5 1) +ping_wide (n2d 0.6) +ping_near +double_1/2 +ping_step +double_1/2
 	;the stones as the diver bumps into them: each kind a rounded box, how
 	;far each way, of its size, how far up its middle, and how square across,
@@ -158,7 +168,10 @@
 	;how much of the water's light reaches the eye, eased, the least, and
 	;how often it is looked at again
 	open +double_1 +open_least (n2d 0.04) +open_ease +double_2 open_at 0
-	+stick_reach (n2d 0.3) +dead (n2d 0.15) +stick_turn (n2d 0.25)
+	;the pointer: how far its edge turns the way wanted, its dead middle, how
+	;fast at most it turns the diver, a second, and the share of the way to
+	;what it asks the turn goes, a second
+	+stick_reach (n2d 0.3) +dead (n2d 0.08) +stick_turn (n2d 0.25) +point_rate +double_2
 	;how near the rock it may come, and how hard it is pushed off
 	+clear (n2d 1.3) +push (n2d 3)
 	;the auto pilot: the way ahead, legs of it, each (id places centred
@@ -634,13 +647,6 @@
 	;how far a place is from the eye
 	(sqrt (nums-dot (defq d (nums-sub p eye)) d)))
 
-(defun beyond-dead (v)
-	; (beyond-dead v) -> double
-	(cond
-		((> v +dead) (/ (- v +dead) (const (- +double_1 +dead))))
-		((< v (neg +dead)) (/ (+ v +dead) (const (- +double_1 +dead))))
-		(+double_0)))
-
 (defun auto-turn (dt)
 	; (auto-turn dt)
 	;the auto pilot turned toward its line, a Nav's turn: the way it faces
@@ -651,13 +657,8 @@
 	;straight up or down its own kept, the more the nearer, so it is the
 	;same down a shaft as level, and never left upside down. The eye is
 	;where the Nav is, it swims as it did, swim
-	(unless pilot
-		(setq pilot (Nav eye forward up))
-		(def pilot :zeta +pilot_zeta :lead (/ (n2d +aim_on) +swim) :lead_least (n2d +aim_on)
-			:upright_from +upright_from :upright_over +upright_over :aim_fn pilot-aim :avoid_fn pilot-avoid))
-	(def pilot :at eye :speed speed :way forward :up up :turn (quat-frame forward up))
 	(defq aim (pilot-avoid pilot (pilot-aim pilot dt)) cave (elem-get (first legs) 3))
-	(setq aim_way (unit (nums-sub aim eye)) yaw +double_0 pitch +double_0)
+	(setq aim_way (unit (nums-sub aim eye)))
 	;as nimble the faster it goes, so it follows a curve as well at speed:
 	;stiffer and no less fast to turn, by how much faster than it swims
 	(defq faster (max +double_1 (/ speed +swim)))
@@ -666,46 +667,36 @@
 	(nav-turn-to pilot (quat-frame aim_way (nav-up-level pilot aim_way dt)) dt)
 	(setq forward (get :way pilot) up (get :up pilot)))
 
-(defun pointer-turn (dt right)
-	; (pointer-turn dt right)
-	;the eye turned toward the pointer, eased, a lean, no faster than it
-	;can; upright again of the world's up, the less the nearer straight up or
-	;down it looks
-	(defq heading (if stick (unit (nums-add forward (nums-add (nums-scale right (* (beyond-dead (first stick)) +stick_reach))
-				(nums-scale up (* (beyond-dead (second stick)) +stick_reach)))))
-			forward)
-		want_yaw (* (nums-dot heading right) +double_2) want_pitch (* (nums-dot heading up) +double_2)
-		k (min +double_1 (* dt +turn_ease))
-		most +stick_turn)
-	(setq yaw (+ yaw (* k (- (max (neg most) (min most want_yaw)) yaw)))
-		pitch (+ pitch (* k (- (max (neg most) (min most want_pitch)) pitch))))
-	(defq a (* yaw dt) b (* pitch dt)
-		f (nums-add (nums-scale forward (cos a)) (nums-scale right (sin a))))
-	(setq forward (unit (nums-add (nums-scale f (cos b)) (nums-scale up (sin b))))
-		up (unit (nums-sub (nums-scale up (cos b)) (nums-scale f (sin b)))))
-	(defq level (nums-sub (const (doubles +double_0 +double_1 +double_0)) (nums-scale forward (second forward)))
-		level_by (sqrt (nums-dot level level)))
-	(when (> level_by +double_1/2)
-		(setq up (nums-add up (nums-scale (nums-sub (nums-scale level (recip level_by)) up)
-			(min +double_1 (* dt +upright +double_2 (- level_by +double_1/2)))))))
-	(setq up (unit (cross (cross forward up) forward))))
-
 (defun turn-eye ()
 	; (turn-eye) -> dt
 	;the eye turned toward where it is going, the auto pilot's aim or the
 	;pointer's, eased, and no faster than it can; upright again of the
 	;world's up, the less the nearer straight up or down it looks. Its ways
 	;made square and of length 1 again. The seconds since last time
-	(defq now (pii-time) dt (min (/ (n2d (- now turned)) +second) +dt_most) right (cross forward up))
+	(defq now (pii-time) dt (min (/ (n2d (- now turned)) +second) +dt_most))
 	(setq turned now)
-	(if (eql mode :auto) (auto-turn dt) (pointer-turn dt right))
+	;the pilot, a Nav, where the eye is
+	(unless pilot
+		(setq pilot (Nav eye forward up))
+		(def pilot :zeta +pilot_zeta :lead (/ (n2d +aim_on) +swim) :lead_least (n2d +aim_on)
+			:upright_from +upright_from :upright_over +upright_over :aim_fn pilot-aim :avoid_fn pilot-avoid
+			:stick_reach +stick_reach :stick_dead +dead :point_rate +point_rate :point_most +stick_turn
+			:lean +double_0))
+	(def pilot :at eye :speed speed :way forward :up up :turn (quat-frame forward up))
+	;the auto pilot's, or toward the pointer, a player's turn, still as it is
+	;let go
+	(cond
+		((eql mode :auto) (auto-turn dt))
+		(:t (def pilot :stick stick)
+			(nav-turn-pointer pilot dt)
+			(setq forward (get :way pilot) up (get :up pilot))))
 	dt)
 
 (defun clear-of-stones (p clear)
 	; (clear-of-stones p clear) -> (p moved)
 	;p moved out of the stones near it, and as far clear of them as asked,
 	;each a rounded box of its kind, as it lies, turned and sized, and how
-	;far it was moved: those near it as the world of them, lib/collide, has
+	;far it was moved: those near it as the world of them, lib/physics, has
 	;them, a ball as far as each reaches; weed it swims through, it is not
 	;in the world
 	(defq moved +double_0)
@@ -796,14 +787,17 @@
 			(ifn (audio-stream-left-rpc thud_stream) (setq thud_stream :nil)
 				(audio-stream-write-rpc thud_stream (obj-set (str-alloc bytes) +str_data bytes pcm))))))
 
-(defun ring (note rise die long loud)
-	; (ring note rise die long loud) -> doubles
-	;a note rung, quickly up, ringing away
-	(defq k (* +double_2pi note (recip (n2d +prop_rate))))
-	(apply (const doubles) (map! (lambda ()
-			(defq t (/ (n2d (!)) (n2d +prop_rate)))
-			(* +prop_scale loud (- +double_1 (exp (* (neg rise) t))) (exp (* (neg die) t)) (sin (* k (n2d (!))))))
-		'() 0 long)))
+(defun sound-load (file peak)
+	; (sound-load file peak) -> :nil | doubles
+	;a sound of the app's data, 16 bit mono at +prop_rate, its samples as
+	;numbers made as loud as peak at the most; :nil if it is not there or
+	;not that
+	(when (defq in (file-stream (cat *app_root* "data/" file)))
+		(bind '(rate channels bits bytes) (WAV-info in))
+		(when (and (= rate +prop_rate) (= channels 1) (= bits 16) (defq data (read-blk in bytes)))
+			(defq pcm (nums-convert (push (shorts) data) (doubles) :t)
+				most (reduce (lambda (m v) (max m (abs v))) pcm +double_1))
+			(nums-scale pcm (/ peak most)))))
 
 (defun stereo (l r)
 	; (stereo l r) -> doubles
@@ -811,16 +805,17 @@
 	(apply (const doubles) (reduce! (lambda (out a b) (push out a b)) (list l r) (list))))
 
 (defun ping-make ()
-	; (ping-make) -> (ping echo_left echo_right quiet)
-	;the sonar's ping, long and high, both sides alike; its echo, higher
-	;and short, on the left and on the right, so an echo is placed between
-	;by how much of each; and silence as long as all of them
-	(defq ping (ring +ping_note +ping_rise +ping_die +ping_long +ping_loud)
-		echo (ring +echo_note +echo_rise +echo_die +echo_long +double_1)
-		none (nums-scale echo +double_0)
-		frames (+ +ping_long +echo_long (n2i (* +ping_reach +ping_unit))))
-	(list (stereo ping ping) (stereo echo none) (stereo none echo)
-		(nums-scale (stereo (defq all (apply (const doubles) (map! (# +double_0) '() 0 frames))) all) +double_0)))
+	; (ping-make) -> :nil | (ping echo_left echo_right quiet)
+	;the sonar's ping, data/ping.wav, both sides alike, as loud as
+	;+ping_loud of the scooter; its echo, data/echo.wav, higher and short,
+	;on the left and on the right, so an echo is placed between by how much
+	;of each; and silence as long as all of them. :nil with none of them
+	(when (and (defq ping (sound-load "ping.wav" (* +prop_scale +ping_loud)))
+			(defq echo (sound-load "echo.wav" +prop_scale)))
+		(defq none (nums-scale echo +double_0)
+			frames (+ (length ping) (length echo) (n2i (* +ping_reach +ping_unit))))
+		(list (stereo ping ping) (stereo echo none) (stereo none echo)
+			(nums-scale (stereo (defq all (apply (const doubles) (map! (# +double_0) '() 0 frames))) all) +double_0))))
 
 (defun ping-range (way)
 	; (ping-range way) -> :nil | double
@@ -890,35 +885,35 @@
 
 (defun swim (dt)
 	; (swim dt)
-	;the eye on along its way, kept off the rock, and under the surface.
-	;The auto pilot slows for a sharp turn, and on a leg of the caves till
-	;its line comes; if it makes no headway for a long while it asks for a
-	;new line from where it is
-	(setq speed (+ speed (* (- (if sprinting +sprint (if (and (eql mode :auto) aim_way)
-				(* +swim (max +least_speed (nums-dot forward aim_way))
-					(if (and (elem-get (first legs) 3) (not (elem-get (first legs) 2))) +unlined_speed +double_1))
-				+swim)) speed)
-			(min +double_1 (* dt (if sprinting +sprint_up +sprint_down)))))
-		eye (nums-add eye (nums-scale forward (* speed dt))))
-	;touching the rock, pushed off it, and out of the stones: a thud the
+	;the eye on along its way, kept off the rock, and under the surface, by
+	;its body of the mover: the speed it would go its flow, eased to, up to a
+	;sprint and down again as fast as each, its going turned to where it
+	;faces. The auto pilot slows for a sharp turn, and on a leg of the caves
+	;till its line comes; if it makes no headway for a long while it asks for
+	;a new line from where it is
+	(defq want (if sprinting +sprint (if (and (eql mode :auto) aim_way)
+			(* +swim (max +least_speed (nums-dot forward aim_way))
+				(if (and (elem-get (first legs) 3) (not (elem-get (first legs) 2))) +unlined_speed +double_1))
+			+swim)))
+	(. mover :face sub forward)
+	(. mover :set sub :flow (nums-scale forward want) :drag (if sprinting +sprint_up +sprint_down))
+	(setq speed (sqrt (nums-dot (defq v (. mover :velocity sub)) v)))
+	;touching the rock, shoved off it, and out of the stones: a thud the
 	;once as it hits, as loud as it hit, none again till it is clear
 	(defq hit +double_0)
 	(when (< (defq h (field_water eye)) +clear)
-		(++ touches)
+		(if frame_log (. frame_log :add :touches))
 		(setq hit (- +clear h)))
-	(setq eye (clear-of-rock eye))
-	(bind '(p moved) (clear-of-stones eye +stone_clear))
-	(setq eye p)
+	(bind '(p moved) (clear-of-stones (clear-of-rock eye) +stone_clear))
+	(. mover :shove sub (nums-sub p eye) :t)
 	(when (> moved +double_0)
-		(++ touches)
+		(if frame_log (. frame_log :add :touches))
 		(setq hit (+ hit moved)))
 	(cond
 		((= hit +double_0) (setq touching :nil))
 		((not touching)
 			(setq touching :t)
 			(thud-play (/ hit (max dt +dt_least)))))
-	(defq top (- +surface +under_surface))
-	(if (> (second eye) top) (elem-set eye 1 top))
 	(defq now (pii-time))
 	(cond
 		((or (not was) (nql mode :auto)) (setq was (cat eye) was_at now))
@@ -1128,65 +1123,53 @@
 	(setq stones_drawn (length stones))
 	(cat out stones))
 
-;the frame log, for tuning, on with +frame_log: each second its rate and
-;detail, the milliseconds a frame of each part of it and of the GPU, and
-;what was drawn and where the eye is, to tests/scratch/water/frames.log.
-;For the Test user, a session of a test's, the app quits after a minute,
-;to look at the log of it. The parts' times, when the last part ended, the
-;frames of this second, the stream and when it began
-(defq +frame_log :nil frame_parts (list 0 0 0 0 0) frame_at 0 frame_count 0 frame_stream :nil frame_began 0
-	touches 0 stucks 0 nods 0 nod_was +double_0 nod_way +double_0 +nod_least (n2d 0.01) upsides 0 caves 0)
-
-(defun frame-nod ()
-	; (frame-nod)
-	;for the frame log, a nod of the view each time it turns from pitching
-	;up to pitching down or back, more than a little
-	(when +frame_log
-		(if (< (second up) +double_0) (++ upsides))
-		(if (in-caves?) (++ caves))
-		(defq d (- (second forward) nod_was))
-		(when (> (abs d) +nod_least)
-			(if (< (* d nod_way) +double_0) (++ nods))
-			(setq nod_way d nod_was (second forward)))))
+;the frame log, for tuning, on with +frame_log, lib/debug/frame_log.inc:
+;each second its rate and detail, the milliseconds a frame of each part of
+;it and of the GPU, and what was drawn, how the view turned and where the
+;eye is, to tests/scratch/water/frames.log. For the Test user, a session
+;of a test's, the app quits after a minute, to look at the log of it. The
+;log, and the stucks so far
+(defq +frame_log :nil frame_log (if +frame_log
+		(FrameLog "tests/scratch/water/frames.log" '("eye" "fish" "chunks" "draws" "render")))
+	stucks 0)
 
 (defun frame-mark (part)
 	; (frame-mark part)
 	;a part of the frame ended, for the frame log
-	(when +frame_log
-		(defq now (pii-time))
-		(elem-set frame_parts part (+ (elem-get frame_parts part) (- now frame_at)))
-		(setq frame_at now)))
+	(if frame_log (. frame_log :mark part)))
 
 (defun frame-log (rate now)
 	; (frame-log rate now) -> :t | :nil
 	;a second's line of the frame log; :t to quit
-	(unless frame_stream
-		(setq frame_stream (file-stream "tests/scratch/water/frames.log" +file_open_write) frame_began now))
-	(defq ms (map (lambda (us) (defq a (/ us (max frame_count 1))) (cat (str (/ a 1000)) "." (str (/ (% a 1000) 100))))
-			(push (cat frame_parts) (* (ifn (get :took render) 0) (max frame_count 1))))
-		meshed 0 out 0)
+	(defq meshed 0 out 0 log frame_log)
 	(. chunks :each (lambda (key (state &ignore)) (case state (:mesh (++ meshed)) (:out (++ out)))))
-	(write-line frame_stream (cat (str (/ (- now frame_began) 1000000)) "s " (str rate) " fps detail " (str detail)
-		" | eye " (elem-get ms 0) " fish " (elem-get ms 1) " chunks " (elem-get ms 2) " draws " (elem-get ms 3)
-		" render " (elem-get ms 4) " gpu " (elem-get ms 5)
-		" | chunks " (str meshed) " out " (str out) " stones " (str stones_drawn) " fish " (str fish_drawn)
-		" upsides " (str upsides) " caves " (str caves) " nods " (str nods) " stucks " (str stucks) " echoes " (str echoes) " legs " (str (length legs)) " junction " (str going) " eye " (str (map (const n2i) eye))
-		" touches " (str touches)))
-	(setq frame_parts (list 0 0 0 0 0) frame_count 0 touches 0 nods 0 upsides 0 caves 0)
-	(stream-flush frame_stream)
-	(and (eql (get '*env_node_user*) "Test") (> (- now frame_began) 60000000)))
+	(and (> (. log :line now rate (list (list "detail" detail))
+				(list (list "gpu" (. log :ms (* (ifn (get :took render) 0) (max (get :frames log) 1)))) "|"
+					(list "chunks" meshed) (list "out" out) (list "stones" stones_drawn) (list "fish" fish_drawn)
+					(list "upsides" (. log :got :upsides)) (list "caves" (. log :got :caves)) (list "nods" (. log :got :nods))
+					(list "stucks" stucks) (list "echoes" echoes) (list "legs" (length legs)) (list "junction" going)
+					(list "eye" (map (const n2i) eye)) (list "touches" (. log :got :touches))))
+			60)
+		(eql (get '*env_node_user*) "Test")))
 
 (defun draw-frame ()
 	;the eye turned and on, the chunks it wants asked for, and the frame of
 	;it, the reef and the water behind it
-	(if +frame_log (setq frame_at (pii-time)))
+	(if frame_log (. frame_log :frame))
 	(defq dt (turn-eye))
 	(swim dt)
 	(prop-feed dt)
 	(sonar-feed)
-	(frame-nod)
+	(when frame_log
+		(. frame_log :turn forward up)
+		(if (in-caves?) (. frame_log :add :caves)))
 	(frame-mark 0)
-	(setq schools (schools-move schools field_water eye forward view dt +surface prop_gain))
+	(setq schools (schools-move schools field_water eye forward view dt +surface prop_gain mover
+		(lambda (p r) (map (lambda ((id &ignore)) (list (. stone_world :centre id) (second (. stone_world :bound id))))
+			(. stone_world :near p r)))))
+	(. mover :step dt)
+	;the eye under the surface
+	(if (> (second eye) (const (- +surface +under_surface))) (elem-set eye 1 (const (- +surface +under_surface))))
 	(frame-mark 1)
 	(setq view (+ view (* (- (elem-get +view_of detail) view) (min +double_1 dt)))
 		murk (/ +murk_gone view)
@@ -1222,8 +1205,7 @@
 	(frame-mark 3)
 	(. render :frame draws)
 	(frame-mark 4)
-	(++ frames)
-	(++ frame_count))
+	(++ frames))
 
 (defun set-size (wanted)
 	;the window the size of the frame wanted, now; the canvas of it is made
@@ -1320,8 +1302,9 @@
 	(stones-ask)
 	(fishes-ask)
 	(setq prop_pcm (prop-make) thud_pcm (thud-make) ping_at (- (pii-time) (- +ping_every +ping_first)))
-	(bind '(ping echo_l echo_r quiet) (ping-make))
-	(setq ping_pcm ping echo_left echo_l echo_right echo_r ping_quiet quiet)
+	(when (defq sonar (ping-make))
+		(bind '(ping echo_l echo_r quiet) sonar)
+		(setq ping_pcm ping echo_left echo_l echo_right echo_r ping_quiet quiet))
 	(config-load)
 	(setq detail (min 4 (. *config* :find :detail)) view (elem-get +view_of detail) mode (. *config* :find :mode)
 		;at a junction over the reef somewhere by chance, to go on from,
@@ -1329,6 +1312,9 @@
 		going (launch-cell) eye (clear-of-rock (junction-of going))
 		forward (launch-way eye) up (doubles +double_0 +double_1 +double_0)
 		turned (pii-time) cave_left (pii-time))
+	;the sub a body of the mover, the eye its place, going where it faces
+	(setq sub (. mover :add eye (nums-scale forward speed)))
+	(. mover :set sub :align +sub_align :rate +sub_shove)
 	(. *mode* :set_selected (find mode '(:auto :mouse)))
 	(head-out)
 	(if (. *config* :find :large) (set-size +large))

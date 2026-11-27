@@ -32,6 +32,8 @@ Jukebox favourites behind it.
 
 * The snatch: now and then a craft stops in front of the flight over the
   land, snaps on a beam, a column of white light, and takes a cow up it,
+  the cow mooing as it leaves the ground, heard from its side, fainter
+  further off,
   then is away at speed. Over the water it comes away with nothing.
 
 * Three ways of flying: a figure of eight, along the valleys low like a jet,

@@ -15,7 +15,7 @@
 		(doubles +double_0 +double_0 +double_0) (doubles +double_0 +double_0 +double_0)))
 
 ;the field moved on so many frames of a 60th, met a part a frame, by its
-;world of lib/collide as the app has it
+;world of lib/physics as the app has it
 (defun sf-run (frames)
 	(defq part 0 world (rocks-world) dt +frame_dt)
 	(times frames
@@ -76,13 +76,15 @@
 ;a buoy: red with a rock close by, green with none
 (setq rocks (list (sf-rock 100 100 100 0 0 0 10)))
 (setq buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 108)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) :nil 0 0 0 0)
+		+double_0 (cat +buoy_green) :nil 0 0 0 0 (doubles +double_0 +double_0 +double_0))
 	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) :nil 0 0 0 0)))
+		+double_0 (cat +buoy_green) :nil 0 0 0 0 (doubles +double_0 +double_0 +double_0))))
 (buoy-look 0)
 (buoy-look 1)
 (assert-true "a buoy by a rock reads danger" (> (third (first buoys)) (n2d 0.8)))
-(assert-true "and is moved out of it" (> (third (first (first buoys))) (n2d 112)))
+(assert-true "not jumped out of it" (= (third (first (first buoys))) (n2d 108)))
+(times 30 (rocks-move (n2d 0.0166)))
+(assert-true "but eased out of it over the frames, by the field's mover" (> (third (first (first buoys))) (n2d 112)))
 (assert-true "one in open space reads none" (= (third (second buoys)) +double_0))
 
 ;a blast: its front throws the rocks it goes over out from it, a small
@@ -96,6 +98,13 @@
 (assert-true "one out of its reach as it was" (= (sf-vx (third rocks)) +double_0))
 (assert-true "a place in a rock is in it" (eql (rock-at (n2d 522) (n2d 500) (n2d 500)) (first rocks)))
 (assert-true "and one between is not" (not (rock-at (n2d 650) (n2d 500) (n2d 500))))
+(setq rocks (list (sf-rock 505 500 500 0 0 0 2) (sf-rock 505 500 500 0 0 0 2)))
+(rocks-blast (n2d 500) (n2d 500) (n2d 500) +double_0 (n2d 400))
+(assert-true "a missile's kicks a small rock close by no faster than its most"
+	(< (sf-vx (first rocks)) (+ +blast_kick_most (n2d 0.001))))
+(setq rocks (list (sf-rock 505 500 500 0 0 0 2)))
+(rocks-blast (n2d 500) (n2d 500) (n2d 500) +double_0 (n2d 400) (n2d 360) (n2d 1200) :t)
+(assert-true "a nuke's as hard as it may" (> (sf-vx (first rocks)) (* +double_4 +blast_kick_most)))
 
 ;tumbling: a rock struck off its middle spins about the way across where
 ;it was struck and the way the strike went, one struck through its middle
@@ -138,9 +147,9 @@
 ;a buoy's colour eased to its hazard's: calm at a swarm green, calm in open
 ;space ice blue
 (setq buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 100)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_red) 0 0 0 0 0)
+		+double_0 (cat +buoy_red) 0 0 0 0 0 (doubles +double_0 +double_0 +double_0))
 	(list (doubles (n2d 600) (n2d 600) (n2d 600)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_red) :nil 0 0 0 0)))
+		+double_0 (cat +buoy_red) :nil 0 0 0 0 (doubles +double_0 +double_0 +double_0))))
 (times 300 (buoys-move (n2d 0.0166)))
 (defun sf-near (a b) (every (# (< (abs (- %0 %1)) +near_enough)) a b))
 (assert-true "calm at a swarm, green" (sf-near (elem-get (first buoys) 3) +buoy_green))
@@ -149,10 +158,10 @@
 ;sight: put out past where buoys are drawn, and on its way in to it
 (setq rocks (list (sf-rock 500 500 200 0 0 0 30)) clusters (list (list 0))
 	buoys (list (list (doubles (n2d 100) (n2d 100) (n2d 900)) (doubles +double_0 +double_0 +double_0)
-		+double_0 (cat +buoy_green) 7 +calm_looks 0 0 0)))
+		+double_0 (cat +buoy_green) 7 +calm_looks 0 0 0 (doubles +double_0 +double_0 +double_0))))
 (defq sf_eye (doubles (n2d 500) (n2d 500) (n2d 500)))
 (buoys-bring sf_eye (n2d 540))
-(bind '((sf_at sf_drift & & sf_station & & & sf_coming)) buoys)
+(bind '((sf_at sf_drift & & sf_station & & & sf_coming &ignore)) buoys)
 (assert-eq "it is the cluster's" 0 sf_station)
 (assert-true "it is coming" (> sf_coming 0))
 (assert-true "past where buoys are drawn" (out-of-sight? sf_at sf_eye +rock_far))
@@ -175,8 +184,8 @@
 ;than its surface going round at +rim_most; a nuke's blast calms it
 (setq rocks (list (sf-rock 500 500 500 0 0 0 4) (sf-rock 700 500 500 0 0 0 48)))
 (defun sf-w (rock) (sqrt (nums-dot (slice (elem-get rock 4) 0 3) (slice (elem-get rock 4) 0 3))))
-(rock-spin (elem-get (first rocks) 4) (n2d 4) (n2d 50) +double_0 +double_0)
-(rock-spin (elem-get (second rocks) 4) (n2d 48) (n2d 50) +double_0 +double_0)
+(rock-spin 0 (n2d 50) +double_0 +double_0)
+(rock-spin 1 (n2d 50) +double_0 +double_0)
 (assert-true "a small rock's spin held to the most" (< (abs (- (sf-w (first rocks)) +spin_most)) (const (n2d 0.001))))
 (assert-true "a big one's to its surface's most" (< (abs (- (sf-w (second rocks)) (/ +rim_most (n2d 48)))) (const (n2d 0.001))))
 (defq sf_was (sf-w (first rocks)))

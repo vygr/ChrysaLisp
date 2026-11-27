@@ -1,4 +1,6 @@
-# The map of Flight's moon
+# Flight's data
+
+## The map of the moon
 
 `moon.cpm` is a map of the whole Moon, east to the right and north at the
 top, twice as wide as it is high, 512 by 256, kept as a `.cpm` of 16 bits a
@@ -15,3 +17,14 @@ on the other. It was then made half the size, each pixel the mean of four.
 
 To make one: resample the source to the size wanted, save it as a TGA that
 is not packed, 24 bits a pixel, and `tocpm -f 16 -l file.tga`.
+
+## A cow's moos
+
+`moo1.wav` to `moo4.wav`: a cow lifted off the ground by a craft's beam, one
+played at random each time, heard from its side and fading with distance.
+Four moos cut from "Cow Moo" by DRAGON-STUDIO, published on Pixabay on 12
+May 2025, pixabay.com/sound-effects/nature-cow-moo-339729/, under the
+Pixabay Content License. Each runs from just before it starts to just after
+it ends, faded in over 30ms and out over 200ms so neither end clicks, made
+mono, 16 bits at 22050 a second, and brought to the same peak, 2dB under
+full.

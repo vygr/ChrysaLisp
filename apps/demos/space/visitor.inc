@@ -38,7 +38,7 @@
 ;after, how fast it bolts, and how near the place it keeps it is when it
 ;has come, or how long it comes at most, should a rock be there
 (defq +visit_first_least 25000000 +visit_first_more 15000000 +visit_least 150000000 +visit_more 150000000
-	+visit_from (n2d 520) +visit_gone (n2d 640) +pace_ahead (n2d 60) +pace_out (n2d 0.9) +pace_in (n2d 1.3) +pace_up (n2d 4)
+	+visit_from (n2d 520) +visit_gone (n2d 470) +pace_ahead (n2d 60) +pace_out (n2d 0.9) +pace_in (n2d 1.3) +pace_up (n2d 4)
 	+pace_least 2500000 +pace_more 2000000 +come_speed (n2d 90) +leave_speed (n2d 240)
 	+visit_ease (n2d 1.2) +probe_reach (n2d 600) +beam_least (n2d 20) +beam_ray +double_1 +block_least (n2d 10) +probe_wide (n2d 0.55) +probe_high (n2d 0.42) +probe_middle (n2d 0.7) +probe_long 6000000
 	+visit_beam_wide (n2d 0.42) +beam_bright +double_1 +beam_facing (n2d 0.97) +beam_held (n2d 0.8)
@@ -62,8 +62,9 @@
 	+beam_steep (n2d 0.9)
 	;how much its up is tipped toward the eye
 	+tip_to_eye (n2d 0.45)
-	;how far out it reaches, of its size, kept out of the rocks
-	+visitor_reach (n2d 0.6)
+	;how far out it reaches, of its size, kept out of the rocks, how heavy
+	;it is, and how fast it is shoved off one
+	+visitor_reach (n2d 0.6) +visitor_mass (n2d 50) +visitor_shove (n2d 20)
 	;how fast its up turns to what it wants, a second, and how far down its
 	;beam starts, of its size
 	+up_ease +double_2 +belly (n2d 0.15)
@@ -71,9 +72,10 @@
 	;next, where it is and its way, how long it does what it does, the rock
 	;it looks at, how bright its beam, till when it flashes red, the side it
 	;keeps station on, where it made for last, its up, whether it came from
-	;a side or above or below, and the size of its rock when it chose it
+	;a side or above or below, the size of its rock when it chose it, and
+	;its body of the field's mover
 	visitor :nil visit_phase :away visit_next 0 visit_at :nil visit_way :nil visit_until 0 visit_rock :nil
-	visit_beam +double_0 visit_alarm 0 visit_side +double_1 visit_goal :nil visit_up :nil visit_across :t visit_bulk +double_0)
+	visit_beam +double_0 visit_alarm 0 visit_side +double_1 visit_goal :nil visit_up :nil visit_across :t visit_bulk +double_0 visit_body :nil)
 
 (defun rgb (r g b)
 	; (rgb r g b) -> doubles
@@ -153,7 +155,10 @@
 			(nums-scale (if visit_across right up) (* visit_side +visit_from +come_from))))
 		visit_way (sky-unit (nums-sub eye visit_at)) visit_phase :come visit_beam +double_0 visit_alarm 0 visit_goal :nil
 		visit_until (+ (pii-time) +come_long)
-		visit_up (cat up)))
+		visit_up (cat up)
+		;its body of the field's mover, moved as it steers
+		visit_body (. (field-mover) :add (cat visit_at)))
+	(. mover :set visit_body :mass +visitor_mass :rate +visitor_shove))
 
 (defun visit-goal (eye forward right up spread_x spread_y)
 	; (visit-goal eye forward right up spread_x spread_y) -> doubles
@@ -232,7 +237,7 @@
 	; (visitor-step dt eye forward right up world spread_x spread_y)
 	;the visitor on, as it is doing: coming, pacing, going to a rock,
 	;looking at it, leaving; or away, till it comes again. Never in a rock:
-	;out of each it is in, of the rocks' world, lib/collide, so it slides
+	;out of each it is in, of the rocks' world, lib/physics, so it slides
 	;round them
 	(defq now (pii-time))
 	(cond
@@ -240,7 +245,11 @@
 			(cond
 				((= visit_next 0) (setq visit_next (visit-time +visit_first_least +visit_first_more)))
 				((> now visit_next) (visit-start eye forward right up))))
-		(:t (defq goal (visit-goal eye forward right up spread_x spread_y) to (nums-sub goal visit_at) far (sqrt (nums-dot to to))
+		(:t ;where its body is, nearest the eye, as the box goes on every way, so
+			;the eye going round it does not leave it behind
+			(setq visit_at (nums-add eye (way-from-eye (. mover :place visit_body) eye)))
+			(defq from (cat visit_at)
+				goal (visit-goal eye forward right up spread_x spread_y) to (nums-sub goal visit_at) far (sqrt (nums-dot to to))
 				speed (if (eql visit_phase :leave) (if (> visit_alarm now) +bolt_speed +leave_speed) +come_speed)
 				;how fast it turns to what it looks at, quick once its beam is on
 				ease (if (> visit_beam +double_1/2) +track_ease +up_ease))
@@ -265,15 +274,14 @@
 				(defq look (if (and visit_rock (eql visit_phase :probe))
 						(nums-sub (visit-rock-at eye) visit_at) (nums-sub eye visit_at)))
 				(setq visit_way (sky-unit (nums-add visit_way (nums-scale (nums-sub (sky-unit look) visit_way) (min +double_1 (* dt ease)))))))
-			;where it is nearest the eye, as the box goes on every way, so the eye
-			;going round it does not leave it behind
-			(bind '(vx vy vz) visit_at)
-			(bind '(ex ey ez) eye)
-			(setq visit_at (doubles (+ ex (near-way (- vx ex))) (+ ey (near-way (- vy ey))) (+ ez (near-way (- vz ez)))))
-			;out of the rocks it would be in, as far as it is in each
+			;where it would be its body's velocity, the mover's to move it; and
+			;off the rocks it meets, a hit of the mover each, the lighter by far,
+			;so it slides round them
+			(if (> dt +double_0) (nums-scale (nums-sub visit_at from) (recip dt) (. mover :velocity visit_body)))
+			(defq owners (get :owners world) reach (* (get :size visitor) +visitor_reach))
 			(each (lambda ((id depth way &ignore))
-					(setq visit_at (nums-sub visit_at (nums-scale way depth))))
-				(. world :near visit_at (* (get :size visitor) +visitor_reach)))
+					(. mover :hit visit_body (elem-get owners id) way depth reach (second (. world :bound id))))
+				(. world :near visit_at reach))
 			;its up eased toward what it wants: away from the rock it looks at, its
 			;underside to it, else the ship's tipped toward the eye, its top seen
 			(defq want_up (if (and visit_rock (eql visit_phase :probe))
@@ -305,7 +313,8 @@
 						(> (sqrt (nums-dot (defq d (nums-sub (visit-rock-at eye) visit_at)) d)) +probe_reach))
 					(setq visit_phase :leave visit_beam +double_0 visit_way (visit-away eye right up))))
 				(:leave (when (> (sqrt (nums-dot (defq d (nums-sub visit_at eye)) d)) +visit_gone)
-					(setq visitor :nil visit_phase :away visit_next (visit-time +visit_least +visit_more))))))))
+					(. mover :remove visit_body)
+					(setq visitor :nil visit_body :nil visit_phase :away visit_next (visit-time +visit_least +visit_more))))))))
 
 (defun visitor-hit? (at)
 	; (visitor-hit? at) -> :t | :nil
@@ -313,7 +322,7 @@
 	;beam off at once, startled, it stays a moment, its eye on the ship, then
 	;away it bolts, away from the ship and out to its side. Hit as it goes,
 	;its lights red again
-	(when (and visitor (< (sqrt (nums-dot (defq d (nums-sub visit_at at)) d)) (get :size visitor)))
+	(when (and visitor (< (sqrt (nums-dot (defq d (way-from-eye visit_at at)) d)) (get :size visitor)))
 		(defq now (pii-time))
 		(setq visit_alarm (+ now +startle_long +alarm_long))
 		(unless (find visit_phase '(:startled :leave))
@@ -388,6 +397,6 @@
 
 ;module
 (export-symbols
-	'(visitor visit_phase visit_next visit_at visit_way visit_until visit_rock visit_beam visit_alarm visit_side visit_goal visit_up visit_across visit_bulk
+	'(visitor visit_phase visit_next visit_at visit_way visit_until visit_rock visit_beam visit_alarm visit_side visit_goal visit_up visit_across visit_bulk visit_body
 	visitor_parts tube-verts visitor-step visitor-hit? visitor-draws visitor-beam))
 (env-pop)

@@ -110,10 +110,15 @@
 	+climb_least (n2d -15) +climb_most (n2d 30) +climb_pull (n2d 0.9) +climb_ease (n2d 1.5)
 	;a craft's turn a Nav's, lib/nav: how stiff, level about the world's up
 	+craft_k (n2d 1.6) +craft_up (doubles +double_0 +double_1 +double_0)
-	;the craft kept apart, lib/collide: the world of them and of the flight,
+	;the craft kept apart, lib/physics: the world of them and of the flight,
 	;its cells so big, the flight's body, how big it is, and a craft's, of
 	;its size
 	fleet_world :nil +fleet_cell (n2d 64) flight_body :nil +flight_room +double_4 +craft_room (n2d 0.7)
+	;how they move, lib/physics: each craft a body, the flight one the app
+	;moves, and how fast a craft is shoved off another
+	fleet_mover :nil flight_move :nil +craft_shove (n2d 20)
+	;where cows have just been lifted off the ground, to be heard
+	moos (list)
 	+show_rate (n2d 0.7) +near_enough (n2d 3600) +last_wait (n2d 1200000) +dart_ahead_least (n2d 50)
 	+dart_ahead_most (n2d 140) +dart_aside_least (n2d -60) +dart_aside_most (n2d 60)
 	+dart_low_least +double_9 +dart_low_most (n2d 20) +dart_pass_ahead (n2d -90)
@@ -412,6 +417,31 @@
 			(list +sight_near +double_1/2 +sight_mid +sight_far +sight_end))
 		(list x (min y (+ low +stop_high_most)) z water)))
 
+(defun fleet-moved ()
+	; (fleet-moved) -> mover
+	;the fleet's mover, lib/physics, made the once: each craft a body as heavy
+	;as its size cubed, and the flight a body the app moves, kinematic
+	(unless fleet_mover
+		(setq fleet_mover (Mover) flight_move (. fleet_mover :add (doubles +double_0 +double_0 +double_0)))
+		(. fleet_mover :set flight_move :kinematic :t)
+		(each (lambda (craft)
+				(defq size (get :size craft))
+				(def craft :move (. fleet_mover :add (cat (get :at craft))))
+				(. fleet_mover :set (get :move craft) :mass (* size size size) :rate +craft_shove))
+			crafts))
+	fleet_mover)
+
+(defun craft-go (craft x y z dt)
+	; (craft-go craft x y z dt)
+	;a craft to be at x y z after dt, its body's velocity, the fleet's
+	;mover's to move it; its place its body's, put there first if it was
+	;started afresh somewhere
+	(defq id (get :move craft) place (. (fleet-moved) :place id))
+	(unless (eql (get :at craft) place)
+		(nums-scale (get :at craft) +double_1 place)
+		(def craft :at place))
+	(if (> dt +double_0) (nums-scale (nums-sub (doubles x y z) place) (recip dt) (. fleet_mover :velocity id))))
+
 (defun hover-fly (craft dt)
 	; (hover-fly craft dt)
 	;stopping at its place over the land, and still there: eased to it, its
@@ -422,14 +452,16 @@
 	(bind '(gx gy gz) (get :stop craft))
 	(defq k (min +double_1 (* dt +hover_ease)) now (pii-time)
 		x (+ cx (* (- gx cx) k)) y (+ cy (* (- gy cy) k)) z (+ cz (* (- gz cz) k)))
-	(def craft :at (doubles x y z) :speed +double_0 :climb +double_0
+	(craft-go craft x y z dt)
+	(def craft :speed +double_0 :climb +double_0
 		:turn (* (get :turn craft) (- +double_1 k)) :lean (* (get :lean craft) (- +double_1 k)))
 	(def (get :nav craft) :spin (doubles +double_0 +double_0 +double_0))
 	(case (get :phase craft)
 		(:stopping
 			(when (< (+ (* (- gx x) (- gx x)) (* (- gy y) (- gy y)) (* (- gz z) (- gz z))) +double_6)
-				;over land a cow comes up the beam; over water nothing does, and
-				;it gives up the sooner
+				;over land a cow comes up the beam, mooing as it leaves the
+				;ground; over water nothing does, and it gives up the sooner
+				(unless (get :wet craft) (push moos (apply (const doubles) (get :stop craft))))
 				(def craft :phase :beam :beamed now
 					:until (+ now (n2i (if (get :wet craft) (rand-d +wet_beam_least +wet_beam_most)
 						(rand-d +beam_least +beam_most)))))))
@@ -479,7 +511,8 @@
 			(min +double_1 (* dt +climb_ease))))
 		x (+ cx (* nx speed dt)) z (+ cz (* nz speed dt))
 		y (max (+ cy (* climb dt)) (+ (land-at x z) +craft_last)))
-	(def craft :at (doubles x y z) :head (doubles nx nz) :turn turn :speed speed :climb climb
+	(craft-go craft x y z dt)
+	(def craft :head (doubles nx nz) :turn turn :speed speed :climb climb
 		:lean (max +double_-2 (min +double_2 (+ (neg (/ (* speed turn) (get :pull craft)))
 			(* (ifn (get :show craft) +double_0) (sin (* t +show_rate)))))))
 	;what it is about next
@@ -530,7 +563,7 @@
 		over (max gy (+ (land-along cx cz gx gz) +craft_floor))
 		x (+ cx (* (- gx cx) k)) z (+ cz (* (- gz cz) k))
 		y (max (+ cy (* (- over cy) k)) (+ (land-at x z) +craft_last)))
-	(def craft :at (doubles x y z))
+	(craft-go craft x y z dt)
 	(if (> (- y height) +gone_up) (craft-gone craft)))
 
 (defun craft-matrix (craft)
@@ -609,10 +642,10 @@
 (defun fleet-apart (eye)
 	; (fleet-apart eye)
 	;the craft about, and the flight at the eye, each a ball of a world of
-	;lib/collide, a craft as big as most of its size: two that touch pushed
-	;apart along the way between them, half each, a craft all of it from
-	;the flight, so none passes through another nor through the eye. A
-	;craft not about meets nothing
+	;lib/physics, a craft as big as most of its size: two that touch a hit
+	;of the fleet's mover, shoved apart by their sizes, a craft all of it
+	;from the flight, which the app moves, so none passes through another
+	;nor through the eye. A craft not about meets nothing
 	(unless fleet_world
 		(setq fleet_world (Collide +fleet_cell) flight_body (. fleet_world :add (cat eye) (list :sphere +flight_room)))
 		(each (lambda (craft)
@@ -624,8 +657,8 @@
 		crafts)
 	(each (lambda ((a b depth way &ignore))
 			(defq ca (some (# (if (= (get :body %0) a) %0)) crafts) cb (some (# (if (= (get :body %0) b) %0)) crafts))
-			(if ca (def ca :at (nums-sub (get :at ca) (nums-scale way (if cb (* depth +double_1/2) depth)))))
-			(if cb (def cb :at (nums-add (get :at cb) (nums-scale way (if ca (* depth +double_1/2) depth))))))
+			(. fleet_mover :hit (if ca (get :move ca) flight_move) (if cb (get :move cb) flight_move) way depth
+				+double_0 +double_0))
 		(. fleet_world :pairs)))
 
 (defun fleet-fly (dt)
@@ -642,7 +675,11 @@
 					(craft-start craft)
 					(++ about))))
 		crafts)
-	(fleet-apart (doubles (first place) height (second place))))
+	;all moved on, the flight where the app has it
+	(defq eye (doubles (first place) height (second place)))
+	(nums-scale eye +double_1 (. (fleet-moved) :place flight_move))
+	(. fleet_mover :step dt)
+	(fleet-apart eye))
 
 (defun craft-light (craft seconds)
 	; (craft-light craft seconds) -> doubles
@@ -754,6 +791,6 @@
 
 ;module, the crafts and how they fly and are drawn: their numbers,
 ;prebound, go with it
-(export-symbols '(fleet_world flight_body make-scout make-orb make-blob make-triangle make-jelly make-top
+(export-symbols '(fleet_world flight_body fleet_mover flight_move moos make-scout make-orb make-blob make-triangle make-jelly make-top
 	fleet-apart fleet-fly fleet-lights fleet-beams fleet-draws))
 (env-pop)

@@ -134,11 +134,11 @@ least, so the app has a third of its node and what is beside it the rest.
   `grain_`, each a `_vertex` and a `_lit`; `buoy_lit` with `rock_vertex`;
   and `glow_`, the light round a buoy's lamp.
 * `data/`: the pictures and sounds, and how each is made, its `README.md`.
-  Each is made by a bake of its own, `bake_nebula.lisp`, `bake_stars.lisp`,
-  `bake_crunch.lisp`, `bake_levels.lisp`, `bake_thrust.lisp`,
-  `bake_klaxon.lisp` and `bake_boom.lisp`. The roar of thrust is written to a stream of the
-  audio service as the ship thrusts, a stretch of its loop each frame as
-  loud as the thrust is.
+  The pictures are each made by a bake of its own, `bake_nebula.lisp` and
+  `bake_stars.lisp`; the sounds are recordings, credited there. A crunch is played as loud as its hit is
+  heard. The roar
+  of thrust is written to a stream of the audio service as the ship thrusts,
+  a stretch of its loop each frame as loud as the thrust is.
 
 The rocks meet in twelve parts, a part a frame, so each pair is met once in
 twelve frames. A rock that has sunk into another by then is not jumped out

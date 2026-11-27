@@ -1,9 +1,14 @@
 # Collision and Space
 
-The collision library is `lib/collide/collide.inc`. It keeps the bodies of a
+The collision library is `lib/physics/collide.inc`. It keeps the bodies of a
 world in a grid of space, and answers what is in a region, what a way meets
 first, and which bodies touch, which have begun touching and which have
 stopped.
+
+It is one of the physics utilities of `lib/physics/`, each of use on its
+own: this finds what touches, and `lib/physics/move.inc`,
+`docs/lisp/move.md`, answers it, moving each thing. An engine made of them
+may come one day; none of them needs it.
 
 It holds only what that takes. A body is an id, a centre, a bound and a turn,
 and a mask of what it may meet. What a body is, how it moves and what a touch
@@ -13,7 +18,7 @@ every app, and the app scripts what happens.
 ## Bodies
 
 ```lisp
-(import "lib/collide/collide.inc")
+(import "lib/physics/collide.inc")
 (defq world (Collide +double_4)
 	rock (. world :add (doubles +double_0 +double_0 +double_0) (list :sphere +double_1))
 	crate (. world :add (doubles +double_3 +double_0 +double_0) (list :box +double_1 +double_1 +double_1)))
@@ -51,6 +56,10 @@ are in, and `(. world :detach owner)` removes them all.
 
 So a ship has a tight body to collide with and a wide one for what is near
 it, and a long thing is a few boxes along it.
+
+What the world gives back, from `:near`, `:within`, `:cast` and `:pairs`, is
+bodies, by their ids, not owners: an owner's id is not its body's, as soon
+as any owner has two. `(elem-get (get :owners world) id)` is a body's owner.
 
 A sensor is a body that says what is in it and never pushes. Two sensors do
 not meet, and a ray goes through one. A sensor's touches that begin and end

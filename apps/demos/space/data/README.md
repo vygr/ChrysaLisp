@@ -27,30 +27,55 @@ leaves the others as they are, each run as
 	ones with Hubble's spikes on the Pillars' diagonals. At random, so a bake
 	is new stars.
 
-*	`crunch_1.wav` to `crunch_3.wav` and `crunch_far.wav`, `bake_crunch.lisp`:
-	the sound of rock hitting rock, near and far off. At random, so a bake is
-	new sounds.
+*	`crunch_1.wav` to `crunch_7.wav` and `crunch_far.wav`: the sound of rock
+	hitting rock, a near one picked at random and the far one further off,
+	each played as loud as a hit is heard. Cut from "Impacts 01" by aglinder
+	(Freesound), via freesound_community on Pixabay, published there on 27
+	July 2022, pixabay.com/sound-effects/film-special-effects-impacts-01-73737/,
+	under the Pixabay Content License: seven of its hits near, each from just
+	before it to the end of its own ring, and its longest, heaviest one far
+	off, low passed twice at 900Hz so it is dulled by the distance. Faded in
+	over 5ms and out over 10ms so neither end clicks, made mono, 16 bits at
+	22050 a second, and each brought to a peak 2dB under full.
 
-*	`crunch_1_60.wav` and the like, `bake_levels.lisp`: the crunches at the
-	loudness a hit is heard at, made of the crunches there are, after
-	`bake_crunch.lisp`.
+*	`thrust.wav`: the roar of the ship's thrust, six seconds of a steady
+	rumble of thrusters that go round without a seam, cut from
+	"thrusters_loop.wav" by DJT4NN3R (Freesound), via freesound_community
+	on Pixabay, published there on 28 January 2022,
+	pixabay.com/sound-effects/film-special-effects-thrusters-loopwav-14699/,
+	under the Pixabay Content License. Its last half second faded into its
+	first, at equal power, so its end runs on into its start; made mono, 16
+	bits at 22050 a second, and brought to a peak 2dB under full. The app
+	writes it to a stream as the ship thrusts, from a place at random each
+	time, rising quickly and dying away as a sound does.
 
-*	`thrust.wav`, `bake_thrust.lisp`: the roar of the ship's thrust, four
-	seconds of it that go round without a seam, its end faded into its
-	start, and nothing in it that beats in time, so it is not heard to go
-	round: a deep rumble, the hiss of the exhaust and a faint low hum. The
-	app writes it to a stream as the ship thrusts, from a place at random
-	each time. At random, so a bake is a new roar.
+*	`launch.wav` and `blast.wav`: a missile fired, and going off, cut from
+	"Missile Explosion" by VoiceBosch, published on Pixabay on 28 September
+	2023, pixabay.com/sound-effects/film-special-effects-missile-explosion-168600/,
+	under the Pixabay Content License. The launch its whoosh, up to the gap
+	after it, faded in over 20ms and out over 30ms; the blast from its bang,
+	two seconds of it, faded in over 5ms and out over its last 600ms. Each
+	made mono, 16 bits at 22050 a second, and brought to a peak 2dB under
+	full; the launch is played from the ship, the blast from its side and the
+	quieter the further off.
 
-*	`klaxon.wav`, `bake_klaxon.lisp`: the warning of a buoy armed to go
-	nuclear, one a-oo-gah of an old horn: a buzzing diaphragm swooping up
-	and dropping, rung by the horn at two pitches, clipped hard.
+*	`klaxon.wav`: the warning of a buoy armed to go nuclear, one call of an
+	old klaxon horn, the first of three in "jsyd_klaxon2" by jbum
+	(Freesound), via freesound_community on Pixabay, published there on 8
+	September 2022,
+	pixabay.com/sound-effects/film-special-effects-jsyd-klaxon2-108145/,
+	under the Pixabay Content License. Cut from just before it sounds to
+	just after, faded in over 30ms and out over 200ms so neither end clicks,
+	made 16 bits at 22050 a second from its 8000, and brought to a peak 2dB
+	under full.
 
-*	`boom.wav`, `bake_boom.lisp`: a buoy going nuclear, three and a half
-	seconds: a crack of noise, a deep thump falling from 90 Hz to under
-	30, and a rumble of noise below 160 Hz rolling off over seconds, its
-	loudness wobbling slowly so it rolls, clipped softly. At random, so a
-	bake is a new boom.
+*	`boom.wav`: a buoy going nuclear, a big explosion dying away of itself,
+	from "Explosion SFX" by DRAGON-STUDIO, published on Pixabay on 17
+	September 2025, pixabay.com/sound-effects/film-special-effects-explosion-sfx-405455/,
+	under the Pixabay Content License. All of it, its tail its own, faded in
+	over 5ms, so its bang is kept and its first sample is not a click, and
+	out over its last 10ms, silent by then; made mono, 16 bits at 22050 a
+	second, and brought to a peak 2dB under full.
 
 To make `pillars.cpm`, with the tree's own loader and resize, the picture
 being some 190 MB of pixels:

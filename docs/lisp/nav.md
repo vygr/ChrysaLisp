@@ -145,11 +145,25 @@ as `:cone`, in `:cone_rings` rings of `:cone_count`, and takes the one that
 clears, turning the least and keeping to the side it went round last,
 `:cone_keep`, so it does not flip from side to side.
 
+### A Player
+
+`nav-aim-pointer` aims ahead, and across and up by the Nav's `:stick`, `(x
+y)` each -1 to 1, as far as `:stick_reach`. `nav-stick` shapes each: nothing
+in its `:stick_dead` middle, and past it to the power `:stick_bend`, 1
+straight, 2 gentle near the middle and full at the edge.
+
+`nav-turn-pointer` is a player's turn, taken in place of a step's: a share of
+the way to the pointer's aim each step, `:point_rate` a second, no faster
+than `:point_most`. With no spring it stops as the stick is let go and never
+swings past. Its up is level and leant into the turn, `nav-up-lean`, so
+`:lean 0` keeps it level. Space and Water steer by it, their auto pilots by
+`nav-turn-to`, the one Nav for both.
+
 ## Uses
 
 | A thing | Its plugins |
 |---|---|
-| a player | `nav-aim-pointer`, `nav-up-lean`, its own `:move_fn` for collisions |
+| a player | `nav-turn-pointer`, or `nav-aim-pointer` and `nav-up-lean` in a step, its own `:move_fn` for collisions |
 | a fish, a craft | `nav-aim-seek` or a flocking aim of its own, `nav-avoid-field`, `nav-next-wander` |
 | map routing | `nav-route-graph` with a `:cost_fn`, `nav-aim-follow` |
 | a tunnel | `nav-route-graph`, a `:refine_fn` to the middle of the tunnel, heavy damping |

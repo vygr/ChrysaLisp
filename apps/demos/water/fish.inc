@@ -11,8 +11,9 @@
 ; which way. Each fish keeps apart from those too near it, goes the way
 ; those near it go, keeps to the middle of them, and makes for the place
 ; the school is wandering to, a new one now and then in the open water; it
-; turns from the rock, along the slope of the field, keeps under the
-; surface, and darts away from the diver. A school comes into being ahead
+; turns from the rock, along the slope of the field, and from the stones
+; near it, never in one, keeps under the surface, and darts away from the
+; diver. A school comes into being ahead
 ; of the diver, out where the water hides it, and is let go of when it is
 ; further off than that, so there are always about as many round, new ones
 ; met as the diver swims.
@@ -20,6 +21,7 @@
 
 (import "lib/consts/numbers.inc")
 (import "lib/gpu/vp.inc")
+(import "lib/physics/move.inc")
 
 ;the kinds of fish: silver schooling fish, striped reef fish, and now and
 ;then a shark or a ray, and each kind's schools at most, how many fish in each at
@@ -82,6 +84,12 @@
 	;fast it turns, a second, how far a school wanders to next and how long
 	;it takes, and where it comes and goes, of how far the frame sees
 	+rock_near (n2d 3.5) +surface_near (n2d 4) +diver_near (n2d 5) +turn_rate (n2d 2.5)
+	;how far off a stone it turns, of its length, how hard, how far out of
+	;one its body is kept, of its length, how fast it is shoved out of one,
+	;a share a second, how far round its middle a
+	;school's fish are looked for stones, of their length, and how often,
+	;microseconds
+	+stone_sees +double_2 +from_stone (n2d 4) +stone_body +double_1/2 +stone_rate (n2d 8) +school_spread (n2d 6) +stones_look 400000
 	;how much further off they flee the diver's scooter at its loudest
 	+noise_shy (n2d 1.5)
 	;a shark's curiosity: how far off it notices the diver, how much further
@@ -242,24 +250,31 @@
 			(if (> (water p) +spot_clear) (setq at p))))
 	at)
 
-(defun school-new (water eye forward far kind)
-	; (school-new water eye forward far kind) -> :nil | school
-	;a school of a kind far off ahead of the eye: (kind goal goal_at fish),
-	;each fish (at way speed phase)
+(defun school-new (water eye forward far kind mover)
+	; (school-new water eye forward far kind mover) -> :nil | school
+	;a school of a kind far off ahead of the eye: (kind goal goal_at fish
+	;stones stones_at), each fish (at way speed phase body), its body of
+	;the mover, lib/physics, the stones near it and when they were looked for
 	(when (defq at (fish-spot water eye forward far))
 		(bind '(& n more & slow fast &ignore) (elem-get +kinds kind))
 		(defq heading (fish-unit (doubles (- (fish-rnd) +double_1/2) +double_0 (- (fish-rnd) +double_1/2))))
 		(list kind at (pii-time)
 			(map! (lambda ()
-					(list (nums-add at (doubles (* (- (fish-rnd) +double_1/2) +double_4) (* (- (fish-rnd) +double_1/2) +double_2)
+					(defq p (nums-add at (doubles (* (- (fish-rnd) +double_1/2) +double_4) (* (- (fish-rnd) +double_1/2) +double_2)
 							(* (- (fish-rnd) +double_1/2) +double_4)))
-						heading (+ (n2d slow) (* (fish-rnd) (- (n2d fast) (n2d slow)))) (* (fish-rnd) +double_2pi)))
-				'() 0 (+ n (random (inc more)))))))
+						speed (+ (n2d slow) (* (fish-rnd) (- (n2d fast) (n2d slow)))) body (. mover :add p (nums-scale heading speed)))
+					(. mover :set body :rate +stone_rate)
+					(list p heading speed (* (fish-rnd) +double_2pi) body))
+				'() 0 (+ n (random (inc more))))
+			'() 0)))
 
-(defun fish-steer (water eye fish mates long dt sharks low shy curious)
-	; (fish-steer water eye fish mates long dt sharks low shy curious)
+(defun fish-steer (water eye fish mates long dt sharks low shy curious stones goal surface mover)
+	; (fish-steer water eye fish mates long dt sharks low shy curious stones goal surface mover)
 	;one fish turned toward where its school and the water would have it go,
-	;and moved on
+	;its body's velocity its way and speed, the mover's to move it, and
+	;shoved out of a stone it is in, eased; stones, those near its school,
+	;each (centre reach), goal where its school goes, surface how high the
+	;water is
 	(bind '(at way speed &ignore) fish)
 	(defq push_by (doubles +double_0 +double_0 +double_0) mean_way (doubles +double_0 +double_0 +double_0)
 		mean_at (doubles +double_0 +double_0 +double_0) n 0 sees (* +sees long) near (* +too_near long))
@@ -275,7 +290,7 @@
 		(setq want (nums-add want (nums-add (nums-scale push_by +apart)
 			(nums-add (nums-scale (fish-unit mean_way) +same)
 				(nums-scale (fish-unit (nums-sub (nums-scale mean_at (recip (n2d n))) at)) +middle))))))
-	(setq want (nums-add want (nums-scale (fish-unit (nums-sub (elem-get fish 4) at)) +goal)))
+	(setq want (nums-add want (nums-scale (fish-unit (nums-sub goal at)) +goal)))
 	;a ray down to keep near the floor
 	(defq h (water at))
 	(and low (> h +ray_over) (setq want (nums-add want (doubles +double_0 (neg +ray_dive) +double_0))))
@@ -299,31 +314,53 @@
 			(when (< (nums-dot (defq d (nums-sub at shark_at)) d) (* +shark_near +shark_near))
 				(setq want (nums-add want (nums-scale (fish-unit d) +from_diver)))))
 		sharks)
+	;from the stones near it, the harder the nearer, and the way out of
+	;those its body is in
+	(defq sees_stone (* +stone_sees long) out_of (doubles +double_0 +double_0 +double_0)
+		keep (- sees_stone (* +stone_body long)))
+	(each (lambda ((c reach))
+			(defq d (nums-sub at c) far (sqrt (nums-dot d d)) depth (- (+ sees_stone reach) far))
+			(when (and (> depth +double_0) (> far +double_0))
+				(setq d (nums-scale d (recip far)) want (nums-add want (nums-scale d (* +from_stone (/ depth sees_stone)))))
+				(if (> depth keep) (setq out_of (nums-add out_of (nums-scale d (- depth keep)))))))
+		stones)
 	(setq want (fish-unit want))
 	;turned toward it no faster than it can, level the more, and on
 	(defq k (min +double_1 (* dt +turn_rate)) way (fish-unit (nums-add way (nums-scale (nums-sub want way) k))))
 	;never steeper than a fish swims, and down again from the surface
 	(elem-set way 1 (max (neg +steep_most) (min +steep_most (* (second way) +level_by))))
-	(if (> (second at) (- (elem-get fish 5) +surface_near +double_1)) (elem-set way 1 (min (second way) (neg +double_1/4))))
+	(if (> (second at) (- surface +surface_near +double_1)) (elem-set way 1 (min (second way) (neg +double_1/4))))
 	(setq way (fish-unit way))
 	(elem-set fish 1 way)
-	(elem-set fish 0 (nums-add at (nums-scale way (* speed dt)))))
+	(defq body (elem-get fish 4))
+	(nums-scale way speed (. mover :velocity body))
+	(. mover :shove body out_of :t))
 
-(defun schools-move (schools water eye forward view dt surface noise)
-	; (schools-move schools water eye forward view dt surface noise) -> schools
+(defun schools-move (schools water eye forward view dt surface noise mover &optional stones)
+	; (schools-move schools water eye forward view dt surface noise mover [stones]) -> schools
+	;each fish a body of the mover, lib/physics, its steering its velocity; a
+	;school let go of, its bodies with it
+	;(stones at r) -> ((centre reach) ...), the stones a ball of r there
+	;meets, asked the once a school a step, round its middle
 	;the schools moved on a step, those gone far off let go of and new ones
 	;come in their place ahead, as many of each kind as there should be. The
 	;louder the diver's scooter, noise 0 to 1, the further off they flee it
 	(defq out (list) now (pii-time) sharks (list) shy (* +diver_near (+ +double_1 (* noise +noise_shy))))
-	(each (lambda ((kind & & fish))
+	(each (lambda ((kind & & fish &ignore))
 			(if (= kind +shark) (push sharks (first (first fish)))))
 		schools)
 	(each (lambda (school)
-			(bind '(kind goal goal_at fish) school)
+			(bind '(kind goal goal_at fish near_stones stones_at) school)
 			(defq long (n2d (elem-get (elem-get +kinds kind) 3)) mid (doubles +double_0 +double_0 +double_0))
 			(each (# (setq mid (nums-add mid (first %0)))) fish)
 			(setq mid (nums-scale mid (recip (n2d (length fish)))))
 			(when (< (sqrt (nums-dot (defq d (nums-sub mid eye)) d)) (* view +goes))
+				;the stones near the school, as far as its fish spread and see them,
+				;looked for again now and then, as it moves on
+				(when (and stones (> (- now stones_at) +stones_look))
+					(setq near_stones (stones mid (* long (+ +school_spread +stone_sees))))
+					(elem-set school 4 near_stones)
+					(elem-set school 5 now))
 				;a new place to wander to now and then
 				(when (or (> (- now goal_at) +wander_long) (< (nums-dot (defq g (nums-sub goal mid)) g) +double_4))
 					;somewhere ahead of the diver, so schools cross its way
@@ -335,18 +372,20 @@
 					(elem-set school 1 goal)
 					(elem-set school 2 goal_at))
 				(each (lambda (f)
-						(push f goal surface)
 						;a shark curious of the diver, more of a louder scooter, a ray
 						;minding it not at all, the rest shy of it
 						(fish-steer water eye f fish long dt (if (= kind +shark) '() sharks) (= kind +ray)
 							(if (or (= kind +shark) (= kind +ray)) +double_0 shy)
-							(if (= kind +shark) (* +shark_curious (+ +double_1 (* noise +noise_curious)))))
-						(pop f)
-						(pop f)
+							(if (= kind +shark) (* +shark_curious (+ +double_1 (* noise +noise_curious)))) near_stones
+							goal surface mover)
 						(defq at (first f))
 						(if (> (second at) (- surface +surface_near)) (elem-set at 1 (- surface +surface_near))))
 					fish)
 				(push out school)))
+		schools)
+	;the schools let go of, their fish's bodies let go of
+	(each (lambda (school)
+			(unless (find school out) (each (lambda ((& & & & body)) (. mover :remove body)) (elem-get school 3))))
 		schools)
 	;as many schools of each kind as there should be
 	(each! (lambda ()
@@ -355,7 +394,7 @@
 				(and (or (< kind +shark) (= (random +shark_seldom) 0))
 					;at first round the diver, after out where the water hides them
 					(defq s (school-new water eye forward
-						(* view (if (empty? schools) (+ +first_least (* (fish-rnd) +first_more)) +comes)) kind))
+						(* view (if (empty? schools) (+ +first_least (* (fish-rnd) +first_more)) +comes)) kind mover))
 					(push out s))))
 		'() 0 +fish_kinds)
 	out)
@@ -380,11 +419,11 @@
 	;way, its tail beating as fast as it swims, the pixel shader's inputs the
 	;one list for all
 	(defq out (list) time_val (list 'time seconds))
-	(each (lambda ((kind & & fish))
+	(each (lambda ((kind & & fish &ignore))
 			(when (elem-get had kind)
 				(defq long (n2d (elem-get (elem-get +kinds kind) 3))
 					swing (cond ((= kind +shark) +shark_swing) ((= kind +ray) +ray_flap) (+swing)))
-				(each (lambda ((at way speed phase))
+				(each (lambda ((at way speed phase &ignore))
 						(defq d (nums-sub at eye) far (sqrt (nums-dot d d)))
 						(and (< far view) (> (nums-dot d forward) (neg long))
 							(push out (list (+ mesh_base kind)

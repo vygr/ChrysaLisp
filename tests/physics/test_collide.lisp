@@ -1,6 +1,6 @@
 (report-header "Collide")
 
-(import "lib/collide/collide.inc")
+(import "lib/physics/collide.inc")
 
 ;places, near, and bounds
 (defq +c_eps (/ +double_1 (n2d 1000000))
@@ -121,6 +121,12 @@
 (assert-eq "two sensors never meet" 0 (length (. c_w :pairs)))
 (assert-eq "a ray goes through a sensor" :nil (. c_w :cast (c_at 0 5 45) (c_at 0 0 1) (n2d 20)))
 (assert-list-eq "a ray meets the hull" (list c_hull) (slice (. c_w :cast (c_at 0 0 30) (c_at 0 0 1) (n2d 30)) 0 1))
+(assert-eq "the body met, its owner by the owners" :buoy
+	(elem-get (get :owners c_w) (first (. c_w :cast (c_at 0 0 30) (c_at 0 0 1) (n2d 30)))))
+(assert-eq "a ray from inside a body meets it at once" c_hull
+	(first (. c_w :cast (c_at 0 0 50) (c_at 0 0 1) (n2d 30))))
+(assert-eq "a ray of a size meets a body it passes beside" c_hull
+	(first (. c_w :cast (c_at -2 0 30) (c_at 0 0 1) (n2d 30) (n2d 1.5))))
 
 ;what is in a region, all of it or some
 (defq c_w (Collide (n2d 4)) c_in (. c_w :add (c_at 2 0 0) (c_ball 1)) c_edge (. c_w :add (c_at 5 0 0) (c_ball 1))
