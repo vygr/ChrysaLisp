@@ -45,15 +45,19 @@
 ;(pixmap-attach)
 (defq target :nil target_size :nil held (list))
 
-(defun mesh (id ask)
+(defun mesh (id ask main)
 	;a mesh, on the GPU, its vertices asked for of the app if this is the
-	;first it has been heard of. :nil if the GPU could not have it
+	;first it has been heard of. :nil if the GPU could not have it, :gone
+	;if the child is told to go as it waits: an app that has closed answers
+	;no more, and the word is left for the child's loop to read
 	(unless (defq m (. meshes :find id))
 		(defq mbox (mail-mbox))
 		(mail-send ask (setf-> (str-alloc +strip_ask_size)
 				(+strip_ask_reply mbox) (+strip_ask_mesh id)))
-		(. meshes :insert id (setq m (ifn (gpu-mesh (mail-read mbox)) :none))))
-	(. drawn_at :insert id (pii-time))
+		(if (= (mail-select (list mbox main)) 0)
+			(. meshes :insert id (setq m (ifn (gpu-mesh (mail-read mbox)) :none)))
+			(setq m :gone)))
+	(unless (eql m :gone) (. drawn_at :insert id (pii-time)))
 	(if (nql m :none) m))
 
 (defun picture (named)
@@ -81,8 +85,8 @@
 	;this child, whatever rows it names, but one of no rows: an app asks
 	;for that to have its child ready, the pair made and every mesh and
 	;picture on the GPU, before the first frame. If the child is told to go
-	;while it waits for the GPU it says nothing, the frame is no longer its
-	;own
+	;while it waits for the GPU, or for a mesh of the app, it says nothing,
+	;the frame is no longer its own
 	(bind '(key reply ask pixels_key handle width height y y1 cull vfile_length pfile_length draws)
 		(getf-> msg +job_key +job_reply +strip_ask +strip_shared +strip_target +strip_width +strip_height
 			+strip_y +strip_y1 +strip_cull +strip_vfile_length +strip_pfile_length +strip_draws))
@@ -99,15 +103,16 @@
 				+strip_draw_mesh +strip_draw_vblock_length +strip_draw_pblock_length
 				+strip_draw_tfiles_length +strip_draw_sfiles_length))
 		(defq blocks (+ at +strip_draw_blocks) tfiles (+ blocks vlen plen) sfiles (+ tfiles tlen)
-			m (mesh id ask) named (slice msg tfiles sfiles)
+			m (unless gone (mesh id ask main)) named (slice msg tfiles sfiles)
 			had (if (empty? named) (list) (map (const picture) (split named "\n")))
 			with (if (= slen 0) pair
 				(apply (const pair-of) (push (split (slice msg sfiles (+ sfiles slen)) "\n") cull))))
+		(if (eql m :gone) (setq gone :t m :nil))
 		(and with m (not (some (# (not %0)) had))
 			(push frame (list with m (slice msg blocks (+ blocks vlen))
 					(slice msg (+ blocks vlen) tfiles) had)))
 		(setq at (+ sfiles slen)))
-	(when (and pair (> y1 y))
+	(when (and pair (> y1 y) (not gone))
 		(setq frame (gpu-draw-frame frame))
 		;straight into the texture of the app's canvas, if this is the node
 		;that has it: the GPU of this node is then the GUI's own

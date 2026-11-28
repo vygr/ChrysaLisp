@@ -49,15 +49,19 @@
 ;the pixels of the app's canvas, in shared memory, (pixmap-attach)
 (defq held (list))
 
-(defun mesh (id ask)
+(defun mesh (id ask main)
 	;the vertices of a mesh, asked for of the app if this is the first it
-	;has been heard of
+	;has been heard of. :gone if the child is told to go as it waits: an
+	;app that has closed answers no more, and the word is left for the
+	;child's loop to read
 	(unless (defq verts (. meshes :find id))
 		(defq mbox (mail-mbox))
 		(mail-send ask (setf-> (str-alloc +strip_ask_size)
 				(+strip_ask_reply mbox) (+strip_ask_mesh id)))
-		(. meshes :insert id (setq verts (mail-read mbox))))
-	(. drawn_at :insert id (pii-time))
+		(if (= (mail-select (list mbox main)) 0)
+			(. meshes :insert id (setq verts (mail-read mbox)))
+			(setq verts :gone)))
+	(unless (eql verts :gone) (. drawn_at :insert id (pii-time)))
 	verts)
 
 (defun order (count)
@@ -96,7 +100,8 @@
 		;a mesh that is on none of the rows of this strip is not drawn,
 		;and not asked for till it is. A strip of no rows asks for them all
 		(defq blocks (+ at +strip_draw_blocks) tfiles (+ blocks vlen plen) sfiles (+ tfiles tlen)
-			verts (if (or (= y1 y) (and (< dy y1) (> dy1 y))) (mesh id ask)))
+			verts (and (not gone) (or (= y1 y) (and (< dy y1) (> dy1 y))) (mesh id ask main)))
+		(if (eql verts :gone) (setq gone :t verts :nil))
 		(when (and depth verts (not gone))
 			(bind '(vertex pixel pipeline) (if (= slen 0) usual
 					(apply (const pipeline-of) (split (slice msg sfiles (+ sfiles slen)) "\n"))))

@@ -168,6 +168,26 @@
 				(assert-true "is not the frame of the one pair" (not (eql tf_gpu (tf-pixels tf_pixmap tf_size))))
 				(setq tf_draws tf_whole)
 				(. tf_jobs :close)))
+		;a child that has asked for a mesh as its app closes: the app answers
+		;no more, and the child goes as it is told to, it does not wait for
+		;the mesh. Each waited for ever, and Space and Water closed on a
+		;desktop now and then left one there (2026-11-28)
+		(each (lambda (child)
+				(elem-set tf_select +tf_task (mail-mbox))
+				(elem-set tf_select +tf_reply (mail-mbox))
+				(elem-set tf_select +tf_ask (mail-mbox))
+				(setq tf_jobs (Jobs child (elem-get tf_select +tf_task) (elem-get tf_select +tf_reply) 1 :here))
+				(. tf_jobs :add (list (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
+						(canvas-key tf_canvas) tf_size tf_size 0 tf_size :t tf_draws :nil 0)))
+				(defq msg (mail-read (elem-get tf_select +tf_task)) tf_child (getf msg +kn_msg_reply_id))
+				(. tf_jobs :launched msg)
+				;its ask comes, and is not answered
+				(mail-read (elem-get tf_select +tf_ask))
+				(. tf_jobs :close)
+				(while (mail-validate tf_child) (task-sleep 10000))
+				(assert-true (cat "a child asking for a mesh as its farm is let go of goes, and says nothing, " child)
+					(not (mail-poll (list (elem-get tf_select +tf_reply))))))
+			(if (= (gpu-format) 0) (list +shader_tris_child) (list +shader_tris_child +shader_tris_gpu_child)))
 		;a picture for the children to read, one whose pixels are its own is
 		;had again in shared memory, one that is there already is itself
 		(defq tf_picture (shader-strip-picture tf_alone))

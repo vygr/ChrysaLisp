@@ -149,7 +149,14 @@
 			(+ev_msg_type +ev_type_action)
 			(+ev_msg_target_id +event_close)
 			(+ev_msg_action_source_id 0)))
+	;a close that does not end says which of those it waits for, its task,
+	;a window, or a task more on the node, and how many
+	(defq closing (pii-time) said :nil)
 	(while (or (al-alive mbox) (> (al-windows) desk) (> (al-tasks) tasks))
+		(when (and (not said) (> (- (pii-time) closing) 20000000))
+			(setq said :t)
+			(test-note (cat app " closing, waits for" (if (al-alive mbox) " its task" "")
+				" windows " (str (al-windows)) "/" (str desk) " tasks " (str (al-tasks)) "/" (str tasks))))
 		(task-sleep 100000))
 	;the views of the frame being drawn as it went are let go of with that
 	;frame, at the next
