@@ -26,6 +26,9 @@
 
 (import "lib/consts/numbers.inc")
 
+;the step in VP, lib/physics/lisp.vp, the same sums as :step_lisp
+(ffi (path-to-absolute "./step") move-step)
+
 ;module
 (env-push)
 
@@ -208,7 +211,24 @@
 		;one, turned to the way it faces, damped by its drag, no faster than
 		;its top; its place on by it and by as much of its shove as eases in,
 		;kept in the box; turned on as fast as it tumbles. A kinematic body
-		;moved only by its shove
+		;moved only by its shove. Done in VP, move-step, as :step_lisp does
+		;it, the flows of the mover's :flow_fn found first, for the bodies
+		;it moves with drag and no flow of their own
+		(defq flows (get :flows this) flow_fn (get :flow_fn this))
+		(if flow_fn
+			(setq flows (map (lambda (at flow drag alive moved)
+					(cond (flow) ((and (= alive 1) (= moved 0) (> drag +double_0)) (flow_fn at))))
+				(get :places this) flows (get :drag this) (get :live this) (get :kinematic this))))
+		(move-step dt (ifn (get :wrap this) (const (doubles)))
+			(get :places this) (get :vels this) (get :shoves this) (get :kicks this) (get :spins this)
+			(get :faces this) (get :accels this) flows (get :drag this) (get :top this) (get :rate this)
+			(get :take this) (get :align this) (get :follow_rate this) (get :follows this) (get :kinematic this)
+			(get :live this))
+		this)
+
+	(defmethod :step_lisp (dt)
+		; (. mover :step_lisp dt) -> mover
+		;the step in Lisp, what move-step does in VP, kept to hold it to
 		(defq places (get :places this) vels (get :vels this) shoves (get :shoves this) spins (get :spins this)
 			faces (get :faces this) drags (get :drag this) tops (get :top this) rates (get :rate this)
 			aligns (get :align this) follows (get :follows this) kin (get :kinematic this) live (get :live this)

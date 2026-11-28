@@ -48,6 +48,9 @@
 (import "lib/collections/fmap.inc")
 
 (ffi "class/doubles/lisp_box_near" collide-box-near)
+;of those, the ones a body does not lead and the balls apart from a ball
+;let go of, lib/physics/lisp.vp
+(ffi (path-to-absolute "./led_near") collide-led-near)
 ; (collide-box-near centres sizes wrap body [out]) -> nums
 
 ;module
@@ -57,6 +60,9 @@
 	+collide_tiny (/ +double_1 (n2d 1000000000))
 	;the half sizes of a body gone, so no box meets it
 	+collide_gone (neg (n2d 1000000000))
+	;the bits of a rank: of a body's :every, the most it may be in them, and
+	;of its id
+	+collide_every_bits 20 +collide_every_most 0xfffff +collide_id_bits 32
 	+collide_x (doubles +double_1 +double_0 +double_0) +collide_y (doubles +double_0 +double_1 +double_0)
 	+collide_z (doubles +double_0 +double_0 +double_1))
 
@@ -242,8 +248,9 @@
 		;how many cells round the world is each way, 0 a way it does not wrap
 		:counts (map (lambda (w) (if (> w +double_0) (n2i (/ w cell)) 0)) (ifn wrap +collide_none))
 		;for the native sweep, collide-box-near: each body's centre, held, and
-		;its half sizes, flat, three a body
-		:flat_centres (list) :flat_sizes (doubles))
+		;its half sizes, flat, three a body; and for collide-led-near each
+		;body's reach if it is a ball, -1 if not, and its rank, which leads
+		:flat_centres (list) :flat_sizes (doubles) :flat_reaches (doubles) :flat_ranks (nums))
 	;a world that wraps every way has so many cells, a list of each, by
 	;number; else they are in the map by key
 	(bind '(nx ny nz) (get :counts this))
@@ -262,12 +269,22 @@
 		; (. collide :reflat id) -> collide
 		;a body's centre and half sizes for the native sweep as they are now,
 		;one gone no box meets
-		(defq src (get :flat_centres this) sizes (get :flat_sizes this)
-			c (elem-get (get :centres this) id) e (elem-get (get :extents this) id))
+		(defq src (get :flat_centres this) sizes (get :flat_sizes this) reaches (get :flat_reaches this)
+			ranks (get :flat_ranks this) c (elem-get (get :centres this) id) e (elem-get (get :extents this) id)
+			bound (elem-get (get :bounds this) id))
 		(while (<= (length src) id)
 			(push src +collide_none)
-			(push sizes +collide_gone +collide_gone +collide_gone))
+			(push sizes +collide_gone +collide_gone +collide_gone)
+			(push reaches +double_-1)
+			(push ranks 0))
 		(elem-set src id (ifn c +collide_none))
+		(elem-set reaches id (if (and c (eql (first bound) :sphere)) (second bound) +double_-1))
+		;its rank: a leads b if a's is the less, as :leads? has it, a sensor
+		;first, then the one tested more often, then a big one, then the less;
+		;one gone none
+		(elem-set ranks id (if c (+ (<< (+ (<< (+ (<< (if (elem-get (get :sensors this) id) 0 1) +collide_every_bits)
+				(min (elem-get (get :everys this) id) +collide_every_most)) 1)
+			(if (eql (elem-get (get :keys this) id) :big) 0 1)) +collide_id_bits) id) 0))
 		(each! (lambda (v) (elem-set sizes (+ (* id 3) (!)) (if c v +collide_gone))) (list (ifn e +collide_none)))
 		this)
 
@@ -430,7 +447,7 @@
 		; (. collide :every id n) -> collide
 		;a body tested every n calls of :pairs or :touches, 1 each call
 		(elem-set (get :everys this) id n)
-		this)
+		(. this :reflat id))
 
 	(defmethod :every_new (n)
 		; (. collide :every_new n) -> collide
@@ -620,14 +637,16 @@
 		;and how many calls its test stands for, its leader's :every; of
 		;those that may meet, (:may?). Each body due, the boxes of all the
 		;bodies square to the world that meet its, by the native sweep,
-		;collide-box-near, then their bounds, then their narrow tests,
-		;(:exact?); and (narrow_fn collide a b depth way) -> :nil | (depth
-		;way), of all pairs, if given. The next call after
+		;collide-box-near, less those it does not lead and the balls clearly
+		;apart from a ball, collide-led-near, then their bounds, then their
+		;narrow tests, (:exact?); and (narrow_fn collide a b depth way) ->
+		;:nil | (depth way), of all pairs, if given. The next call after
 		(defq out (list) call (get :call this) centres (get :centres this) bounds (get :bounds this)
 			turns (get :turns this) wrap (get :wrap this) keys (get :keys this)
 			everys (get :everys this) sensors (get :sensors this) masks (get :masks this)
 			owners (get :owners this) narrows (get :narrows this)
-			flat (apply (const cat) (get :flat_centres this)) sizes (get :flat_sizes this) hits (nums))
+			flat (apply (const cat) (get :flat_centres this)) sizes (get :flat_sizes this)
+			reaches (get :flat_reaches this) ranks (get :flat_ranks this) hits (nums))
 		(bind '(wx wy wz) wrap)
 		(defq leads (lambda (a b)
 				(defq sa (elem-get sensors a) sb (elem-get sensors b) ea (elem-get everys a) eb (elem-get everys b)
@@ -652,8 +671,8 @@
 		(each! (lambda (c e)
 				(when (and c (= 0 (% (+ call (!)) e)))
 					(defq a (!))
-					(each (lambda (b) (and (leads a b) (meet (min a b) (max a b))))
-						(collide-box-near flat sizes wrap a hits))))
+					(each (lambda (b) (meet (min a b) (max a b)))
+						(collide-led-near flat reaches ranks wrap a (collide-box-near flat sizes wrap a hits)))))
 			(list centres everys))
 		(def this :call (inc call))
 		out)

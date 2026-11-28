@@ -117,6 +117,11 @@ there, or `:nil`, a current that changes from place to place.
 
 A step is one loop over all the bodies, their places, velocities and
 shoves in lists side by side and their numbers in arrays, work skipped for
-numbers left as they were. Space moves its 450 rocks, its buoys, ship,
-missiles and visitor in under a millisecond a frame. It is laid out for a
-native step in VP to take it over.
+numbers left as they were. It is a native, `(move-step ...)`,
+`lib/physics/lisp.vp`, the parts of the mover handed to it as they are: the
+same sums in the same order as the step in Lisp, `(. mover :step_lisp dt)`,
+kept beside it, so the two give the same doubles to the bit, which a test
+holds them to. The velocities of a flow function, the one part that is
+Lisp, are found first for the bodies that want them. Space's 450 rocks are
+stepped in 6 microseconds a frame on an M4, and in 0.12ms on a Pi 4, where
+in Lisp they took 0.65ms and 7.5ms.

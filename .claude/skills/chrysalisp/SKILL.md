@@ -494,7 +494,11 @@ bits; `(nums-convert src dst [signed])` to and from numbers.
 	another, aligning to where it faces, hits between two by their masses,
 	a step of all of them, `docs/lisp/move.md`. A Nav or an app steers, a
 	Mover moves; no app moves a thing its own way, nor jumps it out of
-	another.
+	another. Their heavy parts are natives of `lib/physics/lisp.vp`, the
+	step, `move-step`, and the thinning of the sweep's pairs,
+	`collide-led-near`, each held by a test to the Lisp it took over: the
+	step in Lisp is kept as `:step_lisp`, and the pairs are checked against
+	every pair asked by hand.
 
 *	**`float`, `floats`:** 32 bit IEEE singles, a double's protocol at the
 	width of a GPU, worked in 32 bits. A `floats` element is 4 bytes.
@@ -536,6 +540,11 @@ bits; `(nums-convert src dst [signed])` to and from numbers.
 	matters. `(n2q x)` to fixed, `(n2d x)` to double, `(n2f x)` to the
 	nearest float. Each passes through a number already exactly of the
 	kind.
+
+*	**A real written `1.0` is a fixed,** and a vector takes an element's
+	bits as they are: `(doubles 1.0 2.5)` is `(0x10000 0x28000)`, two tiny
+	doubles near 0, not 1 and 2.5. A doubles is made of doubles, `(n2d 1)`
+	or `+double_1`; a test of a native given `1.0` tests nothing.
 
 ## Subsystems & Architecture Reference
 

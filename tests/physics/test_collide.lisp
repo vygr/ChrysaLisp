@@ -259,3 +259,66 @@
 (assert-eq "the zone met once in its 6" 1 (reduce (lambda (n ps) (+ n (length ps))) c_calls 0))
 (assert-eq "standing for 6" 6 (elem-get (some (# (if (nempty? %0) (first %0))) c_calls) 4))
 (assert-true "its centre the rock's" (eql (. c_w :centre c_zone) (. c_w :centre c_rock)))
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; the pairs, as every pair asked
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;the natives that let the most go, the sweep and collide-led-near, let go of
+;none that touch: a world that wraps, of balls of many sizes, boxes square
+;and turned, sensors, bodies met every few calls and big ones, its pairs of
+;many calls the same as those every pair of bodies asked gives, each its
+;leader due, of those whose masks share a bit, not both sensors, by their
+;bounds. The world's size and its cell, how many bodies, and their sizes
+(defq +c_side (n2d 100) +c_cell (n2d 8) +c_bodies 200 +c_least (n2d 0.5) +c_most (n2d 4) +c_big (n2d 9))
+
+(defun c-pairs-by-hand (w)
+	; (c-pairs-by-hand w) -> ((a b depth way stands) ...)
+	(defq out (list) call (get :call w) centres (get :centres w) everys (get :everys w) wrap (get :wrap w))
+	(each (lambda (ca)
+			(defq a (!))
+			(and ca (. w :due? a)
+				(each (lambda (cb)
+						(defq b (!))
+						(and cb (/= a b) (. w :leads? a b)
+							(/= 0 (logand (elem-get (get :masks w) a) (elem-get (get :masks w) b)))
+							(not (and (elem-get (get :sensors w) a) (elem-get (get :sensors w) b)))
+							(defq lo (min a b) hi (max a b)
+								m (collide-meet (elem-get (get :bounds w) lo) (elem-get (get :turns w) lo)
+									(elem-get (get :bounds w) hi) (elem-get (get :turns w) hi)
+									(collide-near-of (nums-sub (elem-get centres hi) (elem-get centres lo)) wrap)))
+							(push out (cat (list lo hi) m (list (elem-get everys a))))))
+					centres)))
+		centres)
+	(def w :call (inc call))
+	out)
+
+(defq c_w (Collide +c_cell (doubles +c_side +c_side +c_side)) r (lambda (k) (abs (sin (n2d (* k 7919))))))
+(each! (lambda ()
+		(defq i (!) at (doubles (* +c_side (r i)) (* +c_side (r (+ i 1000))) (* +c_side (r (+ i 2000))))
+			size (+ +c_least (* (- +c_most +c_least) (r (+ i 3000)))))
+		(defq id (. c_w :add at
+			(cond
+				((= (% i 17) 0) (list :sphere +c_big))
+				((= (% i 5) 0) (list :box size (* size (r (+ i 4000))) size))
+				((list :sphere size)))
+			(if (= (% i 11) 0) 2 1) (= (% i 13) 0) (if (= (% i 7) 0) c_eighth)))
+		(if (= (% i 3) 0) (. c_w :every id 2))
+		(if (= (% i 19) 0) (. c_w :every id 3)))
+	'() 0 +c_bodies)
+(defq c_sorted (lambda (ps) (sort (map (# (str (slice %0 0 3) (elem-get %0 4))) ps) (const cmp))))
+(assert-true "the pairs of six calls, every pair asked"
+	(every (lambda (_)
+			(defq mine (c_sorted (. c_w :pairs)))
+			(def c_w :call (dec (get :call c_w)))
+			(and (nempty? mine) (eql (str mine) (str (c_sorted (c-pairs-by-hand c_w))))))
+		(list 0 1 2 3 4 5)))
+(defq c_ranks (get :flat_ranks c_w))
+(assert-true "the ranks lead as :leads? does, every pair"
+	(every (lambda (_)
+			(defq a (!))
+			(every (lambda (_)
+					(defq b (!))
+					(or (= a b) (eql (. c_w :leads? a b) (< (elem-get c_ranks a) (elem-get c_ranks b)))))
+				c_ranks))
+		c_ranks))

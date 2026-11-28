@@ -334,7 +334,10 @@
 	(vp-load-rcr iter_begin (* +ptr_size 2) :r3)
 	(vp-load-rcr iter_begin (* +ptr_size 3) :r4)
 	(assign '((:r4 +num_value)) '(:r4))
+	;this kept over the sweep, which may have every register to :r9
+	(vp-push this)
 	(call :doubles :box_near `(,dst ,centres ,sizes :r3 :r4) `(,dst))
+	(vp-pop this)
 
 	(exit :doubles :lisp_box_near `(,this ,dst))
 	(vp-ret)

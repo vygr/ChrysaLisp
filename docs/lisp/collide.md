@@ -103,6 +103,16 @@ centres as they are each call, so a body moved in place is seen at once. A
 region and a ray still look in the grid, so after moving bodies in place an
 app calls `(. world :refile)`.
 
+What the sweep finds a second native thins, `(collide-led-near centres
+reaches ranks wrap body hits)`, `lib/physics/lisp.vp`: the bodies the body
+does not lead, each pair being met once, by its leader, and the balls
+clearly apart from it, if it is a ball. The library keeps each body's
+reach, if it is a ball, and its rank, one number that is less for the body
+that leads, as `(:leads?)` says. A pair is let go of there only when the
+bounds would not meet, by a billionth more than its reaches, so what is
+met is the same as with no native; a test holds it to that, every pair
+asked by hand.
+
 A pair whose boxes meet is tested by its bounds: balls by their distance, a
 ball and a box in the box's own frame, boxes by the fifteen ways that could
 part them.
@@ -119,5 +129,7 @@ and how fast is the app's choice for its own shapes.
 ## Tasks and Speed
 
 The library knows nothing of tasks, and its bodies are data. The work that
-is heavy, the pairs of the cells, the regions, the rays, is in a few places
-here, so it can be made VP natives later without an app changing.
+is heavy is in a few places here, so it can be made VP natives without an
+app changing: the sweep and its thinning are, the tests of the bounds, the
+regions and the rays are Lisp. Space's 450 rocks are met in 0.3ms a frame
+on an M4, and in 3.6ms on a Pi 4.

@@ -116,3 +116,53 @@
 (assert-true "carried along by its flow" (m_near (. m :velocity m_a) (m_at 3 0 0) (n2d 0.1)))
 (assert-true "or the mover's of where it is" (m_near (. m :velocity m_b) (m_at 0 0 -2) (n2d 0.1)))
 (assert-true "falling" (m_near (. m :velocity m_c) (m_at 0 -20 0) (n2d 0.01)))
+
+;the step in VP gives what the step in Lisp does, to the bit: two movers made
+;alike, every number a body has in use among them, a flow function, a body
+;kinematic and one removed, stepped by each and every double the same. The
+;middle of the box and how far round it, how fast, the least rate and its
+;spread, a take and a mass, a kick, a follow rate, a way faced and how fast,
+;gravity, a drag, a flow and a flow function's, a top
+(defq +m_mid (n2d 50) +m_spread (n2d 49) +m_fast (n2d 30) +m_rate_least +double_2 +m_rate_spread +double_8
+	+m_take (n2d 5) +m_mass +double_3 +m_kick_x +double_4 +m_kick_z (n2d -2) +m_follow +double_4
+	+m_face (doubles (n2d 0.6) (n2d 0.8) +double_0) +m_align +double_3
+	+m_gravity (doubles +double_0 (n2d -9.8) +double_1) +m_drag (n2d 1.5)
+	+m_flow (doubles +double_3 +double_0 +double_-1) +m_flow_x (n2d 0.01) +m_flow_z +double_1/2 +m_top (n2d 5))
+
+(defun m-world ()
+	; (m-world) -> mover
+	(defq m (Mover (m_at 100 100 100)) r (lambda (k) (sin (n2d (* k 7919)))))
+	(each! (lambda ()
+			(defq i (!) id (. m :add (doubles (+ +m_mid (* +m_spread (r i))) (+ +m_mid (* +m_spread (r (+ i 1000))))
+						(+ +m_mid (* +m_spread (r (+ i 2000)))))
+					(doubles (* +m_fast (r (+ i 3000))) (* +m_fast (r (+ i 4000))) (* +m_fast (r (+ i 5000))))
+					(if (= (% i 3) 1) (doubles (r (+ i 6000)) (r (+ i 7000)) (r (+ i 8000)) +double_1 +double_0 +double_0 +double_0))
+					(doubles (r (+ i 9000)) (r (+ i 9100)) (r (+ i 9200)))))
+			(. m :set id :rate (+ +m_rate_least (* +m_rate_spread (abs (r (+ i 9300))))))
+			(when (= (% i 2) 0)
+				(. m :set id :take +m_take :mass +m_mass)
+				(. m :impulse id (doubles +m_kick_x (r i) +m_kick_z)))
+			(and (= (% i 3) 0) (> i 0) (. m :set id :follows (dec i) :follow_rate (if (= (% i 9) 0) +double_0 +m_follow)))
+			(when (= (% i 4) 0)
+				(. m :face id +m_face)
+				(. m :set id :align +m_align))
+			(if (= (% i 5) 0) (. m :set id :accel +m_gravity))
+			(if (= (% i 6) 0) (. m :set id :drag +m_drag :flow +m_flow))
+			(if (= (% i 6) 1) (. m :set id :drag +double_2))
+			(if (= (% i 7) 0) (. m :set id :top +m_top))
+			(if (= i 11) (. m :set id :kinematic :t))
+			(. m :spin id (doubles (r (+ i 9400)) +double_0 +double_0)))
+		'() 0 60)
+	(. m :remove 13)
+	(def m :flow_fn (lambda (p) (doubles (* (first p) +m_flow_x) +double_0 +m_flow_z)))
+	m)
+
+(defq m_v (m-world) m_l (m-world))
+(times 240 (. m_v :step +m_dt) (. m_l :step_lisp +m_dt))
+(assert-true "the VP step gives the Lisp's, every double"
+	(every (lambda (key)
+			(every (lambda (a b) (if a (eql a b) (not b))) (get key m_v) (get key m_l)))
+		'(:places :vels :shoves :kicks :spins)))
+(assert-true "and they went somewhere" (not (eql (. m_v :place 0) (. (m-world) :place 0))))
+(assert-error "a part of a body not a doubles" (progn (. m_v :set 2 :accel (list 1 2 3)) (. m_v :step +m_dt))
+	{(move-step dt wrap})
