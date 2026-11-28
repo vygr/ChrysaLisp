@@ -206,12 +206,13 @@
 	'("(1) eqlist: (eql) of a quoted list with a str or a list in it, those are never the same objects as another's, compare (str ) of each"
 		"(2) eqlist: (nql) of a quoted list with a str or a list in it, those are never the same objects as another's, compare (str ) of each")
 	(tt-check "eqlist" "(eql got '(({monday} 2)))" "(nql got '({a}))" "(eql got '(2 0))" "(eql got '(a :b))" "(eql got '())" "(eql got 'a)"))
-(assert-list-eq "index: (elem-get x (!)) in an iterator's function; not of one it makes, nor one whose length it looks at, nor (inc (!)), and of a nested one its own"
+(assert-list-eq "index: (elem-get x (!)) in an iterator's function; not of one it makes, nor one whose length it looks at, nor (inc (!)), and of a nested one its own; a quoted table written with its '"
 	'("(1) index: (elem-get bs (!)) in the function of (each), give bs to it beside the others, (each (lambda (... e) ...) ... bs)"
-		"(5) index: (elem-get bs (!)) in the function of (each), give bs to it beside the others, (each (lambda (... e) ...) ... bs)")
+		"(5) index: (elem-get bs (!)) in the function of (each), give bs to it beside the others, (each (lambda (... e) ...) ... bs)"
+		"(6) index: (elem-get '(:d7 :d8) (!)) in the function of (each), give '(:d7 :d8) to it beside the others, (each (lambda (... e) ...) ... '(:d7 :d8))")
 	(tt-check "index" "(each (lambda (a) (print (elem-get bs (!)))) as)" "(each (lambda (a) (defq ev (g a)) (elem-get ev (!))) as)"
 		"(each (# (and (< (!) (length bs)) (elem-get bs (!)))) as)" "(map (# (+ %0 (elem-get bs (inc (!))))) as)"
-		"(each (# (each (# (elem-get bs (!))) cs)) as)"))
+		"(each (# (each (# (elem-get bs (!))) cs)) as)" "(each (lambda ((a b)) (defq to (elem-get '(:d7 :d8) (!))) (list a b to)) as)"))
 (assert-list-eq "collect: (defq out (list)) then an (each) to (push out x); not to a list with things in it, nor a push of two"
 	'("(3) collect: (defq out (list)) then (each) to (push out x), it is (defq out (map ... as))")
 	(tt-check "collect" "(defun f (as)" "	(defq out (list))" "	(each (# (push out (g %0))) as)" "	(defq todo (list 1))"

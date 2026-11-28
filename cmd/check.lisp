@@ -905,7 +905,10 @@
 	(when (and (find head +iterators) (> (length forms) 2) (defq body (iter-body (second forms))))
 		(defq bound (bound-in (second forms)) text (tree-text (second forms)))
 		(each (lambda (node)
-				(defq what (second (forms-of (third node))) x (tree-text what))
+				;a quoted list, a table, is (:quoted line node), which the
+				;tree does not write, its node is written after its '
+				(defq what (second (forms-of (third node)))
+					x (if (eql (first what) :quoted) (cat "'" (tree-text (third what))) (tree-text what)))
 				;one it may be shorter than, a (length) of it looked at, is not
 				(unless (or (and (eql (first what) :symbol) (. bound :find x)) (found? text (cat "(length " x ")")))
 					(found file node "index" "(elem-get " x " (!)) in the function of (" head
